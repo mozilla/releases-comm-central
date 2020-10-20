@@ -514,10 +514,7 @@ class AddrBookDirectory {
       return;
     }
     if (!query) {
-      listener.onSearchFinished(
-        Ci.nsIAbDirectoryQueryResultListener.queryResultStopped,
-        "No query specified."
-      );
+      listener.onSearchFinished(Cr.NS_ERROR_FAILURE, null);
       return;
     }
     if (query[0] == "?") {
@@ -640,10 +637,7 @@ class AddrBookDirectory {
     for (let card of results) {
       listener.onSearchFoundCard(card);
     }
-    listener.onSearchFinished(
-      Ci.nsIAbDirectoryQueryResultListener.queryResultComplete,
-      ""
-    );
+    listener.onSearchFinished(Cr.NS_OK, null);
   }
   generateName(generateFormat, bundle) {
     return this.dirName;

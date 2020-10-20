@@ -201,7 +201,7 @@ NS_IMETHODIMP nsAbDirectoryQuery::DoQuery(
 
   rv = query(aDirectory, expression, listener, doSubDirectories, &resultLimit);
 
-  rv = NS_FAILED(rv) ? queryError(listener) : queryFinished(listener);
+  rv = listener->OnSearchFinished(rv, nullptr);
 
   *_retval = 0;
   return rv;
@@ -302,7 +302,7 @@ nsresult nsAbDirectoryQuery::matchCard(nsIAbCard* card,
 
   if (matchFound) {
     (*resultLimit)--;
-    rv = queryMatch(card, listener);
+    rv = listener->OnSearchFoundCard(card);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -444,19 +444,4 @@ nsresult nsAbDirectoryQuery::matchCardCondition(
   }
 
   return rv;
-}
-
-nsresult nsAbDirectoryQuery::queryMatch(nsIAbCard* card,
-                                        nsIAbDirSearchListener* listener) {
-  return listener->OnSearchFoundCard(card);
-}
-
-nsresult nsAbDirectoryQuery::queryFinished(nsIAbDirSearchListener* listener) {
-  return listener->OnSearchFinished(
-      nsIAbDirectoryQueryResultListener::queryResultComplete, EmptyString());
-}
-
-nsresult nsAbDirectoryQuery::queryError(nsIAbDirSearchListener* listener) {
-  return listener->OnSearchFinished(
-      nsIAbDirectoryQueryResultListener::queryResultError, EmptyString());
 }

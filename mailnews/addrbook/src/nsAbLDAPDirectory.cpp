@@ -221,7 +221,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString& query,
 
     // If there is no fileName, bail out now.
     if (fileName.IsEmpty()) {
-      listener->OnSearchFinished(1, EmptyString());
+      listener->OnSearchFinished(NS_OK, nullptr);
       return NS_OK;
     }
 

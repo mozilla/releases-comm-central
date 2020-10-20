@@ -238,7 +238,7 @@ AbAutoCompleteSearch.prototype = {
             }
           }
         },
-        onSearchFinished(result, errorMsg) {
+        onSearchFinished(status, secInfo) {
           resolve();
         },
       });

@@ -885,8 +885,8 @@ nsresult nsAbOutlookDirectory::StopSearch(void) {
 }
 
 // nsIAbDirSearchListener
-NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFinished(
-    int32_t aResult, const nsAString& aErrorMsg) {
+NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFinished(nsresult status,
+                                                     nsISupports* secInfo) {
   return NS_OK;
 }
 
@@ -933,8 +933,7 @@ nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction& aRestriction,
 
   mQueryThreads.Remove(aThreadId);
 
-  aListener->OnSearchFinished(
-      nsIAbDirectoryQueryResultListener::queryResultComplete, EmptyString());
+  aListener->OnSearchFinished(NS_OK, nullptr);
   return retCode;
 }
 
@@ -1329,15 +1328,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard* aModifiedCard) {
   }
 
   return retCode;
-}
-
-NS_IMETHODIMP nsAbOutlookDirectory::OnQueryFoundCard(nsIAbCard* aCard) {
-  return OnSearchFoundCard(aCard);
-}
-
-NS_IMETHODIMP nsAbOutlookDirectory::OnQueryResult(int32_t aResult,
-                                                  int32_t aErrorCode) {
-  return OnSearchFinished(aResult, EmptyString());
 }
 
 NS_IMETHODIMP nsAbOutlookDirectory::UseForAutocomplete(

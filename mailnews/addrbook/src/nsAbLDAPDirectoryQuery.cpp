@@ -34,13 +34,14 @@ class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase {
   // without any search params or return attributes specified. The searchUrl
   // therefore has the search params and return attributes specified.
   //  nsAbQueryLDAPMessageListener(nsIAbDirectoryQuery* directoryQuery,
-  nsAbQueryLDAPMessageListener(
-      nsIAbDirectoryQueryResultListener* resultListener,
-      nsILDAPURL* directoryUrl, nsILDAPURL* searchUrl,
-      nsILDAPConnection* connection,
-      nsIAbDirectoryQueryArguments* queryArguments, const nsACString& login,
-      const nsACString& mechanism, const int32_t resultLimit = -1,
-      const int32_t timeOut = 0);
+  nsAbQueryLDAPMessageListener(nsIAbDirSearchListener* resultListener,
+                               nsILDAPURL* directoryUrl, nsILDAPURL* searchUrl,
+                               nsILDAPConnection* connection,
+                               nsIAbDirectoryQueryArguments* queryArguments,
+                               const nsACString& login,
+                               const nsACString& mechanism,
+                               const int32_t resultLimit = -1,
+                               const int32_t timeOut = 0);
 
   // nsILDAPMessageListener
   NS_IMETHOD OnLDAPMessage(nsILDAPMessage* aMessage) override;
@@ -58,7 +59,7 @@ class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase {
   virtual void InitFailed(bool aCancelled = false) override;
 
   nsCOMPtr<nsILDAPURL> mSearchUrl;
-  nsIAbDirectoryQueryResultListener* mResultListener;
+  nsCOMPtr<nsIAbDirSearchListener> mResultListener;
   nsCOMPtr<nsIAbDirectoryQueryArguments> mQueryArguments;
   int32_t mResultLimit;
 
@@ -69,7 +70,7 @@ class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase {
 NS_IMPL_ISUPPORTS(nsAbQueryLDAPMessageListener, nsILDAPMessageListener)
 
 nsAbQueryLDAPMessageListener::nsAbQueryLDAPMessageListener(
-    nsIAbDirectoryQueryResultListener* resultListener, nsILDAPURL* directoryUrl,
+    nsIAbDirSearchListener* resultListener, nsILDAPURL* directoryUrl,
     nsILDAPURL* searchUrl, nsILDAPConnection* connection,
     nsIAbDirectoryQueryArguments* queryArguments, const nsACString& login,
     const nsACString& mechanism, const int32_t resultLimit,
@@ -101,9 +102,7 @@ nsresult nsAbQueryLDAPMessageListener::Cancel() {
 NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPError(nsresult status,
                                                         nsISupports* secInfo) {
   if (mResultListener) {
-    mResultListener->OnQueryResult(
-        nsIAbDirectoryQueryResultListener::queryResultError,
-        nsILDAPErrors::OTHER);
+    mResultListener->OnSearchFinished(status, secInfo);
   }
   return NS_OK;
 }
@@ -169,9 +168,9 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(
     }
   } else {
     if (mOperation) rv = mOperation->AbandonExt();
+    NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = mResultListener->OnQueryResult(
-        nsIAbDirectoryQueryResultListener::queryResultStopped, 0);
+    rv = mResultListener->OnSearchFinished(NS_ERROR_ABORT, nullptr);
 
     // reset because we might re-use this listener...except don't do this
     // until the search is done, so we'll ignore results from a previous
@@ -218,12 +217,11 @@ nsresult nsAbQueryLDAPMessageListener::DoTask() {
 void nsAbQueryLDAPMessageListener::InitFailed(bool aCancelled) {
   if (!mResultListener) return;
 
-  // In the !aCancelled case we know there was an error, but we won't be
-  // able to translate it, so just return an error code of zero.
-  mResultListener->OnQueryResult(
-      aCancelled ? nsIAbDirectoryQueryResultListener::queryResultStopped
-                 : nsIAbDirectoryQueryResultListener::queryResultError,
-      0);
+  if (aCancelled) {
+    mResultListener->OnSearchFinished(NS_ERROR_ABORT, nullptr);
+  } else {
+    mResultListener->OnSearchFinished(NS_ERROR_FAILURE, nullptr);
+  }
 }
 
 nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchEntry(
@@ -247,7 +245,7 @@ nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchEntry(
   rv = map->SetCardPropertiesFromLDAPMessage(aMessage, card);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return mResultListener->OnQueryFoundCard(card);
+  return mResultListener->OnSearchFoundCard(card);
 }
 
 nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchResult(
@@ -257,18 +255,17 @@ nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchResult(
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (errorCode == nsILDAPErrors::SUCCESS ||
-      errorCode == nsILDAPErrors::SIZELIMIT_EXCEEDED)
-    return mResultListener->OnQueryResult(
-        nsIAbDirectoryQueryResultListener::queryResultComplete, 0);
+      errorCode == nsILDAPErrors::SIZELIMIT_EXCEEDED) {
+    return mResultListener->OnSearchFinished(NS_OK, nullptr);
+  }
 
-  return mResultListener->OnQueryResult(
-      nsIAbDirectoryQueryResultListener::queryResultError, errorCode);
+  return mResultListener->OnSearchFinished(NS_ERROR_FAILURE, nullptr);
 }
 
 // nsAbLDAPDirectoryQuery
 
 NS_IMPL_ISUPPORTS(nsAbLDAPDirectoryQuery, nsIAbDirectoryQuery,
-                  nsIAbDirectoryQueryResultListener)
+                  nsIAbDirSearchListener)
 
 nsAbLDAPDirectoryQuery::nsAbLDAPDirectoryQuery() : mInitialized(false) {}
 
@@ -479,7 +476,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(
   mConnection = do_CreateInstance(NS_LDAPCONNECTION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIAbDirectoryQueryResultListener> resultListener =
+  nsCOMPtr<nsIAbDirSearchListener> resultListener =
       do_QueryInterface((nsIAbDirectoryQuery*)this, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -516,7 +513,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::StopQuery(int32_t contextID) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnQueryFoundCard(nsIAbCard* aCard) {
+NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnSearchFoundCard(nsIAbCard* aCard) {
   aCard->SetDirectoryUID(mDirectoryUID);
 
   for (int32_t i = 0; i < mListeners.Count(); ++i)
@@ -525,8 +522,8 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnQueryFoundCard(nsIAbCard* aCard) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnQueryResult(int32_t aResult,
-                                                    int32_t aErrorCode) {
+NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnSearchFinished(nsresult status,
+                                                       nsISupports* secInfo) {
   uint32_t count = mListeners.Count();
 
   // XXX: Temporary fix for crasher needs reviewing as part of bug 135231.
@@ -535,7 +532,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnQueryResult(int32_t aResult,
   NS_ADDREF_THIS();
 
   for (int32_t i = count - 1; i >= 0; --i) {
-    mListeners[i]->OnSearchFinished(aResult, EmptyString());
+    mListeners[i]->OnSearchFinished(status, secInfo);
     mListeners.RemoveObjectAt(i);
   }
 

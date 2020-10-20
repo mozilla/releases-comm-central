@@ -19,12 +19,10 @@ struct nsMapiEntry;
 
 class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
                              public nsIAbDirectoryQuery,
-                             public nsIAbDirSearchListener,
-                             public nsIAbDirectoryQueryResultListener {
+                             public nsIAbDirSearchListener {
  public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIABDIRSEARCHLISTENER
-  NS_DECL_NSIABDIRECTORYQUERYRESULTLISTENER
 
   nsAbOutlookDirectory(void);
 

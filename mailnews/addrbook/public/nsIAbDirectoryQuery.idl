@@ -84,37 +84,6 @@ interface nsIAbDirectoryQueryPropertyValue : nsISupports
     readonly attribute nsISupports valueISupports;
 };
 
-[scriptable, uuid(516e7ffa-69bc-41db-a493-dfb4895832f3)]
-interface nsIAbDirectoryQueryResultListener : nsISupports
-{
-    /**
-     * Called when a match is found. May be called from a different thread to
-     * the one that initiates the query.
-     *
-     * @param aCard An individual result associated returned from a query
-     */
-    void onQueryFoundCard(in nsIAbCard aCard);
-
-    /**
-     * List of defined query results
-     *
-     */
-    const long queryResultMatch    = 0;
-    const long queryResultComplete = 1;
-    const long queryResultStopped  = 2;
-    const long queryResultError    = 3;
-
-    /**
-     * Called when a query has finished. May be called from a different thread
-     * to the one that initiates the query.
-     *
-     * @param aResult    A result code from the list above.
-     *
-     * @param aErrorCode An error code specific to the type of query.
-     */
-    void onQueryResult(in long aResult, in long aErrorCode);
-};
-
 [scriptable, uuid(60b5961c-ce61-47b3-aa99-6d865f734dee)]
 interface nsIAbDirectoryQuery : nsISupports
 {
@@ -149,7 +118,7 @@ interface nsIAbDirectoryQuery : nsISupports
      * Stops an existing query operation if
      * query operation is asynchronous
      *
-     * The nsIAbDirectoryQueryResultListener will
+     * The nsIAbDirSearchListener will
      * be notified when query has stopped
      *
      * It is implementation specific if notification

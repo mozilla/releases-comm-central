@@ -40,7 +40,7 @@ add_task(async () => {
         onSearchFoundCard(card) {
           this.cards.push(card);
         },
-        onSearchFinished(result, errorMessage) {
+        onSearchFinished(status, secInfo) {
           resolve(this.cards);
         },
       };

@@ -91,10 +91,6 @@ class nsAbDirectoryQuery : public nsIAbDirectoryQuery {
   nsresult matchCardCondition(nsIAbCard* card,
                               nsIAbBooleanConditionString* condition,
                               bool* matchFound);
-
-  nsresult queryMatch(nsIAbCard* card, nsIAbDirSearchListener* listener);
-  nsresult queryFinished(nsIAbDirSearchListener* listener);
-  nsresult queryError(nsIAbDirSearchListener* listener);
 };
 
 #endif

@@ -169,7 +169,10 @@ ABView.prototype = {
     // Instead of duplicating the insertion code below, just call it.
     this.observe(card, "addrbook-contact-created", this.directory?.UID);
   },
-  onSearchFinished(result, errorMsg) {},
+  onSearchFinished(status, secInfo) {
+    // TODO (Bug 1659947): if certificate error, give the user the option
+    // to add the failed certificate (available in secInfo) as an exception.
+  },
 
   // nsIObserver
 

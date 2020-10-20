@@ -581,7 +581,7 @@ this.addressBook = class extends ExtensionAPI {
             promises.push(
               new Promise(resolve => {
                 book.item.search(searchQuery, {
-                  onSearchFinished(result, errorMsg) {
+                  onSearchFinished(status, secInfo) {
                     resolve();
                   },
                   onSearchFoundCard(contact) {

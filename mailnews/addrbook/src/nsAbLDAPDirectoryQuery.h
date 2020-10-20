@@ -7,6 +7,7 @@
 #define nsAbLDAPDirectoryQuery_h__
 
 #include "nsIAbDirectoryQuery.h"
+#include "nsIAbDirSearchListener.h"
 #include "nsILDAPConnection.h"
 #include "nsILDAPMessageListener.h"
 #include "nsILDAPURL.h"
@@ -16,11 +17,11 @@
 #include "nsCOMArray.h"
 
 class nsAbLDAPDirectoryQuery : public nsIAbDirectoryQuery,
-                               public nsIAbDirectoryQueryResultListener {
+                               public nsIAbDirSearchListener {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIABDIRECTORYQUERY
-  NS_DECL_NSIABDIRECTORYQUERYRESULTLISTENER
+  NS_DECL_NSIABDIRSEARCHLISTENER
 
   nsAbLDAPDirectoryQuery();
 
