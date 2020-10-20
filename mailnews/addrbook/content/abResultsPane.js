@@ -119,7 +119,10 @@ function SetAbView(aURI, aSearchQuery) {
 }
 
 function CloseAbView() {
-  gAbView = gAbResultsTree.view = null;
+  gAbView = null;
+  if (gAbResultsTree) {
+    gAbResultsTree.view = null;
+  }
 }
 
 function GetOneOrMoreCardsSelected() {

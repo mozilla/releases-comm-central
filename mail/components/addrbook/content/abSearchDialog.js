@@ -129,26 +129,27 @@ function onAbSearchReset(event) {
 }
 
 function SelectDirectory(aURI) {
-  var selectedAB = aURI;
-
-  if (!selectedAB) {
-    selectedAB = kPersonalAddressbookURI;
-  }
-
   // set popup with address book names
-  var abPopup = document.getElementById("abPopup");
+  let abPopup = document.getElementById("abPopup");
   if (abPopup) {
-    abPopup.value = selectedAB;
+    if (aURI) {
+      abPopup.value = aURI;
+    } else {
+      abPopup.selectedIndex = 0;
+    }
   }
 
-  setSearchScope(GetScopeForDirectoryURI(selectedAB));
+  setSearchScope(GetScopeForDirectoryURI(aURI));
 }
 
 function GetScopeForDirectoryURI(aURI) {
-  var directory = MailServices.ab.getDirectory(aURI);
-  var booleanAnd = gSearchBooleanRadiogroup.selectedItem.value == "and";
+  let directory;
+  if (aURI && aURI != "moz-abdirectory://?") {
+    directory = MailServices.ab.getDirectory(aURI);
+  }
+  let booleanAnd = gSearchBooleanRadiogroup.selectedItem.value == "and";
 
-  if (directory.isRemote) {
+  if (directory?.isRemote) {
     if (booleanAnd) {
       return nsMsgSearchScope.LDAPAnd;
     }
@@ -187,7 +188,7 @@ function onSearch() {
   gSearchSession.addDirectoryScopeTerm(GetScopeForDirectoryURI(currentAbURI));
   saveSearchTerms(gSearchSession.searchTerms, gSearchSession);
 
-  var searchUri = currentAbURI + "?(";
+  let searchUri = "?(";
   for (let i = 0; i < gSearchSession.searchTerms.length; i++) {
     let searchTerm = gSearchSession.searchTerms.queryElementAt(
       i,
@@ -334,7 +335,7 @@ function onSearch() {
   }
 
   searchUri += ")";
-  SetAbView(searchUri);
+  SetAbView(currentAbURI, searchUri);
 }
 
 // used to toggle functionality for Search/Stop button.
