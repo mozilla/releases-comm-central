@@ -752,6 +752,7 @@ nsBrowserAccess.prototype = {
 
     if (aWhere == nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
       let browser = PrintUtils.startPrintWindow(
+        "mailWindow",
         aOpenWindowInfo.parent,
         aOpenWindowInfo
       );

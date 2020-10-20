@@ -83,7 +83,7 @@ function setPPTitle(aTitle) {
 // Pref listener constants
 var gStartupPPObserver = {
   observe(subject, topic, prefName) {
-    PrintUtils.printPreview(PrintPreviewListener);
+    PrintUtils.printPreview("msgPrintEngine", PrintPreviewListener);
   },
 };
 

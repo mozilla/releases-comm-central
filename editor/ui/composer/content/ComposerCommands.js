@@ -2519,7 +2519,7 @@ var nsPrintPreviewCommand = {
     // In editor.js
     SetEditMode(gPreviousNonSourceDisplayMode);
     try {
-      PrintUtils.printPreview(PrintPreviewListener);
+      PrintUtils.printPreview("editor", PrintPreviewListener);
     } catch (e) {}
   },
 };
