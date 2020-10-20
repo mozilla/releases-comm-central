@@ -634,4 +634,3 @@ MozMillController.prototype.waitThenClick = function(elem, timeout, interval) {
   this.waitForElement(elem, timeout, interval);
   this.click(elem);
 };
-
