@@ -66,7 +66,7 @@ add_task(async function testBiweeklyRecurrence() {
     controller.waitForElement(
       lookupEventBox("multiweek", CANVAS_BOX, (i % 2) + 1, 7, null, EVENTPATH)
     );
-    controller.assertNode(lookupEventBox("multiweek", CANVAS_BOX, (i % 2) + 3, 7, null, EVENTPATH));
+    Assert.ok(lookupEventBox("multiweek", CANVAS_BOX, (i % 2) + 3, 7, null, EVENTPATH).exists());
     viewForward(controller, 1);
   }
 
@@ -80,12 +80,12 @@ add_task(async function testBiweeklyRecurrence() {
 
   // February
   controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 2, 7, null, EVENTPATH));
-  controller.assertNode(lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH));
+  Assert.ok(lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH).exists());
   viewForward(controller, 1);
 
   // March
   controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 2, 7, null, EVENTPATH));
-  controller.assertNode(lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH));
+  Assert.ok(lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH).exists());
 
   // Delete event.
   let box = lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH);

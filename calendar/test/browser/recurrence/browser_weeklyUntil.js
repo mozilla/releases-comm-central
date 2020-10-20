@@ -98,7 +98,7 @@ add_task(async function testWeeklyUntilRecurrence() {
   // Monday, last occurrence
   controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 2, null, EVENTPATH));
   // Wednesday
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 4, null, EVENTPATH));
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 4, null, EVENTPATH).exists());
 
   // Check multiweek view.
   switchToView(controller, "multiweek");
@@ -168,18 +168,16 @@ function checkMultiWeekView(view) {
     // Monday
     controller.waitForElement(lookupEventBox(view, CANVAS_BOX, week, 2, null, EVENTPATH));
     // Wednesday
-    controller.assertNode(lookupEventBox(view, CANVAS_BOX, week, 4, null, EVENTPATH));
+    Assert.ok(lookupEventBox(view, CANVAS_BOX, week, 4, null, EVENTPATH).exists());
     // Friday
-    controller.assertNode(lookupEventBox(view, CANVAS_BOX, week, 6, null, EVENTPATH));
+    Assert.ok(lookupEventBox(view, CANVAS_BOX, week, 6, null, EVENTPATH).exists());
   }
 
   // Monday, last occurrence
-  controller.assertNode(lookupEventBox(view, CANVAS_BOX, startWeek + 3, 2, null, EVENTPATH));
+  Assert.ok(lookupEventBox(view, CANVAS_BOX, startWeek + 3, 2, null, EVENTPATH).exists());
 
   // Wednesday
-  controller.assertNodeNotExist(
-    lookupEventBox(view, CANVAS_BOX, startWeek + 3, 4, null, EVENTPATH)
-  );
+  Assert.ok(!lookupEventBox(view, CANVAS_BOX, startWeek + 3, 4, null, EVENTPATH).exists());
 }
 
 registerCleanupFunction(function teardownModule() {

@@ -890,31 +890,3 @@ MozMillController.prototype.assertText = function(el, text) {
     "could not validate element " + el.getInfo() + " with text " + text
   );
 };
-
-// Assert that a specified node exists
-MozMillController.prototype.assertNode = function(el) {
-  // this.window.focus();
-  var element = el.getNode();
-  if (!element) {
-    throw new Error("could not find element " + el.getInfo());
-  }
-  frame.events.pass({ function: "Controller.assertNode()" });
-  return true;
-};
-
-// Assert that a specified node doesn't exist
-MozMillController.prototype.assertNodeNotExist = function(el) {
-  // this.window.focus();
-  try {
-    var element = el.getNode();
-  } catch (err) {
-    frame.events.pass({ function: "Controller.assertNodeNotExist()" });
-    return true;
-  }
-
-  if (element) {
-    throw new Error("Unexpectedly found element " + el.getInfo());
-  }
-  frame.events.pass({ function: "Controller.assertNodeNotExist()" });
-  return true;
-};

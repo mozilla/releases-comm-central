@@ -9,12 +9,5 @@ var { mc } = ChromeUtils.import(
 );
 
 add_task(function test_messagepane_extension_points_exist() {
-  mc.assertNode(mc.eid("messagepanewrapper"));
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
+  Assert.ok(mc.eid("messagepanewrapper").exists());
 });

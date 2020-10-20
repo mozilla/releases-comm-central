@@ -65,7 +65,7 @@ add_task(function setupModule(module) {
   // Add the view picker to the toolbar
   let toolbar = mc.e("mail-bar3");
   toolbar.insertItem("mailviews-container", null);
-  mc.assertNode(mc.eid("mailviews-container"));
+  Assert.ok(mc.eid("mailviews-container").exists());
 });
 
 // Check whether this message is displayed in the folder tab

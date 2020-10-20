@@ -143,11 +143,11 @@ add_task(async function testEventDialog() {
 
     // Add attachment and verify added.
     event.click(iframeId("event-grid-tab-attachments"));
-    event.assertNode(
+    Assert.ok(
       iframeLookup(`
             ${EVENT_TABPANELS}/id("event-grid-tabpanel-attachments")/{"flex":"1"}/
             id("attachment-link")/[0]/{"value":"mozilla.org"}
-        `)
+        `).exists()
     );
 
     // save
@@ -171,7 +171,7 @@ add_task(async function testEventDialog() {
       checkTooltip(row, col, startTime, endTime);
     }
   }
-  controller.assertNodeNotExist(lookupEventBox("month", EVENT_BOX, 4, 1, null, EVENTPATH));
+  Assert.ok(!lookupEventBox("month", EVENT_BOX, 4, 1, null, EVENTPATH).exists());
 
   // Delete and verify deleted 6th col in row 1.
   controller.click(lookupEventBox("month", CANVAS_BOX, 1, 6, null, EVENTPATH));
@@ -181,13 +181,13 @@ add_task(async function testEventDialog() {
 
   // Verify all others still exist.
   for (let col = 1; col <= 5; col++) {
-    controller.assertNode(lookupEventBox("month", CANVAS_BOX, 1, col, null, EVENTPATH));
+    Assert.ok(lookupEventBox("month", CANVAS_BOX, 1, col, null, EVENTPATH).exists());
   }
-  controller.assertNode(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH));
+  Assert.ok(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH).getNode());
 
   for (let row = 2; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      controller.assertNode(lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH));
+      Assert.ok(lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH).exists());
     }
   }
 

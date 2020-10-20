@@ -77,7 +77,7 @@ add_task(async function testWeeklyNRecurrence() {
   }
 
   // Saturday
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH));
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH).exists());
 
   // Check multiweek view.
   switchToView(controller, "multiweek");
@@ -133,11 +133,11 @@ function checkMultiWeekView(view) {
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {
-    controller.assertNode(lookupEventBox(view, CANVAS_BOX, week, i, null, EVENTPATH));
+    Assert.ok(lookupEventBox(view, CANVAS_BOX, week, i, null, EVENTPATH).exists());
   }
 
   // Saturday
-  controller.assertNodeNotExist(lookupEventBox(view, CANVAS_BOX, week, 7, null, EVENTPATH));
+  Assert.ok(!lookupEventBox(view, CANVAS_BOX, week, 7, null, EVENTPATH).exists());
 }
 
 registerCleanupFunction(function teardownModule() {

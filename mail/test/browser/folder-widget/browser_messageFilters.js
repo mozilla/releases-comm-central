@@ -71,11 +71,11 @@ add_task(function test_message_filter_shows_newsgroup_server() {
   wait_for_window_focused(filterc.window);
 
   let popup = filterc.eid("serverMenuPopup");
-  filterc.assertNode(popup);
+  Assert.ok(popup.exists());
   filterc.click(popup);
 
   let nntp = new elib.Elem(popup.node.children.item(2));
-  filterc.assertNode(nntp);
+  Assert.ok(nntp.exists());
   // We need to get the newsgroups to pop up somehow.
   // These all fail.
   // filterc.click(nntp);

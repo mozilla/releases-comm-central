@@ -40,7 +40,7 @@ add_task(function setupModule(module) {
 add_task(function test_put_view_picker_on_toolbar() {
   let toolbar = mc.e("mail-bar3");
   toolbar.insertItem("mailviews-container", null);
-  mc.assertNode(mc.eid("mailviews-container"));
+  Assert.ok(mc.eid("mailviews-container").exists());
 });
 
 /**

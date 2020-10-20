@@ -52,6 +52,7 @@ const EXPORTED_SYMBOLS = [
 var elementslib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { MozMillController } = ChromeUtils.import("resource://testing-common/mozmill/controller.jsm");
+var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
   "resource://testing-common/mozmill/PrefTabHelpers.jsm"
 );
@@ -559,7 +560,7 @@ function getEventDetails(view) {
  */
 function checkAlarmIcon(controller, view, row, column) {
   let { lookupEventBox } = helpersForController(controller);
-  controller.assertNode(
+  Assert.ok(
     lookupEventBox(
       view,
       CANVAS_BOX,
@@ -569,7 +570,7 @@ function checkAlarmIcon(controller, view, row, column) {
       `
         ${EVENTPATH}/${getEventDetails([view])}/${ALARM_ICON_PATH}
     `
-    )
+    ).exists()
   );
 }
 

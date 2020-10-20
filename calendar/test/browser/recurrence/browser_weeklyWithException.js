@@ -108,8 +108,8 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Assert exactly two.
   controller.waitForElement(lookup(tuesPath.replace("eventIndex", "0") + EVENTPATH));
-  controller.assertNode(lookup(tuesPath.replace("eventIndex", "1") + EVENTPATH));
-  controller.assertNodeNotExist(lookup(tuesPath.replace("eventIndex", "2") + EVENTPATH));
+  Assert.ok(lookup(tuesPath.replace("eventIndex", "1") + EVENTPATH).exists());
+  Assert.ok(!lookup(tuesPath.replace("eventIndex", "2") + EVENTPATH).exists());
 
   viewForward(controller, 1);
   controller.waitForElement(path);
@@ -148,25 +148,25 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Assert exactly two.
   controller.waitForElement(lookup(tuesPath.replace("eventIndex", "0") + EVENTPATH));
-  controller.assertNode(lookup(tuesPath.replace("eventIndex", "1") + EVENTPATH));
-  controller.assertNodeNotExist(lookup(tuesPath.replace("eventIndex", "2") + EVENTPATH));
+  Assert.ok(lookup(tuesPath.replace("eventIndex", "1") + EVENTPATH).exists());
+  Assert.ok(!lookup(tuesPath.replace("eventIndex", "2") + EVENTPATH).exists());
 
   // Wait for the last occurrence because this appears last.
   controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 6, null));
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 1, null));
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 2, null));
-  controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 4, null));
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 5, null));
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, null));
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 1, null).exists());
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 2, null).exists());
+  Assert.ok(lookupEventBox("week", EVENT_BOX, null, 4, null).exists());
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 5, null).exists());
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null).exists());
 
   viewForward(controller, 1);
   controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 6, null));
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 1, null));
-  controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 2, null));
-  controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 3, null));
-  controller.assertNode(lookupEventBox("week", EVENT_BOX, null, 4, null));
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 5, null));
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, null));
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 1, null).exists());
+  Assert.ok(lookupEventBox("week", EVENT_BOX, null, 2, null).exists());
+  Assert.ok(lookupEventBox("week", EVENT_BOX, null, 3, null).exists());
+  Assert.ok(lookupEventBox("week", EVENT_BOX, null, 4, null).exists());
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 5, null).exists());
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null).exists());
 
   // multiweek view
   switchToView(controller, "multiweek");
@@ -239,10 +239,10 @@ function changeRecurrence(recurrence) {
 function checkMultiWeekView(view) {
   let startWeek = view == "multiweek" ? 1 : 2;
   let assertNodeLookup = (...args) => {
-    return controller.assertNode(lookupEventBox(...args));
+    return Assert.ok(lookupEventBox(...args).exists());
   };
   let assertNodeNotExistLookup = (...args) => {
-    return controller.assertNodeNotExist(lookupEventBox(...args));
+    return Assert.ok(!lookupEventBox(...args).exists());
   };
 
   // Wait for the first items, then check the ones not to be present.

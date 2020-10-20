@@ -40,12 +40,12 @@ add_task(function setupModule(module) {
 add_task(function test_add_folder_toolbar() {
   // It should not be present by default
   let folderLoc = mc.eid("locationFolders");
-  mc.assertNodeNotExist(folderLoc);
+  Assert.ok(!folderLoc.exists());
 
   // But it should show up when we call
   add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
   folderLoc = mc.eid("locationFolders");
-  mc.assertNode(folderLoc);
+  Assert.ok(folderLoc.exists());
 
   Assert.equal(
     !!folderLoc.node.label,
@@ -105,7 +105,7 @@ add_task(function test_folder_toolbar_disappears_on_message_tab() {
   add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
   be_in_folder(folderB);
   let folderLoc = mc.eid("locationFolders");
-  mc.assertNode(folderLoc);
+  Assert.ok(folderLoc.exists());
   Assert.equal(
     folderLoc.node.label,
     "FolderToolbarB",
@@ -131,5 +131,5 @@ add_task(function test_folder_toolbar_disappears_on_message_tab() {
 add_task(function test_remove_folder_toolbar() {
   remove_from_toolbar(mc.e("mail-bar3"), "folder-location-container");
 
-  mc.assertNodeNotExist(mc.eid("locationFolders"));
+  Assert.ok(!mc.eid("locationFolders").exists());
 });

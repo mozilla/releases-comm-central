@@ -94,7 +94,7 @@ add_task(async function testDailyRecurrence() {
 
   for (let week = 2; week <= 5; week++) {
     for (let day = 1; day <= 7; day++) {
-      controller.assertNode(lookupEventBox("month", CANVAS_BOX, week, day, null, EVENTPATH));
+      Assert.ok(lookupEventBox("month", CANVAS_BOX, week, day, null, EVENTPATH).exists());
     }
   }
 
@@ -107,13 +107,13 @@ add_task(async function testDailyRecurrence() {
   controller.waitForElementNotPresent(saturday);
 
   switchToView(controller, "multiweek");
-  controller.assertNodeNotExist(lookupEventBox("multiweek", CANVAS_BOX, 1, 7, null, EVENTPATH));
+  Assert.ok(!lookupEventBox("multiweek", CANVAS_BOX, 1, 7, null, EVENTPATH).exists());
 
   switchToView(controller, "week");
-  controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH));
+  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH).exists());
 
   switchToView(controller, "day");
-  controller.assertNodeNotExist(lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH));
+  Assert.ok(!lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH).exists());
 
   // Go to previous day to edit event to occur only on weekdays.
   viewBack(controller, 1);
@@ -140,7 +140,7 @@ add_task(async function testDailyRecurrence() {
   ];
   for (let [y, m, d] of dates) {
     goToDate(controller, y, m, d);
-    controller.assertNodeNotExist(day);
+    Assert.ok(!day.exists());
   }
 
   // Check week view for 2 weeks.
@@ -151,7 +151,7 @@ add_task(async function testDailyRecurrence() {
     controller.waitForElementNotPresent(
       lookupEventBox("week", EVENT_BOX, null, 1, null, EVENTPATH)
     );
-    controller.assertNodeNotExist(lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH));
+    Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH).exists());
     viewForward(controller, 1);
   }
 
@@ -163,7 +163,7 @@ add_task(async function testDailyRecurrence() {
     controller.waitForElementNotPresent(
       lookupEventBox("multiweek", CANVAS_BOX, i, 1, null, EVENTPATH)
     );
-    controller.assertNodeNotExist(lookupEventBox("multiweek", CANVAS_BOX, i, 7, null, EVENTPATH));
+    Assert.ok(!lookupEventBox("multiweek", CANVAS_BOX, i, 7, null, EVENTPATH).exists());
   }
 
   // Check month view for all 5 weeks.
@@ -172,7 +172,7 @@ add_task(async function testDailyRecurrence() {
 
   for (let i = 1; i <= 5; i++) {
     controller.waitForElementNotPresent(lookupEventBox("month", CANVAS_BOX, i, 1, null, EVENTPATH));
-    controller.assertNodeNotExist(lookupEventBox("month", CANVAS_BOX, i, 7, null, EVENTPATH));
+    Assert.ok(!lookupEventBox("month", CANVAS_BOX, i, 7, null, EVENTPATH).exists());
   }
 
   // Delete event.
