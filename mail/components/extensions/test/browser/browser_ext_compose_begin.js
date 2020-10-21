@@ -26,6 +26,8 @@ add_task(async function testIdentity() {
         { name: "beginNew", args: [] },
         { name: "beginReply", args: [messages[0].id] },
         { name: "beginForward", args: [messages[1].id, "forwardAsAttachment"] },
+        // Uses a different code path.
+        { name: "beginForward", args: [messages[2].id, "forwardInline"] },
       ];
       let tests = [
         { args: [], isDefault: true },
@@ -47,8 +49,7 @@ add_task(async function testIdentity() {
           );
           browser.test.assertEq("object", typeof tab);
           browser.test.assertEq("number", typeof tab.id);
-          browser.test.sendMessage("checkIdentity", test.isDefault);
-          await window.waitForMessage();
+          await window.sendMessage("checkIdentity", test.isDefault);
         }
       }
 
@@ -205,6 +206,17 @@ add_task(async function testHeaders() {
       await checkHeaders({
         to: ["Mycroft Holmes <mycroft@bakerstreet.invalid>"],
         subject: `Fwd: ${messages[1].subject}`,
+      });
+
+      // Forward a message inline. This uses a different code path.
+
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginForward(messages[2].id, "forwardInline", {
+        to: ["Mycroft Holmes <mycroft@bakerstreet.invalid>"],
+      });
+      await checkHeaders({
+        to: ["Mycroft Holmes <mycroft@bakerstreet.invalid>"],
+        subject: `Fwd: ${messages[2].subject}`,
       });
 
       await browser.addressBooks.delete(addressBook);
@@ -396,14 +408,14 @@ add_task(async function testAttachments() {
       let newTab = await browser.compose.beginNew({
         attachments: [
           { file: new File(["one"], "attachment1.txt") },
-          { file: new File(["two"], "attachment2.txt") },
+          { file: new File(["two"], "attachment-två.txt") },
         ],
       });
 
       let attachments = await browser.compose.listAttachments(newTab.id);
       browser.test.assertEq(2, attachments.length);
       browser.test.assertEq("attachment1.txt", attachments[0].name);
-      browser.test.assertEq("attachment2.txt", attachments[1].name);
+      browser.test.assertEq("attachment-två.txt", attachments[1].name);
 
       let replyTab = await browser.compose.beginReply(messages[0].id, {
         attachments: [
@@ -436,9 +448,28 @@ add_task(async function testAttachments() {
       // but it isn't.
       browser.test.assertEq(`${messages[1].subject}.eml`, attachments[2].name);
 
+      // Forward inline adds attachments differently, so check it works too.
+
+      let forwardTab2 = await browser.compose.beginForward(
+        messages[2].id,
+        "forwardInline",
+        {
+          attachments: [
+            { file: new File(["seven"], "attachment7.txt") },
+            { file: new File(["eight"], "attachment-åtta.txt") },
+          ],
+        }
+      );
+
+      attachments = await browser.compose.listAttachments(forwardTab2.id);
+      browser.test.assertEq(2, attachments.length);
+      browser.test.assertEq("attachment7.txt", attachments[0].name);
+      browser.test.assertEq("attachment-åtta.txt", attachments[1].name);
+
       await browser.tabs.remove(newTab.id);
       await browser.tabs.remove(replyTab.id);
       await browser.tabs.remove(forwardTab.id);
+      await browser.tabs.remove(forwardTab2.id);
 
       browser.test.notifyPass();
     },

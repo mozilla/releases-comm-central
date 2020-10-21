@@ -79,11 +79,10 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
     });
   }
 
-  // ForwardInline is totally broken, see bug 1513824.
+  // ForwardInline is totally broken, see bug 1513824. Fake it 'til we make it.
   if (type == Ci.nsIMsgCompType.ForwardInline) {
     let msgHdr = null;
     let msgURI = null;
-    let hdrIdentity = null;
     if (relatedMessageId) {
       msgHdr = messageTracker.getMessage(relatedMessageId);
       msgURI = msgHdr.folder.getUriForMsg(msgHdr);
@@ -95,11 +94,31 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       msgURI,
       type,
       0,
-      hdrIdentity,
+      null,
       null,
       null
     );
-    return newWindowPromise;
+    let composeWindow = await newWindowPromise;
+    if (details) {
+      await setComposeDetails(composeWindow, details, extension);
+
+      if (details.attachments != null) {
+        let attachments = [];
+        for (let data of details.attachments) {
+          let attachment = Cc[
+            "@mozilla.org/messengercompose/attachment;1"
+          ].createInstance(Ci.nsIMsgAttachment);
+          attachment.name = data.name || data.file.name;
+          attachment.size = data.file.size;
+          attachment.url = await fileURLForFile(data.file);
+          attachments.push(attachment);
+        }
+        composeWindow.AddAttachments(attachments);
+      }
+
+      composeWindow.gContentChanged = false;
+    }
+    return composeWindow;
   }
 
   let params = Cc[
