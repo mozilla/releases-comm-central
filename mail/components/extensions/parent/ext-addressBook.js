@@ -262,7 +262,7 @@ var addressBookCache = new (class extends EventEmitter {
         subject.QueryInterface(Ci.nsIAbDirectory);
 
         let uid = subject.UID;
-        if (this._addressBooks && this._addressBooks.has(uid)) {
+        if (this._addressBooks?.has(uid)) {
           let parentNode = this._addressBooks.get(uid);
           if (parentNode.contacts) {
             for (let id of parentNode.contacts.keys()) {
@@ -285,7 +285,7 @@ var addressBookCache = new (class extends EventEmitter {
 
         let parent = MailServices.ab.getDirectoryFromUID(data);
         let newNode = this._makeContactNode(subject, parent);
-        if (this._addressBooks.has(data)) {
+        if (this._addressBooks?.has(data)) {
           let parentNode = this._addressBooks.get(data);
           if (parentNode.contacts) {
             parentNode.contacts.set(newNode.id, newNode);
@@ -302,7 +302,7 @@ var addressBookCache = new (class extends EventEmitter {
         let parentUID = subject.directoryUID;
         let parent = MailServices.ab.getDirectoryFromUID(parentUID);
         let newNode = this._makeContactNode(subject, parent);
-        if (this._addressBooks.has(parentUID)) {
+        if (this._addressBooks?.has(parentUID)) {
           let parentNode = this._addressBooks.get(parentUID);
           if (parentNode.contacts) {
             parentNode.contacts.set(newNode.id, newNode);
@@ -328,7 +328,7 @@ var addressBookCache = new (class extends EventEmitter {
 
         let uid = subject.UID;
         this._contacts.delete(uid);
-        if (this._addressBooks && this._addressBooks.has(data)) {
+        if (this._addressBooks?.has(data)) {
           let parentNode = this._addressBooks.get(data);
           if (parentNode.contacts) {
             parentNode.contacts.delete(uid);
@@ -343,7 +343,7 @@ var addressBookCache = new (class extends EventEmitter {
 
         let parent = MailServices.ab.getDirectoryFromUID(data);
         let newNode = this._makeDirectoryNode(subject, parent);
-        if (this._addressBooks && this._addressBooks.has(data)) {
+        if (this._addressBooks?.has(data)) {
           let parentNode = this._addressBooks.get(data);
           if (parentNode.mailingLists) {
             parentNode.mailingLists.set(newNode.id, newNode);
@@ -368,7 +368,7 @@ var addressBookCache = new (class extends EventEmitter {
 
         let uid = subject.UID;
         this._mailingLists.delete(uid);
-        if (this._addressBooks && this._addressBooks.has(data)) {
+        if (this._addressBooks?.has(data)) {
           let parentNode = this._addressBooks.get(data);
           if (parentNode.mailingLists) {
             parentNode.mailingLists.delete(uid);
