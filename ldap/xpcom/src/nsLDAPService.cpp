@@ -530,7 +530,8 @@ nsLDAPService::OnLDAPMessage(nsILDAPMessage* aMessage) {
 NS_IMETHODIMP nsLDAPService::OnLDAPInit() { return NS_ERROR_NOT_IMPLEMENTED; }
 
 NS_IMETHODIMP
-nsLDAPService::OnLDAPError(nsresult status, nsISupports* secInfo) {
+nsLDAPService::OnLDAPError(nsresult status, nsITransportSecurityInfo* secInfo,
+                           nsACString const& location) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

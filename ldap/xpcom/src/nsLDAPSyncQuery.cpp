@@ -115,7 +115,8 @@ nsLDAPSyncQuery::OnLDAPInit() {
 }
 
 NS_IMETHODIMP
-nsLDAPSyncQuery::OnLDAPError(nsresult status, nsISupports* secInfo) {
+nsLDAPSyncQuery::OnLDAPError(nsresult status, nsITransportSecurityInfo* secInfo,
+                             nsACString const& location) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

@@ -12,6 +12,7 @@
 #include "nsLDAPConnection.h"
 #include "nsLDAPMessage.h"
 #include "nsLDAPSecurityGlue.h"
+#include "nsITransportSecurityInfo.h"
 #include "nsThreadUtils.h"
 #include "nsIConsoleService.h"
 #include "nsIDNSService.h"
@@ -111,14 +112,17 @@ nsLDAPConnection::Init(nsILDAPURL* aUrl, const nsACString& aBindName,
 
   // Get the port number, SSL flag for use later, once the DNS server(s)
   // has resolved the host part.
-  rv = aUrl->GetPort(&mPort);
-  NS_ENSURE_SUCCESS(rv, rv);
 
   uint32_t options;
   rv = aUrl->GetOptions(&options);
   NS_ENSURE_SUCCESS(rv, rv);
-
   mSSL = options & nsILDAPURL::OPT_SECURE;
+
+  rv = aUrl->GetPort(&mPort);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (mPort == -1) {
+    mPort = mSSL ? LDAPS_PORT : LDAP_PORT;
+  }
 
   nsCOMPtr<nsIThread> curThread = do_GetCurrentThread();
   if (!curThread) {
@@ -462,10 +466,11 @@ void nsLDAPConnection::InvokeErrorCallback(int32_t opID, nsresult status,
   if (!listener) {
     return;
   }
-  nsCOMPtr<nsISupports> refCountedSecInfo(secInfo);
+  nsPrintfCString location("%s:%d", mDNSHost.get(), mPort);
+  nsCOMPtr<nsITransportSecurityInfo> tsi = do_QueryInterface(secInfo);
   NS_DispatchToMainThread(NS_NewRunnableFunction(
-      "InvokeErrorCallback", [listener, status, refCountedSecInfo]() {
-        listener->OnLDAPError(status, refCountedSecInfo);
+      "InvokeErrorCallback", [listener, status, tsi, location]() {
+        listener->OnLDAPError(status, tsi, location);
       }));
 }
 
@@ -543,9 +548,7 @@ nsLDAPConnection::OnLookupComplete(nsICancelable* aRequest,
     // new, synchronous DNS lookup, which might hang (but hopefully
     // if we've come this far, DNS is working properly).
     //
-    mConnectionHandle =
-        ldap_init(mResolvedIP.get(),
-                  mPort == -1 ? (mSSL ? LDAPS_PORT : LDAP_PORT) : mPort);
+    mConnectionHandle = ldap_init(mResolvedIP.get(), mPort);
     // Check that we got a proper connection, and if so, setup the
     // threading functions for this connection.
     //
@@ -599,18 +602,14 @@ nsLDAPConnection::OnLookupComplete(nsICancelable* aRequest,
     }
   }
 
-  // Drop the DNS request object, we no longer need it, and set the flag
-  // indicating that DNS has finished.
-  //
+  // Finished with the DNS request object.
   mDNSRequest = nullptr;
-  mDNSHost.Truncate();
 
   // Call the listener, and then we can release our reference to it.
-  //
   if (NS_SUCCEEDED(rv)) {
     mInitListener->OnLDAPInit();
   } else {
-    mInitListener->OnLDAPError(rv, nullptr);
+    mInitListener->OnLDAPError(rv, nullptr, ""_ns);
   }
   mInitListener = nullptr;
 
