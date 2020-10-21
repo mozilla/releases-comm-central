@@ -289,6 +289,9 @@ this.messages = class extends ExtensionAPI {
           if (queryInfo.fromDate || queryInfo.toDate) {
             query.dateRange([queryInfo.fromDate, queryInfo.toDate]);
           }
+          if (queryInfo.headerMessageId) {
+            query.headerMessageID(queryInfo.headerMessageId);
+          }
           let validTags;
           if (queryInfo.tags) {
             validTags = MailServices.tags

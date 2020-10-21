@@ -205,6 +205,11 @@
                 "$ref": "extensionTypes.Date",
                 "optional": true,
                 "description": "Returns only messages with a date before this value."
+              },
+              "headerMessageId": {
+                "type": "string",
+                "optional": true,
+                "description": "Returns only messages with a Message-ID header matching this value."
               }
             }
           }

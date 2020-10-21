@@ -207,6 +207,12 @@ add_task(async function setup() {
         4
       );
 
+      // headerMessageId query
+      await subtest({ headerMessageId: "0@made.up.invalid" }, 1);
+      await subtest({ headerMessageId: "7@made.up.invalid" }, 8);
+      await subtest({ headerMessageId: "8@made.up.invalid" }, 9);
+      await subtest({ headerMessageId: "unknown@made.up.invalid" });
+
       browser.test.notifyPass("finished");
     },
     "utils.js": await getUtilsJS(),
