@@ -1099,7 +1099,9 @@ this.menus = class extends ExtensionAPI {
                   extension.tabManager.hasActiveTabPermission(nativeTab)) ||
                 (contextUrl && extension.allowedOrigins.matches(contextUrl)) ||
                 (MESSAGE_PROTOCOLS.includes(contextScheme) &&
-                  extension.hasPermission("messagesRead"));
+                  extension.hasPermission("messagesRead")) ||
+                (contextUrl == "about:blank?compose" &&
+                  extension.hasPermission("compose"));
 
               addMenuEventInfo(
                 info,

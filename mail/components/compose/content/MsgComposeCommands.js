@@ -1898,6 +1898,66 @@ function openEditorContextMenu(popup) {
   gSpellChecker.addDictionaryListToMenu(dictMenu, dictSep);
 
   updateEditItems();
+
+  // The rest of this block sends menu information to WebExtensions.
+  let target = document.popupNode;
+
+  let selectionInfo = BrowserUtils.getSelectionDetails(window);
+  let isContentSelected = !selectionInfo.docSelectionIsCollapsed;
+  let textSelected = selectionInfo.text;
+  let isTextSelected = !!textSelected.length;
+
+  // Set up early the right flags for editable / not editable.
+  let editFlags = SpellCheckHelper.isEditable(target, window);
+  let onTextInput = (editFlags & SpellCheckHelper.TEXTINPUT) !== 0;
+  let onEditable = (editFlags & SpellCheckHelper.EDITABLE) !== 0;
+
+  let onImage = false;
+  let srcUrl = undefined;
+
+  if (target.nodeType == Node.ELEMENT_NODE) {
+    if (target instanceof Ci.nsIImageLoadingContent && target.currentURI) {
+      onImage = true;
+      srcUrl = target.currentURI.spec;
+    }
+  }
+
+  let onLink = false;
+  let linkText = undefined;
+  let linkUrl = undefined;
+
+  let link = target.closest("a");
+  if (link) {
+    onLink = true;
+    linkText =
+      link.textContent ||
+      link.getAttribute("title") ||
+      link.getAttribute("a") ||
+      link.href ||
+      "";
+    linkUrl = link.href;
+  }
+
+  let subject = {
+    menu: popup,
+    tab: window,
+    isContentSelected,
+    isTextSelected,
+    onTextInput,
+    onLink,
+    onImage,
+    onEditable,
+    srcUrl,
+    linkText,
+    linkUrl,
+    selectionText: isTextSelected ? selectionInfo.fullText : undefined,
+    pageUrl: target.ownerGlobal.top.location.href,
+  };
+  subject.context = subject;
+  subject.wrappedJSObject = subject;
+
+  Services.obs.notifyObservers(subject, "on-prepare-contextmenu");
+  Services.obs.notifyObservers(subject, "on-build-contextmenu");
 }
 
 function updateEditItems() {

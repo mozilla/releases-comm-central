@@ -654,6 +654,10 @@ async function subtest_compose(...permissions) {
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
+  params.composeFields.body = await fetch(
+    `${URL_BASE}/content_body.html`
+  ).then(r => r.text());
+
   for (let ordinal of ["first", "second", "third", "fourth"]) {
     let attachment = Cc[
       "@mozilla.org/messengercompose/attachment;1"
@@ -670,6 +674,20 @@ async function subtest_compose(...permissions) {
   await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
   let composeDocument = composeWindow.document;
   await focusWindow(composeWindow);
+
+  // Test the message being composed.
+
+  let messagePane = composeWindow.GetCurrentEditorElement();
+
+  await subtest_content(
+    extension,
+    permissions.includes("compose"),
+    messagePane,
+    /^about:blank\?compose$/,
+    { active: true, index: 0, mailTab: false }
+  );
+
+  // Test the attachments context menu.
 
   composeWindow.toggleAttachmentPane("show");
   let menu = composeDocument.getElementById("msgComposeAttachmentItemContext");
