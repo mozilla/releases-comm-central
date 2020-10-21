@@ -52,6 +52,7 @@ reference-jobs:
     - macosx64-minidump-stackwalk
     - macosx64-node
     - mingw32-rust-1.41
+    - wasi-sysroot
     - wasi-sysroot-9
     - wasi-sysroot-11
     - win32-fix-stacks
