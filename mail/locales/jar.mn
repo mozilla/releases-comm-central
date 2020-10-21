@@ -181,7 +181,6 @@
   locale/@AB_CD@/messenger/newmailaccount/accountProvisioner.dtd        (%chrome/messenger/newmailaccount/accountProvisioner.dtd)
   locale/@AB_CD@/messenger/activity.dtd                                 (%chrome/messenger/activity.dtd)
   locale/@AB_CD@/messenger/activity.properties                          (%chrome/messenger/activity.properties)
-  locale/@AB_CD@/messenger/downloads/settingsChange.dtd                 (%chrome/overrides/settingsChange.dtd)
   locale/@AB_CD@/messenger/netError.dtd                                 (%chrome/overrides/netError.dtd)
   locale/@AB_CD@/messenger/profileDowngrade.dtd                         (%chrome/overrides/profileDowngrade.dtd)
   locale/@AB_CD@/messenger/newsError.dtd                                (%chrome/messenger/newsError.dtd)
