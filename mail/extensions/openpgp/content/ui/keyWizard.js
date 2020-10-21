@@ -357,7 +357,7 @@ async function wizardExternalKey() {
   if (gIdentity.getBoolAttribute("is_gnupg_key_id")) {
     document.getElementById(
       "externalKey"
-    ).value = gIdentity.getUnicharAttribute(
+    ).value = "0x" + gIdentity.getUnicharAttribute(
       "last_entered_external_gnupg_key_id"
     );
     document.getElementById("openPgpExternalWarning").collapsed = false;
@@ -1014,11 +1014,26 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
   return !prompt ? "" : passphrase.value;
 }
 
-function toggleSaveButton(event) {
-  kDialog
-    .getButton("accept")
-    .toggleAttribute("disabled", !event.target.value.trim());
-}
+var ExternalKeyWiz = {
+  oninput(input) {
+    input.value = this.addBlankSpace(input.value);
+    kDialog.getButton("accept").disabled =
+      input.value && !input.validity.valid;
+  },
+
+  onblur(input) {
+    input.value = this.addBlankSpace(input.value);
+  },
+
+  addBlankSpace(value) {
+    if (!value.startsWith("0x") && value != "0" && value) {
+      value = "0x" + value;
+    }
+    return value
+      .replace(/\s/g, "")
+      .trim();
+  },
+};
 
 /**
  * Save the GnuPG Key for the current identity and trigger a callback.
@@ -1027,6 +1042,12 @@ function openPgpExternalComplete() {
   gIdentity.setBoolAttribute("is_gnupg_key_id", true);
 
   let externalKey = document.getElementById("externalKey").value;
+  externalKey = externalKey.replace(/ /g, "").replace(/^0x/, "").toUpperCase();
+  if (externalKey.length == 40) {
+    // If full fingerprint was entered, grab the last 16 characters, which
+    // is what forms the key id
+    externalKey = externalKey.substr(-16);
+  }
   gIdentity.setUnicharAttribute(
     "last_entered_external_gnupg_key_id",
     externalKey

@@ -182,6 +182,3 @@ openpgp-external-key-warning = <b>You may configure only one external GnuPG Key.
 openpgp-save-external-button = Save key ID
 
 openpgp-external-key-label = Secret Key ID:
-
-openpgp-external-key-input =
-    .placeholder = 123456789341298340

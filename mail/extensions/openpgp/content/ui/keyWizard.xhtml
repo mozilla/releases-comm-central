@@ -299,9 +299,11 @@
             <hbox class="input-container" flex="1">
               <html:input id="externalKey" type="text"
                           class="input-inline"
-                          data-l10n-id="openpgp-external-key-input"
-                          oninput="toggleSaveButton(event)">
-              </html:input>
+                          placeholder="0x123456789ABCDEF"
+                          oninput="ExternalKeyWiz.oninput(this);"
+                          onblur="ExternalKeyWiz.onblur(this);"
+                          pattern="(0x)?[ 0-9a-fA-F]{16,40}"
+                          minlength="16"/>
             </hbox>
           </hbox>
 
