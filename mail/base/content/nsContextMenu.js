@@ -118,7 +118,7 @@ nsContextMenu.prototype = {
         onAudio: this.onAudio,
         onCanvas: this.onCanvas,
         onEditable: this.onEditable,
-        srcUrl: this.mediaURL,
+        srcUrl: this.mediaURL || this.imageURL,
         linkText: this.onLink ? this.linkText() : undefined,
         linkUrl: this.linkURL,
         selectionText: this.isTextSelected

@@ -67,11 +67,14 @@ function addIdentity(account, email = "mochitest@localhost") {
   return identity;
 }
 
-function createMessages(folder, count) {
+function createMessages(folder, makeMessagesArg) {
+  if (typeof makeMessagesArg == "number") {
+    makeMessagesArg = { count: makeMessagesArg };
+  }
   const { MessageGenerator } = ChromeUtils.import(
     "resource://testing-common/mailnews/MessageGenerator.jsm"
   );
-  let messages = new MessageGenerator().makeMessages({ count });
+  let messages = new MessageGenerator().makeMessages(makeMessagesArg);
   let messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings);
