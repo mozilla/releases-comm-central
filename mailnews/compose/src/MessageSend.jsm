@@ -177,14 +177,14 @@ MessageSend.prototype = {
     }
     this._aborting = true;
     if (this._smtpRequest?.value) {
-      this._smtpRequest.value.cancel(Ci.NS_ERROR_ABORT);
+      this._smtpRequest.value.cancel(Cr.NS_ERROR_ABORT);
       this._smtpRequest = null;
     }
     if (this._msgCopy) {
       MailServices.copy.NotifyCompletion(
         this._copyFile,
-        this._msgCopy,
-        Ci.NS_ERROR_ABORT
+        this._msgCopy.dstFolder,
+        Cr.NS_ERROR_ABORT
       );
     }
     this._cleanup();
@@ -602,10 +602,9 @@ MessageSend.prototype = {
       );
     }
 
-    let msgCopy = Cc["@mozilla.org/messengercompose/msgcopy;1"].createInstance(
-      Ci.nsIMsgCopy
-    );
-    this._msgCopy = msgCopy;
+    this._msgCopy = Cc[
+      "@mozilla.org/messengercompose/msgcopy;1"
+    ].createInstance(Ci.nsIMsgCopy);
     this._copyFile = this._messageFile;
     if (this._folderUri.startsWith("mailbox:")) {
       this._copyFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
@@ -643,7 +642,7 @@ MessageSend.prototype = {
     );
     this._setStatusMessage(statusMsg);
     try {
-      msgCopy.startCopyOperation(
+      this._msgCopy.startCopyOperation(
         this._userIdentity,
         this._copyFile,
         this._deliverMode,

@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
+#include "nsIMsgFolder.idl"
 #include "nsIMsgIdentity.idl"
 #include "nsIMsgSend.idl"
 
@@ -29,4 +30,9 @@ interface nsIMsgCopy : nsISupports {
                           in nsIMsgSend aMsgSendObj,
                           in AUTF8String aSavePref,
                           in nsIMsgDBHdr aMsgToReplace);
+
+  /**
+   * Destination folder of the copy operation. Used when aborting copy operation.
+   */
+  readonly attribute nsIMsgFolder dstFolder;
 };

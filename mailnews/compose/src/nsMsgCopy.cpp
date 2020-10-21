@@ -237,6 +237,13 @@ nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
   return rv;
 }
 
+NS_IMETHODIMP
+nsMsgCopy::GetDstFolder(nsIMsgFolder** aDstFolder) {
+  NS_ENSURE_ARG_POINTER(aDstFolder);
+  NS_IF_ADDREF(*aDstFolder = mDstFolder);
+  return NS_OK;
+}
+
 // nsIUrlListener methods
 NS_IMETHODIMP
 nsMsgCopy::OnStartRunningUrl(nsIURI* aUrl) { return NS_OK; }
