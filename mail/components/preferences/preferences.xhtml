@@ -15,7 +15,7 @@
 <?xml-stylesheet href="chrome://calendar/skin/shared/calendar-preferences.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/lightning.css"?>
 
-<!DOCTYPE preftab [
+<!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % editorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/editorOverlay.dtd">
@@ -32,12 +32,13 @@
 %eventDTD;
 ]>
 
-<preftab id="MailPreferences" flex="1"
-         windowtype="Mail:Preferences"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-         xmlns:xhtml="http://www.w3.org/1999/xhtml"
-         xmlns:html="http://www.w3.org/1999/xhtml"
-         data-l10n-id="preferences-title">
+<window id="MailPreferences"
+        windowtype="Mail:Preferences"
+        role="document"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        csp="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: https: data:; style-src chrome: data: 'unsafe-inline'; object-src 'none'"
+        data-l10n-id="preferences-title">
 
   <script src="chrome://global/content/preferencesBindings.js"/>
 #ifdef MOZ_UPDATER
@@ -195,4 +196,4 @@
   <script src="chrome://calendar/content/preferences/categories.js"/>
   <script src="chrome://calendar/content/preferences/views.js"/>
   <script src="chrome://lightning/content/messenger-overlay-preferences.js"/>
-</preftab>
+</window>

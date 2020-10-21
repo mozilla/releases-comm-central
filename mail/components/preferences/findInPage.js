@@ -96,7 +96,7 @@ var gSearchResultsPane = {
       }
       let lastSelected = Services.xulStore.getValue(
         "about:preferences",
-        "MailPreferences",
+        "paneDeck",
         "lastSelected"
       );
       search(lastSelected, "data-category");

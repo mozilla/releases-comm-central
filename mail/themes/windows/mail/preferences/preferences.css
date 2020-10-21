@@ -6,7 +6,7 @@
 @namespace html "http://www.w3.org/1999/xhtml";
 
 .dialogBox,
-#MailPreferences #paneDeck,
+#paneDeck,
 #categories {
   font-size: 1.25em;
 }

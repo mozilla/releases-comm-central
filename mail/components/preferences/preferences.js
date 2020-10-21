@@ -157,7 +157,7 @@ function init() {
   window.addEventListener("hashchange", onHashChange);
   let lastSelected = Services.xulStore.getValue(
     "about:preferences",
-    "MailPreferences",
+    "paneDeck",
     "lastSelected"
   );
   gotoPref(lastSelected);
@@ -264,10 +264,10 @@ async function gotoPref(aCategory) {
 
   document.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
   document.getElementById("preferencesContainer").scrollTo(0, 0);
-  document.documentElement.setAttribute("lastSelected", category);
+  document.getElementById("paneDeck").setAttribute("lastSelected", category);
   Services.xulStore.setValue(
     "about:preferences",
-    "MailPreferences",
+    "paneDeck",
     "lastSelected",
     category
   );

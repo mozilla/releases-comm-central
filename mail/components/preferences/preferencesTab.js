@@ -86,6 +86,7 @@ var preferencesTabType = {
       "id",
       "preferencesTabBrowser" + this.lastBrowserId
     );
+    aTab.browser.setAttribute("autocompletepopup", "PopupAutoComplete");
     aTab.browser.addEventListener("DOMLinkAdded", DOMLinkHandler);
 
     aTab.findbar = aTab.panel.querySelector("findbar");
