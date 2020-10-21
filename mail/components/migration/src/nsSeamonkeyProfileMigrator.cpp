@@ -1102,8 +1102,10 @@ void nsSeamonkeyProfileMigrator::ReadBranch(const char* branchName,
             "nsNetscapeProfileMigratorBase::ReadBranch");
         break;
     }
-
-    if (NS_SUCCEEDED(rv)) aPrefs.AppendElement(prefBranch);
+    if (NS_SUCCEEDED(rv))
+      aPrefs.AppendElement(prefBranch);
+    else
+      delete prefBranch;
   }
 }
 
