@@ -263,6 +263,13 @@
         "async": true,
         "parameters": [
           {
+            "name": "messageId",
+            "description": "If specified, the message or template to edit as a new message.",
+            "type": "integer",
+            "optional": true,
+            "minimum": 1
+          },
+          {
             "name": "details",
             "$ref": "ComposeDetails",
             "optional": true

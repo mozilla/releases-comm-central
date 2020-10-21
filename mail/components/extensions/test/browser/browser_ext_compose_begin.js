@@ -8,7 +8,7 @@ let nonDefaultIdentity = addIdentity(account);
 let rootFolder = account.incomingServer.rootFolder;
 rootFolder.createSubfolder("test", null);
 let folder = rootFolder.getChildNamed("test");
-createMessages(folder, 3);
+createMessages(folder, 4);
 
 add_task(async function testIdentity() {
   let files = {
@@ -17,7 +17,7 @@ add_task(async function testIdentity() {
       let [defaultIdentity, nonDefaultIdentity] = account.identities;
       let folder = account.folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
-      browser.test.assertEq(3, messages.length);
+      browser.test.assertEq(4, messages.length);
 
       browser.test.log(defaultIdentity.id);
       browser.test.log(nonDefaultIdentity.id);
@@ -28,6 +28,7 @@ add_task(async function testIdentity() {
         { name: "beginForward", args: [messages[1].id, "forwardAsAttachment"] },
         // Uses a different code path.
         { name: "beginForward", args: [messages[2].id, "forwardInline"] },
+        { name: "beginNew", args: [messages[3].id] },
       ];
       let tests = [
         { args: [], isDefault: true },
@@ -100,7 +101,7 @@ add_task(async function testHeaders() {
       browser.test.assertEq(1, accounts.length);
       let folder = accounts[0].folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
-      browser.test.assertEq(3, messages.length);
+      browser.test.assertEq(4, messages.length);
 
       let addressBook = await browser.addressBooks.create({
         name: "Baker Street",
@@ -245,12 +246,23 @@ add_task(async function testHeaders() {
 add_task(async function testBody() {
   let files = {
     "background.js": async () => {
+      let accounts = await browser.accounts.list();
+      browser.test.assertEq(1, accounts.length);
+      let folder = accounts[0].folders.find(f => f.name == "test");
+      let { messages } = await browser.messages.list(folder);
+      browser.test.assertEq(4, messages.length);
+
+      let message0 = await browser.messages.getFull(messages[0].id);
+      let message0body = message0.parts[0].body;
+
       let emptyHTML = "<body>\n<p><br>\n</p>\n";
       let plainTextBodyTag =
         '<body style="font-family: -moz-fixed; white-space: pre-wrap; width: 72ch;">';
       let tests = [
         {
           // No arguments.
+          funcName: "beginNew",
+          arguments: [],
           expected: {
             isHTML: true,
             htmlIncludes: emptyHTML,
@@ -259,7 +271,8 @@ add_task(async function testBody() {
         },
         {
           // Empty arguments.
-          arguments: {},
+          funcName: "beginNew",
+          arguments: [{}],
           expected: {
             isHTML: true,
             htmlIncludes: emptyHTML,
@@ -268,7 +281,8 @@ add_task(async function testBody() {
         },
         {
           // Empty HTML.
-          arguments: { body: "" },
+          funcName: "beginNew",
+          arguments: [{ body: "" }],
           expected: {
             isHTML: true,
             htmlIncludes: emptyHTML,
@@ -277,7 +291,8 @@ add_task(async function testBody() {
         },
         {
           // Empty plain text.
-          arguments: { plainTextBody: "" },
+          funcName: "beginNew",
+          arguments: [{ plainTextBody: "" }],
           expected: {
             isHTML: true,
             htmlIncludes: emptyHTML,
@@ -286,12 +301,14 @@ add_task(async function testBody() {
         },
         {
           // Empty plain text and isPlainText.
-          arguments: { plainTextBody: "", isPlainText: true },
+          funcName: "beginNew",
+          arguments: [{ plainTextBody: "", isPlainText: true }],
           expected: { isHTML: false, plainTextIs: "" },
         },
         {
           // Non-empty HTML.
-          arguments: { body: "<p>I'm an HTML message!</p>" },
+          funcName: "beginNew",
+          arguments: [{ body: "<p>I'm an HTML message!</p>" }],
           expected: {
             isHTML: true,
             htmlIncludes: "<body>\n<p>I'm an HTML message!</p>\n</body>",
@@ -300,7 +317,8 @@ add_task(async function testBody() {
         },
         {
           // Non-empty plain text.
-          arguments: { plainTextBody: "I'm a plain text message!" },
+          funcName: "beginNew",
+          arguments: [{ plainTextBody: "I'm a plain text message!" }],
           expected: {
             isHTML: true,
             htmlIncludes: "<body>I'm a plain text message!</body>",
@@ -309,10 +327,13 @@ add_task(async function testBody() {
         },
         {
           // Non-empty plain text and isPlainText.
-          arguments: {
-            plainTextBody: "I'm a plain text message!",
-            isPlainText: true,
-          },
+          funcName: "beginNew",
+          arguments: [
+            {
+              plainTextBody: "I'm a plain text message!",
+              isPlainText: true,
+            },
+          ],
           expected: {
             isHTML: false,
             htmlIncludes: plainTextBodyTag + "I'm a plain text message!</body>",
@@ -321,13 +342,52 @@ add_task(async function testBody() {
         },
         {
           // HTML and plain text. Invalid.
-          arguments: { body: "", plainTextBody: "" },
+          funcName: "beginNew",
+          arguments: [{ body: "", plainTextBody: "" }],
           throws: true,
         },
         {
           // HTML and isPlainText. Invalid.
-          arguments: { body: "", isPlainText: true },
+          funcName: "beginNew",
+          arguments: [{ body: "", isPlainText: true }],
           throws: true,
+        },
+        {
+          // Edit as new.
+          funcName: "beginNew",
+          arguments: [messages[0].id],
+          expected: {
+            isHTML: false,
+            plainTextIs: message0body,
+          },
+        },
+        {
+          // Reply.
+          funcName: "beginReply",
+          arguments: [messages[0].id],
+          expected: {
+            isHTML: true,
+            htmlIncludes: message0body.trim(),
+          },
+        },
+        {
+          // Forward inline.
+          funcName: "beginForward",
+          arguments: [messages[0].id],
+          expected: {
+            isHTML: false,
+            htmlIncludes: message0body.trim(),
+          },
+        },
+        {
+          // Forward as attachment.
+          funcName: "beginForward",
+          arguments: [messages[0].id, "forwardAsAttachment"],
+          expected: {
+            isHTML: true,
+            htmlIncludes: emptyHTML,
+            plainText: "",
+          },
         },
       ];
 
@@ -335,7 +395,7 @@ add_task(async function testBody() {
         browser.test.log(JSON.stringify(test));
         let createdWindowPromise = window.waitForEvent("windows.onCreated");
         try {
-          await browser.compose.beginNew(test.arguments);
+          await browser.compose[test.funcName](...test.arguments);
           if (test.throws) {
             browser.test.fail(
               "calling beginNew with these arguments should throw"
@@ -367,6 +427,7 @@ add_task(async function testBody() {
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
     },
   });
   extension.onMessage("checkBody", async expected => {
@@ -384,10 +445,17 @@ add_task(async function testBody() {
       .replace(/\r/g, "");
     if ("htmlIncludes" in expected) {
       info(actualHTML);
-      ok(actualHTML.includes(expected.htmlIncludes), "HTML content is correct");
+      ok(
+        actualHTML.includes(expected.htmlIncludes.replace(/\r/g, "")),
+        "HTML content is correct"
+      );
     }
     if ("plainTextIs" in expected) {
-      is(actualPlainText, expected.plainTextIs, "plainText content is correct");
+      is(
+        actualPlainText,
+        expected.plainTextIs.replace(/\r/g, ""),
+        "plainText content is correct"
+      );
     }
 
     extension.sendMessage();
@@ -466,10 +534,23 @@ add_task(async function testAttachments() {
       browser.test.assertEq("attachment7.txt", attachments[0].name);
       browser.test.assertEq("attachment-åtta.txt", attachments[1].name);
 
+      let newTab2 = await browser.compose.beginNew(messages[3].id, {
+        attachments: [
+          { file: new File(["nine"], "attachment9.txt") },
+          { file: new File(["ten"], "attachment10.txt") },
+        ],
+      });
+
+      attachments = await browser.compose.listAttachments(newTab2.id);
+      browser.test.assertEq(2, attachments.length);
+      browser.test.assertEq("attachment9.txt", attachments[0].name);
+      browser.test.assertEq("attachment10.txt", attachments[1].name);
+
       await browser.tabs.remove(newTab.id);
       await browser.tabs.remove(replyTab.id);
       await browser.tabs.remove(forwardTab.id);
       await browser.tabs.remove(forwardTab2.id);
+      await browser.tabs.remove(newTab2.id);
 
       browser.test.notifyPass();
     },

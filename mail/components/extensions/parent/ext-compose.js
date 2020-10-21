@@ -80,7 +80,13 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   }
 
   // ForwardInline is totally broken, see bug 1513824. Fake it 'til we make it.
-  if (type == Ci.nsIMsgCompType.ForwardInline) {
+  if (
+    [
+      Ci.nsIMsgCompType.ForwardInline,
+      Ci.nsIMsgCompType.EditAsNew,
+      Ci.nsIMsgCompType.Template,
+    ].includes(type)
+  ) {
     let msgHdr = null;
     let msgURI = null;
     if (relatedMessageId) {
@@ -520,10 +526,18 @@ this.compose = class extends ExtensionAPI {
             };
           },
         }).api(),
-        async beginNew(details) {
+        async beginNew(messageId, details) {
+          let type = Ci.nsIMsgCompType.New;
+          if (messageId) {
+            let msgHdr = messageTracker.getMessage(messageId);
+            type =
+              msgHdr.flags & Ci.nsMsgMessageFlags.Template
+                ? Ci.nsIMsgCompType.Template
+                : Ci.nsIMsgCompType.EditAsNew;
+          }
           let composeWindow = await openComposeWindow(
-            null,
-            Ci.nsIMsgCompType.New,
+            messageId,
+            type,
             details,
             extension
           );
