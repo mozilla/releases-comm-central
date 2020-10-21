@@ -108,6 +108,7 @@ add_task(async function test_update() {
       browser.test.assertFalse(message.junk);
       browser.test.assertEq(0, message.junkScore);
       browser.test.assertEq(0, message.tags.length);
+      browser.test.assertEq("99@made.up.invalid", message.headerMessageId);
 
       // Test that setting flagged works.
       await browser.messages.update(message.id, { flagged: true });
@@ -143,6 +144,7 @@ add_task(async function test_update() {
       browser.test.assertEq(2, message.tags.length);
       browser.test.assertEq(tags[1].key, message.tags[0]);
       browser.test.assertEq(tags[2].key, message.tags[1]);
+      browser.test.assertEq("99@made.up.invalid", message.headerMessageId);
 
       // Test that clearing properties works.
       await browser.messages.update(message.id, {
@@ -159,6 +161,7 @@ add_task(async function test_update() {
       browser.test.assertFalse(message.junk);
       browser.test.assertEq(0, message.junkScore);
       browser.test.assertEq(0, message.tags.length);
+      browser.test.assertEq("99@made.up.invalid", message.headerMessageId);
 
       browser.test.notifyPass("finished");
     },
