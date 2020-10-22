@@ -7,8 +7,8 @@
 #include "nsISupports.idl"
 
 interface nsILDAPMessage;
-
 interface nsILDAPConnection;
+interface nsITransportSecurityInfo;
 
 /**
  * A callback interface to be implemented by any objects that want to
@@ -27,7 +27,7 @@ interface nsILDAPMessageListener : nsISupports
     /**
      * Messages from LDAP operations are passed back via this function.
      *
-     * @arg aMessage  The message that was returned, NULL if none was.
+     * @param aMessage  The message that was returned, NULL if none was.
      *
      * XXX semantics of NULL?
      */
@@ -38,10 +38,12 @@ interface nsILDAPMessageListener : nsISupports
      * Indicates that an error has occured - either during init, or due to
      * an LDAP operation.
      *
-     * @arg status   The error code.
-     * @arg secInfo  The securityInfo object for the connection, if status
-     *               is a security (NSS) error. Null otherwise.
+     * @param status   The error code.
+     * @param secInfo  The securityInfo object for the connection, if status
+     *                 is a security (NSS) error. Null otherwise.
+     * @param location If status is an NSS error code, this holds the location
+     *                 of the failed operation ("<host>:<port>").
      */
-    void onLDAPError(in nsresult status, in nsISupports secInfo);
+    void onLDAPError(in nsresult status, in nsITransportSecurityInfo secInfo, in ACString location);
 };
 

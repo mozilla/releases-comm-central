@@ -111,7 +111,8 @@ NS_IMETHODIMP nsAbLDAPProcessReplicationData::OnLDAPMessage(
 }
 
 NS_IMETHODIMP nsAbLDAPProcessReplicationData::OnLDAPError(
-    nsresult status, nsISupports* secInfo) {
+    nsresult status, nsITransportSecurityInfo* secInfo,
+    nsACString const& location) {
   // (See also InitFailed() for error handling during init phase).
   // Just call Done() which will ensure everything is tidied up nicely.
   Done(false);
