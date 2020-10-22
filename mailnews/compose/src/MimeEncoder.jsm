@@ -184,21 +184,21 @@ class MimeEncoder {
     let prevCharWasCr = false;
 
     for (let i = 0; i < this._chunkSize; i++) {
-      let char = this._chunk.charAt(i);
+      let ch = this._chunk.charAt(i);
       let charCode = this._chunk.charCodeAt(i);
       if (charCode > 126) {
         this._highBitCount++;
         this._unPrintableCount++;
-      } else if (char < " " && !"\t\r\n".includes(char)) {
+      } else if (ch < " " && !"\t\r\n".includes(ch)) {
         this._unPrintableCount++;
         this._ctrlCount++;
-        if (char == 0) {
+        if (ch == 0) {
           this._nullCount++;
         }
       }
 
-      if ("\r\n".includes(char)) {
-        if (char == "\r") {
+      if ("\r\n".includes(ch)) {
+        if (ch == "\r") {
           if (prevCharWasCr) {
             this._hasCr = 1;
           } else {
@@ -341,8 +341,8 @@ class MimeEncoder {
     let white = false;
     let out = "";
 
-    function encodeChar(char) {
-      let charCode = char.charCodeAt(0);
+    function encodeChar(ch) {
+      let charCode = ch.charCodeAt(0);
       let ret = "=";
       ret += hexdigits[charCode >> 4];
       ret += hexdigits[charCode & 0xf];
@@ -350,24 +350,20 @@ class MimeEncoder {
     }
 
     for (let i = 0; i < this._bodySize; i++) {
-      let char = this._body.charAt(i);
+      let ch = this._body.charAt(i);
       let charCode = this._body.charCodeAt(i);
-      if (char == "\r" || char == "\n") {
+      if (ch == "\r" || ch == "\n") {
         // If it's CRLF, swallow two chars instead of one.
-        if (
-          i + 1 < this._bodySize &&
-          char == "\r" &&
-          this._body[i + 1] == "\n"
-        ) {
+        if (i + 1 < this._bodySize && ch == "\r" && this._body[i + 1] == "\n") {
           i++;
         }
 
         // Whitespace cannot be allowed to occur at the end of the line, so we
         // back up and replace the whitespace with its code.
         if (white) {
-          let whiteCharCode = out.slice(-1).charCodeAt(0);
+          let whiteChar = out.slice(-1);
           out = out.slice(0, -1);
-          out += encodeChar(whiteCharCode);
+          out += encodeChar(whiteChar);
         }
 
         // Now write out the newline.
@@ -377,8 +373,8 @@ class MimeEncoder {
         currentColumn = 0;
       } else if (
         currentColumn == 0 &&
-        (char == "." ||
-          (char == "F" &&
+        (ch == "." ||
+          (ch == "F" &&
             (i >= this._bodySize - 1 || this._body[i + 1] == "r") &&
             (i >= this._bodySize - 2 || this._body[i + 2] == "o") &&
             (i >= this._bodySize - 3 || this._body[i + 3] == "m") &&
@@ -389,7 +385,7 @@ class MimeEncoder {
         // data in the buffer to be certain), encode the 'F' in hex to avoid
         // potential problems with BSD mailbox formats.
         white = false;
-        out += encodeChar(char);
+        out += encodeChar(ch);
         currentColumn += 3;
       } else if (
         (charCode >= 33 && charCode <= 60) ||
@@ -397,16 +393,16 @@ class MimeEncoder {
       ) {
         // Printable characters except for '='
         white = false;
-        out += char;
+        out += ch;
         currentColumn++;
-      } else if (char == " " || char == "\t") {
+      } else if (ch == " " || ch == "\t") {
         // Whitespace
         white = true;
-        out += char;
+        out += ch;
         currentColumn++;
       } else {
         white = false;
-        out += encodeChar(char);
+        out += encodeChar(ch);
         currentColumn += 3;
       }
 
