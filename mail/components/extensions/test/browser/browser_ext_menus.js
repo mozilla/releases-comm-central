@@ -23,7 +23,11 @@ const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);
  */
 function rightClick(menu, element) {
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(element, { type: "contextmenu" }, element.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(
+    element,
+    { type: "contextmenu" },
+    element.ownerGlobal
+  );
   return shownPromise;
 }
 
