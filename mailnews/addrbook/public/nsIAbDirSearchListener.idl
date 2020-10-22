@@ -6,7 +6,6 @@
 #include "nsISupports.idl"
 
 interface nsIAbCard;
-interface nsITransportSecurityInfo;
 
 /**
  * Listener callbacks for addressbook nsIAbDirectory searches and queries.
@@ -32,8 +31,6 @@ interface nsIAbDirSearchListener : nsISupports {
    *                 to obtain a failing certificate, to present the user an
    *                 option to add it as a security exception (handy for
    *                 LDAP servers with self-signed certs).
-   * @param location If status is an NSS error code, this holds the location
-   *                 of the failed operation ("<host>:<port>").
    */
-  void onSearchFinished(in nsresult status, in nsITransportSecurityInfo secInfo, in ACString location);
+  void onSearchFinished(in nsresult status, in nsISupports secInfo);
 };

@@ -45,8 +45,7 @@ class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase {
 
   // nsILDAPMessageListener
   NS_IMETHOD OnLDAPMessage(nsILDAPMessage* aMessage) override;
-  NS_IMETHOD OnLDAPError(nsresult status, nsITransportSecurityInfo* secInfo,
-                         nsACString const& location) override;
+  NS_IMETHOD OnLDAPError(nsresult status, nsISupports* secInfo) override;
 
  protected:
   virtual ~nsAbQueryLDAPMessageListener();
@@ -100,11 +99,10 @@ nsresult nsAbQueryLDAPMessageListener::Cancel() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPError(
-    nsresult status, nsITransportSecurityInfo* secInfo,
-    nsACString const& location) {
+NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPError(nsresult status,
+                                                        nsISupports* secInfo) {
   if (mResultListener) {
-    mResultListener->OnSearchFinished(status, secInfo, location);
+    mResultListener->OnSearchFinished(status, secInfo);
   }
   return NS_OK;
 }
@@ -172,7 +170,7 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(
     if (mOperation) rv = mOperation->AbandonExt();
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = mResultListener->OnSearchFinished(NS_ERROR_ABORT, nullptr, ""_ns);
+    rv = mResultListener->OnSearchFinished(NS_ERROR_ABORT, nullptr);
 
     // reset because we might re-use this listener...except don't do this
     // until the search is done, so we'll ignore results from a previous
@@ -220,9 +218,9 @@ void nsAbQueryLDAPMessageListener::InitFailed(bool aCancelled) {
   if (!mResultListener) return;
 
   if (aCancelled) {
-    mResultListener->OnSearchFinished(NS_ERROR_ABORT, nullptr, ""_ns);
+    mResultListener->OnSearchFinished(NS_ERROR_ABORT, nullptr);
   } else {
-    mResultListener->OnSearchFinished(NS_ERROR_FAILURE, nullptr, ""_ns);
+    mResultListener->OnSearchFinished(NS_ERROR_FAILURE, nullptr);
   }
 }
 
@@ -258,10 +256,10 @@ nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchResult(
 
   if (errorCode == nsILDAPErrors::SUCCESS ||
       errorCode == nsILDAPErrors::SIZELIMIT_EXCEEDED) {
-    return mResultListener->OnSearchFinished(NS_OK, nullptr, ""_ns);
+    return mResultListener->OnSearchFinished(NS_OK, nullptr);
   }
 
-  return mResultListener->OnSearchFinished(NS_ERROR_FAILURE, nullptr, ""_ns);
+  return mResultListener->OnSearchFinished(NS_ERROR_FAILURE, nullptr);
 }
 
 // nsAbLDAPDirectoryQuery
@@ -524,9 +522,8 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnSearchFoundCard(nsIAbCard* aCard) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnSearchFinished(
-    nsresult status, nsITransportSecurityInfo* secInfo,
-    nsACString const& location) {
+NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnSearchFinished(nsresult status,
+                                                       nsISupports* secInfo) {
   uint32_t count = mListeners.Count();
 
   // XXX: Temporary fix for crasher needs reviewing as part of bug 135231.
@@ -535,7 +532,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnSearchFinished(
   NS_ADDREF_THIS();
 
   for (int32_t i = count - 1; i >= 0; --i) {
-    mListeners[i]->OnSearchFinished(status, secInfo, location);
+    mListeners[i]->OnSearchFinished(status, secInfo);
     mListeners.RemoveObjectAt(i);
   }
 

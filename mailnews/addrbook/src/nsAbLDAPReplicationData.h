@@ -29,8 +29,7 @@ class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
 
   // nsILDAPMessageListener
   NS_IMETHOD OnLDAPMessage(nsILDAPMessage* aMessage) override;
-  NS_IMETHOD OnLDAPError(nsresult status, nsITransportSecurityInfo* secInfo,
-                         nsACString const& location) override;
+  NS_IMETHOD OnLDAPError(nsresult status, nsISupports* secInfo) override;
 
  protected:
   virtual ~nsAbLDAPProcessReplicationData();

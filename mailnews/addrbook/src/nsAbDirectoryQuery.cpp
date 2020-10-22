@@ -200,9 +200,8 @@ NS_IMETHODIMP nsAbDirectoryQuery::DoQuery(
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = query(aDirectory, expression, listener, doSubDirectories, &resultLimit);
-  NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = listener->OnSearchFinished(rv, nullptr, ""_ns);
+  rv = listener->OnSearchFinished(rv, nullptr);
 
   *_retval = 0;
   return rv;

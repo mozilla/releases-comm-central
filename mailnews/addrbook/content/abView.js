@@ -169,36 +169,9 @@ ABView.prototype = {
     // Instead of duplicating the insertion code below, just call it.
     this.observe(card, "addrbook-contact-created", this.directory?.UID);
   },
-  onSearchFinished(status, secInfo, location) {
-    // Special handling for Bad Cert errors.
-    let offerCertException = false;
-    try {
-      // If code is not an NSS error, getErrorClass() will fail.
-      let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
-        Ci.nsINSSErrorsService
-      );
-      let errorClass = nssErrorsService.getErrorClass(status);
-      if (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
-        offerCertException = true;
-      }
-    } catch (ex) {}
-
-    if (offerCertException) {
-      // Give the user the option of adding an exception for the bad cert.
-      let params = {
-        exceptionAdded: false,
-        securityInfo: secInfo,
-        prefetchCert: true,
-        location,
-      };
-      window.openDialog(
-        "chrome://pippki/content/exceptionDialog.xhtml",
-        "",
-        "chrome,centerscreen,modal",
-        params
-      );
-      // params.exceptionAdded will be set if the user added an exception.
-    }
+  onSearchFinished(status, secInfo) {
+    // TODO (Bug 1659947): if certificate error, give the user the option
+    // to add the failed certificate (available in secInfo) as an exception.
   },
 
   // nsIObserver

@@ -885,8 +885,8 @@ nsresult nsAbOutlookDirectory::StopSearch(void) {
 }
 
 // nsIAbDirSearchListener
-NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFinished(
-    nsresult status, nsISupports* secInfo, nsACString const& location) {
+NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFinished(nsresult status,
+                                                     nsISupports* secInfo) {
   return NS_OK;
 }
 
@@ -933,7 +933,7 @@ nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction& aRestriction,
 
   mQueryThreads.Remove(aThreadId);
 
-  aListener->OnSearchFinished(NS_OK, nullptr, ""_ns);
+  aListener->OnSearchFinished(NS_OK, nullptr);
   return retCode;
 }
 

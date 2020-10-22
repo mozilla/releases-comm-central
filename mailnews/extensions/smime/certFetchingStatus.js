@@ -209,7 +209,7 @@ boundListener.prototype.onLDAPInit = function(aConn, aStatus) {
   kickOffBind();
 };
 
-boundListener.prototype.onLDAPError = function(aStatus, aSecInfo, location) {
+boundListener.prototype.onLDAPError = function(aStatus, aSecInfo) {
   window.close();
 };
 

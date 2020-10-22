@@ -309,7 +309,7 @@ AbLDAPAutoCompleteSearch.prototype = {
 
   // nsIAbDirSearchListener
 
-  onSearchFinished(status, secInfo, location) {
+  onSearchFinished(status, secInfo) {
     if (!this._listener) {
       return;
     }
