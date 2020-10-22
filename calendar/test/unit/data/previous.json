@@ -1,5 +1,5 @@
 {
-  "version": "2.2019c",
+  "version": "2.2020a",
   "aliases": [
     "AUS Central Standard Time",
     "AUS Eastern Standard Time",
@@ -9,6 +9,7 @@
     "Alaskan Standard Time",
     "America/Argentina/ComodRivadavia",
     "America/Buenos_Aires",
+    "America/Godthab",
     "America/Louisville",
     "America/Montreal",
     "America/Santa_Isabel",
@@ -242,7 +243,6 @@
     "America/Fort_Nelson",
     "America/Fortaleza",
     "America/Glace_Bay",
-    "America/Godthab",
     "America/Goose_Bay",
     "America/Grand_Turk",
     "America/Grenada",
@@ -296,6 +296,7 @@
     "America/North_Dakota/Beulah",
     "America/North_Dakota/Center",
     "America/North_Dakota/New_Salem",
+    "America/Nuuk",
     "America/Ojinaga",
     "America/Panama",
     "America/Pangnirtung",
