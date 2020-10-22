@@ -285,7 +285,7 @@ var EnigmailKeyRing = {
   importRevFromFile(inputFile) {
     var contents = EnigmailFiles.readFile(inputFile);
     if (!contents) {
-      return false;
+      return;
     }
 
     const beginIndexObj = {};
@@ -299,11 +299,11 @@ var EnigmailKeyRing = {
       {}
     );
     if (!blockType) {
-      return false;
+      return;
     }
 
     if (blockType.search(/^(PUBLIC|PRIVATE) KEY BLOCK$/) !== 0) {
-      return false;
+      return;
     }
 
     let pgpBlock = contents.substr(
@@ -314,12 +314,11 @@ var EnigmailKeyRing = {
     const cApi = EnigmailCryptoAPI();
     let res = cApi.sync(cApi.importRevBlockAPI(pgpBlock));
     if (res.exitCode) {
-      return false;
+      return;
     }
 
     EnigmailKeyRing.clearCache();
     getWindows().keyManReloadKeys();
-    return true;
   },
 
   /**
@@ -539,6 +538,7 @@ var EnigmailKeyRing = {
       label,
       "",
       true,
+      false,
       "*.asc",
       defaultFilename,
       [l10n.formatValueSync("ascii-armor-file"), "*.asc"]

@@ -8,8 +8,7 @@
 
 // Modules
 /* global EnigmailApp: false, EnigmailKeyRing: false, GetEnigmailSvc: false,
-   EnigSavePrefs: false, EnigFilePicker: false,
-   EnigGetFilePath: false, EnigmailWindows: false, PgpSqliteDb2: false */
+   EnigSavePrefs: false, EnigmailWindows: false, PgpSqliteDb2: false */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -49,7 +48,7 @@ var kButtonLabel;
 var gKeygenRequest;
 var gAllData = "";
 var gGeneratedKey = null;
-var kFile = null;
+var gFiles;
 
 const DEFAULT_FILE_PERMS = 0o600;
 
@@ -293,7 +292,7 @@ function backToStart(event) {
   kDialog.getButton("accept").classList.remove("primary");
 
   // Reset the import section.
-  document.getElementById("openPgpImportWarning").collapsed = true;
+  clearImportWarningNotifications();
   document.getElementById("importKeyIntro").hidden = false;
   document.getElementById("importKeyListContainer").collapsed = true;
 
@@ -307,15 +306,66 @@ function backToStart(event) {
 }
 
 /**
+ * Create a new inline notification to append to the import warning container.
+ *
+ * @return {XULElement} - The description element inside the notification.
+ */
+async function addImportWarningNotification() {
+  let notification = document.createXULElement("hbox");
+  notification.classList.add(
+    "inline-notification-container",
+    "error-container"
+  );
+
+  let wrapper = document.createXULElement("hbox");
+  wrapper.classList.add("inline-notification-wrapper", "align-center");
+
+  let image = document.createXULElement("image");
+  image.classList.add("notification-image", "notification-image-error");
+
+  let description = document.createXULElement("description");
+
+  wrapper.appendChild(image);
+  wrapper.appendChild(description);
+
+  notification.appendChild(wrapper);
+
+  let container = document.getElementById("openPgpImportWarning");
+  container.appendChild(notification);
+
+  // Show the notification container.
+  container.removeAttribute("hidden");
+
+  return description;
+}
+
+/**
+ * Remove all inline errors from the notification area of the import section.
+ */
+function clearImportWarningNotifications() {
+  let container = document.getElementById("openPgpImportWarning");
+
+  // Remove any existing notification.
+  for (let notification of container.querySelectorAll(
+    ".inline-notification-container"
+  )) {
+    notification.remove();
+  }
+
+  // Hide the entire notification container.
+  container.hidden = true;
+}
+
+/**
  * Show the Key Creation section.
  */
 async function wizardCreateKey() {
   kCurrentSection = "create";
   revealSection("wizardCreateKey");
 
-  let createLabel = await document.l10n.formatValue("openpgp-keygen-button");
-
-  kDialog.getButton("accept").label = createLabel;
+  kDialog.getButton("accept").label = await document.l10n.formatValue(
+    "openpgp-keygen-button"
+  );
   kDialog.getButton("accept").classList.add("primary");
 
   if (!gIdentity.fullName) {
@@ -345,11 +395,9 @@ async function wizardExternalKey() {
   kCurrentSection = "external";
   revealSection("wizardExternalKey");
 
-  let createLabel = await document.l10n.formatValue(
+  kDialog.getButton("accept").label = await document.l10n.formatValue(
     "openpgp-save-external-button"
   );
-
-  kDialog.getButton("accept").label = createLabel;
   kDialog.getButton("accept").classList.add("primary");
 
   // If the user is already using an external GnuPG key, populate the input,
@@ -704,74 +752,98 @@ async function importSecretKey() {
     { id: "gnupg-file" },
   ]);
 
-  kFile = EnigmailDialog.filePicker(
+  // Reset the array of selected files.
+  gFiles = [];
+
+  let files = EnigmailDialog.filePicker(
     window,
     importTitle,
     "",
     false,
+    true,
     "*.asc",
     "",
     [importType, "*.asc;*.gpg;*.pgp"]
   );
 
-  if (!kFile) {
+  if (!files.length) {
     return;
   }
 
-  // Interrupt if the file size is larger than 5MB.
-  if (kFile.fileSize > 5000000) {
-    document.l10n.setAttributes(
-      document.getElementById("openPgpImportWarningDescription"),
-      "import-error-file-size"
+  // Clear and hide the warning notification section.
+  clearImportWarningNotifications();
+
+  // Clear the key list from any previously listed key.
+  let keyList = document.getElementById("importKeyList");
+  while (keyList.lastChild) {
+    keyList.lastChild.remove();
+  }
+
+  let keyCount = 0;
+  for (let file of files) {
+    // Skip the file and show a warning message if larger than 5MB.
+    if (file.fileSize > 5000000) {
+      document.l10n.setAttributes(
+        await addImportWarningNotification(),
+        "import-error-file-size"
+      );
+      continue;
+    }
+
+    let errorMsgObj = {};
+    // Fetch the list of all the available keys inside the selected file.
+    let importKeys = EnigmailKey.getKeyListFromKeyFile(
+      file,
+      errorMsgObj,
+      false,
+      true
     );
 
-    document.getElementById("openPgpImportWarning").collapsed = false;
+    // Skip the file and show a warning message if the import failed.
+    if (!importKeys || !importKeys.length || errorMsgObj.value) {
+      document.l10n.setAttributes(
+        await addImportWarningNotification(),
+        "import-error-failed",
+        { error: errorMsgObj.value }
+      );
+      continue;
+    }
 
-    resizeDialog();
-    return;
+    await appendFetchedKeys(importKeys);
+    keyCount += importKeys.length;
+
+    // Add the current file to the list of valid files to import.
+    gFiles.push(file);
   }
 
-  let errorMsgObj = {};
-  // Fetch the list of all the available keys inside the selected files.
-  let importKeys = EnigmailKey.getKeyListFromKeyFile(
-    kFile,
-    errorMsgObj,
-    false,
-    true
-  );
-
-  if (!importKeys || !importKeys.length || errorMsgObj.value) {
-    document.l10n.setAttributes(
-      document.getElementById("openPgpImportWarningDescription"),
-      "import-error-failed",
-      { error: errorMsgObj.value }
-    );
-
-    document.getElementById("openPgpImportWarning").collapsed = false;
-
-    resizeDialog();
-    return;
-  }
-
-  // Hide the warning notification and the intro section.
-  document.getElementById("openPgpImportWarning").collapsed = true;
-  document.getElementById("importKeyIntro").hidden = true;
-
+  // Update the list count recap and show the container.
   document.l10n.setAttributes(
     document.getElementById("keyListCount"),
     "openpgp-import-key-list-amount",
-    { count: importKeys.length }
+    { count: keyCount }
   );
 
-  document.getElementById(
-    "importKeyListContainer"
-  ).collapsed = !importKeys.length;
+  document.getElementById("importKeyListContainer").collapsed = !keyCount;
 
-  let keyList = document.getElementById("importKeyList");
-  // Clear any possible existing key previously appended to the DOM.
-  for (let node of keyList.children) {
-    keyList.removeChild(node);
+  // Hide the intro section and enable the import of keys only if we have valid
+  // keys currently listed.
+  if (keyCount) {
+    document.getElementById("importKeyIntro").hidden = true;
+    kDialog.getButton("accept").removeAttribute("disabled");
+    kDialog.getButton("accept").classList.add("primary");
   }
+
+  resizeDialog();
+}
+
+/**
+ * Populate the key list in the import dialog with all the valid keys fetched
+ * from a single file.
+ *
+ * @param {string[]} importKeys - The array of keys fetched from a single file.
+ */
+async function appendFetchedKeys(importKeys) {
+  let keyList = document.getElementById("importKeyList");
 
   // List all the keys fetched from the file.
   for (let key of importKeys) {
@@ -802,15 +874,10 @@ async function importSecretKey() {
 
     keyList.appendChild(container);
   }
-
-  resizeDialog();
-
-  kDialog.getButton("accept").removeAttribute("disabled");
-  kDialog.getButton("accept").classList.add("primary");
 }
 
 async function openPgpImportStart() {
-  if (!kFile) {
+  if (!gFiles.length) {
     return;
   }
 
@@ -821,43 +888,82 @@ async function openPgpImportStart() {
   overlay.removeAttribute("hidden");
   overlay.classList.remove("hide");
 
-  let resultKeys = {};
-  let errorMsgObj = {};
-  let exitCode = EnigmailKeyRing.importKeyFromFile(
-    window,
-    passphrasePromptCallback,
-    kFile,
-    errorMsgObj,
-    resultKeys,
-    false,
-    true
-  );
+  // Clear and hide the warning notification section.
+  clearImportWarningNotifications();
 
-  // Interrupt if something went wrong.
-  if (exitCode !== 0) {
-    overlay.addEventListener("transitionend", hideOverlay);
-    overlay.classList.add("hide");
+  // Clear the list of any previously improted keys from the DOM.
+  let keyList = document.getElementById("importKeyListRecap");
+  while (keyList.lastChild) {
+    keyList.lastChild.remove();
+  }
 
-    document.l10n.setAttributes(
-      document.getElementById("openPgpImportWarningDescription"),
-      "openpgp-import-keys-failed",
-      { error: errorMsgObj.value }
+  let keyCount = 0;
+  for (let file of gFiles) {
+    let resultKeys = {};
+    let errorMsgObj = {};
+
+    let exitCode = EnigmailKeyRing.importKeyFromFile(
+      window,
+      passphrasePromptCallback,
+      file,
+      errorMsgObj,
+      resultKeys,
+      false,
+      true
     );
 
-    document.getElementById("openPgpImportWarning").collapsed = false;
+    // Skip this file if something went wrong.
+    if (exitCode !== 0) {
+      document.l10n.setAttributes(
+        await addImportWarningNotification(),
+        "openpgp-import-keys-failed",
+        { error: errorMsgObj.value }
+      );
+      continue;
+    }
 
-    resizeDialog();
-    kGenerating = false;
-    return;
+    await appendImportedKeys(resultKeys);
+    keyCount += resultKeys.keys.length;
   }
 
+  // Hide the previous key list container and title.
+  document.getElementById("importKeyListContainer").collapsed = keyCount;
+  document.getElementById("importKeyTitle").hidden = keyCount;
+
+  // Show the successful final screen only if at least one key was imported.
+  if (keyCount) {
+    // Update the dialog buttons for the final stage.
+    kDialog.getButton("help").setAttribute("hidden", true);
+    kDialog.getButton("cancel").setAttribute("hidden", true);
+
+    // Update the `Continue` button.
+    document.l10n.setAttributes(
+      kDialog.getButton("accept"),
+      "openpgp-keygen-import-complete"
+    );
+    kCurrentSection = "importComplete";
+
+    // Show the recently built key list.
+    document.getElementById("importKeyListSuccess").collapsed = false;
+  }
+
+  // Hide the loading overlay.
+  overlay.addEventListener("transitionend", hideOverlay);
+  overlay.classList.add("hide");
+
+  resizeDialog();
+  kGenerating = false;
+}
+
+/**
+ * Populate the key list in the import dialog with all the valid keys imported
+ * from a single file.
+ *
+ * @param {string[]} resultKeys - The array of keys imported from a single file.
+ */
+async function appendImportedKeys(resultKeys) {
   let keyList = document.getElementById("importKeyListRecap");
-  // Clear the improted keys from the DOM.
-  for (let node of keyList.children) {
-    keyList.removeChild(node);
-  }
 
-  // Set any of the previously checked keys as personal.
   for (let keyId of resultKeys.keys) {
     if (keyId.search(/^0x/) === 0) {
       keyId = keyId.substr(2).toUpperCase();
@@ -942,32 +1048,6 @@ async function openPgpImportStart() {
       keyList.appendChild(container);
     }
   }
-
-  // Hide the previous key list container and title.
-  document.getElementById("importKeyListContainer").collapsed = true;
-  document.getElementById("importKeyTitle").hidden = true;
-
-  // Update the dialog buttons for the final stage.
-  kDialog.getButton("help").setAttribute("hidden", true);
-  kDialog.getButton("cancel").setAttribute("hidden", true);
-
-  // Update the `Continue` button.
-  document.l10n.setAttributes(
-    kDialog.getButton("accept"),
-    "openpgp-keygen-import-complete"
-  );
-  kCurrentSection = "importComplete";
-
-  // Show the recently built key list.
-  document.getElementById("importKeyListSuccess").collapsed = false;
-
-  // Hide the loading overlay.
-  overlay.addEventListener("transitionend", hideOverlay);
-  overlay.classList.add("hide");
-
-  resizeDialog();
-
-  kGenerating = false;
 }
 
 function openPgpImportComplete() {

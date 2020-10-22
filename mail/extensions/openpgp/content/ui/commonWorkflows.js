@@ -105,112 +105,114 @@ function EnigmailCommon_importObjectFromFile(what) {
   let importingRevocation = what == "rev";
   let promptStr = importingRevocation ? "import-rev-file" : "import-key-file";
 
-  let inFile = EnigmailDialog.filePicker(
+  let files = EnigmailDialog.filePicker(
     window,
     l10n.formatValueSync(promptStr),
     "",
     false,
+    true,
     "*.asc",
     "",
     [l10n.formatValueSync("gnupg-file"), "*.asc;*.gpg;*.pgp"]
   );
-  if (!inFile) {
-    return false;
+
+  if (!files.length) {
+    return;
   }
 
-  // infile type: nsIFile
-  // RNP.maxImportKeyBlockSize
-  if (inFile.fileSize > 5000000) {
-    document.l10n.formatValue("file-to-big-to-import").then(value => {
-      EnigmailDialog.alert(window, value);
-    });
-    return false;
-  }
-  let errorMsgObj = {};
-
-  if (importingRevocation) {
-    return EnigmailKeyRing.importRevFromFile(inFile);
-  }
-
-  let isSecret = what == "sec";
-
-  let importBinary = false;
-  let keyBlock = getKeyBlockFromFile(inFile, isSecret);
-
-  if (!keyBlock) {
-    // if we don't find an ASCII block, try to import as binary
-    importBinary = true;
-    keyBlock = EnigmailFiles.readFile(inFile);
-  }
-
-  // preview
-  let preview = EnigmailKey.getKeyListFromKeyBlock(
-    keyBlock,
-    errorMsgObj,
-    true, // interactive
-    !isSecret,
-    isSecret
-  );
-
-  if (!preview || !preview.length || errorMsgObj.value) {
-    document.l10n.formatValue("import-keys-failed").then(value => {
-      EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
-    });
-    return false;
-  }
-  let exitStatus = -1;
-
-  if (preview.length > 0) {
-    if (preview.length == 1) {
-      exitStatus = EnigmailDialog.confirmDlg(
-        window,
-        l10n.formatValueSync("do-import-one", {
-          name: preview[0].name,
-          id: preview[0].id,
-        })
-      );
-    } else {
-      exitStatus = EnigmailDialog.confirmDlg(
-        window,
-        l10n.formatValueSync("do-import-multiple", {
-          key: preview
-            .map(function(a) {
-              return "\t" + a.name + " (" + a.id + ")";
-            })
-            .join("\n"),
-        })
-      );
+  for (let file of files) {
+    if (file.fileSize > 5000000) {
+      document.l10n.formatValue("file-to-big-to-import").then(value => {
+        EnigmailDialog.alert(window, value);
+      });
+      continue;
     }
 
-    if (exitStatus) {
-      // import
-      let resultKeys = {};
+    let errorMsgObj = {};
 
-      let exitCode = EnigmailKeyRing.importKey(
-        window,
-        false, // interactive, we already asked for confirmation
-        keyBlock,
-        importBinary,
-        null, // expected keyId, ignored
-        errorMsgObj,
-        resultKeys,
-        false, // minimize
-        [], // filter
-        isSecret,
-        true, // allow prompt for permissive
-        passphrasePromptCallback
-      );
+    if (importingRevocation) {
+      EnigmailKeyRing.importRevFromFile(file);
+      continue;
+    }
 
-      if (exitCode !== 0) {
-        document.l10n.formatValue("import-keys-failed").then(value => {
-          EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
-        });
+    let isSecret = what == "sec";
+    let importBinary = false;
+    let keyBlock = getKeyBlockFromFile(file, isSecret);
+
+    // if we don't find an ASCII block, try to import as binary.
+    if (!keyBlock) {
+      importBinary = true;
+      keyBlock = EnigmailFiles.readFile(file);
+    }
+
+    // Generat a preview of the imported key.
+    let preview = EnigmailKey.getKeyListFromKeyBlock(
+      keyBlock,
+      errorMsgObj,
+      true, // interactive
+      !isSecret,
+      isSecret
+    );
+
+    if (!preview || !preview.length || errorMsgObj.value) {
+      document.l10n.formatValue("import-keys-failed").then(value => {
+        EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
+      });
+      continue;
+    }
+
+    let exitStatus = -1;
+
+    if (preview.length > 0) {
+      if (preview.length == 1) {
+        exitStatus = EnigmailDialog.confirmDlg(
+          window,
+          l10n.formatValueSync("do-import-one", {
+            name: preview[0].name,
+            id: preview[0].id,
+          })
+        );
       } else {
+        exitStatus = EnigmailDialog.confirmDlg(
+          window,
+          l10n.formatValueSync("do-import-multiple", {
+            key: preview
+              .map(function(a) {
+                return "\t" + a.name + " (" + a.id + ")";
+              })
+              .join("\n"),
+          })
+        );
+      }
+
+      if (exitStatus) {
+        // import
+        let resultKeys = {};
+
+        let exitCode = EnigmailKeyRing.importKey(
+          window,
+          false, // interactive, we already asked for confirmation
+          keyBlock,
+          importBinary,
+          null, // expected keyId, ignored
+          errorMsgObj,
+          resultKeys,
+          false, // minimize
+          [], // filter
+          isSecret,
+          true, // allow prompt for permissive
+          passphrasePromptCallback
+        );
+
+        if (exitCode !== 0) {
+          document.l10n.formatValue("import-keys-failed").then(value => {
+            EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
+          });
+          continue;
+        }
+
         EnigmailDialog.keyImportDlg(window, resultKeys.value);
-        return true;
       }
     }
   }
-
-  return false;
 }

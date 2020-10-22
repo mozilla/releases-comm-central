@@ -402,6 +402,7 @@ var EnigmailDialog = {
    *  title:            String    - window title
    *  displayDir:       String    - optional: directory to be displayed
    *  save:             Boolean   - true = Save file / false = Open file
+   *  multiple:         Boolean   - true = Select multiple files / false = Select single file
    *  defaultExtension: String    - optional: extension for the type of files to work with, e.g. "asc"
    *  defaultName:      String    - optional: filename, incl. extension, that should be suggested to
    *                                the user as default, e.g. "keys.asc"
@@ -414,6 +415,7 @@ var EnigmailDialog = {
     title,
     displayDir,
     save,
+    multiple,
     defaultExtension,
     defaultName,
     filterPairs
@@ -423,7 +425,10 @@ var EnigmailDialog = {
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
     filePicker = filePicker.QueryInterface(Ci.nsIFilePicker);
 
-    let mode = save ? Ci.nsIFilePicker.modeSave : Ci.nsIFilePicker.modeOpen;
+    let open = multiple
+      ? Ci.nsIFilePicker.modeOpenMultiple
+      : Ci.nsIFilePicker.modeOpen;
+    let mode = save ? Ci.nsIFilePicker.modeSave : open;
 
     filePicker.init(win, title, mode);
 
@@ -461,7 +466,7 @@ var EnigmailDialog = {
     let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(
       Ci.nsIJSInspector
     );
-    let gotFile = null;
+    let files = [];
     filePicker.open(res => {
       if (
         res != Ci.nsIFilePicker.returnOK &&
@@ -471,13 +476,22 @@ var EnigmailDialog = {
         return;
       }
 
-      gotFile = filePicker.file.QueryInterface(Ci.nsIFile);
+      // Loop through multiple selected files only if the dialog was triggered
+      // to open files and the `multiple` boolean variable is true.
+      if (!save && multiple) {
+        for (let file of filePicker.files) {
+          files.push(file);
+        }
+      } else {
+        files.push(filePicker.file);
+      }
+
       inspector.exitNestedEventLoop();
     });
 
     inspector.enterNestedEventLoop(0); // wait for async process to terminate
 
-    return gotFile;
+    return multiple ? files : files[0];
   },
 
   /**

@@ -213,6 +213,8 @@
              data-l10n-id="openpgp-import-key-title"
              class="dialogheader-title"/>
 
+      <vbox id="openPgpImportWarning" hidden="true"/>
+
       <vbox id="importKeyIntro" align="start">
         <html:div>
           <html:fieldset>
@@ -225,15 +227,6 @@
 
             <button data-l10n-id="openpgp-import-key-button"
                     oncommand="importSecretKey();"/>
-
-            <hbox id="openPgpImportWarning"
-                  class="inline-notification-container error-container"
-                  collapsed="true">
-              <hbox class="inline-notification-wrapper align-center">
-                <image class="notification-image notification-image-error"/>
-                <description id="openPgpImportWarningDescription"/>
-              </hbox>
-            </hbox>
 
             <separator class="thin"/>
           </html:fieldset>
