@@ -371,6 +371,41 @@ add_task(async function testEventReminderDisplay() {
   );
 });
 
+/**
+ * Test that using CTRL+Enter does not result in two events being created.
+ * This only happens in the dialog window. See bug 1668478.
+ */
+add_task(async function testCtrlEnterShortcut() {
+  createCalendar(controller, CALENDARNAME);
+  switchToView(controller, "day");
+  goToDate(controller, 2020, 9, 1);
+
+  let createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+  await invokeNewEventDialog(controller, createBox, async (event, iframe) => {
+    await setData(event, iframe, {
+      title: EVENTTITLE,
+      location: EVENTLOCATION,
+      description: EVENTDESCRIPTION,
+    });
+    EventUtils.synthesizeKey("VK_RETURN", { ctrlKey: true }, event.window);
+  });
+
+  switchToView(controller, "month");
+
+  // Give the event boxes enough time to appear before checking for duplicates.
+  controller.sleep(2000);
+
+  let events = document.querySelectorAll("calendar-month-day-box-item");
+  Assert.equal(events.length, 1, "event was created once");
+
+  if (Services.focus.activeWindow != controller.window) {
+    await BrowserTestUtils.waitForEvent(controller.window, "focus");
+  }
+
+  events[0].focus();
+  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
+});
+
 function checkTooltip(row, col, startTime, endTime) {
   let item = lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH);
 
