@@ -173,16 +173,6 @@ class CardDAVDirectory extends AddrBookDirectory {
     let uri = serverURI.resolve(path);
 
     details.username = this.getStringValue("carddav.username", "");
-    if (!details.username && !this.warnedAboutUsername) {
-      console.error(
-        `CardDAV username not set. This probably means you set up CardDAV ` +
-          `before Thunderbird 82. Remove the directory and set it up again, ` +
-          `or set pref ${this.dirPrefId}.carddav.username with your username.`
-      );
-      this.warnedAboutUsername = true;
-      // Don't throw an error here, because it's possible that a username and
-      // password aren't required. Weird, but possible.
-    }
     details.privateBrowsingId = CardDAVDirectory._contextForUsername(
       details.username
     );
