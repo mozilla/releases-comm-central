@@ -479,6 +479,47 @@ var MailPrefObserver = {
 };
 
 /**
+ * Theme observer to deal with the ui.systemUsesDarkTheme preferences when
+ * switching between default, light, and dark theme.
+ */
+var ThemePrefObserver = {
+  observe(subject, topic, prefName) {
+    // Verify that we're changing the correct pref.
+    if (topic == "nsPref:changed" && prefName == "extensions.activeThemeID") {
+      // We need to force a light theme before removing the pref in order to
+      // deal with the issue of the Default Theme not triggering any color
+      // update. We remove the pref to run our conditions on a clean state.
+      Services.prefs.setIntPref("ui.systemUsesDarkTheme", 0);
+      Services.prefs.clearUserPref("ui.systemUsesDarkTheme");
+
+      // Bail out if we're not on Linux and the current Thunderbird theme is not
+      // the default, to allow the OS theme to properly handle the color scheme.
+      if (
+        AppConstants.platform != "linux" &&
+        Services.prefs.getCharPref("extensions.activeThemeID") ==
+          "default-theme@mozilla.org"
+      ) {
+        return;
+      }
+
+      let mainWindow = document.getElementById("messengerWindow");
+      if (!mainWindow) {
+        return;
+      }
+
+      if (mainWindow.getAttribute("lwt-tree-brighttext") == "true") {
+        // The theme requires a light text, so we trigger the dark mode.
+        Services.prefs.setIntPref("ui.systemUsesDarkTheme", 1);
+        return;
+      }
+
+      // The theme doesn't require light text, so we keep trigger a light mode.
+      Services.prefs.setIntPref("ui.systemUsesDarkTheme", 0);
+    }
+  },
+};
+
+/**
  * Called on startup if there are no accounts.
  */
 function AutoConfigWizard(okCallback) {
@@ -593,6 +634,7 @@ var gMailInit = {
     Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver);
     Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver);
     Services.prefs.addObserver("mail.openpgp.enable", MailPrefObserver);
+    Services.prefs.addObserver("extensions.activeThemeID", ThemePrefObserver);
 
     CreateMailWindowGlobals();
     GetMessagePaneWrapper().collapsed = true;
@@ -721,6 +763,10 @@ var gMailInit = {
       MailPrefObserver
     );
     Services.prefs.removeObserver("mail.openpgp.enable", MailPrefObserver);
+    Services.prefs.removeObserver(
+      "extensions.activeThemeID",
+      ThemePrefObserver
+    );
 
     if (gRightMouseButtonSavedSelection) {
       // Avoid possible cycle leaks.

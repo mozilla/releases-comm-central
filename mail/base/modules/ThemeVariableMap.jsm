@@ -2,16 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
-
 var EXPORTED_SYMBOLS = ["ThemeVariableMap", "ThemeContentPropertyList"];
-
-function _isTextColorDark(r, g, b) {
-  return 0.2125 * r + 0.7154 * g + 0.0721 * b <= 110;
-}
 
 const ThemeVariableMap = [
   [
@@ -165,69 +156,25 @@ const ThemeVariableMap = [
     {
       lwtProperty: "sidebar_text",
       processColor(rgbaChannels, element) {
-        // Delete the ui.systemUsesDarkTheme pref if we're not on Linux and the
-        // current Thunderbird theme is not the default, to allow the OS theme
-        // to properly handle the color scheme.
-        let ignoreDarkThemePref;
-        if (
-          AppConstants.platform != "linux" &&
-          Services.prefs.getCharPref("extensions.activeThemeID") ==
-            "default-theme@mozilla.org"
-        ) {
-          Services.prefs.deleteBranch("ui.systemUsesDarkTheme");
-          ignoreDarkThemePref = true;
-        }
-
         if (!rgbaChannels) {
           element.removeAttribute("lwt-tree");
           element.removeAttribute("lwt-tree-brighttext");
-
-          // We use the #tabmail element to determine the color contrast.
-          // If the element is not present, it means a dialog or an unkown tab
-          // is currently opened, and we shouldn't do anything.
-          let tabmail = element.ownerDocument.getElementById("tabmail");
-          if (!tabmail) {
-            return null;
-          }
-
-          let rgb = tabmail.ownerGlobal
-            .getComputedStyle(tabmail)
-            .color.match(/^rgba?\((\d+), (\d+), (\d+)/);
-          rgb.shift();
-          let [r, g, b] = rgb.map(x => parseInt(x));
-
-          if (!_isTextColorDark(r, g, b)) {
-            element.setAttribute("lwt-tree-brighttext", "true");
-            if (!ignoreDarkThemePref) {
-              Services.prefs.setIntPref("ui.systemUsesDarkTheme", 1);
-            }
-
-            return `rgba(${r}, ${g}, ${b}, 1)`;
-          }
-
-          element.removeAttribute("lwt-tree-brighttext");
-          if (!ignoreDarkThemePref) {
-            Services.prefs.setIntPref("ui.systemUsesDarkTheme", 0);
-          }
-
           return null;
         }
 
+        const { r, g, b } = rgbaChannels;
+        let luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
+
         element.setAttribute("lwt-tree", "true");
-        let { r, g, b, a } = rgbaChannels;
-        if (!_isTextColorDark(r, g, b)) {
-          element.setAttribute("lwt-tree-brighttext", "true");
-          if (!ignoreDarkThemePref) {
-            Services.prefs.setIntPref("ui.systemUsesDarkTheme", 1);
-          }
-        } else {
+
+        if (luminance <= 110) {
           element.removeAttribute("lwt-tree-brighttext");
-          if (!ignoreDarkThemePref) {
-            Services.prefs.setIntPref("ui.systemUsesDarkTheme", 0);
-          }
+        } else {
+          element.setAttribute("lwt-tree-brighttext", "true");
         }
 
-        return `rgba(${r}, ${g}, ${b}, ${a})`;
+        // Drop alpha channel.
+        return `rgb(${r}, ${g}, ${b})`;
       },
     },
   ],
@@ -251,4 +198,11 @@ const ThemeVariableMap = [
   ],
 ];
 
-const ThemeContentPropertyList = [];
+const ThemeContentPropertyList = [
+  "ntp_background",
+  "ntp_text",
+  "sidebar",
+  "sidebar_highlight",
+  "sidebar_highlight_text",
+  "sidebar_text",
+];

@@ -9,21 +9,26 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
-var kCurrentColor = null;
-
 var ToolbarIconColor = {
+  _windowState: {
+    active: false,
+    fullscreen: false,
+    tabsintitlebar: false,
+  },
+
   init() {
     this._initialized = true;
 
     window.addEventListener("activate", this);
     window.addEventListener("deactivate", this);
-    Services.obs.addObserver(this, "lightweight-theme-styling-update");
+    window.addEventListener("toolbarvisibilitychange", this);
+    window.addEventListener("windowlwthemeupdate", this);
 
     // If the window isn't active now, we assume that it has never been active
     // before and will soon become active such that inferFromText will be
     // called from the initial activate event.
     if (Services.focus.activeWindow == window) {
-      this.inferFromText();
+      this.inferFromText("activate");
     }
   },
 
@@ -32,55 +37,56 @@ var ToolbarIconColor = {
 
     window.removeEventListener("activate", this);
     window.removeEventListener("deactivate", this);
-    Services.obs.removeObserver(this, "lightweight-theme-styling-update");
+    window.removeEventListener("toolbarvisibilitychange", this);
+    window.removeEventListener("windowlwthemeupdate", this);
   },
 
   handleEvent(event) {
     switch (event.type) {
       case "activate":
       case "deactivate":
-        this.inferFromText();
+      case "windowlwthemeupdate":
+        this.inferFromText(event.type);
+        break;
+      case "toolbarvisibilitychange":
+        this.inferFromText(event.type, event.visible);
         break;
     }
   },
 
-  observe(aSubject, aTopic, aData) {
-    switch (aTopic) {
-      case "lightweight-theme-styling-update":
-        // inferFromText needs to run after LightweightThemeConsumer.jsm's
-        // lightweight-theme-styling-update observer.
-        setTimeout(() => {
-          this.inferFromText();
-        }, 0);
-        break;
-    }
-  },
+  // A cache of luminance values for each toolbar to avoid unnecessary calls to
+  // getComputedStyle().
+  _toolbarLuminanceCache: new Map(),
 
-  inferFromText() {
+  inferFromText(reason, reasonValue) {
     if (!this._initialized) {
       return;
     }
-
-    // Interrupt if no toolbar is currently present, meaning we don't have any
-    // toolbar to update.
-    let toolbox = document.querySelector("toolbox");
-    if (!toolbox) {
-      return;
-    }
-
-    // Interrupt if the toolbox color didn't change from the previous iteration.
-    let color = getComputedStyle(toolbox).color;
-    if (kCurrentColor && kCurrentColor == color) {
-      return;
-    }
-
-    // Store the current color variable for future reference.
-    kCurrentColor = color;
 
     function parseRGB(aColorString) {
       let rgb = aColorString.match(/^rgba?\((\d+), (\d+), (\d+)/);
       rgb.shift();
       return rgb.map(x => parseInt(x));
+    }
+
+    switch (reason) {
+      case "activate": // falls through.
+      case "deactivate":
+        this._windowState.active = reason === "activate";
+        break;
+      case "fullscreen":
+        this._windowState.fullscreen = reasonValue;
+        break;
+      case "windowlwthemeupdate":
+        // Theme change, we'll need to recalculate all color values.
+        this._toolbarLuminanceCache.clear();
+        break;
+      case "toolbarvisibilitychange":
+        // Toolbar changes dont require reset of the cached color values.
+        break;
+      case "tabsintitlebar":
+        this._windowState.tabsintitlebar = reasonValue;
+        break;
     }
 
     let toolbarSelector = "toolbox > toolbar:not([collapsed=true])";
@@ -89,9 +95,27 @@ var ToolbarIconColor = {
     }
     toolbarSelector += ", .toolbar";
 
+    // The getComputedStyle calls and setting the brighttext are separated in
+    // two loops to avoid flushing layout and making it dirty repeatedly.
+    let cachedLuminances = this._toolbarLuminanceCache;
+    let luminances = new Map();
     for (let toolbar of document.querySelectorAll(toolbarSelector)) {
-      let [r, g, b] = parseRGB(getComputedStyle(toolbar).color);
-      let luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
+      // Toolbars *should* all have ids, but guard anyway to avoid blowing up.
+      let cacheKey =
+        toolbar.id && toolbar.id + JSON.stringify(this._windowState);
+      // Lookup cached luminance value for this toolbar in this window state.
+      let luminance = cacheKey && cachedLuminances.get(cacheKey);
+      if (isNaN(luminance)) {
+        let [r, g, b] = parseRGB(getComputedStyle(toolbar).color);
+        luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
+        if (cacheKey) {
+          cachedLuminances.set(cacheKey, luminance);
+        }
+      }
+      luminances.set(toolbar, luminance);
+    }
+
+    for (let [toolbar, luminance] of luminances) {
       if (luminance <= 110) {
         toolbar.removeAttribute("brighttext");
       } else {
