@@ -318,8 +318,6 @@ class BasePopup {
       this.browser.style.minHeight = `${height}px`;
     }
 
-    this.panel.adjustArrowPosition();
-
     let event = new this.window.CustomEvent("WebExtPopupResized", { detail });
     this.browser.dispatchEvent(event);
   }
