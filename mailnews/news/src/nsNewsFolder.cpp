@@ -704,13 +704,9 @@ nsMsgNewsFolder::DeleteMessages(nsIArray* messages, nsIMsgWindow* aMsgWindow,
 
   // Stopgap. Build a parallel array of message headers while we complete
   // removal of nsIArray usage (Bug 1583030).
-  uint32_t messageCount;
-  messages->GetLength(&messageCount);
+
   nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  msgHeaders.SetCapacity(messageCount);
-  for (uint32_t i = 0; i < messageCount; ++i) {
-    msgHeaders.AppendElement(do_QueryElementAt(messages, i));
-  }
+  MsgHdrsToTArray(messages, msgHeaders);
 
   if (!isMove) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
@@ -725,7 +721,7 @@ nsMsgNewsFolder::DeleteMessages(nsIArray* messages, nsIMsgWindow* aMsgWindow,
   if (NS_SUCCEEDED(rv)) {
     for (auto msgHdr : msgHeaders) {
       rv = mDatabase->DeleteHeader(msgHdr, nullptr, true, true);
-      if (!NS_FAILED(rv)) {
+      if (NS_FAILED(rv)) {
         break;
       }
     }
@@ -743,7 +739,7 @@ nsMsgNewsFolder::DeleteMessages(nsIArray* messages, nsIMsgWindow* aMsgWindow,
 
   (void)RefreshSizeOnDisk();
 
-  return NS_OK;
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
