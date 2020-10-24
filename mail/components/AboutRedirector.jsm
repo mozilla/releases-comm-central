@@ -62,7 +62,7 @@ AboutRedirector.prototype = {
   getURIFlags(aURI) {
     let name = this._getModuleName(aURI);
     if (!(name in this._redirMap)) {
-      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
+      throw Components.Exception(`no about:${name}`, Cr.NS_ERROR_ILLEGAL_VALUE);
     }
     return this._redirMap[name].flags;
   },
@@ -70,7 +70,7 @@ AboutRedirector.prototype = {
   newChannel(aURI, aLoadInfo) {
     let name = this._getModuleName(aURI);
     if (!(name in this._redirMap)) {
-      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
+      throw Components.Exception(`no about:${name}`, Cr.NS_ERROR_ILLEGAL_VALUE);
     }
 
     let newURI = Services.io.newURI(this._redirMap[name].url);
@@ -89,5 +89,13 @@ AboutRedirector.prototype = {
     }
 
     return channel;
+  },
+
+  getChromeURI(aURI) {
+    let name = this._getModuleName(aURI);
+    if (!(name in this._redirMap)) {
+      throw Components.Exception(`no about:${name}`, Cr.NS_ERROR_ILLEGAL_VALUE);
+    }
+    return Services.io.newURI(this._redirMap[name].url);
   },
 };

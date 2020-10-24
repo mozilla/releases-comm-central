@@ -23,6 +23,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 const PREF_LOGLEVEL = "browser.policies.loglevel";
+const ABOUT_CONTRACT = "@mozilla.org/network/protocol/about;1?what=";
+
+let env = Cc["@mozilla.org/process/environment;1"].getService(
+  Ci.nsIEnvironment
+);
+const isXpcshell = env.exists("XPCSHELL_TEST_PROFILE_DIR");
 
 XPCOMUtils.defineLazyGetter(this, "log", () => {
   let { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
@@ -64,6 +70,32 @@ var EXPORTED_SYMBOLS = ["Policies"];
  * The callbacks will be bound to their parent policy object.
  */
 var Policies = {
+  // Used for cleaning up policies.
+  // Use the same timing that you used for setting up the policy.
+  _cleanup: {
+    onBeforeAddons(manager) {
+      if (Cu.isInAutomation || isXpcshell) {
+        console.log("_cleanup from onBeforeAddons");
+        clearBlockedAboutPages();
+      }
+    },
+    onProfileAfterChange(manager) {
+      if (Cu.isInAutomation || isXpcshell) {
+        console.log("_cleanup from onProfileAfterChange");
+      }
+    },
+    onBeforeUIStartup(manager) {
+      if (Cu.isInAutomation || isXpcshell) {
+        console.log("_cleanup from onBeforeUIStartup");
+      }
+    },
+    onAllWindowsRestored(manager) {
+      if (Cu.isInAutomation || isXpcshell) {
+        console.log("_cleanup from onAllWindowsRestored");
+      }
+    },
+  },
+
   "3rdparty": {
     onBeforeAddons(manager, param) {
       manager.setExtensionPolicies(param.Extensions);
@@ -922,15 +954,29 @@ function installAddonFromURL(url, extensionID) {
   });
 }
 
-let gChromeURLSBlocked = false;
+let gBlockedAboutPages = [];
 
-// If any about page is blocked, we block the loading of all
-// chrome:// URLs in the browser window.
+function clearBlockedAboutPages() {
+  gBlockedAboutPages = [];
+}
+
 function blockAboutPage(manager, feature, neededOnContentProcess = false) {
-  manager.disallowFeature(feature, neededOnContentProcess);
-  if (!gChromeURLSBlocked) {
-    blockAllChromeURLs();
-    gChromeURLSBlocked = true;
+  addChromeURLBlocker();
+  gBlockedAboutPages.push(feature);
+
+  try {
+    let aboutModule = Cc[ABOUT_CONTRACT + feature.split(":")[1]].getService(
+      Ci.nsIAboutModule
+    );
+    let chromeURL = aboutModule.getChromeURI(Services.io.newURI(feature)).spec;
+    gBlockedAboutPages.push(chromeURL);
+  } catch (e) {
+    // Some about pages don't have chrome URLS (compat)
+  }
+
+  if (feature == "about:config") {
+    // Hide old page until it is removed
+    gBlockedAboutPages.push("chrome://global/content/config.xhtml");
   }
 }
 
@@ -938,15 +984,19 @@ let ChromeURLBlockPolicy = {
   shouldLoad(contentLocation, loadInfo, mimeTypeGuess) {
     let contentType = loadInfo.externalContentPolicyType;
     if (
-      contentLocation.scheme == "chrome" &&
-      contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT &&
-      loadInfo.loadingContext &&
-      loadInfo.loadingContext.baseURI ==
-        "chrome://messenger/content/messenger.xhtml" &&
-      contentLocation.host != "mochitests" &&
-      contentLocation.host != "devtools"
+      (contentLocation.scheme != "chrome" &&
+        contentLocation.scheme != "about") ||
+      (contentType != Ci.nsIContentPolicy.TYPE_DOCUMENT &&
+        contentType != Ci.nsIContentPolicy.TYPE_SUBDOCUMENT)
     ) {
-      return Ci.nsIContentPolicy.REJECT_REQUEST;
+      return Ci.nsIContentPolicy.ACCEPT;
+    }
+    if (
+      gBlockedAboutPages.some(function(aboutPage) {
+        return contentLocation.spec.startsWith(aboutPage);
+      })
+    ) {
+      return Ci.nsIContentPolicy.REJECT_POLICY;
     }
     return Ci.nsIContentPolicy.ACCEPT;
   },
@@ -962,7 +1012,11 @@ let ChromeURLBlockPolicy = {
   },
 };
 
-function blockAllChromeURLs() {
+function addChromeURLBlocker() {
+  if (Cc[ChromeURLBlockPolicy.contractID]) {
+    return;
+  }
+
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
   registrar.registerFactory(
     ChromeURLBlockPolicy.classID,
