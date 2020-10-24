@@ -78,6 +78,10 @@ function initIdentityValues(identity) {
 
     initSmtpServer(identity.smtpServerKey);
 
+    let servers = MailServices.accounts.getServersForIdentity(identity);
+    document.getElementById("identityCatchAllBox").hidden =
+      servers.length > 0 && servers[0].type == "nntp";
+
     // This field does not exist for the default identity shown in the am-main.xhtml pane.
     let idLabel = document.getElementById("identity.label");
     if (idLabel) {
@@ -86,6 +90,9 @@ function initIdentityValues(identity) {
   } else {
     // We're adding an identity, use the best default we have.
     initSmtpServer(gAccount.defaultIdentity.smtpServerKey);
+
+    // Hide catchAll until we know what this identitity is associated with.
+    document.getElementById("identityCatchAllBox").hidden = true;
   }
 
   setupSignatureItems();

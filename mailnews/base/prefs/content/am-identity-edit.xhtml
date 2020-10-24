@@ -42,7 +42,7 @@
   <script src="chrome://messenger/content/am-e2e.js"/>
   <script>
   <![CDATA[
-    window.addEventListener("load", e2eOnLoadEditor, false);
+    window.addEventListener("load", e2eOnLoadEditor);
   ]]>
   </script>
 
@@ -173,7 +173,7 @@
         <html:fieldset>
           <html:legend>&privateData.label;</html:legend>
 
-          <hbox align="center" class="input-container">
+          <hbox id="identityCatchAllBox" align="center" class="input-container">
             <checkbox id="identity.catchAll"
                       label="&catchAll.label;"
                       accesskey="&catchAll.accesskey;"

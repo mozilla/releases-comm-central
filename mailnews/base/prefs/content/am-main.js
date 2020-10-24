@@ -28,6 +28,15 @@ function onInit(aPageId, aServerId) {
 function onPreInit(account, accountValues) {
   gAccount = account;
   loadSMTPServerList();
+  let type = parent.getAccountValue(
+    account,
+    accountValues,
+    "server",
+    "type",
+    null,
+    false
+  );
+  hideShowControls(type);
 }
 
 function manageIdentities() {

@@ -118,6 +118,9 @@ CallbackStreamListener.prototype = {
   // nsIStreamListener part
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     dump("this should not be happening! arrgggggh!\n");
+    console.error(
+      "Did you try to stream an nttp message? Doens't work. See bug 545365."
+    );
     if (this._stream === null) {
       this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
         Ci.nsIScriptableInputStream
