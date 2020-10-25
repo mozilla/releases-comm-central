@@ -1901,8 +1901,7 @@ function SaveAsTemplate()
 }
 
 // Sets the additional FCC, in addition to the default FCC.
-function MessageFcc(menuItem)
-{
+function MessageFcc(aFolder) {
   if (!gMsgCompose)
     return;
 
@@ -1911,8 +1910,8 @@ function MessageFcc(menuItem)
     return;
 
   // Get the uri for the folder to FCC into.
-  var fccUri = menuItem.getAttribute("fccUri");
-  msgCompFields.fcc2 = (msgCompFields.fcc2 == fccUri) ? "nocopy://" : fccUri;
+  var fccURI = aFolder.URI;
+  msgCompFields.fcc2 = (msgCompFields.fcc2 == fccURI) ? "nocopy://" : fccURI;
 }
 
 function updatePriorityMenu(priorityMenu)
