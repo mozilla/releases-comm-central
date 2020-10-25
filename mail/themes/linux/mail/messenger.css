@@ -260,16 +260,9 @@ toolbarbutton[type="menu-button"] {
   padding: 0 !important;
 }
 
-.toolbarbutton-menubutton-button {
-  -moz-box-align: center;
-  -moz-box-pack: center;
-  -moz-box-orient: vertical;
-}
-
 /* .......... dropmarker .......... */
 
 .toolbarbutton-menubutton-dropmarker {
-  margin: 0 3px;
   appearance: auto;
   -moz-default-appearance: toolbarbutton-dropdown !important;
   list-style-image: none;
@@ -278,93 +271,37 @@ toolbarbutton[type="menu-button"] {
 
 /* ::::: toolbarbutton ::::: */
 
-.toolbarbutton-1,
-.toolbarbutton-menubutton-button {
-  appearance: none;
-  min-height: 24px;
-  min-width: 32px;
-  margin: 4px 1px;
-  padding: 1px 6px !important;
-}
-
-.toolbarbutton-1[type="menu-button"] {
-  appearance: none;
-}
-
 .findbar-button {
   appearance: none;
   padding: 5px;
 }
 
+.toolbarbutton-1,
+.toolbarbutton-menubutton-button,
+.toolbarbutton-1[type="menu-button"],
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  appearance: none !important;
-  list-style-image: none;
-  margin-inline: 0;
-}
-
-.toolbarbutton-1 .toolbarbutton-menu-dropmarker::part(icon),
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon) {
-  width: 17px;
-  height: 7px;
-  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 9px 7px;
-}
-
-.toolbarbutton-1 > .toolbarbutton-menu-dropmarker {
-  width: 9px;
-}
-
-/* Separator between menu and split type buttons */
-.toolbarbutton-1:not(:hover):not(:active):not([open]):not([checked="true"]) >
-.toolbarbutton-menubutton-dropmarker::before,
-.toolbarbutton-1[disabled="true"] >
-.toolbarbutton-menubutton-dropmarker::before {
-  margin-inline-start: -1px;
-}
-
-toolbox:not([labelalign="end"]) toolbar[mode="full"] .toolbarbutton-1 {
-  padding-bottom: 0;
+  appearance: none;
 }
 
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker {
   margin-inline-start: 3px;
 }
 
-.toolbarbutton-1 .toolbarbutton-icon,
-.formatting-button .toolbarbutton-icon {
-  margin-inline-end: 0;
+toolbar[mode="text"] .toolbarbutton-text {
+  margin: 0 !important;
+  padding-inline: 2px !important;
 }
 
 .toolbarbutton-1[disabled=true] .toolbarbutton-icon,
 .toolbarbutton-1[disabled=true] .toolbarbutton-text,
 .toolbarbutton-1[disabled=true] .toolbarbutton-menu-dropmarker,
-.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-dropmarker,
-.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-button >
-.toolbarbutton-icon {
+.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-dropmarker {
   opacity: .4;
-}
-
-.toolbarbutton-menubutton-button > .toolbarbutton-icon,
-.toolbarbutton-1 .toolbarbutton-icon {
-  padding: 1px;
-}
-
-toolbar[mode="full"] .toolbarbutton-1 {
-  min-width: 55px;
 }
 
 .sidebar-header .toolbarbutton-text:not([value]) {
   display: none;
-}
-
-#alltabs-button,
-#tabbar-toolbar .toolbarbutton-1,
-#tabbar-toolbar .toolbarbutton-1[type="menu-button"] {
-  margin-top: 3px;
-  margin-bottom: 3px;
 }
 
 button[type="menu-button"] > .button-box > button {

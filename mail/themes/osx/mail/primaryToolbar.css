@@ -177,6 +177,7 @@
 
 .button-appmenu {
   list-style-image: url("chrome://messenger/skin/icons/appbutton.svg");
+  min-width: 35px !important;
   margin-right: 7px;
   margin-left: 7px;
 }

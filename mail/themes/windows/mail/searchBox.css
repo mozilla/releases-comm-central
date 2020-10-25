@@ -61,7 +61,7 @@
 /* Add margins to show the hover box-shadow */
 .gloda-search,
 #peopleSearchInput {
-  margin-block: 3px;
+  margin-block: 2px;
 }
 
 .gloda-search:focus,
@@ -75,7 +75,7 @@
 .gloda-search,
 #peopleSearchInput,
 .remote-gloda-search {
-  min-height: 26px;
+  min-height: 24px;
 }
 
 .autocomplete-richlistitem[type^="gloda-"] {
