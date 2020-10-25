@@ -5,23 +5,6 @@
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-function GetNewMessages(selectedFolders, server)
-{
-  if (!selectedFolders.length)
-    return;
-
-  var msgFolder = selectedFolders[0];
-
-  // Whenever we do get new messages, clear the old new messages.
-  if (msgFolder)
-  {
-    var nsIMsgFolder = Ci.nsIMsgFolder;
-    msgFolder.biffState = nsIMsgFolder.nsMsgBiffState_NoMail;
-    msgFolder.clearNewMessages();
-  }
-  server.getNewMessages(msgFolder, msgWindow, null);
-}
-
 /**
  * Get the identity that most likely is the best one to use, given the hint.
  * @param {Array<nsIMsgIdentity> identities  The candidates to pick from.
@@ -259,17 +242,6 @@ function NewMessageToSelectedAddresses(type, format, identity) {
       msgComposeService.OpenComposeWindowWithParams(null, params);
     }
   }
-}
-
-function UnSubscribe(folder)
-{
-  // Unsubscribe the current folder from the newsserver, this assumes any confirmation has already
-  // been made by the user  SPL
-
-  var server = folder.server;
-  var subscribableServer = server.QueryInterface(Ci.nsISubscribableServer);
-  subscribableServer.unsubscribe(folder.name);
-  subscribableServer.commitSubscribeChanges();
 }
 
 function Subscribe(preselectedMsgFolder)

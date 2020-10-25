@@ -46,31 +46,32 @@ var gDisallow_classes_no_html = 1; /* the user preference,
 // Two other affected areas are the account central and the account manager dialogs.
 function menu_new_init()
 {
+  let folders = GetSelectedMsgFolders();
+  if (folders.length != 1)
+    return;
+
+  let folder = folders[0];
+
   if (!gMessengerBundle)
     gMessengerBundle = document.getElementById("bundle_messenger");
 
-  var newAccountItem = document.getElementById('newAccountMenuItem');
   if (Services.prefs.prefIsLocked("mail.disable_new_account_addition"))
-    newAccountItem.setAttribute("disabled","true");
+    document.getElementById("newAccountMenuItem")
+            .setAttribute("disabled", "true");
 
-  // Change New Folder... menu according to the context
-  var folderArray = GetSelectedMsgFolders();
-  if (folderArray.length == 0)
-    return;
-  var msgFolder = folderArray[0];
-  var isServer = msgFolder.isServer;
-  var serverType = msgFolder.server.type;
-  var canCreateNew = msgFolder.canCreateSubfolders;
-  var isInbox = msgFolder.isSpecialFolder(
-                  Ci.nsMsgFolderFlags.Inbox, false);
-  var isIMAPFolder = serverType == "imap";
-  var showNew = ((serverType != 'nntp') && canCreateNew) || isInbox;
+  let isInbox = folder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox, false);
+  let showNew = folder.canCreateSubfolders ||
+                (isInbox && !(folder.flags & Ci.nsMsgFolderFlags.Virtual));
   ShowMenuItem("menu_newFolder", showNew);
   ShowMenuItem("menu_newVirtualFolder", showNew);
-  EnableMenuItem("menu_newFolder", !isIMAPFolder || !Services.io.offline);
-  EnableMenuItem("menu_newVirtualFolder", true);
-  if (showNew)
-    SetMenuItemLabel("menu_newFolder", gMessengerBundle.getString((isServer || isInbox) ? "newFolderMenuItem" : "newSubfolderMenuItem"));
+  EnableMenuItem("menu_newFolder", folder.server.type != "imap" ||
+                                   !Services.io.offline);
+  if (showNew) {
+    // Change "New Folder..." menu according to the context.
+    let label = (folder.isServer || isInbox) ? "newFolderMenuItem" :
+                                               "newSubfolderMenuItem";
+    SetMenuItemLabel("menu_newFolder", gMessengerBundle.getString(label));
+  }
 }
 
 function goUpdateMailMenuItems(commandset)
@@ -892,7 +893,7 @@ function GetMessagesForInboxOnServer(server)
   if (!inboxFolder)
     inboxFolder = server.rootFolder;
 
-  GetNewMessages([inboxFolder], server);
+  GetNewMsgs(server, inboxFolder);
 }
 
 function MsgGetMessage()
@@ -1433,23 +1434,40 @@ function MsgSubscribe(folder)
     Subscribe(preselectedFolder); // open imap/nntp subscription dialog
 }
 
-function ConfirmUnsubscribe(folder)
-{
-    if (!gMessengerBundle)
-        gMessengerBundle = document.getElementById("bundle_messenger");
+/**
+ * Show a confirmation dialog - check if the user really want to unsubscribe
+ * from the given newsgroup/s.
+ * @folders an array of newsgroup folders to unsubscribe from
+ * @return true if the user said it's ok to unsubscribe
+ */
+function ConfirmUnsubscribe(folders) {
+  if (!gMessengerBundle)
+      gMessengerBundle = document.getElementById("bundle_messenger");
 
-    var titleMsg = gMessengerBundle.getString("confirmUnsubscribeTitle");
-    var dialogMsg = gMessengerBundle.getFormattedString("confirmUnsubscribeText",
-                                        [folder.name], 1);
-    return Services.prompt.confirm(window, titleMsg, dialogMsg);
+  let titleMsg = gMessengerBundle.getString("confirmUnsubscribeTitle");
+  let dialogMsg = (folders.length == 1) ?
+    gMessengerBundle.getFormattedString("confirmUnsubscribeText",
+                                        [folders[0].name], 1) :
+    gMessengerBundle.getString("confirmUnsubscribeManyText");
+
+  return Services.prompt.confirm(window, titleMsg, dialogMsg);
 }
 
-function MsgUnsubscribe()
-{
-    var folder = GetFirstSelectedMsgFolder();
-    if (ConfirmUnsubscribe(folder)) {
-        UnSubscribe(folder);
-    }
+/**
+ * Unsubscribe from selected or passed in newsgroup/s.
+ * @param newsgroups (optional param) the newsgroup folders to unsubscribe from
+ */
+function MsgUnsubscribe(newsgroups) {
+  let folders = newsgroups || GetSelectedMsgFolders();
+  if (!ConfirmUnsubscribe(folders))
+    return;
+
+  for (let folder of folders) {
+    let subscribableServer =
+      folder.server.QueryInterface(Ci.nsISubscribableServer);
+    subscribableServer.unsubscribe(folder.name);
+    subscribableServer.commitSubscribeChanges();
+  }
 }
 
 function ToggleFavoriteFolderFlag()
@@ -1495,24 +1513,24 @@ function MsgOpenFromFile()
   });
 }
 
-function MsgOpenNewWindowForFolder(uri, key)
-{
-  var uriToOpen = uri;
-  var keyToSelect = key;
+function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
+  let mailWindowService = Cc["@mozilla.org/messenger/windowservice;1"]
+                            .getService(Ci.nsIMessengerWindowService);
+  if (!mailWindowService)
+    return;
 
-  if (!uriToOpen)
-    // Use GetSelectedMsgFolders() to find out which message to open instead of
-    // GetLoadedMsgFolder().URI. This is required because on a right-click, the
-    // currentIndex value will be different from the actual row that is
-    // highlighted. GetSelectedMsgFolders() will return the message that is
-    // highlighted.
-    uriToOpen = GetSelectedMsgFolders()[0].URI;
+  if (folderURI) {
+    mailWindowService.openMessengerWindowWithUri("mail:3pane", folderURI,
+                                                 msgKeyToSelect);
+    return;
+  }
 
-  if (uriToOpen) {
-   // get the messenger window open service and ask it to open a new window for us
-   var mailWindowService = Cc["@mozilla.org/messenger/windowservice;1"].getService(Ci.nsIMessengerWindowService);
-   if (mailWindowService)
-     mailWindowService.openMessengerWindowWithUri("mail:3pane", uriToOpen, keyToSelect);
+  // If there is a right-click happening, GetSelectedMsgFolders()
+  // will tell us about it (while the selection's currentIndex would reflect
+  // the node that was selected/displayed before the right-click.)
+  for (let folder of GetSelectedMsgFolders()) {
+    mailWindowService.openMessengerWindowWithUri("mail:3pane", folder.URI,
+                                                 msgKeyToSelect);
   }
 }
 
@@ -1680,9 +1698,8 @@ function MsgMarkReadByDate()
 
 function MsgMarkAllRead()
 {
-  var folder = GetSelectedMsgFolders()[0];
-
-  if (folder)
+  let folders = GetSelectedMsgFolders();
+  for (let folder of folders)
     folder.markAllMessagesRead(msgWindow);
 }
 
@@ -2045,18 +2062,6 @@ function IsGetNextNMessagesEnabled()
     return false;
 }
 
-function IsCompactFolderEnabled()
-{
-  let folder = GetSelectedMsgFolders()[0];
-  if (!folder)
-    return false;
-  let server = folder.server;
-  return (server &&
-      (server.type != 'nntp') && // compact news folder is not supported
-      ((server.type != 'imap') || server.canCompactFoldersOnServer) &&
-      isCommandEnabled("cmd_compactFolder"));   // checks e.g. if IMAP is offline
-}
-
 function SetUpToolbarButtons(uri)
 {
   let deleteButton = document.getElementById("button-delete");
@@ -2216,44 +2221,63 @@ function GetDefaultAccountRootFolder()
   return null;
 }
 
-function GetFolderMessages()
-{
+/**
+ * Check for new messages for all selected folders, or for the default account
+ * in case no folders are selected.
+ */
+function GetFolderMessages() {
   var selectedFolders = GetSelectedMsgFolders();
   var defaultAccountRootFolder = GetDefaultAccountRootFolder();
 
-  // if nothing selected, use the default
-  var folder = selectedFolders.length ? selectedFolders[0] : defaultAccountRootFolder;
+  var folders = (selectedFolders.length) ? selectedFolders
+                                         : [defaultAccountRootFolder];
 
-  if (!folder)
-    return;
-
-  var serverType = folder.server.type;
-
-  if (folder.isServer && (serverType == "nntp")) {
-    // if we're doing "get msgs" on a news server
-    // update unread counts on this server
-    folder.server.performExpand(msgWindow);
+  if (!folders[0]) {
     return;
   }
-  else if (serverType == "none") {
-    // if "Local Folders" is selected
-    // and the user does "Get Msgs"
-    // and LocalFolders is not deferred to,
-    // get new mail for the default account
-    //
-    // XXX TODO
-    // should shift click get mail for all (authenticated) accounts?
-    // see bug #125885
-    if (!folder.server.isDeferredTo)
-      folder = defaultAccountRootFolder;
+
+  for (let folder of folders) {
+    var serverType = folder.server.type;
+    if (folder.isServer && (serverType == "nntp")) {
+      // If we're doing "get msgs" on a news server,
+      // update unread counts on this server.
+      folder.server.performExpand(msgWindow);
+    }
+    else if (serverType == "none") {
+      // If "Local Folders" is selected and the user does "Get Msgs" and
+      // LocalFolders is not deferred to, get new mail for the default account
+      //
+      // XXX TODO
+      // Should shift click get mail for all (authenticated) accounts?
+      // see bug #125885.
+      if (!folder.server.isDeferredTo) {
+        if (!defaultAccountRootFolder) {
+          continue;
+        }
+        GetNewMsgs(defaultAccountRootFolder.server, defaultAccountRootFolder);
+      } else {
+        GetNewMsgs(folder.server, folder);
+      }
+    }
+    else {
+      GetNewMsgs(folder.server, folder);
+    }
   }
+}
 
-  if (!folder)
-    return;
+/**
+ * Gets new messages for the given server, for the given folder.
+ * @param server which nsIMsgIncomingServer to check for new messages
+ * @param folder which nsIMsgFolder folder to check for new messages
+ */
+function GetNewMsgs(server, folder) {
+  // Note that for Global Inbox folder.server != server when we want to get
+  // messages for a specific account.
 
-  var folders = [folder];
-
-  GetNewMessages(folders, folder.server);
+  // Whenever we do get new messages, clear the old new messages.
+  folder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
+  folder.clearNewMessages();
+  server.getNewMessages(folder, msgWindow, null);
 }
 
 function SendUnsentMessages()

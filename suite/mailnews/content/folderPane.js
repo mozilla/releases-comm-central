@@ -74,7 +74,7 @@ var gFolderTreeController = {
       return;
     }
 
-    if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
+    if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
       // virtual folders get their own property dialog that contains all of the
       // search information related to the virtual folder.
       this.editVirtualFolder(folder);
@@ -166,12 +166,19 @@ var gFolderTreeController = {
     let folders = aFolder ? [aFolder] : GetSelectedMsgFolders();
     let prompt = Services.prompt;
     for (let folder of folders) {
+      // For newsgroups, "delete" means "unsubscribe".
+      if (folder.server.type == "nntp" &&
+          !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+        MsgUnsubscribe([folder]);
+        continue;
+      }
+
       let canDelete = folder.isSpecialFolder(Ci.nsMsgFolderFlags.Junk, false) ?
         CanRenameDeleteJunkMail(folder.URI) : folder.deletable;
       if (!canDelete)
         continue;
 
-      if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
+      if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
         let confirmation = gMessengerBundle.getString("confirmSavedSearchDeleteMessage");
         let title = gMessengerBundle.getString("confirmSavedSearchDeleteTitle");
         let buttonTitle = gMessengerBundle.getString("confirmSavedSearchDeleteButton");
@@ -182,12 +189,6 @@ var gFolderTreeController = {
           continue;
         if (gCurrentVirtualFolderUri == folder.URI)
           gCurrentVirtualFolderUri = null;
-      }
-
-      if (isNewsURI(folder.URI)) {
-        if (ConfirmUnsubscribe(folder))
-          UnSubscribe(folder);
-        continue;
       }
 
       // We can delete this folder.
@@ -253,28 +254,45 @@ var gFolderTreeController = {
   },
 
   /**
-   * Compacts either a particular folder, or all folders
+   * Compacts either particular folder/s, or selected folders.
    *
-   * @param aCompactAll - whether we should compact all folders
-   * @param aFolder (optional) the folder to compact, if different than the
-   *                           currently selected one
+   * @param aFolders (optional) the folders to compact, if different than the
+   *                            currently selected ones
    */
-  compactFolder(aCompactAll, aFolder) {
-    let folder = aFolder || GetSelectedMsgFolders()[0];
-    let isImapFolder = folder.server.type == "imap";
-    // Can't compact folders that have just been compacted
-    if (!isImapFolder && !folder.expungedBytes && !aCompactAll)
-      return;
+  compactFolders(aFolders) {
+    let folders = aFolders || GetSelectedMsgFolders();
+    for (let folder of folders) {
+      let isImapFolder = folder.server.type == "imap";
+      // Can't compact folders that have just been compacted
+      if (!isImapFolder && !folder.expungedBytes)
+        return;
 
-    // Reset thread pane for non-imap folders.
-    if (!isImapFolder && gDBView &&
-        (gDBView.msgFolder == folder || aCompactAll)) {
-      this._resetThreadPane();
-    }
-    if (aCompactAll)
-      folder.compactAll(null, msgWindow, isImapFolder || folder.server.type == "nntp");
-    else
+      // Reset thread pane for non-imap folders.
+      if (!isImapFolder && gDBView && gDBView.msgFolder == folder) {
+        this._resetThreadPane();
+      }
+
       folder.compact(null, msgWindow);
+    }
+  },
+  /**
+   * Compacts all folders for accounts that the given folders belong
+   * to, or all folders for accounts of the currently selected folders.
+   *
+   * @param aFolders (optional) the folders for whose accounts we should compact
+   *                            all folders, if different than the currently
+   *                            selected ones
+   */
+  compactAllFoldersForAccount(aFolders) {
+    let folders = aFolders || GetSelectedMsgFolders();
+    for (let folder of folders) {
+      let isImapFolder = folder.server.type == "imap";
+      folder.compactAll(null, msgWindow, isImapFolder ||
+                                         folder.server.type == "nntp");
+      // Reset thread pane for non-imap folders.
+      if (gDBView && !isImapFolder)
+        this._resetThreadPane();
+    }
   },
 
   /**

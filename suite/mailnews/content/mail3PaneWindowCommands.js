@@ -51,28 +51,19 @@ var FolderPaneController =
       case "cmd_delete":
       case "cmd_shiftDelete":
       case "button_delete":
-        // Make sure the button doesn't show "Undelete" for folders.
-        if (command == "button_delete")
-          UpdateDeleteToolbarButton(true);
       case "button_shiftDelete":
-        if ( command == "cmd_delete" )
-          goSetMenuValue(command, 'valueFolder');
+      {
+        // Make sure the button doesn't show "Undelete" for folders.
+        UpdateDeleteToolbarButton(true);
         let folders = GetSelectedMsgFolders();
-
         if (folders.length) {
           let folder = folders[0];
-          let canDeleteThisFolder = CanDeleteFolder(folder);
-          if (folder.server.type == "nntp") {
-             if ( command == "cmd_delete" ) {
-                goSetMenuValue(command, 'valueNewsgroup');
-                goSetAccessKey(command, 'valueNewsgroupAccessKey');
-            }
-          }
-          return canDeleteThisFolder && isCommandEnabled(command);
+          // XXX Figure out some better way/place to update the folder labels.
+          UpdateDeleteLabelsFromFolderCommand(folder, command);
+          return CanDeleteFolder(folder) && folder.isCommandEnabled(command);
         }
-        else
-          return false;
-
+        return false;
+      }
       default:
         return false;
     }
@@ -99,6 +90,20 @@ var FolderPaneController =
   {
   }
 };
+
+function UpdateDeleteLabelsFromFolderCommand(folder, command) {
+  if (command != "cmd_delete")
+    return;
+
+  if (folder.server.type == "nntp" &&
+      !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+    goSetMenuValue(command, "valueNewsgroup");
+    goSetAccessKey(command, "valueNewsgroupAccessKey");
+  }
+  else {
+    goSetMenuValue(command, "valueFolder");
+  }
+}
 
 // DefaultController object (handles commands when one of the trees does not have focus)
 var DefaultController =
@@ -410,7 +415,11 @@ var DefaultController =
       case "cmd_redo":
           return SetupUndoRedoCommand(command);
       case "cmd_renameFolder":
-        return IsRenameFolderEnabled();
+      {
+        let folders = GetSelectedMsgFolders();
+        return folders.length == 1 && folders[0].canRename &&
+               folders[0].isCommandEnabled("cmd_renameFolder");
+      }
       case "cmd_sendUnsentMsgs":
         return IsSendUnsentMsgsEnabled(null);
       case "cmd_subscribe":
@@ -430,7 +439,15 @@ var DefaultController =
                          IsMailFolderSelected() : false;
       }
       case "cmd_compactFolder":
-        return IsCompactFolderEnabled();
+      {
+        let folders = GetSelectedMsgFolders();
+        let canCompactAll = function canCompactAll(folder) {
+          return folder.server.canCompactFoldersOnServer &&
+                 !folder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
+                 folder.isCommandEnabled("cmd_compactFolder");
+        }
+        return folders && folders.every(canCompactAll);
+      }
       case "cmd_setFolderCharset":
         return IsFolderCharsetEnabled();
       case "cmd_downloadFlagged":
@@ -695,7 +712,7 @@ var DefaultController =
         gFolderTreeController.emptyTrash();
         return;
       case "cmd_compactFolder":
-        gFolderTreeController.compactFolder(true);
+        gFolderTreeController.compactAllFoldersForAccount();
         return;
       case "cmd_downloadFlagged":
         MsgDownloadFlagged();
@@ -861,13 +878,6 @@ function IsSubscribeEnabled()
   return false;
 }
 
-function IsRenameFolderEnabled()
-{
-  let folders = GetSelectedMsgFolders();
-  return folders.length == 1 && folders[0].canRename &&
-         isCommandEnabled("cmd_renameFolder");
-}
-
 function IsFolderCharsetEnabled()
 {
   return IsFolderSelected();
@@ -881,9 +891,14 @@ function IsPropertiesEnabled(command)
 
   let folder = folders[0];
   // When servers are selected, it should be "Edit | Properties...".
-  goSetMenuValue(command,
-                 folder.isServer ? "valueGeneric" :
-                   isNewsURI(folder.URI) ? "valueNewsgroup" : "valueFolder");
+  if (folder.isServer) {
+    goSetMenuValue(command, "valueGeneric");
+  } else if (folder.server.type == "nntp" &&
+             !folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+    goSetMenuValue(command, "valueNewsgroup");
+  } else {
+    goSetMenuValue(command, "valueFolder");
+  }
 
   return folders.length == 1;
 }
@@ -961,21 +976,6 @@ function SetFocusMessagePane()
   // on the message pane element then focus on the main content window
   GetMessagePane().focus();
   GetMessagePaneFrame().focus();
-}
-
-function isCommandEnabled(cmd)
-{
-  var selectedFolders = GetSelectedMsgFolders();
-  var numFolders = selectedFolders.length;
-  if(numFolders !=1)
-    return false;
-
-  var folder = selectedFolders[0];
-  if (!folder)
-    return false;
-  else
-    return folder.isCommandEnabled(cmd);
-
 }
 
 //

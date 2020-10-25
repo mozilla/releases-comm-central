@@ -458,7 +458,7 @@
     <menuitem id="folderPaneContext-compact"
         label="&folderContextCompact.label;"
         accesskey="&folderContextCompact.accesskey;"
-        oncommand="gFolderTreeController.compactFolder(false);"/>
+        oncommand="gFolderTreeController.compactFolders();"/>
     <menuitem id="folderPaneContext-markMailFolderAllRead"
               label="&folderContextMarkMailFolderRead.label;"
               accesskey="&folderContextMarkMailFolderRead.accesskey;"
