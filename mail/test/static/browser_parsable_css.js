@@ -523,9 +523,9 @@ add_task(async function checkAllTheCSS() {
   checkWhitelist(thunderbirdWhitelist);
 
   // Clean up to avoid leaks:
-  iframe.remove();
   doc.head.innerHTML = "";
   doc = null;
+  iframe.remove();
   iframe = null;
   win = null;
   hiddenFrame.destroy();
