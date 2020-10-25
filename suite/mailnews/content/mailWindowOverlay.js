@@ -923,14 +923,18 @@ function MsgGetMessagesForAllAuthenticatedAccounts()
 /**
   * Get messages for the account selected from Menu dropdowns.
   * if offline, prompt for getting messages.
+  *
+  * @param aFolder (optional) a folder in the account for which messages should
+  *                           be retrieved.  If null, all accounts will be used.
   */
-function MsgGetMessagesForAccount(aEvent)
-{
-  if (!aEvent)
+function MsgGetMessagesForAccount(aFolder) {
+  if (!aFolder) {
+    goDoCommand("cmd_getNewMessages");
     return;
+  }
 
   if (DoGetNewMailWhenOffline())
-    GetMessagesForAccount(aEvent);
+    GetMessagesForInboxOnServer(aFolder.server);
 }
 
 // if offline, prompt for getNextNMessages
@@ -2305,15 +2309,6 @@ function SendUnsentMessages()
     }
   }
 }
-
-function GetMessagesForAccount(aEvent)
-{
-  var uri = aEvent.target.id;
-  var server = GetServer(uri);
-  GetMessagesForInboxOnServer(server);
-  aEvent.stopPropagation();
-}
-
 
 function CommandUpdate_UndoRedo()
 {
