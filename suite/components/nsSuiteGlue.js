@@ -4,10 +4,14 @@
 
 const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
-ChromeUtils.import("resource:///modules/extensionSupport.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { migrateMailnews } =
+  ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
+var { ExtensionSupport } = 
+  ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
+var { LightweightThemeConsumer } =
+  ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
@@ -192,6 +196,15 @@ SuiteGlue.prototype = {
       case "profile-after-change":
         this._onProfileAfterChange();
         break;
+      case "chrome-document-global-created":
+        // Set up lwt, but only if the "lightweightthemes" attr is set on the root
+        // (i.e. in messenger.xul).
+        subject.addEventListener("DOMContentLoaded", () => {
+          if (subject.document.documentElement.hasAttribute("lightweightthemes")) {
+            new LightweightThemeConsumer(subject.document);
+          }
+        }, {once: true});
+        break;
       case "final-ui-startup":
         this._onProfileStartup();
         this._promptForMasterPassword();
@@ -353,6 +366,7 @@ SuiteGlue.prototype = {
     Services.obs.addObserver(this, "places-shutdown", true);
     Services.obs.addObserver(this, "browser-search-engine-modified", true);
     Services.obs.addObserver(this, "notifications-open-settings", true);
+    Services.obs.addObserver(this, "chrome-document-global-created", true);
     Services.prefs.addObserver("devtools.debugger.", this, true);
     Services.obs.addObserver(this, "handle-xul-text-link", true);
     Cc['@mozilla.org/docloaderservice;1']
@@ -362,6 +376,10 @@ SuiteGlue.prototype = {
 
   // cleanup (called on application shutdown)
   _dispose: function BG__dispose() {
+    try {
+      Services.obs.removeObserver(this, "chrome-document-global-created");
+    }
+    catch (ex) {}
     if (this._isIdleObserver) {
       this._idleService.removeIdleObserver(this, BOOKMARKS_BACKUP_IDLE_TIME_SEC);
       delete this._isIdleObserver;
