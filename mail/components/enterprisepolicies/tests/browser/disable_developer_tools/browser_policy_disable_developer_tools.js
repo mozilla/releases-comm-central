@@ -3,6 +3,10 @@
 
 "use strict";
 
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/PromiseTestUtils.jsm"
+);
+
 add_task(async function test_updates_post_policy() {
   is(
     Services.policies.isAllowed("devtools"),
@@ -46,7 +50,11 @@ async function checkBlockedPage(url, expectedBlocked) {
   window.openContentTab("about:blank");
   let tab = tabmail.tabInfo[index];
   let browser = tab.browser;
-  browser.contentWindow.location.href = url;
+
+  // Because `browser` is in the parent process, handle the rejection message.
+  // This should stop happening once E10s is enabled.
+  PromiseTestUtils.expectUncaughtRejection(/NS_ERROR_BLOCKED_BY_POLICY/);
+  BrowserTestUtils.loadURI(browser, url);
 
   await BrowserTestUtils.waitForCondition(async function() {
     let blocked = await ContentTask.spawn(browser, null, async function() {
