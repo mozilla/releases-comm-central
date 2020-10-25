@@ -540,8 +540,8 @@ button[type="menu-button"] > .button-box > button {
   margin-block: -1px;
 }
 
-button.notification-button {
-  margin-bottom: 1px;
+button.notification-button[type="menu-button"] {
+  padding-inline-end: 1px;
 }
 
 .messageCloseButton > .toolbarbutton-icon {

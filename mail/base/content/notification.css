@@ -72,7 +72,7 @@ notification[value="draftMsgContent"] > hbox > .messageImage {
 }
 
 button.notification-button {
-  height: auto;
+  height: 24px;
   margin: 1px 5px;
   color: var(--notification-button-color) !important;
   border: 1px solid var(--notification-button-border);
