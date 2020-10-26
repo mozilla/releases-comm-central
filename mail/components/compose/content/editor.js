@@ -2291,31 +2291,26 @@ function GetNumberOfContiguousSelectedRows() {
   }
 
   var rows = 0;
-  try {
-    var editor = GetCurrentTableEditor();
-    var rowObj = { value: 0 };
-    var colObj = { value: 0 };
-    var cell = editor.getFirstSelectedCellInTable(rowObj, colObj);
-    if (!cell) {
-      return 0;
+  var editor = GetCurrentTableEditor();
+  var rowObj = { value: 0 };
+  var colObj = { value: 0 };
+  var cell = editor.getFirstSelectedCellInTable(rowObj, colObj);
+  if (!cell) {
+    return 0;
+  }
+
+  // We have at least one row
+  rows++;
+
+  var lastIndex = rowObj.value;
+  for (let cell of editor.getSelectedCells()) {
+    editor.getCellIndexes(cell, rowObj, colObj);
+    var index = rowObj.value;
+    if (index == lastIndex + 1) {
+      lastIndex = index;
+      rows++;
     }
-
-    // We have at least one row
-    rows++;
-
-    var lastIndex = rowObj.value;
-    do {
-      cell = editor.getNextSelectedCell({ value: 0 });
-      if (cell) {
-        editor.getCellIndexes(cell, rowObj, colObj);
-        var index = rowObj.value;
-        if (index == lastIndex + 1) {
-          lastIndex = index;
-          rows++;
-        }
-      }
-    } while (cell);
-  } catch (e) {}
+  }
 
   return rows;
 }
@@ -2326,31 +2321,27 @@ function GetNumberOfContiguousSelectedColumns() {
   }
 
   var columns = 0;
-  try {
-    var editor = GetCurrentTableEditor();
-    var colObj = { value: 0 };
-    var rowObj = { value: 0 };
-    var cell = editor.getFirstSelectedCellInTable(rowObj, colObj);
-    if (!cell) {
-      return 0;
+
+  var editor = GetCurrentTableEditor();
+  var colObj = { value: 0 };
+  var rowObj = { value: 0 };
+  var cell = editor.getFirstSelectedCellInTable(rowObj, colObj);
+  if (!cell) {
+    return 0;
+  }
+
+  // We have at least one column
+  columns++;
+
+  var lastIndex = colObj.value;
+  for (let cell of editor.getSelectedCells()) {
+    editor.getCellIndexes(cell, rowObj, colObj);
+    var index = colObj.value;
+    if (index == lastIndex + 1) {
+      lastIndex = index;
+      columns++;
     }
-
-    // We have at least one column
-    columns++;
-
-    var lastIndex = colObj.value;
-    do {
-      cell = editor.getNextSelectedCell({ value: 0 });
-      if (cell) {
-        editor.getCellIndexes(cell, rowObj, colObj);
-        var index = colObj.value;
-        if (index == lastIndex + 1) {
-          lastIndex = index;
-          columns++;
-        }
-      }
-    } while (cell);
-  } catch (e) {}
+  }
 
   return columns;
 }

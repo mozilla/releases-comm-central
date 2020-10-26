@@ -1314,43 +1314,32 @@ function ApplyTableAttributes() {
 /* eslint-enable complexity */
 
 function ApplyCellAttributes() {
-  var rangeObj = { value: null };
-  var selectedCell;
-  try {
-    selectedCell = gActiveEditor.getFirstSelectedCell(rangeObj);
-  } catch (e) {}
-
-  if (!selectedCell) {
+  let selectedCells = gActiveEditor.getSelectedCells();
+  if (selectedCells.length == 0) {
     return;
   }
 
-  if (gSelectedCellCount == 1) {
+  if (selectedCells.length == 1) {
+    let cell = selectedCells[0];
     // When only one cell is selected, simply clone entire element,
     //  thus CSS and JS from Advanced edit is copied
-    try {
-      gActiveEditor.cloneAttributes(selectedCell, globalCellElement);
-    } catch (e) {}
+
+    gActiveEditor.cloneAttributes(cell, globalCellElement);
 
     if (gDialog.CellStyleCheckbox.checked) {
-      var currentStyleIndex =
-        selectedCell.nodeName.toLowerCase() == "th" ? 1 : 0;
+      let currentStyleIndex = cell.nodeName.toLowerCase() == "th" ? 1 : 0;
       if (gDialog.CellStyleList.selectedIndex != currentStyleIndex) {
         // Switch cell types
         // (replaces with new cell and copies attributes and contents)
-        try {
-          selectedCell = gActiveEditor.switchTableCellHeaderType(selectedCell);
-        } catch (e) {}
+        gActiveEditor.switchTableCellHeaderType(cell);
       }
     }
   } else {
     // Apply changes to all selected cells
     // XXX THIS DOESN'T COPY ADVANCED EDIT CHANGES!
-    try {
-      while (selectedCell) {
-        ApplyAttributesToOneCell(selectedCell);
-        selectedCell = gActiveEditor.getNextSelectedCell(rangeObj);
-      }
-    } catch (e) {}
+    for (let cell of selectedCells) {
+      ApplyAttributesToOneCell(cell);
+    }
   }
   gCellDataChanged = false;
 }

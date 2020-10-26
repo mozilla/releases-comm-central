@@ -218,7 +218,7 @@ function onAccept(event) {
             gActiveEditor.joinTableCells(false);
 
             // Get the cell everything was merged into
-            element = gActiveEditor.getFirstSelectedCell();
+            element = gActiveEditor.getSelectedCells()[0];
 
             // Collapse selection into just that cell
             gActiveEditor.selection.collapse(element, 0);
