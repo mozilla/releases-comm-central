@@ -487,6 +487,11 @@ var contentTabBaseType = {
   showTab(aTab) {
     aTab.browser.setAttribute("type", "content");
     aTab.browser.setAttribute("primary", "true");
+    if (aTab.browser.currentURI.spec.startsWith("about:preferences")) {
+      aTab.browser.contentDocument.documentElement
+        .querySelector("#searchInput")
+        .focus();
+    }
   },
 
   getBrowser(aTab) {
