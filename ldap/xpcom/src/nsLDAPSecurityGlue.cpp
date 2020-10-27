@@ -31,20 +31,11 @@ typedef struct {
 
 // LDAP per-socket data structure.
 //
-typedef struct {
+struct nsLDAPSSLSocketClosure {
+  nsLDAPSSLSocketClosure() : sessionClosure(nullptr), securityInfo(nullptr) {}
   nsLDAPSSLSessionClosure* sessionClosure; /* session info */
-  nsISupports* securityInfo;               /* manual refcounting! */
-} nsLDAPSSLSocketClosure;
-
-// free the per-socket data structure as necessary
-//
-static void nsLDAPSSLFreeSocketClosure(nsLDAPSSLSocketClosure** aClosure) {
-  if (aClosure && *aClosure) {
-    NS_IF_RELEASE((*aClosure)->securityInfo);
-    free(*aClosure);
-    *aClosure = nullptr;
-  }
-}
+  nsCOMPtr<nsISupports> securityInfo;
+};
 
 // Replacement close() function, which cleans up local stuff associated
 // with this socket, and then calls the real close function.
@@ -52,8 +43,6 @@ static void nsLDAPSSLFreeSocketClosure(nsLDAPSSLSocketClosure** aClosure) {
 extern "C" int LDAP_CALLBACK
 nsLDAPSSLClose(int s, struct lextiof_socket_private* socketarg) {
   PRLDAPSocketInfo socketInfo;
-  nsLDAPSSLSocketClosure* socketClosure;
-  nsLDAPSSLSessionClosure* sessionClosure;
 
   // get the socketInfo associated with this socket
   //
@@ -67,22 +56,19 @@ nsLDAPSSLClose(int s, struct lextiof_socket_private* socketarg) {
   // save off the session closure data in an automatic, since we're going to
   // need to call through it
   //
-  socketClosure =
+  nsLDAPSSLSocketClosure* socketClosure =
       reinterpret_cast<nsLDAPSSLSocketClosure*>(socketInfo.soinfo_appdata);
   if (!socketClosure) {
     NS_ERROR("nsLDAPSSLClose(): no socketClosure to be had");
     return -1;
   }
-  sessionClosure = socketClosure->sessionClosure;
-
-  // free the socket closure data
-  //
-  nsLDAPSSLFreeSocketClosure(
-      reinterpret_cast<nsLDAPSSLSocketClosure**>(&socketInfo.soinfo_appdata));
 
   // call the real close function
-  //
-  return (*(sessionClosure->realClose))(s, socketarg);
+  nsLDAPSSLSessionClosure* sessionClosure = socketClosure->sessionClosure;
+  int ret = (*(sessionClosure->realClose))(s, socketarg);
+
+  delete socketClosure;
+  return ret;
 }
 
 // Replacement connection function.  Calls the real connect function,
@@ -148,14 +134,7 @@ extern "C" int LDAP_CALLBACK nsLDAPSSLConnect(
   }
 
   // Allocate a structure to hold our socket-specific data.
-  //
-  socketClosure = static_cast<nsLDAPSSLSocketClosure*>(
-      moz_xmalloc(sizeof(nsLDAPSSLSocketClosure)));
-  if (!socketClosure) {
-    NS_WARNING("nsLDAPSSLConnect(): unable to allocate socket closure");
-    goto close_socket_and_exit_with_error;
-  }
-  memset(socketClosure, 0, sizeof(nsLDAPSSLSocketClosure));
+  socketClosure = new nsLDAPSSLSocketClosure;
   socketClosure->sessionClosure = sessionClosure;
   socketClosure->securityInfo = nullptr;
 
@@ -218,7 +197,7 @@ close_socket_and_exit_with_error:
     PR_Close(socketInfo.soinfo_prfd);
   }
   if (socketClosure) {
-    nsLDAPSSLFreeSocketClosure(&socketClosure);
+    delete socketClosure;
   }
   if (intfd >= 0 && *socketargp) {
     (*(sessionClosure->realClose))(intfd, *socketargp);
