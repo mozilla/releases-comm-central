@@ -4018,7 +4018,7 @@ function ComposeLoad() {
 
   updateAttachmentPane();
   attachmentBucketMarkEmptyBucket();
-  updateStringsOfAddressingFields();
+  updateAriaLabelsAndTooltipsOfAllAddressRows();
 
   for (let input of document.querySelectorAll(".address-input")) {
     input.onBeforeHandleKeyDown = event =>
@@ -4179,37 +4179,48 @@ var SecurityController = {
 };
 
 /**
- * Update the translatable string of every recipient row
- * with the properly formatted values.
+ * Update the aria labels of all non-custom address inputs and all pills in the
+ * addressing area. Also update the tooltips of the close labels of all address
+ * rows, including custom header fields.
  */
-function updateStringsOfAddressingFields() {
-  for (let row of document.querySelectorAll(".address-row")) {
-    udpateAddressingInputAriaLabel(row);
-    updateTooltipsOfAddressingFields(row);
+function updateAriaLabelsAndTooltipsOfAllAddressRows() {
+  for (let row of document
+    .getElementById("recipientsContainer")
+    .querySelectorAll(".address-row")) {
+    udpateAriaLabelsOfAddressRow(row);
+    updateTooltipsOfAddressRow(row);
   }
 }
 
 /**
- * Update the aria-label of the autocomplete input field.
+ * Update the aria labels of the address input and all pills of an address row.
+ * This is needed whenever a pill gets added or removed, because the aria label
+ * of each pill contains the current count of all pills in that row ("1 of n").
  *
- * @param {Element} row - The recipient address-row.
+ * @param {Element} row - The address row.
  */
-function udpateAddressingInputAriaLabel(row) {
-  let type = row.querySelector(".address-label-container > label").value;
-  let pills = row.querySelectorAll("mail-address-pill");
+function udpateAriaLabelsOfAddressRow(row) {
+  // Get the input of a normal address row with pills, or null if custom header.
+  // Use [is="autocomplete-input"] to prevent selecting a custom header input.
+  // Use [recipienttype] to prevent selecting an input for editing a pill.
   let input = row.querySelector(
     `input[is="autocomplete-input"][recipienttype]`
   );
-  // For custom header input, pills are disabled.
-  if (input) {
-    input.setAttribute(
-      "aria-label",
-      l10nCompose.formatValueSync("address-input-type-aria-label", {
-        type,
-        count: pills.length,
-      })
-    );
+  // Bail out for custom header input where pills are disabled.
+  if (!input) {
+    return;
   }
+
+  let type = row.querySelector(".address-label-container > label").value;
+  let pills = row.querySelectorAll("mail-address-pill");
+
+  input.setAttribute(
+    "aria-label",
+    l10nCompose.formatValueSync("address-input-type-aria-label", {
+      type,
+      count: pills.length,
+    })
+  );
 
   for (let pill of pills) {
     pill.setAttribute(
@@ -4223,11 +4234,11 @@ function udpateAddressingInputAriaLabel(row) {
 }
 
 /**
- * Update the close label of the recipient row.
+ * Update the tooltip of the close label of an address row.
  *
- * @param {Element} row - The recipient address-row.
+ * @param {Element} row - The address row.
  */
-function updateTooltipsOfAddressingFields(row) {
+function updateTooltipsOfAddressRow(row) {
   let type = row.querySelector(".address-label-container > label").value;
   let el = row.querySelector(".aw-firstColBox > label");
   document.l10n.setAttributes(el, "remove-address-row-type-label", { type });

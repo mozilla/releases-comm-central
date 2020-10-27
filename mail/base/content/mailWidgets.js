@@ -1993,10 +1993,13 @@
       let addresses = MailServices.headerParser.makeFromDisplayAddress(
         this.emailInput.value
       );
+      let row = this.closest(".address-row");
 
       if (!addresses[0]) {
         this.rowInput.focus();
         this.remove();
+        // Update aria labels of all pills in the row, as pill count changed.
+        udpateAriaLabelsOfAddressRow(row);
         onRecipientsChanged();
         return;
       }
@@ -2013,6 +2016,18 @@
       this.emailInput.attachController();
 
       this.resetPill();
+
+      // Update the aria label of edited pill only, as pill count didn't change.
+      // Unfortunately, we still need to get the row's pills for counting once.
+      let pills = row.querySelectorAll("mail-address-pill");
+      this.setAttribute(
+        "aria-label",
+        l10nCompose.formatValueSync("pill-aria-label", {
+          email: this.fullAddress,
+          count: pills.length,
+        })
+      );
+
       onRecipientsChanged();
     }
 
@@ -2918,7 +2933,9 @@
       focusElement.focus();
 
       calculateHeaderHeight();
-      udpateAddressingInputAriaLabel(rowInput.closest(".address-row"));
+      // Update aria labels for all rows as we allow cross-row pill removal.
+      // This may not yet be micro-performance optimized; see bug 1671261.
+      updateAriaLabelsAndTooltipsOfAllAddressRows();
 
       // Don't call onRecipientsChanged() if the pills were removed
       // automatically during the move to another addressing widget.
