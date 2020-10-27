@@ -442,10 +442,10 @@ Enigmail.msg = {
             obtainedDraftFlagsObj.value = true;
           }
           if (self.draftSubjectEncrypted) {
-            self.setOriginalSubject(msgHdr.subject, false);
+            self.setOriginalSubject(msgHdr.subject, msgHdr.flags, false);
           }
         } else if (EnigmailURIs.isEncryptedUri(msgUri)) {
-          self.setOriginalSubject(msgHdr.subject, false);
+          self.setOriginalSubject(msgHdr.subject, msgHdr.flags, false);
         }
       }
     } catch (ex) {
@@ -525,10 +525,22 @@ Enigmail.msg = {
     return true;
   },
 
-  setOriginalSubject(subject, forceSetting) {
+  /**
+   * Updates the subject displayed in the #msgSubject element of the compose
+   * window. Sets prefixes such as "Re" depending on the value gMsgCompose.type.
+   *
+   * @param {string} subject The subject for the message.
+   * @param {number} flags The nsIMsgHdr flags for the message, used to detect
+   *   HasRe on drafts.
+   * @param {boolean} forceSetting If true, the subject is always updated
+   *   otherwise it is only updated for the following nsIMsgCompTypes: Draft,
+   *   Template,EditTemplate,ForwardInline,ForwardAttachement or EditAsNew.
+   */
+  setOriginalSubject(subject, flags, forceSetting) {
     const CT = Ci.nsIMsgCompType;
     let subjElem = document.getElementById("msgSubject");
     let prefix = "";
+    let isReply = false;
 
     if (!subjElem) {
       return;
@@ -539,15 +551,22 @@ Enigmail.msg = {
       case CT.ForwardAsAttachment:
         prefix = this.getMailPref("mail.forward_subject_prefix") + ": ";
         break;
+      case CT.Draft:
+        isReply = Boolean(flags & Ci.nsMsgMessageFlags.HasRe);
+        break;
       case CT.Reply:
       case CT.ReplyAll:
       case CT.ReplyToSender:
       case CT.ReplyToGroup:
       case CT.ReplyToSenderAndGroup:
       case CT.ReplyToList:
-        if (!subject.startsWith("Re: ")) {
-          prefix = "Re: ";
-        }
+        isReply = true;
+    }
+
+    if (isReply) {
+      if (!subject.startsWith("Re: ")) {
+        prefix = "Re: ";
+      }
     }
 
     let doSetSubject = forceSetting;
@@ -3259,7 +3278,7 @@ Enigmail.composeStateListener = {
 
     let msgHdr = Enigmail.msg.getMsgHdr();
     if (msgHdr) {
-      Enigmail.msg.setOriginalSubject(msgHdr.subject, true);
+      Enigmail.msg.setOriginalSubject(msgHdr.subject, msgHdr.flags, true);
     }
     Enigmail.msg.fixMessageSubject();
 
