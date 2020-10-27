@@ -1118,7 +1118,6 @@ var chatHandler = {
         ? "openIMAccountManagerButton"
         : "openIMAccountWizardButton";
     }
-
     for (let id of [
       "statusTypeIcon",
       "statusMessage",
@@ -1129,44 +1128,26 @@ var chatHandler = {
         elt.disabled = !hasAccount;
       }
     }
-
-    let chatStatusCmd = document.getElementById("cmd_chatStatus");
-    if (chatStatusCmd) {
-      if (hasAccount) {
-        chatStatusCmd.removeAttribute("disabled");
-      } else {
-        chatStatusCmd.setAttribute("disabled", true);
+    for (let id of [
+      "button-add-buddy",
+      "newIMContactMenuItem",
+      "appmenu_newIMContactMenuItem",
+    ]) {
+      let elt = document.getElementById(id);
+      if (elt) {
+        elt.disabled = !connected;
       }
     }
-
-    let addBuddyButton = document.getElementById("button-add-buddy");
-    if (addBuddyButton) {
-      addBuddyButton.disabled = !connected;
-    }
-
-    let addBuddyCmd = document.getElementById("cmd_addChatBuddy");
-    if (addBuddyCmd) {
-      if (connected) {
-        addBuddyCmd.removeAttribute("disabled");
-      } else {
-        addBuddyCmd.setAttribute("disabled", true);
+    for (let id of [
+      "button-join-chat",
+      "joinChatMenuItem",
+      "appmenu_joinChatMenuItem",
+    ]) {
+      let elt = document.getElementById(id);
+      if (elt) {
+        elt.disabled = !canJoinChat;
       }
     }
-
-    let joinChatButton = document.getElementById("button-join-chat");
-    if (joinChatButton) {
-      addBuddyButton.disabled = !canJoinChat;
-    }
-
-    let joinChatCmd = document.getElementById("cmd_joinChat");
-    if (joinChatCmd) {
-      if (canJoinChat) {
-        joinChatCmd.removeAttribute("disabled");
-      } else {
-        joinChatCmd.setAttribute("disabled", true);
-      }
-    }
-
     let groupIds = ["conversations", "onlinecontacts", "offlinecontacts"];
     let contactlist = document.getElementById("contactlistbox");
     if (
