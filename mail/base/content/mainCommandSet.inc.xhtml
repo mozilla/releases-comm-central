@@ -238,9 +238,9 @@
   </commandset>
 
   <commandset id="mailMarkMenuItems"
-                commandupdater="true"
-                events="create-menu-mark"
-                oncommandupdate="goUpdateMailMenuItems(this)">
+              commandupdater="true"
+              events="create-menu-mark"
+              oncommandupdate="goUpdateMailMenuItems(this)">
 
       <command id="cmd_toggleRead" oncommand="goDoCommand('cmd_toggleRead'); event.stopPropagation()" disabled="true"/>
       <command id="cmd_markAsRead" oncommand="goDoCommand('cmd_markAsRead'); event.stopPropagation()" disabled="true"/>
@@ -267,9 +267,9 @@
   </commandset>
 
   <commandset id="mailToolsMenuItems"
-                commandupdater="true"
-                events="create-menu-tasks"
-                oncommandupdate="goUpdateMailMenuItems(this)">
+              commandupdater="true"
+              events="create-menu-tasks"
+              oncommandupdate="goUpdateMailMenuItems(this);">
     <command id="cmd_displayMsgFilters"
              oncommand="goDoCommand('cmd_displayMsgFilters');" disabled="true"/>
     <command id="cmd_applyFilters" oncommand="goDoCommand('cmd_applyFilters');" disabled="true"/>
@@ -282,9 +282,14 @@
              valueMessageAccessKey="&filtersApplyToMessage.accesskey;"/>
     <command id="cmd_runJunkControls" oncommand="goDoCommand('cmd_runJunkControls');" disabled="true"/>
     <command id="cmd_deleteJunk" oncommand="goDoCommand('cmd_deleteJunk');" disabled="true"/>
-    <command id="cmd_joinChat" oncommand="goDoCommand('cmd_joinChat');" disabled="true"/>
-    <command id="cmd_chatStatus" oncommand="chatHandler.setStatusMenupopupCommand(event);" disabled="true"/>
-    <command id="cmd_addChatBuddy" oncommand="goDoCommand('cmd_addChatBuddy');" disabled="true"/>
+  </commandset>
+
+  <commandset id="mailChatMenuItems"
+              commandupdater="true"
+              events="create-menu-tag">
+       <command id="cmd_joinChat" oncommand="chatHandler.joinChat();" disabled="true"/>
+       <command id="cmd_chatStatus" oncommand="chatHandler.setStatusMenupopupCommand(event);" disabled="true"/>
+       <command id="cmd_addChatBuddy" oncommand="chatHandler.addBuddy();" disabled="true"/>
   </commandset>
 
 #ifdef XP_MACOSX
