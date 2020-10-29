@@ -57,51 +57,6 @@ frame.log = function(obj) {
 // Declare most used utils functions in the controller namespace
 var sleep = utils.sleep;
 
-var waitForEvents = function() {};
-
-waitForEvents.prototype = {
-  /**
-   *  Initialize list of events for given node
-   */
-  init(node, events) {
-    if (node.getNode != undefined) {
-      node = node.getNode();
-    }
-
-    this.events = events;
-    this.node = node;
-    node.firedEvents = {};
-    this.registry = {};
-
-    for (var e of events) {
-      var listener = function(event) {
-        this.firedEvents[event.type] = true;
-      };
-      this.registry[e] = listener;
-      this.registry[e].result = false;
-      this.node.addEventListener(e, this.registry[e], true);
-    }
-  },
-
-  /**
-   * Wait until all assigned events have been fired
-   */
-  wait(timeout, interval) {
-    for (var e in this.registry) {
-      utils.waitFor(
-        () => {
-          return this.node.firedEvents[e];
-        },
-        "Timeout happened before event '" + e + "' was fired.",
-        timeout,
-        interval
-      );
-
-      this.node.removeEventListener(e, this.registry[e], true);
-    }
-  },
-};
-
 /**
  * Class to handle menus and context menus
  *
