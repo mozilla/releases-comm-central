@@ -556,13 +556,6 @@ MozMillController.prototype.waitForElementNotPresent = function(
   frame.events.pass({ function: "Controller.waitForElementNotPresent()" });
 };
 
-MozMillController.prototype.__defineGetter__("waitForEvents", function() {
-  if (this._waitForEvents == undefined) {
-    this._waitForEvents = new waitForEvents();
-  }
-  return this._waitForEvents;
-});
-
 /**
  * Wrapper function to create a new instance of a menu
  * @see Menu
