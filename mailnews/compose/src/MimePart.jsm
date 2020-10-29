@@ -46,7 +46,7 @@ class MimePart {
    * @type {BinaryString} text - The string to use as body.
    */
   set bodyText(text) {
-    this._bodyText = text;
+    this._bodyText = text.replaceAll("\r\n", "\n").replaceAll("\n", "\r\n");
   }
 
   /**

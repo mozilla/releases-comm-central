@@ -11,6 +11,10 @@ var { MailServices } = ChromeUtils.import(
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
+// Defined in ErrorList.h.
+const NS_ERROR_MODULE_BASE_OFFSET = 69;
+const NS_ERROR_MODULE_MAILNEWS = 16;
+
 /**
  * Generate an NS_ERROR code from a MAILNEWS error code. See NS_ERROR_GENERATE
  * in nsError.h and NS_MSG_GENERATE_FAILURE in nsComposeStrings.h.
@@ -19,7 +23,11 @@ var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
  * @returns {number}
  */
 function generateNSError(code) {
-  return (1 << 31) | ((16 + 0x45) << 16) | code;
+  return (
+    (1 << 31) |
+    ((NS_ERROR_MODULE_MAILNEWS + NS_ERROR_MODULE_BASE_OFFSET) << 16) |
+    code
+  );
 }
 
 /**
@@ -85,6 +93,18 @@ var MsgUtils = {
 
   NS_ERROR_CLIENTID: generateNSError(12610),
   NS_ERROR_CLIENTID_PERMISSION: generateNSError(12611),
+
+  /**
+   * NS_IS_MSG_ERROR in msgCore.h.
+   * @param {nsresult} err - The nsresult value.
+   * @returns {boolean}
+   */
+  isMsgError(err) {
+    return (
+      (((err >> 16) - NS_ERROR_MODULE_BASE_OFFSET) & 0x1fff) ==
+      NS_ERROR_MODULE_MAILNEWS
+    );
+  },
 
   /**
    * Convert html to text to form a multipart/alternative message. The output
@@ -194,7 +214,7 @@ var MsgUtils = {
             .messageURIToMsgHdr(originalMsgURI);
         } catch (e) {
           console.warn(
-            `messageServiceFromURI failed for ${originalMsgURI.spec}\n${e.stack}`
+            `messageServiceFromURI failed for ${originalMsgURI}\n${e.stack}`
           );
         }
         if (msgHdr) {
@@ -220,6 +240,14 @@ var MsgUtils = {
     }
 
     return fcc;
+  },
+
+  canSaveToFolder(folderUri) {
+    let folder = MailUtils.getOrCreateFolder(folderUri);
+    if (folder.server) {
+      return folder.server.canFileMessagesOnServer;
+    }
+    return false;
   },
 
   /**
@@ -934,66 +962,17 @@ var MsgUtils = {
   },
 
   /**
-   * Get the error message that will be shown to the user.
+   * Format the error message that will be shown to the user.
    * @param {nsIMsgIdentity} userIdentity - User identity.
    * @param {nsIStringBundle} composeBundle - Localized string bundle.
-   * @param {nsresult} exit - The exit code of sending mail process.
+   * @param {string} errorName - The error name derived from an exit code.
    * @retuns {string}
    */
-  getErrorMessage(userIdentity, composeBundle, exitCode) {
-    let errorName = this.getErrorStringName(exitCode);
+  formatStringWithSMTPHostName(userIdentity, composeBundle, errorName) {
     let smtpServer = {};
     MailServices.smtp.getServerByIdentity(userIdentity, smtpServer);
     let smtpHostname = smtpServer.value.hostname;
-    if (
-      [
-        this.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER,
-        this.NS_ERROR_SMTP_SEND_FAILED_REFUSED,
-        this.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED,
-        this.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT,
-        this.NS_ERROR_SMTP_PASSWORD_UNDEFINED,
-        this.NS_ERROR_SMTP_AUTH_FAILURE,
-        this.NS_ERROR_SMTP_AUTH_GSSAPI,
-        this.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED,
-        this.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL,
-        this.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL,
-        this.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT,
-        this.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS,
-      ].includes(exitCode)
-    ) {
-      // Print basic SMTP error with the server name.
-      return composeBundle.formatStringFromName(errorName, [smtpHostname]);
-    }
-    let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
-      Ci.nsINSSErrorsService
-    );
-    if (nssErrorsService.isNSSErrorCode(exitCode)) {
-      // This is a server security issue as determined by the Mozilla
-      // platform. To the Mozilla security message string, appended a string
-      // having additional information with the server name encoded.
-      let msg = nssErrorsService.getErrorMessage(exitCode);
-      msg +=
-        "\n" +
-        composeBundle.formatStringFromName("smtpSecurityIssue", [smtpHostname]);
-      return msg;
-    } else if (errorName == "sendFailed") {
-      // Not the default string. A mailnews error occurred that does not
-      // require the server name to be encoded. Just print the descriptive
-      // string.
-      return composeBundle.GetStringFromName(errorName);
-    }
-    // Encode the error code in first string. Then append a supplemental
-    // string that encodes the server name.
-    let msg = composeBundle.formatStringFromName(
-      "sendFailedUnexpected",
-      exitCode.toString(16)
-    );
-    msg +=
-      "\n" +
-      composeBundle.formatStringFromName("smtpSendFailedUnknownReason", [
-        smtpHostname,
-      ]);
-    return msg;
+    return composeBundle.formatStringFromName(errorName, [smtpHostname]);
   },
 
   /**

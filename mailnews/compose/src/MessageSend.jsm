@@ -138,6 +138,7 @@ MessageSend.prototype = {
     this._msgToReplace = msgToReplace;
     this._smtpPassword = smtpPassword;
     this._sendListener = listener;
+    this._statusFeedback = statusFeedback;
 
     this._sendReport = Cc[
       "@mozilla.org/messengercompose/sendreport;1"
@@ -225,9 +226,11 @@ MessageSend.prototype = {
         errorMsg,
         false
       );
-      this._sendReport.displayReport(prompt, true, true);
+      exitCode = this._sendReport.displayReport(prompt, true, true);
     }
     this.abort();
+
+    return exitCode;
   },
 
   getPartForDomIndex(domIndex) {
@@ -272,82 +275,100 @@ MessageSend.prototype = {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName(statusMsgEntry)
     );
-    if (Components.isSuccessCode(status)) {
-      return this._doFcc2();
-    }
 
-    let localFoldersAccountName =
-      MailServices.accounts.localFoldersServer.prettyName;
-    let folder = MailUtils.getOrCreateFolder(this._folderUri);
-    let accountName = folder?.server.prettyName;
-    if (!this._fcc || !localFoldersAccountName || !accountName) {
-      return this._doFcc2();
-    }
+    if (!Components.isSuccessCode(status)) {
+      let localFoldersAccountName =
+        MailServices.accounts.localFoldersServer.prettyName;
+      let folder = MailUtils.getOrCreateFolder(this._folderUri);
+      let accountName = folder?.server.prettyName;
+      if (!this._fcc || !localFoldersAccountName || !accountName) {
+        this.fail(Cr.NS_OK, null, status);
+        return;
+      }
 
-    let params = [folder.name, accountName, localFoldersAccountName];
-    let promptMsg;
-    switch (this._deliverMode) {
-      case Ci.nsIMsgSend.nsMsgDeliverNow:
-      case Ci.nsIMsgSend.nsMsgSendUnsent:
-        promptMsg = this._composeBundle.formatStringFromName(
-          "promptToSaveSentLocally2",
-          params
-        );
-        break;
-      case Ci.nsIMsgSend.nsMsgSaveAsDraft:
-        promptMsg = this._composeBundle.formatStringFromName(
-          "promptToSaveDraftLocally2",
-          params
-        );
-        break;
-      case Ci.nsIMsgSend.nsMsgSaveAsTemplate:
-        promptMsg = this._composeBundle.formatStringFromName(
-          "promptToSaveTemplateLocally2",
-          params
-        );
-        break;
-    }
-    if (promptMsg) {
-      let showCheckBox = { value: false };
-      let buttonFlags =
-        Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
-        Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE +
-        Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_SAVE;
-      let dialogTitle = this._composeBundle.GetStringFromName(
-        "SaveDialogTitle"
-      );
-      let buttonLabelRety = this._composeBundle.GetStringFromName(
-        "buttonLabelRetry2"
-      );
-      let prompt = this.getDefaultPrompt();
-      let buttonPressed = prompt.confirmEx(
-        dialogTitle,
-        promptMsg,
-        buttonFlags,
-        buttonLabelRety,
-        null,
-        null,
-        null,
-        showCheckBox
-      );
-      if (buttonPressed == 0) {
-        // retry button clicked
-        return this._doFcc();
-      } else if (buttonPressed == 2) {
-        try {
-          // Try to save to Local Folders/<account name>. Pass null to save
-          // to local folders and not the configured fcc.
-          return this._doFcc(null, true);
-        } catch (e) {
-          prompt.alert(
-            null,
-            this._composeBundle.GetStringFromName("saveToLocalFoldersFailed")
+      let params = [folder.name, accountName, localFoldersAccountName];
+      let promptMsg;
+      switch (this._deliverMode) {
+        case Ci.nsIMsgSend.nsMsgDeliverNow:
+        case Ci.nsIMsgSend.nsMsgSendUnsent:
+          promptMsg = this._composeBundle.formatStringFromName(
+            "promptToSaveSentLocally2",
+            params
           );
+          break;
+        case Ci.nsIMsgSend.nsMsgSaveAsDraft:
+          promptMsg = this._composeBundle.formatStringFromName(
+            "promptToSaveDraftLocally2",
+            params
+          );
+          break;
+        case Ci.nsIMsgSend.nsMsgSaveAsTemplate:
+          promptMsg = this._composeBundle.formatStringFromName(
+            "promptToSaveTemplateLocally2",
+            params
+          );
+          break;
+      }
+      if (promptMsg) {
+        let showCheckBox = { value: false };
+        let buttonFlags =
+          Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
+          Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE +
+          Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_SAVE;
+        let dialogTitle = this._composeBundle.GetStringFromName(
+          "SaveDialogTitle"
+        );
+        let buttonLabelRety = this._composeBundle.GetStringFromName(
+          "buttonLabelRetry2"
+        );
+        let prompt = this.getDefaultPrompt();
+        let buttonPressed = prompt.confirmEx(
+          dialogTitle,
+          promptMsg,
+          buttonFlags,
+          buttonLabelRety,
+          null,
+          null,
+          null,
+          showCheckBox
+        );
+        if (buttonPressed == 0) {
+          // retry button clicked
+          this._mimeDoFcc();
+          return;
+        } else if (buttonPressed == 2) {
+          try {
+            // Try to save to Local Folders/<account name>. Pass null to save
+            // to local folders and not the configured fcc.
+            this._mimeDoFcc(null, true, Ci.nsIMsgSend.nsMsgDeliverNow);
+            return;
+          } catch (e) {
+            prompt.alert(
+              null,
+              this._composeBundle.GetStringFromName("saveToLocalFoldersFailed")
+            );
+          }
         }
       }
+      this.fail(Cr.NS_OK, null);
     }
 
-    return this._doFcc2();
+    if (
+      !this._fcc2Handled &&
+      this._messageKey != nsMsgKey_None &&
+      [Ci.nsIMsgSend.nsMsgDeliverNow, Ci.nsIMsgSend.nsMsgSendUnsent].includes(
+        this._deliverMode
+      )
+    ) {
+      try {
+        this._filterSentMessage();
+      } catch (e) {
+        this.onStopOperation(e.result);
+      }
+      return;
+    }
+
+    this._doFcc2();
   },
 
   notifyListenerOnStopSending(msgId, status, msg, returnFile) {
@@ -399,57 +420,94 @@ MessageSend.prototype = {
         this._composeBundle.GetStringFromName("errorFilteringMsg")
       );
     }
+
+    this._doFcc2();
   },
 
-  sendDeliveryCallback(url, isNewsDelivery, exitCode) {
-    let newExitCode = exitCode;
-    switch (exitCode) {
-      case Cr.NS_ERROR_UNKNOWN_HOST:
-      case Cr.NS_ERROR_UNKNOWN_PROXY_HOST:
-        newExitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER;
-        break;
-      case Cr.NS_ERROR_CONNECTION_REFUSED:
-      case Cr.NS_ERROR_PROXY_CONNECTION_REFUSED:
-        newExitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED;
-        break;
-      case Cr.NS_ERROR_NET_INTERRUPT:
-      case Cr.NS_ERROR_ABORT:
-        newExitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED;
-        break;
-      case Cr.NS_ERROR_NET_TIMEOUT:
-      case Cr.NS_ERROR_NET_RESET:
-        newExitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT;
-        break;
-      default:
-        try {
-          // If it's an NSS error, tell the listener.
-          let nssErrorsService = Cc[
-            "@mozilla.org/nss_errors_service;1"
-          ].getService(Ci.nsINSSErrorsService);
-          nssErrorsService.getErrorClass(exitCode);
-          // If we get this far, it's an NSS error.
-          let u = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
-          this.notifyListenerOnTransportSecurityError(
-            null,
-            exitCode,
-            u.failedSecInfo,
-            u.asciiHostPort
-          );
-        } catch (e) {
-          // It's not an NSS error.
-        }
-        break;
-    }
-    if (!Components.isSuccessCode(newExitCode)) {
-      this.fail(
-        newExitCode,
-        MsgUtils.getErrorMessage(
+  /**
+   * Handle the exit code of message delivery.
+   * @param {nsIURI} url - The delivered message uri.
+   * @param {boolean} isNewsDelivery - The message was delivered to newsgroup.
+   * @param {nsreault} exitCode - The exit code of message delivery.
+   */
+  _deliveryExitProcessing(url, isNewsDelivery, exitCode) {
+    if (!Components.isSuccessCode(exitCode)) {
+      let isNSSError = false;
+      let errorName = MsgUtils.getErrorStringName(exitCode);
+      let errorMsg;
+      if (
+        [
+          MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER,
+          MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED,
+          MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED,
+          MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT,
+          MsgUtils.NS_ERROR_SMTP_PASSWORD_UNDEFINED,
+          MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE,
+          MsgUtils.NS_ERROR_SMTP_AUTH_GSSAPI,
+          MsgUtils.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED,
+          MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL,
+          MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL,
+          MsgUtils.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT,
+          MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS,
+        ].includes(exitCode)
+      ) {
+        errorMsg = MsgUtils.formatStringWithSMTPHostName(
           this._userIdentity,
           this._composeBundle,
-          newExitCode
-        )
-      );
+          errorName
+        );
+      } else {
+        let nssErrorsService = Cc[
+          "@mozilla.org/nss_errors_service;1"
+        ].getService(Ci.nsINSSErrorsService);
+        try {
+          // This is a server security issue as determined by the Mozilla
+          // platform. To the Mozilla security message string, appended a string
+          // having additional information with the server name encoded.
+          errorMsg = nssErrorsService.getErrorMessage(exitCode);
+          errorMsg +=
+            "\n" +
+            MsgUtils.formatStringWithSMTPHostName(
+              this._userIdentity,
+              this._composeBundle,
+              "smtpSecurityIssue"
+            );
+          isNSSError = true;
+        } catch (e) {
+          if (errorName == "sendFailed") {
+            // Not the default string. A mailnews error occurred that does not
+            // require the server name to be encoded. Just print the descriptive
+            // string.
+            errorMsg = this._composeBundle.GetStringFromName(errorName);
+          } else {
+            errorMsg = this._composeBundle.formatStringFromName(
+              "sendFailedUnexpected",
+              [exitCode.toString(16)]
+            );
+            errorMsg =
+              "\n" +
+              MsgUtils.formatStringWithSMTPHostName(
+                this._userIdentity,
+                this._composeBundle,
+                "smtpSendFailedUnknownReason"
+              );
+          }
+        }
+      }
+      this.fail(exitCode, errorMsg);
+      if (isNSSError) {
+        let u = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
+        this.notifyListenerOnTransportSecurityError(
+          null,
+          exitCode,
+          u.failedSecInfo,
+          u.asciiHostPort
+        );
+      }
+      this.notifyListenerOnStopSending(null, exitCode, null, null);
+      return;
     }
+
     if (
       isNewsDelivery &&
       (this._compFields.to || this._compFields.cc || this._compFields.bcc)
@@ -457,10 +515,51 @@ MessageSend.prototype = {
       this._deliverFileAsMail();
       return;
     }
-    this.notifyListenerOnStopSending(null, newExitCode, null, null);
-    if (Components.isSuccessCode(newExitCode)) {
-      this._doFcc();
+
+    this.notifyListenerOnStopSending(
+      this._compFields.messageId,
+      exitCode,
+      null,
+      null
+    );
+
+    this._doFcc();
+  },
+
+  sendDeliveryCallback(url, isNewsDelivery, exitCode) {
+    if (isNewsDelivery) {
+      if (
+        !Components.isSuccessCode(exitCode) &&
+        exitCode != Cr.NS_ERROR_ABORT &&
+        !MsgUtils.isMsgError(exitCode)
+      ) {
+        exitCode = MsgUtils.NS_ERROR_POST_FAILED;
+      }
+      return this._deliveryExitProcessing(url, isNewsDelivery, exitCode);
     }
+    if (!Components.isSuccessCode(exitCode)) {
+      switch (exitCode) {
+        case Cr.NS_ERROR_UNKNOWN_HOST:
+        case Cr.NS_ERROR_UNKNOWN_PROXY_HOST:
+          exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER;
+          break;
+        case Cr.NS_ERROR_CONNECTION_REFUSED:
+        case Cr.NS_ERROR_PROXY_CONNECTION_REFUSED:
+          exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED;
+          break;
+        case Cr.NS_ERROR_NET_INTERRUPT:
+        case Cr.NS_ERROR_ABORT:
+          exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED;
+          break;
+        case Cr.NS_ERROR_NET_TIMEOUT:
+        case Cr.NS_ERROR_NET_RESET:
+          exitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT;
+          break;
+        default:
+          break;
+      }
+    }
+    return this._deliveryExitProcessing(url, isNewsDelivery, exitCode);
   },
 
   get folderUri() {
@@ -506,7 +605,7 @@ MessageSend.prototype = {
         Ci.nsIMsgSend.nsMsgSaveAsTemplate,
       ].includes(this._deliverMode)
     ) {
-      await this._doFcc();
+      await this._mimeDoFcc();
       return;
     }
 
@@ -539,6 +638,18 @@ MessageSend.prototype = {
   },
 
   /**
+   * Start copy operation according to this._fcc value.
+   */
+  async _doFcc() {
+    if (!this._fcc || !MsgUtils.canSaveToFolder(this._fcc)) {
+      this.notifyListenerOnStopCopy(Cr.NS_OK);
+      return;
+    }
+    this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_Copy;
+    this._mimeDoFcc(this._fcc, false, Ci.nsIMsgSend.nsMsgDeliverNow);
+  },
+
+  /**
    * Copy a message to a folder, or fallback to a folder depending on pref and
    * deliverMode, usually Drafts/Sent.
    * @param {string} [fccHeader=this._fcc] - The target folder uri to copy the
@@ -548,7 +659,7 @@ MessageSend.prototype = {
    * error by itself.
    * @param {nsMsgDeliverMode} [deliverMode=this._deliverMode] - The deliver mode.
    */
-  async _doFcc(
+  async _mimeDoFcc(
     fccHeader = this._fcc,
     throwOnError = false,
     deliverMode = this._deliverMode
@@ -665,20 +776,14 @@ MessageSend.prototype = {
    * Handle the fcc2 field. Then notify OnStopCopy and clean up.
    */
   _doFcc2() {
-    if (
-      !this._fcc2Handled &&
-      this._messageKey != nsMsgKey_None &&
-      [Ci.nsIMsgSend.nsMsgDeliverNow, Ci.nsIMsgSend.nsMsgSendUnsent].includes(
-        this._deliverMode
-      )
-    ) {
-      this._filterSentMessage();
-    }
-
     // Handle fcc2 only once.
     if (!this._fcc2Handled && this._compFields.fcc2) {
       this._fcc2Handled = true;
-      this._doFcc(this._compFields.fcc2, false, Ci.nsIMsgSend.nsMsgDeliverNow);
+      this._mimeDoFcc(
+        this._compFields.fcc2,
+        false,
+        Ci.nsIMsgSend.nsMsgDeliverNow
+      );
       return;
     }
 
@@ -755,6 +860,9 @@ MessageSend.prototype = {
       )
     );
     let deliveryListener = new MsgDeliveryListener(this, false);
+    let msgStatus =
+      this._sendProgress?.QueryInterface(Ci.nsIMsgStatusFeedback) ||
+      this._statusFeedback;
     this._smtpRequest = {};
     MailServices.smtp.sendMailMessage(
       this._messageFile,
@@ -763,7 +871,7 @@ MessageSend.prototype = {
       this._compFields.from,
       this._smtpPassword,
       deliveryListener,
-      null,
+      msgStatus,
       null,
       this._compFields.DSN,
       {},

@@ -105,7 +105,13 @@ async function testBodyWithLongLine() {
   // Windows uses CR+LF, the other platforms just LF.
   // Note: Services.appinfo.OS returns "XPCShell" in the test, so we
   // use this hacky condition to separate Windows from the others.
-  if ("@mozilla.org/windows-registry-key;1" in Cc) {
+  if (
+    "@mozilla.org/windows-registry-key;1" in Cc ||
+    // Lines in the message body are split by CRLF according to RFC 5322, should
+    // be independant of the system. For nsMsgSend.cpp on non-Windows this is
+    // not respected.
+    Services.prefs.getBoolPref("mailnews.send.jsmodule")
+  ) {
     newline = "\r\n";
   } else {
     newline = "\n";
