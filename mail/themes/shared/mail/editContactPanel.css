@@ -1,0 +1,89 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+.editContactPanel_rowLabel {
+  text-align: end;
+}
+
+#editContactPanel {
+  margin-inline-start: 0;
+  --arrowpanel-padding: 0;
+}
+
+#editContactHeader {
+  padding: 10px;
+  border-bottom: 1px solid var(--panel-separator-color)
+}
+
+#editContactPanelIcon {
+  list-style-image: url("chrome://messenger/skin/icons/starred.svg");
+  -moz-context-properties: fill;
+  fill: var(--toolbarbutton-icon-fill-attention);
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  margin: 4px;
+}
+
+#editContactPanelTitle {
+  font-size: 130%;
+  font-weight: bold;
+  margin-inline-start: 9px;
+  margin-inline-end: 12px;
+}
+
+#editContactContent {
+  padding: 20px 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+#editContactEmail {
+  min-width: 20em;
+}
+
+html|input.editContactTextbox[readonly] {
+  border-color: transparent;
+  background-color: inherit;
+  box-shadow: none;
+  color: inherit;
+}
+
+#contactMoveDisabledText {
+  width: 20em;
+}
+
+#editContactAddressBookList {
+  appearance: none;
+  background-color: var(--arrowpanel-dimmed);
+  background-image: none;
+  border: 1px solid;
+  border-color: var(--panel-separator-color) !important;
+  box-shadow: none;
+  color: inherit;
+}
+
+#editContactAddressBookList:not([disabled="true"]):not([open="true"]):hover {
+  background-image: linear-gradient(var(--arrowpanel-dimmed),
+                                    var(--arrowpanel-dimmed));
+  background-color: var(--arrowpanel-dimmed);
+}
+
+#editContactAddressBookList[open="true"] {
+  background-image: linear-gradient(var(--arrowpanel-dimmed-further),
+                                    var(--arrowpanel-dimmed-further));
+  box-shadow: 0 1px 0 hsla(210, 4%, 10%, .05) inset;
+}
+
+#editContactPanelDeleteContactButton {
+  border-inline-start: 1px solid var(--panel-separator-color);
+}
+
+/* Make all buttons the same width. */
+#editContactPanelDoneButton {
+  flex: 0%;
+}

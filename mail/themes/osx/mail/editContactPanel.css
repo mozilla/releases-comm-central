@@ -2,54 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@import url("chrome://messenger/skin/shared/editContactPanel.css");
+
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-.editContactPanel_rowLabel {
-  text-align: end;
+#editContactAddressBookList {
+  margin-inline: 6px;
+  padding-inline-start: 8px;
 }
 
-#editContactPanel {
-  margin-inline-start: 0;
-  --arrowpanel-padding: 0;
-}
-
-#editContactHeader {
-  padding: 10px;
-  border-bottom: 1px solid var(--panel-separator-color)
-}
-
-#editContactPanelIcon {
-  list-style-image: url("chrome://messenger/skin/icons/starred.svg");
-  -moz-context-properties: fill;
-  fill: var(--toolbarbutton-icon-fill-attention);
-  width: 40px;
-  height: 40px;
-  min-height: 40px;
-  margin: 4px;
-}
-
-#editContactPanelTitle {
-  font-size: 130%;
-  font-weight: bold;
-  margin-inline-start: 9px;
-  margin-inline-end: 12px;
-}
-
-#editContactContent {
-  padding: 20px 10px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-}
-
-#editContactEmail {
-  min-width: 20em;
-}
-
-#editContactAddressBookList:focus,
-#editContactPanel > hbox > button:focus,
-#editContactPanelBottomButtons > button:focus {
+#editContactAddressBookList:focus {
   box-shadow: var(--focus-ring-box-shadow);
 }
 
@@ -78,85 +40,5 @@ html|input.editContactTextbox {
   border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.3);
   padding: 3px 8px;
-  width: 35ch;
-}
-
-html|input.editContactTextbox:focus {
-  border-color: -moz-mac-focusring;
-  box-shadow: var(--focus-ring-box-shadow);
-}
-
-html|input.editContactTextbox[readonly] {
-  border-color: transparent;
-  background-color: inherit;
-  box-shadow: none;
-  color: inherit;
-}
-
-#contactMoveDisabledText {
-  margin-left: 8px;
   width: 20em;
-}
-
-#editContactPanel button,
-#editContactPanel menulist {
-  appearance: none;
-  margin-inline-end: 6px;
-  min-height: 22px;
-  background-color: var(--arrowpanel-dimmed);
-  background-image: none;
-  border: 1px solid;
-  border-color: var(--panel-separator-color) !important;
-  box-shadow: none;
-  color: inherit;
-}
-
-#editContactPanel button:hover,
-#editContactPanel menulist:not([disabled="true"]):not([open="true"]):hover {
-  background-image: linear-gradient(var(--arrowpanel-dimmed),
-                                    var(--arrowpanel-dimmed));
-  background-color: var(--arrowpanel-dimmed);
-}
-
-#editContactPanel button:hover:active,
-#editContactPanel menulist[open="true"] {
-  background-image: linear-gradient(var(--arrowpanel-dimmed-further),
-                                    var(--arrowpanel-dimmed-further));
-  box-shadow: 0 1px 0 hsla(210,4%,10%,.05) inset;
-}
-
-#editContactPanel .editContactPanelButton {
-  margin: 0;
-  padding: 0;
-  min-width: 0;
-  min-height: 41px;
-  border-width: 0;
-  border-top-width: 1px;
-}
-
-#editContactPanel .editContactPanelButton[default] {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-#editContactPanel .editContactPanelButton[default] {
-  background-color: #0996f8;
-  color: white;
-}
-
-#editContactPanel .editContactPanelButton[default]:hover {
-  background-image: linear-gradient(#0675d3, #0675d3);
-}
-
-#editContactPanel .editContactPanelButton[default]:hover:active {
-  background-image: linear-gradient(#0568ba, #0568ba);
-}
-
-#editContactPanel .editContactPanelButton > .button-box {
-  margin-left: 15px;
-  margin-right: 15px;
-}
-
-#editContactPanelBottomButtons > #editContactPanelDeleteContactButton {
-  border-inline-start-width: 1px;
 }

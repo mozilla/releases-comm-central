@@ -394,6 +394,8 @@ button > .button-box > dropmarker {
 
 .popup-notification-button {
   height: auto;
+  border-style: none;
+  border-radius: 0;
 }
 
 #notification-popup-box > image.notification-anchor-icon {

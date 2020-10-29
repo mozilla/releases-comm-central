@@ -67,36 +67,26 @@
   </box>
 
   <hbox flex="1"
-        id="editContactPanelBottomButtons">
+        class="popup-notification-button-container panel-footer">
     <button id="editContactPanelEditDetailsButton"
-            class="editContactPanelButton"
+            class="popup-notification-button popup-notification-secondary-button"
             flex="1"
             oncommand="editContactInlineUI.editDetails();"
             onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
-#ifdef XP_WIN
-    <button id="editContactPanelDoneButton"
-            class="editContactPanelButton"
-            flex="1"
-            label="&editContactPanelDone.label;"
-            accesskey="&editContactPanelDone.accesskey;" default="true"
-            oncommand="editContactInlineUI.saveChanges();"
-            onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
-#endif
     <button id="editContactPanelDeleteContactButton"
-            class="editContactPanelButton"
+            class="popup-notification-button popup-notification-secondary-button"
             flex="1"
             label="&editContactPanelDeleteContact.label;"
             accesskey="&editContactPanelDeleteContact.accesskey;"
             oncommand="editContactInlineUI.deleteContact();"
             onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
-#ifdef XP_UNIX
     <button id="editContactPanelDoneButton"
-            class="editContactPanelButton"
+            class="popup-notification-button popup-notification-primary-button"
+            default="true"
             flex="1"
             label="&editContactPanelDone.label;"
-            accesskey="&editContactPanelDone.accesskey;" default="true"
+            accesskey="&editContactPanelDone.accesskey;"
             oncommand="editContactInlineUI.saveChanges();"
             onkeypress="editContactInlineUI.onKeyPress(event, false);"/>
-#endif
   </hbox>
 </panel>
