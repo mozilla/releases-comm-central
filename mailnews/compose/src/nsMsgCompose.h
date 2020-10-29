@@ -146,7 +146,8 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
 // THIS IS THE CLASS THAT IS THE STREAM Listener OF THE HTML OUTPUT
 // FROM LIBMIME. THIS IS FOR QUOTING
 ////////////////////////////////////////////////////////////////////////////////////
-class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener {
+class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener,
+                                    public nsSupportsWeakReference {
  public:
   QuotingOutputStreamListener(const char* originalMsgURI,
                               nsIMsgDBHdr* origMsgHdr, bool quoteHeaders,

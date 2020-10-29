@@ -2806,7 +2806,7 @@ bool IsInDomainList(const nsAString& aDomain, const nsAString& aDomainList) {
 
 NS_IMPL_ISUPPORTS(QuotingOutputStreamListener,
                   nsIMsgQuotingOutputStreamListener, nsIRequestObserver,
-                  nsIStreamListener)
+                  nsIStreamListener, nsISupportsWeakReference)
 
 ////////////////////////////////////////////////////////////////////////////////////
 // END OF QUOTING LISTENER

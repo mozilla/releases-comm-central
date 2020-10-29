@@ -42,7 +42,7 @@ class nsMsgQuote : public nsIMsgQuote, public nsSupportsWeakReference {
   //
   // Implementation data...
   //
-  nsCOMPtr<nsIMsgQuotingOutputStreamListener> mStreamListener;
+  nsWeakPtr mStreamListener;
   bool mQuoteHeaders;
   nsCOMPtr<nsIMsgQuoteListener> mQuoteListener;
   nsCOMPtr<nsIChannel> mQuoteChannel;

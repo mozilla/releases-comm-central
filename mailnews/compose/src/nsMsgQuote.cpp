@@ -75,13 +75,16 @@ NS_IMPL_ISUPPORTS(nsMsgQuote, nsIMsgQuote, nsISupportsWeakReference)
 
 NS_IMETHODIMP nsMsgQuote::GetStreamListener(
     nsIMsgQuotingOutputStreamListener** aStreamListener) {
-  nsresult rv = NS_OK;
-  if (aStreamListener) {
-    NS_IF_ADDREF(*aStreamListener = mStreamListener);
-  } else
-    rv = NS_ERROR_NULL_POINTER;
-
-  return rv;
+  if (!aStreamListener) {
+    return NS_ERROR_NULL_POINTER;
+  }
+  nsCOMPtr<nsIMsgQuotingOutputStreamListener> streamListener =
+      do_QueryReferent(mStreamListener);
+  if (!streamListener) {
+    return NS_ERROR_FAILURE;
+  }
+  NS_IF_ADDREF(*aStreamListener = streamListener);
+  return NS_OK;
 }
 
 nsresult nsMsgQuote::QuoteMessage(
@@ -92,7 +95,7 @@ nsresult nsMsgQuote::QuoteMessage(
   if (!msgURI) return NS_ERROR_INVALID_ARG;
 
   mQuoteHeaders = quoteHeaders;
-  mStreamListener = aQuoteMsgStreamListener;
+  mStreamListener = do_GetWeakReference(aQuoteMsgStreamListener);
 
   nsAutoCString msgUri(msgURI);
   bool fileUrl = !strncmp(msgURI, "file:", 5);
@@ -164,8 +167,10 @@ nsresult nsMsgQuote::QuoteMessage(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIStreamListener> convertedListener;
+  nsCOMPtr<nsIMsgQuotingOutputStreamListener> streamListener =
+      do_QueryReferent(mStreamListener);
   rv = streamConverterService->AsyncConvertData(
-      "message/rfc822", "application/xhtml+xml", mStreamListener, quoteSupport,
+      "message/rfc822", "application/xhtml+xml", streamListener, quoteSupport,
       getter_AddRefs(convertedListener));
   if (NS_FAILED(rv)) return rv;
 
