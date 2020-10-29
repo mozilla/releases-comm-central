@@ -17,6 +17,7 @@
 /* global MailServices: false, gMessageDisplay: false */
 
 /* import-globals-from ../BondOpenPGP.jsm */
+/* import-globals-from mailWindowOverlay.js */
 
 var EnigmailCompat = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
@@ -166,6 +167,11 @@ Enigmail.msg = {
   lastSMimeReloadURI: "",
   allAttachmentsDone: false,
   messageDecryptDone: false,
+  showPartialDecryptionReminder: false,
+
+  get notificationBox() {
+    return gMessageNotificationBar.msgNotificationBar;
+  },
 
   messengerStartup() {
     if (!BondOpenPGP.isEnabled()) {
@@ -369,12 +375,9 @@ Enigmail.msg = {
 
   messageCleanup() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageCleanup\n");
+    this.notificationBox.removeAllNotifications(true);
 
-    let element = document.getElementById("brokenExchangeBox");
-    if (element) {
-      element.hidden = true;
-    }
-    element = document.getElementById("openpgpKeyBox");
+    let element = document.getElementById("openpgpKeyBox");
     if (element) {
       element.hidden = true;
     }
@@ -386,18 +389,6 @@ Enigmail.msg = {
     if (element) {
       element.hidden = true;
       element.removeAttribute("keyid");
-    }
-    element = document.getElementById("cannotDecryptBox");
-    if (element) {
-      element.hidden = true;
-    }
-    element = document.getElementById("partialOpenPGPBox");
-    if (element) {
-      element.hidden = true;
-    }
-    element = document.getElementById("openpgpProcessPartial");
-    if (element) {
-      element.removeAttribute("hidden");
     }
 
     this.setAttachmentReveal(null);
@@ -652,9 +643,31 @@ Enigmail.msg = {
     Enigmail.msg.messageDecrypt(null, true);
   },
 
-  notifyMessageDecryptDone() {
+  async notifyMessageDecryptDone() {
     Enigmail.msg.messageDecryptDone = true;
     Enigmail.msg.processAfterAttachmentsAndDecrypt();
+
+    // Interrupt if the message wasn't properly decrypted.
+    if (
+      !Enigmail.msg.decryptedMessage ||
+      typeof Enigmail.msg.decryptedMessage == "undefined"
+    ) {
+      return;
+    }
+
+    // Show the partial inline encryption reminder only if the decryption action
+    // came from a partially inline encrypted message.
+    if (Enigmail.msg.showPartialDecryptionReminder) {
+      Enigmail.msg.showPartialDecryptionReminder = false;
+
+      this.notificationBox.appendNotification(
+        await document.l10n.formatValue("openpgp-reminder-partial-display"),
+        "decryptInlinePGReminder",
+        null,
+        this.notificationBox.PRIORITY_INFO_HIGH,
+        null
+      );
+    }
   },
 
   // analyse message header and decrypt/verify message
@@ -1040,7 +1053,7 @@ Enigmail.msg = {
     );
   },
 
-  messageParse(
+  async messageParse(
     interactive,
     importOnly,
     contentEncoding,
@@ -1219,17 +1232,29 @@ Enigmail.msg = {
           buttonId = "openpgp-partial-decrypt-button";
         }
 
-        document.getElementById("partialOpenPGPBox").removeAttribute("hidden");
-        let descElement = document.getElementById(
-          "preventedPartialExplanation"
+        let [description, buttonLabel] = await document.l10n.formatValues([
+          { id: infoId },
+          { id: buttonId },
+        ]);
+
+        let buttons = [
+          {
+            label: buttonLabel,
+            popup: null,
+            callback(aNotification, aButton) {
+              Enigmail.msg.processOpenPGPSubset();
+              return false; // Close notification.
+            },
+          },
+        ];
+
+        this.notificationBox.appendNotification(
+          description,
+          "decryptInlinePG",
+          null,
+          this.notificationBox.PRIORITY_INFO_HIGH,
+          buttons
         );
-        if (descElement) {
-          document.l10n.setAttributes(descElement, infoId);
-        }
-        let buttonElement = document.getElementById("openpgpProcessPartial");
-        if (buttonElement) {
-          document.l10n.setAttributes(buttonElement, buttonId);
-        }
         return;
       }
     }
@@ -1316,15 +1341,8 @@ Enigmail.msg = {
     return 0;
   },
 
-  processOpenPGPSubset() {
-    let descElement = document.getElementById("preventedPartialExplanation");
-    document.l10n.setAttributes(
-      descElement,
-      "openpgp-reminder-partial-display"
-    );
-    document
-      .getElementById("openpgpProcessPartial")
-      .setAttribute("hidden", true);
+  async processOpenPGPSubset() {
+    Enigmail.msg.showPartialDecryptionReminder = true;
     this.messageDecrypt(null, false);
   },
 
@@ -1885,24 +1903,22 @@ Enigmail.msg = {
    *
    * no return
    */
-  fixBuggyExchangeMail() {
+  async fixBuggyExchangeMail() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: fixBuggyExchangeMail:\n");
 
-    document
-      .getElementById("brokenExchangeRepairButton")
-      .setAttribute("hidden", true);
-    document.getElementById("brokenExchangeWait").removeAttribute("hidden");
-
-    function hideBrokenExchangePane() {
-      document.getElementById("brokenExchangeBox").hidden = true;
-    }
+    this.notificationBox.appendNotification(
+      await document.l10n.formatValue("openpgp-broken-exchange-wait"),
+      "brokenExchangeProgress",
+      null,
+      this.notificationBox.PRIORITY_INFO_HIGH,
+      null
+    );
 
     let msg = gFolderDisplay.messageDisplay.displayedMessage;
-
     let p = EnigmailFixExchangeMsg.fixExchangeMessage(msg, this.buggyMailType);
-    p.then(function(msgKey) {
-      // display message with given msgKey
 
+    p.then(function(msgKey) {
+      // Display message with given msgKey.
       EnigmailLog.DEBUG(
         "enigmailMessengerOverlay.js: fixBuggyExchangeMail: _success: msgKey=" +
           msgKey +
@@ -1917,16 +1933,22 @@ Enigmail.msg = {
           gFolderDisplay.view.dbView.selectMsgByKey(msgKey);
         }, 750);
       }
-
-      hideBrokenExchangePane();
     });
     p.catch(async function() {
       EnigmailDialog.alert(
         window,
         l10n.formatValueSync("fix-broken-exchange-msg-failed")
       );
-      hideBrokenExchangePane();
     });
+
+    let item = this.notificationBox.getNotificationWithValue(
+      "brokenExchangeProgress"
+    );
+    // Remove the brokenExchangeProgress only if the user didn't previously
+    // close it.
+    if (item) {
+      this.notificationBox.removeNotification(item, true);
+    }
   },
 
   /**

@@ -3153,15 +3153,13 @@ var gMessageNotificationBar = {
   },
 
   get msgNotificationBar() {
-    delete this.msgNotificationBar;
-
-    let newNotificationBox = new MozElements.NotificationBox(element => {
-      element.setAttribute("flex", "1");
-      element.setAttribute("notificationside", "top");
-      document.getElementById("mail-notification-top").append(element);
-    });
-
-    return (this.msgNotificationBar = newNotificationBox);
+    if (!this._notificationBox) {
+      this._notificationBox = new MozElements.NotificationBox(element => {
+        element.setAttribute("notificationside", "top");
+        document.getElementById("mail-notification-top").append(element);
+      });
+    }
+    return this._notificationBox;
   },
 
   setJunkMsg(aMsgHdr) {

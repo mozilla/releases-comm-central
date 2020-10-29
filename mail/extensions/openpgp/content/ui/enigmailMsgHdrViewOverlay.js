@@ -109,6 +109,7 @@ Enigmail.hdrView = {
     this.msgSignatureKeyId = "";
     this.msgEncryptionKeyId = null;
     this.msgEncryptionAllKeyIds = null;
+    Enigmail.msg.notificationBox.removeAllNotifications(true);
   },
 
   hdrViewLoad() {
@@ -495,13 +496,17 @@ Enigmail.hdrView = {
           infoId = "openpgp-cannot-decrypt-because-mdc";
         }
       }
+
       if (unhideBar) {
-        document.getElementById("cannotDecryptBox").removeAttribute("hidden");
-        let descElement = document.getElementById("cannot-decrypt-explanation");
-        if (descElement) {
-          document.l10n.setAttributes(descElement, infoId);
-        }
+        Enigmail.msg.notificationBox.appendNotification(
+          await document.l10n.formatValue(infoId),
+          "decryptionFailed",
+          "chrome://global/skin/icons/warning.svg",
+          Enigmail.msg.notificationBox.PRIORITY_CRITICAL_MEDIUM,
+          null
+        );
       }
+
       this.msgSignatureState = EnigmailConstants.MSG_SIG_NONE;
       encryptedUINode.hidden = false;
     } else if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
@@ -1097,7 +1102,7 @@ Enigmail.hdrView = {
       return false;
     },
 
-    updateSecurityStatus(
+    async updateSecurityStatus(
       unusedUriSpec,
       exitCode,
       statusFlags,
@@ -1172,12 +1177,24 @@ Enigmail.hdrView = {
       }
 
       if (uriSpec && uriSpec.search(/^enigmail:message\//) === 0) {
-        // Display header for broken MS-Exchange message.
-        document.getElementById("brokenExchangeBox").removeAttribute("hidden");
-        document
-          .getElementById("brokenExchangeRepairButton")
-          .removeAttribute("hidden");
-        document.getElementById("brokenExchangeWait").hidden = true;
+        let buttons = [
+          {
+            "l10n-id": "openpgp-broken-exchange-repair",
+            popup: null,
+            callback(aNotification, aButton) {
+              Enigmail.msg.fixBuggyExchangeMail();
+              return false; // Close notification.
+            },
+          },
+        ];
+
+        Enigmail.msg.notificationBox.appendNotification(
+          await document.l10n.formatValue("openpgp-broken-exchange-info"),
+          "brokenExchange",
+          null,
+          Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
+          buttons
+        );
       }
     },
 

@@ -1,0 +1,64 @@
+From: "Alice Lovelace" <alice@openpgp.example>
+To: "Alice Lovelace" <alice@openpgp.example>
+Subject: broken exchange test message
+Date: Wed, 28 Oct 2020 01:23:45 +0000
+Content-Type: multipart/mixed;
+	boundary="_003_38fbdabc0a957344544c1642f2e764cd1234567890_"
+MIME-Version: 1.0
+
+--_003_38fbdabc0a957344544c1642f2e764cd1234567890_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+
+--_003_38fbdabc0a957344544c1642f2e764cd1234567890_
+Content-Type: application/pgp-encrypted; name="PGPMIME version identification"
+Content-Description: PGP/MIME version identification
+Content-Disposition: attachment; filename="PGPMIME version identification";
+	size=12; creation-date="Wed, 28 Oct 2020 01:23:45 GMT";
+	modification-date="Wed, 28 Oct 2020 01:23:45 GMT"
+Content-ID: <ECC4CBEC65D5CD42A8BF99DC0A800A0F@namprd00.prod.outlook.com>
+Content-Transfer-Encoding: base64
+
+VmVyc2lvbjogMQ0K
+
+--_003_38fbdabc0a957344544c1642f2e764cd1234567890_
+Content-Type: application/octet-stream; name="encrypted.asc"
+Content-Description: OpenPGP encrypted message.asc
+Content-Disposition: attachment; filename="encrypted.asc";
+	creation-date="Wed, 20 May 2020 19:11:08 GMT";
+	modification-date="Wed, 20 May 2020 19:11:08 GMT"
+Content-ID: <3A449618AD0B6A43AE8979E0E971B0FF@namprd00.prod.outlook.com>
+Content-Transfer-Encoding: base64
+
+LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpoRjREUjJiMnVkWHlIcllTQVFk
+QS9ZM0VaZlp4SVM1WlRPcmx3NkVnTkFMKzhENnV2cGVpTWdSRUxzSDFQemd3Ck1N
+d3ZxMnFUT01DaGJUd0RQSGY0WDVETGpZbXowWnN5TWlJY3BzNXo4ZU5XQ0Jyd01k
+ODBtWGlKem8vM0ZCaGkKMHVrQmVaSkFTOUlvTE5DbnRZNUpqWWljbTZZSnBHSGVH
+azA3VUN5dENYUTFEZmF5OWk1cHc5Nk54UTZicE5PSgpFamttRmlEYk1JaExnM25C
+TjVRN2ZzZ01WbFBxMTNTbmJaMmVVZXdRVHVESG10dlByUzFHRmFROExBclFRNVdU
+CjJyampkUmZ1Q040MmNXeUszSHNUNVNMZDRkOTVjZm1CeTIrRnkwQ09tZU5obmRq
+aGxPQWlEL2dOUWE4TVAzYW4KWlQ0OVlmbDdYdHp2Yjh0V0dSL1IzSDFBMU9wYnEz
+d3BrQm1hNlpXMzBvcG9rRlNkYkRqK3pTNlhmNWVmTkVLWApJZFpVQTg1U1hYRjAw
+RWFSZU9tdFQ1WTJLZWMyS1dlUXYybmlVMGRNN0FMNjFGQmw3VXVvaUJDc1IwaGRa
+OCtTClR1UElQa0daWnlSdk1nU3ZTMjduV0lNSUZvdThzeVlTdTg0MElzeHRWSThk
+SEFqM0RvbUNXa20rMnJXaDZ3cWkKM29xZDhOK1QvdGZ3ZFdoMUJnNVpRTm40SFF6
+WXhuYVlqZk1mNFVYMS9RbjFVUmtISnErMXkwYm1reDI4c1RXTwpXVS9mZndQZjBB
+WGVyNG9LNEdtMDNtanFQbkd2UFFYa2xSb2NDQ0prMG9sdmZ6M0dQRDZSNGNiNkc4
+SlFvTyt5CmNMRmhMdytCZFdqd0ZCWU1POTl5TFhJM3lEbDFGdWd5R2JvU3dNNFRT
+aHA3T1ZwYUlXSE1oa2VhVFJIQlVQUnMKNXNqUzR5QVI0OVppTDNMU1lHR2FJbmQr
+QUlzR2I0NTB0enZENWJPT1dUM2JBK0pRWXZ4dzRxa240WnI0OVdCYgptZE9nWmhD
+eUxET3BsVUo1VFJtY0ZkdFdrRFI2MUsyN1VPeno4RVcxcExYazZjQ1RFcU5ZanlT
+bDJCeE53R283ClpGV3IwTW1qbVJydnQvSmNvcm56cjl3WW9HdXJ3bERnc2cxNmpW
+aFZpY09qTUg2ellqcXN0amJRejREeDJqU2wKbGdabjdPUXY5dTR1SGZ0SXNaQk50
+RnFjUlJaSFZHVWpXMjNQK0xUWGNkQzhDSWFaZzMvNUN2blZyTU9jcGd0MwpWdmdB
+TDloeUJRNHV6UWVacVlpRCtHRmhDQmp6QUxtMGNRSzJQZnE3N1AwTjJBS1k2NUNP
+SWVnbjFubXJvNTF4CldIS09jKy9FdURmNU5VY0lieW5sQ0NycUJXenAzZWt4bE5D
+eFZNTkdJeThObEhyS1oxb0RQSlNMZi9vc0Jyb2EKTExCd0V1bllqRlY1czE1NVkv
+TFUybnQzUUY5NzBxTGdHMEVTWm1mV2ZTcEZzaEhuSVZBMXdXV3lMM3o3Ukd2YwpJ
+ZVFnYk9LSklDWlNSTDVlNDBpSHBMcEpERWlyUGpTeEQrYUpuazd1VVZGUDk4aTJu
+Z3FNVjNadUtlM0paV0VpCnc3ZDJvbmEwditscWVUUUp5OHcydUIvaGNpTFBOR0tN
+QUpBeEpSeUFFUDRTaWpXWmNDQjMKPUR2RkwKLS0tLS1FTkQgUEdQIE1FU1NBR0Ut
+LS0tLQo=
+
+--_003_38fbdabc0a957344544c1642f2e764cd1234567890_--

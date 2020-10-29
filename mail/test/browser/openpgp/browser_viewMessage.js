@@ -16,6 +16,15 @@ const {
   plan_for_modal_dialog,
   wait_for_modal_dialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+const {
+  assert_notification_displayed,
+  get_notification_button,
+  wait_for_notification_to_show,
+  wait_for_notification_to_stop,
+} = ChromeUtils.import(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
+
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
@@ -297,6 +306,84 @@ add_task(async function testUpdateMessageSignature() {
   );
   close_window(mc);
 });
+
+/**
+ * Test the notification and decryption behavior for partially encrypted inline
+ * PGP messages.
+ */
+add_task(async function testPartialInlinePGPDecrypt() {
+  // Setup the message.
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/alice-partially-encrypted.eml")
+    )
+  );
+
+  let notificationBox = "mail-notification-top";
+  let notificationValue = "decryptInlinePG";
+
+  // Assert the "partially encrypted notification" is visible.
+  assert_notification_displayed(mc, notificationBox, notificationValue, true);
+
+  // Click on the "decrypt" button.
+  let decryptButton = get_notification_button(
+    mc,
+    notificationBox,
+    notificationValue,
+    {
+      popup: null,
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(decryptButton, {}, mc.window);
+
+  // Assert that the message was decrypted and the partial decryption reminder
+  // notification is visible.
+  wait_for_notification_to_show(mc, notificationBox, "decryptInlinePGReminder");
+
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+
+  close_window(mc);
+});
+
+/**
+ * Test the notification and repairing of a message corrupted by MS-Exchange.
+ */
+add_task(async function testBrokenMSExchangeEncryption() {
+  // Setup the message.
+  let mc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/alice-broken-exchange.eml"))
+  );
+  let notificationBox = "mail-notification-top";
+  let notificationValue = "brokenExchange";
+
+  // Assert the "corrupted by MS-Exchange" notification is visible.
+  assert_notification_displayed(mc, notificationBox, notificationValue, true);
+
+  // Click on the "repair" button.
+  let repairButton = get_notification_button(
+    mc,
+    notificationBox,
+    notificationValue,
+    {
+      popup: null,
+    }
+  );
+  EventUtils.synthesizeMouseAtCenter(repairButton, {}, mc.window);
+
+  // Wait for the "fixing in progress" notification to go away.
+  wait_for_notification_to_stop(mc, notificationBox, "brokenExchangeProgress");
+
+  // Assert that the message was repaired and decrypted.
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is displayed"
+  );
+
+  close_window(mc);
+}).skip(); // Bug 1674013
 
 registerCleanupFunction(function tearDown() {
   aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);

@@ -37,39 +37,6 @@
                     oncommand="Enigmail.msg.searchSignatureKey();"/>
           </hbox>
         </hbox>
-
-        <!-- Corrupted message by MS Exchange -->
-        <hbox id="brokenExchangeBox" hidden="true"
-              class="inline-notification-container info-container">
-          <hbox class="inline-notification-wrapper">
-            <image class="notification-image notification-image-info"/>
-            <description data-l10n-id="openpgp-broken-exchange-info"/>
-            <button id="brokenExchangeRepairButton"
-                    data-l10n-id="openpgp-broken-exchange-repair"
-                    oncommand="Enigmail.msg.fixBuggyExchangeMail();"/>
-            <label id="brokenExchangeWait" data-l10n-id="openpgp-broken-exchange-wait"/>
-          </hbox>
-        </hbox>
-
-        <!-- Unable to decrypt -->
-        <hbox id="cannotDecryptBox" hidden="true"
-              class="inline-notification-container error-container">
-          <hbox class="inline-notification-wrapper align-center">
-            <image class="notification-image notification-image-error"/>
-            <description id="cannot-decrypt-explanation"/>
-          </hbox>
-        </hbox>
-
-        <!-- Message partially encrypted -->
-        <hbox id="partialOpenPGPBox" hidden="true"
-              class="inline-notification-container info-container">
-          <hbox class="inline-notification-wrapper align-center">
-            <image class="notification-image notification-image-info"/>
-            <description id="preventedPartialExplanation"/>
-            <button id="openpgpProcessPartial"
-                    oncommand="Enigmail.msg.processOpenPGPSubset();"/>
-          </hbox>
-        </hbox>
       </vbox>
 
       <label id="signatureLabel" class="message-security-label"/>
