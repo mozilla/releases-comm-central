@@ -31,7 +31,7 @@ fieldset:last-of-type {
 #accountTreeBox {
   background-image: linear-gradient(to left, transparent, transparent 3px,
                     var(--in-content-categories-background) 3px);
-  padding-block: 28px;
+  padding-top: 28px;
   padding-inline: 28px 4px;
 }
 
@@ -104,6 +104,14 @@ fieldset:last-of-type {
   padding: 0;
   border-top: 1px solid var(--in-content-box-border-color);
   border-bottom: none;
+}
+
+.sidebar-footer-button:first-of-type {
+  margin-top: 24px;
+}
+
+.sidebar-footer-button > .text-link {
+  margin-inline-start: 0;
 }
 
 #archiveHierarchyButton,

@@ -46,6 +46,7 @@
 #endif
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://messenger/content/accountUtils.js"/>
 
   <linkset>
     <html:link rel="localization" href="branding/brand.ftl"/>
@@ -129,6 +130,17 @@
         </richlistbox>
 
         <spacer flex="1"/>
+
+        <hbox class="sidebar-footer-button"
+              pack="center"
+              onclick="MsgAccountManager(null);">
+          <label is="text-link" id="accountButton">
+            <hbox align="center">
+              <image class="sidebar-footer-icon account-icon"/>
+              <label data-l10n-id="account-button" class="sidebar-footer-label" flex="1"/>
+            </hbox>
+          </label>
+        </hbox>
 
         <hbox class="sidebar-footer-button"
               pack="center"

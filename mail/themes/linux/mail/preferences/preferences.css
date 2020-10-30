@@ -36,7 +36,7 @@ html|input[type="number"]::-moz-number-spin-down {
   min-height: 13px;
 }
 
-.sidebar-footer-label {
+#pref-category-box .sidebar-footer-label {
   font-size: 1em;
 }
 

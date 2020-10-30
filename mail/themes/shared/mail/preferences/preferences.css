@@ -316,6 +316,13 @@ radio[pane][selected] > .radio-check {
   list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
 }
 
+.account-icon {
+  list-style-image: url("chrome://messenger/skin/icons/sidebar-left.svg");
+  width: 14px;
+  height: 14px;
+  margin-inline-start: 15px;
+}
+
 html|input[type="number"] {
   margin-inline-start: 4px;
   padding: 1px;

@@ -38,7 +38,7 @@ menulist:not([popuponly="true"]) {
   margin-top: 2px;
 }
 
-.sidebar-footer-label {
+#pref-category-box .sidebar-footer-label {
   font-size: 1.224em;
 }
 

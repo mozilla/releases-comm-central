@@ -22,6 +22,8 @@
 <!ENTITY removeButton.label "Remove Account">
 <!ENTITY removeButton.accesskey "R">
 
+<!ENTITY addonsButton.label "Extensions &amp; Themes">
+
 <!-- AccountManager.xhtml -->
 <!-- LOCALIZATION NOTE : this is part of an inline-style attribute on the account
      setting dialog, which specifies the width and height in em units of the dialog.

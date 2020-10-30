@@ -6,7 +6,13 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/AccountManager.dtd">
+<!DOCTYPE window [
+  <!ENTITY % accountManagerDTD SYSTEM "chrome://messenger/locale/AccountManager.dtd">
+  %accountManagerDTD;
+  <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
+  %utilityDTD;
+]>
+
 <window windowtype="mailnews:accountmanager"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         title="&accountManagerTitle.label;"
@@ -15,6 +21,8 @@
         onunload="onUnload();">
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
+<script src="chrome://messenger/content/mailCore.js"/>
+<script src="chrome://communicator/content/utilityOverlay.js"/>
 <script src="chrome://messenger/content/accountUtils.js"/>
 <script src="chrome://messenger/content/am-prefs.js"/>
 <script src="chrome://messenger/content/AccountManager.js"/>
@@ -73,6 +81,34 @@
                     oncommand="onRemoveAccount(event); event.stopPropagation();"/>
         </menupopup>
       </button>
+
+      <hbox class="sidebar-footer-button"
+            pack="center"
+            onclick="openOptionsDialog();">
+        <label is="text-link" id="prefsButton">
+          <hbox align="center">
+            <image class="sidebar-footer-icon preferences-icon"/>
+            <label class="sidebar-footer-label"
+#ifdef XP_WIN
+                   value="&preferencesCmd2.label;"
+#else
+                   value="&preferencesCmdUnix.label;"
+#endif
+                   flex="1"/>
+          </hbox>
+        </label>
+      </hbox>
+
+      <hbox class="sidebar-footer-button"
+            pack="center"
+            onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
+        <label is="text-link" id="addonsButton">
+          <hbox align="center">
+            <image class="sidebar-footer-icon addons-icon"/>
+            <label value="&addonsButton.label;" class="sidebar-footer-label" flex="1"/>
+          </hbox>
+        </label>
+      </hbox>
 #else
       <button label="&addAccountButton.label;" oncommand="onAddAccount(event);" id="addAccountButton"
               prefstring="mail.disable_new_account_addition"
