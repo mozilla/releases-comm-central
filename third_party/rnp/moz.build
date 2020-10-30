@@ -3,134 +3,137 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-SharedLibrary('rnp')
+SharedLibrary("rnp")
 
-include('../rnpdefs.mozbuild')
+include("../rnpdefs.mozbuild")
+
 
 @template
 def IQuote(*paths):
     """Add a set of paths to the include path via -iquote"""
-    if CONFIG['CC_TYPE'] == 'clang-cl':
-        flags = ['-Xclang', '-iquote', '-Xclang']
+    if CONFIG["CC_TYPE"] == "clang-cl":
+        flags = ["-Xclang", "-iquote", "-Xclang"]
     else:
-        flags = ['-iquote']
+        flags = ["-iquote"]
     for p in paths:
         CXXFLAGS += flags + [p]
 
 
-COMPILE_FLAGS['WARNINGS_CFLAGS'] += [
-    '-Wall',
-    '-Wextra',
-    '-Wunreachable-code',
-    '-Wpointer-arith',
-    '-Wmissing-declarations',
-    '-Wno-pedantic',
-    '-Wno-ignored-qualifiers',
-    '-Wno-unused-parameter',
-    '-Wno-missing-field-initializers',
+COMPILE_FLAGS["WARNINGS_CFLAGS"] += [
+    "-Wall",
+    "-Wextra",
+    "-Wunreachable-code",
+    "-Wpointer-arith",
+    "-Wmissing-declarations",
+    "-Wno-pedantic",
+    "-Wno-ignored-qualifiers",
+    "-Wno-unused-parameter",
+    "-Wno-missing-field-initializers",
 ]
 
-if CONFIG['CC_TYPE'] == 'clang-cl':
+if CONFIG["CC_TYPE"] == "clang-cl":
     CXXFLAGS += [
-        '/EHs',
+        "/EHs",
     ]
 
-DEFINES['_GNU_SOURCE'] = True
+DEFINES["_GNU_SOURCE"] = True
 
-DEFINES['HAVE_BZLIB_H'] = True
-DEFINES['HAVE_ZLIB_H'] = True
-DEFINES['MOZ_RNP_DIST_INFO'] = rnp_dist_info
+DEFINES["HAVE_BZLIB_H"] = True
+DEFINES["HAVE_ZLIB_H"] = True
+DEFINES["MOZ_RNP_DIST_INFO"] = rnp_dist_info
 
 CONFIGURE_DEFINE_FILES += [
-    'src/lib/config.h',
+    "src/lib/config.h",
 ]
 
 LOCAL_INCLUDES = [
-    'include',
-    'src',
-    'src/common',
-    'src/lib',
+    "include",
+    "src",
+    "src/common",
+    "src/lib",
 ]
 
-IQuote('{}/src/lib'.format(OBJDIR),
-       '{}/src/lib'.format(SRCDIR),)
+IQuote(
+    "{}/src/lib".format(OBJDIR),
+    "{}/src/lib".format(SRCDIR),
+)
 
-if CONFIG['MZLA_SYSTEM_BOTAN']:
-    CXXFLAGS += CONFIG['MZLA_BOTAN_CFLAGS']
+if CONFIG["MZLA_SYSTEM_BOTAN"]:
+    CXXFLAGS += CONFIG["MZLA_BOTAN_CFLAGS"]
 else:
-    LOCAL_INCLUDES += ['!../botan/build/include']
+    LOCAL_INCLUDES += ["!../botan/build/include"]
 
-if CONFIG['MOZ_SYSTEM_ZLIB']:
-    CXXFLAGS += CONFIG['MOZ_ZLIB_CFLAGS']
+if CONFIG["MOZ_SYSTEM_ZLIB"]:
+    CXXFLAGS += CONFIG["MOZ_ZLIB_CFLAGS"]
 else:
-    LOCAL_INCLUDES += ['../zlib']
+    LOCAL_INCLUDES += ["../zlib"]
 
-if CONFIG['MZLA_SYSTEM_JSONC']:
-    CXXFLAGS += CONFIG['MZLA_JSONC_CFLAGS']
+if CONFIG["MZLA_SYSTEM_JSONC"]:
+    CXXFLAGS += CONFIG["MZLA_JSONC_CFLAGS"]
 else:
-    IQuote('{}/../json-c'.format(OBJDIR))
-    LOCAL_INCLUDES += ['../json-c']
+    IQuote("{}/../json-c".format(OBJDIR))
+    LOCAL_INCLUDES += ["../json-c"]
 
-if CONFIG['MZLA_SYSTEM_BZIP2']:
-    CXXFLAGS += CONFIG['MZLA_BZIP2_CFLAGS']
+if CONFIG["MZLA_SYSTEM_BZIP2"]:
+    CXXFLAGS += CONFIG["MZLA_BZIP2_CFLAGS"]
 else:
-    LOCAL_INCLUDES += ['../bzip2']
+    LOCAL_INCLUDES += ["../bzip2"]
 
-if CONFIG['CC_TYPE'] == 'clang-cl':
+if CONFIG["CC_TYPE"] == "clang-cl":
     LOCAL_INCLUDES += [
-        '../niwcompat',
+        "../niwcompat",
     ]
 
     OS_LIBS += [
-        '-LIBPATH:{}'.format(CONFIG['COMPILER_RT_BUILTIN_PATH']),
-        CONFIG['COMPILER_RT_BUILTIN_LIB']
+        "-LIBPATH:{}".format(CONFIG["COMPILER_RT_BUILTIN_PATH"]),
+        CONFIG["COMPILER_RT_BUILTIN_LIB"],
     ]
 
-if CONFIG['MOZ_LIBSTDCXX_TARGET_VERSION']:
-    OS_LIBS += CONFIG['REALTIME_LIBS']
+if CONFIG["MOZ_LIBSTDCXX_TARGET_VERSION"]:
+    OS_LIBS += CONFIG["REALTIME_LIBS"]
 
-SYMBOLS_FILE = 'rnp.symbols'
+SYMBOLS_FILE = "rnp.symbols"
 
 
 SOURCES += [
-    'src/common/file-utils.cpp',
-    'src/common/list.cpp',
-    'src/lib/crypto.cpp',
-    'src/lib/crypto/bn.cpp',
-    'src/lib/crypto/dsa.cpp',
-    'src/lib/crypto/ec.cpp',
-    'src/lib/crypto/ecdh.cpp',
-    'src/lib/crypto/ecdsa.cpp',
-    'src/lib/crypto/eddsa.cpp',
-    'src/lib/crypto/elgamal.cpp',
-    'src/lib/crypto/hash.cpp',
-    'src/lib/crypto/mpi.cpp',
-    'src/lib/crypto/rng.cpp',
-    'src/lib/crypto/rsa.cpp',
-    'src/lib/crypto/s2k.cpp',
-    'src/lib/crypto/signatures.cpp',
-    'src/lib/crypto/sm2.cpp',
-    'src/lib/crypto/symmetric.cpp',
-    'src/lib/fingerprint.cpp',
-    'src/lib/generate-key.cpp',
-    'src/lib/key-provider.cpp',
-    'src/lib/misc.cpp',
-    'src/lib/pass-provider.cpp',
-    'src/lib/pgp-key.cpp',
-    'src/lib/rnp.cpp',
+    "src/common/file-utils.cpp",
+    "src/common/list.cpp",
+    "src/lib/crypto.cpp",
+    "src/lib/crypto/bn.cpp",
+    "src/lib/crypto/dsa.cpp",
+    "src/lib/crypto/ec.cpp",
+    "src/lib/crypto/ecdh.cpp",
+    "src/lib/crypto/ecdsa.cpp",
+    "src/lib/crypto/eddsa.cpp",
+    "src/lib/crypto/elgamal.cpp",
+    "src/lib/crypto/hash.cpp",
+    "src/lib/crypto/mpi.cpp",
+    "src/lib/crypto/rng.cpp",
+    "src/lib/crypto/rsa.cpp",
+    "src/lib/crypto/s2k.cpp",
+    "src/lib/crypto/signatures.cpp",
+    "src/lib/crypto/sm2.cpp",
+    "src/lib/crypto/symmetric.cpp",
+    "src/lib/fingerprint.cpp",
+    "src/lib/generate-key.cpp",
+    "src/lib/key-provider.cpp",
+    "src/lib/misc.cpp",
+    "src/lib/pass-provider.cpp",
+    "src/lib/pgp-key.cpp",
+    "src/lib/rnp.cpp",
     # librekey
-    'src/librekey/key_store_g10.cpp',
-    'src/librekey/key_store_kbx.cpp',
-    'src/librekey/key_store_pgp.cpp',
-    'src/librekey/rnp_key_store.cpp',
+    "src/librekey/key_store_g10.cpp",
+    "src/librekey/key_store_kbx.cpp",
+    "src/librekey/key_store_pgp.cpp",
+    "src/librekey/rnp_key_store.cpp",
     # librepgp
-    'src/librepgp/stream-armor.cpp',
-    'src/librepgp/stream-common.cpp',
-    'src/librepgp/stream-ctx.cpp',
-    'src/librepgp/stream-dump.cpp',
-    'src/librepgp/stream-key.cpp',
-    'src/librepgp/stream-packet.cpp',
-    'src/librepgp/stream-parse.cpp',
-    'src/librepgp/stream-sig.cpp',
-    'src/librepgp/stream-write.cpp',
+    "src/librepgp/stream-armor.cpp",
+    "src/librepgp/stream-common.cpp",
+    "src/librepgp/stream-ctx.cpp",
+    "src/librepgp/stream-dump.cpp",
+    "src/librepgp/stream-key.cpp",
+    "src/librepgp/stream-packet.cpp",
+    "src/librepgp/stream-parse.cpp",
+    "src/librepgp/stream-sig.cpp",
+    "src/librepgp/stream-write.cpp",
 ]

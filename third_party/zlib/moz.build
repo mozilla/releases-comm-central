@@ -4,29 +4,29 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Library('rnpzlib')
-FINAL_LIBRARY = 'rnp'
+Library("rnpzlib")
+FINAL_LIBRARY = "rnp"
 
 # Honor --with-system-zlib
-if CONFIG['MOZ_SYSTEM_ZLIB']:
-    OS_LIBS += CONFIG['MOZ_ZLIB_LIBS']
+if CONFIG["MOZ_SYSTEM_ZLIB"]:
+    OS_LIBS += CONFIG["MOZ_ZLIB_LIBS"]
 else:
-    include('../rnpdefs.mozbuild')
+    include("../rnpdefs.mozbuild")
 
     SOURCES += [
-        'adler32.c',
-        'compress.c',
-        'crc32.c',
-        'deflate.c',
-        'gzclose.c',
-        'gzlib.c',
-        'gzread.c',
-        'gzwrite.c',
-        'infback.c',
-        'inffast.c',
-        'inflate.c',
-        'inftrees.c',
-        'trees.c',
-        'uncompr.c',
-        'zutil.c',
+        "adler32.c",
+        "compress.c",
+        "crc32.c",
+        "deflate.c",
+        "gzclose.c",
+        "gzlib.c",
+        "gzread.c",
+        "gzwrite.c",
+        "infback.c",
+        "inffast.c",
+        "inflate.c",
+        "inftrees.c",
+        "trees.c",
+        "uncompr.c",
+        "zutil.c",
     ]

@@ -4,40 +4,37 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Library('json-c')
-FINAL_LIBRARY = 'rnp'
+Library("json-c")
+FINAL_LIBRARY = "rnp"
 
 # Honor --with-system-jsonc
-if CONFIG['MZLA_SYSTEM_JSONC']:
-    OS_LIBS += CONFIG['MZLA_JSONC_LIBS']
+if CONFIG["MZLA_SYSTEM_JSONC"]:
+    OS_LIBS += CONFIG["MZLA_JSONC_LIBS"]
 else:
-    include('../rnpdefs.mozbuild')
+    include("../rnpdefs.mozbuild")
 
-    if CONFIG['CC_TYPE'] == 'clang-cl':
-        COMPILE_FLAGS['WARNINGS_CFLAGS'] += [
-            '-Wno-macro-redefined',
-            ]
+    if CONFIG["CC_TYPE"] == "clang-cl":
+        COMPILE_FLAGS["WARNINGS_CFLAGS"] += [
+            "-Wno-macro-redefined",
+        ]
 
-    DEFINES['_GNU_SOURCE'] = True
-    DEFINES['CC'] = CONFIG['_CC']
+    DEFINES["_GNU_SOURCE"] = True
+    DEFINES["CC"] = CONFIG["_CC"]
 
-    CONFIGURE_DEFINE_FILES += [
-        'config.h',
-        'json_config.h'
-    ]
+    CONFIGURE_DEFINE_FILES += ["config.h", "json_config.h"]
 
     SOURCES += [
-        'arraylist.c',
-        'debug.c',
-        'json_c_version.c',
-        'json_object.c',
-        'json_object_iterator.c',
-        'json_pointer.c',
-        'json_tokener.c',
-        'json_util.c',
-        'json_visit.c',
-        'linkhash.c',
-        'printbuf.c',
-        'random_seed.c',
-        'strerror_override.c',
+        "arraylist.c",
+        "debug.c",
+        "json_c_version.c",
+        "json_object.c",
+        "json_object_iterator.c",
+        "json_pointer.c",
+        "json_tokener.c",
+        "json_util.c",
+        "json_visit.c",
+        "linkhash.c",
+        "printbuf.c",
+        "random_seed.c",
+        "strerror_override.c",
     ]
