@@ -1,0 +1,14 @@
+---
+black:
+    description: Reformat python
+    extensions:
+        - build
+        - configure
+        - mozbuild
+        - py
+    support-files:
+        - 'tools/lint/python/**'
+    type: external
+    payload: commlint:lint_wrapper
+    wraps: python.black:lint
+    setup: python.black:setup

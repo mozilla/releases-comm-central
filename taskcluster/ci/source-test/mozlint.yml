@@ -226,6 +226,23 @@ mingw-cap:
             - 'comm/**/*.c'
             - 'comm/**/*.h'
 
+py-black:
+    description: black run over the gecko codebase
+    treeherder:
+        symbol: py(black)
+    run:
+        mach: >
+              lint -v -l black -f treeherder
+              -f json:/builds/worker/mozlint.json
+              --config-path=comm/tools/lint
+              comm/*
+    when:
+        files-changed:
+            - 'comm/**/*.configure'
+            - 'comm/**/*.py'
+            - 'comm/**/moz.build'
+            - 'comm/**/*.mozbuild'
+
 py-compat:
     description: lint for python 2/3 compatibility issues
     treeherder:
