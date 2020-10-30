@@ -4,8 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'public',
-    'src',
+    "public",
+    "src",
 ]
 
-TEST_DIRS += ['tests']
+TEST_DIRS += ["tests"]

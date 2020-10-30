@@ -4,18 +4,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    'nsMimeEmitterCID.h',
+    "nsMimeEmitterCID.h",
 ]
 
 SOURCES += [
-    'nsEmitterUtils.cpp',
-    'nsMimeBaseEmitter.cpp',
-    'nsMimeHtmlEmitter.cpp',
-    'nsMimePlainEmitter.cpp',
-    'nsMimeRawEmitter.cpp',
-    'nsMimeRebuffer.cpp',
-    'nsMimeXmlEmitter.cpp',
+    "nsEmitterUtils.cpp",
+    "nsMimeBaseEmitter.cpp",
+    "nsMimeHtmlEmitter.cpp",
+    "nsMimePlainEmitter.cpp",
+    "nsMimeRawEmitter.cpp",
+    "nsMimeRebuffer.cpp",
+    "nsMimeXmlEmitter.cpp",
 ]
 
-FINAL_LIBRARY = 'mail'
-
+FINAL_LIBRARY = "mail"

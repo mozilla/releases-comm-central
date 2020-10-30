@@ -4,10 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsBayesianFilter.cpp',
+    "nsBayesianFilter.cpp",
 ]
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
-XPCSHELL_TESTS_MANIFESTS += ['test/unit/xpcshell.ini']
-
+XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]

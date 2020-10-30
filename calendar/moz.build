@@ -4,36 +4,36 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'base',
-    'import-export',
-    'itip',
-    'libical',
-    'lightning',
-    'locales',
-    'providers',
+    "base",
+    "import-export",
+    "itip",
+    "libical",
+    "lightning",
+    "locales",
+    "providers",
 ]
 
-TEST_DIRS += ['test']
+TEST_DIRS += ["test"]
 
 FINAL_TARGET_FILES.res += [
-    'timezones/zones.json',
+    "timezones/zones.json",
 ]
 
-with Files('**'):
-    BUG_COMPONENT = ('Calendar', 'General')
+with Files("**"):
+    BUG_COMPONENT = ("Calendar", "General")
 
-with Files('**/moz.build'):
-    BUG_COMPONENT = ('Calendar', 'Build Config')
+with Files("**/moz.build"):
+    BUG_COMPONENT = ("Calendar", "Build Config")
     FINAL = True
 
-with Files('**/*.mk'):
-    BUG_COMPONENT = ('Calendar', 'Build Config')
+with Files("**/*.mk"):
+    BUG_COMPONENT = ("Calendar", "Build Config")
     FINAL = True
 
-with Files('**/*manifest'):
-    BUG_COMPONENT = ('Calendar', 'Build Config')
+with Files("**/*manifest"):
+    BUG_COMPONENT = ("Calendar", "Build Config")
     FINAL = True
 
-with Files('**/Makefile.in'):
-    BUG_COMPONENT = ('Calendar', 'Build Config')
+with Files("**/Makefile.in"):
+    BUG_COMPONENT = ("Calendar", "Build Config")
     FINAL = True

@@ -3,11 +3,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
-    EXTRA_JS_MODULES += ['AboutSupportWin32.jsm']
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
-    EXTRA_JS_MODULES += ['AboutSupportMac.jsm']
+if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
+    EXTRA_JS_MODULES += ["AboutSupportWin32.jsm"]
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
+    EXTRA_JS_MODULES += ["AboutSupportMac.jsm"]
 else:
-    EXTRA_JS_MODULES += ['AboutSupportUnix.jsm']
+    EXTRA_JS_MODULES += ["AboutSupportUnix.jsm"]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

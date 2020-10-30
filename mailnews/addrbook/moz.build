@@ -4,10 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'modules',
-    'public',
-    'src',
+    "modules",
+    "public",
+    "src",
 ]
 
-TEST_DIRS += ['test']
-
+TEST_DIRS += ["test"]

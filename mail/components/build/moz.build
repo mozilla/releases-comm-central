@@ -4,16 +4,16 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsMailComps.cpp',
+    "nsMailComps.cpp",
 ]
 
-Library('mailcomps')
-FINAL_LIBRARY = 'xul'
+Library("mailcomps")
+FINAL_LIBRARY = "xul"
 
 LOCAL_INCLUDES += [
-    '../migration/src',
-    '../shell',
+    "../migration/src",
+    "../shell",
 ]
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
-    LOCAL_INCLUDES += ['../search']
+if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
+    LOCAL_INCLUDES += ["../search"]

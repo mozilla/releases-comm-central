@@ -14,7 +14,8 @@ def get_fail_msg(source_name, repo_name, rev_name):
     return """Unable to determine {} source repository.
 Try setting {} and {}
 environment variables or build from a Mercurial checkout.""".format(
-        source_name, repo_name, rev_name)
+        source_name, repo_name, rev_name
+    )
 
 
 # Wrap check_cmd_output so that it does not fatally end configure on command
@@ -22,7 +23,8 @@ environment variables or build from a Mercurial checkout.""".format(
 def hg_cmd_output(*args, **kwargs):
     def hg_error():
         return None
-    kwargs['onerror'] = hg_error
+
+    kwargs["onerror"] = hg_error
 
     return check_cmd_output(*args, **kwargs)
 
@@ -34,19 +36,17 @@ def read_sourcestamp(repository):
     This file only exists in release tar files created in CI.
     repository must be one of "GECKO" or "COMM".
     """
-    log.info('Determining %s source information from sourcestamp.txt...'
-             % repository)
+    log.info("Determining %s source information from sourcestamp.txt..." % repository)
 
-    line2read = {'COMM': 1,
-                 'GECKO': 2}[repository]
+    line2read = {"COMM": 1, "GECKO": 2}[repository]
 
     @depends(comm_paths)
-    @imports(_from='os.path', _import='exists')
-    @imports(_from='os.path', _import='join')
-    @imports(_from='__builtin__', _import='open')
-    @imports(_from='six', _import='ensure_text')
+    @imports(_from="os.path", _import="exists")
+    @imports(_from="os.path", _import="join")
+    @imports(_from="__builtin__", _import="open")
+    @imports(_from="six", _import="ensure_text")
     def get_sourcestamp(paths):
-        sourcestamp_file = join(paths.moztopsrcdir, 'sourcestamp.txt')
+        sourcestamp_file = join(paths.moztopsrcdir, "sourcestamp.txt")
         if exists(sourcestamp_file):
             try:
                 lines = open(sourcestamp_file).readlines()
@@ -54,12 +54,12 @@ def read_sourcestamp(repository):
                 pass
 
             if len(lines) != 3:
-                log.warn('sourcestamp.txt is corrupt!')
+                log.warn("sourcestamp.txt is corrupt!")
                 return
 
-            if lines and lines[line2read].startswith('http'):
+            if lines and lines[line2read].startswith("http"):
                 repo_line = ensure_text(lines[line2read])
-                repo_url = repo_line.split('/rev/')
+                repo_url = repo_line.split("/rev/")
                 return namespace(repo_url=repo_url[0], repo_rev=repo_url[1])
 
     return get_sourcestamp
@@ -71,23 +71,24 @@ def read_gecko_rev_yml():
         return x.split()[1]
 
     @depends(comm_paths)
-    @imports(_from='os.path', _import='exists')
-    @imports(_from='os.path', _import='join')
-    @imports(_from='__builtin__', _import='open')
-    @imports(_from='six', _import='ensure_text')
+    @imports(_from="os.path", _import="exists")
+    @imports(_from="os.path", _import="join")
+    @imports(_from="__builtin__", _import="open")
+    @imports(_from="six", _import="ensure_text")
     def wrapped(paths):
         log.info("Determining GECKO source information from .gecko_rev.yml")
-        rev_file = join(paths.commtopsrcdir, '.gecko_rev.yml')
-        if not exists(rev_file): return
+        rev_file = join(paths.commtopsrcdir, ".gecko_rev.yml")
+        if not exists(rev_file):
+            return
 
         repo = rev = ref = None
 
         for line in open(rev_file).readlines():
-            if line.startswith('GECKO_HEAD_REPOSITORY:'):
+            if line.startswith("GECKO_HEAD_REPOSITORY:"):
                 repo = ensure_text(get_value(line))
-            elif line.startswith('GECKO_HEAD_REV:'):
+            elif line.startswith("GECKO_HEAD_REV:"):
                 rev = ensure_text(get_value(line))
-            elif line.startswith('GECKO_HEAD_REF:'):
+            elif line.startswith("GECKO_HEAD_REF:"):
                 ref = ensure_text(get_value(line))
             else:
                 pass
@@ -98,8 +99,8 @@ def read_gecko_rev_yml():
 
 
 @depends(application)
-@imports(_from='os', _import="environ")
-@imports(_from='six', _import='ensure_text')
+@imports(_from="os", _import="environ")
+@imports(_from="six", _import="ensure_text")
 def comm_repo_from_environ(app):
     """
     Read the Thunderbird source repository information from the environment.
@@ -108,8 +109,8 @@ def comm_repo_from_environ(app):
     to the comm-* repository.
     """
     log.info("Determining COMM source information from environment...")
-    comm_repo = environ.get('MOZ_SOURCE_REPO', None)
-    comm_rev = environ.get('MOZ_SOURCE_CHANGESET', None)
+    comm_repo = environ.get("MOZ_SOURCE_REPO", None)
+    comm_rev = environ.get("MOZ_SOURCE_CHANGESET", None)
 
     if all([comm_repo, comm_rev]):
         comm_repo = ensure_text(comm_repo)
@@ -121,11 +122,11 @@ def comm_repo_from_environ(app):
 
 # Read sourcestamp.txt and return the Thunderbird source URL (with changeset).
 # Silent fail if the file cannot be read.
-comm_sourcestamp = read_sourcestamp('COMM')
+comm_sourcestamp = read_sourcestamp("COMM")
 
 
 @depends(comm_repo_from_environ, comm_paths, hg, comm_sourcestamp)
-@imports(_from='os', _import="environ")
+@imports(_from="os", _import="environ")
 def comm_repo_heuristics(comm_environ, paths, hg, sourcestamp):
     """
     Determine the Thunderbird Mercurial repository and revision from Mercurial
@@ -143,18 +144,16 @@ def comm_repo_heuristics(comm_environ, paths, hg, sourcestamp):
     if not comm_environ:
         comm_repo = comm_rev = None
         if hg:
-            log.info(
-                "Determining COMM source information from "
-                "Mercurial...")
-            comm_rev = hg_cmd_output(hg, '-R', paths.commtopsrcdir,
-                                     'parent', '--template={node}')
-            comm_repo = hg_cmd_output(hg, '-R', paths.commtopsrcdir,
-                                      'path', 'default')
+            log.info("Determining COMM source information from " "Mercurial...")
+            comm_rev = hg_cmd_output(
+                hg, "-R", paths.commtopsrcdir, "parent", "--template={node}"
+            )
+            comm_repo = hg_cmd_output(hg, "-R", paths.commtopsrcdir, "path", "default")
             if comm_repo:
                 comm_repo = comm_repo.strip()
-                if comm_repo.startswith('ssh://'):
-                    comm_repo = 'https://' + comm_repo[6:]
-                comm_repo = comm_repo.rstrip('/')
+                if comm_repo.startswith("ssh://"):
+                    comm_repo = "https://" + comm_repo[6:]
+                comm_repo = comm_repo.rstrip("/")
         # TODO: git-cinnabar support?
 
         if not comm_repo or not comm_rev:
@@ -165,14 +164,14 @@ def comm_repo_heuristics(comm_environ, paths, hg, sourcestamp):
 
         # If values are found, set MOZ_SOURCE_REPO and MOZ_SOURCE_CHANGESET
         if comm_repo and comm_rev:
-            environ['MOZ_SOURCE_REPO'] = comm_repo
-            environ['MOZ_SOURCE_CHANGESET'] = comm_rev
+            environ["MOZ_SOURCE_REPO"] = comm_repo
+            environ["MOZ_SOURCE_CHANGESET"] = comm_rev
 
         if comm_repo and comm_rev:
             return namespace(comm_repo=comm_repo, comm_rev=comm_rev)
 
 
-@depends(comm_repo_from_environ, comm_repo_heuristics, 'MOZ_AUTOMATION')
+@depends(comm_repo_from_environ, comm_repo_heuristics, "MOZ_AUTOMATION")
 def comm_source_repo(from_environ, from_config, automation):
     rv = None
     if from_environ:
@@ -182,25 +181,24 @@ def comm_source_repo(from_environ, from_config, automation):
     elif automation:
         die(get_fail_msg("COMM", "MOZ_SOURCE_REPO", "MOZ_SOURCE_CHANGESET"))
     else:
-        log.info(
-            get_fail_msg("COMM", "MOZ_SOURCE_REPO", "MOZ_SOURCE_CHANGESET"))
+        log.info(get_fail_msg("COMM", "MOZ_SOURCE_REPO", "MOZ_SOURCE_CHANGESET"))
         rv = namespace(comm_repo="unknown", comm_rev="unknown")
 
-    log.info('COMM_SOURCE_REPOSITORY: {}'.format(rv.comm_repo))
-    log.info('COMM_SOURCE_CHANGESET: {}'.format(rv.comm_rev))
+    log.info("COMM_SOURCE_REPOSITORY: {}".format(rv.comm_repo))
+    log.info("COMM_SOURCE_CHANGESET: {}".format(rv.comm_rev))
     return rv
 
 
 @depends(application)
-@imports(_from='os', _import="environ")
-@imports(_from='six', _import='ensure_text')
+@imports(_from="os", _import="environ")
+@imports(_from="six", _import="ensure_text")
 def gecko_repo_from_environ(app):
     """
     Same as above, but this time checking for the mozilla- repository.
     """
     log.info("Determining GECKO source information from environment...")
-    gecko_repo = environ.get('GECKO_HEAD_REPOSITORY', None)
-    gecko_rev = environ.get('GECKO_HEAD_REV', None)
+    gecko_repo = environ.get("GECKO_HEAD_REPOSITORY", None)
+    gecko_rev = environ.get("GECKO_HEAD_REV", None)
     if all([gecko_repo, gecko_rev]):
         gecko_repo = ensure_text(gecko_repo)
         gecko_rev = ensure_text(gecko_rev)
@@ -210,14 +208,14 @@ def gecko_repo_from_environ(app):
 
 
 # Read sourcestamp.txt, this time returning the mozilla- data
-gecko_sourcestamp = read_sourcestamp('GECKO')
+gecko_sourcestamp = read_sourcestamp("GECKO")
 # Look in comm/.gecko_rev.yml fpr repository information
 gecko_yml = read_gecko_rev_yml()
 
 
 @depends(gecko_repo_from_environ, comm_paths, hg, gecko_sourcestamp, gecko_yml)
-@imports(_from='os.path', _import='join')
-@imports(_from='os.path', _import='exists')
+@imports(_from="os.path", _import="join")
+@imports(_from="os.path", _import="exists")
 def gecko_repo_heuristics(gecko_environ, paths, hg, sourcestamp, gecko_yml):
     """
     Look for the source repository and changeset for the mozilla- repository
@@ -241,17 +239,17 @@ def gecko_repo_heuristics(gecko_environ, paths, hg, sourcestamp, gecko_yml):
                 # Mercurial first.
                 if hg:
                     log.info(
-                        "Determining GECKO source information from "
-                        "Mercurial...")
-                    gecko_rev = hg_cmd_output(hg, '-R', paths.moztopsrcdir,
-                                              'parent', '--template={node}')
+                        "Determining GECKO source information from " "Mercurial..."
+                    )
+                    gecko_rev = hg_cmd_output(
+                        hg, "-R", paths.moztopsrcdir, "parent", "--template={node}"
+                    )
                 # TODO: git-cinnabar support?
 
         if not gecko_repo or not gecko_rev:
             # See if we have a sourcestamo file. Last ditch effort!
             try:
-                gecko_repo, gecko_rev = sourcestamp.repo_url, \
-                                        sourcestamp.repo_rev
+                gecko_repo, gecko_rev = sourcestamp.repo_url, sourcestamp.repo_rev
             except:
                 pass
 
@@ -261,7 +259,7 @@ def gecko_repo_heuristics(gecko_environ, paths, hg, sourcestamp, gecko_yml):
             return namespace(gecko_repo=gecko_repo, gecko_rev=gecko_rev)
 
 
-@depends(gecko_repo_from_environ, gecko_repo_heuristics, 'MOZ_AUTOMATION')
+@depends(gecko_repo_from_environ, gecko_repo_heuristics, "MOZ_AUTOMATION")
 def gecko_source_repo(from_environ, from_heuristics, automation):
     rv = None
     if from_environ:
@@ -271,16 +269,15 @@ def gecko_source_repo(from_environ, from_heuristics, automation):
     elif automation:
         die(get_fail_msg("GECKO", "GECKO_HEAD_REPOSITORY", "GECKO_HEAD_REV"))
     else:
-        log.info(
-            get_fail_msg("GECKO", "GECKO_HEAD_REPOSITORY", "GECKO_HEAD_REV"))
+        log.info(get_fail_msg("GECKO", "GECKO_HEAD_REPOSITORY", "GECKO_HEAD_REV"))
         rv = namespace(gecko_repo="unknown", gecko_rev="unknown")
 
-    log.info('GECKO_SOURCE_REPOSITORY: {}'.format(rv.gecko_repo))
-    log.info('GECKO_SOURCE_CHANGESET: {}'.format(rv.gecko_rev))
+    log.info("GECKO_SOURCE_REPOSITORY: {}".format(rv.gecko_repo))
+    log.info("GECKO_SOURCE_CHANGESET: {}".format(rv.gecko_rev))
     return rv
 
 
-set_config('MOZ_COMM_SOURCE_REPO', comm_source_repo.comm_repo)
-set_config('MOZ_COMM_SOURCE_CHANGESET', comm_source_repo.comm_rev)
-set_config('MOZ_GECKO_SOURCE_REPO', gecko_source_repo.gecko_repo)
-set_config('MOZ_GECKO_SOURCE_CHANGESET', gecko_source_repo.gecko_rev)
+set_config("MOZ_COMM_SOURCE_REPO", comm_source_repo.comm_repo)
+set_config("MOZ_COMM_SOURCE_CHANGESET", comm_source_repo.comm_rev)
+set_config("MOZ_GECKO_SOURCE_REPO", gecko_source_repo.gecko_repo)
+set_config("MOZ_GECKO_SOURCE_CHANGESET", gecko_source_repo.gecko_rev)

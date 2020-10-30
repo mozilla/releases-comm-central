@@ -4,84 +4,85 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'addrbook',
-    'base',
-    'compose',
-    'db/gloda',
-    'db/mork',
-    'db/msgdb',
-    'extensions',
-    'imap/public',
-    'imap/src',
-    'import/public',
-    'import/src',
-    'intl',
-    'jsaccount',
-    'local/public',
-    'local/src',
-    'mime',
-    'news',
-    'search/public',
-    'search/src',
+    "addrbook",
+    "base",
+    "compose",
+    "db/gloda",
+    "db/mork",
+    "db/msgdb",
+    "extensions",
+    "imap/public",
+    "imap/src",
+    "import/public",
+    "import/src",
+    "intl",
+    "jsaccount",
+    "local/public",
+    "local/src",
+    "mime",
+    "news",
+    "search/public",
+    "search/src",
 ]
 
 TEST_DIRS += [
-    'imap/test',
-    'import/test',
-    'local/test',
-    'search/test',
+    "imap/test",
+    "import/test",
+    "local/test",
+    "search/test",
 ]
 
-if CONFIG['MOZ_MAPI_SUPPORT']:
+if CONFIG["MOZ_MAPI_SUPPORT"]:
     DIRS += [
-        'mapi/mapiDll',
-        'mapi/mapihook',
+        "mapi/mapiDll",
+        "mapi/mapihook",
     ]
-    TEST_DIRS += ['mapi/test']
+    TEST_DIRS += ["mapi/test"]
 
 DIRS += [
-    'build',
-    'import/build',
+    "build",
+    "import/build",
 ]
 
-if CONFIG['MOZ_MOVEMAIL'] and not (
-        CONFIG['MOZ_THUNDERBIRD'] and CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa'):
-    DEFINES['MOZ_MOVEMAIL'] = True
+if CONFIG["MOZ_MOVEMAIL"] and not (
+    CONFIG["MOZ_THUNDERBIRD"] and CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa"
+):
+    DEFINES["MOZ_MOVEMAIL"] = True
 
-DEFINES['OS_ARCH'] = CONFIG['OS_ARCH']
-DEFINES['MOZ_WIDGET_TOOLKIT'] = CONFIG['MOZ_WIDGET_TOOLKIT']
+DEFINES["OS_ARCH"] = CONFIG["OS_ARCH"]
+DEFINES["MOZ_WIDGET_TOOLKIT"] = CONFIG["MOZ_WIDGET_TOOLKIT"]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 TESTING_JS_MODULES.mailnews += [
-    'test/fakeserver/Auth.jsm',
-    'test/fakeserver/Imapd.jsm',
-    'test/fakeserver/Maild.jsm',
-    'test/fakeserver/Nntpd.jsm',
-    'test/fakeserver/Pop3d.jsm',
-    'test/fakeserver/Smtpd.jsm',
-    'test/resources/IMAPpump.jsm',
-    'test/resources/LocalAccountUtils.jsm',
-    'test/resources/MailTestUtils.jsm',
-    'test/resources/MessageGenerator.jsm',
-    'test/resources/NetworkTestUtils.jsm',
-    'test/resources/PromiseTestUtils.jsm',
-    'test/resources/smimeUtils.jsm',
+    "test/fakeserver/Auth.jsm",
+    "test/fakeserver/Imapd.jsm",
+    "test/fakeserver/Maild.jsm",
+    "test/fakeserver/Nntpd.jsm",
+    "test/fakeserver/Pop3d.jsm",
+    "test/fakeserver/Smtpd.jsm",
+    "test/resources/IMAPpump.jsm",
+    "test/resources/LocalAccountUtils.jsm",
+    "test/resources/MailTestUtils.jsm",
+    "test/resources/MessageGenerator.jsm",
+    "test/resources/NetworkTestUtils.jsm",
+    "test/resources/PromiseTestUtils.jsm",
+    "test/resources/smimeUtils.jsm",
 ]
 
-if 'comm' in CONFIG['MOZ_BUILD_APP']:
-  test_harness_base = TEST_HARNESS_FILES.xpcshell.comm
+if "comm" in CONFIG["MOZ_BUILD_APP"]:
+    test_harness_base = TEST_HARNESS_FILES.xpcshell.comm
 else:
-  test_harness_base = TEST_HARNESS_FILES.xpcshell
+    test_harness_base = TEST_HARNESS_FILES.xpcshell
 
 test_harness_base.mailnews.data += [
-    '/%s/mailnews/test/data/**' % CONFIG['commreltopsrcdir'],
+    "/%s/mailnews/test/data/**" % CONFIG["commreltopsrcdir"],
 ]
 
 test_harness_base.mailnews.resources += [
-    '/%s/mailnews/test/resources/**' % CONFIG['commreltopsrcdir'],
+    "/%s/mailnews/test/resources/**" % CONFIG["commreltopsrcdir"],
 ]
 
 JS_PREFERENCE_PP_FILES += [
-    'mailnews.js',
+    "mailnews.js",
 ]

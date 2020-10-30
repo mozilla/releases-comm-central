@@ -4,20 +4,20 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'public',
-    'src',
-    'emitters',
-    'cthandlers',
+    "public",
+    "src",
+    "emitters",
+    "cthandlers",
 ]
 
-TEST_DIRS += ['test']
+TEST_DIRS += ["test"]
 
 EXTRA_JS_MODULES.jsmime += [
-    'jsmime/jsmime.js',
+    "jsmime/jsmime.js",
 ]
 
 TESTING_JS_MODULES.jsmime += [
-    'jsmime/test/unit/mock_date.js',
+    "jsmime/test/unit/mock_date.js",
 ]
 
-XPCSHELL_TESTS_MANIFESTS += ['jsmime/test/unit/xpcshell.ini']
+XPCSHELL_TESTS_MANIFESTS += ["jsmime/test/unit/xpcshell.ini"]

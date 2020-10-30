@@ -5,34 +5,34 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsICharsetConverterManager.idl',
+    "nsICharsetConverterManager.idl",
 ]
 
 UNIFIED_SOURCES += [
-    'nsCharsetAlias.cpp',
-    'nsCharsetConverterManager.cpp',
-    'nsMUTF7ToUnicode.cpp',
-    'nsUnicodeToMUTF7.cpp',
-    'nsUnicodeToUTF7.cpp',
-    'nsUTF7ToUnicode.cpp',
+    "nsCharsetAlias.cpp",
+    "nsCharsetConverterManager.cpp",
+    "nsMUTF7ToUnicode.cpp",
+    "nsUnicodeToMUTF7.cpp",
+    "nsUnicodeToUTF7.cpp",
+    "nsUTF7ToUnicode.cpp",
 ]
 
-XPIDL_MODULE = 'commuconv'
+XPIDL_MODULE = "commuconv"
 
 LOCAL_INCLUDES += [
-    '/%s/intl/locale' % CONFIG['mozreltopsrcdir'],
+    "/%s/intl/locale" % CONFIG["mozreltopsrcdir"],
 ]
 
 GENERATED_FILES += [
-    'charsetalias.properties.h',
+    "charsetalias.properties.h",
 ]
-charsetalias = GENERATED_FILES['charsetalias.properties.h']
-charsetalias.script = '/%s/intl/locale/props2arrays.py' % CONFIG['mozreltopsrcdir']
-charsetalias.inputs = ['charsetalias.properties']
+charsetalias = GENERATED_FILES["charsetalias.properties.h"]
+charsetalias.script = "/%s/intl/locale/props2arrays.py" % CONFIG["mozreltopsrcdir"]
+charsetalias.inputs = ["charsetalias.properties"]
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
 # Tests need more attention before they can be enabled.
-TEST_DIRS += ['test']
+TEST_DIRS += ["test"]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

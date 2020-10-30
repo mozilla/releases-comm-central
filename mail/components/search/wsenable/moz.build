@@ -3,22 +3,21 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Program('WSEnable')
+Program("WSEnable")
 
 SOURCES += [
-    'WSEnable.cpp',
+    "WSEnable.cpp",
 ]
 
 OS_LIBS += [
-    'ole32',
-    'shell32',
+    "ole32",
+    "shell32",
 ]
 
-RCINCLUDE = 'WSEnable.rc'
+RCINCLUDE = "WSEnable.rc"
 
 # This isn't XPCOM code, but it wants to use STL so disable STL wrappers
 DisableStlWrapping()
 
-if CONFIG['CC_TYPE'] == 'clang-cl':
+if CONFIG["CC_TYPE"] == "clang-cl":
     AllowCompilerWarnings()  # workaround for bug 1090497 / bug 1481326
-

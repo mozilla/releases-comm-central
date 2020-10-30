@@ -4,11 +4,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'twitter.jsm',
+    "twitter.jsm",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]

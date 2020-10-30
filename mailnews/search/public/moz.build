@@ -4,35 +4,34 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIMsgFilter.idl',
-    'nsIMsgFilterCustomAction.idl',
-    'nsIMsgFilterHitNotify.idl',
-    'nsIMsgFilterList.idl',
-    'nsIMsgFilterPlugin.idl',
-    'nsIMsgFilterService.idl',
-    'nsIMsgOperationListener.idl',
-    'nsIMsgSearchAdapter.idl',
-    'nsIMsgSearchCustomTerm.idl',
-    'nsIMsgSearchNotify.idl',
-    'nsIMsgSearchScopeTerm.idl',
-    'nsIMsgSearchSession.idl',
-    'nsIMsgSearchTerm.idl',
-    'nsIMsgSearchValidityManager.idl',
-    'nsIMsgSearchValidityTable.idl',
-    'nsIMsgSearchValue.idl',
-    'nsIMsgTraitService.idl',
-    'nsMsgFilterCore.idl',
-    'nsMsgSearchCore.idl',
+    "nsIMsgFilter.idl",
+    "nsIMsgFilterCustomAction.idl",
+    "nsIMsgFilterHitNotify.idl",
+    "nsIMsgFilterList.idl",
+    "nsIMsgFilterPlugin.idl",
+    "nsIMsgFilterService.idl",
+    "nsIMsgOperationListener.idl",
+    "nsIMsgSearchAdapter.idl",
+    "nsIMsgSearchCustomTerm.idl",
+    "nsIMsgSearchNotify.idl",
+    "nsIMsgSearchScopeTerm.idl",
+    "nsIMsgSearchSession.idl",
+    "nsIMsgSearchTerm.idl",
+    "nsIMsgSearchValidityManager.idl",
+    "nsIMsgSearchValidityTable.idl",
+    "nsIMsgSearchValue.idl",
+    "nsIMsgTraitService.idl",
+    "nsMsgFilterCore.idl",
+    "nsMsgSearchCore.idl",
 ]
 
-XPIDL_MODULE = 'msgsearch'
+XPIDL_MODULE = "msgsearch"
 
 EXPORTS += [
-    'nsMsgBodyHandler.h',
-    'nsMsgResultElement.h',
-    'nsMsgSearchAdapter.h',
-    'nsMsgSearchBoolExpression.h',
-    'nsMsgSearchScopeTerm.h',
-    'nsMsgSearchTerm.h',
+    "nsMsgBodyHandler.h",
+    "nsMsgResultElement.h",
+    "nsMsgSearchAdapter.h",
+    "nsMsgSearchBoolExpression.h",
+    "nsMsgSearchScopeTerm.h",
+    "nsMsgSearchTerm.h",
 ]
-

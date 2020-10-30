@@ -4,22 +4,21 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsMailProfileMigratorUtils.cpp',
-    'nsNetscapeProfileMigratorBase.cpp',
-    'nsProfileMigrator.cpp',
-    'nsSeamonkeyProfileMigrator.cpp',
+    "nsMailProfileMigratorUtils.cpp",
+    "nsNetscapeProfileMigratorBase.cpp",
+    "nsProfileMigrator.cpp",
+    "nsSeamonkeyProfileMigrator.cpp",
 ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG["OS_ARCH"] == "WINNT":
     SOURCES += [
-        'nsOutlookProfileMigrator.cpp',
-        'nsProfileMigratorBase.cpp',
+        "nsOutlookProfileMigrator.cpp",
+        "nsProfileMigratorBase.cpp",
     ]
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
     SOURCES += [
-        'nsProfileMigratorBase.cpp',
+        "nsProfileMigratorBase.cpp",
     ]
 
-FINAL_LIBRARY = 'mailcomps'
-
+FINAL_LIBRARY = "mailcomps"

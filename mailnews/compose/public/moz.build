@@ -4,32 +4,32 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIMsgAttachment.idl',
-    'nsIMsgAttachmentHandler.idl',
-    'nsIMsgCompFields.idl',
-    'nsIMsgCompose.idl',
-    'nsIMsgComposeParams.idl',
-    'nsIMsgComposeProgressParams.idl',
-    'nsIMsgComposeSecure.idl',
-    'nsIMsgComposeService.idl',
-    'nsIMsgCompUtils.idl',
-    'nsIMsgCopy.idl',
-    'nsIMsgQuote.idl',
-    'nsIMsgQuotingOutputStreamListener.idl',
-    'nsIMsgSend.idl',
-    'nsIMsgSendLater.idl',
-    'nsIMsgSendLaterListener.idl',
-    'nsIMsgSendListener.idl',
-    'nsIMsgSendReport.idl',
-    'nsISmtpServer.idl',
-    'nsISmtpService.idl',
-    'nsISmtpUrl.idl',
-    'nsIURLFetcher.idl',
+    "nsIMsgAttachment.idl",
+    "nsIMsgAttachmentHandler.idl",
+    "nsIMsgCompFields.idl",
+    "nsIMsgCompose.idl",
+    "nsIMsgComposeParams.idl",
+    "nsIMsgComposeProgressParams.idl",
+    "nsIMsgComposeSecure.idl",
+    "nsIMsgComposeService.idl",
+    "nsIMsgCompUtils.idl",
+    "nsIMsgCopy.idl",
+    "nsIMsgQuote.idl",
+    "nsIMsgQuotingOutputStreamListener.idl",
+    "nsIMsgSend.idl",
+    "nsIMsgSendLater.idl",
+    "nsIMsgSendLaterListener.idl",
+    "nsIMsgSendListener.idl",
+    "nsIMsgSendReport.idl",
+    "nsISmtpServer.idl",
+    "nsISmtpService.idl",
+    "nsISmtpUrl.idl",
+    "nsIURLFetcher.idl",
 ]
 
-XPIDL_MODULE = 'msgcompose'
+XPIDL_MODULE = "msgcompose"
 
 EXPORTS += [
-    'nsMsgAttachmentData.h',
-    'nsMsgCompCID.h',
+    "nsMsgAttachmentData.h",
+    "nsMsgCompCID.h",
 ]

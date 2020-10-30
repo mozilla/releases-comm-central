@@ -4,40 +4,39 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsLDAPBERElement.cpp',
-    'nsLDAPBERValue.cpp',
-    'nsLDAPConnection.cpp',
-    'nsLDAPControl.cpp',
-    'nsLDAPMessage.cpp',
-    'nsLDAPModification.cpp',
-    'nsLDAPOperation.cpp',
-    'nsLDAPProtocolModule.cpp',
-    'nsLDAPSecurityGlue.cpp',
-    'nsLDAPServer.cpp',
-    'nsLDAPService.cpp',
-    'nsLDAPURL.cpp',
+    "nsLDAPBERElement.cpp",
+    "nsLDAPBERValue.cpp",
+    "nsLDAPConnection.cpp",
+    "nsLDAPControl.cpp",
+    "nsLDAPMessage.cpp",
+    "nsLDAPModification.cpp",
+    "nsLDAPOperation.cpp",
+    "nsLDAPProtocolModule.cpp",
+    "nsLDAPSecurityGlue.cpp",
+    "nsLDAPServer.cpp",
+    "nsLDAPService.cpp",
+    "nsLDAPURL.cpp",
 ]
 
-if CONFIG['MOZ_PREF_EXTENSIONS']:
-    SOURCES += ['nsLDAPSyncQuery.cpp']
-    DEFINES['MOZ_PREF_EXTENSIONS'] = True
+if CONFIG["MOZ_PREF_EXTENSIONS"]:
+    SOURCES += ["nsLDAPSyncQuery.cpp"]
+    DEFINES["MOZ_PREF_EXTENSIONS"] = True
 
 USE_LIBS += [
-    'ldapsdks',
+    "ldapsdks",
 ]
 
 EXTRA_JS_MODULES += [
-  'LDAPProtocolHandler.jsm',
+    "LDAPProtocolHandler.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-  'components.conf',
+    "components.conf",
 ]
 
-Library('mozldap')
-FINAL_LIBRARY = 'xul'
+Library("mozldap")
+FINAL_LIBRARY = "xul"
 
 LOCAL_INCLUDES += [
-    '../../c-sdk/include',
+    "../../c-sdk/include",
 ]
-

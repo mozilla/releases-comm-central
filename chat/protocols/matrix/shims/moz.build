@@ -7,7 +7,7 @@
 # implementation instead of through npm package.s
 
 EXTRA_JS_MODULES.matrix += [
-    'loglevel.js',
-    'safe-buffer.js',
-    'url.js',
+    "loglevel.js",
+    "safe-buffer.js",
+    "url.js",
 ]

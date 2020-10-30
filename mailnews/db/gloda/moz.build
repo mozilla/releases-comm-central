@@ -4,10 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'modules',
-    'components',
+    "modules",
+    "components",
 ]
 
-TEST_DIRS += ['test']
+TEST_DIRS += ["test"]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

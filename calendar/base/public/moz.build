@@ -4,57 +4,57 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'calIAlarm.idl',
-    'calIAlarmService.idl',
-    'calIAttachment.idl',
-    'calIAttendee.idl',
-    'calICalendar.idl',
-    'calICalendarACLManager.idl',
-    'calICalendarManager.idl',
-    'calICalendarProvider.idl',
-    'calICalendarSearchProvider.idl',
-    'calICalendarView.idl',
-    'calICalendarViewController.idl',
-    'calIChangeLog.idl',
-    'calIDateTime.idl',
-    'calIDeletedItems.idl',
-    'calIDuration.idl',
-    'calIErrors.idl',
-    'calIEvent.idl',
-    'calIFreeBusyProvider.idl',
-    'calIIcsParser.idl',
-    'calIIcsSerializer.idl',
-    'calIICSService.idl',
-    'calIImportExport.idl',
-    'calIItemBase.idl',
-    'calIItipItem.idl',
-    'calIItipTransport.idl',
-    'calIOperation.idl',
-    'calIPeriod.idl',
-    'calIPrintFormatter.idl',
-    'calIRecurrenceDate.idl',
-    'calIRecurrenceInfo.idl',
-    'calIRecurrenceItem.idl',
-    'calIRecurrenceRule.idl',
-    'calIRelation.idl',
-    'calISchedulingSupport.idl',
-    'calIStartupService.idl',
-    'calIStatusObserver.idl',
-    'calITimezone.idl',
-    'calITimezoneProvider.idl',
-    'calITodo.idl',
-    'calITransactionManager.idl',
-    'calIWeekInfoService.idl',
+    "calIAlarm.idl",
+    "calIAlarmService.idl",
+    "calIAttachment.idl",
+    "calIAttendee.idl",
+    "calICalendar.idl",
+    "calICalendarACLManager.idl",
+    "calICalendarManager.idl",
+    "calICalendarProvider.idl",
+    "calICalendarSearchProvider.idl",
+    "calICalendarView.idl",
+    "calICalendarViewController.idl",
+    "calIChangeLog.idl",
+    "calIDateTime.idl",
+    "calIDeletedItems.idl",
+    "calIDuration.idl",
+    "calIErrors.idl",
+    "calIEvent.idl",
+    "calIFreeBusyProvider.idl",
+    "calIIcsParser.idl",
+    "calIIcsSerializer.idl",
+    "calIICSService.idl",
+    "calIImportExport.idl",
+    "calIItemBase.idl",
+    "calIItipItem.idl",
+    "calIItipTransport.idl",
+    "calIOperation.idl",
+    "calIPeriod.idl",
+    "calIPrintFormatter.idl",
+    "calIRecurrenceDate.idl",
+    "calIRecurrenceInfo.idl",
+    "calIRecurrenceItem.idl",
+    "calIRecurrenceRule.idl",
+    "calIRelation.idl",
+    "calISchedulingSupport.idl",
+    "calIStartupService.idl",
+    "calIStatusObserver.idl",
+    "calITimezone.idl",
+    "calITimezoneProvider.idl",
+    "calITodo.idl",
+    "calITransactionManager.idl",
+    "calIWeekInfoService.idl",
 ]
 
-XPIDL_MODULE = 'calbase'
+XPIDL_MODULE = "calbase"
 
 EXPORTS += [
-    'calBaseCID.h',
+    "calBaseCID.h",
 ]
 
-with Files('**'):
-    BUG_COMPONENT = ('Calendar', 'Internal Components')
+with Files("**"):
+    BUG_COMPONENT = ("Calendar", "Internal Components")
 
-with Files('calIAlarm*'):
-    BUG_COMPONENT = ('Calendar', 'Alarms')
+with Files("calIAlarm*"):
+    BUG_COMPONENT = ("Calendar", "Alarms")

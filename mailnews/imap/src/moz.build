@@ -4,35 +4,35 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    'nsImapCore.h',
+    "nsImapCore.h",
 ]
 
 SOURCES += [
-    'nsAutoSyncManager.cpp',
-    'nsAutoSyncState.cpp',
-    'nsIMAPBodyShell.cpp',
-    'nsImapFlagAndUidState.cpp',
-    'nsIMAPGenericParser.cpp',
-    'nsIMAPHostSessionList.cpp',
-    'nsImapIncomingServer.cpp',
-    'nsImapMailFolder.cpp',
-    'nsIMAPNamespace.cpp',
-    'nsImapOfflineSync.cpp',
-    'nsImapProtocol.cpp',
-    'nsImapSearchResults.cpp',
-    'nsImapServerResponseParser.cpp',
-    'nsImapService.cpp',
-    'nsImapStringBundle.cpp',
-    'nsImapUndoTxn.cpp',
-    'nsImapUrl.cpp',
-    'nsImapUtils.cpp',
-    'nsSyncRunnableHelpers.cpp',
+    "nsAutoSyncManager.cpp",
+    "nsAutoSyncState.cpp",
+    "nsIMAPBodyShell.cpp",
+    "nsImapFlagAndUidState.cpp",
+    "nsIMAPGenericParser.cpp",
+    "nsIMAPHostSessionList.cpp",
+    "nsImapIncomingServer.cpp",
+    "nsImapMailFolder.cpp",
+    "nsIMAPNamespace.cpp",
+    "nsImapOfflineSync.cpp",
+    "nsImapProtocol.cpp",
+    "nsImapSearchResults.cpp",
+    "nsImapServerResponseParser.cpp",
+    "nsImapService.cpp",
+    "nsImapStringBundle.cpp",
+    "nsImapUndoTxn.cpp",
+    "nsImapUrl.cpp",
+    "nsImapUtils.cpp",
+    "nsSyncRunnableHelpers.cpp",
 ]
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
 LOCAL_INCLUDES += [
     # for nsImapProtocol.cpp
-    '/ipc/chromium/src',
-    '/netwerk/base',
+    "/ipc/chromium/src",
+    "/netwerk/base",
 ]

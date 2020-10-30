@@ -4,24 +4,23 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIDBChangeAnnouncer.idl',
-    'nsIDBChangeListener.idl',
-    'nsIDBFolderInfo.idl',
-    'nsIMsgDatabase.idl',
-    'nsIMsgOfflineImapOperation.idl',
-    'nsINewsDatabase.idl',
+    "nsIDBChangeAnnouncer.idl",
+    "nsIDBChangeListener.idl",
+    "nsIDBFolderInfo.idl",
+    "nsIMsgDatabase.idl",
+    "nsIMsgOfflineImapOperation.idl",
+    "nsINewsDatabase.idl",
 ]
 
-XPIDL_MODULE = 'msgdb'
+XPIDL_MODULE = "msgdb"
 
 EXPORTS += [
-    'nsDBFolderInfo.h',
-    'nsImapMailDatabase.h',
-    'nsMailDatabase.h',
-    'nsMsgDatabase.h',
-    'nsMsgDBCID.h',
-    'nsMsgHdr.h',
-    'nsMsgThread.h',
-    'nsNewsDatabase.h',
+    "nsDBFolderInfo.h",
+    "nsImapMailDatabase.h",
+    "nsMailDatabase.h",
+    "nsMsgDatabase.h",
+    "nsMsgDBCID.h",
+    "nsMsgHdr.h",
+    "nsMsgThread.h",
+    "nsNewsDatabase.h",
 ]
-

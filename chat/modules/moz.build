@@ -3,24 +3,24 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPCSHELL_TESTS_MANIFESTS += ['test/xpcshell.ini']
+XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.ini"]
 
 EXTRA_JS_MODULES += [
-    'CLib.jsm',
-    'hiddenWindow.jsm',
-    'imContentSink.jsm',
-    'imServices.jsm',
-    'imSmileys.jsm',
-    'imStatusUtils.jsm',
-    'imTextboxUtils.jsm',
-    'imThemes.jsm',
-    'imXPCOMUtils.jsm',
-    'jsProtoHelper.jsm',
-    'NormalizedMap.jsm',
-    'OTR.jsm',
-    'OTRHelpers.jsm',
-    'OTRLib.jsm',
-    'OTRUI.jsm',
-    'socket.jsm',
-    'ToLocaleFormat.jsm',
+    "CLib.jsm",
+    "hiddenWindow.jsm",
+    "imContentSink.jsm",
+    "imServices.jsm",
+    "imSmileys.jsm",
+    "imStatusUtils.jsm",
+    "imTextboxUtils.jsm",
+    "imThemes.jsm",
+    "imXPCOMUtils.jsm",
+    "jsProtoHelper.jsm",
+    "NormalizedMap.jsm",
+    "OTR.jsm",
+    "OTRHelpers.jsm",
+    "OTRLib.jsm",
+    "OTRUI.jsm",
+    "socket.jsm",
+    "ToLocaleFormat.jsm",
 ]

@@ -4,24 +4,24 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 BROWSER_CHROME_MANIFESTS += [
-    'browser/browser.ini',
-    'browser/contextMenu/browser.ini',
-    'browser/eventDialog/browser.ini',
-    'browser/invitations/browser.ini',
-    'browser/preferences/browser.ini',
-    'browser/recurrence/browser.ini',
-    'browser/recurrence/browser_rotated.ini',
-    'browser/timezones/browser.ini',
-    'browser/views/browser.ini',
+    "browser/browser.ini",
+    "browser/contextMenu/browser.ini",
+    "browser/eventDialog/browser.ini",
+    "browser/invitations/browser.ini",
+    "browser/preferences/browser.ini",
+    "browser/recurrence/browser.ini",
+    "browser/recurrence/browser_rotated.ini",
+    "browser/timezones/browser.ini",
+    "browser/views/browser.ini",
 ]
 
 TESTING_JS_MODULES.mozmill += [
-    'modules/CalendarTestUtils.jsm',
-    'modules/CalendarUtils.jsm',
-    'modules/ItemEditingHelpers.jsm',
+    "modules/CalendarTestUtils.jsm",
+    "modules/CalendarUtils.jsm",
+    "modules/ItemEditingHelpers.jsm",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
-    'unit/xpcshell-icaljs.ini',
-    'unit/xpcshell-libical.ini',
+    "unit/xpcshell-icaljs.ini",
+    "unit/xpcshell-libical.ini",
 ]

@@ -4,12 +4,12 @@
 # http://creativecommons.org/publicdomain/zero/1.0/
 
 XPIDL_SOURCES += [
-  'msgIFooUrl.idl',
+    "msgIFooUrl.idl",
 ]
 
-XPIDL_MODULE = 'testJsAccount'
+XPIDL_MODULE = "testJsAccount"
 
-if 'comm' in CONFIG['MOZ_BUILD_APP']:
-  test_harness_base = TEST_HARNESS_FILES.xpcshell.comm
+if "comm" in CONFIG["MOZ_BUILD_APP"]:
+    test_harness_base = TEST_HARNESS_FILES.xpcshell.comm
 else:
-  test_harness_base = TEST_HARNESS_FILES.xpcshell
+    test_harness_base = TEST_HARNESS_FILES.xpcshell

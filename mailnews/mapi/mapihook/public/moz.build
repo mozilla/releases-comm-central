@@ -4,8 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIMapiSupport.idl',
+    "nsIMapiSupport.idl",
 ]
 
-XPIDL_MODULE = 'mapihook'
-
+XPIDL_MODULE = "mapihook"

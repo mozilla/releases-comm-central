@@ -4,15 +4,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsDBFolderInfo.cpp',
-    'nsImapMailDatabase.cpp',
-    'nsMailDatabase.cpp',
-    'nsMsgDatabase.cpp',
-    'nsMsgHdr.cpp',
-    'nsMsgOfflineImapOperation.cpp',
-    'nsMsgThread.cpp',
-    'nsNewsDatabase.cpp',
+    "nsDBFolderInfo.cpp",
+    "nsImapMailDatabase.cpp",
+    "nsMailDatabase.cpp",
+    "nsMsgDatabase.cpp",
+    "nsMsgHdr.cpp",
+    "nsMsgOfflineImapOperation.cpp",
+    "nsMsgThread.cpp",
+    "nsNewsDatabase.cpp",
 ]
 
-FINAL_LIBRARY = 'mail'
-
+FINAL_LIBRARY = "mail"

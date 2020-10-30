@@ -4,62 +4,62 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    'mdb.h',
-    'nsIMdbFactoryFactory.h',
-    'nsMorkCID.h',
+    "mdb.h",
+    "nsIMdbFactoryFactory.h",
+    "nsMorkCID.h",
 ]
 
 SOURCES += [
-    'morkArray.cpp',
-    'morkAtom.cpp',
-    'morkAtomMap.cpp',
-    'morkAtomSpace.cpp',
-    'morkBead.cpp',
-    'morkBlob.cpp',
-    'morkBuilder.cpp',
-    'morkCell.cpp',
-    'morkCellObject.cpp',
-    'morkCh.cpp',
-    'morkConfig.cpp',
-    'morkCursor.cpp',
-    'morkDeque.cpp',
-    'morkEnv.cpp',
-    'morkFactory.cpp',
-    'morkFile.cpp',
-    'morkHandle.cpp',
-    'morkIntMap.cpp',
-    'morkMap.cpp',
-    'morkNode.cpp',
-    'morkNodeMap.cpp',
-    'morkObject.cpp',
-    'morkParser.cpp',
-    'morkPool.cpp',
-    'morkPortTableCursor.cpp',
-    'morkProbeMap.cpp',
-    'morkRow.cpp',
-    'morkRowCellCursor.cpp',
-    'morkRowMap.cpp',
-    'morkRowObject.cpp',
-    'morkRowSpace.cpp',
-    'morkSink.cpp',
-    'morkSpace.cpp',
-    'morkStore.cpp',
-    'morkStream.cpp',
-    'morkTable.cpp',
-    'morkTableRowCursor.cpp',
-    'morkThumb.cpp',
-    'morkWriter.cpp',
-    'morkYarn.cpp',
-    'morkZone.cpp',
-    'nsMorkFactory.cpp',
-    'orkinHeap.cpp',
+    "morkArray.cpp",
+    "morkAtom.cpp",
+    "morkAtomMap.cpp",
+    "morkAtomSpace.cpp",
+    "morkBead.cpp",
+    "morkBlob.cpp",
+    "morkBuilder.cpp",
+    "morkCell.cpp",
+    "morkCellObject.cpp",
+    "morkCh.cpp",
+    "morkConfig.cpp",
+    "morkCursor.cpp",
+    "morkDeque.cpp",
+    "morkEnv.cpp",
+    "morkFactory.cpp",
+    "morkFile.cpp",
+    "morkHandle.cpp",
+    "morkIntMap.cpp",
+    "morkMap.cpp",
+    "morkNode.cpp",
+    "morkNodeMap.cpp",
+    "morkObject.cpp",
+    "morkParser.cpp",
+    "morkPool.cpp",
+    "morkPortTableCursor.cpp",
+    "morkProbeMap.cpp",
+    "morkRow.cpp",
+    "morkRowCellCursor.cpp",
+    "morkRowMap.cpp",
+    "morkRowObject.cpp",
+    "morkRowSpace.cpp",
+    "morkSink.cpp",
+    "morkSpace.cpp",
+    "morkStore.cpp",
+    "morkStream.cpp",
+    "morkTable.cpp",
+    "morkTableRowCursor.cpp",
+    "morkThumb.cpp",
+    "morkWriter.cpp",
+    "morkYarn.cpp",
+    "morkZone.cpp",
+    "nsMorkFactory.cpp",
+    "orkinHeap.cpp",
 ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
-    SOURCES += ['morkSearchRowCursor.cpp']
+if CONFIG["OS_ARCH"] == "WINNT":
+    SOURCES += ["morkSearchRowCursor.cpp"]
 
-Library('mork')
-FINAL_LIBRARY = 'mail'
+Library("mork")
+FINAL_LIBRARY = "mail"
 # clang-cl complains about this.
-if CONFIG['CC_TYPE'] == 'clang-cl':
-    CXXFLAGS += ['-Wno-overloaded-virtual']
+if CONFIG["CC_TYPE"] == "clang-cl":
+    CXXFLAGS += ["-Wno-overloaded-virtual"]

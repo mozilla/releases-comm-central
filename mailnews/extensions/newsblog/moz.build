@@ -4,14 +4,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'FeedUtils.jsm',
-    'NewsBlog.jsm',
+    "FeedUtils.jsm",
+    "NewsBlog.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
-XPCSHELL_TESTS_MANIFESTS += ['test/unit/xpcshell.ini']
-
+JAR_MANIFESTS += ["jar.mn"]
+XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]

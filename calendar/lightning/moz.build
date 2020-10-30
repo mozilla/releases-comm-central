@@ -4,25 +4,25 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'components',
-    'modules',
+    "components",
+    "modules",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
-    DEFINES['THEME'] = 'windows'
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
-    DEFINES['THEME'] = 'osx'
+if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
+    DEFINES["THEME"] = "windows"
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
+    DEFINES["THEME"] = "osx"
 else:
-    DEFINES['THEME'] = 'linux'
+    DEFINES["THEME"] = "linux"
 
 JS_PREFERENCE_PP_FILES += [
-    'content/lightning.js',
+    "content/lightning.js",
 ]
 
-with Files('**'):
-    BUG_COMPONENT = ('Calendar', 'Lightning Only')
+with Files("**"):
+    BUG_COMPONENT = ("Calendar", "Lightning Only")
 
-with Files('content/suite-*'):
-    BUG_COMPONENT = ('Calendar', 'Lightning: SeaMonkey Integration')
+with Files("content/suite-*"):
+    BUG_COMPONENT = ("Calendar", "Lightning: SeaMonkey Integration")

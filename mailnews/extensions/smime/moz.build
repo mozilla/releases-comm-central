@@ -4,34 +4,33 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsICertPickDialogs.idl',
-    'nsICMSDecoder.idl',
-    'nsICMSEncoder.idl',
-    'nsICMSMessage.idl',
-    'nsICMSMessageErrors.idl',
-    'nsICMSSecureMessage.idl',
-    'nsIEncryptedSMIMEURIsSrvc.idl',
-    'nsIMsgSMIMEHeaderSink.idl',
-    'nsISMimeJSHelper.idl',
-    'nsIUserCertPicker.idl',
+    "nsICertPickDialogs.idl",
+    "nsICMSDecoder.idl",
+    "nsICMSEncoder.idl",
+    "nsICMSMessage.idl",
+    "nsICMSMessageErrors.idl",
+    "nsICMSSecureMessage.idl",
+    "nsIEncryptedSMIMEURIsSrvc.idl",
+    "nsIMsgSMIMEHeaderSink.idl",
+    "nsISMimeJSHelper.idl",
+    "nsIUserCertPicker.idl",
 ]
 
-XPIDL_MODULE = 'msgsmime'
+XPIDL_MODULE = "msgsmime"
 
 SOURCES += [
-    'nsCertPicker.cpp',
-    'nsCMS.cpp',
-    'nsCMSSecureMessage.cpp',
-    'nsEncryptedSMIMEURIsService.cpp',
-    'nsMsgComposeSecure.cpp',
-    'nsSMimeJSHelper.cpp',
+    "nsCertPicker.cpp",
+    "nsCMS.cpp",
+    "nsCMSSecureMessage.cpp",
+    "nsEncryptedSMIMEURIsService.cpp",
+    "nsMsgComposeSecure.cpp",
+    "nsSMimeJSHelper.cpp",
 ]
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
 LOCAL_INCLUDES += [
-    '/%s/security/certverifier' % CONFIG['mozreltopsrcdir'],
-    '/%s/security/manager/pki' % CONFIG['mozreltopsrcdir'],
-    '/%s/security/manager/ssl' % CONFIG['mozreltopsrcdir']
+    "/%s/security/certverifier" % CONFIG["mozreltopsrcdir"],
+    "/%s/security/manager/pki" % CONFIG["mozreltopsrcdir"],
+    "/%s/security/manager/ssl" % CONFIG["mozreltopsrcdir"],
 ]
-

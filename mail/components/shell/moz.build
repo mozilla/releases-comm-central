@@ -3,32 +3,33 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEFINES['MOZ_APP_NAME'] = '"%s"' % CONFIG['MOZ_APP_NAME']
+DEFINES["MOZ_APP_NAME"] = '"%s"' % CONFIG["MOZ_APP_NAME"]
 
 XPIDL_SOURCES += [
-    'nsIShellService.idl',
+    "nsIShellService.idl",
 ]
 
-XPIDL_MODULE = 'shellservice'
+XPIDL_MODULE = "shellservice"
 
-if CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG["OS_ARCH"] == "WINNT":
     SOURCES += [
-        'nsWindowsShellService.cpp',
+        "nsWindowsShellService.cpp",
     ]
     LOCAL_INCLUDES += [
-        '/%s/other-licenses/nsis/Contrib/CityHash/cityhash' % (CONFIG['mozreltopsrcdir'],),
+        "/%s/other-licenses/nsis/Contrib/CityHash/cityhash"
+        % (CONFIG["mozreltopsrcdir"],),
     ]
 
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
     SOURCES += [
-        'nsMacShellService.cpp',
+        "nsMacShellService.cpp",
     ]
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk':
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
     SOURCES += [
-        'nsGNOMEShellService.cpp',
+        "nsGNOMEShellService.cpp",
     ]
 
 if SOURCES:
-    FINAL_LIBRARY = 'mailcomps'
+    FINAL_LIBRARY = "mailcomps"
 
-CXXFLAGS += CONFIG['TK_CFLAGS']
+CXXFLAGS += CONFIG["TK_CFLAGS"]

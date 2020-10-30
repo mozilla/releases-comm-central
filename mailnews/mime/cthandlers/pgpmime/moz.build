@@ -4,17 +4,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    'nsPgpMimeProxy.h',
+    "nsPgpMimeProxy.h",
 ]
 
 SOURCES += [
-    'nsPgpMimeProxy.cpp',
+    "nsPgpMimeProxy.cpp",
 ]
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
-Library('pgpmime_s')
+Library("pgpmime_s")
 
 LOCAL_INCLUDES += [
-    '../glue',
+    "../glue",
 ]

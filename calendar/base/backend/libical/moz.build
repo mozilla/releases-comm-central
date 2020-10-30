@@ -3,18 +3,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS = [
-    'build'
-]
+DIRS = ["build"]
 
 UNIFIED_SOURCES += [
-    'calDateTime.cpp',
-    'calDuration.cpp',
-    'calICSService.cpp',
-    'calPeriod.cpp',
-    'calRecurrenceRule.cpp',
-    'calTimezone.cpp',
-    'calUtils.cpp',
+    "calDateTime.cpp",
+    "calDuration.cpp",
+    "calICSService.cpp",
+    "calPeriod.cpp",
+    "calRecurrenceRule.cpp",
+    "calTimezone.cpp",
+    "calUtils.cpp",
 ]
 
-FINAL_LIBRARY = 'xul'
+FINAL_LIBRARY = "xul"

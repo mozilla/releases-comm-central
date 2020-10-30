@@ -4,47 +4,47 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsMailModule.cpp',
+    "nsMailModule.cpp",
 ]
 
 USE_LIBS += [
-    'nspr',
+    "nspr",
 ]
 
-Library('mail')
-FINAL_LIBRARY = 'xul'
+Library("mail")
+FINAL_LIBRARY = "xul"
 
 # js needs to come after xul for now, because it is an archive and its content
 # is discarded when it comes first.
 USE_LIBS += [
-    'js',
+    "js",
 ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG["OS_ARCH"] == "WINNT":
     OS_LIBS += [
-        'shell32',
+        "shell32",
     ]
 else:
-    OS_LIBS += CONFIG['MOZ_ZLIB_LIBS']
+    OS_LIBS += CONFIG["MOZ_ZLIB_LIBS"]
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
-    OS_LIBS += CONFIG['TK_LIBS']
-    OS_LIBS += ['-framework Cocoa']
+if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
+    OS_LIBS += CONFIG["TK_LIBS"]
+    OS_LIBS += ["-framework Cocoa"]
 
 LOCAL_INCLUDES += [
-    '../addrbook/src',
-    '../base/src',
-    '../compose/src',
-    '../extensions/bayesian-spam-filter',
-    '../extensions/fts3',
-    '../extensions/mailviews',
-    '../extensions/mdn',
-    '../extensions/smime',
-    '../imap/src',
-    '../intl',
-    '../local/src',
-    '../mime/emitters',
-    '../mime/src',
-    '../news/src',
-    '../search/src',
+    "../addrbook/src",
+    "../base/src",
+    "../compose/src",
+    "../extensions/bayesian-spam-filter",
+    "../extensions/fts3",
+    "../extensions/mailviews",
+    "../extensions/mdn",
+    "../extensions/smime",
+    "../imap/src",
+    "../intl",
+    "../local/src",
+    "../mime/emitters",
+    "../mime/src",
+    "../news/src",
+    "../search/src",
 ]

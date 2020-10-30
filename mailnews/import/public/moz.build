@@ -4,17 +4,16 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIImportABDescriptor.idl',
-    'nsIImportAddressBooks.idl',
-    'nsIImportFieldMap.idl',
-    'nsIImportFilters.idl',
-    'nsIImportGeneric.idl',
-    'nsIImportMail.idl',
-    'nsIImportMailboxDescriptor.idl',
-    'nsIImportModule.idl',
-    'nsIImportService.idl',
-    'nsIImportSettings.idl',
+    "nsIImportABDescriptor.idl",
+    "nsIImportAddressBooks.idl",
+    "nsIImportFieldMap.idl",
+    "nsIImportFilters.idl",
+    "nsIImportGeneric.idl",
+    "nsIImportMail.idl",
+    "nsIImportMailboxDescriptor.idl",
+    "nsIImportModule.idl",
+    "nsIImportService.idl",
+    "nsIImportSettings.idl",
 ]
 
-XPIDL_MODULE = 'import'
-
+XPIDL_MODULE = "import"

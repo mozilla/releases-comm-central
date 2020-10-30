@@ -5,5 +5,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Default extra components to build config
-with Files('**'):
-    BUG_COMPONENT = ('Thunderbird', 'Build Config')
+with Files("**"):
+    BUG_COMPONENT = ("Thunderbird", "Build Config")

@@ -4,13 +4,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 BROWSER_CHROME_MANIFESTS += [
-    'browser/browser.ini',
-    'performance/browser.ini',
-    'webextensions/browser.ini',
+    "browser/browser.ini",
+    "performance/browser.ini",
+    "webextensions/browser.ini",
 ]
 
-XPCSHELL_TESTS_MANIFESTS += ['unit/xpcshell.ini']
+XPCSHELL_TESTS_MANIFESTS += ["unit/xpcshell.ini"]
 
 TESTING_JS_MODULES += [
-    '../../../../browser/components/customizableui/test/CustomizableUITestUtils.jsm',
+    "../../../../browser/components/customizableui/test/CustomizableUITestUtils.jsm",
 ]

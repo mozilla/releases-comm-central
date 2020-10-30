@@ -4,13 +4,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'AME2E.jsm',
+    "AME2E.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]
 
 JS_PREFERENCE_PP_FILES += [
-    'prefs/e2e-prefs.js',
+    "prefs/e2e-prefs.js",
 ]

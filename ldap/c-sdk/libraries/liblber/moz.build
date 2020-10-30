@@ -3,21 +3,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include('../../../ldap-sdk.mozbuild')
+include("../../../ldap-sdk.mozbuild")
 
-Library('lber60')
+Library("lber60")
 
 SOURCES += [
-    'bprint.c',
-    'decode.c',
-    'encode.c',
-    'io.c',
+    "bprint.c",
+    "decode.c",
+    "encode.c",
+    "io.c",
 ]
 
-DEFINES['USE_WAITPID'] = True
-DEFINES['NEEDPROTOS'] = True
+DEFINES["USE_WAITPID"] = True
+DEFINES["NEEDPROTOS"] = True
 
-LOCAL_INCLUDES += [
-    '../../include'
-]
-
+LOCAL_INCLUDES += ["../../include"]

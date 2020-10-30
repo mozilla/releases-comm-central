@@ -3,15 +3,15 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'AddrBookCard.jsm',
-    'AddrBookDirectory.jsm',
-    'AddrBookMailingList.jsm',
-    'AddrBookManager.jsm',
-    'AddrBookUtils.jsm',
-    'CardDAVDirectory.jsm',
-    'VCardUtils.jsm',
+    "AddrBookCard.jsm",
+    "AddrBookDirectory.jsm",
+    "AddrBookMailingList.jsm",
+    "AddrBookManager.jsm",
+    "AddrBookUtils.jsm",
+    "CardDAVDirectory.jsm",
+    "VCardUtils.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]

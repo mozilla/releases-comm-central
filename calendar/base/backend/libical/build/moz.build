@@ -4,11 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'calBaseModule.cpp',
+    "calBaseModule.cpp",
 ]
 
-LOCAL_INCLUDES += [
-    '..'
-]
+LOCAL_INCLUDES += [".."]
 
 FINAL_LIBRARY = "xul"

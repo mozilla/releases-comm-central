@@ -3,18 +3,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 DIRS += [
-    'mailviews',
-    'smime',
+    "mailviews",
+    "smime",
 ]
 
 DIRS += [
-    'am-e2e',
+    "am-e2e",
 ]
 
-if CONFIG['MOZ_OPENPGP']:
-  DIRS += [
-      'openpgp',
-  ]
+if CONFIG["MOZ_OPENPGP"]:
+    DIRS += [
+        "openpgp",
+    ]

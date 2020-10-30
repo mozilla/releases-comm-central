@@ -4,20 +4,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += [
-  'public',
-  'src'
-]
+DIRS += ["public", "src"]
 
 EXTRA_JS_MODULES.jsaccount += [
-  'modules/JaBaseUrl.jsm',
-  'modules/JSAccountUtils.jsm',
-  'test/unit/resources/TestJaMsgProtocolInfoComponent.jsm',
+    "modules/JaBaseUrl.jsm",
+    "modules/JSAccountUtils.jsm",
+    "test/unit/resources/TestJaMsgProtocolInfoComponent.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-  'test/components.conf',
+    "test/components.conf",
 ]
 
 
-TEST_DIRS += ['test']
+TEST_DIRS += ["test"]

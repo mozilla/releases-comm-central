@@ -4,27 +4,27 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'msgIStructuredHeaders.idl',
-    'nsIMimeConverter.idl',
-    'nsIMimeEmitter.idl',
-    'nsIMimeHeaders.idl',
-    'nsIMimeMiscStatus.idl',
-    'nsIMimeStreamConverter.idl',
-    'nsIMsgHeaderParser.idl',
-    'nsIPgpMimeProxy.idl',
-    'nsISimpleMimeConverter.idl',
+    "msgIStructuredHeaders.idl",
+    "nsIMimeConverter.idl",
+    "nsIMimeEmitter.idl",
+    "nsIMimeHeaders.idl",
+    "nsIMimeMiscStatus.idl",
+    "nsIMimeStreamConverter.idl",
+    "nsIMsgHeaderParser.idl",
+    "nsIPgpMimeProxy.idl",
+    "nsISimpleMimeConverter.idl",
 ]
 
-XPIDL_MODULE = 'mime'
+XPIDL_MODULE = "mime"
 
 EXPORTS += [
-    'nsIMimeContentTypeHandler.h',
-    'nsIMimeObjectClassAccess.h',
-    'nsMailHeaders.h',
-    'nsMsgMimeCID.h',
+    "nsIMimeContentTypeHandler.h",
+    "nsIMimeObjectClassAccess.h",
+    "nsMailHeaders.h",
+    "nsMsgMimeCID.h",
 ]
 
 EXPORTS.mozilla.mailnews += [
-    'MimeEncoder.h',
-    'MimeHeaderParser.h',
+    "MimeEncoder.h",
+    "MimeHeaderParser.h",
 ]

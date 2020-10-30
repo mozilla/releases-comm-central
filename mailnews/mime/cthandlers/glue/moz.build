@@ -4,15 +4,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    'nsMimeContentTypeHandler.h',
+    "nsMimeContentTypeHandler.h",
 ]
 
 SOURCES += [
-    'mimexpcom.cpp',
-    'nsMimeContentTypeHandler.cpp',
+    "mimexpcom.cpp",
+    "nsMimeContentTypeHandler.cpp",
 ]
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
-Library('mimecthglue_s')
-
+Library("mimecthglue_s")

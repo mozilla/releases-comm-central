@@ -3,20 +3,20 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPCSHELL_TESTS_MANIFESTS += ['unit/xpcshell.ini']
+XPCSHELL_TESTS_MANIFESTS += ["unit/xpcshell.ini"]
 
 LOCAL_INCLUDES += [
-   '../../base/src',
-   '../src',
-   '/%s/xpcom/tests' % CONFIG['mozreltopsrcdir'],
+    "../../base/src",
+    "../src",
+    "/%s/xpcom/tests" % CONFIG["mozreltopsrcdir"],
 ]
 
 USE_LIBS += [
-    'msgbsutl_s',
-    'msgimap_s',
-    'nspr',
-    'xpcomglue_s',
-    'xul',
+    "msgbsutl_s",
+    "msgimap_s",
+    "nspr",
+    "xpcomglue_s",
+    "xul",
 ]
 
-OS_LIBS += CONFIG['MOZ_ZLIB_LIBS']
+OS_LIBS += CONFIG["MOZ_ZLIB_LIBS"]

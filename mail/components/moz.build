@@ -6,46 +6,44 @@
 # Only Mac and Windows have search integration components, but we include at
 # least one module from search/ on all platforms
 DIRS += [
-    'about-support',
-    'accountcreation',
-    'activity',
-    'addrbook',
-    'cloudfile',
-    'compose',
-    'customizableui',
-    'devtools',
-    'downloads',
-    'enterprisepolicies',
-    'extensions',
-    'im',
-    'migration',
-    'newmailaccount',
-    'preferences',
-    'prompts',
-    'search',
-    'shell',
-    'wintaskbar',
+    "about-support",
+    "accountcreation",
+    "activity",
+    "addrbook",
+    "cloudfile",
+    "compose",
+    "customizableui",
+    "devtools",
+    "downloads",
+    "enterprisepolicies",
+    "extensions",
+    "im",
+    "migration",
+    "newmailaccount",
+    "preferences",
+    "prompts",
+    "search",
+    "shell",
+    "wintaskbar",
 ]
 
-DIRS += ['build']
+DIRS += ["build"]
 
 EXTRA_COMPONENTS += [
-    'MailComponents.manifest',
-    'test/startupRecorder.js',
-    'test/testComponents.manifest',
+    "MailComponents.manifest",
+    "test/startupRecorder.js",
+    "test/testComponents.manifest",
 ]
 
 EXTRA_JS_MODULES += [
-    'AboutRedirector.jsm',
-    'AppIdleManager.jsm',
-    'MailGlue.jsm',
-    'MessengerContentHandler.jsm',
+    "AboutRedirector.jsm",
+    "AppIdleManager.jsm",
+    "MailGlue.jsm",
+    "MessengerContentHandler.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]
 
-XPCSHELL_TESTS_MANIFESTS += [
-    'test/unit/xpcshell.ini'
-]
+XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]

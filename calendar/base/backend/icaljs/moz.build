@@ -6,18 +6,18 @@
 # There is no manifest file for the calICALJSComponents component because
 # calendar backend components are loaded dynamically.
 EXTRA_COMPONENTS += [
-    'calICALJSComponents.js',
+    "calICALJSComponents.js",
 ]
 
 # These files go in components so they can be packaged correctly.
 FINAL_TARGET_FILES.components += [
-    'calDateTime.js',
-    'calDuration.js',
-    'calICSService-worker.js',
-    'calICSService.js',
-    'calPeriod.js',
-    'calRecurrenceRule.js'
+    "calDateTime.js",
+    "calDuration.js",
+    "calICSService-worker.js",
+    "calICSService.js",
+    "calPeriod.js",
+    "calRecurrenceRule.js",
 ]
 
-with Files('**'):
-    BUG_COMPONENT = ('Calendar', 'ICAL.js Integration')
+with Files("**"):
+    BUG_COMPONENT = ("Calendar", "ICAL.js Integration")

@@ -4,24 +4,23 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsILDAPBERElement.idl',
-    'nsILDAPBERValue.idl',
-    'nsILDAPConnection.idl',
-    'nsILDAPControl.idl',
-    'nsILDAPErrors.idl',
-    'nsILDAPMessage.idl',
-    'nsILDAPMessageListener.idl',
-    'nsILDAPModification.idl',
-    'nsILDAPOperation.idl',
-    'nsILDAPServer.idl',
-    'nsILDAPService.idl',
-    'nsILDAPURL.idl',
+    "nsILDAPBERElement.idl",
+    "nsILDAPBERValue.idl",
+    "nsILDAPConnection.idl",
+    "nsILDAPControl.idl",
+    "nsILDAPErrors.idl",
+    "nsILDAPMessage.idl",
+    "nsILDAPMessageListener.idl",
+    "nsILDAPModification.idl",
+    "nsILDAPOperation.idl",
+    "nsILDAPServer.idl",
+    "nsILDAPService.idl",
+    "nsILDAPURL.idl",
 ]
 
-if CONFIG['MOZ_PREF_EXTENSIONS']:
+if CONFIG["MOZ_PREF_EXTENSIONS"]:
     XPIDL_SOURCES += [
-        'nsILDAPSyncQuery.idl',
+        "nsILDAPSyncQuery.idl",
     ]
 
-XPIDL_MODULE = 'mozldap'
-
+XPIDL_MODULE = "mozldap"

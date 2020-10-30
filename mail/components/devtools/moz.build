@@ -9,5 +9,5 @@ EXTRA_JS_MODULES += [
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]

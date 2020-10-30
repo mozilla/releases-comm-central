@@ -4,11 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'CalItipProtocolHandler.jsm',
-    'CalMimeConverter.jsm',
+    "CalItipProtocolHandler.jsm",
+    "CalMimeConverter.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]
-

@@ -3,12 +3,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if CONFIG['MOZ_DEBUG']:
+if CONFIG["MOZ_DEBUG"]:
     EXTRA_JS_MODULES += [
-        'jsTestProtocol.jsm',
+        "jsTestProtocol.jsm",
     ]
 
     XPCOM_MANIFESTS += [
-        'components.conf',
+        "components.conf",
     ]
-

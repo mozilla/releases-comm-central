@@ -4,19 +4,19 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES = [
-    'GetMetadataForFile.c',
-    'main.c',
+    "GetMetadataForFile.c",
+    "main.c",
 ]
 
-Program('thunderbird-mdimport')
+Program("thunderbird-mdimport")
 # This directory is producing a framework as a target. The output of this
 # framework will be located here.
-FINAL_TARGET = 'dist/package/thunderbird.mdimporter/Contents/MacOS'
+FINAL_TARGET = "dist/package/thunderbird.mdimporter/Contents/MacOS"
 
 OS_LIBS += [
-    '-framework CoreFoundation',
-    '-framework CoreServices',
+    "-framework CoreFoundation",
+    "-framework CoreServices",
 ]
 
 # We're also a bundle.
-LDFLAGS += ['-bundle']
+LDFLAGS += ["-bundle"]

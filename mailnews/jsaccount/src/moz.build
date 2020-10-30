@@ -5,24 +5,24 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'DelegateList.cpp',
-    'JaAbDirectory.cpp',
-    'JaCompose.cpp',
-    'JaIncomingServer.cpp',
-    'JaMsgFolder.cpp',
-    'JaSend.cpp',
-    'JaUrl.cpp',
+    "DelegateList.cpp",
+    "JaAbDirectory.cpp",
+    "JaCompose.cpp",
+    "JaIncomingServer.cpp",
+    "JaMsgFolder.cpp",
+    "JaSend.cpp",
+    "JaUrl.cpp",
 ]
 
 EXPORTS += [
-    'DelegateList.h',
-    'JaAbDirectory.h',
-    'JaCompose.h',
-    'JaIncomingServer.h',
-    'JaMsgFolder.h',
-    'JaSend.h',
-    'JaUrl.h',
+    "DelegateList.h",
+    "JaAbDirectory.h",
+    "JaCompose.h",
+    "JaIncomingServer.h",
+    "JaMsgFolder.h",
+    "JaSend.h",
+    "JaUrl.h",
 ]
 
-Library('JsAccount')
-FINAL_LIBRARY = 'mail'
+Library("JsAccount")
+FINAL_LIBRARY = "mail"

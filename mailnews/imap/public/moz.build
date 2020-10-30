@@ -4,29 +4,28 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIAutoSyncFolderStrategy.idl',
-    'nsIAutoSyncManager.idl',
-    'nsIAutoSyncMsgStrategy.idl',
-    'nsIAutoSyncState.idl',
-    'nsIImapFlagAndUidState.idl',
-    'nsIImapHeaderXferInfo.idl',
-    'nsIImapIncomingServer.idl',
-    'nsIImapMailFolderSink.idl',
-    'nsIImapMessageSink.idl',
-    'nsIImapMockChannel.idl',
-    'nsIImapProtocol.idl',
-    'nsIImapProtocolSink.idl',
-    'nsIImapServerSink.idl',
-    'nsIImapService.idl',
-    'nsIImapUrl.idl',
-    'nsIMailboxSpec.idl',
-    'nsIMsgImapMailFolder.idl',
+    "nsIAutoSyncFolderStrategy.idl",
+    "nsIAutoSyncManager.idl",
+    "nsIAutoSyncMsgStrategy.idl",
+    "nsIAutoSyncState.idl",
+    "nsIImapFlagAndUidState.idl",
+    "nsIImapHeaderXferInfo.idl",
+    "nsIImapIncomingServer.idl",
+    "nsIImapMailFolderSink.idl",
+    "nsIImapMessageSink.idl",
+    "nsIImapMockChannel.idl",
+    "nsIImapProtocol.idl",
+    "nsIImapProtocolSink.idl",
+    "nsIImapServerSink.idl",
+    "nsIImapService.idl",
+    "nsIImapUrl.idl",
+    "nsIMailboxSpec.idl",
+    "nsIMsgImapMailFolder.idl",
 ]
 
-XPIDL_MODULE = 'msgimap'
+XPIDL_MODULE = "msgimap"
 
 EXPORTS += [
-    'nsIIMAPHostSessionList.h',
-    'nsMsgImapCID.h',
+    "nsIIMAPHostSessionList.h",
+    "nsMsgImapCID.h",
 ]
-

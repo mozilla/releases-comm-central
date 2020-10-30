@@ -3,17 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if CONFIG['TB_LIBOTR_PREBUILT']:
-    DEFINES['TB_LIBOTR_PREBUILT'] = CONFIG['TB_LIBOTR_PREBUILT']
+if CONFIG["TB_LIBOTR_PREBUILT"]:
+    DEFINES["TB_LIBOTR_PREBUILT"] = CONFIG["TB_LIBOTR_PREBUILT"]
 
-    if CONFIG['HAVE_64BIT_BUILD']:
-        DEFINES['HAVE_64BIT_BUILD'] = True
+    if CONFIG["HAVE_64BIT_BUILD"]:
+        DEFINES["HAVE_64BIT_BUILD"] = True
 
-if CONFIG['MOZ_OPENPGP']:
+if CONFIG["MOZ_OPENPGP"]:
     DIRS += [
-        'botan',
-        'bzip2',
-        'json-c',
-        'rnp',
-        'zlib',
+        "botan",
+        "bzip2",
+        "json-c",
+        "rnp",
+        "zlib",
     ]

@@ -6,8 +6,9 @@
 
 
 @template
-def noset_check_header(header, language='C++', flags=None, includes=None, when=None,
-                 onerror=lambda: None):
+def noset_check_header(
+    header, language="C++", flags=None, includes=None, when=None, onerror=lambda: None
+):
     if when is None:
         when = always
 
@@ -17,13 +18,26 @@ def noset_check_header(header, language='C++', flags=None, includes=None, when=N
         includes = []
     includes.append(header)
 
-    return try_compile(includes=includes, language=language, flags=flags,
-                       check_msg='for %s' % header, when=when, onerror=onerror)
+    return try_compile(
+        includes=includes,
+        language=language,
+        flags=flags,
+        check_msg="for %s" % header,
+        when=when,
+        onerror=onerror,
+    )
 
 
 @template
-def check_symbol_exists(symbol, header, language='C', flags=None, includes=None,
-                        when=None, onerror=lambda: None):
+def check_symbol_exists(
+    symbol,
+    header,
+    language="C",
+    flags=None,
+    includes=None,
+    when=None,
+    onerror=lambda: None,
+):
     if when is None:
         when = always
 
@@ -31,194 +45,239 @@ def check_symbol_exists(symbol, header, language='C', flags=None, includes=None,
         includes = includes[:]
     else:
         includes = []
-    includes.append('stdio.h')
+    includes.append("stdio.h")
 
     if isinstance(header, str):
         header = [header]
     includes.extend(header)
 
-    body = '''#ifndef %s
+    body = """#ifndef %s
 (void) %s;
 #endif
-''' % (symbol, symbol)
+""" % (
+        symbol,
+        symbol,
+    )
 
-    return try_compile(includes, body, language=language, flags=flags,
-                       check_msg='for %s' % symbol, when=when, onerror=onerror)
+    return try_compile(
+        includes,
+        body,
+        language=language,
+        flags=flags,
+        check_msg="for %s" % symbol,
+        when=when,
+        onerror=onerror,
+    )
 
 
-with only_when('--enable-compile-environment'):
+with only_when("--enable-compile-environment"):
     # Use system libraries when building librnp
     # ZLIB honors --with-system-zlib
 
     # JSON-C --with-system-json
-    option('--with-system-jsonc',
-           help='Use system JSON-C for librnp (located with pkgconfig)')
+    option(
+        "--with-system-jsonc",
+        help="Use system JSON-C for librnp (located with pkgconfig)",
+    )
 
-    jsonc_pkg = pkg_check_modules('MZLA_JSONC', 'json-c >= 0.11', when='--with-system-jsonc')
-    set_config('MZLA_SYSTEM_JSONC', depends_if(jsonc_pkg)(lambda _: True))
+    jsonc_pkg = pkg_check_modules(
+        "MZLA_JSONC", "json-c >= 0.11", when="--with-system-jsonc"
+    )
+    set_config("MZLA_SYSTEM_JSONC", depends_if(jsonc_pkg)(lambda _: True))
 
-    @depends('--with-system-jsonc')
+    @depends("--with-system-jsonc")
     def in_tree_jsonc(system_jsonc):
         if not system_jsonc:
             return True
 
-
     # Bzip2 --with-system-bz2
-    option('--with-system-bz2', nargs='?',
-           help='Use system Bzip2 for librnp (pkgconfig/given prefix)')
-    set_config('MZLA_SYSTEM_BZIP2', True, when='--with-system-bz2')
+    option(
+        "--with-system-bz2",
+        nargs="?",
+        help="Use system Bzip2 for librnp (pkgconfig/given prefix)",
+    )
+    set_config("MZLA_SYSTEM_BZIP2", True, when="--with-system-bz2")
 
     # Bzip2 does not include a pkgconfig file, but some Linux distributions add one
-    bzip2_pkg = pkg_check_modules('MZLA_BZIP2', 'bzip2 >= 1.0.6', when='--with-system-bz2',
-                                  allow_missing=True, config=False)
+    bzip2_pkg = pkg_check_modules(
+        "MZLA_BZIP2",
+        "bzip2 >= 1.0.6",
+        when="--with-system-bz2",
+        allow_missing=True,
+        config=False,
+    )
 
-    @depends_if('--with-system-bz2', bzip2_pkg)
+    @depends_if("--with-system-bz2", bzip2_pkg)
     def bzip2_flags(value, bzip2_pkg):
         if len(value):
             # A path (eg. /usr/local was given)
             return namespace(
-                cflags=('-I%s/include' % value[0],),
-                ldflags=('-L%s/lib' % value[0], '-lbz2'),
+                cflags=("-I%s/include" % value[0],),
+                ldflags=("-L%s/lib" % value[0], "-lbz2"),
             )
         if bzip2_pkg:
             cflags = list(bzip2_pkg.cflags)
             libs = bzip2_pkg.libs
-            return namespace(cflags=cflags, libs=libs, path=(value[0]), )
+            return namespace(
+                cflags=cflags,
+                libs=libs,
+                path=(value[0]),
+            )
         # Fallback
         return namespace(
-            ldflags=['-lbz2'],
+            ldflags=["-lbz2"],
         )
 
-    with only_when('--with-system-bz2'):
-        check_symbol('BZ2_bzread', flags=bzip2_flags.ldflags,
-                     onerror=lambda: die('--with-system-bz2 requested but symbol '
-                                         'BZ2_bzread not found.'))
+    with only_when("--with-system-bz2"):
+        check_symbol(
+            "BZ2_bzread",
+            flags=bzip2_flags.ldflags,
+            onerror=lambda: die(
+                "--with-system-bz2 requested but symbol " "BZ2_bzread not found."
+            ),
+        )
         c_compiler.try_compile(
             includes=[
-                'stdio.h',
-                'sys/types.h',
-                'bzlib.h',
+                "stdio.h",
+                "sys/types.h",
+                "bzlib.h",
             ],
-            body='''
+            body="""
                 #ifndef _BZLIB_H
                 #error _BZLIB_H bzlib.h not found
                 #endif
-            ''',
+            """,
             flags=bzip2_flags.cflags,
-            check_msg='for bzlib.h',
-            onerror=lambda: die('bzlib.h header not found')
+            check_msg="for bzlib.h",
+            onerror=lambda: die("bzlib.h header not found"),
         )
-        set_config('MZLA_BZIP2_CFLAGS', bzip2_flags.cflags)
-        set_config('MZLA_BZIP2_LIBS', bzip2_flags.ldflags)
-
+        set_config("MZLA_BZIP2_CFLAGS", bzip2_flags.cflags)
+        set_config("MZLA_BZIP2_LIBS", bzip2_flags.ldflags)
 
     # BOTAN --with-system-botan
-    option('--with-system-botan', help='Use system Botan for librnp (located with pkgconfig)')
+    option(
+        "--with-system-botan",
+        help="Use system Botan for librnp (located with pkgconfig)",
+    )
 
-    botan_pkg = pkg_check_modules('MZLA_BOTAN', 'botan-2 >= 2.8.0', when='--with-system-botan')
-    set_config('MZLA_SYSTEM_BOTAN', depends_if(botan_pkg)(lambda _: True))
-
+    botan_pkg = pkg_check_modules(
+        "MZLA_BOTAN", "botan-2 >= 2.8.0", when="--with-system-botan"
+    )
+    set_config("MZLA_SYSTEM_BOTAN", depends_if(botan_pkg)(lambda _: True))
 
     # Checks for building librnp itself
     # =================================
-    have_fcntl_h = check_header('fcntl.h')
-    have_string_h = check_header('string.h')
+    have_fcntl_h = check_header("fcntl.h")
+    have_string_h = check_header("string.h")
     check_headers(
-        'limits.h',
-        'sys/auxv.h',
-        'sys/cdefs.h',
-        'sys/resource.h',
-        'sys/param.h',
-        'sys/stat.h',
-        'sys/time.h',
-        'sys/wait.h',
+        "limits.h",
+        "sys/auxv.h",
+        "sys/cdefs.h",
+        "sys/resource.h",
+        "sys/param.h",
+        "sys/stat.h",
+        "sys/time.h",
+        "sys/wait.h",
     )
 
-    set_define('HAVE_MKDTEMP', check_symbol_exists('mkdtemp', ['stdlib.h','unistd.h']))
-    set_define('HAVE_REALPATH', check_symbol_exists('realpath', 'stdlib.h'))
-    set_define('HAVE_O_BINARY', check_symbol_exists('O_BINARY', 'fcntl.h'))
-    set_define('HAVE__O_BINARY', check_symbol_exists('_O_BINARY', 'fcntl.h'))
+    set_define("HAVE_MKDTEMP", check_symbol_exists("mkdtemp", ["stdlib.h", "unistd.h"]))
+    set_define("HAVE_REALPATH", check_symbol_exists("realpath", "stdlib.h"))
+    set_define("HAVE_O_BINARY", check_symbol_exists("O_BINARY", "fcntl.h"))
+    set_define("HAVE__O_BINARY", check_symbol_exists("_O_BINARY", "fcntl.h"))
 
     # Checks when building JSON-C from tree sources
     # =============================================
     with only_when(in_tree_jsonc):
-        have_stdlib_h = check_header('stdlib.h')
-        have_locale_h = check_header('locale.h')
-        have_strings_h = check_header('strings.h')
+        have_stdlib_h = check_header("stdlib.h")
+        have_locale_h = check_header("locale.h")
+        have_strings_h = check_header("strings.h")
 
-        check_headers(
-            'stdarg.h',
-            'dlfcn.h',
-            'endian.h',
-            'memory.h',
-            'xlocale.h'
+        check_headers("stdarg.h", "dlfcn.h", "endian.h", "memory.h", "xlocale.h")
+
+        set_define("JSON_C_HAVE_INTTYPES_H", noset_check_header("inttypes.h"))
+
+        set_define("HAVE_DECL__ISNAN", check_symbol_exists("_isnan", "float.h"))
+
+        set_define("HAVE_DECL__FINITE", check_symbol_exists("_finite", "float.h"))
+        set_define("HAVE_DECL_INFINITY", check_symbol_exists("INFINITY", "math.h"))
+        set_define("HAVE_DECL_ISINF", check_symbol_exists("isinf", "math.h"))
+        set_define("HAVE_DECL_ISNAN", check_symbol_exists("isnan", "math.h"))
+        set_define("HAVE_DECL_NAN", check_symbol_exists("nan", "math.h"))
+
+        set_define("HAVE_DOPRNT", check_symbol_exists("_doprnt", "stdio.h"))
+        set_define("HAVE_SNPRINTF", check_symbol_exists("snprintf", "stdio.h"))
+        set_define(
+            "HAVE_VASPRINTF",
+            check_symbol_exists("vasprintf", "stdio.h", flags=["-D_GNU_SOURCE"]),
         )
+        set_define("HAVE_VSNPRINTF", check_symbol_exists("vsnprintf", "stdio.h"))
+        set_define("HAVE_VPRINTF", check_symbol_exists("vprintf", "stdio.h"))
 
-        set_define('JSON_C_HAVE_INTTYPES_H', noset_check_header('inttypes.h'))
-
-        set_define('HAVE_DECL__ISNAN', check_symbol_exists('_isnan', 'float.h'))
-
-        set_define('HAVE_DECL__FINITE', check_symbol_exists('_finite', 'float.h'))
-        set_define('HAVE_DECL_INFINITY', check_symbol_exists('INFINITY', 'math.h'))
-        set_define('HAVE_DECL_ISINF', check_symbol_exists('isinf', 'math.h'))
-        set_define('HAVE_DECL_ISNAN', check_symbol_exists('isnan', 'math.h'))
-        set_define('HAVE_DECL_NAN', check_symbol_exists('nan', 'math.h'))
-
-        set_define('HAVE_DOPRNT', check_symbol_exists('_doprnt', 'stdio.h'))
-        set_define('HAVE_SNPRINTF', check_symbol_exists('snprintf', 'stdio.h'))
-        set_define('HAVE_VASPRINTF',
-                   check_symbol_exists('vasprintf', 'stdio.h', flags=['-D_GNU_SOURCE']))
-        set_define('HAVE_VSNPRINTF', check_symbol_exists('vsnprintf', 'stdio.h'))
-        set_define('HAVE_VPRINTF', check_symbol_exists('vprintf', 'stdio.h'))
-
-        set_define('HAVE_OPEN', check_symbol_exists('open', 'fcntl.h', when=have_fcntl_h))
-        set_define('HAVE_REALLOC', check_symbol_exists('realloc', 'stdlib.h', when=have_stdlib_h))
-        set_define('HAVE_SETLOCALE', check_symbol_exists('setlocale', 'locale.h', when=have_locale_h))
-        set_define('HAVE_USELOCALE', check_symbol_exists('uselocale', 'locale.h', when=have_locale_h))
-        set_define('HAVE_STRCASECMP',
-                   check_symbol_exists('strcasecmp', 'strings.h', when=have_strings_h))
-        set_define('HAVE_STRNCASECMP',
-                   check_symbol_exists('strncasecmp', 'strings.h', when=have_strings_h))
-        set_define('HAVE_STRDUP', check_symbol_exists('strdup', 'string.h', when=have_string_h))
+        set_define(
+            "HAVE_OPEN", check_symbol_exists("open", "fcntl.h", when=have_fcntl_h)
+        )
+        set_define(
+            "HAVE_REALLOC",
+            check_symbol_exists("realloc", "stdlib.h", when=have_stdlib_h),
+        )
+        set_define(
+            "HAVE_SETLOCALE",
+            check_symbol_exists("setlocale", "locale.h", when=have_locale_h),
+        )
+        set_define(
+            "HAVE_USELOCALE",
+            check_symbol_exists("uselocale", "locale.h", when=have_locale_h),
+        )
+        set_define(
+            "HAVE_STRCASECMP",
+            check_symbol_exists("strcasecmp", "strings.h", when=have_strings_h),
+        )
+        set_define(
+            "HAVE_STRNCASECMP",
+            check_symbol_exists("strncasecmp", "strings.h", when=have_strings_h),
+        )
+        set_define(
+            "HAVE_STRDUP", check_symbol_exists("strdup", "string.h", when=have_string_h)
+        )
 
 
 @depends(c_compiler, target, when=compile_environment)
-@checking('for clang_rt.builtins path', lambda x: x if x is None else x.clang_rt_lib)
-@imports(_from='os', _import='pathsep')
-@imports(_from='os.path', _import='isdir')
-@imports(_from='os.path', _import='exists')
-@imports(_from='os.path', _import='join')
+@checking("for clang_rt.builtins path", lambda x: x if x is None else x.clang_rt_lib)
+@imports(_from="os", _import="pathsep")
+@imports(_from="os.path", _import="isdir")
+@imports(_from="os.path", _import="exists")
+@imports(_from="os.path", _import="join")
 def clang_rt_builtins(compiler_info, target):
-    if compiler_info.type == 'clang-cl':
-        if target.raw_cpu in ['i686']:
-            rt_arch = 'i386'
+    if compiler_info.type == "clang-cl":
+        if target.raw_cpu in ["i686"]:
+            rt_arch = "i386"
         else:
             rt_arch = target.raw_cpu
 
-        clang_rt_builtins = 'clang_rt.builtins-{}'.format(rt_arch)
+        clang_rt_builtins = "clang_rt.builtins-{}".format(rt_arch)
         clang_cl = compiler_info.compiler
         flags = []
         flags.extend(compiler_info.flags)
-        flags.append('-clang:-print-search-dirs')
+        flags.append("-clang:-print-search-dirs")
         clang_search_dirs = check_cmd_output(clang_cl, *flags)
         for line in clang_search_dirs.splitlines():
-            name, _, value = line.partition(': =')
-            if name == 'libraries':
+            name, _, value = line.partition(": =")
+            if name == "libraries":
                 for dir in value.split(pathsep):
                     if dir.endswith(compiler_info.version.vstring):
-                        clang_rt_dir = join(dir, 'lib/windows')
+                        clang_rt_dir = join(dir, "lib/windows")
                         clang_rt_lib = join(clang_rt_dir, clang_rt_builtins)
                         if isdir(clang_rt_dir):
-                            if exists('{}.lib'.format(clang_rt_lib)):
+                            if exists("{}.lib".format(clang_rt_lib)):
                                 return namespace(
                                     clang_rt_path=clang_rt_dir,
-                                    clang_rt_lib=clang_rt_lib
+                                    clang_rt_lib=clang_rt_lib,
                                 )
-        die('Cannot find clang_rt.builtins path.')
+        die("Cannot find clang_rt.builtins path.")
 
 
-set_config('COMPILER_RT_BUILTIN_PATH', clang_rt_builtins.clang_rt_path, when=is_windows)
-set_config('COMPILER_RT_BUILTIN_LIB', clang_rt_builtins.clang_rt_lib, when=is_windows)
+set_config("COMPILER_RT_BUILTIN_PATH", clang_rt_builtins.clang_rt_path, when=is_windows)
+set_config("COMPILER_RT_BUILTIN_LIB", clang_rt_builtins.clang_rt_lib, when=is_windows)
 
 
 @depends(c_compiler, cxx_compiler, when=compile_environment)
@@ -226,19 +285,20 @@ def rnp_compiler(c_compiler, cxx_compiler):
     # Replace -std=gnu++17 or -std=c++17 with -std=gnu++11 or -std=c++11
     _cxxflags = []
     for f in cxx_compiler.flags:
-        if f == '-std=c++17':
-            _cxxflags.append('-std=c++14')
-        elif f == '-std=gnu++17':
-            _cxxflags.append('-std=gnu++11')
+        if f == "-std=c++17":
+            _cxxflags.append("-std=c++14")
+        elif f == "-std=gnu++17":
+            _cxxflags.append("-std=gnu++11")
         else:
             _cxxflags.append(f)
 
-    rnp_cc = ' '.join(list(c_compiler.wrapper) + [c_compiler.compiler] + c_compiler.flags)
-    rnp_cxx = ' '.join(list(cxx_compiler.wrapper) + [cxx_compiler.compiler] + _cxxflags)
+    rnp_cc = " ".join(
+        list(c_compiler.wrapper) + [c_compiler.compiler] + c_compiler.flags
+    )
+    rnp_cxx = " ".join(list(cxx_compiler.wrapper) + [cxx_compiler.compiler] + _cxxflags)
 
-    return namespace(rnp_cc=rnp_cc,
-                     rnp_cxx=rnp_cxx)
+    return namespace(rnp_cc=rnp_cc, rnp_cxx=rnp_cxx)
 
-set_config('MZLA_RNP_CC', rnp_compiler.rnp_cc)
-set_config('MZLA_RNP_CXX', rnp_compiler.rnp_cxx)
 
+set_config("MZLA_RNP_CC", rnp_compiler.rnp_cc)
+set_config("MZLA_RNP_CXX", rnp_compiler.rnp_cxx)

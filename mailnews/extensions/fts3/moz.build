@@ -4,18 +4,18 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIFts3Tokenizer.idl',
+    "nsIFts3Tokenizer.idl",
 ]
 
-XPIDL_MODULE = 'fts3tok'
+XPIDL_MODULE = "fts3tok"
 
 SOURCES += [
-    'fts3_porter.c',
-    'Normalize.c',
-    'nsFts3Tokenizer.cpp',
-    'nsGlodaRankerFunction.cpp',
+    "fts3_porter.c",
+    "Normalize.c",
+    "nsFts3Tokenizer.cpp",
+    "nsGlodaRankerFunction.cpp",
 ]
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
-CXXFLAGS += CONFIG['SQLITE_CFLAGS']
+CXXFLAGS += CONFIG["SQLITE_CFLAGS"]

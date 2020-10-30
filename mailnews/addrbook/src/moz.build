@@ -4,55 +4,55 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    'nsAbDirProperty.h',
+    "nsAbDirProperty.h",
 ]
 
 SOURCES += [
-    'nsAbAddressCollector.cpp',
-    'nsAbBooleanExpression.cpp',
-    'nsAbBoolExprToLDAPFilter.cpp',
-    'nsAbCardProperty.cpp',
-    'nsAbContentHandler.cpp',
-    'nsAbDirectoryQuery.cpp',
-    'nsAbDirectoryQueryProxy.cpp',
-    'nsAbDirProperty.cpp',
-    'nsAbLDAPDirectory.cpp',
-    'nsAbLDAPDirectoryQuery.cpp',
-    'nsAbLDAPListenerBase.cpp',
-    'nsAbLDAPReplicationData.cpp',
-    'nsAbLDAPReplicationQuery.cpp',
-    'nsAbLDAPReplicationService.cpp',
-    'nsAbLDIFService.cpp',
-    'nsAbQueryStringToExpression.cpp',
-    'nsAddbookProtocolHandler.cpp',
-    'nsAddbookUrl.cpp',
+    "nsAbAddressCollector.cpp",
+    "nsAbBooleanExpression.cpp",
+    "nsAbBoolExprToLDAPFilter.cpp",
+    "nsAbCardProperty.cpp",
+    "nsAbContentHandler.cpp",
+    "nsAbDirectoryQuery.cpp",
+    "nsAbDirectoryQueryProxy.cpp",
+    "nsAbDirProperty.cpp",
+    "nsAbLDAPDirectory.cpp",
+    "nsAbLDAPDirectoryQuery.cpp",
+    "nsAbLDAPListenerBase.cpp",
+    "nsAbLDAPReplicationData.cpp",
+    "nsAbLDAPReplicationQuery.cpp",
+    "nsAbLDAPReplicationService.cpp",
+    "nsAbLDIFService.cpp",
+    "nsAbQueryStringToExpression.cpp",
+    "nsAddbookProtocolHandler.cpp",
+    "nsAddbookUrl.cpp",
 ]
 
-if CONFIG['OS_ARCH'] == 'WINNT' and CONFIG['MOZ_MAPI_SUPPORT']:
+if CONFIG["OS_ARCH"] == "WINNT" and CONFIG["MOZ_MAPI_SUPPORT"]:
     SOURCES += [
-        'nsAbOutlookDirectory.cpp',
-        'nsAbOutlookInterface.cpp',
-        'nsAbWinHelper.cpp',
-        'nsMapiAddressBook.cpp',
-        'nsWabAddressBook.cpp',
+        "nsAbOutlookDirectory.cpp",
+        "nsAbOutlookInterface.cpp",
+        "nsAbWinHelper.cpp",
+        "nsMapiAddressBook.cpp",
+        "nsWabAddressBook.cpp",
     ]
 
-if CONFIG['OS_ARCH'] == 'Darwin':
+if CONFIG["OS_ARCH"] == "Darwin":
     SOURCES += [
-        'nsAbOSXCard.mm',
-        'nsAbOSXDirectory.mm',
-        'nsAbOSXUtils.mm',
+        "nsAbOSXCard.mm",
+        "nsAbOSXDirectory.mm",
+        "nsAbOSXUtils.mm",
     ]
 
 EXTRA_JS_MODULES += [
-    'AbAutoCompleteMyDomain.jsm',
-    'AbAutoCompleteSearch.jsm',
-    'AbLDAPAttributeMap.jsm',
-    'AbLDAPAutoCompleteSearch.jsm',
+    "AbAutoCompleteMyDomain.jsm",
+    "AbAutoCompleteSearch.jsm",
+    "AbLDAPAttributeMap.jsm",
+    "AbLDAPAutoCompleteSearch.jsm",
 ]
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]

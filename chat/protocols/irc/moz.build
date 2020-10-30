@@ -3,29 +3,29 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPCSHELL_TESTS_MANIFESTS += ['test/xpcshell.ini']
+XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.ini"]
 
 EXTRA_JS_MODULES += [
-    'irc.jsm',
-    'ircBase.jsm',
-    'ircCAP.jsm',
-    'ircCommands.jsm',
-    'ircCTCP.jsm',
-    'ircDCC.jsm',
-    'ircEchoMessage.jsm',
-    'ircHandlers.jsm',
-    'ircISUPPORT.jsm',
-    'ircMultiPrefix.jsm',
-    'ircNonStandard.jsm',
-    'ircSASL.jsm',
-    'ircServerTime.jsm',
-    'ircServices.jsm',
-    'ircUtils.jsm',
-    'ircWatchMonitor.jsm',
+    "irc.jsm",
+    "ircBase.jsm",
+    "ircCAP.jsm",
+    "ircCommands.jsm",
+    "ircCTCP.jsm",
+    "ircDCC.jsm",
+    "ircEchoMessage.jsm",
+    "ircHandlers.jsm",
+    "ircISUPPORT.jsm",
+    "ircMultiPrefix.jsm",
+    "ircNonStandard.jsm",
+    "ircSASL.jsm",
+    "ircServerTime.jsm",
+    "ircServices.jsm",
+    "ircUtils.jsm",
+    "ircWatchMonitor.jsm",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]

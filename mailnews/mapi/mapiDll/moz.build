@@ -5,18 +5,18 @@
 
 # Statically link against the CRT, so that we don't go hunting around for it
 # and not find it when we're loaded into explorer.exe or similar
-SharedLibrary('mozMapi32')
+SharedLibrary("mozMapi32")
 USE_STATIC_LIBS = True
 
 SOURCES += [
-    'MapiDll.cpp',
+    "MapiDll.cpp",
 ]
 
 OS_LIBS += [
-    'ole32',
+    "ole32",
 ]
 
-DEFINES['UNICODE'] = True
-DEFINES['_UNICODE'] = True
+DEFINES["UNICODE"] = True
+DEFINES["_UNICODE"] = True
 
-DEFFILE = 'Mapi32.def'
+DEFFILE = "Mapi32.def"

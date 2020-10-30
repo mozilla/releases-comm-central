@@ -4,26 +4,25 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'components/public',
-    'components/src',
-    'modules',
-    'content',
-    'themes',
-    'locales',
-    'protocols/facebook',
-    'protocols/gtalk',
-    'protocols/irc',
-    'protocols/matrix',
-    'protocols/odnoklassniki',
-    'protocols/twitter',
-    'protocols/xmpp',
-    'protocols/yahoo',
+    "components/public",
+    "components/src",
+    "modules",
+    "content",
+    "themes",
+    "locales",
+    "protocols/facebook",
+    "protocols/gtalk",
+    "protocols/irc",
+    "protocols/matrix",
+    "protocols/odnoklassniki",
+    "protocols/twitter",
+    "protocols/xmpp",
+    "protocols/yahoo",
 ]
 
-if CONFIG['MOZ_DEBUG']:
-    DIRS += ['protocols/jsTest']
+if CONFIG["MOZ_DEBUG"]:
+    DIRS += ["protocols/jsTest"]
 
 JS_PREFERENCE_PP_FILES += [
-    'chat-prefs.js',
+    "chat-prefs.js",
 ]
-

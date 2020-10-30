@@ -4,29 +4,27 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'ExtensionSupport.jsm',
+    "ExtensionSupport.jsm",
 ]
 
 SOURCES += [
-    'nsCommonModule.cpp',
+    "nsCommonModule.cpp",
 ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG["OS_ARCH"] == "WINNT":
     # This file cannot be built in unified mode because of name clashes with Windows headers.
     SOURCES += [
-        'nsUserInfoWin.cpp',
+        "nsUserInfoWin.cpp",
     ]
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
     SOURCES += [
-        'nsUserInfoMac.mm',
+        "nsUserInfoMac.mm",
     ]
 else:
     SOURCES += [
-        'nsUserInfoUnix.cpp',
+        "nsUserInfoUnix.cpp",
     ]
 
-LOCAL_INCLUDES += [
-    '/%s/netwerk/base' % CONFIG['mozreltopsrcdir']
-]
+LOCAL_INCLUDES += ["/%s/netwerk/base" % CONFIG["mozreltopsrcdir"]]
 
-FINAL_LIBRARY = 'xul'
+FINAL_LIBRARY = "xul"

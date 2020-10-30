@@ -4,10 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'GlodaAutoComplete.jsm',
-    'MimeMessageEmitter.jsm',
+    "GlodaAutoComplete.jsm",
+    "MimeMessageEmitter.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]

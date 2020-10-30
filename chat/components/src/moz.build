@@ -3,17 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPCSHELL_TESTS_MANIFESTS += ['test/xpcshell.ini']
+XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.ini"]
 
 EXTRA_JS_MODULES += [
-    'imAccounts.jsm',
-    'imCommands.jsm',
-    'imContacts.jsm',
-    'imConversations.jsm',
-    'imCore.jsm',
-    'logger.jsm',
+    "imAccounts.jsm",
+    "imCommands.jsm",
+    "imContacts.jsm",
+    "imConversations.jsm",
+    "imCore.jsm",
+    "logger.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]

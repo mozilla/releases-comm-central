@@ -4,34 +4,34 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'AttachmentChecker.jsm',
-    'DBViewWrapper.jsm',
-    'DisplayNameUtils.jsm',
-    'DNS.jsm',
-    'ExtensionsUI.jsm',
-    'GlobalPopupNotifications.jsm',
-    'MailConsts.jsm',
-    'MailInstrumentation.jsm',
-    'MailMigrator.jsm',
-    'MailUtils.jsm',
-    'MailViewManager.jsm',
-    'MessageArchiver.jsm',
-    'MsgHdrSyntheticView.jsm',
-    'QuickFilterManager.jsm',
-    'SearchSpec.jsm',
-    'SessionStoreManager.jsm',
-    'SummaryFrameManager.jsm',
-    'TagUtils.jsm',
-    'TBDistCustomizer.jsm',
-    'ThemeVariableMap.jsm',
-    'Windows8WindowFrameColor.jsm',
+    "AttachmentChecker.jsm",
+    "DBViewWrapper.jsm",
+    "DisplayNameUtils.jsm",
+    "DNS.jsm",
+    "ExtensionsUI.jsm",
+    "GlobalPopupNotifications.jsm",
+    "MailConsts.jsm",
+    "MailInstrumentation.jsm",
+    "MailMigrator.jsm",
+    "MailUtils.jsm",
+    "MailViewManager.jsm",
+    "MessageArchiver.jsm",
+    "MsgHdrSyntheticView.jsm",
+    "QuickFilterManager.jsm",
+    "SearchSpec.jsm",
+    "SessionStoreManager.jsm",
+    "SummaryFrameManager.jsm",
+    "TagUtils.jsm",
+    "TBDistCustomizer.jsm",
+    "ThemeVariableMap.jsm",
+    "Windows8WindowFrameColor.jsm",
 ]
 
 EXTRA_PP_JS_MODULES += [
-    'MailConstants.jsm',
+    "MailConstants.jsm",
 ]
 
-if CONFIG['MOZ_UPDATER']:
+if CONFIG["MOZ_UPDATER"]:
     EXTRA_JS_MODULES += [
-        'AppUpdateUI.jsm',
+        "AppUpdateUI.jsm",
     ]

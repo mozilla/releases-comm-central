@@ -3,17 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
-    DIRS += ['mdimporter']
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
-    DIRS += ['wsenable']
-    SOURCES += ['nsMailWinSearchHelper.cpp']
-    FINAL_LIBRARY = 'mailcomps'
+if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
+    DIRS += ["mdimporter"]
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
+    DIRS += ["wsenable"]
+    SOURCES += ["nsMailWinSearchHelper.cpp"]
+    FINAL_LIBRARY = "mailcomps"
 
-DIRS += ['public']
+DIRS += ["public"]
 
 EXTRA_JS_MODULES += [
-    'SearchIntegration.jsm',
+    "SearchIntegration.jsm",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

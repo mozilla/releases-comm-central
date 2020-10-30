@@ -5,14 +5,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'msgIDelegateList.idl',
-    'msgIJaUrl.idl',
-    'msgIOverride.idl',
+    "msgIDelegateList.idl",
+    "msgIJaUrl.idl",
+    "msgIOverride.idl",
 ]
 
 EXPORTS += [
-    'msgJsAccountCID.h',
+    "msgJsAccountCID.h",
 ]
 
-XPIDL_MODULE = 'msgjsaccount'
-
+XPIDL_MODULE = "msgjsaccount"

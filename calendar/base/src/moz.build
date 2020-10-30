@@ -4,53 +4,52 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'calInternalInterfaces.idl',
+    "calInternalInterfaces.idl",
 ]
 
-XPIDL_MODULE = 'calbaseinternal'
+XPIDL_MODULE = "calbaseinternal"
 
 EXTRA_JS_MODULES += [
-    'CalAlarm.jsm',
-    'CalAlarmMonitor.jsm',
-    'CalAlarmService.jsm',
-    'CalAttachment.jsm',
-    'CalAttendee.jsm',
-    'CalCalendarManager.jsm',
-    'CalCalendarSearchService.jsm',
-    'CalDefaultACLManager.jsm',
-    'CalDeletedItems.jsm',
-    'CalEvent.jsm',
-    'CalFreeBusyService.jsm',
-    'CalIcsParser.jsm',
-    'CalIcsSerializer.jsm',
-    'CalItipItem.jsm',
-    'CalProtocolHandler.jsm',
-    'CalRecurrenceDate.jsm',
-    'CalRecurrenceInfo.jsm',
-    'CalRelation.jsm',
-    'CalSleepMonitor.jsm',
-    'CalStartupService.jsm',
-    'CalTimezoneService.jsm',
-    'CalTodo.jsm',
-    'CalTransactionManager.jsm',
-    'CalWeekInfoService.jsm',
+    "CalAlarm.jsm",
+    "CalAlarmMonitor.jsm",
+    "CalAlarmService.jsm",
+    "CalAttachment.jsm",
+    "CalAttendee.jsm",
+    "CalCalendarManager.jsm",
+    "CalCalendarSearchService.jsm",
+    "CalDefaultACLManager.jsm",
+    "CalDeletedItems.jsm",
+    "CalEvent.jsm",
+    "CalFreeBusyService.jsm",
+    "CalIcsParser.jsm",
+    "CalIcsSerializer.jsm",
+    "CalItipItem.jsm",
+    "CalProtocolHandler.jsm",
+    "CalRecurrenceDate.jsm",
+    "CalRecurrenceInfo.jsm",
+    "CalRelation.jsm",
+    "CalSleepMonitor.jsm",
+    "CalStartupService.jsm",
+    "CalTimezoneService.jsm",
+    "CalTodo.jsm",
+    "CalTransactionManager.jsm",
+    "CalWeekInfoService.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]
 
 # These files go in components so they can be packaged correctly.
 FINAL_TARGET_FILES.components += [
-    'calCachedCalendar.js',
-    'calFilter.js',
-    'calItemBase.js',
-    'calTimezone.js',
+    "calCachedCalendar.js",
+    "calFilter.js",
+    "calItemBase.js",
+    "calTimezone.js",
 ]
 
-with Files('**'):
-    BUG_COMPONENT = ('Calendar', 'Internal Components')
+with Files("**"):
+    BUG_COMPONENT = ("Calendar", "Internal Components")
 
-with Files('calAlarm*'):
-    BUG_COMPONENT = ('Calendar', 'Alarms')
-
+with Files("calAlarm*"):
+    BUG_COMPONENT = ("Calendar", "Alarms")

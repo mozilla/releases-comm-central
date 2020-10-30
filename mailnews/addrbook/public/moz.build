@@ -4,33 +4,32 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIAbAddressCollector.idl',
-    'nsIAbAutoCompleteResult.idl',
-    'nsIAbBooleanExpression.idl',
-    'nsIAbCard.idl',
-    'nsIAbDirectory.idl',
-    'nsIAbDirectoryQuery.idl',
-    'nsIAbDirectoryQueryProxy.idl',
-    'nsIAbDirSearchListener.idl',
-    'nsIAbLDAPAttributeMap.idl',
-    'nsIAbLDAPDirectory.idl',
-    'nsIAbLDAPReplicationData.idl',
-    'nsIAbLDAPReplicationQuery.idl',
-    'nsIAbLDAPReplicationService.idl',
-    'nsIAbLDIFService.idl',
-    'nsIAbManager.idl',
-    'nsIAddbookUrl.idl',
-    'nsIMsgVCardService.idl',
+    "nsIAbAddressCollector.idl",
+    "nsIAbAutoCompleteResult.idl",
+    "nsIAbBooleanExpression.idl",
+    "nsIAbCard.idl",
+    "nsIAbDirectory.idl",
+    "nsIAbDirectoryQuery.idl",
+    "nsIAbDirectoryQueryProxy.idl",
+    "nsIAbDirSearchListener.idl",
+    "nsIAbLDAPAttributeMap.idl",
+    "nsIAbLDAPDirectory.idl",
+    "nsIAbLDAPReplicationData.idl",
+    "nsIAbLDAPReplicationQuery.idl",
+    "nsIAbLDAPReplicationService.idl",
+    "nsIAbLDIFService.idl",
+    "nsIAbManager.idl",
+    "nsIAddbookUrl.idl",
+    "nsIMsgVCardService.idl",
 ]
 
-if CONFIG['OS_ARCH'] == 'WINNT' and CONFIG['MOZ_MAPI_SUPPORT']:
+if CONFIG["OS_ARCH"] == "WINNT" and CONFIG["MOZ_MAPI_SUPPORT"]:
     XPIDL_SOURCES += [
-        'nsIAbOutlookInterface.idl',
+        "nsIAbOutlookInterface.idl",
     ]
 
-XPIDL_MODULE = 'addrbook'
+XPIDL_MODULE = "addrbook"
 
 EXPORTS += [
-    'nsAbBaseCID.h',
+    "nsAbBaseCID.h",
 ]
-

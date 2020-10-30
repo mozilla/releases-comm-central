@@ -3,62 +3,62 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if CONFIG['MOZ_NO_PIE_COMPAT']:
-    GeckoProgram(CONFIG['MOZ_APP_NAME'] + '-bin')
+if CONFIG["MOZ_NO_PIE_COMPAT"]:
+    GeckoProgram(CONFIG["MOZ_APP_NAME"] + "-bin")
 
-    DIRS += ['no-pie']
+    DIRS += ["no-pie"]
 else:
-    GeckoProgram(CONFIG['MOZ_APP_NAME'])
+    GeckoProgram(CONFIG["MOZ_APP_NAME"])
 
-USE_LIBS += ['mozglue']
-SOURCES += ['nsMailApp.cpp']
+USE_LIBS += ["mozglue"]
+SOURCES += ["nsMailApp.cpp"]
 LOCAL_INCLUDES += [
-    '!/build',
-    '/%s/ipc/contentproc/' % CONFIG['mozreltopsrcdir'],
-    '/%s/toolkit/xre' % CONFIG['mozreltopsrcdir'],
-    '/%s/xpcom/base' % CONFIG['mozreltopsrcdir'],
-    '/%s/xpcom/build' % CONFIG['mozreltopsrcdir'],
+    "!/build",
+    "/%s/ipc/contentproc/" % CONFIG["mozreltopsrcdir"],
+    "/%s/toolkit/xre" % CONFIG["mozreltopsrcdir"],
+    "/%s/xpcom/base" % CONFIG["mozreltopsrcdir"],
+    "/%s/xpcom/build" % CONFIG["mozreltopsrcdir"],
 ]
 
-if CONFIG['LIBFUZZER']:
-    USE_LIBS += [ 'fuzzer' ]
+if CONFIG["LIBFUZZER"]:
+    USE_LIBS += ["fuzzer"]
     LOCAL_INCLUDES += [
-        '/%s/tools/fuzzing/libfuzzer' % CONFIG['mozreltopsrcdir'],
+        "/%s/tools/fuzzing/libfuzzer" % CONFIG["mozreltopsrcdir"],
     ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
-    RCINCLUDE = 'splash.rc'
-    DEFINES['MOZ_THUNDERBIRD'] = True
+if CONFIG["OS_ARCH"] == "WINNT":
+    RCINCLUDE = "splash.rc"
+    DEFINES["MOZ_THUNDERBIRD"] = True
 
-if CONFIG['MOZ_SANDBOX'] and CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG["MOZ_SANDBOX"] and CONFIG["OS_ARCH"] == "WINNT":
     # For sandbox includes and the include dependencies those have
     LOCAL_INCLUDES += [
-        '/%s/security/sandbox/chromium' % CONFIG['mozreltopsrcdir'],
-        '/%s/security/sandbox/chromium-shim' % CONFIG['mozreltopsrcdir'],
+        "/%s/security/sandbox/chromium" % CONFIG["mozreltopsrcdir"],
+        "/%s/security/sandbox/chromium-shim" % CONFIG["mozreltopsrcdir"],
     ]
 
     OS_LIBS += [
-        'version',
+        "version",
     ]
 
     USE_LIBS += [
-        'sandbox_s',
+        "sandbox_s",
     ]
 
     DELAYLOAD_DLLS += [
-        'winmm.dll',
-        'user32.dll',
+        "winmm.dll",
+        "user32.dll",
     ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG["OS_ARCH"] == "WINNT":
     OS_LIBS += [
-        'ntdll',
+        "ntdll",
     ]
 
-if CONFIG['CC_TYPE'] in ('msvc', 'clang-cl'):
+if CONFIG["CC_TYPE"] in ("msvc", "clang-cl"):
     # Always enter a Windows program through wmain, whether or not we're
     # a console application.
-    WIN32_EXE_LDFLAGS += ['-ENTRY:wmainCRTStartup']
+    WIN32_EXE_LDFLAGS += ["-ENTRY:wmainCRTStartup"]
 
 # Control the default heap size.
 # This is the heap returned by GetProcessHeap().
@@ -68,40 +68,46 @@ if CONFIG['CC_TYPE'] in ('msvc', 'clang-cl'):
 # The heap will grow if need be.
 #
 # Set it to 256k.  See bug 127069.
-if CONFIG['OS_ARCH'] == 'WINNT' and CONFIG['CC_TYPE'] in ('msvc', 'clang-cl'):
-    LDFLAGS += ['/HEAP:0x40000']
+if CONFIG["OS_ARCH"] == "WINNT" and CONFIG["CC_TYPE"] in ("msvc", "clang-cl"):
+    LDFLAGS += ["/HEAP:0x40000"]
 
 DisableStlWrapping()
 
-if CONFIG['MOZ_LINKER']:
-    OS_LIBS += CONFIG['MOZ_ZLIB_LIBS']
+if CONFIG["MOZ_LINKER"]:
+    OS_LIBS += CONFIG["MOZ_ZLIB_LIBS"]
 
-if CONFIG['HAVE_CLOCK_MONOTONIC']:
-    OS_LIBS += CONFIG['REALTIME_LIBS']
+if CONFIG["HAVE_CLOCK_MONOTONIC"]:
+    OS_LIBS += CONFIG["REALTIME_LIBS"]
 
-DEFINES['APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
+DEFINES["APP_VERSION"] = CONFIG["MOZ_APP_VERSION"]
 
-if CONFIG['MOZILLA_OFFICIAL']:
-    DEFINES['MOZILLA_OFFICIAL'] = True
+if CONFIG["MOZILLA_OFFICIAL"]:
+    DEFINES["MOZILLA_OFFICIAL"] = True
 
-if CONFIG['MOZ_GPSD']:
-    DEFINES['MOZ_GPSD'] = True
+if CONFIG["MOZ_GPSD"]:
+    DEFINES["MOZ_GPSD"] = True
 
-if CONFIG['MOZ_LINUX_32_SSE2_STARTUP_ERROR']:
-    DEFINES['MOZ_LINUX_32_SSE2_STARTUP_ERROR'] = True
-    COMPILE_FLAGS['OS_CXXFLAGS'] = [
-        f for f in COMPILE_FLAGS.get('OS_CXXFLAGS', [])
-        if not f.startswith('-march=') and f not in ('-msse', '-msse2', '-mfpmath=sse')
+if CONFIG["MOZ_LINUX_32_SSE2_STARTUP_ERROR"]:
+    DEFINES["MOZ_LINUX_32_SSE2_STARTUP_ERROR"] = True
+    COMPILE_FLAGS["OS_CXXFLAGS"] = [
+        f
+        for f in COMPILE_FLAGS.get("OS_CXXFLAGS", [])
+        if not f.startswith("-march=") and f not in ("-msse", "-msse2", "-mfpmath=sse")
     ] + [
-        '-mno-sse', '-mno-sse2', '-mfpmath=387',
+        "-mno-sse",
+        "-mno-sse2",
+        "-mfpmath=387",
     ]
 
 JS_PREFERENCE_PP_FILES += [
-    'profile/all-thunderbird.js',
+    "profile/all-thunderbird.js",
 ]
 
-DIRS += ['settings']
+DIRS += ["settings"]
 
-for icon in ('messengerWindow', 'newmail', 'writeMessage', 'addressbook'):
-    DEFINES[icon.upper() + '_ICO'] = '"%s/%s/%s.ico"' % (
-        TOPSRCDIR, CONFIG['MOZ_BRANDING_DIRECTORY'], icon)
+for icon in ("messengerWindow", "newmail", "writeMessage", "addressbook"):
+    DEFINES[icon.upper() + "_ICO"] = '"%s/%s/%s.ico"' % (
+        TOPSRCDIR,
+        CONFIG["MOZ_BRANDING_DIRECTORY"],
+        icon,
+    )

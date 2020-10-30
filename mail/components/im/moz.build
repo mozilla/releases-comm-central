@@ -4,20 +4,20 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'IMIncomingServer.jsm',
-    'IMProtocolInfo.jsm',
-    'modules/chatHandler.jsm',
-    'modules/chatNotifications.jsm',
-    'modules/index_im.jsm',
-    'modules/search_im.jsm',
+    "IMIncomingServer.jsm",
+    "IMProtocolInfo.jsm",
+    "modules/chatHandler.jsm",
+    "modules/chatNotifications.jsm",
+    "modules/index_im.jsm",
+    "modules/search_im.jsm",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 JS_PREFERENCE_FILES += [
-    'all-im.js',
+    "all-im.js",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]

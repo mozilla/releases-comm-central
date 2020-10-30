@@ -4,24 +4,24 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    '!../build/msgMapi_i.c',
-    'msgMapiFactory.cpp',
-    'msgMapiHook.cpp',
-    'msgMapiImp.cpp',
-    'msgMapiMain.cpp',
-    'msgMapiSupport.cpp',
-    'Registry.cpp',
+    "!../build/msgMapi_i.c",
+    "msgMapiFactory.cpp",
+    "msgMapiHook.cpp",
+    "msgMapiImp.cpp",
+    "msgMapiMain.cpp",
+    "msgMapiSupport.cpp",
+    "Registry.cpp",
 ]
 
-FINAL_LIBRARY = 'xul'
+FINAL_LIBRARY = "xul"
 
 OS_LIBS += [
-    'ole32',
+    "ole32",
 ]
 
-DEFINES['UNICODE'] = True
-DEFINES['_UNICODE'] = True
+DEFINES["UNICODE"] = True
+DEFINES["_UNICODE"] = True
 
 # clang-cl rightly complains about switch on nsresult.
-if CONFIG['CC_TYPE'] == 'clang-cl':
-    CXXFLAGS += ['-Wno-switch']
+if CONFIG["CC_TYPE"] == "clang-cl":
+    CXXFLAGS += ["-Wno-switch"]

@@ -4,27 +4,26 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsNewsDownloadDialogArgs.cpp',
-    'nsNewsDownloader.cpp',
-    'nsNewsFolder.cpp',
-    'nsNewsUtils.cpp',
-    'nsNNTPArticleList.cpp',
-    'nsNntpIncomingServer.cpp',
-    'nsNntpMockChannel.cpp',
-    'nsNNTPNewsgroupList.cpp',
-    'nsNNTPNewsgroupPost.cpp',
-    'nsNNTPProtocol.cpp',
-    'nsNntpService.cpp',
-    'nsNntpUrl.cpp',
+    "nsNewsDownloadDialogArgs.cpp",
+    "nsNewsDownloader.cpp",
+    "nsNewsFolder.cpp",
+    "nsNewsUtils.cpp",
+    "nsNNTPArticleList.cpp",
+    "nsNntpIncomingServer.cpp",
+    "nsNntpMockChannel.cpp",
+    "nsNNTPNewsgroupList.cpp",
+    "nsNNTPNewsgroupPost.cpp",
+    "nsNNTPProtocol.cpp",
+    "nsNntpService.cpp",
+    "nsNntpUrl.cpp",
 ]
 
 EXTRA_JS_MODULES += [
-    'NewsAutoCompleteSearch.jsm',
+    "NewsAutoCompleteSearch.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]
 
-FINAL_LIBRARY = 'mail'
-
+FINAL_LIBRARY = "mail"

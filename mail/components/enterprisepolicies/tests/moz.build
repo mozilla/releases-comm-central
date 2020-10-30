@@ -5,12 +5,12 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 BROWSER_CHROME_MANIFESTS += [
-    'browser/browser.ini',
-    'browser/disable_app_update/browser.ini',
-    'browser/disable_developer_tools/browser.ini',
-    'browser/hardware_acceleration/browser.ini',
+    "browser/browser.ini",
+    "browser/disable_app_update/browser.ini",
+    "browser/disable_developer_tools/browser.ini",
+    "browser/hardware_acceleration/browser.ini",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
-    'xpcshell/xpcshell.ini',
+    "xpcshell/xpcshell.ini",
 ]

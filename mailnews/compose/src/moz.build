@@ -4,70 +4,70 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    'nsComposeStrings.h',
-    'nsMsgAttachmentHandler.h',
-    'nsMsgCompFields.h',
-    'nsMsgCompose.h',
-    'nsMsgSend.h',
+    "nsComposeStrings.h",
+    "nsMsgAttachmentHandler.h",
+    "nsMsgCompFields.h",
+    "nsMsgCompose.h",
+    "nsMsgSend.h",
 ]
 
 SOURCES += [
-    'nsComposeStrings.cpp',
-    'nsMsgAttachment.cpp',
-    'nsMsgAttachmentHandler.cpp',
-    'nsMsgCompFields.cpp',
-    'nsMsgCompose.cpp',
-    'nsMsgComposeContentHandler.cpp',
-    'nsMsgComposeParams.cpp',
-    'nsMsgComposeProgressParams.cpp',
-    'nsMsgComposeService.cpp',
-    'nsMsgCompUtils.cpp',
-    'nsMsgCopy.cpp',
-    'nsMsgPrompts.cpp',
-    'nsMsgQuote.cpp',
-    'nsMsgSend.cpp',
-    'nsMsgSendLater.cpp',
-    'nsMsgSendPart.cpp',
-    'nsMsgSendReport.cpp',
-    'nsSmtpProtocol.cpp',
-    'nsSmtpServer.cpp',
-    'nsSmtpService.cpp',
-    'nsSmtpUrl.cpp',
-    'nsURLFetcher.cpp',
+    "nsComposeStrings.cpp",
+    "nsMsgAttachment.cpp",
+    "nsMsgAttachmentHandler.cpp",
+    "nsMsgCompFields.cpp",
+    "nsMsgCompose.cpp",
+    "nsMsgComposeContentHandler.cpp",
+    "nsMsgComposeParams.cpp",
+    "nsMsgComposeProgressParams.cpp",
+    "nsMsgComposeService.cpp",
+    "nsMsgCompUtils.cpp",
+    "nsMsgCopy.cpp",
+    "nsMsgPrompts.cpp",
+    "nsMsgQuote.cpp",
+    "nsMsgSend.cpp",
+    "nsMsgSendLater.cpp",
+    "nsMsgSendPart.cpp",
+    "nsMsgSendReport.cpp",
+    "nsSmtpProtocol.cpp",
+    "nsSmtpServer.cpp",
+    "nsSmtpService.cpp",
+    "nsSmtpUrl.cpp",
+    "nsURLFetcher.cpp",
 ]
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
     SOURCES += [
-        'nsMsgAppleDoubleEncode.cpp',
-        'nsMsgAppleEncode.cpp',
+        "nsMsgAppleDoubleEncode.cpp",
+        "nsMsgAppleEncode.cpp",
     ]
     EXPORTS += [
-        'nsMsgAppleCodes.h',
-        'nsMsgAppleDouble.h',
+        "nsMsgAppleCodes.h",
+        "nsMsgAppleDouble.h",
     ]
 
 LOCAL_INCLUDES += [
-  '/%s/dom/base' % CONFIG['mozreltopsrcdir'],
+    "/%s/dom/base" % CONFIG["mozreltopsrcdir"],
 ]
 
-include('/ipc/chromium/chromium-config.mozbuild')
+include("/ipc/chromium/chromium-config.mozbuild")
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
 # clang-cl rightly complains about switch on nsresult.
-if CONFIG['CC_TYPE'] == 'clang-cl':
-    CXXFLAGS += ['-Wno-switch']
+if CONFIG["CC_TYPE"] == "clang-cl":
+    CXXFLAGS += ["-Wno-switch"]
 
 EXTRA_JS_MODULES += [
-    'MessageSend.jsm',
-    'MimeEncoder.jsm',
-    'MimeMessage.jsm',
-    'MimeMessageUtils.jsm',
-    'MimePart.jsm',
-    'MsgSendModuleLoader.jsm',
-    'SMTPProtocolHandler.jsm',
+    "MessageSend.jsm",
+    "MimeEncoder.jsm",
+    "MimeMessage.jsm",
+    "MimeMessageUtils.jsm",
+    "MimePart.jsm",
+    "MsgSendModuleLoader.jsm",
+    "SMTPProtocolHandler.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]

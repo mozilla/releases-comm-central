@@ -3,25 +3,24 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 JS_PREFERENCE_PP_FILES += [
-    'mdn.js',
+    "mdn.js",
 ]
 
-XPCSHELL_TESTS_MANIFESTS += ['test/unit/xpcshell.ini']
+XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]
 
 SOURCES += [
-    'nsMsgMdnGenerator.cpp',
+    "nsMsgMdnGenerator.cpp",
 ]
 
 EXTRA_JS_MODULES += [
-    'MDNService.jsm',
+    "MDNService.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]
 
-FINAL_LIBRARY = 'mail'
-
+FINAL_LIBRARY = "mail"

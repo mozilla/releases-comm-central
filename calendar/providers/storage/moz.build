@@ -4,17 +4,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'CalStorageCalendar.jsm',
+    "CalStorageCalendar.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]
 
 EXTRA_JS_MODULES.calendar += [
-    'calStorageHelpers.jsm',
-    'calStorageUpgrade.jsm',
+    "calStorageHelpers.jsm",
+    "calStorageUpgrade.jsm",
 ]
 
-with Files('**'):
-    BUG_COMPONENT = ('Calendar', 'Provider: Local Storage')
+with Files("**"):
+    BUG_COMPONENT = ("Calendar", "Provider: Local Storage")

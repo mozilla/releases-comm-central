@@ -3,15 +3,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS = [
-    'libical',
-    'icaljs'
-]
+DIRS = ["libical", "icaljs"]
 
 EXTRA_COMPONENTS += [
-    'calBackendLoader.js',
-    'calBackendLoader.manifest',
+    "calBackendLoader.js",
+    "calBackendLoader.manifest",
 ]
 
-with Files('**'):
-    BUG_COMPONENT = ('Calendar', 'Internal Components')
+with Files("**"):
+    BUG_COMPONENT = ("Calendar", "Internal Components")

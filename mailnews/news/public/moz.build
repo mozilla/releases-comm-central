@@ -4,21 +4,20 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIMsgNewsFolder.idl',
-    'nsIMsgOfflineNewsState.idl',
-    'nsINewsDownloadDialogArgs.idl',
-    'nsINNTPArticleList.idl',
-    'nsINntpIncomingServer.idl',
-    'nsINNTPNewsgroupList.idl',
-    'nsINNTPNewsgroupPost.idl',
-    'nsINNTPProtocol.idl',
-    'nsINntpService.idl',
-    'nsINntpUrl.idl',
+    "nsIMsgNewsFolder.idl",
+    "nsIMsgOfflineNewsState.idl",
+    "nsINewsDownloadDialogArgs.idl",
+    "nsINNTPArticleList.idl",
+    "nsINntpIncomingServer.idl",
+    "nsINNTPNewsgroupList.idl",
+    "nsINNTPNewsgroupPost.idl",
+    "nsINNTPProtocol.idl",
+    "nsINntpService.idl",
+    "nsINntpUrl.idl",
 ]
 
-XPIDL_MODULE = 'msgnews'
+XPIDL_MODULE = "msgnews"
 
 EXPORTS += [
-    'nsMsgNewsCID.h',
+    "nsMsgNewsCID.h",
 ]
-

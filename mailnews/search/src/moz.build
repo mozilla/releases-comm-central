@@ -4,34 +4,34 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsMsgBodyHandler.cpp',
-    'nsMsgFilter.cpp',
-    'nsMsgFilterList.cpp',
-    'nsMsgFilterService.cpp',
-    'nsMsgImapSearch.cpp',
-    'nsMsgLocalSearch.cpp',
-    'nsMsgSearchAdapter.cpp',
-    'nsMsgSearchNews.cpp',
-    'nsMsgSearchSession.cpp',
-    'nsMsgSearchTerm.cpp',
-    'nsMsgSearchValue.cpp',
+    "nsMsgBodyHandler.cpp",
+    "nsMsgFilter.cpp",
+    "nsMsgFilterList.cpp",
+    "nsMsgFilterService.cpp",
+    "nsMsgImapSearch.cpp",
+    "nsMsgLocalSearch.cpp",
+    "nsMsgSearchAdapter.cpp",
+    "nsMsgSearchNews.cpp",
+    "nsMsgSearchSession.cpp",
+    "nsMsgSearchTerm.cpp",
+    "nsMsgSearchValue.cpp",
 ]
 
 EXTRA_JS_MODULES += [
-    'MsgTraitService.jsm',
-    'PeriodicFilterManager.jsm',
+    "MsgTraitService.jsm",
+    "PeriodicFilterManager.jsm",
 ]
 
 XPCOM_MANIFESTS += [
-    'components.conf',
+    "components.conf",
 ]
 
-FINAL_LIBRARY = 'mail'
+FINAL_LIBRARY = "mail"
 
 FINAL_TARGET_FILES.isp += [
-    'Bogofilter.sfd',
-    'DSPAM.sfd',
-    'POPFile.sfd',
-    'SpamAssassin.sfd',
-    'SpamPal.sfd',
+    "Bogofilter.sfd",
+    "DSPAM.sfd",
+    "POPFile.sfd",
+    "SpamAssassin.sfd",
+    "SpamPal.sfd",
 ]
