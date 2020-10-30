@@ -18,13 +18,12 @@ def loader(kind, path, config, params, loaded_tasks):
     """
     # Make a copy of config for reference_loader. Use pop here to remove the
     # fields that aren't used by the transform loader
-    reference_config = {'kind-dependencies': config.get('kind-dependencies',
-                                                        None),
-                        'base-path': config.pop('reference-base-path'),
-                        'jobs': config.pop('reference-jobs', None)
-                        }
-    for job in reference_loader(kind, path, reference_config, params,
-                                loaded_tasks):
+    reference_config = {
+        "kind-dependencies": config.get("kind-dependencies", None),
+        "base-path": config.pop("reference-base-path"),
+        "jobs": config.pop("reference-jobs", None),
+    }
+    for job in reference_loader(kind, path, reference_config, params, loaded_tasks):
         yield job
 
     for job in transform_loader(kind, path, config, params, loaded_tasks):

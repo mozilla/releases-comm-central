@@ -14,18 +14,18 @@ logger = logging.getLogger(__name__)
 
 
 def _get_aliases(kind, job):
-    aliases = {job['name']}
+    aliases = {job["name"]}
 
-    if kind == 'toolchain':
-        if job['run'].get('toolchain-alias'):
-            aliases.add(job['run'].get('toolchain-alias'))
+    if kind == "toolchain":
+        if job["run"].get("toolchain-alias"):
+            aliases.add(job["run"].get("toolchain-alias"))
 
     return aliases
 
 
 def _get_loader(path, config):
     try:
-        _loader = config['loader']
+        _loader = config["loader"]
     except KeyError:
         raise KeyError("{!r} does not define `loader`".format(path))
     return find_object(_loader)
@@ -39,15 +39,15 @@ def loader(kind, path, config, params, loaded_tasks):
     and includes all the jobs with names or aliaes matching the names in the
     `jobs` key.
     """
-    base_path = config.pop('base-path')
+    base_path = config.pop("base-path")
     sub_path = os.path.join(base_path, kind)
 
     logger.debug("Reference loader: load tasks from {}".format(sub_path))
-    sub_config = load_yaml(sub_path, 'kind.yml')
+    sub_config = load_yaml(sub_path, "kind.yml")
     _loader = _get_loader(sub_path, sub_config)
     inputs = _loader(kind, sub_path, sub_config, params, loaded_tasks)
 
-    jobs = config.pop('jobs', None)
+    jobs = config.pop("jobs", None)
 
     config.update(sub_config)
 

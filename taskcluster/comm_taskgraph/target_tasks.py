@@ -7,10 +7,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 from taskgraph.target_tasks import _target_task
 
 
-@_target_task('comm_searchfox_index')
+@_target_task("comm_searchfox_index")
 def target_tasks_searchfox(full_task_graph, parameters, graph_config):
     """Select tasks required for indexing Thunderbird for Searchfox web site each day"""
-    return ['searchfox-linux64-searchfox/debug',
-            'searchfox-macosx64-searchfox/debug',
-            'searchfox-win64-searchfox/debug',
-            ]
+    return [
+        "searchfox-linux64-searchfox/debug",
+        "searchfox-macosx64-searchfox/debug",
+        "searchfox-win64-searchfox/debug",
+    ]

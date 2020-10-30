@@ -27,49 +27,51 @@ def gen_treeherder_build_links(output):
     """
     Create a JSON file that is used by Treeherder to display "Built from" links.
     """
-    gecko_repo = buildconfig.substs.get('MOZ_GECKO_SOURCE_REPO')
-    gecko_rev = buildconfig.substs.get('MOZ_GECKO_SOURCE_CHANGESET')
-    comm_repo = buildconfig.substs.get('MOZ_COMM_SOURCE_REPO')
-    comm_rev = buildconfig.substs.get('MOZ_COMM_SOURCE_CHANGESET')
+    gecko_repo = buildconfig.substs.get("MOZ_GECKO_SOURCE_REPO")
+    gecko_rev = buildconfig.substs.get("MOZ_GECKO_SOURCE_CHANGESET")
+    comm_repo = buildconfig.substs.get("MOZ_COMM_SOURCE_REPO")
+    comm_rev = buildconfig.substs.get("MOZ_COMM_SOURCE_CHANGESET")
 
     def mk_built_from_line(repo, revision):
-        repo_name = repo.split('/')[-1]  # Last component of base URL
+        repo_name = repo.split("/")[-1]  # Last component of base URL
         title = "Built from {} revision {}".format(repo_name, revision)
         url = mk_hg_url(repo, revision)
-        return dict(title=title,
-                    value=revision,
-                    url=url)
+        return dict(title=title, value=revision, url=url)
 
-    built_from = [mk_built_from_line(gecko_repo, gecko_rev),
-                  mk_built_from_line(comm_repo, comm_rev)]
+    built_from = [
+        mk_built_from_line(gecko_repo, gecko_rev),
+        mk_built_from_line(comm_repo, comm_rev),
+    ]
     json.dump(built_from, output)
 
 
 def gen_platformini(output, platform_ini):
-    gecko_repo = buildconfig.substs.get('MOZ_GECKO_SOURCE_REPO', '')
-    gecko_rev = buildconfig.substs.get('MOZ_GECKO_SOURCE_CHANGESET', '')
+    gecko_repo = buildconfig.substs.get("MOZ_GECKO_SOURCE_REPO", "")
+    gecko_rev = buildconfig.substs.get("MOZ_GECKO_SOURCE_CHANGESET", "")
 
-    with open(platform_ini, 'r') as fp:
+    with open(platform_ini, "r") as fp:
         data = fp.readlines()
 
     for i in range(len(data)):
-        if data[i].startswith('SourceRepository='):
-            data[i] = 'SourceRepository=%s\n' % gecko_repo
-        elif data[i].startswith('SourceStamp='):
-            data[i] = 'SourceStamp=%s\n' % gecko_rev
+        if data[i].startswith("SourceRepository="):
+            data[i] = "SourceRepository=%s\n" % gecko_repo
+        elif data[i].startswith("SourceStamp="):
+            data[i] = "SourceStamp=%s\n" % gecko_rev
 
-    with open(platform_ini, 'w') as fp:
+    with open(platform_ini, "w") as fp:
         fp.writelines(data)
 
-    output.write('platform.ini updated.\n')
+    output.write("platform.ini updated.\n")
 
 
 def gen_sourcestamp(output):
-    data = dict(buildid=os.environ.get('MOZ_BUILD_DATE', 'unknown'),
-        gecko_repo=buildconfig.substs.get('MOZ_GECKO_SOURCE_REPO', None),
-        gecko_rev=buildconfig.substs.get('MOZ_GECKO_SOURCE_CHANGESET', None),
-        comm_repo=buildconfig.substs.get('MOZ_COMM_SOURCE_REPO', None),
-        comm_rev=buildconfig.substs.get('MOZ_COMM_SOURCE_CHANGESET', None))
+    data = dict(
+        buildid=os.environ.get("MOZ_BUILD_DATE", "unknown"),
+        gecko_repo=buildconfig.substs.get("MOZ_GECKO_SOURCE_REPO", None),
+        gecko_rev=buildconfig.substs.get("MOZ_GECKO_SOURCE_CHANGESET", None),
+        comm_repo=buildconfig.substs.get("MOZ_COMM_SOURCE_REPO", None),
+        comm_rev=buildconfig.substs.get("MOZ_COMM_SOURCE_CHANGESET", None),
+    )
 
     output.write(sourcestamp_tmpl.format(**data))
 
@@ -79,30 +81,32 @@ def source_repo_header(output):
     Appends the Gecko source repository information to source-repo.h
     This information should be set in buildconfig.substs by moz.configure
     """
-    gecko_repo = buildconfig.substs.get('MOZ_GECKO_SOURCE_REPO', None)
-    gecko_rev = buildconfig.substs.get('MOZ_GECKO_SOURCE_CHANGESET', None)
-    comm_repo = buildconfig.substs.get('MOZ_COMM_SOURCE_REPO', None)
-    comm_rev = buildconfig.substs.get('MOZ_COMM_SOURCE_CHANGESET', None)
+    gecko_repo = buildconfig.substs.get("MOZ_GECKO_SOURCE_REPO", None)
+    gecko_rev = buildconfig.substs.get("MOZ_GECKO_SOURCE_CHANGESET", None)
+    comm_repo = buildconfig.substs.get("MOZ_COMM_SOURCE_REPO", None)
+    comm_rev = buildconfig.substs.get("MOZ_COMM_SOURCE_CHANGESET", None)
 
     if None in [gecko_repo, gecko_rev, comm_repo, comm_rev]:
-        Exception("Source information not found in buildconfig."
-                  "Try setting GECKO_HEAD_REPOSITORY and GECKO_HEAD_REV"
-                  "as well as MOZ_SOURCE_REPO and MOZ_SOURCE_CHANGESET"
-                  "environment variables and running mach configure again.")
+        Exception(
+            "Source information not found in buildconfig."
+            "Try setting GECKO_HEAD_REPOSITORY and GECKO_HEAD_REV"
+            "as well as MOZ_SOURCE_REPO and MOZ_SOURCE_CHANGESET"
+            "environment variables and running mach configure again."
+        )
 
-    output.write('#define MOZ_GECKO_SOURCE_STAMP {}\n'.format(gecko_rev))
-    output.write('#define MOZ_COMM_SOURCE_STAMP {}\n'.format(comm_rev))
-    output.write('#define MOZ_SOURCE_STAMP {}\n'.format(comm_rev))
+    output.write("#define MOZ_GECKO_SOURCE_STAMP {}\n".format(gecko_rev))
+    output.write("#define MOZ_COMM_SOURCE_STAMP {}\n".format(comm_rev))
+    output.write("#define MOZ_SOURCE_STAMP {}\n".format(comm_rev))
 
-    if buildconfig.substs.get('MOZ_INCLUDE_SOURCE_INFO'):
+    if buildconfig.substs.get("MOZ_INCLUDE_SOURCE_INFO"):
         gecko_source_url = mk_hg_url(gecko_repo, gecko_rev)
         comm_source_url = mk_hg_url(comm_repo, comm_rev)
-        output.write('#define MOZ_GECKO_SOURCE_REPO {}\n'.format(gecko_repo))
-        output.write('#define MOZ_GECKO_SOURCE_URL {}\n'.format(gecko_source_url))
-        output.write('#define MOZ_COMM_SOURCE_REPO {}\n'.format(comm_repo))
-        output.write('#define MOZ_COMM_SOURCE_URL {}\n'.format(comm_source_url))
-        output.write('#define MOZ_SOURCE_REPO {}\n'.format(comm_repo))
-        output.write('#define MOZ_SOURCE_URL {}\n'.format(comm_source_url))
+        output.write("#define MOZ_GECKO_SOURCE_REPO {}\n".format(gecko_repo))
+        output.write("#define MOZ_GECKO_SOURCE_URL {}\n".format(gecko_source_url))
+        output.write("#define MOZ_COMM_SOURCE_REPO {}\n".format(comm_repo))
+        output.write("#define MOZ_COMM_SOURCE_URL {}\n".format(comm_source_url))
+        output.write("#define MOZ_SOURCE_REPO {}\n".format(comm_repo))
+        output.write("#define MOZ_SOURCE_URL {}\n".format(comm_source_url))
 
 
 def main(args):
@@ -114,5 +118,5 @@ def main(args):
     return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

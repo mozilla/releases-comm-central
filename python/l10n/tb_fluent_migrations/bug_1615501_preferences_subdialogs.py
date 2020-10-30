@@ -7,6 +7,7 @@ from fluent.migrate.helpers import transforms_from
 from fluent.migrate import CONCAT, REPLACE
 from fluent.migrate.helpers import COPY, TERM_REFERENCE, MESSAGE_REFERENCE
 
+
 def migrate(ctx):
     """Bug 1615501 - Fluent migration recipe for Preferences subdialogs, part {index}."""
 
@@ -14,7 +15,7 @@ def migrate(ctx):
         "mail/messenger/preferences/system-integration.ftl",
         "mail/messenger/preferences/system-integration.ftl",
         transforms_from(
-"""
+            """
 system-integration-title =
     .title = { COPY(from_path, "systemIntegration.title") }
 
@@ -38,8 +39,9 @@ system-search-engine-name = { PLATFORM() ->
     [windows] { COPY("mail/chrome/messenger/searchIntegrationWin.dtd", "searchIntegration.engineName") }
     *[other] { COPY("mail/chrome/messenger/searchIntegrationDefault.dtd", "searchIntegration.engineName") }
 }
-""", from_path="mail/chrome/messenger/systemIntegrationDialog.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/systemIntegrationDialog.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -47,77 +49,73 @@ system-search-engine-name = { PLATFORM() ->
         "mail/messenger/preferences/system-integration.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("default-client-intro"),
-                value = REPLACE(
+                id=FTL.Identifier("default-client-intro"),
+                value=REPLACE(
                     "mail/chrome/messenger/systemIntegrationDialog.dtd",
                     "defaultClient.intro",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("unset-default-tooltip"),
-                value = REPLACE(
+                id=FTL.Identifier("unset-default-tooltip"),
+                value=REPLACE(
                     "mail/chrome/messenger/systemIntegrationDialog.dtd",
                     "unsetDefault.tooltip",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("system-search-integration-label"),
-                attributes = [
+                id=FTL.Identifier("system-search-integration-label"),
+                attributes=[
                     FTL.Attribute(
-                        id = FTL.Identifier("label"),
-                        value = REPLACE(
+                        id=FTL.Identifier("label"),
+                        value=REPLACE(
                             "mail/chrome/messenger/systemIntegrationDialog.dtd",
                             "searchIntegration.label",
                             {
-                                "&searchIntegration.engineName;": MESSAGE_REFERENCE("system-search-engine-name")
+                                "&searchIntegration.engineName;": MESSAGE_REFERENCE(
+                                    "system-search-engine-name"
+                                )
                             },
-                        )
+                        ),
                     ),
                     FTL.Attribute(
-                        id = FTL.Identifier("accesskey"),
-                        value = COPY(
+                        id=FTL.Identifier("accesskey"),
+                        value=COPY(
                             "mail/chrome/messenger/systemIntegrationDialog.dtd",
-                            "searchIntegration.accesskey"
-                        )
-                    )
-                ]
+                            "searchIntegration.accesskey",
+                        ),
+                    ),
+                ],
             ),
             FTL.Message(
-                id = FTL.Identifier("check-on-startup-label"),
-                attributes = [
+                id=FTL.Identifier("check-on-startup-label"),
+                attributes=[
                     FTL.Attribute(
-                        id = FTL.Identifier("label"),
-                        value = REPLACE(
+                        id=FTL.Identifier("label"),
+                        value=REPLACE(
                             "mail/chrome/messenger/systemIntegrationDialog.dtd",
                             "checkOnStartup.label",
-                            {
-                                "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                            },
-                        )
+                            {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                        ),
                     ),
                     FTL.Attribute(
-                        id = FTL.Identifier("accesskey"),
-                        value = COPY(
+                        id=FTL.Identifier("accesskey"),
+                        value=COPY(
                             "mail/chrome/messenger/systemIntegrationDialog.dtd",
-                            "checkOnStartup.accesskey"
-                        )
-                    )
-                ]
+                            "checkOnStartup.accesskey",
+                        ),
+                    ),
+                ],
             ),
-        ]
+        ],
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/fonts.ftl",
         "mail/messenger/preferences/fonts.ftl",
         transforms_from(
-"""
+            """
 fonts-encoding-dialog-title =
     .title = { COPY(from_path, "fontsAndEncodingsDialog.title") }
 
@@ -246,15 +244,16 @@ font-incoming-email-label =
 default-font-reply-checkbox =
     .label = { COPY(from_path, "replyInDefaultCharset3.label") }
     .accesskey = { COPY(from_path, "replyInDefaultCharset3.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/fonts.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/fonts.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/colors.ftl",
         "mail/messenger/preferences/colors.ftl",
         transforms_from(
-"""
+            """
 colors-dialog-window =
     .title = { COPY(from_path, "colorsDialog.title") }
     .style = { PLATFORM() ->
@@ -302,15 +301,16 @@ override-color-auto =
 
 override-color-never =
     .label = { COPY(from_path, "overridePageColors.never.label") }
-""", from_path="mail/chrome/messenger/preferences/colors.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/colors.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/notifications.ftl",
         "mail/messenger/preferences/notifications.ftl",
         transforms_from(
-"""
+            """
 notifications-dialog-window =
     .title = { COPY(from_path, "notificationsDialog2.title") }
 
@@ -334,30 +334,32 @@ open-time-label-before =
 
 open-time-label-after =
     .value = { COPY(from_path, "totalOpenTimeEnd.label") }
-""", from_path="mail/chrome/messenger/preferences/notifications.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/notifications.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/new-tag.ftl",
         "mail/messenger/preferences/new-tag.ftl",
         transforms_from(
-"""
+            """
 tag-dialog-window =
     .title = { COPY(from_path, "newTagDialog1.title") }
 
 tag-name-label =
     .value = { COPY(from_path, "name.label") }
     .accesskey = { COPY(from_path, "name.accesskey") }
-""", from_path="mail/chrome/messenger/newTagDialog.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/newTagDialog.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/receipts.ftl",
         "mail/messenger/preferences/receipts.ftl",
         transforms_from(
-"""
+            """
 receipts-dialog-window =
     .title = { COPY(from_path, "dialog.title") }
 
@@ -405,15 +407,16 @@ sender-outside-domain =
 other-cases-label =
     .value = { COPY(from_path, "otherCases.label") }
     .acceskey = { COPY(from_path, "otherCases.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/receipts.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/receipts.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/connection.ftl",
         "mail/messenger/preferences/connection.ftl",
         transforms_from(
-"""
+            """
 connection-dialog-window =
     .title = { COPY(from_path, "connectionsDialog.title") }
     .style = { PLATFORM() ->
@@ -503,15 +506,16 @@ proxy-remote-dns =
 proxy-enable-doh =
     .label = { COPY(from_path, "dnsOverHttps.label") }
     .accesskey = { COPY(from_path, "dnsOverHttps.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/connection.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/connection.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/offline.ftl",
         "mail/messenger/preferences/offline.ftl",
         transforms_from(
-"""
+            """
 offline-dialog-window =
     .title = { COPY(from_path, "offlineDialog.title") }
 
@@ -564,15 +568,16 @@ going-offline-not =
 going-offline-ask =
     .label = { COPY(from_path, "radioAskDownload.label") }
     .accesskey = { COPY(from_path, "radioAskDownload.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/offline.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/offline.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/sendoptions.ftl",
         "mail/messenger/preferences/sendoptions.ftl",
         transforms_from(
-"""
+            """
 sendoptions-dialog-window =
     .title = { COPY(from_path, "dialog.title") }
 
@@ -617,8 +622,9 @@ add-domain-button =
 delete-domain-button =
     .label = { COPY(from_path, "DeleteHtmlDomain.label") }
     .accesskey = { COPY(from_path, "DeleteHtmlDomain.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/sendoptions.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/sendoptions.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -626,23 +632,21 @@ delete-domain-button =
         "mail/messenger/preferences/sendoptions.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("send-message-domain-label"),
-                value = REPLACE(
+                id=FTL.Identifier("send-message-domain-label"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/sendoptions.dtd",
                     "domaindesc.label",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
-        ]
+        ],
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/attachment-reminder.ftl",
         "mail/messenger/preferences/attachment-reminder.ftl",
         transforms_from(
-"""
+            """
 attachment-reminder-window =
     .title = { COPY(from_path, "attachmentReminderDialog.title") }
 
@@ -657,8 +661,9 @@ keyword-edit-button =
 keyword-remove-button =
     .label = { COPY(from_path, "removeKeywordButton.label") }
     .accesskey = { COPY(from_path, "removeKeywordButton.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/attachmentReminder.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/attachmentReminder.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -666,37 +671,36 @@ keyword-remove-button =
         "mail/messenger/preferences/attachment-reminder.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("attachment-reminder-label"),
-                value = REPLACE(
+                id=FTL.Identifier("attachment-reminder-label"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/attachmentReminder.dtd",
                     "attachKeywordText.label",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
-        ]
+        ],
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/attachment-reminder.ftl",
         "mail/messenger/preferences/attachment-reminder.ftl",
         transforms_from(
-"""
+            """
 new-keyword-title = { COPY(from_path, "attachmentReminderNewDialogTitle") }
 new-keyword-label = { COPY(from_path, "attachmentReminderNewText") }
 
 edit-keyword-title = { COPY(from_path, "attachmentReminderEditDialogTitle") }
 edit-keyword-label = { COPY(from_path, "attachmentReminderEditText") }
-""", from_path="mail/chrome/messenger/preferences/preferences.properties"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/preferences.properties",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/permissions.ftl",
         "mail/messenger/preferences/permissions.ftl",
         transforms_from(
-"""
+            """
 permissions-reminder-window =
     .title = { COPY(from_path, "window.title") }
     .style = width: { COPY(from_path, "window.width") };
@@ -741,15 +745,16 @@ cancel-button =
 save-button =
     .label = { COPY(from_path, "button.ok.label") }
     .accesskey = { COPY(from_path, "button.ok.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/permissions.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/permissions.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/permissions.ftl",
         "mail/messenger/preferences/permissions.ftl",
         transforms_from(
-"""
+            """
 permission-can-label = { COPY(from_path, "can") }
 permission-can-access-first-party-label = { COPY(from_path, "canAccessFirstParty") }
 permission-can-session-label = { COPY(from_path, "canSession") }
@@ -757,15 +762,16 @@ permission-cannot-label = { COPY(from_path, "cannot") }
 
 invalid-uri-message = { COPY(from_path, "invalidURI") }
 invalid-uri-title = { COPY(from_path, "invalidURITitle") }
-""", from_path="mail/chrome/messenger/preferences/preferences.properties"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/preferences.properties",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/cookies.ftl",
         "mail/messenger/preferences/cookies.ftl",
         transforms_from(
-"""
+            """
 cookies-window-dialog =
     .title = { COPY(from_path, "window.title") }
     .style = width: { COPY(from_path, "window.width") };
@@ -817,15 +823,16 @@ remove-all-cookies-button =
 cookie-close-button =
     .label = { COPY(from_path, "button.close.label") }
     .accesskey = { COPY(from_path, "button.close.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/cookies.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/cookies.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/dock-options.ftl",
         "mail/messenger/preferences/dock-options.ftl",
         transforms_from(
-"""
+            """
 dock-options-window-dialog =
     .title = { COPY(from_path, "dockOptionsDialog.title") }
     .style = width: { COPY(from_path, "window.macWidth") };
@@ -848,15 +855,16 @@ count-new-messages-radio =
     .accesskey = { COPY(from_path, "newMessagesCountDock.accesskey") }
 
 notification-settings-info = { COPY(from_path, "directNotificationSettings.label") }
-""", from_path="mail/chrome/messenger/preferences/dockoptions.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/dockoptions.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/application-manager.ftl",
         "mail/messenger/preferences/application-manager.ftl",
         transforms_from(
-"""
+            """
 app-manager-window-dialog =
     .title = { COPY(from_path, "appManager.title") }
     .style = { COPY(from_path, "appManager.style") }
@@ -864,6 +872,7 @@ app-manager-window-dialog =
 remove-app-button =
     .label = { COPY(from_path, "remove.label") }
     .accesskey = { COPY(from_path, "remove.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/applicationManager.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/applicationManager.dtd",
+        ),
     )

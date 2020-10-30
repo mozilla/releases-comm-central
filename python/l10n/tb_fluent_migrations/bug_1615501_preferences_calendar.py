@@ -7,6 +7,7 @@ from fluent.migrate.helpers import transforms_from
 from fluent.migrate import CONCAT, REPLACE
 from fluent.migrate.helpers import COPY, TERM_REFERENCE
 
+
 def migrate(ctx):
     """Bug 1615501 - Fluent migration recipe for Preferences Calendar Tab, part {index}."""
 
@@ -14,19 +15,20 @@ def migrate(ctx):
         "calendar/calendar/preferences.ftl",
         "calendar/calendar/preferences.ftl",
         transforms_from(
-"""
+            """
 calendar-title = { COPY(from_path, "panelHeader.title") }
 calendar-title-reminder = { COPY(from_path, "panelReminder.title") }
 calendar-title-category = { COPY(from_path, "panelCategory.title") }
-""", from_path="calendar/chrome/calendar/preferences/preferences.dtd"
-        )
+""",
+            from_path="calendar/chrome/calendar/preferences/preferences.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "calendar/calendar/preferences.ftl",
         "calendar/calendar/preferences.ftl",
         transforms_from(
-"""
+            """
 dateformat-label =
     .value = { COPY(from_path, "pref.dateformat.label") }
     .accesskey = { COPY(from_path, "pref.dateformat.accesskey") }
@@ -80,15 +82,16 @@ accessibility-legend = { COPY(from_path, "pref.accessibility.label") }
 accessibility-colors-label =
     .label = { COPY(from_path, "pref.systemcolors.label") }
     .accesskey = { COPY(from_path, "pref.systemcolors.accesskey") }
-""", from_path="calendar/chrome/calendar/preferences/general.dtd"
-        )
+""",
+            from_path="calendar/chrome/calendar/preferences/general.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "calendar/calendar/preferences.ftl",
         "calendar/calendar/preferences.ftl",
         transforms_from(
-"""
+            """
 weekstart-label =
     .value = { COPY(from_path, "pref.weekstarts.label") }
     .accesskey = { COPY(from_path, "pref.weekstarts.accesskey") }
@@ -145,15 +148,16 @@ week-6-label =
 previous-weeks-label =
     .value = { COPY(from_path, "pref.numberofpreviousweeks.label") }
     .accesskey = { COPY(from_path, "pref.numberofpreviousweeks.accesskey") }
-""", from_path="calendar/chrome/calendar/preferences/views.dtd"
-        )
+""",
+            from_path="calendar/chrome/calendar/preferences/views.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "calendar/calendar/preferences.ftl",
         "calendar/calendar/preferences.ftl",
         transforms_from(
-"""
+            """
 day-1-name =
     .label = { COPY(from_path, "day.1.name") }
 day-2-name =
@@ -195,29 +199,31 @@ midnight-label =
     .label = { COPY(from_path, "time.midnight") }
 noon-label =
     .label = { COPY(from_path, "time.noon") }
-""", from_path="calendar/chrome/calendar/global.dtd"
-        )
+""",
+            from_path="calendar/chrome/calendar/global.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "calendar/calendar/preferences.ftl",
         "calendar/calendar/preferences.ftl",
         transforms_from(
-"""
+            """
 task-start-label =
     .value = { COPY(from_path, "read.only.task.start.label") }
 
 task-due-label =
     .value = { COPY(from_path, "read.only.task.due.label") }
-""", from_path="calendar/chrome/calendar/calendar-event-dialog.dtd"
-        )
+""",
+            from_path="calendar/chrome/calendar/calendar-event-dialog.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "calendar/calendar/preferences.ftl",
         "calendar/calendar/preferences.ftl",
         transforms_from(
-"""
+            """
 reminder-legend = { COPY(from_path, "pref.alarmgoesoff.label") }
 
 reminder-play-checkbox =
@@ -274,23 +280,25 @@ event-alarm-time-label =
 task-alarm-time-label =
     .value = { COPY(from_path, "pref.defalarmlen4todos.label") }
     .accesskey = { COPY(from_path, "pref.defalarmlen4todos.accesskey") }
-""", from_path="calendar/chrome/calendar/preferences/alarms.dtd"
-        )
+""",
+            from_path="calendar/chrome/calendar/preferences/alarms.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "calendar/calendar/preferences.ftl",
         "calendar/calendar/preferences.ftl",
         transforms_from(
-"""
+            """
 category-new-label = { COPY(from_path, "pref.categories.new.title") }
 
 category-edit-label = { COPY(from_path, "pref.categories.edit.title") }
 
 category-overwrite-title = { COPY(from_path, "pref.categories.overwrite.title") }
 category-blank-warning = { COPY(from_path, "pref.categories.noBlankCategories") }
-""", from_path="calendar/chrome/calendar/preferences/categories.dtd"
-        )
+""",
+            from_path="calendar/chrome/calendar/preferences/categories.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -298,27 +306,26 @@ category-blank-warning = { COPY(from_path, "pref.categories.noBlankCategories") 
         "calendar/calendar/preferences.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("category-overwrite"),
-                value = REPLACE(
+                id=FTL.Identifier("category-overwrite"),
+                value=REPLACE(
                     "calendar/chrome/calendar/preferences/categories.dtd",
                     "pref.categories.overwrite",
-                    {
-                        " \\n": FTL.TextElement("")
-                    },
-                )
+                    {" \\n": FTL.TextElement("")},
+                ),
             ),
-        ]
+        ],
     )
 
     ctx.add_transforms(
         "calendar/calendar/category-dialog.ftl",
         "calendar/calendar/category-dialog.ftl",
         transforms_from(
-"""
+            """
 category-name-label = { COPY(from_path, "pref.categories.name.label") }
 
 category-color-label =
     .label = { COPY(from_path, "pref.categories.usecolor.label") }
-""", from_path="calendar/chrome/calendar/preferences/categories.dtd"
-        )
+""",
+            from_path="calendar/chrome/calendar/preferences/categories.dtd",
+        ),
     )

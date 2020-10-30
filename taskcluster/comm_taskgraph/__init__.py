@@ -13,10 +13,10 @@ from taskgraph.util.partials import populate_release_history
 
 logger = logging.getLogger(__name__)
 
-COMM = os.path.join(GECKO, 'comm')
-COMM_SCRIPTS = os.path.join(COMM, 'taskcluster', 'scripts')
+COMM = os.path.join(GECKO, "comm")
+COMM_SCRIPTS = os.path.join(COMM, "taskcluster", "scripts")
 
-BALROG_PRODUCT = 'Thunderbird'
+BALROG_PRODUCT = "Thunderbird"
 
 
 def register(graph_config):
@@ -25,8 +25,15 @@ def register(graph_config):
     the process.
     """
     logger.info("{} path registered".format(__name__))
-    _import_modules(['documentation', 'util.docker', 'actions', 'target_tasks',
-                     'transforms.job.toolchain'])
+    _import_modules(
+        [
+            "documentation",
+            "util.docker",
+            "actions",
+            "target_tasks",
+            "transforms.job.toolchain",
+        ]
+    )
 
 
 def _import_modules(modules):
@@ -39,8 +46,10 @@ def get_decision_parameters(graph_config, parameters):
     # If the target method is nightly, we should build partials. This means
     # knowing what has been released previously.
     # An empty release_history is fine, it just means no partials will be built
-    project = parameters['project']
+    project = parameters["project"]
 
-    parameters.setdefault('release_history', dict())
-    if 'nightly' in parameters.get('target_tasks_method', ''):
-        parameters['release_history'] = populate_release_history(BALROG_PRODUCT, project)
+    parameters.setdefault("release_history", dict())
+    if "nightly" in parameters.get("target_tasks_method", ""):
+        parameters["release_history"] = populate_release_history(
+            BALROG_PRODUCT, project
+        )

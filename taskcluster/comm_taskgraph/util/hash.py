@@ -17,8 +17,8 @@ def split_patterns_list(patterns):
     The pattern list for the COMM repository will have *not* the 'comm/' prefix stripped.
     """
     return [
-        [p for p in patterns if not p.startswith('comm/')],
-        [p for p in patterns if p.startswith('comm/')]
+        [p for p in patterns if not p.startswith("comm/")],
+        [p for p in patterns if p.startswith("comm/")],
     ]
 
 
@@ -49,12 +49,14 @@ def hash_paths_extended(base_path, patterns):
     """
     gecko_patterns, comm_patterns = split_patterns_list(patterns)
     gecko_finder = get_file_finder(base_path)
-    comm_finder = get_file_finder(mozpath.join(base_path, 'comm'))
+    comm_finder = get_file_finder(mozpath.join(base_path, "comm"))
 
     h = hashlib.sha256()
     files = []
-    for (patterns, finder, prefix) in [(gecko_patterns, gecko_finder, None),
-                                       (comm_patterns, comm_finder, 'comm/')]:
+    for (patterns, finder, prefix) in [
+        (gecko_patterns, gecko_finder, None),
+        (comm_patterns, comm_finder, "comm/"),
+    ]:
         for pattern in patterns:
             if prefix:
                 pattern = pattern.lstrip(prefix)
@@ -62,12 +64,16 @@ def hash_paths_extended(base_path, patterns):
             if found:
                 files.extend(found)
             else:
-                raise Exception('%s did not match anything' % pattern)
+                raise Exception("%s did not match anything" % pattern)
     for path in sorted(files):
-        if path.endswith(('.pyc', '.pyd', '.pyo')):
+        if path.endswith((".pyc", ".pyd", ".pyo")):
             continue
-        h.update(six.ensure_binary('{} {}\n'.format(
-            hash_path(mozpath.abspath(mozpath.join(base_path, path))),
-            mozpath.normsep(path)
-        )))
+        h.update(
+            six.ensure_binary(
+                "{} {}\n".format(
+                    hash_path(mozpath.abspath(mozpath.join(base_path, path))),
+                    mozpath.normsep(path),
+                )
+            )
+        )
     return h.hexdigest()

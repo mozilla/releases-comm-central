@@ -15,13 +15,14 @@ from taskgraph.util import (
 
 logger = logging.getLogger(__name__)
 
-COMM_IMAGE_DIR = os.path.join(COMM, 'taskcluster', 'docker')
+COMM_IMAGE_DIR = os.path.join(COMM, "taskcluster", "docker")
 
 
 def register():
     logger.info("Registering comm docker image definition path.")
-    utildocker.image_paths.register('comm/taskcluster/ci/docker-image/docker-image.yml',
-                                    COMM_IMAGE_DIR)
+    utildocker.image_paths.register(
+        "comm/taskcluster/ci/docker-image/docker-image.yml", COMM_IMAGE_DIR
+    )
 
 
 register()

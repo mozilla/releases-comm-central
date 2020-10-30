@@ -30,10 +30,13 @@ def l10n_bump_action(parameters, graph_config, _input, task_group_id, task_id):
     Runs the 'l10n_bump' task.
     """
     decision_task_id, full_task_graph, label_to_taskid = fetch_graph_and_labels(
-        parameters, graph_config)
-    to_run = [label
-              for label, entry
-              in full_task_graph.tasks.items() if 'l10n-bump' in entry.kind]
+        parameters, graph_config
+    )
+    to_run = [
+        label
+        for label, entry in full_task_graph.tasks.items()
+        if "l10n-bump" in entry.kind
+    ]
     create_tasks(
         graph_config,
         to_run,

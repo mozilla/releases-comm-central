@@ -7,6 +7,7 @@ from fluent.migrate.helpers import transforms_from
 from fluent.migrate import CONCAT, REPLACE
 from fluent.migrate.helpers import COPY, TERM_REFERENCE, MESSAGE_REFERENCE
 
+
 def migrate(ctx):
     """Bug 1615501 - Fluent migration recipe for Preferences Tab, part {index}."""
 
@@ -14,7 +15,7 @@ def migrate(ctx):
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 close-button =
     .aria-label = { COPY(from_path, "preferencesCloseButton.label") }
 preferences-title =
@@ -32,27 +33,29 @@ pane-chat-title = { COPY(from_path, "paneChat.title") }
 category-chat =
     .tooltiptext = { COPY(from_path, "paneChat.title") }
 addons-button = { COPY(from_path, "addonsButton.label") }
-""", from_path="mail/chrome/messenger/preferences/preferences.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/preferences.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 pane-calendar-title = { COPY(from_path, "lightning.preferencesLabel") }
 category-calendar =
     .tooltiptext = { COPY(from_path, "lightning.preferencesLabel") }
-""", from_path="calendar/chrome/lightning/lightning.dtd"
-        )
+""",
+            from_path="calendar/chrome/lightning/lightning.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 location-label =
     .value = { COPY(from_path, "location.label") }
     .accesskey = { COPY(from_path, "location1.accesskey") }
@@ -114,8 +117,9 @@ mail-browse-sound-button =
     .label = { COPY(from_path, "browse.label") }
     .accesskey = { COPY(from_path, "browse.accesskey") }
 
-""", from_path="mail/chrome/messenger/preferences/general.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/general.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -123,67 +127,61 @@ mail-browse-sound-button =
         "mail/messenger/preferences/preferences.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("general-legend"),
-                value = REPLACE(
+                id=FTL.Identifier("general-legend"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/general.dtd",
                     "messengerStartPage.label",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("start-page-label"),
-                attributes = [
+                id=FTL.Identifier("start-page-label"),
+                attributes=[
                     FTL.Attribute(
-                        id = FTL.Identifier("label"),
-                        value = REPLACE(
+                        id=FTL.Identifier("label"),
+                        value=REPLACE(
                             "mail/chrome/messenger/preferences/general.dtd",
                             "enableStartPage.label",
-                            {
-                                "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                            },
-                        )
+                            {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                        ),
                     ),
                     FTL.Attribute(
-                        id = FTL.Identifier("accesskey"),
-                        value = COPY(
+                        id=FTL.Identifier("accesskey"),
+                        value=COPY(
                             "mail/chrome/messenger/preferences/general.dtd",
-                            "enableStartPage.accesskey"
-                        )
-                    )
-                ]
+                            "enableStartPage.accesskey",
+                        ),
+                    ),
+                ],
             ),
             FTL.Message(
-                id = FTL.Identifier("minimize-to-tray-label"),
-                attributes = [
+                id=FTL.Identifier("minimize-to-tray-label"),
+                attributes=[
                     FTL.Attribute(
-                        id = FTL.Identifier("label"),
-                        value = REPLACE(
+                        id=FTL.Identifier("label"),
+                        value=REPLACE(
                             "mail/chrome/messenger/preferences/general.dtd",
                             "minimizeToTray.label",
-                            {
-                                "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                            },
-                        )
+                            {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                        ),
                     ),
                     FTL.Attribute(
-                        id = FTL.Identifier("accesskey"),
-                        value = COPY(
+                        id=FTL.Identifier("accesskey"),
+                        value=COPY(
                             "mail/chrome/messenger/preferences/general.dtd",
-                            "minimizeToTray.accesskey"
-                        )
-                    )
-                ]
+                            "minimizeToTray.accesskey",
+                        ),
+                    ),
+                ],
             ),
-        ]
+        ],
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 enable-gloda-search-label =
     .label = { COPY(from_path, "enableGlodaSearch.label") }
     .accesskey = { COPY(from_path, "enableGlodaSearch.accesskey") }
@@ -283,8 +281,9 @@ clear-cache-button =
     .accesskey = { COPY(from_path, "clearCacheNow.accesskey") }
 
 update-app-version = { COPY(from_path, "updateApp.version.pre") }{ $version }{ COPY(from_path, "updateApp.version.post") }
-""", from_path="mail/chrome/messenger/preferences/advanced.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/advanced.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -292,107 +291,97 @@ update-app-version = { COPY(from_path, "updateApp.version.pre") }{ $version }{ C
         "mail/messenger/preferences/preferences.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("return-receipts-description"),
-                value = REPLACE(
+                id=FTL.Identifier("return-receipts-description"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/advanced.dtd",
                     "returnReceiptsInfo.label",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("update-app-legend"),
-                value = REPLACE(
+                id=FTL.Identifier("update-app-legend"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/advanced.dtd",
                     "updateApp2.label",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("allow-description"),
-                value = REPLACE(
+                id=FTL.Identifier("allow-description"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/advanced.dtd",
                     "updateAppAllow.description",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("cross-user-udpate-warning"),
-                value = REPLACE(
+                id=FTL.Identifier("cross-user-udpate-warning"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/advanced.dtd",
                     "updateCrossUserSettingWarning.description",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("proxy-config-description"),
-                value = REPLACE(
+                id=FTL.Identifier("proxy-config-description"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/advanced.dtd",
                     "proxiesConfigure.label",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("always-check-default"),
-                attributes = [
+                id=FTL.Identifier("always-check-default"),
+                attributes=[
                     FTL.Attribute(
-                        id = FTL.Identifier("label"),
-                        value = REPLACE(
+                        id=FTL.Identifier("label"),
+                        value=REPLACE(
                             "mail/chrome/messenger/preferences/advanced.dtd",
                             "alwaysCheckDefault.label",
-                            {
-                                "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                            },
-                        )
+                            {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                        ),
                     ),
                     FTL.Attribute(
-                        id = FTL.Identifier("accesskey"),
-                        value = COPY(
+                        id=FTL.Identifier("accesskey"),
+                        value=COPY(
                             "mail/chrome/messenger/preferences/advanced.dtd",
-                            "alwaysCheckDefault.accesskey"
-                        )
-                    )
-                ]
+                            "alwaysCheckDefault.accesskey",
+                        ),
+                    ),
+                ],
             ),
             FTL.Message(
-                id = FTL.Identifier("search-integration-label"),
-                attributes = [
+                id=FTL.Identifier("search-integration-label"),
+                attributes=[
                     FTL.Attribute(
-                        id = FTL.Identifier("label"),
-                        value = REPLACE(
+                        id=FTL.Identifier("label"),
+                        value=REPLACE(
                             "mail/chrome/messenger/preferences/advanced.dtd",
                             "searchIntegration.label",
                             {
-                                "&searchIntegration.engineName;": MESSAGE_REFERENCE("search-engine-name")
+                                "&searchIntegration.engineName;": MESSAGE_REFERENCE(
+                                    "search-engine-name"
+                                )
                             },
-                        )
+                        ),
                     ),
                     FTL.Attribute(
-                        id = FTL.Identifier("accesskey"),
-                        value = COPY(
+                        id=FTL.Identifier("accesskey"),
+                        value=COPY(
                             "mail/chrome/messenger/preferences/advanced.dtd",
-                            "searchIntegration.accesskey"
-                        )
-                    )
-                ]
+                            "searchIntegration.accesskey",
+                        ),
+                    ),
+                ],
             ),
-        ]
+        ],
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 focus-search-shortcut =
     .key = { COPY(from_path, "focusSearch1.key") }
 focus-search-shortcut-alt =
@@ -426,15 +415,16 @@ choose-folder-label =
 always-ask-label =
     .label = { COPY(from_path, "alwaysAsk.label") }
     .accesskey = { COPY(from_path, "alwaysAsk.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/applications.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/applications.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 fonts-legend = { COPY(from_path, "fontsAndColors1.label") }
 
 default-font-label =
@@ -542,8 +532,9 @@ display-name-label =
 condensed-addresses-label =
     .label = { COPY(from_path, "showCondensedAddresses.label") }
     .accesskey = { COPY(from_path, "showCondensedAddresses.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/display.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/display.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -551,45 +542,41 @@ condensed-addresses-label =
         "mail/messenger/preferences/preferences.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("return-receipts-description"),
-                value = REPLACE(
+                id=FTL.Identifier("return-receipts-description"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/advanced.dtd",
                     "returnReceiptsInfo.label",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("always-check-default"),
-                attributes = [
+                id=FTL.Identifier("always-check-default"),
+                attributes=[
                     FTL.Attribute(
-                        id = FTL.Identifier("label"),
-                        value = REPLACE(
+                        id=FTL.Identifier("label"),
+                        value=REPLACE(
                             "mail/chrome/messenger/preferences/advanced.dtd",
                             "alwaysCheckDefault.label",
-                            {
-                                "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                            },
-                        )
+                            {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                        ),
                     ),
                     FTL.Attribute(
-                        id = FTL.Identifier("accesskey"),
-                        value = COPY(
+                        id=FTL.Identifier("accesskey"),
+                        value=COPY(
                             "mail/chrome/messenger/preferences/advanced.dtd",
-                            "alwaysCheckDefault.accesskey"
-                        )
-                    )
-                ]
+                            "alwaysCheckDefault.accesskey",
+                        ),
+                    ),
+                ],
             ),
-        ]
+        ],
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 forward-label =
     .value = { COPY(from_path, "forwardMsg.label") }
     .accesskey = { COPY(from_path, "forwardMsg.accesskey") }
@@ -697,15 +684,16 @@ attachment-label =
 attachment-options-label =
     .label = { COPY(from_path, "attachmentReminderOptions.label") }
     .accesskey = { COPY(from_path, "attachmentReminderOptions.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/compose.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/compose.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 enable-cloud-share =
     .label = { COPY(from_path, "enableCloudFileAccountOffer.label") }
 cloud-share-size =
@@ -724,15 +712,16 @@ find-cloud-providers =
     .value = { COPY(from_path, "findCloudFileProviders.label") }
 
 cloud-account-description = { COPY(from_path, "addCloudFileAccount.description") }
-""", from_path="mail/chrome/messenger/preferences/applications.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/applications.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 mail-content = { COPY(from_path, "captionMailContent.label") }
 
 remote-content-label =
@@ -786,8 +775,9 @@ do-not-track-label =
 
 learn-button =
     .label = { COPY(from_path, "doNotTrackLearnMore.label") }
-""", from_path="mail/chrome/messenger/preferences/privacy.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/privacy.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -795,28 +785,26 @@ learn-button =
         "mail/messenger/preferences/preferences.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("keep-close"),
-                attributes = [
+                id=FTL.Identifier("keep-close"),
+                attributes=[
                     FTL.Attribute(
-                        id = FTL.Identifier("label"),
-                        value = REPLACE(
+                        id=FTL.Identifier("label"),
+                        value=REPLACE(
                             "mail/chrome/messenger/preferences/privacy.dtd",
                             "close.label",
-                            {
-                                "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                            },
-                        )
+                            {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                        ),
                     ),
-                ]
+                ],
             ),
-        ]
+        ],
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 passwords-button =
     .label = { COPY(from_path, "savedPasswords.label") }
     .accesskey = { COPY(from_path, "savedPasswords.accesskey") }
@@ -868,8 +856,9 @@ phishing-label =
 antivirus-label =
     .label = { COPY(from_path, "antiVirus.label") }
     .accesskey = { COPY(from_path, "antiVirus.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/security.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/security.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -877,43 +866,37 @@ antivirus-label =
         "mail/messenger/preferences/preferences.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("passwords-description"),
-                value = REPLACE(
+                id=FTL.Identifier("passwords-description"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/security.dtd",
                     "savedPasswords.intro",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("phishing-description"),
-                value = REPLACE(
+                id=FTL.Identifier("phishing-description"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/security.dtd",
                     "phishingDetector1.intro",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
             FTL.Message(
-                id = FTL.Identifier("antivirus-description"),
-                value = REPLACE(
+                id=FTL.Identifier("antivirus-description"),
+                value=REPLACE(
                     "mail/chrome/messenger/preferences/security.dtd",
                     "antiVirus.intro",
-                    {
-                        "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                    },
-                )
+                    {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                ),
             ),
-        ]
+        ],
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 certificate-description = { COPY(from_path, "certSelection.description") }
 
 certificate-auto =
@@ -935,15 +918,16 @@ certificate-button =
 security-devices-button =
     .label = { COPY(from_path, "viewSecurityDevices2.label") }
     .accesskey = { COPY(from_path, "viewSecurityDevices2.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/advanced.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/advanced.dtd",
+        ),
     )
 
     ctx.add_transforms(
         "mail/messenger/preferences/preferences.ftl",
         "mail/messenger/preferences/preferences.ftl",
         transforms_from(
-"""
+            """
 offline-label =
     .label = { COPY(from_path, "startupOffline.label") }
 
@@ -1033,8 +1017,9 @@ chat-variant-label =
 chat-header-label =
     .label = { COPY(from_path, "messageStyleShowHeader.label") }
     .accesskey = { COPY(from_path, "messageStyleShowHeader.accesskey") }
-""", from_path="mail/chrome/messenger/preferences/chat.dtd"
-        )
+""",
+            from_path="mail/chrome/messenger/preferences/chat.dtd",
+        ),
     )
 
     ctx.add_transforms(
@@ -1042,26 +1027,24 @@ chat-header-label =
         "mail/messenger/preferences/preferences.ftl",
         [
             FTL.Message(
-                id = FTL.Identifier("startup-label"),
-                attributes = [
+                id=FTL.Identifier("startup-label"),
+                attributes=[
                     FTL.Attribute(
-                        id = FTL.Identifier("value"),
-                        value = REPLACE(
+                        id=FTL.Identifier("value"),
+                        value=REPLACE(
                             "mail/chrome/messenger/preferences/chat.dtd",
                             "startupAction.label",
-                            {
-                                "&brandShortName;": TERM_REFERENCE("brand-short-name")
-                            },
-                        )
+                            {"&brandShortName;": TERM_REFERENCE("brand-short-name")},
+                        ),
                     ),
                     FTL.Attribute(
-                        id = FTL.Identifier("accesskey"),
-                        value = COPY(
+                        id=FTL.Identifier("accesskey"),
+                        value=COPY(
                             "mail/chrome/messenger/preferences/chat.dtd",
-                            "startupAction.accesskey"
-                        )
-                    )
-                ]
+                            "startupAction.accesskey",
+                        ),
+                    ),
+                ],
             ),
-        ]
+        ],
     )

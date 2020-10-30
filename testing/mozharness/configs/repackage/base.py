@@ -8,5 +8,5 @@ config = {
     "sfx-stub": "comm/other-licenses/7zstub/thunderbird/7zSD.sfx",
     "stub-installer-tag": "",
     "wsx-stub": "comm/mail/installer/windows/msi/installer.wxs",
-    "fetch-dir": os.environ.get('MOZ_FETCHES_DIR'),
+    "fetch-dir": os.environ.get("MOZ_FETCHES_DIR"),
 }

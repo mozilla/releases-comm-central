@@ -21,12 +21,14 @@ try:
         GnuCParser,
     )
 except ImportError:
-    print("One or more dependencies not found: pycparser, pycparserext, pycparser_fake_libc")
+    print(
+        "One or more dependencies not found: pycparser, pycparserext, pycparser_fake_libc"
+    )
     sys.exit(1)
 
 HERE = os.path.dirname(__file__)
-TOPSRCDIR = os.path.abspath(os.path.join(HERE, '../../../../'))
-RNPSRCDIR = os.path.join(TOPSRCDIR, 'comm/third_party/rnp')
+TOPSRCDIR = os.path.abspath(os.path.join(HERE, "../../../../"))
+RNPSRCDIR = os.path.join(TOPSRCDIR, "comm/third_party/rnp")
 
 
 def is_func(obj):
@@ -37,11 +39,17 @@ def is_func(obj):
 def extract_func_defs(filename):
     # Note that cpp is used. Provide a path to your own cpp or
     # make sure one exists in PATH.
-    rnp_export_path = os.path.join(RNPSRCDIR, 'src/lib')
-    ast = parse_file(filename, use_cpp=True,
-                     cpp_args=['-E', '-I{}'.format(rnp_export_path),
-                               '-I{}'.format(pycparser_fake_libc.directory)],
-                     parser=GnuCParser(lex_optimize=False, yacc_optimize=False))
+    rnp_export_path = os.path.join(RNPSRCDIR, "src/lib")
+    ast = parse_file(
+        filename,
+        use_cpp=True,
+        cpp_args=[
+            "-E",
+            "-I{}".format(rnp_export_path),
+            "-I{}".format(pycparser_fake_libc.directory),
+        ],
+        parser=GnuCParser(lex_optimize=False, yacc_optimize=False),
+    )
 
     for node in ast.children():
         decl = node[1]
@@ -53,7 +61,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         FILENAME = sys.argv[1]
     else:
-        FILENAME = os.path.join(RNPSRCDIR, 'include/rnp/rnp.h')
+        FILENAME = os.path.join(RNPSRCDIR, "include/rnp/rnp.h")
 
     for f in sorted(extract_func_defs(FILENAME)):
         print(f)

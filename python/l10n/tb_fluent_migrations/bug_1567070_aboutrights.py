@@ -7,12 +7,13 @@ from __future__ import absolute_import
 import fluent.syntax.ast as FTL
 from fluent.migrate.helpers import transforms_from
 
+
 def migrate(ctx):
     """Bug 1567070 - Migrate about:rights to Fluent in Thunderbird, part {index}."""
 
     ctx.add_transforms(
-        'mail/messenger/aboutRights.ftl',
-        'mail/messenger/aboutRights.ftl',
+        "mail/messenger/aboutRights.ftl",
+        "mail/messenger/aboutRights.ftl",
         transforms_from(
             """
 rights-title = {COPY_PATTERN(from_path, "rights-title")}
@@ -65,8 +66,11 @@ rights-webservices-term-6 = {COPY_PATTERN(from_path, "rights-webservices-term-6"
 
 rights-webservices-term-7 = {COPY_PATTERN(from_path, "rights-webservices-term-7")}
 
-""", from_path="toolkit/toolkit/about/aboutRights.ftl"),
-        )
+""",
+            from_path="toolkit/toolkit/about/aboutRights.ftl",
+        ),
+    )
+
 
 """
 rights-intro-point-2 = ### this needs s/Firefox/Thunderbird

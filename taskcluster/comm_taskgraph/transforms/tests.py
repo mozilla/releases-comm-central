@@ -30,31 +30,31 @@ def tests_drop_1proc(config, jobs):
     process.
     """
     for job in jobs:
-        test = job['run']['test']
-        e10s = test['e10s']
+        test = job["run"]["test"]
+        e10s = test["e10s"]
 
         if not e10s:  # test-name & friends end with '-1proc'
-            test['test-name'] = _remove_suffix(test['test-name'], '-1proc')
-            test['try-name'] = _remove_suffix(test['try-name'], '-1proc')
-            group, symbol = split_symbol(test['treeherder-symbol'])
-            if group != '?':
-                group = _remove_suffix(group, '-1proc')
-            test['treeherder-symbol'] = join_symbol(group, symbol)
+            test["test-name"] = _remove_suffix(test["test-name"], "-1proc")
+            test["try-name"] = _remove_suffix(test["try-name"], "-1proc")
+            group, symbol = split_symbol(test["treeherder-symbol"])
+            if group != "?":
+                group = _remove_suffix(group, "-1proc")
+            test["treeherder-symbol"] = join_symbol(group, symbol)
 
-            job['label'] = job['label'].replace('-1proc', '')
-            job['name'] = _remove_suffix(job['name'], '-1proc')
-            job['treeherder']['symbol'] = test['treeherder-symbol']
+            job["label"] = job["label"].replace("-1proc", "")
+            job["name"] = _remove_suffix(job["name"], "-1proc")
+            job["treeherder"]["symbol"] = test["treeherder-symbol"]
         else:  # e10s in the future
-            test['test-name'] = add_suffix(test['test-name'], '-e10s')
-            test['try-name'] = add_suffix(test['try-name'], '-e10s')
-            group, symbol = split_symbol(test['treeherder-symbol'])
-            if group != '?':
-                group = add_suffix(group, '-e10s')
-            test['treeherder-symbol'] = join_symbol(group, symbol)
+            test["test-name"] = add_suffix(test["test-name"], "-e10s")
+            test["try-name"] = add_suffix(test["try-name"], "-e10s")
+            group, symbol = split_symbol(test["treeherder-symbol"])
+            if group != "?":
+                group = add_suffix(group, "-e10s")
+            test["treeherder-symbol"] = join_symbol(group, symbol)
 
-            job['label'] += '-e10s'
-            job['name'] = add_suffix(job['name'], '-e10s')
-            job['treeherder']['symbol'] = test['treeherder-symbol']
+            job["label"] += "-e10s"
+            job["name"] = add_suffix(job["name"], "-e10s")
+            job["treeherder"]["symbol"] = test["treeherder-symbol"]
 
         yield job
 
@@ -67,10 +67,10 @@ def always_nightly(config, jobs):
     job is tagged with "nightly".
     """
     for job in jobs:
-        if config.params['target_tasks_method'] == 'nightly_desktop':
-            attributes = job['attributes']
-            if attributes.get('nightly', None):
-                if 'when' in job:
-                    del job['when']
+        if config.params["target_tasks_method"] == "nightly_desktop":
+            attributes = job["attributes"]
+            if attributes.get("nightly", None):
+                if "when" in job:
+                    del job["when"]
 
         yield job

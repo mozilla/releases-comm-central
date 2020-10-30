@@ -22,14 +22,16 @@ def update_scopes(config, jobs):
     at the moment. In the meantime, remove the scope from the task to avoid an error.
     """
     # If no balrog release history, then don't run
-    if not config.params.get('release_history'):
+    if not config.params.get("release_history"):
         return
 
-    MBSDIFF_SCOPE = 'auth:aws-s3:read-write:tc-gp-private-1d-us-east-1/releng/mbsdiff-cache/'
+    MBSDIFF_SCOPE = (
+        "auth:aws-s3:read-write:tc-gp-private-1d-us-east-1/releng/mbsdiff-cache/"
+    )
 
     for job in jobs:
-        task = job['task']
-        if MBSDIFF_SCOPE in task['scopes']:
-            task['scopes'].remove(MBSDIFF_SCOPE)
+        task = job["task"]
+        if MBSDIFF_SCOPE in task["scopes"]:
+            task["scopes"].remove(MBSDIFF_SCOPE)
 
         yield job

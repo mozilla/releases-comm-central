@@ -6,7 +6,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 from marionette_harness import MarionetteTestCase
 
-class TestMain(MarionetteTestCase):
 
+class TestMain(MarionetteTestCase):
     def test_empty(self):
         return

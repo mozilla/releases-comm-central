@@ -9,7 +9,7 @@ def strip_comm_prefix(relpath):
     :param string relpath: relative path
     :return string: stripped path
     """
-    if relpath[:5] == 'comm/':
+    if relpath[:5] == "comm/":
         return relpath[5:]
     else:
         return relpath

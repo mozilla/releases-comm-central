@@ -10,8 +10,8 @@ from . import latest_version
 from .rnp import rnp_source_update
 
 FUNC_MAP = {
-    'latest_version': latest_version,
-    'rnp_source_update': rnp_source_update,
+    "latest_version": latest_version,
+    "rnp_source_update": rnp_source_update,
 }
 
 

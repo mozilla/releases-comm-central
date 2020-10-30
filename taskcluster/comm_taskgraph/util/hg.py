@@ -22,7 +22,7 @@ def is_hg_repo(root):
     :param six.text_type root: Repository root path
     :return boolean:
     """
-    dot_hg = mozpath.join(root, '.hg')
+    dot_hg = mozpath.join(root, ".hg")
     if os.path.exists(root) and os.path.exists(dot_hg):
         return True
     return False
@@ -36,15 +36,15 @@ def get_last_modified_revision(root, paths):
     :param frozenset(six.text_type) paths: Paths relative to root to check
     :return six.text_type: Most recent revision with changes to paths
     """
-    logger.info('get_last_modified_revision called')
+    logger.info("get_last_modified_revision called")
     root = mozpath.abspath(root)
     if not is_hg_repo(root):
-        raise Exception('Not a valid Mercurial repo: {}', root)
+        raise Exception("Not a valid Mercurial repo: {}", root)
 
     if not all(map(lambda p: os.path.exists(mozpath.join(root, p)), paths)):
         # If any of the paths do not exist, Mercurial will throw an error.
-        paths_repr = ', '.join(paths)
-        raise Exception('Invalid paths specified: {}'.format(paths_repr))
+        paths_repr = ", ".join(paths)
+        raise Exception("Invalid paths specified: {}".format(paths_repr))
 
-    command = ['hg', '-R', root, 'log', '--limit=1', '--template={node}'] + list(paths)
+    command = ["hg", "-R", root, "log", "--limit=1", "--template={node}"] + list(paths)
     return six.text_type(subprocess.check_output(command, cwd=root))

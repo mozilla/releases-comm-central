@@ -29,17 +29,17 @@
 
 config = {
     "comm-central": {
-        "repo_path": 'comm-central',
+        "repo_path": "comm-central",
     },
     "comm-beta": {
         "enable_release_promotion": True,
-        'repo_path': 'releases/comm-beta',
+        "repo_path": "releases/comm-beta",
     },
     "comm-esr60": {
         "enable_release_promotion": True,
-        'repo_path': 'releases/comm-esr60',
+        "repo_path": "releases/comm-esr60",
     },
-    'try-comm-central': {
-        'repo_path': 'try-comm-central',
+    "try-comm-central": {
+        "repo_path": "try-comm-central",
     },
 }

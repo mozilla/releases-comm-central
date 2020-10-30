@@ -11,4 +11,4 @@ from . import COMM
 
 from taskgraph.util.verify import documentation_paths
 
-documentation_paths.add(os.path.join(COMM, 'taskcluster', 'docs'))
+documentation_paths.add(os.path.join(COMM, "taskcluster", "docs"))
