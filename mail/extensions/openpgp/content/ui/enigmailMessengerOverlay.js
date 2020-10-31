@@ -14,10 +14,14 @@
 /* global gFolderDisplay: false, messenger: false, currentAttachments: false, msgWindow: false, PanelUI: false */
 /* global currentHeaderData: false, gViewAllHeaders: false, gExpandedHeaderList: false, goDoCommand: false, HandleSelectedAttachments: false */
 /* global statusFeedback: false, displayAttachmentsForExpandedView: false, gMessageListeners: false, gExpandedHeaderView */
-/* global MailServices: false, gMessageDisplay: false */
+/* globals gMessageNotificationBar, gMessageDisplay */
 
-/* import-globals-from ../BondOpenPGP.jsm */
-/* import-globals-from mailWindowOverlay.js */
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { BondOpenPGP } = ChromeUtils.import(
+  "chrome://openpgp/content/BondOpenPGP.jsm"
+);
 
 var EnigmailCompat = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
