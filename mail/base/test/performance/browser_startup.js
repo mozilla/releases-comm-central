@@ -46,7 +46,7 @@ const startupPhases = {
   // We are at this phase after creating the first browser window (ie. after final-ui-startup).
   "before opening first browser window": {
     denylist: {
-      modules: new Set([]),
+      modules: new Set(["chrome://openpgp/content/modules/constants.jsm"]),
     },
   },
 
@@ -57,12 +57,14 @@ const startupPhases = {
     denylist: {
       modules: new Set([
         "resource://gre/modules/NewTabUtils.jsm",
+        "resource://gre/modules/Sqlite.jsm",
+        "chrome://openpgp/content/modules/core.jsm",
+        "chrome://openpgp/content/BondOpenPGP.jsm",
         // Bug 1660907: These core modules shouldn't really be being loaded
         // until sometime after first paint.
         // "resource://gre/modules/PlacesUtils.jsm",
         // "resource://gre/modules/Promise.jsm", // imported by devtools during _delayedStartup
         // "resource://gre/modules/Preferences.jsm",
-        // "resource://gre/modules/Sqlite.jsm",
         // These can probably be pushed back even further.
         "resource:///modules/MsgDBCacheManager.jsm",
         "resource:///modules/PeriodicFilterManager.jsm",

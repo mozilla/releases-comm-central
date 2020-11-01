@@ -14,79 +14,35 @@
 
 /* import-globals-from ../BondOpenPGP.jsm */
 
-var EnigmailCore = ChromeUtils.import(
-  "chrome://openpgp/content/modules/core.jsm"
-).EnigmailCore;
-var EnigmailFuncs = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
-).EnigmailFuncs;
-var EnigmailVerify = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mimeVerify.jsm"
-).EnigmailVerify;
-var { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-var EnigmailPrefs = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-).EnigmailPrefs;
-var EnigmailLocale = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
-var EnigmailWindows = ChromeUtils.import(
-  "chrome://openpgp/content/modules/windows.jsm"
-).EnigmailWindows;
-var EnigmailDialog = ChromeUtils.import(
-  "chrome://openpgp/content/modules/dialog.jsm"
-).EnigmailDialog;
-var EnigmailTime = ChromeUtils.import(
-  "chrome://openpgp/content/modules/time.jsm"
-).EnigmailTime;
-var { EnigmailGpg } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/gpg.jsm"
-);
-var { EnigmailKey } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/key.jsm"
-);
-var EnigmailKeyRing = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-).EnigmailKeyRing;
-var EnigmailURIs = ChromeUtils.import(
-  "chrome://openpgp/content/modules/uris.jsm"
-).EnigmailURIs;
-var EnigmailConstants = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
-).EnigmailConstants;
-var EnigmailData = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
-).EnigmailData;
-var EnigmailClipboard = ChromeUtils.import(
-  "chrome://openpgp/content/modules/clipboard.jsm"
-).EnigmailClipboard;
-var EnigmailStdlib = ChromeUtils.import(
-  "chrome://openpgp/content/modules/stdlib.jsm"
-).EnigmailStdlib;
-/*
-var EnigmailWks = ChromeUtils.import(
-  "chrome://openpgp/content/modules/webKey.jsm"
-).EnigmailWks;
-*/
-var EnigmailMime = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mime.jsm"
-).EnigmailMime;
-var EnigmailMsgRead = ChromeUtils.import(
-  "chrome://openpgp/content/modules/msgRead.jsm"
-).EnigmailMsgRead;
-var EnigmailSingletons = ChromeUtils.import(
-  "chrome://openpgp/content/modules/singletons.jsm"
-).EnigmailSingletons;
-/*
-var EnigmailAutocrypt = ChromeUtils.import(
-  "chrome://openpgp/content/modules/autocrypt.jsm"
-).EnigmailAutocrypt;
-*/
-var EnigmailCompat = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-).EnigmailCompat;
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  // EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
+  EnigmailClipboard: "chrome://openpgp/content/modules/clipboard.jsm",
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
+  EnigmailGpg: "chrome://openpgp/content/modules/gpg.jsm",
+  EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailLocale: "chrome://openpgp/content/modules/locale.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
+  EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
+  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
+  EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
+  EnigmailTime: "chrome://openpgp/content/modules/time.jsm",
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
+  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
+  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+  // EnigmailWks: "chrome://openpgp/content/modules/webKey.jsm",
+});
 
 if (!Enigmail) {
   var Enigmail = {};

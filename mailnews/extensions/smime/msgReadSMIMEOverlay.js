@@ -4,23 +4,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals gDBView, GetNumSelectedMessages */
-/* globals MailConstants, Enigmail, BondOpenPGP */
+/* globals MailConstants, Enigmail */
 /* global currentHeaderData: false */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-var { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
-);
-var { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
-);
-var { EnigmailWindows } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/windows.jsm"
-);
-var { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+});
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gEncryptionStatus = -1;
 var gSignatureStatus = -1;
