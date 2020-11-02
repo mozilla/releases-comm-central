@@ -1994,10 +1994,10 @@ nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream* inputStream,
 
     if (!line) return NS_OK;
 
-    if (m_newsFolder) m_newsFolder->NotifyDownloadedLine(line, m_key);
-
     // line only contains a single dot -> message end
     if (line_length == 1 + MSG_LINEBREAK_LEN && line[0] == '.') {
+      if (m_newsFolder) m_newsFolder->NotifyDownloadedLine(line, m_key);
+
       m_nextState = NEWS_DONE;
 
       ClearFlag(NNTP_PAUSE_FOR_READ);
@@ -2014,11 +2014,18 @@ nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream* inputStream,
     {
       uint32_t count = 0;
 
-      // skip over the quoted '.'
-      if (line_length > 1 && line[0] == '.' && line[1] == '.')
-        mDisplayOutputStream->Write(line + 1, line_length - 1, &count);
-      else
-        mDisplayOutputStream->Write(line, line_length, &count);
+      // Skip the first of two '.' to reverse the dot-stuffing
+      // see: https://tools.ietf.org/html/rfc3977#section-3.1.1
+      const char* unescapedLine = line;
+      if (line_length > 1 && line[0] == '.' && line[1] == '.') {
+        unescapedLine++;
+        line_length--;
+      }
+
+      if (m_newsFolder)
+        m_newsFolder->NotifyDownloadedLine(unescapedLine, m_key);
+
+      mDisplayOutputStream->Write(unescapedLine, line_length, &count);
     }
 
     PR_Free(line);

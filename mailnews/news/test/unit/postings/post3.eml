@@ -1,0 +1,10 @@
+From: "Demo User" <nobody@example.net>
+Message-ID: <2@dot.invalid>
+Newsgroups: dot.test
+Subject: Bug 170727: Test article with dots
+
+. 1 dot
+.. 2 dots
+     .indented dot
+.
+no - that wasn't the end of the message!
