@@ -98,7 +98,8 @@ add_task(async function testLastDayOfMonthRecurrence() {
   goToDate(controller, checkingData[0][0], checkingData[0][1], checkingData[0][2]);
   switchToView(controller, "day");
   let box = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  controller.waitThenClick(box);
+  controller.waitForElement(box);
+  controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);
   controller.waitForElementNotPresent(box);
 

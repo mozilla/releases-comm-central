@@ -577,8 +577,3 @@ MozMillController.prototype.__defineGetter__("menus", function() {
   var menubar = this.window.document.querySelector("menubar");
   return new MenuTree(this.window, menubar);
 });
-
-MozMillController.prototype.waitThenClick = function(elem, timeout, interval) {
-  this.waitForElement(elem, timeout, interval);
-  this.click(elem);
-};

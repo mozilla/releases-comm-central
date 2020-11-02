@@ -51,7 +51,9 @@ add_task(async function testAlarmDialog() {
     // Prepare to dismiss the alarm.
     plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
       let { eid: alarmid } = helpersForController(alarm);
-      alarm.waitThenClick(alarmid("alarm-dismiss-all-button"));
+      let button = alarmid("alarm-dismiss-all-button");
+      alarm.waitForElement(button);
+      alarm.click(button);
       // The dialog will close itself if we wait long enough.
       alarm.sleep(500);
     });
@@ -74,7 +76,8 @@ add_task(async function testAlarmDialog() {
       let popup = alarmid("alarm-snooze-all-popup").getNode();
       let menuitems = popup.querySelectorAll(":scope > menuitem");
 
-      alarm.waitThenClick(snoozeAllButton);
+      alarm.waitForElement(snoozeAllButton);
+      alarm.click(snoozeAllButton);
       menuitems[5].click();
       // The dialog will close itself if we wait long enough.
       alarm.sleep(500);

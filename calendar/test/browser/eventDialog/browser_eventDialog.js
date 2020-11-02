@@ -157,7 +157,9 @@ add_task(async function testEventDialog() {
   // Catch and dismiss alarm.
   plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
     let { eid: alarmid } = helpersForController(alarm);
-    alarm.waitThenClick(alarmid("alarm-dismiss-all-button"));
+    let dismissAllButton = alarmid("alarm-dismiss-all-button");
+    alarm.waitForElement(dismissAllButton);
+    alarm.click(dismissAllButton);
     // The dialog will close itself if we wait long enough.
     alarm.sleep(500);
   });

@@ -193,16 +193,21 @@ function handleOccurrencePrompt(controller, element, mode, selectParent) {
   let handleOccurrenceDialog = dController => {
     let { eid: dlgid } = helpersForController(dController);
     if (selectParent) {
-      dController.waitThenClick(dlgid("accept-parent-button"));
+      let acceptButton = dlgid("accept-parent-button");
+      dController.waitForElement(acceptButton);
+      dController.click(acceptButton);
     } else {
-      dController.waitThenClick(dlgid("accept-occurrence-button"));
+      let acceptButton = dlgid("accept-occurrence-button");
+      dController.waitForElement(acceptButton);
+      dController.click(acceptButton);
     }
   };
   let handleSummaryDialog = dController => {
     let dialog = dController.window.document.querySelector("dialog");
     let editButton = new elementslib.Elem(dialog.getButton("accept"));
     plan_for_modal_dialog("Calendar:OccurrencePrompt", handleOccurrenceDialog);
-    dController.waitThenClick(editButton);
+    dController.waitForElement(editButton);
+    dController.click(editButton);
     wait_for_modal_dialog("Calendar:OccurrencePrompt", TIMEOUT_MODAL_DIALOG);
   };
   if (mode == "delete") {
@@ -226,9 +231,10 @@ function handleOccurrencePrompt(controller, element, mode, selectParent) {
 function switchToView(controller, view) {
   let { eid } = helpersForController(controller);
 
-  let button = `calendar-${view}-view-button`;
+  let button = eid(`calendar-${view}-view-button`);
 
-  controller.waitThenClick(eid(button));
+  controller.waitForElement(button);
+  controller.click(button);
   ensureViewLoaded(controller);
 }
 
