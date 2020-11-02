@@ -305,10 +305,9 @@ var EnigmailMime = {
 
     for (let i in protectedHdr) {
       if (headers.hasHeader(protectedHdr[i])) {
+        let extracted = headers.extractHeader(protectedHdr[i], true);
         newHeaders[protectedHdr[i]] =
-          jsmime.headerparser.decodeRFC2047Words(
-            headers.extractHeader(protectedHdr[i], true)
-          ) || undefined;
+          jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
       }
     }
 
@@ -358,11 +357,10 @@ var EnigmailMime = {
       bodyHdr.initialize(ctBodyData);
 
       for (let i in protectedHdr) {
+        let extracted = bodyHdr.extractHeader(protectedHdr[i], true);
         if (bodyHdr.hasHeader(protectedHdr[i])) {
           newHeaders[protectedHdr[i]] =
-            jsmime.headerparser.decodeRFC2047Words(
-              bodyHdr.extractHeader(protectedHdr[i], true)
-            ) || undefined;
+            jsmime.headerparser.decodeRFC2047Words(extracted) || undefined;
         }
       }
     } else {

@@ -252,90 +252,94 @@ PgpMimeEncrypt.prototype = {
 
     let allHdr = "";
 
-    if (this.sendFlags & EnigmailConstants.ENCRYPT_HEADERS) {
-      let addrParser = jsmime.headerparser.parseAddressingHeader;
-      let newsParser = function(s) {
-        return jsmime.headerparser.parseStructuredHeader("Newsgroups", s);
-      };
-      let noParser = function(s) {
-        return s;
-      };
+    let addrParser = jsmime.headerparser.parseAddressingHeader;
+    let newsParser = function(s) {
+      return jsmime.headerparser.parseStructuredHeader("Newsgroups", s);
+    };
+    let noParser = function(s) {
+      return s;
+    };
 
-      let h = {
-        from: {
-          field: "From",
-          parser: addrParser,
-        },
-        replyTo: {
-          field: "Reply-To",
-          parser: addrParser,
-        },
-        to: {
-          field: "To",
-          parser: addrParser,
-        },
-        cc: {
-          field: "Cc",
-          parser: addrParser,
-        },
-        newsgroups: {
-          field: "Newsgroups",
-          parser: newsParser,
-        },
-        followupTo: {
-          field: "Followup-To",
-          parser: addrParser,
-        },
-        messageId: {
-          field: "Message-Id",
-          parser: noParser,
-        },
-        subject: {
-          field: "Subject",
-          parser: noParser,
-        },
-      };
+    let h = {
+      from: {
+        field: "From",
+        parser: addrParser,
+      },
+      replyTo: {
+        field: "Reply-To",
+        parser: addrParser,
+      },
+      to: {
+        field: "To",
+        parser: addrParser,
+      },
+      cc: {
+        field: "Cc",
+        parser: addrParser,
+      },
+      newsgroups: {
+        field: "Newsgroups",
+        parser: newsParser,
+      },
+      followupTo: {
+        field: "Followup-To",
+        parser: addrParser,
+      },
+      messageId: {
+        field: "Message-Id",
+        parser: noParser,
+      },
+      subject: {
+        field: "Subject",
+        parser: noParser,
+      },
+    };
 
-      for (let i in h) {
-        if (this.msgCompFields[i] && this.msgCompFields[i].length > 0) {
-          allHdr += jsmime.headeremitter.emitStructuredHeader(
-            h[i].field,
-            h[i].parser(this.msgCompFields[i]),
-            {}
-          );
-        }
+    let alreadyAddedSubject = false;
+
+    if (
+      (this.mimeStructure == MIME_ENCRYPTED ||
+        this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) &&
+      this.originalSubject &&
+      this.originalSubject.length > 0
+    ) {
+      alreadyAddedSubject = true;
+      allHdr += jsmime.headeremitter.emitStructuredHeader(
+        "subject",
+        this.originalSubject,
+        {}
+      );
+    }
+
+    for (let i in h) {
+      if (h[i].field == "Subject" && alreadyAddedSubject) {
+        continue;
       }
-
-      if (
-        (this.mimeStructure == MIME_ENCRYPTED ||
-          this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) &&
-        this.originalSubject &&
-        this.originalSubject.length > 0
-      ) {
+      if (this.msgCompFields[i] && this.msgCompFields[i].length > 0) {
         allHdr += jsmime.headeremitter.emitStructuredHeader(
-          "subject",
-          this.originalSubject,
+          h[i].field,
+          h[i].parser(this.msgCompFields[i]),
           {}
         );
       }
+    }
 
-      // special handling for references and in-reply-to
+    // special handling for references and in-reply-to
 
-      if (this.originalReferences && this.originalReferences.length > 0) {
+    if (this.originalReferences && this.originalReferences.length > 0) {
+      allHdr += jsmime.headeremitter.emitStructuredHeader(
+        "references",
+        this.originalReferences,
+        {}
+      );
+
+      let bracket = this.originalReferences.lastIndexOf("<");
+      if (bracket >= 0) {
         allHdr += jsmime.headeremitter.emitStructuredHeader(
-          "references",
-          this.originalReferences,
+          "in-reply-to",
+          this.originalReferences.substr(bracket),
           {}
         );
-
-        let bracket = this.originalReferences.lastIndexOf("<");
-        if (bracket >= 0) {
-          allHdr += jsmime.headeremitter.emitStructuredHeader(
-            "in-reply-to",
-            this.originalReferences.substr(bracket),
-            {}
-          );
-        }
       }
     }
 
@@ -390,7 +394,7 @@ PgpMimeEncrypt.prototype = {
     EnigmailLog.DEBUG("mimeEncrypt.js: encryptedHeaders\n");
     let subj = "";
 
-    if (this.sendFlags & EnigmailConstants.ENCRYPT_HEADERS) {
+    if (this.sendFlags & EnigmailConstants.ENCRYPT_SUBJECT) {
       subj = jsmime.headeremitter.emitStructuredHeader(
         "subject",
         EnigmailFuncs.getProtectedSubjectText(),

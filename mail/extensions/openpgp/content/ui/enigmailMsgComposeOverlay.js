@@ -135,7 +135,6 @@ Enigmail.msg = {
   composeBodyReady: false,
   modifiedAttach: null,
   lastFocusedWindow: null,
-  protectHeaders: true,
   draftSubjectEncrypted: false,
   attachOwnKeyObj: {
     attachedObj: null,
@@ -1354,7 +1353,10 @@ Enigmail.msg = {
 
     draftStatus += gAttachMyPublicPGPKey ? "1" : "0";
 
-    draftStatus += doEncrypt && this.protectHeaders ? "1" : "0";
+    draftStatus +=
+      doEncrypt && gCurrentIdentity.getBoolAttribute("protectSubject")
+        ? "1"
+        : "0";
 
     this.setAdditionalHeader("X-Enigmail-Draft-Status", draftStatus);
   },
@@ -1571,8 +1573,8 @@ Enigmail.msg = {
       EnigmailConstants.SEND_ENCRYPT_TO_SELF |
       EnigmailConstants.SAVE_MESSAGE;
 
-    if (this.protectHeaders) {
-      sendFlags |= EnigmailConstants.ENCRYPT_HEADERS;
+    if (gCurrentIdentity.getBoolAttribute("protectSubject")) {
+      sendFlags |= EnigmailConstants.ENCRYPT_SUBJECT;
     }
     if (senderKeyIsGnuPG) {
       sendFlags |= EnigmailConstants.SEND_SENDER_KEY_EXTERNAL;
@@ -1630,7 +1632,7 @@ Enigmail.msg = {
     secInfo.originalSubject = gMsgCompose.compFields.subject;
     this.dirty = 1;
 
-    if (this.protectHeaders) {
+    if (sendFlags & EnigmailConstants.ENCRYPT_SUBJECT) {
       gMsgCompose.compFields.subject = "";
     }
 
@@ -1728,6 +1730,10 @@ Enigmail.msg = {
 
     if (gSendEncrypted && gSendSigned) {
       f |= EnigmailConstants.SEND_TWO_MIME_LAYERS;
+    }
+
+    if (gCurrentIdentity.getBoolAttribute("protectSubject")) {
+      f |= EnigmailConstants.ENCRYPT_SUBJECT;
     }
 
     return f;
@@ -1924,15 +1930,13 @@ Enigmail.msg = {
     newSecurityInfo.originalSubject = gMsgCompose.compFields.subject;
     newSecurityInfo.originalReferences = gMsgCompose.compFields.references;
 
-    if (this.protectHeaders) {
-      sendFlags |= EnigmailConstants.ENCRYPT_HEADERS;
-
-      if (sendFlags & EnigmailConstants.SEND_ENCRYPTED) {
+    if (sendFlags & EnigmailConstants.SEND_ENCRYPTED) {
+      if (sendFlags & EnigmailConstants.ENCRYPT_SUBJECT) {
         gMsgCompose.compFields.subject = "";
+      }
 
-        if (EnigmailPrefs.getPref("protectReferencesHdr")) {
-          gMsgCompose.compFields.references = "";
-        }
+      if (EnigmailPrefs.getPref("protectReferencesHdr")) {
+        gMsgCompose.compFields.references = "";
       }
     }
 
