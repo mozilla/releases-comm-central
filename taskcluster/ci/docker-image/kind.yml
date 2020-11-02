@@ -21,12 +21,14 @@ reference-jobs:
     - debian9-packages
     - debian9-raw
     - debian10-amd64-build
+    - debian10-arm64-build
     - debian10-base
     - debian10-packages
     - debian10-raw
     - deb8-toolchain-build
     - deb9-toolchain-build
     - deb10-toolchain-build
+    - toolchain-arm64-build
     - fetch
     - funsize-update-generator
     - index-task

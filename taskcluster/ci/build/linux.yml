@@ -172,6 +172,51 @@ linux64-asan/opt:
             - linux64-rust-size
             - linux64-sccache
 
+
+linux64-aarch64/opt:
+    description: "Linux64 aarch64 Opt"
+    index:
+        product: thunderbird
+        job-name: linux64-aarch64-opt
+    attributes:
+        enable-full-crashsymbols: true
+    treeherder:
+        platform: linux64-aarch64/opt
+        symbol: B
+        tier: 2
+    worker-type: b-linux
+    worker:
+        docker-image: {in-tree: debian10-arm64-build}
+        max-run-time: 7200
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build]
+        config-paths:
+            - comm/testing/mozharness/configs
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        extra-config:
+            mozconfig_platform: linux64-aarch64
+        script: "mozharness/scripts/fx_desktop_build.py"
+        mozconfig-variant: opt
+        tooltool-downloads: public
+        need-xvfb: true
+    run-on-projects: ['comm-central']
+    use-sccache: true
+    fetches:
+        toolchain:
+            - linux-aarch64-libotr
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang-aarch64-cross
+            - linux64-dump-syms
+            - linux64-node
+            - linux64-rust
+            - linux64-rust-size
+            - linux64-sccache
+
 linux/opt:
     description: "Linux32 Opt"
     index:
