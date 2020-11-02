@@ -375,6 +375,9 @@ pref("security.warn_leaving_secure", false);
 pref("security.warn_viewing_mixed", false);
 pref("security.aboutcertificate.enabled", true);
 
+// Don't show a prompt for external applications.
+pref("security.external_protocol_requires_permission", false);
+
 // Prompt for the master password prior to opening application windows,
 // to avoid the race that triggers multiple prompts (see bug 177175).
 #ifdef XP_MACOSX
