@@ -1762,6 +1762,8 @@ var RNP = {
         throw new Error("cannot get key handle for imported key: " + k.fpr);
       }
 
+      let unableToUnprotectId = null;
+
       if (k.secretAvailable) {
         while (!userFlags.canceled) {
           let rv = RNPLib.rnp_key_unprotect(impKey, recentPass);
@@ -1771,7 +1773,7 @@ var RNP = {
             if (RNPLib.rnp_key_get_subkey_count(impKey, sub_count.address())) {
               throw new Error("rnp_key_get_subkey_count failed");
             }
-            for (let i = 0; i < sub_count.value; i++) {
+            for (let i = 0; i < sub_count.value && !unableToUnprotectId; i++) {
               let sub_handle = new RNPLib.rnp_key_handle_t();
               if (
                 RNPLib.rnp_key_get_subkey_at(impKey, i, sub_handle.address())
@@ -1779,15 +1781,20 @@ var RNP = {
                 throw new Error("rnp_key_get_subkey_at failed");
               }
               if (RNPLib.rnp_key_unprotect(sub_handle, recentPass)) {
-                throw new Error("rnp_key_unprotect failed");
+                unableToUnprotectId = RNP.getKeyIDFromHandle(sub_handle);
               }
               RNPLib.rnp_key_handle_destroy(sub_handle);
             }
             break;
           }
 
+          if (unableToUnprotectId) {
+            break;
+          }
+
           if (rv != RNPLib.RNP_ERROR_BAD_PASSWORD || !passCB) {
-            throw new Error("rnp_key_unprotect failed");
+            unableToUnprotectId = k.fpr;
+            break;
           }
 
           recentPass = passCB(
@@ -1795,6 +1802,12 @@ var RNP = {
             `${k.fpr}, ${k.userId}, ${k.created}`,
             userFlags
           );
+        }
+
+        if (unableToUnprotectId) {
+          result.errorMsg = "Cannot unprotect key " + unableToUnprotectId;
+          console.debug(result.errorMsg);
+          return result;
         }
       }
 
