@@ -109,7 +109,9 @@ Enigmail.hdrView = {
     this.msgSignatureKeyId = "";
     this.msgEncryptionKeyId = null;
     this.msgEncryptionAllKeyIds = null;
-    Enigmail.msg.notificationBox.removeAllNotifications(true);
+    for (let value of ["decryptionFailed", "brokenExchange"]) {
+      Enigmail.msg.removeNotification(value);
+    }
   },
 
   hdrViewLoad() {

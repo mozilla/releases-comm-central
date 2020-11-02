@@ -177,6 +177,14 @@ Enigmail.msg = {
     return gMessageNotificationBar.msgNotificationBar;
   },
 
+  removeNotification(value) {
+    let item = this.notificationBox.getNotificationWithValue(value);
+    // Remove the notification only if the user didn't previously close it.
+    if (item) {
+      this.notificationBox.removeNotification(item, true);
+    }
+  },
+
   messengerStartup() {
     if (!BondOpenPGP.isEnabled()) {
       return;
@@ -379,7 +387,13 @@ Enigmail.msg = {
 
   messageCleanup() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageCleanup\n");
-    this.notificationBox.removeAllNotifications(true);
+    for (let value of [
+      "decryptInlinePGReminder",
+      "decryptInlinePG",
+      "brokenExchangeProgress",
+    ]) {
+      this.removeNotification(value);
+    }
 
     let element = document.getElementById("openpgpKeyBox");
     if (element) {
@@ -1945,14 +1959,8 @@ Enigmail.msg = {
       );
     });
 
-    let item = this.notificationBox.getNotificationWithValue(
-      "brokenExchangeProgress"
-    );
-    // Remove the brokenExchangeProgress only if the user didn't previously
-    // close it.
-    if (item) {
-      this.notificationBox.removeNotification(item, true);
-    }
+    // Remove the brokenExchangeProgress notification at the end fo the process.
+    this.removeNotification("brokenExchangeProgress");
   },
 
   /**
