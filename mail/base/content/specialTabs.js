@@ -397,10 +397,13 @@ var contentTabBaseType = {
     function(aDocument, aTab) {
       // Need a timeout to let the script run to create the needed buttons.
       setTimeout(() => {
+        aDocument.defaultView.MozXULElement.insertFTLIfNeeded(
+          "messenger/aboutProfilesExtra.ftl"
+        );
         for (let button of aDocument.querySelectorAll(
           `[data-l10n-id="profiles-launch-profile"]`
         )) {
-          document.l10n.setAttributes(button, "profiles-launch-profile-plain");
+          aDocument.l10n.setAttributes(button, "profiles-launch-profile-plain");
         }
       }, 500);
     },
