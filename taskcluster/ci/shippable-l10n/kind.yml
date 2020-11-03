@@ -106,7 +106,7 @@ job-template:
     mozharness:
         comm-checkout: true
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             # no default, so we fail on new entries
             by-build-platform:

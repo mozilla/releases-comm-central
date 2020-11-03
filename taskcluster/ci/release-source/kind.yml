@@ -31,7 +31,7 @@ job-defaults:
         actions: [package-source]
         script: "mozharness/scripts/fx_desktop_build.py"
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/thunderbird_source.py
         options: []

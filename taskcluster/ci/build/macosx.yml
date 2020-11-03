@@ -24,7 +24,7 @@ macosx64/debug:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
@@ -72,7 +72,7 @@ macosx64/opt:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
@@ -125,7 +125,7 @@ macosx64-shippable/opt:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py

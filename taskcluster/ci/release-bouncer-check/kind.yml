@@ -41,7 +41,7 @@ jobs:
         run:
             comm-checkout: true
             config:
-                - comm/mozharness/releases/bouncer_thunderbird.py
+                - comm/testing/mozharness/configs/releases/bouncer_thunderbird.py
             extra-config:
                 by-project:
                     comm-(beta|esr.*):

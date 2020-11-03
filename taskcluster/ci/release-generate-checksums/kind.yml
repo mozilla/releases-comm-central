@@ -41,7 +41,7 @@ job-defaults:
         comm-checkout: true
         config: []
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         actions: [create-virtualenv, collect-individual-checksums, create-big-checksums, create-summary]
         options:
             - "version={version}"

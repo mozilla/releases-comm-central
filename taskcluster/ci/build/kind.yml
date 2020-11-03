@@ -34,7 +34,6 @@ job-defaults:
             - comm/ldap
             - comm/mail
             - comm/mailnews
-            - comm/mozharness
             - comm/other-licenses
             - comm/taskcluster
             - comm/testing

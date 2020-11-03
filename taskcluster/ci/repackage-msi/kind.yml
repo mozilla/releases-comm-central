@@ -26,7 +26,7 @@ job-template:
         use-caches: false
         comm-checkout: true
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             by-build-platform:
                 win32\b.*:

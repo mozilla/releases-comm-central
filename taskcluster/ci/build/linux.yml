@@ -21,7 +21,7 @@ linux64/opt:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
@@ -67,7 +67,7 @@ linux64-shippable/opt:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
@@ -105,7 +105,7 @@ linux64/debug:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
@@ -148,7 +148,7 @@ linux64-asan/opt:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_64_builds.py
@@ -188,7 +188,7 @@ linux/opt:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py
@@ -235,7 +235,7 @@ linux-shippable/opt:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py
@@ -272,7 +272,7 @@ linux/debug:
         comm-checkout: true
         actions: [build]
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_linux_32_builds.py

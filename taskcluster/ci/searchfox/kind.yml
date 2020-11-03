@@ -44,7 +44,7 @@ jobs:
             comm-checkout: true
             actions: [build]
             config-paths:
-                - comm/mozharness
+                - comm/testing/mozharness/configs
             config:
                 - builds/taskcluster_base_thunderbird.py
                 - builds/releng_sub_linux_configs/64_searchfox_and_debug.py
@@ -82,7 +82,7 @@ jobs:
             comm-checkout: true
             actions: [build]
             config-paths:
-                - comm/mozharness
+                - comm/testing/mozharness/configs
             config:
                 - builds/taskcluster_base_thunderbird.py
                 - builds/releng_base_mac_64_cross_builds.py
@@ -126,7 +126,7 @@ jobs:
             options: [append-env-variables-from-configs]
             actions: [build]
             config-paths:
-                - comm/mozharness
+                - comm/testing/mozharness/configs
             script: mozharness/scripts/fx_desktop_build.py
             config:
                 - builds/taskcluster_base_thunderbird.py

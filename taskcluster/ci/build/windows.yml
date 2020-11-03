@@ -7,7 +7,7 @@ job-defaults:
         using: mozharness
         comm-checkout: true
         config-paths:
-            - comm/mozharness
+            - comm/testing/mozharness/configs
         tooltool-downloads: internal
     fetches:
         toolchain:

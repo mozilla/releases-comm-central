@@ -10,7 +10,7 @@ third_party/.*
 
 # General support directories (which don't contain any C++ anyway).
 build/.*
-mozharness/.*
 python/.*
 taskcluster/.*
+testing/mozharness/.*
 tools/.*
