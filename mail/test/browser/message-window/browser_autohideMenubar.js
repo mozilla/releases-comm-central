@@ -2,25 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Test that the menubar can be set to "autohide". This should only have an
-   effect on Windows. */
+/**
+ * Test that the menubar can be set to "autohide".
+ */
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
-var { open_address_book_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
-);
-var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
 var {
   be_in_folder,
   close_message_window,
   create_folder,
+  inboxFolder,
   make_new_sets_in_folder,
   mc,
   open_selected_message_in_new_window,
@@ -33,7 +25,7 @@ var {
 var menuFolder;
 var menuState;
 
-add_task(function setupModule(module) {
+add_task(function setup() {
   menuFolder = create_folder("menuFolder");
   make_new_sets_in_folder(menuFolder, [{ count: 1 }]);
 
@@ -42,20 +34,34 @@ add_task(function setupModule(module) {
 });
 
 /**
- * Set the autohide attribute of the menubar.
+ * Set the autohide attribute of the menubar. That is, make the menubar not
+ * shown by default - but pressing Alt will toggle it open/closed.
  *
  * @param controller the mozmill controller for the window
  * @param elem the element to click on (usually the menubar)
  * @param hide true to hide, false otherwise
  */
-function set_autohide_menubar(controller, elem, hide) {
-  let contextMenu = controller.getMenu("#toolbar-context-menu");
-  contextMenu.open(new elib.Elem(elem));
-  let menuitem = contextMenu.getItem('menuitem[toolbarid="' + elem.id + '"]');
-  if (menuitem.getNode().hasAttribute("checked") == hide) {
-    // XXX Hack around the fact that calling click doesn't toggle the checked
-    // state (bug 670829, bug 670830).
-    controller.mouseEvent(menuitem, undefined, undefined, {});
+async function set_autohide_menubar(controller, elem, hide) {
+  let contextMenu = controller.window.document.getElementById(
+    "toolbar-context-menu"
+  );
+  let popupshown = BrowserTestUtils.waitForEvent(
+    contextMenu,
+    "popupshown",
+    controller.window
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    elem,
+    { type: "contextmenu" },
+    controller.window
+  );
+  await popupshown;
+  let menuitem = controller.window.document.querySelector(
+    `menuitem[toolbarid="${elem.id}"]`
+  );
+  if (menuitem.getAttribute("checked") == hide + "") {
+    EventUtils.synthesizeMouseAtCenter(menuitem, {}, controller.window);
+    await new Promise(resolve => controller.window.setTimeout(resolve, 50));
   }
 }
 
@@ -65,29 +71,33 @@ function set_autohide_menubar(controller, elem, hide) {
  * @param controller the mozmill controller for the window
  * @param menubar the menubar to test
  */
-function help_test_autohide(controller, menubar) {
+async function help_test_autohide(controller, menubar) {
   function hiddenChecker(aHidden) {
-    // The XUL hidden attribute isn't what is set, so it's useless here -- use
+    // The hidden attribute isn't what is set, so it's useless here -- use
     // information from the box model instead.
-    return () => (menubar.getBoundingClientRect().height != 0) != aHidden;
+    return () => {
+      return (menubar.getBoundingClientRect().height != 0) != aHidden;
+    };
   }
-  set_autohide_menubar(controller, menubar, true);
-  controller.waitFor(hiddenChecker(true), "Menubar should be hidden!");
+  await set_autohide_menubar(controller, menubar, true);
+  controller.waitFor(hiddenChecker(true), "Menubar should be hidden");
 
-  document.getElementById(menubar).focus();
+  menubar.focus();
   EventUtils.synthesizeKey("VK_ALT", {}, controller.window);
   controller.waitFor(
     hiddenChecker(false),
-    "Menubar should be shown after pressing alt!"
+    "Menubar should be shown after pressing ALT!"
   );
 
-  set_autohide_menubar(controller, menubar, false);
-  controller.waitFor(hiddenChecker(false), "Menubar should be shown!");
+  info("Menubar showing or not should toggle for ALT.");
+  await set_autohide_menubar(controller, menubar, false);
+  controller.waitFor(hiddenChecker(false), "Menubar should be shown");
+  Assert.ok("help_test_autohide success");
 }
 
-add_task(function test_autohidden_menubar_3pane() {
+add_task(async function test_autohidden_menubar_3pane() {
   let menubar = mc.e("mail-toolbar-menubar2");
-  help_test_autohide(mc, menubar);
+  await help_test_autohide(mc, menubar);
 });
 
 add_task(async function test_autohidden_menubar_message_window() {
@@ -97,25 +107,31 @@ add_task(async function test_autohidden_menubar_message_window() {
   msgc.window.focus();
   let menubar = msgc.e("mail-toolbar-menubar2");
 
-  help_test_autohide(msgc, menubar);
+  await help_test_autohide(msgc, menubar);
   close_message_window(msgc);
 });
 
-add_task(function test_autohidden_menubar_compose_window() {
+// We don't have an autohidable menu bar item for compose nor for address book:
+// compose-toolbar-menubar2 and addrbook-toolbar-menubar2.
+/*
+add_task(async function test_autohidden_menubar_compose_window() {
   let cwc = open_compose_new_mail();
   let menubar = cwc.e("compose-toolbar-menubar2");
 
-  help_test_autohide(cwc, menubar);
+  await help_test_autohide(cwc, menubar);
   close_compose_window(cwc);
 });
 
-add_task(function test_autohidden_menubar_address_book() {
+add_task(function async test_autohidden_menubar_address_book() {
   let abc = open_address_book_window();
   let menubar = abc.e("addrbook-toolbar-menubar2");
 
-  help_test_autohide(abc, menubar);
+  await help_test_autohide(abc, menubar);
 });
+*/
 
 registerCleanupFunction(function teardownModule() {
   toggle_main_menu(menuState);
+  be_in_folder(inboxFolder);
+  menuFolder.deleteSelf(null);
 });
