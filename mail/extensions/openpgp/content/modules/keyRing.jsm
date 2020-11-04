@@ -1002,25 +1002,6 @@ var EnigmailKeyRing = {
       return -2;
     }
 
-    let acceptanceLevel;
-    if (keyObj.secretAvailable) {
-      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
-      if (isPersonal) {
-        acceptanceLevel = 3;
-      } else {
-        acceptanceLevel = -1; // rejected
-      }
-    } else {
-      acceptanceLevel = await this.getKeyAcceptanceLevelForEmail(
-        keyObj,
-        emailAddr
-      );
-    }
-
-    if (acceptanceLevel < 1) {
-      return acceptanceLevel;
-    }
-
     // Ensure we have at least one key usable for encryption
     // that is not expired/revoked.
 
@@ -1042,6 +1023,21 @@ var EnigmailKeyRing = {
 
     if (!foundGoodEnc) {
       return -2;
+    }
+
+    let acceptanceLevel;
+    if (keyObj.secretAvailable) {
+      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
+      if (isPersonal) {
+        acceptanceLevel = 3;
+      } else {
+        acceptanceLevel = -1; // rejected
+      }
+    } else {
+      acceptanceLevel = await this.getKeyAcceptanceLevelForEmail(
+        keyObj,
+        emailAddr
+      );
     }
 
     return acceptanceLevel;
@@ -1281,7 +1277,7 @@ var EnigmailKeyRing = {
         keyObj,
         emailAddr
       );
-      if (acceptanceLevel < 1) {
+      if (acceptanceLevel < -1) {
         continue;
       }
       if (!keyObj.secretAvailable) {
