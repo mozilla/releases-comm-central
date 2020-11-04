@@ -404,6 +404,16 @@
         ],
         "revision": "default"
     },
+    "lv": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
     "ms": {
         "platforms": [
             "linux",
