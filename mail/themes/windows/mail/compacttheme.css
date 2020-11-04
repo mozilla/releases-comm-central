@@ -4,32 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/compacttheme.css");
 
-@media (-moz-windows-default-theme) and (-moz-windows-accent-color-in-titlebar) {
-  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive) {
-    color: var(--lwt-text-color) !important;
-    background-color: var(--lwt-accent-color) !important;
-  }
-
-  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive)::after,
-  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive)::before {
-    border-image: none;
-    background-color: var(--lwt-accent-color);
-    border-color: rgba(24, 25, 26, .3);
-    opacity: 1;
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
-  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive):-moz-lwtheme-brighttext::after,
-  :root[tabsintitlebar] .tabmail-tab:not(:-moz-window-inactive):-moz-lwtheme-brighttext::before {
-    border-color: rgba(249, 249, 250, .3);
-  }
-
-  :root[tabsintitlebar] .tabmail-tab > .tab-stack > .tab-background {
-    border-top-style: none !important;
-  }
-}
-
 /* The window background is white due to no accentcolor in the lightweight
    theme. It can't be changed to transparent when there is no compositor
    (Win 7 in classic / basic theme), or else dragging and focus become
