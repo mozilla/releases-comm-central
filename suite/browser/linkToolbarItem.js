@@ -130,8 +130,6 @@ function LinkToolbarMenu (linkType) {
     menuitem.setAttribute("label", linkElement.getLabel());
     menuitem.setAttribute("href", linkElement.href);
     menuitem.setAttribute("class", "menuitem-iconic bookmark-item");
-    menuitem.setAttribute("rdf:type",
-        "rdf:http://www.w3.org/1999/02/22-rdf-syntax-ns#linkType");
 
     return menuitem;
   }
@@ -158,7 +156,6 @@ function LinkToolbarTransientMenu (linkType) {
     menu.setAttribute("disabled", "true");
     menu.setAttribute("class", "menu-iconic bookmark-item");
     menu.setAttribute("container", "true");
-    menu.setAttribute("type", "rdf:http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 
     document.getElementById("more-menu-popup").appendChild(menu);
 
