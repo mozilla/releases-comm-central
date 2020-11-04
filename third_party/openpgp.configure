@@ -32,7 +32,10 @@ def check_symbol_exists(symbol, header, language='C', flags=None, includes=None,
     else:
         includes = []
     includes.append('stdio.h')
-    includes.append(header)
+
+    if isinstance(header, str):
+        header = [header]
+    includes.extend(header)
 
     body = '''#ifndef %s
 (void) %s;
