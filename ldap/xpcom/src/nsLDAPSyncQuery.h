@@ -37,7 +37,8 @@ class nsLDAPSyncQuery : public nsILDAPSyncQuery,
   nsCOMPtr<nsILDAPOperation> mOperation;    // current ldap op
   nsCOMPtr<nsILDAPURL> mServerURL;          // LDAP URL
   bool mFinished;                           // control variable for eventQ
-  nsString mResults;                        // values to return
+  nsresult mFinishedStatus;                 // final result of async operation.
+  nsString mResults;                        // data returned by async operation.
   uint32_t mProtocolVersion;                // LDAP version to use
 
   nsresult InitConnection();
@@ -47,11 +48,9 @@ class nsLDAPSyncQuery : public nsILDAPSyncQuery,
   // add to the results set
   nsresult OnLDAPSearchEntry(nsILDAPMessage* aMessage);
 
-  nsresult OnLDAPSearchResult(nsILDAPMessage* aMessage);
-
   // kick off a search
   nsresult StartLDAPSearch();
 
   // Clean up after the LDAP Query is done.
-  void FinishLDAPQuery();
+  void FinishLDAPQuery(nsresult status);
 };
