@@ -145,8 +145,11 @@ function run_test() {
 
     // A mail list.
     {
-      displayString: "Holmes and Watson <Tenants221B>",
-      addresses: [["Holmes and Watson", "Tenants221B"]],
+      displayString: "Holmes and Watson <Tenants221B>, foo@example.com",
+      addresses: [
+        ["Holmes and Watson", "Tenants221B"],
+        ["", "foo@example.com"],
+      ],
     },
 
     // A mail list with a space in the name.

@@ -399,11 +399,22 @@ MimeAddressParser.prototype = {
     }
 
     // The basic idea is to split on every comma, so long as there is a
-    // preceding @.
+    // preceding @ or <> pair.
     let output = [];
     while (aDisplay.length > 0) {
+      let lt = aDisplay.indexOf("<");
+      let gt = aDisplay.indexOf(">");
       let at = aDisplay.indexOf("@");
-      let comma = aDisplay.indexOf(",", at + 1);
+      let start = 0;
+      // An address doesn't always contain both <> and @, the goal is to find
+      // the first comma after <> or @.
+      if (lt != -1 && gt > lt) {
+        start = gt;
+      }
+      if (at != -1) {
+        start = Math.min(start, at);
+      }
+      let comma = aDisplay.indexOf(",", start);
       let addr;
       if (comma > 0) {
         addr = aDisplay.substr(0, comma);
