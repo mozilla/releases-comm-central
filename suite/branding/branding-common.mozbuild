@@ -10,27 +10,9 @@ def SeaMonkeyBranding():
         'seamonkey-branding.js',
     ]
 
-    if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk':
-      FINAL_TARGET_FILES.chrome.icons.default += [
-          'default.png',
-          'default128.png',
-          'default16.png',
-          'default48.png',
-          'default64.png',
-      ]
     # Note: mac icons are handled in /suite/app during the final application
     # packaging
     if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk'):
-        if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
-            icon_suffix = '.ico'
-        else:
-            icon_suffix = '.png'
-
-        if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk':
-            icon_dir = 'gtk'
-        else:
-            icon_dir = CONFIG['MOZ_WIDGET_TOOLKIT']
-
         desktop_icons = [
             'abcardWindow',
             'ablistWindow',
@@ -43,28 +25,41 @@ def SeaMonkeyBranding():
             'findHistoryWindow',
             'history-window',
             'JSConsoleWindow',
-            'main-window',
             'messengerWindow',
             'msgcomposeWindow',
             'places',
         ]
 
+        desktop_icons_small = []
+        desktop_icons_large = []
+
         if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
+            icon_suffix = '.ico'
+            icon_dir = 'windows'
             # Windows icons
             desktop_icons += [
                 'gif-file',
                 'html-file',
                 'image-file',
+                'main-window',
                 'jpeg-file',
                 'script-file',
                 'xml-file',
                 'xul-file',
             ]
-
-        desktop_icons_small = []
-        desktop_icons_large = []
-
-        if icon_dir == 'gtk':
+        else:
+            icon_suffix = '.png'
+            icon_dir = 'gtk'
+            FINAL_TARGET_FILES.chrome.icons.default += [
+                'default128.png',
+                'default16.png',
+                'default22.png',
+                'default24.png',
+                'default256.png',
+                'default32.png',
+                'default48.png',
+                'default64.png',
+            ]
             desktop_icons_small = [ '%s16' % i for i in desktop_icons ]
             desktop_icons_large = [ '%s48' % i for i in desktop_icons ]
 
@@ -73,4 +68,3 @@ def SeaMonkeyBranding():
                 desktop_icons + desktop_icons_small + desktop_icons_large
             )
         ]
-

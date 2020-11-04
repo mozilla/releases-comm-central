@@ -247,11 +247,14 @@
 @RESPATH@/chrome/icons/default/chatzilla-window.png
 @RESPATH@/chrome/icons/default/chatzilla-window16.png
 @RESPATH@/chrome/icons/default/chatzilla-window48.png
-@RESPATH@/chrome/icons/default/default.png
 @RESPATH@/chrome/icons/default/default16.png
+@RESPATH@/chrome/icons/default/default22.png
+@RESPATH@/chrome/icons/default/default24.png
+@RESPATH@/chrome/icons/default/default32.png
 @RESPATH@/chrome/icons/default/default48.png
 @RESPATH@/chrome/icons/default/default64.png
 @RESPATH@/chrome/icons/default/default128.png
+@RESPATH@/chrome/icons/default/default256.png
 @RESPATH@/chrome/icons/default/downloadManager.png
 @RESPATH@/chrome/icons/default/downloadManager16.png
 @RESPATH@/chrome/icons/default/downloadManager48.png
@@ -270,9 +273,6 @@
 @RESPATH@/chrome/icons/default/JSConsoleWindow.png
 @RESPATH@/chrome/icons/default/JSConsoleWindow16.png
 @RESPATH@/chrome/icons/default/JSConsoleWindow48.png
-@RESPATH@/chrome/icons/default/main-window.png
-@RESPATH@/chrome/icons/default/main-window16.png
-@RESPATH@/chrome/icons/default/main-window48.png
 @RESPATH@/chrome/icons/default/places.png
 @RESPATH@/chrome/icons/default/places16.png
 @RESPATH@/chrome/icons/default/places48.png

@@ -312,32 +312,15 @@ extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/chrome/calendar/content/calend
 
 # Linux
 chrome/comm/content/branding/icon16.png
-chrome/comm/content/branding/icon22.png
-chrome/comm/content/branding/icon24.png
 chrome/comm/content/branding/icon32.png
 chrome/comm/content/branding/icon48.png
 chrome/comm/content/branding/icon64.png
 chrome/comm/content/branding/icon128.png
-chrome/comm/content/branding/icon256.png
-chrome/comm/content/branding/icon512.png
-chrome/comm/content/branding/icon1024.png
-chrome/icons/default/main-window16.png
-chrome/icons/default/main-window22.png
-chrome/icons/default/main-window24.png
-chrome/icons/default/main-window32.png
-chrome/icons/default/main-window48.png
-chrome/icons/default/main-window64.png
-chrome/icons/default/main-window256.png
 chrome/icons/default/default16.png
-chrome/icons/default/default22.png
-chrome/icons/default/default24.png
 chrome/icons/default/default32.png
 chrome/icons/default/default48.png
 chrome/icons/default/default64.png
 chrome/icons/default/default128.png
-chrome/icons/default/default256.png
-chrome/icons/default/default512.png
-chrome/icons/default/default1024.png
 @MOZ_APP_NAME@
 @MOZ_APP_NAME@-bin
 
