@@ -169,7 +169,7 @@ nsresult nsLDAPSyncQuery::OnLDAPSearchEntry(nsILDAPMessage* aMessage) {
     // Get the values of this attribute.
     // XXX better failure handling
     nsTArray<nsString> vals;
-    rv = aMessage->GetValues("objectClass", vals);
+    rv = aMessage->GetValues(attributes[i].get(), vals);
     if (NS_FAILED(rv)) {
       NS_WARNING(
           "nsLDAPSyncQuery:OnLDAPSearchEntry(): "
