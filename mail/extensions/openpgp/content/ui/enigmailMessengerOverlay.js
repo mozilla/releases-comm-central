@@ -1364,13 +1364,12 @@ Enigmail.msg = {
     this.messageDecrypt(null, false);
   },
 
-  getBodyElement(pbMessageIndex = "0") {
-    let bodyElement = null;
-
-    // Thunderbird
+  getBodyElement() {
     let msgFrame = document.getElementById("messagepane");
-    bodyElement = msgFrame.contentDocument.getElementsByTagName("body")[0];
-    return bodyElement;
+    if (!msgFrame || !msgFrame.contentDocument) {
+      return null;
+    }
+    return msgFrame.contentDocument.getElementsByTagName("body")[0];
   },
 
   async messageParseCallback(
