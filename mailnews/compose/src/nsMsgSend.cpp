@@ -1927,7 +1927,8 @@ nsresult nsMsgComposeAndSend::AddCompFieldRemoteAttachments(
   return NS_OK;
 }
 
-nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* preloadedAttachments) {
+nsresult nsMsgComposeAndSend::HackAttachments(
+    nsTArray<RefPtr<nsIMsgAttachedFile>> const& preloadedAttachments) {
   //
   // First, count the total number of attachments we are going to process
   // for this operation! This is a little more complicated than you might
@@ -1941,9 +1942,7 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* preloadedAttachments) {
 
   // For now, manually add the local attachments in the comp field!
   mPreloadedAttachmentCount += mCompFieldLocalAttachments;
-  uint32_t numPreloadedAttachments = 0;
-  if (preloadedAttachments)
-    preloadedAttachments->GetLength(&numPreloadedAttachments);
+  uint32_t numPreloadedAttachments = preloadedAttachments.Length();
   mPreloadedAttachmentCount += numPreloadedAttachments;
 
   // Count the attachments we have to go retrieve! Keep in mind, that these
@@ -1975,9 +1974,10 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* preloadedAttachments) {
     m_pre_snarfed_attachments_p = true;
 
     for (i = mCompFieldLocalAttachments; i < mPreloadedAttachmentCount; i++) {
-      nsCOMPtr<nsIMsgAttachedFile> attachedFile =
-          do_QueryElementAt(preloadedAttachments, i);
-      if (!attachedFile) continue;
+      // TODO: check this array access!
+      // The indexing looks like it might go out of bounds if
+      // mCompFieldLocalAttachments is nonzero...
+      nsCOMPtr<nsIMsgAttachedFile> attachedFile(preloadedAttachments[i]);
 
       /* These attachments are already "snarfed". */
       m_attachments[i]->mDeleteFile = false;
@@ -2533,8 +2533,9 @@ nsresult nsMsgComposeAndSend::Init(
     nsMsgCompFields* fields, nsIFile* sendFile, bool digest_p,
     bool dont_deliver_p, nsMsgDeliverMode mode, nsIMsgDBHdr* msgToReplace,
     const char* attachment1_type, const nsACString& attachment1_body,
-    nsIArray* preloaded_attachments, const nsAString& password,
-    const nsACString& aOriginalMsgURI, MSG_ComposeType aType) {
+    nsTArray<RefPtr<nsIMsgAttachedFile>> const& preloaded_attachments,
+    const nsAString& password, const nsACString& aOriginalMsgURI,
+    MSG_ComposeType aType) {
   nsresult rv = NS_OK;
 
   // Let make sure we retrieve the correct number of related parts. It may have
@@ -3602,7 +3603,7 @@ nsMsgComposeAndSend::CreateAndSendMessage(
 
   rv = Init(aUserIdentity, aAccountKey, (nsMsgCompFields*)fields, nullptr,
             digest_p, dont_deliver_p, mode, msgToReplace, attachment1_type,
-            attachment1_body, nullptr, password, aOriginalMsgURI, aType);
+            attachment1_body, {}, password, aOriginalMsgURI, aType);
 
   if (NS_FAILED(rv) && mSendReport)
     mSendReport->SetError(nsIMsgSendReport::process_Current, rv, false);
@@ -3611,13 +3612,11 @@ nsMsgComposeAndSend::CreateAndSendMessage(
 }
 
 NS_IMETHODIMP
-nsMsgComposeAndSend::CreateRFC822Message(nsIMsgIdentity* aUserIdentity,
-                                         nsIMsgCompFields* aFields,
-                                         const char* aMsgType,
-                                         const nsACString& aMsgBody,
-                                         bool aIsDraft, nsIArray* aAttachments,
-                                         nsIArray* aEmbeddedObjects,
-                                         nsIMsgSendListener* aListener) {
+nsMsgComposeAndSend::CreateRFC822Message(
+    nsIMsgIdentity* aUserIdentity, nsIMsgCompFields* aFields,
+    const char* aMsgType, const nsACString& aMsgBody, bool aIsDraft,
+    nsTArray<RefPtr<nsIMsgAttachedFile>> const& aAttachments,
+    nsIArray* aEmbeddedObjects, nsIMsgSendListener* aListener) {
   nsresult rv;
   nsMsgDeliverMode mode =
       aIsDraft ? nsIMsgSend::nsMsgSaveAsDraft : nsIMsgSend::nsMsgDeliverNow;
@@ -3673,8 +3672,8 @@ nsresult nsMsgComposeAndSend::SendMessageFile(
   if (!deleteSendFileOnCompletion) mReturnFile = sendIFile;
 
   rv = Init(aUserIndentity, aAccountKey, (nsMsgCompFields*)fields, sendIFile,
-            digest_p, false, mode, msgToReplace, nullptr, EmptyCString(),
-            nullptr, password ? nsDependentString(password) : EmptyString(),
+            digest_p, false, mode, msgToReplace, nullptr, EmptyCString(), {},
+            password ? nsDependentString(password) : EmptyString(),
             EmptyCString(), nsIMsgCompType::New);
 
   if (NS_SUCCEEDED(rv)) rv = DeliverMessage();

@@ -240,12 +240,12 @@ NS_IMETHODIMP nsImportService::GetModuleDescription(const char* filter,
 
 class nsProxySendRunnable : public mozilla::Runnable {
  public:
-  nsProxySendRunnable(nsIMsgIdentity* aIdentity, nsIMsgCompFields* aMsgFields,
-                      const char* attachment1_type,
-                      const nsACString& attachment1_body, bool aIsDraft,
-                      nsIArray* aLoadedAttachments,
-                      nsIArray* aEmbeddedAttachments,
-                      nsIMsgSendListener* aListener);
+  nsProxySendRunnable(
+      nsIMsgIdentity* aIdentity, nsIMsgCompFields* aMsgFields,
+      const char* attachment1_type, const nsACString& attachment1_body,
+      bool aIsDraft,
+      nsTArray<RefPtr<nsIMsgAttachedFile>> const& aLoadedAttachments,
+      nsIArray* aEmbeddedAttachments, nsIMsgSendListener* aListener);
   NS_DECL_NSIRUNNABLE
  private:
   nsCOMPtr<nsIMsgIdentity> m_identity;
@@ -253,25 +253,23 @@ class nsProxySendRunnable : public mozilla::Runnable {
   bool m_isDraft;
   nsCString m_bodyType;
   nsCString m_body;
-  nsCOMPtr<nsIArray> m_loadedAttachments;
+  nsTArray<RefPtr<nsIMsgAttachedFile>> m_loadedAttachments;
   nsCOMPtr<nsIArray> m_embeddedAttachments;
   nsCOMPtr<nsIMsgSendListener> m_listener;
 };
 
-nsProxySendRunnable::nsProxySendRunnable(nsIMsgIdentity* aIdentity,
-                                         nsIMsgCompFields* aMsgFields,
-                                         const char* aBodyType,
-                                         const nsACString& aBody, bool aIsDraft,
-                                         nsIArray* aLoadedAttachments,
-                                         nsIArray* aEmbeddedAttachments,
-                                         nsIMsgSendListener* aListener)
+nsProxySendRunnable::nsProxySendRunnable(
+    nsIMsgIdentity* aIdentity, nsIMsgCompFields* aMsgFields,
+    const char* aBodyType, const nsACString& aBody, bool aIsDraft,
+    nsTArray<RefPtr<nsIMsgAttachedFile>> const& aLoadedAttachments,
+    nsIArray* aEmbeddedAttachments, nsIMsgSendListener* aListener)
     : mozilla::Runnable("nsProxySendRunnable"),
       m_identity(aIdentity),
       m_compFields(aMsgFields),
       m_isDraft(aIsDraft),
       m_bodyType(aBodyType),
       m_body(aBody),
-      m_loadedAttachments(aLoadedAttachments),
+      m_loadedAttachments(aLoadedAttachments.Clone()),
       m_embeddedAttachments(aEmbeddedAttachments),
       m_listener(aListener) {}
 
@@ -286,13 +284,11 @@ NS_IMETHODIMP nsProxySendRunnable::Run() {
 }
 
 NS_IMETHODIMP
-nsImportService::CreateRFC822Message(nsIMsgIdentity* aIdentity,
-                                     nsIMsgCompFields* aMsgFields,
-                                     const char* aBodyType,
-                                     const nsACString& aBody, bool aIsDraft,
-                                     nsIArray* aLoadedAttachments,
-                                     nsIArray* aEmbeddedAttachments,
-                                     nsIMsgSendListener* aListener) {
+nsImportService::CreateRFC822Message(
+    nsIMsgIdentity* aIdentity, nsIMsgCompFields* aMsgFields,
+    const char* aBodyType, const nsACString& aBody, bool aIsDraft,
+    nsTArray<RefPtr<nsIMsgAttachedFile>> const& aLoadedAttachments,
+    nsIArray* aEmbeddedAttachments, nsIMsgSendListener* aListener) {
   RefPtr<nsProxySendRunnable> runnable = new nsProxySendRunnable(
       aIdentity, aMsgFields, aBodyType, aBody, aIsDraft, aLoadedAttachments,
       aEmbeddedAttachments, aListener);

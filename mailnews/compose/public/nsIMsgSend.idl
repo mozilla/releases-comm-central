@@ -230,7 +230,7 @@ interface nsIMsgSend : nsISupports
    * @param aBodyType content type of message body
    * @param aBody message body text (should have native line endings)
    * @param aCreateAsDraft If true, this message will be put in a drafts folder
-   * @param aAttachments Array of nsIMsgAttachmentData
+   * @param aAttachments Array of nsIMsgAttachedFile objects
    * @param aEmbeddedObjects Array of nsIDomNode objects for MHTML messages.
    *                         Primarily used for embedded images.
    *                         Almost all methods can be noops, but
@@ -243,7 +243,7 @@ interface nsIMsgSend : nsISupports
                            in string aBodyType,
                            in ACString aBody,
                            in boolean aCreateAsDraft,
-                           in nsIArray aAttachments,
+                           in Array<nsIMsgAttachedFile> aAttachments,
                            in nsIArray aEmbeddedObjects,
                            in nsIMsgSendListener aListener);
 

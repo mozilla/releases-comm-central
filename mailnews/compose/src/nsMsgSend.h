@@ -222,13 +222,14 @@ class nsMsgComposeAndSend : public nsIMsgSend,
   // Init() will allow for either message creation without delivery or full
   // message creation and send operations
   //
-  nsresult Init(nsIMsgIdentity* aUserIdentity, const char* aAccountKey,
-                nsMsgCompFields* fields, nsIFile* sendFile, bool digest_p,
-                bool dont_deliver_p, nsMsgDeliverMode mode,
-                nsIMsgDBHdr* msgToReplace, const char* attachment1_type,
-                const nsACString& attachment1_body,
-                nsIArray* preloaded_attachments, const nsAString& password,
-                const nsACString& aOriginalMsgURI, MSG_ComposeType aType);
+  nsresult Init(
+      nsIMsgIdentity* aUserIdentity, const char* aAccountKey,
+      nsMsgCompFields* fields, nsIFile* sendFile, bool digest_p,
+      bool dont_deliver_p, nsMsgDeliverMode mode, nsIMsgDBHdr* msgToReplace,
+      const char* attachment1_type, const nsACString& attachment1_body,
+      nsTArray<RefPtr<nsIMsgAttachedFile>> const& preloaded_attachments,
+      const nsAString& password, const nsACString& aOriginalMsgURI,
+      MSG_ComposeType aType);
 
   //
   // Setup the composition fields
@@ -242,7 +243,8 @@ class nsMsgComposeAndSend : public nsIMsgSend,
   //
   // Attachment processing...
   //
-  nsresult HackAttachments(nsIArray* preloaded_attachments);
+  nsresult HackAttachments(
+      nsTArray<RefPtr<nsIMsgAttachedFile>> const& preloaded_attachments);
   nsresult CountCompFieldAttachments();
   nsresult AddCompFieldLocalAttachments();
   nsresult AddCompFieldRemoteAttachments(uint32_t aStartLocation,
@@ -343,7 +345,7 @@ class nsMsgComposeAndSend : public nsIMsgSend,
   //
   uint32_t m_attachment_count;
   uint32_t m_attachment_pending_count;
-  nsTArray<RefPtr<nsMsgAttachmentHandler> > m_attachments;
+  nsTArray<RefPtr<nsMsgAttachmentHandler>> m_attachments;
   nsresult m_status;  // in case some attachments fail but not all
 
   uint32_t mPreloadedAttachmentCount;

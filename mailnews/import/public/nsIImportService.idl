@@ -20,6 +20,7 @@ interface nsIMsgSendListener;
 interface nsIMsgIdentity;
 interface nsIMsgCompFields;
 interface nsIArray;
+interface nsIMsgAttachedFile;
 
 [scriptable, uuid(d0ed4c50-5997-49c9-8a6a-045f0680ed29)]
 interface nsIImportService : nsISupports
@@ -43,7 +44,7 @@ interface nsIImportService : nsISupports
                            in string aBodytype,
                            in ACString aBody,
                            in boolean aCreateAsDraft,
-                           in nsIArray aLoadedAttachments,
+                           in Array<nsIMsgAttachedFile> aLoadedAttachments,
                            in nsIArray aEmbeddedObjects,
                            in nsIMsgSendListener aListener);
 

@@ -18,7 +18,6 @@
 #include "nsMsgAttachmentData.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgCompCID.h"
-#include "nsIArray.h"
 #include "nsIMsgCompFields.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgSend.h"
@@ -27,6 +26,7 @@
 #include "nsNetCID.h"
 #include "nsCRT.h"
 #include "nsOutlookCompose.h"
+#include "nsTArray.h"
 
 #include "ImportDebug.h"
 
@@ -273,8 +273,8 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
   // These will replace the originals on import. All the other headers
   // will be copied to the destination unaltered in CopyComposedMessage().
 
-  nsCOMPtr<nsIArray> pAttach;
-  msg.GetAttachments(getter_AddRefs(pAttach));
+  nsTArray<RefPtr<nsIMsgAttachedFile>> attachments;
+  msg.GetAttachments(attachments);
 
   nsString bodyW;
   bodyW = msg.GetBody();
@@ -316,7 +316,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
       msg.BodyIsHtml() ? "text/html" : "text/plain",
       bodyA,  // body pointer
       mode == nsIMsgSend::nsMsgSaveAsDraft,
-      pAttach,  // local attachments
+      attachments,  // local attachments
       embeddedObjects,
       m_pListener);  // listener
 

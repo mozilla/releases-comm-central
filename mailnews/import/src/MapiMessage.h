@@ -8,6 +8,7 @@
 #include "nsTArray.h"
 #include "nsString.h"
 #include "nsIFile.h"
+#include "nsIMsgSend.h"
 #include "MapiApi.h"
 
 #include <vector>
@@ -166,7 +167,7 @@ class CMapiMessage {
 
   // Attachments
   // Ordinary (not embedded) attachments.
-  nsresult GetAttachments(nsIArray** aArray);
+  nsresult GetAttachments(nsTArray<RefPtr<nsIMsgAttachedFile>>& attachments);
   // Embedded attachments
   size_t EmbeddedAttachmentsCount() const { return m_embattachments.size(); }
   bool GetEmbeddedAttachmentInfo(unsigned int i, nsIURI** uri, const char** cid,

@@ -1122,14 +1122,14 @@ void CMapiMessage::ProcessAttachments() {
   pTable->Release();
 }
 
-nsresult CMapiMessage::GetAttachments(nsIArray** aArray) {
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> attachments(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+nsresult CMapiMessage::GetAttachments(
+    nsTArray<RefPtr<nsIMsgAttachedFile>>& attachments) {
+  attachments.Clear();
+  attachments.SetCapacity(m_stdattachments.size());
 
   for (std::vector<attach_data*>::const_iterator it = m_stdattachments.begin();
        it != m_stdattachments.end(); it++) {
+    nsresult rv;
     nsCOMPtr<nsIMsgAttachedFile> a(
         do_CreateInstance(NS_MSGATTACHEDFILE_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1138,10 +1138,9 @@ nsresult CMapiMessage::GetAttachments(nsIArray** aArray) {
     a->SetEncoding(nsDependentCString((*it)->encoding));
     a->SetRealName(nsDependentCString((*it)->real_name));
     a->SetType(nsDependentCString((*it)->type));
-    attachments->AppendElement(a);
+    attachments.AppendElement(a);
   }
-  attachments.forget(aArray);
-  return rv;
+  return NS_OK;
 }
 
 bool CMapiMessage::GetEmbeddedAttachmentInfo(unsigned int i, nsIURI** uri,
