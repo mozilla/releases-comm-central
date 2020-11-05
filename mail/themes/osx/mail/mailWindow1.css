@@ -62,32 +62,16 @@
   -moz-font-smoothing-background-color: -moz-mac-source-list-selection;
 }
 
-@media (-moz-mac-yosemite-theme: 0) {
-  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-row(selected, focus) {
-    appearance: auto;
-  -moz-default-appearance: -moz-mac-active-source-list-selection;
-    -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
-  }
-
-  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-image(selected),
-  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-twisty(selected),
-  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-cell-text(selected) {
-    color: white;
-  }
+#folderTree treechildren::-moz-tree-cell-text {
+  font-family: -apple-system;
+  font-size: 9pt;
+  font-weight: 400;
 }
 
-@media (-moz-mac-yosemite-theme) {
-  #folderTree treechildren::-moz-tree-cell-text {
-    font-family: -apple-system;
-    font-size: 9pt;
-    font-weight: 400;
-  }
-
-  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-image(selected, focus),
-  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-twisty(selected, focus),
-  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
-    color: #282828;
-  }
+:root:not([lwt-tree]) #folderTree treechildren::-moz-tree-image(selected, focus),
+:root:not([lwt-tree]) #folderTree treechildren::-moz-tree-twisty(selected, focus),
+:root:not([lwt-tree]) #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
+  color: #282828;
 }
 
 /* ::::: thread decoration ::::: */

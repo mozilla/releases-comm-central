@@ -23,7 +23,6 @@
       "popup_text": "#0c0c0d",
       "popup_border": "#ccc",
       "tab_line": "#0a84ff",
-#ifndef XP_MACOSX
       "sidebar": "#fff",
       "sidebar_text": "#000",
       "sidebar_border": "#888",
@@ -31,7 +30,6 @@
       "sidebar_highlight_text": "#fff",
       "toolbar_field_separator": "#ccc",
       "toolbar_field_text": "rgb(24, 25, 26)",
-#endif
       "toolbar": "#f5f6f7",
       "toolbar_bottom_separator": "#ccc",
       "toolbar_field": "#fff",

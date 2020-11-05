@@ -32,8 +32,15 @@
   --select-focus-text-color: HighlightText;
 }
 
+:root:not(:-moz-lwtheme) {
+  --tabs-border-color: rgba(0, 0, 0, .2);
+  --chrome-content-separator-color: hsl(0, 0%, 68%);
+}
+
 :root:not(:-moz-lwtheme):-moz-window-inactive {
   --toolbar-bgcolor: -moz-mac-chrome-inactive;
+  --tabs-border-color: rgba(0, 0, 0, .05);
+  --chrome-content-separator-color: hsl(0, 0%, 85%);
 }
 
 :root[lwt-popup-brighttext] {
@@ -62,17 +69,6 @@
 
 #messengerWindow:not([tabsintitlebar]) #titlebar {
   height: 22px;
-}
-
-@media (-moz-mac-yosemite-theme) {
-  :root:not(:-moz-lwtheme) {
-    --tabs-border-color: rgba(0,0,0,.2);
-    --chrome-content-separator-color: hsl(0, 0%, 68%);
-  }
-  :root:not(:-moz-lwtheme):-moz-window-inactive {
-    --tabs-border-color: rgba(0,0,0,.05);
-    --chrome-content-separator-color: hsl(0, 0%, 85%);
-  }
 }
 
 .inline-toolbar,
