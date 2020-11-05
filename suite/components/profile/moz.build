@@ -5,9 +5,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsSuiteDirectoryProvider.cpp',
+    "nsSuiteDirectoryProvider.cpp",
 ]
 
-FINAL_LIBRARY = 'suite'
+FINAL_LIBRARY = "suite"
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

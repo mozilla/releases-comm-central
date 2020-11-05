@@ -3,29 +3,29 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-CONFIGURE_SUBST_FILES += ['installer/Makefile']
+CONFIGURE_SUBST_FILES += ["installer/Makefile"]
 
 DIRS += [
-    'base',
-    'browser',
-    'components',
-    'extensions',
-    'locales',
-    'mailnews',
-    'modules',
-    'themes/classic',
-    'themes/modern',
-    'security',
-    '../common',
+    "base",
+    "browser",
+    "components",
+    "extensions",
+    "locales",
+    "mailnews",
+    "modules",
+    "themes/classic",
+    "themes/modern",
+    "security",
+    "../common",
 ]
 
-if CONFIG['MAKENSISU']:
-    DIRS += ['installer/windows']
+if CONFIG["MAKENSISU"]:
+    DIRS += ["installer/windows"]
 
-if CONFIG['MOZ_BUNDLED_FONTS']:
-    DIRS += ['/browser/fonts']
+if CONFIG["MOZ_BUNDLED_FONTS"]:
+    DIRS += ["/browser/fonts"]
 
 # app is always last as it packages up the built files on mac.
 DIRS += [
-    'app',
+    "app",
 ]

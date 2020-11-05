@@ -4,14 +4,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 # DEFINES for preprocessing
 
 # Use suite/base/content/overrides/app-license.html as input when generating
 # chrome://content/communicator/license.html to override
 # chrome://global/content/license.html (about:license)
-DEFINES['APP_LICENSE_BLOCK'] = '%s/content/overrides/app-license.html' % SRCDIR
+DEFINES["APP_LICENSE_BLOCK"] = "%s/content/overrides/app-license.html" % SRCDIR
 
-for var in ('MOZ_APP_NAME', 'MOZ_MACBUNDLE_NAME'):
+for var in ("MOZ_APP_NAME", "MOZ_MACBUNDLE_NAME"):
     DEFINES[var] = CONFIG[var]

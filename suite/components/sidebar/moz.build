@@ -5,14 +5,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsISidebar.idl',
+    "nsISidebar.idl",
 ]
 
-XPIDL_MODULE = 'suite-sidebar'
+XPIDL_MODULE = "suite-sidebar"
 
 EXTRA_COMPONENTS += [
-    'nsSidebar.js',
-    'SuiteSidebar.manifest',
+    "nsSidebar.js",
+    "SuiteSidebar.manifest",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

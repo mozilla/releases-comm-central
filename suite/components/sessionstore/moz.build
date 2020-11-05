@@ -5,20 +5,20 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsISessionStartup.idl',
-    'nsISessionStore.idl',
+    "nsISessionStartup.idl",
+    "nsISessionStore.idl",
 ]
 
-XPIDL_MODULE = 'suitecommon'
+XPIDL_MODULE = "suitecommon"
 
 EXTRA_COMPONENTS += [
-    'nsSessionStartup.js',
-    'nsSessionStartup.manifest',
-    'nsSessionStore.js',
+    "nsSessionStartup.js",
+    "nsSessionStartup.manifest",
+    "nsSessionStore.js",
 ]
 
 EXTRA_JS_MODULES.sessionstore = [
-    'XPathGenerator.jsm',
+    "XPathGenerator.jsm",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

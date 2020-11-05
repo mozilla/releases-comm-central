@@ -3,13 +3,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
-classic_extension_dir = '{972ce4c6-7e08-4474-a285-3208198ce6fd}'
+classic_extension_dir = "{972ce4c6-7e08-4474-a285-3208198ce6fd}"
 
-DEFINES['SEAMONKEY_VERSION'] = CONFIG['SEAMONKEY_VERSION']
+DEFINES["SEAMONKEY_VERSION"] = CONFIG["SEAMONKEY_VERSION"]
 
 FINAL_TARGET_FILES.extensions[classic_extension_dir] += [
-    'icon.png',
-    'preview.png',
+    "icon.png",
+    "preview.png",
 ]

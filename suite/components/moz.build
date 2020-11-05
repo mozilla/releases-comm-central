@@ -5,46 +5,46 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'autocomplete',
-    'bindings',
-    'console',
-    'dataman',
-    'downloads',
-    'feeds',
-    'helpviewer',
-    'migration',
-    'permissions',
-    'places',
-    'pref',
-    'profile',
-    'search',
-    'sessionstore',
-    'shell',
-    'sidebar',
+    "autocomplete",
+    "bindings",
+    "console",
+    "dataman",
+    "downloads",
+    "feeds",
+    "helpviewer",
+    "migration",
+    "permissions",
+    "places",
+    "pref",
+    "profile",
+    "search",
+    "sessionstore",
+    "shell",
+    "sidebar",
 ]
 
 # build is always last as it adds the local includes from the other components.
 DIRS += [
-    'build',
+    "build",
 ]
 
 BROWSER_CHROME_MANIFESTS += [
-    'tests/browser/browser.ini',
+    "tests/browser/browser.ini",
 ]
 
 MOCHITEST_CHROME_MANIFESTS += [
-    'tests/chrome/chrome.ini',
+    "tests/chrome/chrome.ini",
 ]
 
 XPIDL_SOURCES += [
-    'nsISuiteGlue.idl',
+    "nsISuiteGlue.idl",
 ]
 
-XPIDL_MODULE = 'suite-components'
+XPIDL_MODULE = "suite-components"
 
 EXTRA_COMPONENTS += [
-    'nsAbout.js',
-    'nsGopherProtocolStubHandler.js',
-    'nsSuiteGlue.js',
-    'SuiteComponents.manifest',
+    "nsAbout.js",
+    "nsGopherProtocolStubHandler.js",
+    "nsSuiteGlue.js",
+    "SuiteComponents.manifest",
 ]

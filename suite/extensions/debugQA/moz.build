@@ -3,13 +3,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEFINES['MOZ_APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
-DEFINES['MOZ_APP_MAXVERSION'] = CONFIG['MOZ_APP_MAXVERSION']
+DEFINES["MOZ_APP_VERSION"] = CONFIG["MOZ_APP_VERSION"]
+DEFINES["MOZ_APP_MAXVERSION"] = CONFIG["MOZ_APP_MAXVERSION"]
 
-DIRS += ['locales']
+DIRS += ["locales"]
 
-FINAL_TARGET_PP_FILES.distribution.extensions['debugQA@mozilla.org'] += [
-  'install.rdf.in'
+FINAL_TARGET_PP_FILES.distribution.extensions["debugQA@mozilla.org"] += [
+    "install.rdf.in"
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

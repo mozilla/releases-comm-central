@@ -5,44 +5,44 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIShellService.idl',
+    "nsIShellService.idl",
 ]
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+if CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
     XPIDL_SOURCES += [
-        'nsIMacShellService.idl',
+        "nsIMacShellService.idl",
     ]
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk':
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
     XPIDL_SOURCES += [
-        'nsIGNOMEShellService.idl',
+        "nsIGNOMEShellService.idl",
     ]
 
-XPIDL_MODULE = 'shellservice'
+XPIDL_MODULE = "shellservice"
 
-if CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG["OS_ARCH"] == "WINNT":
     SOURCES += [
-        'nsWindowsShellService.cpp',
+        "nsWindowsShellService.cpp",
     ]
     LOCAL_INCLUDES += [
-        '/other-licenses/nsis/Contrib/CityHash/cityhash',
+        "/other-licenses/nsis/Contrib/CityHash/cityhash",
     ]
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
-    SOURCES += ['nsMacShellService.cpp']
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gtk':
-    SOURCES += ['nsGNOMEShellService.cpp']
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
+    SOURCES += ["nsMacShellService.cpp"]
+elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+    SOURCES += ["nsGNOMEShellService.cpp"]
 
 if SOURCES:
     EXTRA_COMPONENTS += [
-        'nsSetDefault.js',
-        'nsSetDefault.manifest',
+        "nsSetDefault.js",
+        "nsSetDefault.manifest",
     ]
 
 EXTRA_JS_MODULES += [
-    'ShellService.jsm',
+    "ShellService.jsm",
 ]
 
-FINAL_LIBRARY = 'suite'
+FINAL_LIBRARY = "suite"
 
-CXXFLAGS += CONFIG['TK_CFLAGS']
+CXXFLAGS += CONFIG["TK_CFLAGS"]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

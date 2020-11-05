@@ -3,20 +3,20 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-BROWSER_CHROME_MANIFESTS += ['test/browser/browser.ini']
-MOCHITEST_CHROME_MANIFESTS += ['test/chrome/chrome.ini']
-MOCHITEST_MANIFESTS += ['test/mochitest/mochitest.ini']
+BROWSER_CHROME_MANIFESTS += ["test/browser/browser.ini"]
+MOCHITEST_CHROME_MANIFESTS += ["test/chrome/chrome.ini"]
+MOCHITEST_MANIFESTS += ["test/mochitest/mochitest.ini"]
 
 EXTRA_COMPONENTS += [
-    'nsBrowserContentHandler.js',
-    'nsTypeAheadFind.js',
-    'SuiteBrowser.manifest',
+    "nsBrowserContentHandler.js",
+    "nsTypeAheadFind.js",
+    "SuiteBrowser.manifest",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
-for var in ('MOZ_APP_NAME', 'MOZ_APP_DISPLAYNAME', 'MOZ_APP_VERSION'):
+for var in ("MOZ_APP_NAME", "MOZ_APP_DISPLAYNAME", "MOZ_APP_VERSION"):
     DEFINES[var] = '"%s"' % CONFIG[var]
 
-if CONFIG['MOZILLA_OFFICIAL']:
-    DEFINES['OFFICIAL_BUILD'] = 1
+if CONFIG["MOZILLA_OFFICIAL"]:
+    DEFINES["OFFICIAL_BUILD"] = 1

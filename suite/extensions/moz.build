@@ -3,12 +3,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if CONFIG['MOZ_DEBUGQA']:
+if CONFIG["MOZ_DEBUGQA"]:
     DIRS += [
-        'debugQA',
+        "debugQA",
     ]
 
-DIRS += ['smime']
+DIRS += ["smime"]
 
 # for later
 # if CONFIG['MOZ_IRC']:
@@ -21,4 +21,4 @@ DIRS += ['smime']
 #         'inspector',
 #     ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

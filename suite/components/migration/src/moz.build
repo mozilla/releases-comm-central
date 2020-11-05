@@ -5,9 +5,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 SOURCES += [
-    'nsSuiteProfileMigratorBase.cpp',
-    'nsSuiteProfileMigratorUtils.cpp',
-    'nsThunderbirdProfileMigrator.cpp',
+    "nsSuiteProfileMigratorBase.cpp",
+    "nsSuiteProfileMigratorUtils.cpp",
+    "nsThunderbirdProfileMigrator.cpp",
 ]
 
-FINAL_LIBRARY = 'suite'
+FINAL_LIBRARY = "suite"

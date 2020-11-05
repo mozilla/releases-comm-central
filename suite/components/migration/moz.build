@@ -5,15 +5,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'public',
-    'src',
+    "public",
+    "src",
 ]
 
 EXTRA_COMPONENTS += [
-    'SuiteProfileMigrator.js',
-    'SuiteProfileMigrator.manifest',
+    "SuiteProfileMigrator.js",
+    "SuiteProfileMigrator.manifest",
 ]
 
-FINAL_LIBRARY = 'suite'
+FINAL_LIBRARY = "suite"
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]

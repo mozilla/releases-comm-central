@@ -3,17 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-FINAL_TARGET_PP_FILES += ['install.rdf']
+FINAL_TARGET_PP_FILES += ["install.rdf"]
 
-DIST_SUBDIR = 'extensions/modern@themes.mozilla.org'
+DIST_SUBDIR = "extensions/modern@themes.mozilla.org"
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 USE_EXTENSION_MANIFEST = True
 
-DEFINES['SEAMONKEY_VERSION'] = CONFIG['SEAMONKEY_VERSION']
+DEFINES["SEAMONKEY_VERSION"] = CONFIG["SEAMONKEY_VERSION"]
 
 FINAL_TARGET_FILES += [
-    'icon.png',
-    'preview.png',
+    "icon.png",
+    "preview.png",
 ]

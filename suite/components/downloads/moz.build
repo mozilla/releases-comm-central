@@ -4,14 +4,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-MOCHITEST_CHROME_MANIFESTS += ['tests/chrome/chrome.ini']
+MOCHITEST_CHROME_MANIFESTS += ["tests/chrome/chrome.ini"]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 EXTRA_JS_MODULES += [
-    'DownloadsCommon.jsm',
-    'DownloadsTaskbar.jsm',
+    "DownloadsCommon.jsm",
+    "DownloadsTaskbar.jsm",
 ]
 
-with Files('**'):
-    BUG_COMPONENT = ('SeaMonkey', 'Downloads')
+with Files("**"):
+    BUG_COMPONENT = ("SeaMonkey", "Downloads")

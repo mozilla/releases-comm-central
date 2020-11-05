@@ -5,24 +5,24 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPCSHELL_TESTS_MANIFESTS += [
-    'tests/autocomplete/xpcshell.ini',
-    'tests/unit/xpcshell.ini',
+    "tests/autocomplete/xpcshell.ini",
+    "tests/unit/xpcshell.ini",
 ]
 
-MOCHITEST_CHROME_MANIFESTS += ['tests/chrome/chrome.ini']
-BROWSER_CHROME_MANIFESTS += ['tests/browser/browser.ini']
+MOCHITEST_CHROME_MANIFESTS += ["tests/chrome/chrome.ini"]
+BROWSER_CHROME_MANIFESTS += ["tests/browser/browser.ini"]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 EXTRA_COMPONENTS += [
-    'nsPlacesAutoComplete.js',
-    'nsPlacesAutoComplete.manifest',
+    "nsPlacesAutoComplete.js",
+    "nsPlacesAutoComplete.manifest",
 ]
 
 EXTRA_JS_MODULES += [
-    'PlacesUIUtils.jsm',
+    "PlacesUIUtils.jsm",
 ]
 
 
-with Files('**'):
-    BUG_COMPONENT = ('SeaMonkey', 'Bookmarks & History')
+with Files("**"):
+    BUG_COMPONENT = ("SeaMonkey", "Bookmarks & History")

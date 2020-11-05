@@ -5,19 +5,19 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
-    'nsSuiteCID.h',
+    "nsSuiteCID.h",
 ]
 
 SOURCES += [
-    'nsSuiteModule.cpp',
+    "nsSuiteModule.cpp",
 ]
 
-Library('suite')
-FINAL_LIBRARY = 'xul'
+Library("suite")
+FINAL_LIBRARY = "xul"
 
 LOCAL_INCLUDES += [
-    '../feeds',
-    '../migration/src',
-    '../profile',
-    '../shell',
+    "../feeds",
+    "../migration/src",
+    "../profile",
+    "../shell",
 ]

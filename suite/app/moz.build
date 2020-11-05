@@ -4,65 +4,65 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'icons',
+    "icons",
 ]
 
-GeckoProgram(CONFIG['MOZ_APP_NAME'])
+GeckoProgram(CONFIG["MOZ_APP_NAME"])
 
-SOURCES += ['nsSuiteApp.cpp']
+SOURCES += ["nsSuiteApp.cpp"]
 
 LOCAL_INCLUDES += [
-    '!/build',
-    '/ipc/contentproc/',
-    '/toolkit/xre',
-    '/xpcom/base',
-    '/xpcom/build',
+    "!/build",
+    "/ipc/contentproc/",
+    "/toolkit/xre",
+    "/xpcom/base",
+    "/xpcom/build",
 ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
-    RCINCLUDE = 'splash.rc'
-    DEFINES['MOZ_SUITE'] = True
+if CONFIG["OS_ARCH"] == "WINNT":
+    RCINCLUDE = "splash.rc"
+    DEFINES["MOZ_SUITE"] = True
 
-if CONFIG['LIBFUZZER']:
-    USE_LIBS += [ 'fuzzer' ]
+if CONFIG["LIBFUZZER"]:
+    USE_LIBS += ["fuzzer"]
     LOCAL_INCLUDES += [
-        '/tools/fuzzing/libfuzzer',
+        "/tools/fuzzing/libfuzzer",
     ]
 
-if CONFIG['CC_TYPE'] in ('msvc', 'clang-cl'):
+if CONFIG["CC_TYPE"] in ("msvc", "clang-cl"):
     # Always enter a Windows program through wmain, whether or not we're
     # a console application.
-    WIN32_EXE_LDFLAGS += ['-ENTRY:wmainCRTStartup']
+    WIN32_EXE_LDFLAGS += ["-ENTRY:wmainCRTStartup"]
 
-if CONFIG['MOZ_SANDBOX'] and CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG["MOZ_SANDBOX"] and CONFIG["OS_ARCH"] == "WINNT":
     # For sandbox includes and the include dependencies those have
     LOCAL_INCLUDES += [
-        '/security/sandbox/chromium',
-        '/security/sandbox/chromium-shim',
+        "/security/sandbox/chromium",
+        "/security/sandbox/chromium-shim",
     ]
 
     OS_LIBS += [
-        'version',
+        "version",
     ]
 
     USE_LIBS += [
-        'sandbox_s',
+        "sandbox_s",
     ]
 
     DELAYLOAD_DLLS += [
-        'winmm.dll',
-        'user32.dll',
+        "winmm.dll",
+        "user32.dll",
     ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
+if CONFIG["OS_ARCH"] == "WINNT":
     OS_LIBS += [
-        'ntdll',
+        "ntdll",
     ]
 
-    if CONFIG['CC_TYPE'] == "msvc":
-        CFLAGS += ['-guard:cf']
-        CXXFLAGS += ['-guard:cf']
-        LDFLAGS += ['-guard:cf']
+    if CONFIG["CC_TYPE"] == "msvc":
+        CFLAGS += ["-guard:cf"]
+        CXXFLAGS += ["-guard:cf"]
+        LDFLAGS += ["-guard:cf"]
 
 # Control the default heap size.
 # This is the heap returned by GetProcessHeap().
@@ -72,38 +72,44 @@ if CONFIG['OS_ARCH'] == 'WINNT':
 # The heap will grow if need be.
 #
 # Set it to 256k.  See bug 127069.
-if CONFIG['OS_ARCH'] == 'WINNT' and CONFIG['CC_TYPE'] not in ('clang', 'gcc'):
-    LDFLAGS += ['/HEAP:0x40000']
+if CONFIG["OS_ARCH"] == "WINNT" and CONFIG["CC_TYPE"] not in ("clang", "gcc"):
+    LDFLAGS += ["/HEAP:0x40000"]
 
 DisableStlWrapping()
 
-if CONFIG['MOZ_LINKER']:
-    OS_LIBS += CONFIG['MOZ_ZLIB_LIBS']
+if CONFIG["MOZ_LINKER"]:
+    OS_LIBS += CONFIG["MOZ_ZLIB_LIBS"]
 
-if CONFIG['HAVE_CLOCK_MONOTONIC']:
-    OS_LIBS += CONFIG['REALTIME_LIBS']
+if CONFIG["HAVE_CLOCK_MONOTONIC"]:
+    OS_LIBS += CONFIG["REALTIME_LIBS"]
 
-if CONFIG['MOZ_LINUX_32_SSE2_STARTUP_ERROR']:
-    DEFINES['MOZ_LINUX_32_SSE2_STARTUP_ERROR'] = True
-    COMPILE_FLAGS['OS_CXXFLAGS'] = [
-        f for f in COMPILE_FLAGS.get('OS_CXXFLAGS', [])
-        if not f.startswith('-march=') and f not in ('-msse', '-msse2', '-mfpmath=sse')
+if CONFIG["MOZ_LINUX_32_SSE2_STARTUP_ERROR"]:
+    DEFINES["MOZ_LINUX_32_SSE2_STARTUP_ERROR"] = True
+    COMPILE_FLAGS["OS_CXXFLAGS"] = [
+        f
+        for f in COMPILE_FLAGS.get("OS_CXXFLAGS", [])
+        if not f.startswith("-march=") and f not in ("-msse", "-msse2", "-mfpmath=sse")
     ] + [
-        '-mno-sse', '-mno-sse2', '-mfpmath=387',
+        "-mno-sse",
+        "-mno-sse2",
+        "-mfpmath=387",
     ]
 
 # For splash.rc
-DEFINES['SEAMONKEY_ICO'] = '"%s/%s/icons/windows/main-window.ico"' % (
-    TOPSRCDIR, CONFIG['MOZ_BRANDING_DIRECTORY'])
-DEFINES['HTML_FILE_ICO'] = '"%s/%s/icons/windows/html-file.ico"' % (
-    TOPSRCDIR, CONFIG['MOZ_BRANDING_DIRECTORY'])
+DEFINES["SEAMONKEY_ICO"] = '"%s/%s/icons/windows/main-window.ico"' % (
+    TOPSRCDIR,
+    CONFIG["MOZ_BRANDING_DIRECTORY"],
+)
+DEFINES["HTML_FILE_ICO"] = '"%s/%s/icons/windows/html-file.ico"' % (
+    TOPSRCDIR,
+    CONFIG["MOZ_BRANDING_DIRECTORY"],
+)
 
-DEFINES['APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
+DEFINES["APP_VERSION"] = CONFIG["MOZ_APP_VERSION"]
 
 JS_PREFERENCE_PP_FILES += [
-    'profile/suite-prefs.js',
+    "profile/suite-prefs.js",
 ]
 
-FINAL_TARGET_FILES += ['blocklist.xml']
-FINAL_TARGET_FILES.defaults += ['permissions']
-
+FINAL_TARGET_FILES += ["blocklist.xml"]
+FINAL_TARGET_FILES.defaults += ["permissions"]

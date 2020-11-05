@@ -5,8 +5,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_COMPONENTS += [
-    'jsconsole-clhandler.js',
-    'jsconsole-clhandler.manifest',
+    "jsconsole-clhandler.js",
+    "jsconsole-clhandler.manifest",
 ]
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
