@@ -50,3 +50,29 @@ menu > menupopup > menu {
   margin-inline-start: 0;
   padding-inline-start: 0;
 }
+
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme: 0) {
+  :root:not(:-moz-lwtheme) {
+    --button-background: ButtonFace;
+    --button-background-hover: Highlight;
+    --button-background-active: Highlight;
+    --button-text-active: HighlightText;
+    --button-border-color: ThreeDShadow;
+    --field-border-color: ThreeDShadow;
+    --field-border-hover-color: HighlightText;
+    --popup-item-hover: Highlight;
+    --popup-item-hover-text: HighlightText;
+    --tab-hover-background: Highlight;
+    --tab-selected-background: Highlight;
+  }
+
+  button[open],
+  button:not([disabled="true"]):hover,
+  button:not([disabled="true"]):hover:active,
+  menulist:not([disabled="true"]):not([open="true"]):hover,
+  menulist[open="true"]:not([disabled="true"]),
+  tab:hover,
+  tab[visuallyselected="true"] {
+    color: var(--button-text-active, inherit) !important;
+  }
+}
