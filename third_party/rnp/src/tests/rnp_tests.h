@@ -199,6 +199,8 @@ void test_ffi_encrypt_pass_provider(void **state);
 
 void test_ffi_encrypt_pk(void **state);
 
+void test_ffi_encrypt_pk_subkey_selection(void **state);
+
 void test_ffi_encrypt_and_sign(void **state);
 
 void test_ffi_signatures_memory(void **state);
@@ -252,6 +254,8 @@ void test_ffi_file_output(void **state);
 void test_ffi_key_signatures(void **state);
 
 void test_ffi_keys_import(void **state);
+
+void test_ffi_iterated_key_import(void **state);
 
 void test_ffi_stripped_keys_import(void **state);
 
@@ -323,6 +327,8 @@ void test_ffi_decrypt_edge_cases(void **state);
 
 void test_ffi_key_get_protection_info(void **state);
 
+void test_rnp_mkstemp(void **state);
+
 void test_dsa_roundtrip(void **state);
 
 void test_dsa_verify_negative(void **state);
@@ -356,6 +362,8 @@ void test_stream_verify_no_key(void **state);
 void test_stream_key_signature_validate(void **state);
 
 void test_stream_deep_packet_nesting(void **state);
+
+void test_stream_cache(void **state);
 
 void test_key_validity(void **state);
 
@@ -416,6 +424,8 @@ void test_fuzz_keyring(void **state);
 void test_fuzz_keyring_g10(void **state);
 
 void test_fuzz_keyring_kbx(void **state);
+
+void test_fuzz_keyimport(void **state);
 
 #define assert_true(a) EXPECT_TRUE((a))
 #define assert_false(a) EXPECT_FALSE((a))

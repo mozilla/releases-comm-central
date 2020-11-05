@@ -916,14 +916,12 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         pgp_key_t                 pub;
         pgp_key_t                 sec;
         rnp_keygen_primary_desc_t desc;
-        pgp_fingerprint_t         fp = {};
         pgp_sig_subpkt_t *        subpkt = NULL;
         pgp_signature_t *         psig = NULL;
         pgp_signature_t *         ssig = NULL;
         pgp_signature_info_t      psiginfo = {};
         pgp_signature_info_t      ssiginfo = {};
 
-        memset(&desc, 0, sizeof(desc));
         desc.crypto.key_alg = PGP_PKA_RSA;
         desc.crypto.rsa.modulus_bit_len = 1024;
         desc.crypto.rng = &global_rng;
@@ -965,18 +963,17 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         psiginfo.signer = &pub;
         assert_rnp_success(signature_check_certification(
           &psiginfo, pgp_key_get_pkt(&pub), &pgp_key_get_userid(&pub, 0)->pkt));
-        assert_true(signature_get_keyfp(psig, fp));
-        assert_true(fp == pgp_key_get_fp(&pub));
+        assert_true(psig->keyfp() == pgp_key_get_fp(&pub));
         // check subpackets and their contents
-        subpkt = signature_get_subpkt(psig, PGP_SIG_SUBPKT_ISSUER_FPR);
+        subpkt = psig->get_subpkt(PGP_SIG_SUBPKT_ISSUER_FPR);
         assert_non_null(subpkt);
         assert_true(subpkt->hashed);
-        subpkt = signature_get_subpkt(psig, PGP_SIG_SUBPKT_ISSUER_KEY_ID);
+        subpkt = psig->get_subpkt(PGP_SIG_SUBPKT_ISSUER_KEY_ID, false);
         assert_non_null(subpkt);
         assert_false(subpkt->hashed);
         assert_int_equal(
           0, memcmp(subpkt->fields.issuer, pgp_key_get_keyid(&pub).data(), PGP_KEY_ID_SIZE));
-        subpkt = signature_get_subpkt(psig, PGP_SIG_SUBPKT_CREATION_TIME);
+        subpkt = psig->get_subpkt(PGP_SIG_SUBPKT_CREATION_TIME);
         assert_non_null(subpkt);
         assert_true(subpkt->hashed);
         assert_true(subpkt->fields.create <= time(NULL));
@@ -985,8 +982,7 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         ssiginfo.signer = &sec;
         assert_rnp_success(signature_check_certification(
           &ssiginfo, pgp_key_get_pkt(&sec), &pgp_key_get_userid(&sec, 0)->pkt));
-        assert_true(signature_get_keyfp(ssig, fp));
-        assert_true(fp == pgp_key_get_fp(&sec));
+        assert_true(ssig->keyfp() == pgp_key_get_fp(&sec));
 
         // modify a hashed portion of the sig packets
         psig->hashed_data[32] ^= 0xff;
@@ -1056,7 +1052,6 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         pgp_key_t                pub;
         pgp_key_t                sec;
         rnp_keygen_subkey_desc_t desc;
-        pgp_fingerprint_t        fp = {};
         pgp_sig_subpkt_t *       subpkt = NULL;
         pgp_signature_t *        psig = NULL;
         pgp_signature_t *        ssig = NULL;
@@ -1094,20 +1089,19 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         psiginfo.signer = primary_pub;
         assert_rnp_success(
           signature_check_binding(&psiginfo, pgp_key_get_pkt(primary_pub), &pub));
-        assert_true(signature_get_keyfp(psig, fp));
-        assert_true(fp == pgp_key_get_fp(primary_pub));
+        assert_true(psig->keyfp() == pgp_key_get_fp(primary_pub));
         // check subpackets and their contents
-        subpkt = signature_get_subpkt(psig, PGP_SIG_SUBPKT_ISSUER_FPR);
+        subpkt = psig->get_subpkt(PGP_SIG_SUBPKT_ISSUER_FPR);
         assert_non_null(subpkt);
         assert_true(subpkt->hashed);
-        subpkt = signature_get_subpkt(psig, PGP_SIG_SUBPKT_ISSUER_KEY_ID);
+        subpkt = psig->get_subpkt(PGP_SIG_SUBPKT_ISSUER_KEY_ID, false);
         assert_non_null(subpkt);
         assert_false(subpkt->hashed);
         assert_int_equal(0,
                          memcmp(subpkt->fields.issuer,
                                 pgp_key_get_keyid(primary_pub).data(),
                                 PGP_KEY_ID_SIZE));
-        subpkt = signature_get_subpkt(psig, PGP_SIG_SUBPKT_CREATION_TIME);
+        subpkt = psig->get_subpkt(PGP_SIG_SUBPKT_CREATION_TIME);
         assert_non_null(subpkt);
         assert_true(subpkt->hashed);
         assert_true(subpkt->fields.create <= time(NULL));
@@ -1116,8 +1110,7 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         ssiginfo.signer = primary_pub;
         assert_rnp_success(
           signature_check_binding(&ssiginfo, pgp_key_get_pkt(primary_pub), &sec));
-        assert_true(signature_get_keyfp(ssig, fp));
-        assert_true(fp == pgp_key_get_fp(primary_sec));
+        assert_true(ssig->keyfp() == pgp_key_get_fp(primary_sec));
 
         // modify a hashed portion of the sig packets
         psig->hashed_data[10] ^= 0xff;

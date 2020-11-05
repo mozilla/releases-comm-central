@@ -756,7 +756,7 @@ static const pgp_hash_t *
 get_hash_for_sig(pgp_source_signed_param_t *param, pgp_signature_info_t *sinfo)
 {
     /* Cleartext always uses param->hashes instead of param->txt_hashes */
-    if (!param->cleartext && (sinfo->sig->type == PGP_SIG_TEXT)) {
+    if (!param->cleartext && (sinfo->sig->type() == PGP_SIG_TEXT)) {
         return pgp_hash_list_get(param->txt_hashes, sinfo->sig->halg);
     }
     return pgp_hash_list_get(param->hashes, sinfo->sig->halg);
@@ -943,7 +943,7 @@ signed_read_signatures(pgp_source_t *src)
             return ret;
         }
 
-        if (!signature_matches_onepass(sig, &*op)) {
+        if (!sig || !sig->matches_onepass(*op)) {
             RNP_LOG("signature doesn't match one-pass");
             return RNP_ERROR_BAD_FORMAT;
         }
@@ -987,11 +987,12 @@ signed_src_finish(pgp_source_t *src)
         keyctx.secret = false;
 
         /* Get the key id */
-        if (!signature_get_keyid(sinfo.sig, keyctx.search.by.keyid)) {
+        if (!sinfo.sig->has_keyid()) {
             RNP_LOG("cannot get signer's key id from signature");
             sinfo.unknown = true;
             continue;
         }
+        keyctx.search.by.keyid = sinfo.sig->keyid();
 
         /* Get the public key */
         if (!(key = pgp_request_key(param->handler->key_provider, &keyctx))) {
@@ -1823,8 +1824,8 @@ encrypted_read_packet_data(pgp_source_encrypted_param_t *param)
     uint8_t          mdcver;
     uint8_t          hdr[4];
     int              ptype;
-    pgp_sk_sesskey_t skey = {0};
-    pgp_pk_sesskey_t pkey = {0};
+    pgp_sk_sesskey_t skey;
+    pgp_pk_sesskey_t pkey;
 
     /* Reading pk/sk encrypted session key(s) */
     while (true) {
@@ -2198,9 +2199,9 @@ init_signed_src(pgp_parse_handler_t *handler, pgp_source_t *src, pgp_source_t *r
             /* no need to check the error here - we already know tag */
             signed_read_single_signature(param, readsrc, &sig);
             /* adding hash context */
-            if (sig && !add_hash_for_sig(param, sig->type, sig->halg)) {
+            if (sig && !add_hash_for_sig(param, sig->type(), sig->halg)) {
                 RNP_LOG(
-                  "Failed to create hash %d for sig %d.", (int) sig->halg, (int) sig->type);
+                  "Failed to create hash %d for sig %d.", (int) sig->halg, (int) sig->type());
                 errcode = RNP_ERROR_BAD_PARAMETERS;
                 goto finish;
             }

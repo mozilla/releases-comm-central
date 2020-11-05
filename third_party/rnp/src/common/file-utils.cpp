@@ -28,14 +28,21 @@
  */
 
 #include "file-utils.h"
-
-extern "C" {
+#include "config.h"
 #ifdef _MSC_VER
+#include <stdlib.h>
+#include <stdio.h>
 #include "uniwin.h"
+#include <errno.h>
+#include <locale>
+#include <codecvt>
+#include <random>
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
 #else
 #include <sys/stat.h>
-#endif
-}
+#endif // _MSC_VER
 
 bool
 rnp_file_exists(const char *path)
@@ -56,3 +63,62 @@ rnp_filemtime(const char *path)
         return st.st_mtime;
     }
 }
+
+#ifdef _MSC_VER
+static const char letters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+/** @private
+ *  generate a temporary file name based on TMPL.
+ *
+ *  @param tmpl filename template in UTF-8 ending in XXXXXX
+ *  @return file descriptor of newly created and opened file, or -1 on error
+ **/
+int
+rnp_mkstemp(char *tmpl)
+{
+    int       save_errno = errno;
+    const int mask_length = 6;
+    int       len = strlen(tmpl);
+    if (len < mask_length || strcmp(&tmpl[len - mask_length], "XXXXXX")) {
+        errno = EINVAL;
+        return -1;
+    }
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8conv;
+    std::wstring tmpl_w = utf8conv.from_bytes(tmpl, tmpl + len - mask_length);
+
+    /* This is where the Xs start.  */
+    char *XXXXXX = &tmpl[len - mask_length];
+
+    std::random_device rd;
+    std::mt19937_64    rng(rd());
+
+    for (unsigned int countdown = TMP_MAX; --countdown;) {
+        unsigned long long v = rng();
+
+        XXXXXX[0] = letters[v % 36];
+        v /= 36;
+        XXXXXX[1] = letters[v % 36];
+        v /= 36;
+        XXXXXX[2] = letters[v % 36];
+        v /= 36;
+        XXXXXX[3] = letters[v % 36];
+        v /= 36;
+        XXXXXX[4] = letters[v % 36];
+        v /= 36;
+        XXXXXX[5] = letters[v % 36];
+
+        int flags = O_WRONLY | O_CREAT | O_EXCL | O_BINARY;
+        int fd =
+          _wopen((tmpl_w + utf8conv.from_bytes(XXXXXX)).c_str(), flags, _S_IREAD | _S_IWRITE);
+        if (fd != -1) {
+            errno = save_errno;
+            return fd;
+        } else if (errno != EEXIST)
+            return -1;
+    }
+
+    // We got out of the loop because we ran out of combinations to try.
+    errno = EEXIST;
+    return -1;
+}
+#endif // _MSC_VER

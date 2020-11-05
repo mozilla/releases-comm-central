@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2020, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,23 +24,28 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RNP_FILE_UTILS_H_
-#define RNP_FILE_UTILS_H_
+#include <rnp/rnp.h>
 
-#include <stdint.h>
-
-bool    rnp_file_exists(const char *path);
-int64_t rnp_filemtime(const char *path);
-
-/** @private
- *  generate a temporary file name based on TMPL.  TMPL must match the
- *  rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
- *  does not exist at the time of the call to mkstemp.  TMPL is
- *  overwritten with the result.get the list item at specified index
- *
- *  @param tmpl filename template
- *  @return file descriptor of newly created and opened file, or -1 on error
- **/
-int rnp_mkstemp(char *tmpl);
-
+#ifdef RNP_RUN_TESTS
+int sigimport_LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+int
+sigimport_LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+#else
+int
+LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 #endif
+{
+    rnp_input_t  input = NULL;
+    rnp_result_t ret = 0;
+    rnp_ffi_t    ffi = NULL;
+
+    ret = rnp_input_from_memory(&input, data, size, false);
+    ret = rnp_ffi_create(&ffi, "GPG", "GPG");
+    char *results = NULL;
+    ret = rnp_import_signatures(ffi, input, 0, &results);
+    rnp_buffer_destroy(results);
+    rnp_input_destroy(input);
+    rnp_ffi_destroy(ffi);
+
+    return 0;
+}

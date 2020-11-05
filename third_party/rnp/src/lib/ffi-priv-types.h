@@ -28,6 +28,7 @@
 #include <rnp/rnp.h>
 #include <json.h>
 #include "utils.h"
+#include <list>
 
 struct rnp_key_handle_st {
     rnp_ffi_t        ffi;
@@ -97,37 +98,41 @@ struct rnp_output_st {
 };
 
 struct rnp_op_generate_st {
-    rnp_ffi_t  ffi;
-    bool       primary;
-    pgp_key_t *primary_sec;
-    pgp_key_t *primary_pub;
-    pgp_key_t *gen_sec;
-    pgp_key_t *gen_pub;
+    rnp_ffi_t  ffi{};
+    bool       primary{};
+    pgp_key_t *primary_sec{};
+    pgp_key_t *primary_pub{};
+    pgp_key_t *gen_sec{};
+    pgp_key_t *gen_pub{};
     /* password used to encrypt the key, if specified */
-    char *password;
+    char *password{};
     /* request password for key encryption via ffi's password provider */
-    bool request_password;
+    bool request_password{};
     /* we don't use top-level keygen action here for easier fields access */
-    rnp_keygen_crypto_params_t  crypto;
-    rnp_key_protection_params_t protection;
-    rnp_selfsig_cert_info_t     cert;
-    rnp_selfsig_binding_info_t  binding;
-};
+    rnp_keygen_crypto_params_t  crypto{};
+    rnp_key_protection_params_t protection{};
+    rnp_selfsig_cert_info_t     cert{};
+    rnp_selfsig_binding_info_t  binding{};
 
-struct rnp_op_sign_st {
-    rnp_ffi_t    ffi;
-    rnp_input_t  input;
-    rnp_output_t output;
-    rnp_ctx_t    rnpctx;
-    list         signatures;
+    ~rnp_op_generate_st();
 };
 
 struct rnp_op_sign_signature_st {
-    rnp_ffi_t         ffi;
-    rnp_signer_info_t signer;
+    rnp_ffi_t         ffi{};
+    rnp_signer_info_t signer{};
     bool              expiry_set : 1;
     bool              create_set : 1;
     bool              hash_set : 1;
+};
+
+typedef std::list<rnp_op_sign_signature_st> rnp_op_sign_signatures_t;
+
+struct rnp_op_sign_st {
+    rnp_ffi_t                ffi{};
+    rnp_input_t              input{};
+    rnp_output_t             output{};
+    rnp_ctx_t                rnpctx{};
+    rnp_op_sign_signatures_t signatures{};
 };
 
 struct rnp_op_verify_signature_st {
@@ -137,38 +142,40 @@ struct rnp_op_verify_signature_st {
 };
 
 struct rnp_op_verify_st {
-    rnp_ffi_t    ffi;
-    rnp_input_t  input;
-    rnp_input_t  detached_input; /* for detached signature will be source file/data */
-    rnp_output_t output;
-    rnp_ctx_t    rnpctx;
+    rnp_ffi_t    ffi{};
+    rnp_input_t  input{};
+    rnp_input_t  detached_input{}; /* for detached signature will be source file/data */
+    rnp_output_t output{};
+    rnp_ctx_t    rnpctx{};
     /* these fields are filled after operation execution */
-    rnp_op_verify_signature_t signatures;
-    size_t                    signature_count;
-    char *                    filename;
-    uint32_t                  file_mtime;
+    rnp_op_verify_signature_t signatures{};
+    size_t                    signature_count{};
+    char *                    filename{};
+    uint32_t                  file_mtime{};
     /* encryption information */
-    bool           encrypted;
-    bool           mdc;
-    bool           validated;
-    pgp_aead_alg_t aead;
-    pgp_symm_alg_t salg;
+    bool           encrypted{};
+    bool           mdc{};
+    bool           validated{};
+    pgp_aead_alg_t aead{};
+    pgp_symm_alg_t salg{};
     /* recipient/symenc information */
-    rnp_recipient_handle_t recipients;
-    size_t                 recipient_count;
-    rnp_recipient_handle_t used_recipient;
-    rnp_symenc_handle_t    symencs;
-    size_t                 symenc_count;
-    rnp_symenc_handle_t    used_symenc;
-    size_t                 encrypted_layers;
+    rnp_recipient_handle_t recipients{};
+    size_t                 recipient_count{};
+    rnp_recipient_handle_t used_recipient{};
+    rnp_symenc_handle_t    symencs{};
+    size_t                 symenc_count{};
+    rnp_symenc_handle_t    used_symenc{};
+    size_t                 encrypted_layers{};
+
+    ~rnp_op_verify_st();
 };
 
 struct rnp_op_encrypt_st {
-    rnp_ffi_t    ffi;
-    rnp_input_t  input;
-    rnp_output_t output;
-    rnp_ctx_t    rnpctx;
-    list         signatures;
+    rnp_ffi_t                ffi{};
+    rnp_input_t              input{};
+    rnp_output_t             output{};
+    rnp_ctx_t                rnpctx{};
+    rnp_op_sign_signatures_t signatures{};
 };
 
 struct rnp_identifier_iterator_st {

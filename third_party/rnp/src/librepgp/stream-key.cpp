@@ -301,58 +301,38 @@ transferable_userid_certify(const pgp_key_pkt_t &          key,
     sig.version = PGP_V4;
     sig.halg = pgp_hash_adjust_alg_to_key(hash_alg, &signer);
     sig.palg = signer.alg;
-    sig.type = PGP_CERT_POSITIVE;
+    sig.set_type(PGP_CERT_POSITIVE);
 
-    if (!signature_set_keyfp(&sig, keyfp)) {
-        RNP_LOG("failed to set issuer fingerprint");
-        return NULL;
-    }
-    if (!signature_set_creation(&sig, time(NULL))) {
-        RNP_LOG("failed to set creation time");
-        return NULL;
-    }
-    if (cert.key_expiration && !signature_set_key_expiration(&sig, cert.key_expiration)) {
-        RNP_LOG("failed to set key expiration time");
-        return NULL;
-    }
-    if (cert.key_flags && !signature_set_key_flags(&sig, cert.key_flags)) {
-        RNP_LOG("failed to set key flags");
-        return NULL;
-    }
-    if (cert.primary && !signature_set_primary_uid(&sig, true)) {
-        RNP_LOG("failed to set primary userid");
-        return NULL;
-    }
-    const pgp_user_prefs_t *prefs = &cert.prefs;
-    if (prefs->symm_alg_count &&
-        !signature_set_preferred_symm_algs(
-          &sig, (uint8_t *) prefs->symm_algs, prefs->symm_alg_count)) {
-        RNP_LOG("failed to set symm alg prefs");
-        return NULL;
-    }
-    if (prefs->hash_alg_count &&
-        !signature_set_preferred_hash_algs(
-          &sig, (uint8_t *) prefs->hash_algs, prefs->hash_alg_count)) {
-        RNP_LOG("failed to set hash alg prefs");
-        return NULL;
-    }
-    if (prefs->z_alg_count &&
-        !signature_set_preferred_z_algs(&sig, (uint8_t *) prefs->z_algs, prefs->z_alg_count)) {
-        RNP_LOG("failed to set compress alg prefs");
-        return NULL;
-    }
-    if (prefs->ks_pref_count &&
-        !signature_set_key_server_prefs(&sig, (uint8_t) prefs->ks_prefs[0])) {
-        RNP_LOG("failed to set key server prefs");
-        return NULL;
-    }
-    if (prefs->key_server &&
-        !signature_set_preferred_key_server(&sig, (char *) prefs->key_server)) {
-        RNP_LOG("failed to set preferred key server");
-        return NULL;
-    }
-    if (!signature_set_keyid(&sig, keyid)) {
-        RNP_LOG("failed to set issuer key id");
+    try {
+        sig.set_keyfp(keyfp);
+        sig.set_creation(time(NULL));
+        if (cert.key_expiration) {
+            sig.set_key_expiration(cert.key_expiration);
+        }
+        if (cert.key_flags) {
+            sig.set_key_flags(cert.key_flags);
+        }
+        if (cert.primary) {
+            sig.set_primary_uid(true);
+        }
+        if (!cert.prefs.symm_algs.empty()) {
+            sig.set_preferred_symm_algs(cert.prefs.symm_algs);
+        }
+        if (!cert.prefs.hash_algs.empty()) {
+            sig.set_preferred_hash_algs(cert.prefs.hash_algs);
+        }
+        if (!cert.prefs.z_algs.empty()) {
+            sig.set_preferred_z_algs(cert.prefs.z_algs);
+        }
+        if (!cert.prefs.ks_prefs.empty()) {
+            sig.set_key_server_prefs(cert.prefs.ks_prefs[0]);
+        }
+        if (!cert.prefs.key_server.empty()) {
+            sig.set_key_server(cert.prefs.key_server);
+        }
+        sig.set_keyid(keyid);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to setup signature: %s", e.what());
         return NULL;
     }
 
@@ -383,18 +363,17 @@ signature_calculate_primary_binding(const pgp_key_pkt_t *key,
     sig->version = PGP_V4;
     sig->halg = pgp_hash_adjust_alg_to_key(halg, subkey);
     sig->palg = subkey->alg;
-    sig->type = PGP_SIG_PRIMARY;
+    sig->set_type(PGP_SIG_PRIMARY);
 
     if (pgp_keyid(keyid, subkey)) {
         RNP_LOG("failed to calculate keyid");
         return false;
     }
-    if (!signature_set_creation(sig, time(NULL))) {
-        RNP_LOG("failed to set embedded sig creation time");
-        return false;
-    }
-    if (!signature_set_keyid(sig, keyid)) {
-        RNP_LOG("failed to set issuer key id");
+    try {
+        sig->set_creation(time(NULL));
+        sig->set_keyid(keyid);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to setup embedded signature: %s", e.what());
         return false;
     }
     if (!signature_hash_binding(sig, key, subkey, &hash)) {
@@ -463,8 +442,10 @@ signature_calculate_binding(const pgp_key_pkt_t *key,
     }
 
     /* add keyid since it should (probably) be after the primary key binding if any */
-    if (!signature_set_keyid(sig, keyid)) {
-        RNP_LOG("failed to set issuer key id");
+    try {
+        sig->set_keyid(keyid);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to set issuer key id: %s", e.what());
         goto end;
     }
     res = true;
@@ -491,23 +472,19 @@ transferable_subkey_bind(const pgp_key_pkt_t &             key,
     sig.version = PGP_V4;
     sig.halg = pgp_hash_adjust_alg_to_key(hash_alg, &key);
     sig.palg = key.alg;
-    sig.type = PGP_SIG_SUBKEY;
+    sig.set_type(PGP_SIG_SUBKEY);
 
-    if (!signature_set_keyfp(&sig, keyfp)) {
-        RNP_LOG("failed to set issuer fingerprint");
-        return NULL;
-    }
-    if (!signature_set_creation(&sig, time(NULL))) {
-        RNP_LOG("failed to set creation time");
-        return NULL;
-    }
-    if (binding.key_expiration &&
-        !signature_set_key_expiration(&sig, binding.key_expiration)) {
-        RNP_LOG("failed to set key expiration time");
-        return NULL;
-    }
-    if (binding.key_flags && !signature_set_key_flags(&sig, binding.key_flags)) {
-        RNP_LOG("failed to set key flags");
+    try {
+        sig.set_keyfp(keyfp);
+        sig.set_creation(time(NULL));
+        if (binding.key_expiration) {
+            sig.set_key_expiration(binding.key_expiration);
+        }
+        if (binding.key_flags) {
+            sig.set_key_flags(binding.key_flags);
+        }
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to setup signature: %s", e.what());
         return NULL;
     }
 
@@ -551,22 +528,15 @@ transferable_key_revoke(const pgp_key_pkt_t &key,
     sig.version = PGP_V4;
     sig.halg = pgp_hash_adjust_alg_to_key(hash_alg, &signer);
     sig.palg = signer.alg;
-    sig.type = is_primary_key_pkt(key.tag) ? PGP_SIG_REV_KEY : PGP_SIG_REV_SUBKEY;
+    sig.set_type(is_primary_key_pkt(key.tag) ? PGP_SIG_REV_KEY : PGP_SIG_REV_SUBKEY);
 
-    if (!signature_set_keyfp(&sig, keyfp)) {
-        RNP_LOG("failed to set issuer fingerprint");
-        return NULL;
-    }
-    if (!signature_set_creation(&sig, time(NULL))) {
-        RNP_LOG("failed to set creation time");
-        return NULL;
-    }
-    if (!signature_set_revocation_reason(&sig, revoke.code, revoke.reason.c_str())) {
-        RNP_LOG("failed to set revocation reason");
-        return NULL;
-    }
-    if (!signature_set_keyid(&sig, keyid)) {
-        RNP_LOG("failed to set issuer key id");
+    try {
+        sig.set_keyfp(keyfp);
+        sig.set_creation(time(NULL));
+        sig.set_revocation_reason(revoke.code, revoke.reason);
+        sig.set_keyid(keyid);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to setup signature: %s", e.what());
         return NULL;
     }
 
@@ -593,8 +563,11 @@ skip_pgp_packets(pgp_source_t *src, const std::set<pgp_pkt_type_t> &pkts)
 {
     do {
         int pkt = stream_pkt_type(src);
-        if (pkt <= 0) {
+        if (!pkt) {
             break;
+        }
+        if (pkt < 0) {
+            return false;
         }
         if (pkts.find((pgp_pkt_type_t) pkt) == pkts.end()) {
             return true;
@@ -681,6 +654,56 @@ done:
 }
 
 rnp_result_t
+process_pgp_key_auto(pgp_source_t &          src,
+                     pgp_transferable_key_t &key,
+                     bool                    allowsub,
+                     bool                    skiperrors)
+{
+    key = {};
+    uint64_t srcpos = src.readb;
+    int      ptag = stream_pkt_type(&src);
+    if (is_subkey_pkt(ptag) && allowsub) {
+        pgp_transferable_subkey_t subkey;
+        rnp_result_t              ret = process_pgp_subkey(src, subkey, skiperrors);
+        if (subkey.subkey.tag != PGP_PKT_RESERVED) {
+            try {
+                key.subkeys.push_back(std::move(subkey));
+            } catch (const std::exception &e) {
+                RNP_LOG("%s", e.what());
+                ret = RNP_ERROR_OUT_OF_MEMORY;
+            }
+        }
+        /* change error code if we didn't process anything at all */
+        if (srcpos == src.readb) {
+            ret = RNP_ERROR_BAD_STATE;
+        }
+        return ret;
+    }
+
+    rnp_result_t ret = RNP_ERROR_BAD_FORMAT;
+    if (!is_primary_key_pkt(ptag)) {
+        RNP_LOG("wrong key tag: %d at pos %" PRIu64, ptag, src.readb);
+    } else {
+        ret = process_pgp_key(&src, key, skiperrors);
+    }
+    if (skiperrors && (ret == RNP_ERROR_BAD_FORMAT) &&
+        !skip_pgp_packets(&src,
+                          {PGP_PKT_TRUST,
+                           PGP_PKT_SIGNATURE,
+                           PGP_PKT_USER_ID,
+                           PGP_PKT_USER_ATTR,
+                           PGP_PKT_PUBLIC_SUBKEY,
+                           PGP_PKT_SECRET_SUBKEY})) {
+        ret = RNP_ERROR_READ;
+    }
+    /* change error code if we didn't process anything at all */
+    if (srcpos == src.readb) {
+        ret = RNP_ERROR_BAD_STATE;
+    }
+    return ret;
+}
+
+rnp_result_t
 process_pgp_keys(pgp_source_t *src, pgp_key_sequence_t &keys, bool skiperrors)
 {
     bool          armored = false;
@@ -693,9 +716,10 @@ process_pgp_keys(pgp_source_t *src, pgp_key_sequence_t &keys, bool skiperrors)
     keys.keys.clear();
     /* check whether keys are armored */
 armoredpass:
-    if (is_armored_source(src)) {
-        if ((ret = init_armored_src(&armorsrc, src))) {
+    if ((src->type != PGP_STREAM_ARMORED) && is_armored_source(src)) {
+        if (init_armored_src(&armorsrc, src)) {
             RNP_LOG("failed to parse armored data");
+            ret = RNP_ERROR_READ;
             goto finish;
         }
         armored = true;
@@ -705,27 +729,17 @@ armoredpass:
     /* read sequence of transferable OpenPGP keys as described in RFC 4880, 11.1 - 11.2 */
     while (!src_eof(src) && !src_error(src)) {
         pgp_transferable_key_t curkey;
-        int                    ptag = stream_pkt_type(src);
-        if (!is_primary_key_pkt(ptag)) {
-            RNP_LOG("wrong key tag: %d at pos %" PRIu64, ptag, src->readb);
-            ret = RNP_ERROR_BAD_FORMAT;
+        ret = process_pgp_key_auto(*src, curkey, false, skiperrors);
+        if (ret && (!skiperrors || (ret != RNP_ERROR_BAD_FORMAT))) {
             goto finish;
         }
-
-        ret = process_pgp_key(src, curkey, skiperrors);
-        if ((ret == RNP_ERROR_BAD_FORMAT) && skiperrors &&
-            skip_pgp_packets(src,
-                             {PGP_PKT_TRUST,
-                              PGP_PKT_SIGNATURE,
-                              PGP_PKT_USER_ID,
-                              PGP_PKT_USER_ATTR,
-                              PGP_PKT_PUBLIC_SUBKEY,
-                              PGP_PKT_SECRET_SUBKEY})) {
+        /* check whether we actually read any key or just skipped erroneous packets */
+        if (curkey.key.tag == PGP_PKT_RESERVED) {
             continue;
         }
-        if (ret) {
-            goto finish;
-        }
+        has_secret |= (curkey.key.tag == PGP_PKT_SECRET_KEY);
+        has_public |= (curkey.key.tag == PGP_PKT_PUBLIC_KEY);
+
         try {
             keys.keys.emplace_back(std::move(curkey));
         } catch (const std::exception &e) {
@@ -733,9 +747,6 @@ armoredpass:
             ret = RNP_ERROR_OUT_OF_MEMORY;
             goto finish;
         }
-
-        has_secret |= (ptag == PGP_PKT_SECRET_KEY);
-        has_public |= (ptag == PGP_PKT_PUBLIC_KEY);
     }
 
     /* file may have multiple armored keys */
@@ -771,10 +782,10 @@ process_pgp_key(pgp_source_t *src, pgp_transferable_key_t &key, bool skiperrors)
 
     key = pgp_transferable_key_t();
     /* check whether keys are armored */
-    if (is_armored_source(src)) {
-        if ((ret = init_armored_src(&armorsrc, src))) {
+    if ((src->type != PGP_STREAM_ARMORED) && is_armored_source(src)) {
+        if (init_armored_src(&armorsrc, src)) {
             RNP_LOG("failed to parse armored data");
-            return ret;
+            return RNP_ERROR_READ;
         }
         armored = true;
         src = &armorsrc;

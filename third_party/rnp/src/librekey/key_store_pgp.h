@@ -59,7 +59,15 @@
 #include <librepgp/stream-common.h>
 #include <librepgp/stream-key.h>
 
-rnp_result_t rnp_key_store_pgp_read_from_src(rnp_key_store_t *keyring, pgp_source_t *src);
+/* Read the whole keyring from the src, processing all available keys or subkeys */
+rnp_result_t rnp_key_store_pgp_read_from_src(rnp_key_store_t *keyring,
+                                             pgp_source_t *   src,
+                                             bool             skiperrors = false);
+
+/* Read the first key or subkey from the src */
+rnp_result_t rnp_key_store_pgp_read_key_from_src(rnp_key_store_t &keyring,
+                                                 pgp_source_t &   src,
+                                                 bool             skiperrors = false);
 
 bool rnp_key_store_pgp_write_to_dst(rnp_key_store_t *key_store, pgp_dest_t *dst);
 

@@ -96,7 +96,7 @@ main(int argc, char **argv)
 
     binding->halg = pgp_hash_adjust_alg_to_key(binding->halg, &tskey.key);
     binding->palg = tskey.key.alg;
-    signature_set_keyfp(binding, &keyfp);
+    binding->set_keyfp(keyfp);
 
     pgp_hash_t hash = {};
     pgp_hash_t hashcp = {};
@@ -119,7 +119,7 @@ main(int argc, char **argv)
         return 1;
     }
 
-    pgp_key_flags_t realkf = (pgp_key_flags_t) signature_get_key_flags(binding);
+    pgp_key_flags_t realkf = (pgp_key_flags_t) binding.key_flags();
     if (!realkf) {
         realkf = pgp_pk_alg_capabilities(subkey->subkey.alg);
     }
@@ -140,8 +140,10 @@ main(int argc, char **argv)
         }
     }
 
-    if (!signature_set_keyid(binding, keyid)) {
-        RNP_LOG("failed to set issuer key id");
+    try {
+        binding->set_keyid(keyid);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to set issuer key id: %s", e.what());
         return 1;
     }
 

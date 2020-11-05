@@ -68,10 +68,13 @@ add_executable(rnp_tests
   ../fuzzing/keyring.c
   ../fuzzing/keyring_g10.cpp
   ../fuzzing/keyring_kbx.c
+  ../fuzzing/keyimport.c
   cipher.cpp
   cli.cpp
   exportkey.cpp
   ffi.cpp
+  ffi-enc.cpp
+  file-utils.cpp
   generatekey.cpp
   kbx-nsigs-test.cpp
   key-add-userid.cpp
@@ -99,9 +102,11 @@ add_executable(rnp_tests
   issues/1030.cpp
   issues/1115.cpp
   issues/1171.cpp
+  issues/oss-fuzz-25489.cpp
   fuzz_keyring.cpp
   fuzz_keyring_g10.cpp
   fuzz_keyring_kbx.cpp
+  fuzz_keyimport.cpp
 )
 if(MSVC)
   find_package(WindowsSDK)

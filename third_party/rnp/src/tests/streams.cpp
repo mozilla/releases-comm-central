@@ -95,6 +95,10 @@ TEST_F(rnp_tests, test_stream_memory)
     /* make sure we own data after close */
     assert_false(memcmp(mown, data, datalen));
     free(mown);
+    /* make sure init_mem_src fails with NULL parameter */
+    pgp_source_t memsrc;
+    assert_rnp_failure(init_mem_src(&memsrc, NULL, 12, false));
+    assert_rnp_failure(init_mem_src(&memsrc, NULL, 12, true));
 }
 
 TEST_F(rnp_tests, test_stream_memory_discard)
@@ -332,18 +336,16 @@ TEST_F(rnp_tests, test_stream_file)
 
 TEST_F(rnp_tests, test_stream_signatures)
 {
-    rnp_key_store_t * pubring;
-    rnp_key_store_t * secring;
-    pgp_signature_t   sig;
-    pgp_hash_t        hash_orig;
-    pgp_hash_t        hash_forged;
-    pgp_hash_t        hash;
-    pgp_hash_alg_t    halg;
-    pgp_source_t      sigsrc;
-    pgp_key_id_t      keyid = {};
-    pgp_key_t *       key = NULL;
-    rng_t             rng;
-    pgp_fingerprint_t fp;
+    rnp_key_store_t *pubring;
+    rnp_key_store_t *secring;
+    pgp_signature_t  sig;
+    pgp_hash_t       hash_orig;
+    pgp_hash_t       hash_forged;
+    pgp_hash_t       hash;
+    pgp_hash_alg_t   halg;
+    pgp_source_t     sigsrc;
+    pgp_key_t *      key = NULL;
+    rng_t            rng;
 
     /* we need rng for key validation */
     assert_true(rng_init(&rng, RNG_SYSTEM));
@@ -363,11 +365,10 @@ TEST_F(rnp_tests, test_stream_signatures)
     assert_true(
       stream_hash_file(&hash_forged, "data/test_stream_signatures/source_forged.txt"));
     /* find signing key */
-    assert_true(signature_get_keyid(&sig, keyid));
-    assert_non_null(key = rnp_key_store_get_key_by_id(pubring, keyid, NULL));
+    assert_non_null(key = rnp_key_store_get_key_by_id(pubring, sig.keyid(), NULL));
     /* validate signature and fields */
     assert_true(pgp_hash_copy(&hash, &hash_orig));
-    assert_int_equal(signature_get_creation(&sig), 1522241943);
+    assert_int_equal(sig.creation(), 1522241943);
     assert_rnp_success(signature_validate(&sig, pgp_key_get_material(key), &hash));
     /* check forged file */
     assert_true(pgp_hash_copy(&hash, &hash_forged));
@@ -377,7 +378,7 @@ TEST_F(rnp_tests, test_stream_signatures)
     /* load secret key */
     secring = new rnp_key_store_t(PGP_KEY_STORE_GPG, "data/test_stream_signatures/sec.asc");
     assert_true(rnp_key_store_load_from_path(secring, NULL));
-    assert_non_null(key = rnp_key_store_get_key_by_id(secring, keyid, NULL));
+    assert_non_null(key = rnp_key_store_get_key_by_id(secring, sig.keyid(), NULL));
     assert_true(pgp_key_is_secret(key));
     /* fill signature */
     uint32_t create = time(NULL);
@@ -386,11 +387,11 @@ TEST_F(rnp_tests, test_stream_signatures)
     sig.version = PGP_V4;
     sig.halg = halg;
     sig.palg = pgp_key_get_alg(key);
-    sig.type = PGP_SIG_BINARY;
-    assert_true(signature_set_keyfp(&sig, pgp_key_get_fp(key)));
-    assert_true(signature_set_keyid(&sig, pgp_key_get_keyid(key)));
-    assert_true(signature_set_creation(&sig, create));
-    assert_true(signature_set_expiration(&sig, expire));
+    sig.set_type(PGP_SIG_BINARY);
+    sig.set_keyfp(pgp_key_get_fp(key));
+    sig.set_keyid(pgp_key_get_keyid(key));
+    sig.set_creation(create);
+    sig.set_expiration(expire);
     assert_true(signature_fill_hashed_data(&sig));
     /* try to sign without decrypting of the secret key */
     assert_true(pgp_hash_copy(&hash, &hash_orig));
@@ -404,11 +405,10 @@ TEST_F(rnp_tests, test_stream_signatures)
     /* now verify signature */
     assert_true(pgp_hash_copy(&hash, &hash_orig));
     /* validate signature and fields */
-    assert_int_equal(signature_get_creation(&sig), create);
-    assert_int_equal(signature_get_expiration(&sig), expire);
-    assert_true(signature_has_keyfp(&sig));
-    assert_true(signature_get_keyfp(&sig, fp));
-    assert_true(fp == pgp_key_get_fp(key));
+    assert_int_equal(sig.creation(), create);
+    assert_int_equal(sig.expiration(), expire);
+    assert_true(sig.has_subpkt(PGP_SIG_SUBPKT_ISSUER_FPR));
+    assert_true(sig.keyfp() == pgp_key_get_fp(key));
     assert_rnp_success(signature_validate(&sig, pgp_key_get_material(key), &hash));
     /* cleanup */
     delete pubring;
@@ -428,16 +428,9 @@ TEST_F(rnp_tests, test_stream_signatures_revoked_key)
       init_file_src(&sigsrc, "data/test_stream_signatures/revoked-key-sig.gpg"));
     assert_rnp_success(stream_parse_signature(&sigsrc, &sig));
     src_close(&sigsrc);
-    /* get revocation */
-    pgp_revocation_type_t code = PGP_REVOCATION_NO_REASON;
-    char *                reason = NULL;
-    assert_true(signature_get_revocation_reason(&sig, &code, &reason));
-    assert_non_null(reason);
     /* check revocation */
-    assert_int_equal(code, PGP_REVOCATION_RETIRED);
-    assert_string_equal(reason, "For testing!");
-    /* cleanup */
-    free(reason);
+    assert_int_equal(sig.revocation_code(), PGP_REVOCATION_RETIRED);
+    assert_string_equal(sig.revocation_reason().c_str(), "For testing!");
 }
 
 TEST_F(rnp_tests, test_stream_key_load)
@@ -1009,7 +1002,6 @@ TEST_F(rnp_tests, test_stream_key_signatures)
     pgp_transferable_userid_t *uid = NULL;
     rng_t                      rng;
     pgp_signature_t *          sig;
-    pgp_key_id_t               keyid = {};
     pgp_key_t *                pkey = NULL;
     pgp_hash_t                 hash;
     pgp_signature_info_t       sinfo = {};
@@ -1027,8 +1019,7 @@ TEST_F(rnp_tests, test_stream_key_signatures)
     assert_non_null(key = &keyseq.keys.front());
     assert_non_null(uid = &key->userids.front());
     assert_non_null(sig = &uid->signatures.front());
-    assert_true(signature_get_keyid(sig, keyid));
-    assert_non_null(pkey = rnp_key_store_get_key_by_id(pubring, keyid, NULL));
+    assert_non_null(pkey = rnp_key_store_get_key_by_id(pubring, sig->keyid(), NULL));
     /* check certification signature */
     assert_true(signature_hash_certification(sig, &key->key, &uid->uid, &hash));
     assert_rnp_success(signature_validate(sig, pgp_key_get_material(pkey), &hash));
@@ -1052,8 +1043,8 @@ TEST_F(rnp_tests, test_stream_key_signatures)
         for (auto &uid : key->userids) {
             /* userid certifications */
             for (auto &sig : uid.signatures) {
-                assert_true(signature_get_keyid(&sig, keyid));
-                assert_non_null(pkey = rnp_key_store_get_key_by_id(pubring, keyid, NULL));
+                assert_non_null(pkey =
+                                  rnp_key_store_get_key_by_id(pubring, sig.keyid(), NULL));
                 /* high level interface */
                 sinfo.sig = &sig;
                 sinfo.signer = pkey;
@@ -1075,8 +1066,7 @@ TEST_F(rnp_tests, test_stream_key_signatures)
         for (auto &subkey : key->subkeys) {
             sig = &subkey.signatures.front();
             assert_non_null(sig);
-            assert_true(signature_get_keyid(sig, keyid));
-            assert_non_null(pkey = rnp_key_store_get_key_by_id(pubring, keyid, NULL));
+            assert_non_null(pkey = rnp_key_store_get_key_by_id(pubring, sig->keyid(), NULL));
             /* high level interface */
             sinfo.sig = sig;
             sinfo.signer = pkey;
@@ -1602,4 +1592,81 @@ TEST_F(rnp_tests, test_stream_deep_packet_nesting)
     dst_close(&dst, false);
 
     rnp_ffi_destroy(ffi);
+}
+
+static bool
+src_reader_generator(pgp_source_t *, void *buf, size_t len, size_t *read)
+{
+    *read = len;
+    for (; len; buf = ((uint8_t *) buf) + 1, len--) {
+        *(uint8_t *) buf = len & 0x7F;
+    }
+    return true;
+}
+
+TEST_F(rnp_tests, test_stream_cache)
+{
+    pgp_source_t src = {0};
+    uint8_t      sample[sizeof(src.cache->buf)];
+    size_t       samplesize = sizeof(sample);
+    assert_true(src_reader_generator(NULL, sample, samplesize, &samplesize));
+    assert_int_equal(sizeof(sample), samplesize);
+
+    init_src_common(&src, 0);
+    int8_t *buf = (int8_t *) src.cache->buf;
+    src.read = src_reader_generator;
+    size_t len = sizeof(src.cache->buf);
+
+    // empty cache, pos=0
+    memset(src.cache->buf, 0xFF, len);
+    src.cache->pos = 0;
+    src.cache->len = 0;
+    assert_true(src_peek_eq(&src, NULL, len));
+    assert_false(memcmp(buf, sample, samplesize));
+
+    // empty cache, pos is somewhere in the middle
+    memset(src.cache->buf, 0xFF, len);
+    src.cache->pos = 100;
+    src.cache->len = 100;
+    assert_true(src_peek_eq(&src, NULL, len));
+    assert_false(memcmp(buf, sample, samplesize));
+
+    // empty cache, pos=max
+    memset(src.cache->buf, 0xFF, len);
+    src.cache->pos = len;
+    src.cache->len = len;
+    assert_true(src_peek_eq(&src, NULL, len));
+    assert_false(memcmp(buf, sample, samplesize));
+
+    // cache has some data in the middle
+    src.cache->pos = 128; // sample boundary
+    src.cache->len = 300;
+    memset(src.cache->buf, 0xFF, src.cache->pos);
+    memset(src.cache->buf + src.cache->len, 0xFF, len - src.cache->len);
+    assert_true(src_peek_eq(&src, NULL, len));
+    assert_false(memcmp(buf, sample, samplesize));
+
+    // cache has some data starting from pos until the end
+    src.cache->pos = 128; // sample boundary
+    src.cache->len = len;
+    memset(src.cache->buf, 0xFF, src.cache->pos);
+    assert_true(src_peek_eq(&src, NULL, len));
+    assert_false(memcmp(buf, sample, samplesize));
+
+    // cache is almost full
+    src.cache->pos = 0;
+    src.cache->len = len - 1;
+    src.cache->buf[len - 1] = 0xFF;
+    assert_true(src_peek_eq(&src, NULL, len));
+    assert_false(memcmp(buf, sample, samplesize));
+
+    // cache is full
+    src.cache->pos = 0;
+    src.cache->len = len;
+    memset(src.cache->buf, 0xFF, src.cache->pos);
+    memset(src.cache->buf + src.cache->len, 0xFF, len - src.cache->len);
+    assert_true(src_peek_eq(&src, NULL, len));
+    assert_false(memcmp(buf, sample, samplesize));
+
+    src_close(&src);
 }

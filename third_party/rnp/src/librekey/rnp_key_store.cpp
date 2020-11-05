@@ -369,9 +369,6 @@ rnp_key_store_merge_key(pgp_key_t *dst, const pgp_key_t *src)
 static bool
 rnp_key_store_refresh_subkey_grips(rnp_key_store_t *keyring, pgp_key_t *key)
 {
-    pgp_key_id_t      keyid = {};
-    pgp_fingerprint_t keyfp = {};
-
     if (pgp_key_is_subkey(key)) {
         RNP_LOG("wrong argument");
         return false;
@@ -388,17 +385,14 @@ rnp_key_store_refresh_subkey_grips(rnp_key_store_t *keyring, pgp_key_t *key)
         for (unsigned i = 0; i < pgp_key_get_subsig_count(&skey); i++) {
             const pgp_subsig_t *subsig = pgp_key_get_subsig(&skey, i);
 
-            if (subsig->sig.type != PGP_SIG_SUBKEY) {
+            if (subsig->sig.type() != PGP_SIG_SUBKEY) {
                 continue;
             }
-
-            if (signature_get_keyfp(&subsig->sig, keyfp) && (pgp_key_get_fp(key) == keyfp)) {
+            if (subsig->sig.has_keyfp() && (pgp_key_get_fp(key) == subsig->sig.keyfp())) {
                 found = true;
                 break;
             }
-
-            if (signature_get_keyid(&subsig->sig, keyid) &&
-                (pgp_key_get_keyid(key) != keyid)) {
+            if (subsig->sig.has_keyid() && (pgp_key_get_keyid(key) == subsig->sig.keyid())) {
                 found = true;
                 break;
             }
@@ -508,16 +502,16 @@ rnp_key_store_add_key(rnp_key_store_t *keyring, pgp_key_t *srckey)
         }
         try {
             *added_key = pgp_key_t(*srckey);
+            /* primary key may be added after subkeys, so let's handle this case correctly */
+            if (!rnp_key_store_refresh_subkey_grips(keyring, added_key)) {
+                RNP_LOG_KEY("failed to refresh subkey grips for %s", added_key);
+            }
         } catch (const std::exception &e) {
             RNP_LOG_KEY("key %s copying failed", srckey);
             RNP_LOG("%s", e.what());
             keyring->keys.pop_back();
             keyring->keybyfp.erase(pgp_key_get_fp(srckey));
             return NULL;
-        }
-        /* primary key may be added after subkeys, so let's handle this case correctly */
-        if (!rnp_key_store_refresh_subkey_grips(keyring, added_key)) {
-            RNP_LOG_KEY("failed to refresh subkey grips for %s", added_key);
         }
     }
 
@@ -573,13 +567,14 @@ rnp_key_store_get_signer_key(rnp_key_store_t *store, const pgp_signature_t *sig)
 {
     pgp_key_search_t search = {};
     // prefer using the issuer fingerprint when available
-    if (signature_has_keyfp(sig) && signature_get_keyfp(sig, search.by.fingerprint)) {
+    if (sig->has_keyfp()) {
+        search.by.fingerprint = sig->keyfp();
         search.type = PGP_KEY_SEARCH_FINGERPRINT;
         return rnp_key_store_search(store, &search, NULL);
     }
     // fall back to key id search
-    if (signature_get_keyid(sig, search.by.keyid)) {
-        search.type = PGP_KEY_SEARCH_KEYID;
+    if (sig->has_keyid()) {
+        search.by.keyid = sig->keyid();
         return rnp_key_store_search(store, &search, NULL);
     }
     return NULL;
@@ -590,8 +585,7 @@ rnp_key_store_import_subkey_signature(rnp_key_store_t *      keyring,
                                       pgp_key_t *            key,
                                       const pgp_signature_t *sig)
 {
-    pgp_sig_type_t sigtype = signature_get_type(sig);
-    if ((sigtype != PGP_SIG_SUBKEY) && (sigtype != PGP_SIG_REV_SUBKEY)) {
+    if ((sig->type() != PGP_SIG_SUBKEY) && (sig->type() != PGP_SIG_REV_SUBKEY)) {
         return PGP_SIG_IMPORT_STATUS_UNKNOWN;
     }
     pgp_key_t *primary = rnp_key_store_get_signer_key(keyring, sig);
@@ -629,9 +623,8 @@ rnp_key_store_import_key_signature(rnp_key_store_t *      keyring,
     if (pgp_key_is_subkey(key)) {
         return rnp_key_store_import_subkey_signature(keyring, key, sig);
     }
-    pgp_sig_type_t sigtype = signature_get_type(sig);
-    if ((sigtype != PGP_SIG_DIRECT) && (sigtype != PGP_SIG_REV_KEY)) {
-        RNP_LOG("Wrong signature type: %d", (int) sigtype);
+    if ((sig->type() != PGP_SIG_DIRECT) && (sig->type() != PGP_SIG_REV_KEY)) {
+        RNP_LOG("Wrong signature type: %d", (int) sig->type());
         return PGP_SIG_IMPORT_STATUS_UNKNOWN;
     }
 
@@ -663,9 +656,8 @@ rnp_key_store_import_signature(rnp_key_store_t *        keyring,
     }
     *status = PGP_SIG_IMPORT_STATUS_UNKNOWN;
 
-    pgp_sig_type_t sigtype = signature_get_type(sig);
     /* we support only direct-key and key revocation signatures here */
-    if ((sigtype != PGP_SIG_DIRECT) && (sigtype != PGP_SIG_REV_KEY)) {
+    if ((sig->type() != PGP_SIG_DIRECT) && (sig->type() != PGP_SIG_REV_KEY)) {
         return NULL;
     }
 
@@ -801,9 +793,6 @@ rnp_key_store_get_key_by_fpr(rnp_key_store_t *keyring, const pgp_fingerprint_t &
 pgp_key_t *
 rnp_key_store_get_primary_key(rnp_key_store_t *keyring, const pgp_key_t *subkey)
 {
-    pgp_key_id_t      keyid = {};
-    pgp_fingerprint_t keyfp = {};
-
     if (!pgp_key_is_subkey(subkey)) {
         return NULL;
     }
@@ -814,16 +803,16 @@ rnp_key_store_get_primary_key(rnp_key_store_t *keyring, const pgp_key_t *subkey)
 
     for (unsigned i = 0; i < pgp_key_get_subsig_count(subkey); i++) {
         const pgp_subsig_t *subsig = pgp_key_get_subsig(subkey, i);
-        if (subsig->sig.type != PGP_SIG_SUBKEY) {
+        if (subsig->sig.type() != PGP_SIG_SUBKEY) {
             continue;
         }
 
-        if (signature_get_keyfp(&subsig->sig, keyfp)) {
-            return rnp_key_store_get_key_by_fpr(keyring, keyfp);
+        if (subsig->sig.has_keyfp()) {
+            return rnp_key_store_get_key_by_fpr(keyring, subsig->sig.keyfp());
         }
 
-        if (signature_get_keyid(&subsig->sig, keyid)) {
-            return rnp_key_store_get_key_by_id(keyring, keyid, NULL);
+        if (subsig->sig.has_keyid()) {
+            return rnp_key_store_get_key_by_id(keyring, subsig->sig.keyid(), NULL);
         }
     }
 

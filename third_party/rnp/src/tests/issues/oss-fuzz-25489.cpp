@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2020 [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,23 +24,44 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RNP_FILE_UTILS_H_
-#define RNP_FILE_UTILS_H_
+#include "../rnp_tests.h"
+#include "../support.h"
+#include "librekey/key_store_g10.h"
 
-#include <stdint.h>
+TEST_F(rnp_tests, test_sxp_depth)
+{
+    s_exp_t     sxp = {};
+    const char *bytes;
+    size_t      len;
+    auto        mksxp = [](size_t depth) {
+        std::string data;
+        for (size_t i = 0; i < depth; i++) {
+            data += "(1:a";
+        }
+        for (size_t i = 0; i < depth; i++) {
+            data += ")";
+        }
+        return data;
+    };
 
-bool    rnp_file_exists(const char *path);
-int64_t rnp_filemtime(const char *path);
-
-/** @private
- *  generate a temporary file name based on TMPL.  TMPL must match the
- *  rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
- *  does not exist at the time of the call to mkstemp.  TMPL is
- *  overwritten with the result.get the list item at specified index
- *
- *  @param tmpl filename template
- *  @return file descriptor of newly created and opened file, or -1 on error
- **/
-int rnp_mkstemp(char *tmpl);
-
-#endif
+    {
+        std::string data(mksxp(1));
+        bytes = &data[0];
+        len = data.size();
+        assert_true(parse_sexp(&sxp, &bytes, &len));
+        destroy_s_exp(&sxp);
+    }
+    {
+        std::string data(mksxp(SXP_MAX_DEPTH));
+        bytes = &data[0];
+        len = data.size();
+        assert_true(parse_sexp(&sxp, &bytes, &len));
+        destroy_s_exp(&sxp);
+    }
+    {
+        std::string data(mksxp(SXP_MAX_DEPTH + 1));
+        bytes = &data[0];
+        len = data.size();
+        assert_false(parse_sexp(&sxp, &bytes, &len));
+    }
+}

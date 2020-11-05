@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2020, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,23 +24,19 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RNP_FILE_UTILS_H_
-#define RNP_FILE_UTILS_H_
+#include <rnp/rnp.h>
+#include "rnp_tests.h"
+#include "support.h"
 
-#include <stdint.h>
+extern "C" int keyimport_LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
 
-bool    rnp_file_exists(const char *path);
-int64_t rnp_filemtime(const char *path);
+#define DATA_PATH "data/test_fuzz_keyimport/"
 
-/** @private
- *  generate a temporary file name based on TMPL.  TMPL must match the
- *  rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
- *  does not exist at the time of the call to mkstemp.  TMPL is
- *  overwritten with the result.get the list item at specified index
- *
- *  @param tmpl filename template
- *  @return file descriptor of newly created and opened file, or -1 on error
- **/
-int rnp_mkstemp(char *tmpl);
+TEST_F(rnp_tests, test_fuzz_keyimport)
+{
+    auto data = file_to_vec(DATA_PATH "crash_25f06f13b48d58a5faf6c36fae7fcbd958359199");
+    assert_int_equal(keyimport_LLVMFuzzerTestOneInput(data.data(), data.size()), 0);
 
-#endif
+    data = file_to_vec(DATA_PATH "crash_e932261875271ccf497715de56adf7caf30ca8a7");
+    assert_int_equal(keyimport_LLVMFuzzerTestOneInput(data.data(), data.size()), 0);
+}

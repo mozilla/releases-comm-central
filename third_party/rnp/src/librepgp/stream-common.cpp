@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2020 [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -41,6 +41,9 @@
 #endif
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
+#endif
+#ifndef HAVE_MKSTEMP
+#include "file-utils.h"
 #endif
 #include <rnp/rnp_def.h>
 #include "rnp.h"
@@ -345,22 +348,22 @@ bool
 init_src_common(pgp_source_t *src, size_t paramsize)
 {
     memset(src, 0, sizeof(*src));
-
-    if ((src->cache = (pgp_source_cache_t *) calloc(1, sizeof(pgp_source_cache_t))) == NULL) {
+    src->cache = (pgp_source_cache_t *) calloc(1, sizeof(*src->cache));
+    if (!src->cache) {
         RNP_LOG("cache allocation failed");
         return false;
     }
     src->cache->readahead = true;
-
-    if (paramsize > 0) {
-        if ((src->param = calloc(1, paramsize)) == NULL) {
-            RNP_LOG("param allocation failed");
-            free(src->cache);
-            src->cache = NULL;
-            return false;
-        }
+    if (!paramsize) {
+        return true;
     }
-
+    src->param = calloc(1, paramsize);
+    if (!src->param) {
+        RNP_LOG("param allocation failed");
+        free(src->cache);
+        src->cache = NULL;
+        return false;
+    }
     return true;
 }
 
@@ -512,14 +515,15 @@ mem_src_close(pgp_source_t *src)
 rnp_result_t
 init_mem_src(pgp_source_t *src, const void *mem, size_t len, bool free)
 {
-    pgp_source_mem_param_t *param;
-
+    if (!mem && len) {
+        return RNP_ERROR_NULL_POINTER;
+    }
     /* this is actually double buffering, but then src_peek will fail */
     if (!init_src_common(src, sizeof(pgp_source_mem_param_t))) {
         return RNP_ERROR_OUT_OF_MEMORY;
     }
 
-    param = (pgp_source_mem_param_t *) src->param;
+    pgp_source_mem_param_t *param = (pgp_source_mem_param_t *) src->param;
     param->memory = mem;
     param->len = len;
     param->pos = 0;
@@ -612,16 +616,14 @@ bool
 init_dst_common(pgp_dest_t *dst, size_t paramsize)
 {
     memset(dst, 0, sizeof(*dst));
-
-    if (paramsize > 0) {
-        if ((dst->param = calloc(1, paramsize)) == NULL) {
+    if (paramsize) {
+        dst->param = calloc(1, paramsize);
+        if (!dst->param) {
             RNP_LOG("allocation failed");
             return false;
         }
     }
-
     dst->werr = RNP_SUCCESS;
-
     return true;
 }
 
@@ -763,6 +765,29 @@ file_dst_close(pgp_dest_t *dst, bool discard)
     dst->param = NULL;
 }
 
+static rnp_result_t
+init_fd_dest(pgp_dest_t *dst, int fd, const char *path)
+{
+    pgp_dest_file_param_t *param;
+    size_t                 path_len = strlen(path);
+    if (path_len >= sizeof(param->path)) {
+        RNP_LOG("path too long");
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    if (!init_dst_common(dst, sizeof(*param))) {
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
+
+    param = (pgp_dest_file_param_t *) dst->param;
+    param->fd = fd;
+    memcpy(param->path, path, path_len + 1);
+    dst->write = file_dst_write;
+    dst->close = file_dst_close;
+    dst->type = PGP_STREAM_FILE;
+
+    return RNP_SUCCESS;
+}
+
 rnp_result_t
 init_file_dest(pgp_dest_t *dst, const char *path, bool overwrite)
 {
@@ -802,25 +827,17 @@ init_file_dest(pgp_dest_t *dst, const char *path, bool overwrite)
     flags |= _O_BINARY;
 #endif
 #endif
-    fd = open(path, flags, 0600);
+    fd = open(path, flags, S_IRUSR | S_IWUSR);
     if (fd < 0) {
         RNP_LOG("failed to create file '%s'. Error %d.", path, errno);
         return RNP_ERROR_WRITE;
     }
 
-    if (!init_dst_common(dst, sizeof(*param))) {
+    rnp_result_t res = init_fd_dest(dst, fd, path);
+    if (res) {
         close(fd);
-        return RNP_ERROR_OUT_OF_MEMORY;
     }
-
-    param = (pgp_dest_file_param_t *) dst->param;
-    param->fd = fd;
-    memcpy(param->path, path, path_len + 1);
-    dst->write = file_dst_write;
-    dst->close = file_dst_close;
-    dst->type = PGP_STREAM_FILE;
-
-    return RNP_SUCCESS;
+    return res;
 }
 
 #define TMPDST_SUFFIX ".rnp-tmp.XXXXXX"
@@ -846,7 +863,7 @@ file_tmpdst_finish(pgp_dest_t *dst)
 
     /* rename the temporary file */
     close(param->fd);
-    param->fd = 0;
+    param->fd = -1;
 
     /* check if file already exists */
     if (!stat(origpath, &st)) {
@@ -910,9 +927,17 @@ init_tmpfile_dest(pgp_dest_t *dst, const char *path, bool overwrite)
         RNP_LOG("failed to build file path");
         return RNP_ERROR_BAD_PARAMETERS;
     }
-    mktemp(tmp);
-
-    if ((res = init_file_dest(dst, tmp, overwrite))) {
+#ifdef HAVE_MKSTEMP
+    int fd = mkstemp(tmp);
+#else
+    int fd = rnp_mkstemp(tmp);
+#endif
+    if (fd < 0) {
+        RNP_LOG("failed to create temporary file with tempate '%s'. Error %d.", tmp, errno);
+        return RNP_ERROR_WRITE;
+    }
+    if ((res = init_fd_dest(dst, fd, tmp))) {
+        close(fd);
         return res;
     }
 
@@ -1073,8 +1098,17 @@ mem_dest_own_memory(pgp_dest_t *dst)
     dst_finish(dst);
 
     if (param->free) {
-        /* it may be larger then required */
-        param->memory = realloc(param->memory, dst->writeb);
+        if (!dst->writeb) {
+            free(param->memory);
+            param->memory = NULL;
+            return param->memory;
+        }
+        /* it may be larger then required - let's truncate */
+        void *newalloc = realloc(param->memory, dst->writeb);
+        if (!newalloc) {
+            return NULL;
+        }
+        param->memory = newalloc;
         param->allocated = dst->writeb;
         param->free = false;
         return param->memory;

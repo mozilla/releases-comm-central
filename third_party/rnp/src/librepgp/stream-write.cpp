@@ -136,8 +136,6 @@ static rnp_result_t
 partial_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
 {
     pgp_dest_partial_param_t *param = (pgp_dest_partial_param_t *) dst->param;
-    int                       wrlen;
-
     if (!param) {
         RNP_LOG("wrong param");
         return RNP_ERROR_BAD_PARAMETERS;
@@ -145,7 +143,7 @@ partial_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
 
     if (len > param->partlen - param->len) {
         /* we have full part - in block and in buf */
-        wrlen = param->partlen - param->len;
+        size_t wrlen = param->partlen - param->len;
         dst_write(param->writedst, &param->parthdr, 1);
         dst_write(param->writedst, param->part, param->len);
         dst_write(param->writedst, buf, wrlen);
@@ -504,7 +502,7 @@ encrypted_add_recipient(pgp_write_handler_t *handler,
 {
     uint8_t                     enckey[PGP_MAX_KEY_SIZE + 3];
     unsigned                    checksum = 0;
-    pgp_pk_sesskey_t            pkey = {0};
+    pgp_pk_sesskey_t            pkey;
     pgp_dest_encrypted_param_t *param = (pgp_dest_encrypted_param_t *) dst->param;
     rnp_result_t                ret = RNP_ERROR_GENERIC;
 
@@ -625,7 +623,7 @@ encrypted_add_password(rnp_symmetric_pass_info_t * pass,
                        const unsigned              keylen,
                        bool                        singlepass)
 {
-    pgp_sk_sesskey_t skey = {0};
+    pgp_sk_sesskey_t skey = {};
     unsigned         s2keylen; /* length of the s2k key */
     pgp_crypt_t      kcrypt;
     uint8_t          nonce[PGP_AEAD_MAX_NONCE_LEN];
@@ -849,8 +847,8 @@ init_encrypted_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *wr
     dst->close = encrypted_dst_close;
     dst->type = PGP_STREAM_ENCRYPTED;
 
-    pkeycount = list_length(handler->ctx->recipients);
-    skeycount = list_length(handler->ctx->passwords);
+    pkeycount = handler->ctx->recipients.size();
+    skeycount = handler->ctx->passwords.size();
 
     if (!pkeycount && !skeycount) {
         RNP_LOG("no recipients");
@@ -867,21 +865,16 @@ init_encrypted_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *wr
     }
 
     /* Configuring and writing pk-encrypted session keys */
-    if (pkeycount > 0) {
-        for (list_item *recipient = list_front(handler->ctx->recipients); recipient;
-             recipient = list_next(recipient)) {
-            ret =
-              encrypted_add_recipient(handler, dst, *(pgp_key_t **) recipient, enckey, keylen);
-            if (ret != RNP_SUCCESS) {
-                goto finish;
-            }
+    for (auto recipient : handler->ctx->recipients) {
+        ret = encrypted_add_recipient(handler, dst, recipient, enckey, keylen);
+        if (ret) {
+            goto finish;
         }
     }
 
     /* Configuring and writing sk-encrypted session key(s) */
-    for (list_item *pi = list_front(handler->ctx->passwords); pi; pi = list_next(pi)) {
-        ret = encrypted_add_password(
-          (rnp_symmetric_pass_info_t *) pi, param, enckey, keylen, singlepass);
+    for (auto &passinfo : handler->ctx->passwords) {
+        ret = encrypted_add_password(&passinfo, param, enckey, keylen, singlepass);
         if (ret != RNP_SUCCESS) {
             goto finish;
         }
@@ -911,18 +904,12 @@ init_encrypted_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *wr
         /* initialize old CFB or CFB with MDC */
         ret = encrypted_start_cfb(param, enckey);
     }
-
 finish:
-    for (list_item *pi = list_front(handler->ctx->passwords); pi; pi = list_next(pi)) {
-        rnp_symmetric_pass_info_t *pass = (rnp_symmetric_pass_info_t *) pi;
-        pgp_forget(pass, sizeof(*pass));
-    }
-    list_destroy(&handler->ctx->passwords);
+    handler->ctx->passwords.clear();
     pgp_forget(enckey, sizeof(enckey));
-    if (ret != RNP_SUCCESS) {
+    if (ret) {
         encrypted_dst_close(dst, true);
     }
-
     return ret;
 }
 
@@ -1070,16 +1057,19 @@ signed_fill_signature(pgp_dest_signed_param_t *param,
     pgp_key_pkt_t *    deckey = NULL;
     pgp_hash_t         hash;
     pgp_password_ctx_t ctx = {.op = PGP_OP_SIGN, .key = signer->key};
-    bool               res;
     rnp_result_t       ret = RNP_ERROR_GENERIC;
 
     /* fill signature fields */
-    res = signature_set_keyfp(sig, pgp_key_get_fp(signer->key)) &&
-          signature_set_keyid(sig, pgp_key_get_keyid(signer->key)) &&
-          signature_set_creation(sig, signer->sigcreate ? signer->sigcreate : time(NULL)) &&
-          signature_set_expiration(sig, signer->sigexpire) && signature_fill_hashed_data(sig);
-
-    if (!res) {
+    try {
+        sig->set_keyfp(pgp_key_get_fp(signer->key));
+        sig->set_keyid(pgp_key_get_keyid(signer->key));
+        sig->set_creation(signer->sigcreate ? signer->sigcreate : time(NULL));
+        sig->set_expiration(signer->sigexpire);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to setup signature fields: %s", e.what());
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
+    if (!signature_fill_hashed_data(sig)) {
         RNP_LOG("failed to fill the signature data");
         return RNP_ERROR_OUT_OF_MEMORY;
     }
@@ -1123,11 +1113,11 @@ signed_write_signature(pgp_dest_signed_param_t *param,
     if (signer->onepass.version) {
         sig.halg = signer->onepass.halg;
         sig.palg = signer->onepass.palg;
-        sig.type = signer->onepass.type;
+        sig.set_type(signer->onepass.type);
     } else {
         sig.halg = pgp_hash_adjust_alg_to_key(signer->halg, pgp_key_get_pkt(signer->key));
         sig.palg = pgp_key_get_alg(signer->key);
-        sig.type = param->ctx->detached ? PGP_SIG_BINARY : PGP_SIG_TEXT;
+        sig.set_type(param->ctx->detached ? PGP_SIG_BINARY : PGP_SIG_TEXT);
     }
 
     if (!(ret = signed_fill_signature(param, &sig, signer))) {
@@ -1328,8 +1318,8 @@ init_signed_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *write
     dst->close = signed_dst_close;
 
     /* Getting signer's infos, writing one-pass signatures if needed */
-    for (list_item *sg = list_front(handler->ctx->signers); sg; sg = list_next(sg)) {
-        ret = signed_add_signer(param, (rnp_signer_info_t *) sg, !list_next(sg));
+    for (auto &sg : handler->ctx->signers) {
+        ret = signed_add_signer(param, &sg, &sg == &handler->ctx->signers.back());
         if (ret) {
             RNP_LOG("failed to add one-pass signature for signer");
             goto finish;
@@ -1644,7 +1634,7 @@ init_literal_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *writ
 {
     pgp_dest_packet_param_t *param;
     rnp_result_t             ret = RNP_ERROR_GENERIC;
-    int                      flen = 0;
+    size_t                   flen = 0;
     uint8_t                  buf[4];
 
     if (!init_dst_common(dst, sizeof(*param))) {
@@ -1669,17 +1659,15 @@ init_literal_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *writ
     /* content type - forcing binary now */
     buf[0] = (uint8_t) 'b';
     /* filename */
-    if (handler->ctx->filename) {
-        flen = strlen(handler->ctx->filename);
-        if (flen > 255) {
-            RNP_LOG("filename too long, truncating");
-            flen = 255;
-        }
+    flen = handler->ctx->filename.size();
+    if (flen > 255) {
+        RNP_LOG("filename too long, truncating");
+        flen = 255;
     }
     buf[1] = (uint8_t) flen;
     dst_write(param->writedst, buf, 2);
-    if (flen > 0) {
-        dst_write(param->writedst, handler->ctx->filename, flen);
+    if (flen) {
+        dst_write(param->writedst, handler->ctx->filename.c_str(), flen);
     }
     /* timestamp */
     STORE32BE(buf, handler->ctx->filemtime);
@@ -1936,7 +1924,7 @@ rnp_result_t
 rnp_compress_src(pgp_source_t &src, pgp_dest_t &dst, pgp_compression_type_t zalg, int zlevel)
 {
     pgp_write_handler_t handler = {};
-    rnp_ctx_t           ctx = {};
+    rnp_ctx_t           ctx;
     ctx.zalg = zalg;
     ctx.zlevel = zlevel;
     handler.ctx = &ctx;
@@ -1949,7 +1937,6 @@ rnp_compress_src(pgp_source_t &src, pgp_dest_t &dst, pgp_compression_type_t zalg
     ret = dst_write_src(&src, &compressed);
 done:
     dst_close(&compressed, ret);
-    rnp_ctx_free(&ctx);
     return ret;
 }
 
@@ -1957,8 +1944,8 @@ rnp_result_t
 rnp_wrap_src(pgp_source_t &src, pgp_dest_t &dst, const std::string &filename, uint32_t modtime)
 {
     pgp_write_handler_t handler = {};
-    rnp_ctx_t           ctx = {};
-    ctx.filename = strdup(filename.c_str());
+    rnp_ctx_t           ctx;
+    ctx.filename = filename;
     ctx.filemtime = modtime;
     handler.ctx = &ctx;
 
@@ -1971,7 +1958,6 @@ rnp_wrap_src(pgp_source_t &src, pgp_dest_t &dst, const std::string &filename, ui
     ret = dst_write_src(&src, &literal);
 done:
     dst_close(&literal, ret);
-    rnp_ctx_free(&ctx);
     return ret;
 }
 
@@ -1979,7 +1965,7 @@ rnp_result_t
 rnp_raw_encrypt_src(pgp_source_t &src, pgp_dest_t &dst, const std::string &password)
 {
     pgp_write_handler_t handler = {};
-    rnp_ctx_t           ctx = {};
+    rnp_ctx_t           ctx;
     rng_t               rng = {};
 
     if (!rng_init(&rng, RNG_SYSTEM)) {
@@ -1991,7 +1977,7 @@ rnp_raw_encrypt_src(pgp_source_t &src, pgp_dest_t &dst, const std::string &passw
     pgp_dest_t encrypted = {};
 
     rnp_result_t ret = rnp_ctx_add_encryption_password(
-      &ctx, password.c_str(), DEFAULT_PGP_HASH_ALG, DEFAULT_PGP_SYMM_ALG, 0);
+      ctx, password.c_str(), DEFAULT_PGP_HASH_ALG, DEFAULT_PGP_SYMM_ALG, 0);
     if (ret) {
         goto done;
     }
@@ -2004,7 +1990,6 @@ rnp_raw_encrypt_src(pgp_source_t &src, pgp_dest_t &dst, const std::string &passw
     ret = dst_write_src(&src, &encrypted);
 done:
     dst_close(&encrypted, ret);
-    rnp_ctx_free(&ctx);
     rng_destroy(&rng);
     return ret;
 }

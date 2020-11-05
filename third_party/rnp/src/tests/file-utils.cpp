@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2020 [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,23 +24,30 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RNP_FILE_UTILS_H_
-#define RNP_FILE_UTILS_H_
+#include "rnp_tests.h"
+#include "file-utils.h"
 
-#include <stdint.h>
-
-bool    rnp_file_exists(const char *path);
-int64_t rnp_filemtime(const char *path);
-
-/** @private
- *  generate a temporary file name based on TMPL.  TMPL must match the
- *  rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
- *  does not exist at the time of the call to mkstemp.  TMPL is
- *  overwritten with the result.get the list item at specified index
- *
- *  @param tmpl filename template
- *  @return file descriptor of newly created and opened file, or -1 on error
- **/
-int rnp_mkstemp(char *tmpl);
-
+TEST_F(rnp_tests, test_rnp_mkstemp)
+{
+#ifdef _MSC_VER
+    const char  tmpl[17] = "test-file.XXXXXX";
+    char        buf[17];
+    const int   size = 20;
+    int         fds[size];
+    std::string filenames[size];
+    for (int i = 0; i < size; i++) {
+        memcpy(buf, tmpl, sizeof(buf));
+        int fd = rnp_mkstemp(buf);
+        assert_int_not_equal(-1, fd);
+        fds[i] = fd;
+        filenames[i] = buf;
+    }
+    assert_false(filenames[0] == filenames[1]);
+    for (int i = 0; i < size; i++) {
+        if (fds[i] != -1) {
+            assert_int_equal(0, close(fds[i]));
+            assert_int_equal(0, unlink(filenames[i].c_str()));
+        }
+    }
 #endif
+}
