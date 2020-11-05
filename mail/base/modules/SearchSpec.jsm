@@ -464,11 +464,14 @@ SearchSpec.prototype = {
             }
           }
         }
-        // If both scopes work, honor the onlineSearch request, unless we're
-        // filtering (quick search and/or a view selected).
+        // If both scopes work, honor the onlineSearch request, for saved search folders (!filtering)
+        // and the search dialog (!displayedFolder).
         // If only one works, use it. Otherwise, default to offline
         if (onlineAvailable && offlineAvailable) {
-          scope = !filtering && this.onlineSearch ? serverScope : offlineScope;
+          scope =
+            (!filtering || !this.owner.displayedFolder) && this.onlineSearch
+              ? serverScope
+              : offlineScope;
         } else if (onlineAvailable) {
           scope = serverScope;
         } else {
