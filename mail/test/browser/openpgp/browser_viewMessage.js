@@ -348,43 +348,6 @@ add_task(async function testPartialInlinePGPDecrypt() {
   close_window(mc);
 });
 
-/**
- * Test the notification and repairing of a message corrupted by MS-Exchange.
- */
-add_task(async function testBrokenMSExchangeEncryption() {
-  // Setup the message.
-  let mc = await open_message_from_file(
-    new FileUtils.File(getTestFilePath("data/eml/alice-broken-exchange.eml"))
-  );
-  let notificationBox = "mail-notification-top";
-  let notificationValue = "brokenExchange";
-
-  // Assert the "corrupted by MS-Exchange" notification is visible.
-  assert_notification_displayed(mc, notificationBox, notificationValue, true);
-
-  // Click on the "repair" button.
-  let repairButton = get_notification_button(
-    mc,
-    notificationBox,
-    notificationValue,
-    {
-      popup: null,
-    }
-  );
-  EventUtils.synthesizeMouseAtCenter(repairButton, {}, mc.window);
-
-  // Wait for the "fixing in progress" notification to go away.
-  wait_for_notification_to_stop(mc, notificationBox, "brokenExchangeProgress");
-
-  // Assert that the message was repaired and decrypted.
-  Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
-    "encrypted icon is displayed"
-  );
-
-  close_window(mc);
-}).skip(); // Bug 1674013
-
 registerCleanupFunction(function tearDown() {
   aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
   MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, true);
