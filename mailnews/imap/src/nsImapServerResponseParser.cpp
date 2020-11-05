@@ -2732,7 +2732,7 @@ bool nsImapServerResponseParser::msg_fetch_literal(bool chunk, int32_t origin) {
             "imapDownloadingMessage");
         if (fTotalDownloadSize > 0)
           fServerConnection.PercentProgressUpdateEvent(
-              0, charsReadSoFar + origin, fTotalDownloadSize);
+              ""_ns, u""_ns, charsReadSoFar + origin, fTotalDownloadSize);
       }
       if (charsReadSoFar > numberOfCharsInThisChunk) {
         // This is the last line of a chunk. "Literal" here means actual email

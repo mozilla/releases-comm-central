@@ -6183,7 +6183,8 @@ nsImapMailFolder::ProgressStatusString(nsIImapProtocol* aProtocol,
 
 NS_IMETHODIMP
 nsImapMailFolder::PercentProgress(nsIImapProtocol* aProtocol,
-                                  const char16_t* aMessage,
+                                  nsACString const& aFmtStringName,
+                                  nsAString const& aMailboxName,
                                   int64_t aCurrentProgress,
                                   int64_t aMaxProgress) {
   if (aProtocol) {
@@ -6197,9 +6198,29 @@ nsImapMailFolder::PercentProgress(nsIImapProtocol* aProtocol,
         mockChannel->GetProgressEventSink(getter_AddRefs(progressSink));
         if (progressSink) {
           progressSink->OnProgress(mockChannel, aCurrentProgress, aMaxProgress);
-          if (aMessage)
-            progressSink->OnStatus(mockChannel, NS_OK,
-                                   aMessage);  // XXX i18n message
+
+          if (!aFmtStringName.IsEmpty()) {
+            // There's a progress message to format (the progress messages are
+            // all localized and expect three params).
+            nsAutoString current;
+            current.AppendInt(aCurrentProgress);
+            nsAutoString expected;
+            expected.AppendInt(aMaxProgress);
+            nsAutoString mailbox(aMailboxName);
+            AutoTArray<nsString, 3> params = {current, expected, mailbox};
+
+            nsCOMPtr<nsIStringBundle> bundle;
+            nsresult rv = IMAPGetStringBundle(getter_AddRefs(bundle));
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            nsString progressText;
+            rv = bundle->FormatStringFromName(
+                PromiseFlatCString(aFmtStringName).get(), params, progressText);
+            NS_ENSURE_SUCCESS(rv, rv);
+            if (!progressText.IsEmpty()) {
+              progressSink->OnStatus(mockChannel, NS_OK, progressText.get());
+            }
+          }
         }
       }
     }

@@ -636,10 +636,11 @@ nsImapProtocol::Initialize(nsIImapHostSessionList* aHostSessionList,
   m_parser.SetFlagState(m_flagState);
 
   // Initialize the empty mime part string on the main thread.
-  rv = IMAPGetStringBundle(getter_AddRefs(m_bundle));
+  nsCOMPtr<nsIStringBundle> bundle;
+  rv = IMAPGetStringBundle(getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = m_bundle->GetStringFromName("imapEmptyMimePart", m_emptyMimePartString);
+  rv = bundle->GetStringFromName("imapEmptyMimePart", m_emptyMimePartString);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Now initialize the thread for the connection
@@ -5151,23 +5152,9 @@ void nsImapProtocol::ShowProgress() {
     NS_ENSURE_SUCCESS_VOID(rv);
 
     int32_t progressCurrentNumber = ++m_progressCurrentNumber[m_stringIndex];
-    nsAutoString progressCurrentNumberString;
-    progressCurrentNumberString.AppendInt(progressCurrentNumber);
 
-    nsAutoString progressExpectedNumberString;
-    progressExpectedNumberString.AppendInt(m_progressExpectedNumber);
-
-    AutoTArray<nsString, 3> formatStrings = {progressCurrentNumberString,
-                                             progressExpectedNumberString,
-                                             unicodeMailboxName};
-
-    rv = m_bundle->FormatStringFromName(m_progressStringName.get(),
-                                        formatStrings, progressString);
-
-    if (NS_SUCCEEDED(rv) && !progressString.IsEmpty()) {
-      PercentProgressUpdateEvent(progressString.get(), progressCurrentNumber,
-                                 m_progressExpectedNumber);
-    }
+    PercentProgressUpdateEvent(m_progressStringName, unicodeMailboxName,
+                               progressCurrentNumber, m_progressExpectedNumber);
   }
 }
 
@@ -5191,7 +5178,8 @@ void nsImapProtocol::ProgressEventFunctionUsingNameWithString(
   }
 }
 
-void nsImapProtocol::PercentProgressUpdateEvent(const char16_t* message,
+void nsImapProtocol::PercentProgressUpdateEvent(nsACString const& fmtStringName,
+                                                nsAString const& mailbox,
                                                 int64_t currentProgress,
                                                 int64_t maxProgress) {
   int64_t nowMS = 0;
@@ -5215,9 +5203,10 @@ void nsImapProtocol::PercentProgressUpdateEvent(const char16_t* message,
     mailnewsUrl->SetMaxProgress(maxProgress);
   }
 
-  if (m_imapMailFolderSink)
-    m_imapMailFolderSink->PercentProgress(this, message, currentProgress,
-                                          maxProgress);
+  if (m_imapMailFolderSink) {
+    m_imapMailFolderSink->PercentProgress(this, fmtStringName, mailbox,
+                                          currentProgress, maxProgress);
+  }
 }
 
 // imap commands issued by the parser
@@ -6102,7 +6091,8 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
         dataBuffer[readCount] = 0;
         rv = SendData(dataBuffer);
         totalSize -= readCount;
-        PercentProgressUpdateEvent(nullptr, fileSize - totalSize, fileSize);
+        PercentProgressUpdateEvent(""_ns, u""_ns, fileSize - totalSize,
+                                   fileSize);
       }
     }
     if (NS_SUCCEEDED(rv)) {  // complete the append
@@ -6418,14 +6408,14 @@ void nsImapProtocol::OnRefreshAllACLs() {
         RefreshACLForFolder(onlineName);
         free(onlineName);
       }
-      PercentProgressUpdateEvent(NULL, count, total);
+      PercentProgressUpdateEvent(""_ns, u""_ns, count, total);
       delete mb;
       count++;
     }
   }
   m_listedMailboxList.Clear();
 
-  PercentProgressUpdateEvent(NULL, 100, 100);
+  PercentProgressUpdateEvent(""_ns, u""_ns, 100, 100);
   GetServerStateParser().SetReportingErrors(true);
   m_hierarchyNameState = kNoOperationInProgress;
 }
@@ -7280,7 +7270,7 @@ void nsImapProtocol::DiscoverMailboxList() {
               PR_Free(onlineName);
             }
           }
-          PercentProgressUpdateEvent(NULL, cnt, total);
+          PercentProgressUpdateEvent(""_ns, u""_ns, cnt, total);
           delete mb;  // this is the last time we're using the list, so delete
                       // the entries here
           cnt++;

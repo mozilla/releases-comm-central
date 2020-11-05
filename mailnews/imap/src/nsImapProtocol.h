@@ -308,7 +308,8 @@ class nsImapProtocol : public nsIImapProtocol,
   void ProgressEventFunctionUsingName(const char* aMsgId);
   void ProgressEventFunctionUsingNameWithString(const char* aMsgName,
                                                 const char* aExtraInfo);
-  void PercentProgressUpdateEvent(const char16_t* message,
+  void PercentProgressUpdateEvent(nsACString const& fmtStringName,
+                                  nsAString const& mailbox,
                                   int64_t currentProgress, int64_t maxProgress);
   void ShowProgress();
 
@@ -731,7 +732,6 @@ class nsImapProtocol : public nsIImapProtocol,
   nsCString m_lastProgressStringName;
   int32_t m_lastPercent;
   int64_t m_lastProgressTime;
-  nsCOMPtr<nsIStringBundle> m_bundle;
 
   bool m_notifySearchHit;
   bool m_needNoop;
