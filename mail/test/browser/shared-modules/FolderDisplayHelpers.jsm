@@ -155,7 +155,6 @@ var EventUtils = ChromeUtils.import(
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
-var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 // the windowHelper module
@@ -259,67 +258,6 @@ function setupModule() {
   testHelperModule._logHelperInterestedListeners = true;
 
   // - Hook-up logHelper to the mozmill event system...
-  let curTestFile = null;
-  // Listen for setTest so we can change buckets and generate logHelper test
-  //  begin/end notifications.
-  frame.events.addListener("setTest", function(obj) {
-    // ignore setupModule and teardownModule
-    if (obj.name == "setupModule" || obj.name == "teardownModule") {
-      return;
-    }
-    if (obj.filename != curTestFile) {
-      testHelperModule.mark_test_end();
-      bucketAppender.newBucket();
-      testHelperModule.mark_test_start(obj.filename);
-      curTestFile = obj.filename;
-    } else {
-      testHelperModule.mark_test_end(1);
-      bucketAppender.newBucket();
-    }
-    testHelperModule.mark_sub_test_start(obj.name);
-  });
-  // Listen for the fail event so that we can annotate the failure object
-  //  with additional metadata.  This works out because we are directly handed
-  //  a reference to the object that will be provided to the jsbridge and we
-  //  can mutate it.  (The jsbridge is a global listener and so is guaranteed
-  //  to be invoked after our specific named listener.)
-  frame.events.addListener("fail", function(obj) {
-    // normalize nsIExceptions so they look like JS exceptions...
-    let rawex = obj.exception;
-    if (obj.exception != null && obj.exception instanceof Ci.nsIException) {
-      obj.exception = {
-        message: "nsIException: " + rawex.message + " (" + rawex.result + ")",
-        fileName: rawex.filename,
-        lineNumber: rawex.lineNumber,
-        name: rawex.name,
-        result: rawex.result,
-        stack: "",
-      };
-    }
-
-    // generate the failure notification now so it shows up in the event log
-    //  bucket for presentation purposes.
-    testHelperModule._xpcshellLogger.info(
-      testHelperModule._testLoggerActiveContext,
-      new testHelperModule._Failure(
-        obj.exception ? obj.exception.message : "No Exception!",
-        rawex
-      )
-    );
-
-    try {
-      obj.failureContext = {
-        preEvents: bucketAppender.getPreviousBucketEvents(10000),
-        events: bucketAppender.getBucketEvents(),
-        windows: windowHelper.captureWindowStatesForErrorReporting(
-          testHelperModule._normalize_for_json
-        ),
-      };
-    } catch (ex) {
-      dump("!!!!!!!!EX: " + ex);
-      mark_action("fdh", "fail fail marking!", [ex]);
-    }
-  });
 
   // -- the rest of the asyncTestUtils framework (but not actually async)
 

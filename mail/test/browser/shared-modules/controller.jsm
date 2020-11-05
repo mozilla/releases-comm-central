@@ -49,10 +49,6 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var elementslib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
-var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
-frame.log = function(obj) {
-  frame.events.fireEvent("log", obj);
-};
 
 // Declare most used utils functions in the controller namespace
 var sleep = utils.sleep;
@@ -282,7 +278,6 @@ MozMillController.prototype.type = function(aTarget, aText, aExpectedEvent) {
     events.triggerKeyEvent(element, "keypress", letter, {}, aExpectedEvent);
   });
 
-  frame.events.pass({ function: "Controller.type()" });
   return true;
 };
 
@@ -397,8 +392,6 @@ MozMillController.prototype.click = function(elem, left, top, expectedEvent) {
   } else {
     this.mouseEvent(elem, left, top, {}, expectedEvent);
   }
-
-  frame.events.pass({ function: "controller.click()" });
 };
 
 /**
@@ -411,8 +404,6 @@ MozMillController.prototype.doubleClick = function(
   expectedEvent
 ) {
   this.mouseEvent(elem, left, top, { clickCount: 2 }, expectedEvent);
-
-  frame.events.pass({ function: "controller.doubleClick()" });
   return true;
 };
 
@@ -432,8 +423,6 @@ MozMillController.prototype.rightClick = function(
     { type: "contextmenu", button: 2 },
     expectedEvent
   );
-
-  frame.events.pass({ function: "controller.rightClick()" });
   return true;
 };
 
@@ -441,10 +430,6 @@ MozMillController.prototype.rightClick = function(
  * Synthesize a mouse right click event on the given element (deprecated)
  */
 MozMillController.prototype.rightclick = function(...aArgs) {
-  frame.log({
-    function: "rightclick - Deprecation Warning",
-    message: "Controller.rightclick should be renamed to Controller.rightClick",
-  });
   this.rightClick(...aArgs);
 };
 
@@ -473,9 +458,6 @@ MozMillController.prototype.check = function(el, state) {
     result = true;
   }
 
-  frame.events.pass({
-    function: "Controller.check(" + el.getInfo() + ", state: " + state + ")",
-  });
   return result;
 };
 
@@ -497,7 +479,6 @@ MozMillController.prototype.radio = function(el) {
     500
   );
 
-  frame.events.pass({ function: "Controller.radio(" + el.getInfo() + ")" });
   return true;
 };
 
@@ -522,8 +503,6 @@ MozMillController.prototype.waitFor = function(
   thisObject
 ) {
   utils.waitFor(callback, message, timeout, interval, thisObject);
-
-  frame.events.pass({ function: "controller.waitFor()" });
 };
 
 MozMillController.prototype.waitForElement = function(elem, timeout, interval) {
@@ -535,8 +514,6 @@ MozMillController.prototype.waitForElement = function(elem, timeout, interval) {
     timeout,
     interval
   );
-
-  frame.events.pass({ function: "Controller.waitForElement()" });
 };
 
 MozMillController.prototype.waitForElementNotPresent = function(
@@ -552,8 +529,6 @@ MozMillController.prototype.waitForElementNotPresent = function(
     timeout,
     interval
   );
-
-  frame.events.pass({ function: "Controller.waitForElementNotPresent()" });
 };
 
 /**
@@ -569,11 +544,6 @@ MozMillController.prototype.__defineGetter__("mainMenu", function() {
 });
 
 MozMillController.prototype.__defineGetter__("menus", function() {
-  frame.log({
-    property: "controller.menus - DEPRECATED",
-    message: "Use controller.mainMenu instead.",
-  });
-
   var menubar = this.window.document.querySelector("menubar");
   return new MenuTree(this.window, menubar);
 });
