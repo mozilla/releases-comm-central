@@ -3522,11 +3522,13 @@ function onShowOtherActionsPopup() {
   let openConversation = document.getElementById(
     "otherActionsOpenConversation"
   );
-  openConversation.disabled = !glodaEnabled;
-  if (glodaEnabled && gFolderDisplay.selectedCount > 0) {
-    let message = gFolderDisplay.selectedMessage;
-    let isMessageIndexed = Gloda.isMessageIndexed(message);
-    openConversation.disabled = !isMessageIndexed;
+  // Check because this menuitem element is not present in messageWindow.xhtml.
+  if (openConversation) {
+    openConversation.disabled = !(
+      glodaEnabled &&
+      gFolderDisplay?.selectedCount > 0 &&
+      Gloda.isMessageIndexed(gFolderDisplay.selectedMessage)
+    );
   }
 
   if (SelectedMessagesAreRead()) {
