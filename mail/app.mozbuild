@@ -6,20 +6,22 @@
 # Note that paths in this file are relative to the top directory, which may be
 # m-c or c-c.
 
-GENERATED_FILES['source-repo.h'].script = 'comm/build/source_repos.py:source_repo_header'
+GENERATED_FILES[
+    "source-repo.h"
+].script = "comm/build/source_repos.py:source_repo_header"
 
-include('../mailnews/mailnews.mozbuild')
+include("../mailnews/mailnews.mozbuild")
 
-DIRS += ['/%s/mail/components' % CONFIG['commreltopsrcdir']]
+DIRS += ["/%s/mail/components" % CONFIG["commreltopsrcdir"]]
 
-include('/%s/toolkit/toolkit.mozbuild' % CONFIG['mozreltopsrcdir'])
+include("/%s/toolkit/toolkit.mozbuild" % CONFIG["mozreltopsrcdir"])
 
-if CONFIG['MOZ_EXTENSIONS']:
-    DIRS += ['/%s/extensions' % CONFIG['mozreltopsrcdir']]
+if CONFIG["MOZ_EXTENSIONS"]:
+    DIRS += ["/%s/extensions" % CONFIG["mozreltopsrcdir"]]
 
 DIRS += [
-    '/%s' % CONFIG['MOZ_BRANDING_DIRECTORY'],
-    '/%s/calendar' % CONFIG['commreltopsrcdir'],
-    '/%s/chat' % CONFIG['commreltopsrcdir'],
-    '/%s/mail' % CONFIG['commreltopsrcdir'],
+    "/%s" % CONFIG["MOZ_BRANDING_DIRECTORY"],
+    "/%s/calendar" % CONFIG["commreltopsrcdir"],
+    "/%s/chat" % CONFIG["commreltopsrcdir"],
+    "/%s/mail" % CONFIG["commreltopsrcdir"],
 ]

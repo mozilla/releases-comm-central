@@ -6,7 +6,7 @@
 # application requires. This is necessary to allow symbols defined in
 # those header files to be loaded from external library files.
 
-#system_headers += [
+# system_headers += [
 #    'file1.h',
 #    'file2.h',
-#]
+# ]
