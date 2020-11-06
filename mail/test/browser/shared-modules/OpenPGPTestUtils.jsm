@@ -25,6 +25,9 @@ const OpenPGPTestUtils = {
   ACCEPTANCE_UNVERIFIED: "unverified",
   ACCEPTANCE_VERIFIED: "verified",
   ACCEPTANCE_UNDECIDED: "undecided",
+  ALICE_KEY_ID: "F231550C4F47E38E",
+  BOB_KEY_ID: "FBFCC82A015E7330",
+  CAROL_KEY_ID: "3099FF1238852B9F",
 
   /**
    * Tests whether the signed icon's "signed" attribute matches the provided

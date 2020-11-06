@@ -1,0 +1,55 @@
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00800000
+X-Mozilla-Keys:                                                                                 
+To: alice@openpgp.example
+From: Bob Babbage <bob@openpgp.example>
+Subject: Signed Message Damaged Signature
+Message-ID: <848aa9eb-7cd0-8673-9a07-af43d04c0ee8@openpgp.example>
+Date: Mon, 2 Nov 2020 17:35:44 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:84.0) Gecko/20100101
+ Thunderbird/84.0a1
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="50nOnYT10Ofoj91bgJF5Ao17vVWnb3oq6"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--50nOnYT10Ofoj91bgJF5Ao17vVWnb3oq6
+Content-Type: multipart/mixed; boundary="N2qZSO8OxbEQYeawxVekJvYNUvD0dwxtb";
+ protected-headers="v1"
+From: Bob Babbage <bob@openpgp.example>
+To: alice@openpgp.example
+Message-ID: <848aa9eb-7cd0-8673-9a07-af43d04c0ee8@openpgp.example>
+Subject: Signed Message
+
+--N2qZSO8OxbEQYeawxVekJvYNUvD0dwxtb
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+
+Sundays are nothing without callaloo.
+
+
+
+--N2qZSO8OxbEQYeawxVekJvYNUvD0dwxtb--
+
+--50nOnYT10Ofoj91bgJF5Ao17vVWnb3oq6
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsD5BAABCAAjFiEE0aZuGiOxgsmYD3iM+/zIKgFeczAFAl+ge7AFAwAAAAAACgkQ+/zIKgFeczAw
+dwv/ZTuLMSj073z92I2WStlFzmrCc1ux3FQ107mTFR4+l2zTlE2nxWKEp1clmn+MqZwTLCQquOlX
+YEeYCyXa2z/bSFxm7++mhB2uf5/ahnGs8ZMN5SD+xWoV3WXqOgDiPjz2BNWBrd9VN5Azr8akSEwG
+EJK+i9wMRXTvCtrc6MnuXBVTt5rN35s/HpznpVgtU8+zRQ7MSd6BTD0PkIqrhgl7qV2XTtmlGEM4
+JwHa56QrIg82ebudv/tIm4NlLCj6bvLKBiJ2Q+TvZaPwVuCAYpurFlzJJfKLiNzBi/G+90XNG276
+69C6cm5VlSQe6/gqfB9bHpfkzItRdLYW8rHYTuN6YuctTvPr5hoTmLUYq1YIL9MJHhUmxNnfgq/E
+XLYE0d0fzfopUHzPkmbMdJ3DU14HD4JcyS2623iwRooecxzydSZUPm497t6a/kbBae2p1nk2QZ7I
+muRSPlbVHSi3HClk3aqiDkyTXAkvWbX8UqbY7/fBL24YJzf2k/8yuzzAo+Gl
+=PLaI
+-----END PGP SIGNATURE-----
+
+--50nOnYT10Ofoj91bgJF5Ao17vVWnb3oq6--
+

@@ -68,7 +68,7 @@ class DummyMsgHeader {
   }
 }
 
-function apply_mime_conversion(msgUri, headerSink = {}) {
+function apply_mime_conversion(msgUri, headerSink = {}, msgWindow = undefined) {
   let stubHeaderSink = {
     processHeaders(aHeaderNames, aHeaderValues, dontCollectAddress) {},
     handleAttachment(contentType, url, displayName, uri, aNotDownloaded) {},
@@ -98,9 +98,10 @@ function apply_mime_conversion(msgUri, headerSink = {}) {
     }
   }
 
-  let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-    Ci.nsIMsgWindow
-  );
+  msgWindow =
+    msgWindow ||
+    Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(Ci.nsIMsgWindow);
+
   msgWindow.msgHeaderSink = fullHeaderSink;
 
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
