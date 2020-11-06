@@ -1927,8 +1927,7 @@ nsresult nsMsgComposeAndSend::AddCompFieldRemoteAttachments(
   return NS_OK;
 }
 
-nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* attachments,
-                                              nsIArray* preloadedAttachments) {
+nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* preloadedAttachments) {
   //
   // First, count the total number of attachments we are going to process
   // for this operation! This is a little more complicated than you might
@@ -1942,8 +1941,7 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* attachments,
 
   // For now, manually add the local attachments in the comp field!
   mPreloadedAttachmentCount += mCompFieldLocalAttachments;
-  uint32_t numAttachments = 0, numPreloadedAttachments = 0;
-  if (attachments) attachments->GetLength(&numAttachments);
+  uint32_t numPreloadedAttachments = 0;
   if (preloadedAttachments)
     preloadedAttachments->GetLength(&numPreloadedAttachments);
   mPreloadedAttachmentCount += numPreloadedAttachments;
@@ -1955,8 +1953,6 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* attachments,
 
   // For now, manually add the remote attachments in the comp field!
   mRemoteAttachmentCount += mCompFieldRemoteAttachments;
-
-  mRemoteAttachmentCount += numAttachments;
 
   m_attachment_count = mPreloadedAttachmentCount + mRemoteAttachmentCount;
 
@@ -2061,68 +2057,6 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* attachments,
           (mPreloadedAttachmentCount + multipartRelatedCount), &mailbox_count,
           &news_count)))
     return NS_ERROR_INVALID_ARG;
-
-  //
-  // Now deal remote attachments and attach multipart/related attachments (url's
-  // and such..) first!
-  //
-  if (attachments) {
-    int32_t locCount = -1;
-
-    for (i = (mPreloadedAttachmentCount + GetMultipartRelatedCount() +
-              mCompFieldRemoteAttachments);
-         i < m_attachment_count; i++) {
-      locCount++;
-      nsCOMPtr<nsIMsgAttachmentData> attachment(
-          do_QueryElementAt(attachments, i));
-      if (!attachment) continue;
-      m_attachments[i]->mDeleteFile = true;
-      m_attachments[i]->m_done = false;
-      m_attachments[i]->SetMimeDeliveryState(this);
-
-      attachment->GetUrl(getter_AddRefs(m_attachments[i]->mURL));
-
-      attachment->GetRealType(m_attachments[i]->m_overrideType);
-      attachment->GetRealEncoding(m_attachments[i]->m_overrideEncoding);
-      attachment->GetDesiredType(m_attachments[i]->m_desiredType);
-      attachment->GetDescription(m_attachments[i]->m_description);
-      attachment->GetRealName(m_attachments[i]->m_realName);
-      attachment->GetXMacType(m_attachments[i]->m_xMacType);
-      attachment->GetXMacCreator(m_attachments[i]->m_xMacCreator);
-      m_attachments[i]->m_encoding = ENCODING_7BIT;
-
-      // real name is set in the case of vcard so don't change it.  XXX STILL
-      // NEEDED? m_attachments[i]->m_real_name = 0;
-
-      /* Count up attachments which are going to come from mail folders
-      and from NNTP servers. */
-      if (m_attachments[i]->mURL) {
-        nsIURI* uri = m_attachments[i]->mURL;
-        bool match = false;
-        if ((NS_SUCCEEDED(uri->SchemeIs("mailbox", &match)) && match) ||
-            (NS_SUCCEEDED(uri->SchemeIs("imap", &match)) && match))
-          mailbox_count++;
-        else if ((NS_SUCCEEDED(uri->SchemeIs("news", &match)) && match) ||
-                 (NS_SUCCEEDED(uri->SchemeIs("snews", &match)) && match))
-          news_count++;
-        else {
-          // Additional account types need a mechanism to report that they are
-          // message protocols. If there is an nsIMsgProtocolInfo component
-          // registered for this scheme, we'll consider it a mailbox
-          // attachment.
-          nsAutoCString contractID;
-          contractID.Assign("@mozilla.org/messenger/protocol/info;1"_ns);
-          nsAutoCString scheme;
-          uri->GetScheme(scheme);
-          contractID.Append(scheme);
-          nsCOMPtr<nsIMsgProtocolInfo> msgProtocolInfo =
-              do_CreateInstance(contractID.get());
-          if (msgProtocolInfo) mailbox_count++;
-        }
-        if (uri) msg_pick_real_name(m_attachments[i], nullptr);
-      }
-    }
-  }
 
   bool needToCallGatherMimeAttachments = true;
 
@@ -2599,9 +2533,8 @@ nsresult nsMsgComposeAndSend::Init(
     nsMsgCompFields* fields, nsIFile* sendFile, bool digest_p,
     bool dont_deliver_p, nsMsgDeliverMode mode, nsIMsgDBHdr* msgToReplace,
     const char* attachment1_type, const nsACString& attachment1_body,
-    nsIArray* attachments, nsIArray* preloaded_attachments,
-    const nsAString& password, const nsACString& aOriginalMsgURI,
-    MSG_ComposeType aType) {
+    nsIArray* preloaded_attachments, const nsAString& password,
+    const nsACString& aOriginalMsgURI, MSG_ComposeType aType) {
   nsresult rv = NS_OK;
 
   // Let make sure we retrieve the correct number of related parts. It may have
@@ -2721,7 +2654,7 @@ nsresult nsMsgComposeAndSend::Init(
 
   mSmtpPassword = password;
 
-  return HackAttachments(attachments, preloaded_attachments);
+  return HackAttachments(preloaded_attachments);
 }
 
 NS_IMETHODIMP nsMsgComposeAndSend::SendDeliveryCallback(nsIURI* aUrl,
@@ -3669,8 +3602,7 @@ nsMsgComposeAndSend::CreateAndSendMessage(
 
   rv = Init(aUserIdentity, aAccountKey, (nsMsgCompFields*)fields, nullptr,
             digest_p, dont_deliver_p, mode, msgToReplace, attachment1_type,
-            attachment1_body, nullptr, nullptr, password, aOriginalMsgURI,
-            aType);
+            attachment1_body, nullptr, password, aOriginalMsgURI, aType);
 
   if (NS_FAILED(rv) && mSendReport)
     mSendReport->SetError(nsIMsgSendReport::process_Current, rv, false);
@@ -3700,7 +3632,7 @@ nsMsgComposeAndSend::CreateRFC822Message(nsIMsgIdentity* aUserIdentity,
   mEmbeddedObjectList = aEmbeddedObjects;
 
   rv = Init(aUserIdentity, nullptr, (nsMsgCompFields*)aFields, nullptr, false,
-            true, mode, nullptr, aMsgType, aMsgBody, nullptr, aAttachments,
+            true, mode, nullptr, aMsgType, aMsgBody, aAttachments,
             EmptyString(), EmptyCString(), nsIMsgCompType::New);
 
   if (NS_FAILED(rv) && mSendReport)
@@ -3742,8 +3674,7 @@ nsresult nsMsgComposeAndSend::SendMessageFile(
 
   rv = Init(aUserIndentity, aAccountKey, (nsMsgCompFields*)fields, sendIFile,
             digest_p, false, mode, msgToReplace, nullptr, EmptyCString(),
-            nullptr, nullptr,
-            password ? nsDependentString(password) : EmptyString(),
+            nullptr, password ? nsDependentString(password) : EmptyString(),
             EmptyCString(), nsIMsgCompType::New);
 
   if (NS_SUCCEEDED(rv)) rv = DeliverMessage();

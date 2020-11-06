@@ -226,7 +226,7 @@ class nsMsgComposeAndSend : public nsIMsgSend,
                 nsMsgCompFields* fields, nsIFile* sendFile, bool digest_p,
                 bool dont_deliver_p, nsMsgDeliverMode mode,
                 nsIMsgDBHdr* msgToReplace, const char* attachment1_type,
-                const nsACString& attachment1_body, nsIArray* attachments,
+                const nsACString& attachment1_body,
                 nsIArray* preloaded_attachments, const nsAString& password,
                 const nsACString& aOriginalMsgURI, MSG_ComposeType aType);
 
@@ -242,8 +242,7 @@ class nsMsgComposeAndSend : public nsIMsgSend,
   //
   // Attachment processing...
   //
-  nsresult HackAttachments(nsIArray* attachments,
-                           nsIArray* preloaded_attachments);
+  nsresult HackAttachments(nsIArray* preloaded_attachments);
   nsresult CountCompFieldAttachments();
   nsresult AddCompFieldLocalAttachments();
   nsresult AddCompFieldRemoteAttachments(uint32_t aStartLocation,
