@@ -7,3 +7,9 @@ ab9b63f9d2266b4607b926ba227d89ae117bb3f9 - Paul Morris - Bug 1577835 - Reformat 
 8177b85d18db77c4787461cd6db9575ef9935aea - Paul Morris - Bug 1577835 - Reformat the .eslintrc.js files with Prettier. r=mkmelin
 06085479b24375af086fd0000cc00b5ce78d1d61 - Ben Campbell - Bug 1643561 - Reformat C++ to M-C clang-format rules (mainly PointerAlignment: Left). rs=mkmelin
 7e4d2d1cab11d7e423b5f3eaed2617add76e480b - Ben Campbell - Bug 1643561 - Apply M-C clang-format rules to ldap c-sdk. rs=mkmelin
+340ec9b2ed5d321cae9bd277ceb140db8042935d - Rob Lemley - Bug 1672798 - Run black formatting on all python files. r=mkmelin
+dd6e7061f3e656f9a0e80fd17f9f05650ae0ff5c - Rob Lemley - Bug 1672798 - Run black formatting on mozbuild and mozconfigure files. r=mkmelin
+dfaaefc00d083c64f078c3ce1e73064aca72abe9 - Rob Lemley - Bug 1672798 - Run black formatting on MZLA files in third_party. r=mkmelin
+6fe08c0e66a2b1aeff9880680055dfa70e585445 - Rob Lemley - Bug 1672798 - Follow-up: Reformat mozbuild files with black. rs=linting
+4fe4863303d43c22128cc4e38e1c7b5e327b5481 - Rob Lemley - Bug 1672798 - Follow-up: Reformat mozbuild files with black. rs=linting
+21d8908a221d129633fd4cbb5bd1cdd10ff61506 - Rob Lemley - Bug 1672798 - Run black formatting on suite/editor Python/mozbuild/mozconfigure files. r=IanN
