@@ -97,7 +97,7 @@ var BondOpenPGP = {
     }
 
     // trigger service init
-    getEnigmailCore().getService();
+    await getEnigmailCore().getService();
   },
 
   isEnabled() {
