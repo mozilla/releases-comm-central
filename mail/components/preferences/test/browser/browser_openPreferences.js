@@ -15,7 +15,7 @@ add_task(async () => {
   Services.xulStore.removeDocument("about:preferences");
 
   let { prefsWindow } = await openNewPrefsTab();
-  is(prefsWindow.getCurrentPaneID(), "paneGeneral");
+  is(prefsWindow.gLastCategory.category, "paneGeneral");
 
   await closePrefsTab();
 });

@@ -27,7 +27,11 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
 
   if (paneID) {
     await new Promise(resolve => prefsWindow.setTimeout(resolve));
-    is(prefsWindow.getCurrentPaneID(), paneID, `Selected pane is ${paneID}`);
+    is(
+      prefsWindow.gLastCategory.category,
+      paneID,
+      `Selected pane is ${paneID}`
+    );
   } else {
     // If we don't wait here for other scripts to run, they
     // could be in a bad state if our test closes the tab.
@@ -57,12 +61,12 @@ async function openExistingPrefsTab(paneID, scrollPaneTo, otherArgs) {
   let prefsWindow = prefsDocument.ownerGlobal;
   prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
 
-  if (paneID && prefsWindow.getCurrentPaneID() != paneID) {
+  if (paneID && prefsWindow.gLastCategory.category != paneID) {
     openPreferencesTab(paneID, scrollPaneTo, otherArgs);
   }
 
   await new Promise(resolve => prefsWindow.setTimeout(resolve));
-  is(prefsWindow.getCurrentPaneID(), paneID, `Selected pane is ${paneID}`);
+  is(prefsWindow.gLastCategory.category, paneID, `Selected pane is ${paneID}`);
 
   if (scrollPaneTo) {
     Assert.greater(

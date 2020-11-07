@@ -37,7 +37,7 @@ function open_pref_tab(aPaneID, aScrollTo) {
     "preferencesTab"
   );
   utils.waitFor(
-    () => tab.browser.contentWindow.getCurrentPaneID() == aPaneID,
+    () => tab.browser.contentWindow.gLastCategory.category == aPaneID,
     "Timed out waiting for prefpane " + aPaneID + " to load."
   );
   return tab;

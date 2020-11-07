@@ -26,7 +26,7 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
   prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
   if (paneID) {
     await new Promise(resolve => prefsWindow.setTimeout(resolve));
-    Assert.equal(prefsWindow.getCurrentPaneID(), paneID, `Selected pane is ${paneID}`);
+    Assert.equal(prefsWindow.gLastCategory.category, paneID, `Selected pane is ${paneID}`);
   } else {
     // If we don't wait here for other scripts to run, they
     // could be in a bad state if our test closes the tab.

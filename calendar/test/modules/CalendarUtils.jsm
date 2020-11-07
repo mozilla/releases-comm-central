@@ -684,7 +684,7 @@ function openLightningPrefs(aCallback, aParentController) {
   let categoryBox = tab.browser.contentDocument.getElementById("pref-category-box");
   categoryBox.querySelector('radio[pane="paneCalendar"]').click();
   utils.waitFor(
-    () => tab.browser.contentWindow.getCurrentPaneID() == "paneCalendar",
+    () => tab.browser.contentWindow.gLastCategory.category == "paneCalendar",
     "Timed out waiting for paneCalendar to load."
   );
   aCallback(tab);

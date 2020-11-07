@@ -385,7 +385,7 @@ function scrollContentTo(element) {
  */
 function selectPrefPane(paneID, scrollPaneTo, otherArgs) {
   if (paneID) {
-    if (getCurrentPaneID() != paneID) {
+    if (gLastCategory.category != paneID) {
       gotoPref(paneID);
     }
     if (scrollPaneTo) {
@@ -411,19 +411,6 @@ function showTab(scrollPaneTo, subdialogID) {
       document.getElementById(subdialogID).click();
     }
   });
-}
-
-/**
- * Get the ID of the current pane.
- */
-function getCurrentPaneID() {
-  let currentlySelected = paneDeck.querySelector(
-    "#paneDeck > div:not([hidden])"
-  );
-  if (currentlySelected) {
-    return currentlySelected.getAttribute("data-category");
-  }
-  return null;
 }
 
 /**
