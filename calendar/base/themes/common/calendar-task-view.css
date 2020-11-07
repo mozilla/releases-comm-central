@@ -56,7 +56,7 @@
 #other-actions-box {
     display: flex;
     justify-content: end;
-    padding-bottom: 0.3em;
+    padding-block: 2px 0.3em;
 }
 
 #task-addition-box {
@@ -143,6 +143,7 @@
 
 #view-task-edit-field {
     margin: 5px;
+    padding-block: 0;
 }
 
 .task-edit-field[readonly="true"] {

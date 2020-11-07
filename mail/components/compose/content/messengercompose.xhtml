@@ -846,7 +846,7 @@
   <!-- Menu -->
   <!-- if you change the id of the menubar, be sure to update mailCore.js::CustomizeMailToolbar and MailToolboxCustomizeDone -->
   <toolbar is="customizable-toolbar" id="compose-toolbar-menubar2"
-           class="chromeclass-menubar"
+           class="chromeclass-menubar themeable-full"
            type="menubar"
            customizable="true"
 #ifdef XP_MACOSX
@@ -2103,7 +2103,9 @@
                    type="checkbox" autoCheck="false"
                    command="cmd_toggleReturnReceipt"/>
   </toolbarpalette>
-  <toolbar is="customizable-toolbar" id="composeToolbar2" class="chromeclass-toolbar"
+  <toolbar is="customizable-toolbar"
+           id="composeToolbar2"
+           class="chromeclass-toolbar themeable-full"
            toolbarname="&showCompositionToolbarCmd.label;"
            accesskey="&showCompositionToolbarCmd.accesskey;"
            fullscreentoolbar="true" mode="full"
@@ -2132,8 +2134,9 @@
     <splitter id="sidebar-splitter" hidden="true"/>
 
     <vbox id="headers-parent" flex="1">
-    <toolbox id="headers-box" class="toolbox-top" mode="icons">
+    <toolbox id="headers-box" class="toolbox-top themeable-full" mode="icons">
     <toolbar is="customizable-toolbar" id="MsgHeadersToolbar"
+             class="themeable-full"
              persist="collapsed"
              flex="1"
              customizable="true" nowindowdrag="true"
@@ -2508,7 +2511,7 @@
 
     <toolbox id="FormatToolbox" mode="icons">
       <toolbar is="customizable-toolbar" id="FormatToolbar"
-               class="chromeclass-toolbar"
+               class="chromeclass-toolbar themeable-brighttext"
                persist="collapsed"
                customizable="true" nowindowdrag="true">
 #include editFormatButtons.inc.xhtml

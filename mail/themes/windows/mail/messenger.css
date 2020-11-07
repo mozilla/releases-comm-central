@@ -94,21 +94,11 @@
     --tabline-color: Highlight;
   }
 
-  :root:not(:-moz-lwtheme) .toolbar,
-  :root:not(:-moz-lwtheme) .contentTabToolbox,
-  :root:not(:-moz-lwtheme) #task-addition-box,
-  :root:not(:-moz-lwtheme) #header-view-toolbar,
-  :root:not(:-moz-lwtheme) #ab-toolbox > toolbar,
-  :root:not(:-moz-lwtheme) .mail-toolbox > toolbar,
-  :root:not(:-moz-lwtheme) #event-toolbox > toolbar,
-  :root:not(:-moz-lwtheme) #compose-toolbox > toolbar,
+  :root:not(:-moz-lwtheme) .themeable-full,
+  :root:not(:-moz-lwtheme) .themeable-brighttext,
   :root:not(:-moz-lwtheme) #navigation-toolbox > toolbar,
   :root:not(:-moz-lwtheme) #todaypane-new-event-button,
-  :root:not(:-moz-lwtheme) .otr-container,
-  :root:not(:-moz-lwtheme) .crypto-button,
-  :root:not(:-moz-lwtheme) .calendar-list-create,
-  :root:not(:-moz-lwtheme) #CardViewBox,
-  :root:not(:-moz-lwtheme) #searchTerms {
+  :root:not(:-moz-lwtheme) #CardViewBox {
     --toolbarbutton-hover-background: Highlight;
     --toolbarbutton-hover-bordercolor: HighlightText !important;
     --toolbarbutton-header-bordercolor: HighlightText;

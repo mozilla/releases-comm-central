@@ -64,7 +64,7 @@
                        tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
       </toolbarpalette>
       <toolbar is="customizable-toolbar" id="calendar-toolbar2"
-               class="inline-toolbar chromeclass-toolbar"
+               class="inline-toolbar chromeclass-toolbar themeable-full"
                toolbarname="&lightning.toolbar.calendar.name;"
                accesskey="&lightning.toolbar.calendar.name.accesskey;"
                fullscreentoolbar="true" mode="full"
@@ -78,7 +78,7 @@
   <calendar-modevbox id="task-toolbox-container"
                      mode="task">
     <toolbox id="task-toolbox"
-             class="mail-toolbox"
+             class="mail-toolbox themeable-full"
              mode="full"
              defaultmode="full"
              iconsize="small"
@@ -124,7 +124,7 @@
                        tooltiptext="&lightning.toolbar.appmenuButton1.tooltip;"/>
       </toolbarpalette>
       <toolbar is="customizable-toolbar" id="task-toolbar2"
-               class="inline-toolbar chromeclass-toolbar"
+               class="inline-toolbar chromeclass-toolbar themeable-full"
                toolbarname="&lightning.toolbar.task.name;"
                accesskey="&lightning.toolbar.task.name.accesskey;"
                fullscreentoolbar="true" mode="full"
@@ -183,7 +183,7 @@
                       class="treenode-checkbox"
                       flex="1"
                       label="&calendar.list.header.label;"/>
-            <toolbarbutton class="toolbarbutton-1 calendar-list-create"
+            <toolbarbutton class="toolbarbutton-1 calendar-list-create themeable-brighttext"
                            command="calendar_new_calendar_command"
                            tooltiptext="&calendar.context.newserver.label;"/>
           </hbox>
@@ -433,7 +433,7 @@
         <hbox id="calendar-deactivated-notification-location-tasks">
           <!-- Calendar deactivated notificationbox for tasks will be added here lazily. -->
         </hbox>
-        <hbox id="task-addition-box" align="center">
+        <hbox id="task-addition-box" class="themeable-brighttext" align="center">
           <box align="center" flex="1">
             <toolbarbutton id="calendar-add-task-button"
                            label="&calendar.newtask.button.label;"
@@ -472,8 +472,8 @@
                 hidden="true">
             <hbox id="calendar-task-details">
               <hbox id="other-actions-box">
-                <vbox id="task-actions-toolbox">
-                  <hbox id="task-actions-toolbar" class="toolbar">
+                <vbox id="task-actions-toolbox" class="inline-toolbox">
+                  <hbox id="task-actions-toolbar" class="themeable-brighttext">
                     <toolbarbutton id="task-actions-category"
                                    type="menu"
                                    wantdropmarker="true"

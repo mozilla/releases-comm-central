@@ -11,19 +11,13 @@
     overflow: hidden;
 }
 
-#other-actions-box {
-    margin-inline-end: 3px;
-}
-
 #task-addition-box {
-    background: linear-gradient(#eaeaea, #d1d1d1);
     border-bottom-color: #bebebe
 }
 
 /* Hide the search glass */
 .task-edit-field {
-    margin-top: 0;
-    margin-bottom: 0;
+    margin-block: 0;
     background-image: none;
     padding-inline-start: 4px !important;
 }
@@ -44,5 +38,5 @@
 }
 
 #calendar-add-task-button > .toolbarbutton-text {
-    margin-inline-start: 0px;
+    margin-inline-start: 0;
 }

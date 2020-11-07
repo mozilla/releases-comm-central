@@ -184,51 +184,10 @@
 }
 
 toolbarbutton.formatting-button {
-  appearance: none;
-  border: 1px solid transparent;
   margin: 1px;
-  -moz-context-properties: fill;
-  fill: currentColor;
-  transition-property: background-color, border-color, box-shadow;
-  transition-duration: 150ms;
-}
-
-@media (-moz-os-version: windows-win7) {
-  toolbarbutton.formatting-button {
-    border-radius: 2px;
-  }
-}
-
-toolbarbutton.formatting-button:not([disabled="true"]):hover {
-  background: var(--toolbarbutton-hover-background);
-  border-color: var(--toolbarbutton-hover-bordercolor);
-  box-shadow: var(--toolbarbutton-hover-boxshadow);
-}
-
-toolbarbutton.formatting-button:not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
-
-.formatting-button > .toolbarbutton-menu-dropmarker {
-  list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
-.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker {
-  opacity: 0.4;
 }
 
 /* ..... fg/bg color picker ..... */
-
-.ColorPickerLabel {
-  border: 1px inset ThreeDFace;
-  margin: 0;
-  padding: 2px;
-}
 
 .color-button {
   border: 1px inset ThreeDFace;

@@ -100,17 +100,6 @@ treechildren::-moz-tree-cell-text(dummy) {
   color: var(--lwt-text-color);
 }
 
-:root[lwt-tree-brighttext] #quick-filter-bar {
-  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
-  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
-
-  --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background);
-
-  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
-  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
-  --toolbarbutton-active-boxshadow: none;
-}
-
 :root[lwt-tree] #qfb-qs-textbox {
   background-color: var(--lwt-toolbar-field-background-color, hsla(0, 0%, 100%, .8));
   color: var(--lwt-toolbar-field-color, black);

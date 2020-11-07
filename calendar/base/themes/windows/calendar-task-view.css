@@ -12,13 +12,8 @@
     overflow: hidden;
 }
 
-#other-actions-box {
-    margin-inline-end: -2px;
-}
-
 #task-text-filter-field {
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-block: 5px;
 }
 
 #task-text-filter-field .textbox-search-icons {
@@ -67,7 +62,6 @@
        (-moz-os-version: windows-win7) {
     #view-task-edit-field,
     #task-text-filter-field {
-        margin-top: 4px;
-        margin-bottom: 4px;
+        margin-block: 4px;
     }
 }

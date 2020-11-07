@@ -93,12 +93,8 @@ toolbar[brighttext] {
 }
 
 #FindToolbar:-moz-lwtheme,
-.contentTabToolbox:-moz-lwtheme,
-#task-addition-box:-moz-lwtheme,
-#ab-toolbox > toolbar:-moz-lwtheme,
-.mail-toolbox > toolbar:-moz-lwtheme,
-#compose-toolbox > toolbar:-moz-lwtheme,
-#navigation-toolbox > toolbar:-moz-lwtheme {
+.themeable-full:-moz-lwtheme,
+.themeable-brighttext:-moz-lwtheme {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
                                         rgba(0, 0, 0, .1));
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,
@@ -115,20 +111,9 @@ toolbar[brighttext] {
                                                     rgba(0, 0, 0, .15));
 }
 
-.toolbar[brighttext],
-.contentTabToolbox[brighttext],
-#task-addition-box[brighttext],
-#header-view-toolbar[brighttext],
-#ab-toolbox > toolbar[brighttext],
-.mail-toolbox > toolbar[brighttext],
-#event-toolbox > toolbar[brighttext],
-#compose-toolbox > toolbar[brighttext],
-#headers-box > toolbar[brighttext],
-#FormatToolbox > toolbar[brighttext],
-:root[lwt-tree-brighttext] .otr-container,
-:root[lwt-tree-brighttext] .crypto-button,
-:root[lwt-tree-brighttext] .calendar-list-create,
-:root[lwt-tree-brighttext] #searchTerms {
+.themeable-full[brighttext],
+:root:-moz-lwtheme-brighttext .themeable-full,
+:root[lwt-tree-brighttext] .themeable-brighttext {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
                                         rgba(255, 255, 255, .25));
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,

@@ -81,7 +81,7 @@
                           hidden="hidden"/>
             </stack>
           </hbox>
-          <hbox class="otr-container"
+          <hbox class="otr-container themeable-brighttext"
                 align="middle"
                 hidden="true">
             <label class="otr-label"

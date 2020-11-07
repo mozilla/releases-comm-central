@@ -98,7 +98,6 @@ messenger.jar:
     content/messenger/glodaFacetVis.js              (content/glodaFacetVis.js)
     content/messenger/glodaFacet.js                 (content/glodaFacet.js)
     content/messenger/quickFilterBar.js             (content/quickFilterBar.js)
-    content/messenger/quickFilterBar.css            (content/quickFilterBar.css)
     content/messenger/browserRequest.js             (content/browserRequest.js)
     content/messenger/browserRequest.xhtml          (content/browserRequest.xhtml)
 *   content/messenger/safeMode.xhtml                (content/safeMode.xhtml)

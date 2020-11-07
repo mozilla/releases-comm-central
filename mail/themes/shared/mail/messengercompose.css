@@ -402,8 +402,54 @@ menulist::part(description) {
   display: none;
 }
 
+toolbarbutton.formatting-button {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
+  color: inherit;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+}
+
+toolbarbutton.formatting-button:not([disabled="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+}
+
+toolbarbutton.formatting-button:not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
+  background: var(--toolbarbutton-checked-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+toolbarbutton.formatting-button:not([disabled="true"]):is([open="true"],:hover:active) {
+  background: var(--toolbarbutton-active-background) !important;
+}
+
+.formatting-button > .toolbarbutton-menu-dropmarker {
+  list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
+.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker {
+  opacity: 0.4;
+}
+
 #FontFaceSelect {
   max-width: 35ch;
+}
+
+/* ..... fg/bg color picker ..... */
+
+.ColorPickerLabel {
+  border: 1px inset ThreeDFace;
+  margin: 0;
+  padding: 2px;
 }
 
 #TextColorButton {

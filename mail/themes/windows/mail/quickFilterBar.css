@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/content/quickFilterBar.css");
+@import url("chrome://messenger/skin/shared/quickFilterBar.css");
 
 #quick-filter-bar-expando {
   border-bottom: 1px solid ThreeDShadow;
@@ -16,22 +16,19 @@
 
 @media (-moz-os-version: windows-win7) {
   #qfb-qs-textbox {
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin-block: 4px;
   }
 }
 
 @media (-moz-os-version: windows-win8),
        (-moz-os-version: windows-win10) {
   #qfb-qs-textbox {
-    margin-top: 5px;
-    margin-bottom: 5px;
+    margin-block: 5px;
   }
 }
 
 #tabbar-toolbar #qfb-show-filter-bar {
-  padding-left: 4px !important;
-  padding-right: 4px !important;
+  padding-inline: 4px !important;
 }
 
 /* :::: Filter Bar :::: */

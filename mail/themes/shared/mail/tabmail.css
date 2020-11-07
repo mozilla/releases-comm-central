@@ -436,7 +436,7 @@
 }
 
 .nav-button:not([disabled="true"]):hover {
-  background-color: #bebebe;
+  background-color: var(--toolbarbutton-hover-background);
   cursor: pointer;
 }
 

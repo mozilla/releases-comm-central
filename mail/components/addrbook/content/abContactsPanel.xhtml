@@ -102,14 +102,14 @@
 
   <vbox id="results_box" flex="1">
     <separator class="thin"/>
-    <hbox id="AbPickerHeader" class="toolbar">
+    <hbox id="AbPickerHeader" class="themeable-full">
       <label value="&addressbookPicker.label;" accesskey="&addressbookPicker.accesskey;" control="addressbookList"/>
       <spacer flex="1"/>
       <button id="abContextMenuButton"
               tooltiptext="&abContextMenuButton.tooltip;"
               oncommand="abContextMenuButtonOnCommand(event);"/>
     </hbox>
-    <hbox id="panel-bar" class="toolbar" align="center">
+    <hbox id="panel-bar" class="themeable-full" align="center">
       <menulist is="menulist-addrbooks" id="addressbookList"
                 alladdressbooks="true"
                 oncommand="AddressBookMenuListChange(this.value);"
