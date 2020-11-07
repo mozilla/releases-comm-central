@@ -495,7 +495,7 @@ pref("app.update.auto", true);
 pref("app.update.silent", false);
 
 // Update service URL:
-pref("app.update.url", "https://aus2-community.mozilla.org/update/3/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%SYSTEM_CAPABILITIES%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
+pref("app.update.url", "https://updates.seamonkey-project.org/update/3/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%SYSTEM_CAPABILITIES%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
 // URL user can browse to manually if for some reason all update installation
 // attempts fail.
 pref("app.update.url.manual", "chrome://branding/locale/brand.properties");
@@ -543,10 +543,8 @@ pref("app.update.cert.maxErrors", 5);
 // If these conditions aren't met it will be treated the same as when there is
 // no update available. This validation will not be performed when using the
 // |app.update.url.override| preference for update checking.
-pref("app.update.certs.1.issuerName", "CN=DigiCert SHA2 Secure Server CA,O=DigiCert Inc,C=US");
-pref("app.update.certs.1.commonName", "aus2-community.mozilla.org");
-pref("app.update.certs.2.issuerName", "CN=Thawte SSL CA,O=\"Thawte, Inc.\",C=US");
-pref("app.update.certs.2.commonName", "aus2-community.mozilla.org");
+pref("app.update.certs.1.issuerName", "CN=Let's Encrypt Authority X3,O=Let's Encrypt,C=US");
+pref("app.update.certs.1.commonName", "updates.seamonkey-project.org");
 
 // Interval: Time between checks for a new version (in seconds)
 //           default=1 day
