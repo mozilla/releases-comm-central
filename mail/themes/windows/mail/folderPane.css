@@ -28,6 +28,15 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
   treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
     color: HighlightText !important;
   }
+
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-image(folderNameCol) {
+    --default: FieldText;
+  }
+
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-image(folderNameCol, selected) {
+    --default: HighlightText;
+    --primary: HighlightText;
+  }
 }
 
 @media (-moz-windows-default-theme) {

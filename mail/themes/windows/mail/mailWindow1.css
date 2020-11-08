@@ -520,7 +520,10 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 
   :root:not(:-moz-lwtheme)
-    treechildren::-moz-tree-cell-text(untagged, unread, hover),
+    treechildren::-moz-tree-cell-text(untagged, unread, hover) {
+    color: inherit !important;
+  }
+
   :root:not(:-moz-lwtheme)
     treechildren::-moz-tree-cell-text(selected, untagged, unread) {
     color: HighlightText !important;

@@ -438,6 +438,10 @@ treechildren::-moz-tree-indentation {
     border-top-width: 0;
     border-inline-start-width: 0;
   }
+
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(hover) {
+    border-color: transparent !important;
+  }
 }
 
 :root[lwt-tree] treechildren::-moz-tree-row(current, focus) {
