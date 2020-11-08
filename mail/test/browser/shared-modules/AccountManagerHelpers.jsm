@@ -10,6 +10,7 @@ const EXPORTED_SYMBOLS = [
   "click_account_tree_row",
   "get_account_tree_row",
   "remove_account",
+  "wait_for_account_tree_load",
 ];
 
 var elib = ChromeUtils.import(
@@ -43,6 +44,7 @@ function wait_for_account_tree_load(tab) {
     "Timeout waiting for currentAccount to become non-null"
   );
 }
+
 /**
  * Opens the Account Manager.
  * @callback tabCallback

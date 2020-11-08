@@ -41,7 +41,8 @@
         <hbox>
           <button data-l10n-id="openpgp-keygen-dismiss"
                   oncommand="closeOverlay();"/>
-          <button data-l10n-id="openpgp-keygen-confirm"
+          <button id="openPgpKeygenConfirmButton"
+                  data-l10n-id="openpgp-keygen-confirm"
                   oncommand="openPgpKeygenConfirm();"/>
         </hbox>
       </vbox>
@@ -144,7 +145,8 @@
                 </menupopup>
               </menulist>
             </hbox>
-            <radio value="1"
+            <radio id="keygenDoesNotExpire"
+                   value="1"
                    data-l10n-id="radio-keygen-no-expiry"
                    oncommand="onExpirationChange(event);"/>
           </radiogroup>
