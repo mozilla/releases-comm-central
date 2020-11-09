@@ -31,9 +31,9 @@ const filterActionMoveDecrypt = {
   id: EnigmailConstants.FILTER_MOVE_DECRYPT,
   name: l10n.formatValueSync("filter-decrypt-move-label"),
   value: "movemessage",
-  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
-      gEnigmailFilters.moveDecrypt.apply(
+      gEnigmailFilters.moveDecrypt.applyAction(
         aMsgHdrs,
         aActionValue,
         aListener,
@@ -76,9 +76,9 @@ const filterActionCopyDecrypt = {
   id: EnigmailConstants.FILTER_COPY_DECRYPT,
   name: l10n.formatValueSync("filter-decrypt-copy-label"),
   value: "copymessage",
-  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
-      gEnigmailFilters.copyDecrypt.apply(
+      gEnigmailFilters.copyDecrypt.applyAction(
         aMsgHdrs,
         aActionValue,
         aListener,
@@ -120,9 +120,9 @@ const filterActionEncrypt = {
   id: EnigmailConstants.FILTER_ENCRYPT,
   name: l10n.formatValueSync("filter-encrypt-label"),
   value: "encryptto",
-  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
-      gEnigmailFilters.encrypt.apply(
+      gEnigmailFilters.encrypt.applyAction(
         aMsgHdrs,
         aActionValue,
         aListener,

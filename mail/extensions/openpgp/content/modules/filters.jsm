@@ -44,7 +44,7 @@ var gNewMailListenerInitiated = false;
  */
 
 const filterActionMoveDecrypt = {
-  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     EnigmailLog.DEBUG(
       "filters.jsm: filterActionMoveDecrypt: Move to: " + aActionValue + "\n"
     );
@@ -79,7 +79,7 @@ const filterActionMoveDecrypt = {
  * message untouched
  */
 const filterActionCopyDecrypt = {
-  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     EnigmailLog.DEBUG(
       "filters.jsm: filterActionCopyDecrypt: Copy to: " + aActionValue + "\n"
     );
@@ -120,7 +120,7 @@ const filterActionCopyDecrypt = {
  * filter action for to encrypt a mail to a specific key
  */
 const filterActionEncrypt = {
-  apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
+  applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     // Ensure KeyRing is loaded.
     if (aMsgWindow) {
       EnigmailCore.getService(aMsgWindow.domWindow);

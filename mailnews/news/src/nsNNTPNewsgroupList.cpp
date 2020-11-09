@@ -675,8 +675,8 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter* aFilter,
           rv = filterAction->GetStrValue(value);
           if (NS_FAILED(rv)) break;
 
-          rv = customAction->Apply({&*m_newMsgHdr}, value, nullptr,
-                                   nsMsgFilterType::NewsRule, aMsgWindow);
+          rv = customAction->ApplyAction({&*m_newMsgHdr}, value, nullptr,
+                                         nsMsgFilterType::NewsRule, aMsgWindow);
         } break;
 
         default:

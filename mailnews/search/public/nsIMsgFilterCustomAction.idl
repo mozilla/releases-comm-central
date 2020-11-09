@@ -53,7 +53,7 @@ interface nsIMsgFilterCustomAction : nsISupports
   /*
    * The custom action itself
    *
-   * Generally for the apply method, folder-based methods give correct
+   * Generally for the applyAction method, folder-based methods give correct
    * results and are preferred if available. Otherwise, be careful
    * that the action does correct notifications to maintain counts, and correct
    * manipulations of both IMAP and local non-database storage of message
@@ -70,7 +70,7 @@ interface nsIMsgFilterCustomAction : nsISupports
    * @param msgWindow    message window
    */
 
-  void apply(in Array<nsIMsgDBHdr> msgHdrs,
+  void applyAction(in Array<nsIMsgDBHdr> msgHdrs,
              in AUTF8String actionValue,
              in nsIMsgCopyServiceListener copyListener,
              in nsMsgFilterTypeType filterType,

@@ -2129,8 +2129,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
           rv = filterAction->GetStrValue(value);
           if (NS_FAILED(rv)) break;
 
-          rv = customAction->Apply({&*msgHdr}, value, nullptr,
-                                   nsMsgFilterType::InboxRule, msgWindow);
+          rv = customAction->ApplyAction({&*msgHdr}, value, nullptr,
+                                         nsMsgFilterType::InboxRule, msgWindow);
         } break;
 
         default:

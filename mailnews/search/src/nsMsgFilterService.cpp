@@ -997,8 +997,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           BREAK_ACTION_IF_FAILURE(rv, "Could not get custom action value");
           bool isAsync = false;
           customAction->GetIsAsync(&isAsync);
-          rv = customAction->Apply(hitHdrs, value, this, filterType,
-                                   m_msgWindow);
+          rv = customAction->ApplyAction(hitHdrs, value, this, filterType,
+                                         m_msgWindow);
           BREAK_ACTION_IF_FAILURE(rv, "custom action failed to apply");
           if (isAsync) {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
