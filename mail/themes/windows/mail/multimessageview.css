@@ -31,7 +31,22 @@
     }
 
     .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
-      background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)), linear-gradient(-moz-dialog, -moz-dialog);
+      background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)), linear-gradient(-moz-dialog, -moz-dialog) !important;
     }
+  }
+}
+
+@media (-moz-windows-default-theme: 0) {
+  :root:not(:-moz-lwtheme) .toolbarbutton-1.msgHeaderView-button {
+    background-image: linear-gradient(-moz-dialog, -moz-dialog) !important;
+  }
+
+  :root:not(:-moz-lwtheme)
+    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):hover,
+  :root:not(:-moz-lwtheme)
+    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):hover:active {
+    background-image: linear-gradient(Highlight, Highlight) !important;
+    color: HighlightText !important;
+    border-color: HighlightText !important;
   }
 }
