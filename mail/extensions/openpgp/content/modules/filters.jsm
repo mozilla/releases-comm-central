@@ -49,14 +49,8 @@ const filterActionMoveDecrypt = {
       "filters.jsm: filterActionMoveDecrypt: Move to: " + aActionValue + "\n"
     );
 
-    var msgHdrs = [];
-
-    for (var i = 0; i < aMsgHdrs.length; i++) {
-      msgHdrs.push(aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr));
-    }
-
     EnigmailPersistentCrypto.dispatchMessages(
-      msgHdrs,
+      aMsgHdrs,
       aActionValue,
       aListener,
       true
@@ -90,14 +84,8 @@ const filterActionCopyDecrypt = {
       "filters.jsm: filterActionCopyDecrypt: Copy to: " + aActionValue + "\n"
     );
 
-    var msgHdrs = [];
-
-    for (var i = 0; i < aMsgHdrs.length; i++) {
-      msgHdrs.push(aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr));
-    }
-
     EnigmailPersistentCrypto.dispatchMessages(
-      msgHdrs,
+      aMsgHdrs,
       aActionValue,
       aListener,
       false
@@ -173,21 +161,16 @@ const filterActionEncrypt = {
         "\n"
     );
 
-    var msgHdrs = [];
-    for (let i = 0; i < aMsgHdrs.length; i++) {
-      let msg = aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr);
-      // Maybe skip messages here if they are already encrypted to
-      // the target key? There might be some use case for unconditionally
-      // encrypting here. E.g. to use the local preferences and remove all
-      // other recipients.
-      // Also not encrypting to already encrypted messages would make the
-      // behavior less transparent as it's not obvious.
-      msgHdrs.push(msg);
-    }
+    // Maybe skip messages here if they are already encrypted to
+    // the target key? There might be some use case for unconditionally
+    // encrypting here. E.g. to use the local preferences and remove all
+    // other recipients.
+    // Also not encrypting to already encrypted messages would make the
+    // behavior less transparent as it's not obvious.
 
-    if (msgHdrs.length) {
+    if (aMsgHdrs.length) {
       EnigmailPersistentCrypto.dispatchMessages(
-        msgHdrs,
+        aMsgHdrs,
         null /* same folder */,
         aListener,
         true /* move */,

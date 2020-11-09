@@ -997,7 +997,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           BREAK_ACTION_IF_FAILURE(rv, "Could not get custom action value");
           bool isAsync = false;
           customAction->GetIsAsync(&isAsync);
-          rv = customAction->Apply(m_searchHitHdrs, value, this, filterType,
+          rv = customAction->Apply(hitHdrs, value, this, filterType,
                                    m_msgWindow);
           BREAK_ACTION_IF_FAILURE(rv, "custom action failed to apply");
           if (isAsync) {

@@ -4,9 +4,9 @@
 
 #include "nsMsgFilterCore.idl"
 
-interface nsIArray;
 interface nsIMsgCopyServiceListener;
 interface nsIMsgWindow;
+interface nsIMsgDBHdr;
 
 /**
  * describes a custom action added to a message filter
@@ -70,7 +70,7 @@ interface nsIMsgFilterCustomAction : nsISupports
    * @param msgWindow    message window
    */
 
-  void apply(in nsIArray msgHdrs /* nsIMsgDBHdr array */,
+  void apply(in Array<nsIMsgDBHdr> msgHdrs,
              in AUTF8String actionValue,
              in nsIMsgCopyServiceListener copyListener,
              in nsMsgFilterTypeType filterType,

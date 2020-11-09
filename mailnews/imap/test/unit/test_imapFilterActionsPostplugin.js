@@ -405,8 +405,7 @@ var actionTestOffline = {
   id: "mailnews@mozilla.org#testOffline",
   name: "test if offline",
   apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
-    for (let i = 0; i < aMsgHdrs.length; i++) {
-      var msgHdr = aMsgHdrs.queryElementAt(i, Ci.nsIMsgDBHdr);
+    for (let msgHdr of aMsgHdrs) {
       let isOffline = !!(msgHdr.flags & Ci.nsMsgMessageFlags.Offline);
       dump(
         "in actionTestOffline, flags are " +

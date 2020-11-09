@@ -2129,12 +2129,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
           rv = filterAction->GetStrValue(value);
           if (NS_FAILED(rv)) break;
 
-          nsCOMPtr<nsIMutableArray> messageArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          if (NS_FAILED(rv) || !messageArray) break;
-          messageArray->AppendElement(msgHdr);
-
-          rv = customAction->Apply(messageArray, value, nullptr,
+          rv = customAction->Apply({&*msgHdr}, value, nullptr,
                                    nsMsgFilterType::InboxRule, msgWindow);
         } break;
 

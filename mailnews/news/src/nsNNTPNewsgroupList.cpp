@@ -675,12 +675,7 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter* aFilter,
           rv = filterAction->GetStrValue(value);
           if (NS_FAILED(rv)) break;
 
-          nsCOMPtr<nsIMutableArray> messageArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          if (NS_FAILED(rv) || !messageArray) break;
-          messageArray->AppendElement(m_newMsgHdr);
-
-          rv = customAction->Apply(messageArray, value, nullptr,
+          rv = customAction->Apply({&*m_newMsgHdr}, value, nullptr,
                                    nsMsgFilterType::NewsRule, aMsgWindow);
         } break;
 

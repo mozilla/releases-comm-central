@@ -3491,13 +3491,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           rv = filterAction->GetStrValue(value);
           if (NS_FAILED(rv)) break;
 
-          nsCOMPtr<nsIMutableArray> messageArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          NS_ENSURE_TRUE(messageArray, rv);
-          if (NS_FAILED(rv) || !messageArray) break;
-          messageArray->AppendElement(msgHdr);
-
-          rv = customAction->Apply(messageArray, value, nullptr,
+          rv = customAction->Apply({&*msgHdr}, value, nullptr,
                                    nsMsgFilterType::InboxRule, msgWindow);
           // allow custom action to affect new
           msgHdr->GetFlags(&msgFlags);
