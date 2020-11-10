@@ -69,6 +69,10 @@ add_task(async function test_multipart_alternative() {
     { shiftKey: false, accelKey: true },
     cwc.window
   );
+  await TestUtils.waitForCondition(
+    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    "Saving of draft did not finish"
+  );
   close_compose_window(cwc);
 
   // Now check the message content in the drafts folder.
