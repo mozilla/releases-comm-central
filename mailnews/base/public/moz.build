@@ -9,7 +9,7 @@ XPIDL_SOURCES += [
     "mozINewMailNotificationService.idl",
     "msgIOAuth2Module.idl",
     "nsICopyMessageListener.idl",
-    "nsICopyMsgStreamListener.idl",
+    "nsICopyMessageStreamListener.idl",
     "nsIFolderListener.idl",
     "nsIFolderLookupService.idl",
     "nsIIncomingServerListener.idl",

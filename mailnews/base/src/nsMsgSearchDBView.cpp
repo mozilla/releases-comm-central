@@ -11,7 +11,6 @@
 #include "nsIDBFolderInfo.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgCopyService.h"
-#include "nsICopyMsgStreamListener.h"
 #include "nsMsgUtils.h"
 #include "nsTreeColumns.h"
 #include "nsIMsgMessageService.h"

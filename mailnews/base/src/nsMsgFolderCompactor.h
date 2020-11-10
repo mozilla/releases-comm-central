@@ -11,7 +11,7 @@
 #include "nsIMsgFolder.h"
 #include "nsIStreamListener.h"
 #include "nsIMsgFolderCompactor.h"
-#include "nsICopyMsgStreamListener.h"
+#include "nsICopyMessageStreamListener.h"
 #include "nsMsgKeyArray.h"
 #include "nsIMsgWindow.h"
 #include "nsIStringBundle.h"

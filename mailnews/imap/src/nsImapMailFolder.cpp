@@ -27,7 +27,7 @@
 #include "nsImapUndoTxn.h"
 #include "nsIIMAPHostSessionList.h"
 #include "nsIMsgCopyService.h"
-#include "nsICopyMsgStreamListener.h"
+#include "nsICopyMessageStreamListener.h"
 #include "nsImapStringBundle.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsTextFormatter.h"

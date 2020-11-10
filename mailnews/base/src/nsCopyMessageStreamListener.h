@@ -6,7 +6,7 @@
 #ifndef NSCOPYMESSAGESTREAMLISTENER_H
 #define NSCOPYMESSAGESTREAMLISTENER_H
 
-#include "nsICopyMsgStreamListener.h"
+#include "nsICopyMessageStreamListener.h"
 #include "nsIStreamListener.h"
 #include "nsIMsgFolder.h"
 #include "nsICopyMessageListener.h"

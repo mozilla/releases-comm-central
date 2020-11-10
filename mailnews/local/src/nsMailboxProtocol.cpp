@@ -13,7 +13,7 @@
 #include "nsMsgDBCID.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgFolder.h"
-#include "nsICopyMsgStreamListener.h"
+#include "nsICopyMessageStreamListener.h"
 #include "prtime.h"
 #include "mozilla/Logging.h"
 #include "mozilla/SlicedInputStream.h"

@@ -33,7 +33,7 @@
 #include "nsIMsgFolderCacheElement.h"
 #include "nsUnicharUtils.h"
 #include "nsMsgUtils.h"
-#include "nsICopyMsgStreamListener.h"
+#include "nsICopyMessageStreamListener.h"
 #include "nsIMsgCopyService.h"
 #include "nsMsgTxn.h"
 #include "nsIMessenger.h"
