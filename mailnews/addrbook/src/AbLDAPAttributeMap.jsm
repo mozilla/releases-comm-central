@@ -133,7 +133,7 @@ AbLDAPAttributeMap.prototype = {
         // find the first attr that exists in this message
         if (msgAttrs.includes(attr)) {
           try {
-            var values = aMessage.getValues(attr, {});
+            var values = aMessage.getValues(attr);
             // strip out the optional label from the labeledURI
             if (attr == "labeleduri" && values[0]) {
               var index = values[0].indexOf(" ");
