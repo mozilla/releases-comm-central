@@ -592,7 +592,7 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
   border-inline-end: 1px solid ThreeDLightShadow;
 }
 
-.statsubarpanel:-moz-lwtheme {
+.statusbarpanel:-moz-lwtheme {
   border-inline-end-color: var(--tabs-border-color);
 }
 
