@@ -176,11 +176,11 @@ with only_when("--enable-compile-environment"):
         "sys/resource.h",
         "sys/param.h",
         "sys/stat.h",
-        "sys/time.h",
         "sys/wait.h",
     )
 
     set_define("HAVE_MKDTEMP", check_symbol_exists("mkdtemp", ["stdlib.h", "unistd.h"]))
+    set_define("HAVE_MKSTEMP", check_symbol_exists("mkstemp", ["stdlib.h", "unistd.h"]))
     set_define("HAVE_REALPATH", check_symbol_exists("realpath", "stdlib.h"))
     set_define("HAVE_O_BINARY", check_symbol_exists("O_BINARY", "fcntl.h"))
     set_define("HAVE__O_BINARY", check_symbol_exists("_O_BINARY", "fcntl.h"))
