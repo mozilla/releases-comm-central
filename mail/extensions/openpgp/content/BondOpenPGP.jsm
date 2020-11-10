@@ -10,10 +10,16 @@
 
 const EXPORTED_SYMBOLS = ["BondOpenPGP"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailConstants } = ChromeUtils.import(
-  "resource:///modules/MailConstants.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
+  MailConstants: "resource:///modules/MailConstants.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 var { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
@@ -86,6 +92,9 @@ var BondOpenPGP = {
 
     this._alreadyTriedInit = true;
 
+    EnigmailKeyRing.init();
+    EnigmailVerify.init();
+
     let RNP = getRNP();
     let initDone = await RNP.init({});
     if (!initDone) {
@@ -120,5 +129,3 @@ var BondOpenPGP = {
     }
   },
 };
-
-BondOpenPGP.init();

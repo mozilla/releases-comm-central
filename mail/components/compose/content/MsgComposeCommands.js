@@ -57,21 +57,17 @@ var { MailConstants } = ChromeUtils.import(
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
-var { BondOpenPGP } = ChromeUtils.import(
-  "chrome://openpgp/content/BondOpenPGP.jsm"
-);
 
 var l10nCompose = new Localization(
   ["messenger/messengercompose/messengercompose.ftl"],
   true
 );
 
-ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
-ChromeUtils.defineModuleGetter(
-  this,
-  "ShortcutUtils",
-  "resource://gre/modules/ShortcutUtils.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
+  OS: "resource://gre/modules/osfile.jsm",
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
+});
 
 var sDictCount = 0;
 
@@ -3962,6 +3958,8 @@ function ComposeLoad() {
   );
 
   AddMessageComposeOfflineQuitObserver();
+
+  BondOpenPGP.init();
 
   try {
     SetupCommandUpdateHandlers();

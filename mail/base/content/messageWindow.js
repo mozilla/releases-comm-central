@@ -37,11 +37,9 @@ var { XPCOMUtils } = ChromeUtils.import(
 var { MsgHdrSyntheticView } = ChromeUtils.import(
   "resource:///modules/MsgHdrSyntheticView.jsm"
 );
-var { BondOpenPGP } = ChromeUtils.import(
-  "chrome://openpgp/content/BondOpenPGP.jsm"
-);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   CustomizableUI: "resource:///modules/CustomizableUI.jsm",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });

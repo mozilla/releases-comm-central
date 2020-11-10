@@ -51,11 +51,30 @@ function MimeVerify(protocol) {
 }
 
 var EnigmailVerify = {
+  _initialized: false,
   lastMsgWindow: null,
   lastMsgUri: null,
   manualMsgUri: null,
 
   currentCtHandler: EnigmailConstants.MIME_HANDLER_UNDEF,
+
+  init() {
+    if (this._initialized) {
+      return;
+    }
+    this._initialized = true;
+    var env = Cc["@mozilla.org/process/environment;1"].getService(
+      Ci.nsIEnvironment
+    );
+    var nspr_log_modules = env.get("NSPR_LOG_MODULES");
+    var matches = nspr_log_modules.match(/mimeVerify:(\d+)/);
+
+    if (matches && matches.length > 1) {
+      if (matches[1] > 2) {
+        gDebugLog = true;
+      }
+    }
+  },
 
   setMsgWindow(msgWindow, msgUriSpec) {
     LOCAL_DEBUG("mimeVerify.jsm: setMsgWindow: " + msgUriSpec + "\n");
@@ -659,19 +678,3 @@ function LOCAL_DEBUG(str) {
     EnigmailLog.DEBUG(str);
   }
 }
-
-function initModule() {
-  var env = Cc["@mozilla.org/process/environment;1"].getService(
-    Ci.nsIEnvironment
-  );
-  var nspr_log_modules = env.get("NSPR_LOG_MODULES");
-  var matches = nspr_log_modules.match(/mimeVerify:(\d+)/);
-
-  if (matches && matches.length > 1) {
-    if (matches[1] > 2) {
-      gDebugLog = true;
-    }
-  }
-}
-
-initModule();

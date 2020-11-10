@@ -54,10 +54,6 @@ var { MailConstants } = ChromeUtils.import(
 var { Color } = ChromeUtils.import("resource://gre/modules/Color.jsm");
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
-var { BondOpenPGP } = ChromeUtils.import(
-  "chrome://openpgp/content/BondOpenPGP.jsm"
-);
-
 XPCOMUtils.defineLazyModuleGetters(this, {
   msgDBCacheManager: "resource:///modules/MsgDBCacheManager.jsm",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",
@@ -71,6 +67,7 @@ var NewTabPagePreloading = {
 };
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
   CustomizableUI: "resource:///modules/CustomizableUI.jsm",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
@@ -470,7 +467,6 @@ var MailPrefObserver = {
           MailConstants.MOZ_OPENPGP &&
           Services.prefs.getBoolPref("mail.openpgp.enable")
         ) {
-          BondOpenPGP.init(); // library init
           initOpenPGPIfEnabled(); // mail window related init
         }
       }
@@ -545,6 +541,8 @@ function AutoConfigWizard(okCallback) {
 
 function initOpenPGPIfEnabled() {
   let hideItems = true;
+
+  BondOpenPGP.init();
 
   try {
     if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {

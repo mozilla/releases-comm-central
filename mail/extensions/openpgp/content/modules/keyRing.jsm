@@ -63,6 +63,16 @@ let gLoadingKeys = false;
 */
 
 var EnigmailKeyRing = {
+  _initialized: false,
+
+  init() {
+    if (this._initialized) {
+      return;
+    }
+    this._initialized = true;
+    this.clearCache();
+  },
+
   /**
    * Get the complete list of all public keys, optionally sorted by a column
    *
@@ -1687,5 +1697,3 @@ function waitForKeyList() {
     mainThread.processNextEvent(true);
   }
 }
-
-EnigmailKeyRing.clearCache();
