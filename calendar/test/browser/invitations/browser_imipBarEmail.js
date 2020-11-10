@@ -24,7 +24,7 @@ function getFileFromChromeURL(leafName) {
  * Test that when opening a message containing an event, the IMIP bar shows.
  */
 add_task(async function test_event_from_eml() {
-  let file = getFileFromChromeURL("message-containing-event.eml");
+  let file = getFileFromChromeURL("data/message-containing-event.eml");
 
   let msgc = await open_message_from_file(file);
 

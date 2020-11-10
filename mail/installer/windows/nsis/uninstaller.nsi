@@ -298,6 +298,7 @@ Section "Uninstall"
   ${un.RegCleanAppHandler} "Thunderbird.Url.mailto"
   ${un.RegCleanAppHandler} "Thunderbird.Url.news"
   ${un.RegCleanAppHandler} "ThunderbirdEML"
+  ${un.RegCleanAppHandler} "ThunderbirdICS"
   ${un.RegCleanProtocolHandler} "mailto"
   ${un.RegCleanProtocolHandler} "news"
   ${un.RegCleanProtocolHandler} "nntp"
@@ -312,6 +313,17 @@ Section "Uninstall"
     ${un.RegCleanFileHandler}  ".eml"   "ThunderbirdEML"
     ${un.RegCleanFileHandler}  ".wdseml" "ThunderbirdEML"
     DeleteRegValue HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\explorer\KindMap" ".wdseml"
+    ; It doesn't matter if the value didn't exist
+    ClearErrors
+  ${EndIf}
+
+  ClearErrors
+  ReadRegStr $R9 HKCR "ThunderbirdICS" ""
+  ; Don't clean up the file handlers if the ThunderbirdICS key still exists
+  ; since there could be a second installation that may be the default file
+  ; handler.
+  ${If} ${Errors}
+    ${un.RegCleanFileHandler}  ".ics"   "ThunderbirdICS"
     ; It doesn't matter if the value didn't exist
     ClearErrors
   ${EndIf}

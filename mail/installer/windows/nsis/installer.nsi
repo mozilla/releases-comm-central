@@ -412,8 +412,8 @@ Section "-Application" APP_IDX
   ; it doesn't cause problems always add them.
   ${SetUninstallKeys}
 
-  ; On install always add the ThunderbirdEML, Thunderbird.Url.mailto, and
-  ; Thunderbird.Url.news keys.
+  ; On install always add the ThunderbirdEML, Thunderbird.Url.mailto,
+  ; Thunderbird.Url.news, and ThunderbirdICS keys.
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
   StrCpy $0 "SOFTWARE\Classes"
   StrCpy $1 "$\"$8$\" $\"%1$\""
@@ -428,6 +428,10 @@ Section "-Application" APP_IDX
                       "${AppRegNameMail} URL" "delete" ""
   ${AddHandlerValues} "$0\Thunderbird.Url.news" "$3" "$8,0" \
                       "${AppRegNameNews} URL" "delete" ""
+  ; An empty string is used for the 5th param because ThunderbirdICS is not a
+  ; protocol handler
+  ${AddHandlerValues} "$0\ThunderbirdICS" "$1" "$8,0" \
+                      "${AppRegNameCalendar} Document" "" ""
 
   ; For pre win8, the following keys should only be set if we can write to HKLM.
   ; For post win8, the keys below can be set in HKCU if needed.

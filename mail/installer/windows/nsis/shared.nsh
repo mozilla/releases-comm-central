@@ -325,11 +325,20 @@
                       "${AppRegNameMail} Document" "" ""
   ${AddHandlerValues} "$0\Thunderbird.Url.mailto"  "$2" "$8,0" "${AppRegNameMail} URL" "delete" ""
   ${AddHandlerValues} "$0\mailto" "$2" "$8,0" "${AppRegNameMail} URL" "true" ""
+  ; An empty string is used for the 5th param because ThunderbirdICS is not a
+  ; protocol handler
+  ${AddHandlerValues} "$0\ThunderbirdICS" "$1" "$8,0" \
+                      "${AppRegNameCalendar} Document" "" ""
 
   ; Associate the file handlers with ThunderbirdEML
   ReadRegStr $6 SHCTX ".eml" ""
   ${If} "$6" != "ThunderbirdEML"
     WriteRegStr SHCTX "$0\.eml"   "" "ThunderbirdEML"
+  ${EndIf}
+  ;; Associate the file handlers with ThunderbirdICS
+  ReadRegStr $6 SHCTX ".ics" ""
+  ${If} "$6" != "ThunderbirdICS"
+    WriteRegStr SHCTX "$0\.ics"   "" "ThunderbirdICS"
   ${EndIf}
 !macroend
 !define SetHandlersMail "!insertmacro SetHandlersMail"
@@ -428,6 +437,7 @@
   WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationName" "${AppRegNameMail}"
   WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".eml"   "ThunderbirdEML"
   WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".wdseml" "ThunderbirdEML"
+  WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".ics"    "ThunderbirdICS"
   WriteRegStr ${RegKey} "$0\Capabilities\StartMenu" "Mail" "${ClientsRegName}"
   WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "mailto" "Thunderbird.Url.mailto"
 
@@ -703,6 +713,12 @@
   ${IsHandlerForInstallDir} "nntp" $R9
   ${If} "$R9" == "true"
     ${AddHandlerValues} "SOFTWARE\Classes\nntp" "$2" "$8,0" "" "" ""
+  ${EndIf}
+
+  ${IsHandlerForInstallDir} "ThunderbirdICS" $R9
+  ${If} "$R9" == "true"
+    ${AddHandlerValues} "SOFTWARE\Classes\ThunderbirdICS" "$3" "$8,0" \
+                        "${AppRegNameCalendar} Document" "" ""
   ${EndIf}
 !macroend
 !define UpdateProtocolHandlers "!insertmacro UpdateProtocolHandlers"

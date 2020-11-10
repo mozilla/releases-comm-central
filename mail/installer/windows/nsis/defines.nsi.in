@@ -16,6 +16,7 @@
 
 !define AppRegNameMail        "Thunderbird"
 !define AppRegNameNews        "Thunderbird (News)"
+!define AppRegNameCalendar    "Thunderbird (Calendar)"
 
 !define ClientsRegName        "Mozilla Thunderbird"
 

@@ -30,6 +30,7 @@ var gSystemIntegrationDialog = {
     this._mailCheckbox = document.getElementById("checkMail");
     this._newsCheckbox = document.getElementById("checkNews");
     this._rssCheckbox = document.getElementById("checkRSS");
+    this._calendarCheckbox = document.getElementById("checkCalendar");
     this._startupCheckbox = document.getElementById("checkOnStartup");
     this._searchCheckbox = document.getElementById("searchIntegration");
 
@@ -79,6 +80,11 @@ var gSystemIntegrationDialog = {
     if (!this._rssCheckbox.disabled) {
       this._rssCheckbox.removeAttribute("tooltiptext");
     }
+
+    this._calendarCheckbox.checked = this._calendarCheckbox.disabled = this._shellSvc.isDefaultClient(
+      false,
+      this._shellSvc.CALENDAR
+    );
 
     // read the raw pref value and not shellSvc.shouldCheckDefaultMail
     this._startupCheckbox.checked = Services.prefs.getBoolPref(
@@ -160,6 +166,13 @@ var gSystemIntegrationDialog = {
       !this._shellSvc.isDefaultClient(false, this._shellSvc.RSS)
     ) {
       appTypes |= this._shellSvc.RSS;
+    }
+
+    if (
+      this._calendarCheckbox.checked &&
+      !this._shellSvc.isDefaultClient(false, this._shellSvc.CALENDAR)
+    ) {
+      appTypes |= this._shellSvc.CALENDAR;
     }
 
     if (appTypes) {

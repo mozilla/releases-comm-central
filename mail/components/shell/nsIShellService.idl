@@ -15,6 +15,7 @@ interface nsIShellService : nsISupports
   const unsigned short MAIL = 0x0001;
   const unsigned short NEWS = 0x0002;
   const unsigned short RSS  = 0x0004;
+  const unsigned short CALENDAR = 0x0008;
 
   /**
    * Determines whether or not Thunderbird is the "Default Client" for the

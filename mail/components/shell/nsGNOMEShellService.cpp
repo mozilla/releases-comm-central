@@ -31,6 +31,8 @@ static const char* const sNewsProtocols[] = {"news", "snews", "nntp"};
 
 static const char* const sFeedProtocols[] = {"feed"};
 
+static const char* const sCalendarProtocols[] = {"webcal"};
+
 struct AppTypeAssociation {
   uint16_t type;
   const char* const* protocols;
@@ -49,7 +51,10 @@ static const AppTypeAssociation sAppTypes[] = {
     {nsIShellService::NEWS, sNewsProtocols, ArrayLength(sNewsProtocols),
      nullptr, nullptr},
     {nsIShellService::RSS, sFeedProtocols, ArrayLength(sFeedProtocols),
-     "application/rss+xml", "rss"}};
+     "application/rss+xml", "rss"},
+    {nsIShellService::CALENDAR, sCalendarProtocols,
+        ArrayLength(sCalendarProtocols), "text/calendar", "ics"}
+};
 
 nsGNOMEShellService::nsGNOMEShellService()
     : mCheckedThisSession(false), mAppIsInPath(false) {}

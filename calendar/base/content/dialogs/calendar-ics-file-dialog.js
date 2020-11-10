@@ -41,7 +41,8 @@ async function onWindowLoad() {
     return;
   }
 
-  gModel.calendars = getCalendarsThatCanImport(cal.getCalendarManager().getCalendars());
+  let calendars = cal.getCalendarManager().getCalendars();
+  gModel.calendars = getCalendarsThatCanImport(calendars);
   if (!gModel.calendars.length) {
     // No calendars to import into. Show error dialog and close the window.
     cal.showError(await document.l10n.formatValue("calendar-ics-file-dialog-no-calendars"), window);
@@ -50,7 +51,7 @@ async function onWindowLoad() {
   }
 
   let composite = cal.view.getCompositeCalendar(window);
-  let defaultCalendarId = composite && composite.defaultCalendar.id;
+  let defaultCalendarId = composite && composite.defaultCalendar?.id;
   setUpCalendarMenu(gModel.calendars, defaultCalendarId);
 
   setUpItemSummaries(gModel.itemsToImport, gModel.file.path);
@@ -77,12 +78,23 @@ window.addEventListener("load", onWindowLoad);
  */
 function getCalendarsThatCanImport(calendars) {
   let calendarsThatCanImport = calendars.filter(
-    calendar =>
-      calendar &&
-      cal.acl.isCalendarWritable(calendar) &&
-      cal.acl.userCanAddItemsToCalendar(calendar)
+    calendar => calendar && cal.acl.userCanAddItemsToCalendar(calendar)
   );
   return sortCalendarArray(calendarsThatCanImport);
+}
+
+/**
+ * Ensure a calendar is enabled and writable.
+ *
+ * @param {calICalendar} calendar - The calendar to check.
+ */
+function ensureCalendarIsWritable(calendar) {
+  if (calendar.getProperty("disabled")) {
+    calendar.setProperty("disabled", false);
+  }
+  if (calendar.readOnly) {
+    calendar.readOnly = false;
+  }
 }
 
 /**
@@ -174,6 +186,7 @@ async function importSingleItem(item, itemIndex, filePath, event) {
   delete gModel.itemSummaries[itemIndex];
 
   let calendar = getCurrentlySelectedCalendar();
+  ensureCalendarIsWritable(calendar);
 
   putItemsIntoCal(calendar, [item], filePath);
 
@@ -212,6 +225,7 @@ async function importRemainingItems(event) {
   document.removeEventListener("dialogaccept", importRemainingItems);
 
   let calendar = getCurrentlySelectedCalendar();
+  ensureCalendarIsWritable(calendar);
   let remainingItems = gModel.itemsToImport.filter(item => item);
 
   let [importResult] = await Promise.allSettled([

@@ -66,10 +66,12 @@ typedef enum {
 // AppRegNameMail and AppRegNameNews in the installer file: defines.nsi.in
 #define APP_REG_NAME_MAIL L"Thunderbird"
 #define APP_REG_NAME_NEWS L"Thunderbird (News)"
+#define APP_REG_NAME_CALENDAR L"Thunderbird (Calendar)"
 #define CLS_EML "ThunderbirdEML"
 #define CLS_MAILTOURL "Thunderbird.Url.mailto"
 #define CLS_NEWSURL "Thunderbird.Url.news"
 #define CLS_FEEDURL "Thunderbird.Url.feed"
+#define CLS_ICS "ThunderbirdICS"
 #define SOP "\\shell\\open\\command"
 #define VAL_OPEN "\"%APPPATH%\" \"%1\""
 #define VAL_MAIL_OPEN "\"%APPPATH%\" -osint -mail \"%1\""
@@ -101,6 +103,17 @@ static SETTING gNewsSettings[] = {
     // Protocol Handlers
     {MAKE_KEY_NAME1("news", SOP), "", VAL_MAIL_OPEN, APP_PATH_SUBSTITUTION},
     {MAKE_KEY_NAME1("nntp", SOP), "", VAL_MAIL_OPEN, APP_PATH_SUBSTITUTION},
+};
+
+static SETTING gCalendarSettings[] = {
+    // File Extension Class
+    {".ics", "", CLS_ICS, NO_SUBSTITUTION},
+
+    // File Extension Class
+    {MAKE_KEY_NAME1(CLS_ICS, SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
+
+    // Protocol Handlers
+    {MAKE_KEY_NAME1("webcal", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
 };
 
 nsresult GetHelperPath(nsAutoString& aPath) {
@@ -187,6 +200,14 @@ nsWindowsShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
     if (*aIsDefaultClient)
       IsDefaultClientVista(nsIShellService::NEWS, aIsDefaultClient);
   }
+  if (aApps & nsIShellService::CALENDAR) {
+    *aIsDefaultClient &= TestForDefault(
+        gCalendarSettings, sizeof(gCalendarSettings) / sizeof(SETTING));
+    // Only check if this app is default on Vista if the previous checks
+    // indicate that this app is the default.
+    if (*aIsDefaultClient)
+      IsDefaultClientVista(nsIShellService::CALENDAR, aIsDefaultClient);
+  }
   // RSS / feed protocol shell integration is not working so return true
   // until it is fixed (bug 445823).
   if (aApps & nsIShellService::RSS) *aIsDefaultClient &= true;
@@ -207,6 +228,8 @@ nsWindowsShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
     if (aApps & nsIShellService::MAIL) params.AppendLiteral(" Mail");
 
     if (aApps & nsIShellService::NEWS) params.AppendLiteral(" News");
+
+    if (aApps & nsIShellService::CALENDAR) params.AppendLiteral(" Calendar");
   }
 
   return LaunchHelper(appHelperPath, params);
@@ -280,14 +303,18 @@ bool nsWindowsShellService::IsDefaultClientVista(uint16_t aApps,
   if (SUCCEEDED(hr)) {
     BOOL isDefaultMail = true;
     BOOL isDefaultNews = true;
+    BOOL isDefaultCalendar = true;
     if (aApps & nsIShellService::MAIL)
       pAAR->QueryAppIsDefaultAll(AL_EFFECTIVE, APP_REG_NAME_MAIL,
                                  &isDefaultMail);
     if (aApps & nsIShellService::NEWS)
       pAAR->QueryAppIsDefaultAll(AL_EFFECTIVE, APP_REG_NAME_NEWS,
                                  &isDefaultNews);
+    if (aApps & nsIShellService::CALENDAR)
+      pAAR->QueryAppIsDefaultAll(AL_EFFECTIVE, APP_REG_NAME_CALENDAR,
+                                 &isDefaultCalendar);
 
-    *aIsDefaultClient = isDefaultNews && isDefaultMail;
+    *aIsDefaultClient = isDefaultNews && isDefaultMail && isDefaultCalendar;
 
     pAAR->Release();
     return true;

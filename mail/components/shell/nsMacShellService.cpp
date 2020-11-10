@@ -39,6 +39,8 @@ nsMacShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
     *aIsDefaultClient &= isDefaultHandlerForProtocol(CFSTR("news"));
   if (aApps & nsIShellService::RSS)
     *aIsDefaultClient &= isDefaultHandlerForProtocol(CFSTR("feed"));
+  if (aApps & nsIShellService::CALENDAR)
+    *aIsDefaultClient &= isDefaultHandlerForProtocol(CFSTR("webcal"));
 
   // if this is the first mail window, maintain internal state that we've
   // checked this session (so that subsequent window opens don't show the
@@ -57,6 +59,8 @@ nsMacShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
     rv = setAsDefaultHandlerForProtocol(CFSTR("news"));
   if (NS_SUCCEEDED(rv) && aApps & nsIShellService::RSS)
     rv = setAsDefaultHandlerForProtocol(CFSTR("feed"));
+  if (NS_SUCCEEDED(rv) && aApps & nsIShellService::CALENDAR)
+    rv = setAsDefaultHandlerForProtocol(CFSTR("webcal"));
 
   return rv;
 }
