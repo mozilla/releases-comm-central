@@ -5,6 +5,23 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+.main-header-area {
+  border-bottom: 1px solid var(--splitter-color);
+}
+
+/* ::::: msg header toolbars ::::: */
+
+#expandedHeaderView[show_header_mode="all"] {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 14em;
+}
+
+#expandedBoxSpacer {
+  display: block;
+  height: 4px;
+}
+
 /* ::::: msg header buttons ::::: */
 
 .headerContainer {
@@ -15,13 +32,22 @@
   display: none;
 }
 
-.toolbarbutton-1.msgHeaderView-button {
+.msgHeaderView-button {
   -moz-box-orient: horizontal;
+  min-width: 1em;
+  margin-block: 1px;
+  margin-inline: 1px 2px;
+  padding-inline: 3px !important;
   fill: currentColor;
 }
 
-.msgHeaderView-button[type="menu-button"] > toolbarbutton {
+.msgHeaderView-button[type="menu-button"] {
+  padding: 0 !important;
+}
+
+.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button {
   -moz-box-orient: horizontal;
+  padding-inline: 3px !important;
 }
 
 .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
@@ -48,6 +74,46 @@
   background-image: none;
 }
 
+.msgHeaderView-button .toolbarbutton-text {
+  padding-inline-start: 2px;
+}
+
+.hdrReplyToSenderButton,
+.hdrDummyReplyButton,
+.hdrReplyButton {
+  list-style-image: url("chrome://messenger/skin/icons/reply.svg");
+}
+
+.hdrReplyAllButton {
+  list-style-image: url("chrome://messenger/skin/icons/replyall.svg");
+}
+
+.hdrReplyListButton,
+.hdrFollowupButton {
+  list-style-image: url("chrome://messenger/skin/icons/replylist.svg");
+}
+
+.hdrForwardButton {
+  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
+}
+
+.hdrArchiveButton {
+  list-style-image: url("chrome://messenger/skin/icons/archive.svg");
+}
+
+.hdrJunkButton {
+  list-style-image: url("chrome://messenger/skin/icons/junk.svg");
+}
+
+.hdrTrashButton {
+  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
+}
+
+#attachmentSaveAllSingle,
+#attachmentSaveAllMultiple {
+  list-style-image: url("chrome://messenger/skin/icons/save.svg");
+}
+
 /* ::::: msg header toolbars ::::: */
 
 #expandedHeadersTopBox {
@@ -59,6 +125,7 @@
 #header-view-toolbox {
   float: inline-end;
   display: block;
+  padding-top: 2px;
 }
 
 /* ::::: expanded header pane ::::: */
@@ -68,6 +135,12 @@
 }
 
 /* ::::: attachment view ::::: */
+
+#attachmentBar {
+  color: -moz-dialogtext;
+  background-color: -moz-Dialog;
+  padding: 3px 0;
+}
 
 #attachmentToggle {
   /* Override button appearance */
@@ -97,6 +170,18 @@
   outline: 1px dotted Highlight;
 }
 
+#attachmentName:hover,
+#attachmentName[selected="true"] {
+  cursor: pointer;
+  color: HighlightText;
+  background-color: Highlight;
+}
+
+#attachmentSize {
+  margin: 0;
+  margin-inline-start: 8px;
+}
+
 #attachmentIcon {
   list-style-image: url("chrome://messenger/skin/icons/attach.svg");
   margin-inline-start: 5px;
@@ -124,6 +209,11 @@
   border-color: Highlight;
 }
 
+#attachmentList {
+  background-color: Field;
+  color: FieldText;
+}
+
 /* ::::: msg header captions ::::: */
 
 #header-view-toolbar .msgHeaderView-button[disabled="true"] {
@@ -134,12 +224,49 @@
   -moz-box-pack: end;
 }
 
+.headerName {
+  padding: 0;
+  margin-inline-end: 3px;
+}
+
 .headerValue {
   overflow-wrap: anywhere;
+  min-width: 50px;
+  white-space: normal;
+  line-height: 1.4em;
+  padding: .1em 0;
+  margin-block: 0 3px;
+  margin-inline: 3px 0;
 }
 
 .headerValue[containsEmail="true"] {
   margin-inline-start: 0 !important;
+}
+
+mail-headerfield.headerValue:focus {
+  outline-color: Highlight;
+}
+
+.headerValueUrl {
+  cursor: pointer;
+  color: -moz-hyperlinktext;
+  text-decoration: underline;
+}
+
+.headerValueUrl:hover {
+  color: -moz-activehyperlinktext;
+}
+
+/* ::::: msg header message ids ::::: */
+
+.messageIdDisplayButton {
+  cursor: pointer;
+  color: -moz-hyperlinktext;
+  text-decoration: underline;
+}
+
+.messageIdDisplayButton:hover {
+  color: -moz-activehyperlinktext;
 }
 
 #otherActionsBox {
@@ -165,7 +292,7 @@ html|table#expandedHeaders2 {
 #expandedHeadersBottomBox html|th {
   font-weight: normal !important;
   vertical-align: top;
-  text-align: right;
+  text-align: end;
   padding-top: 2px !important;
 }
 
@@ -204,6 +331,10 @@ mail-newsgroups-headerfield.headerValueBox {
   color: inherit;
 }
 
+.moreIndicator {
+  font-weight: bold;
+}
+
 .moreIndicator:hover {
   text-decoration: underline;
   color: darkred;
@@ -221,17 +352,29 @@ mail-newsgroups-headerfield.headerValueBox {
   color: #111111;
 }
 
+.dateLabel {
+  user-select: text;
+  -moz-user-focus: normal;
+  cursor: text;
+}
+
 /* ::::: msg header email addresses ::::: */
 
 .emailDisplayButton {
   display: -moz-inline-box;
   padding-inline: 2px;
+  border: 1px dotted transparent;
+  border-radius: var(--toolbarbutton-border-radius);
 }
 
 .emailDisplayButton:hover {
   cursor: pointer;
   color: HighlightText;
   background-color: Highlight;
+}
+
+.emailDisplayButton:focus {
+  border-color: Highlight;
 }
 
 mail-emailaddress[selected="true"] > .emailDisplayButton {

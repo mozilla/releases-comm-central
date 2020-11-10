@@ -12,28 +12,6 @@
 .main-header-area {
   color: WindowText;
   background-color: AppWorkspace;
-  border-bottom: 1px solid var(--splitter-color);
-  padding: 0.4ex;
-}
-
-/* :::::  message in a tab ::::: */
-#displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
-.main-header-area {
-  background-image: linear-gradient(rgba(255, 255, 255, 0.3),
-                                    rgba(255, 255, 255, 0) 19px);
-}
-
-/* ::::: msg header toolbars ::::: */
-
-#expandedHeaderView[show_header_mode="all"] {
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 14em;
-}
-
-#expandedBoxSpacer {
-  display: block;
-  height: 8px;
 }
 
 /* ::::: expanded header pane ::::: */
@@ -43,184 +21,16 @@
   padding-inline-end: 2px;
 }
 
-/* ::::: attachment view ::::: */
-
-#attachmentList {
-  background-color: Field;
-  color: FieldText;
-}
-
-#attachmentName:hover,
-#attachmentName[selected="true"] {
-  cursor: pointer;
-  color: HighlightText;
-  background-color: Highlight;
-}
-
-#attachmentSize {
-  margin: 0;
-  margin-inline-start: 8px;
-  color: #888a85; /* the same color as .headerName */
-}
-
-#attachmentBar {
-  background-color: -moz-dialog;
-  color: -moz-dialogtext;
-  padding: 3px 0;
-}
-
 /* ::::: msg header captions ::::: */
-
-#msgHeaderView {
-  font-size: 100%;
-  padding: 0 !important;
-  margin: 0 !important;
-}
 
 .dateLabel {
   line-height: 1.5em;
   margin: 0;
-  padding: .1em 0;
-  padding-inline-end: 9px;
-  user-select: text;
-  -moz-user-focus: normal;
-  cursor: text;
+  padding-block: .1em;
+  padding-inline: 0 9px;
 }
 
-.msgHeaderView-button {
-  margin-block: 0;
-  margin-inline-start: 2px;
-  min-width: 28px;
-  padding-block: 0;
-}
-
-/* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,
- * jamming the image up against the text, so we need this !important
- * rule to override that.
- *
- * The second selector is a descendent selector rather than a child selector
- * so that we effect both buttons and menubuttons.
- */
-.msgHeaderView-button .toolbarbutton-text {
-  margin-inline-start: 2px !important;
-}
-
-.hdrReplyToSenderButton,
-.hdrDummyReplyButton,
-.hdrReplyButton {
-  list-style-image: url("chrome://messenger/skin/icons/reply.svg");
-}
-
-.hdrReplyAllButton {
-  list-style-image: url("chrome://messenger/skin/icons/replyall.svg");
-}
-
-.hdrReplyListButton,
-.hdrFollowupButton {
-  list-style-image: url("chrome://messenger/skin/icons/replylist.svg");
-}
-
-.hdrForwardButton {
-  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
-}
-
-.hdrArchiveButton {
-  list-style-image: url("chrome://messenger/skin/icons/archive.svg");
-}
-
-.hdrJunkButton {
-  list-style-image: url("chrome://messenger/skin/icons/junk.svg");
-}
-
-.hdrTrashButton {
-  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
-}
-
-#attachmentSaveAllSingle,
-#attachmentSaveAllMultiple {
-  list-style-image: url("chrome://messenger/skin/icons/save.svg");
-}
-
-.headerName {
+.headerName,
+#attachmentSize {
   color: #888a85; /* lower contrast */
-  text-align: right;
-  background-color: transparent;
-  padding: 0;
-  margin-inline-end: 3px;
-}
-
-.headerValue {
-  min-width: 50px;
-  white-space: normal;
-  color: WindowText;
-  line-height: 1.4em;
-  appearance: none !important;
-  padding: .1em 0 !important;
-  margin: 0 !important;
-  margin-bottom: 3px !important;
-  margin-inline-start: 3px !important;
-  border: none !important;
-  background-color: transparent;
-}
-
-.headerValueUrl {
-  cursor: pointer;
-  color: -moz-hyperlinktext;
-  text-decoration: underline;
-}
-
-.headerValueUrl:hover {
-  color: -moz-activehyperlinktext;
-}
-
-mail-headerfield.headerValue:focus {
-  outline-color: Highlight;
-}
-
-.moreIndicator {
-  font-weight: bold;
-}
-
-/* ::::: msg header message ids ::::: */
-
-.messageIdDisplayButton {
-  cursor: pointer;
-  color: -moz-hyperlinktext;
-  text-decoration: underline;
-  margin: 0;
-  background-color: transparent;
-}
-
-.messageIdDisplayButton:hover {
-  color: -moz-activehyperlinktext;
-}
-
-.messageIdDisplayImage {
-  padding-inline-start: 2px;
-  -moz-box-pack: end;
-}
-
-
-/* ::::: msg header email addresses ::::: */
-
-.emailDisplayButton {
-  border-radius: 2px;
-  border: 1px dotted transparent;
-}
-
-.emailDisplayButton:focus {
-  border-color: Highlight;
-}
-
-/* This is a workaround for #562608 in the rare case where the buttons_have_icons gconf key is set to true */
-.hdrArchiveButton > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/archive.svg");
-}
-
-.hdrTrashButton > .button-box > .button-icon {
-  list-style-image: url("chrome://messenger/skin/icons/tag.svg");
-}
-
-#header-view-toolbox {
-  padding-top: 2px;
 }

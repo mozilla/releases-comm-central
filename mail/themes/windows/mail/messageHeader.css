@@ -12,276 +12,28 @@
 .main-header-area {
   color: WindowText;
   background-color: ButtonFace;
-  padding: 0.4ex;
-  border-bottom: 1px solid var(--splitter-color); /* The same color as the splitters */
 }
 
-/* ::::: msg header toolbars ::::: */
-
-#expandedHeaderView[show_header_mode="all"] {
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 14em;
-}
-
-#expandedBoxSpacer {
-  display: block;
-}
-
-/* ::::: attachment view ::::: */
-
-#attachmentList {
-  background-color: Field;
-  color: FieldText;
-}
-
-#attachmentName:hover,
-#attachmentName[selected="true"] {
-  cursor: pointer;
-  color: HighlightText;
-  background-color: Highlight;
-}
-
-#attachmentSize {
-  margin: 0;
-  margin-inline-start: 8px;
-}
-
-#attachmentBar {
-  color: -moz-dialogtext;
-  background-color: -moz-Dialog;
-  padding: 3px 0;
-}
-
-.findbar-container {
-  padding-block: 2px;
+.inline-toolbox {
+  padding-inline-end: 2px;
 }
 
 /* ::::: msg header captions ::::: */
 
-#msgHeaderView {
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
 .dateLabel {
   line-height: 1.5em;
   margin: 0;
-  padding: .1em 0;
-  user-select: text;
-  -moz-user-focus: normal;
-  cursor: text;
-}
-
-.msgHeaderView-button[type="menu-button"] {
-  padding-top: 1px;
-}
-
-.msgHeaderView-button[type="menu-button"] > .button-menubutton-button:hover {
-  border-right-color: ButtonShadow;
+  padding-block: .1em;
+  padding-inline: 0 6px;
 }
 
 .headerName {
-  text-align: right;
-  background-color: transparent;
-  padding: 0;
   margin-top: 0;
-  margin-inline-end: 3px;
 }
 
-.headerValue {
-  min-width: 50px;
-  white-space: normal;
-  color: WindowText;
-  line-height: 1.4em;
-  appearance: none;
-  padding: .1em 0;
-  margin: 0;
-  margin-bottom: 3px !important;
-  margin-inline-start: 3px;
-  border-width: 0;
-  background-color: transparent;
-}
-
-.headerValueUrl {
-  cursor: pointer;
-  color: -moz-hyperlinktext;
-  text-decoration: underline;
-}
-
-.headerValueUrl:hover {
-  color: -moz-activehyperlinktext;
-}
-
-mail-headerfield.headerValue:focus {
-  outline-color: Highlight;
-}
-
-.moreIndicator {
-  font-weight: bold;
-}
-
-/* ::::: msg header message ids ::::: */
-
-.messageIdDisplayButton {
-  cursor: pointer;
-  color: -moz-hyperlinktext;
-  text-decoration: underline;
-  margin: 0;
-  background-color: transparent;
-}
-
-.messageIdDisplayButton:hover {
-  color: -moz-activehyperlinktext;
-}
-
-.messageIdDisplayImage {
-  padding-inline-start: 2px;
-  -moz-box-pack: end;
-}
-
-
-/* ::::: msg header email addresses ::::: */
-
-.emailDisplayButton {
-  border: 1px dotted transparent;
-}
-
-.emailDisplayButton:focus {
-  border-color: Highlight;
-}
-
-@media (-moz-os-version: windows-win7) {
-  .emailDisplayButton {
-    border-radius: 2px;
-  }
-}
-
-@media (-moz-windows-default-theme: 0) {
-  #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
-  .main-header-area {
-    background-image: linear-gradient(rgba(255, 255, 255, .5),
-                                      rgba(255, 255, 255, .5) 100%);
-  }
-}
-
-#expandedBoxSpacer {
-  height: 6px;
-}
-
+.headerName,
 #attachmentSize {
-  color: #888a85; /* the same color as .headerName */
-}
-
-.dateLabel {
-  padding-inline-end: 6px;
-}
-
-.toolbarbutton-1.msgHeaderView-button {
-  min-width: 1em;
-  margin-inline: 2px !important;
-  margin-block: 1px 2px;
-  /* important required to override primaryToolbar.css rules */
-  padding-inline: 3px !important;
-}
-
-@media (-moz-windows-default-theme: 0) {
-  :root:not(:-moz-lwtheme) .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
-  :root:not(:-moz-lwtheme) .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-  :root:not(:-moz-lwtheme) .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-    box-shadow: none !important;
-  }
-
-  :root:not(:-moz-lwtheme) .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-    padding-inline: 3px !important;
-  }
-}
-
-.msgHeaderView-button > .toolbarbutton-icon,
-.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button
-> .toolbarbutton-icon {
- /* Needed to make the buttons w/o icons the same height as those with icons */
-  min-height: 16px;
-}
-
-.msgHeaderView-button[type="menu-button"] {
-  /* Need to override both rules from messenger.css and msgHeaderView-button */
-  padding: 0 !important;
-}
-
-.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button {
-  min-width: 1em;
-  margin: 0;
-  /* important required to override primaryToolbar.css rules */
-  padding-inline: 3px !important;
-}
-
-/* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,
-*  jamming the image up against the text, so we need this !important
-*  rule to override that.
-*
-*  The second selector is a descendent selector rather than a child selector
-*  so that we effect both buttons and menubuttons.
-*/
-
-.msgHeaderView-button .toolbarbutton-text {
-  margin-inline-start: 2px !important;
-}
-
-.hdrReplyToSenderButton,
-.hdrDummyReplyButton,
-.hdrReplyButton {
-  list-style-image: url("chrome://messenger/skin/icons/reply.svg");
-}
-
-.hdrReplyAllButton {
-  list-style-image: url("chrome://messenger/skin/icons/replyall.svg");
-}
-
-.hdrReplyListButton,
-.hdrFollowupButton {
-  list-style-image: url("chrome://messenger/skin/icons/replylist.svg");
-}
-
-.hdrForwardButton {
-  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
-}
-
-.hdrArchiveButton {
-  list-style-image: url("chrome://messenger/skin/icons/archive.svg");
-}
-
-.hdrJunkButton {
-  list-style-image: url("chrome://messenger/skin/icons/junk.svg");
-}
-
-.hdrTrashButton {
-  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
-}
-
-#attachmentSaveAllSingle,
-#attachmentSaveAllMultiple {
-  list-style-image: url("chrome://messenger/skin/icons/save.svg");
-}
-
-#otherActionsButton > hbox > vbox > .toolbarbutton-icon {
-  display: none;
-}
-
-#otherActionsButton > hbox > .toolbarbutton-menu-dropmarker {
-  padding-inline-end: 3px;
-}
-
-.msgHeaderView-button {
-  appearance: none;
-}
-
-.headerName {
   color: #888a85; /* lower contrast */
-}
-
-#header-view-toolbox {
-  padding-top: 1px;
 }
 
 @media (-moz-windows-compositor) and (-moz-windows-default-theme) {
@@ -304,10 +56,4 @@ mail-headerfield.headerValue:focus {
   findbar {
     background-color: #eef3fa;
   }
-}
-
-:root[lwt-tree] #attachmentList .attachmentItem:hover {
-  background-color: hsla(0, 0%, 50%, .15);
-  border-color: hsla(0, 0%, 50%, .15);
-  color: inherit;
 }

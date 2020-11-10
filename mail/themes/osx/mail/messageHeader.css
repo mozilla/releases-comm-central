@@ -11,261 +11,27 @@
 /* ::::: for the entire area ::::: */
 .main-header-area {
   color: #2E3436; /* Aluminium 6 */
-  border-bottom:1px solid var(--splitter-color);
-  padding: 0.6ex;
-}
-
-#displayDeck:not([collapsed="true"]) + #threadpane-splitter + #messagepanebox .main-header-area {
-  background: linear-gradient(#E4E4E4, #FFFFFF 5px);
 }
 
 /* ::::: msg header toolbars ::::: */
-#expandedHeaderView[show_header_mode="all"] {
-  overflow-x: hidden;
-  overflow-y: visible;
-  max-height: 14em;
-}
 
 .inline-toolbox {
-  padding-inline-end: 6px;
-}
-
-#expandedBoxSpacer {
-  display: block;
-  height: 5px;
-}
-
-/* ::::: attachment view ::::: */
-
-#attachmentList {
-  margin: 0;
-  background-color: Field;
-  color: FieldText;
-}
-
-#attachmentName:hover,
-#attachmentName[selected="true"] {
-  cursor: pointer;
-  background: linear-gradient(#F9CE90, #F6A942); /* orange gradient */
-}
-
-#attachmentSize {
-  margin: 0;
-  margin-inline-start: 8px;
-  color: #888a85; /* the same color as .headerName */
-}
-
-#attachmentSaveAllSingle > .toolbarbutton-menubutton-button,
-#attachmentSaveAllMultiple > .toolbarbutton-menubutton-button {
-  /* Make sure that the icon is vertically centered */
-  padding-bottom: 0 !important;
-}
-
-#attachmentBar {
-  background-color: #fff;
-  color: -moz-dialogtext;
-  padding: 3px 0;
-}
-
-/* ::::: attachment list ::::: */
-
-.attachmentcell-name,
-.attachmentcell-size {
-  padding-top: 1px;
-}
-
-.attachmentList:focus .attachmentItem[selected="true"][current="true"] {
-  outline: 1px dotted #F3D982;
-}
-
-.attachmentList:focus .attachmentItem[current="true"] {
-  outline: 1px dotted;
-  outline-offset: -1px;
-}
-
-.attachmentItem[selected="true"] {
-  background-color: -moz-CellHighlight;
-  color: -moz-CellHighlightText;
-}
-
-.attachmentList:focus .attachmentItem[selected="true"] {
-  background-color: Highlight;
-  color: HighlightText;
-}
-
-.attachmentItem[selected="true"] .attachmentcell-size {
-  color: -moz-CellHighlightText;
-}
-
-.attachmentList:focus .attachmentItem[selected="true"] .attachmentcell-size {
-  color: HighlightText;
+  padding-inline-end: 3px;
 }
 
 /* ::::: msg header captions ::::: */
 
-#msgHeaderView {
-  font-size: 100%;
-  padding: 0;
-  margin: 0;
-}
-
-#dateLabel {
+.dateLabel {
   padding-inline-end: 3px;
-  user-select: text;
-  -moz-user-focus: normal;
-  cursor: text;
-}
-
-#msgHeaderViewDeck {
-  margin: 0;
-  padding: 0;
-}
-
-/* Override primaryToolbar.css rules to give a button appearance */
-
-.toolbarbutton-1.msgHeaderView-button {
-  max-height: 22px;
-  margin: 0;
-  margin-inline-start: 4px;
-}
-
-.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-icon,
-.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button >
-.toolbarbutton-icon {
-  margin: 0;
-}
-
-/* primaryToolbar.css makes the dropmarker padding wide; make it smaller. */
-.msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-dropmarker {
-  padding-inline: 2px;
-}
-
-/* Separator between menu and split type buttons */
-.toolbarbutton-1.msgHeaderView-button >
-.toolbarbutton-menubutton-dropmarker::before {
-  margin-inline: -4px 3px !important;
-  margin-bottom: 0 !important;
-}
-
-.hdrReplyToSenderButton,
-.hdrDummyReplyButton,
-.hdrReplyButton {
-  list-style-image: url("chrome://messenger/skin/icons/reply.svg");
-}
-
-.hdrReplyAllButton {
-  list-style-image: url("chrome://messenger/skin/icons/replyall.svg");
-}
-
-.hdrReplyListButton,
-.hdrFollowupButton {
-  list-style-image: url("chrome://messenger/skin/icons/replylist.svg");
-}
-
-.hdrForwardButton {
-  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
-}
-
-.hdrArchiveButton {
-  list-style-image: url("chrome://messenger/skin/icons/archive.svg");
-}
-
-.hdrJunkButton {
-  list-style-image: url("chrome://messenger/skin/icons/junk.svg");
-}
-
-.hdrTrashButton {
-  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
-}
-
-#attachmentSaveAllSingle,
-#attachmentSaveAllMultiple {
-  list-style-image: url("chrome://messenger/skin/icons/save.svg");
-}
-
-#otherActionsButton > .toolbarbutton-icon {
-  display: none;
-}
-
-#msgHeaderView textbox {
-  color: inherit;
 }
 
 .headerName {
-  color: #a1a1a1; /* lower contrast */
-  font-weight: bold;
-  text-align: right;
-  background-color: transparent;
-  padding: 0;
   margin-top: 0;
-  margin-inline-end: 3px;
 }
 
-.headerValue {
-  min-width: 50px;
-  white-space: normal;
-  line-height: 1.4em;
-  appearance: none !important;
-  padding: .1em 0 !important;
-  margin: 0 !important;
-  margin-bottom: 3px !important;
-
-
-  /* 1px plus 2px of border-radius matches the 3px at the beginning of
-    .emailDisplayButton, making email address header values and plain text
-    headers line up. Not sure why this math isn't needed in other themes*/
-  margin-inline-start: 1px !important;
-  border: none !important;
-  background-color: transparent;
-}
-
-.headerValueUrl:hover {
-  cursor: pointer;
-  text-decoration: underline;
-  color: -moz-activehyperlinktext !important;
-}
-
-.moreIndicator {
-  font-weight: bold;
-  font-size: small;
-}
-
-/* ::::: msg header message ids ::::: */
-
-.messageIdDisplayButton {
-  margin: 0;
-  padding-block: 0 !important;
-  padding-inline: 0 !important;
-  background-color: transparent !important;
-}
-
-.messageIdDisplayButton:hover {
-  cursor: pointer;
-  text-decoration: underline;
-  color: -moz-hyperlinktext;
-}
-
-/* ::::: msg header email addresses ::::: */
-
-.emailDisplayButton {
-  border-radius: 3px;
-}
-
-.emailDisplayButton:hover,
-mail-emailaddress[selected="true"] > .emailDisplayButton {
-  background-image: linear-gradient(#6bb0fa, #167bff);
-}
-
-@media (-moz-mac-graphite-theme) {
-  .emailDisplayButton:hover,
-  mail-emailaddress[selected="true"] .emailDisplayButton {
-    background-image: linear-gradient(#b1b1b6, #929297);
-  }
-}
-
-.emailDisplayButton:focus {
-  outline: 1px dotted;
-  outline-offset: -2px;
+.headerName,
+#attachmentSize {
+  color: #a1a1a1; /* lower contrast */
 }
 
 .emailToggleHeaderfield {
@@ -273,10 +39,6 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
 }
 
 /* ::::: collapsed view styles ::::: */
-
-#header-view-toolbox {
-  padding-top: 3px;
-}
 
 .message-security-label {
   /* Necessary to not cut the background icon */
