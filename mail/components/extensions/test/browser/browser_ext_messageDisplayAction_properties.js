@@ -10,10 +10,10 @@ add_task(async () => {
   let folder = rootFolder.getChildNamed("test");
   createMessages(folder, 1);
 
+  let msgLoaaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   window.gFolderTreeView.selectFolder(folder);
   window.gFolderDisplay.selectViewIndex(0);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
-
+  await msgLoaaded;
   window.MsgOpenSelectedMessages();
   window.MsgOpenNewWindowForMessage();
   await new Promise(resolve => executeSoon(resolve));
