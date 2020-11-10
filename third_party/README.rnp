@@ -30,6 +30,7 @@ travis.sh
 vcpkg.txt
 Brewfile
 CMakeLists.txt
+CMakeSettings.json
 
 
 The following files were added to the source's root by MZLA Technologies:
