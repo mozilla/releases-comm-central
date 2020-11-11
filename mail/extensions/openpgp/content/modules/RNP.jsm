@@ -2054,6 +2054,9 @@ var RNP = {
       if (!skip) {
         let key_revoked = new ctypes.bool();
         if (RNPLib.rnp_key_is_revoked(sub_handle, key_revoked.address())) {
+          throw new Error("rnp_key_is_revoked failed");
+        }
+        if (key_revoked.value) {
           skip = true;
         }
       }
