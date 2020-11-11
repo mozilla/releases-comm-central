@@ -958,6 +958,11 @@ var RNP = {
         result.statusFlags |= EnigmailConstants.EXPIRED_SIGNATURE;
         break;
       case RNPLib.RNP_ERROR_DECRYPT_FAILED:
+      case RNPLib.RNP_ERROR_BAD_FORMAT:
+      case RNPLib.RNP_ERROR_BAD_PARAMETERS:
+      case RNPLib.RNP_ERROR_NOT_IMPLEMENTED:
+      case RNPLib.RNP_ERROR_NOT_SUPPORTED:
+      case RNPLib.RNP_ERROR_UNKNOWN_TAG
         rnpCannotDecrypt = true;
         useDecodedData = false;
         processSignature = false;
@@ -965,6 +970,8 @@ var RNP = {
         result.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
         break;
       case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
+      case RNPLib.RNP_ERROR_BAD_PASSWORD:
+      case RNPLib.RNP_ERROR_KEY_NOT_FOUND:
         rnpCannotDecrypt = true;
         useDecodedData = false;
         processSignature = false;
