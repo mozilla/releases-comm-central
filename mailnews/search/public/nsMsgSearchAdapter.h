@@ -36,7 +36,7 @@ class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
   nsIMsgSearchScopeTerm* m_scope;
   nsCOMPtr<nsIArray> m_searchTerms; /* linked list of criteria terms */
 
-  nsString m_defaultCharset;
+  nsString m_defaultCharset = u"UTF-8"_ns;
 
   static nsresult EncodeImap(char** ppEncoding, nsIArray* searchTerms,
                              const char16_t* srcCharset,

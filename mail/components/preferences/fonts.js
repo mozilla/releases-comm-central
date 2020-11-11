@@ -25,7 +25,6 @@ Preferences.addAll([
   { id: "font.language.group", type: "wstring" },
   { id: "browser.display.use_document_fonts", type: "int" },
   { id: "mail.fixed_width_messages", type: "bool" },
-  { id: "mailnews.view_default_charset", type: "wstring" },
 ]);
 
 var gFontsDialog = {
@@ -193,31 +192,6 @@ var gFontsDialog = {
       "mailFixedWidthMessages"
     );
     return mailFixedWidthMessages.checked;
-  },
-
-  /**
-   * mailnews.view_default_charset is nsIPrefLocalizedString. Its default value
-   * is different depending on the user locale (see bug 48842).
-   */
-  ondialogaccept() {
-    var viewCharsetStr = Services.prefs.getComplexValue(
-      "mailnews.view_default_charset",
-      Ci.nsIPrefLocalizedString
-    ).data;
-
-    var defaultPrefs = Services.prefs.getDefaultBranch("mailnews.");
-
-    // Here we compare preference's stored value with default one and,
-    // if needed, show it as "default" on Config Editor instead of "user set".
-    if (
-      viewCharsetStr ===
-      defaultPrefs.getComplexValue(
-        "view_default_charset",
-        Ci.nsIPrefLocalizedString
-      ).data
-    ) {
-      Services.prefs.clearUserPref("mailnews.view_default_charset");
-    }
   },
 };
 

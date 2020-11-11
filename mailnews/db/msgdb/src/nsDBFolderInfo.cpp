@@ -42,9 +42,8 @@ static const char* kCharacterSetColumnName = "charSet";
 static const char* kCharacterSetOverrideColumnName = "charSetOverride";
 static const char* kLocaleColumnName = "locale";
 
-#define kMAILNEWS_VIEW_DEFAULT_CHARSET "mailnews.view_default_charset"
 #define kMAILNEWS_DEFAULT_CHARSET_OVERRIDE "mailnews.force_charset_override"
-static nsCString* gDefaultCharacterSet = nullptr;
+static nsCString* gDefaultCharacterSet = new nsCString("UTF-8");
 static bool gDefaultCharacterOverride;
 static RefPtr<nsIObserver> gFolderCharsetObserver;
 
@@ -78,25 +77,11 @@ NS_IMETHODIMP nsFolderCharsetObserver::Observe(nsISupports* aSubject,
   if (!strcmp(aTopic, NS_PREFBRANCH_PREFCHANGE_TOPIC_ID)) {
     nsDependentString prefName(someData);
 
-    if (prefName.EqualsLiteral(kMAILNEWS_VIEW_DEFAULT_CHARSET)) {
-      nsCOMPtr<nsIPrefLocalizedString> pls;
-      rv = prefBranch->GetComplexValue(kMAILNEWS_VIEW_DEFAULT_CHARSET,
-                                       NS_GET_IID(nsIPrefLocalizedString),
-                                       getter_AddRefs(pls));
-      if (NS_SUCCEEDED(rv)) {
-        nsString ucsval;
-        pls->ToString(getter_Copies(ucsval));
-        if (!ucsval.IsEmpty()) {
-          if (gDefaultCharacterSet)
-            CopyUTF16toUTF8(ucsval, *gDefaultCharacterSet);
-        }
-      }
-    } else if (prefName.EqualsLiteral(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE)) {
+    if (prefName.EqualsLiteral(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE)) {
       rv = prefBranch->GetBoolPref(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE,
                                    &gDefaultCharacterOverride);
     }
   } else if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID)) {
-    rv = prefBranch->RemoveObserver(kMAILNEWS_VIEW_DEFAULT_CHARSET, this);
     rv = prefBranch->RemoveObserver(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE, this);
     gFolderCharsetObserver = nullptr;
     delete gDefaultCharacterSet;
@@ -153,20 +138,6 @@ nsDBFolderInfo::nsDBFolderInfo(nsMsgDatabase* mdb)
       rv = prefs->GetBranch(nullptr, getter_AddRefs(prefBranch));
     }
     if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIPrefLocalizedString> pls;
-      rv = prefBranch->GetComplexValue(kMAILNEWS_VIEW_DEFAULT_CHARSET,
-                                       NS_GET_IID(nsIPrefLocalizedString),
-                                       getter_AddRefs(pls));
-      if (NS_SUCCEEDED(rv)) {
-        nsString ucsval;
-        pls->ToString(getter_Copies(ucsval));
-        if (!ucsval.IsEmpty()) {
-          if (!gDefaultCharacterSet) gDefaultCharacterSet = new nsCString;
-
-          if (gDefaultCharacterSet)
-            CopyUTF16toUTF8(ucsval, *gDefaultCharacterSet);
-        }
-      }
       rv = prefBranch->GetBoolPref(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE,
                                    &gDefaultCharacterOverride);
 
@@ -175,8 +146,6 @@ nsDBFolderInfo::nsDBFolderInfo(nsMsgDatabase* mdb)
 
       // register prefs callbacks
       if (gFolderCharsetObserver) {
-        rv = prefBranch->AddObserver(kMAILNEWS_VIEW_DEFAULT_CHARSET,
-                                     gFolderCharsetObserver, false);
         rv = prefBranch->AddObserver(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE,
                                      gFolderCharsetObserver, false);
 

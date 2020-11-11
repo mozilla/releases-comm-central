@@ -41,7 +41,6 @@
 #define NEW_NEWS_DIR_NAME "News"
 #define PREF_MAIL_NEWSRC_ROOT "mail.newsrc_root"
 #define PREF_MAIL_NEWSRC_ROOT_REL "mail.newsrc_root-rel"
-#define PREF_MAILNEWS_VIEW_DEFAULT_CHARSET "mailnews.view_default_charset"
 #define HOSTINFO_FILE_NAME "hostinfo.dat"
 
 #define NEWS_DELIMITER '.'
@@ -265,15 +264,10 @@ nsNntpIncomingServer::GetCharset(nsACString& aCharset) {
   nsresult rv = GetCharValue("charset", aCharset);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // if the per-server setting is empty,we get the default charset from
-  // mailnews.view_default_charset setting and set it as per-server preference.
+  // if the per-server setting is empty, default to UTF-8 and set it as
+  // per-server preference.
   if (aCharset.IsEmpty()) {
-    nsString defaultCharset;
-    rv = NS_GetLocalizedUnicharPreferenceWithDefault(
-        nullptr, PREF_MAILNEWS_VIEW_DEFAULT_CHARSET, u"ISO-8859-1"_ns,
-        defaultCharset);
-    NS_ENSURE_SUCCESS(rv, rv);
-    LossyCopyUTF16toASCII(defaultCharset, aCharset);
+    aCharset.AssignLiteral("UTF-8");
     SetCharset(aCharset);
   }
   return NS_OK;

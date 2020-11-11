@@ -328,7 +328,6 @@ pref("mailnews.offline_sync_send_unsent", true);
 pref("mailnews.offline_sync_work_offline", false);
 pref("mailnews.force_ascii_search", false);
 
-pref("mailnews.view_default_charset", "chrome://messenger/locale/messenger.properties");
 // ignore specified MIME encoding and use the default encoding for display
 pref("mailnews.force_charset_override", false);
 

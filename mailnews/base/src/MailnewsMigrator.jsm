@@ -29,7 +29,6 @@ XPCOMUtils.defineLazyServiceGetter(
 var kServerPrefVersion = 1;
 var kSmtpPrefVersion = 1;
 var kABRemoteContentPrefVersion = 1;
-var kDefaultCharsetsPrefVersion = 1;
 
 function migrateMailnews() {
   try {
@@ -46,12 +45,6 @@ function migrateMailnews() {
 
   try {
     MigrateABRemoteContentSettings();
-  } catch (e) {
-    console.error(e);
-  }
-
-  try {
-    MigrateDefaultCharsets();
   } catch (e) {
     console.error(e);
   }
@@ -316,35 +309,5 @@ function MigrateABRemoteContentSettings() {
   Services.prefs.setIntPref(
     "mail.ab_remote_content.migrated",
     kABRemoteContentPrefVersion
-  );
-}
-
-/**
- * If the default sending or viewing charset is one that is no longer available,
- * change it back to the default.
- */
-function MigrateDefaultCharsets() {
-  if (Services.prefs.prefHasUserValue("mail.default_charsets.migrated")) {
-    return;
-  }
-
-  let charsetConvertManager = Cc[
-    "@mozilla.org/charset-converter-manager;1"
-  ].getService(Ci.nsICharsetConverterManager);
-
-  let viewCharsetStr = Services.prefs.getComplexValue(
-    "mailnews.view_default_charset",
-    Ci.nsIPrefLocalizedString
-  ).data;
-
-  try {
-    charsetConvertManager.getCharsetTitle(viewCharsetStr);
-  } catch (e) {
-    Services.prefs.clearUserPref("mailnews.view_default_charset");
-  }
-
-  Services.prefs.setIntPref(
-    "mail.default_charsets.migrated",
-    kDefaultCharsetsPrefVersion
   );
 }
