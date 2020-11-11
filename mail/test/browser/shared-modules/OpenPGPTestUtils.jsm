@@ -19,6 +19,8 @@ const { uidHelper } = ChromeUtils.import(
   "chrome://openpgp/content/modules/uidHelper.jsm"
 );
 
+EnigmailKeyRing.init(); // When used through UI, inited by BondOpenPGP.init().
+
 const OpenPGPTestUtils = {
   ACCEPTANCE_PERSONAL: "personal",
   ACCEPTANCE_REJECTED: "rejected",
