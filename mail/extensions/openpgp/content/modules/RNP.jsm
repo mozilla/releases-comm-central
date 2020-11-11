@@ -962,7 +962,7 @@ var RNP = {
       case RNPLib.RNP_ERROR_BAD_PARAMETERS:
       case RNPLib.RNP_ERROR_NOT_IMPLEMENTED:
       case RNPLib.RNP_ERROR_NOT_SUPPORTED:
-      case RNPLib.RNP_ERROR_UNKNOWN_TAG
+      case RNPLib.RNP_ERROR_UNKNOWN_TAG:
         rnpCannotDecrypt = true;
         useDecodedData = false;
         processSignature = false;
