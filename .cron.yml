@@ -16,6 +16,7 @@ jobs:
           type: decision-task
           treeherder-symbol: Nd
           target-tasks-method: nightly_desktop
+          include-push-tasks: true
       run-on-projects:
           - comm-central
       when: [{hour: 11, minute: 0}]
