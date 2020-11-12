@@ -572,8 +572,10 @@ key-man-button-generate-key-abort = &Abort Key Generation
 key-man-button-generate-key-continue = &Continue Key Generation
 
 # Strings used in enigmailMessengerOverlay.js
+
 failed-decrypt = Error - decryption failed
-fix-broken-exchange-msg-failed = Did not succeed to repair message.
+fix-broken-exchange-msg-failed = Unable to repair this message.
+
 attachment-no-match-from-signature = Could not match signature file '{ $attachment }' to an attachment
 attachment-no-match-to-signature = Could not match attachment '{ $attachment }' to a signature file
 signature-verified-ok = The signature for attachment { $attachment } was successfully verified

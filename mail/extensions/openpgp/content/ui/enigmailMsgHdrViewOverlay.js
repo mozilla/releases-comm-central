@@ -1135,6 +1135,21 @@ Enigmail.hdrView = {
       }
 
       if (uriSpec && uriSpec.search(/^enigmail:message\//) === 0) {
+        let msg = gFolderDisplay.selectedMessage;
+
+        // Interrupt and warn the user that we can't fix a message that was
+        // opened from a local file.
+        if (!msg.folder) {
+          Enigmail.msg.notificationBox.appendNotification(
+            await document.l10n.formatValue("openpgp-broken-exchange-opened"),
+            "brokenExchange",
+            null,
+            Enigmail.msg.notificationBox.PRIORITY_WARNING_MEDIUM,
+            null
+          );
+          return;
+        }
+
         let buttons = [
           {
             "l10n-id": "openpgp-broken-exchange-repair",

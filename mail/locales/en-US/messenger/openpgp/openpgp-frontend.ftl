@@ -35,6 +35,7 @@ openpgp-search-signature-key =
     .label = Discover…
 
 # Don't translate the terms "OpenPGP" and "MS-Exchange"
+openpgp-broken-exchange-opened = This is an OpenPGP message that was apparently corrupted by MS-Exchange and it can't be repaired because it was opened from a local file. Copy the message into a mail folder to try an automatic repair.
 openpgp-broken-exchange-info = This is an OpenPGP message that was apparently corrupted by MS-Exchange. If the message contents isn't shown as expected, you can try an automatic repair.
 openpgp-broken-exchange-repair =
     .label = Repair message
