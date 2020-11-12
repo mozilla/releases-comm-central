@@ -85,7 +85,7 @@ description {
 
 .key-import-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr max-content;
   align-items: end;
   border-radius: 4px;
   padding: 3px 6px;

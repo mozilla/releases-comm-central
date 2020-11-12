@@ -312,14 +312,23 @@ function enigmailSelectAllKeys() {
   gUserList.view.selection.selectAll();
 }
 
-function enigmailKeyDetails() {
-  var keyList = getSelectedKeys();
-  if (keyList.length > 0) {
-    if (
-      EnigmailWindows.openKeyDetails(window, gKeyList[keyList[0]].keyId, false)
-    ) {
-      refreshKeys();
+/**
+ * Open the Key Properties subdialog.
+ *
+ * @param {string|null} keyId - Optional ID of the selected OpenPGP Key.
+ */
+function enigmailKeyDetails(keyId = null) {
+  if (!keyId) {
+    let keyList = getSelectedKeys();
+    // Interrupt if we don't have a selected key nor a key was passed.
+    if (!keyList.length) {
+      return;
     }
+    keyId = gKeyList[keyList[0]].keyId;
+  }
+
+  if (EnigmailWindows.openKeyDetails(window, keyId, false)) {
+    refreshKeys();
   }
 }
 
