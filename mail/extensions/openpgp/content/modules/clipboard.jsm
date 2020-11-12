@@ -24,7 +24,7 @@ function Transferable(source) {
   if ("init" in res) {
     // When passed a Window object, find a suitable privacy context for it.
     if (source instanceof Ci.nsIDOMWindow) {
-      source = source
+      source = source.docShell
         .QueryInterface(Ci.nsIInterfaceRequestor)
         .getInterface(Ci.nsIWebNavigation);
     }
@@ -64,7 +64,9 @@ var EnigmailClipboard = {
         let flavour = {};
         transferable.getAnyTransferData(flavour, data);
         cBoardContent = data.value.QueryInterface(Ci.nsISupportsString).data;
-      } catch (ex) {}
+      } catch (ex) {
+        console.debug(ex);
+      }
     }
     return cBoardContent;
   },
