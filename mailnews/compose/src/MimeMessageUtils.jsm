@@ -203,6 +203,7 @@ var MsgUtils = {
           Ci.nsIMsgCompType.ReplyToGroup,
           Ci.nsIMsgCompType.ReplyToSender,
           Ci.nsIMsgCompType.ReplyToSenderAndGroup,
+          Ci.nsIMsgCompType.ReplyToList,
           Ci.nsIMsgCompType.ReplyWithTemplate,
         ].includes(compType)
       ) {
@@ -221,10 +222,11 @@ var MsgUtils = {
           let folder = msgHdr.folder;
           if (
             folder.canFileMessages &&
-            folder.incomingServer &&
-            folder.incomingServer.getCharValue("type") != "rss"
+            folder.server &&
+            folder.server.getCharValue("type") != "rss" &&
+            userIdentity.fccReplyFollowsParent
           ) {
-            fcc = folder.uri;
+            fcc = folder.URI;
             useDefaultFcc = false;
           }
         }

@@ -132,7 +132,7 @@ var copyListener = {
 var progressListener = {
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-      this.resolve(mailTestUtils.firstMsgHdr(gDraftFolder));
+      this.resolve(gDraftFolder && mailTestUtils.firstMsgHdr(gDraftFolder));
     }
   },
 

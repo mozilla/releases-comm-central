@@ -1,0 +1,137 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * Test that when nsIMsgIdentity.fccReplyFollowsParent is true, the reply mail
+ * is copied to the same folder as the original mail.
+ */
+
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
+
+var gServer;
+
+/**
+ * Send a reply to originalMsgURI.
+ */
+async function sendReply(identity, fields, originalMsgURI, compType) {
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = fields;
+  params.originalMsgURI = originalMsgURI;
+  let msgCompose = MailServices.compose.initCompose(params);
+  msgCompose.type = compType;
+  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+    Ci.nsIMsgProgress
+  );
+  let promise = new Promise((resolve, reject) => {
+    progressListener.resolve = resolve;
+    progressListener.reject = reject;
+  });
+  progress.registerListener(progressListener);
+  msgCompose.sendMsg(
+    Ci.nsIMsgSend.nsMsgDeliverNow,
+    identity,
+    "",
+    null,
+    progress
+  );
+  return promise;
+}
+
+/**
+ * Load local mail account and start fake SMTP server.
+ */
+add_task(async function setup() {
+  localAccountUtils.loadLocalMailAccount();
+  gServer = setupServerDaemon();
+  gServer.start();
+  registerCleanupFunction(() => {
+    gServer.stop();
+  });
+});
+
+/**
+ * With fccReplyFollowsParent enabled, send a few replies then check the replies
+ * exists in the Inbox folder.
+ */
+add_task(async function testFccReply() {
+  // Turn on fccReplyFollowsParent.
+  let identity = getSmtpIdentity(
+    "from@tinderbox.invalid",
+    getBasicSmtpServer(gServer.port)
+  );
+  identity.fccReplyFollowsParent = true;
+
+  // Copy a test mail into the Inbox.
+  let file = do_get_file("data/message1.eml"); // mail to reply to
+  let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.CopyFileMessage(
+    file,
+    localAccountUtils.inboxFolder,
+    null,
+    false,
+    0,
+    "",
+    promiseCopyListener,
+    null
+  );
+  await promiseCopyListener.promise;
+
+  let CompFields = CC(
+    "@mozilla.org/messengercompose/composefields;1",
+    Ci.nsIMsgCompFields
+  );
+  let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
+  let originalMsgURI = msgHdr.folder.getUriForMsg(msgHdr);
+
+  // Test nsIMsgCompFields.Reply.
+  let fields = new CompFields();
+  fields.to = "Nobody <nobody@tinderbox.invalid>";
+  fields.subject = "Test fcc reply";
+  await sendReply(identity, fields, originalMsgURI, Ci.nsIMsgCompType.Reply);
+  gServer.performTest();
+  let msgData = mailTestUtils.loadMessageToString(
+    localAccountUtils.inboxFolder,
+    mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, 1)
+  );
+  Assert.ok(msgData.includes("Subject: Test fcc reply"));
+
+  // Test nsIMsgCompFields.ReplyToGroup.
+  gServer.resetTest();
+  fields.subject = "Test fccReplyToGroup";
+  await sendReply(
+    identity,
+    fields,
+    originalMsgURI,
+    Ci.nsIMsgCompType.ReplyToGroup
+  );
+  gServer.performTest();
+  msgData = mailTestUtils.loadMessageToString(
+    localAccountUtils.inboxFolder,
+    mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, 2)
+  );
+  Assert.ok(msgData.includes("Subject: Test fccReplyToGroup"));
+
+  // Test nsIMsgCompFields.ReplyToList.
+  gServer.resetTest();
+  fields.subject = "Test fccReplyToList";
+  await sendReply(
+    identity,
+    fields,
+    originalMsgURI,
+    Ci.nsIMsgCompType.ReplyToList
+  );
+  gServer.performTest();
+  msgData = mailTestUtils.loadMessageToString(
+    localAccountUtils.inboxFolder,
+    mailTestUtils.getMsgHdrN(localAccountUtils.inboxFolder, 3)
+  );
+  Assert.ok(msgData.includes("Subject: Test fccReplyToList"));
+});

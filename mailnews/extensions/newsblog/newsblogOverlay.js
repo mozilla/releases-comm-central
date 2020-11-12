@@ -369,7 +369,8 @@ function openComposeWindowForRSSArticle(
       type == msgComposeType.ReplyAll ||
       type == msgComposeType.ReplyToSender ||
       type == msgComposeType.ReplyToGroup ||
-      type == msgComposeType.ReplyToSenderAndGroup
+      type == msgComposeType.ReplyToSenderAndGroup ||
+      type == msgComposeType.ReplyToList
     ) {
       subject = "Re: " + subject;
     } else if (

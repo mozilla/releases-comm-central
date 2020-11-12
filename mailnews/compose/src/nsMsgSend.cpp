@@ -2197,6 +2197,7 @@ nsresult nsMsgComposeAndSend::InitCompositionFields(
            aType == nsIMsgCompType::ReplyToGroup ||
            aType == nsIMsgCompType::ReplyToSender ||
            aType == nsIMsgCompType::ReplyToSenderAndGroup ||
+           aType == nsIMsgCompType::ReplyToList ||
            aType == nsIMsgCompType::ReplyWithTemplate)) {
         nsCOMPtr<nsIMsgAccountManager> accountManager =
             do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
