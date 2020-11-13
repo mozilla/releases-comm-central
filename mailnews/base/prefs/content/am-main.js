@@ -7,22 +7,39 @@
 
 var gAccount;
 
-function onInit(aPageId, aServerId) {
-  var accountName = document.getElementById("server.prettyName");
-  var title = document.querySelector("#am-main-title .dialogheader-title");
-  var defaultTitle = title.getAttribute("defaultTitle");
-  var titleValue;
+/**
+ * Initialize am-main account settings page when it gets shown.
+ * Update an account's main settings title and set up signature items.
+ */
+function onInit() {
+  setAccountTitle();
+  setupSignatureItems();
+}
 
+/**
+ * Handle the blur event of the #server.prettyName pref input.
+ * Update account name in account manager tree and account settings' main title.
+ *
+ * @param {Event} event - Blur event from the pretty name input.
+ */
+function serverPrettyNameOnBlur(event) {
+  parent.setAccountLabel(gAccount.key, null, event.target.value);
+  setAccountTitle();
+}
+
+/**
+ * Update an account's main settings title with the account name if applicable.
+ */
+function setAccountTitle() {
+  let accountName = document.getElementById("server.prettyName");
+  let title = document.querySelector("#am-main-title .dialogheader-title");
+  let titleValue = title.getAttribute("defaultTitle");
   if (accountName.value) {
-    titleValue = defaultTitle + " - " + accountName.value;
-  } else {
-    titleValue = defaultTitle;
+    titleValue += " - " + accountName.value;
   }
 
   title.setAttribute("value", titleValue);
   document.title = titleValue;
-
-  setupSignatureItems();
 }
 
 function onPreInit(account, accountValues) {
