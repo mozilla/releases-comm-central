@@ -48,11 +48,9 @@ var email_recipient_cert_usage = 5; // SECCertUsage.certUsageEmailRecipient
 
 var gIdentity;
 var gEncryptionCertName = null;
-var gHiddenEncryptionPolicy = null;
 var gEncryptionChoices = null;
 var gSignCertName = null;
 var gTechChoices = null;
-var gHiddenTechPref = null;
 var gSignMessages = null;
 var gRequireEncrypt = null;
 var gDoNotEncrypt = null;
@@ -79,10 +77,6 @@ function onInit() {
 function e2eInitializeFields() {
   // initialize all of our elements based on the current identity values....
   gEncryptionCertName = document.getElementById(kEncryptionCertPref);
-  gHiddenEncryptionPolicy = document.getElementById(
-    "identity_encryptionpolicy"
-  );
-  gHiddenTechPref = document.getElementById("identity_e2etechpref");
   gEncryptionChoices = document.getElementById("encryptionChoices");
   gSignCertName = document.getElementById(kSigningCertPref);
   gSignMessages = document.getElementById("identity_sign_mail");
@@ -271,12 +265,10 @@ function e2eSave() {
   // find out which radio for the encryption radio group is selected and set
   // that on our hidden encryptionChoice pref.
   var newValue = gEncryptionChoices.value;
-  gHiddenEncryptionPolicy.setAttribute("value", newValue);
   gIdentity.setIntAttribute("encryptionpolicy", newValue);
 
   if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
     newValue = gTechChoices.value;
-    gHiddenTechPref.setAttribute("value", newValue);
     gIdentity.setIntAttribute("e2etechpref", newValue);
   }
 
@@ -544,7 +536,6 @@ function updateTechPref() {
 
   if (!enable) {
     gIdentity.setIntAttribute("e2etechpref", 0);
-    gHiddenTechPref.setAttribute("value", 0);
     gTechChoices.value = 0;
   }
 }
