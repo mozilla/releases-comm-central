@@ -244,6 +244,14 @@ function enigmailKeyMenu() {
     }
   }
 
+  // Make the selected key count available to translations.
+  for (let el of document.querySelectorAll(".enigmail-bulk-key-operation")) {
+    el.setAttribute(
+      "data-l10n-args",
+      JSON.stringify({ count: keyList.length })
+    );
+  }
+
   if (haveSecretForAll) {
     document.getElementById("bcBackupSecret").removeAttribute("disabled");
   } else {
@@ -282,6 +290,9 @@ function enigmailKeyMenu() {
   document
     .getElementById("genKey")
     .setAttribute("disabled", MailServices.accounts.defaultAccount == null);
+
+  // Disable the context menu if no keys are selected.
+  return keyList.length > 0;
 }
 
 function onListClick(event) {
@@ -335,11 +346,6 @@ function enigmailKeyDetails(keyId = null) {
 function enigmailDeleteKey() {
   var keyList = getSelectedKeys();
   var deleteSecret = false;
-
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc) {
-    return;
-  }
 
   if (keyList.length == 1) {
     // one key selected
@@ -403,19 +409,7 @@ function enigmailDeleteKey() {
 }
 
 function enigCreateKeyMsg() {
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc) {
-    return;
-  }
-
   var keyList = getSelectedKeyIds();
-  if (keyList.length === 0) {
-    document.l10n.formatValue("no-key-selected").then(value => {
-      EnigAlert(value);
-    });
-    return;
-  }
-
   var tmpDir = EnigGetTempDir();
   var tmpFile;
   try {
@@ -570,15 +564,8 @@ function dlgOpenCallback(dlgUri, args) {
 async function enigmailExportKeys(which) {
   let exportSecretKey = which == "secret";
   var keyList = getSelectedKeys();
-  if (keyList.length === 0) {
-    EnigmailDialog.info(
-      window,
-      await document.l10n.formatValue("no-key-selected")
-    );
-    return;
-  }
-
   var defaultFileName;
+
   if (keyList.length == 1) {
     let extension = exportSecretKey ? "secret.asc" : "public.asc";
     defaultFileName = gKeyList[keyList[0]].userId.replace(/[<>]/g, "");
@@ -658,11 +645,6 @@ function enigGetClipboard() {
 }
 
 function enigmailImportFromClipbrd() {
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc) {
-    return;
-  }
-
   if (
     !EnigConfirm(
       l10n.formatValueSync("import-from-clip"),
@@ -729,12 +711,25 @@ function enigmailImportFromClipbrd() {
   }
 }
 
-function enigmailCopyToClipbrd() {
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc) {
-    return;
-  }
+/**
+ * Places the fingerprint of each selected key onto the keyboard.
+ */
+function copyOpenPGPFingerPrints() {
+  let fprs = getSelectedKeys()
+    .map(idx => gKeyList[idx].fpr)
+    .join("\n");
+  EnigmailClipboard.setClipboardContent(fprs);
+}
 
+/**
+ * Places the key id of each key selected onto the clipboard.
+ */
+function copyOpenPGPKeyIds() {
+  let ids = getSelectedKeyIds();
+  EnigmailClipboard.setClipboardContent(ids.map(id => `0x${id}`).join("\n"));
+}
+
+function enigmailCopyToClipbrd() {
   var keyList = getSelectedKeyIds();
   if (keyList.length === 0) {
     document.l10n.formatValue("no-key-selected").then(value => {
@@ -1160,11 +1155,6 @@ function determineHiddenKeys(keyObj, showInvalidKeys, showOthersKeys) {
 // ----- keyserver related functionality ----
 //
 function accessKeyServer(accessType, callbackFunc) {
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc) {
-    return;
-  }
-
   const ioService = Services.io;
   if (ioService && ioService.offline) {
     document.l10n.formatValue("need-online").then(value => {
@@ -1474,7 +1464,7 @@ var gKeyListView = {
           case "enigUserNameCol":
             return keyObj.userId;
           case "keyCol":
-            return keyObj.keyId;
+            return `0x${keyObj.keyId}`;
           case "expCol":
             return keyObj.effectiveExpiry;
           case "fprCol":

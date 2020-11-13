@@ -117,13 +117,54 @@ openpgp-key-send-key =
     .label = Send Public Key Via Email
     .accesskey = S
 
-openpgp-key-man-copy-to-clipbrd =
-    .label = Copy Public Key(s) To Clipboard
-    .accesskey = C
+openpgp-key-man-copy-key-ids =
+    .label = { $count ->
+               [one] Copy Key ID To Clipboard
+               *[other] Copy Key IDs To Clipboard
+             }
+    .accesskey = K
+
+openpgp-key-man-copy-fprs =
+    .label = { $count ->
+               [one] Copy Fingerprint To Clipboard
+               *[other] Copy Fingerprints To Clipboard
+             }
+    .accesskey = F
+
+openpgp-key-man-copy-to-clipboard =
+    .label = { $count ->
+               [one] Copy Public Key To Clipboard
+               *[other] Copy Public Keys To Clipboard
+             }
+    .accesskey = P
+
 openpgp-key-man-ctx-expor-to-file-label =
     .label = Export Keys To File
-openpgp-key-man-ctx-copy-to-clipbrd-label =
-    .label = Copy Public Keys To Clipboard
+
+openpgp-key-man-ctx-copy =
+    .label = Copy
+    .accesskey = C
+
+openpgp-key-man-ctx-copy-fprs =
+    .label = { $count ->
+               [one] Fingerprint
+               *[other] Fingerprints
+             }
+    .accesskey = F
+
+openpgp-key-man-ctx-copy-key-ids =
+    .label = { $count ->
+               [one] Key ID
+               *[other] Key IDs
+             }
+    .accesskey = K
+
+openpgp-key-man-ctx-copy-public-keys =
+    .label = { $count ->
+               [one] Public Key
+               *[other] Public Keys
+             }
+    .accesskey = P
 
 openpgp-key-man-close =
     .label = Close

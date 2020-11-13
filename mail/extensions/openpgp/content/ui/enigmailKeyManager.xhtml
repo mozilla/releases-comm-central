@@ -110,8 +110,22 @@
           <menuitem id="importFromUrl"
                     data-l10n-id="openpgp-key-man-import-from-url"
                     oncommand="enigmailImportKeysFromUrl();"/>
+          <menuitem id="copyFprs"
+                    data-l10n-id="openpgp-key-man-copy-fprs"
+                    data-l10n-args='{"count": 0}'
+                    class="enigmail-bulk-key-operation"
+                    observes="bcNoKey"
+                    oncommand="copyOpenPGPFingerPrints()"/>
+          <menuitem id="copyKeyIds"
+                    data-l10n-id="openpgp-key-man-copy-key-ids"
+                    data-l10n-args='{"count": 0}'
+                    class="enigmail-bulk-key-operation"
+                    observes="bcNoKey"
+                    oncommand="copyOpenPGPKeyIds()"/>
           <menuitem id="copyToClipbrd"
-                    data-l10n-id="openpgp-key-man-copy-to-clipbrd"
+                    data-l10n-id="openpgp-key-man-copy-to-clipboard"
+                    data-l10n-args='{"count": 0}'
+                    class="enigmail-bulk-key-operation"
                     observes="bcNoKey"
                     oncommand="enigmailCopyToClipbrd();"/>
           <menuseparator/>
@@ -196,10 +210,27 @@
 
   <popupset>
     <menupopup id="ctxmenu"
-               onpopupshowing="enigmailKeyMenu();">
-      <menuitem data-l10n-id="openpgp-key-man-ctx-copy-to-clipbrd-label"
-                id="ctxCopyToClipbrd"
-                oncommand="enigmailCopyToClipbrd()"/>
+               onpopupshowing="return enigmailKeyMenu();">
+      <menu id="ctxmenu-copy"
+            data-l10n-id="openpgp-key-man-ctx-copy">
+        <menupopup id="ctxmenu-copy-popup">
+          <menuitem id="ctxCopyFprs"
+                    data-l10n-id="openpgp-key-man-ctx-copy-fprs"
+                    data-l10n-args='{"count": 0}'
+                    class="enigmail-bulk-key-operation"
+                    oncommand="copyOpenPGPFingerPrints()"/>
+          <menuitem id="ctxCopyKeyIds"
+                    data-l10n-id="openpgp-key-man-ctx-copy-key-ids"
+                    data-l10n-args='{"count": 0}'
+                    class="enigmail-bulk-key-operation"
+                    oncommand="copyOpenPGPKeyIds()"/>
+          <menuitem id="ctxCopyPublicKeys"
+                    data-l10n-id="openpgp-key-man-ctx-copy-public-keys"
+                    data-l10n-args='{"count": 0}'
+                    class="enigmail-bulk-key-operation"
+                    oncommand="enigmailCopyToClipbrd()"/>
+        </menupopup>
+      </menu>
       <menuitem data-l10n-id="openpgp-key-man-ctx-expor-to-file-label"
                 id="ctxExport"
                 oncommand="enigmailExportKeys('public')"/>
