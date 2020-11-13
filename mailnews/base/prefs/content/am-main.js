@@ -14,7 +14,7 @@ function onInit(aPageId, aServerId) {
   var titleValue;
 
   if (accountName.value) {
-    titleValue = defaultTitle + " - <" + accountName.value + ">";
+    titleValue = defaultTitle + " - " + accountName.value;
   } else {
     titleValue = defaultTitle;
   }
