@@ -141,9 +141,21 @@ add_task(async function generate_new_key() {
     "Timeout waiting for the #wizardOverlay to appear"
   );
 
+  // Store the wait event here before the SubDialog is destroyed and we can't
+  // access it anymore.
+  let frameWinUnload = BrowserTestUtils.waitForEvent(
+    gTab.browser.contentWindow.gSubDialog._topDialog._frame.contentWindow,
+    "unload",
+    true
+  );
+
   // Confirm the generation of the new key.
   let confirmButton = doc.getElementById("openPgpKeygenConfirmButton");
   EventUtils.synthesizeMouseAtCenter(confirmButton, {}, dialog.ownerGlobal);
+
+  // Wait for the subdialog to close.
+  info("Waiting for subdialog unload");
+  await frameWinUnload;
 
   // The key wizard should automatically assign the newly generated key to the
   // selected identity and close the dialog. Let's wait for that change.
