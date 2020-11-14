@@ -111,6 +111,12 @@ pref("app.feedback.baseURL", "https://input.mozilla.org/%LOCALE%/feedback/%APP%/
 // Show error messages in error console.
 pref("javascript.options.showInConsole", true);
 
+#ifdef NIGHTLY_BUILD
+pref("signon.management.page.os-auth.enabled", true);
+#else
+pref("signon.management.page.os-auth.enabled", false);
+#endif
+
 // Controls enabling of the extension system logging (can reduce performance)
 pref("extensions.logging.enabled", false);
 pref("extensions.overlayloader.loglevel", "warn");

@@ -780,7 +780,10 @@ async function masterPasswordLogin(noPasswordCallback) {
   if (token.checkPassword("")) {
     // The OS re-authentication on Linux isn't working (Bug 1527745),
     // still add the confirm dialog for Linux.
-    if (AppConstants.platform !== "linux") {
+    if (
+      Services.prefs.getBoolPref("signon.management.page.os-auth.enabled") &&
+      AppConstants.platform !== "linux"
+    ) {
       // Require OS authentication before the user can show the passwords or copy them.
       let messageId = "password-os-auth-dialog-message";
       if (AppConstants.platform == "macosx") {

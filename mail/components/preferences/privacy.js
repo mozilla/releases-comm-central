@@ -368,6 +368,7 @@ var gPrivacyPane = {
     // OS reauthenticate functionality is not available on Linux yet (bug 1527745)
     if (
       !LoginHelper.isMasterPasswordSet() &&
+      Services.prefs.getBoolPref("signon.management.page.os-auth.enabled") &&
       AppConstants.platform != "linux"
     ) {
       let messageId =
