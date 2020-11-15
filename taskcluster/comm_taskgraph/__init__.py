@@ -10,6 +10,8 @@ from importlib import import_module
 
 from taskgraph import GECKO
 from taskgraph.util.partials import populate_release_history
+from taskgraph.optimize.schema import set_optimization_schema
+from comm_taskgraph.optimize import thunderbird_optimizations
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +27,7 @@ def register(graph_config):
     the process.
     """
     logger.info("{} path registered".format(__name__))
+    set_optimization_schema(thunderbird_optimizations)
     _import_modules(
         [
             "documentation",

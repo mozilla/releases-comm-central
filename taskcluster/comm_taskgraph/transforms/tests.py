@@ -57,20 +57,3 @@ def tests_drop_1proc(config, jobs):
             job["treeherder"]["symbol"] = test["treeherder-symbol"]
 
         yield job
-
-
-@transforms.add
-def always_nightly(config, jobs):
-    """
-    Ideally, we could set "always_target" to true, but that doesn't work for
-    test jobs. Instead, undo the optimization but only if the associated build
-    job is tagged with "nightly".
-    """
-    for job in jobs:
-        if config.params["target_tasks_method"] == "nightly_desktop":
-            attributes = job["attributes"]
-            if attributes.get("nightly", None):
-                if "when" in job:
-                    del job["when"]
-
-        yield job

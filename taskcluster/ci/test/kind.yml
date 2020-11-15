@@ -23,25 +23,8 @@ jobs-from:
 
 # These apply to all included test yml files listed in jobs-from
 job-defaults:
-    when:
-        files-changed:
-            # Include everything in comm-central except suite/
-            # https://bugzilla.mozilla.org/show_bug.cgi?id=1422060
-            - comm/build
-            - comm/calendar
-            - comm/chat
-            - comm/common
-            - comm/db
-            - comm/editor
-            - comm/ldap
-            - comm/mail
-            - comm/mailnews
-            - comm/other-licenses
-            - comm/taskcluster
-            - comm/testing
-            - comm/.gecko_rev.yml
-            - comm/.taskcluster.yml
-            - comm/moz.build
+    optimization:
+        skip-suite-only: null
     fetches:
         toolchain:
             by-test-platform:
