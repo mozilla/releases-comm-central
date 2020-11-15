@@ -31,10 +31,7 @@ def is_excluded(check_path, file_patterns):
 
 
 def is_suite(check_path):
-    suite_patterns = (
-        'editor',
-        'suite'
-    )
+    suite_patterns = ("editor", "suite")
     return is_excluded(check_path, suite_patterns)
 
 
@@ -49,15 +46,15 @@ def get_non_suite_changed_files(repository, revision):
     }
 
 
-@register_strategy('skip-suite-only')
+@register_strategy("skip-suite-only")
 class SkipSuiteOnly(OptimizationStrategy):
     def should_remove_task(self, task, params, arg):
         # pushlog_id == -1 - this is the case when run from a cron.yml job
-        if params.get('pushlog_id') == -1:
+        if params.get("pushlog_id") == -1:
             return False
 
-        repository = params.get('comm_head_repository')
-        revision = params.get('comm_head_rev')
+        repository = params.get("comm_head_repository")
+        revision = params.get("comm_head_rev")
         non_suite_changed_files = get_non_suite_changed_files(repository, revision)
         # non_suite_changed_files will be an empty set (Falsy) for suite-only pushes
         # so "skip" this task
@@ -66,6 +63,4 @@ class SkipSuiteOnly(OptimizationStrategy):
         return False
 
 
-thunderbird_optimizations = default_optimizations + (
-    {'skip-suite-only': None},
-)
+thunderbird_optimizations = default_optimizations + ({"skip-suite-only": None},)
