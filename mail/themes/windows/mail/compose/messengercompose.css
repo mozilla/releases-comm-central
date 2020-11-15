@@ -337,6 +337,10 @@ menulist::part(dropmarker-icon) {
   height: 7px;
 }
 
+#languageStatusButton {
+  height: 22px;
+}
+
 /* ::::: address book sidebar ::::: */
 
 #sidebar {

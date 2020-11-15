@@ -1008,3 +1008,12 @@ label.extra-recipients-label {
   list-style-image: url("chrome://messenger/skin/icons/connection-secure.svg");
   visibility: visible;
 }
+
+#languageStatusButton {
+  margin-block: 1px;
+  padding-block: 0;
+}
+
+#languageStatusButton > .toolbarbutton-icon {
+  display: none;
+}

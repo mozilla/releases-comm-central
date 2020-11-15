@@ -301,6 +301,10 @@ menu[command="cmd_convertCloud"] .menu-iconic-left {
   visibility: visible;
 }
 
+#languageStatusButton {
+  height: 22px;
+}
+
 /* Styles for the default system dark theme */
 
 :root[lwt-tree] #MsgHeadersToolbar {
