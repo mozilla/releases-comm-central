@@ -134,17 +134,9 @@ function enableRNPLibJS() {
 
     // returns rnp_input_t, destroy using rnp_input_destroy
     async createInputFromPath(path) {
-      let u8 = null;
-
-      try {
-        u8 = await OS.File.read(path);
-      } catch (err) {
-        console.debug(
-          "RNPLib.createInputFromPath failed for " + path + " - " + err
-        );
-      }
-
-      if (!u8 || u8.length == 0) {
+      // OS.File.read always returns an array.
+      let u8 = await OS.File.read(path);
+      if (!u8.length) {
         return null;
       }
 
@@ -210,6 +202,47 @@ function enableRNPLibJS() {
       return names;
     },
 
+    /**
+     * Load a keyring file into the global ffi context.
+     *
+     * @param {string} filename - The file to load
+     * @param keyringFlag - either RNP_LOAD_SAVE_PUBLIC_KEYS
+     *                      or RNP_LOAD_SAVE_SECRET_KEYS
+     */
+    async loadFile(filename, keyringFlag) {
+      let in_file = await this.createInputFromPath(filename);
+      if (in_file) {
+        this.rnp_load_keys(this.ffi, "GPG", in_file, keyringFlag);
+        this.rnp_input_destroy(in_file);
+      }
+    },
+
+    /**
+     * Load a keyring file into the global ffi context.
+     * If the file couldn't be opened, fall back to a backup file,
+     * by appending ".old" to filename.
+     *
+     * @param {string} filename - The file to load
+     * @param keyringFlag - either RNP_LOAD_SAVE_PUBLIC_KEYS
+     *                      or RNP_LOAD_SAVE_SECRET_KEYS
+     */
+    async loadWithFallback(filename, keyringFlag) {
+      let loadBackup = false;
+      try {
+        await this.loadFile(filename, keyringFlag);
+      } catch (ex) {
+        if (ex instanceof OS.File.Error) {
+          loadBackup = true;
+        }
+      }
+      if (loadBackup) {
+        filename += ".old";
+        try {
+          await this.loadFile(filename, keyringFlag);
+        } catch (ex) {}
+      }
+    },
+
     async init() {
       this.ffi = new rnp_ffi_t();
       if (this.rnp_ffi_create(this.ffi.address(), "GPG", "GPG")) {
@@ -231,30 +264,14 @@ function enableRNPLibJS() {
 
       let filenames = this.getFilenames();
 
-      let in_pub = await this.createInputFromPath(filenames.pubring.path);
-      if (in_pub) {
-        this.rnp_load_keys(
-          this.ffi,
-          "GPG",
-          in_pub,
-          this.RNP_LOAD_SAVE_PUBLIC_KEYS
-        );
-        this.rnp_input_destroy(in_pub);
-      }
-
-      let in_sec = await this.createInputFromPath(filenames.secring.path);
-      if (in_sec) {
-        this.rnp_load_keys(
-          this.ffi,
-          "GPG",
-          in_sec,
-          this.RNP_LOAD_SAVE_SECRET_KEYS
-        );
-        this.rnp_input_destroy(in_sec);
-      }
-
-      in_pub = null;
-      in_sec = null;
+      await this.loadWithFallback(
+        filenames.pubring.path,
+        this.RNP_LOAD_SAVE_PUBLIC_KEYS
+      );
+      await this.loadWithFallback(
+        filenames.secring.path,
+        this.RNP_LOAD_SAVE_SECRET_KEYS
+      );
 
       let pubnum = new ctypes.size_t();
       this.rnp_get_public_key_count(this.ffi, pubnum.address());
