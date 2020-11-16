@@ -154,40 +154,6 @@ function enableRNPLibJS() {
       return input_from_memory;
     },
 
-    async writeOutputToPath(rnp_memory_output, path) {
-      let result_buf = new ctypes.uint8_t.ptr();
-      let result_len = new ctypes.size_t();
-      let u8 = null;
-
-      // if rnp_memory_output is null, we write an empty file
-      if (!rnp_memory_output) {
-        u8 = new Uint8Array();
-      } else if (
-        this.rnp_output_memory_get_buf(
-          rnp_memory_output,
-          result_buf.address(),
-          result_len.address(),
-          false
-        )
-      ) {
-        throw new Error("rnp_output_memory_get_buf failed");
-      } else {
-        let uint8_array = ctypes.cast(
-          result_buf,
-          ctypes.uint8_t.array(result_len.value).ptr
-        ).contents;
-        u8 = uint8_array.readTypedArray();
-      }
-
-      try {
-        await OS.File.writeAtomic(path, u8);
-      } catch (err) {
-        console.debug(
-          "RNPLib.writeOutputToPath failed for " + path + " - " + err
-        );
-      }
-    },
-
     getFilenames() {
       let names = {};
 
@@ -291,93 +257,95 @@ function enableRNPLibJS() {
       return true;
     },
 
+    async saveKeyRing(fileObj, keyRingFlag) {
+      let oldSuffix = ".old";
+      let oldFile = fileObj.clone();
+      oldFile.leafName += oldSuffix;
+
+      // Ignore failure, fileObj.path might not exist yet.
+      await OS.File.copy(fileObj.path, oldFile.path).catch(() => {});
+
+      let u8 = null;
+      let keyCount = new ctypes.size_t();
+
+      if (keyRingFlag == this.RNP_LOAD_SAVE_SECRET_KEYS) {
+        this.rnp_get_secret_key_count(this.ffi, keyCount.address());
+      } else {
+        this.rnp_get_public_key_count(this.ffi, keyCount.address());
+      }
+
+      let keyCountNum = parseInt(keyCount.value.toString());
+      if (keyCountNum) {
+        let rnp_out = new this.rnp_output_t();
+        if (this.rnp_output_to_memory(rnp_out.address(), 0)) {
+          throw new Error("rnp_output_to_memory failed");
+        }
+        if (this.rnp_save_keys(this.ffi, "GPG", rnp_out, keyRingFlag)) {
+          throw new Error("rnp_save_keys failed");
+        }
+
+        let result_buf = new ctypes.uint8_t.ptr();
+        let result_len = new ctypes.size_t();
+
+        // Parameter false means "don't copy rnp_out to result_buf",
+        // rather a reference to the memory is used. Be careful to
+        // destroy rnp_out after we're done with the data.
+        if (
+          this.rnp_output_memory_get_buf(
+            rnp_out,
+            result_buf.address(),
+            result_len.address(),
+            false
+          )
+        ) {
+          throw new Error("rnp_output_memory_get_buf failed");
+        } else {
+          let uint8_array = ctypes.cast(
+            result_buf,
+            ctypes.uint8_t.array(result_len.value).ptr
+          ).contents;
+          // This call creates a copy of the data, it should be
+          // safe to destroy rnp_out afterwards.
+          u8 = uint8_array.readTypedArray();
+        }
+        this.rnp_output_destroy(rnp_out);
+      }
+
+      let status = false;
+      let outPathString = fileObj.path;
+
+      try {
+        if (!u8) {
+          u8 = new Uint8Array();
+        }
+        await OS.File.writeAtomic(outPathString, u8, {
+          tmpPath: outPathString + ".tmp-new",
+        });
+        status = true;
+      } catch (err) {
+        console.debug(
+          "RNPLib.writeOutputToPath failed for " + outPathString + " - " + err
+        );
+      }
+
+      return status;
+    },
+
     async saveKeys() {
       let filenames = this.getFilenames();
-
-      // Start by writing to new, temporary files. This avoids the
-      // risk that we crash during saving and destroy the good files.
-
-      let tmpNewSuffix = ".tmp-new";
-      let pubNew = filenames.pubring.clone();
-      pubNew.leafName += tmpNewSuffix;
-      let secNew = filenames.secring.clone();
-      secNew.leafName += tmpNewSuffix;
-
-      let pubCount = new ctypes.size_t();
-      this.rnp_get_public_key_count(this.ffi, pubCount.address());
-      if (pubCount.value < 1) {
-        await this.writeOutputToPath(null, pubNew.path);
-      } else {
-        let out1 = new this.rnp_output_t();
-        if (this.rnp_output_to_memory(out1.address(), 0)) {
-          throw new Error("rnp_output_to_memory failed");
-        }
-        if (
-          this.rnp_save_keys(
-            this.ffi,
-            "GPG",
-            out1,
-            this.RNP_LOAD_SAVE_PUBLIC_KEYS
-          )
-        ) {
-          throw new Error("rnp_save_keys failed");
-        }
-        await this.writeOutputToPath(out1, pubNew.path);
-        this.rnp_output_destroy(out1);
+      if (
+        !(await this.saveKeyRing(
+          filenames.pubring,
+          this.RNP_LOAD_SAVE_PUBLIC_KEYS
+        ))
+      ) {
+        // if saving public keys failed, don't attempt to save/replace secret keys
+        return false;
       }
-
-      let secCount = new ctypes.size_t();
-      this.rnp_get_secret_key_count(this.ffi, secCount.address());
-      if (secCount.value < 1) {
-        await this.writeOutputToPath(null, secNew.path);
-      } else {
-        let out2 = new this.rnp_output_t();
-        if (this.rnp_output_to_memory(out2.address(), 0)) {
-          throw new Error("rnp_output_to_memory failed");
-        }
-        if (
-          this.rnp_save_keys(
-            this.ffi,
-            "GPG",
-            out2,
-            this.RNP_LOAD_SAVE_SECRET_KEYS
-          )
-        ) {
-          throw new Error("rnp_save_keys failed");
-        }
-        await this.writeOutputToPath(out2, secNew.path);
-        this.rnp_output_destroy(out2);
-      }
-
-      // Now that saving to new filenames has finished, rename.
-
-      let oldSuffix = ".old";
-      let pubOld = filenames.pubring.leafName + oldSuffix;
-      let secOld = filenames.secring.leafName + oldSuffix;
-
-      let pubFinal = filenames.pubring.leafName;
-      let secFinal = filenames.secring.leafName;
-
-      // this may fail if we're saving for the first time
-      try {
-        filenames.pubring.renameTo(null, pubOld);
-        filenames.secring.renameTo(null, secOld);
-      } catch (ex) {}
-
-      pubNew.renameTo(null, pubFinal);
-      secNew.renameTo(null, secFinal);
-
-      // Renaming succeeded, remove the old files.
-
-      try {
-        let oldPubFile = filenames.pubring.clone();
-        oldPubFile.leafName = pubOld;
-        oldPubFile.remove(false);
-
-        let oldSecFile = filenames.secring.clone();
-        oldSecFile.leafName = secOld;
-        oldSecFile.remove(false);
-      } catch (ex) {}
+      return this.saveKeyRing(
+        filenames.secring,
+        this.RNP_LOAD_SAVE_SECRET_KEYS
+      );
     },
 
     keep_password_cb_alive: null,
