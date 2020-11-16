@@ -123,7 +123,6 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "handlersvc-store-initialized");
 
     ActorManagerParent.addJSWindowActors(JSWINDOWACTORS);
-    ActorManagerParent.flush();
   },
 
   // cleanup (called at shutdown)
