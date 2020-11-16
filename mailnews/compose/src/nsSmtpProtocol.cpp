@@ -559,7 +559,7 @@ nsresult nsSmtpProtocol::SmtpResponse(nsIInputStream* inputStream,
     m_responseCode = 0;
   else if (cont_char != '-') {
     m_responseCodeEnhanced = 0;
-    char codeClass, codeSubject, codeDetail;
+    unsigned int codeClass, codeSubject, codeDetail;
     if (PR_sscanf(line + chars_read, "%1u.%1u.%1u ", &codeClass, &codeSubject,
                   &codeDetail) == 3)
       m_responseCodeEnhanced = codeClass * 100 + codeSubject * 10 + codeDetail;
