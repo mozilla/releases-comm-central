@@ -76,6 +76,8 @@ var GPGME = {
       throw new Error("gpgme_new failed");
     }
 
+    GPGMELib.gpgme_set_armor(c1, 1);
+
     result.exitCode = GPGMELib.gpgme_op_decrypt_ext(
       c1,
       GPGMELib.GPGME_DECRYPT_UNWRAP,
@@ -100,14 +102,35 @@ var GPGME = {
       ).contents;
 
       // The result of decrypt(GPGME_DECRYPT_UNWRAP) is an OpenPGP message.
-      // However, GPGME always returns the results as a binary encoding.
-      // GPG 1.12.0 ignored gpgme_set_armor(context, 1) and
-      // gpgme_data_set_encoding(data_plain, GPGME_DATA_ENCODING_ARMOR).
+      // Because old versions of GPGME (e.g. 1.12.0) may return the
+      // results as a binary encoding (despite gpgme_set_armor),
+      // we check if the result looks like an armored message.
+      // If it doesn't we apply armoring ourselves.
 
-      // TODO: Find a way to pass the binary data directly to the
-      //       RNP.decrypt function for efficiency.
+      let armor_head = "-----BEGIN PGP MESSAGE-----";
 
-      result.decryptedData = enArmorCB(unwrapped, result_len.value);
+      let head_of_array = ctypes.cast(
+        result_buf,
+        ctypes.char.array(armor_head.length).ptr
+      ).contents;
+
+      let isArmored = false;
+
+      try {
+        // If this is binary, which usually isn't a valid UTF-8
+        // encoding, it will throw an error.
+        let head_of_array_string = head_of_array.readString();
+        if (head_of_array_string == armor_head) {
+          isArmored = true;
+        }
+      } catch (ex) {}
+
+      if (isArmored) {
+        result.decryptedData = unwrapped.readString();
+      } else {
+        result.decryptedData = enArmorCB(unwrapped, result_len.value);
+      }
+
       GPGMELib.gpgme_free(result_buf);
     }
 
