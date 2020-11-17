@@ -16,7 +16,7 @@ add_task(async function test_unsigned() {
   registerCleanupFunction(() => PermissionTestUtils.remove(testURI, "install"));
 
   let tab = openContentTab("about:blank");
-  await BrowserTestUtils.loadURI(
+  BrowserTestUtils.loadURI(
     tab.linkedBrowser,
     `${BASE}/file_install_extensions.html`
   );

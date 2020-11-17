@@ -126,7 +126,7 @@ add_task(async function testMessagePane() {
 
   // A web page is shown in the message pane.
 
-  await BrowserTestUtils.loadURI(messagePane, TEST_DOCUMENT_URL);
+  BrowserTestUtils.loadURI(messagePane, TEST_DOCUMENT_URL);
   await checkABrowser(messagePane);
 
   let tree = window.gFolderDisplay.tree;
