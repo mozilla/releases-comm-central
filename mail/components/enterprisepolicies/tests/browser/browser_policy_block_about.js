@@ -74,11 +74,20 @@ add_task(async function testAboutTask() {
 });
 
 async function testPageBlockedByPolicy(policyJSON, page) {
-  PromiseTestUtils.expectUncaughtRejection(/NS_ERROR_BLOCKED_BY_POLICY/);
   await EnterprisePolicyTesting.setupPolicyEngineWithJson(policyJSON);
 
   await withNewTab({ url: "about:blank" }, async browser => {
-    BrowserTestUtils.loadURI(browser, page);
+    try {
+      BrowserTestUtils.loadURI(browser, page);
+      Assert.report(
+        true,
+        undefined,
+        undefined,
+        "Cr.NS_ERROR_BLOCKED_BY_POLICY should be thrown"
+      );
+    } catch (ex) {
+      Assert.equal(ex.result, Cr.NS_ERROR_BLOCKED_BY_POLICY);
+    }
     await BrowserTestUtils.browserLoaded(browser, false, page, true);
     await SpecialPowers.spawn(browser, [page], async function(innerPage) {
       ok(
