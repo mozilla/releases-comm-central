@@ -6903,6 +6903,11 @@ function OpenSelectedAttachment() {
   } // if one attachment selected
 }
 
+/**
+ * @implements {nsIURIContentListener}
+ *
+ * @see {MessengerContentHandler}
+ */
 function nsAttachmentOpener() {}
 
 nsAttachmentOpener.prototype = {
@@ -6919,10 +6924,33 @@ nsAttachmentOpener.prototype = {
         .setQuery(newQuery)
         .finalize();
     }
-    let newHandler = Cc[
-      "@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"
-    ].createInstance(Ci.nsIContentHandler);
-    newHandler.handleContent("application/x-message-display", this, request);
+    let uri = request.URI;
+    let mailnewsurl = "";
+    try {
+      mailnewsurl = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    } catch (e) {}
+    if (mailnewsurl) {
+      let queryPart = mailnewsurl.query.replace(
+        "type=message/rfc822",
+        "type=application/x-message-display"
+      );
+      uri = mailnewsurl
+        .mutate()
+        .setQuery(queryPart)
+        .finalize();
+    } else if (uri.scheme == "file") {
+      uri = uri
+        .mutate()
+        .setQuery("type=application/x-message-display")
+        .finalize();
+    }
+    Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/messageWindow.xhtml",
+      "_blank",
+      "all,chrome,dialog=no,status,toolbar",
+      uri
+    );
     return true;
   },
 

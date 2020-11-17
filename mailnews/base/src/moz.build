@@ -37,7 +37,6 @@ SOURCES += [
     "nsMailDirProvider.cpp",
     "nsMessenger.cpp",
     "nsMessengerBootstrap.cpp",
-    "nsMessengerContentHandler.cpp",
     "nsMsgAccount.cpp",
     "nsMsgAccountManager.cpp",
     "nsMsgBiffManager.cpp",
