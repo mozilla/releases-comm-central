@@ -23,8 +23,6 @@
 
   --tab-min-height: 30px;
   --tabs-border-color: rgba(0, 0, 0, .3);
-  --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
-  --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
 
   --toolbarbutton-icon-fill-opacity: .85;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .05);
@@ -354,6 +352,10 @@ toolbar[brighttext] .toolbarbutton-1:not(:hover):not(:active):not([open]) >
 #tabbar-toolbar .toolbarbutton-1,
 #tabbar-toolbar .toolbarbutton-1[type="menu-button"] {
   margin-block: 3px;
+}
+
+#palette-box .toolbarbutton-1 {
+  -moz-box-orient: horizontal;
 }
 
 description.error {
