@@ -557,11 +557,7 @@ function enigCreateRevokeCert() {
 }
 */
 
-function dlgOpenCallback(dlgUri, args) {
-  window.openDialog(dlgUri, "", "dialog,modal,centerscreen,resizable", args);
-}
-
-async function enigmailExportKeys(which) {
+function enigmailExportKeys(which) {
   let exportSecretKey = which == "secret";
   var keyList = getSelectedKeys();
   var defaultFileName;
@@ -590,8 +586,7 @@ async function enigmailExportKeys(which) {
     EnigmailKeyRing.backupSecretKeysInteractive(
       window,
       defaultFileName,
-      fprArray,
-      dlgOpenCallback
+      fprArray
     );
   } else {
     let keyList2 = getSelectedKeyIds();

@@ -583,12 +583,7 @@ var EnigmailKeyRing = {
     getDialog().info(window, l10n.formatValueSync("save-keys-ok"));
   },
 
-  async backupSecretKeysInteractive(
-    window,
-    defaultFileName,
-    fprArray,
-    dlgOpenCallback
-  ) {
+  backupSecretKeysInteractive(window, defaultFileName, fprArray) {
     let label = l10n.formatValueSync("export-keypair-to-file");
     let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
       window,
@@ -600,15 +595,15 @@ var EnigmailKeyRing = {
       return;
     }
 
-    let args = {
-      okCallback: EnigmailKeyRing.exportSecretKey,
-      file: outFile,
-      fprArray,
-    };
-
-    dlgOpenCallback(
+    window.openDialog(
       "chrome://openpgp/content/ui/backupKeyPassword.xhtml",
-      args
+      "",
+      "dialog,modal,centerscreen,resizable",
+      {
+        okCallback: EnigmailKeyRing.exportSecretKey,
+        file: outFile,
+        fprArray,
+      }
     );
   },
 
