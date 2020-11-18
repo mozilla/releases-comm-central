@@ -246,7 +246,7 @@ var gBigFileObserver = {
         account = accounts[args.selected];
       }
     } else {
-      openPreferencesTab("paneApplications", "compositionAttachmentsCategory");
+      openPreferencesTab("paneCompose", "compositionAttachmentsCategory");
       return true;
     }
 
