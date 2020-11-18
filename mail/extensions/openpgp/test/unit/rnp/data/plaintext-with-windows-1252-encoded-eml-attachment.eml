@@ -1,0 +1,39 @@
+Content-Type: multipart/mixed; boundary=\"mzik1s6PCI8wO850i5PykshHnKiAGShJ0\";
+ protected-headers=\"v1\"
+Subject: Key And Windows 1252 Encoded Attachment
+From: Bob Babbage <bob@openpgp.example>
+To: alice@openpgp.example
+Message-ID: <26826c45-bac5-f173-9d60-dab5c907156d@openpgp.example>
+
+--mzik1s6PCI8wO850i5PykshHnKiAGShJ0
+Content-Type: multipart/mixed; boundary=\"------------voUvzEdWKr8OR9mQliQ0aHDW\"
+
+--------------voUvzEdWKr8OR9mQliQ0aHDW
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+Please see attached.
+
+--------------voUvzEdWKr8OR9mQliQ0aHDW
+Content-Type: message/rfc822; name=\"win1252.eml\"
+Content-Disposition: attachment; filename=\"win1252.eml\"
+Content-Transfer-Encoding: 8bit
+
+To: bob@openpgp.example
+From: carol@openpgp.example
+Subject: Windows 1252
+Date: Wed, 4 Nov 2020 16:32:02 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+
+This message has 6 ü ü ü ü ü ü.
+
+--------------voUvzEdWKr8OR9mQliQ0aHDW--
+
+
+--mzik1s6PCI8wO850i5PykshHnKiAGShJ0--
+
