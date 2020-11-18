@@ -52,9 +52,17 @@ async function checkBlockedPage(url, expectedBlocked) {
   let browser = tab.browser;
 
   // Because `browser` is in the parent process, handle the rejection message.
-  // This should stop happening once E10s is enabled.
-  PromiseTestUtils.expectUncaughtRejection(/NS_ERROR_BLOCKED_BY_POLICY/);
-  BrowserTestUtils.loadURI(browser, url);
+  try {
+    BrowserTestUtils.loadURI(browser, url);
+    Assert.report(
+      true,
+      undefined,
+      undefined,
+      "Cr.NS_ERROR_BLOCKED_BY_POLICY should be thrown"
+    );
+  } catch (ex) {
+    Assert.equal(ex.result, Cr.NS_ERROR_BLOCKED_BY_POLICY);
+  }
 
   await BrowserTestUtils.waitForCondition(async function() {
     let blocked = await ContentTask.spawn(browser, null, async function() {
