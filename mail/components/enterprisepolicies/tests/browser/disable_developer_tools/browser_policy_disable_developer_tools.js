@@ -3,10 +3,6 @@
 
 "use strict";
 
-const { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/PromiseTestUtils.jsm"
-);
-
 add_task(async function test_updates_post_policy() {
   is(
     Services.policies.isAllowed("devtools"),
@@ -28,9 +24,9 @@ add_task(async function test_updates_post_policy() {
     "devtools dedicated disabled pref can not be updated"
   );
 
-  await checkBlockedPage("about:devtools", true);
-  await checkBlockedPage("about:devtools-toolbox", true);
-  await checkBlockedPage("about:debugging", true);
+  await expectErrorPage("about:devtools");
+  await expectErrorPage("about:devtools-toolbox");
+  await expectErrorPage("about:debugging");
 
   info("Check that devtools menu items are hidden");
   let devtoolsMenu = window.document.getElementById("devtoolsMenu");
@@ -44,7 +40,7 @@ add_task(async function test_updates_post_policy() {
   );
 });
 
-async function checkBlockedPage(url, expectedBlocked) {
+const expectErrorPage = async function(url) {
   let tabmail = document.getElementById("tabmail");
   let index = tabmail.tabInfo.length;
   window.openContentTab("about:blank");
@@ -64,12 +60,16 @@ async function checkBlockedPage(url, expectedBlocked) {
     Assert.equal(ex.result, Cr.NS_ERROR_BLOCKED_BY_POLICY);
   }
 
-  await BrowserTestUtils.waitForCondition(async function() {
-    let blocked = await ContentTask.spawn(browser, null, async function() {
-      return content.document.documentURI.startsWith("about:neterror");
-    });
-    return blocked == expectedBlocked;
-  }, `Page ${url} block was correct (expected=${expectedBlocked}).`);
+  await BrowserTestUtils.browserLoaded(browser, false, url, true);
+  await SpecialPowers.spawn(browser, [url], async function() {
+    ok(
+      content.document.documentURI.startsWith(
+        "about:neterror?e=blockedByPolicy"
+      ),
+      content.document.documentURI +
+        " should start with about:neterror?e=blockedByPolicy"
+    );
+  });
 
   tabmail.closeTab(tab);
-}
+};
