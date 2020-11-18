@@ -5005,6 +5005,9 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                 NS_ASSERTION(NS_SUCCEEDED(rv2), "doing transaction failed");
               }
             }
+            // nsImapUrl can hold a pointer to our m_copyState, so force a
+            // release here (see Bug 1586494).
+            imapUrl->SetCopyState(nullptr);
             (void)OnCopyCompleted(m_copyState->m_srcSupport, aExitCode);
           }
 
