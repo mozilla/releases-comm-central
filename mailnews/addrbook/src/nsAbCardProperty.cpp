@@ -662,9 +662,10 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString& aXMLSubstr) {
       listCard->GetPrimaryEmail(primaryEmail);
 
       // use ScanTXT to convert < > & to safe values.
-      rv = conv->ScanTXT(primaryEmail, mozITXTToHTMLConv::kEntities, safeText);
+      nsString safeText2;
+      rv = conv->ScanTXT(primaryEmail, mozITXTToHTMLConv::kEntities, safeText2);
       NS_ENSURE_SUCCESS(rv, rv);
-      xmlStr.Append(safeText);
+      xmlStr.Append(safeText2);
 
       xmlStr.AppendLiteral("&gt;</PrimaryEmail>\n");
     }
