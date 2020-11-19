@@ -25,6 +25,7 @@ l10n:
     # and also not relevant to this linter
     exclude:
         - comm/mail/locales/en-US/all-l10n.js
+        - comm/mail/extensions/openpgp/test
     l10n_configs:
         - comm/mail/locales/l10n.toml
         - comm/calendar/locales/l10n.toml
