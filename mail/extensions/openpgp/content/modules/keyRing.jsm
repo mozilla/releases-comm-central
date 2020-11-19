@@ -661,6 +661,9 @@ var EnigmailKeyRing = {
    *                                                    the user is asked to allow an optional
    *                                                    permissive import attempt.
    * @param passCB          Function - Password callback function
+   *                        TODO: After 78, callback should be moved to last parameter
+   * @param {string} acceptance      - Acceptance for the keys to import,
+   *                                   which are new, or still have acceptance "undecided".
    *
    * @return Integer -  exit code:
    *      ExitCode == 0  => success
@@ -679,7 +682,8 @@ var EnigmailKeyRing = {
     limitedUids = [],
     importSecret = false, // by default and traditionally, function imports public, only
     allowPermissiveFallbackWithPrompt = true,
-    passCB = null // password callback function
+    passCB = null, // password callback function
+    acceptance = null
   ) {
     const cApi = EnigmailCryptoAPI();
     return cApi.sync(
@@ -695,7 +699,8 @@ var EnigmailKeyRing = {
         limitedUids,
         importSecret,
         passCB,
-        allowPermissiveFallbackWithPrompt
+        allowPermissiveFallbackWithPrompt,
+        acceptance
       )
     );
   },
@@ -717,6 +722,9 @@ var EnigmailKeyRing = {
    *                                                    the user is asked to allow an optional
    *                                                    permissive import attempt.
    * @param passCB          Function - Password callback function
+   *                        TODO: After 78, callback should be moved to last parameter
+   * @param acceptance      String   - The new acceptance value for the imported keys,
+   *                                   which are new, or still have acceptance "undecided".
    *
    * @return Integer -  exit code:
    *      ExitCode == 0  => success
@@ -735,11 +743,18 @@ var EnigmailKeyRing = {
     limitedUids = [],
     importSecret = false,
     allowPermissiveFallbackWithPrompt = true,
-    passCB = null
+    passCB = null,
+    acceptance = null
   ) {
     EnigmailLog.DEBUG(
       `keyRing.jsm: EnigmailKeyRing.importKeyAsync('${keyId}', ${askToConfirm}, ${minimizeKey})\n`
     );
+
+    if (importSecret && acceptance) {
+      throw new Error(
+        "Invalid parameters, cannot define acceptance when importing public keys"
+      );
+    }
 
     var pgpBlock;
     if (!isBinary) {
@@ -792,30 +807,30 @@ var EnigmailKeyRing = {
     let permissive = false;
     do {
       // strict on first attempt, permissive on optional second attempt
-      if (isBinary) {
+      let blockParam = isBinary ? keyBlock : pgpBlock;
+
+      if (!importSecret) {
         result = cApi.sync(
-          cApi.importKeyBlockAPI(
+          cApi.importPubkeyBlockAutoAcceptAPI(
             parent,
-            passCB,
-            keyBlock,
-            !importSecret,
-            importSecret,
+            blockParam,
+            acceptance,
             permissive,
             limitedUids
           )
-        ); // public only
+        );
       } else {
         result = cApi.sync(
           cApi.importKeyBlockAPI(
             parent,
             passCB,
-            pgpBlock,
+            blockParam,
             !importSecret,
             importSecret,
             permissive,
             limitedUids
           )
-        ); // public only
+        );
       }
 
       tryAgain = false;
@@ -866,29 +881,15 @@ var EnigmailKeyRing = {
   ) {
     let somethingWasImported = false;
     if (preview.length > 0) {
-      let exitStatus;
-      if (preview.length == 1) {
-        exitStatus = getDialog().confirmDlg(
-          window,
-          l10n.formatValueSync("do-import-one", {
-            name: preview[0].name,
-            id: preview[0].id,
-          })
-        );
-      } else {
-        exitStatus = getDialog().confirmDlg(
-          window,
-          l10n.formatValueSync("do-import-multiple", {
-            key: preview
-              .map(function(a) {
-                return "\t" + a.name + " (" + a.id + ")";
-              })
-              .join("\n"),
-          })
-        );
-      }
-
-      if (exitStatus) {
+      let confirmImport = false;
+      let outParam = {};
+      confirmImport = getDialog().confirmPubkeyImport(
+        window,
+        preview,
+        outParam
+      );
+      if (confirmImport) {
+        let exitStatus;
         let errorMsgObj = {};
         try {
           exitStatus = EnigmailKeyRing.importKey(
@@ -900,7 +901,11 @@ var EnigmailKeyRing = {
             errorMsgObj,
             null,
             false,
-            limitedUids
+            limitedUids,
+            false,
+            true,
+            null,
+            outParam.acceptance
           );
         } catch (ex) {
           console.debug(ex);

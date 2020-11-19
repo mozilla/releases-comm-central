@@ -1713,6 +1713,47 @@ var RNP = {
     permissive = false,
     limitedFPRs = []
   ) {
+    return this._importKeyBlockWithAutoAccept(
+      win,
+      passCB,
+      keyBlockStr,
+      pubkey,
+      seckey,
+      null,
+      permissive,
+      limitedFPRs
+    );
+  },
+
+  async importPubkeyBlockAutoAcceptImpl(
+    win,
+    keyBlockStr,
+    acceptance,
+    permissive = false,
+    limitedFPRs = []
+  ) {
+    return this._importKeyBlockWithAutoAccept(
+      win,
+      null,
+      keyBlockStr,
+      true,
+      false,
+      acceptance,
+      permissive,
+      limitedFPRs
+    );
+  },
+
+  async _importKeyBlockWithAutoAccept(
+    win,
+    passCB,
+    keyBlockStr,
+    pubkey,
+    seckey,
+    acceptance,
+    permissive = false,
+    limitedFPRs = []
+  ) {
     if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
       throw new Error("rejecting big keyblock");
     }
@@ -1753,7 +1794,6 @@ var RNP = {
     }
 
     let keys = await this.getKeysFromFFI(tempFFI, true);
-
     let recentPass = "";
 
     // Prior to importing, ensure we can unprotect all keys
@@ -1933,6 +1973,49 @@ var RNP = {
         RNPLib.rnp_input_destroy(input_from_memory);
         RNPLib.rnp_output_destroy(output_to_memory);
         RNPLib.rnp_key_handle_destroy(impKey);
+
+        // For acceptance "undecided", we don't store it, because that's
+        // the default if no value is stored.
+        let actionableAcceptances = ["rejected", "unverified", "verified"];
+
+        if (
+          pubkey &&
+          !k.secretAvailable &&
+          actionableAcceptances.includes(acceptance)
+        ) {
+          // For each imported public key and associated email address,
+          // update the acceptance to unverified, but only if it's only
+          // currently undecided. In other words, we keep the acceptance
+          // if it's rejected or verified.
+
+          let currentAcceptance = {};
+          await PgpSqliteDb2.getFingerprintAcceptance(
+            null,
+            k.fpr,
+            currentAcceptance
+          );
+
+          if (
+            !("fingerprintAcceptance" in currentAcceptance) ||
+            !currentAcceptance.fingerprintAcceptance ||
+            currentAcceptance.fingerprintAcceptance == "undecided"
+          ) {
+            // Currently undecided, allowed to change.
+            let allEmails = [];
+
+            for (let uid of k.userIds) {
+              if (uid.type != "uid") {
+                continue;
+              }
+              let splitUid = {};
+              uidHelper.getPartsFromUidStr(uid.userId, splitUid);
+              if (splitUid.email) {
+                allEmails.push(splitUid.email);
+              }
+            }
+            await PgpSqliteDb2.updateAcceptance(k.fpr, allEmails, acceptance);
+          }
+        }
       }
 
       result.exitCode = 0;

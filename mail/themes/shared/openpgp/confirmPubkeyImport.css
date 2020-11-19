@@ -1,0 +1,58 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://messenger/skin/messenger.css");
+
+description {
+  padding-inline: 2px;
+}
+
+.grid-size {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+}
+
+.overlay {
+  display: flex;
+  position: fixed;
+  flex-direction: column;
+  justify-content: start;
+  background-color: var(--in-content-page-background, -moz-dialog);
+  inset: 0;
+  z-index: 1;
+}
+
+.self-center {
+  align-self: center;
+}
+
+#importKeyListContainer {
+  height: 25em;
+  overflow-y: scroll;
+}
+
+#importKeyList {
+  display: grid;
+  row-gap: 6px;
+  margin: 18px 6px 9px;
+}
+
+.key-import-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  border-radius: 4px;
+  padding: 3px 6px;
+  border: 1px solid var(--in-content-border-color);
+  background-color: rgba(215, 215, 219, 0.2);
+  margin-bottom: 6px;
+}
+
+.openpgp-key-id {
+  font-weight: bold;
+}
+
+.openpgp-key-name {
+  font-size: 0.9em;
+}

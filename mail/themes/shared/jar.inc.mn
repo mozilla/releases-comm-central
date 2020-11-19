@@ -253,6 +253,7 @@
   skin/classic/messenger/openpgp/attach-disabled-18.svg       (../shared/openpgp/attach-disabled-18.svg)
   skin/classic/messenger/openpgp/attach-inactive-18.svg       (../shared/openpgp/attach-inactive-18.svg)
   skin/classic/messenger/openpgp/col-encrypted-signed.png     (../shared/openpgp/col-encrypted-signed.png)
+  skin/classic/messenger/openpgp/confirmPubkeyImport.css      (../shared/openpgp/confirmPubkeyImport.css)
   skin/classic/messenger/openpgp/decrypt-active-18.svg        (../shared/openpgp/decrypt-active-18.svg)
   skin/classic/messenger/openpgp/decrypt-inactive-18.svg      (../shared/openpgp/decrypt-inactive-18.svg)
   skin/classic/messenger/openpgp/encrypt-active-18.svg        (../shared/openpgp/encrypt-active-18.svg)

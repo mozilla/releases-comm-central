@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/confirmPubkeyImport.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
+
+<!DOCTYPE window>
+
+<window
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        style="width:45em;">
+<dialog id="confirmPubkeyImportDialog"
+        buttons="accept,cancel">
+    <script src="chrome://openpgp/content/ui/enigmailCommon.js"/>
+    <script src="chrome://openpgp/content/ui/confirmPubkeyImport.js"/>
+
+    <linkset>
+      <html:link rel="localization" href="branding/brand.ftl"/>
+      <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
+      <html:link rel="localization" href="messenger/openpgp/oneRecipientStatus.ftl"/>
+    </linkset>
+
+    <vbox>
+      <description id="importLabel" data-l10n-id="do-import-multiple"/>
+
+      <vbox id="importKeyListContainer">
+        <vbox id="importKeyList"/>
+      </vbox>
+
+      <separator/>
+
+      <vbox id="acceptancePanel">
+      <html:div>
+        <html:fieldset>
+          <radiogroup id="acceptanceRadio" class="indent">
+            <radio id="acceptUndecided" value="undecided" selected="true"/>
+            <radio id="acceptUnverified" value="unverified"/>
+          </radiogroup>
+        </html:fieldset>
+      </html:div>
+
+      </vbox>
+    </vbox>
+
+</dialog>
+</window>

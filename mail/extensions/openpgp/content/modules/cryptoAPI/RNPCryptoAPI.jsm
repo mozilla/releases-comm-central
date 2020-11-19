@@ -111,6 +111,23 @@ class RNPCryptoAPI extends CryptoAPI {
     return res;
   }
 
+  async importPubkeyBlockAutoAcceptAPI(
+    win,
+    keyBlock,
+    acceptance,
+    permissive,
+    limitedFPRs = []
+  ) {
+    let res = await RNP.importPubkeyBlockAutoAcceptImpl(
+      win,
+      keyBlock,
+      acceptance,
+      permissive,
+      limitedFPRs
+    );
+    return res;
+  }
+
   /**
    * Import key(s) from a file
    *

@@ -161,35 +161,47 @@ function EnigmailCommon_importObjectFromFile(what) {
       continue;
     }
 
-    let exitStatus = -1;
-
     if (preview.length > 0) {
-      if (preview.length == 1) {
-        exitStatus = EnigmailDialog.confirmDlg(
-          window,
-          l10n.formatValueSync("do-import-one", {
-            name: preview[0].name,
-            id: preview[0].id,
-          })
-        );
+      let confirmImport = false;
+      let autoAcceptance = null;
+      if (isSecret) {
+        if (preview.length == 1) {
+          confirmImport = EnigmailDialog.confirmDlg(
+            window,
+            l10n.formatValueSync("do-import-one", {
+              name: preview[0].name,
+              id: preview[0].id,
+            })
+          );
+        } else {
+          confirmImport = EnigmailDialog.confirmDlg(
+            window,
+            l10n.formatValueSync("do-import-multiple", {
+              key: preview
+                .map(function(a) {
+                  return "\t" + a.name + " (" + a.id + ")";
+                })
+                .join("\n"),
+            })
+          );
+        }
       } else {
-        exitStatus = EnigmailDialog.confirmDlg(
+        let outParam = {};
+        confirmImport = EnigmailDialog.confirmPubkeyImport(
           window,
-          l10n.formatValueSync("do-import-multiple", {
-            key: preview
-              .map(function(a) {
-                return "\t" + a.name + " (" + a.id + ")";
-              })
-              .join("\n"),
-          })
+          preview,
+          outParam
         );
+        if (confirmImport) {
+          autoAcceptance = outParam.acceptance;
+        }
       }
 
-      if (exitStatus) {
+      if (confirmImport) {
         // import
         let resultKeys = {};
 
-        let exitCode = EnigmailKeyRing.importKey(
+        let importExitCode = EnigmailKeyRing.importKey(
           window,
           false, // interactive, we already asked for confirmation
           keyBlock,
@@ -201,10 +213,11 @@ function EnigmailCommon_importObjectFromFile(what) {
           [], // filter
           isSecret,
           true, // allow prompt for permissive
-          passphrasePromptCallback
+          passphrasePromptCallback,
+          autoAcceptance
         );
 
-        if (exitCode !== 0) {
+        if (importExitCode !== 0) {
           document.l10n.formatValue("import-keys-failed").then(value => {
             EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
           });

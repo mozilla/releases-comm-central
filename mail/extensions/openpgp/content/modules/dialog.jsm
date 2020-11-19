@@ -533,6 +533,44 @@ var EnigmailDialog = {
   getPromptSvc() {
     return Services.prompt;
   },
+
+  /**
+   * Asks user to confirm the import of the given public keys.
+   * User is allowed to automatically accept new/undecided keys.
+   *
+   * @param {?nsIDOMWindow} parent - Parent window.
+   * @param {EnigmailKeyObj[]} - Array of key objects.
+   * @param {Object} outputParams - Out parameters. If confirmed,
+   *                       outputParams.acceptance {String} contains the decision.
+   * @return:              Boolean - true if user confirms import
+   *
+   */
+  confirmPubkeyImport(parentWindow, keyPreview, outputParams) {
+    // For TB 78 compatibility
+    let w =
+      "browsingContext" in parentWindow
+        ? parentWindow.browsingContext.topChromeWindow
+        : parentWindow.docShell.rootTreeItem.domWindow;
+
+    let args = {
+      keys: keyPreview,
+      confirmed: false,
+      acceptance: "",
+    };
+
+    w.openDialog(
+      "chrome://openpgp/content/ui/confirmPubkeyImport.xhtml",
+      "",
+      "dialog,modal,centerscreen,resizable",
+      args
+    );
+
+    if (args.confirmed && outputParams) {
+      outputParams.acceptance = args.acceptance;
+    }
+
+    return args.confirmed;
+  },
 };
 
 EnigmailWindows.alert = EnigmailDialog.alert;

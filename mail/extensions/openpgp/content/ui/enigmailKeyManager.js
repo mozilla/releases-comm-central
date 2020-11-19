@@ -659,31 +659,15 @@ function enigmailImportFromClipbrd() {
     false
   );
   // should we allow importing secret keys?
-  var exitStatus = -1;
-
   if (preview && preview.length > 0) {
-    if (preview.length == 1) {
-      exitStatus = EnigmailDialog.confirmDlg(
-        window,
-        l10n.formatValueSync("do-import-one", {
-          name: preview[0].name,
-          id: preview[0].id,
-        })
-      );
-    } else {
-      exitStatus = EnigmailDialog.confirmDlg(
-        window,
-        l10n.formatValueSync("do-import-multiple", {
-          key: preview
-            .map(function(a) {
-              return "\t" + a.name + " (" + a.id + ")";
-            })
-            .join("\n"),
-        })
-      );
-    }
-
-    if (exitStatus) {
+    let confirmImport = false;
+    let outParam = {};
+    confirmImport = EnigmailDialog.confirmPubkeyImport(
+      window,
+      preview,
+      outParam
+    );
+    if (confirmImport) {
       // import
       EnigmailKeyRing.importKey(
         window,
@@ -691,7 +675,14 @@ function enigmailImportFromClipbrd() {
         cBoardContent,
         false,
         "",
-        errorMsgObj
+        errorMsgObj,
+        null,
+        false,
+        [],
+        false,
+        true,
+        null,
+        outParam.acceptance
       );
       var keyList = preview.map(function(a) {
         return a.id;
@@ -1042,38 +1033,29 @@ function enigmailImportKeysFromUrl() {
           false
         );
         // should we allow importing secret keys?
-        var exitStatus = -1;
-
         if (preview && preview.length > 0) {
-          if (preview.length == 1) {
-            exitStatus = EnigmailDialog.confirmDlg(
-              window,
-              await document.l10n.formatValue("do-import-one", {
-                name: preview[0].name,
-                id: preview[0].id,
-              })
-            );
-          } else {
-            exitStatus = EnigmailDialog.confirmDlg(
-              window,
-              await document.l10n.formatValue("do-import-multiple", {
-                key: preview
-                  .map(function(a) {
-                    return "\t" + a.name + " (" + a.id + ")";
-                  })
-                  .join("\n"),
-              })
-            );
-          }
-
-          if (exitStatus) {
+          let confirmImport = false;
+          let outParam = {};
+          confirmImport = EnigmailDialog.confirmPubkeyImport(
+            window,
+            preview,
+            outParam
+          );
+          if (confirmImport) {
             EnigmailKeyRing.importKey(
               window,
               false,
               data,
               false,
               "",
-              errorMsgObj
+              errorMsgObj,
+              null,
+              false,
+              [],
+              false,
+              true,
+              null,
+              outParam.acceptance
             );
             errorMsgObj.preview = preview;
             resolve(errorMsgObj);

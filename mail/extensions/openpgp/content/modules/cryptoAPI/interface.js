@@ -127,6 +127,10 @@ class CryptoAPI {
     return null;
   }
 
+  async importPubkeyBlockAutoAccept(keyBlock) {
+    return null;
+  }
+
   // return bool success
   async importRevBlockAPI(data) {
     return null;

@@ -550,32 +550,16 @@ var EnigmailDecryption = {
           false
         );
         exitCodeObj.keyList = preview;
-        let exitStatus = 0;
-
         if (preview && errorMsgObj.value === "") {
           if (preview.length > 0) {
-            if (preview.length == 1) {
-              exitStatus = EnigmailDialog.confirmDlg(
-                parent,
-                l10n.formatValueSync("do-import-one", {
-                  name: preview[0].name,
-                  id: preview[0].id,
-                })
-              );
-            } else {
-              exitStatus = EnigmailDialog.confirmDlg(
-                parent,
-                l10n.formatValueSync("do-import-multiple", {
-                  key: preview
-                    .map(function(a) {
-                      return "\t" + a.name + " (" + a.id + ")";
-                    })
-                    .join("\n"),
-                })
-              );
-            }
-
-            if (exitStatus) {
+            let confirmImport = false;
+            let outParam = {};
+            confirmImport = EnigmailDialog.confirmPubkeyImport(
+              parent,
+              preview,
+              outParam
+            );
+            if (confirmImport) {
               exitCodeObj.value = EnigmailKeyRing.importKey(
                 parent,
                 false,
@@ -583,11 +567,13 @@ var EnigmailDecryption = {
                 false,
                 "",
                 errorMsgObj,
+                null,
                 false,
                 [],
                 false,
                 false, // don't use prompt for permissive
-                null
+                null,
+                outParam.acceptance
               );
               statusFlagsObj.value = EnigmailConstants.IMPORTED_KEY;
             } else {
