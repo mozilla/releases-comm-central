@@ -210,7 +210,9 @@ function wizardContinue(event) {
   // Disable the `Continue` button.
   kDialog.getButton("accept").setAttribute("disabled", true);
 
-  kStartSection.addEventListener("transitionend", switchSection);
+  kStartSection.addEventListener("transitionend", switchSection, {
+    once: true,
+  });
   kStartSection.classList.add("hide");
 }
 
@@ -220,7 +222,6 @@ function wizardContinue(event) {
  */
 function switchSection() {
   kStartSection.setAttribute("hidden", true);
-  kStartSection.removeEventListener("transitionend", switchSection);
 
   // Save the current label of the accept button in order to restore it later.
   kButtonLabel = kDialog.getButton("accept").label;
@@ -242,6 +243,7 @@ function switchSection() {
 
   // Show the `Go Back` button.
   kDialog.getButton("help").removeAttribute("hidden");
+  resizeDialog();
 }
 
 /**
@@ -272,7 +274,7 @@ async function wizardNextStep() {
  */
 function goBack() {
   let section = document.querySelector(".wizard-section:not([hidden])");
-  section.addEventListener("transitionend", backToStart);
+  section.addEventListener("transitionend", backToStart, { once: true });
   section.classList.add("hide-reverse");
 }
 
@@ -297,7 +299,6 @@ function backToStart(event) {
   document.getElementById("importKeyListContainer").collapsed = true;
 
   event.target.setAttribute("hidden", true);
-  event.target.removeEventListener("transitionend", backToStart);
 
   // Reset section key.
   kCurrentSection = "start";
@@ -521,20 +522,16 @@ async function validateExpiration() {
 }
 
 /**
- * Resize the dialog to account for the newly visible sections. The timeout is
- * neccessary in order to wait until the end of revealing animations.
+ * Resize the dialog to account for the newly visible sections.
  */
 function resizeDialog() {
-  // Timeout to trigger the dialog resize after the reveal animation completed.
-  setTimeout(() => {
-    // Check if the attribute is not null. This can be removed after the full
-    // conversion of the Key Manager into a SubDialog in Bug 1652537.
-    if (gSubDialog) {
-      gSubDialog._topDialog.resizeVertically();
-    } else {
-      sizeToContent();
-    }
-  }, 230);
+  // Check if the attribute is not null. This can be removed after the full
+  // conversion of the Key Manager into a SubDialog in Bug 1652537.
+  if (gSubDialog && gSubDialog._topDialog) {
+    gSubDialog._topDialog.resizeVertically();
+  } else {
+    sizeToContent();
+  }
 }
 
 /**
@@ -731,7 +728,7 @@ function closeOverlay() {
 
   let overlay = document.getElementById("wizardOverlay");
 
-  overlay.addEventListener("transitionend", hideOverlay);
+  overlay.addEventListener("transitionend", hideOverlay, { once: true });
   overlay.classList.add("hide");
 }
 
@@ -743,7 +740,7 @@ function closeOverlay() {
  */
 function hideOverlay(event) {
   event.target.setAttribute("hidden", true);
-  event.target.removeEventListener("transitionend", hideOverlay);
+  resizeDialog();
 }
 
 async function importSecretKey() {
@@ -948,7 +945,7 @@ async function openPgpImportStart() {
   }
 
   // Hide the loading overlay.
-  overlay.addEventListener("transitionend", hideOverlay);
+  overlay.addEventListener("transitionend", hideOverlay, { once: true });
   overlay.classList.add("hide");
 
   resizeDialog();
@@ -1085,7 +1082,7 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
 
   if (!prompt) {
     let overlay = document.getElementById("wizardImportOverlay");
-    overlay.addEventListener("transitionend", hideOverlay);
+    overlay.addEventListener("transitionend", hideOverlay, { once: true });
     overlay.classList.add("hide");
     kGenerating = false;
   }
