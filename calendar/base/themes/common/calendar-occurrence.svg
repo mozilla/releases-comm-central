@@ -4,30 +4,12 @@
   <style>
     path {
       display: none;
-      fill: #404040;
-      stroke: #404040;
+      fill: context-fill;
+      stroke: context-fill;
     }
     path:target {
       display: block;
       stroke-width: 1;
-    }
-    @media (-moz-windows-default-theme) and (-moz-os-version: windows-win8) {
-      path {
-        fill: #797c80;
-        stroke: #797c80;
-      }
-    }
-    @media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-      path {
-        fill: #4c4c4c;
-        stroke: #4c4c4c;
-      }
-    }
-    @media (-moz-mac-yosemite-theme) {
-      path {
-        fill: #4d4d4d;
-        stroke: #4d4d4d;
-      }
     }
   </style>
   <path id="event-single" d="m 10.5,7.5 h 3 v 7 h -2 v -5 h -1 z m -9,-5 v 14 h 15 v -14 h -2 v 2 h -2 V 1 4.5 h -2 v -2 h -3 v 2 h -2 V 1 4.5 h -2 v -2 z m 0,3 h 15 v 11 h -15 z m 3,2 h 3 v 7 h -2 v -5 h -1 z"/>

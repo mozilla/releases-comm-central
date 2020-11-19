@@ -25,14 +25,12 @@
   background-image: none;
 }
 
-@media (-moz-mac-yosemite-theme) {
-  #quick-filter-bar-expando {
-    border-bottom-color: hsl(0, 0%, 68%);
-  }
+#quick-filter-bar-expando {
+  border-bottom-color: hsl(0, 0%, 68%);
+}
 
-  #quick-filter-bar-expando:-moz-window-inactive {
-    border-bottom-color: hsl(0, 0%, 85%);
-  }
+#quick-filter-bar-expando:-moz-window-inactive {
+  border-bottom-color: hsl(0, 0%, 85%);
 }
 
 #qfb-filter-label {
@@ -86,10 +84,8 @@
   margin: 0;
 }
 
-@media (-moz-mac-yosemite-theme) {
-  #qfb-qs-textbox {
-    margin-block: 3px 2px;
-  }
+#qfb-qs-textbox {
+  margin-block: 3px 2px;
 }
 
 #qfb-qs-label {

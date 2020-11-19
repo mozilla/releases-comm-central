@@ -102,9 +102,7 @@ radio.calview[selected="true"] {
     margin: 1px;
 }
 
-@media (-moz-mac-yosemite-theme) {
-    #calendar-nav-control:-moz-window-inactive {
-        background: -moz-mac-chrome-inactive;
-        --calview-border-bottom-color: hsl(0, 0%, 85%);
-    }
+#calendar-nav-control:-moz-window-inactive {
+    background: -moz-mac-chrome-inactive;
+    --calview-border-bottom-color: hsl(0, 0%, 85%);
 }

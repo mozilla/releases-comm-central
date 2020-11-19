@@ -41,6 +41,11 @@
   margin: 0 3px !important;
 }
 
+#accept-occurrence-button {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 #accept-buttons-box[type="mixed"] > #accept-occurrence-button,
 #accept-buttons-box[type="event"] > #accept-occurrence-button {
   list-style-image: url(chrome://calendar/skin/shared/calendar-occurrence.svg#event-single);
