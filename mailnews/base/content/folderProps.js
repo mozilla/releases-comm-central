@@ -140,25 +140,6 @@ function resetColor() {
 
 function folderPropsOKButton(event) {
   if (gMsgFolder) {
-    // set charset attributes
-    var folderCharsetList = document.getElementById("folderCharsetList");
-
-    // Log to the Error Console the charset value for the folder
-    // if it is unknown to us. Value will be preserved by the menu-item.
-    if (folderCharsetList.selectedIndex == -1) {
-      Cu.reportError(
-        "Unknown folder encoding; folder=" +
-          gMsgFolder.name +
-          ", charset=" +
-          gMsgFolder.charset
-      );
-    }
-
-    gMsgFolder.charset = folderCharsetList.getAttribute("value");
-    gMsgFolder.charsetOverride = document.getElementById(
-      "folderCharsetOverride"
-    ).checked;
-
     if (
       document.getElementById("offline.selectForOfflineFolder").checked ||
       document.getElementById("offline.selectForOfflineNewsgroup").checked
@@ -339,14 +320,6 @@ function folderPropsOnLoad() {
         ).checked = false;
       }
     }
-
-    // select the menu item
-    var folderCharsetList = document.getElementById("folderCharsetList");
-    folderCharsetList.value = gMsgFolder.charset;
-
-    // set override checkbox
-    document.getElementById("folderCharsetOverride").checked =
-      gMsgFolder.charsetOverride;
 
     // set check for new mail checkbox
     document.getElementById(

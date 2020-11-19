@@ -582,11 +582,9 @@ nsMsgFilter::MatchHdr(nsIMsgDBHdr* msgHdr, nsIMsgFolder* folder,
   NS_ENSURE_ARG_POINTER(folder);
   NS_ENSURE_ARG_POINTER(msgHdr);
   // use offlineMail because
-  nsCString folderCharset;
-  folder->GetCharset(folderCharset);
   nsresult rv = nsMsgSearchOfflineMail::MatchTermsForFilter(
-      msgHdr, m_termList, folderCharset.get(), m_scope, db, headers,
-      &m_expressionTree, pResult);
+      msgHdr, m_termList, "UTF-8", m_scope, db, headers, &m_expressionTree,
+      pResult);
   return rv;
 }
 

@@ -409,10 +409,6 @@ NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString& newsgroupName,
   if (newsgroupName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 
   nsCOMPtr<nsIMsgFolder> child;
-  // Create an empty database for this mail folder, set its name from the user
-  nsCOMPtr<nsIMsgDatabase> newsDBFactory;
-  nsCOMPtr<nsIMsgDatabase> newsDB;
-
   // Now let's create the actual new folder
   rv = AddNewsgroup(NS_ConvertUTF16toUTF8(newsgroupName), EmptyCString(),
                     getter_AddRefs(child));
@@ -426,11 +422,13 @@ NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString& newsgroupName,
     rv = GetNntpServer(getter_AddRefs(nntpServer));
     if (NS_FAILED(rv)) return rv;
 
-    nsAutoCString dataCharset;
-    rv = nntpServer->GetCharset(dataCharset);
-    if (NS_FAILED(rv)) return rv;
+    nsCOMPtr<nsIDBFolderInfo> folderInfo;
+    nsCOMPtr<nsIMsgDatabase> db;
+    // Used to init some folder status of child.
+    rv = child->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo),
+                                     getter_AddRefs(db));
+    NS_ENSURE_SUCCESS(rv, rv);
 
-    child->SetCharset(dataCharset);
     NotifyItemAdded(child);
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));

@@ -117,18 +117,13 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
             *override_charset = true;
             *default_charset = ToNewCString(charset);
           } else {
-            i18nUrl->GetFolderCharset(getter_Copies(charset));
-            if (!charset.IsEmpty()) *default_charset = ToNewCString(charset);
+            *override_charset = false;
+            *default_charset = strdup("UTF-8");
           }
 
           // if there is no manual override and a folder charset exists
           // then check if we have a folder level override
           if (!(*override_charset) && *default_charset && **default_charset) {
-            bool folderCharsetOverride;
-            rv = i18nUrl->GetFolderCharsetOverride(&folderCharsetOverride);
-            if (NS_SUCCEEDED(rv) && folderCharsetOverride)
-              *override_charset = true;
-
             // notify the default to msgWindow (for the menu check mark)
             // do not set the default in case of nsMimeMessageDraftOrTemplate
             // or nsMimeMessageEditorTemplate because it is already set
@@ -144,21 +139,6 @@ nsresult bridge_new_new_uri(void* bridgeStream, nsIURI* aURI,
                   msgWindow->SetMailCharacterSet(
                       nsDependentCString(*default_charset));
                   msgWindow->SetCharsetOverride(*override_charset);
-                }
-              }
-            }
-
-            // if the pref says always override and no manual override then set
-            // the folder charset to override
-            if (!*override_charset) {
-              nsCOMPtr<nsIPrefBranch> pPrefBranch(
-                  do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-              if (pPrefBranch) {
-                bool force_override;
-                rv = pPrefBranch->GetBoolPref("mailnews.force_charset_override",
-                                              &force_override);
-                if (NS_SUCCEEDED(rv) && force_override) {
-                  *override_charset = true;
                 }
               }
             }

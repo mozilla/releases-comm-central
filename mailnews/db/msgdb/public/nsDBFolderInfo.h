@@ -126,8 +126,6 @@ class nsDBFolderInfo : public nsIDBFolderInfo {
   nsIMdbTable* m_mdbTable;  // singleton table in db
   nsIMdbRow* m_mdbRow;      // singleton row in table;
 
-  nsCString m_charSet;
-  bool m_charSetOverride;
   bool m_mdbTokensInitialized;
 
   mdb_token m_rowScopeToken;

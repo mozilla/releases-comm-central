@@ -328,9 +328,6 @@ pref("mailnews.offline_sync_send_unsent", true);
 pref("mailnews.offline_sync_work_offline", false);
 pref("mailnews.force_ascii_search", false);
 
-// ignore specified MIME encoding and use the default encoding for display
-pref("mailnews.force_charset_override", false);
-
 // AppleDouble is causing problems with some webmail clients and Microsoft mail servers
 // rejecting a MIME part of multipart/appledouble. Mac uses resource forks less and less
 // so we only use AppleDouble if the file has no extension or its extension is whitelisted below.

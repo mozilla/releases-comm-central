@@ -67,7 +67,6 @@ class nsMsgMdnGenerator : public nsIMsgMdnGenerator, public nsIUrlListener {
   nsCOMPtr<nsIFile> m_file;
   nsCOMPtr<nsIMsgIdentity> m_identity;
   nsMsgKey m_key;
-  nsCString m_charset;
   nsCString m_email;
   nsCString m_mimeSeparator;
   nsCString m_messageId;

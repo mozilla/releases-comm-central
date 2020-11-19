@@ -202,30 +202,7 @@ nsresult nsMsgSearchAdapter::GetSearchCharsets(nsAString& srcCharset,
   }
 
   srcCharset = m_defaultCharset;
-
-  if (m_scope) {
-    // ### DMB is there a way to get the charset for the "window"?
-
-    nsCOMPtr<nsIMsgFolder> folder;
-    rv = m_scope->GetFolder(getter_AddRefs(folder));
-
-    // Ask the newsgroup/folder for its csid.
-    if (NS_SUCCEEDED(rv) && folder) {
-      nsCString folderCharset;
-      folder->GetCharset(folderCharset);
-      dstCharset.Append(NS_ConvertASCIItoUTF16(folderCharset));
-    }
-  } else
-    dstCharset.Assign(srcCharset);
-
-  // If
-  // the destination is still CS_DEFAULT, make the destination match
-  // the source. (CS_DEFAULT is an indication that the charset
-  // was undefined or unavailable.)
-  // ### well, it's not really anymore. Is there an equivalent?
-  if (dstCharset.Equals(m_defaultCharset)) {
-    dstCharset.Assign(srcCharset);
-  }
+  dstCharset.Assign(srcCharset);
 
   if (forceAsciiSearch) {
     // Special cases to use in order to force US-ASCII searching with Latin1

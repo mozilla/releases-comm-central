@@ -16,7 +16,7 @@
         title="&folderProps.windowtitle.label;"
         onload="folderPropsOnLoad();"
         lightweightthemes="true"
-        style="width: 56ch; height: 25em;">
+        style="width: 56ch; height: 21em;">
 <dialog id="folderPropertiesDialog"
         buttons="accept,cancel">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
@@ -24,7 +24,6 @@
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/retention.js"/>
   <script src="chrome://messenger/content/folderProps.js"/>
-  <script src="chrome://messenger/content/menulist-charsetpicker.js"/>
   <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
 <tabbox id="folderPropTabBox">
@@ -87,18 +86,6 @@
                 id="folderCheckForNewMessages"
                 label="&folderCheckForNewMessages2.label;"
                 accesskey="&folderCheckForNewMessages2.accesskey;"/>
-      <separator class="thin"/>
-      <vbox>
-        <hbox align="center" valign="middle">
-          <label value="&folderCharsetFallback2.label;"
-                 accesskey="&folderCharsetFallback2.accesskey;"
-                 control="folderCharsetList"/>
-          <menulist is="menulist-charsetpicker-viewing" id="folderCharsetList"/>
-        </hbox>
-        <checkbox class="indent" id="folderCharsetOverride"
-                  label="&folderCharsetEnforce2.label;"
-                  accesskey="&folderCharsetEnforce2.accesskey;"/>
-      </vbox>
       <separator class="thin"/>
       <hbox>
         <description id="folderRebuildSummaryExplanation" flex="1">

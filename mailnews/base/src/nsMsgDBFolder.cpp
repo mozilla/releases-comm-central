@@ -422,53 +422,6 @@ nsMsgDBFolder::GetExpungedBytes(int64_t* count) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetCharset(nsACString& aCharset) {
-  nsCOMPtr<nsIDBFolderInfo> folderInfo;
-  nsCOMPtr<nsIMsgDatabase> db;
-  nsresult rv =
-      GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
-  if (NS_SUCCEEDED(rv)) rv = folderInfo->GetEffectiveCharacterSet(aCharset);
-  return rv;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::SetCharset(const nsACString& aCharset) {
-  nsresult rv;
-
-  nsCOMPtr<nsIDBFolderInfo> folderInfo;
-  nsCOMPtr<nsIMsgDatabase> db;
-  rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
-  if (NS_SUCCEEDED(rv)) {
-    rv = folderInfo->SetCharacterSet(aCharset);
-    db->Commit(nsMsgDBCommitType::kLargeCommit);
-    mCharset = aCharset;
-  }
-  return rv;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::GetCharsetOverride(bool* aCharsetOverride) {
-  NS_ENSURE_ARG_POINTER(aCharsetOverride);
-  nsCOMPtr<nsIDBFolderInfo> folderInfo;
-  nsCOMPtr<nsIMsgDatabase> db;
-  nsresult rv =
-      GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
-  if (NS_SUCCEEDED(rv))
-    rv = folderInfo->GetCharacterSetOverride(aCharsetOverride);
-  return rv;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::SetCharsetOverride(bool aCharsetOverride) {
-  nsresult rv;
-  nsCOMPtr<nsIDBFolderInfo> folderInfo;
-  nsCOMPtr<nsIMsgDatabase> db;
-  rv = GetDBFolderInfoAndDB(getter_AddRefs(folderInfo), getter_AddRefs(db));
-  if (NS_SUCCEEDED(rv)) {
-    rv = folderInfo->SetCharacterSetOverride(aCharsetOverride);
-    db->Commit(nsMsgDBCommitType::kLargeCommit);
-    mCharsetOverride = aCharsetOverride;  // synchronize member variable
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsMsgDBFolder::GetHasNewMessages(bool* hasNewMessages) {
   NS_ENSURE_ARG_POINTER(hasNewMessages);
   *hasNewMessages = mNewMessages;
@@ -652,9 +605,6 @@ nsresult nsMsgDBFolder::ReadDBFolderInfo(bool force) {
         // These should be put in IMAP folder only.
         // folderInfo->GetImapTotalPendingMessages(&mNumPendingTotalMessages);
         // folderInfo->GetImapUnreadPendingMessages(&mNumPendingUnreadMessages);
-
-        folderInfo->GetCharacterSet(mCharset);
-        folderInfo->GetCharacterSetOverride(&mCharsetOverride);
 
         if (db) {
           bool hasnew;
@@ -1202,7 +1152,6 @@ NS_IMETHODIMP nsMsgDBFolder::GetFlags(uint32_t* _retval) {
 NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(
     nsIMsgFolderCacheElement* element) {
   nsresult rv = NS_OK;
-  nsCString charset;
 
   element->GetInt32Property("flags", (int32_t*)&mFlags);
   element->GetInt32Property("totalMsgs", &mNumTotalMessages);
@@ -1211,7 +1160,6 @@ NS_IMETHODIMP nsMsgDBFolder::ReadFromFolderCacheElem(
   element->GetInt32Property("pendingMsgs", &mNumPendingTotalMessages);
   element->GetInt64Property("expungedBytes", &mExpungedBytes);
   element->GetInt64Property("folderSize", &mFolderSize);
-  element->GetStringProperty("charset", mCharset);
 
 #ifdef DEBUG_bienvenu1
   nsCString uri;
@@ -1331,7 +1279,6 @@ NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCacheElem(
   element->SetInt32Property("pendingMsgs", mNumPendingTotalMessages);
   element->SetInt64Property("expungedBytes", mExpungedBytes);
   element->SetInt64Property("folderSize", mFolderSize);
-  element->SetStringProperty("charset", mCharset);
 
 #ifdef DEBUG_bienvenu1
   nsCString uri;

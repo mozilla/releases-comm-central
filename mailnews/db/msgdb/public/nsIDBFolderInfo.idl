@@ -82,20 +82,6 @@ interface  nsIDBFolderInfo : nsISupports {
   nsIDBFolderInfo GetTransferInfo();
   void initFromTransferInfo(in nsIDBFolderInfo transferInfo);
 
-  /**
-   * Gets/Sets the current character set for the folder. If there is no
-   * specific character set for the folder, it will return an empty string.
-   */
-  attribute ACString characterSet;
-
-  /**
-   * Returns the effective character set on the folder. If there is no specific
-   * set defined for the folder, it will return the default character set.
-   */
-  readonly attribute ACString effectiveCharacterSet;
-
-  attribute boolean characterSetOverride;
-
   attribute AString locale;
   attribute AString mailboxName;
 

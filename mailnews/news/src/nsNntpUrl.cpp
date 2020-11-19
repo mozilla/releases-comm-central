@@ -457,29 +457,6 @@ NS_IMETHODIMP nsNntpUrl::GetFolder(nsIMsgFolder** msgFolder) {
                                     (void**)msgFolder);
 }
 
-NS_IMETHODIMP
-nsNntpUrl::GetFolderCharset(char** aCharacterSet) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetFolder(getter_AddRefs(folder));
-  // don't assert here.  this can happen if there is no message folder
-  // like when we display a news://host/message-id url
-  if (NS_FAILED(rv) || !folder) return rv;
-  nsCString tmpStr;
-  rv = folder->GetCharset(tmpStr);
-  *aCharacterSet = ToNewCString(tmpStr);
-  return rv;
-}
-
-NS_IMETHODIMP nsNntpUrl::GetFolderCharsetOverride(bool* aCharacterSetOverride) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetFolder(getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  NS_ENSURE_TRUE(folder, NS_ERROR_FAILURE);
-  rv = folder->GetCharsetOverride(aCharacterSetOverride);
-  NS_ENSURE_SUCCESS(rv, rv);
-  return rv;
-}
-
 NS_IMETHODIMP nsNntpUrl::GetCharsetOverRide(char** aCharacterSet) {
   if (!mCharsetOverride.IsEmpty())
     *aCharacterSet = ToNewCString(mCharsetOverride);

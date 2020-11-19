@@ -472,31 +472,6 @@ nsresult nsMailboxUrl::GetFolder(nsIMsgFolder** msgFolder) {
   return msg->GetFolder(msgFolder);
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetFolderCharset(char** aCharacterSet) {
-  NS_ENSURE_ARG_POINTER(aCharacterSet);
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetFolder(getter_AddRefs(folder));
-
-  // In cases where a file is not associated with a folder, for
-  // example standalone .eml files, failure is normal.
-  if (NS_FAILED(rv)) return rv;
-  nsCString tmpStr;
-  folder->GetCharset(tmpStr);
-  *aCharacterSet = ToNewCString(tmpStr);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMailboxUrl::GetFolderCharsetOverride(
-    bool* aCharacterSetOverride) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetFolder(getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  NS_ENSURE_TRUE(folder, NS_ERROR_FAILURE);
-  folder->GetCharsetOverride(aCharacterSetOverride);
-
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsMailboxUrl::GetCharsetOverRide(char** aCharacterSet) {
   if (!mCharsetOverride.IsEmpty())
     *aCharacterSet = ToNewCString(mCharsetOverride);

@@ -38,57 +38,7 @@ static const char* kMailboxNameColumnName = "mailboxName";
 static const char* kKnownArtsSetColumnName = "knownArts";
 static const char* kExpiredMarkColumnName = "expiredMark";
 static const char* kVersionColumnName = "version";
-static const char* kCharacterSetColumnName = "charSet";
-static const char* kCharacterSetOverrideColumnName = "charSetOverride";
 static const char* kLocaleColumnName = "locale";
-
-#define kMAILNEWS_DEFAULT_CHARSET_OVERRIDE "mailnews.force_charset_override"
-static nsCString* gDefaultCharacterSet = new nsCString("UTF-8");
-static bool gDefaultCharacterOverride;
-static RefPtr<nsIObserver> gFolderCharsetObserver;
-
-// observer for charset related preference notification
-class nsFolderCharsetObserver : public nsIObserver {
- public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIOBSERVER
-
-  nsFolderCharsetObserver() {}
-
- private:
-  virtual ~nsFolderCharsetObserver() {}
-};
-
-NS_IMPL_ISUPPORTS(nsFolderCharsetObserver, nsIObserver)
-
-NS_IMETHODIMP nsFolderCharsetObserver::Observe(nsISupports* aSubject,
-                                               const char* aTopic,
-                                               const char16_t* someData) {
-  nsresult rv;
-
-  nsCOMPtr<nsIPrefService> prefs =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return rv;
-
-  nsCOMPtr<nsIPrefBranch> prefBranch;
-  rv = prefs->GetBranch(nullptr, getter_AddRefs(prefBranch));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (!strcmp(aTopic, NS_PREFBRANCH_PREFCHANGE_TOPIC_ID)) {
-    nsDependentString prefName(someData);
-
-    if (prefName.EqualsLiteral(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE)) {
-      rv = prefBranch->GetBoolPref(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE,
-                                   &gDefaultCharacterOverride);
-    }
-  } else if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID)) {
-    rv = prefBranch->RemoveObserver(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE, this);
-    gFolderCharsetObserver = nullptr;
-    delete gDefaultCharacterSet;
-    gDefaultCharacterSet = nullptr;
-  }
-  return rv;
-}
 
 NS_IMPL_ADDREF(nsDBFolderInfo)
 NS_IMPL_RELEASE(nsDBFolderInfo)
@@ -127,38 +77,6 @@ nsDBFolderInfo::nsDBFolderInfo(nsMsgDatabase* mdb)
   m_unreadPendingMessages = 0;
 
   m_mdbTokensInitialized = false;
-  m_charSetOverride = false;
-
-  if (!gFolderCharsetObserver) {
-    nsresult rv;
-    nsCOMPtr<nsIPrefService> prefs =
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-    nsCOMPtr<nsIPrefBranch> prefBranch;
-    if (NS_SUCCEEDED(rv)) {
-      rv = prefs->GetBranch(nullptr, getter_AddRefs(prefBranch));
-    }
-    if (NS_SUCCEEDED(rv)) {
-      rv = prefBranch->GetBoolPref(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE,
-                                   &gDefaultCharacterOverride);
-
-      gFolderCharsetObserver = new nsFolderCharsetObserver();
-      NS_ASSERTION(gFolderCharsetObserver, "failed to create observer");
-
-      // register prefs callbacks
-      if (gFolderCharsetObserver) {
-        rv = prefBranch->AddObserver(kMAILNEWS_DEFAULT_CHARSET_OVERRIDE,
-                                     gFolderCharsetObserver, false);
-
-        // also register for shutdown
-        nsCOMPtr<nsIObserverService> observerService =
-            mozilla::services::GetObserverService();
-        if (observerService) {
-          rv = observerService->AddObserver(
-              gFolderCharsetObserver, NS_XPCOM_SHUTDOWN_OBSERVER_ID, false);
-        }
-      }
-    }
-  }
 
   m_mdb = mdb;
   if (mdb) {
@@ -312,14 +230,7 @@ nsresult nsDBFolderInfo::LoadMemberVariables() {
 
   GetInt32PropertyWithToken(m_versionColumnToken, version);
   m_version = (uint16_t)version;
-  m_charSetOverride = gDefaultCharacterOverride;
-  uint32_t propertyValue;
-  nsresult rv = GetUint32Property(kCharacterSetOverrideColumnName,
-                                  gDefaultCharacterOverride, &propertyValue);
-  if (NS_SUCCEEDED(rv)) m_charSetOverride = propertyValue;
 
-  m_mdb->GetProperty(m_mdbRow, kCharacterSetColumnName,
-                     getter_Copies(m_charSet));
   return NS_OK;
 }
 
@@ -527,47 +438,6 @@ NS_IMETHODIMP nsDBFolderInfo::SetImapUidValidity(int32_t uidValidity) {
 }
 
 bool nsDBFolderInfo::TestFlag(int32_t flags) { return (m_flags & flags) != 0; }
-
-NS_IMETHODIMP
-nsDBFolderInfo::GetCharacterSet(nsACString& result) {
-  if (!m_charSet.IsEmpty())
-    result.Assign(m_charSet);
-  else if (gDefaultCharacterSet)
-    result.Assign(*gDefaultCharacterSet);
-  else
-    result.Truncate();
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsDBFolderInfo::GetEffectiveCharacterSet(nsACString& result) {
-  result.Truncate();
-  if (NS_FAILED(GetCharProperty(kCharacterSetColumnName, result)) ||
-      (result.IsEmpty() && gDefaultCharacterSet))
-    result = *gDefaultCharacterSet;
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsDBFolderInfo::SetCharacterSet(const nsACString& charSet) {
-  m_charSet.Assign(charSet);
-  return SetCharProperty(kCharacterSetColumnName, charSet);
-}
-
-NS_IMETHODIMP nsDBFolderInfo::GetCharacterSetOverride(
-    bool* characterSetOverride) {
-  NS_ENSURE_ARG_POINTER(characterSetOverride);
-  *characterSetOverride = m_charSetOverride;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsDBFolderInfo::SetCharacterSetOverride(
-    bool characterSetOverride) {
-  m_charSetOverride = characterSetOverride;
-  return SetUint32Property(kCharacterSetOverrideColumnName,
-                           characterSetOverride);
-}
 
 NS_IMETHODIMP
 nsDBFolderInfo::GetLocale(nsAString& result) {

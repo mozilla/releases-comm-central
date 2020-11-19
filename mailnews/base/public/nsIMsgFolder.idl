@@ -489,11 +489,6 @@ interface nsIMsgFolder : nsISupports {
    */
   void writeToFolderCache(in nsIMsgFolderCache folderCache, in boolean deep);
 
-  /**
-   * the charset of this folder
-   */
-  attribute ACString charset;
-  attribute boolean charsetOverride;
   attribute unsigned long biffState;
 
   /**

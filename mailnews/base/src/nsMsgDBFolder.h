@@ -208,8 +208,6 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
 
   nsCOMPtr<nsIMsgDatabase> mDatabase;
   nsCOMPtr<nsIMsgDatabase> mBackupDatabase;
-  nsCString mCharset;
-  bool mCharsetOverride;
   bool mAddListener;
   bool mNewMessages;
   bool mGettingNewMessages;

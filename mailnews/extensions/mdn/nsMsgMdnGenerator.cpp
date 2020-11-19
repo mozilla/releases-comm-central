@@ -420,8 +420,8 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
   // convert fullName to UTF8 before passing it to MakeMimeAddress
   MakeMimeAddress(NS_ConvertUTF16toUTF8(fullName), m_email, fullAddress);
 
-  convbuf = nsMsgI18NEncodeMimePartIIStr(fullAddress.get(), true,
-                                         m_charset.get(), 0, conformToStandard);
+  convbuf = nsMsgI18NEncodeMimePartIIStr(fullAddress.get(), true, "UTF-8", 0,
+                                         conformToStandard);
 
   parm = PR_smprintf("From: %s" CRLF, convbuf ? convbuf : m_email.get());
 
@@ -476,8 +476,8 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
   nsCString subject;
   m_headers->ExtractHeader(HEADER_SUBJECT, false, subject);
   convbuf = nsMsgI18NEncodeMimePartIIStr(
-      subject.Length() ? subject.get() : "[no subject]", false, m_charset.get(),
-      0, conformToStandard);
+      subject.Length() ? subject.get() : "[no subject]", false, "UTF-8", 0,
+      conformToStandard);
   tmpBuffer = PR_smprintf(
       "Subject: %s%s" CRLF, encodedReceiptString,
       (convbuf ? convbuf
@@ -487,8 +487,8 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
   PR_Free(convbuf);
   PR_Free(encodedReceiptString);
 
-  convbuf = nsMsgI18NEncodeMimePartIIStr(m_dntRrt.get(), true, m_charset.get(),
-                                         0, conformToStandard);
+  convbuf = nsMsgI18NEncodeMimePartIIStr(m_dntRrt.get(), true, "UTF-8", 0,
+                                         conformToStandard);
   tmpBuffer = PR_smprintf("To: %s" CRLF, convbuf ? convbuf : m_dntRrt.get());
   PUSH_N_FREE_STRING(tmpBuffer);
 
@@ -621,8 +621,8 @@ nsresult nsMsgMdnGenerator::CreateSecondPart() {
   compUtils = do_GetService(NS_MSGCOMPUTILS_CONTRACTID, &rv);
   if (compUtils) compUtils->GetMsgMimeConformToStandard(&conformToStandard);
 
-  convbuf = nsMsgI18NEncodeMimePartIIStr(m_email.get(), true, m_charset.get(),
-                                         0, conformToStandard);
+  convbuf = nsMsgI18NEncodeMimePartIIStr(m_email.get(), true, "UTF-8", 0,
+                                         conformToStandard);
   tmpBuffer = PR_smprintf("Final-Recipient: rfc822;%s" CRLF,
                           convbuf ? convbuf : m_email.get());
   PUSH_N_FREE_STRING(tmpBuffer);
@@ -857,7 +857,6 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool* needToAskUser) {
     }
   }
 
-  rv = m_folder->GetCharset(m_charset);
   if (m_mdnEnabled) {
     m_headers->ExtractHeader(HEADER_DISPOSITION_NOTIFICATION_TO, false,
                              m_dntRrt);

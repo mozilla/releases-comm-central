@@ -3174,13 +3174,11 @@ nsIMimeConverter* nsMsgDatabase::GetMimeConverter() {
 nsresult nsMsgDatabase::GetEffectiveCharset(nsIMdbRow* row,
                                             nsACString& resultCharset) {
   resultCharset.Truncate();
-  bool characterSetOverride;
-  m_dbFolderInfo->GetCharacterSetOverride(&characterSetOverride);
   nsresult rv = RowCellColumnToCharPtr(row, m_messageCharSetColumnToken,
                                        getter_Copies(resultCharset));
   if (NS_FAILED(rv) || resultCharset.IsEmpty() ||
-      resultCharset.EqualsLiteral("us-ascii") || characterSetOverride) {
-    rv = m_dbFolderInfo->GetEffectiveCharacterSet(resultCharset);
+      resultCharset.EqualsLiteral("us-ascii")) {
+    resultCharset.AssignLiteral("UTF-8");
   }
   return rv;
 }

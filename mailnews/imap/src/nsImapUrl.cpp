@@ -1298,25 +1298,6 @@ nsresult nsImapUrl::GetMsgFolder(nsIMsgFolder** msgFolder) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapUrl::GetFolderCharset(char** aCharacterSet) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetMsgFolder(getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  nsCString tmpStr;
-  folder->GetCharset(tmpStr);
-  *aCharacterSet = ToNewCString(tmpStr);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsImapUrl::GetFolderCharsetOverride(bool* aCharacterSetOverride) {
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetMsgFolder(getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-  NS_ENSURE_TRUE(folder, NS_ERROR_FAILURE);
-  folder->GetCharsetOverride(aCharacterSetOverride);
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsImapUrl::GetCharsetOverRide(char** aCharacterSet) {
   if (!mCharsetOverride.IsEmpty())
     *aCharacterSet = ToNewCString(mCharsetOverride);
