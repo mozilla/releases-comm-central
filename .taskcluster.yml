@@ -1,10 +1,10 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
----
+
+# yamllint disable rule:line-length
 # This file is rendered via JSON-e by
-# - mozilla-taskcluster - See
-#   https://docs.taskcluster.net/reference/integrations/mozilla-taskcluster/docs/taskcluster-yml
+# - hg-push - https://hg.mozilla.org/ci/ci-admin/file/default/build-decision/src/build_decision/hg_push.py
 #   {
 #     tasks_for: 'hg-push',
 #     push: {owner, comment, pushlog_id, pushdate},
@@ -14,7 +14,7 @@
 #     ownTaskId: // taskId of the task that will be created
 #   }
 #
-# - cron tasks - See taskcluster/taskgraph/cron/decision.py
+# - cron tasks - https://hg.mozilla.org/ci/ci-admin/file/default/build-decision/src/build_decision/cron/decision.py
 #   {
 #     tasks_for: 'cron',
 #     push: {revision, pushlog_id, pushdate, owner}
@@ -50,7 +50,7 @@
 #     ownTaskId:   // taskId of the task that will be created
 #     clientId:    // clientId that triggered this hook
 #   }
-
+---
 version: 1
 tasks:
     # NOTE: support for actions in ci-admin requires that the `tasks` property be an array *before* JSON-e rendering
@@ -67,6 +67,8 @@ tasks:
                   $if: 'repository.project == "try-comm-central"'
                   then: {$fromNow: '28 days'}
                   else: {$fromNow: '1 year'}
+              trustDomain: comm
+              treeherder_link: '[Treeherder job](https://treeherder.mozilla.org/#/jobs?repo=${repository.project}&revision=${push.revision}&selectedTaskRun=${ownTaskId})'
           in:
               taskId: {$if: 'tasks_for != "action"', then: '${ownTaskId}'}
               taskGroupId:
@@ -74,8 +76,8 @@ tasks:
                   then:
                       '${action.taskGroupId}'
                   else:
-                      '${ownTaskId}'  # same as taskId; this is how automation identifies a decision tsak
-              schedulerId: 'comm-level-${repository.level}'
+                      '${ownTaskId}'  # same as taskId; this is how automation identifies a decision task
+              schedulerId: '${trustDomain}-level-${repository.level}'
 
               created: {$fromNow: ''}
               deadline: {$fromNow: '1 day'}
@@ -87,20 +89,22 @@ tasks:
                       - $if: 'tasks_for == "hg-push"'
                         then:
                             name: "Thunderbird Decision Task"
-                            description: 'The task that creates all of the other tasks in the task graph'
+                            description: 'The task that creates all of the other tasks in the task graph (${treeherder_link})'
                         else:
                             $if: 'tasks_for == "action"'
                             then:
                                 name: "Action: ${action.title}"
                                 description: |
-                                        ${action.description}
+                                    ${action.description}
 
-                                        Action triggered by clientID `${clientId}`
+                                    ${treeherder_link}
+
+                                    Action triggered by clientID `${clientId}`
                             else:
                                 name: "Decision Task for cron job ${cron.job_name}"
-                                description: 'Created by a [cron task](https://tools.taskcluster.net/tasks/${cron.task_id})'
+                                description: 'Created by a [cron task](https://firefox-ci-tc.services.mozilla.com/tasks/${cron.task_id}) (${treeherder_link})'
 
-              provisionerId: "comm-${repository.level}"
+              provisionerId: "${trustDomain}-${repository.level}"
               workerType: "decision"
 
               tags:
@@ -120,24 +124,25 @@ tasks:
 
               routes:
                   $flattenDeep:
-                      - "tc-treeherder.v2.${repository.project}.${push.revision}.${push.pushlog_id}"
+                      - "tc-treeherder.v2.${repository.project}.${push.revision}"
                       - $if: 'tasks_for == "hg-push"'
                         then:
-                            - "index.comm.v2.${repository.project}.latest.taskgraph.decision"
-                            - "index.comm.v2.${repository.project}.revision.${push.revision}.taskgraph.decision"
-                            - "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.decision"
+                            - "index.${trustDomain}.v2.${repository.project}.latest.taskgraph.decision"
+                            - "index.${trustDomain}.v2.${repository.project}.revision.${push.revision}.taskgraph.decision"
+                            - "index.${trustDomain}.v2.${repository.project}.pushlog-id.${push.pushlog_id}.decision"
                             - "notify.email.${ownerEmail}.on-failed"
                             - "notify.email.${ownerEmail}.on-exception"
                         else:
                             $if: 'tasks_for == "action"'
                             then:
-                                - "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.actions.${ownTaskId}"
+                                - "index.${trustDomain}.v2.${repository.project}.revision.${push.revision}.taskgraph.actions.${ownTaskId}"
+                                - "index.${trustDomain}.v2.${repository.project}.pushlog-id.${push.pushlog_id}.actions.${ownTaskId}"
                             else:  # cron
-                                - "index.comm.v2.${repository.project}.latest.taskgraph.decision-${cron.job_name}"
-                                - "index.comm.v2.${repository.project}.revision.${push.revision}.taskgraph.decision-${cron.job_name}"
-                                - "index.comm.v2.${repository.project}.pushlog-id.${push.pushlog_id}.decision-${cron.job_name}"
+                                - "index.${trustDomain}.v2.${repository.project}.latest.taskgraph.decision-${cron.job_name}"
+                                - "index.${trustDomain}.v2.${repository.project}.revision.${push.revision}.taskgraph.decision-${cron.job_name}"
+                                - "index.${trustDomain}.v2.${repository.project}.pushlog-id.${push.pushlog_id}.decision-${cron.job_name}"
                                 # list each cron task on this revision, so actions can find them
-                                - 'index.comm.v2.${repository.project}.revision.${push.revision}.cron.${ownTaskId}'
+                                - 'index.${trustDomain}.v2.${repository.project}.revision.${push.revision}.cron.${ownTaskId}'
                                 # Notify tb-builds by email if a nightly hook fails
                                 - $if: 'repository.project != "try-comm-central"'
                                   then:
@@ -149,7 +154,8 @@ tasks:
                   then:
                       - 'assume:repo:${repoUrl[8:]}:branch:default'
                       - 'queue:route:notify.email.${ownerEmail}.*'
-                      - 'in-tree:hook-action:project-comm/in-tree-action-${repository.level}-*'
+                      - 'in-tree:hook-action:project-${trustDomain}/in-tree-action-${repository.level}-*'
+                      - 'index:insert-task:${trustDomain}.v2.${repository.project}.*'
                   else:
                       $if: 'tasks_for == "action"'
                       then:
@@ -177,11 +183,14 @@ tasks:
                       $if: "tasks_for == 'action'"
                       then: very-low
                       else: lowest  # tasks_for == 'hg-push'
-              retries: 5
+              retries:
+                  $if: "tasks_for == 'hg-push'"
+                  then: 0
+                  else: 5
 
               payload:
                   env:
-                      # checkout-gecko uses these to check out the source; the inputs
+                      # run-task uses these to check out the source; the inputs
                       # to `mach taskgraph decision` are all on the command line.
                       $merge:
                           - COMM_BASE_REPOSITORY: 'https://hg.mozilla.org/comm-central'
@@ -195,18 +204,15 @@ tasks:
                             # This causes cached_task digest generation to be random for
                             # some tasks. Disable bytecode generation to work around that.
                             PYTHONDONTWRITEBYTECODE: '1'
-                            # someday, these will be provided by the worker - Bug 1492664
-                            TASKCLUSTER_ROOT_URL: https://taskcluster.net
-                            TASKCLUSTER_PROXY_URL: http://taskcluster
                           - $if: 'tasks_for == "action"'
                             then:
-                                ACTION_TASK_GROUP_ID: '${action.taskGroupId}'     # taskGroupId of the target task
+                                ACTION_TASK_GROUP_ID: '${action.taskGroupId}'  # taskGroupId of the target task
                                 ACTION_TASK_ID: {$json: {$eval: 'taskId'}}  # taskId of the target task (JSON-encoded)
                                 ACTION_INPUT: {$json: {$eval: 'input'}}
                                 ACTION_CALLBACK: '${action.cb_name}'
 
                   cache:
-                      comm-level-${repository.level}-checkouts-sparse-v2: /builds/worker/checkouts
+                      "${trustDomain}-level-${repository.level}-checkouts-sparse-v2": /builds/worker/checkouts
 
                   features:
                       taskclusterProxy: true
