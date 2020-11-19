@@ -58,6 +58,10 @@ var ToolbarIconColor = {
   // getComputedStyle().
   _toolbarLuminanceCache: new Map(),
 
+  // A cache of the current sidebar color to avoid unnecessary conditions and
+  // luminance calculations.
+  _sidebarColorCache: null,
+
   inferFromText(reason, reasonValue) {
     if (!this._initialized) {
       return;
@@ -80,6 +84,7 @@ var ToolbarIconColor = {
       case "windowlwthemeupdate":
         // Theme change, we'll need to recalculate all color values.
         this._toolbarLuminanceCache.clear();
+        this._sidebarColorCache = null;
         break;
       case "toolbarvisibilitychange":
         // Toolbar changes dont require reset of the cached color values.
@@ -120,6 +125,42 @@ var ToolbarIconColor = {
         toolbar.removeAttribute("brighttext");
       } else {
         toolbar.setAttribute("brighttext", "true");
+      }
+    }
+
+    // On Linux, we need to detect if the OS theme caused a text color change in
+    // the sidebar icons and properly update the brighttext attribute.
+    if (
+      reason == "activate" &&
+      AppConstants.platform == "linux" &&
+      Services.prefs.getCharPref("extensions.activeThemeID", "") ==
+        "default-theme@mozilla.org"
+    ) {
+      let folderTree = document.getElementById("folderTree");
+      if (!folderTree) {
+        return;
+      }
+
+      let sidebarColor = getComputedStyle(folderTree).color;
+      // Interrupt if the sidebar color didn't change.
+      if (sidebarColor == this._sidebarColorCache) {
+        return;
+      }
+
+      this._sidebarColorCache = sidebarColor;
+
+      let mainWindow = document.getElementById("messengerWindow");
+      if (!mainWindow) {
+        return;
+      }
+
+      let [r, g, b] = parseRGB(sidebarColor);
+      let luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
+
+      if (luminance <= 110) {
+        mainWindow.removeAttribute("lwt-tree-brighttext");
+      } else {
+        mainWindow.setAttribute("lwt-tree-brighttext", "true");
       }
     }
   },

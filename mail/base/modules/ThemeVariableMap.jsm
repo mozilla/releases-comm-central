@@ -4,6 +4,12 @@
 
 var EXPORTED_SYMBOLS = ["ThemeVariableMap", "ThemeContentPropertyList"];
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 const ThemeVariableMap = [
   [
     "--lwt-accent-color-inactive",
@@ -159,6 +165,36 @@ const ThemeVariableMap = [
         if (!rgbaChannels) {
           element.removeAttribute("lwt-tree");
           element.removeAttribute("lwt-tree-brighttext");
+
+          // On Linux, the default theme picks up the right colors from GTK
+          // themes, but in the case of a dark GTK theme, we need to detect the
+          // text luminance to properly update the attributes.
+          if (
+            AppConstants.platform == "linux" &&
+            Services.prefs.getCharPref("extensions.activeThemeID", "") ==
+              "default-theme@mozilla.org"
+          ) {
+            // We need to force a light theme before removing the pref in order
+            // to deal with the issue of the Default Theme not triggering any
+            // color update. We remove the pref to run our conditions on a
+            // clean state.
+            Services.prefs.setIntPref("ui.systemUsesDarkTheme", 0);
+            Services.prefs.clearUserPref("ui.systemUsesDarkTheme");
+
+            let rgb = element.ownerGlobal
+              .getComputedStyle(element)
+              .color.match(/^rgba?\((\d+), (\d+), (\d+)/);
+            rgb.shift();
+            let [r, g, b] = rgb.map(x => parseInt(x));
+            let luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
+
+            // If the sidebar text color is light, we need to force a dark UI.
+            if (luminance > 110) {
+              element.setAttribute("lwt-tree-brighttext", "true");
+              Services.prefs.setIntPref("ui.systemUsesDarkTheme", 1);
+            }
+          }
+
           return null;
         }
 
