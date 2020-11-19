@@ -313,6 +313,9 @@ pref("mailnews.reply_quoting_selection", true);
 pref("mailnews.reply_quoting_selection.only_if_chars", "");
 pref("mailnews.reply_quoting_selection.multi_word", true);
 
+// If true, SmtpService.jsm will be used. Otherwise, nsSmtpService.cpp will be used.
+pref("mailnews.smtp.jsmodule", false);
+
 pref("mail.operate_on_msgs_in_collapsed_threads", false);
 pref("mail.warn_on_collapsed_thread_operation", true);
 pref("mail.warn_on_shift_delete", true);

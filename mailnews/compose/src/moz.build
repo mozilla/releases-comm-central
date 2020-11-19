@@ -65,7 +65,9 @@ EXTRA_JS_MODULES += [
     "MimeMessageUtils.jsm",
     "MimePart.jsm",
     "MsgSendModuleLoader.jsm",
+    "SmtpModuleLoader.jsm",
     "SMTPProtocolHandler.jsm",
+    "SmtpService.jsm",
 ]
 
 XPCOM_MANIFESTS += [
