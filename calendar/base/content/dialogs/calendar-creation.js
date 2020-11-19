@@ -651,6 +651,8 @@ function findCalendars(password, savePassword = false) {
   let location = document.getElementById("network-location-input");
   let locationValue = location.value || username.value.split("@")[1] || "";
 
+  // webcal(s): doesn't work with content principal.
+  locationValue = locationValue.replace(/^webcal(s)?(:.*)/, "http$1$2").trim();
   cal.provider.detection
     .detect(
       username.value,
@@ -820,4 +822,12 @@ function openCalendarPropertiesFromEvent(event) {
 window.addEventListener("load", () => {
   fillLocationPlaceholder();
   selectPanel("panel-select-calendar-type");
+  if (window.arguments[0]) {
+    let spec = window.arguments[0].spec;
+    if (/^webcals?:\/\//.test(spec)) {
+      selectPanel("panel-network-calendar-settings");
+      document.getElementById("network-location-input").value = spec;
+      checkRequired();
+    }
+  }
 });

@@ -436,6 +436,14 @@ MailDefaultHandler.prototype = {
             file
           );
         }
+      } else if (/^webcals?:\/\//.test(uri)) {
+        Services.ww.openWindow(
+          null,
+          "chrome://calendar/content/calendar-creation.xhtml",
+          "_blank",
+          "chrome,titlebar,modal,centerscreen",
+          Services.io.newURI(uri)
+        );
       } else {
         // This must be a regular filename. Use it to create a new message with attachment.
         let msgParams = Cc[

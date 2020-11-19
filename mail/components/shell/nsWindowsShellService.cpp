@@ -114,6 +114,7 @@ static SETTING gCalendarSettings[] = {
 
     // Protocol Handlers
     {MAKE_KEY_NAME1("webcal", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
+    {MAKE_KEY_NAME1("webcals", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
 };
 
 nsresult GetHelperPath(nsAutoString& aPath) {

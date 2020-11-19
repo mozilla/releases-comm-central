@@ -31,7 +31,7 @@ static const char* const sNewsProtocols[] = {"news", "snews", "nntp"};
 
 static const char* const sFeedProtocols[] = {"feed"};
 
-static const char* const sCalendarProtocols[] = {"webcal"};
+static const char* const sCalendarProtocols[] = {"webcal", "webcals"};
 
 struct AppTypeAssociation {
   uint16_t type;

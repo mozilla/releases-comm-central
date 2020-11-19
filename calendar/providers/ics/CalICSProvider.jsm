@@ -55,10 +55,12 @@ var CalICSProvider = {
 
     let detector = new ICSDetector(username, password, savePassword);
 
+    // To support ics files hosted by simple HTTP server, attempt HEAD/GET
+    // before PROPFIND.
     for (let method of [
-      "attemptDAVLocation",
       "attemptHead",
       "attemptGet",
+      "attemptDAVLocation",
       "attemptPut",
       "attemptLocalFile",
     ]) {
