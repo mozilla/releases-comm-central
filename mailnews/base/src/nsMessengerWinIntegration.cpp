@@ -48,6 +48,7 @@
 #include "mozilla/DebugOnly.h"
 #include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
+#include "nsIObserverService.h"
 
 #include "mozilla/Components.h"
 #include <stdlib.h>
@@ -343,6 +344,10 @@ nsresult nsMessengerWinIntegration::Init() {
   rv = ResetCurrent();
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+  NS_ENSURE_STATE(obs);
+  obs->AddObserver(this, "quit-application", false);
+
   return NS_OK;
 }
 
@@ -586,6 +591,13 @@ nsMessengerWinIntegration::Observe(nsISupports* aSubject, const char* aTopic,
   if (strcmp(aTopic, "alertclicksimplecallback") == 0)
     return AlertClickedSimple();
 #endif
+
+  if (strcmp(aTopic, "quit-application") == 0) {
+    DestroyBiffIcon();
+    nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+    NS_ENSURE_STATE(obs);
+    obs->RemoveObserver(this, "quit-application");
+  }
 
   return NS_OK;
 }
