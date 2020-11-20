@@ -2821,7 +2821,7 @@ Enigmail.msg = {
       // Error processing
       var errorMsg = errorMsgObj.value;
 
-      var statusLines = errorMsg.split(/\r?\n/);
+      var statusLines = errorMsg ? errorMsg.split(/\r?\n/) : [];
 
       var displayMsg;
       if (statusLines && statusLines.length) {
