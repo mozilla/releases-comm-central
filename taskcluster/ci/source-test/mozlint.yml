@@ -141,7 +141,6 @@ license:
     description: Check for license blocks in source files.
     treeherder:
         symbol: pedantic(license)
-    run-on-projects: []
     run:
         mach: >
             lint -v -l license -f treeherder
@@ -153,6 +152,9 @@ license:
             - 'comm/**/*.c'
             - 'comm/**/*.cc'
             - 'comm/**/*.cpp'
+            - 'comm/**/*.css'
+            - 'comm/**/*.dtd'
+            - 'comm/**/*.ftl'
             - 'comm/**/*.h'
             - 'comm/**/*.html'
             - 'comm/**/*.js'
@@ -160,11 +162,14 @@ license:
             - 'comm/**/*.jsx'
             - 'comm/**/*.m'
             - 'comm/**/*.mm'
+            - 'comm/**/*.properties'
             - 'comm/**/*.py'
             - 'comm/**/*.rs'
+            - 'comm/**/*.svg'
             - 'comm/**/*.xhtml'
             - 'comm/**/*.xml'
             - 'comm/**/*.xul'
+            - 'comm/tools/lint/license.yml'
 
 localization:
     description: l10n tests for strings with errors
