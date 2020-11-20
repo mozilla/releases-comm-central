@@ -176,7 +176,8 @@ async function putItemsIntoCal(destCal, aItems, aFilePath) {
   let lastError;
   let didImportSucceed = true;
 
-  let pcal = cal.async.promisifyCalendar(destCal);
+  // Using wrappedJSObject is a hack that is needed to prevent a proxy error.
+  let pcal = cal.async.promisifyCalendar(destCal.wrappedJSObject);
   for (let item of aItems) {
     // XXX prompt when finding a duplicate.
     try {

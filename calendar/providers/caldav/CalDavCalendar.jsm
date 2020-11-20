@@ -628,8 +628,7 @@ CalDavCalendar.prototype = {
           // for instance) so we'd best re-fetch in order to know
           // the current state of the item
           // Observers will be notified in getUpdatedItem()
-          this.getUpdatedItem(parentItem, aListener);
-          return;
+          this.safeRefresh();
         } else if (response.serverError) {
           status = Cr.NS_ERROR_NOT_AVAILABLE;
           detail = "Server Replied with " + response.status;

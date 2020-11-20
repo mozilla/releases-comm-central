@@ -435,7 +435,7 @@ function fillProviders(providerTypes) {
 
   for (let type of providerTypes) {
     let provider = providers.get(type);
-    let menuitem = document.createElement("menuitem");
+    let menuitem = document.createXULElement("menuitem");
     menuitem.value = type;
     menuitem.setAttribute("label", provider.displayName || type);
     popup.appendChild(menuitem);
