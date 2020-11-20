@@ -59,6 +59,7 @@ MessageSend.prototype = {
     this._smtpPassword = smtpPassword;
     this._sendListener = listener;
     this._parentWindow = parentWindow;
+    this._originalMsgURI = originalMsgURI;
     this._shouldRemoveMessageFile = true;
 
     this._sendReport = Cc[
@@ -216,6 +217,11 @@ MessageSend.prototype = {
   fail(exitCode, errorMsg) {
     let prompt = this.getDefaultPrompt();
     if (!Components.isSuccessCode(exitCode) && prompt) {
+      if (this._originalMsgURI) {
+        Cu.reportError(
+          `Sending failed: exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
+        );
+      }
       this._sendReport.setError(
         Ci.nsIMsgSendReport.process_Current,
         exitCode,
