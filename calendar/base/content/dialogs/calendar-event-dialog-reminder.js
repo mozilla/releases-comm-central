@@ -20,10 +20,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 var allowedActionsMap = {};
 var suppressListUpdate = false;
 
-const gNotification = {};
-XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+XPCOMUtils.defineLazyGetter(this, "gReminderNotification", () => {
   return new MozElements.NotificationBox(element => {
-    element.setAttribute("flex", "1");
     document.getElementById("reminder-notifications").append(element);
   });
 });
@@ -191,17 +189,17 @@ function setupMaxReminders() {
   );
 
   if (cond) {
-    let notification = gNotification.notificationbox.appendNotification(
+    let notification = gReminderNotification.appendNotification(
       pluralErrorLabel,
       "reminderNotification",
       null,
-      gNotification.notificationbox.PRIORITY_WARNING_MEDIUM
+      gReminderNotification.PRIORITY_WARNING_MEDIUM
     );
 
     let closeButton = notification.messageDetails.nextElementSibling;
     closeButton.setAttribute("hidden", "true");
   } else {
-    gNotification.notificationbox.removeAllNotifications();
+    gReminderNotification.removeAllNotifications();
   }
 }
 

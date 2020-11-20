@@ -79,10 +79,8 @@ var gConfig = {
 //   - gTimezoneEnabled
 //   - gShowLink
 
-const gNotification = {};
-XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+XPCOMUtils.defineLazyGetter(this, "gEventNotification", () => {
   return new MozElements.NotificationBox(element => {
-    element.setAttribute("flex", "1");
     document.getElementById("event-dialog-notifications").append(element);
   });
 });
@@ -2622,13 +2620,13 @@ function attachmentClick(aEvent) {
  */
 function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) {
   // only append, if the notification does not already exist
-  if (gNotification.notificationbox.getNotificationWithValue(aValue) == null) {
+  if (gEventNotification.getNotificationWithValue(aValue) == null) {
     const prioMap = {
-      info: gNotification.notificationbox.PRIORITY_INFO_MEDIUM,
-      critical: gNotification.notificationbox.PRIORITY_CRITICAL_MEDIUM,
+      info: gEventNotification.PRIORITY_INFO_MEDIUM,
+      critical: gEventNotification.PRIORITY_CRITICAL_MEDIUM,
     };
-    let priority = prioMap[aPriority] || gNotification.notificationbox.PRIORITY_WARNING_MEDIUM;
-    gNotification.notificationbox.appendNotification(
+    let priority = prioMap[aPriority] || gEventNotification.PRIORITY_WARNING_MEDIUM;
+    gEventNotification.appendNotification(
       aMessage,
       aValue,
       aImage,
@@ -2645,9 +2643,9 @@ function notifyUser(aMessage, aValue, aPriority, aImage, aButtonset, aCallback) 
  * @param {string} aValue    string identifying the notification to remove
  */
 function removeNotification(aValue) {
-  let notification = gNotification.notificationbox.getNotificationWithValue(aValue);
-  if (notification != null) {
-    gNotification.notificationbox.removeNotification(notification);
+  let notification = gEventNotification.getNotificationWithValue(aValue);
+  if (notification) {
+    gEventNotification.removeNotification(notification);
   }
 }
 

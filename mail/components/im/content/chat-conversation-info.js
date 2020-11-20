@@ -20,8 +20,7 @@
     "resource:///modules/OTRUI.jsm"
   );
 
-  const gNotification = {};
-  XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+  XPCOMUtils.defineLazyGetter(this, "gOtrNotification", () => {
     return new MozElements.NotificationBox(element => {
       element.setAttribute("flex", "1");
       document.getElementById("otr-notification-box").append(element);
@@ -114,7 +113,7 @@
       if (Services.prefs.getBoolPref("chat.otr.enable")) {
         let otrButton = this.querySelector(".otr-button");
         otrButton.addEventListener("command", this.otrButtonClicked);
-        OTRUI.setNotificationBox(gNotification.notificationbox);
+        OTRUI.setNotificationBox(gOtrNotification);
       }
       this.initializeAttributeInheritance();
     }

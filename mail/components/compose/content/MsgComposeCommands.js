@@ -249,10 +249,8 @@ function ReleaseGlobalVariables() {
 }
 
 // Notification box shown at the bottom of the window.
-var gNotification = {};
-XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+XPCOMUtils.defineLazyGetter(this, "gComposeNotification", () => {
   return new MozElements.NotificationBox(element => {
-    element.setAttribute("flex", "1");
     element.setAttribute("notificationside", "bottom");
     document.getElementById("compose-notification-bottom").append(element);
   });
@@ -2783,7 +2781,7 @@ function handleEsc() {
   // If there is a notification in the attachmentNotificationBox
   // AND focus is in message body, subject field or on the notification,
   // hide it.
-  let notification = gNotification.notificationbox.currentNotification;
+  let notification = gComposeNotification.currentNotification;
   if (
     notification &&
     (activeElement.id == "content-frame" ||
@@ -2847,12 +2845,12 @@ function manageAttachmentNotification(aForce = false) {
     }
   }
 
-  let notification = gNotification.notificationbox.getNotificationWithValue(
+  let notification = gComposeNotification.getNotificationWithValue(
     "attachmentReminder"
   );
   if (removeNotification) {
     if (notification) {
-      gNotification.notificationbox.removeNotification(notification);
+      gComposeNotification.removeNotification(notification);
     }
     return;
   }
@@ -2934,11 +2932,11 @@ function manageAttachmentNotification(aForce = false) {
     },
   };
 
-  notification = gNotification.notificationbox.appendNotification(
+  notification = gComposeNotification.appendNotification(
     "",
     "attachmentReminder",
-    "null",
-    gNotification.notificationbox.PRIORITY_WARNING_MEDIUM,
+    null,
+    gComposeNotification.PRIORITY_WARNING_MEDIUM,
     [addButton, remindButton]
   );
   notification.setAttribute("id", "attachmentNotificationBox");
@@ -4485,9 +4483,7 @@ function GenericSendMessage(msgType) {
       (Services.prefs.getBoolPref(
         "mail.compose.attachment_reminder_aggressive"
       ) &&
-        gNotification.notificationbox.getNotificationWithValue(
-          "attachmentReminder"
-        ))
+        gComposeNotification.getNotificationWithValue("attachmentReminder"))
     ) {
       let flags =
         Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
@@ -8757,40 +8753,36 @@ var gComposeNotificationBar = {
     msg = PluralForm.get(urls.length, msg);
 
     if (!this.isShowingBlockedContentNotification()) {
-      gNotification.notificationbox.appendNotification(
+      gComposeNotification.appendNotification(
         msg,
         "blockedContent",
         null,
-        gNotification.notificationbox.PRIORITY_WARNING_MEDIUM,
+        gComposeNotification.PRIORITY_WARNING_MEDIUM,
         buttons
       );
     } else {
-      gNotification.notificationbox
+      gComposeNotification
         .getNotificationWithValue("blockedContent")
         .setAttribute("label", msg);
     }
   },
 
   isShowingBlockedContentNotification() {
-    return !!gNotification.notificationbox.getNotificationWithValue(
-      "blockedContent"
-    );
+    return !!gComposeNotification.getNotificationWithValue("blockedContent");
   },
 
   clearBlockedContentNotification() {
-    gNotification.notificationbox.removeNotification(
-      gNotification.notificationbox.getNotificationWithValue("blockedContent")
+    gComposeNotification.removeNotification(
+      gComposeNotification.getNotificationWithValue("blockedContent")
     );
   },
 
   clearNotifications(aValue) {
-    gNotification.notificationbox.removeAllNotifications(true);
+    gComposeNotification.removeAllNotifications(true);
   },
 
   setIdentityWarning(aIdentityName) {
-    if (
-      !gNotification.notificationbox.getNotificationWithValue("identityWarning")
-    ) {
+    if (!gComposeNotification.getNotificationWithValue("identityWarning")) {
       let text = getComposeBundle()
         .getString("identityWarning")
         .split("%S");
@@ -8803,22 +8795,22 @@ var gComposeNotificationBar = {
         document.createTextNode(aIdentityName)
       );
       label.appendChild(document.createTextNode(text[1]));
-      gNotification.notificationbox.appendNotification(
+      gComposeNotification.appendNotification(
         label,
         "identityWarning",
         null,
-        gNotification.notificationbox.PRIORITY_WARNING_HIGH,
+        gComposeNotification.PRIORITY_WARNING_HIGH,
         null
       );
     }
   },
 
   clearIdentityWarning() {
-    let idWarning = gNotification.notificationbox.getNotificationWithValue(
+    let idWarning = gComposeNotification.getNotificationWithValue(
       "identityWarning"
     );
     if (idWarning) {
-      gNotification.notificationbox.removeNotification(idWarning);
+      gComposeNotification.removeNotification(idWarning);
     }
   },
 };

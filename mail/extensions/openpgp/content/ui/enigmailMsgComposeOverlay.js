@@ -7,7 +7,7 @@
 "use strict";
 
 /*globally available Thunderbird variables/object/functions: */
-/*global gMsgCompose: false, gNotification: false */
+/*global gMsgCompose: false, gComposeNotification: false */
 /*global UpdateAttachmentBucket: false, gContentChanged: true */
 /*global AddAttachments: false, AddAttachment: false, ChangeAttachmentBucketVisibility: false, GetResourceFromUri: false */
 /*global Recipients2CompFields: false, Attachments2CompFields: false, DetermineConvertibility: false, gWindowLocked: false */
@@ -3085,21 +3085,17 @@ Enigmail.msg = {
    *                              if null or "", then the Detail button will no be displayed.
    */
   async notifyUser(priority, msgText, messageId, detailsText) {
-    let notif = document.getElementById("attachmentNotificationBox");
-    if (!notif) {
-      notif = gNotification.notificationbox;
-    }
     let prio;
 
     switch (priority) {
       case 1:
-        prio = notif.PRIORITY_CRITICAL_MEDIUM;
+        prio = gComposeNotification.PRIORITY_CRITICAL_MEDIUM;
         break;
       case 3:
-        prio = notif.PRIORITY_INFO_MEDIUM;
+        prio = gComposeNotification.PRIORITY_INFO_MEDIUM;
         break;
       default:
-        prio = notif.PRIORITY_WARNING_MEDIUM;
+        prio = gComposeNotification.PRIORITY_WARNING_MEDIUM;
     }
 
     let buttonArr = [];
@@ -3118,7 +3114,13 @@ Enigmail.msg = {
         },
       });
     }
-    notif.appendNotification(msgText, messageId, null, prio, buttonArr);
+    gComposeNotification.appendNotification(
+      msgText,
+      messageId,
+      null,
+      prio,
+      buttonArr
+    );
   },
 
   /**

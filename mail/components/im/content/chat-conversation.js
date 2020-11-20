@@ -291,15 +291,13 @@
     }
 
     get msgNotificationBar() {
-      delete this._msgNotificationBar;
-
-      let newNotificationBox = new MozElements.NotificationBox(element => {
-        element.setAttribute("flex", "1");
-        element.setAttribute("notificationside", "top");
-        this.notification.prepend(element);
-      });
-
-      return (this._msgNotificationBar = newNotificationBox);
+      if (!this._notificationBox) {
+        this._notificationBox = new MozElements.NotificationBox(element => {
+          element.setAttribute("notificationside", "top");
+          this.notification.prepend(element);
+        });
+      }
+      return this._notificationBox;
     }
 
     destroy() {

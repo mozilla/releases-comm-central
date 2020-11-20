@@ -45,13 +45,12 @@ var gAccountManager = {
   _connectedLabelInterval: 0,
 
   get msgNotificationBar() {
-    delete this._msgNotificationBar;
-
-    let newNotificationBox = new MozElements.NotificationBox(element => {
-      document.getElementById("accounts-notification-box").prepend(element);
-    });
-
-    return (this._msgNotificationBar = newNotificationBox);
+    if (!this._notificationBox) {
+      this._notificationBox = new MozElements.NotificationBox(element => {
+        document.getElementById("accounts-notification-box").prepend(element);
+      });
+    }
+    return this._notificationBox;
   },
 
   load() {

@@ -27,18 +27,18 @@ var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
 
-// Controller object for folder pane
+// Controller object for folder pane.
 var FolderPaneController = {
-  get notificationbox() {
-    delete this.notificationbox;
-
-    let newNotificationBox = new MozElements.NotificationBox(element => {
-      element.setAttribute("flex", "1");
-      element.setAttribute("notificationside", "bottom");
-      document.getElementById("messenger-notification-footer").append(element);
-    });
-
-    return (this.notificationbox = newNotificationBox);
+  get notificationBox() {
+    if (!this._notificationBox) {
+      this._notificationBox = new MozElements.NotificationBox(element => {
+        element.setAttribute("notificationside", "bottom");
+        document
+          .getElementById("messenger-notification-footer")
+          .append(element);
+      });
+    }
+    return this._notificationBox;
   },
 
   supportsCommand(command) {
@@ -791,7 +791,7 @@ var DefaultController = {
               false
             );
           } else {
-            FolderPaneController.notificationbox.removeTransientNotifications();
+            FolderPaneController.notificationBox.removeTransientNotifications();
           }
         }
         // kill thread kills the thread and then does a next unread
@@ -805,7 +805,7 @@ var DefaultController = {
               true
             );
           } else {
-            FolderPaneController.notificationbox.removeTransientNotifications();
+            FolderPaneController.notificationBox.removeTransientNotifications();
           }
         }
         GoNextMessage(Ci.nsMsgNavigationType.toggleSubthreadKilled, true);
@@ -1137,7 +1137,7 @@ var DefaultController = {
  *                   ignore thread
  */
 function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
-  let notifyBox = FolderPaneController.notificationbox;
+  let notifyBox = FolderPaneController.notificationBox;
   notifyBox.removeTransientNotifications(); // don't want to pile these up
 
   let bundle = Services.strings.createBundle(

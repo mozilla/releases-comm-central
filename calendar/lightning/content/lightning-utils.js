@@ -15,6 +15,12 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+XPCOMUtils.defineLazyGetter(this, "gIdentityNotification", () => {
+  return new MozElements.NotificationBox(element => {
+    document.getElementById("no-identity-notification").append(element);
+  });
+});
+
 /**
  * Initialize the email identity row. Shared between the calendar creation
  * dialog and the calendar properties dialog.
@@ -112,29 +118,19 @@ function ltnSaveMailIdentitySelection(aCalendar) {
  * @param {calICalendar} aCalendar    The calendar for the identity selection.
  */
 function ltnNotifyOnIdentitySelection(aCalendar) {
-  let notificationBox = document.getElementById("no-identity-notification");
-  while (notificationBox.firstChild) {
-    notificationBox.firstChild.remove();
-  }
-  let gNotification = {};
-  XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
-    return new MozElements.NotificationBox(element => {
-      element.setAttribute("flex", "1");
-      notificationBox.append(element);
-    });
-  });
+  gIdentityNotification.removeAllNotifications();
 
   let msg = cal.l10n.getLtnString("noIdentitySelectedNotification");
   let sel = ltnGetMailIdentitySelection(aCalendar);
 
   if (sel == "none") {
-    gNotification.notificationbox.appendNotification(
+    gIdentityNotification.appendNotification(
       msg,
       "noIdentitySelected",
       null,
-      gNotification.notificationbox.PRIORITY_WARNING_MEDIUM
+      gIdentityNotification.PRIORITY_WARNING_MEDIUM
     );
   } else {
-    gNotification.notificationbox.removeAllNotifications();
+    gIdentityNotification.removeAllNotifications();
   }
 }

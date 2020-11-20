@@ -421,14 +421,13 @@ var chatTabType = {
 
 var chatHandler = {
   get msgNotificationBar() {
-    delete this._msgNotificationBar;
-
-    let newNotificationBox = new MozElements.NotificationBox(element => {
-      element.setAttribute("notificationside", "top");
-      document.getElementById("chat-notification-top").prepend(element);
-    });
-
-    return (this._msgNotificationBar = newNotificationBox);
+    if (!this._notificationBox) {
+      this._notificationBox = new MozElements.NotificationBox(element => {
+        element.setAttribute("notificationside", "top");
+        document.getElementById("chat-notification-top").prepend(element);
+      });
+    }
+    return this._notificationBox;
   },
 
   _addConversation(aConv) {

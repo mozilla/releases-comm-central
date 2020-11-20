@@ -21,10 +21,8 @@ addEventListener("DOMContentLoaded", () => {
   });
 });
 
-const gNotification = {};
-XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+XPCOMUtils.defineLazyGetter(this, "gReadOnlyNotification", () => {
   return new MozElements.NotificationBox(element => {
-    element.setAttribute("flex", "1");
     element.setAttribute("notificationside", "top");
     document.getElementById("readonly-notification").append(element);
   });
@@ -395,21 +393,21 @@ function doReadOnlyChecks() {
     snoozeAllButton.removeAttribute("tooltiptext");
   }
 
-  let notification = gNotification.notificationbox.getNotificationWithValue("calendar-readonly");
+  let notification = gReadOnlyNotification.getNotificationWithValue("calendar-readonly");
   if (countRO && !notification) {
     let message = cal.l10n.getString("calendar-alarms", "reminderReadonlyNotification", [
       snoozeAllButton.label,
     ]);
-    gNotification.notificationbox.appendNotification(
+    gReadOnlyNotification.appendNotification(
       message,
       "calendar-readonly",
       null,
-      gNotification.notificationbox.PRIORITY_WARNING_MEDIUM,
+      gReadOnlyNotification.PRIORITY_WARNING_MEDIUM,
       null,
       null
     );
   } else if (notification && !countRO) {
-    gNotification.notificationbox.removeNotification(notification);
+    gReadOnlyNotification.removeNotification(notification);
   }
 }
 

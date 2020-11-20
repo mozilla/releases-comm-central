@@ -12,10 +12,8 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-const gNotification = {};
-XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
+XPCOMUtils.defineLazyGetter(this, "gStatusNotification", () => {
   return new MozElements.NotificationBox(element => {
-    element.setAttribute("flex", "1");
     document.getElementById("status-notifications").append(element);
   });
 });
@@ -169,14 +167,14 @@ function updateToolbar() {
 
     let msg = cal.l10n.getString("calendar-event-dialog", msgStr[partStat]);
 
-    gNotification.notificationbox.appendNotification(
+    gStatusNotification.appendNotification(
       msg,
       "statusNotification",
       null,
-      gNotification.notificationbox.PRIORITY_INFO_MEDIUM
+      gStatusNotification.PRIORITY_INFO_MEDIUM
     );
   } else {
-    gNotification.notificationbox.removeAllNotifications();
+    gStatusNotification.removeAllNotifications();
   }
 }
 

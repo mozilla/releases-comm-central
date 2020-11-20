@@ -153,8 +153,9 @@ var gBigFileObserver = {
   },
 
   updateNotification() {
-    let nb = gNotification.notificationbox;
-    let notification = nb.getNotificationWithValue("bigAttachment");
+    let notification = gComposeNotification.getNotificationWithValue(
+      "bigAttachment"
+    );
 
     if (this.bigFiles.length) {
       if (notification) {
@@ -190,15 +191,15 @@ var gBigFileObserver = {
         this.bigFiles.length
       );
 
-      notification = nb.appendNotification(
+      notification = gComposeNotification.appendNotification(
         msg,
         "bigAttachment",
-        "null",
-        nb.PRIORITY_WARNING_MEDIUM,
+        null,
+        gComposeNotification.PRIORITY_WARNING_MEDIUM,
         buttons
       );
     } else if (notification) {
-      nb.removeNotification(notification);
+      gComposeNotification.removeNotification(notification);
     }
   },
 
@@ -288,8 +289,9 @@ var gBigFileObserver = {
       return;
     }
 
-    let nb = gNotification.notificationbox;
-    let notification = nb.getNotificationWithValue(kUploadNotificationValue);
+    let notification = gComposeNotification.getNotificationWithValue(
+      kUploadNotificationValue
+    );
 
     if (notification) {
       return;
@@ -309,29 +311,30 @@ var gBigFileObserver = {
         );
       },
     };
-    notification = nb.appendNotification(
+    notification = gComposeNotification.appendNotification(
       message,
       kUploadNotificationValue,
-      "null",
-      nb.PRIORITY_WARNING_MEDIUM,
+      null,
+      gComposeNotification.PRIORITY_WARNING_MEDIUM,
       [showUploadButton]
     );
     notification.timeout = Date.now() + kThreshold;
   },
 
   hideUploadingNotification() {
-    let nb = gNotification.notificationbox;
-    let notification = nb.getNotificationWithValue(kUploadNotificationValue);
+    let notification = gComposeNotification.getNotificationWithValue(
+      kUploadNotificationValue
+    );
 
     if (notification) {
       // Check the timestamp that we stashed in the timeout field of the
       // notification...
       let now = Date.now();
       if (now >= notification.timeout) {
-        nb.removeNotification(notification);
+        gComposeNotification.removeNotification(notification);
       } else {
         setTimeout(function() {
-          nb.removeNotification(notification);
+          gComposeNotification.removeNotification(notification);
         }, notification.timeout - now);
       }
     }
@@ -339,19 +342,20 @@ var gBigFileObserver = {
 
   showPrivacyNotification() {
     const kPrivacyNotificationValue = "bigAttachmentPrivacyWarning";
-    let nb = gNotification.notificationbox;
-    let notification = nb.getNotificationWithValue(kPrivacyNotificationValue);
+    let notification = gComposeNotification.getNotificationWithValue(
+      kPrivacyNotificationValue
+    );
 
     if (notification) {
       return;
     }
 
     let message = this.formatString("cloudFilePrivacyNotification");
-    nb.appendNotification(
+    gComposeNotification.appendNotification(
       message,
       kPrivacyNotificationValue,
-      "null",
-      nb.PRIORITY_WARNING_MEDIUM,
+      null,
+      gComposeNotification.PRIORITY_WARNING_MEDIUM,
       null
     );
   },

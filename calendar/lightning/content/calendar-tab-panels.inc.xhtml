@@ -205,9 +205,9 @@
     <deck id="calendarDisplayDeck" flex="1">
       <!-- Events View ("Unifinder") -->
       <vbox id="calendar-view-box" context="calendar-view-context-menu">
-        <hbox id="calendar-deactivated-notification-location-events">
+        <vbox id="calendar-deactivated-notification-location-events">
           <!-- Calendar deactivated notificationbox for events will be added here lazily. -->
-        </hbox>
+        </vbox>
         <vbox id="bottom-events-box" persist="height">
           <hbox id="unifinder-searchBox" persist="collapsed">
             <box align="center">
@@ -430,9 +430,9 @@
       <!-- Tasks View -->
       <vbox id="calendar-task-box" flex="1"
             onselect="taskDetailsView.onSelect(event);">
-        <hbox id="calendar-deactivated-notification-location-tasks">
+        <vbox id="calendar-deactivated-notification-location-tasks">
           <!-- Calendar deactivated notificationbox for tasks will be added here lazily. -->
-        </hbox>
+        </vbox>
         <hbox id="task-addition-box" class="themeable-brighttext" align="center">
           <box align="center" flex="1">
             <toolbarbutton id="calendar-add-task-button"

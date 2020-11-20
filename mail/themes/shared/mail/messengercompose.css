@@ -547,7 +547,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 }
 
 #attachmentNotificationBox > hbox > .messageImage {
-  background-image: url("chrome://messenger/skin/icons/attach.svg");
+  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
 }
 
 #signing-status,
