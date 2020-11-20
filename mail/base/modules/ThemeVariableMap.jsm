@@ -10,6 +10,16 @@ var { AppConstants } = ChromeUtils.import(
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+// A cache of the current sidebar color to avoid unnecessary conditions and
+// luminance calculations.
+var kSidebarColorCache = null;
+
+function parseRGB(aColorString) {
+  let rgb = aColorString.match(/^rgba?\((\d+), (\d+), (\d+)/);
+  rgb.shift();
+  return rgb.map(x => parseInt(x));
+}
+
 const ThemeVariableMap = [
   [
     "--lwt-accent-color-inactive",
@@ -174,6 +184,16 @@ const ThemeVariableMap = [
             Services.prefs.getCharPref("extensions.activeThemeID", "") ==
               "default-theme@mozilla.org"
           ) {
+            let sidebarColor = element.ownerGlobal.getComputedStyle(element)
+              .color;
+
+            // Interrupt if the sidebar color didn't change.
+            if (sidebarColor == kSidebarColorCache) {
+              return null;
+            }
+
+            kSidebarColorCache = sidebarColor;
+
             // We need to force a light theme before removing the pref in order
             // to deal with the issue of the Default Theme not triggering any
             // color update. We remove the pref to run our conditions on a
@@ -181,11 +201,7 @@ const ThemeVariableMap = [
             Services.prefs.setIntPref("ui.systemUsesDarkTheme", 0);
             Services.prefs.clearUserPref("ui.systemUsesDarkTheme");
 
-            let rgb = element.ownerGlobal
-              .getComputedStyle(element)
-              .color.match(/^rgba?\((\d+), (\d+), (\d+)/);
-            rgb.shift();
-            let [r, g, b] = rgb.map(x => parseInt(x));
+            let [r, g, b] = parseRGB(sidebarColor);
             let luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
 
             // If the sidebar text color is light, we need to force a dark UI.
