@@ -33,24 +33,22 @@ AddrBookCard.prototype = {
   generateName(generateFormat, bundle) {
     let result = "";
     let format;
-    switch (generateFormat) {
-      case Ci.nsIAbCard.GENERATE_DISPLAY_NAME:
-        result = this.displayName;
-        break;
-      case Ci.nsIAbCard.GENERATE_LAST_FIRST_ORDER:
-        format = bundle
-          ? bundle.GetStringFromName("lastFirstFormat")
-          : "%S, %S";
-        result = format
-          .replace("%S", this.lastName)
-          .replace("%S", this.firstName);
-        break;
-      case Ci.nsIAbCard.GENERATE_FIRST_LAST_ORDER:
-        format = bundle ? bundle.GetStringFromName("firstLastFormat") : "%S %S";
-        result = format
-          .replace("%S", this.firstName)
-          .replace("%S", this.lastName);
-        break;
+    if (generateFormat == Ci.nsIAbCard.GENERATE_DISPLAY_NAME) {
+      result = this.displayName;
+    } else if (!this.lastName.length) {
+      result = this.firstName;
+    } else if (!this.firstName.length) {
+      result = this.lastName;
+    } else if (generateFormat == Ci.nsIAbCard.GENERATE_LAST_FIRST_ORDER) {
+      format = bundle ? bundle.GetStringFromName("lastFirstFormat") : "%S, %S";
+      result = format
+        .replace("%S", this.lastName)
+        .replace("%S", this.firstName);
+    } else {
+      format = bundle ? bundle.GetStringFromName("firstLastFormat") : "%S %S";
+      result = format
+        .replace("%S", this.firstName)
+        .replace("%S", this.lastName);
     }
 
     if (result == "") {
@@ -211,10 +209,11 @@ AddrBookCard.prototype = {
     this._properties.delete(name);
   },
   hasEmailAddress(emailAddress) {
-    if (this._properties.get("PrimaryEmail") == emailAddress) {
+    emailAddress = emailAddress.toLowerCase();
+    if (this.getProperty("PrimaryEmail", "").toLowerCase() == emailAddress) {
       return true;
     }
-    if (this._properties.get("SecondEmail") == emailAddress) {
+    if (this.getProperty("SecondEmail", "").toLowerCase() == emailAddress) {
       return true;
     }
     return false;
@@ -230,9 +229,15 @@ AddrBookCard.prototype = {
   },
   generatePhoneticName(lastNameFirst) {
     if (lastNameFirst) {
-      return `${this.lastName}, ${this.firstName}`;
+      return (
+        this.getProperty("PhoneticLastName", "") +
+        this.getProperty("PhoneticFirstName", "")
+      );
     }
-    return `${this.firstName} ${this.lastName}`;
+    return (
+      this.getProperty("PhoneticFirstName", "") +
+      this.getProperty("PhoneticLastName", "")
+    );
   },
   generateChatName() {
     for (let name of [

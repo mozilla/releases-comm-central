@@ -3,6 +3,10 @@
  * Test suite for basic nsIAbCard functions.
  */
 
+const { AddrBookCard } = ChromeUtils.import(
+  "resource:///modules/AddrBookCard.jsm"
+);
+
 // Intersperse these with UTF-8 values to check we handle them correctly.
 var kFNValue = "testFirst\u00D0";
 var kLNValue = "testLast";
@@ -14,12 +18,16 @@ var kEmailValue2 = "test@test.foo.invalid";
 var kEmailReducedValue = "testEmail\u00D2";
 var kCompanyValue = "Test\u00D0 Company";
 
-function run_test() {
-  // Create a new card
-  var card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-    Ci.nsIAbCard
+add_task(function test_cpp_card() {
+  subtest(
+    Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard)
   );
+});
+add_task(function test_js_card() {
+  subtest(new AddrBookCard());
+});
 
+function subtest(card) {
   // Test - Set First, Last and Display Names and Email Address
   // via setProperty, and check correctly saved via their
   // attributes. We're using firstName to check UTF-8 values.
@@ -47,44 +55,62 @@ function run_test() {
   // Test - generateName. Note: if the addressBook.properties
   // value changes, this will affect these tests.
 
+  const {
+    GENERATE_DISPLAY_NAME,
+    GENERATE_LAST_FIRST_ORDER,
+    GENERATE_FIRST_LAST_ORDER,
+  } = Ci.nsIAbCard;
+
   // Add a company name, so we can test fallback to company name.
   card.setProperty("Company", kCompanyValue);
 
-  Assert.equal(card.generateName(0), kDNValue);
-  Assert.equal(card.generateName(1), kLNValue + ", " + kFNValue);
-  Assert.equal(card.generateName(2), kFNValue + " " + kLNValue);
+  Assert.equal(card.generateName(GENERATE_DISPLAY_NAME), kDNValue);
+  Assert.equal(
+    card.generateName(GENERATE_LAST_FIRST_ORDER),
+    kLNValue + ", " + kFNValue
+  );
+  Assert.equal(
+    card.generateName(GENERATE_FIRST_LAST_ORDER),
+    kFNValue + " " + kLNValue
+  );
 
   // Test - generateName, with missing items.
 
   card.displayName = "";
-  Assert.equal(card.generateName(0), kCompanyValue);
+  Assert.equal(card.generateName(GENERATE_DISPLAY_NAME), kCompanyValue);
 
   card.deleteProperty("Company");
-  Assert.equal(card.generateName(0), kEmailReducedValue);
+  Assert.equal(card.generateName(GENERATE_DISPLAY_NAME), kEmailReducedValue);
 
   // Reset company name for the first/last name tests.
   card.setProperty("Company", kCompanyValue);
 
   card.firstName = "";
-  Assert.equal(card.generateName(1), kLNValue);
-  Assert.equal(card.generateName(2), kLNValue);
+  Assert.equal(card.generateName(GENERATE_LAST_FIRST_ORDER), kLNValue);
+  Assert.equal(card.generateName(GENERATE_FIRST_LAST_ORDER), kLNValue);
 
   card.firstName = kFNValue;
   card.lastName = "";
-  Assert.equal(card.generateName(1), kFNValue);
-  Assert.equal(card.generateName(2), kFNValue);
+  Assert.equal(card.generateName(GENERATE_LAST_FIRST_ORDER), kFNValue);
+  Assert.equal(card.generateName(GENERATE_FIRST_LAST_ORDER), kFNValue);
 
   card.firstName = "";
-  Assert.equal(card.generateName(1), kCompanyValue);
-  Assert.equal(card.generateName(2), kCompanyValue);
+  Assert.equal(card.generateName(GENERATE_LAST_FIRST_ORDER), kCompanyValue);
+  Assert.equal(card.generateName(GENERATE_FIRST_LAST_ORDER), kCompanyValue);
 
   card.deleteProperty("Company");
-  Assert.equal(card.generateName(1), kEmailReducedValue);
-  Assert.equal(card.generateName(2), kEmailReducedValue);
+  Assert.equal(
+    card.generateName(GENERATE_LAST_FIRST_ORDER),
+    kEmailReducedValue
+  );
+  Assert.equal(
+    card.generateName(GENERATE_FIRST_LAST_ORDER),
+    kEmailReducedValue
+  );
 
   card.primaryEmail = "";
-  Assert.equal(card.generateName(1), "");
-  Assert.equal(card.generateName(2), "");
+  Assert.equal(card.generateName(GENERATE_LAST_FIRST_ORDER), "");
+  Assert.equal(card.generateName(GENERATE_FIRST_LAST_ORDER), "");
 
   // Test - generateNameWithBundle, most of this will have
   // been tested above.
