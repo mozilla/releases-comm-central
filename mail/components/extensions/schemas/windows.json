@@ -434,6 +434,18 @@
             "parameters": []
           }
         ]
+      },
+      {
+        "name": "openDefaultBrowser",
+        "type": "function",
+        "description": "Opens the provided URL in the default system browser.",
+        "async": true,
+        "parameters": [
+          {
+            "type": "string",
+            "name": "url"
+          }
+        ]
       }
     ],
     "events": [

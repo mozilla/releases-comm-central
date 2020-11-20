@@ -338,6 +338,22 @@ this.windows = class extends ExtensionAPI {
             windowTracker.addListener("domwindowclosed", listener);
           });
         },
+        openDefaultBrowser(url) {
+          let uri = null;
+          try {
+            uri = Services.io.newURI(url);
+          } catch (e) {
+            throw new ExtensionError(`Url "${url}" seems to be malformed.`);
+          }
+          if (!uri.schemeIs("http") && !uri.schemeIs("https")) {
+            throw new ExtensionError(
+              `Url scheme "${uri.scheme}" is not supported.`
+            );
+          }
+          Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+            .getService(Ci.nsIExternalProtocolService)
+            .loadURI(uri);
+        },
       },
     };
   }

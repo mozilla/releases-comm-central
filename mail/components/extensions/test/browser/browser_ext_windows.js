@@ -7,6 +7,76 @@
 let { BrowserTestUtils } = ChromeUtils.import(
   "resource://testing-common/BrowserTestUtils.jsm"
 );
+let { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
+);
+
+/** @implements {nsIExternalProtocolService} */
+let mockExternalProtocolService = {
+  _loadedURLs: [],
+  externalProtocolHandlerExists(aProtocolScheme) {},
+  getApplicationDescription(aScheme) {},
+  getProtocolHandlerInfo(aProtocolScheme) {},
+  getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {},
+  isExposedProtocol(aProtocolScheme) {},
+  loadURI(aURI, aWindowContext) {
+    this._loadedURLs.push(aURI.spec);
+  },
+  setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {},
+  urlLoaded(aURL) {
+    return this._loadedURLs.includes(aURL);
+  },
+  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
+};
+
+let mockExternalProtocolServiceCID = MockRegistrar.register(
+  "@mozilla.org/uriloader/external-protocol-service;1",
+  mockExternalProtocolService
+);
+
+registerCleanupFunction(() => {
+  MockRegistrar.unregister(mockExternalProtocolServiceCID);
+});
+
+add_task(async () => {
+  let extension = ExtensionTestUtils.loadExtension({
+    async background() {
+      const urls = {
+        "http://www.google.de/": true,
+        "https://www.google.de/": true,
+        "ftp://www.google.de/": false,
+      };
+
+      for (let [url, expected] of Object.entries(urls)) {
+        let rv = null;
+        try {
+          await browser.windows.openDefaultBrowser(url);
+          rv = true;
+        } catch (e) {
+          rv = false;
+        }
+        browser.test.assertEq(
+          rv,
+          expected,
+          `Checking result for browser.windows.openDefaultBrowser(${url})`
+        );
+      }
+      browser.test.sendMessage("ready", urls);
+    },
+  });
+
+  await extension.startup();
+  let urls = await extension.awaitMessage("ready");
+  for (let [url, expected] of Object.entries(urls)) {
+    Assert.equal(
+      mockExternalProtocolService.urlLoaded(url),
+      expected,
+      `Double check result for browser.windows.openDefaultBrowser(${url})`
+    );
+  }
+
+  await extension.unload();
+});
 
 add_task(async () => {
   let extension = ExtensionTestUtils.loadExtension({
