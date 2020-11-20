@@ -233,7 +233,7 @@ class CalDavDetector {
   }
 
   /**
-   * Attempt to detect calendars using Google Oauth.
+   * Attempt to detect calendars using Google OAuth.
    *
    * @param {nsIURI} location                   The location to attempt.
    * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
@@ -244,8 +244,8 @@ class CalDavDetector {
     if (!usesGoogleOAuth) {
       // Not using Google OAuth that we know of, but we could check the mx entry.
       // If mail is handled by Google then this is likely a Google Apps domain.
-      let mxres = await DNS.mx(location.host);
-      usesGoogleOAuth = mxres.some(record => record.name.endsWith("google.com"));
+      let mxRecords = await DNS.mx(location.host);
+      usesGoogleOAuth = mxRecords.some(r => /\bgoogle\.com$/.test(r.host));
     }
 
     if (usesGoogleOAuth) {
