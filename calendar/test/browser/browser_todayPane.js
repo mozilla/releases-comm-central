@@ -9,6 +9,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
 add_task(async function testTodayPane() {
@@ -155,5 +156,82 @@ add_task(async function testTodayPane() {
     let header = document.getElementById(headerId);
     EventUtils.synthesizeMouseAtCenter(header.firstElementChild.firstElementChild, {});
     Assert.ok(!header.getAttribute("checked"));
+  }
+});
+
+/**
+ * Tests the today pane opens events in the summary dialog for both
+ * non-recurring and recurring events.
+ */
+add_task(async function testOpenEvent() {
+  let now = cal.dtz.now();
+  let uri = Services.io.newURI("moz-memory-calendar://");
+  let manager = cal.getCalendarManager();
+  let calendar = manager.createCalendar("memory", uri);
+  let calendarProxy = cal.async.promisifyCalendar(calendar);
+
+  calendar.name = "TestOpenEvent";
+  manager.registerCalendar(calendar);
+  registerCleanupFunction(() => manager.removeCalendar(calendar));
+
+  // Let the UI respond to the registration of the calendar.
+  await new Promise(resolve => setTimeout(resolve));
+  await new Promise(resolve => setTimeout(resolve));
+
+  let todayPanePanel = document.querySelector("#today-pane-panel");
+  let todayPaneBtn = document.querySelector("#calendar-status-todaypane-button");
+
+  // Go to mail tab.
+  selectFolderTab();
+
+  // Verify today pane open.
+  if (todayPanePanel.hasAttribute("collapsed")) {
+    EventUtils.synthesizeMouseAtCenter(todayPaneBtn, {});
+  }
+
+  Assert.ok(!todayPanePanel.hasAttribute("collapsed"));
+
+  let noRepeatEvent = new CalEvent();
+  noRepeatEvent.id = "no repeat event";
+  noRepeatEvent.title = "No Repeat Event";
+  noRepeatEvent.startDate = now.clone();
+  noRepeatEvent.endDate = noRepeatEvent.startDate.clone();
+  noRepeatEvent.endDate.hour++;
+
+  let repeatEvent = new CalEvent();
+  repeatEvent.id = "repeated event";
+  repeatEvent.title = "Repeated Event";
+  repeatEvent.startDate = now.clone();
+  repeatEvent.endDate = noRepeatEvent.startDate.clone();
+  repeatEvent.endDate.hour++;
+  repeatEvent.recurrenceInfo = new CalRecurrenceInfo(repeatEvent);
+  repeatEvent.recurrenceInfo.appendRecurrenceItem(
+    cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=5")
+  );
+
+  for (let event of [noRepeatEvent, repeatEvent]) {
+    await calendarProxy.addItem(event);
+
+    // Let the UI respond to the new events.
+    await new Promise(resolve => setTimeout(resolve));
+    await new Promise(resolve => setTimeout(resolve));
+
+    let listBox = agendaListbox.agendaListboxControl;
+    let richlistitem = listBox.querySelector("#today-header + richlistitem");
+
+    Assert.ok(richlistitem.textContent.includes(event.title), "event title is correct");
+
+    let dialogWindowPromise = CalendarTestUtils.waitForEventDialog();
+    EventUtils.synthesizeMouseAtCenter(richlistitem, { clickCount: 2 });
+
+    let dialogWindow = await dialogWindowPromise;
+    let docUri = dialogWindow.document.documentURI;
+    Assert.ok(
+      docUri === "chrome://calendar/content/calendar-summary-dialog.xhtml",
+      "event summary dialog shown"
+    );
+
+    await BrowserTestUtils.closeWindow(dialogWindow);
+    await calendarProxy.deleteItem(event);
   }
 });

@@ -7,6 +7,7 @@
 const EXPORTED_SYMBOLS = ["CalendarTestUtils"];
 
 const EventUtils = ChromeUtils.import("resource://testing-common/mozmill/EventUtils.jsm");
+const { BrowserTestUtils } = ChromeUtils.import("resource://testing-common/BrowserTestUtils.jsm");
 const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 
 /**
@@ -115,5 +116,26 @@ const CalendarTestUtils = {
     Assert.equal(calendarMode.tabs.length, 0, "calendar tab is not open");
 
     await new Promise(resolve => win.setTimeout(resolve));
+  },
+
+  /**
+   * This produces a Promise for waiting on an event dialog to open.
+   * The mode parameter can be specified to indicate which of the dialogs to
+   * wait for.
+   *
+   * @param {string} [mode="view"] Can be "view" or "edit".
+   *
+   * @returns {Promise<Window>}
+   */
+  waitForEventDialog(mode = "view") {
+    let uri =
+      mode === "edit"
+        ? "chrome://calendar/content/calendar-event-dialog.xhtml"
+        : "chrome://calendar/content/calendar-summary-dialog.xhtml";
+
+    return BrowserTestUtils.domWindowOpened(null, async win => {
+      await BrowserTestUtils.waitForEvent(win, "load");
+      return win.document.documentURI == uri;
+    });
   },
 };
