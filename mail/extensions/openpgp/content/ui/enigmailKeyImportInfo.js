@@ -23,16 +23,10 @@ var { EnigmailOS } = ChromeUtils.import(
   "chrome://openpgp/content/modules/os.jsm"
 );
 
-function onLoad() {
-  var dlg = document.getElementById("enigmailKeyImportInfo");
+async function onLoad() {
+  let dlg = document.getElementById("enigmailKeyImportInfo");
 
-  let i, keys;
-
-  dlg.getButton("help").setAttribute("hidden", "true");
-  dlg.getButton("cancel").setAttribute("hidden", "true");
-  dlg.getButton("extra1").setAttribute("hidden", "true");
-  dlg.getButton("extra2").setAttribute("hidden", "true");
-  document.l10n.setAttributes(dlg, "import-info-title");
+  let keys = [];
 
   if (window.screen.width > 500) {
     dlg.setAttribute("maxwidth", window.screen.width - 150);
@@ -49,9 +43,7 @@ function onLoad() {
     EnigmailWindows.openKeyDetails(window, keyId, false);
   };
 
-  for (i = 0, keys = []; i < keyList.length; i++) {
-    let keyId = keyList[i];
-
+  for (let keyId of keyList) {
     if (keyId.search(/^0x/) === 0) {
       keyId = keyId.substr(2).toUpperCase();
     }
@@ -69,31 +61,20 @@ function onLoad() {
 
   if (keys.length) {
     let keysInfoBox = document.getElementById("keyInfo"),
-      keysGrid = document.createXULElement("grid"),
-      keysRows = document.createXULElement("rows"),
-      keysCols = document.createXULElement("columns");
+      keyBox = document.createXULElement("vbox");
 
-    for (i = 0; i < 3; i++) {
-      keysCols.appendChild(document.createXULElement("column"));
+    keyBox.classList.add("grid-three-column");
+    for (let key of keys) {
+      keyBox.appendChild(key);
     }
 
-    let keysRow;
-    for (i = 0; i < keys.length; i++) {
-      if (i % 3 === 0) {
-        keysRow = document.createXULElement("row");
-        keysRows.appendChild(keysRow);
-      }
-      keysRow.appendChild(keys[i]);
-    }
-
-    keysGrid.appendChild(keysRows);
-    keysGrid.appendChild(keysCols);
-    keysInfoBox.appendChild(keysGrid);
+    keysInfoBox.appendChild(keyBox);
   } else {
-    document.l10n.formatValue("import-info-no-keys").then(value => {
-      EnigmailDialog.alert(window, value);
-      setTimeout(window.close, 0);
-    });
+    EnigmailDialog.alert(
+      window,
+      await document.l10n.formatValue("import-info-no-keys")
+    );
+    setTimeout(window.close, 0);
     return;
   }
 
@@ -101,80 +82,55 @@ function onLoad() {
 }
 
 function buildKeyGroupBox(keyObj) {
-  let i,
-    groupBox = document.createXULElement("vbox"),
-    vbox = document.createXULElement("hbox"),
-    //caption = document.createXULElement("image"),
-    userid = document.createXULElement("label"),
-    infoGrid = document.createXULElement("grid"),
-    infoColumns = document.createXULElement("columns"),
-    infoColId = document.createXULElement("column"),
-    infoColDate = document.createXULElement("column"),
-    infoRows = document.createXULElement("rows"),
-    infoRowHead = document.createXULElement("row"),
-    infoRowBody = document.createXULElement("row"),
-    infoLabelH1 = document.createXULElement("label"),
-    infoLabelH2 = document.createXULElement("label"),
-    infoLabelH3 = document.createXULElement("label"),
-    infoLabelB1 = document.createXULElement("label"),
-    infoLabelB2 = document.createXULElement("label"),
-    infoLabelB3 = document.createXULElement("label"),
-    fprGrid = document.createXULElement("grid"),
-    fprLabel = document.createXULElement("label"),
-    fprColumns = document.createXULElement("columns"),
-    fprRows = document.createXULElement("rows"),
-    fprRow1 = document.createXULElement("row"),
-    fprRow2 = document.createXULElement("row");
+  let groupBox = document.createXULElement("vbox");
+  let userid = document.createXULElement("label");
 
-  groupBox.setAttribute("class", "enigmailGroupbox");
+  groupBox.classList.add("enigmailGroupbox", "enigmailGroupboxMargin");
   userid.setAttribute("value", keyObj.userId);
   userid.setAttribute("class", "enigmailKeyImportUserId");
-  vbox.setAttribute("align", "start");
-  //caption.setAttribute("class", "enigmailKeyImportCaption");
-  document.l10n.setAttributes(infoLabelH1, "import-info-bits");
 
+  let infoBox = document.createElement("div");
+  let infoLabelH1 = document.createXULElement("label");
+  let infoLabelH2 = document.createXULElement("label");
+  let infoLabelB1 = document.createXULElement("label");
+  let infoLabelB2 = document.createXULElement("label");
+  let infoLabelB3 = document.createXULElement("label");
+
+  document.l10n.setAttributes(infoLabelH1, "import-info-bits");
   document.l10n.setAttributes(infoLabelH2, "import-info-created");
-  infoLabelH3.setAttribute("value", "");
   infoLabelB1.setAttribute("value", keyObj.keySize);
   infoLabelB2.setAttribute("value", keyObj.created);
 
-  infoRowHead.appendChild(infoLabelH1);
-  infoRowHead.appendChild(infoLabelH2);
-  infoRowHead.appendChild(infoLabelH3);
-  infoRowHead.setAttribute("class", "enigmailKeyImportHeader");
-  infoRowBody.appendChild(infoLabelB1);
-  infoRowBody.appendChild(infoLabelB2);
-  infoRows.appendChild(infoRowHead);
-  infoRows.appendChild(infoRowBody);
-  infoColumns.appendChild(infoColId);
-  infoColumns.appendChild(infoColDate);
-  infoGrid.appendChild(infoColumns);
-  infoGrid.appendChild(infoRows);
+  infoLabelH1.classList.add("enigmailKeyImportHeader");
+  infoLabelH2.classList.add("enigmailKeyImportHeader");
 
+  infoBox.classList.add("grid-two-column-fr");
+  infoBox.appendChild(infoLabelH1);
+  infoBox.appendChild(infoLabelH2);
+  infoBox.appendChild(infoLabelB1);
+  infoBox.appendChild(infoLabelB2);
+
+  let fprBox = document.createXULElement("div");
+  let fprLabel = document.createXULElement("label");
   document.l10n.setAttributes(fprLabel, "import-info-fpr");
-
   fprLabel.setAttribute("class", "enigmailKeyImportHeader");
-  for (i = 0; i < keyObj.fpr.length; i += 4) {
+  let gridTemplateColumns = "";
+  for (let i = 0; i < keyObj.fpr.length; i += 4) {
     var label = document.createXULElement("label");
     label.setAttribute("value", keyObj.fpr.substr(i, 4));
     if (i < keyObj.fpr.length / 2) {
-      fprColumns.appendChild(document.createXULElement("column"));
-      fprRow1.appendChild(label);
-    } else {
-      fprRow2.appendChild(label);
+      gridTemplateColumns += "auto ";
     }
+    fprBox.appendChild(label);
   }
 
-  fprRows.appendChild(fprRow1);
-  fprRows.appendChild(fprRow2);
-  fprGrid.appendChild(fprColumns);
-  fprGrid.appendChild(fprRows);
-  //vbox.appendChild(caption);
-  groupBox.appendChild(vbox);
+  fprBox.style.display = "inline-grid";
+  fprBox.style.gridTemplateColumns = gridTemplateColumns;
+
   groupBox.appendChild(userid);
-  groupBox.appendChild(infoGrid);
+  groupBox.appendChild(infoBox);
   groupBox.appendChild(fprLabel);
-  groupBox.appendChild(fprGrid);
+  groupBox.appendChild(fprBox);
 
   document.l10n.setAttributes(infoLabelB3, "import-info-details");
   infoLabelB3.setAttribute("keyid", keyObj.keyId);

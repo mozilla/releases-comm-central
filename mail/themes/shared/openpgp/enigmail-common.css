@@ -93,6 +93,10 @@
   border-color: lightgrey;
 }
 
+.enigmailGroupboxMargin {
+  margin: 10px 3px;
+}
+
 .enigmailCaptionboxNoTitle {
   border: 2px groove threedface;
   padding: 0.5em;

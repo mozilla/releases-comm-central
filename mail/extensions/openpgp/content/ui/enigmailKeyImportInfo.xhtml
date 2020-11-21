@@ -7,20 +7,20 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/enigmail.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/shared/grid-layout.css"?>
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
 ]>
 
-<dialog id="enigmailKeyImportInfo"
-        title=""
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        buttons="accept,help,cancel,extra1,extra2"
+<window data-l10n-id="import-info-title"
         onload="onLoad();"
-        flex="1"
         style="min-width:100px; max-width:750px;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
+<dialog id="enigmailKeyImportInfo"
+        buttons="accept">
 
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyImportInfo.js"/>
   <linkset>
@@ -34,3 +34,4 @@
   </vbox>
 
 </dialog>
+</window>
