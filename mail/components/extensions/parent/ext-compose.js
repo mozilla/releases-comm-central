@@ -212,8 +212,19 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   return newWindowPromise;
 }
 
-function getComposeDetails(composeWindow, extension) {
+async function getComposeDetails(composeWindow, extension) {
   let composeFields = composeWindow.GetComposeDetails();
+
+  // register the event listener before checking composeEditorReady
+  // to a eliminate potential race condition
+  let composeEditorReady = new Promise(resolve =>
+    composeWindow.addEventListener("compose-editor-ready", resolve, {
+      once: true,
+    })
+  );
+  if (!composeWindow.composeEditorReady) {
+    await composeEditorReady;
+  }
   let editor = composeWindow.GetCurrentEditor();
 
   let details = {
@@ -329,7 +340,7 @@ var composeEventTracker = {
     for (let { handler, extension } of this.listeners) {
       let result = await handler(
         composeWindow,
-        getComposeDetails(composeWindow, extension)
+        await getComposeDetails(composeWindow, extension)
       );
       if (!result) {
         continue;

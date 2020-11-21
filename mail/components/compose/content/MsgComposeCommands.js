@@ -8625,7 +8625,7 @@ function InitEditor() {
   if (AppConstants.platform != "macosx") {
     AutoHideMenubar.init();
   }
-
+  window.composeEditorReady = true;
   window.dispatchEvent(new CustomEvent("compose-editor-ready"));
 }
 
