@@ -155,12 +155,13 @@ this.windows = class extends ExtensionAPI {
             createData.state = "normal";
           }
 
-          let createWindowArgs = urls => {
+          let createWindowArgs = (urls, allowScriptsToClose = false) => {
             let args = Cc["@mozilla.org/array;1"].createInstance(
               Ci.nsIMutableArray
             );
             let actionData = {
               action: "open",
+              allowScriptsToClose,
               tabs: urls.map(url => ({
                 tabType: "contentTab",
                 tabParams: { contentPage: url },
@@ -229,7 +230,7 @@ this.windows = class extends ExtensionAPI {
             let uris = Array.isArray(createData.url)
               ? createData.url
               : [createData.url];
-            let args = createWindowArgs(uris);
+            let args = createWindowArgs(uris, createData.allowScriptsToClose);
             window = Services.ww.openWindow(
               null,
               windowURL,
@@ -240,7 +241,10 @@ this.windows = class extends ExtensionAPI {
           } else {
             let args = null;
             if (!wantNormalWindow) {
-              args = createWindowArgs(["about:blank"]);
+              args = createWindowArgs(
+                ["about:blank"],
+                createData.allowScriptsToClose
+              );
             }
             window = Services.ww.openWindow(
               null,

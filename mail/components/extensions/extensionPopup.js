@@ -53,6 +53,9 @@ function loadRequestedUrl() {
   if (typeof window.arguments[0] == "string") {
     browser.src = window.arguments[0];
   } else {
+    if (window.arguments[1].wrappedJSObject.allowScriptsToClose) {
+      browser.contentWindow.windowUtils.allowScriptsToClose();
+    }
     ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
     browser.src =
       window.arguments[1].wrappedJSObject.tabs[0].tabParams.contentPage;
