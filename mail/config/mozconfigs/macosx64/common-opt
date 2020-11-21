@@ -1,0 +1,14 @@
+# This file is sourced by the nightly, and release mozconfigs.
+
+. $topsrcdir/build/macosx/mozconfig.common
+
+ # Needed to enable breakpad in application.ini
+export MOZILLA_OFFICIAL=1
+
+# For NSS symbols
+export MOZ_DEBUG_SYMBOLS=1
+
+export MOZ_TELEMETRY_REPORTING=1
+
+# Package js shell.
+export MOZ_PACKAGE_JSSHELL=1
