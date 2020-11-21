@@ -1,0 +1,7 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
+. "$topsrcdir/comm/mail/config/mozconfigs/macosx64-aarch64/common-opt"
+
+ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
+ac_add_options --enable-official-branding
+
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
