@@ -444,16 +444,16 @@ static const unsigned int sNumFilterFileAttribTable =
 int nsMsgFilterList::ReadChar(nsIInputStream* aStream) {
   char newChar;
   uint32_t bytesRead;
-  nsresult rv = aStream->Read(&newChar, 1, &bytesRead);
-  if (NS_FAILED(rv) || !bytesRead) return EOF_CHAR;
   uint64_t bytesAvailable;
-  rv = aStream->Available(&bytesAvailable);
-  if (NS_FAILED(rv))
+  nsresult rv = aStream->Available(&bytesAvailable);
+  if (NS_FAILED(rv) || bytesAvailable == 0)
     return EOF_CHAR;
-  else {
-    if (m_startWritingToBuffer) m_unparsedFilterBuffer.Append(newChar);
-    return (unsigned char)newChar;  // Make sure the char is unsigned.
-  }
+
+  rv = aStream->Read(&newChar, 1, &bytesRead);
+  if (NS_FAILED(rv) || !bytesRead) return EOF_CHAR;
+
+  if (m_startWritingToBuffer) m_unparsedFilterBuffer.Append(newChar);
+  return (unsigned char)newChar;  // Make sure the char is unsigned.
 }
 
 int nsMsgFilterList::SkipWhitespace(nsIInputStream* aStream) {
