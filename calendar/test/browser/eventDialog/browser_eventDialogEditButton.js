@@ -126,6 +126,16 @@ add_task(async function testEditNonRecurringEvent() {
   window.goToDate(event.startDate);
   window.switchToView("month");
 
+  let modificationPromise = new Promise(resolve => {
+    calendar.wrappedJSObject.addObserver({
+      QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
+      onModifyItem(aNewItem, aOldItem) {
+        calendar.wrappedJSObject.removeObserver(this);
+        resolve();
+      },
+    });
+  });
+
   let eventWindow = await openEventFromBox(await getEventBox('year="2019"'));
 
   let editWindow = await clickEditButton(
@@ -137,6 +147,8 @@ add_task(async function testEditNonRecurringEvent() {
 
   editDoc.querySelector("#item-title").value = newTitle;
   await clickSaveAndClose(editWindow);
+
+  await modificationPromise;
 
   let eventBox = await getEventBox('year="2019"');
   eventWindow = await openEventFromBox(eventBox);
@@ -179,6 +191,16 @@ add_task(async function testEditThisOccurrence() {
   window.switchToView("month");
   window.goToDate(event.startDate);
 
+  let modificationPromise = new Promise(resolve => {
+    calendar.wrappedJSObject.addObserver({
+      QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
+      onModifyItem(aNewItem, aOldItem) {
+        calendar.wrappedJSObject.removeObserver(this);
+        resolve();
+      },
+    });
+  });
+
   let eventWindow = await openEventFromBox(await getEventBox('day="3"'));
 
   let editWindow = await clickEditButton(
@@ -191,6 +213,8 @@ add_task(async function testEditThisOccurrence() {
 
   editDoc.querySelector("#item-title").value = newTitle;
   await clickSaveAndClose(editWindow);
+
+  await modificationPromise;
 
   let changedBox = await getEventBox('day="3"');
   let eventBoxes = document.querySelectorAll("calendar-month-day-box-item");
