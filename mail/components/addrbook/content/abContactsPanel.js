@@ -147,13 +147,16 @@ function AbPanelLoad() {
 
   document.title = parent.document.getElementById("sidebar-title").value;
 
-  var abPopup = document.getElementById("addressbookList");
+  // Get the URI of the directory to display.
+  let startupURI = Services.prefs.getCharPref("mail.addr_book.view.startupURI");
+  // If the URI is a mailing list, use the parent directory instead, since
+  // mailing lists are not displayed here.
+  startupURI = startupURI.replace(/^(jsaddrbook:\/\/[\w\.-]*)\/.*$/, "$1");
 
-  // Reselect the persisted address book if possible, if not just select the
-  // first in the list.
-  var temp = abPopup.value;
-  abPopup.selectedItem = null;
-  abPopup.value = temp;
+  let abPopup = document.getElementById("addressbookList");
+  abPopup.value = startupURI;
+
+  // If provided directory is not on abPopup, fall back to All Address Books.
   if (!abPopup.selectedItem) {
     abPopup.selectedIndex = 0;
   }
@@ -185,6 +188,14 @@ function AbPanelLoad() {
 
 function AbPanelUnload() {
   mutationObs.disconnect();
+
+  // If there's no default startupURI, save the last used URI as new startupURI.
+  if (!Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
+    Services.prefs.setCharPref(
+      "mail.addr_book.view.startupURI",
+      getSelectedDirectoryURI()
+    );
+  }
 
   CloseAbView();
 }
