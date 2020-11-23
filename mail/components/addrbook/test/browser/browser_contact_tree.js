@@ -51,7 +51,11 @@ var observer = {
   },
 };
 
-add_task(async () => {
+/**
+ * Tests that additions and removals are accurately displayed, or not
+ * displayed if they happen outside the current address book.
+ */
+add_task(async function test_additions_and_removals() {
   function deleteRowWithPrompt(row) {
     let promptPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
     mailTestUtils.treeClick(EventUtils, abWindow, abContactTree, row, 0, {});
@@ -170,7 +174,10 @@ add_task(async () => {
   observer.cleanUp();
 });
 
-add_task(async () => {
+/**
+ * Tests that added contacts are inserted in the right place in the list.
+ */
+add_task(async function test_insertion_order() {
   let abWindow = await openAddressBookWindow();
   let abContactTree = abWindow.document.getElementById("abResultsTree");
 
@@ -255,5 +262,188 @@ add_task(async () => {
 
   let deletePromise = promiseDirectoryRemoved();
   MailServices.ab.deleteAddressBook(bookA.URI);
+  await deletePromise;
+});
+
+/**
+ * Tests the name column is updated when the format changes. Usually this
+ * happens through the menus, but testing menus on Mac is hard, so instead
+ * this test just sets the relevant pref.
+ */
+add_task(async function test_name_column() {
+  const {
+    GENERATE_DISPLAY_NAME,
+    GENERATE_LAST_FIRST_ORDER,
+    GENERATE_FIRST_LAST_ORDER,
+  } = Ci.nsIAbCard;
+
+  let book = createAddressBook("book");
+  book.addCard(createContact("alpha", "tango", "kilo"));
+  book.addCard(createContact("bravo", "zulu", "quebec"));
+  book.addCard(createContact("charlie", "mike", "whiskey"));
+  book.addCard(createContact("delta", "foxtrot", "sierra"));
+  book.addCard(createContact("echo", "november", "uniform"));
+
+  let abWindow = await openAddressBookWindow();
+  let abContactTree = abWindow.document.getElementById("abResultsTree");
+
+  // Check the format is display name, ascending.
+  Assert.equal(
+    Services.prefs.getIntPref("mail.addr_book.lastnamefirst"),
+    GENERATE_DISPLAY_NAME
+  );
+  Assert.equal(abContactTree.columns[0].element.id, "GeneratedName");
+  Assert.equal(
+    abContactTree.columns[0].element.getAttribute("sortDirection"),
+    "ascending"
+  );
+
+  checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
+
+  // Select the "delta foxtrot" contact. This should remain selected throughout.
+  mailTestUtils.treeClick(EventUtils, abWindow, abContactTree, 2, 0, {});
+  Assert.equal(abContactTree.view.selection.currentIndex, 2);
+
+  // Change the format to last, first.
+  Services.prefs.setIntPref(
+    "mail.addr_book.lastnamefirst",
+    GENERATE_LAST_FIRST_ORDER
+  );
+  checkNamesListed(
+    "foxtrot, delta",
+    "mike, charlie",
+    "november, echo",
+    "tango, alpha",
+    "zulu, bravo"
+  );
+  Assert.equal(abContactTree.view.selection.currentIndex, 0);
+
+  // Change the format to first last.
+  Services.prefs.setIntPref(
+    "mail.addr_book.lastnamefirst",
+    GENERATE_FIRST_LAST_ORDER
+  );
+  checkNamesListed(
+    "alpha tango",
+    "bravo zulu",
+    "charlie mike",
+    "delta foxtrot",
+    "echo november"
+  );
+  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+
+  // Flip the order to descending.
+  EventUtils.synthesizeMouseAtCenter(
+    abContactTree.columns.GeneratedName.element,
+    {},
+    abWindow
+  );
+  checkNamesListed(
+    "echo november",
+    "delta foxtrot",
+    "charlie mike",
+    "bravo zulu",
+    "alpha tango",
+  );
+  Assert.equal(abContactTree.view.selection.currentIndex, 1);
+
+  // Change the format to last, first.
+  Services.prefs.setIntPref(
+    "mail.addr_book.lastnamefirst",
+    GENERATE_LAST_FIRST_ORDER
+  );
+  checkNamesListed(
+    "zulu, bravo",
+    "tango, alpha",
+    "november, echo",
+    "mike, charlie",
+    "foxtrot, delta",
+  );
+  Assert.equal(abContactTree.view.selection.currentIndex, 4);
+
+  // Change the format to display name.
+  Services.prefs.setIntPref(
+    "mail.addr_book.lastnamefirst",
+    GENERATE_DISPLAY_NAME
+  );
+  checkNamesListed(
+    "whiskey",
+    "uniform",
+    "sierra",
+    "quebec",
+    "kilo",
+    );
+  Assert.equal(abContactTree.view.selection.currentIndex, 2);
+
+  // Sort by email address, ascending.
+  EventUtils.synthesizeMouseAtCenter(
+    abContactTree.columns.PrimaryEmail.element,
+    {},
+    abWindow
+  );
+  checkNamesListed(
+    "kilo",
+    "quebec",
+    "whiskey",
+    "sierra",
+    "uniform",
+  );
+  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+
+  // Change the format to last, first.
+  Services.prefs.setIntPref(
+    "mail.addr_book.lastnamefirst",
+    GENERATE_LAST_FIRST_ORDER
+  );
+  checkNamesListed(
+    "tango, alpha",
+    "zulu, bravo",
+    "mike, charlie",
+    "foxtrot, delta",
+    "november, echo",
+  );
+  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+
+  // Change the format to first last.
+  Services.prefs.setIntPref(
+    "mail.addr_book.lastnamefirst",
+    GENERATE_FIRST_LAST_ORDER
+  );
+  checkNamesListed(
+    "alpha tango",
+    "bravo zulu",
+    "charlie mike",
+    "delta foxtrot",
+    "echo november",
+  );
+  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+
+  // Change the format to display name.
+  Services.prefs.setIntPref(
+    "mail.addr_book.lastnamefirst",
+    GENERATE_DISPLAY_NAME
+  );
+  checkNamesListed(
+    "kilo",
+    "quebec",
+    "whiskey",
+    "sierra",
+    "uniform",
+  );
+  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+
+  // Restore original sort column and direction.
+  EventUtils.synthesizeMouseAtCenter(
+    abContactTree.columns.GeneratedName.element,
+    {},
+    abWindow
+  );
+  checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
+  Assert.equal(abContactTree.view.selection.currentIndex, 2);
+
+  await closeAddressBookWindow();
+
+  let deletePromise = promiseDirectoryRemoved();
+  MailServices.ab.deleteAddressBook(book.URI);
   await deletePromise;
 });

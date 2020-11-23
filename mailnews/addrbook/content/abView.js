@@ -27,6 +27,10 @@ function ABView(directory, searchQuery, listener, sortColumn, sortDirection) {
   }
   this.sortBy(sortColumn, sortDirection);
 }
+ABView.nameFormat = Services.prefs.getIntPref(
+  "mail.addr_book.lastnamefirst",
+  0
+);
 ABView.prototype = {
   QueryInterface: ChromeUtils.generateQI([
     "nsITreeView",
@@ -161,6 +165,7 @@ ABView.prototype = {
         Services.obs.removeObserver(this, topic);
       }
     }
+    Services.prefs.addObserver("mail.addr_book.lastnamefirst", this, true);
   },
 
   // nsIAbDirSearchListener
@@ -204,6 +209,24 @@ ABView.prototype = {
   // nsIObserver
 
   observe(subject, topic, data) {
+    if (topic == "nsPref:changed") {
+      ABView.nameFormat = Services.prefs.getIntPref(
+        "mail.addr_book.lastnamefirst",
+        0
+      );
+      for (let card of this._rowMap) {
+        delete card._getTextCache.GeneratedName;
+      }
+      if (this.tree) {
+        if (this.sortColumn == "GeneratedName") {
+          this.sortBy(this.sortColumn, this.sortDirection, true);
+        } else {
+          this.tree.invalidate(this.tree.columns.GeneratedName);
+        }
+      }
+      return;
+    }
+
     if (this.directory && data && this.directory.UID != data) {
       return;
     }
@@ -372,9 +395,7 @@ abViewCard.prototype = {
         case "addrbook":
           return this._directory.dirName;
         case "GeneratedName":
-          return this.card.generateName(
-            Services.prefs.getIntPref("mail.addr_book.lastnamefirst", 0)
-          );
+          return this.card.generateName(ABView.nameFormat);
         case "_PhoneticName":
           return this.card.generatePhoneticName(true);
         case "ChatName":

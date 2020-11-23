@@ -106,11 +106,11 @@ async function createAddressBookWithUI(abName) {
   return addressBook;
 }
 
-function createContact(firstName, lastName) {
+function createContact(firstName, lastName, displayName) {
   let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
-  contact.displayName = `${firstName} ${lastName}`;
+  contact.displayName = displayName || `${firstName} ${lastName}`;
   contact.firstName = firstName;
   contact.lastName = lastName;
   contact.primaryEmail = `${firstName}.${lastName}@invalid`;
