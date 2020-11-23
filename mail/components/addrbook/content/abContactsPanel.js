@@ -236,6 +236,26 @@ function CommandUpdate_AddressBook() {
   goUpdateCommand("cmd_properties");
 }
 
+/**
+ * Handle the onpopupshowing event of #sidebarAbContextMenu.
+ * Update the checkmark of #sidebarAbContext-startupDir menuitem when context
+ * menu opens, so as to always be in sync with changes from the main AB window.
+ */
+function onAbContextShowing() {
+  let startupItem = document.getElementById("sidebarAbContext-startupDir");
+  if (Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
+    let startupURI = Services.prefs.getCharPref(
+      "mail.addr_book.view.startupURI"
+    );
+    startupItem.setAttribute(
+      "checked",
+      startupURI == getSelectedDirectoryURI()
+    );
+  } else {
+    startupItem.setAttribute("checked", "false");
+  }
+}
+
 function onEnterInSearchBar() {
   if (!gQueryURIFormat) {
     // Get model query from pref. We don't want the query starting with "?"

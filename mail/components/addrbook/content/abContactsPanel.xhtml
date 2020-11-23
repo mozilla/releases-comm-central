@@ -13,6 +13,8 @@
 %abResultsPaneDTD;
 <!ENTITY % abContactsPanelDTD SYSTEM "chrome://messenger/locale/addressbook/abContactsPanel.dtd" >
 %abContactsPanelDTD;
+<!ENTITY % abMainWindowDTD SYSTEM "chrome://messenger/locale/addressbook/abMainWindow.dtd" >
+%abMainWindowDTD;
 ]>
 
 <window id="abContactsPanel"
@@ -91,13 +93,20 @@
               />
   </menupopup>
 
-  <menupopup id="sidebarAbContextMenu">
+  <menupopup id="sidebarAbContextMenu"
+             onpopupshowing="onAbContextShowing();">
     <menuitem label="&newContactAbContext.label;"
               accesskey="&newContactAbContext.accesskey;"
               command="cmd_newCard"/>
     <menuitem label="&newListAbContext.label;"
               accesskey="&newListAbContext.accesskey;"
               command="cmd_newlist"/>
+    <menuitem id="sidebarAbContext-startupDir"
+              label="&showAsDefault.label;"
+              accesskey="&showAsDefault.accesskey;"
+              type="checkbox"
+              checked="false"
+              oncommand="abToggleSelectedDirStartup();"/>
   </menupopup>
 
   <vbox id="results_box" flex="1">
