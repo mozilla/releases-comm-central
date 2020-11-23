@@ -4,41 +4,20 @@
 
 const EXPORTED_SYMBOLS = ["AddrBookDirectory", "closeConnectionTo"];
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "FileUtils",
-  "resource://gre/modules/FileUtils.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "Services",
-  "resource://gre/modules/Services.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "SimpleEnumerator",
-  "resource:///modules/AddrBookUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "fixIterator",
-  "resource:///modules/iteratorUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "AddrBookCard",
-  "resource:///modules/AddrBookCard.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "AddrBookMailingList",
-  "resource:///modules/AddrBookMailingList.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "newUID",
-  "resource:///modules/AddrBookUtils.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
+  AddrBookMailingList: "resource:///modules/AddrBookMailingList.jsm",
+  compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
+  FileUtils: "resource://gre/modules/FileUtils.jsm",
+  fixIterator: "resource:///modules/iteratorUtils.jsm",
+  newUID: "resource:///modules/AddrBookUtils.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  SimpleEnumerator: "resource:///modules/AddrBookUtils.jsm",
+});
 
 // Keep track of all database connections, and close them at shutdown, since
 // nothing else ever tells us to close them.
@@ -488,6 +467,7 @@ class AddrBookDirectory {
           list.description
         ).asDirectory
     );
+    lists.sort(compareAddressBooks);
     return new SimpleEnumerator(lists);
   }
   get childCards() {

@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const EXPORTED_SYMBOLS = [
+  "compareAddressBooks",
   "exportDirectoryToDelimitedText",
   "exportDirectoryToLDIF",
   "exportDirectoryToVCard",
@@ -56,6 +57,62 @@ function newUID() {
     .generateUUID()
     .toString()
     .substring(1, 37);
+}
+
+let abSortOrder = {
+  [Ci.nsIAbManager.JS_DIRECTORY_TYPE]: 1,
+  [Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE]: 2,
+  [Ci.nsIAbManager.LDAP_DIRECTORY_TYPE]: 3,
+  [Ci.nsIAbManager.MAPI_DIRECTORY_TYPE]: 4,
+};
+let abNameComparer = new Intl.Collator(undefined, { numeric: true });
+
+/**
+ * Comparator for address books. Any UI that lists address books should use
+ * this order, although generally speaking, using nsIAbManager.directories is
+ * all that is required to get the order.
+ *
+ * Note that directories should not be compared with mailing lists in this way,
+ * however two mailing lists with the same parent can be safely compared.
+ *
+ * @param {nsIAbDirectory} a
+ * @param {nsIAbDirectory} b
+ * @returns {integer}
+ */
+function compareAddressBooks(a, b) {
+  if (a.isMailList != b.isMailList) {
+    throw Components.Exception(
+      "Tried to compare a mailing list with a directory",
+      Cr.NS_ERROR_UNEXPECTED
+    );
+  }
+
+  // Only compare the names of mailing lists.
+  if (a.isMailList) {
+    return abNameComparer.compare(a.dirName, b.dirName);
+  }
+
+  // The Personal Address Book is first and Collected Addresses last.
+  let aPrefId = a.dirPrefId;
+  let bPrefId = b.dirPrefId;
+
+  if (aPrefId == "ldap_2.servers.pab" || bPrefId == "ldap_2.servers.history") {
+    return -1;
+  }
+  if (bPrefId == "ldap_2.servers.pab" || aPrefId == "ldap_2.servers.history") {
+    return 1;
+  }
+
+  // Order remaining directories by type.
+  let aType = a.dirType;
+  let bType = b.dirType;
+
+  if (aType != bType) {
+    return abSortOrder[aType] - abSortOrder[bType];
+  }
+
+  // Order directories of the same type by name, case-insensitively.
+  return abNameComparer.compare(a.dirName, b.dirName);
 }
 
 const exportAttributes = [

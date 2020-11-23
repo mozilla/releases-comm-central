@@ -764,6 +764,7 @@ label.statusbarpanel {
 
 .abMenuItem[MailList="true"] {
   list-style-image: url("chrome://messenger/skin/icons/ablist.svg");
+  padding-inline-start: 30px;
 }
 
 .abMenuItem[AddrBook="true"][IsRemote="true"] {

@@ -47,9 +47,7 @@ add_task(async () => {
 
   let abWindow = await openAddressBookWindow();
 
-  registerCleanupFunction(() => {
-    abWindow.close();
-  });
+  registerCleanupFunction(closeAddressBookWindow);
 
   // Check the initial order.
 
@@ -130,6 +128,28 @@ add_task(async () => {
     { level: 1, directory: newBook2 },
     { level: 1, directory: historyBook }
   );
+
+  // Close the window and open it again. The tree should be as it was before.
+
+  await closeAddressBookWindow();
+  abWindow = await openAddressBookWindow();
+  abDocument = abWindow.document;
+  dirTree = abDocument.getElementById("dirTree");
+  dirView = abWindow.gDirectoryTreeView;
+
+  checkDirectoryDisplayed(null);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list2 },
+    { level: 2, directory: list3 },
+    { level: 1, directory: newBook2 },
+    { level: 1, directory: historyBook }
+  );
+
+  openDirectory(newBook2);
 
   let list4 = newBook2.addMailList(createMailingList("New Book 2 - List 4"));
   checkDirectoryDisplayed(newBook2);

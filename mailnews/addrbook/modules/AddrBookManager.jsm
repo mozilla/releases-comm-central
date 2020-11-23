@@ -4,28 +4,18 @@
 
 const EXPORTED_SYMBOLS = ["AddrBookManager"];
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "AppConstants",
-  "resource://gre/modules/AppConstants.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "closeConnectionTo",
-  "resource:///modules/AddrBookDirectory.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "Services",
-  "resource://gre/modules/Services.jsm"
-);
-
-const { clearTimeout, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
+  clearTimeout: "resource://gre/modules/Timer.jsm",
+  closeConnectionTo: "resource:///modules/AddrBookDirectory.jsm",
+  compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+});
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "env",
@@ -61,14 +51,7 @@ if (AppConstants.platform == "macosx") {
 let sortedDirectoryList = [];
 function updateSortedDirectoryList() {
   sortedDirectoryList = [...store.values()];
-  sortedDirectoryList.sort((a, b) => {
-    let aPosition = a.dirPrefId ? a.getIntValue("position", 0) : 0;
-    let bPosition = b.dirPrefId ? b.getIntValue("position", 0) : 0;
-    if (aPosition != bPosition) {
-      return aPosition - bPosition;
-    }
-    return a.URI < b.URI ? -1 : 1;
-  });
+  sortedDirectoryList.sort(compareAddressBooks);
 }
 
 /**

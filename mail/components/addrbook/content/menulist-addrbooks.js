@@ -147,7 +147,6 @@ if (!customElements.get("menulist")) {
         }
       }
 
-      this._sort();
       this._teardown();
 
       if (this.hasAttribute("none")) {
@@ -233,101 +232,6 @@ if (!customElements.get("menulist")) {
       return (
         this.getAttribute(ab.isRemote ? "localonly" : "remoteonly") != "true"
       );
-    }
-
-    _sort() {
-      let lists = {};
-      let lastAB;
-      // If there are any mailing lists, pull them out of the array temporarily.
-      for (let d = 0; d < this._directories.length; d++) {
-        if (this._directories[d].isMailList) {
-          let [list] = this._directories.splice(d, 1);
-          if (!(lastAB in lists)) {
-            lists[lastAB] = [];
-          }
-          lists[lastAB].push(list);
-          d--;
-        } else {
-          lastAB = this._directories[d].URI;
-        }
-      }
-
-      this._directories.sort(this._compare);
-
-      // Push mailing lists back appending them after their respective
-      // containing addressbook.
-      for (let d = this._directories.length - 1; d >= 0; d--) {
-        let abURI = this._directories[d].URI;
-        if (abURI in lists) {
-          lists[abURI].sort(function(a, b) {
-            return a.dirName.localeCompare(b.dirName);
-          });
-          let listIndex = d;
-          for (let list of lists[abURI]) {
-            listIndex++;
-            this._directories.splice(listIndex, 0, list);
-          }
-          delete lists[abURI];
-        }
-      }
-    }
-
-    _compare(a, b) {
-      // Null at the very top.
-      if (!a) {
-        return -1;
-      }
-
-      if (!b) {
-        return 1;
-      }
-
-      // Personal at the top.
-      // Having two possible options here seems illogical, but there can be
-      // only one of them. Once migration happens we can remove this oddity.
-      const kPersonalAddressbookURIs = [
-        "jsaddrbook://abook.sqlite",
-        "moz-abmdbdirectory://abook.mab",
-      ];
-      if (kPersonalAddressbookURIs.includes(a.URI)) {
-        return -1;
-      }
-
-      if (kPersonalAddressbookURIs.includes(b.URI)) {
-        return 1;
-      }
-
-      // Collected at the bottom.
-      const kCollectedAddressbookURIs = [
-        "jsaddrbook://history.sqlite",
-        "moz-abmdbdirectory://history.mab",
-      ];
-      if (kCollectedAddressbookURIs.includes(a.URI)) {
-        return 1;
-      }
-
-      if (kCollectedAddressbookURIs.includes(b.URI)) {
-        return -1;
-      }
-
-      // Sort books of the same type by name.
-      if (a.dirType == b.dirType) {
-        return a.dirName.localeCompare(b.dirName);
-      }
-
-      // If one of the dirTypes is PAB and the other is something else,
-      // then the other will go below the one of type PAB.
-      const PABDirectory = 2;
-      if (a.dirType == PABDirectory) {
-        return -1;
-      }
-
-      if (b.dirType == PABDirectory) {
-        return 1;
-      }
-
-      // Sort anything else by the dir type.
-      return a.dirType - b.dirType;
     }
   }
 

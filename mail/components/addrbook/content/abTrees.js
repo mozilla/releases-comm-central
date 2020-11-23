@@ -10,91 +10,14 @@
  * depends on jsTreeView.js being loaded before this script is loaded.
  */
 
+var { compareAddressBooks } = ChromeUtils.import(
+  "resource:///modules/AddrBookUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
-
-// Tree Sort helper methods.
-var AB_ORDER = [
-  "aab",
-  "pab",
-  "js",
-  "carddav",
-  "ldap",
-  "mapi+other",
-  "anyab",
-  "cab",
-];
-
-function getDirectoryValue(aDir, aKey) {
-  if (aKey == "ab_type") {
-    if (aDir._directory.URI == kAllDirectoryRoot + "?") {
-      return "aab";
-    }
-    if (aDir._directory.URI == kPersonalAddressbookURI) {
-      return "pab";
-    }
-    if (aDir._directory.URI == kCollectedAddressbookURI) {
-      return "cab";
-    }
-    if (aDir._directory.URI.startsWith("jsaddrbook://")) {
-      return "js";
-    }
-    if (aDir._directory.URI.startsWith("jscarddav://")) {
-      return "carddav";
-    }
-    if (aDir._directory instanceof Ci.nsIAbLDAPDirectory) {
-      return "ldap";
-    }
-
-    // If there is any other AB type.
-    return "mapi+other";
-  } else if (aKey == "ab_name") {
-    return aDir._directory.dirName;
-  }
-
-  // This should never happen.
-  return null;
-}
-
-function abNameCompare(a, b) {
-  return new Intl.Collator(undefined, { numeric: true }).compare(a, b);
-}
-
-function abTypeCompare(a, b) {
-  return AB_ORDER.indexOf(a) - AB_ORDER.indexOf(b);
-}
-
-var SORT_PRIORITY = ["ab_type", "ab_name"];
-var SORT_FUNCS = [abTypeCompare, abNameCompare];
-
-function abSort(a, b) {
-  for (let i = 0; i < SORT_FUNCS.length; i++) {
-    let sortBy = SORT_PRIORITY[i];
-    let aValue = getDirectoryValue(a, sortBy);
-    let bValue = getDirectoryValue(b, sortBy);
-
-    if (!aValue && !bValue) {
-      return 0;
-    }
-    if (!aValue) {
-      return -1;
-    }
-    if (!bValue) {
-      return 1;
-    }
-    if (aValue != bValue) {
-      let result = SORT_FUNCS[i](aValue, bValue);
-
-      if (result != 0) {
-        return result;
-      }
-    }
-  }
-  return 0;
-}
 
 /**
  * Each abDirTreeItem corresponds to one row in the tree view.
@@ -104,6 +27,10 @@ function abDirTreeItem(aDirectory) {
 }
 
 abDirTreeItem.prototype = {
+  get directory() {
+    return this._directory;
+  },
+
   getText() {
     return this._directory.dirName;
   },
@@ -142,7 +69,7 @@ abDirTreeItem.prototype = {
         if (
           gDirectoryTreeView &&
           this.id == kAllDirectoryRoot + "?" &&
-          getDirectoryValue(abItem, "ab_type") == "ldap"
+          abItem instanceof Ci.nsIAbLDAPDirectory
         ) {
           gDirectoryTreeView.hasRemoteAB = true;
         }
@@ -151,8 +78,6 @@ abDirTreeItem.prototype = {
         this._children[this._children.length - 1]._level = this._level + 1;
         this._children[this._children.length - 1]._parent = this;
       }
-
-      this._children.sort(abSort);
     }
     return this._children;
   },
@@ -344,9 +269,6 @@ directoryTreeView.prototype = {
     };
     this._rowMap.push(new abDirTreeItem(rootAB));
 
-    // Sort our addressbooks now
-    this._rowMap.sort(abSort);
-
     if (this._tree) {
       this._tree.rowCountChanged(0, this._rowMap.length - oldCount);
     }
@@ -398,7 +320,7 @@ directoryTreeView.prototype = {
 
         let newIndex = null;
         for (let childItem of parentItem.children.reverse()) {
-          if (abSort(newItem, childItem) < 0) {
+          if (compareAddressBooks(subject, childItem.directory) < 0) {
             newIndex = this.getIndexForId(childItem.id);
           }
         }

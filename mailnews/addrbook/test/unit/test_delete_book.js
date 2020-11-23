@@ -31,8 +31,8 @@ add_task(async function clearPref() {
   let book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
   Assert.deepEqual(getExistingDirectories(), [
-    "ldap_2.servers.deleteme",
     "ldap_2.servers.pab",
+    "ldap_2.servers.deleteme",
     "ldap_2.servers.history",
   ]);
   Services.prefs.setStringPref("mail.collect_addressbook", book.URI);
