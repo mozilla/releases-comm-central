@@ -637,7 +637,7 @@ subclass(NNTP_RFC4643_extension, NNTP_RFC2980_handler, {
   },
   LIST(args) {
     if (this.authenticated) {
-      return this.parent.LIST(args);
+      return args ? this.parent.LIST(args) : "502 Invalid command: LIST";
     }
     return "480 Authentication required";
   },
