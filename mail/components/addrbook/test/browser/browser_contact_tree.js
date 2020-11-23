@@ -343,7 +343,7 @@ add_task(async function test_name_column() {
     "delta foxtrot",
     "charlie mike",
     "bravo zulu",
-    "alpha tango",
+    "alpha tango"
   );
   Assert.equal(abContactTree.view.selection.currentIndex, 1);
 
@@ -357,7 +357,7 @@ add_task(async function test_name_column() {
     "tango, alpha",
     "november, echo",
     "mike, charlie",
-    "foxtrot, delta",
+    "foxtrot, delta"
   );
   Assert.equal(abContactTree.view.selection.currentIndex, 4);
 
@@ -366,13 +366,7 @@ add_task(async function test_name_column() {
     "mail.addr_book.lastnamefirst",
     GENERATE_DISPLAY_NAME
   );
-  checkNamesListed(
-    "whiskey",
-    "uniform",
-    "sierra",
-    "quebec",
-    "kilo",
-    );
+  checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
   Assert.equal(abContactTree.view.selection.currentIndex, 2);
 
   // Sort by email address, ascending.
@@ -381,13 +375,7 @@ add_task(async function test_name_column() {
     {},
     abWindow
   );
-  checkNamesListed(
-    "kilo",
-    "quebec",
-    "whiskey",
-    "sierra",
-    "uniform",
-  );
+  checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
   Assert.equal(abContactTree.view.selection.currentIndex, 3);
 
   // Change the format to last, first.
@@ -400,7 +388,7 @@ add_task(async function test_name_column() {
     "zulu, bravo",
     "mike, charlie",
     "foxtrot, delta",
-    "november, echo",
+    "november, echo"
   );
   Assert.equal(abContactTree.view.selection.currentIndex, 3);
 
@@ -414,7 +402,7 @@ add_task(async function test_name_column() {
     "bravo zulu",
     "charlie mike",
     "delta foxtrot",
-    "echo november",
+    "echo november"
   );
   Assert.equal(abContactTree.view.selection.currentIndex, 3);
 
@@ -423,13 +411,7 @@ add_task(async function test_name_column() {
     "mail.addr_book.lastnamefirst",
     GENERATE_DISPLAY_NAME
   );
-  checkNamesListed(
-    "kilo",
-    "quebec",
-    "whiskey",
-    "sierra",
-    "uniform",
-  );
+  checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
   Assert.equal(abContactTree.view.selection.currentIndex, 3);
 
   // Restore original sort column and direction.
