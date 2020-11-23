@@ -65,6 +65,7 @@ EXTRA_JS_MODULES += [
     "MimeMessageUtils.jsm",
     "MimePart.jsm",
     "MsgSendModuleLoader.jsm",
+    "SmtpClient.jsm",
     "SmtpModuleLoader.jsm",
     "SMTPProtocolHandler.jsm",
     "SmtpService.jsm",
