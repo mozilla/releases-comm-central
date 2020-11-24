@@ -1,6 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg"
-     xmlns:xlink="http://www.w3.org/1999/xlink"
-     viewBox="0 0 112 48" width="112" height="48">
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 112 48" width="112" height="48">
 
     <!-- definitions -->
     <style>
@@ -118,4 +119,4 @@
     <use id="resource-nonparticipant" class="non" xlink:href="#resource" x="64" y="32" />
     <use id="room-nonparticipant" class="non" xlink:href="#room" x="80" y="32" />
     <use id="unknown-nonparticipant" class="non" xlink:href="#unknown" x="96" y="32" />
-</svg> 
+</svg>

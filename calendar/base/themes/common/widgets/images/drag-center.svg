@@ -1,11 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg"
-     width="36" height="15">
-  <line id="plusV_b" x1="31.5" y1="3" x2="31.5" y2="12" stroke="#ffffff" stroke-width="3" stroke-opacity="0.8" fill="none"/>
-  <line id="plusH_b" x1="27" y1="7.5" x2="36" y2="7.5" stroke="#ffffff" stroke-width="3" stroke-opacity="0.8" fill="none"/>
-  <line id="minus_b" x1="0" y1="7.5" x2="8" y2="7.5" stroke="#ffffff" stroke-width="3" stroke-opacity="0.8" fill="none"/>
-  <line id="minus" x1="1" y1="7.5" x2="7" y2="7.5" stroke="#aaaaaa" stroke-width="1" fill="none"/>
-  <line id="plusH" x1="28" y1="7.5" x2="35" y2="7.5" stroke="#aaaaaa" stroke-width="1" fill="none"/>
-  <line id="plusV" x1="31.5" y1="4" x2="31.5" y2="11" stroke="#aaaaaa" stroke-width="1" fill="none"/>
-  <circle id="outer" r="6.5" cy="7.5" cx="18" stroke="#ffffff" stroke-width="2" stroke-opacity="0.8" fill="none"/>
-  <circle id="inner" r="5.5" cy="7.5" cx="18" stroke="#4c4c4c" stroke-width="1.5" stroke-opacity="0.5" fill="none"/>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="15" stroke="#fff" fill="none">
+  <path stroke-width="3" stroke-opacity=".8" d="M31.5 3v9M27 7.5h9M0 7.5h8"/>
+  <path stroke="#aaa" d="M1 7.5h6M28 7.5h7M31.5 4v7"/>
+  <circle r="6.5" cy="7.5" cx="18" stroke-width="2" stroke-opacity=".8"/>
+  <circle r="5.5" cy="7.5" cx="18" stroke="#4c4c4c" stroke-width="1.5" stroke-opacity=".5"/>
 </svg>
