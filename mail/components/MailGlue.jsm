@@ -165,6 +165,7 @@ MailGlue.prototype = {
           commandLine.getArgument(flagIndex) ===
             MailGlue.BROWSER_TOOLBOX_WINDOW_URL
         ) {
+          this._developerToolboxInit();
           return;
         }
 
@@ -559,6 +560,23 @@ MailGlue.prototype = {
       );
       linkHandled.data = true;
     }
+  },
+
+  /**
+   * If this is the developer toolbox process, disable the built-in WeTransfer
+   * add-on, which shouldn't be running here.
+   */
+  _developerToolboxInit() {
+    let disableWeTransfer = async () => {
+      let weTransfer = await AddonManager.getAddonByID(
+        "wetransfer@extensions.thunderbird.net"
+      );
+      if (weTransfer) {
+        weTransfer.disable({ allowSystemAddons: true });
+      }
+      Services.obs.removeObserver(disableWeTransfer, "final-ui-startup");
+    };
+    Services.obs.addObserver(disableWeTransfer, "final-ui-startup");
   },
 
   // for XPCOM
