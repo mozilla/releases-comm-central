@@ -70,14 +70,16 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   -moz-user-focus: normal;
 }
 
-:root[lwt-tree] .view-navigation-button {
+:root[lwt-tree] .view-navigation-button,
+:root[lwt-tree-brighttext] .view-navigation-button {
   appearance: none;
   -moz-user-focus: normal;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
 }
 
-:root[lwt-tree] .view-navigation-button:not([disabled="true"]):hover {
+:root[lwt-tree] .view-navigation-button:not([disabled="true"]):hover,
+:root[lwt-tree-brighttext] .view-navigation-button:not([disabled="true"]):hover {
   background: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);

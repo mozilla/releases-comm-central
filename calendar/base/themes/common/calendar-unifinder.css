@@ -29,13 +29,10 @@
     margin: 0;
 }
 
-:root[lwt-tree] #unifinder-searchBox {
+:root[lwt-tree] #unifinder-searchBox,
+:root[lwt-tree-brighttext] #unifinder-searchBox {
     background-color: var(--toolbar-bgcolor);
     background-image: none;
     color: var(--toolbar-color);
-    border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
-}
-
-:root[lwt-tree-brighttext] #unifinder-searchBox {
-    border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+    border-bottom-color: var(--sidebar-border-color, var(--splitter-color));
 }

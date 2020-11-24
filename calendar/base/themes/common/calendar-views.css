@@ -44,10 +44,11 @@
     --viewDropshadowBackground: #ffa47d;
 }
 
-:root[lwt-tree] {
+:root[lwt-tree],
+:root[lwt-tree-brighttext] {
     --viewColor: var(--sidebar-text-color);
-    --viewBackground: var(--sidebar-background-color);
-    --viewBorderColor: var(--sidebar-border-color);
+    --viewBackground: var(--sidebar-background-color, Field);
+    --viewBorderColor: var(--sidebar-border-color, var(--splitter-color));
     --viewTodayColor: var(--sidebar-highlight-text-color, HighlightText);
     --viewTodayBackground: var(--sidebar-highlight-background-color, Highlight);
     --viewTodayLabelColor: var(--sidebar-highlight-text-color, HighlightText);
@@ -56,11 +57,11 @@
     --viewMonthCurrentBackground: rgba(0, 0, 0, 0.1);
     --viewMonthDayOtherLabelBackground: rgba(0, 0, 0, 0.2);
     --viewMonthOtherBackground: rgba(0, 0, 0, 0.1);
-    --viewMonthDayBoxLabelColor: var(--sidebar-text-color);
-    --viewMonthDayBoxWeekLabel: var(--sidebar-text-color);
+    --viewMonthDayBoxLabelColor: var(--sidebar-text-color, FieldText);
+    --viewMonthDayBoxWeekLabel: var(--sidebar-text-color, FieldText);
     --viewMonthDayOtherBackground: rgba(0, 0, 0, 0.2);
     --viewOffTimeBackground: rgba(0, 0, 0, 0.15);
-    --viewTimeBoxColor: var(--sidebar-text-color);
+    --viewTimeBoxColor: var(--sidebar-text-color, FieldText);
 }
 
 :root[lwt-tree-brighttext] {
@@ -1114,14 +1115,16 @@ radio.calview:not([selected=true]):hover {
     font-size: 14px;
 }
 
-:root[lwt-tree] .today-navigation-button {
+:root[lwt-tree] .today-navigation-button,
+:root[lwt-tree-brighttext] .today-navigation-button {
   appearance: none;
   -moz-user-focus: normal;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
 }
 
-:root[lwt-tree] .today-navigation-button:not([disabled="true"]):hover {
+:root[lwt-tree] .today-navigation-button:not([disabled="true"]):hover,
+:root[lwt-tree-brighttext] .today-navigation-button:not([disabled="true"]):hover {
   background: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);

@@ -26,20 +26,21 @@ calendar-minimonth {
   --mmDaySelectedTodayBorderColor: #67acd8;
 }
 
-:root[lwt-tree] calendar-minimonth {
-  --mmMainColor: var(--sidebar-text-color);
-  --mmMainBackground: var(--sidebar-background-color);
+:root[lwt-tree] calendar-minimonth,
+:root[lwt-tree-brighttext] calendar-minimonth {
+  --mmMainColor: var(--sidebar-text-color, FieldText);
+  --mmMainBackground: var(--sidebar-background-color, Field);
   --mmHighlightColor: var(--sidebar-highlight-text-color, HighlightText);
   --mmHighlightBackground: var(--sidebar-highlight-background-color, Highlight);
   --mmHighlightBorderColor: var(--sidebar-highlight-background-color, Highlight);
-  --mmBoxBackground: var(--sidebar-background-color);
-  --mmBoxBorderColor: var(--sidebar-background-color);
+  --mmBoxBackground: var(--sidebar-background-color, Field);
+  --mmBoxBorderColor: var(--sidebar-background-color, Field);
   --mmDayTodayColor: var(--sidebar-highlight-text-color, HighlightText);
   --mmDayTodayBackground: var(--sidebar-highlight-background-color, Highlight);
   --mmDayTodayBorderColor: var(--sidebar-highlight-text-color, HighlightText);
-  --mmDayColor: var(--sidebar-text-color);
-  --mmDayBorderColor: var(--sidebar-background-color);
-  --mmDayOtherColor: var(--sidebar-text-color);
+  --mmDayColor: var(--sidebar-text-color, FieldText);
+  --mmDayBorderColor: var(--sidebar-background-color, Field);
+  --mmDayOtherColor: var(--sidebar-text-color, FieldText);
   --mmDayOtherBackground: rgba(0, 0, 0, 0.1);
   --mmDayOtherBorderColor: Transparent;
 }

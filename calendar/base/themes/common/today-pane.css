@@ -75,20 +75,22 @@
 }
 
 .today-pane-cycler:hover {
-  background-color: hsla(0,0%,0%,.1);
+  background-color: hsla(0, 0%, 0%, 0.1);
   color: inherit;
 }
 
 .today-pane-cycler:hover:active {
-  background-color: hsla(0,0%,0%,.2);
+  background-color: hsla(0, 0%, 0%, 0.2);
 }
 
-.today-pane-cycler:-moz-lwtheme-brighttext:hover {
-  background-color: hsla(0,0%,100%,.2);
+.today-pane-cycler:-moz-lwtheme-brighttext:hover,
+:root[lwt-tree-brighttext] .today-pane-cycler:hover {
+  background-color: hsla(0, 0%, 100%, 0.1);
 }
 
-.today-pane-cycler:-moz-lwtheme-brighttext:hover:active {
-  background-color: hsla(0,0%,100%,.3);
+.today-pane-cycler:-moz-lwtheme-brighttext:hover:active,
+:root[lwt-tree-brighttext] .today-pane-cycler:hover:active {
+  background-color: hsla(0, 0%, 100%, 0.2);
 }
 
 .today-pane-cycler[dir="prev"]:-moz-locale-dir(ltr) > .toolbarbutton-icon,
