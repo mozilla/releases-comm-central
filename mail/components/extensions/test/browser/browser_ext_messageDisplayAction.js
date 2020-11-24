@@ -20,6 +20,7 @@ add_task(async () => {
     let doc = win.document;
 
     await extension.startup();
+    await promiseAnimationFrame();
 
     let buttonId = "test1_mochi_test-messageDisplayAction-toolbarbutton";
     let toolbar = doc.getElementById("header-view-toolbar");
