@@ -265,3 +265,8 @@ add_task(async function test_managers() {
     MailServices.ab.deleteAddressBook(book.URI);
   });
 });
+
+registerCleanupFunction(() => {
+  // Make sure any open database is given a chance to close.
+  Services.obs.notifyObservers(null, "quit-application");
+});
