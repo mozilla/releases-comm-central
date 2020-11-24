@@ -217,7 +217,7 @@
       {
         "name": "create",
         "type": "function",
-        "description": "Creates a new tab.",
+        "description": "Creates a new tab or switches to a tab with the given URL, if it exists already.",
         "async": "callback",
         "parameters": [
           {
