@@ -16,6 +16,7 @@
 #include "nsIAbLDAPDirectory.h"
 #include "nsString.h"
 #include "mozilla/MozPromise.h"
+#include "nsIObserver.h"
 
 class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
                                        public nsAbLDAPListenerBase,

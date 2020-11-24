@@ -50,6 +50,7 @@
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/XULFrameElement.h"
 #include "nsFrameLoader.h"
+#include "mozilla/dom/Document.h"
 
 // mail
 #include "nsIMsgMailNewsUrl.h"

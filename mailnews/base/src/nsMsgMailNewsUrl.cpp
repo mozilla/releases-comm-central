@@ -32,6 +32,7 @@
 #include "nsContentUtils.h"
 #include "nsIObjectInputStream.h"
 #include "nsIObjectOutputStream.h"
+#include "nsIChannel.h"
 
 nsMsgMailNewsUrl::nsMsgMailNewsUrl() {
   // nsIURI specific state

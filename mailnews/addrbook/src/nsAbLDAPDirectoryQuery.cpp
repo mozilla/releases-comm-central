@@ -20,6 +20,7 @@
 #include "nsAbLDAPListenerBase.h"
 #include "nsXPCOMCIDInternal.h"
 #include "nsIURIMutator.h"
+#include "mozilla/Logging.h"
 
 using namespace mozilla;
 

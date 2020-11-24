@@ -6,9 +6,9 @@
 #include "msgCore.h"
 #include "nsIMAPBodyShell.h"
 #include "nsImapProtocol.h"
-
 #include "nsMimeTypes.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/Logging.h"
 
 // need to talk to Rich about this...
 #define IMAP_EXTERNAL_CONTENT_HEADER "X-Mozilla-IMAP-Part"

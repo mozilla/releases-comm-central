@@ -39,6 +39,7 @@
 #include "nsContentUtils.h"
 #include "nsIChannel.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/dom/Document.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/XULFrameElement.h"
 #include "nsFrameLoader.h"

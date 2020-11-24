@@ -33,6 +33,7 @@
 #include "nsServiceManagerUtils.h"
 #include "nsIAuthPrompt.h"
 #include "nsMsgUtils.h"
+#include "mozilla/dom/Document.h"
 #include "mozilla/TransactionManager.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
 #include "mozilla/dom/Element.h"

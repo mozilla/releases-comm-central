@@ -3,10 +3,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * The account manager service - manages all accounts, servers, and identities
  */
 
+#include "nsCOMPtr.h"
+#include "nsISupports.h"
+#include "nsIThread.h"
+#include "nscore.h"
+#include "mozilla/Assertions.h"
+#include "mozilla/Likely.h"
+#include "mozilla/MemoryReporting.h"
+#include "mozilla/RefCountType.h"
+#include "mozilla/RefPtr.h"
 #include "nsIComponentManager.h"
 #include "nsIServiceManager.h"
 #include "nsIMutableArray.h"

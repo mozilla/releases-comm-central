@@ -27,6 +27,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgHdr.h"
 #include "nsServiceManagerUtils.h"
+#include "mozilla/Logging.h"
 
 using namespace mozilla;
 extern LazyLogModule IMAPCache;  // defined in nsImapProtocol.cpp
