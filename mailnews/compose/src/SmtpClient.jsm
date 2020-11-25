@@ -109,7 +109,7 @@ class SmtpClient {
     this._parseBlock = { data: [], statusCode: null };
     this._parseRemainder = ""; // If the complete line is not received yet, contains the beginning of it
 
-    const dummyLogger = ["error", "warning", "info", "debug"].reduce((o, l) => {
+    const dummyLogger = ["error", "warn", "info", "debug"].reduce((o, l) => {
       o[l] = () => {};
       return o;
     }, {});
@@ -128,7 +128,7 @@ class SmtpClient {
    * Initiate a connection to the server
    */
   connect(SocketContructor = TCPSocket) {
-    this.socket = SocketContructor.open(this.host, this.port, {
+    this.socket = new SocketContructor(this.host, this.port, {
       binaryType: "arraybuffer",
       useSecureTransport: this._secureMode,
       ca: this.options.ca,
@@ -645,7 +645,7 @@ class SmtpClient {
       }
 
       // Try HELO instead
-      this.logger.warning(
+      this.logger.warn(
         DEBUG_TAG,
         "EHLO not successful, trying HELO " + this.options.name
       );
@@ -788,7 +788,7 @@ class SmtpClient {
    */
   _actionAUTH_XOAUTH2(command) {
     if (!command.success) {
-      this.logger.warning(
+      this.logger.warn(
         DEBUG_TAG,
         "Error during AUTH XOAUTH2, sending empty response"
       );
@@ -871,7 +871,7 @@ class SmtpClient {
    */
   _actionRCPT(command) {
     if (!command.success) {
-      this.logger.warning(
+      this.logger.warn(
         DEBUG_TAG,
         "RCPT TO failed for: " + this._envelope.curRecipient
       );
