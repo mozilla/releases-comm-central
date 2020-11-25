@@ -20,45 +20,119 @@ const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>\n';
 const MIME_TEXT_XML = "text/xml; charset=utf-8";
 
 /**
- * This is a handler for the etag request in calDavCalendar.js' getUpdatedItem.
- * It uses the SAX parser to incrementally parse the items and compose the
- * resulting multiget.
- *
- * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
- * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
- * @param {*=} aChangeLogListener - (optional) for cached calendars, the listener to notify.
+ * Accumulate all XML response, then parse with DOMParser. This class imitates
+ * nsISAXXMLReader by calling startDocument/endDocument and startElement/endElement.
  */
-function CalDavEtagsHandler(aCalendar, aBaseUri, aChangeLogListener) {
-  this.calendar = aCalendar;
-  this.baseUri = aBaseUri;
-  this.changeLogListener = aChangeLogListener;
-  this._reader = Cc["@mozilla.org/saxparser/xmlreader;1"].createInstance(Ci.nsISAXXMLReader);
-  this._reader.contentHandler = this;
-  this._reader.errorHandler = this;
-  this._reader.parseAsync(null);
+class XMLResponseHandler {
+  constructor() {
+    this._inStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+      Ci.nsIScriptableInputStream
+    );
+    this._xmlString = "";
+  }
 
-  this.itemsReported = {};
-  this.itemsNeedFetching = [];
+  /**
+   * @see nsIStreamListener
+   */
+  onDataAvailable(request, inputStream, offset, count) {
+    this._inStream.init(inputStream);
+    this._xmlString += this._inStream.read(count);
+  }
+
+  /**
+   * Parse this._xmlString with DOMParser, then create a TreeWalker and start
+   * walking the node tree.
+   */
+  handleResponse() {
+    let parser = new DOMParser();
+    let doc;
+    try {
+      doc = parser.parseFromString(this._xmlString, "application/xml");
+    } catch (e) {
+      cal.ERROR("CALDAV: DOMParser parse error: ", e);
+      this.fatalError();
+    }
+
+    let treeWalker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_ELEMENT);
+    this.startDocument();
+    this._walk(treeWalker);
+    this.endDocument();
+  }
+
+  /**
+   * Reset this._xmlString.
+   */
+  resetXMLResponseHandler() {
+    this._xmlString = "";
+  }
+
+  /**
+   * Walk the tree node by node, call startElement and endElement when appropriate.
+   */
+  _walk(treeWalker) {
+    let currentNode = treeWalker.currentNode;
+    if (currentNode) {
+      this.startElement("", currentNode.localName, currentNode.nodeName, "");
+
+      // Traverse children first.
+      let firstChild = treeWalker.firstChild();
+      if (firstChild) {
+        this._walk(treeWalker);
+        // TreeWalker has reached a leaf node, reset the cursor to continue the traversal.
+        treeWalker.currentNode = firstChild;
+      } else {
+        this.characters(currentNode.textContent);
+        this.endElement("", currentNode.localName, currentNode.nodeName);
+        return;
+      }
+
+      // Traverse siblings next.
+      let nextSibling = treeWalker.nextSibling();
+      while (nextSibling) {
+        this._walk(treeWalker);
+        // TreeWalker has reached a leaf node, reset the cursor to continue the traversal.
+        treeWalker.currentNode = nextSibling;
+        nextSibling = treeWalker.nextSibling();
+      }
+
+      this.endElement("", currentNode.localName, currentNode.nodeName);
+    }
+  }
 }
 
-CalDavEtagsHandler.prototype = {
-  skipIndex: -1,
-  currentResponse: null,
-  tag: null,
-  calendar: null,
-  baseUri: null,
-  changeLogListener: null,
-  logXML: "",
+/**
+ * This is a handler for the etag request in calDavCalendar.js' getUpdatedItem.
+ * It uses XMLResponseHandler to parse the items and compose the resulting
+ * multiget.
+ */
+class CalDavEtagsHandler extends XMLResponseHandler {
+  /**
+   * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
+   * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
+   * @param {*=} aChangeLogListener - (optional) for cached calendars, the listener to notify.
+   */
+  constructor(aCalendar, aBaseUri, aChangeLogListener) {
+    super();
+    this.calendar = aCalendar;
+    this.baseUri = aBaseUri;
+    this.changeLogListener = aChangeLogListener;
 
-  itemsReported: null,
-  itemsNeedFetching: null,
+    this.itemsReported = {};
+    this.itemsNeedFetching = [];
+  }
 
-  QueryInterface: ChromeUtils.generateQI([
-    "nsISAXContentHandler",
-    "nsISAXErrorHandler",
-    "nsIRequestObserver",
-    "nsIStreamListener",
-  ]),
+  skipIndex = -1;
+  currentResponse = null;
+  tag = null;
+  calendar = null;
+  baseUri = null;
+  changeLogListener = null;
+  logXML = "";
+
+  itemsReported = null;
+  itemsNeedFetching = null;
+
+  QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]);
 
   /**
    * @see nsIRequestObserver
@@ -77,30 +151,20 @@ CalDavEtagsHandler.prototype = {
       // We only need to parse 207's, anything else is probably a
       // server error (i.e 50x).
       httpchannel.contentType = "application/xml";
-      this._reader.onStartRequest(request);
     } else {
       cal.LOG("CalDAV: Error fetching item etags");
       this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR);
       if (this.calendar.isCached && this.changeLogListener) {
         this.changeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
       }
-      this._reader = null;
     }
-  },
+  }
 
   async onStopRequest(request, statusCode) {
     if (this.calendar.verboseLogging()) {
       cal.LOG("CalDAV: recv: " + this.logXML);
     }
-    if (!this._reader) {
-      // No reader means there was a request error
-      return;
-    }
-    try {
-      this._reader.onStopRequest(request, statusCode);
-    } finally {
-      this._reader = null;
-    }
+    this.handleResponse();
 
     // Now that we are done, check which items need fetching.
     this.calendar.superCalendar.startBatch();
@@ -162,27 +226,17 @@ CalDavEtagsHandler.prototype = {
         this.calendar.pollInbox();
       }
     }
-  },
+  }
 
   /**
-   * @see nsIStreamListener
-   */
-  onDataAvailable(request, inputStream, offset, count) {
-    if (this._reader) {
-      // No reader means request error
-      this._reader.onDataAvailable(request, inputStream, offset, count);
-    }
-  },
-
-  /**
-   * @see nsISAXErrorHandler
+   * @see XMLResponseHandler
    */
   fatalError() {
     cal.WARN("CalDAV: Fatal Error parsing etags for " + this.calendar.name);
-  },
+  }
 
   /**
-   * @see nsISAXContentHandler
+   * @see XMLResponseHandler
    */
   characters(aValue) {
     if (this.calendar.verboseLogging()) {
@@ -191,15 +245,15 @@ CalDavEtagsHandler.prototype = {
     if (this.tag) {
       this.currentResponse[this.tag] += aValue;
     }
-  },
+  }
 
   startDocument() {
     this.hrefMap = {};
     this.currentResponse = {};
     this.tag = null;
-  },
+  }
 
-  endDocument() {},
+  endDocument() {}
 
   startElement(aUri, aLocalName, aQName, aAttributes) {
     switch (aLocalName) {
@@ -221,7 +275,7 @@ CalDavEtagsHandler.prototype = {
     if (this.calendar.verboseLogging()) {
       this.logXML += "<" + aQName + ">";
     }
-  },
+  }
 
   endElement(aUri, aLocalName, aQName) {
     switch (aLocalName) {
@@ -273,54 +327,47 @@ CalDavEtagsHandler.prototype = {
     if (this.calendar.verboseLogging()) {
       this.logXML += "</" + aQName + ">";
     }
-  },
+  }
 
-  processingInstruction(aTarget, aData) {},
-};
-
-/**
- * This is a handler for the webdav sync request in calDavCalendar.js' getUpdatedItem.
- * It uses the SAX parser to incrementally parse the items and compose the
- * resulting multiget.
- *
- * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
- * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
- * @param {*=} aChangeLogListener - (optional) for cached calendars, the listener to notify.
- */
-function CalDavWebDavSyncHandler(aCalendar, aBaseUri, aChangeLogListener) {
-  this.calendar = aCalendar;
-  this.baseUri = aBaseUri;
-  this.changeLogListener = aChangeLogListener;
-  this._reader = Cc["@mozilla.org/saxparser/xmlreader;1"].createInstance(Ci.nsISAXXMLReader);
-  this._reader.contentHandler = this;
-  this._reader.errorHandler = this;
-  this._reader.parseAsync(null);
-
-  this.itemsReported = {};
-  this.itemsNeedFetching = [];
+  processingInstruction(aTarget, aData) {}
 }
 
-CalDavWebDavSyncHandler.prototype = {
-  currentResponse: null,
-  tag: null,
-  calendar: null,
-  baseUri: null,
-  newSyncToken: null,
-  changeLogListener: null,
-  logXML: "",
-  isInPropStat: false,
-  changeCount: 0,
-  unhandledErrors: 0,
-  itemsReported: null,
-  itemsNeedFetching: null,
-  additionalSyncNeeded: false,
+/**
+ * This is a handler for the webdav sync request in calDavCalendar.js'
+ * getUpdatedItem. It uses XMLResponseHandler to parse the items and compose the
+ * resulting multiget.
+ */
+class CalDavWebDavSyncHandler extends XMLResponseHandler {
+  /**
+   * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
+   * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
+   * @param {*=} aChangeLogListener - (optional) for cached calendars, the listener to notify.
+   */
+  constructor(aCalendar, aBaseUri, aChangeLogListener) {
+    super();
+    this.calendar = aCalendar;
+    this.baseUri = aBaseUri;
+    this.changeLogListener = aChangeLogListener;
 
-  QueryInterface: ChromeUtils.generateQI([
-    "nsISAXContentHandler",
-    "nsISAXErrorHandler",
-    "nsIRequestObserver",
-    "nsIStreamListener",
-  ]),
+    this.itemsReported = {};
+    this.itemsNeedFetching = [];
+  }
+
+  currentResponse = null;
+  tag = null;
+  calendar = null;
+  baseUri = null;
+  newSyncToken = null;
+  changeLogListener = null;
+  logXML = "";
+  isInPropStat = false;
+  changeCount = 0;
+  unhandledErrors = 0;
+  itemsReported = null;
+  itemsNeedFetching = null;
+  additionalSyncNeeded = false;
+
+  QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]);
 
   doWebDAVSync() {
     if (this.calendar.mDisabled) {
@@ -380,7 +427,7 @@ CalDavWebDavSyncHandler.prototype = {
         );
       }
     });
-  },
+  }
 
   /**
    * @see nsIRequestObserver
@@ -399,7 +446,6 @@ CalDavWebDavSyncHandler.prototype = {
       // We only need to parse 207's, anything else is probably a
       // server error (i.e 50x).
       httpchannel.contentType = "application/xml";
-      this._reader.onStartRequest(request);
     } else if (
       this.calendar.mWebdavSyncToken != null &&
       responseStatus >= 400 &&
@@ -410,7 +456,6 @@ CalDavWebDavSyncHandler.prototype = {
       cal.LOG(
         "CalDAV: Resetting sync token because server returned status code: " + responseStatus
       );
-      this._reader = null;
       this.calendar.mWebdavSyncToken = null;
       this.calendar.saveCalendarProperties();
       this.calendar.safeRefresh(this.changeLogListener);
@@ -420,59 +465,40 @@ CalDavWebDavSyncHandler.prototype = {
       if (this.calendar.isCached && this.changeLogListener) {
         this.changeLogListener.onResult({ status: Cr.NS_ERROR_FAILURE }, Cr.NS_ERROR_FAILURE);
       }
-      this._reader = null;
     }
-  },
+  }
 
   onStopRequest(request, statusCode) {
     if (this.calendar.verboseLogging()) {
       cal.LOG("CalDAV: recv: " + this.logXML);
     }
-    if (!this._reader) {
-      // No reader means there was a request error
-      cal.LOG("CalDAV: onStopRequest: no reader");
-      return;
-    }
-    try {
-      this._reader.onStopRequest(request, statusCode);
-    } finally {
-      this._reader = null;
-    }
-  },
+
+    this.handleResponse();
+  }
 
   /**
-   * @see nsIStreamListener
-   */
-  onDataAvailable(request, inputStream, offset, count) {
-    if (this._reader) {
-      // No reader means request error
-      this._reader.onDataAvailable(request, inputStream, offset, count);
-    }
-  },
-
-  /**
-   * @see nsISAXErrorHandler
+   * @see XMLResponseHandler
    */
   fatalError() {
     cal.WARN("CalDAV: Fatal Error doing webdav sync for " + this.calendar.name);
-  },
+  }
 
   /**
-   * @see nsISAXContentHandler
+   * @see XMLResponseHandler
    */
   characters(aValue) {
     if (this.calendar.verboseLogging()) {
       this.logXML += aValue;
     }
     this.currentResponse[this.tag] += aValue;
-  },
+  }
 
   startDocument() {
     this.hrefMap = {};
     this.currentResponse = {};
     this.tag = null;
     this.calendar.superCalendar.startBatch();
-  },
+  }
 
   endDocument() {
     if (this.unhandledErrors) {
@@ -515,7 +541,7 @@ CalDavWebDavSyncHandler.prototype = {
       }
       this.calendar.finalizeUpdatedItems(this.changeLogListener, this.baseUri);
     }
-  },
+  }
 
   startElement(aUri, aLocalName, aQName, aAttributes) {
     switch (aLocalName) {
@@ -546,7 +572,7 @@ CalDavWebDavSyncHandler.prototype = {
     if (this.calendar.verboseLogging()) {
       this.logXML += "<" + aQName + ">";
     }
-  },
+  }
 
   endElement(aUri, aLocalName, aQName) {
     switch (aLocalName) {
@@ -664,69 +690,62 @@ CalDavWebDavSyncHandler.prototype = {
     if (this.calendar.verboseLogging()) {
       this.logXML += "</" + aQName + ">";
     }
-  },
+  }
 
-  processingInstruction(aTarget, aData) {},
-};
+  processingInstruction(aTarget, aData) {}
+}
 
 /**
- * This is a handler for the multiget request.
- * It uses the SAX parser to incrementally parse the items and compose the
- * resulting multiget.
- *
- * @param {String[]} aItemsNeedFetching - Array of items to fetch, an array of
- *                                        un-encoded paths.
- * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
- * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
- * @param {*=} aNewSyncToken - (optional) New Sync token to set if operation successful.
- * @param {Boolean=} aAdditionalSyncNeeded - (optional) If true, the passed sync token is not the
- *                                           latest, another webdav sync run should be
- *                                           done after completion.
- * @param {*=} aListener - (optional) The listener to notify.
- * @param {*=} aChangeLogListener - (optional) For cached calendars, the listener to
- *                                  notify.
+ * This is a handler for the multiget request. It uses XMLResponseHandler to
+ * parse the items and compose the resulting multiget.
  */
-function CalDavMultigetSyncHandler(
-  aItemsNeedFetching,
-  aCalendar,
-  aBaseUri,
-  aNewSyncToken,
-  aAdditionalSyncNeeded,
-  aListener,
-  aChangeLogListener
-) {
-  this.calendar = aCalendar;
-  this.baseUri = aBaseUri;
-  this.listener = aListener;
-  this.newSyncToken = aNewSyncToken;
-  this.changeLogListener = aChangeLogListener;
-  this._reader = Cc["@mozilla.org/saxparser/xmlreader;1"].createInstance(Ci.nsISAXXMLReader);
-  this._reader.contentHandler = this;
-  this._reader.errorHandler = this;
-  this._reader.parseAsync(null);
-  this.itemsNeedFetching = aItemsNeedFetching;
-  this.additionalSyncNeeded = aAdditionalSyncNeeded;
-}
-CalDavMultigetSyncHandler.prototype = {
-  currentResponse: null,
-  tag: null,
-  calendar: null,
-  baseUri: null,
-  newSyncToken: null,
-  listener: null,
-  changeLogListener: null,
-  logXML: null,
-  unhandledErrors: 0,
-  itemsNeedFetching: null,
-  additionalSyncNeeded: false,
-  timer: null,
+class CalDavMultigetSyncHandler extends XMLResponseHandler {
+  /**
+   * @param {String[]} aItemsNeedFetching - Array of items to fetch, an array of
+   *                                        un-encoded paths.
+   * @param {calDavCalendar} aCalendar - The (unwrapped) calendar this request belongs to.
+   * @param {nsIURI} aBaseUri - The URI requested (i.e inbox or collection).
+   * @param {*=} aNewSyncToken - (optional) New Sync token to set if operation successful.
+   * @param {Boolean=} aAdditionalSyncNeeded - (optional) If true, the passed sync token is not the
+   *                                           latest, another webdav sync run should be
+   *                                           done after completion.
+   * @param {*=} aListener - (optional) The listener to notify.
+   * @param {*=} aChangeLogListener - (optional) For cached calendars, the listener to
+   *                                  notify.
+   */
+  constructor(
+    aItemsNeedFetching,
+    aCalendar,
+    aBaseUri,
+    aNewSyncToken,
+    aAdditionalSyncNeeded,
+    aListener,
+    aChangeLogListener
+  ) {
+    super();
+    this.calendar = aCalendar;
+    this.baseUri = aBaseUri;
+    this.listener = aListener;
+    this.newSyncToken = aNewSyncToken;
+    this.changeLogListener = aChangeLogListener;
+    this.itemsNeedFetching = aItemsNeedFetching;
+    this.additionalSyncNeeded = aAdditionalSyncNeeded;
+  }
 
-  QueryInterface: ChromeUtils.generateQI([
-    "nsISAXContentHandler",
-    "nsISAXErrorHandler",
-    "nsIRequestObserver",
-    "nsIStreamListener",
-  ]),
+  currentResponse = null;
+  tag = null;
+  calendar = null;
+  baseUri = null;
+  newSyncToken = null;
+  listener = null;
+  changeLogListener = null;
+  logXML = null;
+  unhandledErrors = 0;
+  itemsNeedFetching = null;
+  additionalSyncNeeded = false;
+  timer = null;
+
+  QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]);
 
   doMultiGet() {
     if (this.calendar.mDisabled) {
@@ -783,7 +802,7 @@ CalDavMultigetSyncHandler.prototype = {
         );
       }
     });
-  },
+  }
 
   /**
    * @see nsIRequestObserver
@@ -802,7 +821,6 @@ CalDavMultigetSyncHandler.prototype = {
       // We only need to parse 207's, anything else is probably a
       // server error (i.e 50x).
       httpchannel.contentType = "application/xml";
-      this._reader.onStartRequest(request);
     } else {
       let errorMsg =
         "CalDAV: Error: got status " +
@@ -812,9 +830,8 @@ CalDavMultigetSyncHandler.prototype = {
         ", " +
         this.listener;
       this.calendar.notifyGetFailed(errorMsg, this.listener, this.changeLogListener);
-      this._reader = null;
     }
-  },
+  }
 
   onStopRequest(request, statusCode) {
     if (this.calendar.verboseLogging()) {
@@ -845,23 +862,10 @@ CalDavMultigetSyncHandler.prototype = {
         this.calendar.finalizeUpdatedItems(this.changeLogListener, this.baseUri);
       }
     }
-    if (!this._reader) {
-      // No reader means there was a request error. The error is already
-      // notified in onStartRequest, so no need to do it here.
-      cal.LOG("CalDAV: onStopRequest: no reader");
-      return;
-    }
-    try {
-      this._reader.onStopRequest(request, statusCode);
-    } finally {
-      this._reader = null;
-    }
+    this.handleResponse();
     if (this.itemsNeedFetching.length > 0) {
       cal.LOG("CalDAV: Still need to fetch " + this.itemsNeedFetching.length + " elements.");
-      this._reader = Cc["@mozilla.org/saxparser/xmlreader;1"].createInstance(Ci.nsISAXXMLReader);
-      this._reader.contentHandler = this;
-      this._reader.errorHandler = this;
-      this._reader.parseAsync(null);
+      this.resetXMLResponseHandler();
       let timerCallback = {
         requestHandler: this,
         notify(timer) {
@@ -872,27 +876,17 @@ CalDavMultigetSyncHandler.prototype = {
       this.timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
       this.timer.initWithCallback(timerCallback, 0, Ci.nsITimer.TYPE_ONE_SHOT);
     }
-  },
+  }
 
   /**
-   * @see nsIStreamListener
-   */
-  onDataAvailable(request, inputStream, offset, count) {
-    if (this._reader) {
-      // No reader means request error
-      this._reader.onDataAvailable(request, inputStream, offset, count);
-    }
-  },
-
-  /**
-   * @see nsISAXErrorHandler
+   * @see XMLResponseHandler
    */
   fatalError(error) {
     cal.WARN("CalDAV: Fatal Error doing multiget for " + this.calendar.name + ": " + error);
-  },
+  }
 
   /**
-   * @see nsISAXContentHandler
+   * @see XMLResponseHandler
    */
   characters(aValue) {
     if (this.calendar.verboseLogging()) {
@@ -901,7 +895,7 @@ CalDavMultigetSyncHandler.prototype = {
     if (this.tag) {
       this.currentResponse[this.tag] += aValue;
     }
-  },
+  }
 
   startDocument() {
     this.hrefMap = {};
@@ -909,11 +903,11 @@ CalDavMultigetSyncHandler.prototype = {
     this.tag = null;
     this.logXML = "";
     this.calendar.superCalendar.startBatch();
-  },
+  }
 
   endDocument() {
     this.calendar.superCalendar.endBatch();
-  },
+  }
 
   startElement(aUri, aLocalName, aQName, aAttributes) {
     switch (aLocalName) {
@@ -943,7 +937,7 @@ CalDavMultigetSyncHandler.prototype = {
     if (this.calendar.verboseLogging()) {
       this.logXML += "<" + aQName + ">";
     }
-  },
+  }
 
   endElement(aUri, aLocalName, aQName) {
     switch (aLocalName) {
@@ -1013,7 +1007,7 @@ CalDavMultigetSyncHandler.prototype = {
     if (this.calendar.verboseLogging()) {
       this.logXML += "</" + aQName + ">";
     }
-  },
+  }
 
-  processingInstruction(aTarget, aData) {},
-};
+  processingInstruction(aTarget, aData) {}
+}
