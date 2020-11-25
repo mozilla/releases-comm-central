@@ -11,11 +11,9 @@
 const { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const {
-  close_window,
-  plan_for_modal_dialog,
-  wait_for_modal_dialog,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+const { close_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 const {
   assert_notification_displayed,
   get_notification_button,
@@ -281,16 +279,34 @@ add_task(async function testUpdateMessageSignature() {
   await popupshown;
 
   // Open the Key Properties dialog and change the signature acceptance.
-  plan_for_modal_dialog("KeyDetailsDialog", dlg => {
-    dlg.click(dlg.eid("acceptUnverified"));
-    // Wait for all the conditions to run on dialogaccept.
-    dlg.waitFor(
-      dlg.window.document.documentElement.querySelector("dialog").acceptDialog()
+  let dialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
+    await BrowserTestUtils.waitForEvent(win, "load");
+
+    if (
+      win.document.documentURI !=
+      "chrome://openpgp/content/ui/keyDetailsDlg.xhtml"
+    ) {
+      return false;
+    }
+
+    if (Services.focus.activeWindow != win) {
+      await BrowserTestUtils.waitForEvent(win, "focus");
+    }
+
+    EventUtils.synthesizeMouseAtCenter(
+      win.document.querySelector("#acceptUnverified"),
+      {},
+      win
     );
+
+    let closedPromise = BrowserTestUtils.domWindowClosed(win);
+    win.document.documentElement.querySelector("dialog").acceptDialog();
+    await closedPromise;
+    return true;
   });
 
   mc.click(mc.eid("viewSignatureKey"));
-  wait_for_modal_dialog("KeyDetailsDialog");
+  await dialogPromise;
 
   // Wait for the icon to reload.
   await BrowserTestUtils.waitForAttribute(
