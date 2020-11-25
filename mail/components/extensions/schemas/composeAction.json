@@ -9,6 +9,11 @@
             "type": "object",
             "additionalProperties": { "$ref": "UnrecognizedProperty" },
             "properties": {
+              "default_label": {
+                "type": "string",
+                "optional": true,
+                "preprocess": "localize"
+              },
               "default_title": {
                 "type": "string",
                 "optional": true,
@@ -117,7 +122,7 @@
       {
         "name": "setTitle",
         "type": "function",
-        "description": "Sets the title of the toolbar action. This shows up in the tooltip.",
+        "description": "Sets the title of the toolbar action. This shows up in the tooltip and the label. Defaults to the add-on name.",
         "async": "callback",
         "parameters": [
           {
@@ -130,7 +135,7 @@
                   {"type": "string"},
                   {"type": "null"}
                 ],
-                "description": "The string the toolbar action should display when moused over."
+                "description": "The string the toolbar action should display as its label and when moused over."
               }
             }
           },
@@ -146,6 +151,55 @@
         "name": "getTitle",
         "type": "function",
         "description": "Gets the title of the toolbar action.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "details",
+            "$ref": "Details"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "parameters": [
+              {
+                "name": "result",
+                "type": "string"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "setLabel",
+        "type": "function",
+        "description": "Sets the label of the toolbar action, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "details",
+            "type": "object",
+            "$import": "Details",
+            "properties": {
+              "label": {
+                "choices": [
+                  {"type": "string"},
+                  {"type": "null"}
+                ],
+                "description": "The string the toolbar action should use as label. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback."
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": []
+          }        ]
+      },
+      {
+        "name": "getLabel",
+        "type": "function",
+        "description": "Gets the label of the toolbar action.",
         "async": "callback",
         "parameters": [
           {

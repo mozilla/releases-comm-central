@@ -74,6 +74,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
     let options = extension.manifest[entryName];
     this.defaults = {
       enabled: true,
+      label: options.default_label,
       title: options.default_title || extension.name,
       badgeText: "",
       badgeBackgroundColor: null,
@@ -331,9 +332,14 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    */
   updateButton(node, tabData, sync = false) {
     let title = tabData.title || this.extension.name;
+    let label = tabData.label;
     let callback = () => {
       node.setAttribute("tooltiptext", title);
-      node.setAttribute("label", title);
+      node.setAttribute("label", label || title);
+      node.setAttribute(
+        "hideWebExtensionLabel",
+        label === "" ? "true" : "false"
+      );
 
       if (tabData.badgeText) {
         node.setAttribute("badge", tabData.badgeText);
@@ -549,7 +555,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {Object} details
    *        An object with optional `tabId` or `windowId` properties.
    * @param {string} prop
-   *        String property to set. Should should be one of "icon", "title",
+   *        String property to set. Should should be one of "icon", "title", "label",
    *        "badgeText", "popup", "badgeBackgroundColor" or "enabled".
    * @param {string} value
    *        Value for prop.
@@ -572,7 +578,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {Object} details
    *        An object with optional `tabId` or `windowId` properties.
    * @param {string} prop
-   *        String property to retrieve. Should should be one of "icon", "title",
+   *        String property to retrieve. Should should be one of "icon", "title", "label",
    *        "badgeText", "popup", "badgeBackgroundColor" or "enabled".
    * @returns {string} value
    *          Value of prop.
@@ -631,6 +637,14 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
 
         getTitle(details) {
           return action.getProperty(details, "title");
+        },
+
+        async setLabel(details) {
+          await action.setProperty(details, "label", details.label);
+        },
+
+        getLabel(details) {
+          return action.getProperty(details, "label");
         },
 
         async setIcon(details) {

@@ -226,8 +226,16 @@ toolbox:not([mode="full"]) .toolbarbutton-menubutton-button {
   -moz-box-orient: horizontal;
 }
 
-toolbar[mode="full"] .toolbarbutton-1 {
+toolbar[mode="full"] .toolbarbutton-1:not([hideWebExtensionLabel="true"]) {
   min-width: 55px;
+}
+
+toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolbarbutton-text {
+  display: none;
+}
+
+#header-view-toolbar .toolbarbutton-1[hideWebExtensionLabel="true"] .toolbarbutton-text {
+  display: none;
 }
 
 .findbar-button,
