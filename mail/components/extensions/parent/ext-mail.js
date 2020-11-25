@@ -1504,7 +1504,11 @@ const folderTypeMap = new Map([
 ]);
 
 /**
- * Converts an nsIMsgFolder to a simple object for use in messages.
+ * Converts an nsIMsgFolder to a simple object for use in API messages.
+ *
+ * @param {nsIMsgFolder} folder - The folder to convert.
+ * @param {string} [accountId] - An optimization to avoid looking up the
+ *     account. The value from nsIMsgHdr.accountKey must not be used here.
  * @return {Object}
  */
 function convertFolder(folder, accountId) {
@@ -1533,14 +1537,19 @@ function convertFolder(folder, accountId) {
 }
 
 /**
- * Traverses a nsIMsgFolder to get all subfolders.
+ * Converts an nsIMsgFolder and all subfolders to a simple object for use in
+ * API messages.
+ *
+ * @param {nsIMsgFolder} folder - The folder to convert.
+ * @param {string} [accountId] - An optimization to avoid looking up the
+ *     account. The value from nsIMsgHdr.accountKey must not be used here.
  * @return {Array}
  */
-function traverseSubfolders(folder) {
-  let f = convertFolder(folder);
+function traverseSubfolders(folder, accountId) {
+  let f = convertFolder(folder, accountId);
   f.subFolders = [];
   for (let subFolder of fixIterator(folder.subFolders, Ci.nsIMsgFolder)) {
-    f.subFolders.push(traverseSubfolders(subFolder));
+    f.subFolders.push(traverseSubfolders(subFolder, accountId || f.accountId));
   }
   return f;
 }
@@ -1593,7 +1602,7 @@ function convertMessage(msgHdr, extension) {
     junkScore,
   };
   if (extension.hasPermission("accountsRead")) {
-    messageObject.folder = convertFolder(msgHdr.folder, msgHdr.accountKey);
+    messageObject.folder = convertFolder(msgHdr.folder);
   }
   let tags = msgHdr.getProperty("keywords");
   tags = tags ? tags.split(" ") : [];
