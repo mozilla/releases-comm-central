@@ -42,6 +42,9 @@ var smimeHeaderSink = {
    *         message is displayed in a separate window.
    */
   getSelectedMessageURI() {
+    if (!gFolderDisplay.selectedMessage) {
+      return null;
+    }
     if (!gFolderDisplay.selectedMessage.folder) {
       // The folder should be absent only if the message gets opened
       // from an external file (.eml), which is opened in its own window.
