@@ -286,23 +286,6 @@ function OnLoadMsgHeaderPane() {
   // change.
   AddressBookListener.register();
 
-  // If an invalid index is selected; reset to 0.  One way this can happen
-  // is if a value of 1 was persisted to localStore.rdf by Tb2 (when there were
-  // two panels), and then the user upgraded to Tb3, which only has one.
-  // Presumably this can also catch cases of extension uninstalls as well.
-  let deckElement = document.getElementById("msgHeaderViewDeck");
-
-  // If the selectedIndex was 0, then we were using the compact header, (if we
-  // were coming from TB2, but we'll check that in the feature configurator).
-  deckElement.usedCompactHeader = deckElement.selectedIndex == 0;
-
-  if (
-    deckElement.selectedIndex < 0 ||
-    deckElement.selectedIndex >= deckElement.childElementCount
-  ) {
-    deckElement.selectedIndex = 0;
-  }
-
   // Only offer openInTab and openInNewWindow if this window supports tabs.
   let opensAreHidden = !document.getElementById("tabmail");
   for (let id of ["otherActionsOpenInNewWindow", "otherActionsOpenInNewTab"]) {
@@ -512,12 +495,8 @@ var messageHeaderSink = {
     // subject and the twisty.
     EnsureSubjectValue();
 
-    // Only update the expanded view if it's actually selected (an
-    // extension-provided panel could be visible instead) and needs updating.
-    if (
-      document.getElementById("msgHeaderViewDeck").selectedIndex == 0 &&
-      !gBuiltExpandedView
-    ) {
+    // Only update the expanded view if it's actually selected and needs updating.
+    if (!gBuiltExpandedView) {
       UpdateExpandedMessageHeaders();
     }
 
@@ -1051,11 +1030,6 @@ function EnsureMinimumNumberOfHeaders(headerTable) {
  * or visible...
  */
 function updateExpandedView() {
-  // If the expanded view isn't selected, don't bother updating it.
-  if (document.getElementById("msgHeaderViewDeck").selectedIndex != 0) {
-    return;
-  }
-
   if (gMinNumberOfHeaders) {
     EnsureMinimumNumberOfHeaders(gExpandedHeaderView);
   }
