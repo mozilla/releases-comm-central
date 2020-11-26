@@ -4,7 +4,7 @@
   <panel id="messageSecurityPanel" type="arrow" orient="vertical"
          onpopuphidden="hideMessageReadSecurityInfo();"
          position="bottomcenter topright"
-         tabindex="0">
+         tabindex="-1">
     <html:header class="message-security-header">
       <html:h3>&status.label; <html:span id="techLabel"></html:span></html:h3>
     </html:header>
@@ -22,6 +22,7 @@
               <html:span id="hasConflictingKeyOpenPGP" hidden="hidden"></html:span>
             </description>
             <button id="openpgpImportButton"
+                    class="button-focusable"
                     data-l10n-id="openpgp-import-sender-key"
                     oncommand="Enigmail.msg.importAttachedSenderKey();"/>
           </hbox>
@@ -34,6 +35,7 @@
             <image class="notification-image notification-image-info"/>
             <description data-l10n-id="openpgp-missing-signature-key"/>
             <button data-l10n-id="openpgp-search-signature-key"
+                    class="button-focusable"
                     oncommand="Enigmail.msg.searchSignatureKey();"/>
           </hbox>
         </hbox>
@@ -61,6 +63,7 @@
         </hbox>
         <hbox pack="end">
           <button id="signatureCertView" label="&signatureCert.label;"
+                  class="button-focusable"
                   oncommand="viewSignatureCert()" />
         </hbox>
       </vbox>
@@ -70,6 +73,7 @@
         <hbox flex="1" align="center">
           <label id="signatureKeyId" flex="1"/>
           <button id="viewSignatureKey" data-l10n-id="openpgp-view-signer-key"
+                  class="button-focusable"
                   oncommand="viewSignatureKey()" collapsed="true"/>
         </hbox>
       </vbox>
@@ -97,6 +101,7 @@
         </hbox>
         <hbox pack="end">
           <button id="encryptionCertView" label="&encryptionCert.label;"
+                  class="button-focusable"
                   oncommand="viewEncryptionCert()" />
         </hbox>
       </vbox>
@@ -107,6 +112,7 @@
         <hbox pack="end">
           <button id="viewEncryptionKey"
                   data-l10n-id="openpgp-view-your-encryption-key"
+                  class="button-focusable"
                   oncommand="viewEncryptionKey()"
                   collapsed="true"/>
         </hbox>

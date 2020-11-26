@@ -27,7 +27,7 @@
   line-height: 1.5em;
   margin: 0;
   padding-block: .1em;
-  padding-inline: 0 9px;
+  margin-inline: 0 9px;
 }
 
 .headerName,

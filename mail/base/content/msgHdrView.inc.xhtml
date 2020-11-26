@@ -433,14 +433,14 @@
                                 <vbox id="otherActionsBox" align="end">
                                   <hbox id="dateValueBox" align="start">
                                     <label id="dateLabel" class="dateLabel" flex="1" role="textbox"
-                                           aria-readonly="true"/>
+                                           aria-readonly="true" tabindex="-1"/>
                                   </hbox>
                                   <hbox id="cryptoBox" class="crypto-container" align="center"
                                         collapsed="true">
                                     <html:button id="encryptionTechBtn"
-                                                 class="toolbarbutton-1 crypto-button themeable-brighttext"
+                                                 class="toolbarbutton-1 crypto-button themeable-brighttext button-focusable"
                                                  onclick="showMessageReadSecurityInfo();"
-                                                 onkeypress="if (event.key == 'Enter') { showMessageReadSecurityInfo(); }">
+                                                 data-l10n-id="message-security-button">
                                       <html:span class="crypto-label"></html:span>
                                       <image id="encryptedHdrIcon" hidden="true"/>
                                       <image id="signedHdrIcon" hidden="true"/>

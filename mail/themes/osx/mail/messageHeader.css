@@ -22,7 +22,7 @@
 /* ::::: msg header captions ::::: */
 
 .dateLabel {
-  padding-inline-end: 3px;
+  margin-inline-end: 3px;
 }
 
 .headerName {
@@ -43,4 +43,13 @@
 .message-security-label {
   /* Necessary to not cut the background icon */
   min-height: 16px;
+}
+
+.button-focusable:focus-visible:not(:hover) {
+  outline-offset: -2px;
+}
+
+button.button-focusable:focus-visible:not(:hover) {
+  outline: none;
+  box-shadow: 0 0 0 3px -moz-mac-focusring;
 }

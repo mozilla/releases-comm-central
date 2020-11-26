@@ -12,7 +12,7 @@
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
-/* global Enigmail */
+/* global Enigmail, showMessageReadSecurityInfo */
 
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -260,7 +260,7 @@ function initializeHeaderViewTables() {
   }
 }
 
-function OnLoadMsgHeaderPane() {
+async function OnLoadMsgHeaderPane() {
   // Load any preferences that at are global with regards to
   // displaying a message...
   gMinNumberOfHeaders = Services.prefs.getIntPref(
@@ -295,6 +295,30 @@ function OnLoadMsgHeaderPane() {
       menu.hidden = opensAreHidden;
     }
   }
+
+  // Add the keyboard shortcut event listener for the message header.
+  // Ctrl+Alt+S / Cmd+Alt+S.
+  let shortcut = await document.l10n.formatValue(
+    "message-header-show-security-info-key"
+  );
+  document.addEventListener("keypress", event => {
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      event.altKey &&
+      event.key == shortcut.toLowerCase()
+    ) {
+      showMessageReadSecurityInfo();
+    }
+  });
+
+  // Add keypress and click event for the encryption button.
+  let cryptoButton = document.getElementById("encryptionTechBtn");
+  cryptoButton.addEventListener("keypress", event => {
+    if (event.key == "Enter") {
+      showMessageReadSecurityInfo();
+    }
+  });
+  cryptoButton.addEventListener("click", showMessageReadSecurityInfo);
 
   // Dispatch an event letting any listeners know that we have loaded
   // the message pane.

@@ -764,3 +764,15 @@ html|header.message-security-header html|h3 {
 .openpgp-key-name {
   font-size: 0.9em;
 }
+
+.button-focusable {
+  -moz-user-focus: normal;
+}
+
+.button-focusable:focus-visible:not(:hover) {
+  outline: 1px dashed Highlight;
+}
+
+.button-focusable:focus:not(:focus-visible) {
+  outline: none;
+}
