@@ -51,11 +51,12 @@ var gChatPane = {
 
   initPreview() {
     // We add this browser only when really necessary.
-    let previewDeck = document.getElementById("previewDeck");
-    if (previewDeck.querySelector("browser")) {
+    let previewBox = document.getElementById("previewBox");
+    if (previewBox.querySelector("browser")) {
       return;
     }
 
+    document.getElementById("noPreviewScreen").hidden = true;
     let browser = document.createXULElement("browser", {
       is: "conversation-browser",
     });
@@ -63,7 +64,7 @@ var gChatPane = {
     browser.setAttribute("type", "content");
     browser.setAttribute("flex", "1");
     browser.setAttribute("tooltip", "aHTMLTooltip");
-    previewDeck.appendChild(browser);
+    previewBox.appendChild(browser);
     previewObserver.load();
   },
 

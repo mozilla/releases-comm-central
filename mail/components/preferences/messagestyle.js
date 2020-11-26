@@ -140,7 +140,13 @@ var previewObserver = {
     try {
       this.theme = getThemeByName(aTheme);
     } catch (e) {
-      document.getElementById("previewDeck").selectedIndex = 0;
+      let previewBoxBrowser = document
+        .getElementById("previewBox")
+        .querySelector("browser");
+      if (previewBoxBrowser) {
+        previewBoxBrowser.hidden = true;
+      }
+      document.getElementById("noPreviewScreen").hidden = false;
       return;
     }
 
@@ -200,7 +206,7 @@ var previewObserver = {
       variants.length == 0 || (variants.length == 1 && defaultVariant);
 
     this.reloadPreview();
-    document.getElementById("previewDeck").selectedIndex = 1;
+    document.getElementById("noPreviewScreen").hidden = true;
   },
 
   reloadPreview() {

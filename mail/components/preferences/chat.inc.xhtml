@@ -172,8 +172,8 @@
       <hbox align="start">
       <label data-l10n-id="preview-label"/>
       <tooltip id="aHTMLTooltip" page="true"/>
-      <deck flex="1" id="previewDeck" selectedIndex="1">
-        <vbox flex="1" id="noPreviewScreen" align="center" pack="center">
+      <vbox id="previewBox" flex="1">
+        <vbox id="noPreviewScreen" flex="1" align="center" pack="center">
           <hbox id="noPreviewBox" align="start">
             <vbox id="noPreviewInnerBox" flex="1">
               <label id="noPreviewTitle" data-l10n-id="no-preview-label"/>
@@ -182,7 +182,7 @@
             </vbox>
           </hbox>
         </vbox>
-      </deck>
+      </vbox>
       </hbox>
       <hbox align="center">
         <label data-l10n-id="chat-variant-label" control="themevariant"/>

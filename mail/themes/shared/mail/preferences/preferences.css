@@ -401,7 +401,7 @@ tab:-moz-focusring > .tab-middle {
 description > html|a {
   cursor: pointer;
 }
-#previewDeck {
+#previewBox {
   height: 220px;
 }
 
