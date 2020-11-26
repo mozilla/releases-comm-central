@@ -1152,7 +1152,7 @@ var MessageTextFilter = {
         let panel = aDocument.getElementById("qfb-text-search-upsell");
         if (
           (Services.focus.activeWindow != aDocument.defaultView ||
-            aDocument.commandDispatcher.focusedElement != aNode) &&
+            aDocument.commandDispatcher.focusedElement != aNode.inputField) &&
           panel.state == "open"
         ) {
           panel.hidePopup();
@@ -1198,15 +1198,16 @@ var MessageTextFilter = {
   },
 
   reflectInDOM(aNode, aFilterValue, aDocument, aMuxer, aFromPFP) {
+    let panel = aDocument.getElementById("qfb-text-search-upsell");
+
     if (aFromPFP == "nosale") {
-      let panel = aDocument.getElementById("qfb-text-search-upsell");
       if (panel.state != "closed") {
         panel.hidePopup();
       }
       return;
     }
+
     if (aFromPFP == "upsell") {
-      let panel = aDocument.getElementById("qfb-text-search-upsell");
       let line1 = aDocument.getElementById("qfb-upsell-line-one");
       let line2 = aDocument.getElementById("qfb-upsell-line-two");
       line1.value = line1.getAttribute("fmt").replace("#1", aFilterValue.text);
@@ -1214,30 +1215,34 @@ var MessageTextFilter = {
 
       if (
         panel.state == "closed" &&
-        aDocument.commandDispatcher.focusedElement == aNode
+        aDocument.commandDispatcher.focusedElement == aNode.inputField
       ) {
-        let filterBar = aDocument.getElementById("quick-filter-bar");
-        // panel.sizeTo(filterBar.clientWidth - 20, filterBar.clientHeight - 20);
-        panel.openPopup(filterBar, "after_end", -7, 7, false, true);
+        panel.openPopup(
+          aDocument.getElementById("quick-filter-bar"),
+          "after_end",
+          -7,
+          7,
+          false,
+          true
+        );
       }
       return;
     }
 
     // Make sure we have no visible upsell on state change while our textbox
-    //  retains focus.
-    let panel = aDocument.getElementById("qfb-text-search-upsell");
+    // retains focus.
     if (panel.state != "closed") {
       panel.hidePopup();
     }
 
     // Update the text if it has changed (linux does weird things with empty
-    //  text if we're transitioning emptytext to emptytext)
+    // text if we're transitioning emptytext to emptytext).
     let desiredValue = aFilterValue.text || "";
     if (aNode.value != desiredValue) {
       aNode.value = desiredValue;
     }
 
-    // Update our expando buttons
+    // Update our expanded filters buttons.
     let states = aFilterValue.states;
     for (let name in this.textFilterDefs) {
       let textFilter = this.textFilterDefs[name];
@@ -1245,7 +1250,7 @@ var MessageTextFilter = {
         states[textFilter.name];
     }
 
-    // Show the expando?
+    // Toggle the expanded filters visibility.
     aDocument.getElementById("quick-filter-bar-filter-text-bar").collapsed =
       aFilterValue.text == null;
   },
