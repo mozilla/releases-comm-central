@@ -61,10 +61,6 @@ function Startup() {
     "AddHTMLAttributeNameInput"
   );
 
-  // We use a <deck> to switch between editable menulist and textbox
-  gDialog.AddHTMLAttributeValueDeck = document.getElementById(
-    "AddHTMLAttributeValueDeck"
-  );
   gDialog.AddHTMLAttributeValueMenulist = document.getElementById(
     "AddHTMLAttributeValueMenulist"
   );

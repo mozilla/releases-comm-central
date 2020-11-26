@@ -175,33 +175,22 @@ function onInputHTMLAttributeName() {
       valueListName = valueListName.slice(1);
     }
 
+    let useMenulist = false; // Editable menulist vs. input for the value.
     var newValue = "";
-    var listLen = 0;
-
-    // Index to which widget we were using to edit the value
-    var deckIndex = gDialog.AddHTMLAttributeValueDeck.getAttribute(
-      "selectedIndex"
-    );
-
     if (valueListName in gHTMLAttr) {
       var valueList = gHTMLAttr[valueListName];
 
-      listLen = valueList.length;
+      let listLen = valueList.length;
+      useMenulist = listLen > 1;
       if (listLen == 1) {
         newValue = valueList[0];
       }
 
       // Note: For case where "value list" is actually just
       // one (default) item, don't use menulist for that
-      if (listLen > 1) {
+      if (useMenulist) {
         gDialog.AddHTMLAttributeValueMenulist.removeAllItems();
 
-        if (deckIndex != "1") {
-          // Switch to using editable menulist
-          gDialog.AddHTMLAttributeValueInput =
-            gDialog.AddHTMLAttributeValueMenulist;
-          gDialog.AddHTMLAttributeValueDeck.setAttribute("selectedIndex", "1");
-        }
         // Rebuild the list
         for (var i = 0; i < listLen; i++) {
           if (valueList[i] == "-") {
@@ -222,11 +211,17 @@ function onInputHTMLAttributeName() {
         }
       }
     }
-
-    if (listLen <= 1 && deckIndex != "0") {
-      // No list: Use textbox for input instead
+    if (useMenulist) {
+      // Switch to using editable menulist instead of the input.
+      gDialog.AddHTMLAttributeValueMenulist.parentElement.collapsed = false;
+      gDialog.AddHTMLAttributeValueTextbox.parentElement.collapsed = true;
+      gDialog.AddHTMLAttributeValueInput =
+        gDialog.AddHTMLAttributeValueMenulist;
+    } else {
+      // No list: Use input instead of editable menulist.
+      gDialog.AddHTMLAttributeValueMenulist.parentElement.collapsed = true;
+      gDialog.AddHTMLAttributeValueTextbox.parentElement.collapsed = false;
       gDialog.AddHTMLAttributeValueInput = gDialog.AddHTMLAttributeValueTextbox;
-      gDialog.AddHTMLAttributeValueDeck.setAttribute("selectedIndex", "0");
     }
 
     // If attribute already exists in tree, use associated value,

@@ -87,20 +87,20 @@
           <vbox flex="1">
             <label id="AddHTMLAttributeValueLabel" control="AddHTMLAttributeValueInput"
                    value="&AttValue.label;"/>
-            <deck id="AddHTMLAttributeValueDeck" selectedIndex="0">
+            <vbox flex="1">
               <hbox flex="1" class="input-container">
                 <html:input id="AddHTMLAttributeValueTextbox" type="text"
                             class="input-inline"
                             onchange="onInputHTMLAttributeValue();"
                             aria-labelledby="AddHTMLAttributeValueLabel"/>
               </hbox>
-              <hbox flex="1">
+              <hbox flex="1" collapsed="true">
                 <menulist is="menulist-editable" id="AddHTMLAttributeValueMenulist"
                           editable="true" flex="1"
                           oninput="onInputHTMLAttributeValue();"
                           oncommand="onInputHTMLAttributeValue();"/>
               </hbox>
-            </deck>
+            </vbox>
           </vbox>
         </hbox>
       </vbox>
