@@ -5,12 +5,12 @@
 
 #include "msgCore.h"  // for pre-compiled headers
 
-#include "nsIMAPGenericParser.h"
+#include "nsImapGenericParser.h"
 #include "nsString.h"
 
-////////////////// nsIMAPGenericParser /////////////////////////
+////////////////// nsImapGenericParser /////////////////////////
 
-nsIMAPGenericParser::nsIMAPGenericParser()
+nsImapGenericParser::nsImapGenericParser()
     : fNextToken(nullptr),
       fCurrentLine(nullptr),
       fLineOfTokens(nullptr),
@@ -19,14 +19,14 @@ nsIMAPGenericParser::nsIMAPGenericParser()
       fAtEndOfLine(false),
       fParserState(stateOK) {}
 
-nsIMAPGenericParser::~nsIMAPGenericParser() {
+nsImapGenericParser::~nsImapGenericParser() {
   PR_FREEIF(fCurrentLine);
   PR_FREEIF(fStartOfLineOfTokens);
 }
 
-void nsIMAPGenericParser::HandleMemoryFailure() { SetConnected(false); }
+void nsImapGenericParser::HandleMemoryFailure() { SetConnected(false); }
 
-void nsIMAPGenericParser::ResetLexAnalyzer() {
+void nsImapGenericParser::ResetLexAnalyzer() {
   PR_FREEIF(fCurrentLine);
   PR_FREEIF(fStartOfLineOfTokens);
 
@@ -35,11 +35,11 @@ void nsIMAPGenericParser::ResetLexAnalyzer() {
   fAtEndOfLine = false;
 }
 
-bool nsIMAPGenericParser::LastCommandSuccessful() {
+bool nsImapGenericParser::LastCommandSuccessful() {
   return fParserState == stateOK;
 }
 
-void nsIMAPGenericParser::SetSyntaxError(bool error, const char* msg) {
+void nsImapGenericParser::SetSyntaxError(bool error, const char* msg) {
   if (error)
     fParserState |= stateSyntaxErrorFlag;
   else
@@ -47,14 +47,14 @@ void nsIMAPGenericParser::SetSyntaxError(bool error, const char* msg) {
   NS_ASSERTION(!error, "syntax error in generic parser");
 }
 
-void nsIMAPGenericParser::SetConnected(bool connected) {
+void nsImapGenericParser::SetConnected(bool connected) {
   if (connected)
     fParserState &= ~stateDisconnectedFlag;
   else
     fParserState |= stateDisconnectedFlag;
 }
 
-void nsIMAPGenericParser::skip_to_CRLF() {
+void nsImapGenericParser::skip_to_CRLF() {
   while (Connected() && !fAtEndOfLine) AdvanceToNextToken();
 }
 
@@ -64,7 +64,7 @@ void nsIMAPGenericParser::skip_to_CRLF() {
 // first character after the matching close
 // paren.  Only call AdvanceToNextToken() to get the NEXT
 // token after the one returned in fNextToken.
-void nsIMAPGenericParser::skip_to_close_paren() {
+void nsImapGenericParser::skip_to_close_paren() {
   int numberOfCloseParensNeeded = 1;
   while (ContinueParse()) {
     // go through fNextToken, account for nested parens
@@ -91,7 +91,7 @@ void nsIMAPGenericParser::skip_to_close_paren() {
   }
 }
 
-void nsIMAPGenericParser::AdvanceToNextToken() {
+void nsImapGenericParser::AdvanceToNextToken() {
   if (!fCurrentLine || fAtEndOfLine) AdvanceToNextLine();
   if (Connected()) {
     if (!fStartOfLineOfTokens) {
@@ -112,7 +112,7 @@ void nsIMAPGenericParser::AdvanceToNextToken() {
   }
 }
 
-void nsIMAPGenericParser::AdvanceToNextLine() {
+void nsImapGenericParser::AdvanceToNextLine() {
   PR_FREEIF(fCurrentLine);
   PR_FREEIF(fStartOfLineOfTokens);
 
@@ -141,7 +141,7 @@ void nsIMAPGenericParser::AdvanceToNextLine() {
 }
 
 // advances |fLineOfTokens| by |bytesToAdvance| bytes
-void nsIMAPGenericParser::AdvanceTokenizerStartingPoint(
+void nsImapGenericParser::AdvanceTokenizerStartingPoint(
     int32_t bytesToAdvance) {
   NS_ASSERTION(bytesToAdvance >= 0, "bytesToAdvance must not be negative");
   if (!fStartOfLineOfTokens) {
@@ -169,7 +169,7 @@ void nsIMAPGenericParser::AdvanceTokenizerStartingPoint(
 //           string  = quoted / literal
 // This function leaves us off with fCurrentTokenPlaceHolder immediately after
 // the end of the Astring.  Call AdvanceToNextToken() to get the token after it.
-char* nsIMAPGenericParser::CreateAstring() {
+char* nsImapGenericParser::CreateAstring() {
   if (*fNextToken == '{') return CreateLiteral();  // literal
   if (*fNextToken == '"') return CreateQuoted();   // quoted
   return CreateAtom(true);                         // atom
@@ -187,7 +187,7 @@ char* nsIMAPGenericParser::CreateAstring() {
 //           quoted-specials = DQUOTE / "\"
 //           resp-specials   = "]"
 // "Characters are 7-bit US-ASCII unless otherwise specified." [RFC3501, 1.2.]
-char* nsIMAPGenericParser::CreateAtom(bool isAstring) {
+char* nsImapGenericParser::CreateAtom(bool isAstring) {
   char* rv = PL_strdup(fNextToken);
   if (!rv) {
     HandleMemoryFailure();
@@ -221,7 +221,7 @@ char* nsIMAPGenericParser::CreateAtom(bool isAstring) {
 // Regardless of type, call AdvanceToNextToken() to get the token after it.
 // RFC3501:   nstring  = string / nil
 //            nil      = "NIL"
-char* nsIMAPGenericParser::CreateNilString() {
+char* nsImapGenericParser::CreateNilString() {
   if (!PL_strncasecmp(fNextToken, "NIL", 3)) {
     // check if there is text after "NIL" in fNextToken,
     // equivalent handling as in CreateQuoted
@@ -236,7 +236,7 @@ char* nsIMAPGenericParser::CreateNilString() {
 // but not an atom.
 // This function leaves us off with fCurrentTokenPlaceHolder immediately after
 // the end of the String.  Call AdvanceToNextToken() to get the token after it.
-char* nsIMAPGenericParser::CreateString() {
+char* nsImapGenericParser::CreateString() {
   if (*fNextToken == '{') {
     char* rv = CreateLiteral();  // literal
     return (rv);
@@ -257,7 +257,7 @@ char* nsIMAPGenericParser::CreateString() {
 // quoted_specials ::= <"> / "\"
 // Note that according to RFC 1064 and RFC 2060, CRs and LFs are not allowed
 // inside a quoted string.  It is sufficient to read from the current line only.
-char* nsIMAPGenericParser::CreateQuoted(bool /*skipToEnd*/) {
+char* nsImapGenericParser::CreateQuoted(bool /*skipToEnd*/) {
   // one char past opening '"'
   char* currentChar = fCurrentLine + (fNextToken - fStartOfLineOfTokens) + 1;
 
@@ -290,7 +290,7 @@ char* nsIMAPGenericParser::CreateQuoted(bool /*skipToEnd*/) {
 //                       ; Number represents the number of CHAR8s
 //           CHAR8   = %x01-ff
 //                       ; any OCTET except NUL, %x00
-char* nsIMAPGenericParser::CreateLiteral() {
+char* nsImapGenericParser::CreateLiteral() {
   int32_t numberOfCharsInMessage = atoi(fNextToken + 1);
   uint32_t numBytes = numberOfCharsInMessage + 1;
   NS_ASSERTION(numBytes, "overflow!");
@@ -342,7 +342,7 @@ char* nsIMAPGenericParser::CreateLiteral() {
 // It will allocate and return all characters up to and including the
 // corresponding closing paren, and leave the parser in the right place
 // afterwards.
-char* nsIMAPGenericParser::CreateParenGroup() {
+char* nsImapGenericParser::CreateParenGroup() {
   NS_ASSERTION(fNextToken[0] == '(', "we don't have a paren group!");
 
   int numOpenParens = 0;

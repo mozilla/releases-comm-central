@@ -7,7 +7,7 @@
 #include "nsMsgImapCID.h"
 
 #include "nsImapUrl.h"
-#include "nsIIMAPHostSessionList.h"
+#include "nsIImapHostSessionList.h"
 #include "nsThreadUtils.h"
 #include "nsString.h"
 #include "prmem.h"
@@ -21,7 +21,7 @@
 #include "nsIImapMailFolderSink.h"
 #include "nsIImapMessageSink.h"
 #include "nsIImapServerSink.h"
-#include "nsIMAPNamespace.h"
+#include "nsImapNamespace.h"
 #include "nsICacheEntry.h"
 #include "nsIMsgFolder.h"
 #include "nsMsgUtils.h"
@@ -609,7 +609,7 @@ NS_IMETHODIMP nsImapUrl::AddOnlineDirectoryIfNecessary(
   nsAutoCString onlineDir;
   LossyCopyUTF16toASCII(onlineDirString, onlineDir);
 
-  nsIMAPNamespace* ns = nullptr;
+  nsImapNamespace* ns = nullptr;
   rv = hostSessionList->GetNamespaceForMailboxForHost(m_serverKey.get(),
                                                       onlineMailboxName, ns);
   if (!ns)

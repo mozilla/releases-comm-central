@@ -7,21 +7,21 @@
 #define _nsIMAPServerResponseParser_H_
 
 #include "mozilla/Attributes.h"
-#include "nsIIMAPHostSessionList.h"
+#include "nsIImapHostSessionList.h"
 #include "nsImapSearchResults.h"
 #include "nsString.h"
 #include "MailNewsTypes.h"
 #include "nsTArray.h"
 #include "nsImapUtils.h"
 
-class nsIMAPBodyShell;
+class nsImapBodyShell;
 class nsIMAPBodypart;
 class nsImapSearchResultIterator;
 class nsIImapFlagAndUidState;
 
-#include "nsIMAPGenericParser.h"
+#include "nsImapGenericParser.h"
 
-class nsImapServerResponseParser : public nsIMAPGenericParser {
+class nsImapServerResponseParser : public nsImapGenericParser {
  public:
   explicit nsImapServerResponseParser(nsImapProtocol& imapConnection);
   virtual ~nsImapServerResponseParser();
@@ -127,7 +127,7 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
   void SetFlagState(nsIImapFlagAndUidState* state);
   bool GetDownloadingHeaders();
   bool GetFillingInShell();
-  void UseCachedShell(nsIMAPBodyShell* cachedShell);
+  void UseCachedShell(nsImapBodyShell* cachedShell);
   void SetHostSessionList(nsIImapHostSessionList* aHostSession);
   char* fAuthChallenge;    // the challenge returned by the server in
                            // response to authenticate using CRAM-MD5 or NTLM
@@ -192,7 +192,7 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
                                       const char* currentCommand);
   virtual void PostProcessEndOfLine();
 
-  // Overridden from the nsIMAPGenericParser, to retrieve the next line
+  // Overridden from the nsImapGenericParser, to retrieve the next line
   // from the open socket.
   virtual bool GetNextLineForParser(char** nextLine) override;
   // overridden to do logging
@@ -274,7 +274,7 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
   bool fNextChunkStartsWithNewline;
 
   // points to the current body shell, if any
-  RefPtr<nsIMAPBodyShell> m_shell;
+  RefPtr<nsImapBodyShell> m_shell;
 
   // The connection object
   nsImapProtocol& fServerConnection;

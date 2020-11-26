@@ -3,18 +3,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsIMAPNamespace_H_
-#define _nsIMAPNamespace_H_
+#ifndef _nsImapNamespace_H_
+#define _nsImapNamespace_H_
 
 #include "nsImapCore.h"
 #include "nsTArray.h"
 
-class nsIMAPNamespace {
+class nsImapNamespace {
  public:
-  nsIMAPNamespace(EIMAPNamespaceType type, const char* prefix, char delimiter,
+  nsImapNamespace(EIMAPNamespaceType type, const char* prefix, char delimiter,
                   bool from_prefs);
 
-  ~nsIMAPNamespace();
+  ~nsImapNamespace();
 
   EIMAPNamespaceType GetType() { return m_namespaceType; }
   const char* GetPrefix() { return m_prefix; }
@@ -36,11 +36,11 @@ class nsIMAPNamespace {
 };
 
 // represents an array of namespaces for a given host
-class nsIMAPNamespaceList {
+class nsImapNamespaceList {
  public:
-  ~nsIMAPNamespaceList();
+  ~nsImapNamespaceList();
 
-  static nsIMAPNamespaceList* CreatensIMAPNamespaceList();
+  static nsImapNamespaceList* CreatensImapNamespaceList();
 
   nsresult InitFromString(const char* nameSpaceString,
                           EIMAPNamespaceType nstype);
@@ -54,36 +54,36 @@ class nsIMAPNamespaceList {
                        bool reallyDelete);
   int GetNumberOfNamespaces();
   int GetNumberOfNamespaces(EIMAPNamespaceType);
-  nsIMAPNamespace* GetNamespaceNumber(int nodeIndex);
-  nsIMAPNamespace* GetNamespaceNumber(int nodeIndex, EIMAPNamespaceType);
+  nsImapNamespace* GetNamespaceNumber(int nodeIndex);
+  nsImapNamespace* GetNamespaceNumber(int nodeIndex, EIMAPNamespaceType);
 
-  nsIMAPNamespace* GetDefaultNamespaceOfType(EIMAPNamespaceType type);
-  int AddNewNamespace(nsIMAPNamespace* ns);
-  nsIMAPNamespace* GetNamespaceForMailbox(const char* boxname);
-  static nsIMAPNamespace* GetNamespaceForFolder(const char* hostName,
+  nsImapNamespace* GetDefaultNamespaceOfType(EIMAPNamespaceType type);
+  int AddNewNamespace(nsImapNamespace* ns);
+  nsImapNamespace* GetNamespaceForMailbox(const char* boxname);
+  static nsImapNamespace* GetNamespaceForFolder(const char* hostName,
                                                 const char* canonicalFolderName,
                                                 char delimiter);
   static bool GetFolderIsNamespace(const char* hostName,
                                    const char* canonicalFolderName,
                                    char delimiter,
-                                   nsIMAPNamespace* namespaceForFolder);
+                                   nsImapNamespace* namespaceForFolder);
   static char* GetFolderNameWithoutNamespace(
-      nsIMAPNamespace* namespaceForFolder, const char* canonicalFolderName);
+      nsImapNamespace* namespaceForFolder, const char* canonicalFolderName);
   static char* AllocateServerFolderName(const char* canonicalFolderName,
                                         char delimiter);
-  static char* GetFolderOwnerNameFromPath(nsIMAPNamespace* namespaceForFolder,
+  static char* GetFolderOwnerNameFromPath(nsImapNamespace* namespaceForFolder,
                                           const char* canonicalFolderName);
   static char* AllocateCanonicalFolderName(const char* onlineFolderName,
                                            char delimiter);
   static void SuggestHierarchySeparatorForNamespace(
-      nsIMAPNamespace* namespaceForFolder, char delimiterFromFolder);
+      nsImapNamespace* namespaceForFolder, char delimiterFromFolder);
   static char* GenerateFullFolderNameWithDefaultNamespace(
       const char* hostName, const char* canonicalFolderName, const char* owner,
-      EIMAPNamespaceType nsType, nsIMAPNamespace** nsUsed);
+      EIMAPNamespaceType nsType, nsImapNamespace** nsUsed);
 
  protected:
-  nsIMAPNamespaceList();  // use CreatensIMAPNamespaceList to create one
+  nsImapNamespaceList();  // use CreatensImapNamespaceList to create one
 
-  nsTArray<nsIMAPNamespace*> m_NamespaceList;
+  nsTArray<nsImapNamespace*> m_NamespaceList;
 };
 #endif

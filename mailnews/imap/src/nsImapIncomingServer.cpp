@@ -7,7 +7,7 @@
 #include "nsMsgImapCID.h"
 
 #include "netCore.h"
-#include "nsIIMAPHostSessionList.h"
+#include "nsIImapHostSessionList.h"
 #include "nsImapIncomingServer.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgIdentity.h"
@@ -33,7 +33,7 @@
 #include "nsImapUrl.h"
 #include "nsIMsgProtocolInfo.h"
 #include "nsIMsgMailSession.h"
-#include "nsIMAPNamespace.h"
+#include "nsImapNamespace.h"
 #include "nsArrayUtils.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
@@ -2910,7 +2910,7 @@ nsImapIncomingServer::GetUriWithNamespacePrefixIfNecessary(
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIImapHostSessionList> hostSessionList =
       do_GetService(kCImapHostSessionListCID, &rv);
-  nsIMAPNamespace* ns = nullptr;
+  nsImapNamespace* ns = nullptr;
   rv = hostSessionList->GetDefaultNamespaceOfTypeForHost(
       serverKey.get(), (EIMAPNamespaceType)namespaceType, ns);
   if (ns) {

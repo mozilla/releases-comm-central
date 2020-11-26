@@ -8,9 +8,9 @@
 
 #include "nsISupports.h"
 #include "nsImapCore.h"
-#include "nsIMAPNamespace.h"
+#include "nsImapNamespace.h"
 
-class nsIMAPBodyShell;
+class nsImapBodyShell;
 class nsIImapIncomingServer;
 
 // f4d89e3e-77da-492c-962b-7835f0742c22
@@ -91,17 +91,17 @@ class nsIImapHostSessionList : public nsISupports {
   // Namespaces
   NS_IMETHOD GetNamespaceForMailboxForHost(const char* serverKey,
                                            const char* mailbox_name,
-                                           nsIMAPNamespace*& result) = 0;
+                                           nsImapNamespace*& result) = 0;
   NS_IMETHOD SetNamespaceFromPrefForHost(const char* serverKey,
                                          const char* namespacePref,
                                          EIMAPNamespaceType type) = 0;
   NS_IMETHOD AddNewNamespaceForHost(const char* serverKey,
-                                    nsIMAPNamespace* ns) = 0;
+                                    nsImapNamespace* ns) = 0;
   NS_IMETHOD ClearServerAdvertisedNamespacesForHost(const char* serverKey) = 0;
   NS_IMETHOD ClearPrefsNamespacesForHost(const char* serverKey) = 0;
   NS_IMETHOD GetDefaultNamespaceOfTypeForHost(const char* serverKey,
                                               EIMAPNamespaceType type,
-                                              nsIMAPNamespace*& result) = 0;
+                                              nsImapNamespace*& result) = 0;
   NS_IMETHOD SetNamespacesOverridableForHost(const char* serverKey,
                                              bool overridable) = 0;
   NS_IMETHOD GetNamespacesOverridableForHost(const char* serverKey,
@@ -109,7 +109,7 @@ class nsIImapHostSessionList : public nsISupports {
   NS_IMETHOD GetNumberOfNamespacesForHost(const char* serverKey,
                                           uint32_t& result) = 0;
   NS_IMETHOD GetNamespaceNumberForHost(const char* serverKey, int32_t n,
-                                       nsIMAPNamespace*& result) = 0;
+                                       nsImapNamespace*& result) = 0;
   // ### dmb hoo boy, how are we going to do this?
   NS_IMETHOD CommitNamespacesForHost(nsIImapIncomingServer* server) = 0;
   NS_IMETHOD FlushUncommittedNamespacesForHost(const char* serverKey,
@@ -121,11 +121,11 @@ class nsIImapHostSessionList : public nsISupports {
 
   // Message Body Shells
   NS_IMETHOD AddShellToCacheForHost(const char* serverKey,
-                                    nsIMAPBodyShell* shell) = 0;
+                                    nsImapBodyShell* shell) = 0;
   NS_IMETHOD FindShellInCacheForHost(const char* serverKey,
                                      const char* mailboxName, const char* UID,
                                      IMAP_ContentModifiedType modType,
-                                     nsIMAPBodyShell** result) = 0;
+                                     nsImapBodyShell** result) = 0;
   NS_IMETHOD ClearShellCacheForHost(const char* serverKey) = 0;
 };
 

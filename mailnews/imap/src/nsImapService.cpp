@@ -19,7 +19,7 @@
 #include "nsIImapServerSink.h"
 #include "nsIImapMockChannel.h"
 #include "nsImapUtils.h"
-#include "nsIMAPNamespace.h"
+#include "nsImapNamespace.h"
 #include "nsIDocShell.h"
 #include "nsIProgressEventSink.h"
 #include "nsIPrefBranch.h"
@@ -2584,7 +2584,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     if (!parent && !folderName.IsEmpty() && imapRoot) {
       // Check if this folder is another user's folder.
       fullFolderName =
-          nsIMAPNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
+          nsImapNamespaceList::GenerateFullFolderNameWithDefaultNamespace(
               serverKey.get(), folderName.get(), userPass.get(),
               kOtherUsersNamespace, nullptr);
       // if this is another user's folder, let's see if we're already subscribed

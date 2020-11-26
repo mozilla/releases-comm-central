@@ -458,8 +458,8 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsresult GetDatabase() override;
 
   nsresult GetFolderOwnerUserName(nsACString& userName);
-  nsIMAPNamespace* GetNamespaceForFolder();
-  void SetNamespaceForFolder(nsIMAPNamespace* ns);
+  nsImapNamespace* GetNamespaceForFolder();
+  void SetNamespaceForFolder(nsImapNamespace* ns);
 
   nsMsgIMAPFolderACL* GetFolderACL();
   nsresult CreateACLRightsStringForFolder(nsAString& rightsString);
@@ -549,7 +549,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   // "Other Users' Mailboxes"
 
   nsCString m_adminUrl;  // url to run to set admin privileges for this folder
-  nsIMAPNamespace* m_namespace;
+  nsImapNamespace* m_namespace;
   bool m_verifiedAsOnlineFolder;
   bool m_explicitlyVerify;  // whether or not we need to explicitly verify this
                             // through LIST

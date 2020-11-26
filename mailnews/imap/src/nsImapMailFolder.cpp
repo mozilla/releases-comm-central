@@ -25,7 +25,7 @@
 #include "nsMsgLocalCID.h"
 #include "nsITransactionManager.h"
 #include "nsImapUndoTxn.h"
-#include "nsIIMAPHostSessionList.h"
+#include "nsIImapHostSessionList.h"
 #include "nsIMsgCopyService.h"
 #include "nsICopyMessageStreamListener.h"
 #include "nsImapStringBundle.h"
@@ -59,7 +59,7 @@
 #include "nsQuickSort.h"
 #include "nsIImapMockChannel.h"
 #include "nsNetUtil.h"
-#include "nsIMAPNamespace.h"
+#include "nsImapNamespace.h"
 #include "nsIMsgFolderCompactor.h"
 #include "nsMsgMessageFlags.h"
 #include "nsISpamSettings.h"
@@ -3707,14 +3707,14 @@ nsresult nsImapMailFolder::GetFolderOwnerUserName(nsACString& userName) {
   if (m_ownerUserName.IsEmpty()) {
     nsCString onlineName;
     GetOnlineName(onlineName);
-    m_ownerUserName = nsIMAPNamespaceList::GetFolderOwnerNameFromPath(
+    m_ownerUserName = nsImapNamespaceList::GetFolderOwnerNameFromPath(
         GetNamespaceForFolder(), onlineName.get());
   }
   userName = m_ownerUserName;
   return NS_OK;
 }
 
-nsIMAPNamespace* nsImapMailFolder::GetNamespaceForFolder() {
+nsImapNamespace* nsImapMailFolder::GetNamespaceForFolder() {
   if (!m_namespace) {
 #ifdef DEBUG_bienvenu
     // Make sure this isn't causing us to open the database
@@ -3728,20 +3728,20 @@ nsIMAPNamespace* nsImapMailFolder::GetNamespaceForFolder() {
     char hierarchyDelimiter;
     GetHierarchyDelimiter(&hierarchyDelimiter);
 
-    m_namespace = nsIMAPNamespaceList::GetNamespaceForFolder(
+    m_namespace = nsImapNamespaceList::GetNamespaceForFolder(
         serverKey.get(), onlineName.get(), hierarchyDelimiter);
     NS_ASSERTION(m_namespace, "didn't get namespace for folder");
     if (m_namespace) {
-      nsIMAPNamespaceList::SuggestHierarchySeparatorForNamespace(
+      nsImapNamespaceList::SuggestHierarchySeparatorForNamespace(
           m_namespace, hierarchyDelimiter);
-      m_folderIsNamespace = nsIMAPNamespaceList::GetFolderIsNamespace(
+      m_folderIsNamespace = nsImapNamespaceList::GetFolderIsNamespace(
           serverKey.get(), onlineName.get(), hierarchyDelimiter, m_namespace);
     }
   }
   return m_namespace;
 }
 
-void nsImapMailFolder::SetNamespaceForFolder(nsIMAPNamespace* ns) {
+void nsImapMailFolder::SetNamespaceForFolder(nsImapNamespace* ns) {
 #ifdef DEBUG_bienvenu
   NS_ASSERTION(ns, "null namespace");
 #endif
@@ -7871,7 +7871,7 @@ NS_IMETHODIMP nsImapMailFolder::GetIsNamespace(bool* aResult) {
     nsCOMPtr<nsIImapHostSessionList> hostSession =
         do_GetService(kCImapHostSessionList, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    m_namespace = nsIMAPNamespaceList::GetNamespaceForFolder(
+    m_namespace = nsImapNamespaceList::GetNamespaceForFolder(
         serverKey.get(), onlineName.get(), hierarchyDelimiter);
     if (m_namespace == nullptr) {
       if (mFlags & nsMsgFolderFlags::ImapOtherUser)
@@ -7886,9 +7886,9 @@ NS_IMETHODIMP nsImapMailFolder::GetIsNamespace(bool* aResult) {
     }
     NS_ASSERTION(m_namespace, "failed to get namespace");
     if (m_namespace) {
-      nsIMAPNamespaceList::SuggestHierarchySeparatorForNamespace(
+      nsImapNamespaceList::SuggestHierarchySeparatorForNamespace(
           m_namespace, hierarchyDelimiter);
-      m_folderIsNamespace = nsIMAPNamespaceList::GetFolderIsNamespace(
+      m_folderIsNamespace = nsImapNamespaceList::GetFolderIsNamespace(
           serverKey.get(), onlineName.get(), hierarchyDelimiter, m_namespace);
     }
   }
@@ -7908,9 +7908,9 @@ NS_IMETHODIMP nsImapMailFolder::ResetNamespaceReferences() {
   GetOnlineName(onlineName);
   char hierarchyDelimiter;
   GetHierarchyDelimiter(&hierarchyDelimiter);
-  m_namespace = nsIMAPNamespaceList::GetNamespaceForFolder(
+  m_namespace = nsImapNamespaceList::GetNamespaceForFolder(
       serverKey.get(), onlineName.get(), hierarchyDelimiter);
-  m_folderIsNamespace = m_namespace ? nsIMAPNamespaceList::GetFolderIsNamespace(
+  m_folderIsNamespace = m_namespace ? nsImapNamespaceList::GetFolderIsNamespace(
                                           serverKey.get(), onlineName.get(),
                                           hierarchyDelimiter, m_namespace)
                                     : false;

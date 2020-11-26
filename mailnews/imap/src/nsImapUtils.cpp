@@ -13,7 +13,7 @@
 #include "nsMsgBaseCID.h"
 #include "nsMsgUtils.h"
 #include "nsImapFlagAndUidState.h"
-#include "nsIMAPNamespace.h"
+#include "nsImapNamespace.h"
 #include "nsIImapFlagAndUidState.h"
 
 nsresult nsImapURI2FullName(const char* rootURI, const char* hostName,
@@ -148,7 +148,7 @@ NS_IMPL_GETSET(nsImapMailboxSpec, OnlineVerified, bool, mOnlineVerified)
 NS_IMPL_GETSET(nsImapMailboxSpec, SupportedUserFlags, uint32_t,
                mSupportedUserFlags)
 NS_IMPL_GETSET(nsImapMailboxSpec, Box_flags, uint32_t, mBoxFlags)
-NS_IMPL_GETSET(nsImapMailboxSpec, NamespaceForFolder, nsIMAPNamespace*,
+NS_IMPL_GETSET(nsImapMailboxSpec, NamespaceForFolder, nsImapNamespace*,
                mNamespaceForFolder)
 
 NS_IMETHODIMP nsImapMailboxSpec::GetAllocatedPathName(

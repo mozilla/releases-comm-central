@@ -4,19 +4,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
-nsIMAPGenericParser is the base parser class used by the server parser and body
+nsImapGenericParser is the base parser class used by the server parser and body
 shell parser
 */
 
-#ifndef nsIMAPGenericParser_H
-#define nsIMAPGenericParser_H
+#ifndef nsImapGenericParser_H
+#define nsImapGenericParser_H
 
 #define WHITESPACE " \015\012"  // token delimiter
 
-class nsIMAPGenericParser {
+class nsImapGenericParser {
  public:
-  nsIMAPGenericParser();
-  virtual ~nsIMAPGenericParser();
+  nsImapGenericParser();
+  virtual ~nsImapGenericParser();
 
   // Add any specific stuff in the derived class
   virtual bool LastCommandSuccessful();
@@ -28,7 +28,7 @@ class nsIMAPGenericParser {
 
  protected:
   // This is a pure virtual member which must be overridden in the derived class
-  // for each different implementation of a nsIMAPGenericParser.
+  // for each different implementation of a nsImapGenericParser.
   // For instance, one implementation (the nsIMAPServerState) might get the next
   // line from an open socket, whereas another implementation might just get it
   // from a buffer somewhere. This fills in nextLine with the buffer, and
@@ -63,7 +63,7 @@ class nsIMAPGenericParser {
   bool fAtEndOfLine;
 
  private:
-  enum nsIMAPGenericParserState {
+  enum nsImapGenericParserState {
     stateOK = 0,
     stateSyntaxErrorFlag = 0x1,
     stateDisconnectedFlag = 0x2

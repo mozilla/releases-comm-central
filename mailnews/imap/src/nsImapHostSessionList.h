@@ -3,23 +3,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef _nsIMAPHostSessionList_H_
-#define _nsIMAPHostSessionList_H_
+#ifndef _nsImapHostSessionList_H_
+#define _nsImapHostSessionList_H_
 
 #include "mozilla/Attributes.h"
 #include "nsImapCore.h"
-#include "nsIIMAPHostSessionList.h"
-#include "nsIMAPBodyShell.h"
+#include "nsIImapHostSessionList.h"
+#include "nsImapBodyShell.h"
 #include "nsIObserver.h"
 #include "nsWeakReference.h"
 #include "nspr.h"
 
-class nsIMAPNamespaceList;
+class nsImapNamespaceList;
 class nsIImapIncomingServer;
 
 class nsIMAPHostInfo {
  public:
-  friend class nsIMAPHostSessionList;
+  friend class nsImapHostSessionList;
 
   nsIMAPHostInfo(const char* serverKey, nsIImapIncomingServer* server);
   ~nsIMAPHostInfo();
@@ -33,7 +33,7 @@ class nsIMAPHostInfo {
   char* fHierarchyDelimiters;  // string of top-level hierarchy delimiters
   bool fHaveWeEverDiscoveredFolders;
   char* fCanonicalOnlineSubDir;
-  nsIMAPNamespaceList *fNamespaceList, *fTempNamespaceList;
+  nsImapNamespaceList *fNamespaceList, *fTempNamespaceList;
   bool fNamespacesOverridable;
   bool fUsingSubscription;
   bool fOnlineTrashFolderExists;
@@ -43,18 +43,18 @@ class nsIMAPHostInfo {
   bool fDeleteIsMoveToTrash;
   bool fShowDeletedMessages;
   bool fGotNamespaces;
-  nsIMAPBodyShellCache* fShellCache;
+  nsImapBodyShellCache* fShellCache;
 };
 
 // this is an interface to a linked list of host info's
-class nsIMAPHostSessionList : public nsIImapHostSessionList,
+class nsImapHostSessionList : public nsIImapHostSessionList,
                               public nsIObserver,
                               public nsSupportsWeakReference {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIOBSERVER
 
-  nsIMAPHostSessionList();
+  nsImapHostSessionList();
   nsresult Init();
   // Host List
   NS_IMETHOD AddHostToList(const char* serverKey,
@@ -125,18 +125,18 @@ class nsIMAPHostSessionList : public nsIImapHostSessionList,
   // Namespaces
   NS_IMETHOD GetNamespaceForMailboxForHost(const char* serverKey,
                                            const char* mailbox_name,
-                                           nsIMAPNamespace*& result) override;
+                                           nsImapNamespace*& result) override;
   NS_IMETHOD SetNamespaceFromPrefForHost(const char* serverKey,
                                          const char* namespacePref,
                                          EIMAPNamespaceType type) override;
   NS_IMETHOD AddNewNamespaceForHost(const char* serverKey,
-                                    nsIMAPNamespace* ns) override;
+                                    nsImapNamespace* ns) override;
   NS_IMETHOD ClearServerAdvertisedNamespacesForHost(
       const char* serverKey) override;
   NS_IMETHOD ClearPrefsNamespacesForHost(const char* serverKey) override;
   NS_IMETHOD GetDefaultNamespaceOfTypeForHost(
       const char* serverKey, EIMAPNamespaceType type,
-      nsIMAPNamespace*& result) override;
+      nsImapNamespace*& result) override;
   NS_IMETHOD SetNamespacesOverridableForHost(const char* serverKey,
                                              bool overridable) override;
   NS_IMETHOD GetNamespacesOverridableForHost(const char* serverKey,
@@ -144,7 +144,7 @@ class nsIMAPHostSessionList : public nsIImapHostSessionList,
   NS_IMETHOD GetNumberOfNamespacesForHost(const char* serverKey,
                                           uint32_t& result) override;
   NS_IMETHOD GetNamespaceNumberForHost(const char* serverKey, int32_t n,
-                                       nsIMAPNamespace*& result) override;
+                                       nsImapNamespace*& result) override;
   // ### dmb hoo boy, how are we going to do this?
   NS_IMETHOD CommitNamespacesForHost(nsIImapIncomingServer* host) override;
   NS_IMETHOD FlushUncommittedNamespacesForHost(const char* serverKey,
@@ -156,17 +156,17 @@ class nsIMAPHostSessionList : public nsIImapHostSessionList,
 
   // Message Body Shells
   NS_IMETHOD AddShellToCacheForHost(const char* serverKey,
-                                    nsIMAPBodyShell* shell) override;
+                                    nsImapBodyShell* shell) override;
   NS_IMETHOD FindShellInCacheForHost(const char* serverKey,
                                      const char* mailboxName, const char* UID,
                                      IMAP_ContentModifiedType modType,
-                                     nsIMAPBodyShell** result) override;
+                                     nsImapBodyShell** result) override;
   NS_IMETHOD ClearShellCacheForHost(const char* serverKey) override;
   PRMonitor* gCachedHostInfoMonitor;
   nsIMAPHostInfo* fHostInfoList;
 
  protected:
-  virtual ~nsIMAPHostSessionList();
+  virtual ~nsImapHostSessionList();
   nsresult SetNamespacesPrefForHost(nsIImapIncomingServer* aHost,
                                     EIMAPNamespaceType type, const char* pref);
   nsIMAPHostInfo* FindHost(const char* serverKey);

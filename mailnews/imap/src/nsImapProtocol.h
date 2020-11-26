@@ -23,10 +23,10 @@
 // UI Thread proxy helper
 #include "nsIImapProtocolSink.h"
 
-#include "nsIIMAPHostSessionList.h"
+#include "nsIImapHostSessionList.h"
 #include "nsImapServerResponseParser.h"
 #include "nsImapFlagAndUidState.h"
-#include "nsIMAPNamespace.h"
+#include "nsImapNamespace.h"
 #include "nsTArray.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsMsgLineBuffer.h"  // we need this to use the nsMsgLineStreamBuffer helper class...
@@ -362,7 +362,7 @@ class nsImapProtocol : public nsIImapProtocol,
   // Clears all rights for the current folder, for all users.
   void ClearAllFolderRights();
   void RefreshFolderACLView(const char* mailboxName,
-                            nsIMAPNamespace* nsForMailbox);
+                            nsImapNamespace* nsForMailbox);
 
   nsresult SetFolderAdminUrl(const char* mailboxName);
   void HandleMemoryFailure();

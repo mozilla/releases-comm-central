@@ -49,7 +49,7 @@ class nsImapMailboxSpec : public nsIMailboxSpec {
   nsImapMailboxSpec& operator=(const nsImapMailboxSpec& aCopy);
 
   nsCOMPtr<nsIImapFlagAndUidState> mFlagState;
-  nsIMAPNamespace* mNamespaceForFolder;
+  nsImapNamespace* mNamespaceForFolder;
 
   uint32_t mBoxFlags;
   uint32_t mSupportedUserFlags;

@@ -7,9 +7,9 @@
 
 interface nsIImapFlagAndUidState;
 
-[ptr] native nsIMAPNamespace(nsIMAPNamespace);
+[ptr] native nsImapNamespace(nsImapNamespace);
 %{C++
-class nsIMAPNamespace;
+class nsImapNamespace;
 %}
 
 [scriptable, uuid(a9fbbc80-5291-4ed8-a7f7-c2fcad231269)]
@@ -43,5 +43,5 @@ interface nsIMailboxSpec : nsISupports
 
   attribute boolean onlineVerified;
 
-  [noscript] attribute nsIMAPNamespace  namespaceForFolder;
+  [noscript] attribute nsImapNamespace  namespaceForFolder;
 };

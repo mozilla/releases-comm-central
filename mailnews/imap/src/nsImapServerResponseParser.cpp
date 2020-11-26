@@ -8,9 +8,9 @@
 #include "nsImapCore.h"
 #include "nsImapProtocol.h"
 #include "nsImapServerResponseParser.h"
-#include "nsIMAPBodyShell.h"
+#include "nsImapBodyShell.h"
 #include "nsIImapFlagAndUidState.h"
-#include "nsIMAPNamespace.h"
+#include "nsImapNamespace.h"
 #include "nsImapUtils.h"
 #include "nsCRT.h"
 #include "nsMsgUtils.h"
@@ -22,7 +22,7 @@ extern mozilla::LazyLogModule IMAP;  // defined in nsImapProtocol.cpp
 
 nsImapServerResponseParser::nsImapServerResponseParser(
     nsImapProtocol& imapProtocolConnection)
-    : nsIMAPGenericParser(),
+    : nsImapGenericParser(),
       fReportingErrors(true),
       fCurrentFolderReadOnly(false),
       fCurrentLineContainedFlagInfo(false),
@@ -75,7 +75,7 @@ nsImapServerResponseParser::~nsImapServerResponseParser() {
 
 bool nsImapServerResponseParser::LastCommandSuccessful() {
   return (!CommandFailed() && !fServerConnection.DeathSignalReceived() &&
-          nsIMAPGenericParser::LastCommandSuccessful());
+          nsImapGenericParser::LastCommandSuccessful());
 }
 
 // returns true if things look ok to continue
@@ -276,7 +276,7 @@ void nsImapServerResponseParser::ParseIMAPServerResponse(
 
 void nsImapServerResponseParser::HandleMemoryFailure() {
   fServerConnection.AlertUserEventUsingName("imapOutOfMemory");
-  nsIMAPGenericParser::HandleMemoryFailure();
+  nsImapGenericParser::HandleMemoryFailure();
 }
 
 // SEARCH is the only command that requires pre-processing for now.
@@ -828,7 +828,7 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec* boxSpec) {
     fHostSessionList->SetNamespaceHierarchyDelimiterFromMailboxForHost(
         serverKey, boxname, boxSpec->mHierarchySeparator);
 
-    nsIMAPNamespace* ns = nullptr;
+    nsImapNamespace* ns = nullptr;
     fHostSessionList->GetNamespaceForMailboxForHost(serverKey, boxname, ns);
     if (ns) {
       switch (ns->GetType()) {
@@ -2138,7 +2138,7 @@ void nsImapServerResponseParser::namespace_data() {
             // we'll also need to expand the name space code to take in the
             // translated prefix name.
 
-            nsIMAPNamespace* newNamespace = new nsIMAPNamespace(
+            nsImapNamespace* newNamespace = new nsImapNamespace(
                 namespaceType, namespacePrefix, namespaceDelimiter, false);
             // add it to a temporary list in the host
             if (newNamespace && fHostSessionList)
@@ -2269,7 +2269,7 @@ void nsImapServerResponseParser::mime_data() {
 }
 
 // mime_header_data should not be streamed out;  rather, it should be
-// buffered in the nsIMAPBodyShell.
+// buffered in the nsImapBodyShell.
 // This is because we are still in the process of generating enough
 // information from the server (such as the MIME header's size) so that
 // we can construct the final output stream.
@@ -2348,7 +2348,7 @@ void nsImapServerResponseParser::bodystructure_data() {
       message = nullptr;
     }
     m_shell =
-        new nsIMAPBodyShell(&fServerConnection, message, CurrentResponseUID(),
+        new nsImapBodyShell(&fServerConnection, message, CurrentResponseUID(),
                             FolderUID(), GetSelectedMailboxName());
     // ignore syntax errors in parsing the body structure response. If there's
     // an error we'll just fall back to fetching the whole message.
@@ -2660,7 +2660,7 @@ bool nsImapServerResponseParser::GetDownloadingHeaders() {
 }
 
 // Tells the server state parser to use a previously cached shell.
-void nsImapServerResponseParser::UseCachedShell(nsIMAPBodyShell* cachedShell) {
+void nsImapServerResponseParser::UseCachedShell(nsImapBodyShell* cachedShell) {
   // We shouldn't already have another shell we're dealing with.
   if (m_shell && cachedShell) {
     MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("PARSER: Shell Collision"));
@@ -2911,7 +2911,7 @@ nsImapServerResponseParser::CreateCurrentMailboxSpec(
       (mailboxName) ? mailboxName : fSelectedMailboxName;
   if (mailboxNameToConvert) {
     const char* serverKey = fServerConnection.GetImapServerKey();
-    nsIMAPNamespace* ns = nullptr;
+    nsImapNamespace* ns = nullptr;
     if (serverKey && fHostSessionList)
       fHostSessionList->GetNamespaceForMailboxForHost(
           serverKey, mailboxNameToConvert, ns);  // for
@@ -2975,7 +2975,7 @@ void nsImapServerResponseParser::SetHostSessionList(
 }
 
 void nsImapServerResponseParser::SetSyntaxError(bool error, const char* msg) {
-  nsIMAPGenericParser::SetSyntaxError(error, msg);
+  nsImapGenericParser::SetSyntaxError(error, msg);
   if (error) {
     if (!fCurrentLine) {
       HandleMemoryFailure();

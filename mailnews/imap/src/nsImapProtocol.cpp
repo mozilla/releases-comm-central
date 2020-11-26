@@ -16,8 +16,8 @@
 #include "nsImapCore.h"
 #include "nsImapProtocol.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIIMAPHostSessionList.h"
-#include "nsIMAPBodyShell.h"
+#include "nsIImapHostSessionList.h"
+#include "nsImapBodyShell.h"
 #include "nsImapMailFolder.h"
 #include "nsIMsgAccountManager.h"
 #include "nsImapServerResponseParser.h"
@@ -2648,7 +2648,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
 
                 nsCString messageIdValString(messageIdString);
                 messageIdValString.AppendInt(m_uidValidity);
-                RefPtr<nsIMAPBodyShell> foundShell;
+                RefPtr<nsImapBodyShell> foundShell;
                 res = m_hostSessionList->FindShellInCacheForHost(
                     GetImapServerKey(),
                     GetServerStateParser().GetSelectedMailboxName(),
@@ -2732,7 +2732,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
 
                 // Before fetching the bodystructure, let's check our body shell
                 // cache to see if we already have it around.
-                RefPtr<nsIMAPBodyShell> foundShell;
+                RefPtr<nsImapBodyShell> foundShell;
                 IMAP_ContentModifiedType modType =
                     GetShowAttachmentsInline()
                         ? IMAP_CONTENT_MODIFIED_VIEW_INLINE
@@ -4908,7 +4908,7 @@ bool nsImapProtocol::GetSubscribingNow() {
 }
 
 void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
-  nsIMAPNamespace* ns = nullptr;
+  nsImapNamespace* ns = nullptr;
 
   NS_ASSERTION(m_hostSessionList, "fatal null host session list");
   if (!m_hostSessionList) return;
@@ -6259,7 +6259,7 @@ void nsImapProtocol::OnEnsureExistsFolder(const char* aSourceMailbox) {
 
   // try converting aSourceMailbox to canonical format
 
-  nsIMAPNamespace* nsForMailbox = nullptr;
+  nsImapNamespace* nsForMailbox = nullptr;
   m_hostSessionList->GetNamespaceForMailboxForHost(
       GetImapServerKey(), aSourceMailbox, nsForMailbox);
   // NS_ASSERTION (nsForMailbox, "Oops .. null nsForMailbox");
@@ -6313,7 +6313,7 @@ void nsImapProtocol::RefreshACLForFolderIfNecessary(const char* mailboxName) {
 }
 
 void nsImapProtocol::RefreshACLForFolder(const char* mailboxName) {
-  nsIMAPNamespace* ns = nullptr;
+  nsImapNamespace* ns = nullptr;
   m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
                                                    mailboxName, ns);
   if (ns) {
@@ -6357,7 +6357,7 @@ void nsImapProtocol::RefreshACLForFolder(const char* mailboxName) {
 }
 
 void nsImapProtocol::RefreshFolderACLView(const char* mailboxName,
-                                          nsIMAPNamespace* nsForMailbox) {
+                                          nsImapNamespace* nsForMailbox) {
   nsCString canonicalMailboxName;
 
   if (nsForMailbox)
@@ -6586,7 +6586,7 @@ void nsImapProtocol::OnListFolder(const char* aSourceMailbox, bool aBool) {
 bool nsImapProtocol::MailboxIsNoSelectMailbox(const char* mailboxName) {
   bool rv = false;
 
-  nsIMAPNamespace* nsForMailbox = nullptr;
+  nsImapNamespace* nsForMailbox = nullptr;
   m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
                                                    mailboxName, nsForMailbox);
   // NS_ASSERTION (nsForMailbox, "Oops .. null nsForMailbox");
@@ -6612,7 +6612,7 @@ nsresult nsImapProtocol::SetFolderAdminUrl(const char* mailboxName) {
   nsresult rv =
       NS_ERROR_NULL_POINTER;  // if m_imapServerSink is null, rv will be this.
 
-  nsIMAPNamespace* nsForMailbox = nullptr;
+  nsImapNamespace* nsForMailbox = nullptr;
   m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
                                                    mailboxName, nsForMailbox);
 
@@ -6693,7 +6693,7 @@ bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
 
   if (m_deletableChildren) {
     m_hierarchyNameState = kDeleteSubFoldersInProgress;
-    nsIMAPNamespace* ns = nullptr;
+    nsImapNamespace* ns = nullptr;
     m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
                                                      oldParentMailboxName,
                                                      ns);  // for delimiter
@@ -7027,7 +7027,7 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes() {
   m_hostSessionList->GetNumberOfNamespacesForHost(GetImapServerKey(), count);
 
   for (uint32_t i = 0; i < count; i++) {
-    nsIMAPNamespace* ns = nullptr;
+    nsImapNamespace* ns = nullptr;
     m_hostSessionList->GetNamespaceNumberForHost(GetImapServerKey(), i, ns);
     if (!ns) {
       continue;
@@ -7134,7 +7134,7 @@ void nsImapProtocol::DiscoverMailboxList() {
   uint32_t count = 0;
   m_hostSessionList->GetNumberOfNamespacesForHost(GetImapServerKey(), count);
   for (uint32_t i = 0; i < count; i++) {
-    nsIMAPNamespace* ns = nullptr;
+    nsImapNamespace* ns = nullptr;
     m_hostSessionList->GetNamespaceNumberForHost(GetImapServerKey(), i, ns);
     if (ns) {
       const char* prefix = ns->GetPrefix();
@@ -7291,7 +7291,7 @@ void nsImapProtocol::MailboxDiscoveryFinished() {
   if (!DeathSignalReceived() && !GetSubscribingNow() &&
       ((m_hierarchyNameState == kNoOperationInProgress) ||
        (m_hierarchyNameState == kListingForInfoAndDiscovery))) {
-    nsIMAPNamespace* ns = nullptr;
+    nsImapNamespace* ns = nullptr;
     m_hostSessionList->GetDefaultNamespaceOfTypeForHost(GetImapServerKey(),
                                                         kPersonalNamespace, ns);
     const char* personalDir = ns ? ns->GetPrefix() : 0;

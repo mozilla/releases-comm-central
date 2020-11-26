@@ -188,7 +188,7 @@
 // imap includes
 ////////////////////////////////////////////////////////////////////////////////
 #include "nsMsgImapCID.h"
-#include "nsIMAPHostSessionList.h"
+#include "nsImapHostSessionList.h"
 #include "nsImapIncomingServer.h"
 #include "nsImapService.h"
 #include "nsImapMailFolder.h"
@@ -548,7 +548,7 @@ NS_DEFINE_NAMED_CID(JACPPURLDELEGATOR_CID);
 ////////////////////////////////////////////////////////////////////////////////
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapUrl)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapProtocol)
-NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsIMAPHostSessionList, Init)
+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsImapHostSessionList, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsImapIncomingServer, Init)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapService)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsImapMailFolder)
@@ -896,7 +896,7 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_IMAPPROTOCOL_CID, false, nullptr, nsImapProtocolConstructor},
     {&kNS_IMAPMOCKCHANNEL_CID, false, nullptr, nsImapMockChannelConstructor},
     {&kNS_IIMAPHOSTSESSIONLIST_CID, false, nullptr,
-     nsIMAPHostSessionListConstructor},
+     nsImapHostSessionListConstructor},
     {&kNS_IMAPINCOMINGSERVER_CID, false, nullptr,
      nsImapIncomingServerConstructor},
     {&kNS_IMAPRESOURCE_CID, false, nullptr, nsImapMailFolderConstructor},
