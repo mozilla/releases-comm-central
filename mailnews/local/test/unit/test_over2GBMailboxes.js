@@ -2,8 +2,6 @@
 
 /* Test of accessing over 2 GiB local folder. */
 
-/* import-globals-from ../../../test/resources/MessageGenerator.jsm */
-load("../../../resources/MessageGenerator.jsm");
 var bugmail10 = do_get_file("../../../data/bugmail10");
 
 Services.prefs.setCharPref(
