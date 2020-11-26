@@ -44,6 +44,7 @@ add_task(async function test_pointerevent() {
   let tab = openContentTab(url);
 
   await extension.awaitMessage("pageReady");
+  await new Promise(resolve => requestAnimationFrame(resolve));
   tab.linkedBrowser.focus();
   await BrowserTestUtils.synthesizeMouseAtCenter(
     "html",
