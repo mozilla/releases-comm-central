@@ -13,6 +13,7 @@ var { close_compose_window, open_compose_from_draft } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 var {
+  assert_selected_and_displayed,
   be_in_folder,
   get_special_folder,
   mc,
@@ -234,7 +235,12 @@ add_task(function test_draft_identity_selection() {
     dump("Running draft identity test" + tests.indexOf(test) + "\n");
     be_in_folder(gDrafts);
     select_click_row(test.draftIndex);
-
+    assert_selected_and_displayed(test.draftIndex);
+    wait_for_notification_to_show(
+      mc,
+      "mail-notification-top",
+      "draftMsgContent"
+    );
     let cwc = open_compose_from_draft();
     checkCompIdentity(
       cwc,
