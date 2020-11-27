@@ -248,7 +248,7 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
   background-clip: padding-box;
 }
 
-.findbar-button:not(:is([checked="true"],[disabled="true"])):hover,
+.findbar-button:not([checked="true"],[disabled="true"]):hover,
 .toolbarbutton-1:not([disabled="true"]):is(:hover,[open="true"]) >
 .toolbarbutton-menubutton-button,
 .toolbarbutton-1:not([disabled="true"]):hover >
@@ -805,7 +805,7 @@ label.statusbarpanel {
   outline: 0;
 }
 
-.panelButton:not(:is([disabled],[open],:active)):is(:hover,:focus) {
+.panelButton:not([disabled],[open],:active):is(:hover,:focus) {
   background-color: var(--arrowpanel-dimmed);
 }
 

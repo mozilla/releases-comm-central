@@ -104,9 +104,8 @@
     }
 
     #attachmentBucket[orient="vertical"]:focus
-      .attachmentItem[selected="true"]:not(:is([current="true"],:hover)) {
-      border-right-color: transparent;
-      border-left-color: transparent;
+      .attachmentItem[selected="true"]:not([current="true"],:hover) {
+      border-inline-color: transparent;
     }
 
     .attachmentList:focus .attachmentItem[current="true"] {

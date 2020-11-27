@@ -20,7 +20,7 @@ panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
   width: 42px; /* 18px toolbarbutton padding + 16px icon + 8px label padding start */
 }
 
-.subviewbutton:not(:is([image],[targetURI],.bookmark-item)) > .menu-iconic-left {
+.subviewbutton:not([image],[targetURI],.bookmark-item) > .menu-iconic-left {
   display: none;
 }
 
@@ -45,7 +45,7 @@ menu.subviewbutton > .menu-right {
 
 /* With original pre-processor step:
    .panel-button@buttonStateHover@ */
-.panel-button:not(:is([disabled],[open],:active)):is(:hover,:focus) {
+.panel-button:not([disabled],[open],:active):is(:hover,:focus) {
   background-color: var(--arrowpanel-dimmed-further);
 }
 

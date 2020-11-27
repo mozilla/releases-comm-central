@@ -349,13 +349,13 @@ panelview .toolbarbutton-1 {
   margin-top: 6px;
 }
 
-panelview .toolbarbutton-1:not(:is([disabled],[open],:active)):is(:hover,:focus),
-toolbarbutton.subviewbutton:not(:is([disabled],[open],:active)):is(:hover,:focus),
-.navigable.subviewbutton:not(:is([disabled],[open],:active)):is(:hover,:focus),
-menu.subviewbutton:not(:is([disabled],:active))[_moz-menuactive],
-menuitem.subviewbutton:not(:is([disabled],:active))[_moz-menuactive],
-.widget-overflow-list .toolbarbutton-1:not(:is([disabled],[open],:active)):is(:hover,:focus),
-.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton:not(:is([disabled],[open],:active)):is(:hover,:focus) {
+panelview .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus),
+toolbarbutton.subviewbutton:not([disabled],[open],:active):is(:hover,:focus),
+.navigable.subviewbutton:not([disabled],[open],:active):is(:hover,:focus),
+menu.subviewbutton:not([disabled],:active)[_moz-menuactive],
+menuitem.subviewbutton:not([disabled],:active)[_moz-menuactive],
+.widget-overflow-list .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus),
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton:not([disabled],[open],:active):is(:hover,:focus) {
   color: inherit;
   background-color: var(--arrowpanel-dimmed);
 }
@@ -379,8 +379,8 @@ menuitem.subviewbutton:not([disabled])[_moz-menuactive]:active,
   border-radius: 0;
 }
 
-menuitem.panel-subview-footer:not(:is([disabled],:active))[_moz-menuactive],
-.subviewbutton.panel-subview-footer:not(:is([disabled],[open],:active)):is(:hover,:focus) {
+menuitem.panel-subview-footer:not([disabled],:active)[_moz-menuactive],
+.subviewbutton.panel-subview-footer:not([disabled],[open],:active):is(:hover,:focus) {
   background-color: var(--arrowpanel-dimmed-further);
 }
 
@@ -532,7 +532,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   border: 1px solid transparent;
 }
 
-.subviewradio:not(:is([disabled],[open],:active)):is(:hover,:focus) {
+.subviewradio:not([disabled],[open],:active):is(:hover,:focus) {
   background-color: var(--arrowpanel-dimmed);
   border-color: var(--panel-separator-color);
 }
