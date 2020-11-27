@@ -54,6 +54,10 @@ nsresult nsAbQueryStringToExpression::ParseExpression(
     const char** index, nsISupports** expression) {
   nsresult rv;
 
+  if (**index == '?') {
+    (*index)++;
+  }
+
   if (**index != '(') return NS_ERROR_FAILURE;
 
   const char* indexBracket = *index + 1;
