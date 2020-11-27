@@ -52,6 +52,16 @@ calIcalProperty.prototype = {
   },
 
   get valueAsIcalString() {
+    let propertyStr = this.innerObject.toICALString();
+    if (propertyStr.match(/:/g).length == 1) {
+      // For property containing only one colon, e.g. `GEO:latitude;longitude`,
+      // the left hand side must be the property name, the right hand side must
+      // be property value.
+      return propertyStr.slice(propertyStr.indexOf(":") + 1);
+    }
+    // For property containing many or no colons, retrieve the property value
+    // according to its type. An example is
+    // `ATTENDEE;MEMBER="mailto:foo@example.com": mailto:bar@example.com`
     let type = this.innerObject.type;
     return this.innerObject
       .getValues()

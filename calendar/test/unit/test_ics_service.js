@@ -182,6 +182,11 @@ function test_icalproperty() {
   equal(prop.value, "A\\nB");
   equal(prop.valueAsIcalString, "A\\\\nB");
   equal(prop.valueAsDatetime, null);
+
+  prop = svc.createIcalProperty("GEO");
+  prop.value = "43.4913662534171;12.085559129715";
+  equal(prop.value, "43.4913662534171;12.085559129715");
+  equal(prop.valueAsIcalString, "43.4913662534171;12.085559129715");
 }
 
 function test_icalcomponent() {
