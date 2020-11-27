@@ -390,13 +390,14 @@ const PanelUI = {
           "subviewbutton subviewbutton-iconic"
         );
         break;
-      case "appMenu-customizeView":
+      case "appMenu-toolbarsView":
         onViewToolbarsPopupShowing(
           event,
           "mail-toolbox",
           document.getElementById("appmenu_quickFilterBar"),
           "toolbarbutton",
-          "subviewbutton subviewbutton-iconic"
+          "subviewbutton subviewbutton-iconic",
+          true
         );
         break;
       case "appMenu-preferencesLayoutView":

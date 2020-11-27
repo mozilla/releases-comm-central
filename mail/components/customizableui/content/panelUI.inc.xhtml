@@ -106,11 +106,6 @@
 #endif
                        closemenu="none"
                        oncommand="openOptionsDialog();"/>
-        <toolbarbutton id="appmenu_customize"
-                       class="subviewbutton subviewbutton-iconic subviewbutton-nav"
-                       label="&customizeCmd.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-customizeView', this)"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_File"
                        class="subviewbutton subviewbutton-nav"
@@ -399,27 +394,23 @@
       </vbox>
     </panelview>
 
-    <!-- Customize -->
-    <panelview id="appMenu-customizeView"
-               title="&customizeCmd.label;"
+    <!-- View / Toolbars -->
+    <panelview id="appMenu-toolbarsView"
+               title="&viewToolbarsMenu.label;"
                class="PanelUI-subView">
       <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_MessagePaneLayout"
-                       class="subviewbutton subviewbutton-nav"
-                       label="&messagePaneLayoutStyle.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-preferencesLayoutView', this)"/>
-        <toolbarseparator/>
         <toolbarbutton id="appmenu_quickFilterBar"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&quickFilterBar.toggleBarVisibility.appmenu.label;"
+                       closemenu="none"
                        command="cmd_toggleQuickFilterBar"/>
         <toolbarbutton id="appmenu_showStatusbar"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
                        label="&showTaskbarCmd.label;"
                        oncommand="goToggleToolbar('status-bar', 'menu_showTaskbar')"
+                       closemenu="none"
                        checked="true"
                        observes="menu_showTaskbar"/>
         <toolbarseparator id="appmenu_toggleToolbarsSeparator"/>
@@ -430,7 +421,7 @@
       </vbox>
     </panelview>
 
-    <!-- Preferences / Layout -->
+    <!-- View / Layout -->
     <panelview id="appMenu-preferencesLayoutView"
                title="&messagePaneLayoutStyle.label;"
                class="PanelUI-subView">
@@ -612,6 +603,19 @@
                class="PanelUI-subView">
       <vbox id="appMenu-viewViewItems"
             class="panel-subview-body">
+        <toolbarbutton id="appmenu_Toolbars"
+                       class="subviewbutton subviewbutton-nav"
+                       label="&viewToolbarsMenu.label;"
+                       accesskey="&viewToolbarsMenu.accesskey;"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-toolbarsView', this)"/>
+        <toolbarseparator/>
+        <toolbarbutton id="appmenu_MessagePaneLayout"
+                       class="subviewbutton subviewbutton-nav"
+                       label="&messagePaneLayoutStyle.label;"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu-preferencesLayoutView', this)"/>
+        <toolbarseparator/>
         <toolbarbutton id="appmenu_FolderViews"
                        class="subviewbutton subviewbutton-nav"
                        label="&folderView.label;"
