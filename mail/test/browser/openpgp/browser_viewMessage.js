@@ -338,8 +338,8 @@ add_task(async function testPartialInlinePGPDecrypt() {
   let notificationBox = "mail-notification-top";
   let notificationValue = "decryptInlinePG";
 
-  // Assert the "partially encrypted notification" is visible.
-  assert_notification_displayed(mc, notificationBox, notificationValue, true);
+  // Ensure the "partially encrypted notification" is visible.
+  wait_for_notification_to_show(mc, notificationBox, notificationValue);
 
   // Click on the "decrypt" button.
   let decryptButton = get_notification_button(
