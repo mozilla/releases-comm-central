@@ -107,12 +107,15 @@ function SetUpImportType() {
     }
   }
 
-  let descriptionDeck = document.getElementById("selectDescriptionDeck");
-  descriptionDeck.selectedIndex = 0;
+  let fileLabel = document.getElementById("fileLabel");
+  let accountLabel = document.getElementById("accountLabel");
   if (gImportType == "feeds") {
-    descriptionDeck.selectedIndex = 1;
+    accountLabel.hidden = false;
+    fileLabel.hidden = true;
     ListFeedAccounts();
   } else {
+    accountLabel.hidden = true;
+    fileLabel.hidden = false;
     ListModules();
   }
 }
@@ -140,9 +143,26 @@ function CheckIfLocalFolderExists() {
   }
 }
 
+function showWizardBox(index) {
+  let stateBox = document.getElementById("stateBox");
+  for (let i = 0; i < stateBox.children.length; i++) {
+    stateBox.children[i].hidden = i != index;
+  }
+}
+
+function getWizardBoxIndex() {
+  let selectedIndex = 0;
+  for (let element of document.getElementById("stateBox").children) {
+    if (!element.hidden) {
+      return selectedIndex;
+    }
+    selectedIndex++;
+  }
+  return selectedIndex - 1;
+}
+
 async function ImportDialogOKButton() {
   var listbox = document.getElementById("moduleList");
-  var deck = document.getElementById("stateDeck");
   var header = document.getElementById("header");
   var progressMeterEl = document.getElementById("progressMeter");
   progressMeterEl.value = 0;
@@ -207,7 +227,7 @@ async function ImportDialogOKButton() {
             progressStatusEl.setAttribute("label", "");
             progressTitleEl.setAttribute("label", meterText);
 
-            deck.selectedIndex = 2;
+            showWizardBox(2);
             gProgressInfo.progressWindow = window;
             gProgressInfo.intervalState = setInterval(
               ContinueImportCallback,
@@ -234,7 +254,7 @@ async function ImportDialogOKButton() {
             progressTitleEl.setAttribute("label", meterText);
             progressMeterEl.removeAttribute("value");
 
-            deck.selectedIndex = 2;
+            showWizardBox(2);
             return true;
           }
 
@@ -264,7 +284,7 @@ async function ImportDialogOKButton() {
             progressStatusEl.setAttribute("label", "");
             progressTitleEl.setAttribute("label", meterText);
 
-            deck.selectedIndex = 2;
+            showWizardBox(2);
             gProgressInfo.progressWindow = window;
             gProgressInfo.intervalState = setInterval(
               ContinueImportCallback,
@@ -491,7 +511,6 @@ function ListFeedAccounts() {
 function ContinueImport(info) {
   var isMail = info.importType == "mail";
   var clear = true;
-  var deck;
   var pcnt;
 
   if (info.importInterface) {
@@ -499,8 +518,7 @@ function ContinueImport(info) {
       info.importSuccess = false;
       clearInterval(info.intervalState);
       if (info.progressWindow != null) {
-        deck = document.getElementById("stateDeck");
-        deck.selectedIndex = 3;
+        showWizardBox(3);
         info.progressWindow = null;
       }
 
@@ -528,8 +546,7 @@ function ContinueImport(info) {
       clearInterval(info.intervalState);
       info.importSuccess = true;
       if (info.progressWindow) {
-        deck = document.getElementById("stateDeck");
-        deck.selectedIndex = 3;
+        showWizardBox(3);
         info.progressWindow = null;
       }
 
@@ -545,7 +562,6 @@ function ContinueImport(info) {
 function ShowResults(doesWantProgress, result) {
   if (result) {
     if (doesWantProgress) {
-      let deck = document.getElementById("stateDeck");
       let header = document.getElementById("header");
       let progressStatusEl = document.getElementById("progressStatus");
       let progressTitleEl = document.getElementById("progressTitle");
@@ -559,7 +575,7 @@ function ShowResults(doesWantProgress, result) {
       progressStatusEl.setAttribute("label", "");
       progressTitleEl.setAttribute("label", meterText);
 
-      deck.selectedIndex = 2;
+      showWizardBox(2);
       gProgressInfo.progressWindow = window;
       gProgressInfo.intervalState = setInterval(ContinueImportCallback, 100);
     } else {
@@ -603,8 +619,7 @@ function ShowImportResultsRaw(title, results, good) {
   header.setAttribute("description", title);
   dump("*** results = " + results + "\n");
   attachStrings("results", results);
-  var deck = document.getElementById("stateDeck");
-  deck.selectedIndex = 3;
+  showWizardBox(3);
   var nextButton = document.getElementById("forward");
   nextButton.label = nextButton.getAttribute("finishedval");
   nextButton.removeAttribute("disabled");
@@ -1061,9 +1076,8 @@ function SwitchType(newType) {
 }
 
 function next() {
-  var deck = document.getElementById("stateDeck");
-  switch (deck.selectedIndex) {
-    case "0":
+  switch (getWizardBoxIndex()) {
+    case 0:
       let backButton = document.getElementById("back");
       backButton.removeAttribute("disabled");
       let radioGroup = document.getElementById("importFields");
@@ -1094,17 +1108,24 @@ function next() {
         }
       } else {
         SwitchType(radioGroup.value);
-        deck.selectedIndex = 1;
-        document.getElementById("modulesFound").selectedIndex =
-          document.getElementById("moduleList").itemCount > 0 ? 0 : 1;
+        showWizardBox(1);
+        let moduleBox = document.getElementById("moduleBox");
+        let noModuleLabel = document.getElementById("noModuleLabel");
+        if (document.getElementById("moduleList").itemCount > 0) {
+          moduleBox.hidden = false;
+          noModuleLabel.hidden = true;
+        } else {
+          moduleBox.hidden = true;
+          noModuleLabel.hidden = false;
+        }
         SelectFirstItem();
         enableAdvance();
       }
       break;
-    case "1":
+    case 1:
       ImportDialogOKButton();
       break;
-    case "3":
+    case 3:
       close();
       break;
   }
@@ -1129,17 +1150,16 @@ function enableAdvance() {
 }
 
 function back() {
-  var deck = document.getElementById("stateDeck");
   var backButton = document.getElementById("back");
   var nextButton = document.getElementById("forward");
-  switch (deck.selectedIndex) {
-    case "1":
+  switch (getWizardBoxIndex()) {
+    case 1:
       backButton.setAttribute("disabled", "true");
       nextButton.label = nextButton.getAttribute("nextval");
       nextButton.removeAttribute("disabled");
-      deck.selectedIndex = 0;
+      showWizardBox(0);
       break;
-    case "3":
+    case 3:
       // Clear out the results box.
       let results = document.getElementById("results");
       while (results.hasChildNodes()) {
@@ -1159,7 +1179,7 @@ function back() {
       }
 
       // Now go back to the second page.
-      deck.selectedIndex = 1;
+      showWizardBox(1);
       break;
   }
 }

@@ -40,7 +40,7 @@
        title="&importTitle.label;"
        description="&importShortDesc.label;"/>
 
-  <deck id="stateDeck" selectedIndex="0" style="min-height: 30em">
+  <vbox id="stateBox" style="min-height: 30em">
     <vbox class="wizard-box">
       <description>&importDescription1.label;</description>
       <description>&importDescription2.label;</description>
@@ -77,26 +77,27 @@
         </vbox>
       </radiogroup>
     </vbox>
-    <vbox class="wizard-box">
-      <deck id="modulesFound"
-            selectedIndex="0">
-        <vbox>
-          <deck id="selectDescriptionDeck"
-                selectedIndex="0">
-            <label control="moduleList"
+    <vbox class="wizard-box" hidden="true">
+      <vbox>
+        <vbox id="moduleBox">
+          <vbox>
+            <label id="fileLabel"
+                   control="moduleList"
                    value="&selectDescription.label;"
                    accesskey="&selectDescription.accesskey;"/>
-            <label control="moduleList"
+            <label id="accountLabel"
+                   control="moduleList"
                    value="&selectDescriptionB.label;"
-                   accesskey="&selectDescription.accesskey;"/>
-          </deck>
+                   accesskey="&selectDescription.accesskey;"
+                   hidden="true"/>
+          </vbox>
           <richlistbox id="moduleList"
                        class="theme-listbox"
                        height="200px"
                        onselect="ImportSelectionChanged(); enableAdvance();"/>
         </vbox>
-        <label>&noModulesFound.label;</label>
-      </deck>
+        <label id="noModuleLabel" hidden="true">&noModulesFound.label;</label>
+      </vbox>
       <vbox>
         <hbox flex="1">
           <description flex="1" control="moduleList" id="description" class="box-padded"/>
@@ -110,7 +111,7 @@
         </hbox>
       </vbox>
     </vbox>
-    <vbox class="wizard-box">
+    <vbox class="wizard-box" hidden="true">
       <spacer flex="1"/>
       <html:fieldset>
         <label id="progressTitle" class="header">&title.label;</label>
@@ -120,13 +121,13 @@
         </vbox>
       </html:fieldset>
     </vbox>
-    <vbox class="wizard-box">
+    <vbox class="wizard-box" hidden="true">
       <description id="status"/>
       <hbox style="overflow: auto" class="inset" flex="1">
         <description id="results" flex="1"/>
       </hbox>
     </vbox>
-  </deck>
+  </vbox>
 
   <separator/>
 
