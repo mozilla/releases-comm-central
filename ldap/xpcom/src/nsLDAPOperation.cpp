@@ -23,7 +23,8 @@
 // Declare helper fns for dealing with C++ LDAP <-> libldap mismatch.
 static nsresult convertValues(nsIArray* values, berval*** aBValues);
 static void freeValues(berval** aVals);
-static nsresult convertMods(nsIArray* aMods, LDAPMod*** aOut);
+static nsresult convertMods(nsTArray<RefPtr<nsILDAPModification>> const& aMods,
+                            LDAPMod*** aOut);
 static void freeMods(LDAPMod** aMods);
 static nsresult convertControlArray(nsIArray* aXpcomArray,
                                     LDAPControl*** aArray);
@@ -725,7 +726,8 @@ class AddExtRunnable : public OpRunnable {
  *
  */
 NS_IMETHODIMP
-nsLDAPOperation::AddExt(const nsACString& aBaseDn, nsIArray* aMods) {
+nsLDAPOperation::AddExt(const nsACString& aBaseDn,
+                        nsTArray<RefPtr<nsILDAPModification>> const& aMods) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::AddExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
@@ -738,18 +740,16 @@ nsLDAPOperation::AddExt(const nsACString& aBaseDn, nsIArray* aMods) {
 
   nsresult rv = convertMods(aMods, &rawMods);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (rawMods) {
 #ifdef NS_DEBUG
-    // Sanity check - only LDAP_MOD_ADD modifications allowed.
-    for (int i = 0; rawMods[i]; ++i) {
-      int32_t op = rawMods[i]->mod_op;
-      NS_ASSERTION(((op & ~LDAP_MOD_BVALUES) == LDAP_MOD_ADD),
-                   "AddExt can only add.");
-    }
-#endif
-    nsCOMPtr<nsIRunnable> op = new AddExtRunnable(this, aBaseDn, rawMods);
-    mConnection->StartOp(op);
+  // Sanity check - only LDAP_MOD_ADD modifications allowed.
+  for (int i = 0; rawMods[i]; ++i) {
+    int32_t op = rawMods[i]->mod_op;
+    NS_ASSERTION(((op & ~LDAP_MOD_BVALUES) == LDAP_MOD_ADD),
+                 "AddExt can only add.");
   }
+#endif
+  nsCOMPtr<nsIRunnable> op = new AddExtRunnable(this, aBaseDn, rawMods);
+  mConnection->StartOp(op);
   return NS_OK;
 }
 
@@ -844,12 +844,10 @@ class ModifyExtRunnable : public OpRunnable {
  * @param aMods             Array of modifications
  *
  * XXX doesn't currently handle LDAPControl params
- *
- * void modifyExt (in AUTF8String aBaseDn, in unsigned long aModCount,
- *                 [array, size_is (aModCount)] in nsILDAPModification aMods);
  */
 NS_IMETHODIMP
-nsLDAPOperation::ModifyExt(const nsACString& aBaseDn, nsIArray* aMods) {
+nsLDAPOperation::ModifyExt(const nsACString& aBaseDn,
+                           nsTArray<RefPtr<nsILDAPModification>> const& aMods) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::ModifyExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
@@ -862,10 +860,8 @@ nsLDAPOperation::ModifyExt(const nsACString& aBaseDn, nsIArray* aMods) {
   LDAPMod** rawMods;
   nsresult rv = convertMods(aMods, &rawMods);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (rawMods) {
-    nsCOMPtr<nsIRunnable> op = new ModifyExtRunnable(this, aBaseDn, rawMods);
-    mConnection->StartOp(op);
-  }
+  nsCOMPtr<nsIRunnable> op = new ModifyExtRunnable(this, aBaseDn, rawMods);
+  mConnection->StartOp(op);
   return NS_OK;
 }
 
@@ -990,60 +986,46 @@ static void freeValues(berval** aVals) {
 
 /**
  * Convert nsILDAPModifications to null-terminated array of LDAPMod ptrs.
- * If input aMods is missing/empty, will return null ptr (and NS_OK).
  * Will return null upon error.
  * The returned array should be freed with freeMods().
  */
-static nsresult convertMods(nsIArray* aMods, LDAPMod*** aOut) {
-  *aOut = nullptr;
+static nsresult convertMods(nsTArray<RefPtr<nsILDAPModification>> const& aMods,
+                            LDAPMod*** aOut) {
+  *aOut = static_cast<LDAPMod**>(
+      moz_xmalloc((aMods.Length() + 1) * sizeof(LDAPMod*)));
 
-  uint32_t modCount = 0;
-  nsresult rv = aMods->GetLength(&modCount);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv = NS_OK;
+  nsAutoCString type;
+  uint32_t index = 0;
+  for (auto modif : aMods) {
+    LDAPMod* mod = new LDAPMod();
 
-  if (aMods && modCount) {
-    *aOut =
-        static_cast<LDAPMod**>(moz_xmalloc((modCount + 1) * sizeof(LDAPMod*)));
-    if (!*aOut) {
-      NS_ERROR("nsLDAPOperation::AddExt: out of memory ");
-      return NS_ERROR_OUT_OF_MEMORY;
-    }
+    int32_t operation;
+    rv = modif->GetOperation(&operation);
+    if (NS_FAILED(rv)) break;
+    mod->mod_op = operation | LDAP_MOD_BVALUES;
 
-    nsAutoCString type;
-    uint32_t index;
-    for (index = 0; index < modCount && NS_SUCCEEDED(rv); ++index) {
-      LDAPMod* mod = new LDAPMod();
+    nsresult rv = modif->GetType(type);
+    if (NS_FAILED(rv)) break;
+    mod->mod_type = ToNewCString(type);
 
-      nsCOMPtr<nsILDAPModification> modif(do_QueryElementAt(aMods, index, &rv));
-      if (NS_FAILED(rv)) break;
-
-      int32_t operation;
-      rv = modif->GetOperation(&operation);
-      if (NS_FAILED(rv)) break;
-      mod->mod_op = operation | LDAP_MOD_BVALUES;
-
-      nsresult rv = modif->GetType(type);
-      if (NS_FAILED(rv)) break;
-      mod->mod_type = ToNewCString(type);
-
-      nsCOMPtr<nsIArray> values;
-      rv = modif->GetValues(getter_AddRefs(values));
-      if (NS_FAILED(rv)) break;
-      rv = convertValues(values, &mod->mod_bvalues);
-      if (NS_FAILED(rv)) {
-        free(mod->mod_type);
-        break;
-      }
-      (*aOut)[index] = mod;
-    }
-    (*aOut)[index] = nullptr;  // Always terminate array, even if failed.
-
+    nsCOMPtr<nsIArray> values;
+    rv = modif->GetValues(getter_AddRefs(values));
+    if (NS_FAILED(rv)) break;
+    rv = convertValues(values, &mod->mod_bvalues);
     if (NS_FAILED(rv)) {
-      // clean up.
-      freeMods(*aOut);
-      *aOut = nullptr;
-      return rv;
+      free(mod->mod_type);
+      break;
     }
+    (*aOut)[index++] = mod;
+  }
+  (*aOut)[index++] = nullptr;  // Always terminate array, even if failed.
+
+  if (NS_FAILED(rv)) {
+    // clean up.
+    freeMods(*aOut);
+    *aOut = nullptr;
+    return rv;
   }
   return NS_OK;
 }

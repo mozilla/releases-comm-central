@@ -12,7 +12,6 @@ interface nsILDAPMessage;
 interface nsILDAPMessageListener;
 interface nsILDAPModification;
 interface nsIMutableArray;
-interface nsIArray;
 
 %{C++
 #define NS_LDAPOPERATION_CONTRACTID "@mozilla.org/network/ldap-operation;1"
@@ -146,7 +145,7 @@ interface nsILDAPOperation : nsISupports
      *
      * XXX doesn't currently handle LDAPControl params
      */
-    void addExt(in AUTF8String aBaseDn, in nsIArray aMods);
+    void addExt(in AUTF8String aBaseDn, in Array<nsILDAPModification> aMods);
 
     /**
      * Kicks off an asynchronous delete request.  The "ext" stands for
@@ -198,7 +197,7 @@ interface nsILDAPOperation : nsISupports
      *
      * XXX doesn't currently handle LDAPControl params
      */
-    void modifyExt(in AUTF8String aBaseDn, in nsIArray aMods);
+    void modifyExt(in AUTF8String aBaseDn, in Array<nsILDAPModification> aMods);
 
     /**
      * Kicks off an asynchronous rename request.
