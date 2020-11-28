@@ -163,36 +163,18 @@
                    tooltiptext="&nextMsgButton.tooltip;"
                    observes="button_nextMsg"/>
     <toolbaritem id="button-junk" title="&junkItem.title;">
-      <deck id="junk-deck" observes="button_junk">
-        <toolbarbutton id="button-isJunk"
-                       class="toolbarbutton-1 junk-button"
-                       label="&junkButton.label;"
-                       tooltiptext="&junkButton.tooltip;"
-                       observes="button_junk"
-                       oncommand="goDoCommand('button_junk')"/>
-        <toolbarbutton id="button-notJunk"
-                       class="toolbarbutton-1 junk-button"
-                       label="&notJunkButton.label;"
-                       tooltiptext="&notJunkButton.tooltip;"
-                       observes="button_junk"
-                       oncommand="goDoCommand('button_junk')"/>
-      </deck>
+      <toolbarbutton id="button-isJunk"
+                     data-l10n-id="toolbar-junk-button"
+                     class="toolbarbutton-1 junk-button"
+                     observes="button_junk"
+                     oncommand="goDoCommand('button_junk')"/>
     </toolbaritem>
     <toolbaritem id="button-delete" title="&deleteItem.title;">
-      <deck id="delete-deck" observes="button_delete">
-        <toolbarbutton id="button-mark-deleted"
-                       class="toolbarbutton-1 delete-button"
-                       label="&deleteButton.label;"
-                       tooltiptext="&deleteButton.tooltip;"
-                       observes="button_delete"
-                       oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' : 'button_delete')"/>
-        <toolbarbutton id="button-mark-undelete"
-                       class="toolbarbutton-1 delete-button"
-                       label="&undeleteButton.label;"
-                       tooltiptext="&undeleteButton.tooltip;"
-                       observes="button_delete"
-                       oncommand="goDoCommand('button_delete')"/>
-      </deck>
+      <toolbarbutton id="button-mark-deleted"
+                     data-l10n-id="toolbar-delete-button"
+                     class="toolbarbutton-1 delete-button"
+                     observes="button_delete"
+                     oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' : 'button_delete')"/>
     </toolbaritem>
 #ifdef XP_MACOSX
     <toolbarbutton id="button-print"

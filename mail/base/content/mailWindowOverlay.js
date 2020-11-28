@@ -1616,9 +1616,15 @@ function InitMessageMark() {
 }
 
 function UpdateJunkToolbarButton() {
-  var junkButtonDeck = document.getElementById("junk-deck");
-  if (junkButtonDeck) {
-    junkButtonDeck.selectedIndex = SelectedMessagesAreJunk() ? 1 : 0;
+  let junkButton = document.getElementById("button-isJunk");
+  if (!junkButton) {
+    return;
+  }
+
+  if (SelectedMessagesAreJunk()) {
+    document.l10n.setAttributes(junkButton, "toolbar-not-junk-button");
+  } else {
+    document.l10n.setAttributes(junkButton, "toolbar-junk-button");
   }
 }
 
@@ -1767,20 +1773,23 @@ function UpdateReplyButtons() {
 }
 
 function UpdateDeleteToolbarButton() {
-  var deleteButtonDeck = document.getElementById("delete-deck");
-  if (!deleteButtonDeck) {
-    return;
-  }
+  let buttonMarkDeleted = document.getElementById("button-mark-deleted");
 
   // Never show "Undelete" in the 3-pane for folders, when delete would
   // apply to the selected folder.
+  if (!buttonMarkDeleted) {
+    return;
+  }
+
   if (
     gFolderDisplay.focusedPane == document.getElementById("folderTree") &&
     gFolderDisplay.selectedCount == 0
   ) {
-    deleteButtonDeck.selectedIndex = 0;
+    document.l10n.setAttributes(buttonMarkDeleted, "toolbar-delete-button");
+  } else if (SelectedMessagesAreDeleted()) {
+    document.l10n.setAttributes(buttonMarkDeleted, "toolbar-undelete-button");
   } else {
-    deleteButtonDeck.selectedIndex = SelectedMessagesAreDeleted() ? 1 : 0;
+    document.l10n.setAttributes(buttonMarkDeleted, "toolbar-delete-button");
   }
 }
 function UpdateDeleteCommand() {
