@@ -449,21 +449,6 @@ treechildren::-moz-tree-indentation {
   background-image: none;
 }
 
-:root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected),
-:root[lwt-tree]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
-:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
-  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
-  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
-  outline: none;
-}
-
-:root[lwt-tree-brighttext] #threadTree treechildren::-moz-tree-row(untagged, selected),
-:root[lwt-tree-brighttext]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
-:root[lwt-tree-brighttext] tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
-  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-}
-
 /* Give menupopup[is="folder-menupopup"] a menu look */
 menupopup[is="folder-menupopup"] {
   appearance: auto;

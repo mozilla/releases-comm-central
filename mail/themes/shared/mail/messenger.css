@@ -140,6 +140,39 @@ treechildren::-moz-tree-row(selected, focus) {
   background-color: Highlight;
 }
 
+/* LW theme tree styling */
+:root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected),
+:root[lwt-tree]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
+:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
+  border-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
+  background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
+  outline: none;
+}
+
+:root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected, focus, current),
+:root[lwt-tree]:-moz-window-inactive
+  #threadTree treechildren::-moz-tree-row(selected, focus, current),
+:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-row(selected, focus, current) {
+  border-color: hsl(0, 0%, 80%);
+}
+
+/* Dark theme adaptions */
+:root[lwt-tree-brighttext] #threadTree treechildren::-moz-tree-row(untagged, selected),
+:root[lwt-tree-brighttext]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
+:root[lwt-tree-brighttext] tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
+  border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
+  background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
+}
+
+:root[lwt-tree-brighttext]
+  #threadTree treechildren::-moz-tree-row(untagged, selected, focus, current),
+:root[lwt-tree-brighttext]:-moz-window-inactive
+  #threadTree treechildren::-moz-tree-row(selected, focus, current),
+:root[lwt-tree-brighttext]
+  tree:not(#threadTree) treechildren::-moz-tree-row(selected, focus, current) {
+  border-color: rgb(249, 249, 250);
+}
+
 /* Make the new mail indicator better visible on dark theme */
 :root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme-brighttext
   treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
@@ -588,6 +621,18 @@ html|ul.addon-webext-perm-list:empty {
 :root[lwt-tree] #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
 :root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+}
+
+tree:-moz-lwtheme:not(:focus)
+  treechildren::-moz-tree-row(selected) {
+  --sidebar-highlight-background-color: hsla(0, 0%, 50%, 0.2);
+}
+
+:root[lwt-tree] tree:not(:focus) treechildren::-moz-tree-image(selected),
+:root[lwt-tree] tree:not(:focus) treechildren::-moz-tree-twisty(selected),
+:root[lwt-tree] #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
+:root[lwt-tree] tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
+  color: var(--sidebar-text-color);
 }
 
 :root[lwt-tree] #folderTree >
