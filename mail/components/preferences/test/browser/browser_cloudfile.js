@@ -132,8 +132,10 @@ add_task(async function addRemoveAccounts() {
   let removeButton = prefsDocument.getElementById("removeCloudFileAccount");
   ok(removeButton.disabled);
 
-  let settingsDeck = prefsDocument.getElementById("cloudFileSettingsDeck");
-  is(settingsDeck.selectedPanel.id, "cloudFileDefaultPanel");
+  let cloudFileDefaultPanel = prefsDocument.getElementById(
+    "cloudFileDefaultPanel"
+  );
+  ok(!cloudFileDefaultPanel.hidden);
 
   let iframeWrapper = prefsDocument.getElementById("cloudFileSettingsWrapper");
   is(iframeWrapper.childElementCount, 0);
@@ -201,7 +203,7 @@ add_task(async function addRemoveAccounts() {
   is(accountListItem.querySelector("label").value, "Mochitest Account");
   is(accountListItem.querySelector("image.configuredWarning").hidden, false);
 
-  is(settingsDeck.selectedPanel.id, "cloudFileSettingsWrapper");
+  ok(cloudFileDefaultPanel.hidden);
   is(iframeWrapper.childElementCount, 1);
 
   let iframe = iframeWrapper.firstElementChild;
@@ -318,7 +320,7 @@ add_task(async function addRemoveAccounts() {
     "ext-wetransfer@extensions.thunderbird.net"
   );
   is(accountList.itemCount, 0);
-  is(settingsDeck.selectedPanel.id, "cloudFileDefaultPanel");
+  ok(!cloudFileDefaultPanel.hidden);
   is(iframeWrapper.childElementCount, 0);
 
   // Re-add the test provider.

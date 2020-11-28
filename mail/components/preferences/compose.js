@@ -326,7 +326,6 @@ var gCloudFile = {
   _buttonContainer: null,
   _listContainer: null,
   _settings: null,
-  _settingsDeck: null,
   _tabpanel: null,
   _settingsPanelWrap: null,
   _defaultPanel: null,
@@ -349,7 +348,6 @@ var gCloudFile = {
     this._removeAccountButton = document.getElementById(
       "removeCloudFileAccount"
     );
-    this._settingsDeck = document.getElementById("cloudFileSettingsDeck");
     this._defaultPanel = document.getElementById("cloudFileDefaultPanel");
     this._settingsPanelWrap = document.getElementById(
       "cloudFileSettingsWrapper"
@@ -410,7 +408,8 @@ var gCloudFile = {
       // If the provider is unregistered, getAccount returns null.
       if (!cloudFileAccounts.getAccount(item.value)) {
         if (item.hasAttribute("selected")) {
-          this._settingsDeck.selectedPanel = this._defaultPanel;
+          this._defaultPanel.hidden = false;
+          this._settingsPanelWrap.hidden = true;
           if (this._settings) {
             this._settings.remove();
           }
@@ -551,7 +550,8 @@ var gCloudFile = {
     let selection = this._list.selectedItem;
     this._removeAccountButton.disabled = !selection;
     if (!selection) {
-      this._settingsDeck.selectedPanel = this._defaultPanel;
+      this._defaultPanel.hidden = false;
+      this._settingsPanelWrap.hidden = true;
       if (this._settings) {
         this._settings.remove();
       }
@@ -563,7 +563,8 @@ var gCloudFile = {
 
   _showAccountInfo(aAccountKey) {
     let account = cloudFileAccounts.getAccount(aAccountKey);
-    this._settingsDeck.selectedPanel = this._settingsPanelWrap;
+    this._defaultPanel.hidden = true;
+    this._settingsPanelWrap.hidden = false;
 
     let url = account.managementURL + `?accountId=${account.accountKey}`;
 
@@ -632,7 +633,8 @@ var gCloudFile = {
         "richlistitem[value='" + accountKey + "']"
       );
       rli.remove();
-      this._settingsDeck.selectedPanel = this._defaultPanel;
+      this._defaultPanel.hidden = false;
+      this._settingsPanelWrap.hidden = true;
       if (this._settings) {
         this._settings.remove();
       }
