@@ -143,7 +143,7 @@
     </toolbar>
   </toolbox>
 
-  <deck flex="1" id="accountsDesk" ondblclick="gAccountManager.new();">
+  <hbox flex="1" ondblclick="gAccountManager.new();">
     <vbox flex="1" id="noAccountScreen" align="center" pack="center">
       <hbox id="noAccountBox" align="start">
         <vbox id="noAccountInnerBox" flex="1">
@@ -162,7 +162,7 @@
                    ondragend="gAMDragAndDrop.cleanBorders(true);"
                    ondrop="gAMDragAndDrop.onDrop(event);"/>
     </vbox>
-  </deck>
+  </hbox>
 
   <hbox id="bottombuttons" align="center">
     <button id="newaccount" command="cmd_new"/>

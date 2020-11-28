@@ -84,7 +84,8 @@ var gAccountManager = {
           }, 0);
         } else {
           // we have accounts, show the list
-          document.getElementById("accountsDesk").selectedIndex = 1;
+          document.getElementById("noAccountScreen").hidden = true;
+          document.getElementById("accounts-notification-box").hidden = false;
 
           // ensure an account is selected
           if (defaultID) {
@@ -174,7 +175,8 @@ var gAccountManager = {
     aObject.QueryInterface(Ci.imIAccount);
 
     if (aTopic == "account-added") {
-      document.getElementById("accountsDesk").selectedIndex = 1;
+      document.getElementById("noAccountScreen").hidden = true;
+      document.getElementById("accounts-notification-box").hidden = false;
       let elt = document.createXULElement("richlistitem", {
         is: "chat-account-richlistitem",
       });
@@ -199,7 +201,8 @@ var gAccountManager = {
       elt.remove();
       var count = this.accountList.getRowCount();
       if (!count) {
-        document.getElementById("accountsDesk").selectedIndex = 0;
+        document.getElementById("noAccountScreen").hidden = false;
+        document.getElementById("accounts-notification-box").hidden = true;
         return;
       }
       if (selectedIndex == count) {
