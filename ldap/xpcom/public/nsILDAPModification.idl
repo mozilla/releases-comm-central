@@ -6,7 +6,6 @@
 #include "nsISupports.idl"
 
 interface nsILDAPBERValue;
-interface nsIArray;
 
 [scriptable, uuid(f64ef501-0623-11d6-a7f2-b65476fc49dc)]
 interface nsILDAPModification : nsISupports
@@ -44,14 +43,14 @@ interface nsILDAPModification : nsISupports
   /**
    * The array of values this modification sets for the attribute
    */
-  attribute nsIArray values;
+  attribute Array<nsILDAPBERValue> values;
 
   /**
    * Function that allows all the attributes to be set at the same
    * time to avoid multiple function calls.
    */
   void setUpModification(in long aOperation, in ACString aType,
-                         in nsIArray aValues);
+                         in Array<nsILDAPBERValue> aValues);
 
   void setUpModificationOneValue(in long aOperation, in ACString aType,
                                  in nsILDAPBERValue aValue);

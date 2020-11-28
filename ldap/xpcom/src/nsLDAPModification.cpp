@@ -50,70 +50,29 @@ nsLDAPModification::SetType(const nsACString& aType) {
 }
 
 NS_IMETHODIMP
-nsLDAPModification::GetValues(nsIArray** aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
+nsLDAPModification::GetValues(nsTArray<RefPtr<nsILDAPBERValue>>& aResult) {
   MutexAutoLock lock(mValuesLock);
-
-  if (!mValues) return NS_ERROR_NOT_INITIALIZED;
-
-  NS_ADDREF(*aResult = mValues);
-
+  aResult = mValues.Clone();
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPModification::SetValues(nsIArray* aValues) {
-  NS_ENSURE_ARG_POINTER(aValues);
-
+nsLDAPModification::SetValues(
+    nsTArray<RefPtr<nsILDAPBERValue>> const& aValues) {
   MutexAutoLock lock(mValuesLock);
-  nsresult rv;
-
-  if (!mValues)
-    mValues = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-  else
-    rv = mValues->Clear();
-
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  rv = aValues->Enumerate(getter_AddRefs(enumerator));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool hasMoreElements;
-  rv = enumerator->HasMoreElements(&hasMoreElements);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsISupports> value;
-
-  while (hasMoreElements) {
-    rv = enumerator->GetNext(getter_AddRefs(value));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = mValues->AppendElement(value);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = enumerator->HasMoreElements(&hasMoreElements);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
+  mValues = aValues.Clone();
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPModification::SetUpModification(int32_t aOperation,
-                                      const nsACString& aType,
-                                      nsIArray* aValues) {
-  // Set the values using our local function before entering lock
-  // to avoid deadlocks due to holding the same lock twice.
-  nsresult rv = SetValues(aValues);
-
+nsLDAPModification::SetUpModification(
+    int32_t aOperation, const nsACString& aType,
+    nsTArray<RefPtr<nsILDAPBERValue>> const& aValues) {
   MutexAutoLock lock(mValuesLock);
-
+  mValues = aValues.Clone();
   mOperation = aOperation;
   mType.Assign(aType);
-
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -121,20 +80,10 @@ nsLDAPModification::SetUpModificationOneValue(int32_t aOperation,
                                               const nsACString& aType,
                                               nsILDAPBERValue* aValue) {
   NS_ENSURE_ARG_POINTER(aValue);
-
   MutexAutoLock lock(mValuesLock);
-
   mOperation = aOperation;
   mType.Assign(aType);
-
-  nsresult rv;
-
-  if (!mValues)
-    mValues = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-  else
-    rv = mValues->Clear();
-
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return mValues->AppendElement(aValue);
+  mValues.Clear();
+  mValues.AppendElement(aValue);
+  return NS_OK;
 }

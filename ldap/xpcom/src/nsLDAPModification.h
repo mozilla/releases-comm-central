@@ -7,7 +7,6 @@
 #define _nsLDAPModification_h_
 
 #include "nsILDAPModification.h"
-#include "nsIMutableArray.h"
 #include "nsString.h"
 #include "nsCOMPtr.h"
 #include "mozilla/Mutex.h"
@@ -37,7 +36,7 @@ class nsLDAPModification : public nsILDAPModification {
 
   int32_t mOperation;
   nsCString mType;
-  nsCOMPtr<nsIMutableArray> mValues;
+  nsTArray<RefPtr<nsILDAPBERValue>> mValues;
   mozilla::Mutex mValuesLock;
 };
 

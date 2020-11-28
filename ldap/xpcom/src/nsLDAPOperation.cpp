@@ -21,7 +21,8 @@
 #include "nsThreadUtils.h"
 
 // Declare helper fns for dealing with C++ LDAP <-> libldap mismatch.
-static nsresult convertValues(nsIArray* values, berval*** aBValues);
+static nsresult convertValues(nsTArray<RefPtr<nsILDAPBERValue>> const& values,
+                              berval*** aBValues);
 static void freeValues(berval** aVals);
 static nsresult convertMods(nsTArray<RefPtr<nsILDAPModification>> const& aMods,
                             LDAPMod*** aOut);
@@ -905,19 +906,14 @@ nsLDAPOperation::Rename(const nsACString& aBaseDn, const nsACString& aNewRDn,
  * Convert nsILDAPBERValue array to null-terminated array of berval ptrs.
  * The returned array should be freed with freeValues().
  */
-static nsresult convertValues(nsIArray* values, berval*** aBValues) {
-  uint32_t valuesCount;
-  nsresult rv = values->GetLength(&valuesCount);
-  NS_ENSURE_SUCCESS(rv, rv);
+static nsresult convertValues(nsTArray<RefPtr<nsILDAPBERValue>> const& values,
+                              berval*** aBValues) {
+  *aBValues = static_cast<berval**>(
+      moz_xmalloc((values.Length() + 1) * sizeof(berval*)));
 
-  *aBValues =
-      static_cast<berval**>(moz_xmalloc((valuesCount + 1) * sizeof(berval*)));
-  if (!*aBValues) return NS_ERROR_OUT_OF_MEMORY;
-
-  uint32_t valueIndex;
-  for (valueIndex = 0; valueIndex < valuesCount; ++valueIndex) {
-    nsCOMPtr<nsILDAPBERValue> value = do_QueryElementAt(values, valueIndex);
-
+  nsresult rv = NS_OK;
+  uint32_t valueIndex = 0;
+  for (auto value : values) {
     nsTArray<uint8_t> tmp;
     rv = value->Get(tmp);
     if (NS_FAILED(rv)) break;
@@ -930,9 +926,9 @@ static nsresult convertValues(nsIArray* values, berval*** aBValues) {
       break;
     }
     memcpy(bval->bv_val, tmp.Elements(), bval->bv_len);
-    (*aBValues)[valueIndex] = bval;
+    (*aBValues)[valueIndex++] = bval;
   }
-  (*aBValues)[valueIndex] = nullptr;
+  (*aBValues)[valueIndex++] = nullptr;
 
   if (NS_FAILED(rv)) {
     freeValues(*aBValues);
@@ -978,8 +974,8 @@ static nsresult convertMods(nsTArray<RefPtr<nsILDAPModification>> const& aMods,
     if (NS_FAILED(rv)) break;
     mod->mod_type = ToNewCString(type);
 
-    nsCOMPtr<nsIArray> values;
-    rv = modif->GetValues(getter_AddRefs(values));
+    nsTArray<RefPtr<nsILDAPBERValue>> values;
+    rv = modif->GetValues(values);
     if (NS_FAILED(rv)) break;
     rv = convertValues(values, &mod->mod_bvalues);
     if (NS_FAILED(rv)) {
