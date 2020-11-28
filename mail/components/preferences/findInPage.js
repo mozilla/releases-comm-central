@@ -252,7 +252,7 @@ var gSearchResultsPane = {
       // Building the range for highlighted areas.
       let rootPreferencesChildren = [
         ...document.querySelectorAll(
-          "#paneDeck > *:not([data-hidden-from-search]):not(script):not(stringbundle):not(commandset):not(keyset):not(linkset)"
+          "#paneDeck > *:not([data-hidden-from-search],script,stringbundle,commandset,keyset,linkset)"
         ),
       ];
 

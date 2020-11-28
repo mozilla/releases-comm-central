@@ -147,6 +147,6 @@ description {
   flex-wrap: nowrap;
 }
 
-.input-container input:not([type="number"]):not([type="color"]) {
+.input-container input:not([type="number"],[type="color"]) {
   flex: 1;
 }

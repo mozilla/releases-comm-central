@@ -366,7 +366,7 @@ CustomizeMode.prototype = {
       this._wrapToolbarItemSync(CustomizableUI.AREA_TABSTRIP);
 
       let customizableToolbars = document.querySelectorAll(
-        "toolbar[customizable=true]:not([autohide=true]):not([collapsed=true])"
+        "toolbar[customizable=true]:not([autohide=true],[collapsed=true])"
       );
       for (let toolbar of customizableToolbars) {
         toolbar.setAttribute("customizing", true);

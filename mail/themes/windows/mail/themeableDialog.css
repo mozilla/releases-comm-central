@@ -69,7 +69,7 @@ menu > menupopup > menu {
   button[open],
   button:not([disabled="true"]):hover,
   button:not([disabled="true"]):hover:active,
-  menulist:not([disabled="true"]):not([open="true"]):hover,
+  menulist:not([disabled="true"],[open="true"]):hover,
   menulist[open="true"]:not([disabled="true"]),
   tab:hover,
   tab[visuallyselected="true"] {

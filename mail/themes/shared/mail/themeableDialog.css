@@ -191,7 +191,7 @@ html|input[type="color"]:focus {
 }
 
 button:not([disabled="true"]):hover,
-menulist:not([disabled="true"]):not([open="true"]):hover,
+menulist:not([disabled="true"],[open="true"]):hover,
 menulist[open="true"]:not([disabled="true"]),
 html|input[type="color"]:not([disabled="true"]):hover {
   background-color: var(--button-background-hover);

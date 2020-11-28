@@ -162,7 +162,7 @@ menulist {
   transition: background-color 150ms;
 }
 
-menulist:not([disabled="true"]):not([open="true"]):hover {
+menulist:not([disabled="true"],[open="true"]):hover {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
 }

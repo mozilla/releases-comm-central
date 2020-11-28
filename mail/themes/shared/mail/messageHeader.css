@@ -60,14 +60,14 @@
 .toolbarbutton-menubutton-button,
 .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):is(:hover,[open]) >
 .toolbarbutton-menubutton-dropmarker,
-.toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
-.toolbarbutton-1.msgHeaderView-button:not([buttonover]):not([open]):not(:active):hover >
+.toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled=true],[checked=true],[open],:active):hover,
+.toolbarbutton-1.msgHeaderView-button:not([buttonover],[open],:active):hover >
 .toolbarbutton-menubutton-dropmarker:not([disabled]) {
   border-color: var(--toolbarbutton-active-bordercolor);
 }
 
 /* Separator between menu and split type buttons */
-.toolbarbutton-1.msgHeaderView-button:not(:hover):not(:active):not([open]):not([checked]) >
+.toolbarbutton-1.msgHeaderView-button:not(:hover,:active,[open],[checked]) >
 .toolbarbutton-menubutton-dropmarker::before,
 .toolbarbutton-1.msgHeaderView-button[disabled="true"] >
 .toolbarbutton-menubutton-dropmarker::before {
@@ -552,7 +552,7 @@ mail-headerfield:focus {
   background-color: var(--lwt-toolbar-field-background-color);
   color: var(--lwt-toolbar-field-color);
 }
-:root[lwt-tree] html|input.editContactTextbox:not([readonly]):not(:focus) {
+:root[lwt-tree] html|input.editContactTextbox:not([readonly],:focus) {
   border-color: var(--panel-separator-color);
 }
 

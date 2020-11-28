@@ -170,7 +170,7 @@ p *:any-link img {
   font-size: smaller;
 }
 
-.hide-children > p.event:not(:first-of-type):not(:last-of-type) {
+.hide-children > p.event:not(:first-of-type,:last-of-type) {
   display: none;
 }
 

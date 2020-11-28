@@ -101,15 +101,15 @@ tabpanels {
     margin-top: 6px;
   }
 
-  #alltabs-button:not(:-moz-lwtheme):not([disabled]) {
+  #alltabs-button:not(:-moz-lwtheme,[disabled]) {
     border-color: transparent;
     margin-top: 0;
     margin-bottom: -1px;
   }
 
-  #alltabs-button:not(:-moz-lwtheme):not([disabled]):hover,
-  #tabmail-arrowscrollbox:not(:-moz-lwtheme):not([scrolledtostart=true])::part(scrollbutton-up):hover,
-  #tabmail-arrowscrollbox:not(:-moz-lwtheme):not([scrolledtoend=true])::part(scrollbutton-down):hover {
+  #alltabs-button:not(:-moz-lwtheme,[disabled]):hover,
+  #tabmail-arrowscrollbox:not(:-moz-lwtheme,[scrolledtostart=true])::part(scrollbutton-up):hover,
+  #tabmail-arrowscrollbox:not(:-moz-lwtheme,[scrolledtoend=true])::part(scrollbutton-down):hover {
     background-color: transparent;
     background-image: linear-gradient(rgba(255, 255, 255, 0),
                       rgba(255, 255, 255, .5)),
@@ -121,9 +121,9 @@ tabpanels {
   }
 
   #tabs-toolbar[brighttext]
-    #tabmail-arrowscrollbox:not(:-moz-lwtheme):not([scrolledtostart=true])::part(scrollbutton-up):hover,
+    #tabmail-arrowscrollbox:not(:-moz-lwtheme,[scrolledtostart=true])::part(scrollbutton-up):hover,
   #tabs-toolbar[brighttext]
-    #tabmail-arrowscrollbox:not(:-moz-lwtheme):not([scrolledtoend=true])::part(scrollbutton-down):hover {
+    #tabmail-arrowscrollbox:not(:-moz-lwtheme,[scrolledtoend=true])::part(scrollbutton-down):hover {
     background-image: linear-gradient(rgba(255, 255, 255, 0),
                       rgba(255, 255, 255, .5)),
                       linear-gradient(transparent, rgba(255, 255, 355, .25) 30%),
@@ -186,9 +186,9 @@ tabpanels {
 
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   #messengerWindow[darkwindowframe="true"]
-  #tabs-toolbar:not(:-moz-lwtheme):not(:-moz-window-inactive),
+  #tabs-toolbar:not(:-moz-lwtheme,:-moz-window-inactive),
   #messengerWindow[darkwindowframe="true"]
-  .tabmail-tab:not([selected="true"]):not(:-moz-lwtheme):not(:-moz-window-inactive) {
+  .tabmail-tab:not([selected="true"],:-moz-lwtheme,:-moz-window-inactive) {
     color: white;
   }
 }

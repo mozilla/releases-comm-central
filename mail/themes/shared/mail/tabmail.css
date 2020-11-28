@@ -97,7 +97,7 @@
   -moz-image-region: auto;
 }
 
-.tabmail-tab:not([selected]):not(:-moz-lwtheme) {
+.tabmail-tab:not([selected],:-moz-lwtheme) {
   color: inherit;
 }
 

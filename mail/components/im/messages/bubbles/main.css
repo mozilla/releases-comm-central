@@ -23,7 +23,7 @@ p {
   box-shadow: rgba(0, 0, 0, 0.3) 1px 1px 3px;
 }
 
-#ibcontent:not(.log) > #Chat > .bubble:not(.context):not(.event) {
+#ibcontent:not(.log) > #Chat > .bubble:not(.context,.event) {
   -moz-animation-duration: 0.5s;
   -moz-animation-name: fadein;
   -moz-animation-iteration-count: 1;
@@ -191,7 +191,7 @@ p *:any-link img {
   color: hsl(0, 0%, 60%);
 }
 
-.hide-children > :is(p.event,hr):not(:first-of-type):not(:last-of-type):not(.no-collapse) {
+.hide-children > :is(p.event,hr):not(:first-of-type,:last-of-type,.no-collapse) {
   display: none;
 }
 

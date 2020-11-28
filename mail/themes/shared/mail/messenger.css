@@ -253,7 +253,7 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 .toolbarbutton-menubutton-button,
 .toolbarbutton-1:not([disabled="true"]):hover >
 .toolbarbutton-menubutton-dropmarker,
-.toolbarbutton-1:not([type="menu-button"]):not([disabled="true"]):not([checked="true"]):not([open="true"]):not(:active):hover {
+.toolbarbutton-1:not([type="menu-button"],[disabled="true"],[checked="true"],[open="true"],:active):hover {
   background: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
@@ -262,15 +262,15 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 .findbar-button:not([disabled=true]):is([checked="true"],:hover:active),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
 .toolbarbutton-1[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]),
-.toolbarbutton-1:not([type="menu-button"]):not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
+.toolbarbutton-1:not([type="menu-button"],[disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
   background: var(--toolbarbutton-checked-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
   transition-duration: 10ms;
 }
 
-.toolbarbutton-1:not([type="menu-button"]):not([disabled="true"]):hover:active,
-.toolbarbutton-1:not([type="menu-button"]):not([disabled="true"])[open="true"],
+.toolbarbutton-1:not([type="menu-button"],[disabled="true"]):hover:active,
+.toolbarbutton-1:not([type="menu-button"],[disabled="true"])[open="true"],
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
 .toolbarbutton-1[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
   background: var(--toolbarbutton-active-background) !important;
@@ -297,7 +297,7 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 }
 
 /* Separator between menu and split type buttons */
-.toolbarbutton-1:not(:hover):not(:active):not([open]):not([checked]) >
+.toolbarbutton-1:not(:hover,:active,[open],[checked]) >
 .toolbarbutton-menubutton-dropmarker::before,
 .toolbarbutton-1[disabled="true"] >
 .toolbarbutton-menubutton-dropmarker::before {
@@ -335,7 +335,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
 }
 
 /* Separator between menu and split type buttons */
-.toolbarbutton-1:not(:hover):not(:active):not([open]):not([checked]) >
+.toolbarbutton-1:not(:hover,:active,[open],[checked]) >
 .toolbarbutton-menubutton-dropmarker::before,
 .toolbarbutton-1[disabled="true"] >
 .toolbarbutton-menubutton-dropmarker::before {
@@ -350,7 +350,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   opacity: .2;
 }
 
-toolbar[brighttext] .toolbarbutton-1:not(:hover):not(:active):not([open]) >
+toolbar[brighttext] .toolbarbutton-1:not(:hover,:active,[open]) >
   .toolbarbutton-menubutton-dropmarker::before {
   opacity: .3;
 }

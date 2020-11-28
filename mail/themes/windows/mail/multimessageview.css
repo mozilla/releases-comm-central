@@ -26,11 +26,11 @@
       background-image: linear-gradient(-moz-dialog, -moz-dialog);
     }
 
-    .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover {
+    .toolbarbutton-1.msgHeaderView-button:not([disabled=true],[checked=true],[open],:active):hover {
       background-image: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)), linear-gradient(-moz-dialog, -moz-dialog);
     }
 
-    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
+    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
       background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)), linear-gradient(-moz-dialog, -moz-dialog) !important;
     }
   }
@@ -42,9 +42,9 @@
   }
 
   :root:not(:-moz-lwtheme)
-    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):hover,
+    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled="true"]):hover,
   :root:not(:-moz-lwtheme)
-    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):hover:active {
+    .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"],[disabled="true"]):hover:active {
     background-image: linear-gradient(Highlight, Highlight) !important;
     color: HighlightText !important;
     border-color: HighlightText !important;

@@ -220,7 +220,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         :root[sizemode=normal][tabsintitlebar][always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
           border-top-color: -moz-win-accentcolor;
         }
-        :root[tabsintitlebar]:not(:-moz-window-inactive):not(:-moz-lwtheme) {
+        :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
           background-color: #a8cbdb;
         }
       }
@@ -229,13 +229,13 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         :root[sizemode=normal][tabsintitlebar] {
           border-top: 1px solid -moz-win-accentcolor;
         }
-        :root[tabsintitlebar]:not(:-moz-window-inactive):not(:-moz-lwtheme),
+        :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme),
         :root[tabsintitlebar]:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
           background-color: -moz-win-accentcolor;
         }
 
         :root[tabsintitlebar] >
-          #navigation-toolbox:not(:-moz-window-inactive):not(:-moz-lwtheme),
+          #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme),
         :root[tabsintitlebar] >
           #navigation-toolbox:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
           color: -moz-win-accentcolortext;
@@ -285,7 +285,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
     @media (-moz-windows-default-theme) {
       @media (-moz-windows-accent-color-in-titlebar) {
-        .titlebar-button:not(:-moz-window-inactive):not(:-moz-lwtheme) {
+        .titlebar-button:not(:-moz-window-inactive,:-moz-lwtheme) {
           stroke: -moz-win-accentcolortext;
         }
       }
@@ -550,7 +550,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     opacity: 0.5;
   }
 
-  menulist:not([disabled="true"]):not([open="true"]):hover {
+  menulist:not([disabled="true"],[open="true"]):hover {
     background: var(--toolbarbutton-active-background);
     border-color: var(--toolbarbutton-active-bordercolor);
   }
@@ -712,16 +712,16 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 @media (-moz-windows-glass) {
   /* lesser transparency on Glass background */
-  #tabbar-toolbar menulist:not(:-moz-lwtheme):not([open="true"]) {
+  #tabbar-toolbar menulist:not(:-moz-lwtheme,[open="true"]) {
     background-color: rgba(227, 237, 246, .7);
   }
 
   /* lesser transparency on Glass background */
-  #tabbar-toolbar menulist:not(:-moz-lwtheme):not([open="true"]):hover {
+  #tabbar-toolbar menulist:not(:-moz-lwtheme,[open="true"]):hover {
     background-color: rgba(136, 197, 213, .85);
   }
 
-  #tabbar-toolbar #viewPickerLabel:not(:-moz-lwtheme):not(:-moz-window-inactive) {
+  #tabbar-toolbar #viewPickerLabel:not(:-moz-lwtheme,:-moz-window-inactive) {
     margin-inline-start: 4px;
     margin-inline-end: 0;
     padding-inline-start: 2px;

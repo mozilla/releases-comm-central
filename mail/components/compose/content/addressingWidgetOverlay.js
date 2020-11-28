@@ -1273,7 +1273,7 @@ function extraRecipientsLabelOnKeyPress(event) {
       // Allow navigating away from focused extraRecipientsLabel using cursor
       // keys.
       let focusable = event.currentTarget.parentElement.querySelectorAll(
-        '.recipient-label:not([collapsed="true"]):not(.extra-recipients-label)'
+        '.recipient-label:not([collapsed="true"],.extra-recipients-label)'
       );
       let focusEl = focusable[focusable.length - 1];
       if (focusEl) {

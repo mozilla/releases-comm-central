@@ -46,11 +46,13 @@ richlistitem[is="chat-imconv-richlistitem"] {
   width: 15em;
 }
 
-#statusMessageLabel:not([statusType="offline"]):not([disabled]), .statusMessageInput[editable] {
+#statusMessageLabel:not([statusType="offline"],[disabled]),
+.statusMessageInput[editable] {
   cursor: text;
 }
 
-#statusMessageInput[editing], .statusMessageInput[editing] {
+#statusMessageInput[editing],
+.statusMessageInput[editing] {
   appearance: auto;
   -moz-default-appearance: textfield;
 }
@@ -108,7 +110,7 @@ toolbar[mode="text"] .badgeButton-badge {
   align-items: center;
 }
 
-#joinChatGrid html|div html|input:not([type="number"]):not([type="color"]) {
+#joinChatGrid html|div html|input:not([type="number"],[type="color"]) {
   flex: 1;
 }
 

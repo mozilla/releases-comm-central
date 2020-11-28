@@ -59,13 +59,13 @@ menulist {
   background: transparent;
 }
 
-#composeToolbar2 menulist:not([disabled="true"]):not([open="true"]):hover {
+#composeToolbar2 menulist:not([disabled="true"],[open="true"]):hover {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   color: inherit;
 }
 
-#FormatToolbar menulist:not([disabled="true"]):not([open="true"]):hover {
+#FormatToolbar menulist:not([disabled="true"],[open="true"]):hover {
   background: var(--toolbarbutton-hover-background);
   color: inherit;
 }

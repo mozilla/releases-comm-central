@@ -45,7 +45,7 @@ html|input.input-inline-color {
   flex-wrap: wrap;
 }
 
-.input-container html|input:not([type="number"]):not([type="color"]),
+.input-container html|input:not([type="number"],[type="color"]),
 .input-container .label-inline,
 .input-container .spacer-inline {
   flex: 1;
