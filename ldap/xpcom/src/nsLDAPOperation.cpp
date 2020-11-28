@@ -26,8 +26,8 @@ static void freeValues(berval** aVals);
 static nsresult convertMods(nsTArray<RefPtr<nsILDAPModification>> const& aMods,
                             LDAPMod*** aOut);
 static void freeMods(LDAPMod** aMods);
-static nsresult convertControlArray(nsIArray* aXpcomArray,
-                                    LDAPControl*** aArray);
+static nsresult convertControlArray(
+    nsTArray<RefPtr<nsILDAPControl>> const& xpControls, LDAPControl*** aArray);
 
 /**
  * OpRunnable is a helper class to dispatch ldap operations on the socket
@@ -375,19 +375,14 @@ nsLDAPOperation::SimpleBind(const nsACString& passwd) {
 }
 
 /**
- * Given an nsIArray of nsILDAPControls, return the appropriate
+ * Given an array of nsILDAPControls, return the appropriate
  * zero-terminated array of LDAPControls ready to pass in to the C SDK.
  */
-static nsresult convertControlArray(nsIArray* aXpcomArray,
-                                    LDAPControl*** aArray) {
-  // get the size of the original array
-  uint32_t length;
-  nsresult rv = aXpcomArray->GetLength(&length);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+static nsresult convertControlArray(
+    nsTArray<RefPtr<nsILDAPControl>> const& xpControls, LDAPControl*** aArray) {
   // don't allocate an array if someone passed us in an empty one
-  if (!length) {
-    *aArray = 0;
+  if (xpControls.IsEmpty()) {
+    *aArray = nullptr;
     return NS_OK;
   }
 
@@ -395,50 +390,24 @@ static nsresult convertControlArray(nsIArray* aXpcomArray,
   // +1 is to account for the final null terminator.  PR_Calloc is
   // is used so that ldap_controls_free will work anywhere during the
   // iteration
-  LDAPControl** controls =
-      static_cast<LDAPControl**>(PR_Calloc(length + 1, sizeof(LDAPControl)));
-
-  // prepare to enumerate the array
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  rv = aXpcomArray->Enumerate(getter_AddRefs(enumerator));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool moreElements;
-  rv = enumerator->HasMoreElements(&moreElements);
-  NS_ENSURE_SUCCESS(rv, rv);
+  LDAPControl** controls = static_cast<LDAPControl**>(
+      PR_Calloc(xpControls.Length() + 1, sizeof(LDAPControl)));
 
   uint32_t i = 0;
-  while (moreElements) {
-    // get the next array element
-    nsCOMPtr<nsISupports> isupports;
-    rv = enumerator->GetNext(getter_AddRefs(isupports));
-    if (NS_FAILED(rv)) {
-      ldap_controls_free(controls);
-      return rv;
-    }
-    nsCOMPtr<nsILDAPControl> control = do_QueryInterface(isupports, &rv);
-    if (NS_FAILED(rv)) {
-      ldap_controls_free(controls);
-      return NS_ERROR_INVALID_ARG;  // bogus element in the array
-    }
+  for (auto xpControl : xpControls) {
     nsLDAPControl* ctl = static_cast<nsLDAPControl*>(
-        static_cast<nsILDAPControl*>(control.get()));
+        static_cast<nsILDAPControl*>(xpControl.get()));
 
     // convert it to an LDAPControl structure placed in the new array
-    rv = ctl->ToLDAPControl(&controls[i]);
+    nsresult rv = ctl->ToLDAPControl(&controls[i]);
     if (NS_FAILED(rv)) {
       ldap_controls_free(controls);
       return rv;
-    }
-
-    // on to the next element
-    rv = enumerator->HasMoreElements(&moreElements);
-    if (NS_FAILED(rv)) {
-      ldap_controls_free(controls);
-      return NS_ERROR_UNEXPECTED;
     }
     ++i;
   }
+  // Terminator for the control array.
+  controls[i++] = nullptr;
 
   *aArray = controls;
   return NS_OK;
@@ -531,30 +500,26 @@ nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
            PromiseFlatCString(aBaseDn).get(), PromiseFlatCString(aFilter).get(),
            PromiseFlatCString(aAttributes).get(), aSizeLimit));
 
-  LDAPControl** serverctls = 0;
+  LDAPControl** serverctls = nullptr;
   nsresult rv;
-  if (mServerControls) {
-    rv = convertControlArray(mServerControls, &serverctls);
-    if (NS_FAILED(rv)) {
-      MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
-              ("nsLDAPOperation::SearchExt(): error converting server "
-               "control array: %" PRIx32,
-               static_cast<uint32_t>(rv)));
-      return rv;
-    }
+  rv = convertControlArray(mServerControls, &serverctls);
+  if (NS_FAILED(rv)) {
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
+            ("nsLDAPOperation::SearchExt(): error converting server "
+             "control array: %" PRIx32,
+             static_cast<uint32_t>(rv)));
+    return rv;
   }
 
-  LDAPControl** clientctls = 0;
-  if (mClientControls) {
-    rv = convertControlArray(mClientControls, &clientctls);
-    if (NS_FAILED(rv)) {
-      MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
-              ("nsLDAPOperation::SearchExt(): error converting client "
-               "control array: %" PRIx32,
-               static_cast<uint32_t>(rv)));
-      ldap_controls_free(serverctls);
-      return rv;
-    }
+  LDAPControl** clientctls = nullptr;
+  rv = convertControlArray(mClientControls, &clientctls);
+  if (NS_FAILED(rv)) {
+    MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
+            ("nsLDAPOperation::SearchExt(): error converting client "
+             "control array: %" PRIx32,
+             static_cast<uint32_t>(rv)));
+    ldap_controls_free(serverctls);
+    return rv;
   }
 
   // Convert our comma separated string to one that the C-SDK will like, i.e.
@@ -655,7 +620,7 @@ nsLDAPOperation::AbandonExt() {
   }
 
   // XXX handle controls here
-  if (mServerControls || mClientControls) {
+  if (!mServerControls.IsEmpty() || !mClientControls.IsEmpty()) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
 
@@ -665,24 +630,28 @@ nsLDAPOperation::AbandonExt() {
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetClientControls(nsIMutableArray** aControls) {
-  NS_IF_ADDREF(*aControls = mClientControls);
+nsLDAPOperation::GetClientControls(
+    nsTArray<RefPtr<nsILDAPControl>>& aControls) {
+  aControls = mClientControls.Clone();
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::SetClientControls(nsIMutableArray* aControls) {
-  mClientControls = aControls;
+nsLDAPOperation::SetClientControls(
+    nsTArray<RefPtr<nsILDAPControl>> const& aControls) {
+  mClientControls = aControls.Clone();
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPOperation::GetServerControls(nsIMutableArray** aControls) {
-  NS_IF_ADDREF(*aControls = mServerControls);
+NS_IMETHODIMP nsLDAPOperation::GetServerControls(
+    nsTArray<RefPtr<nsILDAPControl>>& aControls) {
+  aControls = mServerControls.Clone();
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPOperation::SetServerControls(nsIMutableArray* aControls) {
-  mServerControls = aControls;
+NS_IMETHODIMP nsLDAPOperation::SetServerControls(
+    nsTArray<RefPtr<nsILDAPControl>> const& aControls) {
+  mServerControls = aControls.Clone();
   return NS_OK;
 }
 

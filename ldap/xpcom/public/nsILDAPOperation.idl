@@ -11,7 +11,7 @@
 interface nsILDAPMessage;
 interface nsILDAPMessageListener;
 interface nsILDAPModification;
-interface nsIMutableArray;
+interface nsILDAPControl;
 
 %{C++
 #define NS_LDAPOPERATION_CONTRACTID "@mozilla.org/network/ldap-operation;1"
@@ -66,8 +66,8 @@ interface nsILDAPOperation : nsISupports
      * C SDK for any extended operations (ie method calls on this interface
      * ending in "Ext").
      */
-    attribute nsIMutableArray serverControls;
-    attribute nsIMutableArray clientControls;
+    attribute Array<nsILDAPControl> serverControls;
+    attribute Array<nsILDAPControl> clientControls;
 
     /**
      * Initializes this operation.  Must be called prior to initiating

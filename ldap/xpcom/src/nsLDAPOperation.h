@@ -13,7 +13,6 @@
 #include "nsILDAPOperation.h"
 #include "nsILDAPMessageListener.h"
 #include "nsString.h"
-#include "nsIMutableArray.h"
 #include "nsLDAPConnection.h"
 #include "nsIAuthModule.h"
 
@@ -58,8 +57,8 @@ class nsLDAPOperation : public nsILDAPOperation {
   nsCOMPtr<nsIAuthModule> mAuthModule;
   int32_t mMsgID;  // opaque handle to outbound message for this op
 
-  nsCOMPtr<nsIMutableArray> mClientControls;
-  nsCOMPtr<nsIMutableArray> mServerControls;
+  nsTArray<RefPtr<nsILDAPControl>> mClientControls;
+  nsTArray<RefPtr<nsILDAPControl>> mServerControls;
 };
 
 #endif  // _nsLDAPOperation_h
