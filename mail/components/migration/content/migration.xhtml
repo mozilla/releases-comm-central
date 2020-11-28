@@ -27,24 +27,24 @@
   <wizard>
     <wizardpage id="importSource" pageid="importSource" next="selectProfile"
                 label="&importSource.title;">
-      <deck id="importSourceFound" selectedIndex="0">
-        <vbox>
+      <vbox id="importSourceFound" hidden="true">
 #ifdef XP_WIN
-          <label control="importSourceGroup">&importFromWin.label;</label>
+        <label control="importSourceGroup">&importFromWin.label;</label>
 #else
-          <label control="importSourceGroup">&importFromNonWin.label;</label>
+        <label control="importSourceGroup">&importFromNonWin.label;</label>
 #endif
-          <radiogroup id="importSourceGroup">
-            <radio id="seamonkey" label="&importFromSeamonkey3.label;"
-                   accesskey="&importFromSeamonkey3.accesskey;"/>
+        <radiogroup id="importSourceGroup">
+          <radio id="seamonkey" label="&importFromSeamonkey3.label;"
+                 accesskey="&importFromSeamonkey3.accesskey;"/>
 #ifdef XP_WIN
-            <radio id="outlook"   label="&importFromOutlook.label;"   accesskey="&importFromOutlook.accesskey;"/>
+          <radio id="outlook" label="&importFromOutlook.label;"
+                 accesskey="&importFromOutlook.accesskey;"/>
 #endif
-            <radio id="nothing"   label="&importFromNothing.label;"   accesskey="&importFromNothing.accesskey;" hidden="true"/>
-          </radiogroup>
-        </vbox>
-        <label>&importSourceNotFound.label;</label>
-      </deck>
+          <radio id="nothing" label="&importFromNothing.label;"
+                 accesskey="&importFromNothing.accesskey;" hidden="true"/>
+        </radiogroup>
+      </vbox>
+      <label id="importSourceNotFound" hidden="true">&importSourceNotFound.label;</label>
     </wizardpage>
 
     <wizardpage id="selectProfile" pageid="selectProfile" label="&selectProfile.title;"

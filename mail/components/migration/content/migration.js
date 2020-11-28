@@ -156,12 +156,13 @@ var MigrationWizard = {
 
     if (firstNonDisabled) {
       this._wiz.canAdvance = true;
-    } else {
-      // If no usable import module was found, inform user and enable back button.
-      document.getElementById("importSourceFound").selectedIndex = 1;
-      this._wiz.canRewind = true;
-      this._wiz.getButton("back").setAttribute("hidden", "false");
+      document.getElementById("importSourceFound").hidden = false;
+      return;
     }
+    // If no usable import module was found, inform user and enable back button.
+    document.getElementById("importSourceNotFound").hidden = false;
+    this._wiz.canRewind = true;
+    this._wiz.getButton("back").setAttribute("hidden", "false");
   },
 
   onImportSourcePageAdvanced() {
