@@ -34,6 +34,7 @@ reference-jobs:
     - lint
     - mingw32-build
     - periodic-updates
+    - ubuntu1804-test-base
     - ubuntu1804-test
     - update-verify
 

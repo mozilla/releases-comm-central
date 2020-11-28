@@ -13,6 +13,7 @@ jobs:
     - deb8-git
     - deb8-mercurial
     - deb8-ninja
+    - deb8-python-psutil
     - deb8-python-zstandard
     - deb8-python3-defaults
     - deb8-python3-setuptools
