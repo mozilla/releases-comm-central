@@ -128,7 +128,7 @@ var gSmtpServerListWindow = {
     document.getElementById("nameValue").value = aServer.hostname;
     document.getElementById("descriptionValue").value =
       aServer.description || noneSelected;
-    document.getElementById("portValue").value = aServer.port;
+    document.getElementById("portValue").value = aServer.port || noneSelected;
     document.getElementById("userNameValue").value =
       aServer.username || noneSelected;
     document.getElementById(
@@ -173,11 +173,9 @@ var gSmtpServerListWindow = {
             aServer.authMethod
         );
     }
-    if (authStr) {
-      document.getElementById("authMethodValue").value = this.mBundle.getString(
-        authStr
-      );
-    }
+    document.getElementById("authMethodValue").value = authStr
+      ? this.mBundle.getString(authStr)
+      : noneSelected;
   },
 
   refreshServerList(aServerKeyToSelect, aFocusList) {
