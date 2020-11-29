@@ -62,14 +62,12 @@ function* setup_messages() {
 }
 
 function* move_messages() {
-  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(
     IMAPPump.mailbox.uidnext - 1
   );
-  messages.appendElement(msg);
   MailServices.copy.CopyMessages(
     IMAPPump.inbox,
-    messages,
+    [msg],
     localAccountUtils.inboxFolder,
     true,
     asyncCopyListener,

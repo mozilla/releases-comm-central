@@ -62,8 +62,6 @@ add_task(function test_move_message() {
   gInitRecentMenuCount = recentMenu.itemCount;
   Assert.equal(gInitRecentMenuCount, 0);
   mc.close_popup_sequence(popups);
-  let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  array.appendElement(msgHdr);
   let copyListener = {
     copyDone: false,
     OnStartCopy() {},
@@ -76,7 +74,7 @@ add_task(function test_move_message() {
   };
   MailServices.copy.CopyMessages(
     folder1,
-    array,
+    [msgHdr],
     folder2,
     true,
     copyListener,

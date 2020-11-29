@@ -1182,14 +1182,13 @@ BatchMessageMover.prototype =
     let [srcFolder, archiveFolderUri, granularity, keepFolderStructure, msgYear, msgMonth] = batch;
     let msgs = batch.slice(6);
 
-    let moveArray = Cc["@mozilla.org/array;1"]
-                      .createInstance(Ci.nsIMutableArray);
+    let moveArray = [];
     // Don't move any items that the filter moves or deleted
     for (let item of msgs) {
       if (srcFolder.msgDatabase.ContainsKey(item.messageKey) &&
           !(srcFolder.getProcessingFlags(item.messageKey) &
             Ci.nsMsgProcessingFlags.FilterToMove)) {
-        moveArray.appendElement(item);
+        moveArray.push(item);
       }
     }
 

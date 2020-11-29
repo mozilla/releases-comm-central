@@ -108,14 +108,14 @@ function* doMoves() {
   gFolder1.updateFolderWithListener(null, UrlListener);
   yield false;
   // get five messages to move from Inbox to folder 1.
-  let headers1 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let headers1 = [];
   let count = 0;
   for (let header of gIMAPInbox.msgDatabase.EnumerateMessages()) {
     if (count >= 5) {
       break;
     }
     if (header instanceof Ci.nsIMsgDBHdr) {
-      headers1.appendElement(header);
+      headers1.push(header);
     }
     count++;
   }
@@ -137,14 +137,14 @@ function* doMoves() {
   // Check that playing back offline events gets rid of dummy
   // headers, and thus highWater is recalculated.
   Assert.equal(gFolder1.msgDatabase.dBFolderInfo.highWater, 6);
-  headers1 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  headers1 = [];
   count = 0;
   for (let header of gIMAPInbox.msgDatabase.EnumerateMessages()) {
     if (count >= 5) {
       break;
     }
     if (header instanceof Ci.nsIMsgDBHdr) {
-      headers1.appendElement(header);
+      headers1.push(header);
     }
     count++;
   }

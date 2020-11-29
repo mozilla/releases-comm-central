@@ -23,6 +23,7 @@
 #include "nsIMsgSearchSession.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
+#include "nsIMutableArray.h"
 
 static bool gReferenceOnlyThreading;
 
@@ -99,7 +100,9 @@ nsMsgSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
   newMsgDBView->mCurIndex = mCurIndex;
   newMsgDBView->m_folders.InsertObjectsAt(m_folders, 0);
   newMsgDBView->m_curCustomColumn = m_curCustomColumn;
-  newMsgDBView->m_hdrsForEachFolder.InsertObjectsAt(m_hdrsForEachFolder, 0);
+  for (auto const& hdrs : m_hdrsForEachFolder) {
+    newMsgDBView->m_hdrsForEachFolder.AppendElement(hdrs.Clone());
+  }
   newMsgDBView->m_uniqueFoldersSelected.InsertObjectsAt(m_uniqueFoldersSelected,
                                                         0);
 
@@ -913,22 +916,19 @@ nsresult nsMsgSearchDBView::GetFoldersAndHdrsForSelection(
   uint32_t numFolders = m_uniqueFoldersSelected.Count();
   for (uint32_t folderIndex = 0; folderIndex < numFolders; folderIndex++) {
     nsIMsgFolder* curFolder = m_uniqueFoldersSelected[folderIndex];
-    nsCOMPtr<nsIMutableArray> msgHdrsForOneFolder(
-        do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
+    nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrsForOneFolder;
     for (i = 0; i < numMsgs; i++) {
       nsCOMPtr<nsIMsgDBHdr> hdr = do_QueryElementAt(messages, i, &rv);
       if (hdr) {
         nsCOMPtr<nsIMsgFolder> msgFolder;
         hdr->GetFolder(getter_AddRefs(msgFolder));
         if (NS_SUCCEEDED(rv) && msgFolder && msgFolder == curFolder) {
-          nsCOMPtr<nsISupports> hdrSupports = do_QueryInterface(hdr);
-          msgHdrsForOneFolder->AppendElement(hdrSupports);
+          msgHdrsForOneFolder.AppendElement(hdr);
         }
       }
     }
 
-    m_hdrsForEachFolder.AppendElement(msgHdrsForOneFolder);
+    m_hdrsForEachFolder.AppendElement(msgHdrsForOneFolder.Clone());
   }
 
   return rv;
@@ -983,8 +983,13 @@ nsresult nsMsgSearchDBView::ProcessRequestsInOneFolder(nsIMsgWindow* window) {
 
   nsIMsgFolder* curFolder = m_uniqueFoldersSelected[mCurIndex];
   NS_ASSERTION(curFolder, "curFolder is null");
-  nsCOMPtr<nsIMutableArray> messageArray = m_hdrsForEachFolder[mCurIndex];
-  NS_ASSERTION(messageArray, "messageArray is null");
+  nsTArray<RefPtr<nsIMsgDBHdr>> const& msgs = m_hdrsForEachFolder[mCurIndex];
+  // Stopgap during nsIArray removal (see Bug 1612239)
+  nsCOMPtr<nsIMutableArray> messageArray(
+      do_CreateInstance(NS_ARRAY_CONTRACTID));
+  for (auto hdr : msgs) {
+    messageArray->AppendElement(hdr);
+  }
 
   // called for delete with trash, copy and move
   if (mCommand == nsMsgViewCommandType::deleteMsg)
@@ -998,11 +1003,11 @@ nsresult nsMsgSearchDBView::ProcessRequestsInOneFolder(nsIMsgWindow* window) {
           do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
       if (NS_SUCCEEDED(rv)) {
         if (mCommand == nsMsgViewCommandType::moveMessages)
-          copyService->CopyMessages(curFolder, messageArray, mDestFolder,
+          copyService->CopyMessages(curFolder, msgs, mDestFolder,
                                     true /* isMove */, this, window,
                                     true /*allowUndo*/);
         else if (mCommand == nsMsgViewCommandType::copyMessages)
-          copyService->CopyMessages(curFolder, messageArray, mDestFolder,
+          copyService->CopyMessages(curFolder, msgs, mDestFolder,
                                     false /* isMove */, this, window,
                                     true /*allowUndo*/);
       }
@@ -1018,9 +1023,12 @@ nsresult nsMsgSearchDBView::ProcessRequestsInAllFolders(nsIMsgWindow* window) {
     nsIMsgFolder* curFolder = m_uniqueFoldersSelected[folderIndex];
     NS_ASSERTION(curFolder, "curFolder is null");
 
-    nsCOMPtr<nsIMutableArray> messageArray = m_hdrsForEachFolder[folderIndex];
-    NS_ASSERTION(messageArray, "messageArray is null");
-
+    // Stopgap during nsIArray removal (see Bug 1612239)
+    nsCOMPtr<nsIMutableArray> messageArray(
+        do_CreateInstance(NS_ARRAY_CONTRACTID));
+    for (auto hdr : m_hdrsForEachFolder[folderIndex]) {
+      messageArray->AppendElement(hdr);
+    }
     curFolder->DeleteMessages(messageArray, window, true /* delete storage */,
                               false /* is move*/, nullptr /*copyServListener*/,
                               false /*allowUndo*/);

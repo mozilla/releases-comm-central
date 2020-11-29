@@ -72,16 +72,12 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
 }
 
 function copyMessages(items, isMove, srcFolder, destFolder) {
-  var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function(item) {
-    array.appendElement(item);
-  });
   gExpectedEvents = [
     [MailServices.mfn.msgsMoveCopyCompleted, isMove, items, destFolder, true],
   ];
   MailServices.copy.CopyMessages(
     srcFolder,
-    array,
+    items,
     destFolder,
     isMove,
     copyListener,

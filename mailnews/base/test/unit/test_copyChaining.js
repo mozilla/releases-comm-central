@@ -37,13 +37,9 @@ var gTestArray = [
 function CopyNextMessage() {
   if (gMsgEnumerator.hasMoreElements()) {
     let msgHdr = gMsgEnumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    var messages = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    messages.appendElement(msgHdr);
     MailServices.copy.CopyMessages(
       gCopySource,
-      messages,
+      [msgHdr],
       gCopyDest,
       true,
       copyListener,

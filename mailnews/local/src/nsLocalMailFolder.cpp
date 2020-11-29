@@ -1011,7 +1011,7 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray* messages,
       nsCOMPtr<nsIMsgCopyService> copyService =
           do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
-      return copyService->CopyMessages(this, messages, trashFolder, true,
+      return copyService->CopyMessages(this, msgHeaders, trashFolder, true,
                                        listener, msgWindow, allowUndo);
     }
   } else {
@@ -3206,7 +3206,7 @@ nsMsgLocalMailFolder::OnMessageClassified(const char* aMsgURI,
     // Parent will apply post bayes filters.
     nsMsgDBFolder::OnMessageClassified(nullptr, nsIJunkMailPlugin::UNCLASSIFIED,
                                        0);
-    nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
+    nsTArray<RefPtr<nsIMsgDBHdr>> messages;
     if (!mSpamKeysToMove.IsEmpty()) {
       nsCOMPtr<nsIMsgFolder> folder;
       if (!spamFolderURI.IsEmpty()) {
@@ -3222,7 +3222,7 @@ nsMsgLocalMailFolder::OnMessageClassified(const char* aMsgURI,
         if (folder && !(processingFlags & nsMsgProcessingFlags::FilterToMove)) {
           nsCOMPtr<nsIMsgDBHdr> mailHdr;
           rv = GetMessageHeader(msgKey, getter_AddRefs(mailHdr));
-          if (NS_SUCCEEDED(rv) && mailHdr) messages->AppendElement(mailHdr);
+          if (NS_SUCCEEDED(rv) && mailHdr) messages.AppendElement(mailHdr);
         } else {
           // We don't need the processing flag any more.
           AndProcessingFlags(msgKey, ~nsMsgProcessingFlags::FilterToMove);
@@ -3249,9 +3249,7 @@ nsMsgLocalMailFolder::OnMessageClassified(const char* aMsgURI,
     }
     int32_t numNewMessages;
     GetNumNewMessages(false, &numNewMessages);
-    uint32_t length;
-    messages->GetLength(&length);
-    SetNumNewMessages(numNewMessages - length);
+    SetNumNewMessages(numNewMessages - messages.Length());
     mSpamKeysToMove.Clear();
     // check if this is the inbox first...
     if (mFlags & nsMsgFolderFlags::Inbox) PerformBiffNotifications();

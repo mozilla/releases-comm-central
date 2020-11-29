@@ -124,7 +124,7 @@ this.messages = class extends ExtensionAPI {
           continue;
         }
 
-        let messages = toXPCOMArray(sourceSet.values(), Ci.nsIMutableArray);
+        let messages = [...sourceSet];
         promises.push(
           new Promise((resolve, reject) => {
             MailServices.copy.CopyMessages(

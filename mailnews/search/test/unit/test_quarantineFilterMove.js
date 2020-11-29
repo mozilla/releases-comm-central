@@ -71,18 +71,13 @@ var gTestArray = [
     );
   },
   async function copyMovedMessages() {
-    let messages = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
     let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
     let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    messages.appendElement(firstMsgHdr);
-    messages.appendElement(secondMsgHdr);
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.CopyMessages(
       gMoveFolder,
-      messages,
+      [firstMsgHdr, secondMsgHdr],
       gMoveFolder2,
       false,
       promiseCopyListener,

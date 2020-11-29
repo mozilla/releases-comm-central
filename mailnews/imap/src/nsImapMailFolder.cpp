@@ -2007,13 +2007,8 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
     bool isMove, nsIMsgCopyServiceListener* listener, bool allowUndo) {
   // Stopgap. Build a parallel array of message headers while we complete
   // removal of nsIArray usage (Bug 1583030).
-  uint32_t messageCount;
-  messages->GetLength(&messageCount);
   nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  msgHeaders.SetCapacity(messageCount);
-  for (uint32_t i = 0; i < messageCount; ++i) {
-    msgHeaders.AppendElement(do_QueryElementAt(messages, i));
-  }
+  MsgHdrsToTArray(messages, msgHeaders);
 
   // *** jt - assuming delete is move to the trash folder for now
   nsAutoCString uri;
@@ -2133,7 +2128,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
     nsCOMPtr<nsIMsgCopyService> copyService =
         do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = copyService->CopyMessages(srcFolder, messages, trashFolder, true,
+    rv = copyService->CopyMessages(srcFolder, msgHeaders, trashFolder, true,
                                    listener, msgWindow, allowUndo);
   }
 
@@ -3306,11 +3301,6 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
               mDatabase->MarkMDNSent(msgKey, true, nullptr);
             }
 
-            nsCOMPtr<nsIMutableArray> messageArray(
-                do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-            if (NS_FAILED(rv) || !messageArray) break;
-            messageArray->AppendElement(msgHdr);
-
             nsCOMPtr<nsIMsgFolder> dstFolder;
             rv = GetExistingFolder(actionTargetFolderUri,
                                    getter_AddRefs(dstFolder));
@@ -3319,7 +3309,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
             nsCOMPtr<nsIMsgCopyService> copyService =
                 do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
             if (NS_FAILED(rv)) break;
-            rv = copyService->CopyMessages(this, messageArray, dstFolder, false,
+            rv = copyService->CopyMessages(this, {&*msgHdr}, dstFolder, false,
                                            nullptr, msgWindow, false);
             if (NS_FAILED(rv)) {
               if (loggingEnabled) {
@@ -7255,9 +7245,7 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           }
 
           rv = m_curSrcFolder->GetMessages(getter_AddRefs(enumerator));
-          nsCOMPtr<nsIMutableArray> msgArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          NS_ENSURE_TRUE(msgArray, rv);
+          nsTArray<RefPtr<nsIMsgDBHdr>> msgArray;
           hasMore = false;
 
           if (enumerator) rv = enumerator->HasMoreElements(&hasMore);
@@ -7267,8 +7255,9 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           while (NS_SUCCEEDED(rv) && hasMore) {
             rv = enumerator->GetNext(getter_AddRefs(item));
             NS_ENSURE_SUCCESS(rv, rv);
-            rv = msgArray->AppendElement(item);
+            nsCOMPtr<nsIMsgDBHdr> hdr(do_QueryInterface(item, &rv));
             NS_ENSURE_SUCCESS(rv, rv);
+            msgArray.AppendElement(hdr);
             rv = enumerator->HasMoreElements(&hasMore);
           }
 

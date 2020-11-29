@@ -94,13 +94,9 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
 
 function copyMessages(items, isMove, srcFolder, destFolder) {
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
-  var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function(item) {
-    array.appendElement(item);
-  });
   MailServices.copy.CopyMessages(
     srcFolder,
-    array,
+    items,
     destFolder,
     isMove,
     listener,

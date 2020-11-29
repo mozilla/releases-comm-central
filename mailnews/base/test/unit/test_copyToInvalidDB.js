@@ -59,12 +59,10 @@ function* actually_run_test() {
   gTestFolder2.msgDatabase = null;
 
   let msgHdr = mailTestUtils.firstMsgHdr(gTestFolder);
-  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   gMsgId1 = msgHdr.messageId;
-  messages.appendElement(msgHdr);
   MailServices.copy.CopyMessages(
     gTestFolder,
-    messages,
+    [msgHdr],
     gTestFolder2,
     true,
     asyncCopyListener,

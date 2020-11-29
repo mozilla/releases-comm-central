@@ -152,10 +152,6 @@ function addMessagesToServer(messages, mailbox, localFolder) {
 }
 
 function copyMessages(messages, isMove, srcFolder, destFolder) {
-  let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  messages.forEach(function(message) {
-    array.appendElement(message);
-  });
   gExpectedEvents = [
     [
       MailServices.mfn.msgsMoveCopyCompleted,
@@ -187,7 +183,7 @@ function copyMessages(messages, isMove, srcFolder, destFolder) {
   ]);
   MailServices.copy.CopyMessages(
     srcFolder,
-    array,
+    messages,
     destFolder,
     isMove,
     copyListener,

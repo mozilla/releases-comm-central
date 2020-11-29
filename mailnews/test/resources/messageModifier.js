@@ -110,7 +110,7 @@ SyntheticMessageSet.prototype = {
 
   /**
    * Get the single message header of the message at the given index; use
-   *  |msgHdrs| or |xpcomHdrArray| if you want to get all the headers at once.
+   *  |msgHdrs| if you want to get all the headers at once.
    */
   getMsgHdr(aIndex) {
     let folder = this.msgFolders[this.folderIndices[aIndex]];
@@ -148,13 +148,6 @@ SyntheticMessageSet.prototype = {
     return Array.from(this.msgHdrs());
   },
   /**
-   * @return an nsIMutableArray of the message headers for all messages inserted
-   *     into a folder.
-   */
-  get xpcomHdrArray() {
-    return toXPCOMArray(this.msgHdrs(), Ci.nsIMutableArray);
-  },
-  /**
    * @return a list where each item is a list with two elements; the first is
    *     an nsIMsgFolder, and the second is a list of all of the nsIMsgDBHdrs
    *     for the synthetic messages in the set inserted into that folder.
@@ -171,15 +164,6 @@ SyntheticMessageSet.prototype = {
       }
     }
     return results;
-  },
-  /**
-   * @return a generator that yields [nsIMsgFolder, nsIMutableArray of the
-   *     messages from the set in that folder].
-   */
-  *foldersWithXpcomHdrArrays() {
-    for (let [folder, msgHdrs] of this.foldersWithMsgHdrs) {
-      yield [folder, toXPCOMArray(msgHdrs, Ci.nsIMutableArray)];
-    }
   },
   /**
    * Sets the status of the messages to read/unread.
@@ -229,9 +213,8 @@ SyntheticMessageSet.prototype = {
     }
 
     let str = aIsJunk ? "junk" : "notjunk";
-    let xpcomHdrArray = toXPCOMArray(msgHdrs, Ci.nsIMutableArray);
     MailServices.mfn.notifyItemEvent(
-      xpcomHdrArray,
+      toXPCOMArray(msgHdrs, Ci.nsIMutableArray),
       "JunkStatusChanged",
       null,
       str

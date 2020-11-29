@@ -12,7 +12,6 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgWindow.h"
-#include "nsIMutableArray.h"
 #include "nsITransactionManager.h"
 #include "nsTArray.h"
 
@@ -36,7 +35,7 @@ class nsCopySource {
   void AddMessage(nsIMsgDBHdr* aMsg);
 
   nsCOMPtr<nsIMsgFolder> m_msgFolder;
-  nsCOMPtr<nsIMutableArray> m_messageArray;
+  nsTArray<RefPtr<nsIMsgDBHdr>> m_messageArray;
   bool m_processed;
 };
 

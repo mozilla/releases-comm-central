@@ -52,16 +52,10 @@ var tests = [
     let msgHdr2 = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
       gSynthMessage2.messageId
     );
-    let headers1 = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    let headers2 = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    headers1.appendElement(msgHdr1);
-    headers2.appendElement(msgHdr2);
-    msgHdr1.folder.markMessagesFlagged([msgHdr1], true);
-    msgHdr2.folder.markMessagesFlagged([msgHdr2], true);
+    let headers1 = [msgHdr1];
+    let headers2 = [msgHdr2];
+    msgHdr1.folder.markMessagesFlagged(headers1, true);
+    msgHdr2.folder.markMessagesFlagged(headers2, true);
     let promiseCopyListener1 = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.CopyMessages(
       IMAPPump.inbox,

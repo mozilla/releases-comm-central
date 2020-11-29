@@ -796,7 +796,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           }
 
           rv = copyService->CopyMessages(
-              curFolder, m_searchHitHdrs, destIFolder,
+              curFolder, hitHdrs, destIFolder,
               actionType == nsMsgFilterAction::MoveToFolder, this, m_msgWindow,
               false);
           BREAK_ACTION_IF_FAILURE(rv, "CopyMessages failed");

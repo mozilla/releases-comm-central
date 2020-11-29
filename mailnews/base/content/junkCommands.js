@@ -22,7 +22,7 @@
  */
 
 /* globals ClearMessagePane, gDBView, gFolderDisplay, MarkSelectedMessagesRead, messenger,
-   MsgJunkMailInfo, msgWindow, nsMsgViewIndex_None, fixIterator */
+   MsgJunkMailInfo, msgWindow, nsMsgViewIndex_None */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -77,37 +77,21 @@ function determineActionsForJunkMsgs(aFolder) {
  *
  * Performs required operations on a list of newly-classified junk messages
  *
- * @param aFolder
- *        the folder with messages being marked as junk
- *
- * @param aJunkMsgHdrs
- *        nsIArray containing headers (nsIMsgDBHdr) of new junk messages
- *
- * @param aGoodMsgHdrs
- *        nsIArray containing headers (nsIMsgDBHdr) of new good messages
+ * @param {nsIMsgFolder} aFolder - The folder with messages being marked as
+ *                                 junk.
+ * @param {Array.<nsIMsgDBHdr>} aJunkMsgHdrs - New junk messages.
+ * @param {Array.<nsIMsgDBHdr>} aGoodMsgHdrs - New good messages.
  */
 function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
   if (aFolder instanceof Ci.nsIMsgImapMailFolder) {
     // need to update IMAP custom flags
     if (aJunkMsgHdrs.length) {
-      var junkMsgKeys = [];
-      for (let i = 0; i < aJunkMsgHdrs.length; i++) {
-        junkMsgKeys[i] = aJunkMsgHdrs.queryElementAt(
-          i,
-          Ci.nsIMsgDBHdr
-        ).messageKey;
-      }
+      let junkMsgKeys = aJunkMsgHdrs.map(hdr => hdr.messageKey);
       aFolder.storeCustomKeywords(null, "Junk", "NonJunk", junkMsgKeys);
     }
 
     if (aGoodMsgHdrs.length) {
-      let goodMsgKeys = [];
-      for (let i = 0; i < aGoodMsgHdrs.length; i++) {
-        goodMsgKeys[i] = aGoodMsgHdrs.queryElementAt(
-          i,
-          Ci.nsIMsgDBHdr
-        ).messageKey;
-      }
+      let goodMsgKeys = aGoodMsgHdrs.map(hdr => hdr.messageKey);
       aFolder.storeCustomKeywords(null, "NonJunk", "Junk", goodMsgKeys);
     }
   }
@@ -115,10 +99,7 @@ function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
   if (aJunkMsgHdrs.length) {
     var actionParams = determineActionsForJunkMsgs(aFolder);
     if (actionParams.markRead) {
-      aFolder.markMessagesRead(
-        [...fixIterator(aJunkMsgHdrs, Ci.nsIMsgDBHdr)],
-        true
-      );
+      aFolder.markMessagesRead(aJunkMsgHdrs, true);
     }
 
     if (actionParams.junkTargetFolder) {
@@ -149,12 +130,8 @@ function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
 
 function MessageClassifier(aFolder, aTotalMessages) {
   this.mFolder = aFolder;
-  this.mJunkMsgHdrs = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
-  this.mGoodMsgHdrs = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
+  this.mJunkMsgHdrs = [];
+  this.mGoodMsgHdrs = [];
   this.mMessages = {};
   this.mMessageQueue = [];
   this.mTotalMessages = aTotalMessages;
@@ -192,7 +169,7 @@ MessageClassifier.prototype = {
         Ci.nsIJunkMailPlugin.IS_HAM_SCORE
       );
       db.setStringProperty(aMsgHdr.messageKey, "junkscoreorigin", "whitelist");
-      this.mGoodMsgHdrs.appendElement(aMsgHdr);
+      this.mGoodMsgHdrs.push(aMsgHdr);
       return;
     }
 
@@ -243,9 +220,9 @@ MessageClassifier.prototype = {
     db.setStringProperty(msgHdr.messageKey, "junkpercent", aJunkPercent);
 
     if (aClassification == nsIJunkMailPlugin.JUNK) {
-      this.mJunkMsgHdrs.appendElement(msgHdr);
+      this.mJunkMsgHdrs.push(msgHdr);
     } else if (aClassification == nsIJunkMailPlugin.GOOD) {
-      this.mGoodMsgHdrs.appendElement(msgHdr);
+      this.mGoodMsgHdrs.push(msgHdr);
     }
 
     var nextMsgURI = this.mMessageQueue.shift();

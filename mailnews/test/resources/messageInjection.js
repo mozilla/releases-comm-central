@@ -963,10 +963,7 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
       // and then we can make sure we have the actual folder
       let realDestFolder = get_real_injection_folder(aDestFolder);
 
-      for (let [
-        folder,
-        xpcomHdrArray,
-      ] of aSynMessageSet.foldersWithXpcomHdrArrays()) {
+      for (let [folder, msgs] of aSynMessageSet.foldersWithMsgHdrs) {
         mark_action("messageInjection", "moving messages", [
           "from",
           folder,
@@ -985,7 +982,7 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
 
         MailServices.copy.CopyMessages(
           folder,
-          xpcomHdrArray,
+          msgs,
           realDestFolder,
           /* move */ true,
           asyncCopyListener,
@@ -1046,10 +1043,7 @@ function async_trash_messages(aSynMessageSet) {
   );
   return async_run({
     *func() {
-      for (let [
-        folder,
-        xpcomHdrArray,
-      ] of aSynMessageSet.foldersWithXpcomHdrArrays()) {
+      for (let [folder, msgs] of aSynMessageSet.foldersWithMsgHdrs) {
         mark_action("messageInjection", "trashing messages in folder", [
           folder,
         ]);
@@ -1062,7 +1056,7 @@ function async_trash_messages(aSynMessageSet) {
           );
         }
         folder.deleteMessages(
-          xpcomHdrArray,
+          toXPCOMArray(msgs, Ci.nsIMutableArray),
           null,
           false,
           true,
@@ -1125,13 +1119,10 @@ function async_delete_messages(aSynMessageSet) {
     "deleting messages",
     aSynMessageSet.msgHdrList
   );
-  for (let [
-    folder,
-    xpcomHdrArray,
-  ] of aSynMessageSet.foldersWithXpcomHdrArrays()) {
+  for (let [folder, msgs] of aSynMessageSet.foldersWithMsgHdrs) {
     mark_action("messageInjection", "deleting messages in folder", [folder]);
     folder.deleteMessages(
-      xpcomHdrArray,
+      toXPCOMArray(msgs, Ci.nsIMutableArray),
       null,
       /* delete storage */ true,
       /* is move? */ false,

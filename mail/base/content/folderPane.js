@@ -949,7 +949,7 @@ var gFolderTreeView = {
         i -= aOrientation;
       }
     } else if (types.includes("text/x-moz-message")) {
-      let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+      let array = [];
       let sourceFolder;
       let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
         Ci.nsIMessenger
@@ -961,7 +961,7 @@ var gFolderTreeView = {
         if (!i) {
           sourceFolder = msgHdr.folder;
         }
-        array.appendElement(msgHdr);
+        array.push(msgHdr);
       }
       let prefBranch = Services.prefs.getBranch("mail.");
       let isMove =

@@ -157,9 +157,7 @@ MessageArchiver.prototype = {
     let archiveFolder = MailUtils.getOrCreateFolder(archiveFolderURI);
     let dstFolder = archiveFolder;
 
-    let moveArray = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
+    let moveArray = [];
     // Don't move any items that the filter moves or deleted
     for (let item of batch.messages) {
       if (
@@ -169,7 +167,7 @@ MessageArchiver.prototype = {
           Ci.nsMsgProcessingFlags.FilterToMove
         )
       ) {
-        moveArray.appendElement(item);
+        moveArray.push(item);
       }
     }
 

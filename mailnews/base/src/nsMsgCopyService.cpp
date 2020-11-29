@@ -10,7 +10,6 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
@@ -22,19 +21,17 @@ static mozilla::LazyLogModule gCopyServiceLog("MsgCopyService");
 
 nsCopySource::nsCopySource() : m_processed(false) {
   MOZ_COUNT_CTOR(nsCopySource);
-  m_messageArray = do_CreateInstance(NS_ARRAY_CONTRACTID);
 }
 
 nsCopySource::nsCopySource(nsIMsgFolder* srcFolder) : m_processed(false) {
   MOZ_COUNT_CTOR(nsCopySource);
-  m_messageArray = do_CreateInstance(NS_ARRAY_CONTRACTID);
   m_msgFolder = srcFolder;
 }
 
 nsCopySource::~nsCopySource() { MOZ_COUNT_DTOR(nsCopySource); }
 
 void nsCopySource::AddMessage(nsIMsgDBHdr* aMsg) {
-  m_messageArray->AppendElement(aMsg);
+  m_messageArray.AppendElement(aMsg);
 }
 
 // ************ nsCopyRequest *****************
@@ -129,9 +126,9 @@ void nsMsgCopyService::LogCopyRequest(const char* logMsg,
   aRequest->m_dstFolder->GetURI(destFolderUri);
   uint32_t numMsgs = 0;
   if (aRequest->m_requestType == nsCopyMessagesType &&
-      aRequest->m_copySourceArray.Length() > 0 &&
-      aRequest->m_copySourceArray[0]->m_messageArray)
-    aRequest->m_copySourceArray[0]->m_messageArray->GetLength(&numMsgs);
+      aRequest->m_copySourceArray.Length() > 0) {
+    numMsgs = aRequest->m_copySourceArray[0]->m_messageArray.Length();
+  }
   MOZ_LOG(gCopyServiceLog, mozilla::LogLevel::Info,
           ("request %p %s - src %s dest %s numItems %d type=%d", aRequest,
            logMsg, srcFolderUri.get(), destFolderUri.get(), numMsgs,
@@ -266,8 +263,15 @@ nsresult nsMsgCopyService::DoNextCopy() {
       if (copyRequest->m_listener) copyRequest->m_listener->OnStartCopy();
       if (copyRequest->m_requestType == nsCopyMessagesType && copySource) {
         copySource->m_processed = true;
+
+        // Stopgap during nsIArray removal (see Bug 1612239)
+        nsCOMPtr<nsIMutableArray> msgsIArray(
+            do_CreateInstance(NS_ARRAY_CONTRACTID));
+        for (auto hdr : copySource->m_messageArray) {
+          msgsIArray->AppendElement(hdr);
+        }
         rv = copyRequest->m_dstFolder->CopyMessages(
-            copySource->m_msgFolder, copySource->m_messageArray,
+            copySource->m_msgFolder, msgsIArray,
             copyRequest->m_isMoveOrDraftOrTemplate, copyRequest->m_msgWindow,
             copyRequest->m_listener, false,
             copyRequest->m_allowUndo);  // isFolder operation false
@@ -292,7 +296,7 @@ nsresult nsMsgCopyService::DoNextCopy() {
           // with; if we do we shall have an instance of copySource
           nsCOMPtr<nsIMsgDBHdr> aMessage;
           if (copySource) {
-            aMessage = do_QueryElementAt(copySource->m_messageArray, 0, &rv);
+            aMessage = copySource->m_messageArray[0];
             copySource->m_processed = true;
           }
           copyRequest->m_processed = true;
@@ -367,10 +371,10 @@ NS_IMPL_ISUPPORTS(nsMsgCopyService, nsIMsgCopyService)
 
 MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
     nsIMsgFolder* srcFolder, /* UI src folder */
-    nsIArray* messages, nsIMsgFolder* dstFolder, bool isMove,
-    nsIMsgCopyServiceListener* listener, nsIMsgWindow* window, bool allowUndo) {
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgFolder* dstFolder,
+    bool isMove, nsIMsgCopyServiceListener* listener, nsIMsgWindow* window,
+    bool allowUndo) {
   NS_ENSURE_ARG_POINTER(srcFolder);
-  NS_ENSURE_ARG_POINTER(messages);
   NS_ENSURE_ARG_POINTER(dstFolder);
 
   MOZ_LOG(gCopyServiceLog, mozilla::LogLevel::Debug, ("CopyMessages"));
@@ -381,11 +385,10 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
   }
   nsCopyRequest* copyRequest;
   nsCopySource* copySource = nullptr;
-  nsCOMArray<nsIMsgDBHdr> msgArray;
-  uint32_t cnt;
-  nsCOMPtr<nsIMsgDBHdr> msg;
+  nsIMsgDBHdr* msg;
   nsCOMPtr<nsIMsgFolder> curFolder;
   nsCOMPtr<nsISupports> aSupport;
+  int cnt;
   nsresult rv;
 
   // XXX TODO
@@ -394,8 +397,7 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
   // and has proper flags, before we start copying?
 
   // bail early if nothing to do
-  messages->GetLength(&cnt);
-  if (!cnt) {
+  if (messages.IsEmpty()) {
     if (listener) {
       listener->OnStartCopy();
       listener->OnStopCopy(NS_OK);
@@ -406,6 +408,7 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
   copyRequest = new nsCopyRequest();
   if (!copyRequest) return NS_ERROR_OUT_OF_MEMORY;
 
+  nsTArray<RefPtr<nsIMsgDBHdr>> unprocessed = messages.Clone();
   aSupport = do_QueryInterface(srcFolder, &rv);
 
   rv = copyRequest->Init(nsCopyMessagesType, aSupport, dstFolder, isMove,
@@ -416,19 +419,11 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
   if (MOZ_LOG_TEST(gCopyServiceLog, mozilla::LogLevel::Info))
     LogCopyRequest("CopyMessages request", copyRequest);
 
-  // duplicate the message array so we could sort the messages by it's
-  // folder easily
-  for (uint32_t i = 0; i < cnt; i++) {
-    nsCOMPtr<nsIMsgDBHdr> currMsg = do_QueryElementAt(messages, i);
-    msgArray.AppendObject(currMsg);
-  }
-
-  cnt = msgArray.Count();
-
   // Build up multiple nsCopySource objects. Each holds a single source folder
   // and all the messages in the folder that are to be copied.
+  cnt = unprocessed.Length();
   while (cnt-- > 0) {
-    msg = msgArray[cnt];
+    msg = unprocessed[cnt];
     rv = msg->GetFolder(getter_AddRefs(curFolder));
 
     if (NS_FAILED(rv)) goto done;
@@ -444,13 +439,13 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
     // Stash message if in the current folder grouping.
     if (curFolder == copySource->m_msgFolder) {
       copySource->AddMessage(msg);
-      msgArray.RemoveObjectAt(cnt);
+      unprocessed.RemoveElementAt((size_t)cnt);
     }
 
     if (cnt == 0) {
       // Finished a folder. Start a new pass to handle any remaining messages
       // in other folders.
-      cnt = msgArray.Count();
+      cnt = unprocessed.Length();
       if (cnt > 0) {
         // Force to create a new one and continue grouping the messages.
         copySource = nullptr;

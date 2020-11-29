@@ -43,8 +43,6 @@
 #include "nsIMsgCopyService.h"
 #include "nsICryptoHash.h"
 #include "nsIStringBundle.h"
-#include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 #include "nsIMsgFilterCustomAction.h"
 #include <ctype.h>
 #include "nsIMsgPluggableStore.h"
@@ -1966,11 +1964,6 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
 
           if (!actionTargetFolderUri.IsEmpty() &&
               !actionTargetFolderUri.Equals(uri)) {
-            nsCOMPtr<nsIMutableArray> messageArray(
-                do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-            if (NS_FAILED(rv) || !messageArray) break;
-            messageArray->AppendElement(msgHdr);
-
             nsCOMPtr<nsIMsgFolder> dstFolder;
             nsCOMPtr<nsIMsgCopyService> copyService;
             rv = GetExistingFolder(actionTargetFolderUri,
@@ -1985,7 +1978,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
 
             copyService = do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
             if (NS_SUCCEEDED(rv))
-              rv = copyService->CopyMessages(m_downloadFolder, messageArray,
+              rv = copyService->CopyMessages(m_downloadFolder, {&*msgHdr},
                                              dstFolder, false, nullptr,
                                              msgWindow, false);
 

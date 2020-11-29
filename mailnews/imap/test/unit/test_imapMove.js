@@ -42,7 +42,6 @@ async function startTest() {
 }
 
 async function doMove() {
-  var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   let rootFolder = IMAPPump.incomingServer.rootFolder;
   gFolder1 = rootFolder
     .getChildNamed("folder 1")
@@ -50,12 +49,11 @@ async function doMove() {
   let msg = IMAPPump.inbox.msgDatabase.GetMsgHdrForKey(
     IMAPPump.mailbox.uidnext - 1
   );
-  messages.appendElement(msg);
   IMAPPump.server._test = true;
   let listener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.CopyMessages(
     IMAPPump.inbox,
-    messages,
+    [msg],
     gFolder1,
     true,
     listener,

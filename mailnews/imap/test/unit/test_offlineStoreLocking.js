@@ -141,12 +141,10 @@ var tests = [
     let enumerator = gIMAPTrashFolder.msgDatabase.EnumerateMessages();
     let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     gMovedMsgId = msgHdr.messageId;
-    let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr);
     IMAPPump.inbox.compact(asyncUrlListener, gDummyMsgWindow);
     MailServices.copy.CopyMessages(
       gIMAPTrashFolder,
-      array,
+      [msgHdr],
       IMAPPump.inbox,
       true,
       CopyListener,

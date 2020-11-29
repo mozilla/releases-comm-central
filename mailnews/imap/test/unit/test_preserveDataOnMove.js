@@ -63,28 +63,14 @@ function* loadImapMessage() {
 // move the message to a subfolder
 function* moveMessageToSubfolder() {
   let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-
-  // Now move this message to the subfolder.
-  var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  messages.appendElement(msgHdr);
-  /*
-  void CopyMessages(in nsIMsgFolder srcFolder,
-                    in nsIArray messages,
-                    in nsIMsgFolder dstFolder,
-                    in boolean isMove,
-                    in nsIMsgCopyServiceListener listener,
-                    in nsIMsgWindow msgWindow,
-                    in boolean allowUndo);
-  */
-
   MailServices.copy.CopyMessages(
-    IMAPPump.inbox,
-    messages,
-    gSubfolder,
-    true,
-    asyncCopyListener,
-    null,
-    false
+    IMAPPump.inbox, // srcFolder
+    [msgHdr], // messages
+    gSubfolder, // dstFolder
+    true, // isMove
+    asyncCopyListener, // listener
+    null, // msgWindow
+    false // allowUndo
   );
   dl("wait for OnStopCopy");
   yield false;

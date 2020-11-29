@@ -208,15 +208,14 @@ function DropOnFolderTree(aRow, aOrientation)
   }
   else if (types.includes("text/x-moz-message"))
   {
-    let array = Cc["@mozilla.org/array;1"]
-                  .createInstance(Ci.nsIMutableArray);
+    let array = [];
     let sourceFolder;
     for (let i = 0; i < count; i++)
     {
       let msgHdr = messenger.msgHdrFromURI(dt.mozGetDataAt("text/x-moz-message", i));
       if (!sourceFolder)
         sourceFolder = msgHdr.folder;
-      array.appendElement(msgHdr);
+      array.push(msgHdr);
     }
     let isMove = dragSession.dragAction == nsIDragService.DRAGDROP_ACTION_MOVE;
     if (!sourceFolder.canDeleteMessages)

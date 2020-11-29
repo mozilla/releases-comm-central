@@ -50,9 +50,9 @@ add_task(async function maildirToMbox() {
   dump("inbox is at " + gInboxFolder.filePath.path + "\n");
 
   // Accumulate messages to copy.
-  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let messages = [];
   for (let hdr of gInboxFolder.msgDatabase.EnumerateMessages()) {
-    messages.appendElement(hdr);
+    messages.push(hdr);
   }
   Assert.equal(messages.length, 2);
 
@@ -70,10 +70,10 @@ add_task(async function maildirToMbox() {
   await promiseCopyListener.promise;
 
   // Check the destination headers.
-  messages.clear();
+  messages = [];
   let subjects = [];
   for (let hdr of gTestFolder.msgDatabase.EnumerateMessages()) {
-    messages.appendElement(hdr);
+    messages.push(hdr);
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
   }
@@ -99,9 +99,9 @@ add_task(async function mboxToMaildir() {
   // Test for multiple message copy for mbox->maildir.
 
   // Accumulate messages to copy.
-  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let messages = [];
   for (let hdr of gTestFolder.msgDatabase.EnumerateMessages()) {
-    messages.appendElement(hdr);
+    messages.push(hdr);
   }
   Assert.equal(messages.length, 2);
 
@@ -119,10 +119,10 @@ add_task(async function mboxToMaildir() {
   await promiseCopyListener.promise;
 
   // Check the destination headers.
-  messages.clear();
+  messages = [];
   let subjects = [];
   for (let hdr of gInboxFolder.msgDatabase.EnumerateMessages()) {
-    messages.appendElement(hdr);
+    messages.push(hdr);
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
   }

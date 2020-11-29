@@ -40,11 +40,9 @@ add_task(async function test_copy_eml_message() {
   // context menu.
   be_in_folder(folder1);
   let message = select_click_row(0);
-  let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  array.appendElement(message);
   MailServices.copy.CopyMessages(
     folder1,
-    array,
+    [message],
     folder2,
     true,
     null,

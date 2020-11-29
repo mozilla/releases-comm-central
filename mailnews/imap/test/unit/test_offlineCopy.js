@@ -153,14 +153,10 @@ var tests = [
     //  a message created from IMAP download
     let db = IMAPPump.inbox.msgDatabase;
     let msg1 = db.getMsgHdrForMessageID(gMsgId1);
-    let messages = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    messages.appendElement(msg1);
     // this is sync, I believe?
     MailServices.copy.CopyMessages(
       IMAPPump.inbox,
-      messages,
+      [msg1],
       gFolder1,
       false,
       null,
@@ -171,11 +167,9 @@ var tests = [
     // two messages originally created from file copies (like in Send)
     let msg3 = db.getMsgHdrForMessageID(gMsg3Id);
     Assert.ok(msg3 instanceof Ci.nsIMsgDBHdr);
-    messages.clear();
-    messages.appendElement(msg3);
     MailServices.copy.CopyMessages(
       IMAPPump.inbox,
-      messages,
+      [msg3],
       gFolder1,
       false,
       null,
@@ -189,11 +183,9 @@ var tests = [
     // because bug 790912 created messages with correct storeToken but messageOffset=0,
     //  these messages may not copy correctly. Make sure that they do, as fixed in bug 790912
     msg4.messageOffset = 0;
-    messages.clear();
-    messages.appendElement(msg4);
     MailServices.copy.CopyMessages(
       IMAPPump.inbox,
-      messages,
+      [msg4],
       gFolder1,
       false,
       null,
@@ -248,11 +240,9 @@ var tests = [
     let db = IMAPPump.inbox.msgDatabase;
     let enumerator = db.EnumerateMessages();
     Assert.ok(enumerator.hasMoreElements());
-    let messages = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
+    let messages = [];
     for (let message of enumerator) {
-      messages.appendElement(message);
+      messages.push(message);
     }
     // this is sync, I believe?
     MailServices.copy.CopyMessages(

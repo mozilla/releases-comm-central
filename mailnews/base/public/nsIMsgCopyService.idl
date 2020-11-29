@@ -11,7 +11,6 @@
 interface nsIMsgDBHdr;
 interface nsIMsgWindow;
 interface nsIFile;
-interface nsIArray;
 
 [scriptable, uuid(f21e428b-73c5-4607-993b-d37325b33722)]
 interface nsIMsgCopyService : nsISupports {
@@ -29,7 +28,7 @@ interface nsIMsgCopyService : nsISupports {
    *                   that can be undone.
    */
   void CopyMessages(in nsIMsgFolder srcFolder,
-                    in nsIArray messages,
+                    in Array<nsIMsgDBHdr> messages,
                     in nsIMsgFolder dstFolder,
                     in boolean isMove,
                     in nsIMsgCopyServiceListener listener,

@@ -16,7 +16,7 @@ var { MailServices } = ChromeUtils.import(
 
 var gEmptyLocal1, gEmptyLocal2;
 var gLastKey;
-var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+var gMessages = [];
 var gCopyService = MailServices.copy;
 
 var { toXPCOMArray } = ChromeUtils.import(
@@ -67,9 +67,7 @@ var tests = [
     yield false;
   },
   function* getLocalMessage2() {
-    gMessages.appendElement(
-      localAccountUtils.inboxFolder.GetMessageHeader(gLastKey)
-    );
+    gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
     dump("getLocalMessage\n");
     var file = do_get_file("../../../data/draft1");
     gCopyService.CopyFileMessage(
@@ -85,9 +83,7 @@ var tests = [
     yield false;
   },
   function* copyMessages() {
-    gMessages.appendElement(
-      localAccountUtils.inboxFolder.GetMessageHeader(gLastKey)
-    );
+    gMessages.push(localAccountUtils.inboxFolder.GetMessageHeader(gLastKey));
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
     gCopyService.CopyMessages(
       localAccountUtils.inboxFolder,
@@ -191,7 +187,7 @@ asyncUrlListener.callback = function(aUrl, aExitCode) {
 };
 
 function teardown() {
-  gMessages.clear();
+  gMessages = [];
   teardownIMAPPump();
 }
 

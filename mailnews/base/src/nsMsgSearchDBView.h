@@ -133,7 +133,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
                                        nsIMsgFolder* folder);
 
   nsCOMArray<nsIMsgFolder> m_folders;
-  nsCOMArray<nsIMutableArray> m_hdrsForEachFolder;
+  nsTArray<nsTArray<RefPtr<nsIMsgDBHdr>>> m_hdrsForEachFolder;
   nsCOMArray<nsIMsgFolder> m_uniqueFoldersSelected;
   uint32_t mCurIndex;
 

@@ -86,11 +86,9 @@ function copyMessages() {
   Assert.ok(localInboxSize > gLocalInboxSize);
 
   // Copy the message into the subfolder.
-  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  messages.appendElement(getMessageHdr());
   MailServices.copy.CopyMessages(
     localAccountUtils.inboxFolder,
-    messages,
+    [getMessageHdr()],
     gLocalTrashFolder,
     false,
     copyListener2,

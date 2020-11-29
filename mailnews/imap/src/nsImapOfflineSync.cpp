@@ -19,9 +19,7 @@
 #include "nsIMsgCopyService.h"
 #include "nsImapProtocol.h"
 #include "nsMsgUtils.h"
-#include "nsIMutableArray.h"
 #include "nsIAutoSyncManager.h"
-#include "nsArrayUtils.h"
 #include "mozilla/Unused.h"
 
 NS_IMPL_ISUPPORTS(nsImapOfflineSync, nsIUrlListener, nsIMsgCopyServiceListener,
@@ -505,40 +503,38 @@ void nsImapOfflineSync::ProcessMoveOperation(nsIMsgOfflineImapOperation* op) {
                                       m_window);
   } else {
     nsresult rv;
-    nsCOMPtr<nsIMutableArray> messages(
-        do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv)) {
-      for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();
-           keyIndex++) {
-        nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
-        rv = m_currentFolder->GetMessageHeader(
-            matchingFlagKeys.ElementAt(keyIndex), getter_AddRefs(mailHdr));
-        if (NS_SUCCEEDED(rv) && mailHdr) {
-          uint32_t msgSize;
-          // in case of a move, the header has already been deleted,
-          // so we've really got a fake header. We need to get its flags and
-          // size from the offline op to have any chance of doing the move.
-          mailHdr->GetMessageSize(&msgSize);
-          if (!msgSize) {
-            imapMessageFlagsType newImapFlags;
-            uint32_t msgFlags = 0;
-            op->GetMsgSize(&msgSize);
-            op->GetNewFlags(&newImapFlags);
-            // first three bits are the same
-            msgFlags |= (newImapFlags & 0x07);
-            if (newImapFlags & kImapMsgForwardedFlag)
-              msgFlags |= nsMsgMessageFlags::Forwarded;
-            mailHdr->SetFlags(msgFlags);
-            mailHdr->SetMessageSize(msgSize);
-          }
-          messages->AppendElement(mailHdr);
+    nsTArray<RefPtr<nsIMsgDBHdr>> messages;
+    for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();
+         keyIndex++) {
+      nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
+      rv = m_currentFolder->GetMessageHeader(
+          matchingFlagKeys.ElementAt(keyIndex), getter_AddRefs(mailHdr));
+      if (NS_SUCCEEDED(rv) && mailHdr) {
+        uint32_t msgSize;
+        // in case of a move, the header has already been deleted,
+        // so we've really got a fake header. We need to get its flags and
+        // size from the offline op to have any chance of doing the move.
+        mailHdr->GetMessageSize(&msgSize);
+        if (!msgSize) {
+          imapMessageFlagsType newImapFlags;
+          uint32_t msgFlags = 0;
+          op->GetMsgSize(&msgSize);
+          op->GetNewFlags(&newImapFlags);
+          // first three bits are the same
+          msgFlags |= (newImapFlags & 0x07);
+          if (newImapFlags & kImapMsgForwardedFlag)
+            msgFlags |= nsMsgMessageFlags::Forwarded;
+          mailHdr->SetFlags(msgFlags);
+          mailHdr->SetMessageSize(msgSize);
         }
+        messages.AppendElement(mailHdr);
       }
-      nsCOMPtr<nsIMsgCopyService> copyService =
-          do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
-      if (copyService)
-        copyService->CopyMessages(m_currentFolder, messages, destFolder, true,
-                                  this, m_window, false);
+    }
+    nsCOMPtr<nsIMsgCopyService> copyService =
+        do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+    if (copyService) {
+      copyService->CopyMessages(m_currentFolder, messages, destFolder, true,
+                                this, m_window, false);
     }
   }
 }
@@ -611,22 +607,19 @@ void nsImapOfflineSync::ProcessCopyOperation(
     rv = imapFolder->ReplayOfflineMoveCopy(matchingFlagKeys, false, destFolder,
                                            this, m_window);
   } else {
-    nsCOMPtr<nsIMutableArray> messages(
-        do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-    if (messages && NS_SUCCEEDED(rv)) {
-      for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();
-           keyIndex++) {
-        nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
-        rv = m_currentFolder->GetMessageHeader(
-            matchingFlagKeys.ElementAt(keyIndex), getter_AddRefs(mailHdr));
-        if (NS_SUCCEEDED(rv) && mailHdr) messages->AppendElement(mailHdr);
-      }
-      nsCOMPtr<nsIMsgCopyService> copyService =
-          do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
-      if (copyService)
-        copyService->CopyMessages(m_currentFolder, messages, destFolder, false,
-                                  this, m_window, false);
+    nsTArray<RefPtr<nsIMsgDBHdr>> messages;
+    for (uint32_t keyIndex = 0; keyIndex < matchingFlagKeys.Length();
+         keyIndex++) {
+      nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
+      rv = m_currentFolder->GetMessageHeader(
+          matchingFlagKeys.ElementAt(keyIndex), getter_AddRefs(mailHdr));
+      if (NS_SUCCEEDED(rv) && mailHdr) messages.AppendElement(mailHdr);
     }
+    nsCOMPtr<nsIMsgCopyService> copyService =
+        do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
+    if (copyService)
+      copyService->CopyMessages(m_currentFolder, messages, destFolder, false,
+                                this, m_window, false);
   }
 }
 

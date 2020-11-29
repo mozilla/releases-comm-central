@@ -2749,7 +2749,9 @@ nsresult nsMsgDBView::CopyMessages(nsIMsgWindow* window,
       do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return copyService->CopyMessages(m_folder /* source folder */, messageArray,
+  nsTArray<RefPtr<nsIMsgDBHdr>> tmpHdrs;
+  MsgHdrsToTArray(messageArray, tmpHdrs);
+  return copyService->CopyMessages(m_folder /* source folder */, tmpHdrs,
                                    destFolder, isMove, nullptr /* listener */,
                                    window, true /* allow Undo */);
 }
@@ -3404,7 +3406,9 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
 
       NS_ENSURE_SUCCESS(rv, rv);
 
-      rv = copyService->CopyMessages(srcFolder, mJunkHdrs, targetFolder, true,
+      nsTArray<RefPtr<nsIMsgDBHdr>> tmpHdrs;
+      MsgHdrsToTArray(mJunkHdrs, tmpHdrs);
+      rv = copyService->CopyMessages(srcFolder, tmpHdrs, targetFolder, true,
                                      nullptr, msgWindow, true);
     } else if (msgsAreJunk) {
       if (mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) {

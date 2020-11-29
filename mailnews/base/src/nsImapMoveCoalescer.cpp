@@ -15,8 +15,6 @@
 #include "nsIMsgImapMailFolder.h"
 #include "nsThreadUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "mozilla/ArrayUtils.h"
 
@@ -71,13 +69,13 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(
     int32_t numKeysToAdd = keysToAdd.Length();
     if (numKeysToAdd == 0) continue;
 
-    nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
+    nsTArray<RefPtr<nsIMsgDBHdr>> messages(keysToAdd.Length());
     for (uint32_t keyIndex = 0; keyIndex < keysToAdd.Length(); keyIndex++) {
       nsCOMPtr<nsIMsgDBHdr> mailHdr = nullptr;
       rv = m_sourceFolder->GetMessageHeader(keysToAdd.ElementAt(keyIndex),
                                             getter_AddRefs(mailHdr));
       if (NS_SUCCEEDED(rv) && mailHdr) {
-        messages->AppendElement(mailHdr);
+        messages.AppendElement(mailHdr);
         bool isRead = false;
         mailHdr->GetIsRead(&isRead);
         if (!isRead) numNewMessages++;

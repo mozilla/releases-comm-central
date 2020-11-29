@@ -41,11 +41,11 @@ add_task(async function runPump() {
   dump("inbox is at " + inbox.filePath.path + "\n");
 
   // Accumulate messages to copy.
-  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let messages = [];
   let msgCount = 0;
   for (let hdr of inbox.msgDatabase.EnumerateMessages()) {
     msgCount++;
-    messages.appendElement(hdr);
+    messages.push(hdr);
     Assert.equal(hdr.subject, testSubjects[msgCount - 1]);
   }
   Assert.equal(messages.length, 2);
@@ -70,12 +70,12 @@ add_task(async function runPump() {
   await promiseCopyListener.promise;
 
   // Check the destination headers.
-  messages.clear();
+  messages = [];
   msgCount = 0;
   let subjects = [];
   for (let hdr of testFolder.msgDatabase.EnumerateMessages()) {
     msgCount++;
-    messages.appendElement(hdr);
+    messages.push(hdr);
     dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
   }

@@ -59,13 +59,9 @@ var step2 = {
   OnStopCopy(aStatus) {
     Assert.notEqual(gHdr, null);
     // copy the message into the subfolder
-    var messages = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    messages.appendElement(gHdr);
     MailServices.copy.CopyMessages(
       localAccountUtils.inboxFolder,
-      messages,
+      [gHdr],
       gSubfolder,
       false,
       step3,
@@ -90,11 +86,9 @@ var step3 = {
 
 // step 4: start a second copy
 function step4() {
-  var messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  messages.appendElement(gHdr);
   MailServices.copy.CopyMessages(
     localAccountUtils.inboxFolder,
-    messages,
+    [gHdr],
     gSubfolder,
     false,
     step5,

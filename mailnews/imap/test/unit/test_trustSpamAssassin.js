@@ -95,26 +95,14 @@ function* markMessageAsGood() {
    *  gets moved back to the junk folder again. We'll test that we
    *  are now preventing that.
    */
-  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  messages.appendElement(msgHdr);
-  /*
-  void CopyMessages(in nsIMsgFolder srcFolder,
-                    in nsIArray messages,
-                    in nsIMsgFolder dstFolder,
-                    in boolean isMove,
-                    in nsIMsgCopyServiceListener listener,
-                    in nsIMsgWindow msgWindow,
-                    in boolean allowUndo);
-  */
-
   MailServices.copy.CopyMessages(
-    gJunkFolder,
-    messages,
-    IMAPPump.inbox,
-    true,
-    null,
-    null,
-    false
+    gJunkFolder, // srcFolder
+    [msgHdr], // messages
+    IMAPPump.inbox, // dstFolder
+    true, // isMove
+    null, // listener
+    null, // msgWindow
+    false // allowUndo
   );
   dl("wait for msgsMoveCopyCompleted");
   yield false;
