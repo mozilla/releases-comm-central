@@ -11,6 +11,10 @@ var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
 
+add_task(async function setup() {
+  Services.prefs.setIntPref("ldap_2.servers.osx.dirType", -1);
+});
+
 add_task(async function test_addressBooks() {
   async function background() {
     let firstBookId, secondBookId, newContactId;
@@ -203,10 +207,11 @@ add_task(async function test_addressBooks() {
       );
 
       let newContact = await browser.contacts.get(newContactId);
-      browser.test.assertEq(4, Object.keys(newContact).length);
+      browser.test.assertEq(5, Object.keys(newContact).length);
       browser.test.assertEq(newContactId, newContact.id);
       browser.test.assertEq(firstBookId, newContact.parentId);
       browser.test.assertEq("contact", newContact.type);
+      browser.test.assertEq(false, newContact.readOnly);
       browser.test.assertEq(3, Object.keys(newContact.properties).length);
       browser.test.assertEq("0", newContact.properties.PreferMailFormat);
       browser.test.assertEq("first", newContact.properties.FirstName);
@@ -308,13 +313,14 @@ add_task(async function test_addressBooks() {
       );
 
       let newAddressList = await browser.mailingLists.get(newMailingListId);
-      browser.test.assertEq(6, Object.keys(newAddressList).length);
+      browser.test.assertEq(7, Object.keys(newAddressList).length);
       browser.test.assertEq(newMailingListId, newAddressList.id);
       browser.test.assertEq(firstBookId, newAddressList.parentId);
       browser.test.assertEq("mailingList", newAddressList.type);
       browser.test.assertEq("name", newAddressList.name);
       browser.test.assertEq("", newAddressList.nickName);
       browser.test.assertEq("", newAddressList.description);
+      browser.test.assertEq(false, newAddressList.readOnly);
 
       // Test that a valid name is ensured for an existing mail list
       await browser.test.assertRejects(
@@ -378,7 +384,12 @@ add_task(async function test_addressBooks() {
       checkEvents([
         "contacts",
         "onCreated",
-        { type: "contact", parentId: firstBookId, id: anotherContactId },
+        {
+          type: "contact",
+          parentId: firstBookId,
+          id: anotherContactId,
+          readOnly: false,
+        },
       ]);
 
       await browser.mailingLists.addMember(newMailingListId, anotherContactId);

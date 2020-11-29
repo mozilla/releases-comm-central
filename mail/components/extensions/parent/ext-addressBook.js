@@ -102,9 +102,7 @@ var addressBookCache = new (class extends EventEmitter {
     if (!this._addressBooks) {
       this._addressBooks = new Map();
       for (let tld of MailServices.ab.directories) {
-        if (!tld.readOnly) {
-          this._addressBooks.set(tld.UID, this._makeDirectoryNode(tld));
-        }
+        this._addressBooks.set(tld.UID, this._makeDirectoryNode(tld));
       }
     }
     return this._addressBooks;
@@ -209,12 +207,22 @@ var addressBookCache = new (class extends EventEmitter {
             copy.properties[property.name] = "" + property.value;
           }
         }
+        let parentNode;
+        try {
+          parentNode = this.findAddressBookById(node.parentId);
+        } catch (ex) {
+          // Parent might be a mailing list.
+          parentNode = this.findMailingListById(node.parentId);
+        }
+        copy.readOnly = parentNode.item.readOnly;
         break;
       }
       case "mailingList":
         copy.name = node.item.dirName;
         copy.nickName = node.item.listNickName;
         copy.description = node.item.description;
+        let parentNode = this.findAddressBookById(node.parentId);
+        copy.readOnly = parentNode.item.readOnly;
         break;
     }
 
@@ -241,9 +249,6 @@ var addressBookCache = new (class extends EventEmitter {
       case "addrbook-directory-created": {
         subject.QueryInterface(Ci.nsIAbDirectory);
 
-        if (subject.readOnly) {
-          break;
-        }
         let newNode = this._makeDirectoryNode(subject);
         if (this._addressBooks) {
           this._addressBooks.set(newNode.id, newNode);
@@ -604,6 +609,12 @@ this.addressBook = class extends ExtensionAPI {
           );
         },
         create(parentId, id, properties) {
+          let parentNode = addressBookCache.findAddressBookById(parentId);
+          if (parentNode.item.readOnly) {
+            throw new ExtensionUtils.ExtensionError(
+              "Cannot create a contact in a read-only address book"
+            );
+          }
           let card = Cc[
             "@mozilla.org/addressbook/cardproperty;1"
           ].createInstance(Ci.nsIAbCard);
@@ -626,13 +637,17 @@ this.addressBook = class extends ExtensionAPI {
             }
             card.UID = id;
           }
-          let parentNode = addressBookCache.findAddressBookById(parentId);
           let newCard = parentNode.item.addCard(card);
           return newCard.UID;
         },
         update(id, properties) {
           let node = addressBookCache.findContactById(id);
           let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          if (parentNode.item.readOnly) {
+            throw new ExtensionUtils.ExtensionError(
+              "Cannot modify a contact in a read-only address book"
+            );
+          }
 
           for (let [name, value] of Object.entries(properties)) {
             if (!hiddenProperties.includes(name)) {
@@ -644,6 +659,11 @@ this.addressBook = class extends ExtensionAPI {
         delete(id) {
           let node = addressBookCache.findContactById(id);
           let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          if (parentNode.item.readOnly) {
+            throw new ExtensionUtils.ExtensionError(
+              "Cannot delete a contact in a read-only address book"
+            );
+          }
 
           parentNode.item.deleteCards([node.item]);
         },
@@ -712,6 +732,12 @@ this.addressBook = class extends ExtensionAPI {
           );
         },
         create(parentId, { name, nickName, description }) {
+          let parentNode = addressBookCache.findAddressBookById(parentId);
+          if (parentNode.item.readOnly) {
+            throw new ExtensionUtils.ExtensionError(
+              "Cannot create a mailing list in a read-only address book"
+            );
+          }
           let mailList = Cc[
             "@mozilla.org/addressbook/directoryproperty;1"
           ].createInstance(Ci.nsIAbDirectory);
@@ -720,12 +746,17 @@ this.addressBook = class extends ExtensionAPI {
           mailList.listNickName = nickName === null ? "" : nickName;
           mailList.description = description === null ? "" : description;
 
-          let parentNode = addressBookCache.findAddressBookById(parentId);
           let newMailList = parentNode.item.addMailList(mailList);
           return newMailList.UID;
         },
         update(id, { name, nickName, description }) {
           let node = addressBookCache.findMailingListById(id);
+          let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          if (parentNode.item.readOnly) {
+            throw new ExtensionUtils.ExtensionError(
+              "Cannot modify a mailing list in a read-only address book"
+            );
+          }
           node.item.dirName = name;
           node.item.listNickName = nickName === null ? "" : nickName;
           node.item.description = description === null ? "" : description;
@@ -734,6 +765,11 @@ this.addressBook = class extends ExtensionAPI {
         delete(id) {
           let node = addressBookCache.findMailingListById(id);
           let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          if (parentNode.item.readOnly) {
+            throw new ExtensionUtils.ExtensionError(
+              "Cannot delete a mailing list in a read-only address book"
+            );
+          }
           parentNode.item.deleteDirectory(node.item);
         },
 
@@ -746,11 +782,23 @@ this.addressBook = class extends ExtensionAPI {
         },
         addMember(id, contactId) {
           let node = addressBookCache.findMailingListById(id);
+          let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          if (parentNode.item.readOnly) {
+            throw new ExtensionUtils.ExtensionError(
+              "Cannot add to a mailing list in a read-only address book"
+            );
+          }
           let contactNode = addressBookCache.findContactById(contactId);
           node.item.addCard(contactNode.item);
         },
         removeMember(id, contactId) {
           let node = addressBookCache.findMailingListById(id);
+          let parentNode = addressBookCache.findAddressBookById(node.parentId);
+          if (parentNode.item.readOnly) {
+            throw new ExtensionUtils.ExtensionError(
+              "Cannot remove from a mailing list in a read-only address book"
+            );
+          }
           let contactNode = addressBookCache.findContactById(contactId);
 
           node.item.deleteCards([contactNode.item]);

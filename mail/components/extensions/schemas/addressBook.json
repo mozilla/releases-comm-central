@@ -52,7 +52,7 @@
           "readOnly": {
             "type": "boolean",
             "optional": true,
-            "description": "Indicates if the object is read-only. Currently this returns false in all cases, as read-only address books are ignored by the API."
+            "description": "Indicates if the object is read-only."
           },
           "name": {
             "type": "string"
@@ -239,7 +239,7 @@
           "readOnly": {
             "type": "boolean",
             "optional": true,
-            "description": "Indicates if the object is read-only. Currently this returns false in all cases, as read-only address books are ignored by the API."
+            "description": "Indicates if the object is read-only."
           },
           "properties": {
             "$ref": "ContactProperties"
@@ -466,7 +466,7 @@
           "readOnly": {
             "type": "boolean",
             "optional": true,
-            "description": "Indicates if the object is read-only. Currently this returns false in all cases, as read-only address books are ignored by the API."
+            "description": "Indicates if the object is read-only."
           },
           "name": {
             "type": "string"
