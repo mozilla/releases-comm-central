@@ -130,7 +130,10 @@ function createAccountInBackend(config) {
   }
   inServer.valid = true;
 
-  let username = config.outgoing.auth > 1 ? config.outgoing.username : null;
+  let username =
+    config.outgoing.auth != Ci.nsMsgAuthMethod.none
+      ? config.outgoing.username
+      : null;
   let outServer = MailServices.smtp.findServer(
     username,
     config.outgoing.hostname
@@ -155,7 +158,7 @@ function createAccountInBackend(config) {
     if (outServer.clientidEnabled) {
       outServer.clientid = newOutgoingClientid;
     }
-    if (config.outgoing.auth > 1) {
+    if (config.outgoing.auth != Ci.nsMsgAuthMethod.none) {
       outServer.username = username;
       outServer.password = config.incoming.password;
       if (config.rememberPassword && config.incoming.password.length) {
