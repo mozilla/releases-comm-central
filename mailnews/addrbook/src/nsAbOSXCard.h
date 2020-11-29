@@ -36,11 +36,14 @@ class nsAbOSXCard : public nsAbCardProperty, public nsIAbOSXCard {
   nsresult Update(bool aNotify) override;
   nsresult GetURI(nsACString& aURI) override;
   nsresult Init(const char* aUri) override;
+  NS_IMETHOD GetUID(nsACString& uid) override;
+  NS_IMETHOD SetUID(const nsACString& aUID) override;
   // this is needed so nsAbOSXUtils.mm can get at nsAbCardProperty
   friend class nsAbOSXUtils;
 
  private:
   nsCString mURI;
+  nsCString mUID;
 
   virtual ~nsAbOSXCard() {}
 };
