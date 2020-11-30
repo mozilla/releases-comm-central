@@ -962,18 +962,14 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
               do_QueryInterface(curFolder, &rv);
           BREAK_ACTION_IF_FAILURE(rv, "current folder not local");
           BREAK_ACTION_IF_FALSE(localFolder, "current folder not local");
-          nsCOMPtr<nsIMutableArray> messages(
-              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          BREAK_ACTION_IF_FAILURE(rv, "Could not create messages array");
+          nsTArray<RefPtr<nsIMsgDBHdr>> messages;
           for (auto msgHdr : hitHdrs) {
             uint32_t flags = 0;
             msgHdr->GetFlags(&flags);
             if (flags & nsMsgMessageFlags::Partial)
-              messages->AppendElement(msgHdr);
+              messages.AppendElement(msgHdr);
           }
-          uint32_t msgsToFetch;
-          messages->GetLength(&msgsToFetch);
-          if (msgsToFetch > 0) {
+          if (messages.Length() > 0) {
             rv = curFolder->DownloadMessagesForOffline(messages, m_msgWindow);
             BREAK_ACTION_IF_FAILURE(rv, "DownloadMessagesForOffline failed");
           }

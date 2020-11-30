@@ -226,7 +226,7 @@ var tests = [
     yield false;
   },
   function* firstStreamFinished() {
-    // nsIMsgFolder.DownloadMessagesForOffline does not take a listener, so
+    // nsIMsgFolder.downloadMessagesForOffline does not take a listener, so
     // we invoke nsIImapService.downloadMessagesForOffline directly with a
     // listener.
     MailServices.imap.downloadMessagesForOffline(

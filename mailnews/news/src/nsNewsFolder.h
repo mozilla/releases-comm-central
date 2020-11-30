@@ -69,8 +69,9 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   NS_IMETHOD GetCanCompact(bool* aResult) override;
   NS_IMETHOD OnReadChanged(nsIDBChangeListener* aInstigator) override;
 
-  NS_IMETHOD DownloadMessagesForOffline(nsIArray* messages,
-                                        nsIMsgWindow* window) override;
+  NS_IMETHOD DownloadMessagesForOffline(
+      nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+      nsIMsgWindow* window) override;
   NS_IMETHOD Compact(nsIUrlListener* aListener,
                      nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD DownloadAllForOffline(nsIUrlListener* listener,

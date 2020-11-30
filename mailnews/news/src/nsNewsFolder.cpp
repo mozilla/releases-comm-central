@@ -1456,20 +1456,15 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener* listener,
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
-    nsIArray* messages, nsIMsgWindow* window) {
-  nsTArray<nsMsgKey> srcKeyArray;
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgWindow* window) {
+  nsresult rv;
   SetSaveArticleOffline(
       true);  // ### TODO need to clear this when we've finished
-  uint32_t count = 0;
-  uint32_t i;
-  nsresult rv = messages->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   // build up message keys.
-  for (i = 0; i < count; i++) {
+  nsTArray<nsMsgKey> srcKeyArray(messages.Length());
+  for (nsIMsgDBHdr* hdr : messages) {
     nsMsgKey key;
-    nsCOMPtr<nsIMsgDBHdr> msgDBHdr = do_QueryElementAt(messages, i, &rv);
-    if (msgDBHdr) rv = msgDBHdr->GetMessageKey(&key);
+    rv = hdr->GetMessageKey(&key);
     if (NS_SUCCEEDED(rv)) srcKeyArray.AppendElement(key);
   }
   RefPtr<DownloadNewsArticlesToOfflineStore> downloadState =

@@ -311,8 +311,9 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD Shutdown(bool shutdownChildren) override;
 
-  NS_IMETHOD DownloadMessagesForOffline(nsIArray* messages,
-                                        nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD DownloadMessagesForOffline(
+      nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+      nsIMsgWindow* msgWindow) override;
 
   NS_IMETHOD DownloadAllForOffline(nsIUrlListener* listener,
                                    nsIMsgWindow* msgWindow) override;

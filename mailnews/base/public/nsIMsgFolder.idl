@@ -612,7 +612,7 @@ interface nsIMsgFolder : nsISupports {
    */
   nsIInputStream getMsgInputStream(in nsIMsgDBHdr aHdr, out boolean aReusable);
 
-  void DownloadMessagesForOffline(in nsIArray messages,
+  void downloadMessagesForOffline(in Array<nsIMsgDBHdr> messages,
                                   in nsIMsgWindow window);
   nsIMsgFolder getChildWithURI(in ACString uri, in boolean deep,
                                in boolean caseInsensitive);

@@ -181,8 +181,9 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD GetName(nsAString& aName) override;
 
   // Used when headers_only is TRUE
-  NS_IMETHOD DownloadMessagesForOffline(nsIArray* aMessages,
-                                        nsIMsgWindow* aWindow) override;
+  NS_IMETHOD DownloadMessagesForOffline(
+      nsTArray<RefPtr<nsIMsgDBHdr>> const& aMessages,
+      nsIMsgWindow* aWindow) override;
   NS_IMETHOD FetchMsgPreviewText(nsTArray<nsMsgKey> const& aKeysToFetch,
                                  bool aLocalOnly, nsIUrlListener* aUrlListener,
                                  bool* aAsyncResults) override;

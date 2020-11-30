@@ -4169,10 +4169,10 @@ nsImapMailFolder::SetupMsgWriteStream(nsIFile* aFile, bool addDummyEnvelope) {
 }
 
 NS_IMETHODIMP nsImapMailFolder::DownloadMessagesForOffline(
-    nsIArray* messages, nsIMsgWindow* window) {
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages, nsIMsgWindow* window) {
   nsAutoCString messageIds;
   nsTArray<nsMsgKey> srcKeyArray;
-  nsresult rv = BuildIdsAndKeyArray(messages, messageIds, srcKeyArray);
+  nsresult rv = BuildIdsAndKeyArray2(messages, messageIds, srcKeyArray);
   if (NS_FAILED(rv) || messageIds.IsEmpty()) return rv;
 
   nsCOMPtr<nsIImapService> imapService =

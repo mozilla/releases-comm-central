@@ -3113,8 +3113,7 @@ nsresult nsMsgDBView::DownloadForOffline(nsIMsgWindow* window,
                                          nsMsgViewIndex* indices,
                                          int32_t numIndices) {
   nsresult rv = NS_OK;
-  nsCOMPtr<nsIMutableArray> messageArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID));
+  nsTArray<RefPtr<nsIMsgDBHdr>> messages;
   for (nsMsgViewIndex index = 0; index < (nsMsgViewIndex)numIndices; index++) {
     nsMsgKey key = m_keys[indices[index]];
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -3123,19 +3122,17 @@ nsresult nsMsgDBView::DownloadForOffline(nsIMsgWindow* window,
     if (msgHdr) {
       uint32_t flags;
       msgHdr->GetFlags(&flags);
-      if (!(flags & nsMsgMessageFlags::Offline))
-        messageArray->AppendElement(msgHdr);
+      if (!(flags & nsMsgMessageFlags::Offline)) messages.AppendElement(msgHdr);
     }
   }
 
-  m_folder->DownloadMessagesForOffline(messageArray, window);
+  m_folder->DownloadMessagesForOffline(messages, window);
   return rv;
 }
 
 nsresult nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow* window) {
   nsresult rv = NS_OK;
-  nsCOMPtr<nsIMutableArray> messageArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID));
+  nsTArray<RefPtr<nsIMsgDBHdr>> messages;
   nsCOMPtr<nsISimpleEnumerator> enumerator;
   rv = GetMessageEnumerator(getter_AddRefs(enumerator));
   if (NS_SUCCEEDED(rv) && enumerator) {
@@ -3151,12 +3148,12 @@ nsresult nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow* window) {
         pHeader->GetFlags(&flags);
         if ((flags & nsMsgMessageFlags::Marked) &&
             !(flags & nsMsgMessageFlags::Offline))
-          messageArray->AppendElement(pHeader);
+          messages.AppendElement(pHeader);
       }
     }
   }
 
-  m_folder->DownloadMessagesForOffline(messageArray, window);
+  m_folder->DownloadMessagesForOffline(messages, window);
   return rv;
 }
 

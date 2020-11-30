@@ -2761,29 +2761,22 @@ return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
-    nsIArray* aMessages, nsIMsgWindow* aWindow) {
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& aMessages, nsIMsgWindow* aWindow) {
   if (mDownloadState != DOWNLOAD_STATE_NONE)
     return NS_ERROR_FAILURE;  // already has a download in progress
 
   // We're starting a download...
   mDownloadState = DOWNLOAD_STATE_INITED;
 
-  nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
-  MsgHdrsToTArray(aMessages, hdrs);
-  MarkMsgsOnPop3Server(hdrs, POP3_FETCH_BODY);
+  MarkMsgsOnPop3Server(aMessages, POP3_FETCH_BODY);
 
   // Pull out all the PARTIAL messages into a new array
-  uint32_t srcCount;
-  aMessages->GetLength(&srcCount);
-
   nsresult rv;
-  for (uint32_t i = 0; i < srcCount; i++) {
-    nsCOMPtr<nsIMsgDBHdr> msgDBHdr(do_QueryElementAt(aMessages, i, &rv));
-    if (NS_SUCCEEDED(rv)) {
-      uint32_t flags = 0;
-      msgDBHdr->GetFlags(&flags);
-      if (flags & nsMsgMessageFlags::Partial)
-        mDownloadMessages.AppendElement(msgDBHdr);
+  for (nsIMsgDBHdr* hdr : aMessages) {
+    uint32_t flags = 0;
+    hdr->GetFlags(&flags);
+    if (flags & nsMsgMessageFlags::Partial) {
+      mDownloadMessages.AppendElement(hdr);
     }
   }
   mDownloadWindow = aWindow;

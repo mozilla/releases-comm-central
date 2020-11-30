@@ -86,7 +86,7 @@ interface nsIMsgLocalMailFolder : nsISupports {
   Array<nsIMsgDBHdr> addMessageBatch(in Array<ACString> aMessages);
 
   /**
-   * Functions for updating the UI while running DownloadMessagesForOffline:
+   * Functions for updating the UI while running downloadMessagesForOffline:
    * delete the old message before adding its newly downloaded body, and
    * select the new message after it has replaced the old one
    */
