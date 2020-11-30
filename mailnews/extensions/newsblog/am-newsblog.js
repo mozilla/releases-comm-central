@@ -13,21 +13,13 @@ var gAccount,
   gAutotagUsePrefix,
   gAutotagPrefix;
 
-function onInit(aPageId, aServerId) {
-  var accountName = document.getElementById("server.prettyName");
-  var title = document.querySelector("#am-newsblog-title .dialogheader-title");
-  var defaultTitle = title.getAttribute("defaultTitle");
-
-  var titleValue;
-  if (accountName.value) {
-    titleValue = defaultTitle + " - " + accountName.value;
-  } else {
-    titleValue = defaultTitle;
-  }
-
-  title.setAttribute("value", titleValue);
-  document.title = titleValue;
-
+/**
+ * Initialize am-newsblog account settings page when it gets shown.
+ * Update an account's main settings title etc.
+ */
+function onInit() {
+  setAccountTitle();
+  
   let optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);
   document.getElementById("doBiff").checked = optionsAcct.doBiff;
 
@@ -59,6 +51,32 @@ function onInit(aPageId, aServerId) {
 
 function onPreInit(account, accountValues) {
   gAccount = account;
+}
+
+/**
+ * Handle the blur event of the #server.prettyName pref input.
+ * Update account name in account manager tree and account settings' main title.
+ *
+ * @param {Event} event - Blur event from the pretty name input.
+ */
+function serverPrettyNameOnBlur(event) {
+  parent.setAccountLabel(gAccount.key, null, event.target.value);
+  setAccountTitle();
+}
+
+/**
+ * Update an account's main settings title with the account name if applicable.
+ */
+function setAccountTitle() {
+  let accountName = document.getElementById("server.prettyName");
+  let title = document.querySelector("#am-newsblog-title .dialogheader-title");
+  let titleValue = title.getAttribute("defaultTitle");
+  if (accountName.value) {
+    titleValue += " - " + accountName.value;
+  }
+
+  title.setAttribute("value", titleValue);
+  document.title = titleValue;
 }
 
 function setPrefs(aNode) {
