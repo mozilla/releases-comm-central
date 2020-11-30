@@ -16,10 +16,11 @@ var gAccount,
 /**
  * Initialize am-newsblog account settings page when it gets shown.
  * Update an account's main settings title etc.
+ * @returns {void}
  */
 function onInit() {
   setAccountTitle();
-  
+
   let optionsAcct = FeedUtils.getOptionsAcct(gAccount.incomingServer);
   document.getElementById("doBiff").checked = optionsAcct.doBiff;
 
@@ -58,6 +59,7 @@ function onPreInit(account, accountValues) {
  * Update account name in account manager tree and account settings' main title.
  *
  * @param {Event} event - Blur event from the pretty name input.
+ * @returns {void}
  */
 function serverPrettyNameOnBlur(event) {
   parent.setAccountLabel(gAccount.key, null, event.target.value);
@@ -66,6 +68,7 @@ function serverPrettyNameOnBlur(event) {
 
 /**
  * Update an account's main settings title with the account name if applicable.
+ * @returns {void}
  */
 function setAccountTitle() {
   let accountName = document.getElementById("server.prettyName");
