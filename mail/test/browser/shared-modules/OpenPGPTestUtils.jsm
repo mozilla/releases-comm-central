@@ -72,7 +72,9 @@ const OpenPGPTestUtils = {
   hasNoSignedIconState(doc) {
     return (
       !OpenPGPTestUtils.hasSignedIconState(doc, "ok") &&
-      !OpenPGPTestUtils.hasSignedIconState(doc, "verfified") &&
+      !OpenPGPTestUtils.hasSignedIconState(doc, "notok") &&
+      !OpenPGPTestUtils.hasSignedIconState(doc, "verified") &&
+      !OpenPGPTestUtils.hasSignedIconState(doc, "unverified") &&
       !OpenPGPTestUtils.hasSignedIconState(doc, "mismatch") &&
       !OpenPGPTestUtils.hasSignedIconState(doc, "unknown")
     );
