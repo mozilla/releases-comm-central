@@ -504,9 +504,8 @@
   </menupopup>
 
   <menupopup id="mailContext"
-         onpopupshowing="return event.target != this ||
-                                FillMailContextMenu(this, event);"
-         onpopuphiding="if (event.target == this) MailContextOnPopupHiding(this);">
+         onpopupshowing="return FillMailContextMenu(this, event);"
+         onpopuphiding="MailContextOnPopupHiding(this, event);">
     <menuitem id="context-openlinkintab"
               label="&openLinkCmdInTab.label;"
               accesskey="&openLinkCmdInTab.accesskey;"

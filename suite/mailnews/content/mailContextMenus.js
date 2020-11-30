@@ -71,8 +71,12 @@ function RestoreSelectionWithoutContentLoad(tree)
  * on a non-selected row doesn't move the selection.
  * @param aTarget the target of the popup event
  */
-function MailContextOnPopupHiding(aTarget)
-{
+function MailContextOnPopupHiding(aTarget, aEvent) {
+  // Don't do anything if it's a submenu's onpopuphiding that's just bubbling
+  // up to the top.
+  if (aEvent.target != aTarget)
+    return;
+
   gContextMenu.hiding();
   gContextMenu = null;
   if (InThreadPane(aTarget))
@@ -102,8 +106,11 @@ function InThreadPane(aTarget)
  * @param aTarget the target of the popup event
  * @return true always
  */
-function FillMailContextMenu(aTarget, aEvent)
-{
+function FillMailContextMenu(aTarget, aEvent) {
+  // If the popupshowing was for a submenu, we don't need to do anything.
+  if (aEvent.target != aTarget)
+    return true;
+
   var inThreadPane = InThreadPane(aTarget);
   gContextMenu = new nsContextMenu(aTarget);
 
@@ -207,45 +214,38 @@ function initSeparators() {
   ];
 
   mailContextSeparators.forEach(hideIfAppropriate);
-
-  // If we are on a link, go ahead and hide this separator.
-  if (gContextMenu.onLink) {
-    ShowMenuItem("mailContext-sep-copy", false);
-  }
-
-  checkLastSeparator(document.getElementById("mailContext"));
 }
 
 /**
  * Hide a separator based on whether there are any non-hidden items between
  * it and the previous separator.
  *
- * @param aSeparatorID  The id of the separator element.
+ * @param aID  The id of the separator element.
  */
-function hideIfAppropriate(aSeparatorID) {
-  ShowMenuItem(aSeparatorID, gContextMenu.shouldShowSeparator(aSeparatorID));
-}
+function hideIfAppropriate(aID) {
+  let separator = document.getElementById(aID);
 
-/**
- * Ensures that there isn't a separator shown at the bottom of the menu.
- *
- * @param aPopup  The menu to check.
- */
-function checkLastSeparator(aPopup) {
-  let sibling = aPopup.lastChild;
+  function hasAVisibleNextSibling(aNode) {
+    let sibling = aNode.nextSibling;
+    while (sibling) {
+      if (sibling.getAttribute("hidden") != "true" &&
+          sibling.localName != "menuseparator")
+        return true;
+      sibling = sibling.nextSibling;
+    }
+    return false;
+  }
+
+  let sibling = separator.previousSibling;
   while (sibling) {
     if (sibling.getAttribute("hidden") != "true") {
-      if (sibling.localName == "menuseparator") {
-        // If we got here then the item is a menuseparator and everything
-        // below it hidden.
-        sibling.setAttribute("hidden", true);
-        return;
-      }
-      else
-        return;
+      ShowMenuItem(aID, sibling.localName != "menuseparator" &&
+                        hasAVisibleNextSibling(separator));
+      return;
     }
     sibling = sibling.previousSibling;
   }
+  ShowMenuItem(aID, false);
 }
 
 function FolderPaneOnPopupHiding()
@@ -467,9 +467,9 @@ function FillFolderPaneContextMenu()
   ShowMenuItem("folderPaneContext-openNewTab", numSelected == 1);
 
   // Hide / Show our menu separators based on the menu items we are showing.
-  ShowMenuItem("folderPaneContext-sep-edit", numSelected == 1);
-  ShowMenuItem("folderPaneContext-sep1", selectedServers.length == 0);
-  ShowMenuItem("folderPaneContext-sep4", selectedServers.length > 0);
+  hideIfAppropriate("folderPaneContext-sep1");
+  hideIfAppropriate("folderPaneContext-sep-edit");
+  hideIfAppropriate("folderPaneContext-sep4");
 
   return true;
 }
