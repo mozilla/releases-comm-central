@@ -67,8 +67,12 @@ function enter_text_in_search_box(swc, text) {
  */
 function check_newsgroup_displayed(swc, name) {
   let tree = swc.eid("searchTree").getNode();
+  if (!tree.columns) {
+    // Maybe not yet available.
+    return false;
+  }
   let treeview = tree.view;
-  let nameCol = tree.columns.getColumnFor(swc.eid("nameColumn2").getNode());
+  let nameCol = tree.columns.getNamedColumn("nameColumn2");
   for (let i = 0; i < treeview.rowCount; i++) {
     if (treeview.getCellText(i, nameCol) == name) {
       return true;
