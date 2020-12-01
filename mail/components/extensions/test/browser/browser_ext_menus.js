@@ -265,6 +265,13 @@ add_task(async function set_up() {
   ) {
     window.MsgToggleFolderPane();
   }
+  registerCleanupFunction(() => {
+    // This test is changing the default value of the folderpane splitter, which
+    // may cause other tests to fail.
+    document
+      .getElementById("folderpane_splitter")
+      .setAttribute("state", "collapsed");
+  });
 });
 
 async function subtest_folder_pane(...permissions) {

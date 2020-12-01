@@ -20,6 +20,11 @@ add_task(async function setup() {
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
   registerCleanupFunction(() => {
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
+    // This test is changing the default value of the folderpane splitter, which
+    // may cause other tests to fail.
+    document
+      .getElementById("folderpane_splitter")
+      .setAttribute("state", "collapsed");
   });
   await new Promise(resolve => executeSoon(resolve));
 });
