@@ -36,7 +36,10 @@ class XMLResponseHandler {
    */
   onDataAvailable(request, inputStream, offset, count) {
     this._inStream.init(inputStream);
-    this._xmlString += this._inStream.read(count);
+    // What we get from inputStream is BinaryString, decode it to UTF-8.
+    this._xmlString += new TextDecoder("UTF-8").decode(
+      this._binaryStringToTypedArray(this._inStream.read(count))
+    );
   }
 
   /**
@@ -64,6 +67,19 @@ class XMLResponseHandler {
    */
   resetXMLResponseHandler() {
     this._xmlString = "";
+  }
+
+  /**
+   * Converts a binary string into a Uint8Array.
+   * @param {BinaryString} str - The string to convert.
+   * @returns {Uint8Array}.
+   */
+  _binaryStringToTypedArray(str) {
+    let arr = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) {
+      arr[i] = str.charCodeAt(i);
+    }
+    return arr;
   }
 
   /**
