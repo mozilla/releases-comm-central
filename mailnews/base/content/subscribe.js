@@ -15,7 +15,6 @@ var gSubscribableServer = null;
 var gNameField = null;
 var gNameFieldLabel = null;
 var gStatusFeedback;
-var gSubscribeDeck = null;
 var gSearchView = null;
 var gSearchTree = null;
 var gSubscribeBundle;
@@ -36,7 +35,7 @@ function SetServerTypeSpecificTextValues() {
 
   let serverType = MailUtils.getExistingFolder(gServerURI).server.type;
 
-  // set the server specific ui elements
+  // Set the server specific ui elements.
   let subscribeLabelString = gSubscribeBundle.getString(
     "subscribeLabel-" + serverType
   );
@@ -89,14 +88,14 @@ function SetUpTree(forceToServer, getOnlyNew) {
     CleanUpSearchView();
     gSubscribableServer = server.QueryInterface(Ci.nsISubscribableServer);
 
-    // enable (or disable) the search related UI
+    // Enable (or disable) the search related UI.
     EnableSearchUI();
 
-    // clear out the text field when switching server
+    // Clear out the text field when switching server.
     gNameField.value = "";
 
-    // since there is no text, switch to the non-search view...
-    SwitchToNormalView();
+    // Since there is no text, switch to the Subscription view.
+    toggleSubscriptionView(false);
 
     if (!gSubscribableServer.subscribeListener) {
       gSubscribeTree.view = gSubscribableServer.folderView;
@@ -163,8 +162,6 @@ function SubscribeOnLoad() {
   gSearchTree = document.getElementById("searchTree");
   gNameField = document.getElementById("namefield");
   gNameFieldLabel = document.getElementById("namefieldlabel");
-
-  gSubscribeDeck = document.getElementById("subscribedeck");
 
   // eslint-disable-next-line no-global-assign
   msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
@@ -269,12 +266,11 @@ function StateChanged(name, state) {
 }
 
 function InSearchMode() {
-  // search is the second card in the deck
-  return gSubscribeDeck.getAttribute("selectedIndex") == "1";
+  return !document.getElementById("searchView").hidden;
 }
 
 function SearchOnClick(event) {
-  // we only care about button 0 (left click) events
+  // We only care about button 0 (left click) events.
   if (event.button != 0 || event.originalTarget.localName != "treechildren") {
     return;
   }
@@ -286,17 +282,17 @@ function SearchOnClick(event) {
 
   if (treeCellInfo.col.id == "subscribedColumn2") {
     if (event.detail != 2) {
-      // single clicked on the check box
-      // (in the "subscribedColumn2" column) reverse state
-      // if double click, do nothing
+      // Single clicked on the check box
+      // (in the "subscribedColumn2" column) reverse state.
+      // If double click, do nothing.
       ReverseStateFromRow(treeCellInfo.row);
     }
   } else if (event.detail == 2) {
-    // double clicked on a row, reverse state
+    // Double clicked on a row, reverse state.
     ReverseStateFromRow(treeCellInfo.row);
   }
 
-  // invalidate the row
+  // Invalidate the row.
   InvalidateSearchTreeRow(treeCellInfo.row);
 }
 
@@ -320,8 +316,8 @@ function SetStateFromRow(row, state) {
 
 function SetSubscribeState(state) {
   try {
-    // we need to iterate over the tree selection, and set the state for
-    // all rows in the selection
+    // We need to iterate over the tree selection, and set the state for
+    // all rows in the selection.
     var inSearchMode = InSearchMode();
     var view = inSearchMode ? gSearchView : gSubscribeTree.view;
     var colId = inSearchMode ? "nameColumn2" : "nameColumn";
@@ -342,7 +338,7 @@ function SetSubscribeState(state) {
     }
 
     if (inSearchMode) {
-      // force a repaint
+      // Force a repaint.
       InvalidateSearchTree();
     }
   } catch (ex) {
@@ -359,7 +355,7 @@ function ReverseStateFromNode(row) {
 }
 
 function SubscribeOnClick(event) {
-  // we only care about button 0 (left click) events
+  // We only care about button 0 (left click) events.
   if (event.button != 0 || event.originalTarget.localName != "treechildren") {
     return;
   }
@@ -373,13 +369,13 @@ function SubscribeOnClick(event) {
   }
 
   if (event.detail == 2) {
-    // only toggle subscribed state when double clicking something
-    // that isn't a container
+    // Only toggle subscribed state when double clicking something
+    // that isn't a container.
     if (!gSubscribeTree.view.isContainer(treeCellInfo.row)) {
       ReverseStateFromNode(treeCellInfo.row);
     }
   } else if (event.detail == 1) {
-    // if the user single clicks on the subscribe check box, we handle it here
+    // If the user single clicks on the subscribe check box, we handle it here.
     if (treeCellInfo.col.id == "subscribedColumn") {
       ReverseStateFromNode(treeCellInfo.row);
     }
@@ -387,7 +383,7 @@ function SubscribeOnClick(event) {
 }
 
 function Refresh() {
-  // clear out the textfield's entry
+  // Clear out the textfield's entry.
   gNameField.value = "";
 
   var newGroupsTab = document.getElementById("newGroupsTab");
@@ -395,24 +391,24 @@ function Refresh() {
 }
 
 function ShowCurrentList() {
-  // clear out the textfield's entry on call of Refresh()
+  // Clear out the textfield's entry on call of Refresh().
   gNameField.value = "";
 
-  // make sure the current list tab is selected
+  // Make sure the current list tab is selected.
   document.getElementById("subscribeTabs").selectedIndex = 0;
 
-  // try loading the hostinfo before talk to server
+  // Try loading the hostinfo before talk to server.
   SetUpTree(false, false);
 }
 
 function ShowNewGroupsList() {
-  // clear out the textfield's entry
+  // Clear out the textfield's entry.
   gNameField.value = "";
 
-  // make sure the new groups tab is selected
+  // Make sure the new groups tab is selected.
   document.getElementById("subscribeTabs").selectedIndex = 1;
 
-  // force it to talk to the server and get new groups
+  // Force it to talk to the server and get new groups.
   SetUpTree(true, true);
 }
 
@@ -424,20 +420,25 @@ function InvalidateSearchTree() {
   gSearchTree.invalidate();
 }
 
-function SwitchToNormalView() {
-  // the first card in the deck is the "normal" view
-  gSubscribeDeck.setAttribute("selectedIndex", "0");
-}
-
-function SwitchToSearchView() {
-  // the second card in the deck is the "search" view
-  gSubscribeDeck.setAttribute("selectedIndex", "1");
+/**
+ * Toggle the tree panel in the dialog between search view and subscribe view.
+ *
+ * @param {Boolean} toggle - If true, show the search view else show the
+ *  subscribe view.
+ */
+function toggleSubscriptionView(toggle) {
+  document.getElementById("subscribeView").hidden = toggle;
+  document.getElementById("searchView").hidden = !toggle;
 }
 
 function Search() {
-  var searchValue = gNameField.value;
-  if (searchValue.length && gSubscribableServer.supportsSubscribeSearch) {
-    SwitchToSearchView();
+  let searchValue = gNameField.value;
+  if (
+    searchValue.length &&
+    gSubscribableServer &&
+    gSubscribableServer.supportsSubscribeSearch
+  ) {
+    toggleSubscriptionView(true);
     gSubscribableServer.setSearchValue(searchValue);
 
     if (!gSearchView && gSubscribableServer) {
@@ -445,9 +446,9 @@ function Search() {
       gSearchView.selection = null;
       gSearchTree.view = gSearchView;
     }
-  } else {
-    SwitchToNormalView();
+    return;
   }
+  toggleSubscriptionView(false);
 }
 
 function CleanUpSearchView() {
@@ -458,7 +459,7 @@ function CleanUpSearchView() {
 }
 
 function onSearchTreeKeyPress(event) {
-  // for now, only do something on space key
+  // For now, only do something on space key.
   if (event.charCode != KeyEvent.DOM_VK_SPACE) {
     return;
   }
@@ -472,13 +473,13 @@ function onSearchTreeKeyPress(event) {
       ReverseStateFromRow(k);
     }
 
-    // force a repaint
+    // Force a repaint.
     InvalidateSearchTree();
   }
 }
 
 function onSubscribeTreeKeyPress(event) {
-  // for now, only do something on space key
+  // For now, only do something on space key.
   if (event.charCode != KeyEvent.DOM_VK_SPACE) {
     return;
   }
