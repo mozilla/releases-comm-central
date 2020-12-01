@@ -1628,14 +1628,14 @@ var messageTracker = {
     // Using stringify avoids potential issues with unexpected characters.
     // This hash could be anything as long as it is unique for each
     // [folder, message] combination.
-    let hash = JSON.stringify([msgHdr.folder.URI, msgHdr.messageId]);
+    let hash = JSON.stringify([msgHdr.folder.URI, msgHdr.messageKey]);
     if (this._messageIds.has(hash)) {
       return this._messageIds.get(hash);
     }
     let id = this._nextId++;
     this._messages.set(id, {
       folderURI: msgHdr.folder.URI,
-      messageId: msgHdr.messageId,
+      messageKey: msgHdr.messageKey,
     });
     this._messageIds.set(hash, id);
     return id;
@@ -1654,13 +1654,13 @@ var messageTracker = {
 
     let folder = MailServices.folderLookup.getFolderForURL(value.folderURI);
     if (folder) {
-      let msgHdr = folder.msgDatabase.getMsgHdrForMessageID(value.messageId);
+      let msgHdr = folder.msgDatabase.GetMsgHdrForKey(value.messageKey);
       if (msgHdr) {
         return msgHdr;
       }
     }
 
-    let hash = JSON.stringify([value.folderURI, value.messageId]);
+    let hash = JSON.stringify([value.folderURI, value.messageKey]);
     this._messages.delete(id);
     this._messageIds.delete(hash);
     return null;
