@@ -14,7 +14,6 @@
       <rdf:Seq>
         <rdf:li> <rdf:Description ID="welcome" nc:name="Help and Support Center" nc:link="welcome_help.xhtml"/> </rdf:li>
         <rdf:li> <rdf:Description ID="help-help" nc:name="Using the Help Window" nc:link="help_help.xhtml"/> </rdf:li>
-        <rdf:li> <rdf:Description ID="ieusers"/> </rdf:li>
         <rdf:li> <rdf:Description ID="nav" nc:name="Browsing the Web" nc:link="nav_help.xhtml"/> </rdf:li>
         <rdf:li> <rdf:Description ID="mail" nc:name="Using Mail &amp; Newsgroups" nc:link="mailnews_getting_started.xhtml"/> </rdf:li>
         <rdf:li> <rdf:Description ID="comp" nc:name="Creating Web Pages"  nc:link="composer_help.xhtml"/> </rdf:li>

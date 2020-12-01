@@ -141,8 +141,6 @@
 <!ENTITY openHelpCmd.accesskey            "H">
 <!ENTITY openHelpCmd.key                  "VK_F1">
 
-<!ENTITY helpForIEUsers.label               "For Internet Explorer Users">
-<!ENTITY helpForIEUsers.accesskey           "I">
 <!ENTITY helpTroubleshootingInfo.label      "Troubleshooting Information">
 <!ENTITY helpTroubleshootingInfo.accesskey  "T">
 <!ENTITY releaseCmd.label                   "Release Notes">

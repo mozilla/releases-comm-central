@@ -601,11 +601,6 @@
                 key="key_openHelp"
                 command="cmd_openHelp"/>
 #endif
-#ifdef XP_WIN
-      <menuitem label="&helpForIEUsers.label;"
-                accesskey="&helpForIEUsers.accesskey;"
-                oncommand="openHelp('ieusers', 'chrome://communicator/locale/help/suitehelp.rdf');"/>
-#endif
       <menuitem id="troubleShooting"
                 accesskey="&helpTroubleshootingInfo.accesskey;"
                 label="&helpTroubleshootingInfo.label;"
