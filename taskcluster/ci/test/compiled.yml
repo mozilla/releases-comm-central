@@ -4,7 +4,6 @@
 ---
 job-defaults:
     e10s: false
-    force-py2: true
     mozharness:
         script: desktop_unittest.py
         config:

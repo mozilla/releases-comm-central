@@ -15,7 +15,6 @@
 xpcshell:
     description: "xpcshell test run"
     suite: xpcshell
-    force-py2: true
     treeherder-symbol: X(X)
     run-on-projects: built-projects
     chunks: 4
@@ -69,7 +68,6 @@ mochitest-thunderbird:
     suite:
         category: mochitest
         name: mochitest-browser-chrome-thunderbird
-    force-py2: true
     treeherder-symbol: M(bct)
     run-on-projects: built-projects
     test-manifest-loader: null  # don't load tests in the taskgraph
