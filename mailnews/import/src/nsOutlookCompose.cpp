@@ -279,7 +279,7 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
   nsString bodyW;
   bodyW = msg.GetBody();
 
-  nsCOMPtr<nsIMutableArray> embeddedObjects;
+  nsTArray<RefPtr<nsIMsgEmbeddedImageData>> embeddedObjects;
 
   if (msg.BodyIsHtml()) {
     for (unsigned int i = 0; i < msg.EmbeddedAttachmentsCount(); i++) {
@@ -287,14 +287,10 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
       const char* cid;
       const char* name;
       if (msg.GetEmbeddedAttachmentInfo(i, &uri, &cid, &name)) {
-        if (!embeddedObjects) {
-          embeddedObjects = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-          NS_ENSURE_SUCCESS(rv, rv);
-        }
         nsCOMPtr<nsIMsgEmbeddedImageData> imageData =
             new nsImportEmbeddedImageData(uri, nsDependentCString(cid),
                                           nsDependentCString(name));
-        embeddedObjects->AppendElement(imageData);
+        embeddedObjects.AppendElement(imageData);
       }
     }
   }

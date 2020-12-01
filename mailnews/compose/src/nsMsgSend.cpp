@@ -3617,7 +3617,8 @@ nsMsgComposeAndSend::CreateRFC822Message(
     nsIMsgIdentity* aUserIdentity, nsIMsgCompFields* aFields,
     const char* aMsgType, const nsACString& aMsgBody, bool aIsDraft,
     nsTArray<RefPtr<nsIMsgAttachedFile>> const& aAttachments,
-    nsIArray* aEmbeddedObjects, nsIMsgSendListener* aListener) {
+    nsTArray<RefPtr<nsIMsgEmbeddedImageData>> const& aEmbeddedObjects,
+    nsIMsgSendListener* aListener) {
   nsresult rv;
   nsMsgDeliverMode mode =
       aIsDraft ? nsIMsgSend::nsMsgSaveAsDraft : nsIMsgSend::nsMsgDeliverNow;
@@ -3629,7 +3630,15 @@ nsMsgComposeAndSend::CreateRFC822Message(
   mParentWindow = nullptr;
   mSendProgress = nullptr;
   mListener = aListener;
-  mEmbeddedObjectList = aEmbeddedObjects;
+
+  // mEmbeddedObjectList holds DOM Elements when CreateAndSendMessage() but
+  // nsIMsgEmbeddedImageData when used here. So there's a bit of hoop-jumping
+  // until these are unified and the nsIArray use is ditched.
+  nsCOMPtr<nsIMutableArray> tmp = do_CreateInstance(NS_ARRAY_CONTRACTID);
+  for (nsIMsgEmbeddedImageData* img : aEmbeddedObjects) {
+    tmp->AppendElement(img);
+  }
+  mEmbeddedObjectList = tmp;
 
   rv = Init(aUserIdentity, nullptr, (nsMsgCompFields*)aFields, nullptr, false,
             true, mode, nullptr, aMsgType, aMsgBody, aAttachments,

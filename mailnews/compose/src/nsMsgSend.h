@@ -257,8 +257,11 @@ class nsMsgComposeAndSend : public nsIMsgSend,
                                  nsMsgAttachmentData* attachment,
                                  bool* acceptObject);
   uint32_t GetMultipartRelatedCount(bool forceToBeCalculated = false);
-  nsCOMPtr<nsIArray> mEmbeddedObjectList;  // it's initialized when calling
-                                           // GetMultipartRelatedCount
+
+  // This contains nsIMsgEmbeddedImageData (when using CreateRFC822Message())
+  // or DOM Elements (when using CreateAndSendMessage()).
+  // TODO: Get rid of nsIArray here, and settle on a single datatype!
+  nsCOMPtr<nsIArray> mEmbeddedObjectList;
 
   // Body processing
   nsresult SnarfAndCopyBody(const nsACString& attachment1_body,

@@ -24,7 +24,6 @@
 #include "nsCRTGlue.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsIArray.h"
 #include "nsIMsgSend.h"
 #include "nsMsgUtils.h"
 
@@ -245,7 +244,8 @@ class nsProxySendRunnable : public mozilla::Runnable {
       const char* attachment1_type, const nsACString& attachment1_body,
       bool aIsDraft,
       nsTArray<RefPtr<nsIMsgAttachedFile>> const& aLoadedAttachments,
-      nsIArray* aEmbeddedAttachments, nsIMsgSendListener* aListener);
+      nsTArray<RefPtr<nsIMsgEmbeddedImageData>> const& aEmbeddedAttachments,
+      nsIMsgSendListener* aListener);
   NS_DECL_NSIRUNNABLE
  private:
   nsCOMPtr<nsIMsgIdentity> m_identity;
@@ -254,7 +254,7 @@ class nsProxySendRunnable : public mozilla::Runnable {
   nsCString m_bodyType;
   nsCString m_body;
   nsTArray<RefPtr<nsIMsgAttachedFile>> m_loadedAttachments;
-  nsCOMPtr<nsIArray> m_embeddedAttachments;
+  nsTArray<RefPtr<nsIMsgEmbeddedImageData>> m_embeddedAttachments;
   nsCOMPtr<nsIMsgSendListener> m_listener;
 };
 
@@ -262,7 +262,8 @@ nsProxySendRunnable::nsProxySendRunnable(
     nsIMsgIdentity* aIdentity, nsIMsgCompFields* aMsgFields,
     const char* aBodyType, const nsACString& aBody, bool aIsDraft,
     nsTArray<RefPtr<nsIMsgAttachedFile>> const& aLoadedAttachments,
-    nsIArray* aEmbeddedAttachments, nsIMsgSendListener* aListener)
+    nsTArray<RefPtr<nsIMsgEmbeddedImageData>> const& aEmbeddedAttachments,
+    nsIMsgSendListener* aListener)
     : mozilla::Runnable("nsProxySendRunnable"),
       m_identity(aIdentity),
       m_compFields(aMsgFields),
@@ -270,7 +271,7 @@ nsProxySendRunnable::nsProxySendRunnable(
       m_bodyType(aBodyType),
       m_body(aBody),
       m_loadedAttachments(aLoadedAttachments.Clone()),
-      m_embeddedAttachments(aEmbeddedAttachments),
+      m_embeddedAttachments(aEmbeddedAttachments.Clone()),
       m_listener(aListener) {}
 
 NS_IMETHODIMP nsProxySendRunnable::Run() {
@@ -288,7 +289,8 @@ nsImportService::CreateRFC822Message(
     nsIMsgIdentity* aIdentity, nsIMsgCompFields* aMsgFields,
     const char* aBodyType, const nsACString& aBody, bool aIsDraft,
     nsTArray<RefPtr<nsIMsgAttachedFile>> const& aLoadedAttachments,
-    nsIArray* aEmbeddedAttachments, nsIMsgSendListener* aListener) {
+    nsTArray<RefPtr<nsIMsgEmbeddedImageData>> const& aEmbeddedAttachments,
+    nsIMsgSendListener* aListener) {
   RefPtr<nsProxySendRunnable> runnable = new nsProxySendRunnable(
       aIdentity, aMsgFields, aBodyType, aBody, aIsDraft, aLoadedAttachments,
       aEmbeddedAttachments, aListener);

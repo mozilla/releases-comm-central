@@ -32,7 +32,6 @@ interface nsIOutputStream;
 interface nsIMsgComposeSecure;
 interface nsIMsgStatusFeedback;
 interface nsIEditor;
-interface nsIArray;
 interface nsIMsgAttachmentHandler;
 interface mozIDOMWindowProxy;
 
@@ -231,11 +230,8 @@ interface nsIMsgSend : nsISupports
    * @param aBody message body text (should have native line endings)
    * @param aCreateAsDraft If true, this message will be put in a drafts folder
    * @param aAttachments Array of nsIMsgAttachedFile objects
-   * @param aEmbeddedObjects Array of nsIDomNode objects for MHTML messages.
-   *                         Primarily used for embedded images.
-   *                         Almost all methods can be noops, but
-   *                         GetNodeValue should return the
-   *                         cid of the embedded object.
+   * @param aEmbeddedObjects Array of nsIMsgEmbeddedImageData objects for
+   *                         MHTML messages.
    * @param aListener listener for msg creation progress and resulting file.
    */
   void createRFC822Message(in nsIMsgIdentity aUserIdentity,
@@ -244,7 +240,7 @@ interface nsIMsgSend : nsISupports
                            in ACString aBody,
                            in boolean aCreateAsDraft,
                            in Array<nsIMsgAttachedFile> aAttachments,
-                           in nsIArray aEmbeddedObjects,
+                           in Array<nsIMsgEmbeddedImageData> aEmbeddedObjects,
                            in nsIMsgSendListener aListener);
 
   /**
