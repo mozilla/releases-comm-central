@@ -379,8 +379,14 @@ var OTRUI = {
       return;
     }
     OTRUI.visibleConv = _conv;
-    let convBinding = this.globalDoc.getElementById("conversationsDeck")
-      .selectedPanel;
+    let convBinding;
+    for (let element of this.globalDoc.getElementById("conversationsBox")
+      .children) {
+      if (!element.hidden) {
+        convBinding = element;
+        break;
+      }
+    }
     if (convBinding && convBinding._conv && convBinding._conv.target) {
       OTRUI.setMsgState(_conv, null, this.globalDoc, false);
     } else {

@@ -28,9 +28,8 @@ add_task(function test_toolbar_and_placeholder() {
   );
 
   // Check that "No connected account" placeholder is correct.
-  Assert.equal(
-    mc.e("conversationsDeck").selectedPanel.id,
-    "noConvScreen",
+  Assert.ok(
+    !mc.e("noConvScreen").hidden,
     "'Your chat accounts are not connected.' placeholder"
   );
   Assert.ok(

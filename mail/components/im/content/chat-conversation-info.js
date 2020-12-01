@@ -131,8 +131,7 @@
         return;
       }
 
-      let panel = document.getElementById("conversationsDeck").selectedPanel;
-
+      let panel = this.getSelectedPanel();
       let topic = this.topic;
       let topicInput = this.topicInput;
       topic.removeAttribute("hidden");
@@ -205,8 +204,7 @@
 
     onOtrStartClicked() {
       // check if start-menu-command is disabled, if yes exit
-      let convBinding = document.getElementById("conversationsDeck")
-        .selectedPanel;
+      let convBinding = this.getSelectedPanel();
       let uiConv = convBinding._conv;
       let conv = uiConv.target;
       let context = OTR.getContext(conv);
@@ -220,8 +218,7 @@
     }
 
     onOtrEndClicked() {
-      let convBinding = document.getElementById("conversationsDeck")
-        .selectedPanel;
+      let convBinding = this.getSelectedPanel();
       let uiConv = convBinding._conv;
       let conv = uiConv.target;
       OTR.disconnect(conv, false);
@@ -230,11 +227,20 @@
     }
 
     onOtrAuthClicked() {
-      let convBinding = document.getElementById("conversationsDeck")
-        .selectedPanel;
+      let convBinding = this.getSelectedPanel();
       let uiConv = convBinding._conv;
       let conv = uiConv.target;
       OTRUI.openAuth(window, conv.normalizedName, "start", uiConv);
+    }
+
+    getSelectedPanel() {
+      for (let element of document.getElementById("conversationsBox")
+        .children) {
+        if (!element.hidden) {
+          return element;
+        }
+      }
+      return null;
     }
   }
   customElements.define("chat-conversation-info", MozChatConversationInfo);

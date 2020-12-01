@@ -113,7 +113,7 @@
               <splitter id="listSplitter" collapse="before"/>
               <vbox id="chat-notification-top" flex="1">
                 <!-- notificationbox will be added here lazily. -->
-                <deck id="conversationsDeck" flex="1">
+                <vbox id="conversationsBox" flex="1">
 
                   <vbox flex="1" id="noConvScreen" class="im-placeholder-screen" align="center" pack="center">
                     <hbox id="noConvBox" class="im-placeholder-box" align="start">
@@ -146,8 +146,8 @@
                     </hbox>
                   </vbox>
 
-                  <vbox id="logDisplay" flex="1">
-                    <deck id="logDisplayDeck" flex="1">
+                  <vbox id="logDisplay" flex="1" hidden="true">
+                    <vbox flex="1">
                       <vbox flex="1" id="noPreviousConvScreen" class="im-placeholder-screen" align="center" pack="center">
                         <hbox id="noPreviousConvBox" class="im-placeholder-box" align="start">
                           <vbox id="noPreviousConvInnerBox" class="im-placeholder-innerbox" flex="1">
@@ -164,12 +164,12 @@
                         <html:progress id="log-browserProgress" max="100" hidden="true"/>
                         <findbar id="log-findbar" browserid="conv-log-browser"/>
                       </vbox>
-                    </deck>
+                    </vbox>
                     <button id="goToConversation" hidden="true"
                             oncommand="chatHandler.showCurrentConversation();"/>
                   </vbox>
 
-                </deck>
+                </vbox>
               </vbox>
               <splitter id="contextSplitter" hidden="true" collapse="after"/>
               <vbox id="contextPane" hidden="true" width="250" persist="width">

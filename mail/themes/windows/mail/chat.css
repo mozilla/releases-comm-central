@@ -21,7 +21,7 @@
   border: none;
 }
 
-#conversationsDeck {
+#conversationsBox {
   background: var(--imbox-selected-background-color);
 }
 
@@ -174,7 +174,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
     background-color: rgb(238, 243, 250);
   }
 
-  #conversationsDeck {
+  #conversationsBox {
     background-color: rgb(233, 239, 245);
   }
 

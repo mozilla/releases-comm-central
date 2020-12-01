@@ -77,6 +77,26 @@ function clearChatContextMenu(popup) {
   spellchecker.clearSuggestionsFromMenu();
 }
 
+function getSelectedPanel() {
+  for (let element of document.getElementById("conversationsBox").children) {
+    if (!element.hidden) {
+      return element;
+    }
+  }
+  return null;
+}
+
+/**
+ * Hide all the child elements in the conversations box. After hiding all the
+ * child elements, one element will be from chat conversation, chat log or
+ * no conversation screen.
+ */
+function hideConversationsBoxPanels() {
+  for (let element of document.getElementById("conversationsBox").children) {
+    element.hidden = true;
+  }
+}
+
 // This function modifies gChatSpellChecker and updates the UI accordingly. It's
 // called when the user clicks on context menu to toggle the spellcheck feature.
 function enableInlineSpellCheck(aEnableInlineSpellCheck) {
@@ -388,12 +408,9 @@ var chatTabType = {
   },
   onEvent(aEvent, aTab) {},
   getBrowser(aTab) {
-    let panel = document.getElementById("conversationsDeck").selectedPanel;
+    let panel = getSelectedPanel();
     if (panel == document.getElementById("logDisplay")) {
-      if (
-        document.getElementById("logDisplayDeck").selectedPanel ==
-        document.getElementById("logDisplayBrowserBox")
-      ) {
+      if (!document.getElementById("logDisplayBrowserBox").hidden) {
         return document.getElementById("conv-log-browser");
       }
     } else if (panel && panel.localName == "chat-conversation") {
@@ -402,12 +419,9 @@ var chatTabType = {
     return null;
   },
   getFindbar(aTab) {
-    let panel = document.getElementById("conversationsDeck").selectedPanel;
+    let panel = getSelectedPanel();
     if (panel == document.getElementById("logDisplay")) {
-      if (
-        document.getElementById("logDisplayDeck").selectedPanel ==
-        document.getElementById("logDisplayBrowserBox")
-      ) {
+      if (!document.getElementById("logDisplayBrowserBox").hidden) {
         return document.getElementById("log-findbar");
       }
     } else if (panel && panel.localName == "chat-conversation") {
@@ -556,8 +570,7 @@ var chatHandler = {
   },
 
   onConvResize() {
-    let convDeck = document.getElementById("conversationsDeck");
-    let panel = convDeck.selectedPanel;
+    let panel = getSelectedPanel();
     if (panel && panel.localName == "chat-conversation") {
       panel.onConvResize();
     }
@@ -585,12 +598,10 @@ var chatHandler = {
 
   _pendingLogBrowserLoad: false,
   _showLogPanel() {
-    document.getElementById(
-      "conversationsDeck"
-    ).selectedPanel = document.getElementById("logDisplay");
-    document.getElementById(
-      "logDisplayDeck"
-    ).selectedPanel = document.getElementById("logDisplayBrowserBox");
+    hideConversationsBoxPanels();
+    document.getElementById("logDisplay").hidden = false;
+    document.getElementById("logDisplayBrowserBox").hidden = false;
+    document.getElementById("noPreviousConvScreen").hidden = true;
   },
   _showLog(aConversation, aSearchTerm) {
     if (!aConversation) {
@@ -770,8 +781,9 @@ var chatHandler = {
       item.localName == "richlistitem" &&
       item.getAttribute("is") == "chat-imconv-richlistitem"
     ) {
-      document.getElementById("conversationsDeck").selectedPanel =
-        item.convView;
+      hideConversationsBoxPanels();
+      item.convView.hidden = false;
+      item.convView.querySelector(".conv-bottom").setAttribute("height", 90);
       document.getElementById("logTree").view.selection.clearSelection();
       item.convView.focus();
     } else if (
@@ -846,9 +858,8 @@ var chatHandler = {
         item.getAttribute("is") == "chat-group-richlistitem")
     ) {
       this._hideContextPane(true);
-      document.getElementById(
-        "conversationsDeck"
-      ).selectedPanel = document.getElementById("noConvScreen");
+      hideConversationsBoxPanels();
+      document.getElementById("noConvScreen").hidden = false;
       this.updateTitle();
       this.observedContact = null;
       if (gOtrEnabled) {
@@ -892,10 +903,10 @@ var chatHandler = {
       item.localName == "richlistitem" &&
       item.getAttribute("is") == "chat-imconv-richlistitem"
     ) {
-      let convDeck = document.getElementById("conversationsDeck");
+      let convBox = document.getElementById("conversationsBox");
       if (!item.convView) {
         let conv = document.createXULElement("chat-conversation");
-        convDeck.appendChild(conv);
+        convBox.appendChild(conv);
         conv.conv = item.conv;
         conv.tab = item;
         conv.setAttribute("contextmenu", "chatConversationContextMenu");
@@ -932,7 +943,9 @@ var chatHandler = {
         item.convView.onConvResize();
       }
 
-      convDeck.selectedPanel = item.convView;
+      hideConversationsBoxPanels();
+      item.convView.hidden = false;
+      item.convView.querySelector(".conv-bottom").setAttribute("height", 90);
       item.convView.updateConvStatus();
       item.update();
 
@@ -993,12 +1006,10 @@ var chatHandler = {
           return;
         }
         if (!this._showLogList(aLogs, true)) {
-          document.getElementById(
-            "conversationsDeck"
-          ).selectedPanel = document.getElementById("logDisplay");
-          document.getElementById(
-            "logDisplayDeck"
-          ).selectedPanel = document.getElementById("noPreviousConvScreen");
+          hideConversationsBoxPanels();
+          document.getElementById("logDisplay").hidden = false;
+          document.getElementById("logDisplayBrowserBox").hidden = false;
+          document.getElementById("noPreviousConvScreen").hidden = true;
         }
       });
     }
