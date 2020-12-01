@@ -27,22 +27,21 @@
   <stringbundle id="bundle_removeAccount"
                 src="chrome://messenger/locale/removeAccount.properties"/>
   <script src="chrome://messenger/content/removeAccount.js"/>
-  <deck id="infoPane">
-    <vbox flex="1">
-      <label id="accountName"></label>
-      <separator class="thin"/>
-      <checkbox id="removeAccount"
-                label="&removeAccount.label;"
-                checked="true"
-                disabled="true"
-                accesskey="&removeAccount.accesskey;"
-                oncommand="enableRemove();"/>
-      <vbox class="indent" collapsed="true">
-        <description>
-          &removeAccount.desc;
-        </description>
-      </vbox>
-      <vbox id="removeDataPossibility" collapsed="false">
+  <vbox id="removeAccountSection">
+    <label id="accountName"></label>
+    <separator class="thin"/>
+    <checkbox id="removeAccount"
+              label="&removeAccount.label;"
+              checked="true"
+              disabled="true"
+              accesskey="&removeAccount.accesskey;"
+              oncommand="enableRemove();"/>
+    <vbox class="indent" collapsed="true">
+      <description>
+        &removeAccount.desc;
+      </description>
+    </vbox>
+    <vbox id="removeDataPossibility" collapsed="false">
       <checkbox id="removeData"
                 label="&removeData.label;"
                 labelChat="&removeDataChat.label;"
@@ -67,20 +66,15 @@
           <label id="localDirectory" collapsed="true"/>
         </hbox>
       </vbox>
-      </vbox>
     </vbox>
-    <vbox align="center">
-      <spacer flex="1"/>
-      <deck id="status">
-        <vbox align="center">
-          <label>&progressPending;</label>
-          <html:progress max="100"/>
-        </vbox>
-        <label id="success">&progressSuccess;</label>
-        <label id="failure">&progressFailure;</label>
-      </deck>
-      <spacer flex="1"/>
+  </vbox>
+  <vbox id="confirmationSection" align="center" pack="center" flex="1" hidden="true">
+    <vbox id="progress" align="center">
+      <label>&progressPending;</label>
+      <html:progress max="100"/>
     </vbox>
-  </deck>
+    <label id="success" hidden="true">&progressSuccess;</label>
+    <label id="failure" hidden="true">&progressFailure;</label>
+  </vbox>
 </dialog>
 </window>

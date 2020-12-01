@@ -83,7 +83,6 @@ function openLocalDirectory() {
 }
 
 function showInfo() {
-  let removeAccountBox = document.getElementById("removeAccountBox");
   let descs = document.querySelectorAll("vbox.indent");
   for (let desc of descs) {
     desc.collapsed = false;
@@ -98,7 +97,7 @@ function showInfo() {
     document.getElementById("localAccount").collapsed = false;
   }
 
-  window.resizeBy(0, removeAccountBox.getBoundingClientRect().height);
+  parent.gSubDialog._topDialog.resizeDialog();
   gDialog.getButton("disclosure").disabled = true;
   gDialog.getButton("disclosure").blur();
 }
@@ -128,16 +127,13 @@ function removeAccount() {
       window.arguments[0].result = false;
     }
 
-    document.getElementById("status").selectedPanel = document.getElementById(
-      "success"
-    );
+    document.getElementById("success").hidden = false;
   } catch (ex) {
-    document.getElementById("status").selectedPanel = document.getElementById(
-      "failure"
-    );
+    document.getElementById("failure").hidden = false;
     Cu.reportError("Failure to remove account: " + ex);
     window.arguments[0].result = false;
   }
+  document.getElementById("progress").hidden = true;
 }
 
 function onAccept(event) {
@@ -158,7 +154,8 @@ function onAccept(event) {
   gDialog.getButton("accept").removeAttribute("accesskey");
   gDialog.buttons = "accept";
 
-  document.getElementById("infoPane").selectedIndex = 1;
+  document.getElementById("removeAccountSection").hidden = true;
+  document.getElementById("confirmationSection").hidden = false;
   window.sizeToContent();
 
   removeAccount();
