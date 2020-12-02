@@ -12,7 +12,6 @@ calendar.jar:
     skin/classic/calendar/calendar-views.css                               (calendar-views.css)
     skin/classic/calendar/calendar-alarm-dialog.css                        (dialogs/calendar-alarm-dialog.css)
     skin/classic/calendar/calendar-event-dialog.css                        (dialogs/calendar-event-dialog.css)
-    skin/classic/calendar/calendar-subscriptions-dialog.css                (dialogs/calendar-subscriptions-dialog.css)
     skin/classic/calendar/calendar-invitations-dialog.css                  (dialogs/calendar-invitations-dialog.css)
     skin/classic/calendar/imip.css                                         (imip.css)
     skin/classic/calendar/lightning.css                                    (lightning.css)

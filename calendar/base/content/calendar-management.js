@@ -5,8 +5,7 @@
 /* exported promptDeleteCalendar, loadCalendarManager, unloadCalendarManager,
  *         calendarListTooltipShowing, calendarListSetupContextMenu,
  *         ensureCalendarVisible, toggleCalendarVisible, showAllCalendars,
- *         showOnlyCalendar, openCalendarSubscriptionsDialog,
- *         calendarOfflineManager, openLocalCalendar
+ *         showOnlyCalendar, calendarOfflineManager, openLocalCalendar
  */
 
 /* import-globals-from calendar-migration.js */
@@ -609,10 +608,6 @@ function calendarListSetupContextMenu(event) {
       elem.setAttribute("collapsed", "true");
     }
   }
-
-  // Only enable calendar search if there's actually the chance of finding something:
-  let hasProviders = cal.getCalendarSearchService().getProviders().length < 1 && "true";
-  setElementValue("list-calendars-context-find", hasProviders, "collapsed");
 }
 
 /**
@@ -790,21 +785,6 @@ function openLocalCalendar() {
     let item = calendarList.getElementsByAttribute("calendar-id", calendar.id)[0];
     calendarList.selectedItem = item;
   });
-}
-
-/**
- * Opens the subscriptions dialog modally.
- */
-function openCalendarSubscriptionsDialog() {
-  // the dialog will reset this to auto when it is done loading
-  window.setCursor("wait");
-
-  // open the dialog modally
-  window.openDialog(
-    "chrome://calendar/content/calendar-subscriptions-dialog.xhtml",
-    "_blank",
-    "chrome,titlebar,modal,resizable"
-  );
 }
 
 /**

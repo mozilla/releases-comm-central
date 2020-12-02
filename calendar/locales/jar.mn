@@ -17,7 +17,6 @@
     locale/@AB_CD@/calendar/calendar-invitations-dialog.properties       (%chrome/calendar/calendar-invitations-dialog.properties)
     locale/@AB_CD@/calendar/calendar-occurrence-prompt.dtd               (%chrome/calendar/calendar-occurrence-prompt.dtd)
     locale/@AB_CD@/calendar/calendar-occurrence-prompt.properties        (%chrome/calendar/calendar-occurrence-prompt.properties)
-    locale/@AB_CD@/calendar/calendar-subscriptions-dialog.dtd            (%chrome/calendar/calendar-subscriptions-dialog.dtd)
     locale/@AB_CD@/calendar/calendar.dtd                                 (%chrome/calendar/calendar.dtd)
     locale/@AB_CD@/calendar/calendar.properties                          (%chrome/calendar/calendar.properties)
     locale/@AB_CD@/calendar/calendarCreation.dtd                         (%chrome/calendar/calendarCreation.dtd)

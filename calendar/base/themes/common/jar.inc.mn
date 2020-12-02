@@ -25,7 +25,6 @@
     skin/classic/calendar/shared/dialogs/calendar-alarm-dialog.css               (../common/dialogs/calendar-alarm-dialog.css)
     skin/classic/calendar/shared/dialogs/calendar-event-dialog.css               (../common/dialogs/calendar-event-dialog.css)
     skin/classic/calendar/shared/dialogs/calendar-invitations-dialog.css         (../common/dialogs/calendar-invitations-dialog.css)
-    skin/classic/calendar/shared/dialogs/calendar-subscriptions-dialog.css       (../common/dialogs/calendar-subscriptions-dialog.css)
     skin/classic/calendar/shared/calendar-properties-dialog.css                  (../common/dialogs/calendar-properties-dialog.css)
     skin/classic/calendar/shared/calendar-timezone-highlighter.css               (../common/dialogs/calendar-timezone-highlighter.css)
     skin/classic/calendar/shared/calendar-event-dialog-attendees.png             (../common/dialogs/images/calendar-event-dialog-attendees.png)
