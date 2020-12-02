@@ -1,0 +1,23 @@
+From: "Alice Lovelace" <alice@openpgp.example>
+To: "Alice Lovelace" <alice@openpgp.example>
+Subject: partially encrypted test message
+Date: Thu, 30 Oct 2020 02:34:56 +0000
+Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+1.00 Month, Services
+Home::1                  £10.00 
+Home::1                  £35.00 
+Home::1                  £10.00 
+Home::1                  £0.00 
+Domain:                  £1.20 
+-----BEGIN PGP SIGNATURE-----
+
+iIwEARYIADQWIQTrhbtfozp14V6UTmPyMVUMT0fjjgUCX8T2UhYcYWxpY2VAb3Bl
+bnBncC5leGFtcGxlAAoJEPIxVQxPR+OOIFQA/jiCOQN1362aOgywAM/Rm7HGEIN2
+UgxLkUGnoNZEBXOoAQD6EYFBkP5AOHqQZ5a2AEwufxbC4mrJ2UVeyarD8KHKAw==
+=Pxz5
+-----END PGP SIGNATURE-----

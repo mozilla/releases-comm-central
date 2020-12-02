@@ -364,6 +364,31 @@ add_task(async function testPartialInlinePGPDecrypt() {
   close_window(mc);
 });
 
+/**
+ * Test that a signed (only) inline PGP message with UTF-8 characters
+ * can be correctly verified.
+ */
+add_task(async function testOpenSignedInlineWithUTF8() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/alice-utf.eml"
+      )
+    )
+  );
+
+  Assert.ok(getMsgBodyTxt(mc).includes("£35.00"), "UTF-8 character found in message");
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unverified"),
+    "signed unverified icon is displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+  close_window(mc);
+});
+
 registerCleanupFunction(function tearDown() {
   aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
   MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, true);
