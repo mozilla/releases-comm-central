@@ -28,13 +28,21 @@ ExtensionTestUtils.init(this);
 var IS_IMAP = false;
 
 function createAccount(type = "none") {
-  let account = MailServices.accounts.createAccount();
-  account.incomingServer = MailServices.accounts.createIncomingServer(
-    `${account.key}user`,
-    "localhost",
-    type
-  );
-  info(`Created account ${account.toString()}`);
+  let account;
+
+  if (type == "local") {
+    MailServices.accounts.createLocalMailAccount();
+    account = MailServices.accounts.FindAccountForServer(
+      MailServices.accounts.localFoldersServer
+    );
+  } else {
+    account = MailServices.accounts.createAccount();
+    account.incomingServer = MailServices.accounts.createIncomingServer(
+      `${account.key}user`,
+      "localhost",
+      type
+    );
+  }
 
   if (type == "imap") {
     IMAPServer.open();
@@ -43,6 +51,7 @@ function createAccount(type = "none") {
     account.incomingServer.password = "password";
   }
 
+  info(`Created account ${account.toString()}`);
   return account;
 }
 

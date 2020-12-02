@@ -9,7 +9,10 @@ var { ExtensionSupport } = ChromeUtils.import(
 let account = createAccount();
 let defaultIdentity = addIdentity(account);
 let nonDefaultIdentity = addIdentity(account, "nondefault@invalid");
-let outbox = account.incomingServer.rootFolder.getChildNamed("outbox");
+
+// A local outbox is needed so we can use "send later".
+let localAccount = createAccount("local");
+let outbox = localAccount.incomingServer.rootFolder.getChildNamed("outbox");
 
 add_task(async function testCancel() {
   let files = {

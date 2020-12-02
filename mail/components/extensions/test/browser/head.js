@@ -39,15 +39,24 @@ registerCleanupFunction(() => {
   Services.focus.focusedWindow = window;
 });
 
-function createAccount() {
-  registerCleanupFunction(() => {
-    MailServices.accounts.accounts.forEach(cleanUpAccount);
-  });
+function createAccount(type = "none") {
+  let account;
 
-  MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  if (type == "local") {
+    MailServices.accounts.createLocalMailAccount();
+    account = MailServices.accounts.FindAccountForServer(
+      MailServices.accounts.localFoldersServer
+    );
+  } else {
+    account = MailServices.accounts.createAccount();
+    account.incomingServer = MailServices.accounts.createIncomingServer(
+      `${account.key}user`,
+      "localhost",
+      type
+    );
+  }
+
   info(`Created account ${account.toString()}`);
-
   return account;
 }
 
@@ -55,6 +64,10 @@ function cleanUpAccount(account) {
   info(`Cleaning up account ${account.toString()}`);
   MailServices.accounts.removeAccount(account, true);
 }
+
+registerCleanupFunction(() => {
+  MailServices.accounts.accounts.forEach(cleanUpAccount);
+});
 
 function addIdentity(account, email = "mochitest@localhost") {
   let identity = MailServices.accounts.createIdentity();
