@@ -8625,6 +8625,47 @@ function InitEditor() {
   if (AppConstants.platform != "macosx") {
     AutoHideMenubar.init();
   }
+
+  // For plain text compose, set the styles for quoted text according to
+  // preferences.
+  if (!gMsgCompose.composeHTML) {
+    let style = editor.document.createElement("style");
+    editor.document.head.appendChild(style);
+    let fontStyle = "";
+    let fontSize = "";
+    switch (Services.prefs.getIntPref("mail.quoted_style")) {
+      case 1:
+        fontStyle = "font-weight: bold;";
+        break;
+      case 2:
+        fontStyle = "font-style: italic;";
+        break;
+      case 3:
+        fontStyle = "font-weight: bold; font-style: italic;";
+        break;
+    }
+
+    switch (Services.prefs.getIntPref("mail.quoted_size")) {
+      case 1:
+        fontSize = "font-size: large;";
+        break;
+      case 2:
+        fontSize = "font-size: small;";
+        break;
+    }
+
+    let citationColor =
+      "color: " + Services.prefs.getCharPref("mail.citation_color") + ";";
+
+    style.sheet.insertRule(
+      `span[_moz_quote="true"] {
+      ${fontStyle}
+      ${fontSize}
+      ${citationColor}
+      }`
+    );
+  }
+
   window.composeEditorReady = true;
   window.dispatchEvent(new CustomEvent("compose-editor-ready"));
 }
