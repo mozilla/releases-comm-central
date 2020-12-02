@@ -370,14 +370,13 @@ add_task(async function testPartialInlinePGPDecrypt() {
  */
 add_task(async function testOpenSignedInlineWithUTF8() {
   let mc = await open_message_from_file(
-    new FileUtils.File(
-      getTestFilePath(
-        "data/eml/alice-utf.eml"
-      )
-    )
+    new FileUtils.File(getTestFilePath("data/eml/alice-utf.eml"))
   );
 
-  Assert.ok(getMsgBodyTxt(mc).includes("£35.00"), "UTF-8 character found in message");
+  Assert.ok(
+    getMsgBodyTxt(mc).includes("£35.00"),
+    "UTF-8 character found in message"
+  );
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unverified"),
     "signed unverified icon is displayed"

@@ -906,7 +906,7 @@ var RNP = {
     RNPLib.rnp_input_from_memory(
       input_from_memory.address(),
       encrypted_array,
-      encrypted_array.length-1,
+      encrypted_array.length - 1,
       false
     );
 
@@ -1351,7 +1351,10 @@ var RNP = {
     let input_from_memory = new RNPLib.rnp_input_t();
 
     var tmp_array = ctypes.char.array()(data);
-    var data_array = ctypes.cast(tmp_array, ctypes.uint8_t.array(tmp_array.length));
+    var data_array = ctypes.cast(
+      tmp_array,
+      ctypes.uint8_t.array(tmp_array.length)
+    );
 
     // The array's size is the number of UTF-8 encoded bytes.
     // Don't pass the trailing null byte to RNP.
@@ -1359,7 +1362,7 @@ var RNP = {
     RNPLib.rnp_input_from_memory(
       input_from_memory.address(),
       data_array,
-      data_array.length-1,
+      data_array.length - 1,
       false
     );
 
@@ -2236,7 +2239,7 @@ var RNP = {
       RNPLib.rnp_input_from_memory(
         input.address(),
         plaintext_array,
-        plaintext_array.length-1,
+        plaintext_array.length - 1,
         false
       )
     ) {
