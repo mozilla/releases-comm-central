@@ -27,6 +27,9 @@ function getCalendarView() {
  * Loads the print dialog, setting up all needed elements.
  */
 function loadCalendarPrintDialog() {
+  // This is need to pass down browserDOMWindow to msgPrintEngine window.
+  window.browserDOMWindow = window.opener.browserDOMWindow;
+
   // set the datepickers to the currently selected dates
   let theView = getCalendarView();
   if (theView) {
