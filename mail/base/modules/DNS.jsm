@@ -38,21 +38,24 @@ load_libresolv.prototype = {
   _open() {
     function findLibrary() {
       let lastException = null;
-      let libnames = [
-        ctypes.libraryName("resolv.9"),
-        ctypes.libraryName("resolv.2"),
-        ctypes.libraryName("resolv"),
+      let candidates = [
+        { name: "resolv.9", suffix: "" },
+        { name: "resolv", suffix: ".2" },
+        { name: "resolv", suffix: "" },
       ];
-      for (let libname of libnames) {
+      let tried = [];
+      for (let candidate of candidates) {
         try {
-          return ctypes.open(libname);
+          let name = ctypes.libraryName(candidate.name) + candidate.suffix;
+          tried.push(name);
+          return ctypes.open(name);
         } catch (ex) {
           lastException = ex;
         }
       }
       throw new Error(
         "Could not find libresolv in any of " +
-          libnames +
+          tried +
           " Exception: " +
           lastException +
           "\n"
