@@ -41,6 +41,20 @@ struct AppTypeAssociation {
   const char* extensions;
 };
 
+static bool IsRunningAsASnap() {
+  // SNAP holds the path to the snap, use SNAP_NAME
+  // which is easier to parse.
+  const char* snap_name = PR_GetEnv("SNAP_NAME");
+
+  // return early if not set.
+  if (snap_name == nullptr) {
+    return false;
+  }
+
+  // snap_name as defined on https://snapcraft.io/thunderbird
+  return (strcmp(snap_name, "thunderbird") == 0);
+}
+
 static const AppTypeAssociation sAppTypes[] = {
     {
         nsIShellService::MAIL, sMailProtocols, ArrayLength(sMailProtocols),
@@ -209,6 +223,30 @@ bool nsGNOMEShellService::checkDefault(const char* const* aProtocols,
   nsresult rv;
 
   for (unsigned int i = 0; i < aLength; ++i) {
+
+    if (IsRunningAsASnap()) {
+      const gchar* argv[] = {"xdg-settings", "get", "default-url-scheme-handler",
+                             aProtocols[i], nullptr};
+      GSpawnFlags flags = static_cast<GSpawnFlags>(G_SPAWN_SEARCH_PATH |
+                                                   G_SPAWN_STDERR_TO_DEV_NULL);
+      gchar* output = nullptr;
+      gint exit_status = 0;
+      if (!g_spawn_sync(nullptr, (gchar**)argv, nullptr, flags, nullptr, nullptr,
+                        &output, nullptr, &exit_status, nullptr)) {
+        return false;
+      }
+      if (exit_status != 0) {
+        g_free(output);
+        return false;
+      }
+      if (strcmp(output, "thunderbird.desktop\n") == 0) {
+          g_free(output);
+          return true;
+      }
+      g_free(output);
+      return false;
+    }
+
     if (giovfs) {
       handler.Truncate();
       nsCOMPtr<nsIHandlerApp> handlerApp;
@@ -247,6 +285,18 @@ nsresult nsGNOMEShellService::MakeDefault(const char* const* aProtocols,
   }
 
   appKeyValue.AppendLiteral(" %s");
+
+  if (IsRunningAsASnap()) {
+    for (unsigned int i = 0; i < aProtocolsLength; ++i) {
+      const gchar* argv[] = {"xdg-settings", "set", "default-url-scheme-handler",
+                             aProtocols[i], "thunderbird.desktop", nullptr};
+      GSpawnFlags flags = static_cast<GSpawnFlags>(G_SPAWN_SEARCH_PATH |
+                                                   G_SPAWN_STDOUT_TO_DEV_NULL |
+                                                   G_SPAWN_STDERR_TO_DEV_NULL);
+      g_spawn_sync(nullptr, (gchar**)argv, nullptr, flags, nullptr, nullptr,
+                   nullptr, nullptr, nullptr, nullptr);
+    }
+  }
 
   nsresult rv;
   if (giovfs) {
