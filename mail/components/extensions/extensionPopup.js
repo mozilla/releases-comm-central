@@ -19,29 +19,7 @@ var gContextMenu;
 function loadRequestedUrl() {
   let browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
-  browser.addEventListener("DOMTitleChanged", () => {
-    let docTitle = browser.contentDocument.title
-      ? browser.contentDocument.title.trim()
-      : "";
-    let docElement = document.documentElement;
-    // If the document title is blank, add the default title.
-    if (!docTitle) {
-      docTitle = docElement.getAttribute("defaultTabTitle");
-    }
-
-    if (docElement.hasAttribute("titlepreface")) {
-      docTitle = docElement.getAttribute("titlepreface") + docTitle;
-    }
-
-    // If we're on Mac, don't display the separator and the modifier.
-    if (AppConstants.platform != "macosx") {
-      docTitle +=
-        docElement.getAttribute("titlemenuseparator") +
-        docElement.getAttribute("titlemodifier");
-    }
-
-    document.title = docTitle;
-  });
+  browser.addEventListener("DOMTitleChanged", () => gBrowser.updateTitlebar());
 
   // This window does double duty. If window.arguments[0] is a string, it's
   // probably being called by browser.identity.launchWebAuthFlowInParent.
@@ -72,6 +50,30 @@ var gBrowser = {
   },
   get webNavigation() {
     return this.selectedBrowser.webNavigation;
+  },
+  updateTitlebar() {
+    let docTitle = browser.contentDocument.title
+      ? browser.contentDocument.title.trim()
+      : "";
+    let docElement = document.documentElement;
+    // If the document title is blank, add the default title.
+    if (!docTitle) {
+      docTitle = docElement.getAttribute("defaultTabTitle");
+    }
+
+    if (docElement.hasAttribute("titlepreface")) {
+      docTitle = docElement.getAttribute("titlepreface") + docTitle;
+    }
+
+    // If we're on Mac, don't display the separator and the modifier.
+    if (AppConstants.platform != "macosx") {
+      docTitle +=
+        docElement.getAttribute("titlemenuseparator") +
+        docElement.getAttribute("titlemodifier");
+    }
+
+    document.title = docTitle;
+    document.dispatchEvent(new Event("extension-window-title-changed"));
   },
 };
 

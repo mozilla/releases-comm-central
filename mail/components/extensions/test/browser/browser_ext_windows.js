@@ -4,6 +4,8 @@
 
 /* globals MsgOpenNewWindowForFolder */
 
+const TEST_DOCUMENT_URL = getRootDirectory(gTestPath) + "data/content.html";
+
 let { BrowserTestUtils } = ChromeUtils.import(
   "resource://testing-common/BrowserTestUtils.jsm"
 );
@@ -204,5 +206,85 @@ add_task(async () => {
   newWindow.close();
 
   await extension.awaitFinish();
+  await extension.unload();
+});
+
+add_task(async function checkTitlePreface() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "content.html": await fetch(TEST_DOCUMENT_URL).then(response =>
+        response.text()
+      ),
+      "utils.js": await getUtilsJS(),
+      "background.js": async () => {
+        let popup;
+
+        // Test titlePreface during window creation.
+        {
+          let windowCreatePromise = window.waitForEvent("windows.onCreated");
+          let titlePreface = "PREFACE1";
+          popup = await browser.windows.create({
+            titlePreface,
+            url: "content.html",
+            type: "popup",
+          });
+          await windowCreatePromise;
+          await window.sendMessage("checkTitle", titlePreface);
+        }
+
+        // Test titlePreface during window update.
+        {
+          let titlePreface = "PREFACE2";
+          await browser.windows.update(popup.id, {
+            titlePreface,
+          });
+          await window.sendMessage("checkTitle", titlePreface);
+        }
+
+        // Finish
+        {
+          let windowRemovePromise = window.waitForEvent("windows.onRemoved");
+          await browser.windows.remove(popup.id);
+          await windowRemovePromise;
+          browser.test.notifyPass("finished");
+        }
+      },
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  let popupWindow = BrowserTestUtils.domWindowOpenedAndLoaded();
+
+  extension.onMessage("checkTitle", async titlePreface => {
+    let win = await popupWindow;
+    let titleChange = BrowserTestUtils.waitForEvent(
+      win.document,
+      "extension-window-title-changed"
+    );
+
+    let expectedTitle = titlePreface + "A test document";
+    // If we're on Mac, don't display the separator and the modifier.
+    if (AppConstants.platform != "macosx") {
+      expectedTitle +=
+        win.document.documentElement.getAttribute("titlemenuseparator") +
+        win.document.documentElement.getAttribute("titlemodifier");
+    }
+
+    if (win.document.title != expectedTitle) {
+      await titleChange;
+    }
+
+    Assert.equal(
+      win.document.title,
+      expectedTitle,
+      `Check if title is as expected.`
+    );
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
   await extension.unload();
 });

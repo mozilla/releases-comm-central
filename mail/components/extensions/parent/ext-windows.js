@@ -280,6 +280,9 @@ this.windows = class extends ExtensionAPI {
             ) {
               win.state = createData.state;
             }
+            if (createData.titlePreface !== null) {
+              win.setTitlePreface(createData.titlePreface);
+            }
             return win.convert({ populate: true });
           });
         },
@@ -315,9 +318,11 @@ this.windows = class extends ExtensionAPI {
           win.updateGeometry(updateInfo);
 
           if (updateInfo.titlePreface !== null) {
+            win.setTitlePreface(updateInfo.titlePreface);
             if (win instanceof TabmailWindow) {
-              win.setTitlePreface(updateInfo.titlePreface);
               win.window.document.getElementById("tabmail").setDocumentTitle();
+            } else if (win.window.gBrowser?.updateTitlebar) {
+              win.window.gBrowser.updateTitlebar();
             }
           }
 
