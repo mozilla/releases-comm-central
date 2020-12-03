@@ -223,7 +223,9 @@ class RNPCryptoAPI extends CryptoAPI {
    */
 
   async decryptAttachment(encrypted) {
-    throw new Error("Not implemented");
+    let options = {};
+    options.fromAddr = "";
+    return RNP.decrypt(encrypted, options);
   }
 
   /**

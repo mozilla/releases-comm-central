@@ -311,21 +311,14 @@ var EnigmailDecryption = {
     let result = cApi.sync(cApi.decrypt(pgpBlock, options));
     EnigmailLog.DEBUG("decryption.jsm: decryptMessage: decryption finished\n");
     if (!result) {
+      console.debug("EnigmailCryptoAPI.decrypt() failed with empty result");
       return "";
     }
 
-    let plainText = "";
+    let plainText = this.getPlaintextFromDecryptResult(result);
     exitCodeObj.value = result.exitCode;
     statusFlagsObj.value = result.statusFlags;
     errorMsgObj.value = result.errorMsg;
-
-    if (result.statusFlags & EnigmailConstants.MISSING_MDC) {
-      console.log("bad message, missing MDC");
-    } else if (result.statusFlags & EnigmailConstants.DECRYPTION_FAILED) {
-      console.log("cannot decrypt message");
-    } else if (result.decryptedData) {
-      plainText = EnigmailData.getUnicodeData(result.decryptedData);
-    }
 
     userIdObj.value = result.userId;
     keyIdObj.value = result.keyId;
@@ -513,6 +506,17 @@ var EnigmailDecryption = {
     return text;
   },
 
+  getPlaintextFromDecryptResult(result) {
+    if (result.statusFlags & EnigmailConstants.MISSING_MDC) {
+      console.log("bad message, missing MDC");
+    } else if (result.statusFlags & EnigmailConstants.DECRYPTION_FAILED) {
+      console.log("cannot decrypt message");
+    } else if (result.decryptedData) {
+      return EnigmailData.getUnicodeData(result.decryptedData);
+    }
+    return "";
+  },
+
   decryptAttachment(
     parent,
     outFile,
@@ -599,11 +603,20 @@ var EnigmailDecryption = {
 
     const cApi = EnigmailCryptoAPI();
     let result = cApi.sync(cApi.decryptAttachment(byteData));
+    if (!result) {
+      console.debug(
+        "EnigmailCryptoAPI.decryptAttachment() failed with empty result"
+      );
+      return false;
+    }
 
     exitCodeObj.value = result.exitCode;
     statusFlagsObj.value = result.statusFlags;
-    if (result.stdoutData.length > 0) {
-      return EnigmailFiles.writeFileContents(outFile, result.stdoutData);
+    errorMsgObj.value = result.errorMsg;
+
+    let plainText = this.getPlaintextFromDecryptResult(result);
+    if (plainText.length > 0) {
+      return EnigmailFiles.writeFileContents(outFile, plainText);
     }
 
     return false;

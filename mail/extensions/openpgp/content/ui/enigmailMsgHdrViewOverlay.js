@@ -59,6 +59,8 @@ Enigmail.hdrView = {
   msgEncryptionKeyId: null,
   msgEncryptionAllKeyIds: null,
 
+  alreadyWrappedCDA: false,
+
   reset() {
     this.msgSignatureState = EnigmailConstants.MSG_SIG_NONE;
     this.msgEncryptionState = EnigmailConstants.MSG_ENC_NONE;
@@ -76,13 +78,16 @@ Enigmail.hdrView = {
     // THE FOLLOWING OVERRIDES CODE IN msgHdrViewOverlay.js
     // which wouldn't work otherwise
 
-    this.origCanDetachAttachments = CanDetachAttachments;
-    CanDetachAttachments = function() {
-      return (
-        Enigmail.hdrView.origCanDetachAttachments() &&
-        Enigmail.hdrView.enigCanDetachAttachments()
-      );
-    };
+    if (!this.alreadyWrappedCDA) {
+      this.alreadyWrappedCDA = true;
+      this.origCanDetachAttachments = CanDetachAttachments;
+      CanDetachAttachments = function() {
+        return (
+          Enigmail.hdrView.origCanDetachAttachments() &&
+          Enigmail.hdrView.enigCanDetachAttachments()
+        );
+      };
+    }
 
     this.msgHdrViewLoad();
 
