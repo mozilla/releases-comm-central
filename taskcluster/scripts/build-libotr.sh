@@ -200,7 +200,7 @@ case "${_TARGET_OS}" in
         export PATH
 
         export _TARGET_TRIPLE="x86_64-apple-darwin"
-        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX10.11.sdk"
+        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX10.12.sdk"
         export CROSS_PRIVATE_FRAMEWORKS="${MACOS_SDK_DIR}/System/Library/PrivateFrameworks"
         export CROSS_SYSROOT="${MACOS_SDK_DIR}"
 
