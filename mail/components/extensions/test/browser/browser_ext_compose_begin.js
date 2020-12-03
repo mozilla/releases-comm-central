@@ -1,19 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
 
-let account = createAccount("pop3");
-createAccount("local");
-MailServices.accounts.defaultAccount = account;
-
+let account = createAccount();
 let defaultIdentity = addIdentity(account);
-defaultIdentity.composeHtml = true;
 let nonDefaultIdentity = addIdentity(account);
-nonDefaultIdentity.composeHtml = false;
-
 let rootFolder = account.incomingServer.rootFolder;
 rootFolder.createSubfolder("test", null);
 let folder = rootFolder.getChildNamed("test");
@@ -22,17 +13,11 @@ createMessages(folder, 4);
 add_task(async function testIdentity() {
   let files = {
     "background.js": async () => {
-      let accounts = await browser.accounts.list();
-      browser.test.assertEq(2, accounts.length, "number of accounts");
-      browser.test.assertEq(
-        2,
-        accounts[0].identities.length,
-        "number of identities"
-      );
-      let [defaultIdentity, nonDefaultIdentity] = accounts[0].identities;
-      let folder = accounts[0].folders.find(f => f.name == "test");
+      let [account] = await browser.accounts.list();
+      let [defaultIdentity, nonDefaultIdentity] = account.identities;
+      let folder = account.folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
-      browser.test.assertEq(4, messages.length, "number of messages");
+      browser.test.assertEq(4, messages.length);
 
       browser.test.log(defaultIdentity.id);
       browser.test.log(nonDefaultIdentity.id);
@@ -113,10 +98,10 @@ add_task(async function testHeaders() {
       }
 
       let accounts = await browser.accounts.list();
-      browser.test.assertEq(2, accounts.length, "number of accounts");
+      browser.test.assertEq(1, accounts.length);
       let folder = accounts[0].folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
-      browser.test.assertEq(4, messages.length, "number of messages");
+      browser.test.assertEq(4, messages.length);
 
       let addressBook = await browser.addressBooks.create({
         name: "Baker Street",
@@ -262,16 +247,10 @@ add_task(async function testBody() {
   let files = {
     "background.js": async () => {
       let accounts = await browser.accounts.list();
-      browser.test.assertEq(2, accounts.length, "number of accounts");
-      browser.test.assertEq(
-        2,
-        accounts[0].identities.length,
-        "number of identities"
-      );
-      let plainTextIdentity = accounts[0].identities[1];
+      browser.test.assertEq(1, accounts.length);
       let folder = accounts[0].folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
-      browser.test.assertEq(4, messages.length, "number of messages");
+      browser.test.assertEq(4, messages.length);
 
       let message0 = await browser.messages.getFull(messages[0].id);
       let message0body = message0.parts[0].body;
@@ -314,61 +293,6 @@ add_task(async function testBody() {
           // Empty plain text.
           funcName: "beginNew",
           arguments: [{ plainTextBody: "" }],
-          expected: {
-            isHTML: true,
-            htmlIncludes: emptyHTML,
-            plainTextIs: "\n",
-          },
-        },
-        {
-          // Empty enforced plain text with default identity.
-          funcName: "beginNew",
-          arguments: [{ plainTextBody: "", isPlainText: true }],
-          expected: {
-            isHTML: false,
-            plainTextIs: "",
-          },
-        },
-        {
-          // Empty HTML for plaintext identity.
-          funcName: "beginNew",
-          arguments: [{ body: "", identityId: plainTextIdentity.id }],
-          expected: {
-            isHTML: false,
-            plainTextIs: "",
-          },
-        },
-        {
-          // Empty plain text for plaintext identity.
-          funcName: "beginNew",
-          arguments: [{ plainTextBody: "", identityId: plainTextIdentity.id }],
-          expected: {
-            isHTML: false,
-            plainTextIs: "",
-          },
-        },
-        {
-          // Empty HTML for plaintext identity enforcing HTML.
-          funcName: "beginNew",
-          arguments: [
-            { body: "", identityId: plainTextIdentity.id, isPlainText: false },
-          ],
-          expected: {
-            isHTML: true,
-            htmlIncludes: emptyHTML,
-            plainTextIs: "\n",
-          },
-        },
-        {
-          // Empty plain text for plaintext identity enforcing HTML.
-          funcName: "beginNew",
-          arguments: [
-            {
-              plainTextBody: "",
-              identityId: plainTextIdentity.id,
-              isPlainText: false,
-            },
-          ],
           expected: {
             isHTML: true,
             htmlIncludes: emptyHTML,
@@ -433,38 +357,8 @@ add_task(async function testBody() {
           funcName: "beginNew",
           arguments: [messages[0].id],
           expected: {
-            isHTML: true,
-            htmlIncludes: message0body.trim(),
-          },
-        },
-        {
-          // Edit as new with plaintext identity
-          funcName: "beginNew",
-          arguments: [messages[0].id, { identityId: plainTextIdentity.id }],
-          expected: {
             isHTML: false,
             plainTextIs: message0body,
-          },
-        },
-        {
-          // Edit as new with default identity enforcing HTML
-          funcName: "beginNew",
-          arguments: [messages[0].id, { isPlainText: false }],
-          expected: {
-            isHTML: true,
-            htmlIncludes: message0body.trim(),
-          },
-        },
-        {
-          // ForwardInline with plaintext identity enforcing HTML
-          funcName: "beginForward",
-          arguments: [
-            messages[0].id,
-            { identityId: plainTextIdentity.id, isPlainText: false },
-          ],
-          expected: {
-            isHTML: true,
-            htmlIncludes: message0body.trim(),
           },
         },
         {
@@ -481,7 +375,7 @@ add_task(async function testBody() {
           funcName: "beginForward",
           arguments: [messages[0].id],
           expected: {
-            isHTML: true,
+            isHTML: false,
             htmlIncludes: message0body.trim(),
           },
         },

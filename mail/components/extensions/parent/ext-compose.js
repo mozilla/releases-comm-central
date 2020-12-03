@@ -79,32 +79,6 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
     });
   }
 
-  let format = Ci.nsIMsgCompFormat.Default;
-  let identity = null;
-
-  if (details) {
-    if (details.isPlainText === false) {
-      format = Ci.nsIMsgCompFormat.HTML;
-    }
-    if (details.isPlainText === true) {
-      format = Ci.nsIMsgCompFormat.PlainText;
-    }
-    if (details.identityId !== null) {
-      if (!extension.hasPermission("accountsRead")) {
-        throw new ExtensionError(
-          'Using identities requires the "accountsRead" permission'
-        );
-      }
-
-      identity = MailServices.accounts.allIdentities.find(
-        i => i.key == details.identityId
-      );
-      if (!identity) {
-        throw new ExtensionError(`Identity not found: ${details.identityId}`);
-      }
-    }
-  }
-
   // ForwardInline is totally broken, see bug 1513824. Fake it 'til we make it.
   if (
     [
@@ -120,32 +94,13 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       msgURI = msgHdr.folder.getUriForMsg(msgHdr);
     }
     let newWindowPromise = waitForWindow();
-
-    // For the types in this code path, OpenComposeWindow only uses
-    // nsIMsgCompFormat.Default or OppositeOfDefault. Check which is needed.
-    // See https://hg.mozilla.org/comm-central/file/592fb5c396ebbb75d4acd1f1287a26f56f4164b3/mailnews/compose/src/nsMsgComposeService.cpp#l395
-    if (format != Ci.nsIMsgCompFormat.Default) {
-      // The mimeConverter used in this code path is not setting any format but
-      // defaults to plaintext if no identity and also no default account is set.
-      // The "mail.identity.default.compose_html" preference is NOT used.
-      let usedIdentity =
-        identity || MailServices.accounts.defaultAccount?.defaultIdentity;
-      let defaultFormat = usedIdentity?.composeHtml
-        ? Ci.nsIMsgCompFormat.HTML
-        : Ci.nsIMsgCompFormat.PlainText;
-      format =
-        format == defaultFormat
-          ? Ci.nsIMsgCompFormat.Default
-          : Ci.nsIMsgCompFormat.OppositeOfDefault;
-    }
-
     MailServices.compose.OpenComposeWindow(
       null,
       msgHdr,
       msgURI,
       type,
-      format,
-      identity,
+      0,
+      null,
       null,
       null
     );
@@ -183,13 +138,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
     let msgHdr = messageTracker.getMessage(relatedMessageId);
     params.originalMsgURI = msgHdr.folder.getUriForMsg(msgHdr);
   }
-
   params.type = type;
-  params.format = format;
-  if (identity) {
-    params.identity = identity;
-  }
-
   if (details) {
     if (details.body !== null) {
       if (details.plainTextBody !== null) {
@@ -204,6 +153,21 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       }
     }
 
+    if (details.identityId !== null) {
+      if (!extension.hasPermission("accountsRead")) {
+        throw new ExtensionError(
+          'Using identities requires the "accountsRead" permission'
+        );
+      }
+
+      let identity = MailServices.accounts.allIdentities.find(
+        i => i.key == details.identityId
+      );
+      if (!identity) {
+        throw new ExtensionError(`Identity not found: ${details.identityId}`);
+      }
+      params.identity = identity;
+    }
     for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
       composeFields[field] = await parseComposeRecipientList(details[field]);
     }
@@ -221,6 +185,9 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       composeFields.body = details.body;
     }
     if (details.plainTextBody != null) {
+      if (details.isPlainText) {
+        params.format = Ci.nsIMsgCompFormat.PlainText;
+      }
       composeFields.body = details.plainTextBody;
     }
 
