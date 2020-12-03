@@ -2343,10 +2343,8 @@ function RemoveDraft()
     try {
       if (folder instanceof Ci.nsIMsgFolder)
       {
-        var msgs = Cc["@mozilla.org/array;1"]
-                     .createInstance(Ci.nsIMutableArray);
-        msgs.appendElement(folder.GetMessageHeader(msgKey));
-        folder.deleteMessages(msgs, null, true, false, null, false);
+        let msg = folder.GetMessageHeader(msgKey);
+        folder.deleteMessages([msg], null, true, false, null, false);
       }
     }
     catch (ex) // couldn't find header - perhaps an imap folder.

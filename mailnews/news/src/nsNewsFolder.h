@@ -18,7 +18,6 @@
 #include "nsIMsgNewsFolder.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgFilterList.h"
-#include "nsIArray.h"
 
 class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
  public:
@@ -55,9 +54,9 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
                                   nsIMsgDatabase** db) override;
 
-  NS_IMETHOD DeleteMessages(nsIArray* messages, nsIMsgWindow* msgWindow,
-                            bool deleteStorage, bool isMove,
-                            nsIMsgCopyServiceListener* listener,
+  NS_IMETHOD DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+                            nsIMsgWindow* msgWindow, bool deleteStorage,
+                            bool isMove, nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
   NS_IMETHOD GetNewMessages(nsIMsgWindow* aWindow,
                             nsIUrlListener* aListener) override;

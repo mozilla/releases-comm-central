@@ -1056,7 +1056,7 @@ function async_trash_messages(aSynMessageSet) {
           );
         }
         folder.deleteMessages(
-          toXPCOMArray(msgs, Ci.nsIMutableArray),
+          msgs,
           null,
           false,
           true,
@@ -1122,7 +1122,7 @@ function async_delete_messages(aSynMessageSet) {
   for (let [folder, msgs] of aSynMessageSet.foldersWithMsgHdrs) {
     mark_action("messageInjection", "deleting messages in folder", [folder]);
     folder.deleteMessages(
-      toXPCOMArray(msgs, Ci.nsIMutableArray),
+      msgs,
       null,
       /* delete storage */ true,
       /* is move? */ false,

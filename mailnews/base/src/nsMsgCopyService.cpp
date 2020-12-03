@@ -263,15 +263,8 @@ nsresult nsMsgCopyService::DoNextCopy() {
       if (copyRequest->m_listener) copyRequest->m_listener->OnStartCopy();
       if (copyRequest->m_requestType == nsCopyMessagesType && copySource) {
         copySource->m_processed = true;
-
-        // Stopgap during nsIArray removal (see Bug 1612239)
-        nsCOMPtr<nsIMutableArray> msgsIArray(
-            do_CreateInstance(NS_ARRAY_CONTRACTID));
-        for (auto hdr : copySource->m_messageArray) {
-          msgsIArray->AppendElement(hdr);
-        }
         rv = copyRequest->m_dstFolder->CopyMessages(
-            copySource->m_msgFolder, msgsIArray,
+            copySource->m_msgFolder, copySource->m_messageArray,
             copyRequest->m_isMoveOrDraftOrTemplate, copyRequest->m_msgWindow,
             copyRequest->m_listener, false,
             copyRequest->m_allowUndo);  // isFolder operation false

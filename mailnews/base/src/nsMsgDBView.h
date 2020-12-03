@@ -479,7 +479,7 @@ class nsMsgDBView : public nsIMsgDBView,
   // These are the headers of the messages in the current
   // batch/series of batches of messages manually marked
   // as junk.
-  nsCOMPtr<nsIMutableArray> mJunkHdrs;
+  nsTArray<RefPtr<nsIMsgDBHdr>> mJunkHdrs;
 
   nsTArray<uint32_t> mIndicesToNoteChange;
 

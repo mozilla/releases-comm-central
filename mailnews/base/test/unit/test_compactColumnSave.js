@@ -117,12 +117,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
 }
 
 function deleteMessages(srcFolder, items) {
-  var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function(item) {
-    array.appendElement(item);
-  });
-
-  srcFolder.deleteMessages(array, null, false, true, copyListener, true);
+  srcFolder.deleteMessages(items, null, false, true, copyListener, true);
 }
 
 /*
@@ -145,7 +140,7 @@ var gTestArray = [
   // Deleting messages
   function testDeleteMessages1() {
     // delete to trash
-    deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);
+    deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr]);
   },
   function checkBeforeCompact() {
     checkPersistentState(gLocalFolder2);

@@ -2198,7 +2198,7 @@ nsMsgDBView::Close() {
   m_levels.Clear();
 
   // Clear these out since they no longer apply if we're switching a folder
-  if (mJunkHdrs) mJunkHdrs->Clear();
+  mJunkHdrs.Clear();
 
   // This needs to happen after we remove all the keys, since RowCountChanged()
   // will call our GetRowCount().
@@ -2829,10 +2829,6 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
 
     junkPlugin = do_QueryInterface(filterPlugin, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (!mJunkHdrs) {
-      mJunkHdrs = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
   }
 
   folder->EnableNotifications(nsIMsgFolder::allMessageCountNotifications,
@@ -2868,13 +2864,13 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
       switch (command) {
         case nsMsgViewCommandType::junk:
           mNumMessagesRemainingInBatch++;
-          mJunkHdrs->AppendElement(msgHdr);
+          mJunkHdrs.AppendElement(msgHdr);
           rv = SetMsgHdrJunkStatus(junkPlugin.get(), msgHdr,
                                    nsIJunkMailPlugin::JUNK);
           break;
         case nsMsgViewCommandType::unjunk:
           mNumMessagesRemainingInBatch++;
-          mJunkHdrs->AppendElement(msgHdr);
+          mJunkHdrs.AppendElement(msgHdr);
           rv = SetMsgHdrJunkStatus(junkPlugin.get(), msgHdr,
                                    nsIJunkMailPlugin::GOOD);
           break;
@@ -3102,8 +3098,10 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
 
   if (m_deletingRows) mIndicesToNoteChange.AppendElements(indices, numIndices);
 
-  rv = m_folder->DeleteMessages(messageArray, window, deleteStorage, false,
-                                nullptr, true /* allow Undo */);
+  nsTArray<RefPtr<nsIMsgDBHdr>> tmp;
+  MsgHdrsToTArray(messageArray, tmp);
+  rv = m_folder->DeleteMessages(tmp, window, deleteStorage, false, nullptr,
+                                true /* allow Undo */);
   if (NS_FAILED(rv)) m_deletingRows = false;
 
   return rv;
@@ -3314,8 +3312,7 @@ nsMsgDBView::OnMessageClassified(const char* aMsgURI,
   // For this reason the only thing we (may) have to do is
   // perform the action on all of the junk messages.
 
-  uint32_t numJunk;
-  mJunkHdrs->GetLength(&numJunk);
+  uint32_t numJunk = mJunkHdrs.Length();
   NS_ASSERTION(aClassification == nsIJunkMailPlugin::GOOD || numJunk,
                "the classification of a manually-marked junk message has "
                "been classified as junk, yet there seem to be no such "
@@ -3324,23 +3321,21 @@ nsMsgDBView::OnMessageClassified(const char* aMsgURI,
   // Is this the last message in the batch?
   if (--mNumMessagesRemainingInBatch == 0 && numJunk > 0) {
     PerformActionsOnJunkMsgs(aClassification == nsIJunkMailPlugin::JUNK);
-    mJunkHdrs->Clear();
+    mJunkHdrs.Clear();
   }
 
   return NS_OK;
 }
 
 nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
-  uint32_t numJunkHdrs;
-  mJunkHdrs->GetLength(&numJunkHdrs);
+  uint32_t numJunkHdrs = mJunkHdrs.Length();
   if (!numJunkHdrs) {
     NS_ERROR("no indices of marked-as-junk messages to act on");
     return NS_OK;
   }
 
   nsCOMPtr<nsIMsgFolder> srcFolder;
-  nsCOMPtr<nsIMsgDBHdr> firstHdr(do_QueryElementAt(mJunkHdrs, 0));
-  firstHdr->GetFolder(getter_AddRefs(srcFolder));
+  mJunkHdrs[0]->GetFolder(getter_AddRefs(srcFolder));
 
   bool moveMessages, changeReadState;
   nsCOMPtr<nsIMsgFolder> targetFolder;
@@ -3365,9 +3360,7 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
     //    turned off, we might still need to mark as read.
 
     NoteStartChange(nsMsgViewNotificationCode::none, 0, 0);
-    nsTArray<RefPtr<nsIMsgDBHdr>> tmpHdrs;
-    MsgHdrsToTArray(mJunkHdrs, tmpHdrs);
-    rv = srcFolder->MarkMessagesRead(tmpHdrs, msgsAreJunk);
+    rv = srcFolder->MarkMessagesRead(mJunkHdrs, msgsAreJunk);
     NoteEndChange(nsMsgViewNotificationCode::none, 0, 0);
     NS_ASSERTION(NS_SUCCEEDED(rv),
                  "marking marked-as-junk messages as read failed");
@@ -3380,10 +3373,7 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
     bool junkedMsgSelected = numJunkHdrs > 1 || !mTreeSelection;
     for (nsMsgViewIndex junkIndex = 0;
          !junkedMsgSelected && junkIndex < numJunkHdrs; junkIndex++) {
-      nsCOMPtr<nsIMsgDBHdr> junkHdr(
-          do_QueryElementAt(mJunkHdrs, junkIndex, &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
-      nsMsgViewIndex hdrIndex = FindHdr(junkHdr);
+      nsMsgViewIndex hdrIndex = FindHdr(mJunkHdrs[junkIndex]);
       if (hdrIndex != nsMsgViewIndex_None)
         mTreeSelection->IsSelected(hdrIndex, &junkedMsgSelected);
     }
@@ -3400,36 +3390,26 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
     if (targetFolder) {
       nsCOMPtr<nsIMsgCopyService> copyService =
           do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
-
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsTArray<RefPtr<nsIMsgDBHdr>> tmpHdrs;
-      MsgHdrsToTArray(mJunkHdrs, tmpHdrs);
-      rv = copyService->CopyMessages(srcFolder, tmpHdrs, targetFolder, true,
+      rv = copyService->CopyMessages(srcFolder, mJunkHdrs, targetFolder, true,
                                      nullptr, msgWindow, true);
     } else if (msgsAreJunk) {
       if (mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) {
         // Unfortunately the DeleteMessages in this case is interpreted by
         // IMAP as a delete toggle. So what we have to do is to assemble a
         // new delete array, keeping only those that are not deleted.
-        nsCOMPtr<nsIMutableArray> hdrsToDelete =
-            do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-
-        NS_ENSURE_SUCCESS(rv, rv);
-        uint32_t cnt;
-        rv = mJunkHdrs->GetLength(&cnt);
-        for (uint32_t i = 0; i < cnt; i++) {
-          nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(mJunkHdrs, i);
+        nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToDelete;
+        for (nsIMsgDBHdr* msgHdr : mJunkHdrs) {
           if (msgHdr) {
             uint32_t flags;
             msgHdr->GetFlags(&flags);
             if (!(flags & nsMsgMessageFlags::IMAPDeleted))
-              hdrsToDelete->AppendElement(msgHdr);
+              hdrsToDelete.AppendElement(msgHdr);
           }
         }
 
-        hdrsToDelete->GetLength(&cnt);
-        if (cnt)
+        if (!hdrsToDelete.IsEmpty())
           rv = srcFolder->DeleteMessages(hdrsToDelete, msgWindow, false, false,
                                          nullptr, true);
       } else {
@@ -3438,11 +3418,11 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
       }
     } else if (mDeleteModel == nsMsgImapDeleteModels::IMAPDelete) {
       nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(srcFolder));
-      nsTArray<nsMsgKey> imapUids;
-      imapUids.SetLength(numJunkHdrs);
-      for (uint32_t i = 0; i < numJunkHdrs; i++) {
-        nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(mJunkHdrs, i);
-        msgHdr->GetMessageKey(&imapUids[i]);
+      nsTArray<nsMsgKey> imapUids(numJunkHdrs);
+      for (nsIMsgDBHdr* msgHdr : mJunkHdrs) {
+        nsMsgKey key;
+        msgHdr->GetMessageKey(&key);
+        imapUids.AppendElement(key);
       }
 
       imapFolder->StoreImapFlags(kImapMsgDeletedFlag, false, imapUids, nullptr);

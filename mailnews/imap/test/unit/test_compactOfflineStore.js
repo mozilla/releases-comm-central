@@ -93,8 +93,6 @@ var tests = [
     // mark a message deleted, and then do a compact of just
     // that folder.
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId5);
-    let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr);
     // store the deleted flag
     IMAPPump.inbox.storeImapFlags(
       0x0008,
@@ -120,10 +118,8 @@ var tests = [
     dump("deleting one message\n");
     IMAPPump.incomingServer.deleteModel = Ci.nsMsgImapDeleteModels.MoveToTrash;
     let msgHdr = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr);
     IMAPPump.inbox.deleteMessages(
-      array,
+      [msgHdr],
       null,
       false,
       true,

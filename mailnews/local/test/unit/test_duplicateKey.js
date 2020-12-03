@@ -27,14 +27,12 @@ add_task(async function runPump() {
   Assert.equal(hdrs.length, 5, "Check initial db count");
 
   // Deletes 2 middle messages.
-  let deletes = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  deletes.appendElement(hdrs[1]);
-  deletes.appendElement(hdrs[2]);
+  let deletes = [hdrs[1], hdrs[2]];
 
   // Note the listener won't work because this is a sync delete,
   // but it should!
   localAccountUtils.inboxFolder.deleteMessages(
-    deletes, // in nsIArray messages,
+    deletes,
     null, // in nsIMsgWindow msgWindow,
     true, // in boolean deleteStorage,
     true, // in boolean isMove,

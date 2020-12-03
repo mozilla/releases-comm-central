@@ -107,13 +107,8 @@ function copyMessages(items, isMove, srcFolder, destFolder) {
 }
 
 function deleteMessages(srcFolder, items) {
-  var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function(item) {
-    array.appendElement(item);
-  });
-
   let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
-  srcFolder.deleteMessages(array, null, false, true, listener, true);
+  srcFolder.deleteMessages(items, null, false, true, listener, true);
   return listener.promise;
 }
 
@@ -214,7 +209,7 @@ var gTestArray = [
     }
 
     // Now delete the message
-    await deleteMessages(gLocalFolder3, [gMsgHdrs[0].hdr], false, false);
+    await deleteMessages(gLocalFolder3, [gMsgHdrs[0].hdr]);
 
     showMessages(gLocalFolder3, "after deleting 1 message to trash");
   },
@@ -240,7 +235,7 @@ var gTestArray = [
     }
 
     // Now delete the message
-    await deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr], false, false);
+    await deleteMessages(gLocalFolder2, [gMsgHdrs[0].hdr]);
 
     showMessages(gLocalFolder2, "after deleting 1 message");
   },

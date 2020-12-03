@@ -15,7 +15,6 @@
 #include "nsMsgMessageFlags.h"
 #include "prprf.h"
 #include "prmem.h"
-#include "nsIArray.h"
 #include "nsITransactionManager.h"
 #include "nsParseMailbox.h"
 #include "nsIMsgAccountManager.h"
@@ -971,17 +970,11 @@ nsresult nsMsgLocalMailFolder::GetTrashFolder(nsIMsgFolder** result) {
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::DeleteMessages(nsIArray* messages,
-                                     nsIMsgWindow* msgWindow,
-                                     bool deleteStorage, bool isMove,
-                                     nsIMsgCopyServiceListener* listener,
-                                     bool allowUndo) {
-  NS_ENSURE_ARG_POINTER(messages);
+nsMsgLocalMailFolder::DeleteMessages(
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHeaders, nsIMsgWindow* msgWindow,
+    bool deleteStorage, bool isMove, nsIMsgCopyServiceListener* listener,
+    bool allowUndo) {
   nsresult rv;
-  // Stopgap. Build a parallel array of message headers while we complete
-  // removal of nsIArray usage (Bug 1583030).
-  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  MsgHdrsToTArray(messages, msgHeaders);
 
   // shift delete case - (delete to trash is handled in EndMove)
   // this is also the case when applying retention settings.
@@ -1169,9 +1162,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::MarkThreadRead(nsIMsgThread* thread) {
 }
 
 nsresult nsMsgLocalMailFolder::InitCopyState(
-    nsISupports* aSupport, nsIArray* messages, bool isMove,
-    nsIMsgCopyServiceListener* listener, nsIMsgWindow* msgWindow, bool isFolder,
-    bool allowUndo) {
+    nsISupports* aSupport, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+    bool isMove, nsIMsgCopyServiceListener* listener, nsIMsgWindow* msgWindow,
+    bool isFolder, bool allowUndo) {
   nsCOMPtr<nsIFile> path;
 
   NS_ASSERTION(!mCopyState, "already copying a msg into this folder");
@@ -1206,22 +1199,18 @@ nsresult nsMsgLocalMailFolder::InitCopyState(
   nsresult rv;
   mCopyState->m_srcSupport = do_QueryInterface(aSupport, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  mCopyState->m_messages = messages;
+  mCopyState->m_messages = messages.Clone();
   mCopyState->m_curCopyIndex = 0;
   mCopyState->m_isMove = isMove;
   mCopyState->m_isFolder = isFolder;
   mCopyState->m_allowUndo = allowUndo;
   mCopyState->m_msgWindow = msgWindow;
-  rv = messages->GetLength(&mCopyState->m_totalMsgCount);
+  mCopyState->m_totalMsgCount = messages.Length();
   if (listener) mCopyState->m_listener = listener;
   mCopyState->m_copyingMultipleMessages = false;
   mCopyState->m_wholeMsgInStream = false;
 
-  // If we have source messages then we need destination messages too.
-  if (messages)
-    mCopyState->m_destMessages = do_CreateInstance(NS_ARRAY_CONTRACTID);
-
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::OnAnnouncerGoingAway(
@@ -1281,7 +1270,8 @@ bool nsMsgLocalMailFolder::CheckIfSpaceForCopy(nsIMsgWindow* msgWindow,
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray* messages,
+nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
+                                   nsTArray<RefPtr<nsIMsgDBHdr>> const& srcHdrs,
                                    bool isMove, nsIMsgWindow* msgWindow,
                                    nsIMsgCopyServiceListener* listener,
                                    bool isFolder, bool allowUndo) {
@@ -1293,9 +1283,6 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray* messages,
     if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
     return OnCopyCompleted(srcSupport, false);
   }
-
-  nsTArray<RefPtr<nsIMsgDBHdr>> srcHdrs;
-  MsgHdrsToTArray(messages, srcHdrs);
 
   UpdateTimestamps(allowUndo);
   nsCString protocolType;
@@ -1388,31 +1375,19 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray* messages,
   EnableNotifications(allMessageCountNotifications, false);
 
   // sort the message array by key
-  uint32_t numMsgs = 0;
-  messages->GetLength(&numMsgs);
-  nsTArray<nsMsgKey> keyArray(numMsgs);
-  if (numMsgs > 1) {
-    for (uint32_t i = 0; i < numMsgs; i++) {
-      nsCOMPtr<nsIMsgDBHdr> aMessage = do_QueryElementAt(messages, i, &rv);
-      if (NS_SUCCEEDED(rv) && aMessage) {
-        nsMsgKey key;
-        aMessage->GetMessageKey(&key);
-        keyArray.AppendElement(key);
-      }
-    }
+  nsTArray<nsMsgKey> keyArray(srcHdrs.Length());
+  nsTArray<RefPtr<nsIMsgDBHdr>> sortedMsgs(srcHdrs.Length());
+  for (nsIMsgDBHdr* aMessage : srcHdrs) {
+    nsMsgKey key;
+    aMessage->GetMessageKey(&key);
+    keyArray.AppendElement(key);
+  }
+  keyArray.Sort();
+  rv = MessagesInKeyOrder(keyArray, srcFolder, sortedMsgs);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    keyArray.Sort();
-
-    nsCOMPtr<nsIMutableArray> sortedMsgs(
-        do_CreateInstance(NS_ARRAY_CONTRACTID));
-    rv = MessagesInKeyOrder(keyArray, srcFolder, sortedMsgs);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = InitCopyState(srcSupport, sortedMsgs, isMove, listener, msgWindow,
-                       isFolder, allowUndo);
-  } else
-    rv = InitCopyState(srcSupport, messages, isMove, listener, msgWindow,
-                       isFolder, allowUndo);
+  rv = InitCopyState(srcSupport, sortedMsgs, isMove, listener, msgWindow,
+                     isFolder, allowUndo);
 
   if (NS_FAILED(rv)) {
     ThrowAlertMsg("operationFailedFolderBusy", msgWindow);
@@ -1449,16 +1424,16 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray* messages,
     }
   }
 
-  if (numMsgs > 1 && ((protocolType.LowerCaseEqualsLiteral("imap") &&
-                       !allMsgsHaveOfflineStore) ||
-                      protocolType.LowerCaseEqualsLiteral("mailbox"))) {
+  if (srcHdrs.Length() > 1 &&
+      ((protocolType.LowerCaseEqualsLiteral("imap") &&
+        !allMsgsHaveOfflineStore) ||
+       protocolType.LowerCaseEqualsLiteral("mailbox"))) {
     // For an imap source folder with more than one message to be copied that
     // are not all in offline storage, this fetches all the messages from the
     // imap server to do the copy. When source folder is "mailbox", this is not
     // a concern since source messages are in local storage.
     mCopyState->m_copyingMultipleMessages = true;
-    rv = CopyMessagesTo(mCopyState->m_messages, keyArray, msgWindow, this,
-                        isMove);
+    rv = CopyMessagesTo(keyArray, msgWindow, this, isMove);
     if (NS_FAILED(rv)) {
       NS_ERROR("copy message failed");
       (void)OnCopyCompleted(srcSupport, false);
@@ -1466,8 +1441,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray* messages,
   } else {
     // This obtains the source messages from local/offline storage to do the
     // copy. Note: CopyMessageTo() actually handles one or more messages.
-    nsCOMPtr<nsISupports> msgSupport =
-        do_QueryElementAt(mCopyState->m_messages, 0);
+    nsIMsgDBHdr* msgSupport = mCopyState->m_messages[0];
     if (msgSupport) {
       rv = CopyMessageTo(msgSupport, this, msgWindow, isMove);
       if (NS_FAILED(rv)) {
@@ -1503,25 +1477,24 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
   rv = srcFolder->GetMessages(getter_AddRefs(messages));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMutableArray> msgArray(do_CreateInstance(NS_ARRAY_CONTRACTID));
-
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgArray;
   bool hasMoreElements = false;
-  nsCOMPtr<nsISupports> aSupport;
 
   if (messages) rv = messages->HasMoreElements(&hasMoreElements);
 
   while (NS_SUCCEEDED(rv) && hasMoreElements) {
-    rv = messages->GetNext(getter_AddRefs(aSupport));
+    nsCOMPtr<nsISupports> iface;
+    rv = messages->GetNext(getter_AddRefs(iface));
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = msgArray->AppendElement(aSupport);
+    nsCOMPtr<nsIMsgDBHdr> msg(do_QueryInterface(iface, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
+
+    msgArray.AppendElement(msg);
     rv = messages->HasMoreElements(&hasMoreElements);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  uint32_t numMsgs = 0;
-  msgArray->GetLength(&numMsgs);
-
-  if (numMsgs > 0)  // if only srcFolder has messages..
+  if (msgArray.Length() > 0)  // if only srcFolder has messages..
     newMsgFolder->CopyMessages(srcFolder, msgArray, false, msgWindow, listener,
                                true /* is folder*/, false /* allowUndo */);
   else {
@@ -1670,9 +1643,8 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
   if (!CheckIfSpaceForCopy(msgWindow, nullptr, fileSupport, false, fileSize))
     return NS_OK;
 
-  nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
-
-  if (msgToReplace) messages->AppendElement(msgToReplace);
+  nsTArray<RefPtr<nsIMsgDBHdr>> messages;
+  if (msgToReplace) messages.AppendElement(msgToReplace);
 
   rv = InitCopyState(fileSupport, messages, msgToReplace ? true : false,
                      listener, msgWindow, false, false);
@@ -1810,14 +1782,10 @@ nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
     result.Append(MSG_LINEBREAK);
 
     // *** jt - hard code status line for now; come back later
-    nsresult rv;
-    nsCOMPtr<nsIMsgDBHdr> curSourceMessage = do_QueryElementAt(
-        mCopyState->m_messages, mCopyState->m_curCopyIndex, &rv);
-
     char statusStrBuf[50];
-    if (curSourceMessage) {
+    if (mCopyState->m_curCopyIndex < mCopyState->m_messages.Length()) {
       uint32_t dbFlags = 0;
-      curSourceMessage->GetFlags(&dbFlags);
+      mCopyState->m_messages[mCopyState->m_curCopyIndex]->GetFlags(&dbFlags);
 
       // write out x-mozilla-status, but make sure we don't write out
       // nsMsgMessageFlags::Offline
@@ -1899,8 +1867,11 @@ NS_IMETHODIMP nsMsgLocalMailFolder::BeginCopy(nsIMsgDBHdr* message) {
                "messageIndex invalid");
   // by the time we get here, m_curCopyIndex is 1 relative because
   // WriteStartOfNewMessage increments it
-  mCopyState->m_message =
-      do_QueryElementAt(mCopyState->m_messages, messageIndex);
+  if (messageIndex < (int32_t)mCopyState->m_messages.Length()) {
+    mCopyState->m_message = mCopyState->m_messages[messageIndex];
+  } else {
+    mCopyState->m_message = nullptr;
+  }
   // The flags of the source message can get changed when it is deleted, so
   // save them here.
   if (mCopyState->m_message)
@@ -2151,7 +2122,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
         if (newHdr) {
           // turn off offline flag - it's not valid for local mail folders.
           newHdr->AndFlags(~nsMsgMessageFlags::Offline, &newHdrFlags);
-          mCopyState->m_destMessages->AppendElement(newHdr);
+          mCopyState->m_destMessages.AppendElement(newHdr);
         }
       }
       // we can do undo with the dest folder db, see bug #198909
@@ -2224,7 +2195,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           localUndoTxn->AddDstMsgSize(msgSize);
         }
 
-        mCopyState->m_destMessages->AppendElement(newHdr);
+        mCopyState->m_destMessages.AppendElement(newHdr);
       }
       // msgDb->SetSummaryValid(true);
       // msgDb->Commit(nsMsgDBCommitType::kLargeCommit);
@@ -2240,8 +2211,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
   if (!multipleCopiesFinished && !mCopyState->m_copyingMultipleMessages) {
     // CopyMessages() goes here; CopyFileMessage() never gets in here because
     // curCopyIndex will always be less than the mCopyState->m_totalMsgCount
-    nsCOMPtr<nsISupports> aSupport =
-        do_QueryElementAt(mCopyState->m_messages, mCopyState->m_curCopyIndex);
+    nsIMsgDBHdr* aSupport = mCopyState->m_messages[mCopyState->m_curCopyIndex];
     rv = CopyMessageTo(aSupport, this, mCopyState->m_msgWindow,
                        mCopyState->m_isMove);
   } else {
@@ -2251,8 +2221,7 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
     // messages are deleted, so that saving a new draft of a message works
     // correctly -- first an itemDeleted is sent for the old draft, then an
     // itemAdded for the new draft.
-    uint32_t numHdrs;
-    mCopyState->m_messages->GetLength(&numHdrs);
+    uint32_t numHdrs = mCopyState->m_messages.Length();
 
     if (multipleCopiesFinished && numHdrs && !mCopyState->m_isFolder) {
       // we need to send this notification before we delete the source messages,
@@ -2260,12 +2229,9 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
           do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
       if (notifier) {
-        nsTArray<RefPtr<nsIMsgDBHdr>> srcHdrs;
-        nsTArray<RefPtr<nsIMsgDBHdr>> destHdrs;
-        MsgHdrsToTArray(mCopyState->m_messages, srcHdrs);
-        MsgHdrsToTArray(mCopyState->m_destMessages, destHdrs);
-        notifier->NotifyMsgsMoveCopyCompleted(mCopyState->m_isMove, srcHdrs,
-                                              this, destHdrs);
+        notifier->NotifyMsgsMoveCopyCompleted(mCopyState->m_isMove,
+                                              mCopyState->m_messages, this,
+                                              mCopyState->m_destMessages);
       }
     }
 
@@ -2372,9 +2338,8 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
         // when we call DeleteMessages on the source folder. So don't mark it
         // for deletion here, in that case.
         if (!GetDeleteFromServerOnMove()) {
-          nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
-          MsgHdrsToTArray(mCopyState->m_messages, hdrs);
-          localSrcFolder->MarkMsgsOnPop3Server(hdrs, POP3_DELETE);
+          localSrcFolder->MarkMsgsOnPop3Server(mCopyState->m_messages,
+                                               POP3_DELETE);
         }
       }
     }
@@ -2492,8 +2457,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EndMessage(nsMsgKey key) {
   return NS_OK;
 }
 
-nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsIArray* messages,
-                                              nsTArray<nsMsgKey>& keyArray,
+nsresult nsMsgLocalMailFolder::CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
                                               nsIMsgWindow* aMsgWindow,
                                               nsIMsgFolder* dstFolder,
                                               bool isMove) {

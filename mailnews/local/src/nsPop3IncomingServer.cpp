@@ -134,12 +134,9 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal) {
                   // account to the corresponding folder in Local Folders.
                   RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
                   rv = subFolderDB->ListAllKeys(keys);
-                  nsCOMPtr<nsIMutableArray> hdrsToCopy(
-                      do_CreateInstance(NS_ARRAY_CONTRACTID));
-                  MsgGetHeadersFromKeys(subFolderDB, keys->m_keys, hdrsToCopy);
-                  uint32_t numHdrs = 0;
-                  if (hdrsToCopy) hdrsToCopy->GetLength(&numHdrs);
-                  if (numHdrs) {
+                  nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToCopy;
+                  MsgGetHeadersFromKeys2(subFolderDB, keys->m_keys, hdrsToCopy);
+                  if (!hdrsToCopy.IsEmpty()) {
                     // Look for a folder with the same name in Local Folders.
                     nsCOMPtr<nsIMsgFolder> dest;
                     nsString folderName;
@@ -549,9 +546,9 @@ NS_IMETHODIMP nsPop3IncomingServer::AddUidlToMark(const char* aUidl,
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
-  uidlEntry->status = (aMark == POP3_DELETE)
-                          ? DELETE_CHAR
-                          : (aMark == POP3_FETCH_BODY) ? FETCH_BODY : KEEP;
+  uidlEntry->status = (aMark == POP3_DELETE)       ? DELETE_CHAR
+                      : (aMark == POP3_FETCH_BODY) ? FETCH_BODY
+                                                   : KEEP;
   m_uidlsToMark.AppendElement(uidlEntry);
   return NS_OK;
 }

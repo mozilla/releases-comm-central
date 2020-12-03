@@ -4721,9 +4721,12 @@ NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(
   if (msgHdrsToDelete) {
     uint32_t count;
     msgHdrsToDelete->GetLength(&count);
-    if (count > 0)
-      rv = m_folder->DeleteMessages(msgHdrsToDelete, nullptr, true, false,
-                                    nullptr, false);
+    if (count > 0) {
+      nsTArray<RefPtr<nsIMsgDBHdr>> doomed;
+      MsgHdrsToTArray(msgHdrsToDelete, doomed);
+      rv = m_folder->DeleteMessages(doomed, nullptr, true, false, nullptr,
+                                    false);
+    }
   }
   return rv;
 }

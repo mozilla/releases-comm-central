@@ -3275,8 +3275,7 @@ var gFolderTreeController = {
 
     // Now delete the messages
     let messages = Array.from(fixIterator(folder.messages));
-    let children = toXPCOMArray(messages, Ci.nsIMutableArray);
-    folder.deleteMessages(children, msgWindow, true, false, null, false);
+    folder.deleteMessages(messages, msgWindow, true, false, null, false);
   },
 
   /**

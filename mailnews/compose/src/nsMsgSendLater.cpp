@@ -813,17 +813,11 @@ nsresult nsMsgSendLater::DeleteCurrentMessage() {
   }
 
   // Get the composition fields interface
-  nsCOMPtr<nsIMutableArray> msgArray(do_CreateInstance(NS_ARRAY_CONTRACTID));
-  if (!msgArray) return NS_ERROR_FACTORY_NOT_LOADED;
-
   if (!mMessageFolder) return NS_ERROR_UNEXPECTED;
-
-  msgArray->InsertElementAt(mMessage, 0);
-
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mMessageFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = folder->DeleteMessages(msgArray, nullptr, true, false, nullptr,
+  rv = folder->DeleteMessages({&*mMessage}, nullptr, true, false, nullptr,
                               false /*allowUndo*/);
   if (NS_FAILED(rv)) return NS_ERROR_FAILURE;
 

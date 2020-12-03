@@ -16,7 +16,7 @@ var { MailServices } = ChromeUtils.import(
 );
 
 var gRootFolder;
-var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+var gMessages = [];
 var gMsgWindow;
 
 var gMsgFile1 = do_get_file("../../../data/bugmail10");
@@ -63,7 +63,7 @@ var tests = [
   },
   function* deleteMessage() {
     let msgToDelete = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMsgId1);
-    gMessages.appendElement(msgToDelete);
+    gMessages.push(msgToDelete);
     IMAPPump.inbox.deleteMessages(
       gMessages,
       gMsgWindow,
@@ -149,7 +149,7 @@ asyncUrlListener.callback = function(aUrl, aExitCode) {
 function teardown() {
   // Cleanup, null out everything, close all cached connections and stop the
   // server
-  gMessages.clear();
+  gMessages = [];
   gMsgWindow.closeWindow();
   gMsgWindow = null;
   gRootFolder = null;

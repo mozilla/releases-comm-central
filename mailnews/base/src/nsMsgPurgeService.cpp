@@ -410,15 +410,7 @@ nsresult nsMsgPurgeService::SearchFolderToPurge(nsIMsgFolder* folder,
 
   // we are about to search
   // create mHdrsToDelete array (if not previously created)
-  if (!mHdrsToDelete) {
-    mHdrsToDelete = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  } else {
-    uint32_t count;
-    mHdrsToDelete->GetLength(&count);
-    NS_ASSERTION(count == 0, "mHdrsToDelete is not empty");
-    if (count > 0) mHdrsToDelete->Clear();  // this shouldn't happen
-  }
+  NS_ASSERTION(mHdrsToDelete.IsEmpty(), "mHdrsToDelete is not empty");
 
   mSearchFolder = folder;
   return mSearchSession->Search(nullptr);
@@ -472,15 +464,14 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchHit(nsIMsgDBHdr* aMsgHdr,
   if (atoi(junkScoreStr.get()) == nsIJunkMailPlugin::IS_SPAM_SCORE) {
     MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
             ("added message to delete"));
-    return mHdrsToDelete->AppendElement(aMsgHdr);
+    mHdrsToDelete.AppendElement(aMsgHdr);
   }
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgPurgeService::OnSearchDone(nsresult status) {
   if (NS_SUCCEEDED(status)) {
-    uint32_t count = 0;
-    if (mHdrsToDelete) mHdrsToDelete->GetLength(&count);
+    uint32_t count = mHdrsToDelete.Length();
     MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
             ("%d messages to delete", count));
 
@@ -492,7 +483,7 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchDone(nsresult status) {
             nullptr, false /*allowUndo*/);
     }
   }
-  if (mHdrsToDelete) mHdrsToDelete->Clear();
+  mHdrsToDelete.Clear();
   if (mSearchSession) mSearchSession->UnregisterListener(this);
   // don't cache the session
   // just create another search session next time we search, rather than

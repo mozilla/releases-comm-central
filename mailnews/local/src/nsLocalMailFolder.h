@@ -25,7 +25,6 @@
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
 #include "nsISeekableStream.h"
-#include "nsIMutableArray.h"
 #include "nsIStringBundle.h"
 #include "nsLocalUndoTxn.h"
 
@@ -41,9 +40,9 @@ struct nsLocalMailCopyState {
   nsCOMPtr<nsIMsgPluggableStore> m_msgStore;
   nsCOMPtr<nsISupports> m_srcSupport;
   /// Source nsIMsgDBHdr instances.
-  nsCOMPtr<nsIArray> m_messages;
+  nsTArray<RefPtr<nsIMsgDBHdr>> m_messages;
   /// Destination nsIMsgDBHdr instances.
-  nsCOMPtr<nsIMutableArray> m_destMessages;
+  nsTArray<RefPtr<nsIMsgDBHdr>> m_destMessages;
   RefPtr<nsLocalMoveCopyMsgTxn> m_undoMsgTxn;
   nsCOMPtr<nsIMsgDBHdr> m_message;  // current copy message
   nsMsgMessageFlagType m_flags;     // current copy message flags
@@ -144,14 +143,14 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
                                   nsIMsgDatabase** db) override;
 
-  NS_IMETHOD DeleteMessages(nsIArray* messages, nsIMsgWindow* msgWindow,
-                            bool deleteStorage, bool isMove,
-                            nsIMsgCopyServiceListener* listener,
+  NS_IMETHOD DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+                            nsIMsgWindow* msgWindow, bool deleteStorage,
+                            bool isMove, nsIMsgCopyServiceListener* listener,
                             bool allowUndo) override;
-  MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHOD
-  CopyMessages(nsIMsgFolder* srcFolder, nsIArray* messages, bool isMove,
-               nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener,
-               bool isFolder, bool allowUndo) override;
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHOD CopyMessages(
+      nsIMsgFolder* srcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+      bool isMove, nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener,
+      bool isFolder, bool allowUndo) override;
   NS_IMETHOD CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
                         nsIMsgWindow* msgWindow,
                         nsIMsgCopyServiceListener* listener) override;
@@ -240,11 +239,12 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
                            int64_t totalMsgSize);
 
   // copy multiple messages at a time from this folder
-  nsresult CopyMessagesTo(nsIArray* messages, nsTArray<nsMsgKey>& keyArray,
+  nsresult CopyMessagesTo(nsTArray<nsMsgKey>& keyArray,
                           nsIMsgWindow* aMsgWindow, nsIMsgFolder* dstFolder,
                           bool isMove);
-  nsresult InitCopyState(nsISupports* aSupport, nsIArray* messages, bool isMove,
-                         nsIMsgCopyServiceListener* listener,
+  nsresult InitCopyState(nsISupports* aSupport,
+                         nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+                         bool isMove, nsIMsgCopyServiceListener* listener,
                          nsIMsgWindow* msgWindow, bool isMoveFolder,
                          bool allowUndo);
   nsresult InitCopyMsgHdrAndFileStream();
@@ -252,8 +252,9 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   void CopyPropertiesToMsgHdr(nsIMsgDBHdr* destHdr, nsIMsgDBHdr* srcHdr,
                               bool isMove);
   virtual nsresult CreateBaseMessageURI(const nsACString& aURI) override;
-  nsresult ChangeKeywordForMessages(nsIArray* aMessages,
-                                    const nsACString& aKeyword, bool add);
+  nsresult ChangeKeywordForMessages(
+      nsTArray<RefPtr<nsIMsgDBHdr>> const& aMessages,
+      const nsACString& aKeyword, bool add);
   bool GetDeleteFromServerOnMove();
   void CopyHdrPropertiesWithSkipList(nsIMsgDBHdr* destHdr, nsIMsgDBHdr* srcHdr,
                                      const nsCString& skipList);

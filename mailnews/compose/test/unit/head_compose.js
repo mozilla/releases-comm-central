@@ -203,12 +203,9 @@ function richCreateMessage(
     gDraftFolder = rootFolder.createLocalSubfolder("Drafts");
   }
   // Clear all messages
-  let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  for (let msg of gDraftFolder.msgDatabase.EnumerateMessages()) {
-    array.appendElement(msg);
-  }
-  if (array.length) {
-    gDraftFolder.deleteMessages(array, null, true, false, null, false);
+  let msgs = [...gDraftFolder.msgDatabase.EnumerateMessages()];
+  if (msgs.length > 0) {
+    gDraftFolder.deleteMessages(msgs, null, true, false, null, false);
   }
 
   // Set attachment

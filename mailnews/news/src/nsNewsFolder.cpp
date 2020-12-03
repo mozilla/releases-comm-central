@@ -15,7 +15,6 @@
 #include "MailNewsTypes.h"
 #include "prprf.h"
 #include "prsystem.h"
-#include "nsIArray.h"
 #include "nsTArray.h"
 #include "nsArrayUtils.h"
 #include "nsINntpService.h"
@@ -691,25 +690,18 @@ NS_IMETHODIMP nsMsgNewsFolder::GetSizeOnDisk(int64_t* size) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::DeleteMessages(nsIArray* messages, nsIMsgWindow* aMsgWindow,
-                                bool deleteStorage, bool isMove,
+nsMsgNewsFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHdrs,
+                                nsIMsgWindow* aMsgWindow, bool deleteStorage,
+                                bool isMove,
                                 nsIMsgCopyServiceListener* listener,
                                 bool allowUndo) {
   nsresult rv = NS_OK;
-
-  NS_ENSURE_ARG_POINTER(messages);
   NS_ENSURE_ARG_POINTER(aMsgWindow);
-
-  // Stopgap. Build a parallel array of message headers while we complete
-  // removal of nsIArray usage (Bug 1583030).
-
-  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  MsgHdrsToTArray(messages, msgHeaders);
 
   if (!isMove) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-    if (notifier) notifier->NotifyMsgsDeleted(msgHeaders);
+    if (notifier) notifier->NotifyMsgsDeleted(msgHdrs);
   }
 
   rv = GetDatabase();
@@ -717,7 +709,7 @@ nsMsgNewsFolder::DeleteMessages(nsIArray* messages, nsIMsgWindow* aMsgWindow,
 
   rv = EnableNotifications(allMessageCountNotifications, false);
   if (NS_SUCCEEDED(rv)) {
-    for (auto msgHdr : msgHeaders) {
+    for (auto msgHdr : msgHdrs) {
       rv = mDatabase->DeleteHeader(msgHdr, nullptr, true, true);
       if (NS_FAILED(rv)) {
         break;

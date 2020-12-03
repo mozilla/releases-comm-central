@@ -45,8 +45,6 @@
 #include "nsArrayEnumerator.h"
 #include <time.h>
 #include "nsIMsgFolderNotificationService.h"
-#include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 #include "nsIMimeHeaders.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIMsgTraitService.h"
@@ -4309,15 +4307,16 @@ nsresult nsMsgDBFolder::ApplyRetentionSettings(bool deleteViaFolder) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::DeleteMessages(nsIArray* messages, nsIMsgWindow* msgWindow,
-                              bool deleteStorage, bool isMove,
-                              nsIMsgCopyServiceListener* listener,
+nsMsgDBFolder::DeleteMessages(nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+                              nsIMsgWindow* msgWindow, bool deleteStorage,
+                              bool isMove, nsIMsgCopyServiceListener* listener,
                               bool allowUndo) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::CopyMessages(nsIMsgFolder* srcFolder, nsIArray* messages,
+nsMsgDBFolder::CopyMessages(nsIMsgFolder* srcFolder,
+                            nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
                             bool isMove, nsIMsgWindow* window,
                             nsIMsgCopyServiceListener* listener, bool isFolder,
                             bool allowUndo) {
@@ -5259,24 +5258,22 @@ void nsMsgDBFolder::ClearProcessingFlags() {
   }
 }
 
-nsresult nsMsgDBFolder::MessagesInKeyOrder(const nsTArray<nsMsgKey>& aKeyArray,
-                                           nsIMsgFolder* srcFolder,
-                                           nsIMutableArray* messages) {
-  // XXX: the output messages - should really be and nsCOMArray<nsIMsgDBHdr>
+nsresult nsMsgDBFolder::MessagesInKeyOrder(
+    nsTArray<nsMsgKey> const& aKeyArray, nsIMsgFolder* srcFolder,
+    nsTArray<RefPtr<nsIMsgDBHdr>>& messages) {
+  messages.Clear();
+  messages.SetCapacity(aKeyArray.Length());
 
-  nsresult rv = NS_OK;
-  uint32_t numMessages = aKeyArray.Length();
-
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
   nsCOMPtr<nsIMsgDatabase> db;
-  rv = srcFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo),
-                                       getter_AddRefs(db));
+  nsresult rv = srcFolder->GetDBFolderInfoAndDB(getter_AddRefs(folderInfo),
+                                                getter_AddRefs(db));
   if (NS_SUCCEEDED(rv) && db) {
-    for (uint32_t i = 0; i < numMessages; i++) {
-      rv = db->GetMsgHdrForKey(aKeyArray[i], getter_AddRefs(msgHdr));
+    for (auto key : aKeyArray) {
+      nsCOMPtr<nsIMsgDBHdr> msgHdr;
+      rv = db->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
       NS_ENSURE_SUCCESS(rv, rv);
-      if (msgHdr) messages->AppendElement(msgHdr);
+      if (msgHdr) messages.AppendElement(msgHdr);
     }
   }
   return rv;

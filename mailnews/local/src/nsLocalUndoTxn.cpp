@@ -15,7 +15,7 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsThreadUtils.h"
 #include "nsIMsgDatabase.h"
-#include "nsIMutableArray.h"
+#include "nsIMsgHdr.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
@@ -233,8 +233,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
       }
     } else  // undoing a move means moving the messages back.
     {
-      nsCOMPtr<nsIMutableArray> dstMessages =
-          do_CreateInstance(NS_ARRAY_CONTRACTID);
+      nsTArray<RefPtr<nsIMsgDBHdr>> dstMessages(m_dstKeyArray.Length());
       m_numHdrsCopied = 0;
       m_srcKeyArray.Clear();
       for (i = 0; i < count; i++) {
@@ -247,7 +246,7 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
         if (dstHdr) {
           nsCString messageId;
           dstHdr->GetMessageId(getter_Copies(messageId));
-          dstMessages->AppendElement(dstHdr);
+          dstMessages.AppendElement(dstHdr);
           m_copiedMsgIds.AppendElement(messageId);
         } else {
           NS_WARNING("Cannot get old msg header");
@@ -294,17 +293,13 @@ nsLocalMoveCopyMsgTxn::RedoTransaction() {
   nsCOMPtr<nsIMsgDBHdr> oldHdr;
   nsCOMPtr<nsIMsgDBHdr> newHdr;
 
-  nsCOMPtr<nsIMutableArray> srcMessages =
-      do_CreateInstance(NS_ARRAY_CONTRACTID);
-  nsCOMPtr<nsISupports> msgSupports;
-
+  nsTArray<RefPtr<nsIMsgDBHdr>> srcMessages(m_srcKeyArray.Length());
   for (i = 0; i < count; i++) {
     rv = srcDB->GetMsgHdrForKey(m_srcKeyArray[i], getter_AddRefs(oldHdr));
     NS_ASSERTION(oldHdr, "fatal ... cannot get old msg header");
 
     if (NS_SUCCEEDED(rv) && oldHdr) {
-      msgSupports = do_QueryInterface(oldHdr);
-      srcMessages->AppendElement(msgSupports);
+      srcMessages.AppendElement(oldHdr);
 
       if (m_canUndelete) {
         rv = dstDB->CopyHdrFromExistingHdr(m_dstKeyArray[i], oldHdr, true,
@@ -335,9 +330,8 @@ nsLocalMoveCopyMsgTxn::RedoTransaction() {
       nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
           do_QueryInterface(srcFolder);
       if (localFolder) {
-        nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
-        MsgHdrsToTArray(srcMessages, hdrs);
-        localFolder->MarkMsgsOnPop3Server(hdrs, POP3_DELETE /*deleteMsgs*/);
+        localFolder->MarkMsgsOnPop3Server(srcMessages,
+                                          POP3_DELETE /*deleteMsgs*/);
       }
 
       rv = srcDB->DeleteMessages(m_srcKeyArray, nullptr);

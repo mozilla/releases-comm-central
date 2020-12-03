@@ -124,12 +124,8 @@ function* setup_open_failure_folder() {
 }
 
 function* delete_all_messages() {
-  let headers = [...gTargetFolder.messages];
-
-  let array = toXPCOMArray(headers, Ci.nsIMutableArray);
-
   gTargetFolder.deleteMessages(
-    array,
+    [...gTargetFolder.messages],
     null,
     false,
     true,

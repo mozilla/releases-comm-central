@@ -495,13 +495,9 @@ var EnigmailFixExchangeMsg = {
             self.hdr.messageKey +
             "\n"
         );
-        let msgArray = Cc["@mozilla.org/array;1"].createInstance(
-          Ci.nsIMutableArray
-        );
-        msgArray.appendElement(self.hdr);
 
         self.hdr.folder.deleteMessages(
-          msgArray,
+          [self.hdr],
           null,
           true,
           false,

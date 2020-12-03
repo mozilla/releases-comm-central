@@ -79,12 +79,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
 }
 
 function deleteMessages(srcFolder, items) {
-  var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function(item) {
-    array.appendElement(item);
-  });
-
-  srcFolder.deleteMessages(array, null, false, true, copyListener, true);
+  srcFolder.deleteMessages(items, null, false, true, copyListener, true);
 }
 
 /*
@@ -106,12 +101,7 @@ var gTestArray = [
     gMsgHdrs[0].hdr = inboxDB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
 
     // Now delete the message
-    deleteMessages(
-      localAccountUtils.inboxFolder,
-      [gMsgHdrs[0].hdr],
-      false,
-      false
-    );
+    deleteMessages(localAccountUtils.inboxFolder, [gMsgHdrs[0].hdr]);
   },
   function emptyTrash() {
     gRootFolder = localAccountUtils.incomingServer.rootMsgFolder;

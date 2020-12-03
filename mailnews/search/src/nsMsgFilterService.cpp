@@ -379,7 +379,7 @@ class nsMsgFilterAfterTheFact : public nsIUrlListener,
   uint32_t m_curFolderIndex;
   uint32_t m_numFilters;
   nsTArray<nsMsgKey> m_searchHits;
-  nsCOMPtr<nsIMutableArray> m_searchHitHdrs;
+  nsTArray<RefPtr<nsIMsgDBHdr>> m_searchHitHdrs;
   nsTArray<nsMsgKey> m_stopFiltering;
   nsCOMPtr<nsIMsgSearchSession> m_searchSession;
   nsCOMPtr<nsIMsgOperationListener> m_callback;
@@ -406,7 +406,6 @@ nsMsgFilterAfterTheFact::nsMsgFilterAfterTheFact(
                      // execution is done.
   mNeedsRelease = true;
 
-  m_searchHitHdrs = do_CreateInstance(NS_ARRAY_CONTRACTID);
   m_callback = aCallback;
   mFinalResult = NS_OK;
 }
@@ -582,7 +581,6 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnStopRunningUrl(nsIURI* aUrl,
 NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchHit(nsIMsgDBHdr* header,
                                                    nsIMsgFolder* folder) {
   NS_ENSURE_ARG_POINTER(header);
-  NS_ENSURE_TRUE(m_searchHitHdrs, NS_ERROR_NOT_INITIALIZED);
 
   nsMsgKey msgKey;
   header->GetMessageKey(&msgKey);
@@ -606,7 +604,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchHit(nsIMsgDBHdr* header,
   }
 
   m_searchHits.AppendElement(msgKey);
-  m_searchHitHdrs->AppendElement(header);
+  m_searchHitHdrs.AppendElement(header);
   return NS_OK;
 }
 
@@ -626,7 +624,7 @@ NS_IMETHODIMP nsMsgFilterAfterTheFact::OnSearchDone(nsresult status) {
 
 NS_IMETHODIMP nsMsgFilterAfterTheFact::OnNewSearch() {
   m_searchHits.Clear();
-  m_searchHitHdrs->Clear();
+  m_searchHitHdrs.Clear();
   return NS_OK;
 }
 
@@ -642,7 +640,6 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
   do {
     // Error management block, break if unable to continue with filter.
 
-    BREAK_IF_FALSE(m_searchHitHdrs, "No search headers object");
     if (!m_curFilter)
       break;  // Maybe not an error, we just need to call RunNextFilter();
     if (!m_curFolder)
@@ -702,14 +699,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
                           "actionTargetFolderUri is empty");
       }
 
-      // Stopgap during nsIArray removal (Bug 1612239).
-      // Need to shadow m_searchHitHdrs until all the receiving functions
-      // have been updated.
-      nsTArray<RefPtr<nsIMsgDBHdr>> hitHdrs;
-      MsgHdrsToTArray(m_searchHitHdrs, hitHdrs);
-
       if (loggingEnabled) {
-        for (auto msgHdr : hitHdrs) {
+        for (auto msgHdr : m_searchHitHdrs) {
           (void)curFilter->LogRuleHit(filterAction, msgHdr);
         }
       }
@@ -796,7 +787,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           }
 
           rv = copyService->CopyMessages(
-              curFolder, hitHdrs, destIFolder,
+              curFolder, m_searchHitHdrs, destIFolder,
               actionType == nsMsgFilterAction::MoveToFolder, this, m_msgWindow,
               false);
           BREAK_ACTION_IF_FAILURE(rv, "CopyMessages failed");
@@ -808,20 +799,20 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           // crud, no listener support here - we'll probably just need to go on
           // and apply the next filter, and, in the imap case, rely on multiple
           // connection and url queueing to stay out of trouble
-          rv = curFolder->MarkMessagesRead(hitHdrs, true);
+          rv = curFolder->MarkMessagesRead(m_searchHitHdrs, true);
           BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
           break;
         case nsMsgFilterAction::MarkUnread:
-          rv = curFolder->MarkMessagesRead(hitHdrs, false);
+          rv = curFolder->MarkMessagesRead(m_searchHitHdrs, false);
           BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
           break;
         case nsMsgFilterAction::MarkFlagged:
-          rv = curFolder->MarkMessagesFlagged(hitHdrs, true);
+          rv = curFolder->MarkMessagesFlagged(m_searchHitHdrs, true);
           BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
           break;
         case nsMsgFilterAction::KillThread:
         case nsMsgFilterAction::WatchThread: {
-          for (auto msgHdr : hitHdrs) {
+          for (auto msgHdr : m_searchHitHdrs) {
             nsCOMPtr<nsIMsgThread> msgThread;
             nsMsgKey threadKey;
             m_curFolderDB->GetThreadContainingMsgHdr(msgHdr,
@@ -840,7 +831,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           }
         } break;
         case nsMsgFilterAction::KillSubthread: {
-          for (auto msgHdr : hitHdrs) {
+          for (auto msgHdr : m_searchHitHdrs) {
             rv = m_curFolderDB->MarkHeaderKilled(msgHdr, true, nullptr);
             BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
           }
@@ -848,7 +839,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
         case nsMsgFilterAction::ChangePriority: {
           nsMsgPriorityValue filterPriority;
           filterAction->GetPriority(&filterPriority);
-          for (auto msgHdr : hitHdrs) {
+          for (auto msgHdr : m_searchHitHdrs) {
             rv = msgHdr->SetPriority(filterPriority);
             BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
           }
@@ -856,13 +847,13 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
         case nsMsgFilterAction::Label: {
           nsMsgLabelValue filterLabel;
           filterAction->GetLabel(&filterLabel);
-          rv = curFolder->SetLabelForMessages(hitHdrs, filterLabel);
+          rv = curFolder->SetLabelForMessages(m_searchHitHdrs, filterLabel);
           BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
         } break;
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
-          rv = curFolder->AddKeywordsToMessages(hitHdrs, keyword);
+          rv = curFolder->AddKeywordsToMessages(m_searchHitHdrs, keyword);
           BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
         } break;
         case nsMsgFilterAction::JunkScore: {
@@ -870,7 +861,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           int32_t junkScore;
           filterAction->GetJunkScore(&junkScore);
           junkScoreStr.AppendInt(junkScore);
-          rv = curFolder->SetJunkScoreForMessages(hitHdrs, junkScoreStr);
+          rv =
+              curFolder->SetJunkScoreForMessages(m_searchHitHdrs, junkScoreStr);
           BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
         } break;
         case nsMsgFilterAction::Forward: {
@@ -884,7 +876,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
               do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
           BREAK_ACTION_IF_FAILURE(rv, "Could not get compose service");
 
-          for (auto msgHdr : hitHdrs) {
+          for (auto msgHdr : m_searchHitHdrs) {
             rv = compService->ForwardMessage(
                 NS_ConvertASCIItoUTF16(forwardTo), msgHdr, m_msgWindow, server,
                 nsIMsgComposeService::kForwardAsDefault);
@@ -904,7 +896,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           nsCOMPtr<nsIMsgComposeService> compService =
               do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
           BREAK_ACTION_IF_FAILURE(rv, "Could not get compose service");
-          for (auto msgHdr : hitHdrs) {
+          for (auto msgHdr : m_searchHitHdrs) {
             rv = compService->ReplyWithTemplate(msgHdr, replyTemplateUri.get(),
                                                 m_msgWindow, server);
             if (NS_FAILED(rv)) {
@@ -928,30 +920,26 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           BREAK_ACTION_IF_FALSE(localFolder,
                                 "Current folder not a local folder");
           // This action ignores the deleteMailLeftOnServer preference
-          rv = localFolder->MarkMsgsOnPop3Server(hitHdrs, POP3_FORCE_DEL);
+          rv = localFolder->MarkMsgsOnPop3Server(m_searchHitHdrs,
+                                                 POP3_FORCE_DEL);
           BREAK_ACTION_IF_FAILURE(rv, "MarkMsgsOnPop3Server failed");
 
-          nsCOMPtr<nsIMutableArray> partialMsgs;
           // Delete the partial headers. They're useless now
           //   that the server copy is being deleted.
-          for (uint32_t msgIndex = 0; msgIndex < m_searchHits.Length();
-               msgIndex++) {
-            nsCOMPtr<nsIMsgDBHdr> msgHdr(hitHdrs[msgIndex]);
+          nsTArray<RefPtr<nsIMsgDBHdr>> partialMsgs;
+          for (uint32_t i = 0; i < m_searchHits.Length(); ++i) {
+            nsIMsgDBHdr* msgHdr = m_searchHitHdrs[i];
+            nsMsgKey msgKey = m_searchHits[i];
             uint32_t flags;
             msgHdr->GetFlags(&flags);
             if (flags & nsMsgMessageFlags::Partial) {
-              if (!partialMsgs) {
-                partialMsgs = do_CreateInstance(NS_ARRAY_CONTRACTID);
-                BREAK_ACTION_IF_FALSE(partialMsgs,
-                                      "Could not create partialMsgs array");
-              }
-              partialMsgs->AppendElement(msgHdr);
-              m_stopFiltering.AppendElement(m_searchHits[msgIndex]);
-              curFolder->OrProcessingFlags(m_searchHits[msgIndex],
+              partialMsgs.AppendElement(msgHdr);
+              m_stopFiltering.AppendElement(msgKey);
+              curFolder->OrProcessingFlags(msgKey,
                                            nsMsgProcessingFlags::FilterToMove);
             }
           }
-          if (partialMsgs) {
+          if (!partialMsgs.IsEmpty()) {
             rv = curFolder->DeleteMessages(partialMsgs, m_msgWindow, true,
                                            false, nullptr, false);
             BREAK_ACTION_IF_FAILURE(rv, "Delete messages failed");
@@ -963,7 +951,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           BREAK_ACTION_IF_FAILURE(rv, "current folder not local");
           BREAK_ACTION_IF_FALSE(localFolder, "current folder not local");
           nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-          for (auto msgHdr : hitHdrs) {
+          for (nsIMsgDBHdr* msgHdr : m_searchHitHdrs) {
             uint32_t flags = 0;
             msgHdr->GetFlags(&flags);
             if (flags & nsMsgMessageFlags::Partial)
@@ -993,8 +981,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           BREAK_ACTION_IF_FAILURE(rv, "Could not get custom action value");
           bool isAsync = false;
           customAction->GetIsAsync(&isAsync);
-          rv = customAction->ApplyAction(hitHdrs, value, this, filterType,
-                                         m_msgWindow);
+          rv = customAction->ApplyAction(m_searchHitHdrs, value, this,
+                                         filterType, m_msgWindow);
           BREAK_ACTION_IF_FAILURE(rv, "custom action failed to apply");
           if (isAsync) {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
@@ -1014,8 +1002,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
                 ("(Post) Action execution failed with error: %" PRIx32,
                  static_cast<uint32_t>(mFinalResult)));
         if (loggingEnabled) {
-          nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, 0);
-          (void)curFilter->LogRuleHitFail(filterAction, msgHdr, mFinalResult,
+          (void)curFilter->LogRuleHitFail(filterAction, m_searchHitHdrs[0],
+                                          mFinalResult,
                                           "filterActionFailed"_ns);
         }
       } else {

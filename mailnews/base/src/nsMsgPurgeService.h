@@ -38,7 +38,7 @@ class nsMsgPurgeService : public nsIMsgPurgeService, public nsIMsgSearchNotify {
   nsCOMPtr<nsITimer> mPurgeTimer;
   nsCOMPtr<nsIMsgSearchSession> mSearchSession;
   nsCOMPtr<nsIMsgFolder> mSearchFolder;
-  nsCOMPtr<nsIMutableArray> mHdrsToDelete;
+  nsTArray<RefPtr<nsIMsgDBHdr>> mHdrsToDelete;
   bool mHaveShutdown;
 
  private:

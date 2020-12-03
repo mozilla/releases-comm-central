@@ -15,7 +15,6 @@
 #include "nsDirectoryServiceDefs.h"
 #include "nsQuickSort.h"
 #include "nsNativeCharsetUtils.h"
-#include "nsIMutableArray.h"
 #include "mozilla/Path.h"
 #include "mozilla/Services.h"
 #include "mozilla/dom/LoadURIOptionsBinding.h"
@@ -2325,21 +2324,14 @@ nsDelAttachListener::OnStartRunningUrl(nsIURI* aUrl) {
 }
 
 nsresult nsDelAttachListener::DeleteOriginalMessage() {
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> messageArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = messageArray->AppendElement(mOriginalMessage);
-  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgCopyServiceListener> listenerCopyService;
-
   QueryInterface(NS_GET_IID(nsIMsgCopyServiceListener),
                  getter_AddRefs(listenerCopyService));
 
+  RefPtr<nsIMsgDBHdr> doomed(mOriginalMessage);
   mOriginalMessage = nullptr;
   m_state = eDeletingOldMessage;
-  return mMessageFolder->DeleteMessages(messageArray,         // messages
+  return mMessageFolder->DeleteMessages({doomed},             // messages
                                         mMsgWindow,           // msgWindow
                                         true,                 // deleteStorage
                                         false,                // isMove

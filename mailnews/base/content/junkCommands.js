@@ -388,13 +388,11 @@ function deleteJunkInFolder() {
   // use direct folder commands if possible so we don't mess with the selection
   let selectedFolder = gFolderDisplay.displayedFolder;
   if (!selectedFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-    var junkMsgHdrs = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
+    let junkMsgHdrs = [];
     for (let msgHdr of gDBView.msgFolder.messages) {
       let junkScore = msgHdr.getStringProperty("junkscore");
       if (junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE) {
-        junkMsgHdrs.appendElement(msgHdr);
+        junkMsgHdrs.push(msgHdr);
       }
     }
 

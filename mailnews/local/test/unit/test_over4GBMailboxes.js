@@ -484,11 +484,11 @@ function compactOver4GiB() {
   Assert.equal(gInbox.expungedBytes, 0);
   // Delete the last small message at folder end.
   let enumerator = gInbox.messages;
-  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let messages = [];
   let sizeToExpunge = 0;
   for (let header of enumerator) {
     if (!enumerator.hasMoreElements()) {
-      messages.appendElement(header);
+      messages.push(header);
       sizeToExpunge = header.messageSize;
     }
   }
@@ -536,11 +536,11 @@ function compactUnder4GiB() {
   // Very last header in folder is retained,
   // but all other preceding headers are marked as deleted.
   let enumerator = gInbox.messages;
-  let messages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let messages = [];
   let sizeToExpunge = gInbox.expungedBytes; // If compact in compactOver4GB was skipped, this is not 0.
   for (let header of enumerator) {
     if (enumerator.hasMoreElements()) {
-      messages.appendElement(header);
+      messages.push(header);
       sizeToExpunge += header.messageSize;
     }
   }

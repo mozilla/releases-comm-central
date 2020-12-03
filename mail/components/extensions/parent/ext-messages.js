@@ -392,12 +392,8 @@ this.messages = class extends ExtensionAPI {
           for (let [sourceFolder, sourceSet] of folderMap.entries()) {
             promises.push(
               new Promise((resolve, reject) => {
-                let messages = toXPCOMArray(
-                  sourceSet.values(),
-                  Ci.nsIMutableArray
-                );
                 sourceFolder.deleteMessages(
-                  messages,
+                  [...sourceSet],
                   /* msgWindow */ null,
                   /* deleteStorage */ skipTrash,
                   /* isMove */ false,

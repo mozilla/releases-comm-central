@@ -3,12 +3,12 @@
 // Original Author: David Bienvenu <dbienvenu@mozilla.com>
 
 // Globals
-var gMsg1;
-var gMessages = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-var gMsgWindow;
-var gCurTestNum;
-var gMsgId1;
-var gTestFolder;
+let gMsg1;
+let gMessages = [];
+let gMsgWindow;
+let gCurTestNum;
+let gMsgId1;
+let gTestFolder;
 
 /* import-globals-from ../../../test/resources/asyncTestUtils.js */
 /* import-globals-from ../../../test/resources/messageModifier.js */
@@ -23,7 +23,7 @@ var gTestArray = [
   function deleteMessage() {
     let msgToDelete = mailTestUtils.firstMsgHdr(gTestFolder);
     gMsgId1 = msgToDelete.messageId;
-    gMessages.appendElement(msgToDelete);
+    gMessages.push(msgToDelete);
     gTestFolder.deleteMessages(
       gMessages,
       gMsgWindow,
@@ -132,7 +132,7 @@ var URLListener = {
 
 function endTest() {
   // Cleanup, null out everything
-  gMessages.clear();
+  gMessages = [];
   gMsgWindow.closeWindow();
   gMsgWindow = null;
   localAccountUtils.inboxFolder = null;

@@ -23,7 +23,6 @@
 #include "nsIMsgSearchSession.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsIMutableArray.h"
 
 static bool gReferenceOnlyThreading;
 
@@ -984,16 +983,10 @@ nsresult nsMsgSearchDBView::ProcessRequestsInOneFolder(nsIMsgWindow* window) {
   nsIMsgFolder* curFolder = m_uniqueFoldersSelected[mCurIndex];
   NS_ASSERTION(curFolder, "curFolder is null");
   nsTArray<RefPtr<nsIMsgDBHdr>> const& msgs = m_hdrsForEachFolder[mCurIndex];
-  // Stopgap during nsIArray removal (see Bug 1612239)
-  nsCOMPtr<nsIMutableArray> messageArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID));
-  for (auto hdr : msgs) {
-    messageArray->AppendElement(hdr);
-  }
 
   // called for delete with trash, copy and move
   if (mCommand == nsMsgViewCommandType::deleteMsg)
-    curFolder->DeleteMessages(messageArray, window, false /* delete storage */,
+    curFolder->DeleteMessages(msgs, window, false /* delete storage */,
                               false /* is move*/, this, true /*allowUndo*/);
   else {
     NS_ASSERTION(!(curFolder == mDestFolder),
@@ -1022,16 +1015,9 @@ nsresult nsMsgSearchDBView::ProcessRequestsInAllFolders(nsIMsgWindow* window) {
   for (uint32_t folderIndex = 0; folderIndex < numFolders; folderIndex++) {
     nsIMsgFolder* curFolder = m_uniqueFoldersSelected[folderIndex];
     NS_ASSERTION(curFolder, "curFolder is null");
-
-    // Stopgap during nsIArray removal (see Bug 1612239)
-    nsCOMPtr<nsIMutableArray> messageArray(
-        do_CreateInstance(NS_ARRAY_CONTRACTID));
-    for (auto hdr : m_hdrsForEachFolder[folderIndex]) {
-      messageArray->AppendElement(hdr);
-    }
-    curFolder->DeleteMessages(messageArray, window, true /* delete storage */,
-                              false /* is move*/, nullptr /*copyServListener*/,
-                              false /*allowUndo*/);
+    curFolder->DeleteMessages(
+        m_hdrsForEachFolder[folderIndex], window, true /* delete storage */,
+        false /* is move*/, nullptr /*copyServListener*/, false /*allowUndo*/);
   }
 
   return NS_OK;

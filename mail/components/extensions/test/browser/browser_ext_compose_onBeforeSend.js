@@ -408,7 +408,7 @@ add_task(async function testChangeDetails() {
 
   await new Promise(resolve => {
     outbox.deleteMessages(
-      toXPCOMArray([sentMessage5, sentMessage6], Ci.nsIMutableArray),
+      [sentMessage5, sentMessage6],
       null,
       true,
       false,
@@ -506,7 +506,7 @@ add_task(async function testChangeAttachments() {
 
   await new Promise(resolve => {
     outbox.deleteMessages(
-      toXPCOMArray([sentMessage12], Ci.nsIMutableArray),
+      [sentMessage12],
       null,
       true,
       false,
@@ -687,7 +687,7 @@ add_task(async function testListExpansion() {
 
   await new Promise(resolve => {
     outbox.deleteMessages(
-      toXPCOMArray([sentMessage7, sentMessage8], Ci.nsIMutableArray),
+      [sentMessage7, sentMessage8],
       null,
       true,
       false,
@@ -825,7 +825,7 @@ add_task(async function testMultipleListeners() {
 
   await new Promise(resolve => {
     outbox.deleteMessages(
-      toXPCOMArray([sentMessage], Ci.nsIMutableArray),
+      [sentMessage],
       null,
       true,
       false,

@@ -2003,13 +2003,9 @@ nsresult nsImapMailFolder::MarkMessagesImapDeleted(nsTArray<nsMsgKey>* keyArray,
 }
 
 NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
-    nsIArray* messages, nsIMsgWindow* msgWindow, bool deleteStorage,
-    bool isMove, nsIMsgCopyServiceListener* listener, bool allowUndo) {
-  // Stopgap. Build a parallel array of message headers while we complete
-  // removal of nsIArray usage (Bug 1583030).
-  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  MsgHdrsToTArray(messages, msgHeaders);
-
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& msgHeaders, nsIMsgWindow* msgWindow,
+    bool deleteStorage, bool isMove, nsIMsgCopyServiceListener* listener,
+    bool allowUndo) {
   // *** jt - assuming delete is move to the trash folder for now
   nsAutoCString uri;
   bool deleteImmediatelyNoTrash = false;
@@ -2033,7 +2029,7 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
     imapServer->PseudoInterruptMsgLoad(this, msgWindow, &interrupted);
   }
 
-  rv = BuildIdsAndKeyArray(messages, messageIds, srcKeyArray);
+  rv = BuildIdsAndKeyArray2(msgHeaders, messageIds, srcKeyArray);
   if (NS_FAILED(rv)) return rv;
 
   nsCOMPtr<nsIMsgFolder> rootFolder;
@@ -2070,18 +2066,16 @@ NS_IMETHODIMP nsImapMailFolder::DeleteMessages(
     }
 
     if (deleteModel == nsMsgImapDeleteModels::IMAPDelete && !deleteStorage) {
-      uint32_t cnt, flags;
-      rv = messages->GetLength(&cnt);
-      NS_ENSURE_SUCCESS(rv, rv);
       deleteMsgs = false;
-      for (uint32_t i = 0; i < cnt; i++) {
-        nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, i);
-        if (msgHdr) {
-          msgHdr->GetFlags(&flags);
-          if (!(flags & nsMsgMessageFlags::IMAPDeleted)) {
-            deleteMsgs = true;
-            break;
-          }
+      for (nsIMsgDBHdr* msgHdr : msgHeaders) {
+        if (!msgHdr) {
+          continue;
+        }
+        uint32_t flags;
+        msgHdr->GetFlags(&flags);
+        if (!(flags & nsMsgMessageFlags::IMAPDeleted)) {
+          deleteMsgs = true;
+          break;
         }
       }
     }
@@ -4886,28 +4880,13 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
       if (notifier && m_copyState) {
         if (imapAction == nsIImapUrl::nsImapOnlineMove) {
-          nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
-          MsgHdrsToTArray(m_copyState->m_messages, hdrs);
-          notifier->NotifyMsgsMoveCopyCompleted(true, hdrs, this, {});
+          notifier->NotifyMsgsMoveCopyCompleted(true, m_copyState->m_messages,
+                                                this, {});
         } else if (imapAction == nsIImapUrl::nsImapOnlineCopy) {
-          nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
-          MsgHdrsToTArray(m_copyState->m_messages, hdrs);
-          notifier->NotifyMsgsMoveCopyCompleted(false, hdrs, this, {});
+          notifier->NotifyMsgsMoveCopyCompleted(false, m_copyState->m_messages,
+                                                this, {});
         } else if (imapAction == nsIImapUrl::nsImapDeleteMsg) {
-          // Stopgap. Build a parallel array of message headers while we
-          // complete removal of nsIArray usage (Bug 1583030).
-          uint32_t messageCount = 0;
-          if (m_copyState->m_messages) {
-            m_copyState->m_messages->GetLength(&messageCount);
-          }
-          nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-          msgHeaders.SetCapacity(messageCount);
-          for (uint32_t i = 0; i < messageCount; ++i) {
-            msgHeaders.AppendElement(
-                do_QueryElementAt(m_copyState->m_messages, i));
-          }
-
-          notifier->NotifyMsgsDeleted(msgHeaders);
+          notifier->NotifyMsgsDeleted(m_copyState->m_messages);
         }
       }
 
@@ -4938,8 +4917,8 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                     if (msgTxn) msgTxn->GetSrcKeyArray(srcKeyArray);
                   } else {
                     nsAutoCString messageIds;
-                    rv = BuildIdsAndKeyArray(m_copyState->m_messages,
-                                             messageIds, srcKeyArray);
+                    rv = BuildIdsAndKeyArray2(m_copyState->m_messages,
+                                              messageIds, srcKeyArray);
                     NS_ENSURE_SUCCESS(rv, rv);
                   }
 
@@ -6236,33 +6215,20 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
           ("CopyNextStreamMessage: Copying %u of %u", mailCopyState->m_curIndex,
            mailCopyState->m_totalCount));
   if (mailCopyState->m_curIndex < mailCopyState->m_totalCount) {
-    mailCopyState->m_message = do_QueryElementAt(
-        mailCopyState->m_messages, mailCopyState->m_curIndex, &rv);
-    if (NS_SUCCEEDED(rv)) {
-      bool isRead;
-      mailCopyState->m_message->GetIsRead(&isRead);
-      mailCopyState->m_unreadCount = (isRead) ? 0 : 1;
-      rv = CopyStreamMessage(mailCopyState->m_message, this,
-                             mailCopyState->m_msgWindow,
-                             mailCopyState->m_isMove);
-    } else {
-      MOZ_LOG(IMAP, mozilla::LogLevel::Info,
-              ("QueryElementAt %u failed: %" PRIx32, mailCopyState->m_curIndex,
-               static_cast<uint32_t>(rv)));
-    }
+    mailCopyState->m_message =
+        mailCopyState->m_messages[mailCopyState->m_curIndex];
+    bool isRead;
+    mailCopyState->m_message->GetIsRead(&isRead);
+    mailCopyState->m_unreadCount = (isRead) ? 0 : 1;
+    rv = CopyStreamMessage(mailCopyState->m_message, this,
+                           mailCopyState->m_msgWindow, mailCopyState->m_isMove);
   } else {
     // Notify of move/copy completion in case we have some source headers
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-    if (notifier) {
-      uint32_t numHdrs;
-      mailCopyState->m_messages->GetLength(&numHdrs);
-      if (numHdrs) {
-        nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
-        MsgHdrsToTArray(mailCopyState->m_messages, hdrs);
-        notifier->NotifyMsgsMoveCopyCompleted(mailCopyState->m_isMove, hdrs,
-                                              this, {});
-      }
+    if (notifier && !mailCopyState->m_messages.IsEmpty()) {
+      notifier->NotifyMsgsMoveCopyCompleted(
+          mailCopyState->m_isMove, mailCopyState->m_messages, this, {});
     }
     if (mailCopyState->m_isMove) {
       nsCOMPtr<nsIMsgFolder> srcFolder(
@@ -6316,11 +6282,10 @@ nsImapMailFolder::SetUrlState(nsIImapProtocol* aProtocol,
 
 // used when copying from local mail folder, or other imap server)
 nsresult nsImapMailFolder::CopyMessagesWithStream(
-    nsIMsgFolder* srcFolder, nsIArray* messages, bool isMove,
-    bool isCrossServerOp, nsIMsgWindow* msgWindow,
+    nsIMsgFolder* srcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+    bool isMove, bool isCrossServerOp, nsIMsgWindow* msgWindow,
     nsIMsgCopyServiceListener* listener, bool allowUndo) {
   NS_ENSURE_ARG_POINTER(srcFolder);
-  NS_ENSURE_ARG_POINTER(messages);
   nsresult rv;
   nsCOMPtr<nsISupports> aSupport(do_QueryInterface(srcFolder, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -6334,7 +6299,7 @@ nsresult nsImapMailFolder::CopyMessagesWithStream(
   if (m_copyState->m_allowUndo) {
     nsAutoCString messageIds;
     nsTArray<nsMsgKey> srcKeyArray;
-    rv = BuildIdsAndKeyArray(messages, messageIds, srcKeyArray);
+    rv = BuildIdsAndKeyArray2(messages, messageIds, srcKeyArray);
 
     RefPtr<nsImapMoveCopyMsgTxn> undoMsgTxn = new nsImapMoveCopyMsgTxn;
 
@@ -6352,9 +6317,7 @@ nsresult nsImapMailFolder::CopyMessagesWithStream(
       undoMsgTxn->SetTransactionType(nsIMessenger::eCopyMsg);
     m_copyState->m_undoMsgTxn = undoMsgTxn;
   }
-  nsCOMPtr<nsIMsgDBHdr> msg;
-  msg = do_QueryElementAt(messages, 0, &rv);
-  if (NS_SUCCEEDED(rv)) CopyStreamMessage(msg, this, msgWindow, isMove);
+  if (NS_SUCCEEDED(rv)) CopyStreamMessage(messages[0], this, msgWindow, isMove);
   return rv;  // we are clearing copy state in CopyMessages on failure
 }
 
@@ -6516,9 +6479,8 @@ nsresult nsImapMailFolder::FindOpenRange(nsMsgKey& fakeBase,
 // We are either offline, or doing a pseudo-offline delete (where we do an
 // offline delete, load the next message, then playback the offline delete).
 nsresult nsImapMailFolder::CopyMessagesOffline(
-    nsIMsgFolder* srcFolder, nsIArray* messages, bool isMove,
-    nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener) {
-  NS_ENSURE_ARG(messages);
+    nsIMsgFolder* srcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+    bool isMove, nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener) {
   nsresult rv;
   nsresult stopit = NS_OK;
   nsCOMPtr<nsIMsgDatabase> sourceMailDB;
@@ -6527,8 +6489,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
                                   getter_AddRefs(sourceMailDB));
   bool deleteToTrash = false;
   bool deleteImmediately = false;
-  uint32_t srcCount;
-  messages->GetLength(&srcCount);
+  uint32_t srcCount = messages.Length();
   nsCOMPtr<nsIImapIncomingServer> imapServer;
   rv = GetImapIncomingServer(getter_AddRefs(imapServer));
 
@@ -6590,7 +6551,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
       if (!deleteToTrash)
         deleteOpType = nsIMsgOfflineImapOperation::kMsgMarkedDeleted;
       nsCString messageIds;
-      rv = BuildIdsAndKeyArray(messages, messageIds, srcKeyArray);
+      rv = BuildIdsAndKeyArray2(messages, messageIds, srcKeyArray);
       // put fake message in destination db, delete source if move
       EnableNotifications(nsIMsgFolder::allMessageCountNotifications, false);
       for (uint32_t sourceKeyIndex = 0;
@@ -6599,8 +6560,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
         bool messageReturningHome = false;
         nsCString originalSrcFolderURI;
         srcFolder->GetURI(originalSrcFolderURI);
-        nsCOMPtr<nsIMsgDBHdr> message;
-        message = do_QueryElementAt(messages, sourceKeyIndex);
+        RefPtr<nsIMsgDBHdr> message = messages[sourceKeyIndex];
         nsMsgKey originalKey;
         if (message)
           rv = message->GetMessageKey(&originalKey);
@@ -6608,8 +6568,6 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
           NS_ERROR("bad msg in src array");
           continue;
         }
-        nsMsgKey msgKey;
-        message->GetMessageKey(&msgKey);
         nsCOMPtr<nsIMsgOfflineImapOperation> sourceOp;
         rv = sourceMailDB->GetOfflineOpForKey(originalKey, true,
                                               getter_AddRefs(sourceOp));
@@ -6943,8 +6901,8 @@ void nsImapMailFolder::SetPendingAttributes(
 
 NS_IMETHODIMP
 nsImapMailFolder::CopyMessages(
-    nsIMsgFolder* srcFolder, nsIArray* messages, bool isMove,
-    nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener,
+    nsIMsgFolder* srcFolder, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+    bool isMove, nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener,
     bool isFolder,  // isFolder for future use when we do cross-server folder
                     // move/copy
     bool allowUndo) {
@@ -7013,34 +6971,20 @@ nsImapMailFolder::CopyMessages(
   } else {
     // sort the message array by key
 
-    uint32_t numMsgs = 0;
-    messages->GetLength(&numMsgs);
-    nsTArray<nsMsgKey> keyArray(numMsgs);
-    for (uint32_t i = 0; i < numMsgs; i++) {
-      nsCOMPtr<nsIMsgDBHdr> aMessage = do_QueryElementAt(messages, i, &rv);
-      if (NS_SUCCEEDED(rv) && aMessage) {
-        nsMsgKey key;
-        aMessage->GetMessageKey(&key);
-        keyArray.AppendElement(key);
+    nsTArray<nsMsgKey> keyArray(messages.Length());
+    for (nsIMsgDBHdr* aMessage : messages) {
+      if (!aMessage) {
+        continue;
       }
+      nsMsgKey key;
+      aMessage->GetMessageKey(&key);
+      keyArray.AppendElement(key);
     }
     keyArray.Sort();
 
-    nsCOMPtr<nsIMutableArray> sortedMsgs(
-        do_CreateInstance(NS_ARRAY_CONTRACTID));
+    nsTArray<RefPtr<nsIMsgDBHdr>> sortedMsgs;
     rv = MessagesInKeyOrder(keyArray, srcFolder, sortedMsgs);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    // Stopgap. Build a parallel nsTArray while the nsIArray-removal
-    // is completed (see Bug 1612239).
-    sortedMsgs->GetLength(&numMsgs);
-    nsTArray<RefPtr<nsIMsgDBHdr>> sortedHdrs;
-    sortedHdrs.SetCapacity(numMsgs);
-    for (uint32_t i = 0; i < numMsgs; i++) {
-      nsCOMPtr<nsIMsgDBHdr> hdr = do_QueryElementAt(sortedMsgs, i, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-      sortedHdrs.AppendElement(hdr);
-    }
 
     if (WeAreOffline())
       return CopyMessagesOffline(srcFolder, sortedMsgs, isMove, msgWindow,
@@ -7051,7 +6995,7 @@ nsImapMailFolder::CopyMessages(
     NS_ENSURE_SUCCESS(rv, rv);
 
     // 3rd parameter: Do not set offline flag.
-    SetPendingAttributes(sortedHdrs, isMove, false);
+    SetPendingAttributes(sortedMsgs, isMove, false);
 
     // if the folders aren't on the same server, do a stream base copy
     if (!sameServer) {
@@ -7405,8 +7349,8 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
           if (!confirmed) return NS_OK;
         }
       }
-      rv = InitCopyState(srcSupport, nullptr, false, false, false, 0,
-                         EmptyCString(), listener, msgWindow, false);
+      rv = InitCopyState(srcSupport, {}, false, false, false, 0, EmptyCString(),
+                         listener, msgWindow, false);
       if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);
 
       rv = imapService->MoveFolder(srcFolder, this, this, msgWindow, nullptr);
@@ -7430,10 +7374,8 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
   nsMsgKey key = nsMsgKey_None;
   nsAutoCString messageId;
   nsCOMPtr<nsIUrlListener> urlListener;
-  nsCOMPtr<nsIMutableArray> messages(do_CreateInstance(NS_ARRAY_CONTRACTID));
+  nsTArray<RefPtr<nsIMsgDBHdr>> messages;
   nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(file, &rv);
-
-  if (!messages) return OnCopyCompleted(srcSupport, rv);
 
   nsCOMPtr<nsIImapService> imapService =
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
@@ -7451,7 +7393,7 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
       // So set the offline size to 0 to force SetPendingAttributes to
       // clear the offline message flag.
       msgToReplace->SetOfflineMessageSize(0);
-      messages->AppendElement(msgToReplace);
+      messages.AppendElement(msgToReplace);
       SetPendingAttributes({msgToReplace}, false, false);
     }
   }
@@ -7583,8 +7525,8 @@ nsImapMailCopyState::~nsImapMailCopyState() {
 NS_IMPL_ISUPPORTS(nsImapMailCopyState, nsImapMailCopyState)
 
 nsresult nsImapMailFolder::InitCopyState(
-    nsISupports* srcSupport, nsIArray* messages, bool isMove,
-    bool selectedState, bool acrossServers, uint32_t newMsgFlags,
+    nsISupports* srcSupport, nsTArray<RefPtr<nsIMsgDBHdr>> const& messages,
+    bool isMove, bool selectedState, bool acrossServers, uint32_t newMsgFlags,
     const nsACString& newMsgKeywords, nsIMsgCopyServiceListener* listener,
     nsIMsgWindow* msgWindow, bool allowUndo) {
   NS_ENSURE_ARG_POINTER(srcSupport);
@@ -7598,16 +7540,13 @@ nsresult nsImapMailFolder::InitCopyState(
   m_copyState->m_srcSupport = do_QueryInterface(srcSupport, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  m_copyState->m_messages = messages;
-  if (messages) rv = messages->GetLength(&m_copyState->m_totalCount);
+  m_copyState->m_messages = messages.Clone();
+  m_copyState->m_totalCount = messages.Length();
   if (!m_copyState->m_isCrossServerOp) {
     if (NS_SUCCEEDED(rv)) {
       uint32_t numUnread = 0;
-      for (uint32_t keyIndex = 0; keyIndex < m_copyState->m_totalCount;
-           keyIndex++) {
-        nsCOMPtr<nsIMsgDBHdr> message =
-            do_QueryElementAt(m_copyState->m_messages, keyIndex, &rv);
-        // if the key is not there, then assume what the caller tells us to.
+      for (nsIMsgDBHdr* message : m_copyState->m_messages) {
+        // if the message is not there, then assume what the caller tells us to.
         bool isRead = false;
         uint32_t flags;
         if (message) {
@@ -7619,8 +7558,7 @@ nsresult nsImapMailFolder::InitCopyState(
       m_copyState->m_unreadCount = numUnread;
     }
   } else {
-    nsCOMPtr<nsIMsgDBHdr> message = do_QueryElementAt(
-        m_copyState->m_messages, m_copyState->m_curIndex, &rv);
+    nsIMsgDBHdr* message = m_copyState->m_messages[m_copyState->m_curIndex];
     // if the key is not there, then assume what the caller tells us to.
     bool isRead = false;
     uint32_t flags;

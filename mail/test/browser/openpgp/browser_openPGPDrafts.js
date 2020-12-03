@@ -102,7 +102,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
         let msgs = [...draftsFolder.msgDatabase.EnumerateMessages()];
 
         draftsFolder.deleteMessages(
-          toXPCOMArray(msgs, Ci.nsIMutableArray),
+          msgs,
           null,
           true,
           false,

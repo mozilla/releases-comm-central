@@ -52,10 +52,8 @@ var tests = [
   function* deleteOneMsg() {
     let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
     let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr);
     IMAPPump.inbox.deleteMessages(
-      array,
+      [msgHdr],
       null,
       false,
       true,
@@ -104,11 +102,9 @@ var tests = [
   },
   function* deleteAnOtherMsg() {
     let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
-    let msgHdr = enumerator.getNext();
-    let array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    array.appendElement(msgHdr);
+    let msgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
     IMAPPump.inbox.deleteMessages(
-      array,
+      [msgHdr],
       null,
       false,
       true,

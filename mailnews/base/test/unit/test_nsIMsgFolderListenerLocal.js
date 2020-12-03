@@ -102,10 +102,6 @@ function copyFolders(items, isMove, destFolder) {
 }
 
 function deleteMessages(srcFolder, items, deleteStorage, isMove) {
-  var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function(item) {
-    array.appendElement(item);
-  });
   // We should only get the delete notification only if we are not moving, and are deleting from
   // the storage/trash. We should get only the move/copy notification if we aren't.
   var isTrashFolder = srcFolder.getFlag(Ci.nsMsgFolderFlags.Trash);
@@ -127,7 +123,7 @@ function deleteMessages(srcFolder, items, deleteStorage, isMove) {
   }
 
   srcFolder.deleteMessages(
-    array,
+    items,
     null,
     deleteStorage,
     isMove,

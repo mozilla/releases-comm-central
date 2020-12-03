@@ -10,7 +10,6 @@ interface nsIMutableArray;
 interface nsIMsgSearchAdapter;
 interface nsIMsgSearchTerm;
 interface nsIMsgSearchNotify;
-interface nsIMsgHdr;
 interface nsIMsgDatabase;
 interface nsIMsgWindow;
 

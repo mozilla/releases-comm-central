@@ -21,8 +21,6 @@ interface nsIInputStream;
 interface nsIFile;
 interface nsIMsgIdentity;
 interface nsIMsgThread;
-interface nsIArray;
-interface nsIMutableArray;
 interface nsIMsgPluggableStore;
 
 typedef long nsMsgBiffState;
@@ -457,12 +455,12 @@ interface nsIMsgFolder : nsISupports {
    * @param isMove        Whether or not this is a deletion for moving messages.
    * @param allowUndo     Whether this action should be undoable.
    */
-  void deleteMessages(in nsIArray messages,
+  void deleteMessages(in Array<nsIMsgDBHdr> messages,
                       in nsIMsgWindow msgWindow,
                       in boolean deleteStorage, in boolean isMove,
                       in nsIMsgCopyServiceListener listener, in boolean allowUndo);
 
-  void copyMessages(in nsIMsgFolder srcFolder, in nsIArray messages,
+  void copyMessages(in nsIMsgFolder srcFolder, in Array<nsIMsgDBHdr> messages,
                     in boolean isMove, in nsIMsgWindow msgWindow,
                     in nsIMsgCopyServiceListener listener, in boolean isFolder,
                     in boolean allowUndo);

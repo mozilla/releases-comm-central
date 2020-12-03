@@ -3459,19 +3459,8 @@ nsresult nsMsgComposeSendListener::RemoveDraftOrTemplate(nsIMsgCompose* compObj,
       db->ContainsKey(key, &containsKey);
       if (!containsKey) break;
 
-      // Build the msg array.
-      nsCOMPtr<nsIMutableArray> messageArray(
-          do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-      NS_ASSERTION(NS_SUCCEEDED(rv),
-                   "RemoveDraftOrTemplate can't allocate array");
-      if (NS_FAILED(rv) || !messageArray) break;
-      rv = messageArray->AppendElement(msgDBHdr);
-      NS_ASSERTION(NS_SUCCEEDED(rv),
-                   "RemoveDraftOrTemplate can't append msg header to array");
-      if (NS_FAILED(rv)) break;
-
       // Ready to delete the msg.
-      rv = msgFolder->DeleteMessages(messageArray, nullptr, true, false,
+      rv = msgFolder->DeleteMessages({&*msgDBHdr}, nullptr, true, false,
                                      nullptr, false /*allowUndo*/);
       NS_ASSERTION(NS_SUCCEEDED(rv),
                    "RemoveDraftOrTemplate can't delete message");

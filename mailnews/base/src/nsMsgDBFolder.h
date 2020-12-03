@@ -201,9 +201,9 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   /**
    * Produce an array of messages ordered like the input keys.
    */
-  nsresult MessagesInKeyOrder(const nsTArray<nsMsgKey>& aKeyArray,
+  nsresult MessagesInKeyOrder(nsTArray<nsMsgKey> const& aKeyArray,
                               nsIMsgFolder* srcFolder,
-                              nsIMutableArray* messages);
+                              nsTArray<RefPtr<nsIMsgDBHdr>>& messages);
   nsCString mURI;
 
   nsCOMPtr<nsIMsgDatabase> mDatabase;
