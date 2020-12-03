@@ -341,6 +341,51 @@ AddrBookMailingList.prototype = {
       equals(card) {
         return self._uid == card.UID;
       },
+      hasEmailAddress(emailAddress) {
+        return false;
+      },
+      get properties() {
+        let entries = [];
+        entries.push(["DisplayName", this.displayName]);
+        entries.push(["NickName", this.getProperty("NickName", "")]);
+        entries.push(["Notes", this.getProperty("Notes", "")]);
+        let enumerator = {
+          hasMoreElements() {
+            return entries.length > 0;
+          },
+          getNext() {
+            if (!this.hasMoreElements()) {
+              throw Components.Exception("No next!", Cr.NS_ERROR_NOT_AVAILABLE);
+            }
+            let [name, value] = entries.shift();
+            return {
+              get name() {
+                return name;
+              },
+              get value() {
+                return value;
+              },
+              QueryInterface: ChromeUtils.generateQI(["nsIProperty"]),
+            };
+          },
+          *[Symbol.iterator]() {
+            while (this.hasMoreElements()) {
+              yield this.getNext();
+            }
+          },
+          QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
+        };
+        return enumerator;
+      },
+      translateTo(type) {
+        // Get nsAbCardProperty to do the work, the code is in C++ anyway.
+        let cardCopy = Cc[
+          "@mozilla.org/addressbook/cardproperty;1"
+        ].createInstance(Ci.nsIAbCard);
+        cardCopy.UID = this.UID;
+        cardCopy.copy(this);
+        return cardCopy.translateTo(type);
+      },
     };
   },
 };
