@@ -22,13 +22,6 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
   fill: blue !important;
 }
 
-treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
-treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail, selected, focus),
-treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
-treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
-  color: HighlightText !important;
-}
-
 treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
   color: gray !important;
   font-style: italic;
