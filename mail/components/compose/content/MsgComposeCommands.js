@@ -4776,6 +4776,21 @@ function updateSendLock() {
       }
     }
   }
+
+  // If the send button is still disabled, check the non pillified written
+  // values inside the input fields.
+  if (gSendLocked) {
+    for (let row of document.querySelectorAll(".address-row:not(.hidden)")) {
+      let input = row.querySelector(
+        `input[is="autocomplete-input"][recipienttype]`
+      );
+
+      if (input.value.trim() && isValidAddress(input.value.trim())) {
+        gSendLocked = false;
+        break;
+      }
+    }
+  }
 }
 
 /**

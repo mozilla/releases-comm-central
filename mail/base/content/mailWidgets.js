@@ -2127,6 +2127,24 @@
         });
 
         input.addEventListener("keyup", event => {
+          // Trigger the onRecipientsChanged method for every letter typed in
+          // order to properly update the "Send" button and trigger the save as
+          // draft prompt even before the creation of any pill.
+          if (
+            ![
+              "ArrowUp",
+              "ArrowDown",
+              "ArrowLeft",
+              "ArrowRight",
+              "Enter",
+              "Tab",
+              ",",
+              ";",
+            ].includes(event.key)
+          ) {
+            onRecipientsChanged(false);
+          }
+
           // Change the min size of the input field on typing only if the
           // current width is smaller than 80% of its container's width or none
           // arrow keys were pressed to prevent overflow.
