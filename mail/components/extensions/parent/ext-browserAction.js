@@ -33,23 +33,25 @@ this.browserAction = class extends ToolbarButtonAPI {
   static onUninstall(extensionId) {
     let widgetId = makeWidgetId(extensionId);
     let id = `${widgetId}-browserAction-toolbarbutton`;
-
     let windowURL = "chrome://messenger/content/messenger.xhtml";
-    let currentSet = Services.xulStore.getValue(
-      windowURL,
-      "mail-bar3",
-      "currentset"
-    );
-    currentSet = currentSet.split(",");
-    let index = currentSet.indexOf(id);
-    if (index >= 0) {
-      currentSet.splice(index, 1);
-      Services.xulStore.setValue(
-        windowURL,
-        "mail-bar3",
-        "currentset",
-        currentSet.join(",")
-      );
+
+    // Check all possible toolbars and remove the toolbarbutton if found.
+    // Sadly we have to hardcode these values here, as the add-on is already
+    // shutdown when onUninstall is called.
+    let toolbars = ["mail-bar3", "tabbar-toolbar", "mail-toolbar-menubar2"];
+    for (let toolbar of toolbars) {
+      let currentSet = Services.xulStore
+        .getValue(windowURL, toolbar, "currentset")
+        .split(",");
+      let newSet = currentSet.filter(e => e != id);
+      if (newSet.length < currentSet.length) {
+        Services.xulStore.setValue(
+          windowURL,
+          toolbar,
+          "currentset",
+          newSet.join(",")
+        );
+      }
     }
   }
 

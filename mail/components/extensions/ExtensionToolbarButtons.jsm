@@ -183,16 +183,32 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    * @param {Window} window
    */
   paint(window) {
+    let windowURL = window.location.href;
     let { document } = window;
     if (document.getElementById(this.id)) {
       return;
     }
 
     let toolbox = document.getElementById(this.toolboxId);
-    let toolbar = document.getElementById(this.toolbarId);
     if (!toolbox) {
       return;
     }
+
+    // Get all toolbars which link to or are children of this.toolboxId
+    let toolbars = window.document.querySelectorAll(
+      `#${this.toolboxId} toolbar, toolbar[toolboxid="${this.toolboxId}"]`
+    );
+    for (let toolbar of toolbars) {
+      let currentSet = Services.xulStore
+        .getValue(windowURL, toolbar.id, "currentset")
+        .split(",");
+      if (currentSet.includes(this.id)) {
+        this.toolbarId = toolbar.id;
+        break;
+      }
+    }
+
+    let toolbar = document.getElementById(this.toolbarId);
     let button = this.makeButton(window);
     if (toolbox.palette) {
       toolbox.palette.appendChild(button);
