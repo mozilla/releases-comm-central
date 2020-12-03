@@ -40,6 +40,7 @@ load_libresolv.prototype = {
       let lastException = null;
       let libnames = [
         ctypes.libraryName("resolv.9"),
+        ctypes.libraryName("resolv.2"),
         ctypes.libraryName("resolv"),
       ];
       for (let libname of libnames) {
