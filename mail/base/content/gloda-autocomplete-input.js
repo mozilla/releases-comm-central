@@ -118,7 +118,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
           }
           if (
             topic == "autocomplete-did-enter-text" &&
-            subject.popupElement == this.popupElement
+            document.activeElement == this
           ) {
             let selectedIndex = this.popup.selectedIndex;
             let curResult = this.glodaCompleter.curResult;
