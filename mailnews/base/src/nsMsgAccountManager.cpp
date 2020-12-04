@@ -712,6 +712,14 @@ nsresult nsMsgAccountManager::AutosetDefaultAccount() {
       return SetDefaultAccount(account);
     }
   }
+
+  // No accounts can be the default. Clear it.
+  if (m_defaultAccount) {
+    nsCOMPtr<nsIMsgAccount> oldAccount = m_defaultAccount;
+    m_defaultAccount = nullptr;
+    (void)setDefaultAccountPref(nullptr);
+    (void)notifyDefaultServerChange(oldAccount, nullptr);
+  }
   return NS_OK;
 }
 
