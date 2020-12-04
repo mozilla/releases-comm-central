@@ -19,8 +19,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
-#include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 #include "mozilla/Logging.h"
 
 using namespace mozilla;
@@ -839,10 +837,10 @@ nsresult nsAutoSyncManager::DownloadMessagesForOffline(
   // see HandleDownloadErrorFor for recovery policy
   if (!count) return NS_ERROR_NOT_AVAILABLE;
 
-  nsCOMPtr<nsIMutableArray> messagesToDownload;
+  nsTArray<RefPtr<nsIMsgDBHdr>> messagesToDownload;
   uint32_t totalSize = 0;
-  rv = aAutoSyncStateObj->GetNextGroupOfMessages(
-      mGroupSize, &totalSize, getter_AddRefs(messagesToDownload));
+  rv = aAutoSyncStateObj->GetNextGroupOfMessages(mGroupSize, &totalSize,
+                                                 messagesToDownload);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // there are pending messages but the cumulative size is zero:
@@ -858,9 +856,7 @@ nsresult nsAutoSyncManager::DownloadMessagesForOffline(
   // ensure that we don't exceed the given size limit for this particular group
   if (aSizeLimit && aSizeLimit < totalSize) return NS_ERROR_FAILURE;
 
-  uint32_t length;
-  rv = messagesToDownload->GetLength(&length);
-  if (NS_SUCCEEDED(rv) && length > 0) {
+  if (!messagesToDownload.IsEmpty()) {
     rv = aAutoSyncStateObj->DownloadMessagesForOffline(messagesToDownload);
 
     int32_t totalCount;
@@ -869,7 +865,8 @@ nsresult nsAutoSyncManager::DownloadMessagesForOffline(
     nsCOMPtr<nsIMsgFolder> folder;
     aAutoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
     if (NS_SUCCEEDED(rv) && folder)
-      NOTIFY_LISTENERS(OnDownloadStarted, (folder, length, totalCount));
+      NOTIFY_LISTENERS(OnDownloadStarted,
+                       (folder, messagesToDownload.Length(), totalCount));
   }
 
   return rv;

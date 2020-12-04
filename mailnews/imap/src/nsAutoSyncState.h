@@ -77,7 +77,8 @@ class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
 
   void LogOwnerFolderName(const char* s);
   void LogQWithSize(nsTArray<nsMsgKey>& q, uint32_t toOffset = 0);
-  void LogQWithSize(nsIMutableArray* q, uint32_t toOffset = 0);
+  void LogQWithSize(nsTArray<RefPtr<nsIMsgDBHdr>> const& q,
+                    uint32_t toOffset = 0);
 
  private:
   int32_t mSyncState;

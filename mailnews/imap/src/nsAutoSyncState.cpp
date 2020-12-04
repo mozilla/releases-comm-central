@@ -14,8 +14,6 @@
 #include "nsIAutoSyncMsgStrategy.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 #include "mozilla/Logging.h"
 
 using namespace mozilla;
@@ -202,10 +200,10 @@ nsresult nsAutoSyncState::SortSubQueueBasedOnStrategy(
 
 NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(
     uint32_t aSuggestedGroupSizeLimit, uint32_t* aActualGroupSize,
-    nsIMutableArray** aMessagesList) {
-  NS_ENSURE_ARG_POINTER(aMessagesList);
+    nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages) {
   NS_ENSURE_ARG_POINTER(aActualGroupSize);
 
+  aMessages.Clear();
   *aActualGroupSize = 0;
 
   nsresult rv;
@@ -215,7 +213,6 @@ NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(
   nsCOMPtr<nsIMsgDatabase> database;
   folder->GetMsgDatabase(getter_AddRefs(database));
 
-  nsCOMPtr<nsIMutableArray> group = do_CreateInstance(NS_ARRAY_CONTRACTID);
   if (database) {
     if (!mDownloadQ.IsEmpty()) {
       // sort the download queue if new items are added since the last time
@@ -276,13 +273,13 @@ NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(
 
         if (!*aActualGroupSize && msgSize >= aSuggestedGroupSizeLimit) {
           *aActualGroupSize = msgSize;
-          group->AppendElement(qhdr);
+          aMessages.AppendElement(qhdr);
           idx++;
           break;
         }
         if ((*aActualGroupSize) + msgSize > aSuggestedGroupSizeLimit) break;
 
-        group->AppendElement(qhdr);
+        aMessages.AppendElement(qhdr);
         *aActualGroupSize += msgSize;
       }  // endfor
 
@@ -291,11 +288,8 @@ NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(
     }
 
     LogOwnerFolderName("Next group of messages to be downloaded.");
-    LogQWithSize(group.get(), 0);
+    LogQWithSize(aMessages, 0);
   }  // endif
-
-  // return it to the caller
-  group.forget(aMessagesList);
 
   return NS_OK;
 }
@@ -579,13 +573,8 @@ NS_IMETHODIMP nsAutoSyncState::IsSibling(nsIAutoSyncState* aAnotherStateObj,
 }
 
 NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
-    nsIArray* aMessagesList) {
-  NS_ENSURE_ARG_POINTER(aMessagesList);
-
-  uint32_t count;
-  nsresult rv = aMessagesList->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+    nsTArray<RefPtr<nsIMsgDBHdr>> const& messages) {
+  nsresult rv;
   nsCOMPtr<nsIImapService> imapService =
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -593,8 +582,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
   nsAutoCString messageIds;
   nsTArray<nsMsgKey> msgKeys;
 
-  rv =
-      nsImapMailFolder::BuildIdsAndKeyArray(aMessagesList, messageIds, msgKeys);
+  rv = nsImapMailFolder::BuildIdsAndKeyArray2(messages, messageIds, msgKeys);
   if (NS_FAILED(rv) || messageIds.IsEmpty()) return rv;
 
   // acquire semaphore for offline store. If it fails, we won't download
@@ -670,20 +658,19 @@ void nsAutoSyncState::LogQWithSize(nsTArray<nsMsgKey>& q, uint32_t toOffset) {
   }
 }
 
-void nsAutoSyncState::LogQWithSize(nsIMutableArray* q, uint32_t toOffset) {
+void nsAutoSyncState::LogQWithSize(nsTArray<RefPtr<nsIMsgDBHdr>> const& q,
+                                   uint32_t toOffset) {
   nsCOMPtr<nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder);
   if (ownerFolder) {
     nsCOMPtr<nsIMsgDatabase> database;
     ownerFolder->GetMsgDatabase(getter_AddRefs(database));
 
-    uint32_t x;
-    q->GetLength(&x);
+    uint32_t x = q.Length();
     while (x > toOffset && database) {
       x--;
-      nsCOMPtr<nsIMsgDBHdr> h = do_QueryElementAt(q, x);
-      if (h) {
+      if (q[x]) {
         uint32_t s;
-        h->GetMessageSize(&s);
+        q[x]->GetMessageSize(&s);
         MOZ_LOG(gAutoSyncLog, LogLevel::Debug,
                 ("Elem #%d, size: %u bytes\n", x + 1, s));
       } else

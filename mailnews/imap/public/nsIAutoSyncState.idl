@@ -5,8 +5,7 @@
 #include "nsISupports.idl"
 
 interface nsIMsgFolder;
-interface nsIArray;
-interface nsIMutableArray;
+interface nsIMsgDBHdr;
 
 [scriptable, uuid(7512f927-b8f0-48c4-b101-03e859e61281)]
 interface nsIAutoSyncState : nsISupports {
@@ -75,17 +74,17 @@ interface nsIAutoSyncState : nsISupports {
   /**
    * Downloads the bodies of the given messages from the server.
    */
-  void downloadMessagesForOffline(in nsIArray aMessageList);
+  void downloadMessagesForOffline(in Array<nsIMsgDBHdr> aMessageList);
 
   /**
-   * Populates the given array with the keys of the messages that will
+   * Returns an array containing the nsIMsgDBHdrs of the messages that will
    * be downloaded next.
    *
    * @param aSuggestedGroupSizeLimit suggested size per group in bytes
    * @param aActualGroupSize total size of the messages in bytes in the group
    */
-  nsIMutableArray getNextGroupOfMessages(in unsigned long aSuggestedGroupSizeLimit,
-                                         out unsigned long aActualGroupSize);
+  Array<nsIMsgDBHdr> getNextGroupOfMessages(in unsigned long aSuggestedGroupSizeLimit,
+                                            out unsigned long aActualGroupSize);
 
   /**
    * Iterates through the existing headers of the folder to find
