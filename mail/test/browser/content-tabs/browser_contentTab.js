@@ -23,6 +23,10 @@ var { assert_element_visible, assert_element_not_visible } = ChromeUtils.import(
   "resource://testing-common/mozmill/DOMHelpers.jsm"
 );
 
+var { be_in_folder, inboxFolder } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
 var {
   assert_tab_has_title,
   close_popup,
@@ -39,6 +43,8 @@ var url =
 var whatsUrl = url + "whatsnew.html";
 
 add_task(function test_content_tab_open() {
+  // Need to open the thread pane to load the appropriate context menus.
+  be_in_folder(inboxFolder);
   let tab = open_content_tab_with_url(whatsUrl);
 
   assert_tab_has_title(tab, "What's New Content Test");

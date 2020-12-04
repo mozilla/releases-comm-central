@@ -662,7 +662,7 @@ var mailTabType = {
    *     that the pane is illegal.  Keys are:
    *     - folder: The folder (tree) pane.
    *     - thread: The thread pane.
-   *     - accountCentral: While it's in a deck with the thread pane, this
+   *     - accountCentral: While it's in a display box with the thread pane, this
    *        is distinct from the thread pane because some other things depend
    *        on whether it's actually the thread pane we are showing.
    *     - message: The message pane.  Required/assumed to be true for now.
@@ -673,8 +673,8 @@ var mailTabType = {
    *     - message: The message pane.
    */
   _setPaneStates(aLegalStates, aVisibleStates) {
-    // The display deck hosts both the thread pane and account central.
-    let displayDeckLegal = aLegalStates.thread || aLegalStates.accountCentral;
+    // The display box hosts both the thread pane and account central.
+    let displayBoxLegal = aLegalStates.thread || aLegalStates.accountCentral;
 
     let layout = Services.prefs.getIntPref("mail.pane_config.dynamic");
     if (layout == kWidePaneConfig) {
@@ -684,7 +684,7 @@ var mailTabType = {
       // Accordingly, if both the folder and thread panes are illegal, we
       //  want to collapse the #messengerBox and make sure the #messagepanebox
       //  fills up the screen.  (For example, when in "message" mode.)
-      let collapseMessengerBox = !aLegalStates.folder && !displayDeckLegal;
+      let collapseMessengerBox = !aLegalStates.folder && !displayBoxLegal;
       document.getElementById("messengerBox").collapsed = collapseMessengerBox;
       if (collapseMessengerBox) {
         document.getElementById("messagepanebox").flex = 1;
@@ -714,18 +714,16 @@ var mailTabType = {
       ).collapsed = !aLegalStates.folder;
     } catch (ex) {}
 
-    // -- display deck (thread pane / account central)
+    // -- display box (thread pane / account central)
     // in a vertical view, the threadContentArea sits in the #threadPaneBox
     //  next to the message pane and its splitter.
     var kVerticalMailLayout = 2;
     if (layout == kVerticalMailLayout) {
-      document.getElementById(
-        "threadContentArea"
-      ).collapsed = !displayDeckLegal;
+      document.getElementById("threadContentArea").collapsed = !displayBoxLegal;
     } else {
-      // Whereas in the default view, the displayDeck is the one next to the
+      // Whereas in the default view, the displayBox is the one next to the
       // message pane and its splitter.
-      document.getElementById("displayDeck").collapsed = !displayDeckLegal;
+      document.getElementById("displayBox").collapsed = !displayBoxLegal;
     }
 
     // -- thread pane

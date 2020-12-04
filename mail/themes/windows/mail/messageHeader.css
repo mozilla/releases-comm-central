@@ -43,7 +43,7 @@
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
+  #displayBox[collapsed="true"] + splitter + #messagepaneboxwrapper
   .main-header-area {
     background-image: none;
     background-color: rgb(233, 239, 245);

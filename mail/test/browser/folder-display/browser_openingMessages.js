@@ -190,7 +190,7 @@ add_task(async function test_open_message_in_existing_window() {
 
 function check_message_pane_in_tab_full_height() {
   let messagesBoxHeight = mc.e("messagesBox").getBoundingClientRect().height;
-  let displayDeckHeight = mc.e("displayDeck").getBoundingClientRect().height;
+  let displayBoxHeight = mc.e("displayBox").getBoundingClientRect().height;
   let messagePaneBoxWrapperHeight = mc
     .e("messagepaneboxwrapper")
     .getBoundingClientRect().height;
@@ -200,11 +200,11 @@ function check_message_pane_in_tab_full_height() {
 
   Assert.equal(
     messagesBoxHeight,
-    displayDeckHeight + messagePaneBoxWrapperHeight + notificationBoxHeight,
+    displayBoxHeight + messagePaneBoxWrapperHeight + notificationBoxHeight,
     "messages box height (" +
       messagesBoxHeight +
-      ") not equal to the sum of displayDeck height (" +
-      displayDeckHeight +
+      ") not equal to the sum of displayBox height (" +
+      displayBoxHeight +
       ") and message pane box wrapper height (" +
       messagePaneBoxWrapperHeight +
       ") and message notification box height (" +

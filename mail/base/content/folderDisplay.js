@@ -1797,16 +1797,15 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
-   * Cause the displayDeck to display the thread pane.
+   * Cause the displayBox to display the thread pane.
    */
   _showThreadPane() {
-    document.getElementById(
-      "displayDeck"
-    ).selectedPanel = document.getElementById("threadPaneBox");
+    document.getElementById("accountCentralBox").collapsed = true;
+    document.getElementById("threadPaneBox").collapsed = false;
   },
 
   /**
-   * Cause the displayDeck to display the (preference configurable) account
+   * Cause the displayBox to display the (preference configurable) account
    *  central page.
    */
   _showAccountCentral() {
@@ -1816,8 +1815,8 @@ FolderDisplayWidget.prototype = {
       // Until then, do nothing.
       return;
     }
-    var accountBox = document.getElementById("accountCentralBox");
-    document.getElementById("displayDeck").selectedPanel = accountBox;
+    document.getElementById("accountCentralBox").collapsed = false;
+    document.getElementById("threadPaneBox").collapsed = true;
 
     // Prevent a second load if necessary.
     let loadURL =

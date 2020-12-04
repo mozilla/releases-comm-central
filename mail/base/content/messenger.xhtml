@@ -705,10 +705,9 @@
             <vbox flex="1">
               <box orient="vertical" id="messagesBox" flex="1">
 #include quickFilterBar.inc.xhtml
-                <deck id="displayDeck" flex="1" selectedIndex="0"
-                      style="min-height:100px;" height="100" persist="height"
-                      >
-                  <!-- first panel in displayDeck is Account Central -->
+                <hbox id="displayBox" flex="1"
+                      style="min-height:100px;" height="100" persist="height">
+                  <!-- first panel in displayBox is Account Central -->
                   <vbox id="accountCentralBox" flex="1">
                     <iframe name="accountCentralPane"
                             contextmenu="pageContextMenu"
@@ -721,7 +720,7 @@
                        end up being: threadPaneBox, threadpane-splitter, messagepanebox)
                     -->
                   <!-- second panel is the threadPane -->
-                  <hbox id="threadPaneBox">
+                  <hbox id="threadPaneBox" flex="1" collapsed="true">
                     <!-- The threadContentArea was specially created to be a place for
                          things that want to be above/below the thread pane, regardless
                          of where the message reader ("messagepane") gets off to. -->
@@ -730,7 +729,7 @@
                     </vbox>
                   </hbox>
                 <!-- extensions may overlay in additional panels; don't assume that there are only 2! -->
-                </deck> <!-- displayDeck -->
+                </hbox> <!-- displayBox -->
 
                 <!-- if you change this id, please change GetThreadAndMessagePaneSplitter() and MsgToggleMessagePane() -->
                 <splitter id="threadpane-splitter"
