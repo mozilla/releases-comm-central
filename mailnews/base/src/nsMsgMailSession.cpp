@@ -485,7 +485,7 @@ void nsMsgShutdownService::AttemptShutdown() {
         mozilla::components::AppStartup::Service();
     NS_ENSURE_TRUE_VOID(appStartup);
     bool userAllowedQuit = true;
-    NS_ENSURE_SUCCESS_VOID(appStartup->Quit(mQuitMode, &userAllowedQuit));
+    NS_ENSURE_SUCCESS_VOID(appStartup->Quit(mQuitMode, 0, &userAllowedQuit));
   }
 }
 
