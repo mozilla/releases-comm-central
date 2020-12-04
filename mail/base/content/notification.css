@@ -93,3 +93,8 @@ button.notification-button:not([disabled]):hover:active {
 button.notification-button[type="menu-button"] > .button-box > button {
   border-inline-end-color: var(--notification-button-active-border);
 }
+
+.messageCloseButton:-moz-focusring > .toolbarbutton-icon {
+  outline: 1px dashed;
+  outline-offset: -2px;
+}

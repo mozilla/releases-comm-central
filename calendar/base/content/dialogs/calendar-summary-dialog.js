@@ -131,7 +131,7 @@ function saveAndClose(aResponseMode) {
 
 function updateToolbar() {
   if (window.readOnly || window.isInvitation !== true) {
-    document.getElementById("summary-toolbar").hidden = true;
+    document.getElementById("summary-toolbox").hidden = true;
     return;
   }
 

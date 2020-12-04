@@ -2,6 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+notification {
+  border-inline-width: 1px;
+}
+
+:root:not([lwt-tree]):-moz-lwtheme #summary-toolbox {
+  background-image: var(--lwt-header-image) !important;
+  background-repeat: no-repeat;
+  background-position: right top !important;
+}
+
+:root:not([lwt-tree]):-moz-lwtheme #summary-toolbar {
+  background-color: var(--toolbar-bgcolor);
+}
+
 #calendar-summary-dialog-custom-button-footer {
   margin-top: 1em;
 }
