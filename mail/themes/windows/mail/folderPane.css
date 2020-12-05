@@ -29,6 +29,13 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
     color: HighlightText !important;
   }
 
+  treechildren::-moz-tree-image(folderNameCol, selected, focus),
+  treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
+    opacity: 1 !important;
+    fill: HighlightText !important;
+  }
+
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-image(folderNameCol) {
     --default: FieldText;
   }
@@ -45,6 +52,13 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
   treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true, selected, focus),
   treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true, selected, focus) {
     color: -moz-DialogText !important;
+  }
+
+  treechildren::-moz-tree-image(folderNameCol, selected, focus),
+  treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
+    opacity: 1 !important;
+    fill: -moz-DialogText !important;
   }
 }
 

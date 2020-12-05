@@ -644,6 +644,15 @@ tree:-moz-lwtheme:not(:focus)
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
 }
 
+:root[lwt-tree] #folderTree >
+  treechildren::-moz-tree-image(folderNameCol, selected, focus),
+:root[lwt-tree] #folderTree >
+  treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
+:root[lwt-tree] #folderTree >
+  treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
+  fill: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
+}
+
 :root[lwt-tree] treechildren::-moz-tree-line {
   border-color: var(--sidebar-text-color);
 }

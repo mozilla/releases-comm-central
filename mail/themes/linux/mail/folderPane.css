@@ -28,3 +28,10 @@ treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
   color: GrayText !important;
   font-style: italic;
 }
+
+treechildren::-moz-tree-image(folderNameCol, selected, focus),
+treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
+treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
+  opacity: 1 !important;
+  fill: HighlightText !important;
+}

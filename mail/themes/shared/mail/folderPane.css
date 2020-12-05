@@ -192,12 +192,6 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
   fill: -moz-hyperlinktext !important;
 }
 
-treechildren::-moz-tree-image(folderNameCol, selected, focus),
-treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus) {
-  opacity: 1 !important;
-  fill: currentColor !important;
-}
-
 treechildren::-moz-tree-cell-text(imapdeleted) {
   text-decoration: line-through;
 }
