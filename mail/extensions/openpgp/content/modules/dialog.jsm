@@ -408,7 +408,8 @@ var EnigmailDialog = {
    *                                the user as default, e.g. "keys.asc"
    *  filterPairs:      Array     - optional: [title, extension], e.g. ["Pictures", "*.jpg; *.png"]
    *
-   *  return value:     nsIFile object representing the file to load or save
+   *  return value:     nsIFile object, or array of nsIFile objects,
+   *                    representing the file(s) to load or save
    */
   filePicker(
     win,
@@ -480,7 +481,8 @@ var EnigmailDialog = {
       // to open files and the `multiple` boolean variable is true.
       if (!save && multiple) {
         for (let file of filePicker.files) {
-          files.push(file);
+          // XXX: for some reason QI is needed on Mac.
+          files.push(file.QueryInterface(Ci.nsIFile));
         }
       } else {
         files.push(filePicker.file);
