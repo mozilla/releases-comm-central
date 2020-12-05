@@ -31,6 +31,14 @@
         ]
       }
     },
+    "el": {
+      "default": {
+        "searchOrder": ["DuckDuckGo", "Startpage", "Google"],
+        "visibleDefaultEngines": [
+          "amazon-en-GB", "duckduckgo", "duckduckgo-el-GR", "google", "startpage", "wikipedia-el"
+        ]
+      }
+    },
     "en-GB": {
       "default": {
         "searchOrder": ["DuckDuckGo", "Startpage", "Google", "Yahoo.co.uk"],
