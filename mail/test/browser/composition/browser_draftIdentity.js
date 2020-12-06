@@ -303,4 +303,7 @@ registerCleanupFunction(function teardownModule(module) {
     press_delete();
     mc.waitFor(() => gDrafts.getTotalMessages(false) < draftCount);
   }
+
+  // Work around this test timing out at completion because of focus weirdness.
+  window.gFolderDisplay.tree.focus();
 });

@@ -19,7 +19,6 @@ const EXPORTED_SYMBOLS = [
   "open_compose_from_draft",
   "open_compose_new_mail",
   "open_compose_with_edit_as_new",
-  "open_compose_with_element_click",
   "open_compose_with_forward",
   "open_compose_with_forward_as_attachments",
   "open_compose_with_reply",
@@ -201,27 +200,6 @@ function open_compose_with_forward(aController) {
     { shiftKey: false, accelKey: true },
     aController.window
   );
-
-  return wait_for_compose_window();
-}
-
-/**
- * Opens the compose window by clicking the specified element and waits for
- * the compose window to load.
- *
- * @param aElement    the element that should be clicked.
- * @param aController the controller whose window is to be closed.
- *
- * @return The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
- */
-function open_compose_with_element_click(aElement, aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
-  windowHelper.plan_for_new_window("msgcompose");
-  aController.click(aElement);
 
   return wait_for_compose_window();
 }

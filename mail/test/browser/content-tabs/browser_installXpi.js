@@ -59,9 +59,13 @@ function waitForNotification(id, buttonToClickSelector, callback) {
   mc.waitForElementNotPresent(notification, 15000);
 }
 
-add_task(function test_install_corrupt_xpi() {
+add_task(async function test_install_corrupt_xpi() {
   // This install with give us a corrupt xpi warning.
-  mc.click(content_tab_eid(gNewTab, "corruptlink"));
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#corruptlink",
+    {},
+    gNewTab.browser
+  );
   waitForNotification(
     "addon-install-blocked",
     ".popup-notification-primary-button"
@@ -72,8 +76,12 @@ add_task(function test_install_corrupt_xpi() {
   );
 });
 
-add_task(function test_install_xpi_offer() {
-  mc.click(content_tab_eid(gNewTab, "installlink"));
+add_task(async function test_install_xpi_offer() {
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#installlink",
+    {},
+    gNewTab.browser
+  );
   waitForNotification(
     "addon-install-blocked",
     ".popup-notification-primary-button"
@@ -84,11 +92,15 @@ add_task(function test_install_xpi_offer() {
   );
 });
 
-add_task(function test_xpinstall_disabled() {
+add_task(async function test_xpinstall_disabled() {
   Services.prefs.setBoolPref("xpinstall.enabled", false);
 
   // Try installation again - this time we'll get an install has been disabled message.
-  mc.click(content_tab_eid(gNewTab, "installlink"));
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#installlink",
+    {},
+    gNewTab.browser
+  );
   waitForNotification(
     "xpinstall-disabled",
     ".popup-notification-secondary-button"
@@ -97,8 +109,12 @@ add_task(function test_xpinstall_disabled() {
   Services.prefs.clearUserPref("xpinstall.enabled");
 });
 
-add_task(function test_xpinstall_actually_install() {
-  mc.click(content_tab_eid(gNewTab, "installlink"));
+add_task(async function test_xpinstall_actually_install() {
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#installlink",
+    {},
+    gNewTab.browser
+  );
   waitForNotification(
     "addon-install-blocked",
     ".popup-notification-primary-button"
@@ -109,8 +125,12 @@ add_task(function test_xpinstall_actually_install() {
   );
 });
 
-add_task(function test_xpinstall_webext_actually_install() {
-  mc.click(content_tab_eid(gNewTab, "installwebextlink"));
+add_task(async function test_xpinstall_webext_actually_install() {
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#installwebextlink",
+    {},
+    gNewTab.browser
+  );
   waitForNotification(
     "addon-install-blocked",
     ".popup-notification-primary-button"

@@ -355,4 +355,7 @@ add_task(function test_remove_space_stuffing_format_flowed() {
   press_delete(mc);
 
   Services.prefs.setBoolPref("mail.identity.default.compose_html", oldHtmlPref);
+
+  // Work around this test timing out at completion because of focus weirdness.
+  window.gFolderDisplay.tree.focus();
 });

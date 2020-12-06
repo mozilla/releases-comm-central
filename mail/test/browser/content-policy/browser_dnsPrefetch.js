@@ -179,7 +179,7 @@ add_task(function test_dnsPrefetch_compose() {
   checkComposeWindow(2);
 });
 
-add_task(function test_dnsPrefetch_contentTab() {
+add_task(async function test_dnsPrefetch_contentTab() {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
@@ -190,9 +190,10 @@ add_task(function test_dnsPrefetch_contentTab() {
 
   let newTab = open_content_tab_with_url(dataurl);
 
-  if (!mc.tabmail.getBrowserForSelectedTab().docShell.allowDNSPrefetch) {
-    throw new Error("DNS prefetch unexpectedly disabled in content tabs");
-  }
+  await SpecialPowers.spawn(mc.tabmail.getBrowserForSelectedTab(), [], () => {
+    Assert.ok(docShell, "docShell should be available");
+    Assert.ok(docShell.allowDNSPrefetch, "allowDNSPrefetch should be enabled");
+  });
 
   mc.tabmail.closeTab(newTab);
 

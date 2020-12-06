@@ -230,4 +230,7 @@ registerCleanupFunction(function tearDown() {
   MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, true);
   MailServices.accounts.removeAccount(aliceAcct);
   aliceAcct = null;
+
+  // Work around this test timing out at completion because of focus weirdness.
+  window.gFolderDisplay.tree.focus();
 });

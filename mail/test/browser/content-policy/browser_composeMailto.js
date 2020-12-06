@@ -4,7 +4,7 @@
 
 "use strict";
 
-var composeHelper = ChromeUtils.import(
+var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 var { content_tab_eid, open_content_tab_with_url } = ChromeUtils.import(
@@ -18,6 +18,7 @@ var { input_value } = ChromeUtils.import(
 );
 var {
   plan_for_modal_dialog,
+  plan_for_new_window,
   wait_for_modal_dialog,
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
@@ -31,15 +32,20 @@ var gPreCount;
 var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/";
 
-add_task(function test_openComposeFromMailToLink() {
+add_task(async function test_openComposeFromMailToLink() {
   // Open a content tab with the mailto link in it.
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
   gPreCount = mc.tabmail.tabContainer.allTabs.length;
   gNewTab = open_content_tab_with_url(url + "mailtolink.html");
-  gComposeWin = composeHelper.open_compose_with_element_click(
-    content_tab_eid(gNewTab, "mailtolink")
+
+  plan_for_new_window("msgcompose");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "#mailtolink",
+    {},
+    gNewTab.browser
   );
+  gComposeWin = wait_for_compose_window();
 });
 
 add_task(function test_checkInsertImage() {
@@ -87,7 +93,7 @@ add_task(function test_checkInsertImage() {
 });
 
 add_task(function test_closeComposeWindowAndTab() {
-  composeHelper.close_compose_window(gComposeWin);
+  close_compose_window(gComposeWin);
 
   mc.tabmail.closeTab(gNewTab);
 

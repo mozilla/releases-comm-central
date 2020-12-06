@@ -24,29 +24,29 @@ var url = "http://mochi.test:8888/browser/comm/mail/test/browser/cookies/html/";
 /**
  * Test deleting junk messages with no messages marked as junk.
  */
-add_task(function test_load_cookie_page() {
+add_task(async function test_load_cookie_page() {
   open_content_tab_with_url(url + "cookietest1.html");
-  open_content_tab_with_url(url + "cookietest2.html");
+  let tab2 = open_content_tab_with_url(url + "cookietest2.html");
 
-  if (mc.window.content.document.title != "Cookie Test 2") {
-    throw new Error(
-      "The cookie test 2 page is not the selected tab or not content-primary"
-    );
-  }
+  await SpecialPowers.spawn(tab2.browser, [], () => {
+    Assert.equal(content.document.title, "Cookie Test 2");
 
-  let cookie = mc.window.content.wrappedJSObject.theCookie;
+    let cookie = content.wrappedJSObject.theCookie;
 
-  dump("Cookie is: " + cookie + "\n");
+    dump("Cookie is: " + cookie + "\n");
 
-  if (!cookie) {
-    throw new Error("Document has no cookie :-(");
-  }
+    if (!cookie) {
+      throw new Error("Document has no cookie :-(");
+    }
 
-  if (cookie != "name=CookieTest") {
-    throw new Error(
-      "Cookie set incorrectly, expected: name=CookieTest, got: " + cookie + "\n"
-    );
-  }
+    if (cookie != "name=CookieTest") {
+      throw new Error(
+        "Cookie set incorrectly, expected: name=CookieTest, got: " +
+          cookie +
+          "\n"
+      );
+    }
+  });
 
   Assert.report(
     false,
