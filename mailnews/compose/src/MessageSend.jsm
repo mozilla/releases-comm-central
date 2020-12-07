@@ -21,7 +21,7 @@ var { MsgUtils } = ChromeUtils.import(
 const nsMsgKey_None = 0xffffffff;
 
 /**
- * A work in progress rewriting of nsMsgSend.cpp.
+ * A module to manage sending processes.
  * Set `user_pref("mailnews.send.jsmodule", true);` to use this module.
  *
  * @implements {nsIMsgSend}
@@ -53,6 +53,7 @@ MessageSend.prototype = {
     this._userIdentity = userIdentity;
     this._accountKey = accountKey;
     this._compFields = compFields;
+    this._dontDeliver = dontDeliver;
     this._deliverMode = deliverMode;
     this._msgToReplace = msgToReplace;
     this._sendProgress = progress;
@@ -171,6 +172,79 @@ MessageSend.prototype = {
     this._messageKey = 0xffffffff;
 
     return this._deliverMessage(messageFile);
+  },
+
+  // @see nsIMsgSend
+  createRFC822Message(
+    userIdentity,
+    compFields,
+    bodyType,
+    bodyText,
+    isDraft,
+    attachedFiles,
+    embeddedObjects,
+    listener
+  ) {
+    this._userIdentity = userIdentity;
+    this._compFields = compFields;
+    this._dontDeliver = true;
+    this._sendListener = listener;
+
+    this._sendReport = Cc[
+      "@mozilla.org/messengercompose/sendreport;1"
+    ].createInstance(Ci.nsIMsgSendReport);
+    this._composeBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
+    );
+
+    // Initialize the error reporting mechanism.
+    this.sendReport.reset();
+    let deliverMode = isDraft
+      ? Ci.nsIMsgSend.nsMsgSaveAsDraft
+      : Ci.nsIMsgSend.nsMsgDeliverNow;
+    this.sendReport.deliveryMode = deliverMode;
+
+    // Convert nsIMsgAttachedFile[] to nsIMsgAttachment[]
+    for (let file of attachedFiles) {
+      let attachment = Cc[
+        "@mozilla.org/messengercompose/attachment;1"
+      ].createInstance(Ci.nsIMsgAttachment);
+      attachment.name = file.realName;
+      attachment.url = file.origUrl.spec;
+      attachment.contentType = file.type;
+      compFields.addAttachment(attachment);
+    }
+
+    // Convert nsIMsgEmbeddedImageData[] to nsIMsgAttachment[]
+    let embeddedAttachments = embeddedObjects.map(obj => {
+      let attachment = Cc[
+        "@mozilla.org/messengercompose/attachment;1"
+      ].createInstance(Ci.nsIMsgAttachment);
+      attachment.name = obj.name;
+      attachment.contentId = obj.cid;
+      attachment.url = obj.uri.spec;
+      return attachment;
+    });
+
+    this._message = new MimeMessage(
+      userIdentity,
+      compFields,
+      null,
+      bodyType,
+      bodyText,
+      deliverMode,
+      null,
+      Ci.nsIMsgCompType.New,
+      embeddedAttachments,
+      this.sendReport
+    );
+
+    this._messageKey = nsMsgKey_None;
+
+    // Create a local file from MimeMessage, then pass it to _deliverMessage.
+    this._message
+      .createMessageFile()
+      .then(messageFile => this._deliverMessage(messageFile));
   },
 
   abort() {
@@ -602,6 +676,11 @@ MessageSend.prototype = {
    * @param {nsIFile} file - The message file to deliver.
    */
   async _deliverMessage(file) {
+    if (this._dontDeliver) {
+      this.notifyListenerOnStopSending(null, Cr.NS_OK, null, file);
+      return;
+    }
+
     this._messageFile = file;
     if (
       [
