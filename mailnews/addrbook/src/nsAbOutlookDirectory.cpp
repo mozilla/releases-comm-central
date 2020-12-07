@@ -959,7 +959,7 @@ nsresult nsAbOutlookDirectory::GetChildCards(nsIMutableArray* aCards,
   nsAutoCString entryId;
   nsAutoCString uriName;
   nsCOMPtr<nsIAbCard> childCard;
-  nsresult rv;
+  nsresult rv = NS_OK;
 
   for (ULONG card = 0; card < cardEntries.mNbEntries; ++card) {
     cardEntries.mEntries[card].ToString(entryId);
