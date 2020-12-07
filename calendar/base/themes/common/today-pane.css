@@ -129,7 +129,7 @@
   background-color: var(--sidebar-background-color);
 }
 
-#weekdayNameContainer {
+#weekdayNameLabel {
   font-family: Trebuchet MS, Lucida Grande, Arial, Helvetica;
   padding-top: 4px;
   font-weight: bold;

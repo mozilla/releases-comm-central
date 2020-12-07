@@ -41,7 +41,6 @@ var TodayPane = {
       cal.l10n.getCalString("eventsonly"),
     ];
 
-    TodayPane.setShortWeekdays();
     TodayPane.updateDisplay();
     TodayPane.updateSplitterState();
     TodayPane.previousMode = gCurrentMode;
@@ -182,7 +181,7 @@ var TodayPane = {
     if (aEvent.button == 0) {
       if (aEvent.target.id == "datevalue-label") {
         switchCalendarView("day", true);
-      } else if (aEvent.target.parentNode.id == "weekdayNameContainer") {
+      } else if (aEvent.target.id == "weekdayNameLabel") {
         switchCalendarView("day", true);
       } else if (aEvent.target.id == "currentWeek-label") {
         switchCalendarView("week", true);
@@ -362,18 +361,6 @@ var TodayPane = {
   },
 
   /**
-   * Shows short weekday names in the weekdayNameContainer
-   */
-  setShortWeekdays() {
-    let weekdisplaydeck = document.getElementById("weekdayNameContainer");
-    let children = weekdisplaydeck.children;
-
-    for (let i = 0; i < children.length; i++) {
-      children[i].setAttribute("value", cal.l10n.getDateFmtString(`day.${i + 1}.Mmm`));
-    }
-  },
-
-  /**
    * Sets the shown date from a JSDate.
    *
    * @param aNewDate      The date to show.
@@ -406,12 +393,9 @@ var TodayPane = {
     let daylabel = document.getElementById("datevalue-label");
     daylabel.value = this.start.day;
 
-    // Wait until after the initialisation of #weekdayNameContainer,
-    // to avoid its selectedIndex being reset to the wrong value.
-    setTimeout(() => {
-      let weekdaylabel = document.getElementById("weekdayNameContainer");
-      weekdaylabel.selectedIndex = this.start.weekday;
-    }, 0);
+    document
+      .getElementById("weekdayNameLabel")
+      .setAttribute("value", cal.l10n.getDateFmtString(`day.${this.start.weekday + 1}.Mmm`));
 
     let monthnamelabel = document.getElementById("monthNameContainer");
     monthnamelabel.value =
