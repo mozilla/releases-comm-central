@@ -1,8 +1,8 @@
-var EXPORTED_SYMBOLS = ["TestMailImpoter"];
+const EXPORTED_SYMBOLS = ["TestMailImporter"];
 
-function TestMailImpoter() {}
+function TestMailImporter() {}
 
-TestMailImpoter.prototype = {
+TestMailImporter.prototype = {
   classID: Components.ID("{a81438ef-aca1-41a5-9b3a-3ccfbbe4f5e1}"),
 
   QueryInterface: ChromeUtils.generateQI(["nsIImportModule", "nsIImportMail"]),
