@@ -83,10 +83,26 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   let identity = null;
 
   if (details) {
-    if (details.isPlainText === false) {
+    if (details.body !== null && details.plainTextBody !== null) {
+      throw new ExtensionError(
+        "Only one of body and plainTextBody can be specified."
+      );
+    }
+
+    if (details.isPlainText === false || details.body !== null) {
+      if (details.plainTextBody !== null) {
+        throw new ExtensionError(
+          "Cannot specify plainTextBody when isPlainText is false. Use body instead."
+        );
+      }
       format = Ci.nsIMsgCompFormat.HTML;
     }
-    if (details.isPlainText === true) {
+    if (details.isPlainText === true || details.plainTextBody !== null) {
+      if (details.body !== null) {
+        throw new ExtensionError(
+          "Cannot specify body when isPlainText is true. Use plainTextBody instead."
+        );
+      }
       format = Ci.nsIMsgCompFormat.PlainText;
     }
     if (details.identityId !== null) {
@@ -191,19 +207,6 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   }
 
   if (details) {
-    if (details.body !== null) {
-      if (details.plainTextBody !== null) {
-        throw new ExtensionError(
-          "Only one of body and plainTextBody can be specified."
-        );
-      }
-      if (details.isPlainText) {
-        throw new ExtensionError(
-          "Cannot specify body when isPlainText is true. Use plainTextBody instead."
-        );
-      }
-    }
-
     for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
       composeFields[field] = await parseComposeRecipientList(details[field]);
     }
@@ -284,6 +287,19 @@ async function setComposeDetails(composeWindow, details, extension) {
   if (details.body && details.plainTextBody) {
     throw new ExtensionError(
       "Only one of body and plainTextBody can be specified."
+    );
+  }
+  // Check for body usage on a plain text composer and throw a helpful error.
+  // Otherwise, this will throw a NS_UNEXPECTED_ERROR later.
+  if (details.body && !composeWindow.IsHTMLEditor()) {
+    throw new ExtensionError(
+      "Cannot use body on a plain text compose window. Use plainTextBody instead."
+    );
+  }
+  // For consistency, using plainTextBody on a html compsoser is not allowed.
+  if (details.plainTextBody && composeWindow.IsHTMLEditor()) {
+    throw new ExtensionError(
+      "Cannot use plainTextBody on an HTML compose window. Use body instead."
     );
   }
 

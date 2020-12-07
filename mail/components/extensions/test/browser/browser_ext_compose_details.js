@@ -465,6 +465,17 @@ add_task(async function testBody() {
         browser.test.succeed(`expected exception thrown: ${ex.message}`);
       }
 
+      try {
+        await browser.compose.setComposeDetails(htmlTabId, {
+          plainTextBody: "Trying to set a plain text in an html message.",
+        });
+        browser.test.fail(
+          "calling setComposeDetails with these arguments should throw"
+        );
+      } catch (ex) {
+        browser.test.succeed(`expected exception thrown: ${ex.message}`);
+      }
+
       browser.test.notifyPass("finished");
     },
     manifest: {

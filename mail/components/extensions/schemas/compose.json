@@ -260,6 +260,7 @@
       {
         "name": "beginNew",
         "type": "function",
+        "description": "Open a new message compose window. If the provided ComposeDetails object does not provide 'body', 'plainTextBody' or 'isPlainText', the default compose format of the used/default identity is used.",
         "async": true,
         "parameters": [
           {
@@ -279,6 +280,7 @@
       {
         "name": "beginReply",
         "type": "function",
+        "description": "Open a new message compose window replying to a given message. If the provided ComposeDetails object does not provide 'body', 'plainTextBody' or 'isPlainText', the default compose format of the used/default identity is used.",
         "async": true,
         "parameters": [
           {
@@ -307,6 +309,7 @@
       {
         "name": "beginForward",
         "type": "function",
+        "description": "Open a new message compose window forwarding a given message. If the provided ComposeDetails object does not provide 'body', 'plainTextBody' or 'isPlainText', the default compose format of the used/default identity is used.",
         "async": true,
         "parameters": [
           {
@@ -351,7 +354,7 @@
         "name": "setComposeDetails",
         "type": "function",
         "async": true,
-        "description": "Updates the compose window. Specify only fields that you want to change. Currently only the to/cc/bcc/replyTo/followupTo/newsgroups fields and the subject are implemented.",
+        "description": "Updates the compose window. Specify only fields that you want to change. Currently only the to/cc/bcc/replyTo/followupTo/newsgroups fields and the subject are implemented. It is not possible to change the compose format.",
         "permissions": [
           "compose"
         ],

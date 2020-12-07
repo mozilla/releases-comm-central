@@ -268,7 +268,7 @@ add_task(async function testBody() {
         accounts[0].identities.length,
         "number of identities"
       );
-      let plainTextIdentity = accounts[0].identities[1];
+      let [htmlIdentity, plainTextIdentity] = accounts[0].identities;
       let folder = accounts[0].folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
@@ -315,9 +315,8 @@ add_task(async function testBody() {
           funcName: "beginNew",
           arguments: [{ plainTextBody: "" }],
           expected: {
-            isHTML: true,
-            htmlIncludes: emptyHTML,
-            plainTextIs: "\n",
+            isHTML: false,
+            plainTextIs: "",
           },
         },
         {
@@ -334,8 +333,9 @@ add_task(async function testBody() {
           funcName: "beginNew",
           arguments: [{ body: "", identityId: plainTextIdentity.id }],
           expected: {
-            isHTML: false,
-            plainTextIs: "",
+            isHTML: true,
+            htmlIncludes: emptyHTML,
+            plainTextIs: "\n",
           },
         },
         {
@@ -352,22 +352,6 @@ add_task(async function testBody() {
           funcName: "beginNew",
           arguments: [
             { body: "", identityId: plainTextIdentity.id, isPlainText: false },
-          ],
-          expected: {
-            isHTML: true,
-            htmlIncludes: emptyHTML,
-            plainTextIs: "\n",
-          },
-        },
-        {
-          // Empty plain text for plaintext identity enforcing HTML.
-          funcName: "beginNew",
-          arguments: [
-            {
-              plainTextBody: "",
-              identityId: plainTextIdentity.id,
-              isPlainText: false,
-            },
           ],
           expected: {
             isHTML: true,
@@ -396,8 +380,8 @@ add_task(async function testBody() {
           funcName: "beginNew",
           arguments: [{ plainTextBody: "I'm a plain text message!" }],
           expected: {
-            isHTML: true,
-            htmlIncludes: "<body>I'm a plain text message!</body>",
+            isHTML: false,
+            htmlIncludes: plainTextBodyTag + "I'm a plain text message!</body>",
             plainTextIs: "I'm a plain text message!",
           },
         },
@@ -429,6 +413,12 @@ add_task(async function testBody() {
           throws: true,
         },
         {
+          // HTML and isPlainText. Invalid.
+          funcName: "beginNew",
+          arguments: [{ plainTextBody: "", isPlainText: false }],
+          throws: true,
+        },
+        {
           // Edit as new.
           funcName: "beginNew",
           arguments: [messages[0].id],
@@ -453,6 +443,36 @@ add_task(async function testBody() {
           expected: {
             isHTML: true,
             htmlIncludes: message0body.trim(),
+          },
+        },
+        {
+          // Edit as new with plaintext identity enforcing HTML by setting a body.
+          funcName: "beginNew",
+          arguments: [
+            messages[0].id,
+            {
+              body: "<p>This is some HTML text</p>",
+              identityId: plainTextIdentity.id,
+            },
+          ],
+          expected: {
+            isHTML: true,
+            htmlIncludes: "<p>This is some HTML text</p>",
+          },
+        },
+        {
+          // Edit as new with html identity enforcing plain text by setting a plainTextBody.
+          funcName: "beginNew",
+          arguments: [
+            messages[0].id,
+            {
+              plainTextBody: "This is some plain text",
+              identityId: htmlIdentity.id,
+            },
+          ],
+          expected: {
+            isHTML: false,
+            plainText: "This is some plain text",
           },
         },
         {
