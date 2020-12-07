@@ -237,8 +237,8 @@ this.cloudFile = class extends ExtensionAPI {
     }
   }
 
-  onShutdown(reason) {
-    if (reason == "APP_SHUTDOWN") {
+  onShutdown(isAppShutdown) {
+    if (isAppShutdown) {
       return;
     }
     cloudFileAccounts.unregisterProvider(this.providerType);
