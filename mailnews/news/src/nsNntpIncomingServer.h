@@ -58,6 +58,8 @@ class nsNntpIncomingServer : public nsMsgIncomingServer,
 
   // override to clear all passwords associated with server
   NS_IMETHODIMP ForgetPassword() override;
+  NS_IMETHOD GetCanCompactFoldersOnServer(
+      bool* canCompactFoldersOnServer) override;
   NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
   NS_IMETHOD GetOfflineSupportLevel(int32_t* aSupportLevel) override;
   NS_IMETHOD GetDefaultCopiesAndFoldersPrefsToServer(

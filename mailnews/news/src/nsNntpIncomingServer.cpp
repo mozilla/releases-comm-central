@@ -1473,6 +1473,15 @@ nsNntpIncomingServer::SetPrettyNameForGroup(const nsAString& name,
 }
 
 NS_IMETHODIMP
+nsNntpIncomingServer::GetCanCompactFoldersOnServer(
+    bool* canCompactFoldersOnServer) {
+  NS_ENSURE_ARG_POINTER(canCompactFoldersOnServer);
+  // Initialize canCompactFoldersOnServer false, a default value for NNTP
+  *canCompactFoldersOnServer = false;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsNntpIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   NS_ENSURE_ARG_POINTER(canSearchMessages);
   *canSearchMessages = true;
