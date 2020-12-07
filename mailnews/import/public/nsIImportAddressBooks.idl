@@ -79,7 +79,7 @@ interface nsIImportAddressBooks : nsISupports {
    * address book.  The array is not sorted before display to the user.
    * location is null if GetAutoFind returned true.
    */
-  Array<nsIImportABDescriptor> FindAddressBooks(in nsIFile location);
+  Array<nsIImportABDescriptor> findAddressBooks(in nsIFile location);
 
   /**
    * Fill in defaults (if any) for a field map for importing address books from
