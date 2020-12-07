@@ -36,7 +36,6 @@
 
   <dialog id="calendar-creation-dialog"
           buttons="accept,cancel">
-    <deck id="calendar-creation-deck" flex="1">
 
       <!-- Panel: Select Calendar Type -->
       <vbox id="panel-select-calendar-type"
@@ -56,7 +55,8 @@
             buttonlabelaccept="&buttons.create.label;"
             buttonaccesskeyaccept="&buttons.create.accesskey;"
             buttonlabelextra2="&buttons.back.label;"
-            buttonaccesskeyextra2="&buttons.back.accesskey;">
+            buttonaccesskeyextra2="&buttons.back.accesskey;"
+            hidden="true">
         <vbox id="no-identity-notification" class="notification-inline">
           <!-- notificationbox will be added here lazily. -->
         </vbox>
@@ -118,7 +118,8 @@
                   buttonlabelaccept="&buttons.find.label;"
                   buttonaccesskeyaccept="&buttons.find.accesskey;"
                   buttonlabelextra2="&buttons.back.label;"
-                  buttonaccesskeyextra2="&buttons.back.accesskey;">
+                  buttonaccesskeyextra2="&buttons.back.accesskey;"
+                  hidden="true">
         <html:tr id="network-username-row">
           <html:th>
             <label value="&locationpage.username.label;"
@@ -182,7 +183,8 @@
             buttonlabelaccept="&buttons.subscribe.label;"
             buttonaccesskeyaccept="&buttons.subscribe.accesskey;"
             buttonlabelextra2="&buttons.back.label;"
-            buttonaccesskeyextra2="&buttons.back.accesskey;">
+            buttonaccesskeyextra2="&buttons.back.accesskey;"
+            hidden="true">
         <description id="network-selectcalendar-description-single">&network.subscribe.single.description;</description>
         <description id="network-selectcalendar-description-multiple"
                      hidden="true">&network.subscribe.multiple.description;</description>
@@ -205,8 +207,7 @@
             buttonlabelaccept="&buttons.create.label;"
             buttonaccesskeyaccept="&buttons.create.accesskey;"
             buttonlabelextra2="&buttons.back.label;"
-            buttonaccesskeyextra2="&buttons.back.accesskey;"/>
-
-    </deck>
+            buttonaccesskeyextra2="&buttons.back.accesskey;"
+            hidden="true"/>
   </dialog>
 </window>

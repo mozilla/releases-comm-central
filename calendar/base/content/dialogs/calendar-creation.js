@@ -290,13 +290,13 @@ gProviderUsage.addPostDetectPreference("caldav", "ics");
 /**
  * Select a specific panel in the dialog. Used to move from one panel to another.
  *
- * @param {string} id          The id of the panel node to select.
+ * @param {string} id - The id of the panel node to select.
  */
 function selectPanel(id) {
+  for (let element of document.getElementById("calendar-creation-dialog").children) {
+    element.hidden = element.id != id;
+  }
   let panel = document.getElementById(id);
-  let deck = document.getElementById("calendar-creation-deck");
-  deck.selectedPanel = panel;
-
   updateButton("accept", panel);
   updateButton("extra2", panel);
   selectNetworkStatus("none");
@@ -360,16 +360,21 @@ function updateButton(name, sourceNode) {
  */
 function checkRequired() {
   let dialog = document.getElementById("calendar-creation-dialog");
-  let deck = document.getElementById("calendar-creation-deck");
-  if (!deck.selectedPanel) {
+  let selectedPanel = null;
+  for (let element of dialog.children) {
+    if (!element.hidden) {
+      selectedPanel = element;
+    }
+  }
+  if (!selectedPanel) {
     dialog.setAttribute("buttondisabledaccept", "true");
     return;
   }
 
   let disabled = false;
-  switch (deck.selectedPanel.id) {
+  switch (selectedPanel.id) {
     case "panel-local-calendar-settings":
-      disabled = !deck.selectedPanel.querySelector("form").checkValidity();
+      disabled = !selectedPanel.querySelector("form").checkValidity();
       break;
     case "panel-network-calendar-settings": {
       let location = document.getElementById("network-location-input");
