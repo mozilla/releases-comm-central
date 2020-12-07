@@ -1002,6 +1002,30 @@ Enigmail.msg = {
     );
   },
 
+  trimIfEncrypted(msgText) {
+    // If it's an encrypted message, we want to trim (at least) the
+    // separator line between the header and the content.
+    // However, trimming all lines should be safe.
+    let trimEncrypted = false;
+
+    let indexEncrypted = msgText.indexOf("-----BEGIN PGP MESSAGE-----");
+    let indexSigned = msgText.indexOf("-----BEGIN PGP SIGNED MESSAGE-----");
+    if (indexEncrypted >= 0) {
+      if (
+        indexSigned == -1 ||
+        (indexSigned >= 0 && indexEncrypted < indexSigned)
+      ) {
+        trimEncrypted = true;
+      }
+    }
+
+    if (trimEncrypted) {
+      // \xA0 is non-breaking-space
+      msgText = msgText.replace(/^[ \t\xA0]+/gm, "");
+    }
+    return msgText;
+  },
+
   async messageParse(
     interactive,
     importOnly,
@@ -1093,8 +1117,7 @@ Enigmail.msg = {
       } else {
         msgText = bodyElement.textContent;
       }
-      // \xA0 is non-breaking-space
-      msgText = msgText.replace(/^[ \t\xA0]+/gm, "");
+      msgText = this.trimIfEncrypted(msgText);
     }
 
     if (!msgText) {
@@ -2310,7 +2333,9 @@ Enigmail.msg = {
             end += lEnd;
           }
 
-          callbackArg.data = this.data.substring(start, end + 1);
+          callbackArg.data = Enigmail.msg.trimIfEncrypted(
+            this.data.substring(start, end + 1)
+          );
           EnigmailLog.DEBUG(
             "enigmailMessengerOverlay.js: data: >" +
               callbackArg.data.substr(0, 100) +
