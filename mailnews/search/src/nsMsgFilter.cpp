@@ -6,7 +6,6 @@
 // this file implements the nsMsgFilter interface
 
 #include "msgCore.h"
-#include "nsArray.h"
 #include "nsArrayUtils.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgHdr.h"
@@ -20,7 +19,6 @@
 #include "nsMsgSearchValue.h"
 #include "nsMsgI18N.h"
 #include "nsNativeCharsetUtils.h"
-#include "nsIMutableArray.h"
 #include "nsIOutputStream.h"
 #include "nsIStringBundle.h"
 #include "nsComponentManagerUtils.h"
@@ -157,10 +155,6 @@ nsMsgFilter::nsMsgFilter()
       m_unparseable(false),
       m_filterList(nullptr),
       m_expressionTree(nullptr) {
-  m_termList = nsArray::Create();
-  NS_ASSERTION(m_termList,
-               "Failed to allocate a nsIMutableArray for m_termList");
-
   m_type = nsMsgFilterType::InboxRule | nsMsgFilterType::Manual;
 }
 
@@ -220,7 +214,8 @@ NS_IMETHODIMP nsMsgFilter::AppendTerm(nsIMsgSearchTerm* aTerm) {
   // invalidate expression tree if we're changing the terms
   delete m_expressionTree;
   m_expressionTree = nullptr;
-  return m_termList->AppendElement(aTerm);
+  m_termList.AppendElement(aTerm);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -363,34 +358,34 @@ NS_IMETHODIMP nsMsgFilter::GetTerm(
     nsACString& arbitraryHeader) /* arbitrary header specified by user.ignore
                                     unless attrib = attribOtherHeader */
 {
-  nsresult rv;
-  nsCOMPtr<nsIMsgSearchTerm> term =
-      do_QueryElementAt(m_termList, termIndex, &rv);
-  if (NS_SUCCEEDED(rv) && term) {
-    if (attrib) term->GetAttrib(attrib);
-    if (op) term->GetOp(op);
-    if (value) term->GetValue(value);
-    if (booleanAnd) term->GetBooleanAnd(booleanAnd);
-    if (attrib && *attrib > nsMsgSearchAttrib::OtherHeader &&
-        *attrib < nsMsgSearchAttrib::kNumMsgSearchAttributes)
-      term->GetArbitraryHeader(arbitraryHeader);
+  if (termIndex >= (int32_t)m_termList.Length()) {
+    return NS_ERROR_INVALID_ARG;
+  }
+  nsIMsgSearchTerm* term = m_termList[termIndex];
+  if (attrib) term->GetAttrib(attrib);
+  if (op) term->GetOp(op);
+  if (value) term->GetValue(value);
+  if (booleanAnd) term->GetBooleanAnd(booleanAnd);
+  if (attrib && *attrib > nsMsgSearchAttrib::OtherHeader &&
+      *attrib < nsMsgSearchAttrib::kNumMsgSearchAttributes) {
+    term->GetArbitraryHeader(arbitraryHeader);
   }
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::GetSearchTerms(nsIMutableArray** aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  // caller can change m_termList, which can invalidate m_expressionTree.
+NS_IMETHODIMP nsMsgFilter::GetSearchTerms(
+    nsTArray<RefPtr<nsIMsgSearchTerm>>& terms) {
   delete m_expressionTree;
   m_expressionTree = nullptr;
-  NS_IF_ADDREF(*aResult = m_termList);
+  terms = m_termList.Clone();
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::SetSearchTerms(nsIMutableArray* aSearchList) {
+NS_IMETHODIMP nsMsgFilter::SetSearchTerms(
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& terms) {
   delete m_expressionTree;
   m_expressionTree = nullptr;
-  m_termList = aSearchList;
+  m_termList = terms.Clone();
   return NS_OK;
 }
 

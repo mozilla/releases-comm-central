@@ -29,8 +29,8 @@ var VirtualFolderHelper = {
    * @param aSearchFolders A list of nsIMsgFolders that you want to use as the
    *     sources for the virtual folder OR a string that is the already '|'
    *     delimited list of folder URIs to use.
-   * @param aSearchTerms The search terms to use for the virtual folder. This
-   *     should be a JS list/nsIMutableArray of nsIMsgSearchTerms.
+   * @param {nsIMsgSearchTerms[]} aSearchTerms - The search terms to
+   *     use for the virtual folder.
    * @param aOnlineSearch Should the search attempt to use the server's search
    *     capabilities when possible and appropriate?
    *
@@ -189,7 +189,7 @@ VirtualFolderWrapper.prototype = {
    */
   set searchTerms(aTerms) {
     let condition = "";
-    for (let term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
+    for (let term of aTerms) {
       if (condition.length) {
         condition += " ";
       }

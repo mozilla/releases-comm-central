@@ -31,9 +31,6 @@ nsMsgSearchSession::nsMsgSearchSession() {
   m_handlingError = false;
   m_expressionTree = nullptr;
   m_searchPaused = false;
-  m_termList = nsArray::Create();
-  NS_ASSERTION(m_termList,
-               "Failed to allocate a nsIMutableArray for m_termList");
 }
 
 nsMsgSearchSession::~nsMsgSearchSession() {
@@ -58,7 +55,7 @@ nsMsgSearchSession::AddSearchTerm(nsMsgSearchAttribValue attrib,
       new nsMsgSearchTerm(attrib, op, value, boolOp, customString);
   NS_ENSURE_TRUE(pTerm, NS_ERROR_OUT_OF_MEMORY);
 
-  m_termList->AppendElement(pTerm);
+  m_termList.AppendElement(pTerm);
   // force the expression tree to rebuild whenever we change the terms
   delete m_expressionTree;
   m_expressionTree = nullptr;
@@ -68,22 +65,22 @@ nsMsgSearchSession::AddSearchTerm(nsMsgSearchAttribValue attrib,
 NS_IMETHODIMP
 nsMsgSearchSession::AppendTerm(nsIMsgSearchTerm* aTerm) {
   NS_ENSURE_ARG_POINTER(aTerm);
-  NS_ENSURE_TRUE(m_termList, NS_ERROR_NOT_INITIALIZED);
   delete m_expressionTree;
   m_expressionTree = nullptr;
-  return m_termList->AppendElement(aTerm);
-}
-
-NS_IMETHODIMP
-nsMsgSearchSession::GetSearchTerms(nsIMutableArray** aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  NS_ADDREF(*aResult = m_termList);
+  m_termList.AppendElement(aTerm);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSearchSession::SetSearchTerms(nsIMutableArray* aSearchTerms) {
-  m_termList = aSearchTerms;
+nsMsgSearchSession::GetSearchTerms(nsTArray<RefPtr<nsIMsgSearchTerm>>& terms) {
+  terms = m_termList.Clone();
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgSearchSession::SetSearchTerms(
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& terms) {
+  m_termList = terms.Clone();
   return NS_OK;
 }
 
@@ -123,7 +120,8 @@ NS_IMETHODIMP nsMsgSearchSession::UnregisterListener(
 
 NS_IMETHODIMP nsMsgSearchSession::GetNumSearchTerms(uint32_t* aNumSearchTerms) {
   NS_ENSURE_ARG(aNumSearchTerms);
-  return m_termList->Count(aNumSearchTerms);
+  *aNumSearchTerms = m_termList.Length();
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -316,8 +314,7 @@ nsresult nsMsgSearchSession::Initialize() {
   nsMsgSearchScopeTerm* scopeTerm = nullptr;
   nsresult rv = NS_OK;
 
-  uint32_t numTerms;
-  m_termList->Count(&numTerms);
+  uint32_t numTerms = m_termList.Length();
   // Ensure that the FE has added scopes and terms to this search
   NS_ASSERTION(numTerms > 0, "no terms to search!");
   if (numTerms == 0) return NS_MSG_ERROR_NO_SEARCH_VALUES;
@@ -484,7 +481,7 @@ void nsMsgSearchSession::DestroyScopeList() {
   m_scopeList.Clear();
 }
 
-void nsMsgSearchSession::DestroyTermList() { m_termList->Clear(); }
+void nsMsgSearchSession::DestroyTermList() { m_termList.Clear(); }
 
 nsMsgSearchScopeTerm* nsMsgSearchSession::GetRunningScope() {
   return m_scopeList.SafeElementAt(m_idxRunningScope, nullptr);

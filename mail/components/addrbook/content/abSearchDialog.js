@@ -25,7 +25,6 @@ var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
 var gSearchSession;
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
-var nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
 var nsMsgSearchOp = Ci.nsMsgSearchOp;
 var nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
 var nsIAbDirectory = Ci.nsIAbDirectory;
@@ -186,15 +185,14 @@ function onSearch() {
   var currentAbURI = document.getElementById("abPopup").getAttribute("value");
 
   gSearchSession.addDirectoryScopeTerm(GetScopeForDirectoryURI(currentAbURI));
-  saveSearchTerms(gSearchSession.searchTerms, gSearchSession);
+  gSearchSession.searchTerms = saveSearchTerms(
+    gSearchSession.searchTerms,
+    gSearchSession
+  );
 
   let searchUri = "?(";
   for (let i = 0; i < gSearchSession.searchTerms.length; i++) {
-    let searchTerm = gSearchSession.searchTerms.queryElementAt(
-      i,
-      nsIMsgSearchTerm
-    );
-
+    let searchTerm = gSearchSession.searchTerms[i];
     // get the "and" / "or" value from the first term
     if (i == 0) {
       if (searchTerm.booleanAnd) {

@@ -37,6 +37,7 @@ class nsIMsgWindow;
 class nsIStreamListener;
 class nsICancelable;
 class nsIProtocolProxyCallback;
+class nsIMsgSearchTerm;
 
 #define FILE_IO_BUFFER_SIZE (16 * 1024)
 #define MSGS_URL "chrome://messenger/locale/messenger.properties"
@@ -300,8 +301,8 @@ NS_MSG_BASE PRTime MsgConvertAgeInDaysToCutoffDate(int32_t ageInDays);
  * @param[out] aOutString   result representation of search terms.
  *
  */
-NS_MSG_BASE nsresult MsgTermListToString(nsIArray* aTermList,
-                                         nsCString& aOutString);
+NS_MSG_BASE nsresult MsgTermListToString(
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& aTermList, nsCString& aOutString);
 
 NS_MSG_BASE nsresult MsgStreamMsgHeaders(nsIInputStream* aInputStream,
                                          nsIStreamListener* aConsumer);

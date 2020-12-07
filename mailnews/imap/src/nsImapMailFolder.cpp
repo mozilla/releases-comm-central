@@ -681,16 +681,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
         bool enabled = false;
         filter->GetEnabled(&enabled);
         if (!enabled) continue;
-        nsCOMPtr<nsIMutableArray> searchTerms;
-        uint32_t numSearchTerms = 0;
-        filter->GetSearchTerms(getter_AddRefs(searchTerms));
-        if (searchTerms) searchTerms->Count(&numSearchTerms);
-        for (uint32_t termIndex = 0;
-             termIndex < numSearchTerms && !m_filterListRequiresBody;
-             termIndex++) {
-          nsCOMPtr<nsIMsgSearchTerm> term =
-              do_QueryElementAt(searchTerms, termIndex, &rv);
-          NS_ENSURE_SUCCESS(rv, rv);
+        nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
+        filter->GetSearchTerms(searchTerms);
+        for (nsIMsgSearchTerm* term : searchTerms) {
           nsMsgSearchAttribValue attrib;
           rv = term->GetAttrib(&attrib);
           NS_ENSURE_SUCCESS(rv, rv);
@@ -707,6 +700,9 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
             if (NS_SUCCEEDED(rv) && customTerm)
               rv = customTerm->GetNeedsBody(&needsBody);
             if (NS_SUCCEEDED(rv) && needsBody) m_filterListRequiresBody = true;
+          }
+          if (m_filterListRequiresBody) {
+            break;
           }
         }
 

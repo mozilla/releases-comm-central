@@ -91,8 +91,8 @@ class nsMsgFilter : public nsIMsgFilter {
   bool m_enabled;
   bool m_temporary;
   bool m_unparseable;
-  nsIMsgFilterList* m_filterList;       /* owning filter list */
-  nsCOMPtr<nsIMutableArray> m_termList; /* linked list of criteria terms */
+  nsIMsgFilterList* m_filterList;                /* owning filter list */
+  nsTArray<RefPtr<nsIMsgSearchTerm>> m_termList; /* criteria terms */
   nsCOMPtr<nsIMsgSearchScopeTerm>
       m_scope; /* default for mail rules is inbox, but news rules could
               have a newsgroup - LDAP would be invalid */

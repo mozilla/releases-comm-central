@@ -5,7 +5,6 @@
 
 #include "nsMsgMailViewList.h"
 #include "nsArray.h"
-#include "nsIMutableArray.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgMailSession.h"
 #include "nsIMsgSearchTerm.h"
@@ -16,7 +15,6 @@
 #include "nsComponentManagerUtils.h"
 #include "mozilla/Services.h"
 #include "nsIMsgFilter.h"
-#include "nsArrayUtils.h"
 
 #define kDefaultViewPeopleIKnow "People I Know"
 #define kDefaultViewRecent "Recent Mail"
@@ -24,19 +22,13 @@
 #define kDefaultViewNotJunk "Not Junk"
 #define kDefaultViewHasAttachments "Has Attachments"
 
-nsMsgMailView::nsMsgMailView() {
-  mViewSearchTerms = nsArray::Create();
-  NS_ASSERTION(mViewSearchTerms,
-               "Failed to allocate a nsIMutableArray for mViewSearchTerms");
-}
+nsMsgMailView::nsMsgMailView() {}
 
 NS_IMPL_ADDREF(nsMsgMailView)
 NS_IMPL_RELEASE(nsMsgMailView)
 NS_IMPL_QUERY_INTERFACE(nsMsgMailView, nsIMsgMailView)
 
-nsMsgMailView::~nsMsgMailView() {
-  if (mViewSearchTerms) mViewSearchTerms->Clear();
-}
+nsMsgMailView::~nsMsgMailView() {}
 
 NS_IMETHODIMP nsMsgMailView::GetMailViewName(char16_t** aMailViewName) {
   NS_ENSURE_ARG_POINTER(aMailViewName);
@@ -90,21 +82,23 @@ NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t** aMailViewName) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMailView::GetSearchTerms(nsIMutableArray** aSearchTerms) {
-  NS_ENSURE_ARG_POINTER(aSearchTerms);
-  NS_IF_ADDREF(*aSearchTerms = mViewSearchTerms);
+NS_IMETHODIMP nsMsgMailView::GetSearchTerms(
+    nsTArray<RefPtr<nsIMsgSearchTerm>>& terms) {
+  terms = mViewSearchTerms.Clone();
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailView::SetSearchTerms(nsIMutableArray* aSearchTerms) {
-  mViewSearchTerms = aSearchTerms;
+NS_IMETHODIMP nsMsgMailView::SetSearchTerms(
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& terms) {
+  mViewSearchTerms = terms.Clone();
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailView::AppendTerm(nsIMsgSearchTerm* aTerm) {
   NS_ENSURE_TRUE(aTerm, NS_ERROR_NULL_POINTER);
 
-  return mViewSearchTerms->AppendElement(aTerm);
+  mViewSearchTerms.AppendElement(aTerm);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailView::CreateTerm(nsIMsgSearchTerm** aResult) {
@@ -195,8 +189,8 @@ nsresult nsMsgMailViewList::ConvertMailViewListToFilterList() {
     mFilterList->CreateFilter(mailViewName, getter_AddRefs(newMailFilter));
     if (!newMailFilter) continue;
 
-    nsCOMPtr<nsIMutableArray> searchTerms;
-    mailView->GetSearchTerms(getter_AddRefs(searchTerms));
+    nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
+    mailView->GetSearchTerms(searchTerms);
     newMailFilter->SetSearchTerms(searchTerms);
     mFilterList->InsertFilterAt(index, newMailFilter);
   }
@@ -274,8 +268,8 @@ nsresult nsMsgMailViewList::ConvertFilterListToMailViews() {
     msgFilter->GetFilterName(filterName);
     newMailView->SetMailViewName(filterName.get());
 
-    nsCOMPtr<nsIMutableArray> filterSearchTerms;
-    rv = msgFilter->GetSearchTerms(getter_AddRefs(filterSearchTerms));
+    nsTArray<RefPtr<nsIMsgSearchTerm>> filterSearchTerms;
+    rv = msgFilter->GetSearchTerms(filterSearchTerms);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = newMailView->SetSearchTerms(filterSearchTerms);
     NS_ENSURE_SUCCESS(rv, rv);

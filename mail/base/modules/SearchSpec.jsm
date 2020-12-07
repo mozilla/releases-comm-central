@@ -4,9 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["SearchSpec"];
 
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -158,7 +155,7 @@ SearchSpec.prototype = {
     let iTerm = 0,
       term;
     let outTerms = aCloneTerms ? [] : aTerms;
-    for (term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
+    for (term of aTerms) {
       if (aCloneTerms) {
         let cloneTerm = this.session.createTerm();
         cloneTerm.value = term.value;
@@ -205,7 +202,7 @@ SearchSpec.prototype = {
     let term;
     let outTerms = aCloneTerms ? [] : aTerms;
     let inGroup = false;
-    for (term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
+    for (term of aTerms) {
       // If we're in a group, all that is forbidden is the creation of new
       // groups.
       if (inGroup) {
@@ -363,27 +360,24 @@ SearchSpec.prototype = {
     let session = this.session;
 
     // clear out our current terms and scope
-    session.searchTerms.clear();
+    session.searchTerms = [];
     session.clearScopes();
 
     // -- apply terms
     if (this._virtualFolderTerms) {
-      for (let term of fixIterator(
-        this._virtualFolderTerms,
-        Ci.nsIMsgSearchTerm
-      )) {
+      for (let term of this._virtualFolderTerms) {
         session.appendTerm(term);
       }
     }
 
     if (this._viewTerms) {
-      for (let term of fixIterator(this._viewTerms, Ci.nsIMsgSearchTerm)) {
+      for (let term of this._viewTerms) {
         session.appendTerm(term);
       }
     }
 
     if (this._userTerms) {
-      for (let term of fixIterator(this._userTerms, Ci.nsIMsgSearchTerm)) {
+      for (let term of this._userTerms) {
         session.appendTerm(term);
       }
     }
@@ -432,10 +426,7 @@ SearchSpec.prototype = {
         let offlineValidityTable = validityManager.getTable(offlineScope);
         let offlineAvailable = true;
         let onlineAvailable = true;
-        for (let term of fixIterator(
-          session.searchTerms,
-          Ci.nsIMsgSearchTerm
-        )) {
+        for (let term of session.searchTerms) {
           if (!term.matchAll) {
             // for custom terms, we need to getAvailable from the custom term
             if (term.attrib == Ci.nsMsgSearchAttrib.Custom) {
@@ -489,7 +480,7 @@ SearchSpec.prototype = {
 
     let s = "";
 
-    for (let term of fixIterator(aSearchTerms, Ci.nsIMsgSearchTerm)) {
+    for (let term of aSearchTerms) {
       s += "      " + term.termAsString + "\n";
     }
 

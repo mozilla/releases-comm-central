@@ -53,7 +53,7 @@ function onOK()
   var newMailView = null;
   if (gMailView)
   {
-    saveSearchTerms(gMailView.searchTerms, gMailView);
+    gMailView.searchTerms = saveSearchTerms(gMailView.searchTerms, gMailView);
     // if the name of the view has been changed...
     if (gMailView.prettyName != dialog.nameField.value)
       gMailView.mailViewName = dialog.nameField.value;
@@ -63,7 +63,7 @@ function onOK()
     // otherwise, create a new mail view
     newMailView = mailViewList.createMailView();
 
-    saveSearchTerms(newMailView.searchTerms, newMailView);
+    newMailView.searchTerms = saveSearchTerms(newMailView.searchTerms, newMailView);
     newMailView.mailViewName = dialog.nameField.value;
     // now add the mail view to our mail view list
     mailViewList.addMailView(newMailView);

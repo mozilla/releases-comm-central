@@ -446,8 +446,7 @@ int nsMsgFilterList::ReadChar(nsIInputStream* aStream) {
   uint32_t bytesRead;
   uint64_t bytesAvailable;
   nsresult rv = aStream->Available(&bytesAvailable);
-  if (NS_FAILED(rv) || bytesAvailable == 0)
-    return EOF_CHAR;
+  if (NS_FAILED(rv) || bytesAvailable == 0) return EOF_CHAR;
 
   rv = aStream->Read(&newChar, 1, &bytesRead);
   if (NS_FAILED(rv) || !bytesRead) return EOF_CHAR;
@@ -1106,11 +1105,9 @@ nsresult nsMsgFilterList::ComputeArbitraryHeaders() {
     rv = GetFilterAt(index, getter_AddRefs(filter));
     if (!(NS_SUCCEEDED(rv) && filter)) continue;
 
-    nsCOMPtr<nsIMutableArray> searchTerms;
-    uint32_t numSearchTerms = 0;
-    filter->GetSearchTerms(getter_AddRefs(searchTerms));
-    if (searchTerms) searchTerms->GetLength(&numSearchTerms);
-    for (uint32_t i = 0; i < numSearchTerms; i++) {
+    nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
+    filter->GetSearchTerms(searchTerms);
+    for (uint32_t i = 0; i < searchTerms.Length(); i++) {
       filter->GetTerm(i, &attrib, nullptr, nullptr, nullptr, arbitraryHeader);
       if (!arbitraryHeader.IsEmpty()) {
         if (m_arbitraryHeaders.IsEmpty())

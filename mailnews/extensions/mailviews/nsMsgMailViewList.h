@@ -10,7 +10,6 @@
 #include "nsIMsgMailViewList.h"
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
-#include "nsIMutableArray.h"
 #include "nsIStringBundle.h"
 #include "nsString.h"
 #include "nsIMsgFilterList.h"
@@ -27,7 +26,7 @@ class nsMsgMailView : public nsIMsgMailView {
   virtual ~nsMsgMailView();
   nsString mName;
   nsCOMPtr<nsIStringBundle> mBundle;
-  nsCOMPtr<nsIMutableArray> mViewSearchTerms;
+  nsTArray<RefPtr<nsIMsgSearchTerm>> mViewSearchTerms;
 };
 
 class nsMsgMailViewList : public nsIMsgMailViewList {

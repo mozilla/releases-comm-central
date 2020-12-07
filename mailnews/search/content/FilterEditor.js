@@ -158,12 +158,7 @@ function filterEditorOnLoad() {
         }
 
         // copy the search terms
-        for (let i = 0; i < copiedFilter.searchTerms.length; i++) {
-          let searchTerm = copiedFilter.searchTerms.queryElementAt(
-            i,
-            Ci.nsIMsgSearchTerm
-          );
-
+        for (let searchTerm of copiedFilter.searchTerms) {
           let newTerm = newFilter.createTerm();
           newTerm.attrib = searchTerm.attrib;
           newTerm.op = searchTerm.op;
@@ -581,7 +576,7 @@ function saveFilter() {
   }
 
   gFilter.filterType = gFilterType;
-  saveSearchTerms(gFilter.searchTerms, gFilter);
+  gFilter.searchTerms = saveSearchTerms(gFilter.searchTerms, gFilter);
 
   if (isNewFilter) {
     // new filter - insert into gFilterList

@@ -2265,8 +2265,8 @@ nsresult VirtualFolderChangeListener::Init() {
     m_searchSession = do_CreateInstance(NS_MSGSEARCHSESSION_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIMutableArray> searchTerms;
-    rv = tempFilter->GetSearchTerms(getter_AddRefs(searchTerms));
+    nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
+    rv = tempFilter->GetSearchTerms(searchTerms);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // we add the search scope right before we match the header,
@@ -2274,11 +2274,8 @@ nsresult VirtualFolderChangeListener::Init() {
     // stream, because that holds onto the mailbox file, breaking
     // compaction.
 
-    // add each item in termsArray to the search session
-    uint32_t numTerms;
-    searchTerms->Count(&numTerms);
-    for (uint32_t i = 0; i < numTerms; i++) {
-      nsCOMPtr<nsIMsgSearchTerm> searchTerm(do_QueryElementAt(searchTerms, i));
+    // add each search term to the search session
+    for (nsIMsgSearchTerm* searchTerm : searchTerms) {
       nsMsgSearchAttribValue attrib;
       searchTerm->GetAttrib(&attrib);
       if (attrib == nsMsgSearchAttrib::MsgStatus) m_searchOnMsgStatus = true;

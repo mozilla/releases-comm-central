@@ -834,7 +834,7 @@ function getSearchTermString(searchTerms)
   var count = searchTerms.length;
   for (searchIndex = 0; searchIndex < count; )
   {
-    var term = searchTerms.queryElementAt(searchIndex++, Ci.nsIMsgSearchTerm);
+    var term = searchTerms[searchIndex++];
 
     if (condition.length > 1)
       condition += ' ';
@@ -926,8 +926,7 @@ function setupXFVirtualFolderSearch(folderUrisToSearch, searchTerms, searchOnlin
         gSearchSession.addScopeTerm(!searchOnline ? nsMsgSearchScope.offlineMail : GetScopeForFolder(realFolder), realFolder);
     }
 
-    const nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
-    for (let term of fixIterator(searchTerms, nsIMsgSearchTerm)) {
+    for (let term of searchTerms) {
       gSearchSession.appendTerm(term);
     }
 }
@@ -952,7 +951,7 @@ function CreateGroupedSearchTerms(searchTermsArray)
 
   var numEntries = searchTermsArray.length;
   for (let i = 0; i < numEntries; i++) {
-    let searchTerm = searchTermsArray.queryElementAt(i, Ci.nsIMsgSearchTerm);
+    let searchTerm = searchTermsArray[i];
 
     // clone the term, since we might be modifying it
     var searchTermForQS = searchSession.createTerm();

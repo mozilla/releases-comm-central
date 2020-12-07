@@ -399,7 +399,7 @@ function onSearch()
         AddSubFolders(gMsgFolderSelected);
     }
     // reflect the search widgets back into the search session
-    saveSearchTerms(gSearchSession.searchTerms, gSearchSession);
+    gSearchSession.searchTerms = saveSearchTerms(gSearchSession.searchTerms, gSearchSession);
 
     try
     {

@@ -6,7 +6,6 @@
 #include "nsISupports.idl"
 #include "nsIMsgSearchValue.idl"
 
-interface nsIMutableArray;
 interface nsIMsgSearchAdapter;
 interface nsIMsgSearchTerm;
 interface nsIMsgSearchNotify;
@@ -40,7 +39,7 @@ interface nsIMsgSearchSession :  nsISupports {
                      in boolean BooleanAND,
                      in string customString);
 
-  attribute nsIMutableArray searchTerms;
+  attribute Array<nsIMsgSearchTerm> searchTerms;
 
   nsIMsgSearchTerm createTerm();
   void appendTerm(in nsIMsgSearchTerm term);

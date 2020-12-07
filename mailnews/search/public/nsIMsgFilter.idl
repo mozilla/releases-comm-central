@@ -7,7 +7,6 @@
 #include "nsISupports.idl"
 #include "nsMsgFilterCore.idl"
 
-interface nsIMutableArray;
 interface nsIOutputStream;
 interface nsIMsgFilterCustomAction;
 interface nsIMsgFilterList;
@@ -77,7 +76,7 @@ interface nsIMsgFilter : nsISupports {
 
     nsIMsgSearchTerm createTerm();
 
-    attribute nsIMutableArray searchTerms;
+    attribute Array<nsIMsgSearchTerm> searchTerms;
 
     attribute nsIMsgSearchScopeTerm scope;
 

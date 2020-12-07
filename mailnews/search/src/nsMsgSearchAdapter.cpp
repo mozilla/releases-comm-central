@@ -24,8 +24,6 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMemory.h"
 #include "nsMsgMessageFlags.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "mozilla/Attributes.h"
 
 // This stuff lives in the base class because the IMAP search syntax
@@ -80,11 +78,10 @@ NS_IMETHODIMP nsMsgSearchAdapter::OpenResultElement(nsMsgResultElement*) {
 
 NS_IMPL_ISUPPORTS(nsMsgSearchAdapter, nsIMsgSearchAdapter)
 
-nsMsgSearchAdapter::nsMsgSearchAdapter(nsIMsgSearchScopeTerm* scope,
-                                       nsIArray* searchTerms)
-    : m_searchTerms(searchTerms) {
-  m_scope = scope;
-}
+nsMsgSearchAdapter::nsMsgSearchAdapter(
+    nsIMsgSearchScopeTerm* scope,
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& searchTerms)
+    : m_scope(scope), m_searchTerms(searchTerms.Clone()) {}
 
 nsMsgSearchAdapter::~nsMsgSearchAdapter() {}
 
@@ -571,11 +568,9 @@ nsresult nsMsgSearchAdapter::EncodeImapValue(char* encoding, const char* value,
   return NS_OK;
 }
 
-nsresult nsMsgSearchAdapter::EncodeImap(char** ppOutEncoding,
-                                        nsIArray* searchTerms,
-                                        const char16_t* srcCharset,
-                                        const char16_t* destCharset,
-                                        bool reallyDredd) {
+nsresult nsMsgSearchAdapter::EncodeImap(
+    char** ppOutEncoding, nsTArray<RefPtr<nsIMsgSearchTerm>> const& searchTerms,
+    const char16_t* srcCharset, const char16_t* destCharset, bool reallyDredd) {
   // i've left the old code (before using CBoolExpression for debugging purposes
   // to make sure that the new code generates the same encoding string as the
   // old code.....
@@ -583,26 +578,23 @@ nsresult nsMsgSearchAdapter::EncodeImap(char** ppOutEncoding,
   nsresult err = NS_OK;
   *ppOutEncoding = nullptr;
 
-  uint32_t termCount;
-  searchTerms->GetLength(&termCount);
-  uint32_t i = 0;
-
   // create our expression
   nsMsgSearchBoolExpression* expression = new nsMsgSearchBoolExpression();
   if (!expression) return NS_ERROR_OUT_OF_MEMORY;
 
-  for (i = 0; i < termCount && NS_SUCCEEDED(err); i++) {
-    char* termEncoding;
+  for (nsIMsgSearchTerm* pTerm : searchTerms) {
     bool matchAll;
-    nsCOMPtr<nsIMsgSearchTerm> pTerm = do_QueryElementAt(searchTerms, i);
     pTerm->GetMatchAll(&matchAll);
     if (matchAll) continue;
+    char* termEncoding;
     err = EncodeImapTerm(pTerm, reallyDredd, srcCharset, destCharset,
                          &termEncoding);
     if (NS_SUCCEEDED(err) && nullptr != termEncoding) {
       expression = nsMsgSearchBoolExpression::AddSearchTerm(expression, pTerm,
                                                             termEncoding);
       delete[] termEncoding;
+    } else {
+      break;
     }
   }
 

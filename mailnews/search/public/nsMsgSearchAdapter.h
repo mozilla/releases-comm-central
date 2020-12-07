@@ -28,20 +28,22 @@ class nsIMsgSearchScopeTerm;
 
 class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
  public:
-  nsMsgSearchAdapter(nsIMsgSearchScopeTerm*, nsIArray*);
+  nsMsgSearchAdapter(nsIMsgSearchScopeTerm*,
+                     nsTArray<RefPtr<nsIMsgSearchTerm>> const&);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSEARCHADAPTER
 
   nsIMsgSearchScopeTerm* m_scope;
-  nsCOMPtr<nsIArray> m_searchTerms; /* linked list of criteria terms */
+  nsTArray<RefPtr<nsIMsgSearchTerm>>
+      m_searchTerms; /* linked list of criteria terms */
 
   nsString m_defaultCharset = u"UTF-8"_ns;
 
-  static nsresult EncodeImap(char** ppEncoding, nsIArray* searchTerms,
-                             const char16_t* srcCharset,
-                             const char16_t* destCharset,
-                             bool reallyDredd = false);
+  static nsresult EncodeImap(
+      char** ppEncoding, nsTArray<RefPtr<nsIMsgSearchTerm>> const& searchTerms,
+      const char16_t* srcCharset, const char16_t* destCharset,
+      bool reallyDredd = false);
 
   static nsresult EncodeImapValue(char* encoding, const char* value,
                                   bool useQuotes, bool reallyDredd);

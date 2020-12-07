@@ -71,10 +71,7 @@ function onLoad() {
 
     if (windowArgs.searchTerms) {
       // then add them to our search session
-      for (let searchTerm of fixIterator(
-        windowArgs.searchTerms,
-        Ci.nsIMsgSearchTerm
-      )) {
+      for (let searchTerm of windowArgs.searchTerms) {
         gSearchTermSession.appendTerm(searchTerm);
       }
     }
@@ -217,7 +214,10 @@ function onOK(event) {
 
   if (window.arguments[0].editExistingFolder) {
     // update the search terms
-    saveSearchTerms(gSearchTermSession.searchTerms, gSearchTermSession);
+    gSearchTermSession.searchTerms = saveSearchTerms(
+      gSearchTermSession.searchTerms,
+      gSearchTermSession
+    );
     // save the settings
     let virtualFolderWrapper = VirtualFolderHelper.wrapVirtualFolder(
       window.arguments[0].folder
@@ -274,7 +274,10 @@ function onOK(event) {
       return;
     }
 
-    saveSearchTerms(gSearchTermSession.searchTerms, gSearchTermSession);
+    gSearchTermSession.searchTerms = saveSearchTerms(
+      gSearchTermSession.searchTerms,
+      gSearchTermSession
+    );
     VirtualFolderHelper.createNewVirtualFolder(
       name,
       parentFolder,

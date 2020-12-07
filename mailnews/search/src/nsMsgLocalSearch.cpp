@@ -14,8 +14,6 @@
 #include "nsMsgSearchTerm.h"
 #include "nsMsgResultElement.h"
 #include "nsIDBFolderInfo.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgSearchValue.h"
 #include "nsIMsgLocalMailFolder.h"
@@ -239,8 +237,9 @@ void nsMsgSearchBoolExpression::GenerateEncodeStr(nsCString* buffer)
 NS_IMPL_ISUPPORTS_INHERITED(nsMsgSearchOfflineMail, nsMsgSearchAdapter,
                             nsIUrlListener)
 
-nsMsgSearchOfflineMail::nsMsgSearchOfflineMail(nsIMsgSearchScopeTerm* scope,
-                                               nsIArray* termList)
+nsMsgSearchOfflineMail::nsMsgSearchOfflineMail(
+    nsIMsgSearchScopeTerm* scope,
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList)
     : nsMsgSearchAdapter(scope, termList) {}
 
 nsMsgSearchOfflineMail::~nsMsgSearchOfflineMail() {
@@ -301,8 +300,9 @@ nsresult nsMsgSearchOfflineMail::OpenSummaryFile() {
 }
 
 nsresult nsMsgSearchOfflineMail::MatchTermsForFilter(
-    nsIMsgDBHdr* msgToMatch, nsIArray* termList, const char* defaultCharset,
-    nsIMsgSearchScopeTerm* scope, nsIMsgDatabase* db, const nsACString& headers,
+    nsIMsgDBHdr* msgToMatch, nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList,
+    const char* defaultCharset, nsIMsgSearchScopeTerm* scope,
+    nsIMsgDatabase* db, const nsACString& headers,
     nsMsgSearchBoolExpression** aExpressionTree, bool* pResult) {
   return MatchTerms(msgToMatch, termList, defaultCharset, scope, db, headers,
                     true, aExpressionTree, pResult);
@@ -310,23 +310,23 @@ nsresult nsMsgSearchOfflineMail::MatchTermsForFilter(
 
 // static method which matches a header against a list of search terms.
 nsresult nsMsgSearchOfflineMail::MatchTermsForSearch(
-    nsIMsgDBHdr* msgToMatch, nsIArray* termList, const char* defaultCharset,
-    nsIMsgSearchScopeTerm* scope, nsIMsgDatabase* db,
-    nsMsgSearchBoolExpression** aExpressionTree, bool* pResult) {
+    nsIMsgDBHdr* msgToMatch, nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList,
+    const char* defaultCharset, nsIMsgSearchScopeTerm* scope,
+    nsIMsgDatabase* db, nsMsgSearchBoolExpression** aExpressionTree,
+    bool* pResult) {
   return MatchTerms(msgToMatch, termList, defaultCharset, scope, db,
                     EmptyCString(), false, aExpressionTree, pResult);
 }
 
 nsresult nsMsgSearchOfflineMail::ConstructExpressionTree(
-    nsIArray* termList, uint32_t termCount, uint32_t& aStartPosInList,
-    nsMsgSearchBoolExpression** aExpressionTree) {
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList, uint32_t termCount,
+    uint32_t& aStartPosInList, nsMsgSearchBoolExpression** aExpressionTree) {
   nsMsgSearchBoolExpression* finalExpression = *aExpressionTree;
 
   if (!finalExpression) finalExpression = new nsMsgSearchBoolExpression();
 
   while (aStartPosInList < termCount) {
-    nsCOMPtr<nsIMsgSearchTerm> pTerm =
-        do_QueryElementAt(termList, aStartPosInList);
+    nsIMsgSearchTerm* pTerm = termList[aStartPosInList];
     NS_ASSERTION(pTerm, "couldn't get term to match");
 
     bool beginsGrouping;
@@ -611,17 +611,16 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
 }
 
 nsresult nsMsgSearchOfflineMail::MatchTerms(
-    nsIMsgDBHdr* msgToMatch, nsIArray* termList, const char* defaultCharset,
-    nsIMsgSearchScopeTerm* scope, nsIMsgDatabase* db, const nsACString& headers,
-    bool Filtering, nsMsgSearchBoolExpression** aExpressionTree,
-    bool* pResult) {
+    nsIMsgDBHdr* msgToMatch, nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList,
+    const char* defaultCharset, nsIMsgSearchScopeTerm* scope,
+    nsIMsgDatabase* db, const nsACString& headers, bool Filtering,
+    nsMsgSearchBoolExpression** aExpressionTree, bool* pResult) {
   NS_ENSURE_ARG(aExpressionTree);
   nsresult err;
 
   if (!*aExpressionTree) {
     uint32_t initialPos = 0;
-    uint32_t count;
-    termList->GetLength(&count);
+    uint32_t count = termList.Length();
     err = ConstructExpressionTree(termList, count, initialPos, aExpressionTree);
     if (NS_FAILED(err)) return err;
   }
@@ -750,8 +749,9 @@ NS_IMETHODIMP nsMsgSearchOfflineMail::OnStopRunningUrl(nsIURI* url,
   return NS_OK;
 }
 
-nsMsgSearchOfflineNews::nsMsgSearchOfflineNews(nsIMsgSearchScopeTerm* scope,
-                                               nsIArray* termList)
+nsMsgSearchOfflineNews::nsMsgSearchOfflineNews(
+    nsIMsgSearchScopeTerm* scope,
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList)
     : nsMsgSearchOfflineMail(scope, termList) {}
 
 nsMsgSearchOfflineNews::~nsMsgSearchOfflineNews() {}

@@ -15,7 +15,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsMemory.h"
 #include <ctype.h>
-#include "nsIArray.h"
 #include "nsArrayUtils.h"
 
 // Implementation of search for IMAP mail folders
@@ -30,8 +29,9 @@ const char* nsMsgSearchNews::m_kNntpFrom = "FROM ";
 const char* nsMsgSearchNews::m_kNntpSubject = "SUBJECT ";
 const char* nsMsgSearchNews::m_kTermSeparator = "/";
 
-nsMsgSearchNews::nsMsgSearchNews(nsMsgSearchScopeTerm* scope,
-                                 nsIArray* termList)
+nsMsgSearchNews::nsMsgSearchNews(
+    nsMsgSearchScopeTerm* scope,
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList)
     : nsMsgSearchAdapter(scope, termList) {
   m_searchType = ST_UNINITIALIZED;
 }
@@ -189,16 +189,14 @@ nsresult nsMsgSearchNews::Encode(nsCString* outEncoding) {
 
   nsresult err = NS_OK;
 
-  uint32_t numTerms;
+  uint32_t numTerms = m_searchTerms.Length();
 
-  m_searchTerms->GetLength(&numTerms);
   char** intermediateEncodings = new char*[numTerms];
   if (intermediateEncodings) {
     // Build an XPAT command for each term
     int encodingLength = 0;
-    uint32_t i;
-    for (i = 0; i < numTerms; i++) {
-      nsCOMPtr<nsIMsgSearchTerm> pTerm = do_QueryElementAt(m_searchTerms, i);
+    for (uint32_t i = 0; i < numTerms; i++) {
+      nsIMsgSearchTerm* pTerm = m_searchTerms[i];
       // set boolean OR term if any of the search terms are an OR...this only
       // works if we are using homogeneous boolean operators.
       bool isBooleanOpAnd;
@@ -216,9 +214,7 @@ nsresult nsMsgSearchNews::Encode(nsCString* outEncoding) {
     if (encoding) {
       PL_strcpy(encoding, "?search");
 
-      m_searchTerms->GetLength(&numTerms);
-
-      for (i = 0; i < numTerms; i++) {
+      for (uint32_t i = 0; i < numTerms; i++) {
         if (intermediateEncodings[i]) {
           PL_strcat(encoding, m_kTermSeparator);
           PL_strcat(encoding, intermediateEncodings[i]);
@@ -292,7 +288,7 @@ void nsMsgSearchNews::CollateHits() {
     // in the results of each XPAT command. So if we fire 3 XPAT commands (one
     // per search term), the article number must appear 3 times. If it appears
     // fewer than 3 times, it matched some search terms, but not all.
-    m_searchTerms->GetLength(&termCount);
+    termCount = m_searchTerms.Length();
   }
   uint32_t candidateCount = 0;
   uint32_t candidate = m_candidateHits[0];

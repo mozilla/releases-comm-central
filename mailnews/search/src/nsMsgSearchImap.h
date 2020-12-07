@@ -13,7 +13,8 @@
 
 class nsMsgSearchOnlineMail : public nsMsgSearchAdapter {
  public:
-  nsMsgSearchOnlineMail(nsMsgSearchScopeTerm* scope, nsIArray* termList);
+  nsMsgSearchOnlineMail(nsMsgSearchScopeTerm* scope,
+                        nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList);
   virtual ~nsMsgSearchOnlineMail();
 
   NS_IMETHOD ValidateTerms() override;
@@ -21,7 +22,8 @@ class nsMsgSearchOnlineMail : public nsMsgSearchAdapter {
   NS_IMETHOD GetEncoding(char** result) override;
   NS_IMETHOD AddResultElement(nsIMsgDBHdr*) override;
 
-  static nsresult Encode(nsCString& ppEncoding, nsIArray* searchTerms,
+  static nsresult Encode(nsCString& ppEncoding,
+                         nsTArray<RefPtr<nsIMsgSearchTerm>> const& searchTerms,
                          const char16_t* destCharset,
                          nsIMsgSearchScopeTerm* scope);
 

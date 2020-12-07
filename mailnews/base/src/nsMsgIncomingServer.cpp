@@ -1729,23 +1729,15 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(
      */
 
     // get the list of search terms from the filter
-    nsCOMPtr<nsIMutableArray> searchTerms;
-    rv = newFilter->GetSearchTerms(getter_AddRefs(searchTerms));
+    nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
+    rv = newFilter->GetSearchTerms(searchTerms);
     NS_ENSURE_SUCCESS(rv, rv);
-    uint32_t count = 0;
-    searchTerms->Count(&count);
+    uint32_t count = searchTerms.Length();
     if (count > 1)  // don't need to group a single term
     {
       // beginGrouping the first term, and endGrouping the last term
-      nsCOMPtr<nsIMsgSearchTerm> firstTerm(
-          do_QueryElementAt(searchTerms, 0, &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
-      firstTerm->SetBeginsGrouping(true);
-
-      nsCOMPtr<nsIMsgSearchTerm> lastTerm(
-          do_QueryElementAt(searchTerms, count - 1, &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
-      lastTerm->SetEndsGrouping(true);
+      searchTerms[0]->SetBeginsGrouping(true);
+      searchTerms[count - 1]->SetEndsGrouping(true);
     }
 
     // Create a new term, checking if the user set junk status. The term will
@@ -1765,7 +1757,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(
     searchValue->SetStr(u"user"_ns);
     searchTerm->SetValue(searchValue);
 
-    searchTerms->InsertElementAt(searchTerm, count);
+    newFilter->AppendTerm(searchTerm);
 
     bool moveOnSpam, markAsReadOnSpam;
     spamSettings->GetMoveOnSpam(&moveOnSpam);

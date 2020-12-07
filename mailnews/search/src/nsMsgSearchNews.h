@@ -20,7 +20,8 @@ typedef enum search_type {
 
 class nsMsgSearchNews : public nsMsgSearchAdapter {
  public:
-  nsMsgSearchNews(nsMsgSearchScopeTerm* scope, nsIArray* termList);
+  nsMsgSearchNews(nsMsgSearchScopeTerm* scope,
+                  nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList);
   virtual ~nsMsgSearchNews();
 
   NS_IMETHOD ValidateTerms() override;

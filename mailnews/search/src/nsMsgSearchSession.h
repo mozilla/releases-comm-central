@@ -49,7 +49,7 @@ class nsMsgSearchSession : public nsIMsgSearchSession,
   void ReleaseFolderDBRef();
 
   nsTArray<RefPtr<nsMsgSearchScopeTerm>> m_scopeList;
-  nsCOMPtr<nsIMutableArray> m_termList;
+  nsTArray<RefPtr<nsIMsgSearchTerm>> m_termList;
 
   nsTArray<nsCOMPtr<nsIMsgSearchNotify>> m_listenerList;
   nsTArray<int32_t> m_listenerFlagList;

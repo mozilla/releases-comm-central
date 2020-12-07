@@ -13,10 +13,10 @@
 #include "nsIMsgCopyService.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgSearchSession.h"
+#include "nsIMsgSearchTerm.h"
 #include "nsMsgDBCID.h"
 #include "nsMsgMessageFlags.h"
 #include "nsServiceManagerUtils.h"
-#include "nsIMutableArray.h"
 
 nsMsgXFVirtualFolderDBView::nsMsgXFVirtualFolderDBView() {
   mSuppressMsgDisplay = false;
@@ -380,8 +380,8 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
 
   nsCString terms;
   dbFolderInfo->GetCharProperty("searchStr", terms);
-  nsCOMPtr<nsIMutableArray> searchTerms;
-  rv = searchSession->GetSearchTerms(getter_AddRefs(searchTerms));
+  nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
+  rv = searchSession->GetSearchTerms(searchTerms);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCString curSearchAsString;
 

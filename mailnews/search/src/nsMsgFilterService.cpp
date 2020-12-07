@@ -458,8 +458,8 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter() {
             ("(Post) Filter name: %s", NS_ConvertUTF16toUTF8(filterName).get()));
     // clang-format on
 
-    nsCOMPtr<nsIMutableArray> searchTerms;
-    rv = m_curFilter->GetSearchTerms(getter_AddRefs(searchTerms));
+    nsTArray<RefPtr<nsIMsgSearchTerm>> searchTerms;
+    rv = m_curFilter->GetSearchTerms(searchTerms);
     CONTINUE_IF_FAILURE(rv, "Could not get searchTerms");
 
     if (m_searchSession) m_searchSession->UnregisterListener(this);
@@ -467,12 +467,7 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter() {
     BREAK_IF_FAILURE(rv, "Failed to get search session");
 
     nsMsgSearchScopeValue searchScope = nsMsgSearchScope::offlineMail;
-    uint32_t termCount = 0;
-    searchTerms->GetLength(&termCount);
-    for (uint32_t termIndex = 0; termIndex < termCount; termIndex++) {
-      nsCOMPtr<nsIMsgSearchTerm> term =
-          do_QueryElementAt(searchTerms, termIndex, &rv);
-      BREAK_IF_FAILURE(rv, "Could not get search term");
+    for (nsIMsgSearchTerm* term : searchTerms) {
       rv = m_searchSession->AppendTerm(term);
       BREAK_IF_FAILURE(rv, "Could not append search term");
     }

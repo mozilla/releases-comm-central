@@ -1690,7 +1690,8 @@ nsresult nsMsgSearchScopeTerm::TimeSlice(bool* aDone) {
   return m_adapter->Search(aDone);
 }
 
-nsresult nsMsgSearchScopeTerm::InitializeAdapter(nsIArray* termList) {
+nsresult nsMsgSearchScopeTerm::InitializeAdapter(
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList) {
   if (m_adapter) return NS_OK;
 
   nsresult rv = NS_OK;

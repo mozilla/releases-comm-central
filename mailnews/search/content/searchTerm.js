@@ -148,8 +148,6 @@ searchTermContainer.prototype = {
   },
 };
 
-var nsIMsgSearchTerm = Ci.nsIMsgSearchTerm;
-
 function initializeSearchWidgets() {
   gSearchBooleanRadiogroup = document.getElementById("booleanAndGroup");
   gSearchTermList = document.getElementById("searchTermList");
@@ -192,7 +190,7 @@ function initializeBooleanWidgets() {
 
 function initializeSearchRows(scope, searchTerms) {
   for (let i = 0; i < searchTerms.length; i++) {
-    let searchTerm = searchTerms.queryElementAt(i, nsIMsgSearchTerm);
+    let searchTerm = searchTerms[i];
     createSearchRow(i, scope, searchTerm, false);
     gTotalSearchTerms++;
   }
@@ -513,17 +511,19 @@ function removeSearchRow(index) {
   gSearchTerms.splice(index, 1);
 }
 
-// save the search terms from the UI back to the actual search terms
-// searchTerms: nsIMutableArray of terms
-// termOwner:   object which can contain and create the terms
-//              (will be unnecessary if we just make terms creatable
-//               via XPCOM)
+/**
+ * Save the search terms from the UI back to the actual search terms.
+ * @param {nsIMsgSearchTerm[]} searchTerms - Array of terms
+ * @param {Object} termOwner - Object which can contain and create the terms
+ *   e.g. a nsIMsgSearchSession (will be unnecessary if we just make terms
+ *   creatable via XPCOM).
+ * @returns {nsIMsgSearchTerm[]} The filtered searchTerms.
+ */
 function saveSearchTerms(searchTerms, termOwner) {
   var matchAll = gSearchBooleanRadiogroup.value == "matchAll";
   var i;
-  for (i = 0; i < gSearchRemovedTerms.length; i++) {
-    searchTerms.removeElementAt(searchTerms.indexOf(0, gSearchRemovedTerms[i]));
-  }
+
+  searchTerms = searchTerms.filter(t => !gSearchRemovedTerms.includes(t));
 
   for (i = 0; i < gSearchTerms.length; i++) {
     try {
@@ -542,11 +542,12 @@ function saveSearchTerms(searchTerms, termOwner) {
         // but we need to make the array longer anyway
         termOwner.appendTerm(searchTerm);
       }
-      searchTerms.replaceElementAt(searchTerm, i);
+      searchTerms[i] = searchTerm;
     } catch (ex) {
       dump("** Error saving element " + i + ": " + ex + "\n");
     }
   }
+  return searchTerms;
 }
 
 function onReset(event) {

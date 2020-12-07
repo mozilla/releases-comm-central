@@ -6,7 +6,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIMutableArray;
 interface nsIMsgSearchTerm;
 
 [scriptable, uuid(28AC84DF-CBE5-430d-A5C0-4FA63B5424DF)]
@@ -15,7 +14,7 @@ interface nsIMsgMailView : nsISupports {
     readonly attribute wstring prettyName; // localized pretty name
 
     // the array of search terms
-    attribute nsIMutableArray searchTerms;
+    attribute Array<nsIMsgSearchTerm> searchTerms;
 
     // these two helper methods are required to allow searchTermsOverlay.js to
     // manipulate a mail view without knowing it is dealing with a mail view. nsIMsgFilter

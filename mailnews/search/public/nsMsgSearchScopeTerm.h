@@ -25,7 +25,8 @@ class nsMsgSearchScopeTerm : public nsIMsgSearchScopeTerm {
   NS_DECL_NSIMSGSEARCHSCOPETERM
 
   nsresult TimeSlice(bool* aDone);
-  nsresult InitializeAdapter(nsIArray* termList);
+  nsresult InitializeAdapter(
+      nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList);
 
   char* GetStatusBarName();
 

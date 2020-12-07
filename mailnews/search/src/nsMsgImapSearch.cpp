@@ -16,8 +16,9 @@
 #include "nsIImapIncomingServer.h"
 // Implementation of search for IMAP mail folders
 
-nsMsgSearchOnlineMail::nsMsgSearchOnlineMail(nsMsgSearchScopeTerm* scope,
-                                             nsIArray* termList)
+nsMsgSearchOnlineMail::nsMsgSearchOnlineMail(
+    nsMsgSearchScopeTerm* scope,
+    nsTArray<RefPtr<nsIMsgSearchTerm>> const& termList)
     : nsMsgSearchAdapter(scope, termList) {}
 
 nsMsgSearchOnlineMail::~nsMsgSearchOnlineMail() {}
@@ -67,10 +68,9 @@ nsresult nsMsgSearchOnlineMail::Search(bool* aDone) {
   return err;
 }
 
-nsresult nsMsgSearchOnlineMail::Encode(nsCString& pEncoding,
-                                       nsIArray* searchTerms,
-                                       const char16_t* destCharset,
-                                       nsIMsgSearchScopeTerm* scope) {
+nsresult nsMsgSearchOnlineMail::Encode(
+    nsCString& pEncoding, nsTArray<RefPtr<nsIMsgSearchTerm>> const& searchTerms,
+    const char16_t* destCharset, nsIMsgSearchScopeTerm* scope) {
   nsCString imapTerms;
 
   // check if searchTerms are ascii only
@@ -81,13 +81,7 @@ nsresult nsMsgSearchOnlineMail::Encode(nsCString& pEncoding,
              // CODESET_MASK == WIDECHAR) )
              // assume all single/multiple bytes charset has ascii as subset
   {
-    uint32_t termCount;
-    searchTerms->GetLength(&termCount);
-    uint32_t i = 0;
-
-    for (i = 0; i < termCount && asciiOnly; i++) {
-      nsCOMPtr<nsIMsgSearchTerm> pTerm = do_QueryElementAt(searchTerms, i);
-
+    for (nsIMsgSearchTerm* pTerm : searchTerms) {
       nsMsgSearchAttribValue attribute;
       pTerm->GetAttrib(&attribute);
       if (IS_STRING_ATTRIBUTE(attribute)) {
@@ -101,6 +95,9 @@ nsresult nsMsgSearchOnlineMail::Encode(nsCString& pEncoding,
         if (NS_FAILED(rv) || pchar.IsEmpty()) continue;
         asciiOnly = mozilla::IsAsciiNullTerminated(
             static_cast<const char16_t*>(pchar.get()));
+        if (!asciiOnly) {
+          break;
+        }
       }
     }
   }

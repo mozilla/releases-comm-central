@@ -321,7 +321,7 @@ function createSearchTermsWithList(aTermsArray)
   }
 
   // Add each item in aTermsArray to the search session.
-  for (let term of fixIterator(aTermsArray, Ci.nsIMsgSearchTerm)) {
+  for (let term of aTermsArray) {
     gSearchSession.appendTerm(term);
   }
 }
@@ -376,7 +376,7 @@ function createSearchTerms()
   var defaultSearchTerms = (gDefaultSearchViewTerms || gVirtualFolderTerms || gXFVirtualFolderTerms);
   if (defaultSearchTerms)
   {
-    for (let searchTerm of fixIterator(defaultSearchTerms, Ci.nsIMsgSearchTerm))
+    for (let searchTerm of defaultSearchTerms)
     {
       searchTermsArray.appendElement(searchTerm);
     }

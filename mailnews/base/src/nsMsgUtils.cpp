@@ -1634,17 +1634,12 @@ NS_MSG_BASE PRTime MsgConvertAgeInDaysToCutoffDate(int32_t ageInDays) {
   return now - PR_USEC_PER_DAY * ageInDays;
 }
 
-NS_MSG_BASE nsresult MsgTermListToString(nsIArray* aTermList,
-                                         nsCString& aOutString) {
-  uint32_t count;
-  aTermList->GetLength(&count);
+NS_MSG_BASE nsresult
+MsgTermListToString(nsTArray<RefPtr<nsIMsgSearchTerm>> const& aTermList,
+                    nsCString& aOutString) {
   nsresult rv = NS_OK;
-
-  for (uint32_t searchIndex = 0; searchIndex < count; searchIndex++) {
+  for (nsIMsgSearchTerm* term : aTermList) {
     nsAutoCString stream;
-
-    nsCOMPtr<nsIMsgSearchTerm> term = do_QueryElementAt(aTermList, searchIndex);
-    if (!term) continue;
 
     if (aOutString.Length() > 1) aOutString += ' ';
 
