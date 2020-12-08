@@ -268,7 +268,9 @@ CalTimezoneService.prototype = {
     if (!this.mDefaultTimezone) {
       let prefTzid = Services.prefs.getStringPref("calendar.timezone.local", null);
       let tzid = prefTzid;
-      if (!tzid) {
+      // If a user already has a profile created by an earlier version
+      // with floating timezone, set the correctly guessed timezone.
+      if (!tzid || tzid == "floating") {
         try {
           tzid = guessSystemTimezone();
         } catch (e) {
@@ -321,8 +323,9 @@ CalTimezoneService.prototype = {
  */
 function guessSystemTimezone() {
   // Probe JSDates for basic OS timezone offsets and names.
-  const dateJun = new Date(2005, 5, 20).toString();
-  const dateDec = new Date(2005, 11, 20).toString();
+  // Check timezone rules for current year
+  const dateJun = new Date(new Date().getFullYear(), 5, 20).toString();
+  const dateDec = new Date(new Date().getFullYear(), 11, 20).toString();
   const tzNameRegex = /[^(]* ([^ ]*) \(([^)]+)\)/;
   const nameDataJun = dateJun.match(tzNameRegex);
   const nameDataDec = dateDec.match(tzNameRegex);
@@ -567,7 +570,7 @@ function guessSystemTimezone() {
       try {
         let line = {},
           hasMore = true,
-          MAXLINES = 10;
+          MAXLINES = 50;
         for (let i = 0; hasMore && i < MAXLINES; i++) {
           hasMore = fileInstream.readLine(line);
           if (line.value && line.value.match(tzRegex)) {
