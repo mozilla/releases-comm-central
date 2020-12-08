@@ -30,7 +30,7 @@
  *   connectTimeout (default is no timeout)
  *   readWriteTimeout (default is no timeout)
  *   disconnected
- *   secInfo
+ *   securityInfo
  *
  * Users should "subclass" this object, i.e. set their .__proto__ to be it. And
  * then implement:
@@ -38,7 +38,7 @@
  *   onConnectionHeard()
  *   onConnectionTimedOut()
  *   onConnectionReset()
- *   onBadCertificate(boolean aIsSslError, AString aNSSErrorMessage)
+ *   onConnectionSecurityError(unsigned long aTLSError, optional AString aNSSErrorMessage)
  *   onConnectionClosed()
  *   onDataReceived(String <data>)
  *   onTransportStatus(nsISocketTransport <transport>, nsresult <status>,
@@ -99,6 +99,12 @@ var ScriptableUnicodeConverter = Components.Constructor(
   "nsIScriptableUnicodeConverter"
 );
 
+/**
+ * @implements {nsIStreamListener}
+ * @implements {nsIRequestObserver}
+ * @implements {nsITransportEventSink}
+ * @implements {nsIProtocolProxyCallback}
+ */
 var Socket = {
   // Set this for non-binary mode to automatically parse the stream into chunks
   // separated by delimiter.
@@ -116,7 +122,7 @@ var Socket = {
   readWriteTimeout: 0,
 
   // A nsITransportSecurityInfo instance giving details about the certificate error.
-  secInfo: null,
+  securityInfo: null,
 
   /*
    *****************************************************************************
@@ -136,7 +142,7 @@ var Socket = {
     aPort = aOriginPort
   ) {
     if (Services.io.offline) {
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
+      throw Components.Exception("Offline, can't connect", Cr.NS_ERROR_FAILURE);
     }
 
     // This won't work for Linux due to bug 758848.
@@ -462,31 +468,13 @@ var Socket = {
       let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
         Ci.nsINSSErrorsService
       );
-      if (
-        (aStatus <=
-          nssErrorsService.getXPCOMFromNSSError(
-            nssErrorsService.NSS_SEC_ERROR_BASE
-          ) &&
-          aStatus >=
-            nssErrorsService.getXPCOMFromNSSError(
-              nssErrorsService.NSS_SEC_ERROR_LIMIT - 1
-            )) ||
-        (aStatus <=
-          nssErrorsService.getXPCOMFromNSSError(
-            nssErrorsService.NSS_SSL_ERROR_BASE
-          ) &&
-          aStatus >=
-            nssErrorsService.getXPCOMFromNSSError(
-              nssErrorsService.NSS_SSL_ERROR_LIMIT - 1
-            ))
-      ) {
-        this.onBadCertificate(
-          nssErrorsService.getErrorClass(aStatus) ==
-            nssErrorsService.ERROR_CLASS_SSL_PROTOCOL,
-          nssErrorsService.getErrorMessage(aStatus)
-        );
-        return;
-      }
+      this.securityInfo = this.transport.securityInfo.QueryInterface(
+        Ci.nsITransportSecurityInfo
+      );
+      this.onConnectionSecurityError(
+        aStatus,
+        nssErrorsService.getErrorMessage(aStatus)
+      );
     }
     this.onConnectionClosed();
   },
@@ -636,7 +624,7 @@ var Socket = {
   // Called when a socket request's network is reset.
   onConnectionReset() {},
   // Called when the certificate provided by the server didn't satisfy NSS.
-  onBadCertificate(aNSSErrorMessage) {},
+  onConnectionSecurityError(aTLSError, aNSSErrorMessage) {},
   // Called when the other end has closed the connection.
   onConnectionClosed() {},
 

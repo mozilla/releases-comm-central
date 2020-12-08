@@ -369,8 +369,8 @@ XMPPSession.prototype = {
   onConnectionClosed() {
     this._networkError(_("connection.error.serverClosedConnection"));
   },
-  onBadCertificate(aIsSslError, aNSSErrorMessage) {
-    let error = this._account.handleBadCertificate(this, aIsSslError);
+  onConnectionSecurityError(aTLSError, aNSSErrorMessage) {
+    let error = this._account.handleConnectionSecurityError(this);
     this.onError(error, aNSSErrorMessage);
   },
   onConnectionReset() {

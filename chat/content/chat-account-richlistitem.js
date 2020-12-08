@@ -72,8 +72,6 @@
                 <label class="disconnected" crop="end" value="&account.disconnected;"></label>
                 <description class="error error-description"></description>
                 <description class="error error-reconnect"></description>
-                <label class="addException text-link" onclick="gAccountManager.addException()"
-                       data-l10n-id="certmgr-add-exception"></label>
                 <spacer flex="1"></spacer>
               </vbox>
               <checkbox label="&account.autoSignOn.label;"

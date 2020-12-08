@@ -917,14 +917,14 @@ ircSocket.prototype = {
       _("connection.error.timeOut")
     );
   },
-  onBadCertificate(aIsSslError, aNSSErrorMessage) {
+  onConnectionSecurityError(aTLSError, aNSSErrorMessage) {
     this.WARN(
       "Bad certificate or SSL connection for " +
         this._account.name +
         ":\n" +
         aNSSErrorMessage
     );
-    let error = this._account.handleBadCertificate(this, aIsSslError);
+    let error = this._account.handleConnectionSecurityError(this);
     this._account.gotDisconnected(error, aNSSErrorMessage);
   },
 

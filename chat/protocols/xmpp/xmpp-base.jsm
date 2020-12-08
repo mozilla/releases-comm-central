@@ -2680,7 +2680,7 @@ var XMPPAccountPrototype = {
     conv.supportChatStateNotifications = !!state;
   },
 
-  /* Called when there is an error in the xmpp session */
+  /** Called when there is an error in the XMPP session */
   onError(aError, aException) {
     if (aError === null || aError === undefined) {
       aError = Ci.prplIAccount.ERROR_OTHER_ERROR;
