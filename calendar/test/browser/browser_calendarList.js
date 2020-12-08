@@ -3,12 +3,19 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 async function calendarListContextMenu(target, menuItem) {
+  // The test frequently times out if we don't wait here. Unknown why.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 250));
+
   let contextMenu = document.getElementById("list-calendars-context-menu");
+  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(target, { type: "contextmenu" });
-  await BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  await shownPromise;
+
   if (menuItem) {
+    let hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
     EventUtils.synthesizeMouseAtCenter(document.getElementById(menuItem), {});
-    await BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
+    await hiddenPromise;
   }
 }
 
