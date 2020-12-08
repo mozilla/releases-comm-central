@@ -15,6 +15,9 @@
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
   skin/classic/messenger/messageQuotes.css                    (../shared/mail/messageQuotes.css)
   skin/classic/messenger/msgSelectOffline.css                 (../shared/mail/msgSelectOffline.css)
+#ifndef XP_MACOSX
+  skin/classic/messenger/newmailalert.css                     (../shared/mail/newmailalert.css)
+#endif
   skin/classic/messenger/subscribe.css                        (../shared/mail/subscribe.css)
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
   skin/classic/messenger/addressbook/abResultsPane.css        (../shared/mail/abResultsPane.css)
@@ -244,9 +247,6 @@
   skin/classic/messenger/shared/grid-layout.css               (../shared/mail/grid-layout.css)
   skin/classic/messenger/shared/input-fields.css              (../shared/mail/input-fields.css)
   skin/classic/messenger/messengercompose/format-dropmarker.svg (../shared/mail/icons/format-dropmarker.svg)
-#ifndef XP_MACOSX
-  skin/classic/messenger/shared/newmailalert.css              (../shared/mail/newmailalert.css)
-#endif
   skin/classic/messenger/images/account-watermark.png         (../shared/mail/images/account-watermark.png)
   skin/classic/messenger/images/account-watermark-light.png   (../shared/mail/images/account-watermark-light.png)
   skin/classic/messenger/openpgp/attach-active-18.svg         (../shared/openpgp/attach-active-18.svg)

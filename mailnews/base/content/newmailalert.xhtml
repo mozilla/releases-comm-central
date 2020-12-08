@@ -8,7 +8,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/newmailalert.css" type="text/css"?>
 
 <window id="newMailAlertNotification"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         windowtype="alert:alert"
         role="alert"
         align="start"
@@ -17,19 +18,17 @@
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <script src="chrome://messenger/content/newmailalert.js"/>
 
-  <stack id="alertContainer">
-    <hbox id="alertBox">
-      <hbox id ="alertImageBox" align="center" pack="center">
-        <image id="alertImage"/>
-      </hbox>
-
-      <vbox id="alertTextBox">
-        <label id="alertTitle"/>
-        <separator id="alertGroove" class="groove"/>
-        <folder-summary id="folderSummaryInfo"/>
-      </vbox>
+  <hbox id="alertContainer">
+    <hbox id ="alertImageBox" align="center" pack="center">
+      <image id="alertImage"/>
     </hbox>
 
+    <vbox id="alertTextBox">
+      <label id="alertTitle"/>
+      <separator id="alertSeparator"/>
+      <folder-summary id="folderSummaryInfo"/>
+    </vbox>
+
     <toolbarbutton id="closeButton" class="close-icon" onclick="closeAlert();"/>
-  </stack>
+  </hbox>
 </window>

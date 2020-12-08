@@ -16,11 +16,19 @@
   border: 1px solid threedshadow;
   border-radius: 3px;
   background-color: -moz-Dialog;
+  color: -moz-DialogText;
+}
+
+@media (prefers-color-scheme: dark) {
+  #newMailAlertNotification {
+    background-color: #2a2a2e;
+    color: #f9f9fa;
+  }
 }
 
 #alertImageBox {
   padding: 4px;
-  background-image: linear-gradient(rgba(255, 255, 255, .7),
+  background-image: linear-gradient(rgba(255, 255, 255, .6),
                                     rgba(255, 255, 255, .6));
   border-inline-end: 1px solid rgba(0, 0, 0, .1);
 }
@@ -29,11 +37,17 @@
   list-style-image: url("chrome://branding/content/icon64.png");
 }
 
+@media (min-resolution: 1.1dppx) {
+  #alertImage {
+    list-style-image: url("chrome://branding/content/icon128.png");
+    width: 64px;
+    height: 64px;
+  }
+}
+
 #alertTextBox {
   padding: 4px;
   padding-inline-end: 25px;
-  background-image: linear-gradient(rgba(255, 255, 255, .2),
-                                    rgba(255, 255, 255, .1));
 }
 
 #alertTitle {
@@ -43,8 +57,17 @@
   padding-inline-end: 5px;
 }
 
-#alertGroove {
+#alertSeparator {
   margin-inline-start: 11px;
+  border-top: 1px solid -moz-DialogText;
+  height: 0;
+  margin-block: 0.4em;
+}
+
+@media (prefers-color-scheme: dark) {
+  #alertSeparator {
+    border-top-color: #f9f9fa;
+  }
 }
 
 folder-summary {
@@ -91,6 +114,5 @@ folder-summary {
 }
 
 #closeButton {
-  justify-self: end;
-  align-self: start;
+  -moz-box-align: start;
 }
