@@ -178,9 +178,7 @@ uint32_t nsBeckyAddressBooks::CountAddressBookSize(nsIFile* aDirectory) {
 }
 
 nsresult nsBeckyAddressBooks::AppendAddressBookDescriptor(
-    nsIFile* aEntry, nsIMutableArray* aCollected) {
-  NS_ENSURE_ARG_POINTER(aCollected);
-
+    nsIFile* aEntry, nsTArray<RefPtr<nsIImportABDescriptor>>& books) {
   if (!HasAddressBookFile(aEntry)) return NS_OK;
 
   nsresult rv;
@@ -196,12 +194,14 @@ nsresult nsBeckyAddressBooks::AppendAddressBookDescriptor(
   aEntry->GetLeafName(name);
   descriptor->SetPreferredName(name);
 
-  return aCollected->AppendElement(descriptor);
+  books.AppendElement(descriptor);
+  return NS_OK;
 }
 
-nsresult nsBeckyAddressBooks::CollectAddressBooks(nsIFile* aTarget,
-                                                  nsIMutableArray* aCollected) {
-  nsresult rv = AppendAddressBookDescriptor(aTarget, aCollected);
+// Recursively descend down the dirs, appending to the books array.
+nsresult nsBeckyAddressBooks::CollectAddressBooks(
+    nsIFile* aTarget, nsTArray<RefPtr<nsIImportABDescriptor>>& books) {
+  nsresult rv = AppendAddressBookDescriptor(aTarget, books);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDirectoryEnumerator> entries;
@@ -216,8 +216,9 @@ nsresult nsBeckyAddressBooks::CollectAddressBooks(nsIFile* aTarget,
 
     bool isDirectory = false;
     rv = file->IsDirectory(&isDirectory);
-    if (NS_SUCCEEDED(rv) && isDirectory)
-      rv = CollectAddressBooks(file, aCollected);
+    if (NS_SUCCEEDED(rv) && isDirectory) {
+      rv = CollectAddressBooks(file, books);
+    }
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -225,22 +226,17 @@ nsresult nsBeckyAddressBooks::CollectAddressBooks(nsIFile* aTarget,
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::FindAddressBooks(nsIFile* aLocation, nsIArray** _retval) {
+nsBeckyAddressBooks::FindAddressBooks(
+    nsIFile* aLocation, nsTArray<RefPtr<nsIImportABDescriptor>>& books) {
   NS_ENSURE_ARG_POINTER(aLocation);
-  NS_ENSURE_ARG_POINTER(_retval);
 
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  books.Clear();
   bool isDirectory = false;
-  rv = aLocation->IsDirectory(&isDirectory);
+  nsresult rv = aLocation->IsDirectory(&isDirectory);
   if (NS_FAILED(rv) || !isDirectory) return NS_ERROR_FAILURE;
 
-  rv = CollectAddressBooks(aLocation, array);
+  rv = CollectAddressBooks(aLocation, books);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  array.forget(_retval);
 
   return NS_OK;
 }

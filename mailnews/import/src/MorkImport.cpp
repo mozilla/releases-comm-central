@@ -157,12 +157,11 @@ NS_IMETHODIMP MorkImportAddressImpl::GetDefaultLocation(nsIFile** ppLoc,
   return NS_OK;
 }
 
-NS_IMETHODIMP MorkImportAddressImpl::FindAddressBooks(nsIFile* pLoc,
-                                                      nsIArray** ppArray) {
+NS_IMETHODIMP MorkImportAddressImpl::FindAddressBooks(
+    nsIFile* pLoc, nsTArray<RefPtr<nsIImportABDescriptor>>& books) {
   NS_ENSURE_ARG_POINTER(pLoc);
-  NS_ENSURE_ARG_POINTER(ppArray);
 
-  *ppArray = nullptr;
+  books.Clear();
   bool exists = false;
   nsresult rv = pLoc->Exists(&exists);
   if (NS_FAILED(rv) || !exists) return NS_ERROR_FAILURE;
@@ -174,9 +173,6 @@ NS_IMETHODIMP MorkImportAddressImpl::FindAddressBooks(nsIFile* pLoc,
   mFileLocation = pLoc;
 
   /* Build an address book descriptor based on the file passed in! */
-  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsString name;
   rv = mFileLocation->GetLeafName(name);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -200,9 +196,7 @@ NS_IMETHODIMP MorkImportAddressImpl::FindAddressBooks(nsIFile* pLoc,
   desc->SetPreferredName(name);
   desc->SetSize((uint32_t)sz);
   desc->SetAbFile(mFileLocation);
-  nsCOMPtr<nsISupports> pInterface(do_QueryInterface(desc));
-  array->AppendElement(pInterface);
-  array.forget(ppArray);
+  books.AppendElement(desc);
   return NS_OK;
 }
 

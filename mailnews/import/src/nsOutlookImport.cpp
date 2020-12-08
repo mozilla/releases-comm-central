@@ -101,7 +101,8 @@ class ImportOutlookAddressImpl : public nsIImportAddressBooks {
     return NS_ERROR_FAILURE;
   }
 
-  NS_IMETHOD FindAddressBooks(nsIFile* location, nsIArray** _retval);
+  NS_IMETHOD FindAddressBooks(nsIFile* location,
+                              nsTArray<RefPtr<nsIImportABDescriptor>>& books);
 
   NS_IMETHOD InitFieldMap(nsIImportFieldMap* fieldMap) {
     return NS_ERROR_FAILURE;
@@ -440,12 +441,9 @@ NS_IMETHODIMP ImportOutlookAddressImpl::GetAutoFind(char16_t** description,
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportOutlookAddressImpl::FindAddressBooks(nsIFile* location,
-                                                         nsIArray** _retval) {
-  NS_ASSERTION(_retval != nullptr, "null ptr");
-  if (!_retval) return NS_ERROR_NULL_POINTER;
-
-  return m_address.GetAddressBooks(_retval);
+NS_IMETHODIMP ImportOutlookAddressImpl::FindAddressBooks(
+    nsIFile* location, nsTArray<RefPtr<nsIImportABDescriptor>>& books) {
+  return m_address.GetAddressBooks(books);
 }
 
 NS_IMETHODIMP ImportOutlookAddressImpl::ImportAddressBook(

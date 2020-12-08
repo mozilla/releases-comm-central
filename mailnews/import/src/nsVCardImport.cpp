@@ -52,7 +52,9 @@ class ImportVCardAddressImpl : public nsIImportAddressBooks {
   NS_IMETHOD GetDefaultLocation(nsIFile** location, bool* found,
                                 bool* userVerify) override;
 
-  NS_IMETHOD FindAddressBooks(nsIFile* location, nsIArray** _retval) override;
+  NS_IMETHOD FindAddressBooks(
+      nsIFile* location,
+      nsTArray<RefPtr<nsIImportABDescriptor>>& books) override;
 
   NS_IMETHOD InitFieldMap(nsIImportFieldMap* fieldMap) override {
     return NS_ERROR_FAILURE;
@@ -201,12 +203,11 @@ NS_IMETHODIMP ImportVCardAddressImpl::GetDefaultLocation(nsIFile** ppLoc,
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(nsIFile* pLoc,
-                                                       nsIArray** ppArray) {
+NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(
+    nsIFile* pLoc, nsTArray<RefPtr<nsIImportABDescriptor>>& books) {
   NS_ENSURE_ARG_POINTER(pLoc);
-  NS_ENSURE_ARG_POINTER(ppArray);
 
-  *ppArray = nullptr;
+  books.Clear();
   bool exists = false;
   nsresult rv = pLoc->Exists(&exists);
   if (NS_FAILED(rv) || !exists) return NS_ERROR_FAILURE;
@@ -218,12 +219,6 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(nsIFile* pLoc,
   m_fileLoc = pLoc;
 
   /* Build an address book descriptor based on the file passed in! */
-  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) {
-    IMPORT_LOG0("FAILED to allocate the nsIMutableArray\n");
-    return rv;
-  }
-
   nsString name;
   m_fileLoc->GetLeafName(name);
   if (NS_FAILED(rv)) {
@@ -251,8 +246,7 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(nsIFile* pLoc,
     desc->SetPreferredName(name);
     desc->SetSize((uint32_t)sz);
     desc->SetAbFile(m_fileLoc);
-    nsCOMPtr<nsISupports> pInterface(do_QueryInterface(desc, &rv));
-    array->AppendElement(pInterface);
+    books.AppendElement(desc);
   }
   if (NS_FAILED(rv)) {
     IMPORT_LOG0(
@@ -260,7 +254,6 @@ NS_IMETHODIMP ImportVCardAddressImpl::FindAddressBooks(nsIFile* pLoc,
     return rv;
   }
 
-  array.forget(ppArray);
   return NS_OK;
 }
 

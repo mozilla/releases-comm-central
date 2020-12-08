@@ -40,7 +40,7 @@ class nsImportGenericAddressBooks : public nsIImportGeneric {
 
  private:
   nsCOMPtr<nsIImportAddressBooks> m_pInterface;
-  nsCOMPtr<nsIArray> m_Books;
+  nsTArray<RefPtr<nsIImportABDescriptor>> m_Books;
   nsCOMArray<nsIAbDirectory> m_DBs;
   nsCOMPtr<nsIFile> m_pLocation;
   nsCOMPtr<nsIImportFieldMap> m_pFieldMap;
@@ -66,7 +66,7 @@ class AddressThreadData {
   bool fatalError;
   uint32_t currentTotal;
   uint32_t currentSize;
-  nsCOMPtr<nsIArray> books;
+  nsTArray<RefPtr<nsIImportABDescriptor>> books;
   nsCOMArray<nsIAbDirectory>* dBs;
   nsCOMPtr<nsIAbLDIFService> ldifService;
   nsCOMPtr<nsIImportAddressBooks> addressImport;

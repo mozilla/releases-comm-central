@@ -8,7 +8,6 @@
 
 #include "nsIImportAddressBooks.h"
 #include "nsIFile.h"
-#include "nsIMutableArray.h"
 
 class nsBeckyAddressBooks final : public nsIImportAddressBooks {
  public:
@@ -23,10 +22,11 @@ class nsBeckyAddressBooks final : public nsIImportAddressBooks {
 
   uint32_t mReadBytes;
 
-  nsresult CollectAddressBooks(nsIFile* aTarget, nsIMutableArray* aCollected);
+  nsresult CollectAddressBooks(nsIFile* aTarget,
+                               nsTArray<RefPtr<nsIImportABDescriptor>>& books);
   nsresult FindAddressBookDirectory(nsIFile** aAddressBookDirectory);
-  nsresult AppendAddressBookDescriptor(nsIFile* aEntry,
-                                       nsIMutableArray* aCollected);
+  nsresult AppendAddressBookDescriptor(
+      nsIFile* aEntry, nsTArray<RefPtr<nsIImportABDescriptor>>& books);
   uint32_t CountAddressBookSize(nsIFile* aDirectory);
   bool HasAddressBookFile(nsIFile* aDirectory);
   bool IsAddressBookFile(nsIFile* aFile);

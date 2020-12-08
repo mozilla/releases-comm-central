@@ -200,20 +200,14 @@ void nsOutlookMail::MakeAddressBookNameUnique(nsString& name, nsString& list) {
   list.AppendLiteral("],");
 }
 
-nsresult nsOutlookMail::GetAddressBooks(nsIArray** pArray) {
+nsresult nsOutlookMail::GetAddressBooks(
+    nsTArray<RefPtr<nsIImportABDescriptor>>& books) {
+  books.Clear();
   if (!m_haveMapi) {
     IMPORT_LOG0("GetAddressBooks called before Mapi is initialized\n");
     return NS_ERROR_FAILURE;
   }
-
   nsresult rv;
-  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) {
-    IMPORT_LOG0(
-        "FAILED to allocate the nsIMutableArray for the address book list\n");
-    return rv;
-  }
-
   nsCOMPtr<nsIImportService> impSvc(
       do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   if (NS_FAILED(rv)) return rv;
@@ -262,12 +256,10 @@ nsresult nsOutlookMail::GetAddressBooks(nsIArray** pArray) {
         MakeAddressBookNameUnique(name, list);
         pID->SetPreferredName(name);
         pID->SetSize(100);
-        nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pID));
-        array->AppendElement(pInterface);
+        books.AppendElement(pID);
       }
     }
   }
-  array.forget(pArray);
   return NS_OK;
 }
 

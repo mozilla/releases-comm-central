@@ -7,6 +7,7 @@
 #define nsOutlookMail_h___
 
 #include "nsIArray.h"
+#include "nsTArray.h"
 #include "nsString.h"
 #include "nsOutlookCompose.h"
 #include "nsIFile.h"
@@ -23,7 +24,7 @@ class nsOutlookMail {
   ~nsOutlookMail();
 
   nsresult GetMailFolders(nsIArray** pArray);
-  nsresult GetAddressBooks(nsIArray** pArray);
+  nsresult GetAddressBooks(nsTArray<RefPtr<nsIImportABDescriptor>>& books);
   nsresult ImportMailbox(uint32_t* pDoneSoFar, bool* pAbort, int32_t index,
                          const char16_t* pName, nsIMsgFolder* pDest,
                          int32_t* pMsgCount);

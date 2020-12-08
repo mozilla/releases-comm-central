@@ -34,7 +34,6 @@
 #include "nsISupports.idl"
 
 interface nsIFile;
-interface nsIArray;
 interface nsIImportABDescriptor;
 interface nsIAbDirectory;
 interface nsIImportFieldMap;
@@ -76,11 +75,11 @@ interface nsIImportAddressBooks : nsISupports {
                           out boolean found,
                           out boolean userVerify);
   /**
-   * Returns an nsIArray which contains an nsIImportABDescriptor for each
+   * Returns an array containing an nsIImportABDescriptor for each
    * address book.  The array is not sorted before display to the user.
    * location is null if GetAutoFind returned true.
    */
-  nsIArray FindAddressBooks(in nsIFile location);
+  Array<nsIImportABDescriptor> FindAddressBooks(in nsIFile location);
 
   /**
    * Fill in defaults (if any) for a field map for importing address books from
