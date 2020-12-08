@@ -185,6 +185,10 @@ this.messages = class extends ExtensionAPI {
           let uri = folderPathToURI(accountId, path);
           let folder = MailServices.folderLookup.getFolderForURL(uri);
 
+          if (!folder) {
+            throw new ExtensionError(`Folder not found: ${path}`);
+          }
+
           return messageListTracker.startList(
             folder.messages,
             context.extension
@@ -281,9 +285,12 @@ this.messages = class extends ExtensionAPI {
                 'Querying by folder requires the "accountsRead" permission'
               );
             }
-            let folder = MailServices.folderLookup.getFolderForURL(
-              folderPathToURI(queryInfo.folder.accountId, queryInfo.folder.path)
-            );
+            let { accountId, path } = queryInfo.folder;
+            let uri = folderPathToURI(accountId, path);
+            let folder = MailServices.folderLookup.getFolderForURL(uri);
+            if (!folder) {
+              throw new ExtensionError(`Folder not found: ${path}`);
+            }
             query.folder(folder);
           }
           if (queryInfo.fromDate || queryInfo.toDate) {
