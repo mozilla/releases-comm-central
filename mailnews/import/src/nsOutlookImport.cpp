@@ -47,8 +47,8 @@ class ImportOutlookMailImpl : public nsIImportMail {
   NS_IMETHOD GetDefaultLocation(nsIFile** location, bool* found,
                                 bool* userVerify);
 
-  /* nsIArray FindMailboxes (in nsIFile location); */
-  NS_IMETHOD FindMailboxes(nsIFile* location, nsIArray** _retval);
+  NS_IMETHOD FindMailboxes(nsIFile* location,
+                           nsTArray<RefPtr<nsIImportMailboxDescriptor>>& boxes);
 
   NS_IMETHOD ImportMailbox(nsIImportMailboxDescriptor* source,
                            nsIMsgFolder* dstFolder, char16_t** pErrorLog,
@@ -302,12 +302,11 @@ NS_IMETHODIMP ImportOutlookMailImpl::GetDefaultLocation(nsIFile** ppLoc,
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportOutlookMailImpl::FindMailboxes(nsIFile* pLoc,
-                                                   nsIArray** ppArray) {
+NS_IMETHODIMP ImportOutlookMailImpl::FindMailboxes(
+    nsIFile* pLoc, nsTArray<RefPtr<nsIImportMailboxDescriptor>>& boxes) {
   NS_ASSERTION(pLoc != nullptr, "null ptr");
-  NS_ASSERTION(ppArray != nullptr, "null ptr");
-  if (!pLoc || !ppArray) return NS_ERROR_NULL_POINTER;
-  return m_mail.GetMailFolders(ppArray);
+  if (!pLoc) return NS_ERROR_NULL_POINTER;
+  return m_mail.GetMailFolders(boxes);
 }
 
 void ImportOutlookMailImpl::AddLinebreak(nsString* pStream) {

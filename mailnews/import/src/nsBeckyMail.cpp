@@ -10,13 +10,11 @@
 #include "nsIOutputStream.h"
 #include "nsILineInputStream.h"
 #include "nsNetUtil.h"
-#include "nsIArray.h"
 #include "nsIImportService.h"
 #include "nsIImportMailboxDescriptor.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgFolder.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsIMutableArray.h"
 #include "nsMsgUtils.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMsgMessageFlags.h"
@@ -101,10 +99,9 @@ nsresult nsBeckyMail::GetMailboxName(nsIFile* aMailbox, nsAString& aName) {
   return NS_OK;
 }
 
-nsresult nsBeckyMail::AppendMailboxDescriptor(nsIFile* aEntry,
-                                              const nsString& aName,
-                                              uint32_t aDepth,
-                                              nsIMutableArray* aCollected) {
+nsresult nsBeckyMail::AppendMailboxDescriptor(
+    nsIFile* aEntry, const nsString& aName, uint32_t aDepth,
+    nsTArray<RefPtr<nsIImportMailboxDescriptor>>& aCollected) {
   nsresult rv;
   nsCOMPtr<nsIImportMailboxDescriptor> descriptor;
   rv = CreateMailboxDescriptor(getter_AddRefs(descriptor));
@@ -127,13 +124,14 @@ nsresult nsBeckyMail::AppendMailboxDescriptor(nsIFile* aEntry,
   descriptor->SetDepth(aDepth);
 
   mailboxFile->InitWithFile(aEntry);
-  aCollected->AppendElement(descriptor);
+  aCollected.AppendElement(descriptor);
 
   return NS_OK;
 }
 
 nsresult nsBeckyMail::CollectMailboxesInFolderListFile(
-    nsIFile* aListFile, uint32_t aDepth, nsIMutableArray* aCollected) {
+    nsIFile* aListFile, uint32_t aDepth,
+    nsTArray<RefPtr<nsIImportMailboxDescriptor>>& aCollected) {
   nsresult rv;
   nsCOMPtr<nsILineInputStream> lineStream;
   rv = nsBeckyUtils::CreateLineInputStream(aListFile,
@@ -167,9 +165,9 @@ nsresult nsBeckyMail::CollectMailboxesInFolderListFile(
   return isEmpty ? NS_ERROR_FILE_NOT_FOUND : NS_OK;
 }
 
-nsresult nsBeckyMail::CollectMailboxesInDirectory(nsIFile* aDirectory,
-                                                  uint32_t aDepth,
-                                                  nsIMutableArray* aCollected) {
+nsresult nsBeckyMail::CollectMailboxesInDirectory(
+    nsIFile* aDirectory, uint32_t aDepth,
+    nsTArray<RefPtr<nsIImportMailboxDescriptor>>& aCollected) {
   nsAutoString mailboxName;
   nsresult rv = GetMailboxName(aDirectory, mailboxName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -225,19 +223,13 @@ nsresult nsBeckyMail::CollectMailboxesInDirectory(nsIFile* aDirectory,
 }
 
 NS_IMETHODIMP
-nsBeckyMail::FindMailboxes(nsIFile* aLocation, nsIArray** _retval) {
+nsBeckyMail::FindMailboxes(
+    nsIFile* aLocation, nsTArray<RefPtr<nsIImportMailboxDescriptor>>& boxes) {
   NS_ENSURE_ARG_POINTER(aLocation);
-  NS_ENSURE_ARG_POINTER(_retval);
 
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
+  boxes.Clear();
+  nsresult rv = CollectMailboxesInDirectory(aLocation, 0, boxes);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = CollectMailboxesInDirectory(aLocation, 0, array);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  array.forget(_retval);
-
   return NS_OK;
 }
 

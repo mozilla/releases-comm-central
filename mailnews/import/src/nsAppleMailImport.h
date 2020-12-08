@@ -32,7 +32,6 @@
 #define kAppleMailSupportsString "mail"
 
 class nsIImportService;
-class nsIMutableArray;
 
 class nsAppleMailImportModule : public nsIImportModule {
  public:
@@ -59,12 +58,18 @@ class nsAppleMailImportMail : public nsIImportMail {
  private:
   virtual ~nsAppleMailImportMail();
 
-  void FindAccountMailDirs(nsIFile* aRoot, nsIMutableArray* aMailboxDescs,
-                           nsIImportService* aImportService);
-  nsresult FindMboxDirs(nsIFile* aFolder, nsIMutableArray* aMailboxDescs,
-                        nsIImportService* aImportService);
-  nsresult AddMboxDir(nsIFile* aFolder, nsIMutableArray* aMailboxDescs,
-                      nsIImportService* aImportService);
+  void FindAccountMailDirs(
+      nsIFile* aRoot,
+      nsTArray<RefPtr<nsIImportMailboxDescriptor>>& aMailboxDescs,
+      nsIImportService* aImportService);
+  nsresult FindMboxDirs(
+      nsIFile* aFolder,
+      nsTArray<RefPtr<nsIImportMailboxDescriptor>>& aMailboxDescs,
+      nsIImportService* aImportService);
+  nsresult AddMboxDir(
+      nsIFile* aFolder,
+      nsTArray<RefPtr<nsIImportMailboxDescriptor>>& aMailboxDescs,
+      nsIImportService* aImportService);
 
   // aInfoString is the format to a "foo %s" string. It may be NULL if the error
   // string needs no such format.

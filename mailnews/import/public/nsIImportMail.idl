@@ -36,7 +36,6 @@
 #include "nsISupports.idl"
 
 interface nsIFile;
-interface nsIArray;
 interface nsIImportMailboxDescriptor;
 interface nsIMsgFolder;
 
@@ -53,10 +52,10 @@ interface nsIImportMail : nsISupports
                           out boolean found,
                           out boolean userVerify);
   /*
-    Returns an nsIArray which contains an nsIImportMailboxID for each
+    Returns an array which contains an nsIImportMailboxDescriptor for each
     mailbox.  The array is not sorted before display to the user.
   */
-  nsIArray FindMailboxes(in nsIFile location);
+  Array<nsIImportMailboxDescriptor> findMailboxes(in nsIFile location);
 
   /*
     Import a specific mailbox into the destination folder supplied.  If an error

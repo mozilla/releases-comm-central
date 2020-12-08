@@ -14,7 +14,6 @@
 #include "nsIImportFieldMap.h"
 #include "nsIImportMailboxDescriptor.h"
 #include "nsIImportABDescriptor.h"
-#include "nsIMutableArray.h"
 #include "nsOutlookStringBundle.h"
 #include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
@@ -100,19 +99,14 @@ nsOutlookMail::~nsOutlookMail() {
   //  EmptyAttachments();
 }
 
-nsresult nsOutlookMail::GetMailFolders(nsIArray** pArray) {
+nsresult nsOutlookMail::GetMailFolders(
+    nsTArray<RefPtr<nsIImportMailboxDescriptor>>& boxes) {
   if (!m_haveMapi) {
     IMPORT_LOG0("GetMailFolders called before Mapi is initialized\n");
     return NS_ERROR_FAILURE;
   }
-
   nsresult rv;
-  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) {
-    IMPORT_LOG0(
-        "FAILED to allocate the nsIMutableArray for the mail folder list\n");
-    return rv;
-  }
+  boxes.Clear();
 
   nsCOMPtr<nsIImportService> impSvc(
       do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
@@ -165,11 +159,9 @@ nsresult nsOutlookMail::GetMailFolders(nsIArray** pArray) {
       pID->SetDisplayName(name.get());
 
       pID->SetSize(1000);
-      nsCOMPtr<nsISupports> pInterface(do_QueryInterface(pID));
-      array->AppendElement(pInterface);
+      boxes.AppendElement(pID);
     }
   }
-  array.forget(pArray);
   return NS_OK;
 }
 

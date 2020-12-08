@@ -38,7 +38,8 @@ class ImportWMMailImpl : public nsIImportMail {
                                 bool* userVerify);
 
   /* nsIArray FindMailboxes (in nsIFile location); */
-  NS_IMETHOD FindMailboxes(nsIFile* location, nsIArray** _retval);
+  NS_IMETHOD FindMailboxes(nsIFile* location,
+                           nsTArray<RefPtr<nsIImportMailboxDescriptor>>& boxes);
 
   NS_IMETHOD ImportMailbox(nsIImportMailboxDescriptor* source,
                            nsIMsgFolder* dstFolder, char16_t** pErrorLog,
@@ -148,8 +149,8 @@ NS_IMETHODIMP ImportWMMailImpl::GetDefaultLocation(nsIFile** ppLoc, bool* found,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP ImportWMMailImpl::FindMailboxes(nsIFile* pLoc,
-                                              nsIArray** ppArray) {
+NS_IMETHODIMP ImportWMMailImpl::FindMailboxes(
+    nsIFile* pLoc, nsTArray<RefPtr<nsIImportMailboxDescriptor>>& boxes) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

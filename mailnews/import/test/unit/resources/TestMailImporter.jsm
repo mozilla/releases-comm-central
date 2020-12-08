@@ -60,25 +60,23 @@ TestMailImpoter.prototype = {
     return descriptor;
   },
 
-  _collectMailboxesInDirectory(directory, depth, result) {
+  _collectMailboxesInDirectory(directory, depth) {
     let descriptor = this._createMailboxDescriptor(
       directory.path,
       directory.leafName,
       depth
     );
-    result.appendElement(descriptor);
+    let result = [descriptor];
     for (let entry of directory.directoryEntries) {
       if (entry.isDirectory()) {
-        this._collectMailboxesInDirectory(entry, depth + 1, result);
+        result.push(...this._collectMailboxesInDirectory(entry, depth + 1));
       }
     }
+    return result;
   },
 
-  FindMailboxes(location) {
-    let result = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    this._collectMailboxesInDirectory(location, 0, result);
-
-    return result;
+  findMailboxes(location) {
+    return this._collectMailboxesInDirectory(location, 0);
   },
 
   ImportMailbox(source, destination, errorLog, successLog, fatalError) {

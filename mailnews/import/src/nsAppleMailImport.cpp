@@ -15,7 +15,6 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgHdr.h"
 #include "nsIMsgPluggableStore.h"
-#include "nsIMutableArray.h"
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
@@ -172,13 +171,14 @@ NS_IMETHODIMP nsAppleMailImportMail::GetDefaultLocation(nsIFile** aLocation,
 
 // this is the method that initiates all searching for mailboxes.
 // it will assume that it has a directory like ~/Library/Mail/
-NS_IMETHODIMP nsAppleMailImportMail::FindMailboxes(nsIFile* aMailboxFile,
-                                                   nsIArray** aResult) {
+NS_IMETHODIMP nsAppleMailImportMail::FindMailboxes(
+    nsIFile* aMailboxFile,
+    nsTArray<RefPtr<nsIImportMailboxDescriptor>>& boxes) {
   NS_ENSURE_ARG_POINTER(aMailboxFile);
-  NS_ENSURE_ARG_POINTER(aResult);
 
   IMPORT_LOG0("FindMailboxes for Apple mail invoked");
 
+  boxes.Clear();
   bool exists = false;
   nsresult rv = aMailboxFile->Exists(&exists);
   if (NS_FAILED(rv) || !exists) return NS_ERROR_FAILURE;
@@ -187,14 +187,10 @@ NS_IMETHODIMP nsAppleMailImportMail::FindMailboxes(nsIFile* aMailboxFile,
       do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMutableArray> resultsArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  if (!resultsArray) return NS_ERROR_OUT_OF_MEMORY;
-
   mCurDepth = 1;
 
   // 1. look for accounts with mailboxes
-  FindAccountMailDirs(aMailboxFile, resultsArray, importService);
+  FindAccountMailDirs(aMailboxFile, boxes, importService);
   mCurDepth--;
 
   if (NS_SUCCEEDED(rv)) {
@@ -210,21 +206,18 @@ NS_IMETHODIMP nsAppleMailImportMail::FindMailboxes(nsIFile* aMailboxFile,
         IMPORT_LOG0("Looking for global Apple mailboxes");
 
         mCurDepth++;
-        rv = FindMboxDirs(mailboxesDir, resultsArray, importService);
+        rv = FindMboxDirs(mailboxesDir, boxes, importService);
         mCurDepth--;
       }
     }
   }
-
-  if (NS_SUCCEEDED(rv) && resultsArray) resultsArray.forget(aResult);
-
   return rv;
 }
 
 // operates on the Mail/ directory root, trying to find accounts (which are
 // folders named something like "POP-hwaara@gmail.com") and add their .mbox dirs
 void nsAppleMailImportMail::FindAccountMailDirs(
-    nsIFile* aRoot, nsIMutableArray* aMailboxDescs,
+    nsIFile* aRoot, nsTArray<RefPtr<nsIImportMailboxDescriptor>>& aMailboxDescs,
     nsIImportService* aImportService) {
   nsCOMPtr<nsIDirectoryEnumerator> directoryEnumerator;
   nsresult rv = aRoot->GetDirectoryEntries(getter_AddRefs(directoryEnumerator));
@@ -280,7 +273,7 @@ void nsAppleMailImportMail::FindAccountMailDirs(
         mailboxDescFile->InitWithFile(currentEntry);
 
         // add this mailbox descriptor to the list
-        aMailboxDescs->AppendElement(desc);
+        aMailboxDescs.AppendElement(desc);
 
         // now add all the children mailboxes
         mCurDepth++;
@@ -292,9 +285,10 @@ void nsAppleMailImportMail::FindAccountMailDirs(
 }
 
 // adds the specified file as a mailboxdescriptor to the array
-nsresult nsAppleMailImportMail::AddMboxDir(nsIFile* aFolder,
-                                           nsIMutableArray* aMailboxDescs,
-                                           nsIImportService* aImportService) {
+nsresult nsAppleMailImportMail::AddMboxDir(
+    nsIFile* aFolder,
+    nsTArray<RefPtr<nsIImportMailboxDescriptor>>& aMailboxDescs,
+    nsIImportService* aImportService) {
   nsAutoString folderName;
   aFolder->GetLeafName(folderName);
 
@@ -360,7 +354,7 @@ nsresult nsAppleMailImportMail::AddMboxDir(nsIFile* aFolder,
     if (mailboxDescFile) mailboxDescFile->InitWithFile(aFolder);
 
     // add this mailbox descriptor to the list
-    aMailboxDescs->AppendElement(desc);
+    aMailboxDescs.AppendElement(desc);
   }
 
   return NS_OK;
@@ -377,11 +371,11 @@ nsresult nsAppleMailImportMail::AddMboxDir(nsIFile* aFolder,
 //     MyChildMailbox.mbox/
 //     MyOtherChildMailbox.mbox/
 //
-nsresult nsAppleMailImportMail::FindMboxDirs(nsIFile* aFolder,
-                                             nsIMutableArray* aMailboxDescs,
-                                             nsIImportService* aImportService) {
+nsresult nsAppleMailImportMail::FindMboxDirs(
+    nsIFile* aFolder,
+    nsTArray<RefPtr<nsIImportMailboxDescriptor>>& aMailboxDescs,
+    nsIImportService* aImportService) {
   NS_ENSURE_ARG_POINTER(aFolder);
-  NS_ENSURE_ARG_POINTER(aMailboxDescs);
   NS_ENSURE_ARG_POINTER(aImportService);
 
   // make sure this is a directory.

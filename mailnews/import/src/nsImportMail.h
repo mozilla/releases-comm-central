@@ -4,7 +4,6 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsCOMPtr.h"
-#include "nsIArray.h"
 #include "nsIImportMail.h"
 #include "nsIImportGeneric.h"
 #include "nsString.h"
@@ -47,10 +46,11 @@ class nsImportGenericMail : public nsIImportGeneric {
   bool m_createdFolder;
   nsCOMPtr<nsIFile> m_pSrcLocation;
   bool m_gotLocation;
+  bool m_gotDefaultMailboxes;
   bool m_found;
   bool m_userVerify;
   nsCOMPtr<nsIImportMail> m_pInterface;
-  nsCOMPtr<nsIArray> m_pMailboxes;
+  nsTArray<RefPtr<nsIImportMailboxDescriptor>> m_mailboxes;
   nsCOMPtr<nsISupportsString> m_pSuccessLog;
   nsCOMPtr<nsISupportsString> m_pErrorLog;
   uint32_t m_totalSize;
@@ -70,7 +70,7 @@ class ImportThreadData {
   uint32_t currentSize;
   nsCOMPtr<nsIMsgFolder> destRoot;
   bool ownsDestRoot;
-  nsCOMPtr<nsIArray> boxes;
+  nsTArray<RefPtr<nsIImportMailboxDescriptor>> boxes;
   nsCOMPtr<nsIImportMail> mailImport;
   nsCOMPtr<nsISupportsString> successLog;
   nsCOMPtr<nsISupportsString> errorLog;

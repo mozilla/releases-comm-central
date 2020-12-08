@@ -116,7 +116,8 @@ SeamonkeyImportMail.prototype = {
     return descriptor;
   },
 
-  _collectMailboxesInDirectory(directory, depth, result) {
+  _collectMailboxesInDirectory(directory, depth) {
+    let result = [];
     let name = directory.leafName;
     if (depth > 0 && !name.endsWith(".msf") && !name.endsWith(".dat")) {
       if (name.endsWith(".sbd")) {
@@ -127,7 +128,7 @@ SeamonkeyImportMail.prototype = {
         name,
         depth
       );
-      result.appendElement(descriptor);
+      result.push(descriptor);
     }
     if (directory.isDirectory()) {
       for (let entry of directory.directoryEntries) {
@@ -139,16 +140,15 @@ SeamonkeyImportMail.prototype = {
         ) {
           continue;
         }
-        this._collectMailboxesInDirectory(entry, depth + 1, result);
+        result.push(...this._collectMailboxesInDirectory(entry, depth + 1));
       }
     }
+    return result;
   },
 
   // Collect mailboxes in a Seamonkey profile.
-  FindMailboxes(location) {
-    let result = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    this._collectMailboxesInDirectory(location, 0, result);
-    return result;
+  findMailboxes(location) {
+    return this._collectMailboxesInDirectory(location, 0);
   },
 
   // Copy mailboxes a Seamonkey profile to Thunderbird profile.

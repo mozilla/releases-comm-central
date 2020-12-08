@@ -5,6 +5,7 @@
 
 #include "nsImportMail.h"
 
+#include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
@@ -46,6 +47,7 @@ nsImportGenericMail::nsImportGenericMail() {
   m_found = false;
   m_userVerify = false;
   m_gotLocation = false;
+  m_gotDefaultMailboxes = false;
   m_totalSize = 0;
   m_doImport = false;
   m_pThreadData = nullptr;
@@ -81,8 +83,15 @@ NS_IMETHODIMP nsImportGenericMail::GetData(const char* dataId,
   }
 
   if (!PL_strcasecmp(dataId, "mailBoxes")) {
-    if (!m_pMailboxes) GetDefaultMailboxes();
-    NS_IF_ADDREF(*_retval = m_pMailboxes);
+    GetDefaultMailboxes();
+    // Stopgap during nsIArray-removal (Bug 1612240).
+    // TODO: GetData("mailBoxes") doesn't seem to be used anywhere.
+    // Maybe this can just be dropped?
+    nsCOMPtr<nsIMutableArray> tmp(do_CreateInstance(NS_ARRAY_CONTRACTID));
+    for (nsIImportMailboxDescriptor* box : m_mailboxes) {
+      tmp->AppendElement(box);
+    }
+    *_retval = tmp;
   }
 
   if (!PL_strcasecmp(dataId, "mailLocation")) {
@@ -129,12 +138,27 @@ NS_IMETHODIMP nsImportGenericMail::SetData(const char* dataId,
     if (item) m_pInterface = do_QueryInterface(item);
   }
   if (!PL_strcasecmp(dataId, "mailBoxes")) {
-    m_pMailboxes = nullptr;
-    if (item) m_pMailboxes = do_QueryInterface(item);
+    // Stopgap during nsIArray-removal (Bug 1612240).
+    // TODO: SetData("mailBoxes") doesn't seem to be used anywhere.
+    // Maybe this can just be dropped?
+    m_mailboxes.Clear();
+    if (item) {
+      nsCOMPtr<nsIMutableArray> tmp = do_QueryInterface(item);
+      if (tmp) {
+        uint32_t cnt;
+        tmp->GetLength(&cnt);
+        for (uint32_t i = 0; i < cnt; ++i) {
+          nsCOMPtr<nsIImportMailboxDescriptor> box = do_QueryElementAt(tmp, i);
+          m_mailboxes.AppendElement(box);
+        }
+      }
+    }
+    m_gotDefaultMailboxes = true;
   }
 
   if (!PL_strcasecmp(dataId, "mailLocation")) {
-    m_pMailboxes = nullptr;
+    m_mailboxes.Clear();
+    m_gotDefaultMailboxes = false;
     m_pSrcLocation = nullptr;
     if (item) {
       nsresult rv;
@@ -203,9 +227,10 @@ void nsImportGenericMail::GetDefaultLocation(void) {
 }
 
 void nsImportGenericMail::GetDefaultMailboxes(void) {
-  if (!m_pInterface || m_pMailboxes || !m_pSrcLocation) return;
-
-  m_pInterface->FindMailboxes(m_pSrcLocation, getter_AddRefs(m_pMailboxes));
+  if (!m_pInterface || !m_pSrcLocation) return;
+  if (m_gotDefaultMailboxes) return;
+  m_pInterface->FindMailboxes(m_pSrcLocation, m_mailboxes);
+  m_gotDefaultMailboxes = true;
 }
 
 void nsImportGenericMail::GetDefaultDestination(void) {
@@ -235,62 +260,40 @@ NS_IMETHODIMP nsImportGenericMail::WantsProgress(bool* _retval) {
     m_pThreadData = nullptr;
   }
 
-  if (!m_pMailboxes) {
-    GetDefaultLocation();
-    GetDefaultMailboxes();
-  }
+  GetDefaultLocation();
+  GetDefaultMailboxes();
 
   if (!m_pDestFolder) {
     GetDefaultDestination();
   }
 
   bool result = false;
-
-  if (m_pMailboxes) {
-    uint32_t i;
-    bool import;
-    uint32_t count = 0;
-    uint32_t size;
-    uint32_t totalSize = 0;
-
-    (void)m_pMailboxes->GetLength(&count);
-    for (i = 0; i < count; i++) {
-      nsCOMPtr<nsIImportMailboxDescriptor> box =
-          do_QueryElementAt(m_pMailboxes, i);
-      if (box) {
-        import = false;
-        size = 0;
-        nsresult rv = box->GetImport(&import);
-        if (NS_SUCCEEDED(rv) && import) {
-          (void)box->GetSize(&size);
-          result = true;
-        }
-        totalSize += size;
-      }
+  uint32_t totalSize = 0;
+  for (nsIImportMailboxDescriptor* box : m_mailboxes) {
+    bool doImport = false;
+    uint32_t size = 0;
+    nsresult rv = box->GetImport(&doImport);
+    if (NS_SUCCEEDED(rv) && doImport) {
+      (void)box->GetSize(&size);
+      result = true;
     }
-
-    m_totalSize = totalSize;
+    totalSize += size;
   }
-
+  m_totalSize = totalSize;
   m_doImport = result;
-
   *_retval = result;
-
   return NS_OK;
 }
 
 void nsImportGenericMail::GetMailboxName(uint32_t index,
                                          nsISupportsString* pStr) {
-  if (m_pMailboxes) {
-    nsCOMPtr<nsIImportMailboxDescriptor> box(
-        do_QueryElementAt(m_pMailboxes, index));
-    if (box) {
-      nsAutoString name;
-      box->GetDisplayName(getter_Copies(name));
-      if (!name.IsEmpty()) {
-        pStr->SetData(name);
-      }
-    }
+  if (index >= m_mailboxes.Length()) {
+    return;
+  }
+  nsAutoString name;
+  m_mailboxes[index]->GetDisplayName(getter_Copies(name));
+  if (!name.IsEmpty()) {
+    pStr->SetData(name);
   }
 }
 
@@ -311,7 +314,7 @@ NS_IMETHODIMP nsImportGenericMail::BeginImport(nsISupportsString* successLog,
     return NS_OK;
   }
 
-  if (!m_pInterface || !m_pMailboxes) {
+  if (!m_pInterface || !m_gotDefaultMailboxes) {
     IMPORT_LOG0(
         "*** BeginImport: Either the interface or source mailbox is not set "
         "properly.");
@@ -342,7 +345,7 @@ NS_IMETHODIMP nsImportGenericMail::BeginImport(nsISupportsString* successLog,
 
   // kick off the thread to do the import!!!!
   m_pThreadData = new ImportThreadData();
-  m_pThreadData->boxes = m_pMailboxes;
+  m_pThreadData->boxes = m_mailboxes.Clone();
   m_pThreadData->mailImport = m_pInterface;
   m_pThreadData->errorLog = m_pErrorLog;
   m_pThreadData->successLog = m_pSuccessLog;
@@ -493,16 +496,12 @@ static void ImportMailThread(void* stuff) {
 
   nsCOMPtr<nsIMsgFolder> destRoot(pData->destRoot);
 
-  uint32_t count = 0;
-  rv = pData->boxes->GetLength(&count);
+  uint32_t count = pData->boxes.Length();
 
-  uint32_t i;
-  bool import;
   uint32_t size;
   uint32_t depth = 1;
   uint32_t newDepth;
   nsString lastName;
-  char16_t* pName;
 
   nsCOMPtr<nsIMsgFolder> curFolder(destRoot);
 
@@ -525,27 +524,44 @@ static void ImportMailThread(void* stuff) {
   // we combine both good and bad import status into one string (in var
   // 'success').
 
-  for (i = 0; (i < count) && !(pData->abort); i++) {
-    nsCOMPtr<nsIImportMailboxDescriptor> box =
-        do_QueryElementAt(pData->boxes, i);
-    if (box) {
-      pData->currentMailbox = i;
+  for (uint32_t i = 0; (i < count) && !(pData->abort); i++) {
+    nsIImportMailboxDescriptor* box = pData->boxes[i];
+    pData->currentMailbox = i;
 
-      import = false;
-      size = 0;
-      rv = box->GetImport(&import);
-      if (import) rv = box->GetSize(&size);
-      rv = box->GetDepth(&newDepth);
-      if (newDepth > depth) {
-        // OK, we are going to add a subfolder under the last/previous folder we
-        // processed, so find this folder (stored in 'lastName') who is going to
-        // be the new parent folder.
-        IMPORT_LOG1("ImportMailThread: Processing child folder '%s'.",
-                    NS_ConvertUTF16toUTF8(lastName).get());
-        rv = ProxyGetChildNamed(curFolder, lastName, getter_AddRefs(subFolder));
+    bool doImport = false;
+    size = 0;
+    rv = box->GetImport(&doImport);
+    if (doImport) rv = box->GetSize(&size);
+    rv = box->GetDepth(&newDepth);
+    if (newDepth > depth) {
+      // OK, we are going to add a subfolder under the last/previous folder we
+      // processed, so find this folder (stored in 'lastName') who is going to
+      // be the new parent folder.
+      IMPORT_LOG1("ImportMailThread: Processing child folder '%s'.",
+                  NS_ConvertUTF16toUTF8(lastName).get());
+      rv = ProxyGetChildNamed(curFolder, lastName, getter_AddRefs(subFolder));
+      if (NS_FAILED(rv)) {
+        IMPORT_LOG1(
+            "*** ImportMailThread: Failed to get the interface for child "
+            "folder '%s'.",
+            NS_ConvertUTF16toUTF8(lastName).get());
+        nsImportGenericMail::ReportError(IMPORT_ERROR_MB_FINDCHILD,
+                                         lastName.get(), &error,
+                                         pData->stringBundle);
+        pData->fatalError = true;
+        break;
+      }
+      curFolder = subFolder;
+      // Make sure this new parent folder obj has the correct subfolder list
+      // so far.
+      rv = ProxyGetSubFolders(curFolder);
+    } else if (newDepth < depth) {
+      rv = NS_OK;
+      while ((newDepth < depth) && NS_SUCCEEDED(rv)) {
+        rv = curFolder->GetParent(getter_AddRefs(curFolder));
         if (NS_FAILED(rv)) {
           IMPORT_LOG1(
-              "*** ImportMailThread: Failed to get the interface for child "
+              "*** ImportMailThread: Failed to get the interface for parent "
               "folder '%s'.",
               NS_ConvertUTF16toUTF8(lastName).get());
           nsImportGenericMail::ReportError(IMPORT_ERROR_MB_FINDCHILD,
@@ -554,118 +570,98 @@ static void ImportMailThread(void* stuff) {
           pData->fatalError = true;
           break;
         }
-        curFolder = subFolder;
-        // Make sure this new parent folder obj has the correct subfolder list
-        // so far.
-        rv = ProxyGetSubFolders(curFolder);
-      } else if (newDepth < depth) {
-        rv = NS_OK;
-        while ((newDepth < depth) && NS_SUCCEEDED(rv)) {
-          rv = curFolder->GetParent(getter_AddRefs(curFolder));
-          if (NS_FAILED(rv)) {
-            IMPORT_LOG1(
-                "*** ImportMailThread: Failed to get the interface for parent "
-                "folder '%s'.",
-                NS_ConvertUTF16toUTF8(lastName).get());
-            nsImportGenericMail::ReportError(IMPORT_ERROR_MB_FINDCHILD,
-                                             lastName.get(), &error,
-                                             pData->stringBundle);
-            pData->fatalError = true;
-            break;
-          }
-          depth--;
-        }
-        if (NS_FAILED(rv)) {
-          IMPORT_LOG1(
-              "*** ImportMailThread: Failed to get the proxy interface for "
-              "parent folder '%s'.",
-              NS_ConvertUTF16toUTF8(lastName).get());
-          nsImportStringBundle::GetStringByID(IMPORT_ERROR_MB_NOPROXY,
-                                              pData->stringBundle, error);
-          pData->fatalError = true;
-          break;
-        }
+        depth--;
       }
-      depth = newDepth;
-      pName = nullptr;
-      box->GetDisplayName(&pName);
-      if (pName) {
-        lastName = pName;
-        free(pName);
-      } else
-        lastName.AssignLiteral("Unknown!");
-
-      // translate the folder name if we are doing migration, but
-      // only for special folders which are at the root level
-      if (pData->performingMigration && depth == 1)
-        pData->mailImport->TranslateFolderName(lastName, lastName);
-
-      exists = false;
-      rv = ProxyContainsChildNamed(curFolder, lastName, &exists);
-
-      // If we are performing profile migration (as opposed to importing) then
-      // we are starting with empty local folders. In that case, always choose
-      // to over-write the existing local folder with this name. Don't create a
-      // unique subfolder name. Otherwise you end up with "Inbox, Inbox0" or
-      // "Unsent Folders, UnsentFolders0"
-      if (exists && !pData->performingMigration) {
-        nsString subName;
-        ProxyGenerateUniqueSubfolderName(curFolder, lastName, nullptr, subName);
-        if (!subName.IsEmpty()) lastName.Assign(subName);
-      }
-
-      IMPORT_LOG1("ImportMailThread: Creating new import folder '%s'.",
-                  NS_ConvertUTF16toUTF8(lastName).get());
-      ProxyCreateSubfolder(
-          curFolder,
-          lastName);  // this may fail if the folder already exists..that's ok
-
-      rv = ProxyGetChildNamed(curFolder, lastName, getter_AddRefs(newFolder));
       if (NS_FAILED(rv)) {
         IMPORT_LOG1(
-            "*** ImportMailThread: Failed to locate subfolder '%s' after it's "
-            "been created.",
+            "*** ImportMailThread: Failed to get the proxy interface for "
+            "parent folder '%s'.",
             NS_ConvertUTF16toUTF8(lastName).get());
-        nsImportGenericMail::ReportError(IMPORT_ERROR_MB_CREATE, lastName.get(),
-                                         &error, pData->stringBundle);
+        nsImportStringBundle::GetStringByID(IMPORT_ERROR_MB_NOPROXY,
+                                            pData->stringBundle, error);
+        pData->fatalError = true;
+        break;
+      }
+    }
+    depth = newDepth;
+    char16_t* pName = nullptr;
+    box->GetDisplayName(&pName);
+    if (pName) {
+      lastName = pName;
+      free(pName);
+    } else
+      lastName.AssignLiteral("Unknown!");
+
+    // translate the folder name if we are doing migration, but
+    // only for special folders which are at the root level
+    if (pData->performingMigration && depth == 1)
+      pData->mailImport->TranslateFolderName(lastName, lastName);
+
+    exists = false;
+    rv = ProxyContainsChildNamed(curFolder, lastName, &exists);
+
+    // If we are performing profile migration (as opposed to importing) then
+    // we are starting with empty local folders. In that case, always choose
+    // to over-write the existing local folder with this name. Don't create a
+    // unique subfolder name. Otherwise you end up with "Inbox, Inbox0" or
+    // "Unsent Folders, UnsentFolders0"
+    if (exists && !pData->performingMigration) {
+      nsString subName;
+      ProxyGenerateUniqueSubfolderName(curFolder, lastName, nullptr, subName);
+      if (!subName.IsEmpty()) lastName.Assign(subName);
+    }
+
+    IMPORT_LOG1("ImportMailThread: Creating new import folder '%s'.",
+                NS_ConvertUTF16toUTF8(lastName).get());
+    ProxyCreateSubfolder(
+        curFolder,
+        lastName);  // this may fail if the folder already exists..that's ok
+
+    rv = ProxyGetChildNamed(curFolder, lastName, getter_AddRefs(newFolder));
+    if (NS_FAILED(rv)) {
+      IMPORT_LOG1(
+          "*** ImportMailThread: Failed to locate subfolder '%s' after it's "
+          "been created.",
+          NS_ConvertUTF16toUTF8(lastName).get());
+      nsImportGenericMail::ReportError(IMPORT_ERROR_MB_CREATE, lastName.get(),
+                                       &error, pData->stringBundle);
+    }
+
+    if (size && doImport && newFolder && NS_SUCCEEDED(rv)) {
+      bool fatalError = false;
+      pData->currentSize = size;
+      char16_t* pSuccess = nullptr;
+      char16_t* pError = nullptr;
+      rv = pData->mailImport->ImportMailbox(box, newFolder, &pError, &pSuccess,
+                                            &fatalError);
+      if (pError) {
+        error.Append(pError);
+        free(pError);
+      }
+      if (pSuccess) {
+        success.Append(pSuccess);
+        free(pSuccess);
       }
 
-      if (size && import && newFolder && NS_SUCCEEDED(rv)) {
-        bool fatalError = false;
-        pData->currentSize = size;
-        char16_t* pSuccess = nullptr;
-        char16_t* pError = nullptr;
-        rv = pData->mailImport->ImportMailbox(box, newFolder, &pError,
-                                              &pSuccess, &fatalError);
-        if (pError) {
-          error.Append(pError);
-          free(pError);
-        }
-        if (pSuccess) {
-          success.Append(pSuccess);
-          free(pSuccess);
-        }
+      pData->currentSize = 0;
+      pData->currentTotal += size;
 
-        pData->currentSize = 0;
-        pData->currentTotal += size;
+      // commit to the db synchronously, but using a proxy since it doesn't
+      // like being used elsewhere than from the main thread. OK, we've copied
+      // the actual folder/file over if the folder size is not 0 (ie, the msg
+      // summary is no longer valid) so close the msg database so that when
+      // the folder is reopened the folder db can be reconstructed (which
+      // validates msg summary and forces folder to be reparsed).
+      rv = ProxyForceDBClosed(newFolder);
+      fatalError = NS_FAILED(rv);
 
-        // commit to the db synchronously, but using a proxy since it doesn't
-        // like being used elsewhere than from the main thread. OK, we've copied
-        // the actual folder/file over if the folder size is not 0 (ie, the msg
-        // summary is no longer valid) so close the msg database so that when
-        // the folder is reopened the folder db can be reconstructed (which
-        // validates msg summary and forces folder to be reparsed).
-        rv = ProxyForceDBClosed(newFolder);
-        fatalError = NS_FAILED(rv);
-
-        if (fatalError) {
-          IMPORT_LOG1(
-              "*** ImportMailThread: ImportMailbox returned fatalError, "
-              "mailbox #%d\n",
-              (int)i);
-          pData->fatalError = true;
-          break;
-        }
+      if (fatalError) {
+        IMPORT_LOG1(
+            "*** ImportMailThread: ImportMailbox returned fatalError, "
+            "mailbox #%d\n",
+            (int)i);
+        pData->fatalError = true;
+        break;
       }
     }
   }

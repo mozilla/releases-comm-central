@@ -23,7 +23,7 @@ class nsOutlookMail {
   nsOutlookMail();
   ~nsOutlookMail();
 
-  nsresult GetMailFolders(nsIArray** pArray);
+  nsresult GetMailFolders(nsTArray<RefPtr<nsIImportMailboxDescriptor>>& boxes);
   nsresult GetAddressBooks(nsTArray<RefPtr<nsIImportABDescriptor>>& books);
   nsresult ImportMailbox(uint32_t* pDoneSoFar, bool* pAbort, int32_t index,
                          const char16_t* pName, nsIMsgFolder* pDest,
