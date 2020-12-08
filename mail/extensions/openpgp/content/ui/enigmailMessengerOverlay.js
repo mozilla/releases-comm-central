@@ -1093,7 +1093,8 @@ Enigmail.msg = {
       } else {
         msgText = bodyElement.textContent;
       }
-      msgText = EnigmailMsgRead.trimAllLines(msgText);
+      // \xA0 is non-breaking-space
+      msgText = msgText.replace(/^[ \t\xA0]+/gm, "");
     }
 
     if (!msgText) {

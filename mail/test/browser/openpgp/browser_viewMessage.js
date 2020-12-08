@@ -388,6 +388,46 @@ add_task(async function testOpenSignedInlineWithUTF8() {
   close_window(mc);
 });
 
+/**
+ * Test that an encrypted inline message, with nbsp encoded as qp
+ * in the PGP separator line, is trimmed and decrypted.
+ */
+add_task(async function testDecryptInlineWithNBSPasQP() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/bob-enc-inline-nbsp-qp.eml"))
+  );
+
+  Assert.ok(
+    getMsgBodyTxt(mc).includes("My real name is not Bob."),
+    "Secret text should be contained in message"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "Encrypted icon should be displayed"
+  );
+  close_window(mc);
+});
+
+/**
+ * Test that an inline message, encoded as html message, with nbsp
+ * encoded as qp in the PGP separator line, is trimmed and decrypted.
+ */
+add_task(async function testDecryptHtmlWithNBSP() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/bob-enc-html-nbsp.eml"))
+  );
+
+  Assert.ok(
+    getMsgBodyTxt(mc).includes("My real name is not Bob."),
+    "Secret text should be contained in message"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "Encrypted icon should be displayed"
+  );
+  close_window(mc);
+});
+
 registerCleanupFunction(function tearDown() {
   aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
   MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, true);

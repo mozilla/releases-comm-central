@@ -304,8 +304,4 @@ var EnigmailMsgRead = {
 
     return false;
   },
-
-  trimAllLines(txt) {
-    return txt.replace(/^[ \t]+/gm, "");
-  },
 };

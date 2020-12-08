@@ -1,0 +1,38 @@
+From: "Bob" <bob@openpgp.example>
+To: "Alice Lovelace" <alice@openpgp.example>
+Subject: Encrypted for Alice, html with nbsp separator line, not blank
+Date: Fri, 4 Dec 2020 00:35:52 +0000
+Content-Type: multipart/mixed;
+	boundary="_004_33f9d332df5c463d984f9ef386761a91VSMBX02_"
+MIME-Version: 1.0
+
+--_004_33f9d332df5c463d984f9ef386761a91VSMBX02_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<style><!-- .EmailQuote { margin-left: 1pt; padding-left: 4pt; border-left:=
+ #800000 2px solid; } --></style>
+</head>
+<body>
+<font face=3D"Arial" size=3D"2"><span style=3D"font-size:10pt;">
+<div>-----BEGIN PGP MESSAGE-----</div>
+<div>&nbsp;</div>
+<div>hE4DR2b2udXyHrYSAQdAINgYcnZM2bAYVKuB30JR5bPNGYtFFj5EEZuHzU7B1TAg</=
+div>
+<div>Q0qb&#43;biPpakzFZH5xXDLJVrZFo4H76bR0ds7UROgqjDSVAFVyLyVzbXQGBf8krPa</=
+div>
+<div>WuIrCJRc&#43;/GBk0CHwc3cV47F8kdbeH/7uHsTbanaz3yn5gtVXBhoR5iOanSaHfCE</=
+div>
+<div>vmaIc6oiurKdS9PuTnqbD91uW8PKdw=3D=3D</=
+div>
+<div>=3DVp7p</div>
+<div>-----END PGP MESSAGE-----</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+</span></font>
+</body>
+</html>
+
+--_004_33f9d332df5c463d984f9ef386761a91VSMBX02_--

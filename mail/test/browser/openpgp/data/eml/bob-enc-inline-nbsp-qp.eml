@@ -1,0 +1,17 @@
+From: "Bob" <bob@openpgp.example>
+To: "Alice Lovelace" <alice@openpgp.example>
+Subject: Encrypted for Alice, inline with nbsp in separator line
+Date: Thu, 30 Oct 2020 02:34:57 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+
+-----BEGIN PGP MESSAGE-----
+=C2=A0
+hE4DR2b2udXyHrYSAQdAINgYcnZM2bAYVKuB30JR5bPNGYtFFj5EEZuHzU7B1TAg
+Q0qb+biPpakzFZH5xXDLJVrZFo4H76bR0ds7UROgqjDSVAFVyLyVzbXQGBf8krPa
+WuIrCJRc+/GBk0CHwc3cV47F8kdbeH/7uHsTbanaz3yn5gtVXBhoR5iOanSaHfCE
+vmaIc6oiurKdS9PuTnqbD91uW8PKdw=3D=3D
+=3DVp7p
+-----END PGP MESSAGE-----
