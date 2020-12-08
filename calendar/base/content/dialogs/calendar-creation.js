@@ -426,8 +426,8 @@ function setSingleProvider(isSingle) {
  * Fill the providers menulist with the given provider types. The types must
  * correspond to the providers that detected calendars.
  *
- * @param {Iterable<string>} providerTypes   An iterable of provider types.
- * @return {Element}                         The selected menuitem.
+ * @param {string[]} providerTypes   An array of provider types.
+ * @return {Element}                 The selected menuitem.
  */
 function fillProviders(providerTypes) {
   let menulist = document.getElementById("network-selectcalendar-providertype-menulist");
@@ -454,7 +454,7 @@ function fillProviders(providerTypes) {
       preferredTypes.delete(nonPreferred);
     }
   }
-  let preferredIndex = [...providerTypes].findIndex(type => preferredTypes.has(type));
+  let preferredIndex = providerTypes.findIndex(type => preferredTypes.has(type));
   menulist.selectedIndex = preferredIndex == -1 ? 0 : preferredIndex;
 
   return menulist.selectedItem;
@@ -709,7 +709,7 @@ function onDetectionSuccess(providerMap) {
   setSingleProvider(providerMap.size <= 1);
   findCalendars.lastResult = providerMap;
 
-  let selectedItem = fillProviders(providerMap.keys());
+  let selectedItem = fillProviders([...providerMap.keys()]);
   selectProvider(selectedItem.value);
 
   // Select the panel and validate the fields.
