@@ -434,32 +434,31 @@
                         value="custom"/>
             </menupopup>
           </menulist>
-          <deck id="repeat-deck"
-                selectedIndex="-1">
-            <hbox id="repeat-untilDate"
-                  align="center">
-              <label value="&event.until.label;"
-                     accesskey="&event.until.accesskey;"
-                     control="repeat-until-datepicker"
-                     disable-on-readonly="true"/>
-              <datepicker id="repeat-until-datepicker"
-                          flex="1"
-                          type="forever"
-                          disable-on-readonly="true"
-                          onchange="if (onLoad.hasLoaded) { checkUntilDate(); }"
-                          value=""/>
-            </hbox>
-            <vbox id="repeat-details"
-                  flex="1">
-              <label id="repeat-details-label"
-                     class="text-link"
-                     crop="right"
-                     disable-on-readonly="true"
-                     hyperlink="true"
-                     flex="1"
-                     onclick="if (onLoad.hasLoaded) { updateRepeat(); }"/>
-            </vbox>
-          </deck>
+          <hbox id="repeat-untilDate"
+                align="center"
+                hidden="true">
+            <label value="&event.until.label;"
+                   accesskey="&event.until.accesskey;"
+                   control="repeat-until-datepicker"
+                   disable-on-readonly="true"/>
+            <datepicker id="repeat-until-datepicker"
+                        flex="1"
+                        type="forever"
+                        disable-on-readonly="true"
+                        onchange="if (onLoad.hasLoaded) { checkUntilDate(); }"
+                        value=""/>
+          </hbox>
+          <vbox id="repeat-details"
+                flex="1"
+                hidden="true">
+            <label id="repeat-details-label"
+                   class="text-link"
+                   crop="right"
+                   disable-on-readonly="true"
+                   hyperlink="true"
+                   flex="1"
+                   onclick="if (onLoad.hasLoaded) { updateRepeat(); }"/>
+          </vbox>
         </hbox>
       </html:td>
     </html:tr>

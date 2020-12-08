@@ -41,7 +41,7 @@ var CATEGORY_LIST = `
 `;
 var REPEAT_DETAILS = `
     id("event-grid")/id("event-grid-recurrence-row")/id("event-grid-recurrence-td")/id("event-grid-recurrence-picker-box")/
-    id("repeat-deck")/id("repeat-details")/[0]
+    id("repeat-details")/[0]
 `;
 var EVENT_TABPANELS = `
     id("event-grid-tab-vbox")/id("event-grid-tab-box-row")/id("event-grid-tabbox")/
@@ -143,7 +143,7 @@ function helpersForEditUI(controller) {
           path = `
                         id("event-grid")/id("event-grid-recurrence-row")/
                         id("event-grid-recurrence-td")/
-                        id("event-grid-recurrence-picker-box")/id("repeat-deck")/
+                        id("event-grid-recurrence-picker-box")/
                         id("repeat-untilDate")/id("repeat-until-datepicker")/
                         ${DATE_INPUT}
                     `;
@@ -317,7 +317,10 @@ async function setData(dialog, iframe, data) {
   }
   if (data.repeatuntil !== undefined && data.repeatuntil.constructor.name == "Date") {
     // Only fill in date, when the Datepicker is visible.
-    if (iframeid("repeat-deck").getNode().selectedIndex == 0) {
+    if (
+      !iframeid("repeat-untilDate").getNode().hidden &&
+      !iframeid("repeat-details").getNode().hidden
+    ) {
       let untildate = dateFormatter.formatDateShort(
         cal.dtz.jsDateToDateTime(data.repeatuntil, cal.dtz.floating)
       );

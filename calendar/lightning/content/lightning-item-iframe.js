@@ -1316,8 +1316,10 @@ function dateTimeControls2State(aStartDatepicker) {
       gUntilDate = gStartTime.clone();
       // Update the until-date-picker. In case of "custom" rule, the
       // recurrence string is going to be changed by updateDateTime() below.
-      let notCustomRule = document.getElementById("repeat-deck").selectedIndex == 0;
-      if (notCustomRule) {
+      if (
+        !document.getElementById("repeat-untilDate").hidden &&
+        document.getElementById("repeat-details").hidden
+      ) {
         setElementValue(
           "repeat-until-datepicker",
           cal.dtz.dateTimeToJsDate(gUntilDate.getInTimezone(cal.dtz.floating))
@@ -1594,7 +1596,8 @@ function loadRepeat(aRepeatType, aUntilDate, aItem) {
     document.getElementById("repeat-until-datepicker").setAttribute("disabled", "true");
   }
   // Show the repeat-until-datepicker and set its date
-  document.getElementById("repeat-deck").selectedIndex = 0;
+  document.getElementById("repeat-untilDate").hidden = false;
+  document.getElementById("repeat-details").hidden = true;
   setElementValue("repeat-until-datepicker", aUntilDate);
 }
 
@@ -2837,18 +2840,18 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
 
   let repeatMenu = document.getElementById("item-repeat");
   let repeatValue = repeatMenu.selectedItem.getAttribute("value");
-  let repeatDeck = document.getElementById("repeat-deck");
+  let repeatUntilDate = document.getElementById("repeat-untilDate");
+  let repeatDetails = document.getElementById("repeat-details");
 
   if (repeatValue == "none") {
-    repeatDeck.selectedIndex = -1;
+    repeatUntilDate.hidden = true;
+    repeatDetails.hidden = true;
     window.recurrenceInfo = null;
     let item = window.calendarItem;
     if (cal.item.isToDo(item)) {
       enableElementWithLock("todo-has-entrydate", "repeat-lock");
     }
   } else if (repeatValue == "custom") {
-    let lastRepeatDeck = repeatDeck.selectedIndex;
-    repeatDeck.selectedIndex = 1;
     // the user selected custom repeat pattern. we now need to bring
     // up the appropriate dialog in order to let the user specify the
     // new rule. First of all, retrieve the item we want to specify
@@ -2891,13 +2894,14 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     //     only with the repeat-until-datepicker.
     if (recurrenceInfo == window.recurrenceInfo) {
       repeatMenu.selectedIndex = gLastRepeatSelection;
-      repeatDeck.selectedIndex = lastRepeatDeck;
       if (cal.item.isToDo(item)) {
         if (!window.recurrenceInfo) {
           enableElementWithLock("todo-has-entrydate", "repeat-lock");
         }
       }
     } else {
+      repeatUntilDate.hidden = true;
+      repeatDetails.hidden = false;
       // From the Edit Recurrence dialog, the rules "every day" and
       // "every weekday" don't need the recurrence details text when they
       // have only the until date. The getRepeatTypeAndUntilDate()
@@ -2926,7 +2930,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
       // If the previous rule was "custom" we have to recover the until
       // date, or the last occurrence's date in order to set the
       // repeat-until-datepicker with the same date.
-      if (aItemRepeatCall && repeatDeck.selectedIndex == 1) {
+      if (aItemRepeatCall && repeatUntilDate.hidden && !repeatDetails.hidden) {
         let repeatDate;
         if (!rule.isByCount || !rule.isFinite) {
           if (rule.isFinite) {
@@ -2958,7 +2962,8 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
       setElementValue("repeat-until-datepicker", "forever");
     }
 
-    repeatDeck.selectedIndex = 0;
+    repeatUntilDate.hidden = false;
+    repeatDetails.hidden = true;
 
     let recRule = cal.createRecurrenceRule();
     recRule.interval = 1;
@@ -3933,16 +3938,10 @@ function updateRepeatDetails() {
   // anything but a custom recurrence rule.
   let recurrenceInfo = window.recurrenceInfo;
   let itemRepeat = document.getElementById("item-repeat");
+  let repeatDetails = document.getElementById("repeat-details");
   if (itemRepeat.value == "custom" && recurrenceInfo) {
     let item = window.calendarItem;
-    document.getElementById("repeat-deck").selectedIndex = 1;
-    // First of all collapse the details text. If we fail to
-    // create a details string, we simply don't show anything.
-    // this could happen if the repeat rule is something exotic
-    // we don't have any strings prepared for.
-    let repeatDetails = document.getElementById("repeat-details");
-    repeatDetails.setAttribute("collapsed", "true");
-
+    document.getElementById("repeat-untilDate").hidden = true;
     // Try to create a descriptive string from the rule(s).
     let kDefaultTimezone = cal.dtz.defaultTimezone;
     let event = cal.item.isEvent(item);
@@ -3958,10 +3957,10 @@ function updateRepeatDetails() {
     if (!detailsString) {
       detailsString = cal.l10n.getString("calendar-event-dialog", "ruleTooComplex");
     }
+    repeatDetails.hidden = false;
 
-    // Now display the string...
+    // Now display the string.
     let lines = detailsString.split("\n");
-    repeatDetails.removeAttribute("collapsed");
     while (repeatDetails.children.length > lines.length) {
       repeatDetails.lastChild.remove();
     }
@@ -3975,8 +3974,7 @@ function updateRepeatDetails() {
       repeatDetails.children[i].setAttribute("tooltiptext", detailsString);
     }
   } else {
-    let repeatDetails = document.getElementById("repeat-details");
-    repeatDetails.setAttribute("collapsed", "true");
+    repeatDetails.hidden = true;
   }
 }
 
