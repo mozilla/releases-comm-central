@@ -17,6 +17,9 @@ var {
   CalDavOutboxRequest,
   CalDavFreeBusyRequest,
 } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
+var { CalDavWebDavSyncHandler } = ChromeUtils.import(
+  "resource:///modules/caldav/CalDavRequestHandlers.jsm"
+);
 
 var { CalDavSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSession.jsm");
 var { CalDavXmlns } = ChromeUtils.import("resource:///modules/caldav/CalDavUtils.jsm");
@@ -73,7 +76,27 @@ function replaceAlertsService() {
   });
 }
 
-var gMockCalendar = { name: "xpcshell" };
+var gMockCalendar = {
+  name: "xpcshell",
+  makeUri(insert, base) {
+    return base;
+  },
+  verboseLogging() {
+    return true;
+  },
+  ensureEncodedPath(x) {
+    return x;
+  },
+  ensureDecodedPath(x) {
+    return x;
+  },
+  startBatch() {},
+  endBatch() {},
+  addTargetCalendarItem() {},
+  finalizeUpdatedItems() {},
+  mHrefIndex: [],
+};
+gMockCalendar.superCalendar = gMockCalendar;
 
 class CalDavServer {
   constructor(calendarId) {
@@ -388,6 +411,7 @@ class CalDavServer {
       response.setHeader("Content-Type", "application/xml");
       let bodydom = cal.xml.parseString(body);
       let report = bodydom.documentElement.localName;
+      let eventName = String.fromCharCode(...new TextEncoder().encode("イベント"));
       if (report == "sync-collection") {
         response.write(dedent`
           <?xml version="1.0" encoding="utf-8" ?>
@@ -398,6 +422,7 @@ class CalDavServer {
                 <D:prop>
                   <D:getcontenttype>text/calendar; charset=utf-8; component=VEVENT</D:getcontenttype>
                   <D:getetag>"2decee6ffb701583398996bfbdacb8eec53edf94"</D:getetag>
+                  <D:displayname>${eventName}</D:displayname>
                 </D:prop>
                 <D:status>HTTP/1.1 200 OK</D:status>
               </D:propstat>
@@ -406,8 +431,10 @@ class CalDavServer {
         `);
       } else if (report == "calendar-multiget") {
         let event = new CalEvent();
+        event.title = "会議";
         event.startDate = cal.dtz.now();
         event.endDate = cal.dtz.now();
+        let icalString = String.fromCharCode(...new TextEncoder().encode(event.icalString));
         response.write(dedent`
           <?xml version="1.0" encoding="utf-8"?>
           <D:multistatus ${CalDavXmlns("D", "C")}>
@@ -416,7 +443,7 @@ class CalDavServer {
               <D:propstat>
                 <D:prop>
                   <D:getetag>"2decee6ffb701583398996bfbdacb8eec53edf94"</D:getetag>
-                  <C:calendar-data>${event.icalString}</C:calendar-data>
+                  <C:calendar-data>${icalString}</C:calendar-data>
                 </D:prop>
               </D:propstat>
             </D:response>
@@ -925,4 +952,17 @@ add_task(async function test_caldav_client() {
 
   let items = await pclient.getAllItems();
   equal(items.length, 1);
+  equal(items[0].title, "会議");
+});
+
+/**
+ * Test non-ASCII text in the XML response is parsed correctly in CalDavWebDavSyncHandler.
+ */
+add_task(async function test_caldav_sync() {
+  gServer.reset();
+  let uri = gServer.uri("/calendars/xpcshell/events/");
+  gMockCalendar.session = gServer.session;
+  let webDavSync = new CalDavWebDavSyncHandler(gMockCalendar, uri);
+  await webDavSync.doWebDAVSync();
+  ok(webDavSync.logXML.includes("イベント"), "Non-ASCII text should be parsed correctly");
 });

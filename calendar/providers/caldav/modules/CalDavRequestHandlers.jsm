@@ -385,7 +385,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
 
   QueryInterface = ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]);
 
-  doWebDAVSync() {
+  async doWebDAVSync() {
     if (this.calendar.mDisabled) {
       // check if maybe our calendar has become available
       this.calendar.checkDavResourceType(this.changeLogListener);
@@ -434,7 +434,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
       onSetupChannel
     );
 
-    request.commit().catch(() => {
+    await request.commit().catch(() => {
       // Something went wrong with the OAuth token, notify failure
       if (this.calendar.isCached && this.changeLogListener) {
         this.changeLogListener.onResult(
