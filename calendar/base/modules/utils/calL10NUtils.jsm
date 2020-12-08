@@ -63,7 +63,7 @@ function _calendarInfo(aLocale = null, aResetCache = false) {
   // when starting to use it to determine the first week of a year, we would
   // need to at least reset that cached properties on pref change.
   if (!("firstDayOfWeek" in _calendarInfo._startup) || aLocale) {
-    let info = Services.intl.getCalendarInfo(aLocale);
+    let info = Services.intl.getCalendarInfo(aLocale || Services.locale.regionalPrefsLocales[0]);
     if (aLocale) {
       return info;
     }
