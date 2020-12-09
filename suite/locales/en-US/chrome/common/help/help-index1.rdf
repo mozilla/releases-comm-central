@@ -343,6 +343,11 @@
          nc:link="composer_help.xhtml"/>
      </rdf:li>
      <rdf:li>
+       <rdf:Description ID="HTML_editor"
+         nc:name="HTML editor"
+         nc:link="composer_help.xhtml"/>
+     </rdf:li>
+     <rdf:li>
        <rdf:Description ID="Cookie_Manager"
          nc:name="Cookie Manager"
          nc:link="using_priv_help.xhtml#using_the_cookie_manager"/>
