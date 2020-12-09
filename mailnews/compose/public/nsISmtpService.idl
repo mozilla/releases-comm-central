@@ -79,10 +79,8 @@ interface nsISmtpService : nsISupports {
   /**
    * Return the SMTP server that is associated with an identity.
    * @param  aSenderIdentity   the identity
-   * @param  aServer           the SMTP server
    */
-  void getServerByIdentity(in nsIMsgIdentity aSenderIdentity,
-                           out nsISmtpServer aServer);
+  nsISmtpServer getServerByIdentity(in nsIMsgIdentity aSenderIdentity);
 
   /**
    * A copy of the array of SMTP servers, as stored in the preferences

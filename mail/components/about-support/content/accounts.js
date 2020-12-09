@@ -67,13 +67,12 @@ var AboutSupport = {
 
     for (let identity of aAccount.identities) {
       let isDefault = identity == defaultIdentity;
-      let smtpServer = {};
-      MailServices.smtp.getServerByIdentity(identity, smtpServer);
+      let smtpServer = MailServices.smtp.getServerByIdentity(identity);
       smtpDetails.push({
         identityName: identity.identityName,
-        name: smtpServer.value.displayname,
-        authMethod: smtpServer.value.authMethod,
-        socketType: smtpServer.value.socketType,
+        name: smtpServer.displayname,
+        authMethod: smtpServer.authMethod,
+        socketType: smtpServer.socketType,
         isDefault,
       });
     }

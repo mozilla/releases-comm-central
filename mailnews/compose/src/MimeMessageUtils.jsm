@@ -971,9 +971,8 @@ var MsgUtils = {
    * @retuns {string}
    */
   formatStringWithSMTPHostName(userIdentity, composeBundle, errorName) {
-    let smtpServer = {};
-    MailServices.smtp.getServerByIdentity(userIdentity, smtpServer);
-    let smtpHostname = smtpServer.value.hostname;
+    let smtpServer = MailServices.smtp.getServerByIdentity(userIdentity);
+    let smtpHostname = smtpServer.hostname;
     return composeBundle.formatStringFromName(errorName, [smtpHostname]);
   },
 

@@ -108,7 +108,7 @@ SmtpService.prototype = {
   /**
    * @see nsISmtpService
    */
-  getServerByIdentity(userIdentity, outServer) {
+  getServerByIdentity(userIdentity) {
     return userIdentity.smtpServerKey
       ? this.getServerByKey(userIdentity.smtpServerKey)
       : this.defaultServer;
