@@ -4,23 +4,21 @@
 
 const EXPORTED_SYMBOLS = ["CardDAVDirectory"];
 
-const { AddrBookDirectory } = ChromeUtils.import(
-  "resource:///modules/AddrBookDirectory.jsm"
-);
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { clearInterval, setInterval, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
-const { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "fixIterator",
-  "resource:///modules/iteratorUtils.jsm"
-);
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AddrBookDirectory: "resource:///modules/AddrBookDirectory.jsm",
+  clearInterval: "resource://gre/modules/Timer.jsm",
+  fixIterator: "resource:///modules/iteratorUtils.jsm",
+  OAuth2Module: "resource:///modules/OAuth2Module.jsm",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  setInterval: "resource://gre/modules/Timer.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+  VCardUtils: "resource:///modules/VCardUtils.jsm",
+});
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "nssErrorsService",
@@ -171,6 +169,17 @@ class CardDAVDirectory extends AddrBookDirectory {
   async _makeRequest(path, details = {}) {
     let serverURI = Services.io.newURI(this._serverURL);
     let uri = serverURI.resolve(path);
+
+    if (!("_oAuth" in this)) {
+      let details = OAuth2Providers.getHostnameDetails(serverURI.host);
+      if (details) {
+        this._oAuth = new OAuth2Module();
+        this._oAuth.initFromABDirectory(this, serverURI.host);
+      } else {
+        this._oAuth = null;
+      }
+    }
+    details.oAuth = this._oAuth;
 
     details.username = this.getStringValue("carddav.username", "");
     details.privateBrowsingId = CardDAVDirectory._contextForUsername(
@@ -379,6 +388,7 @@ class CardDAVDirectory extends AddrBookDirectory {
       <prop>
         <resourcetype/>
         <cs:getetag/>
+        <cs:getctag/>
       </prop>
     </propfind>`;
 
@@ -467,14 +477,16 @@ class CardDAVDirectory extends AddrBookDirectory {
    * directory to match what is on the server.
    */
   async updateAllFromServerV1() {
-    let data = `<addressbook-query xmlns="${PREFIX_BINDINGS.card}" ${NAMESPACE_STRING}>
-      <d:prop>
+    let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+      <prop>
+        <resourcetype/>
         <cs:getetag/>
-      </d:prop>
-    </addressbook-query>`;
+        <cs:getctag/>
+      </prop>
+    </propfind>`;
 
     let response = await this._makeRequest("", {
-      method: "REPORT",
+      method: "PROPFIND",
       body: data,
       headers: {
         Depth: 1,
@@ -484,7 +496,11 @@ class CardDAVDirectory extends AddrBookDirectory {
 
     let hrefMap = new Map();
     for (let { href, properties } of this._readResponse(response.dom)) {
-      if (!properties) {
+      if (
+        !properties ||
+        !properties.querySelector("resourcetype") ||
+        properties.querySelector("resourcetype collection")
+      ) {
         continue;
       }
 
@@ -570,6 +586,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
          <displayname/>
+         <cs:getctag/>
          <sync-token/>
       </prop>
     </propfind>`;
@@ -581,6 +598,7 @@ class CardDAVDirectory extends AddrBookDirectory {
         Depth: 0,
       },
     });
+
     if (response.status == 207) {
       for (let { properties } of this._readResponse(response.dom)) {
         let token = properties?.querySelector("prop sync-token");
@@ -590,6 +608,8 @@ class CardDAVDirectory extends AddrBookDirectory {
         }
       }
     }
+
+    this._syncToken = "";
   }
 
   /**
@@ -699,17 +719,19 @@ class CardDAVDirectory extends AddrBookDirectory {
    * Make an HTTP request. If the request needs a username and password, the
    * given authPrompt is called.
    *
-   * @param {String} uri
-   * @param {Object} details
-   * @param {String} details.method
-   * @param {String} details.header
-   * @param {String} details.body
-   * @param {String} details.contentType
-   * @param {String} details.username - Used to pre-fill any auth dialogs.
-   * @param {boolean} details.shouldSaveAuth - If false, defers saving
+   * @param {String}  uri
+   * @param {Object}  details
+   * @param {String}  [details.method]
+   * @param {Object}  [details.headers]
+   * @param {String}  [details.body]
+   * @param {String}  [details.contentType]
+   * @param {msgIOAuth2Module}  [details.oAuth] - If this is present the
+   *     request will use OAuth2 authorization.
+   * @param {String}  [details.username] - Used to pre-fill any auth dialogs.
+   * @param {boolean} [details.shouldSaveAuth] - If false, defers saving
    *     username/password data to the password manager. Otherwise this
    *     happens immediately after a successful request, where applicable.
-   * @param {integer} details.privateBrowsingId - See _contextForUsername.
+   * @param {integer} [details.privateBrowsingId] - See _contextForUsername.
    *
    * @return {Promise<Object>} - Resolves to an object with getters for:
    *    - status, the HTTP response code
@@ -726,12 +748,31 @@ class CardDAVDirectory extends AddrBookDirectory {
       headers = {},
       body = null,
       contentType = "text/xml",
+      oAuth = null,
       username = null,
       shouldSaveAuth = false,
       privateBrowsingId = Ci.nsIScriptSecurityManager
         .DEFAULT_PRIVATE_BROWSING_ID,
     } = details;
     headers["Content-Type"] = contentType;
+
+    if (oAuth) {
+      headers.Authorization = await new Promise((resolve, reject) => {
+        oAuth.connect(true, {
+          onSuccess(token) {
+            resolve(
+              // `token` is a base64-encoded string for SASL XOAUTH2. That is
+              // not what we want, extract just the Bearer token part.
+              // (See OAuth2Module.connect.)
+              atob(token)
+                .split("\x01")[1]
+                .slice(5)
+            );
+          },
+          onFailure: reject,
+        });
+      });
+    }
 
     return new Promise((resolve, reject) => {
       let principal = Services.scriptSecurityManager.createContentPrincipal(

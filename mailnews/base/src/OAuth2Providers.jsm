@@ -17,6 +17,10 @@ var kHostnames = new Map([
   ["imap.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
   ["smtp.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
   ["pop.gmail.com", ["accounts.google.com", "https://mail.google.com/"]],
+  [
+    "www.googleapis.com",
+    ["accounts.google.com", "https://www.googleapis.com/auth/carddav"],
+  ],
 
   ["imap.mail.ru", ["o2.mail.ru", "mail.imap"]],
   ["smtp.mail.ru", ["o2.mail.ru", "mail.imap"]],

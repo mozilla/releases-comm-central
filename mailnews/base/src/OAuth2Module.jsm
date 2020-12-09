@@ -38,6 +38,9 @@ OAuth2Module.prototype = {
       aServer.realHostName
     );
   },
+  initFromABDirectory(aDirectory, aHostname) {
+    this._initPrefs(aDirectory.dirPrefId + ".", aDirectory.UID, aHostname);
+  },
   _initPrefs(root, aUsername, aHostname) {
     // Load all of the parameters from preferences.
     let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", "");

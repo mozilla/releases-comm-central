@@ -2,18 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { CardDAVDirectory } = ChromeUtils.import(
-  "resource:///modules/CardDAVDirectory.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
+  ConsoleAPI: "resource://gre/modules/Console.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  OAuth2: "resource:///modules/OAuth2.jsm",
+  OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 var console = new ConsoleAPI();
 console.prefix = "CardDAV setup";
 
+var oAuth = null;
 var authInfo = null;
 var uiElements = {};
 
@@ -104,9 +109,8 @@ async function check() {
       url = "https://" + url;
     }
     url = new URL(url);
+    oAuth = null;
     authInfo = null;
-
-    let response;
 
     let requestParams = {
       method: "PROPFIND",
@@ -123,6 +127,45 @@ async function check() {
       shouldSaveAuth: false,
     };
 
+    let details = OAuth2Providers.getHostnameDetails(url.host);
+    if (details) {
+      let [issuer, scope] = details;
+      let [
+        clientId,
+        clientSecret,
+        authorizationEndpoint,
+        tokenEndpoint,
+      ] = OAuth2Providers.getIssuerDetails(issuer);
+
+      oAuth = new OAuth2(
+        authorizationEndpoint,
+        tokenEndpoint,
+        scope,
+        clientId,
+        clientSecret
+      );
+      oAuth._loginOrigin = `oauth://${issuer}`;
+      oAuth._scope = scope;
+
+      // Implement msgIOAuth2Module.connect, which CardDAV.makeRequest expects.
+      requestParams.oAuth = {
+        QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
+        connect(withUI, listener) {
+          oAuth.connect(
+            () =>
+              listener.onSuccess(
+                // String format based on what OAuth2Module has.
+                btoa(`\x01auth=Bearer ${oAuth.accessToken}`)
+              ),
+            () => listener.onFailure(Cr.NS_ERROR_ABORT),
+            withUI,
+            false
+          );
+        },
+      };
+    }
+
+    let response;
     let triedURLs = new Set();
     async function tryURL(url) {
       if (triedURLs.has(url)) {
@@ -284,7 +327,21 @@ window.addEventListener("dialogaccept", event => {
       book.setStringValue("carddav.url", checkbox.value);
       window.arguments[0].newDirectoryURI = book.URI;
 
-      if (authInfo?.username) {
+      if (oAuth) {
+        let newLoginInfo = Cc[
+          "@mozilla.org/login-manager/loginInfo;1"
+        ].createInstance(Ci.nsILoginInfo);
+        newLoginInfo.init(
+          oAuth._loginOrigin,
+          null,
+          oAuth._scope,
+          book.UID,
+          oAuth.refreshToken,
+          "",
+          ""
+        );
+        Services.logins.addLogin(newLoginInfo);
+      } else if (authInfo?.username) {
         book.setStringValue("carddav.username", authInfo.username);
         authInfo.save();
       }

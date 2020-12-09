@@ -237,4 +237,4 @@ add_task(async function testNormal() {
 add_task(async function testYahoo() {
   CardDAVServer.mimicYahoo = true;
   await subtest();
-}).skip(); // To be enabled in bug 1662979.
+});
