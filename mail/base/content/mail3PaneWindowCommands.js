@@ -610,8 +610,7 @@ var DefaultController = {
           return (
             !folder.isServer &&
             !folder.getFlag(Ci.nsMsgFolderFlags.Virtual) &&
-            (folder.server.type != "imap" ||
-              folder.server.canCompactFoldersOnServer) &&
+            folder.server.canCompactFoldersOnServer &&
             folder.isCommandEnabled("button_compact")
           );
         };
@@ -621,8 +620,7 @@ var DefaultController = {
         let folders = gFolderTreeView.getSelectedFolders();
         let canCompactAll = function(folder) {
           return (
-            (folder.server.type != "imap" ||
-              folder.server.canCompactFoldersOnServer) &&
+            folder.server.canCompactFoldersOnServer &&
             folder.isCommandEnabled("cmd_compactFolder")
           );
         };
