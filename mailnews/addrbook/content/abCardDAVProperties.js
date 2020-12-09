@@ -13,6 +13,7 @@ var gStringBundle,
   gURLInput,
   gRefreshActiveInput,
   gRefreshMenulist,
+  gReadOnlyInput,
   gAcceptButton;
 
 window.addEventListener(
@@ -44,6 +45,9 @@ window.addEventListener(
     gRefreshMenulist = document.getElementById("carddav-refreshInterval");
     initRefreshInterval();
 
+    gReadOnlyInput = document.getElementById("carddav-readOnly");
+    gReadOnlyInput.checked = gDirectory.readOnly;
+
     gAcceptButton = document.querySelector("dialog").getButton("accept");
   },
   { once: true }
@@ -72,6 +76,10 @@ window.addEventListener("dialogaccept", event => {
 
   if (newSyncInterval != gDirectory.getIntValue("carddav.syncinterval", -1)) {
     gDirectory.setIntValue("carddav.syncinterval", newSyncInterval);
+  }
+
+  if (gReadOnlyInput.checked != gDirectory.readOnly) {
+    gDirectory.setBoolValue("readOnly", gReadOnlyInput.checked);
   }
 });
 

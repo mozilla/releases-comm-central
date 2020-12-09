@@ -69,7 +69,22 @@ class CardDAVDirectory extends AddrBookDirectory {
     return false;
   }
 
-  async modifyCard(card) {
+  modifyCard(card) {
+    // Well this is awkward. Because it's defined in nsIAbDirectory,
+    // modifyCard must not be async, but we need to do async operations.
+
+    if (this._readOnly) {
+      throw new Components.Exception(
+        "Directory is read-only",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    // We've thrown the most likely exception synchronously, now do the rest.
+
+    this._modifyCard(card);
+  }
+  async _modifyCard(card) {
     let oldProperties = this._loadCardProperties(card.UID);
 
     let newProperties = new Map();
@@ -542,8 +557,20 @@ class CardDAVDirectory extends AddrBookDirectory {
       }
     }
 
+    // If this directory is set to read-only, the following operations would
+    // throw NS_ERROR_FAILURE, but sync operations are allowed on a read-only
+    // directory, so set this._overrideReadOnly to avoid the exception.
+    //
+    // Do not use await while it is set, and use a try/finally block to ensure
+    // it is cleared.
+
     if (cardsToDelete.length > 0) {
-      super.deleteCards(cardsToDelete);
+      this._overrideReadOnly = true;
+      try {
+        super.deleteCards(cardsToDelete);
+      } finally {
+        this._overrideReadOnly = false;
+      }
     }
 
     if (hrefsToFetch.length == 0) {
@@ -552,26 +579,31 @@ class CardDAVDirectory extends AddrBookDirectory {
 
     response = await this._multigetRequest(hrefsToFetch);
 
-    for (let { href, properties } of this._readResponse(response.dom)) {
-      if (!properties) {
-        continue;
+    this._overrideReadOnly = true;
+    try {
+      for (let { href, properties } of this._readResponse(response.dom)) {
+        if (!properties) {
+          continue;
+        }
+
+        let etag = properties.querySelector("getetag")?.textContent;
+        let vCard = normalizeLineEndings(
+          properties.querySelector("address-data")?.textContent
+        );
+
+        let abCard = VCardUtils.vCardToAbCard(vCard);
+        abCard.setProperty("_etag", etag);
+        abCard.setProperty("_href", href);
+        abCard.setProperty("_vCard", vCard);
+
+        if (cardsToAdd.includes(href)) {
+          super.dropCard(abCard, false);
+        } else {
+          super.modifyCard(abCard);
+        }
       }
-
-      let etag = properties.querySelector("getetag")?.textContent;
-      let vCard = normalizeLineEndings(
-        properties.querySelector("address-data")?.textContent
-      );
-
-      let abCard = VCardUtils.vCardToAbCard(vCard);
-      abCard.setProperty("_etag", etag);
-      abCard.setProperty("_href", href);
-      abCard.setProperty("_vCard", vCard);
-
-      if (cardsToAdd.includes(href)) {
-        super.dropCard(abCard, false);
-      } else {
-        super.modifyCard(abCard);
-      }
+    } finally {
+      this._overrideReadOnly = false;
     }
 
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
@@ -644,42 +676,53 @@ class CardDAVDirectory extends AddrBookDirectory {
     let dom = response.dom;
     this._syncToken = dom.querySelector("sync-token").textContent;
 
-    let cardsToDelete = [];
-    for (let { href, notFound, properties } of this._readResponse(dom)) {
-      let card = this.getCardFromProperty("_href", href, true);
-      if (notFound) {
+    // If this directory is set to read-only, the following operations would
+    // throw NS_ERROR_FAILURE, but sync operations are allowed on a read-only
+    // directory, so set this._overrideReadOnly to avoid the exception.
+    //
+    // Do not use await while it is set, and use a try/finally block to ensure
+    // it is cleared.
+
+    this._overrideReadOnly = true;
+    try {
+      let cardsToDelete = [];
+      for (let { href, notFound, properties } of this._readResponse(dom)) {
+        let card = this.getCardFromProperty("_href", href, true);
+        if (notFound) {
+          if (card) {
+            cardsToDelete.push(card);
+          }
+          continue;
+        }
+        if (!properties) {
+          continue;
+        }
+
+        let etag = properties.querySelector("getetag").textContent;
+        let vCard = normalizeLineEndings(
+          properties.querySelector("address-data").textContent
+        );
+
+        let abCard = VCardUtils.vCardToAbCard(vCard);
+        abCard.setProperty("_etag", etag);
+        abCard.setProperty("_href", href);
+        abCard.setProperty("_vCard", vCard);
+
         if (card) {
-          cardsToDelete.push(card);
+          if (card.getProperty("_etag", "") != etag) {
+            super.modifyCard(abCard);
+          }
+        } else {
+          super.dropCard(abCard, false);
         }
-        continue;
-      }
-      if (!properties) {
-        continue;
       }
 
-      let etag = properties.querySelector("getetag").textContent;
-      let vCard = normalizeLineEndings(
-        properties.querySelector("address-data").textContent
-      );
-
-      let abCard = VCardUtils.vCardToAbCard(vCard);
-      abCard.setProperty("_etag", etag);
-      abCard.setProperty("_href", href);
-      abCard.setProperty("_vCard", vCard);
-
-      if (card) {
-        if (card.getProperty("_etag", "") != etag) {
-          super.modifyCard(abCard);
-        }
-      } else {
-        super.dropCard(abCard, false);
+      if (cardsToDelete.length > 0) {
+        super.deleteCards(cardsToDelete);
       }
+    } finally {
+      this._overrideReadOnly = false;
     }
-
-    if (cardsToDelete.length > 0) {
-      super.deleteCards(cardsToDelete);
-    }
-
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
   }
 

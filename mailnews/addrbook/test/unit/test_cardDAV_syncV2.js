@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_task(async () => {
+async function subtest() {
   // Put some cards on the server.
   CardDAVServer.putCardInternal(
     "keep-me.vcf",
@@ -144,97 +144,130 @@ add_task(async () => {
 
   info("Deleting a card on the client.");
 
-  directory.deleteCards([cardMap.get("new")]);
-  observer.checkAndClearNotifications({
-    "addrbook-contact-created": [],
-    "addrbook-contact-updated": [],
-    "addrbook-contact-deleted": ["new"],
-  });
+  try {
+    directory.deleteCards([cardMap.get("new")]);
+    Assert.ok(!directory.readOnly, "read-only directory should throw.");
+    observer.checkAndClearNotifications({
+      "addrbook-contact-created": [],
+      "addrbook-contact-updated": [],
+      "addrbook-contact-deleted": ["new"],
+    });
 
-  await checkCardsOnServer({
-    "change-me": {
-      etag: cardMap.get("change-me").getProperty("_etag", ""),
-      href: cardMap.get("change-me").getProperty("_href", ""),
-      vCard: cardMap.get("change-me").getProperty("_vCard", ""),
-    },
-    "keep-me": {
-      etag: cardMap.get("keep-me").getProperty("_etag", ""),
-      href: cardMap.get("keep-me").getProperty("_href", ""),
-      vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
-    },
-  });
+    await checkCardsOnServer({
+      "change-me": {
+        etag: cardMap.get("change-me").getProperty("_etag", ""),
+        href: cardMap.get("change-me").getProperty("_href", ""),
+        vCard: cardMap.get("change-me").getProperty("_vCard", ""),
+      },
+      "keep-me": {
+        etag: cardMap.get("keep-me").getProperty("_etag", ""),
+        href: cardMap.get("keep-me").getProperty("_href", ""),
+        vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
+      },
+    });
+  } catch (ex) {
+    Assert.ok(directory.readOnly, "read-write directory should not throw");
+  }
 
   // Change a card on the client.
 
   info("Changing a card on the client.");
 
-  let changeMeCard = cardMap.get("change-me");
-  changeMeCard.displayName = "I've been changed again!";
-  directory.modifyCard(changeMeCard);
+  try {
+    let changeMeCard = cardMap.get("change-me");
+    changeMeCard.displayName = "I've been changed again!";
+    directory.modifyCard(changeMeCard);
+    Assert.ok(!directory.readOnly, "read-only directory should throw.");
 
-  Assert.equal(await observer.waitFor("addrbook-contact-updated"), "change-me");
+    Assert.equal(
+      await observer.waitFor("addrbook-contact-updated"),
+      "change-me"
+    );
 
-  await checkCardsOnServer({
-    "change-me": {
-      etag: changeMeCard.getProperty("_etag", ""),
-      href: changeMeCard.getProperty("_href", ""),
-      vCard: changeMeCard.getProperty("_vCard", ""),
-    },
-    "keep-me": {
-      etag: cardMap.get("keep-me").getProperty("_etag", ""),
-      href: cardMap.get("keep-me").getProperty("_href", ""),
-      vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
-    },
-  });
+    await checkCardsOnServer({
+      "change-me": {
+        etag: changeMeCard.getProperty("_etag", ""),
+        href: changeMeCard.getProperty("_href", ""),
+        vCard: changeMeCard.getProperty("_vCard", ""),
+      },
+      "keep-me": {
+        etag: cardMap.get("keep-me").getProperty("_etag", ""),
+        href: cardMap.get("keep-me").getProperty("_href", ""),
+        vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
+      },
+    });
+  } catch (ex) {
+    Assert.ok(directory.readOnly, "read-write directory should not throw");
+  }
 
   // Add a new card on the client.
 
   info("Adding a new card on the client.");
 
-  let newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-    Ci.nsIAbCard
-  );
-  newCard.displayName = "I'm another new contact.";
-  newCard.UID = "another-new";
-  newCard = directory.addCard(newCard);
-  observer.checkAndClearNotifications({
-    "addrbook-contact-created": ["another-new"],
-    "addrbook-contact-updated": [],
-    "addrbook-contact-deleted": [],
-  });
+  try {
+    let newCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+      Ci.nsIAbCard
+    );
+    newCard.displayName = "I'm another new contact.";
+    newCard.UID = "another-new";
+    newCard = directory.addCard(newCard);
+    Assert.ok(!directory.readOnly, "read-only directory should throw.");
+    observer.checkAndClearNotifications({
+      "addrbook-contact-created": ["another-new"],
+      "addrbook-contact-updated": [],
+      "addrbook-contact-deleted": [],
+    });
 
-  Assert.equal(
-    await observer.waitFor("addrbook-contact-updated"),
-    "another-new"
-  );
+    Assert.equal(
+      await observer.waitFor("addrbook-contact-updated"),
+      "another-new"
+    );
 
-  await checkCardsOnServer({
-    "another-new": {
-      etag: newCard.getProperty("_etag", ""),
-      href: newCard.getProperty("_href", ""),
-      vCard: newCard.getProperty("_vCard", ""),
-    },
-    "change-me": {
-      etag: cardMap.get("change-me").getProperty("_etag", ""),
-      href: cardMap.get("change-me").getProperty("_href", ""),
-      vCard: cardMap.get("change-me").getProperty("_vCard", ""),
-    },
-    "keep-me": {
-      etag: cardMap.get("keep-me").getProperty("_etag", ""),
-      href: cardMap.get("keep-me").getProperty("_href", ""),
-      vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
-    },
-  });
+    await checkCardsOnServer({
+      "another-new": {
+        etag: newCard.getProperty("_etag", ""),
+        href: newCard.getProperty("_href", ""),
+        vCard: newCard.getProperty("_vCard", ""),
+      },
+      "change-me": {
+        etag: cardMap.get("change-me").getProperty("_etag", ""),
+        href: cardMap.get("change-me").getProperty("_href", ""),
+        vCard: cardMap.get("change-me").getProperty("_vCard", ""),
+      },
+      "keep-me": {
+        etag: cardMap.get("keep-me").getProperty("_etag", ""),
+        href: cardMap.get("keep-me").getProperty("_href", ""),
+        vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
+      },
+    });
+  } catch (ex) {
+    Assert.ok(directory.readOnly, "read-write directory should not throw");
+  }
 
   info("Fourth sync with server. No changes expected.");
 
   await directory.updateAllFromServerV2();
-  Assert.notEqual(directory._syncToken, lastSyncToken);
-  lastSyncToken = directory._syncToken;
+  if (directory.readOnly) {
+    Assert.equal(directory._syncToken, lastSyncToken);
+  } else {
+    Assert.notEqual(directory._syncToken, lastSyncToken);
+  }
 
   observer.checkAndClearNotifications({
     "addrbook-contact-created": [],
     "addrbook-contact-updated": [],
     "addrbook-contact-deleted": [],
   });
+
+  await clearDirectory();
+}
+
+add_task(async function testNormal() {
+  await subtest();
+});
+
+add_task(async function testReadOnly() {
+  Services.prefs.setBoolPref("ldap_2.servers.carddav.readOnly", true);
+  await subtest();
+  Services.prefs.clearUserPref("ldap_2.servers.carddav.readOnly");
 });

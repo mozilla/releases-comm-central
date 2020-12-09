@@ -35,15 +35,7 @@ add_task(async function setup() {
   mailList.description = "";
 
   historyAB.addMailList(mailList);
-
-  // Ideally we'd use a created AB that was read-only, however that means
-  // creating a custom AB which is hard at the moment, so we'll just
-  // hijack the collected address book.
-  Object.defineProperty(historyAB.wrappedJSObject, "readOnly", {
-    get: () => {
-      return true;
-    },
-  });
+  historyAB.setBoolValue("readOnly", true);
 
   Assert.ok(historyAB.readOnly);
 });

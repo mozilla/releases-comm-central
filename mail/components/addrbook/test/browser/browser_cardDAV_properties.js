@@ -47,6 +47,7 @@ add_task(async () => {
   Assert.equal(davDirectory._serverURL, URL_VALUE);
   Assert.equal(davDirectory._syncToken, TOKEN_VALUE);
   Assert.equal(davDirectory._syncTimer, null, "no sync scheduled");
+  Assert.equal(davDirectory.readOnly, false);
 
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
@@ -134,6 +135,13 @@ add_task(async () => {
           refreshIntervalInput.value = newValues.refreshInterval;
         }
 
+        let readOnlyInput = dialogDocument.getElementById("carddav-readOnly");
+
+        Assert.equal(readOnlyInput.checked, expectedValues.readOnly);
+        if ("readOnly" in newValues) {
+          readOnlyInput.checked = newValues.readOnly;
+        }
+
         dialogDocument
           .querySelector("dialog")
           .getButton(buttonAction)
@@ -153,6 +161,7 @@ add_task(async () => {
       url: URL_VALUE,
       refreshActive: false,
       refreshInterval: 30,
+      readOnly: false,
     },
     {},
     "cancel"
@@ -162,6 +171,7 @@ add_task(async () => {
   Assert.equal(davDirectory._serverURL, URL_VALUE);
   Assert.equal(davDirectory.getIntValue("carddav.syncinterval", -1), 0);
   Assert.equal(davDirectory._syncTimer, null, "no sync scheduled");
+  Assert.equal(davDirectory.readOnly, false);
 
   info("Open the dialog and accept it. Nothing should change.");
   await subtest(
@@ -170,6 +180,7 @@ add_task(async () => {
       url: URL_VALUE,
       refreshActive: false,
       refreshInterval: 30,
+      readOnly: false,
     },
     {},
     "accept"
@@ -179,6 +190,7 @@ add_task(async () => {
   Assert.equal(davDirectory._serverURL, URL_VALUE);
   Assert.equal(davDirectory.getIntValue("carddav.syncinterval", -1), 0);
   Assert.equal(davDirectory._syncTimer, null, "no sync scheduled");
+  Assert.equal(davDirectory.readOnly, false);
 
   info("Open the dialog and change the values.");
   await subtest(
@@ -187,11 +199,13 @@ add_task(async () => {
       url: URL_VALUE,
       refreshActive: false,
       refreshInterval: 30,
+      readOnly: false,
     },
     {
       name: "CardDAV Properties Test",
       refreshActive: true,
       refreshInterval: 30,
+      readOnly: true,
     },
     "accept"
   );
@@ -201,6 +215,7 @@ add_task(async () => {
   Assert.equal(davDirectory.getIntValue("carddav.syncinterval", -1), 30);
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
   let currentSyncTimer = davDirectory._syncTimer;
+  Assert.equal(davDirectory.readOnly, true);
 
   info("Open the dialog and accept it. Nothing should change.");
   await subtest(
@@ -209,6 +224,7 @@ add_task(async () => {
       url: URL_VALUE,
       refreshActive: true,
       refreshInterval: 30,
+      readOnly: true,
     },
     {},
     "accept"
@@ -222,6 +238,7 @@ add_task(async () => {
     currentSyncTimer,
     "same sync scheduled"
   );
+  Assert.equal(davDirectory.readOnly, true);
 
   info("Open the dialog and change the interval.");
   await subtest(
@@ -230,6 +247,7 @@ add_task(async () => {
       url: URL_VALUE,
       refreshActive: true,
       refreshInterval: 30,
+      readOnly: true,
     },
     { refreshInterval: 60 },
     "accept"
@@ -243,4 +261,5 @@ add_task(async () => {
     currentSyncTimer,
     "new sync scheduled"
   );
+  Assert.equal(davDirectory.readOnly, true);
 });
