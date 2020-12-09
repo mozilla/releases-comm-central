@@ -25,6 +25,12 @@
       ["browserAction"]
     ]
   },
+  "browsingData": {
+    "url": "chrome://extensions/content/parent/ext-browsingData.js",
+    "schema": "chrome://extensions/content/schemas/browsing_data.json",
+    "scopes": ["addon_parent"],
+    "paths": [["browsingData"]]
+  },
   "chrome_settings_overrides": {
     "url": "chrome://messenger/content/parent/ext-chrome-settings-overrides.js",
     "scopes": [],
