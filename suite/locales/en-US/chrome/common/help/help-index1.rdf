@@ -2148,7 +2148,7 @@
      </rdf:li>
      <rdf:li>
        <rdf:Description ID="toolbar:personal_toolbar"
-         nc:name="personal toolbar"
+         nc:name="Bookmarks Toolbar"
          nc:link="customize_help.xhtml#personal_toolbar"/>
      </rdf:li></rdf:Seq>
    </nc:subheadings>
