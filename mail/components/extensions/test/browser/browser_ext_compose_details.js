@@ -326,6 +326,87 @@ add_task(async function testHeaders() {
   await extension.unload();
 });
 
+add_task(async function testPlainTextBody() {
+  let files = {
+    "background.js": async () => {
+      async function checkWindow(expected) {
+        let state = await browser.compose.getComposeDetails(createdTab.id);
+        for (let field of ["isPlainText"]) {
+          if (field in expected) {
+            browser.test.assertEq(
+              expected[field],
+              state[field],
+              `Check value for ${field}`
+            );
+          }
+        }
+        // Windows and Linux return different line endings. Just check for the
+        // actual line content. The expected value is given as an array, to
+        // indicate the return value of getComposeDetails is not expected to be
+        // a specific line ending.
+        for (let field of ["plainTextBody"]) {
+          if (field in expected) {
+            browser.test.assertEq(
+              JSON.stringify(expected[field]),
+              JSON.stringify(state[field].replaceAll("\r\n", "\n").split("\n")),
+              `Check value for ${field}`
+            );
+          }
+        }
+      }
+
+      // Start a new message.
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
+      await browser.compose.beginNew({ isPlainText: true });
+      let [createdWindow] = await createdWindowPromise;
+      let [createdTab] = await browser.tabs.query({
+        windowId: createdWindow.id,
+      });
+
+      await checkWindow({ isPlainText: true });
+
+      let tests = [
+        {
+          // Set plaintextBody with Windows style newlines. The test will check
+          // the content of the returned lines, independent of their endings.
+          input: { isPlainText: true, plainTextBody: "123\r\n456\r\n789" },
+          expected: { isPlainText: true, plainTextBody: ["123", "456", "789"] },
+        },
+        {
+          // Set plaintextBody with Linux style newlines. The test will check
+          // the content of the returned lines, independent of their endings.
+          input: { isPlainText: true, plainTextBody: "ABC\nDEF\nGHI" },
+          expected: { isPlainText: true, plainTextBody: ["ABC", "DEF", "GHI"] },
+        },
+      ];
+      for (let test of tests) {
+        browser.test.log(`Checking input: ${JSON.stringify(test.input)}`);
+        await browser.compose.setComposeDetails(createdTab.id, test.input);
+        await checkWindow(test.expected);
+      }
+
+      // Clean up.
+
+      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
+      browser.windows.remove(createdWindow.id);
+      await removedWindowPromise;
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "compose"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
 add_task(async function testBody() {
   // Open an compose window with HTML body.
 
