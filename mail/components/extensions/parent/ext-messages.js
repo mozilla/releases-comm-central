@@ -209,9 +209,15 @@ this.messages = class extends ExtensionAPI {
         async getFull(messageId) {
           return new Promise(resolve => {
             let msgHdr = messageTracker.getMessage(messageId);
-            MsgHdrToMimeMessage(msgHdr, null, (_msgHdr, mimeMsg) => {
-              resolve(convertMessagePart(mimeMsg));
-            });
+            MsgHdrToMimeMessage(
+              msgHdr,
+              null,
+              (_msgHdr, mimeMsg) => {
+                resolve(convertMessagePart(mimeMsg));
+              },
+              null,
+              { examineEncryptedParts: true }
+            );
           });
         },
         async getRaw(messageId) {
