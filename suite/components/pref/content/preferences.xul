@@ -19,10 +19,10 @@
 #ifndef XP_MACOSX
             style="&prefWindow.size;"
 #else
-            style="&prefWindowMac.size;"
+            style="&prefWindowMac2.size;"
 #endif
 #else
-            style="&prefWindowWin.size;"
+            style="&prefWindowWin2.size;"
 #endif
             overflow="auto"
             onload="OnLoad();"
