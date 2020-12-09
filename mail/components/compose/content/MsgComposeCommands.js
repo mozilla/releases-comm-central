@@ -4388,7 +4388,7 @@ function SetComposeDetails(newValues) {
   if (typeof newValues.plainTextBody == "string") {
     editor.selectAll();
     // Remove \r from line endings, which cause extra newlines (bug 1672407).
-    editor.insertText(newValues.plainTextBody.replaceAll("\r\n","\n"));
+    editor.insertText(newValues.plainTextBody.replaceAll("\r\n", "\n"));
     gMsgCompose.bodyModified = true;
   }
   gContentChanged = true;
