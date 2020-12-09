@@ -133,11 +133,6 @@ add_task(async function startup() {
       min: 1,
       max: 130,
     },
-    // Bug 1660692: Most of these (~90) are caused by Calendar's `inTimezone`.
-    "intl.regional_prefs.use_os_locales": {
-      min: 100,
-      max: 120,
-    },
     "calendar.week.start": {
       min: 10,
       max: 54,
