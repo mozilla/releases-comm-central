@@ -14,6 +14,10 @@ ChromeUtils.defineModuleGetter(
 );
 
 function convertAccount(account) {
+  if (!account) {
+    return null;
+  }
+
   account = account.QueryInterface(Ci.nsIMsgAccount);
   let server = account.incomingServer;
   if (server.type == "im") {
@@ -50,10 +54,15 @@ this.accounts = class extends ExtensionAPI {
         },
         async get(accountId) {
           let account = MailServices.accounts.getAccount(accountId);
-          if (account) {
-            return convertAccount(account);
-          }
-          return null;
+          return convertAccount(account);
+        },
+        async getDefault() {
+          let account = MailServices.accounts.defaultAccount;
+          return convertAccount(account);
+        },
+        async getDefaultIdentity(accountId) {
+          let account = MailServices.accounts.getAccount(accountId);
+          return convertMailIdentity(account, account?.defaultIdentity);
         },
         async setDefaultIdentity(accountId, identityId) {
           let account = MailServices.accounts.getAccount(accountId);

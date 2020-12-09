@@ -41,6 +41,13 @@
         ]
       },
       {
+        "name": "getDefault",
+        "type": "function",
+        "description": "Returns the default account, or null if it is not defined.",
+        "async": true,
+        "parameters": []
+      },
+      {
         "name": "setDefaultIdentity",
         "type": "function",
         "description": "Sets the default identity for an account.",
@@ -52,6 +59,18 @@
           },
           {
             "name": "identityId",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "getDefaultIdentity",
+        "type": "function",
+        "description": "Returns the default identity for an account, or null if it is not defined.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "accountId",
             "type": "string"
           }
         ]

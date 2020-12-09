@@ -12,6 +12,14 @@ add_task(async function test_accounts() {
   let files = {
     "background.js": async () => {
       let [account1Id, account1Name] = await window.waitForMessage();
+
+      let defaultAccount = await browser.accounts.getDefault();
+      browser.test.assertEq(
+        null,
+        defaultAccount,
+        "The default account should be null, as none is defined."
+      );
+
       let result1 = await browser.accounts.list();
       browser.test.assertEq(1, result1.length);
       window.assertDeepEqual(
@@ -143,6 +151,9 @@ add_task(async function test_accounts() {
         await browser.messages.list(folder);
       }
 
+      defaultAccount = await browser.accounts.getDefault();
+      browser.test.assertEq(result2[1].id, defaultAccount.id);
+
       browser.test.notifyPass("finished");
     },
     "utils.js": await getUtilsJS(),
@@ -165,6 +176,7 @@ add_task(async function test_accounts() {
   account2.incomingServer.port = IMAPServer.port;
   account2.incomingServer.username = "user";
   account2.incomingServer.password = "password";
+  MailServices.accounts.defaultAccount = account2;
   extension.sendMessage(account2.key, account2.incomingServer.prettyName);
 
   await extension.awaitMessage("create folders");
@@ -222,7 +234,14 @@ add_task(async function test_identities() {
       browser.test.assertEq("Dis Organization", identities[2].organization);
       browser.test.assertEq("reply@invalid", identities[2].replyTo);
 
+      let defaultIdentity = await browser.accounts.getDefaultIdentity(
+        accountId
+      );
+      browser.test.assertEq(identities[0].id, defaultIdentity.id);
+
       await browser.accounts.setDefaultIdentity(accountId, identityIds[2]);
+      defaultIdentity = await browser.accounts.getDefaultIdentity(accountId);
+      browser.test.assertEq(identities[2].id, defaultIdentity.id);
 
       let { identities: newIdentities } = await browser.accounts.get(accountId);
       browser.test.assertEq(3, newIdentities.length);
@@ -231,6 +250,8 @@ add_task(async function test_identities() {
       browser.test.assertEq(identityIds[1], newIdentities[2].id);
 
       await browser.accounts.setDefaultIdentity(accountId, identityIds[1]);
+      defaultIdentity = await browser.accounts.getDefaultIdentity(accountId);
+      browser.test.assertEq(identities[1].id, defaultIdentity.id);
 
       ({ identities: newIdentities } = await browser.accounts.get(accountId));
       browser.test.assertEq(3, newIdentities.length);
