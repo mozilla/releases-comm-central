@@ -17,19 +17,8 @@
   font-style: normal !important;
 }
 
-.gloda-search {
-  background-image: url(chrome://messenger/skin/icons/search-glass.svg);
-  background-position: calc( 100% - 4px);
-  background-repeat: no-repeat;
-  padding-inline-end: 24px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: 0.54;
-  -moz-box-flex: 1;
-}
-
-.gloda-search:-moz-locale-dir(rtl) {
-  background-position: 4px;
+.search-icon {
+  margin-inline-start: 8px;
 }
 
 .remote-gloda-search-container {
@@ -38,15 +27,11 @@
 
 .searchBox,
 .themeableSearchBox {
-  appearance: none;
-  background-clip: padding-box;
-  border: 1px solid hsla(240,5%,5%,.25);
+  border: 1px solid hsla(240, 5%, 5%, 0.25);
   border-radius: 2px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
-  outline: none;
+  padding-block: 0;
   padding-inline: 4px 2px;
-  min-height: 24px;
-  margin-block: 1px;
+  margin-block: 2px;
   width: 25em;
 }
 
@@ -58,24 +43,11 @@
   }
 }
 
-/* Add margins to show the hover box-shadow */
-.gloda-search,
-#peopleSearchInput {
-  margin-block: 2px;
-}
-
 .gloda-search:focus,
 .searchBox[focused="true"],
 .themeableSearchBox:not([disabled="true"]):focus,
 .themeableSearchBox:not([disabled="true"])[focused="true"] {
   border-color: Highlight;
-}
-
-/* special treatment because these boxes are on themable toolbars */
-.gloda-search,
-#peopleSearchInput,
-.remote-gloda-search {
-  min-height: 24px;
 }
 
 .autocomplete-richlistitem[type^="gloda-"] {

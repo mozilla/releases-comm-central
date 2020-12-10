@@ -4,26 +4,25 @@
 
 @import url("chrome://messenger/skin/shared/searchBox.css");
 
+.search-icon {
+  margin-inline-start: 8px;
+}
+
 .searchBox,
 .themeableSearchBox {
   margin-block: 3px 2px;
-  appearance: none !important;
-  border: 1px solid hsla(240,5%,5%,.25);
+  border: 1px solid hsla(240, 5%, 5%, 0.25);
   border-radius: 3px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
-  outline: none;
-  font: icon !important;
-  height: 24px;
-  padding-block: 1px !important;
-  padding-inline: 19px 4px !important;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: 0.8;
-  background-clip: padding-box;
+  font: icon;
+  padding: 1px 4px;
+}
+
+.searchBox:not(.gloda-search),
+.themeableSearchBox {
   background-image: url("chrome://global/skin/icons/search-textbox.svg");
   background-repeat: no-repeat;
   background-position: 5px center;
-  -moz-box-align: center;
+  padding-inline-start: 21px;
 }
 
 /* special treatment because these boxes are on themable toolbars */
@@ -33,10 +32,6 @@
 .themeableSearchBox:not([disabled="true"])[focused="true"] {
   border-color: -moz-mac-focusring;
   box-shadow: var(--focus-ring-box-shadow);
-}
-
-.gloda-search {
-  -moz-box-flex: 1;
 }
 
 .gloda-search,

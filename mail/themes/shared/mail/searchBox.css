@@ -6,6 +6,28 @@
   --toolbar-field-focus-border-color: Highlight;
 }
 
+.gloda-search {
+  padding-inline-start: 21px !important;
+  -moz-box-flex: 1;
+}
+
+.search-icon {
+  list-style-image: url(chrome://global/skin/icons/search-textbox.svg);
+  margin-inline-end: -21px;
+}
+
+.search-icon:-moz-locale-dir(rtl) {
+  transform: scaleX(-1);
+}
+
+.searchBox,
+.themeableSearchBox {
+  appearance: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  outline: none;
+  height: 24px;
+}
+
 .textbox-search-clear {
   opacity: 0.8;
 }
