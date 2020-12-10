@@ -2131,16 +2131,8 @@
           // order to properly update the "Send" button and trigger the save as
           // draft prompt even before the creation of any pill.
           if (
-            ![
-              "ArrowUp",
-              "ArrowDown",
-              "ArrowLeft",
-              "ArrowRight",
-              "Enter",
-              "Tab",
-              ",",
-              ";",
-            ].includes(event.key)
+            event.key.length == 1 ||
+            (event.key.length > 1 && /[^a-zA-Z0-9]/.test(event.key))
           ) {
             onRecipientsChanged(false);
           }
