@@ -9,6 +9,7 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-event-dialog.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/datetimepickers.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
@@ -49,11 +50,11 @@
                disable-on-occurrence="true"
                control="period-list"/>
       </vbox>
-      <vbox>
+      <vbox flex="1">
         <menulist id="period-list"
-                    oncommand="updateRecurrenceDeck();"
-                    disable-on-readonly="true"
-                    disable-on-occurrence="true">
+                  oncommand="updateRecurrenceBox();"
+                  disable-on-readonly="true"
+                  disable-on-occurrence="true">
           <menupopup id="period-list-menupopup">
             <menuitem id="period-list-day-menuitem"
                       label="&event.recurrence.day.label;"
@@ -69,9 +70,9 @@
                       value="3"/>
           </menupopup>
         </menulist>
-        <deck id="period-deck" oncommand="updateRecurrenceControls();">
+        <hbox id="period-box" oncommand="updateRecurrenceControls();">
           <!-- Daily -->
-          <box id="period-deck-daily-box"
+          <box id="period-box-daily-box"
                orient="vertical"
                align="start">
             <radiogroup id="daily-group">
@@ -100,7 +101,7 @@
             </radiogroup>
           </box>
           <!-- Weekly -->
-          <vbox id="period-deck-weekly-box">
+          <vbox id="period-box-weekly-box" hidden="true">
             <hbox id="weekly-period-every-box" align="center">
               <label id="weekly-period-every-label"
                      value="&event.recurrence.pattern.weekly.every.label;"
@@ -176,7 +177,7 @@
           </vbox>
 
           <!-- Monthly -->
-          <vbox id="period-deck-monthly-box">
+          <vbox id="period-box-monthly-box" hidden="true">
             <hbox id="montly-period-every-box" align="center">
               <label id="monthly-period-every-label"
                      value="&event.recurrence.pattern.monthly.every.label;"
@@ -511,9 +512,10 @@
           </vbox>
 
             <!-- Yearly -->
-          <box id="period-deck-yearly-box"
+          <box id="period-box-yearly-box"
                orient="vertical"
-               align="start">
+               align="start"
+               hidden="true">
             <hbox id="yearly-period-every-box" align="center">
               <label id="yearly-period-every-label"
                      value="&event.recurrence.every.label;"
@@ -711,7 +713,7 @@
               </vbox>
             </radiogroup>
           </box>
-        </deck>
+        </hbox>
       </vbox>
     </hbox>
   </html:fieldset>

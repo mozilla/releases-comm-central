@@ -416,7 +416,7 @@ function onLoad() {
   initializeControls(rule);
 
   // Update controls
-  updateRecurrenceDeck();
+  updateRecurrenceBox();
 
   opener.setCursor("auto");
   self.focus();
@@ -615,7 +615,7 @@ function onSave(item) {
   // matters, so we can't always just append at the end.  This
   // code here always inserts a rule first, because all our
   // exceptions should come afterward.
-  let deckNumber = Number(getElementValue("period-list"));
+  let periodNumber = Number(getElementValue("period-list"));
 
   let args = window.arguments[0];
   let recurrenceInfo = args.recurrenceInfo;
@@ -632,7 +632,7 @@ function onSave(item) {
 
   let recRule = cal.createRecurrenceRule();
   const ALL_WEEKDAYS = [2, 3, 4, 5, 6, 7, 1]; // The sequence MO,TU,WE,TH,FR,SA,SU.
-  switch (deckNumber) {
+  switch (periodNumber) {
     case 0: {
       recRule.type = "DAILY";
       let dailyGroup = document.getElementById("daily-group");
@@ -853,12 +853,17 @@ function enableRecurrenceFields(aAttributeName) {
 }
 
 /**
- * Handler function to update the period-deck when an item from the period-list
- * is selected. Also updates the controls on that deck.
+ * Handler function to update the period-box when an item from the period-list
+ * is selected. Also updates the controls on that period-box.
  */
-function updateRecurrenceDeck() {
-  document.getElementById("period-deck").selectedIndex = Number(getElementValue("period-list"));
+function updateRecurrenceBox() {
+  let periodBox = document.getElementById("period-box");
+  let periodNumber = Number(getElementValue("period-list"));
+  for (let i = 0; i < periodBox.children.length; i++) {
+    periodBox.children[i].hidden = i != periodNumber;
+  }
   updateRecurrenceControls();
+  window.sizeToContent();
 }
 
 /**
