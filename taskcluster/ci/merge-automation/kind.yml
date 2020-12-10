@@ -25,6 +25,7 @@ jobs:
             implementation: treescript
             tags: []
             bump: false
-            dontbuild: true
+            dontbuild: false
+            ignore-closed-tree: true
             push: false
         run-on-projects: []
