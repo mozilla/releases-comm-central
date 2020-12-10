@@ -258,10 +258,10 @@ function goToDate(controller, year, month, day) {
 
   let activeMonth = lookup(`
         ${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
-        {"class":"monthheader minimonth-month-name"}
+        {"class":"minimonth-month-name"}
     `)
     .getNode()
-    .getAttribute("selectedIndex");
+    .getAttribute("monthIndex");
 
   let yearDifference = activeYear - year;
   let monthDifference = activeMonth - (month - 1);

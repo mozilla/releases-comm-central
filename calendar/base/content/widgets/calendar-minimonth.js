@@ -39,7 +39,6 @@
     static get inheritedAttributes() {
       return {
         ".minimonth-header": "readonly,month,year",
-        ".minimonth-month-name": "selectedIndex=month",
         ".minimonth-year-name": "value=year",
       };
     }
@@ -50,26 +49,12 @@
       }
 
       const minimonthHeader = `
-        <hbox class="minimonth-header minimonth-month-box">
+        <hbox class="minimonth-header minimonth-month-box" align="center">
           <toolbarbutton class="months-back-button minimonth-nav-btns"
                          dir="-1"
                          oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
                          tooltiptext="&onemonthbackward.tooltip;"></toolbarbutton>
-          <deck class="monthheader minimonth-month-name"
-                tabindex="-1">
-            <html:div>&month.1.name;</html:div>
-            <html:div>&month.2.name;</html:div>
-            <html:div>&month.3.name;</html:div>
-            <html:div>&month.4.name;</html:div>
-            <html:div>&month.5.name;</html:div>
-            <html:div>&month.6.name;</html:div>
-            <html:div>&month.7.name;</html:div>
-            <html:div>&month.8.name;</html:div>
-            <html:div>&month.9.name;</html:div>
-            <html:div>&month.10.name;</html:div>
-            <html:div>&month.11.name;</html:div>
-            <html:div>&month.12.name;</html:div>
-          </deck>
+          <label class="minimonth-month-name"/>
           <toolbarbutton class="months-forward-button minimonth-nav-btns"
                          dir="1"
                          oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
@@ -154,6 +139,15 @@
       this.mExtra = false;
       this.mValue = new Date(); // Default to "today".
       this.mFocused = null;
+
+      let width = 0;
+      // Start loop from 1 as it is needed to get the first month name string
+      // and avoid extra computation of adding one.
+      for (let i = 1; i <= 12; i++) {
+        let dateString = cal.l10n.getDateFmtString(`month.${i}.name`);
+        width = Math.max(dateString.length, width);
+      }
+      this.querySelector(".minimonth-month-name").style.width = `${width + 1}ch`;
 
       this.refreshDisplay();
       if (this.hasAttribute("freebusy")) {
@@ -610,10 +604,12 @@
       }
 
       // Update the month and year title.
-      this.setAttribute("month", aDate.getMonth());
       this.setAttribute("year", aDate.getFullYear());
 
+      let miniMonthName = this.querySelector(".minimonth-month-name");
       let dateString = cal.l10n.getDateFmtString(`month.${aDate.getMonth() + 1}.name`);
+      miniMonthName.setAttribute("value", dateString);
+      miniMonthName.setAttribute("monthIndex", aDate.getMonth());
       this.mReadOnlyHeader.textContent = dateString + " " + aDate.getFullYear();
 
       // Update the calendar.
