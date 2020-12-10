@@ -82,15 +82,15 @@ async function createSubfolder(parent, name) {
   return parent.getChildNamed(name);
 }
 
-function createMessages(folder, count) {
+function createMessages(folder, makeMessagesArg) {
+  if (typeof makeMessagesArg == "number") {
+    makeMessagesArg = { count: makeMessagesArg };
+  }
   if (!createMessages.messageGenerator) {
     createMessages.messageGenerator = new MessageGenerator();
   }
-  let messages = createMessages.messageGenerator.makeMessages({
-    count,
-    age_incr: { days: 2 },
-  });
 
+  let messages = createMessages.messageGenerator.makeMessages(makeMessagesArg);
   if (folder.server.type == "imap") {
     return IMAPServer.addMessages(folder, messages);
   }
@@ -98,6 +98,26 @@ function createMessages(folder, count) {
   let messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings);
+  folder.callFilterPlugins(null);
+
+  return Promise.resolve();
+}
+
+async function createMessageFromFile(folder, path) {
+  let contents = await OS.File.read(path);
+  let message = new TextDecoder().decode(contents);
+
+  if (folder.server.type == "imap") {
+    return IMAPServer.addMessages(folder, [message]);
+  }
+
+  // A cheap hack to make this acceptable to addMessageBatch. It works for
+  // existing uses but may not work for future uses.
+  let fromAddress = message.match(/From: .* <(.*@.*)>/)[0];
+  message = `From ${fromAddress}\r\n${message}`;
+
+  folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folder.addMessageBatch([message]);
   folder.callFilterPlugins(null);
 
   return Promise.resolve();
@@ -134,8 +154,11 @@ var IMAPServer = {
   addMessages(folder, messages) {
     let fakeFolder = IMAPServer.daemon.getMailbox(folder.name);
     messages.forEach(message => {
+      if (typeof message != "string") {
+        message = message.toMessageString();
+      }
       let msgURI = Services.io.newURI(
-        "data:text/plain;base64," + btoa(message.toMessageString())
+        "data:text/plain;base64," + btoa(message)
       );
       let imapMsg = new IMAPServer.imapMessage(
         msgURI.spec,

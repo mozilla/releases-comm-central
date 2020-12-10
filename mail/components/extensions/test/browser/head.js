@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
+var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // There are shutdown issues for which multiple rejections are left uncaught.
 // This bug should be fixed, but for the moment this directory is whitelisted.
@@ -80,17 +81,37 @@ function addIdentity(account, email = "mochitest@localhost") {
   return identity;
 }
 
+async function createSubfolder(parent, name) {
+  parent.createSubfolder(name, null);
+  return parent.getChildNamed(name);
+}
+
 function createMessages(folder, makeMessagesArg) {
   if (typeof makeMessagesArg == "number") {
     makeMessagesArg = { count: makeMessagesArg };
   }
-  const { MessageGenerator } = ChromeUtils.import(
-    "resource://testing-common/mailnews/MessageGenerator.jsm"
-  );
-  let messages = new MessageGenerator().makeMessages(makeMessagesArg);
+  if (!createMessages.messageGenerator) {
+    createMessages.messageGenerator = new MessageGenerator();
+  }
+
+  let messages = createMessages.messageGenerator.makeMessages(makeMessagesArg);
   let messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings);
+}
+
+async function createMessageFromFile(folder, path) {
+  let contents = await OS.File.read(path);
+  let message = new TextDecoder().decode(contents);
+
+  // A cheap hack to make this acceptable to addMessageBatch. It works for
+  // existing uses but may not work for future uses.
+  let fromAddress = message.match(/From: .* <(.*@.*)>/)[0];
+  message = `From ${fromAddress}\r\n${message}`;
+
+  folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  folder.addMessageBatch([message]);
+  folder.callFilterPlugins(null);
 }
 
 async function promiseAnimationFrame(win = window) {

@@ -24,7 +24,7 @@ add_task(async function setup() {
     test1: await createSubfolder(account.incomingServer.rootFolder, "test1"),
     test2: await createSubfolder(account.incomingServer.rootFolder, "test2"),
   };
-  await createMessages(subFolders.test1, 9);
+  await createMessages(subFolders.test1, { count: 9, age_incr: { days: 2 } });
 
   let messages = [...subFolders.test1.messages];
   // NB: Here, the messages are zero-indexed. In the test they're one-indexed.
@@ -52,7 +52,7 @@ add_task(async function setup() {
     waiting = true;
   });
 
-  await createMessages(subFolders.test2, 7);
+  await createMessages(subFolders.test2, { count: 7, age_incr: { days: 2 } });
 
   // Wait for Gloda to re-index the added messages.
   await new Promise(resolve => {
