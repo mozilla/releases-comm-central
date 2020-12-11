@@ -5,7 +5,6 @@
 
 /* import-globals-from emailWizard.js */
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // This is a bit ugly - we set outgoingDone to false
@@ -168,7 +167,7 @@ function guessConfig(
     }
   };
 
-  var logger = Log4Moz.getConfiguredLogger("mail.setup");
+  var logger = gEmailWizardLogger;
   var HostTryToAccountServer = function(thisTry, server) {
     server.type = protocolToString(thisTry.protocol);
     server.hostname = thisTry.hostname;
@@ -394,7 +393,7 @@ function HostDetector(progressCallback, successCallback, errorCallback) {
   this._hostsToTry = [];
 
   // init logging
-  this._log = Log4Moz.getConfiguredLogger("mail.wizard");
+  this._log = gEmailWizardLogger;
   this._log.info("created host detector");
 }
 
@@ -1004,7 +1003,7 @@ function protocolToString(type) {
 
 /**
  * @param thisTry {HostTry}
- * @param logger {Log4Moz logger}
+ * @param logger {ConsoleAPI}
  */
 function SSLErrorHandler(thisTry, logger) {
   this._try = thisTry;

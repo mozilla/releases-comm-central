@@ -10,6 +10,7 @@
 
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 
 // --------------------------
 // Low level, basic functions
@@ -668,12 +669,11 @@ function deepCopy(org) {
 }
 
 if (typeof gEmailWizardLogger == "undefined") {
-  var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.setup");
-  gEmailWizardLogger.level = Log4Moz.Level.Info;
-  gEmailWizardLogger.addAppender(
-    new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())
-  ); // browser console
+  var gEmailWizardLogger = new ConsoleAPI({
+    prefix: "mail.setup",
+    maxLogLevel: "warn",
+    maxLogLevelPref: "mail.setup.loglevel",
+  });
 }
 
 function ddump(text) {

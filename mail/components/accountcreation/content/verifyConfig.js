@@ -13,11 +13,6 @@ var { OAuth2Providers } = ChromeUtils.import(
 );
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
-if (typeof gEmailWizardLogger == "undefined") {
-  var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.wizard");
-}
-
 /**
  * This checks a given config, by trying a real connection and login,
  * with username and password.
@@ -217,7 +212,7 @@ function urlListener(
   this.mErrorCallback = errorCallback;
   this.mMsgWindow = msgWindow;
   this.mCertError = false;
-  this._log = Log4Moz.getConfiguredLogger("mail.wizard");
+  this._log = gEmailWizardLogger;
 }
 urlListener.prototype = {
   OnStartRunningUrl(aUrl) {

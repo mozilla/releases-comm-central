@@ -24,7 +24,6 @@ var { OAuth2Providers } = ChromeUtils.import(
   "resource:///modules/OAuth2Providers.jsm"
 );
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var {
   cleanUpHostName,
   isLegalHostNameOrIP,
@@ -57,14 +56,6 @@ var {
 
 // from http://xyfer.blogspot.com/2005/01/javascript-regexp-email-validator.html
 var emailRE = /^[-_a-z0-9\'+*$^&%=~!?{}]+(?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*@(?:[-a-z0-9.]+\.[a-z]{2,20}|\d{1,3}(?:\.\d{1,3}){3})(?::\d+)?$/i;
-
-if (typeof gEmailWizardLogger == "undefined") {
-  var gEmailWizardLogger = Log4Moz.getConfiguredLogger("mail.setup");
-  gEmailWizardLogger.level = Log4Moz.Level.Info;
-  gEmailWizardLogger.addAppender(
-    new Log4Moz.ConsoleAppender(new Log4Moz.BasicFormatter())
-  ); // browser console
-}
 
 var gStringsBundle;
 var gMessengerBundle;
