@@ -25,10 +25,28 @@ SmtpService.prototype = {
    * @see nsISmtpService
    */
   get defaultServer() {
-    throw Components.Exception(
-      "sendMailMessage not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
+    let defaultServerKey = Services.prefs.getCharPref(
+      "mail.smtp.defaultserver",
+      ""
     );
+    if (defaultServerKey) {
+      // Try to get it from the prefs.
+      return this.getServerByKey(defaultServerKey);
+    }
+
+    // No pref set, so just return the first one, and set the pref.
+    let serverKeys = this._getSmtpServerKeys();
+    if (serverKeys.length > 0) {
+      Services.prefs.setCharPref("mail.smtp.defaultServerKey", serverKeys[0]);
+      return this.getServerByKey(serverKeys[0]);
+    }
+    return null;
+  },
+
+  get servers() {
+    let serverKeys = this._getSmtpServerKeys();
+    let servers = serverKeys.map(key => this.getServerByKey(key));
+    return servers.values();
   },
 
   /**
@@ -108,6 +126,26 @@ SmtpService.prototype = {
   /**
    * @see nsISmtpService
    */
+  verifyLogon(server, urlListener, msgWindow) {
+    let client = new SmtpClient(server.hostname, server.port, {
+      logger: console,
+      ignoreTLS: server.socketType == Ci.nsMsgSocketType.plain,
+      requireTLS: server.socketType == Ci.nsMsgSocketType.SSL,
+    });
+    client.connect();
+    let runningUrl = Services.io.newURI(server.serverURI);
+    client.onerror = nsError => {
+      urlListener.OnStopRunningUrl(runningUrl, nsError);
+    };
+    client.onready = () => {
+      urlListener.OnStopRunningUrl(runningUrl, 0);
+      client.close();
+    };
+  },
+
+  /**
+   * @see nsISmtpService
+   */
   getServerByIdentity(userIdentity) {
     return userIdentity.smtpServerKey
       ? this.getServerByKey(userIdentity.smtpServerKey)
@@ -126,11 +164,60 @@ SmtpService.prototype = {
   },
 
   /**
+   * @see nsISmtpService
+   */
+  createServer() {
+    let serverKeys = this._getSmtpServerKeys();
+    let i = 1;
+    let key;
+    do {
+      key = `smtp${i++}`;
+    } while (serverKeys.includes(key));
+
+    serverKeys.push(key);
+    this._saveSmtpServerKeys(serverKeys);
+    return this._createKeyedServer(key);
+  },
+
+  /**
+   * @see nsISmtpService
+   */
+  deleteServer(server) {
+    let serverKeys = this._getSmtpServerKeys().filter(k => k != server.key);
+    this._saveSmtpServerKeys(serverKeys);
+  },
+
+  /**
+   * @see nsISmtpService
+   */
+  findServer(username, hostname) {
+    username = username.toLowerCase();
+    hostname = hostname.toLowerCase();
+    return [...this.servers].find(server => {
+      if (username && server.username.toLowerCase() != username) {
+        return false;
+      }
+      if (hostname && server.hostname.toLowerCase() != hostname) {
+        return false;
+      }
+      return true;
+    });
+  },
+
+  /**
    * Get all SMTP server keys from prefs.
    * @returns {string[]}
    */
   _getSmtpServerKeys() {
-    return Services.prefs.getCharPref("mail.smtpservers").split(",");
+    return Services.prefs.getCharPref("mail.smtpservers", "").split(",");
+  },
+
+  /**
+   * Save SMTP server keys to prefs.
+   * @params {string[]} keys - The key list to save.
+   */
+  _saveSmtpServerKeys(keys) {
+    return Services.prefs.setCharPref("mail.smtpservers", keys.join(","));
   },
 
   /**
