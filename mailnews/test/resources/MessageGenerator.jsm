@@ -1185,6 +1185,26 @@ MessageGenerator.prototype = {
     return msg;
   },
 
+  /**
+   * Create an encrypted OpenPGP message. It's just a wrapper around makeMessage,
+   * that sets the right content-type. Use like makeMessage.
+   */
+  makeEncryptedOpenPGPMessage(aOptions) {
+    if (!aOptions) {
+      aOptions = {};
+    }
+    aOptions.clobberHeaders = {
+      "Content-Transfer-Encoding": "base64",
+    };
+    if (!aOptions.body) {
+      aOptions.body = {};
+    }
+    aOptions.body.contentType =
+      'multipart/encrypted; protocol="application/pgp-encrypted"';
+    let msg = this.makeMessage(aOptions);
+    return msg;
+  },
+
   MAKE_MESSAGES_DEFAULTS: {
     count: 10,
   },

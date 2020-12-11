@@ -536,6 +536,28 @@ Enigmail.hdrView = {
     if (secInfo.xtraStatus && secInfo.xtraStatus == "buggyMailFormat") {
     }
     */
+
+    if (encryptedUINode.getAttribute("encrypted")) {
+      // For telemetry purposes.
+      window.dispatchEvent(
+        new CustomEvent("secureMsgLoaded", {
+          detail: {
+            key: "encrypted-openpgp",
+            data: encryptedUINode.getAttribute("encrypted"),
+          },
+        })
+      );
+    }
+    if (signedUINode.getAttribute("signed")) {
+      window.dispatchEvent(
+        new CustomEvent("display-secure-msg", {
+          detail: {
+            key: "signed-openpgp",
+            data: signedUINode.getAttribute("signed"),
+          },
+        })
+      );
+    }
   },
 
   editKeyExpiry() {

@@ -155,11 +155,13 @@ tb.filelink:
       - "telemetry-client-dev@thunderbird.net"
     record_in_processes:
       - 'main'
+
 tb.mails:
   sent:
     bug_numbers:
       - 1615989
     description: How many emails are sent.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -173,9 +175,30 @@ tb.mails:
     bug_numbers:
       - 1615990
     description: How many emails are read.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
+  read_secure:
+    bug_numbers:
+      - 1615994
+    description: How many times different kinds of secure emails are read (for the first time).
+    release_channel_collection: opt-out
+    expires: never
+    products:
+      - 'thunderbird'
+    keyed: true
+    keys:
+      - 'signed-smime'
+      - 'signed-opengpg'
+      - 'encrypted-smime'
+      - 'encrypted-openpgp'
     kind: uint
     notification_emails:
       - "telemetry-client-dev@thunderbird.net"

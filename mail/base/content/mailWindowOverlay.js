@@ -3584,6 +3584,7 @@ function setMsgHdrPropertyAndReload(aProperty, aValue) {
 function MarkMessageAsRead(msgHdr) {
   ClearPendingReadTimer();
   msgHdr.folder.markMessagesRead([msgHdr], true);
+  reportMsgRead({ isNewRead: true });
 }
 
 function ClearPendingReadTimer() {

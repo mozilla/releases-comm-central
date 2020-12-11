@@ -113,6 +113,18 @@ var smimeHeaderSink = {
         gStatusBar.setAttribute("signed", "notok");
         break;
     }
+
+    if (gSignedUINode.getAttribute("signed")) {
+      // For telemetry purposes.
+      window.dispatchEvent(
+        new CustomEvent("secureMsgLoaded", {
+          detail: {
+            key: "signed-smime",
+            data: gSignedUINode.getAttribute("signed"),
+          },
+        })
+      );
+    }
   },
 
   /**
@@ -232,6 +244,18 @@ var smimeHeaderSink = {
           false
         );
         break;
+    }
+
+    if (gEncryptedUINode.getAttribute("encrypted")) {
+      // For telemetry purposes.
+      window.dispatchEvent(
+        new CustomEvent("secureMsgLoaded", {
+          detail: {
+            key: "encrypted-smime",
+            data: gEncryptedUINode.getAttribute("encrypted"),
+          },
+        })
+      );
     }
   },
 

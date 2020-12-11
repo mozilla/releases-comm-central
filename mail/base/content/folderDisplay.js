@@ -18,6 +18,9 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var gFolderDisplay = null;
 var gMessageDisplay = null;
 
+// An object to help collecting reading statistics of secure emails.
+var gSecureMsgProbe = {};
+
 /**
  * Maintains a list of listeners for all FolderDisplayWidget instances in this
  *  window.  The assumption is that because of our multiplexed tab
@@ -81,6 +84,29 @@ var FolderDisplayListenerManager = {
     }
   },
 };
+
+/**
+ * Update gSecureMsgProbe and report to telemetry if necessary.
+ */
+function reportMsgRead({ isNewRead = false, key = null }) {
+  if (isNewRead) {
+    gSecureMsgProbe.isNewRead = true;
+  }
+  if (key) {
+    gSecureMsgProbe.key = key;
+  }
+  if (gSecureMsgProbe.key && gSecureMsgProbe.isNewRead) {
+    Services.telemetry.keyedScalarAdd(
+      "tb.mails.read_secure",
+      gSecureMsgProbe.key,
+      1
+    );
+  }
+}
+
+window.addEventListener("secureMsgLoaded", event => {
+  reportMsgRead({ key: event.detail.key });
+});
 
 /**
  * Abstraction for a widget that (roughly speaking) displays the contents of
@@ -1423,6 +1449,12 @@ FolderDisplayWidget.prototype = {
     let selected = this.view.dbView.getSelectedMsgHdrs();
     let msgHdr = selected.length ? selected[0] : null;
     this.messageDisplay.onDisplayingMessage(msgHdr);
+
+    // Reset gSecureMsgProbe.
+    gSecureMsgProbe = {
+      key: null,
+      isNewRead: false,
+    };
 
     // Although deletes should now be so fast that the user has no time to do
     //  anything, treat the user explicitly choosing to display a different

@@ -64,6 +64,7 @@ const EXPORTED_SYMBOLS = [
   "collapse_all_threads",
   "collapse_folder",
   "create_encrypted_smime_message",
+  "create_encrypted_openpgp_message",
   "create_folder",
   "create_message",
   "create_thread",
@@ -435,13 +436,23 @@ function create_message(aArgs) {
 }
 
 /**
- * Create and return a SyntheticMessage object.
+ * Create and return an SMIME SyntheticMessage object.
  *
  * @param {Object} aArgs An arguments object to be passed to
  *                       MessageGenerator.makeEncryptedSMimeMessage()
  */
 function create_encrypted_smime_message(aArgs) {
   return msgGen.makeEncryptedSMimeMessage(aArgs);
+}
+
+/**
+ * Create and return an OpenPGP SyntheticMessage object.
+ *
+ * @param {Object} aArgs An arguments object to be passed to
+ *                       MessageGenerator.makeEncryptedOpenPGPMessage()
+ */
+function create_encrypted_openpgp_message(aArgs) {
+  return msgGen.makeEncryptedOpenPGPMessage(aArgs);
 }
 
 /**
