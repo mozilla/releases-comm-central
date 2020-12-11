@@ -56,7 +56,9 @@ JAR_MANIFESTS += ["jar.mn"]
 
 TESTING_JS_MODULES.mailnews += [
     "test/fakeserver/Auth.jsm",
+    "test/fakeserver/Binaryd.jsm",
     "test/fakeserver/Imapd.jsm",
+    "test/fakeserver/Ldapd.jsm",
     "test/fakeserver/Maild.jsm",
     "test/fakeserver/Nntpd.jsm",
     "test/fakeserver/Pop3d.jsm",
