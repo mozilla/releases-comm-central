@@ -43,18 +43,7 @@
   treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
 #folderTree:-moz-lwtheme-brighttext
   treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-  color: #7fd0ff !important;
-}
-
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-image(hasUnreadMessages-true),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-image(closed, subfoldersHaveUnreadMessages-true),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-image(folderNameCol, newMessages-true),
-#folderTree:-moz-lwtheme-brighttext
-  treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox, newMessages-true) {
-  fill: #7fd0ff !important;
+  color: #fff !important;
 }
 
 /* Make the new mail indicator better visible on dark theme */
