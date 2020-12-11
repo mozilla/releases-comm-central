@@ -409,35 +409,12 @@ function sendMailToOrganizer() {
   }
 }
 
-/**
- * Handler function to observe changing of the calendar display deck. Updates
- * the task tree if the task view was selected.
- *
- * TODO Consolidate this function and anything connected, its still from times
- * before we had view tabs.
- */
-function taskViewObserveDisplayDeckChange(event) {
-  let deck = event.target;
-
-  // Bug 309505: The 'select' event also fires when we change the selected
-  // panel of calendar-view-box.  Workaround with this check.
-  if (deck.id != "calendarDisplayDeck") {
-    return;
-  }
-
-  // In case we find that the task view has been made visible, we refresh the view.
-  if (deck.selectedPanel && deck.selectedPanel.id == "calendar-task-box") {
-    taskViewUpdate();
-  }
-}
-
 // Install event listeners for the display deck change and connect task tree to filter field
 function taskViewOnLoad() {
-  let deck = document.getElementById("calendarDisplayDeck");
+  let calendarDisplayBox = document.getElementById("calendarDisplayBox");
   let tree = document.getElementById("calendar-task-tree");
 
-  if (deck && tree) {
-    deck.addEventListener("select", taskViewObserveDisplayDeckChange, true);
+  if (calendarDisplayBox && tree) {
     tree.textFilterField = "task-text-filter-field";
 
     // setup the platform-dependent placeholder for the text filter field
@@ -451,6 +428,7 @@ function taskViewOnLoad() {
       textFilter.setAttribute("placeholder", base.replace("#1", keyLabel));
       textFilter.value = "";
     }
+    taskViewUpdate();
   }
 
   // Setup customizeDone handler for the task action toolbox.

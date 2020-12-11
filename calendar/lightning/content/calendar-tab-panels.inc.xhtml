@@ -202,9 +202,12 @@
               persist="state"
               class="calendar-sidebar-splitter"/>
 
-    <deck id="calendarDisplayDeck" flex="1">
+    <hbox id="calendarDisplayBox" flex="1">
       <!-- Events View ("Unifinder") -->
-      <vbox id="calendar-view-box" context="calendar-view-context-menu">
+      <vbox id="calendar-view-box"
+            flex="1"
+            context="calendar-view-context-menu"
+            collapsed="true">
         <vbox id="calendar-deactivated-notification-location-events">
           <!-- Calendar deactivated notificationbox for events will be added here lazily. -->
         </vbox>
@@ -407,8 +410,8 @@
             <hbox class="navigation-bottombox"/>
           </vbox>
         </hbox>
-        <deck flex="1"
-              id="view-deck"
+        <vbox flex="1"
+              id="view-box"
               persist="selectedIndex">
           <!-- Note: the "id" attributes of the calendar panes **must** follow the
                notation 'type + "-" + "view"', where "type" should refer to the
@@ -425,11 +428,11 @@
           <calendar-month-view id="month-view" flex="1"
                                context="calendar-view-context-menu"
                                item-context="calendar-item-context-menu"/>
-        </deck>
+        </vbox>
       </vbox>
       <!-- Tasks View -->
       <vbox id="calendar-task-box" flex="1"
-            onselect="taskDetailsView.onSelect(event);">
+            collapsed="true">
         <vbox id="calendar-deactivated-notification-location-tasks">
           <!-- Calendar deactivated notificationbox for tasks will be added here lazily. -->
         </vbox>
@@ -463,7 +466,8 @@
                 flex="1"
                 visible-columns="completed priority title entryDate dueDate"
                 persist="visible-columns ordinals widths sort-active sort-direction height"
-                context="taskitem-context-menu"/>
+                context="taskitem-context-menu"
+                onselect="taskDetailsView.onSelect(event);"/>
           <splitter id="calendar-task-view-splitter" collapse="none" persist="state" class="calendar-splitter"/>
           <vbox id="calendar-task-details-container"
                 class="main-header-area"
@@ -627,6 +631,6 @@
           </vbox>
         </vbox>
       </vbox>
-    </deck>
+    </hbox>
   </hbox>
 </vbox>

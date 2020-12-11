@@ -207,12 +207,12 @@ var calendarViewController = {
  * @param viewType     The type of view to select.
  */
 function switchToView(viewType) {
-  let viewDeck = getViewDeck();
+  let viewBox = getViewBox();
   let selectedDay;
   let currentSelection = [];
 
   // Set up the view commands
-  let views = viewDeck.children;
+  let views = viewBox.children;
   for (let i = 0; i < views.length; i++) {
     let view = views[i];
     let commandId = "calendar_" + view.id + "_command";
@@ -261,8 +261,8 @@ function switchToView(viewType) {
   ids.forEach(x => setupViewNode(x, "tooltiptext"));
 
   try {
-    selectedDay = viewDeck.selectedPanel.selectedDay;
-    currentSelection = viewDeck.selectedPanel.getSelectedItems();
+    selectedDay = getSelectedDay();
+    currentSelection = currentView().getSelectedItems();
   } catch (ex) {
     // This dies if no view has even been chosen this session, but that's
     // ok because we'll just use cal.dtz.now() below.
@@ -274,11 +274,18 @@ function switchToView(viewType) {
 
   // Anyone wanting to plug in a view needs to follow this naming scheme
   let view = document.getElementById(viewType + "-view");
-  viewDeck.selectedPanel = view;
+  for (let i = 0; i < viewBox.children.length; i++) {
+    if (view.id == viewBox.children[i].id) {
+      viewBox.children[i].hidden = false;
+      viewBox.setAttribute("selectedIndex", i);
+    } else {
+      viewBox.children[i].hidden = true;
+    }
+  }
 
   // Select the corresponding tab
   let viewTabs = document.getElementById("view-tabs");
-  viewTabs.selectedIndex = getViewDeck().selectedIndex;
+  viewTabs.selectedIndex = viewBox.getAttribute("selectedIndex");
 
   let compositeCal = cal.view.getCompositeCalendar(window);
   if (view.displayCalendar != compositeCal) {
@@ -294,12 +301,12 @@ function switchToView(viewType) {
 }
 
 /**
- * Returns the calendar view deck XUL element.
+ * Returns the calendar view box element.
  *
- * @return      The view-deck element.
+ * @return      The view-box element.
  */
-function getViewDeck() {
-  return document.getElementById("view-deck");
+function getViewBox() {
+  return document.getElementById("view-box");
 }
 
 /**
@@ -308,7 +315,12 @@ function getViewDeck() {
  * @return      The selected calendar view
  */
 function currentView() {
-  return getViewDeck().selectedPanel;
+  for (let element of getViewBox().children) {
+    if (!element.hidden) {
+      return element;
+    }
+  }
+  return null;
 }
 
 /**
@@ -454,8 +466,7 @@ function toggleOrientation() {
   let newValue = cmd.getAttribute("checked") == "true" ? "false" : "true";
   cmd.setAttribute("checked", newValue);
 
-  let deck = getViewDeck();
-  for (let view of deck.children) {
+  for (let view of getViewBox().children) {
     view.rotated = newValue == "true";
   }
 
@@ -473,8 +484,7 @@ function toggleWorkdaysOnly() {
   let newValue = cmd.getAttribute("checked") == "true" ? "false" : "true";
   cmd.setAttribute("checked", newValue);
 
-  let deck = getViewDeck();
-  for (let view of deck.children) {
+  for (let view of getViewBox().children) {
     view.workdaysOnly = newValue == "true";
   }
 
@@ -490,8 +500,7 @@ function toggleTasksInView() {
   let newValue = cmd.getAttribute("checked") == "true" ? "false" : "true";
   cmd.setAttribute("checked", newValue);
 
-  let deck = getViewDeck();
-  for (let view of deck.children) {
+  for (let view of getViewBox().children) {
     view.tasksInView = newValue == "true";
   }
 
@@ -507,8 +516,7 @@ function toggleShowCompletedInView() {
   let newValue = cmd.getAttribute("checked") == "true" ? "false" : "true";
   cmd.setAttribute("checked", newValue);
 
-  let deck = getViewDeck();
-  for (let view of deck.children) {
+  for (let view of getViewBox().children) {
     view.showCompleted = newValue == "true";
   }
 
@@ -537,14 +545,17 @@ var gLastShownCalendarView = {
    */
   get() {
     if (!this._lastView) {
-      if (Services.xulStore.hasValue(document.location.href, "view-deck", "selectedIndex")) {
-        let deck = getViewDeck();
+      if (Services.xulStore.hasValue(document.location.href, "view-box", "selectedIndex")) {
+        let viewBox = getViewBox();
         let selectedIndex = Services.xulStore.getValue(
           document.location.href,
-          "view-deck",
+          "view-box",
           "selectedIndex"
         );
-        let viewNode = deck.children[selectedIndex];
+        for (let i = 0; i < viewBox.children.length; i++) {
+          viewBox.children[i].hidden = selectedIndex != i;
+        }
+        let viewNode = viewBox.children[selectedIndex];
         this._lastView = viewNode.id.replace(/-view/, "");
       } else {
         // No deck item was selected beforehand, default to week view.
@@ -662,7 +673,7 @@ var calendarNavigationBar = {
         cal.l10n.getAnyString("branding", "brand", "brandFullName");
     }
     let viewTabs = document.getElementById("view-tabs");
-    viewTabs.selectedIndex = getViewDeck().selectedIndex;
+    viewTabs.selectedIndex = getViewBox().getAttribute("selectedIndex");
   },
 };
 

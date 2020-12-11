@@ -55,7 +55,7 @@ richlistitem[is="agenda-richlistitem"][status="CANCELLED"] .agenda-container-box
     --calview-border-bottom-color: #d2d2d2;
 }
 
-#view-deck {
+#view-box {
     background-color: white;
     border-width: 0 0 0 1px;
 }

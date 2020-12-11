@@ -84,8 +84,8 @@ var CALENDAR_PANEL = `
     id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")
 `;
 var VIEWDECK = `
-    ${CALENDAR_PANEL}/id("calendarDisplayDeck")/id("calendar-view-box")/
-    id("view-deck")
+    ${CALENDAR_PANEL}/id("calendarDisplayBox")/id("calendar-view-box")/
+    id("view-box")
 `;
 var DAY_VIEW = `${VIEWDECK}/id("day-view")`;
 var WEEK_VIEW = `${VIEWDECK}/id("week-view")`;
@@ -99,7 +99,7 @@ var LABELDAYBOX = `
 `;
 var MULTIWEEK_VIEW = `${VIEWDECK}/id("multiweek-view")`;
 var MONTH_VIEW = `${VIEWDECK}/id("month-view")`;
-var TASK_VIEW = `${CALENDAR_PANEL}/id("calendarDisplayDeck")/id("calendar-task-box")/`;
+var TASK_VIEW = `${CALENDAR_PANEL}/id("calendarDisplayBox")/id("calendar-task-box")/`;
 
 var MINIMONTH = `
     ${CALENDAR_PANEL}/id("ltnSidebar")/id("minimonth-pane")/{"align":"center"}/
@@ -173,9 +173,7 @@ function helpersForController(controller) {
  */
 function ensureViewLoaded(controller) {
   let { sleep } = helpersForController(controller);
-  controller.waitFor(
-    () => controller.window.getViewDeck().selectedPanel.mPendingRefreshJobs.size == 0
-  );
+  controller.waitFor(() => controller.window.currentView().mPendingRefreshJobs.size == 0);
   // After the queue is empty the view needs a moment to settle.
   sleep(200);
 }

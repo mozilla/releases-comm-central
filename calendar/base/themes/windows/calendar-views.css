@@ -13,7 +13,7 @@
     --calview-border-bottom-color: ThreeDShadow;
 }
 
-#view-deck {
+#view-box {
     background-color: Field;
     border-width: 0;
     border-inline-start: 1px;

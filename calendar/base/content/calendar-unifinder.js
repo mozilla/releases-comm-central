@@ -211,9 +211,9 @@ function prepareCalendarUnifinder() {
   unifinderTree.view = unifinderTreeView;
 
   // Listen for changes in the selected day, so we can update if need be
-  let viewDeck = getViewDeck();
-  viewDeck.addEventListener("dayselect", unifinderDaySelect);
-  viewDeck.addEventListener("itemselect", unifinderItemSelect, true);
+  let viewBox = getViewBox();
+  viewBox.addEventListener("dayselect", unifinderDaySelect);
+  viewBox.addEventListener("itemselect", unifinderItemSelect, true);
 
   // Set up sortDirection and sortActive, in case it persisted
   let sorted = unifinderTree.getAttribute("sort-active");
@@ -253,10 +253,10 @@ function finishCalendarUnifinder() {
   Services.prefs.removeObserver("calendar.date.format", unifinderObserver);
   Services.obs.removeObserver(unifinderObserver, "defaultTimezoneChanged");
 
-  let viewDeck = getViewDeck();
-  if (viewDeck) {
-    viewDeck.removeEventListener("dayselect", unifinderDaySelect);
-    viewDeck.removeEventListener("itemselect", unifinderItemSelect, true);
+  let viewBox = getViewBox();
+  if (viewBox) {
+    viewBox.removeEventListener("dayselect", unifinderDaySelect);
+    viewBox.removeEventListener("itemselect", unifinderItemSelect, true);
   }
 
   // Persist the sort

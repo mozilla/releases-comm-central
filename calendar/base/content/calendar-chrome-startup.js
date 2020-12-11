@@ -42,10 +42,6 @@ async function loadCalendarComponent() {
 
   await uninstallLightningAddon();
 
-  document
-    .getElementById("calendarDisplayDeck")
-    .addEventListener("select", calObserveDisplayDeckChange, true);
-
   // load locale specific default values for preferences
   setLocaleDefaultPreferences();
 
@@ -71,8 +67,8 @@ async function loadCalendarComponent() {
   calendarDeactivator.registerWindow(window);
 
   // Set up item and day selection listeners
-  getViewDeck().addEventListener("dayselect", observeViewDaySelect);
-  getViewDeck().addEventListener("itemselect", calendarController.onSelectionChanged, true);
+  getViewBox().addEventListener("dayselect", observeViewDaySelect);
+  getViewBox().addEventListener("itemselect", calendarController.onSelectionChanged, true);
 
   // Start alarm service
   Cc["@mozilla.org/calendar/alarm-service;1"].getService(Ci.calIAlarmService).startup();
@@ -172,43 +168,6 @@ async function uninstallLightningAddon() {
     }
   } catch (err) {
     console.error("Error while attempting to uninstall Lightning addon:", err);
-  }
-}
-
-/**
- * This function has the sole responsibility to switch back to
- * mail mode (by calling calSwitchToMode("mail")) if we are getting
- * notifications from other panels (besides the calendar views)
- * but find out that we're not in mail mode. This situation can
- * for example happen if we're in calendar mode but the 'new mail'
- * slider gets clicked and wants to display the appropriate mail.
- * All necessary logic for switching between the different modes
- * should live inside of the corresponding functions like:
- * - calSwitchToCalendarMode()
- * - calSwitchToTaskMode()
- * - calSwitchToMode()
- */
-function calObserveDisplayDeckChange(event) {
-  let deck = event.target;
-
-  // Bug 309505: The 'select' event also fires when we change the selected
-  // panel of calendar-view-box.  Workaround with this check.
-  if (deck.id != "calendarDisplayDeck") {
-    return;
-  }
-
-  let id = deck.selectedPanel && deck.selectedPanel.id;
-
-  // Switch back to mail mode in case we find that this
-  // notification has been fired but we're still in calendar or task mode.
-  // Specifically, switch back if we're *not* in mail mode but the notification
-  // did *not* come from either the "calendar-view-box" or the "calendar-task-box".
-  if (
-    (gCurrentMode == "calendar" || gCurrentMode == "task") &&
-    id != "calendar-view-box" &&
-    id != "calendar-task-box"
-  ) {
-    calSwitchToMode("mail");
   }
 }
 
