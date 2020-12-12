@@ -101,12 +101,6 @@ toolbox > toolbar:last-of-type {
   }
 }
 
-/* Don't use the listbox appearance as that gives us a blue-grey top border
-   that collides with the primary toolbar border */
-#dirTree {
-  border-inline-end: 1px solid transparent;
-}
-
 /* splitters */
 
 #dirTree-splitter {

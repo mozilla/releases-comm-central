@@ -19,6 +19,7 @@
   /* Toolbar buttons */
   --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
   --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
+  --unread-folder-color: #fff;
 
   /* !important to override LightweightThemeManager.addBuiltInTheme in
      mailGlue.js */
@@ -53,14 +54,14 @@
   treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
 #folderTree:-moz-lwtheme-brighttext
   treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
-  color: #0aa5ff !important;
+  color: #45b1ff !important;
 }
 
 #folderTree:-moz-lwtheme-brighttext
   treechildren::-moz-tree-image(folderNameCol, newMessages-true),
 #folderTree:-moz-lwtheme-brighttext
   treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
-  fill: #0aa5ff !important;
+  fill: #45b1ff !important;
 }
 
 #folderTree:-moz-lwtheme-brighttext

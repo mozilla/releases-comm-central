@@ -66,6 +66,7 @@
   skin/classic/messenger/icons/connection-insecure.svg        (../shared/mail/icons/connection-insecure.svg)
   skin/classic/messenger/icons/connection-mixed.svg           (../shared/mail/icons/connection-mixed.svg)
   skin/classic/messenger/icons/connection-secure.svg          (../shared/mail/icons/connection-secure.svg)
+  skin/classic/messenger/icons/folder-new-indicator.svg       (../shared/mail/icons/folder-new-indicator.svg)
   skin/classic/messenger/icons/message-encrypted-ok.svg       (../shared/mail/icons/message-encrypted-ok.svg)
   skin/classic/messenger/icons/message-encrypted-notok.svg    (../shared/mail/icons/message-encrypted-notok.svg)
   skin/classic/messenger/icons/contact.svg                    (../shared/mail/icons/contact.svg)

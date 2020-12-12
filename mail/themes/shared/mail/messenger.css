@@ -140,6 +140,10 @@ treechildren::-moz-tree-row(selected, focus) {
   background-color: Highlight;
 }
 
+treechildren::-moz-tree-twisty {
+  color: #505050;
+}
+
 /* LW theme tree styling */
 :root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected),
 :root[lwt-tree]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
@@ -609,8 +613,11 @@ html|ul.addon-webext-perm-list:empty {
   border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
 }
 
+:root[lwt-tree-brighttext] treechildren::-moz-tree-twisty {
+  color: #d4d4d4;
+}
+
 :root[lwt-tree] treechildren::-moz-tree-image,
-:root[lwt-tree] treechildren::-moz-tree-twisty,
 :root[lwt-tree] #threadTree treechildren::-moz-tree-cell-text(untagged),
 :root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-cell-text {
   color: var(--sidebar-text-color);
@@ -629,7 +636,6 @@ tree:-moz-lwtheme:not(:focus)
 }
 
 :root[lwt-tree] tree:not(:focus) treechildren::-moz-tree-image(selected),
-:root[lwt-tree] tree:not(:focus) treechildren::-moz-tree-twisty(selected),
 :root[lwt-tree] #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
 :root[lwt-tree] tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
   color: var(--sidebar-text-color);

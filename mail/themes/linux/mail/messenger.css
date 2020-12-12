@@ -351,6 +351,10 @@ treechildren::-moz-tree-cell-text {
   padding-inline-start: 5px;
 }
 
+treechildren::-moz-tree-twisty(selected, focus) {
+  color: HighlightText;
+}
+
 /* Status bar */
 
 .statusbar {

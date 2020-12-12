@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --default: #363959;
-  --primary: #0060df;
+  --default: #4f526d;
+  --primary: #0a84ff;
+  --unread-folder-color: inherit;
 }
 
 :root[lwt-tree-brighttext] {
-  --default: #f9f9fa;
-  --primary: #45a1ff;
+  --default: #dcdcdc;
+  --primary: #45b1ff;
 }
 
 /* ::::: Tabmail ::::: */
@@ -186,6 +187,12 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
   font-weight: bold !important;
 }
 
+treechildren::-moz-tree-image(folderNameCol, hasUnreadMessages-true),
+treechildren::-moz-tree-image(folderNameCol, closed, subfoldersHaveUnreadMessages-true) {
+  opacity: 1 !important;
+  fill: var(--unread-folder-color);
+}
+
 treechildren::-moz-tree-image(folderNameCol, newMessages-true),
 treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
   opacity: 1 !important;
@@ -215,4 +222,17 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 
 .folderSummary-previewText {
   opacity: 0.6;
+}
+
+#folderTree treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true) {
+  margin-inline-start: -20px;
+  padding-inline-start: 22px;
+  background-image: url("chrome://messenger/skin/icons/folder-new-indicator.svg");
+  background-repeat: no-repeat;
+  background-position: left;
+}
+
+#folderTree:-moz-locale-dir(rtl)
+  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true) {
+  background-position: right;
 }
