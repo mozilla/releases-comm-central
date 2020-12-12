@@ -100,7 +100,7 @@ add_task(function test_archive_options_enabled() {
 });
 
 function subtest_initial_state(identity) {
-  plan_for_modal_dialog("Mailnews:archiveOptions", function(ac) {
+  plan_for_modal_dialog("archiveOptions", function(ac) {
     Assert.equal(
       ac.e("archiveGranularity").selectedIndex,
       identity.archiveGranularity
@@ -116,7 +116,7 @@ function subtest_initial_state(identity) {
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     { identity }
   );
-  wait_for_modal_dialog("Mailnews:archiveOptions");
+  wait_for_modal_dialog("archiveOptions");
 }
 
 add_task(function test_open_archive_options() {
@@ -130,7 +130,7 @@ add_task(function test_open_archive_options() {
 });
 
 function subtest_save_state(identity, granularity, kfs) {
-  plan_for_modal_dialog("Mailnews:archiveOptions", function(ac) {
+  plan_for_modal_dialog("archiveOptions", function(ac) {
     ac.e("archiveGranularity").selectedIndex = granularity;
     ac.e("archiveKeepFolderStructure").checked = kfs;
     EventUtils.synthesizeKey("VK_RETURN", {}, ac.window);
@@ -142,7 +142,7 @@ function subtest_save_state(identity, granularity, kfs) {
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     { identity }
   );
-  wait_for_modal_dialog("Mailnews:archiveOptions");
+  wait_for_modal_dialog("archiveOptions");
 }
 
 add_task(function test_save_archive_options() {
