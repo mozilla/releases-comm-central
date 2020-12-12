@@ -613,6 +613,10 @@
       return this.currentTabInfo;
     }
 
+    get tabs() {
+      return this.tabContainer.allTabs;
+    }
+
     get selectedBrowser() {
       return this.getBrowserForSelectedTab();
     }
