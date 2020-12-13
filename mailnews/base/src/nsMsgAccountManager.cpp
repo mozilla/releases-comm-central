@@ -1547,15 +1547,49 @@ nsresult nsMsgAccountManager::createKeyedAccount(const nsCString& key,
 
   account->SetKey(key);
 
-  m_accounts.AppendElement(account);
-
-  // add to string list
-  if (mAccountKeyList.IsEmpty())
-    mAccountKeyList = key;
-  else {
-    mAccountKeyList.Append(',');
-    mAccountKeyList.Append(key);
+  nsCString localFoldersAccountKey;
+  nsCOMPtr<nsIMsgIncomingServer> localFoldersServer;
+  rv = GetLocalFoldersServer(getter_AddRefs(localFoldersServer));
+  if (NS_SUCCEEDED(rv)) {
+    for (auto account : m_accounts) {
+       nsCOMPtr<nsIMsgIncomingServer> server;
+       rv = account->GetIncomingServer(getter_AddRefs(server));
+       if (NS_SUCCEEDED(rv) && server == localFoldersServer) {
+         account->GetKey(localFoldersAccountKey);
+         break;
+       }
+    }
   }
+
+  // Extracting the account key of the last mail acoount.
+  nsCString lastFolderAccountKey;
+  for (int32_t index = m_accounts.Length() - 1; index >= 0; index--) {
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = m_accounts[index]->GetIncomingServer(getter_AddRefs(server));
+    if (NS_SUCCEEDED(rv) && server) {
+      nsCString accountType;
+      rv = server->GetType(accountType);
+      if (NS_SUCCEEDED(rv) && !accountType.EqualsLiteral("im")) {
+        m_accounts[index]->GetKey(lastFolderAccountKey);
+        break;
+      }
+    }
+  }
+
+  if (!localFoldersAccountKey.IsEmpty() && !lastFolderAccountKey.IsEmpty() && lastFolderAccountKey == localFoldersAccountKey) {
+    m_accounts.InsertElementAt(m_accounts.Length() - 1, account);
+  } else {
+    m_accounts.AppendElement(account);
+  }
+
+  nsCString newAccountKeyList;
+  nsCString accountKey;
+  for (uint32_t index = 0; index < m_accounts.Length(); index++) {
+    m_accounts[index]->GetKey(accountKey);
+    if (index) newAccountKeyList.Append(ACCOUNT_DELIMITER);
+    newAccountKeyList.Append(accountKey);
+  }
+  mAccountKeyList = newAccountKeyList;
 
   m_prefs->SetCharPref(PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS, mAccountKeyList);
   account.forget(aAccount);
@@ -3281,4 +3315,35 @@ nsMsgAccountManager::GetSortOrder(nsIMsgIncomingServer* aServer,
   }
 
   return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgAccountManager::ReorderAccounts(const nsTArray<nsCString> &newAccounts) {
+  // Check that the new account list contains all the existing accounts,
+  // just in a different order.
+  if (newAccounts.Length() != m_accounts.Length())
+    return NS_ERROR_INVALID_ARG;
+
+  for (uint32_t i = 0; i < m_accounts.Length(); i++) {
+    nsCString accountKey;
+    m_accounts[i]->GetKey(accountKey);
+    if (!newAccounts.Contains(accountKey))
+      return NS_ERROR_INVALID_ARG;
+  }
+
+  // In-place swap the elements in m_accounts to the order defined in newAccounts.
+  for (uint32_t i = 0; i < newAccounts.Length(); i++) {
+    nsCString newKey = newAccounts[i];
+    for (uint32_t j = i; j < m_accounts.Length(); j++) {
+      nsCString oldKey;
+      m_accounts[j]->GetKey(oldKey);
+      if (newKey.Equals(oldKey)) {
+        if (i != j)
+          std::swap(m_accounts[i], m_accounts[j]);
+        break;
+      }
+    }
+  }
+
+  return OutputAccountsPref();
 }

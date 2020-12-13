@@ -9,6 +9,8 @@ var { ExtensionTestUtils } = ChromeUtils.import(
 );
 
 add_task(async function test_accounts() {
+  // Here all the accounts are local but the first account will behave as
+  // an actual local account and will be kept last always.
   let files = {
     "background.js": async () => {
       let [account1Id, account1Name] = await window.waitForMessage();
@@ -50,7 +52,7 @@ add_task(async function test_accounts() {
       );
       let result2 = await browser.accounts.list();
       browser.test.assertEq(2, result2.length);
-      window.assertDeepEqual(result1[0], result2[0]);
+      window.assertDeepEqual(result1[0], result2[1]);
       window.assertDeepEqual(
         {
           id: account2Id,
@@ -65,13 +67,13 @@ add_task(async function test_accounts() {
             },
           ],
         },
-        result2[1]
+        result2[0]
       );
 
       let result3 = await browser.accounts.get(account1Id);
       window.assertDeepEqual(result1[0], result3);
       let result4 = await browser.accounts.get(account2Id);
-      window.assertDeepEqual(result2[1], result4);
+      window.assertDeepEqual(result2[0], result4);
 
       await window.sendMessage("create folders");
       let result5 = await browser.accounts.get(account1Id);
@@ -152,7 +154,7 @@ add_task(async function test_accounts() {
       }
 
       defaultAccount = await browser.accounts.getDefault();
-      browser.test.assertEq(result2[1].id, defaultAccount.id);
+      browser.test.assertEq(result2[0].id, defaultAccount.id);
 
       browser.test.notifyPass("finished");
     },

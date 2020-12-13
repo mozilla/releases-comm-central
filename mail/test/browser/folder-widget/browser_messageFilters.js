@@ -74,7 +74,7 @@ add_task(function test_message_filter_shows_newsgroup_server() {
   Assert.ok(popup.exists());
   filterc.click(popup);
 
-  let nntp = new elib.Elem(popup.node.children.item(2));
+  let nntp = new elib.Elem(popup.node.children.item(1));
   Assert.ok(nntp.exists());
   // We need to get the newsgroups to pop up somehow.
   // These all fail.
