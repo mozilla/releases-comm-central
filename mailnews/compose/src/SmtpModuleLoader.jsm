@@ -30,25 +30,47 @@ SmtpModuleLoader.prototype = {
 
   loadModule() {
     if (Services.prefs.getBoolPref("mailnews.smtp.jsmodule", false)) {
-      let scope = {};
-      Services.scriptloader.loadSubScript(
-        "resource:///modules/SmtpService.jsm",
-        scope
-      );
-      scope.NSGetFactory = ComponentUtils.generateNSGetFactory([
-        scope.SmtpService,
-      ]);
       let registrar = Components.manager.QueryInterface(
         Ci.nsIComponentRegistrar
       );
-      let classId = Components.ID("{acda6039-8b17-46c1-a8ed-ad50aa80f412}");
-      let factory = lazyFactoryFor(scope, classId);
+
+      // Load SmtpServer.jsm.
+      let serverScope = ChromeUtils.import(
+        "resource:///modules/SmtpServer.jsm"
+      );
+      serverScope.NSGetFactory = ComponentUtils.generateNSGetFactory([
+        serverScope.SmtpServer,
+      ]);
+
+      // Register SmtpServer.jsm.
+      let serverClassId = Components.ID(
+        "{3a75f5ea-651e-4696-9813-848c03da8bbd}"
+      );
       registrar.registerFactory(
-        classId,
+        serverClassId,
+        "",
+        "@mozilla.org/messenger/smtp/server;1",
+        lazyFactoryFor(serverScope, serverClassId)
+      );
+
+      // Load SmtpService.jsm.
+      let serviceScope = ChromeUtils.import(
+        "resource:///modules/SmtpService.jsm"
+      );
+      serviceScope.NSGetFactory = ComponentUtils.generateNSGetFactory([
+        serviceScope.SmtpService,
+      ]);
+      // Register SmtpService.jsm.
+      let serviceClassId = Components.ID(
+        "{acda6039-8b17-46c1-a8ed-ad50aa80f412}"
+      );
+      registrar.registerFactory(
+        serviceClassId,
         "",
         "@mozilla.org/messengercompose/smtp;1",
-        factory
+        lazyFactoryFor(serviceScope, serviceClassId)
       );
+
       dump("[SmtpModuleLoader] Using SmtpService.jsm\n");
     } else {
       dump("[SmtpModuleLoader] Using nsSmtpService.cpp\n");
