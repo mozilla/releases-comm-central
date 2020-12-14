@@ -164,6 +164,7 @@ var windowHelper = ChromeUtils.import(
 );
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 var nsMsgViewIndex_None = 0xffffffff;
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
@@ -246,6 +247,12 @@ function setupModule() {
       testHelperModule._mailnewsTestLogger.ownAppenders.length - 1
     ]
   );
+
+  // Add a bucketing appender to the root.
+  let rootLogger = Log4Moz.repository.rootLogger;
+  let bucketAppender = new Log4Moz.TimeAwareMemoryBucketAppender();
+  bucketAppender.level = Log4Moz.Level.All;
+  rootLogger.addAppender(bucketAppender);
 
   // Indicate to any fancy helpers (just folderEventLogHelper right now) that
   //  we want them to log extra stuff.

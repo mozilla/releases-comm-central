@@ -28,6 +28,7 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 
 XPCOMUtils.defineLazyScriptGetter(
@@ -44,6 +45,12 @@ var msgWindow;
 var accountManager;
 
 var gContextMenu;
+var gMailWindowLog = Log4Moz.getConfiguredLogger(
+  "mailWindow",
+  Log4Moz.Level.Debug,
+  Log4Moz.Level.Debug,
+  Log4Moz.Level.Debug
+);
 
 /**
  * Called by messageWindow.xhtml:onunload,  the 'single message display window'.

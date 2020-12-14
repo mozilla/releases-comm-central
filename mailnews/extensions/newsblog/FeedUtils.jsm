@@ -6,6 +6,7 @@
 const EXPORTED_SYMBOLS = ["Feed", "FeedItem", "FeedParser", "FeedUtils"];
 
 /* eslint-disable-next-line no-unused-vars */
+const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -2092,10 +2093,7 @@ var FeedUtils = {
 };
 
 XPCOMUtils.defineLazyGetter(FeedUtils, "log", function() {
-  return console.createInstance({
-    prefix: "Feeds",
-    maxLogLevelPref: "Feeds.loglevel",
-  });
+  return Log4Moz.getConfiguredLogger("Feeds");
 });
 
 XPCOMUtils.defineLazyGetter(FeedUtils, "strings", function() {
