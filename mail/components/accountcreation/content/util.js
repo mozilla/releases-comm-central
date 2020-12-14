@@ -10,7 +10,6 @@
 
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 
 // --------------------------
 // Low level, basic functions
@@ -669,9 +668,9 @@ function deepCopy(org) {
 }
 
 if (typeof gEmailWizardLogger == "undefined") {
-  var gEmailWizardLogger = new ConsoleAPI({
+  var gEmailWizardLogger = console.createInstance({
     prefix: "mail.setup",
-    maxLogLevel: "warn",
+    maxLogLevel: "Warn",
     maxLogLevelPref: "mail.setup.loglevel",
   });
 }

@@ -1003,7 +1003,7 @@ function protocolToString(type) {
 
 /**
  * @param thisTry {HostTry}
- * @param logger {ConsoleAPI}
+ * @param logger {ConsoleInstance}
  */
 function SSLErrorHandler(thisTry, logger) {
   this._try = thisTry;

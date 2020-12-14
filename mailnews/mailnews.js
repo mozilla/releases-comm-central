@@ -756,8 +756,7 @@ pref("rss.show.content-base", 0);
 // 1 - load web page in default browser, on select
 pref("rss.message.loadWebPageOnSelect", 0);
 
-// Feeds system logging, uses log4moz conventions.
-pref("Feeds.logging.console", "Info");
+pref("Feeds.loglevel", "Info");
 
 // 0=default as attachment
 // 1=forward as quoted (mapped to 2 in mozilla)
