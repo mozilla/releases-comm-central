@@ -242,13 +242,6 @@ interface nsIMsgAccountManager : nsISupports {
 
   // Used to sort servers (accounts) for e.g. the folder pane
   long getSortOrder(in nsIMsgIncomingServer server);
-
-  /**
-   * Sets new order of accounts.
-   *
-   * @param accountKeys - Account keys in the new preferred order.
-   */
-  void reorderAccounts(in Array<ACString> accountKeys);
 };
 
 %{C++

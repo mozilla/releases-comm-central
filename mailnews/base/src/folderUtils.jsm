@@ -12,7 +12,6 @@ const EXPORTED_SYMBOLS = [
   "allAccountsSorted",
   "getMostRecentFolders",
   "folderNameCompare",
-  "compareAccounts",
 ];
 
 const { MailServices } = ChromeUtils.import(
@@ -169,7 +168,7 @@ function allAccountsSorted(aExcludeIMAccounts) {
     accountList = accountList.filter(a => a.incomingServer.type != "im");
   }
 
-  return accountList;
+  return accountList.sort(compareAccounts);
 }
 
 /**

@@ -26,11 +26,11 @@ add_task(async function testIdentity() {
       browser.test.assertEq(2, accounts.length, "number of accounts");
       browser.test.assertEq(
         2,
-        accounts[1].identities.length,
+        accounts[0].identities.length,
         "number of identities"
       );
-      let [defaultIdentity, nonDefaultIdentity] = accounts[1].identities;
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      let [defaultIdentity, nonDefaultIdentity] = accounts[0].identities;
+      let folder = accounts[0].folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
@@ -114,7 +114,7 @@ add_task(async function testHeaders() {
 
       let accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      let folder = accounts[0].folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
@@ -265,11 +265,11 @@ add_task(async function testBody() {
       browser.test.assertEq(2, accounts.length, "number of accounts");
       browser.test.assertEq(
         2,
-        accounts[1].identities.length,
+        accounts[0].identities.length,
         "number of identities"
       );
-      let [htmlIdentity, plainTextIdentity] = accounts[1].identities;
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      let [htmlIdentity, plainTextIdentity] = accounts[0].identities;
+      let folder = accounts[0].folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
@@ -595,8 +595,8 @@ add_task(async function testBody() {
 add_task(async function testAttachments() {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
-      let accounts = await browser.accounts.list();
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      let [account] = await browser.accounts.list();
+      let folder = account.folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
 
       let newTab = await browser.compose.beginNew({

@@ -211,8 +211,8 @@ add_task(async function testChangeDetails() {
         return window.sendMessage("checkWindow", expected);
       }
 
-      let accounts = await browser.accounts.list();
-      let [defaultIdentity, nonDefaultIdentity] = accounts[1].identities;
+      let [account] = await browser.accounts.list();
+      let [defaultIdentity, nonDefaultIdentity] = account.identities;
 
       // Add a listener that changes the headers and body. Sending should
       // continue and the headers should change. This is largely the same code

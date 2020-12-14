@@ -53,16 +53,14 @@ function run_test() {
     "account1,account2,account4,account5,account5,account6"
   );
   // Set the default account to one we're going to get rid of. The account
-  // manager should recover relatively gracefully.
+  //  manager should recover relatively gracefully.
   Services.prefs.setCharPref("mail.accountmanager.defaultaccount", "account6");
 
   // This will force the load of the accounts setup above.
   Assert.equal(MailServices.accounts.accounts.length, 3);
-  // Here all the accounts are local but the first account will behave as
-  // an actual local account and will be kept last always.
   Assert.equal(
     Services.prefs.getCharPref("mail.accountmanager.accounts"),
-    "account4,account5,account1"
+    "account1,account4,account5"
   );
   let server5 = MailServices.accounts
     .getIncomingServer("server5")
@@ -88,9 +86,9 @@ function run_test() {
   Assert.equal(MailServices.accounts.accounts.length, 2);
   Assert.equal(
     Services.prefs.getCharPref("mail.accountmanager.accounts"),
-    "account5,account1"
+    "account1,account5"
   );
-  // Make sure cleaning up duplicate accounts didn't hork accounts.
+  // make sure cleaning up duplicate accounts didn't hork accounts
   Assert.equal(
     Services.prefs.getCharPref("mail.account.account1.server"),
     "server1"

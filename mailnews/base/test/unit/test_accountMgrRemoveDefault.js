@@ -35,11 +35,9 @@ function run_test() {
 
   // Load of the accounts setup above.
   Assert.equal(MailServices.accounts.accounts.length, 3);
-  // Here all the accounts are local but the first account will behave as
-  // an actual local account and will be kept last always.
   Assert.equal(
     Services.prefs.getCharPref("mail.accountmanager.accounts"),
-    "account2,account3,account1"
+    "account1,account2,account3"
   );
   Assert.equal(MailServices.accounts.defaultAccount?.key, "account3");
 

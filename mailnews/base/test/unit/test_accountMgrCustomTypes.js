@@ -24,10 +24,10 @@ function run_test() {
   );
 
   // Here we are simulating a server and account that is added by an
-  // extension, but that extension is currently unloaded. The extension
-  // added "secondsToLeaveUnavailable" (though a typical value would be
-  // one month, not 2 seconds!) to tell the core code to leave this alone
-  // for awhile if the extension is unloaded.
+  //  extension, but that extension is currently unloaded. The extension
+  //  added "secondsToLeaveUnavailable" (though a typical value would be
+  //  one month, not 2 seconds!) to tell the core code to leave this alone
+  //  for awhile if the extension is unloaded.
   Services.prefs.setCharPref("mail.server.server2.hostname", "pop3.host.org");
   Services.prefs.setCharPref("mail.server.server2.type", "invalid");
   Services.prefs.setIntPref("mail.server.server2.secondsToLeaveUnavailable", 2);
@@ -39,19 +39,17 @@ function run_test() {
   Services.prefs.setCharPref("mail.accountmanager.defaultaccount", "account1");
 
   // This will force the load of the accounts setup above.
-  // We don't see the invalid account.
+  // We don't see the invalid account
   Assert.equal(MailServices.accounts.accounts.length, 1);
 
-  // But it is really there.
-  // Here all the accounts are local but the first account will behave as
-  // an actual local account and will be kept last always.
+  // but it is really there
   Assert.equal(
     Services.prefs.getCharPref("mail.accountmanager.accounts"),
-    "account2,account1"
+    "account1,account2"
   );
 
-  // Add a new account (so that we can check if this clobbers the existing
-  // inactive account or its server).
+  // add a new account (so that we can check if this clobbers the existing
+  //  inactive account or its server)
   let newAccount = MailServices.accounts.createAccount();
   let newIdentity = MailServices.accounts.createIdentity();
   newAccount.addIdentity(newIdentity);
@@ -62,7 +60,7 @@ function run_test() {
     "pop3"
   );
 
-  // No collisions with the inactive account.
+  // no collisions with the inactive account
   Assert.notEqual(newIdentity.key, "id2");
   Assert.notEqual(newAccount.incomingServer.key, "server2");
   Assert.notEqual(newAccount.key, "account2");
@@ -70,25 +68,25 @@ function run_test() {
 
   MailServices.accounts.UnloadAccounts();
 
-  // Set the unavailable account to a valid type, and watch it appear.
+  // set the unavailable account to a valid type, and watch it appear.
   Services.prefs.setCharPref("mail.server.server2.type", "pop3");
   Assert.equal(MailServices.accounts.accounts.length, 3);
 
-  // Make it bad again, and reload it to restart the timeout before delete.
+  // make it bad again, and reload it to restart the timeout before delete
   MailServices.accounts.UnloadAccounts();
   Services.prefs.setCharPref("mail.server.server2.type", "invalid");
   Assert.equal(MailServices.accounts.accounts.length, 2);
   MailServices.accounts.UnloadAccounts();
 
-  // Now let the bad type timeout, and watch it magically disappear!
+  // now let the bad type timeout, and watch it magically disappear!
   do_test_pending();
   do_timeout(3000, function() {
     Assert.equal(MailServices.accounts.accounts.length, 2);
 
-    // It is now gone.
+    // it is now gone
     Assert.equal(
       Services.prefs.getCharPref("mail.accountmanager.accounts"),
-      newAccount.key + ",account1"
+      "account1," + newAccount.key
     );
 
     do_test_finished();
