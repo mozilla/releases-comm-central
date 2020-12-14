@@ -150,4 +150,5 @@ browser.jar:
     skin/preferences/no-search-results.svg             (../../../browser/themes/shared/preferences/no-search-results.svg)
     skin/print.svg                                     (../../../browser/themes/shared/icons/print.svg)
     skin/private-browsing.svg                          (../../../browser/themes/shared/icons/private-browsing.svg)
+    skin/tabbrowser/pendingpaint.png                   (../../../browser/themes/shared/tabbrowser/pendingpaint.png)
     skin/warning.svg                                   (../../../browser/themes/shared/warning.svg)
