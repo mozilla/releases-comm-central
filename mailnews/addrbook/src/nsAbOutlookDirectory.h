@@ -13,7 +13,6 @@
 #include "nsInterfaceHashtable.h"
 #include "nsIMutableArray.h"
 #include "nsAbWinHelper.h"
-#include "prlock.h"
 
 struct nsMapiEntry;
 
@@ -49,10 +48,10 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   NS_IMETHOD Init(const char* aUri) override;
   // nsIAbDirectoryQuery methods
   NS_DECL_NSIABDIRECTORYQUERY
-  // Perform a MAPI query (function executed in a separate thread)
+  // Perform a MAPI query.
   nsresult ExecuteQuery(SRestriction& aRestriction,
                         nsIAbDirSearchListener* aListener, int32_t aResultLimit,
-                        int32_t aTimeout, int32_t aThreadId);
+                        int32_t aTimeout);
   NS_IMETHOD Search(const nsAString& query,
                     nsIAbDirSearchListener* listener) override;
 
@@ -74,10 +73,8 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult UpdateAddressList(void);
 
   nsMapiEntry* mMapiData;
-  // Container for the query threads
-  nsDataHashtable<nsUint32HashKey, PRThread*> mQueryThreads;
+  // Keep track of context ID to be passed back from `DoQuery()`.
   int32_t mCurrentQueryId;
-  PRLock* mProtector;
   // Data for the search interfaces
   nsInterfaceHashtable<nsISupportsHashKey, nsIAbCard> mCardList;
   int32_t mSearchContext;

@@ -17,7 +17,6 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "mozilla/Logging.h"
-#include "prthread.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsCRTGlue.h"
@@ -38,15 +37,11 @@ nsAbOutlookDirectory::nsAbOutlookDirectory(void)
       mSearchContext(-1),
       mAbWinType(nsAbWinType_Unknown) {
   mMapiData = new nsMapiEntry;
-  mProtector = PR_NewLock();
 }
 
 nsAbOutlookDirectory::~nsAbOutlookDirectory(void) {
   if (mMapiData) {
     delete mMapiData;
-  }
-  if (mProtector) {
-    PR_DestroyLock(mProtector);
   }
 }
 
@@ -782,28 +777,6 @@ static void DestroyRestriction(SRestriction& aRestriction) {
   }
 }
 
-struct QueryThreadArgs {
-  nsAbOutlookDirectory* mThis;
-  SRestriction mRestriction;
-  nsCOMPtr<nsIAbDirSearchListener> mListener;
-  int32_t mResultLimit;
-  int32_t mTimeout;
-  int32_t mThreadId;
-};
-
-static void QueryThreadFunc(void* aArguments) {
-  QueryThreadArgs* arguments = reinterpret_cast<QueryThreadArgs*>(aArguments);
-
-  if (!aArguments) {
-    return;
-  }
-  arguments->mThis->ExecuteQuery(arguments->mRestriction, arguments->mListener,
-                                 arguments->mResultLimit, arguments->mTimeout,
-                                 arguments->mThreadId);
-  DestroyRestriction(arguments->mRestriction);
-  delete arguments;
-}
-
 NS_IMETHODIMP nsAbOutlookDirectory::DoQuery(
     nsIAbDirectory* aDirectory, nsIAbDirectoryQueryArguments* aArguments,
     nsIAbDirSearchListener* aListener, int32_t aResultLimit, int32_t aTimeout,
@@ -811,46 +784,20 @@ NS_IMETHODIMP nsAbOutlookDirectory::DoQuery(
   if (!aArguments || !aListener || !aReturnValue) {
     return NS_ERROR_NULL_POINTER;
   }
-  *aReturnValue = -1;
 
-  QueryThreadArgs* threadArgs = new QueryThreadArgs;
-  PRThread* newThread = nullptr;
-
-  if (!threadArgs) return NS_ERROR_OUT_OF_MEMORY;
-
-  nsresult rv = BuildRestriction(aArguments, threadArgs->mRestriction);
+  SRestriction restriction;
+  nsresult rv = BuildRestriction(aArguments, restriction);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  threadArgs->mThis = this;
-  threadArgs->mListener = aListener;
-  threadArgs->mResultLimit = aResultLimit;
-  threadArgs->mTimeout = aTimeout;
+  ExecuteQuery(restriction, aListener, aResultLimit, aTimeout);
+  DestroyRestriction(restriction);
 
-  PR_Lock(mProtector);
   *aReturnValue = ++mCurrentQueryId;
-  PR_Unlock(mProtector);
 
-  threadArgs->mThreadId = *aReturnValue;
-  newThread = PR_CreateThread(PR_USER_THREAD, QueryThreadFunc, threadArgs,
-                              PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD,
-                              PR_UNJOINABLE_THREAD, 0);
-
-  if (!newThread) {
-    DestroyRestriction(threadArgs->mRestriction);
-    delete threadArgs;
-    return NS_ERROR_OUT_OF_MEMORY;
-  }
-
-  mQueryThreads.Put(*aReturnValue, newThread);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsAbOutlookDirectory::StopQuery(int32_t aContext) {
-  PRThread* queryThread;
-  if (mQueryThreads.Get(aContext, &queryThread)) {
-    PR_Interrupt(queryThread);
-    mQueryThreads.Remove(aContext);
-  }
   return NS_OK;
 }
 
@@ -899,7 +846,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFoundCard(nsIAbCard* aCard) {
 nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction& aRestriction,
                                             nsIAbDirSearchListener* aListener,
                                             int32_t aResultLimit,
-                                            int32_t aTimeout, int32_t aThreadId)
+                                            int32_t aTimeout)
 
 {
   if (!aListener) return NS_ERROR_NULL_POINTER;
@@ -931,8 +878,6 @@ nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction& aRestriction,
 
     aListener->OnSearchFoundCard(card);
   }
-
-  mQueryThreads.Remove(aThreadId);
 
   aListener->OnSearchFinished(NS_OK, nullptr, ""_ns);
   return retCode;
