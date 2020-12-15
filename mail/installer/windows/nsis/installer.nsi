@@ -260,6 +260,25 @@ Section "-InstallStartCleanup"
   ; Remove the updates directory
   ${CleanUpdateDirectories} "Thunderbird" "Mozilla\updates"
 
+  ${RemovePrecompleteEntries} "false"
+
+  ${If} ${FileExists} "$INSTDIR\defaults\pref\channel-prefs.js"
+    Delete "$INSTDIR\defaults\pref\channel-prefs.js"
+  ${EndIf}
+  ${If} ${FileExists} "$INSTDIR\defaults\pref"
+    RmDir "$INSTDIR\defaults\pref"
+  ${EndIf}
+  ${If} ${FileExists} "$INSTDIR\defaults"
+    RmDir "$INSTDIR\defaults"
+  ${EndIf}
+  ${If} ${FileExists} "$INSTDIR\uninstall"
+    ; Remove the uninstall directory that we control
+    RmDir /r "$INSTDIR\uninstall"
+  ${EndIf}
+  ${If} ${FileExists} "$INSTDIR\update-settings.ini"
+    Delete "$INSTDIR\update-settings.ini"
+  ${EndIf}
+
   ; Upgrade the copies of the MAPI DLL's
   ${UpgradeMapiDLLs}
 
@@ -337,17 +356,7 @@ Section "-Application" APP_IDX
     ${LogMsg} "Registered: $INSTDIR\AccessibleHandler.dll"
   ${EndIf}
 
-  ; Write extra files created by the application to the uninstall log so they
-  ; will be removed when the application is uninstalled. To remove an empty
-  ; directory write a bogus filename to the deepest directory and all empty
-  ; parent directories will be removed.
-  ${LogUninstall} "File: \components\compreg.dat"
-  ${LogUninstall} "File: \components\xpti.dat"
-  ${LogUninstall} "File: \active-update.xml"
-  ${LogUninstall} "File: \install.log"
-  ${LogUninstall} "File: \install_status.log"
-  ${LogUninstall} "File: \install_wizard.log"
-  ${LogUninstall} "File: \updates.xml"
+  ClearErrors
 
   ; Default for creating Start Menu shortcut
   ; (1 = create, 0 = don't create)

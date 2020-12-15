@@ -101,7 +101,6 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 !insertmacro un.GetSecondInstallPath
 !insertmacro un.InitHashAppModelId
 !insertmacro un.ManualCloseAppPrompt
-!insertmacro un.ParseUninstallLog
 !insertmacro un.RegCleanAppHandler
 !insertmacro un.RegCleanFileHandler
 !insertmacro un.RegCleanMain
@@ -381,9 +380,6 @@ Section "Uninstall"
   ${If} ${FileExists} "$INSTDIR\distribution"
     RmDir /r /REBOOTOK "$INSTDIR\distribution"
   ${EndIf}
-  ${If} ${FileExists} "$INSTDIR\removed-files"
-    Delete /REBOOTOK "$INSTDIR\removed-files"
-  ${EndIf}
 
   ; Application update won't add these files to the uninstall log so delete
   ; them if they still exist.
@@ -410,12 +406,23 @@ Section "Uninstall"
     ${UnregisterDLL} "$INSTDIR\AccessibleHandler.dll"
   ${EndIf}
 
-  ; Parse the uninstall log to unregister dll's and remove all installed
-  ; files / directories this install is responsible for.
-  ${un.ParseUninstallLog}
+  ${un.RemovePrecompleteEntries} "false"
 
-  ; Remove the uninstall directory that we control
-  RmDir /r /REBOOTOK "$INSTDIR\uninstall"
+  ${If} ${FileExists} "$INSTDIR\defaults\pref\channel-prefs.js"
+    Delete /REBOOTOK "$INSTDIR\defaults\pref\channel-prefs.js"
+  ${EndIf}
+  RmDir "$INSTDIR\defaults\pref"
+  RmDir "$INSTDIR\defaults"
+  ${If} ${FileExists} "$INSTDIR\uninstall"
+    ; Remove the uninstall directory that we control
+    RmDir /r /REBOOTOK "$INSTDIR\uninstall"
+  ${EndIf}
+  ${If} ${FileExists} "$INSTDIR\install.log"
+    Delete /REBOOTOK "$INSTDIR\install.log"
+  ${EndIf}
+  ${If} ${FileExists} "$INSTDIR\update-settings.ini"
+    Delete /REBOOTOK "$INSTDIR\update-settings.ini"
+  ${EndIf}
 
   ; Remove the installation directory if it is empty
   RmDir "$INSTDIR"
