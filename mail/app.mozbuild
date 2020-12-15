@@ -3,22 +3,23 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Note that paths in this file are relative to the top directory, which may be
-# m-c or c-c.
+# Note that paths in this file are relative to the top directory (m-c)
 
 GENERATED_FILES[
     "source-repo.h"
 ].script = "comm/build/source_repos.py:source_repo_header"
 
-include("../mailnews/mailnews.mozbuild")
+include("/%s/toolkit/toolkit.mozbuild" % CONFIG["mozreltopsrcdir"])
+
+include("/%s/mailnews/mailnews.mozbuild" % CONFIG["commreltopsrcdir"])
 
 DIRS += ["/%s/mail/components" % CONFIG["commreltopsrcdir"]]
-
-include("/%s/toolkit/toolkit.mozbuild" % CONFIG["mozreltopsrcdir"])
 
 if CONFIG["MOZ_EXTENSIONS"]:
     DIRS += ["/%s/extensions" % CONFIG["mozreltopsrcdir"]]
 
+# Never add dirs after /comm/mail because they apparently won't get
+# packaged properly on Mac.
 DIRS += [
     "/%s" % CONFIG["MOZ_BRANDING_DIRECTORY"],
     "/%s/calendar" % CONFIG["commreltopsrcdir"],
