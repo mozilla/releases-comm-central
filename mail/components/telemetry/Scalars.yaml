@@ -104,6 +104,7 @@ tb.compose:
     bug_numbers:
       - 1584889
     description: How many times messages were written in HTML composition mode.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -117,6 +118,7 @@ tb.compose:
     bug_numbers:
       - 1584889
     description: How many times messages were written in plain text composition mode.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
