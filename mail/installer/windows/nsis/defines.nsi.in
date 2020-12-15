@@ -20,6 +20,7 @@
 
 !define ClientsRegName        "Mozilla Thunderbird"
 
+!define BrandProductName      "Thunderbird"
 !define BrandShortName        "@MOZ_APP_DISPLAYNAME@"
 !define PreReleaseSuffix      "@PRE_RELEASE_SUFFIX@"
 !ifndef BrandFullName

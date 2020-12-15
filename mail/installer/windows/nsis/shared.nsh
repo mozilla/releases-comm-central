@@ -950,9 +950,9 @@
               ReadRegStr $R9 HKLM \
                 "Software\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell\Windows.taskbarpin" \
                 "ExplorerCommandHandler"
-              WriteRegStr HKCU "Software\Classes\*\shell\${AppRegName}-$AppUserModelID" "ExplorerCommandHandler" $R9
-              InvokeShellVerb::DoIt "$SMPROGRAMS" "$1" "${AppRegName}-$AppUserModelID"
-              DeleteRegKey HKCU "Software\Classes\*\shell\${AppRegName}-$AppUserModelID"
+              WriteRegStr HKCU "Software\Classes\*\shell\${AppRegNameMail}-$AppUserModelID" "ExplorerCommandHandler" $R9
+              InvokeShellVerb::DoIt "$SMPROGRAMS" "$1" "${AppRegNameMail}-$AppUserModelID"
+              DeleteRegKey HKCU "Software\Classes\*\shell\${AppRegNameMail}-$AppUserModelID"
             ${EndIf}
 
             ; Delete the shortcut if it was created
