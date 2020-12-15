@@ -1,0 +1,23 @@
+From: "Alice Lovelace" <alice@openpgp.example>
+To: "Alice Lovelace" <alice@openpgp.example>
+Subject: signed inline with leading whitespace
+Date: Thu, 30 Oct 2020 02:35:56 +0000
+Content-Type: text/plain; charset=UTF-8
+MIME-Version: 1.0
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+indent test with £
+  £ 2.00 
+    £ 4.00
+       £ 7.00
+     £ 5.00
+end indent
+-----BEGIN PGP SIGNATURE-----
+
+iIkEARYIADEWIQTrhbtfozp14V6UTmPyMVUMT0fjjgUCX9iLtxMcYWxpY2UtdGVz
+dEBrdWl4LmRlAAoJEPIxVQxPR+OOXiQBAPrpjL5tI0ZCrWkNt8VFm9+PF0T8DOgH
+bH7ZaD9RblvUAQCOtx/6kEkGmMwteaGQatVNIwfnfFuiidwlKOtXXxIjBw==
+=Z5ya
+-----END PGP SIGNATURE-----

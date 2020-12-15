@@ -389,6 +389,30 @@ add_task(async function testOpenSignedInlineWithUTF8() {
 });
 
 /**
+ * Test that a signed (only) inline PGP message with leading whitespace
+ * can be correctly verified.
+ */
+add_task(async function testOpenSignedInlineWithLeadingWS() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(getTestFilePath("data/eml/signed-inline-indented.eml"))
+  );
+
+  Assert.ok(
+    getMsgBodyTxt(mc).includes("indent test with £"),
+    "expected text should be found in message"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unverified"),
+    "signed unverified icon is displayed"
+  );
+  Assert.ok(
+    !OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+    "encrypted icon is not displayed"
+  );
+  close_window(mc);
+});
+
+/**
  * Test that an encrypted inline message, with nbsp encoded as qp
  * in the PGP separator line, is trimmed and decrypted.
  */
