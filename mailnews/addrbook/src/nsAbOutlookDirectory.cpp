@@ -1276,13 +1276,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard* aModifiedCard) {
   return retCode;
 }
 
-NS_IMETHODIMP nsAbOutlookDirectory::UseForAutocomplete(
-    const nsACString& aIdentityKey, bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = false;
-  return NS_OK;
-}
-
 static void splitString(nsString& aSource, nsString& aTarget) {
   aTarget.Truncate();
   int32_t offset = aSource.FindChar('\n');

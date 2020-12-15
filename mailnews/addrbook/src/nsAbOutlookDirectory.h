@@ -35,8 +35,6 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
                           bool* aHasDirectory) override;
   NS_IMETHOD DeleteCards(const nsTArray<RefPtr<nsIAbCard>>& aCards) override;
   NS_IMETHOD DeleteDirectory(nsIAbDirectory* aDirectory) override;
-  NS_IMETHOD UseForAutocomplete(const nsACString& aIdentityKey,
-                                bool* aResult) override;
   NS_IMETHOD AddCard(nsIAbCard* aData, nsIAbCard** addedCard) override;
   NS_IMETHOD ModifyCard(nsIAbCard* aModifiedCard) override;
   NS_IMETHOD DropCard(nsIAbCard* aData, bool needToCopyCard) override;
