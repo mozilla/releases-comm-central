@@ -47,9 +47,9 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   // nsIAbDirectoryQuery methods
   NS_DECL_NSIABDIRECTORYQUERY
   // Perform a MAPI query.
-  nsresult ExecuteQuery(SRestriction& aRestriction,
-                        nsIAbDirSearchListener* aListener, int32_t aResultLimit,
-                        int32_t aTimeout);
+  nsresult ExecuteQuery(SRestriction* aRestriction,
+                        nsIAbDirSearchListener* aListener,
+                        int32_t aResultLimit);
   NS_IMETHOD Search(const nsAString& query,
                     nsIAbDirSearchListener* listener) override;
 
@@ -57,9 +57,9 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult StopSearch();
 
   // Retrieve hierarchy as cards, with an optional restriction
-  nsresult GetChildCards(nsIMutableArray* aCards, void* aRestriction);
+  nsresult GetCards(nsIMutableArray* aCards, SRestriction* aRestriction);
   // Retrieve hierarchy as directories
-  nsresult GetChildNodes(nsIMutableArray* aNodes);
+  nsresult GetNodes(nsIMutableArray* aNodes);
   // Create a new card
   nsresult CreateCard(nsIAbCard* aData, nsIAbCard** aNewCard);
   // Notification for the UI

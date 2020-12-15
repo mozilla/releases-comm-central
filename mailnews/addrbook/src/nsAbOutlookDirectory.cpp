@@ -121,7 +121,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildNodes(
       do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = GetChildNodes(nodeList);
+  rv = GetNodes(nodeList);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return NS_NewArrayEnumerator(aNodes, nodeList, NS_GET_IID(nsIAbDirectory));
@@ -139,9 +139,9 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildCards(
 
   mCardList.Clear();
 
-  rv = GetChildCards(cardList, nullptr);
-
+  rv = GetCards(cardList, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
+
   if (!m_AddressList) {
     m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -420,305 +420,47 @@ NS_IMETHODIMP nsAbOutlookDirectory::EditMailListToDatabase(
   return CommitAddressList();
 }
 
-struct OutlookTableAttr {
-  const char* mOuterName;
-  ULONG mMapiProp;
-};
-
-// Here, we are forced to use the Ascii versions of the properties
-// instead of the widechar ones, because the content restriction
-// operators do not work on unicode strings in mapi.
-static const OutlookTableAttr OutlookTableStringToProp[] = {
-    {kFirstNameProperty, PR_GIVEN_NAME_A},
-    {kLastNameProperty, PR_SURNAME_A},
-    {kDisplayNameProperty, PR_DISPLAY_NAME_A},
-    {kNicknameProperty, PR_NICKNAME_A},
-    {kPriEmailProperty, PR_EMAIL_ADDRESS_A},
-    {kWorkPhoneProperty, PR_BUSINESS_TELEPHONE_NUMBER_A},
-    {kHomePhoneProperty, PR_HOME_TELEPHONE_NUMBER_A},
-    {kFaxProperty, PR_BUSINESS_FAX_NUMBER_A},
-    {kPagerProperty, PR_PAGER_TELEPHONE_NUMBER_A},
-    {kCellularProperty, PR_MOBILE_TELEPHONE_NUMBER_A},
-    {kHomeAddressProperty, PR_HOME_ADDRESS_STREET_A},
-    {kHomeCityProperty, PR_HOME_ADDRESS_CITY_A},
-    {kHomeStateProperty, PR_HOME_ADDRESS_STATE_OR_PROVINCE_A},
-    {kHomeZipCodeProperty, PR_HOME_ADDRESS_POSTAL_CODE_A},
-    {kHomeCountryProperty, PR_HOME_ADDRESS_COUNTRY_A},
-    {kWorkAddressProperty, PR_BUSINESS_ADDRESS_STREET_A},
-    {kWorkCityProperty, PR_BUSINESS_ADDRESS_CITY_A},
-    {kWorkStateProperty, PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE_A},
-    {kWorkZipCodeProperty, PR_BUSINESS_ADDRESS_POSTAL_CODE_A},
-    {kWorkCountryProperty, PR_BUSINESS_ADDRESS_COUNTRY_A},
-    {kJobTitleProperty, PR_TITLE_A},
-    {kDepartmentProperty, PR_DEPARTMENT_NAME_A},
-    {kCompanyProperty, PR_COMPANY_NAME_A},
-    {kWorkWebPageProperty, PR_BUSINESS_HOME_PAGE_A},
-    {kHomeWebPageProperty, PR_PERSONAL_HOME_PAGE_A},
-// For the moment, we don't support querying on the birthday
-// sub-elements.
-#if 0
-    {kBirthYearProperty, PR_BIRTHDAY},
-    {kBirthMonthProperty, PR_BIRTHDAY},
-    {kBirthDayProperty, PR_BIRTHDAY},
-#endif  // 0
-    {kNotesProperty, PR_COMMENT_A}};
-
-static const uint32_t OutlookTableNbProps =
-    sizeof(OutlookTableStringToProp) / sizeof(OutlookTableStringToProp[0]);
-
-static ULONG findPropertyTag(const char* aName) {
-  uint32_t i = 0;
-
-  for (i = 0; i < OutlookTableNbProps; ++i) {
-    if (strcmp(aName, OutlookTableStringToProp[i].mOuterName) == 0) {
-      return OutlookTableStringToProp[i].mMapiProp;
-    }
-  }
-  return 0;
-}
-
-static nsresult BuildRestriction(nsIAbBooleanConditionString* aCondition,
-                                 SRestriction& aRestriction, bool& aSkipItem) {
-  if (!aCondition) {
-    return NS_ERROR_NULL_POINTER;
-  }
-  aSkipItem = false;
-  nsAbBooleanConditionType conditionType = 0;
-  nsresult retCode = NS_OK;
-  nsCString name;
-  nsString value;
-  ULONG propertyTag = 0;
-  nsAutoCString valueAscii;
-
-  retCode = aCondition->GetCondition(&conditionType);
-  NS_ENSURE_SUCCESS(retCode, retCode);
-  retCode = aCondition->GetName(getter_Copies(name));
-  NS_ENSURE_SUCCESS(retCode, retCode);
-  retCode = aCondition->GetValue(getter_Copies(value));
-  NS_ENSURE_SUCCESS(retCode, retCode);
-  LossyCopyUTF16toASCII(value, valueAscii);
-  propertyTag = findPropertyTag(name.get());
-  if (propertyTag == 0) {
-    aSkipItem = true;
-    return retCode;
-  }
-  switch (conditionType) {
-    case nsIAbBooleanConditionTypes::Exists:
-      aRestriction.rt = RES_EXIST;
-      aRestriction.res.resExist.ulPropTag = propertyTag;
-      break;
-    case nsIAbBooleanConditionTypes::DoesNotExist:
-      aRestriction.rt = RES_NOT;
-      aRestriction.res.resNot.lpRes = new SRestriction;
-      aRestriction.res.resNot.lpRes->rt = RES_EXIST;
-      aRestriction.res.resNot.lpRes->res.resExist.ulPropTag = propertyTag;
-      break;
-    case nsIAbBooleanConditionTypes::Contains:
-      aRestriction.rt = RES_CONTENT;
-      aRestriction.res.resContent.ulFuzzyLevel = FL_SUBSTRING | FL_LOOSE;
-      aRestriction.res.resContent.ulPropTag = propertyTag;
-      aRestriction.res.resContent.lpProp = new SPropValue;
-      aRestriction.res.resContent.lpProp->ulPropTag = propertyTag;
-      aRestriction.res.resContent.lpProp->Value.lpszA =
-          strdup(valueAscii.get());
-      break;
-    case nsIAbBooleanConditionTypes::DoesNotContain:
-      aRestriction.rt = RES_NOT;
-      aRestriction.res.resNot.lpRes = new SRestriction;
-      aRestriction.res.resNot.lpRes->rt = RES_CONTENT;
-      aRestriction.res.resNot.lpRes->res.resContent.ulFuzzyLevel =
-          FL_SUBSTRING | FL_LOOSE;
-      aRestriction.res.resNot.lpRes->res.resContent.ulPropTag = propertyTag;
-      aRestriction.res.resNot.lpRes->res.resContent.lpProp = new SPropValue;
-      aRestriction.res.resNot.lpRes->res.resContent.lpProp->ulPropTag =
-          propertyTag;
-      aRestriction.res.resNot.lpRes->res.resContent.lpProp->Value.lpszA =
-          strdup(valueAscii.get());
-      break;
-    case nsIAbBooleanConditionTypes::Is:
-      aRestriction.rt = RES_CONTENT;
-      aRestriction.res.resContent.ulFuzzyLevel = FL_FULLSTRING | FL_LOOSE;
-      aRestriction.res.resContent.ulPropTag = propertyTag;
-      aRestriction.res.resContent.lpProp = new SPropValue;
-      aRestriction.res.resContent.lpProp->ulPropTag = propertyTag;
-      aRestriction.res.resContent.lpProp->Value.lpszA =
-          strdup(valueAscii.get());
-      break;
-    case nsIAbBooleanConditionTypes::IsNot:
-      aRestriction.rt = RES_NOT;
-      aRestriction.res.resNot.lpRes = new SRestriction;
-      aRestriction.res.resNot.lpRes->rt = RES_CONTENT;
-      aRestriction.res.resNot.lpRes->res.resContent.ulFuzzyLevel =
-          FL_FULLSTRING | FL_LOOSE;
-      aRestriction.res.resNot.lpRes->res.resContent.ulPropTag = propertyTag;
-      aRestriction.res.resNot.lpRes->res.resContent.lpProp = new SPropValue;
-      aRestriction.res.resNot.lpRes->res.resContent.lpProp->ulPropTag =
-          propertyTag;
-      aRestriction.res.resNot.lpRes->res.resContent.lpProp->Value.lpszA =
-          strdup(valueAscii.get());
-      break;
-    case nsIAbBooleanConditionTypes::BeginsWith:
-      aRestriction.rt = RES_CONTENT;
-      aRestriction.res.resContent.ulFuzzyLevel = FL_PREFIX | FL_LOOSE;
-      aRestriction.res.resContent.ulPropTag = propertyTag;
-      aRestriction.res.resContent.lpProp = new SPropValue;
-      aRestriction.res.resContent.lpProp->ulPropTag = propertyTag;
-      aRestriction.res.resContent.lpProp->Value.lpszA =
-          strdup(valueAscii.get());
-      break;
-    case nsIAbBooleanConditionTypes::EndsWith:
-      // This condition should be implemented through regular expressions,
-      // but MAPI doesn't match them correctly.
-#if 0
-        aRestriction.rt = RES_PROPERTY ;
-        aRestriction.res.resProperty.relop = RELOP_RE ;
-        aRestriction.res.resProperty.ulPropTag = propertyTag ;
-        aRestriction.res.resProperty.lpProp = new SPropValue ;
-        aRestriction.res.resProperty.lpProp->ulPropTag = propertyTag ;
-        aRestriction.res.resProperty.lpProp->Value.lpszA = strdup(valueAscii.get()) ;
-#else
-      aSkipItem = true;
-#endif  // 0
-      break;
-    case nsIAbBooleanConditionTypes::SoundsLike:
-      // This condition cannot be implemented in MAPI.
-      aSkipItem = true;
-      break;
-    case nsIAbBooleanConditionTypes::RegExp:
-      // This condition should be implemented this way, but the following
-      // code will never match (through MAPI's fault).
-#if 0
-        aRestriction.rt = RES_PROPERTY ;
-        aRestriction.res.resProperty.relop = RELOP_RE ;
-        aRestriction.res.resProperty.ulPropTag = propertyTag ;
-        aRestriction.res.resProperty.lpProp = new SPropValue ;
-        aRestriction.res.resProperty.lpProp->ulPropTag = propertyTag ;
-        aRestriction.res.resProperty.lpProp->Value.lpszA = strdup(valueAscii.get()) ;
-#else
-      aSkipItem = true;
-#endif  // 0
-      break;
-    case nsIAbBooleanConditionTypes::LessThan:
-      aRestriction.rt = RES_PROPERTY;
-      aRestriction.res.resProperty.relop = RELOP_LT;
-      aRestriction.res.resProperty.ulPropTag = propertyTag;
-      aRestriction.res.resProperty.lpProp = new SPropValue;
-      aRestriction.res.resProperty.lpProp->ulPropTag = propertyTag;
-      aRestriction.res.resProperty.lpProp->Value.lpszA =
-          strdup(valueAscii.get());
-      break;
-    case nsIAbBooleanConditionTypes::GreaterThan:
-      aRestriction.rt = RES_PROPERTY;
-      aRestriction.res.resProperty.relop = RELOP_GT;
-      aRestriction.res.resProperty.ulPropTag = propertyTag;
-      aRestriction.res.resProperty.lpProp = new SPropValue;
-      aRestriction.res.resProperty.lpProp->ulPropTag = propertyTag;
-      aRestriction.res.resProperty.lpProp->Value.lpszA =
-          strdup(valueAscii.get());
-      break;
-    default:
-      aSkipItem = true;
-      break;
-  }
-  return retCode;
-}
-
-static nsresult BuildRestriction(nsIAbBooleanExpression* aLevel,
-                                 SRestriction& aRestriction) {
+static nsresult FindPrimaryEmailCondition(nsIAbBooleanExpression* aLevel,
+                                          nsAString& value) {
   if (!aLevel) {
     return NS_ERROR_NULL_POINTER;
   }
-  aRestriction.rt = RES_COMMENT;
   nsresult retCode = NS_OK;
-  nsAbBooleanOperationType operationType = 0;
   nsTArray<RefPtr<nsISupports>> expressions;
 
-  retCode = aLevel->GetOperation(&operationType);
-  NS_ENSURE_SUCCESS(retCode, retCode);
   retCode = aLevel->GetExpressions(expressions);
   NS_ENSURE_SUCCESS(retCode, retCode);
-  uint32_t nbExpressions = expressions.Length();
-  if (nbExpressions == 0) {
-    PRINTF(("Error, no expressions.\n"));
-    return NS_OK;
-  }
-  if (operationType == nsIAbBooleanOperationTypes::NOT && nbExpressions != 1) {
-    PRINTF(("Error, unary operation NOT with multiple operands.\n"));
-    return NS_OK;
-  }
-  LPSRestriction restrictionArray = new SRestriction[nbExpressions];
-  uint32_t realNbExpressions = 0;
-  bool skipItem = false;
-  uint32_t i = 0;
 
-  RefPtr<nsIAbBooleanConditionString> condition;
-  RefPtr<nsIAbBooleanExpression> subExpression;
-
-  for (i = 0; i < nbExpressions; ++i) {
-    condition = do_QueryObject(expressions[i], &retCode);
-
+  for (uint32_t i = 0; i < expressions.Length(); ++i) {
+    RefPtr<nsIAbBooleanConditionString> condition =
+        do_QueryObject(expressions[i], &retCode);
     if (NS_SUCCEEDED(retCode)) {
-      retCode = BuildRestriction(condition, *restrictionArray, skipItem);
-      if (NS_SUCCEEDED(retCode)) {
-        if (!skipItem) {
-          ++restrictionArray;
-          ++realNbExpressions;
-        }
-      } else
-        PRINTF(("Cannot build restriction for item %d %08x.\n", i, retCode));
-    } else {
-      subExpression = do_QueryObject(expressions[i], &retCode);
+      nsCString name;
+      retCode = condition->GetName(getter_Copies(name));
+      NS_ENSURE_SUCCESS(retCode, retCode);
+      if (name.EqualsLiteral("PrimaryEmail")) {
+        // We found a leaf in the boolean expression tree that compares
+        // "PrimaryEmail". So return the value and be done.
+        retCode = condition->GetValue(getter_Copies(value));
+        return retCode;
+      }
+      continue;
+    }
 
-      if (NS_SUCCEEDED(retCode)) {
-        retCode = BuildRestriction(subExpression, *restrictionArray);
-        if (NS_SUCCEEDED(retCode)) {
-          if (restrictionArray->rt != RES_COMMENT) {
-            ++restrictionArray;
-            ++realNbExpressions;
-          }
-        }
-      } else
-        PRINTF(("Cannot get interface for item %d %08x.\n", i, retCode));
+    RefPtr<nsIAbBooleanExpression> subExpression =
+        do_QueryObject(expressions[i], &retCode);
+    if (NS_SUCCEEDED(retCode)) {
+      // Recurse into the sub-tree.
+      retCode = FindPrimaryEmailCondition(subExpression, value);
+      // If we found our leaf there, we're done.
+      if (NS_SUCCEEDED(retCode)) return retCode;
     }
   }
-
-  restrictionArray -= realNbExpressions;
-  if (realNbExpressions > 1) {
-    if (operationType == nsIAbBooleanOperationTypes::OR) {
-      aRestriction.rt = RES_OR;
-      aRestriction.res.resOr.lpRes = restrictionArray;
-      aRestriction.res.resOr.cRes = realNbExpressions;
-    } else if (operationType == nsIAbBooleanOperationTypes::AND) {
-      aRestriction.rt = RES_AND;
-      aRestriction.res.resAnd.lpRes = restrictionArray;
-      aRestriction.res.resAnd.cRes = realNbExpressions;
-    } else {
-      PRINTF(("Unsupported operation %d.\n", operationType));
-    }
-  } else if (realNbExpressions == 1) {
-    if (operationType == nsIAbBooleanOperationTypes::NOT) {
-      aRestriction.rt = RES_NOT;
-      // This copy is to ensure that every NOT restriction is being
-      // allocated by new and not new[] (see destruction of restriction)
-      aRestriction.res.resNot.lpRes = new SRestriction;
-      memcpy(aRestriction.res.resNot.lpRes, restrictionArray,
-             sizeof(SRestriction));
-    } else {
-      // Case where the restriction array is redundant,
-      // we need to fill the restriction directly.
-      memcpy(&aRestriction, restrictionArray, sizeof(SRestriction));
-    }
-    delete[] restrictionArray;
-  }
-  if (aRestriction.rt == RES_COMMENT) {
-    // This means we haven't really built any useful expression
-    delete[] restrictionArray;
-  }
-  return NS_OK;
+  return NS_ERROR_UNEXPECTED;
 }
 
-static nsresult BuildRestriction(nsIAbDirectoryQueryArguments* aArguments,
-                                 SRestriction& aRestriction) {
+static nsresult GetConditionValue(nsIAbDirectoryQueryArguments* aArguments,
+                                  nsAString& value) {
   if (!aArguments) {
     return NS_ERROR_NULL_POINTER;
   }
@@ -730,51 +472,11 @@ static nsresult BuildRestriction(nsIAbDirectoryQueryArguments* aArguments,
   nsCOMPtr<nsIAbBooleanExpression> booleanQuery =
       do_QueryInterface(supports, &retCode);
   NS_ENSURE_SUCCESS(retCode, retCode);
-  retCode = BuildRestriction(booleanQuery, aRestriction);
-  return retCode;
-}
 
-static void DestroyRestriction(SRestriction& aRestriction) {
-  switch (aRestriction.rt) {
-    case RES_AND:
-    case RES_OR: {
-      for (ULONG i = 0; i < aRestriction.res.resAnd.cRes; ++i) {
-        DestroyRestriction(aRestriction.res.resAnd.lpRes[i]);
-      }
-      delete[] aRestriction.res.resAnd.lpRes;
-    } break;
-    case RES_COMMENT:
-      break;
-    case RES_CONTENT:
-      if (PROP_TYPE(aRestriction.res.resContent.ulPropTag) == PT_UNICODE) {
-        free(aRestriction.res.resContent.lpProp->Value.lpszW);
-      } else if (PROP_TYPE(aRestriction.res.resContent.ulPropTag) ==
-                 PT_STRING8) {
-        free(aRestriction.res.resContent.lpProp->Value.lpszA);
-      }
-      delete aRestriction.res.resContent.lpProp;
-      break;
-    case RES_EXIST:
-      break;
-    case RES_NOT:
-      DestroyRestriction(*aRestriction.res.resNot.lpRes);
-      delete aRestriction.res.resNot.lpRes;
-      break;
-    case RES_BITMASK:
-    case RES_COMPAREPROPS:
-      break;
-    case RES_PROPERTY:
-      if (PROP_TYPE(aRestriction.res.resProperty.ulPropTag) == PT_UNICODE) {
-        free(aRestriction.res.resProperty.lpProp->Value.lpszW);
-      } else if (PROP_TYPE(aRestriction.res.resProperty.ulPropTag) ==
-                 PT_STRING8) {
-        free(aRestriction.res.resProperty.lpProp->Value.lpszA);
-      }
-      delete aRestriction.res.resProperty.lpProp;
-    case RES_SIZE:
-    case RES_SUBRESTRICTION:
-      break;
-  }
+  // Outlook can only query the PR_ANR property. So get its value from the
+  // PrimaryEmail condition.
+  retCode = FindPrimaryEmailCondition(booleanQuery, value);
+  return retCode;
 }
 
 NS_IMETHODIMP nsAbOutlookDirectory::DoQuery(
@@ -785,12 +487,38 @@ NS_IMETHODIMP nsAbOutlookDirectory::DoQuery(
     return NS_ERROR_NULL_POINTER;
   }
 
-  SRestriction restriction;
-  nsresult rv = BuildRestriction(aArguments, restriction);
-  NS_ENSURE_SUCCESS(rv, rv);
+  // The only thing we can search here is PR_ANR. All other properties are
+  // skipped. Note that PR_ANR also searches in the recipient's name and
+  // e-mail address.
+  // https://docs.microsoft.com/en-us/office/client-developer/outlook/mapi/address-book-restrictions
+  // states:
+  // Ambiguous name restrictions are property restrictions using the PR_ANR
+  // property to match recipient names with entries in address book containers.
 
-  ExecuteQuery(restriction, aListener, aResultLimit, aTimeout);
-  DestroyRestriction(restriction);
+  // Note the following:
+  // This code is also run for the "OE" address book provider which provides
+  // access to the "Windows Contacts" stored in C:\Users\<user>\Contacts.
+  // Ultimately the cards are retrieved by `nsAbWinHelper::GetContents()` which
+  // executes a `Restrict()` on the MAPI table. Unlike for Outlook, for
+  // "Windows Contacts" that call always succeeds, regardless of whether
+  // PR_ANR_A/W, PR_EMAIL_ADDRESS_A/W or PR_DISPLAY_NAME_A/W is used.
+  // However, no cards are ever returned.
+
+  SRestriction restriction;
+  SPropValue val;
+  restriction.rt = RES_PROPERTY;
+  restriction.res.resProperty.relop = RELOP_EQ;
+  restriction.res.resProperty.ulPropTag = PR_ANR_W;
+  restriction.res.resProperty.lpProp = &val;
+  restriction.res.resProperty.lpProp->ulPropTag = PR_ANR_W;
+
+  nsAutoString value;
+  nsresult rv = GetConditionValue(aArguments, value);
+  NS_ENSURE_SUCCESS(rv, rv);
+  restriction.res.resProperty.lpProp->Value.lpszW = value.get();
+
+  rv = ExecuteQuery(&restriction, aListener, aResultLimit);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   *aReturnValue = ++mCurrentQueryId;
 
@@ -805,9 +533,13 @@ NS_IMETHODIMP nsAbOutlookDirectory::Search(const nsAString& query,
                                            nsIAbDirSearchListener* listener) {
   nsresult retCode = NS_OK;
 
+  // Note the following: We get a rather complicated query passed here from
+  // preference mail.addr_book.quicksearchquery.format.
+  // Outlook address book search only allows search by PR_ANR, which is a fuzzy
+  // Ambiguous Name Restriction search.
+
   retCode = StopSearch();
   NS_ENSURE_SUCCESS(retCode, retCode);
-  mCardList.Clear();
 
   nsCOMPtr<nsIAbBooleanExpression> expression;
 
@@ -843,10 +575,9 @@ NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFoundCard(nsIAbCard* aCard) {
   return NS_OK;
 }
 
-nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction& aRestriction,
+nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction* aRestriction,
                                             nsIAbDirSearchListener* aListener,
-                                            int32_t aResultLimit,
-                                            int32_t aTimeout)
+                                            int32_t aResultLimit)
 
 {
   if (!aListener) return NS_ERROR_NULL_POINTER;
@@ -857,8 +588,7 @@ nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction& aRestriction,
       do_CreateInstance(NS_ARRAY_CONTRACTID, &retCode));
   NS_ENSURE_SUCCESS(retCode, retCode);
 
-  retCode = GetChildCards(
-      resultsArray, aRestriction.rt == RES_COMMENT ? nullptr : &aRestriction);
+  retCode = GetCards(resultsArray, aRestriction);
   NS_ENSURE_SUCCESS(retCode, retCode);
 
   uint32_t nbResults = 0;
@@ -884,8 +614,8 @@ nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction& aRestriction,
 }
 
 // This function expects the aCards array to already be created.
-nsresult nsAbOutlookDirectory::GetChildCards(nsIMutableArray* aCards,
-                                             void* aRestriction) {
+nsresult nsAbOutlookDirectory::GetCards(nsIMutableArray* aCards,
+                                        SRestriction* aRestriction) {
   nsAbWinHelperGuard mapiAddBook(mAbWinType);
 
   if (!mapiAddBook->IsOK()) return NS_ERROR_FAILURE;
@@ -920,7 +650,7 @@ nsresult nsAbOutlookDirectory::GetChildCards(nsIMutableArray* aCards,
   return rv;
 }
 
-nsresult nsAbOutlookDirectory::GetChildNodes(nsIMutableArray* aNodes) {
+nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
   NS_ENSURE_ARG_POINTER(aNodes);
 
   aNodes->Clear();
@@ -979,7 +709,7 @@ nsresult nsAbOutlookDirectory::CommitAddressList(void) {
       do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = GetChildCards(oldList, nullptr);
+  rv = GetCards(oldList, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!m_AddressList) return NS_ERROR_NULL_POINTER;
@@ -1025,8 +755,8 @@ nsresult nsAbOutlookDirectory::UpdateAddressList(void) {
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  return m_IsMailList ? GetChildCards(m_AddressList, nullptr)
-                      : GetChildNodes(m_AddressList);
+  return m_IsMailList ? GetCards(m_AddressList, nullptr)
+                      : GetNodes(m_AddressList);
 }
 
 nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
