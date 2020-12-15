@@ -4,6 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["SmtpServer"];
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 /**
  * This class represents a single SMTP server.
  *
@@ -110,7 +112,7 @@ SmtpServer.prototype = {
   },
 
   set socketType(value) {
-    return this._prefs.setIntPref("try_ssl", value);
+    this._prefs.setIntPref("try_ssl", value);
   },
 
   get helloArgument() {
