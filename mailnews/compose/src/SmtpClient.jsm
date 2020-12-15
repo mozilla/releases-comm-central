@@ -35,7 +35,6 @@ var { SmtpAuthenticator } = ChromeUtils.import(
 );
 
 var encode = btoa;
-var DEBUG_TAG = "SMTP Client";
 
 /**
  * Lower Bound for socket timeout to wait since the last data was written to a socket
@@ -151,7 +150,7 @@ class SmtpClient {
    * Sends QUIT
    */
   quit() {
-    this.logger.debug(DEBUG_TAG, "Sending QUIT...");
+    this.logger.debug("Sending QUIT...");
     this._sendCommand("QUIT");
     this._currentAction = this.close;
   }
@@ -160,7 +159,7 @@ class SmtpClient {
    * Closes the connection to the server
    */
   close() {
-    this.logger.debug(DEBUG_TAG, "Closing connection...");
+    this.logger.debug("Closing connection...");
     if (this.socket && this.socket.readyState === "open") {
       this.socket.close();
     } else {
@@ -189,7 +188,7 @@ class SmtpClient {
     this._envelope.responseQueue = [];
 
     this._currentAction = this._actionMAIL;
-    this.logger.debug(DEBUG_TAG, "Sending MAIL FROM...");
+    this.logger.debug("Sending MAIL FROM...");
     this._sendCommand("MAIL FROM:<" + this._envelope.from + ">");
   }
 
@@ -352,7 +351,7 @@ class SmtpClient {
     var stringPayload = new TextDecoder("UTF-8").decode(
       new Uint8Array(evt.data)
     );
-    this.logger.debug(DEBUG_TAG, "SERVER: " + stringPayload);
+    this.logger.debug("SERVER: " + stringPayload);
     this._parse(stringPayload);
   }
 
@@ -368,32 +367,33 @@ class SmtpClient {
   }
 
   /**
-   * Error handler for the socket
+   * Error handler. Emits an nsresult value.
    *
-   * @event
-   * @param {Event} evt Event object. See evt.data for the error
+   * @param {Error|TCPSocketErrorEvent} e - An Error or TCPSocketErrorEvent object.
    */
-  _onError(evt) {
-    if (evt instanceof Error && evt.message) {
-      this.logger.error(DEBUG_TAG, evt);
-      this.onerror(evt);
-    } else if (evt && evt.data instanceof Error) {
-      this.logger.error(DEBUG_TAG, evt.data);
-      this.onerror(evt.data);
-    } else {
-      this.logger.error(
-        DEBUG_TAG,
-        new Error(
-          (evt && evt.data && evt.data.message) || evt.data || evt || "Error"
-        )
-      );
-      this.onerror(
-        new Error(
-          (evt && evt.data && evt.data.message) || evt.data || evt || "Error"
-        )
-      );
+  _onError(e) {
+    this.logger.error(e);
+    let nsError = Cr.NS_ERROR_FAILURE;
+    if (e instanceof TCPSocketErrorEvent) {
+      // TCPSocketErrorEvent name is set in TCPSocket.cpp.
+      switch (e.name) {
+        case "ConnectionRefusedError":
+          nsError = Cr.NS_ERROR_CONNECTION_REFUSED;
+          break;
+        case "NetworkTimeoutError":
+          nsError = Cr.NS_ERROR_NET_TIMEOUT;
+          break;
+        case "DomainNotFoundError":
+          nsError = Cr.NS_ERROR_UNKNOWN_HOST;
+          break;
+        case "NetworkInterruptError":
+          nsError = Cr.NS_ERROR_NET_INTERRUPT;
+          break;
+      }
     }
-
+    // Use nsresult to integrate with other parts of sending process, e.g.
+    // MessageSend.jsm will show an error message depending on the nsresult.
+    this.onerror(nsError);
     this.close();
   }
 
@@ -404,7 +404,7 @@ class SmtpClient {
    * @param {Event} evt Event object. Not used
    */
   _onClose() {
-    this.logger.debug(DEBUG_TAG, "Socket closed.");
+    this.logger.debug("Socket closed.");
     this._destroy();
   }
 
@@ -440,6 +440,19 @@ class SmtpClient {
   }
 
   /**
+   * Converts a binary string into a Uint8Array.
+   * @param {BinaryString} str - The string to convert.
+   * @returns {Uint8Array}.
+   */
+  _binaryStringToTypedArray(str) {
+    let arr = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) {
+      arr[i] = str.charCodeAt(i);
+    }
+    return arr;
+  }
+
+  /**
    * Sends a string to the socket.
    *
    * @param {String} chunk ASCII string (quoted-printable, base64 etc.) to be sent to the server
@@ -465,13 +478,10 @@ class SmtpClient {
       this._lastDataBytes = this._lastDataBytes.substr(-1) + chunk;
     }
 
-    this.logger.debug(
-      DEBUG_TAG,
-      "Sending " + chunk.length + " bytes of payload"
-    );
+    this.logger.debug("Sending " + chunk.length + " bytes of payload");
 
     // pass the chunk to the socket
-    this.waitDrain = this._send(new TextEncoder("UTF-8").encode(chunk).buffer);
+    this.waitDrain = this._send(this._binaryStringToTypedArray(chunk).buffer);
     return this.waitDrain;
   }
 
@@ -482,9 +492,8 @@ class SmtpClient {
    */
   _sendCommand(str) {
     this.waitDrain = this._send(
-      new TextEncoder("UTF-8").encode(
-        str + (str.substr(-2) !== "\r\n" ? "\r\n" : "")
-      ).buffer
+      new TextEncoder().encode(str + (str.substr(-2) !== "\r\n" ? "\r\n" : ""))
+        .buffer
     );
   }
 
@@ -546,14 +555,14 @@ class SmtpClient {
         // C: AUTH LOGIN
         // C: BASE64(USER)
         // C: BASE64(PASS)
-        this.logger.debug(DEBUG_TAG, "Authentication via AUTH LOGIN");
+        this.logger.debug("Authentication via AUTH LOGIN");
         this._currentAction = this._actionAUTH_LOGIN_USER;
         this._sendCommand("AUTH LOGIN");
         return;
       case "PLAIN":
         // AUTH PLAIN is a 1 step authentication process
         // C: AUTH PLAIN BASE64(\0 USER \0 PASS)
-        this.logger.debug(DEBUG_TAG, "Authentication via AUTH PLAIN");
+        this.logger.debug("Authentication via AUTH PLAIN");
         this._currentAction = this._actionAUTHComplete;
         this._sendCommand(
           // convert to BASE64
@@ -568,7 +577,7 @@ class SmtpClient {
         return;
       case "XOAUTH2":
         // See https://developers.google.com/gmail/xoauth2_protocol#smtp_protocol_exchange
-        this.logger.debug(DEBUG_TAG, "Authentication via AUTH XOAUTH2");
+        this.logger.debug("Authentication via AUTH XOAUTH2");
         this._currentAction = this._actionAUTH_XOAUTH2;
         let oauthToken = await this._authenticator.getOAuthToken();
         this._sendCommand("AUTH XOAUTH2 " + oauthToken);
@@ -592,12 +601,12 @@ class SmtpClient {
     }
 
     if (this.options.lmtp) {
-      this.logger.debug(DEBUG_TAG, "Sending LHLO " + this.options.name);
+      this.logger.debug("Sending LHLO " + this.options.name);
 
       this._currentAction = this._actionLHLO;
       this._sendCommand("LHLO " + this.options.name);
     } else {
-      this.logger.debug(DEBUG_TAG, "Sending EHLO " + this.options.name);
+      this.logger.debug("Sending EHLO " + this.options.name);
 
       this._currentAction = this._actionEHLO;
       this._sendCommand("EHLO " + this.options.name);
@@ -611,8 +620,7 @@ class SmtpClient {
    */
   _actionLHLO(command) {
     if (!command.success) {
-      this.logger.error(DEBUG_TAG, "LHLO not successful");
-      this._onError(new Error(command.data));
+      this._onError(new Error(`LHLO not successful: ${command.data}`));
       return;
     }
 
@@ -631,16 +639,12 @@ class SmtpClient {
     if (!command.success) {
       if (!this._secureMode && this.options.requireTLS) {
         var errMsg = "STARTTLS not supported without EHLO";
-        this.logger.error(DEBUG_TAG, errMsg);
         this._onError(new Error(errMsg));
         return;
       }
 
       // Try HELO instead
-      this.logger.warn(
-        DEBUG_TAG,
-        "EHLO not successful, trying HELO " + this.options.name
-      );
+      this.logger.warn("EHLO not successful, trying HELO " + this.options.name);
       this._currentAction = this._actionHELO;
       this._sendCommand("HELO " + this.options.name);
       return;
@@ -648,29 +652,26 @@ class SmtpClient {
 
     // Detect if the server supports PLAIN auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)PLAIN/i)) {
-      this.logger.debug(DEBUG_TAG, "Server supports AUTH PLAIN");
+      this.logger.debug("Server supports AUTH PLAIN");
       this._supportedAuth.push("PLAIN");
     }
 
     // Detect if the server supports LOGIN auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)LOGIN/i)) {
-      this.logger.debug(DEBUG_TAG, "Server supports AUTH LOGIN");
+      this.logger.debug("Server supports AUTH LOGIN");
       this._supportedAuth.push("LOGIN");
     }
 
     // Detect if the server supports XOAUTH2 auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)XOAUTH2/i)) {
-      this.logger.debug(DEBUG_TAG, "Server supports AUTH XOAUTH2");
+      this.logger.debug("Server supports AUTH XOAUTH2");
       this._supportedAuth.push("XOAUTH2");
     }
 
     // Detect maximum allowed message size
     if ((match = command.data.match(/SIZE (\d+)/i)) && Number(match[1])) {
       const maxAllowedSize = Number(match[1]);
-      this.logger.debug(
-        DEBUG_TAG,
-        "Maximum allowd message size: " + maxAllowedSize
-      );
+      this.logger.debug("Maximum allowd message size: " + maxAllowedSize);
     }
 
     // Detect if the server supports STARTTLS
@@ -680,7 +681,7 @@ class SmtpClient {
         !!this.options.requireTLS
       ) {
         this._currentAction = this._actionSTARTTLS;
-        this.logger.debug(DEBUG_TAG, "Sending STARTTLS");
+        this.logger.debug("Sending STARTTLS");
         this._sendCommand("STARTTLS");
         return;
       }
@@ -698,8 +699,7 @@ class SmtpClient {
    */
   _actionSTARTTLS(command) {
     if (!command.success) {
-      this.logger.error(DEBUG_TAG, "STARTTLS not successful");
-      this._onError(new Error(command.data));
+      this._onError(new Error(`STARTTLS not successful: ${command.data}`));
       return;
     }
 
@@ -718,8 +718,7 @@ class SmtpClient {
    */
   _actionHELO(command) {
     if (!command.success) {
-      this.logger.error(DEBUG_TAG, "HELO not successful");
-      this._onError(new Error(command.data));
+      this._onError(new Error(`HELO not successful: ${command.data}`));
       return;
     }
     this._authenticateUser();
@@ -732,10 +731,6 @@ class SmtpClient {
    */
   _actionAUTH_LOGIN_USER(command) {
     if (command.statusCode !== 334 || command.data !== "VXNlcm5hbWU6") {
-      this.logger.error(
-        DEBUG_TAG,
-        "AUTH LOGIN USER not successful: " + command.data
-      );
       this._onError(
         new Error(
           'Invalid login sequence while waiting for "334 VXNlcm5hbWU6 ": ' +
@@ -744,7 +739,7 @@ class SmtpClient {
       );
       return;
     }
-    this.logger.debug(DEBUG_TAG, "AUTH LOGIN USER successful");
+    this.logger.debug("AUTH LOGIN USER successful");
     this._currentAction = this._actionAUTH_LOGIN_PASS;
     this._sendCommand(encode(this._authenticator.getUsername()));
   }
@@ -756,10 +751,6 @@ class SmtpClient {
    */
   _actionAUTH_LOGIN_PASS(command) {
     if (command.statusCode !== 334 || command.data !== "UGFzc3dvcmQ6") {
-      this.logger.error(
-        DEBUG_TAG,
-        "AUTH LOGIN PASS not successful: " + command.data
-      );
       this._onError(
         new Error(
           'Invalid login sequence while waiting for "334 UGFzc3dvcmQ6 ": ' +
@@ -768,7 +759,7 @@ class SmtpClient {
       );
       return;
     }
-    this.logger.debug(DEBUG_TAG, "AUTH LOGIN PASS successful");
+    this.logger.debug("AUTH LOGIN PASS successful");
     this._currentAction = this._actionAUTHComplete;
     this._sendCommand(encode(this._authenticator.getPassword()));
   }
@@ -780,10 +771,7 @@ class SmtpClient {
    */
   _actionAUTH_XOAUTH2(command) {
     if (!command.success) {
-      this.logger.warn(
-        DEBUG_TAG,
-        "Error during AUTH XOAUTH2, sending empty response"
-      );
+      this.logger.warn("Error during AUTH XOAUTH2, sending empty response");
       this._sendCommand("");
       this._currentAction = this._actionAUTHComplete;
     } else {
@@ -799,12 +787,11 @@ class SmtpClient {
    */
   _actionAUTHComplete(command) {
     if (!command.success) {
-      this.logger.debug(DEBUG_TAG, "Authentication failed: " + command.data);
-      this._onError(new Error(command.data));
+      this._onError(new Error(`Authentication failed: ${command.data}`));
       return;
     }
 
-    this.logger.debug(DEBUG_TAG, "Authentication successful.");
+    this.logger.debug("Authentication successful.");
 
     this._currentAction = this._actionIdle;
     this.onidle(); // ready to take orders
@@ -831,8 +818,7 @@ class SmtpClient {
    */
   _actionMAIL(command) {
     if (!command.success) {
-      this.logger.debug(DEBUG_TAG, "MAIL FROM unsuccessful: " + command.data);
-      this._onError(new Error(command.data));
+      this._onError(new Error(`MAIL FROM unsuccessful: ${command.data}`));
       return;
     }
 
@@ -840,12 +826,11 @@ class SmtpClient {
       this._onError(new Error("Can't send mail - no recipients defined"));
     } else {
       this.logger.debug(
-        DEBUG_TAG,
         "MAIL FROM successful, proceeding with " +
           this._envelope.rcptQueue.length +
           " recipients"
       );
-      this.logger.debug(DEBUG_TAG, "Adding recipient...");
+      this.logger.debug("Adding recipient...");
       this._envelope.curRecipient = this._envelope.rcptQueue.shift();
       this._currentAction = this._actionRCPT;
       this._sendCommand("RCPT TO:<" + this._envelope.curRecipient + ">");
@@ -861,10 +846,7 @@ class SmtpClient {
    */
   _actionRCPT(command) {
     if (!command.success) {
-      this.logger.warn(
-        DEBUG_TAG,
-        "RCPT TO failed for: " + this._envelope.curRecipient
-      );
+      this.logger.warn("RCPT TO failed for: " + this._envelope.curRecipient);
       // this is a soft error
       this._envelope.rcptFailed.push(this._envelope.curRecipient);
     } else {
@@ -874,7 +856,7 @@ class SmtpClient {
     if (!this._envelope.rcptQueue.length) {
       if (this._envelope.rcptFailed.length < this._envelope.to.length) {
         this._currentAction = this._actionDATA;
-        this.logger.debug(DEBUG_TAG, "RCPT TO done, proceeding with payload");
+        this.logger.debug("RCPT TO done, proceeding with payload");
         this._sendCommand("DATA");
       } else {
         this._onError(
@@ -883,7 +865,7 @@ class SmtpClient {
         this._currentAction = this._actionIdle;
       }
     } else {
-      this.logger.debug(DEBUG_TAG, "Adding recipient...");
+      this.logger.debug("Adding recipient...");
       this._envelope.curRecipient = this._envelope.rcptQueue.shift();
       this._currentAction = this._actionRCPT;
       this._sendCommand("RCPT TO:<" + this._envelope.curRecipient + ">");
@@ -899,8 +881,7 @@ class SmtpClient {
     // response should be 354 but according to this issue https://github.com/eleith/emailjs/issues/24
     // some servers might use 250 instead
     if (![250, 354].includes(command.statusCode)) {
-      this.logger.error(DEBUG_TAG, "DATA unsuccessful " + command.data);
-      this._onError(new Error(command.data));
+      this._onError(new Error(`DATA unsuccessful: ${command.data}`));
       return;
     }
 
@@ -924,13 +905,10 @@ class SmtpClient {
 
       rcpt = this._envelope.responseQueue.shift();
       if (!command.success) {
-        this.logger.error(DEBUG_TAG, "Local delivery to " + rcpt + " failed.");
+        this.logger.error("Local delivery to " + rcpt + " failed.");
         this._envelope.rcptFailed.push(rcpt);
       } else {
-        this.logger.error(
-          DEBUG_TAG,
-          "Local delivery to " + rcpt + " succeeded."
-        );
+        this.logger.error("Local delivery to " + rcpt + " succeeded.");
       }
 
       if (this._envelope.responseQueue.length) {
@@ -945,9 +923,9 @@ class SmtpClient {
       // about individual recipients
 
       if (!command.success) {
-        this.logger.error(DEBUG_TAG, "Message sending failed.");
+        this.logger.error("Message sending failed.");
       } else {
-        this.logger.debug(DEBUG_TAG, "Message sent successfully.");
+        this.logger.debug("Message sent successfully.");
       }
 
       this._currentAction = this._actionIdle;
@@ -957,10 +935,7 @@ class SmtpClient {
     // If the client wanted to do something else (eg. to quit), do not force idle
     if (this._currentAction === this._actionIdle) {
       // Waiting for new connections
-      this.logger.debug(
-        DEBUG_TAG,
-        "Idling while waiting for new connections..."
-      );
+      this.logger.debug("Idling while waiting for new connections...");
       this.onidle();
     }
   }

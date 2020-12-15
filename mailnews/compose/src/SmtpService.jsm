@@ -110,15 +110,13 @@ SmtpService.prototype = {
       fstream.close();
       client.end();
     };
+    let runningUrl = Services.io.newURI(server.serverURI);
     client.ondone = () => {
-      deliveryListener.OnStopRunningUrl(
-        Services.io.newURI("smtp://invalid@tinderbox"),
-        0
-      );
+      deliveryListener.OnStopRunningUrl(runningUrl, 0);
       client.close();
     };
-    client.onerror = e => {
-      Cu.reportError(e);
+    client.onerror = nsError => {
+      deliveryListener.OnStopRunningUrl(runningUrl, nsError);
     };
   },
 
