@@ -30,6 +30,9 @@ const EXPORTED_SYMBOLS = ["SmtpClient"];
 var { setTimeout, clearTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
+var { SmtpAuthenticator } = ChromeUtils.import(
+  "resource:///modules/MailAuthenticator.jsm"
+);
 
 var encode = btoa;
 var DEBUG_TAG = "SMTP Client";
@@ -54,28 +57,29 @@ class SmtpClient {
    * Call `connect` method to inititate the actual connection, the constructor only
    * defines the properties but does not actually connect.
    *
-   * NB! The parameter order (host, port) differs from node.js "way" (port, host)
-   *
    * @constructor
    *
-   * @param {String} [host="localhost"] Hostname to conenct to
-   * @param {Number} [port=25] Port number to connect to
-   * @param {Object} [options] Optional options object
-   * @param {Boolean} [options.useSecureTransport] Set to true, to use encrypted connection
-   * @param {String} [options.name] Client hostname for introducing itself to the server
-   * @param {Object} [options.auth] Authentication options. Depends on the preferred authentication method. Usually {user, pass}
-   * @param {String} [options.authMethod] Force specific authentication method
-   * @param {Boolean} [options.disableEscaping] If set to true, do not escape dots on the beginning of the lines
-   * @param {Boolean} [options.logger] A winston-compatible logger
+   * @param {nsISmtpServer} server - The associated nsISmtpServer instance.
    */
-  constructor(host, port, options = {}) {
-    this.options = options;
+  constructor(server) {
+    let authMethod = {
+      [Ci.nsMsgAuthMethod.passwordCleartext]: "PLAIN",
+      [Ci.nsMsgAuthMethod.passwordEncrypted]: "LOGIN",
+      [Ci.nsMsgAuthMethod.OAuth2]: "XOAUTH2",
+    }[server.authMethod];
+    this.options = {
+      ignoreTLS: server.socketType == Ci.nsMsgSocketType.plain,
+      requireTLS: server.socketType == Ci.nsMsgSocketType.SSL,
+      authMethod,
+    };
 
     this.timeoutSocketLowerBound = TIMEOUT_SOCKET_LOWER_BOUND;
     this.timeoutSocketMultiplier = TIMEOUT_SOCKET_MULTIPLIER;
 
-    this.port = port || (this.options.useSecureTransport ? 465 : 25);
-    this.host = host || "localhost";
+    this.port = server.port || (this.options.useSecureTransport ? 465 : 25);
+    this.host = server.hostname;
+
+    this._authenticator = new SmtpAuthenticator(server);
 
     /**
      * If set to true, start an encrypted connection instead of the plaintext one
@@ -87,7 +91,6 @@ class SmtpClient {
         ? !!this.options.useSecureTransport
         : this.port === 465;
 
-    this.options.auth = this.options.auth || false; // Authentication object. If not set, authentication step will be skipped.
     this.options.name = this.options.name || "localhost"; // Hostname of the client, this will be used for introducing to the server
     this.socket = false; // Downstream TCP socket to the SMTP server, created with mozTCPSocket
     this.destroyed = false; // Indicates if the connection has been closed and can't be used anymore
@@ -95,7 +98,6 @@ class SmtpClient {
 
     // Private properties
 
-    this._authenticatedAs = null; // If authenticated successfully, stores the username
     this._supportedAuth = []; // A list of authentication mechanisms detected from the EHLO response and which are compatible with this library
     this._dataMode = false; // If true, accepts data from the upstream to be passed directly to the downstream socket. Used after the DATA command
     this._lastDataBytes = ""; // Keep track of the last bytes to see how the terminating dot should be placed
@@ -109,11 +111,11 @@ class SmtpClient {
     this._parseBlock = { data: [], statusCode: null };
     this._parseRemainder = ""; // If the complete line is not received yet, contains the beginning of it
 
-    const dummyLogger = ["error", "warn", "info", "debug"].reduce((o, l) => {
-      o[l] = () => {};
-      return o;
-    }, {});
-    this.logger = options.logger || dummyLogger;
+    this.logger = console.createInstance({
+      prefix: "mailnews.smtp",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "mailnews.smtp.loglevel",
+    });
 
     // Event placeholders
     this.onerror = e => {}; // Will be run when an error occurs. The `onclose` event will fire subsequently.
@@ -521,8 +523,8 @@ class SmtpClient {
   /**
    * Intitiate authentication sequence if needed
    */
-  _authenticateUser() {
-    if (!this.options.auth) {
+  async _authenticateUser() {
+    if (this._supportedAuth.length == 0) {
       // no need to authenticate, at least no data given
       this._currentAction = this._actionIdle;
       this.onidle(); // ready to take orders
@@ -530,10 +532,6 @@ class SmtpClient {
     }
 
     var auth;
-
-    if (!this.options.authMethod && this.options.auth.xoauth2) {
-      this.options.authMethod = "XOAUTH2";
-    }
 
     if (this.options.authMethod) {
       auth = this.options.authMethod.toUpperCase().trim();
@@ -561,11 +559,10 @@ class SmtpClient {
           // convert to BASE64
           "AUTH PLAIN " +
             encode(
-              // this.options.auth.user+'\u0000'+
               "\u0000" + // skip authorization identity as it causes problems with some servers
-                this.options.auth.user +
+                this._authenticator.getUsername() +
                 "\u0000" +
-                this.options.auth.pass
+                this._authenticator.getPassword()
             )
         );
         return;
@@ -573,13 +570,8 @@ class SmtpClient {
         // See https://developers.google.com/gmail/xoauth2_protocol#smtp_protocol_exchange
         this.logger.debug(DEBUG_TAG, "Authentication via AUTH XOAUTH2");
         this._currentAction = this._actionAUTH_XOAUTH2;
-        this._sendCommand(
-          "AUTH XOAUTH2 " +
-            this._buildXOAuth2Token(
-              this.options.auth.user,
-              this.options.auth.xoauth2
-            )
-        );
+        let oauthToken = await this._authenticator.getOAuthToken();
+        this._sendCommand("AUTH XOAUTH2 " + oauthToken);
         return;
     }
 
@@ -754,7 +746,7 @@ class SmtpClient {
     }
     this.logger.debug(DEBUG_TAG, "AUTH LOGIN USER successful");
     this._currentAction = this._actionAUTH_LOGIN_PASS;
-    this._sendCommand(encode(this.options.auth.user));
+    this._sendCommand(encode(this._authenticator.getUsername()));
   }
 
   /**
@@ -778,7 +770,7 @@ class SmtpClient {
     }
     this.logger.debug(DEBUG_TAG, "AUTH LOGIN PASS successful");
     this._currentAction = this._actionAUTHComplete;
-    this._sendCommand(encode(this.options.auth.pass));
+    this._sendCommand(encode(this._authenticator.getPassword()));
   }
 
   /**
@@ -813,8 +805,6 @@ class SmtpClient {
     }
 
     this.logger.debug(DEBUG_TAG, "Authentication successful.");
-
-    this._authenticatedAs = this.options.auth.user;
 
     this._currentAction = this._actionIdle;
     this.onidle(); // ready to take orders
@@ -973,18 +963,5 @@ class SmtpClient {
       );
       this.onidle();
     }
-  }
-
-  /**
-   * Builds a login token for XOAUTH2 authentication command
-   *
-   * @param {String} user E-mail address of the user
-   * @param {String} token Valid access token for the user
-   * @return {String} Base64 formatted login token
-   */
-  _buildXOAuth2Token(user, token) {
-    var authData = ["user=" + (user || ""), "auth=Bearer " + token, "", ""];
-    // base64("user={User}\x00auth=Bearer {Token}\x00\x00")
-    return encode(authData.join("\x01"));
   }
 }

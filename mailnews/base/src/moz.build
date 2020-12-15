@@ -108,6 +108,7 @@ EXTRA_JS_MODULES += [
     "iteratorUtils.jsm",
     "JsTreeSelection.jsm",
     "JXON.jsm",
+    "MailAuthenticator.jsm",
     "MailNewsCommandLineHandler.jsm",
     "MailnewsMigrator.jsm",
     "MailNotificationService.jsm",

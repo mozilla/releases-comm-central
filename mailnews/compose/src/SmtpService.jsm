@@ -66,11 +66,10 @@ SmtpService.prototype = {
     outRequest
   ) {
     let server = this.getServerByIdentity(userIdentity);
-    let client = new SmtpClient(server.hostname, server.port, {
-      logger: console,
-      ignoreTLS: server.socketType == 0,
-      requireTLS: server.socketType == 3,
-    });
+    if (password) {
+      server.password = password;
+    }
+    let client = new SmtpClient(server);
     client.connect();
     let fresh = true;
     client.onidle = () => {
@@ -127,11 +126,7 @@ SmtpService.prototype = {
    * @see nsISmtpService
    */
   verifyLogon(server, urlListener, msgWindow) {
-    let client = new SmtpClient(server.hostname, server.port, {
-      logger: console,
-      ignoreTLS: server.socketType == Ci.nsMsgSocketType.plain,
-      requireTLS: server.socketType == Ci.nsMsgSocketType.SSL,
-    });
+    let client = new SmtpClient(server);
     client.connect();
     let runningUrl = Services.io.newURI(server.serverURI);
     client.onerror = nsError => {
