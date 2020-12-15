@@ -6,6 +6,9 @@
 
 .search-icon {
   margin-inline-start: 8px;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.8;
 }
 
 .searchBox,
