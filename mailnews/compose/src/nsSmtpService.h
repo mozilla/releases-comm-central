@@ -55,7 +55,7 @@ class nsSmtpService : public nsISmtpService, public nsIProtocolHandler {
                              nsISmtpServer** aResult = nullptr);
   nsresult saveKeyList();
 
-  nsCOMArray<nsISmtpServer> mSmtpServers;
+  nsTArray<RefPtr<nsISmtpServer>> mSmtpServers;
   nsCOMPtr<nsISmtpServer> mDefaultSmtpServer;
   nsCOMPtr<nsISmtpServer> mSessionDefaultServer;
 

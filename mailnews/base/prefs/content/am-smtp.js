@@ -212,12 +212,10 @@ var gSmtpServerListWindow = {
     }
 
     for (let server of aServers) {
-      if (server instanceof Ci.nsISmtpServer) {
-        var isDefault = aDefaultServer.key == server.key;
+      let isDefault = aDefaultServer.key == server.key;
 
-        var listitem = this.createSmtpListItem(server, isDefault);
-        aListBox.appendChild(listitem);
-      }
+      let listitem = this.createSmtpListItem(server, isDefault);
+      aListBox.appendChild(listitem);
     }
   },
 

@@ -12,7 +12,7 @@ function run_test() {
   // Test - no servers
 
   var smtpServers = smtpService.servers;
-  Assert.ok(!smtpServers.hasMoreElements());
+  Assert.ok(smtpServers.length == 0);
 
   Assert.equal(smtpService.defaultServer, null);
 
@@ -27,9 +27,7 @@ function run_test() {
 
   // Test - Check to see there is only one element in the server list
   smtpServers = smtpService.servers;
-  Assert.ok(smtpServers.hasMoreElements());
-  Assert.equal(smtpServer, smtpServers.getNext());
-  Assert.ok(!smtpServers.hasMoreElements());
+  Assert.ok(smtpServers.length == 1);
 
   // Test - Find the server in different ways
   Assert.equal(smtpServer, smtpService.findServer("", "localhost"));
@@ -45,7 +43,7 @@ function run_test() {
   smtpService.deleteServer(smtpServer);
 
   smtpServers = smtpService.servers;
-  Assert.ok(!smtpServers.hasMoreElements());
+  Assert.ok(smtpServers.length == 0);
 
   //    do_check_eq(null, smtpService.defaultServer);
 
@@ -113,5 +111,5 @@ function run_test() {
   }
 
   smtpServers = smtpService.servers;
-  Assert.ok(!smtpServers.hasMoreElements());
+  Assert.ok(smtpServers.length == 0);
 }

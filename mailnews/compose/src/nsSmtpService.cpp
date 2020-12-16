@@ -340,16 +340,13 @@ NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
 }
 
 NS_IMETHODIMP
-nsSmtpService::GetServers(nsISimpleEnumerator** aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  // now read in the servers from prefs if necessary
-  uint32_t serverCount = mSmtpServers.Count();
-
-  if (serverCount <= 0) loadSmtpServers();
-
-  return NS_NewArrayEnumerator(aResult, mSmtpServers,
-                               NS_GET_IID(nsISmtpServer));
+nsSmtpService::GetServers(nsTArray<RefPtr<nsISmtpServer>>& servers) {
+  if (mSmtpServers.IsEmpty()) {
+    // Read in the servers from prefs if necessary.
+    loadSmtpServers();
+  }
+  servers = mSmtpServers.Clone();
+  return NS_OK;
 }
 
 nsresult nsSmtpService::loadSmtpServers() {
@@ -455,7 +452,7 @@ nsresult nsSmtpService::createKeyedServer(const char* key,
   if (NS_FAILED(rv)) return rv;
 
   server->SetKey(key);
-  mSmtpServers.AppendObject(server);
+  mSmtpServers.AppendElement(server);
 
   if (mServerKeyList.IsEmpty())
     mServerKeyList = key;
@@ -515,9 +512,10 @@ nsSmtpService::GetDefaultServer(nsISmtpServer** aServer) {
 
       // nothing in the array, we had better create a new server
       // (which will add it to the array & prefs anyway)
-      if (mSmtpServers.Count() == 0)
+      if (mSmtpServers.IsEmpty()) {
         // if there are no smtp servers then don't create one for the default.
         return NS_OK;
+      }
 
       mDefaultSmtpServer = mSmtpServers[0];
       NS_ENSURE_TRUE(mDefaultSmtpServer, NS_ERROR_NULL_POINTER);
@@ -631,7 +629,7 @@ nsSmtpService::DeleteServer(nsISmtpServer* aServer) {
   nsCString serverKey;
   aServer->GetKey(getter_Copies(serverKey));
 
-  mSmtpServers.RemoveObjectAt(idx);
+  mSmtpServers.RemoveElementAt(idx);
 
   if (mDefaultSmtpServer.get() == aServer) mDefaultSmtpServer = nullptr;
   if (mSessionDefaultServer.get() == aServer) mSessionDefaultServer = nullptr;

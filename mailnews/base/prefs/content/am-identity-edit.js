@@ -498,25 +498,23 @@ function loadSMTPServerList() {
   }
 
   for (let server of MailServices.smtp.servers) {
-    if (server instanceof Ci.nsISmtpServer) {
-      var serverName = "";
-      if (server.description) {
-        serverName = server.description + " - ";
-      } else if (server.username) {
-        serverName = server.username + " - ";
-      }
-      serverName += server.hostname;
-
-      if (defaultServer.key == server.key) {
-        serverName +=
-          " " +
-          document
-            .getElementById("bundle_messenger")
-            .getString("defaultServerTag");
-      }
-
-      smtpServerList.appendItem(serverName, server.key);
+    let serverName = "";
+    if (server.description) {
+      serverName = server.description + " - ";
+    } else if (server.username) {
+      serverName = server.username + " - ";
     }
+    serverName += server.hostname;
+
+    if (defaultServer.key == server.key) {
+      serverName +=
+        " " +
+        document
+          .getElementById("bundle_messenger")
+          .getString("defaultServerTag");
+    }
+
+    smtpServerList.appendItem(serverName, server.key);
   }
 
   smtpServerList.value = currentValue;

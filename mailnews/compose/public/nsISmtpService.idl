@@ -13,7 +13,6 @@ interface nsIInterfaceRequestor;
 interface nsIFile;
 interface nsIMsgStatusFeedback;
 interface nsIRequest;
-interface nsISimpleEnumerator;
 interface nsIMsgWindow;
 
 [scriptable, uuid(1b11b532-1527-4fc0-a00f-4ce7e6886419)]
@@ -85,7 +84,7 @@ interface nsISmtpService : nsISupports {
   /**
    * A copy of the array of SMTP servers, as stored in the preferences
    */
-  readonly attribute nsISimpleEnumerator servers;
+  readonly attribute Array<nsISmtpServer> servers;
 
   /**
    * The default server, across sessions of the app
