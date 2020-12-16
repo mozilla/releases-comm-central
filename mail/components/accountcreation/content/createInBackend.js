@@ -94,8 +94,14 @@ function createAccountInBackend(config) {
     // STARTTLS
     inServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
   }
-  // inServer.prettyName = config.displayName;
-  inServer.prettyName = config.identity.emailAddress;
+
+  // If we already have an account with an identical name, generate a unique
+  // name for the new account to avoid duplicates.
+  inServer.prettyName = checkAccountNameAlreadyExists(
+    config.identity.emailAddress
+  )
+    ? generateUniqueAccountName(config)
+    : config.identity.emailAddress;
 
   inServer.doBiff = true;
   inServer.biffMinutes = config.incoming.checkInterval;
@@ -386,6 +392,46 @@ function checkOutgoingServerAlreadyExists(config) {
     }
   }
   return null;
+}
+
+/**
+ * Check whether the user's setup already has an account with the same email
+ * address. This might happen if the user uses the same email for different
+ * protocols (eg. IMAP and POP3).
+ *
+ * @param {string} name - The name or email address of the new account.
+ * @returns {boolean} True if an account with the same name is found.
+ */
+function checkAccountNameAlreadyExists(name) {
+  return MailServices.accounts.accounts.some(
+    a => a.incomingServer.prettyName == name
+  );
+}
+
+/**
+ * Generate a unique account name by appending the incoming protocol type, and
+ * a counter if necessary.
+ *
+ * @param {AccountConfig} config - The config data of the account being created.
+ * @returns {string} - The unique account name.
+ */
+function generateUniqueAccountName(config) {
+  // Generate a potential unique name. e.g. "foo@bar.com (POP3)".
+  let name = `${
+    config.identity.emailAddress
+  } (${config.incoming.type.toUpperCase()})`;
+
+  // If this name already exists, append a counter until we find a unique name.
+  if (checkAccountNameAlreadyExists(name)) {
+    let counter = 2;
+    while (checkAccountNameAlreadyExists(`${name}_${counter}`)) {
+      counter++;
+    }
+    // e.g. "foo@bar.com (POP3)_1".
+    name = `${name}_${counter}`;
+  }
+
+  return name;
 }
 
 /**

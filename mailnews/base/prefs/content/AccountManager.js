@@ -767,6 +767,14 @@ function checkAccountNameIsValid() {
       alertText = prefBundle.getString("accountNameEmpty");
     } else if (accountNameExists(accountName, currentAccount.key)) {
       alertText = prefBundle.getString("accountNameExists");
+      // Change the account name to prevent UI freeze.
+      let counter = 2;
+      while (
+        accountNameExists(`${accountName}_${counter}`, currentAccount.key)
+      ) {
+        counter++;
+      }
+      serverNameElem.value = `${accountName}_${counter}`;
     }
 
     if (alertText) {
