@@ -8,7 +8,6 @@ var { Deprecated } = ChromeUtils.import(
   "resource://gre/modules/Deprecated.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 function runnablePrompter(asyncPrompter, hashKey) {
   this._asyncPrompter = asyncPrompter;
@@ -80,17 +79,16 @@ runnablePrompter.prototype = {
 
 function MsgAsyncPrompter() {
   this._pendingPrompts = {};
-  // By default, only log warnings to the error console and errors to dump().
-  // You can use the preferences:
-  //   msgAsyncPrompter.logging.console
-  //   msgAsyncPrompter.logging.dump
+  // By default, only log warnings to the error console
+  // You can use the preference:
+  //   msgAsyncPrompter.loglevel
   // To change this up.  Values should be one of:
   //   Fatal/Error/Warn/Info/Config/Debug/Trace/All
-  this._log = Log4Moz.getConfiguredLogger(
-    "msgAsyncPrompter",
-    Log4Moz.Level.Warn,
-    Log4Moz.Level.Warn
-  );
+  this._log = console.createInstance({
+    prefix: "msgAsyncPrompter",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "msgAsyncPrompter.loglevel",
+  });
 }
 
 MsgAsyncPrompter.prototype = {

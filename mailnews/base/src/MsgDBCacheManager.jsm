@@ -14,8 +14,12 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-var log = Log4Moz.getConfiguredLogger("mailnews.database.dbcache");
+
+var log = console.createInstance({
+  prefix: "dbcache",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mailnews.database.dbcache.loglevel",
+});
 
 /**
  */

@@ -8,7 +8,7 @@
 /* globals specialTabs */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
+var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 
 /**
  * A content tab for the account provisioner.  We use Javascript-y magic to
@@ -27,7 +27,13 @@ var accountProvisionerTabType = Object.create(specialTabs.contentTabType, {
       },
     },
   },
-  _log: { value: Log4Moz.getConfiguredLogger("mail.provider") },
+  _log: {
+    value: new ConsoleAPI({
+      prefix: "mail.provider",
+      maxLogLevel: "warn",
+      maxLogLevelPref: "mail.provider.loglevel",
+    }),
+  },
 });
 
 /**

@@ -757,7 +757,7 @@ pref("rss.show.content-base", 0);
 // 1 - load web page in default browser, on select
 pref("rss.message.loadWebPageOnSelect", 0);
 
-pref("Feeds.loglevel", "Info");
+pref("Feeds.loglevel", "Warn");
 
 // 0=default as attachment
 // 1=forward as quoted (mapped to 2 in mozilla)
@@ -1107,3 +1107,5 @@ pref("mail.imap.qos", 0);
 
 // PgpMime Addon
 pref("mail.pgpmime.addon_url", "https://addons.mozilla.org/addon/enigmail/");
+
+pref("msgAsyncPrompter.loglevel", "Warn");

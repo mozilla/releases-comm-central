@@ -1,4 +1,4 @@
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -6,15 +6,13 @@
 /* platform-independent code to count new and unread messages and pass the information to
  * platform-specific notification modules
  *
- * Logging for this module uses the TB version of log4moz. Default logging is at the Warn
- * level. Other possibly interesting messages are at Error, Info and Debug. To configure, set the
- * preferences "mail.notification.logging.console" (for the error console) or
- * "mail.notification.logging.dump" (for stderr) to the string indicating the level you want.
+ * Default logging is at the Warn level. Other possibly interesting messages are
+ * at Error, Info and Debug. To configure, set the preferences
+ * "mail.notification.loglevel" to the string indicating the level you want.
  */
 
 var EXPORTED_SYMBOLS = ["NewMailNotificationService"];
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -44,12 +42,11 @@ function NewMailNotificationService() {
   this._listeners = [];
   this.wrappedJSObject = this;
 
-  this._log = Log4Moz.getConfiguredLogger(
-    "mail.notification",
-    Log4Moz.Level.Warn,
-    Log4Moz.Level.Warn,
-    Log4Moz.Level.Warn
-  );
+  this._log = console.createInstance({
+    prefix: "mail.notification",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mail.notification.loglevel",
+  });
 
   // Listen for mail-startup-done to do the rest of our setup after folders are initialized
   Services.obs.addObserver(this, "mail-startup-done");

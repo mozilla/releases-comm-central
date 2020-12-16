@@ -7,6 +7,7 @@
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -17,11 +18,14 @@ var { PluralForm } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 // Get a configured logger for this component.
 // To debug, set mail.provider.logging.dump (or .console)="All"
-var gLog = Log4Moz.getConfiguredLogger("mail.provider");
+var gLog = new ConsoleAPI({
+  prefix: "mail.provider",
+  maxLogLevel: "warn",
+  maxLogLevelPref: "mail.provider.loglevel",
+});
 var stringBundle = Services.strings.createBundle(
   "chrome://messenger/locale/newmailaccount/accountProvisioner.properties"
 );
