@@ -99,6 +99,7 @@ function fetchConfigFromExchange(
     readAutoDiscoverResponse(
       xml,
       successive,
+      emailAddress,
       username,
       password,
       config => {
@@ -235,6 +236,7 @@ var gLoopCounter = 0;
 function readAutoDiscoverResponse(
   autoDiscoverXML,
   successive,
+  emailAddress,
   username,
   password,
   successCallback,
@@ -260,11 +262,14 @@ function readAutoDiscoverResponse(
     successive.current = fetchConfigFromExchange(
       domain,
       redirectEmailAddress,
-      username,
+      // Per spec, need to authenticate with the original email address,
+      // not the redirected address (if not already overridden).
+      username || emailAddress,
       password,
       successCallback,
       errorCallback
     );
+    return;
   }
 
   let config = readAutoDiscoverXML(autoDiscoverXML, username);
