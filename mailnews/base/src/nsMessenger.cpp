@@ -2233,8 +2233,6 @@ class nsDelAttachListener : public nsIStreamListener,
     eSelectingNewMessage
   } m_state;
   // temp
-  bool mWrittenExtra;
-  bool mDetaching;
   nsTArray<nsCString> mDetachedFileUris;
 
  private:
@@ -2260,7 +2258,7 @@ nsDelAttachListener::OnStartRequest(nsIRequest* aRequest) {
 NS_IMETHODIMP
 nsDelAttachListener::OnStopRequest(nsIRequest* aRequest, nsresult aStatusCode) {
   // called when we have completed processing the StreamMessage request.
-  // This is called after OnStopRequest(). This means that we have now
+  // This is called before OnStopRunningUrl(). This means that we have now
   // received all data of the message and we have completed processing.
   // We now start to copy the processed message from the temporary file
   // back into the message store, replacing the original message.
@@ -2268,15 +2266,11 @@ nsDelAttachListener::OnStopRequest(nsIRequest* aRequest, nsresult aStatusCode) {
   mMessageFolder->CopyDataDone();
   if (NS_FAILED(aStatusCode)) return aStatusCode;
 
-  // called when we complete processing of the StreamMessage request.
-  // This is called before OnStopRunningUrl().
-  nsresult rv;
-
   // copy the file back into the folder. Note: setting msgToReplace only copies
   // metadata, so we do the delete ourselves
   nsCOMPtr<nsIMsgCopyServiceListener> listenerCopyService;
-  rv = this->QueryInterface(NS_GET_IID(nsIMsgCopyServiceListener),
-                            getter_AddRefs(listenerCopyService));
+  nsresult rv = this->QueryInterface(NS_GET_IID(nsIMsgCopyServiceListener),
+                                     getter_AddRefs(listenerCopyService));
   NS_ENSURE_SUCCESS(rv, rv);
 
   mMsgFileStream->Close();
@@ -2358,14 +2352,8 @@ void nsDelAttachListener::SelectNewMessage() {
 NS_IMETHODIMP
 nsDelAttachListener::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   nsresult rv = NS_OK;
-  const nsCString& messageUri(mAttach->mAttachmentArray[0].mMessageUri);
-  if (mOriginalMessage &&
-      Substring(messageUri, 0, 13).EqualsLiteral("imap-message:")) {
-    if (m_state == eUpdatingFolder) rv = DeleteOriginalMessage();
-  }
-  // check if we've deleted the original message, and we know the new msg id.
-  else if (m_state == eDeletingOldMessage && mMsgWindow)
-    SelectNewMessage();
+  if (mOriginalMessage && m_state == eUpdatingFolder)
+    rv = DeleteOriginalMessage();
 
   return rv;
 }
@@ -2402,29 +2390,29 @@ nsDelAttachListener::GetMessageId(nsACString& aMessageId) {
 
 NS_IMETHODIMP
 nsDelAttachListener::OnStopCopy(nsresult aStatus) {
-  // only if the currently selected message is the one that we are about to
-  // delete then we change the selection to the new message that we just added.
-  // Failures in this code are not fatal. Note that can only do this if we have
-  // the new message key, which we don't always get from IMAP. delete the
-  // original message
   if (NS_FAILED(aStatus)) return aStatus;
 
-  // check if we've deleted the original message, and we know the new msg id.
-  if (m_state == eDeletingOldMessage && mMsgWindow) SelectNewMessage();
-  // do this for non-imap messages - for imap, we'll do the delete in
-  // OnStopRunningUrl. For local messages, we won't get an OnStopRunningUrl
-  // notification. And for imap, it's too late to delete the message here,
-  // because we'll be updating the folder naturally as a result of
-  // running an append url. If we delete the header here, that folder
-  // update will think we need to download the header...If we do it
-  // in OnStopRunningUrl, we'll issue the delete before we do the
-  // update....all nasty stuff.
+  // This is called via `CopyFileMessage()` and `DeleteMessages()`.
+  // `m_state` tells us which callback it is.
+  if (m_state == eDeletingOldMessage) {
+    m_state = eSelectingNewMessage;
+    if (mMsgWindow) SelectNewMessage();
+    return NS_OK;
+  }
+
+  // For non-IMAP messages, the original is deleted here, for IMAP messages
+  // that happens in `OnStopRunningUrl()` which isn't called for non-IMAP
+  // messages.
   const nsACString& messageUri = mAttach->mAttachmentArray[0].mMessageUri;
   if (mOriginalMessage &&
-      !Substring(messageUri, 0, 13).EqualsLiteral("imap-message:"))
+      !Substring(messageUri, 0, 13).EqualsLiteral("imap-message:")) {
     return DeleteOriginalMessage();
-  else
+  } else {
+    // Arrange for the message to be deleted in the next `OnStopRunningUrl()`
+    // call.
     m_state = eUpdatingFolder;
+  }
+
   return NS_OK;
 }
 
@@ -2435,7 +2423,6 @@ nsDelAttachListener::OnStopCopy(nsresult aStatus) {
 nsDelAttachListener::nsDelAttachListener() {
   mAttach = nullptr;
   mSaveFirst = false;
-  mWrittenExtra = false;
   mNewMessageKey = nsMsgKey_None;
   m_state = eStarting;
 }
@@ -2461,7 +2448,6 @@ nsresult nsDelAttachListener::StartProcessing(nsMessenger* aMessenger,
                              getter_AddRefs(mMessenger));
   mMsgWindow = aMsgWindow;
   mAttach = aAttach;
-  mDetaching = detaching;
 
   nsresult rv;
 
