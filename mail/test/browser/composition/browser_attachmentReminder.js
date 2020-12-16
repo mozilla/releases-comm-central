@@ -261,8 +261,8 @@ add_task(function test_attachment_reminder_with_attachment() {
     file.exists(),
     "The required file panacea.dat was not found in the profile."
   );
-  let attachment = [cwc.window.FileToAttachment(file)];
-  cwc.window.AddAttachments(attachment);
+  let attachments = [cwc.window.FileToAttachment(file)];
+  cwc.window.AddAttachments(attachments);
 
   // The notification should hide.
   wait_for_reminder_state(cwc, false);

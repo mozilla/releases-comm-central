@@ -449,41 +449,30 @@ nsresult nsMsgCompFields::SetBody(const char* value) {
 
 const char* nsMsgCompFields::GetBody() { return m_body.get(); }
 
-/* readonly attribute nsISimpleEnumerator attachmentsArray; */
 NS_IMETHODIMP nsMsgCompFields::GetAttachments(
-    nsISimpleEnumerator** aAttachmentsEnum) {
-  return aAttachmentsEnum
-             ? NS_NewArrayEnumerator(aAttachmentsEnum, m_attachments,
-                                     NS_GET_IID(nsIMsgAttachment))
-             : NS_ERROR_NULL_POINTER;
+    nsTArray<RefPtr<nsIMsgAttachment>>& attachments) {
+  attachments = m_attachments.Clone();
+  return NS_OK;
 }
 
-/* void addAttachment (in nsIMsgAttachment attachment); */
 NS_IMETHODIMP nsMsgCompFields::AddAttachment(nsIMsgAttachment* attachment) {
-  int32_t attachmentCount = m_attachments.Count();
-
-  // Don't add twice the same attachment.
-  nsCOMPtr<nsIMsgAttachment> element;
-  bool sameUrl;
-  for (int32_t i = 0; i < attachmentCount; i++) {
-    m_attachments[i]->EqualsUrl(attachment, &sameUrl);
+  // Don't add the same attachment twice.
+  for (nsIMsgAttachment* a : m_attachments) {
+    bool sameUrl;
+    a->EqualsUrl(attachment, &sameUrl);
     if (sameUrl) return NS_OK;
   }
-  m_attachments.AppendObject(attachment);
-
+  m_attachments.AppendElement(attachment);
   return NS_OK;
 }
 
 /* void removeAttachment (in nsIMsgAttachment attachment); */
 NS_IMETHODIMP nsMsgCompFields::RemoveAttachment(nsIMsgAttachment* attachment) {
-  int32_t attachmentCount = m_attachments.Count();
-
-  nsCOMPtr<nsIMsgAttachment> element;
-  bool sameUrl;
-  for (int32_t i = 0; i < attachmentCount; i++) {
+  for (uint32_t i = 0; i < m_attachments.Length(); i++) {
+    bool sameUrl;
     m_attachments[i]->EqualsUrl(attachment, &sameUrl);
     if (sameUrl) {
-      m_attachments.RemoveObjectAt(i);
+      m_attachments.RemoveElementAt(i);
       break;
     }
   }

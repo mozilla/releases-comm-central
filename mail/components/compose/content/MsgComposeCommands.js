@@ -5844,17 +5844,15 @@ function FileToAttachment(file) {
 }
 
 /**
- * Add a list of attachment objects as attachments. The attachment URLs must be
- * set.
+ * Add a list of attachment objects as attachments. The attachment URLs must
+ * be set.
  *
- * @param aAttachments  an iterable list of nsIMsgAttachment objects to add as
- *                      attachments. Anything iterable with fixIterator is
- *                      accepted.
- * @param aCallback     an optional callback function called immediately after
- *                      adding each attachment. Takes one argument:
- *                      the newly-added <attachmentitem> node.
- * @param aContentChanged {Boolean}  optional value to assign to gContentChanged
- *                                   after adding attachments; defaults to true.
+ * @param {nsIMsgAttachment[]} aAttachments - Objects to add as attachments.
+ * @param {function} [aCallback] - An optional callback function called after
+ *   adding each attachment. Takes one argument: the newly-added
+ *   <attachmentitem> node.
+ * @param {Boolean} [aContentChanged=true] - Optional value to assign gContentChanged
+ *   after adding attachments.
  */
 function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
   let bucket = document.getElementById("attachmentBucket");

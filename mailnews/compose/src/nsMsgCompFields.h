@@ -193,7 +193,7 @@ class nsMsgCompFields : public nsIMsgCompFields {
   virtual ~nsMsgCompFields();
   nsCString m_headers[MSG_MAX_HEADERS];
   nsCString m_body;
-  nsCOMArray<nsIMsgAttachment> m_attachments;
+  nsTArray<RefPtr<nsIMsgAttachment>> m_attachments;
   bool m_attachVCard;
   bool m_attachmentReminder;
   int32_t m_deliveryFormat;

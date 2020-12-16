@@ -1625,36 +1625,21 @@ nsresult nsMsgComposeAndSend::CountCompFieldAttachments() {
   mCompFieldLocalAttachments = 0;
   mCompFieldRemoteAttachments = 0;
 
-  // Get the attachments array
-  nsCOMPtr<nsISimpleEnumerator> attachments;
-  mCompFields->GetAttachments(getter_AddRefs(attachments));
-  if (!attachments) return NS_OK;
-
-  nsresult rv;
-
   // Parse the attachments array
-  bool moreAttachments;
-  nsCString url;
-  nsCOMPtr<nsISupports> element;
-  while (NS_SUCCEEDED(attachments->HasMoreElements(&moreAttachments)) &&
-         moreAttachments) {
-    rv = attachments->GetNext(getter_AddRefs(element));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgAttachment> attachment = do_QueryInterface(element, &rv);
-    if (NS_SUCCEEDED(rv) && attachment) {
-      attachment->GetUrl(url);
-      if (!url.IsEmpty()) {
-        // Check to see if this is a file URL, if so, don't retrieve
-        // like a remote URL...
-        if (PL_strncasecmp(url.get(), "file://", 7) == 0)
-          mCompFieldLocalAttachments++;
-        else  // This is a remote URL...
-          mCompFieldRemoteAttachments++;
-      }
+  nsTArray<RefPtr<nsIMsgAttachment>> attachments;
+  mCompFields->GetAttachments(attachments);
+  for (nsIMsgAttachment* attachment : attachments) {
+    nsCString url;
+    attachment->GetUrl(url);
+    if (!url.IsEmpty()) {
+      // Check to see if this is a file URL, if so, don't retrieve
+      // like a remote URL...
+      if (PL_strncasecmp(url.get(), "file://", 7) == 0)
+        mCompFieldLocalAttachments++;
+      else  // This is a remote URL...
+        mCompFieldRemoteAttachments++;
     }
   }
-
   return NS_OK;
 }
 
@@ -1665,183 +1650,169 @@ nsresult nsMsgComposeAndSend::AddCompFieldLocalAttachments() {
   // If none, just return...
   if (mCompFieldLocalAttachments <= 0) return NS_OK;
 
-  // Get the attachments array
-  nsCOMPtr<nsISimpleEnumerator> attachments;
-  mCompFields->GetAttachments(getter_AddRefs(attachments));
-  if (!attachments) return NS_OK;
-
-  uint32_t newLoc = 0;
-  nsresult rv;
-  nsCString url;
-
   // Parse the attachments array
-  bool moreAttachments;
-  nsCOMPtr<nsISupports> element;
-  while (NS_SUCCEEDED(attachments->HasMoreElements(&moreAttachments)) &&
-         moreAttachments) {
-    rv = attachments->GetNext(getter_AddRefs(element));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgAttachment> attachment = do_QueryInterface(element, &rv);
-    if (NS_SUCCEEDED(rv) && attachment) {
-      bool sendViaCloud = false;
+  nsTArray<RefPtr<nsIMsgAttachment>> attachments;
+  mCompFields->GetAttachments(attachments);
+  uint32_t newLoc = 0;
+  for (nsIMsgAttachment* attachment : attachments) {
+    bool sendViaCloud = false;
+    attachment->GetSendViaCloud(&sendViaCloud);
+    m_attachments[newLoc]->mSendViaCloud = sendViaCloud;
+    nsCString url;
+    attachment->GetUrl(url);
+    if (!url.IsEmpty()) {
+      bool sendViaCloud;
       attachment->GetSendViaCloud(&sendViaCloud);
-      m_attachments[newLoc]->mSendViaCloud = sendViaCloud;
-      attachment->GetUrl(url);
-      if (!url.IsEmpty()) {
-        bool sendViaCloud;
-        attachment->GetSendViaCloud(&sendViaCloud);
-        if (sendViaCloud) {
-          nsCString cloudFileAccountKey;
-          // We'd like to output a part for the attachment, just an html part
-          // with information about how to download the attachment.
-          // m_attachments[newLoc]->m_done = true;
-          attachment->GetHtmlAnnotation(m_attachments[newLoc]->mHtmlAnnotation);
-          m_attachments[newLoc]->m_type.AssignLiteral("text/html");
-          attachment->GetCloudFileAccountKey(
-              m_attachments[newLoc]->mCloudFileAccountKey);
-          attachment->GetContentLocation(m_attachments[newLoc]->mCloudUrl);
+      if (sendViaCloud) {
+        nsCString cloudFileAccountKey;
+        // We'd like to output a part for the attachment, just an html part
+        // with information about how to download the attachment.
+        // m_attachments[newLoc]->m_done = true;
+        attachment->GetHtmlAnnotation(m_attachments[newLoc]->mHtmlAnnotation);
+        m_attachments[newLoc]->m_type.AssignLiteral("text/html");
+        attachment->GetCloudFileAccountKey(
+            m_attachments[newLoc]->mCloudFileAccountKey);
+        attachment->GetContentLocation(m_attachments[newLoc]->mCloudUrl);
+      }
+      // Just look for local file:// attachments and do the right thing.
+      if (PL_strncasecmp(url.get(), "file://", 7) == 0) {
+        //
+        // Now we have to setup the m_attachments entry for the file://
+        // URL that is passed in...
+        //
+        m_attachments[newLoc]->mDeleteFile = false;
+
+        nsMsgNewURL(getter_AddRefs(m_attachments[newLoc]->mURL), url);
+
+        if (m_attachments[newLoc]->mTmpFile) {
+          if (m_attachments[newLoc]->mDeleteFile)
+            m_attachments[newLoc]->mTmpFile->Remove(false);
+          m_attachments[newLoc]->mTmpFile = nullptr;
         }
-        // Just look for local file:// attachments and do the right thing.
-        if (PL_strncasecmp(url.get(), "file://", 7) == 0) {
-          //
-          // Now we have to setup the m_attachments entry for the file://
-          // URL that is passed in...
-          //
-          m_attachments[newLoc]->mDeleteFile = false;
+        nsresult rv;
+        nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
+        NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
+        nsCOMPtr<nsIURI> uri;
+        rv = ioService->NewURI(url, nullptr, nullptr, getter_AddRefs(uri));
+        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<nsIFileURL> fileURL = do_QueryInterface(uri);
+        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<nsIFile> fileURLFile;
+        fileURL->GetFile(getter_AddRefs(fileURLFile));
+        m_attachments[newLoc]->mTmpFile = fileURLFile;
+        m_attachments[newLoc]->mDeleteFile = false;
+        if (m_attachments[newLoc]->mURL) {
+          nsAutoString proposedName;
+          attachment->GetName(proposedName);
+          msg_pick_real_name(m_attachments[newLoc], proposedName.get());
+        }
 
-          nsMsgNewURL(getter_AddRefs(m_attachments[newLoc]->mURL), url);
-
-          if (m_attachments[newLoc]->mTmpFile) {
-            if (m_attachments[newLoc]->mDeleteFile)
-              m_attachments[newLoc]->mTmpFile->Remove(false);
-            m_attachments[newLoc]->mTmpFile = nullptr;
-          }
-          nsresult rv;
-          nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
-          NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
-          nsCOMPtr<nsIURI> uri;
-          rv = ioService->NewURI(url, nullptr, nullptr, getter_AddRefs(uri));
-          NS_ENSURE_SUCCESS(rv, rv);
-          nsCOMPtr<nsIFileURL> fileURL = do_QueryInterface(uri);
-          NS_ENSURE_SUCCESS(rv, rv);
-          nsCOMPtr<nsIFile> fileURLFile;
-          fileURL->GetFile(getter_AddRefs(fileURLFile));
-          m_attachments[newLoc]->mTmpFile = fileURLFile;
-          m_attachments[newLoc]->mDeleteFile = false;
-          if (m_attachments[newLoc]->mURL) {
-            nsAutoString proposedName;
-            attachment->GetName(proposedName);
-            msg_pick_real_name(m_attachments[newLoc], proposedName.get());
-          }
-
-          // Now, most importantly, we need to figure out what the content type
-          // is for this attachment... If we can't, then just make it
-          // application/octet-stream.
+        // Now, most importantly, we need to figure out what the content type
+        // is for this attachment... If we can't, then just make it
+        // application/octet-stream.
 
 #ifdef MAC_OSX
-          // Mac always need to snarf the file to figure out how to send it,
-          // maybe we need to use apple double...
-          // unless caller has already set the content type, in which case,
-          // trust them.
-          bool mustSnarfAttachment = true;
+        // Mac always need to snarf the file to figure out how to send it,
+        // maybe we need to use apple double...
+        // unless caller has already set the content type, in which case,
+        // trust them.
+        bool mustSnarfAttachment = true;
 #else
-          bool mustSnarfAttachment = false;
+        bool mustSnarfAttachment = false;
 #endif
-          if (sendViaCloud) mustSnarfAttachment = false;
+        if (sendViaCloud) mustSnarfAttachment = false;
 
-          attachment->GetContentType(
-              getter_Copies(m_attachments[newLoc]->m_type));
-          if (m_attachments[newLoc]->m_type.IsEmpty()) {
-            nsresult rv = NS_OK;
-            nsCOMPtr<nsIMIMEService> mimeFinder(
-                do_GetService(NS_MIMESERVICE_CONTRACTID, &rv));
-            if (NS_SUCCEEDED(rv) && mimeFinder) {
-              nsCOMPtr<nsIURL> fileUrl;
-              rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-                       .Apply(NS_MutatorMethod(
-                           &nsIURLMutator::SetFileName,
-                           m_attachments[newLoc]->m_realName, nullptr))
-                       .Finalize(fileUrl);
-              if (NS_SUCCEEDED(rv)) {
-                nsAutoCString fileExt;
-                // First try using the real file name.
-                rv = fileUrl->GetFileExtension(fileExt);
-                if (NS_SUCCEEDED(rv) && !fileExt.IsEmpty()) {
-                  nsAutoCString type;
-                  mimeFinder->GetTypeFromExtension(fileExt, type);
+        attachment->GetContentType(
+            getter_Copies(m_attachments[newLoc]->m_type));
+        if (m_attachments[newLoc]->m_type.IsEmpty()) {
+          nsresult rv = NS_OK;
+          nsCOMPtr<nsIMIMEService> mimeFinder(
+              do_GetService(NS_MIMESERVICE_CONTRACTID, &rv));
+          if (NS_SUCCEEDED(rv) && mimeFinder) {
+            nsCOMPtr<nsIURL> fileUrl;
+            rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+                     .Apply(NS_MutatorMethod(&nsIURLMutator::SetFileName,
+                                             m_attachments[newLoc]->m_realName,
+                                             nullptr))
+                     .Finalize(fileUrl);
+            if (NS_SUCCEEDED(rv)) {
+              nsAutoCString fileExt;
+              // First try using the real file name.
+              rv = fileUrl->GetFileExtension(fileExt);
+              if (NS_SUCCEEDED(rv) && !fileExt.IsEmpty()) {
+                nsAutoCString type;
+                mimeFinder->GetTypeFromExtension(fileExt, type);
 #ifndef XP_MACOSX
-                  if (!type.EqualsLiteral(
-                          "multipart/appledouble"))  // can't do apple double on
-                                                     // non-macs
+                if (!type.EqualsLiteral(
+                        "multipart/appledouble"))  // can't do apple double on
+                                                   // non-macs
 #endif
-                    m_attachments[newLoc]->m_type = type;
-                }
+                  m_attachments[newLoc]->m_type = type;
+              }
 
-                // Then try using the url if we still haven't figured out the
-                // content type
-                if (m_attachments[newLoc]->m_type.IsEmpty()) {
-                  rv = NS_MutateURI(fileUrl).SetSpec(url).Finalize(fileUrl);
-                  if (NS_SUCCEEDED(rv)) {
-                    rv = fileUrl->GetFileExtension(fileExt);
-                    if (NS_SUCCEEDED(rv) && !fileExt.IsEmpty()) {
-                      nsAutoCString type;
-                      mimeFinder->GetTypeFromExtension(fileExt, type);
+              // Then try using the url if we still haven't figured out the
+              // content type
+              if (m_attachments[newLoc]->m_type.IsEmpty()) {
+                rv = NS_MutateURI(fileUrl).SetSpec(url).Finalize(fileUrl);
+                if (NS_SUCCEEDED(rv)) {
+                  rv = fileUrl->GetFileExtension(fileExt);
+                  if (NS_SUCCEEDED(rv) && !fileExt.IsEmpty()) {
+                    nsAutoCString type;
+                    mimeFinder->GetTypeFromExtension(fileExt, type);
 #ifndef XP_MACOSX
-                      if (!type.EqualsLiteral(
-                              "multipart/appledouble"))  // can't do apple
-                                                         // double on non-macs
+                    if (!type.EqualsLiteral(
+                            "multipart/appledouble"))  // can't do apple
+                                                       // double on non-macs
 #endif
-                        m_attachments[newLoc]->m_type = type;
-                      // rtf and vcs files may look like text to sniffers,
-                      // but they're not human readable.
-                      if (type.IsEmpty() && !fileExt.IsEmpty() &&
-                          (fileExt.LowerCaseEqualsLiteral("rtf") ||
-                           fileExt.LowerCaseEqualsLiteral("vcs")))
-                        m_attachments[newLoc]->m_type =
-                            APPLICATION_OCTET_STREAM;
-                    }
+                      m_attachments[newLoc]->m_type = type;
+                    // rtf and vcs files may look like text to sniffers,
+                    // but they're not human readable.
+                    if (type.IsEmpty() && !fileExt.IsEmpty() &&
+                        (fileExt.LowerCaseEqualsLiteral("rtf") ||
+                         fileExt.LowerCaseEqualsLiteral("vcs")))
+                      m_attachments[newLoc]->m_type = APPLICATION_OCTET_STREAM;
                   }
                 }
               }
             }
-          } else {
-            attachment->GetContentTypeParam(
-                getter_Copies(m_attachments[newLoc]->m_typeParam));
-            mustSnarfAttachment = false;
-            if (m_attachments[newLoc]->m_type.EqualsLiteral("application/pgp-keys")) {
-              m_attachments[newLoc]->m_description = nsLiteralCString("OpenPGP public key");
-            }
           }
-
-          // We need to snarf the file to figure out how to send it only if we
-          // don't have a content type...
-          if (mustSnarfAttachment || m_attachments[newLoc]->m_type.IsEmpty()) {
-            m_attachments[newLoc]->m_done = false;
-            m_attachments[newLoc]->SetMimeDeliveryState(this);
-          } else {
-            m_attachments[newLoc]->m_done = true;
-            m_attachments[newLoc]->SetMimeDeliveryState(nullptr);
+        } else {
+          attachment->GetContentTypeParam(
+              getter_Copies(m_attachments[newLoc]->m_typeParam));
+          mustSnarfAttachment = false;
+          if (m_attachments[newLoc]->m_type.EqualsLiteral(
+                  "application/pgp-keys")) {
+            m_attachments[newLoc]->m_description =
+                nsLiteralCString("OpenPGP public key");
           }
-          // For local files, if they are HTML docs and we don't have a charset,
-          // we should sniff the file and see if we can figure it out.
-          if (!m_attachments[newLoc]->m_type.IsEmpty()) {
-            if (m_attachments[newLoc]->m_type.LowerCaseEqualsLiteral(
-                    TEXT_HTML)) {
-              char* tmpCharset = (char*)nsMsgI18NParseMetaCharset(
-                  m_attachments[newLoc]->mTmpFile);
-              if (tmpCharset[0] != '\0')
-                m_attachments[newLoc]->m_charset = tmpCharset;
-            }
-          }
-
-          attachment->GetMacType(
-              getter_Copies(m_attachments[newLoc]->m_xMacType));
-          attachment->GetMacCreator(
-              getter_Copies(m_attachments[newLoc]->m_xMacCreator));
-
-          ++newLoc;
         }
+
+        // We need to snarf the file to figure out how to send it only if we
+        // don't have a content type...
+        if (mustSnarfAttachment || m_attachments[newLoc]->m_type.IsEmpty()) {
+          m_attachments[newLoc]->m_done = false;
+          m_attachments[newLoc]->SetMimeDeliveryState(this);
+        } else {
+          m_attachments[newLoc]->m_done = true;
+          m_attachments[newLoc]->SetMimeDeliveryState(nullptr);
+        }
+        // For local files, if they are HTML docs and we don't have a charset,
+        // we should sniff the file and see if we can figure it out.
+        if (!m_attachments[newLoc]->m_type.IsEmpty()) {
+          if (m_attachments[newLoc]->m_type.LowerCaseEqualsLiteral(TEXT_HTML)) {
+            char* tmpCharset = (char*)nsMsgI18NParseMetaCharset(
+                m_attachments[newLoc]->mTmpFile);
+            if (tmpCharset[0] != '\0')
+              m_attachments[newLoc]->m_charset = tmpCharset;
+          }
+        }
+
+        attachment->GetMacType(
+            getter_Copies(m_attachments[newLoc]->m_xMacType));
+        attachment->GetMacCreator(
+            getter_Copies(m_attachments[newLoc]->m_xMacCreator));
+
+        ++newLoc;
       }
     }
   }
@@ -1854,75 +1825,62 @@ nsresult nsMsgComposeAndSend::AddCompFieldRemoteAttachments(
   if (mCompFieldRemoteAttachments <= 0) return NS_OK;
 
   // Get the attachments array
-  nsCOMPtr<nsISimpleEnumerator> attachments;
-  mCompFields->GetAttachments(getter_AddRefs(attachments));
-  if (!attachments) return NS_OK;
-
+  nsTArray<RefPtr<nsIMsgAttachment>> attachments;
+  mCompFields->GetAttachments(attachments);
   uint32_t newLoc = aStartLocation;
+  for (nsIMsgAttachment* attachment : attachments) {
+    nsCString url;
+    attachment->GetUrl(url);
+    if (!url.IsEmpty()) {
+      // Just look for files that are NOT local file attachments and do
+      // the right thing.
+      if (PL_strncasecmp(url.get(), "file://", 7) != 0) {
+        // Check for message attachment, see
+        // nsMsgMailNewsUrl::GetIsMessageUri.
+        nsCOMPtr<nsIURI> nsiuri;
+        nsresult rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
+                          .SetSpec(url)
+                          .Finalize(nsiuri);
+        NS_ENSURE_SUCCESS(rv, rv);
 
-  nsresult rv;
-  bool moreAttachments;
-  nsCString url;
-  nsCOMPtr<nsISupports> element;
-  while (NS_SUCCEEDED(attachments->HasMoreElements(&moreAttachments)) &&
-         moreAttachments) {
-    rv = attachments->GetNext(getter_AddRefs(element));
-    NS_ENSURE_SUCCESS(rv, rv);
+        nsAutoCString scheme;
+        nsiuri->GetScheme(scheme);
+        bool isAMessageAttachment = StringEndsWith(scheme, "-message"_ns);
 
-    nsCOMPtr<nsIMsgAttachment> attachment = do_QueryInterface(element, &rv);
-    if (NS_SUCCEEDED(rv) && attachment) {
-      attachment->GetUrl(url);
-      if (!url.IsEmpty()) {
-        // Just look for files that are NOT local file attachments and do
-        // the right thing.
-        if (PL_strncasecmp(url.get(), "file://", 7) != 0) {
-          // Check for message attachment, see
-          // nsMsgMailNewsUrl::GetIsMessageUri.
-          nsCOMPtr<nsIURI> nsiuri;
-          rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
-                   .SetSpec(url)
-                   .Finalize(nsiuri);
-          NS_ENSURE_SUCCESS(rv, rv);
+        m_attachments[newLoc]->mDeleteFile = true;
+        m_attachments[newLoc]->m_done = false;
+        m_attachments[newLoc]->SetMimeDeliveryState(this);
 
-          nsAutoCString scheme;
-          nsiuri->GetScheme(scheme);
-          bool isAMessageAttachment = StringEndsWith(scheme, "-message"_ns);
+        if (!isAMessageAttachment)
+          nsMsgNewURL(getter_AddRefs(m_attachments[newLoc]->mURL), url);
 
-          m_attachments[newLoc]->mDeleteFile = true;
-          m_attachments[newLoc]->m_done = false;
-          m_attachments[newLoc]->SetMimeDeliveryState(this);
+        m_attachments[newLoc]->m_encoding = ENCODING_7BIT;
 
-          if (!isAMessageAttachment)
-            nsMsgNewURL(getter_AddRefs(m_attachments[newLoc]->mURL), url);
+        attachment->GetMacType(
+            getter_Copies(m_attachments[newLoc]->m_xMacType));
+        attachment->GetMacCreator(
+            getter_Copies(m_attachments[newLoc]->m_xMacCreator));
 
-          m_attachments[newLoc]->m_encoding = ENCODING_7BIT;
+        /* Count up attachments which are going to come from mail folders
+            and from NNTP servers. */
+        bool do_add_attachment = false;
+        if (isAMessageAttachment) {
+          do_add_attachment = true;
+          if (!PL_strncasecmp(url.get(), "news-message://", 15))
+            (*aNewsCount)++;
+          else
+            (*aMailboxCount)++;
 
-          attachment->GetMacType(
-              getter_Copies(m_attachments[newLoc]->m_xMacType));
-          attachment->GetMacCreator(
-              getter_Copies(m_attachments[newLoc]->m_xMacCreator));
-
-          /* Count up attachments which are going to come from mail folders
-             and from NNTP servers. */
-          bool do_add_attachment = false;
-          if (isAMessageAttachment) {
-            do_add_attachment = true;
-            if (!PL_strncasecmp(url.get(), "news-message://", 15))
-              (*aNewsCount)++;
-            else
-              (*aMailboxCount)++;
-
-            m_attachments[newLoc]->m_uri = url;
-            m_attachments[newLoc]->mURL = nullptr;
-          } else
-            do_add_attachment = (nullptr != m_attachments[newLoc]->mURL);
-          m_attachments[newLoc]->mSendViaCloud = false;
-          if (do_add_attachment) {
-            nsAutoString proposedName;
-            attachment->GetName(proposedName);
-            msg_pick_real_name(m_attachments[newLoc], proposedName.get());
-            ++newLoc;
-          }
+          m_attachments[newLoc]->m_uri = url;
+          m_attachments[newLoc]->mURL = nullptr;
+        } else
+          do_add_attachment = (nullptr != m_attachments[newLoc]->mURL);
+        m_attachments[newLoc]->mSendViaCloud = false;
+        if (do_add_attachment) {
+          nsAutoString proposedName;
+          attachment->GetName(proposedName);
+          msg_pick_real_name(m_attachments[newLoc], proposedName.get());
+          ++newLoc;
         }
       }
     }
@@ -2270,20 +2228,10 @@ nsresult nsMsgComposeAndSend::InitCompositionFields(
   rv = mCompFields->AddAllHeaders(fields);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> srcAttachments;
-  fields->GetAttachments(getter_AddRefs(srcAttachments));
-  if (srcAttachments) {
-    bool moreAttachments;
-    nsCOMPtr<nsISupports> element;
-    while (NS_SUCCEEDED(srcAttachments->HasMoreElements(&moreAttachments)) &&
-           moreAttachments) {
-      rv = srcAttachments->GetNext(getter_AddRefs(element));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      nsCOMPtr<nsIMsgAttachment> attachment = do_QueryInterface(element, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-      mCompFields->AddAttachment(attachment);
-    }
+  nsTArray<RefPtr<nsIMsgAttachment>> srcAttachments;
+  fields->GetAttachments(srcAttachments);
+  for (nsIMsgAttachment* attachment : srcAttachments) {
+    mCompFields->AddAttachment(attachment);
   }
 
   AddDefaultCustomHeaders();

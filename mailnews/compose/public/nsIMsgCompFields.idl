@@ -6,7 +6,6 @@
 #include "msgIStructuredHeaders.idl"
 
 interface nsIMsgAttachment;
-interface nsISimpleEnumerator;
 interface nsIMsgComposeSecure;
 
 /**
@@ -64,7 +63,7 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
    */
   attribute AString body;
 
-  readonly attribute nsISimpleEnumerator attachments;
+  readonly attribute Array<nsIMsgAttachment> attachments;
   void addAttachment(in nsIMsgAttachment attachment);
   void removeAttachment(in nsIMsgAttachment attachment);
   void removeAttachments();
