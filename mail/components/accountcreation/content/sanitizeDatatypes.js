@@ -113,6 +113,19 @@ var sanitize = {
 
     return str.toLowerCase();
   },
+
+  /**
+   * A value which resembles an email address.
+   */
+  emailAddress(unchecked) {
+    let str = this.nonemptystring(unchecked);
+    if (!/^[a-z0-9\-%+_\.\*]+@[a-z0-9\-\.]+\.[a-z]+$/i.test(str)) {
+      throw new MalformedException("emailaddress_syntax.error", unchecked);
+    }
+
+    return str.toLowerCase();
+  },
+
   /**
    * A non-chrome URL that's safe to request.
    */

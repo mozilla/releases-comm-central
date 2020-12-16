@@ -246,12 +246,12 @@ function readAutoDiscoverResponse(
 
   // redirect to other email address
   if (
-    "Action" in autoDiscoverXML.Autodiscover.Response &&
-    "Redirect" in autoDiscoverXML.Autodiscover.Response.Action
+    "Account" in autoDiscoverXML.Autodiscover.Response &&
+    "RedirectAddr" in autoDiscoverXML.Autodiscover.Response.Account
   ) {
-    // <https://docs.microsoft.com/en-us/previous-versions/office/developer/exchange-server-interoperability-guidance/hh352638(v%3Dexchg.140)>
+    // <https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxdscli/49083e77-8dc2-4010-85c6-f40e090f3b17>
     let redirectEmailAddress = sanitize.emailAddress(
-      autoDiscoverXML.Autodiscover.Response.Action.Redirect
+      autoDiscoverXML.Autodiscover.Response.Account.RedirectAddr
     );
     let domain = redirectEmailAddress.split("@").pop();
     if (++gLoopCounter > 2) {
