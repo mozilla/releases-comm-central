@@ -438,7 +438,7 @@
     }
 
     set isActive(value) {
-      this.docShell.isActive = value;
+      this.browsingContext.isActive = value;
       if (value && this._pendingMessages.length) {
         this.startDisplayingPendingMessages(false);
       }
@@ -450,7 +450,7 @@
         context: aContext,
         firstUnread: aFirstUnread,
       });
-      if (this.docShell.isActive) {
+      if (this.browsingContext.isActive) {
         this.startDisplayingPendingMessages(true);
       }
     }
