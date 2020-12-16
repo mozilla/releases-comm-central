@@ -294,7 +294,14 @@ VCardMimeConverter.prototype = {
       return arr.join("");
     }
 
-    let abCard = VCardUtils.vCardToAbCard(data);
+    let abCard;
+    try {
+      abCard = VCardUtils.vCardToAbCard(data);
+    } catch (e) {
+      // We were given invalid vcard data.
+      return "";
+    }
+
     let escapedVCard = encodeURIComponent(data);
 
     let propertiesTable = `<table class="moz-vcard-properties-table">`;

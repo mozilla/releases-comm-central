@@ -1,0 +1,25 @@
+From - Tue Jun 21 20:58:09 2020
+MIME-Version: 1.0
+Message-ID: <vcard.invalid@link.invalid>
+From: <meister@mail.example.com>
+To: Hugo <hugo@example.com>
+Subject: this contains an invalid vcard
+Date: Tue, 21 Jun 2020 20:45:48 +0200
+Content-Type: multipart/mixed;
+ boundary="------------B16B2089EF5F4ADD84A4E66F"
+
+--------------B16B2089EF5F4ADD84A4E66F
+Content-Type: text/plain; charset=UTF-8
+
+has an attached vcf which has invalid data (null)
+
+--------------B16B2089EF5F4ADD84A4E66F
+Content-Type: text/x-vcard;
+ name="contentisnull.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="contentisnull.vcf"
+
+bnVsbA==
+--------------B16B2089EF5F4ADD84A4E66F--
+
