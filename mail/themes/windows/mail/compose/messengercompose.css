@@ -84,6 +84,36 @@
   .address-container:not(:-moz-lwtheme):hover {
     --toolbarbutton-hover-bordercolor: ThreeDDarkShadow;
   }
+
+  #MsgHeadersToolbar:not(:-moz-lwtheme) .address-pill {
+    box-shadow: inset 0 0 0 1px ThreeDShadow;
+  }
+
+  #MsgHeadersToolbar:not(:-moz-lwtheme) .address-pill:hover:not(.editing),
+  #MsgHeadersToolbar:not(:-moz-lwtheme) .address-pill:focus:not(.editing) {
+    box-shadow: inset 0 0 0 1px Highlight;
+  }
+
+  #MsgHeadersToolbar:not(:-moz-lwtheme) .address-pill[selected] {
+    color: HighlightText;
+    background-color: Highlight;
+    box-shadow: inset 0 0 0 1px Highlight, inset 0 0 0 2em Highlight;
+  }
+
+  #MsgHeadersToolbar:not(:-moz-lwtheme) .address-pill[selected]:hover:not(.editing),
+  #MsgHeadersToolbar:not(:-moz-lwtheme) .address-pill[selected]:focus:not(.editing) {
+    box-shadow: inset 0 0 0 1px HighlightText, inset 0 0 0 2em Highlight;
+    text-shadow: none;
+  }
+
+  #MsgHeadersToolbar:not(:-moz-lwtheme) .address-pill:not([selected]) .pill-indicator {
+    fill: ThreeDShadow;
+  }
+
+  #MsgHeadersToolbar:not(:-moz-lwtheme)
+    .address-pill:not([selected],.editing):hover .pill-indicator {
+    fill: Highlight;
+  }
 }
 
 #identityLabel-box {
