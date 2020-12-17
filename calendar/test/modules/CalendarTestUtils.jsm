@@ -123,7 +123,8 @@ const CalendarTestUtils = {
    * The mode parameter can be specified to indicate which of the dialogs to
    * wait for.
    *
-   * @param {string} [mode="view"] Can be "view" or "edit".
+   * @param {string} [mode="view"] Determines which dialog we are waiting on,
+   *  can be "view" for the summary or "edit" for the editing one.
    *
    * @returns {Promise<Window>}
    */
@@ -135,7 +136,16 @@ const CalendarTestUtils = {
 
     return BrowserTestUtils.domWindowOpened(null, async win => {
       await BrowserTestUtils.waitForEvent(win, "load");
-      return win.document.documentURI == uri;
+
+      if (win.document.documentURI != uri) {
+        return false;
+      }
+
+      if (mode === "edit") {
+        let iframe = win.document.getElementById("lightning-item-panel-iframe");
+        await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
+      }
+      return true;
     });
   },
 };

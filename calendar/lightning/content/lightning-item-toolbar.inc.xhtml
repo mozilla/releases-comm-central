@@ -53,10 +53,18 @@
   <toolbarbutton id="button-url"
                  mode="dialog"
                  class="cal-event-toolbarbutton toolbarbutton-1"
+                 type="menu"
+                 wantdropmarker="true"
                  label="&event.attachments.menubutton.label;"
                  tooltiptext="&event.toolbar.attachments.tooltip;"
-                 command="cmd_attach_url"
-                 disable-on-readonly="true"/>
+                 disable-on-readonly="true">
+    <menupopup id="button-attach-menupopup">
+      <menuitem id="button-attach-url"
+                label="&event.attachments.url.label;"
+                command="cmd_attach_url"/>
+      <!-- Additional items are added here in loadCloudProviders(). -->
+    </menupopup>
+  </toolbarbutton>
   <toolbarbutton id="button-delete"
                  mode="dialog"
                  class="cal-event-toolbarbutton toolbarbutton-1"

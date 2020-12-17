@@ -475,9 +475,13 @@ async function setCategories(iframeWindow, categories) {
  */
 async function handleAddingAttachment(dialogWindow, url) {
   let dialogDocument = dialogWindow.document;
+  let attachButton = dialogDocument.querySelector("#button-url");
+  let menu = dialogDocument.querySelector("#button-attach-menupopup");
+  let menuShowing = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  synthesizeMouseAtCenter(attachButton, {}, dialogWindow);
+  await menuShowing;
 
-  synthesizeMouseAtCenter(dialogDocument.getElementById("button-url"), {}, dialogWindow);
-  await BrowserTestUtils.promiseAlertDialog(undefined, undefined, attachmentWindow => {
+  let urlPrompt = BrowserTestUtils.promiseAlertDialog(undefined, undefined, attachmentWindow => {
     let attachmentDocument = attachmentWindow.document;
 
     attachmentDocument.getElementById("loginTextbox").value = url;
@@ -487,6 +491,8 @@ async function handleAddingAttachment(dialogWindow, url) {
       attachmentWindow
     );
   });
+  synthesizeMouseAtCenter(dialogDocument.querySelector("#button-attach-url"), {}, dialogWindow);
+  await urlPrompt;
   await sleep(dialogWindow);
 }
 
