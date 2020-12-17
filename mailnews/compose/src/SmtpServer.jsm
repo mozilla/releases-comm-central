@@ -5,6 +5,9 @@
 const EXPORTED_SYMBOLS = ["SmtpServer"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * This class represents a single SMTP server.
@@ -120,12 +123,130 @@ SmtpServer.prototype = {
   },
 
   get serverURI() {
-    return (
-      "smtp://" + (this.username ? `${this.username}@` : "") + this.displayname
-    );
+    return this._getServerURI(true);
   },
 
-  forgetPassword() {},
+  get password() {
+    if (this._password) {
+      return this._password;
+    }
+    let incomingAccountKey = this._prefs.getCharPref("incomingAccount", "");
+    let incomingServer;
+    if (incomingAccountKey) {
+      incomingServer = MailServices.accounts.getIncomingServer(
+        incomingAccountKey
+      );
+    } else {
+      let useMatchingHostNameServer = Services.prefs.getBoolPref(
+        "mail.smtp.useMatchingHostNameServer"
+      );
+      let useMatchingDomainServer = Services.prefs.getBoolPref(
+        "mail.smtp.useMatchingDomainServer"
+      );
+      if (useMatchingHostNameServer || useMatchingDomainServer) {
+        if (useMatchingHostNameServer) {
+          // Pass in empty type and port=0, to match imap and pop3.
+          incomingServer = MailServices.accounts.findRealServer(
+            this.username,
+            this.hostname,
+            "",
+            0
+          );
+        }
+        if (
+          !incomingServer &&
+          useMatchingDomainServer &&
+          this.hostname.includes(".")
+        ) {
+          let newHostname = this.hostname.slice(0, this.hostname.indexOf("."));
+          for (let server of MailServices.accounts.allServers) {
+            if (server.realUsername == this.username) {
+              let serverHostName = server.realHostName;
+              if (
+                serverHostName.includes(".") &&
+                serverHostName.slice(0, serverHostName.indexOf(".")) ==
+                  newHostname
+              ) {
+                incomingServer = server;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    return incomingServer?.password;
+  },
+
+  set password(password) {
+    this._password = password;
+  },
+
+  getPasswordWithUI(promptMessage, promptTitle, prompt) {
+    let password = this._getPasswordWithoutUI();
+    if (password) {
+      this.password = password;
+      return this.password;
+    }
+    let outPassword = {};
+    let ok = prompt.promptPassword(
+      promptTitle,
+      promptMessage,
+      this.serverURI,
+      Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY,
+      outPassword
+    );
+    if (ok) {
+      this.password = outPassword.value;
+    }
+    return this.password;
+  },
+
+  forgetPassword() {
+    let logins = Services.logins.findLogins(this.serverURI, "", this.serverURI);
+    for (let login of logins) {
+      if (login.username == this.username) {
+        Services.logins.removeLogin(login);
+        this.password = "";
+        return;
+      }
+    }
+  },
+
+  verifyLogon(urlListner, msgWindow) {
+    return MailServices.smtp.verifyLogon(this, urlListner, msgWindow);
+  },
+
+  clearAllValues() {
+    this._prefs.deleteBranch("");
+  },
+
+  /**
+   * @returns {string}
+   */
+  _getPasswordWithoutUI() {
+    let serverURI = this._getServerURI();
+    let logins = Services.logins.findLogins(serverURI, "", serverURI);
+    for (let login of logins) {
+      if (login.username == this.username) {
+        return login.password;
+      }
+    }
+    return null;
+  },
+
+  /**
+   * Get server URI in the form of smtp://[user@]hostname.
+   * @param {boolean} includeUsername - Whether to include the username.
+   * @returns {string}
+   */
+  _getServerURI(includeUsername) {
+    return (
+      "smtp://" +
+      (includeUsername && this.username ? `${this.username}@` : "") +
+      this.hostname
+    );
+  },
 
   /**
    * Get the associated pref branch and the default SMTP server branch.

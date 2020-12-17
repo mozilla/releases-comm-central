@@ -15,7 +15,9 @@ var { SmtpClient } = ChromeUtils.import("resource:///modules/SmtpClient.jsm");
  *
  * @implements {nsISmtpService}
  */
-function SmtpService() {}
+function SmtpService() {
+  this._servers = [];
+}
 
 SmtpService.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsISmtpService"]),
@@ -25,6 +27,7 @@ SmtpService.prototype = {
    * @see nsISmtpService
    */
   get defaultServer() {
+    this._loadSmtpServers();
     let defaultServerKey = Services.prefs.getCharPref(
       "mail.smtp.defaultserver",
       ""
@@ -34,19 +37,20 @@ SmtpService.prototype = {
       return this.getServerByKey(defaultServerKey);
     }
 
-    // No pref set, so just return the first one, and set the pref.
-    let serverKeys = this._getSmtpServerKeys();
-    if (serverKeys.length > 0) {
-      Services.prefs.setCharPref("mail.smtp.defaultServerKey", serverKeys[0]);
-      return this.getServerByKey(serverKeys[0]);
+    // No pref set, so set the first one as default, and return it.
+    if (this._servers.length > 0) {
+      Services.prefs.setCharPref(
+        "mail.smtp.defaultserver",
+        this._servers[0].key
+      );
+      return this._servers[0];
     }
     return null;
   },
 
   get servers() {
-    let serverKeys = this._getSmtpServerKeys();
-    let servers = serverKeys.map(key => this.getServerByKey(key));
-    return servers.values();
+    this._loadSmtpServers();
+    return this._servers.values();
   },
 
   /**
@@ -110,7 +114,8 @@ SmtpService.prototype = {
       fstream.close();
       client.end();
     };
-    let runningUrl = Services.io.newURI(server.serverURI);
+    // let runningUrl = Services.io.newURI(server.serverURI);
+    let runningUrl = this._getRunningUri(server);
     client.ondone = () => {
       deliveryListener.OnStopRunningUrl(runningUrl, 0);
       client.close();
@@ -126,7 +131,7 @@ SmtpService.prototype = {
   verifyLogon(server, urlListener, msgWindow) {
     let client = new SmtpClient(server);
     client.connect();
-    let runningUrl = Services.io.newURI(server.serverURI);
+    let runningUrl = this._getRunningUri(server);
     client.onerror = nsError => {
       urlListener.OnStopRunningUrl(runningUrl, nsError);
     };
@@ -134,6 +139,7 @@ SmtpService.prototype = {
       urlListener.OnStopRunningUrl(runningUrl, 0);
       client.close();
     };
+    return runningUrl;
   },
 
   /**
@@ -149,11 +155,8 @@ SmtpService.prototype = {
    * @see nsISmtpService
    */
   getServerByKey(key) {
-    let serverKeys = this._getSmtpServerKeys();
-    if (serverKeys.includes(key)) {
-      return this._createKeyedServer(key);
-    }
-    return null;
+    let server = this._servers.find(s => s.key == key);
+    return server || this._createKeyedServer(key);
   },
 
   /**
@@ -177,6 +180,7 @@ SmtpService.prototype = {
    */
   deleteServer(server) {
     let serverKeys = this._getSmtpServerKeys().filter(k => k != server.key);
+    this._servers = this._servers.filter(s => s.key != server.key);
     this._saveSmtpServerKeys(serverKeys);
   },
 
@@ -195,6 +199,18 @@ SmtpService.prototype = {
       }
       return true;
     });
+  },
+
+  /**
+   * Load SMTP servers from prefs.
+   */
+  _loadSmtpServers() {
+    if (this._servers.length) {
+      return;
+    }
+    this._servers = this._getSmtpServerKeys().map(key =>
+      this.getServerByKey(key)
+    );
   },
 
   /**
@@ -223,6 +239,17 @@ SmtpService.prototype = {
       Ci.nsISmtpServer
     );
     server.key = key;
+    this._servers.push(server);
     return server;
+  },
+
+  /**
+   * Get the server URI in the form of smtp://user@hostname:port.
+   * @param {nsISmtpServer} server - The SMTP server.
+   * @returns {nsIURI}
+   */
+  _getRunningUri(server) {
+    let spec = server.serverURI + (server.port ? `:${server.port}` : "");
+    return Services.io.newURI(spec);
   },
 };
