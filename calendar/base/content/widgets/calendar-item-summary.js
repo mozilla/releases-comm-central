@@ -481,7 +481,7 @@
         this.updateStatus(status, isToDoItem);
       }
 
-      let description = item.getProperty("DESCRIPTION");
+      let description = item.getProperty("DESCRIPTION")?.trim();
       if (description) {
         this.updateDescription(description);
       }
