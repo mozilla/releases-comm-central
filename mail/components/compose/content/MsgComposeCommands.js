@@ -1489,14 +1489,13 @@ function goOpenNewMessage(aEvent) {
       ? Ci.nsIMsgCompFormat.OppositeOfDefault
       : Ci.nsIMsgCompFormat.Default;
 
-  let identity = getCurrentIdentity();
   MailServices.compose.OpenComposeWindow(
     null,
     null,
     null,
     Ci.nsIMsgCompType.New,
     msgCompFormat,
-    identity,
+    gCurrentIdentity,
     null,
     null
   );
@@ -3366,7 +3365,7 @@ function ComposeStartup(aParams) {
         params.originalMsgURI = args.originalMsgURI;
       }
       if (args.preselectid) {
-        params.identity = getIdentityForKey(args.preselectid);
+        params.identity = MailServices.accounts.getIdentity(args.preselectid);
       }
       if (args.from) {
         composeFields.from = args.from;
@@ -3517,7 +3516,9 @@ function ComposeStartup(aParams) {
   // so use the creator identity which could be null.
   if (gComposeType == Ci.nsIMsgCompType.Draft) {
     let creatorKey = params.composeFields.creatorIdentityKey;
-    params.identity = creatorKey ? getIdentityForKey(creatorKey) : null;
+    params.identity = creatorKey
+      ? MailServices.accounts.getIdentity(creatorKey)
+      : null;
   }
   let from = [];
   if (params.composeFields.from) {
@@ -4674,7 +4675,7 @@ async function CompleteGenericSendMessage(msgType) {
     msgWindow.rootDocShell.allowAuth = true;
     await gMsgCompose.sendMsg(
       msgType,
-      getCurrentIdentity(),
+      gCurrentIdentity,
       getCurrentAccountKey(),
       msgWindow,
       progress
@@ -5534,14 +5535,6 @@ function getCurrentAccountKey() {
 function getCurrentIdentityKey() {
   // Get the identity key.
   return gCurrentIdentity.key;
-}
-
-function getIdentityForKey(key) {
-  return MailServices.accounts.getIdentity(key);
-}
-
-function getCurrentIdentity() {
-  return getIdentityForKey(getCurrentIdentityKey());
 }
 
 function AdjustFocus() {
