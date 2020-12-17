@@ -210,20 +210,8 @@
         // No source node? Not our drag.
         return;
       }
-      let item = session.sourceNode.sourceObject.clone();
       this.setAttribute("dropbox", "false");
-      let transfer = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
-      transfer.init(null);
-
-      if (cal.item.isEvent(item)) {
-        transfer.addDataFlavor("application/x-moz-cal-event");
-      } else {
-        transfer.addDataFlavor("application/x-moz-cal-task");
-      }
-
-      session.getData(transfer, 0);
-      item = session.sourceNode.sourceObject;
-
+      let item = session.sourceNode.sourceObject;
       let newItem = this.onDropItem(item).clone();
       let newStart = newItem.startDate || newItem.entryDate || newItem.dueDate;
       let newEnd = newItem.endDate || newItem.dueDate || newItem.entryDate;
