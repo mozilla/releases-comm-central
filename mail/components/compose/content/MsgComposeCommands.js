@@ -69,8 +69,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });
 
-var sDictCount = 0;
-
 /**
  * Global message window object. This is used by mail-offline.js and therefore
  * should not be renamed. We need to avoid doing this kind of cross file global
@@ -5295,15 +5293,11 @@ function InitLanguageMenu() {
   // the spellchecker.
 
   var dictList = spellChecker.getDictionaryList();
-  var count = dictList.length;
 
   // If dictionary count hasn't changed then no need to update the menu.
-  if (sDictCount == count) {
+  if (dictList.length == languageMenuList.childElementCount) {
     return;
   }
-
-  // Store current dictionary count.
-  sDictCount = count;
 
   var sortedList = gSpellChecker.sortDictionaryList(dictList);
 
@@ -5312,10 +5306,10 @@ function InitLanguageMenu() {
     languageMenuList.lastChild.remove();
   }
 
-  for (let i = 0; i < count; i++) {
-    var item = document.createXULElement("menuitem");
-    item.setAttribute("label", sortedList[i].displayName);
-    item.setAttribute("value", sortedList[i].localeCode);
+  for (let dict of sortedList) {
+    let item = document.createXULElement("menuitem");
+    item.setAttribute("label", dict.displayName);
+    item.setAttribute("value", dict.localeCode);
     item.setAttribute("type", "radio");
     languageMenuList.appendChild(item);
   }
