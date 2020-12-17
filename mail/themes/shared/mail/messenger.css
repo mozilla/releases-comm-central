@@ -624,7 +624,7 @@ html|ul.addon-webext-perm-list:empty {
 }
 
 :root[lwt-tree] treechildren::-moz-tree-image(selected),
-:root[lwt-tree] treechildren::-moz-tree-twisty(selected),
+:root[lwt-tree] treechildren::-moz-tree-twisty(selected, focus),
 :root[lwt-tree] #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
 :root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
@@ -663,7 +663,7 @@ tree:-moz-lwtheme:not(:focus)
   border-color: var(--sidebar-text-color);
 }
 
-:root[lwt-tree] treechildren::-moz-tree-line(selected) {
+:root[lwt-tree] treechildren::-moz-tree-line(selected, focus) {
   border-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
