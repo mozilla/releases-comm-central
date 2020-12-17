@@ -3799,7 +3799,12 @@ function WizCallback(state) {
   }
 }
 
-function adjustSignEncryptAfterIdentityChanged(prevId, newId) {
+/**
+ * Adjust sign/encrypt settings accordingly after the identity was switched.
+ *
+ * @param {?nsIMsgIdentity} prevIdentity - Previous identity.
+ */
+function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
   let configuredSMIME =
     isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
 
@@ -3808,7 +3813,7 @@ function adjustSignEncryptAfterIdentityChanged(prevId, newId) {
     configuredOpenPGP = isPgpConfigured();
   }
 
-  if (!prevId) {
+  if (!prevIdentity) {
     gSelectedTechnologyIsPGP = false;
 
     if (configuredOpenPGP) {
@@ -3850,7 +3855,7 @@ function adjustSignEncryptAfterIdentityChanged(prevId, newId) {
   gOptionalEncryption = false;
   gOptionalEncryptionInitial = gOptionalEncryption;
 
-  if (!prevId) {
+  if (!prevIdentity) {
     if (configuredOpenPGP || configuredSMIME) {
       gSendEncrypted = gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0;
       gSendSigned = gCurrentIdentity.getBoolAttribute("sign_mail");
@@ -4037,7 +4042,7 @@ function ComposeLoad() {
     gMsgCompose.compFields.composeSecure = gSMFields;
   }
 
-  adjustSignEncryptAfterIdentityChanged(null, gCurrentIdentity);
+  adjustSignEncryptAfterIdentityChanged(null);
 
   ExtensionParent.apiManager.emit(
     "extension-browser-inserted",
@@ -7073,7 +7078,6 @@ function LoadIdentity(startup) {
       hideIrrelevantAddressingOptions(accountKey, prevKey);
     }
   }
-
   for (let input of document.querySelectorAll(".mail-input,.news-input")) {
     let params = JSON.parse(input.searchParam);
     params.idKey = idKey;
@@ -7209,7 +7213,7 @@ function LoadIdentity(startup) {
       changedRecipients = true;
     }
 
-    adjustSignEncryptAfterIdentityChanged(prevIdentity, gCurrentIdentity);
+    adjustSignEncryptAfterIdentityChanged(prevIdentity);
 
     try {
       gMsgCompose.identity = gCurrentIdentity;
