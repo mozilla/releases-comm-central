@@ -240,13 +240,6 @@ function setupModule() {
   );
   mark_action = testHelperModule.mark_action;
 
-  // Remove the dump appender that got appended; it just adds noise.
-  testHelperModule._mailnewsTestLogger.removeAppender(
-    testHelperModule._mailnewsTestLogger.ownAppenders[
-      testHelperModule._mailnewsTestLogger.ownAppenders.length - 1
-    ]
-  );
-
   // Indicate to any fancy helpers (just folderEventLogHelper right now) that
   //  we want them to log extra stuff.
   testHelperModule._logHelperInterestedListeners = true;

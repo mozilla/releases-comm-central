@@ -12,7 +12,6 @@
  *  or not.
  */
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
@@ -21,6 +20,7 @@ Cu.importGlobalProperties(["Element", "Node"]);
 var _mailnewsTestLogger;
 var _xpcshellLogger;
 var _testLoggerContexts = [];
+var _testLoggerContextId = 0;
 var _testLoggerActiveContext;
 
 var _logHelperInterestedListeners = false;
@@ -40,10 +40,10 @@ function logHelperHasInterestedListeners() {
 }
 
 /**
- * Tunnel nsIScriptErrors that show up on the error console to Log4Moz.  We could
- *  send everything but I think only script errors are likely of much concern.
- *  Also, this nicely avoids infinite recursions no matter what you do since
- *  what we publish is not going to end up as an nsIScriptError.
+ * Tunnel nsIScriptErrors that show up on the error console to ConsoleInstance.
+ *  We could send everything but I think only script errors are likely of much
+ *  concern. Also, this nicely avoids infinite recursions no matter what you do
+ *  since what we publish is not going to end up as an nsIScriptError.
  *
  * This is based on my (asuth') exmmad extension.
  */
@@ -123,33 +123,15 @@ var _do_not_wrap_xpcshell;
  *  endpoint that cares about these things (such as logsploder).
  */
 function _init_log_helper() {
-  let rootLogger = Log4Moz.repository.rootLogger;
-  rootLogger.level = Log4Moz.Level.All;
-
   // - dump on test
-  _mailnewsTestLogger = Log4Moz.repository.getLogger("test.test");
-  let formatter = new Log4Moz.BasicFormatter();
-  let dapp = new Log4Moz.DumpAppender(formatter);
-  dapp.level = Log4Moz.Level.All;
-  _mailnewsTestLogger.addAppender(dapp);
+  _mailnewsTestLogger = console.createInstance({
+    prefix: "test.test",
+  });
 
   // - silent category for xpcshell stuff that already gets dump()ed
-  _xpcshellLogger = Log4Moz.repository.getLogger("xpcshell");
-
-  // - logsploder
-  let file = Services.dirsvc.get("TmpD", Ci.nsIFile);
-  file.append("logsploder.ptr");
-  if (file.exists()) {
-    _logHelperInterestedListeners = true;
-
-    let data = IOUtils.loadFileToString(file);
-    data = data.trim();
-    let [host, port] = data.split(":");
-    let jf = new Log4Moz.JSONFormatter();
-    let sapp = new Log4Moz.SocketAppender(host, Number(port), jf);
-    // this goes on the root so it can see all
-    rootLogger.addAppender(sapp);
-  }
+  _xpcshellLogger = console.createInstance({
+    prefix: "xpcshell",
+  });
 
   // Create a console listener reporting thinger in all cases.  Since XPCOM
   //  failures will show up via the error console, this allows our test to fail
@@ -174,16 +156,6 @@ function _init_log_helper() {
 }
 _init_log_helper();
 
-function _cleanup_log_helper() {
-  let rootLogger = Log4Moz.repository.rootLogger;
-  for (let appender of rootLogger.appenders) {
-    if ("closeStream" in appender) {
-      appender.closeStream();
-    }
-  }
-  rootLogger._appenders = [];
-}
-
 /**
  * Mark the start of a test.  This creates nice console output as well as
  *  setting up logging contexts so that use of other helpers in here like
@@ -201,11 +173,12 @@ function mark_test_start(aName, aParameter, aDepth) {
   mark_test_end(aDepth);
 
   let term = aDepth == 0 ? "test" : "subtest";
-  _testLoggerActiveContext = _mailnewsTestLogger.newContext({
+  _testLoggerActiveContext = {
     type: term,
     name: aName,
     parameter: aParameter,
-  });
+    _id: ++_testLoggerContextId,
+  };
   if (_testLoggerContexts.length) {
     _testLoggerActiveContext._contextDepth = _testLoggerContexts.length;
     _testLoggerActiveContext._contextParentId =
@@ -214,7 +187,7 @@ function mark_test_start(aName, aParameter, aDepth) {
   _testLoggerContexts.push(_testLoggerActiveContext);
 
   _mailnewsTestLogger.info(
-    _testLoggerActiveContext,
+    _testLoggerActiveContext._id,
     "Starting " + term + ": " + aName + (aParameter ? ", " + aParameter : "")
   );
 }
@@ -229,9 +202,8 @@ function mark_test_end(aPopTo) {
   // clear out any existing contexts
   while (_testLoggerContexts.length > aPopTo) {
     let context = _testLoggerContexts.pop();
-    context.finish();
     _mailnewsTestLogger.info(
-      context,
+      context._id,
       "Finished " +
         context.type +
         ": " +
@@ -280,15 +252,7 @@ function mark_all_tests_run() {
   // make sure all tests get closed out
   mark_test_end();
 
-  _xpcshellLogger.info({
-    _jsonMe: true,
-    _isContext: true,
-    _specialContext: "lifecycle",
-    _id: "finish",
-    done: true,
-  });
-
-  _cleanup_log_helper();
+  _xpcshellLogger.info("All finished");
 }
 
 function _explode_flags(aFlagWord, aFlagDefs) {
@@ -589,10 +553,13 @@ _MarkAction.prototype = {
  *     to handle more, and does a fair job on straight JS objects.
  */
 function mark_action(aWho, aWhat, aArgs) {
-  let logger = Log4Moz.repository.getLogger("test." + aWho);
+  let logger = console.createInstance({ prefix: "test." + aWho });
 
   aArgs = aArgs.map(arg => _normalize_for_json(arg, undefined, true));
-  logger.info(_testLoggerActiveContext, new _MarkAction(aWho, aWhat, aArgs));
+  logger.info(
+    _testLoggerActiveContext,
+    new _MarkAction(aWho, aWhat, aArgs).toString()
+  );
 }
 
 /*
