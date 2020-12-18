@@ -649,7 +649,7 @@ var gGeneralPane = {
           engineList.selectedItem = item;
         }
       }
-      self.defaultEngines = await Services.search.getDefaultEngines();
+      self.defaultEngines = await Services.search.getAppProvidedEngines();
       self.updateRemoveButton();
 
       engineList.addEventListener("command", async () => {
