@@ -226,7 +226,7 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 
 #folderTree treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true) {
   margin-inline-start: -20px;
-  padding-inline-start: 22px;
+  padding-inline-start: 23px;
   background-image: url("chrome://messenger/skin/icons/folder-new-indicator.svg");
   background-repeat: no-repeat;
   background-position: left;
