@@ -665,10 +665,6 @@ pref("mailnews.traits.antiId.2", "mailnews@mozilla.org#good");
 // the first externally defined trait will have index 1001
 pref("mailnews.traits.lastIndex", 1000);
 
-// Address entry will highlight input that doesn't match anything in the
-// address books.
-pref("mail.autoComplete.highlightNonMatches", true);
-
 // Show extra column in address entry. This is numeric for
 // historical reasons: 0 = no extra column, 1 = show extra column.
 pref("mail.autoComplete.commentColumn", 0);

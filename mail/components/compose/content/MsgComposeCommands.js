@@ -7284,7 +7284,12 @@ function MakeFromFieldEditable(ignoreWarning) {
   );
 }
 
-function setupAutocompleteInput(input, highlightNonMatches) {
+/**
+ * Set up autocomplete search parameters for address inputs of inbuilt headers.
+ *
+ * @param {Element} input - The address input of an inbuilt header field.
+ */
+function setupAutocompleteInput(input) {
   let params = JSON.parse(input.getAttribute("autocompletesearchparam"));
   params.type = input.getAttribute("recipienttype");
   input.setAttribute("autocompletesearchparam", JSON.stringify(params));
@@ -7301,9 +7306,6 @@ function setupAutocompleteInput(input, highlightNonMatches) {
       );
     }
   };
-
-  // Request that input that isn't matched be highlighted.
-  input.highlightNonMatches = highlightNonMatches;
 }
 
 function fromKeyPress(event) {

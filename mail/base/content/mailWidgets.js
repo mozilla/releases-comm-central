@@ -1798,11 +1798,22 @@
       this.setAttribute("context", "emailAddressPillPopup");
       this.setAttribute("allowevents", "true");
 
+      this.labelView = document.createXULElement("hbox");
+      this.labelView.setAttribute("flex", "1");
+
       this.pillLabel = document.createXULElement("label");
       this.pillLabel.classList.add("pill-label");
       this.pillLabel.setAttribute("crop", "center");
 
-      this.appendChild(this.pillLabel);
+      this.pillIndicator = document.createXULElement("image");
+      this.pillIndicator.classList.add("pill-indicator");
+      this.pillIndicator.setAttribute("tabindex", "-1");
+      this.pillIndicator.collapsed = true;
+
+      this.labelView.appendChild(this.pillLabel);
+      this.labelView.appendChild(this.pillIndicator);
+
+      this.appendChild(this.labelView);
       this._setupEmailInput();
 
       this._setupEventListeners();
@@ -1950,7 +1961,7 @@
       this.style.setProperty("min-width", `${this.clientWidth}px`);
 
       this.classList.add("editing");
-      this.pillLabel.setAttribute("hidden", "true");
+      this.labelView.setAttribute("hidden", "true");
       this.emailInput.removeAttribute("hidden");
       this.emailInput.focus();
 
@@ -1989,7 +2000,7 @@
       }
     }
 
-    updatePill() {
+    async updatePill() {
       let addresses = MailServices.headerParser.makeFromDisplayAddress(
         this.emailInput.value
       );
@@ -2022,7 +2033,7 @@
       let pills = row.querySelectorAll("mail-address-pill");
       this.setAttribute(
         "aria-label",
-        l10nCompose.formatValueSync("pill-aria-label", {
+        await document.l10n.formatValue("pill-aria-label", {
           email: this.fullAddress,
           count: pills.length,
         })
@@ -2032,6 +2043,20 @@
     }
 
     resetPill() {
+      this.updatePillStatus();
+      this.style.removeProperty("max-width");
+      this.style.removeProperty("min-width");
+      this.classList.remove("editing");
+      this.labelView.removeAttribute("hidden");
+      this.emailInput.setAttribute("hidden", "hidden");
+      this.rowInput.focus();
+    }
+
+    /**
+     * Check if an address is valid or it exists in the address book and update
+     * the helper icons accordingly.
+     */
+    async updatePillStatus() {
       let isValid = this.isValidAddress(this.emailAddress);
       let listNames = MimeParser.parseHeaderField(
         this.fullAddress,
@@ -2042,17 +2067,39 @@
         MailServices.ab.mailListNameExists(listNames[0].name);
       let isNewsgroup = this.emailInput.classList.contains("news-input");
 
-      this.classList.toggle(
-        "error",
-        !isValid && !isMailingList && !isNewsgroup
-      );
+      if (!isValid && !isMailingList && !isNewsgroup) {
+        this.classList.add("invalid-address");
+        this.setAttribute(
+          "tooltiptext",
+          await document.l10n.formatValue("pill-tooltip-invalid-address", {
+            email: this.fullAddress,
+          })
+        );
+        this.pillIndicator.collapsed = true;
 
-      this.style.removeProperty("max-width");
-      this.style.removeProperty("min-width");
-      this.classList.remove("editing");
-      this.pillLabel.removeAttribute("hidden");
-      this.emailInput.setAttribute("hidden", "hidden");
-      this.rowInput.focus();
+        // Interrupt if the address is not valid as we don't need to check for
+        // other conditions.
+        return;
+      }
+
+      this.classList.remove("invalid-address");
+      this.removeAttribute("tooltiptext");
+      this.pillIndicator.collapsed = true;
+
+      // Check if the address is not in the Address Book only if it's not a
+      // mailing list.
+      if (
+        !isMailingList &&
+        !DisplayNameUtils.getCardForEmail(this.emailAddress)?.card
+      ) {
+        this.setAttribute(
+          "tooltiptext",
+          await document.l10n.formatValue("pill-tooltip-not-in-address-book", {
+            email: this.fullAddress,
+          })
+        );
+        this.pillIndicator.collapsed = false;
+      }
     }
 
     /**
@@ -2111,12 +2158,8 @@
       }
       this.hasConnected = true;
 
-      this.highlightNonMatches = Services.prefs.getBoolPref(
-        "mail.autoComplete.highlightNonMatches"
-      );
-
       for (let input of this.querySelectorAll(".mail-input,.news-input")) {
-        setupAutocompleteInput(input, this.highlightNonMatches);
+        setupAutocompleteInput(input);
 
         input.addEventListener("keypress", event => {
           if (event.key != "Tab" || !event.shiftKey) {
@@ -2495,7 +2538,7 @@
         input.setAttribute("minresultsforpopup", 2);
         input.setAttribute("ignoreblurwhilesearching", true);
 
-        setupAutocompleteInput(input, this.highlightNonMatches);
+        setupAutocompleteInput(input);
 
         // Handle keydown event in autocomplete address input of row with pills.
         // input.onBeforeHandleKeyDown() gets called by the toolkit autocomplete
@@ -2534,25 +2577,10 @@
       let pill = document.createXULElement("mail-address-pill");
 
       pill.label = address.toString();
-
       pill.emailAddress = address.email || "";
       pill.fullAddress = address.toString();
       pill.displayName = address.name || "";
       pill.setAttribute("recipienttype", element.getAttribute("recipienttype"));
-
-      let listNames = MimeParser.parseHeaderField(
-        address.toString(),
-        MimeParser.HEADER_ADDRESS
-      );
-      let isMailingList =
-        listNames.length > 0 &&
-        MailServices.ab.mailListNameExists(listNames[0].name);
-      let isNewsgroup = element.classList.contains("news-input");
-
-      pill.classList.toggle(
-        "error",
-        !isValidAddress(address.email) && !isMailingList && !isNewsgroup
-      );
 
       pill.addEventListener("click", event => {
         if (pill.hasAttribute("disabled")) {
@@ -2626,6 +2654,8 @@
         "autocompletesearchparam",
         JSON.stringify(params)
       );
+
+      pill.updatePillStatus();
 
       return pill;
     }

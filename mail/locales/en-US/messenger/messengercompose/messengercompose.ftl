@@ -23,9 +23,15 @@ pill-aria-label = { $count ->
     *[other] { $email }, 1 of { $count }: press Enter to edit, Delete to remove.
 }
 
+#   $email (String) - the email address
+pill-tooltip-invalid-address = { $email } is not a valid e-mail address
+
+#   $email (String) - the email address
+pill-tooltip-not-in-address-book = { $email } is not in your address book
+
 pill-action-edit =
     .label = Edit Address
-    .accesskey = e
+    .accesskey = E
 
 pill-action-move-to =
     .label = Move to To

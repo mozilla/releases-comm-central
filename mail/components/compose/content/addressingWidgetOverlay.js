@@ -911,7 +911,7 @@ function deleteSelectedPills(element) {
 }
 
 /**
- * Handle disabling of "Move to..." context menu items according to the types
+ * Handle the disabling of context menu items according to the types and count
  * of selected pills.
  */
 function emailAddressPillOnPopupShown() {

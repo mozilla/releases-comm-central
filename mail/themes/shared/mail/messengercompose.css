@@ -715,6 +715,20 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   min-height: calc(1.25em + 4px); /* needed to not shrink in edit mode */
 }
 
+.pill-indicator {
+  -moz-context-properties: fill, stroke;
+  list-style-image: url("chrome://messenger/skin/icons/read.svg");
+  fill: currentColor;
+  stroke: Field;
+  margin-inline: -2px -14px;
+  margin-top: -18px;
+  transition: fill .2s ease, stroke .2s ease;
+}
+
+:root[lwt-tree] .pill-indicator {
+  stroke: var(--lwt-toolbar-field-background-color);
+}
+
 #MsgHeadersToolbar[brighttext] .address-pill:not(.editing) {
   background-color: rgba(0,0,0,0.3);
 }
@@ -732,32 +746,42 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
 }
 
-.address-pill.error {
-  color: #a4000f;
-  background-color: #ffe5e5;
+.address-pill.invalid-address:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:not(.editing) {
+  color: #fff;
+  background-color: #d70022;
+  background-image: url("chrome://global/skin/icons/warning.svg");
+  background-size: 12px;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 5px);
+  padding-inline-end: 21px;
+  fill: currentColor;
+  -moz-context-properties: fill;
 }
 
-.address-pill.error:hover:not(.editing),
-.address-pill.error:focus:not(.editing) {
-  background-color: rgba(255,0,0,0.15);
+/* RTL variation for background position */
+.address-pill.invalid-address:not(.editing):-moz-locale-dir(rtl),
+#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:not(.editing):-moz-locale-dir(rtl) {
+  background-position: 5px;
 }
 
-#MsgHeadersToolbar[brighttext] .address-pill.error:not(.editing) {
-  color: #e10216;
-  background-color: #3e0006;
-}
-
-#MsgHeadersToolbar[brighttext] .address-pill.error:hover:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.error:focus:not(.editing)  {
-  background-color: #310005;
+.address-pill.invalid-address:hover:not(.editing),
+.address-pill.invalid-address:focus:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:hover:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.invalid-address:focus:not(.editing) {
+  background-color: #a4000f;
 }
 
 .address-pill[selected]:not(.editing),
 #MsgHeadersToolbar[brighttext] .address-pill[selected]:not(.editing),
-.address-pill.error[selected]:not(.editing),
-#MsgHeadersToolbar[brighttext] .address-pill.error[selected]:not(.editing) {
+.address-pill.invalid-address[selected]:not(.editing),
+#MsgHeadersToolbar[brighttext] .address-pill.invalid-address[selected]:not(.editing) {
   color: HighlightText;
   background-color: Highlight;
+}
+
+.address-pill[selected]:not(.editing) .pill-indicator {
+  fill: Highlight;
 }
 
 .address-identity-recipient {

@@ -1543,8 +1543,7 @@ function UpdateExtraAddressProcessing(
       } else if (aItem instanceof Ci.nsIAbCard) {
         // If we don't have a card, does this new one match?
         if (
-          aDocumentNode.cardDetails &&
-          !aDocumentNode.cardDetails.card &&
+          !aDocumentNode.cardDetails?.card &&
           !aItem.isMailList &&
           aItem.hasEmailAddress(aAddressData.emailAddress)
         ) {
