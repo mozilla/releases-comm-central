@@ -221,17 +221,24 @@ nsLDAPConnection::Observe(nsISupports* aSubject, const char* aTopic,
      * and this leads to starvation.
      * We have to do a copy of pending operations.
      */
-    nsTArray<nsILDAPOperation*> pending_operations;
+    nsTArray<nsLDAPOperation*> pending_operations;
     {
       MutexAutoLock lock(mPendingOperationsMutex);
       for (auto iter = mPendingOperations.Iter(); !iter.Done(); iter.Next()) {
-        pending_operations.AppendElement(iter.UserData());
+        nsLDAPOperation* op = static_cast<nsLDAPOperation*>(iter.UserData());
+        pending_operations.AppendElement(op);
       }
     }
-    for (uint32_t i = 0; i < pending_operations.Length(); i++) {
-      pending_operations[i]->AbandonExt();
+    for (auto op : pending_operations) {
+      // Tell the operation to free any refcounts it can.
+      op->Clear();
+      // Would be nice to tell the server that it can abort any operations
+      // it's currently processing, but we'd have to send the ABANDON from
+      // the thread, and we're shutting down our LDAP handle right now!
+      // SO. Future/aspirational:
+      // op->AbandonExt();
     }
-    Close();
+    Close();  // Byebye LDAP handle.
   } else {
     MOZ_ASSERT_UNREACHABLE("unexpected topic");
     return NS_ERROR_UNEXPECTED;
@@ -468,10 +475,9 @@ void nsLDAPConnection::InvokeErrorCallback(int32_t opID, nsresult status,
   }
   nsPrintfCString location("%s:%d", mDNSHost.get(), mPort);
   nsCOMPtr<nsITransportSecurityInfo> tsi = do_QueryInterface(secInfo);
-  NS_DispatchToMainThread(NS_NewRunnableFunction(
-      "InvokeErrorCallback", [=]() {
-        listener->OnLDAPError(status, tsi, location);
-      }));
+  NS_DispatchToMainThread(NS_NewRunnableFunction("InvokeErrorCallback", [=]() {
+    listener->OnLDAPError(status, tsi, location);
+  }));
 }
 
 NS_IMETHODIMP
