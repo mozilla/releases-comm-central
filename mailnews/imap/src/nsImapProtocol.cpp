@@ -83,6 +83,9 @@
 
 #include "mozilla/dom/InternalResponse.h"
 
+// TLS alerts
+#include "NSSErrorsService.h"
+
 using namespace mozilla;
 
 LazyLogModule IMAP("IMAP");
@@ -4860,33 +4863,40 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
                                       : "imapServerDroppedConnection");
         break;
       default:
-        // Often SSL errors won't show up until we start trying to read.
-        // So we might end up here with ERROR_CLASS_SSL_PROTOCOL or
-        // ERROR_CLASS_BAD_CERT errors. Since we're in the IMAP thread we
-        // can't use nsINSSErrorsService to disambiguate them. If we _do_
-        // need to do that here, NSSErrorsService::GetErrorClass() could be
-        // reimplemented here using easily enough using other
-        // publicly-accessible macros and functions.
-        break;
-    }
+        // This is probably a TLS error. Usually TLS errors won't show up until
+        // we do ReadNextLine() above. Since we're in the IMAP thread we can't
+        // call NSSErrorsService::GetErrorClass() to determine if the error
+        // should result in an non-fatal override dialog (usually certificate
+        // issues) or if it's a fatal protocol error that the user must be
+        // alerted to. Instead, we use some publicly-accessible macros and a
+        // function to determine this.
+        if (NS_ERROR_GET_MODULE(rv) == NS_ERROR_MODULE_SECURITY &&
+            NS_ERROR_GET_SEVERITY(rv) == NS_ERROR_SEVERITY_ERROR) {
+          // It's an error of class 21 (SSL/TLS/Security), e.g., overridable
+          // SSL_ERROR_BAD_CERT_DOMAIN from security/nss/lib/ssl/sslerr.h
+          // rv = 0x80000000 + 0x00450000 + 0x00150000 + 0x00002ff4 = 0x805A2ff4
+          int32_t sec_error = -1 * NS_ERROR_GET_CODE(rv);  // = 0xFFFFD00C
+          if (!mozilla::psm::ErrorIsOverridable(sec_error))
+            AlertUserEventUsingName("imapTlsError");
 
-    // We want to stash the socket transport's securityInfo on the url
-    // failedSecInfo attribute, so it'll be available in nsIUrlListener
-    // OnStopRunningUrl() callbacks.
-    // Strictly speaking, we only need secInfo for NSS errors (to access bad
-    // certificates), but the nssErrorsService we use to determine the
-    // error class only works on the main thread.
-    if (m_runningUrl) {
-      nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(m_runningUrl);
-      nsCOMPtr<nsISupports> secInfo;
-      if (mailNewsUrl &&
-          NS_SUCCEEDED(m_transport->GetSecurityInfo(getter_AddRefs(secInfo)))) {
-        nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
-            do_QueryInterface(secInfo);
-        if (transportSecInfo) {
-          mailNewsUrl->SetFailedSecInfoInternal(transportSecInfo);
+          // Stash the socket transport's securityInfo on the URL so it will be
+          // available in nsIUrlListener OnStopRunningUrl() callbacks to trigger
+          // the override dialog or a security related error message.
+          if (m_runningUrl) {
+            nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl =
+                do_QueryInterface(m_runningUrl);
+            nsCOMPtr<nsISupports> secInfo;
+            if (mailNewsUrl && NS_SUCCEEDED(m_transport->GetSecurityInfo(
+                                   getter_AddRefs(secInfo)))) {
+              nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
+                  do_QueryInterface(secInfo);
+              if (transportSecInfo) {
+                mailNewsUrl->SetFailedSecInfoInternal(transportSecInfo);
+              }
+            }
+          }
         }
-      }
+        break;
     }
 
     nsAutoCString logMsg("clearing IMAP_CONNECTION_IS_OPEN - rv = ");
