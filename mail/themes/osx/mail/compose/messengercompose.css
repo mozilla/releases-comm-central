@@ -192,13 +192,15 @@ toolbar[nowindowdrag="true"] {
   padding: 1px 4px;
 }
 
-#msgIdentity,
-.address-container {
-  min-height: 26px;
+.address-container > .address-input {
+  padding-block: 5px;
+  min-height: 14px;
 }
 
+#msgIdentity,
+.address-container,
 #msgSubject {
-  min-height: 24px;
+  min-height: 26px;
 }
 
 .address-pill {

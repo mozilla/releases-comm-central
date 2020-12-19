@@ -562,6 +562,12 @@ function otherHeaderInputOnKeyDown(event) {
         event.preventDefault();
         SetFocusOnNextAvailableElement(input);
       }
+
+      // macOS only variation to prevent the cursor from moving to the next
+      // element while sending.
+      if (event.metaKey) {
+        event.stopPropagation();
+      }
       break;
     case "Backspace":
     case "Delete":
@@ -707,6 +713,14 @@ function addressInputOnBeforeHandleKeyDown(event) {
         // Prevent Enter from firing again on the element we move the focus to.
         event.preventDefault();
         SetFocusOnNextAvailableElement(input);
+      }
+
+      // macOS only variation necessary to send messages since autocomplete
+      // input fields prevent that by default.
+      if (event.metaKey) {
+        // Prevent the focus from moving to the next element.
+        event.stopPropagation();
+        goDoCommand("cmd_sendWithCheck");
       }
       break;
 

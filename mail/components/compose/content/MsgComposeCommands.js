@@ -4020,7 +4020,9 @@ function ComposeLoad() {
   attachmentBucketMarkEmptyBucket();
   updateAriaLabelsAndTooltipsOfAllAddressRows();
 
-  for (let input of document.querySelectorAll(".address-input")) {
+  for (let input of document.querySelectorAll(
+    ".address-input[recipienttype]"
+  )) {
     input.onBeforeHandleKeyDown = event =>
       addressInputOnBeforeHandleKeyDown(event);
   }
@@ -4790,7 +4792,7 @@ function updateSendLock() {
         `input[is="autocomplete-input"][recipienttype]`
       );
 
-      if (input.value.trim() && isValidAddress(input.value.trim())) {
+      if (input?.value.trim() && isValidAddress(input.value.trim())) {
         gSendLocked = false;
         break;
       }
@@ -4859,7 +4861,7 @@ function pillifyRecipients() {
     );
     // If we find a leftover string in the input field, create a pill. If the
     // newly created pill is not a valid address, the sending will stop.
-    if (input.value.trim()) {
+    if (input?.value.trim()) {
       recipientAddPills(input);
     }
   }
@@ -7348,9 +7350,16 @@ function fromKeyPress(event) {
   row.querySelector(`input[is="autocomplete-input"][recipienttype]`).focus();
 }
 
+/**
+ * Handle the keypress event of the subject line.
+ *
+ * @param {Event} event - The DOM Event.
+ */
 function subjectKeyPress(event) {
   gSubjectChanged = true;
-  if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
+  // Move the focus to the body only if the Enter key is pressed without any
+  // modifier, as that would mean the user wants to send the message.
+  if (event.key == "Enter" && !event.ctrlKey && !event.metaKey) {
     SetMsgBodyFrameFocus();
   }
 }
