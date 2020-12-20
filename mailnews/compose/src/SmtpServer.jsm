@@ -253,7 +253,7 @@ SmtpServer.prototype = {
    */
   _loadPrefs() {
     this._prefs = Services.prefs.getBranch(`mail.smtpserver.${this._key}.`);
-    this._defaultPrefs = Services.prefs.getBranch("mail.smtpserver.default");
+    this._defaultPrefs = Services.prefs.getBranch("mail.smtpserver.default.");
   },
 
   /**

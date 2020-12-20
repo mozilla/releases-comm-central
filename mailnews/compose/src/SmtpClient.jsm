@@ -30,6 +30,7 @@ const EXPORTED_SYMBOLS = ["SmtpClient"];
 var { setTimeout, clearTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { SmtpAuthenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"
 );
@@ -78,6 +79,7 @@ class SmtpClient {
     this.port = server.port || (this.options.useSecureTransport ? 465 : 25);
     this.host = server.hostname;
 
+    this._server = server;
     this._authenticator = new SmtpAuthenticator(server);
 
     /**
@@ -90,12 +92,14 @@ class SmtpClient {
         ? !!this.options.useSecureTransport
         : this.port === 465;
 
-    this.options.name = this.options.name || "localhost"; // Hostname of the client, this will be used for introducing to the server
     this.socket = false; // Downstream TCP socket to the SMTP server, created with mozTCPSocket
     this.destroyed = false; // Indicates if the connection has been closed and can't be used anymore
     this.waitDrain = false; // Keeps track if the downstream socket is currently full and a drain event should be waited for or not
 
     // Private properties
+
+    // A list of capabilities detected from the EHLO response.
+    this._capabilities = [];
 
     this._supportedAuth = []; // A list of authentication mechanisms detected from the EHLO response and which are compatible with this library
     this._dataMode = false; // If true, accepts data from the upstream to be passed directly to the downstream socket. Used after the DATA command
@@ -173,12 +177,12 @@ class SmtpClient {
    * Initiates a new message by submitting envelope data, starting with
    * `MAIL FROM:` command. Use after `onidle` event
    *
-   * @param {Object} envelope Envelope object in the form of {from:"...", to:["..."]}
+   * @param {{from: string, to: string[], size: number}} envelope - The envelope object.
    */
   useEnvelope(envelope) {
     this._envelope = envelope || {};
     this._envelope.from = [].concat(
-      this._envelope.from || "anonymous@" + this.options.name
+      this._envelope.from || "anonymous@" + this._getHelloArgument()
     )[0];
     this._envelope.to = [].concat(this._envelope.to || []);
 
@@ -188,8 +192,21 @@ class SmtpClient {
     this._envelope.responseQueue = [];
 
     this._currentAction = this._actionMAIL;
+    let cmd = `MAIL FROM:<${this._envelope.from}>`;
+    if (
+      this._capabilities.includes("8BITMIME") &&
+      !Services.prefs.getBoolPref("mail.strictly_mime", false)
+    ) {
+      cmd += " BODY=8BITMIME";
+    }
+    if (this._capabilities.includes("SMTPUTF8")) {
+      cmd += " SMTPUTF8";
+    }
+    if (this._capabilities.includes("SIZE")) {
+      cmd += ` SIZE=${this._envelope.size}`;
+    }
     this.logger.debug("Sending MAIL FROM...");
-    this._sendCommand("MAIL FROM:<" + this._envelope.from + ">");
+    this._sendCommand(cmd);
   }
 
   /**
@@ -323,15 +340,8 @@ class SmtpClient {
   /**
    * Connection listener that is run when the connection to the server is opened.
    * Sets up different event handlers for the opened socket
-   *
-   * @event
-   * @param {Event} evt Event object. Not used
    */
-  _onOpen(event) {
-    if (event && event.data && event.data.proxyHostname) {
-      this.options.name = event.data.proxyHostname;
-    }
-
+  _onOpen() {
     this.socket.ondata = this._onData.bind(this);
 
     this.socket.onclose = this._onClose.bind(this);
@@ -533,7 +543,7 @@ class SmtpClient {
    * Intitiate authentication sequence if needed
    */
   async _authenticateUser() {
-    if (this._supportedAuth.length == 0) {
+    if (!this.options.authMethod || this._supportedAuth.length == 0) {
       // no need to authenticate, at least no data given
       this._currentAction = this._actionIdle;
       this.onidle(); // ready to take orders
@@ -587,6 +597,21 @@ class SmtpClient {
     this._onError(new Error("Unknown authentication method " + auth));
   }
 
+  _getHelloArgument() {
+    let helloArgument = this._server.helloArgument;
+
+    if (helloArgument) {
+      return helloArgument;
+    }
+    let hostname = "localhost";
+    try {
+      hostname = Cc["@mozilla.org/network/dns-service"].getService(
+        Ci.nsIDNSService
+      ).myHostName;
+    } catch (e) {}
+    return hostname;
+  }
+
   // ACTIONS FOR RESPONSES FROM THE SMTP SERVER
 
   /**
@@ -601,15 +626,15 @@ class SmtpClient {
     }
 
     if (this.options.lmtp) {
-      this.logger.debug("Sending LHLO " + this.options.name);
+      this.logger.debug("Sending LHLO " + this._getHelloArgument());
 
       this._currentAction = this._actionLHLO;
-      this._sendCommand("LHLO " + this.options.name);
+      this._sendCommand("LHLO " + this._getHelloArgument());
     } else {
-      this.logger.debug("Sending EHLO " + this.options.name);
+      this.logger.debug("Sending EHLO " + this._getHelloArgument());
 
       this._currentAction = this._actionEHLO;
-      this._sendCommand("EHLO " + this.options.name);
+      this._sendCommand("EHLO " + this._getHelloArgument());
     }
   }
 
@@ -644,9 +669,11 @@ class SmtpClient {
       }
 
       // Try HELO instead
-      this.logger.warn("EHLO not successful, trying HELO " + this.options.name);
+      this.logger.warn(
+        "EHLO not successful, trying HELO " + this._getHelloArgument()
+      );
       this._currentAction = this._actionHELO;
-      this._sendCommand("HELO " + this.options.name);
+      this._sendCommand("HELO " + this._getHelloArgument());
       return;
     }
 
@@ -687,6 +714,12 @@ class SmtpClient {
       }
     }
 
+    for (let cap of ["8BITMIME", "SIZE", "SMTPUTF8"]) {
+      if (new RegExp(cap, "i").test(command.data)) {
+        this._capabilities.push(cap);
+      }
+    }
+
     this._authenticateUser();
   }
 
@@ -708,7 +741,7 @@ class SmtpClient {
 
     // restart protocol flow
     this._currentAction = this._actionEHLO;
-    this._sendCommand("EHLO " + this.options.name);
+    this._sendCommand("EHLO " + this._getHelloArgument());
   }
 
   /**

@@ -50,7 +50,7 @@ SmtpService.prototype = {
 
   get servers() {
     this._loadSmtpServers();
-    return this._servers.values();
+    return this._servers;
   },
 
   /**
@@ -83,16 +83,22 @@ SmtpService.prototype = {
         return;
       }
       fresh = false;
-      let from = MailServices.headerParser.makeFromDisplayAddress(
-        decodeURIComponent(recipients)
-      )[0].email;
+      let from = sender;
       let to = MailServices.headerParser
         .makeFromDisplayAddress(decodeURIComponent(recipients))
         .map(rec => rec.email);
 
+      if (
+        !Services.prefs.getBoolPref("mail.smtp.useSenderForSmtpMailFrom", false)
+      ) {
+        from = userIdentity.email;
+      }
       client.useEnvelope({
-        from,
+        from: MailServices.headerParser.makeFromDisplayAddress(
+          decodeURIComponent(from)
+        )[0].email,
         to,
+        size: messageFile.fileSize,
       });
     };
     client.onready = () => {
@@ -117,11 +123,11 @@ SmtpService.prototype = {
     // let runningUrl = Services.io.newURI(server.serverURI);
     let runningUrl = this._getRunningUri(server);
     client.ondone = () => {
-      deliveryListener.OnStopRunningUrl(runningUrl, 0);
+      deliveryListener?.OnStopRunningUrl(runningUrl, 0);
       client.close();
     };
     client.onerror = nsError => {
-      deliveryListener.OnStopRunningUrl(runningUrl, nsError);
+      deliveryListener?.OnStopRunningUrl(runningUrl, nsError);
     };
   },
 
