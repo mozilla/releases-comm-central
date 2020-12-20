@@ -125,6 +125,12 @@ function setUpCalendarMenu(calendars, defaultCalendarId) {
 function setUpItemSummaries(items, filePath) {
   let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
 
+  // Sort the items, chronologically first, then alphabetically.
+  let collator = new Intl.Collator(undefined, { numeric: true });
+  items.sort((a, b) => {
+    return a.startDate.nativeTime - b.startDate.nativeTime || collator.compare(a.title, b.title);
+  });
+
   items.forEach(async (item, index) => {
     let itemFrame = document.createXULElement("vbox");
     itemFrame.classList.add("calendar-ics-file-dialog-item-frame");
