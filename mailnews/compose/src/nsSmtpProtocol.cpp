@@ -1704,11 +1704,9 @@ nsresult nsSmtpProtocol::SendMailResponse() {
     if ((m_responseCodeEnhanced == 570) || (m_responseCodeEnhanced == 571))
       errorcode = NS_ERROR_SMTP_SEND_NOT_ALLOWED;
     else if (TestFlag(SMTP_EHLO_SIZE_ENABLED))
-      errorcode = (m_responseCode == 452)
-                      ? NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED
-                      : (m_responseCode == 552)
-                            ? NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2
-                            : NS_ERROR_SENDING_FROM_COMMAND;
+      errorcode = (m_responseCode == 452)   ? NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED
+                  : (m_responseCode == 552) ? NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2
+                                            : NS_ERROR_SENDING_FROM_COMMAND;
     else
       errorcode = NS_ERROR_SENDING_FROM_COMMAND;
 
@@ -1803,11 +1801,9 @@ nsresult nsSmtpProtocol::SendRecipientResponse() {
     if ((m_responseCodeEnhanced == 570) || (m_responseCodeEnhanced == 571))
       errorcode = NS_ERROR_SMTP_SEND_NOT_ALLOWED;
     else if (TestFlag(SMTP_EHLO_SIZE_ENABLED))
-      errorcode = (m_responseCode == 452)
-                      ? NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED
-                      : (m_responseCode == 552)
-                            ? NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2
-                            : NS_ERROR_SENDING_RCPT_COMMAND;
+      errorcode = (m_responseCode == 452)   ? NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED
+                  : (m_responseCode == 552) ? NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2
+                                            : NS_ERROR_SENDING_RCPT_COMMAND;
     else
       errorcode = NS_ERROR_SENDING_RCPT_COMMAND;
 
