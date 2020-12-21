@@ -33,9 +33,9 @@ class nsIMsgProtocolInfo;
  * this particular implementation is not meant to be used directly.
  */
 
-class NS_MSG_BASE nsMsgIncomingServer : public nsIMsgIncomingServer,
-                                        public nsSupportsWeakReference,
-                                        public nsIObserver {
+class nsMsgIncomingServer : public nsIMsgIncomingServer,
+                            public nsSupportsWeakReference,
+                            public nsIObserver {
  public:
   nsMsgIncomingServer();
   nsresult Init();

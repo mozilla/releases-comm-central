@@ -21,7 +21,7 @@
 // moves. This utility class will be used by both the filter code and the
 // offline playback code, to avoid multiple moves to the same folder.
 
-class NS_MSG_BASE nsImapMoveCoalescer : public nsIUrlListener {
+class nsImapMoveCoalescer : public nsIUrlListener {
  public:
   friend class nsMoveCoalescerCopyListener;
 

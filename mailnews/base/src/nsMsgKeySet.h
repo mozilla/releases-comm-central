@@ -19,7 +19,7 @@
 class MSG_NewsHost;
 #endif
 
-class NS_MSG_BASE nsMsgKeySet {
+class nsMsgKeySet {
  public:
   // Creates an empty set.
   static nsMsgKeySet* Create(/* MSG_NewsHost* host = NULL*/);

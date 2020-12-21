@@ -31,9 +31,9 @@ using mozilla::EditTransactionBase;
  * base class for all message undo/redo transactions.
  */
 
-class NS_MSG_BASE nsMsgTxn : public nsITransaction,
-                             public nsIWritablePropertyBag,
-                             public nsIWritablePropertyBag2 {
+class nsMsgTxn : public nsITransaction,
+                 public nsIWritablePropertyBag,
+                 public nsIWritablePropertyBag2 {
  public:
   nsMsgTxn();
 

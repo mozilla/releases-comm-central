@@ -86,12 +86,12 @@ class nsMsgFolderService final : public nsIMsgFolderService {
  * nsMsgDBFolder
  * class derived from nsMsgFolder for those folders that use an nsIMsgDatabase
  */
-class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
-                                  public nsIMsgFolder,
-                                  public nsIDBChangeListener,
-                                  public nsIUrlListener,
-                                  public nsIJunkMailClassificationListener,
-                                  public nsIMsgTraitClassificationListener {
+class nsMsgDBFolder : public nsSupportsWeakReference,
+                      public nsIMsgFolder,
+                      public nsIDBChangeListener,
+                      public nsIUrlListener,
+                      public nsIJunkMailClassificationListener,
+                      public nsIMsgTraitClassificationListener {
  public:
   friend class nsMsgFolderService;
 
@@ -221,7 +221,7 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
 
   nsCOMPtr<nsIMsgRetentionSettings> m_retentionSettings;
   nsCOMPtr<nsIMsgDownloadSettings> m_downloadSettings;
-  static NS_MSG_BASE_STATIC_MEMBER_(nsrefcnt) mInstanceCount;
+  static nsrefcnt mInstanceCount;
 
   uint32_t mFlags;
   nsWeakPtr mParent;          // This won't be refcounted for ownership reasons.
@@ -273,24 +273,24 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   nsCString mBaseMessageURI;  // The uri with the message scheme
 
   // static stuff for cross-instance objects like atoms
-  static NS_MSG_BASE_STATIC_MEMBER_(nsrefcnt) gInstanceCount;
+  static nsrefcnt gInstanceCount;
 
   static nsresult initializeStrings();
   static nsresult createCollationKeyGenerator();
 
-  static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedInboxName;
-  static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedTrashName;
-  static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedSentName;
-  static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedDraftsName;
-  static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedTemplatesName;
-  static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedUnsentName;
-  static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedJunkName;
-  static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedArchivesName;
+  static nsString kLocalizedInboxName;
+  static nsString kLocalizedTrashName;
+  static nsString kLocalizedSentName;
+  static nsString kLocalizedDraftsName;
+  static nsString kLocalizedTemplatesName;
+  static nsString kLocalizedUnsentName;
+  static nsString kLocalizedJunkName;
+  static nsString kLocalizedArchivesName;
 
-  static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedBrandShortName;
+  static nsString kLocalizedBrandShortName;
 
-  static NS_MSG_BASE_STATIC_MEMBER_(nsICollation*) gCollationKeyGenerator;
-  static NS_MSG_BASE_STATIC_MEMBER_(bool) gInitializeStringsDone;
+  static nsICollation* gCollationKeyGenerator;
+  static bool gInitializeStringsDone;
 
   // store of keys that have a processing flag set
   struct {

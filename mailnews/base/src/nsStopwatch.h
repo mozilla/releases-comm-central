@@ -18,7 +18,7 @@
 
 #define NS_STOPWATCH_CONTRACTID "@mozilla.org/stopwatch;1"
 
-class NS_MSG_BASE nsStopwatch : public nsIStopwatch {
+class nsStopwatch : public nsIStopwatch {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSISTOPWATCH

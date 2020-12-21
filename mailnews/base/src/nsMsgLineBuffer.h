@@ -11,7 +11,7 @@
 // anything suitable (nsStrImpl might be, when it's done). nsIByteBuffer
 // would do, if I had a stream for input, which I don't.
 
-class NS_MSG_BASE nsByteArray {
+class nsByteArray {
  public:
   nsByteArray();
   virtual ~nsByteArray();
@@ -30,12 +30,12 @@ class NS_MSG_BASE nsByteArray {
       m_bufferPos;  // write Pos in m_buffer - where the next byte should go.
 };
 
-class NS_MSG_BASE nsMsgLineBufferHandler : public nsByteArray {
+class nsMsgLineBufferHandler : public nsByteArray {
  public:
   virtual nsresult HandleLine(const char* line, uint32_t line_length) = 0;
 };
 
-class NS_MSG_BASE nsMsgLineBuffer : public nsMsgLineBufferHandler {
+class nsMsgLineBuffer : public nsMsgLineBufferHandler {
  public:
   nsMsgLineBuffer(nsMsgLineBufferHandler* handler, bool convertNewlinesP);
 
@@ -68,7 +68,7 @@ class NS_MSG_BASE nsMsgLineBuffer : public nsMsgLineBufferHandler {
 
 class nsIInputStream;
 
-class NS_MSG_BASE nsMsgLineStreamBuffer {
+class nsMsgLineStreamBuffer {
  public:
   NS_INLINE_DECL_REFCOUNTING(nsMsgLineStreamBuffer)
 

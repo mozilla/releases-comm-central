@@ -38,10 +38,10 @@ class nsICancelable;
 // it unifies the core networking code for the protocols. My hope is that
 // this will make unification with Necko easier as we'll only have to change
 // this class and not all of the mailnews protocols.
-class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
-                                  public nsIChannel,
-                                  public nsITransportEventSink,
-                                  public nsHashPropertyBag {
+class nsMsgProtocol : public nsIStreamListener,
+                      public nsIChannel,
+                      public nsITransportEventSink,
+                      public nsHashPropertyBag {
  public:
   nsMsgProtocol(nsIURI* aURL);
 
@@ -189,8 +189,8 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
 // AsyncWrite support. Protocols like smtp and news want to leverage async
 // write. We don't want everyone who inherits from nsMsgProtocol to have to pick
 // up the extra overhead.
-class NS_MSG_BASE nsMsgAsyncWriteProtocol : public nsMsgProtocol,
-                                            public nsSupportsWeakReference {
+class nsMsgAsyncWriteProtocol : public nsMsgProtocol,
+                                public nsSupportsWeakReference {
  public:
   NS_DECL_ISUPPORTS_INHERITED
 

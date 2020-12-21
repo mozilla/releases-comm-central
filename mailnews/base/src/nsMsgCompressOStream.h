@@ -8,7 +8,7 @@
 #include "mozilla/UniquePtr.h"
 #include "zlib.h"
 
-class NS_MSG_BASE nsMsgCompressOStream final : public nsIOutputStream {
+class nsMsgCompressOStream final : public nsIOutputStream {
  public:
   nsMsgCompressOStream();
 

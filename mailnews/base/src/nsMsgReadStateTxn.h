@@ -23,7 +23,7 @@
 //------------------------------------------------------------------------------
 // A mark-all transaction handler. Helper for redo/undo of message read states.
 //------------------------------------------------------------------------------
-class NS_MSG_BASE nsMsgReadStateTxn : public nsMsgTxn {
+class nsMsgReadStateTxn : public nsMsgTxn {
  public:
   nsMsgReadStateTxn();
   virtual ~nsMsgReadStateTxn();

@@ -9,7 +9,7 @@
 #include "mozilla/UniquePtr.h"
 #include "zlib.h"
 
-class NS_MSG_BASE nsMsgCompressIStream final : public nsIAsyncInputStream {
+class nsMsgCompressIStream final : public nsIAsyncInputStream {
  public:
   nsMsgCompressIStream();
 
