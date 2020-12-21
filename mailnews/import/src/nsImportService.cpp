@@ -14,8 +14,6 @@
 #include "nsICategoryManager.h"
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
-#include "plstr.h"
-#include "prmem.h"
 #include "nsMsgCompCID.h"
 #include "nsThreadUtils.h"
 #include "ImportDebug.h"
@@ -26,15 +24,13 @@
 #include "nsComponentManagerUtils.h"
 #include "nsIMsgSend.h"
 #include "nsMsgUtils.h"
+#include "mozilla/SimpleEnumerator.h"
 
 mozilla::LazyLogModule IMPORTLOGMODULE("Import");
 
-static nsIImportService* gImportService = nullptr;
-static const char* kWhitespace = "\b\t\r\n ";
-
 ////////////////////////////////////////////////////////////////////////
 
-nsImportService::nsImportService() : m_pModules(nullptr) {
+nsImportService::nsImportService() {
   IMPORT_LOG0("* nsImport Service Created\n");
 
   m_didDiscovery = false;
@@ -46,10 +42,6 @@ nsImportService::nsImportService() : m_pModules(nullptr) {
 }
 
 nsImportService::~nsImportService() {
-  gImportService = nullptr;
-
-  if (m_pModules != nullptr) delete m_pModules;
-
   IMPORT_LOG0("* nsImport Service Deleted\n");
 }
 
@@ -104,16 +96,12 @@ NS_IMETHODIMP nsImportService::GetModuleCount(const char* filter,
 
   DoDiscover();
 
-  if (m_pModules != nullptr) {
-    ImportModuleDesc* pDesc;
-    int32_t count = 0;
-    for (int32_t i = 0; i < m_pModules->GetCount(); i++) {
-      pDesc = m_pModules->GetModuleDesc(i);
-      if (pDesc->SupportsThings(filter)) count++;
-    }
-    *_retval = count;
-  } else
-    *_retval = 0;
+  nsCString filterStr(filter);
+  int32_t count = 0;
+  for (auto& importModule : m_importModules) {
+    if (importModule.SupportsThings(filterStr)) count++;
+  }
+  *_retval = count;
 
   return NS_OK;
 }
@@ -126,14 +114,9 @@ NS_IMETHODIMP nsImportService::GetModuleWithCID(const nsCID& cid,
   *ppModule = nullptr;
   nsresult rv = DoDiscover();
   if (NS_FAILED(rv)) return rv;
-  if (m_pModules == nullptr) return NS_ERROR_FAILURE;
-  int32_t cnt = m_pModules->GetCount();
-  ImportModuleDesc* pDesc;
-  for (int32_t i = 0; i < cnt; i++) {
-    pDesc = m_pModules->GetModuleDesc(i);
-    if (!pDesc) return NS_ERROR_FAILURE;
-    if (pDesc->GetCID().Equals(cid)) {
-      pDesc->GetModule(ppModule);
+  for (auto& importModule : m_importModules) {
+    if (importModule.GetCID().Equals(cid)) {
+      importModule.GetModule(ppModule);
 
       IMPORT_LOG0(
           "* nsImportService::GetSpecificModule - attempted to load module\n");
@@ -148,6 +131,23 @@ NS_IMETHODIMP nsImportService::GetModuleWithCID(const nsCID& cid,
   return NS_ERROR_NOT_AVAILABLE;
 }
 
+ImportModuleDesc* nsImportService::GetImportModule(const char* filter,
+                                                   int32_t index) {
+  DoDiscover();
+
+  nsCString filterStr(filter);
+  int32_t count = 0;
+  for (auto& importModule : m_importModules) {
+    if (importModule.SupportsThings(filterStr)) {
+      if (count++ == index) {
+        return &importModule;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
 NS_IMETHODIMP nsImportService::GetModuleInfo(const char* filter, int32_t index,
                                              char16_t** name,
                                              char16_t** moduleDescription) {
@@ -158,26 +158,12 @@ NS_IMETHODIMP nsImportService::GetModuleInfo(const char* filter, int32_t index,
   *name = nullptr;
   *moduleDescription = nullptr;
 
-  DoDiscover();
-  if (!m_pModules) return NS_ERROR_FAILURE;
+  ImportModuleDesc* importModule = GetImportModule(filter, index);
+  if (!importModule) return NS_ERROR_FAILURE;
 
-  if ((index < 0) || (index >= m_pModules->GetCount())) return NS_ERROR_FAILURE;
-
-  ImportModuleDesc* pDesc;
-  int32_t count = 0;
-  for (int32_t i = 0; i < m_pModules->GetCount(); i++) {
-    pDesc = m_pModules->GetModuleDesc(i);
-    if (pDesc->SupportsThings(filter)) {
-      if (count == index) {
-        *name = NS_xstrdup(pDesc->GetName());
-        *moduleDescription = NS_xstrdup(pDesc->GetDescription());
-        return NS_OK;
-      } else
-        count++;
-    }
-  }
-
-  return NS_ERROR_FAILURE;
+  *name = NS_xstrdup(importModule->GetName());
+  *moduleDescription = NS_xstrdup(importModule->GetDescription());
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImportService::GetModuleName(const char* filter, int32_t index,
@@ -187,25 +173,11 @@ NS_IMETHODIMP nsImportService::GetModuleName(const char* filter, int32_t index,
 
   *_retval = nullptr;
 
-  DoDiscover();
-  if (!m_pModules) return NS_ERROR_FAILURE;
+  ImportModuleDesc* importModule = GetImportModule(filter, index);
+  if (!importModule) return NS_ERROR_FAILURE;
 
-  if ((index < 0) || (index >= m_pModules->GetCount())) return NS_ERROR_FAILURE;
-
-  ImportModuleDesc* pDesc;
-  int32_t count = 0;
-  for (int32_t i = 0; i < m_pModules->GetCount(); i++) {
-    pDesc = m_pModules->GetModuleDesc(i);
-    if (pDesc->SupportsThings(filter)) {
-      if (count == index) {
-        *_retval = NS_xstrdup(pDesc->GetName());
-        return NS_OK;
-      } else
-        count++;
-    }
-  }
-
-  return NS_ERROR_FAILURE;
+  *_retval = NS_xstrdup(importModule->GetName());
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImportService::GetModuleDescription(const char* filter,
@@ -216,25 +188,11 @@ NS_IMETHODIMP nsImportService::GetModuleDescription(const char* filter,
 
   *_retval = nullptr;
 
-  DoDiscover();
-  if (!m_pModules) return NS_ERROR_FAILURE;
+  ImportModuleDesc* importModule = GetImportModule(filter, index);
+  if (!importModule) return NS_ERROR_FAILURE;
 
-  if ((index < 0) || (index >= m_pModules->GetCount())) return NS_ERROR_FAILURE;
-
-  ImportModuleDesc* pDesc;
-  int32_t count = 0;
-  for (int32_t i = 0; i < m_pModules->GetCount(); i++) {
-    pDesc = m_pModules->GetModuleDesc(i);
-    if (pDesc->SupportsThings(filter)) {
-      if (count == index) {
-        *_retval = NS_xstrdup(pDesc->GetDescription());
-        return NS_OK;
-      } else
-        count++;
-    }
-  }
-
-  return NS_ERROR_FAILURE;
+  *_retval = NS_xstrdup(importModule->GetDescription());
+  return NS_OK;
 }
 
 class nsProxySendRunnable : public mozilla::Runnable {
@@ -304,23 +262,10 @@ NS_IMETHODIMP nsImportService::GetModule(const char* filter, int32_t index,
   if (!_retval) return NS_ERROR_NULL_POINTER;
   *_retval = nullptr;
 
-  DoDiscover();
-  if (!m_pModules) return NS_ERROR_FAILURE;
+  ImportModuleDesc* importModule = GetImportModule(filter, index);
+  if (!importModule) return NS_ERROR_FAILURE;
 
-  if ((index < 0) || (index >= m_pModules->GetCount())) return NS_ERROR_FAILURE;
-
-  ImportModuleDesc* pDesc;
-  int32_t count = 0;
-  for (int32_t i = 0; i < m_pModules->GetCount(); i++) {
-    pDesc = m_pModules->GetModuleDesc(i);
-    if (pDesc->SupportsThings(filter)) {
-      if (count == index) {
-        pDesc->GetModule(_retval);
-        break;
-      } else
-        count++;
-    }
-  }
+  importModule->GetModule(_retval);
   if (!(*_retval)) return NS_ERROR_FAILURE;
 
   return NS_OK;
@@ -329,7 +274,7 @@ NS_IMETHODIMP nsImportService::GetModule(const char* filter, int32_t index,
 nsresult nsImportService::DoDiscover(void) {
   if (m_didDiscovery) return NS_OK;
 
-  if (m_pModules != nullptr) m_pModules->ClearList();
+  m_importModules.Clear();
 
   nsresult rv;
 
@@ -340,20 +285,13 @@ nsresult nsImportService::DoDiscover(void) {
   nsCOMPtr<nsISimpleEnumerator> e;
   rv = catMan->EnumerateCategory("mailnewsimport", getter_AddRefs(e));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsCOMPtr<nsISupports> supports;
-  nsCOMPtr<nsISupportsCString> contractid;
-  rv = e->GetNext(getter_AddRefs(supports));
-  while (NS_SUCCEEDED(rv) && supports) {
-    contractid = do_QueryInterface(supports);
-    if (!contractid) break;
-
+  for (auto& contractid : mozilla::SimpleEnumerator<nsISupportsCString>(e)) {
     nsCString contractIdStr;
     contractid->ToString(getter_Copies(contractIdStr));
     nsCString supportsStr;
     rv = catMan->GetCategoryEntry("mailnewsimport", contractIdStr, supportsStr);
     if (NS_SUCCEEDED(rv))
       LoadModuleInfo(contractIdStr.get(), supportsStr.get());
-    rv = e->GetNext(getter_AddRefs(supports));
   }
 
   m_didDiscovery = true;
@@ -365,14 +303,10 @@ nsresult nsImportService::LoadModuleInfo(const char* pClsId,
                                          const char* pSupports) {
   if (!pClsId || !pSupports) return NS_OK;
 
-  if (m_pModules == nullptr) m_pModules = new nsImportModuleList();
-
   // load the component and get all of the info we need from it....
-  // then call AddModule
   nsresult rv;
 
   nsCID clsId;
-  // initialize
   clsId.Clear();
 
   clsId.Parse(pClsId);
@@ -387,9 +321,13 @@ nsresult nsImportService::LoadModuleInfo(const char* pClsId,
   rv = module->GetDescription(getter_Copies(theDescription));
   if (NS_FAILED(rv)) theDescription.AssignLiteral("Unknown description");
 
-  // call the module to get the info we need
-  m_pModules->AddModule(clsId, pSupports, theTitle.get(), theDescription.get());
+  m_importModules.EmplaceBack(clsId, theTitle, theDescription, pSupports);
 
+#ifdef IMPORT_DEBUG
+  IMPORT_LOG3("* nsImportService registered import module: %s, %s, %s\n",
+              NS_LossyConvertUTF16toASCII(pName).get(),
+              NS_LossyConvertUTF16toASCII(pDesc).get(), pSupports);
+#endif
   return NS_OK;
 }
 
@@ -405,70 +343,9 @@ void ImportModuleDesc::GetModule(nsIImportModule** _retval) {
   return;
 }
 
-void ImportModuleDesc::ReleaseModule(void) { m_pModule = nullptr; }
-
-bool ImportModuleDesc::SupportsThings(const char* pThings) {
-  if (!pThings || !*pThings) return true;
-
-  nsCString thing(pThings);
-  nsCString item;
-  int32_t idx;
-
-  while ((idx = thing.FindChar(',')) != -1) {
-    item = StringHead(thing, idx);
-    item.Trim(kWhitespace);
-    ToLowerCase(item);
-    if (item.Length() && (m_supports.Find(item) == -1)) return false;
-    thing = Substring(thing, idx + 1);
+bool ImportModuleDesc::SupportsThings(const nsACString& thing) {
+  for (auto& item : m_supports.Split(',')) {
+    if (item == thing) return true;
   }
-  thing.Trim(kWhitespace);
-  ToLowerCase(thing);
-  return thing.IsEmpty() || (m_supports.Find(thing) != -1);
-}
-
-void nsImportModuleList::ClearList(void) {
-  if (m_pList) {
-    for (int i = 0; i < m_count; i++) {
-      delete m_pList[i];
-      m_pList[i] = nullptr;
-    }
-    m_count = 0;
-    delete[] m_pList;
-    m_pList = nullptr;
-    m_alloc = 0;
-  }
-}
-
-void nsImportModuleList::AddModule(const nsCID& cid, const char* pSupports,
-                                   const char16_t* pName,
-                                   const char16_t* pDesc) {
-  if (!m_pList) {
-    m_alloc = 10;
-    m_pList = new ImportModuleDesc*[m_alloc];
-    m_count = 0;
-    memset(m_pList, 0, sizeof(ImportModuleDesc*) * m_alloc);
-  }
-
-  if (m_count == m_alloc) {
-    ImportModuleDesc** pList = new ImportModuleDesc*[m_alloc + 10];
-    memset(&(pList[m_alloc]), 0, sizeof(ImportModuleDesc*) * 10);
-    memcpy(pList, m_pList, sizeof(ImportModuleDesc*) * m_alloc);
-    for (int i = 0; i < m_count; i++) delete m_pList[i];
-    delete[] m_pList;
-    m_pList = pList;
-    m_alloc += 10;
-  }
-
-  m_pList[m_count] = new ImportModuleDesc();
-  m_pList[m_count]->SetCID(cid);
-  m_pList[m_count]->SetSupports(pSupports);
-  m_pList[m_count]->SetName(pName);
-  m_pList[m_count]->SetDescription(pDesc);
-
-  m_count++;
-#ifdef IMPORT_DEBUG
-  IMPORT_LOG3("* nsImportService registered import module: %s, %s, %s\n",
-              NS_LossyConvertUTF16toASCII(pName).get(),
-              NS_LossyConvertUTF16toASCII(pDesc).get(), pSupports);
-#endif
+  return false;
 }
