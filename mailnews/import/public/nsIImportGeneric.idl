@@ -19,11 +19,9 @@ interface nsIImportGeneric : nsISupports
   /* Use these to prepare for the import */
     /*
       "mailInterface" - nsIImportMail interface
-      "mailBoxes" - nsIArray of nsIImportMailboxDescriptors
       "mailLocation" - nsIFile, source location for mail
 
       "addressInterface" - nsIImportAddressBooks interface
-      "addressBooks" - nsIArray of nsIImportABDescriptors
       "addressLocation" - src location of address books (if needed!)
       "addressDestination" - uri of destination address book or null if
                 new address books will be created.

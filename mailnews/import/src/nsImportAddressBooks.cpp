@@ -15,8 +15,6 @@
 #include "nsTextFormatter.h"
 #include "msgCore.h"
 #include "ImportDebug.h"
-#include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 
 nsresult NS_NewGenericAddressBooks(nsIImportGeneric** aImportGeneric) {
   NS_ASSERTION(aImportGeneric != nullptr, "null ptr");
@@ -60,19 +58,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char* dataId,
   if (!PL_strcasecmp(dataId, "addressLocation")) {
     if (!m_pLocation) GetDefaultLocation();
     NS_IF_ADDREF(*_retval = m_pLocation);
-  }
-
-  if (!PL_strcasecmp(dataId, "addressBooks")) {
-    if (!m_pLocation) GetDefaultLocation();
-    GetDefaultBooks();
-    // Stopgap during nsIArray-removal (Bug 1612240).
-    // TODO: GetData("addressBooks") doesn't seem to be used anywhere.
-    // Maybe this can just be dropped?
-    nsCOMPtr<nsIMutableArray> tmp(do_CreateInstance(NS_ARRAY_CONTRACTID));
-    for (nsIImportABDescriptor* book : m_Books) {
-      tmp->AppendElement(book);
-    }
-    *_retval = tmp;
   }
 
   if (!PL_strcasecmp(dataId, "addressDestination")) {
@@ -139,23 +124,6 @@ NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char* dataId,
   if (!PL_strcasecmp(dataId, "addressInterface")) {
     m_pInterface = nullptr;
     if (item) m_pInterface = do_QueryInterface(item);
-  }
-  if (!PL_strcasecmp(dataId, "addressBooks")) {
-    // Stopgap during nsIArray-removal (Bug 1612240).
-    // TODO: SetData("addressBooks") doesn't seem to be used anywhere.
-    // Maybe this can just be dropped?
-    m_Books.Clear();
-    if (item) {
-      nsCOMPtr<nsIMutableArray> tmp = do_QueryInterface(item);
-      if (tmp) {
-        uint32_t cnt;
-        tmp->GetLength(&cnt);
-        for (uint32_t i = 0; i < cnt; ++i) {
-          nsCOMPtr<nsIImportABDescriptor> book = do_QueryElementAt(tmp, i);
-          m_Books.AppendElement(book);
-        }
-      }
-    }
   }
 
   if (!PL_strcasecmp(dataId, "addressLocation")) {

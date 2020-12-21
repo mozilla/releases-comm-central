@@ -5,8 +5,6 @@
 
 #include "nsImportMail.h"
 
-#include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 #include "nsXPCOM.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIImportMailboxDescriptor.h"
@@ -82,18 +80,6 @@ NS_IMETHODIMP nsImportGenericMail::GetData(const char* dataId,
     NS_IF_ADDREF(*_retval = m_pInterface);
   }
 
-  if (!PL_strcasecmp(dataId, "mailBoxes")) {
-    GetDefaultMailboxes();
-    // Stopgap during nsIArray-removal (Bug 1612240).
-    // TODO: GetData("mailBoxes") doesn't seem to be used anywhere.
-    // Maybe this can just be dropped?
-    nsCOMPtr<nsIMutableArray> tmp(do_CreateInstance(NS_ARRAY_CONTRACTID));
-    for (nsIImportMailboxDescriptor* box : m_mailboxes) {
-      tmp->AppendElement(box);
-    }
-    *_retval = tmp;
-  }
-
   if (!PL_strcasecmp(dataId, "mailLocation")) {
     if (!m_pSrcLocation) GetDefaultLocation();
     NS_IF_ADDREF(*_retval = m_pSrcLocation);
@@ -136,24 +122,6 @@ NS_IMETHODIMP nsImportGenericMail::SetData(const char* dataId,
   if (!PL_strcasecmp(dataId, "mailInterface")) {
     m_pInterface = nullptr;
     if (item) m_pInterface = do_QueryInterface(item);
-  }
-  if (!PL_strcasecmp(dataId, "mailBoxes")) {
-    // Stopgap during nsIArray-removal (Bug 1612240).
-    // TODO: SetData("mailBoxes") doesn't seem to be used anywhere.
-    // Maybe this can just be dropped?
-    m_mailboxes.Clear();
-    if (item) {
-      nsCOMPtr<nsIMutableArray> tmp = do_QueryInterface(item);
-      if (tmp) {
-        uint32_t cnt;
-        tmp->GetLength(&cnt);
-        for (uint32_t i = 0; i < cnt; ++i) {
-          nsCOMPtr<nsIImportMailboxDescriptor> box = do_QueryElementAt(tmp, i);
-          m_mailboxes.AppendElement(box);
-        }
-      }
-    }
-    m_gotDefaultMailboxes = true;
   }
 
   if (!PL_strcasecmp(dataId, "mailLocation")) {
