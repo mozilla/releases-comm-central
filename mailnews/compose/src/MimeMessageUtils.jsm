@@ -1018,6 +1018,7 @@ var MsgUtils = {
       if (matches && matches[1]) {
         return matches[1];
       }
+      return "";
     }
     // Take the part after the last / or \.
     let lastSlash = url.lastIndexOf("\\");
