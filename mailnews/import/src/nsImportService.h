@@ -15,21 +15,16 @@
 
 class ImportModuleDesc {
  public:
-  ImportModuleDesc(const nsCID& cid, const nsString& name, const nsString& desc,
-                   const char* supports)
-      : m_cid(cid), m_name(name), m_description(desc), m_supports(supports) {}
+  explicit ImportModuleDesc(nsIImportModule* importModule);
 
-  nsCID GetCID(void) { return m_cid; }
-  const char16_t* GetName(void) { return m_name.get(); }
-  const char16_t* GetDescription(void) { return m_description.get(); }
-  const char* GetSupports(void) { return m_supports.get(); }
+  const nsAString& GetName(void) { return m_name; }
+  const nsAString& GetDescription(void) { return m_description; }
 
-  void GetModule(nsIImportModule**);
+  nsCOMPtr<nsIImportModule>& GetModule() { return m_pModule; }
 
   bool SupportsThings(const nsACString& pThings);
 
  private:
-  nsCID m_cid;
   nsString m_name;
   nsString m_description;
   nsCString m_supports;
@@ -45,7 +40,7 @@ class nsImportService : public nsIImportService {
 
  private:
   virtual ~nsImportService();
-  nsresult LoadModuleInfo(const char* pClsId, const char* pSupports);
+  nsresult LoadModuleInfo(const nsCString& contractId);
   nsresult DoDiscover(void);
   ImportModuleDesc* GetImportModule(const char* filter, int32_t index);
 

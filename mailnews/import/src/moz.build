@@ -27,10 +27,6 @@ SOURCES += [
 ]
 
 if not CONFIG["MOZ_SUITE"]:
-    EXTRA_COMPONENTS += [
-        "SeamonkeyImport.manifest",
-    ]
-
     EXTRA_JS_MODULES += [
         "SeamonkeyImport.jsm",
     ]

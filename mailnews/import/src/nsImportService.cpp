@@ -106,31 +106,6 @@ NS_IMETHODIMP nsImportService::GetModuleCount(const char* filter,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportService::GetModuleWithCID(const nsCID& cid,
-                                                nsIImportModule** ppModule) {
-  NS_ASSERTION(ppModule != nullptr, "null ptr");
-  if (!ppModule) return NS_ERROR_NULL_POINTER;
-
-  *ppModule = nullptr;
-  nsresult rv = DoDiscover();
-  if (NS_FAILED(rv)) return rv;
-  for (auto& importModule : m_importModules) {
-    if (importModule.GetCID().Equals(cid)) {
-      importModule.GetModule(ppModule);
-
-      IMPORT_LOG0(
-          "* nsImportService::GetSpecificModule - attempted to load module\n");
-
-      if (*ppModule == nullptr) return NS_ERROR_FAILURE;
-      return NS_OK;
-    }
-  }
-
-  IMPORT_LOG0("* nsImportService::GetSpecificModule - module not found\n");
-
-  return NS_ERROR_NOT_AVAILABLE;
-}
-
 ImportModuleDesc* nsImportService::GetImportModule(const char* filter,
                                                    int32_t index) {
   DoDiscover();
@@ -149,49 +124,32 @@ ImportModuleDesc* nsImportService::GetImportModule(const char* filter,
 }
 
 NS_IMETHODIMP nsImportService::GetModuleInfo(const char* filter, int32_t index,
-                                             char16_t** name,
-                                             char16_t** moduleDescription) {
-  NS_ASSERTION(name != nullptr, "null ptr");
-  NS_ASSERTION(moduleDescription != nullptr, "null ptr");
-  if (!name || !moduleDescription) return NS_ERROR_NULL_POINTER;
-
-  *name = nullptr;
-  *moduleDescription = nullptr;
-
+                                             nsAString& name,
+                                             nsAString& moduleDescription) {
   ImportModuleDesc* importModule = GetImportModule(filter, index);
   if (!importModule) return NS_ERROR_FAILURE;
 
-  *name = NS_xstrdup(importModule->GetName());
-  *moduleDescription = NS_xstrdup(importModule->GetDescription());
+  name = importModule->GetName();
+  moduleDescription = importModule->GetDescription();
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImportService::GetModuleName(const char* filter, int32_t index,
-                                             char16_t** _retval) {
-  NS_ASSERTION(_retval != nullptr, "null ptr");
-  if (!_retval) return NS_ERROR_NULL_POINTER;
-
-  *_retval = nullptr;
-
+                                             nsAString& _retval) {
   ImportModuleDesc* importModule = GetImportModule(filter, index);
   if (!importModule) return NS_ERROR_FAILURE;
 
-  *_retval = NS_xstrdup(importModule->GetName());
+  _retval = importModule->GetName();
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImportService::GetModuleDescription(const char* filter,
                                                     int32_t index,
-                                                    char16_t** _retval) {
-  NS_ASSERTION(_retval != nullptr, "null ptr");
-  if (!_retval) return NS_ERROR_NULL_POINTER;
-
-  *_retval = nullptr;
-
+                                                    nsAString& _retval) {
   ImportModuleDesc* importModule = GetImportModule(filter, index);
   if (!importModule) return NS_ERROR_FAILURE;
 
-  *_retval = NS_xstrdup(importModule->GetDescription());
+  _retval = importModule->GetDescription();
   return NS_OK;
 }
 
@@ -265,9 +223,8 @@ NS_IMETHODIMP nsImportService::GetModule(const char* filter, int32_t index,
   ImportModuleDesc* importModule = GetImportModule(filter, index);
   if (!importModule) return NS_ERROR_FAILURE;
 
-  importModule->GetModule(_retval);
-  if (!(*_retval)) return NS_ERROR_FAILURE;
-
+  nsCOMPtr<nsIImportModule> modulePtr = importModule->GetModule();
+  modulePtr.forget(_retval);
   return NS_OK;
 }
 
@@ -285,13 +242,12 @@ nsresult nsImportService::DoDiscover(void) {
   nsCOMPtr<nsISimpleEnumerator> e;
   rv = catMan->EnumerateCategory("mailnewsimport", getter_AddRefs(e));
   NS_ENSURE_SUCCESS(rv, rv);
-  for (auto& contractid : mozilla::SimpleEnumerator<nsISupportsCString>(e)) {
+  for (auto& key : mozilla::SimpleEnumerator<nsISupportsCString>(e)) {
+    nsCString keyStr;
+    key->ToString(getter_Copies(keyStr));
     nsCString contractIdStr;
-    contractid->ToString(getter_Copies(contractIdStr));
-    nsCString supportsStr;
-    rv = catMan->GetCategoryEntry("mailnewsimport", contractIdStr, supportsStr);
-    if (NS_SUCCEEDED(rv))
-      LoadModuleInfo(contractIdStr.get(), supportsStr.get());
+    rv = catMan->GetCategoryEntry("mailnewsimport", keyStr, contractIdStr);
+    if (NS_SUCCEEDED(rv)) LoadModuleInfo(contractIdStr);
   }
 
   m_didDiscovery = true;
@@ -299,48 +255,34 @@ nsresult nsImportService::DoDiscover(void) {
   return NS_OK;
 }
 
-nsresult nsImportService::LoadModuleInfo(const char* pClsId,
-                                         const char* pSupports) {
-  if (!pClsId || !pSupports) return NS_OK;
-
+nsresult nsImportService::LoadModuleInfo(const nsCString& contractId) {
   // load the component and get all of the info we need from it....
   nsresult rv;
-
-  nsCID clsId;
-  clsId.Clear();
-
-  clsId.Parse(pClsId);
-  nsCOMPtr<nsIImportModule> module = do_CreateInstance(clsId, &rv);
+  nsCOMPtr<nsIImportModule> module = do_CreateInstance(contractId.get(), &rv);
   if (NS_FAILED(rv)) return rv;
 
-  nsString theTitle;
-  nsString theDescription;
-  rv = module->GetName(getter_Copies(theTitle));
-  if (NS_FAILED(rv)) theTitle.AssignLiteral("Unknown");
+  m_importModules.EmplaceBack(module);
 
-  rv = module->GetDescription(getter_Copies(theDescription));
-  if (NS_FAILED(rv)) theDescription.AssignLiteral("Unknown description");
-
-  m_importModules.EmplaceBack(clsId, theTitle, theDescription, pSupports);
-
-#ifdef IMPORT_DEBUG
-  IMPORT_LOG3("* nsImportService registered import module: %s, %s, %s\n",
-              NS_LossyConvertUTF16toASCII(pName).get(),
-              NS_LossyConvertUTF16toASCII(pDesc).get(), pSupports);
-#endif
   return NS_OK;
 }
 
-// XXX This should return already_AddRefed.
-void ImportModuleDesc::GetModule(nsIImportModule** _retval) {
-  if (!m_pModule) {
-    nsresult rv;
-    m_pModule = do_CreateInstance(m_cid, &rv);
-    if (NS_FAILED(rv)) m_pModule = nullptr;
-  }
+ImportModuleDesc::ImportModuleDesc(nsIImportModule* importModule)
+    : m_pModule(importModule) {
+  nsresult rv;
+  rv = importModule->GetName(getter_Copies(m_name));
+  if (NS_FAILED(rv)) m_name.AssignLiteral("Unknown");
 
-  NS_IF_ADDREF(*_retval = m_pModule);
-  return;
+  rv = importModule->GetDescription(getter_Copies(m_description));
+  if (NS_FAILED(rv)) m_description.AssignLiteral("Unknown description");
+
+  importModule->GetSupports(getter_Copies(m_supports));
+
+#ifdef IMPORT_DEBUG
+  IMPORT_LOG3("* nsImportService registered import module: %s, %s, %s\n",
+              NS_LossyConvertUTF16toASCII(m_name).get(),
+              NS_LossyConvertUTF16toASCII(m_description).get(),
+              m_supports.get());
+#endif
 }
 
 bool ImportModuleDesc::SupportsThings(const nsACString& thing) {

@@ -28,11 +28,10 @@ interface nsIImportService : nsISupports
   void DiscoverModules();
 
   long GetModuleCount(in string filter);
-  void GetModuleInfo(in string filter, in long index, out wstring name, out wstring description);
-  wstring GetModuleName(in string filter, in long index);
-  wstring GetModuleDescription(in string filter, in long index);
-  nsIImportModule  GetModule(in string filter, in long index);
-  nsIImportModule GetModuleWithCID(in nsCIDRef cid);
+  void GetModuleInfo(in string filter, in long index, out AString name, out AString description);
+  AString GetModuleName(in string filter, in long index);
+  AString GetModuleDescription(in string filter, in long index);
+  nsIImportModule GetModule(in string filter, in long index);
 
   nsIImportFieldMap CreateNewFieldMap();
   nsIImportMailboxDescriptor CreateNewMailboxDescriptor();

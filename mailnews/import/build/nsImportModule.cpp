@@ -118,29 +118,18 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsBeckyImport)
 #endif  // XP_WIN
 
 static const mozilla::Module::CategoryEntry kMailNewsImportCategories[] = {
-    // XXX These CIDs should match the explicit CIDs defined in the header
-    // files,
-    // or be changed so that they are contract IDs (with appropriate code
-    // updates)
-    {"mailnewsimport", "{A5991D01-ADA7-11d3-A9C2-00A0CC26DA63}",
-     NS_IMPORT_ADDRESS_STR},
-    {"mailnewsimport", "{0eb034a3-964a-4e2f-92eb-cc55d9ae9dd2}",
-     NS_IMPORT_ADDRESS_STR},
-    {"mailnewsimport", "{54d48d9f-1bac-47be-9190-c4dc74e837e2}",
-     NS_IMPORT_ADDRESS_STR},
+    {"mailnewsimport", "text", "@mozilla.org/import/import-text;1"},
+    {"mailnewsimport", "vcard", "@mozilla.org/import/import-vcard;1"},
+    {"mailnewsimport", "mork", "@mozilla.org/import/import-mork;1"},
 #ifdef XP_WIN
-    {"mailnewsimport", "{42bc82bc-8e9f-4597-8b6e-e529daaf3af1}",
-     kWMSupportsString},
-    {"mailnewsimport", "{7952a6cf-2442-4c04-9f02-150b15a0a841}",
-     kBeckySupportsString},
+    {"mailnewsimport", "winlivemail", "@mozilla.org/import/import-wm;1"},
+    {"mailnewsimport", "becky", "@mozilla.org/import/import-becky;1"},
 #  ifdef MOZ_MAPI_SUPPORT
-    {"mailnewsimport", "{1DB469A0-8B00-11d3-A206-00A0CC26DA63}",
-     kOutlookSupportsString},
+    {"mailnewsimport", "outlook", "@mozilla.org/import/import-outlook;1"},
 #  endif
 #endif
 #if defined(XP_MACOSX)
-    {"mailnewsimport", "{6d3f101c-70ec-4e04-b68d-9908d1aeddf3}",
-     kAppleMailSupportsString},
+    {"mailnewsimport", "applemail", "@mozilla.org/import/import-applemail;1"},
 #endif
     {NULL}};
 
