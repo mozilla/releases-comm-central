@@ -2191,7 +2191,7 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr* msgHdr,
       // initialize |status| because some implementations of
       // OnHdrPropertyChanged does not set the value.
       uint32_t status = 0;
-      (void) listener->OnHdrPropertyChanged(msgHdr, true, &status, nullptr);
+      (void)listener->OnHdrPropertyChanged(msgHdr, true, &status, nullptr);
       // ignore errors, but append element to keep arrays in sync
       statusArray.AppendElement(status);
     }
@@ -2213,7 +2213,7 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr* msgHdr,
     for (uint32_t i = 0; listeners.HasMore(); i++) {
       listener = listeners.GetNext();
       uint32_t status = statusArray[i];
-      (void) listener->OnHdrPropertyChanged(msgHdr, false, &status, nullptr);
+      (void)listener->OnHdrPropertyChanged(msgHdr, false, &status, nullptr);
       // ignore errors
     }
   }
@@ -2247,7 +2247,7 @@ nsMsgDatabase::SetUint32PropertyByHdr(nsIMsgDBHdr* aMsgHdr,
       // initialize |status| because some implementations of
       // OnHdrPropertyChanged does not set the value.
       uint32_t status = 0;
-      (void) listener->OnHdrPropertyChanged(aMsgHdr, true, &status, nullptr);
+      (void)listener->OnHdrPropertyChanged(aMsgHdr, true, &status, nullptr);
       // Ignore errors, but append element to keep arrays in sync.
       statusArray.AppendElement(status);
     }
@@ -2263,7 +2263,7 @@ nsMsgDatabase::SetUint32PropertyByHdr(nsIMsgDBHdr* aMsgHdr,
     for (uint32_t i = 0; listeners.HasMore(); i++) {
       listener = listeners.GetNext();
       uint32_t status = statusArray[i];
-      (void) listener->OnHdrPropertyChanged(aMsgHdr, false, &status, nullptr);
+      (void)listener->OnHdrPropertyChanged(aMsgHdr, false, &status, nullptr);
       // Ignore errors.
     }
   }
