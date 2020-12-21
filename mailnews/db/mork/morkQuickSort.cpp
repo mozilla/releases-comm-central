@@ -69,10 +69,10 @@ static INLINE void morkQS_swapfunc(mork_u1*, mork_u1*, int, int);
     } while (--i > 0);                         \
   }
 
-#define morkQS_SwapInit(a, es)                                     \
-  swaptype = (a - (mork_u1*)0) % sizeof(long) || es % sizeof(long) \
-                 ? 2                                               \
-                 : es == sizeof(long) ? 0 : 1;
+#define morkQS_SwapInit(a, es)                                         \
+  swaptype = (a - (mork_u1*)0) % sizeof(long) || es % sizeof(long) ? 2 \
+             : es == sizeof(long)                                  ? 0 \
+                                                                   : 1;
 
 static INLINE void morkQS_swapfunc(mork_u1* a, mork_u1* b, int n,
                                    int swaptype) {
