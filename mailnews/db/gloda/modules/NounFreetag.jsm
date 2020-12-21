@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["FreeTag", "FreeTagNoun"];
 
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 
 function FreeTag(aTagName) {
@@ -23,7 +21,11 @@ FreeTag.prototype = {
  *  parameter, we are an odd case and semantically confused.
  */
 var FreeTagNoun = {
-  _log: Log4Moz.repository.getLogger("gloda.noun.freetag"),
+  _log: console.createInstance({
+    prefix: "gloda.noun.freetag",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "gloda.loglevel",
+  }),
 
   name: "freetag",
   clazz: FreeTag,

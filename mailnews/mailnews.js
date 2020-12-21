@@ -996,6 +996,7 @@ pref("ldap_2.servers.osx.dirType", 3);
 pref("mail.notification.sound", "");
 pref("mail.notification.count.inbox_only", true);
 #endif
+pref("mail.notification.loglevel", "Warn");
 
 // For the Empty Junk/Trash confirmation dialogs.
 pref("mailnews.emptyJunk.dontAskAgain", false);
@@ -1064,20 +1065,13 @@ pref("mailnews.database.summary.dontPreserveOnCopy",
 //                     Allows extensions to control preservation of properties.
 pref("mailnews.database.summary.dontPreserveOnMove",
   "account msgOffset threadParent msgThreadId statusOfset flags size numLines ProtoThreadFlags label storeToken");
-// Should we output dbcache log via dump? Set to "Debug" to show.
-pref("mailnews.database.dbcache.logging.dump", "None");
-// Should we output dbcache log to the "error console"? Set to "Debug" to show.
-pref("mailnews.database.dbcache.logging.console", "None");
+// Should we output dbcache log? Set to "Debug" to show.
+pref("mailnews.database.dbcache.loglevel", "Warn");
 
 // -- Global Database (gloda) options
 // Should the indexer be enabled?
 pref("mailnews.database.global.indexer.enabled", false);
-// Should we output warnings and errors to the "error console"?
-pref("mailnews.database.global.logging.console", false);
-// Should we output all output levels to stdout via dump?
-pref("mailnews.database.global.logging.dump", false);
-// Should we consider outputting all levels via the network?
-pref("mailnews.database.global.logging.net", false);
+pref("gloda.loglevel", "Warn");
 // Rate of growth of the gloda cache, whose maximum value is 8 MiB and max is 64 MiB.
 // See more: https://developer.mozilla.org/en/Thunderbird/gloda#Cache_Size"
 pref("mailnews.database.global.datastore.cache_to_memory_permillage", 10);
@@ -1105,3 +1099,5 @@ pref("mail.imap.qos", 0);
 pref("mail.pgpmime.addon_url", "https://addons.mozilla.org/addon/enigmail/");
 
 pref("msgAsyncPrompter.loglevel", "Warn");
+
+pref("mailnews.oauth.loglevel", "Warn");

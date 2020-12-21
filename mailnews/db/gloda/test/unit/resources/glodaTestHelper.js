@@ -120,13 +120,10 @@ var { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
 
-// -- Add a logger listener that throws when we give it a warning/error.
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-var throwingAppender = new Log4Moz.ThrowingAppender(do_throw);
-throwingAppender.level = Log4Moz.Level.Warn;
-Log4Moz.repository.rootLogger.addAppender(throwingAppender);
-
-var LOG = Log4Moz.repository.getLogger("gloda.test");
+var LOG = console.createInstance({
+  prefix: "gloda.test",
+  maxLogLevel: "Warn",
+});
 
 /* exported GLODA_BAD_MESSAGE_ID, GLODA_OLD_BAD_MESSAGE_ID */
 // index_msg does not export this, so we need to provide it.

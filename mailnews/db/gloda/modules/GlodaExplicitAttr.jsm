@@ -12,7 +12,6 @@
 const EXPORTED_SYMBOLS = ["GlodaExplicitAttr"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 const { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
 const { MailServices } = ChromeUtils.import(
@@ -33,7 +32,11 @@ var GlodaExplicitAttr = {
   _msgTagService: null,
 
   init() {
-    this._log = Log4Moz.repository.getLogger("gloda.explattr");
+    this._log = console.createInstance({
+      prefix: "gloda.explattr",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "gloda.loglevel",
+    });
 
     this._msgTagService = MailServices.tags;
 

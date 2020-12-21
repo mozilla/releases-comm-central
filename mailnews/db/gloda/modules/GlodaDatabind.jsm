@@ -4,14 +4,16 @@
 
 const EXPORTED_SYMBOLS = ["GlodaDatabind"];
 
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-
 function GlodaDatabind(aNounDef, aDatastore) {
   this._nounDef = aNounDef;
   this._tableName = aNounDef.tableName;
   this._tableDef = aNounDef.schema;
   this._datastore = aDatastore;
-  this._log = Log4Moz.repository.getLogger("gloda.databind." + this._tableName);
+  this._log = console.createInstance({
+    prefix: `gloda.databind.${this._tableName}`,
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "gloda.loglevel",
+  });
 
   // process the column definitions and make sure they have an attribute mapping
   for (let [iColDef, coldef] of this._tableDef.columns.entries()) {

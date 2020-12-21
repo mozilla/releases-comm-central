@@ -12,8 +12,6 @@ const EXPORTED_SYMBOLS = ["GlodaDatastore"];
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-
 const {
   GlodaAttributeDBDef,
   GlodaConversation,
@@ -33,7 +31,11 @@ var MIN_CACHE_SIZE = 8 * 1048576;
 var MAX_CACHE_SIZE = 64 * 1048576;
 var MEMSIZE_FALLBACK_BYTES = 256 * 1048576;
 
-var PCH_LOG = Log4Moz.repository.getLogger("gloda.ds.pch");
+var PCH_LOG = console.createInstance({
+  prefix: "gloda.ds.pch",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "gloda.loglevel",
+});
 
 /**
  * Commit async handler; hands off the notification to
@@ -81,7 +83,11 @@ PostCommitHandler.prototype = {
   },
 };
 
-var QFQ_LOG = Log4Moz.repository.getLogger("gloda.ds.qfq");
+var QFQ_LOG = console.createInstance({
+  prefix: "gloda.ds.qfq",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "gloda.loglevel",
+});
 
 /**
  * Singleton collection listener used by |QueryFromQueryCallback| to assist in
@@ -1066,7 +1072,11 @@ var GlodaDatastore = {
    *  mapping.
    */
   _init(aNounIDToDef) {
-    this._log = Log4Moz.repository.getLogger("gloda.datastore");
+    this._log = console.createInstance({
+      prefix: "gloda.datastore",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "gloda.loglevel",
+    });
     this._log.debug("Beginning datastore initialization.");
 
     this._nounIDToDef = aNounIDToDef;
@@ -3970,9 +3980,6 @@ var GlodaDatastore = {
     let deps = aItem._deps || {};
     let hasDeps = false;
 
-    // this._log.debug("  hadDeps: " + hadDeps + " deps: " +
-    //    Log4Moz.enumerateProperties(deps).join(","));
-
     for (let attrib of aItem.NOUN_DEF.specialLoadAttribs) {
       let objectNounDef = attrib.objectNounDef;
 
@@ -4151,9 +4158,6 @@ var GlodaDatastore = {
       return;
     }
 
-    // this._log.debug("  loading deferred, deps: " +
-    //    Log4Moz.enumerateProperties(aItem._deps).join(","));
-
     let attribIDToDBDefAndParam = this._attributeIDToDBDefAndParam;
 
     for (let [attribId, jsonValue] of Object.entries(aItem._deps)) {
@@ -4175,8 +4179,6 @@ var GlodaDatastore = {
             references[aItem[attrib.idStorageAttributeName]];
         }
       } else if (objectNounDef.tableName) {
-        // this._log.info("trying to load: " + objectNounDef.id + " refs: " +
-        //    jsonValue + ": " + Log4Moz.enumerateProperties(jsonValue).join(","));
         if (attrib.singular) {
           aItem[attrib.boundName] = references[jsonValue];
         } else {

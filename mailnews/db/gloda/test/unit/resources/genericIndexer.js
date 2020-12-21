@@ -7,7 +7,11 @@
 /* import-globals-from ../test_query_core.js */
 
 var GenericIndexer = {
-  _log: Log4Moz.repository.getLogger("gloda.indexer.generic"),
+  _log: console.createInstance({
+    prefix: "gloda.indexer.generic",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "gloda.loglevel",
+  }),
   /* public interface */
   name: "generic_indexer",
   enable() {

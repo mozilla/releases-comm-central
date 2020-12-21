@@ -13,7 +13,6 @@
 const EXPORTED_SYMBOLS = ["GlodaIndexer", "IndexingJob"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { GlodaDatastore } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaDatastore.jsm"
 );
@@ -128,7 +127,11 @@ var GlodaIndexer = {
    *  GlodaDatastore.
    */
   _datastore: GlodaDatastore,
-  _log: Log4Moz.repository.getLogger("gloda.indexer"),
+  _log: console.createInstance({
+    prefix: "gloda.indexer",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "gloda.loglevel",
+  }),
   /**
    * Our nsITimer that we use to schedule ourselves on the main thread
    *  intermittently.  The timer always exists but may not always be active.

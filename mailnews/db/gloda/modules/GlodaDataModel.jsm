@@ -17,8 +17,11 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-var LOG = Log4Moz.repository.getLogger("gloda.datamodel");
+var LOG = console.createInstance({
+  prefix: "gloda.datamodel",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "gloda.loglevel",
+});
 
 // Make it lazy.
 var gMessenger;

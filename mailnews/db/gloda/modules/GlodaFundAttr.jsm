@@ -8,7 +8,6 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { GlodaUtils } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaUtils.jsm"
 );
@@ -38,7 +37,11 @@ var GlodaFundAttr = {
   _log: null,
 
   init() {
-    this._log = Log4Moz.repository.getLogger("gloda.fundattr");
+    this._log = console.createInstance({
+      prefix: "gloda.fundattr",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "gloda.loglevel",
+    });
 
     try {
       this.defineAttributes();

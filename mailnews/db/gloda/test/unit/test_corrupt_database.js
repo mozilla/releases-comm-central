@@ -36,41 +36,6 @@ var kDatastoreIDPref = "mailnews.database.global.datastore.id";
 var kOriginalDatastoreID = "47e4bad6-fedc-4931-bf3f-d2f4146ac63e";
 Services.prefs.setCharPref(kDatastoreIDPref, kOriginalDatastoreID);
 
-// -- Add a logger listener that throws when we give it a warning/error.
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-
-/**
- * Count the type of each severity level observed.
- */
-function CountingAppender() {
-  this._name = "CountingAppender";
-  this.counts = {};
-}
-CountingAppender.prototype = {
-  reset: function CountingAppender_reset() {
-    this.counts = {};
-  },
-  append: function CountingAppender_append(message) {
-    if (!(message.level in this.counts)) {
-      this.counts[message.level] = 1;
-    } else {
-      this.counts[message.level]++;
-    }
-  },
-  getCountForLevel: function CountingAppender_getCountForLevel(level) {
-    if (level in this.counts) {
-      return this.counts[level];
-    }
-    return 0;
-  },
-  toString() {
-    return "One, two, three! Ah ah ah!";
-  },
-};
-
-var countingAppender = new CountingAppender();
-Log4Moz.repository.rootLogger.addAppender(countingAppender);
-
 /**
  * Create an illegal=corrupt database and make sure that we log a message and
  * still end up happy.
@@ -99,21 +64,12 @@ function test_corrupt_databases_get_reported_and_blown_away() {
   ostream.write(fileContents, fileContents.length);
   ostream.close();
 
-  // - reset counts in preparation of gloda init
-  countingAppender.reset();
-
   // - init gloda, get warnings
   mark_sub_test_start("init gloda");
   var { Gloda } = ChromeUtils.import(
     "resource:///modules/gloda/GlodaPublic.jsm"
   );
   mark_sub_test_start("gloda inited, checking");
-
-  mark_action("actual", "Counting appender counts", [countingAppender.counts]);
-  // we expect 2 warnings
-  Assert.equal(countingAppender.getCountForLevel(Log4Moz.Level.Warn), 2);
-  // and no errors
-  Assert.equal(countingAppender.getCountForLevel(Log4Moz.Level.Error), 0);
 
   // - make sure the datastore has an actual database
   let { GlodaDatastore } = ChromeUtils.import(

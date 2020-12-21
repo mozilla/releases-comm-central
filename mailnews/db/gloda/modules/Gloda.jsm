@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["Gloda"];
 
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-
 const { GlodaDatastore } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaDatastore.jsm"
 );
@@ -35,8 +33,6 @@ const { GlodaUtils } = ChromeUtils.import(
 const { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -165,62 +161,11 @@ var Gloda = {
    *  (via dump) gets everything.
    */
   _initLogging() {
-    let formatter = new Log4Moz.BasicFormatter();
-    Log4Moz.repository.rootLogger.level = Log4Moz.Level.Debug;
-
-    let enableConsoleLogging = false;
-    let enableDumpLogging = false;
-    // should we assume there is someone else consuming our log4moz stream?
-    let enableUpstreamLogging = false;
-    let considerNetLogging = false;
-
-    let glodaLog = Log4Moz.repository.getLogger("gloda");
-    glodaLog.level = Log4Moz.Level.Warn;
-
-    try {
-      // figure out if event-driven indexing should be enabled...
-      let branch = Services.prefs.getBranch(
-        "mailnews.database.global.logging."
-      );
-      enableConsoleLogging = branch.getBoolPref("console");
-      enableDumpLogging = branch.getBoolPref("dump");
-      enableUpstreamLogging = branch.getBoolPref("upstream");
-      considerNetLogging = branch.getBoolPref("net");
-    } catch (ex) {}
-
-    if (enableConsoleLogging) {
-      let capp = new Log4Moz.ConsoleAppender(formatter);
-      capp.level = Log4Moz.Level.Warn;
-      glodaLog.addAppender(capp);
-    }
-
-    if (enableDumpLogging) {
-      let dapp = new Log4Moz.DumpAppender(formatter);
-      dapp.level = Log4Moz.Level.All;
-      glodaLog.level = Log4Moz.Level.All;
-      glodaLog.addAppender(dapp);
-    }
-
-    if (enableUpstreamLogging) {
-      glodaLog.level = Log4Moz.Level.All;
-    }
-
-    if (considerNetLogging) {
-      let file = Services.dirsvc.get("TmpD", Ci.nsIFile);
-      file.append("chainsaw.ptr");
-      if (file.exists()) {
-        let data = IOUtils.loadFileToString(file);
-        data = data.trim();
-        let [host, port] = data.split(":");
-        let xf = new Log4Moz.XMLFormatter();
-        let sapp = new Log4Moz.SocketAppender(host, Number(port), xf);
-        sapp.level = Log4Moz.Level.All;
-        glodaLog.level = Log4Moz.Level.All;
-        glodaLog.addAppender(sapp);
-      }
-    }
-
-    this._log = Log4Moz.repository.getLogger("gloda.NS");
+    this._log = console.createInstance({
+      prefix: "gloda",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "gloda.loglevel",
+    });
     this._log.info("Logging Initialized");
   },
 

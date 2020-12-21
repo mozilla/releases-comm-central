@@ -46,9 +46,9 @@ function OAuth2(
   this.extraAuthParams = [];
 
   this.log = console.createInstance({
-    prefix: "TBOAuth",
+    prefix: "mailnews.oauth",
     maxLogLevel: "Warn",
-    maxLogLevelPref: "TBOAuth.loglevel",
+    maxLogLevelPref: "mailnews.oauth.loglevel",
   });
 }
 

@@ -4,9 +4,11 @@
 
 const EXPORTED_SYMBOLS = ["GlodaCollection", "GlodaCollectionManager"];
 
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-
-var LOG = Log4Moz.repository.getLogger("gloda.collection");
+var LOG = console.createInstance({
+  prefix: "gloda.collection",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "gloda.loglevel",
+});
 
 /**
  * @namespace Central registry and logic for all collections.

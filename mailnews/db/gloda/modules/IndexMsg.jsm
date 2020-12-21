@@ -22,8 +22,6 @@ const { MailServices } = ChromeUtils.import(
 );
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-
 const { GlodaDatastore } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaDatastore.jsm"
 );
@@ -343,7 +341,11 @@ function MessagesByMessageIdCallback(
 }
 
 MessagesByMessageIdCallback.prototype = {
-  _log: Log4Moz.repository.getLogger("gloda.index_msg.mbm"),
+  _log: console.createInstance({
+    prefix: "gloda.index_msg.mbm",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "gloda.loglevel",
+  }),
 
   onItemsAdded(aItems, aCollection) {
     // just outright bail if we are shutdown
@@ -364,9 +366,7 @@ MessagesByMessageIdCallback.prototype = {
       return;
     }
 
-    if (this._log.level <= Log4Moz.Level.Debug) {
-      this._log.debug("query completed, notifying... " + this.results);
-    }
+    this._log.debug("query completed, notifying... " + this.results);
 
     this.callback.call(this.callbackThis, this.results);
   },
@@ -441,7 +441,11 @@ var GlodaMsgIndexer = {
    *  GlodaDatastore.
    */
   _datastore: GlodaDatastore,
-  _log: Log4Moz.repository.getLogger("gloda.index_msg"),
+  _log: console.createInstance({
+    prefix: "gloda.index_msg",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "gloda.loglevel",
+  }),
 
   _junkService: MailServices.junk,
 
@@ -1385,7 +1389,6 @@ var GlodaMsgIndexer = {
    * Index the contents of a folder.
    */
   *_worker_folderIndex(aJob, aCallbackHandle) {
-    let logDebug = this._log.level <= Log4Moz.Level.Debug;
     yield this._indexerEnterFolder(aJob.id);
 
     if (!this.shouldIndexFolder(this._indexingFolder)) {
@@ -1511,17 +1514,13 @@ var GlodaMsgIndexer = {
           continue;
         }
 
-        if (logDebug) {
-          this._log.debug(">>>  calling _indexMessage");
-        }
+        this._log.debug(">>>  calling _indexMessage");
         yield aCallbackHandle.pushAndGo(
           this._indexMessage(msgHdr, aCallbackHandle),
           { what: "indexMessage", msgHdr }
         );
         GlodaIndexer._indexedMessageCount++;
-        if (logDebug) {
-          this._log.debug("<<<  back from _indexMessage");
-        }
+        this._log.debug("<<<  back from _indexMessage");
       }
     }
 
@@ -3102,12 +3101,9 @@ var GlodaMsgIndexer = {
    * @pre aMsgHdr.folder.msgDatabase == this._indexingDatabase
    */
   *_indexMessage(aMsgHdr, aCallbackHandle) {
-    let logDebug = this._log.level <= Log4Moz.Level.Debug;
-    if (logDebug) {
-      this._log.debug(
-        "*** Indexing message: " + aMsgHdr.messageKey + " : " + aMsgHdr.subject
-      );
-    }
+    this._log.debug(
+      "*** Indexing message: " + aMsgHdr.messageKey + " : " + aMsgHdr.subject
+    );
 
     // If the message is offline, then get the message body as well
     let aMimeMsg;
@@ -3123,13 +3119,11 @@ var GlodaMsgIndexer = {
         { saneBodySize: true }
       );
       aMimeMsg = (yield this.kWorkAsync)[1];
-    } else if (logDebug) {
+    } else {
       this._log.debug("  * Message is not offline -- only headers indexed");
     }
 
-    if (logDebug) {
-      this._log.debug("  * Got message, subject " + aMsgHdr.subject);
-    }
+    this._log.debug("  * Got message, subject " + aMsgHdr.subject);
 
     if (this._unitTestSuperVerbose) {
       if (aMimeMsg) {
@@ -3159,18 +3153,12 @@ var GlodaMsgIndexer = {
     // (ancestorLists has a direct correspondence to the message ids)
     let ancestorLists = yield this.kWorkAsync;
 
-    if (logDebug) {
-      this._log.debug("ancestors raw: " + ancestorLists);
-      this._log.debug(
-        "ref len: " + references.length + " anc len: " + ancestorLists.length
-      );
-      this._log.debug(
-        "references: " + Log4Moz.enumerateProperties(references).join(",")
-      );
-      this._log.debug(
-        "ancestors: " + Log4Moz.enumerateProperties(ancestorLists).join(",")
-      );
-    }
+    this._log.debug("ancestors raw: " + ancestorLists);
+    this._log.debug(
+      "ref len: " + references.length + " anc len: " + ancestorLists.length
+    );
+    this._log.debug("references: " + references);
+    this._log.debug("ancestors: " + ancestorLists);
 
     // pull our current message lookup results off
     references.pop();
@@ -3233,15 +3221,13 @@ var GlodaMsgIndexer = {
       let ancestorList = ancestorLists[iAncestor];
 
       if (ancestorList.length == 0) {
-        if (logDebug) {
-          this._log.debug(
-            "creating message with: null, " +
-              conversationID +
-              ", " +
-              references[iAncestor] +
-              ", null."
-          );
-        }
+        this._log.debug(
+          "creating message with: null, " +
+            conversationID +
+            ", " +
+            references[iAncestor] +
+            ", null."
+        );
         let ancestor = this._datastore.createMessage(
           null,
           null, // ghost
@@ -3261,20 +3247,16 @@ var GlodaMsgIndexer = {
     // find if there's a ghost version of our message or we already have indexed
     //  this message.
     let curMsg = null;
-    if (logDebug) {
-      this._log.debug(candidateCurMsgs.length + " candidate messages");
-    }
+    this._log.debug(candidateCurMsgs.length + " candidate messages");
     for (let iCurCand = 0; iCurCand < candidateCurMsgs.length; iCurCand++) {
       let candMsg = candidateCurMsgs[iCurCand];
 
-      if (logDebug) {
-        this._log.debug(
-          "candidate folderID: " +
-            candMsg.folderID +
-            " messageKey: " +
-            candMsg.messageKey
-        );
-      }
+      this._log.debug(
+        "candidate folderID: " +
+          candMsg.folderID +
+          " messageKey: " +
+          candMsg.messageKey
+      );
 
       if (candMsg.folderURI == this._indexingFolder.URI) {
         // if we are in the same folder and we have the same message key, we
@@ -3411,10 +3393,7 @@ var GlodaMsgIndexer = {
    * @TODO: implement deletion of attributes that reference (deleted) messages
    */
   *_deleteMessage(aMessage, aCallbackHandle) {
-    let logDebug = this._log.level <= Log4Moz.Level.Debug;
-    if (logDebug) {
-      this._log.debug("*** Deleting message: " + aMessage);
-    }
+    this._log.debug("*** Deleting message: " + aMessage);
 
     // -- delete our attributes
     // delete the message's attributes (if we implement the cascade delete, that

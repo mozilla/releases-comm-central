@@ -5,10 +5,13 @@
 const EXPORTED_SYMBOLS = ["MimeType", "MimeTypeNoun"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-var LOG = Log4Moz.repository.getLogger("gloda.noun.mimetype");
-
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+
+var LOG = console.createInstance({
+  prefix: "gloda.noun.mimetype",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "gloda.loglevel",
+});
 
 var CategoryStringMap = {};
 

@@ -11,7 +11,6 @@ const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { FreeTagNoun } = ChromeUtils.import(
   "resource:///modules/gloda/NounFreetag.jsm"
 );
@@ -28,7 +27,11 @@ var GlodaABIndexer = {
   name: "index_ab",
   enable() {
     if (this._log == null) {
-      this._log = Log4Moz.repository.getLogger("gloda.index_ab");
+      this._log = console.createInstance({
+        prefix: "gloda.index_ab",
+        maxLogLevel: "Warn",
+        maxLogLevelPref: "gloda.loglevel",
+      });
     }
 
     for (let topic of this._notifications) {
@@ -139,7 +142,11 @@ var GlodaABAttrs = {
   _log: null,
 
   init() {
-    this._log = Log4Moz.repository.getLogger("gloda.abattrs");
+    this._log = console.createInstance({
+      prefix: "gloda.abattrs",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "gloda.loglevel",
+    });
 
     try {
       this.defineAttributes();

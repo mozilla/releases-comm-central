@@ -522,9 +522,6 @@ function GlodaAutoComplete() {
       TagNoun = loadNS.TagNoun;
       loadNS = ChromeUtils.import("resource:///modules/gloda/NounFreetag.jsm");
       FreeTagNoun = loadNS.FreeTagNoun;
-
-      loadNS = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-      loadNS.Log4Moz.repository.getLogger("gloda.autocomp");
     }
 
     this.completers = [];
