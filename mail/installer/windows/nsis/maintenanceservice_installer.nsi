@@ -37,7 +37,7 @@ Var BrandFullName
 !insertmacro GetParameters
 !insertmacro GetSize
 
-; The test slaves use this fallback key to run tests.
+; The test machines use this fallback key to run tests.
 ; And anyone that wants to run tests themselves should already have
 ; this installed.
 !define FallbackKey \
@@ -151,14 +151,14 @@ Section "MaintenanceService"
 
   ; We always write out a copy and then decide whether to install it or
   ; not via calling its 'install' cmdline which works by version comparison.
-  CopyFiles "$EXEDIR\maintenanceservice.exe" "$INSTDIR\$TempMaintServiceName"
+  CopyFiles /SILENT "$EXEDIR\maintenanceservice.exe" "$INSTDIR\$TempMaintServiceName"
 
   ; The updater.ini file is only used when performing an install or upgrade,
   ; and only if that install or upgrade is successful.  If an old updater.ini
   ; happened to be copied into the maintenance service installation directory
   ; but the service was not newer, the updater.ini file would be unused.
   ; It is used to fill the description of the service on success.
-  CopyFiles "$EXEDIR\updater.ini" "$INSTDIR\updater.ini"
+  CopyFiles /SILENT "$EXEDIR\updater.ini" "$INSTDIR\updater.ini"
 
   ; Install the application maintenance service.
   ; If a service already exists, the command line parameter will stop the
@@ -181,6 +181,7 @@ Section "MaintenanceService"
   ; Since the Maintenance service can be installed either x86 or x64,
   ; always use the 64-bit registry.
   ${If} ${RunningX64}
+  ${OrIf} ${IsNativeARM64}
     ; Previous versions always created the uninstall key in the 32-bit registry.
     ; Clean those old entries out if they still exist.
     SetRegView 32
@@ -218,6 +219,7 @@ Section "MaintenanceService"
   ; WriteRegStr HKLM "${FallbackKey}\0" "name" "Mozilla Corporation"
   ; WriteRegStr HKLM "${FallbackKey}\0" "issuer" "DigiCert SHA2 Assured ID Code Signing CA"
   ${If} ${RunningX64}
+  ${OrIf} ${IsNativeARM64}
     SetRegView lastused
   ${EndIf}
 SectionEnd
@@ -240,6 +242,14 @@ Function un.RenameDelete
   ClearErrors
 FunctionEnd
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; NOTE: The maintenance service uninstaller does not currently get updated when
+; the service itself does during application updates. Under normal use, only
+; running the Thunderbird installer will generate a new maintenance service
+; uninstaller. That means anything added here will not be seen by users until
+; they run a new Thunderbird installer. Fixing this is tracked in
+; https://bugzilla.mozilla.org/show_bug.cgi?id=1665193
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Section "Uninstall"
   ; Delete the service so that no updates will be attempted
   ExecWait '"$INSTDIR\maintenanceservice.exe" uninstall'
@@ -315,9 +325,11 @@ Section "Uninstall"
   RMDir /REBOOTOK "$APPDATA\Mozilla"
   RMDir /REBOOTOK "$INSTDIR\logs"
   RMDir /REBOOTOK "$INSTDIR\update"
+  RMDir /REBOOTOK "$INSTDIR\UpdateLogs"
   RMDir /REBOOTOK "$INSTDIR"
 
   ${If} ${RunningX64}
+  ${OrIf} ${IsNativeARM64}
     SetRegView 64
   ${EndIf}
   DeleteRegKey HKLM "${MaintUninstallKey}"
@@ -325,6 +337,7 @@ Section "Uninstall"
   DeleteRegValue HKLM "Software\Mozilla\MaintenanceService" "FFPrefetchDisabled"
   DeleteRegKey HKLM "${FallbackKey}\"
   ${If} ${RunningX64}
+  ${OrIf} ${IsNativeARM64}
     SetRegView lastused
   ${EndIf}
 SectionEnd

@@ -189,6 +189,7 @@ Function un.UninstallServiceIfNotUsed
 
   ; The maintenance service always uses the 64-bit registry on x64 systems
   ${If} ${RunningX64}
+  ${OrIf} ${IsNativeARM64}
     SetRegView 64
   ${EndIf}
 
@@ -204,6 +205,7 @@ Function un.UninstallServiceIfNotUsed
 
   ; Restore back the registry view
   ${If} ${RunningX64}
+  ${OrIf} ${IsNativeARM64}
     SetRegView lastUsed
   ${EndIf}
 
@@ -214,11 +216,13 @@ Function un.UninstallServiceIfNotUsed
     ReadRegStr $1 HKLM ${MaintUninstallKey} "UninstallString"
     SetRegView lastused
 
-    ${If} $1 == ""
-    ${AndIf} ${RunningX64}
-      SetRegView 64
-      ReadRegStr $1 HKLM ${MaintUninstallKey} "UninstallString"
-      SetRegView lastused
+    ${If} ${RunningX64}
+    ${OrIf} ${IsNativeARM64}
+      ${If} $1 == ""
+        SetRegView 64
+        ReadRegStr $1 HKLM ${MaintUninstallKey} "UninstallString"
+        SetRegView lastused
+      ${EndIf}
     ${EndIf}
 
     ; If the uninstall string does not exist, skip executing it
@@ -459,10 +463,12 @@ Section "Uninstall"
   ${If} $MaintCertKey != ""
     ; Always use the 64bit registry for certs on 64bit systems.
     ${If} ${RunningX64}
+    ${OrIf} ${IsNativeARM64}
       SetRegView 64
     ${EndIf}
     DeleteRegKey HKLM "$MaintCertKey"
     ${If} ${RunningX64}
+    ${OrIf} ${IsNativeARM64}
       SetRegView lastused
     ${EndIf}
   ${EndIf}
