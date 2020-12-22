@@ -110,6 +110,16 @@ var MailMigrator = {
     });
   },
 
+  _migrateXULStoreForElement(url, fromID, toID) {
+    Array.from(Services.xulStore.getAttributeEnumerator(url, fromID)).forEach(
+      attr => {
+        let value = Services.xulStore.getValue(url, fromID, attr);
+        Services.xulStore.setValue(url, toID, attr, value);
+        Services.xulStore.removeValue(url, fromID, attr);
+      }
+    );
+  },
+
   /* eslint-disable complexity */
   /**
    * Determine if the UI has been upgraded in a way that requires us to reset
@@ -118,7 +128,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 23;
+    const UI_VERSION = 25;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -515,6 +525,15 @@ var MailMigrator = {
         this._migrateIncomingToOAuth2("imap.aol.com");
         this._migrateIncomingToOAuth2("pop.aol.com");
         this._migrateSMTPToOAuth2("smtp.aol.com");
+      }
+
+      // Version 24 was used and backed out.
+
+      // Some elements changed ID, move their persisted values to the new ID.
+      if (currentUIVersion < 25) {
+        let url = "chrome://messenger/content/messenger.xhtml";
+        this._migrateXULStoreForElement(url, "view-deck", "view-box");
+        this._migrateXULStoreForElement(url, "displayDeck", "displayBox");
       }
 
       // Update the migration version.
