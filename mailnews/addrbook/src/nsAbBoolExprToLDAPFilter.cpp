@@ -88,7 +88,7 @@ nsresult nsAbBoolExprToLDAPFilter::FilterExpression(
 nsresult nsAbBoolExprToLDAPFilter::FilterExpressions(
     nsIAbLDAPAttributeMap* map, nsTArray<RefPtr<nsISupports>>& expressions,
     nsCString& filter, int flags) {
-  nsresult rv;
+  nsresult rv = NS_OK;
 
   nsCOMPtr<nsIAbBooleanConditionString> childCondition;
   nsCOMPtr<nsIAbBooleanExpression> childExpression;
