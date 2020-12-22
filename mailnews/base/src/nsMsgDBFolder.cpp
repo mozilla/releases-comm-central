@@ -703,11 +703,12 @@ NS_IMETHODIMP nsMsgDBFolder::GetOfflineFileStream(
 
   bool reusable;
   rv = GetMsgInputStream(hdr, &reusable, aFileStream);
-  // check if offline store really has the correct offset into the offline
-  // store by reading the first few bytes. If it doesn't, clear the offline
-  // flag on the msg and return false, which will fall back to reading the
-  // message from the server. We'll also advance the offset past the envelope
-  // header and X-Mozilla-Status lines.
+  // Check if the database has the correct offset into the offline store by
+  // reading up to 199 bytes. If it is incorrect, clear the offline flag on the
+  // message and return false. This will cause a fall back to reading the
+  // message from the server. We will also advance the offset past the envelope
+  // header ("From " or "FCC") and "X-Mozilla-Status*" lines so these line are
+  // not included when the message is read from the file.
   nsCOMPtr<nsISeekableStream> seekableStream = do_QueryInterface(*aFileStream);
   if (seekableStream) {
     seekableStream->Tell(offset);
@@ -718,34 +719,46 @@ NS_IMETHODIMP nsMsgDBFolder::GetOfflineFileStream(
       rv = (*aFileStream)->Read(startOfMsg, bytesToRead, &bytesRead);
     startOfMsg[bytesRead] = '\0';
     // check if message starts with From, or is a draft and starts with FCC
-    if (NS_FAILED(rv) || bytesRead != bytesToRead ||
-        (strncmp(startOfMsg, "From ", 5) &&
-         (!(mFlags & nsMsgFolderFlags::Drafts) ||
-          strncmp(startOfMsg, "FCC", 3))))
+    if (NS_FAILED(rv) || (strncmp(startOfMsg, "From ", 5) &&
+                          (!(mFlags & nsMsgFolderFlags::Drafts) ||
+                           strncmp(startOfMsg, "FCC", 3)))) {
       rv = NS_ERROR_FAILURE;
-    else {
+    } else {
+      // "From "/"FCC" line is OK, move to next line
       uint32_t msgOffset = 0;
-      // skip "From "/FCC line
       bool foundNextLine =
           MsgAdvanceToNextLine(startOfMsg, msgOffset, bytesRead - 1);
       if (foundNextLine && !strncmp(startOfMsg + msgOffset, X_MOZILLA_STATUS,
                                     X_MOZILLA_STATUS_LEN)) {
-        // skip X-Mozilla-Status line
+        // X-Mozilla-Status line is present, move to next line
         if (MsgAdvanceToNextLine(startOfMsg, msgOffset, bytesRead - 1)) {
           if (!strncmp(startOfMsg + msgOffset, X_MOZILLA_STATUS2,
-                       X_MOZILLA_STATUS2_LEN))
-            MsgAdvanceToNextLine(startOfMsg, msgOffset, bytesRead - 1);
+                       X_MOZILLA_STATUS2_LEN)) {
+            // X-Mozilla-Status2 line is present, move to next line
+            foundNextLine =
+                MsgAdvanceToNextLine(startOfMsg, msgOffset, bytesRead - 1);
+          }
+        } else {
+          foundNextLine = false;
         }
       }
-      int32_t findPos =
-          MsgFindCharInSet(nsDependentCString(startOfMsg), ":\n\r", msgOffset);
-      // Check that the first line is a header line, i.e., with a ':' in it.
-      // Or, the line starts with "From " - I've seen IMAP servers return
-      // a bogus "From " line without a ':'.
-      if (findPos != -1 &&
-          (startOfMsg[findPos] == ':' || !(strncmp(startOfMsg, "From ", 5)))) {
-        *offset += msgOffset;
-        *size -= msgOffset;
+      if (foundNextLine) {
+        // startofMsg[msgOffset] should now be the first valid header line that
+        // will be read. Check that it appears to be a  true header line by
+        // checking that it contains a colon, ':'. Also, allow the line to
+        // start with "From " since some IMAP servers return a beginning "From "
+        // line without a colon instead of a valid header.
+        char* headerLine = startOfMsg + msgOffset;
+        int32_t findPos =
+            MsgFindCharInSet(nsDependentCString(headerLine), ":\n\r", 0);
+        if ((findPos != kNotFound && headerLine[findPos] == ':') ||
+            !strncmp(headerLine, "From ", 5)) {
+          *offset += msgOffset;
+          *size -= msgOffset;
+        } else {
+          // No colon or "From "
+          rv = NS_ERROR_FAILURE;
+        }
       } else {
         rv = NS_ERROR_FAILURE;
       }
