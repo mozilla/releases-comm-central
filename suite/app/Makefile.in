@@ -76,8 +76,7 @@ endif
 
 # Make extensions end up as XPIs instead of flat chrome when doing omni.jar.
 # Extensions that appear in dist/bin/extensions will get bundled with the
-# application, ones that appear in dist/bin/distribution/extensions will be
-# copied to the profile in installed builds.
+# application.
 # NOTE: This is a hack to run this at the end of compilation, would be nicer
 # if this was done right away for built-in extensions in omnijar mode.
 
@@ -102,9 +101,7 @@ pack-ext: $(STAGEDIST)
 	$(foreach dir,$(filter-out $(DONOTPACK),$(subst $(STAGEDIST)/,,$(wildcard $(STAGEDIST)/*))),$(_PACKAGE_EXTENSIONS))
 
 tools::
-	$(NSINSTALL) -D $(DIST)/bin/distribution/extensions
 	@$(MAKE) pack-ext STAGEDIST="$(DIST)/bin/extensions"
-	@$(MAKE) pack-ext STAGEDIST="$(DIST)/bin/distribution/extensions"
 
 # Additional macOS build steps.
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
