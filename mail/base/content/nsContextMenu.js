@@ -834,14 +834,32 @@ nsContextMenu.prototype = {
    * Save URL of clicked-on link.
    */
   saveLink() {
-    saveURL(this.linkURL, this.linkText(), null, true, null, null, document);
+    saveURL(
+      this.linkURL,
+      this.linkText(),
+      null,
+      true,
+      null,
+      null,
+      null,
+      document
+    );
   },
 
   /**
    * Save a clicked-on image.
    */
   saveImage() {
-    saveURL(this.imageURL, null, "SaveImageTitle", false, null, null, document);
+    saveURL(
+      this.imageURL,
+      null,
+      "SaveImageTitle",
+      false,
+      null,
+      null,
+      null,
+      document
+    );
   },
 
   /**
