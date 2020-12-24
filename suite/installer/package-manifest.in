@@ -246,6 +246,9 @@
 @RESPATH@/chrome/icons/default/bookmarkproperties.png
 @RESPATH@/chrome/icons/default/bookmarkproperties16.png
 @RESPATH@/chrome/icons/default/bookmarkproperties48.png
+@RESPATH@/chrome/icons/default/chatzilla-window.png
+@RESPATH@/chrome/icons/default/chatzilla-window16.png
+@RESPATH@/chrome/icons/default/chatzilla-window48.png
 @RESPATH@/chrome/icons/default/default.png
 @RESPATH@/chrome/icons/default/default16.png
 @RESPATH@/chrome/icons/default/default48.png
@@ -275,11 +278,15 @@
 @RESPATH@/chrome/icons/default/places.png
 @RESPATH@/chrome/icons/default/places16.png
 @RESPATH@/chrome/icons/default/places48.png
+@RESPATH@/chrome/icons/default/winInspectorMain.png
+@RESPATH@/chrome/icons/default/winInspectorMain16.png
+@RESPATH@/chrome/icons/default/winInspectorMain48.png
 #ifdef MOZ_UPDATER
 @RESPATH@/icons/updater.png
 #endif
 #elifdef XP_WIN
 @RESPATH@/chrome/icons/default/bookmarkproperties.ico
+@RESPATH@/chrome/icons/default/chatzilla-window.ico
 @RESPATH@/chrome/icons/default/downloadManager.ico
 @RESPATH@/chrome/icons/default/editorWindow.ico
 @RESPATH@/chrome/icons/default/findBookmarkWindow.ico
@@ -293,6 +300,7 @@
 @RESPATH@/chrome/icons/default/main-window.ico
 @RESPATH@/chrome/icons/default/places.ico
 @RESPATH@/chrome/icons/default/script-file.ico
+@RESPATH@/chrome/icons/default/winInspectorMain.ico
 @RESPATH@/chrome/icons/default/xml-file.ico
 @RESPATH@/chrome/icons/default/xul-file.ico
 #endif

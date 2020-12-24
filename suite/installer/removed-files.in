@@ -75,7 +75,6 @@
 @DIR_MACOS@chrome/icons/default/bookmark-window16.xpm
 @DIR_MACOS@chrome/icons/default/calendar-window.xpm
 @DIR_MACOS@chrome/icons/default/calendar-window16.xpm
-@DIR_MACOS@chrome/icons/default/chatzilla-window.ico
 @DIR_MACOS@chrome/icons/default/chatzilla-window.xpm
 @DIR_MACOS@chrome/icons/default/chatzilla-window16.xpm
 @DIR_MACOS@chrome/icons/default/default.xpm
