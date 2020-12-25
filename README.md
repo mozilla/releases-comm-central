@@ -11,7 +11,7 @@ In order to be able to build Thunderbird - you will need the mozilla-central rep
 
 ### mozilla-central vs. comm-central
 
-The mozilla-central repostitory contains the Firefox codebase and all of the platform code. The comm-central repository is added as a subdirectory "comm/" under mozilla-central. This contains the code for Thunderbird.
+The mozilla-central repository contains the Firefox codebase and all the platform code. The comm-central repository is added as a subdirectory "comm/" under mozilla-central. This contains the code for Thunderbird.
 
 ## Building Thunderbird
 
@@ -155,7 +155,7 @@ Thunderbird uses bugzilla for reporting and tracking bugs as well as enhancement
 
 ### Fixing a Bug and Submitting Patches
 
-All the issues, bugs, work in progress patches, or updates related to Thunderbird, are listed on Bugzilla and are properly organized per **Product**, **Component**, and **Status**. For instance you can see how they are listed by looking at [recent bugs for Thunderbird](https://bugzilla.mozilla.org/buglist.cgi?query_format=advanced&product=Thunderbird&bug_status=UNCONFIRMED&bug_severity=blocker&bug_severity=critical&bug_severity=major&bug_severity=normal&bug_severity=minor&bug_severity=trivial&chfieldfrom=-30d&chfield=%5BBug%20creation%5D&list_id=14706087).
+All the issues, bugs, work in progress patches, or updates related to Thunderbird, are listed on Bugzilla and are properly organized per **Product**, **Component**, and **Status**. For instance, you can see how they are listed by looking at [recent bugs for Thunderbird](https://bugzilla.mozilla.org/buglist.cgi?query_format=advanced&product=Thunderbird&bug_status=UNCONFIRMED&bug_severity=blocker&bug_severity=critical&bug_severity=major&bug_severity=normal&bug_severity=minor&bug_severity=trivial&chfieldfrom=-30d&chfield=%5BBug%20creation%5D&list_id=14706087).
 
 #### Create a Bugzilla account
 
