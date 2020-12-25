@@ -574,9 +574,9 @@ nsresult nsMsgSearchTerm::ParseOperator(char* inStream,
 
   if (commaSep) *commaSep = '\0';
 
-  nsresult err = NS_MsgGetOperatorFromString(inStream, &operatorVal);
-  *value = (nsMsgSearchOpValue)operatorVal;
-  return err;
+  nsresult rv = NS_MsgGetOperatorFromString(inStream, &operatorVal);
+  if (NS_SUCCEEDED(rv)) *value = (nsMsgSearchOpValue)operatorVal;
+  return rv;
 }
 
 // find the attribute code for this comma-delimited attribute.
