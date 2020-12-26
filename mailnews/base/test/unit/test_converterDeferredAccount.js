@@ -12,14 +12,17 @@ const { PromiseTestUtils } = ChromeUtils.import(
 var { convertMailStoreTo } = ChromeUtils.import(
   "resource:///modules/mailstoreConverter.jsm"
 );
-const { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
 const { allAccountsSorted } = ChromeUtils.import(
   "resource:///modules/folderUtils.jsm"
 );
 
 // XXX: merge into test_converter.js
 
-var log = Log.repository.getLogger("MailStoreConverter");
+var log = console.createInstance({
+  prefix: "mail.mailstoreconverter",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mail.mailstoreconverter.loglevel",
+});
 
 Services.prefs.setCharPref(
   "mail.serverDefaultStoreContractID",

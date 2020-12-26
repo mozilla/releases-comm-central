@@ -33,23 +33,13 @@
 const EXPORTED_SYMBOLS = ["JSAccountUtils"];
 var JSAccountUtils = {};
 
-const { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-// Logger definitions.
-const LOGGER_NAME = "JsAccount";
-const PREF_BRANCH_LOG = "mailnews.jsaccount.log.";
-const PREF_LOG_LEVEL = PREF_BRANCH_LOG + "level";
-const PREF_LOG_DUMP = PREF_BRANCH_LOG + "dump";
-
-// Set default logging levels.
-const LOG_LEVEL_DEFAULT = "Info";
-const LOG_DUMP_DEFAULT = true;
-
-// Logging usage: set mailnews.jsaccount.log.level to the word "Debug" to
+// Logging usage: set mailnews.jsaccount.loglevel to the word "Debug" to
 // increase logging level.
-
-var log = configureLogging();
+var log = console.createInstance({
+  prefix: "mail.jsaccount",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mail.jsaccount.loglevel",
+});
 
 /**
  *
@@ -222,10 +212,10 @@ JSAccountUtils.makeCppDelegator = function(aProperties) {
         "getInterface",
       ].includes(method)
     ) {
-      log.config("Skipping " + method + "\n");
+      log.debug("Skipping " + method);
       continue;
     }
-    log.config("processing " + method + "\n");
+    log.debug("Processing " + method);
     let descriptor = Object.getOwnPropertyDescriptor(cppDummy, method);
     let property = { enumerable: true };
     // We must use Immediately Invoked Function Expressions to pass method, otherwise it is
@@ -276,25 +266,4 @@ function getPropertyDescriptor(obj, name) {
     obj = Object.getPrototypeOf(obj);
   }
   return descriptor;
-}
-
-// Configure the logger based on the preferences.
-function configureLogging() {
-  let log = Log.repository.getLogger(LOGGER_NAME);
-
-  // Log messages need to go to the browser console.
-  let consoleAppender = new Log.ConsoleAppender(new Log.BasicFormatter());
-  log.addAppender(consoleAppender);
-
-  // Make sure the logger keeps up with the logging level preference.
-  log.level =
-    Log.Level[Services.prefs.getStringPref(PREF_LOG_LEVEL, LOG_LEVEL_DEFAULT)];
-
-  // If enabled in the preferences, add a dump appender.
-  let logDumping = Services.prefs.getBoolPref(PREF_LOG_DUMP, LOG_DUMP_DEFAULT);
-  if (logDumping) {
-    let dumpAppender = new Log.DumpAppender(new Log.BasicFormatter());
-    log.addAppender(dumpAppender);
-  }
-  return log;
 }

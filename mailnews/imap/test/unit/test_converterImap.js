@@ -6,7 +6,6 @@ var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { convertMailStoreTo } = ChromeUtils.import(
   "resource:///modules/mailstoreConverter.jsm"
 );
-var { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
 
 Services.prefs.setCharPref(
   "mail.serverDefaultStoreContractID",
@@ -22,7 +21,11 @@ load("../../../resources/asyncTestUtils.js");
 load("../../../resources/MessageGenerator.jsm");
 load("../../../resources/alertTestUtils.js");
 
-var log = Log.repository.getLogger("MailStoreConverter");
+var log = console.createInstance({
+  prefix: "mail.mailstoreconverter",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mail.mailstoreconverter.loglevel",
+});
 
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 

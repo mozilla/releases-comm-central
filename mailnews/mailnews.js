@@ -1102,4 +1102,8 @@ pref("mail.pgpmime.addon_url", "https://addons.mozilla.org/addon/enigmail/");
 
 pref("msgAsyncPrompter.loglevel", "Warn");
 
+pref("mail.mailstoreconverter.loglevel", "Warn");
+
+pref("mail.jsaccount.loglevel", "Warn");
+
 pref("mailnews.oauth.loglevel", "Warn");

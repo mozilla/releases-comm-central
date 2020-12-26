@@ -9,11 +9,12 @@ const { FileUtils } = ChromeUtils.import(
   "resource://gre/modules/FileUtils.jsm"
 );
 const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-const { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
 
-let log = Log.repository.getLogger("MailStoreConverter");
-log.level = Log.Level.Debug;
-log.addAppender(new Log.DumpAppender(new Log.BasicFormatter()));
+let log = console.createInstance({
+  prefix: "mail.mailstoreconverter",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mail.mailstoreconverter.loglevel",
+});
 
 let gConverterWorker = null;
 

@@ -10,7 +10,6 @@
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var { Log } = ChromeUtils.import("resource://gre/modules/Log.jsm");
 var { allAccountsSorted } = ChromeUtils.import(
   "resource:///modules/folderUtils.jsm"
 );
@@ -18,7 +17,11 @@ var MailstoreConverter = ChromeUtils.import(
   "resource:///modules/mailstoreConverter.jsm"
 );
 
-var log = Log.repository.getLogger("MailStoreConverter");
+var log = console.createInstance({
+  prefix: "mail.mailstoreconverter",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mail.mailstoreconverter.loglevel",
+});
 // {nsIMsgIncomingServer} server for the account to be migrated.
 var gServer;
 // {nsIMsgFolder} account root folder.
