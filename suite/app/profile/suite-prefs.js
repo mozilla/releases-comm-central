@@ -571,9 +571,8 @@ pref("extensions.logging.enabled", false);
 pref("extensions.strictCompatibility", false);
 
 // Disable add-ons installed into the shared user and shared system areas by
-// default. This does not include the application directory. See the SCOPE
-// constants in AddonManager.jsm for values to use here
-pref("extensions.autoDisableScopes", 15);
+// default. See the SCOPE constants in AddonManager.jsm for values to use here.
+pref("extensions.autoDisableScopes", 11);
 
 // Enable add-ons installed and owned by the application, like the default theme.
 pref("extensions.startupScanScopes", 4);

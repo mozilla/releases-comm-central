@@ -205,16 +205,14 @@ Section "-InstallStartCleanup"
     ; If ChatZilla is installed and this install includes ChatZilla remove it
     ; from the installation directory. This will remove it if the user
     ; deselected ChatZilla on the components page.
-    ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-      ${DeleteFile} "$INSTDIR\distribution\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
+    ${If} ${FileExists} "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
       ${DeleteFile} "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
       ${If} ${FileExists} "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}"
         RmDir /r "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}"
       ${EndIf}
     ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
-      ${DeleteFile} "$INSTDIR\distribution\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-      ${DeleteFile} "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
+    ${If} ${FileExists} "$EXEDIR\optional\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
+      ${DeleteFile} "$INSTDIR\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
       ${If} ${FileExists} "$INSTDIR\extensions\langpack-${AB_CD}@chatzilla.mozilla.org"
         RmDir /r "$INSTDIR\extensions\langpack-${AB_CD}@chatzilla.mozilla.org"
       ${EndIf}
@@ -223,8 +221,7 @@ Section "-InstallStartCleanup"
     ; If DOMi is installed and this install includes DOMi remove it from
     ; the installation directory. This will remove it if the user deselected
     ; DOMi on the components page.
-    ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\inspector@mozilla.org.xpi"
-      ${DeleteFile} "$INSTDIR\distribution\extensions\inspector@mozilla.org.xpi"
+    ${If} ${FileExists} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi"
       ${DeleteFile} "$INSTDIR\extensions\inspector@mozilla.org.xpi"
       ${If} ${FileExists} "$INSTDIR\extensions\inspector@mozilla.org"
         RmDir /r "$INSTDIR\extensions\inspector@mozilla.org"
@@ -234,8 +231,7 @@ Section "-InstallStartCleanup"
     ; If DebugQA is installed and this install includes DebugQA remove it
     ; from the installation directory. This will remove it if the user
     ; deselected DebugQA on the components page.
-    ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\debugQA@mozilla.org.xpi"
-      ${DeleteFile} "$INSTDIR\distribution\extensions\debugQA@mozilla.org.xpi"
+    ${If} ${FileExists} "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi"
       ${DeleteFile} "$INSTDIR\extensions\debugQA@mozilla.org.xpi"
       ${If} ${FileExists} "$INSTDIR\extensions\debugQA@mozilla.org"
         RmDir /r "$INSTDIR\extensions\debugQA@mozilla.org"
@@ -266,12 +262,6 @@ Section "-Application" APP_IDX
   ${CopyFilesFromDir} "$EXEDIR\core" "$INSTDIR" \
                       "$(ERROR_CREATE_DIRECTORY_PREFIX)" \
                       "$(ERROR_CREATE_DIRECTORY_SUFFIX)"
-
-  ; distribution/extensions must exist for the optional extensions to install
-  ; properly. Ensure it is present on install, no harm if it is empty.
-  ; CreateDirectory creates nested dirs if required. If already present we'll
-  ; Just fix ourselves on ClearErrors below
-  CreateDirectory "$INSTDIR\distribution\extensions"
 
   ; The MAPI DLL's are copied and the copies are then registered to lessen
   ; file in use errors on application update.
@@ -501,7 +491,7 @@ Section "-Application" APP_IDX
 SectionEnd
 
 Section /o "IRC Client" CZ_IDX
-  ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
+  ${If} ${FileExists} "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
     SetDetailsPrint both
     DetailPrint $(STATUS_INSTALL_OPTIONAL)
     SetDetailsPrint none
@@ -514,17 +504,17 @@ Section /o "IRC Client" CZ_IDX
     ${DeleteFile} "$INSTDIR\distribution\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
     ClearErrors
     ${LogHeader} "Installing IRC Client"
-    CopyFiles /SILENT "$EXEDIR\optional\distribution\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi" \
-                      "$INSTDIR\distribution\extensions\"
-    ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
-      CopyFiles /SILENT "$EXEDIR\optional\distribution\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi" \
-                        "$INSTDIR\distribution\extensions\"
+    CopyFiles /SILENT "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi" \
+                      "$INSTDIR\extensions\"
+    ${If} ${FileExists} "$EXEDIR\optional\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
+      CopyFiles /SILENT "$EXEDIR\optional\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi" \
+                        "$INSTDIR\extensions\"
     ${EndIf}
   ${EndIf}
 SectionEnd
 
 Section /o "Developer Tools" DOMI_IDX
-  ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\inspector@mozilla.org.xpi"
+  ${If} ${FileExists} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi"
     SetDetailsPrint both
     DetailPrint $(STATUS_INSTALL_OPTIONAL)
     SetDetailsPrint none
@@ -534,13 +524,13 @@ Section /o "Developer Tools" DOMI_IDX
     ${DeleteFile} "$INSTDIR\distribution\extensions\inspector@mozilla.org.xpi"
     ClearErrors
     ${LogHeader} "Installing Developer Tools"
-    CopyFiles /SILENT "$EXEDIR\optional\distribution\extensions\inspector@mozilla.org.xpi" \
-                      "$INSTDIR\distribution\extensions\"
+    CopyFiles /SILENT "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi" \
+                      "$INSTDIR\extensions\"
   ${EndIf}
 SectionEnd
 
 Section /o "Debug and QA Tools" DEBUG_IDX
-  ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\debugQA@mozilla.org.xpi"
+  ${If} ${FileExists} "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi"
     SetDetailsPrint both
     DetailPrint $(STATUS_INSTALL_OPTIONAL)
     SetDetailsPrint none
@@ -550,8 +540,8 @@ Section /o "Debug and QA Tools" DEBUG_IDX
     ${DeleteFile} "$INSTDIR\distribution\extensions\debugQA@mozilla.org.xpi"
     ClearErrors
     ${LogHeader} "Installing Debug and QA Tools"
-    CopyFiles /SILENT "$EXEDIR\optional\distribution\extensions\debugQA@mozilla.org.xpi" \
-                      "$INSTDIR\distribution\extensions\"
+    CopyFiles /SILENT "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi" \
+                      "$INSTDIR\extensions\"
   ${EndIf}
 SectionEnd
 
@@ -719,7 +709,7 @@ Function leaveComponents
   ; don't exist, debugQA will be Field 2).
   StrCpy $R1 2
 
- ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
+ ${If} ${FileExists} "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
     ${MUI_INSTALLOPTIONS_READ} $R0 "components.ini" "Field $R1" "State"
     ; State will be 1 for checked and 0 for unchecked so we can use that to set
     ; the section flags for installation.
@@ -729,7 +719,7 @@ Function leaveComponents
     SectionSetFlags ${CZ_IDX} 0 ; Disable install for chatzilla
   ${EndIf}
 
-  ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\inspector@mozilla.org.xpi"
+  ${If} ${FileExists} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi"
     ${MUI_INSTALLOPTIONS_READ} $R0 "components.ini" "Field $R1" "State"
     ; State will be 1 for checked and 0 for unchecked so we can use that to set
     ; the section flags for installation.
@@ -739,7 +729,7 @@ Function leaveComponents
     SectionSetFlags ${DOMI_IDX} 0 ; Disable install for DOMi
   ${EndIf}
 
-  ${If} ${FileExists} "$EXEDIR\optional\distribution\extensions\debugQA@mozilla.org.xpi"
+  ${If} ${FileExists} "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi"
     ${MUI_INSTALLOPTIONS_READ} $R0 "components.ini" "Field $R1" "State"
     ; State will be 1 for checked and 0 for unchecked so we can use that to set
     ; the section flags for installation.

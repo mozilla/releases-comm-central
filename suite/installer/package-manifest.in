@@ -510,20 +510,20 @@ man/*
 
 [chatzilla]
 #ifdef MOZ_IRC
-@RESPATH@/distribution/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi
+@RESPATH@/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi
 #ifdef LOCALE_BUILD
-@RESPATH@/distribution/extensions/langpack-@AB_CD@@chatzilla.mozilla.org.xpi
+@RESPATH@/extensions/langpack-@AB_CD@@chatzilla.mozilla.org.xpi
 #endif
 #endif
 
 [inspector]
 #ifdef MOZ_DOMINSPECTOR
-@RESPATH@/distribution/extensions/inspector@mozilla.org.xpi
+@RESPATH@/extensions/inspector@mozilla.org.xpi
 #endif
 
 [debugqa]
 #ifdef MOZ_PACKAGE_DEBUGQA
-@RESPATH@/distribution/extensions/debugQA@mozilla.org.xpi
+@RESPATH@/extensions/debugQA@mozilla.org.xpi
 #endif
 
 [calendar]
