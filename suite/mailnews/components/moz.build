@@ -7,4 +7,5 @@ DIRS += [
     "compose",
     "prefs",
     "addrbook",
+    "smime",
 ]
