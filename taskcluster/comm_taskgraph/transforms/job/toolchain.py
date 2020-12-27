@@ -7,7 +7,9 @@ Support for running toolchain-building jobs via dedicated scripts in comm-centra
 
 from __future__ import absolute_import, print_function, unicode_literals
 
+import os.path
 from voluptuous import Required
+import mozpack.path as mozpath
 from taskgraph.transforms.job import (
     configure_taskdesc_for_run,
     run_job_using,
@@ -20,8 +22,8 @@ from taskgraph.transforms.job.common import (
     docker_worker_add_artifacts,
 )
 
-# from taskgraph.util.hash import hash_paths
-from comm_taskgraph.util.hash import hash_paths_extended as hash_paths
+from taskgraph.util.hash import hash_paths as hash_paths_gecko_root
+from comm_taskgraph.util.hash import hash_paths_extended
 from taskgraph import GECKO
 import taskgraph
 
@@ -35,6 +37,21 @@ comm_toolchain_run_schema = toolchain_run_schema.extend(
         Required("using"): "comm-toolchain-script",
     }
 )
+
+
+def hash_paths(*args):
+    """
+    Helper function while the single repository project is in development.
+    The extended version of hash_paths found in comm_taskgraph.util.hash is
+    not necessary (and does not work) with single-repo. This is a wrapper
+    function to pick the right function based on the presence of a comm/.hg
+    directory.
+    """
+    comm_hg_path = mozpath.join(GECKO, "comm", ".hg")
+    if os.path.exists(comm_hg_path):
+        return hash_paths_extended(*args)
+    else:
+        return hash_paths_gecko_root(*args)
 
 
 def get_digest_data(config, run, taskdesc):
