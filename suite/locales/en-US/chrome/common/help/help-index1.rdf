@@ -623,11 +623,6 @@
          nc:link="using_certs_help.xhtml#about_security_devices_and_modules"/>
      </rdf:li>
      <rdf:li>
-       <rdf:Description ID="DOM_Inspector"
-         nc:name="DOM Inspector"
-         nc:link="developer_tools.xhtml#inspector"/>
-     </rdf:li>
-     <rdf:li>
        <rdf:Description ID="Download_Manager"
          nc:name="Download Manager"
          nc:link="nav_help.xhtml#plugins_and_downloads"/>

@@ -278,9 +278,6 @@
 @RESPATH@/chrome/icons/default/places.png
 @RESPATH@/chrome/icons/default/places16.png
 @RESPATH@/chrome/icons/default/places48.png
-@RESPATH@/chrome/icons/default/winInspectorMain.png
-@RESPATH@/chrome/icons/default/winInspectorMain16.png
-@RESPATH@/chrome/icons/default/winInspectorMain48.png
 #ifdef MOZ_UPDATER
 @RESPATH@/icons/updater.png
 #endif
@@ -300,7 +297,6 @@
 @RESPATH@/chrome/icons/default/main-window.ico
 @RESPATH@/chrome/icons/default/places.ico
 @RESPATH@/chrome/icons/default/script-file.ico
-@RESPATH@/chrome/icons/default/winInspectorMain.ico
 @RESPATH@/chrome/icons/default/xml-file.ico
 @RESPATH@/chrome/icons/default/xul-file.ico
 #endif
@@ -514,11 +510,6 @@ man/*
 #ifdef LOCALE_BUILD
 @RESPATH@/extensions/langpack-@AB_CD@@chatzilla.mozilla.org.xpi
 #endif
-#endif
-
-[inspector]
-#ifdef MOZ_DOMINSPECTOR
-@RESPATH@/extensions/inspector@mozilla.org.xpi
 #endif
 
 [debugqa]

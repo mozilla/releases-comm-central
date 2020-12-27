@@ -585,7 +585,7 @@ pref("extensions.experiments.enabled", true);
 // {972ce4c6-7e08-4474-a285-3208198ce6fd} default theme
 // {59c81df5-4b7a-477b-912d-4e0fdf64e5f2} chatZilla
 // {e2fda1a4-762b-4020-b5ad-a41df1933103} calendar
-pref("extensions.legacy.exceptions", "{972ce4c6-7e08-4474-a285-3208198ce6fd},debugQA@mozilla.org,modern@themes.mozilla.org,inspector@mozilla.org,{59c81df5-4b7a-477b-912d-4e0fdf64e5f2},{e2fda1a4-762b-4020-b5ad-a41df1933103}");
+pref("extensions.legacy.exceptions", "{972ce4c6-7e08-4474-a285-3208198ce6fd},debugQA@mozilla.org,modern@themes.mozilla.org,{59c81df5-4b7a-477b-912d-4e0fdf64e5f2},{e2fda1a4-762b-4020-b5ad-a41df1933103}");
 
 // Preferences for AMO integration
 pref("extensions.getAddons.cache.enabled", true);  // This also toggles personalized recommendations

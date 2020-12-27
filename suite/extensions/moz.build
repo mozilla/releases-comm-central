@@ -14,9 +14,4 @@ if CONFIG["MOZ_DEBUGQA"]:
 #         'irc',
 #     ]
 
-# if CONFIG['MOZ_DOMINSPECTOR']:
-#     DIRS += [
-#         'inspector',
-#     ]
-
 JAR_MANIFESTS += ["jar.mn"]

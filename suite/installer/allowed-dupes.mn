@@ -315,40 +315,6 @@ chrome/lightning/skin/windows/imip.css
 chrome/lightning/skin/linux/lightning-toolbar.css
 chrome/lightning/skin/osx/lightning-toolbar.css
 
-# DOMi
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/titledsplitter-close.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/titledsplitter-close.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/iconImportant.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/iconImportant.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/btnFind.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/btnFind.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/btnFind-dis.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/btnFind-dis.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/ImageSearchItem.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/ImageSearchItem.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/viewers/dom/findDialog.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/viewers/dom/findDialog.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/inspector.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/inspector.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/sidebar.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/sidebar.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/viewers/domNode/domNode.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/viewers/domNode/domNode.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/btnSelecting-dis.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/btnSelecting-dis.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/btnSelecting-act.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/btnSelecting-act.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/btnSelecting.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/btnSelecting.gif
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/viewers/accessibleTree/accessibleTree.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/viewers/accessibleTree/accessibleTree.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/viewers/boxModel/boxModel.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/viewers/boxModel/boxModel.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/viewers/accessibleProps/accessibleProps.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/viewers/accessibleProps/accessibleProps.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/classic/inspector/viewers/styleRules/styleRules.css
-extensions/inspector@mozilla.org/chrome/inspector/skin/modern/inspector/viewers/styleRules/styleRules.css
-
 # Linux
 chrome/icons/default/default16.png
 chrome/icons/default/main-window16.png

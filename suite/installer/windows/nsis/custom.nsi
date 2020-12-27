@@ -5,7 +5,6 @@
 !macro checkSuiteComponents
   ; If no extensions are available skip the components page
   ${Unless} ${FileExists} "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-  ${AndUnless} ${FileExists} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi"
   ${AndUnless} ${FileExists} "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi"
   ${AndUnless} ${FileExists} "$EXEDIR\optional\extensions\{f13b157f-b174-47e7-a34d-4815ddfdfeb8}.xpi"
     Abort
@@ -51,26 +50,6 @@
     SectionSetText ${CZ_IDX} ""
   ${EndIf}
 
-  ${If} ${FileExists} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi"
-    ; Set the details for DOMI
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Type   "checkbox"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Text   "$(DOMI_TITLE)"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Left   "15"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Right  "-1"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Top    "$R2"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Bottom "$R3"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" State  "1"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Flags  "GROUP"
-    ${GetSize} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi" "/S=0K" $0 $8 $9
-    SectionSetSize ${DOMI_IDX} $0
-    IntOp $R1 $R1 + 1
-    IntOp $R2 $R2 + $R4
-    IntOp $R3 $R3 + $R4
-  ${Else}
-    ; Hide DOMi in the components page if it isn't available.
-    SectionSetText ${DOMI_IDX} ""
-  ${EndIf}
-
   ${If} ${FileExists} "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi"
     WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Type   "checkbox"
     WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Text   "$(DEBUGQA_TITLE)"
@@ -99,18 +78,6 @@
   ${If} ${FileExists} "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
     WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Type   "label"
     WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Text   "$(CHATZILLA_TEXT)"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Left   "30"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Right  "-1"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Top    "$R2"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Bottom "$R3"
-    IntOp $R1 $R1 + 1
-    IntOp $R2 $R2 + $R4
-    IntOp $R3 $R3 + $R4
-  ${EndIf}
-
-  ${If} ${FileExists} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Type   "label"
-    WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Text   "$(DOMI_TEXT)"
     WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Left   "30"
     WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Right  "-1"
     WriteINIStr "$PLUGINSDIR\components.ini" "Field $R1" Top    "$R2"

@@ -218,16 +218,6 @@ Section "-InstallStartCleanup"
       ${EndIf}
     ${EndIf}
 
-    ; If DOMi is installed and this install includes DOMi remove it from
-    ; the installation directory. This will remove it if the user deselected
-    ; DOMi on the components page.
-    ${If} ${FileExists} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi"
-      ${DeleteFile} "$INSTDIR\extensions\inspector@mozilla.org.xpi"
-      ${If} ${FileExists} "$INSTDIR\extensions\inspector@mozilla.org"
-        RmDir /r "$INSTDIR\extensions\inspector@mozilla.org"
-      ${EndIf}
-    ${EndIf}
-
     ; If DebugQA is installed and this install includes DebugQA remove it
     ; from the installation directory. This will remove it if the user
     ; deselected DebugQA on the components page.
@@ -513,22 +503,6 @@ Section /o "IRC Client" CZ_IDX
   ${EndIf}
 SectionEnd
 
-Section /o "Developer Tools" DOMI_IDX
-  ${If} ${FileExists} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi"
-    SetDetailsPrint both
-    DetailPrint $(STATUS_INSTALL_OPTIONAL)
-    SetDetailsPrint none
-
-    ${RemoveDir} "$INSTDIR\extensions\inspector@mozilla.org"
-    ${DeleteFile} "$INSTDIR\extensions\inspector@mozilla.org.xpi"
-    ${DeleteFile} "$INSTDIR\distribution\extensions\inspector@mozilla.org.xpi"
-    ClearErrors
-    ${LogHeader} "Installing Developer Tools"
-    CopyFiles /SILENT "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi" \
-                      "$INSTDIR\extensions\"
-  ${EndIf}
-SectionEnd
-
 Section /o "Debug and QA Tools" DEBUG_IDX
   ${If} ${FileExists} "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi"
     SetDetailsPrint both
@@ -705,8 +679,7 @@ FunctionEnd
 
 Function leaveComponents
   ; If ChatZilla exists then it will be Field 2.
-  ; If ChatZilla doesn't exist then DOMi will be Field 2 (when ChatZilla and DOMi
-  ; don't exist, debugQA will be Field 2).
+  ; If ChatZilla doesn't exist then debugQA will be Field 2).
   StrCpy $R1 2
 
  ${If} ${FileExists} "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
@@ -717,16 +690,6 @@ Function leaveComponents
     IntOp $R1 $R1 + 1
   ${Else}
     SectionSetFlags ${CZ_IDX} 0 ; Disable install for chatzilla
-  ${EndIf}
-
-  ${If} ${FileExists} "$EXEDIR\optional\extensions\inspector@mozilla.org.xpi"
-    ${MUI_INSTALLOPTIONS_READ} $R0 "components.ini" "Field $R1" "State"
-    ; State will be 1 for checked and 0 for unchecked so we can use that to set
-    ; the section flags for installation.
-    SectionSetFlags ${DOMI_IDX} $R0
-    IntOp $R1 $R1 + 1
-  ${Else}
-    SectionSetFlags ${DOMI_IDX} 0 ; Disable install for DOMi
   ${EndIf}
 
   ${If} ${FileExists} "$EXEDIR\optional\extensions\debugQA@mozilla.org.xpi"
@@ -867,8 +830,7 @@ FunctionEnd
 
 Function leaveSummary
   ${If} $InstallType != ${INSTALLTYPE_CUSTOM}
-    ; Set DOM Inspector, ChatZilla to be installed
-    SectionSetFlags ${DOMI_IDX} 1
+    ; Set ChatZilla to be installed
     SectionSetFlags ${CZ_IDX} 1
   ${EndIf}
   ; Try to delete the app executable and if we can't delete it try to find the

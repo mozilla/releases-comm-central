@@ -275,12 +275,6 @@
             window.CheckGenerics,
             []
           ],
-        // DOM Inspector
-        "chrome://inspector/content/inspector.xul":
-          [
-            window.CheckGenerics,
-            []
-          ],
       };
 
       // run test

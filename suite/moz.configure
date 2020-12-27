@@ -128,23 +128,6 @@ def irc(arg):
 set_config("MOZ_IRC", irc)
 
 # =========================================================
-# = DOM Inspector extension
-# =========================================================
-option(
-    "--enable-dominspector",
-    default=False,
-    help="Enable building of the DOM Inspector extension",
-)
-
-
-@depends_if("--enable-dominspector")
-def dominspector(arg):
-    return True
-
-
-set_config("MOZ_DOMINSPECTOR", dominspector)
-
-# =========================================================
 # = DebugQA extension
 # =========================================================
 option(
