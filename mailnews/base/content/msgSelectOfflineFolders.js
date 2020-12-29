@@ -81,6 +81,12 @@ var gSelectOffline = {
       return;
     }
 
+    // We don't want to toggle when clicking on header or tree (scrollbar) or
+    // on treecol.
+    if (aEvent.target.nodeName != "treechildren") {
+      return;
+    }
+
     let treeCellInfo = this._treeElement.getCellAt(
       aEvent.clientX,
       aEvent.clientY
