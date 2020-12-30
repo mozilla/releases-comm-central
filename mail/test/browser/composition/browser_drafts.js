@@ -9,8 +9,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var {
   close_compose_window,
   get_compose_body,

@@ -8,7 +8,7 @@
 
 "use strict";
 
-var elementslib = ChromeUtils.import(
+var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 
@@ -131,7 +131,7 @@ function assert_ignore_works(aController) {
     kNotificationValue,
     { popup: "phishingOptions" }
   );
-  aController.click(new elementslib.Elem(prefButton));
+  aController.click(new elib.Elem(prefButton));
   aController.click_menus_in_sequence(aController.e("phishingOptions"), [
     { id: "phishingOptionIgnore" },
   ]);

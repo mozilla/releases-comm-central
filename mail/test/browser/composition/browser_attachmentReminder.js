@@ -8,7 +8,7 @@
 
 "use strict";
 
-var elementslib = ChromeUtils.import(
+var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 
@@ -172,7 +172,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
 
   // Click ok to be notified on send if no attachments are attached.
   cwc.click(
-    new elementslib.Elem(
+    new elib.Elem(
       cwc.e(kBoxId).querySelector('button[label="Remind Me Later"]')
     )
   );
@@ -353,9 +353,7 @@ function click_manual_reminder(aCwc, aExpectedState) {
   let button = aCwc.window.document.getElementById("button-attach");
 
   aCwc.click(
-    new elementslib.Elem(
-      button.querySelector(".toolbarbutton-menubutton-dropmarker")
-    )
+    new elib.Elem(button.querySelector(".toolbarbutton-menubutton-dropmarker"))
   );
   aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"), [
     { id: "button-attachPopup_remindLaterItem" },
@@ -732,7 +730,7 @@ add_task(function test_disabling_attachment_reminder() {
   let disableButton = get_notification_button(cwc, kBoxId, kNotificationId, {
     popup: "reminderBarPopup",
   });
-  cwc.click(new elementslib.Elem(disableButton.querySelector("dropmarker")));
+  cwc.click(new elib.Elem(disableButton.querySelector("dropmarker")));
   cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"), [
     { id: "disableReminder" },
   ]);
@@ -763,7 +761,7 @@ add_task(function test_disabling_attachment_reminder() {
   disableButton = get_notification_button(cwc, kBoxId, kNotificationId, {
     popup: "reminderBarPopup",
   });
-  cwc.click(new elementslib.Elem(disableButton.querySelector("dropmarker")));
+  cwc.click(new elib.Elem(disableButton.querySelector("dropmarker")));
   cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"), [
     { id: "disableReminder" },
   ]);

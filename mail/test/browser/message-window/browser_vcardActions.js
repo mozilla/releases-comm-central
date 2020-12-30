@@ -8,7 +8,7 @@
 
 "use strict";
 
-var elementslib = ChromeUtils.import(
+var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 
@@ -52,7 +52,7 @@ add_task(async function test_check_vcard_icon() {
     .contentDocument.querySelector(".moz-vcard-badge");
   // Check new card dialog opens.
   plan_for_modal_dialog("mailnews:newcarddialog", subtest_check_card);
-  msgc.click(new elementslib.Elem(vcard));
+  msgc.click(new elib.Elem(vcard));
   wait_for_modal_dialog("mailnews:newcarddialog");
 
   // Check new card was created from the vcard.

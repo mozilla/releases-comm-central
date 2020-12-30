@@ -8,7 +8,7 @@
 
 "use strict";
 
-var elementslib = ChromeUtils.import(
+var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 
@@ -239,8 +239,8 @@ add_task(function test_remove_file() {
     .getAttribute("value");
 
   // select first element
-  mc.click(new elementslib.Elem(firstElement));
-  mc.rightClick(new elementslib.Elem(firstElement));
+  mc.click(new elib.Elem(firstElement));
+  mc.rightClick(new elib.Elem(firstElement));
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);
@@ -283,9 +283,9 @@ add_task(function test_remove_multiple_files() {
   );
 
   // select two elements
-  mc.click(new elementslib.Elem(firstElement));
+  mc.click(new elib.Elem(firstElement));
   list.selectItemRange(firstElement, secondElement);
-  mc.rightClick(new elementslib.Elem(firstElement));
+  mc.rightClick(new elib.Elem(firstElement));
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);

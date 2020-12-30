@@ -6,7 +6,7 @@
 
 "use strict";
 
-var elementslib = ChromeUtils.import(
+var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 var EventUtils = ChromeUtils.import(
@@ -72,13 +72,13 @@ add_task(function test_spellcheck_in_content_tabs() {
   let eidMailContext = mc.eid("mailContext");
 
   // Test a few random items
-  mc.click(new elementslib.Elem(textarea));
+  mc.click(new elib.Elem(textarea));
   // Bug 364914 causes textareas to not be spell checked until they have been
   // focused at last once, so give the event loop a chance to spin.
   // Since bug 1370754 the inline spell checker waits 1 second, so let's
   // wait 2 seconds to be on the safe side.
   mc.sleep(2000);
-  mc.rightClick(new elementslib.Elem(textarea));
+  mc.rightClick(new elib.Elem(textarea));
   wait_for_popup_to_open(eidMailContext.getNode());
   assert_element_visible("mailContext-spell-dictionaries");
   assert_element_visible("mailContext-spell-check-enabled");
@@ -86,7 +86,7 @@ add_task(function test_spellcheck_in_content_tabs() {
   close_popup(mc, eidMailContext);
 
   // Different test
-  mc.rightClick(new elementslib.Elem(w.document.body.firstElementChild));
+  mc.rightClick(new elib.Elem(w.document.body.firstElementChild));
   wait_for_popup_to_open(eidMailContext.getNode());
   assert_element_not_visible("mailContext-spell-dictionaries");
   assert_element_not_visible("mailContext-spell-check-enabled");
@@ -139,7 +139,7 @@ add_task(function test_content_tab_context_menu() {
   wait_for_popup_to_open(mailContext);
   Assert.equal(mailContext.firstElementChild.label, "Click me!");
   assert_element_visible("page-menu-separator");
-  close_popup(mc, new elementslib.Elem(mailContext));
+  close_popup(mc, new elib.Elem(mailContext));
 
   // Make sure the page's menu items are *not* added on shift-right-click.
   EventUtils.synthesizeMouse(
@@ -152,7 +152,7 @@ add_task(function test_content_tab_context_menu() {
   wait_for_popup_to_open(mailContext);
   Assert.notEqual(mailContext.firstElementChild.label, "Click me!");
   assert_element_not_visible("page-menu-separator");
-  close_popup(mc, new elementslib.Elem(mailContext));
+  close_popup(mc, new elib.Elem(mailContext));
 });
 
 /*
@@ -160,7 +160,7 @@ add_task(function test_content_tab_context_menu() {
 add_task(function test_content_tab_open_same() {
   let preCount = mc.tabmail.tabContainer.allTabs.length;
 
-  mc.click(new elementslib.Elem(mc.menus.helpMenu.whatsNew));
+  mc.click(new elib.Elem(mc.menus.helpMenu.whatsNew));
 
   controller.sleep(0);
 

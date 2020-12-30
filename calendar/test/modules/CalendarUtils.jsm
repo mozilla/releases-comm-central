@@ -151,7 +151,6 @@ function helpersForController(controller) {
   return {
     lookup: sel => new elementslib.Lookup(controller.window.document, selector(sel)),
     eid: id => new elementslib.ID(controller.window.document, id),
-    xpath: path => new elementslib.XPath(controller.window.document, selector(path)),
     sleep: (timeout = MID_SLEEP) => controller.sleep(timeout),
     getEventBoxPath: (...args) => getEventBoxPath(controller, ...args),
     lookupEventBox: (view, option, row, column, hour, extra = "/") => {

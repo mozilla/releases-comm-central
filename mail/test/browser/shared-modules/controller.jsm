@@ -46,7 +46,7 @@ var EventUtils = ChromeUtils.import(
 
 var events = ChromeUtils.import("resource://testing-common/mozmill/events.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var elementslib = ChromeUtils.import(
+var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 
@@ -74,7 +74,7 @@ var Menu = function(controller, menuSelector, document) {
   if (node) {
     // We don't unwrap nodes automatically yet (Bug 573185)
     node = node.wrappedJSObject || node;
-    this._menu = new elementslib.Elem(node);
+    this._menu = new elib.Elem(node);
   } else {
     throw new Error("Menu element '" + menuSelector + "' not found.");
   }
@@ -139,7 +139,7 @@ Menu.prototype = {
       throw new Error("Menu entry '" + itemSelector + "' not found.");
     }
 
-    return new elementslib.Elem(node);
+    return new elib.Elem(node);
   },
 
   /**

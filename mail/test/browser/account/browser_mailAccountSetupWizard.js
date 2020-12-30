@@ -4,10 +4,6 @@
 
 "use strict";
 
-var elementslib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { open_mail_account_setup_wizard } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
@@ -285,8 +281,8 @@ function remember_password_test(aPrefValue) {
   mc.sleep(0);
   open_mail_account_setup_wizard(function(awc) {
     try {
-      let password = new elementslib.ID(awc.window.document, "password");
-      let rememberPassword = new elementslib.ID(
+      let password = new elib.ID(awc.window.document, "password");
+      let rememberPassword = new elib.ID(
         awc.window.document,
         "remember_password"
       );
