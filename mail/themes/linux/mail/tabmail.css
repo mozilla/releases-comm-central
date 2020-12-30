@@ -8,7 +8,7 @@
  * Tabmail Tabs
  */
 
-:root:not([tabsintitlebar]) > #navigation-toolbox:not(:-moz-lwtheme) {
+:root:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
   appearance: auto;
   -moz-default-appearance: menubar;
 }

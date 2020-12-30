@@ -102,18 +102,18 @@
     }
   }
 
-  :root[tabsintitlebar] > #titlebar:-moz-lwtheme {
+  :root[tabsintitlebar] #titlebar:-moz-lwtheme {
     visibility: hidden;
   }
   :root[tabsintitlebar] #titlebar-content:-moz-lwtheme {
     visibility: visible;
   }
 
-  :root[tabsintitlebar] > #titlebar {
+  :root[tabsintitlebar] #titlebar {
     appearance: auto;
     -moz-default-appearance: -moz-window-titlebar-maximized;
   }
-  :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) > #titlebar {
+  :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) #titlebar {
     appearance: auto;
     -moz-default-appearance: -moz-window-titlebar;
   }

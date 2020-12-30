@@ -78,7 +78,7 @@ search-value {
   width: -moz-available;
 }
 
-#messengerWindow[windowtype="mail:3pane"] > #LW-background-box:-moz-lwtheme {
+#messengerWindow[windowtype="mail:3pane"] #LW-background-box:-moz-lwtheme {
   z-index: -1;
 }
 
@@ -104,7 +104,7 @@ search-value {
   -moz-window-dragging: drag;
 }
 
-#messengerWindow:not([chromemargin]) > #titlebar {
+#messengerWindow:not([chromemargin]) #titlebar {
   display: none;
 }
 
@@ -250,7 +250,7 @@ iframe.devtools-highlighter-renderer {
 }
 
 /* Highlighter for the Developer Toolbox */
-:root > iframe.devtools-highlighter-renderer {
+:root iframe.devtools-highlighter-renderer {
   position: fixed;
   top: 0;
   left: 0;

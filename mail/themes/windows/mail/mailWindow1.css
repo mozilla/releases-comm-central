@@ -54,24 +54,22 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 /* ..... Draw in titlebar ..... */
 
-#messengerWindow[sizemode="normal"] > #titlebar {
+#messengerWindow[sizemode="normal"] #titlebar {
   appearance: auto;
   -moz-default-appearance: -moz-window-titlebar;
 }
 
-#messengerWindow[sizemode="maximized"] > #titlebar {
+#messengerWindow[sizemode="maximized"] #titlebar {
   appearance: auto;
   -moz-default-appearance: -moz-window-titlebar-maximized;
 }
 
 @media (-moz-windows-classic) {
-  #messengerWindow[tabsintitlebar] > #navigation-toolbox >
-  #mail-toolbar-menubar2 {
+  #messengerWindow[tabsintitlebar] #navigation-toolbox > #mail-toolbar-menubar2 {
     border-bottom: none;
   }
 
-  #messengerWindow[tabsintitlebar][sizemode="normal"] >
-  #navigation-toolbox > #mail-toolbar-menubar2 {
+  #messengerWindow[tabsintitlebar][sizemode="normal"] #navigation-toolbox > #mail-toolbar-menubar2 {
     margin-top: 4px;
   }
 }
@@ -178,7 +176,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   /* Artificially draw window borders that are covered by lwtheme,
      see bug 591930. win7 are uses different colors than win8 */
   @media (-moz-os-version: windows-win7) {
-    #messengerWindow[sizemode="normal"] > #titlebar >
+    #messengerWindow[sizemode="normal"] #titlebar >
     #titlebar-content:-moz-lwtheme {
       border-top: 1px solid;
       padding-top: 1px;
@@ -186,14 +184,14 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       box-shadow: 0 1px 0 rgba(255,255,255,.6) inset;
     }
 
-    #messengerWindow[sizemode="normal"] > #titlebar >
+    #messengerWindow[sizemode="normal"] #titlebar >
     #titlebar-content:-moz-lwtheme:-moz-window-inactive {
       border-top-color: rgb(102, 102, 102);
     }
   }
 
   @media (-moz-os-version: windows-win8) {
-    #messengerWindow[sizemode="normal"] > #titlebar >
+    #messengerWindow[sizemode="normal"] #titlebar >
     #titlebar-content:-moz-lwtheme {
       border-top: 1px solid hsla(209, 67%, 12%, 0.35);
     }
@@ -234,10 +232,8 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
           background-color: -moz-win-accentcolor;
         }
 
-        :root[tabsintitlebar] >
-          #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme),
-        :root[tabsintitlebar] >
-          #navigation-toolbox:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
+        :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme),
+        :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
           color: -moz-win-accentcolortext;
         }
 
@@ -626,7 +622,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   @media (-moz-windows-glass: 0) {
-    #messengerWindow:not([tabsintitlebar]) > #navigation-toolbox:not(:-moz-lwtheme) {
+    #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
       background-color: #d1d1d1;
     }
   }
@@ -691,7 +687,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
-  #messengerWindow:not([tabsintitlebar]) > #navigation-toolbox:not(:-moz-lwtheme) {
+  #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
     background-color: #d1d1d1;
   }
 

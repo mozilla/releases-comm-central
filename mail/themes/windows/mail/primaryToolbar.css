@@ -14,11 +14,11 @@
     margin-top: 3px;
   }
 
-  #messengerWindow[tabsintitlebar] > #navigation-toolbox:not(:-moz-lwtheme) {
+  #messengerWindow[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme) {
     color: CaptionText;
   }
 
-  #messengerWindow[tabsintitlebar] > #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
+  #messengerWindow[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
     color: InactiveCaptionText;
   }
 }
@@ -304,17 +304,16 @@
 
 @media (-moz-os-version: windows-win8) {
   @media (-moz-windows-default-theme) {
-    #messengerWindow[darkwindowframe="true"]:not(:-moz-lwtheme,:-moz-window-inactive) >
-      #navigation-toolbox {
+    #messengerWindow[darkwindowframe="true"]:not(:-moz-lwtheme,:-moz-window-inactive) #navigation-toolbox {
       color: white;
     }
   }
   @media (-moz-windows-default-theme: 0) {
-    #messengerWindow > #navigation-toolbox:not(:-moz-lwtheme) {
+    #messengerWindow #navigation-toolbox:not(:-moz-lwtheme) {
       color: CaptionText;
     }
 
-    #messengerWindow > #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
+    #messengerWindow #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
       color: InactiveCaptionText;
     }
   }

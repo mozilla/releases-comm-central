@@ -40,7 +40,7 @@ var teardownModule = function(module) {
 
 function waitForNotification(id, buttonToClickSelector, callback) {
   let path = `
-    /id("messengerWindow")/id("mainPopupSet")/id("notification-popup")/id("${id}-notification")
+    /id("messengerWindow")/{"class":"body"}/id("mainPopupSet")/id("notification-popup")/id("${id}-notification")
   `.trim();
   let notification = new elib.Lookup(gDocument, path);
   mc.waitForElement(notification);

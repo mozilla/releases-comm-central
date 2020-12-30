@@ -29,7 +29,8 @@ add_task(async function setupModule(module) {
   // paths
   let treeChildren = `${TASK_VIEW}/[2]/id("calendar-task-tree")/{"class":"calendar-task-treechildren"}`;
   let taskTree = TASK_VIEW + '[2]/id("calendar-task-tree")';
-  let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("taskTreeTooltip")';
+  let toolTip =
+    '/id("messengerWindow")/{"class":"body"}/id("calendar-popupset")/id("taskTreeTooltip")';
   let toolTipTable = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderTable"}/';
 
   // Open task view.

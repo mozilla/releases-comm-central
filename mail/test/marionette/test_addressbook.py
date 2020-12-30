@@ -41,7 +41,7 @@ class TestAddressBook(WindowManagerMixin, MarionetteTestCase):
         """Start the address book window"""
 
         def open_addressbook(_):
-            w = self.marionette.find_element(By.TAG_NAME, "window")
+            w = self.marionette.find_element(By.TAG_NAME, "html")
             w.send_keys(self.mod_key, Keys.SHIFT, "b")
 
         neww = self.open_window(callback=open_addressbook)

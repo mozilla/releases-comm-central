@@ -17,7 +17,7 @@
   text-shadow: 0 1px rgba(255, 255, 255, 0.4);
 }
 
-:root[tabsintitlebar][sizemode=normal] > #navigation-toolbox > #tabs-toolbar >
+:root[tabsintitlebar][sizemode=normal] #navigation-toolbox > #tabs-toolbar >
   #tabbar-toolbar {
   margin-inline-start: 40px;
 }

@@ -409,7 +409,7 @@ add_task(async function testCtrlEnterShortcut() {
 function checkTooltip(row, col, startTime, endTime) {
   let item = lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH);
 
-  let toolTip = '/id("messengerWindow")/id("calendar-popupset")/id("itemTooltip")';
+  let toolTip = '/id("messengerWindow")/{"class":"body"}/id("calendar-popupset")/id("itemTooltip")';
   let toolTipNode = lookup(toolTip).getNode();
   toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item.getNode() });
 

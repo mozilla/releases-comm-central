@@ -5,6 +5,21 @@
 @namespace xul url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+:root,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: clip;
+}
+
+#messengerWindow {
+  text-rendering: optimizeLegibility;
+  min-height: 95px;
+  min-width: 95px;
+}
+
 :root {
   --autocomplete-popup-background: Field;
   --autocomplete-popup-color: FieldText;
@@ -36,6 +51,10 @@
 
   --toolbarbutton-checked-background: rgba(200, 200, 200, .5);
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
+}
+
+:root:-moz-locale-dir(rtl) {
+  direction: rtl;
 }
 
 :root:-moz-lwtheme {
@@ -84,6 +103,12 @@
 
   /* composer header fields bottom border */
   --composer-header-border-color: rgb(127, 127, 128);
+}
+
+body {
+  display: -moz-box;
+  -moz-box-orient: vertical;
+  -moz-box-flex: 1;
 }
 
 toolbar[brighttext] {

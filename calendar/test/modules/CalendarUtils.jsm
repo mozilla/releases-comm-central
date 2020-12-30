@@ -80,7 +80,7 @@ var ALLDAY = 2; // Use when you need an allday canvas or event box.
 
 // Lookup paths and path-snippets.
 var CALENDAR_PANEL = `
-    /id("messengerWindow")/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
+    /id("messengerWindow")/{"class":"body"}/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
     id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")
 `;
 var VIEWDECK = `
@@ -114,7 +114,7 @@ var CALENDARLIST = `
     id("calendar-list-inner-pane")/id("calendar-list")
 `;
 var TODAY_PANE = `
-    /id("messengerWindow")/id("tabmail-container")/id("today-pane-panel")
+    /id("messengerWindow")/{"class":"body"}/id("tabmail-container")/id("today-pane-panel")
 `;
 var AGENDA_LISTBOX = `
     ${TODAY_PANE}/{"flex":"1"}/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")

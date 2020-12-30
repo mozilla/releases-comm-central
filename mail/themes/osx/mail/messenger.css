@@ -87,10 +87,8 @@
   height: 22px;
 }
 
-#messengerWindow:not([tabsintitlebar="true"]) >
-#titlebar:not(:-moz-lwtheme),
-#messengerWindow[sizemode="fullscreen"]:not([tabsintitlebar="true"]) >
-#titlebar {
+#messengerWindow:not([tabsintitlebar="true"]) #titlebar:not(:-moz-lwtheme),
+#messengerWindow[sizemode="fullscreen"]:not([tabsintitlebar="true"]) #titlebar {
   display: none;
 }
 
@@ -284,11 +282,11 @@ treecol.treecol-image:hover:active {
  * For tabs in titlebar on OS X, we stretch the titlebar down so that the
  * tabstrip can overlap it.
  */
-#messengerWindow[tabsintitlebar] > #titlebar {
+#messengerWindow[tabsintitlebar] #titlebar {
   min-height: calc(var(--tab-min-height) + var(--space-above-tabbar));
 }
 
-#messengerWindow[tabsintitlebar="true"]:not(:-moz-lwtheme) > #titlebar {
+#messengerWindow[tabsintitlebar="true"]:not(:-moz-lwtheme) #titlebar {
   appearance: auto;
   -moz-default-appearance: -moz-window-titlebar;
 }

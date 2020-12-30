@@ -46,7 +46,7 @@
 
 # All DTD information is stored in a separate file so that it can be shared by
 # hiddenWindowMac.xhtml.
-<!DOCTYPE window [
+<!DOCTYPE html [
 #include messenger-doctype.inc.dtd
 ]>
 
@@ -54,24 +54,199 @@
   - The 'what you think of when you think of thunderbird' window;
   -  3-pane view inside of tabs.
   -->
-<window id="messengerWindow"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns:svg="http://www.w3.org/2000/svg"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        icon="messengerWindow"
-        title="&titledefault.label;@PRE_RELEASE_SUFFIX@"
-        titlemodifier="&titledefault.label;@PRE_RELEASE_SUFFIX@"
-        titlemenuseparator="&titleSeparator.label;"
-        defaultTabTitle="&defaultTabTitle.label;"
-        onresize="OnResizeExpandedHeaderView()"
-        screenX="10" screenY="10"
-        persist="width height screenX screenY sizemode"
-        toggletoolbar="true"
-        windowtype="mail:3pane"
-        macanimationtype="document"
-        lightweightthemes="true"
-        fullscreenbutton="true"
-        calendar-deactivated="">
+<html id="messengerWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      icon="messengerWindow"
+      titlemodifier="&titledefault.label;@PRE_RELEASE_SUFFIX@"
+      titlemenuseparator="&titleSeparator.label;"
+      defaultTabTitle="&defaultTabTitle.label;"
+      windowtype="mail:3pane"
+      macanimationtype="document"
+      screenX="10" screenY="10"
+      scrolling="false"
+      persist="screenX screenY width height sizemode"
+      toggletoolbar="true"
+      lightweightthemes="true"
+      fullscreenbutton="true"
+      onresize="OnResizeExpandedHeaderView()"
+      calendar-deactivated="">
+<head>
+  <link rel="localization" href="branding/brand.ftl"/>
+  <link rel="localization" href="messenger/messenger.ftl"/>
+  <link rel="localization" href="toolkit/main-window/findbar.ftl"/>
+  <link rel="localization" href="toolkit/global/textActions.ftl"/>
+  <link rel="localization" href="messenger/menubar.ftl"/>
+  <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl"/>
+  <link rel="localization" href="calendar/calendar-widgets.ftl"/>
+  <link rel="localization" href="messenger/openpgp/msgReadStatus.ftl"/>
+  <link rel="localization" href="calendar/calendar-context-menus.ftl"/>
+
+  <title>&titledefault.label;@PRE_RELEASE_SUFFIX@</title>
+
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"/>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"/>
+  <script defer="defer" src="chrome://messenger/content/commandglue.js"/>
+  <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"/>
+  <script defer="defer" src="chrome://messenger/content/mailWindow.js"/>
+  <script defer="defer" src="chrome://messenger/content/selectionsummaries.js"/>
+  <script defer="defer" src="chrome://messenger/content/msgMail3PaneWindow.js"/>
+  <script defer="defer" src="chrome://messenger/content/specialTabs.js"/>
+  <!-- accountProvisionerTab.js relies on code from specialTabs.js, so it must be loaded after it. -->
+  <script defer="defer" src="chrome://messenger/content/newmailaccount/accountProvisionerTab.js"/>
+  <script defer="defer" src="chrome://messenger/content/glodaFacetTab.js"/>
+  <script defer="defer" src="chrome://gloda/content/overlay.js"/>
+  <script defer="defer" src="chrome://messenger/content/searchBar.js"/>
+  <script defer="defer" src="chrome://messenger/content/mail3PaneWindowCommands.js"/>
+  <script defer="defer" src="chrome://global/content/contentAreaUtils.js"/>
+  <script defer="defer" src="chrome://messenger/content/nsContextMenu.js"/>
+  <script defer="defer" src="chrome://messenger/content/mailContextMenus.js"/>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"/>
+  <script defer="defer" src="chrome://messenger/content/folderPane.js"/>
+  <script defer="defer" src="chrome://messenger/content/phishingDetector.js"/>
+  <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"/>
+  <script defer="defer" src="chrome://messenger/content/editContactPanel.js"/>
+  <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"/>
+  <script defer="defer" src="chrome://messenger/content/jsTreeView.js"/>
+  <script defer="defer" src="chrome://messenger/content/msgHdrView.js"/>
+  <script defer="defer" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
+  <script defer="defer" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
+#ifdef MOZ_OPENPGP
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"/>
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"/>
+#endif
+  <script defer="defer" src="chrome://messenger/content/chat/chat-messenger.js"/>
+  <script defer="defer" src="chrome://messenger/content/chat/imStatusSelector.js"/>
+  <script defer="defer" src="chrome://messenger/content/chat/imContextMenu.js"/>
+  <script defer="defer" src="chrome://messenger/content/chat/chat-conversation.js"/>
+  <script defer="defer" src="chrome://messenger/content/preferences/preferencesTab.js"/>
+  <script defer="defer" src="chrome://messenger/content/mailCore.js"/>
+  <script defer="defer" src="chrome://messenger/content/mailCommands.js"/>
+  <script defer="defer" src="chrome://messenger/content/junkCommands.js"/>
+  <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"/>
+  <script defer="defer" src="chrome://messenger/content/mailTabs.js"/>
+  <script defer="defer" src="chrome://messenger/content/messageDisplay.js"/>
+  <script defer="defer" src="chrome://messenger/content/folderDisplay.js"/>
+  <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
+  <script defer="defer" src="chrome://messenger/content/mail-offline.js"/>
+  <script defer="defer" src="chrome://global/content/printUtils.js"/>
+  <script defer="defer" src="chrome://messenger/content/msgViewPickerOverlay.js"/>
+  <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"/>
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"/>
+  <script defer="defer" src="chrome://messenger/content/quickFilterBar.js"/>
+  <script defer="defer" src="chrome://messenger/content/newmailaccount/uriListener.js"/>
+  <script defer="defer" src="chrome://messenger/content/chat/chat-conversation-info.js"/>
+  <script defer="defer" src="chrome://gloda/content/autocomplete-richlistitem.js"/>
+  <script defer="defer" src="chrome://gloda/content/glodacomplete.js"/>
+  <script defer="defer" src="chrome://messenger/content/chat/chat-contact.js"/>
+  <script defer="defer" src="chrome://messenger/content/chat/chat-group.js"/>
+  <script defer="defer" src="chrome://messenger/content/chat/chat-imconv.js"/>
+  <script defer="defer" src="chrome://messenger/content/tabbrowser-tab.js"/>
+  <script defer="defer" src="chrome://messenger/content/tabmail-tabs.js"/>
+  <script defer="defer" src="chrome://messenger/content/tabmail.js"/>
+  <script defer="defer" src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"/>
+  <script defer="defer" src="chrome://messenger/content/messenger-customization.js"/>
+  <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"/>
+  <!-- panelUI.js is for the appmenus. -->
+  <script defer="defer" src="chrome://messenger/content/customizableui/panelUI.js"/>
+#ifdef XP_MACOSX
+  <script defer="defer" src="chrome://messenger/content/macMessengerMenu.js"/>
+  <script defer="defer" src="chrome://global/content/macWindowMenu.js"/>
+#endif
+#ifdef XP_WIN
+  <script defer="defer" src="chrome://messenger/content/minimizeToTray.js"></script>
+#endif
+
+  <script defer="defer" src="chrome://messenger/content/threadPane.js"/>
+
+  <!-- calendar imip bar -->
+  <script defer="defer" src="chrome://lightning/content/lightning-utils.js"/>
+  <script defer="defer" src="chrome://lightning/content/imip-bar.js"/>
+  <!-- calendar-management.js also needed for multiple calendar support and today pane -->
+  <script defer="defer" src="chrome://calendar/content/calendar-management.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/calendar-tabs.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-modes.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/calendar-day-label.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/calendar-clipboard.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/import-export.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/publish.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/calendar-item-editing.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-chrome-startup.js"/>
+  <script defer="defer" src="chrome://calendar/content/mouseoverPreviews.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/calendar-views-utils.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-base-view.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-month-base-view.js"/>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-dnd-widgets.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-multiday-base-view.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-views.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-editable-item.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-month-view.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-multiday-view.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-event-column.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/calendar-dnd-listener.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-statusbar.js"/>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
+  <script defer="defer" src="chrome://calendar/content/widgets/calendar-modebox.js"/>
+
+  <!-- NEEDED FOR TASK VIEW/LIST SUPPORT -->
+  <script defer="defer" src="chrome://calendar/content/calendar-task-editing.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/calendar-extract.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/calendar-invitations-manager.js"/>
+
+  <!-- NEEDED FOR EVENT/TASK IN A TAB -->
+  <script defer="defer" src="chrome://lightning/content/lightning-item-panel.js"/>
+
+  <script defer="defer" src="chrome://calendar/content/calendar-command-controller.js"/>
+
+  <!-- NEEDED FOR TODAY PANE -->
+  <script defer="defer" src="chrome://calendar/content/agenda-listbox.js"/>
+  <script defer="defer" src="chrome://calendar/content/today-pane.js"/>
+  <script defer="defer" src="chrome://calendar/content/agenda-listbox-utils.js"/>
+
+  <!-- NEEDED FOR EVENTS VIEW (UNIFINDER) -->
+  <script defer="defer" src="chrome://calendar/content/calendar-unifinder.js"/>
+
+  <!-- NEEDED FOR TODAY PANE AND TASKS VIEW -->
+  <script defer="defer" src="chrome://calendar/content/calFilter.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-task-tree-utils.js"/>
+
+  <!-- NEEDED FOR TASK VIEW -->
+  <script defer="defer" src="chrome://calendar/content/calendar-task-tree-view.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-task-tree.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-task-view.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"/>
+  <script defer="defer" src="chrome://calendar/content/calApplicationUtils.js"/>
+  <script defer="defer" src="chrome://calendar/content/calendar-menus.js"/>
+
+  <!-- NEEDED FOR CALENDAR VIEWS -->
+  <script defer="defer" src="chrome://calendar/content/calendar-event-gripbar.js"/>
+
+  <!-- NEEDED FOR MIGRATION CHECK AT INSTALL -->
+  <script defer="defer" src="chrome://calendar/content/calendar-migration.js"/>
+
+  <script>
+    window.onload = gMailInit.onLoad.bind(gMailInit);
+    window.onunload = gMailInit.onUnload.bind(gMailInit);
+
+    window.addEventListener("MozBeforeInitialXULLayout",
+     gMailInit.onBeforeInitialXULLayout.bind(gMailInit), { once: true });
+  </script>
+
+  <style id="folderColorsStyle"></style>
+  <style id="folderColorsStylePreview"></style>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" class="body">
 
 <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
@@ -84,183 +259,6 @@
 <stringbundle id="bundle_read_smime" src="chrome://messenger-smime/locale/msgReadSMIMEOverlay.properties"/>
 <stringbundle id="bundle_smime_read_info" src="chrome://messenger-smime/locale/msgSecurityInfo.properties"/>
 
-<linkset>
-  <html:link rel="localization" href="branding/brand.ftl"/>
-  <html:link rel="localization" href="messenger/messenger.ftl"/>
-  <html:link rel="localization" href="toolkit/main-window/findbar.ftl"/>
-  <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
-  <html:link rel="localization" href="messenger/menubar.ftl"/>
-  <html:link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl"/>
-  <html:link rel="localization" href="calendar/calendar-widgets.ftl"/>
-  <html:link rel="localization" href="messenger/openpgp/msgReadStatus.ftl"/>
-  <html:link rel="localization" href="calendar/calendar-context-menus.ftl"/>
-</linkset>
-
-<script src="chrome://global/content/globalOverlay.js"/>
-<script src="chrome://global/content/editMenuOverlay.js"/>
-<script src="chrome://messenger/content/commandglue.js"/>
-<script src="chrome://messenger/content/msgViewNavigation.js"/>
-<script src="chrome://messenger/content/mailWindow.js"/>
-<script src="chrome://messenger/content/selectionsummaries.js"/>
-<script src="chrome://messenger/content/msgMail3PaneWindow.js"/>
-<script src="chrome://messenger/content/specialTabs.js"/>
-<!-- accountProvisionerTab.js relies on code from specialTabs.js, so it must be loaded after it. -->
-<script src="chrome://messenger/content/newmailaccount/accountProvisionerTab.js"/>
-<script src="chrome://messenger/content/glodaFacetTab.js"/>
-<script src="chrome://gloda/content/overlay.js"/>
-<script src="chrome://messenger/content/searchBar.js"/>
-<script src="chrome://messenger/content/mail3PaneWindowCommands.js"/>
-<script src="chrome://global/content/contentAreaUtils.js"/>
-<script src="chrome://messenger/content/nsContextMenu.js"/>
-<script src="chrome://messenger/content/mailContextMenus.js"/>
-<script src="chrome://messenger/content/accountUtils.js"/>
-<script src="chrome://messenger/content/folderPane.js"/>
-<script src="chrome://messenger/content/phishingDetector.js"/>
-<script src="chrome://communicator/content/contentAreaClick.js"/>
-<script src="chrome://messenger/content/editContactPanel.js"/>
-<script src="chrome://messenger/content/toolbarIconColor.js"/>
-<script src="chrome://messenger/content/jsTreeView.js"/>
-<script src="chrome://messenger/content/msgHdrView.js"/>
-<script src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
-<script src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
-#ifdef MOZ_OPENPGP
-<script src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"/>
-<script src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"/>
-#endif
-<script src="chrome://messenger/content/chat/chat-messenger.js"/>
-<script src="chrome://messenger/content/chat/imStatusSelector.js"/>
-<script src="chrome://messenger/content/chat/imContextMenu.js"/>
-<script src="chrome://messenger/content/chat/chat-conversation.js"/>
-<script src="chrome://messenger/content/preferences/preferencesTab.js"/>
-<script src="chrome://messenger/content/mailCore.js"/>
-<script src="chrome://messenger/content/mailCommands.js"/>
-<script src="chrome://messenger/content/junkCommands.js"/>
-<script src="chrome://messenger/content/mailWindowOverlay.js"/>
-<script src="chrome://messenger/content/mailTabs.js"/>
-<script src="chrome://messenger/content/messageDisplay.js"/>
-<script src="chrome://messenger/content/folderDisplay.js"/>
-<script src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
-<script src="chrome://messenger/content/mail-offline.js"/>
-<script src="chrome://global/content/printUtils.js"/>
-<script src="chrome://messenger/content/msgViewPickerOverlay.js"/>
-<script src="chrome://messenger/content/viewZoomOverlay.js"/>
-<script src="chrome://communicator/content/utilityOverlay.js"/>
-<script src="chrome://messenger/content/quickFilterBar.js"/>
-<script src="chrome://messenger/content/newmailaccount/uriListener.js"/>
-<script src="chrome://messenger/content/chat/chat-conversation-info.js"/>
-<script src="chrome://gloda/content/autocomplete-richlistitem.js"/>
-<script src="chrome://gloda/content/glodacomplete.js"/>
-<script src="chrome://messenger/content/chat/chat-contact.js"/>
-<script src="chrome://messenger/content/chat/chat-group.js"/>
-<script src="chrome://messenger/content/chat/chat-imconv.js"/>
-<script src="chrome://messenger/content/tabbrowser-tab.js"/>
-<script src="chrome://messenger/content/tabmail-tabs.js"/>
-<script src="chrome://messenger/content/tabmail.js"/>
-<script src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"/>
-<script src="chrome://messenger/content/messenger-customization.js"/>
-<script src="chrome://messenger/content/customizable-toolbar.js"/>
-<!-- panelUI.js is for the appmenus. -->
-<script src="chrome://messenger/content/customizableui/panelUI.js"/>
-#ifdef XP_MACOSX
-<script src="chrome://messenger/content/macMessengerMenu.js"/>
-<script src="chrome://global/content/macWindowMenu.js"/>
-#endif
-#ifdef XP_WIN
-<script src="chrome://messenger/content/minimizeToTray.js"></script>
-#endif
-
-<!-- move needed functions into a single js file -->
-<script src="chrome://messenger/content/threadPane.js"/>
-
-<!-- calendar imip bar -->
-<script src="chrome://lightning/content/lightning-utils.js"/>
-<script src="chrome://lightning/content/imip-bar.js"/>
-<!-- calendar-management.js also needed for multiple calendar support and today pane -->
-<script src="chrome://calendar/content/calendar-management.js"/>
-<script src="chrome://calendar/content/calendar-ui-utils.js"/>
-
-<script src="chrome://calendar/content/calendar-tabs.js"/>
-<script src="chrome://calendar/content/calendar-modes.js"/>
-
-<script src="chrome://calendar/content/calendar-day-label.js"/>
-
-<!-- NEEDED FOR CLIPBOARD SUPPORT -->
-<script src="chrome://calendar/content/calendar-clipboard.js"/>
-
-<!-- NEEDED FOR IMPORT / EXPORT SUPPORT -->
-<script src="chrome://calendar/content/import-export.js"/>
-
-<!-- NEEDED FOR PUBLICATION SUPPORT -->
-<script src="chrome://calendar/content/publish.js"/>
-
-<script src="chrome://calendar/content/calendar-item-editing.js"/>
-<script src="chrome://calendar/content/calendar-chrome-startup.js"/>
-<script src="chrome://calendar/content/mouseoverPreviews.js"/>
-
-<script src="chrome://calendar/content/calendar-views-utils.js"/>
-<script src="chrome://calendar/content/calendar-base-view.js"/>
-<script src="chrome://calendar/content/calendar-month-base-view.js"/>
-<script src="chrome://calendar/content/widgets/calendar-dnd-widgets.js"/>
-<script src="chrome://calendar/content/calendar-multiday-base-view.js"/>
-<script src="chrome://calendar/content/calendar-views.js"/>
-<script src="chrome://calendar/content/calendar-editable-item.js"/>
-<script src="chrome://calendar/content/calendar-month-view.js"/>
-<script src="chrome://calendar/content/calendar-multiday-view.js"/>
-<script src="chrome://calendar/content/calendar-event-column.js"/>
-
-<script src="chrome://calendar/content/calendar-dnd-listener.js"/>
-<script src="chrome://calendar/content/calendar-statusbar.js"/>
-<script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
-<script src="chrome://calendar/content/widgets/calendar-modebox.js"/>
-
-<!-- NEEDED FOR TASK VIEW/LIST SUPPORT -->
-<script src="chrome://calendar/content/calendar-task-editing.js"/>
-
-<script src="chrome://calendar/content/calendar-extract.js"/>
-
-<script src="chrome://calendar/content/calendar-invitations-manager.js"/>
-
-<!-- NEEDED FOR EVENT/TASK IN A TAB -->
-<script src="chrome://lightning/content/lightning-item-panel.js"/>
-
-<script src="chrome://calendar/content/calendar-command-controller.js"/>
-
-<!-- NEEDED FOR TODAY PANE -->
-<script src="chrome://calendar/content/agenda-listbox.js"/>
-<script src="chrome://calendar/content/today-pane.js"/>
-<script src="chrome://calendar/content/agenda-listbox-utils.js"/>
-
-<!-- NEEDED FOR EVENTS VIEW (UNIFINDER) -->
-<script src="chrome://calendar/content/calendar-unifinder.js"/>
-
-<!-- NEEDED FOR TODAY PANE AND TASKS VIEW -->
-<script src="chrome://calendar/content/calFilter.js"/>
-<script src="chrome://calendar/content/calendar-task-tree-utils.js"/>
-
-<!-- NEEDED FOR TASK VIEW -->
-<script src="chrome://calendar/content/calendar-task-tree-view.js"/>
-<script src="chrome://calendar/content/calendar-task-tree.js"/>
-<script src="chrome://calendar/content/calendar-task-view.js"/>
-<script src="chrome://calendar/content/calendar-dialog-utils.js"/>
-<script src="chrome://calendar/content/calApplicationUtils.js"/>
-<script src="chrome://calendar/content/calendar-menus.js"/>
-
-<!-- NEEDED FOR CALENDAR VIEWS -->
-<script src="chrome://calendar/content/calendar-event-gripbar.js"/>
-
-<!-- NEEDED FOR MIGRATION CHECK AT INSTALL -->
-<script src="chrome://calendar/content/calendar-migration.js"/>
-
-<script>
-  window.onload = gMailInit.onLoad.bind(gMailInit);
-  window.onunload = gMailInit.onUnload.bind(gMailInit);
-
-  window.addEventListener("MozBeforeInitialXULLayout",
-   gMailInit.onBeforeInitialXULLayout.bind(gMailInit), { once: true });
-</script>
-
-<html:style id="folderColorsStyle" type="text/css"></html:style>
-<html:style id="folderColorsStylePreview" type="text/css"></html:style>
 
 <commandset id="mailCommands">
 #include mainCommandSet.inc.xhtml
@@ -514,7 +512,6 @@
 
   <!-- navigation-toolbox with main menubar and tabs toolbar -->
 #include mainNavigationToolbox.inc.xhtml
-
     <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
       <tabs is="tabmail-tabs" id="tabmail-tabs"
             flex="1"
@@ -920,4 +917,5 @@
     <label id="totalMessageCount" class="statusbarpanel"/>
 #include ../../../calendar/lightning/content/calendar-status-bar.inc.xhtml
   </hbox>
-</window>
+</html:body>
+</html>

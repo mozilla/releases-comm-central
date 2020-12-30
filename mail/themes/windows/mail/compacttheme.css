@@ -63,7 +63,7 @@
 
 @media (-moz-os-version: windows-win7),
        (-moz-os-version: windows-win8) {
-  #messengerWindow > .statusbar {
+  #messengerWindow .statusbar {
     background-color: var(--lwt-accent-color);
   }
 
