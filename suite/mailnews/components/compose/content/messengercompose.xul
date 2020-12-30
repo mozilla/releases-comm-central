@@ -103,10 +103,6 @@
     <!--command id="cmd_find"/-->
     <!--command id="cmd_findNext"/-->
     <!--command id="cmd_findReplace"/-->
-    <command id="cmd_rewrap"
-             label="&editRewrapCmd.label;"
-             accesskey="&editRewrapCmd.accesskey;"
-             oncommand="goDoCommand('cmd_rewrap');"/>
     <command id="cmd_renameAttachment" oncommand="goDoCommand('cmd_renameAttachment')" disabled="true"/>
     <command id="cmd_openAttachment" oncommand="goDoCommand('cmd_openAttachment')"/>
     <command id="cmd_account"
@@ -135,9 +131,6 @@
     <!-- File Menu -->
     <key id="key_send" keycode="&sendCmd.keycode;" observes="cmd_sendWithCheck" modifiers="accel"/>
     <key id="key_sendLater" keycode="&sendLaterCmd.keycode;" observes="cmd_sendLater" modifiers="accel, shift"/>
-
-    <!-- Edit Menu -->
-    <key id="key_rewrap" key="&editRewrapCmd.key;" command="cmd_rewrap" modifiers="accel"/>
 
     <!-- Options Menu -->
     <!-- key id="key_selectAddresses" key="&selectAddressCmd.key;" command="cmd_selectAddress"/ -->

@@ -1916,9 +1916,11 @@ function SetEditMode(mode) {
       // Disable spell checking when previewing
       InlineSpellCheckerUI.enabled = false;
       inlineSpellCheckItem.removeAttribute("checked");
-    // fall through
+      inlineSpellCheckItem.setAttribute("disabled", true);
+      break;
     case kDisplayModeSource:
-      inlineSpellCheckItem.setAttribute("disabled", "true");
+      inlineSpellCheckItem.setAttribute("disabled", true);
+      goSetCommandEnabled("cmd_pasteQuote", false);
       break;
     default:
       inlineSpellCheckItem.setAttribute(

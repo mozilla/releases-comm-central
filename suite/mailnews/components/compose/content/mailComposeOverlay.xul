@@ -7,14 +7,6 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <menupopup id="menu_EditPopup" onpopupshowing="updateEditItems();">
-    <menuitem id="menu_pasteQuote"
-              insertafter="menu_pasteNoFormatting"
-              key="pastequotationkb"
-              command="cmd_pasteQuote"/>
-    <menuitem id="menu_rewrap"
-              insertafter="menu_pasteQuote"
-              key="key_rewrap"
-              command="cmd_rewrap"/>
     <menuitem id="menu_inlineSpellCheck"
               oncommand="EnableInlineSpellCheck(!InlineSpellCheckerUI.enabled);"/>
     <menuitem id="menu_accountmgr"

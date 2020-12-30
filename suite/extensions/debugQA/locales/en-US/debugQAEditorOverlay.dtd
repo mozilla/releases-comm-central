@@ -31,7 +31,6 @@
 
 <!ENTITY statusText.label "Done loading page">
 <!ENTITY editStripQuotesCmd.label "Strip Quotes">
-<!ENTITY editRewrapCmd.label "Rewrap">
 <!ENTITY insertFormMenu.label "Form">
 <!ENTITY insertFormMenu.accesskey "F">
 <!ENTITY insertFormCmd.label "Define Form…">
@@ -52,6 +51,3 @@
 <!ENTITY insertFieldSetCmd.accesskey "F">
 <!ENTITY insertIsIndexCmd.label "Index Search">
 <!ENTITY insertIsIndexCmd.accesskey "x">
-
-<!ENTITY pasteAsQuotationCmd.label "Paste As Quotation">
-<!ENTITY pasteAsQuotationCmd.accesskey "Q">

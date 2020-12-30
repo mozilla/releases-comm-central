@@ -2599,9 +2599,11 @@ var nsRewrapCommand = {
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
+    // We only want to respect new lines when using the web composer.
+    let respectNewLines = IsWebComposer();
     GetCurrentEditor()
       .QueryInterface(Ci.nsIEditorMailSupport)
-      .rewrap(false);
+      .rewrap(respectNewLines);
   },
 };
 

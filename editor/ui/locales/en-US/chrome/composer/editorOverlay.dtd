@@ -14,6 +14,9 @@
 <!ENTITY pasteAsQuotationCmd.label "Paste As Quotation">
 <!ENTITY pasteAsQuotationCmd.accesskey "Q">
 <!ENTITY pasteAsQuotationCmd.key "o">
+<!ENTITY editRewrapCmd.label "Rewrap">
+<!ENTITY editRewrapCmd.key "R">
+<!ENTITY editRewrapCmd.accesskey "w">
 <!ENTITY findBarCmd.label "Find…">
 <!ENTITY findReplaceCmd.label "Find and Replace…">
 <!ENTITY enableInlineSpellChecker.label "Spellcheck As You Type">

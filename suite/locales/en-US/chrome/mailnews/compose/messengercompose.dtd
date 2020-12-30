@@ -48,9 +48,6 @@
 <!ENTITY sendLaterCmd.accesskey "L">
 
 <!-- Edit menu items -->
-<!ENTITY editRewrapCmd.label "Rewrap">
-<!ENTITY editRewrapCmd.key "R">
-<!ENTITY editRewrapCmd.accesskey  "w">
 <!ENTITY accountManagerCmd.label "Mail &amp; Newsgroups Account Settings…">
 <!ENTITY accountManagerCmd.accesskey "m">
 
