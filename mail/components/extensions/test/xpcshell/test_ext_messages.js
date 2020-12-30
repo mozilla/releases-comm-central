@@ -7,8 +7,8 @@
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
+var { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm"
 );
 
 let account, rootFolder, subFolders;
@@ -184,56 +184,74 @@ add_task(async function test_update() {
   extension.sendMessage({ accountId: account.key, path: "/test0" });
 
   await extension.awaitMessage("flagged");
-  ok(message.isFlagged);
+  await TestUtils.waitForCondition(() => message.isFlagged);
   extension.sendMessage();
 
   await extension.awaitMessage("read");
-  ok(message.isRead);
+  await TestUtils.waitForCondition(() => message.isRead);
   extension.sendMessage();
 
   await extension.awaitMessage("junk");
-  equal(message.getStringProperty("junkscore"), 100);
+  await TestUtils.waitForCondition(
+    () => message.getStringProperty("junkscore") == 100
+  );
   extension.sendMessage();
 
   await extension.awaitMessage("tags1");
-  await PromiseTestUtils.promiseDelay(100);
   if (IS_IMAP) {
     // Only IMAP sets the junk/nonjunk keyword.
-    equal(message.getProperty("keywords"), "testkeyword junk $label1");
+    await TestUtils.waitForCondition(
+      () => message.getProperty("keywords") == "testkeyword junk $label1"
+    );
   } else {
-    equal(message.getProperty("keywords"), "testkeyword $label1");
+    await TestUtils.waitForCondition(
+      () => message.getProperty("keywords") == "testkeyword $label1"
+    );
   }
   extension.sendMessage();
 
   await extension.awaitMessage("tags2");
-  await PromiseTestUtils.promiseDelay(100);
   if (IS_IMAP) {
-    equal(message.getProperty("keywords"), "testkeyword junk $label2 $label3");
+    await TestUtils.waitForCondition(
+      () =>
+        message.getProperty("keywords") == "testkeyword junk $label2 $label3"
+    );
   } else {
-    equal(message.getProperty("keywords"), "testkeyword $label2 $label3");
+    await TestUtils.waitForCondition(
+      () => message.getProperty("keywords") == "testkeyword $label2 $label3"
+    );
   }
   extension.sendMessage();
 
   await extension.awaitMessage("empty");
-  await PromiseTestUtils.promiseDelay(100);
-  ok(message.isFlagged);
-  ok(message.isRead);
+  await TestUtils.waitForCondition(() => message.isFlagged);
+  await TestUtils.waitForCondition(() => message.isRead);
   if (IS_IMAP) {
-    equal(message.getProperty("keywords"), "testkeyword junk $label2 $label3");
+    await TestUtils.waitForCondition(
+      () =>
+        message.getProperty("keywords") == "testkeyword junk $label2 $label3"
+    );
   } else {
-    equal(message.getProperty("keywords"), "testkeyword $label2 $label3");
+    await TestUtils.waitForCondition(
+      () => message.getProperty("keywords") == "testkeyword $label2 $label3"
+    );
   }
   extension.sendMessage();
 
   await extension.awaitMessage("clear");
-  await PromiseTestUtils.promiseDelay(100);
-  ok(!message.isFlagged);
-  ok(!message.isRead);
-  equal(message.getStringProperty("junkscore"), 0);
+  await TestUtils.waitForCondition(() => !message.isFlagged);
+  await TestUtils.waitForCondition(() => !message.isRead);
+  await TestUtils.waitForCondition(
+    () => message.getStringProperty("junkscore") == 0
+  );
   if (IS_IMAP) {
-    equal(message.getProperty("keywords"), "testkeyword nonjunk");
+    await TestUtils.waitForCondition(
+      () => message.getProperty("keywords") == "testkeyword nonjunk"
+    );
   } else {
-    equal(message.getProperty("keywords"), "testkeyword");
+    await TestUtils.waitForCondition(
+      () => message.getProperty("keywords") == "testkeyword"
+    );
   }
   extension.sendMessage();
 
