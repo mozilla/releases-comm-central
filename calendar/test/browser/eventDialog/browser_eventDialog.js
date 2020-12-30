@@ -78,7 +78,6 @@ add_task(async function testEventDialog() {
 
   // Create new event on first day in view.
   controller.click(lookupEventBox("month", CANVAS_BOX, 1, 1, null));
-  controller.mainMenu.click("#calendar-new-event-menuitem");
 
   await invokeNewEventDialog(controller, null, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);

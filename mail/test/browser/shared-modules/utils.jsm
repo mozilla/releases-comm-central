@@ -37,66 +37,11 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = [
-  "Copy",
-  "getChromeWindow",
-  "getWindows",
-  "getWindowId",
-  "getMethodInWindows",
-  "sleep",
-  "unwrapNode",
-  "TimeoutError",
-  "waitFor",
-];
+var EXPORTED_SYMBOLS = ["sleep", "TimeoutError", "waitFor"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var hwindow = Services.appShell.hiddenDOMWindow;
-
-function Copy(obj) {
-  for (var n in obj) {
-    this[n] = obj[n];
-  }
-}
-
-function getChromeWindow(aWindow) {
-  return aWindow.docShell.rootTreeItem.domWindow;
-}
-
-function getWindows(type) {
-  if (type == undefined) {
-    type = "";
-  }
-  let windows = [...Services.wm.getEnumerator(type)];
-  if (type == "") {
-    windows.push(hwindow);
-  }
-  return windows;
-}
-
-function getMethodInWindows(methodName) {
-  for (var w of getWindows()) {
-    if (w[methodName] != undefined) {
-      return w[methodName];
-    }
-  }
-  throw new Error(
-    "Method with name: '" + methodName + "' is not in any open window."
-  );
-}
-
-/**
- * Retrieve the outer window id for the given window
- **/
-function getWindowId(aWindow) {
-  try {
-    // Normally we can retrieve the id via window utils
-    return aWindow.windowUtils.outerWindowID;
-  } catch (e) {
-    // ... but for observer notifications we need another interface
-    return aWindow.QueryInterface(Ci.nsISupportsPRUint64).data;
-  }
-}
 
 /**
  * Sleep for the given amount of milliseconds

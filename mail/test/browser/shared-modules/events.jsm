@@ -159,8 +159,8 @@ var triggerKeyEvent = function(
 
   // If we have an element check if it needs to be focused
   if (element.ownerDocument) {
-    let focusedElement = utils.getChromeWindow(win).document.commandDispatcher
-      .focusedElement;
+    let chromeWindow = win.docShell.rootTreeItem.domWindow;
+    let focusedElement = chromeWindow.document.commandDispatcher.focusedElement;
     let node = focusedElement;
     while (node && node != element) {
       node = node.parentNode;
