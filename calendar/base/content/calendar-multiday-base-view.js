@@ -667,36 +667,33 @@
      *
      * @param {Element} calViewElem    A calendar view element (calICalendarView).
      */
-    onResize(calViewElem) {
-      const self = calViewElem || this; // eslint-disable-line consistent-this
-      const isARelayout = !calViewElem;
-
+    onResize() {
       const scrollboxRect = this.scrollbox.getBoundingClientRect();
-      const isOrientHorizontal = self.getAttribute("orient") == "horizontal";
+      const isOrientHorizontal = this.getAttribute("orient") == "horizontal";
 
       const size = isOrientHorizontal ? scrollboxRect.width : scrollboxRect.height;
 
-      const ppmRaw = size / self.mVisibleMinutes;
+      const ppmRaw = size / this.mVisibleMinutes;
       const ppmRounded = Math.floor(ppmRaw * 1000) / 1000;
 
-      const ppm = ppmRounded < self.mMinPixelsPerMinute ? self.mMinPixelsPerMinute : ppmRounded;
+      const ppm = ppmRounded < this.mMinPixelsPerMinute ? this.mMinPixelsPerMinute : ppmRounded;
 
-      const ppmHasChanged = self.pixelsPerMinute != ppm;
-      self.pixelsPerMinute = ppm;
+      const ppmHasChanged = this.pixelsPerMinute != ppm;
+      this.pixelsPerMinute = ppm;
 
-      setTimeout(() => self.scrollToMinute(self.mFirstVisibleMinute), 0);
+      setTimeout(() => this.scrollToMinute(this.mFirstVisibleMinute), 0);
 
       // Fit the weekday labels while scrolling.
-      self.adjustWeekdayLength(isOrientHorizontal);
+      this.adjustWeekdayLength(isOrientHorizontal);
 
       // Adjust the time indicator position and the related timer.
       if (this.mTimeIndicatorInterval != 0) {
-        const viewHasChanged = isARelayout && timeIndicator.lastView != this.id;
+        const viewHasChanged = timeIndicator.lastView != this.id;
         if (
           gCurrentMode == "calendar" &&
           (!timeIndicator.timer || ppmHasChanged || viewHasChanged)
         ) {
-          self.updateTimeIndicatorPosition(true, ppmHasChanged, viewHasChanged);
+          this.updateTimeIndicatorPosition(true, ppmHasChanged, viewHasChanged);
         }
       }
     }

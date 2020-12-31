@@ -489,13 +489,11 @@
 
       this.setAttribute("type", this.type);
 
-      this.addEventListener(
-        "viewresize",
-        event => {
-          this.onResize(this);
-        },
-        true
-      );
+      window.addEventListener("viewresize", event => {
+        if (this.isVisible()) {
+          this.onResize();
+        }
+      });
 
       // Add a preference observer to monitor changes.
       Services.prefs.addObserver("calendar.", this.mPrefObserver);
@@ -529,7 +527,7 @@
      *
      * @param {calICalendarView} [calViewElem] - A calendar view element.
      */
-    onResize(calView) {
+    onResize() {
       // Child classes should provide the implementation.
       throw new Error(this.constructor.name + ".onResize not implemented");
     }

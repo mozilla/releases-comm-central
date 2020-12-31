@@ -981,6 +981,7 @@ function toggleUnifinder() {
   // Toggle the elements
   goToggleToolbar("bottom-events-box", "calendar_show_unifinder_command");
   goToggleToolbar("calendar-view-splitter");
+  window.dispatchEvent(new CustomEvent("viewresize"));
 
   unifinderTreeView.treeElement.view = unifinderTreeView;
 

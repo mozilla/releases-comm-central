@@ -47,7 +47,7 @@ var TodayPane = {
     TodayPane.showTodayPaneStatusLabel();
 
     document.getElementById("today-splitter").addEventListener("command", () => {
-      document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
+      window.dispatchEvent(new CustomEvent("viewresize"));
     });
 
     Services.obs.addObserver(TodayPane, "defaultTimezoneChanged");
@@ -133,7 +133,7 @@ var TodayPane = {
       }
     }
 
-    document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
+    window.dispatchEvent(new CustomEvent("viewresize"));
   },
 
   /**

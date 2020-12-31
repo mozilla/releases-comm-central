@@ -93,7 +93,7 @@ function calSwitchToCalendarMode() {
     window.setCursor("auto");
 
     // make sure the view is sized correctly
-    document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
+    window.dispatchEvent(new CustomEvent("viewresize"));
 
     // Load the unifinder if it isn't already loaded.
     ensureUnifinderLoaded();

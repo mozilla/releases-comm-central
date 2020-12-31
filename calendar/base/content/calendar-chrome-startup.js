@@ -73,10 +73,13 @@ async function loadCalendarComponent() {
   // Start alarm service
   Cc["@mozilla.org/calendar/alarm-service;1"].getService(Ci.calIAlarmService).startup();
   document.getElementById("calsidebar_splitter").addEventListener("command", () => {
-    document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
+    window.dispatchEvent(new CustomEvent("viewresize"));
+  });
+  document.getElementById("calendar-view-splitter").addEventListener("command", () => {
+    window.dispatchEvent(new CustomEvent("viewresize"));
   });
   window.addEventListener("resize", () => {
-    document.dispatchEvent(new CustomEvent("viewresize", { bubbles: true }));
+    window.dispatchEvent(new CustomEvent("viewresize"));
   });
 
   // Set calendar color CSS on this window

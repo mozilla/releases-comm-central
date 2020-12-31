@@ -380,8 +380,8 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
      *
      * @param {Element} viewElement    A calendar view element (calICalendarView).
      */
-    onResize(viewElement) {
-      viewElement.adjustWeekdayLength();
+    onResize() {
+      this.adjustWeekdayLength();
       // Delete the timer for the time indicator in day/week view.
       timeIndicator.cancel();
     }
