@@ -65,6 +65,25 @@
              oncommand="goDoCommand('cmd_publishSettings');"/>
   </commandset>
 
+  <commandset id="composerMenuItems">
+    <command id="cmd_form"
+             oncommand="goDoCommand('cmd_form');"/>
+    <command id="cmd_inputtag"
+             oncommand="goDoCommand('cmd_inputtag');"/>
+    <command id="cmd_inputimage"
+             oncommand="goDoCommand('cmd_inputimage');"/>
+    <command id="cmd_textarea"
+             oncommand="goDoCommand('cmd_textarea');"/>
+    <command id="cmd_select"
+             oncommand="goDoCommand('cmd_select');"/>
+    <command id="cmd_button"
+             oncommand="goDoCommand('cmd_button');"/>
+    <command id="cmd_label"
+             oncommand="goDoCommand('cmd_label');"/>
+    <command id="cmd_fieldset"
+             oncommand="goDoCommand('cmd_fieldset');"/>
+  </commandset>
+
   <commandset id="editorCommands">
     <command id="cmd_CustomizeToolbars"
              oncommand="goCustomizeToolbar(getEditorToolbox());"/>
@@ -154,6 +173,41 @@
 
   <menupopup id="menu_View_Popup">
     <menu id="menu_zoom" insertbefore="charsetMenu"/>
+  </menupopup>
+
+  <menupopup id="insertMenuPopup">
+    <menu id="insertFormMenu"
+          insertafter="insertTOC"
+          label="&insertFormMenu.label;"
+          accesskey="&insertFormMenu.accesskey;">
+      <menupopup id="formMenuPopup">
+        <menuitem label="&insertFormCmd.label;"
+                  accesskey="&insertFormCmd.accesskey;"
+                  command="cmd_form"/>
+        <menuseparator/>
+        <menuitem label="&insertInputTagCmd.label;"
+                  accesskey="&insertInputTagCmd.accesskey;"
+                  command="cmd_inputtag"/>
+        <menuitem label="&insertInputImageCmd.label;"
+                  accesskey="&insertInputImageCmd.accesskey;"
+                  command="cmd_inputimage"/>
+        <menuitem label="&insertTextAreaCmd.label;"
+                  accesskey="&insertTextAreaCmd.accesskey;"
+                  command="cmd_textarea"/>
+        <menuitem label="&insertSelectCmd.label;"
+                  accesskey="&insertSelectCmd.accesskey;"
+                  command="cmd_select"/>
+        <menuitem label="&insertButtonCmd.label;"
+                  accesskey="&insertButtonCmd.accesskey;"
+                  command="cmd_button"/>
+        <menuitem label="&insertLabelCmd.label;"
+                  accesskey="&insertLabelCmd.accesskey;"
+                  command="cmd_label"/>
+        <menuitem label="&insertFieldSetCmd.label;"
+                  accesskey="&insertFieldSetCmd.accesskey;"
+                  command="cmd_fieldset"/>
+      </menupopup>
+    </menu>
   </menupopup>
 
   <!-- Toolbar buttons/items -->

@@ -32,32 +32,6 @@
         <menuitem label="&insertTextCmd.label;"
                   oncommand="EditorInsertText('All good things come to those who wait. ')"/>
         <menuseparator/>
-        <menu accesskey="&insertFormMenu.accesskey;" id="insertFormMenu"
-              label="&insertFormMenu.label;">
-          <menupopup>
-            <menuitem accesskey="&insertFormCmd.accesskey;" command="cmd_form"
-                      label="&insertFormCmd.label;"/>
-            <menuseparator/>
-            <menuitem accesskey="&insertInputTagCmd.accesskey;"
-                      command="cmd_inputtag" label="&insertInputTagCmd.label;"/>
-            <menuitem accesskey="&insertInputImageCmd.accesskey;"
-                      command="cmd_inputimage"
-                      label="&insertInputImageCmd.label;"/>
-            <menuitem accesskey="&insertTextAreaCmd.accesskey;"
-                      command="cmd_textarea" label="&insertTextAreaCmd.label;"/>
-            <menuitem accesskey="&insertSelectCmd.accesskey;" command="cmd_select"
-                      label="&insertSelectCmd.label;"/>
-            <menuitem accesskey="&insertButtonCmd.accesskey;"
-                      command="cmd_button" label="&insertButtonCmd.label;"/>
-            <menuitem accesskey="&insertLabelCmd.accesskey;" command="cmd_label"
-                      label="&insertLabelCmd.label;"/>
-            <menuitem accesskey="&insertFieldSetCmd.accesskey;"
-                      command="cmd_fieldset" label="&insertFieldSetCmd.label;"/>
-            <menuseparator/>
-            <menuitem accesskey="&insertIsIndexCmd.accesskey;"
-                      command="cmd_isindex" label="&insertIsIndexCmd.label;"/>
-          </menupopup>
-        </menu>
         <menuitem label="&testSelectionCmd.label;"
                   oncommand="EditorTestSelection()"/>
         <menuitem label="&testTableLayoutCmd.label;"
