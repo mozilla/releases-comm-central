@@ -123,7 +123,6 @@
 
   <broadcasterset id="composeBroadcasters">
     <broadcaster id="Communicator:WorkMode"/>
-    <broadcaster id="args" value="editorType=default"/>
     <broadcaster id="securityStatus" crypto="" signing=""/>
   </broadcasterset>
 
