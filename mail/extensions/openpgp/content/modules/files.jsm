@@ -8,6 +8,7 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailFiles"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -15,19 +16,10 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailOS: "chrome://openpgp/content/modules/os.jsm",
+  EnigmailStreams: "enigmail/streams.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   OS: "resource://gre/modules/osfile.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
-
-const { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
-);
-
-const lazyStream = EnigmailLazy.loader(
-  "enigmail/streams.jsm",
-  "EnigmailStreams"
-);
-const lazyLog = EnigmailLazy.loader("enigmail/log.jsm", "EnigmailLog");
 
 const NS_FILE_CONTRACTID = "@mozilla.org/file/local;1";
 const NS_LOCALFILEOUTPUTSTREAM_CONTRACTID =
@@ -93,7 +85,7 @@ var EnigmailFiles = {
   },
 
   resolvePath(filePath, envPath, isDosLike) {
-    lazyLog().DEBUG("files.jsm: resolvePath: filePath=" + filePath + "\n");
+    EnigmailLog.DEBUG("files.jsm: resolvePath: filePath=" + filePath + "\n");
 
     if (EnigmailFiles.isAbsolutePath(filePath, isDosLike)) {
       return filePath;
@@ -112,7 +104,7 @@ var EnigmailFiles = {
         try {
           const pathDir = Cc[NS_FILE_CONTRACTID].createInstance(Ci.nsIFile);
 
-          lazyLog().DEBUG(
+          EnigmailLog.DEBUG(
             "files.jsm: resolvePath: checking for " +
               pathDirs[j] +
               "/" +
@@ -171,7 +163,7 @@ var EnigmailFiles = {
 
       return fileStream;
     } catch (ex) {
-      lazyLog().ERROR(
+      EnigmailLog.ERROR(
         "files.jsm: createFileStream: Failed to create " + filePath + "\n"
       );
       return null;
@@ -422,7 +414,7 @@ var EnigmailFiles = {
       }
       fileOutStream.close();
     } catch (ex) {
-      lazyLog().ERROR(
+      EnigmailLog.ERROR(
         "files.jsm: writeFileContents: Failed to write to " + filePath + "\n"
       );
       return false;
@@ -440,10 +432,10 @@ var EnigmailFiles = {
    * no return value
    */
   writeUrlToFile(srcUrl, outFile) {
-    lazyLog().DEBUG("files.jsm: writeUrlToFile(" + outFile.path + ")\n");
+    EnigmailLog.DEBUG("files.jsm: writeUrlToFile(" + outFile.path + ")\n");
 
     var msgUri = Services.io.newURI(srcUrl);
-    var channel = lazyStream().createChannel(msgUri);
+    var channel = EnigmailStreams.createChannel(msgUri);
     var istream = channel.open();
 
     var fstream = Cc[
@@ -559,7 +551,7 @@ var EnigmailFiles = {
 
       return true;
     } catch (ex) {
-      lazyLog().ERROR(
+      EnigmailLog.ERROR(
         "files.jsm: extractZipFile: Failed to create ZIP: " + ex + "\n"
       );
       return false;

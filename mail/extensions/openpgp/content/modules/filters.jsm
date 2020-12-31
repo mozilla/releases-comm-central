@@ -8,6 +8,9 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailFilters"];
 
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -19,22 +22,19 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
-
-const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
 var gNewMailListenerInitiated = false;
 
@@ -63,7 +63,7 @@ const filterActionMoveDecrypt = {
 
   validateActionValue(value, folder, type) {
     l10n.formatValue("filter-decrypt-move-warn-experimental").then(value => {
-      getDialog().alert(null, value);
+      EnigmailDialog.alert(null, value);
     });
 
     if (value === "") {
@@ -224,7 +224,7 @@ const filterActionEncrypt = {
           desc: value,
         })
         .then(value => {
-          getDialog().alert(null, value);
+          EnigmailDialog.alert(null, value);
         });
     }
 

@@ -15,19 +15,14 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
-  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
-
-const getKeyRing = EnigmailLazy.loader(
-  "enigmail/keyRing.jsm",
-  "EnigmailKeyRing"
-);
-const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
 var EnigmailKey = {
   /**
@@ -71,7 +66,7 @@ var EnigmailKey = {
    * message in case of failures.
    */
   importRevocationCert(keyId, keyBlockStr) {
-    let key = getKeyRing().getKeyById(keyId);
+    let key = EnigmailKeyRing.getKeyById(keyId);
 
     if (key) {
       if (key.keyTrust === "r") {
@@ -81,12 +76,12 @@ var EnigmailKey = {
             keyId,
           })
           .then(value => {
-            getDialog().info(null, value);
+            EnigmailDialog.info(null, value);
           });
       } else {
         let userId = key.userId + " - 0x" + key.keyId;
         if (
-          !getDialog().confirmDlg(
+          !EnigmailDialog.confirmDlg(
             null,
             l10n.formatValueSync("revoke-key-question", { userId }),
             l10n.formatValueSync("key-man-button-revoke-key")
@@ -100,7 +95,7 @@ var EnigmailKey = {
         // calling a different function for importing revocation
         // signatures, see RNP.importRevImpl
         if (
-          getKeyRing().importKey(
+          EnigmailKeyRing.importKey(
             null,
             false,
             keyBlockStr,
@@ -109,7 +104,7 @@ var EnigmailKey = {
             errorMsgObj
           ) > 0
         ) {
-          getDialog().alert(null, errorMsgObj.value);
+          EnigmailDialog.alert(null, errorMsgObj.value);
         }
       }
     } else {
@@ -119,7 +114,7 @@ var EnigmailKey = {
           keyId,
         })
         .then(value => {
-          getDialog().alert(null, value);
+          EnigmailDialog.alert(null, value);
         });
     }
   },

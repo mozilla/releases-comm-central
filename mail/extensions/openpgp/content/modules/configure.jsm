@@ -18,13 +18,11 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   // EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   // EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   // EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
-  // EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
   // EnigmailLocale: "chrome://openpgp/content/modules/locale.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   // EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   // EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
-  // EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
-  // MailServices: "resource:///modules/MailServices.jsm",
+  // EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm"
 });
 
 var EnigmailConfigure = {

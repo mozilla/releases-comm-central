@@ -8,6 +8,9 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailKeyUsability"];
 
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -15,25 +18,16 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
+  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
-
-const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
-const getWindows = EnigmailLazy.loader(
-  "enigmail/windows.jsm",
-  "EnigmailWindows"
-);
-const getKeyRing = EnigmailLazy.loader(
-  "enigmail/keyRing.jsm",
-  "EnigmailKeyRing"
-);
 
 const DAY = 86400; // number of seconds of 1 day
 
@@ -59,9 +53,9 @@ var EnigmailKeyUsability = {
       let key;
 
       if (keySpec.search(/^(0x)?[0-9A-F]{8,40}$/i) === 0) {
-        key = getKeyRing().getKeyById(keySpec);
+        key = EnigmailKeyRing.getKeyById(keySpec);
       } else {
-        key = getKeyRing().getSecretKeyByEmail(keySpec);
+        key = EnigmailKeyRing.getSecretKeyByEmail(keySpec);
       }
       if (!key) {
         return p;
@@ -223,12 +217,12 @@ var EnigmailKeyUsability = {
       let key;
 
       if (keySpec.search(/^(0x)?[0-9A-F]{8,40}$/i) === 0) {
-        key = getKeyRing().getKeyById(keySpec);
+        key = EnigmailKeyRing.getKeyById(keySpec);
         if (!key) {
           return p;
         }
       } else {
-        key = getKeyRing().getSecretKeyByEmail(keySpec);
+        key = EnigmailKeyRing.getSecretKeyByEmail(keySpec);
         if (!key) {
           return p;
         }
@@ -315,7 +309,7 @@ var EnigmailKeyUsability = {
       }
 
       let checkedObj = {};
-      let r = getDialog().msgBox(
+      let r = EnigmailDialog.msgBox(
         null,
         {
           msgtext: msg,
@@ -334,10 +328,10 @@ var EnigmailKeyUsability = {
       if (r == 1) {
         if (resultObj && resultObj.Count === 1) {
           // single key is concerned, open key details dialog
-          getWindows().openKeyDetails(null, resultObj.keyId, false);
+          EnigmailWindows.openKeyDetails(null, resultObj.keyId, false);
         } else {
           // Multiple keys concerned, open Key Manager
-          getWindows().openKeyManager(null);
+          EnigmailWindows.openKeyManager(null);
         }
       }
     }

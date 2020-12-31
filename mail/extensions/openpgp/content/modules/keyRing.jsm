@@ -8,6 +8,7 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailKeyRing"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -16,25 +17,19 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
-  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
+  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   newEnigmailKeyObj: "chrome://openpgp/content/modules/keyObj.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
-  Services: "resource://gre/modules/Services.jsm",
   uidHelper: "chrome://openpgp/content/modules/uidHelper.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
-
-const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
-const getWindows = EnigmailLazy.loader(
-  "enigmail/windows.jsm",
-  "EnigmailWindows"
-);
 
 const DEFAULT_FILE_PERMS = 0o600;
 
@@ -86,7 +81,7 @@ var EnigmailKeyRing = {
   getAllKeys(win, sortColumn, sortDirection) {
     if (gKeyListObj.keySortList.length === 0) {
       loadKeyList(win, sortColumn, sortDirection);
-      //getWindows().keyManReloadKeys();
+      //EnigmailWindows.keyManReloadKeys();
       /* TODO: do we need something similar with TB's future trust behavior?
       if (!gKeyCheckDone) {
         gKeyCheckDone = true;
@@ -328,7 +323,7 @@ var EnigmailKeyRing = {
     }
 
     EnigmailKeyRing.clearCache();
-    getWindows().keyManReloadKeys();
+    EnigmailWindows.keyManReloadKeys();
   },
 
   /**
@@ -374,12 +369,12 @@ var EnigmailKeyRing = {
         failed =
           !res || res.exitCode || !res.importedKeys || !res.importedKeys.length;
       } catch (ex) {
-        getDialog().alert(win, ex);
+        EnigmailDialog.alert(win, ex);
       }
 
       if (failed) {
         if (!permissive) {
-          let agreed = getDialog().confirmDlg(
+          let agreed = EnigmailDialog.confirmDlg(
             win,
             l10n.formatValueSync("confirm-permissive-import")
           );
@@ -388,7 +383,7 @@ var EnigmailKeyRing = {
             tryAgain = true;
           }
         } else {
-          getDialog().alert(win, l10n.formatValueSync("import-keys-failed"));
+          EnigmailDialog.alert(win, l10n.formatValueSync("import-keys-failed"));
         }
       }
     } while (tryAgain);
@@ -543,7 +538,7 @@ var EnigmailKeyRing = {
   },
 
   promptKeyExport2AsciiFilename(window, label, defaultFilename) {
-    return getDialog().filePicker(
+    return EnigmailDialog.filePicker(
       window,
       label,
       "",
@@ -577,10 +572,10 @@ var EnigmailKeyRing = {
       errorMsgObj
     );
     if (exitCodeObj.value !== 0) {
-      getDialog().alert(window, l10n.formatValueSync("save-keys-failed"));
+      EnigmailDialog.alert(window, l10n.formatValueSync("save-keys-failed"));
       return;
     }
-    getDialog().info(window, l10n.formatValueSync("save-keys-ok"));
+    EnigmailDialog.info(window, l10n.formatValueSync("save-keys-ok"));
   },
 
   backupSecretKeysInteractive(window, defaultFileName, fprArray) {
@@ -641,7 +636,7 @@ var EnigmailKeyRing = {
       return;
     }
 
-    getDialog().info(null, l10n.formatValueSync("save-keys-ok"));
+    EnigmailDialog.info(null, l10n.formatValueSync("save-keys-ok"));
   },
 
   /**
@@ -786,7 +781,7 @@ var EnigmailKeyRing = {
 
     if (askToConfirm) {
       if (
-        !getDialog().confirmDlg(
+        !EnigmailDialog.confirmDlg(
           parent,
           l10n.formatValueSync("import-key-confirm"),
           l10n.formatValueSync("key-man-button-import")
@@ -841,7 +836,7 @@ var EnigmailKeyRing = {
         !result.importedKeys.length;
       if (failed) {
         if (allowPermissiveFallbackWithPrompt && !permissive) {
-          let agreed = getDialog().confirmDlg(
+          let agreed = EnigmailDialog.confirmDlg(
             parent,
             l10n.formatValueSync("confirm-permissive-import")
           );
@@ -851,7 +846,10 @@ var EnigmailKeyRing = {
           }
         } else if (askToConfirm) {
           // if !askToConfirm the caller is responsible to handle the error
-          getDialog().alert(parent, l10n.formatValueSync("import-keys-failed"));
+          EnigmailDialog.alert(
+            parent,
+            l10n.formatValueSync("import-keys-failed")
+          );
         }
       }
     } while (tryAgain);
@@ -883,7 +881,7 @@ var EnigmailKeyRing = {
     if (preview.length > 0) {
       let confirmImport = false;
       let outParam = {};
-      confirmImport = getDialog().confirmPubkeyImport(
+      confirmImport = EnigmailDialog.confirmPubkeyImport(
         window,
         preview,
         outParam
@@ -913,17 +911,17 @@ var EnigmailKeyRing = {
 
         if (exitStatus === 0) {
           let keyList = preview.map(a => a.id);
-          getDialog().keyImportDlg(window, keyList);
+          EnigmailDialog.keyImportDlg(window, keyList);
           somethingWasImported = true;
         } else {
           l10n.formatValue("fail-key-import").then(value => {
-            getDialog().alert(window, value + "\n" + errorMsgObj.value);
+            EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
           });
         }
       }
     } else {
       l10n.formatValue("no-key-found").then(value => {
-        getDialog().alert(window, value);
+        EnigmailDialog.alert(window, value);
       });
     }
     return somethingWasImported;
@@ -1370,7 +1368,7 @@ var EnigmailKeyRing = {
       loadKeyList(null, null, 1);
     }
 
-    getWindows().keyManReloadKeys();
+    EnigmailWindows.keyManReloadKeys();
   },
 
   findRevokedPersonalKeysByEmail(email) {
@@ -1674,7 +1672,7 @@ function runKeyUsabilityCheck() {
       let msg = getKeyUsability().keyExpiryCheck();
 
       if (msg && msg.length > 0) {
-        getDialog().info(null, msg);
+        EnigmailDialog.info(null, msg);
       } else {
         getKeyUsability().checkOwnertrust();
       }

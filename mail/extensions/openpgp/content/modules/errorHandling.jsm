@@ -13,23 +13,15 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
+  EnigmailRNG: "chrome://openpgp/content/modules/rng.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
-
-const getEnigmailKeyRing = EnigmailLazy.loader(
-  "enigmail/keyRing.jsm",
-  "EnigmailKeyRing"
-);
-const getEnigmailFiles = EnigmailLazy.loader(
-  "enigmail/files.jsm",
-  "EnigmailFiles"
-);
-const getEnigmailRNG = EnigmailLazy.loader("enigmail/rng.jsm", "EnigmailRNG");
 
 var EnigmailErrorHandling = {
   /**
@@ -47,7 +39,7 @@ var EnigmailErrorHandling = {
 
     let reasonMsg = "";
 
-    let key = getEnigmailKeyRing().getKeyById(keyId);
+    let key = EnigmailKeyRing.getKeyById(keyId);
     if (!key) {
       return l10n.formatValueSync("key-error-key-id-not-found", {
         keySpec: keyId,
@@ -76,7 +68,7 @@ var EnigmailErrorHandling = {
 
     let reasonMsg = "";
 
-    let key = getEnigmailKeyRing().getKeyById(keyId);
+    let key = EnigmailKeyRing.getKeyById(keyId);
     if (!key) {
       return l10n.formatValueSync("key-error-key-id-not-found", {
         keySpec: keyId,
@@ -94,11 +86,9 @@ var EnigmailErrorHandling = {
    * Get a unique file to use for logging with --log-file
    */
   getTempLogFile() {
-    let logFile = getEnigmailFiles()
-      .getTempDirObj()
-      .clone();
+    let logFile = EnigmailFiles.getTempDirObj().clone();
     logFile.normalize();
-    logFile.append("gpgOutput." + getEnigmailRNG().generateRandomString(6));
+    logFile.append("gpgOutput." + EnigmailRNG.generateRandomString(6));
     return logFile;
   },
 
@@ -110,7 +100,7 @@ var EnigmailErrorHandling = {
    */
   appendLogFileToDebug(logFile) {
     if (logFile && logFile.exists() && logFile.isFile()) {
-      let logData = getEnigmailFiles().readFile(logFile);
+      let logData = EnigmailFiles.readFile(logFile);
 
       EnigmailLog.DEBUG(
         `errorHandling.jsm: Process terminated. Human-readable output from gpg:\n-----\n${logData}-----\n`

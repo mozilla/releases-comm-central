@@ -24,28 +24,18 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
+  EnigmailFixExchangeMsg:
+    "chrome://openpgp/content/modules/fixExchangeMessage.jsm",
+  EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
-const { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
-);
-
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
   return new Localization(["messenger/openpgp/openpgp.ftl"], true);
 });
-
-const getFixExchangeMsg = EnigmailLazy.loader(
-  "enigmail/fixExchangeMsg.jsm",
-  "EnigmailFixExchangeMsg"
-);
-const getDecryption = EnigmailLazy.loader(
-  "enigmail/decryption.jsm",
-  "EnigmailDecryption"
-);
-const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
 /*
  *  Decrypt a message and copy it to a folder
@@ -399,7 +389,7 @@ CryptMessageIntoFolder.prototype = {
     var signatureObj = {};
     signatureObj.value = "";
 
-    let data = getDecryption().decryptMessage(
+    let data = EnigmailDecryption.decryptMessage(
       null,
       uiFlags,
       mimePart.subParts[1].body,
@@ -416,7 +406,7 @@ CryptMessageIntoFolder.prototype = {
 
     if (!data || data.length === 0) {
       if (statusFlagsObj.value & EnigmailConstants.DISPLAY_MESSAGE) {
-        getDialog().alert(null, errorMsgObj.value);
+        EnigmailDialog.alert(null, errorMsgObj.value);
         throw new Error("Decryption impossible");
       }
     }
@@ -608,7 +598,7 @@ CryptMessageIntoFolder.prototype = {
               charset = chset[2].trim();
             }
           }
-          plaintext = getDecryption().decryptMessage(
+          plaintext = EnigmailDecryption.decryptMessage(
             null,
             uiFlags,
             ciphertext,
@@ -624,7 +614,7 @@ CryptMessageIntoFolder.prototype = {
           );
           if (!plaintext || plaintext.length === 0) {
             if (statusFlagsObj.value & EnigmailConstants.DISPLAY_MESSAGE) {
-              getDialog().alert(null, errorMsgObj.value);
+              EnigmailDialog.alert(null, errorMsgObj.value);
               this.messageDecrypted = false;
               return -1;
             }
@@ -649,7 +639,7 @@ CryptMessageIntoFolder.prototype = {
               );
 
               if (
-                !getDialog().confirmDlg(
+                !EnigmailDialog.confirmDlg(
                   null,
                   msg,
                   l10n.formatValueSync("dlg-button-retry"),
@@ -943,12 +933,10 @@ CryptMessageIntoFolder.prototype = {
   fixExchangeMessage(mimePart) {
     EnigmailLog.DEBUG("persistentCrypto.jsm: fixExchangeMessage()\n");
 
-    const FixEx = getFixExchangeMsg();
-
     let msg = this.mimeToString(mimePart, true);
 
     try {
-      let fixedMsg = FixEx.getRepairedMessage(msg);
+      let fixedMsg = EnigmailFixExchangeMsg.getRepairedMessage(msg);
       let replacement = EnigmailMime.getMimeTree(fixedMsg, true);
 
       for (let i in replacement) {

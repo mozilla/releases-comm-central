@@ -10,28 +10,20 @@
 
 const EXPORTED_SYMBOLS = ["BondOpenPGP"];
 
-var { XPCOMUtils } = ChromeUtils.import(
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
+  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+  RNP: "chrome://openpgp/content/modules/RNP.jsm",
+  GPGME: "chrome://openpgp/content/modules/GPGME.jsm",
   MailConstants: "resource:///modules/MailConstants.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
-
-var { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
-);
-
-var getEnigmailCore = EnigmailLazy.loader("enigmail/core.jsm", "EnigmailCore");
-var getRNP = EnigmailLazy.loader("enigmail/RNP.jsm", "RNP");
-var getGPGME = EnigmailLazy.loader("enigmail/GPGME.jsm", "GPGME");
-var getEnigmailWindows = EnigmailLazy.loader(
-  "enigmail/windows.jsm",
-  "EnigmailWindows"
-);
 
 /*
 // Enable this block to view syntax errors in these files, which are
@@ -95,18 +87,17 @@ var BondOpenPGP = {
     EnigmailKeyRing.init();
     EnigmailVerify.init();
 
-    let RNP = getRNP();
     let initDone = await RNP.init({});
     if (!initDone) {
       return;
     }
 
     if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
-      getGPGME().init({});
+      GPGME.init({});
     }
 
     // trigger service init
-    await getEnigmailCore().getService();
+    await EnigmailCore.getService();
   },
 
   isEnabled() {
@@ -125,7 +116,7 @@ var BondOpenPGP = {
 
   openKeyManager(window) {
     if (this.isEnabled()) {
-      getEnigmailWindows().openKeyManager(window);
+      EnigmailWindows.openKeyManager(window);
     }
   },
 };

@@ -6,29 +6,19 @@
 
 const EXPORTED_SYMBOLS = ["OpenPGPTestUtils"];
 
-const { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
-);
-const { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-);
-const { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
-const { PgpSqliteDb2 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
-);
-const { uidHelper } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/uidHelper.jsm"
-);
-const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
-
 const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
-
-const getEnigmailCore = EnigmailLazy.loader(
-  "enigmail/core.jsm",
-  "EnigmailCore"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
+  RNP: "chrome://openpgp/content/modules/RNP.jsm",
+  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
+  uidHelper: "chrome://openpgp/content/modules/uidHelper.jsm",
+});
 
 const OpenPGPTestUtils = {
   ACCEPTANCE_PERSONAL: "personal",
@@ -46,7 +36,7 @@ const OpenPGPTestUtils = {
    */
   async initOpenPGP() {
     Assert.ok(await RNP.init(), "librnp did load");
-    Assert.ok(await getEnigmailCore().getService({}), "EnigmailCore did load");
+    Assert.ok(await EnigmailCore.getService({}), "EnigmailCore did load");
     EnigmailKeyRing.init();
   },
 

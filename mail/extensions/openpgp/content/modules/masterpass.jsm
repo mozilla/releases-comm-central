@@ -10,6 +10,7 @@ var EXPORTED_SYMBOLS = ["OpenPGPMasterpass"];
 
 Cu.importGlobalProperties(["crypto"]);
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -17,11 +18,9 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
-  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  Services: "resource://gre/modules/Services.jsm",
+  RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
-var getRNP = EnigmailLazy.loader("enigmail/RNP.jsm", "RNP");
 
 const DEFAULT_FILE_PERMS = 0o600;
 
@@ -58,7 +57,7 @@ var OpenPGPMasterpass = {
   },
 
   async _repairOrWarn() {
-    let [prot, unprot] = getRNP().getProtectedKeysCount();
+    let [prot, unprot] = RNP.getProtectedKeysCount();
     let haveAtLeastOneSecretKey = prot || unprot;
 
     // For user support, troubleshooting bug 1656287
@@ -140,8 +139,8 @@ var OpenPGPMasterpass = {
         }
 
         this._ensureMasterPassword();
-        await getRNP().protectUnprotectedKeys();
-        await getRNP().saveKeyRings();
+        await RNP.protectUnprotectedKeys();
+        await RNP.saveKeyRings();
       }
     }
   },

@@ -9,11 +9,13 @@
 var EXPORTED_SYMBOLS = ["EnigmailApp"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-const { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const getEnigmailLog = EnigmailLazy.loader("enigmail/log.jsm", "EnigmailLog");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+});
 
 var EnigmailApp = {
   /**
@@ -43,8 +45,8 @@ var EnigmailApp = {
    * Get Enigmail version
    */
   getVersion() {
-    getEnigmailLog().DEBUG("app.jsm: getVersion\n");
-    getEnigmailLog().DEBUG(
+    EnigmailLog.DEBUG("app.jsm: getVersion\n");
+    EnigmailLog.DEBUG(
       "app.jsm: installed version: " + EnigmailApp._version + "\n"
     );
     return EnigmailApp._version;
