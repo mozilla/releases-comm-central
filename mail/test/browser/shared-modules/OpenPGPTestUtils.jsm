@@ -7,6 +7,13 @@
 const EXPORTED_SYMBOLS = ["OpenPGPTestUtils"];
 
 const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+const { BrowserTestUtils } = ChromeUtils.import(
+  "resource://testing-common/BrowserTestUtils.jsm"
+);
+const EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
+
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -29,6 +36,30 @@ const OpenPGPTestUtils = {
   ALICE_KEY_ID: "F231550C4F47E38E",
   BOB_KEY_ID: "FBFCC82A015E7330",
   CAROL_KEY_ID: "3099FF1238852B9F",
+
+  /**
+   * Given a compose message window, clicks on the "Digitally Sign This Message"
+   * menu item.
+   */
+  async toggleMessageSigning(win) {
+    return clickMenuOption(win, "#menu_securitySign_Menubar");
+  },
+
+  /**
+   * Given a compose message window, clicks on the "Attach My Public Key"
+   * menu item.
+   */
+  async toggleMessageKeyAttachment(win) {
+    return clickMenuOption(win, "#menu_securityMyPublicKey_Menubar");
+  },
+
+  /**
+   * Given a compose message window, clicks on the "Require Encryption"
+   * menu item.
+   */
+  async toggleMessageEncryption(win) {
+    return clickMenuOption(win, "#menu_securityEncryptRequire_Menubar");
+  },
 
   /**
    * For xpcshell-tests OpenPGP is not intialized automatically. This method
@@ -164,12 +195,45 @@ const OpenPGPTestUtils = {
    */
   async updateKeyIdAcceptance(id, acceptance) {
     let ids = Array.isArray(id) ? id : [id];
-    for (let i = 0; i < ids.length; i++) {
-      let key = EnigmailKeyRing.getKeyById(ids[i]);
+    for (let id of ids) {
+      let key = EnigmailKeyRing.getKeyById(id);
       let parts = {};
       uidHelper.getPartsFromUidStr(key.userId, parts);
       await PgpSqliteDb2.updateAcceptance(key.fpr, [parts.email], acceptance);
     }
+    EnigmailKeyRing.clearCache();
     return ids.slice();
   },
+
+  /**
+   * Removes a key by its id, clearing its acceptance and refreshing the
+   * cache.
+   *
+   * @param {string|string[]} id - The id or list of ids to remove.
+   * @param {boolean} [deleteSecret=false] - If true, secret keys will be removed too.
+   */
+  async removeKeyById(id, deleteSecret = false) {
+    let ids = Array.isArray(id) ? id : [id];
+    for (let id of ids) {
+      let key = EnigmailKeyRing.getKeyById(id);
+      await RNP.deleteKey(key.fpr, deleteSecret);
+      await PgpSqliteDb2.deleteAcceptance(key.fpr);
+    }
+    EnigmailKeyRing.clearCache();
+  },
 };
+
+async function clickMenuOption(win, selector) {
+  let menu = win.document.querySelector("#optionsMenu");
+  let waitForShown = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(menu, {}, win);
+  await waitForShown;
+
+  let waitForClose = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  EventUtils.synthesizeMouseAtCenter(
+    win.document.querySelector(selector),
+    {},
+    win
+  );
+  await waitForClose;
+}
