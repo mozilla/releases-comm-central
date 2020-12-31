@@ -529,36 +529,31 @@ class LegacySAXResponse extends CalDavResponseBase {
   /** @return {nsIStreamListener} The listener passed to the channel's asyncOpen */
   get listener() {
     if (!this._listener) {
-      let legacySAXResponse = this;
+      this._listener = {
+        QueryInterface: ChromeUtils.generateQI(["nsIRequestObserver", "nsIStreamListener"]),
 
-      legacySAXResponse._listener = new Proxy(legacySAXResponse.request._handler, {
-        get(aRequestHandler, aProp) {
-          if (aProp == "onStartRequest") {
-            return function(...args) {
-              try {
-                let result = aRequestHandler.onStartRequest.apply(this, args);
-                legacySAXResponse._onresponded();
-                return result;
-              } catch (e) {
-                legacySAXResponse._onrespondederror(e);
-                return null;
-              }
-            };
-          } else if (aProp == "onStopRequest") {
-            return function(...args) {
-              try {
-                let result = aRequestHandler.onStopRequest.apply(this, args);
-                legacySAXResponse._oncompleted();
-                return result;
-              } catch (e) {
-                legacySAXResponse._oncompletederror(e);
-                return null;
-              }
-            };
+        onStartRequest: aRequest => {
+          try {
+            let result = this.request._handler.onStartRequest(aRequest);
+            this._onresponded();
+            return result;
+          } catch (e) {
+            this._onrespondederror(e);
+            return null;
           }
-          return Reflect.get(...arguments);
         },
-      });
+        onStopRequest: (aRequest, aStatusCode) => {
+          try {
+            let result = this.request._handler.onStopRequest(aRequest, aStatusCode);
+            this._onresponded();
+            return result;
+          } catch (e) {
+            this._onrespondederror(e);
+            return null;
+          }
+        },
+        onDataAvailable: this.request._handler.onDataAvailable.bind(this.request._handler),
+      };
     }
     return this._listener;
   }
