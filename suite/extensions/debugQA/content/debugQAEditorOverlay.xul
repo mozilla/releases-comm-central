@@ -19,7 +19,7 @@
     <menu id="debugMenu" label="&debugMenu.label;" insertbefore="menu_Help">
       <menupopup>
         <menuitem label="&newEditorTestPage.label;"
-                  oncommand="window.openDialog('chrome://editor/content','_blank','chrome,all,dialog=no','chrome://debugqa/content/EditorInitPage.html')"/>
+                  oncommand="NewEditorWindow('chrome://debugqa/content/EditorInitPage.html');"/>
         <menuitem label="&textEditorCmd.label;"
                   oncommand="EditorNewPlaintext();" />
         <menuitem label="&outputTextCmd.label;"
@@ -27,33 +27,18 @@
         <menuitem label="&outputHTMLCmd.label;"
                   oncommand="EditorGetHTML()"/>
         <menuseparator/>
-        <menuitem label="&editStripQuotesCmd.label;"
-                  oncommand="try { GetCurrentEditor().stripCites(); } catch (e) {}"/>
         <menuitem label="&insertTextCmd.label;"
                   oncommand="EditorInsertText('All good things come to those who wait. ')"/>
         <menuseparator/>
         <menuitem label="&testSelectionCmd.label;"
                   oncommand="EditorTestSelection()"/>
-        <menuitem label="&testTableLayoutCmd.label;"
-                  oncommand="EditorTestTableLayout()"/>
         <menuitem label="&testDocumentCmd.label;"
                   oncommand="EditorTestDocument()"/>
         <menuseparator/>
-        <menuitem label="&dumpUndoStack.label;"
-                  oncommand="DumpUndoStack()"/>
-        <menuitem label="&dumpRedoStack.label;"
-                  oncommand="DumpRedoStack()"/>
         <menuitem label="&executeJSTransactionViaTxmgr.label;"
                   oncommand="ExecuteJSTransactionViaTxmgr()"/>
         <menuitem label="&executeJSTransactionViaEditor.label;"
                   oncommand="ExecuteJSTransactionViaEditor()"/>
-        <menuseparator/>
-        <menuitem label="&startLogCmd.label;"
-                  oncommand="EditorStartLog()"/>
-        <menuitem label="&stopLogCmd.label;"
-                  oncommand="EditorStopLog()"/>
-        <menuitem label="&runLogCmd.label;"
-                  oncommand="EditorRunLog()"/>
         <menuseparator/>
         <menuitem label="&setFocusCmd.label;"
                   oncommand="window.focus()"/>

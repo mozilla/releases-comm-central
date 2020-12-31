@@ -16,7 +16,6 @@
   content/debugqa/debugQAPrefsOverlay.xul                 (content/debugQAPrefsOverlay.xul)
   content/debugqa/debugQATextEditorShell.xul              (content/debugQATextEditorShell.xul)
   content/debugqa/EditorInitPage.html                     (content/EditorInitPage.html)
-  content/debugqa/EditorInitPagePlain.html                (content/EditorInitPagePlain.html)
   content/debugqa/pref-debug.xul                          (content/pref-debug.xul)
   content/debugqa/pref-debug1.js                          (content/pref-debug1.js)
   content/debugqa/pref-debug1.xul                         (content/pref-debug1.xul)

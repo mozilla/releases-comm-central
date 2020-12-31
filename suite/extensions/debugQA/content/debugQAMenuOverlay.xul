@@ -49,8 +49,6 @@
             </menu>
             <menu label="Permissions/Security">
               <menupopup>
-                <menuitem label="Popup Killing"
-                          oncommand="openQAUrl('http://www.popuptest.com/');"/>
                 <menuitem label="SSL Server Test"
                           oncommand="openQAUrl('https://www.ssllabs.com/ssltest/');"/>
                 <menuitem label="SSL/TLS Client Capabilities"
@@ -163,12 +161,13 @@
         <menuseparator/>
 
         <menuitem label="Composer (with test page)"
-                  oncommand="window.openDialog('chrome://editor/content/','_blank','chrome,all,dialog=no','chrome://debugqa/content/EditorInitPage.html')"/>
+                  oncommand="NewEditorWindow('chrome://debugqa/content/EditorInitPage.html');"/>
         <menuitem label="Flush Memory"
                   oncommand="Cc['@mozilla.org/xpcom/memory-service;1'].getService(Ci.nsIMemory).heapMinimize(true);"/>
         <menuitem label="Show Build Configuration"
                   oncommand="goAbout('buildconfig');"/>
-
+        <menuitem label="Show Configuration Editor"
+                  oncommand="goAbout('config');"/>
       </menupopup>
     </menu>
 

@@ -15,19 +15,12 @@
 <!ENTITY outputHTMLCmd.label "Output HTML">
 <!ENTITY insertTextCmd.label "Insert Text">
 <!ENTITY testSelectionCmd.label "Test Selection">
-<!ENTITY testTableLayoutCmd.label "Test Table Layout">
 <!ENTITY testDocumentCmd.label "Test Document">
-<!ENTITY dumpUndoStack.label "Dump Undo Stack">
-<!ENTITY dumpRedoStack.label "Dump Redo Stack">
 <!ENTITY executeJSTransactionViaTxmgr.label "Execute JS Transaction Via Transaction Manager">
 <!ENTITY executeJSTransactionViaEditor.label "Execute JS Transaction Via Editor">
-<!ENTITY startLogCmd.label "Start Log">
-<!ENTITY stopLogCmd.label "Stop Log">
-<!ENTITY runLogCmd.label "Run Log">
 <!ENTITY setFocusCmd.label "Set Focus">
 
 <!-- Text editor values -->
 <!ENTITY textEditorWindow.titlemodifier "Text Editor">
 
 <!ENTITY statusText.label "Done loading page">
-<!ENTITY editStripQuotesCmd.label "Strip Quotes">
