@@ -277,31 +277,21 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   padding: 9px;
   border: 1px solid var(--in-content-border-color);
   border-radius: 4px;
+  border-spacing: 0;
   background-color: rgba(215, 215, 219, 0.2);
 }
 
-#smtpServerInfoBox label {
-  height: 30px;
-  margin-block: 0;
-  padding-block: 3px;
+#smtpServerInfoBox th {
+  height: 1.7em;
+  padding: 0;
+  text-align: end;
+  width: 10%;
+  white-space: nowrap;
 }
 
-#smtpServerInfoBox .input-container {
-  display: flex;
-  height: 30px;
-}
-
-.input-container > .plain {
-  flex: 1;
-  background-color: transparent;
-  border-style: none;
-  box-shadow: none !important;
-  outline: none;
-  padding-block: 0;
-}
-
-#smtpServerInfoBox textbox {
-  background-color: transparent;
+#smtpServerInfoBox td {
+  padding: 0;
+  padding-inline-start: 8px;
 }
 
 /* ::::: dialog header ::::: */

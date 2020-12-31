@@ -59,69 +59,32 @@
     <separator/>
 
     <label class="header">&serverDetails.label;</label>
-    <hbox id="smtpServerInfoBox">
-      <stack flex="1">
-        <spacer id="backgroundBox"/>
-        <hbox>
-          <vbox align="end">
-            <label id="descriptionLabel" value="&serverDescription.label;"
-                   control="descriptionValue"/>
-            <label id="nameLabel" value="&serverName.label;" control="nameValue"/>
-            <label id="portLabel" value="&serverPort.label;" control="portValue"/>
-            <label id="userNameLabel" value="&userName.label;"
-                   control="userNameValue"/>
-            <label id="authMethodLabel" value="&authMethod.label;"
-                   control="authMethodValue"/>
-            <label id="connectionSecurityLabel" value="&connectionSecurity.label;"
-                   control="useSecureConnectionValue"/>
-          </vbox>
-          <vbox flex="1">
-            <hbox flex="1" class="input-container">
-              <html:input id="descriptionValue"
-                          type="text"
-                          readonly="readonly"
-                          class="plain"
-                          aria-labelledby="descriptionLabel"/>
-            </hbox>
-            <hbox flex="1" class="input-container">
-              <html:input id="nameValue"
-                          type="text"
-                          readonly="readonly"
-                          class="plain"
-                          aria-labelledby="nameLabel"/>
-            </hbox>
-            <hbox flex="1" class="input-container">
-              <html:input id="portValue"
-                          type="text"
-                          readonly="readonly"
-                          class="plain"
-                          aria-labelledby="portLabel"/>
-            </hbox>
-            <hbox flex="1" class="input-container">
-              <html:input id="userNameValue"
-                          type="text"
-                          readonly="readonly"
-                          class="plain"
-                          aria-labelledby="userNameLabel"/>
-            </hbox>
-            <hbox flex="1" class="input-container">
-              <html:input id="authMethodValue"
-                          type="text"
-                          readonly="readonly"
-                          class="plain"
-                          aria-labelledby="authMethodLabel"/>
-            </hbox>
-            <hbox flex="1" class="input-container">
-              <html:input id="useSecureConnectionValue"
-                          type="text"
-                          readonly="readonly"
-                          class="plain"
-                          aria-labelledby="connectionSecurityLabel"/>
-            </hbox>
-          </vbox>
-        </hbox>
-      </stack>
-    </hbox>
+    <html:table id="smtpServerInfoBox">
+      <html:tr>
+        <html:th id="descriptionLabel">&serverDescription.label;</html:th>
+        <html:td id="descriptionValue"></html:td>
+      </html:tr>
+      <html:tr>
+        <html:th id="nameLabel">&serverName.label;</html:th>
+        <html:td id="nameValue"></html:td>
+      </html:tr>
+      <html:tr>
+        <html:th id="portLabel">&serverPort.label;</html:th>
+        <html:td id="portValue"></html:td>
+      </html:tr>
+      <html:tr>
+        <html:th id="userNameLabel">&userName.label;</html:th>
+        <html:td id="userNameValue"></html:td>
+      </html:tr>
+      <html:tr>
+        <html:th id="authMethodLabel">&authMethod.label;</html:th>
+        <html:td id="authMethodValue"></html:td>
+      </html:tr>
+      <html:tr>
+        <html:th id="connectionSecurityLabel">&connectionSecurity.label;</html:th>
+        <html:td id="useSecureConnectionValue"></html:td>
+      </html:tr>
+    </html:table>
     <separator flex="1"/>
   </vbox></vbox>
 </window>

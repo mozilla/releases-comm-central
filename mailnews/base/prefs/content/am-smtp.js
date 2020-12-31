@@ -125,15 +125,16 @@ var gSmtpServerListWindow = {
   updateServerInfoBox(aServer) {
     var noneSelected = this.mBundle.getString("smtpServerList-NotSpecified");
 
-    document.getElementById("nameValue").value = aServer.hostname;
-    document.getElementById("descriptionValue").value =
+    document.getElementById("nameValue").textContent = aServer.hostname;
+    document.getElementById("descriptionValue").textContent =
       aServer.description || noneSelected;
-    document.getElementById("portValue").value = aServer.port || noneSelected;
-    document.getElementById("userNameValue").value =
+    document.getElementById("portValue").textContent =
+      aServer.port || noneSelected;
+    document.getElementById("userNameValue").textContent =
       aServer.username || noneSelected;
     document.getElementById(
       "useSecureConnectionValue"
-    ).value = this.mBundle.getString(
+    ).textContent = this.mBundle.getString(
       "smtpServer-ConnectionSecurityType-" + aServer.socketType
     );
 
@@ -173,7 +174,7 @@ var gSmtpServerListWindow = {
             aServer.authMethod
         );
     }
-    document.getElementById("authMethodValue").value = authStr
+    document.getElementById("authMethodValue").textContent = authStr
       ? this.mBundle.getString(authStr)
       : noneSelected;
   },
