@@ -1092,9 +1092,7 @@
       <field name="searchAttribute">Ci.nsMsgSearchAttrib.Default</field>
       <field name="stringBundle">
         <![CDATA[
-          Cc["@mozilla.org/intl/stringbundle;1"]
-            .getService(Ci.nsIStringBundleService)
-            .createBundle("chrome://messenger/locale/search-operators.properties")
+          this.Services.strings.createBundle("chrome://messenger/locale/search-operators.properties")
         ]]>
       </field>
       <property name="valueLabel" readonly="true">
@@ -1149,6 +1147,11 @@
           ]]>
         </getter>
       </property>
+      <constructor>
+      <![CDATA[
+        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
+      ]]>
+      </constructor>
     </implementation>
   </binding>
 
@@ -1545,10 +1548,10 @@
       </method>
       <constructor>
       <![CDATA[
+        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
+
         // initialize strings
-        var bundle = Cc["@mozilla.org/intl/stringbundle;1"]
-                       .getService(Ci.nsIStringBundleService)
-                       .createBundle("chrome://messenger/locale/messenger.properties");
+        let bundle = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
 
         // intialize the priority picker
         this.initialize(document.getAnonymousNodes(this)[1], bundle);
@@ -1666,9 +1669,7 @@
                 aFolder.getFlag(Ci.nsMsgFolderFlags.Junk) ||
                 aFolder.getFlag(Ci.nsMsgFolderFlags.Trash))
               return false;
-            var pref = Cc["@mozilla.org/preferences-service;1"]
-                         .getService(Ci.nsIPrefBranch);
-            var showPreviewText = pref.getBoolPref("mail.biff.alert.show_preview");
+            let showPreviewText = this.Services.prefs.getBoolPref("mail.biff.alert.show_preview");
             var folderArray = new Array;
             if (aFolder.flags & Ci.nsMsgFolderFlags.Virtual)
             {
@@ -1781,6 +1782,11 @@
           ]]>
         </body>
       </method>
+      <constructor>
+      <![CDATA[
+        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
+      ]]>
+      </constructor>
     </implementation>
   </binding>
 
@@ -1798,12 +1804,12 @@
     <implementation>
       <constructor>
         <![CDATA[
-          var pref = Cc["@mozilla.org/preferences-service;1"]
-                       .getService(Ci.nsIPrefBranch);
-          if (!pref.getBoolPref("mail.biff.alert.show_preview"))
+          ChromeUtils.import("resource://gre/modules/Services.jsm", this);
+
+          if (!this.Services.prefs.getBoolPref("mail.biff.alert.show_preview"))
             document.getAnonymousElementByAttribute(this, "anonid", "preview").hidden = true;
-          var hideSubject = !pref.getBoolPref("mail.biff.alert.show_subject");
-          var hideSender = !pref.getBoolPref("mail.biff.alert.show_sender");
+          var hideSubject = !this.Services.prefs.getBoolPref("mail.biff.alert.show_subject");
+          var hideSender = !this.Services.prefs.getBoolPref("mail.biff.alert.show_sender");
           if (hideSubject)
             document.getAnonymousElementByAttribute(this, "anonid", "subject").hidden = true;
           if (hideSender)

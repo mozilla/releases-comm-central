@@ -43,9 +43,9 @@
 </div>
 
 <script>
+  const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
   // get vendor, dictionaries and release notes URLs from prefs
-  var formatter = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
-                    .getService(Ci.nsIURLFormatter);
+  let formatter = Services.urlFormatter;
   var vendorURL = formatter.formatURLPref("app.vendorURL");
 
   if (vendorURL != "about:blank") {

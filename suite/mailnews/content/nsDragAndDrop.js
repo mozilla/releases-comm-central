@@ -571,9 +571,7 @@ var nsDragAndDrop = {
         return;
 
       // aDraggedText is a URI, do the security check.
-      const nsIScriptSecurityManager = Ci.nsIScriptSecurityManager;
-      var secMan = Cc["@mozilla.org/scriptsecuritymanager;1"]
-                     .getService(nsIScriptSecurityManager);
+      let secMan = Services.scriptSecurityManager;
 
       if (!aDragSession)
         aDragSession = this.mDragService.getCurrentSession();
@@ -586,7 +584,7 @@ var nsDragAndDrop = {
 
       try {
         secMan.checkLoadURIStrWithPrincipal(principal, aDraggedText,
-                                            nsIScriptSecurityManager.STANDARD);
+                                            Ci.nsIScriptSecurityManager.STANDARD);
       } catch (e) {
         // Stop event propagation right here.
         aEvent.stopPropagation();

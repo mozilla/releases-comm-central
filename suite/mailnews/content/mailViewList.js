@@ -105,14 +105,11 @@ function OnNewMailView()
 
 function OnDeleteMailView()
 {
-  var strBundleService = Cc["@mozilla.org/intl/stringbundle;1"]
-                           .getService(Ci.nsIStringBundleService);
-  var bundle = strBundleService.createBundle("chrome://messenger/locale/messenger.properties");
+  let bundle = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
 
-  var promptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
-                        .getService(Ci.nsIPromptService);
-  if (!promptService.confirm(window, bundle.GetStringFromName("confirmViewDeleteTitle"),
-                             bundle.GetStringFromName("confirmViewDeleteMessage")))
+  let ps = Services.prompt;
+  if (!ps.confirm(window, bundle.GetStringFromName("confirmViewDeleteTitle"),
+                  bundle.GetStringFromName("confirmViewDeleteMessage")))
     return;
 
   // get the selected index

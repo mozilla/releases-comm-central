@@ -219,21 +219,17 @@
         <![CDATA[
           window.controllers.insertControllerAt(0, this);
           const kAutoHide = "browser.tabs.autoHide";
-          this.mAutoHide = this.mPrefs.getBoolPref(kAutoHide);
-          this.mPrefs.addObserver(kAutoHide, this);
+          this.mAutoHide = Services.prefs.getBoolPref(kAutoHide);
+          Services.prefs.addObserver(kAutoHide, this);
         ]]>
       </constructor>
 
       <destructor>
         <![CDATA[
-          this.mPrefs.removeObserver("browser.tabs.autoHide", this);
+          Services.prefs.removeObserver("browser.tabs.autoHide", this);
           window.controllers.removeController(this);
         ]]>
       </destructor>
-
-      <field name="mPrefs">
-        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
-      </field>
 
       <field name="currentTabInfo">
         null
@@ -794,7 +790,7 @@
           <![CDATA[
             const kAutoHide = "browser.tabs.autoHide";
             if (aTopic == "nsPref:changed" && aData == kAutoHide)
-              this.mAutoHide = this.mPrefs.getBoolPref(kAutoHide);
+              this.mAutoHide = Services.prefs.getBoolPref(kAutoHide);
           ]]>
         </body>
       </method>
@@ -1045,14 +1041,14 @@
     <implementation implements="nsITimerCallback, nsIDOMEventListener, nsIObserver">
       <constructor>
         <![CDATA[
-          this.mTabMinWidth  = this.mPrefs.getIntPref ("browser.tabs.tabMinWidth");
-          this.mTabMaxWidth  = this.mPrefs.getIntPref ("browser.tabs.tabMaxWidth");
-          this.mTabClipWidth = this.mPrefs.getIntPref ("browser.tabs.tabClipWidth");
-          this.mCloseButtons = this.mPrefs.getIntPref ("browser.tabs.closeButtons");
+          this.mTabMinWidth  = Services.prefs.getIntPref ("browser.tabs.tabMinWidth");
+          this.mTabMaxWidth  = Services.prefs.getIntPref ("browser.tabs.tabMaxWidth");
+          this.mTabClipWidth = Services.prefs.getIntPref ("browser.tabs.tabClipWidth");
+          this.mCloseButtons = Services.prefs.getIntPref ("browser.tabs.closeButtons");
           this.firstChild.minWidth = this.mTabMinWidth;
           this.firstChild.maxWidth = this.mTabMaxWidth;
           this._updateCloseButtons();
-          this.mPrefs.addObserver("browser.tabs.", this);
+          Services.prefs.addObserver("browser.tabs.", this);
           window.addEventListener("resize", this);
 
           // Listen to overflow/underflow events on the tabstrip,
@@ -1067,7 +1063,7 @@
 
       <destructor>
         <![CDATA[
-          this.mPrefs.removeObserver("browser.tabs.", this);
+          Services.prefs.removeObserver("browser.tabs.", this);
 
           // Release timer to avoid reference cycles.
           if (this._animateTimer)
@@ -1079,10 +1075,6 @@
           this.arrowScrollbox.removeEventListener("underflow", this);
         ]]>
       </destructor>
-
-      <field name="mPrefs">
-        Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
-      </field>
 
       <field name="arrowScrollboxWidth">0</field>
 
@@ -1277,7 +1269,7 @@
             const kCloseButtons = "browser.tabs.closeButtons";
             if (aTopic == "nsPref:changed" && aData == kCloseButtons)
             {
-              this.mCloseButtons = this.mPrefs.getIntPref(kCloseButtons);
+              this.mCloseButtons = Services.prefs.getIntPref(kCloseButtons);
               this._updateCloseButtons();
             }
           ]]>
