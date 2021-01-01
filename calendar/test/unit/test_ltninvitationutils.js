@@ -263,6 +263,17 @@ add_task(async function createInvitationOverlay_test() {
       },
     },
     {
+      input: {
+        description:
+          'DESCRIPTION:Check <a href="http://example.com">example.com</a>&nbsp;&nbsp;&mdash; only 3 &euro;\r\n',
+      },
+      expected: {
+        node: "imipHtml-description-content",
+        value:
+          'Check <a xmlns="http://www.w3.org/1999/xhtml" href="http://example.com">example.com</a>\u00A0\u00A0\u2014 only 3 €',
+      },
+    },
+    {
       input: { url: "URL:http://www.example.org/event.ics\r\n" },
       expected: {
         node: "imipHtml-url-content",

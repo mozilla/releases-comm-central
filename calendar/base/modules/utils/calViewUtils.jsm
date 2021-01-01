@@ -369,18 +369,25 @@ var calview = {
   textToHtmlDocumentFragment(text, doc) {
     // Convert plain text to HTML. The main motivation here is to convert plain
     // text URLs into <a> tags (to linkify them).
-    let textWithBreaks = text.replace(/\r?\n/g, "<br/>");
-    let mode, html;
+    text = text.replace(/\r?\n/g, "<br/>");
+    // Resolve some of the most common entities.
+    text = text.replace(/&nbsp;/g, "\u00A0");
+    text = text.replace(/&copy;/g, "\u00A9");
+    text = text.replace(/&reg;/g, "\u00AE");
+    text = text.replace(/&ndash;/g, "\u2013");
+    text = text.replace(/&mdash;/g, "\u2014");
+    text = text.replace(/&euro;/g, "\u20AC");
+    let html;
     try {
       // kGlyphSubstitution may lead to unexpected results when used in scanHTML.
-      mode =
+      let mode =
         Ci.mozITXTToHTMLConv.kStructPhrase |
         Ci.mozITXTToHTMLConv.kGlyphSubstitution |
         Ci.mozITXTToHTMLConv.kURLs;
-      html = gTextToHtmlConverter.scanHTML(textWithBreaks, mode);
+      html = gTextToHtmlConverter.scanHTML(text, mode);
     } catch (e) {
-      mode = Ci.mozITXTToHTMLConv.kStructPhrase | Ci.mozITXTToHTMLConv.kURLs;
-      html = gTextToHtmlConverter.scanHTML(textWithBreaks, mode);
+      let mode = Ci.mozITXTToHTMLConv.kStructPhrase | Ci.mozITXTToHTMLConv.kURLs;
+      html = gTextToHtmlConverter.scanHTML(text, mode);
     }
 
     // Sanitize and convert the HTML into a document fragment.
