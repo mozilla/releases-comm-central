@@ -45,7 +45,6 @@ var gClickSelectsAll = false;
 var gClickAtEndSelects = false;
 var gIgnoreFocus = false;
 var gIgnoreClick = false;
-var gURIFixup = null;
 
 // Listeners for updating zoom value in status bar
 var ZoomListeners =
@@ -2181,11 +2180,7 @@ function handleURLBarCommand(aUserAction, aTriggeringEvent)
     } else if (saveModifier) {
       try {
         // Firstly, fixup the url so that (e.g.) "www.foo.com" works
-        const nsIURIFixup = Ci.nsIURIFixup;
-        if (!gURIFixup)
-          gURIFixup = Cc["@mozilla.org/docshell/urifixup;1"]
-                        .getService(nsIURIFixup);
-        url = gURIFixup.createFixupURI(data.url, nsIURIFixup.FIXUP_FLAGS_MAKE_ALTERNATE_URI).spec;
+        url = Services.uriFixup.createFixupURI(data.url, Ci.nsIURIFixup.FIXUP_FLAGS_MAKE_ALTERNATE_URI).spec;
         // Open filepicker to save the url
         saveURL(url, null, null, false, true, null, document);
       }
@@ -2343,8 +2338,7 @@ function readFromClipboard()
 
   try {
     // Get the clipboard.
-    var clipboard = Cc["@mozilla.org/widget/clipboard;1"]
-                      .getService(Ci.nsIClipboard);
+    const clipboard = Services.clipboard;
 
     // Create a transferable that will transfer the text.
     var trans = Cc["@mozilla.org/widget/transferable;1"]
@@ -2531,11 +2525,8 @@ function URLBarSetURI(aURI, aValid) {
 
   // If the url has "wyciwyg://" as the protocol, strip it off.
   // Nobody wants to see it on the urlbar for dynamically generated pages.
-  if (!gURIFixup)
-    gURIFixup = Cc["@mozilla.org/docshell/urifixup;1"]
-                  .getService(Ci.nsIURIFixup);
   try {
-    uri = gURIFixup.createExposableURI(uri);
+    uri = Services.uriFixup.createExposableURI(uri);
   } catch (ex) {}
 
   // Replace "about:blank" and other initial pages with an empty string

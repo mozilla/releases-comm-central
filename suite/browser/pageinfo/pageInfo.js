@@ -681,9 +681,8 @@ async function selectSaveFolderTask(aCallback) {
   fp.init(window, titleText, Ci.nsIFilePicker.modeGetFolder);
   fp.appendFilters(Ci.nsIFilePicker.filterAll);
   try {
-    let prefs = Cc[PREFERENCES_CONTRACTID].getService(Ci.nsIPrefBranch);
-    let initialDir = prefs.getComplexValue("browser.download.dir",
-                                           Ci.nsIFile);
+    let initialDir = Services.prefs.getComplexValue("browser.download.dir",
+                                                    Ci.nsIFile);
     if (!initialDir) {
       let downloadsDir = await Downloads.getSystemDownloadsDirectory();
       initialDir = new FileUtils.File(downloadsDir);

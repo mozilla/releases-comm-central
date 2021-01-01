@@ -23,7 +23,6 @@ const nsIPrefService          = Ci.nsIPrefService;
 const nsIPrefBranch           = Ci.nsIPrefBranch;
 const nsIPrefLocalizedString  = Ci.nsIPrefLocalizedString;
 const nsISupportsString       = Ci.nsISupportsString;
-const nsIURIFixup             = Ci.nsIURIFixup;
 const nsIWindowMediator       = Ci.nsIWindowMediator;
 const nsIWebNavigationInfo    = Ci.nsIWebNavigationInfo;
 
@@ -58,11 +57,9 @@ function resolveURIInternal(aCmdLine, aArgument)
   // doesn't exist. Try URI fixup heuristics: see bug 290782.
 
   try {
-    var urifixup = Cc["@mozilla.org/docshell/urifixup;1"]
-                     .getService(nsIURIFixup);
-
-    return urifixup.createFixupURI(aArgument,
-                                   nsIURIFixup.FIXUP_FLAG_ALLOW_KEYWORD_LOOKUP);
+    return Services.uriFixup
+             .createFixupURI(aArgument,
+                             Ci.nsIURIFixup.FIXUP_FLAG_ALLOW_KEYWORD_LOOKUP);
   } catch (e) {
     Cu.reportError(e);
   }
@@ -113,12 +110,9 @@ function needHomePageOverride()
 
 function getURLToLoad()
 {
-  var formatter = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
-                    .getService(Ci.nsIURLFormatter);
-
   if (needHomePageOverride()) {
     try {
-      return formatter.formatURLPref("startup.homepage_override_url");
+      return Services.urlFormatter.formatURLPref("startup.homepage_override_url");
     } catch (e) {
     }
   }
@@ -200,10 +194,7 @@ function handURIToExistingBrowser(aUri, aLocation, aFeatures, aTriggeringPrincip
 }
 
 function doSearch(aSearchTerm, aFeatures) {
-  var ss = Cc["@mozilla.org/browser/search-service;1"]
-             .getService(nsIBrowserSearchService);
-
-  var submission = ss.defaultEngine.getSubmission(aSearchTerm);
+  var submission = Services.search.defaultEngine.getSubmission(aSearchTerm);
 
   // fill our nsIMutableArray with uri-as-wstring, null, null, postData
   var sa = Cc["@mozilla.org/array;1"]
@@ -416,9 +407,7 @@ var nsBrowserContentHandler = {
       if (chromeParam) {
         // only load URIs which do not inherit chrome privs
         var uri = resolveURIInternal(cmdLine, chromeParam);
-        var netutil = Cc["@mozilla.org/network/util;1"]
-                        .getService(nsINetUtil);
-        if (!netutil.URIChainHasFlags(uri, URI_INHERITS_SECURITY_CONTEXT)) {
+        if (!Services.netUtils.URIChainHasFlags(uri, URI_INHERITS_SECURITY_CONTEXT)) {
           openWindow(null, uri.spec, features);
           cmdLine.preventDefault = true;
         }
@@ -501,9 +490,7 @@ var nsBrowserContentHandler = {
       var homePage = getURLToLoad();
       if (!/\n/.test(homePage)) {
         try {
-          var urifixup = Cc["@mozilla.org/docshell/urifixup;1"]
-                           .getService(nsIURIFixup);
-          var uri = urifixup.createFixupURI(homePage, 0);
+          let uri = Services.uriFixup.createFixupURI(homePage, 0);
           handURIToExistingBrowser(uri, nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW, features);
           cmdLine.preventDefault = true;
         } catch (e) {

@@ -24,8 +24,6 @@ var onTable  = false;
 var onTitle  = false;
 var onLang   = false;
 
-const OPEN_READONLY = Ci.nsICacheStorage.OPEN_READONLY;
-
 function onLoad()
 {
     gMetadataBundle = document.getElementById("bundle_metadata");
@@ -167,16 +165,16 @@ function checkForImage(elem, htmllocalname)
         var imgURL = imgType == "object" ? img.data : img.src;
         setInfo("image-url", imgURL);
 
-        const LoadContextInfo = Cc["@mozilla.org/load-context-info-factory;1"]
-                                  .getService(Ci.nsILoadContextInfoFactory);
+        const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+        const LoadContextInfo = Services.loadContextInfo;
         var loadContextInfo = opener.gPrivate ? LoadContextInfo.private :
                                                 LoadContextInfo.default;
-        var {NetUtil} = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-        Cc["@mozilla.org/netwerk/cache-storage-service;1"]
+        const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+        Services.cache2
           .getService(Ci.nsICacheStorageService)
           .diskCacheStorage(loadContextInfo, false)
           .asyncOpenURI(NetUtil.newURI(imgURL), null,
-                                OPEN_READONLY, cacheListener);
+                        Ci.nsICacheStorage.OPEN_READONLY, cacheListener);
 
         if ("width" in img && img.width != "") {
             setInfo("image-width", gMetadataBundle.getFormattedString("imageWidth", [formatNumber(img.width)]));

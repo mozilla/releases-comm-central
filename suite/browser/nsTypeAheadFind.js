@@ -86,9 +86,7 @@ typeAheadFind.prototype = {
     if (aTopic == "domwindowopened") {
       // Add our listeners. They get automatically removed on window teardown.
       aSubject.controllers.appendController(new findTypeController(this, aSubject));
-      Cc["@mozilla.org/eventlistenerservice;1"]
-        .getService(Ci.nsIEventListenerService)
-        .addSystemEventListener(aSubject, "keypress", this, false);
+      Services.els.addSystemEventListener(aSubject, "keypress", this, false);
     }
     if (aTopic == "nsWebBrowserFind_FindAgain" &&
         aSubject instanceof Ci.nsISupportsInterfacePointer &&
@@ -372,8 +370,7 @@ typeAheadFind.prototype = {
 
     // Get the string bundle if we don't have it already.
     if (!this.mBundle)
-      this.mBundle = Cc["@mozilla.org/intl/stringbundle;1"]
-                       .getService(Ci.nsIStringBundleService)
+      this.mBundle = Services.strings
                        .createBundle("chrome://communicator/locale/typeaheadfind.properties");
 
     // Set up all our properties

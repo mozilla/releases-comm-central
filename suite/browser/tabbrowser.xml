@@ -108,9 +108,6 @@
       <field name="mSessionStore" readonly="true">
         Cc["@mozilla.org/suite/sessionstore;1"].getService(Ci.nsISessionStore);
       </field>
-      <field name="mURIFixup" readonly="true">
-        Cc["@mozilla.org/docshell/urifixup;1"].getService(Ci.nsIURIFixup);
-      </field>
       <field name="mTabBox" readonly="true">
         document.getAnonymousElementByAttribute(this, "anonid", "tabbox");
       </field>
@@ -873,7 +870,7 @@
         <body>
           <![CDATA[
             try {
-              aURI = this.mURIFixup.createExposableURI(aURI);
+              aURI = Services.uriFixup.createExposableURI(aURI);
             } catch (e) {
             }
             return aURI.resolve("/favicon.ico");
@@ -886,7 +883,7 @@
         <body>
           <![CDATA[
             try {
-              aURI = this.mURIFixup.createExposableURI(aURI);
+              aURI = Services.uriFixup.createExposableURI(aURI);
             } catch (e) {
             }
             return (aURI && Services.prefs.getBoolPref("browser.chrome.site_icons") &&
@@ -980,7 +977,7 @@
         <body>
           <![CDATA[
             try {
-              aURI = this.mURIFixup.createExposableURI(aURI).spec;
+              aURI = Services.uriFixup.createExposableURI(aURI).spec;
             } catch (e) {
               aURI = aURI.spec;
             }
@@ -1080,7 +1077,8 @@
             // (only for schemes that support a host)
             try {
               if (docElement.getAttribute("chromehidden").includes("location")) {
-                var uri = this.mURIFixup.createExposableURI(aBrowser.currentURI);
+                let uri = Services.uriFixup.createExposableURI(
+                            aBrowser.currentURI);
                 if (uri.schemeIs("about"))
                   newTitle = uri.spec + sep + newTitle;
                 else if (uri.host)
@@ -2476,11 +2474,9 @@
             }
 
             var url;
-            var linkHandler = Cc["@mozilla.org/content/dropped-link-handler;1"]
-                                .getService(Ci.nsIDroppedLinkHandler);
             try {
               // Pass true to disallow dropping javascript: or data: urls.
-              url = linkHandler.dropLink(aEvent, {}, true);
+              url = Services.droppedLinkHandler.dropLink(aEvent, {}, true);
             } catch (ex) {}
 
             // Valid urls don't contain spaces ' '; if we have a space
