@@ -612,7 +612,7 @@
                 <label crop="center" flex="1" class="displayText"></label>
                 <label class="dateTime"></label>
                 <button class="recover mini-button"
-                        tooltiptext="&cmd.recover.label"
+                        tooltiptext="&cmd.recover.label;"
                         cmd="cmd_recover"
                         ondblclick="event.stopPropagation();"
                         oncommand="activity.recoveryHandler.recover(activity);">
