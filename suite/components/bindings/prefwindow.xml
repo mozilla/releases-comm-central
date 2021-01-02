@@ -509,18 +509,6 @@
         // <script>s might clash. Thus we expect the "script" attribute to
         // contain a whitespace delimited list of script files to be loaded
         // into the <prefpane>'s context.
-        var subScriptLoader = null;
-        try
-        {
-          subScriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"]
-                              .getService(Ci.mozIJSSubScriptLoader);
-        }
-        catch (e)
-        {
-          var msg = 'prefpane.paneload: no mozIJSSubScriptLoader!\n' + e;
-          Cu.reportError(msg);
-          return;
-        }
 
         // list of scripts to load
         var scripts = this.getAttribute('script').match(/\S+/g);
@@ -534,13 +522,17 @@
           {
             try
             {
-              subScriptLoader.loadSubScript(script, this);
+              Services.scriptloader.loadSubScript(script, this);
             }
             catch (e)
             {
-              var msg = 'prefpane.paneload: loadSubScript("'
-                      + script + '") failed:\n' + e;
-              Cu.reportError(msg);
+              let errorStr =
+                "prefpane.paneload: loadSubScript(" + script + ") failed:\n" +
+                (e.fileName ? "at " + e.fileName + " : " + e.lineNumber + "\n"
+                            : "") +
+                e + " - " + e.stack + "\n";
+              dump(errorStr);
+              Cu.reportError(errorStr);
             }
           }
         }

@@ -21,30 +21,19 @@
     <implementation implements="nsIObserver, nsIFormSubmitObserver, nsIWebProgressListener, nsIWebProgressListener2, nsIDOMEventListener">
       <field name="_stringBundle" readonly="true">
         <![CDATA[
-          Cc["@mozilla.org/intl/stringbundle;1"]
-            .getService(Ci.nsIStringBundleService)
-            .createBundle("chrome://communicator/locale/notification.properties");
+          Services.strings.createBundle("chrome://communicator/locale/notification.properties");
         ]]>
       </field>
 
       <field name="_brandStringBundle" readonly="true">
         <![CDATA[
-          Cc["@mozilla.org/intl/stringbundle;1"]
-            .getService(Ci.nsIStringBundleService)
-            .createBundle("chrome://branding/locale/brand.properties");
+          Services.strings.createBundle("chrome://branding/locale/brand.properties");
         ]]>
       </field>
 
       <field name="_placesBundle" readonly="true">
         <![CDATA[
          Services.strings.createBundle("chrome://communicator/locale/places/places.properties");
-        ]]>
-      </field>
-
-      <field name="_urlFormatter" readonly="true">
-        <![CDATA[
-          Cc["@mozilla.org/toolkit/URLFormatterService;1"]
-            .getService(Ci.nsIURLFormatter);
         ]]>
       </field>
 
@@ -189,12 +178,9 @@
                   label: this._stringBundle.GetStringFromName("SecurityUnblock.label"),
                   accessKey: this._stringBundle.GetStringFromName("SecurityUnblock.accesskey"),
                   callback: () => {
-                    const nsIPermissionManager = Ci.nsIPermissionManager;
-                    Cc["@mozilla.org/permissionmanager;1"]
-                      .getService(nsIPermissionManager)
-                      .add(this.activeBrowser.currentURI,
-                                   "trackingprotection",
-                                   nsIPermissionManager.ALLOW_ACTION);
+                    Services.perms.add(this.activeBrowser.currentURI,
+                                       "trackingprotection",
+                                       Ci.nsIPermissionManager.ALLOW_ACTION);
                     this.reloadPage();
                   }
                 }];
@@ -354,7 +340,7 @@
               return;
 
             var warn = { value: true };
-            var prompt = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
+            var prompt = Services.prompt;
             aCancel.value = prompt.confirmEx(
               aWindow,
               this._stringBundle.GetStringFromName("SecurityTitle"),
@@ -632,9 +618,7 @@
             var ph = Cc["@mozilla.org/plugin/host;1"]
                        .getService(Ci.nsIPluginHost);
             var permissionString = ph.getPermissionStringForType(actualType);
-            var pm = Cc["@mozilla.org/permissionmanager;1"]
-                       .getService(Ci.nsIPermissionManager);
-            var pluginPermission = pm.testPermission(this.activeBrowser.currentURI, permissionString);
+            var pluginPermission = Services.perms.testPermission(this.activeBrowser.currentURI, permissionString);
             return pluginPermission != Ci.nsIPermissionManager.DENY_ACTION;
           ]]>
         </body>
@@ -646,11 +630,9 @@
           <![CDATA[
             var ph = Cc["@mozilla.org/plugin/host;1"]
                        .getService(Ci.nsIPluginHost);
-            var pm = Cc["@mozilla.org/permissionmanager;1"]
-                       .getService(Ci.nsIPermissionManager);
             for (var type of this.clickToPlayTypes) {
               var permissionString = ph.getPermissionStringForType(type);
-              pm.add(this.activeBrowser.currentURI, permissionString, aPermission);
+              Services.perms.add(this.activeBrowser.currentURI, permissionString, aPermission);
             }
           ]]>
         </body>
@@ -718,7 +700,7 @@
         <parameter name="aPref"/>
         <body>
           <![CDATA[
-            var url = this._urlFormatter.formatURLPref(aPref);
+            var url = Services.urlFormatter.formatURLPref(aPref);
             var nsIBrowserDOMWindow = Ci.nsIBrowserDOMWindow;
 
             var browserWin;
@@ -1044,11 +1026,8 @@
         <parameter name="aEvent"/>
         <body>
           <![CDATA[
-            const nsIPermissionManager = Ci.nsIPermissionManager;
-            var uri = this.activeBrowser.currentURI;
-            var pm = Cc["@mozilla.org/permissionmanager;1"]
-                       .getService(nsIPermissionManager);
-            pm.add(uri, "popup", nsIPermissionManager.ALLOW_ACTION);
+            Services.perms.add(this.activeBrowser.currentURI, "popup",
+                               Ci.nsIPermissionManager.ALLOW_ACTION);
 
             this.removeCurrentNotification();
           ]]>
@@ -1060,12 +1039,9 @@
         <body>
           <![CDATA[
             var documentURI = aDocument.documentURIObject;
-            const nsIPermissionManager = Ci.nsIPermissionManager;
-            var pm = Cc["@mozilla.org/permissionmanager;1"]
-                       .getService(nsIPermissionManager);
-
+            var pm = Services.perms;
             if (pm.testExactPermission(documentURI, "offline-app") !=
-                nsIPermissionManager.UNKNOWN_ACTION)
+                Ci.nsIPermissionManager.UNKNOWN_ACTION)
               return;
 
             var host = documentURI.asciiHost;
@@ -1078,7 +1054,7 @@
                 label: this._stringBundle.GetStringFromName("offlineApps.always"),
                 accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
                 callback: function() {
-                  pm.add(documentURI, "offline-app", nsIPermissionManager.ALLOW_ACTION);
+                  pm.add(documentURI, "offline-app", Ci.nsIPermissionManager.ALLOW_ACTION);
                   var updateService = Cc["@mozilla.org/offlinecacheupdate-service;1"]
                                         .getService(Ci.nsIOfflineCacheUpdateService);
                   notification.documents.forEach(function(aDocument) {
@@ -1104,7 +1080,7 @@
                 label: this._stringBundle.GetStringFromName("offlineApps.never"),
                 accessKey: this._stringBundle.GetStringFromName("offlineApps.never.accesskey"),
                 callback: function() {
-                  pm.add(documentURI, "offline-app", nsIPermissionManager.DENY_ACTION);
+                  pm.add(documentURI, "offline-app", Ci.nsIPermissionManager.DENY_ACTION);
                 }
               }, {
                 label: this._stringBundle.GetStringFromName("offlineApps.later"),
@@ -1129,10 +1105,7 @@
         <parameter name="aURI"/>
         <body>
           <![CDATA[
-            const nsIPermissionManager = Ci.nsIPermissionManager;
-            var pm = Cc["@mozilla.org/permissionmanager;1"]
-                       .getService(nsIPermissionManager);
-            if (pm.testExactPermission(aURI, "offline-app") ==
+            if (Services.perms.testExactPermission(aURI, "offline-app") ==
                 Ci.nsIOfflineCacheUpdateService.ALLOW_NO_WARN)
               return;
 
@@ -1154,8 +1127,8 @@
             var priority = this.PRIORITY_WARNING_MEDIUM;
             this.appendNotification(message, "offline-app-usage", null,
                                     priority, null);
-            pm.add(aURI, "offline-app",
-                   Ci.nsIOfflineCacheUpdateService.ALLOW_NO_WARN);
+            Services.perms.add(aURI, "offline-app",
+                               Ci.nsIOfflineCacheUpdateService.ALLOW_NO_WARN);
           ]]>
         </body>
       </method>
@@ -1163,9 +1136,7 @@
       <method name="showRightsNotification">
         <body>
           <![CDATA[
-            var rightsBundle = Cc["@mozilla.org/intl/stringbundle;1"]
-                                 .getService(Ci.nsIStringBundleService)
-                                 .createBundle("chrome://branding/locale/aboutRights.properties");
+            var rightsBundle = Services.strings.createBundle("chrome://branding/locale/aboutRights.properties");
             var buttonLabel = rightsBundle.GetStringFromName("buttonLabel");
             var buttonAccessKey = rightsBundle.GetStringFromName("buttonAccessKey");
             var productName = this._brandStringBundle.GetStringFromName("brandFullName");
@@ -1343,14 +1314,13 @@
             checkbox.className = "rememberChoice";
             checkbox.setAttribute("label", this._stringBundle.GetStringFromName("activatepluginsMessage.remember"));
 
-            const nsIPermissionManager = Ci.nsIPermissionManager;
             var messageString = this._stringBundle.GetStringFromName("activatepluginsMessage.title");
             var buttons = [{
               label: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.label"),
               accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.accesskey"),
               callback: (function () {
                 if (checkbox.checked)
-                  this.setPermissionForPlugins(nsIPermissionManager.ALLOW_ACTION);
+                  this.setPermissionForPlugins(Ci.nsIPermissionManager.ALLOW_ACTION);
                 this.activatePlugins(checkbox.checked);
               }).bind(this)
             }, {
@@ -1358,7 +1328,7 @@
               accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.dismiss.accesskey"),
               callback: (function () {
                 if (checkbox.checked)
-                  this.setPermissionForPlugins(nsIPermissionManager.DENY_ACTION);
+                  this.setPermissionForPlugins(Ci.nsIPermissionManager.DENY_ACTION);
                 this.hideAllPluginOverlays();
               }).bind(this)
             }];
@@ -1484,7 +1454,6 @@
             var message = this._stringBundle.formatStringFromName(property,
                                                                   [host, aData], 2);
             var observer = aRequestor.getInterface(Ci.nsIObserver);
-            var nsIPermissionManager = Ci.nsIPermissionManager;
             var buttons = [{
               label: this._stringBundle.GetStringFromName("offlineApps.always"),
               accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
@@ -1492,7 +1461,7 @@
               callback: function allowIndexedDB() {
                 clearTimeout(box.timeout);
                 observer.observe(null, "indexedDB-" + aTopic + "-response",
-                                 nsIPermissionManager.ALLOW_ACTION);
+                                 Ci.nsIPermissionManager.ALLOW_ACTION);
               }
             }, {
               label: this._stringBundle.GetStringFromName("offlineApps.never"),
@@ -1501,7 +1470,7 @@
               callback: function denyIndexedDB() {
                 clearTimeout(box.timeout);
                 observer.observe(null, "indexedDB-" + aTopic + "-response",
-                                 nsIPermissionManager.DENY_ACTION);
+                                 Ci.nsIPermissionManager.DENY_ACTION);
               }
             }, {
               label: this._stringBundle.GetStringFromName("offlineApps.later"),
@@ -1510,7 +1479,7 @@
               callback: function laterIndexedDB() {
                 clearTimeout(box.timeout);
                 observer.observe(null, "indexedDB-" + aTopic + "-response",
-                                 nsIPermissionManager.UNKNOWN_ACTION);
+                                 Ci.nsIPermissionManager.UNKNOWN_ACTION);
               }
             }];
             var box = this.appendNotification(message,
@@ -1520,7 +1489,7 @@
                                                 null : buttons);
             box.timeout = setTimeout(function() {
               observer.observe(null, "indexedDB-" + aTopic + "-response",
-                               nsIPermissionManager.UNKNOWN_ACTION);
+                               Ci.nsIPermissionManager.UNKNOWN_ACTION);
               if (box.parentNode)
                 box.parentNode.removeNotification(box);
             }, 300000); // 5 minutes
@@ -1543,7 +1512,7 @@
 
             var observer = aRequestor.getInterface(Ci.nsIObserver);
             observer.observe(null, "indexedDB-" + aTopic + "-response",
-                             nsIPermissionManager.UNKNOWN_ACTION);
+                             Ci.nsIPermissionManager.UNKNOWN_ACTION);
           ]]>
         </body>
       </method>
@@ -1732,8 +1701,7 @@
               });
 
               var brandShortName = this._brandStringBundle.GetStringFromName("brandShortName");
-              var version = Cc["@mozilla.org/xre/app-info;1"]
-                              .getService(Ci.nsIXULAppInfo).version;
+              var version = Services.appinfo.version;
               var messageString = this._stringBundle.GetStringFromName(error)
                                                     .replace("#1", name)
                                                     .replace("#2", host)
@@ -1791,11 +1759,9 @@
             this.activeBrowser.loadURIWithFlags(uri.asciiSpec, flag,
                                                 null, null, null);
 
-            const nsIPermissionManager = Ci.nsIPermissionManager;
-            var pm = Cc["@mozilla.org/permissionmanager;1"]
-                       .getService(nsIPermissionManager);
-            pm.add(uri, "safe-browsing", nsIPermissionManager.ALLOW_ACTION,
-                                         nsIPermissionManager.EXPIRE_SESSION);
+            Services.perms.add(uri, "safe-browsing",
+                               Ci.nsIPermissionManager.ALLOW_ACTION,
+                               Ci.nsIPermissionManager.EXPIRE_SESSION);
 
             var title, label, accessKey, reportName, buttons;
 
@@ -2176,9 +2142,7 @@
               }
 
               // Use a weak reference, so we don't have to remove it...
-              Cc["@mozilla.org/observer-service;1"]
-                .getService(Ci.nsIObserverService)
-                .addObserver(observer, "crash-report-status", true);
+              Services.obs.addObserver(observer, "crash-report-status", true);
               // ...alas, now we need something to hold a strong reference to prevent
               // it from being GC. But I don't want to manually manage the reference's
               // lifetime (which should be no greater than the page).
@@ -2444,7 +2408,6 @@
       <method name="showPluginClickToPlayPrompt">
         <body>
           <![CDATA[
-            const nsIPermissionManager = Ci.nsIPermissionManager;
             var mainAction = {
               label: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.label"),
               accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.activate.accesskey"),
@@ -2465,14 +2428,14 @@
               label: this._stringBundle.GetStringFromName("activatepluginsMessage.always.label"),
               accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.always.accesskey"),
               callback: (function () {
-                this.setPermissionForPlugins(nsIPermissionManager.ALLOW_ACTION);
+                this.setPermissionForPlugins(Ci.nsIPermissionManager.ALLOW_ACTION);
                 this.activatePlugins(true);
               }).bind(this)
             }, {
               label: this._stringBundle.GetStringFromName("activatepluginsMessage.never.label"),
               accessKey: this._stringBundle.GetStringFromName("activatepluginsMessage.never.accesskey"),
               callback: (function () {
-                this.setPermissionForPlugins(nsIPermissionManager.DENY_ACTION);
+                this.setPermissionForPlugins(Ci.nsIPermissionManager.DENY_ACTION);
                 var notification = PopupNotifications.getNotification("click-to-play-plugins",
                                                                       this.activeBrowser);
                 if (notification)
@@ -2504,14 +2467,13 @@
             var message = this._stringBundle.formatStringFromName(property,
                                                                   [host, aData], 2);
             var observer = aRequestor.getInterface(Ci.nsIObserver);
-            var nsIPermissionManager = Ci.nsIPermissionManager;
             var mainAction = {
               label: this._stringBundle.GetStringFromName("offlineApps.always"),
               accessKey: this._stringBundle.GetStringFromName("offlineApps.always.accesskey"),
               callback: function allowIndexedDB() {
                 clearTimeout(notification.timeout);
                 observer.observe(null, "indexedDB-" + aTopic + "-response",
-                                 nsIPermissionManager.ALLOW_ACTION);
+                                 Ci.nsIPermissionManager.ALLOW_ACTION);
               }
             };
             var secondaryActions = [{
@@ -2520,12 +2482,12 @@
               callback: function denyIndexedDB() {
                 clearTimeout(notification.timeout);
                 observer.observe(null, "indexedDB-" + aTopic + "-response",
-                                 nsIPermissionManager.DENY_ACTION);
+                                 Ci.nsIPermissionManager.DENY_ACTION);
               }
             }];
             function notificationTimedOut() {
               observer.observe(null, "indexedDB-" + aTopic + "-response",
-                               nsIPermissionManager.UNKNOWN_ACTION);
+                               Ci.nsIPermissionManager.UNKNOWN_ACTION);
               notification.remove();
             }
             var options = {
@@ -2567,7 +2529,7 @@
 
             var observer = aRequestor.getInterface(Ci.nsIObserver);
             observer.observe(null, "indexedDB-" + aTopic + "-response",
-                             nsIPermissionManager.UNKNOWN_ACTION);
+                             Ci.nsIPermissionManager.UNKNOWN_ACTION);
           ]]>
         </body>
       </method>
@@ -2757,8 +2719,7 @@
             });
 
             var brandShortName = this._brandStringBundle.GetStringFromName("brandShortName");
-            var version = Cc["@mozilla.org/xre/app-info;1"]
-                            .getService(Ci.nsIXULAppInfo).version;
+            var version = Services.appinfo.version;
             var messageString = this._stringBundle.GetStringFromName(error)
                                                   .replace("#1", name)
                                                   .replace("#2", host)
