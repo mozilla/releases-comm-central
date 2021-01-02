@@ -117,10 +117,8 @@ function restartApp()
     return;
 
   Services.prefs.setBoolPref("browser.sessionstore.resume_session_once", true);
-  const nsIAppStartup = Ci.nsIAppStartup;
-  Cc["@mozilla.org/toolkit/app-startup;1"]
-    .getService(nsIAppStartup)
-    .quit(nsIAppStartup.eRestart | nsIAppStartup.eAttemptQuit);
+  const appStartup = Services.startup;
+  appStartup.quit(appStartup.eRestart | appStartup.eAttemptQuit);
 }
 
 function applyTheme(menuitem)

@@ -1394,8 +1394,8 @@ nsContextMenu.prototype = {
 
   // Copy email to clipboard
   copyEmail: function() {
-    var clipboard = this.getService("@mozilla.org/widget/clipboardhelper;1",
-                                    Ci.nsIClipboardHelper);
+    var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"]
+                      .getService(Ci.nsIClipboardHelper);
     clipboard.copyString(this.getEmail());
   },
 
@@ -1436,18 +1436,6 @@ nsContextMenu.prototype = {
   ///////////////
   // Utilities //
   ///////////////
-
-  // Create instance of component given contractId and iid (as string).
-  createInstance: function(aContractId, aIIDName) {
-    var iid = Ci[aIIDName];
-    return Cc[aContractId].createInstance(iid);
-  },
-
-  // Get service given contractId and iid (as string).
-  getService: function(aContractId, aIIDName) {
-    var iid = Ci[aIIDName];
-    return Cc[aContractId].getService(iid);
-  },
 
   // Show/hide one item (specified via name or the item element itself).
   showItem: function(aItemOrId, aShow) {

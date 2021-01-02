@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {AddonManager} = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+const appStartup = Services.startup;
 
 function restartApp() {
-  var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
-                     .getService(Ci.nsIAppStartup);
   appStartup.quit(appStartup.eForceQuit | appStartup.eRestart);
 }
 
@@ -55,12 +55,6 @@ function disableAddons() {
   });
 }
 
-function restoreDefaultSearchEngines() {
-  var searchService = Cc["@mozilla.org/browser/search-service;1"]
-                        .getService(Ci.nsIBrowserSearchService);
-  searchService.restoreDefaultEngines();
-}
-
 function onOK() {
   try {
     if (document.getElementById("resetUserPrefs").checked)
@@ -70,7 +64,7 @@ function onOK() {
     if (document.getElementById("resetToolbars").checked)
       deleteLocalstore();
     if (document.getElementById("restoreSearch").checked)
-      restoreDefaultSearchEngines();
+      Services.search.restoreDefaultEngines();
     if (document.getElementById("disableAddons").checked) {
       disableAddons();
       // disableAddons will asynchronously restart the application
@@ -84,8 +78,6 @@ function onOK() {
 }
 
 function onCancel() {
-  var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
-                     .getService(Ci.nsIAppStartup);
   appStartup.quit(appStartup.eForceQuit);
   return false;
 }

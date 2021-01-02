@@ -310,15 +310,11 @@ var Sanitizer = {
 
     passwords: {
       clear: function() {
-        var pwmgr = Cc["@mozilla.org/login-manager;1"]
-                      .getService(Ci.nsILoginManager);
-        pwmgr.removeAllLogins();
+        Services.logins.removeAllLogins();
       },
 
       get canClear() {
-        var pwmgr = Cc["@mozilla.org/login-manager;1"]
-                      .getService(Ci.nsILoginManager);
-        var count = pwmgr.countLogins("", "", ""); // count all logins
+        var count = Services.logins.countLogins("", "", ""); // count all logins
         return (count > 0);
       }
     },

@@ -590,14 +590,11 @@ function getTopWin(skipPopups) {
 function isRestricted( url )
 {
   try {
-    const nsIURIFixup = Ci.nsIURIFixup;
-    var uri = Cc["@mozilla.org/docshell/urifixup;1"]
-                .getService(nsIURIFixup)
-                .createFixupURI(url, nsIURIFixup.FIXUP_FLAG_NONE);
+    let uri = Services.uriFixup
+                .createFixupURI(url, Ci.nsIURIFixup.FIXUP_FLAG_NONE);
     const URI_INHERITS_SECURITY_CONTEXT =
         Ci.nsIProtocolHandler.URI_INHERITS_SECURITY_CONTEXT;
-    return Cc["@mozilla.org/network/util;1"]
-             .getService(Ci.nsINetUtil)
+    return Services.netUtils
              .URIChainHasFlags(uri, URI_INHERITS_SECURITY_CONTEXT);
   } catch (e) {
     return false;

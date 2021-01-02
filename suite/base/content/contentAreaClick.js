@@ -146,8 +146,6 @@ function handleLinkClick(event, href, linkNode) {
   return true;
 }
 
-  var gURIFixup = null;
-
   function middleMousePaste(event) {
 
     let clipboard = readFromClipboard();
@@ -224,12 +222,8 @@ function handleLinkClick(event, href, linkNode) {
     if (aUrlToAdd.search(/[\x00-\x1F]/) != -1) 
       return;
 
-    if (!gURIFixup)
-      gURIFixup = Cc["@mozilla.org/docshell/urifixup;1"]
-                    .getService(Ci.nsIURIFixup);
-
     getShortcutOrURIAndPostData(aUrlToAdd).then(data => {
-      var fixedUpURI = gURIFixup.createFixupURI(data.url, 0);
+      var fixedUpURI = Services.uriFixup.createFixupURI(data.url, 0);
       if (!fixedUpURI.schemeIs("data"))
         PlacesUtils.history.markPageAsTyped(fixedUpURI);
     }).catch(() => {});
