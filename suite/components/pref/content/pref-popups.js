@@ -17,31 +17,25 @@ function SetLists()
 {
   const kPopupType = "popup";
 
-  const nsIPermissionManager = Ci.nsIPermissionManager;
-  const nsIPermission = Ci.nsIPermission;
-
-  var permissionManager = Cc["@mozilla.org/permissionmanager;1"]
-                            .getService(nsIPermissionManager);
-
   var pref = document.getElementById("privacy.popups.remove_blacklist");
   if (pref.value)
   {
-    var enumerator = permissionManager.enumerator;
+    var enumerator = Services.perms.enumerator;
     var uris = [];
 
     while (enumerator.hasMoreElements())
     {
       var permission = enumerator.getNext();
-      if (permission instanceof nsIPermission)
+      if (permission instanceof Ci.nsIPermission)
       {
         if ((permission.type == kPopupType) &&
-            (permission.capability == nsIPermissionManager.DENY_ACTION))
+            (permission.capability == Ci.nsIPermissionManager.DENY_ACTION))
           uris.push(permission.principal.URI);
       }
     }
 
     for (var i in uris)
-      permissionManager.remove(uris[i], kPopupType);
+      Services.perms.remove(uris[i], kPopupType);
 
     pref.value = false;
   }
@@ -58,7 +52,7 @@ function SetLists()
       {
         var host = "http://" + hosts[i];
         var uri = Services.io.newURI(host);
-        permissionManager.add(uri, kPopupType, true);
+        Services.perms.add(uri, kPopupType, true);
       }
     }
     catch (ex) {}

@@ -57,9 +57,7 @@ GopherProtocol.prototype = {
                                                Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
                                                Ci.nsIContentPolicy.TYPE_OTHER);
     chan.originalURI = inputURI;
-    chan.owner = Cc["@mozilla.org/scriptsecuritymanager;1"]
-                   .getService(Ci.nsIScriptSecurityManager)
-                   .createCodebasePrincipal(inputURI, {});
+    chan.owner = Services.scriptSecurityManager.createCodebasePrincipal(inputURI, {});
     return chan;
   }
 };

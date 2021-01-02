@@ -220,7 +220,5 @@ var gSyncUtils = {
 
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyGetter(gSyncUtils, "_stringBundle", function() {
-  return Cc["@mozilla.org/intl/stringbundle;1"]
-           .getService(Ci.nsIStringBundleService)
-           .createBundle("chrome://communicator/locale/sync/syncSetup.properties");
+  return Services.strings.createBundle("chrome://communicator/locale/sync/syncSetup.properties");
 });

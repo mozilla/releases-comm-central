@@ -9,8 +9,6 @@ var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var gProfileBundle;
 var gBrandBundle;
 var gProfileService;
-var gPromptService = Cc["@mozilla.org/embedcomp/prompt-service;1"]
-                       .getService(Ci.nsIPromptService);
 var gProfileManagerMode = "selection";
 var gDialogParams = window.arguments[0]
                           .QueryInterface(Ci.nsIDialogParamBlock);
@@ -117,7 +115,7 @@ function AcceptDialog()
     var brandName = gBrandBundle.getString("brandShortName");
     var message = gProfileBundle.getFormattedString("dirLocked",
                                                     [brandName, selected.profile.name]);
-    gPromptService.alert(window, null, message);
+    Services.prompt.alert(window, null, message);
     return false;
   }
 
@@ -137,8 +135,7 @@ function AcceptDialog()
     env.set("XRE_PROFILE_NAME", selected.profile.name);
     env.set("XRE_PROFILE_PATH", selected.profile.rootDir.path);
     env.set("XRE_PROFILE_LOCAL_PATH", selected.profile.localDir.path);
-    var app = Cc["@mozilla.org/toolkit/app-startup;1"]
-                .getService(Ci.nsIAppStartup);
+    var app = Services.startup;
     app.quit(app.eAttemptQuit | app.eRestart);
     return true;
   }
@@ -173,27 +170,25 @@ function RenameProfile()
   var newName = {value: profileName};
   var dialogTitle = gProfileBundle.getString("renameProfileTitle");
   var msg = gProfileBundle.getFormattedString("renameProfilePrompt", [profileName]);
-  if (gPromptService.prompt(window, dialogTitle, msg, newName, null, {value: 0}) &&
+  var ps = Services.prompt;
+  if (ps.prompt(window, dialogTitle, msg, newName, null, {value: 0}) &&
       newName.value != profileName) {
     if (!/\S/.test(newName.value)) {
-      gPromptService.alert(window,
-                           gProfileBundle.getString("profileNameInvalidTitle"),
-                           gProfileBundle.getString("profileNameEmpty"));
+      ps.alert(window, gProfileBundle.getString("profileNameInvalidTitle"),
+               gProfileBundle.getString("profileNameEmpty"));
       return false;
     }
 
     if (/([\\*:?<>|\/\"])/.test(newName.value)) {
-      gPromptService.alert(window,
-                           gProfileBundle.getString("profileNameInvalidTitle"),
-                           gProfileBundle.getFormattedString("invalidChar", [RegExp.$1]));
+      ps.alert(window, gProfileBundle.getString("profileNameInvalidTitle"),
+               gProfileBundle.getFormattedString("invalidChar", [RegExp.$1]));
       return false;
     }
 
     try {
       gProfileService.getProfileByName(newName.value);
-      gPromptService.alert(window,
-                           gProfileBundle.getString("profileExistsTitle"),
-                           gProfileBundle.getString("profileExists"));
+      ps.alert(window, gProfileBundle.getString("profileExistsTitle"),
+               gProfileBundle.getString("profileExists"));
       return false;
     }
     catch (e) {
@@ -221,10 +216,11 @@ function ConfirmDelete()
 
     var path = selected.profile.rootDir.path;
     dialogText = gProfileBundle.getFormattedString("deleteProfile", [path]);
-    var buttonPressed = gPromptService.confirmEx(window, dialogTitle, dialogText,
-        (gPromptService.BUTTON_TITLE_IS_STRING * gPromptService.BUTTON_POS_0) +
-        (gPromptService.BUTTON_TITLE_CANCEL * gPromptService.BUTTON_POS_1) +
-        (gPromptService.BUTTON_TITLE_IS_STRING * gPromptService.BUTTON_POS_2),
+    var ps = Services.prompt;
+    var buttonPressed = ps.confirmEx(window, dialogTitle, dialogText,
+        (ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_0) +
+        (ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_1) +
+        (ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_2),
         gProfileBundle.getString("dontDeleteFiles"), null,
         gProfileBundle.getString("deleteFiles"), null, {value: 0});
     profileLock.unlock();
@@ -235,7 +231,7 @@ function ConfirmDelete()
     var brandName = gBrandBundle.getString("brandShortName");
     var dialogText = gProfileBundle.getFormattedString("deleteLocked",
                                                        [brandName, selected.profile.name]);
-    gPromptService.alert(window, dialogTitle, dialogText);
+    ps.alert(window, dialogTitle, dialogText);
   }
 }
 

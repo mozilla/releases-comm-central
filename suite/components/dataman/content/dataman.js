@@ -2470,9 +2470,7 @@ var gStorage = {
     let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
     file.append("webappsstore.sqlite");
     if (file.exists()) {
-      var connection = Cc["@mozilla.org/storage/service;1"]
-                         .getService(Ci.mozIStorageService)
-                         .openDatabase(file);
+      var connection = Services.storage.openDatabase(file);
       try {
         if (connection.tableExists("webappsstore2")) {
           var statement =

@@ -46,8 +46,6 @@ const NC_DEFAULTTOPIC = RDF.GetResource(NC + "defaulttopic");
 
 var RDFContainer = Cc["@mozilla.org/rdf/container;1"]
                      .createInstance(Ci.nsIRDFContainer);
-const CONSOLE_SERVICE = Cc['@mozilla.org/consoleservice;1']
-                          .getService(Ci.nsIConsoleService);
 
 var RE;
 
@@ -159,7 +157,7 @@ function init() {
   webProgress.addProgressListener(window.XULBrowserWindow, Ci.nsIWebProgress.NOTIFY_ALL);
 
   var searchBox = document.getElementById("findText");
-  searchBox.clickSelectsAll = getBoolPref("browser.urlbar.clickSelectsAll", true);
+  searchBox.clickSelectsAll = Services.prefs.getBoolPref("browser.urlbar.clickSelectsAll", true);
 
   setTimeout(focusSearch, 0);
 
@@ -797,19 +795,7 @@ function getLiteralValue(literal, defaultValue) {
 
 //  Write debug string to error console.
 function log(aText) {
-    CONSOLE_SERVICE.logStringMessage(aText);
-}
-
-function getBoolPref (aPrefname, aDefault)
-{
-  try {
-    var pref = Cc["@mozilla.org/preferences-service;1"]
-                 .getService(Ci.nsIPrefBranch);
-    return pref.getBoolPref(aPrefname);
-  }
-  catch(e) {
-    return aDefault;
-  }
+  Services.console.logStringMessage(aText);
 }
 
 // getXulWin - Returns the current Help window as a nsIXULWindow.

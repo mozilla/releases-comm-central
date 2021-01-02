@@ -453,9 +453,7 @@ function nsPlacesAutoComplete()
   //// Initialization
 
   // load preferences
-  this._prefs = Cc["@mozilla.org/preferences-service;1"].
-                getService(Ci.nsIPrefService).
-                getBranch(kBrowserUrlbarBranch);
+  this._prefs = Services.prefs.getBranch(kBrowserUrlbarBranch);
   this._syncEnabledPref();
   this._loadPrefs(true);
 

@@ -450,7 +450,5 @@ var gSyncUI = {
 XPCOMUtils.defineLazyGetter(gSyncUI, "_stringBundle", function() {
   //XXXzpao these strings should probably be moved from /services to /browser... (bug 583381)
   //        but for now just make it work
-  return Cc["@mozilla.org/intl/stringbundle;1"]
-           .getService(Ci.nsIStringBundleService)
-           .createBundle("chrome://weave/locale/services/sync.properties");
+  return Services.strings.createBundle("chrome://weave/locale/services/sync.properties");
 });

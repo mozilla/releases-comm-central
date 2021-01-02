@@ -89,8 +89,7 @@ function CacheSelectFolder()
 
 function ClearDiskAndMemCache()
 {
-  Cc["@mozilla.org/netwerk/cache-storage-service;1"]
-    .getService(Ci.nsICacheStorageService).clear();
+  Services.cache2.clear();
   updateActualCacheSize();
 }
 
@@ -110,7 +109,5 @@ function ReadSmartSizeEnabled()
 
 function updateActualCacheSize()
 {
-  Cc["@mozilla.org/netwerk/cache-storage-service;1"]
-    .getService(Ci.nsICacheStorageService)
-    .asyncGetDiskConsumption(CacheObserver);
+  Services.cache2.asyncGetDiskConsumption(CacheObserver);
 }

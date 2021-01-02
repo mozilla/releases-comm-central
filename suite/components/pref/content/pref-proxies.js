@@ -134,13 +134,11 @@ function ReloadPAC() {
 
 function FixProxyURL(aURL)
 {
-  const nsIURIFixup = Ci.nsIURIFixup;
-  var URIFixup = Cc["@mozilla.org/docshell/urifixup;1"]
-                   .getService(nsIURIFixup);
   try
   {
-    aURL.value = URIFixup.createFixupURI(aURL.value,
-                                         nsIURIFixup.FIXUP_FLAG_NONE).spec;
+    aURL.value =
+      Services.uriFixup.createFixupURI(aURL.value,
+                                       Ci.nsIURIFixup.FIXUP_FLAG_NONE).spec;
   }
   catch (e) {}
 
