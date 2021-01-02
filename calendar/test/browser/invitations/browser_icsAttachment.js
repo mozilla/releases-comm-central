@@ -41,10 +41,14 @@ add_task(async function test_ics_attachment() {
             if (mutation.attributeName == "disabled" && !acceptButton.disabled) {
               is(acceptButton.disabled, false, "Accept button enabled");
               if (AppConstants.platform != "macosx") {
+                let bundle = Services.strings.createBundle(
+                  "chrome://branding/locale/brand.properties"
+                );
+                let name = bundle.GetStringFromName("brandShortName");
                 // macOS requires extra step in Finder to set TB as default calendar app.
                 ok(
-                  dialogWindow.document.getElementById("openHandler").label.includes("Daily"),
-                  "Daily is the default calendar app"
+                  dialogWindow.document.getElementById("openHandler").label.includes(name),
+                  `${name} is the default calendar app`
                 );
               }
 
