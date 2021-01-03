@@ -215,7 +215,7 @@ treechildren::-moz-tree-twisty {
 
 :root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected, focus, current),
 :root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-row(selected, focus, current) {
-  border-color: var(--item-focus-selected-border-color);
+  border-color: var(--sidebar-highlight-border-color, var(--item-focus-selected-border-color));
 }
 
 /* Quick-Filter-Bar */

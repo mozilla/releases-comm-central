@@ -28,6 +28,7 @@
       "sidebar_border": "#888",
       "sidebar_highlight": "#2292d0",
       "sidebar_highlight_text": "#fff",
+      "sidebar_highlight_border": "#0060df",
       "toolbar_field_separator": "#ccc",
       "toolbar_field_text": "rgb(24, 25, 26)",
       "toolbar": "#f5f6f7",

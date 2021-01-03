@@ -248,6 +248,12 @@ const ThemeVariableMap = [
       lwtProperty: "sidebar_border",
     },
   ],
+  [
+    "--sidebar-highlight-border-color",
+    {
+      lwtProperty: "sidebar_highlight_border",
+    },
+  ],
 ];
 
 const ThemeContentPropertyList = [

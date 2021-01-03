@@ -48,7 +48,7 @@
 
 .attachmentList[seltype="multiple"]:focus
   .attachmentItem[current="true"][selected="true"] {
-  border-color: var(--item-focus-selected-border-color);
+  border-color: var(--sidebar-highlight-border-color, var(--item-focus-selected-border-color));
 }
 
 .attachmentcell-content {
