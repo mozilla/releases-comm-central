@@ -26,7 +26,6 @@ common/src/viewSource.xul
 # If you are enabling a directory, please add directory specific exclusions
 # below.
 build/**
-editor/**
 suite/**
 
 # calendar/ exclusions

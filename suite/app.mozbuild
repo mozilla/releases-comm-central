@@ -19,6 +19,5 @@ if CONFIG['MOZ_DOMINSPECTOR']:
 DIRS += [
     '/%s' % CONFIG['MOZ_BRANDING_DIRECTORY'],
     '/comm/calendar',
-    '/comm/editor/ui',
     '/comm/suite',
 ]

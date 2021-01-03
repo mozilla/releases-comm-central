@@ -16,7 +16,6 @@ def test(mod, path, entity=None):
         "devtools/shared",
         "devtools/startup",
         "suite",
-        "editor/ui",
         "extensions/spellcheck",
         "suite/branding/seamonkey",
         "services/sync",

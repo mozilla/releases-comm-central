@@ -1,0 +1,11 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+comm.jar:
+% overlay chrome://communicator/content/pref/preferences.xhtml chrome://editor/content/editorPrefsOverlay.xhtml
+% overlay chrome://communicator/content/pref/pref-appearance.xhtml chrome://editor/content/editorPrefsOverlay.xhtml
+    content/editor/editorPrefsOverlay.xhtml     (content/editorPrefsOverlay.xhtml)
+    content/editor/pref-composer.xhtml          (content/pref-composer.xhtml)
+    content/editor/pref-editing.js              (content/pref-editing.js)
+    content/editor/pref-editing.xhtml           (content/pref-editing.xhtml)
