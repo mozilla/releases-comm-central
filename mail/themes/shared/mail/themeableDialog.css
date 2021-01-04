@@ -117,6 +117,11 @@ html|textarea:focus {
   color: var(--highlight-color);
 }
 
+html|input:is([type="email"],[type="tel"],[type="text"],[type="password"],
+  [type="url"],[type="number"]):disabled {
+  opacity: 0.4;
+}
+
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
   appearance: none;
@@ -326,6 +331,11 @@ label {
 radio,
 checkbox {
   appearance: none;
+}
+
+radio[disabled="true"],
+checkbox[disabled="true"] {
+  color: #999;
 }
 
 .radio-check,
