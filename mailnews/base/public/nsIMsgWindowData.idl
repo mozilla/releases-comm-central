@@ -9,15 +9,12 @@
 
 interface nsITransactionManager;
 
-/*
- *  This interface can be used to set data specific to a window.
+/**
+ * This interface can be used to set data specific to a window.
  */
-
-
 [scriptable, uuid(BD85A416-5433-11d3-8AC5-0060B0FC04D2)]
 interface nsIMsgWindowData : nsISupports {
-
   attribute nsIMsgStatusFeedback statusFeedback;
-    attribute nsITransactionManager transactionManager;
+  attribute nsITransactionManager transactionManager;
   attribute nsIMessageView messageView;
 };
