@@ -669,6 +669,13 @@
      */
     onResize() {
       const scrollboxRect = this.scrollbox.getBoundingClientRect();
+      if (scrollboxRect.width == this.mWidth && scrollboxRect.height == this.mHeight) {
+        // Return early if we're still the previous size.
+        return;
+      }
+      this.mWidth = scrollboxRect.width;
+      this.mHeight = scrollboxRect.height;
+
       const isOrientHorizontal = this.getAttribute("orient") == "horizontal";
 
       const size = isOrientHorizontal ? scrollboxRect.width : scrollboxRect.height;

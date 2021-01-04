@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global cal, currentView, calendarNavigationBar, MozElements, MozXULElement, Services,
-   toggleOrientation */
+/* global cal, currentView, calendarNavigationBar, gCurrentMode, MozElements, MozXULElement,
+   Services, toggleOrientation */
 
 "use strict";
 
@@ -490,7 +490,7 @@
       this.setAttribute("type", this.type);
 
       window.addEventListener("viewresize", event => {
-        if (this.isVisible()) {
+        if (gCurrentMode == "calendar" && this.isVisible()) {
           this.onResize();
         }
       });

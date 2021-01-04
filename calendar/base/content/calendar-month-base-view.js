@@ -381,6 +381,14 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
      * @param {Element} viewElement    A calendar view element (calICalendarView).
      */
     onResize() {
+      let { width, height } = this.getBoundingClientRect();
+      if (width == this.mWidth && height == this.mHeight) {
+        // Return early if we're still the previous size.
+        return;
+      }
+      this.mWidth = width;
+      this.mHeight = height;
+
       this.adjustWeekdayLength();
       // Delete the timer for the time indicator in day/week view.
       timeIndicator.cancel();
