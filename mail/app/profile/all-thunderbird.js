@@ -1306,3 +1306,9 @@ pref("pdfjs.firstRun", true);
 // became the default.
 pref("pdfjs.previousHandler.preferredAction", 0);
 pref("pdfjs.previousHandler.alwaysAskBeforeHandling", false);
+
+pref("mail.activity.loglevel", "Warn");
+
+pref("mail.sendlater.loglevel", "Warn");
+
+pref("mail.searchintegration.loglevel", "Warn");

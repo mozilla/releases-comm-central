@@ -153,6 +153,8 @@ pref("calendar.item.useNewItemUI", false);
 // Always use the currently selected calendar as target for paste operations
 pref("calendar.paste.intoSelectedCalendar", false);
 
+pref("calendar.baseview.loglevel", "Warn");
+
 // Backend to use. false: libical, true: ical.js
 #ifdef NIGHTLY_BUILD
 pref("calendar.icaljs", true);

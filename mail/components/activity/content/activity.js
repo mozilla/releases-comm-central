@@ -1,9 +1,8 @@
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const activityManager = Cc["@mozilla.org/activity-manager;1"].getService(
   Ci.nsIActivityManager
 );
@@ -13,7 +12,11 @@ var ACTIVITY_LIMIT = 250;
 var activityObject = {
   _activityMgrListener: null,
   _activitiesView: null,
-  _activityLogger: Log4Moz.getConfiguredLogger("activitymgr"),
+  _activityLogger: console.createInstance({
+    prefix: "mail.activity",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mail.activity.loglevel",
+  }),
   _ignoreNotifications: false,
   _groupCache: new Map(),
 

@@ -11,7 +11,6 @@
 
 const EXPORTED_SYMBOLS = ["PeriodicFilterManager"];
 
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -20,12 +19,11 @@ const { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
 
-const log = Log4Moz.getConfiguredLogger(
-  "mail.periodicFilterManager",
-  Log4Moz.Level.Warn,
-  Log4Moz.Level.Warn,
-  Log4Moz.Level.Warn
-);
+const log = console.createInstance({
+  prefix: "mail.periodicfilters",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mail.periodicfilters.loglevel",
+});
 
 var PeriodicFilterManager = {
   _timer: null,

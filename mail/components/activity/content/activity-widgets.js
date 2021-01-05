@@ -11,9 +11,6 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
-  const { Log4Moz } = ChromeUtils.import(
-    "resource:///modules/gloda/Log4moz.jsm"
-  );
   const { makeFriendlyDateAgo } = ChromeUtils.import(
     "resource:///modules/TemplateUtils.jsm"
   );
@@ -31,7 +28,11 @@
         return;
       }
       // fetch the activity and set the base attributes
-      this.log = Log4Moz.getConfiguredLogger("activity-base");
+      this.log = console.createInstance({
+        prefix: "mail.activity",
+        maxLogLevel: "Warn",
+        maxLogLevelPref: "mail.activity.loglevel",
+      });
       let actID = this.getAttribute("actID");
       this._activity = activityManager.getActivity(actID);
       this.setAttribute("iconclass", this._activity.iconClass);

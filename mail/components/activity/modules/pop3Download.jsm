@@ -1,4 +1,4 @@
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -18,7 +18,6 @@ const { MailServices } = ChromeUtils.import(
 const { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 // This module provides a link between the pop3 service code and the activity
 // manager.
@@ -31,7 +30,11 @@ var pop3DownloadModule = {
 
   get log() {
     delete this.log;
-    return (this.log = Log4Moz.getConfiguredLogger("pop3DownloadsModule"));
+    return (this.log = console.createInstance({
+      prefix: "mail.activity",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "mail.activity.loglevel",
+    }));
   },
 
   get activityMgr() {

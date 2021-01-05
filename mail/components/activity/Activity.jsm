@@ -4,8 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["ActivityProcess", "ActivityEvent", "ActivityWarning"];
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-
 // Base class for ActivityProcess and ActivityEvent objects
 
 function Activity() {
@@ -27,7 +25,11 @@ Activity.prototype = {
   contextObj: null,
 
   _initLogging() {
-    this.log = Log4Moz.getConfiguredLogger("Activity");
+    this.log = console.createInstance({
+      prefix: "mail.activity",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "mail.activity.loglevel",
+    });
   },
 
   addListener(aListener) {

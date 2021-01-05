@@ -12,7 +12,6 @@
  *  get it wrong and it may eventually want to migrate.
  */
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );

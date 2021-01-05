@@ -1,4 +1,4 @@
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -22,7 +22,6 @@ var nsActWarning = Components.Constructor(
 );
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
 /**
  * This really, really, sucks. Due to mailnews widespread use of
@@ -60,7 +59,11 @@ var sendLaterModule = {
 
   get log() {
     delete this.log;
-    return (this.log = Log4Moz.getConfiguredLogger("sendLaterModule"));
+    return (this.log = console.createInstance({
+      prefix: "mail.sendlater",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "mail.sendlater.loglevel",
+    }));
   },
 
   get activityMgr() {

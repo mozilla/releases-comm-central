@@ -22,7 +22,6 @@ EXTRA_JS_MODULES.gloda += [
     "GlodaSyntheticView.jsm",
     "GlodaUtils.jsm",
     "IndexMsg.jsm",
-    "Log4moz.jsm",
     "MimeMessage.jsm",
     "MimeTypeCategories.jsm",
     "NounFreetag.jsm",

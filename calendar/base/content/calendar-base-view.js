@@ -9,8 +9,6 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-
   /**
    * Calendar observer for calendar view elements. Used in CalendarBaseView class.
    *
@@ -503,7 +501,11 @@
       this.updateDaysOffPrefs();
       this.mPendingRefreshJobs = new Map();
 
-      this.mLog = Log4Moz.getConfiguredLogger("calBaseView");
+      this.mLog = console.createInstance({
+        prefix: "calendar.baseview",
+        maxLogLevel: "Warn",
+        maxLogLevelPref: "calendar.baseview.loglevel",
+      });
 
       // Remove observers on window unload.
       window.addEventListener(

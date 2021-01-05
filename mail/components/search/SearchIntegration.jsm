@@ -1,4 +1,4 @@
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -18,7 +18,6 @@
 
 var EXPORTED_SYMBOLS = ["SearchIntegration"];
 
-var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -868,31 +867,11 @@ var SearchSupport = {
    */
   _log: null,
   _initLogging() {
-    let formatter = new Log4Moz.BasicFormatter();
-    let root = Log4Moz.repository.rootLogger;
-    root.level = Log4Moz.Level.Debug;
-
-    this._log = Log4Moz.repository.getLogger("SearchInt");
-
-    let enableConsoleLogging = false;
-    let enableDumpLogging = false;
-
-    try {
-      enableConsoleLogging = this._prefBranch.getBoolPref("logging.console");
-      enableDumpLogging = this._prefBranch.getBoolPref("logging.dump");
-    } catch (ex) {}
-
-    if (enableConsoleLogging) {
-      let capp = new Log4Moz.ConsoleAppender(formatter);
-      capp.level = Log4Moz.Level.Warn;
-      this._log.addAppender(capp);
-    }
-    if (enableDumpLogging) {
-      let dapp = new Log4Moz.DumpAppender(formatter);
-      dapp.level = Log4Moz.Level.All;
-      this._log.addAppender(dapp);
-    }
-
+    this._log = console.createInstance({
+      prefix: "mail.searchintegration",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "mail.searchintegration.loglevel",
+    });
     this._log.info("Logging initialized");
   },
 };
