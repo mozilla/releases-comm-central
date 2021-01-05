@@ -14,6 +14,11 @@
     --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .3));
 }
 
+#calendar-task-details-container {
+    border-bottom-width: 0;
+    overflow: hidden;
+}
+
 #calendar-task-details {
     display: flex;
     flex-direction: column;
@@ -25,10 +30,7 @@
 }
 
 #calendar-task-details-grid {
-    padding-top: 1px;
-    padding-inline-start: 0;
-    padding-inline-end: 0;
-    padding-bottom: 0.2em;
+    padding: 1px 2px 0.2em;
     width: 100%;
 }
 
@@ -93,8 +95,12 @@
 #calendar-task-details-description {
     width: 100%;
     box-sizing: border-box;
-    font-family: serif;
-    font-size: 16px;
+    border-width: 0;
+    border-top: 1px solid var(--splitter-color);
+    margin-block: 0;
+    padding-inline: 4px;
+    outline: none;
+    resize: none;
 }
 
 .task-details-name {
@@ -110,7 +116,8 @@
 }
 
 #calendar-task-details-attachment-row {
-    margin-top: 3px;
+    border-top: 1px solid var(--splitter-color);
+    padding-block: 2px;
 }
 
 #calendar-task-details-attachment-rows {

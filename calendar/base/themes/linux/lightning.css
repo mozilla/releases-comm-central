@@ -43,7 +43,6 @@
 /* Lightning sidebar in calendar and task mode */
 #ltnSidebar {
   background-color: Field;
-  border-bottom: 1px solid ThreeDShadow;
 }
 
 /* Today pane button in status bar */
