@@ -312,7 +312,10 @@ ABView.prototype = {
         subject.QueryInterface(Ci.nsIAbCard);
         let needsSort = false;
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
-          if (this._rowMap[i].card.equals(subject)) {
+          if (
+            this._rowMap[i].card.equals(subject) &&
+            this._rowMap[i].card.directoryUID == subject.directoryUID
+          ) {
             this._rowMap.splice(i, 1, new abViewCard(subject));
             needsSort = true;
           }
@@ -351,7 +354,10 @@ ABView.prototype = {
         subject.QueryInterface(Ci.nsIAbCard);
         let scrollPosition = this.tree?.getFirstVisibleRow();
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
-          if (this._rowMap[i].card.equals(subject)) {
+          if (
+            this._rowMap[i].card.equals(subject) &&
+            this._rowMap[i].card.directoryUID == subject.directoryUID
+          ) {
             this._rowMap.splice(i, 1);
             if (this.tree) {
               this.tree.rowCountChanged(i, -1);

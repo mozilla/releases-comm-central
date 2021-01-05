@@ -199,7 +199,7 @@ AddrBookMailingList.prototype = {
           return card;
         }
         if (!self._parent.hasCard(card)) {
-          self._parent.addCard(card);
+          card = self._parent.addCard(card);
         }
         let insertStatement = self._parent._dbConnection.createStatement(
           "REPLACE INTO list_cards (list, card) VALUES (:list, :card)"
