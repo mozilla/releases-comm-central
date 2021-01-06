@@ -49,7 +49,7 @@ add_task(async function testEventDialog() {
   createCalendar(controller, CALENDARNAME);
   // Since from other tests we may be elsewhere, make sure we start today.
   switchToView(controller, "day");
-  goToDate(controller, now.getFullYear(), now.getMonth() + 1, now.getDate());
+  goToDate(controller, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
   viewBack(controller, 1);
 
   // Open month view.
@@ -59,7 +59,7 @@ add_task(async function testEventDialog() {
 
   // Setup start- & endTime.
   // Next full hour except last hour of the day.
-  let hour = now.getHours();
+  let hour = now.getUTCHours();
   let startHour = hour == 23 ? hour : (hour + 1) % 24;
 
   let nextHour = cal.dtz.now();
@@ -112,7 +112,7 @@ add_task(async function testEventDialog() {
       description: EVENTDESCRIPTION,
       categories: [category],
       repeat: "daily",
-      repeatuntil: cal.dtz.dateTimeToJsDate(untildate),
+      repeatuntil: untildate,
       reminder: "5minutes",
       privacy: "private",
       attachment: { add: EVENTURL },
@@ -218,7 +218,7 @@ add_task(async function testOpenExistingEventDialog() {
 
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
-  goToDate(controller, now.getFullYear(), now.getMonth() + 1, now.getDate());
+  goToDate(controller, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
 
   let createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
   let eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);

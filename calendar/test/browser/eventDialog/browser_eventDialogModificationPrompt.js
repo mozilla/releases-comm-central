@@ -25,7 +25,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 var { eid, lookupEventBox } = helpersForController(controller);
 
-var { date1, date2, date3, data, newlines } = setupData();
+var { data, newlines } = setupData();
 
 // Test that closing an event dialog with no changes does not prompt for save.
 add_task(async function testEventDialogModificationPrompt() {
@@ -118,10 +118,10 @@ registerCleanupFunction(function teardownModule(module) {
 });
 
 function setupData() {
+  let date1 = cal.createDateTime("20090101T080000Z");
+  let date2 = cal.createDateTime("20090102T090000Z");
+  let date3 = cal.createDateTime("20090103T100000Z");
   return {
-    date1: new Date(2009, 0, 1, 8, 0),
-    date2: new Date(2009, 0, 2, 9, 0),
-    date3: new Date(2009, 0, 3, 10, 0),
     data: [
       {
         title: "title1",

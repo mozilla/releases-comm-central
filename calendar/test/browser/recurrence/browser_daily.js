@@ -21,6 +21,7 @@ var {
   viewBack,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
 
 var { lookupEventBox } = helpersForController(controller);
@@ -41,7 +42,7 @@ add_task(async function testDailyRecurrence() {
     await setData(event, iframe, {
       title: TITLE,
       repeat: "daily",
-      repeatuntil: new Date(2009, 2, 20),
+      repeatuntil: cal.createDateTime("20090320T000000Z"),
     });
     event.click(eventid("button-saveandclose"));
   });

@@ -38,10 +38,18 @@ add_task(async () => {
 
   let today = new Date();
   let times = {
-    ONE: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 13, 0, 0),
-    TWO_THIRTY: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 14, 30, 0),
-    THREE_THIRTY: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 15, 30, 0),
-    FOUR: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 16, 0, 0),
+    ONE: new Date(
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1, 13, 0, 0)
+    ),
+    TWO_THIRTY: new Date(
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1, 14, 30, 0)
+    ),
+    THREE_THIRTY: new Date(
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1, 15, 30, 0)
+    ),
+    FOUR: new Date(
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1, 16, 0, 0)
+    ),
   };
 
   registerCleanupFunction(async () => {

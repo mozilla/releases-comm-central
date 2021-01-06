@@ -44,8 +44,8 @@ add_task(async function testAnnualRecurrence() {
   let checkYears = [STARTYEAR, STARTYEAR + 1, EPOCH - 1, EPOCH, EPOCH + 1];
   for (let year of checkYears) {
     goToDate(controller, year, 1, 1);
-    let date = new Date(year, 0, 1);
-    let column = date.getDay() + 1;
+    let date = new Date(Date.UTC(year, 0, 1));
+    let column = date.getUTCDay() + 1;
 
     // day view
     switchToView(controller, "day");

@@ -32,7 +32,7 @@ add_task(async function testAlarmDialog() {
 
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
-  goToDate(controller, now.getFullYear(), now.getMonth() + 1, now.getDate());
+  goToDate(controller, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
   viewForward(controller, 1);
 
   controller.click(lookupEventBox("day", ALLDAY, undefined, 1));

@@ -10,7 +10,7 @@ function run_test() {
   dateTime1950.year = 1950;
   equal(dateTime1950.year, 1950);
 
-  let dateTime1955 = cal.dtz.jsDateToDateTime(new Date(1955, 6, 15));
+  let dateTime1955 = cal.dtz.jsDateToDateTime(new Date(Date.UTC(1955, 6, 15)));
   equal(dateTime1955.year, 1955);
 
   let dateTime1965 = cal.createDateTime();

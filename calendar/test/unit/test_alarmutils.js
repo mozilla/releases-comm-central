@@ -145,25 +145,25 @@ add_task(async function test_calculateAlarmDate() {
   alarm = new CalAlarm();
   alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
   alarm.offset = cal.createDuration("-PT1H");
-  equal(calculateAlarmDate(alarm).icalString, "20150815T110000");
+  equal(calculateAlarmDate(alarm).icalString, "20150815T110000Z");
 
   alarm = new CalAlarm();
   alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
   alarm.offset = cal.createDuration("-PT2H");
-  equal(calculateAlarmDate(alarm).icalString, "20150815T110000");
+  equal(calculateAlarmDate(alarm).icalString, "20150815T110000Z");
 
   item.startDate.isDate = true;
   alarm = new CalAlarm();
   alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
   alarm.offset = cal.createDuration("-PT1H");
-  equal(calculateAlarmDate(alarm).icalString, "20150814T230000");
+  equal(calculateAlarmDate(alarm).icalString, "20150814T230000Z");
   item.startDate.isDate = false;
 
   item.endDate.isDate = true;
   alarm = new CalAlarm();
   alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
   alarm.offset = cal.createDuration("-PT2H");
-  equal(calculateAlarmDate(alarm).icalString, "20150814T220000");
+  equal(calculateAlarmDate(alarm).icalString, "20150814T220000Z");
   item.endDate.isDate = false;
 
   alarm = new CalAlarm();

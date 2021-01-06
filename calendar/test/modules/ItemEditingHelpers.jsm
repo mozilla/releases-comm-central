@@ -272,10 +272,8 @@ async function setData(dialog, iframe, data) {
   }
 
   // startdate
-  if (data.startdate !== undefined && data.startdate.constructor.name == "Date") {
-    let startdate = dateFormatter.formatDateShort(
-      cal.dtz.jsDateToDateTime(data.startdate, cal.dtz.floating)
-    );
+  if (data.startdate !== undefined && data.startdate instanceof Ci.calIDateTime) {
+    let startdate = dateFormatter.formatDateShort(data.startdate);
 
     if (!isEvent) {
       dialog.check(iframeid("todo-has-entrydate"), true);
@@ -284,19 +282,15 @@ async function setData(dialog, iframe, data) {
   }
 
   // starttime
-  if (data.starttime !== undefined && data.starttime.constructor.name == "Date") {
-    let starttime = dateFormatter.formatTime(
-      cal.dtz.jsDateToDateTime(data.starttime, cal.dtz.floating)
-    );
+  if (data.starttime !== undefined && data.starttime instanceof Ci.calIDateTime) {
+    let starttime = dateFormatter.formatTime(data.starttime);
     replaceText(starttimeInput, starttime);
     await sleep(iframe.window);
   }
 
   // enddate
-  if (data.enddate !== undefined && data.enddate.constructor.name == "Date") {
-    let enddate = dateFormatter.formatDateShort(
-      cal.dtz.jsDateToDateTime(data.enddate, cal.dtz.floating)
-    );
+  if (data.enddate !== undefined && data.enddate instanceof Ci.calIDateTime) {
+    let enddate = dateFormatter.formatDateShort(data.enddate);
     if (!isEvent) {
       dialog.check(iframeid("todo-has-duedate"), true);
     }
@@ -304,10 +298,8 @@ async function setData(dialog, iframe, data) {
   }
 
   // endtime
-  if (data.endtime !== undefined && data.endtime.constructor.name == "Date") {
-    let endtime = dateFormatter.formatTime(
-      cal.dtz.jsDateToDateTime(data.endtime, cal.dtz.floating)
-    );
+  if (data.endtime !== undefined && data.endtime instanceof Ci.calIDateTime) {
+    let endtime = dateFormatter.formatTime(data.endtime);
     replaceText(endtimeInput, endtime);
   }
 
@@ -315,15 +307,13 @@ async function setData(dialog, iframe, data) {
   if (data.repeat !== undefined) {
     menulistSelect(iframeid("item-repeat"), data.repeat, dialog);
   }
-  if (data.repeatuntil !== undefined && data.repeatuntil.constructor.name == "Date") {
+  if (data.repeatuntil !== undefined && data.repeatuntil instanceof Ci.calIDateTime) {
     // Only fill in date, when the Datepicker is visible.
     if (
       !iframeid("repeat-untilDate").getNode().hidden &&
       !iframeid("repeat-details").getNode().hidden
     ) {
-      let untildate = dateFormatter.formatDateShort(
-        cal.dtz.jsDateToDateTime(data.repeatuntil, cal.dtz.floating)
-      );
+      let untildate = dateFormatter.formatDateShort(data.repeatuntil);
       replaceText(untilDateInput, untildate);
     }
   }
@@ -358,10 +348,8 @@ async function setData(dialog, iframe, data) {
   let currentStatus = iframeid("todo-status").getNode().value;
 
   // completed on
-  if (data.completed !== undefined && data.completed.constructor.name == "Date" && !isEvent) {
-    let completeddate = dateFormatter.formatDateShort(
-      cal.dtz.jsDateToDateTime(data.completed, cal.dtz.floating)
-    );
+  if (data.completed !== undefined && data.completed instanceof Ci.calIDateTime && !isEvent) {
+    let completeddate = dateFormatter.formatDateShort(data.completed);
     if (currentStatus == "COMPLETED") {
       replaceText(completeddateInput, completeddate);
     }

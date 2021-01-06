@@ -21,9 +21,6 @@ registerCleanupFunction(() => {
 });
 const calendar = cal.async.promisifyCalendar(_calendar);
 
-let originalTimezone = Services.prefs.getStringPref("calendar.timezone.local");
-Services.prefs.setStringPref("calendar.timezone.local", "UTC");
-
 async function getEventBox(attrSelector) {
   let itemBox;
   await TestUtils.waitForCondition(() => {
@@ -274,8 +271,4 @@ add_task(async function testEditAllOccurrences() {
     Assert.ok(actualTitle === newTitle, '"Edit all occurrences" edited each occurrence');
   }
   await calendar.deleteItem(event);
-});
-
-registerCleanupFunction(() => {
-  Services.prefs.setStringPref("calendar.timezone.local", originalTimezone);
 });

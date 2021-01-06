@@ -43,7 +43,7 @@ add_task(async function testMonthView() {
 
   // Create event.
   // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
-  let hour = new Date().getHours(); // Remember time at click.
+  let hour = new Date().getUTCHours(); // Remember time at click.
   let eventBox = lookupEventBox("month", CANVAS_BOX, 1, 5);
   await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);

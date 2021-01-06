@@ -22,8 +22,6 @@ registerCleanupFunction(() => {
 });
 
 let calendar = cal.async.promisifyCalendar(syncCalendar);
-let originalTimezone = Services.prefs.getStringPref("calendar.timezone.local");
-Services.prefs.setStringPref("calendar.timezone.local", "UTC");
 
 async function getEventBox(selector) {
   let itemBox;
@@ -79,8 +77,4 @@ add_task(async function testDragItemToAnotherDate() {
   Assert.ok(newEvent, "calendar item moved to new date");
   EventUtils.synthesizeMouseAtCenter(newEvent, {});
   EventUtils.synthesizeKey("VK_DELETE");
-});
-
-registerCleanupFunction(() => {
-  Services.prefs.setStringPref("calendar.timezone.local", originalTimezone);
 });

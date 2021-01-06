@@ -70,8 +70,8 @@ add_task(async function testLastDayOfMonthRecurrence() {
   ];
   // Check all dates.
   for (let [y, m, d, correctRow] of checkingData) {
-    let date = new Date(y, m - 1, d);
-    let column = date.getDay() + 1;
+    let date = new Date(Date.UTC(y, m - 1, d));
+    let column = date.getUTCDay() + 1;
 
     goToDate(controller, y, m, d);
 

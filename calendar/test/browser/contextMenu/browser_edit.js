@@ -12,9 +12,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
-let originalTimezone = Services.prefs.getStringPref("calendar.timezone.local");
-Services.prefs.setStringPref("calendar.timezone.local", "UTC");
-
 /**
  * Grabs a calendar-month-day-box-item from the view using an attribute CSS
  * selector. Only works when the calendar is in month view.
@@ -211,6 +208,5 @@ add_task(async function testCalendarReadOnly() {
 });
 
 registerCleanupFunction(() => {
-  Services.prefs.setStringPref("calendar.timezone.local", originalTimezone);
   return CalendarTestUtils.closeCalendarTab(window);
 });
