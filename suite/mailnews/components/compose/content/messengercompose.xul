@@ -59,17 +59,17 @@
     <stringbundle id="bundle_comp_smime" src="chrome://messenger-smime/locale/msgCompSMIMEOverlay.properties"/>
   </stringbundleset>
 
-  <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
-  <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/accountUtils.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/widgetglue.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/mail-offline.js"/>
-  <script type="application/javascript" src="chrome://editor/content/editor.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
-  <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/addressbook/abDragDrop.js"/>
-  <script type="application/javascript" src="chrome://messenger-smime/content/msgCompSMIMEOverlay.js"/>
+  <script src="chrome://communicator/content/contentAreaClick.js"/>
+  <script src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://messenger/content/accountUtils.js"/>
+  <script src="chrome://messenger/content/widgetglue.js"/>
+  <script src="chrome://messenger/content/mail-offline.js"/>
+  <script src="chrome://editor/content/editor.js"/>
+  <script src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
+  <script src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
+  <script src="chrome://global/content/nsDragAndDrop.js"/>
+  <script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
+  <script src="chrome://messenger-smime/content/msgCompSMIMEOverlay.js"/>
 
   <commandset id="composeCommands">
     <commandset id="msgComposeCommandUpdate"

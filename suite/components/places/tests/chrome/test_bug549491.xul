@@ -17,11 +17,9 @@
         title="549491: 'The root node is never visible' exception when details of the root node are modified "
         onload="runTest();">
 
-  <script type="application/javascript"
-          src="chrome://mochikit/content/MochiKit/packed.js" />
-  <script type="application/javascript"
-          src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js" />
-  <script type="application/javascript" src="head.js" />
+  <script src="chrome://mochikit/content/MochiKit/packed.js" />
+  <script src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js" />
+  <script src="head.js" />
 
   <body xmlns="http://www.w3.org/1999/xhtml" />
 
@@ -37,7 +35,8 @@
     <treechildren flex="1"/>
   </tree>
 
-  <script type="application/javascript"><![CDATA[
+  <script>
+  <![CDATA[
     /**
      * Bug 549491
      * https://bugzilla.mozilla.org/show_bug.cgi?id=549491

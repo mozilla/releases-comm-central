@@ -21,7 +21,7 @@
         ondialogaccept="return onAccept();"
         title="&defaultClient.title;">
 
-  <script type="application/javascript" src="chrome://communicator/content/defaultClientDialog.js"/>
+  <script src="chrome://communicator/content/defaultClientDialog.js"/>
 
   <description>&defaultClient.intro;</description>
   <listbox rows="4" id="defaultList">

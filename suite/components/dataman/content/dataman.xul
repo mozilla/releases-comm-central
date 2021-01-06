@@ -27,8 +27,7 @@
   <xhtml:link rel="shortcut icon"
               href="chrome://communicator/skin/dataman/datamanIcon-16.png"/>
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/dataman/dataman.js"/>
+  <script src="chrome://communicator/content/dataman/dataman.js"/>
 
   <stringbundleset id="datamanBundleSet">
     <stringbundle id="datamanBundle"

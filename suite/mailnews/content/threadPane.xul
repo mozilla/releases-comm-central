@@ -13,8 +13,7 @@
 <overlay
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-<script type="application/javascript"
-        src="chrome://messenger/content/threadPane.js"/>
+<script src="chrome://messenger/content/threadPane.js"/>
 
 <tree id="threadTree"
       persist="width lastfoldersent"

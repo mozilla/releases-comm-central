@@ -20,8 +20,7 @@
         ondialogextra2="onApply();"
         title="&setDesktopBackground.title;">
 
-  <script type="text/javascript"
-          src="chrome://communicator/content/setDesktopBackground.js"/>
+  <script src="chrome://communicator/content/setDesktopBackground.js"/>
 
   <hbox id="itemsBox" align="center">
     <label value="&position.label;" accesskey="&position.accesskey;"/>

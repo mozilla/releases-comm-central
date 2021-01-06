@@ -7,7 +7,7 @@
 <overlay id="mailOverlay.xul"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript" src="chrome://messenger/content/mailOverlay.js"/>
+  <script src="chrome://messenger/content/mailOverlay.js"/>
 
   <!-- generic commands -->
   <commandset id="tasksCommands">

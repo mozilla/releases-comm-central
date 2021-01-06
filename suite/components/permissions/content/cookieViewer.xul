@@ -20,14 +20,10 @@
         ondialoghelp="doHelpButton();"
         persist="screenX screenY width height">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/permissions/cookieViewer.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/permissions/permissionsUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/treeUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://help/content/contextHelp.js" />
+  <script src="chrome://communicator/content/permissions/cookieViewer.js"/>
+  <script src="chrome://communicator/content/permissions/permissionsUtils.js"/>
+  <script src="chrome://global/content/treeUtils.js"/>
+  <script src="chrome://help/content/contextHelp.js" />
 
   <keyset id="dialogKeys">
     <key key="&focusSearch.key;"

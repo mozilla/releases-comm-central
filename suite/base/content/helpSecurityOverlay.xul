@@ -6,8 +6,8 @@
 <overlay id="securityManagerOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript" src="chrome://help/content/contextHelp.js"/>
-  <script type="application/javascript">
+  <script src="chrome://help/content/contextHelp.js"/>
+  <script>
   <![CDATA[
     setHelpFileURI('chrome://communicator/locale/help/suitehelp.rdf');
 

@@ -7,12 +7,12 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <!-- Context menu -->
-  <script type="application/javascript">
+  <script>
     // Global variable that holds the nsContextMenu instance.
     var gContextMenu = null;
   </script>
-  <script type="application/javascript" src="chrome://communicator/content/nsContextMenu.js"/>
-  <script type="application/javascript" src="chrome://global/content/contentAreaUtils.js"/>
+  <script src="chrome://communicator/content/nsContextMenu.js"/>
+  <script src="chrome://global/content/contentAreaUtils.js"/>
 
   <stringbundleset>
     <stringbundle id="contentAreaCommandsBundle"

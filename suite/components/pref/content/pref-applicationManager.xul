@@ -18,10 +18,8 @@
         style="&appManager.style;"
         persist="screenX screenY">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/pref/pref-applications.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/pref/pref-applicationManager.js"/>
+  <script src="chrome://communicator/content/pref/pref-applications.js"/>
+  <script src="chrome://communicator/content/pref/pref-applicationManager.js"/>
 
   <commandset id="appManagerCommandSet">
     <command id="cmd_delete"

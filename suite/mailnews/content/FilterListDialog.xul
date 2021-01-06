@@ -22,8 +22,8 @@
         onunload="onFilterUnload();"
         onclose="return onFilterClose();">
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/FilterListDialog.js"/>
+  <script src="chrome://messenger/content/FilterListDialog.js"/>
+
   <stringbundle id="bundle_filter"
                 src="chrome://messenger/locale/filter.properties"/>
   <stringbundle id="bundle_brand"

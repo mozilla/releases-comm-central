@@ -20,10 +20,8 @@
 <overlay id="viewSourceOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/viewSourceOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/findUtils.js"/>
+  <script src="chrome://communicator/content/viewSourceOverlay.js"/>
+  <script src="chrome://communicator/content/findUtils.js"/>
 
   <window id="viewSource">
     <commandset id="tasksCommands"/>

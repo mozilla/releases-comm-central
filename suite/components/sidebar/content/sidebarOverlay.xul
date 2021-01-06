@@ -241,8 +241,7 @@
   </menupopup>
 
   <!-- Scripts go last, because they peek at state to tweak menus -->
-  <script type="application/javascript"
-    src="chrome://communicator/content/sidebar/sidebarOverlay.js"/>
+  <script src="chrome://communicator/content/sidebar/sidebarOverlay.js"/>
 
 </overlay>
 

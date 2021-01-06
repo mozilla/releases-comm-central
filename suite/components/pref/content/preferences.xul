@@ -30,10 +30,10 @@
             buttons="accept,cancel,help"
             autopanes="true">
 
-  <script type="application/javascript" src="chrome://communicator/content/pref/preferences.js"/>
+  <script src="chrome://communicator/content/pref/preferences.js"/>
   <!-- Used by pref-smartupdate, pref-privatedata, pref-cookies, pref-images, pref-popups and pref-passwords, as well as pref-sync (gSyncUtils.*open* -> openUILinkIn) -->
-  <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/tasksOverlay.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://communicator/content/tasksOverlay.js"/>
 
   <stringbundleset id="prefBundleset">
     <stringbundle id="bundle_prefutilities"

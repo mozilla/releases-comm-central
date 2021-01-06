@@ -12,7 +12,7 @@
 <overlay id="mailEditorOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript">
+  <script>
   <![CDATA[
 
     function openComposeWindow(pageUrl, pageTitle)

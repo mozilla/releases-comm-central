@@ -11,8 +11,7 @@
 <overlay id="webDeveloperOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript"
-          src="chrome://navigator/content/webDeveloperOverlay.js"/>
+  <script src="chrome://navigator/content/webDeveloperOverlay.js"/>
 
   <menupopup id="toolsPopup">
     <menuitem id="validatePage"

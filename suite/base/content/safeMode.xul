@@ -29,7 +29,7 @@
             onload="onLoad();"
             buttondisabledaccept="true">
 
-  <script type="application/javascript" src="chrome://communicator/content/safeMode.js"/>
+  <script src="chrome://communicator/content/safeMode.js"/>
 
   <description>&safeModeDescription.label;</description>
 

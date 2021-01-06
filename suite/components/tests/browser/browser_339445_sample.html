@@ -10,7 +10,7 @@ storageTestItem = <span id="storageTestItem">FAIL</span>
   * SUCCESS : the test value was correctly retrieved
 -->
 
-<script type="application/javascript">
+<script>
   document.getElementById("storageTestItem").textContent =
     sessionStorage["storageTestItem"] || "PENDING";
   sessionStorage["storageTestItem"] = "SUCCESS";

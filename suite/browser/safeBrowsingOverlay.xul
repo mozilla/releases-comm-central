@@ -8,8 +8,7 @@
 <overlay id="safeBrowsingOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript"
-          src="chrome://navigator/content/safeBrowsingOverlay.js"/>
+  <script src="chrome://navigator/content/safeBrowsingOverlay.js"/>
 
   <broadcasterset id="navBroadcasters">
     <broadcaster id="safeBrowsingBroadcaster" disabled="true"/>

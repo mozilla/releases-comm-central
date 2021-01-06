@@ -42,23 +42,22 @@
         persist="screenX screenY width height sizemode">
 
   <!-- Generic Utility -->
-  <script type="application/javascript" src="chrome://global/content/viewSourceUtils.js"/>
+  <script src="chrome://global/content/viewSourceUtils.js"/>
 
   <!-- Content Area -->
-  <script type="application/javascript" src="chrome://navigator/content/nsBrowserStatusHandler.js"/>
-  <script type="application/javascript" src="chrome://navigator/content/nsBrowserContentListener.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/findUtils.js"/>
-  <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://navigator/content/nsBrowserStatusHandler.js"/>
+  <script src="chrome://navigator/content/nsBrowserContentListener.js"/>
+  <script src="chrome://communicator/content/contentAreaClick.js"/>
+  <script src="chrome://communicator/content/findUtils.js"/>
+  <script src="chrome://global/content/printUtils.js"/>
 
   <!-- Navigator -->
-  <script type="application/javascript" src="chrome://navigator/content/fullScreen.js"/>
-  <script type="application/javascript" src="chrome://navigator/content/navigatorDD.js"/>
-  <script type="application/javascript" src="chrome://navigator/content/sessionHistoryUI.js"/>
+  <script src="chrome://navigator/content/fullScreen.js"/>
+  <script src="chrome://navigator/content/navigatorDD.js"/>
+  <script src="chrome://navigator/content/sessionHistoryUI.js"/>
 
   <!-- Places Bookmarks Utilities -->
-  <script type="application/javascript"
-          src="chrome://navigator/content/browser-places.js"/>
+  <script src="chrome://navigator/content/browser-places.js"/>
 
   <!-- hook for stringbundle overlays -->
   <stringbundleset id="stringbundleset">

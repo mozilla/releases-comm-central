@@ -17,8 +17,10 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&tabs.otherComputers.label;">
-  <script type="application/javascript" src="chrome://communicator/content/aboutSyncTabs.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
+
+  <script src="chrome://communicator/content/aboutSyncTabs.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
+
   <html:head>
     <html:link rel="icon" href="chrome://communicator/skin/sync/sync-16.png"/>
   </html:head>

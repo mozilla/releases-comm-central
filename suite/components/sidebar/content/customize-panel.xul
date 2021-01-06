@@ -13,7 +13,8 @@
   onload="Init();"
   onunload="RefreshPanel();;">
 
-  <script type="application/javascript" src="chrome://communicator/content/sidebar/customize-panel.js" />
+  <script src="chrome://communicator/content/sidebar/customize-panel.js" />
+
   <browser id="customize_frame"
            type="content"
            primary="true"

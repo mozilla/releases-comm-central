@@ -14,8 +14,7 @@
         onunload="onUnload();"
         style="width: 40em;">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/downloads/uploadProgress.js"/>
+  <script src="chrome://communicator/content/downloads/uploadProgress.js"/>
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="dmBundle"

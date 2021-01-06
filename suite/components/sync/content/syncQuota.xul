@@ -26,8 +26,7 @@
         title="&quota.dialogTitle.label;"
         ondialogaccept="return gSyncQuota.onAccept();">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/sync/syncQuota.js"/>
+  <script src="chrome://communicator/content/sync/syncQuota.js"/>
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="quotaStrings"

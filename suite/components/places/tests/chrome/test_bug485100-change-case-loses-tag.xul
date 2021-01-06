@@ -24,18 +24,15 @@
         title="485100: Exchanging a letter of a tag name with its big/small equivalent removes tag from bookmark"
         onload="runTest();">
 
-  <script type="application/javascript"
-          src="chrome://mochikit/content/MochiKit/packed.js" />
-  <script type="application/javascript"
-          src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js" />
-  <script type="application/javascript"
-          src="chrome://communicator/content/places/editBookmarkOverlay.js"/>
+  <script src="chrome://mochikit/content/MochiKit/packed.js" />
+  <script src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js" />
+  <script src="chrome://communicator/content/places/editBookmarkOverlay.js"/>
 
   <body xmlns="http://www.w3.org/1999/xhtml" />
 
   <vbox id="editBookmarkPanelContent"/>
 
-  <script type="application/javascript">
+  <script>
   <![CDATA[
 
     function runTest() {

@@ -27,14 +27,10 @@
         onwizardcancel="gSyncSetup.onWizardCancel();"
         onload="gSyncSetup.init();">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/sync/syncSetup.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/sync/syncUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/utilityOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://communicator/content/sync/syncSetup.js"/>
+  <script src="chrome://communicator/content/sync/syncUtils.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://global/content/printUtils.js"/>
 
   <wizardpage id="pickSetupType"
               label="&syncBrand.fullName.label;"

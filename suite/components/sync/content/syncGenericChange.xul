@@ -24,12 +24,9 @@
         onwizardnext="Change.onLoad();"
         onwizardfinish="return Change.onDialogAccept();">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/sync/syncGenericChange.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/sync/syncUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://communicator/content/sync/syncGenericChange.js"/>
+  <script src="chrome://communicator/content/sync/syncUtils.js"/>
+  <script src="chrome://global/content/printUtils.js"/>
 
   <wizardpage id="change-page"
               label="">

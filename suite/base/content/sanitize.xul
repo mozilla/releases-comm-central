@@ -21,8 +21,7 @@
         ondialogcancel="gSanitizePromptDialog.clearSettings();"
         buttonlabelaccept="&sanitizeButton.label;">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/sanitizeDialog.js"/>
+  <script src="chrome://communicator/content/sanitizeDialog.js"/>
 
   <description>&sanitizeItems.label;</description>
 

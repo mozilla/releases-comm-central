@@ -25,12 +25,10 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <!-- Navigator -->
-  <script type="application/javascript"
-          src="chrome://navigator/content/navigator.js"/>
+  <script src="chrome://navigator/content/navigator.js"/>
 
   <!-- Places Bookmarks Utilities -->
-  <script type="application/javascript"
-          src="chrome://navigator/content/browser-places.js"/>
+  <script src="chrome://navigator/content/browser-places.js"/>
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="bundle_navigator"

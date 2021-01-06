@@ -27,11 +27,12 @@
 
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   <stringbundle id="bundle_composeMsgs" src="chrome://messenger/locale/messengercompose/composeMsgs.properties"/>
-  <script type="application/javascript" src="chrome://messenger/content/addressbook/abCommon.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/addressbook/abSelectAddressesDialog.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/addressbook/abDragDrop.js"/>
-  <script type="application/javascript" src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
+
+  <script src="chrome://messenger/content/addressbook/abCommon.js"/>
+  <script src="chrome://messenger/content/addressbook/abSelectAddressesDialog.js"/>
+  <script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
+  <script src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
 
   <vbox flex="1">
 

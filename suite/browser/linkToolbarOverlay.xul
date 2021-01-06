@@ -11,14 +11,14 @@
          xmlns:rdf="http://www.mozilla.org/rdf">
 
   <!-- classes -->
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript" src="chrome://navigator/content/linkToolbarHandler.js" />
-  <script type="application/javascript" src="chrome://navigator/content/linkToolbarItem.js" />
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://navigator/content/linkToolbarHandler.js" />
+  <script src="chrome://navigator/content/linkToolbarItem.js" />
 
   <!-- functions -->
-  <script type="application/javascript" src="chrome://navigator/content/linkToolbarOverlay.js" />
+  <script src="chrome://navigator/content/linkToolbarOverlay.js" />
 
-  <script type="application/javascript">
+  <script>
     <![CDATA[
       document.addEventListener("pageshow", linkToolbarUI.initHandlers, true);
     ]]>

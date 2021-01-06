@@ -28,14 +28,10 @@
         drawtitle="true"
         windowtype="Download:Manager">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/downloads/downloadmanager.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/downloads/DownloadProgressListener.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/downloads/treeView.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/contentAreaUtils.js"/>
+  <script src="chrome://communicator/content/downloads/downloadmanager.js"/>
+  <script src="chrome://communicator/content/downloads/DownloadProgressListener.js"/>
+  <script src="chrome://communicator/content/downloads/treeView.js"/>
+  <script src="chrome://global/content/contentAreaUtils.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
 
   <stringbundleset id="stringbundleset">

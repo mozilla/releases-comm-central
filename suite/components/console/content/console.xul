@@ -24,9 +24,9 @@
         persist="screenX screenY width height sizemode"
         onclose="return closeWindow(false);">
 
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/console/console.js"/>
-  <script type="application/javascript" src="chrome://global/content/viewSourceUtils.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://communicator/content/console/console.js"/>
+  <script src="chrome://global/content/viewSourceUtils.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
 
   <stringbundle id="ConsoleBundle" src="chrome://communicator/locale/console/console.properties"/>

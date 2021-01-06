@@ -13,9 +13,9 @@
       onload="Startup();"
       elementtofocus="sidebar-search-text">
 
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/search/search-panel.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://communicator/content/search/search-panel.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
 
     <popupset id="sidebarPopupset">
       <panel id="PopupAutoComplete"

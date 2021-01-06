@@ -18,7 +18,7 @@
             onbeforeaccept="DoBeforeAccept();"
             ondialogaccept="return OnAccept();">
 
-  <script type="application/javascript" src="chrome://communicator/content/pref/pref-languages-add.js"/>
+  <script src="chrome://communicator/content/pref/pref-languages-add.js"/>
 
   <prefpane id="addLanguagesPane">
     <preferences id="addLanguages">

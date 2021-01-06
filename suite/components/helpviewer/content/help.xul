@@ -26,10 +26,10 @@
         onload="init();"
         onunload="window.XULBrowserWindow.destroy();">
 
-  <script type="application/javascript" src="chrome://help/content/help.js"/>
-  <script type="application/javascript" src="chrome://global/content/viewZoomOverlay.js"/>
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/findUtils.js"/>
+  <script src="chrome://help/content/help.js"/>
+  <script src="chrome://global/content/viewZoomOverlay.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://communicator/content/findUtils.js"/>
 
   <menupopup id="backMenu" position="after_start"
              onpopupshowing="return createBackMenu(event);"

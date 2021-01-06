@@ -23,10 +23,10 @@
         persist="screenX screenY"
         screenX="24" screenY="24">
 
-  <script type="application/javascript" src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/openLocation.js"/>
-  <script type="application/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
-  <script type="application/javascript" src="chrome://navigator/content/sessionHistoryUI.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://communicator/content/openLocation.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://navigator/content/sessionHistoryUI.js"/>
 
   <stringbundle id="openLocationBundle" src="chrome://communicator/locale/openLocation.properties"/>
 

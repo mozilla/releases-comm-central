@@ -17,14 +17,10 @@
 <overlay id="utilityOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript"
-          src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/utilityOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/sync/syncUI.js"/>
-  <script type="application/javascript"
-          src="chrome://help/content/contextHelp.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://communicator/content/sync/syncUI.js"/>
+  <script src="chrome://help/content/contextHelp.js"/>
 
   <stringbundleset>
     <stringbundle id="bundle_utilityOverlay"

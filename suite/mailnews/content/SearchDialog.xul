@@ -30,34 +30,20 @@
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
-  <script type="application/javascript"
-          src="chrome://messenger/content/mailWindow.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/msgMail3PaneWindow.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/globalOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/mailCommands.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/mailWindowOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/commandglue.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/SearchDialog.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/msgFolderPickerOverlay.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/widgetglue.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/messengerdnd.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/tabmail.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger/content/folderDisplay.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/contentAreaUtils.js"/>
-  <script type="application/javascript"
-          src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
+  <script src="chrome://messenger/content/mailWindow.js"/>
+  <script src="chrome://messenger/content/msgMail3PaneWindow.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://messenger/content/mailCommands.js"/>
+  <script src="chrome://messenger/content/mailWindowOverlay.js"/>
+  <script src="chrome://messenger/content/commandglue.js"/>
+  <script src="chrome://messenger/content/SearchDialog.js"/>
+  <script src="chrome://messenger/content/msgFolderPickerOverlay.js"/>
+  <script src="chrome://messenger/content/widgetglue.js"/>
+  <script src="chrome://messenger/content/messengerdnd.js"/>
+  <script src="chrome://messenger/content/tabmail.js"/>
+  <script src="chrome://messenger/content/folderDisplay.js"/>
+  <script src="chrome://global/content/contentAreaUtils.js"/>
+  <script src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
 
   <commands id="commands">
     <commandset id="mailSearchItems"

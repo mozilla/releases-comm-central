@@ -18,10 +18,12 @@
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="warningScreen"
         align="center">
-  <script type="text/javascript" src="chrome://communicator/content/utilityOverlay.js"/>
-  <script type="text/javascript" src="chrome://communicator/content/tasksOverlay.js"/>
-  <script type="text/javascript" src="chrome://help/content/contextHelp.js"/>
-  <script type="text/javascript" src="chrome://communicator/content/aboutPrivateBrowsing.js"/>
+
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://communicator/content/tasksOverlay.js"/>
+  <script src="chrome://help/content/contextHelp.js"/>
+  <script src="chrome://communicator/content/aboutPrivateBrowsing.js"/>
+
   <spacer flex="1"/>
   <hbox id="warningBox" align="start">
     <image id="warningBoxIcon"/>

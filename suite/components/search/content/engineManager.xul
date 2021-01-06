@@ -22,8 +22,7 @@
         persist="screenX screenY width height"
         windowtype="Browser:SearchManager">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/search/engineManager.js"/>
+  <script src="chrome://communicator/content/search/engineManager.js"/>
 
   <commandset id="engineManagerCommandSet">
     <command id="cmd_remove"

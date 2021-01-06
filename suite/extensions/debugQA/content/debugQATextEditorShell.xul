@@ -45,16 +45,11 @@
         screenX="10" screenY="10"
         persist="screenX screenY width height sizemode">
 
-  <script type="application/javascript" 
-          src="chrome://editor/content/editor.js"/>
-  <script type="application/javascript"
-          src="chrome://editor/content/ComposerCommands.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/contentAreaClick.js"/>
-  <script type="application/javascript"
-          src="chrome://global/content/printUtils.js"/>
-  <script type="application/javascript" 
-          src="chrome://global/content/nsDragAndDrop.js"/>
+  <script src="chrome://editor/content/editor.js"/>
+  <script src="chrome://editor/content/ComposerCommands.js"/>
+  <script src="chrome://communicator/content/contentAreaClick.js"/>
+  <script src="chrome://global/content/printUtils.js"/>
+  <script src="chrome://global/content/nsDragAndDrop.js"/>
 
   <commandset id="editorCommands">
     <commandset id="commonEditorMenuItems"/>

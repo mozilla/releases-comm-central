@@ -7,7 +7,7 @@
 <overlay id="debugQANavigatorOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript">
+  <script>
   <![CDATA[
     // Setting the build id is optional.
     try {

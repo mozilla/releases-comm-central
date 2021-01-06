@@ -17,11 +17,9 @@
         title="549192:  History view not updated after deleting entry"
         onload="runTest();">
 
-  <script type="application/javascript"
-          src="chrome://mochikit/content/MochiKit/packed.js" />
-  <script type="application/javascript"
-          src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js" />
-  <script type="application/javascript" src="head.js" />
+  <script src="chrome://mochikit/content/MochiKit/packed.js" />
+  <script src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js" />
+  <script src="head.js" />
 
   <body xmlns="http://www.w3.org/1999/xhtml" />
 
@@ -35,7 +33,8 @@
     <treechildren flex="1"/>
   </tree>
 
-  <script type="application/javascript"><![CDATA[
+  <script>
+  <![CDATA[
     /**
      * Bug 1388827 / Bug 874407
      * Ensures that history views are updated properly after visits.

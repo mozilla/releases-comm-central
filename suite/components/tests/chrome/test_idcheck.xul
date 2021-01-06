@@ -12,14 +12,11 @@
         onload="RunTest();">
   <description>Chrome Window ID Checking Tests</description>
 
-  <script type="application/javascript"
-          src="chrome://mochikit/content/MochiKit/packed.js"/>
-  <script type="application/javascript"
-          src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js"/>
-  <script type="application/javascript"
-          src="chrome://mochikit/content/chrome-harness.js"/>
+  <script src="chrome://mochikit/content/MochiKit/packed.js"/>
+  <script src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js"/>
+  <script src="chrome://mochikit/content/chrome-harness.js"/>
 
-  <script type="application/javascript">
+  <script>
   <![CDATA[
     let scriptLoader = Cc["@mozilla.org/moz/jssubscript-loader;1"].
                 getService(Ci.mozIJSSubScriptLoader);

@@ -18,10 +18,8 @@
         persist="screenX screenY"
         style="width:40em;">
 
-  <script type="application/javascript"
-          src="chrome://communicator/content/downloads/downloadmanager.js"/>
-  <script type="application/javascript"
-          src="chrome://communicator/content/downloads/progressDialog.js"/>
+  <script src="chrome://communicator/content/downloads/downloadmanager.js"/>
+  <script src="chrome://communicator/content/downloads/progressDialog.js"/>
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="dmBundle"
