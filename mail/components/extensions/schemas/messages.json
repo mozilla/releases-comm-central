@@ -194,7 +194,7 @@
               "folder": {
                 "$ref": "folders.MailFolder",
                 "optional": true,
-                "description": "Returns only messages from the specified folder. The ``accountsRead`` permission is required."
+                "description": "Returns only messages from the specified folder. The <permission>accountsRead</permission> permission is required."
               },
               "fromDate": {
                 "$ref": "extensionTypes.Date",

@@ -88,7 +88,7 @@
             "properties": {
               "displayedFolder": {
                 "$ref": "folders.MailFolder",
-                "description": "Sets the folder displayed in the tab. The extension must have an accounts permission to do this.",
+                "description": "Sets the folder displayed in the tab. The extension must have the <permission>accountsRead</permission> permission to do this.",
                 "optional": true
               },
               "sortType": {
@@ -155,7 +155,7 @@
       {
         "name": "getSelectedMessages",
         "type": "function",
-        "description": "Lists the selected messages in the current folder. A messages permission is required to do this.",
+        "description": "Lists the selected messages in the current folder.",
         "permissions": ["messagesRead"],
         "async": true,
         "parameters": [

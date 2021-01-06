@@ -10,7 +10,7 @@
       {
         "id": "WindowType",
         "type": "string",
-        "description": "The type of window this is. Under some circumstances a Window may not be assigned type property.",
+        "description": "The type of window this is. Under some circumstances a Window may not be assigned a type property.",
         "enum": [
           "normal",
           "popup",
@@ -102,21 +102,18 @@
       {
         "id": "GetInfo",
         "type": "object",
-        "description": "Specifies whether the :ref:`windows.Window` returned should contain a list of the :ref:`tabs.Tab` objects.",
+        "description": "Specifies properties used to filter the :ref:`windows.Window` returned and to determine whether they should contain a list of the :ref:`tabs.Tab` objects.",
         "properties": {
           "populate": {
             "type": "boolean",
             "optional": true,
-            "description": "If true, the :ref:`windows.Window` returned will have a <var>tabs</var> property that contains a list of the :ref:`tabs.Tab` objects. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <code>\"tabs\"</code> permission."
+            "description": "If true, the :ref:`windows.Window` returned will have a <var>tabs</var> property that contains a list of the :ref:`tabs.Tab` objects. The <code>Tab</code> objects only contain the <code>url</code>, <code>title</code> and <code>favIconUrl</code> properties if the extension's manifest file includes the <permission>tabs</permission> permission."
           },
           "windowTypes": {
             "type": "array",
-            "items": {
-              "$ref": "WindowType"
-            },
+            "items": { "$ref": "WindowType" },
             "optional": true,
-            "deprecated": true,
-            "description": "<code>windowTypes</code> is deprecated and ignored on Thunderbird."
+            "description": "If set, the :ref:`windows.Window` returned will be filtered based on its type. Supported by :ref:`windows.getAll` only, ignored in all other functions."
           }
         }
       }
@@ -213,24 +210,9 @@
         "async": "callback",
         "parameters": [
           {
-            "type": "object",
-            "$import": "GetInfo",
+            "$ref": "GetInfo",
             "name": "getInfo",
-            "optional": true,
-            "description": "Specifies properties used to filter the :ref:`windows.Window` returned and to determine whether they should contain a list of the :ref:`tabs.Tab` objects.",
-            "properties": {
-              "populate": {
-                "type": "boolean",
-                "optional": true,
-                "description": "If true, each :ref:`windows.Window` object will have a ``tabs`` property that contains a list of the :ref:`tabs.Tab` objects for that window. The ``Tab`` objects only contain the ``url``, ``title`` and ``favIconUrl`` properties if the extension's manifest file includes the ``\"tabs\"`` permission."
-              },
-              "windowTypes": {
-                "type": "array",
-                "items": { "$ref": "WindowType" },
-                "optional": true,
-                "description": "If set, the :ref:`windows.Window` returned will be filtered based on its type."
-              }
-            }
+            "optional": true
           },
           {
             "type": "function",

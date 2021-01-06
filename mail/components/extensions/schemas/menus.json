@@ -40,7 +40,7 @@
         "id": "ContextType",
         "type": "string",
         "enum": ["all", "page", "frame", "selection", "link", "editable", "password", "image", "video", "audio", "browser_action", "tab", "message_list", "folder_pane", "compose_attachments"],
-        "description": "The different contexts a menu can appear in. Specifying 'all' is equivalent to the combination of all other contexts except for 'tab'."
+        "description": "The different contexts a menu can appear in. Specifying <code>all</code> is equivalent to the combination of all other contexts except for <code>tab</code>."
       },
       {
         "id": "ItemType",
@@ -107,7 +107,7 @@
           "frameUrl": {
             "type": "string",
             "optional": true,
-            "description": " The URL of the frame of the element where the context menu was clicked, if it was in a frame."
+            "description": "The URL of the frame of the element where the context menu was clicked, if it was in a frame."
           },
           "selectionText": {
             "type": "string",
@@ -149,17 +149,17 @@
           "selectedMessages": {
             "$ref": "messages.MessageList",
             "optional": true,
-            "description": "The selected messages, if the context menu was opened in the message list. The ``messagesRead`` permission is required."
+            "description": "The selected messages, if the context menu was opened in the message list. The <permission>messagesRead</permission> permission is required."
           },
           "displayedFolder": {
             "$ref": "folders.MailFolder",
             "optional": true,
-            "description": "The displayed folder, if the context menu was opened in the message list. The ``accountsRead`` permission is required."
+            "description": "The displayed folder, if the context menu was opened in the message list. The <permission>accountsRead</permission> permission is required."
           },
           "selectedFolder": {
             "$ref": "folders.MailFolder",
             "optional": true,
-            "description": "The selected folder, if the context menu was opened in the folder pane. The ``accountsRead`` permission is required."
+            "description": "The selected folder, if the context menu was opened in the folder pane. The <permission>accountsRead</permission> permission is required."
           },
           "attachments": {
             "type": "array",
@@ -209,7 +209,7 @@
               "title": {
                 "type": "string",
                 "optional": true,
-                "description": "The text to be displayed in the item; this is *required* unless ``type`` is 'separator'. When the context is 'selection', you can use ``%s`` within the string to show the selected text. For example, if this parameter's value is \"Translate '%s' to Pig Latin\" and the user selects the word \"cool\", the context menu item for the selection is \"Translate 'cool' to Pig Latin\". To specify an access key for the new menu entry, include a ``&`` before the desired letter in the title. For example \"&Help\"."
+                "description": "The text to be displayed in the item; this is <em>required</em> unless <code>type</code> is 'separator'. When the context is 'selection', you can use <code>%s</code> within the string to show the selected text. For example, if this parameter's value is \"Translate '%s' to Pig Latin\" and the user selects the word \"cool\", the context menu item for the selection is \"Translate 'cool' to Pig Latin\". To specify an access key for the new menu entry, include a <code>&</code> before the desired letter in the title. For example \"&Help\"."
               },
               "checked": {
                 "type": "boolean",
@@ -468,7 +468,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "optional": true,
-                "description": "Required when context is 'tab'. Requires 'tabs' permission."
+                "description": "Required when context is 'tab'. Requires the <permission>tabs</permission> permission."
               }
             }
           }

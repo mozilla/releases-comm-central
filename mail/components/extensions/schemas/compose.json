@@ -66,7 +66,7 @@
         "properties": {
           "identityId": {
             "type": "string",
-            "description": "The ID of an identity from the :doc:`accounts` API. The settings from the identity will be used in the composed message. If ``replyTo`` is also specified, the ``replyTo`` property of the identity is overridden. The permission ``accountsRead`` is required to include the ``identityId``.",
+            "description": "The ID of an identity from the :doc:`accounts` API. The settings from the identity will be used in the composed message. If ``replyTo`` is also specified, the ``replyTo`` property of the identity is overridden. The permission <permission>accountsRead</permission> is required to include the ``identityId``.",
             "optional": true
           },
           "to": {
@@ -260,7 +260,7 @@
       {
         "name": "beginNew",
         "type": "function",
-        "description": "Open a new message compose window. If the provided ComposeDetails object does not provide 'body', 'plainTextBody' or 'isPlainText', the default compose format of the used/default identity is used.",
+        "description": "Open a new message compose window. If the provided ComposeDetails object does not provide ``body``, ``plainTextBody`` or ``isPlainText``, the default compose format of the used/default identity is used. The :ref:`accounts_api` API can be used to get the used/default identity and its default compose format.",
         "async": true,
         "parameters": [
           {
@@ -280,7 +280,7 @@
       {
         "name": "beginReply",
         "type": "function",
-        "description": "Open a new message compose window replying to a given message. If the provided ComposeDetails object does not provide 'body', 'plainTextBody' or 'isPlainText', the default compose format of the used/default identity is used.",
+        "description": "Open a new message compose window replying to a given message. If the provided ComposeDetails object does not provide ``body``, ``plainTextBody`` or ``isPlainText``, the default compose format of the used/default identity is used. The :ref:`accounts_api` API can be used to get the used/default identity and its default compose format.",
         "async": true,
         "parameters": [
           {
@@ -309,7 +309,7 @@
       {
         "name": "beginForward",
         "type": "function",
-        "description": "Open a new message compose window forwarding a given message. If the provided ComposeDetails object does not provide 'body', 'plainTextBody' or 'isPlainText', the default compose format of the used/default identity is used.",
+        "description": "Open a new message compose window forwarding a given message. If the provided ComposeDetails object does not provide ``body``, ``plainTextBody`` or ``isPlainText``, the default compose format of the used/default identity is used. The :ref:`accounts_api` API can be used to get the used/default identity and its default compose format.",
         "async": true,
         "parameters": [
           {
@@ -366,7 +366,8 @@
           },
           {
             "name": "details",
-            "$ref": "ComposeDetails"
+            "$ref": "ComposeDetails",
+            "description": "The compose format of an already opened compose window cannot be changed. Setting ``details.body``, ``details.plainTextBody`` or ``details.isPlaintext`` will fail if the compose format of the compose window does not match. Use :ref:`compose.getComposeDetails` to get the current compose format."
           }
         ]
       },

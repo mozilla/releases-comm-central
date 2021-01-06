@@ -156,7 +156,7 @@
           },
           "configured": {
             "type": "boolean",
-            "description": "If true, the account is configured and ready to use. This property is currently ignored and all accounts are assumed to be configured."
+            "description": "If true, the account is configured and ready to use. Only configured accounts are offered to the user."
           },
           "name": {
             "type": "string",
@@ -262,7 +262,7 @@
               "configured": {
                 "type": "boolean",
                 "optional": true,
-                "description": "If true, the account is configured and ready to use. This property is currently ignored and all accounts are assumed to be configured."
+                "description": "If true, the account is configured and ready to use. Only configured accounts are offered to the user."
               },
               "uploadSizeLimit": {
                 "type": "integer",

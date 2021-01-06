@@ -41,9 +41,9 @@
           "selected": {"type": "boolean", "description": "Whether the tab is selected.", "deprecated": "Please use :ref:`tabs.Tab.highlighted`.", "unsupported": true},
           "highlighted": {"type": "boolean", "description": "Whether the tab is highlighted. Works as an alias of active"},
           "active": {"type": "boolean", "description": "Whether the tab is active in its window. (Does not necessarily mean the window is focused.)"},
-          "url": {"type": "string", "optional": true, "permissions": ["tabs"], "description": "The URL the tab is displaying. This property is only present if the extension's manifest includes the <code>\"tabs\"</code> permission."},
-          "title": {"type": "string", "optional": true, "permissions": ["tabs"], "description": "The title of the tab. This property is only present if the extension's manifest includes the <code>\"tabs\"</code> permission."},
-          "favIconUrl": {"type": "string", "optional": true, "permissions": ["tabs"], "description": "The URL of the tab's favicon. This property is only present if the extension's manifest includes the <code>\"tabs\"</code> permission. It may also be an empty string if the tab is loading."},
+          "url": {"type": "string", "optional": true, "permissions": ["tabs"], "description": "The URL the tab is displaying. This property is only present if the extension's manifest includes the <permission>tabs</permission> permission."},
+          "title": {"type": "string", "optional": true, "permissions": ["tabs"], "description": "The title of the tab. This property is only present if the extension's manifest includes the <permission>tabs</permission> permission."},
+          "favIconUrl": {"type": "string", "optional": true, "permissions": ["tabs"], "description": "The URL of the tab's favicon. This property is only present if the extension's manifest includes the <permission>tabs</permission> permission. It may also be an empty string if the tab is loading."},
           "status": {"type": "string", "optional": true, "description": "Either <em>loading</em> or <em>complete</em>."},
           "width": {"type": "integer", "optional": true, "description": "The width of the tab in pixels."},
           "height": {"type": "integer", "optional": true, "description": "The height of the tab in pixels."},
@@ -79,7 +79,7 @@
         "properties": {
           "urls": {
             "type": "array",
-            "description": "A list of URLs or URL patterns. Events that cannot match any of the URLs will be filtered out.  Filtering with urls requires the <code>\"tabs\"</code> or  <code>\"activeTab\"</code> permission.",
+            "description": "A list of URLs or URL patterns. Events that cannot match any of the URLs will be filtered out.  Filtering with urls requires the <permission>tabs</permission> or  <permission>activeTab</permission> permission.",
             "optional": true,
             "items": { "type": "string" },
             "minItems": 1
@@ -290,7 +290,7 @@
               {
                 "name": "tab",
                 "optional": true,
-                "description": "Details about the duplicated tab. The :ref:`tabs.Tab` object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <code>\"tabs\"</code> permission has not been requested.",
+                "description": "Details about the duplicated tab. The :ref:`tabs.Tab` object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <permission>tabs</permission> permission has not been requested.",
                 "$ref": "Tab"
               }
             ]
@@ -422,7 +422,7 @@
                 "name": "tab",
                 "$ref": "Tab",
                 "optional": true,
-                "description": "Details about the updated tab. The :ref:`tabs.Tab` object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <code>\"tabs\"</code> permission has not been requested."
+                "description": "Details about the updated tab. The :ref:`tabs.Tab` object doesn't contain <code>url</code>, <code>title</code> and <code>favIconUrl</code> if the <permission>tabs</permission> permission has not been requested."
               }
             ]
           }
@@ -431,7 +431,7 @@
       {
         "name": "move",
         "type": "function",
-        "description": "Moves one or more tabs to a new position within its window, or to a new window. Note that tabs can only be moved to and from normal (window.type === \"normal\") windows.",
+        "description": "Moves one or more tabs to a new position within its window, or to a new window. Note that tabs can only be moved to and from normal windows (<code>window.type === \"normal\"</code>).",
         "async": "callback",
         "parameters": [
           {

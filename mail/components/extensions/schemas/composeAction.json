@@ -80,6 +80,7 @@
       },
       {
         "id": "ColorArray",
+        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <code>[255, 0, 0, 255]</code>.",
         "type": "array",
         "items": {
           "type": "integer",
@@ -173,7 +174,7 @@
         "name": "setLabel",
         "type": "function",
         "description": "Sets the label of the toolbar action, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "details",
@@ -240,7 +241,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Either an ImageData object or a dictionary {size -> ImageData} representing icon to be set. If the icon is specified as a dictionary, the actual image to be used is chosen depending on screen's pixel density. If the number of image pixels that fit into one screen space unit equals <code>scale</code>, then image with size <code>scale</code> * 19 will be selected. Initially only scales 1 and 2 will be supported. At least one image must be specified. Note that 'details.imageData = foo' is equivalent to 'details.imageData = {'19': foo}'"
+                "description": "Either an ImageData object or a dictionary ``{size -> ImageData}`` representing the icon to be set. If the icon is specified as a dictionary, the actual image to be used is chosen depending on screen's pixel density. If the number of image pixels that fit into one screen space unit equals <code>scale</code>, then image with size <code>scale</code> * 19 will be selected. Initially only scales 1 and 2 will be supported. At least one image must be specified. Note that ``details.imageData = foo`` is equivalent to ``details.imageData = {'19': foo}``"
               },
               "path": {
                 "choices": [
@@ -253,7 +254,7 @@
                   }
                 ],
                 "optional": true,
-                "description": "Either a relative image path or a dictionary {size -> relative image path} pointing to icon to be set. If the icon is specified as a dictionary, the actual image to be used is chosen depending on screen's pixel density. If the number of image pixels that fit into one screen space unit equals <code>scale</code>, then image with size <code>scale</code> * 19 will be selected. Initially only scales 1 and 2 will be supported. At least one image must be specified. Note that 'details.path = foo' is equivalent to 'details.imageData = {'19': foo}'"
+                "description": "Either a relative image path or a dictionary ``{size -> relative image path}`` pointing to icon to be set. If the icon is specified as a dictionary, the actual image to be used is chosen depending on screen's pixel density. If the number of image pixels that fit into one screen space unit equals <code>scale</code>, then image with size <code>scale</code> * 19 will be selected. Initially only scales 1 and 2 will be supported. At least one image must be specified. Note that ``details.path = foo`` is equivalent to ``details.path = {'19': foo}``"
               }
             }
           },
@@ -346,7 +347,7 @@
       {
         "name": "getBadgeText",
         "type": "function",
-        "description": "Gets the badge text of the toolbar action. If no tab nor window is specified is specified, the global badge text is returned.",
+        "description": "Gets the badge text of the toolbar action. If no tab nor window is specified, the global badge text is returned.",
         "async": "callback",
         "parameters": [
           {
