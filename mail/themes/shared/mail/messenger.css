@@ -51,6 +51,8 @@ body {
 
   --toolbarbutton-checked-background: rgba(200, 200, 200, .5);
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
+
+  --item-focus-selected-border-color: #0060df;
 }
 
 :root:-moz-locale-dir(rtl) {
@@ -77,6 +79,8 @@ body {
   --button-background-hover: #575758;
   --button-background-active: #626263;
   --button-border-color: #626263;
+
+  --item-focus-selected-border-color: #bebebf;
 }
 
 :root[lwt-popup-brighttext] {
@@ -178,28 +182,12 @@ treechildren::-moz-tree-twisty {
   outline: none;
 }
 
-:root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected, focus, current),
-:root[lwt-tree]:-moz-window-inactive
-  #threadTree treechildren::-moz-tree-row(selected, focus, current),
-:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-row(selected, focus, current) {
-  border-color: hsl(0, 0%, 80%);
-}
-
 /* Dark theme adaptions */
 :root[lwt-tree-brighttext] #threadTree treechildren::-moz-tree-row(untagged, selected),
 :root[lwt-tree-brighttext]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected),
 :root[lwt-tree-brighttext] tree:not(#threadTree) treechildren::-moz-tree-row(selected) {
   border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
   background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
-}
-
-:root[lwt-tree-brighttext]
-  #threadTree treechildren::-moz-tree-row(untagged, selected, focus, current),
-:root[lwt-tree-brighttext]:-moz-window-inactive
-  #threadTree treechildren::-moz-tree-row(selected, focus, current),
-:root[lwt-tree-brighttext]
-  tree:not(#threadTree) treechildren::-moz-tree-row(selected, focus, current) {
-  border-color: rgb(249, 249, 250);
 }
 
 /* Make the new mail indicator better visible on dark theme */
@@ -210,6 +198,11 @@ treechildren::-moz-tree-twisty {
 :root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme-brighttext
   treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
   color: #0aa5ff !important;
+}
+
+:root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected, focus, current),
+:root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-row(selected, focus, current) {
+  border-color: var(--item-focus-selected-border-color);
 }
 
 /* Quick-Filter-Bar */

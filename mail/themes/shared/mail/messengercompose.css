@@ -216,43 +216,6 @@
   padding: 1px;
 }
 
-:root[lwt-tree] #attachmentBucket {
-  background-color: var(--sidebar-background-color);
-  color: var(--sidebar-text-color);
-}
-
-:root[lwt-tree] #attachmentBucket {
-  scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
-}
-
-:root[lwt-tree-brighttext] #attachmentBucket {
-  scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
-}
-
-:root[lwt-tree] #attachmentBucket .attachmentItem {
-  color: var(--sidebar-text-color) !important;
-}
-
-:root[lwt-tree] #attachmentBucket .attachmentItem[selected="true"] {
-  background: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
-  border-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
-}
-
-:root[lwt-tree-brighttext] #attachmentBucket .attachmentItem[selected="true"] {
-  background: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-  border-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-}
-
-:root[lwt-tree] #attachmentBucket[seltype="multiple"]:focus .attachmentItem[current="true"] {
-  outline: 1px solid var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
-}
-
-:root[lwt-tree-brighttext] #attachmentBucket[seltype="multiple"]:focus
-  .attachmentItem[current="true"] {
-  outline: 1px solid var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-}
-
 #attachmentBucket[orient="vertical"] .attachmentItem {
   width: 100%;
 }

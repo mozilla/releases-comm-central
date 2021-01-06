@@ -11,36 +11,8 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#attachmentBucket {
-  background-color: Field;
-  color: FieldText;
-}
-
 #attachments-box[empty] > #attachmentBucket:focus {
   box-shadow: 0 0 1px Highlight inset, 0 0 1px Highlight inset;
-}
-
-@media (-moz-windows-default-theme: 0) {
-  #attachmentBucket .attachmentItem {
-    border-top: 1px solid transparent;
-  }
-
-  #attachmentBucket .attachmentItem:last-child {
-    border-bottom: 1px solid transparent;
-  }
-}
-
-#attachmentBucket .attachmentItem[dropOn="top"] {
-  border-top-color: Highlight;
-}
-
-#attachmentBucket .attachmentItem[dropOn="bottom"] {
-  border-bottom-color: Highlight;
-}
-
-:root[lwt-tree] #attachmentBucket .attachmentItem:hover {
-  background-color: hsla(0,0%,50%,.15);
-  border-color: transparent;
 }
 
 /* ::::: special toolbar colors ::::: */

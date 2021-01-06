@@ -15,22 +15,6 @@
   box-shadow: 0 0 2px Highlight inset, 0 0 2px Highlight inset;
 }
 
-#attachmentBucket .attachmentItem {
-  border-top: 1px solid transparent;
-}
-
-#attachmentBucket .attachmentItem:last-child {
-  border-bottom: 1px solid transparent;
-}
-
-#attachmentBucket .attachmentItem[dropOn="top"] {
-  border-top-color: Highlight;
-}
-
-#attachmentBucket .attachmentItem[dropOn="bottom"] {
-  border-bottom-color: Highlight;
-}
-
 #compose-toolbox {
   background-color: var(--toolbar-bgcolor);
   border-bottom: 1px solid var(--chrome-content-separator-color);

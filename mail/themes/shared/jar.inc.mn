@@ -210,6 +210,7 @@
   skin/classic/messenger/shared/newInstallPage.css            (../shared/mail/newInstallPage.css)
   skin/classic/messenger/shared/accountManage.css             (../shared/mail/accountManage.css)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
+  skin/classic/messenger/shared/attachmentList.css            (../shared/mail/attachmentList.css)
   skin/classic/messenger/shared/addressbook.css               (../shared/mail/addressbook.css)
   skin/classic/messenger/shared/cardDAV.css                   (../shared/mail/cardDAV.css)
   skin/classic/messenger/shared/cardDialog.css                (../shared/mail/cardDialog.css)

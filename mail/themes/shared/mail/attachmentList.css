@@ -29,6 +29,28 @@
   height: 0;
 }
 
+.attachmentItem {
+  border: 1px solid transparent;
+}
+
+.attachmentList[seltype="multiple"]:focus .attachmentItem[current="true"] {
+  border-color: Highlight;
+  outline: none;
+}
+
+#attachmentBucket .attachmentItem[dropOn="top"] {
+  border-top-color: Highlight;
+}
+
+#attachmentBucket .attachmentItem[dropOn="bottom"] {
+  border-bottom-color: Highlight;
+}
+
+.attachmentList[seltype="multiple"]:focus
+  .attachmentItem[current="true"][selected="true"] {
+  border-color: var(--item-focus-selected-border-color);
+}
+
 .attachmentcell-content {
   -moz-box-orient: horizontal;
 }
@@ -68,6 +90,43 @@
   max-width: 10em;
 }
 
+:root[lwt-tree] .attachmentList {
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] .attachmentList {
+  scrollbar-color: rgba(204, 204, 204, .5) rgba(230, 230, 235, .5);
+}
+
+:root[lwt-tree-brighttext] .attachmentList {
+  scrollbar-color: rgba(249, 249, 250, .4) rgba(20, 20, 25, .3);
+}
+
+:root[lwt-tree] .attachmentList .attachmentItem {
+  color: var(--sidebar-text-color) !important;
+}
+
+:root[lwt-tree] .attachmentList .attachmentItem:hover {
+  background-color: hsla(0, 0%, 50%, .15);
+  border-color: transparent;
+}
+
+:root[lwt-tree] .attachmentList .attachmentItem[selected="true"] {
+  border-color: hsla(0, 0%, 50%, 0.2);
+  background: hsla(0, 0%, 50%, 0.2);
+  color: var(--sidebar-text-color);
+}
+
+:root[lwt-tree] .attachmentList:focus .attachmentItem[selected="true"] {
+  background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .3));
+  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color)) !important;
+}
+
+:root[lwt-tree-brighttext] .attachmentList:focus .attachmentItem[selected="true"] {
+  background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
+}
+
 #attachmentMenuList > menu:hover > .text-link {
   text-decoration-line: underline;
 }
@@ -95,6 +154,10 @@
 
 .attachmentcell-size {
   opacity: 0.6;
+}
+
+.attachmentList:focus .attachmentItem[selected="true"] .attachmentcell-size {
+  opacity: 0.8;
 }
 
 .attachmentItem:not(.notfound):hover .attachmentcell-name.text-link {

@@ -31,7 +31,6 @@ messenger.jar:
 *   content/messenger/viewSource.xhtml              (../../common/src/viewSource.xhtml)
     content/messenger/viewZoomOverlay.js            (../../common/src/viewZoomOverlay.js)
     content/messenger/customizable-toolbar.js       (../../common/bindings/customizable-toolbar.js)
-    content/messenger/attachmentList.css            (content/attachmentList.css)
     content/messenger/menulist.css                  (content/menulist.css)
     content/messenger/editContactPanel.js           (content/editContactPanel.js)
     content/messenger/msgMail3PaneWindow.js         (content/msgMail3PaneWindow.js)

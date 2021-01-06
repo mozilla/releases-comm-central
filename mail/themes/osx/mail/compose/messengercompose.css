@@ -25,19 +25,6 @@
   box-shadow: 0 0 1.5px 1px -moz-mac-focusring inset;
 }
 
-#attachmentBucket .attachmentItem {
-  border: 1px solid transparent;
-}
-
-#attachmentBucket .attachmentItem[dropOn="top"] {
-  border-top-color: #000;
-  outline-color: transparent;
-}
-
-#attachmentBucket .attachmentItem[dropOn="bottom"] {
-  border-bottom-color: #000;
-}
-
 #compose-toolbox toolbarbutton[checked="true"] {
   background-color: transparent;
 }

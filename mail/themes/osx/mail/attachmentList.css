@@ -2,33 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/content/attachmentList.css");
+@import url("chrome://messenger/skin/shared/attachmentList.css");
 
 /* styles for the attachment list */
-
-.attachmentList:focus .attachmentItem[selected="true"][current="true"] {
-  outline: 1px dotted #F3D982;
-}
-
-.attachmentList:focus .attachmentItem[current="true"] {
-  outline: 1px dotted;
-  outline-offset: -1px;
-}
 
 .attachmentItem[selected="true"] {
   background-color: -moz-CellHighlight;
   color: -moz-CellHighlightText;
-}
-
-.attachmentList:focus .attachmentItem[selected="true"] {
-  background-color: Highlight;
-  color: HighlightText;
-}
-
-.attachmentItem[selected="true"] .attachmentcell-size {
-  color: -moz-CellHighlightText;
-}
-
-.attachmentList:focus .attachmentItem[selected="true"] .attachmentcell-size {
-  color: HighlightText;
 }

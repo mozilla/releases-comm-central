@@ -559,39 +559,6 @@ mail-headerfield:focus {
   border-color: var(--panel-separator-color);
 }
 
-:root[lwt-tree] #attachmentList {
-  background-color: var(--sidebar-background-color);
-  color: var(--sidebar-text-color);
-}
-
-:root[lwt-tree] #attachmentList {
-  scrollbar-color: rgba(204, 204, 204, .5) rgba(230, 230, 235, .5);
-}
-
-:root[lwt-tree-brighttext] #attachmentList {
-  scrollbar-color: rgba(249, 249, 250, .4) rgba(20, 20, 25, .3);
-}
-
-:root[lwt-tree] #attachmentList .attachmentItem {
-  color: var(--sidebar-text-color);
-}
-
-:root[lwt-tree] #attachmentList .attachmentItem[selected="true"] {
-  background: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .6));
-  border-color: var(--sidebar-highlight-background-color, hsla(0, 0%, 80%, .6));
-  color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
-}
-
-:root[lwt-tree-brighttext] #attachmentList .attachmentItem[selected="true"] {
-  background: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
-  border-color: var(--sidebar-highlight-background-color, rgba(249, 249, 250, .1));
-}
-
-:root[lwt-tree] #attachmentList[seltype="multiple"] .attachmentItem[current="true"] {
-  border-color: transparent;
-  outline: 1px solid var(--sidebar-highlight-background-color, hsla(0, 0%, 50%, .6));
-}
-
 /* OpenPGP and S/MIME encryption and signature status icons */
 
 .crypto-container {
