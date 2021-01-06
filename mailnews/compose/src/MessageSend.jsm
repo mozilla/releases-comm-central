@@ -109,11 +109,18 @@ MessageSend.prototype = {
 
     this._messageKey = nsMsgKey_None;
 
-    // Create a local file from MimeMessage, then pass it to _deliverMessage.
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("creatingMailMessage")
     );
-    let messageFile = await this._message.createMessageFile();
+    let messageFile;
+    try {
+      // Create a local file from MimeMessage, then pass it to _deliverMessage.
+      messageFile = await this._message.createMessageFile();
+    } catch (e) {
+      this.fail(e.result);
+      this.notifyListenerOnStopSending(null, e.result, null, null);
+      return null;
+    }
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMessageDone")
     );
@@ -301,11 +308,13 @@ MessageSend.prototype = {
         exitCode,
         false
       );
-      this._sendReport.setMessage(
-        Ci.nsIMsgSendReport.process_Current,
-        errorMsg,
-        false
-      );
+      if (errorMsg) {
+        this._sendReport.setMessage(
+          Ci.nsIMsgSendReport.process_Current,
+          errorMsg,
+          false
+        );
+      }
       exitCode = this._sendReport.displayReport(prompt, true, true);
     }
     this.abort();
