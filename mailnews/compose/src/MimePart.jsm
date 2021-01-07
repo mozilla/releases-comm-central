@@ -196,7 +196,7 @@ class MimePart {
     let url = this._bodyAttachment.url;
     let headers = {};
 
-    if (url.includes("-message:")) {
+    if (/[^:]+-message:/i.test(url)) {
       let outUri = {};
       Cc["@mozilla.org/messenger;1"]
         .createInstance(Ci.nsIMessenger)
@@ -208,11 +208,13 @@ class MimePart {
     // Fetch doesn't support url with embedded credentials. Turn
     // imap://user:pass@domain into imap://domain, and send user:pass as
     // Authorization header.
-    let matches = /\/\/(.*)@/.exec(url);
-    if (matches && matches[1]) {
-      let slugs = url.split("@");
-      url = slugs[0].slice(0, slugs[0].length - matches[1].length) + slugs[1];
-      headers.Authorization = "Basic " + btoa(matches[1]);
+    if (!url.startsWith("file:")) {
+      let matches = /:\/\/([^/.]+)@/.exec(url);
+      if (matches && matches[1]) {
+        let slugs = url.split("@");
+        url = slugs[0].slice(0, slugs[0].length - matches[1].length) + slugs[1];
+        headers.Authorization = "Basic " + btoa(matches[1]);
+      }
     }
 
     let res = await fetch(url, {
