@@ -78,7 +78,7 @@
 :root[tabsintitlebar][extradragspace] .tabmail-tab::after,
 :root[tabsintitlebar][extradragspace] .tabmail-tab::before {
   margin-top: 0;
-  margin-bottom: var(--tab-toolbar-overlap);
+  margin-bottom: var(--tabs-tabbar-border-size);
 }
 
 #tabmail-tabs {
@@ -112,7 +112,7 @@ tabmail > tabbox > tabpanels {
 #tabmail-arrowscrollbox::part(scrollbutton-up),
 #tabmail-arrowscrollbox::part(scrollbutton-down) {
   padding: 0 4px !important;
-  margin: 0 0 1px !important;
+  margin: 0 0 var(--tabs-tabbar-border-size) !important;
 }
 
 #tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover,

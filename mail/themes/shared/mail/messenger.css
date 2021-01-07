@@ -38,6 +38,7 @@ body {
 
   --tab-min-height: 30px;
   --tabs-border-color: rgba(0, 0, 0, .3);
+  --tabs-tabbar-border-size: 1px;
 
   --toolbarbutton-icon-fill-opacity: .85;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .05);
@@ -57,6 +58,18 @@ body {
 
 :root:-moz-locale-dir(rtl) {
   direction: rtl;
+}
+
+@media (min-resolution: 1.5dppx) {
+  :root {
+    --tabs-tabbar-border-size: 0.5px;
+  }
+}
+
+@media (min-resolution: 3dppx) {
+  :root {
+    --tabs-tabbar-border-size: 0.33px;
+  }
 }
 
 :root:-moz-lwtheme {

@@ -74,8 +74,10 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
+/* Prevent window controls from overlapping the nav bar's shadow on the tab
+ * bar. */
 #titlebar-buttonbox-container {
-  -moz-box-align: start;
+  margin-bottom: var(--tabs-tabbar-border-size);
 }
 
 /* The button box must appear on top of the navigator-toolbox in order for

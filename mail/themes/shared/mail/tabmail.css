@@ -4,7 +4,6 @@
 
 #tabs-toolbar {
   --tabs-top-border-width: 0px;
-  --tab-toolbar-overlap: 1px;
 }
 
 #tabs-toolbar:-moz-lwtheme {
@@ -12,8 +11,7 @@
 }
 
 #tabs-toolbar {
-  background-image: linear-gradient(to top, var(--tabs-border-color) 1px,
-                    transparent 1px);
+  box-shadow: 0 calc(-1 * var(--tabs-tabbar-border-size)) 0 var(--tabs-border-color) inset;
 }
 
 #tabmail-arrowscrollbox {
@@ -208,6 +206,7 @@
   border-left: 1px solid var(--lwt-background-tab-separator-color, currentColor);
   margin-top: 5px;
   margin-bottom: 4px;
+  width: var(--tabs-tabbar-border-size);
   opacity: 0.3;
 }
 
@@ -232,7 +231,7 @@
 :root[tabsintitlebar]:not([extradragspace]) #mail-toolbar-menubar2[autohide=true] ~
   #tabs-toolbar > #tabmail-tabs > .tabmail-tab::before {
   margin-top: var(--tabs-top-border-width);
-  margin-bottom: var(--tab-toolbar-overlap);
+  margin-bottom: var(--tabs-tabbar-border-size);
 }
 
 /* Show full height tab separators on selected tabs. */
@@ -240,8 +239,7 @@
 .tabmail-tab[visuallyselected]::after,
 .tabmail-tab[visuallyselected] + .tabmail-tab::before {
   border-color: var(--tabs-border-color);
-  margin-top: 0;
-  margin-bottom: var(--tab-toolbar-overlap);
+  margin-block: 0;
   opacity: 1;
 }
 
@@ -270,10 +268,10 @@
   background-repeat: no-repeat;
   border-left: 1px solid;
   border-image: linear-gradient(rgba(255,255,255,.2),
-                                rgba(255,255,255,.2) calc(100% - 1px),
-                                transparent calc(100% - 1px));
+                                rgba(255,255,255,.2) calc(100% - var(--tabs-tabbar-border-size)),
+                                transparent calc(100% - var(--tabs-tabbar-border-size)));
   border-image-slice: 1;
-  margin-bottom: 1px;
+  margin-bottom: var(--tabs-tabbar-border-size);
   pointer-events: none;
   position: relative;
   z-index: 3; /* the selected tab's z-index + 1 */
