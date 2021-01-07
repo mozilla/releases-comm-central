@@ -25,6 +25,7 @@
 #include "nsMsgTagService.h"
 #include "nsCOMArray.h"
 #include "nsTArray.h"
+#include "nsIMutableArray.h"
 #include "nsTHashtable.h"
 #include "nsHashKeys.h"
 #include "nsIMsgCustomColumnHandler.h"

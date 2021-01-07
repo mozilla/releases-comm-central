@@ -14,7 +14,6 @@ interface nsIMsgThread;
 interface nsIMsgDBViewCommandUpdater;
 interface nsIMsgDatabase;
 interface nsIMsgSearchSession;
-interface nsIMutableArray;
 interface nsISimpleEnumerator;
 interface nsIMsgCustomColumnHandler;
 
