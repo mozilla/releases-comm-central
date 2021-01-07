@@ -9,8 +9,6 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
 #newMailAlertNotification {
   min-height: 60px;
   border: 1px solid threedshadow;

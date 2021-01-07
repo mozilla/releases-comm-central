@@ -9,8 +9,6 @@
 @import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://messenger/skin/addressbook/addressbook.css");
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
 #abContactsPanel:not([lwt-tree]) {
   --button-background: rgba(128, 128, 128, .15);
   --button-background-hover: rgba(128, 128, 128, .25);

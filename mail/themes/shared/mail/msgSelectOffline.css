@@ -9,8 +9,6 @@
 @import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://messenger/skin/folderPane.css");
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
 treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
   opacity: 0.6;
   font-style: italic;

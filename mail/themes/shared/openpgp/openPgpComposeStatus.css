@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/messenger.css");
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 treecolpicker {
   display: none;

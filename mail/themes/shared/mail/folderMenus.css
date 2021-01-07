@@ -6,8 +6,6 @@
   == Icons for menus which represent mail folder.
   ======================================================================= */
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
 menulist.folderMenuItem::part(icon) {
   opacity: 0.85;
 }
