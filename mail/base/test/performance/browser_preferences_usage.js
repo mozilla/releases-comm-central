@@ -142,6 +142,11 @@ add_task(async function startup() {
       min: 10,
       max: 54,
     },
+    // Bug 944367: All gloda logs are controlled by one pref.
+    "gloda.loglevel": {
+      min: 10,
+      max: 70,
+    },
   };
 
   // These preferences are used in PresContext or layout areas and all have a
