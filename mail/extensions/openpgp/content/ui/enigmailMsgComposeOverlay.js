@@ -98,7 +98,7 @@ const { EnigmailCryptoAPI } = ChromeUtils.import(
 );
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+var l10nOpenPGP = new Localization(["messenger/openpgp/openpgp.ftl"]);
 
 // Account encryption policy values:
 // const kEncryptionPolicy_Never = 0;
@@ -1431,7 +1431,7 @@ Enigmail.msg = {
    * @wrapresultObj.usePpgMime, true if message send option was changed to PGP/MIME, else false
    */
 
-  wrapInLine(wrapresultObj) {
+  async wrapInLine(wrapresultObj) {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: WrapInLine\n");
     wrapresultObj.cancelled = false;
     wrapresultObj.usePpgMime = false;
@@ -1445,7 +1445,7 @@ Enigmail.msg = {
         if (
           EnigmailDialog.confirmDlg(
             window,
-            l10n.formatValueSync("minimal-line-wrapping", {
+            await l10nOpenPGP.formatValue("minimal-line-wrapping", {
               width: wrapWidth,
             })
           )
@@ -1772,7 +1772,7 @@ Enigmail.msg = {
     return newSecurityInfo;
   },
 
-  determineMsgRecipients(sendFlags) {
+  async determineMsgRecipients(sendFlags) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.determineMsgRecipients: currentId=" +
         gCurrentIdentity +
@@ -1853,7 +1853,7 @@ Enigmail.msg = {
       } else if (sendFlags & EnigmailConstants.SEND_ENCRYPTED) {
         EnigmailDialog.alert(
           window,
-          l10n.formatValueSync("sending-hidden-rcpt")
+          await l10nOpenPGP.formatValue("sending-hidden-rcpt")
         );
         return false;
       }
@@ -1871,9 +1871,9 @@ Enigmail.msg = {
         } else if (
           !EnigmailDialog.confirmPref(
             window,
-            l10n.formatValueSync("send-to-news-warning"),
+            await l10nOpenPGP.formatValue("send-to-news-warning"),
             "warnOnSendingNewsgroups",
-            l10n.formatValueSync("msg-compose-button-send")
+            await l10nOpenPGP.formatValue("msg-compose-button-send")
           )
         ) {
           return false;
@@ -2060,7 +2060,7 @@ Enigmail.msg = {
           allProblems += obj.addr;
         }
 
-        cannotEncryptMissingInfo = l10n.formatValueSync(
+        cannotEncryptMissingInfo = await l10nOpenPGP.formatValue(
           "cannot-encrypt-because-missing",
           {
             problem: allProblems,
@@ -2089,7 +2089,7 @@ Enigmail.msg = {
       this.modifiedAttach = null;
 
       // fill fromAddr, toAddrList, bcc etc
-      let rcpt = this.determineMsgRecipients(sendFlags);
+      let rcpt = await this.determineMsgRecipients(sendFlags);
       if (typeof rcpt === "boolean") {
         return rcpt;
       }
@@ -2147,7 +2147,7 @@ Enigmail.msg = {
       ) {
         var wrapresultObj = {};
 
-        this.wrapInLine(wrapresultObj);
+        await this.wrapInLine(wrapresultObj);
 
         if (wrapresultObj.usePpgMime) {
           sendFlags |= EnigmailConstants.SEND_PGP_MIME;
@@ -2187,7 +2187,7 @@ Enigmail.msg = {
           bucketList: document.getElementById("attachmentBucket"),
         };
 
-        if (!this.signInline(sendInfo)) {
+        if (!(await this.signInline(sendInfo))) {
           return false;
         }
       }
@@ -2239,7 +2239,7 @@ Enigmail.msg = {
     return true;
   },
 
-  signInline(sendInfo) {
+  async signInline(sendInfo) {
     // sign message using inline-PGP
 
     if (sendInfo.sendFlags & ENCRYPT) {
@@ -2265,7 +2265,7 @@ Enigmail.msg = {
         if (
           EnigmailDialog.confirmPref(
             window,
-            l10n.formatValueSync("quoted-printable-warn"),
+            await l10nOpenPGP.formatValue("quoted-printable-warn"),
             "quotedPrintableWarn"
           )
         ) {

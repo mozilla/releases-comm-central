@@ -934,7 +934,15 @@ var gGeneralPane = {
     return defaultValue;
   },
 
-  formatLocaleSetLabels() {
+  async formatLocaleSetLabels() {
+    // HACK: calling getLocaleDisplayNames may fail the first time due to
+    // synchronous loading of the .ftl files. If we load the files and wait
+    // for a known value asynchronously, no such failure will happen.
+    await new Localization([
+      "toolkit/intl/languageNames.ftl",
+      "toolkit/intl/regionNames.ftl",
+    ]).formatValue("language-name-en");
+
     const osprefs = Cc["@mozilla.org/intl/ospreferences;1"].getService(
       Ci.mozIOSPreferences
     );
@@ -990,6 +998,14 @@ var gGeneralPane = {
    * that the user would like to switch to after confirmation.
    */
   async setMessengerLocales(selected) {
+    // HACK: calling getLocaleDisplayNames may fail the first time due to
+    // synchronous loading of the .ftl files. If we load the files and wait
+    // for a known value asynchronously, no such failure will happen.
+    await new Localization([
+      "toolkit/intl/languageNames.ftl",
+      "toolkit/intl/regionNames.ftl",
+    ]).formatValue("language-name-en");
+
     let available = await getAvailableLocales();
     let localeNames = Services.intl.getLocaleDisplayNames(undefined, available);
     let locales = available.map((code, i) => ({ code, name: localeNames[i] }));

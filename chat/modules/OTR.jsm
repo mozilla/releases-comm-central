@@ -11,8 +11,15 @@ const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { CLib } = ChromeUtils.import("resource:///modules/CLib.jsm");
 const { OTRLibLoader } = ChromeUtils.import("resource:///modules/OTRLib.jsm");
 const { OTRHelpers } = ChromeUtils.import("resource:///modules/OTRHelpers.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-var l10n = new Localization(["messenger/otr/otr.ftl"], true);
+XPCOMUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () => new Localization(["messenger/otr/otr.ftl"], true)
+);
 
 function _str(id) {
   return l10n.formatValueSync(id);

@@ -58,9 +58,10 @@ var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
 
-var l10nCompose = new Localization(
-  ["messenger/messengercompose/messengercompose.ftl"],
-  true
+XPCOMUtils.defineLazyGetter(
+  this,
+  "l10nCompose",
+  () => new Localization(["messenger/messengercompose/messengercompose.ftl"])
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -4185,12 +4186,12 @@ var SecurityController = {
  * addressing area. Also update the tooltips of the close labels of all address
  * rows, including custom header fields.
  */
-function updateAriaLabelsAndTooltipsOfAllAddressRows() {
+async function updateAriaLabelsAndTooltipsOfAllAddressRows() {
   for (let row of document
     .getElementById("recipientsContainer")
     .querySelectorAll(".address-row")) {
     udpateAriaLabelsOfAddressRow(row);
-    updateTooltipsOfAddressRow(row);
+    await updateTooltipsOfAddressRow(row);
   }
 }
 
@@ -4201,7 +4202,7 @@ function updateAriaLabelsAndTooltipsOfAllAddressRows() {
  *
  * @param {Element} row - The address row.
  */
-function udpateAriaLabelsOfAddressRow(row) {
+async function udpateAriaLabelsOfAddressRow(row) {
   // Get the input of a normal address row with pills, or null if custom header.
   // Use [is="autocomplete-input"] to prevent selecting a custom header input.
   // Use [recipienttype] to prevent selecting an input for editing a pill.
@@ -4218,7 +4219,7 @@ function udpateAriaLabelsOfAddressRow(row) {
 
   input.setAttribute(
     "aria-label",
-    l10nCompose.formatValueSync("address-input-type-aria-label", {
+    await l10nCompose.formatValue("address-input-type-aria-label", {
       type,
       count: pills.length,
     })
@@ -4227,7 +4228,7 @@ function udpateAriaLabelsOfAddressRow(row) {
   for (let pill of pills) {
     pill.setAttribute(
       "aria-label",
-      l10nCompose.formatValueSync("pill-aria-label", {
+      await l10nCompose.formatValue("pill-aria-label", {
         email: pill.fullAddress,
         count: pills.length,
       })
@@ -5375,7 +5376,15 @@ function ChangeLanguage(event) {
   event.stopPropagation();
 }
 
-function updateLanguageInStatusBar() {
+async function updateLanguageInStatusBar() {
+  // HACK: calling sortDictionaryList (in InitLanguageMenu) may fail the first
+  // time due to synchronous loading of the .ftl files. If we load the files
+  // and wait for a known value asynchronously, no such failure will happen.
+  await new Localization([
+    "toolkit/intl/languageNames.ftl",
+    "toolkit/intl/regionNames.ftl",
+  ]).formatValue("language-name-en");
+
   InitLanguageMenu();
   let languageMenuList = document.getElementById("languageMenuList");
   let spellCheckStatusPanel = document.getElementById("spellCheckStatusPanel");

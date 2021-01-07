@@ -6,8 +6,15 @@ const EXPORTED_SYMBOLS = ["OTRUI"];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { OTR } = ChromeUtils.import("resource:///modules/OTR.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-var l10n = new Localization(["messenger/otr/otrUI.ftl"], true);
+XPCOMUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () => new Localization(["messenger/otr/otrUI.ftl"], true)
+);
 
 function _str(id) {
   return l10n.formatValueSync(id);
@@ -237,6 +244,18 @@ var OTRUI = {
 
   async init() {
     if (!OTRUI.stringsLoaded) {
+      // HACK: calling initStrings may fail the first time due to synchronous
+      // loading of the .ftl files. If we load the files and wait for a known
+      // value asynchronously, no such failure will happen.
+      //
+      // If the value "start-label" is removed, this will fail.
+      //
+      // Also, we can't reuse this Localization object elsewhere because it
+      // fails to load values synchronously (even after calling setIsSync).
+      await new Localization(["messenger/otr/otrUI.ftl"]).formatValue(
+        "start-label"
+      );
+
       initStrings();
       OTRUI.stringsLoaded = true;
     }

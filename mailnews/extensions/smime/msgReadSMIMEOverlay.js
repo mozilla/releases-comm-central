@@ -28,8 +28,6 @@ var gEncryptionCert = null;
 var gSigKeyId = null;
 var gEncKeyId = null;
 
-var myl10n = new Localization(["messenger/openpgp/msgReadStatus.ftl"], true);
-
 addEventListener("load", smimeReadOnLoad, { capture: false, once: true });
 
 function smimeReadOnLoad() {
@@ -513,11 +511,15 @@ async function loadOpenPgpMessageSecurityInfo() {
     }
   }
 
-  document.getElementById("otherLabel").textContent = myl10n.formatValueSync(
-    myIdToSkipInList
-      ? "openpgp-other-enc-all-key-ids"
-      : "openpgp-other-enc-additional-key-ids"
-  );
+  let otherLabel = document.getElementById("otherLabel");
+  if (myIdToSkipInList) {
+    document.l10n.setAttributes(otherLabel, "openpgp-other-enc-all-key-ids");
+  } else {
+    document.l10n.setAttributes(
+      otherLabel,
+      "openpgp-other-enc-additional-key-ids"
+    );
+  }
 
   if (!Enigmail.hdrView.msgEncryptionAllKeyIds) {
     return;
@@ -546,9 +548,11 @@ async function loadOpenPgpMessageSecurityInfo() {
     // Use textContent for label XUl elements to enable text wrapping.
     let name = document.createXULElement("label");
     name.classList.add("openpgp-key-name");
-    name.textContent = keyInfo
-      ? keyInfo.userId
-      : myl10n.formatValueSync("openpgp-unknown-key-id");
+    if (keyInfo) {
+      name.textContent = keyInfo.userId;
+    } else {
+      document.l10n.setAttributes(name, "openpgp-other-enc-all-key-ids");
+    }
 
     let id = document.createXULElement("label");
     id.classList.add("openpgp-key-id");

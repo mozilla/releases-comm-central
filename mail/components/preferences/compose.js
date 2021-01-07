@@ -200,7 +200,7 @@ var gComposePane = {
     }
   },
 
-  initLanguageMenu() {
+  async initLanguageMenu() {
     var languageMenuList = document.getElementById("languageMenuList");
     this.mSpellChecker = Cc["@mozilla.org/spellchecker/engine;1"].getService(
       Ci.mozISpellCheckingEngine
@@ -222,6 +222,14 @@ var gComposePane = {
 
     // Store current dictionary count.
     this.mDictCount = count;
+
+    // HACK: calling sortDictionaryList may fail the first time due to
+    // synchronous loading of the .ftl files. If we load the files and wait
+    // for a known value asynchronously, no such failure will happen.
+    await new Localization([
+      "toolkit/intl/languageNames.ftl",
+      "toolkit/intl/regionNames.ftl",
+    ]).formatValue("language-name-en");
 
     var inlineSpellChecker = new InlineSpellChecker();
     var sortedList = inlineSpellChecker.sortDictionaryList(dictList);
