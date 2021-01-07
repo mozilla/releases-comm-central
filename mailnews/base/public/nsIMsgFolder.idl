@@ -45,7 +45,7 @@ interface nsIMsgFolder : nsISupports {
   const nsMsgBiffState nsMsgBiffState_Unknown = 2; // We dunno whether there is new mail.
 
   /* folder name properties */
-  readonly attribute ACString URI;
+  readonly attribute AUTF8String URI;
   attribute AString name;
   attribute AString prettyName;
   readonly attribute AString abbreviatedName;
