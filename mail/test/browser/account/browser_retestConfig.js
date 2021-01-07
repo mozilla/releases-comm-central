@@ -33,7 +33,7 @@ const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
 add_task(function setupModule(module) {
-  Services.prefs.setCharPref("mail.wizard.logging.dump", "All");
+  Services.prefs.setCharPref("mail.setup.loglevel", "All");
 
   let url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
@@ -42,7 +42,7 @@ add_task(function setupModule(module) {
 
 registerCleanupFunction(function teardownModule(module) {
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
-  Services.prefs.clearUserPref("mail.wizard.logging.dump");
+  Services.prefs.clearUserPref("mail.setup.loglevel");
 });
 
 add_task(function test_re_test_config() {

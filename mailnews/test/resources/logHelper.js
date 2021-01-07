@@ -553,7 +553,10 @@ _MarkAction.prototype = {
  *     to handle more, and does a fair job on straight JS objects.
  */
 function mark_action(aWho, aWhat, aArgs) {
-  let logger = console.createInstance({ prefix: "test." + aWho });
+  let logger = console.createInstance({
+    prefix: "test." + aWho,
+    maxLogLevelPref: "test.loghelper.loglevel",
+  });
 
   aArgs = aArgs.map(arg => _normalize_for_json(arg, undefined, true));
   logger.info(

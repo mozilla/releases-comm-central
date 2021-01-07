@@ -511,16 +511,10 @@ pref("mail.spotlight.firstRunDone", false);
 
 // -- Windows Search/Spotlight logging options
 #ifdef XP_WIN
-// Should we output warnings and errors to the "error console"?
-pref("mail.winsearch.logging.console", false);
-// Should we output all output levels to stdout via dump?
-pref("mail.winsearch.logging.dump", false);
+pref("mail.winsearch.loglevel", "Warn");
 #else
 #ifdef XP_MACOSX
-// Should we output warnings and errors to the "error console"?
-pref("mail.spotlight.logging.console", false);
-// Should we output all output levels to stdout via dump?
-pref("mail.spotlight.logging.dump", false);
+pref("mail.spotlight.loglevel", "Warn");
 #endif
 #endif
 
@@ -583,8 +577,6 @@ pref("gloda.facetview.sortby", 2);
 
 // Enable gloda by default!
 pref("mailnews.database.global.indexer.enabled", true);
-// Show gloda errors in the error console
-pref("mailnews.database.global.logging.console", true);
 // Limit the number of gloda message results
 pref("mailnews.database.global.search.msg.limit", 1000);
 
@@ -655,10 +647,7 @@ pref("font.name-list.monospace.el", "monospace");
 
 pref("mail.font.windows.version", 0);
 
-// What level of warning should we send to the error console?
-pref("mail.wizard.logging.console", "None");
-// What level of warning should we send to stdout via dump?
-pref("mail.wizard.logging.dump", "None");
+pref("mail.setup.loglevel", "Warn");
 
 // Handle links targeting new windows (from within content tabs)
 // These are the values that Firefox can be set to:
@@ -1308,7 +1297,3 @@ pref("pdfjs.previousHandler.preferredAction", 0);
 pref("pdfjs.previousHandler.alwaysAskBeforeHandling", false);
 
 pref("mail.activity.loglevel", "Warn");
-
-pref("mail.sendlater.loglevel", "Warn");
-
-pref("mail.searchintegration.loglevel", "Warn");

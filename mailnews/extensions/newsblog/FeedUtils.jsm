@@ -2093,8 +2093,8 @@ var FeedUtils = {
 
 XPCOMUtils.defineLazyGetter(FeedUtils, "log", function() {
   return console.createInstance({
-    prefix: "Feeds",
-    maxLogLevelPref: "Feeds.loglevel",
+    prefix: "feeds",
+    maxLogLevelPref: "feeds.loglevel",
   });
 });
 

@@ -60,9 +60,9 @@ var sendLaterModule = {
   get log() {
     delete this.log;
     return (this.log = console.createInstance({
-      prefix: "mail.sendlater",
+      prefix: "mail.activity",
       maxLogLevel: "Warn",
-      maxLogLevelPref: "mail.sendlater.loglevel",
+      maxLogLevelPref: "mail.activity.loglevel",
     }));
   },
 

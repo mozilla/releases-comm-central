@@ -20,7 +20,7 @@ var { MailServices } = ChromeUtils.import(
 );
 
 // Get a configured logger for this component.
-// To debug, set mail.provider.logging.dump (or .console)="All"
+// To debug, set mail.provider.loglevel="All"
 var gLog = new ConsoleAPI({
   prefix: "mail.provider",
   maxLogLevel: "warn",

@@ -16,7 +16,7 @@ var { MailServices } = ChromeUtils.import(
 );
 
 var log = console.createInstance({
-  prefix: "dbcache",
+  prefix: "mailnews.database.dbcache",
   maxLogLevel: "Warn",
   maxLogLevelPref: "mailnews.database.dbcache.loglevel",
 });

@@ -77,8 +77,6 @@ Services.prefs.setBoolPref(
   "mailnews.database.global.indexer.perform_initial_sweep",
   false
 );
-// yes to debug output
-Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 
 var ENVIRON_MAPPINGS = [
   {
@@ -123,6 +121,7 @@ var { MsgHdrToMimeMessage } = ChromeUtils.import(
 var LOG = console.createInstance({
   prefix: "gloda.test",
   maxLogLevel: "Warn",
+  maxLogLevelPref: "gloda.test.loglevel",
 });
 
 /* exported GLODA_BAD_MESSAGE_ID, GLODA_OLD_BAD_MESSAGE_ID */

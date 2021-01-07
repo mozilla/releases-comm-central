@@ -8,9 +8,9 @@
 
 var GenericIndexer = {
   _log: console.createInstance({
-    prefix: "gloda.indexer.generic",
+    prefix: "gloda.test",
     maxLogLevel: "Warn",
-    maxLogLevelPref: "gloda.loglevel",
+    maxLogLevelPref: "gloda.test.loglevel",
   }),
   /* public interface */
   name: "generic_indexer",

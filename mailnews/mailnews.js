@@ -755,7 +755,7 @@ pref("rss.show.content-base", 0);
 // 1 - load web page in default browser, on select
 pref("rss.message.loadWebPageOnSelect", 0);
 
-pref("Feeds.loglevel", "Warn");
+pref("feeds.loglevel", "Warn");
 
 // 0=default as attachment
 // 1=forward as quoted (mapped to 2 in mozilla)
@@ -1074,6 +1074,7 @@ pref("mailnews.database.dbcache.loglevel", "Warn");
 // Should the indexer be enabled?
 pref("mailnews.database.global.indexer.enabled", false);
 pref("gloda.loglevel", "Warn");
+pref("gloda.test.loglevel", "Warn");
 // Rate of growth of the gloda cache, whose maximum value is 8 MiB and max is 64 MiB.
 // See more: https://developer.mozilla.org/en/Thunderbird/gloda#Cache_Size"
 pref("mailnews.database.global.datastore.cache_to_memory_permillage", 10);
@@ -1100,10 +1101,12 @@ pref("mail.imap.qos", 0);
 // PgpMime Addon
 pref("mail.pgpmime.addon_url", "https://addons.mozilla.org/addon/enigmail/");
 
-pref("msgAsyncPrompter.loglevel", "Warn");
+pref("mail.asyncprompter.loglevel", "Warn");
 
 pref("mail.mailstoreconverter.loglevel", "Warn");
 
 pref("mail.jsaccount.loglevel", "Warn");
 
 pref("mailnews.oauth.loglevel", "Warn");
+
+pref("test.loghelper.loglevel", "Warn");

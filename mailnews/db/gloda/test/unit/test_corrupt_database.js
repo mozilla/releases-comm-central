@@ -27,8 +27,6 @@ Services.prefs.setBoolPref(
   "mailnews.database.global.indexer.perform_initial_sweep",
   false
 );
-// yes to debug output
-Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 
 // We'll start with this datastore ID, and make sure it gets overwritten
 // when the index is rebuilt.

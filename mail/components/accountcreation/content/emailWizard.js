@@ -91,7 +91,7 @@ Things to test (works for me):
     former bug: goes to manual first shortly, then to result
 */
 
-// To debug, set mail.wizard.logging.dump (or .console)="All" and kDebug = true
+// To debug, set mail.setup.loglevel="All" and kDebug = true.
 const kDebug = false;
 
 function e(elementID) {

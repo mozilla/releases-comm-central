@@ -85,9 +85,9 @@ function MsgAsyncPrompter() {
   // To change this up.  Values should be one of:
   //   Fatal/Error/Warn/Info/Config/Debug/Trace/All
   this._log = console.createInstance({
-    prefix: "msgAsyncPrompter",
+    prefix: "mail.asyncprompter",
     maxLogLevel: "Warn",
-    maxLogLevelPref: "msgAsyncPrompter.loglevel",
+    maxLogLevelPref: "mail.asyncprompter.loglevel",
   });
 }
 

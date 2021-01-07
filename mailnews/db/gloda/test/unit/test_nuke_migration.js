@@ -48,8 +48,6 @@ Services.prefs.setBoolPref(
   "mailnews.database.global.indexer.perform_initial_sweep",
   false
 );
-// yes to debug output
-Services.prefs.setBoolPref("mailnews.database.global.logging.dump", true);
 
 function run_test() {
   // - make the old database

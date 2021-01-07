@@ -868,9 +868,9 @@ var SearchSupport = {
   _log: null,
   _initLogging() {
     this._log = console.createInstance({
-      prefix: "mail.searchintegration",
+      prefix: this._prefBase.slice(0, -1),
       maxLogLevel: "Warn",
-      maxLogLevelPref: "mail.searchintegration.loglevel",
+      maxLogLevelPref: `${this._prefBase}loglevel`,
     });
     this._log.info("Logging initialized");
   },
