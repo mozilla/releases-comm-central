@@ -1,3 +1,114 @@
+2020-10-23  Werner Koch  <wk@gnupg.org>
+
+	Release 1.8.7.
+	+ commit 04c156a48b35b56cf201091ddd43883957a042e5
+
+
+	random: Allow for a Unicode random seed file on Windows.
+	+ commit 6b79963f3f09c82b684293dbcd1951d65101fedd
+	* random/random-csprng.c (utf8_to_wchar) [W32]: New.
+	(any8bitchar) [W32]: New.
+	(my_open): New.  Replace all calls to open with this.
+
+2020-08-26  Werner Koch  <wk@gnupg.org>
+
+	build: Allow customization of the signing key.
+	+ commit 9c42c068c37411bfda9851b1bd60e927cb81ec7c
+	* Makefile.am (sign-release): Read variabales from user configuration.
+
+2020-08-04  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	random/jitterentropy: fix USE_JENT == JENT_USES_GETTIME code path.
+	+ commit 01b441308838e5b9b12022b40754855bda8670bf
+	* random/jitterentropy-base-user.h (jent_get_nstime): Use 'tv' variable
+	instead of non-existing 'time'.
+
+2020-07-30  NIIBE Yutaka  <gniibe@fsij.org>
+
+	mpi: Support opaque MPI with gcry_mpi_print.
+	+ commit d9103048d11bcd8c9cce42dd450b394acd8949ac
+	* mpi/mpicoder.c (_gcry_mpi_get_buffer): Return the bytes as-is.
+
+2020-07-06  Werner Koch  <wk@gnupg.org>
+
+	Post release updates.
+	+ commit c917ebb48d1b784f6f29bc5b292bab78469aabfb
+
+
+	mpi: Consider +0 and -0 the same in mpi_cmp.
+	+ commit 31bb4f3210df76c3036b03ce6dfd2b7c0c6af9ed
+	* mpi/mpi-cmp.c (do_mpi_cmp): Check size of U an V.
+
+2020-06-09  NIIBE Yutaka  <gniibe@fsij.org>
+
+	mpi: Fix flags in mpi_copy for opaque MPI.
+	+ commit 47e8977d24e5becb83b6ca2824ee1d4c48704a8b
+	* mpi/mpiutil.c (_gcry_mpi_copy): Copy flags.
+
+2020-04-27  NIIBE Yutaka  <gniibe@fsij.org>
+
+	mpi: Fix the return value of mpi_invm_generic.
+	+ commit 99007cbfd104330538141b9b1574ec3044079699
+	* mpi/mpi-inv.c (mpi_invm_generic): Return correct value.
+
+	mpi: Fix return value of mpi_invm_generic.
+	+ commit 986aa2728715ea312c607a6b95f3c5419d174ee7
+	* mpi/mpi-inv.c (mpi_invm_generic): Return 0 if inverse does not exist.
+
+2020-03-18  NIIBE Yutaka  <gniibe@fsij.org>
+
+	DSA,ECDSA: Fix use of mpi_invm.
+	+ commit 3a16c19d4d63d9e67297edf369f0a48546ea0ab7
+	* cipher/dsa.c (sign): Call mpi_invm before _gcry_dsa_modify_k.
+	* cipher/ecc-ecdsa.c (_gcry_ecc_ecdsa_sign): Likewise.
+
+	mpi: Constant time mpi_inv with some conditions.
+	+ commit 90b7339b0654daaf873b3a113459d3024d2837b5
+	* mpi/mpi-inv.c (mpih_add_n_cond, mpih_sub_n_cond, mpih_swap_cond)
+	(mpih_abs_cond): New.
+	(mpi_invm_odd): New.
+	(mpi_invm_generic): Rename from _gcry_mpi_invm.
+	(_gcry_mpi_invm): Use mpi_invm_odd for usual odd cases.
+
+2020-03-09  Werner Koch  <wk@gnupg.org>
+
+	mpi: Abort on division by zero also in _gcry_mpi_tdiv_qr.
+	+ commit ffbc5702ab16109ab9439bd947871ab90269bf34
+	* mpi/mpi-div.c (_gcry_mpi_tdiv_qr): Error out on division by zero.
+
+2020-02-03  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	Fix wrong code execution in Poly1305 ARM/NEON implementation.
+	+ commit 761a1a0d30ea0c1ba385963cdc4c06d03ce126bc
+	* cipher/poly1305-armv7-neon.S
+	(_gcry_poly1305_armv7_neon_init_ext): Set r14 to -1 at function entry.
+
+2020-02-03  Marvin W  <git@larma.de>
+
+	Set vZZ.16b register to zero before use in armv8 gcm implementation.
+	+ commit ec7db47e9998bc68f8e849d0f2a454fb17cc144c
+	* cipher/cipher-gcm-armv8-aarch64-ce.S
+	(_gcry_ghash_setup_armv8_ce_pmull): Set vZZ to zero.
+
+2020-01-23  NIIBE Yutaka  <gniibe@fsij.org>
+
+	random: Fix include of config.h.
+	+ commit 03e6d6597198ee45d715c2d00bd174622f2875a8
+	* random/random-drbg.c: Include config.h earlier.
+
+2020-01-21  NIIBE Yutaka  <gniibe@fsij.org>
+
+	Fix declaration of internal function _gcry_mpi_get_ui.
+	+ commit a29e058ff1145428c97e7a87e9d90ebdd86c0360
+	* src/gcrypt-int.h (_gcry_mpi_get_ui): Don't use ulong.
+
+2019-10-24  NIIBE Yutaka  <gniibe@fsij.org>
+
+	ecc: Fix wrong handling of shorten PK bytes.
+	+ commit 006e51cd83a1c36509d124c251cea2f515bcc1ad
+	* cipher/ecc-misc.c (_gcry_ecc_mont_decodepoint): Zeros are
+	already recovered.
+
 2019-08-29  Werner Koch  <wk@gnupg.org>
 
 	Release 1.8.5.
