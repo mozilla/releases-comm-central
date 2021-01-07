@@ -44,7 +44,7 @@ nsUserInfo::GetFullname(nsAString& aFullname) {
   // replace ampersand with username
   if (pw->pw_name) {
     nsAutoCString username(pw->pw_name);
-    if (!username.IsEmpty() && nsCRT::IsLower(username.CharAt(0)))
+    if (!username.IsEmpty())
       username.SetCharAt(nsCRT::ToUpper(username.CharAt(0)), 0);
 
     fullname.ReplaceSubstring("&", username.get());
