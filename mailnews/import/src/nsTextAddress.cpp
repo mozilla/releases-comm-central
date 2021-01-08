@@ -128,7 +128,7 @@ nsresult nsTextAddress::ImportAddresses(bool* pAbort, const char16_t* pName,
     return NS_ERROR_FAILURE;
   }
 
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_OK;
 }
 
 nsresult nsTextAddress::ReadRecord(nsIUnicharLineInputStream* aLineStream,

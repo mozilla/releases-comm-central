@@ -49,7 +49,11 @@ GenericImportHelper.prototype = {
     }
 
     Assert.ok(this.mInterface.WantsProgress());
-    Assert.ok(this.mInterface.BeginImport(null, null));
+    const error = Cc["@mozilla.org/supports-string;1"].createInstance(
+      Ci.nsISupportsString
+    );
+    Assert.ok(this.mInterface.BeginImport(null, error));
+    Assert.equal(error.data, "");
     do_test_pending();
     this.checkProgress();
   },
