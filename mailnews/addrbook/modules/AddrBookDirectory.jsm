@@ -20,9 +20,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 var log = console.createInstance({
-  prefix: "mail.addressbook",
+  prefix: "mail.addr_book",
   maxLogLevel: "Warn",
-  maxLogLevelPref: "mail.addressbook.loglevel",
+  maxLogLevelPref: "mail.addr_book.loglevel",
 });
 
 // Keep track of all database connections, and close them at shutdown, since

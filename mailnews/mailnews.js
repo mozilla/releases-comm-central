@@ -213,6 +213,7 @@ pref("mail.accountwizard.deferstorage", false);
 pref("mail.showCondensedAddresses", false);
 #endif
 
+pref("mail.addr_book.loglevel", "Warn");
 pref("mail.addr_book.view.startupURI", "moz-abdirectory://?");
 pref("mail.addr_book.view.startupURIisDefault", true);
 
