@@ -1,3 +1,408 @@
+2020-08-24  Werner Koch  <wk@gnupg.org>
+
+	Release 1.39.
+	+ commit 59d9f8106db3a23cb5d51d01dc6b719413d3f760
+
+
+2020-08-21  Werner Koch  <wk@gnupg.org>
+
+	core,w32: Add UTF-8 support to gpgrt_fopen, gpgrt_mkdir and gpgrt_chdir.
+	+ commit a68c1975bda47b0698b48761a62e95b371095e9a
+	* src/protos.h: New.
+	* src/Makefile.am (libgpg_error_la_SOURCES): Add file.
+	* src/gpgrt-int.h: Include protos.h.
+	* src/sysutils.c (_gpgrt_mkdir) [W32]: Make UTF-8 aware.
+	(_gpgrt_chdir) [W32]: Ditto.
+	* src/w32-gettext.c: Include protos.h.
+	(utf8_to_wchar): Allow for strings.
+	(_gpgrt_utf8_to_wchar): New.
+	(_gpgrt_free_wchar): New.
+	* src/estream.c (map_w32_to_errno): Add more error codes.
+	(_gpgrt_w32_set_errno): New.
+	(any8bitchar) [W32]: New helper.
+	(func_file_create) [W32]: Convert file name and use _wopen.
+
+2020-08-21  NIIBE Yutaka  <gniibe@fsij.org>
+
+	argparse: Handle a corner case of wrong ARGC.
+	+ commit 87a6b28c0f3b6c5b38e0f8a8533df39d3f0c0f03
+	* src/argparse.c (arg_parse): Avoid null dereference when ARGC is wrong.
+
+2020-08-17  Werner Koch  <wk@gnupg.org>
+
+	Fix a current gcc's -fsanitize warning.
+	+ commit c5fcdd9a58a2508a20327226c52d155c29ddd5f3
+	* src/argparse.c (ARGPARSE_FLAG__INITIALIZED): Make sure it is an
+	unsigned int.
+
+2020-08-11  Werner Koch  <wk@gnupg.org>
+
+	core,w32: Use timeout in es_poll even if there are no FDs.
+	+ commit fd1340085bc6879436dd2882dc5178c133434675
+	* src/w32-estream.c (_gpgrt_w32_poll): Sleep if there are no handles
+	to wait for.
+
+2020-08-05  Werner Koch  <wk@gnupg.org>
+
+	Make --lib-version work again.
+	+ commit e0dab4843ded8af172c2566b4d7313a1a13e7e26
+	* src/gpg-error.c (main): Add printing code.
+
+2020-08-03  NIIBE Yutaka  <gniibe@fsij.org>
+
+	gpgrt-config: Fix handling 'Requires' field.
+	+ commit 4192cbc3c58589055de1fb5ccbe42f3d33adb0af
+	* src/gpgrt-config.in (get_attr_l): New.
+	(all_required_config_files): Use get_attr_l.
+
+2020-07-15  NIIBE Yutaka  <gniibe@fsij.org>
+
+	w32: Add gpgrt_fcancel to the definition.
+	+ commit c564d8c5a0e7c1aba9103cb4b6561b61074c60f1
+	* src/gpg-error.def.in (gpgrt_fcancel): Add.
+
+2020-06-26  Werner Koch  <wk@gnupg.org>
+
+	estream: Add gpgrt_fcancel.
+	+ commit 3413489d25577e3fe7f529b8e610a45d2bd1857c
+	* src/estream.c (do_close): Add arg 'cancel_mode' and chnage all
+	callers.
+	(_gpgrt_fcancel): New.
+	* src/gpg-error.def.in, src/gpg-error.vers: Add function.
+	* src/visibility.c (gpgrt_fcancel): New.
+	* src/gpg-error.h.in (gpgrt_fcancel): New.
+
+2020-06-15  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Fix the gpg-error-config test for cross build.
+	+ commit 1a4c1f37a1c95a4cfcaab6df3364ee3515a1ea1b
+	* src/gpg-error-config-test.sh.in: Clear PKG_CONFIG_SYSROOT_DIR.
+
+2020-06-12  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Fix command-line to make 'src 'dir.
+	+ commit 159e394920f6be822d771fe003498de4d93b07c3
+	* configure.ac: Mistake, then, fix it.
+
+2020-06-11  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: On cross build, detect host's objdump.
+	+ commit ce97528fa3dcc58d86e18d4d8820f210a624f63d
+	* configure.ac [*-*-linux*] (CROSS_HOST_OBJDUMP): New.
+
+2020-06-03  David Michael  <fedora.dm0@gmail.com>
+
+	build: Fix cross-compiling into a separate build dir.
+	+ commit 013720333c6ec1d38791689bc49ba039d98e16b3
+	* configure.ac: Create the src directory before writing into it.
+	* src/Makefile.am (EXTRA_DIST): Add gen-lock-obj.sh.
+
+2020-05-29  Werner Koch  <wk@gnupg.org>
+
+	Release 1.38.
+	+ commit 71d278824c5fe61865f7927a2ed1aa3115f9e439
+
+
+2020-05-29  Yuri Chornoivan  <yurchor@ukr.net>
+
+	po: Update Ukrainian translation.
+	+ commit 1143b2d3619939a60f47af75be2123f3b225b32b
+
+
+2020-05-29  Ineiev  <ineiev@gnu.org>
+
+	po: Update and proofread Russian translation.
+	+ commit a6104a9ab717499d405ff2af61a928a08774466a
+
+
+2020-05-19  Daniel Kahn Gillmor  <dkg@fifthhorseman.net>
+
+	syscfg: add 64-bit big-endian MIPS architecture.
+	+ commit 0db8c768843db3e85935b972f1ed9d1b98159c46
+	* src/syscfg/lock-obj-pub.mips64-unknown-linux-gnuabi64.h: new.
+	* src/Makefile.am (lock_obj_pub): Add it.
+
+2020-04-09  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Use gen-lock-obj.sh script when possible.
+	+ commit 988211d3d4c1f3d5cfa6b460210f65ab636763b5
+	* configure.ac (HAVE_GENERATED_LOCK_OBJ_H): New.
+	* src/Makefile.am: Support HAVE_GENERATED_LOCK_OBJ_H.
+
+	build: Add a shell script to generate lock-obj-pub.h.
+	+ commit 50e62b36ea01ed25d12c443088b85d4f41a2b3e1
+	* src/gen-lock-obj.sh: New.
+
+2020-04-03  Werner Koch  <wk@gnupg.org>
+
+	core: Improve the echo and info meta commands of the arg parser.
+	+ commit 98d11eff669c042d381ee4f18a42d32bcab256ef
+	* src/argparse.c (handle_meta_echo): Substitue some vars.
+	(handle_meta_user): Factor some code out to ...
+	(assure_username): new.
+
+	core: Implement meta command [user] also for Windows.
+	+ commit ef07aedc70992742fcef92811345670777a3047b
+	* src/argparse.c (initialize): Clear username.
+	* src/sysutils.c (_gpgrt_getusername): Implement for Windows.
+
+	core: Implement meta command [user] for the arg parser.
+	+ commit d843d260f5502ba90a2a35dfe202439f32b0e9aa
+	* src/sysutils.c (_gpgrt_getusername): New.
+	* src/argparse.c (struct _gpgrt_argparse_internal_s): New flags user_*
+	and store the current user.
+	(initialize): Free new malloced field.  Clear new flags.
+	(handle_meta_user): Implement.
+	(handle_metacmd): Implement user sections.  Remove "group" meta
+	command.
+	(_gpgrt_argparse): Implement user sections.
+	(finish_read_sys): Reset new vars.
+
+2020-03-06  Werner Koch  <wk@gnupg.org>
+
+	core: Tweak the printing of headers in the --help output.
+	+ commit 85b5006d01fc64763a6e1f0d6cbda91c5cb709c1
+	* src/argparse.c (show_help): Do not print empty sections between
+	headers.
+
+	core: Add features for pretty printing the help.
+	+ commit c59bf5824aafe938d5ab0d69079b9d93debc19fe
+	* src/gpg-error.h.in (ARGPARSE_OPT_HEADER): New.
+	(ARGPARSE_OPT_VERBATIM): New.
+	(ARGPARSE_verbatim): New.
+	(ARGPARSE_header): New.
+	* src/argparse.c (show_help): Implement them.
+
+2020-03-03  Werner Koch  <wk@gnupg.org>
+
+	core: New function gpgrt_reallocarray.
+	+ commit 969abd302211262562df93ae5412ee319aae69e6
+	* src/init.c (_gpgrt_reallocarray): New.
+	* src/visibility.c (gpgrt_reallocarray): New.
+	* src/gpg-error.vers, src/gpg-error.def.in: Add new function.
+	* src/gpg-error.h.in: Add new interface.
+	* tests/t-malloc.c: New.
+	* tests/Makefile.am (TESTS): Add new test.
+
+	core: Fix allocation bug introduced with last commit.
+	+ commit 72a15bad8f27303475498ce44e34d29b4c2c4593
+	* src/argparse.c (initialize): Increase number of extra slots.
+
+2020-03-02  Werner Koch  <wk@gnupg.org>
+
+	core: New internal option --dump-option-table for argparser.
+	+ commit db95feab16e32309a4bfb382827c495c2c49920c
+	* src/argparse.c (initialize): Add new internal option.
+	(arg_parse): Implement that option.
+	(dump_option_table): New.
+	(show_help): Remove exit and let the caller call my_exit.
+
+	core: Replace fputs by es_fputs in argparser.
+	+ commit f816797c87340a6130dea1e4f8f0e130511dfe3f
+	* src/argparse.c (writestrings): Use that function to match what we
+	are doing in flushstrings.
+
+	core: Allow returning of attributes from gpgrt_argparser.
+	+ commit d3661d81e9aafae75680164ede7322cf3d7b6804
+	* src/gpg-error.h.in (ARGPARSE_FLAG_WITHATTR): New.
+	(ARGPARSE_ATTR_FORCE): New.
+	(ARGPARSE_ATTR_IGNORE): New.
+	(ARGPARSE_TYPE_MASK): Moved from argparse.c to here.
+	* src/argparse.c: Always use macros for constants.
+	(_gpgrt_argparse): Handle ARGPARSE_FLAG_WITHATTR.
+	(arg_parse): Ditto.
+	* tests/t-argparse.c (main): Add commented test case.
+
+2020-02-27  Werner Koch  <wk@gnupg.org>
+
+	core: Implement meta commands for the argparser.
+	+ commit 2d1969ab465bad62f73a7c24ddc8bb490ff9fd40
+	* src/argparse.c (opttable_t): Add new flags forced, ignore, and
+	explicit_ignore.
+	(struct _gpgrt_argparse_internal_s): Change flags to bitflags.  Add
+	several flags to support meta commands.
+	(initialize): Clear them.
+	(handle_meta_user): Use the new verbose flag.
+	(handle_meta_force): Implement.
+	(handle_meta_ignore): Implement.
+	(handle_meta_echo): Support "-echo".
+	(handle_meta_verbose): New.
+	(handle_metacmd): New meta command verbose.  Add always flag and move
+	the detection of unexpected meta commands to here.
+	(_gpgrt_argparse): Make use of the ignore and forced meta commands.
+	(finish_read_sys): New.
+	(_gpgrt_argparser): Support the verbose flag.  Call finish_read_sys.
+	(arg_parse): Ignore non-explicit ignored and all forced options.
+
+	* tests/t-argparse.c (main): Fix printing of the ARGPARSE_CONFFILE
+	case.  New option 'M'.
+	* tests/t-argparse.conf, tests/etc/t-argparse.conf: Various changes to
+	test the new meta commands.
+
+	indent: Fix indentation in an argparse.c function.
+	+ commit ffa21bf5b7066f7fa437119ce6b508b324ea2611
+	* src/argparse.c (arg_parse): Fix it here.
+
+2020-02-26  Werner Koch  <wk@gnupg.org>
+
+	core: Add meta command handler stubs to argparse.c.
+	+ commit 2f169b341e410924c5d7ee7d76ac67f85f26ed6a
+	* src/argparse.c (handle_meta_user): New stub.
+	(handle_meta_force): New stub.
+	(handle_meta_ignore): New stub.
+	(handle_meta_echo): New.
+	(handle_metacmd): New.
+	(_gpgrt_argparse): Call meta command handler.
+
+	core: Prepare argparse.c to track additional info for options.
+	+ commit 9d268891dae6093e5346710a38ba8cd978f24f09
+	* src/argparse.c (opttable_t): New.
+	(struct _gpgrt_argparse_internal_s): Use this instead of a ppointer to
+	gpgrt_opt_t.
+	(initialize): Copy options to the new tableand keep an original ordinal.
+	(_gpgrt_argparse): Adjust for changes.
+	(any_opt_conffile): Ditto.
+	(find_long_option): Ditto.
+	(arg_parse): Ditto.
+	(long_opt_strlen): Adjust args.
+	(cmp_ordtbl): New.
+	(show_help): Print using the ordinal numbers.
+
+2020-02-25  Werner Koch  <wk@gnupg.org>
+
+	core: Add parser for meta commands to gpgrt_argparser.
+	+ commit 6fc2d7cb8ce9e08cb189608466803ee7c8eb6930
+	* src/gpg-error.h.in (ARGPARSE_INVALID_META): New
+	(ARGPARSE_UNKNOWN_META, ARGPARSE_UNEXPECTED_META): New.
+	* src/argparse.c (struct _gpgrt_argparse_internal_s): Add flag
+	insysconfig.
+	(initialize): Init flag.  Add error strings.
+	(_gpgrt_argparser): Set that flag.
+	(_gpgrt_argparse): Add parsing of meta commands.
+
+	* tests/etc/t-argparse.conf: Add some test cases.
+	* tests/t-argparse.conf: Ditto.
+	* tests/t-argparse.c (main): Die only after printing all warnings.
+
+	core: Fold duplicated code from _gpgrt_argparse.
+	+ commit ca79d5edee8c6d93575708643ec825f81107e624
+	* src/argparse.c (_gpgrt_argparse): Fold common code.
+
+	core: Improve readability of _gpgrt_argparse.
+	+ commit 8c185e719860aaa93cc37c0ec91c7bd5e3c2a5ce
+	* src/argparse.c (_gpgrt_argparse): Use enum for the states and
+	replace continue and break.
+
+	core: New flag ARGPARSE_FLAG_USERVERS to try versioned config files.
+	+ commit e9f36cabe157aa046b32dfc0b9f5c175b9808722
+	* src/gpg-error.h.in (ARGPARSE_FLAG_USERVERS): New.
+	* src/argparse.c: Include unistd.h.
+	(try_versioned_conffile): New.
+	(_gpgrt_argparser): Use it.
+
+	core: New pseudo option ARGPARSE_PERMISSION_ERROR.
+	+ commit f25555aed0da7f0492b68efb789dbe3e03ec7fe8
+	* src/gpg-error.h.in (ARGPARSE_PERMISSION_ERROR): New.
+	* src/argparse.c (initialize): Add code to print this error.
+
+2020-02-25  NIIBE Yutaka  <gniibe@fsij.org>
+
+	w32: Fix exporting gpgrt_argparser.
+	+ commit 732ac9c681a0b6afdee2e8eb6937500850f74986
+	* src/gpg-error.def.in (gpgrt_argparser): Fix typo.
+
+2020-02-22  Werner Koch  <wk@gnupg.org>
+
+	core: Extend the way a config file can be specified,
+	+ commit b79b2a7fb3ad3ada45d17e8632f1ee4212ce0764
+	* src/argparse.c (PATHSEP_C, DIRSEP_C): New.
+	(is_absfname, is_twopartfname): New.
+	(_gpgrt_argparser): Allow for a two-part config name.
+
+2020-02-20  Werner Koch  <wk@gnupg.org>
+
+	core: Skip cmdline parsing for no or an empty argv.
+	+ commit 44258227f7dfb12b3c0faa8ab417a9dc2be46eed
+	* src/argparse.c (_gpgrt_argparser): Allow for empty argv.  Also fix
+	memory leak.
+
+2020-02-19  Werner Koch  <wk@gnupg.org>
+
+	core: More fixes for the new option/argument parser.
+	+ commit 46b3749997da84c41f583b22cda812dd5e42bde0
+	* src/argparse.c (arg_parse): Always set opt_flags.  New flag no_init.
+	(_gpgrt_argparse): Clear opt_flags at start.
+	(_gpgrt_argparser): Call arg_parse directly.  Call arg_parse with
+	no_init set.
+
+	core: Some fixes for the new option/argument parser.
+	+ commit a264fe9c55251458df558718fae0845928bf225e
+	* src/argparse.c (ARGPARSE_FLAG__INITIALIZED): New.
+	(initialize): Use a flag bit to track the initialization state.
+	(_gpgrt_argparser): Clear some state on switching files.
+
+2020-02-18  Werner Koch  <wk@gnupg.org>
+
+	core: Add a high level option/argument parser.
+	+ commit 933eb9346a84c87f83f77d990be2f66e2f7b62e7
+	* gpg-error.h.in (GPGRT_CONFDIR_USER, GPGRT_CONFDIR_SYS): New consts.
+	(ARGPARSE_FLAG_SYS, ARGPARSE_FLAG_USER, ARGPARSE_FLAG_VERBOSE)
+	(ARGPARSE_NO_CONFFILE, ARGPARSE_CONFFILE, ARGPARSE_OPT_CONFFILE): New
+	consts.
+	(ARGPARSE_conffile, ARGPARSE_noconffile): New macros.
+	(gpgrt_set_confdir): New func.
+	(gpgrt_argparser): New func.
+	* src/argparse.c (confdir): New var.
+	(enum argparser_states): New.
+	(struct _gpgrt_argparse_internal_s): Add a couple of new fields.
+	(initialize): Init them.
+	(any_opt_conffile): New.
+	(_gpgrt_argparser): New.
+	(_gpgrt_set_confdir): New.
+	* src/visibility.c (gpgrt_argparser): New.
+	(gpgrt_set_confdir): New.
+	* src/gpg-error.def.in, src/gpg-error.vers: Add those functions.
+	* tests/t-argparse.c (main): Reworked.
+	* tests/etc/t-argparse.conf: New file.
+	* tests/t-argparse.conf: New file.
+
+	core: Add gpgrt_fnameconcat and gpgrt_absfnameconcat.
+	+ commit 5742b8eaf3fa9cda3dfb6b3ad0fea7485fff1a12
+	* src/gpg-error.h.in (gpgrt_fnameconcat): New.
+	(gpgrt_absfnameconcat): New.
+	* src/visibility.c (gpgrt_fnameconcat, gpgrt_absfnameconcat): New.
+	* src/stringutils.c: New file.
+	(_gpgrt_vfnameconcat): New.
+	(_gpgrt_fnameconcat, _gpgrt_absfnameconcat): New.
+	* src/gpg-error.def.in: Add new functions.
+	* src/gpg-error.vers: Ditto.
+	* src/sysutils.c: Include pwd.h.
+	(_gpgrt_getpwdir): New.
+	* configure.ac: Test for pwd.h, getpwnam, getpwuid, and their _r
+	variants.
+	* src/Makefile.am (libgpg_error_la_SOURCES): Add new file.
+
+	* tests/t-stringutils.c: New.
+	* tests/t-common.h (xmalloc, xstrdup, xfree): New.
+	(die): Kludge to avoid compiler warnings.
+
+2020-02-18  NIIBE Yutaka  <gniibe@fsij.org>
+
+	w32: Support static link with -lws2_32.
+	+ commit a6ab8e3a710b899ecfb2ff518725314a1e0e64ff
+	* configure.ac (GPG_ERROR_CONFIG_LIBS_PRIVATE): New.
+	* src/Makefile.am (socklibs): Use GPG_ERROR_CONFIG_LIBS_PRIVATE.
+	* src/gpg-error.pc.in: Require @GPG_ERROR_CONFIG_LIBS_PRIVATE@.
+
+2020-02-10  Werner Koch  <wk@gnupg.org>
+
+	logging: Also protect gpgrt_inc_errorcount against counter overflow.
+	+ commit d72c1ddfde09ffa69745ec2439c5a16d15e2202f
+	* src/logging.c (_gpgrt_inc_errorcount): Protect against counter
+	overflow.
+	(_gpgrt_logv_internal): Use that function here so that we have only
+	one check for counter overflow.
+
 2020-02-07  Werner Koch  <wk@gnupg.org>
 
 	Release 1.37.

@@ -571,9 +571,11 @@ main (int argc, char *argv[])
   gpgrt_argparse_t pargs = { &argc, &argv };
 
   int i;
+  int libversion = 0;
   int listmode = 0;
   int localemode = 0;
   int desc = 0;
+  const char *s, *s2;
   const char *source_sym;
   const char *error_sym;
   gpg_error_t err;
@@ -588,7 +590,7 @@ main (int argc, char *argv[])
     {
       switch (pargs.r_opt)
         {
-        case CMD_LIB_VERSION: break;
+        case CMD_LIB_VERSION: libversion = 1; break;
         case CMD_LIST:       listmode = 1; break;
         case CMD_DEFINES:    listmode = 2; break;
         case CMD_LOCALE:     localemode = 1; break;
@@ -598,7 +600,12 @@ main (int argc, char *argv[])
     }
   gpgrt_argparse (NULL, &pargs, NULL);  /* Free internal memory.  */
 
-  if (localemode)
+  if (libversion)
+    {
+      if (argc)
+        gpgrt_usage (1);
+    }
+  else if (localemode)
     {
       if (argc > 1)
         gpgrt_usage (1);
@@ -606,7 +613,33 @@ main (int argc, char *argv[])
   else if ((argc && listmode) || (!argc && !listmode))
     gpgrt_usage (1);
 
-  if (localemode)
+
+  if (libversion)
+    {
+      argc--; argv++;
+      printf ("Version from header: %s (0x%06x)\n",
+              GPG_ERROR_VERSION, GPG_ERROR_VERSION_NUMBER);
+      printf ("Version from binary: %s\n", gpg_error_check_version (NULL));
+      s = gpg_error_check_version ("\x01\x01");
+      while (*s && *s == '\n')
+        s++;
+      fputs ("Copyright blurb ...: ", stdout);
+      for (; *s; s++)
+        {
+          if (*s == '\n')
+            {
+              for (s2=s+1; *s2 == '\n'; s2++)
+                ;
+              if (!*s2)
+                break;  /* Cut off trailing LFs.  */
+              fputs ("\n                     ", stdout);
+            }
+          else
+            putc (*s, stdout);
+        }
+      putc ('\n', stdout);
+    }
+  else if (localemode)
     {
 #if HAVE_W32_SYSTEM
       if (argc)

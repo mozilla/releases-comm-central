@@ -32,6 +32,9 @@
 #endif
 #include <sys/types.h>
 #include <fcntl.h>
+#ifdef HAVE_PWD_H
+# include <pwd.h>
+#endif
 
 #include "gpgrt-int.h"
 
@@ -266,29 +269,34 @@ modestr_to_mode (const char *modestr)
  * write allowed, execution allowed with the first group for the user,
  * the second for the group and the third for all others.  If the
  * string is shorter than above the missing mode characters are meant
- * to be not set.  */
+ * to be not set.
+ *
+ * Note that in addition to returning an gpg-error error code ERRNO is
+ * also set by this function.
+ */
 gpg_err_code_t
 _gpgrt_mkdir (const char *name, const char *modestr)
 {
-#ifdef HAVE_W32CE_SYSTEM
+#ifdef HAVE_W32_SYSTEM
   wchar_t *wname;
+  gpg_err_code_t ec;
   (void)modestr;
 
-  wname = utf8_to_wchar (name);
+  /* Note: Fixme: We should set appropriate permissions.  */
+  wname = _gpgrt_utf8_to_wchar (name);
   if (!wname)
     return _gpg_err_code_from_syserror ();
   if (!CreateDirectoryW (wname, NULL))
     {
-      xfree (wname);
-      return _gpg_err_code_from_syserror ();
+      _gpgrt_w32_set_errno (-1);
+      ec = _gpg_err_code_from_syserror ();
     }
-  xfree (wname);
-  return 0;
+  else
+    ec = 0;
+  _gpgrt_free_wchar (wname);
+  return ec;
 #elif MKDIR_TAKES_ONE_ARG
   (void)modestr;
-  /* Note: In the case of W32 we better use CreateDirectory and try to
-     set appropriate permissions.  However using mkdir is easier
-     because this sets ERRNO.  */
   if (mkdir (name))
     return _gpg_err_code_from_syserror ();
   return 0;
@@ -301,13 +309,34 @@ _gpgrt_mkdir (const char *name, const char *modestr)
 
 
 /* A simple wrapper around chdir.  NAME is expected to be utf8
- * encoded.  */
+ * encoded.
+ * Note that in addition to returning an gpg-error error code ERRNO is
+ * also set by this function.  */
 gpg_err_code_t
 _gpgrt_chdir (const char *name)
 {
+#ifdef HAVE_W32_SYSTEM
+  wchar_t *wname;
+  gpg_err_code_t ec;
+
+  wname = _gpgrt_utf8_to_wchar (name);
+  if (!wname)
+    return _gpg_err_code_from_syserror ();
+  if (!SetCurrentDirectoryW (wname))
+    {
+      _gpgrt_w32_set_errno (-1);
+      ec = _gpg_err_code_from_syserror ();
+    }
+  else
+    ec = 0;
+  _gpgrt_free_wchar (wname);
+  return ec;
+
+#else /*!HAVE_W32_SYSTEM*/
   if (chdir (name))
     return _gpg_err_code_from_syserror ();
   return 0;
+#endif /*!HAVE_W32_SYSTEM*/
 }
 
 
@@ -319,6 +348,7 @@ _gpgrt_getcwd (void)
   char *buffer;
   size_t size = 100;
 
+  /* FIXME: We need to support utf8  */
   for (;;)
     {
       buffer = xtrymalloc (size+1);
@@ -336,4 +366,79 @@ _gpgrt_getcwd (void)
       size *= 2;
 #endif
     }
+}
+
+
+/* Get the standard home directory for user NAME. If NAME is NULL the
+ * directory for the current user is returned.  Caller must release
+ * the returned string.  */
+char *
+_gpgrt_getpwdir (const char *name)
+{
+  char *result = NULL;
+#ifdef HAVE_PWD_H
+  struct passwd *pwd = NULL;
+
+  if (name)
+    {
+#ifdef HAVE_GETPWNAM
+      /* Fixme: We should use getpwnam_r if available.  */
+      pwd = getpwnam (name);
+#endif
+    }
+  else
+    {
+#ifdef HAVE_GETPWUID
+      /* Fixme: We should use getpwuid_r if available.  */
+      pwd = getpwuid (getuid());
+#endif
+    }
+  if (pwd)
+    {
+      result = _gpgrt_strdup (pwd->pw_dir);
+    }
+#else /*!HAVE_PWD_H*/
+  /* No support at all.  */
+  (void)name;
+#endif /*HAVE_PWD_H*/
+  return result;
+}
+
+
+/* Return a malloced copy of the current user's account name; this may
+ * return NULL on memory failure.  */
+char *
+_gpgrt_getusername (void)
+{
+  char *result = NULL;
+
+#ifdef HAVE_W32_SYSTEM
+  char tmp[1];
+  DWORD size = 1;
+
+  /* FIXME: We need to support utf8  */
+  GetUserNameA (tmp, &size);
+  result = _gpgrt_malloc (size);
+  if (result && !GetUserNameA (result, &size))
+    {
+      xfree (result);
+      result = NULL;
+    }
+
+#else /* !HAVE_W32_SYSTEM */
+
+# if defined(HAVE_PWD_H) && defined(HAVE_GETPWUID)
+  struct passwd *pwd;
+
+  pwd = getpwuid (getuid());
+  if (pwd)
+    {
+      result = _gpgrt_strdup (pwd->pw_name);
+    }
+
+# endif /*HAVE_PWD_H*/
+
+#endif /* !HAVE_W32_SYSTEM */
+
+  return result;
 }

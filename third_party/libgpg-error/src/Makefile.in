@@ -125,7 +125,8 @@ bin_PROGRAMS = gpg-error$(EXEEXT)
 @HAVE_W32_SYSTEM_FALSE@	$(am__DEPENDENCIES_2) \
 @HAVE_W32_SYSTEM_FALSE@	$(am__DEPENDENCIES_2) \
 @HAVE_W32_SYSTEM_FALSE@	$(am__DEPENDENCIES_2)
-@FORCE_USE_SYSCFG_FALSE@am__append_1 = ./lock-obj-pub.native.h
+@FORCE_USE_SYSCFG_FALSE@@HAVE_GENERATED_LOCK_OBJ_H_TRUE@am__append_1 = ./lock-obj-pub.native.h
+@FORCE_USE_SYSCFG_FALSE@@HAVE_GENERATED_LOCK_OBJ_H_FALSE@am__append_2 = ./lock-obj-pub.native.h
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/autobuild.m4 \
@@ -188,11 +189,12 @@ am__DEPENDENCIES_2 =
 am__libgpg_error_la_SOURCES_DIST = gettext.h posix-lock.c \
 	posix-lock-obj.h posix-thread.c spawn-posix.c w32-gettext.c \
 	w32-lock.c w32-lock-obj.h w32-thread.c w32-iconv.c \
-	w32-estream.c w32-reg.c spawn-w32.c gpgrt-int.h init.c init.h \
-	version.c lock.h thread.h estream.c estream-printf.c \
-	estream-printf.h strsource.c strerror.c code-to-errno.c \
-	code-from-errno.c visibility.c visibility.h sysutils.c \
-	syscall-clamp.c logging.c b64dec.c b64enc.c argparse.c
+	w32-estream.c w32-reg.c spawn-w32.c gpgrt-int.h protos.h \
+	init.c init.h version.c lock.h thread.h estream.c \
+	estream-printf.c estream-printf.h strsource.c strerror.c \
+	code-to-errno.c code-from-errno.c visibility.c visibility.h \
+	sysutils.c stringutils.c syscall-clamp.c logging.c b64dec.c \
+	b64enc.c argparse.c
 @HAVE_W32_SYSTEM_FALSE@am__objects_1 = libgpg_error_la-posix-lock.lo \
 @HAVE_W32_SYSTEM_FALSE@	libgpg_error_la-posix-thread.lo \
 @HAVE_W32_SYSTEM_FALSE@	libgpg_error_la-spawn-posix.lo
@@ -209,6 +211,7 @@ am_libgpg_error_la_OBJECTS = $(am__objects_1) libgpg_error_la-init.lo \
 	libgpg_error_la-strerror.lo libgpg_error_la-code-to-errno.lo \
 	libgpg_error_la-code-from-errno.lo \
 	libgpg_error_la-visibility.lo libgpg_error_la-sysutils.lo \
+	libgpg_error_la-stringutils.lo \
 	libgpg_error_la-syscall-clamp.lo libgpg_error_la-logging.lo \
 	libgpg_error_la-b64dec.lo libgpg_error_la-b64enc.lo \
 	libgpg_error_la-argparse.lo
@@ -268,6 +271,7 @@ am__depfiles_remade = ./$(DEPDIR)/gen-posix-lock-obj.Po \
 	./$(DEPDIR)/libgpg_error_la-spawn-posix.Plo \
 	./$(DEPDIR)/libgpg_error_la-spawn-w32.Plo \
 	./$(DEPDIR)/libgpg_error_la-strerror.Plo \
+	./$(DEPDIR)/libgpg_error_la-stringutils.Plo \
 	./$(DEPDIR)/libgpg_error_la-strsource.Plo \
 	./$(DEPDIR)/libgpg_error_la-syscall-clamp.Plo \
 	./$(DEPDIR)/libgpg_error_la-sysutils.Plo \
@@ -376,6 +380,7 @@ CC_FOR_BUILD = @CC_FOR_BUILD@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CROSS_HOST_OBJDUMP = @CROSS_HOST_OBJDUMP@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -395,6 +400,7 @@ GMSGFMT_015 = @GMSGFMT_015@
 GPG_ERROR_CONFIG_CFLAGS = @GPG_ERROR_CONFIG_CFLAGS@
 GPG_ERROR_CONFIG_HOST = @GPG_ERROR_CONFIG_HOST@
 GPG_ERROR_CONFIG_LIBS = @GPG_ERROR_CONFIG_LIBS@
+GPG_ERROR_CONFIG_LIBS_PRIVATE = @GPG_ERROR_CONFIG_LIBS_PRIVATE@
 GPG_ERROR_CONFIG_MT_CFLAGS = @GPG_ERROR_CONFIG_MT_CFLAGS@
 GPG_ERROR_CONFIG_MT_LIBS = @GPG_ERROR_CONFIG_MT_LIBS@
 GREP = @GREP@
@@ -507,6 +513,7 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -537,6 +544,7 @@ lock_obj_pub = \
         syscfg/lock-obj-pub.m68k-unknown-linux-gnu.h        \
         syscfg/lock-obj-pub.mips-unknown-linux-gnu.h        \
         syscfg/lock-obj-pub.mips64el-unknown-linux-gnuabi64.h \
+        syscfg/lock-obj-pub.mips64-unknown-linux-gnuabi64.h \
         syscfg/lock-obj-pub.mipsel-unknown-linux-gnu.h      \
 	syscfg/lock-obj-pub.nios2-unknown-linux-gnu.h       \
         syscfg/lock-obj-pub.or1k-unknown-linux-gnu.h        \
@@ -576,7 +584,7 @@ EXTRA_DIST = mkstrtable.awk err-sources.h.in err-codes.h.in \
 	gpg-error.vers gpg-error.def.in \
         versioninfo.rc.in gpg-error.w32-manifest.in \
 	gpg-error-config-test.sh gpg-error.pc.in \
-	$(lock_obj_pub)
+	gen-lock-obj.sh $(lock_obj_pub)
 
 BUILT_SOURCES = $(srcdir)/err-sources.h $(srcdir)/err-codes.h \
 	code-to-errno.h code-from-errno.h \
@@ -627,13 +635,12 @@ TESTS = gpg-error-config-test.sh
 @HAVE_W32_SYSTEM_TRUE@libgpg_error_la_DEPENDENCIES = $(gpg_error_res) gpg-error.def
 @HAVE_W32_SYSTEM_FALSE@intllibs = @LTLIBINTL@
 @HAVE_W32_SYSTEM_TRUE@intllibs = 
-@HAVE_W32_SYSTEM_FALSE@socklibs = 
-@HAVE_W32_SYSTEM_TRUE@socklibs = -lws2_32
-@HAVE_LD_VERSION_SCRIPT_FALSE@libgpg_error_vers_opt = 
 
 #
 # }}} End Unix part
 #
+socklibs = @GPG_ERROR_CONFIG_LIBS_PRIVATE@
+@HAVE_LD_VERSION_SCRIPT_FALSE@libgpg_error_vers_opt = 
 @HAVE_LD_VERSION_SCRIPT_TRUE@libgpg_error_vers_opt = -Wl,--version-script=$(srcdir)/gpg-error.vers
 libgpg_error_la_LDFLAGS = \
   -no-undefined $(export_symbols) $(libgpg_error_vers_opt) \
@@ -641,11 +648,12 @@ libgpg_error_la_LDFLAGS = \
   @LIBGPG_ERROR_LT_CURRENT@:@LIBGPG_ERROR_LT_REVISION@:@LIBGPG_ERROR_LT_AGE@
 
 libgpg_error_la_SOURCES = gettext.h $(arch_sources) \
-	gpgrt-int.h init.c init.h version.c lock.h thread.h \
+	gpgrt-int.h protos.h init.c init.h version.c lock.h thread.h \
 	estream.c estream-printf.c estream-printf.h \
 	strsource.c strerror.c code-to-errno.c code-from-errno.c \
 	visibility.c visibility.h \
 	sysutils.c \
+	stringutils.c \
 	syscall-clamp.c \
 	logging.c \
 	b64dec.c b64enc.c \
@@ -668,15 +676,18 @@ gpg_error_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
 gpg_error_LDADD = libgpg-error.la $(LTLIBINTL)
 parts_of_gpg_error_h = gpg-error.h.in err-sources.h.in err-codes.h.in \
 	errnos.in w32-add.h w32ce-add.h $(lock_obj_pub) \
-	$(am__append_1)
-@FORCE_USE_SYSCFG_FALSE@pre_mkheader_cmds = :
+	$(am__append_1) $(am__append_2)
+@FORCE_USE_SYSCFG_FALSE@@HAVE_GENERATED_LOCK_OBJ_H_FALSE@pre_mkheader_cmds = :
+# lock-obj-pub.native.h is generated at configure time
+@FORCE_USE_SYSCFG_FALSE@@HAVE_GENERATED_LOCK_OBJ_H_TRUE@pre_mkheader_cmds = :
 
 # If we are cross-compiling or building on Windows we better make sure
 # that no stale native lock include file will be found by mkheader.
 @FORCE_USE_SYSCFG_TRUE@pre_mkheader_cmds = if test -f lock-obj-pub.native.h; \
 @FORCE_USE_SYSCFG_TRUE@                    then rm lock-obj-pub.native.h; fi
 
-@FORCE_USE_SYSCFG_FALSE@mkheader_opts = 
+@FORCE_USE_SYSCFG_FALSE@@HAVE_GENERATED_LOCK_OBJ_H_FALSE@mkheader_opts = 
+@FORCE_USE_SYSCFG_FALSE@@HAVE_GENERATED_LOCK_OBJ_H_TRUE@mkheader_opts = 
 @FORCE_USE_SYSCFG_TRUE@mkheader_opts = --cross
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -928,6 +939,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgpg_error_la-spawn-posix.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgpg_error_la-spawn-w32.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgpg_error_la-strerror.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgpg_error_la-stringutils.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgpg_error_la-strsource.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgpg_error_la-syscall-clamp.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgpg_error_la-sysutils.Plo@am__quote@ # am--include-marker
@@ -1106,6 +1118,13 @@ libgpg_error_la-sysutils.lo: sysutils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='sysutils.c' object='libgpg_error_la-sysutils.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgpg_error_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgpg_error_la-sysutils.lo `test -f 'sysutils.c' || echo '$(srcdir)/'`sysutils.c
+
+libgpg_error_la-stringutils.lo: stringutils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgpg_error_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgpg_error_la-stringutils.lo -MD -MP -MF $(DEPDIR)/libgpg_error_la-stringutils.Tpo -c -o libgpg_error_la-stringutils.lo `test -f 'stringutils.c' || echo '$(srcdir)/'`stringutils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgpg_error_la-stringutils.Tpo $(DEPDIR)/libgpg_error_la-stringutils.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='stringutils.c' object='libgpg_error_la-stringutils.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgpg_error_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgpg_error_la-stringutils.lo `test -f 'stringutils.c' || echo '$(srcdir)/'`stringutils.c
 
 libgpg_error_la-syscall-clamp.lo: syscall-clamp.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgpg_error_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgpg_error_la-syscall-clamp.lo -MD -MP -MF $(DEPDIR)/libgpg_error_la-syscall-clamp.Tpo -c -o libgpg_error_la-syscall-clamp.lo `test -f 'syscall-clamp.c' || echo '$(srcdir)/'`syscall-clamp.c
@@ -1502,6 +1521,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libgpg_error_la-spawn-posix.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-spawn-w32.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-strerror.Plo
+	-rm -f ./$(DEPDIR)/libgpg_error_la-stringutils.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-strsource.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-syscall-clamp.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-sysutils.Plo
@@ -1579,6 +1599,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libgpg_error_la-spawn-posix.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-spawn-w32.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-strerror.Plo
+	-rm -f ./$(DEPDIR)/libgpg_error_la-stringutils.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-strsource.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-syscall-clamp.Plo
 	-rm -f ./$(DEPDIR)/libgpg_error_la-sysutils.Plo
@@ -1727,8 +1748,8 @@ mkheader$(EXEEXT_FOR_BUILD): mkheader.c Makefile
 	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) \
 	$(CPPFLAGS_FOR_BUILD) -g -I. -I$(srcdir) -o $@ $(srcdir)/mkheader.c
 
-@FORCE_USE_SYSCFG_FALSE@./lock-obj-pub.native.h: Makefile gen-posix-lock-obj$(EXEEXT) posix-lock-obj.h
-@FORCE_USE_SYSCFG_FALSE@	./gen-posix-lock-obj >$@
+@FORCE_USE_SYSCFG_FALSE@@HAVE_GENERATED_LOCK_OBJ_H_FALSE@./lock-obj-pub.native.h: Makefile gen-posix-lock-obj$(EXEEXT) posix-lock-obj.h
+@FORCE_USE_SYSCFG_FALSE@@HAVE_GENERATED_LOCK_OBJ_H_FALSE@	./gen-posix-lock-obj >$@
 
 # We also depend on versioninfo.rc because that is build by
 # config.status and thus has up-to-date version numbers.

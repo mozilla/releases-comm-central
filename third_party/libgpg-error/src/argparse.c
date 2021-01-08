@@ -1,7 +1,7 @@
 /* argparse.c - Argument Parser for option handling
  * Copyright (C) 1997-2001, 2006-2008, 2013-2017 Werner Koch
  * Copyright (C) 1998-2001, 2006-2008, 2012 Free Software Foundation, Inc.
- * Copyright (C) 2015-2018 g10 Code GmbH
+ * Copyright (C) 2015-2020 g10 Code GmbH
  *
  * This file is part of Libgpg-error.
  *
@@ -33,29 +33,101 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <errno.h>
+#include <unistd.h>
+#include <time.h>
 
 #include "gpgrt-int.h"
 
-/* Special short options which are auto-inserterd.  */
+#ifdef HAVE_W32_SYSTEM
+# define PATHSEP_C ';'
+# define DIRSEP_C  '\\'
+#else
+# define PATHSEP_C ':'
+# define DIRSEP_C  '/'
+#endif
+
+
+/* The malloced configuration directories or NULL.  */
+static struct
+{
+  char *user;
+  char *sys;
+} confdir;
+
+
+/* Hidden argparse flag used to mark the object as initialized.  */
+#define ARGPARSE_FLAG__INITIALIZED  (1u << ((8*SIZEOF_INT)-1))
+
+/* Special short options which are auto-inserterd.  Must fit into an
+ * unsigned short.  */
 #define ARGPARSE_SHORTOPT_HELP 32768
 #define ARGPARSE_SHORTOPT_VERSION 32769
 #define ARGPARSE_SHORTOPT_WARRANTY 32770
 #define ARGPARSE_SHORTOPT_DUMP_OPTIONS 32771
+#define ARGPARSE_SHORTOPT_DUMP_OPTTBL 32772
 
-/* A mask for the types.  */
-#define ARGPARSE_TYPE_MASK  7  /* Mask for the type values.  */
+
+/* The states for the gpgrt_argparser machinery.  */
+enum argparser_states
+  {
+   STATE_init = 0,
+   STATE_open_sys,
+   STATE_open_user,
+   STATE_open_cmdline,
+   STATE_read_sys,
+   STATE_read_user,
+   STATE_read_cmdline,
+   STATE_finished
+  };
+
+
+/* An internal object used to store the user provided option table and
+ * some meta information.  */
+typedef struct
+{
+  unsigned short short_opt;
+  unsigned short ordinal;     /* (for --help)  */
+  unsigned int   flags;
+  const char    *long_opt;    /* Points into the user provided table. */
+  const char    *description; /* Points into the user provided table. */
+  unsigned int   forced:1;    /* Forced to use the sysconf value.  */
+  unsigned int   ignore:1;    /* Ignore this option everywhere but in
+                               * the sysconf file.  */
+  unsigned int   explicit_ignore:1; /* Ignore was explicitly set.  */
+} opttable_t;
+
 
 /* Internal object of the public gpgrt_argparse_t object.  */
 struct _gpgrt_argparse_internal_s
 {
-  int idx;
-  int inarg;
-  int stopped;
+  int idx;   /* Note that this is saved and restored in _gpgrt_argparser. */
+  int inarg;                       /* (index into args) */
+  unsigned int verbose:1;          /* Print diagnostics.                */
+  unsigned int stopped:1;          /* Option processing has stopped.    */
+  unsigned int in_sysconf:1;       /* Processing global config file.    */
+  unsigned int mark_forced:1;      /* Mark options as forced.           */
+  unsigned int mark_ignore:1;      /* Mark options as to be ignored.    */
+  unsigned int explicit_ignore:1;  /* Option has explicitly been set
+                                    * to ignore or unignore.  */
+  unsigned int ignore_all_seen:1;  /* [ignore-all] has been seen.       */
+  unsigned int user_seen:1;        /* A [user] has been seen.           */
+  unsigned int user_wildcard:1;    /* A [user *] has been seen.         */
+  unsigned int user_any_active:1;  /* Any user section was active.      */
+  unsigned int user_active:1;      /* User section active.              */
+  unsigned int explicit_confopt:1; /* A conffile option has been given. */
+  char *explicit_conffile;         /* Malloced name of an explicit
+                                    * conffile. */
+  char *username;                  /* Malloced current user name.       */
+  unsigned int opt_flags;          /* Current option flags.             */
+  enum argparser_states state;     /* State of the gpgrt_argparser.     */
   const char *last;
   void *aliases;
   const void *cur_alias;
   void *iio_list;
-  gpgrt_opt_t **opts;  /* Malloced array of pointer to user provided opts.  */
+  estream_t conffp;
+  char *confname;
+  opttable_t *opts;            /* Malloced option table.  */
+  unsigned int nopts;          /* Number of items in OPTS.  */
 };
 
 
@@ -85,11 +157,12 @@ static int (*custom_outfnc) (int, const char *);
 static const char *(*fixed_string_mapper)(const char*);
 
 static int  set_opt_arg (gpgrt_argparse_t *arg, unsigned int flags, char *s);
-static void show_help (gpgrt_opt_t **opts, unsigned int flags);
+static void show_help (opttable_t *opts, unsigned int nopts,unsigned int flags);
 static void show_version (void);
+static void dump_option_table (gpgrt_argparse_t *arg);
 static int writestrings (int is_error, const char *string,
                          ...) GPGRT_ATTR_SENTINEL(0);
-static int arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts);
+static int arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts, int no_init);
 
 
 
@@ -164,7 +237,7 @@ writestrings (int is_error, const char *string, ...)
           if (custom_outfnc)
             custom_outfnc (is_error? 2:1, s);
           else
-            fputs (s, is_error? stderr : stdout);
+            _gpgrt_fputs (s, is_error? es_stderr : es_stdout);
           count += strlen (s);
         }
       while ((s = va_arg (arg_ptr, const char *)));
@@ -189,11 +262,14 @@ deinitialize (gpgrt_argparse_t *arg)
 {
   if (arg->internal)
     {
+      xfree (arg->internal->username);
+      xfree (arg->internal->explicit_conffile);
       xfree (arg->internal->opts);
       xfree (arg->internal);
       arg->internal = NULL;
     }
 
+  arg->flags &= ARGPARSE_FLAG__INITIALIZED;
   arg->lineno = 0;
   arg->err = 0;
 }
@@ -210,27 +286,51 @@ my_exit (gpgrt_argparse_t *arg, int code)
 static gpg_err_code_t
 initialize (gpgrt_argparse_t *arg, gpgrt_opt_t *opts, estream_t fp)
 {
-  if (!arg->internal || (arg->flags & ARGPARSE_FLAG_RESET))
+  /* We use a dedicated flag to detect whether *ARG has been
+   * initialized.  This is because the old version of that struct, as
+   * used in GnuPG, had no requirement to zero out all fields of the
+   * object and existing code still sets only argc,argv and flags.  */
+  if (!(arg->flags & ARGPARSE_FLAG__INITIALIZED)
+      || (arg->flags & ARGPARSE_FLAG_RESET)
+      || !arg->internal)
     {
       /* Allocate internal data.  */
-      if (!arg->internal)
+      if (!(arg->flags & ARGPARSE_FLAG__INITIALIZED) || !arg->internal)
         {
           arg->internal = xtrymalloc (sizeof *arg->internal);
           if (!arg->internal)
             return _gpg_err_code_from_syserror ();
+          arg->flags |= ARGPARSE_FLAG__INITIALIZED; /* Mark as initialized.  */
         }
       else if (arg->internal->opts)
         xfree (arg->internal->opts);
       arg->internal->opts = NULL;
+      arg->internal->nopts = 0;
 
       /* Initialize this instance. */
       arg->internal->idx = 0;
       arg->internal->last = NULL;
       arg->internal->inarg = 0;
       arg->internal->stopped = 0;
+      arg->internal->in_sysconf = 0;
+      arg->internal->user_seen = 0;
+      arg->internal->user_wildcard = 0;
+      arg->internal->user_any_active = 0;
+      arg->internal->user_active = 0;
+      arg->internal->username = NULL;
+      arg->internal->mark_forced = 0;
+      arg->internal->mark_ignore = 0;
+      arg->internal->explicit_ignore = 0;
+      arg->internal->ignore_all_seen = 0;
+      arg->internal->explicit_confopt = 0;
+      arg->internal->explicit_conffile = NULL;
+      arg->internal->opt_flags = 0;
+      arg->internal->state = STATE_init;
       arg->internal->aliases = NULL;
       arg->internal->cur_alias = NULL;
       arg->internal->iio_list = NULL;
+      arg->internal->conffp = NULL;
+      arg->internal->confname = NULL;
 
       /* Clear the copy of the option list.  */
       /* Clear the error indicator.  */
@@ -240,7 +340,7 @@ initialize (gpgrt_argparse_t *arg, gpgrt_opt_t *opts, estream_t fp)
        * However, we do not open the stream and thus we have no way to
        * know the current lineno.  Using this flag we can allow the
        * user to provide a lineno which we don't reset.  */
-      if (fp || !(arg->flags & ARGPARSE_FLAG_NOLINENO))
+      if (fp || arg->internal->conffp || !(arg->flags & ARGPARSE_FLAG_NOLINENO))
         arg->lineno = 0;
 
       /* Need to clear the reset request.  */
@@ -259,58 +359,108 @@ initialize (gpgrt_argparse_t *arg, gpgrt_opt_t *opts, estream_t fp)
    * this array.  */
   if (!arg->internal->opts)
     {
-      static gpgrt_opt_t help_opt
-        = ARGPARSE_s_n (ARGPARSE_SHORTOPT_HELP, "help", "@");
-      static gpgrt_opt_t version_opt
-        = ARGPARSE_s_n (ARGPARSE_SHORTOPT_VERSION, "version", "@");
-      static gpgrt_opt_t warranty_opt
-        = ARGPARSE_s_n (ARGPARSE_SHORTOPT_WARRANTY, "warranty", "@");
-      static gpgrt_opt_t dump_options_opt
-        = ARGPARSE_s_n(ARGPARSE_SHORTOPT_DUMP_OPTIONS, "dump-options", "@");
-      static gpgrt_opt_t end_marker
-        = ARGPARSE_end ();
       int seen_help = 0;
       int seen_version = 0;
       int seen_warranty = 0;
       int seen_dump_options = 0;
+      int seen_dump_option_table = 0;
       int i;
 
       for (i=0; opts[i].short_opt; i++)
         {
           if (opts[i].long_opt)
             {
-              if (!strcmp(opts[i].long_opt, help_opt.long_opt))
+              if (!strcmp(opts[i].long_opt, "help"))
                 seen_help = 1;
-              else if (!strcmp(opts[i].long_opt, version_opt.long_opt))
+              else if (!strcmp(opts[i].long_opt, "version"))
                 seen_version = 1;
-              else if (!strcmp(opts[i].long_opt, warranty_opt.long_opt))
+              else if (!strcmp(opts[i].long_opt, "warranty"))
                 seen_warranty = 1;
-              else if (!strcmp(opts[i].long_opt, dump_options_opt.long_opt))
+              else if (!strcmp(opts[i].long_opt, "dump-options"))
                 seen_dump_options = 1;
+              else if (!strcmp(opts[i].long_opt, "dump-option-table"))
+                seen_dump_option_table = 1;
             }
         }
-      i += 4; /* The number of the above internal options.  */
+      i += 5; /* The number of the above internal options.  */
       i++;    /* End of list marker.  */
       arg->internal->opts = xtrycalloc (i, sizeof *arg->internal->opts);
       if (!arg->internal->opts)
         return _gpg_err_code_from_syserror ();
       for(i=0; opts[i].short_opt; i++)
-        arg->internal->opts[i] = opts + i;
+        {
+          arg->internal->opts[i].short_opt   = opts[i].short_opt;
+          arg->internal->opts[i].flags       = opts[i].flags;
+          arg->internal->opts[i].long_opt    = opts[i].long_opt;
+          arg->internal->opts[i].description = opts[i].description;
+          arg->internal->opts[i].ordinal = i;
+        }
+
       if (!seen_help)
-        arg->internal->opts[i++] = &help_opt;
+        {
+          arg->internal->opts[i].short_opt   = ARGPARSE_SHORTOPT_HELP;
+          arg->internal->opts[i].flags       = ARGPARSE_TYPE_NONE;
+          arg->internal->opts[i].long_opt    = "help";
+          arg->internal->opts[i].description = "@";
+          arg->internal->opts[i].ordinal = i;
+          i++;
+        }
       if (!seen_version)
-        arg->internal->opts[i++] = &version_opt;
+        {
+          arg->internal->opts[i].short_opt   = ARGPARSE_SHORTOPT_VERSION;
+          arg->internal->opts[i].flags       = ARGPARSE_TYPE_NONE;
+          arg->internal->opts[i].long_opt    = "version";
+          arg->internal->opts[i].description = "@";
+          arg->internal->opts[i].ordinal = i;
+          i++;
+        }
+
       if (!seen_warranty)
-        arg->internal->opts[i++] = &warranty_opt;
+        {
+          arg->internal->opts[i].short_opt   = ARGPARSE_SHORTOPT_WARRANTY;
+          arg->internal->opts[i].flags       = ARGPARSE_TYPE_NONE;
+          arg->internal->opts[i].long_opt    = "warranty";
+          arg->internal->opts[i].description = "@";
+          arg->internal->opts[i].ordinal = i;
+          i++;
+        }
+
+      if (!seen_dump_option_table)
+        {
+          arg->internal->opts[i].short_opt   = ARGPARSE_SHORTOPT_DUMP_OPTTBL;
+          arg->internal->opts[i].flags       = ARGPARSE_TYPE_NONE;
+          arg->internal->opts[i].long_opt    = "dump-option-table";
+          arg->internal->opts[i].description = "@";
+          arg->internal->opts[i].ordinal = i;
+          i++;
+        }
+
       if (!seen_dump_options)
-        arg->internal->opts[i++] = &dump_options_opt;
-      arg->internal->opts[i] = &end_marker;
+        {
+          arg->internal->opts[i].short_opt   = ARGPARSE_SHORTOPT_DUMP_OPTIONS;
+          arg->internal->opts[i].flags       = ARGPARSE_TYPE_NONE;
+          arg->internal->opts[i].long_opt    = "dump-options";
+          arg->internal->opts[i].description = "@";
+          arg->internal->opts[i].ordinal = i;
+          i++;
+        }
+      /* Take care: When adding new options remember to increase the
+       * size of the array.  */
+
+      arg->internal->opts[i].short_opt = 0;
+
+      /* Note that we do not count the end marker but keep it in the
+       * table anyway as an extra item.  */
+      arg->internal->nopts = i;
     }
 
   if (arg->err)
     {
       /* Last option was erroneous.  */
       const char *s;
+
+      if (!fp && arg->internal->conffp)
+        fp = arg->internal->conffp;
 
       if (fp)
         {
@@ -328,12 +478,23 @@ initialize (gpgrt_argparse_t *arg, gpgrt_opt_t *opts, estream_t fp)
             s = _("invalid command");
           else if ( arg->r_opt == ARGPARSE_INVALID_ALIAS )
             s = _("invalid alias definition");
+          else if ( arg->r_opt == ARGPARSE_PERMISSION_ERROR )
+            s = _("permission error");
           else if ( arg->r_opt == ARGPARSE_OUT_OF_CORE )
             s = _("out of core");
+          else if ( arg->r_opt == ARGPARSE_NO_CONFFILE )
+            s = NULL;  /* Error has already been printed.  */
+          else if ( arg->r_opt == ARGPARSE_INVALID_META )
+            s = _("invalid meta command");
+          else if ( arg->r_opt == ARGPARSE_UNKNOWN_META )
+            s = _("unknown meta command");
+          else if ( arg->r_opt == ARGPARSE_UNEXPECTED_META )
+            s = _("unexpected meta command");
           else
             s = _("invalid option");
-          _gpgrt_log_error ("%s:%u: %s\n",
-                            _gpgrt_fname_get (fp), arg->lineno, s);
+          if (s)
+            _gpgrt_log_error ("%s:%u: %s\n",
+                              _gpgrt_fname_get (fp), arg->lineno, s);
 	}
       else
         {
@@ -353,7 +514,17 @@ initialize (gpgrt_argparse_t *arg, gpgrt_opt_t *opts, estream_t fp)
           else if ( arg->r_opt == ARGPARSE_AMBIGUOUS_COMMAND )
             _gpgrt_log_error (_("command \"%.50s\" is ambiguous\n"),s );
           else if ( arg->r_opt == ARGPARSE_OUT_OF_CORE )
-            _gpgrt_log_error ("%s\n", _("out of core\n"));
+            _gpgrt_log_error ("%s\n", _("out of core"));
+          else if ( arg->r_opt == ARGPARSE_PERMISSION_ERROR )
+            _gpgrt_log_error ("%s\n", _("permission error"));
+          else if ( arg->r_opt == ARGPARSE_NO_CONFFILE)
+            ;  /* Error has already been printed.  */
+          else if ( arg->r_opt == ARGPARSE_INVALID_META )
+            _gpgrt_log_error ("%s\n", _("invalid meta command"));
+          else if ( arg->r_opt == ARGPARSE_UNKNOWN_META )
+            _gpgrt_log_error ("%s\n", _("unknown meta command"));
+          else if ( arg->r_opt == ARGPARSE_UNEXPECTED_META )
+            _gpgrt_log_error ("%s\n",_("unexpected meta command"));
           else
             _gpgrt_log_error (_("invalid option \"%.50s\"\n"), s);
 	}
@@ -493,6 +664,252 @@ ignore_invalid_option_clear (gpgrt_argparse_t *arg)
 }
 
 
+/* Make sure the username field is filled.  Return 0 on success.  */
+static int
+assure_username (gpgrt_argparse_t *arg)
+{
+  if (!arg->internal->username)
+    {
+      arg->internal->username = _gpgrt_getusername ();
+      if (!arg->internal->username)
+        {
+          _gpgrt_log_error ("%s:%u: error getting current user's name: %s\n",
+                            arg->internal->confname, arg->lineno,
+                            _gpg_strerror (gpg_error_from_syserror ()));
+          /* Not necessary the correct error code but given that we
+           * either have a malloc error or some internal system error,
+           * it is the best we can do.  */
+          return ARGPARSE_PERMISSION_ERROR;
+        }
+    }
+  return 0;
+}
+
+
+/* Implementation of the "user" command.  ARG is the context.  ARGS is
+ * a non-empty string which this function is allowed to modify.  */
+static int
+handle_meta_user (gpgrt_argparse_t *arg, unsigned int alternate, char *args)
+{
+  int rc;
+
+  (void)alternate;
+
+  rc = assure_username (arg);
+  if (rc)
+    return rc;
+
+  arg->internal->user_seen = 1;
+  if (*args == '*' && !args[1])
+    {
+      arg->internal->user_wildcard = 1;
+      arg->internal->user_active = !arg->internal->user_any_active;
+    }
+  else if (arg->internal->user_wildcard)
+    {
+      /* All other user statements are ignored after a wildcard.  */
+      arg->internal->user_active = 0;
+    }
+  else if (!strcasecmp (args, arg->internal->username))
+    {
+      arg->internal->user_any_active = 1;
+      arg->internal->user_active = 1;
+    }
+  else
+    {
+      arg->internal->user_active = 0;
+    }
+
+  return 0;
+}
+
+
+/* Implementation of the "force" command.  ARG is the context.  A
+ * value of 0 for ALTERNATE is "force", a value of 1 requests an
+ * unforce".  ARGS is the empty string and not used.  */
+static int
+handle_meta_force (gpgrt_argparse_t *arg, unsigned int alternate, char *args)
+{
+  (void)args;
+
+  arg->internal->mark_forced = alternate? 0 : 1;
+
+  return 0;
+}
+
+
+/* Implementation of the "ignore" command.  ARG is the context.  A
+ * value of 0 for ALTERNATE is a plain "ignore", a value of 1 request
+ * an "unignore, a value of 2 requests an "ignore-all".  ARGS is the
+ * empty string and not used.  */
+static int
+handle_meta_ignore (gpgrt_argparse_t *arg, unsigned int alternate, char *args)
+{
+  (void)args;
+
+  if (!alternate)
+    {
+      arg->internal->mark_ignore = 1;
+      arg->internal->explicit_ignore = 1;
+    }
+  else if (alternate == 1)
+    {
+      arg->internal->mark_ignore = 0;
+      arg->internal->explicit_ignore = 1;
+    }
+  else
+    arg->internal->ignore_all_seen = 1;
+
+  return 0;
+}
+
+
+/* Implementation of the "ignore" command.  ARG is the context.  If
+ * ALTERNATE is true the filename is not printed.  ARGS is the string
+ * to log.  */
+static int
+handle_meta_echo (gpgrt_argparse_t *arg, unsigned int alternate, char *args)
+{
+  int rc = 0;
+  char *p, *pend;
+
+  if (alternate)
+    _gpgrt_log_info ("%s", "");
+  else
+    _gpgrt_log_info ("%s:%u: ", arg->internal->confname, arg->lineno);
+
+  while (*args)
+    {
+      p = strchr (args, '$');
+      if (!p)
+        {
+          _gpgrt_log_printf ("%s", args);
+          break;
+        }
+      *p = 0;
+      _gpgrt_log_printf ("%s", args);
+      if (p[1] == '$')
+        {
+          _gpgrt_log_printf ("$");
+          args = p+2;
+          continue;
+        }
+      if (p[1] != '{')
+        {
+          _gpgrt_log_printf ("$");
+          args = p+1;
+          continue;
+        }
+      pend = strchr (p+2, '}');
+      if (!pend)  /* No closing brace.  */
+        {
+          _gpgrt_log_printf ("$");
+          args = p+1;
+          continue;
+        }
+      p += 2;
+      *pend = 0;
+      args = pend+1;
+      if (!strcmp (p, "user"))
+        {
+          rc = assure_username (arg);
+          if (rc)
+            goto leave;
+          _gpgrt_log_printf ("%s", arg->internal->username);
+        }
+      else if (!strcmp (p, "file"))
+        _gpgrt_log_printf ("%s", arg->internal->confname);
+      else if (!strcmp (p, "line"))
+        _gpgrt_log_printf ("%u", arg->lineno);
+      else if (!strcmp (p, "epoch"))
+        _gpgrt_log_printf ("%lu",  (unsigned long)time (NULL));
+    }
+
+ leave:
+  _gpgrt_log_printf ("\n");
+  return rc;
+}
+
+
+/* Implementation of the "verbose" command.  ARG is the context.  If
+ * ALTERNATE is true the verbosity is disabled.  ARGS is not used.  */
+static int
+handle_meta_verbose (gpgrt_argparse_t *arg, unsigned int alternate, char *args)
+{
+  (void)args;
+
+  if (alternate)
+    arg->internal->verbose = 0;
+  else
+    arg->internal->verbose = 1;
+  return 0;
+}
+
+/* Handle a meta command.  KEYWORD has the content inside the brackets
+ * with leading and trailing spaces removed.  The function may modify
+ * KEYWORD.  On success 0 is returned, on error an ARGPARSE_ error
+ * code is returned.  */
+static int
+handle_metacmd (gpgrt_argparse_t *arg, char *keyword)
+{
+  static struct {
+    const char *name;          /* Name of the command.                   */
+    unsigned short alternate;  /* Use alternate version of the command.  */
+    unsigned short needarg:1;  /* Command requires an argument.          */
+    unsigned short always:1;   /* Command allowed in all conf files.     */
+    unsigned short noskip:1;   /* Even done in non-active [user] mode.   */
+    int (*func)(gpgrt_argparse_t *arg,
+                unsigned int alternate, char *args); /*handler*/
+  } cmds[] =
+      {{ "user",        0, 1, 0, 1, handle_meta_user },
+       { "force",       0, 0, 0, 0, handle_meta_force },
+       { "+force",      0, 0, 0, 0, handle_meta_force },
+       { "-force",      1, 0, 0, 0, handle_meta_force },
+       { "ignore",      0, 0, 0, 0, handle_meta_ignore },
+       { "+ignore",     0, 0, 0, 0, handle_meta_ignore },
+       { "-ignore",     1, 0, 0, 0, handle_meta_ignore },
+       { "ignore-all",  2, 0, 0, 0, handle_meta_ignore },
+       { "+ignore-all", 2, 0, 0, 0, handle_meta_ignore },
+       { "verbose",     0, 0, 1, 1, handle_meta_verbose },
+       { "+verbose",    0, 0, 1, 1, handle_meta_verbose },
+       { "-verbose",    1, 0, 1, 1, handle_meta_verbose },
+       { "echo",        0, 1, 1, 1, handle_meta_echo },
+       { "-echo",       1, 1, 1, 1, handle_meta_echo },
+       { "info",        0, 1, 1, 0, handle_meta_echo },
+       { "-info",       1, 1, 1, 0, handle_meta_echo }
+      };
+  char *rest;
+  int i;
+
+  for (rest = keyword; *rest && !(isascii (*rest) && isspace (*rest)); rest++)
+    ;
+  if (*rest)
+    {
+      *rest++ = 0;
+      trim_spaces (rest);
+    }
+
+  for (i=0; i < DIM (cmds); i++)
+    if (!strcmp (cmds[i].name, keyword))
+      break;
+  if (!(i < DIM (cmds)))
+    return ARGPARSE_UNKNOWN_META;
+  if (cmds[i].needarg && !*rest)
+    return ARGPARSE_MISSING_ARG;
+  if (!cmds[i].needarg && *rest)
+    return ARGPARSE_UNEXPECTED_ARG;
+  if (!arg->internal->in_sysconf && !cmds[i].always)
+    return ARGPARSE_UNEXPECTED_META;
+
+  if (!cmds[i].noskip
+      && arg->internal->in_sysconf
+      && arg->internal->user_seen
+      && !arg->internal->user_active)
+    return 0; /* Skip this meta command.  */
+
+  return cmds[i].func (arg, cmds[i].alternate, rest);
+}
+
 
 /****************
  * Get options from a file.
@@ -518,8 +935,22 @@ ignore_invalid_option_clear (gpgrt_argparse_t *arg)
 int
 _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
 {
-  gpgrt_opt_t **opts;
-  int state, i, c;
+  enum { Ainit,
+         Acomment,     /* In a comment line.           */
+         Acopykeyword, /* Collecting a keyword.        */
+         Awaitarg,     /* Wait for an argument.        */
+         Acopyarg,     /* Copy the argument.           */
+         Akeyword_eol, /* Got keyword at end of line.  */
+         Akeyword_spc, /* Got keyword at space.        */
+         Acopymetacmd, /* Copy a meta command.         */
+         Askipmetacmd, /* Skip spaces after metacmd.   */
+         Askipmetacmd2,/* Skip comment after metacmd.  */
+         Ametacmd,     /* Process the metacmd.         */
+         Askipandleave /* Skip the rest of the line and then leave.  */
+  } state;
+  opttable_t *opts;
+  unsigned int nopts;
+  int i, c;
   int idx = 0;
   char keyword[100];
   char *buffer = NULL;
@@ -535,12 +966,13 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
     }
 
   if (!fp) /* Divert to arg_parse() in this case.  */
-    return arg_parse (arg, opts_orig);
+    return arg_parse (arg, opts_orig, 0);
 
   if (initialize (arg, opts_orig, fp))
     return (arg->r_opt = ARGPARSE_OUT_OF_CORE);
 
   opts = arg->internal->opts;
+  nopts = arg->internal->nopts;
 
   /* If the LINENO is zero we assume that we are at the start of a
    * file and we skip over a possible Byte Order Mark.  */
@@ -555,79 +987,218 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
         unread_buf_count = 3;
     }
 
+  arg->internal->opt_flags = 0;
+
   /* Find the next keyword.  */
-  state = i = 0;
+  state = Ainit;
+  i = 0;
   for (;;)
     {
+    nextstate:
+      /* Before scanning the next char handle the keyword seen states.  */
+      if (state == Akeyword_eol || state == Akeyword_spc)
+        {
+          /* We are either at the end of a line or right after a
+           * keyword.  In the latter case we need to find the keyword
+           * so that we can decide whether an argument is required.  */
+
+          /* Check the keyword.  */
+          for (idx=0; idx < nopts; idx++ )
+            {
+              if (opts[idx].long_opt && !strcmp (opts[idx].long_opt, keyword))
+                break;
+            }
+          arg->r_opt = opts[idx].short_opt;
+          if (!(idx < nopts))
+            {
+              /* The option (keyword) is not known - check for
+               * internal keywords before returning an error.  */
+              if (state == Akeyword_spc && !strcmp (keyword, "alias"))
+                {
+                  in_alias = 1;
+                  state = Awaitarg;
+                }
+              else if (!strcmp (keyword, "ignore-invalid-option"))
+                {
+                  /* We might have keywords as argument - add them to
+                   * the list of ignored keywords.  Note that we
+                   * ignore empty argument lists and thus do not to
+                   * call the function in the Akeyword_eol state. */
+                  if (state == Akeyword_spc)
+                    {
+                      if (ignore_invalid_option_add (arg, fp))
+                        {
+                          arg->r_opt = ARGPARSE_OUT_OF_CORE;
+                          goto leave;
+                        }
+                      arg->lineno++;
+                    }
+                  state = Ainit;
+                  i = 0;
+                }
+              else if (ignore_invalid_option_p (arg, keyword))
+                {
+                  /* This invalid option is already in the iio list.  */
+                  state = state == Akeyword_eol? Ainit : Acomment;
+                  i = 0;
+                }
+              else
+                {
+                  arg->r_opt = ((opts[idx].flags & ARGPARSE_OPT_COMMAND)
+                                ? ARGPARSE_INVALID_COMMAND
+                                : ARGPARSE_INVALID_OPTION);
+                  if (state == Akeyword_spc)
+                    state = Askipandleave;
+                  else
+                    goto leave;
+                }
+            }
+          else if (state == Akeyword_spc)
+            {
+              /* Known option but need to scan for args.  */
+              state = Awaitarg;
+            }
+          else if (arg->internal->in_sysconf
+                   && arg->internal->user_seen
+                   && !arg->internal->user_active)
+            {
+              /* We are in a [user] meta command and it is not active.
+               * Skip the command.  */
+              state = state == Akeyword_eol? Ainit : Acomment;
+              i = 0;
+            }
+          else if ((opts[idx].flags & ARGPARSE_OPT_IGNORE))
+            {
+              /* Known option is configured to be ignored.  Start from
+               * scratch (new line) or process like a comment.  */
+              state = state == Akeyword_eol? Ainit : Acomment;
+              i = 0;
+            }
+          else /* Known option */
+            {
+              int set_ignore = 0;
+
+              if (arg->internal->in_sysconf)
+                {
+                  /* Set the current forced and ignored attributes.  */
+                  if (arg->internal->mark_forced)
+                    opts[idx].forced = 1;
+                  if (arg->internal->mark_ignore)
+                    opts[idx].ignore = 1;
+                  if (arg->internal->explicit_ignore)
+                    opts[idx].explicit_ignore = 1;
+                }
+              else /* Non-sysconf file  */
+                {  /* Act upon the forced and ignored attributes.  */
+                  if (opts[idx].ignore || opts[idx].forced)
+                    {
+                      if (arg->internal->verbose)
+                        _gpgrt_log_info ("%s:%u: ignoring option \"--%s\""
+                                         " due to attributes:%s%s\n",
+                                         arg->internal->confname,
+                                         arg->lineno,
+                                         opts[idx].long_opt,
+                                         opts[idx].forced? " forced":"",
+                                         opts[idx].ignore? " ignore":"");
+                      if ((arg->flags & ARGPARSE_FLAG_WITHATTR))
+                        set_ignore = 1;
+                      else
+                        {
+                          state = Ainit;
+                          i = 0;
+                          goto nextstate;  /* Ignore this one.  */
+                        }
+                    }
+                }
+
+              arg->r_opt = opts[idx].short_opt;
+              if (!(opts[idx].flags & ARGPARSE_TYPE_MASK))
+                arg->r_type = ARGPARSE_TYPE_NONE; /* Does not take an arg. */
+              else if ((opts[idx].flags & ARGPARSE_OPT_OPTIONAL) )
+                arg->r_type = ARGPARSE_TYPE_NONE; /* Arg is optional.  */
+              else
+                arg->r_opt = ARGPARSE_MISSING_ARG;
+
+              /* If the caller wants us to return the attributes or
+               * ignored options, or the flags in.  */
+              if ((arg->flags & ARGPARSE_FLAG_WITHATTR))
+                {
+                  if (opts[idx].ignore)
+                    arg->r_type |= ARGPARSE_ATTR_IGNORE;
+                  if (opts[idx].forced)
+                    arg->r_type |= ARGPARSE_ATTR_FORCE;
+                  if (set_ignore)
+                    arg->r_type |= ARGPARSE_OPT_IGNORE;
+                }
+
+              goto leave;
+            }
+        } /* (end state Akeyword_eol/Akeyword_spc) */
+      else if (state == Ametacmd)
+        {
+          /* We are at the end of a line.  */
+          gpgrt_assert (*keyword == '[');
+          trim_spaces (keyword+1);
+          if (!keyword[1])
+            {
+              arg->r_opt = ARGPARSE_INVALID_META; /* Empty.  */
+              goto leave;
+            }
+          c = handle_metacmd (arg, keyword+1);
+          if (c)
+            {
+              arg->r_opt = c;   /* Return error.  */
+              goto leave;
+            }
+          state = Ainit;
+          i = 0;
+        }
+
+      /* Get the next character from the line.  */
       if (unread_buf_count)
         c = unread_buf[3 - unread_buf_count--];
       else
         c = _gpgrt_fgetc (fp);
+
       if (c == '\n' || c== EOF )
-        {
+        { /* Handle end of line.  */
           if ( c != EOF )
             arg->lineno++;
-          if (state == -1)
-            break;
-          else if (state == 2)
+          if (state == Askipandleave)
+            goto leave;
+          else if (state == Acopykeyword)
             {
               keyword[i] = 0;
-              for (i=0; opts[i]->short_opt; i++ )
-                {
-                  if (opts[i]->long_opt && !strcmp (opts[i]->long_opt, keyword))
-                    break;
-                }
-              idx = i;
-              arg->r_opt = opts[idx]->short_opt;
-              if ((opts[idx]->flags & ARGPARSE_OPT_IGNORE))
-                {
-                  state = i = 0;
-                  continue;
-                }
-              else if (!opts[idx]->short_opt )
-                {
-                  if (!strcmp (keyword, "ignore-invalid-option"))
-                    {
-                      /* No argument - ignore this meta option.  */
-                      state = i = 0;
-                      continue;
-                    }
-                  else if (ignore_invalid_option_p (arg, keyword))
-                    {
-                      /* This invalid option is in the iio list.  */
-                      state = i = 0;
-                      continue;
-                    }
-                  arg->r_opt = ((opts[idx]->flags & ARGPARSE_OPT_COMMAND)
-                                ? ARGPARSE_INVALID_COMMAND
-                                : ARGPARSE_INVALID_OPTION);
-                }
-              else if (!(opts[idx]->flags & ARGPARSE_TYPE_MASK))
-                arg->r_type = 0; /* Does not take an arg. */
-              else if ((opts[idx]->flags & ARGPARSE_OPT_OPTIONAL) )
-                arg->r_type = 0; /* Arg is optional.  */
-              else
-                arg->r_opt = ARGPARSE_MISSING_ARG;
-
-              break;
+              state = Akeyword_eol;
+              goto nextstate;
 	    }
-          else if (state == 3)
+          else if (state == Acopymetacmd)
             {
-              /* No argument found.  */
+              arg->r_opt = ARGPARSE_INVALID_META;  /* "]" missing */
+              goto leave;
+	    }
+          else if (state == Askipmetacmd || state == Askipmetacmd2)
+            {
+              state = Ametacmd;
+              goto nextstate;
+            }
+          else if (state == Awaitarg)
+            {
+              /* No argument found at the end of the line.  */
               if (in_alias)
                 arg->r_opt = ARGPARSE_MISSING_ARG;
-              else if (!(opts[idx]->flags & ARGPARSE_TYPE_MASK))
-                arg->r_type = 0; /* Does not take an arg. */
-              else if ((opts[idx]->flags & ARGPARSE_OPT_OPTIONAL))
-                arg->r_type = 0; /* No optional argument. */
+              else if (!(opts[idx].flags & ARGPARSE_TYPE_MASK))
+                arg->r_type = ARGPARSE_TYPE_NONE; /* Does not take an arg. */
+              else if ((opts[idx].flags & ARGPARSE_OPT_OPTIONAL))
+                arg->r_type = ARGPARSE_TYPE_NONE; /* No optional argument. */
               else
                 arg->r_opt = ARGPARSE_MISSING_ARG;
 
-              break;
+              goto leave;
 	    }
-          else if (state == 4)
+          else if (state == Acopyarg)
             {
-              /* Has an argument. */
+              /* Has an argument at the end of a line. */
               if (in_alias)
                 {
                   if (!buffer)
@@ -654,7 +1225,7 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
                         }
 		    }
 		}
-              else if (!(opts[idx]->flags & ARGPARSE_TYPE_MASK))
+              else if (!(opts[idx].flags & ARGPARSE_TYPE_MASK))
                 arg->r_opt = ARGPARSE_UNEXPECTED_ARG;
               else
                 {
@@ -681,13 +1252,13 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
                           if (*p && p[strlen(p)-1] == '\"' )
                             p[strlen(p)-1] = 0;
                         }
-                      if (!set_opt_arg (arg, opts[idx]->flags, p))
+                      if (!set_opt_arg (arg, opts[idx].flags, p))
                         xfree (buffer);
                       else
                         gpgrt_annotate_leaked_object (buffer);
                     }
                 }
-              break;
+              goto leave;
             }
           else if (c == EOF)
             {
@@ -696,73 +1267,52 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
                 arg->r_opt = ARGPARSE_READ_ERROR;
               else
                 arg->r_opt = 0; /* EOF. */
-              break;
+              goto leave;
             }
-          state = 0;
+          state = Ainit;
           i = 0;
-        }
-      else if (state == -1)
+        } /* (end handle end of line) */
+      else if (state == Askipandleave)
         ; /* Skip. */
-      else if (state == 0 && isascii (c) && isspace(c))
+      else if (state == Ainit && isascii (c) && isspace(c))
         ; /* Skip leading white space.  */
-      else if (state == 0 && c == '#' )
-        state = 1;	/* Start of a comment.  */
-      else if (state == 1)
+      else if (state == Ainit && c == '#' )
+        state = Acomment;	/* Start of a comment.  */
+      else if (state == Acomment || state == Askipmetacmd2)
         ; /* Skip comments. */
-      else if (state == 2 && isascii (c) && isspace(c))
+      else if (state == Askipmetacmd)
         {
-          /* Check keyword.  */
-          keyword[i] = 0;
-          for (i=0; opts[i]->short_opt; i++ )
-            if (opts[i]->long_opt && !strcmp (opts[i]->long_opt, keyword))
-              break;
-          idx = i;
-          arg->r_opt = opts[idx]->short_opt;
-          if ((opts[idx]->flags & ARGPARSE_OPT_IGNORE))
+          if (c == '#')
+            state = Askipmetacmd2;
+          else if (!(isascii (c) && isspace(c)))
             {
-              state = 1; /* Process like a comment.  */
+              arg->r_opt = ARGPARSE_INVALID_META;
+              state = Askipandleave;
             }
-          else if (!opts[idx]->short_opt)
-            {
-              if (!strcmp (keyword, "alias"))
-                {
-                  in_alias = 1;
-                  state = 3;
-                }
-              else if (!strcmp (keyword, "ignore-invalid-option"))
-                {
-                  if (ignore_invalid_option_add (arg, fp))
-                    {
-                      arg->r_opt = ARGPARSE_OUT_OF_CORE;
-                      break;
-                    }
-                  state = i = 0;
-                  arg->lineno++;
-                }
-              else if (ignore_invalid_option_p (arg, keyword))
-                state = 1; /* Process like a comment.  */
-              else
-                {
-                  arg->r_opt = ((opts[idx]->flags & ARGPARSE_OPT_COMMAND)
-                                ? ARGPARSE_INVALID_COMMAND
-                                : ARGPARSE_INVALID_OPTION);
-                  state = -1; /* Skip rest of line and leave.  */
-                }
-            }
-          else
-            state = 3;
         }
-      else if (state == 3)
+      else if (state == Acopykeyword && isascii (c) && isspace(c))
+        {
+          keyword[i] = 0;
+          state = Akeyword_spc;
+          goto nextstate;
+        }
+      else if (state == Acopymetacmd && c == ']')
+        {
+          keyword[i] = 0;
+          state = Askipmetacmd;
+          goto nextstate;
+        }
+      else if (state == Awaitarg)
         {
           /* Skip leading spaces of the argument.  */
           if (!isascii (c) || !isspace(c))
             {
               i = 0;
               keyword[i++] = c;
-              state = 4;
+              state = Acopyarg;
             }
         }
-      else if (state == 4)
+      else if (state == Acopyarg)
         {
           /* Collect the argument. */
           if (buffer)
@@ -785,7 +1335,7 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
                     {
                       xfree (buffer);
                       arg->r_opt = ARGPARSE_OUT_OF_CORE;
-                      break;
+                      goto leave;
                     }
                 }
             }
@@ -804,46 +1354,508 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
               else
                 {
                   arg->r_opt = ARGPARSE_OUT_OF_CORE;
-                  break;
+                  goto leave;
                 }
             }
         }
       else if (i >= DIM(keyword)-1)
         {
           arg->r_opt = ARGPARSE_KEYWORD_TOO_LONG;
-          state = -1; /* Skip rest of line and leave.  */
+          state = Askipandleave; /* Skip rest of line and leave.  */
+        }
+      else if (!i)
+        {
+          state = c == '[' ? Acopymetacmd : Acopykeyword;
+          keyword[i++] = c;
         }
       else
         {
           keyword[i++] = c;
-          state = 2;
         }
+    }
+
+ leave:
+  return arg->r_opt;
+}
+
+
+/* Return true if the list of options OPTS has any option marked with
+ * ARGPARSE_OPT_CONFFILE.  */
+static int
+any_opt_conffile (opttable_t *opts, unsigned int nopts)
+{
+  int i;
+
+  for (i=0; i < nopts; i++ )
+    if ((opts[i].flags & ARGPARSE_OPT_CONFFILE))
+      return 1;
+  return 0;
+}
+
+
+/* Return true if FNAME is an absoluete filename.  */
+static int
+is_absfname (const char *fname)
+{
+  const char *s;
+
+#ifdef HAVE_W32_SYSTEM
+  s = strchr (fname, ':');
+  if (s)
+    s++;
+  else
+    s = fname;
+#else
+  s = fname;
+#endif
+
+  return (*s == '/'
+#ifdef HAVE_W32_SYSTEM
+          || *s == DIRSEP_C
+#endif
+          );
+}
+
+
+/* If FNAME specifies two files of the form
+ *   NAME1:/NAME2    (Unix)
+ * or
+ *   NAME1;[x:]/NAME2  (Windows)
+ * return a pointer to the delimiter or NULL if there is none.
+ */
+static const char *
+is_twopartfname (const char *fname)
+{
+  const char *s;
+
+  if ((s = strchr (fname, PATHSEP_C)) && is_absfname (s+1) && s != fname)
+    return s;
+  return NULL;
+}
+
+
+/* Try to use a version-ed config file name.  A version-ed config file
+ * name is one which has the packages version number appended.  For
+ * example if the standard config file name is "foo.conf" and the
+ * version of the foo program is 1.2.3-beta1 the following config
+ * files are tried in order until one is readable:
+ *
+ *   foo.conf-1.2.3-beta1
+ *   foo.conf-1.2.3
+ *   foo.conf-1.2
+ *   foo.conf-1
+ *   foo.conf
+ *
+ * The argument CONFIGNAME should already be expanded.  On success a
+ * newly allocated file name is returned.  On error NULL is returned.
+ */
+static char *
+try_versioned_conffile (const char *configname)
+{
+  const char *version = _gpgrt_strusage (13);
+  char *name;
+  char *dash, *endp;
+
+  if (!version || !*version)
+    return NULL; /* No program version known. */
+
+  name = _gpgrt_strconcat (configname, "-", version, NULL);
+  if (!name)
+    return NULL;  /* Oops: Out of core - ignore.  */
+  dash = name + strlen (configname);
+
+  endp = dash + strlen (dash) - 1;
+  while (endp > dash)
+    {
+      if (!access (name, R_OK))
+        {
+          return name;
+        }
+      for (; endp > dash; endp--)
+        {
+          if (*endp == '-' || *endp == '.')
+            {
+              *endp = 0;
+              break;
+            }
+        }
+    }
+
+  _gpgrt_free (name);
+  return NULL;
+}
+
+
+/* This function is called after a sysconf file has been read.  */
+static void
+finish_read_sys (gpgrt_argparse_t *arg)
+{
+  opttable_t *opts = arg->internal->opts;
+  unsigned int nopts = arg->internal->nopts;
+  int i;
+
+  if (arg->internal->ignore_all_seen)
+    {
+      /* [ignore-all] was used: Set all options which have not
+       * explictly been set as ignore or not ignore to ignore.  */
+      for (i = 0; i < nopts; i++)
+        {
+          if (!opts[i].explicit_ignore)
+            opts[i].ignore = 1;
+        }
+    }
+
+  /* Reset all flags which pertain only to sysconf files.  */
+  arg->internal->in_sysconf = 0;
+  arg->internal->user_active = 0;
+  arg->internal->mark_forced = 0;
+  arg->internal->mark_ignore = 0;
+  arg->internal->explicit_ignore = 0;
+  arg->internal->ignore_all_seen = 0;
+}
+
+
+/* The full arg parser which handles option files and command line
+ * arguments.  The behaviour depends on the combinations of CONFNAME
+ * and the ARGPARSE_FLAG_xxx values:
+ *
+ * | CONFNAME | SYS | USER | Action             |
+ * |----------+-----+------+--------------------|
+ * | NULL     |   - |    - | cmdline            |
+ * | string   |   0 |    1 | user, cmdline      |
+ * | string   |   1 |    0 | sys, cmdline       |
+ * | string   |   1 |    1 | sys, user, cmdline |
+ *
+ * Note that if an option has been flagged with ARGPARSE_OPT_CONFFILE
+ * and a type of ARGPARSE_TYPE_STRING that option is not returned but
+ * the specified configuration file is processed directly; if
+ * ARGPARSE_TYPE_NONE is used no user configuration files are
+ * processed and from the system configuration files only those which
+ * are immutable are processed.  The string values for CONFNAME shall
+ * not include a directory part because that is taken from the values
+ * set by gpgrt_set_confdir.  However, if CONFNAME is a twopart
+ * filename delimited by a colon (semicolon on Windows) with the
+ * second part being an absolute filename, the first part is used for
+ * the SYS file and the the entire second part for the USER file.
+ */
+int
+_gpgrt_argparser (gpgrt_argparse_t *arg, gpgrt_opt_t *opts,
+                  const char *confname)
+{
+  /* First check whether releasing the resources has been requested.  */
+  if (arg && !opts)
+    {
+      deinitialize (arg);
+      return 0;
+    }
+
+  /* Make sure that the internal data object is ready and also print
+   * warnings or errors from the last iteration.  */
+  if (initialize (arg, opts, NULL))
+    return (arg->r_opt = ARGPARSE_OUT_OF_CORE);
+
+ next_state:
+  switch (arg->internal->state)
+    {
+    case STATE_init:
+      if (arg->argc && arg->argv && *arg->argc
+          && any_opt_conffile (arg->internal->opts, arg->internal->nopts))
+        {
+          /* The list of option allow for conf files
+           * (e.g. gpg's "--option FILE" and "--no-options")
+           * Now check whether one was really given on the command
+           * line.  Note that we don't need to run this code if no
+           * argument array was provided. */
+          int  save_argc = *arg->argc;
+          char **save_argv = *arg->argv;
+          unsigned int save_flags = arg->flags;
+          int save_idx = arg->internal->idx;
+          int any_no_conffile = 0;
+
+          arg->flags = (ARGPARSE_FLAG_KEEP | ARGPARSE_FLAG_NOVERSION
+                        | ARGPARSE_FLAG__INITIALIZED);
+          while (arg_parse (arg, opts, 1))
+            {
+              if ((arg->internal->opt_flags & ARGPARSE_OPT_CONFFILE))
+                {
+                  arg->internal->explicit_confopt = 1;
+                  if ((arg->r_type & ARGPARSE_TYPE_MASK) == ARGPARSE_TYPE_STRING
+                      && !arg->internal->explicit_conffile)
+                    {
+                      /* Store the first conffile name.  All further
+                       * conf file options are not handled.  */
+                      arg->internal->explicit_conffile
+                        = xtrystrdup (arg->r.ret_str);
+                      if (!arg->internal->explicit_conffile)
+                        return (arg->r_opt = ARGPARSE_OUT_OF_CORE);
+
+                    }
+                  else if ((arg->r_type & ARGPARSE_TYPE_MASK)
+                            == ARGPARSE_TYPE_NONE)
+                    any_no_conffile = 1;
+                }
+            }
+          if (any_no_conffile)
+            {
+              /* A NoConffile option overrides any other conf file option.  */
+              xfree (arg->internal->explicit_conffile);
+              arg->internal->explicit_conffile = NULL;
+            }
+          /* Restore parser.  */
+          *arg->argc = save_argc;
+          *arg->argv = save_argv;
+          arg->flags = save_flags;
+          arg->internal->idx = save_idx;
+        }
+
+      if (confname && *confname)
+        {
+          if ((arg->flags & ARGPARSE_FLAG_SYS))
+            arg->internal->state = STATE_open_sys;
+          else if ((arg->flags & ARGPARSE_FLAG_USER))
+            arg->internal->state = STATE_open_user;
+          else
+            return (arg->r_opt = ARGPARSE_INVALID_ARG);
+        }
+      else
+        arg->internal->state = STATE_open_cmdline;
+      goto next_state;
+
+    case STATE_open_sys:
+      {
+        /* If it is a two part name take the first part.  */
+        const char *s;
+        char *tmpname = NULL;
+
+        if ((s = is_twopartfname (confname)))
+          {
+            tmpname = xtrymalloc (s - confname + 1);
+            if (!tmpname)
+              return (arg->r_opt = ARGPARSE_OUT_OF_CORE);
+            memcpy (tmpname, confname, s-confname);
+            tmpname[s-confname] = 0;
+            s = tmpname;
+          }
+        else
+          s = confname;
+        xfree (arg->internal->confname);
+        arg->internal->confname = _gpgrt_fnameconcat
+          (confdir.sys? confdir.sys : "/etc", s, NULL);
+        _gpgrt_free (tmpname);
+        if (!arg->internal->confname)
+          return (arg->r_opt = ARGPARSE_OUT_OF_CORE);
+      }
+      arg->lineno = 0;
+      arg->internal->idx = 0;
+      arg->internal->verbose = 0;
+      arg->internal->stopped = 0;
+      arg->internal->inarg = 0;
+      _gpgrt_fclose (arg->internal->conffp);
+      arg->internal->conffp = _gpgrt_fopen (arg->internal->confname, "r");
+      if (!arg->internal->conffp)
+        {
+          if ((arg->flags & ARGPARSE_FLAG_VERBOSE) || arg->internal->verbose)
+            _gpgrt_log_info (_("Note: no default option file '%s'\n"),
+                             arg->internal->confname);
+          if ((arg->flags & ARGPARSE_FLAG_USER))
+            arg->internal->state = STATE_open_user;
+          else
+            arg->internal->state = STATE_open_cmdline;
+          goto next_state;
+        }
+
+      if ((arg->flags & ARGPARSE_FLAG_VERBOSE) || arg->internal->verbose)
+        _gpgrt_log_info (_("reading options from '%s'\n"),
+                         arg->internal->confname);
+      arg->internal->state = STATE_read_sys;
+      arg->internal->in_sysconf = 1;
+      arg->r.ret_str = xtrystrdup (arg->internal->confname);
+      if (!arg->r.ret_str)
+        arg->r_opt = ARGPARSE_OUT_OF_CORE;
+      else
+        {
+          gpgrt_annotate_leaked_object (arg->r.ret_str);
+          arg->r_opt = ARGPARSE_CONFFILE;
+          arg->r_type = ARGPARSE_TYPE_STRING;
+        }
+      break;
+
+    case STATE_open_user:
+      if (arg->internal->explicit_confopt
+          && arg->internal->explicit_conffile)
+        {
+          /* An explict option to use a specific configuration file
+           * has been given - use that one.  */
+          xfree (arg->internal->confname);
+          arg->internal->confname
+            = xtrystrdup (arg->internal->explicit_conffile);
+          if (!arg->internal->confname)
+            return (arg->r_opt = ARGPARSE_OUT_OF_CORE);
+        }
+      else if (arg->internal->explicit_confopt)
+        {
+          /* An explict option not to use a configuration file has
+           * been given - leap direct to command line reading.  */
+          arg->internal->state = STATE_open_cmdline;
+          goto next_state;
+        }
+      else
+        {
+          /* Use the standard configure file.  If it is a two part
+           * name take the second part.  If it is the standard name
+           * and ARGPARSE_FLAG_USERVERS is set try versioned config
+           * files. */
+          const char *s;
+          char *nconf;
+
+          xfree (arg->internal->confname);
+          if ((s = is_twopartfname (confname)))
+            {
+              arg->internal->confname = _gpgrt_fnameconcat (s + 1, NULL);
+              if (!arg->internal->confname)
+                return (arg->r_opt = ARGPARSE_OUT_OF_CORE);
+            }
+          else
+            {
+              arg->internal->confname = _gpgrt_fnameconcat
+                (confdir.user? confdir.user : "~/.config", confname, NULL);
+              if (!arg->internal->confname)
+                return (arg->r_opt = ARGPARSE_OUT_OF_CORE);
+              if ((arg->flags & ARGPARSE_FLAG_USERVERS)
+                  && (nconf = try_versioned_conffile (arg->internal->confname)))
+                {
+                  xfree (arg->internal->confname);
+                  arg->internal->confname = nconf;
+                }
+            }
+        }
+      arg->lineno = 0;
+      arg->internal->idx = 0;
+      arg->internal->verbose = 0;
+      arg->internal->stopped = 0;
+      arg->internal->inarg = 0;
+      arg->internal->in_sysconf = 0;
+      _gpgrt_fclose (arg->internal->conffp);
+      arg->internal->conffp = _gpgrt_fopen (arg->internal->confname, "r");
+      if (!arg->internal->conffp)
+        {
+          arg->internal->state = STATE_open_cmdline;
+          if (arg->internal->explicit_confopt)
+            {
+              _gpgrt_log_error (_("option file '%s': %s\n"),
+                                arg->internal->confname, strerror (errno));
+              return (arg->r_opt = ARGPARSE_NO_CONFFILE);
+            }
+          else
+            {
+              if ((arg->flags & ARGPARSE_FLAG_VERBOSE)
+                  || arg->internal->verbose)
+                _gpgrt_log_info (_("Note: no default option file '%s'\n"),
+                                 arg->internal->confname);
+              goto next_state;
+            }
+        }
+
+      if ((arg->flags & ARGPARSE_FLAG_VERBOSE) || arg->internal->verbose)
+        _gpgrt_log_info (_("reading options from '%s'\n"),
+                         arg->internal->confname);
+      arg->internal->state = STATE_read_user;
+      arg->r.ret_str = xtrystrdup (arg->internal->confname);
+      if (!arg->r.ret_str)
+        arg->r_opt = ARGPARSE_OUT_OF_CORE;
+      else
+        {
+          gpgrt_annotate_leaked_object (arg->r.ret_str);
+          arg->r_opt = ARGPARSE_CONFFILE;
+          arg->r_type = ARGPARSE_TYPE_STRING;
+        }
+      break;
+
+    case STATE_open_cmdline:
+      _gpgrt_fclose (arg->internal->conffp);
+      arg->internal->conffp = NULL;
+      xfree (arg->internal->confname);
+      arg->internal->confname = NULL;
+      arg->internal->idx = 0;
+      arg->internal->verbose = 0;
+      arg->internal->stopped = 0;
+      arg->internal->inarg = 0;
+      arg->internal->in_sysconf = 0;
+      if (!arg->argc || !arg->argv || !*arg->argv)
+        {
+          /* No or empty argument vector - don't bother to parse things.  */
+          arg->internal->state = STATE_finished;
+          goto next_state;
+        }
+      arg->r_opt = ARGPARSE_CONFFILE;
+      arg->r_type = ARGPARSE_TYPE_NONE;
+      arg->r.ret_str = NULL;
+      arg->internal->state = STATE_read_cmdline;
+      break;
+
+    case STATE_read_sys:
+     arg->r_opt = _gpgrt_argparse (arg->internal->conffp, arg, opts);
+      if (!arg->r_opt)
+        {
+          finish_read_sys (arg);
+          arg->internal->state = STATE_open_user;
+          goto next_state;
+        }
+      if ((arg->internal->opt_flags & ARGPARSE_OPT_CONFFILE))
+        goto next_state;  /* Already handled - again.  */
+      break;
+
+    case STATE_read_user:
+      arg->r_opt = _gpgrt_argparse (arg->internal->conffp, arg, opts);
+      if (!arg->r_opt)
+        {
+          arg->internal->state = STATE_open_cmdline;
+          goto next_state;
+        }
+      if ((arg->internal->opt_flags & ARGPARSE_OPT_CONFFILE))
+        goto next_state;  /* Already handled - again.  */
+      break;
+
+    case STATE_read_cmdline:
+      arg->r_opt = arg_parse (arg, opts, 1);
+      if (!arg->r_opt)
+        {
+          arg->internal->state = STATE_finished;
+          goto next_state;
+        }
+      if ((arg->internal->opt_flags & ARGPARSE_OPT_CONFFILE))
+        goto next_state;  /* Already handled - again.  */
+      break;
+
+    case STATE_finished:
+      arg->r_opt = 0;
+      break;
     }
 
   return arg->r_opt;
 }
 
 
-/* Given the list of options OPTS and a keyword, return the index of
- * the long option macthing KEYWORD.  On error -1 is retruned for not
+/* Given the list of options in ARG and a keyword, return the index of
+ * the long option matching KEYWORD.  On error -1 is returned for not
  * found or -2 for ambigious keyword.  */
 static int
-find_long_option (gpgrt_argparse_t *arg, gpgrt_opt_t **opts,
-                  const char *keyword)
+find_long_option (gpgrt_argparse_t *arg, const char *keyword)
 {
   int i;
   size_t n;
-
-  (void)arg;  /* Not yet required.  */
+  opttable_t *opts   = arg->internal->opts;
+  unsigned int nopts = arg->internal->nopts;
 
   /* Would be better if we can do a binary search, but it is not
    * possible to reorder our option table because we would mess up our
    * help strings.  What we can do is: Build an option lookup table
-   * when this function is first invoked.  */
+   * when this function is first invoked.  The latter has already been
+   * done. */
   if (!*keyword)
     return -1;
-  for (i=0; opts[i]->short_opt; i++ )
-    if (opts[i]->long_opt && !strcmp (opts[i]->long_opt, keyword))
+  for (i=0; i < nopts; i++ )
+    if (opts[i].long_opt && !strcmp (opts[i].long_opt, keyword))
       return i;
 #if 0
   {
@@ -863,17 +1875,17 @@ find_long_option (gpgrt_argparse_t *arg, gpgrt_opt_t **opts,
   /* Not found.  See whether it is an abbreviation.  Aliases may not
    * be abbreviated, though. */
   n = strlen (keyword);
-  for (i=0; opts[i]->short_opt; i++)
+  for (i=0; i < nopts; i++)
     {
-      if (opts[i]->long_opt && !strncmp (opts[i]->long_opt, keyword, n))
+      if (opts[i].long_opt && !strncmp (opts[i].long_opt, keyword, n))
         {
           int j;
-          for (j=i+1; opts[j]->short_opt; j++)
+          for (j=i+1; j < nopts; j++)
             {
-              if (opts[j]->long_opt
-                  && !strncmp (opts[j]->long_opt, keyword, n)
-                  && !(opts[j]->short_opt == opts[i]->short_opt
-                       && opts[j]->flags == opts[i]->flags ) )
+              if (opts[j].long_opt
+                  && !strncmp (opts[j].long_opt, keyword, n)
+                  && !(opts[j].short_opt == opts[i].short_opt
+                       && opts[j].flags == opts[i].flags ) )
                 return -2;  /* Abbreviation is ambiguous.  */
 	    }
           return i;
@@ -885,19 +1897,23 @@ find_long_option (gpgrt_argparse_t *arg, gpgrt_opt_t **opts,
 
 /* The option parser for command line options.  */
 static int
-arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
+arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig, int no_init)
 {
   int idx;
-  gpgrt_opt_t **opts;
+  opttable_t *opts;
+  unsigned int nopts;
   int argc;
   char **argv;
   char *s, *s2;
   int i;
 
-  if (initialize (arg, opts_orig, NULL))
+  if (no_init)
+    ;
+  else if (initialize (arg, opts_orig, NULL))
     return (arg->r_opt = ARGPARSE_OUT_OF_CORE);
 
   opts = arg->internal->opts;
+  nopts = arg->internal->nopts;
   argc = *arg->argc;
   argv = *arg->argv;
   idx = arg->internal->idx;
@@ -909,24 +1925,24 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
     }
 
  next_one:
-  if (!argc)
+  if (!argc || (s = *argv) == NULL)
     {
       /* No more args.  */
       arg->r_opt = 0;
       goto leave; /* Ready. */
     }
 
-  s = *argv;
   arg->internal->last = s;
+  arg->internal->opt_flags = 0;
 
   if (arg->internal->stopped && (arg->flags & ARGPARSE_FLAG_ALL))
     {
       arg->r_opt = ARGPARSE_IS_ARG;  /* Not an option but an argument.  */
-      arg->r_type = 2;
+      arg->r_type = ARGPARSE_TYPE_STRING;
       arg->r.ret_str = s;
       argc--; argv++; idx++; /* set to next one */
     }
-  else if( arg->internal->stopped )
+  else if (arg->internal->stopped)
     {
       arg->r_opt = 0;
       goto leave; /* Ready.  */
@@ -949,13 +1965,16 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
       argpos = strchr( s+2, '=' );
       if ( argpos )
         *argpos = 0;
-      i = find_long_option ( arg, opts, s+2 );
+      i = find_long_option (arg, s+2);
       if ( argpos )
         *argpos = '=';
 
-      if (i > 0 && opts[i]->short_opt == ARGPARSE_SHORTOPT_HELP)
-        show_help (opts, arg->flags);
-      else if (i > 0 && opts[i]->short_opt == ARGPARSE_SHORTOPT_VERSION)
+      if (i > 0 && opts[i].short_opt == ARGPARSE_SHORTOPT_HELP)
+        {
+          show_help (opts, nopts, arg->flags);
+          my_exit (arg, 0);
+        }
+      else if (i > 0 && opts[i].short_opt == ARGPARSE_SHORTOPT_VERSION)
         {
           if (!(arg->flags & ARGPARSE_FLAG_NOVERSION))
             {
@@ -963,17 +1982,19 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
               my_exit (arg, 0);
             }
 	}
-      else if (i > 0 && opts[i]->short_opt == ARGPARSE_SHORTOPT_WARRANTY)
+      else if (i > 0 && opts[i].short_opt == ARGPARSE_SHORTOPT_WARRANTY)
         {
           writestrings (0, _gpgrt_strusage (16), "\n", NULL);
           my_exit (arg, 0);
 	}
-      else if (i > 0 && opts[i]->short_opt == ARGPARSE_SHORTOPT_DUMP_OPTIONS)
+      else if (i > 0 && opts[i].short_opt == ARGPARSE_SHORTOPT_DUMP_OPTTBL)
+        dump_option_table (arg);
+      else if (i > 0 && opts[i].short_opt == ARGPARSE_SHORTOPT_DUMP_OPTIONS)
         {
-          for (i=0; opts[i]->short_opt; i++ )
+          for (i=0; i < nopts; i++ )
             {
-              if (opts[i]->long_opt && !(opts[i]->flags & ARGPARSE_OPT_IGNORE))
-                writestrings (0, "--", opts[i]->long_opt, "\n", NULL);
+              if (opts[i].long_opt && !(opts[i].flags & ARGPARSE_OPT_IGNORE))
+                writestrings (0, "--", opts[i].long_opt, "\n", NULL);
 	    }
           my_exit (arg, 0);
 	}
@@ -986,10 +2007,11 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
           arg->r.ret_str = s+2;
 	}
       else
-        arg->r_opt = opts[i]->short_opt;
+        arg->r_opt = opts[i].short_opt;
+
       if ( i < 0 )
         ;
-      else if ( (opts[i]->flags & ARGPARSE_TYPE_MASK) )
+      else if ( (opts[i].flags & ARGPARSE_TYPE_MASK) )
         {
           if ( argpos )
             {
@@ -999,7 +2021,8 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
 	    }
           else
             s2 = argv[1];
-          if ( !s2 && (opts[i]->flags & ARGPARSE_OPT_OPTIONAL) )
+
+          if ( !s2 && (opts[i].flags & ARGPARSE_OPT_OPTIONAL) )
             {
               arg->r_type = ARGPARSE_TYPE_NONE; /* Argument is optional.  */
 	    }
@@ -1008,7 +2031,7 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
               arg->r_opt = ARGPARSE_MISSING_ARG;
 	    }
           else if ( !argpos && *s2 == '-'
-                    && (opts[i]->flags & ARGPARSE_OPT_OPTIONAL) )
+                    && (opts[i].flags & ARGPARSE_OPT_OPTIONAL) )
             {
               /* The argument is optional and the next seems to be an
                  option.  We do not check this possible option but
@@ -1017,7 +2040,7 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
 	    }
           else
             {
-              set_opt_arg (arg, opts[i]->flags, s2);
+              set_opt_arg (arg, opts[i].flags, s2);
               if ( !argpos )
                 {
                   argc--; argv++; idx++; /* Skip one.  */
@@ -1030,100 +2053,109 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
           if ( argpos )
             arg->r_type = ARGPARSE_UNEXPECTED_ARG;
           else
-            arg->r_type = 0;
+            {
+              arg->internal->opt_flags = opts[i].flags;
+              arg->r_type = ARGPARSE_TYPE_NONE;
+            }
 	}
       argc--; argv++; idx++; /* Set to next one.  */
     }
-    else if ( (*s == '-' && s[1]) || arg->internal->inarg )
-      {
-        /* Short option.  */
-	int dash_kludge = 0;
+  else if ( (*s == '-' && s[1]) || arg->internal->inarg )
+    {
+      /* Short option.  */
+      int dash_kludge = 0;
 
-	i = 0;
-	if ( !arg->internal->inarg )
-          {
-	    arg->internal->inarg++;
-	    if ( (arg->flags & ARGPARSE_FLAG_ONEDASH) )
-              {
-                for (i=0; opts[i]->short_opt; i++ )
-                  if ( opts[i]->long_opt && !strcmp (opts[i]->long_opt, s+1))
-                    {
-                      dash_kludge = 1;
-                      break;
-		    }
-              }
-          }
-	s += arg->internal->inarg;
+      i = 0;
+      if ( !arg->internal->inarg )
+        {
+          arg->internal->inarg++;
+          if ( (arg->flags & ARGPARSE_FLAG_ONEDASH) )
+            {
+              for (i=0; i < nopts; i++ )
+                if ( opts[i].long_opt && !strcmp (opts[i].long_opt, s+1))
+                  {
+                    dash_kludge = 1;
+                    break;
+                  }
+            }
+        }
+      s += arg->internal->inarg;
 
-	if (!dash_kludge )
-          {
-	    for (i=0; opts[i]->short_opt; i++ )
-              if ( opts[i]->short_opt == *s )
-                break;
-          }
+      if (!dash_kludge )
+        {
+          for (i=0; i < nopts; i++ )
+            if ( opts[i].short_opt == *s )
+              break;
+        }
 
-	if ( !opts[i]->short_opt && ( *s == 'h' || *s == '?' ) )
-          show_help (opts, arg->flags);
+      if ( !opts[i].short_opt && ( *s == 'h' || *s == '?' ) )
+        {
+          show_help (opts, nopts, arg->flags);
+          my_exit (arg, 0);
+        }
 
-	arg->r_opt = opts[i]->short_opt;
-	if (!opts[i]->short_opt )
-          {
-	    arg->r_opt = (opts[i]->flags & ARGPARSE_OPT_COMMAND)?
-              ARGPARSE_INVALID_COMMAND:ARGPARSE_INVALID_OPTION;
-	    arg->internal->inarg++; /* Point to the next arg.  */
-	    arg->r.ret_str = s;
-          }
-	else if ( (opts[i]->flags & ARGPARSE_TYPE_MASK) )
-          {
-	    if ( s[1] && !dash_kludge )
-              {
-		s2 = s+1;
-		set_opt_arg (arg, opts[i]->flags, s2);
-              }
-	    else
-              {
-		s2 = argv[1];
-		if ( !s2 && (opts[i]->flags & ARGPARSE_OPT_OPTIONAL) )
-                  {
-		    arg->r_type = ARGPARSE_TYPE_NONE;
-                  }
-		else if ( !s2 )
-                  {
-		    arg->r_opt = ARGPARSE_MISSING_ARG;
-                  }
-		else if ( *s2 == '-' && s2[1]
-                          && (opts[i]->flags & ARGPARSE_OPT_OPTIONAL) )
-                  {
-		    /* The argument is optional and the next seems to
-	               be an option.  We do not check this possible
-	               option but assume no argument.  */
-		    arg->r_type = ARGPARSE_TYPE_NONE;
-                  }
-		else
-                  {
-		    set_opt_arg (arg, opts[i]->flags, s2);
-		    argc--; argv++; idx++; /* Skip one.  */
-                  }
-              }
-	    s = "x"; /* This is so that !s[1] yields false.  */
-          }
-	else
-          {
-            /* Does not take an argument.  */
-	    arg->r_type = ARGPARSE_TYPE_NONE;
-	    arg->internal->inarg++; /* Point to the next arg.  */
-          }
-	if ( !s[1] || dash_kludge )
-          {
-            /* No more concatenated short options.  */
-	    arg->internal->inarg = 0;
-	    argc--; argv++; idx++;
-          }
-      }
+      arg->r_opt = opts[i].short_opt;
+      if (!opts[i].short_opt )
+        {
+          arg->r_opt = (opts[i].flags & ARGPARSE_OPT_COMMAND)?
+            ARGPARSE_INVALID_COMMAND:ARGPARSE_INVALID_OPTION;
+          arg->internal->inarg++; /* Point to the next arg.  */
+          arg->r.ret_str = s;
+        }
+      else if ( (opts[i].flags & ARGPARSE_TYPE_MASK) )
+        {
+          if ( s[1] && !dash_kludge )
+            {
+              s2 = s+1;
+              set_opt_arg (arg, opts[i].flags, s2);
+            }
+          else
+            {
+              s2 = argv[1];
+              if ( !s2 && (opts[i].flags & ARGPARSE_OPT_OPTIONAL) )
+                {
+                  arg->r_type = ARGPARSE_TYPE_NONE;
+                  arg->internal->opt_flags = opts[i].flags;
+                }
+              else if ( !s2 )
+                {
+                  arg->r_opt = ARGPARSE_MISSING_ARG;
+                }
+              else if ( *s2 == '-' && s2[1]
+                        && (opts[i].flags & ARGPARSE_OPT_OPTIONAL) )
+                {
+                  /* The argument is optional and the next seems to
+                     be an option.  We do not check this possible
+                     option but assume no argument.  */
+                  arg->r_type = ARGPARSE_TYPE_NONE;
+                  arg->internal->opt_flags = opts[i].flags;
+                }
+              else
+                {
+                  set_opt_arg (arg, opts[i].flags, s2);
+                  argc--; argv++; idx++; /* Skip one.  */
+                }
+            }
+          s = "x"; /* This is so that !s[1] yields false.  */
+        }
+      else
+        {
+          /* Does not take an argument.  */
+          arg->r_type = ARGPARSE_TYPE_NONE;
+          arg->internal->opt_flags = opts[i].flags;
+          arg->internal->inarg++; /* Point to the next arg.  */
+        }
+      if ( !s[1] || dash_kludge )
+        {
+          /* No more concatenated short options.  */
+          arg->internal->inarg = 0;
+          argc--; argv++; idx++;
+        }
+    }
   else if ( arg->flags & ARGPARSE_FLAG_MIXED )
     {
       arg->r_opt = ARGPARSE_IS_ARG;
-      arg->r_type = 2;
+      arg->r_type = ARGPARSE_TYPE_STRING;
       arg->r.ret_str = s;
       argc--; argv++; idx++; /* Set to next one.  */
     }
@@ -1131,6 +2163,27 @@ arg_parse (gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
     {
       arg->internal->stopped = 1; /* Stop option processing.  */
       goto next_one;
+    }
+
+  if (arg->r_opt > 0 && i >= 0 && i < nopts
+      && ((opts[i].ignore && opts[i].explicit_ignore) || opts[i].forced))
+    {
+
+      if ((arg->flags & ARGPARSE_FLAG_WITHATTR))
+        {
+          if (opts[i].ignore)
+            arg->r_type |= ARGPARSE_ATTR_IGNORE;
+          if (opts[i].forced)
+            arg->r_type |= ARGPARSE_ATTR_FORCE;
+          arg->r_type |= ARGPARSE_OPT_IGNORE;
+        }
+      else
+        {
+          _gpgrt_log_info (_("Note: ignoring option \"--%s\""
+                             " due to global config\n"),
+                           opts[i].long_opt);
+          goto next_one;  /* Skip ignored/forced option.  */
+        }
     }
 
  leave:
@@ -1149,6 +2202,7 @@ set_opt_arg (gpgrt_argparse_t *arg, unsigned flags, char *s)
   int base = (flags & ARGPARSE_OPT_PREFIX)? 0 : 10;
   long l;
 
+  arg->internal->opt_flags = flags;
   switch ( (arg->r_type = (flags & ARGPARSE_TYPE_MASK)) )
     {
     case ARGPARSE_TYPE_LONG:
@@ -1198,9 +2252,9 @@ set_opt_arg (gpgrt_argparse_t *arg, unsigned flags, char *s)
 
 
 /* Return the length of the option O.  This needs to consider the
- * description as weel as the option name.  */
+ * description as well as the option name.  */
 static size_t
-long_opt_strlen (gpgrt_opt_t *o)
+long_opt_strlen (opttable_t *o)
 {
   size_t n = strlen (o->long_opt);
 
@@ -1223,22 +2277,36 @@ long_opt_strlen (gpgrt_opt_t *o)
 }
 
 
+
+/* Qsort compare for show_help.  */
+static int
+cmp_ordtbl (const void *a_v, const void *b_v)
+{
+  const unsigned short *a = a_v;
+  const unsigned short *b = b_v;
+
+  return *a - *b;
+}
+
+
 /****************
  * Print formatted help. The description string has some special
  * meanings:
  *  - A description string which is "@" suppresses help output for
  *    this option
- *  - a description,ine which starts with a '@' and is followed by
+ *  - a description which starts with a '@' and is followed by
  *    any other characters is printed as is; this may be used for examples
- *    ans such.
+ *    and such.  This is a legacy methiod, moder codes uses the flags
+ *    ARGPARSE_OPT_VERBATIM or ARGPARSE_OPT_HEADER.
  *  - A description which starts with a '|' outputs the string between this
  *    bar and the next one as arguments of the long option.
  */
 static void
-show_help (gpgrt_opt_t **opts, unsigned int flags)
+show_help (opttable_t *opts, unsigned int nopts, unsigned int flags)
 {
   const char *s;
   char tmp[2];
+  unsigned int *ordtbl = NULL;
 
   show_version ();
   writestrings (0, "\n", NULL);
@@ -1252,30 +2320,68 @@ show_help (gpgrt_opt_t **opts, unsigned int flags)
     }
   s = _gpgrt_strusage(41);
   writestrings (0, s, "\n", NULL);
-  if ( opts[0]->description )
+  if ( nopts )
     {
       /* Auto format the option description.  */
-      int i,j, indent;
+      int i,j,indent;
+      const char *last_header = NULL;
+
+      ordtbl = xtrycalloc (nopts, sizeof *ordtbl);
+      if (!ordtbl)
+        {
+          writestrings (1, "\nOoops: Out of memory whilst printing the help.\n",
+                        NULL);
+          goto leave;
+        }
 
       /* Get max. length of long options.  */
-      for (i=indent=0; opts[i]->short_opt; i++ )
+      for (i=indent=0; i < nopts; i++ )
         {
-          if ( opts[i]->long_opt )
-            if ( !opts[i]->description || *opts[i]->description != '@' )
-              if ( (j=long_opt_strlen(opts[i])) > indent && j < 35 )
+          if ( opts[i].long_opt )
+            if ( !opts[i].description || *opts[i].description != '@' )
+              if ( (j=long_opt_strlen(opts+i)) > indent && j < 35 )
                 indent = j;
+          ordtbl[i] = opts[i].ordinal;
 	}
+
+      qsort (ordtbl, nopts, sizeof *ordtbl, cmp_ordtbl);
+
+      /* The first option needs to have a description; if not do not
+       * print the help at all.  */
+      if (!opts[ordtbl[0]].description)
+        goto leave;
 
       /* Example: " -v, --verbose   Viele Sachen ausgeben" */
       indent += 10;
-      if ( *opts[0]->description != '@' )
+      if ( *opts[ordtbl[0]].description != '@'
+           && !(opts[ordtbl[0]].flags
+                & (ARGPARSE_OPT_VERBATIM|ARGPARSE_OPT_HEADER)))
         writestrings (0, "Options:", "\n", NULL);
-      for (i=0; opts[i]->short_opt; i++ )
+      for (i=0; i < nopts; i++ )
         {
-          s = map_fixed_string (_( opts[i]->description ));
+          s = map_fixed_string (_( opts[ordtbl[i]].description ));
           if ( s && *s== '@' && !s[1] ) /* Hide this line.  */
             continue;
-          if ( s && *s == '@' )  /* Unindented comment only line.  */
+          if ( s && (opts[ordtbl[i]].flags & ARGPARSE_OPT_HEADER))
+            {
+              /* We delay printing until we have found one real output
+               * line.  This avoids having a header above an empty
+               * section.  */
+              last_header = s;
+              continue;
+	    }
+          if (last_header)
+            {
+              if (*last_header)
+                writestrings (0, "\n", last_header, ":\n", NULL);
+              last_header = NULL;
+            }
+          if ( s && (opts[ordtbl[i]].flags & ARGPARSE_OPT_VERBATIM))
+            {
+              writestrings (0, s, NULL);
+              continue;
+	    }
+          if ( s && *s == '@' )  /* Unindented legacy comment only line.  */
             {
               for (s++; *s; s++ )
                 {
@@ -1296,12 +2402,12 @@ show_help (gpgrt_opt_t **opts, unsigned int flags)
 	    }
 
           j = 3;
-          if ( opts[i]->short_opt < 256 )
+          if ( opts[ordtbl[i]].short_opt < 256 )
             {
-              tmp[0] = opts[i]->short_opt;
+              tmp[0] = opts[ordtbl[i]].short_opt;
               tmp[1] = 0;
               writestrings (0, " -", tmp, NULL );
-              if ( !opts[i]->long_opt )
+              if ( !opts[ordtbl[i]].long_opt )
                 {
                   if (s && *s == '|' )
                     {
@@ -1319,11 +2425,11 @@ show_help (gpgrt_opt_t **opts, unsigned int flags)
 	    }
           else
             writestrings (0, "   ", NULL);
-          if ( opts[i]->long_opt )
+          if ( opts[ordtbl[i]].long_opt )
             {
-              tmp[0] = opts[i]->short_opt < 256?',':' ';
+              tmp[0] = opts[ordtbl[i]].short_opt < 256?',':' ';
               tmp[1] = 0;
-              j += writestrings (0, tmp, " --", opts[i]->long_opt, NULL);
+              j += writestrings (0, tmp, " --", opts[ordtbl[i]].long_opt, NULL);
               if (s && *s == '|' )
                 {
                   if ( *++s != '=' )
@@ -1383,8 +2489,10 @@ show_help (gpgrt_opt_t **opts, unsigned int flags)
       writestrings (0, "\n", NULL);
       writestrings (0, s, NULL);
     }
+
+ leave:
   flushstrings (0);
-  exit (0);
+  xfree (ordtbl);
 }
 
 
@@ -1420,6 +2528,66 @@ show_version ()
     if ( (s=_gpgrt_strusage (i)) )
       writestrings (0, s, NULL);
   flushstrings (0);
+}
+
+
+/* Print the table of options with flags etc.  */
+static void
+dump_option_table (gpgrt_argparse_t *arg)
+{
+  opttable_t *opts;
+  unsigned int nopts;
+  const char *s;
+  char tmp[50];
+  unsigned int *ordtbl = NULL;
+  int i;
+
+  opts = arg->internal->opts;
+  nopts = arg->internal->nopts;
+  if (!nopts)
+    return;
+
+  ordtbl = xtrycalloc (nopts, sizeof *ordtbl);
+  if (!ordtbl)
+    {
+      writestrings (1, "\nOoops: Out of memory whilst dumping the table.\n",
+                    NULL);
+      flushstrings (1);
+      my_exit (arg, 2);
+    }
+  for (i=0; i < nopts; i++ )
+    ordtbl[i] = opts[i].ordinal;
+  qsort (ordtbl, nopts, sizeof *ordtbl, cmp_ordtbl);
+  for (i=0; i < nopts; i++ )
+    {
+      if (!opts[ordtbl[i]].long_opt)
+        continue;
+      writestrings (0, opts[ordtbl[i]].long_opt, ":", NULL);
+      snprintf (tmp, sizeof tmp, "%u:%u:",
+                opts[ordtbl[i]].short_opt,
+                opts[ordtbl[i]].flags);
+      writestrings (0, tmp, NULL);
+      s = opts[ordtbl[i]].description;
+      if (s)
+        {
+          for (; *s; s++)
+            {
+              if (*s == '%' || *s == ':' || *s == '\n')
+                snprintf (tmp, sizeof tmp, "%%%02X", *s);
+              else
+                {
+                  tmp[0] = *s;
+                  tmp[1] = 0;
+                }
+              writestrings (0, tmp, NULL);
+            }
+        }
+      writestrings (0, ":\n", NULL);
+    }
+
+  flushstrings (0);
+  xfree (ordtbl);
+  my_exit (arg, 0);
 }
 
 
@@ -1502,11 +2670,11 @@ _gpgrt_strusage (int level)
     case 10:
       tmp = _gpgrt_strusage (9);
       if (tmp && !strcmp (tmp, "GPL-2.0-or-later"))
-        p = ("License GPL-2.0-or-later <https://gnu.org/licenses/>");
+        p = ("License GNU GPL-2.0-or-later <https://gnu.org/licenses/>");
       else if (tmp && !strcmp (tmp, "LGPL-2.1-or-later"))
-        p = ("License LGPL-2.1-or-later <https://gnu.org/licenses/>");
+        p = ("License GNU LGPL-2.1-or-later <https://gnu.org/licenses/>");
       else /* Default to GPLv3+.  */
-        p = ("License GPL-3.0-or-later <https://gnu.org/licenses/gpl.html>");
+        p = ("License GNU GPL-3.0-or-later <https://gnu.org/licenses/gpl.html>");
       break;
     case 11: p = "foo"; break;
     case 13: p = "0.0"; break;
@@ -1590,4 +2758,56 @@ void
 _gpgrt_set_fixed_string_mapper (const char *(*f)(const char*))
 {
   fixed_string_mapper = f;
+}
+
+
+/* Register a configuration directory for use by the argparse
+ * functions.  The defined values for WHAT are:
+ *
+ *   GPGRT_CONFDIR_SYS   The systems's configuration dir.
+ *                       The default is /etc
+ *
+ *   GPGRT_CONFDIR_USER  The user's configuration directory.
+ *                       The default is $HOME.
+ *
+ * A trailing slash is ignored; to have the function lookup
+ * configuration files in the current directory, use ".".  There is no
+ * error return; more configuraion values may be added in future
+ * revisions of this library.
+ */
+void
+_gpgrt_set_confdir (int what, const char *name)
+{
+  char *buf, *p;
+
+  if (what == GPGRT_CONFDIR_SYS)
+    {
+      _gpgrt_free (confdir.sys);
+      buf = confdir.sys = _gpgrt_strdup (name);
+    }
+  else if (what == GPGRT_CONFDIR_USER)
+    {
+      _gpgrt_free (confdir.user);
+      buf = confdir.user = _gpgrt_strdup (name);
+    }
+  else
+    return;
+
+  if (!buf)
+    _gpgrt_log_fatal ("out of core in %s\n", __func__);
+#ifdef HAVE_W32_SYSTEM
+  for (p=buf; *p; p++)
+    if (*p == '\\')
+      *p = '/';
+#endif
+  /* Strip trailing slashes unless buf is "/" or any other single char
+   * string.  */
+  if (*buf)
+    {
+      for (p=buf + strlen (buf)-1; p > buf; p--)
+        if (*p == '/')
+          *p = 0;
+        else
+          break;
+    }
 }

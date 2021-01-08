@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.18\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-02-07 13:14+0100\n"
+"POT-Creation-Date: 2020-08-24 13:06+0200\n"
 "PO-Revision-Date: 2018-03-21 18:59+0100\n"
 "Last-Translator: Petr Pisar <petr.pisar@atlas.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -2041,90 +2041,134 @@ msgstr "Konec souboru"
 msgid "Unknown error code"
 msgstr "Neznámý kód chyby"
 
-#: src/argparse.c:318
+#: src/argparse.c:468
 msgid "argument not expected"
 msgstr "argument nebyl očekáván"
 
-#: src/argparse.c:320
+#: src/argparse.c:470
 msgid "read error"
 msgstr "chyba při čtení"
 
-#: src/argparse.c:322
+#: src/argparse.c:472
 msgid "keyword too long"
 msgstr "klíčové slovo je příliš dlouhé"
 
-#: src/argparse.c:324
+#: src/argparse.c:474
 msgid "missing argument"
 msgstr "postrádám argument"
 
-#: src/argparse.c:326
+#: src/argparse.c:476
 msgid "invalid argument"
 msgstr "neplatný argument"
 
-#: src/argparse.c:328
+#: src/argparse.c:478
 msgid "invalid command"
 msgstr "neplatný příkaz"
 
-#: src/argparse.c:330
+#: src/argparse.c:480
 msgid "invalid alias definition"
 msgstr "neplatný definice aliasu"
 
-#: src/argparse.c:332
+# Nastavení nebo nastavování?
+#: src/argparse.c:482 src/argparse.c:519
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "Chyba konfigurace"
+
+#: src/argparse.c:484 src/argparse.c:517
 msgid "out of core"
 msgstr "nedostatek paměti"
 
-#: src/argparse.c:334
+#: src/argparse.c:488 src/argparse.c:523
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "neplatný příkaz"
+
+#: src/argparse.c:490 src/argparse.c:525
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Neznámý příkaz"
+
+#: src/argparse.c:492 src/argparse.c:527
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Neočekávaný příkaz IPC"
+
+#: src/argparse.c:494
 msgid "invalid option"
 msgstr "neplatný parametr"
 
-#: src/argparse.c:343
+#: src/argparse.c:504
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
 msgstr "postrádám argument u volby „%.50s“\n"
 
-#: src/argparse.c:345
+#: src/argparse.c:506
 #, c-format
 msgid "invalid argument for option \"%.50s\"\n"
 msgstr "neplatný argument u volby „%.50s“\n"
 
-#: src/argparse.c:347
+#: src/argparse.c:508
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
 msgstr "volba „%.50s“ nečeká argument\n"
 
-#: src/argparse.c:350
+#: src/argparse.c:511
 #, c-format
 msgid "invalid command \"%.50s\"\n"
 msgstr "neplatný příkaz „%.50s“\n"
 
-#: src/argparse.c:352
+#: src/argparse.c:513
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
 msgstr "volba „%.50s“ není jednoznačná\n"
 
-#: src/argparse.c:354
+#: src/argparse.c:515
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
 msgstr "příkaz „%.50s“ není jednoznačný\n"
 
-# Yet another expression for `not enough memory' :)
-#: src/argparse.c:356
-msgid "out of core\n"
-msgstr "nedostatek paměti\n"
-
-#: src/argparse.c:358
+#: src/argparse.c:529
 #, c-format
 msgid "invalid option \"%.50s\"\n"
 msgstr "neplatný parametr „%.50s“\n"
+
+#: src/argparse.c:1658 src/argparse.c:1753
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1668 src/argparse.c:1760
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1745
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#: src/argparse.c:2182
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
 
 #: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr ""
 
-#: src/gpg-error.c:729
+#: src/gpg-error.c:762
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "pozor: %s nebylo možné rozpoznat\n"
+
+# Yet another expression for `not enough memory' :)
+#~ msgid "out of core\n"
+#~ msgstr "nedostatek paměti\n"
 
 #~ msgid "Usage: %s GPG-ERROR [...]\n"
 #~ msgstr "Použití: %s CHYBA_GPG […]\n"

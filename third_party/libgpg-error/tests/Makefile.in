@@ -110,7 +110,8 @@ build_triplet = @build@
 host_triplet = @host@
 TESTS = t-version$(EXEEXT) t-strerror$(EXEEXT) t-syserror$(EXEEXT) \
 	t-lock$(EXEEXT) t-printf$(EXEEXT) t-poll$(EXEEXT) \
-	t-b64$(EXEEXT) t-argparse$(EXEEXT) t-logging$(EXEEXT)
+	t-b64$(EXEEXT) t-argparse$(EXEEXT) t-logging$(EXEEXT) \
+	t-stringutils$(EXEEXT) t-malloc$(EXEEXT)
 noinst_PROGRAMS = $(am__EXEEXT_1)
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -137,7 +138,7 @@ CONFIG_CLEAN_VPATH_FILES =
 am__EXEEXT_1 = t-version$(EXEEXT) t-strerror$(EXEEXT) \
 	t-syserror$(EXEEXT) t-lock$(EXEEXT) t-printf$(EXEEXT) \
 	t-poll$(EXEEXT) t-b64$(EXEEXT) t-argparse$(EXEEXT) \
-	t-logging$(EXEEXT)
+	t-logging$(EXEEXT) t-stringutils$(EXEEXT) t-malloc$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 t_argparse_SOURCES = t-argparse.c
 t_argparse_OBJECTS = t-argparse.$(OBJEXT)
@@ -160,6 +161,10 @@ t_logging_SOURCES = t-logging.c
 t_logging_OBJECTS = t-logging.$(OBJEXT)
 t_logging_LDADD = $(LDADD)
 t_logging_DEPENDENCIES = $(gpg_error_lib)
+t_malloc_SOURCES = t-malloc.c
+t_malloc_OBJECTS = t-malloc.$(OBJEXT)
+t_malloc_LDADD = $(LDADD)
+t_malloc_DEPENDENCIES = $(gpg_error_lib)
 t_poll_SOURCES = t-poll.c
 t_poll_OBJECTS = t-poll.$(OBJEXT)
 t_poll_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
@@ -171,6 +176,10 @@ t_strerror_SOURCES = t-strerror.c
 t_strerror_OBJECTS = t-strerror.$(OBJEXT)
 t_strerror_LDADD = $(LDADD)
 t_strerror_DEPENDENCIES = $(gpg_error_lib)
+t_stringutils_SOURCES = t-stringutils.c
+t_stringutils_OBJECTS = t-stringutils.$(OBJEXT)
+t_stringutils_LDADD = $(LDADD)
+t_stringutils_DEPENDENCIES = $(gpg_error_lib)
 t_syserror_SOURCES = t-syserror.c
 t_syserror_OBJECTS = t-syserror.$(OBJEXT)
 t_syserror_LDADD = $(LDADD)
@@ -196,8 +205,9 @@ depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/t-argparse.Po ./$(DEPDIR)/t-b64.Po \
 	./$(DEPDIR)/t-lock.Po ./$(DEPDIR)/t-logging.Po \
-	./$(DEPDIR)/t-poll.Po ./$(DEPDIR)/t-printf.Po \
-	./$(DEPDIR)/t-strerror.Po ./$(DEPDIR)/t-syserror.Po \
+	./$(DEPDIR)/t-malloc.Po ./$(DEPDIR)/t-poll.Po \
+	./$(DEPDIR)/t-printf.Po ./$(DEPDIR)/t-strerror.Po \
+	./$(DEPDIR)/t-stringutils.Po ./$(DEPDIR)/t-syserror.Po \
 	./$(DEPDIR)/t-version.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -218,10 +228,12 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = t-argparse.c t-b64.c t-lock.c t-logging.c t-poll.c \
-	t-printf.c t-strerror.c t-syserror.c t-version.c
-DIST_SOURCES = t-argparse.c t-b64.c t-lock.c t-logging.c t-poll.c \
-	t-printf.c t-strerror.c t-syserror.c t-version.c
+SOURCES = t-argparse.c t-b64.c t-lock.c t-logging.c t-malloc.c \
+	t-poll.c t-printf.c t-strerror.c t-stringutils.c t-syserror.c \
+	t-version.c
+DIST_SOURCES = t-argparse.c t-b64.c t-lock.c t-logging.c t-malloc.c \
+	t-poll.c t-printf.c t-strerror.c t-stringutils.c t-syserror.c \
+	t-version.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -291,6 +303,7 @@ CC_FOR_BUILD = @CC_FOR_BUILD@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CROSS_HOST_OBJDUMP = @CROSS_HOST_OBJDUMP@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -310,6 +323,7 @@ GMSGFMT_015 = @GMSGFMT_015@
 GPG_ERROR_CONFIG_CFLAGS = @GPG_ERROR_CONFIG_CFLAGS@
 GPG_ERROR_CONFIG_HOST = @GPG_ERROR_CONFIG_HOST@
 GPG_ERROR_CONFIG_LIBS = @GPG_ERROR_CONFIG_LIBS@
+GPG_ERROR_CONFIG_LIBS_PRIVATE = @GPG_ERROR_CONFIG_LIBS_PRIVATE@
 GPG_ERROR_CONFIG_MT_CFLAGS = @GPG_ERROR_CONFIG_MT_CFLAGS@
 GPG_ERROR_CONFIG_MT_LIBS = @GPG_ERROR_CONFIG_MT_LIBS@
 GREP = @GREP@
@@ -422,6 +436,7 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
@@ -432,6 +447,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 @HAVE_W32CE_SYSTEM_FALSE@extra_includes = 
 @HAVE_W32CE_SYSTEM_TRUE@extra_includes = -idirafter $(top_builddir)/src/gpg-extra
+EXTRA_DIST = t-argparse.conf etc/t-argparse.conf
 gpg_error_lib = ../src/libgpg-error.la
 AM_CPPFLAGS = -I$(top_builddir)/src $(extra_includes)
 AM_LDFLAGS = -no-install
@@ -498,6 +514,10 @@ t-logging$(EXEEXT): $(t_logging_OBJECTS) $(t_logging_DEPENDENCIES) $(EXTRA_t_log
 	@rm -f t-logging$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_logging_OBJECTS) $(t_logging_LDADD) $(LIBS)
 
+t-malloc$(EXEEXT): $(t_malloc_OBJECTS) $(t_malloc_DEPENDENCIES) $(EXTRA_t_malloc_DEPENDENCIES) 
+	@rm -f t-malloc$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(t_malloc_OBJECTS) $(t_malloc_LDADD) $(LIBS)
+
 t-poll$(EXEEXT): $(t_poll_OBJECTS) $(t_poll_DEPENDENCIES) $(EXTRA_t_poll_DEPENDENCIES) 
 	@rm -f t-poll$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_poll_OBJECTS) $(t_poll_LDADD) $(LIBS)
@@ -509,6 +529,10 @@ t-printf$(EXEEXT): $(t_printf_OBJECTS) $(t_printf_DEPENDENCIES) $(EXTRA_t_printf
 t-strerror$(EXEEXT): $(t_strerror_OBJECTS) $(t_strerror_DEPENDENCIES) $(EXTRA_t_strerror_DEPENDENCIES) 
 	@rm -f t-strerror$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_strerror_OBJECTS) $(t_strerror_LDADD) $(LIBS)
+
+t-stringutils$(EXEEXT): $(t_stringutils_OBJECTS) $(t_stringutils_DEPENDENCIES) $(EXTRA_t_stringutils_DEPENDENCIES) 
+	@rm -f t-stringutils$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(t_stringutils_OBJECTS) $(t_stringutils_LDADD) $(LIBS)
 
 t-syserror$(EXEEXT): $(t_syserror_OBJECTS) $(t_syserror_DEPENDENCIES) $(EXTRA_t_syserror_DEPENDENCIES) 
 	@rm -f t-syserror$(EXEEXT)
@@ -528,9 +552,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-b64.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-lock.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-logging.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-malloc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-poll.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-printf.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-strerror.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-stringutils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-syserror.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-version.Po@am__quote@ # am--include-marker
 
@@ -790,9 +816,11 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/t-b64.Po
 	-rm -f ./$(DEPDIR)/t-lock.Po
 	-rm -f ./$(DEPDIR)/t-logging.Po
+	-rm -f ./$(DEPDIR)/t-malloc.Po
 	-rm -f ./$(DEPDIR)/t-poll.Po
 	-rm -f ./$(DEPDIR)/t-printf.Po
 	-rm -f ./$(DEPDIR)/t-strerror.Po
+	-rm -f ./$(DEPDIR)/t-stringutils.Po
 	-rm -f ./$(DEPDIR)/t-syserror.Po
 	-rm -f ./$(DEPDIR)/t-version.Po
 	-rm -f Makefile
@@ -844,9 +872,11 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/t-b64.Po
 	-rm -f ./$(DEPDIR)/t-lock.Po
 	-rm -f ./$(DEPDIR)/t-logging.Po
+	-rm -f ./$(DEPDIR)/t-malloc.Po
 	-rm -f ./$(DEPDIR)/t-poll.Po
 	-rm -f ./$(DEPDIR)/t-printf.Po
 	-rm -f ./$(DEPDIR)/t-strerror.Po
+	-rm -f ./$(DEPDIR)/t-stringutils.Po
 	-rm -f ./$(DEPDIR)/t-syserror.Po
 	-rm -f ./$(DEPDIR)/t-version.Po
 	-rm -f Makefile

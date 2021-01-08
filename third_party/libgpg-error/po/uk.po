@@ -2,13 +2,13 @@
 # Copyright (C) 2012 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
 #
-# Yuri Chornoivan <yurchor@ukr.net>, 2012, 2014, 2015, 2018.
+# Yuri Chornoivan <yurchor@ukr.net>, 2012, 2014, 2015, 2018, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-02-07 13:14+0100\n"
-"PO-Revision-Date: 2018-04-14 21:07+0200\n"
+"POT-Creation-Date: 2020-08-24 13:06+0200\n"
+"PO-Revision-Date: 2020-02-17 18:28+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation-team-uk@lists.sourceforge.net>\n"
 "Language: uk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Lokalize 2.0\n"
+"X-Generator: Lokalize 20.03.70\n"
 
 #: src/err-sources.h:28
 msgid "Unspecified source"
@@ -1288,38 +1288,28 @@ msgid "Wrong name"
 msgstr "Помилкова назва"
 
 #: src/err-codes.h:320
-#, fuzzy
-#| msgid "Not enabled"
 msgid "Not authenticated"
-msgstr "Не увімкнено"
+msgstr "Розпізнавання не пройдено"
 
 #: src/err-codes.h:321
-#, fuzzy
-#| msgid "Inappropriate LDAP authentication"
 msgid "Bad authentication"
-msgstr "Неприйнятне розпізнавання LDAP"
+msgstr "Помилка розпізнавання"
 
 #: src/err-codes.h:322
-#, fuzzy
-#| msgid "No agent running"
 msgid "No Keybox daemon running"
-msgstr "Агент не запущено"
+msgstr "Фонову службу Keybox не запущено"
 
 #: src/err-codes.h:323
-#, fuzzy
-#| msgid "SmartCard daemon error"
 msgid "Keybox daemon error"
-msgstr "Помилка фонової служби SmartCard"
+msgstr "Помилка фонової служби Keybox"
 
 #: src/err-codes.h:324
 msgid "Service is not running"
-msgstr ""
+msgstr "Службу не запущено"
 
 #: src/err-codes.h:325
-#, fuzzy
-#| msgid "Keyserver error"
 msgid "Service error"
-msgstr "Помилка сервера ключів"
+msgstr "Помилка служби"
 
 #: src/err-codes.h:326
 msgid "System bug detected"
@@ -1746,136 +1736,128 @@ msgid "User defined error code 16"
 msgstr "Визначений користувачем код помилки 16"
 
 #: src/err-codes.h:432
-#, fuzzy
-#| msgid "LDAP success"
 msgid "SQL success"
-msgstr "Успіх LDAP"
+msgstr "Успіх SQL"
 
 #: src/err-codes.h:433
-#, fuzzy
-#| msgid "Syntax error"
 msgid "SQL error"
-msgstr "Синтаксична помилка"
+msgstr "Помилка SQL"
 
 #: src/err-codes.h:434
 msgid "Internal logic error in SQL library"
-msgstr ""
+msgstr "Внутрішня помилка логіки у бібліотеці SQL"
 
 #: src/err-codes.h:435
 msgid "Access permission denied (SQL)"
-msgstr ""
+msgstr "Заборонено доступ за правами (SQL)"
 
 #: src/err-codes.h:436
 msgid "SQL abort was requested"
-msgstr ""
+msgstr "Надійшов запит на переривання роботи SQL"
 
 #: src/err-codes.h:437
 msgid "SQL database file is locked"
-msgstr ""
+msgstr "Файл бази даних SQL заблоковано"
 
 #: src/err-codes.h:438
 msgid "An SQL table in the database is locked"
-msgstr ""
+msgstr "Таблицю SQL у базі даних заблоковано"
 
 #: src/err-codes.h:439
 msgid "SQL library ran out of core"
-msgstr ""
+msgstr "Вихід за межі області пам'яті у бібліотеці SQL"
 
 #: src/err-codes.h:440
 msgid "Attempt to write a readonly SQL database"
-msgstr ""
+msgstr "Спроба запису до придатної лише до читання бази даних SQL"
 
 #: src/err-codes.h:441
 msgid "SQL operation terminated by interrupt"
-msgstr ""
+msgstr "SQL operation terminated by interrupt"
 
 #: src/err-codes.h:442
 msgid "I/O error during SQL operation"
-msgstr ""
+msgstr "Помилка введення-виведення під час виконання дії SQL"
 
 #: src/err-codes.h:443
 msgid "SQL database disk image is malformed"
-msgstr ""
+msgstr "Образ диска бази даних SQL має помилкове форматування"
 
 #: src/err-codes.h:444
 msgid "Unknown opcode in SQL file control"
-msgstr ""
+msgstr "Невідомий код дії у керування файлами SQL"
 
 #: src/err-codes.h:445
 msgid "Insertion failed because SQL database is full"
-msgstr ""
+msgstr "Не вдалося вставити запис, оскільки базу даних SQL переповнено"
 
 #: src/err-codes.h:446
 msgid "Unable to open the SQL database file"
-msgstr ""
+msgstr "Не вдалося відкрити файл бази даних SQL"
 
 #: src/err-codes.h:447
-#, fuzzy
-#| msgid "LDAP protocol error"
 msgid "SQL database lock protocol error"
-msgstr "Помилка протоколу LDAP"
+msgstr "Помилка протоколу блокування бази даних SQL"
 
 #: src/err-codes.h:448
 msgid "(internal SQL code: empty)"
-msgstr ""
+msgstr "(внутрішній код SQL: порожньо)"
 
 #: src/err-codes.h:449
 msgid "SQL database schema changed"
-msgstr ""
+msgstr "Змінено структуру бази даних SQL"
 
 #: src/err-codes.h:450
 msgid "String or blob exceeds size limit (SQL)"
-msgstr ""
+msgstr "Перевищення обмеження на розмір рядка або двійкового об'єкта (SQL)"
 
 #: src/err-codes.h:451
 msgid "SQL abort due to constraint violation"
-msgstr ""
+msgstr "Переривання роботи SQL через перевищення обмежень"
 
 #: src/err-codes.h:452
 msgid "Data type mismatch (SQL)"
-msgstr ""
+msgstr "Невідповідність типів даних (SQL)"
 
 #: src/err-codes.h:453
 msgid "SQL library used incorrectly"
-msgstr ""
+msgstr "Неправильне використання бібліотеки SQL"
 
 #: src/err-codes.h:454
 msgid "SQL library uses unsupported OS features"
-msgstr ""
+msgstr "Бібліотека SQL намагається використати непідтримувані можливості ОС"
 
 #: src/err-codes.h:455
-#, fuzzy
-#| msgid "Proxied authorization denied by LDAP"
 msgid "Authorization denied (SQL)"
-msgstr "Уповноваження за допомогою проксі заборонено LDAP"
+msgstr "Відмовлено в уповноваженні (SQL)"
 
 #: src/err-codes.h:456
 msgid "(unused SQL code: format)"
-msgstr ""
+msgstr "(невикористаний код SQL: формат)"
 
 #: src/err-codes.h:457
 msgid "SQL bind parameter out of range"
-msgstr ""
+msgstr "Параметр прив'язки SQL має значення поза межами припустимого діапазону"
 
 #: src/err-codes.h:458
 msgid "File opened that is not an SQL database file"
-msgstr ""
+msgstr "Відкрито файл, який не є файлом бази даних SQL"
 
 #: src/err-codes.h:459
 msgid "Notifications from SQL logger"
-msgstr ""
+msgstr "Сповіщення від засобу журналювання SQL"
 
 #: src/err-codes.h:460
 msgid "Warnings from SQL logger"
-msgstr ""
+msgstr "Попередження від засобу журналювання SQL"
 
 #: src/err-codes.h:461
 msgid "SQL has another row ready"
-msgstr ""
+msgstr "У SQL готовий ще один рядок"
 
 #: src/err-codes.h:462
 msgid "SQL has finished executing"
-msgstr ""
+msgstr "Виконання коду SQL завершено"
 
 #: src/err-codes.h:463
 msgid "System error w/o errno"
@@ -1893,86 +1875,129 @@ msgstr "Кінець файла"
 msgid "Unknown error code"
 msgstr "Помилка з невідомим кодом"
 
-#: src/argparse.c:318
+#: src/argparse.c:468
 msgid "argument not expected"
 msgstr "неочікуваний аргумент"
 
-#: src/argparse.c:320
+#: src/argparse.c:470
 msgid "read error"
 msgstr "помилка читання"
 
-#: src/argparse.c:322
+#: src/argparse.c:472
 msgid "keyword too long"
 msgstr "занадто довге ключове слово"
 
-#: src/argparse.c:324
+#: src/argparse.c:474
 msgid "missing argument"
 msgstr "не вистачає аргументу"
 
-#: src/argparse.c:326
+#: src/argparse.c:476
 msgid "invalid argument"
 msgstr "некоректний аргумент"
 
-#: src/argparse.c:328
+#: src/argparse.c:478
 msgid "invalid command"
 msgstr "некоректна команда"
 
-#: src/argparse.c:330
+#: src/argparse.c:480
 msgid "invalid alias definition"
 msgstr "некоректне визначення замінника"
 
-#: src/argparse.c:332
+#: src/argparse.c:482 src/argparse.c:519
+#, fuzzy
+#| msgid "LDAP operations error"
+msgid "permission error"
+msgstr "Помилка дій LDAP"
+
+#: src/argparse.c:484 src/argparse.c:517
 msgid "out of core"
 msgstr "вихід за межі області пам’яті"
 
-#: src/argparse.c:334
+#: src/argparse.c:488 src/argparse.c:523
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "некоректна команда"
+
+#: src/argparse.c:490 src/argparse.c:525
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Невідома команда"
+
+#: src/argparse.c:492 src/argparse.c:527
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Неочікувана команда IPC"
+
+#: src/argparse.c:494
 msgid "invalid option"
 msgstr "некоректний параметр"
 
-#: src/argparse.c:343
+#: src/argparse.c:504
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
 msgstr "не вказано аргументу до параметра «%.50s»\n"
 
-#: src/argparse.c:345
+#: src/argparse.c:506
 #, c-format
 msgid "invalid argument for option \"%.50s\"\n"
 msgstr "некоректний аргумент параметра «%.50s»\n"
 
-#: src/argparse.c:347
+#: src/argparse.c:508
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
 msgstr "для параметра «%.50s» аргументи не потрібно вказувати\n"
 
-#: src/argparse.c:350
+#: src/argparse.c:511
 #, c-format
 msgid "invalid command \"%.50s\"\n"
 msgstr "некоректна команда «%.50s»\n"
 
-#: src/argparse.c:352
+#: src/argparse.c:513
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
 msgstr "параметр «%.50s» є неоднозначним\n"
 
-#: src/argparse.c:354
+#: src/argparse.c:515
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
 msgstr "команда «%.50s» є неоднозначною\n"
 
-#: src/argparse.c:356
-msgid "out of core\n"
-msgstr "вихід за межі області пам’яті\n"
-
-#: src/argparse.c:358
+#: src/argparse.c:529
 #, c-format
 msgid "invalid option \"%.50s\"\n"
 msgstr "некоректний параметр «%.50s»\n"
+
+#: src/argparse.c:1658 src/argparse.c:1753
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1668 src/argparse.c:1760
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1745
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#: src/argparse.c:2182
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
 
 #: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr "Будь ласка, повідомляйте про помилки тут: <https://bugs.gnupg.org>.\n"
 
-#: src/gpg-error.c:729
+#: src/gpg-error.c:762
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "попередження: не вдалося розпізнати %s\n"
+
+#~ msgid "out of core\n"
+#~ msgstr "вихід за межі області пам’яті\n"

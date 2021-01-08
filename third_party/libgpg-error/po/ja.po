@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.36\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-02-07 13:14+0100\n"
+"POT-Creation-Date: 2020-08-24 13:06+0200\n"
 "PO-Revision-Date: 2020-01-23 13:06+0900\n"
 "Last-Translator: NIIBE Yutaka <gniibe@fsij.org>\n"
 "Language-Team: none\n"
@@ -1866,89 +1866,132 @@ msgstr "ファイル終端"
 msgid "Unknown error code"
 msgstr "不明なエラーコード"
 
-#: src/argparse.c:318
+#: src/argparse.c:468
 msgid "argument not expected"
 msgstr "引数は期待されていません"
 
-#: src/argparse.c:320
+#: src/argparse.c:470
 msgid "read error"
 msgstr "読み込みエラー"
 
-#: src/argparse.c:322
+#: src/argparse.c:472
 msgid "keyword too long"
 msgstr "キーワードが長すぎます"
 
-#: src/argparse.c:324
+#: src/argparse.c:474
 msgid "missing argument"
 msgstr "引数がありません"
 
-#: src/argparse.c:326
+#: src/argparse.c:476
 msgid "invalid argument"
 msgstr "無効な引数"
 
-#: src/argparse.c:328
+#: src/argparse.c:478
 msgid "invalid command"
 msgstr "無効なコマンド"
 
-#: src/argparse.c:330
+#: src/argparse.c:480
 msgid "invalid alias definition"
 msgstr "無効なエイリアス定義です"
 
-#: src/argparse.c:332
+#: src/argparse.c:482 src/argparse.c:519
+#, fuzzy
+#| msgid "LDAP operations error"
+msgid "permission error"
+msgstr "LDAP操作エラーです"
+
+#: src/argparse.c:484 src/argparse.c:517
 msgid "out of core"
 msgstr "メモリがありません"
 
-#: src/argparse.c:334
+#: src/argparse.c:488 src/argparse.c:523
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "無効なコマンド"
+
+#: src/argparse.c:490 src/argparse.c:525
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "未知のコマンドです"
+
+#: src/argparse.c:492 src/argparse.c:527
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "予期しないIPCコマンドです"
+
+#: src/argparse.c:494
 msgid "invalid option"
 msgstr "無効なオプション"
 
-#: src/argparse.c:343
+#: src/argparse.c:504
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
 msgstr "オプション\"%.50s\"に引数がありません\n"
 
-#: src/argparse.c:345
+#: src/argparse.c:506
 #, c-format
 msgid "invalid argument for option \"%.50s\"\n"
 msgstr "オプション\"%.50s\"には無効な引数です\n"
 
-#: src/argparse.c:347
+#: src/argparse.c:508
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
 msgstr "オプション\"%.50s\"は引数をとりません\n"
 
-#: src/argparse.c:350
+#: src/argparse.c:511
 #, c-format
 msgid "invalid command \"%.50s\"\n"
 msgstr "無効なコマンド \"%.50s\"\n"
 
-#: src/argparse.c:352
+#: src/argparse.c:513
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
 msgstr "オプション\"%.50s\"はあいまいです\n"
 
-#: src/argparse.c:354
+#: src/argparse.c:515
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
 msgstr "コマンド\"%.50s\"はあいまいです\n"
 
-#: src/argparse.c:356
-msgid "out of core\n"
-msgstr "メモリがありません\n"
-
-#: src/argparse.c:358
+#: src/argparse.c:529
 #, c-format
 msgid "invalid option \"%.50s\"\n"
 msgstr "無効なオプション \"%.50s\"\n"
+
+#: src/argparse.c:1658 src/argparse.c:1753
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1668 src/argparse.c:1760
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1745
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#: src/argparse.c:2182
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
 
 #: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr "バグは<https://bugs.gnupg.org>に報告してください。\n"
 
-#: src/gpg-error.c:729
+#: src/gpg-error.c:762
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "警告: %s を認識できませんでした\n"
+
+#~ msgid "out of core\n"
+#~ msgstr "メモリがありません\n"
 
 #~ msgid "Usage: %s GPG-ERROR [...]\n"
 #~ msgstr "使用法: %s GPG-ERROR [...]\n"

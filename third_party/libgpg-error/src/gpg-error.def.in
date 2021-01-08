@@ -229,4 +229,15 @@ EXPORTS
  gpgrt_add_emergency_cleanup  @174
  gpgrt_abort                  @175
 
+ gpgrt_set_confdir            @176
+ gpgrt_argparser              @177
+
+ gpgrt_fnameconcat            @178
+ gpgrt_absfnameconcat         @179
+
+ gpgrt_reallocarray           @180
+ gpgrt_fclose                 @181
+
+ gpgrt_fcancel                @182
+
 ;; end of file with public symbols for Windows.

@@ -1,14 +1,14 @@
 # Russian translation for libgpg-error.
-# Copyright (C) 2018 Free Software Foundation, Inc.
+# Copyright (C) 2020 Free Software Foundation, Inc.
 # This file is distributed under the same license as the original package.
-# Ineiev <ineiev@gnu.org>, 2014, 2015, 2018
+# Ineiev <ineiev@gnu.org>, 2014, 2015, 2018, 2019, 2020
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-02-07 13:14+0100\n"
-"PO-Revision-Date: 2018-03-21 19:03+0100\n"
+"POT-Creation-Date: 2020-08-24 13:06+0200\n"
+"PO-Revision-Date: 2020-02-13 19:03+0100\n"
 "Last-Translator: Ineiev <ineiev@gnu.org>\n"
 "Language-Team: Russian <gnupg-ru@gnupg.org>\n"
 "Language: ru\n"
@@ -38,7 +38,7 @@ msgstr "Агент GPG"
 
 #: src/err-sources.h:33
 msgid "Pinentry"
-msgstr "Ввод PIN"
+msgstr "Программа ввода пароля"
 
 #: src/err-sources.h:34
 msgid "SCD"
@@ -130,7 +130,7 @@ msgstr "Недопустимый алгоритм шифрования с отк
 
 #: src/err-codes.h:33
 msgid "Invalid digest algorithm"
-msgstr "Недопустимая хэш-функция"
+msgstr "Недопустимая хеш-функция"
 
 #: src/err-codes.h:34
 msgid "Bad public key"
@@ -138,7 +138,7 @@ msgstr "Плохой открытый ключ"
 
 #: src/err-codes.h:35
 msgid "Bad secret key"
-msgstr "Плохой закрытый ключ"
+msgstr "Плохой секретный ключ"
 
 #: src/err-codes.h:36
 msgid "Bad signature"
@@ -162,7 +162,7 @@ msgstr "Недопустимый алгоритм симметричного ш�
 
 #: src/err-codes.h:41
 msgid "Cannot open keyring"
-msgstr "Таблица ключей открыта"
+msgstr "Таблица ключей не открывается"
 
 #: src/err-codes.h:42
 msgid "Invalid packet"
@@ -170,19 +170,19 @@ msgstr "Недопустимый пакет"
 
 #: src/err-codes.h:43
 msgid "Invalid armor"
-msgstr "Недопустимый текстовый формат"
+msgstr "Недопустимая текстовая оболочка"
 
 #: src/err-codes.h:44
 msgid "No user ID"
-msgstr "Нет ID пользователя"
+msgstr "Нет идентификатора пользователя"
 
 #: src/err-codes.h:45
 msgid "No secret key"
-msgstr "Нет закрытого ключа"
+msgstr "Нет секретного ключа"
 
 #: src/err-codes.h:46
 msgid "Wrong secret key used"
-msgstr "Использован неверный закрытый ключ"
+msgstr "Использован неверный секретный ключ"
 
 #: src/err-codes.h:47
 msgid "Bad session key"
@@ -258,7 +258,7 @@ msgstr "Плохой сертификат"
 
 #: src/err-codes.h:65
 msgid "Invalid user ID"
-msgstr "Недопустимый ID пользователя"
+msgstr "Недопустимый идентификатор пользователя"
 
 #: src/err-codes.h:66
 msgid "Unexpected error"
@@ -326,7 +326,7 @@ msgstr "Непригодный открытый ключ"
 
 #: src/err-codes.h:82
 msgid "Unusable secret key"
-msgstr "Непригодный закрытый ключ"
+msgstr "Непригодный секретный ключ"
 
 #: src/err-codes.h:83
 msgid "Invalid value"
@@ -334,7 +334,7 @@ msgstr "Недопустимое значение"
 
 #: src/err-codes.h:84
 msgid "Bad certificate chain"
-msgstr "Плохая сертификатная цепь"
+msgstr "Плохая цепь сертификатов"
 
 #: src/err-codes.h:85
 msgid "Missing certificate"
@@ -358,7 +358,7 @@ msgstr "Недопустимый код операции"
 
 #: src/err-codes.h:90
 msgid "Timeout"
-msgstr "Лимит времени"
+msgstr "Время исчерпано"
 
 #: src/err-codes.h:91
 msgid "Internal error"
@@ -450,15 +450,15 @@ msgstr "Алгоритм не поддерживается"
 
 #: src/err-codes.h:113
 msgid "No pinentry"
-msgstr "Нет модуля ввода PIN"
+msgstr "Нет программы ввода пароля"
 
 #: src/err-codes.h:114
 msgid "pinentry error"
-msgstr "ошибка ввода PIN"
+msgstr "ошибка при вводе пароля"
 
 #: src/err-codes.h:115
 msgid "Bad PIN"
-msgstr "Плохой PIN"
+msgstr "Плохой пароль"
 
 #: src/err-codes.h:116
 msgid "Invalid name"
@@ -490,7 +490,7 @@ msgstr "Сертификат отозван"
 
 #: src/err-codes.h:123
 msgid "No CRL known"
-msgstr "Список отозванных сертификатов неизвестен"
+msgstr "Отсутствует список отозванных сертификатов"
 
 #: src/err-codes.h:124
 msgid "CRL too old"
@@ -550,7 +550,7 @@ msgstr "Требуется перезапуск карты"
 
 #: src/err-codes.h:138
 msgid "Card removed"
-msgstr "Карта удалена"
+msgstr "Карта вынута"
 
 #: src/err-codes.h:139
 msgid "Invalid card"
@@ -574,7 +574,7 @@ msgstr "Ошибка конфигурации"
 
 #: src/err-codes.h:144
 msgid "No policy match"
-msgstr "Проблема с правилами"
+msgstr "Нет соответствующего правила"
 
 #: src/err-codes.h:145
 msgid "Invalid index"
@@ -586,11 +586,11 @@ msgstr "Недопустимый идентификатор"
 
 #: src/err-codes.h:147
 msgid "No SmartCard daemon"
-msgstr "Нет демона смарткарт"
+msgstr "Нет демона криптографических карт"
 
 #: src/err-codes.h:148
 msgid "SmartCard daemon error"
-msgstr "Ошибка демона смарткарт"
+msgstr "Ошибка демона криптографических карт"
 
 #: src/err-codes.h:149
 msgid "Unsupported protocol"
@@ -618,7 +618,7 @@ msgstr "Ничего не найдено"
 
 #: src/err-codes.h:155
 msgid "Wrong blob type"
-msgstr "Кусок неподходящего типа"
+msgstr "Данные неподходящего типа"
 
 #: src/err-codes.h:156
 msgid "Missing value"
@@ -718,7 +718,7 @@ msgstr "Открытый ключ не доверенный"
 
 #: src/err-codes.h:180
 msgid "Decryption failed"
-msgstr "Сбой расшифровки"
+msgstr "Сбой расшифрования"
 
 #: src/err-codes.h:181
 msgid "Key expired"
@@ -894,7 +894,7 @@ msgstr "Открытый ключ поврежден"
 
 #: src/err-codes.h:224
 msgid "Broken secret key"
-msgstr "Закрытый ключ поврежден"
+msgstr "Секретный ключ поврежден"
 
 #: src/err-codes.h:225
 msgid "Invalid MAC algorithm"
@@ -950,7 +950,7 @@ msgstr "Непарные квадратные скобки"
 
 #: src/err-codes.h:238
 msgid "Unexpected reserved punctuation in S-expression"
-msgstr "Неожиданная зарезервированная пунктуации в S-выражении"
+msgstr "Неожиданная зарезервированная пунктуация в S-выражении"
 
 #: src/err-codes.h:239
 msgid "Bad hexadecimal character in S-expression"
@@ -958,7 +958,7 @@ msgstr "Плохой шестнадцатеричный символ в S-выр
 
 #: src/err-codes.h:240
 msgid "Odd hexadecimal numbers in S-expression"
-msgstr "Шестнадцатеричные числа нечетной длины в S-выражении"
+msgstr "Нечетные шестнадцатеричные числа в S-выражении"
 
 #: src/err-codes.h:241
 msgid "Bad octal character in S-expression"
@@ -998,11 +998,11 @@ msgstr "Слишком длинный запрос"
 
 #: src/err-codes.h:250
 msgid "Object is in termination state"
-msgstr "Объект прекращает работу"
+msgstr "Объект в стадии завершения"
 
 #: src/err-codes.h:251
 msgid "No certificate chain"
-msgstr "Нет сертификатной цепи"
+msgstr "Нет цепи сертификатов"
 
 #: src/err-codes.h:252
 msgid "Certificate is too large"
@@ -1062,11 +1062,11 @@ msgstr "Плохое сертификатное сообщение при уст
 
 #: src/err-codes.h:266
 msgid "Bad certificate request message in handshake"
-msgstr "Плохое сообщение-запрос сертификата при установлении связи"
+msgstr "Плохое сообщение запроса сертификата при установлении связи"
 
 #: src/err-codes.h:267
 msgid "Bad certificate verify message in handshake"
-msgstr "Плохое сообщение-проверка сертификата при установлении связи"
+msgstr "Плохое сообщение проверки сертификата при установлении связи"
 
 #: src/err-codes.h:268
 msgid "Bad change cipher message in handshake"
@@ -1273,8 +1273,10 @@ msgid "Try again later"
 msgstr "Повторите попытку позднее"
 
 #: src/err-codes.h:319
+#, fuzzy
+#| msgid "No name"
 msgid "Wrong name"
-msgstr "Неверное имя"
+msgstr "Нет имени"
 
 #: src/err-codes.h:320
 #, fuzzy
@@ -1286,7 +1288,7 @@ msgstr "Отключено"
 #, fuzzy
 #| msgid "Inappropriate LDAP authentication"
 msgid "Bad authentication"
-msgstr "Неподходящая аутентификация LDAP"
+msgstr "Неподходящее удостоверение LDAP"
 
 #: src/err-codes.h:322
 #, fuzzy
@@ -1298,7 +1300,7 @@ msgstr "Агент не работает"
 #, fuzzy
 #| msgid "SmartCard daemon error"
 msgid "Keybox daemon error"
-msgstr "Ошибка демона смарткарт"
+msgstr "Ошибка демона криптографических карт"
 
 #: src/err-codes.h:324
 msgid "Service is not running"
@@ -1388,7 +1390,7 @@ msgstr "Отказ соединения LDAP (X)"
 
 #: src/err-codes.h:345
 msgid "LDAP referral limit exceeded"
-msgstr "Исчерпан лимит ссылок LDAP"
+msgstr "Слишком много ссылок LDAP"
 
 #: src/err-codes.h:346
 msgid "LDAP client loop"
@@ -1428,7 +1430,7 @@ msgstr "Плохой фильтр поиска LDAP"
 
 #: src/err-codes.h:355
 msgid "Unknown LDAP authentication method"
-msgstr "Неизвестный метод аутентификации LDAP"
+msgstr "Неизвестный метод удостоверения LDAP"
 
 #: src/err-codes.h:356
 msgid "Timeout in LDAP"
@@ -1480,11 +1482,11 @@ msgstr "Сравнение LDAP: истина"
 
 #: src/err-codes.h:368
 msgid "LDAP authentication method not supported"
-msgstr "Метод аутентификации LDAP не поддерживается"
+msgstr "Метод удостоверения LDAP не поддерживается"
 
 #: src/err-codes.h:369
 msgid "Strong(er) LDAP authentication required"
-msgstr "Требуется (более) сильная аутентификация LDAP"
+msgstr "Требуется (более) сильное удостоверение LDAP"
 
 #: src/err-codes.h:370
 msgid "Partial LDAP results+referral received"
@@ -1560,11 +1562,11 @@ msgstr "Отказ авторизации промежуточного серв�
 
 #: src/err-codes.h:388
 msgid "Inappropriate LDAP authentication"
-msgstr "Неподходящая аутентификация LDAP"
+msgstr "Неподходящее удостоверение LDAP"
 
 #: src/err-codes.h:389
 msgid "Invalid LDAP credentials"
-msgstr "Неверная верительная грамота LDAP"
+msgstr "Неверные верительные данные LDAP"
 
 #: src/err-codes.h:390
 msgid "Insufficient access for LDAP"
@@ -1652,7 +1654,7 @@ msgstr "Отбой LDAP"
 
 #: src/err-codes.h:411
 msgid "No LDAP operation to cancel"
-msgstr "Нет операции LDAP, которую можно было бы отменить"
+msgstr "Нет операции LDAP для отмены"
 
 #: src/err-codes.h:412
 msgid "Too late to cancel LDAP"
@@ -1664,7 +1666,7 @@ msgstr "Не удается отменить LDAP"
 
 #: src/err-codes.h:414
 msgid "LDAP assertion failed"
-msgstr "Отказ в установке LDAP"
+msgstr "Не выполнено условие в LDAP"
 
 #: src/err-codes.h:415
 msgid "Proxied authorization denied by LDAP"
@@ -1882,89 +1884,129 @@ msgstr "Конец файла"
 msgid "Unknown error code"
 msgstr "Неизвестный код ошибки"
 
-#: src/argparse.c:318
+#: src/argparse.c:468
 msgid "argument not expected"
 msgstr "неожиданный параметр"
 
-#: src/argparse.c:320
+#: src/argparse.c:470
 msgid "read error"
 msgstr "ошибка чтения"
 
-#: src/argparse.c:322
+#: src/argparse.c:472
 msgid "keyword too long"
 msgstr "слишком длинное ключевое слово"
 
-#: src/argparse.c:324
+#: src/argparse.c:474
 msgid "missing argument"
 msgstr "пропущен аргумент"
 
-#: src/argparse.c:326
+#: src/argparse.c:476
 msgid "invalid argument"
 msgstr "недопустимый аргумент"
 
-#: src/argparse.c:328
+#: src/argparse.c:478
 msgid "invalid command"
 msgstr "недопустимая команда"
 
-#: src/argparse.c:330
+#: src/argparse.c:480
 msgid "invalid alias definition"
 msgstr "недопустимое определение синонима"
 
-#: src/argparse.c:332
+#: src/argparse.c:482 src/argparse.c:519
+#, fuzzy
+#| msgid "LDAP operations error"
+msgid "permission error"
+msgstr "Ошибка операций LDAP"
+
+#: src/argparse.c:484 src/argparse.c:517
 msgid "out of core"
 msgstr "нехватка выделенной памяти"
 
-#: src/argparse.c:334
+#: src/argparse.c:488 src/argparse.c:523
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "недопустимая команда"
+
+#: src/argparse.c:490 src/argparse.c:525
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Неизвестная команда"
+
+#: src/argparse.c:492 src/argparse.c:527
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Неожиданная команда IPC"
+
+#: src/argparse.c:494
 msgid "invalid option"
 msgstr "недопустимый параметр"
 
-#: src/argparse.c:343
+#: src/argparse.c:504
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
 msgstr "не хватает аргумента для параметра \"%.50s\"\n"
 
-#: src/argparse.c:345
+#: src/argparse.c:506
 #, c-format
 msgid "invalid argument for option \"%.50s\"\n"
 msgstr "недопустимый аргумент для параметра \"%.50s\"\n"
 
-#: src/argparse.c:347
+#: src/argparse.c:508
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
 msgstr "у параметра \"%.50s\" не должно быть аргумента\n"
 
-#: src/argparse.c:350
+#: src/argparse.c:511
 #, c-format
 msgid "invalid command \"%.50s\"\n"
 msgstr "недопустимая команда \"%.50s\"\n"
 
-#: src/argparse.c:352
+#: src/argparse.c:513
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
 msgstr "параметр \"%.50s\" неоднозначен\n"
 
-#: src/argparse.c:354
+#: src/argparse.c:515
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
 msgstr "команда \"%.50s\" неоднозначна\n"
 
-#: src/argparse.c:356
-msgid "out of core\n"
-msgstr "нехватка выделенной памяти\n"
-
-#: src/argparse.c:358
+#: src/argparse.c:529
 #, c-format
 msgid "invalid option \"%.50s\"\n"
 msgstr "недопустимый параметр \"%.50s\"\n"
+
+#: src/argparse.c:1658 src/argparse.c:1753
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1668 src/argparse.c:1760
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1745
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#: src/argparse.c:2182
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
 
 #: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr "Об ошибках сообщайте по адресу <https://bugs.gnupg.org>.\n"
 
-#: src/gpg-error.c:729
+#: src/gpg-error.c:762
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "внимание: не распознано %s\n"
 
-#~ msgid "Usage: %s GPG-ERROR [...]\n"
-#~ msgstr "Вызов: %s GPG-ERROR [...]\n"
+#~ msgid "out of core\n"
+#~ msgstr "нехватка выделенной памяти\n"

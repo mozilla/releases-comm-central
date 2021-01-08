@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.36\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-02-07 13:14+0100\n"
+"POT-Creation-Date: 2020-08-24 13:06+0200\n"
 "PO-Revision-Date: 2019-03-24 09:01+0100\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -1878,86 +1878,129 @@ msgstr "Koniec pliku"
 msgid "Unknown error code"
 msgstr "Nieznany kod błędu"
 
-#: src/argparse.c:318
+#: src/argparse.c:468
 msgid "argument not expected"
 msgstr "nieoczekiwany argument"
 
-#: src/argparse.c:320
+#: src/argparse.c:470
 msgid "read error"
 msgstr "błąd odczytu"
 
-#: src/argparse.c:322
+#: src/argparse.c:472
 msgid "keyword too long"
 msgstr "słowo kluczowe zbyt długie"
 
-#: src/argparse.c:324
+#: src/argparse.c:474
 msgid "missing argument"
 msgstr "brak argumentu"
 
-#: src/argparse.c:326
+#: src/argparse.c:476
 msgid "invalid argument"
 msgstr "nłędny argument"
 
-#: src/argparse.c:328
+#: src/argparse.c:478
 msgid "invalid command"
 msgstr "błędne polecenie"
 
-#: src/argparse.c:330
+#: src/argparse.c:480
 msgid "invalid alias definition"
 msgstr "błędna definicja aliasu"
 
-#: src/argparse.c:332
+#: src/argparse.c:482 src/argparse.c:519
+#, fuzzy
+#| msgid "LDAP operations error"
+msgid "permission error"
+msgstr "Błąd operacji LDAP"
+
+#: src/argparse.c:484 src/argparse.c:517
 msgid "out of core"
 msgstr "brak pamięci"
 
-#: src/argparse.c:334
+#: src/argparse.c:488 src/argparse.c:523
+#, fuzzy
+#| msgid "invalid command"
+msgid "invalid meta command"
+msgstr "błędne polecenie"
+
+#: src/argparse.c:490 src/argparse.c:525
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Nieznane polecenie"
+
+#: src/argparse.c:492 src/argparse.c:527
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Nieoczekiwane polecenie IPC"
+
+#: src/argparse.c:494
 msgid "invalid option"
 msgstr "błędna opcja"
 
-#: src/argparse.c:343
+#: src/argparse.c:504
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
 msgstr "brak argumentu dla opcji ,,%.50s''\n"
 
-#: src/argparse.c:345
+#: src/argparse.c:506
 #, c-format
 msgid "invalid argument for option \"%.50s\"\n"
 msgstr "błędny argumentu dla opcji ,,%.50s''\n"
 
-#: src/argparse.c:347
+#: src/argparse.c:508
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
 msgstr "opcja ,,%.50s'' nie może mieć argumentów\n"
 
-#: src/argparse.c:350
+#: src/argparse.c:511
 #, c-format
 msgid "invalid command \"%.50s\"\n"
 msgstr "błędne polecenie ,,%.50s''\n"
 
-#: src/argparse.c:352
+#: src/argparse.c:513
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
 msgstr "opcja ,,%.50s'' jest niejednoznaczna\n"
 
-#: src/argparse.c:354
+#: src/argparse.c:515
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
 msgstr "polecenie ,,%.50s'' jest niejednoznaczne\n"
 
-#: src/argparse.c:356
-msgid "out of core\n"
-msgstr "brak pamięci\n"
-
-#: src/argparse.c:358
+#: src/argparse.c:529
 #, c-format
 msgid "invalid option \"%.50s\"\n"
 msgstr "błędna opcja ,,%.50s''\n"
+
+#: src/argparse.c:1658 src/argparse.c:1753
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1668 src/argparse.c:1760
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1745
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#: src/argparse.c:2182
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
 
 #: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr "Błędy prosimy zgłaszać pod <https://bugs.gnupg.org>.\n"
 
-#: src/gpg-error.c:729
+#: src/gpg-error.c:762
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "uwaga: nie rozpoznano %s\n"
+
+#~ msgid "out of core\n"
+#~ msgstr "brak pamięci\n"

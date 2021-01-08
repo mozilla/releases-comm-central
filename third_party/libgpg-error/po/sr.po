@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error-1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-02-07 13:14+0100\n"
+"POT-Creation-Date: 2020-08-24 13:06+0200\n"
 "PO-Revision-Date: 2018-03-21 19:03+0100\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -2087,103 +2087,143 @@ msgstr "Крај датотеке"
 msgid "Unknown error code"
 msgstr "Непознат код грешке"
 
-#: src/argparse.c:318
+#: src/argparse.c:468
 #, fuzzy
 #| msgid "Data not encrypted"
 msgid "argument not expected"
 msgstr "Подаци нису шифровани"
 
-#: src/argparse.c:320
+#: src/argparse.c:470
 #, fuzzy
 #| msgid "IPC read error"
 msgid "read error"
 msgstr "Грешка читања ИПЦ-а"
 
-#: src/argparse.c:322
+#: src/argparse.c:472
 #, fuzzy
 #| msgid "Line too long"
 msgid "keyword too long"
 msgstr "Ред је предуг"
 
-#: src/argparse.c:324
+#: src/argparse.c:474
 #, fuzzy
 #| msgid "Missing value"
 msgid "missing argument"
 msgstr "Недостаје вредност"
 
-#: src/argparse.c:326
+#: src/argparse.c:476
 #, fuzzy
 #| msgid "Invalid argument"
 msgid "invalid argument"
 msgstr "Неисправан аргумент"
 
-#: src/argparse.c:328
+#: src/argparse.c:478
 #, fuzzy
 #| msgid "Invalid card"
 msgid "invalid command"
 msgstr "Неисправна картица"
 
-#: src/argparse.c:330
+#: src/argparse.c:480
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "invalid alias definition"
 msgstr "Неисправна ОИД ниска"
 
-#: src/argparse.c:332
+#: src/argparse.c:482 src/argparse.c:519
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "Грешка подешавања"
+
+#: src/argparse.c:484 src/argparse.c:517
 msgid "out of core"
 msgstr ""
 
-#: src/argparse.c:334
+#: src/argparse.c:488 src/argparse.c:523
+#, fuzzy
+#| msgid "Invalid card"
+msgid "invalid meta command"
+msgstr "Неисправна картица"
+
+#: src/argparse.c:490 src/argparse.c:525
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Непозната наредба"
+
+#: src/argparse.c:492 src/argparse.c:527
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Неочекивана ИПЦ наредба"
+
+#: src/argparse.c:494
 #, fuzzy
 #| msgid "Invalid operation code"
 msgid "invalid option"
 msgstr "Неисправна шифра радње"
 
-#: src/argparse.c:343
+#: src/argparse.c:504
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
 msgstr ""
 
-#: src/argparse.c:345
+#: src/argparse.c:506
 #, c-format
 msgid "invalid argument for option \"%.50s\"\n"
 msgstr ""
 
-#: src/argparse.c:347
+#: src/argparse.c:508
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
 msgstr ""
 
-#: src/argparse.c:350
+#: src/argparse.c:511
 #, c-format
 msgid "invalid command \"%.50s\"\n"
 msgstr ""
 
-#: src/argparse.c:352
+#: src/argparse.c:513
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
 msgstr ""
 
-#: src/argparse.c:354
+#: src/argparse.c:515
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
 msgstr ""
 
-#: src/argparse.c:356
-msgid "out of core\n"
-msgstr ""
-
-#: src/argparse.c:358
+#: src/argparse.c:529
 #, fuzzy, c-format
 #| msgid "Invalid operation code"
 msgid "invalid option \"%.50s\"\n"
 msgstr "Неисправна шифра радње"
 
+#: src/argparse.c:1658 src/argparse.c:1753
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1668 src/argparse.c:1760
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1745
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#: src/argparse.c:2182
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
+
 #: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr ""
 
-#: src/gpg-error.c:729
+#: src/gpg-error.c:762
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "упозорење: не могу да препознам „%s“\n"

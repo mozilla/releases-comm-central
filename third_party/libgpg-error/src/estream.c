@@ -238,7 +238,8 @@ mem_free (void *p)
 
 /*
  * A Windows helper function to map a W32 API error code to a standard
- * system error code.
+ * system error code.  That actually belong into sysutils but to allow
+ * standalone use of estream we keep it here.
  */
 #ifdef HAVE_W32_SYSTEM
 static int
@@ -256,11 +257,19 @@ map_w32_to_errno (DWORD w32_err)
       return ENOENT;
 
     case ERROR_ACCESS_DENIED:
-      return EPERM;
+      return EPERM;  /* ReactOS uses EACCES ("Permission denied") and
+                      * is likely right because they used an
+                      * undocumented function to associate the error
+                      * codes.  However we have always used EPERM
+                      * ("Operation not permitted", e.g. function is
+                      * required to be called by root) and we better
+                      * stick to that to avoid surprising bugs. */
 
     case ERROR_INVALID_HANDLE:
+      return EBADF;
+
     case ERROR_INVALID_BLOCK:
-      return EINVAL;
+      return ENOMEM;
 
     case ERROR_NOT_ENOUGH_MEMORY:
       return ENOMEM;
@@ -268,10 +277,90 @@ map_w32_to_errno (DWORD w32_err)
     case ERROR_NO_DATA:
       return EPIPE;
 
+    case ERROR_ALREADY_EXISTS:
+      return EEXIST;
+
+      /* This mapping has been taken from reactOS.  */
+    case ERROR_TOO_MANY_OPEN_FILES: return EMFILE;
+    case ERROR_ARENA_TRASHED: return ENOMEM;
+    case ERROR_BAD_ENVIRONMENT: return E2BIG;
+    case ERROR_BAD_FORMAT: return ENOEXEC;
+    case ERROR_INVALID_DRIVE: return ENOENT;
+    case ERROR_CURRENT_DIRECTORY: return EACCES;
+    case ERROR_NOT_SAME_DEVICE: return EXDEV;
+    case ERROR_NO_MORE_FILES: return ENOENT;
+    case ERROR_WRITE_PROTECT: return EACCES;
+    case ERROR_BAD_UNIT: return EACCES;
+    case ERROR_NOT_READY: return EACCES;
+    case ERROR_BAD_COMMAND: return EACCES;
+    case ERROR_CRC: return EACCES;
+    case ERROR_BAD_LENGTH: return EACCES;
+    case ERROR_SEEK: return EACCES;
+    case ERROR_NOT_DOS_DISK: return EACCES;
+    case ERROR_SECTOR_NOT_FOUND: return EACCES;
+    case ERROR_OUT_OF_PAPER: return EACCES;
+    case ERROR_WRITE_FAULT: return EACCES;
+    case ERROR_READ_FAULT: return EACCES;
+    case ERROR_GEN_FAILURE: return EACCES;
+    case ERROR_SHARING_VIOLATION: return EACCES;
+    case ERROR_LOCK_VIOLATION: return EACCES;
+    case ERROR_WRONG_DISK: return EACCES;
+    case ERROR_SHARING_BUFFER_EXCEEDED: return EACCES;
+    case ERROR_BAD_NETPATH: return ENOENT;
+    case ERROR_NETWORK_ACCESS_DENIED: return EACCES;
+    case ERROR_BAD_NET_NAME: return ENOENT;
+    case ERROR_FILE_EXISTS: return EEXIST;
+    case ERROR_CANNOT_MAKE: return EACCES;
+    case ERROR_FAIL_I24: return EACCES;
+    case ERROR_NO_PROC_SLOTS: return EAGAIN;
+    case ERROR_DRIVE_LOCKED: return EACCES;
+    case ERROR_BROKEN_PIPE: return EPIPE;
+    case ERROR_DISK_FULL: return ENOSPC;
+    case ERROR_INVALID_TARGET_HANDLE: return EBADF;
+    case ERROR_WAIT_NO_CHILDREN: return ECHILD;
+    case ERROR_CHILD_NOT_COMPLETE: return ECHILD;
+    case ERROR_DIRECT_ACCESS_HANDLE: return EBADF;
+    case ERROR_SEEK_ON_DEVICE: return EACCES;
+    case ERROR_DIR_NOT_EMPTY: return ENOTEMPTY;
+    case ERROR_NOT_LOCKED: return EACCES;
+    case ERROR_BAD_PATHNAME: return ENOENT;
+    case ERROR_MAX_THRDS_REACHED: return EAGAIN;
+    case ERROR_LOCK_FAILED: return EACCES;
+    case ERROR_INVALID_STARTING_CODESEG: return ENOEXEC;
+    case ERROR_INVALID_STACKSEG: return ENOEXEC;
+    case ERROR_INVALID_MODULETYPE: return ENOEXEC;
+    case ERROR_INVALID_EXE_SIGNATURE: return ENOEXEC;
+    case ERROR_EXE_MARKED_INVALID: return ENOEXEC;
+    case ERROR_BAD_EXE_FORMAT: return ENOEXEC;
+    case ERROR_ITERATED_DATA_EXCEEDS_64k: return ENOEXEC;
+    case ERROR_INVALID_MINALLOCSIZE: return ENOEXEC;
+    case ERROR_DYNLINK_FROM_INVALID_RING: return ENOEXEC;
+    case ERROR_IOPL_NOT_ENABLED: return ENOEXEC;
+    case ERROR_INVALID_SEGDPL: return ENOEXEC;
+    case ERROR_AUTODATASEG_EXCEEDS_64k: return ENOEXEC;
+    case ERROR_RING2SEG_MUST_BE_MOVABLE: return ENOEXEC;
+    case ERROR_RELOC_CHAIN_XEEDS_SEGLIM: return ENOEXEC;
+    case ERROR_INFLOOP_IN_RELOC_CHAIN: return ENOEXEC;
+    case ERROR_FILENAME_EXCED_RANGE: return ENOENT;
+    case ERROR_NESTING_NOT_ALLOWED: return EAGAIN;
+    case ERROR_NOT_ENOUGH_QUOTA: return ENOMEM;
+
     default:
       return EIO;
     }
 }
+
+/* Wrapper to be used by other modules to set ERRNO from the Windows
+ * error.  EC may be -1 to get the last error.  */
+void
+_gpgrt_w32_set_errno (int ec)
+{
+  if (ec == -1)
+    ec = GetLastError ();
+  _set_errno (map_w32_to_errno (ec));
+}
+
+
 #endif /*HAVE_W32_SYSTEM*/
 
 /*
@@ -1578,6 +1667,18 @@ static struct cookie_io_functions_s estream_functions_fp =
  * operations ares handled by file descriptor based I/O.
  */
 
+#ifdef HAVE_W32_SYSTEM
+static int
+any8bitchar (const char *string)
+{
+  if (string)
+    for ( ; *string; string++)
+      if ((*string & 0x80))
+        return 1;
+  return 0;
+}
+#endif /*HAVE_W32_SYSTEM*/
+
 /* Create function for objects identified by a file name.  */
 static int
 func_file_create (void **cookie, int *filedes,
@@ -1596,7 +1697,25 @@ func_file_create (void **cookie, int *filedes,
       goto out;
     }
 
+#ifdef HAVE_W32_SYSTEM
+  if (any8bitchar (path))
+    {
+      wchar_t *wpath;
+
+      wpath = _gpgrt_utf8_to_wchar (path);
+      if (!wpath)
+        fd = -1;
+      else
+        {
+          fd = _wopen (wpath, modeflags, cmode);
+          _gpgrt_free_wchar (wpath);
+        }
+    }
+  else  /* Avoid unnecessary conversion.  */
+    fd = open (path, modeflags, cmode);
+#else
   fd = open (path, modeflags, cmode);
+#endif
   if (fd == -1)
     {
       err = -1;
@@ -2167,10 +2286,11 @@ create_stream (estream_t *r_stream, void *cookie, es_syshd_t *syshd,
 
 
 /*
- * Deinitialize a stream object and destroy it.
+ * Deinitialize a stream object and destroy it.  With CANCEL_MODE set
+ * try to cancel as much as possible (see _gpgrt_fcancel).
  */
 static int
-do_close (estream_t stream, int with_locked_list)
+do_close (estream_t stream, int cancel_mode, int with_locked_list)
 {
   int err;
 
@@ -2179,6 +2299,11 @@ do_close (estream_t stream, int with_locked_list)
   if (stream)
     {
       do_list_remove (stream, with_locked_list);
+      if (cancel_mode)
+        {
+          stream->flags.writing = 0;
+          es_empty (stream);
+        }
       while (stream->intern->onclose)
         {
           notify_list_t tmp = stream->intern->onclose->next;
@@ -2943,7 +3068,7 @@ doreadline (estream_t _GPGRT__RESTRICT stream, size_t max_length,
  out:
 
   if (line_stream)
-    do_close (line_stream, 0);
+    do_close (line_stream, 0, 0);
   else if (line_stream_cookie)
     func_mem_destroy (line_stream_cookie);
 
@@ -3249,7 +3374,7 @@ _gpgrt_fopencookie (void *_GPGRT__RESTRICT cookie,
   estream_t stream;
   int err;
   es_syshd_t syshd;
-  struct cookie_io_functions_s io_functions = { functions, NULL, };
+  struct cookie_io_functions_s io_functions = { functions, NULL };
 
   stream = NULL;
   modeflags = 0;
@@ -3617,7 +3742,7 @@ _gpgrt_freopen (const char *_GPGRT__RESTRICT path,
 	  if (create_called)
 	    func_fd_destroy (cookie);
 
-	  do_close (stream, 0);
+	  do_close (stream, 0, 0);
 	  stream = NULL;
 	}
       else
@@ -3632,7 +3757,7 @@ _gpgrt_freopen (const char *_GPGRT__RESTRICT path,
       /* FIXME?  We don't support re-opening at the moment.  */
       _set_errno (EINVAL);
       deinit_stream_obj (stream);
-      do_close (stream, 0);
+      do_close (stream, 0, 0);
       stream = NULL;
     }
 
@@ -3645,7 +3770,22 @@ _gpgrt_fclose (estream_t stream)
 {
   int err;
 
-  err = do_close (stream, 0);
+  err = do_close (stream, 0, 0);
+
+  return err;
+}
+
+
+/* gpgrt_fcancel does the same as gpgrt_fclose but tries to avoid
+ * flushing out any data still held in internal buffers.  It may or
+ * may not remove a new file created for that stream by the open
+ * function.  */
+int
+_gpgrt_fcancel (estream_t stream)
+{
+  int err;
+
+  err = do_close (stream, 1, 0);
 
   return err;
 }
@@ -3698,7 +3838,7 @@ _gpgrt_fclose_snatch (estream_t stream, void **r_buffer, size_t *r_buflen)
         *r_buflen = buflen;
     }
 
-  err = do_close (stream, 0);
+  err = do_close (stream, 0, 0);
 
  leave:
   if (err && r_buffer)
@@ -3726,8 +3866,10 @@ _gpgrt_fclose_snatch (estream_t stream, void **r_buffer, size_t *r_buflen)
 
    FIXME: Unregister is not thread safe.
 
-   The notification will be called right before the stream is closed.
-   It may not call any estream function for STREAM, neither direct nor
+   The notification will be called right before the stream is
+   closed. If gpgrt_fcancel is used, the cancellation of internal
+   buffers is done before the notifications.  The notification handler
+   may not call any estream function for STREAM, neither direct nor
    indirectly. */
 int
 _gpgrt_onclose (estream_t stream, int mode,

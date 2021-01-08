@@ -1,7 +1,7 @@
-Directory ./libgpg-error contains a copy of version 1.37 of the libgpg-error library,
+Directory ./libgpg-error contains a copy of version 1.39 of the libgpg-error library,
 which has been obtained from https://www.gnupg.org/ftp/gcrypt/libgpg-error/ .
 
 For licensing information, please refer to the included documentation.
 
 The SHA256SUM of the imported file is:
-b32d6ff72a73cf79797f7f2d039e95e9c6f92f0c1450215410840ab62aea9763  libgpg-error-1.37.tar.bz2
+4a836edcae592094ef1c5a4834908f44986ab2b82e0824a0344b49df8cdb298f  libgpg-error-1.39.tar.bz2

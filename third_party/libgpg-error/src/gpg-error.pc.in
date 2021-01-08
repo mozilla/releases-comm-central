@@ -11,4 +11,5 @@ Description: GPG Runtime
 Version: @PACKAGE_VERSION@
 Cflags: @GPG_ERROR_CONFIG_CFLAGS@
 Libs: @GPG_ERROR_CONFIG_LIBS@
+Libs.private: @GPG_ERROR_CONFIG_LIBS_PRIVATE@
 URL: https://www.gnupg.org/software/libgpg-error/index.html

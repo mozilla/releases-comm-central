@@ -1,5 +1,5 @@
 # configure.ac for libgpg-error
-# Copyright (C) 2003, 2004, 2006, 2010, 2013-2017 g10 Code GmbH
+# Copyright (C) 2003, 2004, 2006, 2010, 2013-2020 g10 Code GmbH
 #
 # This file is part of libgpg-error.
 #
@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [37])
+m4_define([mym4_minor], [39])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,8 +49,8 @@ AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=28
-LIBGPG_ERROR_LT_AGE=28
+LIBGPG_ERROR_LT_CURRENT=30
+LIBGPG_ERROR_LT_AGE=30
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -190,7 +190,7 @@ AM_GNU_GETTEXT([external])
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h locale.h stdint.h sys/select.h sys/time.h \
-                  signal.h poll.h])
+                  signal.h poll.h pwd.h])
 
 AC_FUNC_STRERROR_R
 case "${host_os}" in
@@ -213,7 +213,7 @@ AC_SUBST(INSTALLSHELLPATH)
 
 AC_FUNC_FORK
 AC_CHECK_FUNCS([flockfile vasprintf mmap rand strlwr stpcpy setenv stat \
-                getrlimit ])
+                getrlimit getpwnam getpwuid getpwnam_r getpwuid_r ])
 
 
 #
@@ -458,6 +458,7 @@ AM_CONDITIONAL(HAVE_LD_VERSION_SCRIPT, test "$have_ld_version_script" = "yes")
 # Windows has always thread support; thus we don't bother to test for
 # it as it may lead to false results when cross building.
 if test "$have_w32_system" = yes; then
+  GPG_ERROR_CONFIG_LIBS_PRIVATE=-lws2_32
   AC_DEFINE([USE_WINDOWS_THREADS], [1])
   LIBTHREAD=
   LTLIBTHREAD=
@@ -469,6 +470,7 @@ if test "$have_w32_system" = yes; then
   AC_SUBST([LIBMULTITHREAD])
   AC_SUBST([LTLIBMULTITHREAD])
 else
+  GPG_ERROR_CONFIG_LIBS_PRIVATE=""
   gl_LOCK
   if test "$gl_threads_api" = posix; then
     AC_CHECK_SIZEOF(pthread_mutex_t,,[AC_INCLUDES_DEFAULT
@@ -574,6 +576,7 @@ AC_SUBST(GPG_ERROR_CONFIG_LIBS)
 AC_SUBST(GPG_ERROR_CONFIG_CFLAGS)
 AC_SUBST(GPG_ERROR_CONFIG_MT_LIBS)
 AC_SUBST(GPG_ERROR_CONFIG_MT_CFLAGS)
+AC_SUBST(GPG_ERROR_CONFIG_LIBS_PRIVATE)
 AC_SUBST(GPG_ERROR_CONFIG_HOST)
 
 
@@ -592,7 +595,26 @@ if test "$have_w32_system" = yes; then
     force_use_syscfg=yes
 fi
 if test x$cross_compiling = xyes; then
+  case $host in
+    *-*-linux*)
+    AC_CHECK_PROG(CROSS_HOST_OBJDUMP, [$host_alias-objdump], [yes])
+    if test "$CROSS_HOST_OBJDUMP" = "yes" ; then
+      lock_obj_h_generated=yes
+      if test ! -d src; then mkdir src; fi
+      LOCK_ABI_VERSION=1 host=$host host_alias=$host_alias \
+          CC=$CC OBJDUMP=$host_alias-objdump \
+          ac_ext=$ac_ext ac_objext=$ac_objext \
+          AWK=$AWK $srcdir/src/gen-lock-obj.sh \
+          >src/lock-obj-pub.native.h
+      AC_MSG_NOTICE([generated src/lock-obj-pub.native.h using $host_alias-objdump and $AWK])
+    else
+      force_use_syscfg=yes
+    fi
+    ;;
+    *)
     force_use_syscfg=yes
+    ;;
+  esac
 fi
 
 AM_CONDITIONAL(HAVE_W32_SYSTEM, test "$have_w32_system" = yes)
@@ -600,6 +622,7 @@ AM_CONDITIONAL(HAVE_W64_SYSTEM, test "$have_w64_system" = yes)
 AM_CONDITIONAL(HAVE_W32CE_SYSTEM, test "$have_w32ce_system" = yes)
 AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 AM_CONDITIONAL(FORCE_USE_SYSCFG, test x$force_use_syscfg = xyes)
+AM_CONDITIONAL(HAVE_GENERATED_LOCK_OBJ_H, test x$lock_obj_h_generated = xyes)
 
 AC_DEFINE_UNQUOTED(HOST_TRIPLET_STRING, "$host", [The host triplet])
 

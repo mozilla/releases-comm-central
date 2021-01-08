@@ -79,6 +79,7 @@ MARK_VISIBLE (gpgrt_fpopen_nc)
 MARK_VISIBLE (gpgrt_freopen)
 MARK_VISIBLE (gpgrt_fopencookie)
 MARK_VISIBLE (gpgrt_fclose)
+MARK_VISIBLE (gpgrt_fcancel)
 MARK_VISIBLE (gpgrt_fclose_snatch)
 MARK_VISIBLE (gpgrt_onclose)
 MARK_VISIBLE (gpgrt_fileno)
@@ -152,6 +153,7 @@ MARK_VISIBLE (gpgrt_get_syscall_clamp)
 MARK_VISIBLE (gpgrt_set_alloc_func)
 
 MARK_VISIBLE (gpgrt_realloc)
+MARK_VISIBLE (gpgrt_reallocarray)
 MARK_VISIBLE (gpgrt_malloc)
 MARK_VISIBLE (gpgrt_calloc)
 MARK_VISIBLE (gpgrt_strdup)
@@ -208,13 +210,19 @@ MARK_VISIBLE (gpgrt_release_process)
 #endif
 
 MARK_VISIBLE (gpgrt_argparse)
+MARK_VISIBLE (gpgrt_argparser)
 MARK_VISIBLE (gpgrt_usage)
 MARK_VISIBLE (gpgrt_strusage)
 MARK_VISIBLE (gpgrt_set_strusage)
 MARK_VISIBLE (gpgrt_set_fixed_string_mapper);
 MARK_VISIBLE (gpgrt_set_usage_outfnc);
+MARK_VISIBLE (gpgrt_set_confdir);
 
 MARK_VISIBLE (gpgrt_cmp_version);
+
+MARK_VISIBLE (gpgrt_fnameconcat);
+MARK_VISIBLE (gpgrt_absfnameconcat);
+
 
 #undef MARK_VISIBLE
 
@@ -258,6 +266,7 @@ MARK_VISIBLE (gpgrt_cmp_version);
 #define gpgrt_freopen               _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_fopencookie           _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_fclose                _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_fcancel               _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_fclose_snatch         _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_onclose               _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_fileno                _gpgrt_USE_UNDERSCORED_FUNCTION
@@ -327,6 +336,7 @@ MARK_VISIBLE (gpgrt_cmp_version);
 #define gpgrt_vsnprintf             _gpgrt_USE_UNDERSCORED_FUNCTION
 
 #define gpgrt_realloc               _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_reallocarray          _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_malloc                _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_calloc                _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_strdup                _gpgrt_USE_UNDERSCORED_FUNCTION
@@ -385,11 +395,13 @@ MARK_VISIBLE (gpgrt_cmp_version);
 #define gpgrt_release_process        _gpgrt_USE_UNDERSCORED_FUNCTION
 
 #define gpgrt_argparse                _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_argparser               _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_usage                   _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_set_strusage            _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_strusage                _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_set_usage_outfnc        _gpgrt_USE_UNDERSCORED_FUNCTION
 #define gpgrt_set_fixed_string_mapper _gpgrt_USE_UNDERSCORED_FUNCTION
+#define gpgrt_set_confdir             _gpgrt_USE_UNDERSCORED_FUNCTION
 
 #define gpgrt_cmp_version           _gpgrt_USE_UNDERSCORED_FUNCTION
 

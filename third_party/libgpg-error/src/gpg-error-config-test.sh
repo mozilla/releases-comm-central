@@ -8,6 +8,8 @@ export PKG_CONFIG_PATH
 
 if [ "$1" = --old-new ]; then
     PKG_CONFIG_CMD=./gpg-error-config-old
+    # Old gpg-error-config never supports PKG_CONFIG_SYSROOT_DIR
+    unset PKG_CONFIG_SYSROOT_DIR
 else
     pkg_config_min_version=0.29
     PKG_CONFIG_SYSROOT_DIR="/var/example-target"

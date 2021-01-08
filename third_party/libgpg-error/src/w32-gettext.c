@@ -52,6 +52,7 @@
 
 #include "init.h"
 #include "gpg-error.h"
+#include "protos.h"
 
 /* Override values initialized by gpgrt_w32_override_locale.  If NAME
  * is not the empty string LANGID will be used.  */
@@ -1354,15 +1355,23 @@ load_domain (const char *filename)
 /* Return a malloced wide char string from an UTF-8 encoded input
    string STRING.  Caller must free this value. On failure returns
    NULL.  The result of calling this function with STRING set to NULL
-   is not defined. */
+   is not defined.  If LENGTH is zero and RETLEN NULL the fucntion
+   assumes that STRING is a nul-terminated string and returns a
+   (wchar_t)0-terminated string.  */
 static wchar_t *
 utf8_to_wchar (const char *string, size_t length, size_t *retlen)
 {
   int n;
   wchar_t *result;
   size_t nbytes;
+  int cbmultibyte;
 
-  n = MultiByteToWideChar (CP_UTF8, 0, string, length, NULL, 0);
+  if (!length && !retlen)
+    cbmultibyte = -1;
+  else
+    cbmultibyte = length;
+
+  n = MultiByteToWideChar (CP_UTF8, 0, string, cbmultibyte, NULL, 0);
   if (n < 0 || (n+1) <= 0)
     return NULL;
 
@@ -1376,14 +1385,35 @@ utf8_to_wchar (const char *string, size_t length, size_t *retlen)
   if (!result)
     return NULL;
 
-  n = MultiByteToWideChar (CP_UTF8, 0, string, length, result, n);
+  n = MultiByteToWideChar (CP_UTF8, 0, string, cbmultibyte, result, n);
   if (n < 0)
     {
       jnlib_free (result);
       return NULL;
     }
-  *retlen = n;
+  if (retlen)
+    *retlen = n;
   return result;
+}
+
+
+/* Convert an UTF8 string to a WCHAR string.  Caller should use
+ * _gpgrt_free_wchar to release the result. */
+wchar_t *
+_gpgrt_utf8_to_wchar (const char *string)
+{
+  return utf8_to_wchar (string, 0, NULL);
+}
+
+
+/* We provide a dedicated release function to be sure that we don't
+ * use a somehow mapped free function but the one which matches the
+ * used alloc.  */
+void
+_gpgrt_free_wchar (wchar_t *wstring)
+{
+  if (wstring)
+    jnlib_free (wstring);
 }
 
 
@@ -1443,7 +1473,6 @@ utf8_to_native (const char *string, size_t length, size_t *retlen)
   *retlen = result? newlen : 0;
   return result;
 }
-
 
 
 

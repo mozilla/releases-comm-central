@@ -25,10 +25,12 @@ else
 extra_includes =
 endif
 
+EXTRA_DIST = t-argparse.conf etc/t-argparse.conf
+
 gpg_error_lib = ../src/libgpg-error.la
 
 TESTS = t-version t-strerror t-syserror t-lock t-printf t-poll t-b64 \
-	t-argparse t-logging
+	t-argparse t-logging t-stringutils t-malloc
 
 AM_CPPFLAGS = -I$(top_builddir)/src $(extra_includes)
 

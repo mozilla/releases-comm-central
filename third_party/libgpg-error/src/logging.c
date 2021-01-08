@@ -126,11 +126,13 @@ _gpgrt_get_errorcount (int clear)
 }
 
 
-/* Increment the error count as maintainer by the log functions.  */
+/* Increment the error count as maintained by the log functions.  */
 void
 _gpgrt_inc_errorcount (void)
 {
-   errorcount++;
+  /* Protect against counter overflow.  */
+  if (errorcount < 30000)
+    errorcount++;
 }
 
 
@@ -1053,11 +1055,7 @@ _gpgrt_logv_internal (int level, int ignore_arg_ptr, const char *extrastring,
 
   /* Bumb the error counter for log_error.  */
   if (level == GPGRT_LOGLVL_ERROR)
-    {
-      /* Protect against counter overflow.  */
-      if (errorcount < 30000)
-        errorcount++;
-    }
+    _gpgrt_inc_errorcount ();
 
   return length;
 }

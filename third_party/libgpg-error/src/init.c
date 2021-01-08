@@ -259,6 +259,55 @@ _gpgrt_realloc (void *a, size_t n)
 }
 
 
+/* This is safe version of realloc useful for reallocing a calloced
+ * array.  There are two ways to call it:  The first example
+ * reallocates the array A to N elements each of SIZE but does not
+ * clear the newly allocated elements:
+ *
+ *  p = gpgrt_reallocarray (a, n, n, nsize);
+ *
+ * Note that when NOLD is larger than N no cleaning is needed anyway.
+ * The second example reallocates an array of size NOLD to N elements
+ * each of SIZE but clear the newly allocated elements:
+ *
+ *  p = gpgrt_reallocarray (a, nold, n, nsize);
+ *
+ * Note that gpgrt_reallocarray (NULL, 0, n, nsize) is equivalent to
+ * _gpgrt_calloc (n, nsize).
+ *
+ */
+void *
+_gpgrt_reallocarray (void *a, size_t oldnmemb, size_t nmemb, size_t size)
+{
+  size_t oldbytes, bytes;
+  char *p;
+
+  bytes = nmemb * size; /* size_t is unsigned so the behavior on overflow
+                         * is defined. */
+  if (size && bytes / size != nmemb)
+    {
+      _gpg_err_set_errno (ENOMEM);
+      return NULL;
+    }
+
+  p = _gpgrt_realloc (a, bytes);
+  if (p && oldnmemb < nmemb)
+    {
+      /* OLDNMEMBS is lower than NMEMB thus the user asked for a
+         calloc.  Clear all newly allocated members.  */
+      oldbytes = oldnmemb * size;
+      if (size && oldbytes / size != oldnmemb)
+        {
+          xfree (p);
+          _gpg_err_set_errno (ENOMEM);
+          return NULL;
+        }
+      memset (p + oldbytes, 0, bytes - oldbytes);
+    }
+  return p;
+}
+
+
 /* The malloc to be used for data returned by the public API.  */
 void *
 _gpgrt_malloc (size_t n)

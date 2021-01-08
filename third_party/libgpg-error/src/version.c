@@ -39,7 +39,7 @@ cright_blurb (void)
   static const char blurb[] =
     "\n\n"
     "This is Libgpg-error " PACKAGE_VERSION " - A runtime library\n"
-    "Copyright 2001-2019 g10 Code GmbH\n"
+    "Copyright 2001-2020 g10 Code GmbH\n"
     "\n"
     "(" BUILD_REVISION " " BUILD_TIMESTAMP ")\n"
     "\n\n";

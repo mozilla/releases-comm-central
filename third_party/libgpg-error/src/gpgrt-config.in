@@ -39,6 +39,11 @@ get_attr () {
     eval echo \$ATTR_$___name
 }
 
+# variant of get_attr for list (separated by ',')
+get_attr_l () {
+    (IFS=', '; for x in "$(get_attr $1)"; do echo $x; done)
+}
+
 # Remove ${varname} part in the beginning of a string.
 remove_var_expr () {
     ___varname=$1
@@ -359,9 +364,9 @@ all_required_config_files () {
 		    *)
 			read_config_file $pkg $PKG_CONFIG_PATH
 			all_list="$all_list${all_list:+ }$pkg"
-			new_list="$new_list${new_list:+ }$(get_attr Requires)"
+			new_list="$new_list${new_list:+ }$(get_attr_l Requires)"
 			if [ -n "$enable_static" ]; then
-			    new_list="$new_list${new_list:+ }$(get_attr Requires_private)"
+			    new_list="$new_list${new_list:+ }$(get_attr_l Requires_private)"
 			fi
 			cleanup_vars_attrs
 			pkg=$p
@@ -374,9 +379,9 @@ all_required_config_files () {
 		    exit 1
 		fi
 		all_list="$all_list${all_list:+ }$pkg"
-		new_list="$new_list${new_list:+ }$(get_attr Requires)"
+		new_list="$new_list${new_list:+ }$(get_attr_l Requires)"
 		if [ -n "$enable_static" ]; then
-		    new_list="$new_list${new_list:+ }$(get_attr Requires_private)"
+		    new_list="$new_list${new_list:+ }$(get_attr_l Requires_private)"
 		fi
 		cleanup_vars_attrs
 		pkg=""
@@ -389,9 +394,9 @@ all_required_config_files () {
 	elif [ -n "$pkg" ]; then
 	    read_config_file $pkg $PKG_CONFIG_PATH
 	    all_list="$all_list${all_list:+ }$pkg"
-	    new_list="$new_list${new_list:+ }$(get_attr Requires)"
+	    new_list="$new_list${new_list:+ }$(get_attr_l Requires)"
 	    if [ -n "$enable_static" ]; then
-		new_list="$new_list${new_list:+ }$(get_attr Requires_private)"
+		new_list="$new_list${new_list:+ }$(get_attr_l Requires_private)"
 	    fi
 	    cleanup_vars_attrs
 	fi

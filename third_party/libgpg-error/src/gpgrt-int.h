@@ -23,6 +23,7 @@
 
 #include "gpg-error.h"
 #include "visibility.h"
+#include "protos.h"
 
 /*
  * Internal i18n macros.
@@ -114,6 +115,7 @@ void _gpgrt_abort (void) GPGRT_ATTR_NORETURN;
 void _gpgrt_set_alloc_func (void *(*f)(void *a, size_t n));
 
 void *_gpgrt_realloc (void *a, size_t n);
+void *_gpgrt_reallocarray (void *a, size_t oldnmemb, size_t nmemb, size_t size);
 void *_gpgrt_malloc (size_t n);
 void *_gpgrt_calloc (size_t n, size_t m);
 char *_gpgrt_strdup (const char *string);
@@ -126,6 +128,7 @@ char *_gpgrt_strconcat_core (const char *s1, va_list arg_ptr);
 #define xtrymalloc(a)    _gpgrt_malloc ((a))
 #define xtrycalloc(a,b)  _gpgrt_calloc ((a),(b))
 #define xtryrealloc(a,b) _gpgrt_realloc ((a),(b))
+#define xtryreallocarray(a,b,c,d) _gpgrt_reallocarray ((a),(b),(c),(d))
 #define xtrystrdup(a)    _gpgrt_strdup ((a))
 
 void _gpgrt_pre_syscall (void);
@@ -337,6 +340,7 @@ gpgrt_stream_t _gpgrt_fopencookie (void *_GPGRT__RESTRICT cookie,
                                    const char *_GPGRT__RESTRICT mode,
                                    gpgrt_cookie_io_functions_t functions);
 int _gpgrt_fclose (gpgrt_stream_t stream);
+int _gpgrt_fcancel (gpgrt_stream_t stream);
 int _gpgrt_fclose_snatch (gpgrt_stream_t stream,
                           void **r_buffer, size_t *r_buflen);
 int _gpgrt_onclose (gpgrt_stream_t stream, int mode,
@@ -749,11 +753,14 @@ void _gpgrt_release_process (pid_t pid);
  * Local prototypes for argparse.
  */
 int _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts);
+int _gpgrt_argparser (gpgrt_argparse_t *arg, gpgrt_opt_t *opts,
+                      const char *confname);
 void _gpgrt_usage (int level);
 const char *_gpgrt_strusage (int level);
 void _gpgrt_set_strusage (const char *(*f)(int));
 void _gpgrt_set_usage_outfnc (int (*fnc)(int, const char *));
 void _gpgrt_set_fixed_string_mapper (const char *(*f)(const char*));
+void _gpgrt_set_confdir (int what, const char *name);
 
 
 /*
@@ -786,6 +793,20 @@ gpg_err_code_t _gpgrt_chdir (const char *name);
 
 /* Return the current WD as a malloced string.  */
 char *_gpgrt_getcwd (void);
+
+/* Return the home directory of user NAME.  */
+char *_gpgrt_getpwdir (const char *name);
+
+/* Return the account name of the current user.  */
+char *_gpgrt_getusername (void);
+
+/* Expand and concat file name parts.  */
+char *_gpgrt_vfnameconcat (int want_abs, const char *first_part,
+                           va_list arg_ptr);
+char *_gpgrt_fnameconcat (const char *first_part,
+                          ... ) GPGRT_ATTR_SENTINEL(0);
+char *_gpgrt_absfnameconcat (const char *first_part,
+                             ... ) GPGRT_ATTR_SENTINEL(0);
 
 
 /*

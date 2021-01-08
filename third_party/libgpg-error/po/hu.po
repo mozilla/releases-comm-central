@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error-1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-02-07 13:14+0100\n"
+"POT-Creation-Date: 2020-08-24 13:06+0200\n"
 "PO-Revision-Date: 2018-03-21 19:01+0100\n"
 "Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
@@ -2088,100 +2088,142 @@ msgstr "Fájl vége"
 msgid "Unknown error code"
 msgstr "Ismeretlen hibakód"
 
-#: src/argparse.c:318
+#: src/argparse.c:468
 #, fuzzy
 msgid "argument not expected"
 msgstr "Írom a titkos kulcsot a %s állományba.\n"
 
-#: src/argparse.c:320
+#: src/argparse.c:470
 #, fuzzy
 msgid "read error"
 msgstr "állományolvasási hiba"
 
-#: src/argparse.c:322
+#: src/argparse.c:472
 #, fuzzy
 msgid "keyword too long"
 msgstr "A sor túl hosszú!\n"
 
-#: src/argparse.c:324
+#: src/argparse.c:474
 #, fuzzy
 msgid "missing argument"
 msgstr "érvénytelen argumentum"
 
-#: src/argparse.c:326
+#: src/argparse.c:476
 #, fuzzy
 #| msgid "invalid armor"
 msgid "invalid argument"
 msgstr "érvénytelen páncél"
 
-#: src/argparse.c:328
+#: src/argparse.c:478
 #, fuzzy
 msgid "invalid command"
 msgstr "Egymásnak ellentmondó parancsok!\n"
 
-#: src/argparse.c:330
+#: src/argparse.c:480
 #, fuzzy
 msgid "invalid alias definition"
 msgstr "Érvénytelen import opciók!\n"
 
-#: src/argparse.c:332
+#: src/argparse.c:482 src/argparse.c:519
+#, fuzzy
+#| msgid "Configuration error"
+msgid "permission error"
+msgstr "Beállítási hiba"
+
+#: src/argparse.c:484 src/argparse.c:517
 #, fuzzy
 msgid "out of core"
 msgstr "nem feldolgozott"
 
-#: src/argparse.c:334
+#: src/argparse.c:488 src/argparse.c:523
+#, fuzzy
+msgid "invalid meta command"
+msgstr "Egymásnak ellentmondó parancsok!\n"
+
+#: src/argparse.c:490 src/argparse.c:525
+#, fuzzy
+#| msgid "Unknown command"
+msgid "unknown meta command"
+msgstr "Ismeretlen parancs"
+
+#: src/argparse.c:492 src/argparse.c:527
+#, fuzzy
+#| msgid "Unexpected IPC command"
+msgid "unexpected meta command"
+msgstr "Váratlan IPC parancs"
+
+#: src/argparse.c:494
 #, fuzzy
 msgid "invalid option"
 msgstr "Érvénytelen import opciók!\n"
 
-#: src/argparse.c:343
+#: src/argparse.c:504
 #, c-format
 msgid "missing argument for option \"%.50s\"\n"
 msgstr ""
 
-#: src/argparse.c:345
+#: src/argparse.c:506
 #, fuzzy, c-format
 msgid "invalid argument for option \"%.50s\"\n"
 msgstr "Érvénytelen import opciók!\n"
 
-#: src/argparse.c:347
+#: src/argparse.c:508
 #, c-format
 msgid "option \"%.50s\" does not expect an argument\n"
 msgstr ""
 
-#: src/argparse.c:350
+#: src/argparse.c:511
 #, fuzzy, c-format
 msgid "invalid command \"%.50s\"\n"
 msgstr "Érvénytelen parancs! (Próbálja a súgót: \"help\".)\n"
 
-#: src/argparse.c:352
+#: src/argparse.c:513
 #, c-format
 msgid "option \"%.50s\" is ambiguous\n"
 msgstr ""
 
-#: src/argparse.c:354
+#: src/argparse.c:515
 #, c-format
 msgid "command \"%.50s\" is ambiguous\n"
 msgstr ""
 
-#: src/argparse.c:356
-#, fuzzy
-msgid "out of core\n"
-msgstr "nem feldolgozott"
-
-#: src/argparse.c:358
+#: src/argparse.c:529
 #, fuzzy, c-format
 msgid "invalid option \"%.50s\"\n"
 msgstr "Érvénytelen import opciók!\n"
+
+#: src/argparse.c:1658 src/argparse.c:1753
+#, c-format
+msgid "Note: no default option file '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1668 src/argparse.c:1760
+#, c-format
+msgid "reading options from '%s'\n"
+msgstr ""
+
+#: src/argparse.c:1745
+#, c-format
+msgid "option file '%s': %s\n"
+msgstr ""
+
+#: src/argparse.c:2182
+#, c-format
+msgid "Note: ignoring option \"--%s\" due to global config\n"
+msgstr ""
 
 #: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr ""
 
-#: src/gpg-error.c:729
+#: src/gpg-error.c:762
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "figyelmeztetés: nem sikerült felismerni: %s\n"
+
+#, fuzzy
+#~ msgid "out of core\n"
+#~ msgstr "nem feldolgozott"
 
 #~ msgid "Usage: %s GPG-ERROR [...]\n"
 #~ msgstr "Használat: %s GPG-ERROR […]\n"

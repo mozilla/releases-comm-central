@@ -861,11 +861,25 @@ _gpgrt_w32_poll (gpgrt_poll_t *fds, size_t nfds, int timeout)
     trace_append (("%d/%c ", waitidx[i], waitinfo[i]));
   trace_finish (("]"));
 #endif /*ENABLE_TRACING*/
-  if (!any)
-    return 0;
 
-  code = WaitForMultipleObjects (nwait, waitbuf, 0,
-                                 timeout == -1 ? INFINITE : timeout);
+  if (!any)
+    {
+      /* WFMO needs at least one object, thus we use use sleep here.
+       * INFINITE wait does not make any sense in this case, so we
+       * error out. */
+      if (timeout == -1)
+        {
+          _gpg_err_set_errno (EINVAL);
+          return -1;
+        }
+      if (timeout)
+        Sleep (timeout);
+      code = WAIT_TIMEOUT;
+    }
+  else
+    code = WaitForMultipleObjects (nwait, waitbuf, 0,
+                                   timeout == -1 ? INFINITE : timeout);
+
   if (code < WAIT_OBJECT_0 + nwait)
     {
       /* This WFMO is a really silly function: It does return either

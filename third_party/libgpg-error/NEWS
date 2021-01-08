@@ -1,3 +1,77 @@
+Noteworthy changes in version 1.39 (2020-08-24) [C30/A30/R0]
+-----------------------------------------------
+
+ * On Windows gpgrt_fopen, gpgrt_chdir, and gpgrt_mkdir now handle
+   UTF-8 names.  [#4083]
+
+ * Make timeout of gpgrt_poll work correctly on Windows if no file
+   descriptors are active.
+
+ * New function gpgrt_fcancel as alternative to gpgrt_close.  This
+   function avoid flushing out buffered data and also tries to delete
+   a newly created file.
+
+ * Changes to ease cross-building.  [#4973]
+
+ * "gpg-error --lib-version" works again.
+
+ * Interface changes relative to the 1.38 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgrt_fcancel                    NEW.
+
+ Release-info: https://dev.gnupg.org/T5031
+
+
+Noteworthy changes in version 1.38 (2020-05-29) [C29/A29/R0]
+-----------------------------------------------
+
+ * New option parser with features to implement system wide
+   configuration files.
+
+ * New functions to build file names.
+
+ * New function to help reallocating arrays.
+
+ * Protect gpgrt_inc_errorcount against counter overflow.
+
+ * Improve cross-building for new platforms.  [#4774]
+
+ * Support 64-bit big-endian MIPS architecture.  [#4952]
+
+ * Support static link for Windows with -lws2_32.  [#4623]
+
+ * Interface changes relative to the 1.37 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ gpgrt_fnameconcat                NEW.
+ gpgrt_absfnameconcat             NEW.
+ gpgrt_reallocarray               NEW.
+ gpgrt_set_confdir                NEW.
+ gpgrt_argparser                  NEW.
+ ARGPARSE_FLAG_SYS                NEW.
+ ARGPARSE_FLAG_USER               NEW.
+ ARGPARSE_FLAG_VERBOSE            NEW.
+ ARGPARSE_FLAG_USERVERS           NEW.
+ ARGPARSE_FLAG_WITHATTR           NEW.
+ ARGPARSE_NO_CONFFILE             NEW.
+ ARGPARSE_CONFFILE                NEW.
+ ARGPARSE_OPT_CONFFILE            NEW.
+ ARGPARSE_ATTR_FORCE              NEW.
+ ARGPARSE_ATTR_IGNORE             NEW.
+ ARGPARSE_TYPE_MASK               NEW.
+ ARGPARSE_PERMISSION_ERROR        NEW.
+ ARGPARSE_INVALID_META            NEW.
+ ARGPARSE_UNKNOWN_META            NEW.
+ ARGPARSE_UNEXPECTED_META         NEW.
+ ARGPARSE_conffile                NEW.
+ ARGPARSE_noconffile              NEW.
+ ARGPARSE_verbatim                NEW.
+ ARGPARSE_header                  NEW.
+ GPGRT_CONFDIR_USER               NEW.
+ GPGRT_CONFDIR_SYS                NEW.
+
+ Release-info: https://dev.gnupg.org/T4859
+
+
 Noteworthy changes in version 1.37 (2020-02-07) [C28/A28/R0]
 -----------------------------------------------
 
