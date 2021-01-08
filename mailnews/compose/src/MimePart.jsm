@@ -295,12 +295,6 @@ class MimeMultiPart extends MimePart {
    * Use 12 hyphen characters and 24 random base64 characters as separator.
    */
   _makePartSeparator() {
-    return (
-      "------------" +
-      MsgUtils.randomString(24)
-        // Boundary is used to construct RegExp in tests, + would break those
-        // tests.
-        .replaceAll("+", "-")
-    );
+    return "------------" + MsgUtils.randomString(24);
   }
 }

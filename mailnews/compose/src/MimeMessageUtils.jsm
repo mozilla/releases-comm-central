@@ -977,7 +977,7 @@ var MsgUtils = {
   },
 
   /**
-   * Generate random printable string.
+   * Generate random alphanumeric string.
    * @param {number} size - The length of generated string.
    * @returns {string}
    */
@@ -987,7 +987,9 @@ var MsgUtils = {
       String.fromCharCode(
         ...[...Array(length)].map(() => Math.floor(Math.random() * 256))
       )
-    ).slice(0, size);
+    )
+      .slice(0, size)
+      .replaceAll(/[+/=]/g, "0");
   },
 
   /**
@@ -1018,7 +1020,19 @@ var MsgUtils = {
       if (matches && matches[1]) {
         return matches[1];
       }
-      return "";
+      let mimeType = url.slice(5, url.indexOf(";"));
+      let extname = "";
+      try {
+        extname = Cc["@mozilla.org/mime;1"]
+          .getService(Ci.nsIMIMEService)
+          .getPrimaryExtension(mimeType, null);
+        if (!extname) {
+          return "";
+        }
+      } catch (e) {
+        return "";
+      }
+      return `${this.randomString(16)}.${extname}`;
     }
     // Take the part after the last / or \.
     let lastSlash = url.lastIndexOf("\\");
