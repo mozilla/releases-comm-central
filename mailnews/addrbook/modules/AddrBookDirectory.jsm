@@ -19,6 +19,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   SimpleEnumerator: "resource:///modules/AddrBookUtils.jsm",
 });
 
+var log = console.createInstance({
+  prefix: "mail.addressbook",
+  maxLogLevel: "Warn",
+  maxLogLevelPref: "mail.addressbook.loglevel",
+});
+
 // Keep track of all database connections, and close them at shutdown, since
 // nothing else ever tells us to close them.
 
@@ -47,10 +53,27 @@ Services.obs.addObserver(async file => {
  * the database schema if necessary.
  */
 function openConnectionTo(file) {
+  const CURRENT_VERSION = 3;
+
   let connection = connections.get(file.path);
   if (!connection) {
     connection = Services.storage.openDatabase(file);
-    switch (connection.schemaVersion) {
+    let fileVersion = connection.schemaVersion;
+
+    // If we're upgrading the version, first create a backup.
+    if (fileVersion > 0 && fileVersion < CURRENT_VERSION) {
+      let backupFile = file.clone();
+      backupFile.leafName = backupFile.leafName.replace(
+        /\.sqlite$/,
+        `.v${fileVersion}.sqlite`
+      );
+      backupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+
+      log.warn(`Backing up ${file.leafName} to ${backupFile.leafName}`);
+      file.copyTo(null, backupFile.leafName);
+    }
+
+    switch (fileVersion) {
       case 0:
         connection.executeSimpleSQL("PRAGMA journal_mode=WAL");
         connection.executeSimpleSQL(
@@ -75,7 +98,7 @@ function openConnectionTo(file) {
         connection.executeSimpleSQL("DROP TABLE IF EXISTS cards");
         // The lists table may have a localId column we no longer use, but
         // since SQLite can't drop columns it's not worth effort to remove it.
-        connection.schemaVersion = 3;
+        connection.schemaVersion = CURRENT_VERSION;
         break;
     }
     connections.set(file.path, connection);
