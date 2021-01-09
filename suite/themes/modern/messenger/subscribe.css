@@ -12,6 +12,10 @@
 
 /* ::::: subscribed icons  :::::: */
 
+treechildren::-moz-tree-checkbox {
+  list-style-image: none;
+}
+
 treechildren::-moz-tree-image(subscribedColumn),
 treechildren::-moz-tree-image(subscribedColumn2) {
   list-style-image: url("chrome://global/skin/checkbox/cbox.gif");
