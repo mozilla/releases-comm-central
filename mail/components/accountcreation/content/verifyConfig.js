@@ -151,8 +151,7 @@ function verifyConfig(
       successCallback(config);
     }
   } catch (e) {
-    console.error(e);
-    gEmailWizardLogger.error("ERROR: verify logon shouldn't have failed");
+    gEmailWizardLogger.error("verifyConfig failed: " + e);
     // Avoid pref pollution, clear out server prefs.
     MailServices.accounts.removeIncomingServer(inServer, true);
     errorCallback(e);
@@ -188,9 +187,6 @@ function verifyLogon(
     let uri = inServer.verifyLogon(listener, msgWindow);
     // clear msgWindow so url won't prompt for passwords.
     uri.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = null;
-  } catch (e) {
-    gEmailWizardLogger.error("verifyLogon failed: " + e);
-    throw e;
   } finally {
     // restore them
     msgWindow.notificationCallbacks = saveCallbacks;
@@ -227,11 +223,15 @@ urlListener.prototype = {
   },
 
   OnStopRunningUrl(aUrl, aExitCode) {
-    this._log.info("Finished verifyConfig resulted in " + aExitCode);
-    if (Components.isSuccessCode(aExitCode)) {
-      this._cleanup();
-      this.mSuccessCallback(this.mConfig);
-      return;
+    try {
+      this._log.info("Finished verifyConfig resulted in " + aExitCode);
+      if (Components.isSuccessCode(aExitCode)) {
+        this._cleanup();
+        this.mSuccessCallback(this.mConfig);
+        return;
+      }
+    } catch (e) {
+      this._log.error(e);
     }
 
     try {
