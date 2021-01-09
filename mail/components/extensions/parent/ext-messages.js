@@ -33,7 +33,8 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/NetUtil.jsm"
 );
 
-Cu.importGlobalProperties(["fetch"]);
+// eslint-disable-next-line mozilla/reject-importGlobalProperties
+Cu.importGlobalProperties(["fetch", "File"]);
 
 var { DefaultMap } = ExtensionUtils;
 
@@ -59,6 +60,15 @@ function convertMessagePart(part) {
     partObject.parts = part.parts.map(convertMessagePart);
   }
   return partObject;
+}
+
+function convertAttachment(attachment) {
+  return {
+    contentType: attachment.contentType,
+    name: attachment.name,
+    size: attachment.size,
+    partName: attachment.partName,
+  };
 }
 
 /**
@@ -215,7 +225,7 @@ this.messages = class extends ExtensionAPI {
               (_msgHdr, mimeMsg) => {
                 resolve(mimeMsg);
               },
-              null,
+              true,
               { examineEncryptedParts: true }
             );
           });
@@ -261,6 +271,76 @@ this.messages = class extends ExtensionAPI {
             streamListener.inputStream,
             streamListener.available()
           );
+        },
+        async listAttachments(messageId) {
+          let msgHdr = messageTracker.getMessage(messageId);
+          if (!msgHdr) {
+            throw new ExtensionError(`Message not found: ${messageId}.`);
+          }
+
+          return new Promise(resolve => {
+            MsgHdrToMimeMessage(
+              msgHdr,
+              null,
+              (_msgHdr, mimeMsg) => {
+                resolve(mimeMsg.allAttachments.map(convertAttachment));
+              },
+              true,
+              { examineEncryptedParts: true, partsOnDemand: true }
+            );
+          });
+        },
+        async getAttachmentFile(messageId, partName) {
+          let msgHdr = messageTracker.getMessage(messageId);
+          if (!msgHdr) {
+            throw new ExtensionError(`Message not found: ${messageId}.`);
+          }
+
+          // It's not ideal to have to call MsgHdrToMimeMessage here but we
+          // need the name of the attached file, plus this also gives us the
+          // URI without having to jump through a lot of hoops.
+          let attachment = await new Promise(resolve => {
+            MsgHdrToMimeMessage(
+              msgHdr,
+              null,
+              (_msgHdr, mimeMsg) => {
+                resolve(
+                  mimeMsg.allAttachments.find(a => a.partName == partName)
+                );
+              },
+              true,
+              { examineEncryptedParts: true, partsOnDemand: true }
+            );
+          });
+
+          if (!attachment) {
+            throw new ExtensionError(
+              `Part ${partName} not found in message ${messageId}.`
+            );
+          }
+
+          let channel = Services.io.newChannelFromURI(
+            Services.io.newURI(attachment.url),
+            null,
+            Services.scriptSecurityManager.getSystemPrincipal(),
+            null,
+            Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+            Ci.nsIContentPolicy.TYPE_OTHER
+          );
+
+          let byteArray = await new Promise(resolve => {
+            let listener = Cc[
+              "@mozilla.org/network/stream-loader;1"
+            ].createInstance(Ci.nsIStreamLoader);
+            listener.init({
+              onStreamComplete(loader, context, status, resultLength, result) {
+                resolve(Uint8Array.from(result));
+              },
+            });
+            channel.asyncOpen(listener, null);
+          });
+
+          return new File([byteArray], attachment.name);
         },
         async query(queryInfo) {
           let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);

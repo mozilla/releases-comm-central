@@ -45,6 +45,29 @@
             ]
           }
         }
+      },
+      {
+        "id": "Attachment",
+        "type": "object",
+        "description": "Represents an attachment in a message.",
+        "properties": {
+          "contentType": {
+            "type": "string",
+            "description": "The content type of the attachment."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name, as displayed to the user, of this attachment. This is usually but not always the filename of the attached file."
+          },
+          "partName": {
+            "type": "string",
+            "description": "Identifies the MIME part of the message associated with this attachment."
+          },
+          "size": {
+            "type": "integer",
+            "description": "The size in bytes of this attachment."
+          }
+        }
       }
     ],
     "events": [
@@ -128,6 +151,35 @@
           {
             "name": "messageId",
             "type": "integer"
+          }
+        ]
+      },
+      {
+        "name": "listAttachments",
+        "type": "function",
+        "description": "Lists all of the attachments of a message.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageId",
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "name": "getAttachmentFile",
+        "type": "function",
+        "description": "Gets the content of an attachment as a DOM <code>File</code> object.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageId",
+            "type": "integer"
+          },
+          {
+            "name": "partName",
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d+)*$"
           }
         ]
       },
