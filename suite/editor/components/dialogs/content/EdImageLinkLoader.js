@@ -50,10 +50,9 @@ addEventListener("load", OnLoadDialog, false);
 function OnAcceptDialog() {
   // Auto-convert file URLs to data URLs. If we're in the link properties
   // dialog convert only when requested - for the image dialog do it always.
-  if (
-    /^file:/i.test(gMsgCompInputElement.value.trim()) &&
-    (gMsgCompAttachSourceElement.checked || !gMsgCompProcessLink)
-  ) {
+  if (gMsgCompInputElement &&
+      /^file:/i.test(gMsgCompInputElement.value.trim()) &&
+      (gMsgCompAttachSourceElement.checked || !gMsgCompProcessLink)) {
     var dataURI = GenerateDataURL(gMsgCompInputElement.value.trim());
     gMsgCompInputElement.value = dataURI;
     gMsgCompAttachSourceElement.checked = true;
