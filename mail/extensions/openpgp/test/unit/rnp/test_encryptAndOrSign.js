@@ -13,6 +13,9 @@ const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
+const { EnigmailFiles } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+);
 
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
@@ -240,6 +243,34 @@ add_task(async function testEncryptAndOrSignResults() {
       sourceText,
       decryptedData,
       `${filename}: source text and decrypted text should be the same`
+    );
+  }
+});
+
+/**
+ * Test that we correctly produce binary files when decrypting,
+ * for both binary OpenPGP input and ASCII armored OpenPGP input.
+ *
+ * Image source: openclipart.org (public domain)
+ * https://openclipart.org/detail/191741/blue-bird
+ */
+add_task(async function testDecryptAttachment() {
+  let expected = EnigmailFiles.readFile(do_get_file("data/bluebird50.jpg"));
+
+  for (let filename of ["data/bluebird50.jpg.asc", "data/bluebird50.jpg.gpg"]) {
+    let encrypted = EnigmailFiles.readFile(do_get_file(filename));
+    let options = {};
+    options.fromAddr = "";
+    let result = await RNP.decrypt(encrypted, options);
+
+    Assert.ok(!result.exitCode, `${filename}: RNP.decrypt() exited ok`);
+
+    // Don't use Assert.equal to avoid logging the raw binary data
+    let isEqual = expected === result.decryptedData;
+
+    Assert.ok(
+      isEqual,
+      `${filename}: decrypted data should match the expected binary file`
     );
   }
 });

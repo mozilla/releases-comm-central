@@ -506,15 +506,22 @@ var EnigmailDecryption = {
     return text;
   },
 
-  getPlaintextFromDecryptResult(result) {
+  isDecryptFailureResult(result) {
     if (result.statusFlags & EnigmailConstants.MISSING_MDC) {
       console.log("bad message, missing MDC");
     } else if (result.statusFlags & EnigmailConstants.DECRYPTION_FAILED) {
       console.log("cannot decrypt message");
     } else if (result.decryptedData) {
-      return EnigmailData.getUnicodeData(result.decryptedData);
+      return false;
     }
-    return "";
+    return true;
+  },
+
+  getPlaintextFromDecryptResult(result) {
+    if (this.isDecryptFailureResult(result)) {
+      return "";
+    }
+    return EnigmailData.getUnicodeData(result.decryptedData);
   },
 
   decryptAttachment(
@@ -614,9 +621,8 @@ var EnigmailDecryption = {
     statusFlagsObj.value = result.statusFlags;
     errorMsgObj.value = result.errorMsg;
 
-    let plainText = this.getPlaintextFromDecryptResult(result);
-    if (plainText.length > 0) {
-      return EnigmailFiles.writeFileContents(outFile, plainText);
+    if (!this.isDecryptFailureResult(result)) {
+      return EnigmailFiles.writeFileContents(outFile, result.decryptedData);
     }
 
     return false;
