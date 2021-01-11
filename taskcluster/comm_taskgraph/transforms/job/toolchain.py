@@ -8,7 +8,9 @@ Support for running toolchain-building jobs via dedicated scripts in comm-centra
 from __future__ import absolute_import, print_function, unicode_literals
 
 import os.path
-from voluptuous import Required
+import json
+from six import text_type, ensure_text
+from voluptuous import Any, Optional, Required
 import mozpack.path as mozpath
 from taskgraph.transforms.job import (
     configure_taskdesc_for_run,
@@ -22,6 +24,7 @@ from taskgraph.transforms.job.common import (
     docker_worker_add_artifacts,
 )
 
+from taskgraph.util import taskcluster
 from taskgraph.util.hash import hash_paths as hash_paths_gecko_root
 from comm_taskgraph.util.hash import hash_paths_extended
 from taskgraph import GECKO
@@ -34,7 +37,8 @@ TOOLCHAIN_SCRIPT_PATH = "comm/taskcluster/scripts"
 
 comm_toolchain_run_schema = toolchain_run_schema.extend(
     {
-        Required("using"): "comm-toolchain-script",
+        Required("using"): Any("comm-toolchain-script", "macos-sdk-fetch"),
+        Optional("script"): text_type,
     }
 )
 
@@ -63,7 +67,8 @@ def get_digest_data(config, run, taskdesc):
     # This file
     files.append("comm/taskcluster/comm_taskgraph/transforms/job/toolchain.py")
     # The script
-    files.append("{}/{}".format(TOOLCHAIN_SCRIPT_PATH, run["script"]))
+    if "script" in run:
+        files.append("{}/{}".format(TOOLCHAIN_SCRIPT_PATH, run["script"]))
     # Tooltool manifest if any is defined:
     tooltool_manifest = taskdesc["worker"]["env"].get("TOOLTOOL_MANIFEST")
     if tooltool_manifest:
@@ -143,5 +148,93 @@ def docker_worker_toolchain(config, job, taskdesc):
     run["command"] = [
         "workspace/build/src/{}/{}".format(TOOLCHAIN_SCRIPT_PATH, run.pop("script"))
     ] + run.pop("arguments", [])
+
+    configure_taskdesc_for_run(config, job, taskdesc, worker["implementation"])
+
+
+@run_job_using(
+    "docker-worker",
+    "macos-sdk-fetch",
+    schema=comm_toolchain_run_schema,
+    defaults=toolchain_defaults,
+)
+def docker_macos_sdk_fetch(config, job, taskdesc):
+    """
+    Facilitates downloading the macOS-11 SDK from the Firefox private artifact
+    build. This gets around the requirement of using a macOS worker with Xcode
+    installed to create the SDK tar file and instead downloads one that was
+    already generated.
+    Previously, toolchain artifacts with encumbered licenses such as the macOS
+    SDK were made available to build jobs as private tooltool artifacts.
+
+    There is a possibility of a race condition where the an SDK has been updated
+    but the job is not completed. In this case, the previous version would be
+    found when the Thunderbird decision task runs and that will be used for the
+    build jobs that require it. Once the Firefox SDk build job completes, the
+    index is updated and the next Thunderbird build will use it. As the SDK itself
+    does not get updated very often, this should not pose a problem.
+    """
+    run = job["run"]
+
+    worker = taskdesc["worker"] = job["worker"]
+    worker["chain-of-trust"] = True
+
+    # If the task doesn't have a docker-image, set a default
+    worker.setdefault("docker-image", {"in-tree": "deb8-toolchain-build"})
+
+    # Allow the job to specify where artifacts come from, but add
+    # public/build if it's not there already.
+    artifacts = worker.setdefault("artifacts", [])
+    if not any(artifact.get("name") == "public/build" for artifact in artifacts):
+        docker_worker_add_artifacts(config, job, taskdesc)
+
+    upload_dir = "{workdir}/artifacts".format(**run)
+
+    attributes = taskdesc.setdefault("attributes", {})
+    sdk_task_id = taskcluster.find_task_id(attributes["gecko_index"])
+    # Sets the MOZ_FETCHES environment variable with the task id and artifact
+    # path of the gecko artifact. This bypasses the usual setup done in
+    # taskgraph/transforms/job/__init__.py.
+    moz_fetches = {
+        "task-reference": ensure_text(
+            json.dumps(
+                [
+                    {
+                        "artifact": attributes["gecko_artifact_path"],
+                        "extract": False,
+                        "task": sdk_task_id,
+                    }
+                ]
+            )
+        )
+    }
+
+    # fetch-content dowmloads files to MOZ_FETCHES, so we set it to UPLOAD_DIR
+    # so that it's found by the automatic artifact upload done at the end of
+    # the "build".
+    env = worker["env"]
+    env.update(
+        {
+            "MOZ_SCM_LEVEL": config.params["level"],
+            "MOZ_FETCHES": moz_fetches,
+            "MOZ_FETCHES_DIR": upload_dir,
+        }
+    )
+
+    attributes["toolchain-artifact"] = run.pop("toolchain-artifact")
+    if "toolchain-alias" in run:
+        attributes["toolchain-alias"] = run.pop("toolchain-alias")
+
+    if not taskgraph.fast:
+        name = taskdesc["label"].replace("{}-".format(config.kind), "", 1)
+        taskdesc["cache"] = {
+            "type": CACHE_TYPE,
+            "name": name,
+            "digest-data": get_digest_data(config, run, taskdesc),
+        }
+
+    run["using"] = "run-task"
+    run["cwd"] = run["workdir"]
+    run["command"] = ["/builds/worker/bin/fetch-content", "task-artifacts"]
 
     configure_taskdesc_for_run(config, job, taskdesc, worker["implementation"])
