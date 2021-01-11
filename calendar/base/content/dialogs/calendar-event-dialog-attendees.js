@@ -438,6 +438,7 @@ window.addEventListener(
     addEventListener("resize", layout);
 
     attendeeList.appendChild(document.createXULElement("event-attendee")).focus();
+    updateVerticalScrollbars();
   },
   { once: true }
 );
@@ -469,6 +470,18 @@ function layout() {
   let spacer = document.getElementById("spacer");
   spacer.style.height = `${dayHeaderOuter.clientHeight + 1}px`;
   freebusyGridInner.style.minHeight = freebusyGrid.clientHeight + "px";
+  updateVerticalScrollbars();
+}
+
+/**
+ * Checks if the grid has a vertical scrollbar and updates the header to match.
+ */
+function updateVerticalScrollbars() {
+  if (freebusyGrid.scrollHeight > freebusyGrid.clientHeight) {
+    dayHeaderOuter.style.overflowY = "scroll";
+  } else {
+    dayHeaderOuter.style.overflowY = null;
+  }
 }
 
 /**
@@ -712,7 +725,12 @@ function setLeftAndWidth(element, startTime, endTime) {
             attendeeList.appendChild(document.createXULElement("event-attendee")).focus();
             freebusyGrid.scrollTop = attendeeList.scrollTop;
           }
+        } else if (this.nextElementSibling) {
+          // No value but not the last row? Remove.
+          this.remove();
         }
+
+        updateVerticalScrollbars();
 
         if (this.parentNode) {
           this.clearFreeBusy();

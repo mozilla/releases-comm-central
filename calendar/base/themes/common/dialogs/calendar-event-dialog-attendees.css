@@ -67,8 +67,7 @@ splitter {
 #day-header-outer {
   border: 1px solid threedshadow;
   border-bottom: none;
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden;
   background-color: field;
   color: fieldtext;
   text-align: center;
@@ -107,7 +106,7 @@ calendar-day {
 #freebusy-grid {
   margin: 0;
   border: 1px solid threedshadow;
-  overflow: scroll;
+  overflow: scroll auto;
   background-color: field;
   color: fieldtext;
 }
