@@ -28,7 +28,7 @@ var { MsgHdrToMimeMessage } = ChromeUtils.import(
 function initNSS() {
   // Copy the NSS database files over.
   let profile = FileUtils.getDir("ProfD", []);
-  let files = ["cert9.db", "key4.db", "secmod.db"];
+  let files = ["cert9.db", "key4.db"];
   let directory = do_get_file("../../../../data/db-tinderbox-invalid");
   for (let f of files) {
     let keydb = directory.clone();
