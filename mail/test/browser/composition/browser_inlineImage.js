@@ -76,7 +76,7 @@ add_task(async function test_send_inline_image() {
     "The image doesn't display because we changed the data URI\n"
   );
 
-  let fileBuf = await OS.File.read(getTestFilePath("data/tb-logo.png"));
+  let fileBuf = await OS.File.read(getTestFilePath("data/nest.png"));
   let fileContent = btoa(typedArrayToString(fileBuf));
   let dataURI = `data:image/png;base64,${fileContent}`;
 
