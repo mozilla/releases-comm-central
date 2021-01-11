@@ -467,7 +467,7 @@ window.addEventListener("dialogaccept", () => {
 function layout() {
   fillGrid();
   let spacer = document.getElementById("spacer");
-  spacer.style.height = dayHeaderOuter.clientHeight + "px";
+  spacer.style.height = `${dayHeaderOuter.clientHeight + 1}px`;
   freebusyGridInner.style.minHeight = freebusyGrid.clientHeight + "px";
 }
 

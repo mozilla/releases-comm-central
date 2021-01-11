@@ -29,6 +29,7 @@ event-attendee > .role-icon {
 event-attendee > input {
   -moz-box-flex: 1;
   background-color: transparent;
+  outline: none;
 }
 
 /* Autocomplete labels
@@ -153,7 +154,7 @@ calendar-day {
 
 .freebusy-row > .pending {
   position: absolute;
-  top: 0px;
+  top: 0;
   bottom: 1px;
   background-color: #999;
 }
@@ -181,8 +182,8 @@ calendar-day {
 
 #event-bar-top {
   position: absolute;
-  top: 0px;
-  bottom: 0px;
+  top: 0;
+  bottom: 0;
   box-sizing: border-box;
   border: 1px #f045a5 solid;
   border-bottom: none;
@@ -192,11 +193,62 @@ calendar-day {
 
 #event-bar-bottom {
   position: absolute;
-  top: 0px;
-  bottom: 0px;
+  top: 0;
+  bottom: 0;
   box-sizing: border-box;
   border: 1px #f045a5 solid;
   border-top: none;
   background-color: rgba(240, 69, 165, 0.44);
 }
 
+.zoom-in-icon {
+  margin: 3px;
+  list-style-image: url(chrome://calendar/skin/shared/calendar-event-dialog-attendees.png);
+  -moz-image-region: rect(0 97px 14px 84px);
+}
+.zoom-in-icon[disabled="true"] {
+  -moz-image-region: rect(14px 97px 28px 84px);
+}
+
+.zoom-out-icon {
+  margin: 3px;
+  list-style-image: url(chrome://calendar/skin/shared/calendar-event-dialog-attendees.png);
+  -moz-image-region: rect(0 110px 14px 97px);
+}
+.zoom-out-icon[disabled="true"] {
+  -moz-image-region: rect(14px 110px 28px 97px);
+}
+
+.legend {
+  display: flex;
+  width: 3em;
+  height: 1em;
+  border-top: 1px solid #a1a1a1;
+  border-bottom: 1px solid #dddddd;
+  border-inline: 1px solid #c3c3c3;
+}
+
+.legend[status="FREE"] {
+  background-color: #ebebe4;
+  color: #ebebe4;
+}
+
+.legend[status="BUSY"] {
+  background-color: #153e7e;
+  color: #153e7e;
+}
+
+.legend[status="BUSY_TENTATIVE"] {
+  background-color: #1589ff;
+  color: #1589ff;
+}
+
+.legend[status="BUSY_UNAVAILABLE"] {
+  background-color: #4e387e;
+  color: #4e387e;
+}
+
+.legend[status="UNKNOWN"] {
+  background-color: #e09ebd;
+  color: #e09ebd;
+}
