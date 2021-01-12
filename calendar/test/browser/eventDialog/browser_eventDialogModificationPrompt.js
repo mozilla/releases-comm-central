@@ -74,10 +74,15 @@ add_task(async function testEventDialogModificationPrompt() {
   });
 
   // Delete event.
-  controller.click(eventbox);
   controller.window.document.getElementById("day-view").focus();
+  if (controller.window.currentView().getSelectedItems().length == 0) {
+    controller.click(eventbox);
+  }
+  Assert.equal(eventbox.getNode().isEditing, false, "event is not being edited");
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
   controller.waitForElementNotPresent(eventbox);
+
+  Assert.ok(true, "Test ran to completion");
 });
 
 add_task(async function testDescriptionWhitespace() {
@@ -102,9 +107,11 @@ add_task(async function testDescriptionWhitespace() {
     });
 
     // Delete it.
-    // XXX Somehow the event is selected at this point, this didn't use to
-    // be the case and can't be reproduced manually.
     controller.window.document.getElementById("day-view").focus();
+    if (controller.window.currentView().getSelectedItems().length == 0) {
+      controller.click(eventbox);
+    }
+    Assert.equal(eventbox.getNode().isEditing, false, "event is not being edited");
     EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
     controller.waitForElementNotPresent(eventbox);
   }

@@ -399,6 +399,10 @@
       this.eventNameTextbox.focus();
     }
 
+    get isEditing() {
+      return this.mEditing || false;
+    }
+
     select(event) {
       if (!this.calendarView) {
         return;
