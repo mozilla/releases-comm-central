@@ -384,9 +384,10 @@ var contentTabBaseType = {
   inContentOverlays: [
     // about:addons
     function(aDocument, aTab) {
+      let browser = aDocument.getElementById("html-view-browser");
       Services.scriptloader.loadSubScript(
         "chrome://messenger/content/aboutAddonsExtra.js",
-        aDocument.defaultView
+        browser.contentWindow
       );
     },
 
@@ -1705,21 +1706,3 @@ var specialTabs = {
     document.getElementById("tabmail").setTabIcon(aTab, aIcon);
   },
 };
-
-let documentObserver = {
-  observe(document) {
-    if (
-      !document.location ||
-      document.location.href !=
-        "chrome://mozapps/content/extensions/aboutaddons.html"
-    ) {
-      return;
-    }
-
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/aboutAddonsExtra.js",
-      document.defaultView
-    );
-  },
-};
-Services.obs.addObserver(documentObserver, "chrome-document-interactive");
