@@ -116,7 +116,7 @@ function internal_check_delivery_format(editDraft) {
       { id: "format_both" },
     ]);
   } else {
-    // On OS X the main menu seems not accessible for clicking from mozmill.
+    // On OS X the main menu seems not accessible for clicking from tests.
     Assert.ok(
       cwc
         .e("outputFormatMenu")

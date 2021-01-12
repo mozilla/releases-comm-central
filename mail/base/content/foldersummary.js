@@ -275,6 +275,8 @@
         event.clientX,
         event.clientY
       );
+
+      // Interrupt if the selected row is not a folder.
       if (!msgFolder) {
         return false;
       }

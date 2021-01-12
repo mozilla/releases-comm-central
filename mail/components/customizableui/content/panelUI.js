@@ -13,6 +13,7 @@
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName
   UpdateCharsetMenu updateEditUIVisibility UpdateFullZoomMenu
+  gFolderTreeView
    */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -1125,6 +1126,14 @@ const PanelUI = {
       }
       button.setAttribute("shortcut", ShortcutUtils.prettifyShortcut(key));
     }
+  },
+
+  folderViewMenuOnCommand(event) {
+    gFolderTreeView.activeModes = event.target.getAttribute("value");
+  },
+
+  folderCompactMenuOnCommand(event) {
+    gFolderTreeView.toggleCompactMode(event.target.checked);
   },
 };
 

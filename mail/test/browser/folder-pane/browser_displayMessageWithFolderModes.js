@@ -82,8 +82,13 @@ add_task(
     // because it was selected last before switching
     be_in_folder(inboxFolder);
 
-    // Move to favorite folders. This folder isn't currently a favorite folder
-    mc.folderTreeView.mode = "favorite";
+    // Enable the favorite folders view. This folder isn't currently a favorite
+    // folder.
+    mc.folderTreeView.activeModes = "favorite";
+    // Hide the all folders view. The activeModes setter takes care of removing
+    // the mode is is already visible.
+    mc.folderTreeView.activeModes = "all";
+
     assert_folder_not_visible(folder);
     assert_folder_not_visible(inboxFolder);
     assert_folder_not_visible(inbox2Folder);
@@ -91,7 +96,7 @@ add_task(
     // Try displaying a message
     display_message_in_folder_tab(msgHdr);
 
-    assert_folder_mode(mc.window.kDefaultMode);
+    assert_folder_mode("favorite");
     assert_folder_selected_and_displayed(folder);
     assert_selected_and_displayed(msgHdr);
   }
@@ -113,9 +118,13 @@ add_task(
     // because it was selected last before switching
     be_in_folder(inboxFolder);
 
-    // Switch to favorite folders. Check that the folder is now in the view, as is
-    // the dummy folder
-    mc.folderTreeView.mode = "favorite";
+    // Hide the all folders view. The activeModes setter takes care of removing
+    // the mode if is already visible.
+    mc.folderTreeView.activeModes = "all";
+
+    // Select the folder to open the parent row.
+    be_in_folder(folder);
+
     assert_folder_visible(folder);
     assert_folder_visible(dummyFolder);
     // Also their parent folder should be visible.
@@ -144,14 +153,16 @@ add_task(function test_display_message_in_smart_folder_mode_works() {
   // Clear the message selection, otherwise msgHdr will still be displayed and
   // display_message_in_folder_tab(msgHdr) will be a no-op.
   select_none();
-  mc.folderTreeView.mode = "all";
+  // Show the smart folder view before removing the favorite view.
+  mc.folderTreeView.activeModes = "smart";
+  // Hide the favorite view. The activeModes setter takes care of removing a
+  // view if is currently active.
+  mc.folderTreeView.activeModes = "favorite";
 
   // Switch to the dummy folder, otherwise msgHdr will be in the view and the
   // display message in folder tab logic will simply select the message without
   // bothering to expand any folders.
   be_in_folder(dummyFolder);
-
-  mc.folderTreeView.mode = "smart";
 
   let rootFolder = folder.server.rootFolder;
   // Check that the folder is actually the child of the account root
@@ -211,7 +222,11 @@ add_task(function test_display_inbox_message_in_smart_folder_mode_works() {
  * Move back to the all folders mode.
  */
 add_task(function test_switch_to_all_folders() {
-  mc.folderTreeView.mode = "all";
+  // Hide the smart folders view enabled in the previous test. The activeModes
+  // setter should take care of restoring the "all" view and prevent and empty
+  // Folder pane.
+  mc.folderTreeView.activeModes = "smart";
+  assert_folder_mode("all");
   assert_folder_tree_view_row_count(10);
 });
 

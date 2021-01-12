@@ -19,8 +19,8 @@ var gSelectVirtual = {
     }
 
     // Now tweak the folder tree for our purposes here.
-    let oldProps = ftvItem.prototype.getProperties;
-    ftvItem.prototype.getProperties = function(aColumn) {
+    let oldProps = FtvItem.prototype.getProperties;
+    FtvItem.prototype.getProperties = function(aColumn) {
       if (!aColumn || aColumn.id != "selectedCol") {
         return oldProps.call(this, aColumn);
       }
@@ -44,7 +44,7 @@ var gSelectVirtual = {
           return !aFolder.getFlag(Ci.nsMsgFolderFlags.Virtual);
         };
         return accounts.map(
-          acct => new ftvItem(acct.incomingServer.rootFolder, filterVirtual)
+          acct => new FtvItem(acct.incomingServer.rootFolder, filterVirtual)
         );
       },
     };

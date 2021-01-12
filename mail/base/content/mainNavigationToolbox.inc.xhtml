@@ -440,34 +440,34 @@
             <menuitem id="menu_allFolders" value="all"
                       label="&allFolders.label;"
                       accesskey="&allFolders.accesskey;"
-                      type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
+                      type="checkbox" name="viewmessages"
+                      oncommand="gFolderTreeView.setFolderMode(event);"/>
             <menuitem id="menu_smartFolders" value="smart"
                       label="&unifiedFolders.label;"
                       accesskey="&unifiedFolders.accesskey;"
-                      type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
+                      type="checkbox" name="viewmessages"
+                      oncommand="gFolderTreeView.setFolderMode(event);"/>
             <menuitem id="menu_unreadFolders" value="unread"
                       label="&unreadFolders.label;"
                       accesskey="&unreadFolders.accesskey;"
-                      type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
+                      type="checkbox" name="viewmessages"
+                      oncommand="gFolderTreeView.setFolderMode(event);"/>
             <menuitem id="menu_favoriteFolders" value="favorite"
                       label="&favoriteFolders.label;"
                       accesskey="&favoriteFolders.accesskey;"
-                      type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
+                      type="checkbox" name="viewmessages"
+                      oncommand="gFolderTreeView.setFolderMode(event);"/>
             <menuitem id="menu_recentFolders" value="recent"
                       label="&recentFolders.label;"
                       accesskey="&recentFolders.accesskey;"
-                      type="radio" name="viewmessages"
-                      oncommand="gFolderTreeView.toggleMode(this.value);"/>
-            <menuseparator id="menu_compactViewSeparator"/>
-            <menuitem id="menu_compactFolderView"
+                      type="checkbox" name="viewmessages"
+                      oncommand="gFolderTreeView.setFolderMode(event);"/>
+            <menuseparator/>
+            <menuitem id="menu_compactMode" value="compact"
                       label="&compactVersion.label;"
                       accesskey="&compactVersion.accesskey;"
-                      type="checkbox"
-                      oncommand="gFolderTreeView.toggleCompact(this.getAttribute('checked') == 'true');"/>
+                      type="checkbox" name="viewmessages"
+                      oncommand="gFolderTreeView.toggleCompactMode(this.getAttribute('checked'));"/>
           </menupopup>
         </menu>
 

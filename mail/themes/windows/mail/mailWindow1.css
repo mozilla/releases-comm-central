@@ -16,7 +16,7 @@
   background-color: -moz-Dialog;
 }
 
-#folderPane-toolbar {
+#folderPaneHeader {
   border-top-style: none;
   border-bottom: 1px solid ThreeDShadow;
 }
@@ -683,7 +683,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 @media (-moz-os-version: windows-win8) and (-moz-windows-default-theme),
        (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
-  #folderPane-toolbar {
+  #folderPaneHeader {
     border-bottom-color: #c2c2c2;
   }
 }
@@ -728,7 +728,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     border-radius: 4px;
   }
 
-  #folderPane-toolbar {
+  #folderPaneHeader {
     border-bottom-color: #aabccf;
   }
 }

@@ -60,6 +60,15 @@ add_task(function test_folder_names_in_recent_view_mode() {
   let fDup1 = rootFolder1.getChildNamed("duplicatedName");
   let fDup2 = rootFolder2.getChildNamed("duplicatedName");
   let fDup3 = inbox2.getChildNamed("duplicatedName");
+
+  // Close the inbox folder if open. This might happen when running multiple
+  // tests from the folder-pane.
+  let index = mc.window.gFolderTreeView.getIndexOfFolder(inbox2);
+  if (index != null) {
+    if (mc.window.gFolderTreeView._rowMap[index].open) {
+      mc.window.gFolderTreeView._toggleRow(index, false);
+    }
+  }
   assert_folder_tree_view_row_count(10);
 
   // Create some messages in the folders to make them recently used.
@@ -72,14 +81,21 @@ add_task(function test_folder_names_in_recent_view_mode() {
   make_new_sets_in_folder(fDup3, [{ count: 3 }]);
   be_in_folder(fDup3);
 
-  mc.window.gFolderTreeView.mode = "recent_compact";
+  // Enable the recent folder view.
+  mc.window.gFolderTreeView.activeModes = "recent";
+  // Hide the all folder view by passing the value to the setter, which will
+  // take care of toggling off the view if currently visible.
+  mc.window.gFolderTreeView.activeModes = "all";
 
-  // Check displayed folder names. In Recent mode the folders are sorted alphabetically
-  assert_folder_at_index_as(0, "duplicatedName - Local Folders (1)");
-  assert_folder_at_index_as(1, "duplicatedName - tinderbox@foo.invalid (3)");
-  assert_folder_at_index_as(2, "duplicatedName - tinderbox@foo.invalid (2)");
-  assert_folder_at_index_as(3, "uniqueName - Local Folders (1)");
-  assert_folder_tree_view_row_count(4);
+  // Check displayed folder names.
+  // In Recent mode the folders are sorted alphabetically and the first index is
+  // the Mode Header item.
+  assert_folder_at_index_as(0, "Recent Folders");
+  assert_folder_at_index_as(1, "duplicatedName - Local Folders (1)");
+  assert_folder_at_index_as(2, "duplicatedName - tinderbox@foo.invalid (3)");
+  assert_folder_at_index_as(3, "duplicatedName - tinderbox@foo.invalid (2)");
+  assert_folder_at_index_as(4, "uniqueName - Local Folders (1)");
+  assert_folder_tree_view_row_count(5);
 
   // Remove our folders to clean up.
   rootFolder1.propagateDelete(fUnique, true, null);
@@ -89,7 +105,11 @@ add_task(function test_folder_names_in_recent_view_mode() {
 });
 
 registerCleanupFunction(function teardownModule() {
-  mc.window.gFolderTreeView.mode = "all";
+  // Hide the recent folders view enabled in the previous test. The activeModes
+  // setter should take care of restoring the "all" view and prevent and empty
+  // Folder pane.
+  mc.window.gFolderTreeView.activeModes = "recent";
+  assert_folder_mode("all");
   assert_folder_tree_view_row_count(7);
 
   document.getElementById("folderTree").focus();

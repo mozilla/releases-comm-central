@@ -361,6 +361,7 @@ function fillFolderPaneContextMenu(aEvent) {
   // Do not show menu if rows are selected.
   var bundle = document.getElementById("bundle_messenger");
   var folders = gFolderTreeView.getSelectedFolders();
+
   if (!folders.length) {
     return false;
   }

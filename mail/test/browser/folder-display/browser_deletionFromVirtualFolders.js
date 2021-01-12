@@ -253,8 +253,8 @@ add_task(
  * Open the first message in the smart inbox.
  */
 add_task(async function test_open_first_message_in_smart_inbox() {
-  // Switch to smart folders
-  mc.folderTreeView.mode = "smart";
+  // Show the smart folders view.
+  mc.folderTreeView.activeModes = "smart";
   // Select the smart inbox
   folder = get_smart_folder_named("Inbox");
   be_in_folder(folder);
@@ -348,7 +348,9 @@ add_task(
  * Switch back to the all folders mode for further tests.
  */
 add_task(function test_switch_back_to_all_folders_mode() {
-  mc.folderTreeView.mode = "all";
+  // The activeModes setter automatically toggles off the mode if is currently
+  // visible.
+  mc.folderTreeView.activeModes = "smart";
 
   Assert.report(
     false,

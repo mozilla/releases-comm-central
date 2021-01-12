@@ -620,27 +620,23 @@
 
           <box id="messengerBox" orient="horizontal" flex="1" style="min-height:100px;" height="100" persist="height">
             <vbox id="folderPaneBox" style="min-width:125px;" width="200" persist="width">
-              <vbox id="folderPane-toolbox">
-                <hbox id="folderPane-toolbar"
-                      class="inline-toolbar toolbar"
-                      toolboxid="mail-toolbox"
-                      toolbarname="&folderPaneBar.label;"
-                      accesskey="&folderPaneBar.accesskey;"
-                      context="toolbar-context-menu"
-                      collapsed="true">
-                  <toolbaritem id="folderpane-mode-selector"
-                               flex="1">
-                    <menulist id="folderpane-mode-selector-menulist"
-                              sizetopopup="none"
-                              crop="center"
-                              flex="1"
-                              oncommand="gFolderTreeView.mode = this.value;">
-                      <menupopup id="folderpane-mode-selector-popup"
-                                 onpopupshowing="gFolderTreeView._initFolderModeSelector();"/>
-                    </menulist>
-                  </toolbaritem>
-                </hbox>
-              </vbox>
+              <hbox id="folderPaneHeader"
+                    data-l10n-id="folder-pane-toolbar"
+                    data-l10n-attrs="toolbarname"
+                    toolboxid="mail-toolbox"
+                    align="center"
+                    collapsed="true">
+                <label data-l10n-id="folder-pane-header-label" flex="1"/>
+                <toolbarbutton id="buttonFolderList"
+                               class="button-flat button-more"
+                               oncommand="gFolderTreeView._showFolderListPopup(event);"/>
+                <panel id="folderListPopup" type="arrow" orient="vertical"
+                       class="cui-widget-panel panel-no-padding panel-block-padding"
+                       onpopupshowing="gFolderTreeView._initFolderListPopup();"
+                       onkeypress="gFolderTreeView._folderListPopupOnKeyPress(event);"
+                       onclick="gFolderTreeView._folderListPopupOnClick(event);">
+                </panel>
+              </hbox>
               <tree id="folderTree" class="plain" flex="1"
                     hidecolumnpicker="true" persist="mode" mode="all"
                     keepcurrentinview="true"

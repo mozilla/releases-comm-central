@@ -70,3 +70,10 @@ treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
 #folderTree treechildren::-moz-tree-indentation {
   width: 8px;
 }
+
+/* ..... Mode Header ..... */
+
+treechildren::-moz-tree-row(modeHeader) {
+  margin-inline: 0;
+  border-inline-style: none;
+}

@@ -31,6 +31,7 @@ var { ExtensionSupport } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gInbox;
 
@@ -57,11 +58,18 @@ add_task(function setupModule(module) {
             "tinderbox123",
             "pop3"
           );
-          let item = new aWindow.ftvItem(
+          let item = [];
+          let inbox = new aWindow.FtvItem(
             server.rootFolder.getChildNamed("Inbox")
           );
-          item.__defineGetter__("children", () => []);
-          return [item];
+          inbox.__defineGetter__("children", () => []);
+          item.push(inbox);
+
+          if (aWindow.gFolderTreeView.activeModes.length > 1) {
+            item.unshift(new aWindow.FtvItemHeader("Test%20Mode", "testmode"));
+          }
+
+          return item;
         },
       };
 
@@ -74,14 +82,17 @@ add_task(function setupModule(module) {
   });
 });
 
-// Provided by the extension in test-extension
+// Provided by the extension in test-extension.
 var kTestModeID = "testmode";
 
 /**
  * Switch to the mode and verify that it displays correctly.
  */
 add_task(function test_switch_to_test_mode() {
-  mc.folderTreeView.mode = kTestModeID;
+  mc.folderTreeView.activeModes = kTestModeID;
+  // Hide the all folder view mode.
+  mc.folderTreeView.activeModes = "all";
+
   assert_folder_mode(kTestModeID);
   assert_folder_visible(gInbox);
 });
@@ -109,10 +120,15 @@ add_task(function test_open_new_window_with_custom_mode() {
  * Switch back to all folders.
  */
 add_task(function test_switch_to_all_folders() {
-  mc.folderTreeView.mode = "all";
+  // Hide the test mode view enabled in the previous test. The activeModes
+  // setter should take care of restoring the "all" view and prevent and empty
+  // Folder pane.
+  mc.folderTreeView.activeModes = kTestModeID;
+  assert_folder_mode("all");
 });
 
 registerCleanupFunction(() => {
+  mc.window.gFolderTreeView.unregisterFolderTreeMode(kTestModeID);
   ExtensionSupport.unregisterWindowListener("mochitest");
   Assert.report(
     false,

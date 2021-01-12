@@ -159,11 +159,6 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   display: -moz-box;
 }
 
-#folderPane-toolbar > .toolbarbutton-1,
-#folderPane-toolbar > toolbaritem > menulist {
-  margin: 0;
-}
-
 /* Force the folder location and mail view items to fit in the available width
    in the Customize Toolbar dialog. */
 #palette-box #locationFolders,

@@ -427,11 +427,33 @@ function InitViewLayoutStyleMenu(event, appmenu) {
  * Initialize (check) appropriate folder mode under the View | Folder menu.
  */
 function InitViewFolderViewsMenu(event) {
-  let selected = event.target.querySelector(
-    "[value=" + gFolderTreeView.baseMode() + "]"
+  for (let mode of gFolderTreeView.activeModes) {
+    let selected = event.target.querySelector(`[value=${mode}]`);
+    if (selected) {
+      selected.setAttribute("checked", "true");
+    }
+  }
+
+  // Check if only the All Folders mode is currently active.
+  if (
+    gFolderTreeView.activeModes.includes("all") &&
+    gFolderTreeView.activeModes.length == 1
+  ) {
+    event.target.querySelector(`[value="all"]`).disabled = true;
+  }
+
+  let compactItem = event.target.querySelector(`[value="compact"]`);
+  if (document.getElementById("folderTree").getAttribute("compact") == "true") {
+    compactItem.setAttribute("checked", "true");
+  }
+
+  // Check if the currently active modes have a compact variation.
+  let hasCompact = gFolderTreeView.activeModes.find(
+    mode => mode == "favorite" || mode == "unread"
   );
-  if (selected) {
-    selected.setAttribute("checked", "true");
+  compactItem.disabled = !hasCompact;
+  if (!hasCompact) {
+    compactItem.removeAttribute("checked");
   }
 }
 

@@ -263,6 +263,14 @@ treechildren::-moz-tree-cell-text {
     background-color: transparent !important;
   }
 
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(modeHeader, hover) {
+    border-color: ThreeDShadow !important;
+    border-inline-style: none;
+  }
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(modeHeader, firstHeader, hover) {
+    border-top-style: none;
+  }
+
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(dropOn),
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(selected) {
     border-color: HighlightText !important;

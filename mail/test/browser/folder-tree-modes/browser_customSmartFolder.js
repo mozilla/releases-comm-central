@@ -76,7 +76,9 @@ add_task(function setupModule(module) {
  * Switch to the smart folder mode, get the smart inbox.
  */
 add_task(function test_switch_to_smart_folder_mode() {
-  mc.folderTreeView.mode = "smart";
+  mc.folderTreeView.activeModes = "smart";
+  // Hide the all folders view.
+  mc.folderTreeView.activeModes = "all";
   assert_folder_mode("smart");
 
   smartFolderA = get_smart_folder_named(smartParentNameA);
@@ -199,7 +201,7 @@ add_task(function test_smart_subfolder() {
  */
 add_task(function test_return_to_all_folders() {
   assert_folder_mode("smart");
-  mc.folderTreeView.mode = "all";
+  mc.folderTreeView.activeModes = "smart";
   assert_folder_mode("all");
 });
 

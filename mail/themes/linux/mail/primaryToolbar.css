@@ -13,7 +13,3 @@
   height: 1px;
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
-
-#folderPane-toolbox {
-  appearance: none;
-}

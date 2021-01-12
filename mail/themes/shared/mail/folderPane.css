@@ -47,6 +47,41 @@ treechildren::-moz-tree-image(folderNameCol) {
   fill: var(--default);
 }
 
+/* ..... Mode Header ..... */
+
+treechildren::-moz-tree-image(modeHeader),
+treechildren::-moz-tree-twisty(modeHeader){
+  list-style-image: none;
+  padding: 0;
+  margin: 0;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+treechildren::-moz-tree-row(modeHeader),
+:root[lwt-tree] treechildren::-moz-tree-row(modeHeader, hover),
+:root[lwt-tree] treechildren::-moz-tree-row(modeHeader, selected, focus, current),
+:root[lwt-tree-brighttext] treechildren::-moz-tree-row(modeHeader, hover),
+:root[lwt-tree-brighttext] treechildren::-moz-tree-row(modeHeader, selected, focus, current) {
+  border-block: 1px solid var(--sidebar-border-color, var(--splitter-color)) !important;
+  border-inline: none !important;
+  background-color: var(--toolbar-bgcolor) !important;
+}
+
+treechildren::-moz-tree-row(modeHeader, firstHeader),
+:root[lwt-tree] treechildren::-moz-tree-row(modeHeader, firstHeader),
+:root[lwt-tree-brighttext] treechildren::-moz-tree-row(modeHeader, firstHeader) {
+  border-top-style: none !important;
+}
+
+treechildren::-moz-tree-cell-text(modeHeader) {
+  font-weight: bold;
+  color: var(--toolbar-color) !important;
+  letter-spacing: 1px;
+  font-size: 0.9em;
+  margin-inline-start: 2px;
+}
+
 /* ..... Inbox ..... */
 .tabmail-tab[type="folder"][SpecialFolder="Inbox"],
 treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox) {

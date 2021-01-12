@@ -26,12 +26,12 @@
   text-shadow: none;
 }
 
-#folderPane-toolbar {
+#folderPaneHeader {
   background: linear-gradient(#f3f3f3, #ebebeb);
   border-bottom: 1px solid #bebebe;
 }
 
-#folderPane-toolbar:-moz-window-inactive {
+#folderPaneHeader:-moz-window-inactive {
   background-color: -moz-mac-chrome-inactive;
   background-image: none;
 }

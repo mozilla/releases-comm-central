@@ -241,8 +241,8 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
     ) {
       externalToolbars.push(document.getElementById("mail-toolbar-menubar2"));
     }
-    if (document.getElementById("folderPane-toolbar")) {
-      externalToolbars.push(document.getElementById("folderPane-toolbar"));
+    if (document.getElementById("folderPaneHeader")) {
+      externalToolbars.push(document.getElementById("folderPaneHeader"));
     }
   }
 
@@ -422,8 +422,8 @@ function onViewToolbarsPopupShowing(
       ) {
         toolbars.push(document.getElementById("mail-toolbar-menubar2"));
       }
-      if (document.getElementById("folderPane-toolbar")) {
-        toolbars.push(document.getElementById("folderPane-toolbar"));
+      if (document.getElementById("folderPaneHeader")) {
+        toolbars.push(document.getElementById("folderPaneHeader"));
       }
     }
 

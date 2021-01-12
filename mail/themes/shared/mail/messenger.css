@@ -621,8 +621,53 @@ html|ul.addon-webext-perm-list:empty {
                     transparent calc(100% - 4px));
 }
 
+#folderPaneHeader {
+  padding: 3px 6px;
+  color: inherit;
+}
+
+#folderPaneHeader > label {
+  font-weight: bold;
+  margin-inline-start: 1px;
+}
+
+.button-more {
+  list-style-image: url("chrome://messenger/skin/icons/more.svg");
+}
+
+.button-flat {
+  appearance: none;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  padding: 3px;
+  line-height: 1em;
+  border-radius: var(--toolbarbutton-border-radius);
+  transition: background-color 150ms;
+}
+
+.button-flat:hover {
+  background-color: hsla(0, 0%, 0%, .1);
+  color: inherit;
+}
+
+.button-flat:hover:active {
+  background-color: hsla(0, 0%, 0%, .2);
+}
+
+.button-flat:-moz-lwtheme-brighttext:hover {
+  background-color: hsla(0, 0%, 100%, .2);
+}
+
+.button-flat:-moz-lwtheme-brighttext:hover:active {
+  background-color: hsla(0, 0%, 100%, .3);
+}
+
+.button-flat:focus:not(:hover) {
+  outline: 2px solid Highlight;
+}
+
 :root[lwt-tree] tree,
-:root[lwt-tree] #folderPane-toolbar {
+:root[lwt-tree] #folderPaneHeader {
   background-color: var(--sidebar-background-color);
   color: var(--sidebar-text-color);
 }
@@ -635,12 +680,12 @@ html|ul.addon-webext-perm-list:empty {
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
-:root[lwt-tree] #folderPane-toolbar {
+:root[lwt-tree] #folderPaneHeader {
   background-image: none;
   border-bottom-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
 }
 
-:root[lwt-tree-brighttext] #folderPane-toolbar {
+:root[lwt-tree-brighttext] #folderPaneHeader {
   border-bottom-color: var(--sidebar-border-color, rgba(249,249,250,.2));
 }
 
@@ -1015,4 +1060,8 @@ toolbarpaletteitem[type="spring"][place="palette"] toolbarspring {
   background: url("chrome://messenger/skin/icons/spring.svg") no-repeat center;
   -moz-context-properties: fill;
   fill: currentColor;
+}
+
+panel[type="arrow"].panel-block-padding::part(arrowcontent) {
+  padding-block: 6px;
 }

@@ -9,8 +9,8 @@ var gSelectOffline = {
   _rollbackMap: new Map(),
 
   load() {
-    let oldProps = ftvItem.prototype.getProperties;
-    ftvItem.prototype.getProperties = function(aColumn) {
+    let oldProps = FtvItem.prototype.getProperties;
+    FtvItem.prototype.getProperties = function(aColumn) {
       if (!aColumn || aColumn.id != "syncCol") {
         return oldProps.call(this, aColumn);
       }
@@ -41,7 +41,7 @@ var gSelectOffline = {
         // Force each root folder to do its local subfolder discovery.
         MailUtils.discoverFolders();
         return accounts.map(
-          acct => new ftvItem(acct.incomingServer.rootFolder, filterOffline)
+          acct => new FtvItem(acct.incomingServer.rootFolder, filterOffline)
         );
       },
     };

@@ -330,15 +330,17 @@ function OnMouseUpThreadAndMessagePaneSplitter() {
 var gIgnoreSyntheticFolderPaneSelectionChange = false;
 function FolderPaneSelectionChange() {
   let folders = GetSelectedMsgFolders();
-  if (folders.length) {
-    let msgFolder = folders[0];
-    let locationItem = document.getElementById("locationFolders");
-    if (locationItem) {
-      locationItem.setAttribute("label", msgFolder.prettyName);
-      document
-        .getElementById("folderLocationPopup")
-        ._setCssSelectors(msgFolder, locationItem);
-    }
+  if (!folders.length) {
+    return;
+  }
+
+  let msgFolder = folders[0];
+  let locationItem = document.getElementById("locationFolders");
+  if (locationItem) {
+    locationItem.setAttribute("label", msgFolder.prettyName);
+    document
+      .getElementById("folderLocationPopup")
+      ._setCssSelectors(msgFolder, locationItem);
   }
 
   if (gIgnoreSyntheticFolderPaneSelectionChange) {

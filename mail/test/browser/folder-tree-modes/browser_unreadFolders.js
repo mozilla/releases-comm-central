@@ -47,18 +47,13 @@ add_task(function setupModule(module) {
 });
 
 /**
- * Switch to the all folders mode.
- */
-add_task(function test_switch_to_all_folders() {
-  mc.folderTreeView.mode = "all";
-  be_in_folder(inboxFolder);
-});
-
-/**
  * Switch to the unread folder mode.
  */
 add_task(function test_switch_to_unread_folders() {
-  mc.folderTreeView.mode = "unread";
+  be_in_folder(inboxFolder);
+  mc.folderTreeView.activeModes = "unread";
+  // Hide the all folder views.
+  mc.folderTreeView.activeModes = "all";
 });
 
 /**
@@ -89,7 +84,7 @@ registerCleanupFunction(function teardownModule() {
   inboxFolder.propagateDelete(inboxSubfolder, true, null);
   delete_message_set(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true, null);
-  mc.folderTreeView.mode = "all";
+  mc.folderTreeView.activeModes = "unread";
 
   Assert.report(
     false,
