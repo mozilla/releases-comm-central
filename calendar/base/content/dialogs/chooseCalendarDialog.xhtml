@@ -3,19 +3,16 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/chooseCalendarDialog.css"?>
 
 <!-- DTD File with all strings specific to the file -->
-<!DOCTYPE window
-[
-    <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd1;
-]>
+<!DOCTYPE window SYSTEM "chrome://calendar/locale/calendar.dtd">
 
 <window title="&calendar.select.dialog.title;"
         windowtype="Calendar:CalendarPicker"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         onload="setTimeout(loadCalendars, 0);"
-        style="min-height:200px; min-width:300px;"
         persist="screenX screenY height width">
 <dialog id="chooseCalendar"
         buttons="accept,cancel">

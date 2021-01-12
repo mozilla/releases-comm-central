@@ -28,10 +28,8 @@ function loadCalendars() {
 
     let colorCell = document.createXULElement("box");
     try {
-      let calColor = calendar.getProperty("color");
-      colorCell.style.background = calColor || "#a8c2e1";
+      colorCell.style.backgroundColor = calendar.getProperty("color") || "#a8c2e1";
     } catch (e) {}
-    colorCell.style.width = "17px";
     listItem.appendChild(colorCell);
 
     let nameCell = document.createXULElement("label");

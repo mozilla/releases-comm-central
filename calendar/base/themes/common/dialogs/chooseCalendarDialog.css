@@ -1,0 +1,19 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  min-width: 300px;
+  min-height: 200px;
+}
+
+richlistitem {
+  padding: 4px 8px;
+  -moz-box-align: center;
+}
+
+richlistitem > box:first-child {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+}
