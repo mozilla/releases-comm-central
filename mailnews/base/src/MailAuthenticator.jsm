@@ -11,21 +11,34 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  */
 class MailAuthenticator {
   /**
+   * Get the hostname for a connection.
+   * @returns string
+   */
+  get hostname() {
+    throw Components.Exception(
+      "hostname getter not implemented",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  }
+
+  /**
    * Get the username for a connection.
    * @returns string
    */
-  getUsername() {
+  get username() {
     throw Components.Exception(
-      "getUsername not implemented",
+      "username getter not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   }
 
   /**
    * Get the password for a connection.
+   * @param {boolean} forceNew - Discard the cached password, force requesting
+   *   new password from user.
    * @returns string
    */
-  getPassword() {
+  getPassword(forceNew) {
     throw Components.Exception(
       "getPassword not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED
@@ -42,10 +55,74 @@ class MailAuthenticator {
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   }
+
+  /**
+   * Show a dialog for authentication failure.
+   * @returns {number} - 0: Retry; 1: Cancel; 2: New password.
+   */
+  promptAuthFailed() {
+    throw Components.Exception(
+      "promptAuthFailed not implemented",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  }
+
+  /**
+   * Show a dialog for authentication failure.
+   * @param {nsIMsgWindow} - The associated msg window.
+   * @param {string} - A user defined account name or the server hostname.
+   * @returns {number} - 0: Retry; 1: Cancel; 2: New password.
+   */
+  _promptAuthFailed(msgWindow, accountname) {
+    let dialog;
+    if (msgWindow) {
+      dialog = msgWindow.promptDialog;
+    }
+    if (!dialog) {
+      dialog = Services.ww.getNewPrompter(null);
+    }
+
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
+    let message = bundle.formatStringFromName("mailServerLoginFailed2", [
+      this.hostname,
+      this.username,
+    ]);
+
+    let title = bundle.formatStringFromName(
+      "mailServerLoginFailedTitleWithAccount",
+      [accountname]
+    );
+
+    let retryButtonLabel = bundle.GetStringFromName(
+      "mailServerLoginFailedRetryButton"
+    );
+    let newPasswordButtonLabel = bundle.GetStringFromName(
+      "mailServerLoginFailedEnterNewPasswordButton"
+    );
+    let buttonFlags =
+      Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
+      Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_CANCEL +
+      Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING;
+    let dummyValue = { value: false };
+
+    return dialog.confirmEx(
+      title,
+      message,
+      buttonFlags,
+      retryButtonLabel,
+      null,
+      newPasswordButtonLabel,
+      null,
+      dummyValue
+    );
+  }
 }
 
 /**
  * Collection of helper functions for authenticating an SMTP connection.
+ * @extends MailAuthenticator
  */
 class SmtpAuthenticator extends MailAuthenticator {
   /**
@@ -56,12 +133,18 @@ class SmtpAuthenticator extends MailAuthenticator {
     this._server = server;
   }
 
-  getUsername() {
+  get hostname() {
+    return this._server.hostname;
+  }
+
+  get username() {
     return this._server.username;
   }
 
-  getPassword() {
-    if (this._server.password) {
+  getPassword(forceNew) {
+    if (forceNew) {
+      this._server.forgetPassword();
+    } else if (this._server.password) {
       return this._server.password;
     }
     let composeBundle = Services.strings.createBundle(
@@ -110,5 +193,12 @@ class SmtpAuthenticator extends MailAuthenticator {
         },
       });
     });
+  }
+
+  promptAuthFailed() {
+    return this._promptAuthFailed(
+      null,
+      this._server.description || this.hostname
+    );
   }
 }

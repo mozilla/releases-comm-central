@@ -203,14 +203,14 @@ SmtpServer.prototype = {
   },
 
   forgetPassword() {
-    let logins = Services.logins.findLogins(this.serverURI, "", this.serverURI);
+    let serverURI = this._getServerURI();
+    let logins = Services.logins.findLogins(serverURI, "", serverURI);
     for (let login of logins) {
       if (login.username == this.username) {
         Services.logins.removeLogin(login);
-        this.password = "";
-        return;
       }
     }
+    this.password = "";
   },
 
   verifyLogon(urlListner, msgWindow) {

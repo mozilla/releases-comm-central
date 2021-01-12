@@ -62,15 +62,9 @@ class SmtpClient {
    * @param {nsISmtpServer} server - The associated nsISmtpServer instance.
    */
   constructor(server) {
-    let authMethod = {
-      [Ci.nsMsgAuthMethod.passwordCleartext]: "PLAIN",
-      [Ci.nsMsgAuthMethod.passwordEncrypted]: "LOGIN",
-      [Ci.nsMsgAuthMethod.OAuth2]: "XOAUTH2",
-    }[server.authMethod];
     this.options = {
       ignoreTLS: server.socketType == Ci.nsMsgSocketType.plain,
       requireTLS: server.socketType == Ci.nsMsgSocketType.SSL,
-      authMethod,
     };
 
     this.timeoutSocketLowerBound = TIMEOUT_SOCKET_LOWER_BOUND;
@@ -78,9 +72,6 @@ class SmtpClient {
 
     this.port = server.port || (this.options.useSecureTransport ? 465 : 25);
     this.host = server.hostname;
-
-    this._server = server;
-    this._authenticator = new SmtpAuthenticator(server);
 
     /**
      * If set to true, start an encrypted connection instead of the plaintext one
@@ -98,10 +89,24 @@ class SmtpClient {
 
     // Private properties
 
+    this._server = server;
+    this._authenticator = new SmtpAuthenticator(server);
+    // A list of auth methods detected from the EHLO response.
+    this._supportedAuthMethods = [];
+    // A list of auth methods that worth a try.
+    this._possibleAuthMethods = [];
+    // Auth method set by user preference.
+    this._preferredAuthMethod = {
+      [Ci.nsMsgAuthMethod.passwordCleartext]: "PLAIN",
+      [Ci.nsMsgAuthMethod.passwordEncrypted]: "LOGIN",
+      [Ci.nsMsgAuthMethod.OAuth2]: "XOAUTH2",
+    }[server.authMethod];
+    // The next auth method to try if the current failed.
+    this._nextAuthMethod = null;
+
     // A list of capabilities detected from the EHLO response.
     this._capabilities = [];
 
-    this._supportedAuth = []; // A list of authentication mechanisms detected from the EHLO response and which are compatible with this library
     this._dataMode = false; // If true, accepts data from the upstream to be passed directly to the downstream socket. Used after the DATA command
     this._lastDataBytes = ""; // Keep track of the last bytes to see how the terminating dot should be placed
     this._envelope = null; // Envelope object for tracking who is sending mail to whom
@@ -541,23 +546,24 @@ class SmtpClient {
 
   /**
    * Intitiate authentication sequence if needed
+   * @param {boolean} forceNewPassword - Discard cached password.
    */
-  async _authenticateUser() {
-    if (!this.options.authMethod || this._supportedAuth.length == 0) {
+  async _authenticateUser(forceNewPassword) {
+    if (
+      !this._preferredAuthMethod ||
+      !this._nextAuthMethod ||
+      this._supportedAuthMethods.length == 0
+    ) {
       // no need to authenticate, at least no data given
       this._currentAction = this._actionIdle;
       this.onidle(); // ready to take orders
       return;
     }
 
-    var auth;
-
-    if (this.options.authMethod) {
-      auth = this.options.authMethod.toUpperCase().trim();
-    } else {
-      // use first supported
-      auth = (this._supportedAuth[0] || "PLAIN").toUpperCase().trim();
-    }
+    let auth = this._nextAuthMethod;
+    this._nextAuthMethod = this._possibleAuthMethods[
+      this._possibleAuthMethods.indexOf(auth) + 1
+    ];
 
     switch (auth) {
       case "LOGIN":
@@ -579,9 +585,9 @@ class SmtpClient {
           "AUTH PLAIN " +
             encode(
               "\u0000" + // skip authorization identity as it causes problems with some servers
-                this._authenticator.getUsername() +
+                this._authenticator.username +
                 "\u0000" +
-                this._authenticator.getPassword()
+                this._authenticator.getPassword(forceNewPassword)
             )
         );
         return;
@@ -595,6 +601,32 @@ class SmtpClient {
     }
 
     this._onError(new Error("Unknown authentication method " + auth));
+  }
+
+  _onAuthFailed(command) {
+    this.logger.error(`Authentication failed: ${command.data}`);
+    if (this._nextAuthMethod) {
+      // Try the next auth method.
+      this._authenticateUser();
+      return;
+    }
+
+    // Ask user what to do.
+    let action = this._authenticator.promptAuthFailed();
+    if (action == 1) {
+      // Cancel button pressed.
+      this._onError(new Error(`Authentication failed: ${command.data}`));
+      return;
+    }
+    // Reset _nextAuthMethod to start again.
+    this._nextAuthMethod = this._possibleAuthMethods[0];
+    if (action == 2) {
+      // 'New password' button pressed.
+      this._authenticateUser(true);
+    } else if (action == 0) {
+      // Retry button pressed.
+      this._authenticateUser();
+    }
   }
 
   _getHelloArgument() {
@@ -680,20 +712,29 @@ class SmtpClient {
     // Detect if the server supports PLAIN auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)PLAIN/i)) {
       this.logger.debug("Server supports AUTH PLAIN");
-      this._supportedAuth.push("PLAIN");
+      this._supportedAuthMethods.push("PLAIN");
     }
 
     // Detect if the server supports LOGIN auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)LOGIN/i)) {
       this.logger.debug("Server supports AUTH LOGIN");
-      this._supportedAuth.push("LOGIN");
+      this._supportedAuthMethods.push("LOGIN");
     }
 
     // Detect if the server supports XOAUTH2 auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)XOAUTH2/i)) {
       this.logger.debug("Server supports AUTH XOAUTH2");
-      this._supportedAuth.push("XOAUTH2");
+      this._supportedAuthMethods.push("XOAUTH2");
     }
+
+    // Setup _possibleAuthMethods and _nextAuthMethod for the auth process.
+    this._possibleAuthMethods = this._supportedAuthMethods.filter(
+      x => x != this._preferredAuthMethod
+    );
+    if (this._preferredAuthMethod) {
+      this._possibleAuthMethods.unshift(this._preferredAuthMethod);
+    }
+    this._nextAuthMethod = this._possibleAuthMethods[0];
 
     // Detect maximum allowed message size
     if ((match = command.data.match(/SIZE (\d+)/i)) && Number(match[1])) {
@@ -774,7 +815,7 @@ class SmtpClient {
     }
     this.logger.debug("AUTH LOGIN USER successful");
     this._currentAction = this._actionAUTH_LOGIN_PASS;
-    this._sendCommand(encode(this._authenticator.getUsername()));
+    this._sendCommand(encode(this._authenticator.username));
   }
 
   /**
@@ -820,7 +861,7 @@ class SmtpClient {
    */
   _actionAUTHComplete(command) {
     if (!command.success) {
-      this._onError(new Error(`Authentication failed: ${command.data}`));
+      this._onAuthFailed(command);
       return;
     }
 
