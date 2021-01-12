@@ -458,3 +458,4 @@ win64-asan/opt:
             - win64-rust-size
             - win64-sccache
             - win64-winchecksec
+            - win64-llvm-symbolizer

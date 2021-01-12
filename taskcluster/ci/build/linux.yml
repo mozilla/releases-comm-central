@@ -164,6 +164,7 @@ linux64-asan/opt:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump-syms
+            - linux64-llvm-symbolizer
             - linux64-libotr
             - linux64-nasm
             - linux64-node
