@@ -36,6 +36,7 @@ var { SmtpAuthenticator } = ChromeUtils.import(
 );
 
 var encode = btoa;
+const NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
 
 /**
  * Lower Bound for socket timeout to wait since the last data was written to a socket
@@ -84,13 +85,16 @@ class SmtpClient {
         : this.port === 465;
 
     this.socket = false; // Downstream TCP socket to the SMTP server, created with mozTCPSocket
-    this.destroyed = false; // Indicates if the connection has been closed and can't be used anymore
     this.waitDrain = false; // Keeps track if the downstream socket is currently full and a drain event should be waited for or not
 
     // Private properties
 
+    // Indicates if the connection has been closed and can't be used anymore
+    this._destroyed = false;
+
     this._server = server;
     this._authenticator = new SmtpAuthenticator(server);
+    this._authenticating = false;
     // A list of auth methods detected from the EHLO response.
     this._supportedAuthMethods = [];
     // A list of auth methods that worth a try.
@@ -153,6 +157,8 @@ class SmtpClient {
     } catch (E) {}
     this.socket.onerror = this._onError.bind(this);
     this.socket.onopen = this._onOpen.bind(this);
+
+    this._destroyed = false;
   }
 
   /**
@@ -189,7 +195,42 @@ class SmtpClient {
     this._envelope.from = [].concat(
       this._envelope.from || "anonymous@" + this._getHelloArgument()
     )[0];
-    this._envelope.to = [].concat(this._envelope.to || []);
+
+    if (!this._capabilities.includes("SMTPUTF8")) {
+      // If server doesn't support SMTPUTF8, check if addresses contain invalid
+      // characters.
+
+      let recipients = this._envelope.to;
+      this._envelope.to = [];
+
+      for (let recipient of recipients) {
+        let lastAt = null;
+        let firstInvalid = null;
+        for (let i = 0; i < recipient.length; i++) {
+          let ch = recipient[i];
+          if (ch == "@") {
+            lastAt = i;
+          } else if ((ch < " " || ch > "~") && ch != "\t") {
+            firstInvalid = i;
+            break;
+          }
+        }
+        if (firstInvalid != null) {
+          if (!lastAt) {
+            // Invalid char found in the localpart, throw error until we implement RFC 6532.
+            this.onerror(NS_ERROR_BUT_DONT_SHOW_ALERT);
+            return;
+          }
+          // Invalid char found in the domainpart, convert it to ACE.
+          let idnService = Cc["@mozilla.org/network/idn-service;1"].getService(
+            Ci.nsIIDNService
+          );
+          let domain = idnService.convertUTF8toACE(recipient.slice(lastAt + 1));
+          recipient = `${recipient.slice(0, lastAt)}@${domain}`;
+        }
+        this._envelope.to.push(recipient);
+      }
+    }
 
     // clone the recipients array for latter manipulation
     this._envelope.rcptQueue = [].concat(this._envelope.to);
@@ -210,7 +251,7 @@ class SmtpClient {
     if (this._capabilities.includes("SIZE")) {
       cmd += ` SIZE=${this._envelope.size}`;
     }
-    this.logger.debug("Sending MAIL FROM...");
+    this.logger.debug(`Sending ${cmd}`);
     this._sendCommand(cmd);
   }
 
@@ -421,6 +462,10 @@ class SmtpClient {
   _onClose() {
     this.logger.debug("Socket closed.");
     this._destroy();
+    if (this._authenticating) {
+      // In some cases, socket is closed for invalid username/password.
+      this._onAuthFailed({ data: "Socket closed." });
+    }
   }
 
   /**
@@ -437,9 +482,12 @@ class SmtpClient {
   }
 
   _onTimeout() {
-    // inform about the timeout and shut down
-    var error = new Error("Socket timed out!");
-    this._onError(error);
+    this.logger.error("Socket timed out.");
+    this._destroy();
+    if (this._authenticating) {
+      // In some cases, socket timed out for invalid username/password.
+      this._onAuthFailed({ data: "Socket timed out." });
+    }
   }
 
   /**
@@ -448,8 +496,8 @@ class SmtpClient {
   _destroy() {
     clearTimeout(this._socketTimeoutTimer);
 
-    if (!this.destroyed) {
-      this.destroyed = true;
+    if (!this._destroyed) {
+      this._destroyed = true;
       this.onclose();
     }
   }
@@ -560,6 +608,8 @@ class SmtpClient {
       return;
     }
 
+    this._authenticating = true;
+
     let auth = this._nextAuthMethod;
     this._nextAuthMethod = this._possibleAuthMethods[
       this._possibleAuthMethods.indexOf(auth) + 1
@@ -587,7 +637,7 @@ class SmtpClient {
               "\u0000" + // skip authorization identity as it causes problems with some servers
                 this._authenticator.username +
                 "\u0000" +
-                this._authenticator.getPassword(forceNewPassword)
+                this._authenticator.getPassword()
             )
         );
         return;
@@ -605,7 +655,7 @@ class SmtpClient {
 
   _onAuthFailed(command) {
     this.logger.error(`Authentication failed: ${command.data}`);
-    if (this._nextAuthMethod) {
+    if (this._nextAuthMethod && !this._destroyed) {
       // Try the next auth method.
       this._authenticateUser();
       return;
@@ -617,14 +667,22 @@ class SmtpClient {
       // Cancel button pressed.
       this._onError(new Error(`Authentication failed: ${command.data}`));
       return;
+    } else if (action == 2) {
+      // 'New password' button pressed. Forget cached password, new password
+      // will be asked.
+      this._authenticator.forgetPassword();
     }
+
+    if (this._destroyed) {
+      // If connection is lost, reconnect.
+      this.connect();
+      return;
+    }
+
     // Reset _nextAuthMethod to start again.
     this._nextAuthMethod = this._possibleAuthMethods[0];
-    if (action == 2) {
-      // 'New password' button pressed.
-      this._authenticateUser(true);
-    } else if (action == 0) {
-      // Retry button pressed.
+    if (action == 2 || action == 0) {
+      // action = 0 means retry button pressed.
       this._authenticateUser();
     }
   }
@@ -709,6 +767,8 @@ class SmtpClient {
       return;
     }
 
+    this._supportedAuthMethods = [];
+
     // Detect if the server supports PLAIN auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)PLAIN/i)) {
       this.logger.debug("Server supports AUTH PLAIN");
@@ -731,7 +791,10 @@ class SmtpClient {
     this._possibleAuthMethods = this._supportedAuthMethods.filter(
       x => x != this._preferredAuthMethod
     );
-    if (this._preferredAuthMethod) {
+    if (
+      this._preferredAuthMethod &&
+      this._supportedAuthMethods.includes(this._preferredAuthMethod)
+    ) {
       this._possibleAuthMethods.unshift(this._preferredAuthMethod);
     }
     this._nextAuthMethod = this._possibleAuthMethods[0];
@@ -860,6 +923,7 @@ class SmtpClient {
    * @param {Object} command Parsed command from the server {statusCode, data}
    */
   _actionAUTHComplete(command) {
+    this._authenticating = false;
     if (!command.success) {
       this._onAuthFailed(command);
       return;
@@ -907,7 +971,7 @@ class SmtpClient {
       this.logger.debug("Adding recipient...");
       this._envelope.curRecipient = this._envelope.rcptQueue.shift();
       this._currentAction = this._actionRCPT;
-      this._sendCommand("RCPT TO:<" + this._envelope.curRecipient + ">");
+      this._sendCommand(`RCPT TO:<${this._envelope.curRecipient}>`);
     }
   }
 
@@ -942,7 +1006,7 @@ class SmtpClient {
       this.logger.debug("Adding recipient...");
       this._envelope.curRecipient = this._envelope.rcptQueue.shift();
       this._currentAction = this._actionRCPT;
-      this._sendCommand("RCPT TO:<" + this._envelope.curRecipient + ">");
+      this._sendCommand(`RCPT TO:<${this._envelope.curRecipient}>`);
     }
   }
 

@@ -33,12 +33,20 @@ class MailAuthenticator {
   }
 
   /**
+   * Forget cached password.
+   */
+  forgetPassword() {
+    throw Components.Exception(
+      "forgetPassword not implemented",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  }
+
+  /**
    * Get the password for a connection.
-   * @param {boolean} forceNew - Discard the cached password, force requesting
-   *   new password from user.
    * @returns string
    */
-  getPassword(forceNew) {
+  getPassword() {
     throw Components.Exception(
       "getPassword not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED
@@ -141,10 +149,12 @@ class SmtpAuthenticator extends MailAuthenticator {
     return this._server.username;
   }
 
-  getPassword(forceNew) {
-    if (forceNew) {
-      this._server.forgetPassword();
-    } else if (this._server.password) {
+  forgetPassword() {
+    this._server.forgetPassword();
+  }
+
+  getPassword() {
+    if (this._server.password) {
       return this._server.password;
     }
     let composeBundle = Services.strings.createBundle(

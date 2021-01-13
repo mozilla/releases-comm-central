@@ -4,6 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["SmtpService"];
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -120,9 +123,11 @@ SmtpService.prototype = {
       fstream.close();
       client.end();
     };
-    // let runningUrl = Services.io.newURI(server.serverURI);
     let runningUrl = this._getRunningUri(server);
     client.ondone = () => {
+      if (!AppConstants.MOZ_SUITE) {
+        Services.telemetry.scalarAdd("tb.mails.sent", 1);
+      }
       deliveryListener?.OnStopRunningUrl(runningUrl, 0);
       client.close();
     };
@@ -224,7 +229,10 @@ SmtpService.prototype = {
    * @returns {string[]}
    */
   _getSmtpServerKeys() {
-    return Services.prefs.getCharPref("mail.smtpservers", "").split(",");
+    return Services.prefs
+      .getCharPref("mail.smtpservers", "")
+      .split(",")
+      .filter(Boolean);
   },
 
   /**

@@ -15,14 +15,32 @@ let kIdentityMail = "identity@foo.invalid";
 let kSender = "from@foo.invalid";
 let kTo = "to@foo.invalid";
 
+const NUM_MAILS = 3;
+
+let deliveryListener = {
+  count: 0,
+  OnStopRunningUrl() {
+    if (++this.count == NUM_MAILS) {
+      let scalars = TelemetryTestUtils.getProcessScalars("parent");
+      Assert.equal(
+        scalars["tb.mails.sent"],
+        NUM_MAILS,
+        "Count of mails sent must be correct."
+      );
+    }
+  },
+};
+
 /**
  * Check that we're counting mails sent.
  */
 add_task(async function test_mails_sent() {
   Services.telemetry.clearScalars();
-  const NUM_MAILS = 3;
 
   server = setupServerDaemon();
+  registerCleanupFunction(() => {
+    server.stop();
+  });
 
   // Test file
   let testFile = do_get_file("data/message1.eml");
@@ -45,7 +63,7 @@ add_task(async function test_mails_sent() {
         identity,
         kSender,
         null,
-        null,
+        deliveryListener,
         null,
         null,
         false,
@@ -55,13 +73,5 @@ add_task(async function test_mails_sent() {
     }
   } catch (e) {
     do_throw(e);
-  } finally {
-    server.stop();
   }
-  let scalars = TelemetryTestUtils.getProcessScalars("parent");
-  Assert.equal(
-    scalars["tb.mails.sent"],
-    NUM_MAILS,
-    "Count of mails sent must be correct."
-  );
 });

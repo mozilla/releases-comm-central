@@ -12,7 +12,7 @@ function run_test() {
   // Test - no servers
 
   var smtpServers = smtpService.servers;
-  Assert.ok(smtpServers.length == 0);
+  Assert.equal(smtpServers.length, 0);
 
   Assert.equal(smtpService.defaultServer, null);
 
