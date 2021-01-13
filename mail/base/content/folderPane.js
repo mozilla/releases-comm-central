@@ -1323,6 +1323,12 @@ var gFolderTreeView = {
       // If this was a server that was expanded, let it update its counts.
       let folder = this._rowMap[aIndex]._folder;
 
+      // Interrupt if we don't have a folder, meaning this is a Mode Header and
+      // no row toggle will be performed.
+      if (!folder) {
+        return;
+      }
+
       if (aExpandServer) {
         if (folder.isServer) {
           folder.server.performExpand(msgWindow);

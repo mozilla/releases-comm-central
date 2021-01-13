@@ -118,12 +118,7 @@ var gSelectOffline = {
     gFolderTreeView._tree.invalidateRow(aRow);
   },
 
-  onAccept() {
-    gFolderTreeView.unload();
-  },
-
   onCancel() {
-    gFolderTreeView.unload();
     for (let [folder, value] of this._rollbackMap) {
       if (value != folder.getFlag(Ci.nsMsgFolderFlags.Offline)) {
         folder.toggleFlag(Ci.nsMsgFolderFlags.Offline);
@@ -132,5 +127,6 @@ var gSelectOffline = {
   },
 };
 
-document.addEventListener("dialogaccept", () => gSelectOffline.onAccept());
+window.addEventListener("load", () => gSelectOffline.load());
+window.addEventListener("unload", () => gFolderTreeView.unload());
 document.addEventListener("dialogcancel", () => gSelectOffline.onCancel());
