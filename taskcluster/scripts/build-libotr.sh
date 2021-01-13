@@ -49,19 +49,19 @@ if [[ -n "$TOOLTOOL_MANIFEST" ]]; then
     source "${GECKO_PATH}/taskcluster/scripts/misc/tooltool-download.sh"
 fi
 
-function clang_cfg_macos() {
+function clang_cfg() {
     # autotools and friends seem to work better with Clang if the compiler
     # is named <target>-clang. This applies to macOS only. It does not seem
     # necessary when building for Linux.
-    local _clang_cfg _clang_dir
+    local _i _clang_cfg_dir _clang_dir
 
-    if [[ "${_TARGET_OS}" == "macosx64" ]]; then
-        _clang_cfg="${THIRD_PARTY_SRC}/clang/x86_64-apple-darwin.cfg"
-        _clang_dir="${MOZ_FETCHES_DIR}/clang/bin"
+    _clang_cfg_dir="${THIRD_PARTY_SRC}/clang"
+    _clang_dir="${MOZ_FETCHES_DIR}/clang/bin"
 
-        cp -a ${_clang_cfg} "${_clang_dir}"
-        ln -s clang "${_clang_dir}/x86_64-apple-darwin-clang"
-    fi
+    cp -a ${_clang_cfg_dir}/*.cfg "${_clang_dir}"
+    for _i in x86_64-apple-darwin aarch64-linux-gnu; do
+      ln -s clang "${_clang_dir}/${_i}-clang"
+    done
     return 0
 }
 
@@ -123,7 +123,7 @@ function build_libotr() {
     CFLAGS="${CFLAGS_otr} ${CFLAGS}"
     LDFLAGS="${LDFLAGS_otr} ${LDFLAGS}"
 
-    ./configure ${_CONFIGURE_FLAGS} --enable-shared \
+    ./configure ${_CONFIGURE_FLAGS} --enable-shared --with-pic \
         --with-libgcrypt-prefix="${_PREFIX}"
 
     make ${_MAKE_FLAGS} -C src
@@ -263,6 +263,27 @@ case "${_TARGET_OS}" in
         _CONF_STATIC="--enable-static --disable-shared"
         _TARGET_LIBS='lib/libotr.so.5'
         ;;
+    linux-aarch64)
+        for _t in clang/bin binutils/bin; do
+            PATH="${MOZ_FETCHES_DIR}/${_t}:$PATH"
+        done
+        export PATH
+
+        export _TARGET_TRIPLE="aarch64-pc-linux"
+        export CC="aarch64-linux-gnu-clang"
+        export AR=llvm-ar
+        export RANLIB=llvm-ranlib
+        export NM=llvm-nm
+        export LD=ld.lld
+        export STRIP=llvm-strip
+
+        CFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
+        LDFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
+
+        _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
+        _CONF_STATIC="--enable-static --disable-shared"
+        _TARGET_LIBS='lib/libotr.so.5'
+        ;;
     *)
         echo "Invalid target platform: ${_TARGET_OS}"
         exit 1
@@ -278,7 +299,7 @@ _MAKE_FLAGS="${_BASE_MAKE_FLAGS} ${_OS_MAKE_FLAGS}"
 # The packaging block depends on the build block's success.
 {
     copy_sources &&
-        clang_cfg_macos &&
+        clang_cfg &&
         build_libgpg-error &&
         build_libgcrypt &&
         build_libotr

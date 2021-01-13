@@ -38,6 +38,19 @@ linux64-libotr:
             - linux64-clang
             - linux64-binutils
 
+linux-aarch64-libotr:
+    treeherder:
+        symbol: TL(libotr-aarch64)
+    worker:
+        docker-image: {in-tree: toolchain-arm64-build}
+    run:
+        arguments: ['linux-aarch64']
+    fetches:
+        toolchain:
+            - linux64-clang-aarch64-cross
+            - linux64-binutils
+
+
 macosx64-libotr:
     worker:
         env:
