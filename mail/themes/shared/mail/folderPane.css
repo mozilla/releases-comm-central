@@ -76,10 +76,14 @@ treechildren::-moz-tree-row(modeHeader, firstHeader),
 
 treechildren::-moz-tree-cell-text(modeHeader) {
   font-weight: bold;
-  color: var(--toolbar-color) !important;
+  color: inherit !important;
   letter-spacing: 1px;
   font-size: 0.9em;
   margin-inline-start: 2px;
+}
+
+:root:not([lwt-tree-brighttext]) treechildren::-moz-tree-cell-text(modeHeader) {
+  opacity: 0.8;
 }
 
 /* ..... Inbox ..... */
