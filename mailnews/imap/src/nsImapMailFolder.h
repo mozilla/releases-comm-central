@@ -69,7 +69,6 @@ class nsImapMailCopyState : public nsISupports {
   bool m_isCrossServerOp;  // are we copying between imap servers?
   uint32_t m_curIndex;     // message index to the message array which we are
                            // copying
-  uint32_t m_totalCount;   // total count of messages we have to do
   uint32_t m_unreadCount;  // num unread messages we're moving
   bool m_streamCopy;
   char* m_dataBuffer;  // temporary buffer for this copy operation

@@ -5058,12 +5058,13 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
               UpdatePendingCounts();
 
               m_copyState->m_curIndex++;
-              if (m_copyState->m_curIndex >= m_copyState->m_totalCount) {
+              if (m_copyState->m_curIndex >= m_copyState->m_messages.Length()) {
                 nsCOMPtr<nsIUrlListener> saveUrlListener = m_urlListener;
                 if (folderOpen) {
                   // This gives a way for the caller to get notified
                   // when the UpdateFolder url is done.
-                  // (if the nsIMsgCopyServiceListener also implements nsIUrlListener)
+                  // (if the nsIMsgCopyServiceListener also implements
+                  // nsIUrlListener)
                   if (m_copyState->m_listener)
                     m_urlListener = do_QueryInterface(m_copyState->m_listener);
                 }
@@ -5201,8 +5202,15 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
 
 void nsImapMailFolder::UpdatePendingCounts() {
   if (m_copyState) {
-    ChangePendingTotal(
-        m_copyState->m_isCrossServerOp ? 1 : m_copyState->m_totalCount);
+    int32_t delta =
+        m_copyState->m_isCrossServerOp ? 1 : m_copyState->m_messages.Length();
+    if (!m_copyState->m_selectedState && m_copyState->m_messages.IsEmpty()) {
+      // special case from CopyFileMessage():
+      // - copied a single message in from a file
+      // - no previously-existing messages are involved
+      delta = 1;
+    }
+    ChangePendingTotal(delta);
 
     // count the moves that were unread
     int numUnread = m_copyState->m_unreadCount;
@@ -6207,10 +6215,11 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
 
   if (!mailCopyState->m_streamCopy) return NS_OK;
 
-  MOZ_LOG(IMAP, mozilla::LogLevel::Info,
-          ("CopyNextStreamMessage: Copying %u of %u", mailCopyState->m_curIndex,
-           mailCopyState->m_totalCount));
-  if (mailCopyState->m_curIndex < mailCopyState->m_totalCount) {
+  if (mailCopyState->m_curIndex < mailCopyState->m_messages.Length()) {
+    MOZ_LOG(
+        IMAP, mozilla::LogLevel::Info,
+        ("CopyNextStreamMessage: Copying %u of %u", mailCopyState->m_curIndex,
+         (uint32_t)mailCopyState->m_messages.Length()));
     mailCopyState->m_message =
         mailCopyState->m_messages[mailCopyState->m_curIndex];
     bool isRead;
@@ -7011,7 +7020,7 @@ nsImapMailFolder::CopyMessages(
                        EmptyCString(), listener, msgWindow, allowUndo);
     if (NS_FAILED(rv)) goto done;
 
-    m_copyState->m_curIndex = m_copyState->m_totalCount;
+    m_copyState->m_curIndex = m_copyState->m_messages.Length();
 
     if (isMove)
       srcFolder->EnableNotifications(
@@ -7397,7 +7406,6 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
 
   m_copyState->m_streamCopy = true;
   if (!isDraftOrTemplate) {
-    m_copyState->m_totalCount = 1;
     // This makes the IMAP APPEND set the INTERNALDATE for the msg copy
     // we make when detaching/deleting attachments to the original msg date.
     m_copyState->m_message = msgToReplace;
@@ -7453,12 +7461,12 @@ nsresult nsImapMailFolder::CopyStreamMessage(
     NS_ENSURE_SUCCESS(rv, rv);
 
     // put up status message here, if copying more than one message.
-    if (m_copyState->m_totalCount > 1) {
+    if (m_copyState->m_messages.Length() > 1) {
       nsString dstFolderName, progressText;
       GetName(dstFolderName);
       nsAutoString curMsgString;
       nsAutoString totalMsgString;
-      totalMsgString.AppendInt(m_copyState->m_totalCount);
+      totalMsgString.AppendInt((int32_t)m_copyState->m_messages.Length());
       curMsgString.AppendInt(m_copyState->m_curIndex + 1);
 
       AutoTArray<nsString, 3> formatStrings = {curMsgString, totalMsgString,
@@ -7477,7 +7485,7 @@ nsresult nsImapMailFolder::CopyStreamMessage(
         statusFeedback->ShowStatusString(progressText);
         int32_t percent;
         percent = (100 * m_copyState->m_curIndex) /
-                  (int32_t)m_copyState->m_totalCount;
+                  (int32_t)m_copyState->m_messages.Length();
         statusFeedback->ShowProgress(percent);
       }
     }
@@ -7497,7 +7505,6 @@ nsImapMailCopyState::nsImapMailCopyState()
       m_selectedState(false),
       m_isCrossServerOp(false),
       m_curIndex(0),
-      m_totalCount(0),
       m_streamCopy(false),
       m_dataBuffer(nullptr),
       m_dataBufferSize(0),
@@ -7529,7 +7536,6 @@ nsresult nsImapMailFolder::InitCopyState(
   m_copyState->m_srcSupport = srcSupport;
 
   m_copyState->m_messages = messages.Clone();
-  m_copyState->m_totalCount = messages.Length();
   if (!m_copyState->m_isCrossServerOp) {
     uint32_t numUnread = 0;
     for (nsIMsgDBHdr* message : m_copyState->m_messages) {
