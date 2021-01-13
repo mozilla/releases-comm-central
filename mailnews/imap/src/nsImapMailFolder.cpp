@@ -3109,11 +3109,9 @@ NS_IMETHODIMP nsImapMailFolder::EndCopy(bool copySucceeded) {
 
     rv =
         QueryInterface(NS_GET_IID(nsIUrlListener), getter_AddRefs(urlListener));
-    nsCOMPtr<nsISupports> copySupport;
-    if (m_copyState) copySupport = do_QueryInterface(m_copyState);
     rv = imapService->AppendMessageFromFile(
         m_copyState->m_tmpFile, this, EmptyCString(), true,
-        m_copyState->m_selectedState, urlListener, nullptr, copySupport,
+        m_copyState->m_selectedState, urlListener, nullptr, m_copyState,
         m_copyState->m_msgWindow);
   }
   if (NS_FAILED(rv) || !copySucceeded)
@@ -5065,6 +5063,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                 if (folderOpen) {
                   // This gives a way for the caller to get notified
                   // when the UpdateFolder url is done.
+                  // (if the nsIMsgCopyServiceListener also implements nsIUrlListener)
                   if (m_copyState->m_listener)
                     m_urlListener = do_QueryInterface(m_copyState->m_listener);
                 }
@@ -5085,9 +5084,10 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                   m_urlListener = saveUrlListener;
                 }
               }
-            } else
+            } else {
               // clear the copyState if copy has failed
               (void)OnCopyCompleted(m_copyState->m_srcSupport, aExitCode);
+            }
           }
           break;
         case nsIImapUrl::nsImapMoveFolderHierarchy:
@@ -7369,15 +7369,11 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
   nsresult rv = NS_ERROR_NULL_POINTER;
   nsMsgKey key = nsMsgKey_None;
   nsAutoCString messageId;
-  nsCOMPtr<nsIUrlListener> urlListener;
   nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-  nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(file, &rv);
 
   nsCOMPtr<nsIImapService> imapService =
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);
-
-  rv = QueryInterface(NS_GET_IID(nsIUrlListener), getter_AddRefs(urlListener));
+  if (NS_FAILED(rv)) return OnCopyCompleted(file, rv);
 
   if (msgToReplace) {
     rv = msgToReplace->GetMessageKey(&key);
@@ -7395,13 +7391,11 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
   }
 
   bool isMove = (msgToReplace ? true : false);
-  rv = InitCopyState(srcSupport, messages, isMove, isDraftOrTemplate, false,
+  rv = InitCopyState(file, messages, isMove, isDraftOrTemplate, false,
                      aNewMsgFlags, aNewMsgKeywords, listener, msgWindow, false);
-  if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);
+  if (NS_FAILED(rv)) return OnCopyCompleted(file, rv);
 
   m_copyState->m_streamCopy = true;
-  nsCOMPtr<nsISupports> copySupport;
-  if (m_copyState) copySupport = do_QueryInterface(m_copyState);
   if (!isDraftOrTemplate) {
     m_copyState->m_totalCount = 1;
     // This makes the IMAP APPEND set the INTERNALDATE for the msg copy
@@ -7409,9 +7403,9 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
     m_copyState->m_message = msgToReplace;
   }
   rv = imapService->AppendMessageFromFile(file, this, messageId, true,
-                                          isDraftOrTemplate, urlListener,
-                                          nullptr, copySupport, msgWindow);
-  if (NS_FAILED(rv)) return OnCopyCompleted(srcSupport, rv);
+                                          isDraftOrTemplate, this, nullptr,
+                                          m_copyState, msgWindow);
+  if (NS_FAILED(rv)) return OnCopyCompleted(file, rv);
 
   return rv;
 }
@@ -7528,31 +7522,27 @@ nsresult nsImapMailFolder::InitCopyState(
   NS_ENSURE_ARG_POINTER(srcSupport);
 
   NS_ENSURE_TRUE(!m_copyState, NS_ERROR_FAILURE);
-  nsresult rv;
 
   m_copyState = new nsImapMailCopyState();
 
   m_copyState->m_isCrossServerOp = acrossServers;
-  m_copyState->m_srcSupport = do_QueryInterface(srcSupport, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  m_copyState->m_srcSupport = srcSupport;
 
   m_copyState->m_messages = messages.Clone();
   m_copyState->m_totalCount = messages.Length();
   if (!m_copyState->m_isCrossServerOp) {
-    if (NS_SUCCEEDED(rv)) {
-      uint32_t numUnread = 0;
-      for (nsIMsgDBHdr* message : m_copyState->m_messages) {
-        // if the message is not there, then assume what the caller tells us to.
-        bool isRead = false;
-        uint32_t flags;
-        if (message) {
-          message->GetFlags(&flags);
-          isRead = flags & nsMsgMessageFlags::Read;
-        }
-        if (!isRead) numUnread++;
+    uint32_t numUnread = 0;
+    for (nsIMsgDBHdr* message : m_copyState->m_messages) {
+      // if the message is not there, then assume what the caller tells us to.
+      bool isRead = false;
+      uint32_t flags;
+      if (message) {
+        message->GetFlags(&flags);
+        isRead = flags & nsMsgMessageFlags::Read;
       }
-      m_copyState->m_unreadCount = numUnread;
+      if (!isRead) numUnread++;
     }
+    m_copyState->m_unreadCount = numUnread;
   } else {
     nsIMsgDBHdr* message = m_copyState->m_messages[m_copyState->m_curIndex];
     // if the key is not there, then assume what the caller tells us to.
