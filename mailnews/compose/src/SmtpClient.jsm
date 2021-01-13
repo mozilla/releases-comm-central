@@ -27,6 +27,9 @@
 
 const EXPORTED_SYMBOLS = ["SmtpClient"];
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { setTimeout, clearTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
@@ -165,7 +168,6 @@ class SmtpClient {
    * Sends QUIT
    */
   quit() {
-    this.logger.debug("Sending QUIT...");
     this._sendCommand("QUIT");
     this._currentAction = this.close;
   }
@@ -251,7 +253,6 @@ class SmtpClient {
     if (this._capabilities.includes("SIZE")) {
       cmd += ` SIZE=${this._envelope.size}`;
     }
-    this.logger.debug(`Sending ${cmd}`);
     this._sendCommand(cmd);
   }
 
@@ -407,7 +408,8 @@ class SmtpClient {
     var stringPayload = new TextDecoder("UTF-8").decode(
       new Uint8Array(evt.data)
     );
-    this.logger.debug("SERVER: " + stringPayload);
+    // "S: " to denote that this is data from the Server.
+    this.logger.debug(`S: ${stringPayload}`);
     this._parse(stringPayload);
   }
 
@@ -549,11 +551,22 @@ class SmtpClient {
   }
 
   /**
-   * Send a string command to the server, also append \r\n if needed
+   * Send a string command to the server, also append CRLF if needed.
    *
-   * @param {String} str String to be sent to the server
+   * @param {string} str - String to be sent to the server.
+   * @param {boolean} [suppressLogging=false] - If true and not in dev mode,
+   *   do not log the str. For non-release builds output won't be suppressed,
+   *   so that debugging auth problems is easier.
    */
-  _sendCommand(str) {
+  _sendCommand(str, suppressLogging = false) {
+    // "C: " is used to denote that this is data from the Client.
+    if (suppressLogging && AppConstants.MOZ_UPDATE_CHANNEL != "default") {
+      this.logger.debug(
+        "C: Logging suppressed (it probably contained auth information)"
+      );
+    } else {
+      this.logger.debug(`C: ${str}`);
+    }
     this.waitDrain = this._send(
       new TextEncoder().encode(str + (str.substr(-2) !== "\r\n" ? "\r\n" : ""))
         .buffer
@@ -638,7 +651,8 @@ class SmtpClient {
                 this._authenticator.username +
                 "\u0000" +
                 this._authenticator.getPassword()
-            )
+            ),
+          true
         );
         return;
       case "XOAUTH2":
@@ -646,7 +660,7 @@ class SmtpClient {
         this.logger.debug("Authentication via AUTH XOAUTH2");
         this._currentAction = this._actionAUTH_XOAUTH2;
         let oauthToken = await this._authenticator.getOAuthToken();
-        this._sendCommand("AUTH XOAUTH2 " + oauthToken);
+        this._sendCommand("AUTH XOAUTH2 " + oauthToken, true);
         return;
     }
 
@@ -716,13 +730,9 @@ class SmtpClient {
     }
 
     if (this.options.lmtp) {
-      this.logger.debug("Sending LHLO " + this._getHelloArgument());
-
       this._currentAction = this._actionLHLO;
       this._sendCommand("LHLO " + this._getHelloArgument());
     } else {
-      this.logger.debug("Sending EHLO " + this._getHelloArgument());
-
       this._currentAction = this._actionEHLO;
       this._sendCommand("EHLO " + this._getHelloArgument());
     }
@@ -771,19 +781,16 @@ class SmtpClient {
 
     // Detect if the server supports PLAIN auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)PLAIN/i)) {
-      this.logger.debug("Server supports AUTH PLAIN");
       this._supportedAuthMethods.push("PLAIN");
     }
 
     // Detect if the server supports LOGIN auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)LOGIN/i)) {
-      this.logger.debug("Server supports AUTH LOGIN");
       this._supportedAuthMethods.push("LOGIN");
     }
 
     // Detect if the server supports XOAUTH2 auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)XOAUTH2/i)) {
-      this.logger.debug("Server supports AUTH XOAUTH2");
       this._supportedAuthMethods.push("XOAUTH2");
     }
 
@@ -812,7 +819,6 @@ class SmtpClient {
         !!this.options.requireTLS
       ) {
         this._currentAction = this._actionSTARTTLS;
-        this.logger.debug("Sending STARTTLS");
         this._sendCommand("STARTTLS");
         return;
       }
@@ -878,7 +884,7 @@ class SmtpClient {
     }
     this.logger.debug("AUTH LOGIN USER successful");
     this._currentAction = this._actionAUTH_LOGIN_PASS;
-    this._sendCommand(encode(this._authenticator.username));
+    this._sendCommand(encode(this._authenticator.username), true);
   }
 
   /**
@@ -898,7 +904,7 @@ class SmtpClient {
     }
     this.logger.debug("AUTH LOGIN PASS successful");
     this._currentAction = this._actionAUTHComplete;
-    this._sendCommand(encode(this._authenticator.getPassword()));
+    this._sendCommand(encode(this._authenticator.getPassword()), true);
   }
 
   /**
