@@ -54,8 +54,7 @@ class nsImapMailCopyState : public nsISupports {
   nsCOMPtr<nsISupports> m_srcSupport;        // source file spec or folder
   nsTArray<RefPtr<nsIMsgDBHdr>> m_messages;  // array of source messages
   RefPtr<nsImapMoveCopyMsgTxn>
-      m_undoMsgTxn;                 // undo object with this copy operation
-  nsCOMPtr<nsIMsgDBHdr> m_message;  // current message to be copied
+      m_undoMsgTxn;  // undo object with this copy operation
   nsCOMPtr<nsIMsgCopyServiceListener> m_listener;  // listener of this copy
                                                    // operation
   nsCOMPtr<nsIFile> m_tmpFile;         // temp file spec for copy operation
@@ -77,7 +76,7 @@ class nsImapMailCopyState : public nsISupports {
   uint32_t m_leftOver;
   bool m_allowUndo;
   bool m_eatLF;
-  uint32_t m_newMsgFlags;      // only used if there's no m_message
+  uint32_t m_newMsgFlags;      // only used if m_messages is empty
   nsCString m_newMsgKeywords;  // ditto
   // If the server supports UIDPLUS, this is the UID for the append,
   // if we're doing an append.

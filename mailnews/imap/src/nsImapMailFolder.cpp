@@ -2956,7 +2956,6 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr* message) {
     }
     m_copyState->m_tmpFile = nullptr;
   }
-  if (message) m_copyState->m_message = message;
 
   rv = GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR, "nscpmsg.txt",
                                        getter_AddRefs(m_copyState->m_tmpFile));
@@ -4750,20 +4749,22 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
     nsCOMPtr<nsImapMailCopyState> mailCopyState = do_QueryInterface(copyState);
     uint32_t supportedFlags = 0;
     GetSupportedUserFlags(&supportedFlags);
-    if (mailCopyState && mailCopyState->m_message) {
+    if (mailCopyState &&
+        mailCopyState->m_curIndex < mailCopyState->m_messages.Length()) {
+      nsIMsgDBHdr* message =
+          mailCopyState->m_messages[mailCopyState->m_curIndex];
       nsMsgLabelValue label;
-      mailCopyState->m_message->GetFlags(aResult);
+      message->GetFlags(aResult);
       if (supportedFlags & (kImapMsgSupportUserFlag | kImapMsgLabelFlags)) {
-        mailCopyState->m_message->GetLabel(&label);
+        message->GetLabel(&label);
         if (label != 0) *aResult |= label << 25;
       }
-      if (aDate) mailCopyState->m_message->GetDate(aDate);
+      if (aDate) message->GetDate(aDate);
       if (supportedFlags & kImapMsgSupportUserFlag) {
         // setup the custom imap keywords, which includes the message keywords
         // plus any junk status
         nsCString junkscore;
-        mailCopyState->m_message->GetStringProperty("junkscore",
-                                                    getter_Copies(junkscore));
+        message->GetStringProperty("junkscore", getter_Copies(junkscore));
         bool isJunk = false, isNotJunk = false;
         if (!junkscore.IsEmpty()) {
           if (junkscore.EqualsLiteral("0"))
@@ -4773,8 +4774,7 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
         }
 
         nsCString keywords;  // MsgFindKeyword can't use nsACString
-        mailCopyState->m_message->GetStringProperty("keywords",
-                                                    getter_Copies(keywords));
+        message->GetStringProperty("keywords", getter_Copies(keywords));
         int32_t start;
         int32_t length;
         bool hasJunk = MsgFindKeyword("junk"_ns, keywords, &start, &length);
@@ -6220,13 +6220,12 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
         IMAP, mozilla::LogLevel::Info,
         ("CopyNextStreamMessage: Copying %u of %u", mailCopyState->m_curIndex,
          (uint32_t)mailCopyState->m_messages.Length()));
-    mailCopyState->m_message =
-        mailCopyState->m_messages[mailCopyState->m_curIndex];
+    nsIMsgDBHdr* message = mailCopyState->m_messages[mailCopyState->m_curIndex];
     bool isRead;
-    mailCopyState->m_message->GetIsRead(&isRead);
+    message->GetIsRead(&isRead);
     mailCopyState->m_unreadCount = (isRead) ? 0 : 1;
-    rv = CopyStreamMessage(mailCopyState->m_message, this,
-                           mailCopyState->m_msgWindow, mailCopyState->m_isMove);
+    rv = CopyStreamMessage(message, this, mailCopyState->m_msgWindow,
+                           mailCopyState->m_isMove);
   } else {
     // Notify of move/copy completion in case we have some source headers
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
@@ -7405,11 +7404,6 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
   if (NS_FAILED(rv)) return OnCopyCompleted(file, rv);
 
   m_copyState->m_streamCopy = true;
-  if (!isDraftOrTemplate) {
-    // This makes the IMAP APPEND set the INTERNALDATE for the msg copy
-    // we make when detaching/deleting attachments to the original msg date.
-    m_copyState->m_message = msgToReplace;
-  }
   rv = imapService->AppendMessageFromFile(file, this, messageId, true,
                                           isDraftOrTemplate, this, nullptr,
                                           m_copyState, msgWindow);
