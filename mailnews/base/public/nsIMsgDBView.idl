@@ -390,6 +390,16 @@ interface nsIMsgDBView : nsISupports
    * @return        - view index of msg hdr, -1 if hdr not found.
    */
   nsMsgViewIndex findIndexOfMsgHdr(in nsIMsgDBHdr aMsgHdr, in boolean aExpand);
+
+
+  /**
+   * Expands a thread and selects all it's member messages.
+   *
+   * @param aIndex   - View index of a message in the thread to expand (can be
+                       any message which is a member of the thread).
+   * @param aAugment - If true, Augment the existing selection.
+   *                   If false, replace it.
+   */
   void ExpandAndSelectThreadByIndex(in nsMsgViewIndex aIndex, in boolean aAugment);
 
   /**

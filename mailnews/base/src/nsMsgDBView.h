@@ -53,7 +53,8 @@ class MsgViewSortColumnInfo {
   nsCOMPtr<nsIMsgCustomColumnHandler> mColHandler;
 };
 
-// Reserve the top 8 bits in the msg flags for the view-only flags.
+// Reserve some bits in the msg flags for the view-only flags.
+// NOTE: this bit space is shared by nsMsgMessageFlags (and labels).
 #define MSG_VIEW_FLAGS 0xEE000000
 #define MSG_VIEW_FLAG_HASCHILDREN 0x40000000
 #define MSG_VIEW_FLAG_DUMMY 0x20000000
@@ -411,9 +412,14 @@ class nsMsgDBView : public nsIMsgDBView,
   bool AdjustReadFlag(nsIMsgDBHdr* msgHdr, uint32_t* msgFlags);
   void FreeAll(nsTArray<void*>* ptrs);
   void ClearHdrCache();
+
+  // The message held in each row.
   nsTArray<nsMsgKey> m_keys;
+  // Flags for each row, combining nsMsgMessageFlags and MSG_VIEW_FLAGS.
   nsTArray<uint32_t> m_flags;
+  // Threading level of each row (1=top)
   nsTArray<uint8_t> m_levels;
+
   nsMsgImapDeleteModel mDeleteModel;
 
   // Cache the most recently asked for header and corresponding msgKey.

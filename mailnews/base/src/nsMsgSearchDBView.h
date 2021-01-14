@@ -132,7 +132,11 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   virtual nsresult InsertHdrFromFolder(nsIMsgDBHdr* msgHdr,
                                        nsIMsgFolder* folder);
 
+  // Holds the original folder of each message in this view.
+  // Augments the existing arrays in nsMsgDBView (m_keys, m_flags and m_levels),
+  // and is kept in sync with them.
   nsCOMArray<nsIMsgFolder> m_folders;
+
   nsTArray<nsTArray<RefPtr<nsIMsgDBHdr>>> m_hdrsForEachFolder;
   nsCOMArray<nsIMsgFolder> m_uniqueFoldersSelected;
   uint32_t mCurIndex;
