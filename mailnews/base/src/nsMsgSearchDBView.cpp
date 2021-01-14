@@ -328,19 +328,21 @@ void nsMsgSearchDBView::RemoveRows(nsMsgViewIndex viewIndex, int32_t numRows) {
 
 nsresult nsMsgSearchDBView::GetMsgHdrForViewIndex(nsMsgViewIndex index,
                                                   nsIMsgDBHdr** msgHdr) {
-  nsresult rv = NS_MSG_INVALID_DBVIEW_INDEX;
-  if (index == nsMsgViewIndex_None || index >= (uint32_t)m_folders.Count())
-    return rv;
+  if (index == nsMsgViewIndex_None || index >= (uint32_t)m_folders.Count()) {
+    return NS_MSG_INVALID_DBVIEW_INDEX;
+  }
 
   nsIMsgFolder* folder = m_folders[index];
   if (folder) {
     nsCOMPtr<nsIMsgDatabase> db;
-    rv = folder->GetMsgDatabase(getter_AddRefs(db));
+    nsresult rv = folder->GetMsgDatabase(getter_AddRefs(db));
     NS_ENSURE_SUCCESS(rv, rv);
-    if (db) rv = db->GetMsgHdrForKey(m_keys[index], msgHdr);
+    if (db) {
+      return db->GetMsgHdrForKey(m_keys[index], msgHdr);
+    }
   }
 
-  return rv;
+  return NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP

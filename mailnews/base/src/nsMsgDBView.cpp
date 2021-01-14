@@ -4736,7 +4736,8 @@ nsresult nsMsgDBView::ExpandAndSelectThreadByIndex(nsMsgViewIndex index,
 
   if (inThreadedMode) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    GetMsgHdrForViewIndex(index, getter_AddRefs(msgHdr));
+    rv = GetMsgHdrForViewIndex(index, getter_AddRefs(msgHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
     threadIndex = ThreadIndexOfMsgHdr(msgHdr, index);
     if (threadIndex == nsMsgViewIndex_None) {
       NS_ASSERTION(false, "couldn't find thread");
