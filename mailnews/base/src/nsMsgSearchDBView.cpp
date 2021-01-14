@@ -1147,6 +1147,7 @@ nsMsgViewIndex nsMsgSearchDBView::FindHdr(nsIMsgDBHdr* msgHdr,
 nsresult nsMsgSearchDBView::GetXFThreadFromMsgHdr(nsIMsgDBHdr* msgHdr,
                                                   nsIMsgThread** pThread,
                                                   bool* foundByMessageId) {
+  NS_ENSURE_ARG_POINTER(msgHdr);
   NS_ENSURE_ARG_POINTER(pThread);
 
   nsAutoCString messageId;

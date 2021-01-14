@@ -4796,6 +4796,8 @@ nsresult nsMsgDBView::ExpandAll() {
 NS_IMETHODIMP
 nsMsgDBView::GetThreadContainingMsgHdr(nsIMsgDBHdr* msgHdr,
                                        nsIMsgThread** pThread) {
+  NS_ENSURE_ARG_POINTER(msgHdr);
+  NS_ENSURE_ARG_POINTER(pThread);
   if (!m_db) return NS_ERROR_FAILURE;
   return m_db->GetThreadContainingMsgHdr(msgHdr, pThread);
 }
