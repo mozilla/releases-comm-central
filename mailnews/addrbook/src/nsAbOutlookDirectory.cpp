@@ -1230,6 +1230,11 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
       buildAbWinUri(kOutlookDirectoryScheme, abWinType, normalChars);
       normalChars.Append(entry);
       card->SetMailListURI(normalChars.get());
+
+      // In case the display is by "First Last" or "Last, First", give the card
+      // a name, otherwise nothing is displayed.
+      if (success[index_DisplayName])
+        card->SetLastName(unichars[index_DisplayName]);
     }
   }
 
