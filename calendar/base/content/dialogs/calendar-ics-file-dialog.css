@@ -12,7 +12,9 @@
 }
 
 #calendar-ics-file-dialog-header,
-#calendar-ics-file-dialog-items-container {
+#calendar-ics-file-dialog-items-container,
+#calendar-ics-file-dialog-progress-pane,
+#calendar-ics-file-dialog-result-pane {
   /* This padding needs to change elsewhere if it changes here.
      See the note above the styles for #calendar-ics-file-dialog */
   padding-inline: 10px;
@@ -62,4 +64,15 @@
 
 .calendar-caption {
   display: none;
+}
+
+#calendar-ics-file-dialog-progress-pane,
+#calendar-ics-file-dialog-result-pane {
+  -moz-box-align: center;
+  -moz-box-pack: center;
+  text-align: center;
+}
+
+#calendar-ics-file-dialog-progress {
+  width: 400px;
 }

@@ -322,7 +322,35 @@ var gDataMigrator = {
     }
 
     // Defined in import-export.js
-    putItemsIntoCal(calendar, items, icsFile.leafName);
+    putItemsIntoCal(calendar, items, {
+      duplicateCount: 0,
+      failedCount: 0,
+      lastError: null,
+
+      onDuplicate(item, error) {
+        this.duplicateCount++;
+      },
+      onError(item, error) {
+        this.failedCount++;
+        this.lastError = error;
+      },
+      onEnd() {
+        if (this.failedCount) {
+          cal.showError(
+            cal.l10n.getCalString("importItemsFailed", [
+              this.failedCount,
+              this.lastError.toString(),
+            ]),
+            window
+          );
+        } else if (this.duplicateCount) {
+          cal.showError(
+            cal.l10n.getCalString("duplicateError", [this.duplicateCount, icsFile.path]),
+            window
+          );
+        }
+      },
+    });
 
     return calendar;
   },

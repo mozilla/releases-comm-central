@@ -146,15 +146,46 @@ function getItemsFromFile(file) {
 }
 
 /**
+ * @callback onProgress
+ * @param {number} count
+ * @param {number} total
+ */
+
+/**
+ * @callback onError
+ * @param {calIItemBase} item          The item which failed to import.
+ * @param {Number|nsIException} error  The error number from Components.results, or
+ *                                     the exception which contains the error number.
+ */
+
+/**
+ * Listener for the stages of putItemsIntoCal().
+ * @typedef PutItemsIntoCalListener
+ * @property {function}   onStart
+ * @property {onError}    onDuplicate
+ * @property {onError}    onError
+ * @property {onProgress} onProgress
+ * @property {function}   onEnd
+ */
+
+/**
  * Put items into a certain calendar, catching errors and showing them to the
  * user.
  *
  * @param {calICalendar} destCal    The destination calendar.
  * @param {calIItemBase[]} aItems   An array of items to put into the calendar.
  * @param {string} aFilePath        The original file path, for error messages.
- * @return {Promise<boolean>}       True for successful import, false for errors.
+ * @param {PutItemsIntoCalListener} [aListener]  Optional listener.
  */
-async function putItemsIntoCal(destCal, aItems, aFilePath) {
+async function putItemsIntoCal(destCal, aItems, aListener) {
+  async function callListener(method, ...args) {
+    if (aListener && typeof aListener[method] == "function") {
+      await aListener[method](...args);
+    }
+  }
+
+  await callListener("onStart");
+
   // Set batch for the undo/redo transaction manager
   startBatchTransaction();
 
@@ -162,61 +193,33 @@ async function putItemsIntoCal(destCal, aItems, aFilePath) {
   // redraw until all items are imported
   destCal.startBatch();
 
-  // This listener is needed to find out when the last addItem really
-  // finished. Using a counter to find the last item (which might not
-  // be the last item added)
   let count = 0;
-  let failedCount = 0;
-  let duplicateCount = 0;
-  // Used to store the last error. Only the last error, because we don't
-  // want to bomb the user with thousands of error messages in case
-  // something went really wrong.
-  // (example of something very wrong: importing the same file twice.
-  //  quite easy to trigger, so we really should do this)
-  let lastError;
-  let didImportSucceed = true;
+  let total = aItems.length;
 
   // Using wrappedJSObject is a hack that is needed to prevent a proxy error.
   let pcal = cal.async.promisifyCalendar(destCal.wrappedJSObject);
   for (let item of aItems) {
-    // XXX prompt when finding a duplicate.
     try {
       await pcal.addItem(item);
-      count++;
-      // See if it is time to end the calendar's batch.
-      if (count == aItems.length) {
-        destCal.endBatch();
-        if (failedCount) {
-          cal.showError(
-            cal.l10n.getCalString("importItemsFailed", [failedCount, lastError.toString()]),
-            window
-          );
-          didImportSucceed = false;
-        } else if (duplicateCount) {
-          cal.showError(
-            cal.l10n.getCalString("duplicateError", [duplicateCount, aFilePath]),
-            window
-          );
-          didImportSucceed = false;
-        }
-      }
     } catch (e) {
-      count++;
       if (e == Ci.calIErrors.DUPLICATE_ID) {
-        duplicateCount++;
+        await callListener("onDuplicate", item, e);
       } else {
-        failedCount++;
-        lastError = e;
+        Cu.reportError(e);
+        await callListener("onError", item, e);
       }
-
-      Cu.reportError("Import error: " + e);
-      didImportSucceed = false;
     }
+
+    count++;
+    await callListener("onProgress", count, total);
   }
+
+  destCal.endBatch();
 
   // End transmgr batch
   endBatchTransaction();
-  return didImportSucceed;
+
+  await callListener("onEnd");
 }
 
 /**

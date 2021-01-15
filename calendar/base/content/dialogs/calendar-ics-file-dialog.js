@@ -127,7 +127,7 @@ function updateCalendarMenu() {
  * @param {calIItemBase[]} items - An array of calendar events and tasks.
  * @param {string} filePath - The path to the file being imported.
  */
-function setUpItemSummaries(items, filePath) {
+function setUpItemSummaries(items) {
   let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
 
   // Sort the items, chronologically first, then alphabetically.
@@ -150,7 +150,7 @@ function setUpItemSummaries(items, filePath) {
     let buttonText = await document.l10n.formatValue(buttonTextIdentifier);
     importButton.setAttribute("label", buttonText);
 
-    importButton.addEventListener("command", importSingleItem.bind(null, item, index, filePath));
+    importButton.addEventListener("command", importSingleItem.bind(null, item, index));
 
     let buttonBox = document.createXULElement("hbox");
     buttonBox.setAttribute("pack", "end");
@@ -191,22 +191,45 @@ function getCurrentlySelectedCalendar() {
  * @param {string} filePath - Path to the file being imported.
  * @param {Event} event - The button event.
  */
-async function importSingleItem(item, itemIndex, filePath, event) {
+async function importSingleItem(item, itemIndex, event) {
+  let dialog = document.getElementsByTagName("dialog")[0];
+  let acceptButton = dialog.getButton("accept");
+  let cancelButton = dialog.getButton("cancel");
+
+  acceptButton.disabled = true;
+  cancelButton.disabled = true;
+
+  let calendar = getCurrentlySelectedCalendar();
+
+  await putItemsIntoCal(calendar, [item], {
+    onDuplicate(item, error) {
+      // TODO: CalCalendarManager already shows a not-very-useful error pop-up.
+      // Once that is fixed, use this callback to display a proper error message.
+    },
+    onError(item, error) {
+      // TODO: CalCalendarManager already shows a not-very-useful error pop-up.
+      // Once that is fixed, use this callback to display a proper error message.
+    },
+  });
+
   event.target.closest(".calendar-ics-file-dialog-item-frame").remove();
   delete gModel.itemsToImport[itemIndex];
   delete gModel.itemSummaries[itemIndex];
 
-  let calendar = getCurrentlySelectedCalendar();
-
-  putItemsIntoCal(calendar, [item], filePath);
-
-  if (!gModel.itemsToImport.some(item => item)) {
+  acceptButton.disabled = false;
+  if (gModel.itemsToImport.some(item => item)) {
+    // Change the cancel button label to Close, as we've done some work that
+    // won't be cancelled.
+    cancelButton.label = await document.l10n.formatValue(
+      "calendar-ics-file-cancel-button-close-label"
+    );
+    cancelButton.disabled = false;
+  } else {
     // No more items to import, remove the "Import All" option.
     document.removeEventListener("dialogaccept", importRemainingItems);
 
-    let dialog = document.getElementsByTagName("dialog")[0];
-    dialog.getButton("cancel").hidden = true;
-    dialog.getButton("accept").label = await document.l10n.formatValue(
+    cancelButton.hidden = true;
+    acceptButton.label = await document.l10n.formatValue(
       "calendar-ics-file-accept-button-ok-label"
     );
   }
@@ -237,25 +260,63 @@ async function importRemainingItems(event) {
   let calendar = getCurrentlySelectedCalendar();
   let remainingItems = gModel.itemsToImport.filter(item => item);
 
-  let [importResult] = await Promise.allSettled([
-    putItemsIntoCal(calendar, remainingItems, gModel.file.path),
-    new Promise(resolve => setTimeout(resolve, 500)),
-  ]);
+  let progressElement = document.getElementById("calendar-ics-file-dialog-progress");
+  let duplicatesElement = document.getElementById("calendar-ics-file-dialog-duplicates-message");
+  let errorsElement = document.getElementById("calendar-ics-file-dialog-errors-message");
 
-  let messageIdentifier = importResult.value
-    ? "calendar-ics-file-import-success"
-    : "calendar-ics-file-import-error";
+  let optionsPane = document.getElementById("calendar-ics-file-dialog-options-pane");
+  let progressPane = document.getElementById("calendar-ics-file-dialog-progress-pane");
+  let resultPane = document.getElementById("calendar-ics-file-dialog-result-pane");
 
-  let [msgValue, btnLabel] = await document.l10n.formatValues([
-    { id: messageIdentifier },
-    { id: "calendar-ics-file-accept-button-ok-label" },
-  ]);
+  let importListener = {
+    count: 0,
+    duplicatesCount: 0,
+    errorsCount: 0,
+    progressInterval: null,
 
-  let messageElement = document.getElementById("calendar-ics-file-dialog-message");
-  messageElement.value = msgValue;
+    onStart() {
+      progressElement.max = remainingItems.length;
+      optionsPane.hidden = true;
+      progressPane.hidden = false;
 
-  acceptButton.label = btnLabel;
-  acceptButton.disabled = false;
+      this.progressInterval = setInterval(() => {
+        progressElement.value = this.count;
+      }, 50);
+    },
+    onDuplicate(item, error) {
+      this.duplicatesCount++;
+    },
+    onError(item, error) {
+      this.errorsCount++;
+    },
+    onProgress(count, total) {
+      this.count = count;
+    },
+    async onEnd() {
+      progressElement.value = this.count;
+      clearInterval(this.progressInterval);
+
+      document.l10n.setAttributes(duplicatesElement, "calendar-ics-file-import-duplicates", {
+        duplicatesCount: this.duplicatesCount,
+      });
+      duplicatesElement.hidden = this.duplicatesCount == 0;
+      document.l10n.setAttributes(errorsElement, "calendar-ics-file-import-errors", {
+        errorsCount: this.errorsCount,
+      });
+      errorsElement.hidden = this.errorsCount == 0;
+
+      let btnLabel = await document.l10n.formatValue("calendar-ics-file-accept-button-ok-label");
+      setTimeout(() => {
+        acceptButton.label = btnLabel;
+        acceptButton.disabled = false;
+
+        progressPane.hidden = true;
+        resultPane.hidden = false;
+      }, 500);
+    },
+  };
+
+  putItemsIntoCal(calendar, remainingItems, importListener);
 }
 
 /**

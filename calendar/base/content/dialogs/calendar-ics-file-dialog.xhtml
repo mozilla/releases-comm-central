@@ -31,20 +31,41 @@
     <script src="chrome://calendar/content/calendar-dialog-utils.js"></script>
     <script src="chrome://calendar/content/calendar-ui-utils.js"></script>
 
-    <vbox id="calendar-ics-file-dialog-header">
-      <description id="calendar-ics-file-dialog-message"
-                   data-l10n-id="calendar-ics-file-dialog-message-2"></description>
-      <description id="calendar-ics-file-dialog-file-path"></description>
+    <vbox id="calendar-ics-file-dialog-options-pane"
+          flex="1">
+      <vbox id="calendar-ics-file-dialog-header">
+        <description id="calendar-ics-file-dialog-message"
+                     data-l10n-id="calendar-ics-file-dialog-message-2"></description>
+        <description id="calendar-ics-file-dialog-file-path"></description>
 
-      <label id="calendar-ics-file-dialog-calendar-menu-label"
-             data-l10n-id="calendar-ics-file-dialog-calendar-menu-label"
-             control="calendar-ics-file-dialog-calendar-menu"></label>
+        <label id="calendar-ics-file-dialog-calendar-menu-label"
+               data-l10n-id="calendar-ics-file-dialog-calendar-menu-label"
+               control="calendar-ics-file-dialog-calendar-menu"></label>
 
-      <menulist id="calendar-ics-file-dialog-calendar-menu"
-                oncommand="updateCalendarMenu();"/>
+        <menulist id="calendar-ics-file-dialog-calendar-menu"
+                  oncommand="updateCalendarMenu();"/>
+      </vbox>
+
+      <vbox id="calendar-ics-file-dialog-items-container" flex="1"></vbox>
     </vbox>
 
-    <vbox id="calendar-ics-file-dialog-items-container" flex="1"></vbox>
+    <vbox id="calendar-ics-file-dialog-progress-pane"
+          flex="1"
+          hidden="true">
+      <description id="calendar-ics-file-dialog-progress-message"
+                   data-l10n-id="calendar-ics-file-dialog-progress-message"></description>
+      <html:progress id="calendar-ics-file-dialog-progress"
+                     value="0"/>
+    </vbox>
+
+    <vbox id="calendar-ics-file-dialog-result-pane"
+          flex="1"
+          hidden="true">
+      <description id="calendar-ics-file-dialog-result-message"
+                   data-l10n-id="calendar-ics-file-import-complete"></description>
+      <description id="calendar-ics-file-dialog-duplicates-message"></description>
+      <description id="calendar-ics-file-dialog-errors-message"></description>
+    </vbox>
 
   </dialog>
 </window>

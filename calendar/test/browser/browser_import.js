@@ -39,6 +39,14 @@ add_task(async () => {
       let doc = dialogWindow.document;
       let dialogElement = doc.querySelector("dialog");
 
+      let optionsPane = doc.getElementById("calendar-ics-file-dialog-options-pane");
+      let progressPane = doc.getElementById("calendar-ics-file-dialog-progress-pane");
+      let resultPane = doc.getElementById("calendar-ics-file-dialog-result-pane");
+
+      ok(!optionsPane.hidden);
+      ok(progressPane.hidden);
+      ok(resultPane.hidden);
+
       // Check the initial import dialog state.
       let displayedPath = doc.querySelector("#calendar-ics-file-dialog-file-path").value;
       let pathFragment = "browser/comm/calendar/test/browser/data/import.ics";
@@ -128,28 +136,28 @@ add_task(async () => {
       );
       EventUtils.synthesizeMouseAtCenter(firstItemImportButton, { clickCount: 1 }, dialogWindow);
 
-      let remainingItems = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
-      is(remainingItems.length, 3, "three items remain after importing the first item");
+      let remainingItems;
+      await TestUtils.waitForCondition(() => {
+        remainingItems = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
+        return remainingItems.length == 3;
+      }, "three items remain after importing the first item");
       is(
         remainingItems[0].querySelector(".item-title").textContent,
         "Event Two",
         "'Event Two' should now be the first item in the dialog"
       );
 
-      let messageElement = doc.querySelector("#calendar-ics-file-dialog-message");
+      dialogElement.getButton("accept").click();
+      ok(optionsPane.hidden);
+      ok(!progressPane.hidden);
+      ok(resultPane.hidden);
 
-      // Set up an observer to wait for the import success message to appear,
-      // before clicking the accept button again to close the dialog window.
-      let observer = new MutationObserver(mutationList => {
-        mutationList.forEach(async mutation => {
-          if (mutation.attributeName == "value") {
-            is(messageElement.value, "Successfully imported!", "import success message appeared");
-            await new Promise(resolve => setTimeout(resolve));
-            dialogElement.getButton("accept").click();
-          }
-        });
-      });
-      observer.observe(messageElement, { attributes: true });
+      await TestUtils.waitForCondition(() => !resultPane.hidden);
+      ok(optionsPane.hidden);
+      ok(progressPane.hidden);
+
+      let messageElement = doc.querySelector("#calendar-ics-file-dialog-result-message");
+      is(messageElement.textContent, "Import complete.", "import success message appeared");
 
       // Click the accept button to import the remaining items.
       dialogElement.getButton("accept").click();

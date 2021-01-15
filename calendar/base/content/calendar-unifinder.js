@@ -535,7 +535,9 @@ var unifinderTreeView = {
   clearItems() {
     let oldCount = this.eventArray.length;
     this.eventArray = [];
-    this.tree.rowCountChanged(0, -oldCount);
+    if (this.tree) {
+      this.tree.rowCountChanged(0, -oldCount);
+    }
     this.calculateIndexMap();
   },
 
@@ -565,7 +567,7 @@ var unifinderTreeView = {
       this.eventIndexMap[this.eventArray[i].hashId] = i;
     }
 
-    if (!aDontInvalidate) {
+    if (this.tree && !aDontInvalidate) {
       this.tree.invalidate();
     }
   },
