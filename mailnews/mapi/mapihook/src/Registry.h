@@ -9,12 +9,12 @@
 
 // This function will register a component in the Registry.
 
-HRESULT RegisterServer(const CLSID& clsid, const char* szFriendlyName,
-                       const char* szVerIndProgID, const char* szProgID);
+HRESULT RegisterServer(const CLSID& clsid, const WCHAR* szFriendlyName,
+                       const WCHAR* szVerIndProgID, const WCHAR* szProgID);
 
 // This function will unregister a component.
 
-HRESULT UnregisterServer(const CLSID& clsid, const char* szVerIndProgID,
-                         const char* szProgID);
+HRESULT UnregisterServer(const CLSID& clsid, const WCHAR* szVerIndProgID,
+                         const WCHAR* szProgID);
 
 #endif

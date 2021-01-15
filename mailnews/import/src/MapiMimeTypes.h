@@ -12,15 +12,14 @@
 
 class CMimeTypes {
  public:
-  static uint8_t* GetMimeType(const nsCString& theExt);
   static uint8_t* GetMimeType(const nsString& theExt);
 
  protected:
   // Registry stuff
-  static BOOL GetKey(HKEY root, LPCTSTR pName, PHKEY pKey);
-  static BOOL GetValueBytes(HKEY rootKey, LPCTSTR pValName, LPBYTE* ppBytes);
+  static BOOL GetKey(HKEY root, LPCWSTR pName, PHKEY pKey);
+  static BOOL GetValueBytes(HKEY rootKey, LPCWSTR pValName, LPBYTE* ppBytes);
   static void ReleaseValueBytes(LPBYTE pBytes);
-  static BOOL GetMimeTypeFromReg(const nsCString& ext, LPBYTE* ppBytes);
+  static BOOL GetMimeTypeFromReg(const nsString& ext, LPBYTE* ppBytes);
 
   static uint8_t m_mimeBuffer[kMaxMimeTypeSize];
 };

@@ -218,12 +218,12 @@ void CMapiApi::FreeProws(LPSRowSet prows) {
 BOOL CMapiApi::LoadMapi(void) {
   if (m_hMapi32) return TRUE;
 
-  HINSTANCE hInst = ::LoadLibrary("MAPI32.DLL");
+  HINSTANCE hInst = ::LoadLibraryW(L"MAPI32.DLL");
   if (!hInst) return FALSE;
   FARPROC pProc = GetProcAddress(hInst, "MAPIGetNetscapeVersion");
   if (pProc) {
     ::FreeLibrary(hInst);
-    hInst = ::LoadLibrary("MAPI32BAK.DLL");
+    hInst = ::LoadLibraryW(L"MAPI32BAK.DLL");
     if (!hInst) return FALSE;
   }
 

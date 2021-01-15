@@ -105,10 +105,11 @@ NS_IMETHODIMP nsMailWinSearchHelper::GetFoldersInCrawlScope(bool* aResult) {
 NS_IMETHODIMP nsMailWinSearchHelper::GetServiceRunning(bool* aResult) {
   *aResult = false;
   SC_HANDLE hSCManager =
-      OpenSCManager(nullptr, SERVICES_ACTIVE_DATABASE, SERVICE_QUERY_STATUS);
+      OpenSCManagerW(nullptr, SERVICES_ACTIVE_DATABASEW, SERVICE_QUERY_STATUS);
   if (!hSCManager) return NS_ERROR_FAILURE;
 
-  SC_HANDLE hService = OpenService(hSCManager, "wsearch", SERVICE_QUERY_STATUS);
+  SC_HANDLE hService =
+      OpenServiceW(hSCManager, L"wsearch", SERVICE_QUERY_STATUS);
   CloseServiceHandle(hSCManager);
   if (!hService)
     // The service isn't present. Never mind.

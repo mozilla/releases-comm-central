@@ -32,7 +32,7 @@ BOOL nsMapiAddressBook::LoadMapiLibrary(void) {
     ++mLibUsage;
     return TRUE;
   }
-  HMODULE libraryHandle = LoadLibrary("MAPI32.DLL");
+  HMODULE libraryHandle = LoadLibraryW(L"MAPI32.DLL");
 
   if (!libraryHandle) {
     return FALSE;
@@ -41,7 +41,7 @@ BOOL nsMapiAddressBook::LoadMapiLibrary(void) {
 
   if (entryPoint) {
     FreeLibrary(libraryHandle);
-    libraryHandle = LoadLibrary("MAPI32BAK.DLL");
+    libraryHandle = LoadLibraryW(L"MAPI32BAK.DLL");
     if (!libraryHandle) {
       return FALSE;
     }
