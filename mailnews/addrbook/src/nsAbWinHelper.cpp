@@ -17,9 +17,13 @@
 
 #include "mozilla/Logging.h"
 
+#define PRINT_TO_CONSOLE 0
+#if PRINT_TO_CONSOLE
+#  define PRINTF(args) printf args
+#else
 static mozilla::LazyLogModule gAbWinHelperLog("AbWinHelper");
-
-#define PRINTF(args) MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug, args)
+#  define PRINTF(args) MOZ_LOG(gAbWinHelperLog, mozilla::LogLevel::Debug, args)
+#endif
 
 // Small utility to ensure release of all MAPI interfaces
 template <class tInterface>
@@ -183,7 +187,7 @@ void nsMapiEntry::ToString(nsCString& aString) const {
 }
 
 void nsMapiEntry::Dump(void) const {
-  PRINTF(("%d\n", mByteCount));
+  PRINTF(("%lu\n", mByteCount));
   for (ULONG i = 0; i < mByteCount; ++i) {
     PRINTF(("%02X", (reinterpret_cast<unsigned char*>(mEntryId))[i]));
   }
@@ -237,12 +241,12 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders) {
 
   mLastError = mAddressBook->OpenEntry(0, NULL, NULL, 0, &objType, rootFolder);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open root %08x.\n", mLastError));
+    PRINTF(("Cannot open root %08lx.\n", mLastError));
     return FALSE;
   }
   mLastError = rootFolder->GetHierarchyTable(0, folders);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get hierarchy %08x.\n", mLastError));
+    PRINTF(("Cannot get hierarchy %08lx.\n", mLastError));
     return FALSE;
   }
   // We only take into account modifiable containers,
@@ -253,13 +257,13 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders) {
   restriction.res.resBitMask.ulMask = AB_MODIFIABLE;
   mLastError = folders->Restrict(&restriction, 0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot restrict table %08x.\n", mLastError));
+    PRINTF(("Cannot restrict table %08lx.\n", mLastError));
   }
   folderColumns.cValues = 1;
   folderColumns.aulPropTag[0] = PR_ENTRYID;
   mLastError = folders->SetColumns(&folderColumns, 0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set columns %08x.\n", mLastError));
+    PRINTF(("Cannot set columns %08lx.\n", mLastError));
     return FALSE;
   }
   mLastError = folders->GetRowCount(0, &rowCount);
@@ -283,7 +287,7 @@ BOOL nsAbWinHelper::GetFolders(nsMapiEntryArray& aFolders) {
         }
         MyFreeProws(rowSet);
       } else {
-        PRINTF(("Cannot query rows %08x.\n", mLastError));
+        PRINTF(("Cannot query rows %08lx.\n", mLastError));
       }
     } while (rowCount > 0);
   }
@@ -447,7 +451,7 @@ BOOL nsAbWinHelper::TestOpenEntry(const nsMapiEntry& aContainer,
       mAddressBook->OpenEntry(aContainer.mByteCount, aContainer.mEntryId,
                               &IID_IMAPIContainer, 0, &objType, container);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08x.\n", mLastError));
+    PRINTF(("Cannot open container %08lx.\n", mLastError));
     return FALSE;
   }
   mLastError = container->OpenEntry(aEntry.mByteCount, aEntry.mEntryId, NULL, 0,
@@ -466,7 +470,7 @@ BOOL nsAbWinHelper::DeleteEntry(const nsMapiEntry& aContainer,
                                        aContainer.mEntryId, &IID_IABContainer,
                                        MAPI_MODIFY, &objType, container);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08x.\n", mLastError));
+    PRINTF(("Cannot open container %08lx.\n", mLastError));
     return FALSE;
   }
   entry.cb = aEntry.mByteCount;
@@ -475,7 +479,7 @@ BOOL nsAbWinHelper::DeleteEntry(const nsMapiEntry& aContainer,
   entryArray.lpbin = &entry;
   mLastError = container->DeleteEntries(&entryArray, 0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot delete entry %08x.\n", mLastError));
+    PRINTF(("Cannot delete entry %08lx.\n", mLastError));
     return FALSE;
   }
   return TRUE;
@@ -495,7 +499,7 @@ BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject,
     alternativeValue = NS_LossyConvertUTF16toASCII(aValue);
     value.Value.lpszA = const_cast<char*>(alternativeValue.get());
   } else {
-    PRINTF(("Property %08x is not a string.\n", aPropertyTag));
+    PRINTF(("Property %08lx is not a string.\n", aPropertyTag));
     return TRUE;
   }
   return SetMAPIProperties(aObject, 1, &value);
@@ -572,7 +576,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
                                        &IID_IABContainer, MAPI_MODIFY, &objType,
                                        container);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08x.\n", mLastError));
+    PRINTF(("Cannot open container %08lx.\n", mLastError));
     return FALSE;
   }
   SPropTagArray property;
@@ -583,7 +587,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
   property.aulPropTag[0] = PR_DEF_CREATE_MAILUSER;
   mLastError = container->GetProps(&property, 0, &valueCount, &value);
   if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot obtain template %08x.\n", mLastError));
+    PRINTF(("Cannot obtain template %08lx.\n", mLastError));
     return FALSE;
   }
   nsMapiInterfaceWrapper<LPMAPIPROP> newEntry;
@@ -593,7 +597,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
       CREATE_CHECK_DUP_LOOSE, newEntry);
   FreeBuffer(value);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot create new entry %08x.\n", mLastError));
+    PRINTF(("Cannot create new entry %08lx.\n", mLastError));
     return FALSE;
   }
   SPropValue displayName;
@@ -607,18 +611,18 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
   displayName.Value.lpszW = const_cast<wchar_t*>(tempNameValue);
   mLastError = newEntry->SetProps(1, &displayName, &problems);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set temporary name %08x.\n", mLastError));
+    PRINTF(("Cannot set temporary name %08lx.\n", mLastError));
     return FALSE;
   }
   mLastError = newEntry->SaveChanges(KEEP_OPEN_READONLY);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot commit new entry %08x.\n", mLastError));
+    PRINTF(("Cannot commit new entry %08lx.\n", mLastError));
     return FALSE;
   }
   property.aulPropTag[0] = PR_ENTRYID;
   mLastError = newEntry->GetProps(&property, 0, &valueCount, &value);
   if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot get entry id %08x.\n", mLastError));
+    PRINTF(("Cannot get entry id %08lx.\n", mLastError));
     return FALSE;
   }
   aNewEntry.Assign(value->Value.bin.cb,
@@ -636,7 +640,7 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent,
                                        &IID_IABContainer, MAPI_MODIFY, &objType,
                                        container);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08x.\n", mLastError));
+    PRINTF(("Cannot open container %08lx.\n", mLastError));
     return FALSE;
   }
   SPropTagArray property;
@@ -647,7 +651,7 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent,
   property.aulPropTag[0] = PR_DEF_CREATE_DL;
   mLastError = container->GetProps(&property, 0, &valueCount, &value);
   if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot obtain template %08x.\n", mLastError));
+    PRINTF(("Cannot obtain template %08lx.\n", mLastError));
     return FALSE;
   }
   nsMapiInterfaceWrapper<LPMAPIPROP> newEntry;
@@ -657,7 +661,7 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent,
       CREATE_CHECK_DUP_LOOSE, newEntry);
   FreeBuffer(value);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot create new entry %08x.\n", mLastError));
+    PRINTF(("Cannot create new entry %08lx.\n", mLastError));
     return FALSE;
   }
   SPropValue displayName;
@@ -671,18 +675,18 @@ BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent,
   displayName.Value.lpszW = const_cast<wchar_t*>(tempNameValue);
   mLastError = newEntry->SetProps(1, &displayName, &problems);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set temporary name %08x.\n", mLastError));
+    PRINTF(("Cannot set temporary name %08lx.\n", mLastError));
     return FALSE;
   }
   mLastError = newEntry->SaveChanges(KEEP_OPEN_READONLY);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot commit new entry %08x.\n", mLastError));
+    PRINTF(("Cannot commit new entry %08lx.\n", mLastError));
     return FALSE;
   }
   property.aulPropTag[0] = PR_ENTRYID;
   mLastError = newEntry->GetProps(&property, 0, &valueCount, &value);
   if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot get entry id %08x.\n", mLastError));
+    PRINTF(("Cannot get entry id %08lx.\n", mLastError));
     return FALSE;
   }
   aNewEntry.Assign(value->Value.bin.cb,
@@ -701,7 +705,7 @@ BOOL nsAbWinHelper::CopyEntry(const nsMapiEntry& aContainer,
                                        aContainer.mEntryId, &IID_IABContainer,
                                        MAPI_MODIFY, &objType, container);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08x.\n", mLastError));
+    PRINTF(("Cannot open container %08lx.\n", mLastError));
     return FALSE;
   }
   nsMapiInterfaceWrapper<LPMAPIPROP> newEntry;
@@ -709,12 +713,12 @@ BOOL nsAbWinHelper::CopyEntry(const nsMapiEntry& aContainer,
   mLastError = container->CreateEntry(aSource.mByteCount, aSource.mEntryId,
                                       CREATE_CHECK_DUP_LOOSE, newEntry);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot create new entry %08x.\n", mLastError));
+    PRINTF(("Cannot create new entry %08lx.\n", mLastError));
     return FALSE;
   }
   mLastError = newEntry->SaveChanges(KEEP_OPEN_READONLY);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot commit new entry %08x.\n", mLastError));
+    PRINTF(("Cannot commit new entry %08lx.\n", mLastError));
     return FALSE;
   }
   SPropTagArray property;
@@ -725,7 +729,7 @@ BOOL nsAbWinHelper::CopyEntry(const nsMapiEntry& aContainer,
   property.aulPropTag[0] = PR_ENTRYID;
   mLastError = newEntry->GetProps(&property, 0, &valueCount, &value);
   if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot get entry id %08x.\n", mLastError));
+    PRINTF(("Cannot get entry id %08lx.\n", mLastError));
     return FALSE;
   }
   aTarget.Assign(value->Value.bin.cb,
@@ -740,7 +744,7 @@ BOOL nsAbWinHelper::GetDefaultContainer(nsMapiEntry& aContainer) {
 
   mLastError = mAddressBook->GetPAB(&byteCount, &entryId);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get PAB %08x.\n", mLastError));
+    PRINTF(("Cannot get PAB %08lx.\n", mLastError));
     return FALSE;
   }
   aContainer.Assign(byteCount, entryId);
@@ -774,31 +778,31 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
       mAddressBook->OpenEntry(aParent.mByteCount, aParent.mEntryId,
                               &IID_IMAPIContainer, 0, &objType, parent);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open parent %08x.\n", mLastError));
+    PRINTF(("Cannot open parent %08lx.\n", mLastError));
     return FALSE;
   }
   // Here, flags for WAB and MAPI could be different, so this works
   // only as long as we don't want to use any flag in GetContentsTable
   mLastError = parent->GetContentsTable(0, contents);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get contents %08x.\n", mLastError));
+    PRINTF(("Cannot get contents %08lx.\n", mLastError));
     return FALSE;
   }
   if (aRestriction != NULL) {
     mLastError = contents->Restrict(aRestriction, 0);
     if (HR_FAILED(mLastError)) {
-      PRINTF(("Cannot set restriction %08x.\n", mLastError));
+      PRINTF(("Cannot set restriction %08lx.\n", mLastError));
       return FALSE;
     }
   }
   mLastError = contents->SetColumns((LPSPropTagArray)&ContentsColumns, 0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set columns %08x.\n", mLastError));
+    PRINTF(("Cannot set columns %08lx.\n", mLastError));
     return FALSE;
   }
   mLastError = contents->GetRowCount(0, &rowCount);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get result count %08x.\n", mLastError));
+    PRINTF(("Cannot get result count %08lx.\n", mLastError));
     return FALSE;
   }
   if (aList != NULL) {
@@ -811,7 +815,7 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
     rowCount = 0;
     mLastError = contents->QueryRows(1, 0, &rowSet);
     if (HR_FAILED(mLastError)) {
-      PRINTF(("Cannot query rows %08x.\n", mLastError));
+      PRINTF(("Cannot query rows %08lx.\n", mLastError));
       return FALSE;
     }
     rowCount = rowSet->cRows;
@@ -845,7 +849,7 @@ BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aObject,
   mLastError = mAddressBook->OpenEntry(aObject.mByteCount, aObject.mEntryId,
                                        &IID_IMAPIProp, 0, &objType, object);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open entry %08x.\n", mLastError));
+    PRINTF(("Cannot open entry %08lx.\n", mLastError));
     return FALSE;
   }
   AllocateBuffer(CbNewSPropTagArray(aNbProperties),
@@ -857,7 +861,7 @@ BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aObject,
   mLastError = object->GetProps(properties, 0, &aValueCount, &aValue);
   FreeBuffer(properties);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get props %08x.\n", mLastError));
+    PRINTF(("Cannot get props %08lx.\n", mLastError));
   }
   return HR_SUCCEEDED(mLastError);
 }
@@ -873,23 +877,23 @@ BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aObject,
       mAddressBook->OpenEntry(aObject.mByteCount, aObject.mEntryId,
                               &IID_IMAPIProp, MAPI_MODIFY, &objType, object);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open entry %08x.\n", mLastError));
+    PRINTF(("Cannot open entry %08lx.\n", mLastError));
     return FALSE;
   }
   mLastError = object->SetProps(aNbProperties, aValues, &problems);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot update the object %08x.\n", mLastError));
+    PRINTF(("Cannot update the object %08lx.\n", mLastError));
     return FALSE;
   }
   if (problems != NULL) {
     for (ULONG i = 0; i < problems->cProblem; ++i) {
-      PRINTF(("Problem %d: index %d code %08x.\n", i,
+      PRINTF(("Problem %lu: index %lu code %08lx.\n", i,
               problems->aProblem[i].ulIndex, problems->aProblem[i].scode));
     }
   }
   mLastError = object->SaveChanges(0);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot commit changes %08x.\n", mLastError));
+    PRINTF(("Cannot commit changes %08lx.\n", mLastError));
   }
   return HR_SUCCEEDED(mLastError);
 }

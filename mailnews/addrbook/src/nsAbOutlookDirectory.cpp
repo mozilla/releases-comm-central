@@ -25,10 +25,14 @@
 #include "nsMsgUtils.h"
 #include "nsQueryObject.h"
 
+#define PRINT_TO_CONSOLE 0
+#if PRINT_TO_CONSOLE
+#  define PRINTF(args) printf args
+#else
 static mozilla::LazyLogModule gAbOutlookDirectoryLog("AbOutlookDirectory");
-
-#define PRINTF(args) \
-  MOZ_LOG(gAbOutlookDirectoryLog, mozilla::LogLevel::Debug, args)
+#  define PRINTF(args) \
+    MOZ_LOG(gAbOutlookDirectoryLog, mozilla::LogLevel::Debug, args)
+#endif
 
 nsAbOutlookDirectory::nsAbOutlookDirectory(void)
     : nsAbDirProperty(),
@@ -855,7 +859,8 @@ static void UnicodeToWord(const char16_t* aUnicode, WORD& aWord) {
 
   aWord = static_cast<WORD>(unichar.ToInteger(&errorCode));
   if (NS_FAILED(errorCode)) {
-    PRINTF(("Error conversion string %S: %08x.\n", unichar.get(), errorCode));
+    PRINTF(("Error conversion string %S: %08x.\n", (wchar_t*)(unichar.get()),
+            errorCode));
   }
 }
 
