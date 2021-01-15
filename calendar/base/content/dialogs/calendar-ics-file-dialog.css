@@ -50,6 +50,11 @@
   overflow-y: auto;
 }
 
+#calendar-ics-file-dialog-items-loading-message {
+  text-align: center;
+  margin-top: 3em;
+}
+
 .calendar-ics-file-dialog-item-frame {
   background-color: #fff;
   border: 1px solid #ccc;

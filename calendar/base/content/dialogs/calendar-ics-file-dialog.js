@@ -6,6 +6,7 @@
            sortCalendarArray */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const gModel = {
   /** @type {calICalendar[]} */
@@ -33,14 +34,6 @@ async function onWindowLoad() {
   gModel.file = window.arguments[0];
   document.getElementById("calendar-ics-file-dialog-file-path").value = gModel.file.path;
 
-  gModel.itemsToImport = getItemsFromFile(gModel.file);
-  if (!gModel.itemsToImport.length) {
-    // No items to import, close the window. An error dialog has already been
-    // shown by `getItemsFromFile`.
-    window.close();
-    return;
-  }
-
   let calendars = cal.getCalendarManager().getCalendars();
   gModel.calendars = getCalendarsThatCanImport(calendars);
   if (!gModel.calendars.length) {
@@ -55,18 +48,41 @@ async function onWindowLoad() {
   setUpCalendarMenu(gModel.calendars, defaultCalendarId);
   cal.view.colorTracker.registerWindow(window);
 
-  setUpItemSummaries(gModel.itemsToImport, gModel.file.path);
+  // Finish laying out and displaying the window, then come back to do the hard work.
+  Services.tm.dispatchToMainThread(async () => {
+    let startTime = Date.now();
 
-  document.addEventListener("dialogaccept", importRemainingItems);
-
-  window.addEventListener("resize", () => {
-    for (let summary of gModel.itemSummaries) {
-      if (summary) {
-        summary.onWindowResize();
-      }
+    gModel.itemsToImport = getItemsFromFile(gModel.file);
+    if (!gModel.itemsToImport.length) {
+      // No items to import, close the window. An error dialog has already been
+      // shown by `getItemsFromFile`.
+      window.close();
+      return;
     }
+
+    // We know that if `getItemsFromFile` took a long time, then `setUpItemSummaries` will also
+    // take a long time. Show a loading message so the user knows something is happening.
+    let loadingMessage = document.getElementById("calendar-ics-file-dialog-items-loading-message");
+    if (Date.now() - startTime > 150) {
+      loadingMessage.removeAttribute("hidden");
+      await new Promise(resolve => requestAnimationFrame(resolve));
+    }
+
+    await setUpItemSummaries(gModel.itemsToImport);
+
+    // Remove the loading message from the DOM to avoid it causing problems later.
+    loadingMessage.remove();
+
+    document.addEventListener("dialogaccept", importRemainingItems);
+
+    window.addEventListener("resize", () => {
+      for (let summary of gModel.itemSummaries) {
+        if (summary) {
+          summary.onWindowResize();
+        }
+      }
+    });
   });
-  window.sizeToContent();
 }
 window.addEventListener("load", onWindowLoad);
 
@@ -125,9 +141,8 @@ function updateCalendarMenu() {
  * Display summaries of each calendar item from the file being imported.
  *
  * @param {calIItemBase[]} items - An array of calendar events and tasks.
- * @param {string} filePath - The path to the file being imported.
  */
-function setUpItemSummaries(items) {
+async function setUpItemSummaries(items) {
   let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
 
   // Sort the items, chronologically first, then alphabetically.
@@ -136,20 +151,18 @@ function setUpItemSummaries(items) {
     return a.startDate.nativeTime - b.startDate.nativeTime || collator.compare(a.title, b.title);
   });
 
-  items.forEach(async (item, index) => {
+  let [eventButtonText, taskButtonText] = await document.l10n.formatValues([
+    "calendar-ics-file-dialog-import-event-button-label",
+    "calendar-ics-file-dialog-import-task-button-label",
+  ]);
+
+  items.forEach((item, index) => {
     let itemFrame = document.createXULElement("vbox");
     itemFrame.classList.add("calendar-ics-file-dialog-item-frame");
 
     let importButton = document.createXULElement("button");
     importButton.classList.add("calendar-ics-file-dialog-item-import-button");
-
-    let buttonTextIdentifier = cal.item.isEvent(item)
-      ? "calendar-ics-file-dialog-import-event-button-label"
-      : "calendar-ics-file-dialog-import-task-button-label";
-
-    let buttonText = await document.l10n.formatValue(buttonTextIdentifier);
-    importButton.setAttribute("label", buttonText);
-
+    importButton.setAttribute("label", cal.item.isEvent(item) ? eventButtonText : taskButtonText);
     importButton.addEventListener("command", importSingleItem.bind(null, item, index));
 
     let buttonBox = document.createXULElement("hbox");

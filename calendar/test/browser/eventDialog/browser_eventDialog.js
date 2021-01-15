@@ -239,11 +239,16 @@ add_task(async function testOpenExistingEventDialog() {
     controller,
     eventBox,
     async event => {
-      let { eid } = helpersForController(event);
-      Assert.equal(eid("calendar-item-summary-item-title").getNode().textContent, EVENTTITLE);
-      Assert.equal(eid("calendar-item-summary-item-location").getNode().textContent, EVENTLOCATION);
       Assert.equal(
-        eid("calendar-item-summary-item-description").getNode().textContent,
+        event.window.document.querySelector("calendar-item-summary .item-title").textContent,
+        EVENTTITLE
+      );
+      Assert.equal(
+        event.window.document.querySelector("calendar-item-summary .item-location").textContent,
+        EVENTLOCATION
+      );
+      Assert.equal(
+        event.window.document.querySelector("calendar-item-summary .item-description").textContent,
         EVENTDESCRIPTION
       );
       EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);

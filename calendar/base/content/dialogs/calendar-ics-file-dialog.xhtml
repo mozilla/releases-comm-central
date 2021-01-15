@@ -16,6 +16,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         data-l10n-id="calendar-ics-file-window-2"
+        width="600"
         height="600">
 
   <dialog id="calendar-ics-file-dialog"
@@ -36,7 +37,8 @@
       <vbox id="calendar-ics-file-dialog-header">
         <description id="calendar-ics-file-dialog-message"
                      data-l10n-id="calendar-ics-file-dialog-message-2"></description>
-        <description id="calendar-ics-file-dialog-file-path"></description>
+        <description id="calendar-ics-file-dialog-file-path"
+                     crop="start"></description>
 
         <label id="calendar-ics-file-dialog-calendar-menu-label"
                data-l10n-id="calendar-ics-file-dialog-calendar-menu-label"
@@ -46,7 +48,12 @@
                   oncommand="updateCalendarMenu();"/>
       </vbox>
 
-      <vbox id="calendar-ics-file-dialog-items-container" flex="1"></vbox>
+      <vbox id="calendar-ics-file-dialog-items-container" flex="1">
+        <label id="calendar-ics-file-dialog-items-loading-message"
+               hidden="true"
+               data-l10n-id="calendar-ics-file-dialog-items-loading-message"
+               data-l10n-attrs="value"/>
+      </vbox>
     </vbox>
 
     <vbox id="calendar-ics-file-dialog-progress-pane"

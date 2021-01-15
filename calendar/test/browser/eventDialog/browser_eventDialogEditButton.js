@@ -149,7 +149,7 @@ add_task(async function testEditNonRecurringEvent() {
 
   let eventBox = await getEventBox('year="2019"');
   eventWindow = await openEventFromBox(eventBox);
-  let actualTitle = eventWindow.document.querySelector("#calendar-item-summary-item-title")
+  let actualTitle = eventWindow.document.querySelector("#calendar-item-summary .item-title")
     .textContent;
 
   Assert.ok(actualTitle === newTitle, "edit non-recurring event successful");
@@ -217,7 +217,7 @@ add_task(async function testEditThisOccurrence() {
   let eventBoxes = document.querySelectorAll("calendar-month-day-box-item");
   for (let box of eventBoxes) {
     let targetWindow = await openEventFromBox(box);
-    let actualTitle = targetWindow.document.querySelector("#calendar-item-summary-item-title")
+    let actualTitle = targetWindow.document.querySelector("#calendar-item-summary .item-title")
       .textContent;
 
     await closeEventWindow(targetWindow);
@@ -264,7 +264,7 @@ add_task(async function testEditAllOccurrences() {
   let eventBoxes = document.querySelectorAll("calendar-month-day-box-item");
   for (let box of eventBoxes) {
     let targetWindow = await openEventFromBox(box);
-    let actualTitle = targetWindow.document.querySelector("#calendar-item-summary-item-title")
+    let actualTitle = targetWindow.document.querySelector("#calendar-item-summary .item-title")
       .textContent;
 
     await closeEventWindow(targetWindow);

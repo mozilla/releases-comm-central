@@ -17,6 +17,9 @@ calendar-ics-file-cancel-button-close-label = Close
 calendar-ics-file-dialog-message-2 = Import from file:
 calendar-ics-file-dialog-calendar-menu-label = Import into calendar:
 
+calendar-ics-file-dialog-items-loading-message =
+  .value = Loading items…
+
 calendar-ics-file-dialog-progress-message = Importing…
 
 calendar-ics-file-import-success = Successfully imported!

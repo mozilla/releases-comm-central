@@ -67,8 +67,11 @@ add_task(async () => {
       Assert.equal(calendarMenuItems.length, 1, "exactly one calendar is in the calendars menu");
       is(calendarMenuItems[0].selected, true, "calendar menu item is selected");
 
-      let items = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
-      is(items.length, 4, "four calendar items are displayed");
+      let items;
+      await TestUtils.waitForCondition(() => {
+        items = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
+        return items.length == 4;
+      }, "four calendar items are displayed");
       is(
         items[0].querySelector(".item-title").textContent,
         "Event One",
