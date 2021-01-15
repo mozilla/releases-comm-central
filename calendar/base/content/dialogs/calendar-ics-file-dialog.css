@@ -22,6 +22,23 @@
   margin-top: 1em;
 }
 
+#calendar-ics-file-dialog-calendar-menu > menupopup > menuitem .menu-iconic-left {
+  display: -moz-box;
+}
+
+#calendar-ics-file-dialog-calendar-menu::part(icon) {
+  margin-inline-start: 4px;
+  margin-inline-end: 3px;
+}
+
+#calendar-ics-file-dialog-calendar-menu::part(icon),
+#calendar-ics-file-dialog-calendar-menu > menupopup > menuitem .menu-iconic-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--item-color);
+}
+
 #calendar-ics-file-dialog-items-container {
   border-block: 1px solid #ccc;
   margin: 0.7em 0;

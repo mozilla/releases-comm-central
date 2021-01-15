@@ -53,6 +53,7 @@ async function onWindowLoad() {
   let composite = cal.view.getCompositeCalendar(window);
   let defaultCalendarId = composite && composite.defaultCalendar?.id;
   setUpCalendarMenu(gModel.calendars, defaultCalendarId);
+  cal.view.colorTracker.registerWindow(window);
 
   setUpItemSummaries(gModel.itemsToImport, gModel.file.path);
 
@@ -78,23 +79,12 @@ window.addEventListener("load", onWindowLoad);
  */
 function getCalendarsThatCanImport(calendars) {
   let calendarsThatCanImport = calendars.filter(
-    calendar => calendar && cal.acl.userCanAddItemsToCalendar(calendar)
+    calendar =>
+      !calendar.getProperty("disabled") &&
+      !calendar.readOnly &&
+      cal.acl.userCanAddItemsToCalendar(calendar)
   );
   return sortCalendarArray(calendarsThatCanImport);
-}
-
-/**
- * Ensure a calendar is enabled and writable.
- *
- * @param {calICalendar} calendar - The calendar to check.
- */
-function ensureCalendarIsWritable(calendar) {
-  if (calendar.getProperty("disabled")) {
-    calendar.setProperty("disabled", false);
-  }
-  if (calendar.readOnly) {
-    calendar.readOnly = false;
-  }
 }
 
 /**
@@ -106,7 +96,10 @@ function ensureCalendarIsWritable(calendar) {
 function setUpCalendarMenu(calendars, defaultCalendarId) {
   let menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");
   for (let calendar of calendars) {
-    addMenuItem(menulist, calendar.name, calendar.name);
+    let menuitem = addMenuItem(menulist, calendar.name, calendar.name);
+    let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
+    menuitem.style.setProperty("--item-color", `var(--calendar-${cssSafeId}-backcolor)`);
+    menuitem.classList.add("menuitem-iconic");
   }
 
   let index = defaultCalendarId
@@ -114,6 +107,18 @@ function setUpCalendarMenu(calendars, defaultCalendarId) {
     : 0;
 
   menulist.selectedIndex = index == -1 ? 0 : index;
+  updateCalendarMenu();
+}
+
+/**
+ * Update to reflect a change in the selected calendar.
+ */
+function updateCalendarMenu() {
+  let menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");
+  menulist.style.setProperty(
+    "--item-color",
+    menulist.selectedItem.style.getPropertyValue("--item-color")
+  );
 }
 
 /**
@@ -192,7 +197,6 @@ async function importSingleItem(item, itemIndex, filePath, event) {
   delete gModel.itemSummaries[itemIndex];
 
   let calendar = getCurrentlySelectedCalendar();
-  ensureCalendarIsWritable(calendar);
 
   putItemsIntoCal(calendar, [item], filePath);
 
@@ -231,7 +235,6 @@ async function importRemainingItems(event) {
   document.removeEventListener("dialogaccept", importRemainingItems);
 
   let calendar = getCurrentlySelectedCalendar();
-  ensureCalendarIsWritable(calendar);
   let remainingItems = gModel.itemsToImport.filter(item => item);
 
   let [importResult] = await Promise.allSettled([

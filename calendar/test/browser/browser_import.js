@@ -56,8 +56,8 @@ add_task(async () => {
       calendarMenu.selectedIndex = 1;
       let calendarMenuItems = calendarMenu.querySelectorAll("menuitem");
       is(calendarMenu.value, "Mozmill", "correct calendar name is selected");
-      Assert.equal(calendarMenuItems.length, 2, "exactly two calendars are in the calendars menu");
-      is(calendarMenuItems[1].selected, true, "calendar menu item is selected");
+      Assert.equal(calendarMenuItems.length, 1, "exactly one calendar is in the calendars menu");
+      is(calendarMenuItems[0].selected, true, "calendar menu item is selected");
 
       let items = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
       is(items.length, 4, "four calendar items are displayed");
