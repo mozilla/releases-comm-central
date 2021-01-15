@@ -56,6 +56,8 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
 
  protected:
   nsresult StopSearch();
+  nsresult ExtractCardEntry(nsIAbCard* aCard, nsCString& aEntry);
+  nsresult ExtractDirectoryEntry(nsIAbDirectory* aDirectory, nsCString& aEntry);
 
   // Retrieve hierarchy as cards, with an optional restriction
   nsresult GetCards(nsIMutableArray* aCards, SRestriction* aRestriction);

@@ -220,7 +220,8 @@ NS_IMETHODIMP nsAbOutlookDirectory::HasDirectory(nsIAbDirectory* aDirectory,
   return NS_OK;
 }
 
-static nsresult ExtractCardEntry(nsIAbCard* aCard, nsCString& aEntry) {
+nsresult nsAbOutlookDirectory::ExtractCardEntry(nsIAbCard* aCard,
+                                                nsCString& aEntry) {
   aEntry.Truncate();
 
   nsCString uri;
@@ -234,8 +235,8 @@ static nsresult ExtractCardEntry(nsIAbCard* aCard, nsCString& aEntry) {
   return NS_OK;
 }
 
-static nsresult ExtractDirectoryEntry(nsIAbDirectory* aDirectory,
-                                      nsCString& aEntry) {
+nsresult nsAbOutlookDirectory::ExtractDirectoryEntry(nsIAbDirectory* aDirectory,
+                                                     nsCString& aEntry) {
   aEntry.Truncate();
   nsCString uri;
   nsresult rv = aDirectory->GetURI(uri);
