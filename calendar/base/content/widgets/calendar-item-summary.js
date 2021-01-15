@@ -413,6 +413,11 @@
       itemDateRowEndDate.style.visibility = itemDueDate ? "visible" : "collapse";
 
       if (itemDueDate) {
+        // For all-day events, display the last day, not the finish time.
+        if (itemDueDate.isDate) {
+          itemDueDate = itemDueDate.clone();
+          itemDueDate.day--;
+        }
         itemDueRowLabel.textContent = itemDueRowLabel.getAttribute(
           isToDoItem ? "taskDueLabel" : "eventEndLabel"
         );
