@@ -6,6 +6,7 @@
 #define nsAbOutlookDirectory_h___
 
 #include "mozilla/Attributes.h"
+#include "nsIAbCard.h"
 #include "nsAbDirProperty.h"
 #include "nsIAbDirectoryQuery.h"
 #include "nsIAbDirSearchListener.h"
@@ -62,15 +63,20 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult GetNodes(nsIMutableArray* aNodes);
   // Create a new card
   nsresult CreateCard(nsIAbCard* aData, nsIAbCard** aNewCard);
+  nsresult ModifyCardInternal(nsIAbCard* aModifiedCard, bool aIsAddition);
   // Notification for the UI
   nsresult NotifyItemDeletion(nsISupports* aItem);
   nsresult NotifyItemAddition(nsISupports* aItem);
+  nsresult NotifyItemModification(nsISupports* aItem);
+  nsresult NotifyCardPropertyChanges(nsIAbCard* aOld, nsIAbCard* aNew);
   // Force update of MAPI repository for mailing list
   nsresult CommitAddressList(void);
   // Read MAPI repository
   nsresult UpdateAddressList(void);
+  // Utility to produce a card from a URI.
+  nsresult OutlookCardForURI(const nsACString& aUri, nsIAbCard** card);
 
-  nsMapiEntry* mMapiData;
+  nsMapiEntry* mDirEntry;
   // Keep track of context ID to be passed back from `DoQuery()`.
   int32_t mCurrentQueryId;
   // Data for the search interfaces
@@ -85,7 +91,6 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
 
 enum {
   index_DisplayName = 0,
-  index_EmailAddress,
   index_FirstName,
   index_LastName,
   index_NickName,
@@ -107,13 +112,14 @@ enum {
   index_Company,
   index_WorkWebPage,
   index_HomeWebPage,
-  index_Comments,
   index_LastProp
 };
 
+// The following properties are retrieved from the contact associated
+// with the address book entry. Email not available on contact,
+// the contact has three named email properties.
 static const ULONG OutlookCardMAPIProps[] = {
     PR_DISPLAY_NAME_W,
-    PR_EMAIL_ADDRESS_W,
     PR_GIVEN_NAME_W,
     PR_SURNAME_W,
     PR_NICKNAME_W,
@@ -134,9 +140,26 @@ static const ULONG OutlookCardMAPIProps[] = {
     PR_DEPARTMENT_NAME_W,
     PR_COMPANY_NAME_W,
     PR_BUSINESS_HOME_PAGE_W,
-    PR_PERSONAL_HOME_PAGE_W,
-    PR_COMMENT_W};
+    PR_PERSONAL_HOME_PAGE_W};
 
-nsresult OutlookCardForURI(const nsACString& aUri, nsIAbCard** card);
+static const char* CardStringProperties[] = {
+    kFirstNameProperty,   kLastNameProperty,     kDisplayNameProperty,
+    kNicknameProperty,    kPriEmailProperty,
+
+    kHomeAddressProperty, kHomeAddress2Property, kHomeCityProperty,
+    kHomeStateProperty,   kHomeZipCodeProperty,  kHomeCountryProperty,
+    kHomeWebPageProperty,
+
+    kWorkAddressProperty, kWorkAddress2Property, kWorkCityProperty,
+    kWorkStateProperty,   kWorkZipCodeProperty,  kWorkCountryProperty,
+    kWorkWebPageProperty,
+
+    kHomePhoneProperty,   kWorkPhoneProperty,    kFaxProperty,
+    kPagerProperty,       kCellularProperty,
+
+    kJobTitleProperty,    kDepartmentProperty,   kCompanyProperty};
+
+static const char* CardIntProperties[] = {
+    kBirthYearProperty, kBirthMonthProperty, kBirthDayProperty};
 
 #endif  // nsAbOutlookDirectory_h___

@@ -6,7 +6,6 @@
 #include "nsAbWinHelper.h"
 
 #include "nsAbBaseCID.h"
-#include "nsIAbCard.h"
 #include "nsString.h"
 #include "nsAbDirectoryQuery.h"
 #include "nsIAbBooleanExpression.h"
@@ -24,6 +23,9 @@
 #include "nsArrayEnumerator.h"
 #include "nsMsgUtils.h"
 #include "nsQueryObject.h"
+#include "mozilla/Services.h"
+#include "nsIObserverService.h"
+#include "mozilla/JSONWriter.h"
 
 #define PRINT_TO_CONSOLE 0
 #if PRINT_TO_CONSOLE
@@ -36,16 +38,16 @@ static mozilla::LazyLogModule gAbOutlookDirectoryLog("AbOutlookDirectory");
 
 nsAbOutlookDirectory::nsAbOutlookDirectory(void)
     : nsAbDirProperty(),
-      mMapiData(nullptr),
+      mDirEntry(nullptr),
       mCurrentQueryId(0),
       mSearchContext(-1),
       mAbWinType(nsAbWinType_Unknown) {
-  mMapiData = new nsMapiEntry;
+  mDirEntry = new nsMapiEntry;
 }
 
 nsAbOutlookDirectory::~nsAbOutlookDirectory(void) {
-  if (mMapiData) {
-    delete mMapiData;
+  if (mDirEntry) {
+    delete mDirEntry;
   }
 }
 
@@ -71,12 +73,12 @@ NS_IMETHODIMP nsAbOutlookDirectory::Init(const char* aUri) {
 
   if (!mapiAddBook->IsOK()) return NS_ERROR_FAILURE;
 
-  mMapiData->Assign(entry);
-  if (!mapiAddBook->GetPropertyLong(*mMapiData, PR_OBJECT_TYPE, objectType)) {
+  mDirEntry->Assign(entry);
+  if (!mapiAddBook->GetPropertyLong(*mDirEntry, PR_OBJECT_TYPE, objectType)) {
     PRINTF(("Cannot get type.\n"));
     return NS_ERROR_FAILURE;
   }
-  if (!mapiAddBook->GetPropertyUString(*mMapiData, PR_DISPLAY_NAME_W,
+  if (!mapiAddBook->GetPropertyUString(*mDirEntry, PR_DISPLAY_NAME_W,
                                        unichars)) {
     PRINTF(("Cannot get name.\n"));
     return NS_ERROR_FAILURE;
@@ -260,10 +262,8 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
   for (auto card : aCards) {
     retCode = ExtractCardEntry(card, entryString);
     if (NS_SUCCEEDED(retCode) && !entryString.IsEmpty()) {
-      card->SetDirectoryUID(EmptyCString());
-
       cardEntry.Assign(entryString);
-      if (!mapiAddBook->DeleteEntry(*mMapiData, cardEntry)) {
+      if (!mapiAddBook->DeleteEntry(*mDirEntry, cardEntry)) {
         PRINTF(("Cannot delete card %s.\n", entryString.get()));
       } else {
         mCardList.Remove(card);
@@ -274,6 +274,8 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
         }
         retCode = NotifyItemDeletion(card);
         NS_ENSURE_SUCCESS(retCode, retCode);
+
+        card->SetDirectoryUID(EmptyCString());
       }
     } else {
       PRINTF(("Card doesn't belong in this directory.\n"));
@@ -299,7 +301,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteDirectory(
     nsMapiEntry directoryEntry;
 
     directoryEntry.Assign(entryString);
-    if (!mapiAddBook->DeleteEntry(*mMapiData, directoryEntry)) {
+    if (!mapiAddBook->DeleteEntry(*mDirEntry, directoryEntry)) {
       PRINTF(("Cannot delete directory %s.\n", entryString.get()));
     } else {
       uint32_t pos;
@@ -367,10 +369,10 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddMailList(nsIAbDirectory* aMailList,
     nsMapiEntry sourceEntry;
 
     sourceEntry.Assign(entryString);
-    mapiAddBook->CopyEntry(*mMapiData, sourceEntry, newEntry);
+    mapiAddBook->CopyEntry(*mDirEntry, sourceEntry, newEntry);
   }
   if (newEntry.mByteCount == 0) {
-    if (!mapiAddBook->CreateDistList(*mMapiData, newEntry))
+    if (!mapiAddBook->CreateDistList(*mDirEntry, newEntry))
       return NS_ERROR_FAILURE;
   } else {
     didCopy = true;
@@ -417,7 +419,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::EditMailListToDatabase(
   rv = GetDirName(name);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!mapiAddBook->SetPropertyUString(*mMapiData, PR_DISPLAY_NAME_W,
+  if (!mapiAddBook->SetPropertyUString(*mDirEntry, PR_DISPLAY_NAME_W,
                                        name.get()))
     return NS_ERROR_FAILURE;
 
@@ -627,7 +629,7 @@ nsresult nsAbOutlookDirectory::GetCards(nsIMutableArray* aCards,
   nsMapiEntryArray cardEntries;
   LPSRestriction restriction = (LPSRestriction)aRestriction;
 
-  if (!mapiAddBook->GetCards(*mMapiData, restriction, cardEntries)) {
+  if (!mapiAddBook->GetCards(*mDirEntry, restriction, cardEntries)) {
     PRINTF(("Cannot get cards.\n"));
     return NS_ERROR_FAILURE;
   }
@@ -664,7 +666,7 @@ nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
 
   if (!mapiAddBook->IsOK()) return NS_ERROR_FAILURE;
 
-  if (!mapiAddBook->GetNodes(*mMapiData, nodeEntries)) {
+  if (!mapiAddBook->GetNodes(*mDirEntry, nodeEntries)) {
     PRINTF(("Cannot get nodes.\n"));
     return NS_ERROR_FAILURE;
   }
@@ -690,11 +692,112 @@ nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
   return rv;
 }
 
-nsresult nsAbOutlookDirectory::NotifyItemDeletion(nsISupports* aItem) {
+static nsresult commonNotification(nsISupports* aItem, const char* aTopic) {
+  nsCOMPtr<nsIAbCard> card = do_QueryInterface(aItem);
+  // Right now, mailing lists are not fully working, see bug 1685166.
+  if (!card) return NS_OK;
+
+  nsAutoCString dirUID;
+  card->GetDirectoryUID(dirUID);
+
+  nsCOMPtr<nsIObserverService> observerService =
+      mozilla::services::GetObserverService();
+  observerService->NotifyObservers(card, aTopic,
+                                   NS_ConvertUTF8toUTF16(dirUID).get());
+
   return NS_OK;
 }
 
+nsresult nsAbOutlookDirectory::NotifyItemDeletion(nsISupports* aItem) {
+  return commonNotification(aItem, "addrbook-contact-deleted");
+}
+
 nsresult nsAbOutlookDirectory::NotifyItemAddition(nsISupports* aItem) {
+  return commonNotification(aItem, "addrbook-contact-created");
+}
+
+nsresult nsAbOutlookDirectory::NotifyItemModification(nsISupports* aItem) {
+  return commonNotification(aItem, "addrbook-contact-updated");
+}
+
+class CStringWriter final : public mozilla::JSONWriteFunc {
+ public:
+  void Write(const mozilla::Span<const char>& aStr) override {
+    mBuf.Append(aStr);
+  }
+
+  const nsCString& Get() const { return mBuf; }
+
+ private:
+  nsCString mBuf;
+};
+
+nsresult nsAbOutlookDirectory::NotifyCardPropertyChanges(nsIAbCard* aOld,
+                                                         nsIAbCard* aNew) {
+  mozilla::JSONWriter w(mozilla::MakeUnique<CStringWriter>());
+  w.Start();
+  w.StartObjectElement();
+  bool somethingChanged = false;
+  for (uint32_t i = 0; i < sizeof(CardStringProperties) / sizeof(char*); i++) {
+    nsAutoCString oldValue;
+    nsAutoCString newValue;
+    aOld->GetPropertyAsAUTF8String(CardStringProperties[i], oldValue);
+    aNew->GetPropertyAsAUTF8String(CardStringProperties[i], newValue);
+
+    if (!oldValue.Equals(newValue)) {
+      somethingChanged = true;
+      w.StartObjectProperty(mozilla::MakeStringSpan(CardStringProperties[i]));
+      if (oldValue.IsEmpty()) {
+        w.NullProperty("oldValue");
+      } else {
+        w.StringProperty("oldValue", mozilla::MakeStringSpan(oldValue.get()));
+      }
+      if (newValue.IsEmpty()) {
+        w.NullProperty("newValue");
+      } else {
+        w.StringProperty("newValue", mozilla::MakeStringSpan(newValue.get()));
+      }
+      w.EndObject();
+    }
+  }
+
+  for (uint32_t i = 0; i < sizeof(CardIntProperties) / sizeof(char*); i++) {
+    uint32_t oldValue = 0;
+    uint32_t newValue = 0;
+    aOld->GetPropertyAsUint32(CardIntProperties[i], &oldValue);
+    aNew->GetPropertyAsUint32(CardIntProperties[i], &newValue);
+
+    if (oldValue != newValue) {
+      somethingChanged = true;
+      w.StartObjectProperty(mozilla::MakeStringSpan(CardIntProperties[i]));
+      if (oldValue == 0) {
+        w.NullProperty("oldValue");
+      } else {
+        w.IntProperty("oldValue", oldValue);
+      }
+      if (newValue == 0) {
+        w.NullProperty("newValue");
+      } else {
+        w.IntProperty("newValue", newValue);
+      }
+      w.EndObject();
+    }
+  }
+  w.EndObject();
+  w.End();
+
+#if PRINT_TO_CONSOLE
+  printf("%s", static_cast<CStringWriter*>(w.WriteFunc())->Get().get());
+#endif
+
+  if (somethingChanged) {
+    nsCOMPtr<nsIObserverService> observerService =
+        mozilla::services::GetObserverService();
+    observerService->NotifyObservers(
+        aNew, "addrbook-contact-properties-updated",
+        NS_ConvertUTF8toUTF16(static_cast<CStringWriter*>(w.WriteFunc())->Get())
+            .get());
+  }
   return NS_OK;
 }
 
@@ -789,12 +892,12 @@ nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
       // In the case of a mailing list, we can use the address
       // as a direct template to build the new one (which is done
       // by CopyEntry).
-      mapiAddBook->CopyEntry(*mMapiData, sourceEntry, newEntry);
+      mapiAddBook->CopyEntry(*mDirEntry, sourceEntry, newEntry);
       didCopy = true;
     } else {
       // Else, we have to create a temporary address and copy the
       // source into it. Yes it's silly.
-      mapiAddBook->CreateEntry(*mMapiData, newEntry);
+      mapiAddBook->CreateEntry(*mDirEntry, newEntry);
     }
   }
   // If this approach doesn't work, well we're back to creating and copying.
@@ -812,7 +915,7 @@ nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
       if (!mapiAddBook->CreateEntry(parentEntry, temporaryEntry)) {
         return NS_ERROR_FAILURE;
       }
-      if (!mapiAddBook->CopyEntry(*mMapiData, temporaryEntry, newEntry)) {
+      if (!mapiAddBook->CopyEntry(*mDirEntry, temporaryEntry, newEntry)) {
         return NS_ERROR_FAILURE;
       }
       if (!mapiAddBook->DeleteEntry(parentEntry, temporaryEntry)) {
@@ -821,7 +924,7 @@ nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
     }
     // If we're on a real address book folder, we can directly create an
     // empty card.
-    else if (!mapiAddBook->CreateEntry(*mMapiData, newEntry)) {
+    else if (!mapiAddBook->CreateEntry(*mDirEntry, newEntry)) {
       return NS_ERROR_FAILURE;
     }
   }
@@ -842,7 +945,15 @@ nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
   if (!didCopy) {
     retCode = newCard->Copy(aData);
     NS_ENSURE_SUCCESS(retCode, retCode);
-    retCode = ModifyCard(newCard);
+
+    // Set a decent display name of the card. This needs to be set
+    // on the card and not on the related contact via `SetPropertiesUString()`.
+    nsAutoString displayName;
+    newCard->GetDisplayName(displayName);
+    mapiAddBook->SetPropertyUString(newEntry, PR_DISPLAY_NAME_W,
+                                    displayName.get());
+
+    retCode = ModifyCardInternal(newCard, true);
     NS_ENSURE_SUCCESS(retCode, retCode);
   }
   newCard.forget(aNewCard);
@@ -867,6 +978,11 @@ static void UnicodeToWord(const char16_t* aUnicode, WORD& aWord) {
 #define PREF_MAIL_ADDR_BOOK_LASTNAMEFIRST "mail.addr_book.lastnamefirst"
 
 NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard* aModifiedCard) {
+  return ModifyCardInternal(aModifiedCard, false);
+}
+
+nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
+                                                  bool aIsAddition) {
   NS_ENSURE_ARG_POINTER(aModifiedCard);
 
   nsString* properties = nullptr;
@@ -883,6 +999,13 @@ NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard* aModifiedCard) {
 
   nsMapiEntry mapiData;
   mapiData.Assign(entry);
+
+  // Get the existing card.
+  nsCString uri;
+  nsCOMPtr<nsIAbCard> oldCard;
+  aModifiedCard->GetPropertyAsAUTF8String("OutlookEntryURI", uri);
+  // If the following fails, we didn't get the old card, not fatal.
+  OutlookCardForURI(uri, getter_AddRefs(oldCard));
 
   // First, all the standard properties in one go
   properties = new nsString[index_LastProp];
@@ -916,7 +1039,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard* aModifiedCard) {
     }
   }
   aModifiedCard->SetDisplayName(properties[index_DisplayName]);
-  aModifiedCard->GetPrimaryEmail(properties[index_EmailAddress]);
   aModifiedCard->GetPropertyAsAString(kNicknameProperty,
                                       properties[index_NickName]);
   aModifiedCard->GetPropertyAsAString(kWorkPhoneProperty,
@@ -955,10 +1077,9 @@ NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard* aModifiedCard) {
                                       properties[index_WorkWebPage]);
   aModifiedCard->GetPropertyAsAString(kHomeWebPageProperty,
                                       properties[index_HomeWebPage]);
-  aModifiedCard->GetPropertyAsAString(kNotesProperty,
-                                      properties[index_Comments]);
-  if (!mapiAddBook->SetPropertiesUString(mapiData, OutlookCardMAPIProps,
-                                         index_LastProp, properties)) {
+  if (!mapiAddBook->SetPropertiesUString(*mDirEntry, mapiData,
+                                         OutlookCardMAPIProps, index_LastProp,
+                                         properties)) {
     PRINTF(("Cannot set general properties.\n"));
   }
 
@@ -969,6 +1090,11 @@ NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard* aModifiedCard) {
   WORD month = 0;
   WORD day = 0;
 
+  aModifiedCard->GetPrimaryEmail(unichar);
+  if (!mapiAddBook->SetPropertyUString(mapiData, PR_EMAIL_ADDRESS_W,
+                                       unichar.get())) {
+    PRINTF(("Cannot set primary email.\n"));
+  }
   aModifiedCard->GetPropertyAsAString(kHomeAddressProperty, unichar);
   aModifiedCard->GetPropertyAsAString(kHomeAddress2Property, unichar2);
 
@@ -1004,8 +1130,14 @@ NS_IMETHODIMP nsAbOutlookDirectory::ModifyCard(nsIAbCard* aModifiedCard) {
   unichar.Truncate();
   aModifiedCard->GetPropertyAsAString(kBirthDayProperty, unichar);
   UnicodeToWord(unichar.get(), day);
-  if (!mapiAddBook->SetPropertyDate(mapiData, PR_BIRTHDAY, year, month, day)) {
+  if (!mapiAddBook->SetPropertyDate(*mDirEntry, mapiData, true, PR_BIRTHDAY,
+                                    year, month, day)) {
     PRINTF(("Cannot set date.\n"));
+  }
+
+  if (!aIsAddition) {
+    NotifyItemModification(aModifiedCard);
+    if (oldCard) NotifyCardPropertyChanges(oldCard, aModifiedCard);
   }
 
   return retCode;
@@ -1024,11 +1156,13 @@ static void splitString(nsString& aSource, nsString& aTarget) {
         aTarget.Append(*source);
       ++source;
     }
-    aSource.SetLength(offset);
+    int32_t offsetCR = aSource.FindChar('\r');
+    aSource.SetLength(offsetCR >= 0 ? offsetCR : offset);
   }
 }
 
-nsresult OutlookCardForURI(const nsACString& aUri, nsIAbCard** newCard) {
+nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
+                                                 nsIAbCard** newCard) {
   NS_ENSURE_ARG_POINTER(newCard);
 
   nsAutoCString entry;
@@ -1054,39 +1188,37 @@ nsresult OutlookCardForURI(const nsACString& aUri, nsIAbCard** newCard) {
   mapiData.Assign(entry);
 
   nsString unichars[index_LastProp];
+  bool success[index_LastProp];
 
-  if (mapiAddBook->GetPropertiesUString(mapiData, OutlookCardMAPIProps,
-                                        index_LastProp, unichars)) {
-    card->SetFirstName(unichars[index_FirstName]);
-    card->SetLastName(unichars[index_LastName]);
-    card->SetDisplayName(unichars[index_DisplayName]);
-    card->SetPrimaryEmail(unichars[index_EmailAddress]);
-    card->SetPropertyAsAString(kNicknameProperty, unichars[index_NickName]);
-    card->SetPropertyAsAString(kWorkPhoneProperty,
-                               unichars[index_WorkPhoneNumber]);
-    card->SetPropertyAsAString(kHomePhoneProperty,
-                               unichars[index_HomePhoneNumber]);
-    card->SetPropertyAsAString(kFaxProperty, unichars[index_WorkFaxNumber]);
-    card->SetPropertyAsAString(kPagerProperty, unichars[index_PagerNumber]);
-    card->SetPropertyAsAString(kCellularProperty, unichars[index_MobileNumber]);
-    card->SetPropertyAsAString(kHomeCityProperty, unichars[index_HomeCity]);
-    card->SetPropertyAsAString(kHomeStateProperty, unichars[index_HomeState]);
-    card->SetPropertyAsAString(kHomeZipCodeProperty, unichars[index_HomeZip]);
-    card->SetPropertyAsAString(kHomeCountryProperty,
-                               unichars[index_HomeCountry]);
-    card->SetPropertyAsAString(kWorkCityProperty, unichars[index_WorkCity]);
-    card->SetPropertyAsAString(kWorkStateProperty, unichars[index_WorkState]);
-    card->SetPropertyAsAString(kWorkZipCodeProperty, unichars[index_WorkZip]);
-    card->SetPropertyAsAString(kWorkCountryProperty,
-                               unichars[index_WorkCountry]);
-    card->SetPropertyAsAString(kJobTitleProperty, unichars[index_JobTitle]);
-    card->SetPropertyAsAString(kDepartmentProperty, unichars[index_Department]);
-    card->SetPropertyAsAString(kCompanyProperty, unichars[index_Company]);
-    card->SetPropertyAsAString(kWorkWebPageProperty,
-                               unichars[index_WorkWebPage]);
-    card->SetPropertyAsAString(kHomeWebPageProperty,
-                               unichars[index_HomeWebPage]);
-    card->SetPropertyAsAString(kNotesProperty, unichars[index_Comments]);
+  if (mapiAddBook->GetPropertiesUString(*mDirEntry, mapiData,
+                                        OutlookCardMAPIProps, index_LastProp,
+                                        unichars, success)) {
+    if (success[index_FirstName]) card->SetFirstName(unichars[index_FirstName]);
+    if (success[index_LastName]) card->SetLastName(unichars[index_LastName]);
+    if (success[index_DisplayName])
+      card->SetDisplayName(unichars[index_DisplayName]);
+
+#define SETPROP(name, index) \
+  if (success[index]) card->SetPropertyAsAString(name, unichars[index])
+    SETPROP(kNicknameProperty, index_NickName);
+    SETPROP(kWorkPhoneProperty, index_WorkPhoneNumber);
+    SETPROP(kHomePhoneProperty, index_HomePhoneNumber);
+    SETPROP(kFaxProperty, index_WorkFaxNumber);
+    SETPROP(kPagerProperty, index_PagerNumber);
+    SETPROP(kCellularProperty, index_MobileNumber);
+    SETPROP(kHomeCityProperty, index_HomeCity);
+    SETPROP(kHomeStateProperty, index_HomeState);
+    SETPROP(kHomeZipCodeProperty, index_HomeZip);
+    SETPROP(kHomeCountryProperty, index_HomeCountry);
+    SETPROP(kWorkCityProperty, index_WorkCity);
+    SETPROP(kWorkStateProperty, index_WorkState);
+    SETPROP(kWorkZipCodeProperty, index_WorkZip);
+    SETPROP(kWorkCountryProperty, index_WorkCountry);
+    SETPROP(kJobTitleProperty, index_JobTitle);
+    SETPROP(kDepartmentProperty, index_Department);
+    SETPROP(kCompanyProperty, index_Company);
+    SETPROP(kWorkWebPageProperty, index_WorkWebPage);
+    SETPROP(kHomeWebPageProperty, index_HomeWebPage);
   }
 
   ULONG cardType = 0;
@@ -1102,6 +1234,9 @@ nsresult OutlookCardForURI(const nsACString& aUri, nsIAbCard** newCard) {
 
   nsAutoString unichar;
   nsAutoString unicharBis;
+  if (mapiAddBook->GetPropertyUString(mapiData, PR_EMAIL_ADDRESS_W, unichar)) {
+    card->SetPrimaryEmail(unichar);
+  }
   if (mapiAddBook->GetPropertyUString(mapiData, PR_HOME_ADDRESS_STREET_W,
                                       unichar)) {
     splitString(unichar, unicharBis);
@@ -1116,7 +1251,8 @@ nsresult OutlookCardForURI(const nsACString& aUri, nsIAbCard** newCard) {
   }
 
   WORD year = 0, month = 0, day = 0;
-  if (mapiAddBook->GetPropertyDate(mapiData, PR_BIRTHDAY, year, month, day)) {
+  if (mapiAddBook->GetPropertyDate(*mDirEntry, mapiData, true, PR_BIRTHDAY,
+                                   year, month, day)) {
     card->SetPropertyAsUint32(kBirthYearProperty, year);
     card->SetPropertyAsUint32(kBirthMonthProperty, month);
     card->SetPropertyAsUint32(kBirthDayProperty, day);

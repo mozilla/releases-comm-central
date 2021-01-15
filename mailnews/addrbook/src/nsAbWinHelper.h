@@ -55,16 +55,19 @@ class nsAbWinHelper {
   // Get the value of a MAPI property of type string
   BOOL GetPropertyString(const nsMapiEntry& aObject, ULONG aPropertyTag,
                          nsCString& aValue);
-  // Same as previous, but string is returned as unicode
+  // Same as previous, but string is returned as unicode.
   BOOL GetPropertyUString(const nsMapiEntry& aObject, ULONG aPropertyTag,
                           nsString& aValue);
   // Get multiple string MAPI properties in one call.
-  BOOL GetPropertiesUString(const nsMapiEntry& aObject,
+  // Retrieves the properties from the associated contact object (IMessage)
+  // not the address book entry (IMailUser).
+  BOOL GetPropertiesUString(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
                             const ULONG* aPropertiesTag, ULONG aNbProperties,
-                            nsString* aValues);
+                            nsString* aValues, bool* aSuccess);
   // Get the value of a MAPI property of type SYSTIME
-  BOOL GetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag,
-                       WORD& aYear, WORD& aMonth, WORD& aDay);
+  BOOL GetPropertyDate(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
+                       bool fromContact, ULONG aPropertyTag, WORD& aYear,
+                       WORD& aMonth, WORD& aDay);
   // Get the value of a MAPI property of type LONG
   BOOL GetPropertyLong(const nsMapiEntry& aObject, ULONG aPropertyTag,
                        ULONG& aValue);
@@ -78,13 +81,16 @@ class nsAbWinHelper {
   // Set the value of a MAPI property of type string in unicode
   BOOL SetPropertyUString(const nsMapiEntry& aObject, ULONG aPropertyTag,
                           const char16_t* aValue);
-  // Same as previous, but with a bunch of properties in one call
-  BOOL SetPropertiesUString(const nsMapiEntry& aObject,
+  // Same as previous, but with a bunch of properties in one call.
+  // Sets the properties on the associated contact object (IMessage)
+  // not the address book entry (IMailUser).
+  BOOL SetPropertiesUString(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
                             const ULONG* aPropertiesTag, ULONG aNbProperties,
                             nsString* aValues);
   // Set the value of a MAPI property of type SYSTIME
-  BOOL SetPropertyDate(const nsMapiEntry& aObject, ULONG aPropertyTag,
-                       WORD aYear, WORD aMonth, WORD aDay);
+  BOOL SetPropertyDate(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
+                       bool fromContact, ULONG aPropertyTag, WORD aYear,
+                       WORD aMonth, WORD aDay);
   // Create entry in the address book
   BOOL CreateEntry(const nsMapiEntry& aParent, nsMapiEntry& aNewEntry);
   // Create a distribution list in the address book
@@ -100,6 +106,7 @@ class nsAbWinHelper {
  protected:
   HRESULT mLastError;
   LPADRBOOK mAddressBook;
+  LPMAPISESSION mAddressSession;
   static uint32_t sEntryCounter;
   static mozilla::StaticMutex sMutex;
 
@@ -107,12 +114,16 @@ class nsAbWinHelper {
   BOOL GetContents(const nsMapiEntry& aParent, LPSRestriction aRestriction,
                    nsMapiEntry** aList, ULONG& aNbElements, ULONG aMapiType);
   // Retrieve the values of a set of properties on a MAPI object
-  BOOL GetMAPIProperties(const nsMapiEntry& aObject, const ULONG* aPropertyTags,
-                         ULONG aNbProperties, LPSPropValue& aValues,
-                         ULONG& aValueCount);
+  BOOL GetMAPIProperties(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
+                         const ULONG* aPropertyTags, ULONG aNbProperties,
+                         LPSPropValue& aValues, ULONG& aValueCount,
+                         bool fromContact = false);
   // Set the values of a set of properties on a MAPI object
-  BOOL SetMAPIProperties(const nsMapiEntry& aObject, ULONG aNbProperties,
-                         const LPSPropValue& aValues);
+  BOOL SetMAPIProperties(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
+                         ULONG aNbProperties, const LPSPropValue& aValues,
+                         bool fromContact = false);
+  HRESULT OpenMAPIObject(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
+                         bool aFromContact, ULONG aFlags, LPUNKNOWN* aResult);
   // Clean-up a rowset returned by QueryRows
   void MyFreeProws(LPSRowSet aSet);
   // Allocation of a buffer for transmission to interfaces

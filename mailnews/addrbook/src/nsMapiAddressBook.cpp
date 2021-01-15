@@ -151,6 +151,7 @@ BOOL nsMapiAddressBook::Initialize(void) {
     return FALSE;
   }
   mAddressBook = mRootBook;
+  mAddressSession = mRootSession;
   return TRUE;
 }
 

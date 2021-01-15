@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #define INITGUID
 #define USES_IID_IMAPIProp
+#define USES_IID_IMessage
+#define USES_IID_IMAPIFolder
 #define USES_IID_IMAPIContainer
 #define USES_IID_IABContainer
 #define USES_IID_IMAPITable
@@ -138,7 +140,52 @@ void nsMapiEntryArray::CleanUp(void) {
   }
 }
 
+// Microsoft distinguishes between address book entries and contacts.
+// Address book entries are of class IMailUser and are stored in containers
+// of class IABContainer.
+// Local contacts are stored in the "contacts folder" of class IMAPIFolder and
+// are of class IMessage with "message class" IPM.Contact.
+// For local address books the entry ID of the contact can be derived from the
+// entry ID of the address book entry and vice versa.
+// Most attributes can be retrieved from both classes with some exceptions:
+// The primary e-mail address is only stored on the IMailUser, the contact
+// has three named email properties (which are not used so far).
+// The birthday is only stored on the contact.
+// `OpenMAPIObject()` can open the address book entry as well as the contact,
+// to open the concact it needs to get the message store from via the
+// address book container (or "directory" in Thunderbird terms).
+// Apart from Microsoft documentation, the best source of information
+// is the MAPI programmers mailing list at MAPI-L@PEACH.EASE.LSOFT.COM.
+// All the information that was needed to "refresh" the MAPI implementation
+// in Thunderbird was obtained via this thread:
+// https://peach.ease.lsoft.com/scripts/wa-PEACH.exe?A2=2012&L=MAPI-L&D=0&P=20988415
+
+// Some stuff to access the entry ID of the contact (IMessage, IPM.Contact)
+// from the address book entry ID (IMailUser).
+// The address book entry ID has the following structure, see:
+// https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxcdata/c33d5b9c-d044-4727-96e2-2051f8419ab1
+#define ABENTRY_FLAGS_LENGTH 4
+#define CONTAB_PROVIDER_ID \
+  "\xFE\x42\xAA\x0A\x18\xC7\x1A\x10\xE8\x85\x0B\x65\x1C\x24\x00\x00"
+#define CONTAB_PROVIDER_ID_LENGTH 16
+#define ABENTRY_VERSION "\x03\x00\x00\x00"
+#define ABENTRY_VERSION_LENGTH 4
+#define ABENTRY_TYPE "\x04\x00\x00\x00"
+#define ABENTRY_TYPE_LENGTH 4
+
+struct AbEntryId {
+  BYTE flags[ABENTRY_FLAGS_LENGTH];
+  BYTE provider[CONTAB_PROVIDER_ID_LENGTH];
+  BYTE version[ABENTRY_VERSION_LENGTH];
+  BYTE type[ABENTRY_TYPE_LENGTH];
+  ULONG index;
+  ULONG length;
+  BYTE idBytes[];
+};
+
 using namespace mozilla;
+
+static nsMapiEntry nullEntry;
 
 uint32_t nsAbWinHelper::sEntryCounter = 0;
 mozilla::StaticMutex nsAbWinHelper::sMutex;
@@ -245,17 +292,28 @@ BOOL nsAbWinHelper::GetPropertyString(const nsMapiEntry& aObject,
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
-  if (!GetMAPIProperties(aObject, &aPropertyTag, 1, values, valueCount)) {
+  if (!GetMAPIProperties(nullEntry, aObject, &aPropertyTag, 1, values,
+                         valueCount)) {
     return FALSE;
   }
-  if (valueCount == 1 && values != NULL) {
-    if (PROP_TYPE(values->ulPropTag) == PT_STRING8)
-      aName = values->Value.lpszA;
-    else if (PROP_TYPE(values->ulPropTag) == PT_UNICODE)
-      aName = NS_LossyConvertUTF16toASCII(values->Value.lpszW);
+
+  if (valueCount != 1 || values == NULL) {
+    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyString"));
+    return FALSE;
+  }
+
+  BOOL success = TRUE;
+  if (PROP_TYPE(values->ulPropTag) == PT_STRING8) {
+    aName = values->Value.lpszA;
+  } else if (PROP_TYPE(values->ulPropTag) == PT_UNICODE) {
+    aName = NS_LossyConvertUTF16toASCII(values->Value.lpszW);
+  } else {
+    PRINTF(("Unexpected return value for property %08lx (x0A is PT_ERROR).\n",
+            values->ulPropTag));
+    success = FALSE;
   }
   FreeBuffer(values);
-  return TRUE;
+  return success;
 }
 
 BOOL nsAbWinHelper::GetPropertyUString(const nsMapiEntry& aObject,
@@ -264,68 +322,99 @@ BOOL nsAbWinHelper::GetPropertyUString(const nsMapiEntry& aObject,
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
-  if (!GetMAPIProperties(aObject, &aPropertyTag, 1, values, valueCount)) {
+  if (!GetMAPIProperties(nullEntry, aObject, &aPropertyTag, 1, values,
+                         valueCount)) {
     return FALSE;
   }
-  if (valueCount == 1 && values != NULL) {
-    if (PROP_TYPE(values->ulPropTag) == PT_UNICODE)
-      aName = values->Value.lpszW;
-    else if (PROP_TYPE(values->ulPropTag) == PT_STRING8)
-      aName.AssignASCII(values->Value.lpszA);
+  if (valueCount != 1 || values == NULL) {
+    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyUString"));
+    return FALSE;
+  }
+
+  BOOL success = TRUE;
+  if (PROP_TYPE(values->ulPropTag) == PT_UNICODE) {
+    aName = values->Value.lpszW;
+  } else if (PROP_TYPE(values->ulPropTag) == PT_STRING8) {
+    aName.AssignASCII(values->Value.lpszA);
+  } else {
+    PRINTF(("Unexpected return value for property %08lx (x0A is PT_ERROR).\n",
+            values->ulPropTag));
+    success = FALSE;
+  }
+  return success;
+}
+
+BOOL nsAbWinHelper::GetPropertiesUString(const nsMapiEntry& aDir,
+                                         const nsMapiEntry& aObject,
+                                         const ULONG* aPropertyTags,
+                                         ULONG aNbProperties, nsString* aNames,
+                                         bool* aSuccess) {
+  LPSPropValue values = NULL;
+  ULONG valueCount = 0;
+
+  if (!GetMAPIProperties(aDir, aObject, aPropertyTags, aNbProperties, values,
+                         valueCount, true))
+    return FALSE;
+
+  if (valueCount != aNbProperties || values == NULL) {
+    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertiesUString"));
+    return FALSE;
+  }
+  for (ULONG i = 0; i < valueCount; ++i) {
+    aNames[i].Truncate();
+    aSuccess[i] = false;
+    if (PROP_ID(values[i].ulPropTag) == PROP_ID(aPropertyTags[i])) {
+      if (PROP_TYPE(values[i].ulPropTag) == PT_STRING8) {
+        aNames[i].AssignASCII(values[i].Value.lpszA);
+        aSuccess[i] = true;
+      } else if (PROP_TYPE(values[i].ulPropTag) == PT_UNICODE) {
+        aNames[i] = values[i].Value.lpszW;
+        aSuccess[i] = true;
+      } else {
+        PRINTF(
+            ("Unexpected return value for property %08lx (x0A is PT_ERROR).\n",
+             values[i].ulPropTag));
+      }
+    }
   }
   FreeBuffer(values);
   return TRUE;
 }
 
-BOOL nsAbWinHelper::GetPropertiesUString(const nsMapiEntry& aObject,
-                                         const ULONG* aPropertyTags,
-                                         ULONG aNbProperties,
-                                         nsString* aNames) {
-  LPSPropValue values = NULL;
-  ULONG valueCount = 0;
-
-  if (!GetMAPIProperties(aObject, aPropertyTags, aNbProperties, values,
-                         valueCount))
-    return FALSE;
-
-  if (valueCount == aNbProperties && values != NULL) {
-    for (ULONG i = 0; i < valueCount; ++i) {
-      if (PROP_ID(values[i].ulPropTag) == PROP_ID(aPropertyTags[i])) {
-        if (PROP_TYPE(values[i].ulPropTag) == PT_STRING8)
-          aNames[i].AssignASCII(values[i].Value.lpszA);
-        else if (PROP_TYPE(values[i].ulPropTag) == PT_UNICODE)
-          aNames[i] = values[i].Value.lpszW;
-      }
-    }
-    FreeBuffer(values);
-  }
-  return TRUE;
-}
-
-BOOL nsAbWinHelper::GetPropertyDate(const nsMapiEntry& aObject,
-                                    ULONG aPropertyTag, WORD& aYear,
-                                    WORD& aMonth, WORD& aDay) {
+BOOL nsAbWinHelper::GetPropertyDate(const nsMapiEntry& aDir,
+                                    const nsMapiEntry& aObject,
+                                    bool fromContact, ULONG aPropertyTag,
+                                    WORD& aYear, WORD& aMonth, WORD& aDay) {
   aYear = 0;
   aMonth = 0;
   aDay = 0;
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
-  if (!GetMAPIProperties(aObject, &aPropertyTag, 1, values, valueCount)) {
+  if (!GetMAPIProperties(aDir, aObject, &aPropertyTag, 1, values, valueCount,
+                         fromContact)) {
     return FALSE;
   }
-  if (valueCount == 1 && values != NULL &&
-      PROP_TYPE(values->ulPropTag) == PT_SYSTIME) {
-    SYSTEMTIME readableTime;
+  if (valueCount != 1 || values == NULL) {
+    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyDate"));
+    return FALSE;
+  }
 
+  BOOL success = TRUE;
+  if (PROP_TYPE(values->ulPropTag) == PT_SYSTIME) {
+    SYSTEMTIME readableTime;
     if (FileTimeToSystemTime(&values->Value.ft, &readableTime)) {
       aYear = readableTime.wYear;
       aMonth = readableTime.wMonth;
       aDay = readableTime.wDay;
     }
+  } else {
+    PRINTF(("Cannot retrieve PT_SYSTIME property %08lx (x0A is PT_ERROR).\n",
+            values->ulPropTag));
+    success = FALSE;
   }
   FreeBuffer(values);
-  return TRUE;
+  return success;
 }
 
 BOOL nsAbWinHelper::GetPropertyLong(const nsMapiEntry& aObject,
@@ -334,15 +423,25 @@ BOOL nsAbWinHelper::GetPropertyLong(const nsMapiEntry& aObject,
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
-  if (!GetMAPIProperties(aObject, &aPropertyTag, 1, values, valueCount)) {
+  if (!GetMAPIProperties(nullEntry, aObject, &aPropertyTag, 1, values,
+                         valueCount)) {
     return FALSE;
   }
-  if (valueCount == 1 && values != NULL &&
-      PROP_TYPE(values->ulPropTag) == PT_LONG) {
+  if (valueCount != 1 || values == NULL) {
+    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyLong"));
+    return FALSE;
+  }
+
+  BOOL success = TRUE;
+  if (PROP_TYPE(values->ulPropTag) == PT_LONG) {
     aValue = values->Value.ul;
+  } else {
+    PRINTF(("Cannot retrieve PT_LONG property %08lx (x0A is PT_ERROR).\n",
+            values->ulPropTag));
+    success = FALSE;
   }
   FreeBuffer(values);
-  return TRUE;
+  return success;
 }
 
 BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject,
@@ -351,16 +450,27 @@ BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject,
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
-  if (!GetMAPIProperties(aObject, &aPropertyTag, 1, values, valueCount)) {
+  if (!GetMAPIProperties(nullEntry, aObject, &aPropertyTag, 1, values,
+                         valueCount)) {
     return FALSE;
   }
-  if (valueCount == 1 && values != NULL &&
-      PROP_TYPE(values->ulPropTag) == PT_BINARY) {
+  if (valueCount != 1 || values == NULL) {
+    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyBin"));
+    return FALSE;
+  }
+
+  BOOL success = TRUE;
+  if (PROP_TYPE(values->ulPropTag) == PT_BINARY) {
     aValue.Assign(values->Value.bin.cb,
                   reinterpret_cast<LPENTRYID>(values->Value.bin.lpb));
+  } else {
+    PRINTF(("Cannot retrieve PT_BINARY property %08lx (x0A is PT_ERROR).\n",
+            values->ulPropTag));
+    success = FALSE;
   }
+
   FreeBuffer(values);
-  return TRUE;
+  return success;
 }
 
 // This function, supposedly indicating whether a particular entry was
@@ -425,12 +535,13 @@ BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject,
     value.Value.lpszA = const_cast<char*>(alternativeValue.get());
   } else {
     PRINTF(("Property %08lx is not a string.\n", aPropertyTag));
-    return TRUE;
+    return FALSE;
   }
-  return SetMAPIProperties(aObject, 1, &value);
+  return SetMAPIProperties(nullEntry, aObject, 1, &value);
 }
 
-BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aObject,
+BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aDir,
+                                         const nsMapiEntry& aObject,
                                          const ULONG* aPropertiesTag,
                                          ULONG aNbProperties,
                                          nsString* aValues) {
@@ -457,7 +568,8 @@ BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aObject,
       values[currentValue++].Value.lpszA = av;
     }
   }
-  if (retCode) retCode = SetMAPIProperties(aObject, currentValue, values);
+  if (retCode)
+    retCode = SetMAPIProperties(aDir, aObject, currentValue, values, true);
   for (i = 0; i < currentValue; ++i) {
     if (PROP_TYPE(aPropertiesTag[i]) == PT_STRING8) {
       free(values[i].Value.lpszA);
@@ -467,9 +579,10 @@ BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aObject,
   return retCode;
 }
 
-BOOL nsAbWinHelper::SetPropertyDate(const nsMapiEntry& aObject,
-                                    ULONG aPropertyTag, WORD aYear, WORD aMonth,
-                                    WORD aDay) {
+BOOL nsAbWinHelper::SetPropertyDate(const nsMapiEntry& aDir,
+                                    const nsMapiEntry& aObject,
+                                    bool fromContact, ULONG aPropertyTag,
+                                    WORD aYear, WORD aMonth, WORD aDay) {
   SPropValue value;
 
   value.ulPropTag = aPropertyTag;
@@ -485,7 +598,7 @@ BOOL nsAbWinHelper::SetPropertyDate(const nsMapiEntry& aObject,
     readableTime.wSecond = 0;
     readableTime.wMilliseconds = 0;
     if (SystemTimeToFileTime(&readableTime, &value.Value.ft)) {
-      return SetMAPIProperties(aObject, 1, &value);
+      return SetMAPIProperties(aDir, aObject, 1, &value, fromContact);
     }
     return TRUE;
   }
@@ -494,49 +607,120 @@ BOOL nsAbWinHelper::SetPropertyDate(const nsMapiEntry& aObject,
 
 BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
                                 nsMapiEntry& aNewEntry) {
-  nsMapiInterfaceWrapper<LPABCONT> container;
+  // We create an IPM.Contact message (contact) in the contacts folder.
+  // To find that folder, we look for our `aParent` in the hierarchy table
+  // and use the matching `PR_CONTAB_FOLDER_ENTRYID` for the folder.
+  nsMapiInterfaceWrapper<LPABCONT> rootFolder;
+  nsMapiInterfaceWrapper<LPMAPITABLE> folders;
   ULONG objType = 0;
-
-  mLastError = mAddressBook->OpenEntry(aParent.mByteCount, aParent.mEntryId,
-                                       &IID_IABContainer, MAPI_MODIFY, &objType,
-                                       container);
+  mLastError = mAddressBook->OpenEntry(0, NULL, NULL, 0, &objType, rootFolder);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08lx.\n", mLastError));
+    PRINTF(("Cannot open root %08lx (creating new entry).\n", mLastError));
     return FALSE;
   }
-  SPropTagArray property;
-  LPSPropValue value = NULL;
-  ULONG valueCount = 0;
-
-  property.cValues = 1;
-  property.aulPropTag[0] = PR_DEF_CREATE_MAILUSER;
-  mLastError = container->GetProps(&property, 0, &valueCount, &value);
-  if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot obtain template %08lx.\n", mLastError));
+  mLastError = rootFolder->GetHierarchyTable(CONVENIENT_DEPTH, folders);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot get hierarchy %08lx (creating new entry).\n", mLastError));
     return FALSE;
   }
-  nsMapiInterfaceWrapper<LPMAPIPROP> newEntry;
 
-  mLastError = container->CreateEntry(
-      value->Value.bin.cb, reinterpret_cast<LPENTRYID>(value->Value.bin.lpb),
-      CREATE_CHECK_DUP_LOOSE, newEntry);
-  FreeBuffer(value);
+  // Request `PR_ENTRYID` and `PR_CONTAB_FOLDER_ENTRYID`.
+#define PR_CONTAB_FOLDER_ENTRYID PROP_TAG(PT_BINARY, 0x6610)
+  static const SizedSPropTagArray(2, properties) = {
+      2, {PR_ENTRYID, PR_CONTAB_FOLDER_ENTRYID}};
+  mLastError = folders->SetColumns((LPSPropTagArray)&properties, 0);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot set columns %08lx (creating new entry).\n", mLastError));
+    return FALSE;
+  }
+
+  ULONG rowCount = 0;
+  bool found = false;
+  nsMapiEntry conTab;
+  mLastError = folders->GetRowCount(0, &rowCount);
+  if (HR_SUCCEEDED(mLastError)) {
+    do {
+      LPSRowSet rowSet = NULL;
+
+      rowCount = 0;
+      mLastError = folders->QueryRows(1, 0, &rowSet);
+      if (HR_SUCCEEDED(mLastError)) {
+        rowCount = rowSet->cRows;
+        if (rowCount > 0) {
+          ULONG result;
+          // Get entry ID from row and compare.
+          SPropValue& colValue = rowSet->aRow->lpProps[0];
+
+          mLastError = mAddressSession->CompareEntryIDs(
+              aParent.mByteCount, aParent.mEntryId, colValue.Value.bin.cb,
+              reinterpret_cast<LPENTRYID>(colValue.Value.bin.lpb), 0, &result);
+          if (HR_FAILED(mLastError)) {
+            PRINTF(("CompareEntryIDs failed with %08lx (creating new entry).\n",
+                    mLastError));
+          }
+          if (result) {
+            SPropValue& conTabValue = rowSet->aRow->lpProps[1];
+            conTab.Assign(
+                conTabValue.Value.bin.cb,
+                reinterpret_cast<LPENTRYID>(conTabValue.Value.bin.lpb));
+            found = true;
+            break;
+          }
+        }
+        MyFreeProws(rowSet);
+      } else {
+        PRINTF(("Cannot query rows %08lx (creating new entry).\n", mLastError));
+      }
+    } while (rowCount > 0);
+  }
+  if (HR_FAILED(mLastError)) return HR_SUCCEEDED(mLastError);
+
+  if (!found) {
+    PRINTF(("Cannot find folder for contact in hierarchy table.\n"));
+    return FALSE;
+  }
+
+  // Open store and contact folder.
+  PRINTF(("Found contact folder associated with AB container.\n"));
+  nsMapiEntry storeEntry;
+  // Get the entry ID of the related store. This won't work for the
+  // Global Address List (GAL) since it doesn't provide contacts from a
+  // local store.
+  if (!GetPropertyBin(aParent, PR_STORE_ENTRYID, storeEntry)) {
+    PRINTF(("Cannot get PR_STORE_ENTRYID, likely not a local AB.\n"));
+    return FALSE;
+  }
+  nsMapiInterfaceWrapper<LPMDB> store;
+  mLastError = mAddressSession->OpenMsgStore(
+      0, storeEntry.mByteCount, storeEntry.mEntryId, NULL, 0, store);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot open MAPI message store %08lx.\n", mLastError));
+    return FALSE;
+  }
+  nsMapiInterfaceWrapper<LPMAPIFOLDER> contactFolder;
+  mLastError =
+      store->OpenEntry(conTab.mByteCount, conTab.mEntryId, &IID_IMAPIFolder,
+                       MAPI_MODIFY, &objType, contactFolder);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot open contact folder %08lx.\n", mLastError));
+    return FALSE;
+  }
+
+  // Crazy as it seems, contacts are stored as message.
+  nsMapiInterfaceWrapper<LPMESSAGE> newEntry;
+  mLastError = contactFolder->CreateMessage(&IID_IMessage, 0, newEntry);
   if (HR_FAILED(mLastError)) {
     PRINTF(("Cannot create new entry %08lx.\n", mLastError));
     return FALSE;
   }
-  SPropValue displayName;
-  LPSPropProblemArray problems = NULL;
-  nsAutoString tempName;
 
-  displayName.ulPropTag = PR_DISPLAY_NAME_W;
-  tempName.AssignLiteral("__MailUser__");
-  tempName.AppendInt(sEntryCounter++);
-  const wchar_t* tempNameValue = tempName.get();
-  displayName.Value.lpszW = const_cast<wchar_t*>(tempNameValue);
-  mLastError = newEntry->SetProps(1, &displayName, &problems);
+  SPropValue messageClass;
+  LPSPropProblemArray problems = NULL;
+  messageClass.ulPropTag = PR_MESSAGE_CLASS_A;
+  messageClass.Value.lpszA = const_cast<char*>("IPM.Contact");
+  mLastError = newEntry->SetProps(1, &messageClass, &problems);
   if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set temporary name %08lx.\n", mLastError));
+    PRINTF(("Cannot set message class %08lx.\n", mLastError));
     return FALSE;
   }
   mLastError = newEntry->SaveChanges(KEEP_OPEN_READONLY);
@@ -544,15 +728,57 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
     PRINTF(("Cannot commit new entry %08lx.\n", mLastError));
     return FALSE;
   }
+
+  // Get the entry ID of the contact (IMessage).
+  SPropTagArray property;
+  LPSPropValue value = NULL;
+  ULONG valueCount = 0;
+  property.cValues = 1;
   property.aulPropTag[0] = PR_ENTRYID;
   mLastError = newEntry->GetProps(&property, 0, &valueCount, &value);
   if (HR_FAILED(mLastError) || valueCount != 1) {
     PRINTF(("Cannot get entry id %08lx.\n", mLastError));
     return FALSE;
   }
-  aNewEntry.Assign(value->Value.bin.cb,
-                   reinterpret_cast<LPENTRYID>(value->Value.bin.lpb));
+
+  // Construct the entry ID of the related address book entry (IMailUser).
+  AbEntryId* abEntryId =
+      (AbEntryId*)moz_xmalloc(sizeof(AbEntryId) + value->Value.bin.cb);
+  if (!abEntryId) return FALSE;
+  memset(abEntryId, 0, 4);  // Null out the flags.
+  memcpy(abEntryId->provider, CONTAB_PROVIDER_ID, CONTAB_PROVIDER_ID_LENGTH);
+  memcpy(abEntryId->version, ABENTRY_VERSION, ABENTRY_VERSION_LENGTH);
+  memcpy(abEntryId->type, ABENTRY_TYPE, ABENTRY_TYPE_LENGTH);
+  abEntryId->index = 0;
+  abEntryId->length = value->Value.bin.cb;
+  memcpy(abEntryId->idBytes, value->Value.bin.lpb, abEntryId->length);
+
+  aNewEntry.Assign(sizeof(AbEntryId) + value->Value.bin.cb,
+                   reinterpret_cast<LPENTRYID>(abEntryId));
   FreeBuffer(value);
+
+  // We need to set a display name otherwise MAPI is really unhappy internally.
+  SPropValue displayName;
+  nsAutoString tempName;
+  displayName.ulPropTag = PR_DISPLAY_NAME_W;
+  tempName.AssignLiteral("__MailUser__");
+  tempName.AppendInt(sEntryCounter++);
+  const wchar_t* tempNameValue = tempName.get();
+  displayName.Value.lpszW = const_cast<wchar_t*>(tempNameValue);
+  nsMapiInterfaceWrapper<LPMAPIPROP> object;
+  mLastError =
+      mAddressBook->OpenEntry(aNewEntry.mByteCount, aNewEntry.mEntryId,
+                              &IID_IMAPIProp, MAPI_MODIFY, &objType, object);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot open newly created AB entry %08lx.\n", mLastError));
+    return FALSE;
+  }
+  mLastError = object->SetProps(1, &displayName, &problems);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot set display name %08lx.\n", mLastError));
+    return FALSE;
+  }
+
   return TRUE;
 }
 
@@ -762,17 +988,63 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
   return TRUE;
 }
 
-BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aObject,
+HRESULT nsAbWinHelper::OpenMAPIObject(const nsMapiEntry& aDir,
+                                      const nsMapiEntry& aObject,
+                                      bool aFromContact, ULONG aFlags,
+                                      LPUNKNOWN* aResult) {
+  nsMapiEntry storeEntry;
+  ULONG contactIdLength = 0;
+  LPENTRYID contactId = NULL;
+  if (aFromContact) {
+    // Get the entry ID of the related store. This won't work for the
+    // Global Address List (GAL) since it doesn't provide contacts from a
+    // local store.
+    if (!GetPropertyBin(aDir, PR_STORE_ENTRYID, storeEntry)) {
+      PRINTF(("Cannot get PR_STORE_ENTRYID, likely not a local AB.\n"));
+      aFromContact = false;
+    }
+    // Check for magic provider GUID.
+    struct AbEntryId* abEntryId = (struct AbEntryId*)aObject.mEntryId;
+    if (memcmp(abEntryId->provider, CONTAB_PROVIDER_ID,
+               CONTAB_PROVIDER_ID_LENGTH) != 0) {
+      aFromContact = false;
+    } else {
+      contactIdLength = abEntryId->length;
+      contactId = reinterpret_cast<LPENTRYID>(&(abEntryId->idBytes));
+    }
+  }
+
+  ULONG objType = 0;
+  if (aFromContact) {
+    // Open the store.
+    HRESULT retCode;
+    nsMapiInterfaceWrapper<LPMDB> store;
+    retCode = mAddressSession->OpenMsgStore(
+        0, storeEntry.mByteCount, storeEntry.mEntryId, NULL, 0, store);
+    if (HR_FAILED(retCode)) {
+      PRINTF(("Cannot open MAPI message store %08lx.\n", retCode));
+      return retCode;
+    }
+    // Open the contact object.
+    retCode = store->OpenEntry(contactIdLength, contactId, &IID_IMessage, 0,
+                               &objType, aResult);
+    return retCode;
+  } else {
+    // Open the address book object.
+    return mAddressBook->OpenEntry(aObject.mByteCount, aObject.mEntryId,
+                                   &IID_IMAPIProp, 0, &objType, aResult);
+  }
+}
+
+BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aDir,
+                                      const nsMapiEntry& aObject,
                                       const ULONG* aPropertyTags,
                                       ULONG aNbProperties, LPSPropValue& aValue,
-                                      ULONG& aValueCount) {
+                                      ULONG& aValueCount, bool fromContact) {
   nsMapiInterfaceWrapper<LPMAPIPROP> object;
-  ULONG objType = 0;
   LPSPropTagArray properties = NULL;
-  ULONG i = 0;
 
-  mLastError = mAddressBook->OpenEntry(aObject.mByteCount, aObject.mEntryId,
-                                       &IID_IMAPIProp, 0, &objType, object);
+  mLastError = OpenMAPIObject(aDir, aObject, fromContact, 0, object);
   if (HR_FAILED(mLastError)) {
     PRINTF(("Cannot open entry %08lx.\n", mLastError));
     return FALSE;
@@ -780,7 +1052,7 @@ BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aObject,
   AllocateBuffer(CbNewSPropTagArray(aNbProperties),
                  reinterpret_cast<void**>(&properties));
   properties->cValues = aNbProperties;
-  for (i = 0; i < aNbProperties; ++i) {
+  for (ULONG i = 0; i < aNbProperties; ++i) {
     properties->aulPropTag[i] = aPropertyTags[i];
   }
   mLastError = object->GetProps(properties, 0, &aValueCount, &aValue);
@@ -791,16 +1063,15 @@ BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aObject,
   return HR_SUCCEEDED(mLastError);
 }
 
-BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aObject,
+BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aDir,
+                                      const nsMapiEntry& aObject,
                                       ULONG aNbProperties,
-                                      const LPSPropValue& aValues) {
+                                      const LPSPropValue& aValues,
+                                      bool fromContact) {
   nsMapiInterfaceWrapper<LPMAPIPROP> object;
-  ULONG objType = 0;
   LPSPropProblemArray problems = NULL;
 
-  mLastError =
-      mAddressBook->OpenEntry(aObject.mByteCount, aObject.mEntryId,
-                              &IID_IMAPIProp, MAPI_MODIFY, &objType, object);
+  mLastError = OpenMAPIObject(aDir, aObject, fromContact, MAPI_MODIFY, object);
   if (HR_FAILED(mLastError)) {
     PRINTF(("Cannot open entry %08lx.\n", mLastError));
     return FALSE;
