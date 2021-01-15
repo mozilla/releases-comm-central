@@ -75,115 +75,40 @@ void nsMapiEntry::Assign(ULONG aByteCount, LPENTRYID aEntryId) {
   mByteCount = aByteCount;
 }
 
-static char kBase64Encoding[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-.";
-static const int kARank = 0;
-static const int kaRank = 26;
-static const int k0Rank = 52;
-static const unsigned char kMinusRank = 62;
-static const unsigned char kDotRank = 63;
-
-static void UnsignedToBase64(unsigned char*& aUnsigned, ULONG aNbUnsigned,
-                             nsCString& aString) {
-  if (aNbUnsigned > 0) {
-    unsigned char remain0 = (*aUnsigned & 0x03) << 4;
-
-    aString.Append(kBase64Encoding[(*aUnsigned >> 2) & 0x3F]);
-    ++aUnsigned;
-    if (aNbUnsigned > 1) {
-      unsigned char remain1 = (*aUnsigned & 0x0F) << 2;
-
-      aString.Append(kBase64Encoding[remain0 | ((*aUnsigned >> 4) & 0x0F)]);
-      ++aUnsigned;
-      if (aNbUnsigned > 2) {
-        aString.Append(kBase64Encoding[remain1 | ((*aUnsigned >> 6) & 0x03)]);
-        aString.Append(kBase64Encoding[*aUnsigned & 0x3F]);
-        ++aUnsigned;
-      } else {
-        aString.Append(kBase64Encoding[remain1]);
-      }
-    } else {
-      aString.Append(kBase64Encoding[remain0]);
-    }
-  }
-}
-
-// This function must return the rank in kBase64Encoding of the
-// character provided.
-static unsigned char Base64To6Bits(char aBase64) {
-  if (aBase64 >= 'A' && aBase64 <= 'Z') {
-    return static_cast<unsigned char>(aBase64 - 'A' + kARank);
-  }
-  if (aBase64 >= 'a' && aBase64 <= 'z') {
-    return static_cast<unsigned char>(aBase64 - 'a' + kaRank);
-  }
-  if (aBase64 >= '0' && aBase64 <= '9') {
-    return static_cast<unsigned char>(aBase64 - '0' + k0Rank);
-  }
-  if (aBase64 == '-') {
-    return kMinusRank;
-  }
-  if (aBase64 == '.') {
-    return kDotRank;
-  }
-  return 0;
-}
-
-static void Base64ToUnsigned(const char*& aBase64, uint32_t aNbBase64,
-                             unsigned char*& aUnsigned) {
-  // By design of the encoding, we must have at least two characters to use
-  if (aNbBase64 > 1) {
-    unsigned char first6Bits = Base64To6Bits(*aBase64++);
-    unsigned char second6Bits = Base64To6Bits(*aBase64++);
-
-    *aUnsigned = first6Bits << 2;
-    *aUnsigned |= second6Bits >> 4;
-    ++aUnsigned;
-    if (aNbBase64 > 2) {
-      unsigned char third6Bits = Base64To6Bits(*aBase64++);
-
-      *aUnsigned = second6Bits << 4;
-      *aUnsigned |= third6Bits >> 2;
-      ++aUnsigned;
-      if (aNbBase64 > 3) {
-        unsigned char fourth6Bits = Base64To6Bits(*aBase64++);
-
-        *aUnsigned = third6Bits << 6;
-        *aUnsigned |= fourth6Bits;
-        ++aUnsigned;
-      }
-    }
-  }
-}
-
 void nsMapiEntry::Assign(const nsCString& aString) {
   Assign(0, NULL);
-  ULONG byteCount = aString.Length() / 4 * 3;
+  ULONG byteCount = aString.Length() / 2;
 
-  if ((aString.Length() & 0x03) != 0) {
-    byteCount += (aString.Length() & 0x03) - 1;
+  if ((aString.Length() & 0x01) != 0) {
+    // Something wrong here, we should always get an even number of hex digits.
+    byteCount += 1;
   }
-  const char* currentSource = aString.get();
   unsigned char* currentTarget = new unsigned char[byteCount];
-  uint32_t i = 0;
 
   mByteCount = byteCount;
   mEntryId = reinterpret_cast<LPENTRYID>(currentTarget);
-  for (i = aString.Length(); i >= 4; i -= 4) {
-    Base64ToUnsigned(currentSource, 4, currentTarget);
+  ULONG j = 0;
+  for (uint32_t i = 0; i < aString.Length(); i += 2) {
+    char c1 = aString.CharAt(i);
+    char c2 = i + 1 < aString.Length() ? aString.CharAt(i + 1) : '0';
+    // clang-format off
+    currentTarget[j] =
+        ((c1 <= '9' ? c1 - '0' : c1 - 'A' + 10) << 4) |
+         (c2 <= '9' ? c2 - '0' : c2 - 'A' + 10);
+    // clang-format on
+    j++;
   }
-  Base64ToUnsigned(currentSource, i, currentTarget);
 }
 
 void nsMapiEntry::ToString(nsCString& aString) const {
   aString.Truncate();
-  ULONG i = 0;
-  unsigned char* currentSource = reinterpret_cast<unsigned char*>(mEntryId);
+  aString.SetCapacity(mByteCount * 2);
+  char twoBytes[3];
 
-  for (i = mByteCount; i >= 3; i -= 3) {
-    UnsignedToBase64(currentSource, 3, aString);
+  for (ULONG i = 0; i < mByteCount; i++) {
+    sprintf(twoBytes, "%02X", (reinterpret_cast<unsigned char*>(mEntryId))[i]);
+    aString.Append(twoBytes);
   }
-  UnsignedToBase64(currentSource, i, aString);
 }
 
 void nsMapiEntry::Dump(void) const {
