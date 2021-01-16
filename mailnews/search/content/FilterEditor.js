@@ -796,8 +796,7 @@ function doHelpButton() {
 
 function getCustomActions() {
   if (!gCustomActions) {
-    gCustomActions = [];
-    gCustomActions = [...MailServices.filters.getCustomActions()];
+    gCustomActions = MailServices.filters.getCustomActions();
   }
 }
 

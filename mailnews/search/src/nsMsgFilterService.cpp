@@ -12,8 +12,6 @@
 #include "nsDirectoryServiceDefs.h"
 #include "nsIPrompt.h"
 #include "nsIDocShell.h"
-#include "nsIInterfaceRequestor.h"
-#include "nsIInterfaceRequestorUtils.h"
 #include "nsIStringBundle.h"
 #include "nsIMsgSearchNotify.h"
 #include "nsIUrlListener.h"
@@ -21,7 +19,6 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgDatabase.h"
 #include "nsIMsgHdr.h"
-#include "nsIDBFolderInfo.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgCopyService.h"
 #include "nsIInputStream.h"
@@ -31,13 +28,9 @@
 #include "nsMsgCompCID.h"
 #include "nsNetUtil.h"
 #include "nsMsgUtils.h"
-#include "nsIMutableArray.h"
 #include "nsIMsgMailSession.h"
 #include "nsIFile.h"
-#include "nsArrayUtils.h"
-#include "nsCOMArray.h"
 #include "nsIMsgFilterCustomAction.h"
-#include "nsArrayEnumerator.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgWindow.h"
 #include "nsIMsgSearchCustomTerm.h"
@@ -45,7 +38,6 @@
 #include "nsIMsgThread.h"
 #include "nsIMsgFilter.h"
 #include "nsIMsgOperationListener.h"
-#include "mozilla/Attributes.h"
 #include "mozilla/Logging.h"
 
 using namespace mozilla;
@@ -1052,16 +1044,14 @@ nsMsgFilterService::ApplyFiltersToFolders(
 
 NS_IMETHODIMP nsMsgFilterService::AddCustomAction(
     nsIMsgFilterCustomAction* aAction) {
-  mCustomActions.AppendObject(aAction);
+  mCustomActions.AppendElement(aAction);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFilterService::GetCustomActions(
-    nsISimpleEnumerator** aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  return NS_NewArrayEnumerator(aResult, mCustomActions,
-                               NS_GET_IID(nsIMsgFilterCustomAction));
+    nsTArray<RefPtr<nsIMsgFilterCustomAction>>& actions) {
+  actions = mCustomActions.Clone();
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -1069,11 +1059,11 @@ nsMsgFilterService::GetCustomAction(const nsACString& aId,
                                     nsIMsgFilterCustomAction** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
-  for (int32_t i = 0; i < mCustomActions.Count(); i++) {
+  for (nsIMsgFilterCustomAction* action : mCustomActions) {
     nsAutoCString id;
-    nsresult rv = mCustomActions[i]->GetId(id);
+    nsresult rv = action->GetId(id);
     if (NS_SUCCEEDED(rv) && aId.Equals(id)) {
-      NS_ADDREF(*aResult = mCustomActions[i]);
+      NS_ADDREF(*aResult = action);
       return NS_OK;
     }
   }
@@ -1082,16 +1072,14 @@ nsMsgFilterService::GetCustomAction(const nsACString& aId,
 }
 
 NS_IMETHODIMP nsMsgFilterService::AddCustomTerm(nsIMsgSearchCustomTerm* aTerm) {
-  mCustomTerms.AppendObject(aTerm);
+  mCustomTerms.AppendElement(aTerm);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFilterService::GetCustomTerms(
-    nsISimpleEnumerator** aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  return NS_NewArrayEnumerator(aResult, mCustomTerms,
-                               NS_GET_IID(nsIMsgSearchCustomTerm));
+    nsTArray<RefPtr<nsIMsgSearchCustomTerm>>& terms) {
+  terms = mCustomTerms.Clone();
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -1099,11 +1087,11 @@ nsMsgFilterService::GetCustomTerm(const nsACString& aId,
                                   nsIMsgSearchCustomTerm** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
-  for (int32_t i = 0; i < mCustomTerms.Count(); i++) {
+  for (nsIMsgSearchCustomTerm* term : mCustomTerms) {
     nsAutoCString id;
-    nsresult rv = mCustomTerms[i]->GetId(id);
+    nsresult rv = term->GetId(id);
     if (NS_SUCCEEDED(rv) && aId.Equals(id)) {
-      NS_ADDREF(*aResult = mCustomTerms[i]);
+      NS_ADDREF(*aResult = term);
       return NS_OK;
     }
   }

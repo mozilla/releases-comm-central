@@ -548,7 +548,6 @@
       let result = this.validityTable.getAvailableAttributes();
       // add any available custom search terms
       for (let customTerm of MailServices.filters.getCustomTerms()) {
-        customTerm = customTerm.QueryInterface(Ci.nsIMsgSearchCustomTerm);
         // For custom terms, the array element is a string with the custom id
         // instead of the integer attribute
         if (customTerm.getAvailable(this.searchScope, null)) {

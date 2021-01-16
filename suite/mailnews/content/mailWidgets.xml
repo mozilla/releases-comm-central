@@ -1023,12 +1023,7 @@
           <![CDATA[
             let result = this.validityTable.getAvailableAttributes();
             // add any available custom search terms
-            let customEnum = this.filterService.getCustomTerms();
-            while (customEnum && customEnum.hasMoreElements())
-            {
-              let customTerm =
-                 customEnum.getNext()
-                           .QueryInterface(Ci.nsIMsgSearchCustomTerm);
+            for (let customTerm of this.filterService.getCustomTerms()) {
               // for custom terms, the array element is a string with the custom id
               // instead of the integer attribute
               if (customTerm.getAvailable(this.searchScope, null))

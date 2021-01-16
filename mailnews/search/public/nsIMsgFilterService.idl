@@ -9,7 +9,6 @@
 interface nsIMsgFilterList;
 interface nsIMsgWindow;
 interface nsIMsgFilterCustomAction;
-interface nsISimpleEnumerator;
 interface nsIFile;
 interface nsIMsgFolder;
 interface nsIMsgSearchCustomTerm;
@@ -31,7 +30,7 @@ interface nsIMsgFilterService : nsISupports {
                                in nsIMsgWindow aMsgWindow,
                                [optional] in nsIMsgOperationListener aCallback);
 
-    /*
+    /**
      * Apply filters to a specific list of messages in a folder.
      * @param  aFilterType  The type of filter to match against
      * @param  aMsgHdrList  The list of message headers (nsIMsgDBHdr objects)
@@ -46,7 +45,7 @@ interface nsIMsgFilterService : nsISupports {
                       [optional] in nsIMsgOperationListener aCallback);
 
     /**
-     * add a custom filter action
+     * Add a custom filter action.
      *
      * @param  aAction   the custom action to add
      */
@@ -55,12 +54,12 @@ interface nsIMsgFilterService : nsISupports {
     /**
      * get the list of custom actions
      *
-     * @return   enumerator of nsIMsgFilterCustomAction objects
+     * @return an array of nsIMsgFilterCustomAction objects
      */
-    nsISimpleEnumerator getCustomActions();
+    Array<nsIMsgFilterCustomAction> getCustomActions();
 
     /**
-     * lookup a custom action given its id
+     * Lookup a custom action given its id.
      *
      * @param  id  unique identifier for a particular custom action
      *
@@ -69,7 +68,7 @@ interface nsIMsgFilterService : nsISupports {
     nsIMsgFilterCustomAction getCustomAction(in ACString id);
 
     /**
-     * add a custom search term
+     * Add a custom search term.
      *
      * @param  aTerm   the custom term to add
      */
@@ -78,12 +77,12 @@ interface nsIMsgFilterService : nsISupports {
     /**
      * get the list of custom search terms
      *
-     * @return   enumerator of nsIMsgSearchCustomTerm objects
+     * @return an array of nsIMsgSearchCustomTerm objects
      */
-    nsISimpleEnumerator getCustomTerms();
+    Array<nsIMsgSearchCustomTerm> getCustomTerms();
 
     /**
-     * lookup a custom search term given its id
+     * Lookup a custom search term given its id.
      *
      * @param  id  unique identifier for a particular custom search term
      *

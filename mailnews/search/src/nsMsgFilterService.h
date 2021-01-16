@@ -8,7 +8,7 @@
 
 #include "nsIMsgFilterService.h"
 #include "nsIFile.h"
-#include "nsCOMArray.h"
+#include "nsTArray.h"
 
 class nsIMsgWindow;
 class nsIStringBundle;
@@ -35,9 +35,10 @@ class nsMsgFilterService : public nsIMsgFilterService {
  protected:
   virtual ~nsMsgFilterService();
 
-  nsCOMArray<nsIMsgFilterCustomAction>
-      mCustomActions;  // defined custom action list
-  nsCOMArray<nsIMsgSearchCustomTerm> mCustomTerms;  // defined custom term list
+  // defined custom action list
+  nsTArray<RefPtr<nsIMsgFilterCustomAction>> mCustomActions;
+  // defined custom term list
+  nsTArray<RefPtr<nsIMsgSearchCustomTerm>> mCustomTerms;
 };
 
 #endif  // _nsMsgFilterService_H_
