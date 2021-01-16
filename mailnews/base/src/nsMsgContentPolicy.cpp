@@ -144,9 +144,9 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
                                const nsACString& aMimeGuess,
                                int16_t* aDecision) {
   nsresult rv = NS_OK;
-  uint32_t aContentType = aLoadInfo->GetExternalContentPolicyType();
+  ExtContentPolicyType aContentType = aLoadInfo->GetExternalContentPolicyType();
   nsCOMPtr<nsISupports> aRequestingContext;
-  if (aContentType == nsIContentPolicy::TYPE_DOCUMENT)
+  if (aContentType == ExtContentPolicy::TYPE_DOCUMENT)
     aRequestingContext = aLoadInfo->ContextForTopLevelLoad();
   else
     aRequestingContext = aLoadInfo->LoadingNode();
@@ -192,7 +192,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
 
   switch (aContentType) {
       // Plugins (nsIContentPolicy::TYPE_OBJECT) are blocked on document load.
-    case nsIContentPolicy::TYPE_DOCUMENT:
+    case ExtContentPolicy::TYPE_DOCUMENT:
       // At this point, we have no intention of supporting a different JS
       // setting on a subdocument, so we don't worry about TYPE_SUBDOCUMENT
       // here.
@@ -215,7 +215,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
       }
       break;
 
-    case nsIContentPolicy::TYPE_CSP_REPORT:
+    case ExtContentPolicy::TYPE_CSP_REPORT:
       // We cannot block CSP reports.
       *aDecision = nsIContentPolicy::ACCEPT;
       return NS_OK;
