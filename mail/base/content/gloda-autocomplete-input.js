@@ -28,9 +28,6 @@ customElements.whenDefined("autocomplete-input").then(() => {
   const { GlodaIMSearcher } = ChromeUtils.import(
     "resource:///modules/search_im.jsm"
   );
-  const { XPCOMUtils } = ChromeUtils.import(
-    "resource://gre/modules/XPCOMUtils.jsm"
-  );
 
   /**
    * The MozGlodaAutocompleteInput widget is used to display the autocomplete search bar.
@@ -80,17 +77,6 @@ customElements.whenDefined("autocomplete-input").then(() => {
       super.connectedCallback();
 
       this.setAttribute("is", "gloda-autocomplete-input");
-
-      XPCOMUtils.defineLazyPreferenceGetter(
-        this,
-        "glodaEnabled",
-        "mailnews.database.global.indexer.enabled",
-        true,
-        (pref, oldVal, newVal) => {
-          this.toggleAttribute("hidden", !newVal);
-        }
-      );
-
       this.glodaCompleter = null;
 
       // @implements {nsIObserver}
@@ -174,8 +160,6 @@ customElements.whenDefined("autocomplete-input").then(() => {
         this.textObserver,
         "autocomplete-did-enter-text"
       );
-
-      this.toggleAttribute("hidden", !this.glodaEnabled);
 
       // make sure we set our emptytext here from the get-go
       if (this.hasAttribute("placeholder")) {
