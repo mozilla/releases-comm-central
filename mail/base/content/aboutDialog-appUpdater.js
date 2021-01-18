@@ -373,8 +373,8 @@ appUpdater.prototype = {
     this.update.QueryInterface(Ci.nsIWritablePropertyBag);
     this.update.setProperty("foregroundDownload", "true");
 
-    let state = this.aus.downloadUpdate(this.update, false);
-    if (state == "failed") {
+    let success = this.aus.downloadUpdate(this.update, false);
+    if (!success) {
       this.selectPanel("downloadFailed");
       return;
     }
