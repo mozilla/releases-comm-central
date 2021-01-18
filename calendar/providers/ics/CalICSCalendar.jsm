@@ -124,12 +124,10 @@ CalICSCalendar.prototype = {
       Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_OTHER
     );
-    let wHttpChannel = cal.wrapInstance(channel, Ci.nsIHttpChannel);
-    let wFileChannel = cal.wrapInstance(channel, Ci.nsIFileChannel);
 
-    if (wHttpChannel) {
+    if (channel.URI.schemeIs("http") || channel.URI.schemeIs("https")) {
       this.mHooks = new httpHooks(this);
-    } else if (wFileChannel) {
+    } else if (channel.URI.schemeIs("file")) {
       this.mHooks = new fileHooks(this);
     } else {
       this.mHooks = new dummyHooks(this);
