@@ -119,6 +119,7 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "mail-startup-done");
     Services.obs.addObserver(this, "handle-xul-text-link");
     Services.obs.addObserver(this, "chrome-document-global-created");
+    Services.obs.addObserver(this, "chrome-document-interactive");
     Services.obs.addObserver(this, "document-element-inserted");
     Services.obs.addObserver(this, "handlersvc-store-initialized");
 
@@ -132,6 +133,7 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "intl:app-locales-changed");
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "chrome-document-global-created");
+    Services.obs.removeObserver(this, "chrome-document-interactive");
     Services.obs.removeObserver(this, "document-element-inserted");
     Services.obs.removeObserver(this, "handlersvc-store-initialized");
 
@@ -219,6 +221,17 @@ MailGlue.prototype = {
           },
           { once: true }
         );
+        break;
+      case "chrome-document-interactive":
+        if (
+          aSubject.location?.href ==
+          "chrome://mozapps/content/extensions/aboutaddons.html"
+        ) {
+          Services.scriptloader.loadSubScript(
+            "chrome://messenger/content/aboutAddonsExtra.js",
+            aSubject.defaultView
+          );
+        }
         break;
       case "document-element-inserted":
         let doc = aSubject;

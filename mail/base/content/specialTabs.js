@@ -383,12 +383,9 @@ var contentTabBaseType = {
   // as specified in inContentWhitelist.
   inContentOverlays: [
     // about:addons
-    function(aDocument, aTab) {
-      Services.scriptloader.loadSubScript(
-        "chrome://messenger/content/aboutAddonsExtra.js",
-        aDocument.defaultView
-      );
-    },
+    // The add-ons page contains an inner document which is overlaid by
+    // MailGlue, since by the time we get here it's too late.
+    null,
 
     // Let's not mess with about:blank.
     null,
@@ -1705,21 +1702,3 @@ var specialTabs = {
     document.getElementById("tabmail").setTabIcon(aTab, aIcon);
   },
 };
-
-let documentObserver = {
-  observe(document) {
-    if (
-      !document.location ||
-      document.location.href !=
-        "chrome://mozapps/content/extensions/aboutaddons.html"
-    ) {
-      return;
-    }
-
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/aboutAddonsExtra.js",
-      document.defaultView
-    );
-  },
-};
-Services.obs.addObserver(documentObserver, "chrome-document-interactive");
