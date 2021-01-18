@@ -34,6 +34,14 @@ async function openAddressBookWindow() {
     abWindow && abWindow instanceof Window,
     "address book window was opened"
   );
+  if (Services.focus.activeWindow != abWindow) {
+    await BrowserTestUtils.waitForEvent(abWindow, "focus");
+  }
+  Assert.equal(
+    Services.focus.activeWindow,
+    abWindow,
+    "address book window has focus"
+  );
 
   return abWindow;
 }
