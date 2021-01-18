@@ -1057,7 +1057,7 @@ var specialTabs = {
     if (AppConstants.MOZ_UPDATER) {
       let update = Cc["@mozilla.org/updates/update-manager;1"].getService(
         Ci.nsIUpdateManager
-      ).activeUpdate;
+      ).readyUpdate;
 
       if (update && Services.vc.compare(update.appVersion, old_mstone) > 0) {
         let overridePage = Services.urlFormatter.formatURLPref(
