@@ -4,7 +4,12 @@
 
 var EXPORTED_SYMBOLS = ["CalWeekInfoService"];
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+const SUNDAY = 0;
+const THURSDAY = 4;
+
+XPCOMUtils.defineLazyPreferenceGetter(this, "startWeekday", "calendar.week.start", SUNDAY);
 
 function CalWeekInfoService() {
   this.wrappedJSObject = this;
@@ -46,8 +51,6 @@ CalWeekInfoService.prototype = {
     // day of the week. (This takes care of days near the start of the year,
     // which may be part of the week counted in the previous year.) So we
     // need the startWeekday.
-    const SUNDAY = 0;
-    let startWeekday = Services.prefs.getIntPref("calendar.week.start", SUNDAY); // default to monday per ISO8601 standard.
 
     // The number of days since the start of the week.
     // Notice that the result of the subtraction might be negative.
@@ -56,7 +59,6 @@ CalWeekInfoService.prototype = {
 
     // The number of days to Thursday is the difference between Thursday
     // and the start-day of the week (again corrected for negative values).
-    const THURSDAY = 4;
     let startToThursday = (THURSDAY - startWeekday + 7) % 7;
 
     // The yearday number of the Thursday this week.
@@ -86,7 +88,7 @@ CalWeekInfoService.prototype = {
   getStartOfWeek(aDate) {
     let date = aDate.clone();
     date.isDate = true;
-    let offset = Services.prefs.getIntPref("calendar.week.start", 0) - aDate.weekday;
+    let offset = startWeekday - aDate.weekday;
     date.day += offset;
     if (offset > 0) {
       date.day -= 7;

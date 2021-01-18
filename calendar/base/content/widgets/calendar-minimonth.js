@@ -9,6 +9,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
   /**
    * MiniMonth Calendar: day-of-month grid component.
@@ -133,7 +134,6 @@
       this.mExtraDate = null;
       this.mPixelScrollDelta = 0;
       this.mObservesComposite = false;
-      this.mShowWeekNumber = true;
       this.mToday = false;
       this.mSelected = false;
       this.mExtra = false;
@@ -153,10 +153,6 @@
       if (this.hasAttribute("freebusy")) {
         this._setFreeBusy(this.getAttribute("freebusy") == "true");
       }
-      this.mShowWeekNumber = Services.prefs.getBoolPref(
-        "calendar.view-minimonth.showWeekNumber",
-        true
-      );
 
       // Add pref observer.
       Services.prefs.getBranch("").addObserver("calendar.", this.nsIObserver);
@@ -473,12 +469,6 @@
     // End nsIObserver methods.
 
     refreshDisplay() {
-      // Find out which should be the first day of the week.
-      this.weekStart = Services.prefs.getIntPref("calendar.week.start", 0);
-      this.mShowWeekNumber = Services.prefs.getBoolPref(
-        "calendar.view-minimonth.showWeekNumber",
-        true
-      );
       if (!this.mValue) {
         this.mValue = new Date();
       }
@@ -554,7 +544,7 @@
         }
       }
 
-      setBooleanAttribute(this._getCalBoxNode(0, 0), "hidden", !this.mShowWeekNumber);
+      setBooleanAttribute(this._getCalBoxNode(0, 0), "hidden", !this.showWeekNumber);
       for (let column = 1; column < 8; column++) {
         let node = this._getCalBoxNode(0, column);
         node.textContent = dayList[column - 1];
@@ -629,12 +619,11 @@
 
       this.mDayMap = {};
       let defaultTz = cal.dtz.defaultTimezone;
-      let dateFormatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });
       for (let k = 1; k < 7; k++) {
         // Set the week number.
         let firstElement = this._getCalBoxNode(k, 0);
-        setBooleanAttribute(firstElement, "hidden", !this.mShowWeekNumber);
-        if (this.mShowWeekNumber) {
+        setBooleanAttribute(firstElement, "hidden", !this.showWeekNumber);
+        if (this.showWeekNumber) {
           let weekNumber = cal
             .getWeekInfoService()
             .getWeekTitle(cal.dtz.jsDateToDateTime(date, defaultTz));
@@ -680,7 +669,7 @@
           if (aDate.getMonth() == date.getMonth() && aDate.getFullYear() == date.getFullYear()) {
             day.setAttribute("aria-label", date.toLocaleDateString(undefined, { day: "numeric" }));
           } else {
-            day.setAttribute("aria-label", dateFormatter.format(date));
+            day.setAttribute("aria-label", this.dateFormatter.format(date));
           }
 
           day.removeAttribute("busy");
@@ -798,8 +787,7 @@
     updateAccessibleLabel() {
       let label;
       if (this.mValue) {
-        let dateFormatter = new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" });
-        label = dateFormatter.format(this.mValue);
+        label = this.dateFormatter.format(this.mValue);
       } else {
         label = cal.l10n.getCalString("minimonthNoSelectedDate");
       }
@@ -977,6 +965,24 @@
       Services.prefs.getBranch("").removeObserver("calendar.", this.nsIObserver);
     }
   }
+
+  XPCOMUtils.defineLazyGetter(
+    CalendarMinimonth.prototype,
+    "dateFormatter",
+    () => new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" })
+  );
+  XPCOMUtils.defineLazyPreferenceGetter(
+    CalendarMinimonth.prototype,
+    "weekStart",
+    "calendar.week.start",
+    0
+  );
+  XPCOMUtils.defineLazyPreferenceGetter(
+    CalendarMinimonth.prototype,
+    "showWeekNumber",
+    "calendar.view-minimonth.showWeekNumber",
+    true
+  );
 
   MozXULElement.implementCustomInterface(CalendarMinimonth, [
     Ci.calIObserver,

@@ -11,6 +11,17 @@ XPCOMUtils.defineLazyGetter(this, "gDateStringBundle", () =>
   Services.strings.createBundle("chrome://calendar/locale/dateFormat.properties")
 );
 
+XPCOMUtils.defineLazyPreferenceGetter(this, "dateFormat", "calendar.date.format", 0);
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "timeBeforeDate",
+  "calendar.date.formatTimeBeforeDate",
+  false
+);
+
+/** Cache of calls to new Services.intl.DateTimeFormat. */
+var formatCache = new Map();
+
 /*
  * Date time formatting functions for display.
  */
@@ -29,8 +40,7 @@ var formatter = {
    */
   formatDate(aDate) {
     // Format the date using user's format preference (long or short)
-    let format = Services.prefs.getIntPref("calendar.date.format", 0);
-    return format == 0 ? this.formatDateLong(aDate) : this.formatDateShort(aDate);
+    return dateFormat == 0 ? this.formatDateLong(aDate) : this.formatDateShort(aDate);
   },
 
   /**
@@ -90,7 +100,6 @@ var formatter = {
     let formattedDate = this.formatDate(aDate);
     let formattedTime = this.formatTime(aDate);
 
-    let timeBeforeDate = Services.prefs.getBoolPref("calendar.date.formatTimeBeforeDate", false);
     if (timeBeforeDate) {
       return formattedTime + " " + formattedDate;
     }
@@ -334,17 +343,34 @@ var formatter = {
  * @return {string}                The date as a string.
  */
 function inTimezone(aDate, aOptions) {
-  let formatter = new Services.intl.DateTimeFormat(undefined, aOptions);
-
+  let cacheKey;
+  let formatter;
   let timezone = aDate.timezone;
-  // We set the tz only if we have a valid tz - otherwise localtime will be used on formatting.
+
   if (timezone && (timezone.isUTC || timezone.icalComponent)) {
-    aOptions.timeZone = timezone.tzid;
-    try {
+    let optionsWithTimezone = { ...aOptions, timeZone: timezone.tzid };
+
+    cacheKey = JSON.stringify(optionsWithTimezone);
+    if (formatCache.has(cacheKey)) {
+      formatter = formatCache.get(cacheKey);
+    } else {
+      try {
+        formatter = new Services.intl.DateTimeFormat(undefined, optionsWithTimezone);
+        formatCache.set(cacheKey, formatter);
+      } catch (ex) {
+        // Non-IANA timezones throw a RangeError.
+        cal.WARN(ex);
+      }
+    }
+  }
+
+  if (!formatter) {
+    cacheKey = JSON.stringify(aOptions);
+    if (formatCache.has(cacheKey)) {
+      formatter = formatCache.get(cacheKey);
+    } else {
       formatter = new Services.intl.DateTimeFormat(undefined, aOptions);
-    } catch (ex) {
-      // Non-IANA timezones throw a RangeError.
-      cal.WARN(ex);
+      formatCache.set(cacheKey, formatter);
     }
   }
 

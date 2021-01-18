@@ -107,13 +107,10 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       this.mShowDaysOutsideMonth = true;
       this.mClickedTime = null;
 
-      // Set the preference for the default start of the week.
-      this.weekStartOffset = Services.prefs.getIntPref("calendar.week.start", 0);
-
       for (let i = 0; i < 7; i++) {
         const hdr = document.createXULElement("calendar-day-label");
         this.labeldaybox.appendChild(hdr);
-        hdr.weekDay = (i + this.mWeekStartOffset) % 7;
+        hdr.weekDay = (i + this.weekStartOffset) % 7;
         hdr.shortWeekNames = false;
       }
 
@@ -351,7 +348,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
           break;
 
         case "calendar.week.start":
-          this.weekStartOffset = subject.getIntPref(preference);
           // Refresh the view so the settings take effect.
           this.refreshView();
           break;
@@ -497,7 +493,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
           if (this.mShowWeekNumber) {
             const weekLabel = daybox.querySelector("[data-label='week']");
             if (weekLabelColumnPos < 0) {
-              const isDayOff = this.mDaysOffArray.includes((j + this.mWeekStartOffset) % 7);
+              const isDayOff = this.mDaysOffArray.includes((j + this.weekStartOffset) % 7);
               if (this.mDisplayDaysOff || !isDayOff) {
                 weekLabelColumnPos = j;
               }
@@ -592,7 +588,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
       const lastColNum = rows[0].children.length - 1;
       for (let colNum = 0; colNum <= lastColNum; colNum++) {
-        const dayForColumn = (colNum + this.mWeekStartOffset) % 7;
+        const dayForColumn = (colNum + this.weekStartOffset) % 7;
         const dayOff = this.mDaysOffArray.includes(dayForColumn);
         headerkids[colNum].hidden = dayOff && !this.mDisplayDaysOff;
         for (let row of rows) {

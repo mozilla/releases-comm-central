@@ -9,6 +9,8 @@
   const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
   const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+  let formatter = new Services.intl.DateTimeFormat(undefined, { timeStyle: "short" });
+
   let probeSucceeded;
   let alphaMonths;
   let yearIndex, monthIndex, dayIndex;
@@ -899,7 +901,6 @@
         // Find the locale strings for the AM/PM prefix/suffix.
         let amTime = new Date(2000, 0, 1, 6, 12, 34);
         let pmTime = new Date(2000, 0, 1, 18, 12, 34);
-        let formatter = new Services.intl.DateTimeFormat(undefined, { timeStyle: "short" });
         amTime = formatter.format(amTime);
         pmTime = formatter.format(pmTime);
         let amLabel = parseTimeRegExp.exec(amTime)[ampmIndex] || "AM";
@@ -1423,7 +1424,6 @@
       POST_INDEX = 8;
     let amProbeTime = new Date(2000, 0, 1, 6, 12, 34);
     let pmProbeTime = new Date(2000, 0, 1, 18, 12, 34);
-    let formatter = new Services.intl.DateTimeFormat(undefined, { timeStyle: "short" });
     let amProbeString = formatter.format(amProbeTime);
     let pmProbeString = formatter.format(pmProbeTime);
     let amFormatExpr = null,
@@ -1515,7 +1515,6 @@
   }
 
   function formatTime(aValue) {
-    let formatter = new Services.intl.DateTimeFormat(undefined, { timeStyle: "short" });
     return formatter.format(aValue);
   }
 }

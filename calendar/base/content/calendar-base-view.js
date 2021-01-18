@@ -9,6 +9,8 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
   /**
    * Calendar observer for calendar view elements. Used in CalendarBaseView class.
    *
@@ -404,8 +406,6 @@
         }
       });
 
-      this.mWeekStartOffset = 0;
-
       this.mRangeStartDate = null;
       this.mRangeEndDate = null;
 
@@ -497,7 +497,6 @@
       Services.prefs.addObserver("calendar.", this.mPrefObserver);
       Services.obs.addObserver(this.mTimezoneObserver, "defaultTimezoneChanged");
 
-      this.weekStartOffset = Services.prefs.getIntPref("calendar.week.start", 0);
       this.updateDaysOffPrefs();
       this.mPendingRefreshJobs = new Map();
 
@@ -657,14 +656,6 @@
 
     get observerID() {
       return "base-view-observer";
-    }
-
-    set weekStartOffset(offset) {
-      this.mWeekStartOffset = offset;
-    }
-
-    get weekStartOffset() {
-      return this.mWeekStartOffset;
     }
 
     set displayCalendar(calendar) {
@@ -853,9 +844,6 @@
         case "calendar.alarms.indicator.show":
           // Break here to ensure the view is refreshed.
           break;
-        case "calendar.week.start":
-          this.weekStartOffset = subject.getIntPref(preference);
-          break;
         case "calendar.date.format":
         case "calendar.view.showLocation":
           this.refreshView();
@@ -953,6 +941,13 @@
 
     // End calICalendarView Methods
   }
+
+  XPCOMUtils.defineLazyPreferenceGetter(
+    CalendarBaseView.prototype,
+    "weekStartOffset",
+    "calendar.week.start",
+    0
+  );
 
   MozXULElement.implementCustomInterface(CalendarBaseView, [Ci.calICalendarView]);
 
