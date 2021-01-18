@@ -394,13 +394,6 @@ nsMsgLocalMailFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   return rv;
 }
 
-NS_IMETHODIMP
-nsMsgLocalMailFolder::GetMessages(nsISimpleEnumerator** result) {
-  nsCOMPtr<nsIMsgDatabase> msgDB;
-  nsresult rv = GetDatabaseWOReparse(getter_AddRefs(msgDB));
-  return NS_SUCCEEDED(rv) ? msgDB->EnumerateMessages(result) : rv;
-}
-
 NS_IMETHODIMP nsMsgLocalMailFolder::GetFolderURL(nsACString& aUrl) {
   nsresult rv;
   nsCOMPtr<nsIFile> path;

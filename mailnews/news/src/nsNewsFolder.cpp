@@ -345,16 +345,6 @@ nsMsgNewsFolder::GetCanCompact(bool* aResult) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgNewsFolder::GetMessages(nsISimpleEnumerator** result) {
-  nsresult rv = GetDatabase();
-  *result = nullptr;
-
-  if (NS_SUCCEEDED(rv)) rv = mDatabase->EnumerateMessages(result);
-
-  return rv;
-}
-
 NS_IMETHODIMP nsMsgNewsFolder::GetFolderURL(nsACString& aUrl) {
   nsCString hostName;
   nsresult rv = GetHostname(hostName);

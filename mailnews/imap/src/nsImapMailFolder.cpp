@@ -815,13 +815,6 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetMessages(nsISimpleEnumerator** result) {
-  NS_ENSURE_ARG_POINTER(result);
-  if (!mDatabase) GetDatabase();
-  if (mDatabase) return mDatabase->EnumerateMessages(result);
-  return NS_ERROR_UNEXPECTED;
-}
-
 NS_IMETHODIMP nsImapMailFolder::CreateSubfolder(const nsAString& folderName,
                                                 nsIMsgWindow* msgWindow) {
   if (folderName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;

@@ -31,7 +31,6 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
   // nsIMsgFolder methods:
   NS_IMETHOD GetSubFolders(nsISimpleEnumerator** aResult) override;
 
-  NS_IMETHOD GetMessages(nsISimpleEnumerator** result) override;
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
 
   NS_IMETHOD CreateSubfolder(const nsAString& folderName,

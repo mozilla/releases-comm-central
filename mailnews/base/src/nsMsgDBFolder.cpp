@@ -2751,8 +2751,11 @@ NS_IMETHODIMP nsMsgDBFolder::GetParent(nsIMsgFolder** aParent) {
 
 NS_IMETHODIMP
 nsMsgDBFolder::GetMessages(nsISimpleEnumerator** result) {
-  // XXX should this return an empty enumeration?
-  return NS_ERROR_FAILURE;
+  NS_ENSURE_ARG_POINTER(result);
+  // Make sure mDatabase is set.
+  nsresult rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
+  return mDatabase->EnumerateMessages(result);
 }
 
 NS_IMETHODIMP
