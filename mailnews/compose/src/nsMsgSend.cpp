@@ -4032,7 +4032,7 @@ nsresult nsMsgComposeAndSend::MimeDoFCC(nsIFile* input_file,
       goto FAIL;
     }
 
-    PR_snprintf(buf, L - 1, "BCC: %s" CRLF, convBcc ? convBcc : bcc_header);
+    PR_snprintf(buf, L - 1, "Bcc: %s" CRLF, convBcc ? convBcc : bcc_header);
     uint32_t len = strlen(buf);
     rv = tempOutfile->Write(buf, len, &n);
     PR_Free(buf);

@@ -169,17 +169,6 @@ class MimeMessage {
     ]);
 
     for (let headerName of [...this._compFields.headerNames]) {
-      // The headerName is always lowercase.
-      if (
-        headerName == "bcc" &&
-        ![
-          Ci.nsIMsgSend.nsMsgQueueForLater,
-          Ci.nsIMsgSend.nsMsgSaveAsDraft,
-          Ci.nsIMsgSend.nsMsgSaveAsTemplate,
-        ].includes(this._deliverMode)
-      ) {
-        continue;
-      }
       let headerContent = this._compFields.getRawHeader(headerName);
       if (headerContent) {
         headers.set(headerName, headerContent);

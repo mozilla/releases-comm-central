@@ -724,11 +724,47 @@ MessageSend.prototype = {
       }
     }
 
+    this._deliveryFile = await this._createDeliveryFile();
     if (this._compFields.newsgroups) {
-      this._deliverFileAsNews();
+      this._deliverFileAsNews(this._deliveryFile);
       return;
     }
-    this._deliverFileAsMail();
+    this._deliverFileAsMail(this._deliveryFile);
+  },
+
+  /**
+   * Strip Bcc header, create the file to be actually delivered.
+   * @returns {nsIFile}
+   */
+  async _createDeliveryFile() {
+    if (!this._compFields.bcc) {
+      return this._messageFile;
+    }
+    let deliveryFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    deliveryFile.append("nsemail.tmp");
+    deliveryFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
+    let fileWriter = await OS.File.open(deliveryFile.path, { write: true });
+    let content = await OS.File.read(this._messageFile.path, {
+      encoding: "utf-8",
+    });
+    let lastLinePruned = false;
+    let bodyLine = false;
+    for (let line of content.split("\r\n")) {
+      if (
+        !bodyLine &&
+        (line.startsWith("Bcc") || (line.startsWith(" ") && lastLinePruned))
+      ) {
+        lastLinePruned = true;
+        continue;
+      }
+      lastLinePruned = false;
+      if (line == "") {
+        bodyLine = true;
+      }
+      fileWriter.write(new TextEncoder().encode(`${line}\r\n`));
+    }
+    fileWriter.close();
+    return deliveryFile;
   },
 
   /**
@@ -818,6 +854,7 @@ MessageSend.prototype = {
       let fileWriter = await OS.File.open(this._copyFile.path, { write: true });
       // Add a `From - Date` line, so that nsLocalMailFolder.cpp won't add a
       // dummy envelope. The date string will be parsed by PR_ParseTimeString.
+      // TODO: this should not be added to Maildir, see bug 1686852.
       await fileWriter.write(
         new TextEncoder().encode(`From - ${new Date().toUTCString()}\r\n`)
       );
@@ -836,6 +873,7 @@ MessageSend.prototype = {
       await fileWriter.write(await OS.File.read(this._messageFile.path));
       await fileWriter.close();
     }
+
     // Notify nsMsgCompose about the saved folder.
     if (this._sendListener) {
       this._sendListener.onGetDraftFolderURI(this._folderUri);
@@ -922,6 +960,10 @@ MessageSend.prototype = {
       OS.File.remove(this._copyFile.path);
       this._copyFile = null;
     }
+    if (this._deliveryFile && this._deliveryFile != this._messageFile) {
+      OS.File.remove(this._deliveryFile.path);
+      this._deliveryFile = null;
+    }
     if (this._messageFile && this._shouldRemoveMessageFile) {
       OS.File.remove(this._messageFile.path);
       this._messageFile = null;
@@ -929,9 +971,10 @@ MessageSend.prototype = {
   },
 
   /**
-   * Send this._messageFile to smtp service.
+   * Send a file to smtp service.
+   * @param {nsIFile} file - The file to send.
    */
-  _deliverFileAsMail() {
+  _deliverFileAsMail(file) {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_SMTP;
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("sendingMessage")
@@ -959,7 +1002,7 @@ MessageSend.prototype = {
       this._statusFeedback;
     this._smtpRequest = {};
     MailServices.smtp.sendMailMessage(
-      this._messageFile,
+      file,
       encodedRecipients,
       this._userIdentity,
       this._compFields.from,
@@ -974,16 +1017,17 @@ MessageSend.prototype = {
   },
 
   /**
-   * Send this._messageFile to nntp service.
+   * Send a file to nntp service.
+   * @param {nsIFile} file - The file to send.
    */
-  _deliverFileAsNews() {
+  _deliverFileAsNews(file) {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_NNTP;
     let deliveryListener = new MsgDeliveryListener(this, true);
     let msgWindow =
       this._sendProgress?.msgWindow ||
       MailServices.mailSession.topmostMsgWindow;
     MailServices.nntp.postMessage(
-      this._messageFile,
+      file,
       this._compFields.newsgroups,
       this._accountKey,
       deliveryListener,
