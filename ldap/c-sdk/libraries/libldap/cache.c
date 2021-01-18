@@ -79,10 +79,9 @@ void nsldapi_add_result_to_cache(LDAP* ld, LDAPMessage* m) {
   struct berval* bvp[2];
 
   LDAPDebug(LDAP_DEBUG_TRACE, "=> nsldapi_add_result_to_cache id %d type %d\n",
-            m->lm_msgid, m->lm_msgtype, 0);
+            m->lm_msgid, m->lm_msgtype);
   if (m->lm_msgtype != LDAP_RES_SEARCH_ENTRY || ld->ld_cache_add == NULL) {
-    LDAPDebug(LDAP_DEBUG_TRACE, "<= nsldapi_add_result_to_cache not added\n", 0,
-              0, 0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "<= nsldapi_add_result_to_cache not added\n");
     return;
   }
 
@@ -110,7 +109,7 @@ void nsldapi_add_result_to_cache(LDAP* ld, LDAPMessage* m) {
     LDAPDebug(LDAP_DEBUG_TRACE,
               "<= nsldapi_add_result_to_cache error: failed to construct mod "
               "list (%s)\n",
-              ldap_err2string(rc), 0, 0);
+              ldap_err2string(rc));
     ldap_mods_free(mods, 1);
     return;
   }
@@ -134,5 +133,5 @@ void nsldapi_add_result_to_cache(LDAP* ld, LDAPMessage* m) {
   /* msgid of -1 means don't send the result */
   rc = (ld->ld_cache_add)(ld, -1, m->lm_msgtype, dn, mods);
   LDAPDebug(LDAP_DEBUG_TRACE, "<= nsldapi_add_result_to_cache added (rc %d)\n",
-            rc, 0, 0);
+            rc);
 }

@@ -109,7 +109,7 @@ int ldif_parse_line(char* line, char** type, char** value, int* vlen) {
     /*
 #endif
      LDAPDebug( LDAP_DEBUG_PARSE, "ldif_parse_line: missing ':' "
-            "on line \"%s\"\n", line, 0, 0 );
+            "on line \"%s\"\n", line);
 #if defined( _WIN32 )
     */
 #endif
@@ -163,7 +163,7 @@ int ldif_parse_line(char* line, char** type, char** value, int* vlen) {
 #endif
                LDAPDebug( LDAP_DEBUG_ANY,
                   "ldif_parse_line: invalid base 64 char on line \"%s\"\n",
-                  line, 0, 0 );
+                  line);
 #if defined( _WIN32 )
       */
 #endif

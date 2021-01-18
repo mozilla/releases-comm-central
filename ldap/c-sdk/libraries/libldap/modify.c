@@ -70,7 +70,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 int LDAP_CALL ldap_modify(LDAP* ld, const char* dn, LDAPMod** mods) {
   int msgid;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_modify\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_modify\n");
 
   if (ldap_modify_ext(ld, dn, mods, NULL, NULL, &msgid) == LDAP_SUCCESS) {
     return (msgid);
@@ -103,7 +103,7 @@ int LDAP_CALL ldap_modify_ext(LDAP* ld, const char* dn, LDAPMod** mods,
    * }
    */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_modify_ext\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_modify_ext\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);

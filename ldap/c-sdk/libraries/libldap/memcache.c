@@ -262,7 +262,7 @@ int LDAP_CALL ldap_memcache_init(unsigned long ttl, unsigned long size,
                                  LDAPMemCache** cachep) {
   unsigned long total_size = 0;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_init\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_init\n");
 
   if (cachep == NULL) {
     return (LDAP_PARAM_ERROR);
@@ -347,8 +347,7 @@ int LDAP_CALL ldap_memcache_init(unsigned long ttl, unsigned long size,
     return (LDAP_SIZELIMIT_EXCEEDED);
   }
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_init new cache 0x%p\n", *cachep, 0,
-            0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_init new cache 0x%p\n", *cachep);
 
   return (LDAP_SUCCESS);
 }
@@ -357,7 +356,7 @@ int LDAP_CALL ldap_memcache_init(unsigned long ttl, unsigned long size,
 int LDAP_CALL ldap_memcache_set(LDAP* ld, LDAPMemCache* cache) {
   int nRes = LDAP_SUCCESS;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_set\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_set\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) return (LDAP_PARAM_ERROR);
 
@@ -440,7 +439,7 @@ int LDAP_CALL ldap_memcache_set(LDAP* ld, LDAPMemCache* cache) {
 
 /* Retrieves memcache with which the ldap handle has been associated. */
 int LDAP_CALL ldap_memcache_get(LDAP* ld, LDAPMemCache** cachep) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_get ld: 0x%p\n", ld, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_get ld: 0x%p\n", ld);
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || cachep == NULL) {
     return (LDAP_PARAM_ERROR);
@@ -459,8 +458,7 @@ int LDAP_CALL ldap_memcache_get(LDAP* ld, LDAPMemCache** cachep) {
  * it will not return until after ldap_memcache_destroy() is called.
  */
 void LDAP_CALL ldap_memcache_update(LDAPMemCache* cache) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_update: cache 0x%p\n", cache, 0,
-            0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_update: cache 0x%p\n", cache);
 
   if (!NSLDAPI_VALID_MEMCACHE_POINTER(cache)) {
     return;
@@ -496,7 +494,7 @@ void LDAP_CALL ldap_memcache_destroy(LDAPMemCache* cache) {
   unsigned long size = sizeof(LDAPMemCache);
   ldapmemcacheld *pNode = NULL, *pNextNode = NULL;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_destroy( 0x%p )\n", cache, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_destroy( 0x%p )\n", cache);
 
   if (!NSLDAPI_VALID_MEMCACHE_POINTER(cache)) {
     return;
@@ -677,11 +675,10 @@ int ldap_memcache_result(LDAP* ld, int msgid, unsigned long key) {
     nRes = memcache_add_to_ld(ld, msgid, pMsg);
     ++ld->ld_memcache->ldmemc_stats.ldmemcstat_hits;
     LDAPDebug(LDAP_DEBUG_TRACE,
-              "ldap_memcache_result: key 0x%8.8lx found in cache\n", key, 0, 0);
+              "ldap_memcache_result: key 0x%8.8lx found in cache\n", key);
   } else {
     LDAPDebug(LDAP_DEBUG_TRACE,
-              "ldap_memcache_result: key 0x%8.8lx not found in cache\n", key, 0,
-              0);
+              "ldap_memcache_result: key 0x%8.8lx not found in cache\n", key);
   }
 
 #ifdef LDAP_DEBUG
@@ -726,7 +723,7 @@ int ldap_memcache_new(LDAP* ld, int msgid, unsigned long key,
 int ldap_memcache_append(LDAP* ld, int msgid, int bLast, LDAPMessage* result) {
   int nRes = LDAP_SUCCESS;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_append( ld: 0x%p, ", ld, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_append( ld: 0x%p, ", ld);
   LDAPDebug(LDAP_DEBUG_TRACE, "msgid %d, bLast: %d, result: 0x%p)\n", msgid,
             bLast, result);
 
@@ -749,7 +746,7 @@ int ldap_memcache_append(LDAP* ld, int msgid, int bLast, LDAPMessage* result) {
     nRes = memcache_append_last(ld, msgid, result);
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_append: %s result for msgid %d\n",
-            (nRes == LDAP_SUCCESS) ? "added" : "failed to add", msgid, 0);
+            (nRes == LDAP_SUCCESS) ? "added" : "failed to add", msgid);
 
   LDAP_MEMCACHE_MUTEX_UNLOCK(ld->ld_memcache);
   LDAP_MUTEX_UNLOCK(ld, LDAP_MEMCACHE_LOCK);
@@ -895,7 +892,7 @@ static int memcache_adj_size(LDAPMemCache* cache, unsigned long size,
         cache->ldmemc_size_used -= size;
         LDAPDebug(LDAP_DEBUG_TRACE,
                   "memcache_adj_size: failed (size > size_entries %ld).\n",
-                  cache->ldmemc_size_entries, 0, 0);
+                  cache->ldmemc_size_entries);
         return (LDAP_SIZELIMIT_EXCEEDED);
       }
 
@@ -904,7 +901,7 @@ static int memcache_adj_size(LDAPMemCache* cache, unsigned long size,
                             NULL) != LDAP_SUCCESS) {
           cache->ldmemc_size_used -= size;
           LDAPDebug(LDAP_DEBUG_TRACE,
-                    "memcache_adj_size: failed (LRU flush failed).\n", 0, 0, 0);
+                    "memcache_adj_size: failed (LRU flush failed).\n");
           return (LDAP_SIZELIMIT_EXCEEDED);
         }
       }
@@ -920,13 +917,13 @@ static int memcache_adj_size(LDAPMemCache* cache, unsigned long size,
   if (cache->ldmemc_size == 0) { /* no size limit */
     LDAPDebug(LDAP_DEBUG_TRACE,
               "memcache_adj_size: succeeded (new size: %ld bytes).\n",
-              cache->ldmemc_size_used, 0, 0);
+              cache->ldmemc_size_used);
   } else {
     LDAPDebug(LDAP_DEBUG_TRACE,
               "memcache_adj_size: succeeded (new size: %ld bytes, "
               "free space: %ld bytes).\n",
               cache->ldmemc_size_used,
-              cache->ldmemc_size - cache->ldmemc_size_used, 0);
+              cache->ldmemc_size - cache->ldmemc_size_used);
   }
 #endif /* LDAP_DEBUG */
 
@@ -1275,15 +1272,14 @@ static void memcache_print_list(LDAPMemCache* cache, int index) {
       name = "unknown";
   }
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "memcache 0x%p %s list:\n", cache, name, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "memcache 0x%p %s list:\n", cache, name);
   for (restmp = cache->ldmemc_resHead[index]; restmp != NULL;
        restmp = restmp->ldmemcr_next[index]) {
     LDAPDebug(LDAP_DEBUG_TRACE, "    key: 0x%8.8lx, ld: 0x%p, msgid: %d\n",
               restmp->ldmemcr_crc_key, restmp->ldmemcr_req_id.ldmemcrid_ld,
               restmp->ldmemcr_req_id.ldmemcrid_msgid);
   }
-  LDAPDebug(LDAP_DEBUG_TRACE, "memcache 0x%p end of %s list.\n", cache, name,
-            0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "memcache 0x%p end of %s list.\n", cache, name);
 }
 #endif /* LDAP_DEBUG */
 
@@ -1529,7 +1525,7 @@ static int memcache_access(LDAPMemCache* cache, int mode, void* pData1,
 
     LDAPDebug(LDAP_DEBUG_TRACE,
               "memcache_access FLUSH_LRU: removing key 0x%8.8lx\n",
-              pRes->ldmemcr_crc_key, 0, 0);
+              pRes->ldmemcr_crc_key);
     nRes = htable_remove(cache->ldmemc_resLookup,
                          (void*)&(pRes->ldmemcr_crc_key), NULL);
     assert(nRes == LDAP_SUCCESS);
@@ -1578,17 +1574,17 @@ static void memcache_report_statistics(LDAPMemCache* cache) {
     hitrate = (100L * cache->ldmemc_stats.ldmemcstat_hits) /
               cache->ldmemc_stats.ldmemcstat_tries;
   }
-  LDAPDebug(LDAP_DEBUG_STATS, "memcache 0x%p:\n", cache, 0, 0);
+  LDAPDebug(LDAP_DEBUG_STATS, "memcache 0x%p:\n", cache);
   LDAPDebug(LDAP_DEBUG_STATS, "    tries: %ld  hits: %ld  hitrate: %ld%%\n",
             cache->ldmemc_stats.ldmemcstat_tries,
             cache->ldmemc_stats.ldmemcstat_hits, hitrate);
   if (cache->ldmemc_size <= 0) { /* no size limit */
     LDAPDebug(LDAP_DEBUG_STATS, "    memory bytes used: %ld\n",
-              cache->ldmemc_size_used, 0, 0);
+              cache->ldmemc_size_used);
   } else {
     LDAPDebug(LDAP_DEBUG_STATS, "    memory bytes used: %ld free: %ld\n",
               cache->ldmemc_size_used,
-              cache->ldmemc_size - cache->ldmemc_size_used, 0);
+              cache->ldmemc_size - cache->ldmemc_size_used);
   }
 }
 #endif /* LDAP_DEBUG */

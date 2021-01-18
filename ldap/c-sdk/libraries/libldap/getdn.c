@@ -54,7 +54,7 @@ char* LDAP_CALL ldap_get_dn(LDAP* ld, LDAPMessage* entry) {
   char* dn;
   struct berelement tmp;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_dn\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_dn\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (NULL); /* punt */
@@ -79,7 +79,7 @@ char* LDAP_CALL ldap_dn2ufn(const char* dn) {
   size_t plen;
   int state;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_dn2ufn\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_dn2ufn\n");
 
   if (dn == NULL) {
     dn = "";
@@ -199,7 +199,7 @@ static char** ldap_explode(const char* dn, const int notypes,
   int len = 0;
   int goteq = 0;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_explode\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_explode\n");
 
   if (dn == NULL) {
     dn = "";

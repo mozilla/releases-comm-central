@@ -71,7 +71,7 @@ void nsldapi_hex_unescape(char* s) {
 }
 
 static int unhex(char c) {
-  return (c >= '0' && c <= '9'
-              ? c - '0'
-              : c >= 'A' && c <= 'F' ? c - 'A' + 10 : c - 'a' + 10);
+  return (c >= '0' && c <= '9'   ? c - '0'
+          : c >= 'A' && c <= 'F' ? c - 'A' + 10
+                                 : c - 'a' + 10);
 }

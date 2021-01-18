@@ -68,9 +68,7 @@ static int nsldapi_send_abandon_message(LDAP* ld, LDAPConn* lc, BerElement* ber,
  * ldap_abandon(ld, msgid);
  */
 int LDAP_CALL ldap_abandon(LDAP* ld, int msgid) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_abandon %d\n", msgid, 0, 0);
-  LDAPDebug(LDAP_DEBUG_TRACE, "4e65747363617065\n", msgid, 0, 0);
-  LDAPDebug(LDAP_DEBUG_TRACE, "466f726576657221\n", msgid, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_abandon %d\n", msgid);
 
   if (ldap_abandon_ext(ld, msgid, NULL, NULL) == LDAP_SUCCESS) {
     return (0);
@@ -87,7 +85,7 @@ int LDAP_CALL ldap_abandon_ext(LDAP* ld, int msgid, LDAPControl** serverctrls,
                                LDAPControl** clientctrls) {
   int rc;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_abandon_ext %d\n", msgid, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_abandon_ext %d\n", msgid);
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -124,8 +122,8 @@ static int do_abandon(LDAP* ld, int origid, int msgid,
    * An abandon request looks like this:
    * AbandonRequest ::= MessageID
    */
-  LDAPDebug(LDAP_DEBUG_TRACE, "do_abandon origid %d, msgid %d\n", origid, msgid,
-            0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "do_abandon origid %d, msgid %d\n", origid,
+            msgid);
 
   /* optimistic */
   lderr = LDAP_SUCCESS;

@@ -63,7 +63,7 @@ int LDAP_CALL ldap_compare(LDAP* ld, const char* dn, const char* attr,
   int msgid;
   struct berval bv;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_compare\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_compare\n");
 
   bv.bv_val = (char*)value;
   bv.bv_len = (value == NULL) ? 0 : strlen(value);
@@ -93,7 +93,7 @@ int LDAP_CALL ldap_compare_ext(LDAP* ld, const char* dn, const char* attr,
    * and must be wrapped in an LDAPMessage.
    */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_compare_ext\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_compare_ext\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);

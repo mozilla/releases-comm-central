@@ -120,7 +120,7 @@ LDAP* cldap_open(char* host, int port) {
   char* p;
   int i;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "cldap_open\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "cldap_open\n");
 
   if (port == 0) {
     port = LDAP_PORT;
@@ -221,7 +221,7 @@ LDAP* cldap_open(char* host, int port) {
   for (i = 0; i < ld->ld_sbp->sb_naddr; ++i) {
     LDAPDebug(
         LDAP_DEBUG_TRACE, "end of cldap_open address %d is %s\n", i,
-        inet_ntoa(((struct sockaddr_in*)ld->ld_sbp->sb_addrs[i])->sin_addr), 0);
+        inet_ntoa(((struct sockaddr_in*)ld->ld_sbp->sb_addrs[i])->sin_addr));
   }
 #  endif
 
@@ -258,7 +258,7 @@ int cldap_search_s(LDAP* ld, char* base, int scope, char* filter, char** attrs,
 
     LDAPDebug(
         LDAP_DEBUG_TRACE, "cldap_search_s try %d (to %s)\n", cri.cri_try,
-        inet_ntoa(((struct sockaddr_in*)ld->ld_sbp->sb_useaddr)->sin_addr), 0);
+        inet_ntoa(((struct sockaddr_in*)ld->ld_sbp->sb_useaddr)->sin_addr));
 
     if ((msgid = ldap_search(ld, base, scope, filter, attrs, attrsonly)) ==
         -1) {
@@ -266,7 +266,7 @@ int cldap_search_s(LDAP* ld, char* base, int scope, char* filter, char** attrs,
     }
 #  ifndef NO_CACHE
     if (ld->ld_cache != NULL && ld->ld_responses != NULL) {
-      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_search_s res from cache\n", 0, 0, 0);
+      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_search_s res from cache\n");
       *res = ld->ld_responses;
       ld->ld_responses = ld->ld_responses->lm_next;
       return (ldap_result2error(ld, *res, 0));
@@ -323,7 +323,7 @@ static int cldap_result(LDAP* ld, int msgid, LDAPMessage** res,
     crip->cri_timeout = ld->ld_cldaptimeout;
     crip->cri_useaddr = 0;
     LDAPDebug(LDAP_DEBUG_TRACE, "cldap_result tries %d timeout %d\n",
-              ld->ld_cldaptries, ld->ld_cldaptimeout, 0);
+              ld->ld_cldaptries, ld->ld_cldaptimeout);
   }
 
   if ((tv.tv_sec = crip->cri_timeout / sb->sb_naddr) < 1) {
@@ -332,16 +332,16 @@ static int cldap_result(LDAP* ld, int msgid, LDAPMessage** res,
   tv.tv_usec = 0;
 
   LDAPDebug(LDAP_DEBUG_TRACE,
-            "cldap_result waiting up to %d seconds for a response\n", tv.tv_sec,
-            0, 0);
+            "cldap_result waiting up to %d seconds for a response\n",
+            tv.tv_sec);
   ber_init_w_nullchar(&ber, 0);
   nsldapi_set_ber_options(ld, &ber);
 
   if (cldap_getmsg(ld, &tv, &ber) == -1) {
     ret = LDAP_GET_LDERRNO(ld, NULL, NULL);
-    LDAPDebug(LDAP_DEBUG_TRACE, "cldap_getmsg returned -1 (%d)\n", ret, 0, 0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "cldap_getmsg returned -1 (%d)\n", ret);
   } else if (LDAP_GET_LDERRNO(ld, NULL, NULL) == LDAP_TIMEOUT) {
-    LDAPDebug(LDAP_DEBUG_TRACE, "cldap_result timed out\n", 0, 0, 0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "cldap_result timed out\n");
     /*
      * It timed out; is it time to give up?
      */
@@ -371,12 +371,11 @@ static int cldap_result(LDAP* ld, int msgid, LDAPMessage** res,
       NSLDAPI_FREE(ber.ber_buf); /* gack! */
       ret = LDAP_DECODING_ERROR;
       LDAPDebug(LDAP_DEBUG_TRACE,
-                "cldap_result: ber_scanf returned LBER_ERROR (%d)\n", ret, 0,
-                0);
+                "cldap_result: ber_scanf returned LBER_ERROR (%d)\n", ret);
     } else if (id != msgid) {
       NSLDAPI_FREE(ber.ber_buf); /* gack! */
       LDAPDebug(LDAP_DEBUG_TRACE,
-                "cldap_result: looking for msgid %d; got %ld\n", msgid, id, 0);
+                "cldap_result: looking for msgid %d; got %ld\n", msgid, id);
       ret = -1; /* ignore and keep looking */
     } else {
       /*
@@ -392,7 +391,7 @@ static int cldap_result(LDAP* ld, int msgid, LDAPMessage** res,
       }
       ret = cldap_parsemsg(ld, msgid, &ber, res, base);
       NSLDAPI_FREE(ber.ber_buf); /* gack! */
-      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_result got result (%d)\n", ret, 0, 0);
+      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_result got result (%d)\n", ret);
     }
 
     if (logdn != NULL) {
@@ -417,7 +416,7 @@ static int cldap_result(LDAP* ld, int msgid, LDAPMessage** res,
       sb->sb_useaddr = sb->sb_addrs[i];
       LDAPDebug(LDAP_DEBUG_TRACE, "cldap_result abandoning id %d (to %s)\n",
                 msgid,
-                inet_ntoa(((struct sockaddr_in*)sb->sb_useaddr)->sin_addr), 0);
+                inet_ntoa(((struct sockaddr_in*)sb->sb_useaddr)->sin_addr));
       (void)ldap_abandon(ld, msgid);
     }
   }
@@ -454,8 +453,7 @@ static int cldap_parsemsg(LDAP* ld, int msgid, BerElement* ber,
     ldm->lm_msgtype = tag;
 
     if (tag == LDAP_RES_SEARCH_RESULT) {
-      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_parsemsg got search result\n", 0, 0,
-                0);
+      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_parsemsg got search result\n");
 
       if (ber_get_stringal(ber, &bv) == LBER_DEFAULT) {
         break; /* return w/error */
@@ -472,7 +470,7 @@ static int cldap_parsemsg(LDAP* ld, int msgid, BerElement* ber,
       if (ber_scanf(ber, "{aO", &dn, &bv) == LBER_ERROR) {
         break; /* return w/error */
       }
-      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_parsemsg entry %s\n", dn, 0, 0);
+      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_parsemsg entry %s\n", dn);
       if (dn != NULL && *(dn + (slen = strlen(dn)) - 1) == '*' && baselen > 0) {
         /*
          * substitute original searchbase for trailing '*'
@@ -497,8 +495,7 @@ static int cldap_parsemsg(LDAP* ld, int msgid, BerElement* ber,
       bv = NULL;
 
     } else {
-      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_parsemsg got unknown tag %d\n", tag, 0,
-                0);
+      LDAPDebug(LDAP_DEBUG_TRACE, "cldap_parsemsg got unknown tag %d\n", tag);
       rc = LDAP_PROTOCOL_ERROR;
       break; /* return w/error */
     }

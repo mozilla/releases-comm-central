@@ -67,7 +67,7 @@ int LDAP_CALL ldap_extended_operation(LDAP* ld, const char* exoid,
    * all wrapped up in an LDAPMessage sequence.
    */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_extended_operation\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_extended_operation\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -191,7 +191,7 @@ int LDAP_CALL ldap_parse_extended_result(
   char *m, *e, *roid;
   struct berval* rdata;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_parse_extended_result\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_parse_extended_result\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);

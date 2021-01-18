@@ -66,7 +66,7 @@ static int simple_bind_nolock(LDAP* ld, const char* dn, const char* passwd,
 int LDAP_CALL ldap_simple_bind(LDAP* ld, const char* dn, const char* passwd) {
   int rc;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_simple_bind\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_simple_bind\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -159,7 +159,7 @@ int LDAP_CALL ldap_simple_bind_s(LDAP* ld, const char* dn, const char* passwd) {
   int msgid;
   LDAPMessage* result;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_simple_bind_s\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_simple_bind_s\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -175,7 +175,7 @@ int LDAP_CALL ldap_simple_bind_s(LDAP* ld, const char* dn, const char* passwd) {
 }
 
 void nsldapi_handle_reconnect(LDAP* ld) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_handle_reconnect\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_handle_reconnect\n");
 
   /*
    * if the default connection has been lost and is now marked dead,

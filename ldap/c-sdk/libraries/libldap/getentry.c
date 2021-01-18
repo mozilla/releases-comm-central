@@ -97,7 +97,7 @@ int LDAP_CALL ldap_get_entry_controls(LDAP* ld, LDAPMessage* entry,
   int rc;
   BerElement tmpber;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_entry_controls\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_entry_controls\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);

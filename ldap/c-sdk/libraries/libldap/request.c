@@ -97,7 +97,7 @@ int nsldapi_send_initial_request(LDAP* ld, int msgid, unsigned long msgtype,
                                  char* dn, BerElement* ber) {
   LDAPServer* servers;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_send_initial_request\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_send_initial_request\n");
 
 #ifdef LDAP_DNS
   LDAP_MUTEX_LOCK(ld, LDAP_OPTION_LOCK);
@@ -160,7 +160,7 @@ int nsldapi_send_server_request(
   struct berval* ext_data = NULL;
   LDAPMessage* ext_res = NULL;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_send_server_request\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_send_server_request\n");
 
   incparent = 0;
   LDAP_MUTEX_LOCK(ld, LDAP_CONN_LOCK);
@@ -282,7 +282,7 @@ int nsldapi_send_server_request(
     LDAPDebug(LDAP_DEBUG_TRACE,
               "nsldapi_send_server_request: connection 0x%p -"
               " LDAP_CONNST_CONNECTING -> LDAP_CONNST_CONNECTED\n",
-              lc, 0, 0);
+              lc);
   }
 
   if (lc->lconn_status == LDAP_CONNST_CONNECTING ||
@@ -334,29 +334,27 @@ int nsldapi_send_server_request(
           } else {
 #ifdef LDAP_DEBUG
             LDAPDebug(LDAP_DEBUG_TRACE,
-                      "nsldapi_send_server_request: Unsolicited response\n", 0,
-                      0, 0);
+                      "nsldapi_send_server_request: Unsolicited response\n");
             if (ext_oid) {
               LDAPDebug(
                   LDAP_DEBUG_TRACE,
                   "nsldapi_send_server_request: Unsolicited response oid: %s\n",
-                  ext_oid, 0, 0);
+                  ext_oid);
             }
             if (ext_data && ext_data->bv_len && ext_data->bv_val) {
               LDAPDebug(
                   LDAP_DEBUG_TRACE,
                   "nsldapi_send_server_request: Unsolicited response len: %d\n",
-                  ext_data->bv_len, 0, 0);
+                  ext_data->bv_len);
               LDAPDebug(
                   LDAP_DEBUG_TRACE,
                   "nsldapi_send_server_request: Unsolicited response val: %s\n",
-                  ext_data->bv_val, 0, 0);
+                  ext_data->bv_val);
             }
             if (!ext_oid && !ext_data) {
               LDAPDebug(LDAP_DEBUG_TRACE,
                         "nsldapi_send_server_request: Unsolicited response is "
-                        "empty\n",
-                        0, 0, 0);
+                        "empty\n");
             }
 #endif /* LDAP_DEBUG */
             if (ext_oid) {
@@ -487,7 +485,7 @@ int nsldapi_send_pending_requests_nolock(LDAP* ld, LDAPConn* lc) {
   LDAPRequest* lr;
   char* logname = "nsldapi_send_pending_requests_nolock";
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "%s\n", logname, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "%s\n", logname);
 
   for (lr = ld->ld_requests; lr != NULL; lr = lr->lr_next) {
     /*
@@ -501,17 +499,17 @@ int nsldapi_send_pending_requests_nolock(LDAP* ld, LDAPConn* lc) {
                                      0 /* do not free ber */,
                                      0 /* will not handle EPIPE */);
       if (err == 0) { /* send succeeded */
-        LDAPDebug(LDAP_DEBUG_TRACE, "%s: 0x%p SENT\n", logname, lr, 0);
+        LDAPDebug(LDAP_DEBUG_TRACE, "%s: 0x%p SENT\n", logname, lr);
         lr->lr_ber->ber_end = lr->lr_ber->ber_ptr;
         lr->lr_ber->ber_ptr = lr->lr_ber->ber_buf;
         lr->lr_status = LDAP_REQST_INPROGRESS;
         --lc->lconn_pending_requests;
       } else if (err == -2) { /* would block */
         rc = 0;               /* not an error */
-        LDAPDebug(LDAP_DEBUG_TRACE, "%s: 0x%p WOULD BLOCK\n", logname, lr, 0);
+        LDAPDebug(LDAP_DEBUG_TRACE, "%s: 0x%p WOULD BLOCK\n", logname, lr);
         break;
       } else { /* fatal error */
-        LDAPDebug(LDAP_DEBUG_TRACE, "%s: 0x%p FATAL ERROR\n", logname, lr, 0);
+        LDAPDebug(LDAP_DEBUG_TRACE, "%s: 0x%p FATAL ERROR\n", logname, lr);
         LDAP_SET_LDERRNO(ld, LDAP_SERVER_DOWN, NULL, NULL);
         nsldapi_free_request(ld, lr, 0);
         lr = NULL;
@@ -529,7 +527,7 @@ int nsldapi_send_pending_requests_nolock(LDAP* ld, LDAPConn* lc) {
         LDAPDebug(LDAP_DEBUG_TRACE,
                   "%s: 0x%p NO RESPONSE EXPECTED;"
                   " freeing request \n",
-                  logname, lr, 0);
+                  logname, lr);
         nsldapi_free_request(ld, lr, 0);
         lr = NULL;
       }
@@ -548,7 +546,7 @@ int nsldapi_send_pending_requests_nolock(LDAP* ld, LDAPConn* lc) {
     }
   }
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "%s <- %d\n", logname, rc, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "%s <- %d\n", logname, rc);
   return (rc);
 }
 
@@ -749,7 +747,7 @@ void nsldapi_free_connection(LDAP* ld, LDAPConn* lc, LDAPControl** serverctrls,
                              LDAPControl** clientctrls, int force, int unbind) {
   LDAPConn *tmplc, *prevlc;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_free_connection\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_free_connection\n");
 
   if (force || --lc->lconn_refcnt <= 0) {
     nsldapi_iostatus_interest_clear(ld, lc->lconn_sb);
@@ -797,12 +795,11 @@ void nsldapi_free_connection(LDAP* ld, LDAPConn* lc, LDAPControl** serverctrls,
     }
 #endif /* LDAP_SASLIO_HOOKS */
     NSLDAPI_FREE(lc);
-    LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_free_connection: actually freed\n", 0,
-              0, 0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_free_connection: actually freed\n");
   } else {
     lc->lconn_lastused = time(0);
     LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_free_connection: refcnt %d\n",
-              lc->lconn_refcnt, 0, 0);
+              lc->lconn_refcnt);
   }
 }
 
@@ -829,12 +826,11 @@ void nsldapi_dump_connection(LDAP* ld, LDAPConn* lconns, int all) {
           (lc->lconn_sb == ld->ld_sbp) ? "  (default)" : "");
       ber_err_print(msg);
     }
-    sprintf(
-        msg, "  refcnt: %d  pending: %d  status: %s\n", lc->lconn_refcnt,
-        lc->lconn_pending_requests,
-        (lc->lconn_status == LDAP_CONNST_CONNECTING)
-            ? "Connecting"
-            : (lc->lconn_status == LDAP_CONNST_DEAD) ? "Dead" : "Connected");
+    sprintf(msg, "  refcnt: %d  pending: %d  status: %s\n", lc->lconn_refcnt,
+            lc->lconn_pending_requests,
+            (lc->lconn_status == LDAP_CONNST_CONNECTING) ? "Connecting"
+            : (lc->lconn_status == LDAP_CONNST_DEAD)     ? "Dead"
+                                                         : "Connected");
     ber_err_print(msg);
     sprintf(msg, "  last used: %s",
             NSLDAPI_CTIME((time_t*)&lc->lconn_lastused, buf, sizeof(buf)));
@@ -864,12 +860,10 @@ void nsldapi_dump_requests_and_responses(LDAP* ld) {
   for (; lr != NULL; lr = lr->lr_next) {
     sprintf(msg, " * 0x%p - msgid %d,  origid %d, status %s\n", lr,
             lr->lr_msgid, lr->lr_origid,
-            (lr->lr_status == LDAP_REQST_INPROGRESS)
-                ? "InProgress"
-                : (lr->lr_status == LDAP_REQST_CHASINGREFS)
-                      ? "ChasingRefs"
-                      : (lr->lr_status == LDAP_REQST_CONNDEAD) ? "Dead"
-                                                               : "Writing");
+            (lr->lr_status == LDAP_REQST_INPROGRESS)    ? "InProgress"
+            : (lr->lr_status == LDAP_REQST_CHASINGREFS) ? "ChasingRefs"
+            : (lr->lr_status == LDAP_REQST_CONNDEAD)    ? "Dead"
+                                                        : "Writing");
     ber_err_print(msg);
     sprintf(msg, "   outstanding referrals %d, parent count %d\n",
             lr->lr_outrefcnt, lr->lr_parentcnt);
@@ -1039,7 +1033,7 @@ int nsldapi_chase_v2_referrals(LDAP* ld, LDAPRequest* lr, char** errstrp,
   LDAPRequest* origreq;
   int rc, tmprc, len, unknown;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_chase_v2_referrals\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_chase_v2_referrals\n");
 
   *totalcountp = *chasingcountp = 0;
 
@@ -1063,7 +1057,7 @@ int nsldapi_chase_v2_referrals(LDAP* ld, LDAPRequest* lr, char** errstrp,
 
   if (lr->lr_parentcnt >= ld->ld_refhoplimit) {
     LDAPDebug(LDAP_DEBUG_TRACE, "more than %d referral hops (dropping)\n",
-              ld->ld_refhoplimit, 0, 0);
+              ld->ld_refhoplimit);
     return (LDAP_REFERRAL_LIMIT_EXCEEDED);
   }
 
@@ -1122,7 +1116,7 @@ int nsldapi_chase_v3_refs(LDAP* ld, LDAPRequest* lr, char** v3refs,
 
   if (lr->lr_parentcnt >= ld->ld_refhoplimit) {
     LDAPDebug(LDAP_DEBUG_TRACE, "more than %d referral hops (dropping)\n",
-              ld->ld_refhoplimit, 0, 0);
+              ld->ld_refhoplimit);
     return (LDAP_REFERRAL_LIMIT_EXCEEDED);
   }
 
@@ -1171,7 +1165,7 @@ static int chase_one_referral(LDAP* ld, LDAPRequest* lr, LDAPRequest* origreq,
   ludp = NULLLDAPURLDESC;
 
   if (nsldapi_url_parse(refurl, &ludp, 0) != 0) {
-    LDAPDebug(LDAP_DEBUG_TRACE, "ignoring unknown %s <%s>\n", desc, refurl, 0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "ignoring unknown %s <%s>\n", desc, refurl);
     *unknownp = 1;
     rc = LDAP_SUCCESS;
     goto cleanup_and_return;
@@ -1181,7 +1175,7 @@ static int chase_one_referral(LDAP* ld, LDAPRequest* lr, LDAPRequest* origreq,
 
   /* XXXmcs: can't tell if secure is supported by connect callback */
   if (secure && ld->ld_extconnect_fn == NULL) {
-    LDAPDebug(LDAP_DEBUG_TRACE, "ignoring LDAPS %s <%s>\n", desc, refurl, 0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "ignoring LDAPS %s <%s>\n", desc, refurl);
     *unknownp = 1;
     rc = LDAP_SUCCESS;
     goto cleanup_and_return;
@@ -1215,13 +1209,13 @@ static int chase_one_referral(LDAP* ld, LDAPRequest* lr, LDAPRequest* origreq,
       LDAPDebug(LDAP_DEBUG_TRACE,
                 "chase_one_referral: using hostname '%s' from original "
                 "request on new request\n",
-                srv->lsrv_host, 0, 0);
+                srv->lsrv_host);
     } else {
       srv->lsrv_host = nsldapi_strdup(ludp->lud_host);
       LDAPDebug(LDAP_DEBUG_TRACE,
                 "chase_one_referral: using hostname '%s' as specified "
                 "on new request\n",
-                srv->lsrv_host, 0, 0);
+                srv->lsrv_host);
     }
 
     if (srv->lsrv_host == NULL) {
@@ -1237,17 +1231,17 @@ static int chase_one_referral(LDAP* ld, LDAPRequest* lr, LDAPRequest* origreq,
     LDAPDebug(LDAP_DEBUG_TRACE,
               "chase_one_referral: using port (%d) from original "
               "request on new request\n",
-              srv->lsrv_port, 0, 0);
+              srv->lsrv_port);
   } else if (ludp->lud_port != 0) {
     srv->lsrv_port = ludp->lud_port;
     LDAPDebug(LDAP_DEBUG_TRACE,
               "chase_one_referral: using port (%d) as specified on "
               "new request\n",
-              srv->lsrv_port, 0, 0);
+              srv->lsrv_port);
   } else {
     srv->lsrv_port = secure ? LDAPS_PORT : LDAP_PORT;
     LDAPDebug(LDAP_DEBUG_TRACE, "chase_one_referral: using default port (%d)\n",
-              srv->lsrv_port, 0, 0);
+              srv->lsrv_port);
   }
 
   if (secure) {
@@ -1315,7 +1309,7 @@ static int re_encode_request(LDAP* ld, BerElement* origber, int msgid,
   ber_int_t scope = -1;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "re_encode_request: new msgid %d, new dn <%s>\n",
-            msgid, (ludp->lud_dn == NULL) ? "NONE" : ludp->lud_dn, 0);
+            msgid, (ludp->lud_dn == NULL) ? "NONE" : ludp->lud_dn);
 
   tmpber = *origber;
 
@@ -1428,7 +1422,7 @@ static int re_encode_request(LDAP* ld, BerElement* origber, int msgid,
 
 #ifdef LDAP_DEBUG
   if (ldap_debug & LDAP_DEBUG_PACKETS) {
-    LDAPDebug(LDAP_DEBUG_ANY, "re_encode_request new request is:\n", 0, 0, 0);
+    LDAPDebug(LDAP_DEBUG_ANY, "re_encode_request new request is:\n");
     ber_dump(ber, 0);
   }
 #endif /* LDAP_DEBUG */

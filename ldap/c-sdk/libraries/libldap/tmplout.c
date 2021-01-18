@@ -97,7 +97,7 @@ int LDAP_CALL ldap_entry2text(LDAP* ld, char* buf, /* NULL for "use internal" */
                               char** defattrs, char*** defvals,
                               writeptype writeproc, void* writeparm, char* eol,
                               int rdncount, unsigned long opts) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2text\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2text\n");
 
   return (do_entry2text(ld, buf, NULL, entry, tmpl, defattrs, defvals,
                         writeproc, writeparm, eol, rdncount, opts, NULL));
@@ -109,7 +109,7 @@ int LDAP_CALL ldap_entry2html(LDAP* ld, char* buf, /* NULL for "use internal" */
                               writeptype writeproc, void* writeparm, char* eol,
                               int rdncount, unsigned long opts, char* base,
                               char* urlprefix) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2html\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2html\n");
 
   if (urlprefix == NULL) {
     urlprefix = DEF_LDAP_URL_PREFIX;
@@ -362,7 +362,7 @@ int LDAP_CALL ldap_entry2text_search(
     char** defattrs, char*** defvals, writeptype writeproc, void* writeparm,
     char* eol, int rdncount, /* if 0, display full DN */
     unsigned long opts) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2text_search\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2text_search\n");
 
   return (do_entry2text_search(ld, dn, base, entry, tmpllist, defattrs, defvals,
                                writeproc, writeparm, eol, rdncount, opts,
@@ -377,7 +377,7 @@ int LDAP_CALL ldap_entry2html_search(
     char** defattrs, char*** defvals, writeptype writeproc, void* writeparm,
     char* eol, int rdncount, /* if 0, display full DN */
     unsigned long opts, char* urlprefix) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2html_search\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2html_search\n");
 
   return (do_entry2text_search(ld, dn, base, entry, tmpllist, defattrs, defvals,
                                writeproc, writeparm, eol, rdncount, opts,
@@ -506,7 +506,7 @@ int LDAP_CALL ldap_vals2text(LDAP* ld, char* buf, /* NULL for "use internal" */
                              int labelwidth, /* 0 means use default */
                              unsigned long syntaxid, writeptype writeproc,
                              void* writeparm, char* eol, int rdncount) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_vals2text\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_vals2text\n");
 
   return (do_vals2text(ld, buf, vals, label, labelwidth, syntaxid, writeproc,
                        writeparm, eol, rdncount, NULL));
@@ -518,7 +518,7 @@ int LDAP_CALL ldap_vals2html(LDAP* ld, char* buf, /* NULL for "use internal" */
                              unsigned long syntaxid, writeptype writeproc,
                              void* writeparm, char* eol, int rdncount,
                              char* urlprefix) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_vals2html\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_vals2html\n");
 
   if (urlprefix == NULL) {
     urlprefix = DEF_LDAP_URL_PREFIX;

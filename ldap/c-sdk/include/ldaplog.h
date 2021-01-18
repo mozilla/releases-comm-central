@@ -62,7 +62,7 @@ extern "C" {
 
 /* debugging stuff */
 /* Disable by default */
-#define LDAPDebug(level, fmt, arg1, arg2, arg3)
+#define LDAPDebug(level, ...)
 
 #ifdef LDAP_DEBUG
 #  undef LDAPDebug
@@ -71,30 +71,30 @@ extern "C" {
 #  if defined(SLAPD_LOGGING)
 #    ifdef _WIN32
 extern int* module_ldap_debug;
-#      define LDAPDebug(level, fmt, arg1, arg2, arg3)          \
-        {                                                      \
-          if (*module_ldap_debug & level) {                    \
-            slapd_log_error_proc(NULL, fmt, arg1, arg2, arg3); \
-          }                                                    \
+#      define LDAPDebug(level, ...)                  \
+        {                                            \
+          if (*module_ldap_debug & level) {          \
+            slapd_log_error_proc(NULL, __VA_ARGS__); \
+          }                                          \
         }
 #    else /* _WIN32 */
 extern int ldap_debug;
-#      define LDAPDebug(level, fmt, arg1, arg2, arg3)          \
-        {                                                      \
-          if (ldap_debug & level) {                            \
-            slapd_log_error_proc(NULL, fmt, arg1, arg2, arg3); \
-          }                                                    \
+#      define LDAPDebug(level, ...)                  \
+        {                                            \
+          if (ldap_debug & level) {                  \
+            slapd_log_error_proc(NULL, __VA_ARGS__); \
+          }                                          \
         }
 #    endif /* Win32 */
 #  else    /* no SLAPD_LOGGING */
 extern void ber_err_print(char*);
 extern int ldap_debug;
-#    define LDAPDebug(level, fmt, arg1, arg2, arg3)        \
-      if (ldap_debug & level) {                            \
-        char msg[1024];                                    \
-        snprintf(msg, sizeof(msg), fmt, arg1, arg2, arg3); \
-        msg[sizeof(msg) - 1] = '\0';                       \
-        ber_err_print(msg);                                \
+#    define LDAPDebug(level, ...)                \
+      if (ldap_debug & level) {                  \
+        char msg[1024];                          \
+        snprintf(msg, sizeof(msg), __VA_ARGS__); \
+        msg[sizeof(msg) - 1] = '\0';             \
+        ber_err_print(msg);                      \
       }
 #  endif /* SLAPD_LOGGING */
 #endif   /* LDAP_DEBUG */

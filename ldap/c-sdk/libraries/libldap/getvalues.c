@@ -57,7 +57,7 @@ static void** internal_ldap_get_values(LDAP* ld, LDAPMessage* entry,
   int rc;
   void** vals;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_values\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_values\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (NULL); /* punt */
@@ -321,7 +321,7 @@ static void** internal_ldap_get_lang_values(LDAP* ld, LDAPMessage* entry,
   int firstAttr = 1;
   char* bestType = NULL;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_values\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_values\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (NULL);

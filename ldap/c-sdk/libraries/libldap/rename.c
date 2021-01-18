@@ -88,7 +88,7 @@ ldap_rename(LDAP* ld, const char* dn, const char* newrdn, const char* newparent,
    * }
    */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_rename\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_rename\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);

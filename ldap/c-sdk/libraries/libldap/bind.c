@@ -73,7 +73,7 @@ int LDAP_CALL ldap_bind(LDAP* ld, const char* dn, const char* passwd,
    * all wrapped up in an LDAPMessage sequence.
    */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_bind\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_bind\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (-1);
@@ -107,7 +107,7 @@ int LDAP_CALL ldap_bind_s(LDAP* ld, const char* dn, const char* passwd,
                           int authmethod) {
   int err;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_bind_s\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_bind_s\n");
 
   switch (authmethod) {
     case LDAP_AUTH_SIMPLE:

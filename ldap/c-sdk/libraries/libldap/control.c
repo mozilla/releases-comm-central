@@ -157,7 +157,7 @@ int nsldapi_get_controls(BerElement* ber, LDAPControl*** controlsp) {
    *   controlValue OCTET STRING
    * }
    */
-  LDAPDebug(LDAP_DEBUG_TRACE, "=> nsldapi_get_controls\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "=> nsldapi_get_controls\n");
 
   *controlsp = NULL;
 
@@ -168,14 +168,13 @@ int nsldapi_get_controls(BerElement* ber, LDAPControl*** controlsp) {
     return (LDAP_DECODING_ERROR); /* unexpected error */
   }
   if (len == 0) {
-    LDAPDebug(LDAP_DEBUG_TRACE, "<= nsldapi_get_controls no controls\n", 0, 0,
-              0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "<= nsldapi_get_controls no controls\n");
     return (LDAP_SUCCESS); /* no controls */
   }
   if ((tag = ber_peek_tag(ber, &len)) != LDAP_TAG_CONTROLS) {
     if (tag == LBER_ERROR) {
       LDAPDebug(LDAP_DEBUG_TRACE,
-                "<= nsldapi_get_controls LDAP_PROTOCOL_ERROR\n", 0, 0, 0);
+                "<= nsldapi_get_controls LDAP_PROTOCOL_ERROR\n");
       return (LDAP_DECODING_ERROR); /* decoding error */
     }
     /*
@@ -186,7 +185,7 @@ int nsldapi_get_controls(BerElement* ber, LDAPControl*** controlsp) {
     LDAPDebug(LDAP_DEBUG_TRACE,
               "<= nsldapi_get_controls ignoring unrecognized data in message "
               "(tag 0x%x)\n",
-              tag, 0, 0);
+              tag);
     return (LDAP_SUCCESS);
   }
 
@@ -250,13 +249,13 @@ int nsldapi_get_controls(BerElement* ber, LDAPControl*** controlsp) {
   }
 
   LDAPDebug(LDAP_DEBUG_TRACE, "<= nsldapi_get_controls found %d controls\n",
-            curcontrols, 0, 0);
+            curcontrols);
   return (LDAP_SUCCESS);
 
 free_and_return:;
   ldap_controls_free(*controlsp);
   *controlsp = NULL;
-  LDAPDebug(LDAP_DEBUG_TRACE, "<= nsldapi_get_controls error 0x%x\n", rc, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "<= nsldapi_get_controls error 0x%x\n", rc);
   return (rc);
 }
 

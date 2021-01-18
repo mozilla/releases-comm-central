@@ -289,7 +289,7 @@ static int nsldapi_os_connect_with_to(LBER_SOCKET sockfd,
 #  endif /* NSLDAPI_HAVE_POLL */
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_connect_nonblock timeout: %d (msec)\n",
-            msec, 0, 0);
+            msec);
 
 #  ifdef _WINDOWS
   ioctlsocket(sockfd, FIONBIO, &nonblock);
@@ -335,8 +335,7 @@ static int nsldapi_os_connect_with_to(LBER_SOCKET sockfd,
     LDAPDebug(LDAP_DEBUG_TRACE,
               "Invalid timeout value detected.."
               "resetting connect timeout to default value "
-              "(LDAP_X_IO_TIMEOUT_NO_TIMEOUT\n",
-              0, 0, 0);
+              "(LDAP_X_IO_TIMEOUT_NO_TIMEOUT)\n");
     msec = LDAP_X_IO_TIMEOUT_NO_TIMEOUT;
 #  ifndef NSLDAPI_HAVE_POLL
   } else {
@@ -476,7 +475,7 @@ int nsldapi_connect_to_host(LDAP* ld, Sockbuf* sb, const char* hostlist,
   int s;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_connect_to_host: %s, port: %d\n",
-            NULL == hostlist ? "NULL" : hostlist, defport, 0);
+            NULL == hostlist ? "NULL" : hostlist, defport);
 
   /*
    * If an extended I/O connect callback has been defined, just use it.
@@ -634,7 +633,7 @@ static int nsldapi_try_each_host(LDAP* ld, const char* hostlist, int defport,
 
         err = (*ioctlfn)(s, FIONBIO, &iostatus);
         if (err == -1) {
-          LDAPDebug(LDAP_DEBUG_ANY, "FIONBIO ioctl failed on %d\n", s, 0, 0);
+          LDAPDebug(LDAP_DEBUG_ANY, "FIONBIO ioctl failed on %d\n", s);
         }
       }
 
@@ -691,7 +690,7 @@ static int nsldapi_try_each_host(LDAP* ld, const char* hostlist, int defport,
 #  endif /* _WINDOWS */
           err = LDAP_GET_ERRNO(ld);
           if (NSLDAPI_ERRNO_IO_INPROGRESS(err)) {
-            LDAPDebug(LDAP_DEBUG_TRACE, "connect would block...\n", 0, 0, 0);
+            LDAPDebug(LDAP_DEBUG_TRACE, "connect would block...\n");
             rc = -2;
             break;
           }
@@ -721,7 +720,7 @@ static int nsldapi_try_each_host(LDAP* ld, const char* hostlist, int defport,
 
   if (connected) {
     LDAPDebug(LDAP_DEBUG_TRACE, "sd %d connected to: %s\n", s,
-              inet_ntoa(sin.sin_addr), 0);
+              inet_ntoa(sin.sin_addr));
   }
 
   return (rc == 0 ? s : -1);
@@ -812,7 +811,7 @@ int nsldapi_iostatus_interest_write(LDAP* ld, Sockbuf* sb) {
   } else {
     LDAPDebug(LDAP_DEBUG_ANY,
               "nsldapi_iostatus_interest_write: unknown I/O type %d\n",
-              iosp->ios_type, 0, 0);
+              iosp->ios_type);
   }
 
 unlock_and_return:
@@ -863,7 +862,7 @@ int nsldapi_iostatus_interest_read(LDAP* ld, Sockbuf* sb) {
   } else {
     LDAPDebug(LDAP_DEBUG_ANY,
               "nsldapi_iostatus_interest_read: unknown I/O type %d\n",
-              iosp->ios_type, 0, 0);
+              iosp->ios_type);
   }
 
 unlock_and_return:
@@ -926,7 +925,7 @@ int nsldapi_iostatus_interest_clear(LDAP* ld, Sockbuf* sb) {
   } else {
     LDAPDebug(LDAP_DEBUG_ANY,
               "nsldapi_iostatus_interest_clear: unknown I/O type %d\n",
-              iosp->ios_type, 0, 0);
+              iosp->ios_type);
   }
 
 unlock_and_return:
@@ -975,7 +974,7 @@ int nsldapi_iostatus_is_write_ready(LDAP* ld, Sockbuf* sb) {
   } else {
     LDAPDebug(LDAP_DEBUG_ANY,
               "nsldapi_iostatus_is_write_ready: unknown I/O type %d\n",
-              iosp->ios_type, 0, 0);
+              iosp->ios_type);
     rc = 0;
   }
 
@@ -1025,7 +1024,7 @@ int nsldapi_iostatus_is_read_ready(LDAP* ld, Sockbuf* sb) {
   } else {
     LDAPDebug(LDAP_DEBUG_ANY,
               "nsldapi_iostatus_is_read_ready: unknown I/O type %d\n",
-              iosp->ios_type, 0, 0);
+              iosp->ios_type);
     rc = 0;
   }
 
@@ -1101,7 +1100,7 @@ void nsldapi_iostatus_free(LDAP* ld) {
       }
     } else {
       LDAPDebug(LDAP_DEBUG_ANY, "nsldapi_iostatus_free: unknown I/O type %d\n",
-                iosp->ios_type, 0, 0);
+                iosp->ios_type);
     }
 
     NSLDAPI_FREE(iosp);
@@ -1147,7 +1146,7 @@ int nsldapi_iostatus_poll(LDAP* ld, struct timeval* timeout) {
   int rc;
   NSLDAPIIOStatus* iosp;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_iostatus_poll\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_iostatus_poll\n");
 
   LDAP_MUTEX_LOCK(ld, LDAP_IOSTATUS_LOCK);
   iosp = ld->ld_iostatus;
@@ -1198,7 +1197,7 @@ int nsldapi_iostatus_poll(LDAP* ld, struct timeval* timeout) {
 
   } else {
     LDAPDebug(LDAP_DEBUG_ANY, "nsldapi_iostatus_poll: unknown I/O type %d\n",
-              iosp->ios_type, 0, 0);
+              iosp->ios_type);
     rc = 0; /* simulate a timeout (what else to do?) */
   }
 

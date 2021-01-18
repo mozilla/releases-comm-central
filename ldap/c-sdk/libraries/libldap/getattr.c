@@ -65,7 +65,7 @@ char* LDAP_CALL ldap_first_attribute(LDAP* ld, LDAPMessage* entry,
   int err;
   ber_len_t seqlength;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_first_attribute\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_first_attribute\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (NULL); /* punt */
@@ -116,7 +116,7 @@ char* LDAP_CALL ldap_next_attribute(LDAP* ld, LDAPMessage* entry,
   char* attr;
   int err;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_next_attribute\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_next_attribute\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (NULL); /* punt */

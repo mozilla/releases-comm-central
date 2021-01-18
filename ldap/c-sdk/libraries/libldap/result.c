@@ -93,7 +93,7 @@ int LDAP_CALL ldap_result(LDAP* ld, int msgid, int all, struct timeval* timeout,
                           LDAPMessage** result) {
   int rc;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_result\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_result\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (-1); /* punt */
@@ -113,7 +113,7 @@ int nsldapi_result_nolock(LDAP* ld, int msgid, int all, int unlock_permitted,
   int rc;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_result_nolock (msgid=%d, all=%d)\n",
-            msgid, all, 0);
+            msgid, all);
 
   /*
    * First, look through the list of responses we have received on
@@ -162,7 +162,7 @@ static int check_response_queue(LDAP* ld, int msgid, int all,
   LDAPRequest* lr;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "=> check_response_queue (msgid=%d, all=%d)\n",
-            msgid, all, 0);
+            msgid, all);
 
   *result = NULL;
   lastlm = NULL;
@@ -198,8 +198,7 @@ static int check_response_queue(LDAP* ld, int msgid, int all,
 
       if (tmp == NULL) {
         LDAP_MUTEX_UNLOCK(ld, LDAP_RESP_LOCK);
-        LDAPDebug(LDAP_DEBUG_TRACE, "<= check_response_queue NOT FOUND\n", 0, 0,
-                  0);
+        LDAPDebug(LDAP_DEBUG_TRACE, "<= check_response_queue NOT FOUND\n");
         return (0); /* no message to return */
       }
 
@@ -216,7 +215,7 @@ static int check_response_queue(LDAP* ld, int msgid, int all,
       ((lr = nsldapi_find_request_by_msgid(ld, lm->lm_msgid)) != NULL &&
        lr->lr_outrefcnt > 0)) {
     LDAP_MUTEX_UNLOCK(ld, LDAP_RESP_LOCK);
-    LDAPDebug(LDAP_DEBUG_TRACE, "<= check_response_queue NOT FOUND\n", 0, 0, 0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "<= check_response_queue NOT FOUND\n");
     return (0); /* no message to return */
   }
 
@@ -253,7 +252,7 @@ static int check_response_queue(LDAP* ld, int msgid, int all,
   *result = lm;
   LDAPDebug(LDAP_DEBUG_TRACE,
             "<= check_response_queue returning msgid %d type %d\n",
-            lm->lm_msgid, lm->lm_msgtype, 0);
+            lm->lm_msgid, lm->lm_msgtype);
   return (1); /* a message was found and returned in *result */
 }
 
@@ -276,10 +275,10 @@ static int wait4msg(LDAP* ld, int msgid, int all, int unlock_permitted,
 
 #ifdef LDAP_DEBUG
   if (timeout == NULL) {
-    LDAPDebug(LDAP_DEBUG_TRACE, "wait4msg (infinite timeout)\n", 0, 0, 0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "wait4msg (infinite timeout)\n");
   } else {
     LDAPDebug(LDAP_DEBUG_TRACE, "wait4msg (timeout %ld sec, %ld usec)\n",
-              timeout->tv_sec, (long)timeout->tv_usec, 0);
+              timeout->tv_sec, (long)timeout->tv_usec);
   }
 #endif /* LDAP_DEBUG */
 
@@ -368,7 +367,7 @@ static int wait4msg(LDAP* ld, int msgid, int all, int unlock_permitted,
       if (err == -1) {
         LDAPDebug(LDAP_DEBUG_TRACE,
                   "nsldapi_iostatus_poll returned -1: errno %d\n",
-                  LDAP_GET_ERRNO(ld), 0, 0);
+                  LDAP_GET_ERRNO(ld));
       }
 #endif
 
@@ -422,7 +421,7 @@ static int wait4msg(LDAP* ld, int msgid, int all, int unlock_permitted,
                     "wait4msg: connection 0x%p -"
                     " LDAP_CONNST_CONNECTING ->"
                     " LDAP_CONNST_CONNECTED\n",
-                    lc, 0, 0);
+                    lc);
         }
 
         if (lc->lconn_status != LDAP_CONNST_CONNECTED) {
@@ -484,8 +483,7 @@ static int wait4msg(LDAP* ld, int msgid, int all, int unlock_permitted,
         break;
       }
 
-      LDAPDebug(LDAP_DEBUG_TRACE, "wait4msg:  %ld secs to go\n", tv.tv_sec, 0,
-                0);
+      LDAPDebug(LDAP_DEBUG_TRACE, "wait4msg:  %ld secs to go\n", tv.tv_sec);
       start_time = tmp_time;
     }
   }
@@ -522,7 +520,7 @@ static int read1msg(LDAP* ld, int msgid, int all, Sockbuf* sb, LDAPConn** lcp,
   int manufactured_result = 0;
   LDAPConn* lc = *lcp;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "read1msg\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "read1msg\n");
 
   message_can_be_returned = 1; /* the usual case... */
 
@@ -580,7 +578,7 @@ static int read1msg(LDAP* ld, int msgid, int all, Sockbuf* sb, LDAPConn** lcp,
     lr = NULL;
   } else if ((lr = nsldapi_find_request_by_msgid(ld, id)) == NULL) {
     LDAPDebug(LDAP_DEBUG_ANY,
-              "no request for response with msgid %d (tossing)\n", id, 0, 0);
+              "no request for response with msgid %d (tossing)\n", id);
     ber_free(ber, 1);
     return (NSLDAPI_RESULT_NOT_FOUND); /* continue looking */
   }
@@ -592,9 +590,9 @@ static int read1msg(LDAP* ld, int msgid, int all, Sockbuf* sb, LDAPConn** lcp,
     return (NSLDAPI_RESULT_ERROR);
   }
   LDAPDebug(LDAP_DEBUG_TRACE, "got %s msgid %d, original id %d\n",
-            (tag == LDAP_RES_SEARCH_ENTRY)
-                ? "ENTRY"
-                : (tag == LDAP_RES_SEARCH_REFERENCE) ? "REFERENCE" : "RESULT",
+            (tag == LDAP_RES_SEARCH_ENTRY)       ? "ENTRY"
+            : (tag == LDAP_RES_SEARCH_REFERENCE) ? "REFERENCE"
+                                                 : "RESULT",
             id, (lr == NULL) ? id : lr->lr_origid);
 
   if (lr != NULL) {
@@ -703,7 +701,7 @@ static int read1msg(LDAP* ld, int msgid, int all, Sockbuf* sb, LDAPConn** lcp,
       if (lr->lr_parent == NULL && NSLDAPI_REQUEST_COMPLETE(lr)) {
         id = lr->lr_msgid;
         tag = lr->lr_res_msgtype;
-        LDAPDebug(LDAP_DEBUG_TRACE, "request %d done\n", id, 0, 0);
+        LDAPDebug(LDAP_DEBUG_TRACE, "request %d done\n", id);
         LDAPDebug(LDAP_DEBUG_TRACE,
                   "res_errno: %d, res_error: <%s>, res_matched: <%s>\n",
                   lr->lr_res_errno, lr->lr_res_error ? lr->lr_res_error : "",
@@ -761,8 +759,9 @@ static int read1msg(LDAP* ld, int msgid, int all, Sockbuf* sb, LDAPConn** lcp,
          * chain of messages).
          */
         foundit = 1;
-      } else if (all == 0 || (new->lm_msgtype != LDAP_RES_SEARCH_REFERENCE &&
-                              new->lm_msgtype != LDAP_RES_SEARCH_ENTRY)) {
+      } else if (all == 0 || (new->lm_msgtype !=
+                              LDAP_RES_SEARCH_REFERENCE&& new->lm_msgtype !=
+                              LDAP_RES_SEARCH_ENTRY)) {
         *result = new;
         LDAP_SET_LDERRNO(ld, LDAP_SUCCESS, NULL, NULL);
         return (tag);
@@ -804,7 +803,7 @@ static int read1msg(LDAP* ld, int msgid, int all, Sockbuf* sb, LDAPConn** lcp,
 
   LDAPDebug(LDAP_DEBUG_TRACE, "adding response 0x%p - id %d type %d", new,
             new->lm_msgid, new->lm_msgtype);
-  LDAPDebug(LDAP_DEBUG_TRACE, " (looking for id %d)\n", msgid, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, " (looking for id %d)\n", msgid);
 
   /*
    * part of a search response - add to end of list of entries
@@ -931,7 +930,7 @@ static void check_for_refs(LDAP* ld, LDAPRequest* lr, BerElement* ber,
   int err, origerr;
   char *errstr, *matcheddn, **v3refs;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "check_for_refs\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "check_for_refs\n");
 
   *chasingcountp = *totalcountp = 0;
 
@@ -1000,13 +999,13 @@ static void check_for_refs(LDAP* ld, LDAPRequest* lr, BerElement* ber,
 
   LDAPDebug(LDAP_DEBUG_TRACE,
             "check_for_refs: new result: msgid %d, res_errno %d, ",
-            lr->lr_msgid, lr->lr_res_errno, 0);
+            lr->lr_msgid, lr->lr_res_errno);
   LDAPDebug(LDAP_DEBUG_TRACE, " res_error <%s>, res_matched <%s>\n",
             lr->lr_res_error ? lr->lr_res_error : "",
-            lr->lr_res_matched ? lr->lr_res_matched : "", 0);
+            lr->lr_res_matched ? lr->lr_res_matched : "");
   LDAPDebug(LDAP_DEBUG_TRACE,
             "check_for_refs: %d new refs(s); chasing %d of them\n",
-            *totalcountp, *chasingcountp, 0);
+            *totalcountp, *chasingcountp);
 }
 
 /* returns an LDAP error code and also sets it in LDAP * */
@@ -1071,7 +1070,7 @@ static void merge_error_info(LDAP* ld, LDAPRequest* parentr, LDAPRequest* lr) {
   }
 
   LDAPDebug(LDAP_DEBUG_TRACE,
-            "merged parent (id %d) error info:  ", parentr->lr_msgid, 0, 0);
+            "merged parent (id %d) error info:  ", parentr->lr_msgid);
   LDAPDebug(LDAP_DEBUG_TRACE, "result lderrno %d, error <%s>, matched <%s>\n",
             parentr->lr_res_errno,
             parentr->lr_res_error ? parentr->lr_res_error : "",
@@ -1166,7 +1165,7 @@ int LDAP_CALL ldap_msgfree(LDAPMessage* lm) {
   LDAPMessage* next;
   int type = 0;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_msgfree\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_msgfree\n");
 
   for (; lm != NULL; lm = next) {
     next = lm->lm_chain;
@@ -1187,7 +1186,7 @@ int ldap_msgdelete(LDAP* ld, int msgid) {
   LDAPMessage *lm, *prev;
   int msgtype;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_msgdelete\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_msgdelete\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (-1); /* punt */

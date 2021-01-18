@@ -885,8 +885,7 @@ int ldap_t61_to_8859(char** bufp, unsigned long* buflenp, int free_input) {
   unsigned long len;
   Couple* cc;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_t61_to_8859 input length: %ld\n", *buflenp,
-            0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_t61_to_8859 input length: %ld\n", *buflenp);
 
   len = *buflenp;
   s = (Byte*)*bufp;
@@ -1740,8 +1739,7 @@ int ldap_8859_to_t61(char** bufp, unsigned long* buflenp, int free_input) {
   unsigned long len;
   Couple* cc;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_8859_to_t61 input length: %ld\n", *buflenp,
-            0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_8859_to_t61 input length: %ld\n", *buflenp);
 
   len = *buflenp;
   s = (Byte*)*bufp;

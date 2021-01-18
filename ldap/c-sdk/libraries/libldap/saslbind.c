@@ -287,7 +287,7 @@ static int nsldapi_sasl_bind_s(LDAP* ld, const char* dn, const char* mechanism,
   int err, msgid;
   LDAPMessage* result;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_sasl_bind_s\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_sasl_bind_s\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -360,7 +360,7 @@ static int nsldapi_sasl_do_bind(LDAP* ld, const char* dn, const char* mechs,
   ccred.bv_len = 0;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "Starting SASL/%s authentication\n",
-            (mechs ? mechs : ""), 0, 0);
+            (mechs ? mechs : ""));
 
   do {
     saslrc = sasl_client_start(ctx, mechs, &prompts,
@@ -368,7 +368,7 @@ static int nsldapi_sasl_do_bind(LDAP* ld, const char* dn, const char* mechs,
 
     LDAPDebug(LDAP_DEBUG_TRACE,
               "Doing step %d of client start for SASL/%s authentication\n",
-              stepnum, (mech ? mech : ""), 0);
+              stepnum, (mech ? mech : ""));
     stepnum++;
 
     if (saslrc == SASL_INTERACT &&
@@ -405,7 +405,7 @@ static int nsldapi_sasl_do_bind(LDAP* ld, const char* dn, const char* mechs,
 
     LDAPDebug(LDAP_DEBUG_TRACE,
               "Doing step %d of bind for SASL/%s authentication\n", stepnum,
-              (mech ? mech : ""), 0);
+              (mech ? mech : ""));
     stepnum++;
 
     /* notify server of a sasl bind step */
@@ -424,16 +424,16 @@ static int nsldapi_sasl_do_bind(LDAP* ld, const char* dn, const char* mechs,
       /* we're done, no need to step */
       if (scred) {
         if (scred->bv_len == 0) { /* MS AD sends back empty screds */
-          LDAPDebug(LDAP_DEBUG_ANY,
-                    "SASL BIND complete - ignoring empty credential response\n",
-                    0, 0, 0);
+          LDAPDebug(
+              LDAP_DEBUG_ANY,
+              "SASL BIND complete - ignoring empty credential response\n");
           ber_bvfree(scred);
         } else {
           /* but server provided us with data! */
           LDAPDebug(LDAP_DEBUG_TRACE,
                     "SASL BIND complete but invalid because server responded "
                     "with credentials - length [%u]\n",
-                    scred->bv_len, 0, 0);
+                    scred->bv_len);
           ber_bvfree(scred);
           LDAP_SET_LDERRNO(ld, LDAP_LOCAL_ERROR, NULL,
                            "Error during SASL handshake - invalid server "
@@ -481,14 +481,14 @@ static int nsldapi_sasl_do_bind(LDAP* ld, const char* dn, const char* mechs,
 
   saslrc = sasl_getprop(ctx, SASL_USERNAME, (const void**)&sasl_username);
   if ((saslrc == SASL_OK) && sasl_username) {
-    LDAPDebug(LDAP_DEBUG_TRACE, "SASL identity: %s\n", sasl_username, 0, 0);
+    LDAPDebug(LDAP_DEBUG_TRACE, "SASL identity: %s\n", sasl_username);
   }
 
   saslrc = sasl_getprop(ctx, SASL_SSF, (const void**)&ssf);
   if (saslrc == SASL_OK) {
     if (ssf && *ssf) {
       LDAPDebug(LDAP_DEBUG_TRACE, "SASL install encryption, for SSF: %lu\n",
-                (unsigned long)*ssf, 0, 0);
+                (unsigned long)*ssf);
       nsldapi_sasl_install(ld, NULL);
     }
   }
@@ -536,7 +536,7 @@ int LDAP_CALL ldap_sasl_bind(LDAP* ld, const char* dn, const char* mechanism,
    * all wrapped up in an LDAPMessage sequence.
    */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_sasl_bind\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_sasl_bind\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -691,7 +691,7 @@ int LDAP_CALL ldap_sasl_interactive_bind_ext_s(
 #  endif
   int rc;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_sasl_interactive_bind_s\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_sasl_interactive_bind_s\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -752,7 +752,7 @@ int LDAP_CALL ldap_parse_sasl_bind_result(LDAP* ld, LDAPMessage* res,
   ber_len_t len;
   char *m, *e;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_parse_sasl_bind_result\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_parse_sasl_bind_result\n");
 
   /*
    * the ldapv3 SASL bind response looks like this:

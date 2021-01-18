@@ -473,7 +473,7 @@ int LDAP_CALL ldap_version(LDAPVersion* ver) {
 LDAP* LDAP_CALL ldap_open(const char* host, int port) {
   LDAP* ld;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_open\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_open\n");
 
   if ((ld = ldap_init(host, port)) == NULL) {
     return (NULL);
@@ -488,7 +488,7 @@ LDAP* LDAP_CALL ldap_open(const char* host, int port) {
 
   LDAP_MUTEX_UNLOCK(ld, LDAP_CONN_LOCK);
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_open successful, ld_host is %s\n",
-            (ld->ld_host == NULL) ? "(null)" : ld->ld_host, 0, 0);
+            (ld->ld_host == NULL) ? "(null)" : ld->ld_host);
 
   return (ld);
 }
@@ -517,14 +517,14 @@ LDAP* LDAP_CALL ldap_init(const char* defhost, int defport) {
     LDAPDebug(LDAP_DEBUG_ANY,
               "ldap_init: port %d is invalid (port numbers must range from 1 "
               "to %d)\n",
-              defport, LDAP_PORT_MAX, 0);
+              defport, LDAP_PORT_MAX);
 #if !defined(macintosh) && !defined(DOS) && !defined(BEOS)
     errno = EINVAL;
 #endif
     return (NULL);
   }
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_init\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_init\n");
 
   if ((ld = (LDAP*)NSLDAPI_MALLOC(sizeof(struct ldap))) == NULL) {
     return (NULL);

@@ -114,7 +114,7 @@ static struct ldaperror ldap_errlist[] = {
 char* LDAP_CALL ldap_err2string(int err) {
   int i;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_err2string\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_err2string\n");
 
   for (i = 0; ldap_errlist[i].e_code != -1; i++) {
     if (err == ldap_errlist[i].e_code) return (ldap_errlist[i].e_reason);
@@ -140,7 +140,7 @@ void LDAP_CALL ldap_perror(LDAP* ld, const char* s) {
   char* separator;
   char msg[1024];
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_perror\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_perror\n");
 
   if (s == NULL) {
     s = separator = "";
@@ -263,7 +263,7 @@ int LDAP_CALL ldap_parse_result(LDAP* ld, LDAPMessage* res, int* errcodep,
   char *m, *e;
   m = e = NULL;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_parse_result\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_parse_result\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) ||
       !NSLDAPI_VALID_LDAPMESSAGE_POINTER(res)) {

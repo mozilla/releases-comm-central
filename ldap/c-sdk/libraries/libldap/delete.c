@@ -58,7 +58,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 int LDAP_CALL ldap_delete(LDAP* ld, const char* dn) {
   int msgid;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_delete\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_delete\n");
 
   if (ldap_delete_ext(ld, dn, NULL, NULL, &msgid) == LDAP_SUCCESS) {
     return (msgid);
@@ -78,7 +78,7 @@ int LDAP_CALL ldap_delete_ext(LDAP* ld, const char* dn,
    * DelRequet ::= DistinguishedName,
    */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_delete_ext\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_delete_ext\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);

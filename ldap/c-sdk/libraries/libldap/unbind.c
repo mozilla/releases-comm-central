@@ -52,7 +52,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 #include "ldap-int.h"
 
 int LDAP_CALL ldap_unbind(LDAP* ld) {
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_unbind\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_unbind\n");
 
   return (ldap_ld_free(ld, NULL, NULL, 1));
 }
@@ -171,7 +171,7 @@ int nsldapi_send_unbind(LDAP* ld, Sockbuf* sb, LDAPControl** serverctrls,
   BerElement* ber;
   int err, msgid;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_send_unbind\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_send_unbind\n");
 
   /* create a message to send */
   if ((err = nsldapi_alloc_ber_with_options(ld, &ber)) != LDAP_SUCCESS) {

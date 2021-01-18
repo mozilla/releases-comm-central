@@ -168,7 +168,7 @@ int nsldapi_url_parse(const char* url, LDAPURLDesc** ludpp, int dn_required) {
   char *urlcopy, *attrs, *scope, *extensions = NULL, *p, *q;
   int enclosed, secure, i, nattrs, at_start;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_url_parse(%s)\n", url, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_url_parse(%s)\n", url);
 
   if (url == NULL || ludpp == NULL) {
     return (LDAP_URL_ERR_PARAM);

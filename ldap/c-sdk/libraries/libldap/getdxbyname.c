@@ -99,7 +99,7 @@ char** nsldapi_getdxbyname(char* domain) {
   char** dxs;
   int rc;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_getdxbyname( %s )\n", domain, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_getdxbyname( %s )\n", domain);
 
   memset(buf, 0, sizeof(buf));
 

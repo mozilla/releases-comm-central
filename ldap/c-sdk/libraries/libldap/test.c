@@ -1055,13 +1055,10 @@ main(
             }
           }
           printf("\n\t scope: %s\n",
-                 ludp->lud_scope == LDAP_SCOPE_ONELEVEL
-                     ? "ONE"
-                     : ludp->lud_scope == LDAP_SCOPE_BASE
-                           ? "BASE"
-                           : ludp->lud_scope == LDAP_SCOPE_SUBTREE
-                                 ? "SUB"
-                                 : "**invalid**");
+                 ludp->lud_scope == LDAP_SCOPE_ONELEVEL  ? "ONE"
+                 : ludp->lud_scope == LDAP_SCOPE_BASE    ? "BASE"
+                 : ludp->lud_scope == LDAP_SCOPE_SUBTREE ? "SUB"
+                                                         : "**invalid**");
           printf("\tfilter: <%s>\n", ludp->lud_filter);
           ldap_free_urldesc(ludp);
         }

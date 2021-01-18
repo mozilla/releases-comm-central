@@ -94,7 +94,7 @@ int LDAP_CALL ldap_search(LDAP* ld, const char* base, int scope,
                           const char* filter, char** attrs, int attrsonly) {
   int msgid;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_search\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_search\n");
 
   if (ldap_search_ext(ld, base, scope, filter, attrs, attrsonly, NULL, NULL,
                       NULL, -1, &msgid) == LDAP_SUCCESS) {
@@ -142,7 +142,7 @@ static int nsldapi_search(LDAP* ld, const char* base, int scope,
   int rc, rc_key;
   unsigned long key; /* XXXmcs: memcache */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_search_ext\n", 0, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "ldap_search_ext\n");
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -414,7 +414,7 @@ static int put_filter(BerElement* ber, char* str) {
    * Note: tags in a choice are always explicit
    */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "put_filter \"%s\"\n", str, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "put_filter \"%s\"\n", str);
 
   parens = 0;
   while (*str) {
@@ -424,7 +424,7 @@ static int put_filter(BerElement* ber, char* str) {
         parens++;
         switch (*str) {
           case '&':
-            LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: AND\n", 0, 0, 0);
+            LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: AND\n");
 
             if ((str = put_complex_filter(ber, str, LDAP_FILTER_AND, 0)) ==
                 NULL)
@@ -434,7 +434,7 @@ static int put_filter(BerElement* ber, char* str) {
             break;
 
           case '|':
-            LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: OR\n", 0, 0, 0);
+            LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: OR\n");
 
             if ((str = put_complex_filter(ber, str, LDAP_FILTER_OR, 0)) == NULL)
               return (-1);
@@ -443,7 +443,7 @@ static int put_filter(BerElement* ber, char* str) {
             break;
 
           case '!':
-            LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: NOT\n", 0, 0, 0);
+            LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: NOT\n");
 
             if ((str = put_complex_filter(ber, str, LDAP_FILTER_NOT, 1)) ==
                 NULL)
@@ -453,7 +453,7 @@ static int put_filter(BerElement* ber, char* str) {
             break;
 
           default:
-            LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: simple\n", 0, 0, 0);
+            LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: simple\n");
 
             balance = 1;
             escape = 0;
@@ -485,7 +485,7 @@ static int put_filter(BerElement* ber, char* str) {
         break;
 
       case ')':
-        LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: end\n", 0, 0, 0);
+        LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: end\n");
         if (ber_printf(ber, "]") == -1) return (-1);
         str++;
         parens--;
@@ -496,7 +496,7 @@ static int put_filter(BerElement* ber, char* str) {
         break;
 
       default: /* assume it's a simple type=value filter */
-        LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: default\n", 0, 0, 0);
+        LDAPDebug(LDAP_DEBUG_TRACE, "put_filter: default\n");
         next = strchr(str, '\0');
         if (put_simple_filter(ber, str) == -1) {
           return (-1);
@@ -517,7 +517,7 @@ static int put_filter_list(BerElement* ber, char* str) {
   char* next;
   char save;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "put_filter_list \"%s\"\n", str, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "put_filter_list \"%s\"\n", str);
 
   while (*str) {
     while (*str && isspace(*str)) str++;
@@ -594,7 +594,7 @@ static int put_simple_filter(BerElement* ber, char* str) {
   char* oid;  /* for v3 extended filter */
   int dnattr; /* for v3 extended filter */
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "put_simple_filter \"%s\"\n", str, 0, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "put_simple_filter \"%s\"\n", str);
 
   rc = -1; /* pessimistic */
 
@@ -778,7 +778,7 @@ static int put_substring_filter(BerElement* ber, char* type, char* val) {
   unsigned long ftype;
   int len;
 
-  LDAPDebug(LDAP_DEBUG_TRACE, "put_substring_filter \"%s=%s\"\n", type, val, 0);
+  LDAPDebug(LDAP_DEBUG_TRACE, "put_substring_filter \"%s=%s\"\n", type, val);
 
   if (ber_printf(ber, "t{s{", LDAP_FILTER_SUBSTRINGS, type) == -1) {
     return (-1);
