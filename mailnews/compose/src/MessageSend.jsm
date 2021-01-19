@@ -761,9 +761,9 @@ MessageSend.prototype = {
       if (line == "") {
         bodyLine = true;
       }
-      fileWriter.write(new TextEncoder().encode(`${line}\r\n`));
+      await fileWriter.write(new TextEncoder().encode(`${line}\r\n`));
     }
-    fileWriter.close();
+    await fileWriter.close();
     return deliveryFile;
   },
 

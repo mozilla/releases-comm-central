@@ -44,6 +44,7 @@ add_task(async function testBcc() {
   fields.to = "Nobody <to@tinderbox.invalid>";
   fields.subject = "Test bcc";
   fields.bcc = "bcc@tinderbox.invalid";
+  fields.body = "A\r\nBcc: \r\n mail body\r\n.";
 
   let params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
@@ -74,6 +75,7 @@ add_task(async function testBcc() {
   Assert.ok(gServer._daemon.post.includes("Subject: Test bcc"));
   // Check that bcc header doesn't exist in the sent mail.
   Assert.ok(!gServer._daemon.post.includes("Bcc: bcc@tinderbox.invalid"));
+  Assert.ok(gServer._daemon.post.includes(fields.body));
 
   let msgData = mailTestUtils.loadMessageToString(
     gSentFolder,
@@ -82,4 +84,5 @@ add_task(async function testBcc() {
   Assert.ok(msgData.includes("Subject: Test bcc"));
   // Check that bcc header exists in the mail copy.
   Assert.ok(msgData.includes("Bcc: bcc@tinderbox.invalid"));
+  Assert.ok(msgData.includes(fields.body));
 });
