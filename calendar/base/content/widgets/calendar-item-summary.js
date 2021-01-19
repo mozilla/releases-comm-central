@@ -114,90 +114,7 @@
             <html:th class="reminder-label">
               &read.only.reminder.label;
             </html:th>
-            <html:td>
-              <hbox align="center">
-                <menulist class="item-alarm"
-                          disable-on-readonly="true">
-                  <menupopup>
-                    <menuitem label="&event.reminder.none.label;"
-                              selected="true"
-                              value="none"/>
-                    <menuseparator/>
-                    <menuitem label="&event.reminder.0minutes.before.label;"
-                              length="0"
-                              origin="before"
-                              relation="START"
-                              unit="minutes"/>
-                    <menuitem label="&event.reminder.5minutes.before.label;"
-                              length="5"
-                              origin="before"
-                              relation="START"
-                              unit="minutes"/>
-                    <menuitem label="&event.reminder.15minutes.before.label;"
-                              length="15"
-                              origin="before"
-                              relation="START"
-                              unit="minutes"/>
-                    <menuitem label="&event.reminder.30minutes.before.label;"
-                              length="30"
-                              origin="before"
-                              relation="START"
-                              unit="minutes"/>
-                    <menuseparator/>
-                    <menuitem label="&event.reminder.1hour.before.label;"
-                              length="1"
-                              origin="before"
-                              relation="START"
-                              unit="hours"/>
-                    <menuitem label="&event.reminder.2hours.before.label;"
-                              length="2"
-                              origin="before"
-                              relation="START"
-                              unit="hours"/>
-                    <menuitem label="&event.reminder.12hours.before.label;"
-                              length="12"
-                              origin="before"
-                              relation="START"
-                              unit="hours"/>
-                    <menuseparator/>
-                    <menuitem label="&event.reminder.1day.before.label;"
-                              length="1"
-                              origin="before"
-                              relation="START"
-                              unit="days"/>
-                    <menuitem label="&event.reminder.2days.before.label;"
-                              length="2"
-                              origin="before"
-                              relation="START"
-                              unit="days"/>
-                    <menuitem label="&event.reminder.1week.before.label;"
-                              length="7"
-                              origin="before"
-                              relation="START"
-                              unit="days"/>
-                    <menuseparator/>
-                    <menuitem class="reminder-custom-menuitem"
-                              label="&event.reminder.custom.label;"
-                              value="custom"/>
-                  </menupopup>
-                </menulist>
-                <hbox class="reminder-details">
-                  <hbox class="reminder-icon-box alarm-icons-box"
-                        align="center"/>
-                  <!-- TODO oncommand? onkeypress? -->
-                  <label class="reminder-multiple-alarms-label text-link"
-                         hidden="true"
-                         value="&event.reminder.multiple.label;"
-                         disable-on-readonly="true"
-                         flex="1"
-                         hyperlink="true"/>
-                  <label class="reminder-single-alarms-label text-link"
-                         hidden="true"
-                         disable-on-readonly="true"
-                         flex="1"
-                         hyperlink="true"/>
-                </hbox>
-              </hbox>
+            <html:td class="reminder-details">
             </html:td>
           </html:tr>
           <html:tr class="attachments-row item-attachments-row" hidden="hidden" >
@@ -278,6 +195,100 @@
       ];
     }
 
+    static get alarmMenulistFragment() {
+      let frag = document.importNode(
+        MozXULElement.parseXULToFragment(
+          `<hbox align="center">
+            <menulist class="item-alarm"
+                      disable-on-readonly="true">
+              <menupopup>
+                <menuitem label="&event.reminder.none.label;"
+                          selected="true"
+                          value="none"/>
+                <menuseparator/>
+                <menuitem label="&event.reminder.0minutes.before.label;"
+                          length="0"
+                          origin="before"
+                          relation="START"
+                          unit="minutes"/>
+                <menuitem label="&event.reminder.5minutes.before.label;"
+                          length="5"
+                          origin="before"
+                          relation="START"
+                          unit="minutes"/>
+                <menuitem label="&event.reminder.15minutes.before.label;"
+                          length="15"
+                          origin="before"
+                          relation="START"
+                          unit="minutes"/>
+                <menuitem label="&event.reminder.30minutes.before.label;"
+                          length="30"
+                          origin="before"
+                          relation="START"
+                          unit="minutes"/>
+                <menuseparator/>
+                <menuitem label="&event.reminder.1hour.before.label;"
+                          length="1"
+                          origin="before"
+                          relation="START"
+                          unit="hours"/>
+                <menuitem label="&event.reminder.2hours.before.label;"
+                          length="2"
+                          origin="before"
+                          relation="START"
+                          unit="hours"/>
+                <menuitem label="&event.reminder.12hours.before.label;"
+                          length="12"
+                          origin="before"
+                          relation="START"
+                          unit="hours"/>
+                <menuseparator/>
+                <menuitem label="&event.reminder.1day.before.label;"
+                          length="1"
+                          origin="before"
+                          relation="START"
+                          unit="days"/>
+                <menuitem label="&event.reminder.2days.before.label;"
+                          length="2"
+                          origin="before"
+                          relation="START"
+                          unit="days"/>
+                <menuitem label="&event.reminder.1week.before.label;"
+                          length="7"
+                          origin="before"
+                          relation="START"
+                          unit="days"/>
+                <menuseparator/>
+                <menuitem class="reminder-custom-menuitem"
+                          label="&event.reminder.custom.label;"
+                          value="custom"/>
+              </menupopup>
+            </menulist>
+            <hbox class="reminder-details">
+              <hbox class="reminder-icon-box alarm-icons-box"
+                    align="center"/>
+              <!-- TODO oncommand? onkeypress? -->
+              <label class="reminder-multiple-alarms-label text-link"
+                     hidden="true"
+                     value="&event.reminder.multiple.label;"
+                     disable-on-readonly="true"
+                     flex="1"
+                     hyperlink="true"/>
+              <label class="reminder-single-alarms-label text-link"
+                     hidden="true"
+                     disable-on-readonly="true"
+                     flex="1"
+                     hyperlink="true"/>
+            </hbox>
+          </hbox>`,
+          CalendarItemSummary.entities
+        ),
+        true
+      );
+      Object.defineProperty(this, "alarmMenulistFragment", { value: frag });
+      return frag;
+    }
+
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasConnected) {
         return;
@@ -294,21 +305,7 @@
       this.mAttendeesInRow = null;
       this.mMaxLabelWidth = null;
 
-      this.mAlarmsMenu = this.querySelector(".item-alarm");
       this.mIsToDoItem = null;
-      this.mLastAlarmSelection = 0;
-
-      this.mAlarmsMenu.addEventListener("command", () => {
-        this.updateReminder();
-      });
-
-      this.querySelector(".reminder-multiple-alarms-label").addEventListener("click", () => {
-        this.updateReminder();
-      });
-
-      this.querySelector(".reminder-single-alarms-label").addEventListener("click", () => {
-        this.updateReminder();
-      });
 
       this.querySelector(".item-organizer-label").addEventListener("click", () => {
         sendMailToOrganizer(this.mItem);
@@ -421,18 +418,45 @@
         item.calendar &&
         item.calendar.getProperty("capabilities.alarms.oninvitations.supported") !== false;
 
-      if (hasAlarms) {
-        this.mLastAlarmSelection = loadReminders(alarms, this.mAlarmsMenu, this.mItem.calendar);
-      }
-
       // For invitations where the reminders can be edited, show a menu to
       // allow setting the reminder, because you can't edit an invitation in
       // the edit item dialog. For all other cases, show a plain text
       // representation of the reminders but only if there are any.
       if (shouldShowReminderMenu) {
+        if (!this.mAlarmsMenu) {
+          // Attempt to vertically align the label. It's not perfect but it's the best we've got.
+          let reminderLabel = this.querySelector(".reminder-label");
+          reminderLabel.style.verticalAlign = "middle";
+          let reminderCell = this.querySelector(".reminder-details");
+          while (reminderCell.lastChild) {
+            reminderCell.lastChild.remove();
+          }
+
+          // Add the menulist dynamically only if it's going to be used. This removes a
+          // significant performance penalty in most use cases.
+          reminderCell.append(this.constructor.alarmMenulistFragment.cloneNode(true));
+          this.mAlarmsMenu = this.querySelector(".item-alarm");
+          this.mLastAlarmSelection = 0;
+
+          this.mAlarmsMenu.addEventListener("command", () => {
+            this.updateReminder();
+          });
+
+          this.querySelector(".reminder-multiple-alarms-label").addEventListener("click", () => {
+            this.updateReminder();
+          });
+
+          this.querySelector(".reminder-single-alarms-label").addEventListener("click", () => {
+            this.updateReminder();
+          });
+        }
+
+        if (hasAlarms) {
+          this.mLastAlarmSelection = loadReminders(alarms, this.mAlarmsMenu, this.mItem.calendar);
+        }
         this.updateReminder();
       } else if (canShowReadOnlyReminders) {
-        this.updateReminderReadOnly();
+        this.updateReminderReadOnly(alarms);
       }
 
       if (shouldShowReminderMenu || canShowReadOnlyReminders) {
@@ -505,27 +529,29 @@
      * Updates the reminder to display the set reminders as read-only text.
      * Depends on updateReminder() to get the text to display.
      */
-    updateReminderReadOnly() {
-      this.updateReminder();
-
-      let item = this.mAlarmsMenu.getItemAtIndex(this.mAlarmsMenu.selectedIndex);
-      let txt = "";
-
-      if (item.value === "custom") {
-        let multiLabel = this.querySelector(".reminder-multiple-alarms-label");
-        let label = !multiLabel.hidden
-          ? multiLabel
-          : this.querySelector(".reminder-single-alarms-label");
-        txt = label.value;
-      } else {
-        txt = item.label;
+    updateReminderReadOnly(alarms) {
+      let reminderLabel = this.querySelector(".reminder-label");
+      reminderLabel.style.verticalAlign = null;
+      let reminderCell = this.querySelector(".reminder-details");
+      while (reminderCell.lastChild) {
+        reminderCell.lastChild.remove();
       }
+      delete this.mAlarmsMenu;
 
-      let hbox = this.querySelector(".reminder-row > td > hbox");
-      while (hbox.firstChild) {
-        hbox.firstChild.remove();
+      switch (alarms.length) {
+        case 0:
+          reminderCell.textContent = "";
+          break;
+        case 1:
+          reminderCell.textContent = alarms[0].toString(this.item);
+          break;
+        default:
+          for (let a of alarms) {
+            reminderCell.appendChild(document.createTextNode(a.toString(this.item)));
+            reminderCell.appendChild(document.createElement("br"));
+          }
+          break;
       }
-      hbox.appendChild(document.createTextNode(txt));
     }
 
     /**

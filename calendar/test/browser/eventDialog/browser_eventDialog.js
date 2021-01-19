@@ -314,9 +314,8 @@ add_task(async function testEventReminderDisplay() {
       let doc = event.window.document;
       let row = doc.querySelector(".reminder-row");
 
-      Assert.ok(row.querySelector("menulist") == null, "reminder dropdown is not available");
       Assert.ok(
-        row.textContent.includes("1 week before"),
+        row.textContent.includes("7 days before"),
         "the details are shown when a reminder is set"
       );
       EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
