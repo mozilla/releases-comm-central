@@ -837,6 +837,7 @@ var FeedUtils = {
 
     if (aInvalidate == "row") {
       let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
+      win.gFolderTreeView.clearFolderCacheProperty(aFolder, "properties");
       win.gFolderTreeView._tree.invalidateRow(row);
     }
   },
@@ -914,6 +915,7 @@ var FeedUtils = {
         win.gFolderTreeView._tree.invalidate();
       } else {
         let row = win.gFolderTreeView.getIndexOfFolder(aFolder);
+        win.gFolderTreeView.clearFolderCacheProperty(aFolder, "properties");
         win.gFolderTreeView._tree.invalidateRow(row);
       }
     }

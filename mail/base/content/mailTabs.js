@@ -337,6 +337,7 @@ var mailTabType = {
 
             // Cache it for folderpane.
             gFolderTreeView.setFolderCacheProperty(folder, "favicon", iconUrl);
+            gFolderTreeView.clearFolderCacheProperty(folder, "properties");
             let row = gFolderTreeView.getIndexOfFolder(folder);
             gFolderTreeView._tree.invalidateRow(row);
           };

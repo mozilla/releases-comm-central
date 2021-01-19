@@ -108,6 +108,7 @@ var gSelectVirtual = {
       this._selectedList.add(folder);
     }
 
+    gFolderTreeView.clearFolderCacheProperty(folder, "properties");
     gFolderTreeView._tree.invalidateRow(aRow);
   },
 

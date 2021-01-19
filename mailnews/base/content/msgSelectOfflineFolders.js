@@ -115,6 +115,7 @@ var gSelectOffline = {
     }
 
     folder.toggleFlag(Ci.nsMsgFolderFlags.Offline);
+    gFolderTreeView.clearFolderCacheProperty(folder, "properties");
     gFolderTreeView._tree.invalidateRow(aRow);
   },
 

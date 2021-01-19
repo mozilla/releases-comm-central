@@ -1166,6 +1166,7 @@ var gFolderTreeView = {
 
     let callback = iconUrl => {
       this.setFolderCacheProperty(folder, "favicon", iconUrl);
+      this.clearFolderCacheProperty(folder, "properties");
       this._tree.invalidateRow(aRow);
     };
 
@@ -1316,6 +1317,10 @@ var gFolderTreeView = {
       // Notify the tree of changes.
       if (this._tree) {
         this._tree.rowCountChanged(aIndex + 1, this._rowMap.length - oldCount);
+        this.clearFolderCacheProperty(
+          this._rowMap[aIndex]._folder,
+          "properties"
+        );
         this._tree.invalidateRow(aIndex);
       }
 
@@ -1365,6 +1370,7 @@ var gFolderTreeView = {
     // Notify the tree of changes.
     if (this._tree) {
       this._tree.rowCountChanged(aIndex + 1, -1 * count);
+      this.clearFolderCacheProperty(this._rowMap[aIndex]._folder, "properties");
       this._tree.invalidateRow(aIndex);
     }
   },
@@ -1964,6 +1970,27 @@ var gFolderTreeView = {
     }
 
     return this._cache[aFolder.URI][aProperty];
+  },
+
+  /**
+   * Delete a previously cached property if present.
+   *
+   * @param {nsIMsgFolder} folder - The folder with the cached property.
+   * @param {string} property - The property name.
+   */
+  clearFolderCacheProperty(folder, property) {
+    if (!folder || !property) {
+      return;
+    }
+
+    if (
+      !(folder.URI in this._cache) ||
+      !(property in this._cache[folder.URI])
+    ) {
+      return;
+    }
+
+    delete this._cache[folder.URI][property];
   },
 
   /**
@@ -2600,6 +2627,7 @@ var gFolderTreeView = {
    */
   _addChildToView(aParent, aParentIndex, aNewChild) {
     if (!aParent.open) {
+      this.clearFolderCacheProperty(aParent, "properties");
       this._tree.invalidateRow(aParentIndex);
       return;
     }
@@ -2797,6 +2825,7 @@ var gFolderTreeView = {
     }
     this._rowMap.splice(index, kidCount);
     this._tree.rowCountChanged(index, -1 * kidCount);
+    this.clearFolderCacheProperty(aItem, "properties");
     this._tree.invalidateRow(index);
 
     if (aParentItem === null && MailServices.accounts.accounts.length === 0) {
@@ -2830,6 +2859,7 @@ var gFolderTreeView = {
         index = this.getIndexOfFolder(folder);
       }
       if (index != null) {
+        this.clearFolderCacheProperty(folder, "properties");
         this._tree.invalidateRow(index);
       }
     }
@@ -2838,6 +2868,7 @@ var gFolderTreeView = {
   OnItemBoolPropertyChanged(aItem, aProperty, aOld, aNew) {
     let index = this.getIndexOfFolder(aItem);
     if (index != null) {
+      this.clearFolderCacheProperty(aItem, "properties");
       this._tree.invalidateRow(index);
     }
   },
@@ -2845,6 +2876,7 @@ var gFolderTreeView = {
   OnItemUnicharPropertyChanged(aItem, aProperty, aOld, aNew) {
     let index = this.getIndexOfFolder(aItem);
     if (index != null) {
+      this.clearFolderCacheProperty(aItem, "properties");
       this._tree.invalidateRow(index);
     }
   },
@@ -2853,6 +2885,7 @@ var gFolderTreeView = {
   OnItemEvent(aFolder, aEvent) {
     let index = this.getIndexOfFolder(aFolder);
     if (index != null) {
+      this.clearFolderCacheProperty(aFolder, "properties");
       this._tree.invalidateRow(index);
     }
   },
@@ -3101,14 +3134,24 @@ FtvItem.prototype = {
       return "";
     }
 
-    // From folderUtils.jsm
+    // Return the cached properties string if we have it.
+    let cachedProperties = gFolderTreeView.getFolderCacheProperty(
+      this._folder,
+      "properties"
+    );
+    if (cachedProperties) {
+      return cachedProperties;
+    }
+
+    // From folderUtils.jsm.
     let properties = getFolderProperties(this._folder, this.open);
     if (this._folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
       properties += " specialFolder-Smart";
-      // a second possibility for customized smart folders
+      // A second possibility for customized smart folders.
       properties += " specialFolder-" + this._folder.name.replace(/\s+/g, "");
     }
-    // if there is a smartFolder name property, add it
+
+    // If there is a smartFolder name property, add it.
     let smartFolderName = getSmartFolderName(this._folder);
     if (smartFolderName) {
       properties += " specialFolder-" + smartFolderName.replace(/\s+/g, "");
@@ -3125,12 +3168,15 @@ FtvItem.prototype = {
 
     if (FeedMessageHandler.isFeedFolder(this._folder)) {
       properties += FeedUtils.getFolderProperties(this._folder, null);
-      gFolderTreeView.setFolderCacheProperty(
-        this._folder,
-        "properties",
-        properties
-      );
     }
+
+    // Store the full properties string in the cache so we don't need to
+    // generate it again if the row hasn't been invalidated.
+    gFolderTreeView.setFolderCacheProperty(
+      this._folder,
+      "properties",
+      properties
+    );
 
     return properties;
   },
@@ -3736,6 +3782,9 @@ var gFolderTreeController = {
       // Remove the stored value from the json map if present.
       gFolderTreeView._removeCustomColor(folder.URI);
 
+      // Remove the cached folder properties.
+      gFolderTreeView.clearFolderCacheProperty(folder, "properties");
+
       // Force the folder update to see the new color.
       gFolderTreeView._tree.invalidateRow(
         gFolderTreeView.getIndexOfFolder(folder)
@@ -3749,6 +3798,9 @@ var gFolderTreeController = {
     let selector = `customColor-${newColor.replace("#", "")}`;
     // Add the inline CSS styling.
     gFolderTreeView.folderColorPreview.textContent = `treechildren::-moz-tree-image(folderNameCol, ${selector}) {fill: ${newColor};}`;
+
+    // Remove the cached folder properties.
+    gFolderTreeView.clearFolderCacheProperty(folder, "properties");
 
     // Force the folder update to set the new color.
     gFolderTreeView._tree.invalidateRow(
@@ -3773,6 +3825,9 @@ var gFolderTreeController = {
 
     // Store the new color in the json map.
     gFolderTreeView._addCustomColor(folder.URI, newColor);
+
+    // Remove the cached folder properties.
+    gFolderTreeView.clearFolderCacheProperty(folder, "properties");
 
     // Force the folder update to set the new color.
     gFolderTreeView._tree.invalidateRow(
