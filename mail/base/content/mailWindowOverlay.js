@@ -906,22 +906,27 @@ function showCommandInSpecialFolder(aCommandIds, aFolderFlag) {
  * @param aMenuItem the menu item to adjust
  */
 function initMoveToFolderAgainMenu(aMenuItem) {
-  var lastFolderURI = Services.prefs.getCharPref(
+  let lastFolderURI = Services.prefs.getCharPref(
     "mail.last_msg_movecopy_target_uri"
   );
-  var isMove = Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move");
-  if (lastFolderURI) {
-    var destMsgFolder = MailUtils.getOrCreateFolder(lastFolderURI);
-    var bundle = document.getElementById("bundle_messenger");
-    var stringName = isMove ? "moveToFolderAgain" : "copyToFolderAgain";
-    aMenuItem.label = bundle.getFormattedString(
-      stringName,
-      [destMsgFolder.prettyName],
-      1
-    );
-    // This gives us moveToFolderAgainAccessKey and copyToFolderAgainAccessKey.
-    aMenuItem.accesskey = bundle.getString(stringName + "AccessKey");
+
+  if (!lastFolderURI) {
+    return;
   }
+  let destMsgFolder = MailUtils.getExistingFolder(lastFolderURI);
+  if (!destMsgFolder) {
+    return;
+  }
+  let bundle = document.getElementById("bundle_messenger");
+  let isMove = Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move");
+  let stringName = isMove ? "moveToFolderAgain" : "copyToFolderAgain";
+  aMenuItem.label = bundle.getFormattedString(
+    stringName,
+    [destMsgFolder.prettyName],
+    1
+  );
+  // This gives us moveToFolderAgainAccessKey and copyToFolderAgainAccessKey.
+  aMenuItem.accesskey = bundle.getString(stringName + "AccessKey");
 }
 
 function InitViewHeadersMenu() {
