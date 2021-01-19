@@ -1120,7 +1120,8 @@ nsresult nsMsgSearchDBView::GetFolderFromMsgURI(const char* aMsgURI,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv = msgMessageService->MessageURIToMsgHdr(aMsgURI, getter_AddRefs(msgHdr));
+  rv = msgMessageService->MessageURIToMsgHdr(nsDependentCString(aMsgURI),
+                                             getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
 
   return msgHdr->GetFolder(aFolder);

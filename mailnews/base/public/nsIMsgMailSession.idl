@@ -73,6 +73,6 @@ interface nsIMsgMailSession : nsISupports {
   void RemoveMsgWindow(in nsIMsgWindow msgWindow);
   boolean IsFolderOpenInWindow(in nsIMsgFolder folder);
 
-  string ConvertMsgURIToMsgURL(in string  aURI, in nsIMsgWindow aMsgWindow);
+  AUTF8String ConvertMsgURIToMsgURL(in AUTF8String aURI, in nsIMsgWindow aMsgWindow);
   nsIFile getDataFilesDir(in string dirName);
 };

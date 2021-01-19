@@ -47,14 +47,14 @@ NS_IMETHODIMP JaBaseCppUrl::IsUrlType(uint32_t type, bool* isType) {
 }
 
 // nsIMsgMessageUrl implementation
-NS_IMETHODIMP JaBaseCppUrl::GetUri(char** aUri) {
+NS_IMETHODIMP JaBaseCppUrl::GetUri(nsACString& aUri) {
   if (!mUri.IsEmpty())
-    *aUri = ToNewCString(mUri);
+    aUri = mUri;
   else
     return NS_ERROR_NOT_INITIALIZED;
   return NS_OK;
 }
-NS_IMETHODIMP JaBaseCppUrl::SetUri(const char* aUri) {
+NS_IMETHODIMP JaBaseCppUrl::SetUri(const nsACString& aUri) {
   mUri = aUri;
   return NS_OK;
 }

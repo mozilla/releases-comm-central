@@ -284,7 +284,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
                   do_QueryInterface(m_runningUrl);
               if (msgUrl) {
                 msgUrl->SetOriginalSpec(uri.get());
-                msgUrl->SetUri(uri.get());
+                msgUrl->SetUri(uri);
 
                 uint64_t msgOffset;
                 nextMsg->GetMessageOffset(&msgOffset);

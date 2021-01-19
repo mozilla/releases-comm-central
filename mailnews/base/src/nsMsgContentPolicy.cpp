@@ -607,7 +607,7 @@ void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
   }
 
   nsCString resourceURI;
-  rv = msgUrl->GetUri(getter_Copies(resourceURI));
+  rv = msgUrl->GetUri(resourceURI);
   NS_ENSURE_SUCCESS_VOID(rv);
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(
@@ -665,7 +665,7 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
   }
 
   nsCString resourceURI;
-  rv = msgUrl->GetUri(getter_Copies(resourceURI));
+  rv = msgUrl->GetUri(resourceURI);
   NS_ENSURE_SUCCESS_VOID(rv);
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl(

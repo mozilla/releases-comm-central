@@ -159,7 +159,7 @@ nsresult GetMsgDBHdrFromURI(const char* uri, nsIMsgDBHdr** msgHdr) {
   NS_ENSURE_SUCCESS(rv, rv);
   if (!msgMessageService) return NS_ERROR_FAILURE;
 
-  return msgMessageService->MessageURIToMsgHdr(uri, msgHdr);
+  return msgMessageService->MessageURIToMsgHdr(nsDependentCString(uri), msgHdr);
 }
 
 // Where should this live? It's a utility used to convert a string priority,
@@ -887,7 +887,7 @@ nsresult IsRSSArticle(nsIURI* aMsgURI, bool* aIsRSSArticle) {
   if (NS_FAILED(rv)) return rv;
 
   nsCString resourceURI;
-  msgUrl->GetUri(getter_Copies(resourceURI));
+  msgUrl->GetUri(resourceURI);
 
   // get the msg service for this URI
   nsCOMPtr<nsIMsgMessageService> msgService;
@@ -897,8 +897,7 @@ nsresult IsRSSArticle(nsIURI* aMsgURI, bool* aIsRSSArticle) {
   // Check if the message is a feed message, regardless of folder.
   uint32_t flags;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  rv =
-      msgService->MessageURIToMsgHdr(resourceURI.get(), getter_AddRefs(msgHdr));
+  rv = msgService->MessageURIToMsgHdr(resourceURI, getter_AddRefs(msgHdr));
   NS_ENSURE_SUCCESS(rv, rv);
   msgHdr->GetFlags(&flags);
   if (flags & nsMsgMessageFlags::FeedMsg) {

@@ -62,7 +62,7 @@ interface nsIMessenger : nsISupports {
      *                     a file picker when saving as a file. If true, no
      *                     file picker will be shown.
      */
-    void saveAs(in ACString aURI, in boolean aAsFile,
+    void saveAs(in AUTF8String aURI, in boolean aAsFile,
                 in nsIMsgIdentity aIdentity, in AString aMsgFilename,
                 [optional] in boolean aBypassFilePicker);
 
@@ -74,7 +74,7 @@ interface nsIMessenger : nsISupports {
      * @param messageUriArray uris of the messages to save
      */
     void saveMessages(in Array<AString> filenameArray,
-                      in Array<ACString> messageUriArray);
+                      in Array<AUTF8String> messageUriArray);
 
     void openAttachment(in ACString contentTpe, in ACString url, in ACString displayName, in ACString messageUri, in boolean isExternalAttachment);
     void saveAttachment(in ACString contentTpe, in ACString url, in ACString displayName, in ACString messageUri, in boolean isExternalAttachment);

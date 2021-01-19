@@ -465,7 +465,7 @@ nsresult nsMailboxService::PrepareMessageUrl(const char* aSrcMsgMailboxURI,
       nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(url);
       if (msgUrl) {
         msgUrl->SetOriginalSpec(aSrcMsgMailboxURI);
-        msgUrl->SetUri(aSrcMsgMailboxURI);
+        msgUrl->SetUri(nsDependentCString(aSrcMsgMailboxURI));
       }
 
     }  // if we got a url
@@ -601,8 +601,8 @@ nsresult nsMailboxService::DecomposeMailboxURI(const char* aMessageURI,
 }
 
 NS_IMETHODIMP
-nsMailboxService::MessageURIToMsgHdr(const char* uri, nsIMsgDBHdr** _retval) {
-  NS_ENSURE_ARG_POINTER(uri);
+nsMailboxService::MessageURIToMsgHdr(const nsACString& uri,
+                                     nsIMsgDBHdr** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsresult rv = NS_OK;
@@ -610,7 +610,8 @@ nsMailboxService::MessageURIToMsgHdr(const char* uri, nsIMsgDBHdr** _retval) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey msgKey;
 
-  rv = DecomposeMailboxURI(uri, getter_AddRefs(folder), &msgKey);
+  rv = DecomposeMailboxURI(PromiseFlatCString(uri).get(),
+                           getter_AddRefs(folder), &msgKey);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = folder->GetMessageHeader(msgKey, _retval);

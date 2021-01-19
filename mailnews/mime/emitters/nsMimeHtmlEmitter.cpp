@@ -354,7 +354,7 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
       if (NS_SUCCEEDED(rv) && nntpUrl)
         rv = msgurl->GetOriginalSpec(getter_Copies(uriString));
       else
-        rv = msgurl->GetUri(getter_Copies(uriString));
+        rv = msgurl->GetUri(uriString);
     }
 
     // we need to convert the attachment name from UTF-8 to unicode before
@@ -364,9 +364,9 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
     nsString unicodeHeaderValue;
     CopyUTF8toUTF16(name, unicodeHeaderValue);
 
-    headerSink->HandleAttachment(contentType, url /* was escapedUrl */,
-                                 unicodeHeaderValue.get(), uriString.get(),
-                                 aIsExternalAttachment);
+    headerSink->HandleAttachment(
+        contentType, nsDependentCString(url) /* was escapedUrl */,
+        unicodeHeaderValue.get(), uriString, aIsExternalAttachment);
 
     mSkipAttachment = false;
   } else if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) {

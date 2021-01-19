@@ -177,7 +177,7 @@ nsresult nsMailboxUrl::CreateURL(const nsACString& aSpec, nsIURL** aURL) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::SetUri(const char* aURI) {
+NS_IMETHODIMP nsMailboxUrl::SetUri(const nsACString& aURI) {
   mURI = aURI;
   return NS_OK;
 }
@@ -188,16 +188,16 @@ nsresult nsMailboxUrl::Clone(nsIURI** _retval) {
   // also clone the mURI member, because GetUri below won't work if
   // mURI isn't set due to nsIFile fun.
   nsCOMPtr<nsIMsgMessageUrl> clonedUrl = do_QueryInterface(*_retval);
-  if (clonedUrl) clonedUrl->SetUri(mURI.get());
+  if (clonedUrl) clonedUrl->SetUri(mURI);
   return rv;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetUri(char** aURI) {
+NS_IMETHODIMP nsMailboxUrl::GetUri(nsACString& aURI) {
   // if we have been given a uri to associate with this url, then use it
   // otherwise try to reconstruct a URI on the fly....
 
   if (!mURI.IsEmpty())
-    *aURI = ToNewCString(mURI);
+    aURI = mURI;
   else {
     if (m_filePath) {
       nsAutoCString baseUri;
@@ -217,9 +217,9 @@ NS_IMETHODIMP nsMailboxUrl::GetUri(char** aURI) {
       nsCreateLocalBaseMessageURI(baseUri, baseMessageURI);
       nsAutoCString uriStr;
       nsBuildLocalMessageURI(baseMessageURI.get(), m_messageKey, uriStr);
-      *aURI = ToNewCString(uriStr);
+      aURI = uriStr;
     } else
-      *aURI = nullptr;
+      aURI = "";
   }
 
   return NS_OK;
@@ -464,7 +464,7 @@ nsresult nsMailboxUrl::GetFolder(nsIMsgFolder** msgFolder) {
   // if we have a RDF URI, then try to get the folder for that URI and then ask
   // the folder for it's charset....
   nsCString uri;
-  GetUri(getter_Copies(uri));
+  GetUri(uri);
   NS_ENSURE_TRUE(!uri.IsEmpty(), NS_ERROR_FAILURE);
   nsCOMPtr<nsIMsgDBHdr> msg;
   GetMsgDBHdrFromURI(uri.get(), getter_AddRefs(msg));

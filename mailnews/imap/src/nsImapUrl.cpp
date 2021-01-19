@@ -1012,7 +1012,7 @@ nsresult nsImapUrl::Clone(nsIURI** _retval) {
   // also clone the mURI member, because GetUri below won't work if
   // mURI isn't set due to escaping issues.
   nsCOMPtr<nsIMsgMessageUrl> clonedUrl = do_QueryInterface(*_retval);
-  if (clonedUrl) clonedUrl->SetUri(mURI.get());
+  if (clonedUrl) clonedUrl->SetUri(mURI);
   return rv;
 }
 
@@ -1034,17 +1034,16 @@ NS_IMETHODIMP nsImapUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapUrl::SetUri(const char* aURI) {
+NS_IMETHODIMP nsImapUrl::SetUri(const nsACString& aURI) {
   mURI = aURI;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapUrl::GetUri(char** aURI) {
+NS_IMETHODIMP nsImapUrl::GetUri(nsACString& aURI) {
   nsresult rv = NS_OK;
   if (!mURI.IsEmpty())
-    *aURI = ToNewCString(mURI);
+    aURI = mURI;
   else {
-    *aURI = nullptr;
     uint32_t key =
         m_listOfMessageIds ? strtoul(m_listOfMessageIds, nullptr, 10) : 0;
     nsCString canonicalPath;
@@ -1064,7 +1063,7 @@ NS_IMETHODIMP nsImapUrl::GetUri(char** aURI) {
     nsCreateImapBaseMessageURI(fullFolderPath, baseMessageURI);
     nsAutoCString uriStr;
     rv = nsBuildImapMessageURI(baseMessageURI.get(), key, uriStr);
-    *aURI = ToNewCString(uriStr);
+    aURI = uriStr;
   }
   return rv;
 }
@@ -1286,7 +1285,7 @@ nsresult nsImapUrl::GetMsgFolder(nsIMsgFolder** msgFolder) {
   // the folder for it's charset....
 
   nsCString uri;
-  GetUri(getter_Copies(uri));
+  GetUri(uri);
   NS_ENSURE_TRUE(!uri.IsEmpty(), NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIMsgDBHdr> msg;
@@ -1338,7 +1337,7 @@ NS_IMETHODIMP nsImapUrl::SetStoreOfflineOnFallback(
 
 NS_IMETHODIMP nsImapUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
   nsCString uri;
-  nsresult rv = GetUri(getter_Copies(uri));
+  nsresult rv = GetUri(uri);
   NS_ENSURE_SUCCESS(rv, rv);
   return GetMsgDBHdrFromURI(uri.get(), aMsgHdr);
 }

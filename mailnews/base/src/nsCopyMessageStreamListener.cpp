@@ -31,7 +31,7 @@ static nsresult GetMessage(nsIURI* aURL, nsIMsgDBHdr** message) {
   nsCString uri;
   rv = uriURL->GetOriginalSpec(getter_Copies(uri));
   if (NS_FAILED(rv) || uri.IsEmpty()) {
-    rv = uriURL->GetUri(getter_Copies(uri));
+    rv = uriURL->GetUri(uri);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -40,7 +40,7 @@ static nsresult GetMessage(nsIURI* aURL, nsIMsgDBHdr** message) {
   NS_ENSURE_SUCCESS(rv, rv);
   if (!msgMessageService) return NS_ERROR_FAILURE;
 
-  rv = msgMessageService->MessageURIToMsgHdr(uri.get(), message);
+  rv = msgMessageService->MessageURIToMsgHdr(uri, message);
   return rv;
 }
 

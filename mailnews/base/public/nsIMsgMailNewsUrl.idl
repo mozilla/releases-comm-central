@@ -175,7 +175,7 @@ interface nsIMsgMailNewsUrl : nsIURL {
 interface nsIMsgMessageUrl : nsISupports {
   // get and set the RDF URI associated with the url. Note, not all urls have
   // had uri's set on them so be prepared to handle cases where this string is empty.
-  attribute string uri;
+  attribute AUTF8String uri;
   // used by imap, pop and nntp in order to implement save message to disk
   attribute nsIFile messageFile;
   attribute boolean AddDummyEnvelope;

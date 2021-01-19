@@ -1278,7 +1278,7 @@ nsresult nsImapService::CreateStartOfImapUrl(const nsACString& aImapURI,
       mailnewsUrl->RegisterListener(aUrlListener);
     nsCOMPtr<nsIMsgMessageUrl> msgurl(do_QueryInterface(*imapUrl));
     (*imapUrl)->SetExternalLinkUrl(false);
-    msgurl->SetUri(PromiseFlatCString(aImapURI).get());
+    msgurl->SetUri(PromiseFlatCString(aImapURI));
 
     urlSpec = "imap://";
     urlSpec.Append(escapedUsername);
@@ -3086,15 +3086,13 @@ NS_IMETHODIMP nsImapService::DownloadMessagesForOffline(
   return rv;
 }
 
-NS_IMETHODIMP nsImapService::MessageURIToMsgHdr(const char* uri,
+NS_IMETHODIMP nsImapService::MessageURIToMsgHdr(const nsACString& uri,
                                                 nsIMsgDBHdr** aRetVal) {
-  NS_ENSURE_ARG_POINTER(uri);
   NS_ENSURE_ARG_POINTER(aRetVal);
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey msgKey;
-  nsresult rv = DecomposeImapURI(nsDependentCString(uri),
-                                 getter_AddRefs(folder), &msgKey);
+  nsresult rv = DecomposeImapURI(uri, getter_AddRefs(folder), &msgKey);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = folder->GetMessageHeader(msgKey, aRetVal);
   NS_ENSURE_SUCCESS(rv, rv);

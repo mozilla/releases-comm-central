@@ -32,7 +32,8 @@ interface nsIMsgHeaderSink : nsISupports
   // number of elements in them
   void processHeaders(in nsIUTF8StringEnumerator aHeaderNames, in nsIUTF8StringEnumerator aHeaderValues, in boolean dontCollectAddress);
 
-  void handleAttachment(in string contentType, in string url, in wstring displayName, in string uri,
+  void handleAttachment(in string contentType, in AUTF8String url,
+                        in wstring displayName, in AUTF8String uri,
                         in boolean aNotDownloaded);
 
   /**

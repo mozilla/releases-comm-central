@@ -265,13 +265,13 @@ NS_IMETHODIMP nsNntpUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsNntpUrl::SetUri(const char* aURI) {
+NS_IMETHODIMP nsNntpUrl::SetUri(const nsACString& aURI) {
   mURI = aURI;
   return NS_OK;
 }
 
 // from nsIMsgMessageUrl
-NS_IMETHODIMP nsNntpUrl::GetUri(char** aURI) {
+NS_IMETHODIMP nsNntpUrl::GetUri(nsACString& aURI) {
   nsresult rv = NS_OK;
 
   // if we have been given a uri to associate with this url, then use it
@@ -283,8 +283,7 @@ NS_IMETHODIMP nsNntpUrl::GetUri(char** aURI) {
     mURI = spec;
   }
 
-  *aURI = ToNewCString(mURI);
-  if (!*aURI) return NS_ERROR_OUT_OF_MEMORY;
+  aURI = mURI;
   return rv;
 }
 
@@ -341,7 +340,7 @@ NS_IMETHODIMP nsNntpUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  return msgService->MessageURIToMsgHdr(spec.get(), aMsgHdr);
+  return msgService->MessageURIToMsgHdr(spec, aMsgHdr);
 }
 
 NS_IMETHODIMP nsNntpUrl::IsUrlType(uint32_t type, bool* isType) {
@@ -478,5 +477,5 @@ nsresult nsNntpUrl::Clone(nsIURI** _retval) {
   nsCOMPtr<nsIMsgMessageUrl> newsurl = do_QueryInterface(*_retval, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return newsurl->SetUri(mURI.get());
+  return newsurl->SetUri(mURI);
 }

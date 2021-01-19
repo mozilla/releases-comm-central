@@ -1352,8 +1352,7 @@ nsMessenger::MsgHdrFromURI(const nsACString& aUri, nsIMsgDBHdr** aMsgHdr) {
 
   rv = GetMessageServiceFromURI(aUri, getter_AddRefs(msgService));
   NS_ENSURE_SUCCESS(rv, rv);
-  return msgService->MessageURIToMsgHdr(PromiseFlatCString(aUri).get(),
-                                        aMsgHdr);
+  return msgService->MessageURIToMsgHdr(aUri, aMsgHdr);
 }
 
 NS_IMETHODIMP nsMessenger::GetUndoTransactionType(uint32_t* txnType) {
@@ -2457,7 +2456,7 @@ nsresult nsDelAttachListener::StartProcessing(nsMessenger* aMessenger,
   // get the message service, original message and folder for this message
   rv = GetMessageServiceFromURI(messageUri, getter_AddRefs(mMessageService));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = mMessageService->MessageURIToMsgHdr(messageUri.get(),
+  rv = mMessageService->MessageURIToMsgHdr(messageUri,
                                            getter_AddRefs(mOriginalMessage));
   NS_ENSURE_SUCCESS(rv, rv);
   rv = mOriginalMessage->GetFolder(getter_AddRefs(mMessageFolder));

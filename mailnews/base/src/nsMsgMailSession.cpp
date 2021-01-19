@@ -341,27 +341,19 @@ NS_IMETHODIMP nsMsgMailSession::IsFolderOpenInWindow(nsIMsgFolder* folder,
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::ConvertMsgURIToMsgURL(const char* aURI,
-                                        nsIMsgWindow* aMsgWindow, char** aURL) {
-  NS_ENSURE_ARG_POINTER(aURI);
-  NS_ENSURE_ARG_POINTER(aURL);
-
+nsMsgMailSession::ConvertMsgURIToMsgURL(const nsACString& aURI,
+                                        nsIMsgWindow* aMsgWindow,
+                                        nsACString& aURL) {
   // convert the rdf msg uri into a url that represents the message...
   nsCOMPtr<nsIMsgMessageService> msgService;
-  nsresult rv = GetMessageServiceFromURI(nsDependentCString(aURI),
-                                         getter_AddRefs(msgService));
+  nsresult rv = GetMessageServiceFromURI(aURI, getter_AddRefs(msgService));
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NULL_POINTER);
 
   nsCOMPtr<nsIURI> tURI;
-  rv = msgService->GetUrlForUri(nsDependentCString(aURI), getter_AddRefs(tURI),
-                                aMsgWindow);
+  rv = msgService->GetUrlForUri(aURI, getter_AddRefs(tURI), aMsgWindow);
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NULL_POINTER);
 
-  nsAutoCString urlString;
-  if (NS_SUCCEEDED(tURI->GetSpec(urlString))) {
-    *aURL = ToNewCString(urlString);
-    NS_ENSURE_ARG_POINTER(aURL);
-  }
+  rv = tURI->GetSpec(aURL);
   return rv;
 }
 

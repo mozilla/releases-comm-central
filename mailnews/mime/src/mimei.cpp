@@ -335,7 +335,7 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
         msgURI->GetMessageHeader(aMsgHdr);
         if (*aMsgHdr) return;
         nsCString rdfURI;
-        msgURI->GetUri(getter_Copies(rdfURI));
+        msgURI->GetUri(rdfURI);
         if (!rdfURI.IsEmpty()) {
           nsCOMPtr<nsIMsgDBHdr> msgHdr;
           GetMsgDBHdrFromURI(rdfURI.get(), getter_AddRefs(msgHdr));
