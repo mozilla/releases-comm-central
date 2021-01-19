@@ -90,7 +90,7 @@ nsresult nsParseImapMessageURI(const char* uri, nsCString& folderURI,
 }
 
 nsresult nsBuildImapMessageURI(const char* baseURI, uint32_t key,
-                               nsCString& uri) {
+                               nsACString& uri) {
   uri.Append(baseURI);
   uri.Append('#');
   uri.AppendInt(key);

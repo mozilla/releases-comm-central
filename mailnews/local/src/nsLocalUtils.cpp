@@ -196,7 +196,7 @@ nsresult nsParseLocalMessageURI(const char* uri, nsCString& folderURI,
 }
 
 nsresult nsBuildLocalMessageURI(const char* baseURI, nsMsgKey key,
-                                nsCString& uri) {
+                                nsACString& uri) {
   // need to convert mailbox://hostname/.. to mailbox-message://hostname/..
   uri.Append(baseURI);
   uri.Append('#');

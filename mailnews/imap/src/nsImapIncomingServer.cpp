@@ -2303,11 +2303,7 @@ nsImapIncomingServer::GetSubscribeListener(nsISubscribeListener** aListener) {
 NS_IMETHODIMP
 nsImapIncomingServer::Subscribe(const char16_t* aName) {
   NS_ENSURE_ARG_POINTER(aName);
-
-  // Extra step here prevents chars flagged as invalid, don't know why.
-  nsAutoString temp;
-  temp.Assign(nsDependentString(aName));
-  return SubscribeToFolder(temp, true, nullptr);
+  return SubscribeToFolder(nsDependentString(aName), true, nullptr);
 }
 
 NS_IMETHODIMP

@@ -215,9 +215,7 @@ NS_IMETHODIMP nsMailboxUrl::GetUri(nsACString& aURI) {
       }
       nsCString baseMessageURI;
       nsCreateLocalBaseMessageURI(baseUri, baseMessageURI);
-      nsAutoCString uriStr;
-      nsBuildLocalMessageURI(baseMessageURI.get(), m_messageKey, uriStr);
-      aURI = uriStr;
+      nsBuildLocalMessageURI(baseMessageURI.get(), m_messageKey, aURI);
     } else
       aURI = "";
   }

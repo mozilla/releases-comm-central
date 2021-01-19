@@ -28,7 +28,7 @@ extern nsresult nsParseImapMessageURI(const char* uri, nsCString& folderURI,
                                       uint32_t* key, char** part);
 
 extern nsresult nsBuildImapMessageURI(const char* baseURI, uint32_t key,
-                                      nsCString& uri);
+                                      nsACString& uri);
 
 extern nsresult nsCreateImapBaseMessageURI(const nsACString& baseURI,
                                            nsCString& baseMessageURI);

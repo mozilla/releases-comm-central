@@ -1061,9 +1061,7 @@ NS_IMETHODIMP nsImapUrl::GetUri(nsACString& aURI) {
 
     nsCString baseMessageURI;
     nsCreateImapBaseMessageURI(fullFolderPath, baseMessageURI);
-    nsAutoCString uriStr;
-    rv = nsBuildImapMessageURI(baseMessageURI.get(), key, uriStr);
-    aURI = uriStr;
+    rv = nsBuildImapMessageURI(baseMessageURI.get(), key, aURI);
   }
   return rv;
 }

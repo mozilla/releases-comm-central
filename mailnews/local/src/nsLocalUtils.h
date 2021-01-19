@@ -19,7 +19,7 @@ nsresult nsParseLocalMessageURI(const char* uri, nsCString& folderURI,
                                 nsMsgKey* key);
 
 nsresult nsBuildLocalMessageURI(const char* baseURI, nsMsgKey key,
-                                nsCString& uri);
+                                nsACString& uri);
 
 nsresult nsCreateLocalBaseMessageURI(const nsACString& baseURI,
                                      nsCString& baseMessageURI);
