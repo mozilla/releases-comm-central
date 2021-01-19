@@ -72,4 +72,3 @@ interface nsISubscribableServer : nsISupports {
   readonly attribute boolean supportsSubscribeSearch;
   readonly attribute nsITreeView folderView;
 };
-

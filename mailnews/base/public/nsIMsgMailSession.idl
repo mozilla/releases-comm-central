@@ -76,4 +76,3 @@ interface nsIMsgMailSession : nsISupports {
   string ConvertMsgURIToMsgURL(in string  aURI, in nsIMsgWindow aMsgWindow);
   nsIFile getDataFilesDir(in string dirName);
 };
-

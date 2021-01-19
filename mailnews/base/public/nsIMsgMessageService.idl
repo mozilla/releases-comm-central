@@ -38,7 +38,6 @@ interface nsIMsgMessageService : nsISupports {
    * in for aURL if you don't care about the returned URL.
    */
 
-
   /**
    * Pass in the URI for the message you want to have copied.
    *
@@ -70,7 +69,6 @@ interface nsIMsgMessageService : nsISupports {
                       in boolean aMoveMessage,
                       in nsIUrlListener aUrlListener,
                       in nsIMsgWindow aMsgWindow);
-
 
   /**
    * When you want a message displayed....

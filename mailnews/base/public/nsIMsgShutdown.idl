@@ -65,5 +65,3 @@ interface nsIMsgShutdownService : nsISupports
    */
   void setStatusText(in AString inStatusString);
 };
-
-

@@ -37,4 +37,3 @@ interface nsIMsgPrintEngine : nsISupports {
     attribute boolean doPrintPreview;
 
 };
-

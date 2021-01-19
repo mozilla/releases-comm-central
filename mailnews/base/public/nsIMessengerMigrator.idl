@@ -12,4 +12,3 @@ interface nsIMessengerMigrator: nsISupports {
 
   void createLocalMailAccount(in boolean migrating);
 };
-

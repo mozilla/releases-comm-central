@@ -12,7 +12,6 @@ interface nsIFile;
   "@mozilla.org/messenger/protocol/info;1?type="
 %}
 
-
 [scriptable, uuid(9428b5f5-8b12-493c-aae2-18296c2877b1)]
 interface nsIMsgProtocolInfo : nsISupports
 {
@@ -96,4 +95,3 @@ interface nsIMsgProtocolInfo : nsISupports
      */
     readonly attribute boolean foldersCreatedAsync;
 };
-

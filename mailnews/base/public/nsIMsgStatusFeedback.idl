@@ -16,4 +16,3 @@ interface nsIMsgStatusFeedback : nsISupports {
   /* aStatusFeedback: a wrapped JS status feedback object */
   void setWrappedStatusFeedback(in nsIMsgStatusFeedback aStatusFeedback);
 };
-

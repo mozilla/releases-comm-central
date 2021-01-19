@@ -53,4 +53,3 @@ interface nsIMsgCopyServiceListener : nsISupports {
      */
     void OnStopCopy(in nsresult aStatus);
 };
-

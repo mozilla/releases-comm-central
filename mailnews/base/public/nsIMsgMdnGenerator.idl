@@ -31,7 +31,6 @@ interface nsIMsgMdnGenerator : nsISupports
     const MDNIncorporateType eIncorporateInbox = 0;
     const MDNIncorporateType eIncorporateSent = 1;
 
-
     /**
      * Prepare the sending of a mdn reply, and checks the prefs whether a
      * reply should be send. Might send the message automatically if the

@@ -33,4 +33,3 @@ interface nsIMsgContentPolicy : nsISupports {
    */
   void removeExposedProtocol(in ACString aScheme);
 };
-

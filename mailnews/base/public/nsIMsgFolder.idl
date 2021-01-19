@@ -175,7 +175,6 @@ interface nsIMsgFolder : nsISupports {
    */
   void closeAndBackupFolderDB(in ACString newName);
 
-
   /**
    * Delete the backing store of the folder, but not the folder itself.
    */

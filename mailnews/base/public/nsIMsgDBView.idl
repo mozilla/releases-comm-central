@@ -212,7 +212,6 @@ interface nsMsgNavigationType : nsISupports
   const nsMsgNavigationTypeValue toggleSubthreadKilled = 23;
 };
 
-
 [scriptable, uuid(fe8a2326-4dd0-11e5-8b8a-206a8aa7a25c)]
 interface nsIMsgDBView : nsISupports
 {
@@ -390,7 +389,6 @@ interface nsIMsgDBView : nsISupports
    * @return        - view index of msg hdr, -1 if hdr not found.
    */
   nsMsgViewIndex findIndexOfMsgHdr(in nsIMsgDBHdr aMsgHdr, in boolean aExpand);
-
 
   /**
    * Expands a thread and selects all it's member messages.

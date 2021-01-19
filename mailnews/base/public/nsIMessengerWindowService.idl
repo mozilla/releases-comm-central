@@ -15,4 +15,3 @@ interface nsIMessengerWindowService : nsISupports {
    */
   void openMessengerWindowWithUri(in string aWindowType, in string aFolderURI, in nsMsgKey aMsgKey);
 };
-

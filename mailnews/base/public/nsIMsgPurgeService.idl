@@ -11,4 +11,3 @@ interface nsIMsgPurgeService : nsISupports {
   void init();
   void shutdown();
 };
-

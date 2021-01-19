@@ -31,7 +31,6 @@ interface nsIMsgDBHdr;
       nsITreeView and nsIMsgCustomColumnHandler methods.
     */
 
-
 [scriptable, uuid(00f75b13-3ac4-4a17-a8b9-c6e4dd1b3f32)]
 interface nsIMsgCustomColumnHandler : nsITreeView
 {
@@ -39,4 +38,3 @@ interface nsIMsgCustomColumnHandler : nsITreeView
   unsigned long getSortLongForRow(in nsIMsgDBHdr aHdr);
   boolean isString();
 };
-

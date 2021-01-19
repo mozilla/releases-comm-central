@@ -142,4 +142,3 @@ interface nsIMessenger : nsISupports {
     Array<ACString> getNavigateHistory();
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);
 };
-

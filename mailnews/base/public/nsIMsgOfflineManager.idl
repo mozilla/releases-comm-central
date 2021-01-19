@@ -20,4 +20,3 @@ interface nsIMsgOfflineManager : nsISupports
   void synchronizeForOffline(in boolean downloadNews, in boolean downloadMail, in boolean sendUnsentMessages,
                             in boolean goOfflineWhenDone, in nsIMsgWindow aMsgWindow);
 };
-

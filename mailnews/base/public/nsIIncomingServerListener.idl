@@ -30,4 +30,3 @@ interface nsIIncomingServerListener : nsISupports {
    */
   void onServerChanged(in nsIMsgIncomingServer server);
 };
-
