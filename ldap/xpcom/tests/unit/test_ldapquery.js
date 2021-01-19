@@ -41,9 +41,7 @@ class PromiseListener {
     this._reject(new Error("Unexpected onLDAPInit"));
   }
   onLDAPError(status, secInfo, location) {
-    this._reject(
-      new Error(`Unexpected onLDAPError (0x${status.toString(16)}`)
-    );
+    this._reject(new Error(`Unexpected onLDAPError (0x${status.toString(16)}`));
   }
 }
 
