@@ -27,7 +27,10 @@ PromiseTestUtils.allowMatchingRejectionsGlobally(
   /Receiving end does not exist/
 );
 
+check3PaneInInitialState();
 registerCleanupFunction(() => {
+  MailServices.accounts.accounts.forEach(cleanUpAccount);
+
   let tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1);
 
@@ -35,10 +38,61 @@ registerCleanupFunction(() => {
     tabmail.closeTab(tabmail.tabInfo[1]);
   }
 
+  // Put the 3-pane back how we found it.
+  document
+    .getElementById("folderpane_splitter")
+    .setAttribute("state", "collapsed");
+  if (window.IsMessagePaneCollapsed()) {
+    window.MsgToggleMessagePane();
+  }
+
+  check3PaneInInitialState();
+
   // Some tests that open new windows don't return focus to the main window
   // in a way that satisfies mochitest, and the test times out.
   Services.focus.focusedWindow = window;
+  window.gFolderDisplay.tree.focus();
 });
+
+function check3PaneInInitialState() {
+  check3PaneState(false, true);
+}
+
+function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
+  if (folderPaneOpen !== null) {
+    Assert.equal(
+      document.getElementById("folderpane_splitter").getAttribute("state") ==
+        "collapsed",
+      !folderPaneOpen,
+      "State of folder pane splitter is correct"
+    );
+    Assert.equal(
+      document.getElementById("folderPaneBox").collapsed,
+      !folderPaneOpen,
+      "State of folder pane box is correct"
+    );
+  }
+
+  if (messagePaneOpen !== null) {
+    Assert.equal(
+      document.getElementById("threadpane-splitter").getAttribute("state") ==
+        "collapsed",
+      !messagePaneOpen,
+      "State of message pane splitter is correct"
+    );
+    if (!messagePaneOpen) {
+      Assert.ok(
+        document.getElementById("messagepaneboxwrapper").collapsed,
+        "State of message pane box is correct"
+      );
+    }
+    Assert.equal(
+      window.gMessageDisplay.visible,
+      messagePaneOpen,
+      "State of message display is correct"
+    );
+  }
+}
 
 function createAccount(type = "none") {
   let account;
@@ -65,10 +119,6 @@ function cleanUpAccount(account) {
   info(`Cleaning up account ${account.toString()}`);
   MailServices.accounts.removeAccount(account, true);
 }
-
-registerCleanupFunction(() => {
-  MailServices.accounts.accounts.forEach(cleanUpAccount);
-});
 
 function addIdentity(account, email = "mochitest@localhost") {
   let identity = MailServices.accounts.createIdentity();
@@ -165,19 +215,6 @@ function getPanelForNode(node) {
   return node;
 }
 
-var awaitBrowserLoaded = browser =>
-  ContentTask.spawn(browser, null, () => {
-    if (
-      content.document.readyState !== "complete" ||
-      content.document.documentURI === "about:blank"
-    ) {
-      return ContentTaskUtils.waitForEvent(this, "load", true, event => {
-        return content.document.documentURI !== "about:blank";
-      }).then(() => {});
-    }
-    return Promise.resolve();
-  });
-
 var awaitExtensionPanel = async function(
   extension,
   win = window,
@@ -192,7 +229,7 @@ var awaitExtensionPanel = async function(
 
   await Promise.all([
     promisePopupShown(getPanelForNode(browser)),
-    awaitLoad && awaitBrowserLoaded(browser),
+    awaitLoad && BrowserTestUtils.browserLoaded(browser),
   ]);
 
   return browser;
@@ -351,23 +388,26 @@ async function getUtilsJS() {
 }
 
 async function checkContent(browser, expected) {
-  if (browser.contentDocument.readyState != "complete") {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
-  let body = browser.contentDocument.body;
-  Assert.ok(body);
-  let computedStyle = browser.contentWindow.getComputedStyle(body);
+  await SpecialPowers.spawn(browser, [expected], expected => {
+    let body = content.document.body;
+    Assert.ok(body, "body");
+    let computedStyle = content.getComputedStyle(body);
 
-  if ("backgroundColor" in expected) {
-    Assert.equal(computedStyle.backgroundColor, expected.backgroundColor);
-  }
-  if ("color" in expected) {
-    Assert.equal(computedStyle.color, expected.color);
-  }
-  if ("foo" in expected) {
-    Assert.equal(body.getAttribute("foo"), expected.foo);
-  }
-  if ("textContent" in expected) {
-    Assert.equal(body.textContent, expected.textContent);
-  }
+    if ("backgroundColor" in expected) {
+      Assert.equal(
+        computedStyle.backgroundColor,
+        expected.backgroundColor,
+        "backgroundColor"
+      );
+    }
+    if ("color" in expected) {
+      Assert.equal(computedStyle.color, expected.color, "color");
+    }
+    if ("foo" in expected) {
+      Assert.equal(body.getAttribute("foo"), expected.foo, "foo");
+    }
+    if ("textContent" in expected) {
+      Assert.equal(body.textContent, expected.textContent, "textContent");
+    }
+  });
 }

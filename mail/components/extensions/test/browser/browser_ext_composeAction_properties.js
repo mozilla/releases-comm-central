@@ -88,7 +88,7 @@ add_task(async () => {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "compose_action_properties@mochi.test",
         },
       },
       background: { scripts: ["utils.js", "background.js"] },
@@ -104,7 +104,7 @@ add_task(async () => {
 
     for (let i = 0; i < 3; i++) {
       let button = composeWindows[i].document.getElementById(
-        "test1_mochi_test-composeAction-toolbarbutton"
+        "compose_action_properties_mochi_test-composeAction-toolbarbutton"
       );
       switch (property) {
         case "isEnabled":

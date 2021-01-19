@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals MsgOpenNewWindowForFolder */
-
 const TEST_DOCUMENT_URL = getRootDirectory(gTestPath) + "data/content.html";
 
 let { BrowserTestUtils } = ChromeUtils.import(
@@ -196,7 +194,7 @@ add_task(async () => {
 
   await extension.awaitMessage("openWindow");
   let newWindowPromise = BrowserTestUtils.domWindowOpened();
-  MsgOpenNewWindowForFolder(account.incomingServer.rootFolder.URI);
+  window.MsgOpenNewWindowForFolder(account.incomingServer.rootFolder.URI);
   let newWindow = await newWindowPromise;
 
   await extension.awaitMessage("switchWindows");

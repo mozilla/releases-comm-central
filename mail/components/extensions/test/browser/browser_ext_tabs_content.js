@@ -84,6 +84,7 @@ async function subTest(createTab, getBrowser, shouldRemove = true) {
 
   await extension.awaitMessage();
   let browser = getBrowser();
+  await BrowserTestUtils.browserLoaded(browser);
   await checkContent(browser, {
     backgroundColor: "rgba(0, 0, 0, 0)",
     textContent: "",
@@ -124,6 +125,17 @@ add_task(async function testFirstTab() {
     return tabmail.currentTabInfo.browser;
   }
 
+  if (
+    document.getElementById("folderpane_splitter").getAttribute("state") ==
+    "collapsed"
+  ) {
+    window.MsgToggleFolderPane();
+  }
+
+  let gAccount = createAccount();
+  window.gFolderTreeView.selectFolder(
+    [...gAccount.incomingServer.rootFolder.subFolders][0]
+  );
   return subTest(createTab, getBrowser, false);
 });
 

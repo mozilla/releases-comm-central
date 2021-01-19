@@ -17,14 +17,10 @@ add_task(async function setup() {
   createMessages(subFolders.test2, 50);
 
   window.gFolderTreeView.selectFolder(rootFolder);
+
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
   registerCleanupFunction(() => {
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
-    // This test is changing the default value of the folderpane splitter, which
-    // may cause other tests to fail.
-    document
-      .getElementById("folderpane_splitter")
-      .setAttribute("state", "collapsed");
   });
   await new Promise(resolve => executeSoon(resolve));
 });
@@ -122,18 +118,7 @@ add_task(async function test_update() {
   extension.onMessage("checkRealLayout", expected => {
     let intValue = ["standard", "wide", "vertical"].indexOf(expected.layout);
     is(Services.prefs.getIntPref("mail.pane_config.dynamic"), intValue);
-    if (typeof expected.messagePaneVisible == "boolean") {
-      is(
-        document.getElementById("messagepaneboxwrapper").collapsed,
-        !expected.messagePaneVisible
-      );
-    }
-    if (typeof expected.folderPaneVisible == "boolean") {
-      is(
-        document.getElementById("folderPaneBox").collapsed,
-        !expected.folderPaneVisible
-      );
-    }
+    check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
     extension.sendMessage();
   });
 
@@ -149,6 +134,8 @@ add_task(async function test_update() {
     }
     throw new Error("This test should never get here.");
   });
+
+  check3PaneInInitialState();
 
   await extension.startup();
   extension.sendMessage(account.key);
@@ -419,23 +406,12 @@ add_task(async function test_background_tab() {
   });
 
   extension.onMessage("checkRealLayout", async expected => {
-    is(
-      document.getElementById("messagepaneboxwrapper").collapsed,
-      !expected.messagePaneVisible
-    );
-    is(
-      document.getElementById("folderPaneBox").collapsed,
-      !expected.folderPaneVisible
-    );
-    is(
-      window.gFolderTreeView.getSelectedFolders()[0].URI,
-      account.incomingServer.serverURI + expected.displayedFolder
-    );
+    check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
     extension.sendMessage();
   });
 
   let tabmail = document.getElementById("tabmail");
-  window.openContentTab("about:config");
+  window.openContentTab("about:buildconfig");
   window.openContentTab("about:mozilla");
   tabmail.openTab("folder", { folder: subFolders.test1 });
 
@@ -491,14 +467,7 @@ add_task(async function test_glodaList_tab() {
   });
 
   extension.onMessage("checkRealLayout", expected => {
-    is(
-      document.getElementById("messagepaneboxwrapper").collapsed,
-      !expected.messagePaneVisible
-    );
-    is(
-      document.getElementById("folderPaneBox").collapsed,
-      !expected.folderPaneVisible
-    );
+    check3PaneState(expected.folderPaneVisible, expected.messagePaneVisible);
     extension.sendMessage();
   });
 

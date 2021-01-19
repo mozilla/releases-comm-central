@@ -65,7 +65,7 @@ add_task(async function test_update_defined_command() {
     useAddonManager: "permanent",
     manifest: {
       version: "1.0",
-      applications: { gecko: { id: "commands@mochi.test" } },
+      applications: { gecko: { id: "commands_update@mochi.test" } },
       commands: {
         foo: {
           suggested_key: {
@@ -343,7 +343,7 @@ add_task(async function test_update_defined_command() {
     useAddonManager: "permanent",
     manifest: {
       version: "1.0",
-      applications: { gecko: { id: "commands@mochi.test" } },
+      applications: { gecko: { id: "commands_update@mochi.test" } },
       commands: {
         foo: {
           suggested_key: {

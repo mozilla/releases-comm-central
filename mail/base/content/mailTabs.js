@@ -412,7 +412,7 @@ var mailTabType = {
       persistTab(aTab) {
         let msgHdr = aTab.folderDisplay.selectedMessage;
         return {
-          messageURI: msgHdr.folder.getUriForMsg(msgHdr),
+          messageURI: msgHdr?.folder.getUriForMsg(msgHdr),
         };
       },
       restoreTab(aTabmail, aPersistedState) {

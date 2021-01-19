@@ -184,7 +184,7 @@ add_task(async function overrideContext_with_context() {
         // eslint-disable-next-line mozilla/balanced-listeners
         document.addEventListener("contextmenu", () => {
           browser.menus.overrideContext(testCases.shift());
-          setTimeout(() => browser.test.sendMessage("oncontextmenu_in_dom"));
+          browser.test.sendMessage("oncontextmenu_in_dom");
         });
 
         browser.test.sendMessage("setup_ready", {
@@ -197,7 +197,8 @@ add_task(async function overrideContext_with_context() {
     background,
   });
 
-  window.openContentTab("http://example.com/?SomeTab");
+  let { browser } = window.openContentTab("http://example.com/?SomeTab");
+  await BrowserTestUtils.browserLoaded(browser);
 
   let otherExtension = ExtensionTestUtils.loadExtension({
     manifest: {

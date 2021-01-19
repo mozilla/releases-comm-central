@@ -10,10 +10,10 @@ add_task(async () => {
   let folder = rootFolder.getChildNamed("test");
   createMessages(folder, 1);
 
-  let msgLoaaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
+  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   window.gFolderTreeView.selectFolder(folder);
   window.gFolderDisplay.selectViewIndex(0);
-  await msgLoaaded;
+  await msgLoaded;
   window.MsgOpenSelectedMessages();
   window.MsgOpenNewWindowForMessage();
   await new Promise(resolve => executeSoon(resolve));
@@ -107,7 +107,7 @@ add_task(async () => {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "message_display_action_properties@mochi.test",
         },
       },
       background: { scripts: ["utils.js", "background.js"] },
@@ -124,12 +124,12 @@ add_task(async () => {
   is(mainWindowTabs.length, 2);
 
   let mainWindowButton = document.getElementById(
-    "test1_mochi_test-messageDisplayAction-toolbarbutton"
+    "message_display_action_properties_mochi_test-messageDisplayAction-toolbarbutton"
   );
 
   let messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
   let messageWindowButton = messageWindow.document.getElementById(
-    "test1_mochi_test-messageDisplayAction-toolbarbutton"
+    "message_display_action_properties_mochi_test-messageDisplayAction-toolbarbutton"
   );
 
   extension.onMessage("checkProperty", async (property, expected) => {

@@ -14,6 +14,33 @@ let nonDefaultIdentity = addIdentity(account, "nondefault@invalid");
 let localAccount = createAccount("local");
 let outbox = localAccount.incomingServer.rootFolder.getChildNamed("outbox");
 
+function messagesInOutbox(count) {
+  info(`Checking for ${count} messages in outbox`);
+
+  let messages = outbox.messages;
+  while (messages.hasMoreElements()) {
+    if (--count == 0) {
+      return Promise.resolve();
+    }
+    messages.getNext();
+  }
+
+  info(`Waiting for ${count} messages in outbox`);
+  return new Promise(resolve => {
+    MailServices.mfn.addListener(
+      {
+        msgAdded(msgHdr) {
+          if (--count == 0) {
+            MailServices.mfn.removeListener(this);
+            resolve();
+          }
+        },
+      },
+      MailServices.mfn.msgAdded
+    );
+  });
+}
+
 add_task(async function testCancel() {
   let files = {
     "background.js": async () => {
@@ -175,6 +202,9 @@ add_task(async function testCancel() {
   });
 
   extension.onMessage("checkIfSent", async (sendExpected, lockExpected) => {
+    // Wait a moment to see if send happens asynchronously.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 500));
     is(didTryToSendMessage, sendExpected, "did try to send a message");
 
     if (lockExpected !== null) {
@@ -341,12 +371,10 @@ add_task(async function testChangeDetails() {
     },
   });
 
-  let sendPromise;
   extension.onMessage("beginSend", async () => {
     let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
-    sendPromise = BrowserTestUtils.waitForEvent(composeWindows[0], "aftersend");
     composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
     extension.sendMessage();
   });
@@ -364,6 +392,8 @@ add_task(async function testChangeDetails() {
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
+
+  await messagesInOutbox(2);
 
   let outboxMessages = outbox.messages;
   ok(outboxMessages.hasMoreElements());
@@ -383,8 +413,6 @@ add_task(async function testChangeDetails() {
       resolve();
     });
   });
-
-  await sendPromise;
 
   ok(outboxMessages.hasMoreElements());
   let sentMessage6 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
@@ -487,6 +515,8 @@ add_task(async function testChangeAttachments() {
   await extension.startup();
   await extension.awaitFinish("finished");
   await extension.unload();
+
+  await messagesInOutbox(1);
 
   let outboxMessages = outbox.messages;
   ok(outboxMessages.hasMoreElements());
@@ -659,6 +689,8 @@ add_task(async function testListExpansion() {
   await extension.awaitFinish("finished");
   await extension.unload();
 
+  await messagesInOutbox(2);
+
   let outboxMessages = outbox.messages;
   ok(outboxMessages.hasMoreElements());
   let sentMessage7 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
@@ -806,6 +838,8 @@ add_task(async function testMultipleListeners() {
 
   await extensionA.unload();
   await extensionB.unload();
+
+  await messagesInOutbox(1);
 
   let outboxMessages = outbox.messages;
   Assert.ok(outboxMessages.hasMoreElements());

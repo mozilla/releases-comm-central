@@ -160,6 +160,9 @@ var gFolderTreeView = {
     let hasAccounts = MailServices.accounts.accounts.length > 0;
     if (document.getElementById("folderpane_splitter")) {
       document.getElementById("folderpane_splitter").collapsed = !hasAccounts;
+      document
+        .getElementById("folderpane_splitter")
+        .setAttribute("state", hasAccounts ? "open" : "collapsed");
     }
     if (document.getElementById("folderPaneBox")) {
       document.getElementById("folderPaneBox").collapsed = !hasAccounts;

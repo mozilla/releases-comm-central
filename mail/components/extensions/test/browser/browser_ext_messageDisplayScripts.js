@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let account, messages;
+let messagePane = document.getElementById("messagepane");
 
 add_task(async () => {
   account = createAccount();
@@ -27,10 +28,10 @@ async function checkMessageBody(expected, message, browser) {
     expected.textContent = `\n${body}\n\n` + expected.textContent;
   }
   if (!browser) {
-    browser = document.getElementById("messagepane");
+    browser = messagePane;
   }
 
-  checkContent(browser, expected);
+  await checkContent(browser, expected);
 }
 
 /** Tests browser.tabs.insertCSS and browser.tabs.removeCSS. */
@@ -70,7 +71,7 @@ add_task(async function testInsertRemoveCSS() {
   });
 
   window.gFolderDisplay.selectViewIndex(0);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(messagePane);
 
   await extension.startup();
 
@@ -143,7 +144,7 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
   });
 
   window.gFolderDisplay.selectViewIndex(1);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(messagePane);
 
   await extension.startup();
 
@@ -192,7 +193,7 @@ add_task(async function testExecuteScript() {
   });
 
   window.gFolderDisplay.selectViewIndex(2);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(messagePane);
 
   await extension.startup();
 
@@ -265,7 +266,7 @@ add_task(async function testExecuteScriptNoPermissions() {
   });
 
   window.gFolderDisplay.selectViewIndex(3);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(messagePane);
 
   await extension.startup();
 
@@ -296,14 +297,14 @@ add_task(async function testExecuteScriptAlias() {
       "utils.js": await getUtilsJS(),
     },
     manifest: {
-      applications: { gecko: { id: "alias@mochitest" } },
+      applications: { gecko: { id: "message_display_scripts@mochitest" } },
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["messagesModify"],
     },
   });
 
   window.gFolderDisplay.selectViewIndex(4);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(messagePane);
 
   await extension.startup();
 
@@ -312,7 +313,10 @@ add_task(async function testExecuteScriptAlias() {
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkMessageBody({ textContent: "alias@mochitest" }, messages[4]);
+  await checkMessageBody(
+    { textContent: "message_display_scripts@mochitest" },
+    messages[4]
+  );
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
@@ -355,10 +359,9 @@ add_task(async function testRegister() {
     },
   });
 
-  let messagePane = document.getElementById("messagepane");
   let tabmail = document.getElementById("tabmail");
   window.gFolderDisplay.selectViewIndex(5);
-  await awaitBrowserLoaded(messagePane);
+  await BrowserTestUtils.browserLoaded(messagePane);
 
   await extension.startup();
 
@@ -377,7 +380,7 @@ add_task(async function testRegister() {
 
   // Load a new message and check it is modified.
   window.gFolderDisplay.selectViewIndex(6);
-  await awaitBrowserLoaded(messagePane);
+  await BrowserTestUtils.browserLoaded(messagePane);
   await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
   await checkMessageBody(
     {
@@ -476,7 +479,7 @@ add_task(async function testRegister() {
   messagePane.contentDocument.body.textContent = "Nope.";
   tabmail.closeTab(tabmail.tabInfo[1]);
 
-  await awaitBrowserLoaded(messagePane);
+  await BrowserTestUtils.browserLoaded(messagePane);
   // Let's wait a while and see if anything happens:
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
@@ -564,12 +567,12 @@ async function subtestContentScriptManifest(message, ...permissions) {
 
 add_task(async function testContentScriptManifestNoPermission() {
   window.gFolderDisplay.selectViewIndex(0);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(messagePane);
   await subtestContentScriptManifest(messages[0]);
 });
 add_task(async function testContentScriptManifest() {
   window.gFolderDisplay.selectViewIndex(1);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(messagePane);
   await subtestContentScriptManifest(messages[1], "messagesModify");
 });
 
@@ -622,12 +625,12 @@ async function subtestContentScriptRegister(message, ...permissions) {
 
 add_task(async function testContentScriptRegisterNoPermission() {
   window.gFolderDisplay.selectViewIndex(2);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(messagePane);
   await subtestContentScriptRegister(messages[2], "<all_urls>");
 });
 add_task(async function testContentScriptRegister() {
   window.gFolderDisplay.selectViewIndex(3);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(messagePane);
   await subtestContentScriptRegister(
     messages[3],
     "<all_urls>",

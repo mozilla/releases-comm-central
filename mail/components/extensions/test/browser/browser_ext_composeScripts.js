@@ -18,7 +18,7 @@ async function checkComposeBody(expected, waitForEvent) {
 
   let composeEditor = composeWindow.GetCurrentEditorElement();
 
-  checkContent(composeEditor, expected);
+  await checkContent(composeEditor, expected);
 }
 
 /** Tests browser.tabs.insertCSS and browser.tabs.removeCSS. */
@@ -266,7 +266,7 @@ add_task(async function testExecuteScriptAlias() {
       "utils.js": await getUtilsJS(),
     },
     manifest: {
-      applications: { gecko: { id: "alias@mochitest" } },
+      applications: { gecko: { id: "compose_scripts@mochitest" } },
       background: { scripts: ["utils.js", "background.js"] },
       permissions: ["compose"],
     },
@@ -279,7 +279,7 @@ add_task(async function testExecuteScriptAlias() {
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkComposeBody({ textContent: "alias@mochitest" });
+  await checkComposeBody({ textContent: "compose_scripts@mochitest" });
   extension.sendMessage();
 
   await extension.awaitFinish("finished");

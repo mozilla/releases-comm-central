@@ -8,7 +8,7 @@ add_task(async () => {
     await promiseAnimationFrame();
     await new Promise(resolve => setTimeout(resolve));
 
-    let buttonId = "test1_mochi_test-browserAction-toolbarbutton";
+    let buttonId = "browser_action_mochi_test-browserAction-toolbarbutton";
     let toolbar = document.getElementById("mail-bar3");
 
     let button = document.getElementById(buttonId);
@@ -108,7 +108,7 @@ add_task(async () => {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "browser_action@mochi.test",
         },
       },
       browser_action: {

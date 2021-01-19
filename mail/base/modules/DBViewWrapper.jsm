@@ -2066,6 +2066,7 @@ DBViewWrapper.prototype = {
    */
   isGroupedByHeaderAtIndex(aViewIndex) {
     if (
+      !this.dbView ||
       aViewIndex < 0 ||
       aViewIndex >= this.dbView.rowCount ||
       !this.showGroupedBySort

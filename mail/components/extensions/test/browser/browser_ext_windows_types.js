@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals gFolderDisplay, gFolderTreeView, MsgOpenNewWindowForMessage */
-
 let { BrowserTestUtils } = ChromeUtils.import(
   "resource://testing-common/BrowserTestUtils.jsm"
 );
@@ -96,14 +94,11 @@ add_task(async () => {
   }
   createMessages(subFolders.test1, 1);
 
-  gFolderTreeView.selectFolder(subFolders.test1);
-  gFolderDisplay.selectViewIndex(0);
-
   await extension.startup();
 
   await extension.awaitMessage("openMessage");
   let newWindowPromise = BrowserTestUtils.domWindowOpened();
-  MsgOpenNewWindowForMessage();
+  window.MsgOpenNewWindowForMessage([subFolders.test1.messages.getNext()]);
   let newWindow = await newWindowPromise;
 
   await extension.awaitMessage("closeMessage");

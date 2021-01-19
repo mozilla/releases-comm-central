@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals gFolderDisplay, gFolderTreeView, MsgOpenNewWindowForFolder, MsgOpenNewWindowForMessage */
-
 add_task(async () => {
   let account = createAccount();
   addIdentity(account);
@@ -11,9 +9,6 @@ add_task(async () => {
   rootFolder.createSubfolder("windowsEvents", null);
   let testFolder = rootFolder.findSubFolder("windowsEvents");
   createMessages(testFolder, 5);
-
-  gFolderTreeView.selectFolder(testFolder);
-  gFolderDisplay.selectViewIndex(0);
 
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
@@ -241,10 +236,10 @@ add_task(async () => {
   await extension.startup();
 
   await extension.awaitMessage("openMainWindow");
-  MsgOpenNewWindowForFolder(testFolder.URI);
+  window.MsgOpenNewWindowForFolder(testFolder.URI);
 
   await extension.awaitMessage("openDisplayWindow");
-  MsgOpenNewWindowForMessage();
+  window.MsgOpenNewWindowForMessage([testFolder.messages.getNext()]);
 
   await extension.awaitFinish("finished");
   await extension.unload();

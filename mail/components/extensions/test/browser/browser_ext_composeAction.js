@@ -38,15 +38,15 @@ async function openComposeWindow() {
 
 async function test_it(extensionDetails, toolbarId) {
   let extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  let buttonId = "test1_mochi_test-composeAction-toolbarbutton";
+  let buttonId = "compose_action_mochi_test-composeAction-toolbarbutton";
 
   await extension.startup();
   await extension.awaitMessage();
 
   let composeWindow = await openComposeWindow();
   let composeDocument = composeWindow.document;
-  await promiseAnimationFrame(composeWindow);
-  await new Promise(resolve => composeWindow.setTimeout(resolve));
+
+  await focusWindow(composeWindow);
 
   try {
     let toolbar = composeDocument.getElementById(toolbarId);
@@ -171,7 +171,7 @@ add_task(async function setup() {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "compose_action@mochi.test",
         },
       },
       compose_action: {

@@ -12,7 +12,7 @@ add_task(async () => {
 
   window.gFolderTreeView.selectFolder(subFolders[0]);
   window.gFolderDisplay.selectViewIndex(0);
-  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
 });
 
 add_task(async () => {
@@ -22,7 +22,8 @@ add_task(async () => {
     await extension.startup();
     await promiseAnimationFrame();
 
-    let buttonId = "test1_mochi_test-messageDisplayAction-toolbarbutton";
+    let buttonId =
+      "message_display_action_mochi_test-messageDisplayAction-toolbarbutton";
     let toolbar = doc.getElementById("header-view-toolbar");
 
     let button = doc.getElementById(buttonId);
@@ -108,7 +109,7 @@ add_task(async () => {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "message_display_action@mochi.test",
         },
       },
       message_display_action: {
@@ -143,7 +144,9 @@ add_task(async () => {
       ) {
         return false;
       }
-      await awaitBrowserLoaded(win.document.getElementById("messagepane"));
+      await BrowserTestUtils.browserLoaded(
+        win.document.getElementById("messagepane")
+      );
       return true;
     }
   );
@@ -179,7 +182,9 @@ add_task(async () => {
       ) {
         return false;
       }
-      await awaitBrowserLoaded(win.document.getElementById("messagepane"));
+      await BrowserTestUtils.browserLoaded(
+        win.document.getElementById("messagepane")
+      );
       return true;
     }
   );

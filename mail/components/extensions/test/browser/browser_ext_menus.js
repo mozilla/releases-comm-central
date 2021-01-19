@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let gAccount, gFolders, gMessages;
+requestLongerTimeout(2);
+
+let gAccount, gFolders, gMessage;
 
 const { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
@@ -40,9 +42,9 @@ function rightClick(menu, element) {
  * @param {Element} browser  <browser> containing the element.
  * @returns {Promise}        A promise that resolves when the menu appears.
  */
-function rightClickOnContent(menu, selector, browser) {
+async function rightClickOnContent(menu, selector, browser) {
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  BrowserTestUtils.synthesizeMouseAtCenter(
+  await BrowserTestUtils.synthesizeMouseAtCenter(
     selector,
     { type: "contextmenu" },
     browser
@@ -122,7 +124,11 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
 
   Assert.equal(!!info.pageUrl, !!expectedInfo.pageUrl, "pageUrl in info");
   if (expectedInfo.pageUrl) {
-    Assert.ok(info.pageUrl.match(expectedInfo.pageUrl));
+    if (typeof expectedInfo.pageUrl == "string") {
+      Assert.equal(info.pageUrl, expectedInfo.pageUrl);
+    } else {
+      Assert.ok(info.pageUrl.match(expectedInfo.pageUrl));
+    }
   }
 
   Assert.equal(
@@ -169,7 +175,11 @@ async function checkClickedEvent(extension, expectedInfo, expectedTab) {
       `${infoKey} in info`
     );
     if (expectedInfo[infoKey]) {
-      Assert.ok(info[infoKey].match(expectedInfo[infoKey]));
+      if (typeof expectedInfo[infoKey] == "string") {
+        Assert.equal(info[infoKey], expectedInfo[infoKey]);
+      } else {
+        Assert.ok(info[infoKey].match(expectedInfo[infoKey]));
+      }
     }
   }
 
@@ -235,7 +245,7 @@ function createExtension(...permissions) {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "menus@mochi.test",
         },
       },
       permissions: [...permissions, "menus"],
@@ -256,7 +266,7 @@ add_task(async function set_up() {
       body: await fetch(`${URL_BASE}/content.html`).then(r => r.text()),
     },
   });
-  gMessages = [...gFolders[0].messages];
+  gMessage = gFolders[0].messages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
 
   window.gFolderTreeView.selectFolder(gAccount.incomingServer.rootFolder);
   if (
@@ -265,13 +275,6 @@ add_task(async function set_up() {
   ) {
     window.MsgToggleFolderPane();
   }
-  registerCleanupFunction(() => {
-    // This test is changing the default value of the folderpane splitter, which
-    // may cause other tests to fail.
-    document
-      .getElementById("folderpane_splitter")
-      .setAttribute("state", "collapsed");
-  });
 });
 
 async function subtest_folder_pane(...permissions) {
@@ -285,7 +288,7 @@ async function subtest_folder_pane(...permissions) {
   treeClick(folderTree, 1, 0, { type: "contextmenu" });
 
   await shownPromise;
-  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_folder_pane"));
+  Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_folder_pane"));
   menu.hidePopup();
 
   await checkShownEvent(
@@ -311,6 +314,7 @@ add_task(async function test_folder_pane_no_permissions() {
 
 async function subtest_message_panes(...permissions) {
   window.gFolderTreeView.selectFolder(gFolders[0]);
+  window.gFolderDisplay.tree.view.selection.select(0);
   if (window.IsMessagePaneCollapsed()) {
     window.MsgToggleMessagePane();
   }
@@ -318,7 +322,7 @@ async function subtest_message_panes(...permissions) {
   let extension = createExtension(...permissions);
   await extension.startup();
 
-  // Test the thread pane in the 3-pane tab.
+  info("Test the thread pane in the 3-pane tab.");
 
   let threadTree = document.getElementById("threadTree");
   treeClick(threadTree, 0, 1, {});
@@ -327,7 +331,7 @@ async function subtest_message_panes(...permissions) {
   treeClick(threadTree, 0, 1, { type: "contextmenu" });
 
   await shownPromise;
-  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_message_list"));
+  Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_message_list"));
   menu.hidePopup();
 
   await checkShownEvent(
@@ -339,16 +343,15 @@ async function subtest_message_panes(...permissions) {
         ? { accountId: gAccount.key, path: "/Trash" }
         : undefined,
       selectedMessages: permissions.includes("messagesRead")
-        ? { id: null, messages: [{ subject: gMessages[0].subject }] }
+        ? { id: null, messages: [{ subject: gMessage.subject }] }
         : undefined,
     },
     { active: true, index: 0, mailTab: true }
   );
 
-  // Test the message pane in the 3-pane tab.
+  info("Test the message pane in the 3-pane tab.");
 
   let messagePane = document.getElementById("messagepane");
-  await awaitBrowserLoaded(messagePane);
 
   await subtest_content(
     extension,
@@ -358,11 +361,16 @@ async function subtest_message_panes(...permissions) {
     { active: true, index: 0, mailTab: true }
   );
 
-  // Test the message pane in a tab.
+  window.gFolderDisplay.tree.view.selection.clearSelection();
+  await BrowserTestUtils.browserLoaded(messagePane, undefined, "about:blank");
 
-  window.MsgOpenSelectedMessages();
-  await BrowserTestUtils.waitForEvent(window, "MsgLoaded");
-  await awaitBrowserLoaded(messagePane);
+  info("Test the message pane in a tab.");
+
+  window.MailUtils.displayMessages(
+    [gMessage],
+    window.gFolderDisplay.view,
+    document.getElementById("tabmail")
+  );
 
   await subtest_content(
     extension,
@@ -372,21 +380,27 @@ async function subtest_message_panes(...permissions) {
     { active: true, index: 1, mailTab: false }
   );
 
+  window.gFolderDisplay.tree.view.selection.clearSelection();
+
   let tabmail = document.getElementById("tabmail");
   tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
 
-  // Test the message pane in a separate window.
+  if (
+    messagePane.webProgress?.isLoadingDocument ||
+    messagePane.currentURI?.spec != "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(messagePane, undefined, "about:blank");
+  }
 
-  let displayWindowPromise = BrowserTestUtils.domWindowOpened();
-  window.MsgOpenNewWindowForMessage();
+  info("Test the message pane in a separate window.");
+
+  let displayWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  window.MsgOpenNewWindowForMessage(gMessage);
   let displayWindow = await displayWindowPromise;
-  await BrowserTestUtils.waitForEvent(displayWindow, "MsgLoaded");
-  await focusWindow(displayWindow);
 
   let displayDocument = displayWindow.document;
   menu = displayDocument.getElementById("mailContext");
   messagePane = displayDocument.getElementById("messagepane");
-  await awaitBrowserLoaded(messagePane);
 
   await subtest_content(
     extension,
@@ -399,8 +413,6 @@ async function subtest_message_panes(...permissions) {
   await extension.unload();
 
   await BrowserTestUtils.closeWindow(displayWindow);
-  window.gFolderTreeView.selectFolder(gAccount.incomingServer.rootFolder);
-  window.gFolderTreeView.selectFolder(gFolders[0]);
 }
 add_task(async function test_message_panes() {
   return subtest_message_panes("accountsRead", "messagesRead");
@@ -418,7 +430,7 @@ add_task(async function test_message_panes_no_permissions() {
 add_task(async function test_tab() {
   async function checkTabEvent(index, active, mailTab) {
     await rightClick(menu, tabs[index]);
-    Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_tab"));
+    Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_tab"));
     menu.hidePopup();
 
     await checkShownEvent(
@@ -456,16 +468,29 @@ async function subtest_content(
   pageUrl,
   tab
 ) {
+  if (
+    browser.webProgress?.isLoadingDocument ||
+    browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(
+      browser,
+      undefined,
+      url => url != "about:blank"
+    );
+  }
+
   let { ownerDocument, ownerGlobal } = browser;
   let menu = ownerDocument.getElementById(browser.getAttribute("context"));
 
-  BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser);
+  await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser);
 
-  // Test a part of the page with no content.
+  info("Test a part of the page with no content.");
 
   await rightClickOnContent(menu, "body", browser);
-  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_page"));
+  Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_page"));
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   menu.hidePopup();
+  await hiddenPromise;
 
   await checkShownEvent(
     extension,
@@ -477,14 +502,14 @@ async function subtest_content(
     tab
   );
 
-  // Test selection.
+  info("Test selection.");
 
-  ContentTask.spawn(browser, null, () => {
+  await SpecialPowers.spawn(browser, [], () => {
     let text = content.document.querySelector("p");
     content.getSelection().selectAllChildren(text);
   });
   await rightClickOnContent(menu, "p", browser);
-  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_selection"));
+  Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_selection"));
   await checkShownEvent(
     extension,
     {
@@ -496,8 +521,9 @@ async function subtest_content(
     tab
   );
 
+  hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#test1_mochi_test-menuitem-_selection"),
+    menu.querySelector("#menus_mochi_test-menuitem-_selection"),
     {},
     ownerGlobal
   );
@@ -509,13 +535,14 @@ async function subtest_content(
     },
     tab
   );
+  await hiddenPromise;
 
-  BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
+  await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
 
-  // Test link.
+  info("Test link.");
 
   await rightClickOnContent(menu, "a", browser);
-  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_link"));
+  Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_link"));
   await checkShownEvent(
     extension,
     {
@@ -526,8 +553,9 @@ async function subtest_content(
     tab
   );
 
+  hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#test1_mochi_test-menuitem-_link"),
+    menu.querySelector("#menus_mochi_test-menuitem-_link"),
     {},
     ownerGlobal
   );
@@ -540,11 +568,12 @@ async function subtest_content(
     },
     tab
   );
+  await hiddenPromise;
 
-  // Test image.
+  info("Test image.");
 
   await rightClickOnContent(menu, "img", browser);
-  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_image"));
+  Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_image"));
   await checkShownEvent(
     extension,
     {
@@ -555,8 +584,9 @@ async function subtest_content(
     tab
   );
 
+  hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#test1_mochi_test-menuitem-_image"),
+    menu.querySelector("#menus_mochi_test-menuitem-_image"),
     {},
     ownerGlobal
   );
@@ -568,6 +598,7 @@ async function subtest_content(
     },
     tab
   );
+  await hiddenPromise;
 }
 
 add_task(async function test_content() {
@@ -626,17 +657,26 @@ add_task(async function test_content_tab() {
 });
 
 add_task(async function test_content_window() {
-  let extensionWindowPromise = BrowserTestUtils.domWindowOpened();
+  let extensionWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   window.openDialog(
     "chrome://messenger/content/extensionPopup.xhtml",
     "_blank",
-    "width=800,height=500",
+    "width=800,height=500,resizable",
     `${URL_BASE}/content.html`
   );
   let extensionWindow = await extensionWindowPromise;
-  await BrowserTestUtils.waitForEvent(extensionWindow, "load");
-  await BrowserTestUtils.browserLoaded(extensionWindow.browser);
   await focusWindow(extensionWindow);
+
+  if (
+    extensionWindow.browser.webProgress?.isLoadingDocument ||
+    extensionWindow.browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(
+      extensionWindow.browser,
+      undefined,
+      url => url != "about:blank"
+    );
+  }
 
   let extension = createExtension("<all_urls>");
   await extension.startup();
@@ -686,7 +726,7 @@ async function subtest_compose(...permissions) {
   let composeDocument = composeWindow.document;
   await focusWindow(composeWindow);
 
-  // Test the message being composed.
+  info("Test the message being composed.");
 
   let messagePane = composeWindow.GetCurrentEditorElement();
 
@@ -694,11 +734,11 @@ async function subtest_compose(...permissions) {
     extension,
     permissions.includes("compose"),
     messagePane,
-    /^about:blank\?compose$/,
+    "about:blank?compose",
     { active: true, index: 0, mailTab: false }
   );
 
-  // Test the attachments context menu.
+  info("Test the attachments context menu.");
 
   composeWindow.toggleAttachmentPane("show");
   let menu = composeDocument.getElementById("msgComposeAttachmentItemContext");
@@ -711,7 +751,7 @@ async function subtest_compose(...permissions) {
   );
   await rightClick(menu, attachmentBucket.itemChildren[0], composeWindow);
   Assert.ok(
-    menu.querySelector("#test1_mochi_test-menuitem-_compose_attachments")
+    menu.querySelector("#menus_mochi_test-menuitem-_compose_attachments")
   );
   menu.hidePopup();
 
@@ -730,7 +770,7 @@ async function subtest_compose(...permissions) {
   attachmentBucket.addItemToSelection(attachmentBucket.itemChildren[3]);
   await rightClick(menu, attachmentBucket.itemChildren[0], composeWindow);
   Assert.ok(
-    menu.querySelector("#test1_mochi_test-menuitem-_compose_attachments")
+    menu.querySelector("#menus_mochi_test-menuitem-_compose_attachments")
   );
   menu.hidePopup();
 

@@ -134,7 +134,7 @@ add_task(async () => {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "browser_action_properties@mochi.test",
         },
       },
       background: { scripts: ["utils.js", "background.js"] },
@@ -155,7 +155,7 @@ add_task(async () => {
   await extension.startup();
 
   let button = document.getElementById(
-    "test1_mochi_test-browserAction-toolbarbutton"
+    "browser_action_properties_mochi_test-browserAction-toolbarbutton"
   );
 
   extension.onMessage("checkProperty", async (property, expected) => {
