@@ -401,7 +401,9 @@ class LDAPDaemon {
    * {dn: "...", {cn: "Bob Smith", ...}}
    */
   add(...entries) {
-    for (let e of entries) {
+    // Clone the data before munging it.
+    let entriesCopy = JSON.parse(JSON.stringify(entries));
+    for (let e of entriesCopy) {
       if (e.dn === undefined || e.attributes === undefined) {
         throw new Error("bad entry");
       }
