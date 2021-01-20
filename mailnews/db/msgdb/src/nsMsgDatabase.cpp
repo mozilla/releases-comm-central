@@ -28,7 +28,6 @@
 #include "nsIMsgFolderCacheElement.h"
 #include "MailNewsTypes2.h"
 #include "nsMsgUtils.h"
-#include "nsMsgKeyArray.h"
 #include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
 #include "nsComponentManagerUtils.h"
@@ -2762,17 +2761,16 @@ nsMsgDatabase::SyncCounts() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsIMsgKeyArray* aKeys) {
-  NS_ENSURE_ARG_POINTER(aKeys);
+NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsTArray<nsMsgKey>& keys) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMdbTableRowCursor> rowCursor;
-
   RememberLastUseTime();
+  keys.Clear();
 
   if (m_mdbAllMsgHeadersTable) {
     uint32_t numMsgs = 0;
     m_mdbAllMsgHeadersTable->GetCount(GetEnv(), &numMsgs);
-    aKeys->SetCapacity(numMsgs);
+    keys.SetCapacity(numMsgs);
     rv = m_mdbAllMsgHeadersTable->GetTableRowCursor(GetEnv(), -1,
                                                     getter_AddRefs(rowCursor));
     while (NS_SUCCEEDED(rv) && rowCursor) {
@@ -2782,7 +2780,7 @@ NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsIMsgKeyArray* aKeys) {
       rv = rowCursor->NextRowOid(GetEnv(), &outOid, &outPos);
       // is this right? Mork is returning a 0 id, but that should valid.
       if (outPos < 0 || outOid.mOid_Id == (mdb_id)-1) break;
-      if (NS_SUCCEEDED(rv)) aKeys->AppendElement(outOid.mOid_Id);
+      if (NS_SUCCEEDED(rv)) keys.AppendElement(outOid.mOid_Id);
     }
   }
   return rv;
@@ -3036,12 +3034,10 @@ NS_IMETHODIMP nsMsgDatabase::CreateNewHdr(nsMsgKey key, nsIMsgDBHdr** pnewHdr) {
     } else {
       // We failed to create a new row. That can happen if we run out of keys,
       // which will force a reparse.
-      RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
+      nsTArray<nsMsgKey> keys;
       if (NS_SUCCEEDED(ListAllKeys(keys))) {
-        uint32_t numKeys;
-        keys->GetLength(&numKeys);
-        for (uint32_t i = 0; i < numKeys; i++) {
-          if (keys->m_keys[i] >= kForceReparseKey) {
+        for (nsMsgKey key : keys) {
+          if (key >= kForceReparseKey) {
             // Force a reparse.
             if (m_dbFolderInfo)
               m_dbFolderInfo->SetBooleanProperty("forceReparse", true);
@@ -4374,8 +4370,8 @@ NS_IMETHODIMP nsMsgDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation* op) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsIMsgKeyArray* aKeys) {
-  NS_ENSURE_ARG_POINTER(aKeys);
+NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsTArray<nsMsgKey>& keys) {
+  keys.Clear();
   nsCOMPtr<nsISimpleEnumerator> enumerator;
   uint32_t flag = nsMsgMessageFlags::Offline;
   // if we change this routine to return an enumerator that generates the keys
@@ -4397,7 +4393,7 @@ NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsIMsgKeyArray* aKeys) {
       if (NS_SUCCEEDED(rv) && dbMessage) {
         nsMsgKey msgKey;
         dbMessage->GetMessageKey(&msgKey);
-        aKeys->AppendElement(msgKey);
+        keys.AppendElement(msgKey);
       }
     }
   }
@@ -4465,16 +4461,10 @@ NS_IMETHODIMP nsMsgDatabase::GetNextFakeOfflineMsgKey(
 
 #ifdef DEBUG
 nsresult nsMsgDatabase::DumpContents() {
-  nsMsgKey key;
-  uint32_t i;
-
-  RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
-  if (!keys) return NS_ERROR_OUT_OF_MEMORY;
+  nsTArray<nsMsgKey> keys;
   nsresult rv = ListAllKeys(keys);
-  uint32_t numKeys;
-  keys->GetLength(&numKeys);
-  for (i = 0; i < numKeys; i++) {
-    key = keys->m_keys[i];
+  NS_ENSURE_SUCCESS(rv, rv);
+  for (nsMsgKey key : keys) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
     if (NS_SUCCEEDED(rv)) {
@@ -4490,8 +4480,8 @@ nsresult nsMsgDatabase::DumpContents() {
   }
   nsTArray<nsMsgKey> threads;
   rv = ListAllThreads(&threads);
-  for (i = 0; i < threads.Length(); i++) {
-    key = threads[i];
+  NS_ENSURE_SUCCESS(rv, rv);
+  for (nsMsgKey key : threads) {
     printf("thread key = %u\n", key);
     // DumpThread(key);
   }

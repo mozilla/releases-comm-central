@@ -229,18 +229,6 @@
   }
 
 //
-// nsMsgKeyArray
-//
-#define NS_MSGKEYARRAY_CONTRACTID "@mozilla.org/messenger/msgkeyarray;1"
-
-#define NS_MSGKEYARRAY_CID                           \
-  {                                                  \
-    0x86989d1d, 0xc8a1, 0x4e8e, {                    \
-      0xaa, 0xe6, 0xd0, 0xda, 0xbc, 0xac, 0xd8, 0xc2 \
-    }                                                \
-  }
-
-//
 // nsMsgWindow
 //
 #define NS_MSGWINDOW_CONTRACTID "@mozilla.org/messenger/msgwindow;1"

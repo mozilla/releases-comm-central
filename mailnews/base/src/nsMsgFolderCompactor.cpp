@@ -26,7 +26,6 @@
 #include "prprf.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsIMsgDatabase.h"
-#include "nsArrayUtils.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgStatusFeedback.h"
 #include "nsMsgBaseCID.h"
@@ -47,7 +46,6 @@ NS_IMPL_ISUPPORTS(nsFolderCompactState, nsIMsgFolderCompactor,
 
 nsFolderCompactState::nsFolderCompactState() {
   m_fileStream = nullptr;
-  m_size = 0;
   m_curIndex = 0;
   m_status = NS_OK;
   m_compactAll = false;
@@ -106,9 +104,8 @@ nsresult nsFolderCompactState::BuildMessageURI(const char* baseURI,
 
 nsresult nsFolderCompactState::InitDB(nsIMsgDatabase* db) {
   nsCOMPtr<nsIMsgDatabase> mailDBFactory;
-  nsresult rv = db->ListAllKeys(m_keyArray);
+  nsresult rv = db->ListAllKeys(m_keys);
   NS_ENSURE_SUCCESS(rv, rv);
-  m_size = m_keyArray->m_keys.Length();
 
   nsCOMPtr<nsIMsgDBService> msgDBService =
       do_GetService(NS_MSGDB_SERVICE_CONTRACTID, &rv);
@@ -334,8 +331,6 @@ nsresult nsFolderCompactState::Init(nsIMsgFolder* folder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   m_window = aMsgWindow;
-  m_keyArray = new nsMsgKeyArray;
-  m_size = 0;
   m_totalMsgSize = 0;
   rv = InitDB(db);
   if (NS_FAILED(rv)) {
@@ -409,17 +404,16 @@ nsresult nsFolderCompactState::StartCompacting() {
     notifier->NotifyItemEvent(m_folder, "FolderCompactStart"_ns, nullptr,
                               EmptyCString());
 
-  // TODO: test whether sorting the messages (m_keyArray) by messageOffset
+  // TODO: test whether sorting the messages (m_keys) by messageOffset
   // would improve performance on large files (less seeks).
-  // The m_keyArray is in the order as stored in DB and on IMAP or News
+  // The m_keys array is in the order as stored in DB and on IMAP or News
   // the messages stored on the mbox file are not necessarily in the same order.
-  if (m_size > 0) {
+  if (m_keys.Length() > 0) {
     nsCOMPtr<nsIURI> notUsed;
     ShowCompactingStatusMsg();
     NS_ADDREF_THIS();
-    rv = m_messageService->CopyMessages(m_keyArray->m_keys, m_folder, this,
-                                        false, nullptr, m_window,
-                                        getter_AddRefs(notUsed));
+    rv = m_messageService->CopyMessages(m_keys, m_folder, this, false, nullptr,
+                                        m_window, getter_AddRefs(notUsed));
   } else {  // no messages to copy with
     FinishCompact();
   }
@@ -669,7 +663,7 @@ nsFolderCompactState::OnStopRequest(nsIRequest* request, nsresult status) {
   } else {
     // XXX TODO: Error checking and handling missing here.
     EndCopy(nullptr, status);
-    if (m_curIndex >= m_size) {
+    if (m_curIndex >= m_keys.Length()) {
       msgHdr = nullptr;
       // no more to copy finish it up
       FinishCompact();
@@ -703,8 +697,7 @@ nsFolderCompactState::OnDataAvailable(nsIRequest* request,
     m_statusOffset = 0;
     m_addedHeaderSize = 0;
     m_messageUri.Truncate();  // clear the previous message uri
-    if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(),
-                                     m_keyArray->m_keys[m_curIndex],
+    if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
                                      m_messageUri))) {
       rv = GetMessage(getter_AddRefs(m_curSrcHdr));
       NS_ENSURE_SUCCESS(rv, rv);
@@ -915,8 +908,7 @@ nsOfflineStoreCompactState::~nsOfflineStoreCompactState() {}
 nsresult nsOfflineStoreCompactState::InitDB(nsIMsgDatabase* db) {
   // Start with the list of messages we have offline as the possible
   // message to keep when compacting the offline store.
-  db->ListAllOfflineMsgs(m_keyArray);
-  m_size = m_keyArray->m_keys.Length();
+  db->ListAllOfflineMsgs(m_keys);
   m_db = db;
   return NS_OK;
 }
@@ -927,12 +919,12 @@ nsresult nsOfflineStoreCompactState::InitDB(nsIMsgDatabase* db) {
  * it can copy, or it runs out of messages.
  */
 nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
-  while (m_curIndex < m_size) {
+  while (m_curIndex < m_keys.Length()) {
     // Filter out msgs that have the "pendingRemoval" attribute set.
     nsCOMPtr<nsIMsgDBHdr> hdr;
     nsString pendingRemoval;
-    nsresult rv = m_db->GetMsgHdrForKey(m_keyArray->m_keys[m_curIndex],
-                                        getter_AddRefs(hdr));
+    nsresult rv =
+        m_db->GetMsgHdrForKey(m_keys[m_curIndex], getter_AddRefs(hdr));
     NS_ENSURE_SUCCESS(rv, rv);
     hdr->GetProperty("pendingRemoval", pendingRemoval);
     if (!pendingRemoval.IsEmpty()) {
@@ -947,7 +939,7 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
       continue;
     }
     m_messageUri.Truncate();  // clear the previous message uri
-    rv = BuildMessageURI(m_baseMessageUri.get(), m_keyArray->m_keys[m_curIndex],
+    rv = BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
                          m_messageUri);
     NS_ENSURE_SUCCESS(rv, rv);
     m_startOfMsg = true;
@@ -970,7 +962,7 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
     } else
       break;
   }
-  done = m_curIndex >= m_size;
+  done = m_curIndex >= m_keys.Length();
   // In theory, we might be able to stream the next message, so
   // return NS_OK, not rv.
   return NS_OK;
@@ -1025,7 +1017,8 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest* request,
 
   if (m_window) {
     m_window->GetStatusFeedback(getter_AddRefs(statusFeedback));
-    if (statusFeedback) statusFeedback->ShowProgress(100 * m_curIndex / m_size);
+    if (statusFeedback)
+      statusFeedback->ShowProgress(100 * m_curIndex / m_keys.Length());
   }
   // advance to next message
   m_curIndex++;
@@ -1130,7 +1123,7 @@ nsFolderCompactState::EndCopy(nsISupports* url, nsresult aStatus) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
 
-  if (m_curIndex >= m_size) {
+  if (m_curIndex >= m_keys.Length()) {
     NS_ASSERTION(false, "m_curIndex out of bounds");
     return NS_OK;
   }
@@ -1175,14 +1168,15 @@ nsFolderCompactState::EndCopy(nsISupports* url, nsresult aStatus) {
   nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
   if (m_window) {
     m_window->GetStatusFeedback(getter_AddRefs(statusFeedback));
-    if (statusFeedback) statusFeedback->ShowProgress(100 * m_curIndex / m_size);
+    if (statusFeedback)
+      statusFeedback->ShowProgress(100 * m_curIndex / m_keys.Length());
   }
   return NS_OK;
 }
 
 nsresult nsOfflineStoreCompactState::StartCompacting() {
   nsresult rv = NS_OK;
-  if (m_size > 0 && m_curIndex == 0) {
+  if (m_keys.Length() > 0 && m_curIndex == 0) {
     NS_ADDREF_THIS();  // we own ourselves, until we're done, anyway.
     ShowCompactingStatusMsg();
     bool done = false;
@@ -1207,8 +1201,7 @@ nsOfflineStoreCompactState::OnDataAvailable(nsIRequest* request,
     m_statusOffset = 0;
     m_offlineMsgSize = 0;
     m_messageUri.Truncate();  // clear the previous message uri
-    if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(),
-                                     m_keyArray->m_keys[m_curIndex],
+    if (NS_SUCCEEDED(BuildMessageURI(m_baseMessageUri.get(), m_keys[m_curIndex],
                                      m_messageUri))) {
       rv = GetMessage(getter_AddRefs(m_curSrcHdr));
       NS_ENSURE_SUCCESS(rv, rv);

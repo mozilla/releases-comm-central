@@ -8,7 +8,6 @@
 #include "nsCOMPtr.h"
 #include "nsNNTPArticleList.h"
 #include "nsIMsgFolder.h"
-#include "nsMsgKeyArray.h"
 
 NS_IMPL_ISUPPORTS(nsNNTPArticleList, nsINNTPArticleList)
 
@@ -40,11 +39,11 @@ nsNNTPArticleList::Initialize(nsIMsgNewsFolder* newsFolder) {
   NS_ENSURE_SUCCESS(rv, rv);
   if (!m_newsDB) return NS_ERROR_UNEXPECTED;
 
-  RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
+  nsTArray<nsMsgKey> keys;
   rv = m_newsDB->ListAllKeys(keys);
   NS_ENSURE_SUCCESS(rv, rv);
-  keys->Sort();
-  m_idsInDB.AppendElements(keys->m_keys);
+  keys.Sort();
+  m_idsInDB.AppendElements(keys);
 
   return NS_OK;
 }

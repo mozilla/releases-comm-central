@@ -7,7 +7,6 @@
 #include "nsIImapService.h"
 #include "nsMsgImapCID.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsMsgKeyArray.h"
 #include "nsIMsgMailSession.h"
 #include "nsMsgFolderFlags.h"
 #include "nsIAutoSyncManager.h"
@@ -311,11 +310,11 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(
 
   // create a queue to process existing headers for the first time
   if (mExistingHeadersQ.IsEmpty()) {
-    RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
+    nsTArray<nsMsgKey> keys;
     rv = database->ListAllKeys(keys);
     NS_ENSURE_SUCCESS(rv, rv);
-    keys->Sort();
-    mExistingHeadersQ.AppendElements(keys->m_keys);
+    keys.Sort();
+    mExistingHeadersQ.AppendElements(keys);
     mProcessPointer = 0;
   }
 

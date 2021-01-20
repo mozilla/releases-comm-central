@@ -20,7 +20,6 @@
 #include "nsImapUtils.h"
 #include "nsMsgUtils.h"
 #include "nsIMsgMailSession.h"
-#include "nsMsgKeyArray.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgLocalCID.h"
 #include "nsITransactionManager.h"
@@ -2417,11 +2416,10 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
       dbFolderInfo->SetCharProperty(kModSeqPropertyName,
                                     nsDependentCString(intStrBuf));
     }
-    RefPtr<nsMsgKeyArray> keys = new nsMsgKeyArray;
-    if (!keys) return NS_ERROR_OUT_OF_MEMORY;
+    nsTArray<nsMsgKey> keys;
     rv = mDatabase->ListAllKeys(keys);
     NS_ENSURE_SUCCESS(rv, rv);
-    existingKeys.AppendElements(keys->m_keys);
+    existingKeys.AppendElements(keys);
     mDatabase->ListAllOfflineDeletes(&existingKeys);
   }
   int32_t folderValidity;

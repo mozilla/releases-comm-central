@@ -298,7 +298,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    * Keys are returned in the order as stored in the database.
    * The caller should sort them if it needs to.
    */
-  void ListAllKeys(in nsIMsgKeyArray array);
+  Array<nsMsgKey> listAllKeys();
 
   nsISimpleEnumerator EnumerateMessages();
   nsISimpleEnumerator ReverseEnumerateMessages();
@@ -464,7 +464,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   nsISimpleEnumerator EnumerateOfflineOps();
   [noscript] void ListAllOfflineOpIds(in nsMsgKeyArrayPtr offlineOpIds);
   [noscript] void ListAllOfflineDeletes(in nsMsgKeyArrayPtr offlineDeletes);
-  void ListAllOfflineMsgs(in nsIMsgKeyArray aKeys);
+  Array<nsMsgKey> ListAllOfflineMsgs();
 
   void setAttributeOnPendingHdr(in nsIMsgDBHdr pendingHdr, in string property,
                                   in string propertyVal);
