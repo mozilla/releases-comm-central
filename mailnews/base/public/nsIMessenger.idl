@@ -85,15 +85,26 @@ interface nsIMessenger : nsISupports {
     void saveMessages(in Array<AString> filenameArray,
                       in Array<AUTF8String> messageUriArray);
 
-    void openAttachment(in ACString contentTpe, in ACString url, in ACString displayName, in ACString messageUri, in boolean isExternalAttachment);
-    void saveAttachment(in ACString contentTpe, in ACString url, in ACString displayName, in ACString messageUri, in boolean isExternalAttachment);
-    void saveAllAttachments(in Array<ACString> contentTypeArray,
-                            in Array<ACString> urlArray,
-                            in Array<ACString> displayNameArray,
-                            in Array<ACString> messageUriArray);
+    void openAttachment(in AUTF8String contentType,
+                        in AUTF8String url,
+                        in AUTF8String displayName,
+                        in AUTF8String messageUri,
+                        in boolean isExternalAttachment);
+    void saveAttachment(in AUTF8String contentType,
+                        in AUTF8String url,
+                        in AUTF8String displayName,
+                        in AUTF8String messageUri,
+                        in boolean isExternalAttachment);
+    void saveAllAttachments(in Array<AUTF8String> contentTypeArray,
+                            in Array<AUTF8String> urlArray,
+                            in Array<AUTF8String> displayNameArray,
+                            in Array<AUTF8String> messageUriArray);
 
-    void saveAttachmentToFile(in nsIFile aFile, in ACString aUrl, in ACString aMessageUri,
-                              in ACString aContentType, in nsIUrlListener aListener);
+    void saveAttachmentToFile(in nsIFile aFile,
+                              in AUTF8String aUrl,
+                              in AUTF8String aMessageUri,
+                              in AUTF8String aContentType,
+                              in nsIUrlListener aListener);
 
     /**
      * For a single message and attachments, save these attachments to a file, and
@@ -110,24 +121,33 @@ interface nsIMessenger : nsISupports {
      * @param aListener         Listener to inform of start and stop of detach
      */
     void detachAttachmentsWOPrompts(in nsIFile aDestFolder,
-                                    in Array<ACString> aContentTypeArray,
-                                    in Array<ACString> aUrlArray,
-                                    in Array<ACString> aDisplayNameArray,
-                                    in Array<ACString> aMessageUriArray,
+                                    in Array<AUTF8String> aContentTypeArray,
+                                    in Array<AUTF8String> aUrlArray,
+                                    in Array<AUTF8String> aDisplayNameArray,
+                                    in Array<AUTF8String> aMessageUriArray,
                                     in nsIUrlListener aListener);
 
-    void detachAttachment(in ACString contentTpe, in ACString url, in ACString displayName, in ACString messageUri, in boolean saveFirst, [optional] in boolean withoutWarning);
-    void detachAllAttachments(in Array<ACString> contentTypeArray,
-                              in Array<ACString> urlArray,
-                              in Array<ACString> displayNameArray,
-                              in Array<ACString> messageUriArray,
+    void detachAttachment(in AUTF8String contentType,
+                          in AUTF8String url,
+                          in AUTF8String displayName,
+                          in AUTF8String messageUri,
+                          in boolean saveFirst,
+                          [optional] in boolean withoutWarning);
+    void detachAllAttachments(in Array<AUTF8String> contentTypeArray,
+                              in Array<AUTF8String> urlArray,
+                              in Array<AUTF8String> displayNameArray,
+                              in Array<AUTF8String> messageUriArray,
                               in boolean saveFirst,
                               [optional] in boolean withoutWarning);
     // saveAttachmentToFolder is used by the drag and drop code to drop an attachment to a destination folder
     // We need to return the actual file path (including the filename).
-    nsIFile saveAttachmentToFolder(in ACString contentType, in ACString url, in ACString displayName, in ACString messageUri, in nsIFile aDestFolder);
+    nsIFile saveAttachmentToFolder(in AUTF8String contentType,
+                                   in AUTF8String url,
+                                   in AUTF8String displayName,
+                                   in AUTF8String messageUri,
+                                   in nsIFile aDestFolder);
 
-    readonly attribute ACString lastDisplayedMessageUri;
+    readonly attribute AUTF8String lastDisplayedMessageUri;
 
     nsIMsgMessageService messageServiceFromURI(in AUTF8String aUri);
     nsIMsgDBHdr msgHdrFromURI(in AUTF8String aUri);
@@ -148,6 +168,6 @@ interface nsIMessenger : nsISupports {
      *          First msgURI, then folderURI. So the array will be
      *          twice as long as the number of history positions.
      */
-    Array<ACString> getNavigateHistory();
+    Array<AUTF8String> getNavigateHistory();
     AString formatFileSize(in unsigned long long aPos, [optional] in boolean aUseKB);
 };
