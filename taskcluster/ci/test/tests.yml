@@ -20,7 +20,6 @@ xpcshell:
     chunks: 4
     instance-size: default
     max-run-time: 5400
-    e10s: false
     allow-software-gl-layers: false
     mozharness:
         script: desktop_unittest.py
@@ -74,7 +73,7 @@ mochitest-thunderbird:
     loopback-video: true
     max-run-time: 3600
     chunks: 5
-    e10s: false
+    e10s: true
     mozharness:
         script: desktop_unittest.py
         mochitest-flavor: browser
