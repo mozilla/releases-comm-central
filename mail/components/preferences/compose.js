@@ -15,6 +15,10 @@ var { InlineSpellChecker } = ChromeUtils.import(
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
+var { E10SUtils } = ChromeUtils.import("resource://gre/modules/E10SUtils.jsm");
+var { ExtensionParent } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionParent.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Preferences.addAll([
@@ -576,23 +580,36 @@ var gCloudFile = {
 
     let url = account.managementURL + `?accountId=${account.accountKey}`;
 
-    let iframe = document.createXULElement("iframe");
-    iframe.setAttribute("flex", "1");
-    // allows keeping dialog background color without hoops
-    iframe.setAttribute("transparent", "true");
+    let browser = document.createXULElement("browser");
+    browser.setAttribute("type", "content");
+    browser.setAttribute("remote", "true");
+    browser.setAttribute("remoteType", E10SUtils.EXTENSION_REMOTE_TYPE);
+    browser.setAttribute("forcemessagemanager", "true");
+    if (account.extension) {
+      browser.setAttribute(
+        "initialBrowsingContextGroupId",
+        account.extension.policy.browsingContextGroupId
+      );
+    }
+    browser.setAttribute("disableglobalhistory", "true");
+    browser.setAttribute("messagemanagergroup", "single-site");
 
-    let type = url.startsWith("chrome:") ? "chrome" : "content";
-    iframe.setAttribute("type", type);
-    iframe.setAttribute("src", url);
+    browser.setAttribute("flex", "1");
+    // Allows keeping dialog background color without hoops.
+    browser.setAttribute("transparent", "true");
 
-    // If we have a past iframe, we replace it. Else append
-    // to the wrapper.
+    // If we have a past browser, we replace it. Else append to the wrapper.
     if (this._settings) {
       this._settings.remove();
     }
 
-    this._settingsPanelWrap.appendChild(iframe);
-    this._settings = iframe;
+    this._settingsPanelWrap.appendChild(browser);
+    this._settings = browser;
+
+    ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
+    browser.loadURI(url, {
+      triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+    });
   },
 
   onListOverflow() {

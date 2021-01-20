@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* eslint-env webextensions */
+
 let { AddonManager } = ChromeUtils.import(
   "resource://gre/modules/AddonManager.jsm"
 );
@@ -11,6 +13,45 @@ let { cloudFileAccounts } = ChromeUtils.import(
 let { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
+
+let extension;
+async function startExtension() {
+  extension = ExtensionTestUtils.loadExtension({
+    async background() {
+      browser.test.onMessage.addListener(async message => {
+        let accounts = await browser.cloudFile.getAllAccounts();
+        for (let account of accounts) {
+          await browser.cloudFile.updateAccount(account.id, {
+            configured: true,
+          });
+        }
+        browser.test.sendMessage("ready");
+      });
+    },
+    files: {
+      "management.html": `<html>
+        <body>
+          <a id="a" href="https://www.example.com/">Click me!</a>
+        </body>
+      </html>`,
+    },
+    manifest: {
+      cloud_file: {
+        name: "Mochitest",
+        management_url: "management.html",
+      },
+      applications: { gecko: { id: "cloudfile@mochitest" } },
+    },
+  });
+
+  info("Starting extension");
+  await extension.startup();
+
+  if (accountIsConfigured) {
+    extension.sendMessage("set configured");
+    await extension.awaitMessage("ready");
+  }
+}
 
 add_task(async () => {
   let weTransfer = await AddonManager.getAddonByID(
@@ -30,29 +71,7 @@ add_task(async () => {
   }
 });
 
-const ICON_URL = getRootDirectory(gTestPath) + "files/icon.svg";
-const MANAGEMENT_URL = getRootDirectory(gTestPath) + "files/management.html";
 let accountIsConfigured = false;
-let provider = {
-  type: "Mochitest",
-  displayName: "Mochitest",
-  iconURL: ICON_URL,
-  initAccount(accountKey) {
-    return {
-      accountKey,
-      type: "Mochitest",
-      get displayName() {
-        return Services.prefs.getCharPref(
-          `mail.cloud_files.accounts.${this.accountKey}.displayName`,
-          "Mochitest Account"
-        );
-      },
-      iconURL: ICON_URL,
-      configured: accountIsConfigured,
-      managementURL: MANAGEMENT_URL,
-    };
-  },
-};
 
 // Mock the prompt service. We're going to be asked if we're sure
 // we want to remove an account, so let's say yes.
@@ -137,12 +156,12 @@ add_task(async function addRemoveAccounts() {
   );
   ok(!cloudFileDefaultPanel.hidden);
 
-  let iframeWrapper = prefsDocument.getElementById("cloudFileSettingsWrapper");
-  is(iframeWrapper.childElementCount, 0);
+  let browserWrapper = prefsDocument.getElementById("cloudFileSettingsWrapper");
+  is(browserWrapper.childElementCount, 0);
 
   // Register our test provider.
 
-  cloudFileAccounts.registerProvider("Mochitest", provider);
+  await startExtension();
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 0);
 
@@ -153,16 +172,25 @@ add_task(async function addRemoveAccounts() {
     buttonList.children[0].getAttribute("value"),
     "ext-wetransfer@extensions.thunderbird.net"
   );
-  is(buttonList.children[1].getAttribute("value"), "Mochitest");
-  is(buttonList.children[1].style.listStyleImage, `url("${ICON_URL}")`);
+  is(buttonList.children[1].getAttribute("value"), "ext-cloudfile@mochitest");
+  is(
+    buttonList.children[1].style.listStyleImage,
+    `url("chrome://messenger/content/extension.svg")`
+  );
 
   is(menuButton.itemCount, 2);
   is(
     menuButton.getItemAtIndex(0).getAttribute("value"),
     "ext-wetransfer@extensions.thunderbird.net"
   );
-  is(menuButton.getItemAtIndex(1).getAttribute("value"), "Mochitest");
-  is(menuButton.getItemAtIndex(1).getAttribute("image"), ICON_URL);
+  is(
+    menuButton.getItemAtIndex(1).getAttribute("value"),
+    "ext-cloudfile@mochitest"
+  );
+  is(
+    menuButton.getItemAtIndex(1).getAttribute("image"),
+    "chrome://messenger/content/extension.svg"
+  );
 
   // Create a new account.
 
@@ -176,7 +204,7 @@ add_task(async function addRemoveAccounts() {
 
   let account = cloudFileAccounts.accounts[0];
   let accountKey = account.accountKey;
-  is(cloudFileAccounts.accounts[0].type, "Mochitest");
+  is(cloudFileAccounts.accounts[0].type, "ext-cloudfile@mochitest");
 
   // Check prefs were updated.
 
@@ -184,11 +212,11 @@ add_task(async function addRemoveAccounts() {
     Services.prefs.getCharPref(
       `mail.cloud_files.accounts.${accountKey}.displayName`
     ),
-    "Mochitest Account"
+    "Mochitest"
   );
   is(
     Services.prefs.getCharPref(`mail.cloud_files.accounts.${accountKey}.type`),
-    "Mochitest"
+    "ext-cloudfile@mochitest"
   );
 
   // Check UI was updated.
@@ -199,24 +227,31 @@ add_task(async function addRemoveAccounts() {
 
   let accountListItem = accountList.selectedItem;
   is(accountListItem.getAttribute("value"), accountKey);
-  is(accountListItem.style.listStyleImage, `url("${ICON_URL}")`);
-  is(accountListItem.querySelector("label").value, "Mochitest Account");
+  is(
+    accountListItem.style.listStyleImage,
+    `url("chrome://messenger/content/extension.svg")`
+  );
+  is(accountListItem.querySelector("label").value, "Mochitest");
   is(accountListItem.querySelector("image.configuredWarning").hidden, false);
 
   ok(cloudFileDefaultPanel.hidden);
-  is(iframeWrapper.childElementCount, 1);
+  is(browserWrapper.childElementCount, 1);
 
-  let iframe = iframeWrapper.firstElementChild;
-  is(iframe.src, `${MANAGEMENT_URL}?accountId=${accountKey}`);
-  if (iframe.contentDocument.readyState != "complete") {
-    await BrowserTestUtils.waitForEvent(iframe, "load");
+  let browser = browserWrapper.firstElementChild;
+  if (
+    browser.webProgress?.isLoadingDocument ||
+    browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(browser);
   }
-  is(iframe.contentDocument.readyState, "complete");
-  EventUtils.synthesizeMouseAtCenter(
-    iframe.contentDocument.getElementById("a"),
-    {},
-    iframe.contentWindow
+  is(
+    browser.currentURI.pathQueryRef,
+    `/management.html?accountId=${accountKey}`
   );
+
+  let tabmail = document.getElementById("tabmail");
+  let tabCount = tabmail.tabInfo.length;
+  BrowserTestUtils.synthesizeMouseAtCenter("a", {}, browser);
   // It might take a moment to get to the external protocol service.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -224,6 +259,7 @@ add_task(async function addRemoveAccounts() {
     mockExternalProtocolService.urlLoaded("https://www.example.com/"),
     "Link click sent to external protocol service."
   );
+  is(tabmail.tabInfo.length, tabCount, "No new tab opened");
 
   // Rename the account.
 
@@ -241,7 +277,7 @@ add_task(async function addRemoveAccounts() {
   );
   ok(accountListItem.querySelector("label").hidden);
   ok(!accountListItem.querySelector("input").hidden);
-  is(accountListItem.querySelector("input").value, "Mochitest Account");
+  is(accountListItem.querySelector("input").value, "Mochitest");
   EventUtils.synthesizeKey("VK_RIGHT", undefined, prefsWindow);
   EventUtils.synthesizeKey("!", undefined, prefsWindow);
   EventUtils.synthesizeKey("VK_RETURN", undefined, prefsWindow);
@@ -250,13 +286,13 @@ add_task(async function addRemoveAccounts() {
 
   is(prefsDocument.activeElement, accountList);
   ok(!accountListItem.querySelector("label").hidden);
-  is(accountListItem.querySelector("label").value, "Mochitest Account!");
+  is(accountListItem.querySelector("label").value, "Mochitest!");
   ok(accountListItem.querySelector("input").hidden);
   is(
     Services.prefs.getCharPref(
       `mail.cloud_files.accounts.${accountKey}.displayName`
     ),
-    "Mochitest Account!"
+    "Mochitest!"
   );
 
   // Start to rename the account, but bail out.
@@ -283,13 +319,13 @@ add_task(async function addRemoveAccounts() {
 
   is(prefsDocument.activeElement, accountList);
   ok(!accountListItem.querySelector("label").hidden);
-  is(accountListItem.querySelector("label").value, "Mochitest Account!");
+  is(accountListItem.querySelector("label").value, "Mochitest!");
   ok(accountListItem.querySelector("input").hidden);
   is(
     Services.prefs.getCharPref(
       `mail.cloud_files.accounts.${accountKey}.displayName`
     ),
-    "Mochitest Account!"
+    "Mochitest!"
   );
 
   // Configure the account.
@@ -304,9 +340,10 @@ add_task(async function addRemoveAccounts() {
   is(cloudFileAccounts.accounts.length, 1);
   is(cloudFileAccounts.configuredAccounts.length, 1);
 
-  // Remove the test provider. The list item, button, and iframe should disappear.
+  // Remove the test provider. The list item, button, and browser should disappear.
 
-  cloudFileAccounts.unregisterProvider("Mochitest");
+  info("Stopping extension");
+  await extension.unload();
   is(cloudFileAccounts.providers.length, 1);
   is(cloudFileAccounts.accounts.length, 0);
 
@@ -324,11 +361,11 @@ add_task(async function addRemoveAccounts() {
   );
   is(accountList.itemCount, 0);
   ok(!cloudFileDefaultPanel.hidden);
-  is(iframeWrapper.childElementCount, 0);
+  is(browserWrapper.childElementCount, 0);
 
   // Re-add the test provider.
 
-  cloudFileAccounts.registerProvider("Mochitest", provider);
+  await startExtension();
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 1);
   is(cloudFileAccounts.configuredAccounts.length, 1);
@@ -340,14 +377,17 @@ add_task(async function addRemoveAccounts() {
     buttonList.children[0].getAttribute("value"),
     "ext-wetransfer@extensions.thunderbird.net"
   );
-  is(buttonList.children[1].getAttribute("value"), "Mochitest");
+  is(buttonList.children[1].getAttribute("value"), "ext-cloudfile@mochitest");
 
   is(menuButton.itemCount, 2);
   is(
     menuButton.getItemAtIndex(0).getAttribute("value"),
     "ext-wetransfer@extensions.thunderbird.net"
   );
-  is(menuButton.getItemAtIndex(1).getAttribute("value"), "Mochitest");
+  is(
+    menuButton.getItemAtIndex(1).getAttribute("value"),
+    "ext-cloudfile@mochitest"
+  );
 
   is(accountList.itemCount, 1);
   is(accountList.selectedIndex, -1);
@@ -358,7 +398,7 @@ add_task(async function addRemoveAccounts() {
     Services.prefs.getCharPref(
       `mail.cloud_files.accounts.${accountKey}.displayName`
     ),
-    "Mochitest Account!"
+    "Mochitest!"
   );
 
   EventUtils.synthesizeMouseAtCenter(
@@ -388,7 +428,8 @@ add_task(async function addRemoveAccounts() {
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 0);
 
-  cloudFileAccounts.unregisterProvider("Mochitest", provider);
+  info("Stopping extension");
+  await extension.unload();
   is(cloudFileAccounts.providers.length, 1);
   is(cloudFileAccounts.accounts.length, 0);
 
@@ -403,7 +444,7 @@ add_task(async function accountListOverflow() {
 
   // Register our test provider.
 
-  cloudFileAccounts.registerProvider("Mochitest", provider);
+  await startExtension();
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 0);
 
@@ -420,7 +461,7 @@ add_task(async function accountListOverflow() {
   let buttonList = prefsDocument.getElementById("addCloudFileAccountButtons");
   ok(!buttonList.hidden);
   is(buttonList.childElementCount, 2);
-  is(buttonList.children[0].getAttribute("value"), "Mochitest");
+  is(buttonList.children[0].getAttribute("value"), "ext-cloudfile@mochitest");
 
   let menuButton = prefsDocument.getElementById("addCloudFileAccount");
   ok(menuButton.hidden);
@@ -468,7 +509,8 @@ add_task(async function accountListOverflow() {
   // Close the preferences tab.
 
   await closePrefsTab();
-  cloudFileAccounts.unregisterProvider("Mochitest");
+  info("Stopping extension");
+  await extension.unload();
   Services.prefs.deleteBranch("mail.cloud_files.accounts");
 });
 
@@ -484,7 +526,7 @@ add_task(async function accountListOrder() {
   ]) {
     Services.prefs.setCharPref(
       `mail.cloud_files.accounts.${key}.type`,
-      "Mochitest"
+      "ext-cloudfile@mochitest"
     );
     Services.prefs.setCharPref(
       `mail.cloud_files.accounts.${key}.displayName`,
@@ -494,7 +536,7 @@ add_task(async function accountListOrder() {
 
   // Register our test provider.
 
-  cloudFileAccounts.registerProvider("Mochitest", provider);
+  await startExtension();
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 4);
 
@@ -512,6 +554,7 @@ add_task(async function accountListOrder() {
   is(accountList.getItemAtIndex(3).value, "someKey1");
 
   await closePrefsTab();
-  cloudFileAccounts.unregisterProvider("Mochitest");
+  info("Stopping extension");
+  await extension.unload();
   Services.prefs.deleteBranch("mail.cloud_files.accounts");
 });
