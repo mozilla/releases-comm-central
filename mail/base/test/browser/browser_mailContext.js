@@ -12,7 +12,7 @@ var { MessageGenerator } = ChromeUtils.import(
 );
 
 const TEST_DOCUMENT_URL =
-  getRootDirectory(gTestPath) + "files/sampleContent.html";
+  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html";
 
 function checkMenuitems(menu, ...expectedItems) {
   if (expectedItems.length == 0) {
@@ -33,26 +33,22 @@ function checkMenuitems(menu, ...expectedItems) {
 }
 
 async function checkABrowser(browser) {
-  await ContentTask.spawn(browser, null, () => {
-    if (
-      content.document.readyState !== "complete" ||
-      content.document.documentURI === "about:blank"
-    ) {
-      return ContentTaskUtils.waitForEvent(this, "load", true, event => {
-        return content.document.documentURI !== "about:blank";
-      }).then(() => {});
-    }
-    return Promise.resolve();
-  });
+  if (
+    browser.webProgress?.isLoadingDocument ||
+    browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(browser);
+  }
 
-  let { contentDocument, contentWindow, ownerDocument } = browser;
-  let mailContext = ownerDocument.getElementById("mailContext");
+  let mailContext = browser.ownerDocument.getElementById("mailContext");
 
-  EventUtils.synthesizeMouseAtCenter(
-    contentDocument.querySelector("p"),
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "p",
     { type: "contextmenu" },
-    contentWindow
+    browser
   );
+  await shownPromise;
   checkMenuitems(
     mailContext,
     "mailContext-reload",
@@ -61,11 +57,13 @@ async function checkABrowser(browser) {
   );
   mailContext.hidePopup();
 
-  EventUtils.synthesizeMouseAtCenter(
-    contentDocument.querySelector("a"),
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "a",
     { type: "contextmenu" },
-    contentWindow
+    browser
   );
+  await shownPromise;
   checkMenuitems(
     mailContext,
     "mailContext-openLinkInBrowser",
@@ -75,12 +73,14 @@ async function checkABrowser(browser) {
   );
   mailContext.hidePopup();
 
-  contentDocument.querySelector("input").focus();
-  EventUtils.synthesizeMouseAtCenter(
-    contentDocument.querySelector("input"),
+  BrowserTestUtils.synthesizeMouseAtCenter("input", {}, browser);
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "input",
     { type: "contextmenu" },
-    contentWindow
+    browser
   );
+  await shownPromise;
   checkMenuitems(
     mailContext,
     "mailContext-undo",
@@ -88,7 +88,7 @@ async function checkABrowser(browser) {
     "mailContext-copy",
     "mailContext-paste",
     "mailContext-selectall",
-    "mailContext-spell-add-dictionaries-main"
+    "mailContext-spell-check-enabled"
   );
   mailContext.hidePopup();
 }
@@ -119,9 +119,13 @@ add_task(async function testMessagePane() {
 
   let mailContext = document.getElementById("mailContext");
   let messagePane = document.getElementById("messagepane");
-  await BrowserTestUtils.browserLoaded(messagePane);
-  Assert.equal(messagePane.contentWindow.location.href, "about:blank");
-  EventUtils.synthesizeMouseAtCenter(messagePane, { type: "contextmenu" });
+  await BrowserTestUtils.browserLoaded(messagePane, undefined, "about:blank");
+  Assert.equal(messagePane.currentURI.spec, "about:blank");
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "html",
+    { type: "contextmenu" },
+    messagePane
+  );
   checkMenuitems(mailContext);
 
   // A web page is shown in the message pane.
@@ -144,7 +148,13 @@ add_task(async function testMessagePane() {
 
   window.gFolderDisplay.selectViewIndex(0);
   await BrowserTestUtils.browserLoaded(messagePane);
-  EventUtils.synthesizeMouseAtCenter(messagePane, { type: "contextmenu" });
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    ":root",
+    { type: "contextmenu" },
+    messagePane
+  );
+  await shownPromise;
   let messageItems = [
     "mailContext-selectall",
     "mailContext-openContainingFolder",
@@ -175,12 +185,14 @@ add_task(async function testMessagePane() {
   checkMenuitems(mailContext, ...messageItems);
   mailContext.hidePopup();
 
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouse(
     treeChildren,
     coords.x + coords.width / 2,
     coords.y + coords.height / 2,
     { type: "contextmenu" }
   );
+  await shownPromise;
   let treeItems = [
     "threadPaneContext-openNewTab",
     "mailContext-openNewWindow",
@@ -270,11 +282,12 @@ add_task(async function testExtensionPopupWindow() {
 
   await extension.startup();
   await extension.awaitFinish("ready");
-  await extension.unload();
 
   let extensionPopup = Services.wm.getMostRecentWindow("mail:extensionPopup");
   await checkABrowser(extensionPopup.document.getElementById("requestFrame"));
   await BrowserTestUtils.closeWindow(extensionPopup);
+
+  await extension.unload();
 });
 
 add_task(async function testExtensionBrowserAction() {
@@ -298,17 +311,14 @@ add_task(async function testExtensionBrowserAction() {
 
   await extension.startup();
 
+  let browserPromise = awaitExtensionPanel(extension, window);
   let actionButton = document.getElementById(
     "test1_mochi_test-browserAction-toolbarbutton"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {});
 
+  let browser = await browserPromise;
   let panel = document.getElementById("test1_mochi_test-panel");
-  let browser = panel.querySelector("browser");
-  await BrowserTestUtils.browserLoaded(browser);
-  if (browser.contentWindow.location.href == "about:blank") {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
   // The panel needs some time to decide how big it's going to be.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -354,17 +364,14 @@ add_task(async function testExtensionComposeAction() {
 
   await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
 
+  let browserPromise = awaitExtensionPanel(extension, composeWindow);
   let actionButton = composeDocument.getElementById(
     "test1_mochi_test-composeAction-toolbarbutton"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, composeWindow);
 
+  let browser = await browserPromise;
   let panel = composeDocument.getElementById("test1_mochi_test-panel");
-  let browser = panel.querySelector("browser");
-  await BrowserTestUtils.browserLoaded(browser);
-  if (browser.contentWindow.location.href == "about:blank") {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
   // The panel needs some time to decide how big it's going to be.
   await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
   await checkABrowser(browser);
@@ -404,17 +411,14 @@ add_task(async function testExtensionMessageDisplayAction() {
 
   await new Promise(resolve => messageWindow.setTimeout(resolve, 500));
 
+  let browserPromise = awaitExtensionPanel(extension, messageWindow);
   let actionButton = messageDocument.getElementById(
     "test1_mochi_test-messageDisplayAction-toolbarbutton"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, messageWindow);
 
+  let browser = await browserPromise;
   let panel = messageDocument.getElementById("test1_mochi_test-panel");
-  let browser = panel.querySelector("browser");
-  await BrowserTestUtils.browserLoaded(browser);
-  if (browser.contentWindow.location.href == "about:blank") {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
   // The panel needs some time to decide how big it's going to be.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -424,3 +428,26 @@ add_task(async function testExtensionMessageDisplayAction() {
   await extension.unload();
   await BrowserTestUtils.closeWindow(messageWindow);
 });
+
+async function awaitExtensionPanel(extension, win) {
+  let { originalTarget: browser } = await BrowserTestUtils.waitForEvent(
+    win.document,
+    "WebExtPopupLoaded",
+    true,
+    event => event.detail.extension.id === extension.id
+  );
+
+  let popup = browser.closest("panel");
+  if (popup.state != "open") {
+    await BrowserTestUtils.waitForEvent(popup, "popupshown");
+  }
+
+  if (
+    browser.webProgress?.isLoadingDocument ||
+    browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(browser);
+  }
+
+  return browser;
+}

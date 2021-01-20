@@ -57,12 +57,8 @@
 #endif
   <!-- "Please keep all items and separators up to date in nsContextMenu.js when making changes here" -->
   <menupopup id="mailContext"
-             pagemenu="start"
              onpopupshowing="return fillMailContextMenu(event);"
              onpopuphiding="mailContextOnPopupHiding(event);">
-#ifndef BROWSER_POPUPS_ONLY
-    <menuseparator id="page-menu-separator"/>
-#endif
     <!-- Spellchecking suggestions -->
     <menuitem id="mailContext-spell-no-suggestions"
               disabled="true"
@@ -71,6 +67,10 @@
               label="&spellAddToDictionary.label;"
               accesskey="&spellAddToDictionary.accesskey;"
               oncommand="gSpellChecker.addToDictionary();"/>
+    <menuitem id="mailContext-spell-undo-add-to-dictionary"
+              label="&spellUndoAddToDictionary.label;"
+              accesskey="&spellUndoAddToDictionary.accesskey;"
+              oncommand="gSpellChecker.undoAddToDictionary();" />
     <menuseparator id="mailContext-spell-suggestions-separator"/>
 
     <menuitem id="mailContext-openInBrowser"

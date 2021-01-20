@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../../toolkit/modules/PageMenu.jsm */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */
@@ -1945,26 +1944,6 @@ function ThreadPaneOnDrop(aEvent) {
         );
       }
     }
-  }
-}
-
-/**
- * Initialize and attach the HTML5 context menu to the specified menupopup
- * during the onpopupshowing event.
- *
- * @param menuPopup the menupopup element
- * @param event the event responsible for showing the popup
- */
-function InitPageMenu(menuPopup, event) {
-  if (event.target != menuPopup) {
-    return;
-  }
-
-  let menuObject = PageMenuParent.maybeBuild(menuPopup.triggerNode);
-  PageMenuParent.addToPopup(menuObject, null, menuPopup);
-
-  if (menuPopup.children.length == 0) {
-    event.preventDefault();
   }
 }
 

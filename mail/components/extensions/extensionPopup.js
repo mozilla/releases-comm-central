@@ -90,10 +90,6 @@ this.__defineGetter__("browser", getBrowser);
 function getBrowser() {
   return gBrowser.selectedBrowser;
 }
-function mailContextOnContextMenu(event) {
-  document.getElementById("mailContext").target =
-    event.composedTarget || event.originalTarget;
-}
 function fillMailContextMenu(event) {
   gContextMenu = new nsContextMenu(event.target, event.shiftKey);
   return gContextMenu.shouldDisplay;

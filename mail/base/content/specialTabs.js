@@ -870,10 +870,6 @@ var specialTabs = {
       aTab.browser.setAttribute("datetimepicker", "DateTimePickerPanel");
       aTab.browser.setAttribute("context", "mailContext");
       aTab.browser.setAttribute("messagemanagergroup", "browsers");
-      aTab.browser.setAttribute(
-        "oncontextmenu",
-        "return mailContextOnContextMenu(event);"
-      );
       aTab.browser.openWindowInfo = aArgs.openWindowInfo || null;
       clone.querySelector("stack").appendChild(aTab.browser);
 

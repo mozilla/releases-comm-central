@@ -29,6 +29,7 @@
         orient="vertical">
 
   <script src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://global/content/contentAreaUtils.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/browserRequest.js"/>
@@ -68,14 +69,11 @@
   <stack flex="1">
     <browser id="requestFrame"
              type="content"
-             remote="false"
-             maychangeremoteness="true"
              src="about:blank"
              flex="1"
              autocompletepopup="PopupAutoComplete"
              context="mailContext"
              datetimepicker="DateTimePickerPanel"
-             messagemanagergroup="browsers"
-             oncontextMenu="return mailContextOnContextMenu(event);"/>
+             messagemanagergroup="browsers"/>
   </stack>
 </window>

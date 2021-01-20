@@ -59,6 +59,8 @@ add_task(function test_content_tab_open() {
       'window.content is not set to the url loaded, incorrect type="..."?'
     );
   }
+
+  tab.browser.focus();
 });
 
 /**
@@ -66,19 +68,24 @@ add_task(function test_content_tab_open() {
  * spell checking options.
  */
 add_task(function test_spellcheck_in_content_tabs() {
-  let tabmail = mc.tabmail;
-  let w = tabmail.selectedTab.browser.contentWindow;
-  let textarea = w.document.querySelector("textarea");
   let eidMailContext = mc.eid("mailContext");
 
   // Test a few random items
-  mc.click(new elib.Elem(textarea));
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "textarea",
+    {},
+    mc.tabmail.selectedTab.browser
+  );
   // Bug 364914 causes textareas to not be spell checked until they have been
   // focused at last once, so give the event loop a chance to spin.
   // Since bug 1370754 the inline spell checker waits 1 second, so let's
   // wait 2 seconds to be on the safe side.
   mc.sleep(2000);
-  mc.rightClick(new elib.Elem(textarea));
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "textarea",
+    { type: "contextmenu" },
+    mc.tabmail.selectedTab.browser
+  );
   wait_for_popup_to_open(eidMailContext.getNode());
   assert_element_visible("mailContext-spell-dictionaries");
   assert_element_visible("mailContext-spell-check-enabled");
@@ -86,19 +93,23 @@ add_task(function test_spellcheck_in_content_tabs() {
   close_popup(mc, eidMailContext);
 
   // Different test
-  mc.rightClick(new elib.Elem(w.document.body.firstElementChild));
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "body > :first-child",
+    { type: "contextmenu" },
+    mc.tabmail.selectedTab.browser
+  );
   wait_for_popup_to_open(eidMailContext.getNode());
   assert_element_not_visible("mailContext-spell-dictionaries");
   assert_element_not_visible("mailContext-spell-check-enabled");
   close_popup(mc, eidMailContext);
 
   // Right-click on "zombocom" and add to dictionary
-  EventUtils.synthesizeMouse(
-    textarea,
+  BrowserTestUtils.synthesizeMouse(
+    "textarea",
     5,
     5,
     { type: "contextmenu", button: 2 },
-    w
+    mc.tabmail.selectedTab.browser
   );
   wait_for_popup_to_open(eidMailContext.getNode());
   let suggestions = mc.window.document.getElementsByClassName(
@@ -109,51 +120,18 @@ add_task(function test_spellcheck_in_content_tabs() {
   close_popup(mc, eidMailContext);
 
   // Now check we don't have any suggestionss
-  EventUtils.synthesizeMouse(
-    textarea,
+  BrowserTestUtils.synthesizeMouse(
+    "textarea",
     5,
     5,
     { type: "contextmenu", button: 2 },
-    w
+    mc.tabmail.selectedTab.browser
   );
   wait_for_popup_to_open(eidMailContext.getNode());
   suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length == 0, "But I just taught you this word!");
   close_popup(mc, eidMailContext);
-}).skip(); // Bug 1683785.
-
-add_task(function test_content_tab_context_menu() {
-  let tabmail = mc.tabmail;
-  let w = tabmail.selectedTab.browser.contentWindow;
-  let heading = w.document.querySelector("h1");
-  let mailContext = mc.e("mailContext");
-
-  // Make sure the page's menu items are added on right-click.
-  EventUtils.synthesizeMouse(
-    heading,
-    5,
-    5,
-    { type: "contextmenu", button: 2 },
-    w
-  );
-  wait_for_popup_to_open(mailContext);
-  Assert.equal(mailContext.firstElementChild.label, "Click me!");
-  assert_element_visible("page-menu-separator");
-  close_popup(mc, new elib.Elem(mailContext));
-
-  // Make sure the page's menu items are *not* added on shift-right-click.
-  EventUtils.synthesizeMouse(
-    heading,
-    5,
-    5,
-    { type: "contextmenu", button: 2, shiftKey: true },
-    w
-  );
-  wait_for_popup_to_open(mailContext);
-  Assert.notEqual(mailContext.firstElementChild.label, "Click me!");
-  assert_element_not_visible("page-menu-separator");
-  close_popup(mc, new elib.Elem(mailContext));
-}).skip(); // Bug 1683785.
+});
 
 /*
  // We don't have an UI to test opening content tabs twice anymore.

@@ -3314,7 +3314,9 @@ function ComposeStartup(aParams) {
       }
     });
   });
-  gLanguageObserver.observe(document.documentElement, { attributes: true });
+  gLanguageObserver.observe(document.documentElement, {
+    attributeFilter: ["lang"],
+  });
 
   // Observe dictionary removals.
   dictionaryRemovalObserver.addObserver();

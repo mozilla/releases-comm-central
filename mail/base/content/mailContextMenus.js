@@ -46,18 +46,6 @@ function RestoreSelectionWithoutContentLoad(tree) {
 }
 
 /**
- * Used when mailContext opens for elements in a <browser> to keep a reference
- * to the event's target. This target is preferred over document.popupNode
- * because it could be an element in a shadow DOM, whereas document.popupNode
- * would not be.
- * @param event the oncontextmenu event
- */
-function mailContextOnContextMenu(event) {
-  document.getElementById("mailContext").target =
-    event.composedTarget || event.originalTarget;
-}
-
-/**
  * Function to clear out the global nsContextMenu, and in the case when we
  * were a threadpane context menu, restore the selection so that a right-click
  * on a non-selected row doesn't move the selection.
@@ -71,15 +59,16 @@ function mailContextOnPopupHiding(aEvent) {
   }
 
   let wasInThreadPane = gContextMenu.inThreadPane;
+  gContextMenu.hiding();
   gContextMenu = null;
-  if (wasInThreadPane) {
+  if (wasInThreadPane && "GetThreadTree" in window) {
     RestoreSelectionWithoutContentLoad(GetThreadTree());
   }
 }
 
 function fillMailContextMenu(event) {
   let target = document.popupNode;
-  if (target.localName == "treecol") {
+  if (target?.localName == "treecol") {
     let treeColPicker = target.parentNode.querySelector("treecolpicker");
     let popup = treeColPicker.querySelector(`menupopup[anonid="popup"]`);
     treeColPicker.buildPopup(popup);

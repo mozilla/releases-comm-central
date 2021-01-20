@@ -234,15 +234,11 @@ class BasePopup {
     browser.setAttribute("class", "webextension-popup-browser");
     browser.setAttribute("webextension-view-type", "popup");
     browser.setAttribute("tooltip", "aHTMLTooltip");
-    browser.setAttribute("contextmenu", "mailContext");
+    browser.setAttribute("context", "mailContext");
     browser.setAttribute("autocompletepopup", "PopupAutoComplete");
     browser.setAttribute("selectmenulist", "ContentSelectDropdown");
     browser.setAttribute("selectmenuconstrained", "false");
     browser.setAttribute("datetimepicker", "DateTimePickerPanel");
-    browser.setAttribute(
-      "oncontextmenu",
-      "return mailContextOnContextMenu(event);"
-    );
 
     // Ensure the browser will initially load in the same group as other
     // browsers from the same extension.
@@ -405,6 +401,18 @@ class ViewPopup extends BasePopup {
     this.tempBrowser = this.browser;
 
     this.browser.classList.add("webextension-preload-browser");
+
+    panel.addEventListener(
+      "popupshowing",
+      () => {
+        let event = new this.window.CustomEvent("WebExtPopupLoaded", {
+          bubbles: true,
+          detail: { extension },
+        });
+        this.browser.dispatchEvent(event);
+      },
+      { once: true }
+    );
   }
 
   removeTempPanel() {

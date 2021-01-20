@@ -470,6 +470,7 @@ async function subtest_content(
 ) {
   if (
     browser.webProgress?.isLoadingDocument ||
+    !browser.currentURI ||
     browser.currentURI?.spec == "about:blank"
   ) {
     await BrowserTestUtils.browserLoaded(
@@ -491,6 +492,11 @@ async function subtest_content(
   let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   menu.hidePopup();
   await hiddenPromise;
+  // Sometimes, the popup will open then instantly disappear. It seems to
+  // still be hiding after the previous appearance. If we wait a little bit,
+  // this doesn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 250));
 
   await checkShownEvent(
     extension,
@@ -536,6 +542,11 @@ async function subtest_content(
     tab
   );
   await hiddenPromise;
+  // Sometimes, the popup will open then instantly disappear. It seems to
+  // still be hiding after the previous appearance. If we wait a little bit,
+  // this doesn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 250));
 
   await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
 
@@ -569,6 +580,11 @@ async function subtest_content(
     tab
   );
   await hiddenPromise;
+  // Sometimes, the popup will open then instantly disappear. It seems to
+  // still be hiding after the previous appearance. If we wait a little bit,
+  // this doesn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 250));
 
   info("Test image.");
 
@@ -599,6 +615,11 @@ async function subtest_content(
     tab
   );
   await hiddenPromise;
+  // Sometimes, the popup will open then instantly disappear. It seems to
+  // still be hiding after the previous appearance. If we wait a little bit,
+  // this doesn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 250));
 }
 
 add_task(async function test_content() {

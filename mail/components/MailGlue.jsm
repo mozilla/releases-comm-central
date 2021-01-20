@@ -33,6 +33,19 @@ ChromeUtils.defineModuleGetter(
 const PREF_PDFJS_ISDEFAULT_CACHE_STATE = "pdfjs.enabledCache.state";
 
 let JSWINDOWACTORS = {
+  ContextMenu: {
+    parent: {
+      moduleURI: "resource:///actors/ContextMenuParent.jsm",
+    },
+    child: {
+      moduleURI: "resource:///actors/ContextMenuChild.jsm",
+      events: {
+        contextmenu: { mozSystemGroup: true },
+      },
+    },
+    allFrames: true,
+  },
+
   Pdfjs: {
     parent: {
       moduleURI: "resource://pdf.js/PdfjsParent.jsm",
