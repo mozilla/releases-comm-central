@@ -9,12 +9,6 @@
 <!ENTITY lHeader "Debug">
 <!ENTITY rHeader "General debugging preferences">
 
-<!-- Miscelleneous -->
-<!ENTITY debugMiscellaneous.label        "Miscellaneous">
-<!ENTITY debugEnableDump.label           "Enable JavaScript dump() output">
-<!ENTITY debugStrictJavascript.label     "Show strict JavaScript warnings">
-<!ENTITY debugConsoleJavascript.label    "Show chrome JavaScript errors and warnings">
-
 <!-- Debug: Turn on gfx-rendered widgets -->
 <!ENTITY widgetRendering.label "Rendering">
 <!ENTITY debugXULBox.label "debug XUL boxes">

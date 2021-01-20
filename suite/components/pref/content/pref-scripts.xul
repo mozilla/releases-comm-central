@@ -30,6 +30,15 @@
       <preference id="dom.event.contextmenu.enabled"
                   name="dom.event.contextmenu.enabled"
                   type="bool"/>
+      <preference id="browser.dom.window.dump.enabled"
+                  name="browser.dom.window.dump.enabled"
+                  type="bool"/>
+      <preference id="javascript.options.strict"
+                  name="javascript.options.strict"
+                  type="bool"/>
+      <preference id="javascript.options.showInConsole"
+                  name="javascript.options.showInConsole"
+                  type="bool"/>
       <preference id="plugin.disable"
                   name="plugin.disable"
                   type="bool" inverted="true"/>
@@ -71,6 +80,22 @@
                   label="&allowContextmenuDisable.label;"
                   preference="dom.event.contextmenu.enabled"/>
       </listbox>
+    </groupbox>
+
+    <groupbox id="debugging">
+      <caption label="&debugging.label;"/>
+      <checkbox id="browserDOMWindowDumpEnabled"
+                label="&debugEnableDump.label;"
+                accesskey="&debugEnableDump.accesskey;"
+                preference="browser.dom.window.dump.enabled"/>
+      <checkbox id="javascriptOptionsStrict"
+                label="&debugStrictJavascript.label;"
+                accesskey="&debugStrictJavascript.accesskey;"
+                preference="javascript.options.strict"/>
+      <checkbox id="javascriptOptionsShowInConsole"
+                label="&debugConsoleJavascript.label;"
+                accesskey="&debugConsoleJavascript.accesskey;"
+                preference="javascript.options.showInConsole"/>
     </groupbox>
 
     <groupbox id="pluginPreferences">

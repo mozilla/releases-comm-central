@@ -11,12 +11,6 @@
 
     <preferences id="debugqa_preferences">
       <preference id="xul.debug.box" name="xul.debug.box" type="bool"/>
-      <preference id="browser.dom.window.dump.enabled"
-                  name="browser.dom.window.dump.enabled" type="bool"/>
-      <preference id="javascript.options.strict"
-                  name="javascript.options.strict" type="bool"/>
-      <preference id="javascript.options.showInConsole"
-                  name="javascript.options.showInConsole" type="bool"/>
       <preference id="ui.key.accelKey" name="ui.key.accelKey" type="int"/>
       <preference id="ui.key.menuAccessKey" name="ui.key.menuAccessKey" type="int"/>
     </preferences>
@@ -25,19 +19,6 @@
       <caption label="&widgetRendering.label;"/>
       <checkbox id="debugXULBoxes" label="&debugXULBox.label;"
                 preference="xul.debug.box"/>
-    </groupbox>
-
-    <!-- nothing on this page has accesskeys because this is a temporary debug
-         panel and you can damn well click the widgets! -->
-    <groupbox align="start">
-      <caption label="&debugMiscellaneous.label;"/>
-      <checkbox id="browserDOMWindowDumpEnabled" label="&debugEnableDump.label;"
-                preference="browser.dom.window.dump.enabled"/>
-      <checkbox id="javascriptOptionsStrict" label="&debugStrictJavascript.label;"
-                preference="javascript.options.strict"/>
-      <checkbox id="javascriptOptionsShowInConsole"
-                label="&debugConsoleJavascript.label;"
-                preference="javascript.options.showInConsole"/>
     </groupbox>
 
     <groupbox>
