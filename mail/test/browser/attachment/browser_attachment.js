@@ -319,7 +319,7 @@ add_task(function test_attachment_name_click() {
     attachmentList.collapsed,
     "Attachment list should not expand when clicking on attachmentName!"
   );
-});
+}).skip(); // Tries to load the text attachment in the message pane. This is bad.
 
 /**
  * Test that right-clicking on a particular element opens the expected context
@@ -529,8 +529,10 @@ add_task(async function test_delete_attachment_key() {
   select_click_row(3);
 
   // Expand the attachment list.
-  mc.click(mc.eid("attachmentToggle"));
-
+  assert_selected_and_displayed(3);
+  if (mc.e("attachmentList").collapsed) {
+    mc.click(mc.eid("attachmentToggle"));
+  }
   let firstAttachment = new elib.Elem(mc.e("attachmentList").firstElementChild);
   mc.click(firstAttachment, 5, 5);
 
@@ -639,7 +641,10 @@ add_task(function test_delete_from_toolbar() {
   select_click_row(3);
 
   // Expand the attachment list.
-  mc.click(mc.eid("attachmentToggle"));
+  assert_selected_and_displayed(3);
+  if (mc.e("attachmentList").collapsed) {
+    mc.click(mc.eid("attachmentToggle"));
+  }
 
   let firstAttachment = new elib.Elem(mc.e("attachmentList").firstElementChild);
   mc.click(firstAttachment, 5, 5);

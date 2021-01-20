@@ -805,7 +805,6 @@ function wait_for_frame_load(aFrame, aURLOrPredicate) {
  * aDetails to have three fields:
  * - webProgress: an nsIWebProgress associated with the contentWindow.
  * - currentURI: the currently loaded page (nsIURI).
- * - contentWindow: the content window.
  */
 function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   let predicate;
@@ -817,7 +816,13 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   }
 
   function isLoadedChecker() {
-    if (aDetails.contentDocument.readyState != "complete") {
+    if (aDetails.webProgress?.isLoadingDocument) {
+      return false;
+    }
+    if (
+      aDetails.contentDocument &&
+      aDetails.contentDocument.readyState != "complete"
+    ) {
       return false;
     }
 
@@ -845,8 +850,10 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   // Lie to mozmill to convince it to not explode because these frames never
   // get a mozmillDocumentLoaded attribute (bug 666438).
   let contentWindow = aDetails.contentWindow;
-  let cwc = new controller.MozMillController(contentWindow);
-  return augment_controller(cwc);
+  if (contentWindow) {
+    return augment_controller(new controller.MozMillController(contentWindow));
+  }
+  return null;
 }
 
 var observationWaitFuncs = {};

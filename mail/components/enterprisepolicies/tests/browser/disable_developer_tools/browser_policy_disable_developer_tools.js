@@ -47,19 +47,7 @@ const expectErrorPage = async function(url) {
   let tab = tabmail.tabInfo[index];
   let browser = tab.browser;
 
-  // Because `browser` is in the parent process, handle the rejection message.
-  try {
-    BrowserTestUtils.loadURI(browser, url);
-    Assert.report(
-      true,
-      undefined,
-      undefined,
-      "Cr.NS_ERROR_BLOCKED_BY_POLICY should be thrown"
-    );
-  } catch (ex) {
-    Assert.equal(ex.result, Cr.NS_ERROR_BLOCKED_BY_POLICY);
-  }
-
+  BrowserTestUtils.loadURI(browser, url);
   await BrowserTestUtils.browserLoaded(browser, false, url, true);
   await SpecialPowers.spawn(browser, [url], async function() {
     ok(

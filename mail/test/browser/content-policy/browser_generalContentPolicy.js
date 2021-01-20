@@ -99,6 +99,10 @@ var TESTS = [
     checkForAllowed: function img_checkAllowed(element) {
       return !element.matches(":-moz-broken") && element.naturalWidth > 0;
     },
+    checkForAllowedRemote: function img_checkAllowed() {
+      let element = content.document.getElementById("testelement");
+      return !element.matches(":-moz-broken") && element.naturalWidth > 0;
+    },
   },
   {
     type: "Video",
@@ -107,6 +111,10 @@ var TESTS = [
     body: '<video id="testelement" src="' + url + 'video.ogv"/>\n',
     webPage: "remotevideo.html",
     checkForAllowed: function video_checkAllowed(element) {
+      return element.networkState != element.NETWORK_NO_SOURCE;
+    },
+    checkForAllowedRemote: function video_checkAllowed() {
+      let element = content.document.getElementById("testelement");
       return element.networkState != element.NETWORK_NO_SOURCE;
     },
   },
@@ -118,6 +126,10 @@ var TESTS = [
       '<img id="testelement" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAC4UlEQVR42o2UW0gUURzGZ7Wa3fW2667XF/OyPQSmmZaZEYWRFN1QEYxeCi3CCCmxl6CHEMzQyAi1IAktLxSipkJghl0swswShbxFD+Hiquvqus7OzNf5T7uhslsN/OCc//f9vz17zpzhOM+PD2Mjg2doXPCumg/3H4+KzLcu++yvL+WeNZZxUy3lnEzQmGqkuQJVfwvRPrqhutd6Z4Mw+mY75qZzIcvFCjSmGmnkIa+nMFXmHs7YXK4aet0UhiXbGUjLpyHMZWLFnK5AY6qRRh7yUs/6MP5xmW/Hh44oQC6CuHAQw28TMdCzDc7ZNAX3nDTykLe+1LfNtXe/N7aiWHOss1Yji0IhpMUDEK2pOHdSj1MZgcp4/VzxMC/1lF/RHHEfAP/kprp7fCgFsjMP0tIuhey9/jiUqPY6Jy/1sN5O96oC2u/yM7b5PCZmQBZ2KhSfNeJ8jt7rnLzU01bFmymDgvTPazSiJF2CLLFfklIUrHNJsHw3QZiOwvJUGMyDBvz8qMficADsY0bYx0PhXMlGZ7XGQRkUFNz5wE90ChfYJrIgMRFOSwyWx4JhHwn0zqgeov04uu5rBcpQVtRd4z9vs+axE4mHgwU4vun/ifAjCgvmDHRXB1jcKwpoqdC9m/icAMmWiuprfqi6qsVEHzNPGtdANdLIQ96JwXg0V+j63HvEl+TrCnqbjLLI/vPiZDSKctUw+XF/OKrmkMVzKNzEKRp5yEs9JQW6fPep0TsQ/vR2yPuhVyZAyoFkNmGkJwS11wPxIi4OX9PYC8nojo5WNPKQt6XS2E+9qy8yH7dZm9JVGzo10BMDu+0EYN8HeXYr6vy0mI+MVGgIClK0Ty9jQV7qWf1muy+sPyPhYWloR29TmDjxZQesM4fREBEBISubkaWMSSMPeV09Ko+3nxFTkGu42FwZ3t9TF2pp321CY2ycQmvSFgdp5PF2+9d8jxgGhomRzEh3keyqGTx9j34B1t40GMHNFqwAAAAASUVORK5CYII="/>\n',
     webPage: "remoteimagedata.html",
     checkForAllowed: function img_checkAllowed(element) {
+      return !element.matches(":-moz-broken") && element.naturalWidth > 0;
+    },
+    checkForAllowedRemote: function img_checkAllowed() {
+      let element = content.document.getElementById("testelement");
       return !element.matches(":-moz-broken") && element.naturalWidth > 0;
     },
   },
@@ -371,7 +383,7 @@ function allowRemoteContentAndCheck(test) {
   }
 }
 
-function checkContentTab(test) {
+async function checkContentTab(test) {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
@@ -379,9 +391,7 @@ function checkContentTab(test) {
   let newTab = open_content_tab_with_url(url + test.webPage);
 
   if (
-    !test.checkForAllowed(
-      mc.window.content.document.getElementById("testelement")
-    )
+    !(await SpecialPowers.spawn(newTab.browser, [], test.checkForAllowedRemote))
   ) {
     throw new Error(
       test.type + " has been unexpectedly blocked in content tab"
@@ -577,7 +587,7 @@ add_task(async function test_generalContentPolicy() {
     await checkStandaloneMessageWindow(TESTS[i], true);
 
     // Check allowed in content tab
-    checkContentTab(TESTS[i]);
+    await checkContentTab(TESTS[i]);
 
     // Check allowed in a feed message
     checkAllowFeedMsg(TESTS[i]);

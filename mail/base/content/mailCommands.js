@@ -533,8 +533,6 @@ function ViewPageSource(messages) {
     return false;
   }
 
-  var browser = getBrowser();
-
   try {
     for (var i = 0; i < numMessages; i++) {
       // Now, we need to get a URL from a URI
@@ -550,7 +548,7 @@ function ViewPageSource(messages) {
         "chrome://messenger/content/viewSource.xhtml",
         "_blank",
         "all,dialog=no",
-        { URL: url, browser, outerWindowID: browser.outerWindowID }
+        { URL: url }
       );
     }
     return true;

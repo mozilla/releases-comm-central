@@ -8,6 +8,7 @@ messenger.jar:
     content/messenger/extensionPopup.css           (extensionPopup.css)
     content/messenger/extensionPopup.js            (extensionPopup.js)
 *   content/messenger/extensionPopup.xhtml         (extensionPopup.xhtml)
+    content/messenger/processScript.js             (processScript.js)
 
     content/messenger/child/ext-compose.js         (child/ext-compose.js)
     content/messenger/child/ext-extensionScripts.js  (child/ext-extensionScripts.js)

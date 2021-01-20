@@ -11,6 +11,9 @@ var { BrowserUtils } = ChromeUtils.import(
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
 
 var gContextMenu;
 
@@ -19,7 +22,11 @@ var gContextMenu;
 function loadRequestedUrl() {
   let browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
-  browser.addEventListener("DOMTitleChanged", () => gBrowser.updateTitlebar());
+  browser.addEventListener(
+    "pagetitlechanged",
+    () => gBrowser.updateTitlebar(),
+    true
+  );
 
   // This window does double duty. If window.arguments[0] is a string, it's
   // probably being called by browser.identity.launchWebAuthFlowInParent.
@@ -29,14 +36,16 @@ function loadRequestedUrl() {
   // which is consistent with Firefox behaviour.
 
   if (typeof window.arguments[0] == "string") {
-    browser.src = window.arguments[0];
+    MailE10SUtils.loadURI(browser, window.arguments[0]);
   } else {
     if (window.arguments[1].wrappedJSObject.allowScriptsToClose) {
       browser.contentWindow.windowUtils.allowScriptsToClose();
     }
     ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
-    browser.src =
-      window.arguments[1].wrappedJSObject.tabs[0].tabParams.contentPage;
+    MailE10SUtils.loadURI(
+      browser,
+      window.arguments[1].wrappedJSObject.tabs[0].tabParams.contentPage
+    );
   }
 }
 
@@ -52,9 +61,8 @@ var gBrowser = {
     return this.selectedBrowser.webNavigation;
   },
   updateTitlebar() {
-    let docTitle = browser.contentDocument.title
-      ? browser.contentDocument.title.trim()
-      : "";
+    let docTitle =
+      browser.browsingContext?.currentWindowGlobal?.documentTitle?.trim() || "";
     let docElement = document.documentElement;
     // If the document title is blank, add the default title.
     if (!docTitle) {

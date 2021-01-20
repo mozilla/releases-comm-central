@@ -399,6 +399,7 @@ function invoke_column_picker_option(aActions) {
   let colPicker = threadCols.querySelector("treecolpicker");
   let colPickerPopup = colPicker.querySelector("[anonid=popup]");
 
+  mc.sleep(500);
   mc.click(new elib.Elem(colPicker));
   mc.click_menus_in_sequence(colPickerPopup, aActions);
 }
@@ -623,14 +624,15 @@ function wait_for_columns_state_updated() {
 
 add_task(function test_column_defaults_gloda_collection() {
   let fakeCollection = new FakeCollection();
-  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  let tab = mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
   assert_visible_columns(GLODA_DEFAULTS);
+  close_tab(tab);
 });
 
 add_task(function test_persist_columns_gloda_collection() {
   let fakeCollection = new FakeCollection();
-  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  let tab1 = mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
 
   plan_for_columns_state_update();
@@ -644,29 +646,29 @@ add_task(function test_persist_columns_gloda_collection() {
   glodaColumns = GLODA_DEFAULTS.slice(0, -1);
   glodaColumns.push("accountCol");
 
-  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  let tab2 = mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
   assert_visible_columns(glodaColumns);
+
+  close_tab(tab2);
+  close_tab(tab1);
 });
 
 add_task(function test_reset_columns_gloda_collection() {
   let fakeCollection = new FakeCollection();
-  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  let tab1 = mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
   assert_visible_columns(glodaColumns);
 
   invoke_column_picker_option([{ anonid: "menuitem" }]); // reset!
   assert_visible_columns(glodaColumns); // same, only order (would be) reset
 
-  mc.tabmail.openTab("glodaList", { collection: fakeCollection });
+  let tab2 = mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
   assert_visible_columns(glodaColumns);
-});
 
-registerCleanupFunction(function teardownModule() {
-  while (mc.tabmail.tabInfo.length > 1) {
-    mc.tabmail.closeTab(1);
-  }
+  close_tab(tab2);
+  close_tab(tab1);
 
   Assert.report(
     false,

@@ -117,7 +117,7 @@ function addMsgToFolder(folder) {
   return neckoURL.value.spec;
 }
 
-function checkContentTab(msgURL) {
+async function checkContentTab(msgURL) {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
@@ -125,19 +125,26 @@ function checkContentTab(msgURL) {
   let dataurl =
     "data:text/html,<html><head><title>test exposed</title>" +
     '</head><body><iframe id="msgIframe" src="' +
-    msgURL +
+    encodeURI(msgURL) +
     '"/></body></html>';
 
   let newTab = open_content_tab_with_url(dataurl);
 
-  if (
-    mc.window.content.document.getElementById("msgIframe").contentDocument
-      .URL != "about:blank"
-  ) {
-    throw new Error(
-      "Message display/access has not been blocked from remote content!"
+  Assert.notEqual(newTab.browser.currentURI.spec, "about:blank");
+  Assert.equal(newTab.browser.webProgress.isLoadingDocument, false);
+  Assert.equal(
+    newTab.browser.browsingContext.children[0].currentWindowGlobal,
+    null,
+    "Message display/access has been blocked from remote content!"
+  );
+
+  await SpecialPowers.spawn(newTab.browser, [], () => {
+    Assert.equal(
+      content.frames[0].location.href,
+      "about:blank",
+      "Message display/access has been blocked from remote content!"
     );
-  }
+  });
 
   mc.tabmail.closeTab(newTab);
 
@@ -146,7 +153,7 @@ function checkContentTab(msgURL) {
   }
 }
 
-add_task(function test_exposedInContentTabs() {
+add_task(async function test_exposedInContentTabs() {
   be_in_folder(folder);
 
   assert_nothing_selected();
@@ -155,7 +162,7 @@ add_task(function test_exposedInContentTabs() {
   let msgURL = addMsgToFolder(folder);
 
   // Check allowed in content tab
-  checkContentTab(msgURL);
+  await checkContentTab(msgURL);
 
   Assert.report(
     false,

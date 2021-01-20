@@ -143,7 +143,6 @@ add_task(async function testListViewMarkRead() {
     trash.emptyTrash(null, null);
   });
 
-  closeTabs();
   be_in_folder(folder);
   add_sets_to_folders([folder], [thread]);
 
@@ -163,6 +162,8 @@ add_task(async function testListViewMarkRead() {
   let dbView = window.gFolderDisplay.view.dbView;
   Assert.ok(dbView.getMsgHdrAt(0).isRead, "Message 0 is read");
   Assert.ok(!dbView.getMsgHdrAt(1).isRead, "Message 1 is not read");
+
+  closeTabs();
 });
 
 /**
@@ -183,7 +184,6 @@ add_task(async function testListViewMarkThreadAsRead() {
     trash.emptyTrash(null, null);
   });
 
-  closeTabs();
   be_in_folder(folder);
   add_sets_to_folders([folder], [thread]);
 
@@ -204,6 +204,8 @@ add_task(async function testListViewMarkThreadAsRead() {
   thread.synMessages.forEach((_, i) => {
     Assert.ok(dbView.getMsgHdrAt(i).isRead, `Message ${i} is read`);
   });
+
+  closeTabs();
 });
 
 /**
@@ -222,7 +224,6 @@ add_task(async function testConversationViewMarkRead() {
     trash.emptyTrash(null, null);
   });
 
-  closeTabs();
   be_in_folder(folder);
   add_sets_to_folders([folder], [thread]);
 
@@ -240,6 +241,8 @@ add_task(async function testConversationViewMarkRead() {
   let dbView = window.gFolderDisplay.view.dbView;
   Assert.ok(dbView.getMsgHdrAt(0).isRead, "Message 0 is read");
   Assert.ok(!dbView.getMsgHdrAt(1).isRead, "Message 1 is not read");
+
+  closeTabs();
 });
 
 /**
@@ -258,7 +261,6 @@ add_task(async function testConversationViewMarkThreadAsRead() {
     trash.emptyTrash(null, null);
   });
 
-  closeTabs();
   be_in_folder(folder);
   add_sets_to_folders([folder], [thread]);
 
@@ -274,6 +276,8 @@ add_task(async function testConversationViewMarkThreadAsRead() {
   thread.synMessages.forEach((_, i) => {
     Assert.ok(dbView.getMsgHdrAt(i).isRead, `Message ${i} is read.`);
   });
+
+  closeTabs();
 });
 
 registerCleanupFunction(function teardownModule() {
@@ -282,5 +286,4 @@ registerCleanupFunction(function teardownModule() {
     "mailnews.start_page.enabled",
     prefStartPageEnabled
   );
-  closeTabs();
 });

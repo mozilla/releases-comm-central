@@ -73,7 +73,7 @@ add_task(function test_image_insertion_dialog_persist() {
   cwc.click(cwc.eid("insertImage"));
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
-  cwc.sleep(500);
+  cwc.sleep(1000);
 
   // Get the inserted image, double-click it, make sure we switch to "no alt
   // text", despite the persisted value being "use alt text"
@@ -90,7 +90,7 @@ add_task(function test_image_insertion_dialog_persist() {
   wh.wait_for_window_close();
   // It's not clear why we have to wait here to avoid test failures,
   // see bug 1246094.
-  cwc.sleep(500);
+  cwc.sleep(1000);
 
   // Now use some alt text for the edit image dialog
   wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
@@ -112,7 +112,7 @@ add_task(function test_image_insertion_dialog_persist() {
   wh.wait_for_window_close();
   // It's not clear why we have to wait here to avoid test failures,
   // see bug 1246094.
-  cwc.sleep(500);
+  cwc.sleep(1000);
 
   // Make sure next time we edit it, we still have "use alt text" selected.
   img = cwc.e("content-frame").contentDocument.querySelector("img");

@@ -17,28 +17,21 @@ add_task(async () => {
       let listener = {
         events: [],
         currentPromise: null,
-        ignoringUpdated: false,
 
         pushEvent(...args) {
           browser.test.log(JSON.stringify(args));
-          this.ignoringUpdated = false;
           this.events.push(args);
           if (this.currentPromise) {
             let p = this.currentPromise;
             this.currentPromise = null;
-            p.resolve();
+            p.resolve(args);
           }
         },
         onCreated(...args) {
           this.pushEvent("onCreated", ...args);
         },
         onUpdated(...args) {
-          if (this.ignoringUpdated) {
-            browser.test.log(JSON.stringify(["onUpdated", ...args]));
-            browser.test.log("Ignored an onUpdated event");
-          } else {
-            this.pushEvent("onUpdated", ...args);
-          }
+          this.pushEvent("onUpdated", ...args);
         },
         onActivated(...args) {
           this.pushEvent("onActivated", ...args);
@@ -46,21 +39,14 @@ add_task(async () => {
         onRemoved(...args) {
           this.pushEvent("onRemoved", ...args);
         },
-        setIgnoringUpdated() {
-          this.ignoringUpdated = true;
-          while (this.events.length > 0) {
-            if (this.events[0][0] == "onUpdated") {
-              browser.test.log("Discarded an onUpdated event");
-              this.events.shift();
-            } else {
-              return;
-            }
+        async nextEvent() {
+          if (this.events.length == 0) {
+            return new Promise(resolve => (this.currentPromise = { resolve }));
           }
+          return Promise.resolve(this.events[0]);
         },
         async checkEvent(expectedEvent, ...expectedArgs) {
-          if (this.events.length == 0) {
-            await new Promise(resolve => (this.currentPromise = { resolve }));
-          }
+          await this.nextEvent();
           let [actualEvent, ...actualArgs] = this.events.shift();
           browser.test.assertEq(expectedEvent, actualEvent);
           browser.test.assertEq(expectedArgs.length, actualArgs.length);
@@ -79,18 +65,29 @@ add_task(async () => {
           return actualArgs;
         },
         async pageLoad(tab) {
-          await listener.checkEvent(
-            "onUpdated",
-            tab,
-            { status: "loading" },
-            {
-              id: tab,
-              windowId: initialWindow,
-              active: true,
-              mailTab: false,
+          while (true) {
+            // Read the first event without consuming it.
+            let [
+              actualEvent,
+              actualTabId,
+              actualInfo,
+              actualTab,
+            ] = await this.nextEvent();
+            browser.test.assertEq("onUpdated", actualEvent);
+            browser.test.assertEq(tab, actualTabId);
+
+            if (
+              actualInfo.status == "loading" ||
+              actualTab.url == "about:blank"
+            ) {
+              // We're not interested in these events. Take them off the list.
+              browser.test.log("Skipping this event.");
+              this.events.shift();
+            } else {
+              break;
             }
-          );
-          await listener.checkEvent(
+          }
+          await this.checkEvent(
             "onUpdated",
             tab,
             { status: "complete" },
@@ -188,7 +185,15 @@ add_task(async () => {
       browser.test.log("Open a first message in a tab.");
 
       browser.test.sendMessage("openMessageTab", false);
-      listener.setIgnoringUpdated();
+
+      // In some circumstances this onUpdated event and the onCreated event
+      // happen out of order. We're not interested in the onUpdated event
+      // so just throw it away.
+      let unwantedEvent = await listener.nextEvent();
+      if (unwantedEvent[0] == "onUpdated") {
+        listener.events.shift();
+      }
+
       let [{ id: messageTab1 }] = await listener.checkEvent("onCreated", {
         index: 6,
         windowId: initialWindow,
@@ -339,7 +344,8 @@ add_task(async () => {
   });
 
   extension.onMessage("openMessageTab", async background => {
-    tabmail.openTab("message", { msgHdr: messages.getNext(), background });
+    let msgHdr = messages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    tabmail.openTab("message", { msgHdr, background });
   });
 
   await extension.startup();

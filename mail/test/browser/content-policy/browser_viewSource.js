@@ -75,6 +75,12 @@ add_task(function test_view_source_reload() {
   let selMsg = select_click_row(0);
   Assert.ok(msg == selMsg, "Selected msg isn't the same as the generated one.");
 
+  let displayContent = mc.e("messagepane").contentDocument.body.textContent;
+  Assert.ok(
+    displayContent.includes(contentLatin1),
+    "Message content must include the latin1 text"
+  );
+
   plan_for_new_window("navigator:view-source");
   EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
   let vsc = wait_for_new_window("navigator:view-source");
@@ -84,16 +90,11 @@ add_task(function test_view_source_reload() {
     "Timeout waiting for the latin1 view-source document to load."
   );
 
-  let source = vsc.e("content").contentDocument.querySelector("pre")
-    .textContent;
-  if (!source.includes(contentLatin1)) {
-    throw new Error(
-      "View source didn't contain the latin1 text;\n" +
-        contentLatin1 +
-        "\n" +
-        source
-    );
-  }
+  let source = vsc.e("content").contentDocument.body.textContent;
+  Assert.ok(
+    source.includes(contentLatin1),
+    "View source must contain the latin1 text"
+  );
 
   let doc = vsc.e("content").contentDocument; // keep a ref to the latin1 doc
 
@@ -113,15 +114,11 @@ add_task(function test_view_source_reload() {
     "Timeout waiting utf-8 encoded view-source document to load."
   );
 
-  source = vsc.e("content").contentDocument.querySelector("pre").textContent;
-  if (!source.includes(contentUTF8)) {
-    throw new Error(
-      "View source didn't contain the utf-8 text;\n" +
-        contentUTF8 +
-        "\n" +
-        source
-    );
-  }
+  source = vsc.e("content").contentDocument.body.textContent;
+  Assert.ok(
+    source.includes(contentUTF8),
+    "View source must contain the utf-8 text"
+  );
 
   close_window(vsc);
 });

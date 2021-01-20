@@ -28,6 +28,9 @@ const { ExtensionCommon } = ChromeUtils.import(
 const { ExtensionUtils } = ChromeUtils.import(
   "resource://gre/modules/ExtensionUtils.jsm"
 );
+const { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
 
 var { DefaultWeakMap, promiseEvent } = ExtensionUtils;
 
@@ -240,7 +243,18 @@ class BasePopup {
       "oncontextmenu",
       "return mailContextOnContextMenu(event);"
     );
-    browser.sameProcessAsFrameLoader = this.extension.groupFrameLoader;
+
+    // Ensure the browser will initially load in the same group as other
+    // browsers from the same extension.
+    browser.setAttribute(
+      "initialBrowsingContextGroupId",
+      this.extension.policy.browsingContextGroupId
+    );
+
+    if (this.extension.remote) {
+      browser.setAttribute("remote", "true");
+      browser.setAttribute("remoteType", this.extension.remoteType);
+    }
 
     // We only need flex sizing for the sake of the slide-in sub-views of the
     // main menu panel, so that the browser occupies the full width of the view,
@@ -256,10 +270,21 @@ class BasePopup {
     this.browser = browser;
     this.stack = stack;
 
-    let readyPromise = promiseEvent(browser, "load");
+    let readyPromise;
+    if (this.extension.remote) {
+      readyPromise = promiseEvent(browser, "XULFrameLoaderCreated");
+    } else {
+      readyPromise = promiseEvent(browser, "load");
+    }
 
     stack.appendChild(browser);
     viewNode.appendChild(stack);
+    if (!this.extension.remote) {
+      // FIXME: bug 1494029 - this code used to rely on the browser binding
+      // accessing browser.contentWindow. This is a stopgap to continue doing
+      // that, but we should get rid of it in the long term.
+      browser.contentWindow; // eslint-disable-line no-unused-expressions
+    }
 
     ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
 
@@ -274,6 +299,12 @@ class BasePopup {
     };
 
     if (!popupURL) {
+      // For remote browsers, we can't do any setup until the frame loader is
+      // created. Non-remote browsers get a message manager immediately, so
+      // there's no need to wait for the load event.
+      if (this.extension.remote) {
+        return readyPromise.then(() => setupBrowser(browser));
+      }
       return setupBrowser(browser);
     }
 
@@ -296,9 +327,7 @@ class BasePopup {
         stylesheets: this.STYLESHEETS,
       });
 
-      browser.loadURI(popupURL, {
-        triggeringPrincipal: this.extension.principal,
-      });
+      MailE10SUtils.loadURI(browser, popupURL);
     });
   }
 

@@ -72,7 +72,7 @@ async function subTest(createTab, getBrowser, shouldRemove = true) {
         }
         browser.test.notifyPass();
       },
-      "test.html": "<html><body></body></html>",
+      "test.html": "<html><body>I'm a real page!</body></html>",
       "utils.js": await getUtilsJS(),
     },
     manifest: {
@@ -84,10 +84,16 @@ async function subTest(createTab, getBrowser, shouldRemove = true) {
 
   await extension.awaitMessage();
   let browser = getBrowser();
-  await BrowserTestUtils.browserLoaded(browser);
+  if (
+    browser.webProgress?.isLoadingDocument ||
+    browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(browser);
+  }
+
   await checkContent(browser, {
     backgroundColor: "rgba(0, 0, 0, 0)",
-    textContent: "",
+    textContent: "I'm a real page!",
   });
   extension.sendMessage();
 
@@ -136,6 +142,7 @@ add_task(async function testFirstTab() {
   window.gFolderTreeView.selectFolder(
     [...gAccount.incomingServer.rootFolder.subFolders][0]
   );
+  window.ClearMessagePane();
   return subTest(createTab, getBrowser, false);
 });
 

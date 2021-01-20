@@ -68,7 +68,7 @@ httpRequestObserver.prototype = {
     }
 
     let requestWindow = this._getWindowForRequest(aSubject);
-    if (!requestWindow || requestWindow !== this.browser.contentWindow) {
+    if (!requestWindow || requestWindow !== this.browser.innerWindowID) {
       return;
     }
 
@@ -92,7 +92,7 @@ httpRequestObserver.prototype = {
     try {
       if (aRequest && aRequest.notificationCallbacks) {
         return aRequest.notificationCallbacks.getInterface(Ci.nsILoadContext)
-          .associatedWindow;
+          .currentWindowContext.innerWindowId;
       }
       if (
         aRequest &&
@@ -101,7 +101,7 @@ httpRequestObserver.prototype = {
       ) {
         return aRequest.loadGroup.notificationCallbacks.getInterface(
           Ci.nsILoadContext
-        ).associatedWindow;
+        ).currentWindowContext.innerWindowId;
       }
     } catch (e) {
       Cu.reportError(

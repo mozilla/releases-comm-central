@@ -14,7 +14,7 @@ var { CharsetMenu } = ChromeUtils.import(
 var gBrowser;
 addEventListener("load", () => {
   gBrowser = document.getElementById("content");
-  gBrowser.addEventListener("DOMTitleChanged", () => {
+  gBrowser.addEventListener("pagetitlechanged", () => {
     document.title =
       document.documentElement.getAttribute("titlepreface") +
       gBrowser.contentDocument.title +

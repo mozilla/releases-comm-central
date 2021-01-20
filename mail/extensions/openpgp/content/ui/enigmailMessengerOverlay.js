@@ -3369,6 +3369,11 @@ Enigmail.msg = {
       return;
     }
 
+    // This message may have already disappeared.
+    if (!gMessageDisplay.displayedMessage) {
+      return;
+    }
+
     this.authorEmailFetched = true;
 
     let addresses = MailServices.headerParser.parseEncodedHeader(

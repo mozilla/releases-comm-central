@@ -219,9 +219,8 @@ add_task(async function testEncryptedMessageWithKeyComposition() {
 
   let attachmentList = window.document.querySelector("#attachmentList");
 
-  Assert.equal(
-    attachmentList.itemChildren.length,
-    1,
+  await TestUtils.waitForCondition(
+    () => attachmentList.itemChildren.length == 1,
     "message should have one attachment"
   );
 
@@ -592,8 +591,8 @@ add_task(
     be_in_folder(gOutbox);
     select_click_row(0);
 
-    Assert.ok(
-      OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
+    await TestUtils.waitForCondition(
+      () => OpenPGPTestUtils.hasEncryptedIconState(window.document, "ok"),
       "message should have encrypted icon"
     );
 

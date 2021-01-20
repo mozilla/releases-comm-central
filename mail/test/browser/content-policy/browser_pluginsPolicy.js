@@ -32,6 +32,11 @@ var { async_plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var folder = null;
 var gMsgNo = 0;
 
@@ -90,20 +95,22 @@ function addToFolder(aSubject, aBody, aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
-function isPluginLoaded(contentDocument) {
-  let element = contentDocument.getElementById("testelement").wrappedJSObject;
+function isPluginLoaded(browser) {
+  return SpecialPowers.spawn(browser, [], () => {
+    let element = content.document.getElementById("testelement");
 
-  try {
-    // if setColor throws, then the plugin isn't running
-    element.setColor("FFFF0000");
-    return true;
-  } catch (ex) {
-    // Any errors and we'll just return false below - they may be expected.
-  }
-  return false;
+    try {
+      // if setColor throws, then the plugin isn't running
+      element.setColor("FFFF0000");
+      return true;
+    } catch (ex) {
+      // Any errors and we'll just return false below - they may be expected.
+    }
+    return false;
+  });
 }
 
-function addMsgToFolderAndCheckContent(loadAllowed) {
+async function addMsgToFolderAndCheckContent(loadAllowed) {
   let msgDbHdr = addToFolder("Plugin test message " + gMsgNo, msgBody, folder);
 
   // select the newly created message
@@ -125,7 +132,9 @@ function addMsgToFolderAndCheckContent(loadAllowed) {
   mc.sleep(1000);
 
   // Now check that the content hasn't been loaded
-  if (isPluginLoaded(mc.window.content.document) != loadAllowed) {
+  if (
+    (await isPluginLoaded(mc.window.getMessagePaneBrowser())) != loadAllowed
+  ) {
     throw new Error(
       loadAllowed
         ? "Plugin has been unexpectedly blocked in message content"
@@ -148,7 +157,9 @@ async function checkStandaloneMessageWindow(loadAllowed) {
   // for long enough in all situations, so this will have to do for now.
   mc.sleep(1000);
 
-  if (isPluginLoaded(msgc.window.content.document) != loadAllowed) {
+  if (
+    (await isPluginLoaded(msgc.window.getMessagePaneBrowser())) != loadAllowed
+  ) {
     throw new Error(
       loadAllowed
         ? "Plugin has been unexpectedly blocked in standalone window"
@@ -160,37 +171,38 @@ async function checkStandaloneMessageWindow(loadAllowed) {
   close_message_window(msgc);
 }
 
-add_task(function test_3paneWindowDenied() {
+add_task(async function test_3paneWindowDenied() {
   be_in_folder(folder);
 
   assert_nothing_selected();
 
-  addMsgToFolderAndCheckContent(false);
+  await addMsgToFolderAndCheckContent(false);
 });
 
-add_task(function test_checkPluginsInNonMessageContent() {
+add_task(async function test_checkPluginsInNonMessageContent() {
   // Deselect everything so we can load our content
   select_none();
 
   // load something non-message-like in the message pane
-  mc.window.GetMessagePaneFrame().location.href = url + "plugin.html";
+  let browser = mc.window.getMessagePaneBrowser();
+  MailE10SUtils.loadURI(browser, url + "plugin.html");
+  await BrowserTestUtils.browserLoaded(browser);
 
-  wait_for_message_display_completion();
-
-  if (isPluginLoaded(mc.window.content.document)) {
+  if (await isPluginLoaded(browser)) {
     throw new Error(
       "Plugin is turned on in content in message pane - it should not be."
     );
   }
 });
 
-add_task(function test_3paneWindowDeniedAgain() {
+add_task(async function test_3paneWindowDeniedAgain() {
   select_click_row(0);
 
   assert_selected_and_displayed(0);
 
+  let browser = mc.window.getMessagePaneBrowser();
   // Now check that the content hasn't been loaded
-  if (isPluginLoaded(mc.window.content.document)) {
+  if (await isPluginLoaded(browser)) {
     throw new Error("Plugin has not been blocked in message as expected");
   }
 });
@@ -199,14 +211,14 @@ add_task(async function test_checkStandaloneMessageWindowDenied() {
   await checkStandaloneMessageWindow(false);
 });
 
-add_task(function test_checkContentTab() {
+add_task(async function test_checkContentTab() {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   let newTab = open_content_tab_with_url(url + "plugin.html");
 
-  if (isPluginLoaded(mc.tabmail.getBrowserForSelectedTab().contentDocument)) {
+  if (await isPluginLoaded(newTab.browser)) {
     throw new Error("Plugin has been unexpectedly not blocked in content tab");
   }
 

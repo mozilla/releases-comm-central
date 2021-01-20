@@ -100,6 +100,10 @@ async function forwardViaFolder(aFilePath) {
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
+  Assert.ok(
+    mc.e("messagepane").contentDocument.body.textContent.includes("áóúäöüß")
+  );
+
   let fwdWin = open_compose_with_forward();
 
   check_content(fwdWin);
@@ -133,13 +137,6 @@ add_task(async function test_utf8_forwarding_from_via_folder() {
   await forwardViaFolder("./content-utf8-rel-alt.eml"); // Also tests HTML part without <html> tag.
   await forwardViaFolder("./content-utf8-alt-rel.eml"); // Also tests <html attr>.
   await forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
 });
 
 registerCleanupFunction(function teardownModule() {

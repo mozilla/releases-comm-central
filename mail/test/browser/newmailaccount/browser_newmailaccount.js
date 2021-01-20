@@ -138,7 +138,7 @@ function nAccounts() {
  *                         restore the Account Provisioner tab before filling
  *                         in the form. Defaults to false.
  */
-function test_get_an_account(aCloseAndRestore) {
+async function test_get_an_account(aCloseAndRestore) {
   let originalEngine = Services.search.defaultEngine;
   // Open the provisioner - once opened, let subtest_get_an_account run.
   plan_for_modal_dialog("AccountCreation", subtest_get_an_account);
@@ -176,10 +176,11 @@ function test_get_an_account(aCloseAndRestore) {
   plan_for_new_window("AccountCreation");
 
   // Click the OK button to order the account.
-  let btn = tab.browser.contentWindow.document.querySelector(
-    "input[value=Send]"
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "input[value=Send]",
+    {},
+    tab.browser
   );
-  mc.click(new elib.Elem(btn));
 
   let ac = wait_for_new_window("AccountCreation");
 
@@ -258,7 +259,7 @@ function subtest_get_an_account_part_2(w) {
  * order form tab before submitting it.
  */
 add_task(function test_restored_ap_tab_works() {
-  test_get_an_account(true);
+  return test_get_an_account(true);
 });
 
 /**
@@ -712,11 +713,11 @@ add_task(function test_throws_console_error_on_corrupt_XML() {
 
   // Click the OK button to order the account.
   plan_for_modal_dialog("AccountCreation", close_dialog_immediately);
-
-  let btn = tab.browser.contentWindow.document.querySelector(
-    "input[value=Send]"
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "input[value=Send]",
+    {},
+    tab.browser
   );
-  mc.click(new elib.Elem(btn));
   wait_for_modal_dialog("AccountCreation");
 
   gConsoleListener.wait();
@@ -1064,10 +1065,9 @@ add_task(function test_internal_link_opening_behaviour() {
 
   // Open the provisioner - once opened, let subtest_get_an_account run...
   let tab = mc.tabmail.currentTabInfo;
-  let doc = tab.browser.contentWindow.document;
 
   // Click on the internal link.
-  mc.click(new elib.Elem(doc.getElementById("internal")));
+  BrowserTestUtils.synthesizeMouseAtCenter("#internal", {}, tab.browser);
 
   // We should load the target page in the current tab browser.
   wait_for_browser_load(tab.browser, function(aURL) {
@@ -1086,22 +1086,23 @@ add_task(function test_window_open_link_opening_behaviour() {
   get_to_order_form();
 
   let tab = mc.tabmail.currentTabInfo;
-  let doc = tab.browser.contentWindow.document;
 
   // First, click on the Javascript link - this should open in a new content
   // tab and be focused.
-  let newTabLink = doc.getElementById("newtab");
-  open_content_tab_with_click(newTabLink, function(aURL) {
-    return (
-      aURL.host == "mochi.test" && aURL.pathQueryRef.endsWith("/target.html")
-    );
-  });
+  open_content_tab_with_click(
+    () => BrowserTestUtils.synthesizeMouseAtCenter("#newtab", {}, tab.browser),
+    function(aURL) {
+      return (
+        aURL.host == "mochi.test" && aURL.pathQueryRef.endsWith("/target.html")
+      );
+    }
+  );
 
   // Close the new tab.
   let newTab = mc.tabmail.currentTabInfo;
   mc.tabmail.closeTab(newTab);
   mc.tabmail.closeTab(tab);
-});
+}).skip(); // Bug 1683787.
 
 /**
  * Test that links with target="_blank" open in the default browser.
@@ -1110,14 +1111,12 @@ add_task(function test_external_link_opening_behaviour() {
   get_to_order_form();
 
   let tab = mc.tabmail.currentTabInfo;
-  let doc = tab.browser.contentWindow.document;
 
   // Mock out the ExternalProtocolService.
   gMockExtProtSvcReg.register();
 
-  let external = doc.getElementById("external");
-  let targetHref = external.href;
-  mc.click(new elib.Elem(external));
+  let targetHref = url + "target.html";
+  BrowserTestUtils.synthesizeMouseAtCenter("#external", {}, tab.browser);
 
   mc.waitFor(
     () => gMockExtProtSvc.urlLoaded(targetHref),
@@ -1128,7 +1127,7 @@ add_task(function test_external_link_opening_behaviour() {
   );
   gMockExtProtSvcReg.unregister();
   mc.tabmail.closeTab(tab);
-});
+}).skip(); // Bug 1683787.
 
 /**
  * Test that if the provider returns XML that we can't turn into an account,
@@ -1144,10 +1143,11 @@ add_task(function test_return_to_provisioner_on_error_XML() {
   plan_for_modal_dialog("AccountCreation", close_dialog_immediately);
 
   // Click the OK button to order the account.
-  let btn = tab.browser.contentWindow.document.querySelector(
-    "input[value=Send]"
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "input[value=Send]",
+    {},
+    tab.browser
   );
-  mc.click(new elib.Elem(btn));
 
   wait_for_modal_dialog("AccountCreation");
 

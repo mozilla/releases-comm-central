@@ -669,10 +669,9 @@ pref("browser.link.open_newwindow.restriction", 0);
 
 pref("browser.tabs.loadDivertedInBackground", false);
 
-// Swap this line for the next two to enable E10s.
-pref("browser.tabs.remote.autostart", false);
-// pref("browser.tabs.remote.autostart", true);
-// pref("extensions.webextensions.remote", true);
+// Enable multi-process.
+pref("browser.tabs.remote.autostart", true);
+pref("extensions.webextensions.remote", true);
 
 // Browser icon prefs
 pref("browser.chrome.site_icons", true);

@@ -854,6 +854,14 @@ function assert_tab_has_title(aTab, aTitle) {
 function close_tab(aTabToClose) {
   mark_action("fdh", "close_tab", [aTabToClose]);
 
+  if (mc.messageDisplay.visible) {
+    // Stop loading a message, if we're in the process of doing so.
+    if (mc.window.messenger) {
+      mc.window.messenger.abortPendingOpenURL();
+    }
+    wait_for_message_display_completion(mc);
+  }
+
   if (typeof aTabToClose == "number") {
     aTabToClose = mc.tabmail.tabInfo[aTabToClose];
   }
@@ -1891,11 +1899,19 @@ function wait_for_message_display_completion(aController, aLoadDemanded) {
       return false;
     }
 
-    let docShell = contentPane.docShell;
-    if (!docShell) {
+    if (contentPane.webProgress?.isLoadingDocument) {
       return false;
     }
+
+    let docShell = contentPane.docShell;
+    if (!docShell) {
+      return !aLoadDemanded;
+    }
     let uri = docShell.currentURI;
+    if (uri?.spec == "about:blank") {
+      return !aLoadDemanded;
+    }
+
     // the URL will tell us if it is running, saves us from potential error
     if (uri && uri instanceof Ci.nsIMsgMailNewsUrl) {
       let urlRunningObj = {};
@@ -1932,8 +1948,12 @@ function wait_for_blank_content_pane(aController) {
   }
   mark_action("fdh", "wait_for_blank_content_pane", []);
 
+  let messagePane = aController.window.getMessagePaneBrowser();
   let isBlankChecker = function() {
-    return aController.window.content.location.href == "about:blank";
+    return (
+      !messagePane.webProgress?.isLoadingDocument &&
+      messagePane.currentURI?.spec == "about:blank"
+    );
   };
   try {
     utils.waitFor(isBlankChecker);
@@ -1943,7 +1963,7 @@ function wait_for_blank_content_pane(aController) {
         true,
         undefined,
         undefined,
-        `Timeout waiting for blank content pane. Current location: ${aController.window.content.location.href}`
+        `Timeout waiting for blank content pane. Current location: ${messagePane.currentURI?.spec}`
       );
     } else {
       throw e;
@@ -2331,7 +2351,10 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
       );
     }
     // make sure the content pane is pointed at about:blank
-    if (troller.window.content.location.href != "about:blank") {
+    if (
+      troller.window.content &&
+      troller.window.content.location.href != "about:blank"
+    ) {
       throw new Error(
         "the content pane should be blank, but is showing: '" +
           troller.window.content.location.href +
@@ -2384,7 +2407,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     let msgUrlObj = {};
     msgService.GetUrlForUri(msgUri, msgUrlObj, troller.folderDisplay.msgWindow);
     let msgUrl = msgUrlObj.value;
-    if (troller.window.content.location.href != msgUrl.spec) {
+    if (troller.window.content?.location.href != msgUrl.spec) {
       throw new Error(
         "The content pane is not displaying the right message! " +
           "Should be: " +
@@ -2407,7 +2430,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     }
 
     // verify that the message pane browser is displaying about:blank
-    if (mc.window.content.location.href != "about:blank") {
+    if (mc.window.content && mc.window.content.location.href != "about:blank") {
       throw new Error(
         "the content pane should be blank, but is showing: '" +
           mc.window.content.location.href +
@@ -2700,7 +2723,7 @@ function _focus_element(aElement) {
  * Focus a window.
  */
 function _focus_window(aWindow) {
-  mc.e(aWindow).contentWindow.focus();
+  mc.e(aWindow).focus();
 }
 
 /**
@@ -3011,6 +3034,7 @@ function make_display_unthreaded() {
   mc.folderDisplay.view.showUnthreaded = true;
   // drain event queue
   mc.sleep(0);
+  wait_for_message_display_completion();
 }
 
 /**

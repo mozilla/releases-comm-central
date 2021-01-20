@@ -809,9 +809,7 @@ nsBrowserAccess.prototype = {
       skipLoad: aSkipLoad,
     });
 
-    let docShell = newTab.browser.docShell;
-    let newWindow = docShell.domWindow;
-    let browsingContext = docShell.browsingContext;
+    let browsingContext = newTab.browser.browsingContext;
     try {
       if (aURI) {
         let referrer = null;
@@ -819,19 +817,17 @@ nsBrowserAccess.prototype = {
           let location = aOpenWindowInfo.parent.window.location;
           referrer = Services.io.newURI(location);
         }
-        newWindow
-          .getInterface(Ci.nsIWebNavigation)
-          .loadURI(
-            aURI.spec,
-            loadflags,
-            referrer,
-            null,
-            null,
-            aTriggeringPrincipal
-          );
+        newTab.browser.webNavigation.loadURI(
+          aURI.spec,
+          loadflags,
+          referrer,
+          null,
+          null,
+          aTriggeringPrincipal
+        );
       }
       if (needToFocusWin || (!loadInBackground && isExternal)) {
-        newWindow.focus();
+        newTab.browser.focus();
       }
     } catch (e) {}
     return browsingContext;

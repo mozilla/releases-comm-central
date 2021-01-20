@@ -80,6 +80,9 @@ SummaryFrameManager.prototype = {
       ) {
         return;
       }
+      if (event.originalTarget.ownerGlobal.location.href == "about:blank") {
+        return;
+      }
 
       this.callback = this.pendingCallback;
       this.pendingCallback = null;

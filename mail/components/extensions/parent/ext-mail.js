@@ -18,11 +18,8 @@ var { defineLazyGetter } = ExtensionCommon;
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
-  ExtensionPageChild: "resource://gre/modules/ExtensionPageChild.jsm",
-  ExtensionProcessScript: "resource://gre/modules/ExtensionProcessScript.jsm",
   ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
-  Schemas: "resource://gre/modules/Schemas.jsm",
   fixIterator: "resource:///modules/iteratorUtils.jsm",
 });
 
@@ -43,38 +40,15 @@ const COMPOSE_WINDOW_URI =
   "chrome://messenger/content/messengercompose/messengercompose.xhtml";
 const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
 
-// Inject the |messenger| object as an alias to |browser| in all known contexts. This is a bit
-// fragile since it uses monkeypatching. If a test fails, the best way to debug is to search for
-// Schemas.exportLazyGetter where it does the injections, add |messenger| alias to those files until
-// the test passes again, and then find out why the monkeypatching is not catching it.
 (function() {
-  let getContext = ExtensionContent.getContext;
-  let initExtensionContext = ExtensionContent.initExtensionContext;
-  let initPageChildExtensionContext = ExtensionPageChild.initExtensionContext;
+  // Monkey-patch all processes to add the "messenger" alias in all contexts.
+  Services.ppmm.loadProcessScript(
+    "chrome://messenger/content/processScript.js",
+    true
+  );
 
-  // This patches constructor of ContentScriptContextChild adding the object to the sandbox
-  ExtensionContent.getContext = function(extension, window) {
-    let context = getContext.apply(ExtensionContent, arguments);
-    if (!("messenger" in context.sandbox)) {
-      Schemas.exportLazyGetter(
-        context.sandbox,
-        "messenger",
-        () => context.chromeObj
-      );
-    }
-    return context;
-  };
-
-  // This patches extension content within unprivileged pages, so an iframe on a web page that
-  // points to a moz-extension:// page exposed via web_accessible_content
-  ExtensionContent.initExtensionContext = function(extension, window) {
-    let context = extension.getContext(window);
-    Schemas.exportLazyGetter(window, "messenger", () => context.chromeObj);
-
-    return initExtensionContext.apply(ExtensionContent, arguments);
-  };
-
-  // This allows scripts to run in the compose document only if the extension has permission.
+  // This allows scripts to run in the compose document or message display
+  // document if and only if the extension has permission.
   let { defaultConstructor } = ExtensionContent.contentScripts;
   ExtensionContent.contentScripts.defaultConstructor = function(matcher) {
     let script = defaultConstructor.call(this, matcher);
@@ -86,12 +60,12 @@ const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
       if (
         browsingContext.topChromeWindow?.location.href == COMPOSE_WINDOW_URI &&
         windowContext.documentPrincipal.isNullPrincipal &&
-        windowContext.documentURI.spec == "about:blank?compose"
+        windowContext.documentURI?.spec == "about:blank?compose"
       ) {
         return script.extension.hasPermission("compose");
       }
 
-      if (MESSAGE_PROTOCOLS.includes(windowContext.documentURI.scheme)) {
+      if (MESSAGE_PROTOCOLS.includes(windowContext.documentURI?.scheme)) {
         return script.extension.hasPermission("messagesModify");
       }
 
@@ -99,25 +73,6 @@ const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
     };
 
     return script;
-  };
-
-  // This patches privileged pages such as the background script
-  ExtensionPageChild.initExtensionContext = function(extension, window) {
-    let retval = initPageChildExtensionContext.apply(
-      ExtensionPageChild,
-      arguments
-    );
-
-    let windowId = getInnerWindowID(window);
-    let context = ExtensionPageChild.extensionContexts.get(windowId);
-
-    Schemas.exportLazyGetter(window, "messenger", () => {
-      let messengerObj = Cu.createObjectIn(window);
-      context.childManager.inject(messengerObj);
-      return messengerObj;
-    });
-
-    return retval;
   };
 })();
 
@@ -859,7 +814,7 @@ class Tab extends TabBase {
     if (this.isComposeTab) {
       return undefined;
     }
-    return this.browser ? this.browser.currentURI.spec : null;
+    return this.browser?.currentURI?.spec;
   }
 
   /** Returns the current title of this tab, without permission checks. */

@@ -7,6 +7,11 @@ ChromeUtils.defineModuleGetter(
   "PromiseUtils",
   "resource://gre/modules/PromiseUtils.jsm"
 );
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailE10SUtils",
+  "resource:///modules/MailE10SUtils.jsm"
+);
 var { ExtensionError } = ExtensionUtils;
 
 /**
@@ -436,6 +441,9 @@ this.tabs = class extends ExtensionAPI {
           let nativeTabInfo = tabmail.openTab("contentTab", {
             contentPage: url || "about:blank",
             background: !active,
+            initialBrowsingContextGroupId:
+              context.extension.policy.browsingContextGroupId,
+            principal: context.extension.principal,
           });
 
           if (createProperties.index) {
@@ -494,7 +502,7 @@ this.tabs = class extends ExtensionAPI {
                 : Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
               triggeringPrincipal: context.principal,
             };
-            browser.loadURI(url, options);
+            MailE10SUtils.loadURI(browser, url, options);
           }
 
           if (updateProperties.active) {
