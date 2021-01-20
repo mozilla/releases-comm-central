@@ -18,3 +18,10 @@
 <!ENTITY browseWithCaretShortCut.accesskey "F">
 <!ENTITY browseWithCaretWarn.label "Warn me before turning on caret browsing">
 <!ENTITY browseWithCaretWarn.accesskey "W">
+
+<!ENTITY modifiers.label "Modifiers">
+<!ENTITY acceleratorKey.label "Accelerator key:">
+<!ENTITY acceleratorKey.accesskey "A">
+<!ENTITY menuAccessKey.label "Menu access key:">
+<!ENTITY menuAccessKey.accesskey "M">
+<!ENTITY modifiersDesc.label "Note: A value of zero disables a modifier key.">

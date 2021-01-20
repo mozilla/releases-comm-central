@@ -11,28 +11,12 @@
 
     <preferences id="debugqa_preferences">
       <preference id="xul.debug.box" name="xul.debug.box" type="bool"/>
-      <preference id="ui.key.accelKey" name="ui.key.accelKey" type="int"/>
-      <preference id="ui.key.menuAccessKey" name="ui.key.menuAccessKey" type="int"/>
     </preferences>
 
     <groupbox align="start">
       <caption label="&widgetRendering.label;"/>
       <checkbox id="debugXULBoxes" label="&debugXULBox.label;"
                 preference="xul.debug.box"/>
-    </groupbox>
-
-    <groupbox>
-      <caption label="&accelerators.label;"/>
-      <description value="&acceleratorsBlurb.label;"/>
-      <hbox align="center">
-            <label value="&acceleratorKey.label;" control="acceleratorKeyValue"
-                   accesskey="&acceleratorKey.accesskey;"/>
-            <textbox id="acceleratorKeyValue"
-              preference="ui.key.accelKey" size="5"/>
-            <label value="&menuAccessKey.label;" accesskey="&menuAccessKey.accesskey;" control="menuAccessKeyValue"/>
-            <textbox id="menuAccessKeyValue"
-              preference="ui.key.menuAccessKey" size="5"/>
-      </hbox>
     </groupbox>
   </prefpane>
 </overlay>

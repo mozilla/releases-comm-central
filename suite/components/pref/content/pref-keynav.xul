@@ -24,6 +24,12 @@
       <preference id="accessibility.warn_on_browsewithcaret"
                   name="accessibility.warn_on_browsewithcaret"
                   type="bool"/>
+      <preference id="ui.key.accelKey"
+                  name="ui.key.accelKey"
+                  type="int"/>
+      <preference id="ui.key.menuAccessKey"
+                  name="ui.key.menuAccessKey"
+                  type="int"/>
     </preferences>
 
     <groupbox id="tabNavigationPrefs"
@@ -63,6 +69,35 @@
                 label="&browseWithCaretWarn.label;"
                 accesskey="&browseWithCaretWarn.accesskey;"
                 preference="accessibility.warn_on_browsewithcaret"/>
+    </groupbox>
+
+    <groupbox id="modifiers">
+      <caption label="&modifiers.label;"/>
+      <hbox align="center">
+        <label id="acceleratorKey"
+               value="&acceleratorKey.label;"
+               accesskey="&acceleratorKey.accesskey;"
+               control="acceleratorKeyValue"/>
+        <textbox id="acceleratorKeyValue"
+                 type="number"
+                 min="0"
+                 max="255"
+                 size="3"
+                 preference="ui.key.accelKey"
+                 aria-labelledby="acceleratorKey acceleratorKeyValue"/>
+        <label id="menuAccessKey"
+               value="&menuAccessKey.label;"
+               accesskey="&menuAccessKey.accesskey;"
+               control="menuAccessKeyValue"/>
+        <textbox id="menuAccessKeyValue"
+                 type="number"
+                 min="0"
+                 max="255"
+                 size="3"
+                 preference="ui.key.menuAccessKey"
+                 aria-labelledby="menuAccessKey menuAccessKeyValue"/>
+      </hbox>
+      <description>&modifiersDesc.label;</description>
     </groupbox>
 
   </prefpane>
