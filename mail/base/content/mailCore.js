@@ -593,10 +593,7 @@ function openAddonsMgr(aView) {
 
     // This must be a new load, else the ping/pong would have
     // found the window above.
-    let addonSiteRegExp = Services.prefs.getCharPref(
-      "extensions.getAddons.siteRegExp"
-    );
-    let tab = openContentTab("about:addons", "tab", addonSiteRegExp);
+    let tab = openContentTab("about:addons");
     // Also in `contentTabType.restoreTab` in specialTabs.js.
     tab.browser.droppedLinkHandler = event =>
       tab.browser.contentWindow.gDragDrop.onDrop(event);
@@ -662,7 +659,6 @@ function openSavedFilesWnd() {
   } else {
     tabmail.openTab("chromeTab", {
       chromePage: "about:downloads",
-      clickHandler: "specialTabs.aboutClickHandler(event);",
     });
   }
 }
@@ -742,7 +738,6 @@ function openAboutSupport() {
     mailWindow.focus();
     mailWindow.document.getElementById("tabmail").openTab("contentTab", {
       contentPage: "about:support",
-      clickHandler: "specialTabs.aboutClickHandler(event);",
     });
     return;
   }
@@ -756,7 +751,6 @@ function openAboutSupport() {
       tabType: "contentTab",
       tabParams: {
         contentPage: "about:support",
-        clickHandler: "specialTabs.aboutClickHandler(event);",
       },
     }
   );

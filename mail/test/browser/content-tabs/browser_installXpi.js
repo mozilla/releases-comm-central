@@ -28,10 +28,7 @@ var gNewTab;
 
 add_task(function setupModule(module) {
   gDocument = mc.window.document;
-  gNewTab = open_content_tab_with_url(
-    url + "installxpi.html",
-    "specialTabs.siteClickHandler(event, new RegExp('^" + url + "'));"
-  );
+  gNewTab = open_content_tab_with_url(url + "installxpi.html");
 });
 
 var teardownModule = function(module) {

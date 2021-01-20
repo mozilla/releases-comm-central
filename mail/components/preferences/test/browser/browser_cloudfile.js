@@ -217,6 +217,9 @@ add_task(async function addRemoveAccounts() {
     {},
     iframe.contentWindow
   );
+  // It might take a moment to get to the external protocol service.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
   ok(
     mockExternalProtocolService.urlLoaded("https://www.example.com/"),
     "Link click sent to external protocol service."

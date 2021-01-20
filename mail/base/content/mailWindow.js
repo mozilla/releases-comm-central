@@ -693,15 +693,62 @@ function nsBrowserAccess() {}
 nsBrowserAccess.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIBrowserDOMWindow"]),
 
-  // The following function may be called during account creation, it is called by
-  // the test browser_newmailaccount.js::test_window_open_link_opening_behaviour.
+  _openURIInNewTab(
+    aURI,
+    aReferrerInfo,
+    aIsExternal,
+    aOpenWindowInfo = null,
+    aTriggeringPrincipal = null,
+    aCsp = null,
+    aSkipLoad = false,
+    aMessageManagerGroup = null
+  ) {
+    let win, needToFocusWin;
+
+    // Try the current window. If we're in a popup, fall back on the most
+    // recent browser window.
+    if (!window.document.documentElement.getAttribute("chromehidden")) {
+      win = window;
+    } else {
+      win = getMostRecentMailWindow();
+      needToFocusWin = true;
+    }
+
+    if (!win) {
+      // we couldn't find a suitable window, a new one needs to be opened.
+      return null;
+    }
+
+    let loadInBackground = Services.prefs.getBoolPref(
+      "browser.tabs.loadDivertedInBackground"
+    );
+
+    let tabmail = win.document.getElementById("tabmail");
+    let newTab = tabmail.openTab("contentTab", {
+      background: loadInBackground,
+      contentPage: aURI ? aURI.spec : "about:blank",
+      csp: aCsp,
+      linkHandler: aMessageManagerGroup,
+      openWindowInfo: aOpenWindowInfo,
+      referrerInfo: aReferrerInfo,
+      skipLoad: aSkipLoad,
+      triggeringPrincipal: aTriggeringPrincipal,
+    });
+
+    if (needToFocusWin || (!loadInBackground && aIsExternal)) {
+      win.focus();
+    }
+
+    return newTab.browser;
+  },
+
   createContentWindow(
     aURI,
     aOpenWindowInfo,
     aWhere,
     aFlags,
-    aTriggeringPrincipal = null,
-    aCsp = null
+    aTriggeringPrincipal,
+    aCsp
   ) {
     return this.getContentWindowOrOpenURI(
       null,
@@ -714,25 +761,45 @@ nsBrowserAccess.prototype = {
     );
   },
 
-  openURI(
-    aURI,
-    aOpener,
-    aWhere,
-    aFlags,
-    aTriggeringPrincipal = null,
-    aCsp = null
-  ) {
+  createContentWindowInFrame(aURI, aParams, aWhere, aFlags, aName) {
+    // Passing a null-URI to only create the content window,
+    // and pass true for aSkipLoad to prevent loading of
+    // about:blank
+    return this.getContentWindowOrOpenURIInFrame(
+      aURI,
+      aParams,
+      aWhere,
+      aFlags,
+      aName,
+      false
+    );
+  },
+
+  openURI(aURI, aOpenWindowInfo, aWhere, aFlags, aTriggeringPrincipal, aCsp) {
     if (!aURI) {
-      Cu.reportError("openURI should only be called with a valid URI");
-      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
+      throw Components.Exception(
+        "openURI should only be called with a valid URI",
+        Cr.NS_ERROR_FAILURE
+      );
     }
     return this.getContentWindowOrOpenURI(
       aURI,
-      aOpener,
+      aOpenWindowInfo,
       aWhere,
       aFlags,
       aTriggeringPrincipal,
       aCsp,
+      false
+    );
+  },
+
+  openURIInFrame(aURI, aParams, aWhere, aFlags, aName) {
+    return this.getContentWindowOrOpenURIInFrame(
+      aURI,
+      aParams,
+      aWhere,
+      aFlags,
+      aName,
       false
     );
   },
@@ -746,9 +813,7 @@ nsBrowserAccess.prototype = {
     aCsp,
     aSkipLoad
   ) {
-    const nsIBrowserDOMWindow = Ci.nsIBrowserDOMWindow;
-
-    if (aWhere == nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
+    if (aWhere == Ci.nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
       let browser = PrintUtils.startPrintWindow(
         "mailWindow",
         aOpenWindowInfo.parent,
@@ -757,7 +822,16 @@ nsBrowserAccess.prototype = {
       return browser ? browser.browsingContext : null;
     }
 
-    let isExternal = !!(aFlags & nsIBrowserDOMWindow.OPEN_EXTERNAL);
+    let isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
+
+    if (aOpenWindowInfo && isExternal) {
+      throw Components.Exception(
+        "nsBrowserAccess.openURI did not expect aOpenWindowInfo to be " +
+          "passed if the context is OPEN_EXTERNAL.",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
     if (isExternal && aURI && aURI.schemeIs("chrome")) {
       Services.console.logStringMessage(
         "use -chrome command-line option to load external chrome urls\n"
@@ -765,76 +839,92 @@ nsBrowserAccess.prototype = {
       return null;
     }
 
-    let loadflags = isExternal
-      ? Ci.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL
-      : Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
+    const ReferrerInfo = Components.Constructor(
+      "@mozilla.org/referrer-info;1",
+      "nsIReferrerInfo",
+      "init"
+    );
 
-    if (aWhere != nsIBrowserDOMWindow.OPEN_NEWTAB) {
+    let referrerInfo;
+    if (aFlags & Ci.nsIBrowserDOMWindow.OPEN_NO_REFERRER) {
+      referrerInfo = new ReferrerInfo(Ci.nsIReferrerInfo.EMPTY, false, null);
+    } else if (
+      aOpenWindowInfo &&
+      aOpenWindowInfo.parent &&
+      aOpenWindowInfo.parent.window
+    ) {
+      referrerInfo = new ReferrerInfo(
+        aOpenWindowInfo.parent.window.document.referrerInfo.referrerPolicy,
+        true,
+        makeURI(aOpenWindowInfo.parent.window.location.href)
+      );
+    } else {
+      referrerInfo = new ReferrerInfo(Ci.nsIReferrerInfo.EMPTY, true, null);
+    }
+
+    if (aWhere != Ci.nsIBrowserDOMWindow.OPEN_NEWTAB) {
       Services.console.logStringMessage(
         "Opening a URI in something other than a new tab is not supported, opening in new tab instead"
       );
     }
 
-    let win, needToFocusWin;
-
-    // Try the current window. If we're in a popup, fall back on the most
-    // recent browser window.
-    if (!window.document.documentElement.getAttribute("chromehidden")) {
-      win = window;
-    } else {
-      win = getMostRecentMailWindow();
-      needToFocusWin = true;
-    }
-
-    if (!win) {
-      throw new Error("Couldn't get a suitable window for openURI");
-    }
-
-    let loadInBackground = Services.prefs.getBoolPref(
-      "browser.tabs.loadDivertedInBackground"
+    let browser = this._openURIInNewTab(
+      aURI,
+      referrerInfo,
+      isExternal,
+      aOpenWindowInfo,
+      aTriggeringPrincipal,
+      aCsp,
+      aSkipLoad,
+      aOpenWindowInfo.openerBrowser?.getAttribute("messagemanagergroup")
     );
 
-    let tabmail = win.document.getElementById("tabmail");
-    let clickHandler = null;
-    let browser = tabmail.getBrowserForDocument(window.content);
-    if (browser) {
-      clickHandler = browser.clickHandler;
-    }
-
-    let newTab = tabmail.openTab("contentTab", {
-      contentPage: "about:blank",
-      background: loadInBackground,
-      openWindowInfo: aOpenWindowInfo,
-      clickHandler,
-      skipLoad: aSkipLoad,
-    });
-
-    let browsingContext = newTab.browser.browsingContext;
-    try {
-      if (aURI) {
-        let referrer = null;
-        if (aOpenWindowInfo) {
-          let location = aOpenWindowInfo.parent.window.location;
-          referrer = Services.io.newURI(location);
-        }
-        newTab.browser.webNavigation.loadURI(
-          aURI.spec,
-          loadflags,
-          referrer,
-          null,
-          null,
-          aTriggeringPrincipal
-        );
-      }
-      if (needToFocusWin || (!loadInBackground && isExternal)) {
-        newTab.browser.focus();
-      }
-    } catch (e) {}
-    return browsingContext;
+    return browser ? browser.browsingContext : null;
   },
 
-  isTabContentWindow(aWindow) {
-    return false;
+  getContentWindowOrOpenURIInFrame(
+    aURI,
+    aParams,
+    aWhere,
+    aFlags,
+    aName,
+    aSkipLoad
+  ) {
+    if (aWhere == Ci.nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
+      return PrintUtils.startPrintWindow(
+        "mailWindow",
+        aParams.openWindowInfo.parent,
+        aParams.openWindowInfo
+      );
+    }
+
+    if (aWhere != Ci.nsIBrowserDOMWindow.OPEN_NEWTAB) {
+      Services.console.logStringMessage(
+        "Error: openURIInFrame can only open in new tabs or print"
+      );
+      return null;
+    }
+
+    let isExternal = !!(aFlags & Ci.nsIBrowserDOMWindow.OPEN_EXTERNAL);
+
+    return this._openURIInNewTab(
+      aURI,
+      aParams.referrerInfo,
+      isExternal,
+      aParams.openWindowInfo,
+      aParams.triggeringPrincipal,
+      aParams.csp,
+      aSkipLoad,
+      aParams.openerBrowser?.getAttribute("messagemanagergroup")
+    );
+  },
+
+  canClose() {
+    return true;
+  },
+
+  get tabCount() {
+    return document.getElementById("tabmail").tabInfo.length;
   },
 };
 
@@ -894,12 +984,7 @@ function switchToTabHavingURI(aURI, aOpenNew, aOpenParams) {
   }
 
   if (aOpenNew) {
-    // Open a new tab, keeping links from the new tab in Thunderbird if the regexp is set.
-    if (aOpenParams && "handlerRegExp" in aOpenParams) {
-      openContentTab(aURI, "tab", aOpenParams.handlerRegExp);
-    } else {
-      openContentTab(aURI, "tab");
-    }
+    openContentTab(aURI, "tab", aOpenParams.linkHandler);
   }
 
   return false;

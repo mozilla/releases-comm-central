@@ -837,7 +837,6 @@ function _showNewInstallModal() {
     tabmail.registerTabMonitor(monitor);
     tabmail.openTab("contentTab", {
       contentPage: "about:newinstall",
-      clickHandler: "specialTabs.aboutClickHandler(event);",
     });
   }
 }

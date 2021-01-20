@@ -111,7 +111,6 @@ function openAboutTab(url) {
     mailWindow.focus();
     mailWindow.document.getElementById("tabmail").openTab("contentTab", {
       contentPage: url,
-      clickHandler: "specialTabs.aboutClickHandler(event);",
     });
     return;
   }
@@ -126,7 +125,6 @@ function openAboutTab(url) {
       tabType: "contentTab",
       tabParams: {
         contentPage: url,
-        clickHandler: "specialTabs.aboutClickHandler(event);",
       },
     }
   );

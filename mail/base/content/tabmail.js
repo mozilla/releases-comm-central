@@ -872,7 +872,7 @@
             if (!background) {
               this.selectTabByIndex(null, tabIndex);
             }
-            return null;
+            return this.tabInfo[tabIndex];
           }
         }
 

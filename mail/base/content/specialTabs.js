@@ -831,16 +831,22 @@ var specialTabs = {
      * This is the internal function used by content tabs to open a new tab. To
      * open a contentTab, use specialTabs.openTab("contentTab", aArgs)
      *
-     * @param aArgs The options that content tabs accept.
-     * @param aArgs.contentPage A string that holds the URL that is to be opened
-     * @param aArgs.openWindowInfo The opener window
-     * @param aArgs.clickHandler The click handler for that content tab. See the
-     *  "Content Tabs" article on MDC.
-     * @param aArgs.onLoad A function that takes an Event and a DOMNode. It is
-     *  called when the content page is done loading. The first argument is the
-     *  load event, and the second argument is the xul:browser that holds the
-     *  contentPage. You can access the inner tab's window object by accessing
-     *  the second parameter's contentWindow property.
+     * @param {Object} aArgs - The options that content tabs accept.
+     * @param {String} aArgs.contentPage - The URL that is to be opened
+     * @param {nsIOpenWindowInfo} [aArgs.openWindowInfo] - The opener window
+     * @param {"single-site"|"single-page"|null} [aArgs.linkHandler="single-site"]
+     *     Restricts navigation in the browser to be opened:
+     *     - "single-site" allows only URLs in the same domain as
+     *     aArgs.contentPage (including subdomains).
+     *     - "single-page" allows only URLs matching aArgs.contentPage.
+     *     - `null` applies no such restrictions.
+     *     All other links are sent to an external browser.
+     * @param {Function} [aArgs.onLoad] - A function that takes an Event and a
+     *     DOMNode. It is called when the content page is done loading. The
+     *     first argument is the load event, and the second argument is the
+     *     xul:browser that holds the contentPage. You can access the inner
+     *     tab's window object by accessing the second parameter's
+     *     contentWindow property.
      */
     openTab(aTab, aArgs) {
       if (!("contentPage" in aArgs)) {
@@ -869,7 +875,6 @@ var specialTabs = {
       aTab.browser.setAttribute("autocompletepopup", "PopupAutoComplete");
       aTab.browser.setAttribute("datetimepicker", "DateTimePickerPanel");
       aTab.browser.setAttribute("context", "mailContext");
-      aTab.browser.setAttribute("messagemanagergroup", "browsers");
       aTab.browser.openWindowInfo = aArgs.openWindowInfo || null;
       clone.querySelector("stack").appendChild(aTab.browser);
 
@@ -906,11 +911,13 @@ var specialTabs = {
         aTab.browser.setAttribute("primary", "true");
       }
 
-      aTab.clickHandler =
-        "clickHandler" in aArgs && aArgs.clickHandler
-          ? aArgs.clickHandler
-          : "specialTabs.defaultClickHandler(event);";
-      aTab.browser.setAttribute("onclick", aTab.clickHandler);
+      if (aArgs.linkHandler == "single-page") {
+        aTab.browser.setAttribute("messagemanagergroup", "single-page");
+      } else if (aArgs.linkHandler === null) {
+        aTab.browser.setAttribute("messagemanagergroup", "browsers");
+      } else {
+        aTab.browser.setAttribute("messagemanagergroup", "single-site");
+      }
 
       // Set this attribute so that when favicons fail to load, we remove the
       // image attribute and just show the default tab icon.
@@ -975,7 +982,11 @@ var specialTabs = {
       aTab.title = this.loadingTabString;
 
       if (!aArgs.skipLoad) {
-        MailE10SUtils.loadURI(aTab.browser, aArgs.contentPage);
+        MailE10SUtils.loadURI(aTab.browser, aArgs.contentPage, {
+          csp: aArgs.csp,
+          referrerInfo: aArgs.referrerInfo,
+          triggeringPrincipal: aArgs.triggeringPrincipal,
+        });
       }
 
       this.lastBrowserId++;
@@ -988,17 +999,15 @@ var specialTabs = {
         return null;
       }
 
-      let onClick = aTab.clickHandler;
-
       return {
         tabURI: aTab.browser.currentURI.spec,
-        clickHandler: onClick ? onClick : null,
+        linkHandler: aTab.browser.getAttribute("messagemanagergroup"),
       };
     },
     restoreTab(aTabmail, aPersistedState) {
       let tab = aTabmail.openTab("contentTab", {
         contentPage: aPersistedState.tabURI,
-        clickHandler: aPersistedState.clickHandler,
+        linkHandler: aPersistedState.linkHandler,
         duplicate: aPersistedState.duplicate,
         background: true,
       });
@@ -1119,7 +1128,6 @@ var specialTabs = {
       );
       document.getElementById("tabmail").openTab("contentTab", {
         contentPage: firstRunURL,
-        clickHandler: "specialTabs.aboutClickHandler(event);",
         background: true,
       });
     } catch (e) {
@@ -1221,7 +1229,6 @@ var specialTabs = {
           // Show the about:rights tab
           document.getElementById("tabmail").openTab("contentTab", {
             contentPage: "about:rights",
-            clickHandler: "specialTabs.aboutClickHandler(event);",
           });
         },
       },
@@ -1242,115 +1249,6 @@ var specialTabs = {
 
     // Set the pref to say we've displayed the notification.
     Services.prefs.setIntPref("mail.rights.version", this._kAboutRightsVersion);
-  },
-
-  /**
-   * Handles links when displaying about: pages. Anything that is an about:
-   * link can be loaded internally, other links are redirected to an external
-   * browser.
-   */
-  aboutClickHandler(aEvent) {
-    // Don't handle events that: a) aren't trusted, b) have already been
-    // handled or c) aren't left-click.
-    if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button) {
-      return true;
-    }
-
-    let href = hRefForClickEvent(aEvent, true)[0];
-    if (href) {
-      let uri = makeURI(href);
-      if (
-        !this._protocolSvc.isExposedProtocol(uri.scheme) ||
-        uri.schemeIs("http") ||
-        uri.schemeIs("https")
-      ) {
-        aEvent.preventDefault();
-        openLinkExternally(href);
-      }
-    }
-    return false;
-  },
-
-  /**
-   * The default click handler for content tabs. Any clicks on links will get
-   * redirected to an external browser - effectively keeping the user on one
-   * page.
-   */
-  defaultClickHandler(aEvent) {
-    // Don't handle events that: a) aren't trusted, b) have already been
-    // handled or c) aren't left-click.
-    if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button) {
-      return true;
-    }
-
-    let href = hRefForClickEvent(aEvent, true)[0];
-
-    // We've explicitly allowed http, https and about as additional exposed
-    // protocols in our default prefs, so these are the ones we need to check
-    // for here.
-    if (href) {
-      let uri = makeURI(href);
-      if (
-        !this._protocolSvc.isExposedProtocol(uri.scheme) ||
-        uri.schemeIs("http") ||
-        uri.schemeIs("https") ||
-        uri.schemeIs("about")
-      ) {
-        aEvent.preventDefault();
-        openLinkExternally(href);
-      }
-    }
-    return false;
-  },
-
-  /**
-   * A site click handler for extensions to use. This does its best to limit
-   * loading of links that match the regexp to within the content tab it applies
-   * to within Thunderbird. Links that do not match the regexp will be loaded
-   * in the external browser.
-   *
-   * Note: Due to the limitations of http and the possibility for redirects, if
-   * sites change or use javascript, this function may not be able to ensure the
-   * contentTab stays "within" a site. Extensions using this function should
-   * consider this when implementing the extension.
-   *
-   * @param aEvent      The onclick event that is being handled.
-   * @param aSiteRegexp A regexp to match against to determine if the link
-   *                    clicked on should be loaded within the browser or not.
-   */
-  siteClickHandler(aEvent, aSiteRegexp) {
-    // Don't handle events that: a) aren't trusted, b) have already been
-    // handled or c) aren't left-click.
-    if (!aEvent.isTrusted || aEvent.defaultPrevented || aEvent.button) {
-      return true;
-    }
-
-    let href = hRefForClickEvent(aEvent, true)[0];
-
-    // We've explicitly allowed http, https and about as additional exposed
-    // protocols in our default prefs, so these are the ones we need to check
-    // for here.
-    if (href) {
-      let uri = makeURI(href);
-      if (
-        aEvent.target.ownerDocument.location.href ==
-          "chrome://mozapps/content/extensions/aboutaddons.html" &&
-        uri.schemeIs("addons")
-      ) {
-        // Prevent internal AOM links showing the "open link" dialog.
-        aEvent.preventDefault();
-      } else if (
-        !this._protocolSvc.isExposedProtocol(uri.scheme) ||
-        ((uri.schemeIs("http") ||
-          uri.schemeIs("https") ||
-          uri.schemeIs("about")) &&
-          !aSiteRegexp.test(uri.spec))
-      ) {
-        aEvent.preventDefault();
-        openLinkExternally(href);
-      }
-    }
-    return false;
   },
 
   chromeTabType: {
@@ -1378,15 +1276,22 @@ var specialTabs = {
      * This is the internal function used by chrome tabs to open a new tab. To
      * open a chromeTab, use specialTabs.openTab("chromeTab", aArgs)
      *
-     * @param aArgs The options that chrome tabs accept.
-     * @param aArgs.chromePage A string that holds the URL that is to be opened
-     * @param aArgs.clickHandler The click handler for that chrome tab. See the
-     *  "Content Tabs" article on MDC.
-     * @param aArgs.onLoad A function that takes an Event and a DOMNode. It is
-     *  called when the chrome page is done loading. The first argument is the
-     *  load event, and the second argument is the xul:browser that holds the
-     *  chromePage. You can access the inner tab's window object by accessing
-     *  the second parameter's chromeWindow property.
+     * @param {Object} aArgs - The options that chrome tabs accept.
+     * @param {String} aArgs.chromePage - The URL that is to be opened
+     * @param {nsIOpenWindowInfo} [aArgs.openWindowInfo] - The opener window
+     * @param {"single-site"|"single-page"|null} [aArgs.linkHandler="single-site"]
+     *     Restricts navigation in the browser to be opened:
+     *     - "single-site" allows only URLs in the same domain as
+     *     aArgs.chromePage (including subdomains).
+     *     - "single-page" allows only URLs matching aArgs.chromePage.
+     *     - `null` applies no such restrictions.
+     *     All other links are sent to an external browser.
+     * @param {Function} [aArgs.onLoad] - A function that takes an Event and a
+     *     DOMNode. It is called when the chrome page is done loading. The
+     *     first argument is the load event, and the second argument is the
+     *     xul:browser that holds the chromePage. You can access the inner
+     *     tab's window object by accessing the second parameter's
+     *     contentWindow property.
      */
     openTab(aTab, aArgs) {
       if (!("chromePage" in aArgs)) {
@@ -1414,12 +1319,7 @@ var specialTabs = {
       // Start setting up the browser.
       aTab.browser = aTab.panel.querySelector("browser");
 
-      aTab.browser.setAttribute(
-        "onclick",
-        "clickHandler" in aArgs && aArgs.clickHandler
-          ? aArgs.clickHandler
-          : "specialTabs.defaultClickHandler(event);"
-      );
+      aTab.browser.setAttribute("messagemanagergroup", "single-site");
 
       // Set this attribute so that when favicons fail to load, we remove the
       // image attribute and just show the default tab icon.
@@ -1474,17 +1374,13 @@ var specialTabs = {
         return null;
       }
 
-      let onClick = aTab.browser.getAttribute("onclick");
-
       return {
         tabURI: aTab.browser.currentURI.spec,
-        clickHandler: onClick ? onClick : null,
       };
     },
     restoreTab(aTabmail, aPersistedState) {
       aTabmail.openTab("chromeTab", {
         chromePage: aPersistedState.tabURI,
-        clickHandler: aPersistedState.clickHandler,
         background: true,
       });
     },

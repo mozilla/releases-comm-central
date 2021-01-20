@@ -282,23 +282,13 @@ function openTab(tabType, tabParams, where) {
 /**
  * Open the specified URL as a content tab (or window)
  *
- * @param url the location to open
- * @param where 'tab' to open in a new tab (default) or 'window' to open in a
- *        new window
- * @param handlerRegExp a regular expression (as a string) to use for the
- *        siteClickHandler for determining whether a link should be opened in
- *        Thunderbird or passed to the system
+ * @param {String} url - The location to open.
+ * @param {String} [where="tab"] - 'tab' to open in a new tab or 'window' to
+ *     open in a new window
+ * @param {String} [linkHandler] - See specialTabs.contentTabType.openTab.
  */
-function openContentTab(url, where, handlerRegExp) {
-  let clickHandler = null;
-  if (handlerRegExp) {
-    clickHandler =
-      'specialTabs.siteClickHandler(event, new RegExp("' +
-      handlerRegExp +
-      '"));';
-  }
-
-  return openTab("contentTab", { contentPage: url, clickHandler }, where);
+function openContentTab(url, where, linkHandler) {
+  return openTab("contentTab", { contentPage: url, linkHandler }, where);
 }
 
 /**
@@ -333,11 +323,8 @@ function openDictionaryList(where) {
   let dictUrl = Services.urlFormatter.formatURLPref(
     "spellchecker.dictionaries.download.url"
   );
-  let dictUrlRegExp = Services.prefs.getCharPref(
-    "extensions.getAddons.siteRegExp"
-  );
 
-  openContentTab(dictUrl, where, dictUrlRegExp);
+  openContentTab(dictUrl, where);
 }
 
 /**
@@ -350,7 +337,7 @@ function openDictionaryList(where) {
 function openPrivacyPolicy(where) {
   const kTelemetryInfoUrl = "toolkit.telemetry.infoURL";
   let url = Services.prefs.getCharPref(kTelemetryInfoUrl);
-  openContentTab(url, where, "^http://www.mozilla.org/");
+  openContentTab(url, where);
 }
 
 /* Used by the Add-on manager's search box */
@@ -359,10 +346,7 @@ function openLinkIn(aURL, aWhere, aOpenParams) {
     return;
   }
   // Open a new tab and set the regexp to open links from the Addons site in Thunderbird.
-  let addonRegExp = Services.prefs.getCharPref(
-    "extensions.getAddons.siteRegExp"
-  );
-  switchToTabHavingURI(aURL, true, { handlerRegExp: addonRegExp });
+  switchToTabHavingURI(aURL, true);
 }
 
 /**

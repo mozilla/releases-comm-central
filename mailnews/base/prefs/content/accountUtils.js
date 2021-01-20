@@ -310,7 +310,6 @@ function MsgAccountManager(selectPage, aServer) {
   };
   tabmail.openTab("contentTab", {
     contentPage: "about:accountsettings",
-    clickHandler: "specialTabs.aboutClickHandler(event);",
     onLoad,
   });
 

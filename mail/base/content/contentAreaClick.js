@@ -266,7 +266,6 @@ function openTrustedLinkIn(url, where, aParams) {
   ) {
     document.getElementById("tabmail").openTab("contentTab", {
       contentPage: url,
-      clickHandler: "specialTabs.aboutClickHandler(event);",
     });
     return;
   }

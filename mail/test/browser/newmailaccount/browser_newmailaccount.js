@@ -1080,7 +1080,7 @@ add_task(function test_internal_link_opening_behaviour() {
 });
 
 /**
- * Test that window.open in the order form opens in new content tabs.
+ * Test that links with target="_blank" open in new content tabs.
  */
 add_task(function test_window_open_link_opening_behaviour() {
   get_to_order_form();
@@ -1090,7 +1090,8 @@ add_task(function test_window_open_link_opening_behaviour() {
   // First, click on the Javascript link - this should open in a new content
   // tab and be focused.
   open_content_tab_with_click(
-    () => BrowserTestUtils.synthesizeMouseAtCenter("#newtab", {}, tab.browser),
+    () =>
+      BrowserTestUtils.synthesizeMouseAtCenter("#external", {}, tab.browser),
     function(aURL) {
       return (
         aURL.host == "mochi.test" && aURL.pathQueryRef.endsWith("/target.html")
@@ -1102,32 +1103,7 @@ add_task(function test_window_open_link_opening_behaviour() {
   let newTab = mc.tabmail.currentTabInfo;
   mc.tabmail.closeTab(newTab);
   mc.tabmail.closeTab(tab);
-}).skip(); // Bug 1683787.
-
-/**
- * Test that links with target="_blank" open in the default browser.
- */
-add_task(function test_external_link_opening_behaviour() {
-  get_to_order_form();
-
-  let tab = mc.tabmail.currentTabInfo;
-
-  // Mock out the ExternalProtocolService.
-  gMockExtProtSvcReg.register();
-
-  let targetHref = url + "target.html";
-  BrowserTestUtils.synthesizeMouseAtCenter("#external", {}, tab.browser);
-
-  mc.waitFor(
-    () => gMockExtProtSvc.urlLoaded(targetHref),
-    "Timed out waiting for the link " +
-      targetHref +
-      "to be " +
-      "opened in the default browser."
-  );
-  gMockExtProtSvcReg.unregister();
-  mc.tabmail.closeTab(tab);
-}).skip(); // Bug 1683787.
+});
 
 /**
  * Test that if the provider returns XML that we can't turn into an account,

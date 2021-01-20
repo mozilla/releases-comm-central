@@ -241,9 +241,9 @@ var FeedMessageHandler = {
           };
           getBrowser().webNavigation.loadURI(url, loadURIOptions);
         } else if (aWhere.tab) {
-          openContentTab(url, "tab", "^");
+          openContentTab(url, "tab", null);
         } else if (aWhere.window) {
-          openContentTab(url, "window", "^");
+          openContentTab(url, "window", null);
         }
       } else {
         FeedUtils.log.info(

@@ -140,7 +140,6 @@ function open_about_downloads() {
   let preCount = mc.tabmail.tabContainer.allTabs.length;
   let newTab = mc.tabmail.openTab("chromeTab", {
     chromePage: "about:downloads",
-    clickHandler: "specialTabs.aboutClickHandler(event);",
   });
   mc.waitFor(
     () => mc.tabmail.tabContainer.allTabs.length == preCount + 1,

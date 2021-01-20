@@ -40,7 +40,7 @@ add_task(async function test_request_permissions_without_prompt() {
 
   let url = await extension.awaitMessage("ready");
 
-  let tab = openContentTab(url);
+  let tab = openContentTab(url, undefined, null);
   await extension.awaitMessage("pageReady");
   await new Promise(resolve => requestAnimationFrame(resolve));
   await BrowserTestUtils.synthesizeMouseAtCenter(tab.browser, {}, tab.browser);

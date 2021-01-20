@@ -2164,7 +2164,6 @@ var FeedSubscriptions = {
       return;
     }
 
-    let validationSite = "http://validator.w3.org";
     let validationQuery = "http://validator.w3.org/feed/check.cgi?url=";
 
     if (this.mMainWin) {
@@ -2174,7 +2173,7 @@ var FeedSubscriptions = {
         let url = validationQuery + encodeURIComponent(feedLocation);
 
         this.mMainWin.focus();
-        this.mMainWin.openContentTab(url, "tab", "^" + validationSite);
+        this.mMainWin.openContentTab(url);
         FeedUtils.log.debug("checkValidation: query url - " + url);
       }
     }

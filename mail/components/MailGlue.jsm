@@ -46,6 +46,62 @@ let JSWINDOWACTORS = {
     allFrames: true,
   },
 
+  // As in ActorManagerParent.jsm, but with single-site and single-page
+  // message manager groups added.
+  FindBar: {
+    parent: {
+      moduleURI: "resource://gre/actors/FindBarParent.jsm",
+    },
+    child: {
+      moduleURI: "resource://gre/actors/FindBarChild.jsm",
+      events: {
+        keypress: { mozSystemGroup: true },
+      },
+    },
+
+    allFrames: true,
+    messageManagerGroups: [
+      "browsers",
+      "single-site",
+      "single-page",
+      "test",
+      "",
+    ],
+  },
+
+  LinkHandler: {
+    parent: {
+      moduleURI: "resource:///actors/LinkHandlerParent.jsm",
+    },
+    child: {
+      moduleURI: "resource:///actors/LinkHandlerChild.jsm",
+      events: {
+        click: {},
+      },
+    },
+    messageManagerGroups: ["single-site"],
+    allFrames: true,
+  },
+
+  // As in ActorManagerParent.jsm, but with single-site and single-page
+  // message manager groups added.
+  LoginManager: {
+    parent: {
+      moduleURI: "resource://gre/modules/LoginManagerParent.jsm",
+    },
+    child: {
+      moduleURI: "resource://gre/modules/LoginManagerChild.jsm",
+      events: {
+        DOMFormBeforeSubmit: {},
+        DOMFormHasPassword: {},
+        DOMInputPasswordAdded: {},
+      },
+    },
+
+    allFrames: true,
+    messageManagerGroups: ["browsers", "single-site", "single-page", ""],
+  },
+
   Pdfjs: {
     parent: {
       moduleURI: "resource://pdf.js/PdfjsParent.jsm",
@@ -62,6 +118,20 @@ let JSWINDOWACTORS = {
       moduleURI: "resource:///actors/PromptParent.jsm",
     },
     includeChrome: true,
+    allFrames: true,
+  },
+
+  StrictLinkHandler: {
+    parent: {
+      moduleURI: "resource:///actors/LinkHandlerParent.jsm",
+    },
+    child: {
+      moduleURI: "resource:///actors/LinkHandlerChild.jsm",
+      events: {
+        click: {},
+      },
+    },
+    messageManagerGroups: ["single-page"],
     allFrames: true,
   },
 
@@ -135,6 +205,15 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "chrome-document-interactive");
     Services.obs.addObserver(this, "document-element-inserted");
     Services.obs.addObserver(this, "handlersvc-store-initialized");
+
+    // Call the lazy getter to ensure ActorManagerParent is initialized.
+    ActorManagerParent;
+
+    // FindBar and LoginManager actors are included in JSWINDOWACTORS as they
+    // also apply to the single-site and single-page message manager groups.
+    // First we must unregister them to avoid errors.
+    ChromeUtils.unregisterWindowActor("FindBar");
+    ChromeUtils.unregisterWindowActor("LoginManager");
 
     ActorManagerParent.addJSWindowActors(JSWINDOWACTORS);
   },
@@ -565,7 +644,7 @@ MailGlue.prototype = {
     if (!linkHandled.data) {
       let win = Services.wm.getMostRecentWindow("mail:3pane");
       aData = JSON.parse(aData);
-      let tabParams = { contentPage: aData.href, clickHandler: null };
+      let tabParams = { contentPage: aData.href, linkHandler: null };
       if (win) {
         let tabmail = win.document.getElementById("tabmail");
         if (tabmail) {

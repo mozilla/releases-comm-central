@@ -152,12 +152,12 @@ var NotificationWatcher = {
  */
 function open_content_tab_with_url(
   aURL,
-  aClickHandler,
+  aLinkHandler,
   aBackground,
   aController
 ) {
-  if (aClickHandler === undefined) {
-    aClickHandler = null;
+  if (aLinkHandler === undefined) {
+    aLinkHandler = null;
   }
   if (aBackground === undefined) {
     aBackground = false;
@@ -170,7 +170,7 @@ function open_content_tab_with_url(
   mc.tabmail.openTab("contentTab", {
     contentPage: aURL,
     background: aBackground,
-    clickHandler: aClickHandler,
+    linkHandler: aLinkHandler,
   });
   utils.waitFor(
     () => aController.tabmail.tabContainer.allTabs.length == preCount + 1,
