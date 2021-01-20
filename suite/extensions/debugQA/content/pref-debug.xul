@@ -17,10 +17,6 @@
                   name="javascript.options.strict" type="bool"/>
       <preference id="javascript.options.showInConsole"
                   name="javascript.options.showInConsole" type="bool"/>
-      <preference id="print.use_native_print_dialog"
-                  name="print.use_native_print_dialog" type="bool"/>
-      <preference id="print.use_global_printsettings"
-                  name="print.use_global_printsettings" type="bool"/>
       <preference id="ui.key.accelKey" name="ui.key.accelKey" type="int"/>
       <preference id="ui.key.menuAccessKey" name="ui.key.menuAccessKey" type="int"/>
     </preferences>
@@ -42,12 +38,7 @@
       <checkbox id="javascriptOptionsShowInConsole"
                 label="&debugConsoleJavascript.label;"
                 preference="javascript.options.showInConsole"/>
-      <checkbox id="nglayoutUseNativePrintDialog" label="&useNativePrintDialog.label;"
-                preference="print.use_native_print_dialog"/>
-      <checkbox id="printUseGlobalPrintSettings" label="&printUseGlobalPrintSettings.label;"
-                preference="print.use_global_printsettings"/>
     </groupbox>
-
 
     <groupbox>
       <caption label="&accelerators.label;"/>

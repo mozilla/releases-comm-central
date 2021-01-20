@@ -15,11 +15,14 @@
             script="chrome://communicator/content/pref/pref-advanced.js">
 
     <preferences id="advanced_preferences">
-      <preference id="config.use_system_prefs"
-                  name="config.use_system_prefs"
-                  type="bool"/>
       <preference id="shell.checkDefaultClient"
                   name="shell.checkDefaultClient"
+                  type="bool"/>
+      <preference id="print.use_native_print_dialog"
+                  name="print.use_native_print_dialog"
+                  type="bool"/>
+      <preference id="print.use_global_printsettings"
+                  name="print.use_global_printsettings"
                   type="bool"/>
       <preference id="devtools.debugger.remote-enabled"
                   name="devtools.debugger.remote-enabled"
@@ -36,21 +39,24 @@
                   type="int"/>
     </preferences>
 
-    <groupbox id="systemPrefs">
-      <caption id="systemPrefCaption" label="&systemPref.caption;"/>
-      <description>&systemPref.desc;</description>
-      <checkbox id="systemPrefCheck"
-                label="&systemPrefCheck.label;"
-                accesskey="&systemPrefCheck.accesskey;"
-                preference="config.use_system_prefs"/>
-    </groupbox>
-
     <groupbox id="checkDefault" hidden="true">
       <caption label="&prefCheckDefault.caption;"/>
       <checkbox id="checkDefaultClient"
                 label="&prefCheckDefaultClient.label;"
                 accesskey="&prefCheckDefaultClient.accesskey;"
                 preference="shell.checkDefaultClient"/>
+    </groupbox>
+
+    <groupbox id="printing">
+      <caption label="&printing.label;"/>
+      <checkbox id="nglayoutUseNativePrintDialog"
+                label="&useNativePrintDialog.label;"
+                accesskey="&useNativePrintDialog.accesskey;"
+                preference="print.use_native_print_dialog"/>
+      <checkbox id="printUseGlobalPrintSettings"
+                label="&useGlobalPrintSettings.label;"
+                accesskey="&useGlobalPrintSettings.accesskey;"
+                preference="print.use_global_printsettings"/>
     </groupbox>
 
     <groupbox id="crashReports" hidden="true">

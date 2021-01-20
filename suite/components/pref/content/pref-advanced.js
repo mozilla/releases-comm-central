@@ -7,7 +7,6 @@ const {ShellService} = ChromeUtils.import("resource:///modules/ShellService.jsm"
 
 function Startup()
 {
-  SysPrefCheck();
   ShellServiceCheck();
   CrashReportsCheck();
 }
@@ -15,14 +14,6 @@ function Startup()
 /**
  * System preferences
  */
-
-function SysPrefCheck()
-{
-  const kPrefService = "@mozilla.org/system-preference-service;1";
-  let visible = kPrefService in Cc &&
-    Cc[kPrefService].getService() instanceof Ci.nsIPrefBranch;
-  document.getElementById("systemPrefs").hidden = !visible;
-}
 
 function ShellServiceCheck()
 {
