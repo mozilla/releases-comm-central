@@ -1458,14 +1458,21 @@ function ClearMessagePane() {
   HideMessageHeaderPane();
   gMessageNotificationBar.clearMsgNotifications();
   ClearPendingReadTimer();
+
   try {
+    // Tell messenger to stop loading a message, if it is doing so.
+    messenger.abortPendingOpenURL();
     // This can fail because cloning imap URI's can fail if the username
     // has been cleared by docshell/base/nsDefaultURIFixup.cpp.
     let messagePane = getMessagePaneBrowser();
     // If we don't do this check, no one else does and we do a non-trivial
     // amount of work.  So do the check.
-    if (messagePane.currentURI.spec != "about:blank") {
-      MailE10SUtils.loadURI(messagePane, "about:blank");
+    if (messagePane.currentURI?.spec != "about:blank") {
+      // Don't use MailE10SUtils.loadURI here. about:blank can load in
+      // remote and non-remote browsers.
+      messagePane.loadURI("about:blank", {
+        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      });
     }
   } catch (ex) {
     logException(ex, false, "error clearing message pane");

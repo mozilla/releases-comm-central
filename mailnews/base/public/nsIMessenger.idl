@@ -31,6 +31,15 @@ interface nsIMessenger : nsISupports {
     void setWindow(in mozIDOMWindowProxy ptr, in nsIMsgWindow msgWindow);
 
     void addMsgUrlToNavigateHistory(in ACString aURL);
+
+    /**
+     * Prevent any pending message load from occurring.
+     */
+    void abortPendingOpenURL();
+    /**
+     * Changes the message pane to the parent process if necessary, and loads
+     * a message (aURL) in it. This may not happen synchronously.
+     */
     void openURL(in ACString aURL);
 
     /**

@@ -78,6 +78,10 @@ class nsMessenger : public nsIMessenger,
   nsresult GetSaveToDir(nsIFile** aSaveToDir);
   nsresult ShowPicker(nsIFilePicker* aPicker, int16_t* aResult);
 
+  // The URL to load in CompleteOpenURL. An empty string to aborts loading.
+  nsCString mURLToLoad;
+  nsresult CompleteOpenURL();
+
   class nsFilePickerShownCallback : public nsIFilePickerShownCallback {
     virtual ~nsFilePickerShownCallback() {}
 

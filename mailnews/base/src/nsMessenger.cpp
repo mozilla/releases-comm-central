@@ -104,6 +104,14 @@
 #include "nsIOutputStream.h"
 #include "nsIPrincipal.h"
 
+#include "mozilla/dom/BrowserParent.h"
+#include "mozilla/dom/CanonicalBrowsingContext.h"
+#include "mozilla/dom/RemoteType.h"
+#include "nsQueryObject.h"
+
+using namespace mozilla;
+using namespace mozilla::dom;
+
 static void ConvertAndSanitizeFileName(const nsACString& displayName,
                                        nsString& aResult) {
   nsCString unescapedName;
@@ -249,7 +257,7 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
     if (doc) mDocShell = doc->GetDocShell();
     if (mDocShell) {
       // Important! Clear out mCurrentDisplayCharset so we reset a default
-      // charset on mDocshell the next time we try to load something into it.
+      // charset on mDocShell the next time we try to load something into it.
       mCurrentDisplayCharset = "";
 
       if (aMsgWindow)
@@ -421,23 +429,40 @@ nsMessenger::AddMsgUrlToNavigateHistory(const nsACString& aURL) {
 }
 
 NS_IMETHODIMP
-nsMessenger::OpenURL(const nsACString& aURL) {
+nsMessenger::AbortPendingOpenURL() {
+  mURLToLoad.Truncate();
+  return NS_OK;
+}
+
+nsresult nsMessenger::CompleteOpenURL() {
+  if (mURLToLoad.IsEmpty() || !mDocShell) {
+    return NS_OK;
+  }
+
+  if (mMsgWindow) {
+    mMsgWindow->GetTransactionManager(getter_AddRefs(mTxnMgr));
+  }
+
   // This is to setup the display DocShell as UTF-8 capable...
+  mCurrentDisplayCharset = "";
+  mDocShell->SetCharset("UTF-8"_ns);
   SetDisplayCharset("UTF-8"_ns);
 
+  // Disable auth and DNS prefetch in all mail docShells.
   mDocShell->SetAllowAuth(false);
   mDocShell->SetAllowDNSPrefetch(false);
 
   nsCOMPtr<nsIMsgMessageService> messageService;
-  nsresult rv = GetMessageServiceFromURI(aURL, getter_AddRefs(messageService));
+  nsresult rv =
+      GetMessageServiceFromURI(mURLToLoad, getter_AddRefs(messageService));
 
   if (NS_SUCCEEDED(rv) && messageService) {
     nsCOMPtr<nsIURI> dummyNull;
-    messageService->DisplayMessage(PromiseFlatCString(aURL).get(), mDocShell,
-                                   mMsgWindow, nullptr, nullptr,
+    messageService->DisplayMessage(PromiseFlatCString(mURLToLoad).get(),
+                                   mDocShell, mMsgWindow, nullptr, nullptr,
                                    getter_AddRefs(dummyNull));
-    AddMsgUrlToNavigateHistory(aURL);
-    mLastDisplayURI = aURL;  // remember the last uri we displayed....
+    AddMsgUrlToNavigateHistory(mURLToLoad);
+    mLastDisplayURI = mURLToLoad;  // remember the last uri we displayed....
     return NS_OK;
   }
 
@@ -446,8 +471,62 @@ nsMessenger::OpenURL(const nsACString& aURL) {
   mozilla::dom::LoadURIOptions loadURIOptions;
   loadURIOptions.mLoadFlags = nsIWebNavigation::LOAD_FLAGS_IS_LINK;
   loadURIOptions.mTriggeringPrincipal = nsContentUtils::GetSystemPrincipal();
-  rv = webNav->LoadURI(NS_ConvertASCIItoUTF16(aURL), loadURIOptions);
-  return rv;
+  return webNav->LoadURI(NS_ConvertASCIItoUTF16(mURLToLoad), loadURIOptions);
+}
+
+NS_IMETHODIMP
+nsMessenger::OpenURL(const nsACString& aURL) {
+  mURLToLoad = aURL;
+
+  nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(mWindow);
+  nsIDocShell* rootShell = win->GetDocShell();
+  RefPtr<mozilla::dom::Element> el =
+      rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
+
+  RefPtr<nsFrameLoaderOwner> flo = do_QueryObject(el);
+  RefPtr<CanonicalBrowsingContext> canonicalBrowsingContext =
+      flo->GetBrowsingContext()->Canonical();
+
+  nsCString remoteType;
+  ErrorResult er;
+  canonicalBrowsingContext->GetCurrentRemoteType(remoteType, er);
+  if (remoteType.Equals(NOT_REMOTE_TYPE)) {
+    // This browsing context is in the parent process. Load the message.
+    mDocShell = canonicalBrowsingContext->GetDocShell();
+    return CompleteOpenURL();
+  }
+
+  // This browsing context is in a child process. Change it to the parent
+  // process, then load the message.
+  canonicalBrowsingContext
+      ->ChangeRemoteness(NOT_REMOTE_TYPE,
+                         nsContentUtils::GenerateLoadIdentifier(), false, 0)
+      ->Then(
+          GetMainThreadSerialEventTarget(), __func__,
+          [flo, self = RefPtr{this}](
+              BrowserParent* aBrowserParent /* always null */) {
+            RefPtr<BrowsingContext> browsingContext = flo->GetBrowsingContext();
+            if (!browsingContext) {
+              return NS_ERROR_FAILURE;
+            }
+
+            self->mDocShell = browsingContext->GetDocShell();
+
+            nsCOMPtr<nsIWebProgress> webProgress =
+                browsingContext->Canonical()->GetWebProgress();
+            nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
+            self->mMsgWindow->GetStatusFeedback(getter_AddRefs(statusFeedback));
+            nsCOMPtr<nsIWebProgressListener> webProgressListener =
+                do_QueryInterface(statusFeedback);
+
+            webProgress->AddProgressListener(webProgressListener,
+                                             nsIWebProgress::NOTIFY_ALL);
+
+            return self->CompleteOpenURL();
+          },
+          [self = RefPtr{this}](nsresult aStatusCode) {});
+
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMessenger::LaunchExternalURL(const nsACString& aURL) {
