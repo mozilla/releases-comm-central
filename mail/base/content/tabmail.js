@@ -1962,6 +1962,9 @@
       return rv;
     }
 
+    // Called by <browser>, unused by tabmail.
+    finishBrowserRemotenessChange(browser, loadSwitchId) {}
+
     disconnectedCallback() {
       window.controllers.removeController(this.tabController);
     }

@@ -301,6 +301,16 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   // Protocols like ftp are always blocked.
   if (ShouldBlockUnexposedProtocol(aContentLocation)) return NS_OK;
 
+  // Mailnews URIs are not loaded in child processes, so I think that beyond
+  // here, if we're in a child process, the decision will always be accept.
+  //
+  // targetContext->Canonical does not work in a child process, so we can't
+  // really move on anyway.
+  if (!XRE_IsParentProcess()) {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return NS_OK;
+  }
+
   // Find out the URI that originally initiated the set of requests for this
   // context.
   RefPtr<mozilla::dom::BrowsingContext> targetContext;

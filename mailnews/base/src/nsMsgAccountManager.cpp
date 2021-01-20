@@ -76,6 +76,7 @@
 #include "nsIFileStreams.h"
 #include "nsIOutputStream.h"
 #include "nsISafeOutputStream.h"
+#include "nsXULAppAPI.h"
 
 #define PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS "mail.accountmanager.accounts"
 #define PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT \
@@ -133,6 +134,10 @@ nsMsgAccountManager::~nsMsgAccountManager() {
 }
 
 nsresult nsMsgAccountManager::Init() {
+  if (!XRE_IsParentProcess()) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
   nsresult rv;
 
   m_prefs = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);

@@ -12,6 +12,7 @@
 #include "mozilla/SyncRunnable.h"
 #include "nsIMsgProtocolHandler.h"
 #include "nsIComponentRegistrar.h"
+#include "nsXULAppAPI.h"
 
 #include "../../local/src/nsPop3Service.h"
 #include "../../local/src/nsMailboxService.h"
@@ -25,6 +26,11 @@
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
                            const char* aCharset /* = nullptr */,
                            nsIURI* aBaseURI /* = nullptr */) {
+  // Mailnews URIs aren't allowed in child processes.
+  if (!XRE_IsParentProcess()) {
+    return NS_ERROR_UNKNOWN_PROTOCOL;
+  }
+
   nsAutoCString scheme;
   nsresult rv = net_ExtractURLScheme(aSpec, scheme);
   if (NS_FAILED(rv)) {

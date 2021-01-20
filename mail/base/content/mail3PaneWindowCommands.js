@@ -1475,7 +1475,7 @@ function SetFocusMessagePane() {
   // pane looking like it has focus.
   GetMessagePane().focus();
   if (gMessageDisplay.singleMessageDisplay) {
-    GetMessagePaneFrame().focus();
+    getMessagePaneBrowser().focus();
   } else {
     document.getElementById("multimessage").focus();
   }

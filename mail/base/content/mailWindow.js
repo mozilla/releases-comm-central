@@ -20,15 +20,17 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { appIdleManager } = ChromeUtils.import(
-  "resource:///modules/AppIdleManager.jsm"
-);
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
+XPCOMUtils.defineLazyModuleGetters(this, {
+  appIdleManager: "resource:///modules/AppIdleManager.jsm",
+  Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
+  Log4Moz: "resource:///modules/gloda/Log4moz.jsm",
+  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
+});
 
 XPCOMUtils.defineLazyScriptGetter(
   this,
@@ -218,9 +220,11 @@ function InitMsgWindow() {
   msgWindow.statusFeedback = statusFeedback;
   msgWindow.msgHeaderSink = messageHeaderSink;
   MailServices.mailSession.AddMsgWindow(msgWindow);
-  let messagepane = document.getElementById("messagepane");
-  messagepane.docShell.allowAuth = false;
-  messagepane.docShell.allowDNSPrefetch = false;
+  let messagepane = getMessagePaneBrowser();
+  if (messagepane.docShell) {
+    messagepane.docShell.allowAuth = false;
+    messagepane.docShell.allowDNSPrefetch = false;
+  }
   msgWindow.rootDocShell.allowAuth = true;
   msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   // Ensure we don't load xul error pages into the main window
@@ -590,6 +594,7 @@ function loadStartPage(aForce) {
     return;
   }
 
+  let messagePane = getMessagePaneBrowser();
   gMessageDisplay.singleMessageDisplay = true;
   gMessageNotificationBar.clearMsgNotifications();
   let startpage = Services.urlFormatter.formatURLPref(
@@ -598,12 +603,12 @@ function loadStartPage(aForce) {
   if (startpage) {
     try {
       let { preferredURI } = Services.uriFixup.getFixupURIInfo(startpage, 0);
-      GetMessagePaneFrame().location.href = preferredURI.spec;
+      MailE10SUtils.loadURI(messagePane, preferredURI.spec);
     } catch (e) {
       Cu.reportError(e);
     }
   } else {
-    GetMessagePaneFrame().location.href = "about:blank";
+    ClearMessagePane();
   }
 }
 

@@ -425,6 +425,9 @@ nsMessenger::OpenURL(const nsACString& aURL) {
   // This is to setup the display DocShell as UTF-8 capable...
   SetDisplayCharset("UTF-8"_ns);
 
+  mDocShell->SetAllowAuth(false);
+  mDocShell->SetAllowDNSPrefetch(false);
+
   nsCOMPtr<nsIMsgMessageService> messageService;
   nsresult rv = GetMessageServiceFromURI(aURL, getter_AddRefs(messageService));
 

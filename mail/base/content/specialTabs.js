@@ -117,12 +117,12 @@ tabProgressListener.prototype = {
     }
     // onLocationChange is called for both the top-level content
     // and the subframes.
-    if (aWebProgress.DOMWindow == this.mBrowser.contentWindow) {
+    if (aWebProgress.isTopLevel) {
       // Don't clear the favicon if this onLocationChange was triggered
       // by a pushState or a replaceState. See bug 550565.
       if (
         aWebProgress.isLoadingDocument &&
-        !(this.mBrowser.docShell.loadType & Ci.nsIDocShell.LOAD_CMD_PUSHSTATE)
+        !(aWebProgress.loadType & Ci.nsIDocShell.LOAD_CMD_PUSHSTATE)
       ) {
         this.mBrowser.mIconURL = null;
       }
@@ -137,17 +137,13 @@ tabProgressListener.prototype = {
         this.mTab.root.setAttribute("collapsed", "false");
       }
 
-      // Set the reload command only if this is a report that is coming in about
-      // the top-level content location change.
-      if (aWebProgress.DOMWindow == this.mBrowser.contentWindow) {
-        // Although we're unlikely to be loading about:blank, we'll check it
-        // anyway just in case. The second condition is for new tabs, otherwise
-        // the reload function is enabled until tab is refreshed.
-        this.mTab.reloadEnabled = !(
-          (location == "about:blank" && !this.mBrowser.contentWindow.opener) ||
-          location == ""
-        );
-      }
+      // Although we're unlikely to be loading about:blank, we'll check it
+      // anyway just in case. The second condition is for new tabs, otherwise
+      // the reload function is enabled until tab is refreshed.
+      this.mTab.reloadEnabled = !(
+        (location == "about:blank" && !this.mBrowser.browsingContext.opener) ||
+        location == ""
+      );
     }
   },
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
@@ -195,6 +191,7 @@ tabProgressListener.prototype = {
       this.mBlank = false;
       this.mTab.security.removeAttribute("loading");
       tabmail.setTabBusy(this.mTab, false);
+      this.mTab.title = this.mTab.browser.contentTitle;
       tabmail.setTabTitle(this.mTab);
 
       // Set our unit testing variables accordingly
@@ -203,10 +200,7 @@ tabProgressListener.prototype = {
 
       // If we've finished loading, and we've not had an icon loaded from a
       // link element, then we try using the default icon for the site.
-      if (
-        aWebProgress.DOMWindow == this.mBrowser.contentWindow &&
-        !this.mBrowser.mIconURL
-      ) {
+      if (aWebProgress.isTopLevel && !this.mBrowser.mIconURL) {
         specialTabs.useDefaultIcon(this.mTab);
       }
     }
@@ -453,7 +447,7 @@ var contentTabBaseType = {
     ) {
       if (
         tabInfo[selectedIndex].mode.name == this.name &&
-        tabInfo[selectedIndex].browser.currentURI.spec.replace(regEx, "") ==
+        tabInfo[selectedIndex].browser.currentURI?.spec.replace(regEx, "") ==
           contentUrl
       ) {
         // Ensure we go to the correct location on the page.
@@ -466,7 +460,7 @@ var contentTabBaseType = {
 
   closeTab(aTab) {
     aTab.browser.removeEventListener(
-      "DOMTitleChanged",
+      "pagetitlechanged",
       aTab.titleListener,
       true
     );
@@ -536,7 +530,7 @@ var contentTabBaseType = {
     // Save the function we'll use as listener so we can remove it later.
     aTab.titleListener = onDOMTitleChanged;
     // Add the listener.
-    aTab.browser.addEventListener("DOMTitleChanged", aTab.titleListener, true);
+    aTab.browser.addEventListener("pagetitlechanged", aTab.titleListener, true);
   },
 
   /**
@@ -890,6 +884,11 @@ var specialTabs = {
       aTab.panel.appendChild(clone);
       aTab.root = clone;
 
+      ExtensionParent.apiManager.emit(
+        "extension-browser-inserted",
+        aTab.browser
+      );
+
       // Start setting up the browser.
       aTab.toolbar = aTab.panel.querySelector(".contentTabToolbar");
       aTab.backButton = aTab.toolbar.querySelector(".back-btn");
@@ -902,15 +901,9 @@ var specialTabs = {
       aTab.urlbar = aTab.toolbar.querySelector(".contentTabUrlbar > input");
       aTab.urlbar.value = aArgs.contentPage;
 
-      ExtensionParent.apiManager.emit(
-        "extension-browser-inserted",
-        aTab.browser
-      );
-
       // As we're opening this tab, showTab may not get called, so set
       // the type according to if we're opening in background or not.
       let background = "background" in aArgs && aArgs.background;
-      aTab.browser.setAttribute("type", "content");
       if (background) {
         aTab.browser.removeAttribute("primary");
       } else {
@@ -986,24 +979,13 @@ var specialTabs = {
       aTab.title = this.loadingTabString;
 
       if (!aArgs.skipLoad) {
-        let params = {
-          triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-        };
-        aTab.browser.loadURI(aArgs.contentPage, params);
+        MailE10SUtils.loadURI(aTab.browser, aArgs.contentPage);
       }
 
       this.lastBrowserId++;
     },
     tryCloseTab(aTab) {
-      let docShell = aTab.browser.docShell;
-      // If we have a docshell, a contentViewer, and it forbids us from closing
-      // the tab, then we return false, which means, we can't close the tab. All
-      // other cases return true.
-      return !(
-        docShell &&
-        docShell.contentViewer &&
-        !docShell.contentViewer.permitUnload()
-      );
+      return aTab.browser.permitUnload();
     },
     persistTab(aTab) {
       if (aTab.browser.currentURI.spec == "about:blank") {
@@ -1467,28 +1449,17 @@ var specialTabs = {
 
       // Now start loading the content.
       aTab.title = this.loadingTabString;
-      let params = {
-        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-      };
-      aTab.browser.loadURI(aArgs.chromePage, params);
+      MailE10SUtils.loadURI(aTab.browser, aArgs.chromePage);
 
       this.lastBrowserId++;
     },
     tryCloseTab(aTab) {
-      let docShell = aTab.browser.docShell;
-      // If we have a docshell, a contentViewer, and it forbids us from closing
-      // the tab, then we return false, which means, we can't close the tab. All
-      // other cases return true.
-      return !(
-        docShell &&
-        docShell.contentViewer &&
-        !docShell.contentViewer.permitUnload()
-      );
+      return aTab.browser.permitUnload();
     },
     closeTab(aTab) {
       aTab.browser.removeEventListener("load", aTab.loadListener, true);
       aTab.browser.removeEventListener(
-        "DOMTitleChanged",
+        "pagetitlechanged",
         aTab.titleListener,
         true
       );
@@ -1522,7 +1493,7 @@ var specialTabs = {
       });
     },
     onTitleChanged(aTab) {
-      aTab.title = aTab.browser.contentDocument.title;
+      aTab.title = aTab.browser.contentTitle;
     },
     supportsCommand(aCommand, aTab) {
       switch (aCommand) {
@@ -1595,7 +1566,7 @@ var specialTabs = {
       aTab.titleListener = onDOMTitleChanged;
       // Add the listener.
       aTab.browser.addEventListener(
-        "DOMTitleChanged",
+        "pagetitlechanged",
         aTab.titleListener,
         true
       );
@@ -1643,33 +1614,14 @@ var specialTabs = {
 
   /**
    * Tries to use the default favicon for a webpage for the specified tab.
-   * If the web page is just an image, then we'll use the image itself it it
-   * isn't too big.
-   * Otherwise we'll use the site's favicon.ico if prefs allow us to.
+   * We'll use the site's favicon.ico if prefs allow us to.
    */
   useDefaultIcon(aTab) {
-    var docURIObject = aTab.browser.contentDocument.documentURIObject;
-    var icon = null;
-    if (aTab.browser.contentDocument instanceof ImageDocument) {
-      if (Services.prefs.getBoolPref("browser.chrome.site_icons")) {
-        let sz = Services.prefs.getIntPref(
-          "browser.chrome.image_icons.max_size"
-        );
-        try {
-          let req = aTab.browser.contentDocument.imageRequest;
-          if (
-            req &&
-            req.image &&
-            req.image.width <= sz &&
-            req.image.height <= sz
-          ) {
-            icon = aTab.browser.currentURI.spec;
-          }
-        } catch (e) {}
-      }
-    } else if (this._shouldLoadFavIcon(docURIObject)) {
-      // Use documentURIObject in the check for shouldLoadFavIcon so that we do
-      // the right thing with about:-style error pages.
+    // Use documentURI in the check for shouldLoadFavIcon so that we do the
+    // right thing with about:-style error pages.
+    let docURIObject = aTab.browser.documentURI;
+    let icon = null;
+    if (this._shouldLoadFavIcon(docURIObject)) {
       icon = docURIObject.prePath + "/favicon.ico";
     }
 

@@ -1413,13 +1413,6 @@ function GetMessagePaneWrapper() {
   return gMessagePaneWrapper;
 }
 
-function GetMessagePaneFrame() {
-  // We must use the message pane element directly here, as other tabs can
-  // have browser elements as well (which could be set to content primary,
-  // which would confuse things with a window.content return).
-  return document.getElementById("messagepane").contentWindow;
-}
-
 function getMailToolbox() {
   return document.getElementById("mail-toolbox");
 }
@@ -1468,11 +1461,11 @@ function ClearMessagePane() {
   try {
     // This can fail because cloning imap URI's can fail if the username
     // has been cleared by docshell/base/nsDefaultURIFixup.cpp.
-    let messagePane = GetMessagePaneFrame();
+    let messagePane = getMessagePaneBrowser();
     // If we don't do this check, no one else does and we do a non-trivial
     // amount of work.  So do the check.
-    if (messagePane.location.href != "about:blank") {
-      messagePane.location.href = "about:blank";
+    if (messagePane.currentURI.spec != "about:blank") {
+      MailE10SUtils.loadURI(messagePane, "about:blank");
     }
   } catch (ex) {
     logException(ex, false, "error clearing message pane");
