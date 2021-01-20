@@ -33,8 +33,8 @@ BOOL nsWabAddressBook::LoadWabLibrary(void) {
   ULONG byteCount = sizeof(wabDLLPath);
   HKEY keyHandle = NULL;
   wabDLLPath[MAX_PATH - 1] = 0;
-  if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"" WAB_DLL_PATH_KEY, 0,
-                    KEY_READ, &keyHandle) == ERROR_SUCCESS) {
+  if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"" WAB_DLL_PATH_KEY, 0, KEY_READ,
+                    &keyHandle) == ERROR_SUCCESS) {
     RegQueryValueExW(keyHandle, L"", NULL, &keyType, (LPBYTE)wabDLLPath,
                      &byteCount);
     if (keyType == REG_EXPAND_SZ) {
