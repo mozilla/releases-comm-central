@@ -9,6 +9,7 @@
 "use strict";
 
 const {
+  assert_selected_and_displayed,
   be_in_folder,
   get_special_folder,
   select_click_row,
@@ -97,6 +98,7 @@ add_task(async function testSignedMessageComposition() {
 
   be_in_folder(gOutbox);
   select_click_row(0);
+  assert_selected_and_displayed(0);
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(window.document, "ok"),
@@ -140,6 +142,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
 
   be_in_folder(gOutbox);
   select_click_row(0);
+  assert_selected_and_displayed(0);
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(window.document, "ok"),
@@ -193,6 +196,7 @@ add_task(async function testSignedEncryptedMessageComposition() {
 
   be_in_folder(gOutbox);
   select_click_row(0);
+  assert_selected_and_displayed(0);
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(window.document, "ok"),
@@ -236,6 +240,7 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
 
   be_in_folder(gOutbox);
   select_click_row(0);
+  assert_selected_and_displayed(0);
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(window.document, "ok"),
