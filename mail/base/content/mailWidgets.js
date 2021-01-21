@@ -2170,12 +2170,13 @@
         });
 
         input.addEventListener("keyup", event => {
-          // Trigger the onRecipientsChanged method for every letter typed in
-          // order to properly update the "Send" button and trigger the save as
-          // draft prompt even before the creation of any pill.
+          // Trigger the onRecipientsChanged method for every letter typed or
+          // deleted in order to properly update the "Send" button and trigger
+          // the save as draft prompt even before the creation of any pill.
           if (
             event.key.length == 1 ||
-            (event.key.length > 1 && /[^a-zA-Z0-9]/.test(event.key))
+            (event.key.length > 1 && /[^a-zA-Z0-9]/.test(event.key)) ||
+            ["Backspace", "Delete"].includes(event.key)
           ) {
             onRecipientsChanged(false);
           }
