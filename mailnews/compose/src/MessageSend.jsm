@@ -4,18 +4,20 @@
 
 const EXPORTED_SYMBOLS = ["MessageSend"];
 
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-var { MimeMessage } = ChromeUtils.import("resource:///modules/MimeMessage.jsm");
-var { MsgUtils } = ChromeUtils.import(
-  "resource:///modules/MimeMessageUtils.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  OS: "resource://gre/modules/osfile.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  jsmime: "resource:///modules/jsmime.jsm",
+  MimeMessage: "resource:///modules/MimeMessage.jsm",
+  MsgUtils: "resource:///modules/MimeMessageUtils.jsm",
+});
 
 // nsMsgKey_None from MailNewsTypes.h.
 const nsMsgKey_None = 0xffffffff;

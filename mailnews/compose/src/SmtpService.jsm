@@ -4,14 +4,16 @@
 
 const EXPORTED_SYMBOLS = ["SmtpService"];
 
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-var { SmtpClient } = ChromeUtils.import("resource:///modules/SmtpClient.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  SmtpClient: "resource:///modules/SmtpClient.jsm",
+});
 
 /**
  * Set `user_pref("mailnews.smtp.jsmodule", true);` to use this module.
