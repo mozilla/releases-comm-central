@@ -1281,6 +1281,7 @@ pref("mail.minimizeToTray", false);
 #endif
 
 pref("prompts.defaultModalType", 3);
+pref("prompts.contentPromptSubDialog", false);
 
 // The URL for the privacy policy related to recommended extensions.
 pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/en-US/privacy/thunderbird/#addons");
