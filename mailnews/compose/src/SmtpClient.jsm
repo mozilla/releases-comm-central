@@ -34,11 +34,13 @@ var { setTimeout, clearTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailCryptoUtils } = ChromeUtils.import(
+  "resource:///modules/MailCryptoUtils.jsm"
+);
 var { SmtpAuthenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"
 );
 
-var encode = btoa;
 const NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
 
 /**
@@ -103,11 +105,13 @@ class SmtpClient {
     // A list of auth methods that worth a try.
     this._possibleAuthMethods = [];
     // Auth method set by user preference.
-    this._preferredAuthMethod = {
-      [Ci.nsMsgAuthMethod.passwordCleartext]: "PLAIN",
-      [Ci.nsMsgAuthMethod.passwordEncrypted]: "LOGIN",
-      [Ci.nsMsgAuthMethod.OAuth2]: "XOAUTH2",
-    }[server.authMethod];
+    this._preferredAuthMethods =
+      {
+        [Ci.nsMsgAuthMethod.passwordCleartext]: ["PLAIN", "LOGIN"],
+        [Ci.nsMsgAuthMethod.passwordEncrypted]: ["CRAM-MD5"],
+        [Ci.nsMsgAuthMethod.OAuth2]: ["XOAUTH2"],
+        [Ci.nsMsgAuthMethod.secure]: ["CRAM-MD5", "XOAUTH2"],
+      }[server.authMethod] || [];
     // The next auth method to try if the current failed.
     this._nextAuthMethod = null;
 
@@ -505,19 +509,6 @@ class SmtpClient {
   }
 
   /**
-   * Converts a binary string into a Uint8Array.
-   * @param {BinaryString} str - The string to convert.
-   * @returns {Uint8Array}.
-   */
-  _binaryStringToTypedArray(str) {
-    let arr = new Uint8Array(str.length);
-    for (let i = 0; i < str.length; i++) {
-      arr[i] = str.charCodeAt(i);
-    }
-    return arr;
-  }
-
-  /**
    * Sends a string to the socket.
    *
    * @param {String} chunk ASCII string (quoted-printable, base64 etc.) to be sent to the server
@@ -546,7 +537,9 @@ class SmtpClient {
     this.logger.debug("Sending " + chunk.length + " bytes of payload");
 
     // pass the chunk to the socket
-    this.waitDrain = this._send(this._binaryStringToTypedArray(chunk).buffer);
+    this.waitDrain = this._send(
+      MailCryptoUtils.binaryStringToTypedArray(chunk).buffer
+    );
     return this.waitDrain;
   }
 
@@ -611,13 +604,17 @@ class SmtpClient {
    */
   async _authenticateUser(forceNewPassword) {
     if (
-      !this._preferredAuthMethod ||
-      !this._nextAuthMethod ||
+      this._preferredAuthMethods.length == 0 ||
       this._supportedAuthMethods.length == 0
     ) {
       // no need to authenticate, at least no data given
       this._currentAction = this._actionIdle;
       this.onidle(); // ready to take orders
+      return;
+    }
+
+    if (!this._nextAuthMethod) {
+      this._onError(new Error("No available auth method."));
       return;
     }
 
@@ -627,6 +624,7 @@ class SmtpClient {
     this._nextAuthMethod = this._possibleAuthMethods[
       this._possibleAuthMethods.indexOf(auth) + 1
     ];
+    this.logger.debug(`Current auth method: ${auth}`);
 
     switch (auth) {
       case "LOGIN":
@@ -646,7 +644,7 @@ class SmtpClient {
         this._sendCommand(
           // convert to BASE64
           "AUTH PLAIN " +
-            encode(
+            btoa(
               "\u0000" + // skip authorization identity as it causes problems with some servers
                 this._authenticator.username +
                 "\u0000" +
@@ -654,6 +652,11 @@ class SmtpClient {
             ),
           true
         );
+        return;
+      case "CRAM-MD5":
+        this.logger.debug("Authentication via AUTH CRAM-MD5");
+        this._currentAction = this._actionAUTH_CRAM;
+        this._sendCommand("AUTH CRAM-MD5");
         return;
       case "XOAUTH2":
         // See https://developers.google.com/gmail/xoauth2_protocol#smtp_protocol_exchange
@@ -664,7 +667,7 @@ class SmtpClient {
         return;
     }
 
-    this._onError(new Error("Unknown authentication method " + auth));
+    this._onError(new Error(`Unknown authentication method ${auth}`));
   }
 
   _onAuthFailed(command) {
@@ -794,16 +797,16 @@ class SmtpClient {
       this._supportedAuthMethods.push("XOAUTH2");
     }
 
-    // Setup _possibleAuthMethods and _nextAuthMethod for the auth process.
-    this._possibleAuthMethods = this._supportedAuthMethods.filter(
-      x => x != this._preferredAuthMethod
-    );
-    if (
-      this._preferredAuthMethod &&
-      this._supportedAuthMethods.includes(this._preferredAuthMethod)
-    ) {
-      this._possibleAuthMethods.unshift(this._preferredAuthMethod);
+    // Detect if the server supports CRAM-MD5 auth
+    if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)CRAM-MD5/i)) {
+      this._supportedAuthMethods.push("CRAM-MD5");
     }
+
+    // If a preferred method is not supported by the server, no need to try it.
+    this._possibleAuthMethods = this._preferredAuthMethods.filter(x =>
+      this._supportedAuthMethods.includes(x)
+    );
+    this.logger.debug(`Possible auth methods: ${this._possibleAuthMethods}`);
     this._nextAuthMethod = this._possibleAuthMethods[0];
 
     // Detect maximum allowed message size
@@ -884,7 +887,7 @@ class SmtpClient {
     }
     this.logger.debug("AUTH LOGIN USER successful");
     this._currentAction = this._actionAUTH_LOGIN_PASS;
-    this._sendCommand(encode(this._authenticator.username), true);
+    this._sendCommand(btoa(this._authenticator.username), true);
   }
 
   /**
@@ -904,7 +907,34 @@ class SmtpClient {
     }
     this.logger.debug("AUTH LOGIN PASS successful");
     this._currentAction = this._actionAUTHComplete;
-    this._sendCommand(encode(this._authenticator.getPassword()), true);
+    this._sendCommand(btoa(this._authenticator.getPassword()), true);
+  }
+
+  /**
+   * Response to AUTH CRAM, if successful expects base64 encoded challenge.
+   *
+   * @param {Object} command Parsed command from the server {statusCode, data}
+   */
+  async _actionAUTH_CRAM(command) {
+    if (command.statusCode !== 334) {
+      this._onError(
+        new Error("Invalid login sequence while waiting for CRAM challenge")
+      );
+      return;
+    }
+    // Server sent us a base64 encoded challenge.
+    let challenge = atob(command.data);
+    let password = this._authenticator.getPassword();
+    // Use password as key, challenge as payload, generate a HMAC-MD5 signature.
+    let signature = MailCryptoUtils.hmacMd5(
+      new TextEncoder().encode(password),
+      new TextEncoder().encode(challenge)
+    );
+    // Get the hex form of the signature.
+    let hex = [...signature].map(x => x.toString(16).padStart(2, "0")).join("");
+    this._currentAction = this._actionAUTHComplete;
+    // Send the username and signature back to the server.
+    this._sendCommand(btoa(`${this._authenticator.username} ${hex}`), true);
   }
 
   /**
