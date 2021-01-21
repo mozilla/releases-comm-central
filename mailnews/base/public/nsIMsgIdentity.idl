@@ -173,9 +173,9 @@ interface nsIMsgIdentity : nsISupports {
    * @{
    * URIs for the special folders (drafts, templates, archive)
    */
-  attribute ACString draftFolder;
-  attribute ACString archiveFolder;
-  attribute ACString stationeryFolder;
+  attribute AUTF8String draftFolder;
+  attribute AUTF8String archiveFolder;
+  attribute AUTF8String stationeryFolder;
   /** @} */
 
   attribute boolean archiveEnabled;
