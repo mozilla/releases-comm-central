@@ -7,6 +7,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -236,10 +239,7 @@ var FeedMessageHandler = {
             .getService(Ci.nsIExternalProtocolService)
             .loadURI(uri);
         } else if (aWhere.messagepane) {
-          let loadURIOptions = {
-            triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-          };
-          getBrowser().webNavigation.loadURI(url, loadURIOptions);
+          MailE10SUtils.loadURI(getBrowser(), url);
         } else if (aWhere.tab) {
           openContentTab(url, "tab", null);
         } else if (aWhere.window) {
