@@ -384,11 +384,11 @@ NS_IMETHODIMP nsMsgNewsFolder::SetNewsrcHasChanged(bool newsrcHasChanged) {
   return nntpServer->SetNewsrcHasChanged(newsrcHasChanged);
 }
 
-nsresult nsMsgNewsFolder::CreateChildFromURI(const nsCString& uri,
+nsresult nsMsgNewsFolder::CreateChildFromURI(const nsACString& uri,
                                              nsIMsgFolder** folder) {
   nsMsgNewsFolder* newFolder = new nsMsgNewsFolder;
   NS_ADDREF(*folder = newFolder);
-  newFolder->Init(uri.get());
+  newFolder->Init(uri);
   return NS_OK;
 }
 

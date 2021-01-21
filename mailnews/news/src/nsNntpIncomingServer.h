@@ -79,7 +79,7 @@ class nsNntpIncomingServer : public nsMsgIncomingServer,
 
  protected:
   virtual ~nsNntpIncomingServer();
-  virtual nsresult CreateRootFolderFromUri(const nsCString& serverUri,
+  virtual nsresult CreateRootFolderFromUri(const nsACString& serverUri,
                                            nsIMsgFolder** rootFolder) override;
   nsresult GetNntpConnection(nsIURI* url, nsIMsgWindow* window,
                              nsINNTPProtocol** aNntpConnection);

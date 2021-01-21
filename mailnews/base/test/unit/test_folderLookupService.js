@@ -7,7 +7,7 @@
  */
 var kRootURI = "mailbox://nobody@Local%20Folders";
 
-function run_test() {
+add_task(async function test_fls_basics() {
   let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
     Ci.nsIFolderLookupService
   );
@@ -29,7 +29,9 @@ function run_test() {
   // return it yet
   Assert.equal(fls.getFolderForURL(kRootURI + "/Child"), null);
 
-  // Create the folder, and then it should exist.
+  // Create the Child folder, and test we can find it.
+  // (NOTE: createSubFolder() can be async for IMAP folders. But for now
+  // we know we're using local folders and it'll happen right away).
   root.createSubfolder("Child", null);
   Assert.equal(
     fls.getFolderForURL(kRootURI + "/Child"),
@@ -51,4 +53,24 @@ function run_test() {
     fls.getFolderForURL("mailbox://idonotexist@Local%20Folders"),
     null
   );
-}
+});
+
+add_task(async function test_unicode_uris() {
+  let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+    Ci.nsIFolderLookupService
+  );
+  localAccountUtils.loadLocalMailAccount();
+  let root = localAccountUtils.rootFolder;
+
+  // Create a folder with non-ASCII characters.
+  // Unicode abuse - dotless letter i and a metal umlaut over the n.
+  let tapName = "Sp\u0131n\u0308al Tap";
+  root.createSubfolder(tapName, null);
+
+  // Make sure we can find it.
+  // (URI is percent-escaped utf-8)
+  let tapNameEscaped = "Sp%C4%B1n%CC%88al%20Tap";
+  let tapURI = kRootURI + "/" + tapNameEscaped;
+  let tap = fls.getFolderForURL(tapURI);
+  Assert.equal(tap.URI, tapURI);
+});

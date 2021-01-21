@@ -131,10 +131,10 @@ NS_IMPL_SERVERPREF_BOOL(nsNntpIncomingServer, SingleSignon, "singleSignon")
 NS_IMPL_SERVERPREF_INT(nsNntpIncomingServer, MaxArticles, "max_articles")
 
 nsresult nsNntpIncomingServer::CreateRootFolderFromUri(
-    const nsCString& serverUri, nsIMsgFolder** rootFolder) {
+    const nsACString& serverUri, nsIMsgFolder** rootFolder) {
   nsMsgNewsFolder* newRootFolder = new nsMsgNewsFolder;
   NS_ADDREF(*rootFolder = newRootFolder);
-  newRootFolder->Init(serverUri.get());
+  newRootFolder->Init(serverUri);
   return NS_OK;
 }
 

@@ -2656,11 +2656,9 @@ nsresult nsMsgDBFolder::createCollationKeyGenerator() {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::Init(const char* aURI) {
-  NS_ASSERTION(aURI != nullptr, "null ptr");
-  if (!aURI) return NS_ERROR_NULL_POINTER;
-  mURI = aURI;
-  return CreateBaseMessageURI(nsDependentCString(aURI));
+nsMsgDBFolder::Init(const nsACString& uri) {
+  mURI = uri;
+  return CreateBaseMessageURI(uri);
 }
 
 nsresult nsMsgDBFolder::CreateBaseMessageURI(const nsACString& aURI) {

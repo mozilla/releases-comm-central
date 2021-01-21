@@ -27,7 +27,7 @@ interface nsIFolderLookupService : nsISupports
    *
    * @param aUrl The folder URL
    */
-  nsIMsgFolder getFolderForURL(in ACString aUrl);
+  nsIMsgFolder getFolderForURL(in AUTF8String aUrl);
 
   /**
    * Returns a folder with the given URL.
@@ -38,7 +38,7 @@ interface nsIFolderLookupService : nsISupports
    *
    * @param aUrl The folder URL
    */
-  nsIMsgFolder getOrCreateFolderForURL(in ACString aUrl);
+  nsIMsgFolder getOrCreateFolderForURL(in AUTF8String aUrl);
 };
 
 %{C++

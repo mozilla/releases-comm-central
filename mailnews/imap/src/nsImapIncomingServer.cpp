@@ -922,9 +922,9 @@ nsImapIncomingServer::CloseCachedConnections() {
 }
 
 nsresult nsImapIncomingServer::CreateRootFolderFromUri(
-    const nsCString& serverUri, nsIMsgFolder** rootFolder) {
+    const nsACString& serverUri, nsIMsgFolder** rootFolder) {
   nsImapMailFolder* newRootFolder = new nsImapMailFolder;
-  newRootFolder->Init(serverUri.get());
+  newRootFolder->Init(serverUri);
   NS_ADDREF(*rootFolder = newRootFolder);
   return NS_OK;
 }

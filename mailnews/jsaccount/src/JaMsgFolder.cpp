@@ -105,7 +105,7 @@ nsresult JaBaseCppMsgFolder::CreateDummyFile(nsIMsgFolder* aMailFolder) {
 }
 
 // AFAICT this is unused in mailnews code.
-nsresult JaBaseCppMsgFolder::CreateChildFromURI(const nsCString& uri,
+nsresult JaBaseCppMsgFolder::CreateChildFromURI(const nsACString& uri,
                                                 nsIMsgFolder** folder) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

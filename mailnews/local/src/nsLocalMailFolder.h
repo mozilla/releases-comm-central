@@ -195,7 +195,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
  protected:
   virtual ~nsMsgLocalMailFolder();
-  nsresult CreateChildFromURI(const nsCString& uri,
+  nsresult CreateChildFromURI(const nsACString& uri,
                               nsIMsgFolder** folder) override;
   nsresult CopyFolderAcrossServer(nsIMsgFolder* srcFolder,
                                   nsIMsgWindow* msgWindow,

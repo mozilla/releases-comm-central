@@ -278,10 +278,10 @@ static bool nsShouldIgnoreFile(nsString& name) {
   return true;
 }
 
-nsresult nsImapMailFolder::CreateChildFromURI(const nsCString& uri,
+nsresult nsImapMailFolder::CreateChildFromURI(const nsACString& uri,
                                               nsIMsgFolder** folder) {
   nsImapMailFolder* newFolder = new nsImapMailFolder;
-  newFolder->Init(uri.get());
+  newFolder->Init(uri);
   NS_ADDREF(*folder = newFolder);
   return NS_OK;
 }

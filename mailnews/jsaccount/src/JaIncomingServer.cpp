@@ -18,7 +18,7 @@ NS_IMPL_ISUPPORTS_INHERITED(JaBaseCppIncomingServer, nsMsgIncomingServer,
 
 // nsMsgIncomingServer overrides
 nsresult JaBaseCppIncomingServer::CreateRootFolderFromUri(
-    const nsCString& serverUri, nsIMsgFolder** rootFolder) {
+    const nsACString& serverUri, nsIMsgFolder** rootFolder) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

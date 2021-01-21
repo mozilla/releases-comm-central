@@ -398,7 +398,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   virtual ~nsImapMailFolder();
   // Helper methods
 
-  virtual nsresult CreateChildFromURI(const nsCString& uri,
+  virtual nsresult CreateChildFromURI(const nsACString& uri,
                                       nsIMsgFolder** folder) override;
   void FindKeysToAdd(const nsTArray<nsMsgKey>& existingKeys,
                      nsTArray<nsMsgKey>& keysToFetch, uint32_t& numNewUnread,

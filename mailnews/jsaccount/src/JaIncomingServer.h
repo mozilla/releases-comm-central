@@ -33,7 +33,7 @@ class JaBaseCppIncomingServer : public nsMsgIncomingServer,
   JaBaseCppIncomingServer() {}
 
   // nsMsgIncomingServer overrides
-  nsresult CreateRootFolderFromUri(const nsCString& serverUri,
+  nsresult CreateRootFolderFromUri(const nsACString& serverUri,
                                    nsIMsgFolder** rootFolder) override;
 
  protected:

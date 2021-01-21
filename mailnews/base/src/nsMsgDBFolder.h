@@ -135,8 +135,8 @@ class nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult CreateCollationKey(const nsString& aSource, uint8_t** aKey,
                               uint32_t* aLength);
 
-  // all children will override this to create the right class of object.
-  virtual nsresult CreateChildFromURI(const nsCString& uri,
+  // All children will override this to create the right class of object.
+  virtual nsresult CreateChildFromURI(const nsACString& uri,
                                       nsIMsgFolder** folder) = 0;
   virtual nsresult ReadDBFolderInfo(bool force);
   virtual nsresult FlushToFolderCache();
