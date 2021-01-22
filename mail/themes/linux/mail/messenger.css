@@ -343,6 +343,10 @@ treecol.treecol-image:hover:active {
   background-color: transparent;
 }
 
+:root[lwt-tree] treechildren::-moz-tree-row(hover) {
+  background-color: hsla(0, 0%, 50%, 0.15);
+}
+
 treechildren::-moz-tree-row {
   min-height: 18px;
 }
