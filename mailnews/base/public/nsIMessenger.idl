@@ -30,7 +30,7 @@ interface nsIMessenger : nsISupports {
 
     void setWindow(in mozIDOMWindowProxy ptr, in nsIMsgWindow msgWindow);
 
-    void addMsgUrlToNavigateHistory(in ACString aURL);
+    void addMsgUrlToNavigateHistory(in AUTF8String aURL);
 
     /**
      * Prevent any pending message load from occurring.
@@ -40,14 +40,14 @@ interface nsIMessenger : nsISupports {
      * Changes the message pane to the parent process if necessary, and loads
      * a message (aURL) in it. This may not happen synchronously.
      */
-    void openURL(in ACString aURL);
+    void openURL(in AUTF8String aURL);
 
     /**
      * Load a custom message by url, e.g load a attachment as a email
      */
-    void loadURL(in mozIDOMWindowProxy ptr, in ACString aURL);
+    void loadURL(in mozIDOMWindowProxy ptr, in AUTF8String aURL);
 
-    void launchExternalURL(in ACString aURL);
+    void launchExternalURL(in AUTF8String aURL);
 
     boolean canUndo();
     boolean canRedo();
@@ -158,8 +158,8 @@ interface nsIMessenger : nsISupports {
     // Unfortunately, you must call this before navigating to this position,
     // because calling this has the side effect of making us adjust our current
     // history pos, and *not* adding the loaded message to the history queue.
-    ACString getMsgUriAtNavigatePos(in long aPos);
-    ACString getFolderUriAtNavigatePos(in long aPos);
+    AUTF8String getMsgUriAtNavigatePos(in long aPos);
+    AUTF8String getFolderUriAtNavigatePos(in long aPos);
     attribute long navigatePos;
     /**
      * Fetch the message navigation history.

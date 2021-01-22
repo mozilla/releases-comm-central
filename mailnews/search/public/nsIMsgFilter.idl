@@ -23,7 +23,7 @@ interface nsIMsgRuleAction : nsISupports {
   attribute nsMsgPriorityValue priority;
 
   // target folder.. throws an exception if the action is not move to folder
-  attribute ACString targetFolderUri;
+  attribute AUTF8String targetFolderUri;
 
   // target label. throws an exception if the action is not label
   attribute nsMsgLabelValue label;

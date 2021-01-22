@@ -75,7 +75,7 @@ interface nsIMsgFolder : nsISupports {
   /**
    * URL for this folder
    */
-  readonly attribute ACString folderURL;
+  readonly attribute AUTF8String folderURL;
 
   /**
    * should probably move to the server
