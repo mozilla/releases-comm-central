@@ -1091,8 +1091,9 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
       // online name needs to use the correct hierarchy delimiter (I think...)
       // or the canonical path - one or the other, but be consistent.
       dupFolderPath.ReplaceChar('/', hierarchyDelimiter);
-      if (hierarchyDelimiter != '/')
-        nsImapUrl::UnescapeSlashes(dupFolderPath.BeginWriting());
+      if (hierarchyDelimiter != '/') {
+        nsImapUrl::UnescapeSlashes(dupFolderPath);
+      }
 
       // GMail gives us a localized name for the inbox but doesn't let
       // us select that localized name.
@@ -1102,9 +1103,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
         imapFolder->SetOnlineName(dupFolderPath);
 
       if (hierarchyDelimiter != '/') {
-        nsImapUrl::UnescapeSlashes(folderName.BeginWriting());
-        // Set length to preclude showing a null "box" symbol.
-        folderName.SetLength(strlen(folderName.BeginWriting()));
+        nsImapUrl::UnescapeSlashes(folderName);
       }
       if (NS_SUCCEEDED(CopyMUTF7toUTF16(folderName, unicodeName)))
         child->SetPrettyName(unicodeName);

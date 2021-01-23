@@ -740,9 +740,10 @@ NS_IMETHODIMP nsImapUrl::AllocateServerPath(const char* canonicalPath,
   return NS_OK;
 }
 
-/* static */ nsresult nsImapUrl::UnescapeSlashes(char* sourcePath) {
-  char* src = sourcePath;
-  char* dst = sourcePath;
+static void unescapeSlashes(char* path, size_t* newLength) {
+  char* src = path;
+  char* start = src;
+  char* dst = path;
 
   while (*src) {
     if (*src == '^') {
@@ -757,6 +758,19 @@ NS_IMETHODIMP nsImapUrl::AllocateServerPath(const char* canonicalPath,
   }
 
   *dst = 0;
+  *newLength = dst - start - 1;
+}
+
+/* static */ nsresult nsImapUrl::UnescapeSlashes(char* path) {
+  size_t newLength;
+  unescapeSlashes(path, &newLength);
+  return NS_OK;
+}
+
+/* static */ nsresult nsImapUrl::UnescapeSlashes(nsACString& path) {
+  size_t newLength;
+  unescapeSlashes(path.BeginWriting(), &newLength);
+  path.SetLength(newLength);
   return NS_OK;
 }
 

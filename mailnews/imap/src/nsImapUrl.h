@@ -46,6 +46,7 @@ class nsImapUrl : public nsIImapUrl,
                                            char onlineDelimiter,
                                            char** resultingCanonicalPath);
   static nsresult EscapeSlashes(const char* sourcePath, char** resultPath);
+  static nsresult UnescapeSlashes(nsACString& path);
   static nsresult UnescapeSlashes(char* path);
   static char* ReplaceCharsInCopiedString(const char* stringToCopy,
                                           char oldChar, char newChar);
