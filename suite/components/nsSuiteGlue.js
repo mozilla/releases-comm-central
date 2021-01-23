@@ -383,6 +383,7 @@ SuiteGlue.prototype = {
   _onProfileStartup: function()
   {
     this._migrateUI();
+    this._migrateUI2();
     migrateMailnews(); // mailnewsMigrator.js
 
     Sanitizer.checkSettings();
@@ -400,17 +401,18 @@ SuiteGlue.prototype = {
     timer.init(this, 3000, timer.TYPE_ONE_SHOT);
   },
 
-  _migrateUI: function()
-  {
+  /**
+   * Determine if the UI has been upgraded for this release. If not
+   * reset or migrate some user configurations depending on the migration
+   * level.
+   */
+  _migrateUI() {
     const UI_VERSION = 6;
 
     // If the pref is not set this is a new or pre SeaMonkey 2.49 profile.
     // We can't tell so we just run migration with version 0.
-    let currentUIVersion = 0;
-
-    if (Services.prefs.prefHasUserValue("suite.migration.version")) {
-      currentUIVersion = Services.prefs.getIntPref("suite.migration.version");
-    }
+    let currentUIVersion =
+      Services.prefs.getIntPref("suite.migration.version", 0);
 
     if (currentUIVersion >= UI_VERSION)
       return;
@@ -477,7 +479,7 @@ SuiteGlue.prototype = {
       } catch (ex) {}
     }
 
-    // Pretend currentUIVersion 3 never happend (used in 2.57 for a time and became 6).
+    // Pretend currentUIVersion 3 never happened (used in 2.57 for a time).
 
     // Remove obsolete download preferences set by user.
     if (currentUIVersion < 4) {
@@ -506,7 +508,7 @@ SuiteGlue.prototype = {
       } catch (ex) {}
     }
 
-    if (currentUIVersion < 6) {
+    if (currentUIVersion < 5) {
       // Delete obsolete ssl and strict transport security permissions.
       let perms = Services.perms.enumerator;
       while (perms.hasMoreElements()) {
@@ -518,7 +520,35 @@ SuiteGlue.prototype = {
           Services.perms.removePermission(perm);
         }
       }
+    }
 
+    // Pretend currentUIVersion 6 and 7 never happened (used in 2.57 for a time).
+
+    // Update the migration version.
+    Services.prefs.setIntPref("suite.migration.version", UI_VERSION);
+  },
+
+  /**
+   * Determine if the UI has been upgraded for this 2.57 or later release.
+   * If not reset or migrate some user configurations depending on the
+   * migration level.
+   * Only migration steps for 2.57 and higher are included in this function.
+   * When the 2.53 branch is retired this function can be merged with
+   * _migrateUI again.
+   */
+  _migrateUI2() {
+    const UI_VERSION2 = 1;
+
+    // If the pref is not set this is a new or pre SeaMonkey 2.57 profile.
+    // We can't tell so we just run migration with version 0.
+    let currentUIVersion2 =
+      Services.prefs.getIntPref("suite.migration.version2", 0);
+
+    if (currentUIVersion2 >= UI_VERSION2)
+      return;
+
+    // Run any migrations due prior to 2.57.
+    if (currentUIVersion2 < 1) {
       // The XUL directory viewer is no longer provided.
       try {
         if (Services.prefs.getIntPref("network.dir.format") == 3) {
@@ -528,7 +558,7 @@ SuiteGlue.prototype = {
     }
 
     // Update the migration version.
-    Services.prefs.setIntPref("suite.migration.version", UI_VERSION);
+    Services.prefs.setIntPref("suite.migration.version2", UI_VERSION);
   },
 
   // Copies additional profile files from the default profile tho the current profile.
