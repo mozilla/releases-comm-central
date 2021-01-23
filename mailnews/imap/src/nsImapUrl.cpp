@@ -758,7 +758,7 @@ static void unescapeSlashes(char* path, size_t* newLength) {
   }
 
   *dst = 0;
-  *newLength = dst - start - 1;
+  *newLength = dst - start;
 }
 
 /* static */ nsresult nsImapUrl::UnescapeSlashes(char* path) {
