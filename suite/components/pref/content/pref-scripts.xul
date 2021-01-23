@@ -39,15 +39,6 @@
       <preference id="javascript.options.showInConsole"
                   name="javascript.options.showInConsole"
                   type="bool"/>
-      <preference id="plugin.disable"
-                  name="plugin.disable"
-                  type="bool" inverted="true"/>
-      <preference id="plugins.hide_infobar_for_missing_plugin"
-                  name="plugins.hide_infobar_for_missing_plugin"
-                  type="bool" inverted="true"/>
-      <preference id="plugin.default.state"
-                  name="plugin.default.state"
-                  type="int"/>
     </preferences>
 
     <groupbox id="javascriptPreferences" flex="1">
@@ -97,31 +88,5 @@
                 accesskey="&debugConsoleJavascript.accesskey;"
                 preference="javascript.options.showInConsole"/>
     </groupbox>
-
-    <groupbox id="pluginPreferences">
-      <caption label="&enablePlugins.label;"/>
-      <checkbox id="pluginForSuite"
-                label="&enablePluginForSuite.label;"
-                accesskey="&enablePluginForSuite.accesskey;"
-                preference="plugin.disable"/>
-
-      <!-- mailnews will add its checkbox here using overlay (mailPrefsOverlay.xul).
-      -->
-    </groupbox>
-
-    <groupbox id="pageRequiresPlugins">
-      <caption label="&whenPageRequiresPlugins.label;"/>
-      <checkbox id="activateAllPlugins"
-                label="&activateAllPlugins.label;"
-                accesskey="&activateAllPlugins.accesskey;"
-                preference="plugin.default.state"
-                onsyncfrompreference="return document.getElementById(this.getAttribute('preference')).value == 2;"
-                onsynctopreference="return this.checked ? 2 : 1;"/>
-      <checkbox id="warnPluginsRequired"
-                label="&warnPluginsRequired.label;"
-                accesskey="&warnPluginsRequired.accesskey;"
-                preference="plugins.hide_infobar_for_missing_plugin"/>
-    </groupbox>
-
   </prefpane>
 </overlay>

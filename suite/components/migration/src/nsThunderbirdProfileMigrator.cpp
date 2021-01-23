@@ -350,7 +350,6 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKESAMETYPEPREFTRANSFORM("mailnews.mark_message_read.delay",        Bool),
   MAKESAMETYPEPREFTRANSFORM("mailnews.mark_message_read.delay.interval", Int),
 
-  MAKESAMETYPEPREFTRANSFORM("mailnews.message_display.allow.plugins",  Bool),
   MAKESAMETYPEPREFTRANSFORM("mailnews.message_display.disable_remote_image", Bool),
 
   MAKESAMETYPEPREFTRANSFORM("mailnews.nav_crosses_folders",            Int),
@@ -410,8 +409,6 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKESAMETYPEPREFTRANSFORM("offline.download.download_messages",      Int),
   MAKESAMETYPEPREFTRANSFORM("offline.send.unsent_messages",            Int),
   MAKESAMETYPEPREFTRANSFORM("offline.startup_state",                   Int),
-  MAKESAMETYPEPREFTRANSFORM("plugin.override_internal_types",          Bool),
-  MAKESAMETYPEPREFTRANSFORM("plugin.expose_full_path",                 Bool),
   MAKESAMETYPEPREFTRANSFORM("security.default_personal_cert",          String),
   MAKESAMETYPEPREFTRANSFORM("security.password_lifetime",              Int),
   MAKESAMETYPEPREFTRANSFORM("security.tls.version.min",                Int),

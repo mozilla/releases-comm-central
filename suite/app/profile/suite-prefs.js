@@ -783,10 +783,13 @@ pref("dom.identity.enabled", false);
 pref("dom.ipc.plugins.nativeCursorSupport", true);
 #endif
 
-pref("plugins.hide_infobar_for_outdated_plugin", false);
-pref("plugins.hide_infobar_for_missing_plugin", false);
-pref("plugins.click_to_play", true);
+pref("plugins.hide_infobar_for_outdated_plugin", true);
+pref("plugins.hide_infobar_for_missing_plugin", true);
+pref("plugins.click_to_play", false);
 pref("plugin.disable", false);
+pref("plugin.default.state", 0);
+pref("plugins.favorfallback.mode", "always");
+pref("plugins.favorfallback.rules", "nosrc,video");
 
 // Digital Rights Management, Encrypted Media Extensions
 pref("media.eme.enabled", false);
@@ -947,7 +950,6 @@ pref("services.sync.prefs.sync.mailnews.mark_message_read.auto", true);
 pref("services.sync.prefs.sync.mailnews.mark_message_read.delay", true);
 pref("services.sync.prefs.sync.mailnews.mark_message_read.delay.interval", true);
 pref("services.sync.prefs.sync.mailnews.messageid.openInNewWindow", true);
-pref("services.sync.prefs.sync.mailnews.message_display.allow_plugins", true);
 pref("services.sync.prefs.sync.mailnews.message_display.disable_remote_image", true);
 pref("services.sync.prefs.sync.mailnews.nav_crosses_folders", true);
 pref("services.sync.prefs.sync.mailnews.offline_sync_mail", true);
@@ -1035,12 +1037,6 @@ pref("security.sandbox.windows.log", false);
 // 3 - the strongest settings we seem to be able to use without breaking
 //     everything, but will probably cause some functionality restrictions
 pref("dom.ipc.plugins.sandbox-level.default", 0);
-#if defined(_AMD64_)
-// The lines in PluginModuleParent.cpp should be changed in line with this.
-pref("dom.ipc.plugins.sandbox-level.flash", 2);
-#else
-pref("dom.ipc.plugins.sandbox-level.flash", 0);
-#endif
 
 #if defined(MOZ_CONTENT_SANDBOX)
 // This controls the strength of the Windows content process sandbox for testing

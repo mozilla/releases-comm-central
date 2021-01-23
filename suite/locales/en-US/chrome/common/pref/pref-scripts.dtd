@@ -27,13 +27,3 @@
 <!ENTITY debugStrictJavascript.accesskey  "J">
 <!ENTITY debugConsoleJavascript.label     "Show chrome JavaScript errors and warnings">
 <!ENTITY debugConsoleJavascript.accesskey "c">
-
-<!ENTITY enablePlugins.label             "Enable Plugins for">
-<!ENTITY enablePluginForSuite.label      "Suite">
-<!ENTITY enablePluginForSuite.accesskey  "u">
-
-<!ENTITY whenPageRequiresPlugins.label   "When a page requires plugins">
-<!ENTITY activateAllPlugins.label        "Activate all plugins by default">
-<!ENTITY activateAllPlugins.accesskey    "d">
-<!ENTITY warnPluginsRequired.label       "Warn me if additional plugins need to be installed">
-<!ENTITY warnPluginsRequired.accesskey   "W">
