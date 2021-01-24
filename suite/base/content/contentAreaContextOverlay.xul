@@ -29,15 +29,6 @@
                onpopupshowing="if (event.target != this) return true; gContextMenu = new nsContextMenu(this, event.shiftKey, event); return gContextMenu.shouldDisplay;"
                onpopuphiding="if (event.target != this) return; gContextMenu.hiding(); gContextMenu = null;">
       <menuseparator id="page-menu-separator"/>
-      <menuitem id="popupwindow-reject"
-                label="&popupWindowRejectCmd.label;"
-                accesskey="&popupWindowRejectCmd.accesskey;"
-                oncommand="gContextMenu.rejectPopupWindows(event.shiftKey);"/>
-      <menuitem id="popupwindow-allow"
-                label="&popupWindowAllowCmd.label;"
-                accesskey="&popupWindowAllowCmd.accesskey;"
-                oncommand="gContextMenu.allowPopupWindows();"/>
-      <menuseparator id="context-sep-popup"/>
 
       <menuitem id="spell-no-suggestions"
                 disabled="true"

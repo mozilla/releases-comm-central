@@ -180,23 +180,6 @@ var gStatusBarPopupIconPrefListener =
   }
 };
 
-// popup window permission change listener
-var gPopupPermListener = {
-
-  observe: function(subject, topic, data) {
-    if (topic == "popup-perm-close") {
-      // close the window if we're a popup and our opener's URI matches
-      // the URI in the notification
-      var popupOpenerURI = maybeInitPopupContext();
-      if (popupOpenerURI) {
-        closeURI = Services.io.newURI(data);
-        if (closeURI.host == popupOpenerURI.host)
-          window.close();
-      }
-    }
-  }
-};
-
 var gFormSubmitObserver = {
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIFormSubmitObserver,
                                          Ci.nsIObserver]),
@@ -865,7 +848,6 @@ function Startup()
   addPrefListener(gTabStripPrefListener);
   addPrefListener(gHomepagePrefListener);
   addPrefListener(gStatusBarPopupIconPrefListener);
-  addPopupPermListener(gPopupPermListener);
   addFormSubmitObserver(gFormSubmitObserver);
 
   window.browserContentListener =
@@ -1203,7 +1185,6 @@ function Shutdown()
   removePrefListener(gTabStripPrefListener);
   removePrefListener(gHomepagePrefListener);
   removePrefListener(gStatusBarPopupIconPrefListener);
-  removePopupPermListener(gPopupPermListener);
   removeFormSubmitObserver(gFormSubmitObserver);
 
   window.browserContentListener.close();
@@ -1229,27 +1210,6 @@ function GetTypePermFromId(aId)
   var [type, action] = aId.split("_");
   var perm = "ACCESS_" + action.toUpperCase();
   return [type, Ci.nsICookiePermission[perm]];
-}
-
-function CheckForVisibility(aEvent, aNode)
-{
-  CheckPermissionsMenu("popup", aNode);
-
-  var uri = getBrowser().currentURI;
-  var allowBlocking = Services.prefs.getBoolPref("dom.disable_open_during_load");
-
-  // set enabled state for popup_ menu items.
-  var items = aEvent.target.getElementsByAttribute("name", "popup");
-  for (let item of items) {
-    if (allowBlocking)
-      item.removeAttribute("disabled");
-    else
-      item.setAttribute("disabled", "true");
-  }
-
-  document.getElementById("popupMenuSeparator").hidden = !allowBlocking;
-  document.getElementById("menuitem_PopupsManage").hidden = !allowBlocking;
-
 }
 
 // Determine current state and check/uncheck the appropriate menu items.
@@ -2888,32 +2848,6 @@ function popupBlockerMenuShowing(event)
 
   if (separator)
     separator.hidden = !createShowPopupsMenu(event.target, gBrowser.selectedBrowser);
-}
-
-// opener may not have been initialized by load time (chrome windows only)
-// so call this function some time later.
-function maybeInitPopupContext()
-{
-  // it's not a popup with no opener
-  if (!window.content.opener)
-    return null;
-
-  try {
-    // are we a popup window?
-    var xulwin = window
-                 .QueryInterface(Ci.nsIInterfaceRequestor)
-                 .getInterface(Ci.nsIWebNavigation)
-                 .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
-                 .QueryInterface(Ci.nsIInterfaceRequestor)
-                 .getInterface(Ci.nsIXULWindow);
-    if (xulwin.contextFlags &
-        Ci.nsIWindowCreator2.PARENT_IS_LOADING_OR_RUNNING_TIMEOUT) {
-      // return our opener's URI
-      return Services.io.newURI(window.content.opener.location.href);
-    }
-  } catch(e) {
-  }
-  return null;
 }
 
 function WindowIsClosing()

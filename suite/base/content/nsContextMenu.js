@@ -69,8 +69,6 @@ nsContextMenu.prototype = {
     this.isTextSelected = this.isTextSelection();
     this.isContentSelected = this.isContentSelection();
 
-    this.initPopupPrincipal();
-
     // Initialize gContextMenuContentData.
     if (aEvent)
       this.initContentData(aEvent);
@@ -343,20 +341,6 @@ nsContextMenu.prototype = {
     if (this.inFrame)
       goSetMenuValue("context-saveframe",
                      this.autoDownload ? "valueSave" : "valueSaveAs");
-
-    var blocking = true;
-      if (this.popupPrincipal)
-        try {
-          const PM = Cc["@mozilla.org/PopupWindowManager;1"]
-                     .getService(Ci.nsIPopupWindowManager);
-          blocking = PM.testPermission(this.popupPrincipal) == PM.DENY_POPUP;
-        } catch (e) {
-          Cu.reportError(e);
-        }
-
-    this.showItem("popupwindow-reject", this.popupPrincipal && !blocking);
-    this.showItem("popupwindow-allow", this.popupPrincipal && blocking);
-    this.showItem("context-sep-popup", this.popupPrincipal);
 
     // BiDi UI
     this.showItem("context-sep-bidi", !this.onNumeric && gShowBiDi);
@@ -634,7 +618,6 @@ nsContextMenu.prototype = {
     this.inSyntheticDoc        = false;
     this.hasBGImage            = false;
     this.bgImageURL            = "";
-    this.popupPrincipal        = null;
     this.autoDownload          = false;
     this.isTextSelected        = false;
     this.isContentSelected     = false;
@@ -885,33 +868,6 @@ nsContextMenu.prototype = {
     }
   },
 
-  initPopupPrincipal: function() {
-    // quick check: if no opener, it can't be a popup
-    if (!window.content.opener)
-      return;
-    try {
-      var show = false;
-      // is it a popup window?
-      var xulwin = window
-                  .QueryInterface(Ci.nsIInterfaceRequestor)
-                  .getInterface(Ci.nsIWebNavigation)
-                  .QueryInterface(Ci.nsIDocShellTreeItem)
-                  .treeOwner
-                  .QueryInterface(Ci.nsIInterfaceRequestor)
-                  .getInterface(Ci.nsIXULWindow);
-      if (xulwin.contextFlags &
-          Ci.nsIWindowCreator2.PARENT_IS_LOADING_OR_RUNNING_TIMEOUT) {
-        // do the pref settings allow site-by-site popup management?
-        show = !Services.prefs.getBoolPref("dom.disable_open_during_load");
-      }
-      if (show) {
-        // initialize popupPrincipal
-        this.popupPrincipal = window.content.opener.document.nodePrincipal;
-      }
-    } catch(e) {
-    }
-  },
-
   _isSpellCheckEnabled: function(aNode) {
     // We can always force-enable spellchecking on textboxes
     if (this.isTargetATextBox(aNode)) {
@@ -954,21 +910,6 @@ nsContextMenu.prototype = {
   isLinkSaveable: function() {
     return this.linkProtocol && this.linkProtocol != "mailto" &&
            this.linkProtocol != "javascript";
-  },
-
-  // Block popup windows
-  rejectPopupWindows: function(aAndClose) {
-    Services.perms.addFromPrincipal(this.popupPrincipal, "popup",
-                                    Services.perms.DENY_ACTION);
-    if (aAndClose)
-      Services.obs.notifyObservers(window, "popup-perm-close",
-                                   this.popupPrincipal.URI.spec);
-  },
-
-  // Unblock popup windows
-  allowPopupWindows: function() {
-    Services.perms.addFromPrincipal(this.popupPrincipal, "popup",
-                                    Services.perms.ALLOW_ACTION);
   },
 
   // Block/Unblock image from loading in the future.

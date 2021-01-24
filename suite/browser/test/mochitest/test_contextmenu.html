@@ -247,9 +247,7 @@ function runTest(testNum) {
 
     case 2:
         // Context menu for plain text
-        plainTextItems = ["popupwindow-reject",   true,
-                          "---",                  null,
-                          "context-back",         false,
+        plainTextItems = ["context-back",         false,
                           "context-forward",      false,
                           "context-reload",       true,
                           "context-stop",         false,
@@ -270,9 +268,7 @@ function runTest(testNum) {
 
     case 3:
         // Context menu for text link
-        checkContextMenu(["popupwindow-reject",    true,
-                          "---",                   null,
-                          "context-openlinkintab", true,
+        checkContextMenu(["context-openlinkintab", true,
                           "context-openlink",      true,
                           "context-openlinkinprivatewindow", true,
                           "---",                   null,
@@ -291,9 +287,7 @@ function runTest(testNum) {
 
     case 4:
         // Context menu for text mailto-link
-        checkContextMenu(["popupwindow-reject",    true,
-                          "---",                   null,
-                          "context-copyemail",     true,
+        checkContextMenu(["context-copyemail",     true,
                           "context-copylink",      true,
                           "---",                   null,
                           "context-bookmarkpage",  true,
@@ -306,9 +300,7 @@ function runTest(testNum) {
 
     case 5:
         // Context menu for text input field
-        checkContextMenu(["popupwindow-reject",  true,
-                          "---",                 null,
-                          "context-undo",        false,
+        checkContextMenu(["context-undo",        false,
                           "context-redo",        false,
                           "---",                 null,
                           "context-cut",         false,
@@ -327,9 +319,7 @@ function runTest(testNum) {
 
     case 6:
         // Context menu for text input field with text
-        checkContextMenu(["popupwindow-reject",  true,
-                          "---",                 null,
-                          "context-undo",        false,
+        checkContextMenu(["context-undo",        false,
                           "context-redo",        false,
                           "---",                 null,
                           "context-cut",         true,
@@ -347,9 +337,7 @@ function runTest(testNum) {
 
     case 7:
         // Context menu for an image
-        checkContextMenu(["popupwindow-reject",   true,
-                          "---",                  null,
-                          "context-reloadimage",  true,
+        checkContextMenu(["context-reloadimage",  true,
                           "context-viewimage",    true,
                           "context-blockimage",   true,
                           "context-copyimage",    true,
@@ -370,9 +358,7 @@ function runTest(testNum) {
 
     case 8:
         // Context menu for a canvas
-        checkContextMenu(["popupwindow-reject",   true,
-                          "---",                  null,
-                          "context-viewimage",    true,
+        checkContextMenu(["context-viewimage",    true,
                           "context-saveimage",    true,
                           "context-bookmarkpage", true,
                           "context-sendpage",     true,
@@ -383,9 +369,7 @@ function runTest(testNum) {
 
     case 9:
         // Context menu for a video (with a VALID media source)
-        checkContextMenu(["popupwindow-reject",         true,
-                          "---",                        null,
-                          "context-media-play",         true,
+        checkContextMenu(["context-media-play",         true,
                           "context-media-mute",         true,
                           "context-media-playbackrate", true,
                               ["context-media-playbackrate-050", true,
@@ -408,9 +392,7 @@ function runTest(testNum) {
 
     case 10:
         // Context menu for a video (with an audio-only file)
-        checkContextMenu(["popupwindow-reject",         true,
-                          "---",                        null,
-                          "context-media-play",         true,
+        checkContextMenu(["context-media-play",         true,
                           "context-media-mute",         true,
                           "context-media-playbackrate", true,
                               ["context-media-playbackrate-050", true,
@@ -429,9 +411,7 @@ function runTest(testNum) {
 
     case 11:
         // Context menu for a video (with an INVALID media source)
-        checkContextMenu(["popupwindow-reject",         true,
-                          "---",                        null,
-                          "context-media-play",         false,
+        checkContextMenu(["context-media-play",         false,
                           "context-media-mute",         false,
                           "context-media-playbackrate", false,
                               ["context-media-playbackrate-050", null,
@@ -454,9 +434,7 @@ function runTest(testNum) {
 
     case 12:
         // Context menu for a video (with an INVALID media source)
-        checkContextMenu(["popupwindow-reject",         true,
-                          "---",                        null,
-                          "context-media-play",         false,
+        checkContextMenu(["context-media-play",         false,
                           "context-media-mute",         false,
                           "context-media-playbackrate", false,
                               ["context-media-playbackrate-050", null,
@@ -479,9 +457,7 @@ function runTest(testNum) {
 
     case 13:
         // Context menu for an iframe
-        checkContextMenu(["popupwindow-reject",   true,
-                          "---",                  null,
-                          "context-back",         false,
+        checkContextMenu(["context-back",         false,
                           "context-forward",      false,
                           "context-reload",       true,
                           "context-stop",         false,
@@ -515,9 +491,7 @@ function runTest(testNum) {
 
     case 14:
         // Context menu for a video in an iframe
-        checkContextMenu(["popupwindow-reject",         true,
-                          "---",                        null,
-                          "context-media-play",         true,
+        checkContextMenu(["context-media-play",         true,
                           "context-media-mute",         true,
                           "context-media-playbackrate", true,
                               ["context-media-playbackrate-050", true,
@@ -554,9 +528,7 @@ function runTest(testNum) {
 
     case 15:
         // Context menu for an image in an iframe
-        checkContextMenu(["popupwindow-reject",   true,
-                          "---",                  null,
-                          "context-reloadimage",  true,
+        checkContextMenu(["context-reloadimage",  true,
                           "context-viewimage",    true,
                           "context-blockimage",   true,
                           "context-copyimage",    true,
@@ -599,9 +571,7 @@ function runTest(testNum) {
 
     case 17:
         // search for text with text area's selected value
-        checkContextMenu(["popupwindow-reject",  true,
-                          "---",                 null,
-                          "context-undo",        false,
+        checkContextMenu(["context-undo",        false,
                           "context-redo",        false,
                           "---",                 null,
                           "context-cut",         true,
@@ -623,9 +593,7 @@ function runTest(testNum) {
 
     case 18:
         // Context menu for textarea
-        checkContextMenu(["popupwindow-reject",  true,
-                          "---",                 null,
-                          "*chubbiness",         true, // spelling suggestion
+        checkContextMenu(["*chubbiness",         true, // spelling suggestion
                           "---",                 null,
                           "spell-add-to-dictionary", true,
                           "spell-ignore-word",   true,
@@ -654,9 +622,7 @@ function runTest(testNum) {
     case 19:
         // Context menu for textarea after a word has been added
         // to the dictionary
-        checkContextMenu(["popupwindow-reject",  true,
-                          "---",                 null,
-                          "spell-undo-add-to-dictionary", true,
+        checkContextMenu(["spell-undo-add-to-dictionary", true,
                           "---",                 null,
                           "context-undo",        false,
                           "context-redo",        false,
@@ -682,9 +648,7 @@ function runTest(testNum) {
 
     case 20:
         // Context menu for contenteditable
-        checkContextMenu(["popupwindow-reject",  true,
-                          "---",                 null,
-                          "spell-no-suggestions", false,
+        checkContextMenu(["spell-no-suggestions", false,
                           "---",                 null,
                           "spell-add-to-dictionary", true,
                           "spell-ignore-word",   true,
@@ -711,9 +675,7 @@ function runTest(testNum) {
 
     case 21:
         // Context menu for spell-check input
-        checkContextMenu(["popupwindow-reject",  true,
-                          "---",                 null,
-                          "*prodigality",        true, // spelling suggestion
+        checkContextMenu(["*prodigality",        true, // spelling suggestion
                           "---",                 null,
                           "spell-add-to-dictionary", true,
                           "spell-ignore-word",   true,
@@ -766,8 +728,6 @@ function runTest(testNum) {
                                "---",                 null,
                                "+Checkbox",           {type: "checkbox", icon: "", checked: false, disabled: false}], null,
                           "---",                  null,
-                          "popupwindow-reject",   true,
-                          "---",                  null,
                           "context-back",         false,
                           "context-forward",      false,
                           "context-reload",       true,
@@ -791,9 +751,7 @@ function runTest(testNum) {
     case 24:
         // Context menu for element with assigned content context menu
         // The shift key should bypass content context menu processing
-        checkContextMenu(["popupwindow-reject",   true,
-                          "---",                  null,
-                          "context-back",         false,
+        checkContextMenu(["context-back",         false,
                           "context-forward",      false,
                           "context-reload",       true,
                           "context-stop",         false,
@@ -815,9 +773,7 @@ function runTest(testNum) {
 
     case 25:
         // Context menu for an image with a link
-        checkContextMenu(["popupwindow-reject",   true,
-                          "---",                  null,
-                          "context-openlinkintab", true,
+        checkContextMenu(["context-openlinkintab", true,
                           "context-openlink",      true,
                           "context-openlinkinprivatewindow", true,
                           "---",                   null,
@@ -845,9 +801,7 @@ function runTest(testNum) {
 
     case 26:
         // Context menu for an image with a mailto: link
-        checkContextMenu(["popupwindow-reject",   true,
-                          "---",                  null,
-                          "context-copyemail",     true,
+        checkContextMenu(["context-copyemail",     true,
                           "context-copylink",      true,
                           "---",                   null,
                           "context-reloadimage",  true,

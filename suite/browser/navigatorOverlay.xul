@@ -669,7 +669,7 @@
               oncommand="if (event.target.id.startsWith('popup_'))
                            CookieImagePopupAction(event.target);">
           <menupopup id="menupopup_checkForVisibility"
-                     onpopupshowing="CheckForVisibility(event, this);"
+                     onpopupshowing="CheckPermissionsMenu('popup', this);"
                      onpopuphiding="RemovePopupsItems(this);">
             <menuitem id="popup_deny"
                       label="&popupBlockCmd.label;"
@@ -697,8 +697,7 @@
                       label="&popupsManage.label;"
                       accesskey="&popupsManage.accesskey;"
                       oncommand="toDataManager(hostUrl() + '|permissions|add|popup');
-                                 event.stopPropagation();"
-                      hidden="true"/>
+                                 event.stopPropagation();"/>
           </menupopup>
         </menu>
         <menuseparator id="navBeginGlobalItems"/>
