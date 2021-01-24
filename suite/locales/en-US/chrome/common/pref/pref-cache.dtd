@@ -29,3 +29,9 @@
 <!ENTITY prefetchTitle.label             "Link Prefetching">
 <!ENTITY enablePrefetch.label            "Prefetch web pages when idle, so that links in web pages designed for prefetching can load more quickly">
 <!ENTITY enablePrefetch.accesskey        "P">
+
+<!ENTITY debugCache.label                "Debugging">
+<!ENTITY debugEnableMemCache.label       "Enable Memory Cache">
+<!ENTITY debugEnableMemCache.accesskey   "E">
+<!ENTITY debugEnableDiskCache.label      "Enable Disk Cache">
+<!ENTITY debugEnableDiskCache.accesskey  "D">

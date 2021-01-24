@@ -33,6 +33,12 @@
       <preference id="browser.cache.disk.parent_directory"
                   name="browser.cache.disk.parent_directory"
                   type="file"/>
+      <preference id="browser.cache.disk.enable"
+                  name="browser.cache.disk.enable"
+                  type="bool"/>
+      <preference id="browser.cache.memory.enable"
+                  name="browser.cache.memory.enable"
+                  type="bool"/>
     </preferences>
 
     <groupbox>
@@ -116,6 +122,20 @@
                   accesskey="&enablePrefetch.accesskey;"
                   preference="network.prefetch-next"/>
       </vbox>
+    </groupbox>
+
+    <groupbox id="debugCache">
+      <caption label="&debugCache.label;"/>
+      <hbox align="center">
+        <checkbox id="browserEnableDiskCache"
+                  label="&debugEnableDiskCache.label;"
+                  accesskey="&debugEnableDiskCache.accesskey;"
+                  preference="browser.cache.disk.enable"/>
+        <checkbox id="browserEnableCache"
+                  label="&debugEnableMemCache.label;"
+                  accesskey="&debugEnableMemCache.accesskey;"
+                  preference="browser.cache.memory.enable"/>
+      </hbox>
     </groupbox>
 
   </prefpane>
