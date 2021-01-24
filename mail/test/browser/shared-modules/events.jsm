@@ -52,10 +52,6 @@ var EventUtils = ChromeUtils.import(
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-// var logging = ChromeUtils.import("resource://testing-common/mozmill/logging.jsm");
-
-// var eventsLogger = logging.getLogger('eventsLogger');
-
 var createEventObject = function(
   element,
   controlKeyDown,
