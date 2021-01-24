@@ -16,7 +16,6 @@ DIRS += [
     "modules",
     "themes/classic",
     "themes/modern",
-    "security",
     "../common",
 ]
 
