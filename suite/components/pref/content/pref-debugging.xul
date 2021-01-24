@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE overlay SYSTEM "chrome://communicator/locale/pref/pref-debugging.dtd">
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <prefpane id="debugging_pane"
+            label="&pref.debugging.title;"
+            script="chrome://communicator/content/pref/pref-debugging.js">
+
+    <preferences id="debugging_preferences">
+      <preference id="nglayout.debug.paint_flashing"
+                  name="nglayout.debug.paint_flashing"
+                  type="bool"
+                  onchange="enableFlashingChrome(this.value);"/>
+      <preference id="nglayout.debug.paint_flashing_chrome"
+                  name="nglayout.debug.paint_flashing_chrome"
+                  type="bool"/>
+      <preference id="nglayout.debug.paint_dumping"
+                  name="nglayout.debug.paint_dumping"
+                  type="bool"/>
+      <preference id="nglayout.debug.invalidate_dumping"
+                  name="nglayout.debug.invalidate_dumping"
+                  type="bool"/>
+      <preference id="nglayout.debug.event_dumping"
+                  name="nglayout.debug.event_dumping"
+                  type="bool"/>
+      <preference id="nglayout.debug.motion_event_dumping"
+                  name="nglayout.debug.motion_event_dumping"
+                  type="bool"/>
+      <preference id="nglayout.debug.crossing_event_dumping"
+                  name="nglayout.debug.crossing_event_dumping"
+                  type="bool"/>
+      <preference id="layout.reflow.showframecounts"
+                  name="layout.reflow.showframecounts"
+                  type="bool"/>
+      <preference id="layout.reflow.dumpframecounts"
+                  name="layout.reflow.dumpframecounts"
+                  type="bool"/>
+      <preference id="layout.reflow.dumpframebyframecounts"
+                  name="layout.reflow.dumpframebyframecounts"
+                  type="bool"/>
+      <preference id="xul.debug.box"
+                  name="xul.debug.box"
+                  type="bool"/>
+      <preference id="nglayout.debug.disable_xul_cache"
+                  name="nglayout.debug.disable_xul_cache"
+                  type="bool"/>
+    </preferences>
+
+    <hbox>
+      <!-- Event Debugging -->
+      <groupbox id="eventDebugging" align="start" flex="1">
+        <caption label="&debugEvents.label;"/>
+        <checkbox id="nglayoutDebugPaintFlashing"
+                  label="&debugPaintFlashing.label;"
+                  accesskey="&debugPaintFlashing.accesskey;"
+                  preference="nglayout.debug.paint_flashing"/>
+        <checkbox id="nglayoutDebugPaintFlashingChrome"
+                  label="&debugPaintFlashingChrome.label;"
+                  accesskey="&debugPaintFlashingChrome.accesskey;"
+                  preference="nglayout.debug.paint_flashing_chrome"/>
+        <checkbox id="nglayoutDebugPaintDumping"
+                  label="&debugPaintDumping.label;"
+                  accesskey="&debugPaintDumping.accesskey;"
+                  preference="nglayout.debug.paint_dumping"/>
+        <checkbox id="nglayoutDebugInvalidateDumping"
+                  label="&debugInvalidateDumping.label;"
+                  accesskey="&debugInvalidateDumping.accesskey;"
+                  preference="nglayout.debug.invalidate_dumping"/>
+        <checkbox id="nglayoutDebugEventDumping"
+                  label="&debugEventDumping.label;"
+                  accesskey="&debugEventDumping.accesskey;"
+                  preference="nglayout.debug.event_dumping"/>
+        <checkbox id="nglayoutDebugMotionEventDumping"
+                  label="&debugMotionEventDumping.label;"
+                  accesskey="&debugMotionEventDumping.accesskey;"
+                  preference="nglayout.debug.motion_event_dumping"/>
+        <checkbox id="nglayoutDebugCrossingEventDumping"
+                  label="&debugCrossingEventDumping.label;"
+                  accesskey="&debugCrossingEventDumping.accesskey;"
+                  preference="nglayout.debug.crossing_event_dumping"/>
+      </groupbox>
+
+      <vbox align="start" flex="1">
+        <!-- Reflow Event Debugging -->
+        <groupbox id="reflowEventDebugging">
+          <caption label="&debugReflowEvents.label;"/>
+          <checkbox id="layoutReflowShowFrameCounts"
+                    label="&debugReflowShowFrameCounts.label;"
+                    accesskey="&debugReflowShowFrameCounts.accesskey;"
+                    preference="layout.reflow.showframecounts"/>
+          <checkbox id="layoutReflowDumpFrameCounts"
+                    label="&debugReflowDumpFrameCounts.label;"
+                    accesskey="&debugReflowDumpFrameCounts.accesskey;"
+                    preference="layout.reflow.dumpframecounts"/>
+          <checkbox id="layoutReflowDumpFrameByFrameCounts"
+                    label="&debugReflowDumpFrameByFrameCounts.label;"
+                    accesskey="&debugReflowDumpFrameByFrameCounts.accesskey;"
+                    preference="layout.reflow.dumpframebyframecounts"/>
+        </groupbox>
+
+        <!-- Render Debugging -->
+        <groupbox id="renderDebugging">
+          <caption label="&debugRendering.label;"/>
+          <checkbox id="debugXULBoxes"
+                    label="&debugXULBox.label;"
+                    accesskey="&debugXULBox.accesskey;"
+                    preference="xul.debug.box"/>
+          <checkbox id="nglayoutDebugDisableXULCache"
+                    label="&debugDisableXULCache.label;"
+                    accesskey="&debugDisableXULCache.accesskey;"
+                    preference="nglayout.debug.disable_xul_cache"/>
+        </groupbox>
+      </vbox>
+    </hbox>
+  </prefpane>
+</overlay>

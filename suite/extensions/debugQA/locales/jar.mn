@@ -8,7 +8,3 @@
 % locale debugQA @AB_CD@ %locale/@AB_CD@/debugQA/
   locale/@AB_CD@/debugQA/debugQAEditorOverlay.dtd           (en-US/debugQAEditorOverlay.dtd)
   locale/@AB_CD@/debugQA/debugQANavigatorOverlay.properties (en-US/debugQANavigatorOverlay.properties)
-  locale/@AB_CD@/debugQA/debugQAPrefsOverlay.dtd            (en-US/debugQAPrefsOverlay.dtd)
-  locale/@AB_CD@/debugQA/pref-debug.dtd                     (en-US/pref-debug.dtd)
-  locale/@AB_CD@/debugQA/pref-debug1.dtd                    (en-US/pref-debug1.dtd)
-  locale/@AB_CD@/debugQA/pref-debug2.dtd                    (en-US/pref-debug2.dtd)

@@ -23,6 +23,8 @@ comm.jar:
    content/communicator/pref/pref-content.xul                       (content/pref-content.xul)
    content/communicator/pref/pref-cookies.js                        (content/pref-cookies.js)
    content/communicator/pref/pref-cookies.xul                       (content/pref-cookies.xul)
+   content/communicator/pref/pref-debugging.js                      (content/pref-debugging.js)
+   content/communicator/pref/pref-debugging.xul                     (content/pref-debugging.xul)
    content/communicator/pref/pref-download.js                       (content/pref-download.js)
    content/communicator/pref/pref-download.xul                      (content/pref-download.xul)
    content/communicator/pref/pref-findasyoutype.js                  (content/pref-findasyoutype.js)

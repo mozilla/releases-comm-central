@@ -256,6 +256,11 @@
                     prefpane="mousewheel_pane"
                     helpTopic="advanced_pref_mouse_wheel"
                     url="chrome://communicator/content/pref/pref-mousewheel.xul"/>
+          <treeitem id="debuggingItem"
+                    label="&debugging.label;"
+                    prefpane="debugging_pane"
+                    helpTopic="advanced_pref_debugging"
+                    url="chrome://communicator/content/pref/pref-debugging.xul"/>
         </treechildren>
       </treeitem>
     </treechildren>

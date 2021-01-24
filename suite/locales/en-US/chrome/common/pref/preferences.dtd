@@ -54,5 +54,6 @@
 <!ENTITY httpnetworking.label "HTTP Networking">
 <!ENTITY smart.label "Software Installation">
 <!ENTITY mousewheel.label "Mouse Wheel">
+<!ENTITY debugging.label "Debugging">
 
 <!ENTITY focusSearch.key "f">
