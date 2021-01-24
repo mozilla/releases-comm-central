@@ -7,7 +7,7 @@
 function cloudfileDialogOnLoad() {
   dialogOnLoad();
 
-  let icons = gArgs.getProperty("icons");
+  let icons = propBag.getProperty("icons");
   let listItems = listBox.itemChildren;
   for (let i = 0; i < listItems.length; i++) {
     listItems[i].setAttribute("align", "center");
