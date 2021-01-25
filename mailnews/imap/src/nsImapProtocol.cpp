@@ -2982,7 +2982,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           if (GetServerStateParser().LastCommandSuccessful()) {
             // delete_message_struct *deleteMsg = (delete_message_struct *)
             // PR_Malloc (sizeof(delete_message_struct));
-            // convert name back from utf7
+            // convert name back from MUTF-7
             nsCString canonicalName;
             const char* selectedMailboxName =
                 GetServerStateParser().GetSelectedMailboxName();
@@ -3011,7 +3011,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
             if (GetServerStateParser().LastCommandSuccessful())
               Expunge();  // expunge messages with deleted flag
             if (GetServerStateParser().LastCommandSuccessful()) {
-              // convert name back from utf7
+              // convert name back from MUTF-7
               nsCString canonicalName;
               const char* selectedMailboxName =
                   GetServerStateParser().GetSelectedMailboxName();
@@ -6778,8 +6778,8 @@ bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
 
     for (childIndex = 0; (childIndex < numberToDelete) && renameSucceeded;
          childIndex++) {
-      // the imap parser has already converted to a non UTF7 string in the
-      // canonical format so convert it back
+      // The imap parser has already converted to a non MUTF-7 string in the
+      // canonical format so convert it back.
       char* currentName = m_deletableChildren->ElementAt(childIndex);
       if (!currentName) {
         renameSucceeded = false;
@@ -6871,8 +6871,8 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox,
           longestIndex = innerIndex;
         }
       }
-      // the imap parser has already converted to a non UTF7 string in
-      // the canonical format so convert it back
+      // The imap parser has already converted to a non MUTF-7 string in
+      // the canonical format so convert it back.
       if (longestName) {
         char* serverName = nullptr;
 
@@ -7013,7 +7013,7 @@ void nsImapProtocol::OnRenameFolder(const char* sourceMailbox) {
     if (renamed) FolderRenamed(sourceMailbox, destinationMailbox);
 
     // Cause a LIST and re-discovery when slash and/or ^ are escaped. Also
-    // needed when folder renamed to non-ASCII UTF8 when UTF8=ACCEPT in
+    // needed when folder renamed to non-ASCII UTF-8 when UTF8=ACCEPT in
     // effect.
     m_hierarchyNameState = kListingForCreate;
     nsCString mailboxWODelim(destinationMailbox);

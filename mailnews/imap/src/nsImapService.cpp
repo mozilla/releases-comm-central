@@ -128,7 +128,7 @@ nsresult nsImapService::GetFolderName(nsIMsgFolder* aImapFolder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString onlineName;
-  // online name is in imap utf-7 - leave it that way
+  // online name is in MUTF-7 - leave it that way
   rv = aFolder->GetOnlineName(onlineName);
   NS_ENSURE_SUCCESS(rv, rv);
   if (onlineName.IsEmpty()) {
@@ -2166,7 +2166,7 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
       nsAutoCString utfNewName;
       utfNewName.Append(NS_ConvertUTF16toUTF8(newLeafName));
       if (!NS_IsAscii(utfNewName.get())) {
-        // Convert to MUTF7 if UTF8=ACCEPT not enabled by server.
+        // Convert to MUTF-7 if UTF8=ACCEPT not enabled by server.
         nsCOMPtr<nsIMsgIncomingServer> server;
         rv = srcFolder->GetServer(getter_AddRefs(server));
         NS_ENSURE_SUCCESS(rv, rv);
@@ -2227,7 +2227,7 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
       nsAutoCString utfNewName;
       utfNewName.Append(NS_ConvertUTF16toUTF8(newFolderName));
       if (!NS_IsAscii(utfNewName.get())) {
-        // Convert to MUTF7 if UTF8=ACCEPT not enabled by server.
+        // Convert to MUTF-7 if UTF8=ACCEPT not enabled by server.
         nsCOMPtr<nsIMsgIncomingServer> server;
         rv = parent->GetServer(getter_AddRefs(server));
         NS_ENSURE_SUCCESS(rv, rv);
@@ -2625,7 +2625,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
       nsCOMPtr<nsIStringBundle> bundle;
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
-      // need to convert folder name from mod-utf7 to unicode
+      // Need to convert folder name from MUTF-7 to unicode.
       nsAutoString unescapedName;
       if (NS_FAILED(CopyMUTF7toUTF16(fullFolderName, unescapedName)))
         CopyASCIItoUTF16(fullFolderName, unescapedName);
@@ -2646,7 +2646,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
           // now we have the real folder name to try to subscribe to. Let's try
           // running a subscribe url and returning that as the uri we've
           // created. We need to convert this to unicode because that's what
-          // subscribe wants :-( It's already in mod-utf7.
+          // subscribe wants :-( It's already in MUTF-7.
           nsAutoString unicodeName;
           CopyASCIItoUTF16(fullFolderName, unicodeName);
           rv = imapServer->SubscribeToFolder(unicodeName, true,
@@ -2908,8 +2908,8 @@ nsresult nsImapService::ChangeFolderSubscription(nsIMsgFolder* folder,
       urlSpec.Append(command);
       urlSpec.Append(hierarchyDelimiter);
       nsAutoCString utfFolderName;
-      // folderName is already mutf7 at this point with not utf8=accept. When
-      // utf8=accept in effect it is utf8. So change to mutf7 not needed at
+      // folderName is already MUTF-7 at this point with not UTF8=ACCEPT. When
+      // UTF8=ACCEPT in effect it is UTF-8. So change to MUTF-7 not needed at
       // all it seems.
       utfFolderName.Append(NS_ConvertUTF16toUTF8(folderName));
       NS_ENSURE_SUCCESS(rv, rv);

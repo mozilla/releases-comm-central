@@ -824,7 +824,7 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec* boxSpec) {
   }
 
   if (boxname && fHostSessionList) {
-    // should the namespace check go before or after the Utf7 conversion?
+    // should the namespace check go before or after the MUTF-7 conversion?
     fHostSessionList->SetNamespaceHierarchyDelimiterFromMailboxForHost(
         serverKey, boxname, boxSpec->mHierarchySeparator);
 

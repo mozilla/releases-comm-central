@@ -297,9 +297,9 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
   uri.Append('/');
 
   // If AddSubFolder starts getting called for folders other than virtual
-  // folders, we'll have to do convert those names to modified utf-7. For now,
+  // folders, we'll have to do convert those names to MUTF-7. For now,
   // the account manager code that loads the virtual folders for each account,
-  // expects utf8 not modified utf-7.
+  // expects UTF-8 not MUTF-7.
   nsAutoCString escapedName;
   rv = NS_MsgEscapeEncodeURLPath(aName, escapedName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -487,7 +487,8 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
           int32_t leafPos = currentFolderNameStr.RFindChar(delimiter);
           if (leafPos > 0) currentFolderNameStr.Cut(0, leafPos + 1);
 
-          // take the utf7 full online name, and determine the utf7 leaf name
+          // Take the MUTF-7 full online name, and determine the MUTF-7 leaf
+          // name.
           CopyUTF8toUTF16(onlineFullUtf7Name, utf7LeafName);
           leafPos = utf7LeafName.RFindChar(delimiter);
           if (leafPos > 0) utf7LeafName.Cut(0, leafPos + 1);
@@ -504,12 +505,12 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
       // so this trims the .msf off the file spec.
       msfFilePath->SetLeafName(currentFolderDBNameStr);
     }
-    // use the utf7 name as the uri for the folder.
+    // Use the MUTF-7 name as the uri for the folder.
     nsCOMPtr<nsIMsgFolder> child;
     AddSubfolderWithPath(utf7LeafName, msfFilePath, getter_AddRefs(child));
     if (child) {
       // use the unicode name as the "pretty" name. Set it so it won't be
-      // automatically computed from the URI, which is in utf7 form.
+      // automatically computed from the URI, which is in MUTF-7 form.
       if (!currentFolderNameStr.IsEmpty())
         child->SetPrettyName(currentFolderNameStr);
       child->SetMsgDatabase(nullptr);
@@ -1508,7 +1509,7 @@ NS_IMETHODIMP nsImapMailFolder::PrepareToRename() {
 NS_IMETHODIMP nsImapMailFolder::RenameLocal(const nsACString& newName,
                                             nsIMsgFolder* parent) {
   // XXX Here it's assumed that IMAP folder names are stored locally
-  // in modified UTF-7 (ASCII-only) as is stored remotely.  If we ever change
+  // in MUTF-7 (ASCII-only) as is stored remotely. If we ever change
   // this, we have to work with nsString instead of nsCString
   // (ref. bug 264071)
   nsAutoCString leafname(newName);

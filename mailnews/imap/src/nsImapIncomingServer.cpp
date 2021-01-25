@@ -1235,7 +1235,7 @@ NS_IMETHODIMP nsImapIncomingServer::OnlineFolderRename(
 
         nsCOMPtr<nsIMsgFolder> newFolder;
         nsString unicodeNewName;
-        // tmpNewName is imap mod utf7. It needs to be convert to utf8.
+        // tmpNewName is in MUTF-7. It needs to be convert to UTF-8.
         CopyMUTF7toUTF16(tmpNewName, unicodeNewName);
         CopyUTF16toUTF8(unicodeNewName, tmpNewName);
         rv = GetFolder(tmpNewName, getter_AddRefs(newFolder));
@@ -2264,11 +2264,11 @@ nsImapIncomingServer::AddTo(const nsACString& aName, bool addAsSubscribed,
   nsresult rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // RFC 3501 allows UTF-8 in addition to modified UTF-7
-  // If it's not UTF-8, it cannot be MUTF7, either. We just ignore it.
+  // RFC 3501 allows UTF-8 in addition to MUTF-7.
+  // If it's not UTF-8, it cannot be MUTF-7, either. We just ignore it.
   // (otherwise we'll crash. see #63186)
   if (!mozilla::IsUtf8(aName)) return NS_OK;
-  // Now handle subscription folder names as UTF-8 so don't convert to mUTF7.
+  // Now handle subscription folder names as UTF-8 so don't convert to MUTF-7.
   return mInner->AddTo(aName, addAsSubscribed, aSubscribable, changeIfExists);
 }
 
@@ -2327,7 +2327,7 @@ nsImapIncomingServer::SubscribeToFolder(const nsAString& aName, bool subscribe,
   // Locate the folder so that the correct hierarchical delimiter is used in the
   // folder pathnames, otherwise root's (ie, '^') is used and this is wrong.
 
-  // aName is not a genuine UTF-16 but just a zero-padded modified UTF-7
+  // aName is not a genuine UTF-16 but just a zero-padded MUTF-7.
   NS_ConvertUTF16toUTF8 folderCName(aName);
   nsCOMPtr<nsIMsgFolder> msgFolder;
   if (rootMsgFolder && !aName.IsEmpty())
