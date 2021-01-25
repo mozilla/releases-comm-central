@@ -296,10 +296,6 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
   nsAutoCString uri(mURI);
   uri.Append('/');
 
-  // If AddSubFolder starts getting called for folders other than virtual
-  // folders, we'll have to do convert those names to MUTF-7. For now,
-  // the account manager code that loads the virtual folders for each account,
-  // expects UTF-8 not MUTF-7.
   nsAutoCString escapedName;
   rv = NS_MsgEscapeEncodeURLPath(aName, escapedName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -459,13 +455,13 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
     // don't strip off the .msf in currentFolderPath.
     currentFolderPath->SetLeafName(currentFolderNameStr);
     currentFolderDBNameStr = currentFolderNameStr;
-    nsAutoString utf7LeafName = currentFolderNameStr;
+    nsAutoString utfLeafName = currentFolderNameStr;
 
     if (curFolder) {
       nsCOMPtr<nsIMsgFolderCacheElement> cacheElement;
       rv = GetFolderCacheElemFromFile(dbFile, getter_AddRefs(cacheElement));
       if (NS_SUCCEEDED(rv) && cacheElement) {
-        nsCString onlineFullUtf7Name;
+        nsCString onlineFullUtfName;
 
         uint32_t folderFlags;
         rv = cacheElement->GetInt32Property("flags", (int32_t*)&folderFlags);
@@ -479,19 +475,18 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
           currentFolderPath->Remove(false);
           continue;  // blow away .msf files for folders with unknown delimiter.
         }
-        rv = cacheElement->GetStringProperty("onlineName", onlineFullUtf7Name);
-        if (NS_SUCCEEDED(rv) && !onlineFullUtf7Name.IsEmpty()) {
-          CopyMUTF7toUTF16(onlineFullUtf7Name, currentFolderNameStr);
+        rv = cacheElement->GetStringProperty("onlineName", onlineFullUtfName);
+        if (NS_SUCCEEDED(rv) && !onlineFullUtfName.IsEmpty()) {
+          CopyFolderNameToUTF16(onlineFullUtfName, currentFolderNameStr);
           char delimiter = 0;
           GetHierarchyDelimiter(&delimiter);
           int32_t leafPos = currentFolderNameStr.RFindChar(delimiter);
           if (leafPos > 0) currentFolderNameStr.Cut(0, leafPos + 1);
 
-          // Take the MUTF-7 full online name, and determine the MUTF-7 leaf
-          // name.
-          CopyUTF8toUTF16(onlineFullUtf7Name, utf7LeafName);
-          leafPos = utf7LeafName.RFindChar(delimiter);
-          if (leafPos > 0) utf7LeafName.Cut(0, leafPos + 1);
+          // Take the full online name, and determine the leaf name.
+          CopyUTF8toUTF16(onlineFullUtfName, utfLeafName);
+          leafPos = utfLeafName.RFindChar(delimiter);
+          if (leafPos > 0) utfLeafName.Cut(0, leafPos + 1);
         }
       }
     }
@@ -505,12 +500,12 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
       // so this trims the .msf off the file spec.
       msfFilePath->SetLeafName(currentFolderDBNameStr);
     }
-    // Use the MUTF-7 name as the uri for the folder.
+    // Use the name as the uri for the folder.
     nsCOMPtr<nsIMsgFolder> child;
-    AddSubfolderWithPath(utf7LeafName, msfFilePath, getter_AddRefs(child));
+    AddSubfolderWithPath(utfLeafName, msfFilePath, getter_AddRefs(child));
     if (child) {
       // use the unicode name as the "pretty" name. Set it so it won't be
-      // automatically computed from the URI, which is in MUTF-7 form.
+      // automatically computed from the URI.
       if (!currentFolderNameStr.IsEmpty())
         child->SetPrettyName(currentFolderNameStr);
       child->SetMsgDatabase(nullptr);
@@ -942,7 +937,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
       child->SetFlags(flags);
 
       nsString unicodeName;
-      rv = CopyMUTF7toUTF16(nsCString(folderName), unicodeName);
+      rv = CopyFolderNameToUTF16(nsCString(folderName), unicodeName);
       if (NS_SUCCEEDED(rv)) child->SetPrettyName(unicodeName);
 
       // store the online name as the mailbox name in the db folder info
@@ -1508,10 +1503,6 @@ NS_IMETHODIMP nsImapMailFolder::PrepareToRename() {
 
 NS_IMETHODIMP nsImapMailFolder::RenameLocal(const nsACString& newName,
                                             nsIMsgFolder* parent) {
-  // XXX Here it's assumed that IMAP folder names are stored locally
-  // in MUTF-7 (ASCII-only) as is stored remotely. If we ever change
-  // this, we have to work with nsString instead of nsCString
-  // (ref. bug 264071)
   nsAutoCString leafname(newName);
   nsAutoCString parentName;
   // newName always in the canonical form "greatparent/parentname/leafname"
@@ -1758,9 +1749,7 @@ NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
       hierarchyDelimiter != kOnlineHierarchySeparatorUnknown)
     m_hierarchyDelimiter = (char)hierarchyDelimiter;
   rv = element->GetStringProperty("onlineName", onlineName);
-  // Set m_onlineFolderName only if it's empty too. Avoids replacement chars in
-  // onlineName
-  if (NS_SUCCEEDED(rv) && m_onlineFolderName.IsEmpty() && !onlineName.IsEmpty())
+  if (NS_SUCCEEDED(rv) && !onlineName.IsEmpty())
     m_onlineFolderName.Assign(onlineName);
 
   m_aclFlags = kAclInvalid;  // init to invalid value.
@@ -7149,10 +7138,19 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
         case nsIImapUrl::nsImapEnsureExistsFolder: {
           nsCOMPtr<nsIMsgFolder> newMsgFolder;
           nsString folderName;
-          nsCString utf7LeafName;
+          nsCString utfLeafName;
           m_curSrcFolder->GetName(folderName);
-          rv = CopyUTF16toMUTF7(folderName, utf7LeafName);
-          rv = m_curDestParent->FindSubFolder(utf7LeafName,
+          bool utf8AcceptEnabled;
+          nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
+              do_QueryInterface(m_curDestParent);
+          rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
+          NS_ENSURE_SUCCESS(rv, rv);
+          if (utf8AcceptEnabled) {
+            CopyUTF16toUTF8(folderName, utfLeafName);
+          } else {
+            CopyUTF16toMUTF7(folderName, utfLeafName);
+          }
+          rv = m_curDestParent->FindSubFolder(utfLeafName,
                                               getter_AddRefs(newMsgFolder));
           NS_ENSURE_SUCCESS(rv, rv);
           // save the first new folder so we can send a notification to the
@@ -8010,7 +8008,8 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
     rv = AddSubfolderWithPath(folderNameStr, dbFile, getter_AddRefs(child));
     if (!child || NS_FAILED(rv)) return rv;
     nsAutoString unicodeName;
-    rv = CopyMUTF7toUTF16(NS_ConvertUTF16toUTF8(folderNameStr), unicodeName);
+    rv = CopyFolderNameToUTF16(NS_ConvertUTF16toUTF8(folderNameStr),
+                               unicodeName);
     if (NS_SUCCEEDED(rv)) child->SetPrettyName(unicodeName);
     imapFolder = do_QueryInterface(child);
     if (imapFolder) {
@@ -8111,25 +8110,32 @@ NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
     rv = msgFolder->GetName(folderName);
     if (folderName.IsEmpty() || NS_FAILED(rv)) return rv;
 
-    nsCString utf7LeafName;
-    rv = CopyUTF16toMUTF7(folderName, utf7LeafName);
+    nsCString utfLeafName;
+    bool utf8AcceptEnabled;
+    nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(msgFolder);
+    rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
     NS_ENSURE_SUCCESS(rv, rv);
+    if (utf8AcceptEnabled) {
+      CopyUTF16toUTF8(folderName, utfLeafName);
+    } else {
+      CopyUTF16toMUTF7(folderName, utfLeafName);
+    }
 
     // XXX : Fix this non-sense by fixing AddSubfolderWithPath
     nsAutoString unicodeLeafName;
-    CopyUTF8toUTF16(utf7LeafName, unicodeLeafName);
+    CopyUTF8toUTF16(utfLeafName, unicodeLeafName);
 
     rv = AddSubfolderWithPath(unicodeLeafName, dbFilePath,
                               getter_AddRefs(child));
     if (!child || NS_FAILED(rv)) return rv;
 
     child->SetName(folderName);
-    nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(child);
+    imapFolder = do_QueryInterface(child);
     nsCString onlineName;
     GetOnlineName(onlineName);
     nsAutoCString onlineCName(onlineName);
     onlineCName.Append(hierarchyDelimiter);
-    onlineCName.Append(utf7LeafName);
+    onlineCName.Append(utfLeafName);
     if (imapFolder) {
       imapFolder->SetVerifiedAsOnlineFolder(verified);
       imapFolder->SetOnlineName(onlineCName);
@@ -8924,6 +8930,17 @@ NS_IMETHODIMP nsImapMailFolder::GetOfflineFileStream(
 
 NS_IMETHODIMP nsImapMailFolder::GetIncomingServerType(nsACString& serverType) {
   serverType.AssignLiteral("imap");
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsImapMailFolder::GetShouldUseUtf8FolderName(bool* aUseUTF8) {
+  *aUseUTF8 = false;
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryInterface(server, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  imapServer->GetUtf8AcceptEnabled(aUseUTF8);
   return NS_OK;
 }
 

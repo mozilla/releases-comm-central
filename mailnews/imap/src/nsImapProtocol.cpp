@@ -2980,9 +2980,6 @@ void nsImapProtocol::ProcessSelectedStateURL() {
           Store(messageIdString, "+FLAGS (\\Deleted)", bMessageIdsAreUids);
 
           if (GetServerStateParser().LastCommandSuccessful()) {
-            // delete_message_struct *deleteMsg = (delete_message_struct *)
-            // PR_Malloc (sizeof(delete_message_struct));
-            // convert name back from MUTF-7
             nsCString canonicalName;
             const char* selectedMailboxName =
                 GetServerStateParser().GetSelectedMailboxName();
@@ -3011,7 +3008,6 @@ void nsImapProtocol::ProcessSelectedStateURL() {
             if (GetServerStateParser().LastCommandSuccessful())
               Expunge();  // expunge messages with deleted flag
             if (GetServerStateParser().LastCommandSuccessful()) {
-              // convert name back from MUTF-7
               nsCString canonicalName;
               const char* selectedMailboxName =
                   GetServerStateParser().GetSelectedMailboxName();
@@ -5198,8 +5194,8 @@ void nsImapProtocol::ShowProgress() {
     nsString progressString;
     const char* mailboxName = GetServerStateParser().GetSelectedMailboxName();
     nsString unicodeMailboxName;
-    nsresult rv =
-        CopyMUTF7toUTF16(nsDependentCString(mailboxName), unicodeMailboxName);
+    nsresult rv = CopyFolderNameToUTF16(nsDependentCString(mailboxName),
+                                        unicodeMailboxName);
     NS_ENSURE_SUCCESS_VOID(rv);
 
     int32_t progressCurrentNumber = ++m_progressCurrentNumber[m_stringIndex];
@@ -5222,7 +5218,8 @@ void nsImapProtocol::ProgressEventFunctionUsingNameWithString(
     const char* aMsgName, const char* aExtraInfo) {
   if (m_imapMailFolderSink) {
     nsString unicodeStr;
-    nsresult rv = CopyMUTF7toUTF16(nsDependentCString(aExtraInfo), unicodeStr);
+    nsresult rv =
+        CopyFolderNameToUTF16(nsDependentCString(aExtraInfo), unicodeStr);
     if (NS_SUCCEEDED(rv))
       m_imapMailFolderSink->ProgressStatusString(this, aMsgName,
                                                  unicodeStr.get());
@@ -6778,8 +6775,6 @@ bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
 
     for (childIndex = 0; (childIndex < numberToDelete) && renameSucceeded;
          childIndex++) {
-      // The imap parser has already converted to a non MUTF-7 string in the
-      // canonical format so convert it back.
       char* currentName = m_deletableChildren->ElementAt(childIndex);
       if (!currentName) {
         renameSucceeded = false;
@@ -6871,8 +6866,6 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox,
           longestIndex = innerIndex;
         }
       }
-      // The imap parser has already converted to a non MUTF-7 string in
-      // the canonical format so convert it back.
       if (longestName) {
         char* serverName = nullptr;
 

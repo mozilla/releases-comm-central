@@ -128,7 +128,7 @@ nsresult nsImapService::GetFolderName(nsIMsgFolder* aImapFolder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString onlineName;
-  // online name is in MUTF-7 - leave it that way
+  // Online name is in MUTF-7 or UTF-8.
   rv = aFolder->GetOnlineName(onlineName);
   NS_ENSURE_SUCCESS(rv, rv);
   if (onlineName.IsEmpty()) {
@@ -2163,20 +2163,15 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
         urlSpec.Append(cStrFolderName);
       }
 
-      nsAutoCString utfNewName;
-      utfNewName.Append(NS_ConvertUTF16toUTF8(newLeafName));
+      NS_ConvertUTF16toUTF8 utfNewName(newLeafName);
       if (!NS_IsAscii(utfNewName.get())) {
         // Convert to MUTF-7 if UTF8=ACCEPT not enabled by server.
-        nsCOMPtr<nsIMsgIncomingServer> server;
-        rv = srcFolder->GetServer(getter_AddRefs(server));
+        bool utf8AcceptEnabled;
+        nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
+            do_QueryInterface(srcFolder);
+        rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
         NS_ENSURE_SUCCESS(rv, rv);
-        nsCOMPtr<nsIImapIncomingServer> imapServer =
-            do_QueryInterface(server, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-        bool utf8AcceptEnabled = false;
-        imapServer->GetUtf8AcceptEnabled(&utf8AcceptEnabled);
-        if (!utf8AcceptEnabled)
-          CopyUTF16toMUTF7(PromiseFlatString(newLeafName), utfNewName);
+        if (!utf8AcceptEnabled) CopyUTF16toMUTF7(newLeafName, utfNewName);
       }
       nsCString escapedNewName;
       MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH, escapedNewName);
@@ -2224,20 +2219,14 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
         urlSpec.Append(hierarchyDelimiter);
       }
 
-      nsAutoCString utfNewName;
-      utfNewName.Append(NS_ConvertUTF16toUTF8(newFolderName));
+      NS_ConvertUTF16toUTF8 utfNewName(newFolderName);
       if (!NS_IsAscii(utfNewName.get())) {
         // Convert to MUTF-7 if UTF8=ACCEPT not enabled by server.
-        nsCOMPtr<nsIMsgIncomingServer> server;
-        rv = parent->GetServer(getter_AddRefs(server));
+        bool utf8AcceptEnabled;
+        nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(parent);
+        rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
         NS_ENSURE_SUCCESS(rv, rv);
-        nsCOMPtr<nsIImapIncomingServer> imapServer =
-            do_QueryInterface(server, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-        bool utf8AcceptEnabled = false;
-        imapServer->GetUtf8AcceptEnabled(&utf8AcceptEnabled);
-        if (!utf8AcceptEnabled)
-          CopyUTF16toMUTF7(PromiseFlatString(newFolderName), utfNewName);
+        if (!utf8AcceptEnabled) CopyUTF16toMUTF7(newFolderName, utfNewName);
       }
       nsCString escapedFolderName;
       MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH,
@@ -2279,7 +2268,15 @@ NS_IMETHODIMP nsImapService::EnsureFolderExists(nsIMsgFolder* parent,
         urlSpec.Append(hierarchyDelimiter);
       }
       nsAutoCString utfNewName;
-      CopyUTF16toMUTF7(PromiseFlatString(newFolderName), utfNewName);
+      bool utf8AcceptEnabled;
+      nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(parent);
+      rv = imapFolder->GetShouldUseUtf8FolderName(&utf8AcceptEnabled);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (utf8AcceptEnabled) {
+        CopyUTF16toUTF8(newFolderName, utfNewName);
+      } else {
+        CopyUTF16toMUTF7(newFolderName, utfNewName);
+      }
       nsCString escapedFolderName;
       MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH,
                       escapedFolderName);
@@ -2625,9 +2622,10 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
       nsCOMPtr<nsIStringBundle> bundle;
       rv = IMAPGetStringBundle(getter_AddRefs(bundle));
       NS_ENSURE_SUCCESS(rv, rv);
-      // Need to convert folder name from MUTF-7 to unicode.
+      // Need to convert folder name, can be MUTF-7 or UTF-8 depending on the
+      // server.
       nsAutoString unescapedName;
-      if (NS_FAILED(CopyMUTF7toUTF16(fullFolderName, unescapedName)))
+      if (NS_FAILED(CopyFolderNameToUTF16(fullFolderName, unescapedName)))
         CopyASCIItoUTF16(fullFolderName, unescapedName);
       AutoTArray<nsString, 1> formatStrings = {unescapedName};
 
@@ -2643,12 +2641,12 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
         nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryInterface(server);
         if (imapServer) {
           nsCOMPtr<nsIURI> subscribeURI;
-          // now we have the real folder name to try to subscribe to. Let's try
+          // Now we have the real folder name to try to subscribe to. Let's try
           // running a subscribe url and returning that as the uri we've
           // created. We need to convert this to unicode because that's what
-          // subscribe wants :-( It's already in MUTF-7.
+          // subscribe wants.
           nsAutoString unicodeName;
-          CopyASCIItoUTF16(fullFolderName, unicodeName);
+          CopyFolderNameToUTF16(fullFolderName, unicodeName);
           rv = imapServer->SubscribeToFolder(unicodeName, true,
                                              getter_AddRefs(subscribeURI));
           if (NS_SUCCEEDED(rv) && subscribeURI) {
@@ -2907,12 +2905,8 @@ nsresult nsImapService::ChangeFolderSubscription(nsIMsgFolder* folder,
       nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(imapUrl);
       urlSpec.Append(command);
       urlSpec.Append(hierarchyDelimiter);
-      nsAutoCString utfFolderName;
-      // folderName is already MUTF-7 at this point with not UTF8=ACCEPT. When
-      // UTF8=ACCEPT in effect it is UTF-8. So change to MUTF-7 not needed at
-      // all it seems.
-      utfFolderName.Append(NS_ConvertUTF16toUTF8(folderName));
-      NS_ENSURE_SUCCESS(rv, rv);
+      // `folderName` contains MUFT-7 or UTF-8 as required by the server here.
+      NS_ConvertUTF16toUTF8 utfFolderName(folderName);
       nsCString escapedFolderName;
       MsgEscapeString(utfFolderName, nsINetUtil::ESCAPE_URL_PATH,
                       escapedFolderName);

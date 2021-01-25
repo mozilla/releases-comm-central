@@ -178,6 +178,7 @@ interface nsIMsgImapMailFolder : nsISupports {
   readonly attribute nsIMsgParseMailMsgState hdrParser;
   readonly attribute nsIImapIncomingServer imapIncomingServer;
   readonly attribute nsIAutoSyncState autoSyncStateObj;
+  readonly attribute boolean shouldUseUtf8FolderName;
   /**
    * @{
    * These are used to access the response to the STATUS or SELECT command.

@@ -824,7 +824,6 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec* boxSpec) {
   }
 
   if (boxname && fHostSessionList) {
-    // should the namespace check go before or after the MUTF-7 conversion?
     fHostSessionList->SetNamespaceHierarchyDelimiterFromMailboxForHost(
         serverKey, boxname, boxSpec->mHierarchySeparator);
 
@@ -846,12 +845,6 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec* boxSpec) {
       }
       boxSpec->mNamespaceForFolder = ns;
     }
-
-    // char *convertedName =
-    // fServerConnection.CreateUtf7ConvertedString(boxname, false); char16_t
-    // *unicharName = fServerConnection.CreatePRUnicharStringFromUTF7(boxname);
-    // PL_strfree(boxname);
-    // boxname = convertedName;
   }
 
   if (!boxname) {

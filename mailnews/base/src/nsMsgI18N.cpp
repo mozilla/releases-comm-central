@@ -137,21 +137,28 @@ nsresult CopyUTF16toMUTF7(const nsAString& aSrc, nsACString& aDest) {
   return NS_OK;
 }
 
-nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest) {
+// Hacky function to use for IMAP folders where the name can be in
+// MUTF-7 or UTF-8.
+nsresult CopyFolderNameToUTF16(const nsACString& aSrc, nsAString& aDest) {
   if (NS_IsAscii(aSrc.BeginReading(), aSrc.Length())) {
-    // MUTF-7 encoding size cannot be larger than the size in UTF-16.
-    nsMUTF7ToUnicode converter;
-    int32_t inLen = aSrc.Length();
-    int32_t outLen = inLen;
-    aDest.SetLength(outLen);
-    converter.ConvertNoBuff(aSrc.BeginReading(), &inLen, aDest.BeginWriting(),
-                            &outLen);
-    MOZ_ASSERT(inLen == (int32_t)aSrc.Length(),
-               "MUTF-7 should not produce a longer output");
-    aDest.SetLength(outLen);
+    return CopyMUTF7toUTF16(aSrc, aDest);
   } else {
     CopyUTF8toUTF16(aSrc, aDest);
+    return NS_OK;
   }
+}
+
+nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest) {
+  // MUTF-7 encoding size cannot be larger than the size in UTF-16.
+  nsMUTF7ToUnicode converter;
+  int32_t inLen = aSrc.Length();
+  int32_t outLen = inLen;
+  aDest.SetLength(outLen);
+  converter.ConvertNoBuff(aSrc.BeginReading(), &inLen, aDest.BeginWriting(),
+                          &outLen);
+  MOZ_ASSERT(inLen == (int32_t)aSrc.Length(),
+             "MUTF-7 should not produce a longer output");
+  aDest.SetLength(outLen);
   return NS_OK;
 }
 

@@ -505,50 +505,42 @@ function BrowseForNewsrc() {
 
 function setupImapDeleteUI(aServerId) {
   // read delete_model preference
-  var deleteModel = document
+  let deleteModel = document
     .getElementById("imap.deleteModel")
     .getAttribute("value");
   selectImapDeleteModel(deleteModel);
 
   // read trash folder path preference
-  var trashFolderName = getTrashFolderName();
+  let trashFolderName = getTrashFolderName();
 
   // set folderPicker menulist
-  var trashPopup = document.getElementById("msgTrashFolderPopup");
+  let trashPopup = document.getElementById("msgTrashFolderPopup");
   trashPopup._teardown();
   trashPopup._parentFolder = MailUtils.getOrCreateFolder(aServerId);
   trashPopup._ensureInitialized();
 
   // Escape backslash and double-quote with another backslash before encoding.
-  var trashEscaped = trashFolderName.replace(/([\\"])/g, "\\$1");
-  // Convert the folder path from Unicode to MUTF-7.
-  let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
-    Ci.nsICharsetConverterManager
-  );
-  var trashEncoded = manager.unicodeToMutf7(trashEscaped);
-  var trashFolder = MailUtils.getOrCreateFolder(aServerId + "/" + trashEncoded);
-  try {
-    var selected = trashPopup.selectFolder(trashFolder);
-  } catch (ex) {
-    trashPopup.parentNode.setAttribute("label", trashFolder.prettyName);
-  }
+  let trashEscaped = trashFolderName.replace(/([\\"])/g, "\\$1");
 
-  if (!selected) {
-    // Trash folder probably non-ascii with UTF8=ACCEPT capability in effect
-    // so non-ascii folder chars encoded as utf-8 and not mutf-7.
-    let utf8Encoder = new TextEncoder("utf-8");
-    trashEncoded = utf8Encoder.encode(trashEscaped);
-    let trashUtf8 = "";
-    for (let i = 0; i < trashEncoded.length; i++) {
-      trashUtf8 += String.fromCharCode(trashEncoded[i]);
-    }
-    trashFolder = MailUtils.getOrCreateFolder(aServerId + "/" + trashUtf8);
-    try {
-      trashPopup.selectFolder(trashFolder);
-    } catch (ex) {
-      trashPopup.parentNode.setAttribute("label", trashFolder.prettyName);
-    }
+  // Convert the folder path from JS Unicode to MUTF-7 if necessary.
+  let imapServer = trashPopup._parentFolder.server.QueryInterface(
+    Ci.nsIImapIncomingServer
+  );
+
+  let trashFolder;
+  if (imapServer.utf8AcceptEnabled) {
+    // Trash folder with UTF8=ACCEPT capability in effect.
+    trashFolder = MailUtils.getOrCreateFolder(aServerId + "/" + trashEscaped);
+  } else {
+    // Traditional MUTF-7.
+    let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+      Ci.nsICharsetConverterManager
+    );
+    trashFolder = MailUtils.getOrCreateFolder(
+      aServerId + "/" + manager.unicodeToMutf7(trashEscaped)
+    );
   }
+  trashPopup.selectFolder(trashFolder);
   trashPopup.parentNode.folder = trashFolder;
 }
 
@@ -583,31 +575,36 @@ function selectImapDeleteModel(choice) {
 
 // Capture any menulist changes from folderPicker
 function folderPickerChange(aEvent) {
-  var folder = aEvent.target._folder;
+  let folder = aEvent.target._folder;
   // Since we need to deal with localised folder names, we simply use
   // the path of the URI like we do in nsImapIncomingServer::DiscoveryDone().
   // Note that the path is returned with a leading slash which we need to remove.
-  var folderPath = Services.io.newURI(folder.URI).pathQueryRef.substring(1);
-  var unesc = Services.io.unescapeString(
+  let folderPath = Services.io.newURI(folder.URI).pathQueryRef.substring(1);
+  let folderPathUnescaped = Services.io.unescapeString(
     folderPath,
     Ci.nsINetUtil.ESCAPE_URL_PATH
   );
 
-  if (/[\x80-\xff]/.exec(unesc)) {
-    // Foldername appears to be utf8 due to UTF8=ACCEPT capability in effect.
-    // Convert the value to a typed-array of utf-8 bytes.
-    let typedarray = new Uint8Array(unesc.length);
-    for (let i = 0; i < unesc.length; i++) {
-      typedarray[i] = unesc.charCodeAt(i);
+  // Convert the folder path from MUTF-7 or UTF-8 to Unicode.
+  let imapServer = folder.server.QueryInterface(Ci.nsIImapIncomingServer);
+
+  let trashUnicode;
+  if (imapServer.utf8AcceptEnabled) {
+    // UTF8=ACCEPT capability in effect. Unescaping has brought back
+    // raw UTF-8 bytes, so convert them to JS Unicode.
+    let typedarray = new Uint8Array(folderPathUnescaped.length);
+    for (let i = 0; i < folderPathUnescaped.length; i++) {
+      typedarray[i] = folderPathUnescaped.charCodeAt(i);
     }
     let utf8Decoder = new TextDecoder("utf-8");
-    unesc = utf8Decoder.decode(typedarray);
+    trashUnicode = utf8Decoder.decode(typedarray);
+  } else {
+    // We need to convert that from MUTF-7 to Unicode.
+    let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+      Ci.nsICharsetConverterManager
+    );
+    trashUnicode = manager.mutf7ToUnicode(folderPathUnescaped);
   }
-  // We need to convert that from MUTF-7 to Unicode.
-  let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
-    Ci.nsICharsetConverterManager
-  );
-  let trashUnicode = manager.mutf7ToUnicode(unesc);
 
   // Set the value to be persisted.
   document
@@ -615,14 +612,14 @@ function folderPickerChange(aEvent) {
     .setAttribute("value", trashUnicode);
 
   // Update the widget to show/do correct things even for subfolders.
-  var trashFolderPicker = document.getElementById("msgTrashFolderPicker");
+  let trashFolderPicker = document.getElementById("msgTrashFolderPicker");
   trashFolderPicker.menupopup.selectFolder(folder);
 }
 
 // Get trash_folder_name from prefs. Despite its name this returns
 // a folder path, for example INBOX/Trash.
 function getTrashFolderName() {
-  var trashFolderName = document
+  let trashFolderName = document
     .getElementById("imap.trashFolderName")
     .getAttribute("value");
   // if the preference hasn't been set, set it to a sane default

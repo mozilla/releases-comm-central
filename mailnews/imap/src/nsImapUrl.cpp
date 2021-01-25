@@ -796,8 +796,7 @@ static void unescapeSlashes(char* path, size_t* newLength) {
 
 // Converts the real online name on the server to canonical format:
 // result is hierarchy is indicated by '/' and all real slashes ('/') are
-// escaped. The caller has already converted MUTF-7 to UTF-8, which is a
-// problem. this method is only called from the imap thread
+// escaped. This method is only called from the IMAP thread.
 NS_IMETHODIMP nsImapUrl::AllocateCanonicalPath(const char* serverPath,
                                                char onlineDelimiter,
                                                char** allocatedPath) {
