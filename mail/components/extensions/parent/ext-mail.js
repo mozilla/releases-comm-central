@@ -809,6 +809,14 @@ class Tab extends TabBase {
     return super.frameLoader || { lazyWidth: 0, lazyHeight: 0 };
   }
 
+  /** Returns false if the current tab does not have a url associated. */
+  get matchesHostPermission() {
+    if (!this._url) {
+      return false;
+    }
+    return super.matchesHostPermission;
+  }
+
   /** Returns the current URL of this tab, without permission checks. */
   get _url() {
     if (this.isComposeTab) {
