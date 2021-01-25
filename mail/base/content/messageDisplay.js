@@ -288,7 +288,7 @@ MessageDisplayWidget.prototype = {
    *
    * Example event sequences (assuming a 100ms stability interval):
    * - User selects a collapsed thread => we summarize the selection and set a
-   *    100ms timer set to call _clearSummaryTimer.
+   *    100ms timer set to clear the timer.
    * - User extends the selection 50ms later => the timer has not elapsed so we
    *    reset it to 100ms to call _showSummary.
    * - User extends the selection yet again 50ms later => timer has not elapsed
@@ -296,8 +296,8 @@ MessageDisplayWidget.prototype = {
    * - 100ms later, the timer elapses => we call _showSummary which updates the
    *    summary.
    * - 2 seconds later, the user selects some other messages => we summarize the
-   *    select and set a 100ms timer set to call _clearSummaryTimer.
-   * - 100ms later, _clearSummaryTimer clears _summaryStabilityTimeout so that
+   *    select and set a 100ms timer set to clear the timer.
+   * - 100ms later, clears _summaryStabilityTimeout so that
    *    the next selection change will immediately summarize.
    *
    * @param aIsCallback Is this a callback to ourselves?  Callers should not set
@@ -325,9 +325,8 @@ MessageDisplayWidget.prototype = {
     if (!aIsCallback && this._summaryStabilityTimeout != null) {
       clearTimeout(this._summaryStabilityTimeout);
       this._summaryStabilityTimeout = setTimeout(
-        this._wrapShowSummary,
-        this.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS,
-        this
+        () => this._showSummary(true),
+        this.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS
       );
       return true;
     }
@@ -338,13 +337,12 @@ MessageDisplayWidget.prototype = {
       return true;
     }
 
-    // Setup a timeout call to _clearSummaryTimer so that we don't try and
+    // Setup a timeout call clear the timer so that we don't try and
     // summarize again within 100ms of now.  Do this before calling the
     // summarization logic in case it throws an exception.
     this._summaryStabilityTimeout = setTimeout(
-      this._clearSummaryTimer,
-      this.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS,
-      this
+      () => (this._summaryStabilityTimeout = null),
+      this.SUMMARIZATION_SELECTION_STABILITY_INTERVAL_MS
     );
 
     if (this.folderDisplay.selectedCount == 0) {
@@ -359,22 +357,10 @@ MessageDisplayWidget.prototype = {
         this.singleMessageDisplay = true;
         return false;
       }
-
       summarizeSelection(this);
     }
     return true;
   },
-  _wrapShowSummary(aThis) {
-    aThis._showSummary(true);
-  },
-  /**
-   * Just clears the _summaryStabilityTimeout attribute so we can use it as a
-   *  means of checking if we are allowed to display the summary immediately.
-   */
-  _clearSummaryTimer(aThis) {
-    aThis._summaryStabilityTimeout = null;
-  },
-  // @}
 
   /**
    * @name Activity Control
