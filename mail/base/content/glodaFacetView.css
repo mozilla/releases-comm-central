@@ -4,11 +4,14 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 
-body,
-html {
+html,
+body {
   margin: 0;
   padding: 0;
+}
+body {
   height: 100%;
+  overflow-y: auto;
 }
 
 #gloda-facet-view {
@@ -29,6 +32,7 @@ html {
 #main-column {
   flex: 1;
   padding-inline-start: 1em;
+  min-height: 100vh;
 }
 
 #header {
