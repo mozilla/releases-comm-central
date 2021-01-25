@@ -8717,6 +8717,7 @@ nsImapMockChannel::nsImapMockChannel()
   mReadingFromCache = false;
   mTryingToReadPart = false;
   mContentLength = mozilla::dom::InternalResponse::UNKNOWN_BODY_SIZE;
+  mContentDisposition = nsIChannel::DISPOSITION_INLINE;
 }
 
 nsImapMockChannel::~nsImapMockChannel() {
@@ -9628,12 +9629,14 @@ NS_IMETHODIMP nsImapMockChannel::SetContentCharset(
 
 NS_IMETHODIMP
 nsImapMockChannel::GetContentDisposition(uint32_t* aContentDisposition) {
-  return NS_ERROR_NOT_AVAILABLE;
+  *aContentDisposition = mContentDisposition;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsImapMockChannel::SetContentDisposition(uint32_t aContentDisposition) {
-  return NS_ERROR_NOT_AVAILABLE;
+  mContentDisposition = aContentDisposition;
+  return NS_OK;
 }
 
 NS_IMETHODIMP

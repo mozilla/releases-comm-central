@@ -61,6 +61,7 @@ nsMsgProtocol::nsMsgProtocol(nsIURI* aURL) {
   m_socketIsOpen = false;
   mContentLength = -1;
   m_isChannel = false;
+  mContentDisposition = nsIChannel::DISPOSITION_INLINE;
 
   GetSpecialDirectoryWithFileName(NS_OS_TEMP_DIR, "tempMessage.eml",
                                   getter_AddRefs(m_tempMsgFile));
@@ -603,12 +604,14 @@ NS_IMETHODIMP nsMsgProtocol::SetContentCharset(
 
 NS_IMETHODIMP
 nsMsgProtocol::GetContentDisposition(uint32_t* aContentDisposition) {
-  return NS_ERROR_NOT_AVAILABLE;
+  *aContentDisposition = mContentDisposition;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgProtocol::SetContentDisposition(uint32_t aContentDisposition) {
-  return NS_ERROR_NOT_AVAILABLE;
+  mContentDisposition = aContentDisposition;
+  return NS_OK;
 }
 
 NS_IMETHODIMP

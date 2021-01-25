@@ -183,6 +183,8 @@ class nsMsgProtocol : public nsIStreamListener,
   // if a url isn't going to result in any content then we want to suppress
   // calls to OnStartRequest, OnDataAvailable and OnStopRequest
   bool mSuppressListenerNotifications;
+
+  uint32_t mContentDisposition;
 };
 
 // This is is a subclass of nsMsgProtocol extends the parent class with

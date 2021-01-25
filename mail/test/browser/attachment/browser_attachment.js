@@ -319,7 +319,7 @@ add_task(function test_attachment_name_click() {
     attachmentList.collapsed,
     "Attachment list should not expand when clicking on attachmentName!"
   );
-}).skip(); // Tries to load the text attachment in the message pane. This is bad.
+});
 
 /**
  * Test that right-clicking on a particular element opens the expected context

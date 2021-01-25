@@ -847,6 +847,8 @@ class nsImapMockChannel : public nsIImapMockChannel,
   // we end up daisy chaining multiple nsIStreamListeners into the load process.
   nsresult SetupPartExtractorListener(nsIImapUrl* aUrl,
                                       nsIStreamListener* aConsumer);
+
+  uint32_t mContentDisposition;
 };
 
 #endif  // nsImapProtocol_h___

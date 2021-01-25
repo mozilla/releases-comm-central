@@ -2050,8 +2050,15 @@ AttachmentInfo.prototype = {
           !handlerInfo.alwaysAskBeforeHandling &&
           handlerInfo.preferredAction == Ci.nsIHandlerInfo.handleInternally
         ) {
+          // Add the content type to avoid a "how do you want to open this?"
+          // dialog. The type may already be there, but that doesn't matter.
+          let url = this.url;
+          if (!url.includes("type=")) {
+            url += url.includes("?") ? "&" : "?";
+            url += "type=application/pdf";
+          }
           document.getElementById("tabmail").openTab("contentTab", {
-            contentPage: this.url,
+            contentPage: url,
             background: false,
           });
           return;
