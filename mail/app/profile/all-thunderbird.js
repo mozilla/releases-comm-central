@@ -245,6 +245,13 @@ pref("browser.preferences.animateFadeIn", false);
 #endif
 pref("browser.preferences.search", true);
 
+// Whether the results panel should be kept open during IME composition.
+// The default value is false because some IME open a picker panel, and we end
+// up with two panels on top of each other. Since for now we can't detect that
+// we leave this choice to the user, hopefully in the future this can be flipped
+// for everyone.
+pref("browser.urlbar.keepPanelOpenDuringImeComposition", false);
+
 pref("accessibility.typeaheadfind", false);
 pref("accessibility.typeaheadfind.timeout", 5000);
 pref("accessibility.typeaheadfind.linksonly", false);
