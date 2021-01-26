@@ -20,7 +20,7 @@ const policiesToTest = [
     policies: {
       BlockAboutConfig: true,
     },
-    urls: ["about:config", "chrome://global/content/config.xhtml"],
+    urls: ["about:config"],
   },
   {
     policies: {
