@@ -439,7 +439,7 @@ function subtest_reordering(
     add_attachments(aCwc, filePrefix + name, size);
   }
   aCwc.sleep(0);
-  Assert.equal(aCwc.window.attachmentsCount(), aInitialAttachmentNames.length);
+  Assert.equal(bucket.itemCount, aInitialAttachmentNames.length);
   check_attachment_names(aCwc, aInitialAttachmentNames);
 
   if (aOpenPanel) {
@@ -504,7 +504,7 @@ add_task(function test_attachment_reordering() {
     add_attachments(cwc, filePrefix + name, size);
     cwc.sleep(0);
   }
-  Assert.equal(cwc.window.attachmentsCount(), initialAttachmentNames_0.length);
+  Assert.equal(bucket.itemCount, initialAttachmentNames_0.length);
   check_attachment_names(cwc, initialAttachmentNames_0);
 
   // Show 'Reorder Attachments' panel via mouse clicks.

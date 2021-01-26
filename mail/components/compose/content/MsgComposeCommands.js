@@ -102,7 +102,7 @@ var gSavedSendNowKey;
 var gSendFormat;
 var gContextMenu;
 
-var gMsgAttachmentElement;
+var gAttachmentBucket;
 var gMsgHeadersToolbarElement;
 // TODO: Maybe the following two variables can be combined.
 var gManualAttachmentReminder;
@@ -895,7 +895,7 @@ var defaultController = {
 
     cmd_reorderAttachments: {
       isEnabled() {
-        if (attachmentsCount() == 0) {
+        if (!gAttachmentBucket.itemCount) {
           let reorderAttachmentsPanel = document.getElementById(
             "reorderAttachmentsPanel"
           );
@@ -905,7 +905,7 @@ var defaultController = {
             reorderAttachmentsPanel.hidePopup();
           }
         }
-        return attachmentsCount() > 1;
+        return gAttachmentBucket.itemCount > 1;
       },
       doCommand() {
         showReorderAttachmentsPanel();
@@ -914,7 +914,7 @@ var defaultController = {
 
     cmd_removeAllAttachments: {
       isEnabled() {
-        return !gWindowLocked && attachmentsCount() > 0;
+        return !gWindowLocked && gAttachmentBucket.itemCount;
       },
       doCommand() {
         RemoveAllAttachments();
@@ -1183,23 +1183,22 @@ var attachmentBucketController = {
         return true;
       },
       doCommand() {
-        document.getElementById("attachmentBucket").selectAll();
+        gAttachmentBucket.selectAll();
       },
     },
 
     cmd_delete: {
       isEnabled() {
-        let selectedCount = attachmentsSelectedCount();
         let cmdDelete = document.getElementById("cmd_delete");
         let textValue = getComposeBundle().getString("removeAttachmentMsgs");
-        textValue = PluralForm.get(selectedCount, textValue);
+        textValue = PluralForm.get(gAttachmentBucket.selectedCount, textValue);
         let accesskeyValue = cmdDelete.getAttribute(
           "valueRemoveAttachmentAccessKey"
         );
         cmdDelete.setAttribute("label", textValue);
         cmdDelete.setAttribute("accesskey", accesskeyValue);
 
-        return selectedCount > 0;
+        return gAttachmentBucket.selectedCount;
       },
       doCommand() {
         RemoveSelectedAttachment();
@@ -1208,7 +1207,7 @@ var attachmentBucketController = {
 
     cmd_openAttachment: {
       isEnabled() {
-        return attachmentsSelectedCount() == 1;
+        return gAttachmentBucket.selectedCount == 1;
       },
       doCommand() {
         OpenSelectedAttachment();
@@ -1217,7 +1216,7 @@ var attachmentBucketController = {
 
     cmd_renameAttachment: {
       isEnabled() {
-        return attachmentsSelectedCount() == 1;
+        return gAttachmentBucket.selectedCount == 1;
       },
       doCommand() {
         RenameSelectedAttachment();
@@ -1227,7 +1226,7 @@ var attachmentBucketController = {
     cmd_moveAttachmentUp: {
       isEnabled() {
         return (
-          attachmentsSelectedCount() > 0 && !attachmentsSelectionIsBlock("top")
+          gAttachmentBucket.selectedCount && !attachmentsSelectionIsBlock("top")
         );
       },
       doCommand() {
@@ -1238,7 +1237,7 @@ var attachmentBucketController = {
     cmd_moveAttachmentDown: {
       isEnabled() {
         return (
-          attachmentsSelectedCount() > 0 &&
+          gAttachmentBucket.selectedCount &&
           !attachmentsSelectionIsBlock("bottom")
         );
       },
@@ -1249,7 +1248,9 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBundleUp: {
       isEnabled() {
-        return attachmentsSelectedCount() > 1 && !attachmentsSelectionIsBlock();
+        return (
+          gAttachmentBucket.selectedCount > 1 && !attachmentsSelectionIsBlock()
+        );
       },
       doCommand() {
         moveSelectedAttachments("bundleUp");
@@ -1258,7 +1259,9 @@ var attachmentBucketController = {
 
     cmd_moveAttachmentBundleDown: {
       isEnabled() {
-        return attachmentsSelectedCount() > 1 && !attachmentsSelectionIsBlock();
+        return (
+          gAttachmentBucket.selectedCount > 1 && !attachmentsSelectionIsBlock()
+        );
       },
       doCommand() {
         moveSelectedAttachments("bundleDown");
@@ -1268,7 +1271,7 @@ var attachmentBucketController = {
     cmd_moveAttachmentTop: {
       isEnabled() {
         return (
-          attachmentsSelectedCount() > 0 && !attachmentsSelectionIsBlock("top")
+          gAttachmentBucket.selectedCount && !attachmentsSelectionIsBlock("top")
         );
       },
       doCommand() {
@@ -1279,7 +1282,7 @@ var attachmentBucketController = {
     cmd_moveAttachmentBottom: {
       isEnabled() {
         return (
-          attachmentsSelectedCount() > 0 &&
+          gAttachmentBucket.selectedCount &&
           !attachmentsSelectionIsBlock("bottom")
         );
       },
@@ -1290,7 +1293,6 @@ var attachmentBucketController = {
 
     cmd_sortAttachmentsToggle: {
       isEnabled() {
-        let attachmentsSelCount = attachmentsSelectedCount();
         let sortSelection;
         let currSortOrder;
         let isBlock;
@@ -1301,8 +1303,8 @@ var attachmentBucketController = {
         let btnLabelAttr;
 
         if (
-          attachmentsSelCount > 1 &&
-          attachmentsSelCount < attachmentsCount()
+          gAttachmentBucket.selectedCount > 1 &&
+          gAttachmentBucket.selectedCount < gAttachmentBucket.itemCount
         ) {
           // Sort selected attachments only, which needs at least 2 of them,
           // but not all.
@@ -1326,7 +1328,7 @@ var attachmentBucketController = {
             btnLabelAttr = "label-selection-ZA";
           }
         } else {
-          // attachmentsSelectedCount() <= 1 or all attachments selected
+          // gAttachmentBucket.selectedCount <= 1 or all attachments are selected.
           // Sort all attachments.
           sortSelection = false;
           currSortOrder = attachmentsGetSortOrder();
@@ -1370,8 +1372,7 @@ var attachmentBucketController = {
           return false;
         }
 
-        let bucket = document.getElementById("attachmentBucket");
-        for (let item of bucket.selectedItems) {
+        for (let item of gAttachmentBucket.selectedItems) {
           if (item.uploading) {
             return false;
           }
@@ -1393,8 +1394,7 @@ var attachmentBucketController = {
           return false;
         }
 
-        let bucket = document.getElementById("attachmentBucket");
-        for (let item of bucket.selectedItems) {
+        for (let item of gAttachmentBucket.selectedItems) {
           if (item.uploading) {
             return false;
           }
@@ -1421,8 +1421,7 @@ var attachmentBucketController = {
           return false;
         }
 
-        let bucket = document.getElementById("attachmentBucket");
-        for (let item of bucket.selectedItems) {
+        for (let item of gAttachmentBucket.selectedItems) {
           if (item && item.uploading) {
             cmd.hidden = false;
             return true;
@@ -1441,8 +1440,7 @@ var attachmentBucketController = {
           .getProtocolHandler("file")
           .QueryInterface(Ci.nsIFileProtocolHandler);
 
-        let bucket = document.getElementById("attachmentBucket");
-        for (let item of bucket.selectedItems) {
+        for (let item of gAttachmentBucket.selectedItems) {
           if (item && item.uploading) {
             let file = fileHandler.getFileFromURLSpec(item.attachment.url);
             item.cloudFileAccount.cancelFileUpload(file);
@@ -1515,10 +1513,8 @@ function GetSelectedMessages() {
 }
 
 function SetupCommandUpdateHandlers() {
-  let attachmentBucket = document.getElementById("attachmentBucket");
-
   top.controllers.appendController(defaultController);
-  attachmentBucket.controllers.appendController(attachmentBucketController);
+  gAttachmentBucket.controllers.appendController(attachmentBucketController);
 
   document
     .getElementById("optionsMenuPopup")
@@ -1526,13 +1522,11 @@ function SetupCommandUpdateHandlers() {
 }
 
 function UnloadCommandUpdateHandlers() {
-  let attachmentBucket = document.getElementById("attachmentBucket");
-
   document
     .getElementById("optionsMenuPopup")
     .removeEventListener("popupshowing", updateOptionItems, true);
 
-  attachmentBucket.controllers.removeController(attachmentBucketController);
+  gAttachmentBucket.controllers.removeController(attachmentBucketController);
   top.controllers.removeController(defaultController);
 }
 
@@ -2079,13 +2073,12 @@ function addAttachCloudMenuItems(aParentMenu) {
 }
 
 function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
-  let attachment = document.getElementById("attachmentBucket").selectedItem;
   let afterNode = document.getElementById(aAfterNodeId);
   while (afterNode.nextElementSibling) {
     afterNode.nextElementSibling.remove();
   }
 
-  if (!attachment.sendViaCloud) {
+  if (!gAttachmentBucket.selectedItem.sendViaCloud) {
     let item = document.getElementById(
       "convertCloudMenuItems_popup_convertAttachment"
     );
@@ -2101,8 +2094,9 @@ function addConvertCloudMenuItems(aParentMenu, aAfterNodeId, aRadioGroup) {
     item.setAttribute("name", aRadioGroup);
 
     if (
-      attachment.cloudFileAccount &&
-      attachment.cloudFileAccount.accountKey == account.accountKey
+      gAttachmentBucket.selectedItem.cloudFileAccount &&
+      gAttachmentBucket.selectedItem.cloudFileAccount.accountKey ==
+        account.accountKey
     ) {
       item.setAttribute("checked", "true");
     } else if (iconURL) {
@@ -2122,8 +2116,7 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
   updateSendCommands(true);
 
   let displayName = cloudFileAccounts.getDisplayName(cloudFileAccount);
-  let bucket = document.getElementById("attachmentBucket");
-  let attachmentItem = bucket.findItemForAttachment(attachment);
+  let attachmentItem = gAttachmentBucket.findItemForAttachment(attachment);
   if (attachmentItem) {
     let itemIcon = attachmentItem.querySelector(".attachmentcell-icon");
     itemIcon.setAttribute("src", "chrome://global/skin/icons/loading.png");
@@ -2449,8 +2442,10 @@ function convertListItemsToCloudAttachment(aItems, aAccount) {
  * @param aAccount the cloud account to upload the files to
  */
 function convertSelectedToCloudAttachment(aAccount) {
-  let bucket = document.getElementById("attachmentBucket");
-  convertListItemsToCloudAttachment([...bucket.selectedItems], aAccount);
+  convertListItemsToCloudAttachment(
+    [...gAttachmentBucket.selectedItems],
+    aAccount
+  );
 }
 
 /**
@@ -2460,10 +2455,9 @@ function convertSelectedToCloudAttachment(aAccount) {
  * @param aAccount the cloud account to upload the files to
  */
 function convertToCloudAttachment(aAttachments, aAccount) {
-  let bucket = document.getElementById("attachmentBucket");
   let items = [];
   for (let attachment of aAttachments) {
-    let item = bucket.findItemForAttachment(attachment);
+    let item = gAttachmentBucket.findItemForAttachment(attachment);
     if (item) {
       items.push(item);
     }
@@ -2523,8 +2517,7 @@ function convertListItemsToRegularAttachment(aItems) {
  * Convert the selected attachments to regular (non-cloud) attachments.
  */
 function convertSelectedToRegularAttachment() {
-  let bucket = document.getElementById("attachmentBucket");
-  convertListItemsToRegularAttachment([...bucket.selectedItems]);
+  convertListItemsToRegularAttachment([...gAttachmentBucket.selectedItems]);
 }
 
 /**
@@ -2533,10 +2526,9 @@ function convertSelectedToRegularAttachment() {
  * @param aAttachments an array of nsIMsgAttachments
  */
 function convertToRegularAttachment(aAttachments) {
-  let bucket = document.getElementById("attachmentBucket");
   let items = [];
   for (let attachment of aAttachments) {
-    let item = bucket.findItemForAttachment(attachment);
+    let item = gAttachmentBucket.findItemForAttachment(attachment);
     if (item) {
       items.push(item);
     }
@@ -2946,14 +2938,14 @@ function manageAttachmentNotification(aForce = false) {
 }
 
 /**
- * Returns whether the attachment notification should be suppressed regardless of
- * the state of keywords.
+ * Returns whether the attachment notification should be suppressed regardless
+ * of the state of keywords.
  */
 function attachmentNotificationSupressed() {
   return (
     gDisableAttachmentReminder ||
     gManualAttachmentReminder ||
-    AttachmentElementHasItems()
+    gAttachmentBucket.getRowCount()
   );
 }
 
@@ -3008,9 +3000,8 @@ attachmentWorker.onmessage = function(event, aManage = true) {
  */
 function AttachmentsChanged(aShowPane, aContentChanged = true) {
   gAttachmentsSize = 0;
-  let bucket = document.getElementById("attachmentBucket");
-  for (let item of bucket.itemChildren) {
-    bucket.invalidateItem(item);
+  for (let item of gAttachmentBucket.itemChildren) {
+    gAttachmentBucket.invalidateItem(item);
     gAttachmentsSize += item.attachment.size;
   }
 
@@ -3966,6 +3957,12 @@ function ComposeLoad() {
 
   BondOpenPGP.init();
 
+  // Setup the attachment bucket.
+  gAttachmentBucket = document.getElementById("attachmentBucket");
+  let viewMode = Services.prefs.getIntPref("mailnews.attachments.display.view");
+  let views = ["small", "large", "tile"];
+  gAttachmentBucket.view = views[viewMode];
+
   try {
     SetupCommandUpdateHandlers();
     // This will do migration, or create a new account if we need to.
@@ -4703,7 +4700,7 @@ async function CompleteGenericSendMessage(msgType) {
     let maxSize =
       Services.prefs.getIntPref("mail.compose.big_attachments.threshold_kb") *
       1024;
-    let items = [...document.getElementById("attachmentBucket").itemChildren];
+    let items = [...gAttachmentBucket.itemChildren];
 
     // When any big attachment is not sent via filelink, increment
     // `tb.filelink.ignored`.
@@ -5800,7 +5797,7 @@ function SetLastAttachDirectory(attachedLocalFile) {
 }
 
 function AttachFile() {
-  if (attachmentsCount() > 0) {
+  if (gAttachmentBucket.itemCount) {
     // If there are existing attachments already, restore attachment pane before
     // showing the file picker so that user can see them while adding more.
     toggleAttachmentPane("show");
@@ -5868,7 +5865,6 @@ function FileToAttachment(file) {
  *   after adding attachments.
  */
 function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
-  let bucket = document.getElementById("attachmentBucket");
   let addedAttachments = Cc["@mozilla.org/array;1"].createInstance(
     Ci.nsIMutableArray
   );
@@ -5900,7 +5896,7 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
       attachment.name = getComposeBundle().getString("partAttachmentSafeName");
     }
 
-    let item = bucket.appendItem(attachment);
+    let item = gAttachmentBucket.appendItem(attachment);
     addedAttachments.appendElement(attachment);
 
     if (attachment.size != -1) {
@@ -5939,13 +5935,15 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
     // set as currentItem which will be focused when listbox gets focus, because
     // currently we don't indicate focus on the listbox itself when there are
     // attachments, assuming that one of them has focus.
-    if (!(bucket.currentIndex >= 0)) {
-      bucket.currentIndex = bucket.getIndexOfItem(items[0]);
+    if (!(gAttachmentBucket.currentIndex >= 0)) {
+      gAttachmentBucket.currentIndex = gAttachmentBucket.getIndexOfItem(
+        items[0]
+      );
     }
 
     AttachmentsChanged("show", aContentChanged);
     dispatchAttachmentBucketEvent("attachments-added", addedAttachments);
-  } else if (attachmentsCount() > 0) {
+  } else if (gAttachmentBucket.itemCount) {
     // We didn't succeed to add attachments (e.g. duplicate files),
     // but user was trying to; so we must at least react by ensuring the pane
     // is shown, which might be hidden by user with existing attachments.
@@ -5953,28 +5951,6 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
   }
 
   return items;
-}
-
-/**
- * Get the number of all attachments of the message.
- *
- * @return the number of all attachment items in attachmentBucket;
- *         0 if attachmentBucket not found or no attachments in the list.
- */
-function attachmentsCount() {
-  let bucketList = GetMsgAttachmentElement();
-  return bucketList ? bucketList.itemCount : 0;
-}
-
-/**
- * Get the number of selected attachments.
- *
- * @return {number}  the number of selected attachments, or 0 if there are
- *                   no attachments selected, no attachments, or no attachmentBucket
- */
-function attachmentsSelectedCount() {
-  let bucketList = GetMsgAttachmentElement();
-  return bucketList ? bucketList.selectedCount : 0;
 }
 
 /**
@@ -5990,38 +5966,40 @@ function attachmentsSelectedCount() {
  *                 in the list; [] if there are (no | no selected) attachments.
  */
 function attachmentsGetSortedArray(aAscending = true, aSelectedOnly = false) {
-  let bucketList;
   let listItems;
 
   if (aSelectedOnly) {
     // Selected attachments only.
-    if (attachmentsSelectedCount() < 1) {
+    if (!gAttachmentBucket.selectedCount) {
       return [];
     }
 
-    bucketList = document.getElementById("attachmentBucket");
-    // bucketList.selectedItems is a "live" and "unordered" node list (items get
-    // added in the order they were added to the selection). But we want a stable
-    // ("non-live") array of selected items, sorted by their index in the list.
-    listItems = [...bucketList.selectedItems];
+    // gAttachmentBucket.selectedItems is a "live" and "unordered" node list
+    // (items get added in the order they were added to the selection). But we
+    // want a stable ("non-live") array of selected items, sorted by their index
+    // in the list.
+    listItems = [...gAttachmentBucket.selectedItems];
   } else {
     // All attachments.
-    if (attachmentsCount() < 1) {
+    if (!gAttachmentBucket.itemCount) {
       return [];
     }
 
-    bucketList = document.getElementById("attachmentBucket");
-    listItems = [...bucketList.itemChildren];
+    listItems = [...gAttachmentBucket.itemChildren];
   }
 
   if (aAscending) {
     listItems.sort(
-      (a, b) => bucketList.getIndexOfItem(a) - bucketList.getIndexOfItem(b)
+      (a, b) =>
+        gAttachmentBucket.getIndexOfItem(a) -
+        gAttachmentBucket.getIndexOfItem(b)
     );
   } else {
     // descending
     listItems.sort(
-      (a, b) => bucketList.getIndexOfItem(b) - bucketList.getIndexOfItem(a)
+      (a, b) =>
+        gAttachmentBucket.getIndexOfItem(b) -
+        gAttachmentBucket.getIndexOfItem(a)
     );
   }
   return listItems;
@@ -6057,20 +6035,19 @@ function attachmentsSelectionGetSortedArray(aAscending = true) {
  *                          or no attachmentBucket.
  */
 function attachmentsSelectionIsBlock(aListPosition) {
-  let selectedCount = attachmentsSelectedCount();
-  if (selectedCount < 1) {
+  if (!gAttachmentBucket.selectedCount) {
     // No attachments selected, no attachments, or no attachmentBucket.
     return false;
   }
 
-  let bucketList = document.getElementById("attachmentBucket");
   let selItems = attachmentsSelectionGetSortedArray();
-  let indexFirstSelAttachment = bucketList.getIndexOfItem(selItems[0]);
-  let indexLastSelAttachment = bucketList.getIndexOfItem(
-    selItems[selectedCount - 1]
+  let indexFirstSelAttachment = gAttachmentBucket.getIndexOfItem(selItems[0]);
+  let indexLastSelAttachment = gAttachmentBucket.getIndexOfItem(
+    selItems[gAttachmentBucket.selectedCount - 1]
   );
   let isBlock =
-    indexFirstSelAttachment == indexLastSelAttachment + 1 - selectedCount;
+    indexFirstSelAttachment ==
+    indexLastSelAttachment + 1 - gAttachmentBucket.selectedCount;
 
   switch (aListPosition) {
     case "top":
@@ -6078,7 +6055,9 @@ function attachmentsSelectionIsBlock(aListPosition) {
       return indexFirstSelAttachment == 0 && isBlock;
     case "bottom":
       // True if selection is a coherent block at the bottom of the list.
-      return indexLastSelAttachment == attachmentsCount() - 1 && isBlock;
+      return (
+        indexLastSelAttachment == gAttachmentBucket.itemCount - 1 && isBlock
+      );
     default:
       // True if selection is a coherent block.
       return isBlock;
@@ -6117,28 +6096,22 @@ function AttachPage() {
  * @return true if the fileURL is already attached
  */
 function DuplicateFileAlreadyAttached(fileURL) {
-  var bucket = document.getElementById("attachmentBucket");
-  let rowCount = bucket.getRowCount();
-  for (let i = 0; i < rowCount; i++) {
-    let attachment = bucket.getItemAtIndex(i).attachment;
-    if (attachment && attachment.url == fileURL) {
+  for (let item of gAttachmentBucket.itemChildren) {
+    if (item.attachment && item.attachment.url == fileURL) {
       return true;
     }
   }
+
   return false;
 }
 
 function Attachments2CompFields(compFields) {
-  var bucket = document.getElementById("attachmentBucket");
-
-  // First, we need to clear all attachment in the compose fields
+  // First, we need to clear all attachment in the compose fields.
   compFields.removeAttachments();
 
-  let rowCount = bucket.getRowCount();
-  for (let i = 0; i < rowCount; i++) {
-    let attachment = bucket.getItemAtIndex(i).attachment;
-    if (attachment) {
-      compFields.addAttachment(attachment);
+  for (let item of gAttachmentBucket.itemChildren) {
+    if (item.attachment) {
+      compFields.addAttachment(item.attachment);
     }
   }
 }
@@ -6147,12 +6120,11 @@ function RemoveAllAttachments() {
   // Ensure that attachment pane is shown before removing all attachments.
   toggleAttachmentPane("show");
 
-  let bucket = document.getElementById("attachmentBucket");
-  if (bucket.itemCount == 0) {
+  if (!gAttachmentBucket.itemCount) {
     return;
   }
 
-  RemoveAttachments(bucket.itemChildren);
+  RemoveAttachments(gAttachmentBucket.itemChildren);
 }
 
 /**
@@ -6175,8 +6147,7 @@ function UpdateAttachmentBucket(aShowBucket) {
  *                           omitted: just update without changing pane visibility
  */
 function updateAttachmentPane(aShowPane) {
-  let bucket = GetMsgAttachmentElement();
-  let count = bucket.itemCount;
+  let count = gAttachmentBucket.itemCount;
 
   document.l10n.setAttributes(
     document.getElementById("attachmentBucketCount"),
@@ -6206,18 +6177,16 @@ function updateAttachmentPane(aShowPane) {
 }
 
 function RemoveSelectedAttachment() {
-  let bucket = GetMsgAttachmentElement();
-  if (bucket.selectedCount == 0) {
+  if (!gAttachmentBucket.selectedCount) {
     return;
   }
 
-  RemoveAttachments(bucket.selectedItems);
+  RemoveAttachments(gAttachmentBucket.selectedItems);
 }
 
 function RemoveAttachments(items) {
-  let bucket = document.getElementById("attachmentBucket");
   // Remember the current focus index so we can try to restore it when done.
-  let focusIndex = bucket.currentIndex;
+  let focusIndex = gAttachmentBucket.currentIndex;
 
   let fileHandler = Services.io
     .getProtocolHandler("file")
@@ -6261,18 +6230,19 @@ function RemoveAttachments(items) {
   }
 
   // Try to restore original focus or somewhere close by.
-  if (bucket.itemCount == 0) {
-    bucket.currentIndex = -1;
-  } else if (focusIndex < bucket.itemCount) {
-    bucket.currentIndex = focusIndex;
+  if (gAttachmentBucket.itemCount == 0) {
+    gAttachmentBucket.currentIndex = -1;
+  } else if (focusIndex < gAttachmentBucket.itemCount) {
+    gAttachmentBucket.currentIndex = focusIndex;
   } else {
-    bucket.currentIndex = bucket.itemCount - 1;
+    gAttachmentBucket.currentIndex = gAttachmentBucket.itemCount - 1;
   }
 
   if (removedAttachments.length > 0) {
-    // Bug workaround: Force update of selectedCount and selectedItem, both wrong
-    // after item removal, to avoid confusion for listening command controllers.
-    bucket.clearSelection();
+    // Bug 1661507 workaround: Force update of selectedCount and selectedItem,
+    // both wrong after item removal, to avoid confusion for listening command
+    // controllers.
+    gAttachmentBucket.clearSelection();
 
     AttachmentsChanged();
     dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
@@ -6280,13 +6250,12 @@ function RemoveAttachments(items) {
 }
 
 function RenameSelectedAttachment() {
-  let bucket = document.getElementById("attachmentBucket");
-  if (bucket.selectedItems.length != 1) {
+  if (gAttachmentBucket.selectedItems.length != 1) {
     // Not one attachment selected.
     return;
   }
 
-  let item = bucket.getSelectedItem(0);
+  let item = gAttachmentBucket.getSelectedItem(0);
   let attachmentName = { value: item.attachment.name };
   if (
     Services.prompt.prompt(
@@ -6337,24 +6306,23 @@ function moveSelectedAttachments(aDirection) {
   // Command controllers will bail out if no or all attachments are selected,
   // or if block selections can't be moved, or if other direction-specific
   // adverse circumstances prevent the intended movement.
-
   if (!aDirection) {
     return;
   }
 
-  let bucket = document.getElementById("attachmentBucket");
+  // Ensure focus on gAttachmentBucket when we're coming from
+  // 'Reorder Attachments' panel.
+  gAttachmentBucket.focus();
 
-  // Ensure focus on bucket when we're coming from 'Reorder Attachments' panel.
-  bucket.focus();
-
-  // Get a sorted and "non-live" array of bucket.selectedItems.
+  // Get a sorted and "non-live" array of gAttachmentBucket.selectedItems.
   let selItems = attachmentsSelectionGetSortedArray();
 
-  let visibleIndex = bucket.currentIndex; // In case of misspelled aDirection.
+  // In case of misspelled aDirection.
+  let visibleIndex = gAttachmentBucket.currentIndex;
   // Keep track of the item we had focused originally. Deselect it though,
   // since listbox gets confused if you move its focused item around.
-  let focusItem = bucket.currentItem;
-  bucket.currentItem = null;
+  let focusItem = gAttachmentBucket.currentItem;
+  gAttachmentBucket.currentItem = null;
   let upwards;
   let targetItem;
 
@@ -6390,7 +6358,7 @@ function moveSelectedAttachments(aDirection) {
                 checkItem.nextElementSibling;
             // Move current blockItems.
             for (let blockItem of blockItems) {
-              bucket.insertBefore(blockItem, targetItem);
+              gAttachmentBucket.insertBefore(blockItem, targetItem);
             }
           }
           // Else if checkItem doesn't exist, the block is already at the edge
@@ -6406,19 +6374,19 @@ function moveSelectedAttachments(aDirection) {
       // Else if last item of selection is now at the bottom, last list item.
       // Otherwise, let's see where we are going by ensuring visibility of the
       // nearest unselected sibling of selection according to direction of move.
-      if (bucket.getIndexOfItem(selItems[0]) == 0) {
+      if (gAttachmentBucket.getIndexOfItem(selItems[0]) == 0) {
         visibleIndex = 0;
       } else if (
-        bucket.getIndexOfItem(selItems[selItems.length - 1]) ==
-        bucket.itemCount - 1
+        gAttachmentBucket.getIndexOfItem(selItems[selItems.length - 1]) ==
+        gAttachmentBucket.itemCount - 1
       ) {
-        visibleIndex = bucket.itemCount - 1;
+        visibleIndex = gAttachmentBucket.itemCount - 1;
       } else if (upwards) {
-        visibleIndex = bucket.getIndexOfItem(
+        visibleIndex = gAttachmentBucket.getIndexOfItem(
           selItems[0].previousElementSibling
         );
       } else {
-        visibleIndex = bucket.getIndexOfItem(
+        visibleIndex = gAttachmentBucket.getIndexOfItem(
           selItems[selItems.length - 1].nextElementSibling
         );
       }
@@ -6437,8 +6405,8 @@ function moveSelectedAttachments(aDirection) {
       }
 
       if (["top", "bottom"].includes(aDirection)) {
-        let listEdgeItem = bucket.getItemAtIndex(
-          upwards ? 0 : bucket.itemCount - 1
+        let listEdgeItem = gAttachmentBucket.getItemAtIndex(
+          upwards ? 0 : gAttachmentBucket.itemCount - 1
         );
         let selEdgeItem = selItems[0];
         if (selEdgeItem != listEdgeItem) {
@@ -6453,7 +6421,7 @@ function moveSelectedAttachments(aDirection) {
               // *before* non-existing listEdgeItem.nextElementSibling,
               // which is null. It works because it's a feature.
               null;
-          bucket.insertBefore(selEdgeItem, targetItem);
+          gAttachmentBucket.insertBefore(selEdgeItem, targetItem);
         }
       }
       // We now have a selected block (at least one item) at the target position.
@@ -6463,7 +6431,7 @@ function moveSelectedAttachments(aDirection) {
       for (let item of selItems) {
         if (targetItem) {
           // We know where to move it, so move it!
-          bucket.insertBefore(item, targetItem);
+          gAttachmentBucket.insertBefore(item, targetItem);
           if (!upwards) {
             // Downwards: As selItems are reversed, and there's no insertAfter()
             // method to insert *after* a stable target, we need to insert
@@ -6491,7 +6459,7 @@ function moveSelectedAttachments(aDirection) {
       } // next selItem
 
       // Ensure visibility of first/last selected item after the move.
-      visibleIndex = bucket.getIndexOfItem(selItems[0]);
+      visibleIndex = gAttachmentBucket.getIndexOfItem(selItems[0]);
       break;
 
     case "toggleSort":
@@ -6505,7 +6473,7 @@ function moveSelectedAttachments(aDirection) {
       let sortItems;
       let sortSelection;
 
-      if (attachmentsSelectedCount() > 1) {
+      if (gAttachmentBucket.selectedCount > 1) {
         // Sort selected attachments only.
         sortSelection = true;
         sortItems = selItems;
@@ -6546,24 +6514,25 @@ function moveSelectedAttachments(aDirection) {
 
       // Insert sortItems in new order before the nextElementSibling of the block.
       for (let item of sortItems) {
-        bucket.insertBefore(item, targetItem);
+        gAttachmentBucket.insertBefore(item, targetItem);
       }
 
       if (sortSelection) {
         // After sorting selection: Ensure visibility of first selected item.
-        visibleIndex = bucket.getIndexOfItem(selItems[0]);
+        visibleIndex = gAttachmentBucket.getIndexOfItem(selItems[0]);
       } else {
         // After sorting all items: Ensure visibility of selected item,
         // otherwise first list item.
-        visibleIndex = selItems.length == 1 ? bucket.selectedIndex : 0;
+        visibleIndex =
+          selItems.length == 1 ? gAttachmentBucket.selectedIndex : 0;
       }
       break;
   } // end switch (aDirection)
 
   // Restore original focus.
-  bucket.currentItem = focusItem;
+  gAttachmentBucket.currentItem = focusItem;
   // Ensure smart visibility of a relevant item according to direction.
-  bucket.ensureIndexIsVisible(visibleIndex);
+  gAttachmentBucket.ensureIndexIsVisible(visibleIndex);
 
   // Moving selected items around does not trigger auto-updating of our command
   // handlers, so we must do it now as the position of selected items has changed.
@@ -6581,10 +6550,9 @@ function moveSelectedAttachments(aDirection) {
  * @param {Event} [event] - The command event (cmd_toggleAttachmentPane)
  */
 function toggleAttachmentPane(aAction = "toggle", event) {
-  let bucket = GetMsgAttachmentElement();
   let attachmentsBox = document.getElementById("attachments-box");
   let attachmentBucketSizer = document.getElementById("attachmentbucket-sizer");
-  let bucketHasFocus = document.activeElement == bucket;
+  let bucketHasFocus = document.activeElement == gAttachmentBucket;
 
   if (aAction == "toggle") {
     let shown = !attachmentsBox.collapsed;
@@ -6592,9 +6560,9 @@ function toggleAttachmentPane(aAction = "toggle", event) {
     if (shown && !bucketHasFocus && event && (event.altKey || event.ctrlKey)) {
       // If attachment pane is shown but not focused, and we're here via
       // key_toggleAttachmentPane, handle access key here: Focus bucket.
-      bucket.focus();
-      if (bucket.currentItem) {
-        bucket.ensureElementIsVisible(bucket.currentItem);
+      gAttachmentBucket.focus();
+      if (gAttachmentBucket.currentItem) {
+        gAttachmentBucket.ensureElementIsVisible(gAttachmentBucket.currentItem);
       }
       return;
     }
@@ -6609,10 +6577,10 @@ function toggleAttachmentPane(aAction = "toggle", event) {
       attachmentBucketSizer.collapsed = false;
       attachmentBucketSizer.setAttribute("state", "");
       if (!bucketHasFocus) {
-        bucket.focus();
+        gAttachmentBucket.focus();
       }
-      if (bucket.currentItem) {
-        bucket.ensureElementIsVisible(bucket.currentItem);
+      if (gAttachmentBucket.currentItem) {
+        gAttachmentBucket.ensureElementIsVisible(gAttachmentBucket.currentItem);
       }
       break;
     }
@@ -6657,7 +6625,7 @@ function showReorderAttachmentsPanel() {
   // or attachmentBucketOnBlur(), and that's because we're using noautohide as
   // event.preventDefault() of onpopuphiding event fails when the panel
   // is auto-hiding, but we don't want panel to hide when focus goes to bucket.
-  document.getElementById("attachmentBucket").focus();
+  gAttachmentBucket.focus();
 }
 
 /**
@@ -6693,14 +6661,14 @@ function attachmentsSelectionGetSortOrder() {
 function attachmentsGetSortOrder(aSelectedOnly = false) {
   let listItems;
   if (aSelectedOnly) {
-    if (attachmentsSelectedCount() <= 1) {
+    if (gAttachmentBucket.selectedCount <= 1) {
       return "";
     }
 
     listItems = attachmentsSelectionGetSortedArray();
   } else {
     // aSelectedOnly == false
-    if (attachmentsCount() < 1) {
+    if (!gAttachmentBucket.itemCount) {
       return "";
     }
 
@@ -6756,7 +6724,7 @@ function reorderAttachmentsPanelOnPopupShowing() {
   });
   // Focus attachment bucket to activate attachmentBucketController, which is
   // required for updating the reorder commands.
-  document.getElementById("attachmentBucket").focus();
+  gAttachmentBucket.focus();
   // We're updating commands before showing the panel so that button states
   // don't change after the panel is shown, and also because focus is still
   // in attachment bucket right now, which is required for updating them.
@@ -6802,8 +6770,6 @@ function attachmentBucketOnBlur() {
 }
 
 function attachmentBucketOnKeyPress(aEvent) {
-  let bucket = GetMsgAttachmentElement();
-
   // When ESC is pressed ...
   if (aEvent.key == "Escape") {
     let reorderAttachmentsPanel = document.getElementById(
@@ -6812,22 +6778,22 @@ function attachmentBucketOnKeyPress(aEvent) {
     if (reorderAttachmentsPanel.state == "open") {
       // First close reorderAttachmentsPanel if open.
       reorderAttachmentsPanel.hidePopup();
-    } else if (bucket.itemCount > 0) {
-      if (bucket.selectedCount > 0) {
-        // Then deselect selected items in full bucket if any.
-        bucket.clearSelection();
+    } else if (gAttachmentBucket.itemCount) {
+      if (gAttachmentBucket.selectedCount) {
+        // Then deselect selected items in full gAttachmentBucket if any.
+        gAttachmentBucket.clearSelection();
       } else {
-        // Then unfocus full bucket to continue with msg body.
+        // Then unfocus full gAttachmentBucket to continue with msg body.
         SetMsgBodyFrameFocus();
       }
     } else {
-      // (bucket.itemCount == 0)
-      // Otherwise close empty bucket.
+      // (gAttachmentBucket.itemCount == 0)
+      // Otherwise close empty gAttachmentBucket.
       toggleAttachmentPane("hide");
     }
   }
 
-  if (aEvent.key == "Enter" && bucket.itemCount == 0) {
+  if (aEvent.key == "Enter" && !gAttachmentBucket.itemCount) {
     // Enter on empty bucket to add file attachments, convenience
     // keyboard equivalent of single-click on bucket whitespace.
     goDoCommand("cmd_attachFile");
@@ -6852,15 +6818,13 @@ function attachmentBucketOnSelect() {
 }
 
 function attachmentBucketUpdateTooltips() {
-  let bucket = GetMsgAttachmentElement();
-
   // Attachment pane whitespace tooltip
-  if (attachmentsSelectedCount() > 0) {
-    bucket.tooltipText = getComposeBundle().getString(
+  if (gAttachmentBucket.selectedCount) {
+    gAttachmentBucket.tooltipText = getComposeBundle().getString(
       "attachmentBucketClearSelectionTooltip"
     );
   } else {
-    bucket.tooltipText = getComposeBundle().getString(
+    gAttachmentBucket.tooltipText = getComposeBundle().getString(
       "attachmentBucketAttachFilesTooltip"
     );
   }
@@ -6885,15 +6849,9 @@ function attachmentBucketSizerOnMouseUp() {
   }
 }
 
-function AttachmentElementHasItems() {
-  var element = document.getElementById("attachmentBucket");
-  return element ? element.getRowCount() > 0 : false;
-}
-
 function attachmentBucketMarkEmptyBucket() {
-  let attachmentBucket = GetMsgAttachmentElement();
   let attachmentsBox = document.getElementById("attachments-box");
-  if (attachmentBucket.itemCount > 0) {
+  if (gAttachmentBucket.itemCount) {
     attachmentsBox.removeAttribute("empty");
   } else {
     attachmentsBox.setAttribute("empty", "true");
@@ -6901,9 +6859,8 @@ function attachmentBucketMarkEmptyBucket() {
 }
 
 function OpenSelectedAttachment() {
-  let bucket = document.getElementById("attachmentBucket");
-  if (bucket.selectedItems.length == 1) {
-    let attachmentUrl = bucket.getSelectedItem(0).attachment.url;
+  if (gAttachmentBucket.selectedItems.length == 1) {
+    let attachmentUrl = gAttachmentBucket.getSelectedItem(0).attachment.url;
 
     let messagePrefix = /^mailbox-message:|^imap-message:|^news-message:/i;
     if (messagePrefix.test(attachmentUrl)) {
@@ -7397,18 +7354,16 @@ var envelopeDragObserver = {
    */
   _adjustDropTarget(event) {
     let target = event.target;
-    let bucket = document.getElementById("attachmentBucket");
-
-    if (target == bucket) {
+    if (target == gAttachmentBucket) {
       // Dragging or dropping at top/bottom border of the listbox
       if (
         (event.screenY - target.screenY) /
           target.getBoundingClientRect().height <
         0.5
       ) {
-        target = bucket.firstElementChild;
+        target = gAttachmentBucket.firstElementChild;
       } else {
-        target = bucket.lastElementChild;
+        target = gAttachmentBucket.lastElementChild;
       }
       // We'll check below if this is a valid target.
     } else if (target.id == "attachmentBucketCount") {
@@ -7420,7 +7375,7 @@ var envelopeDragObserver = {
           target.getBoundingClientRect().height >=
         0.5
       ) {
-        target = bucket.firstElementChild;
+        target = gAttachmentBucket.firstElementChild;
         // We'll check below if this is a valid target.
       } else {
         // Top half of attachment list header: sorry, can't drop here.
@@ -7473,9 +7428,7 @@ var envelopeDragObserver = {
   },
 
   _showDropMarker(targetItem) {
-    let bucket = document.getElementById("attachmentBucket");
-
-    let oldDropMarkerItem = bucket.querySelector(
+    let oldDropMarkerItem = gAttachmentBucket.querySelector(
       "richlistitem.attachmentItem[dropOn]"
     );
     if (oldDropMarkerItem) {
@@ -7483,7 +7436,7 @@ var envelopeDragObserver = {
     }
 
     if (targetItem == "afterLastItem") {
-      targetItem = bucket.lastElementChild;
+      targetItem = gAttachmentBucket.lastElementChild;
       targetItem.setAttribute("dropOn", "bottom");
     } else {
       targetItem.setAttribute("dropOn", "top");
@@ -7501,12 +7454,11 @@ var envelopeDragObserver = {
 
   // eslint-disable-next-line complexity
   onDrop(event) {
-    let bucket = document.getElementById("attachmentBucket");
     let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
       .getService(Ci.nsIDragService)
       .getCurrentSession();
     let dragSourceNode = dragSession.sourceNode;
-    if (dragSourceNode && dragSourceNode.parentNode == bucket) {
+    if (dragSourceNode && dragSourceNode.parentNode == gAttachmentBucket) {
       // We dragged from the attachment pane onto itself, so instead of
       // attaching a new object, we're just reordering them.
 
@@ -7517,8 +7469,8 @@ var envelopeDragObserver = {
       let selItems = attachmentsSelectionGetSortedArray();
       // Keep track of the item we had focused originally. Deselect it though,
       // since listbox gets confused if you move its focused item around.
-      let focus = bucket.currentItem;
-      bucket.currentItem = null;
+      let focus = gAttachmentBucket.currentItem;
+      gAttachmentBucket.currentItem = null;
 
       // Moving possibly non-coherent multiple selections around correctly
       // is much more complex than one might think...
@@ -7533,7 +7485,7 @@ var envelopeDragObserver = {
           blockItems.push(item);
           if (target == "afterLastItem") {
             // Original target is the end of the list; append all items there.
-            bucket.appendChild(item);
+            gAttachmentBucket.appendChild(item);
           } else if (target == selItems[0]) {
             // Original target is first item of first selected block.
             if (blockItems.includes(target)) {
@@ -7547,14 +7499,17 @@ var envelopeDragObserver = {
             } else {
               // Item is NOT in first block: insert before targetItem,
               // i.e. after end of first block.
-              bucket.insertBefore(item, targetItem);
+              gAttachmentBucket.insertBefore(item, targetItem);
             }
           } else if (target.selected) {
             // Original target is not first item of first block,
             // but first item of another block.
-            if (bucket.getIndexOfItem(item) < bucket.getIndexOfItem(target)) {
+            if (
+              gAttachmentBucket.getIndexOfItem(item) <
+              gAttachmentBucket.getIndexOfItem(target)
+            ) {
               // Insert all items from preceding blocks before original target.
-              bucket.insertBefore(item, target);
+              gAttachmentBucket.insertBefore(item, target);
             } else if (blockItems.includes(target)) {
               // target is included in any selected block except first:
               // do nothing for that block, find its end.
@@ -7567,18 +7522,18 @@ var envelopeDragObserver = {
             } else {
               // Item from block after block containing target: insert before
               // targetItem, i.e. after end of block containing target.
-              bucket.insertBefore(item, targetItem);
+              gAttachmentBucket.insertBefore(item, targetItem);
             }
           } else {
             // target != selItems [0]
             // Original target is NOT first item of any block, and NOT selected:
             // Insert all items before the original target.
-            bucket.insertBefore(item, target);
+            gAttachmentBucket.insertBefore(item, target);
           }
         }
       }
 
-      bucket.currentItem = focus;
+      gAttachmentBucket.currentItem = focus;
       this._hideDropMarker();
       return;
     }
@@ -7691,7 +7646,7 @@ var envelopeDragObserver = {
       AddAttachments(attachments);
     }
 
-    bucket.focus();
+    gAttachmentBucket.focus();
     event.stopPropagation();
   },
 
@@ -7699,11 +7654,10 @@ var envelopeDragObserver = {
     let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
       .getService(Ci.nsIDragService)
       .getCurrentSession();
-    let bucket = document.getElementById("attachmentBucket");
     let dragSourceNode = dragSession.sourceNode;
-    if (dragSourceNode && dragSourceNode.parentNode == bucket) {
-      // If we're dragging from the attachment bucket onto itself, we need to
-      // show a drop marker.
+    if (dragSourceNode && dragSourceNode.parentNode == gAttachmentBucket) {
+      // If we're dragging from the attachment gAttachmentBucket onto itself,
+      // we need to show a drop marker.
 
       let target = this._adjustDropTarget(event);
 
@@ -7804,11 +7758,6 @@ function SetMsgSubjectElementFocus() {
   document.getElementById("msgSubject").focus();
 }
 
-function SetMsgAttachmentElementFocus() {
-  // Caveat: Callers must ensure that attachment pane is visible.
-  GetMsgAttachmentElement().focus();
-}
-
 /**
  * Focus the people search input in contacts side bar.
  *
@@ -7832,14 +7781,6 @@ function SetMsgBodyFrameFocus() {
   document.commandDispatcher.advanceFocusIntoSubtree(
     document.getElementById("appcontent")
   );
-}
-
-function GetMsgAttachmentElement() {
-  if (!gMsgAttachmentElement) {
-    gMsgAttachmentElement = document.getElementById("attachmentBucket");
-  }
-
-  return gMsgAttachmentElement;
 }
 
 /**
@@ -7976,12 +7917,12 @@ function SwitchElementFocus(event) {
       case document.getElementById("content-frame"): // message body
         // Focus attachment bucket if shown, otherwise message subject.
         if (!document.getElementById("attachments-box").collapsed) {
-          SetMsgAttachmentElementFocus();
+          gAttachmentBucket.focus();
         } else {
           SetMsgSubjectElementFocus();
         }
         break;
-      case gMsgAttachmentElement:
+      case gAttachmentBucket:
         SetMsgSubjectElementFocus();
         break;
       case document.getElementById("msgSubject"):
@@ -8017,12 +7958,12 @@ function SwitchElementFocus(event) {
     case document.getElementById("msgSubject"):
       // Focus attachment bucket if shown, otherwise message body.
       if (!document.getElementById("attachments-box").collapsed) {
-        SetMsgAttachmentElementFocus();
+        gAttachmentBucket.focus();
       } else {
         SetMsgBodyFrameFocus();
       }
       break;
-    case gMsgAttachmentElement:
+    case gAttachmentBucket:
       SetMsgBodyFrameFocus();
       break;
     case document.getElementById("content-frame"): // message body
@@ -8757,8 +8698,7 @@ function getMailToolbox() {
  * @param aData any detail data to pass to the CustomEvent.
  */
 function dispatchAttachmentBucketEvent(aEventType, aData) {
-  let bucket = document.getElementById("attachmentBucket");
-  bucket.dispatchEvent(
+  gAttachmentBucket.dispatchEvent(
     new CustomEvent(aEventType, {
       bubbles: true,
       cancelable: true,
