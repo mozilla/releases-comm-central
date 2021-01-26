@@ -1855,7 +1855,7 @@ function openEditorContextMenu(popup) {
   gSpellChecker.clearSuggestionsFromMenu();
   gSpellChecker.initFromRemote(
     nsContextMenu.contentData.spellInfo,
-    nsContextMenu.contentData.actor.manager,
+    nsContextMenu.contentData.actor.manager
   );
   var onMisspelling = gSpellChecker.overMisspelling;
   document.getElementById(
