@@ -944,7 +944,7 @@ function MailSetCharacterSet(aEvent) {
  * Called from the extensions manager to open an add-on options XUL document.
  * Only the "open in tab" option is supported, so that's what we'll do here.
  */
-function switchToTabHavingURI(aURI, aOpenNew, aOpenParams) {
+function switchToTabHavingURI(aURI, aOpenNew, aOpenParams = {}) {
   let tabmail = document.getElementById("tabmail");
   let matchingIndex = -1;
   if (tabmail) {
