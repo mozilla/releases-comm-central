@@ -21,6 +21,8 @@ XPCOMUtils.defineLazyServiceGetter(
   "nsIExternalProtocolService"
 );
 
+const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
+
 /**
  * Extract the href from the link click event.
  * We look for HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement,
@@ -80,13 +82,18 @@ class LinkHandlerChild extends JSWindowActorChild {
       return;
     }
 
+    // Link handling in mail messages is handled elsewhere.
+    let pageURI = Services.io.newURI(this.document.location.href);
+    if (MESSAGE_PROTOCOLS.includes(pageURI.scheme)) {
+      return;
+    }
+
     let eventHRef = hRefForClickEvent(event);
     if (!eventHRef) {
       return;
     }
 
     let eventURI = Services.io.newURI(eventHRef);
-    let pageURI = Services.io.newURI(this.document.location.href);
 
     try {
       if (
@@ -125,14 +132,18 @@ class StrictLinkHandlerChild extends JSWindowActorChild {
       return;
     }
 
+    // Link handling in mail messages is handled elsewhere.
+    let pageURI = Services.io.newURI(this.document.location.href);
+    if (MESSAGE_PROTOCOLS.includes(pageURI.scheme)) {
+      return;
+    }
+
     let eventHRef = hRefForClickEvent(event);
     if (!eventHRef) {
       return;
     }
 
     let eventURI = Services.io.newURI(eventHRef);
-    let pageURI = Services.io.newURI(this.document.location.href);
-
     if (eventURI.specIgnoringRef == pageURI.specIgnoringRef) {
       return;
     }
