@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsISimpleEnumerator.idl"
 #include "prplIConversation.idl"
+
+interface prplITooltipInfo;
 
 [scriptable, uuid(f13dc4fc-5334-45cb-aa58-a92851955e55)]
 interface imIStatusInfo: nsISupports {
@@ -44,8 +45,8 @@ interface imIStatusInfo: nsISupports {
   // offline messages to the buddy.
   readonly attribute boolean canSendMessage;
 
-  // enumerator of purpleTooltipInfo components
-  nsISimpleEnumerator getTooltipInfo();
+  // Array of prplITooltipInfo components.
+  Array<prplITooltipInfo> getTooltipInfo();
 
   // Will select the buddy automatically based on availability, and
   // the account (if needed) based on the account order in the account

@@ -528,7 +528,7 @@ var GenericAccountBuddyPrototype = {
     return this.online;
   },
 
-  getTooltipInfo: () => EmptyEnumerator,
+  getTooltipInfo: () => [],
   createConversation() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },

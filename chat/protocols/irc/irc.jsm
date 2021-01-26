@@ -7,7 +7,6 @@ var EXPORTED_SYMBOLS = ["ircProtocol"];
 var {
   ClassInfo,
   clearTimeout,
-  EmptyEnumerator,
   setTimeout,
   executeSoon,
   l10nHelper,
@@ -948,8 +947,8 @@ function ircAccountBuddy(aAccount, aBuddy, aTag, aUserName) {
 ircAccountBuddy.prototype = {
   __proto__: GenericAccountBuddyPrototype,
 
-  // Returns a list of imITooltipInfo objects to be displayed when the user
-  // hovers over the buddy.
+  // Returns an array of prplITooltipInfo objects to be displayed when the
+  // user hovers over the buddy.
   getTooltipInfo() {
     return this._account.getBuddyInfo(this.normalizedName);
   },
@@ -1385,7 +1384,7 @@ ircAccount.prototype = {
   },
   notifyWhois(aNick) {
     Services.obs.notifyObservers(
-      this.getBuddyInfo(aNick),
+      new nsSimpleEnumerator(this.getBuddyInfo(aNick)),
       "user-info-received",
       this.normalizeNick(aNick)
     );
@@ -1396,10 +1395,10 @@ ircAccount.prototype = {
     this.removeBuddyInfo(aBuddyName);
     this.sendMessage("WHOWAS", aBuddyName);
   },
-  // Return an nsISimpleEnumerator of imITooltipInfo for a given nick.
+  // Return an array of prplITooltipInfo for a given nick.
   getBuddyInfo(aNick) {
     if (!this.whoisInformation.has(aNick)) {
-      return EmptyEnumerator;
+      return [];
     }
 
     let whoisInformation = this.whoisInformation.get(aNick);
@@ -1488,7 +1487,7 @@ ircAccount.prototype = {
       new TooltipInfo(statusType, statusText, Ci.prplITooltipInfo.status)
     );
 
-    return new nsSimpleEnumerator(tooltipInfo);
+    return tooltipInfo;
   },
   // Remove a WHOIS entry.
   removeBuddyInfo(aNick) {

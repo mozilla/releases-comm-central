@@ -1076,7 +1076,7 @@ var XMPPAccountBuddyPrototype = {
       );
     }
 
-    return new nsSimpleEnumerator(tooltipInfo);
+    return tooltipInfo;
   },
 
   // _rosterAlias is the value stored in the roster on the XMPP
