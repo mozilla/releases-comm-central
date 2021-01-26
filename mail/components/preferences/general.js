@@ -1292,8 +1292,22 @@ var gGeneralPane = {
     });
   },
 
+  /**
+   * Show the about:config page in a tab.
+   */
   showConfigEdit() {
-    gSubDialog.open("chrome://global/content/config.xhtml");
+    // If the about:config tab is already open, switch to the tab.
+    let mainWin = Services.wm.getMostRecentWindow("mail:3pane");
+    let tabmail = mainWin.document.getElementById("tabmail");
+    for (let tabInfo of tabmail.tabInfo) {
+      let tab = tabmail.getTabForBrowser(tabInfo.browser);
+      if (tab && tab.urlbar && tab.urlbar.value == "about:config") {
+        tabmail.switchToTab(tabInfo);
+        return;
+      }
+    }
+    // Wasn't open already. Open in a new tab.
+    tabmail.openTab("contentTab", { contentPage: "about:config" });
   },
 
   /**
