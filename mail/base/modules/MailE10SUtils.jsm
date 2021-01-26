@@ -7,6 +7,9 @@ const EXPORTED_SYMBOLS = ["MailE10SUtils"];
 const { E10SUtils } = ChromeUtils.import(
   "resource://gre/modules/E10SUtils.jsm"
 );
+const { ExtensionParent } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionParent.jsm"
+);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var MailE10SUtils = {
@@ -39,6 +42,8 @@ var MailE10SUtils = {
 
       browser.changeRemoteness({ remoteType });
       browser.construct();
+
+      ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
     }
 
     params.triggeringPrincipal =
