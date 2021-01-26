@@ -111,12 +111,11 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = cipher
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/gpg-error.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/onceonly.m4 \
-	$(top_srcdir)/m4/socklen.m4 $(top_srcdir)/m4/sys_socket_h.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cc_for_build.m4 \
+	$(top_srcdir)/m4/gpg-error.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/socklen.m4 \
 	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -130,12 +129,12 @@ am__DEPENDENCIES_1 =
 am_libcipher_la_OBJECTS = cipher.lo cipher-cbc.lo cipher-cfb.lo \
 	cipher-ofb.lo cipher-ctr.lo cipher-aeswrap.lo cipher-ccm.lo \
 	cipher-cmac.lo cipher-gcm.lo cipher-gcm-intel-pclmul.lo \
-	cipher-gcm-armv8-aarch32-ce.lo cipher-gcm-armv8-aarch64-ce.lo \
-	cipher-poly1305.lo cipher-ocb.lo cipher-xts.lo \
-	cipher-selftest.lo pubkey.lo pubkey-util.lo md.lo mac.lo \
-	mac-hmac.lo mac-cmac.lo mac-gmac.lo mac-poly1305.lo \
-	poly1305.lo kdf.lo hmac-tests.lo primegen.lo hash-common.lo \
-	dsa-common.lo rsa-common.lo
+	cipher-gcm-armv7-neon.lo cipher-gcm-armv8-aarch32-ce.lo \
+	cipher-gcm-armv8-aarch64-ce.lo cipher-poly1305.lo \
+	cipher-ocb.lo cipher-xts.lo cipher-eax.lo cipher-selftest.lo \
+	pubkey.lo pubkey-util.lo md.lo mac.lo mac-hmac.lo mac-cmac.lo \
+	mac-gmac.lo mac-poly1305.lo poly1305.lo kdf.lo primegen.lo \
+	hash-common.lo dsa-common.lo rsa-common.lo
 libcipher_la_OBJECTS = $(am_libcipher_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -158,6 +157,8 @@ depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/arcfour-amd64.Plo \
 	./$(DEPDIR)/arcfour.Plo ./$(DEPDIR)/blake2.Plo \
+	./$(DEPDIR)/blake2b-amd64-avx2.Plo \
+	./$(DEPDIR)/blake2s-amd64-avx.Plo \
 	./$(DEPDIR)/blowfish-amd64.Plo ./$(DEPDIR)/blowfish-arm.Plo \
 	./$(DEPDIR)/blowfish.Plo ./$(DEPDIR)/camellia-aarch64.Plo \
 	./$(DEPDIR)/camellia-aesni-avx-amd64.Plo \
@@ -165,36 +166,39 @@ am__depfiles_remade = ./$(DEPDIR)/arcfour-amd64.Plo \
 	./$(DEPDIR)/camellia-arm.Plo ./$(DEPDIR)/camellia-glue.Plo \
 	./$(DEPDIR)/camellia.Plo ./$(DEPDIR)/cast5-amd64.Plo \
 	./$(DEPDIR)/cast5-arm.Plo ./$(DEPDIR)/cast5.Plo \
+	./$(DEPDIR)/chacha20-aarch64.Plo \
+	./$(DEPDIR)/chacha20-amd64-avx2.Plo \
+	./$(DEPDIR)/chacha20-amd64-ssse3.Plo \
 	./$(DEPDIR)/chacha20-armv7-neon.Plo \
-	./$(DEPDIR)/chacha20-avx2-amd64.Plo \
-	./$(DEPDIR)/chacha20-sse2-amd64.Plo \
-	./$(DEPDIR)/chacha20-ssse3-amd64.Plo ./$(DEPDIR)/chacha20.Plo \
+	./$(DEPDIR)/chacha20-ppc.Plo ./$(DEPDIR)/chacha20.Plo \
 	./$(DEPDIR)/cipher-aeswrap.Plo ./$(DEPDIR)/cipher-cbc.Plo \
 	./$(DEPDIR)/cipher-ccm.Plo ./$(DEPDIR)/cipher-cfb.Plo \
 	./$(DEPDIR)/cipher-cmac.Plo ./$(DEPDIR)/cipher-ctr.Plo \
+	./$(DEPDIR)/cipher-eax.Plo \
+	./$(DEPDIR)/cipher-gcm-armv7-neon.Plo \
 	./$(DEPDIR)/cipher-gcm-armv8-aarch32-ce.Plo \
 	./$(DEPDIR)/cipher-gcm-armv8-aarch64-ce.Plo \
 	./$(DEPDIR)/cipher-gcm-intel-pclmul.Plo \
 	./$(DEPDIR)/cipher-gcm.Plo ./$(DEPDIR)/cipher-ocb.Plo \
 	./$(DEPDIR)/cipher-ofb.Plo ./$(DEPDIR)/cipher-poly1305.Plo \
 	./$(DEPDIR)/cipher-selftest.Plo ./$(DEPDIR)/cipher-xts.Plo \
-	./$(DEPDIR)/cipher.Plo ./$(DEPDIR)/crc-intel-pclmul.Plo \
-	./$(DEPDIR)/crc.Plo ./$(DEPDIR)/des-amd64.Plo \
-	./$(DEPDIR)/des.Plo ./$(DEPDIR)/dsa-common.Plo \
-	./$(DEPDIR)/dsa.Plo ./$(DEPDIR)/ecc-curves.Plo \
+	./$(DEPDIR)/cipher.Plo ./$(DEPDIR)/crc-armv8-aarch64-ce.Plo \
+	./$(DEPDIR)/crc-armv8-ce.Plo ./$(DEPDIR)/crc-intel-pclmul.Plo \
+	./$(DEPDIR)/crc-ppc.Plo ./$(DEPDIR)/crc.Plo \
+	./$(DEPDIR)/des-amd64.Plo ./$(DEPDIR)/des.Plo \
+	./$(DEPDIR)/dsa-common.Plo ./$(DEPDIR)/dsa.Plo \
+	./$(DEPDIR)/ecc-curves.Plo ./$(DEPDIR)/ecc-ecdh.Plo \
 	./$(DEPDIR)/ecc-ecdsa.Plo ./$(DEPDIR)/ecc-eddsa.Plo \
 	./$(DEPDIR)/ecc-gost.Plo ./$(DEPDIR)/ecc-misc.Plo \
-	./$(DEPDIR)/ecc.Plo ./$(DEPDIR)/elgamal.Plo \
-	./$(DEPDIR)/gost28147.Plo ./$(DEPDIR)/gostr3411-94.Plo \
-	./$(DEPDIR)/hash-common.Plo ./$(DEPDIR)/hmac-tests.Plo \
+	./$(DEPDIR)/ecc-sm2.Plo ./$(DEPDIR)/ecc.Plo \
+	./$(DEPDIR)/elgamal.Plo ./$(DEPDIR)/gost28147.Plo \
+	./$(DEPDIR)/gostr3411-94.Plo ./$(DEPDIR)/hash-common.Plo \
 	./$(DEPDIR)/idea.Plo ./$(DEPDIR)/kdf.Plo \
 	./$(DEPDIR)/keccak-armv7-neon.Plo ./$(DEPDIR)/keccak.Plo \
 	./$(DEPDIR)/mac-cmac.Plo ./$(DEPDIR)/mac-gmac.Plo \
 	./$(DEPDIR)/mac-hmac.Plo ./$(DEPDIR)/mac-poly1305.Plo \
 	./$(DEPDIR)/mac.Plo ./$(DEPDIR)/md.Plo ./$(DEPDIR)/md4.Plo \
-	./$(DEPDIR)/md5.Plo ./$(DEPDIR)/poly1305-armv7-neon.Plo \
-	./$(DEPDIR)/poly1305-avx2-amd64.Plo \
-	./$(DEPDIR)/poly1305-sse2-amd64.Plo ./$(DEPDIR)/poly1305.Plo \
+	./$(DEPDIR)/md5.Plo ./$(DEPDIR)/poly1305.Plo \
 	./$(DEPDIR)/primegen.Plo ./$(DEPDIR)/pubkey-util.Plo \
 	./$(DEPDIR)/pubkey.Plo ./$(DEPDIR)/rfc2268.Plo \
 	./$(DEPDIR)/rijndael-aarch64.Plo \
@@ -203,7 +207,8 @@ am__depfiles_remade = ./$(DEPDIR)/arcfour-amd64.Plo \
 	./$(DEPDIR)/rijndael-armv8-aarch32-ce.Plo \
 	./$(DEPDIR)/rijndael-armv8-aarch64-ce.Plo \
 	./$(DEPDIR)/rijndael-armv8-ce.Plo \
-	./$(DEPDIR)/rijndael-padlock.Plo \
+	./$(DEPDIR)/rijndael-padlock.Plo ./$(DEPDIR)/rijndael-ppc.Plo \
+	./$(DEPDIR)/rijndael-ppc9le.Plo \
 	./$(DEPDIR)/rijndael-ssse3-amd64-asm.Plo \
 	./$(DEPDIR)/rijndael-ssse3-amd64.Plo ./$(DEPDIR)/rijndael.Plo \
 	./$(DEPDIR)/rmd160.Plo ./$(DEPDIR)/rsa-common.Plo \
@@ -218,16 +223,22 @@ am__depfiles_remade = ./$(DEPDIR)/arcfour-amd64.Plo \
 	./$(DEPDIR)/sha1-armv8-aarch64-ce.Plo \
 	./$(DEPDIR)/sha1-avx-amd64.Plo \
 	./$(DEPDIR)/sha1-avx-bmi2-amd64.Plo \
+	./$(DEPDIR)/sha1-avx2-bmi2-amd64.Plo \
+	./$(DEPDIR)/sha1-intel-shaext.Plo \
 	./$(DEPDIR)/sha1-ssse3-amd64.Plo ./$(DEPDIR)/sha1.Plo \
 	./$(DEPDIR)/sha256-armv8-aarch32-ce.Plo \
 	./$(DEPDIR)/sha256-armv8-aarch64-ce.Plo \
 	./$(DEPDIR)/sha256-avx-amd64.Plo \
 	./$(DEPDIR)/sha256-avx2-bmi2-amd64.Plo \
+	./$(DEPDIR)/sha256-intel-shaext.Plo ./$(DEPDIR)/sha256-ppc.Plo \
 	./$(DEPDIR)/sha256-ssse3-amd64.Plo ./$(DEPDIR)/sha256.Plo \
 	./$(DEPDIR)/sha512-arm.Plo ./$(DEPDIR)/sha512-armv7-neon.Plo \
 	./$(DEPDIR)/sha512-avx-amd64.Plo \
 	./$(DEPDIR)/sha512-avx2-bmi2-amd64.Plo \
-	./$(DEPDIR)/sha512-ssse3-amd64.Plo ./$(DEPDIR)/sha512.Plo \
+	./$(DEPDIR)/sha512-ppc.Plo ./$(DEPDIR)/sha512-ssse3-amd64.Plo \
+	./$(DEPDIR)/sha512-ssse3-i386.Plo ./$(DEPDIR)/sha512.Plo \
+	./$(DEPDIR)/sm3.Plo ./$(DEPDIR)/sm4-aesni-avx-amd64.Plo \
+	./$(DEPDIR)/sm4-aesni-avx2-amd64.Plo ./$(DEPDIR)/sm4.Plo \
 	./$(DEPDIR)/stribog.Plo ./$(DEPDIR)/tiger.Plo \
 	./$(DEPDIR)/twofish-aarch64.Plo ./$(DEPDIR)/twofish-amd64.Plo \
 	./$(DEPDIR)/twofish-arm.Plo ./$(DEPDIR)/twofish-avx2-amd64.Plo \
@@ -303,6 +314,7 @@ AWK = @AWK@
 BUILD_FILEVERSION = @BUILD_FILEVERSION@
 BUILD_REVISION = @BUILD_REVISION@
 BUILD_TIMESTAMP = @BUILD_TIMESTAMP@
+BUILD_VERSION = @BUILD_VERSION@
 CC = @CC@
 CCAS = @CCAS@
 CCASDEPMODE = @CCASDEPMODE@
@@ -324,6 +336,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+EXEEXT_FOR_BUILD = @EXEEXT_FOR_BUILD@
 FALLBACK_SOCKLEN_T = @FALLBACK_SOCKLEN_T@
 FGREP = @FGREP@
 GCRYPT_CIPHERS = @GCRYPT_CIPHERS@
@@ -332,6 +345,7 @@ GCRYPT_HWF_MODULES = @GCRYPT_HWF_MODULES@
 GCRYPT_KDFS = @GCRYPT_KDFS@
 GCRYPT_PUBKEY_CIPHERS = @GCRYPT_PUBKEY_CIPHERS@
 GCRYPT_RANDOM = @GCRYPT_RANDOM@
+GPGRT_CONFIG = @GPGRT_CONFIG@
 GPG_ERROR_CFLAGS = @GPG_ERROR_CFLAGS@
 GPG_ERROR_CONFIG = @GPG_ERROR_CONFIG@
 GPG_ERROR_LIBS = @GPG_ERROR_LIBS@
@@ -345,6 +359,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
+LDADD_FOR_TESTS_KLUDGE = @LDADD_FOR_TESTS_KLUDGE@
 LDFLAGS = @LDFLAGS@
 LIBGCRYPT_CIPHERS = @LIBGCRYPT_CIPHERS@
 LIBGCRYPT_CONFIG_API_VERSION = @LIBGCRYPT_CONFIG_API_VERSION@
@@ -394,7 +409,6 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 SYSROOT = @SYSROOT@
-SYS_SOCKET_H = @SYS_SOCKET_H@
 VERSION = @VERSION@
 VERSION_NUMBER = @VERSION_NUMBER@
 abs_builddir = @abs_builddir@
@@ -456,7 +470,7 @@ top_srcdir = @top_srcdir@
 
 # Need to include ../src in addition to top_srcdir because gcrypt.h is
 # a built header.
-AM_CPPFLAGS = -I../src -I$(top_srcdir)/src
+AM_CPPFLAGS = -I../src -I$(top_srcdir)/src -I../mpi -I$(top_srcdir)/mpi
 AM_CFLAGS = $(GPG_ERROR_CFLAGS)
 AM_CCASFLAGS = $(NOEXECSTACK_FLAGS)
 EXTRA_DIST = gost-s-box.c
@@ -469,75 +483,112 @@ GCRYPT_MODULES = @GCRYPT_CIPHERS@ @GCRYPT_PUBKEY_CIPHERS@ \
 libcipher_la_DEPENDENCIES = $(GCRYPT_MODULES)
 libcipher_la_LIBADD = $(GCRYPT_MODULES)
 libcipher_la_SOURCES = \
-cipher.c cipher-internal.h \
-cipher-cbc.c cipher-cfb.c cipher-ofb.c cipher-ctr.c cipher-aeswrap.c \
-cipher-ccm.c cipher-cmac.c cipher-gcm.c cipher-gcm-intel-pclmul.c \
-  cipher-gcm-armv8-aarch32-ce.S cipher-gcm-armv8-aarch64-ce.S \
-cipher-poly1305.c cipher-ocb.c cipher-xts.c \
-cipher-selftest.c cipher-selftest.h \
-pubkey.c pubkey-internal.h pubkey-util.c \
-md.c \
-mac.c mac-internal.h \
-mac-hmac.c mac-cmac.c mac-gmac.c mac-poly1305.c \
-poly1305.c poly1305-internal.h \
-kdf.c kdf-internal.h \
-hmac-tests.c \
-bithelp.h  \
-bufhelp.h  \
-primegen.c  \
-hash-common.c hash-common.h \
-dsa-common.c rsa-common.c \
-sha1.h
+	cipher.c cipher-internal.h \
+	cipher-cbc.c \
+	cipher-cfb.c \
+	cipher-ofb.c \
+	cipher-ctr.c \
+	cipher-aeswrap.c \
+	cipher-ccm.c \
+	cipher-cmac.c \
+	cipher-gcm.c cipher-gcm-intel-pclmul.c cipher-gcm-armv7-neon.S \
+	cipher-gcm-armv8-aarch32-ce.S cipher-gcm-armv8-aarch64-ce.S \
+	cipher-poly1305.c \
+	cipher-ocb.c \
+	cipher-xts.c \
+	cipher-eax.c \
+	cipher-selftest.c cipher-selftest.h \
+	pubkey.c pubkey-internal.h pubkey-util.c \
+	md.c \
+	mac.c mac-internal.h \
+	mac-hmac.c mac-cmac.c mac-gmac.c mac-poly1305.c \
+	poly1305.c poly1305-internal.h \
+	kdf.c kdf-internal.h \
+	bithelp.h  \
+	bufhelp.h  \
+	primegen.c  \
+	hash-common.c hash-common.h \
+	dsa-common.c rsa-common.c \
+	sha1.h
 
 EXTRA_libcipher_la_SOURCES = \
-arcfour.c arcfour-amd64.S \
-blowfish.c blowfish-amd64.S blowfish-arm.S \
-cast5.c cast5-amd64.S cast5-arm.S \
-chacha20.c chacha20-sse2-amd64.S chacha20-ssse3-amd64.S chacha20-avx2-amd64.S \
-  chacha20-armv7-neon.S \
-crc.c \
-  crc-intel-pclmul.c \
-des.c des-amd64.S \
-dsa.c \
-elgamal.c \
-ecc.c ecc-curves.c ecc-misc.c ecc-common.h \
-ecc-ecdsa.c ecc-eddsa.c ecc-gost.c \
-idea.c \
-gost28147.c gost.h \
-gostr3411-94.c \
-md4.c \
-md5.c \
-poly1305-sse2-amd64.S poly1305-avx2-amd64.S poly1305-armv7-neon.S \
-rijndael.c rijndael-internal.h rijndael-tables.h rijndael-aesni.c \
-  rijndael-padlock.c rijndael-amd64.S rijndael-arm.S \
-  rijndael-ssse3-amd64.c rijndael-ssse3-amd64-asm.S \
-  rijndael-armv8-ce.c rijndael-armv8-aarch32-ce.S rijndael-armv8-aarch64-ce.S \
-  rijndael-aarch64.S \
-rmd160.c \
-rsa.c \
-salsa20.c salsa20-amd64.S salsa20-armv7-neon.S \
-scrypt.c \
-seed.c \
-serpent.c serpent-sse2-amd64.S serpent-avx2-amd64.S serpent-armv7-neon.S \
-sha1.c sha1-ssse3-amd64.S sha1-avx-amd64.S sha1-avx-bmi2-amd64.S \
-  sha1-armv7-neon.S sha1-armv8-aarch32-ce.S sha1-armv8-aarch64-ce.S \
-sha256.c sha256-ssse3-amd64.S sha256-avx-amd64.S sha256-avx2-bmi2-amd64.S \
-  sha256-armv8-aarch32-ce.S sha256-armv8-aarch64-ce.S \
-sha512.c sha512-ssse3-amd64.S sha512-avx-amd64.S sha512-avx2-bmi2-amd64.S \
-  sha512-armv7-neon.S sha512-arm.S \
-keccak.c keccak_permute_32.h keccak_permute_64.h keccak-armv7-neon.S \
-stribog.c \
-tiger.c \
-whirlpool.c whirlpool-sse2-amd64.S \
-twofish.c twofish-amd64.S twofish-arm.S twofish-aarch64.S \
-  twofish-avx2-amd64.S \
-rfc2268.c \
-camellia.c camellia.h camellia-glue.c camellia-aesni-avx-amd64.S \
-  camellia-aesni-avx2-amd64.S camellia-arm.S camellia-aarch64.S \
-blake2.c
+	asm-common-aarch64.h \
+	asm-common-amd64.h \
+	asm-poly1305-aarch64.h \
+	asm-poly1305-amd64.h \
+	arcfour.c arcfour-amd64.S \
+	blowfish.c blowfish-amd64.S blowfish-arm.S \
+	cast5.c cast5-amd64.S cast5-arm.S \
+	chacha20.c chacha20-amd64-ssse3.S chacha20-amd64-avx2.S \
+	chacha20-armv7-neon.S chacha20-aarch64.S \
+	chacha20-ppc.c \
+	crc.c crc-intel-pclmul.c crc-armv8-ce.c \
+	crc-armv8-aarch64-ce.S \
+	crc-ppc.c \
+	des.c des-amd64.S \
+	dsa.c \
+	elgamal.c \
+	ecc.c ecc-curves.c ecc-misc.c ecc-common.h \
+	ecc-ecdh.c ecc-ecdsa.c ecc-eddsa.c ecc-gost.c ecc-sm2.c \
+	idea.c \
+	gost28147.c gost.h \
+	gostr3411-94.c \
+	md4.c \
+	md5.c \
+	rijndael.c rijndael-internal.h rijndael-tables.h   \
+	rijndael-aesni.c rijndael-padlock.c                \
+	rijndael-amd64.S rijndael-arm.S                    \
+	rijndael-ssse3-amd64.c rijndael-ssse3-amd64-asm.S  \
+	rijndael-armv8-ce.c rijndael-armv8-aarch32-ce.S    \
+	rijndael-armv8-aarch64-ce.S rijndael-aarch64.S     \
+	rijndael-ppc.c rijndael-ppc9le.c                   \
+	rijndael-ppc-common.h rijndael-ppc-functions.h     \
+	rmd160.c \
+	rsa.c \
+	salsa20.c salsa20-amd64.S salsa20-armv7-neon.S \
+	scrypt.c \
+	seed.c \
+	serpent.c serpent-sse2-amd64.S \
+	sm4.c sm4-aesni-avx-amd64.S sm4-aesni-avx2-amd64.S \
+	serpent-avx2-amd64.S serpent-armv7-neon.S \
+	sha1.c sha1-ssse3-amd64.S sha1-avx-amd64.S sha1-avx-bmi2-amd64.S \
+	sha1-avx2-bmi2-amd64.S sha1-armv7-neon.S sha1-armv8-aarch32-ce.S \
+	sha1-armv8-aarch64-ce.S sha1-intel-shaext.c \
+	sha256.c sha256-ssse3-amd64.S sha256-avx-amd64.S \
+	sha256-avx2-bmi2-amd64.S \
+	sha256-armv8-aarch32-ce.S sha256-armv8-aarch64-ce.S \
+	sha256-intel-shaext.c sha256-ppc.c \
+	sha512.c sha512-ssse3-amd64.S sha512-avx-amd64.S \
+	sha512-avx2-bmi2-amd64.S \
+	sha512-armv7-neon.S sha512-arm.S \
+	sha512-ppc.c sha512-ssse3-i386.c \
+	sm3.c \
+	keccak.c keccak_permute_32.h keccak_permute_64.h keccak-armv7-neon.S \
+	stribog.c \
+	tiger.c \
+	whirlpool.c whirlpool-sse2-amd64.S \
+	twofish.c twofish-amd64.S twofish-arm.S twofish-aarch64.S \
+	twofish-avx2-amd64.S \
+	rfc2268.c \
+	camellia.c camellia.h camellia-glue.c camellia-aesni-avx-amd64.S \
+	camellia-aesni-avx2-amd64.S camellia-arm.S camellia-aarch64.S \
+	blake2.c \
+	blake2b-amd64-avx2.S blake2s-amd64-avx.S
 
 @ENABLE_O_FLAG_MUNGING_FALSE@o_flag_munging = cat
 @ENABLE_O_FLAG_MUNGING_TRUE@o_flag_munging = sed -e 's/-O\([2-9s][2-9s]*\)/-O1/' -e 's/-Ofast/-O1/g'
+@ENABLE_INSTRUMENTATION_MUNGING_FALSE@instrumentation_munging = cat
+
+# We need to disable instrumentation for these modules as they use cc as
+# thin assembly front-end and do not tolerate in-between function calls
+# inserted by compiler as those functions may clobber the XMM registers.
+@ENABLE_INSTRUMENTATION_MUNGING_TRUE@instrumentation_munging = sed \
+@ENABLE_INSTRUMENTATION_MUNGING_TRUE@	-e 's/-fsanitize[=,\-][=,a-z,A-Z,0-9,\,,\-]*//g' \
+@ENABLE_INSTRUMENTATION_MUNGING_TRUE@	-e 's/-fprofile[=,\-][=,a-z,A-Z,0-9,\,,\-]*//g' \
+@ENABLE_INSTRUMENTATION_MUNGING_TRUE@	-e 's/-fcoverage[=,\-][=,a-z,A-Z,0-9,\,,\-]*//g'
+
+@ENABLE_PPC_VCRYPTO_EXTRA_CFLAGS_FALSE@ppc_vcrypto_cflags = 
+@ENABLE_PPC_VCRYPTO_EXTRA_CFLAGS_TRUE@ppc_vcrypto_cflags = -maltivec -mvsx -mcrypto
 all: all-am
 
 .SUFFIXES:
@@ -595,6 +646,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arcfour-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/arcfour.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blake2.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blake2b-amd64-avx2.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blake2s-amd64-avx.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blowfish-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blowfish-arm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blowfish.Plo@am__quote@ # am--include-marker
@@ -607,10 +660,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cast5-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cast5-arm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cast5.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-aarch64.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-amd64-avx2.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-amd64-ssse3.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-armv7-neon.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-avx2-amd64.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-sse2-amd64.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-ssse3-amd64.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-ppc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-aeswrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-cbc.Plo@am__quote@ # am--include-marker
@@ -618,6 +672,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-cfb.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-cmac.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-ctr.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-eax.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-gcm-armv7-neon.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-gcm-armv8-aarch32-ce.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-gcm-armv8-aarch64-ce.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-gcm-intel-pclmul.Plo@am__quote@ # am--include-marker
@@ -628,23 +684,27 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-selftest.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-xts.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crc-armv8-aarch64-ce.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crc-armv8-ce.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crc-intel-pclmul.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crc-ppc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/des-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/des.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dsa-common.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dsa.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ecc-curves.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ecc-ecdh.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ecc-ecdsa.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ecc-eddsa.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ecc-gost.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ecc-misc.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ecc-sm2.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ecc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/elgamal.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gost28147.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gostr3411-94.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hash-common.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hmac-tests.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/idea.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kdf.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/keccak-armv7-neon.Plo@am__quote@ # am--include-marker
@@ -657,9 +717,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md4.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poly1305-armv7-neon.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poly1305-avx2-amd64.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poly1305-sse2-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poly1305.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/primegen.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pubkey-util.Plo@am__quote@ # am--include-marker
@@ -673,6 +730,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-armv8-aarch64-ce.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-armv8-ce.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-padlock.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-ppc.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-ppc9le.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-ssse3-amd64-asm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-ssse3-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael.Plo@am__quote@ # am--include-marker
@@ -693,20 +752,30 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha1-armv8-aarch64-ce.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha1-avx-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha1-avx-bmi2-amd64.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha1-avx2-bmi2-amd64.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha1-intel-shaext.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha1-ssse3-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha1.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha256-armv8-aarch32-ce.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha256-armv8-aarch64-ce.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha256-avx-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha256-avx2-bmi2-amd64.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha256-intel-shaext.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha256-ppc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha256-ssse3-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha256.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512-arm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512-armv7-neon.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512-avx-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512-avx2-bmi2-amd64.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512-ppc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512-ssse3-amd64.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512-ssse3-i386.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sm3.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sm4-aesni-avx-amd64.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sm4-aesni-avx2-amd64.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sm4.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stribog.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tiger.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/twofish-aarch64.Plo@am__quote@ # am--include-marker
@@ -901,6 +970,8 @@ distclean: distclean-am
 		-rm -f ./$(DEPDIR)/arcfour-amd64.Plo
 	-rm -f ./$(DEPDIR)/arcfour.Plo
 	-rm -f ./$(DEPDIR)/blake2.Plo
+	-rm -f ./$(DEPDIR)/blake2b-amd64-avx2.Plo
+	-rm -f ./$(DEPDIR)/blake2s-amd64-avx.Plo
 	-rm -f ./$(DEPDIR)/blowfish-amd64.Plo
 	-rm -f ./$(DEPDIR)/blowfish-arm.Plo
 	-rm -f ./$(DEPDIR)/blowfish.Plo
@@ -913,10 +984,11 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/cast5-amd64.Plo
 	-rm -f ./$(DEPDIR)/cast5-arm.Plo
 	-rm -f ./$(DEPDIR)/cast5.Plo
+	-rm -f ./$(DEPDIR)/chacha20-aarch64.Plo
+	-rm -f ./$(DEPDIR)/chacha20-amd64-avx2.Plo
+	-rm -f ./$(DEPDIR)/chacha20-amd64-ssse3.Plo
 	-rm -f ./$(DEPDIR)/chacha20-armv7-neon.Plo
-	-rm -f ./$(DEPDIR)/chacha20-avx2-amd64.Plo
-	-rm -f ./$(DEPDIR)/chacha20-sse2-amd64.Plo
-	-rm -f ./$(DEPDIR)/chacha20-ssse3-amd64.Plo
+	-rm -f ./$(DEPDIR)/chacha20-ppc.Plo
 	-rm -f ./$(DEPDIR)/chacha20.Plo
 	-rm -f ./$(DEPDIR)/cipher-aeswrap.Plo
 	-rm -f ./$(DEPDIR)/cipher-cbc.Plo
@@ -924,6 +996,8 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/cipher-cfb.Plo
 	-rm -f ./$(DEPDIR)/cipher-cmac.Plo
 	-rm -f ./$(DEPDIR)/cipher-ctr.Plo
+	-rm -f ./$(DEPDIR)/cipher-eax.Plo
+	-rm -f ./$(DEPDIR)/cipher-gcm-armv7-neon.Plo
 	-rm -f ./$(DEPDIR)/cipher-gcm-armv8-aarch32-ce.Plo
 	-rm -f ./$(DEPDIR)/cipher-gcm-armv8-aarch64-ce.Plo
 	-rm -f ./$(DEPDIR)/cipher-gcm-intel-pclmul.Plo
@@ -934,23 +1008,27 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/cipher-selftest.Plo
 	-rm -f ./$(DEPDIR)/cipher-xts.Plo
 	-rm -f ./$(DEPDIR)/cipher.Plo
+	-rm -f ./$(DEPDIR)/crc-armv8-aarch64-ce.Plo
+	-rm -f ./$(DEPDIR)/crc-armv8-ce.Plo
 	-rm -f ./$(DEPDIR)/crc-intel-pclmul.Plo
+	-rm -f ./$(DEPDIR)/crc-ppc.Plo
 	-rm -f ./$(DEPDIR)/crc.Plo
 	-rm -f ./$(DEPDIR)/des-amd64.Plo
 	-rm -f ./$(DEPDIR)/des.Plo
 	-rm -f ./$(DEPDIR)/dsa-common.Plo
 	-rm -f ./$(DEPDIR)/dsa.Plo
 	-rm -f ./$(DEPDIR)/ecc-curves.Plo
+	-rm -f ./$(DEPDIR)/ecc-ecdh.Plo
 	-rm -f ./$(DEPDIR)/ecc-ecdsa.Plo
 	-rm -f ./$(DEPDIR)/ecc-eddsa.Plo
 	-rm -f ./$(DEPDIR)/ecc-gost.Plo
 	-rm -f ./$(DEPDIR)/ecc-misc.Plo
+	-rm -f ./$(DEPDIR)/ecc-sm2.Plo
 	-rm -f ./$(DEPDIR)/ecc.Plo
 	-rm -f ./$(DEPDIR)/elgamal.Plo
 	-rm -f ./$(DEPDIR)/gost28147.Plo
 	-rm -f ./$(DEPDIR)/gostr3411-94.Plo
 	-rm -f ./$(DEPDIR)/hash-common.Plo
-	-rm -f ./$(DEPDIR)/hmac-tests.Plo
 	-rm -f ./$(DEPDIR)/idea.Plo
 	-rm -f ./$(DEPDIR)/kdf.Plo
 	-rm -f ./$(DEPDIR)/keccak-armv7-neon.Plo
@@ -963,9 +1041,6 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/md.Plo
 	-rm -f ./$(DEPDIR)/md4.Plo
 	-rm -f ./$(DEPDIR)/md5.Plo
-	-rm -f ./$(DEPDIR)/poly1305-armv7-neon.Plo
-	-rm -f ./$(DEPDIR)/poly1305-avx2-amd64.Plo
-	-rm -f ./$(DEPDIR)/poly1305-sse2-amd64.Plo
 	-rm -f ./$(DEPDIR)/poly1305.Plo
 	-rm -f ./$(DEPDIR)/primegen.Plo
 	-rm -f ./$(DEPDIR)/pubkey-util.Plo
@@ -979,6 +1054,8 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/rijndael-armv8-aarch64-ce.Plo
 	-rm -f ./$(DEPDIR)/rijndael-armv8-ce.Plo
 	-rm -f ./$(DEPDIR)/rijndael-padlock.Plo
+	-rm -f ./$(DEPDIR)/rijndael-ppc.Plo
+	-rm -f ./$(DEPDIR)/rijndael-ppc9le.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ssse3-amd64-asm.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ssse3-amd64.Plo
 	-rm -f ./$(DEPDIR)/rijndael.Plo
@@ -999,20 +1076,30 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/sha1-armv8-aarch64-ce.Plo
 	-rm -f ./$(DEPDIR)/sha1-avx-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha1-avx-bmi2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha1-avx2-bmi2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha1-intel-shaext.Plo
 	-rm -f ./$(DEPDIR)/sha1-ssse3-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha1.Plo
 	-rm -f ./$(DEPDIR)/sha256-armv8-aarch32-ce.Plo
 	-rm -f ./$(DEPDIR)/sha256-armv8-aarch64-ce.Plo
 	-rm -f ./$(DEPDIR)/sha256-avx-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha256-avx2-bmi2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha256-intel-shaext.Plo
+	-rm -f ./$(DEPDIR)/sha256-ppc.Plo
 	-rm -f ./$(DEPDIR)/sha256-ssse3-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha256.Plo
 	-rm -f ./$(DEPDIR)/sha512-arm.Plo
 	-rm -f ./$(DEPDIR)/sha512-armv7-neon.Plo
 	-rm -f ./$(DEPDIR)/sha512-avx-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha512-avx2-bmi2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha512-ppc.Plo
 	-rm -f ./$(DEPDIR)/sha512-ssse3-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha512-ssse3-i386.Plo
 	-rm -f ./$(DEPDIR)/sha512.Plo
+	-rm -f ./$(DEPDIR)/sm3.Plo
+	-rm -f ./$(DEPDIR)/sm4-aesni-avx-amd64.Plo
+	-rm -f ./$(DEPDIR)/sm4-aesni-avx2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sm4.Plo
 	-rm -f ./$(DEPDIR)/stribog.Plo
 	-rm -f ./$(DEPDIR)/tiger.Plo
 	-rm -f ./$(DEPDIR)/twofish-aarch64.Plo
@@ -1070,6 +1157,8 @@ maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/arcfour-amd64.Plo
 	-rm -f ./$(DEPDIR)/arcfour.Plo
 	-rm -f ./$(DEPDIR)/blake2.Plo
+	-rm -f ./$(DEPDIR)/blake2b-amd64-avx2.Plo
+	-rm -f ./$(DEPDIR)/blake2s-amd64-avx.Plo
 	-rm -f ./$(DEPDIR)/blowfish-amd64.Plo
 	-rm -f ./$(DEPDIR)/blowfish-arm.Plo
 	-rm -f ./$(DEPDIR)/blowfish.Plo
@@ -1082,10 +1171,11 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/cast5-amd64.Plo
 	-rm -f ./$(DEPDIR)/cast5-arm.Plo
 	-rm -f ./$(DEPDIR)/cast5.Plo
+	-rm -f ./$(DEPDIR)/chacha20-aarch64.Plo
+	-rm -f ./$(DEPDIR)/chacha20-amd64-avx2.Plo
+	-rm -f ./$(DEPDIR)/chacha20-amd64-ssse3.Plo
 	-rm -f ./$(DEPDIR)/chacha20-armv7-neon.Plo
-	-rm -f ./$(DEPDIR)/chacha20-avx2-amd64.Plo
-	-rm -f ./$(DEPDIR)/chacha20-sse2-amd64.Plo
-	-rm -f ./$(DEPDIR)/chacha20-ssse3-amd64.Plo
+	-rm -f ./$(DEPDIR)/chacha20-ppc.Plo
 	-rm -f ./$(DEPDIR)/chacha20.Plo
 	-rm -f ./$(DEPDIR)/cipher-aeswrap.Plo
 	-rm -f ./$(DEPDIR)/cipher-cbc.Plo
@@ -1093,6 +1183,8 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/cipher-cfb.Plo
 	-rm -f ./$(DEPDIR)/cipher-cmac.Plo
 	-rm -f ./$(DEPDIR)/cipher-ctr.Plo
+	-rm -f ./$(DEPDIR)/cipher-eax.Plo
+	-rm -f ./$(DEPDIR)/cipher-gcm-armv7-neon.Plo
 	-rm -f ./$(DEPDIR)/cipher-gcm-armv8-aarch32-ce.Plo
 	-rm -f ./$(DEPDIR)/cipher-gcm-armv8-aarch64-ce.Plo
 	-rm -f ./$(DEPDIR)/cipher-gcm-intel-pclmul.Plo
@@ -1103,23 +1195,27 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/cipher-selftest.Plo
 	-rm -f ./$(DEPDIR)/cipher-xts.Plo
 	-rm -f ./$(DEPDIR)/cipher.Plo
+	-rm -f ./$(DEPDIR)/crc-armv8-aarch64-ce.Plo
+	-rm -f ./$(DEPDIR)/crc-armv8-ce.Plo
 	-rm -f ./$(DEPDIR)/crc-intel-pclmul.Plo
+	-rm -f ./$(DEPDIR)/crc-ppc.Plo
 	-rm -f ./$(DEPDIR)/crc.Plo
 	-rm -f ./$(DEPDIR)/des-amd64.Plo
 	-rm -f ./$(DEPDIR)/des.Plo
 	-rm -f ./$(DEPDIR)/dsa-common.Plo
 	-rm -f ./$(DEPDIR)/dsa.Plo
 	-rm -f ./$(DEPDIR)/ecc-curves.Plo
+	-rm -f ./$(DEPDIR)/ecc-ecdh.Plo
 	-rm -f ./$(DEPDIR)/ecc-ecdsa.Plo
 	-rm -f ./$(DEPDIR)/ecc-eddsa.Plo
 	-rm -f ./$(DEPDIR)/ecc-gost.Plo
 	-rm -f ./$(DEPDIR)/ecc-misc.Plo
+	-rm -f ./$(DEPDIR)/ecc-sm2.Plo
 	-rm -f ./$(DEPDIR)/ecc.Plo
 	-rm -f ./$(DEPDIR)/elgamal.Plo
 	-rm -f ./$(DEPDIR)/gost28147.Plo
 	-rm -f ./$(DEPDIR)/gostr3411-94.Plo
 	-rm -f ./$(DEPDIR)/hash-common.Plo
-	-rm -f ./$(DEPDIR)/hmac-tests.Plo
 	-rm -f ./$(DEPDIR)/idea.Plo
 	-rm -f ./$(DEPDIR)/kdf.Plo
 	-rm -f ./$(DEPDIR)/keccak-armv7-neon.Plo
@@ -1132,9 +1228,6 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/md.Plo
 	-rm -f ./$(DEPDIR)/md4.Plo
 	-rm -f ./$(DEPDIR)/md5.Plo
-	-rm -f ./$(DEPDIR)/poly1305-armv7-neon.Plo
-	-rm -f ./$(DEPDIR)/poly1305-avx2-amd64.Plo
-	-rm -f ./$(DEPDIR)/poly1305-sse2-amd64.Plo
 	-rm -f ./$(DEPDIR)/poly1305.Plo
 	-rm -f ./$(DEPDIR)/primegen.Plo
 	-rm -f ./$(DEPDIR)/pubkey-util.Plo
@@ -1148,6 +1241,8 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/rijndael-armv8-aarch64-ce.Plo
 	-rm -f ./$(DEPDIR)/rijndael-armv8-ce.Plo
 	-rm -f ./$(DEPDIR)/rijndael-padlock.Plo
+	-rm -f ./$(DEPDIR)/rijndael-ppc.Plo
+	-rm -f ./$(DEPDIR)/rijndael-ppc9le.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ssse3-amd64-asm.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ssse3-amd64.Plo
 	-rm -f ./$(DEPDIR)/rijndael.Plo
@@ -1168,20 +1263,30 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/sha1-armv8-aarch64-ce.Plo
 	-rm -f ./$(DEPDIR)/sha1-avx-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha1-avx-bmi2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha1-avx2-bmi2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha1-intel-shaext.Plo
 	-rm -f ./$(DEPDIR)/sha1-ssse3-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha1.Plo
 	-rm -f ./$(DEPDIR)/sha256-armv8-aarch32-ce.Plo
 	-rm -f ./$(DEPDIR)/sha256-armv8-aarch64-ce.Plo
 	-rm -f ./$(DEPDIR)/sha256-avx-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha256-avx2-bmi2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha256-intel-shaext.Plo
+	-rm -f ./$(DEPDIR)/sha256-ppc.Plo
 	-rm -f ./$(DEPDIR)/sha256-ssse3-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha256.Plo
 	-rm -f ./$(DEPDIR)/sha512-arm.Plo
 	-rm -f ./$(DEPDIR)/sha512-armv7-neon.Plo
 	-rm -f ./$(DEPDIR)/sha512-avx-amd64.Plo
 	-rm -f ./$(DEPDIR)/sha512-avx2-bmi2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha512-ppc.Plo
 	-rm -f ./$(DEPDIR)/sha512-ssse3-amd64.Plo
+	-rm -f ./$(DEPDIR)/sha512-ssse3-i386.Plo
 	-rm -f ./$(DEPDIR)/sha512.Plo
+	-rm -f ./$(DEPDIR)/sm3.Plo
+	-rm -f ./$(DEPDIR)/sm4-aesni-avx-amd64.Plo
+	-rm -f ./$(DEPDIR)/sm4-aesni-avx2-amd64.Plo
+	-rm -f ./$(DEPDIR)/sm4.Plo
 	-rm -f ./$(DEPDIR)/stribog.Plo
 	-rm -f ./$(DEPDIR)/tiger.Plo
 	-rm -f ./$(DEPDIR)/twofish-aarch64.Plo
@@ -1233,14 +1338,93 @@ gost-sb.h: gost-s-box
 	./gost-s-box $@
 
 gost-s-box: gost-s-box.c
-	$(CC_FOR_BUILD) -o $@ $(srcdir)/gost-s-box.c
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) \
+	    $(CPPFLAGS_FOR_BUILD)-o $@ $(srcdir)/gost-s-box.c
 
 # We need to lower the optimization for this module.
-tiger.o: $(srcdir)/tiger.c
-	`echo $(COMPILE) -c $(srcdir)/tiger.c | $(o_flag_munging) `
+tiger.o: $(srcdir)/tiger.c Makefile
+	`echo $(COMPILE) -c $< | $(o_flag_munging) `
 
-tiger.lo: $(srcdir)/tiger.c
-	`echo $(LTCOMPILE) -c $(srcdir)/tiger.c | $(o_flag_munging) `
+tiger.lo: $(srcdir)/tiger.c Makefile
+	`echo $(LTCOMPILE) -c $< | $(o_flag_munging) `
+
+rijndael-aesni.o: $(srcdir)/rijndael-aesni.c Makefile
+	`echo $(COMPILE) -c $< | $(instrumentation_munging) `
+
+rijndael-aesni.lo: $(srcdir)/rijndael-aesni.c Makefile
+	`echo $(LTCOMPILE) -c $< | $(instrumentation_munging) `
+
+rijndael-ssse3-amd64.o: $(srcdir)/rijndael-ssse3-amd64.c Makefile
+	`echo $(COMPILE) -c $< | $(instrumentation_munging) `
+
+rijndael-ssse3-amd64.lo: $(srcdir)/rijndael-ssse3-amd64.c Makefile
+	`echo $(LTCOMPILE) -c $< | $(instrumentation_munging) `
+
+cipher-gcm-intel-pclmul.o: $(srcdir)/cipher-gcm-intel-pclmul.c Makefile
+	`echo $(COMPILE) -c $< | $(instrumentation_munging) `
+
+cipher-gcm-intel-pclmul.lo: $(srcdir)/cipher-gcm-intel-pclmul.c Makefile
+	`echo $(LTCOMPILE) -c $< | $(instrumentation_munging) `
+
+sha1-intel-shaext.o: $(srcdir)/sha1-intel-shaext.c Makefile
+	`echo $(COMPILE) -c $< | $(instrumentation_munging) `
+
+sha1-intel-shaext.lo: $(srcdir)/sha1-intel-shaext.c Makefile
+	`echo $(LTCOMPILE) -c $< | $(instrumentation_munging) `
+
+sha256-intel-shaext.o: $(srcdir)/sha256-intel-shaext.c Makefile
+	`echo $(COMPILE) -c $< | $(instrumentation_munging) `
+
+sha256-intel-shaext.lo: $(srcdir)/sha256-intel-shaext.c Makefile
+	`echo $(LTCOMPILE) -c $< | $(instrumentation_munging) `
+
+sha256-ssse3-i386.o: $(srcdir)/sha256-ssse3-i386.c Makefile
+	`echo $(COMPILE) -c $< | $(instrumentation_munging) `
+
+sha256-ssse3-i386.lo: $(srcdir)/sha256-ssse3-i386.c Makefile
+	`echo $(LTCOMPILE) -c $< | $(instrumentation_munging) `
+
+crc-intel-pclmul.o: $(srcdir)/crc-intel-pclmul.c Makefile
+	`echo $(COMPILE) -c $< | $(instrumentation_munging) `
+
+crc-intel-pclmul.lo: $(srcdir)/crc-intel-pclmul.c Makefile
+	`echo $(LTCOMPILE) -c $< | $(instrumentation_munging) `
+
+rijndael-ppc.o: $(srcdir)/rijndael-ppc.c Makefile
+	`echo $(COMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+rijndael-ppc.lo: $(srcdir)/rijndael-ppc.c Makefile
+	`echo $(LTCOMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+rijndael-ppc9le.o: $(srcdir)/rijndael-ppc9le.c Makefile
+	`echo $(COMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+rijndael-ppc9le.lo: $(srcdir)/rijndael-ppc9le.c Makefile
+	`echo $(LTCOMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+sha256-ppc.o: $(srcdir)/sha256-ppc.c Makefile
+	`echo $(COMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+sha256-ppc.lo: $(srcdir)/sha256-ppc.c Makefile
+	`echo $(LTCOMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+sha512-ppc.o: $(srcdir)/sha512-ppc.c Makefile
+	`echo $(COMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+sha512-ppc.lo: $(srcdir)/sha512-ppc.c Makefile
+	`echo $(LTCOMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+chacha20-ppc.o: $(srcdir)/chacha20-ppc.c Makefile
+	`echo $(COMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+chacha20-ppc.lo: $(srcdir)/chacha20-ppc.c Makefile
+	`echo $(LTCOMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+crc-ppc.o: $(srcdir)/crc-ppc.c Makefile
+	`echo $(COMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
+
+crc-ppc.lo: $(srcdir)/crc-ppc.c Makefile
+	`echo $(LTCOMPILE) $(ppc_vcrypto_cflags) -c $< | $(instrumentation_munging) `
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

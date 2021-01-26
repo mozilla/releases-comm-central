@@ -17,7 +17,7 @@
  * License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "asm-common-aarch64.h"
 
 #if defined(__AARCH64EL__) && \
     defined(HAVE_COMPATIBLE_GCC_AARCH64_PLATFORM_AS) && \
@@ -26,11 +26,6 @@
 .cpu generic+simd+crypto
 
 .text
-
-
-#define GET_DATA_POINTER(reg, name) \
-		adrp    reg, :got:name ; \
-		ldr     reg, [reg, #:got_lo12:name] ;
 
 
 /* Constants */
@@ -103,13 +98,14 @@ gcry_sha1_aarch64_ce_K_VEC:
  */
 .align 3
 .globl _gcry_sha1_transform_armv8_ce
-.type  _gcry_sha1_transform_armv8_ce,%function;
+ELF(.type  _gcry_sha1_transform_armv8_ce,%function;)
 _gcry_sha1_transform_armv8_ce:
   /* input:
    *	x0: ctx, CTX
    *	x1: data (64*nblks bytes)
    *	x2: nblks
    */
+  CFI_STARTPROC();
 
   cbz x2, .Ldo_nothing;
 
@@ -199,6 +195,7 @@ _gcry_sha1_transform_armv8_ce:
 .Ldo_nothing:
   mov x0, #0
   ret
-.size _gcry_sha1_transform_armv8_ce,.-_gcry_sha1_transform_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_sha1_transform_armv8_ce,.-_gcry_sha1_transform_armv8_ce;)
 
 #endif

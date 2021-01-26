@@ -308,7 +308,7 @@ gcry_mpi_set_ui (gcry_mpi_t w, unsigned long u)
 }
 
 gcry_error_t
-gcry_mpi_get_ui (gcry_mpi_t w, unsigned long *u)
+gcry_mpi_get_ui (unsigned int *w, gcry_mpi_t u)
 {
   return gpg_error (_gcry_mpi_get_ui (w, u));
 }
@@ -1110,6 +1110,19 @@ gcry_pubkey_get_sexp (gcry_sexp_t *r_sexp, int mode, gcry_ctx_t ctx)
       return gpg_error (fips_not_operational ());
     }
   return gpg_error (_gcry_pubkey_get_sexp (r_sexp, mode, ctx));
+}
+
+unsigned int
+gcry_ecc_get_algo_keylen (int curveid)
+{
+  return _gcry_ecc_get_algo_keylen (curveid);
+}
+
+gpg_error_t
+gcry_ecc_mul_point (int curveid, unsigned char *result,
+                    const unsigned char *scalar, const unsigned char *point)
+{
+  return _gcry_ecc_mul_point (curveid, result, scalar, point);
 }
 
 gcry_error_t

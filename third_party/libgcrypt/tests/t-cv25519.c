@@ -115,12 +115,12 @@ reverse_buffer (unsigned char *buffer, unsigned int length)
  *
  * where R is expected result of X25519 (K, U).
  *
- * It calls gcry_pk_decrypt with Curve25519 private key and let
+ * It calls gcry_pk_encrypt with Curve25519 private key and let
  * it compute X25519.
  */
 static void
-test_cv (int testno, const char *k_str, const char *u_str,
-         const char *result_str)
+test_cv_hl (int testno, const char *k_str, const char *u_str,
+            const char *result_str)
 {
   gpg_error_t err;
   void *buffer = NULL;
@@ -228,6 +228,85 @@ test_cv (int testno, const char *k_str, const char *u_str,
   gcry_sexp_release (s_data);
   gcry_sexp_release (s_pk);
   xfree (buffer);
+}
+
+/*
+ * Test X25519 functionality through the API for X25519.
+ *
+ * Input: K (as hex string), U (as hex string), R (as hex string)
+ *
+ * where R is expected result of X25519 (K, U).
+ *
+ */
+static void
+test_cv_x25519 (int testno, const char *k_str, const char *u_str,
+                const char *result_str)
+{
+  gpg_error_t err;
+  void *scalar = NULL;
+  void *point = NULL;
+  size_t buflen;
+  unsigned char result[32];
+  char result_hex[65];
+  int i;
+  int algo = GCRY_ECC_CURVE25519;
+  unsigned int keylen;
+
+  if (verbose > 1)
+    info ("Running test %d\n", testno);
+
+  if (!(keylen = gcry_ecc_get_algo_keylen (algo)))
+    {
+      fail ("error getting keylen for test %d", testno);
+      goto leave;
+    }
+
+  if (keylen != 32)
+    {
+      fail ("error invalid keylen for test %d", testno);
+      goto leave;
+    }
+
+  if (!(scalar = hex2buffer (k_str, &buflen)) || buflen != keylen)
+    {
+      fail ("error of input for test %d, %s: %s",
+            testno, "k", "invalid hex string");
+      goto leave;
+    }
+
+  if (!(point = hex2buffer (u_str, &buflen)) || buflen != keylen)
+    {
+      fail ("error of input for test %d, %s: %s",
+            testno, "u", "invalid hex string");
+      goto leave;
+    }
+
+  if ((err = gcry_ecc_mul_point (algo, result, scalar, point)))
+    fail ("gcry_ecc_mul_point failed for test %d: %s", testno,
+          gpg_strerror (err));
+
+  for (i=0; i < keylen; i++)
+    snprintf (&result_hex[i*2], 3, "%02x", result[i]);
+
+  if (strcmp (result_str, result_hex))
+    {
+      fail ("gcry_ecc_mul_point failed for test %d: %s",
+            testno, "wrong value returned");
+      info ("  expected: '%s'", result_str);
+      info ("       got: '%s'", result_hex);
+    }
+
+ leave:
+  xfree (scalar);
+  xfree (point);
+}
+
+static void
+test_cv (int testno, const char *k_str, const char *u_str,
+         const char *result_str)
+{
+  test_cv_hl (testno, k_str, u_str, result_str);
+  test_cv_x25519 (testno, k_str, u_str, result_str);
 }
 
 /*
@@ -553,13 +632,13 @@ main (int argc, char **argv)
         die ("unknown option '%s'", *argv);
     }
 
-  xgcry_control (GCRYCTL_DISABLE_SECMEM, 0);
+  xgcry_control ((GCRYCTL_DISABLE_SECMEM, 0));
   if (!gcry_check_version (GCRYPT_VERSION))
     die ("version mismatch\n");
   if (debug)
-    xgcry_control (GCRYCTL_SET_DEBUG_FLAGS, 1u , 0);
-  xgcry_control (GCRYCTL_ENABLE_QUICK_RANDOM, 0);
-  xgcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+    xgcry_control ((GCRYCTL_SET_DEBUG_FLAGS, 1u , 0));
+  xgcry_control ((GCRYCTL_ENABLE_QUICK_RANDOM, 0));
+  xgcry_control ((GCRYCTL_INITIALIZATION_FINISHED, 0));
 
   start_timer ();
   check_cv25519 ();

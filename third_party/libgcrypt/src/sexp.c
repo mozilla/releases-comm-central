@@ -1112,8 +1112,9 @@ do_vsexp_sscan (gcry_sexp_t *retsexp, size_t *erroff,
   const char *disphint = NULL;
   const char *percent = NULL;
   int hexcount = 0;
+  int b64count = 0;
   int quoted_esc = 0;
-  int datalen = 0;
+  size_t datalen = 0;
   size_t dummy_erroff;
   struct make_space_ctx c;
   int arg_counter = 0;
@@ -1327,9 +1328,61 @@ do_vsexp_sscan (gcry_sexp_t *retsexp, size_t *erroff,
 	    }
 	}
       else if (base64)
-	{
-	  if (*p == '|')
-	    base64 = NULL;
+        {
+          if (digitp (p) || alphap (p) || *p == '+' || *p == '/' || *p == '=')
+            b64count++;
+          else if (*p == '|')
+            {
+              gpgrt_b64state_t b64state;
+              char *b64buf;
+              int i;
+
+              base64++;         /* Skip beginning '|' */
+              b64buf = xtrymalloc (b64count);
+              if (!b64buf)
+                {
+                  err = gpg_err_code_from_syserror ();
+                  goto leave;
+                }
+              memcpy (b64buf, base64, b64count);
+
+              b64state = gpgrt_b64dec_start (NULL);
+              if (!b64state)
+                {
+                  err = gpg_err_code_from_syserror ();
+                  xfree (b64buf);
+                  goto leave;
+                }
+              err = gpgrt_b64dec_proc (b64state, b64buf, b64count,
+                                       &datalen);
+              if (err && gpg_err_code (err) != GPG_ERR_EOF)
+                {
+                  xfree (b64state);
+                  xfree (b64buf);
+                  goto leave;
+                }
+              err = gpgrt_b64dec_finish (b64state);
+              if (err)
+                {
+                  xfree (b64buf);
+                  goto leave;
+                }
+
+              MAKE_SPACE (datalen);
+              *c.pos++ = ST_DATA;
+              STORE_LEN (c.pos, datalen);
+              for (i = 0; i < datalen; i++)
+                *c.pos++ = b64buf[i];
+
+              xfree (b64buf);
+              base64 = NULL;
+            }
+          else
+            {
+              *erroff = p - buffer;
+              err = GPG_ERR_SEXP_BAD_CHARACTER;
+              goto leave;
+            }
 	}
       else if (digptr)
 	{
@@ -1367,11 +1420,12 @@ do_vsexp_sscan (gcry_sexp_t *retsexp, size_t *erroff,
 	      hexfmt = p;
 	      hexcount = 0;
 	    }
-	  else if (*p == '|')
-	    {
-	      digptr = NULL; /* We ignore the optional length.  */
-	      base64 = p;
-	    }
+          else if (*p == '|')
+            {
+              digptr = NULL; /* We ignore the optional length.  */
+              base64 = p;
+              b64count = 0;
+            }
 	  else
 	    {
 	      *erroff = p - buffer;
@@ -1429,6 +1483,12 @@ do_vsexp_sscan (gcry_sexp_t *retsexp, size_t *erroff,
                 }
               else
                 {
+                  if (mpifmt == GCRYMPI_FMT_USG && mpi_cmp_ui (m, 0) < 0)
+                    {
+                      err = GPG_ERR_INV_ARG;
+                      goto leave;
+                    }
+
                   err = _gcry_mpi_print (mpifmt, NULL, 0, &nm, m);
                   if (err)
                     goto leave;
@@ -1486,6 +1546,13 @@ do_vsexp_sscan (gcry_sexp_t *retsexp, size_t *erroff,
 
 	      ARG_NEXT (alen, int);
 	      ARG_NEXT (astr, const char *);
+
+              if (alen < 0)
+                {
+                  *erroff = p - buffer;
+		  err = GPG_ERR_INV_ARG;
+                  goto leave;
+                }
 
 	      MAKE_SPACE (alen);
 	      if (alen
@@ -1616,7 +1683,10 @@ do_vsexp_sscan (gcry_sexp_t *retsexp, size_t *erroff,
 	  hexcount = 0;
 	}
       else if (*p == '|')
-	base64 = p;
+        {
+          base64 = p;
+          b64count = 0;
+        }
       else if (*p == '[')
 	{
 	  if (disphint)
@@ -2182,11 +2252,18 @@ _gcry_sexp_canon_len (const unsigned char *buffer, size_t length,
  * names of these parameters are given by the string LIST.  Some
  * special characters may be given to control the conversion:
  *
- *    + :: Switch to unsigned integer format (default).
- *    - :: Switch to standard signed format.
- *    / :: Switch to opaque format.
- *    & :: Switch to buffer descriptor mode - see below.
- *    ? :: The previous parameter is optional.
+ *   +   :: Switch to unsigned integer format (default).
+ *   -   :: Switch to standard signed format.
+ *   /   :: Switch to opaque format
+ *   &   :: Switch to buffer descriptor mode - see below.
+ *   %s  :: Switch to allocated string arguments.
+ *   %#s :: Switch to allocated string arguments for a list of string flags.
+ *   %u  :: Switch to unsigned integer arguments.
+ *   %lu :: Switch to unsigned long integer arguments.
+ *   %zu :: Switch to size_t arguments.
+ *   %d  :: Switch to signed integer arguments.
+ *   %ld :: Switch to signed long integer arguments.
+ *   ?   :: The previous parameter is optional.
  *
  * In general parameter names are single letters.  To use a string for
  * a parameter name, enclose the name in single quotes.
@@ -2213,6 +2290,9 @@ _gcry_sexp_canon_len (const unsigned char *buffer, size_t length,
  * is too small, the function immediately returns with an error code
  * (and LEN set to 0).
  *
+ * For a flag list ("%#s") which has other lists as elements these
+ * sub-lists are skipped and a indicated by "()" in the output.
+ *
  * PATH is an optional string used to locate a token.  The exclamation
  * mark separated tokens are used to via gcry_sexp_find_token to find
  * a start point inside SEXP.
@@ -2229,13 +2309,22 @@ _gcry_sexp_vextract_param (gcry_sexp_t sexp, const char *path,
 {
   gpg_err_code_t rc;
   const char *s, *s2;
-  gcry_mpi_t *array[20];
+  void **array[20];
   char arrayisdesc[20];
-  int idx;
+  int idx, i;
   gcry_sexp_t l1 = NULL;
   int mode = '+'; /* Default to GCRYMPI_FMT_USG.  */
+  int submode = 0;
   gcry_sexp_t freethis = NULL;
+  char *tmpstr = NULL;
 
+  /* Values in ARRAYISDESC describing what the ARRAY holds.
+   *  0  - MPI
+   *  1  - gcry_buffer_t provided by caller.
+   *  2  - gcry_buffer_t allocated by us.
+   * 's' - String allocated by us.
+   * 'x' - Ignore
+   */
   memset (arrayisdesc, 0, sizeof arrayisdesc);
 
   /* First copy all the args into an array.  This is required so that
@@ -2245,6 +2334,17 @@ _gcry_sexp_vextract_param (gcry_sexp_t sexp, const char *path,
     {
       if (*s == '&' || *s == '+' || *s == '-' || *s == '/' || *s == '?')
         ;
+      else if (*s == '%')
+        {
+          s++;
+          if (*s == 'l' && (s[1] == 'u' || s[1] == 'd'))
+            s++;
+          else if (*s == 'z' && s[1] == 'u')
+            s++;
+          else if (*s == '#' && s[1] == 's')
+            s++;
+          continue;
+        }
       else if (whitespacep (s))
         ;
       else
@@ -2260,7 +2360,7 @@ _gcry_sexp_vextract_param (gcry_sexp_t sexp, const char *path,
                 }
               s = s2;
             }
-          array[idx] = va_arg (arg_ptr, gcry_mpi_t *);
+          array[idx] = va_arg (arg_ptr, void *);
           if (!array[idx])
             return GPG_ERR_MISSING_VALUE; /* NULL pointer given.  */
           idx++;
@@ -2304,6 +2404,36 @@ _gcry_sexp_vextract_param (gcry_sexp_t sexp, const char *path,
     {
       if (*s == '&' || *s == '+' || *s == '-' || *s == '/')
         mode = *s;
+      else if (*s == '%')
+        {
+          s++;
+          if (!*s)
+            continue;  /* Ignore at end of format.  */
+          if (*s == 's' || *s == 'd' || *s == 'u')
+            {
+              mode = *s;
+              submode = 0;
+            }
+          else if (*s == 'l' && (s[1] == 'u' || s[1] == 'd'))
+            {
+              mode = s[1];
+              submode = 'l';
+              s++;
+            }
+          else if (*s == 'z' && s[1] == 'u')
+            {
+              mode = s[1];
+              submode = 'z';
+              s++;
+            }
+          else if (*s == '#' && s[1] == 's')
+            {
+              mode = s[1];
+              submode = '#';
+              s++;
+            }
+          continue;
+        }
       else if (whitespacep (s))
         ;
       else if (*s == '?')
@@ -2339,6 +2469,29 @@ _gcry_sexp_vextract_param (gcry_sexp_t sexp, const char *path,
                       spec->off = 0;
                     }
                   spec->len = 0;
+                }
+              else if (mode == 's')
+                {
+                  *array[idx] = NULL;
+                  arrayisdesc[idx] = 's';
+                }
+              else if (mode == 'd')
+                {
+                  if (submode == 'l')
+                    *(long *)array[idx] = 0;
+                  else
+                    *(int *)array[idx] = 0;
+                  arrayisdesc[idx] = 'x';
+                }
+              else if (mode == 'u')
+                {
+                  if (submode == 'l')
+                    *(unsigned long *)array[idx] = 0;
+                  else if (submode == 'z')
+                    *(size_t *)array[idx] = 0;
+                  else
+                    *(unsigned int *)array[idx] = 0;
+                  arrayisdesc[idx] = 'x';
                 }
               else
                 *array[idx] = NULL;
@@ -2387,27 +2540,118 @@ _gcry_sexp_vextract_param (gcry_sexp_t sexp, const char *path,
                       arrayisdesc[idx] = 2;
                     }
                 }
-              else if (mode == '/')
-                *array[idx] = _gcry_sexp_nth_mpi (l1, 1, GCRYMPI_FMT_OPAQUE);
-              else if (mode == '-')
-                *array[idx] = _gcry_sexp_nth_mpi (l1, 1, GCRYMPI_FMT_STD);
-              else
-                *array[idx] = _gcry_sexp_nth_mpi (l1, 1, GCRYMPI_FMT_USG);
-              sexp_release (l1); l1 = NULL;
-              if (!*array[idx])
+              else if (mode == 's')
                 {
-                  rc = GPG_ERR_INV_OBJ;  /* Conversion failed.  */
-                  goto cleanup;
+                  if (submode == '#')
+                    {
+                      size_t needed = 0;
+                      size_t n;
+                      int l1len;
+                      char *p;
+
+                      l1len = l1? sexp_length (l1) : 0;
+                      for (i = 1; i < l1len; i++)
+                        {
+                          s2 = sexp_nth_data (l1, i, &n);
+                          if (!s2)
+                            n = 2; /* Not a data element; we use "()". */
+                          needed += n + 1;
+                        }
+                      if (!needed)
+                        {
+                          *array[idx] = p = xtrymalloc (1);
+                          if (p)
+                            *p = 0;
+                        }
+                      else if ((*array[idx] = p = xtrymalloc (needed)))
+                        {
+                          for (i = 1; i < l1len; i++)
+                            {
+                              s2 = sexp_nth_data (l1, i, &n);
+                              if (!s2)
+                                memcpy (p, "()", (n=2));
+                              else
+                                memcpy (p, s2, n);
+                              p[n] = ' ';
+                              p += n + 1;
+                            }
+                          if (p != *array[idx])
+                            p[-1] = 0;
+                        }
+                    }
+                  else
+                    *array[idx] = _gcry_sexp_nth_string (l1, 1);
+                  if (!*array[idx])
+                    {
+                      rc = gpg_err_code_from_syserror ();
+                      goto cleanup;
+                    }
+                  arrayisdesc[idx] = 's';
                 }
+              else if (mode == 'd')
+                {
+                  long along;
+
+                  xfree (tmpstr);
+                  tmpstr = _gcry_sexp_nth_string (l1, 1);
+                  if (!tmpstr)
+                    {
+                      rc = gpg_err_code_from_syserror ();
+                      goto cleanup;
+                    }
+                  along = strtol (tmpstr, NULL, 10);
+                  if (submode == 'l')
+                    *(long *)array[idx] = along;
+                  else
+                    *(int *)array[idx] = along;
+                  arrayisdesc[idx] = 'x';
+                }
+              else if (mode == 'u')
+                {
+                  long aulong;
+
+                  xfree (tmpstr);
+                  tmpstr = _gcry_sexp_nth_string (l1, 1);
+                  if (!tmpstr)
+                    {
+                      rc = gpg_err_code_from_syserror ();
+                      goto cleanup;
+                    }
+                  aulong = strtoul (tmpstr, NULL, 10);
+                  if (submode == 'l')
+                    *(unsigned long *)array[idx] = aulong;
+                  else if (submode == 'z')
+                    *(size_t *)array[idx] = aulong;
+                  else
+                    *(unsigned int *)array[idx] = aulong;
+                  arrayisdesc[idx] = 'x';
+                }
+              else
+                {
+                  if (mode == '/')
+                    *array[idx] = _gcry_sexp_nth_mpi (l1,1,GCRYMPI_FMT_OPAQUE);
+                  else if (mode == '-')
+                    *array[idx] = _gcry_sexp_nth_mpi (l1,1,GCRYMPI_FMT_STD);
+                  else
+                    *array[idx] = _gcry_sexp_nth_mpi (l1,1,GCRYMPI_FMT_USG);
+                  if (!*array[idx])
+                    {
+                      rc = GPG_ERR_INV_OBJ;  /* Conversion failed.  */
+                      goto cleanup;
+                    }
+                }
+              sexp_release (l1); l1 = NULL;
             }
           idx++;
         }
     }
 
+  xfree (tmpstr);
   sexp_release (freethis);
   return 0;
 
  cleanup:
+  xfree (tmpstr);
   sexp_release (freethis);
   sexp_release (l1);
   while (idx--)
@@ -2423,13 +2667,19 @@ _gcry_sexp_vextract_param (gcry_sexp_t sexp, const char *path,
           gcry_buffer_t *spec = (gcry_buffer_t*)array[idx];
           spec->len = 0;
         }
-      else
+      else if (arrayisdesc[idx] == 2)
         {
           /* We might have allocated a buffer.  */
           gcry_buffer_t *spec = (gcry_buffer_t*)array[idx];
           xfree (spec->data);
           spec->data = NULL;
           spec->size = spec->off = spec->len = 0;
+        }
+      else if (arrayisdesc[idx] == 's')
+        {
+          /* We might have allocated a buffer.  */
+          xfree (*array[idx]);
+          *array[idx] = NULL;
         }
      }
   return rc;

@@ -929,7 +929,7 @@ run_external_rng_test (void *context, void *buffer, size_t buflen)
 static void
 deinit_external_rng_test (void *context)
 {
-  xgcry_control (PRIV_CTL_DEINIT_EXTRNG_TEST, context);
+  xgcry_control ((PRIV_CTL_DEINIT_EXTRNG_TEST, context));
 }
 
 
@@ -1835,7 +1835,7 @@ print_dsa_domain_parameters (gcry_sexp_t key)
   /* Extract the parameters from the S-expression and print them to stdout.  */
   for (idx=0; "pqg"[idx]; idx++)
     {
-      l2 = gcry_sexp_find_token (l1, "pqg"+idx, 1);
+      l2 = gcry_sexp_find_token (l1, &"pqg"[idx], 1);
       if (!l2)
         die ("no %c parameter in returned public key\n", "pqg"[idx]);
       mpi = gcry_sexp_nth_mpi (l2, 1, GCRYMPI_FMT_USG);
@@ -1923,7 +1923,7 @@ print_ecdsa_dq (gcry_sexp_t key)
   /* Extract the parameters from the S-expression and print them to stdout.  */
   for (idx=0; "dq"[idx]; idx++)
     {
-      l2 = gcry_sexp_find_token (l1, "dq"+idx, 1);
+      l2 = gcry_sexp_find_token (l1, &"dq"[idx], 1);
       if (!l2)
         die ("no %c parameter in returned public key\n", "dq"[idx]);
       mpi = gcry_sexp_nth_mpi (l2, 1, GCRYMPI_FMT_USG);
@@ -2476,16 +2476,16 @@ main (int argc, char **argv)
   if (verbose)
     fprintf (stderr, PGM ": started (mode=%s)\n", mode_string);
 
-  xgcry_control (GCRYCTL_SET_VERBOSITY, (int)verbose);
+  xgcry_control ((GCRYCTL_SET_VERBOSITY, (int)verbose));
   if (!no_fips)
-    xgcry_control (GCRYCTL_FORCE_FIPS_MODE, 0);
+    xgcry_control ((GCRYCTL_FORCE_FIPS_MODE, 0));
   if (!gcry_check_version ("1.4.3"))
     die ("Libgcrypt is not sufficient enough\n");
   if (verbose)
     fprintf (stderr, PGM ": using Libgcrypt %s\n", gcry_check_version (NULL));
   if (no_fips)
-    xgcry_control (GCRYCTL_DISABLE_SECMEM, 0);
-  xgcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+    xgcry_control ((GCRYCTL_DISABLE_SECMEM, 0));
+  xgcry_control ((GCRYCTL_INITIALIZATION_FINISHED, 0));
 
   /* Most operations need some input data.  */
   if (!chunksize

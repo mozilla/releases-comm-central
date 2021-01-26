@@ -38,35 +38,24 @@
  * must have allocated R and S.
  */
 gpg_err_code_t
-_gcry_ecc_gost_sign (gcry_mpi_t input, ECC_secret_key *skey,
+_gcry_ecc_gost_sign (gcry_mpi_t input, mpi_ec_t ec,
                      gcry_mpi_t r, gcry_mpi_t s)
 {
   gpg_err_code_t rc = 0;
   gcry_mpi_t k, dr, sum, ke, x, e;
   mpi_point_struct I;
   gcry_mpi_t hash;
-  const void *abuf;
-  unsigned int abits, qbits;
-  mpi_ec_t ctx;
+  unsigned int qbits;
 
   if (DBG_CIPHER)
     log_mpidump ("gost sign hash  ", input );
 
-  qbits = mpi_get_nbits (skey->E.n);
+  qbits = mpi_get_nbits (ec->n);
 
   /* Convert the INPUT into an MPI if needed.  */
-  if (mpi_is_opaque (input))
-    {
-      abuf = mpi_get_opaque (input, &abits);
-      rc = _gcry_mpi_scan (&hash, GCRYMPI_FMT_USG, abuf, (abits+7)/8, NULL);
-      if (rc)
-        return rc;
-      if (abits > qbits)
-        mpi_rshift (hash, hash, abits - qbits);
-    }
-  else
-    hash = input;
-
+  rc = _gcry_dsa_normalize_hash (input, &hash, qbits);
+  if (rc)
+    return rc;
 
   k = NULL;
   dr = mpi_alloc (0);
@@ -76,10 +65,7 @@ _gcry_ecc_gost_sign (gcry_mpi_t input, ECC_secret_key *skey,
   x = mpi_alloc (0);
   point_init (&I);
 
-  ctx = _gcry_mpi_ec_p_internal_new (skey->E.model, skey->E.dialect, 0,
-                                     skey->E.p, skey->E.a, skey->E.b);
-
-  mpi_mod (e, input, skey->E.n); /* e = hash mod n */
+  mpi_mod (e, input, ec->n); /* e = hash mod n */
 
   if (!mpi_cmp_ui (e, 0))
     mpi_set_ui (e, 1);
@@ -92,24 +78,24 @@ _gcry_ecc_gost_sign (gcry_mpi_t input, ECC_secret_key *skey,
       do
         {
           mpi_free (k);
-          k = _gcry_dsa_gen_k (skey->E.n, GCRY_STRONG_RANDOM);
+          k = _gcry_dsa_gen_k (ec->n, GCRY_STRONG_RANDOM);
 
-          _gcry_dsa_modify_k (k, skey->E.n, qbits);
+          _gcry_dsa_modify_k (k, ec->n, qbits);
 
-          _gcry_mpi_ec_mul_point (&I, k, &skey->E.G, ctx);
-          if (_gcry_mpi_ec_get_affine (x, NULL, &I, ctx))
+          _gcry_mpi_ec_mul_point (&I, k, ec->G, ec);
+          if (_gcry_mpi_ec_get_affine (x, NULL, &I, ec))
             {
               if (DBG_CIPHER)
                 log_debug ("ecc sign: Failed to get affine coordinates\n");
               rc = GPG_ERR_BAD_SIGNATURE;
               goto leave;
             }
-          mpi_mod (r, x, skey->E.n);  /* r = x mod n */
+          mpi_mod (r, x, ec->n);  /* r = x mod n */
         }
       while (!mpi_cmp_ui (r, 0));
-      mpi_mulm (dr, skey->d, r, skey->E.n); /* dr = d*r mod n  */
-      mpi_mulm (ke, k, e, skey->E.n); /* ke = k*e mod n */
-      mpi_addm (s, ke, dr, skey->E.n); /* sum = (k*e+ d*r) mod n  */
+      mpi_mulm (dr, ec->d, r, ec->n); /* dr = d*r mod n  */
+      mpi_mulm (ke, k, e, ec->n); /* ke = k*e mod n */
+      mpi_addm (s, ke, dr, ec->n); /* sum = (k*e+ d*r) mod n  */
     }
   while (!mpi_cmp_ui (s, 0));
 
@@ -120,7 +106,6 @@ _gcry_ecc_gost_sign (gcry_mpi_t input, ECC_secret_key *skey,
     }
 
  leave:
-  _gcry_mpi_ec_free (ctx);
   point_free (&I);
   mpi_free (x);
   mpi_free (e);
@@ -140,17 +125,16 @@ _gcry_ecc_gost_sign (gcry_mpi_t input, ECC_secret_key *skey,
  * Check if R and S verifies INPUT.
  */
 gpg_err_code_t
-_gcry_ecc_gost_verify (gcry_mpi_t input, ECC_public_key *pkey,
+_gcry_ecc_gost_verify (gcry_mpi_t input, mpi_ec_t ec,
                        gcry_mpi_t r, gcry_mpi_t s)
 {
   gpg_err_code_t err = 0;
   gcry_mpi_t e, x, z1, z2, v, rv, zero;
   mpi_point_struct Q, Q1, Q2;
-  mpi_ec_t ctx;
 
-  if( !(mpi_cmp_ui (r, 0) > 0 && mpi_cmp (r, pkey->E.n) < 0) )
+  if( !(mpi_cmp_ui (r, 0) > 0 && mpi_cmp (r, ec->n) < 0) )
     return GPG_ERR_BAD_SIGNATURE; /* Assertion	0 < r < n  failed.  */
-  if( !(mpi_cmp_ui (s, 0) > 0 && mpi_cmp (s, pkey->E.n) < 0) )
+  if( !(mpi_cmp_ui (s, 0) > 0 && mpi_cmp (s, ec->n) < 0) )
     return GPG_ERR_BAD_SIGNATURE; /* Assertion	0 < s < n  failed.  */
 
   x = mpi_alloc (0);
@@ -165,26 +149,23 @@ _gcry_ecc_gost_verify (gcry_mpi_t input, ECC_public_key *pkey,
   point_init (&Q1);
   point_init (&Q2);
 
-  ctx = _gcry_mpi_ec_p_internal_new (pkey->E.model, pkey->E.dialect, 0,
-                                     pkey->E.p, pkey->E.a, pkey->E.b);
-
-  mpi_mod (e, input, pkey->E.n); /* e = hash mod n */
+  mpi_mod (e, input, ec->n); /* e = hash mod n */
   if (!mpi_cmp_ui (e, 0))
     mpi_set_ui (e, 1);
-  mpi_invm (v, e, pkey->E.n); /* v = e^(-1) (mod n) */
-  mpi_mulm (z1, s, v, pkey->E.n); /* z1 = s*v (mod n) */
-  mpi_mulm (rv, r, v, pkey->E.n); /* rv = s*v (mod n) */
-  mpi_subm (z2, zero, rv, pkey->E.n); /* z2 = -r*v (mod n) */
+  mpi_invm (v, e, ec->n); /* v = e^(-1) (mod n) */
+  mpi_mulm (z1, s, v, ec->n); /* z1 = s*v (mod n) */
+  mpi_mulm (rv, r, v, ec->n); /* rv = r*v (mod n) */
+  mpi_subm (z2, zero, rv, ec->n); /* z2 = -r*v (mod n) */
 
-  _gcry_mpi_ec_mul_point (&Q1, z1, &pkey->E.G, ctx);
+  _gcry_mpi_ec_mul_point (&Q1, z1, ec->G, ec);
 /*   log_mpidump ("Q1.x", Q1.x); */
 /*   log_mpidump ("Q1.y", Q1.y); */
 /*   log_mpidump ("Q1.z", Q1.z); */
-  _gcry_mpi_ec_mul_point (&Q2, z2, &pkey->Q, ctx);
+  _gcry_mpi_ec_mul_point (&Q2, z2, ec->Q, ec);
 /*   log_mpidump ("Q2.x", Q2.x); */
 /*   log_mpidump ("Q2.y", Q2.y); */
 /*   log_mpidump ("Q2.z", Q2.z); */
-  _gcry_mpi_ec_add_points (&Q, &Q1, &Q2, ctx);
+  _gcry_mpi_ec_add_points (&Q, &Q1, &Q2, ec);
 /*   log_mpidump (" Q.x", Q.x); */
 /*   log_mpidump (" Q.y", Q.y); */
 /*   log_mpidump (" Q.z", Q.z); */
@@ -196,14 +177,14 @@ _gcry_ecc_gost_verify (gcry_mpi_t input, ECC_public_key *pkey,
       err = GPG_ERR_BAD_SIGNATURE;
       goto leave;
     }
-  if (_gcry_mpi_ec_get_affine (x, NULL, &Q, ctx))
+  if (_gcry_mpi_ec_get_affine (x, NULL, &Q, ec))
     {
       if (DBG_CIPHER)
         log_debug ("ecc verify: Failed to get affine coordinates\n");
       err = GPG_ERR_BAD_SIGNATURE;
       goto leave;
     }
-  mpi_mod (x, x, pkey->E.n); /* x = x mod E_n */
+  mpi_mod (x, x, ec->n); /* x = x mod E_n */
   if (mpi_cmp (x, r))   /* x != r */
     {
       if (DBG_CIPHER)
@@ -220,7 +201,6 @@ _gcry_ecc_gost_verify (gcry_mpi_t input, ECC_public_key *pkey,
     log_debug ("ecc verify: Accepted\n");
 
  leave:
-  _gcry_mpi_ec_free (ctx);
   point_free (&Q2);
   point_free (&Q1);
   point_free (&Q);

@@ -17,7 +17,7 @@
  * License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "asm-common-aarch64.h"
 
 #if defined(__AARCH64EL__) && \
     defined(HAVE_COMPATIBLE_GCC_AARCH64_PLATFORM_AS) && \
@@ -26,11 +26,6 @@
 .cpu generic+simd+crypto
 
 .text
-
-
-#define GET_DATA_POINTER(reg, name) \
-	adrp    reg, :got:name ; \
-	ldr     reg, [reg, #:got_lo12:name] ;
 
 
 /* Register macros */
@@ -239,7 +234,7 @@
  */
 .align 3
 .globl _gcry_aes_enc_armv8_ce
-.type  _gcry_aes_enc_armv8_ce,%function;
+ELF(.type  _gcry_aes_enc_armv8_ce,%function;)
 _gcry_aes_enc_armv8_ce:
   /* input:
    *    x0: keysched
@@ -247,6 +242,7 @@ _gcry_aes_enc_armv8_ce:
    *    x2: src
    *    w3: nrounds
    */
+  CFI_STARTPROC();
 
   aes_preload_keys(x0, w3);
 
@@ -291,7 +287,8 @@ _gcry_aes_enc_armv8_ce:
   CLEAR_REG(vk13)
   CLEAR_REG(vk14)
   b .Lenc1_tail
-.size _gcry_aes_enc_armv8_ce,.-_gcry_aes_enc_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_enc_armv8_ce,.-_gcry_aes_enc_armv8_ce;)
 
 
 /*
@@ -301,7 +298,7 @@ _gcry_aes_enc_armv8_ce:
  */
 .align 3
 .globl _gcry_aes_dec_armv8_ce
-.type  _gcry_aes_dec_armv8_ce,%function;
+ELF(.type  _gcry_aes_dec_armv8_ce,%function;)
 _gcry_aes_dec_armv8_ce:
   /* input:
    *    x0: keysched
@@ -309,6 +306,7 @@ _gcry_aes_dec_armv8_ce:
    *    x2: src
    *    w3: nrounds
    */
+  CFI_STARTPROC();
 
   aes_preload_keys(x0, w3);
 
@@ -353,7 +351,8 @@ _gcry_aes_dec_armv8_ce:
   CLEAR_REG(vk13)
   CLEAR_REG(vk14)
   b .Ldec1_tail
-.size _gcry_aes_dec_armv8_ce,.-_gcry_aes_dec_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_dec_armv8_ce,.-_gcry_aes_dec_armv8_ce;)
 
 
 /*
@@ -366,7 +365,7 @@ _gcry_aes_dec_armv8_ce:
 
 .align 3
 .globl _gcry_aes_cbc_enc_armv8_ce
-.type  _gcry_aes_cbc_enc_armv8_ce,%function;
+ELF(.type  _gcry_aes_cbc_enc_armv8_ce,%function;)
 _gcry_aes_cbc_enc_armv8_ce:
   /* input:
    *    x0: keysched
@@ -377,6 +376,7 @@ _gcry_aes_cbc_enc_armv8_ce:
    *    w5: cbc_mac
    *    w6: nrounds
    */
+  CFI_STARTPROC();
 
   cbz x4, .Lcbc_enc_skip
 
@@ -419,7 +419,8 @@ _gcry_aes_cbc_enc_armv8_ce:
 
 .Lcbc_enc_skip:
   ret
-.size _gcry_aes_cbc_enc_armv8_ce,.-_gcry_aes_cbc_enc_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_cbc_enc_armv8_ce,.-_gcry_aes_cbc_enc_armv8_ce;)
 
 /*
  * void _gcry_aes_cbc_dec_armv8_ce (const void *keysched,
@@ -430,7 +431,7 @@ _gcry_aes_cbc_enc_armv8_ce:
 
 .align 3
 .globl _gcry_aes_cbc_dec_armv8_ce
-.type  _gcry_aes_cbc_dec_armv8_ce,%function;
+ELF(.type  _gcry_aes_cbc_dec_armv8_ce,%function;)
 _gcry_aes_cbc_dec_armv8_ce:
   /* input:
    *    x0: keysched
@@ -440,6 +441,7 @@ _gcry_aes_cbc_dec_armv8_ce:
    *    x4: nblocks
    *    w5: nrounds
    */
+  CFI_STARTPROC();
 
   cbz x4, .Lcbc_dec_skip
 
@@ -515,7 +517,8 @@ _gcry_aes_cbc_dec_armv8_ce:
 
 .Lcbc_dec_skip:
   ret
-.size _gcry_aes_cbc_dec_armv8_ce,.-_gcry_aes_cbc_dec_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_cbc_dec_armv8_ce,.-_gcry_aes_cbc_dec_armv8_ce;)
 
 
 /*
@@ -527,7 +530,7 @@ _gcry_aes_cbc_dec_armv8_ce:
 
 .align 3
 .globl _gcry_aes_ctr_enc_armv8_ce
-.type  _gcry_aes_ctr_enc_armv8_ce,%function;
+ELF(.type  _gcry_aes_ctr_enc_armv8_ce,%function;)
 _gcry_aes_ctr_enc_armv8_ce:
   /* input:
    *    r0: keysched
@@ -537,6 +540,7 @@ _gcry_aes_ctr_enc_armv8_ce:
    *    x4: nblocks
    *    w5: nrounds
    */
+  CFI_STARTPROC();
 
   cbz x4, .Lctr_enc_skip
 
@@ -668,8 +672,8 @@ _gcry_aes_ctr_enc_armv8_ce:
 
 .Lctr_enc_skip:
   ret
-
-.size _gcry_aes_ctr_enc_armv8_ce,.-_gcry_aes_ctr_enc_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_ctr_enc_armv8_ce,.-_gcry_aes_ctr_enc_armv8_ce;)
 
 
 /*
@@ -681,7 +685,7 @@ _gcry_aes_ctr_enc_armv8_ce:
 
 .align 3
 .globl _gcry_aes_cfb_enc_armv8_ce
-.type  _gcry_aes_cfb_enc_armv8_ce,%function;
+ELF(.type  _gcry_aes_cfb_enc_armv8_ce,%function;)
 _gcry_aes_cfb_enc_armv8_ce:
   /* input:
    *    r0: keysched
@@ -691,6 +695,7 @@ _gcry_aes_cfb_enc_armv8_ce:
    *    x4: nblocks
    *    w5: nrounds
    */
+  CFI_STARTPROC();
 
   cbz x4, .Lcfb_enc_skip
 
@@ -732,7 +737,8 @@ _gcry_aes_cfb_enc_armv8_ce:
 
 .Lcfb_enc_skip:
   ret
-.size _gcry_aes_cfb_enc_armv8_ce,.-_gcry_aes_cfb_enc_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_cfb_enc_armv8_ce,.-_gcry_aes_cfb_enc_armv8_ce;)
 
 
 /*
@@ -744,7 +750,7 @@ _gcry_aes_cfb_enc_armv8_ce:
 
 .align 3
 .globl _gcry_aes_cfb_dec_armv8_ce
-.type  _gcry_aes_cfb_dec_armv8_ce,%function;
+ELF(.type  _gcry_aes_cfb_dec_armv8_ce,%function;)
 _gcry_aes_cfb_dec_armv8_ce:
   /* input:
    *    r0: keysched
@@ -754,6 +760,7 @@ _gcry_aes_cfb_dec_armv8_ce:
    *    x4: nblocks
    *    w5: nrounds
    */
+  CFI_STARTPROC();
 
   cbz x4, .Lcfb_dec_skip
 
@@ -829,7 +836,8 @@ _gcry_aes_cfb_dec_armv8_ce:
 
 .Lcfb_dec_skip:
   ret
-.size _gcry_aes_cfb_dec_armv8_ce,.-_gcry_aes_cfb_dec_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_cfb_dec_armv8_ce,.-_gcry_aes_cfb_dec_armv8_ce;)
 
 
 /*
@@ -846,7 +854,7 @@ _gcry_aes_cfb_dec_armv8_ce:
 
 .align 3
 .globl _gcry_aes_ocb_enc_armv8_ce
-.type  _gcry_aes_ocb_enc_armv8_ce,%function;
+ELF(.type  _gcry_aes_ocb_enc_armv8_ce,%function;)
 _gcry_aes_ocb_enc_armv8_ce:
   /* input:
    *    x0: keysched
@@ -859,6 +867,7 @@ _gcry_aes_ocb_enc_armv8_ce:
    *    w7: nrounds
    *    %st+0: blkn => w12
    */
+  CFI_STARTPROC();
 
   ldr w12, [sp]
   ld1 {v0.16b}, [x3] /* load offset */
@@ -979,7 +988,8 @@ _gcry_aes_ocb_enc_armv8_ce:
   CLEAR_REG(v16)
 
   ret
-.size _gcry_aes_ocb_enc_armv8_ce,.-_gcry_aes_ocb_enc_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_ocb_enc_armv8_ce,.-_gcry_aes_ocb_enc_armv8_ce;)
 
 
 /*
@@ -996,7 +1006,7 @@ _gcry_aes_ocb_enc_armv8_ce:
 
 .align 3
 .globl _gcry_aes_ocb_dec_armv8_ce
-.type  _gcry_aes_ocb_dec_armv8_ce,%function;
+ELF(.type  _gcry_aes_ocb_dec_armv8_ce,%function;)
 _gcry_aes_ocb_dec_armv8_ce:
   /* input:
    *    x0: keysched
@@ -1009,6 +1019,7 @@ _gcry_aes_ocb_dec_armv8_ce:
    *    w7: nrounds
    *    %st+0: blkn => w12
    */
+  CFI_STARTPROC();
 
   ldr w12, [sp]
   ld1 {v0.16b}, [x3] /* load offset */
@@ -1129,7 +1140,8 @@ _gcry_aes_ocb_dec_armv8_ce:
   CLEAR_REG(v16)
 
   ret
-.size _gcry_aes_ocb_dec_armv8_ce,.-_gcry_aes_ocb_dec_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_ocb_dec_armv8_ce,.-_gcry_aes_ocb_dec_armv8_ce;)
 
 
 /*
@@ -1145,7 +1157,7 @@ _gcry_aes_ocb_dec_armv8_ce:
 
 .align 3
 .globl _gcry_aes_ocb_auth_armv8_ce
-.type  _gcry_aes_ocb_auth_armv8_ce,%function;
+ELF(.type  _gcry_aes_ocb_auth_armv8_ce,%function;)
 _gcry_aes_ocb_auth_armv8_ce:
   /* input:
    *    x0: keysched
@@ -1157,8 +1169,10 @@ _gcry_aes_ocb_auth_armv8_ce:
    *    w6: nrounds => w7
    *    w7: blkn => w12
    */
-  mov x12, x7
-  mov x7, x6
+  CFI_STARTPROC();
+
+  mov w12, w7
+  mov w7, w6
   mov x6, x5
   mov x5, x4
   mov x4, x3
@@ -1273,7 +1287,288 @@ _gcry_aes_ocb_auth_armv8_ce:
   CLEAR_REG(v16)
 
   ret
-.size _gcry_aes_ocb_auth_armv8_ce,.-_gcry_aes_ocb_auth_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_ocb_auth_armv8_ce,.-_gcry_aes_ocb_auth_armv8_ce;)
+
+
+/*
+ * void _gcry_aes_xts_enc_armv8_ce (const void *keysched,
+ *                                  unsigned char *outbuf,
+ *                                  const unsigned char *inbuf,
+ *                                  unsigned char *tweak,
+ *                                  size_t nblocks,
+ *                                  unsigned int nrounds);
+ */
+
+.align 3
+.globl _gcry_aes_xts_enc_armv8_ce
+ELF(.type  _gcry_aes_xts_enc_armv8_ce,%function;)
+_gcry_aes_xts_enc_armv8_ce:
+  /* input:
+   *    r0: keysched
+   *    r1: outbuf
+   *    r2: inbuf
+   *    r3: tweak
+   *    x4: nblocks
+   *    w5: nrounds
+   */
+  CFI_STARTPROC();
+
+  cbz x4, .Lxts_enc_skip
+
+  /* load tweak */
+  ld1 {v0.16b}, [x3]
+
+  /* load gfmul mask */
+  mov x6, #0x87
+  mov x7, #0x01
+  mov v16.D[0], x6
+  mov v16.D[1], x7
+
+  aes_preload_keys(x0, w5);
+
+  b.eq .Lxts_enc_entry_192
+  b.hi .Lxts_enc_entry_256
+
+#define XTS_ENC(bits) \
+  .Lxts_enc_entry_##bits: \
+    cmp x4, #4; \
+    b.lo .Lxts_enc_loop_##bits; \
+    \
+  .Lxts_enc_loop4_##bits: \
+    \
+    ext v4.16b, v0.16b, v0.16b, #8; \
+    \
+    sshr v2.2d, v4.2d, #63; \
+    add v5.2d, v0.2d, v0.2d; \
+    and v2.16b, v2.16b, v16.16b; \
+    add v4.2d, v4.2d, v4.2d; \
+    eor v5.16b, v5.16b, v2.16b; \
+    \
+    sshr v2.2d, v4.2d, #63; \
+    add v6.2d, v5.2d, v5.2d; \
+    and v2.16b, v2.16b, v16.16b; \
+    add v4.2d, v4.2d, v4.2d; \
+    eor v6.16b, v6.16b, v2.16b; \
+    \
+    sshr v2.2d, v4.2d, #63; \
+    add v7.2d, v6.2d, v6.2d; \
+    and v2.16b, v2.16b, v16.16b; \
+    add v4.2d, v4.2d, v4.2d; \
+    eor v7.16b, v7.16b, v2.16b; \
+    \
+    sshr v2.2d, v4.2d, #63; \
+    add v3.2d, v7.2d, v7.2d; \
+    and v2.16b, v2.16b, v16.16b; \
+    add v4.2d, v4.2d, v4.2d; \
+    eor v3.16b, v3.16b, v2.16b; \
+    ld1 {v1.16b-v2.16b}, [x2], #32; /* load plaintext */ \
+    st1 {v3.16b}, [x3]; \
+    sub x4, x4, #4; \
+    eor v1.16b, v1.16b, v0.16b; \
+    \
+    ld1 {v3.16b-v4.16b}, [x2], #32; /* load plaintext */ \
+    cmp x4, #4; \
+    eor v2.16b, v2.16b, v5.16b; \
+    eor v3.16b, v3.16b, v6.16b; \
+    eor v4.16b, v4.16b, v7.16b; \
+    \
+    do_aes_4_##bits(e, mc, v1, v2, v3, v4); \
+    \
+    eor v1.16b, v1.16b, v0.16b; \
+    ld1 {v0.16b}, [x3]; \
+    eor v2.16b, v2.16b, v5.16b; \
+    eor v3.16b, v3.16b, v6.16b; \
+    eor v4.16b, v4.16b, v7.16b; \
+    st1 {v1.16b-v4.16b}, [x1], #64; /* store plaintext */ \
+    \
+    b.hs .Lxts_enc_loop4_##bits; \
+    CLEAR_REG(v3); \
+    CLEAR_REG(v4); \
+    CLEAR_REG(v5); \
+    CLEAR_REG(v6); \
+    CLEAR_REG(v7); \
+    cbz x4, .Lxts_enc_done; \
+    \
+  .Lxts_enc_loop_##bits: \
+    \
+    ld1 {v1.16b}, [x2], #16; /* load plaintext */ \
+    ext v3.16b, v0.16b, v0.16b, #8; \
+    mov v2.16b, v0.16b; \
+    sshr v3.2d, v3.2d, #63; \
+    add v0.2d, v0.2d, v0.2d; \
+    and v3.16b, v3.16b, v16.16b; \
+    eor v1.16b, v1.16b, v2.16b; \
+    eor v0.16b, v0.16b, v3.16b; \
+    sub x4, x4, #1; \
+    \
+    do_aes_one##bits(e, mc, v1, v1); \
+    \
+    eor v1.16b, v1.16b, v2.16b; \
+    st1 {v1.16b}, [x1], #16; /* store ciphertext */ \
+    \
+    cbnz x4, .Lxts_enc_loop_##bits; \
+    b .Lxts_enc_done;
+
+  XTS_ENC(128)
+  XTS_ENC(192)
+  XTS_ENC(256)
+
+#undef XTS_ENC
+
+.Lxts_enc_done:
+  aes_clear_keys(w5)
+
+  st1 {v0.16b}, [x3] /* store tweak */
+
+  CLEAR_REG(v0)
+  CLEAR_REG(v1)
+  CLEAR_REG(v2)
+
+.Lxts_enc_skip:
+  ret
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_xts_enc_armv8_ce,.-_gcry_aes_xts_enc_armv8_ce;)
+
+
+/*
+ * void _gcry_aes_xts_dec_armv8_ce (const void *keysched,
+ *                                  unsigned char *outbuf,
+ *                                  const unsigned char *inbuf,
+ *                                  unsigned char *tweak,
+ *                                  size_t nblocks,
+ *                                  unsigned int nrounds);
+ */
+
+.align 3
+.globl _gcry_aes_xts_dec_armv8_ce
+ELF(.type  _gcry_aes_xts_dec_armv8_ce,%function;)
+_gcry_aes_xts_dec_armv8_ce:
+  /* input:
+   *    r0: keysched
+   *    r1: outbuf
+   *    r2: inbuf
+   *    r3: tweak
+   *    x4: nblocks
+   *    w5: nrounds
+   */
+  CFI_STARTPROC();
+
+  cbz x4, .Lxts_dec_skip
+
+  /* load tweak */
+  ld1 {v0.16b}, [x3]
+
+  /* load gfmul mask */
+  mov x6, #0x87
+  mov x7, #0x01
+  mov v16.D[0], x6
+  mov v16.D[1], x7
+
+  aes_preload_keys(x0, w5);
+
+  b.eq .Lxts_dec_entry_192
+  b.hi .Lxts_dec_entry_256
+
+#define XTS_DEC(bits) \
+  .Lxts_dec_entry_##bits: \
+    cmp x4, #4; \
+    b.lo .Lxts_dec_loop_##bits; \
+    \
+  .Lxts_dec_loop4_##bits: \
+    \
+    ext v4.16b, v0.16b, v0.16b, #8; \
+    \
+    sshr v2.2d, v4.2d, #63; \
+    add v5.2d, v0.2d, v0.2d; \
+    and v2.16b, v2.16b, v16.16b; \
+    add v4.2d, v4.2d, v4.2d; \
+    eor v5.16b, v5.16b, v2.16b; \
+    \
+    sshr v2.2d, v4.2d, #63; \
+    add v6.2d, v5.2d, v5.2d; \
+    and v2.16b, v2.16b, v16.16b; \
+    add v4.2d, v4.2d, v4.2d; \
+    eor v6.16b, v6.16b, v2.16b; \
+    \
+    sshr v2.2d, v4.2d, #63; \
+    add v7.2d, v6.2d, v6.2d; \
+    and v2.16b, v2.16b, v16.16b; \
+    add v4.2d, v4.2d, v4.2d; \
+    eor v7.16b, v7.16b, v2.16b; \
+    \
+    sshr v2.2d, v4.2d, #63; \
+    add v3.2d, v7.2d, v7.2d; \
+    and v2.16b, v2.16b, v16.16b; \
+    add v4.2d, v4.2d, v4.2d; \
+    eor v3.16b, v3.16b, v2.16b; \
+    ld1 {v1.16b-v2.16b}, [x2], #32; /* load plaintext */ \
+    st1 {v3.16b}, [x3]; \
+    sub x4, x4, #4; \
+    eor v1.16b, v1.16b, v0.16b; \
+    \
+    ld1 {v3.16b-v4.16b}, [x2], #32; /* load plaintext */ \
+    cmp x4, #4; \
+    eor v2.16b, v2.16b, v5.16b; \
+    eor v3.16b, v3.16b, v6.16b; \
+    eor v4.16b, v4.16b, v7.16b; \
+    \
+    do_aes_4_##bits(d, imc, v1, v2, v3, v4); \
+    \
+    eor v1.16b, v1.16b, v0.16b; \
+    ld1 {v0.16b}, [x3]; \
+    eor v2.16b, v2.16b, v5.16b; \
+    eor v3.16b, v3.16b, v6.16b; \
+    eor v4.16b, v4.16b, v7.16b; \
+    st1 {v1.16b-v4.16b}, [x1], #64; /* store plaintext */ \
+    \
+    b.hs .Lxts_dec_loop4_##bits; \
+    CLEAR_REG(v3); \
+    CLEAR_REG(v4); \
+    CLEAR_REG(v5); \
+    CLEAR_REG(v6); \
+    CLEAR_REG(v7); \
+    cbz x4, .Lxts_dec_done; \
+    \
+  .Lxts_dec_loop_##bits: \
+    \
+    ld1 {v1.16b}, [x2], #16; /* load plaintext */ \
+    ext v3.16b, v0.16b, v0.16b, #8; \
+    mov v2.16b, v0.16b; \
+    sshr v3.2d, v3.2d, #63; \
+    add v0.2d, v0.2d, v0.2d; \
+    and v3.16b, v3.16b, v16.16b; \
+    eor v1.16b, v1.16b, v2.16b; \
+    eor v0.16b, v0.16b, v3.16b; \
+    sub x4, x4, #1; \
+    \
+    do_aes_one##bits(d, imc, v1, v1); \
+    \
+    eor v1.16b, v1.16b, v2.16b; \
+    st1 {v1.16b}, [x1], #16; /* store ciphertext */ \
+    \
+    cbnz x4, .Lxts_dec_loop_##bits; \
+    b .Lxts_dec_done;
+
+  XTS_DEC(128)
+  XTS_DEC(192)
+  XTS_DEC(256)
+
+#undef XTS_DEC
+
+.Lxts_dec_done:
+  aes_clear_keys(w5)
+
+  st1 {v0.16b}, [x3] /* store tweak */
+
+  CLEAR_REG(v0)
+  CLEAR_REG(v1)
+  CLEAR_REG(v2)
+
+.Lxts_dec_skip:
+  ret
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_xts_dec_armv8_ce,.-_gcry_aes_xts_dec_armv8_ce;)
 
 
 /*
@@ -1281,11 +1576,12 @@ _gcry_aes_ocb_auth_armv8_ce:
  */
 .align 3
 .globl _gcry_aes_sbox4_armv8_ce
-.type  _gcry_aes_sbox4_armv8_ce,%function;
+ELF(.type  _gcry_aes_sbox4_armv8_ce,%function;)
 _gcry_aes_sbox4_armv8_ce:
   /* See "Gouvêa, C. P. L. & López, J. Implementing GCM on ARMv8. Topics in
    * Cryptology — CT-RSA 2015" for details.
    */
+  CFI_STARTPROC();
   movi v0.16b, #0x52
   movi v1.16b, #0
   mov v0.S[0], w0
@@ -1294,7 +1590,8 @@ _gcry_aes_sbox4_armv8_ce:
   mov w0, v0.S[0]
   CLEAR_REG(v0)
   ret
-.size _gcry_aes_sbox4_armv8_ce,.-_gcry_aes_sbox4_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_sbox4_armv8_ce,.-_gcry_aes_sbox4_armv8_ce;)
 
 
 /*
@@ -1302,13 +1599,15 @@ _gcry_aes_sbox4_armv8_ce:
  */
 .align 3
 .globl _gcry_aes_invmixcol_armv8_ce
-.type  _gcry_aes_invmixcol_armv8_ce,%function;
+ELF(.type  _gcry_aes_invmixcol_armv8_ce,%function;)
 _gcry_aes_invmixcol_armv8_ce:
+  CFI_STARTPROC();
   ld1 {v0.16b}, [x1]
   aesimc v0.16b, v0.16b
   st1 {v0.16b}, [x0]
   CLEAR_REG(v0)
   ret
-.size _gcry_aes_invmixcol_armv8_ce,.-_gcry_aes_invmixcol_armv8_ce;
+  CFI_ENDPROC();
+ELF(.size _gcry_aes_invmixcol_armv8_ce,.-_gcry_aes_invmixcol_armv8_ce;)
 
 #endif

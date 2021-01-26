@@ -608,7 +608,7 @@ static void
 check_extract_param (void)
 {
   /* This sample data is a real key but with some parameters of the
-     public key modified.  */
+     public key modified.  u,i,I are used for direct extraction tests. */
   static char sample1[] =
     "(key-data"
     " (public-key"
@@ -624,6 +624,12 @@ check_extract_param (void)
     "   (q #20B37806015CA06B3AEB9423EE84A41D7F31AA65F4148553755206D679F8BF62#)"
     "))"
     " (private-key"
+    "  (u +65537)"
+    "  (i +65537)"
+    "  (I -65535)"
+    "  (i0 1:0)"
+    "  (flaglist foo     bar (sublist x) test 2:42)"
+    "  (noflags)"
     "  (ecc"
     "   (curve Ed25519)"
     "   (p #7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED#)"
@@ -635,6 +641,7 @@ check_extract_param (void)
     "   (n #1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED#)"
     "   (q #30B37806015CA06B3AEB9423EE84A41D7F31AA65F4148553755206D679F8BF62#)"
     "   (d #56BEA284A22F443A7AEA8CEFA24DA5055CDF1D490C94D8C568FE0802C9169276#)"
+    "   (comment |QWxsIHlvdXIgYmFzZTY0IGFyZSBiZWxvbmcgdG8gdXM=|)"
     ")))";
 
   static char sample1_p[] =
@@ -665,6 +672,7 @@ check_extract_param (void)
     "20B37806015CA06B3AEB9423EE84A41D7F31AA65F4148553755206D679F8BF62";
   static char sample1_d[] =
     "56BEA284A22F443A7AEA8CEFA24DA5055CDF1D490C94D8C568FE0802C9169276";
+  static char sample1_comment[] = "All your base64 are belong to us";
 
   static struct {
     const char *sexp_str;
@@ -814,10 +822,16 @@ check_extract_param (void)
   const char *paramstr;
   int paramidx;
   gpg_error_t err;
-  gcry_sexp_t sxp;
+  gcry_sexp_t sxp, sxp1;
   gcry_mpi_t mpis[7];
   gcry_buffer_t ioarray[7];
   char iobuffer[200];
+  char *string1, *string2;
+  int aint0, aint1, aint2;
+  unsigned int auint;
+  long along1, along2;
+  unsigned long aulong;
+  size_t asize;
 
   info ("checking gcry_sexp_extract_param\n");
   for (idx=0; tests[idx].sexp_str; idx++)
@@ -1049,8 +1063,125 @@ check_extract_param (void)
   gcry_free (ioarray[0].data);
   gcry_mpi_release (mpis[0]);
 
-  gcry_sexp_release (sxp);
+  sxp1 = gcry_sexp_find_token (sxp, "comment", 7);
+  if (!sxp1)
+    fail ("gcry_sexp_nth_string faild: no SEXP for comment found");
+  else
+    {
+      char *comment = gcry_sexp_nth_string (sxp1, 1);
 
+      if (!comment)
+        fail ("gcry_sexp_nth_string faild: no comment found");
+      else
+        {
+          if (strcmp (comment, sample1_comment))
+            fail ("gcry_sexp_sscan faild for base64");
+          xfree (comment);
+        }
+
+      gcry_sexp_release (sxp1);
+    }
+
+  info ("checking gcry_sexp_extract_param new modes\n");
+
+  memset (mpis, 0, sizeof mpis);
+
+  gcry_sexp_release (sxp);
+  err = gcry_sexp_new (&sxp, sample1, 0, 1);
+  if (err)
+    die ("converting string to sexp failed: %s", gpg_strerror (err));
+
+  err = gcry_sexp_extract_param (sxp, "key-data!private-key",
+                                 "%s'curve'+p%s'comment'"
+                                 "%uu%di%dI%d'i0'"
+                                 "%luu%ldi %ldI"
+                                 "%zui",
+                                 &string1, mpis+0, &string2,
+                                 &auint, &aint1, &aint2, &aint0,
+                                 &aulong, &along1, &along2,
+                                 &asize,
+                                 NULL);
+  if (err)
+    fail ("gcry_sexp_extract_param new modes failed: %s", gpg_strerror (err));
+
+  if (!string1)
+    fail ("gcry_sexp_extract_param new modes: no curve");
+  else if (strcmp (string1, "Ed25519"))
+    {
+      fail ("gcry_sexp_extract_param new modes failed: curve mismatch");
+      gcry_log_debug ("expected: %s\n", "Ed25519");
+      gcry_log_debug ("     got: %s\n", string1);
+    }
+
+  if (!mpis[0])
+    fail ("gcry_sexp_extract_param new modes failed: p not returned");
+  else if (cmp_mpihex (mpis[0], sample1_p))
+    {
+      fail ("gcry_sexp_extract_param new modes failed: p mismatch");
+      gcry_log_debug    ("expected: %s\n", sample1_p);
+      gcry_log_debugmpi ("     got", mpis[0]);
+    }
+
+  if (auint != 65537)
+    fail ("gcry_sexp_extract_param new modes failed: auint mismatch");
+  if (aint1 != 65537)
+    fail ("gcry_sexp_extract_param new modes failed: aint1 mismatch");
+  if (aint2 != -65535)
+    fail ("gcry_sexp_extract_param new modes failed: aint2 mismatch");
+  if (aint0)
+    fail ("gcry_sexp_extract_param new modes failed: aint0 mismatch");
+  if (aulong != 65537)
+    fail ("gcry_sexp_extract_param new modes failed: aulong mismatch");
+  if (along1 != 65537)
+    fail ("gcry_sexp_extract_param new modes failed: along1 mismatch");
+  if (along2 != -65535)
+    fail ("gcry_sexp_extract_param new modes failed: along2 mismatch");
+  if (asize != 65537)
+    fail ("gcry_sexp_extract_param new modes failed: asize mismatch");
+
+
+  gcry_free (string1);
+  gcry_free (string2);
+  gcry_mpi_release (mpis[0]);
+
+
+  info ("checking gcry_sexp_extract_param flag list\n");
+
+  gcry_sexp_release (sxp);
+  err = gcry_sexp_new (&sxp, sample1, 0, 1);
+  if (err)
+    die ("converting string to sexp failed: %s", gpg_strerror (err));
+
+  err = gcry_sexp_extract_param (sxp, "key-data!private-key",
+                                 "%#s'flaglist''noflags'",
+                                 &string1, &string2,
+                                 NULL);
+  if (err)
+    fail ("gcry_sexp_extract_param flag list failed: %s", gpg_strerror (err));
+
+  if (!string1)
+    fail ("gcry_sexp_extract_param flaglist: no flaglist");
+  else if (strcmp (string1, "foo bar () test 42"))
+    {
+      fail ("gcry_sexp_extract_param flag list failed: wrong list");
+      gcry_log_debug ("expected: %s\n", "foo bar ( ) test 42");
+      gcry_log_debug ("     got: %s\n", string1);
+    }
+
+  if (!string2)
+    fail ("gcry_sexp_extract_param flaglist: no second flaglist");
+  else if (strcmp (string2, ""))
+    {
+      fail ("gcry_sexp_extract_param flag list failed: wrong list");
+      gcry_log_debug ("expected: '%s'\n", "");
+      gcry_log_debug ("     got: '%s'\n", string2);
+    }
+
+  gcry_free (string1);
+  gcry_free (string2);
+
+
+  gcry_sexp_release (sxp);
 }
 
 
@@ -1130,6 +1261,7 @@ int
 main (int argc, char **argv)
 {
   int last_argc = -1;
+  int loop = 0;
 
   if (argc)
     {
@@ -1164,29 +1296,42 @@ main (int argc, char **argv)
           verbose = debug = 1;
           argc--; argv++;
         }
+      else if (!strcmp (*argv, "--loop"))
+        {
+          argc--; argv++;
+          if (argc)
+            {
+              loop = atoi (*argv);
+              argc--; argv++;
+            }
+        }
       else if (!strncmp (*argv, "--", 2))
         die ("unknown option '%s'", *argv);
     }
 
   if (debug)
-    xgcry_control (GCRYCTL_SET_DEBUG_FLAGS, 1u, 0);
-  xgcry_control (GCRYCTL_DISABLE_SECMEM_WARN);
-  xgcry_control (GCRYCTL_INIT_SECMEM, 16384, 0);
+    xgcry_control ((GCRYCTL_SET_DEBUG_FLAGS, 1u, 0));
+  xgcry_control ((GCRYCTL_DISABLE_SECMEM_WARN));
+  xgcry_control ((GCRYCTL_INIT_SECMEM, 16384, 0));
   if (!gcry_check_version (GCRYPT_VERSION))
     die ("version mismatch");
   /* #include "../src/gcrypt-int.h" indicates that internal interfaces
      may be used; thus better do an exact version check. */
   if (strcmp (gcry_check_version (NULL), GCRYPT_VERSION))
     die ("exact version match failed");
-  xgcry_control (GCRYCTL_ENABLE_QUICK_RANDOM, 0);
-  xgcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+  xgcry_control ((GCRYCTL_ENABLE_QUICK_RANDOM, 0));
+  xgcry_control ((GCRYCTL_INITIALIZATION_FINISHED, 0));
 
-  basic ();
-  canon_len ();
-  back_and_forth ();
-  check_sscan ();
-  check_extract_param ();
-  bug_1594 ();
+  do
+    {
+      basic ();
+      canon_len ();
+      back_and_forth ();
+      check_sscan ();
+      check_extract_param ();
+      bug_1594 ();
+    }
+  while (!error_count && loop--);
 
   return error_count? 1:0;
 }

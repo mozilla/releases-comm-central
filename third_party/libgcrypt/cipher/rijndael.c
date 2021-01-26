@@ -77,32 +77,29 @@ extern unsigned int _gcry_aes_aesni_encrypt (const RIJNDAEL_context *ctx,
 extern unsigned int _gcry_aes_aesni_decrypt (const RIJNDAEL_context *ctx,
                                              unsigned char *dst,
                                              const unsigned char *src);
-extern void _gcry_aes_aesni_cfb_enc (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *iv, size_t nblocks);
-extern void _gcry_aes_aesni_cbc_enc (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *iv, size_t nblocks,
-                                     int cbc_mac);
-extern void _gcry_aes_aesni_ctr_enc (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *ctr, size_t nblocks);
-extern void _gcry_aes_aesni_cfb_dec (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *iv, size_t nblocks);
-extern void _gcry_aes_aesni_cbc_dec (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *iv, size_t nblocks);
-extern void _gcry_aes_aesni_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
-                                       const void *inbuf_arg, size_t nblocks,
-                                       int encrypt);
-extern void _gcry_aes_aesni_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
-                                      size_t nblocks);
+extern void _gcry_aes_aesni_cfb_enc (void *context, unsigned char *iv,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks);
+extern void _gcry_aes_aesni_cbc_enc (void *context, unsigned char *iv,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks, int cbc_mac);
+extern void _gcry_aes_aesni_ctr_enc (void *context, unsigned char *ctr,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks);
+extern void _gcry_aes_aesni_cfb_dec (void *context, unsigned char *iv,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks);
+extern void _gcry_aes_aesni_cbc_dec (void *context, unsigned char *iv,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks);
+extern size_t _gcry_aes_aesni_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
+                                         const void *inbuf_arg, size_t nblocks,
+                                         int encrypt);
+extern size_t _gcry_aes_aesni_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
+                                        size_t nblocks);
+extern void _gcry_aes_aesni_xts_crypt (void *context, unsigned char *tweak,
+                                       void *outbuf_arg, const void *inbuf_arg,
+                                       size_t nblocks, int encrypt);
 #endif
 
 #ifdef USE_SSSE3
@@ -116,32 +113,27 @@ extern unsigned int _gcry_aes_ssse3_encrypt (const RIJNDAEL_context *ctx,
 extern unsigned int _gcry_aes_ssse3_decrypt (const RIJNDAEL_context *ctx,
                                              unsigned char *dst,
                                              const unsigned char *src);
-extern void _gcry_aes_ssse3_cfb_enc (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *iv, size_t nblocks);
-extern void _gcry_aes_ssse3_cbc_enc (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *iv, size_t nblocks,
+extern void _gcry_aes_ssse3_cfb_enc (void *context, unsigned char *iv,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks);
+extern void _gcry_aes_ssse3_cbc_enc (void *context, unsigned char *iv,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks,
                                      int cbc_mac);
-extern void _gcry_aes_ssse3_ctr_enc (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *ctr, size_t nblocks);
-extern void _gcry_aes_ssse3_cfb_dec (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *iv, size_t nblocks);
-extern void _gcry_aes_ssse3_cbc_dec (RIJNDAEL_context *ctx,
-                                     unsigned char *outbuf,
-                                     const unsigned char *inbuf,
-                                     unsigned char *iv, size_t nblocks);
-extern void _gcry_aes_ssse3_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
-                                       const void *inbuf_arg, size_t nblocks,
-                                       int encrypt);
-extern void _gcry_aes_ssse3_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
-                                      size_t nblocks);
+extern void _gcry_aes_ssse3_ctr_enc (void *context, unsigned char *ctr,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks);
+extern void _gcry_aes_ssse3_cfb_dec (void *context, unsigned char *iv,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks);
+extern void _gcry_aes_ssse3_cbc_dec (void *context, unsigned char *iv,
+                                     void *outbuf_arg, const void *inbuf_arg,
+                                     size_t nblocks);
+extern size_t _gcry_aes_ssse3_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
+                                         const void *inbuf_arg, size_t nblocks,
+                                         int encrypt);
+extern size_t _gcry_aes_ssse3_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
+                                        size_t nblocks);
 #endif
 
 #ifdef USE_PADLOCK
@@ -151,6 +143,7 @@ extern unsigned int _gcry_aes_padlock_encrypt (const RIJNDAEL_context *ctx,
 extern unsigned int _gcry_aes_padlock_decrypt (const RIJNDAEL_context *ctx,
                                                unsigned char *bx,
                                                const unsigned char *ax);
+extern void _gcry_aes_padlock_prepare_decryption (RIJNDAEL_context *ctx);
 #endif
 
 #ifdef USE_ARM_ASM
@@ -180,39 +173,138 @@ extern unsigned int _gcry_aes_armv8_ce_decrypt(const RIJNDAEL_context *ctx,
                                                unsigned char *dst,
                                                const unsigned char *src);
 
-extern void _gcry_aes_armv8_ce_cfb_enc (RIJNDAEL_context *ctx,
-                                        unsigned char *outbuf,
-                                        const unsigned char *inbuf,
-                                        unsigned char *iv, size_t nblocks);
-extern void _gcry_aes_armv8_ce_cbc_enc (RIJNDAEL_context *ctx,
-                                        unsigned char *outbuf,
-                                        const unsigned char *inbuf,
-                                        unsigned char *iv, size_t nblocks,
+extern void _gcry_aes_armv8_ce_cfb_enc (void *context, unsigned char *iv,
+                                        void *outbuf_arg, const void *inbuf_arg,
+                                        size_t nblocks);
+extern void _gcry_aes_armv8_ce_cbc_enc (void *context, unsigned char *iv,
+                                        void *outbuf_arg, const void *inbuf_arg,
+                                        size_t nblocks,
                                         int cbc_mac);
-extern void _gcry_aes_armv8_ce_ctr_enc (RIJNDAEL_context *ctx,
-                                        unsigned char *outbuf,
-                                        const unsigned char *inbuf,
-                                        unsigned char *ctr, size_t nblocks);
-extern void _gcry_aes_armv8_ce_cfb_dec (RIJNDAEL_context *ctx,
-                                        unsigned char *outbuf,
-                                        const unsigned char *inbuf,
-                                        unsigned char *iv, size_t nblocks);
-extern void _gcry_aes_armv8_ce_cbc_dec (RIJNDAEL_context *ctx,
-                                        unsigned char *outbuf,
-                                        const unsigned char *inbuf,
-                                        unsigned char *iv, size_t nblocks);
-extern void _gcry_aes_armv8_ce_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
-                                          const void *inbuf_arg, size_t nblocks,
-                                          int encrypt);
-extern void _gcry_aes_armv8_ce_ocb_auth (gcry_cipher_hd_t c,
-                                         const void *abuf_arg, size_t nblocks);
+extern void _gcry_aes_armv8_ce_ctr_enc (void *context, unsigned char *ctr,
+                                        void *outbuf_arg, const void *inbuf_arg,
+                                        size_t nblocks);
+extern void _gcry_aes_armv8_ce_cfb_dec (void *context, unsigned char *iv,
+                                        void *outbuf_arg, const void *inbuf_arg,
+                                        size_t nblocks);
+extern void _gcry_aes_armv8_ce_cbc_dec (void *context, unsigned char *iv,
+                                        void *outbuf_arg, const void *inbuf_arg,
+                                        size_t nblocks);
+extern size_t _gcry_aes_armv8_ce_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
+                                            const void *inbuf_arg, size_t nblocks,
+                                            int encrypt);
+extern size_t _gcry_aes_armv8_ce_ocb_auth (gcry_cipher_hd_t c,
+                                           const void *abuf_arg, size_t nblocks);
+extern void _gcry_aes_armv8_ce_xts_crypt (void *context, unsigned char *tweak,
+                                          void *outbuf_arg,
+                                          const void *inbuf_arg,
+                                          size_t nblocks, int encrypt);
 #endif /*USE_ARM_ASM*/
+
+#ifdef USE_PPC_CRYPTO
+/* PowerPC Crypto implementations of AES */
+extern void _gcry_aes_ppc8_setkey(RIJNDAEL_context *ctx, const byte *key);
+extern void _gcry_aes_ppc8_prepare_decryption(RIJNDAEL_context *ctx);
+
+extern unsigned int _gcry_aes_ppc8_encrypt(const RIJNDAEL_context *ctx,
+					   unsigned char *dst,
+					   const unsigned char *src);
+extern unsigned int _gcry_aes_ppc8_decrypt(const RIJNDAEL_context *ctx,
+					   unsigned char *dst,
+					   const unsigned char *src);
+
+extern void _gcry_aes_ppc8_cfb_enc (void *context, unsigned char *iv,
+				    void *outbuf_arg, const void *inbuf_arg,
+				    size_t nblocks);
+extern void _gcry_aes_ppc8_cbc_enc (void *context, unsigned char *iv,
+				    void *outbuf_arg, const void *inbuf_arg,
+				    size_t nblocks, int cbc_mac);
+extern void _gcry_aes_ppc8_ctr_enc (void *context, unsigned char *ctr,
+				    void *outbuf_arg, const void *inbuf_arg,
+				    size_t nblocks);
+extern void _gcry_aes_ppc8_cfb_dec (void *context, unsigned char *iv,
+				    void *outbuf_arg, const void *inbuf_arg,
+				    size_t nblocks);
+extern void _gcry_aes_ppc8_cbc_dec (void *context, unsigned char *iv,
+				    void *outbuf_arg, const void *inbuf_arg,
+				    size_t nblocks);
+
+extern size_t _gcry_aes_ppc8_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
+					const void *inbuf_arg, size_t nblocks,
+					int encrypt);
+extern size_t _gcry_aes_ppc8_ocb_auth (gcry_cipher_hd_t c,
+				       const void *abuf_arg, size_t nblocks);
+
+extern void _gcry_aes_ppc8_xts_crypt (void *context, unsigned char *tweak,
+				      void *outbuf_arg,
+				      const void *inbuf_arg,
+				      size_t nblocks, int encrypt);
+#endif /*USE_PPC_CRYPTO*/
+
+#ifdef USE_PPC_CRYPTO_WITH_PPC9LE
+/* Power9 little-endian crypto implementations of AES */
+extern unsigned int _gcry_aes_ppc9le_encrypt(const RIJNDAEL_context *ctx,
+					    unsigned char *dst,
+					    const unsigned char *src);
+extern unsigned int _gcry_aes_ppc9le_decrypt(const RIJNDAEL_context *ctx,
+					    unsigned char *dst,
+					    const unsigned char *src);
+
+extern void _gcry_aes_ppc9le_cfb_enc (void *context, unsigned char *iv,
+				      void *outbuf_arg, const void *inbuf_arg,
+				      size_t nblocks);
+extern void _gcry_aes_ppc9le_cbc_enc (void *context, unsigned char *iv,
+				      void *outbuf_arg, const void *inbuf_arg,
+				      size_t nblocks, int cbc_mac);
+extern void _gcry_aes_ppc9le_ctr_enc (void *context, unsigned char *ctr,
+				      void *outbuf_arg, const void *inbuf_arg,
+				      size_t nblocks);
+extern void _gcry_aes_ppc9le_cfb_dec (void *context, unsigned char *iv,
+				      void *outbuf_arg, const void *inbuf_arg,
+				      size_t nblocks);
+extern void _gcry_aes_ppc9le_cbc_dec (void *context, unsigned char *iv,
+				      void *outbuf_arg, const void *inbuf_arg,
+				      size_t nblocks);
+
+extern size_t _gcry_aes_ppc9le_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
+					  const void *inbuf_arg, size_t nblocks,
+					  int encrypt);
+extern size_t _gcry_aes_ppc9le_ocb_auth (gcry_cipher_hd_t c,
+					const void *abuf_arg, size_t nblocks);
+
+extern void _gcry_aes_ppc9le_xts_crypt (void *context, unsigned char *tweak,
+					void *outbuf_arg,
+					const void *inbuf_arg,
+					size_t nblocks, int encrypt);
+#endif /*USE_PPC_CRYPTO_WITH_PPC9LE*/
 
 static unsigned int do_encrypt (const RIJNDAEL_context *ctx, unsigned char *bx,
                                 const unsigned char *ax);
 static unsigned int do_decrypt (const RIJNDAEL_context *ctx, unsigned char *bx,
                                 const unsigned char *ax);
 
+static void _gcry_aes_cfb_enc (void *context, unsigned char *iv,
+			       void *outbuf, const void *inbuf,
+			       size_t nblocks);
+static void _gcry_aes_cfb_dec (void *context, unsigned char *iv,
+			       void *outbuf_arg, const void *inbuf_arg,
+			       size_t nblocks);
+static void _gcry_aes_cbc_enc (void *context, unsigned char *iv,
+			       void *outbuf_arg, const void *inbuf_arg,
+			       size_t nblocks, int cbc_mac);
+static void _gcry_aes_cbc_dec (void *context, unsigned char *iv,
+			       void *outbuf_arg, const void *inbuf_arg,
+			       size_t nblocks);
+static void _gcry_aes_ctr_enc (void *context, unsigned char *ctr,
+			       void *outbuf_arg, const void *inbuf_arg,
+			       size_t nblocks);
+static size_t _gcry_aes_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
+				   const void *inbuf_arg, size_t nblocks,
+				   int encrypt);
+static size_t _gcry_aes_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
+				  size_t nblocks);
+static void _gcry_aes_xts_crypt (void *context, unsigned char *tweak,
+				 void *outbuf_arg, const void *inbuf_arg,
+				 size_t nblocks, int encrypt);
 
 
 /* All the numbers.  */
@@ -223,15 +315,16 @@ static unsigned int do_decrypt (const RIJNDAEL_context *ctx, unsigned char *bx,
 
 /* Function prototypes.  */
 static const char *selftest(void);
+static void prepare_decryption(RIJNDAEL_context *ctx);
 
 
 
 /* Prefetching for encryption/decryption tables. */
-static void prefetch_table(const volatile byte *tab, size_t len)
+static inline void prefetch_table(const volatile byte *tab, size_t len)
 {
   size_t i;
 
-  for (i = 0; i < len; i += 8 * 32)
+  for (i = 0; len - i >= 8 * 32; i += 8 * 32)
     {
       (void)tab[i + 0 * 32];
       (void)tab[i + 1 * 32];
@@ -242,17 +335,37 @@ static void prefetch_table(const volatile byte *tab, size_t len)
       (void)tab[i + 6 * 32];
       (void)tab[i + 7 * 32];
     }
+  for (; i < len; i += 32)
+    {
+      (void)tab[i];
+    }
 
   (void)tab[len - 1];
 }
 
 static void prefetch_enc(void)
 {
-  prefetch_table((const void *)encT, sizeof(encT));
+  /* Modify counters to trigger copy-on-write and unsharing if physical pages
+   * of look-up table are shared between processes.  Modifying counters also
+   * causes checksums for pages to change and hint same-page merging algorithm
+   * that these pages are frequently changing.  */
+  enc_tables.counter_head++;
+  enc_tables.counter_tail++;
+
+  /* Prefetch look-up tables to cache.  */
+  prefetch_table((const void *)&enc_tables, sizeof(enc_tables));
 }
 
 static void prefetch_dec(void)
 {
+  /* Modify counters to trigger copy-on-write and unsharing if physical pages
+   * of look-up table are shared between processes.  Modifying counters also
+   * causes checksums for pages to change and hint same-page merging algorithm
+   * that these pages are frequently changing.  */
+  dec_tables.counter_head++;
+  dec_tables.counter_tail++;
+
+  /* Prefetch look-up tables to cache.  */
   prefetch_table((const void *)&dec_tables, sizeof(dec_tables));
 }
 
@@ -260,17 +373,16 @@ static void prefetch_dec(void)
 
 /* Perform the key setup.  */
 static gcry_err_code_t
-do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen)
+do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen,
+           cipher_bulk_ops_t *bulk_ops)
 {
   static int initialized = 0;
   static const char *selftest_failed = 0;
+  void (*hw_setkey)(RIJNDAEL_context *ctx, const byte *key) = NULL;
   int rounds;
   int i,j, r, t, rconpointer = 0;
   int KC;
-#if defined(USE_AESNI) || defined(USE_PADLOCK) || defined(USE_SSSE3) \
-    || defined(USE_ARM_CE)
   unsigned int hwfeatures;
-#endif
 
   /* The on-the-fly self tests are only run in non-fips mode. In fips
      mode explicit self-tests are required.  Actually the on-the-fly
@@ -308,11 +420,7 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen)
     return GPG_ERR_INV_KEYLEN;
 
   ctx->rounds = rounds;
-
-#if defined(USE_AESNI) || defined(USE_PADLOCK) || defined(USE_SSSE3) \
-    || defined(USE_ARM_CE)
   hwfeatures = _gcry_get_hw_features ();
-#endif
 
   ctx->decryption_prepared = 0;
 #ifdef USE_PADLOCK
@@ -327,6 +435,25 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen)
 #ifdef USE_ARM_CE
   ctx->use_arm_ce = 0;
 #endif
+#ifdef USE_PPC_CRYPTO
+  ctx->use_ppc_crypto = 0;
+#endif
+#ifdef USE_PPC_CRYPTO_WITH_PPC9LE
+  ctx->use_ppc9le_crypto = 0;
+#endif
+
+  /* Setup default bulk encryption routines.  */
+  memset (bulk_ops, 0, sizeof(*bulk_ops));
+  bulk_ops->cfb_enc = _gcry_aes_cfb_enc;
+  bulk_ops->cfb_dec = _gcry_aes_cfb_dec;
+  bulk_ops->cbc_enc = _gcry_aes_cbc_enc;
+  bulk_ops->cbc_dec = _gcry_aes_cbc_dec;
+  bulk_ops->ctr_enc = _gcry_aes_ctr_enc;
+  bulk_ops->ocb_crypt = _gcry_aes_ocb_crypt;
+  bulk_ops->ocb_auth  = _gcry_aes_ocb_auth;
+  bulk_ops->xts_crypt = _gcry_aes_xts_crypt;
+
+  (void)hwfeatures;
 
   if (0)
     {
@@ -335,11 +462,25 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen)
 #ifdef USE_AESNI
   else if (hwfeatures & HWF_INTEL_AESNI)
     {
+      hw_setkey = _gcry_aes_aesni_do_setkey;
       ctx->encrypt_fn = _gcry_aes_aesni_encrypt;
       ctx->decrypt_fn = _gcry_aes_aesni_decrypt;
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
+      ctx->prepare_decryption = _gcry_aes_aesni_prepare_decryption;
       ctx->use_aesni = 1;
+      ctx->use_avx = !!(hwfeatures & HWF_INTEL_AVX);
+      ctx->use_avx2 = !!(hwfeatures & HWF_INTEL_AVX2);
+
+      /* Setup AES-NI bulk encryption routines.  */
+      bulk_ops->cfb_enc = _gcry_aes_aesni_cfb_enc;
+      bulk_ops->cfb_dec = _gcry_aes_aesni_cfb_dec;
+      bulk_ops->cbc_enc = _gcry_aes_aesni_cbc_enc;
+      bulk_ops->cbc_dec = _gcry_aes_aesni_cbc_dec;
+      bulk_ops->ctr_enc = _gcry_aes_aesni_ctr_enc;
+      bulk_ops->ocb_crypt = _gcry_aes_aesni_ocb_crypt;
+      bulk_ops->ocb_auth = _gcry_aes_aesni_ocb_auth;
+      bulk_ops->xts_crypt = _gcry_aes_aesni_xts_crypt;
     }
 #endif
 #ifdef USE_PADLOCK
@@ -349,6 +490,7 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen)
       ctx->decrypt_fn = _gcry_aes_padlock_decrypt;
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
+      ctx->prepare_decryption = _gcry_aes_padlock_prepare_decryption;
       ctx->use_padlock = 1;
       memcpy (ctx->padlockkey, key, keylen);
     }
@@ -356,21 +498,89 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen)
 #ifdef USE_SSSE3
   else if (hwfeatures & HWF_INTEL_SSSE3)
     {
+      hw_setkey = _gcry_aes_ssse3_do_setkey;
       ctx->encrypt_fn = _gcry_aes_ssse3_encrypt;
       ctx->decrypt_fn = _gcry_aes_ssse3_decrypt;
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
+      ctx->prepare_decryption = _gcry_aes_ssse3_prepare_decryption;
       ctx->use_ssse3 = 1;
+
+      /* Setup SSSE3 bulk encryption routines.  */
+      bulk_ops->cfb_enc = _gcry_aes_ssse3_cfb_enc;
+      bulk_ops->cfb_dec = _gcry_aes_ssse3_cfb_dec;
+      bulk_ops->cbc_enc = _gcry_aes_ssse3_cbc_enc;
+      bulk_ops->cbc_dec = _gcry_aes_ssse3_cbc_dec;
+      bulk_ops->ctr_enc = _gcry_aes_ssse3_ctr_enc;
+      bulk_ops->ocb_crypt = _gcry_aes_ssse3_ocb_crypt;
+      bulk_ops->ocb_auth = _gcry_aes_ssse3_ocb_auth;
     }
 #endif
 #ifdef USE_ARM_CE
   else if (hwfeatures & HWF_ARM_AES)
     {
+      hw_setkey = _gcry_aes_armv8_ce_setkey;
       ctx->encrypt_fn = _gcry_aes_armv8_ce_encrypt;
       ctx->decrypt_fn = _gcry_aes_armv8_ce_decrypt;
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
+      ctx->prepare_decryption = _gcry_aes_armv8_ce_prepare_decryption;
       ctx->use_arm_ce = 1;
+
+      /* Setup ARM-CE bulk encryption routines.  */
+      bulk_ops->cfb_enc = _gcry_aes_armv8_ce_cfb_enc;
+      bulk_ops->cfb_dec = _gcry_aes_armv8_ce_cfb_dec;
+      bulk_ops->cbc_enc = _gcry_aes_armv8_ce_cbc_enc;
+      bulk_ops->cbc_dec = _gcry_aes_armv8_ce_cbc_dec;
+      bulk_ops->ctr_enc = _gcry_aes_armv8_ce_ctr_enc;
+      bulk_ops->ocb_crypt = _gcry_aes_armv8_ce_ocb_crypt;
+      bulk_ops->ocb_auth = _gcry_aes_armv8_ce_ocb_auth;
+      bulk_ops->xts_crypt = _gcry_aes_armv8_ce_xts_crypt;
+    }
+#endif
+#ifdef USE_PPC_CRYPTO_WITH_PPC9LE
+  else if ((hwfeatures & HWF_PPC_VCRYPTO) && (hwfeatures & HWF_PPC_ARCH_3_00))
+    {
+      hw_setkey = _gcry_aes_ppc8_setkey;
+      ctx->encrypt_fn = _gcry_aes_ppc9le_encrypt;
+      ctx->decrypt_fn = _gcry_aes_ppc9le_decrypt;
+      ctx->prefetch_enc_fn = NULL;
+      ctx->prefetch_dec_fn = NULL;
+      ctx->prepare_decryption = _gcry_aes_ppc8_prepare_decryption;
+      ctx->use_ppc_crypto = 1; /* same key-setup as USE_PPC_CRYPTO */
+      ctx->use_ppc9le_crypto = 1;
+
+      /* Setup PPC9LE bulk encryption routines.  */
+      bulk_ops->cfb_enc = _gcry_aes_ppc9le_cfb_enc;
+      bulk_ops->cfb_dec = _gcry_aes_ppc9le_cfb_dec;
+      bulk_ops->cbc_enc = _gcry_aes_ppc9le_cbc_enc;
+      bulk_ops->cbc_dec = _gcry_aes_ppc9le_cbc_dec;
+      bulk_ops->ctr_enc = _gcry_aes_ppc9le_ctr_enc;
+      bulk_ops->ocb_crypt = _gcry_aes_ppc9le_ocb_crypt;
+      bulk_ops->ocb_auth = _gcry_aes_ppc9le_ocb_auth;
+      bulk_ops->xts_crypt = _gcry_aes_ppc9le_xts_crypt;
+    }
+#endif
+#ifdef USE_PPC_CRYPTO
+  else if (hwfeatures & HWF_PPC_VCRYPTO)
+    {
+      hw_setkey = _gcry_aes_ppc8_setkey;
+      ctx->encrypt_fn = _gcry_aes_ppc8_encrypt;
+      ctx->decrypt_fn = _gcry_aes_ppc8_decrypt;
+      ctx->prefetch_enc_fn = NULL;
+      ctx->prefetch_dec_fn = NULL;
+      ctx->prepare_decryption = _gcry_aes_ppc8_prepare_decryption;
+      ctx->use_ppc_crypto = 1;
+
+      /* Setup PPC8 bulk encryption routines.  */
+      bulk_ops->cfb_enc = _gcry_aes_ppc8_cfb_enc;
+      bulk_ops->cfb_dec = _gcry_aes_ppc8_cfb_dec;
+      bulk_ops->cbc_enc = _gcry_aes_ppc8_cbc_enc;
+      bulk_ops->cbc_dec = _gcry_aes_ppc8_cbc_dec;
+      bulk_ops->ctr_enc = _gcry_aes_ppc8_ctr_enc;
+      bulk_ops->ocb_crypt = _gcry_aes_ppc8_ocb_crypt;
+      bulk_ops->ocb_auth = _gcry_aes_ppc8_ocb_auth;
+      bulk_ops->xts_crypt = _gcry_aes_ppc8_xts_crypt;
     }
 #endif
   else
@@ -379,26 +589,15 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen)
       ctx->decrypt_fn = do_decrypt;
       ctx->prefetch_enc_fn = prefetch_enc;
       ctx->prefetch_dec_fn = prefetch_dec;
+      ctx->prepare_decryption = prepare_decryption;
     }
 
   /* NB: We don't yet support Padlock hardware key generation.  */
 
-  if (0)
+  if (hw_setkey)
     {
-      ;
+      hw_setkey (ctx, key);
     }
-#ifdef USE_AESNI
-  else if (ctx->use_aesni)
-    _gcry_aes_aesni_do_setkey (ctx, key);
-#endif
-#ifdef USE_SSSE3
-  else if (ctx->use_ssse3)
-    _gcry_aes_ssse3_do_setkey (ctx, key);
-#endif
-#ifdef USE_ARM_CE
-  else if (ctx->use_arm_ce)
-    _gcry_aes_armv8_ce_setkey (ctx, key);
-#endif
   else
     {
       const byte *sbox = ((const byte *)encT) + 1;
@@ -503,10 +702,11 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen)
 
 
 static gcry_err_code_t
-rijndael_setkey (void *context, const byte *key, const unsigned keylen)
+rijndael_setkey (void *context, const byte *key, const unsigned keylen,
+                 cipher_bulk_ops_t *bulk_ops)
 {
   RIJNDAEL_context *ctx = context;
-  return do_setkey (ctx, key, keylen);
+  return do_setkey (ctx, key, keylen, bulk_ops);
 }
 
 
@@ -514,82 +714,52 @@ rijndael_setkey (void *context, const byte *key, const unsigned keylen)
 static void
 prepare_decryption( RIJNDAEL_context *ctx )
 {
+  const byte *sbox = ((const byte *)encT) + 1;
   int r;
 
-  if (0)
-    ;
-#ifdef USE_AESNI
-  else if (ctx->use_aesni)
+  prefetch_enc();
+  prefetch_dec();
+
+  ctx->keyschdec32[0][0] = ctx->keyschenc32[0][0];
+  ctx->keyschdec32[0][1] = ctx->keyschenc32[0][1];
+  ctx->keyschdec32[0][2] = ctx->keyschenc32[0][2];
+  ctx->keyschdec32[0][3] = ctx->keyschenc32[0][3];
+
+  for (r = 1; r < ctx->rounds; r++)
     {
-      _gcry_aes_aesni_prepare_decryption (ctx);
+      u32 *wi = ctx->keyschenc32[r];
+      u32 *wo = ctx->keyschdec32[r];
+      u32 wt;
+
+      wt = wi[0];
+      wo[0] = rol(decT[sbox[(byte)(wt >> 0) * 4]], 8 * 0)
+	      ^ rol(decT[sbox[(byte)(wt >> 8) * 4]], 8 * 1)
+	      ^ rol(decT[sbox[(byte)(wt >> 16) * 4]], 8 * 2)
+	      ^ rol(decT[sbox[(byte)(wt >> 24) * 4]], 8 * 3);
+
+      wt = wi[1];
+      wo[1] = rol(decT[sbox[(byte)(wt >> 0) * 4]], 8 * 0)
+	      ^ rol(decT[sbox[(byte)(wt >> 8) * 4]], 8 * 1)
+	      ^ rol(decT[sbox[(byte)(wt >> 16) * 4]], 8 * 2)
+	      ^ rol(decT[sbox[(byte)(wt >> 24) * 4]], 8 * 3);
+
+      wt = wi[2];
+      wo[2] = rol(decT[sbox[(byte)(wt >> 0) * 4]], 8 * 0)
+	      ^ rol(decT[sbox[(byte)(wt >> 8) * 4]], 8 * 1)
+	      ^ rol(decT[sbox[(byte)(wt >> 16) * 4]], 8 * 2)
+	      ^ rol(decT[sbox[(byte)(wt >> 24) * 4]], 8 * 3);
+
+      wt = wi[3];
+      wo[3] = rol(decT[sbox[(byte)(wt >> 0) * 4]], 8 * 0)
+	      ^ rol(decT[sbox[(byte)(wt >> 8) * 4]], 8 * 1)
+	      ^ rol(decT[sbox[(byte)(wt >> 16) * 4]], 8 * 2)
+	      ^ rol(decT[sbox[(byte)(wt >> 24) * 4]], 8 * 3);
     }
-#endif /*USE_AESNI*/
-#ifdef USE_SSSE3
-  else if (ctx->use_ssse3)
-    {
-      _gcry_aes_ssse3_prepare_decryption (ctx);
-    }
-#endif /*USE_SSSE3*/
-#ifdef USE_ARM_CE
-  else if (ctx->use_arm_ce)
-    {
-      _gcry_aes_armv8_ce_prepare_decryption (ctx);
-    }
-#endif /*USE_SSSE3*/
-#ifdef USE_PADLOCK
-  else if (ctx->use_padlock)
-    {
-      /* Padlock does not need decryption subkeys. */
-    }
-#endif /*USE_PADLOCK*/
-  else
-    {
-      const byte *sbox = ((const byte *)encT) + 1;
 
-      prefetch_enc();
-      prefetch_dec();
-
-      ctx->keyschdec32[0][0] = ctx->keyschenc32[0][0];
-      ctx->keyschdec32[0][1] = ctx->keyschenc32[0][1];
-      ctx->keyschdec32[0][2] = ctx->keyschenc32[0][2];
-      ctx->keyschdec32[0][3] = ctx->keyschenc32[0][3];
-
-      for (r = 1; r < ctx->rounds; r++)
-        {
-          u32 *wi = ctx->keyschenc32[r];
-          u32 *wo = ctx->keyschdec32[r];
-          u32 wt;
-
-          wt = wi[0];
-          wo[0] = rol(decT[sbox[(byte)(wt >> 0) * 4]], 8 * 0)
-                 ^ rol(decT[sbox[(byte)(wt >> 8) * 4]], 8 * 1)
-                 ^ rol(decT[sbox[(byte)(wt >> 16) * 4]], 8 * 2)
-                 ^ rol(decT[sbox[(byte)(wt >> 24) * 4]], 8 * 3);
-
-          wt = wi[1];
-          wo[1] = rol(decT[sbox[(byte)(wt >> 0) * 4]], 8 * 0)
-                 ^ rol(decT[sbox[(byte)(wt >> 8) * 4]], 8 * 1)
-                 ^ rol(decT[sbox[(byte)(wt >> 16) * 4]], 8 * 2)
-                 ^ rol(decT[sbox[(byte)(wt >> 24) * 4]], 8 * 3);
-
-          wt = wi[2];
-          wo[2] = rol(decT[sbox[(byte)(wt >> 0) * 4]], 8 * 0)
-                 ^ rol(decT[sbox[(byte)(wt >> 8) * 4]], 8 * 1)
-                 ^ rol(decT[sbox[(byte)(wt >> 16) * 4]], 8 * 2)
-                 ^ rol(decT[sbox[(byte)(wt >> 24) * 4]], 8 * 3);
-
-          wt = wi[3];
-          wo[3] = rol(decT[sbox[(byte)(wt >> 0) * 4]], 8 * 0)
-                 ^ rol(decT[sbox[(byte)(wt >> 8) * 4]], 8 * 1)
-                 ^ rol(decT[sbox[(byte)(wt >> 16) * 4]], 8 * 2)
-                 ^ rol(decT[sbox[(byte)(wt >> 24) * 4]], 8 * 3);
-        }
-
-      ctx->keyschdec32[r][0] = ctx->keyschenc32[r][0];
-      ctx->keyschdec32[r][1] = ctx->keyschenc32[r][1];
-      ctx->keyschdec32[r][2] = ctx->keyschenc32[r][2];
-      ctx->keyschdec32[r][3] = ctx->keyschenc32[r][3];
-    }
+  ctx->keyschdec32[r][0] = ctx->keyschenc32[r][0];
+  ctx->keyschdec32[r][1] = ctx->keyschenc32[r][1];
+  ctx->keyschdec32[r][2] = ctx->keyschenc32[r][2];
+  ctx->keyschdec32[r][3] = ctx->keyschenc32[r][3];
 }
 
 
@@ -695,28 +865,28 @@ do_encrypt_fn (const RIJNDAEL_context *ctx, unsigned char *b,
 
   /* Last round is special. */
 
-  sb[0] = (sbox[(byte)(sa[0] >> (0 * 8)) * 4]) << (0 * 8);
-  sb[3] = (sbox[(byte)(sa[0] >> (1 * 8)) * 4]) << (1 * 8);
-  sb[2] = (sbox[(byte)(sa[0] >> (2 * 8)) * 4]) << (2 * 8);
-  sb[1] = (sbox[(byte)(sa[0] >> (3 * 8)) * 4]) << (3 * 8);
+  sb[0] = ((u32)sbox[(byte)(sa[0] >> (0 * 8)) * 4]) << (0 * 8);
+  sb[3] = ((u32)sbox[(byte)(sa[0] >> (1 * 8)) * 4]) << (1 * 8);
+  sb[2] = ((u32)sbox[(byte)(sa[0] >> (2 * 8)) * 4]) << (2 * 8);
+  sb[1] = ((u32)sbox[(byte)(sa[0] >> (3 * 8)) * 4]) << (3 * 8);
   sa[0] = rk[r][0] ^ sb[0];
 
-  sb[1] ^= (sbox[(byte)(sa[1] >> (0 * 8)) * 4]) << (0 * 8);
-  sa[0] ^= (sbox[(byte)(sa[1] >> (1 * 8)) * 4]) << (1 * 8);
-  sb[3] ^= (sbox[(byte)(sa[1] >> (2 * 8)) * 4]) << (2 * 8);
-  sb[2] ^= (sbox[(byte)(sa[1] >> (3 * 8)) * 4]) << (3 * 8);
+  sb[1] ^= ((u32)sbox[(byte)(sa[1] >> (0 * 8)) * 4]) << (0 * 8);
+  sa[0] ^= ((u32)sbox[(byte)(sa[1] >> (1 * 8)) * 4]) << (1 * 8);
+  sb[3] ^= ((u32)sbox[(byte)(sa[1] >> (2 * 8)) * 4]) << (2 * 8);
+  sb[2] ^= ((u32)sbox[(byte)(sa[1] >> (3 * 8)) * 4]) << (3 * 8);
   sa[1] = rk[r][1] ^ sb[1];
 
-  sb[2] ^= (sbox[(byte)(sa[2] >> (0 * 8)) * 4]) << (0 * 8);
-  sa[1] ^= (sbox[(byte)(sa[2] >> (1 * 8)) * 4]) << (1 * 8);
-  sa[0] ^= (sbox[(byte)(sa[2] >> (2 * 8)) * 4]) << (2 * 8);
-  sb[3] ^= (sbox[(byte)(sa[2] >> (3 * 8)) * 4]) << (3 * 8);
+  sb[2] ^= ((u32)sbox[(byte)(sa[2] >> (0 * 8)) * 4]) << (0 * 8);
+  sa[1] ^= ((u32)sbox[(byte)(sa[2] >> (1 * 8)) * 4]) << (1 * 8);
+  sa[0] ^= ((u32)sbox[(byte)(sa[2] >> (2 * 8)) * 4]) << (2 * 8);
+  sb[3] ^= ((u32)sbox[(byte)(sa[2] >> (3 * 8)) * 4]) << (3 * 8);
   sa[2] = rk[r][2] ^ sb[2];
 
-  sb[3] ^= (sbox[(byte)(sa[3] >> (0 * 8)) * 4]) << (0 * 8);
-  sa[2] ^= (sbox[(byte)(sa[3] >> (1 * 8)) * 4]) << (1 * 8);
-  sa[1] ^= (sbox[(byte)(sa[3] >> (2 * 8)) * 4]) << (2 * 8);
-  sa[0] ^= (sbox[(byte)(sa[3] >> (3 * 8)) * 4]) << (3 * 8);
+  sb[3] ^= ((u32)sbox[(byte)(sa[3] >> (0 * 8)) * 4]) << (0 * 8);
+  sa[2] ^= ((u32)sbox[(byte)(sa[3] >> (1 * 8)) * 4]) << (1 * 8);
+  sa[1] ^= ((u32)sbox[(byte)(sa[3] >> (2 * 8)) * 4]) << (2 * 8);
+  sa[0] ^= ((u32)sbox[(byte)(sa[3] >> (3 * 8)) * 4]) << (3 * 8);
   sa[3] = rk[r][3] ^ sb[3];
 
   buf_put_le32(b + 0, sa[0]);
@@ -735,29 +905,11 @@ do_encrypt (const RIJNDAEL_context *ctx,
             unsigned char *bx, const unsigned char *ax)
 {
 #ifdef USE_AMD64_ASM
-# ifdef HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS
   return _gcry_aes_amd64_encrypt_block(ctx->keyschenc, bx, ax, ctx->rounds,
-				       encT);
-# else
-  /* Call SystemV ABI function without storing non-volatile XMM registers,
-   * as target function does not use vector instruction sets. */
-  const void *key = ctx->keyschenc;
-  uintptr_t rounds = ctx->rounds;
-  uintptr_t ret;
-  asm volatile ("movq %[encT], %%r8\n\t"
-                "callq *%[ret]\n\t"
-                : [ret] "=a" (ret),
-                  "+D" (key),
-                  "+S" (bx),
-                  "+d" (ax),
-                  "+c" (rounds)
-                : "0" (_gcry_aes_amd64_encrypt_block),
-                  [encT] "r" (encT)
-                : "cc", "memory", "r8", "r9", "r10", "r11");
-  return ret;
-# endif /* HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS */
+				       enc_tables.T);
 #elif defined(USE_ARM_ASM)
-  return _gcry_aes_arm_encrypt_block(ctx->keyschenc, bx, ax, ctx->rounds, encT);
+  return _gcry_aes_arm_encrypt_block(ctx->keyschenc, bx, ax, ctx->rounds,
+				     enc_tables.T);
 #else
   return do_encrypt_fn (ctx, bx, ax);
 #endif /* !USE_ARM_ASM && !USE_AMD64_ASM*/
@@ -780,7 +932,7 @@ rijndael_encrypt (void *context, byte *b, const byte *a)
    make sure that IV is aligned on an unsigned long boundary.  This
    function is only intended for the bulk encryption feature of
    cipher.c. */
-void
+static void
 _gcry_aes_cfb_enc (void *context, unsigned char *iv,
                    void *outbuf_arg, const void *inbuf_arg,
                    size_t nblocks)
@@ -789,46 +941,19 @@ _gcry_aes_cfb_enc (void *context, unsigned char *iv,
   unsigned char *outbuf = outbuf_arg;
   const unsigned char *inbuf = inbuf_arg;
   unsigned int burn_depth = 0;
+  rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
 
   if (ctx->prefetch_enc_fn)
     ctx->prefetch_enc_fn();
 
-  if (0)
-    ;
-#ifdef USE_AESNI
-  else if (ctx->use_aesni)
+  for ( ;nblocks; nblocks-- )
     {
-      _gcry_aes_aesni_cfb_enc (ctx, outbuf, inbuf, iv, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_AESNI*/
-#ifdef USE_SSSE3
-  else if (ctx->use_ssse3)
-    {
-      _gcry_aes_ssse3_cfb_enc (ctx, outbuf, inbuf, iv, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_SSSE3*/
-#ifdef USE_ARM_CE
-  else if (ctx->use_arm_ce)
-    {
-      _gcry_aes_armv8_ce_cfb_enc (ctx, outbuf, inbuf, iv, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_ARM_CE*/
-  else
-    {
-      rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
-
-      for ( ;nblocks; nblocks-- )
-        {
-          /* Encrypt the IV. */
-          burn_depth = encrypt_fn (ctx, iv, iv);
-          /* XOR the input with the IV and store input into IV.  */
-          buf_xor_2dst(outbuf, iv, inbuf, BLOCKSIZE);
-          outbuf += BLOCKSIZE;
-          inbuf  += BLOCKSIZE;
-        }
+      /* Encrypt the IV. */
+      burn_depth = encrypt_fn (ctx, iv, iv);
+      /* XOR the input with the IV and store input into IV.  */
+      cipher_block_xor_2dst(outbuf, iv, inbuf, BLOCKSIZE);
+      outbuf += BLOCKSIZE;
+      inbuf  += BLOCKSIZE;
     }
 
   if (burn_depth)
@@ -840,7 +965,7 @@ _gcry_aes_cfb_enc (void *context, unsigned char *iv,
    make sure that IV is aligned on an unsigned long boundary.  This
    function is only intended for the bulk encryption feature of
    cipher.c. */
-void
+static void
 _gcry_aes_cbc_enc (void *context, unsigned char *iv,
                    void *outbuf_arg, const void *inbuf_arg,
                    size_t nblocks, int cbc_mac)
@@ -850,54 +975,27 @@ _gcry_aes_cbc_enc (void *context, unsigned char *iv,
   const unsigned char *inbuf = inbuf_arg;
   unsigned char *last_iv;
   unsigned int burn_depth = 0;
+  rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
 
   if (ctx->prefetch_enc_fn)
     ctx->prefetch_enc_fn();
 
-  if (0)
-    ;
-#ifdef USE_AESNI
-  else if (ctx->use_aesni)
+  last_iv = iv;
+
+  for ( ;nblocks; nblocks-- )
     {
-      _gcry_aes_aesni_cbc_enc (ctx, outbuf, inbuf, iv, nblocks, cbc_mac);
-      burn_depth = 0;
+      cipher_block_xor(outbuf, inbuf, last_iv, BLOCKSIZE);
+
+      burn_depth = encrypt_fn (ctx, outbuf, outbuf);
+
+      last_iv = outbuf;
+      inbuf += BLOCKSIZE;
+      if (!cbc_mac)
+	outbuf += BLOCKSIZE;
     }
-#endif /*USE_AESNI*/
-#ifdef USE_SSSE3
-  else if (ctx->use_ssse3)
-    {
-      _gcry_aes_ssse3_cbc_enc (ctx, outbuf, inbuf, iv, nblocks, cbc_mac);
-      burn_depth = 0;
-    }
-#endif /*USE_SSSE3*/
-#ifdef USE_ARM_CE
-  else if (ctx->use_arm_ce)
-    {
-      _gcry_aes_armv8_ce_cbc_enc (ctx, outbuf, inbuf, iv, nblocks, cbc_mac);
-      burn_depth = 0;
-    }
-#endif /*USE_ARM_CE*/
-  else
-    {
-      rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
 
-      last_iv = iv;
-
-      for ( ;nblocks; nblocks-- )
-        {
-          buf_xor(outbuf, inbuf, last_iv, BLOCKSIZE);
-
-          burn_depth = encrypt_fn (ctx, outbuf, outbuf);
-
-          last_iv = outbuf;
-          inbuf += BLOCKSIZE;
-          if (!cbc_mac)
-            outbuf += BLOCKSIZE;
-        }
-
-      if (last_iv != iv)
-        buf_cpy (iv, last_iv, BLOCKSIZE);
-    }
+  if (last_iv != iv)
+    cipher_block_cpy (iv, last_iv, BLOCKSIZE);
 
   if (burn_depth)
     _gcry_burn_stack (burn_depth + 4 * sizeof(void *));
@@ -909,7 +1007,7 @@ _gcry_aes_cbc_enc (void *context, unsigned char *iv,
    minimum alignment is for an u32.  This function is only intended
    for the bulk encryption feature of cipher.c.  CTR is expected to be
    of size BLOCKSIZE. */
-void
+static void
 _gcry_aes_ctr_enc (void *context, unsigned char *ctr,
                    void *outbuf_arg, const void *inbuf_arg,
                    size_t nblocks)
@@ -918,58 +1016,25 @@ _gcry_aes_ctr_enc (void *context, unsigned char *ctr,
   unsigned char *outbuf = outbuf_arg;
   const unsigned char *inbuf = inbuf_arg;
   unsigned int burn_depth = 0;
-  int i;
+  union { unsigned char x1[16] ATTR_ALIGNED_16; u32 x32[4]; } tmp;
+  rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
 
   if (ctx->prefetch_enc_fn)
     ctx->prefetch_enc_fn();
 
-  if (0)
-    ;
-#ifdef USE_AESNI
-  else if (ctx->use_aesni)
+  for ( ;nblocks; nblocks-- )
     {
-      _gcry_aes_aesni_ctr_enc (ctx, outbuf, inbuf, ctr, nblocks);
-      burn_depth = 0;
+      /* Encrypt the counter. */
+      burn_depth = encrypt_fn (ctx, tmp.x1, ctr);
+      /* XOR the input with the encrypted counter and store in output.  */
+      cipher_block_xor(outbuf, tmp.x1, inbuf, BLOCKSIZE);
+      outbuf += BLOCKSIZE;
+      inbuf  += BLOCKSIZE;
+      /* Increment the counter.  */
+      cipher_block_add(ctr, 1, BLOCKSIZE);
     }
-#endif /*USE_AESNI*/
-#ifdef USE_SSSE3
-  else if (ctx->use_ssse3)
-    {
-      _gcry_aes_ssse3_ctr_enc (ctx, outbuf, inbuf, ctr, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_SSSE3*/
-#ifdef USE_ARM_CE
-  else if (ctx->use_arm_ce)
-    {
-      _gcry_aes_armv8_ce_ctr_enc (ctx, outbuf, inbuf, ctr, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_ARM_CE*/
-  else
-    {
-      union { unsigned char x1[16] ATTR_ALIGNED_16; u32 x32[4]; } tmp;
-      rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
 
-      for ( ;nblocks; nblocks-- )
-        {
-          /* Encrypt the counter. */
-          burn_depth = encrypt_fn (ctx, tmp.x1, ctr);
-          /* XOR the input with the encrypted counter and store in output.  */
-          buf_xor(outbuf, tmp.x1, inbuf, BLOCKSIZE);
-          outbuf += BLOCKSIZE;
-          inbuf  += BLOCKSIZE;
-          /* Increment the counter.  */
-          for (i = BLOCKSIZE; i > 0; i--)
-            {
-              ctr[i-1]++;
-              if (ctr[i-1])
-                break;
-            }
-        }
-
-      wipememory(&tmp, sizeof(tmp));
-    }
+  wipememory(&tmp, sizeof(tmp));
 
   if (burn_depth)
     _gcry_burn_stack (burn_depth + 4 * sizeof(void *));
@@ -1077,28 +1142,28 @@ do_decrypt_fn (const RIJNDAEL_context *ctx, unsigned char *b,
   sa[3] = rk[1][3] ^ sb[3];
 
   /* Last round is special. */
-  sb[0] = inv_sbox[(byte)(sa[0] >> (0 * 8))] << (0 * 8);
-  sb[1] = inv_sbox[(byte)(sa[0] >> (1 * 8))] << (1 * 8);
-  sb[2] = inv_sbox[(byte)(sa[0] >> (2 * 8))] << (2 * 8);
-  sb[3] = inv_sbox[(byte)(sa[0] >> (3 * 8))] << (3 * 8);
+  sb[0] = (u32)inv_sbox[(byte)(sa[0] >> (0 * 8))] << (0 * 8);
+  sb[1] = (u32)inv_sbox[(byte)(sa[0] >> (1 * 8))] << (1 * 8);
+  sb[2] = (u32)inv_sbox[(byte)(sa[0] >> (2 * 8))] << (2 * 8);
+  sb[3] = (u32)inv_sbox[(byte)(sa[0] >> (3 * 8))] << (3 * 8);
   sa[0] = sb[0] ^ rk[0][0];
 
-  sb[1] ^= inv_sbox[(byte)(sa[1] >> (0 * 8))] << (0 * 8);
-  sb[2] ^= inv_sbox[(byte)(sa[1] >> (1 * 8))] << (1 * 8);
-  sb[3] ^= inv_sbox[(byte)(sa[1] >> (2 * 8))] << (2 * 8);
-  sa[0] ^= inv_sbox[(byte)(sa[1] >> (3 * 8))] << (3 * 8);
+  sb[1] ^= (u32)inv_sbox[(byte)(sa[1] >> (0 * 8))] << (0 * 8);
+  sb[2] ^= (u32)inv_sbox[(byte)(sa[1] >> (1 * 8))] << (1 * 8);
+  sb[3] ^= (u32)inv_sbox[(byte)(sa[1] >> (2 * 8))] << (2 * 8);
+  sa[0] ^= (u32)inv_sbox[(byte)(sa[1] >> (3 * 8))] << (3 * 8);
   sa[1] = sb[1] ^ rk[0][1];
 
-  sb[2] ^= inv_sbox[(byte)(sa[2] >> (0 * 8))] << (0 * 8);
-  sb[3] ^= inv_sbox[(byte)(sa[2] >> (1 * 8))] << (1 * 8);
-  sa[0] ^= inv_sbox[(byte)(sa[2] >> (2 * 8))] << (2 * 8);
-  sa[1] ^= inv_sbox[(byte)(sa[2] >> (3 * 8))] << (3 * 8);
+  sb[2] ^= (u32)inv_sbox[(byte)(sa[2] >> (0 * 8))] << (0 * 8);
+  sb[3] ^= (u32)inv_sbox[(byte)(sa[2] >> (1 * 8))] << (1 * 8);
+  sa[0] ^= (u32)inv_sbox[(byte)(sa[2] >> (2 * 8))] << (2 * 8);
+  sa[1] ^= (u32)inv_sbox[(byte)(sa[2] >> (3 * 8))] << (3 * 8);
   sa[2] = sb[2] ^ rk[0][2];
 
-  sb[3] ^= inv_sbox[(byte)(sa[3] >> (0 * 8))] << (0 * 8);
-  sa[0] ^= inv_sbox[(byte)(sa[3] >> (1 * 8))] << (1 * 8);
-  sa[1] ^= inv_sbox[(byte)(sa[3] >> (2 * 8))] << (2 * 8);
-  sa[2] ^= inv_sbox[(byte)(sa[3] >> (3 * 8))] << (3 * 8);
+  sb[3] ^= (u32)inv_sbox[(byte)(sa[3] >> (0 * 8))] << (0 * 8);
+  sa[0] ^= (u32)inv_sbox[(byte)(sa[3] >> (1 * 8))] << (1 * 8);
+  sa[1] ^= (u32)inv_sbox[(byte)(sa[3] >> (2 * 8))] << (2 * 8);
+  sa[2] ^= (u32)inv_sbox[(byte)(sa[3] >> (3 * 8))] << (3 * 8);
   sa[3] = sb[3] ^ rk[0][3];
 
   buf_put_le32(b + 0, sa[0]);
@@ -1118,30 +1183,11 @@ do_decrypt (const RIJNDAEL_context *ctx, unsigned char *bx,
             const unsigned char *ax)
 {
 #ifdef USE_AMD64_ASM
-# ifdef HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS
   return _gcry_aes_amd64_decrypt_block(ctx->keyschdec, bx, ax, ctx->rounds,
-				       &dec_tables);
-# else
-  /* Call SystemV ABI function without storing non-volatile XMM registers,
-   * as target function does not use vector instruction sets. */
-  const void *key = ctx->keyschdec;
-  uintptr_t rounds = ctx->rounds;
-  uintptr_t ret;
-  asm volatile ("movq %[dectabs], %%r8\n\t"
-                "callq *%[ret]\n\t"
-                : [ret] "=a" (ret),
-                  "+D" (key),
-                  "+S" (bx),
-                  "+d" (ax),
-                  "+c" (rounds)
-                : "0" (_gcry_aes_amd64_decrypt_block),
-                  [dectabs] "r" (&dec_tables)
-                : "cc", "memory", "r8", "r9", "r10", "r11");
-  return ret;
-# endif /* HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS */
+				       dec_tables.T);
 #elif defined(USE_ARM_ASM)
   return _gcry_aes_arm_decrypt_block(ctx->keyschdec, bx, ax, ctx->rounds,
-				     &dec_tables);
+				     dec_tables.T);
 #else
   return do_decrypt_fn (ctx, bx, ax);
 #endif /*!USE_ARM_ASM && !USE_AMD64_ASM*/
@@ -1153,7 +1199,7 @@ check_decryption_preparation (RIJNDAEL_context *ctx)
 {
   if ( !ctx->decryption_prepared )
     {
-      prepare_decryption ( ctx );
+      ctx->prepare_decryption ( ctx );
       ctx->decryption_prepared = 1;
     }
 }
@@ -1177,7 +1223,7 @@ rijndael_decrypt (void *context, byte *b, const byte *a)
    make sure that IV is aligned on an unsigned long boundary.  This
    function is only intended for the bulk encryption feature of
    cipher.c. */
-void
+static void
 _gcry_aes_cfb_dec (void *context, unsigned char *iv,
                    void *outbuf_arg, const void *inbuf_arg,
                    size_t nblocks)
@@ -1186,44 +1232,17 @@ _gcry_aes_cfb_dec (void *context, unsigned char *iv,
   unsigned char *outbuf = outbuf_arg;
   const unsigned char *inbuf = inbuf_arg;
   unsigned int burn_depth = 0;
+  rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
 
   if (ctx->prefetch_enc_fn)
     ctx->prefetch_enc_fn();
 
-  if (0)
-    ;
-#ifdef USE_AESNI
-  else if (ctx->use_aesni)
+  for ( ;nblocks; nblocks-- )
     {
-      _gcry_aes_aesni_cfb_dec (ctx, outbuf, inbuf, iv, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_AESNI*/
-#ifdef USE_SSSE3
-  else if (ctx->use_ssse3)
-    {
-      _gcry_aes_ssse3_cfb_dec (ctx, outbuf, inbuf, iv, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_SSSE3*/
-#ifdef USE_ARM_CE
-  else if (ctx->use_arm_ce)
-    {
-      _gcry_aes_armv8_ce_cfb_dec (ctx, outbuf, inbuf, iv, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_ARM_CE*/
-  else
-    {
-      rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
-
-      for ( ;nblocks; nblocks-- )
-        {
-          burn_depth = encrypt_fn (ctx, iv, iv);
-          buf_xor_n_copy(outbuf, iv, inbuf, BLOCKSIZE);
-          outbuf += BLOCKSIZE;
-          inbuf  += BLOCKSIZE;
-        }
+      burn_depth = encrypt_fn (ctx, iv, iv);
+      cipher_block_xor_n_copy(outbuf, iv, inbuf, BLOCKSIZE);
+      outbuf += BLOCKSIZE;
+      inbuf  += BLOCKSIZE;
     }
 
   if (burn_depth)
@@ -1235,7 +1254,7 @@ _gcry_aes_cfb_dec (void *context, unsigned char *iv,
    make sure that IV is aligned on an unsigned long boundary.  This
    function is only intended for the bulk encryption feature of
    cipher.c. */
-void
+static void
 _gcry_aes_cbc_dec (void *context, unsigned char *iv,
                    void *outbuf_arg, const void *inbuf_arg,
                    size_t nblocks)
@@ -1244,54 +1263,27 @@ _gcry_aes_cbc_dec (void *context, unsigned char *iv,
   unsigned char *outbuf = outbuf_arg;
   const unsigned char *inbuf = inbuf_arg;
   unsigned int burn_depth = 0;
+  unsigned char savebuf[BLOCKSIZE] ATTR_ALIGNED_16;
+  rijndael_cryptfn_t decrypt_fn = ctx->decrypt_fn;
 
   check_decryption_preparation (ctx);
 
   if (ctx->prefetch_dec_fn)
     ctx->prefetch_dec_fn();
 
-  if (0)
-    ;
-#ifdef USE_AESNI
-  else if (ctx->use_aesni)
+  for ( ;nblocks; nblocks-- )
     {
-      _gcry_aes_aesni_cbc_dec (ctx, outbuf, inbuf, iv, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_AESNI*/
-#ifdef USE_SSSE3
-  else if (ctx->use_ssse3)
-    {
-      _gcry_aes_ssse3_cbc_dec (ctx, outbuf, inbuf, iv, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_SSSE3*/
-#ifdef USE_ARM_CE
-  else if (ctx->use_arm_ce)
-    {
-      _gcry_aes_armv8_ce_cbc_dec (ctx, outbuf, inbuf, iv, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_ARM_CE*/
-  else
-    {
-      unsigned char savebuf[BLOCKSIZE] ATTR_ALIGNED_16;
-      rijndael_cryptfn_t decrypt_fn = ctx->decrypt_fn;
+      /* INBUF is needed later and it may be identical to OUTBUF, so store
+	  the intermediate result to SAVEBUF.  */
 
-      for ( ;nblocks; nblocks-- )
-        {
-          /* INBUF is needed later and it may be identical to OUTBUF, so store
-             the intermediate result to SAVEBUF.  */
+      burn_depth = decrypt_fn (ctx, savebuf, inbuf);
 
-          burn_depth = decrypt_fn (ctx, savebuf, inbuf);
-
-          buf_xor_n_copy_2(outbuf, savebuf, iv, inbuf, BLOCKSIZE);
-          inbuf += BLOCKSIZE;
-          outbuf += BLOCKSIZE;
-        }
-
-      wipememory(savebuf, sizeof(savebuf));
+      cipher_block_xor_n_copy_2(outbuf, savebuf, iv, inbuf, BLOCKSIZE);
+      inbuf += BLOCKSIZE;
+      outbuf += BLOCKSIZE;
     }
+
+  wipememory(savebuf, sizeof(savebuf));
 
   if (burn_depth)
     _gcry_burn_stack (burn_depth + 4 * sizeof(void *));
@@ -1300,7 +1292,7 @@ _gcry_aes_cbc_dec (void *context, unsigned char *iv,
 
 
 /* Bulk encryption/decryption of complete blocks in OCB mode. */
-size_t
+static size_t
 _gcry_aes_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
                      const void *inbuf_arg, size_t nblocks, int encrypt)
 {
@@ -1311,44 +1303,11 @@ _gcry_aes_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
 
   if (encrypt)
     {
-      if (ctx->prefetch_enc_fn)
-        ctx->prefetch_enc_fn();
-    }
-  else
-    {
-      check_decryption_preparation (ctx);
-
-      if (ctx->prefetch_dec_fn)
-        ctx->prefetch_dec_fn();
-    }
-
-  if (0)
-    ;
-#ifdef USE_AESNI
-  else if (ctx->use_aesni)
-    {
-      _gcry_aes_aesni_ocb_crypt (c, outbuf, inbuf, nblocks, encrypt);
-      burn_depth = 0;
-    }
-#endif /*USE_AESNI*/
-#ifdef USE_SSSE3
-  else if (ctx->use_ssse3)
-    {
-      _gcry_aes_ssse3_ocb_crypt (c, outbuf, inbuf, nblocks, encrypt);
-      burn_depth = 0;
-    }
-#endif /*USE_SSSE3*/
-#ifdef USE_ARM_CE
-  else if (ctx->use_arm_ce)
-    {
-      _gcry_aes_armv8_ce_ocb_crypt (c, outbuf, inbuf, nblocks, encrypt);
-      burn_depth = 0;
-    }
-#endif /*USE_ARM_CE*/
-  else if (encrypt)
-    {
       union { unsigned char x1[16] ATTR_ALIGNED_16; u32 x32[4]; } l_tmp;
       rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
+
+      if (ctx->prefetch_enc_fn)
+        ctx->prefetch_enc_fn();
 
       for ( ;nblocks; nblocks-- )
         {
@@ -1356,15 +1315,15 @@ _gcry_aes_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
           const unsigned char *l = ocb_get_l(c, i);
 
           /* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
-          buf_xor_1 (c->u_iv.iv, l, BLOCKSIZE);
-          buf_cpy (l_tmp.x1, inbuf, BLOCKSIZE);
+          cipher_block_xor_1 (c->u_iv.iv, l, BLOCKSIZE);
+          cipher_block_cpy (l_tmp.x1, inbuf, BLOCKSIZE);
           /* Checksum_i = Checksum_{i-1} xor P_i  */
-          buf_xor_1 (c->u_ctr.ctr, l_tmp.x1, BLOCKSIZE);
+          cipher_block_xor_1 (c->u_ctr.ctr, l_tmp.x1, BLOCKSIZE);
           /* C_i = Offset_i xor ENCIPHER(K, P_i xor Offset_i)  */
-          buf_xor_1 (l_tmp.x1, c->u_iv.iv, BLOCKSIZE);
+          cipher_block_xor_1 (l_tmp.x1, c->u_iv.iv, BLOCKSIZE);
           burn_depth = encrypt_fn (ctx, l_tmp.x1, l_tmp.x1);
-          buf_xor_1 (l_tmp.x1, c->u_iv.iv, BLOCKSIZE);
-          buf_cpy (outbuf, l_tmp.x1, BLOCKSIZE);
+          cipher_block_xor_1 (l_tmp.x1, c->u_iv.iv, BLOCKSIZE);
+          cipher_block_cpy (outbuf, l_tmp.x1, BLOCKSIZE);
 
           inbuf += BLOCKSIZE;
           outbuf += BLOCKSIZE;
@@ -1375,21 +1334,26 @@ _gcry_aes_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
       union { unsigned char x1[16] ATTR_ALIGNED_16; u32 x32[4]; } l_tmp;
       rijndael_cryptfn_t decrypt_fn = ctx->decrypt_fn;
 
+      check_decryption_preparation (ctx);
+
+      if (ctx->prefetch_dec_fn)
+        ctx->prefetch_dec_fn();
+
       for ( ;nblocks; nblocks-- )
         {
           u64 i = ++c->u_mode.ocb.data_nblocks;
           const unsigned char *l = ocb_get_l(c, i);
 
           /* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
-          buf_xor_1 (c->u_iv.iv, l, BLOCKSIZE);
-          buf_cpy (l_tmp.x1, inbuf, BLOCKSIZE);
+          cipher_block_xor_1 (c->u_iv.iv, l, BLOCKSIZE);
+          cipher_block_cpy (l_tmp.x1, inbuf, BLOCKSIZE);
           /* C_i = Offset_i xor ENCIPHER(K, P_i xor Offset_i)  */
-          buf_xor_1 (l_tmp.x1, c->u_iv.iv, BLOCKSIZE);
+          cipher_block_xor_1 (l_tmp.x1, c->u_iv.iv, BLOCKSIZE);
           burn_depth = decrypt_fn (ctx, l_tmp.x1, l_tmp.x1);
-          buf_xor_1 (l_tmp.x1, c->u_iv.iv, BLOCKSIZE);
+          cipher_block_xor_1 (l_tmp.x1, c->u_iv.iv, BLOCKSIZE);
           /* Checksum_i = Checksum_{i-1} xor P_i  */
-          buf_xor_1 (c->u_ctr.ctr, l_tmp.x1, BLOCKSIZE);
-          buf_cpy (outbuf, l_tmp.x1, BLOCKSIZE);
+          cipher_block_xor_1 (c->u_ctr.ctr, l_tmp.x1, BLOCKSIZE);
+          cipher_block_cpy (outbuf, l_tmp.x1, BLOCKSIZE);
 
           inbuf += BLOCKSIZE;
           outbuf += BLOCKSIZE;
@@ -1404,61 +1368,35 @@ _gcry_aes_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
 
 
 /* Bulk authentication of complete blocks in OCB mode. */
-size_t
+static size_t
 _gcry_aes_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg, size_t nblocks)
 {
   RIJNDAEL_context *ctx = (void *)&c->context.c;
   const unsigned char *abuf = abuf_arg;
   unsigned int burn_depth = 0;
+  union { unsigned char x1[16] ATTR_ALIGNED_16; u32 x32[4]; } l_tmp;
+  rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
 
   if (ctx->prefetch_enc_fn)
     ctx->prefetch_enc_fn();
 
-  if (0)
-    ;
-#ifdef USE_AESNI
-  else if (ctx->use_aesni)
+  for ( ;nblocks; nblocks-- )
     {
-      _gcry_aes_aesni_ocb_auth (c, abuf, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_AESNI*/
-#ifdef USE_SSSE3
-  else if (ctx->use_ssse3)
-    {
-      _gcry_aes_ssse3_ocb_auth (c, abuf, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_SSSE3*/
-#ifdef USE_ARM_CE
-  else if (ctx->use_arm_ce)
-    {
-      _gcry_aes_armv8_ce_ocb_auth (c, abuf, nblocks);
-      burn_depth = 0;
-    }
-#endif /*USE_ARM_CE*/
-  else
-    {
-      union { unsigned char x1[16] ATTR_ALIGNED_16; u32 x32[4]; } l_tmp;
-      rijndael_cryptfn_t encrypt_fn = ctx->encrypt_fn;
+      u64 i = ++c->u_mode.ocb.aad_nblocks;
+      const unsigned char *l = ocb_get_l(c, i);
 
-      for ( ;nblocks; nblocks-- )
-        {
-          u64 i = ++c->u_mode.ocb.aad_nblocks;
-          const unsigned char *l = ocb_get_l(c, i);
+      /* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
+      cipher_block_xor_1 (c->u_mode.ocb.aad_offset, l, BLOCKSIZE);
+      /* Sum_i = Sum_{i-1} xor ENCIPHER(K, A_i xor Offset_i)  */
+      cipher_block_xor (l_tmp.x1, c->u_mode.ocb.aad_offset, abuf,
+			BLOCKSIZE);
+      burn_depth = encrypt_fn (ctx, l_tmp.x1, l_tmp.x1);
+      cipher_block_xor_1 (c->u_mode.ocb.aad_sum, l_tmp.x1, BLOCKSIZE);
 
-          /* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
-          buf_xor_1 (c->u_mode.ocb.aad_offset, l, BLOCKSIZE);
-          /* Sum_i = Sum_{i-1} xor ENCIPHER(K, A_i xor Offset_i)  */
-          buf_xor (l_tmp.x1, c->u_mode.ocb.aad_offset, abuf, BLOCKSIZE);
-          burn_depth = encrypt_fn (ctx, l_tmp.x1, l_tmp.x1);
-          buf_xor_1 (c->u_mode.ocb.aad_sum, l_tmp.x1, BLOCKSIZE);
-
-          abuf += BLOCKSIZE;
-        }
-
-      wipememory(&l_tmp, sizeof(l_tmp));
+      abuf += BLOCKSIZE;
     }
+
+  wipememory(&l_tmp, sizeof(l_tmp));
 
   if (burn_depth)
     _gcry_burn_stack (burn_depth + 4 * sizeof(void *));
@@ -1466,6 +1404,73 @@ _gcry_aes_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg, size_t nblocks)
   return 0;
 }
 
+
+/* Bulk encryption/decryption of complete blocks in XTS mode. */
+static void
+_gcry_aes_xts_crypt (void *context, unsigned char *tweak,
+		     void *outbuf_arg, const void *inbuf_arg,
+		     size_t nblocks, int encrypt)
+{
+  RIJNDAEL_context *ctx = context;
+  unsigned char *outbuf = outbuf_arg;
+  const unsigned char *inbuf = inbuf_arg;
+  unsigned int burn_depth = 0;
+  rijndael_cryptfn_t crypt_fn;
+  u64 tweak_lo, tweak_hi, tweak_next_lo, tweak_next_hi, tmp_lo, tmp_hi, carry;
+
+  if (encrypt)
+    {
+      if (ctx->prefetch_enc_fn)
+	ctx->prefetch_enc_fn();
+
+      crypt_fn = ctx->encrypt_fn;
+    }
+  else
+    {
+      check_decryption_preparation (ctx);
+
+      if (ctx->prefetch_dec_fn)
+	ctx->prefetch_dec_fn();
+
+      crypt_fn = ctx->decrypt_fn;
+    }
+
+  tweak_next_lo = buf_get_le64 (tweak + 0);
+  tweak_next_hi = buf_get_le64 (tweak + 8);
+
+  while (nblocks)
+    {
+      tweak_lo = tweak_next_lo;
+      tweak_hi = tweak_next_hi;
+
+      /* Xor-Encrypt/Decrypt-Xor block. */
+      tmp_lo = buf_get_le64 (inbuf + 0) ^ tweak_lo;
+      tmp_hi = buf_get_le64 (inbuf + 8) ^ tweak_hi;
+
+      buf_put_le64 (outbuf + 0, tmp_lo);
+      buf_put_le64 (outbuf + 8, tmp_hi);
+
+      /* Generate next tweak. */
+      carry = -(tweak_next_hi >> 63) & 0x87;
+      tweak_next_hi = (tweak_next_hi << 1) + (tweak_next_lo >> 63);
+      tweak_next_lo = (tweak_next_lo << 1) ^ carry;
+
+      burn_depth = crypt_fn (ctx, outbuf, outbuf);
+
+      buf_put_le64 (outbuf + 0, buf_get_le64 (outbuf + 0) ^ tweak_lo);
+      buf_put_le64 (outbuf + 8, buf_get_le64 (outbuf + 8) ^ tweak_hi);
+
+      outbuf += GCRY_XTS_BLOCK_LEN;
+      inbuf += GCRY_XTS_BLOCK_LEN;
+      nblocks--;
+    }
+
+  buf_put_le64 (tweak + 0, tweak_next_lo);
+  buf_put_le64 (tweak + 8, tweak_next_hi);
+
+  if (burn_depth)
+    _gcry_burn_stack (burn_depth + 5 * sizeof(void *));
+}
 
 
 /* Run the self-tests for AES 128.  Returns NULL on success. */
@@ -1475,6 +1480,7 @@ selftest_basic_128 (void)
   RIJNDAEL_context *ctx;
   unsigned char *ctxmem;
   unsigned char scratch[16];
+  cipher_bulk_ops_t bulk_ops;
 
   /* The test vectors are from the AES supplied ones; more or less
      randomly taken from ecb_tbl.txt (I=42,81,14) */
@@ -1522,7 +1528,7 @@ selftest_basic_128 (void)
   if (!ctx)
     return "failed to allocate memory";
 
-  rijndael_setkey (ctx, key_128, sizeof (key_128));
+  rijndael_setkey (ctx, key_128, sizeof (key_128), &bulk_ops);
   rijndael_encrypt (ctx, scratch, plaintext_128);
   if (memcmp (scratch, ciphertext_128, sizeof (ciphertext_128)))
     {
@@ -1544,6 +1550,7 @@ selftest_basic_192 (void)
   RIJNDAEL_context *ctx;
   unsigned char *ctxmem;
   unsigned char scratch[16];
+  cipher_bulk_ops_t bulk_ops;
 
   static unsigned char plaintext_192[16] =
     {
@@ -1565,7 +1572,7 @@ selftest_basic_192 (void)
   ctx = _gcry_cipher_selftest_alloc_ctx (sizeof *ctx, &ctxmem);
   if (!ctx)
     return "failed to allocate memory";
-  rijndael_setkey (ctx, key_192, sizeof(key_192));
+  rijndael_setkey (ctx, key_192, sizeof(key_192), &bulk_ops);
   rijndael_encrypt (ctx, scratch, plaintext_192);
   if (memcmp (scratch, ciphertext_192, sizeof (ciphertext_192)))
     {
@@ -1588,6 +1595,7 @@ selftest_basic_256 (void)
   RIJNDAEL_context *ctx;
   unsigned char *ctxmem;
   unsigned char scratch[16];
+  cipher_bulk_ops_t bulk_ops;
 
   static unsigned char plaintext_256[16] =
     {
@@ -1610,7 +1618,7 @@ selftest_basic_256 (void)
   ctx = _gcry_cipher_selftest_alloc_ctx (sizeof *ctx, &ctxmem);
   if (!ctx)
     return "failed to allocate memory";
-  rijndael_setkey (ctx, key_256, sizeof(key_256));
+  rijndael_setkey (ctx, key_256, sizeof(key_256), &bulk_ops);
   rijndael_encrypt (ctx, scratch, plaintext_256);
   if (memcmp (scratch, ciphertext_256, sizeof (ciphertext_256)))
     {
@@ -1636,8 +1644,7 @@ selftest_ctr_128 (void)
   const int context_size = sizeof(RIJNDAEL_context);
 
   return _gcry_selftest_helper_ctr("AES", &rijndael_setkey,
-           &rijndael_encrypt, &_gcry_aes_ctr_enc, nblocks, blocksize,
-	   context_size);
+           &rijndael_encrypt, nblocks, blocksize, context_size);
 }
 
 
@@ -1651,8 +1658,7 @@ selftest_cbc_128 (void)
   const int context_size = sizeof(RIJNDAEL_context);
 
   return _gcry_selftest_helper_cbc("AES", &rijndael_setkey,
-           &rijndael_encrypt, &_gcry_aes_cbc_dec, nblocks, blocksize,
-	   context_size);
+           &rijndael_encrypt, nblocks, blocksize, context_size);
 }
 
 
@@ -1666,8 +1672,7 @@ selftest_cfb_128 (void)
   const int context_size = sizeof(RIJNDAEL_context);
 
   return _gcry_selftest_helper_cfb("AES", &rijndael_setkey,
-           &rijndael_encrypt, &_gcry_aes_cfb_dec, nblocks, blocksize,
-	   context_size);
+           &rijndael_encrypt, nblocks, blocksize, context_size);
 }
 
 

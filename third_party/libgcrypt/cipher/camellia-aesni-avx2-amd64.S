@@ -1,6 +1,6 @@
 /* camellia-avx2-aesni-amd64.S  -  AES-NI/AVX2 implementation of Camellia cipher
  *
- * Copyright (C) 2013-2015 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+ * Copyright (C) 2013-2015,2020 Jussi Kivilinna <jussi.kivilinna@iki.fi>
  *
  * This file is part of Libgcrypt.
  *
@@ -18,23 +18,14 @@
  * License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef __x86_64
 #include <config.h>
+
+#ifdef __x86_64
 #if (defined(HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS) || \
      defined(HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS)) && \
     defined(ENABLE_AESNI_SUPPORT) && defined(ENABLE_AVX2_SUPPORT)
 
-#ifdef __PIC__
-#  define RIP (%rip)
-#else
-#  define RIP
-#endif
-
-#ifdef HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS
-# define ELF(...) __VA_ARGS__
-#else
-# define ELF(...) /*_*/
-#endif
+#include "asm-common-amd64.h"
 
 #define CAMELLIA_TABLE_BYTE_LEN 272
 
@@ -92,12 +83,12 @@
 	/* \
 	 * S-function with AES subbytes \
 	 */ \
-	vbroadcasti128 .Linv_shift_row RIP, t4; \
-	vpbroadcastd .L0f0f0f0f RIP, t7; \
-	vbroadcasti128 .Lpre_tf_lo_s1 RIP, t5; \
-	vbroadcasti128 .Lpre_tf_hi_s1 RIP, t6; \
-	vbroadcasti128 .Lpre_tf_lo_s4 RIP, t2; \
-	vbroadcasti128 .Lpre_tf_hi_s4 RIP, t3; \
+	vbroadcasti128 .Linv_shift_row rRIP, t4; \
+	vpbroadcastd .L0f0f0f0f rRIP, t7; \
+	vbroadcasti128 .Lpre_tf_lo_s1 rRIP, t5; \
+	vbroadcasti128 .Lpre_tf_hi_s1 rRIP, t6; \
+	vbroadcasti128 .Lpre_tf_lo_s4 rRIP, t2; \
+	vbroadcasti128 .Lpre_tf_hi_s4 rRIP, t3; \
 	\
 	/* AES inverse shift rows */ \
 	vpshufb t4, x0, x0; \
@@ -143,8 +134,8 @@
 	vinserti128 $1, t2##_x, x6, x6; \
 	vextracti128 $1, x1, t3##_x; \
 	vextracti128 $1, x4, t2##_x; \
-	vbroadcasti128 .Lpost_tf_lo_s1 RIP, t0; \
-	vbroadcasti128 .Lpost_tf_hi_s1 RIP, t1; \
+	vbroadcasti128 .Lpost_tf_lo_s1 rRIP, t0; \
+	vbroadcasti128 .Lpost_tf_hi_s1 rRIP, t1; \
 	vaesenclast t4##_x, x2##_x, x2##_x; \
 	vaesenclast t4##_x, t6##_x, t6##_x; \
 	vaesenclast t4##_x, x5##_x, x5##_x; \
@@ -159,16 +150,16 @@
 	vinserti128 $1, t2##_x, x4, x4; \
 	\
 	/* postfilter sboxes 1 and 4 */ \
-	vbroadcasti128 .Lpost_tf_lo_s3 RIP, t2; \
-	vbroadcasti128 .Lpost_tf_hi_s3 RIP, t3; \
+	vbroadcasti128 .Lpost_tf_lo_s3 rRIP, t2; \
+	vbroadcasti128 .Lpost_tf_hi_s3 rRIP, t3; \
 	filter_8bit(x0, t0, t1, t7, t4); \
 	filter_8bit(x7, t0, t1, t7, t4); \
 	filter_8bit(x3, t0, t1, t7, t6); \
 	filter_8bit(x6, t0, t1, t7, t6); \
 	\
 	/* postfilter sbox 3 */ \
-	vbroadcasti128 .Lpost_tf_lo_s2 RIP, t4; \
-	vbroadcasti128 .Lpost_tf_hi_s2 RIP, t5; \
+	vbroadcasti128 .Lpost_tf_lo_s2 rRIP, t4; \
+	vbroadcasti128 .Lpost_tf_hi_s2 rRIP, t5; \
 	filter_8bit(x2, t2, t3, t7, t6); \
 	filter_8bit(x5, t2, t3, t7, t6); \
 	\
@@ -485,7 +476,7 @@
 	transpose_4x4(c0, c1, c2, c3, a0, a1); \
 	transpose_4x4(d0, d1, d2, d3, a0, a1); \
 	\
-	vbroadcasti128 .Lshufb_16x16b RIP, a0; \
+	vbroadcasti128 .Lshufb_16x16b rRIP, a0; \
 	vmovdqu st1, a1; \
 	vpshufb a0, a2, a2; \
 	vpshufb a0, a3, a3; \
@@ -524,7 +515,7 @@
 #define inpack32_pre(x0, x1, x2, x3, x4, x5, x6, x7, y0, y1, y2, y3, y4, y5, \
 		     y6, y7, rio, key) \
 	vpbroadcastq key, x0; \
-	vpshufb .Lpack_bswap RIP, x0, x0; \
+	vpshufb .Lpack_bswap rRIP, x0, x0; \
 	\
 	vpxor 0 * 32(rio), x0, y7; \
 	vpxor 1 * 32(rio), x0, y6; \
@@ -575,7 +566,7 @@
 	vmovdqu x0, stack_tmp0; \
 	\
 	vpbroadcastq key, x0; \
-	vpshufb .Lpack_bswap RIP, x0, x0; \
+	vpshufb .Lpack_bswap rRIP, x0, x0; \
 	\
 	vpxor x0, y7, y7; \
 	vpxor x0, y6, y6; \
@@ -760,50 +751,42 @@ __camellia_enc_blk32:
 	/* input:
 	 *	%rdi: ctx, CTX
 	 *	%rax: temporary storage, 512 bytes
+	 *	%r8d: 24 for 16 byte key, 32 for larger
 	 *	%ymm0..%ymm15: 32 plaintext blocks
 	 * output:
 	 *	%ymm0..%ymm15: 32 encrypted blocks, order swapped:
 	 *       7, 8, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8
 	 */
+	CFI_STARTPROC();
 
 	leaq 8 * 32(%rax), %rcx;
+
+	leaq (-8 * 8)(CTX, %r8, 8), %r8;
 
 	inpack32_post(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
 		      %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
 		      %ymm15, %rax, %rcx);
 
+.align 8
+.Lenc_loop:
 	enc_rounds32(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
 		     %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
 		     %ymm15, %rax, %rcx, 0);
 
-	fls32(%rax, %ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-	      %rcx, %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-	      %ymm15,
-	      ((key_table + (8) * 8) + 0)(CTX),
-	      ((key_table + (8) * 8) + 4)(CTX),
-	      ((key_table + (8) * 8) + 8)(CTX),
-	      ((key_table + (8) * 8) + 12)(CTX));
-
-	enc_rounds32(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-		     %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-		     %ymm15, %rax, %rcx, 8);
+	cmpq %r8, CTX;
+	je .Lenc_done;
+	leaq (8 * 8)(CTX), CTX;
 
 	fls32(%rax, %ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
 	      %rcx, %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
 	      %ymm15,
-	      ((key_table + (16) * 8) + 0)(CTX),
-	      ((key_table + (16) * 8) + 4)(CTX),
-	      ((key_table + (16) * 8) + 8)(CTX),
-	      ((key_table + (16) * 8) + 12)(CTX));
+	      ((key_table) + 0)(CTX),
+	      ((key_table) + 4)(CTX),
+	      ((key_table) + 8)(CTX),
+	      ((key_table) + 12)(CTX));
+	jmp .Lenc_loop;
 
-	enc_rounds32(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-		     %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-		     %ymm15, %rax, %rcx, 16);
-
-	movl $24, %r8d;
-	cmpl $128, key_bitlength(CTX);
-	jne .Lenc_max32;
-
+.align 8
 .Lenc_done:
 	/* load CD for output */
 	vmovdqu 0 * 32(%rcx), %ymm8;
@@ -817,27 +800,10 @@ __camellia_enc_blk32:
 
 	outunpack32(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
 		    %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-		    %ymm15, (key_table)(CTX, %r8, 8), (%rax), 1 * 32(%rax));
+		    %ymm15, ((key_table) + 8 * 8)(%r8), (%rax), 1 * 32(%rax));
 
 	ret;
-
-.align 8
-.Lenc_max32:
-	movl $32, %r8d;
-
-	fls32(%rax, %ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-	      %rcx, %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-	      %ymm15,
-	      ((key_table + (24) * 8) + 0)(CTX),
-	      ((key_table + (24) * 8) + 4)(CTX),
-	      ((key_table + (24) * 8) + 8)(CTX),
-	      ((key_table + (24) * 8) + 12)(CTX));
-
-	enc_rounds32(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-		     %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-		     %ymm15, %rax, %rcx, 24);
-
-	jmp .Lenc_done;
+	CFI_ENDPROC();
 ELF(.size __camellia_enc_blk32,.-__camellia_enc_blk32;)
 
 .align 8
@@ -853,6 +819,11 @@ __camellia_dec_blk32:
 	 *	%ymm0..%ymm15: 16 plaintext blocks, order swapped:
 	 *       7, 8, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8
 	 */
+	CFI_STARTPROC();
+
+	movq %r8, %rcx;
+	movq CTX, %r8
+	leaq (-8 * 8)(CTX, %rcx, 8), CTX;
 
 	leaq 8 * 32(%rax), %rcx;
 
@@ -860,38 +831,28 @@ __camellia_dec_blk32:
 		      %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
 		      %ymm15, %rax, %rcx);
 
-	cmpl $32, %r8d;
-	je .Ldec_max32;
-
-.Ldec_max24:
-	dec_rounds32(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-		     %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-		     %ymm15, %rax, %rcx, 16);
-
-	fls32(%rax, %ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-	      %rcx, %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-	      %ymm15,
-	      ((key_table + (16) * 8) + 8)(CTX),
-	      ((key_table + (16) * 8) + 12)(CTX),
-	      ((key_table + (16) * 8) + 0)(CTX),
-	      ((key_table + (16) * 8) + 4)(CTX));
-
-	dec_rounds32(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-		     %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-		     %ymm15, %rax, %rcx, 8);
-
-	fls32(%rax, %ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-	      %rcx, %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-	      %ymm15,
-	      ((key_table + (8) * 8) + 8)(CTX),
-	      ((key_table + (8) * 8) + 12)(CTX),
-	      ((key_table + (8) * 8) + 0)(CTX),
-	      ((key_table + (8) * 8) + 4)(CTX));
-
+.align 8
+.Ldec_loop:
 	dec_rounds32(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
 		     %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
 		     %ymm15, %rax, %rcx, 0);
 
+	cmpq %r8, CTX;
+	je .Ldec_done;
+
+	fls32(%rax, %ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
+	      %rcx, %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
+	      %ymm15,
+	      ((key_table) + 8)(CTX),
+	      ((key_table) + 12)(CTX),
+	      ((key_table) + 0)(CTX),
+	      ((key_table) + 4)(CTX));
+
+	leaq (-8 * 8)(CTX), CTX;
+	jmp .Ldec_loop;
+
+.align 8
+.Ldec_done:
 	/* load CD for output */
 	vmovdqu 0 * 32(%rcx), %ymm8;
 	vmovdqu 1 * 32(%rcx), %ymm9;
@@ -907,22 +868,7 @@ __camellia_dec_blk32:
 		    %ymm15, (key_table)(CTX), (%rax), 1 * 32(%rax));
 
 	ret;
-
-.align 8
-.Ldec_max32:
-	dec_rounds32(%ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-		     %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-		     %ymm15, %rax, %rcx, 24);
-
-	fls32(%rax, %ymm0, %ymm1, %ymm2, %ymm3, %ymm4, %ymm5, %ymm6, %ymm7,
-	      %rcx, %ymm8, %ymm9, %ymm10, %ymm11, %ymm12, %ymm13, %ymm14,
-	      %ymm15,
-	      ((key_table + (24) * 8) + 8)(CTX),
-	      ((key_table + (24) * 8) + 12)(CTX),
-	      ((key_table + (24) * 8) + 0)(CTX),
-	      ((key_table + (24) * 8) + 4)(CTX));
-
-	jmp .Ldec_max24;
+	CFI_ENDPROC();
 ELF(.size __camellia_dec_blk32,.-__camellia_dec_blk32;)
 
 #define inc_le128(x, minus_one, tmp) \
@@ -942,14 +888,22 @@ _gcry_camellia_aesni_avx2_ctr_enc:
 	 *	%rdx: src (32 blocks)
 	 *	%rcx: iv (big endian, 128bit)
 	 */
+	CFI_STARTPROC();
 
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	movq %rsp, %rbp;
+	CFI_DEF_CFA_REGISTER(%rbp);
 
 	movq 8(%rcx), %r11;
 	bswapq %r11;
 
 	vzeroupper;
+
+	cmpl $128, key_bitlength(CTX);
+	movl $32, %r8d;
+	movl $24, %eax;
+	cmovel %eax, %r8d; /* max */
 
 	subq $(16 * 32), %rsp;
 	andq $~63, %rsp;
@@ -960,10 +914,10 @@ _gcry_camellia_aesni_avx2_ctr_enc:
 
 	/* load IV and byteswap */
 	vmovdqu (%rcx), %xmm0;
-	vpshufb .Lbswap128_mask RIP, %xmm0, %xmm0;
+	vpshufb .Lbswap128_mask rRIP, %xmm0, %xmm0;
 	vmovdqa %xmm0, %xmm1;
 	inc_le128(%xmm0, %xmm15, %xmm14);
-	vbroadcasti128 .Lbswap128_mask RIP, %ymm14;
+	vbroadcasti128 .Lbswap128_mask rRIP, %ymm14;
 	vinserti128 $1, %xmm0, %ymm1, %ymm0;
 	vpshufb %ymm14, %ymm0, %ymm13;
 	vmovdqu %ymm13, 15 * 32(%rax);
@@ -1064,14 +1018,14 @@ _gcry_camellia_aesni_avx2_ctr_enc:
 	vextracti128 $1, %ymm0, %xmm13;
 	vpshufb %ymm14, %ymm0, %ymm0;
 	inc_le128(%xmm13, %xmm15, %xmm14);
-	vpshufb .Lbswap128_mask RIP, %xmm13, %xmm13;
+	vpshufb .Lbswap128_mask rRIP, %xmm13, %xmm13;
 	vmovdqu %xmm13, (%rcx);
 
 .align 4
 .Lload_ctr_done:
 	/* inpack16_pre: */
 	vpbroadcastq (key_table)(CTX), %ymm15;
-	vpshufb .Lpack_bswap RIP, %ymm15, %ymm15;
+	vpshufb .Lpack_bswap rRIP, %ymm15, %ymm15;
 	vpxor %ymm0, %ymm15, %ymm0;
 	vpxor %ymm1, %ymm15, %ymm1;
 	vpxor %ymm2, %ymm15, %ymm2;
@@ -1116,7 +1070,9 @@ _gcry_camellia_aesni_avx2_ctr_enc:
 	vzeroall;
 
 	leave;
+	CFI_LEAVE();
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_camellia_aesni_avx2_ctr_enc,.-_gcry_camellia_aesni_avx2_ctr_enc;)
 
 .align 8
@@ -1130,9 +1086,12 @@ _gcry_camellia_aesni_avx2_cbc_dec:
 	 *	%rdx: src (32 blocks)
 	 *	%rcx: iv
 	 */
+	CFI_STARTPROC();
 
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	movq %rsp, %rbp;
+	CFI_DEF_CFA_REGISTER(%rbp);
 
 	vzeroupper;
 
@@ -1188,7 +1147,9 @@ _gcry_camellia_aesni_avx2_cbc_dec:
 	vzeroall;
 
 	leave;
+	CFI_LEAVE();
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_camellia_aesni_avx2_cbc_dec,.-_gcry_camellia_aesni_avx2_cbc_dec;)
 
 .align 8
@@ -1202,11 +1163,19 @@ _gcry_camellia_aesni_avx2_cfb_dec:
 	 *	%rdx: src (32 blocks)
 	 *	%rcx: iv
 	 */
+	CFI_STARTPROC();
 
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	movq %rsp, %rbp;
+	CFI_DEF_CFA_REGISTER(%rbp);
 
 	vzeroupper;
+
+	cmpl $128, key_bitlength(CTX);
+	movl $32, %r8d;
+	movl $24, %eax;
+	cmovel %eax, %r8d; /* max */
 
 	subq $(16 * 32), %rsp;
 	andq $~63, %rsp;
@@ -1214,7 +1183,7 @@ _gcry_camellia_aesni_avx2_cfb_dec:
 
 	/* inpack16_pre: */
 	vpbroadcastq (key_table)(CTX), %ymm0;
-	vpshufb .Lpack_bswap RIP, %ymm0, %ymm0;
+	vpshufb .Lpack_bswap rRIP, %ymm0, %ymm0;
 	vmovdqu (%rcx), %xmm15;
 	vinserti128 $1, (%rdx), %ymm15, %ymm15;
 	vpxor %ymm15, %ymm0, %ymm15;
@@ -1262,7 +1231,9 @@ _gcry_camellia_aesni_avx2_cfb_dec:
 	vzeroall;
 
 	leave;
+	CFI_LEAVE();
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_camellia_aesni_avx2_cfb_dec,.-_gcry_camellia_aesni_avx2_cfb_dec;)
 
 .align 8
@@ -1278,9 +1249,12 @@ _gcry_camellia_aesni_avx2_ocb_enc:
 	 *	%r8 : checksum
 	 *	%r9 : L pointers (void *L[32])
 	 */
+	CFI_STARTPROC();
 
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	movq %rsp, %rbp;
+	CFI_DEF_CFA_REGISTER(%rbp);
 
 	vzeroupper;
 
@@ -1288,10 +1262,14 @@ _gcry_camellia_aesni_avx2_ocb_enc:
 	andq $~63, %rsp;
 	movq %rsp, %rax;
 
-	movq %r10, (16 * 32 + 0 * 8)(%rax);
-	movq %r11, (16 * 32 + 1 * 8)(%rax);
-	movq %r12, (16 * 32 + 2 * 8)(%rax);
-	movq %r13, (16 * 32 + 3 * 8)(%rax);
+	movq %r10, (16 * 32 + 0 * 8)(%rsp);
+	movq %r11, (16 * 32 + 1 * 8)(%rsp);
+	movq %r12, (16 * 32 + 2 * 8)(%rsp);
+	movq %r13, (16 * 32 + 3 * 8)(%rsp);
+	CFI_REG_ON_STACK(r10, 16 * 32 + 0 * 8);
+	CFI_REG_ON_STACK(r11, 16 * 32 + 1 * 8);
+	CFI_REG_ON_STACK(r12, 16 * 32 + 2 * 8);
+	CFI_REG_ON_STACK(r13, 16 * 32 + 3 * 8);
 
 	vmovdqu (%rcx), %xmm14;
 	vmovdqu (%r8), %xmm13;
@@ -1367,9 +1345,14 @@ _gcry_camellia_aesni_avx2_ocb_enc:
 	vpxor %xmm13, %xmm15, %xmm15;
 	vmovdqu %xmm15, (%r8);
 
+	cmpl $128, key_bitlength(CTX);
+	movl $32, %r8d;
+	movl $24, %r10d;
+	cmovel %r10d, %r8d; /* max */
+
 	/* inpack16_pre: */
 	vpbroadcastq (key_table)(CTX), %ymm15;
-	vpshufb .Lpack_bswap RIP, %ymm15, %ymm15;
+	vpshufb .Lpack_bswap rRIP, %ymm15, %ymm15;
 	vpxor %ymm0, %ymm15, %ymm0;
 	vpxor %ymm1, %ymm15, %ymm1;
 	vpxor %ymm2, %ymm15, %ymm2;
@@ -1412,13 +1395,19 @@ _gcry_camellia_aesni_avx2_ocb_enc:
 
 	vzeroall;
 
-	movq (16 * 32 + 0 * 8)(%rax), %r10;
-	movq (16 * 32 + 1 * 8)(%rax), %r11;
-	movq (16 * 32 + 2 * 8)(%rax), %r12;
-	movq (16 * 32 + 3 * 8)(%rax), %r13;
+	movq (16 * 32 + 0 * 8)(%rsp), %r10;
+	movq (16 * 32 + 1 * 8)(%rsp), %r11;
+	movq (16 * 32 + 2 * 8)(%rsp), %r12;
+	movq (16 * 32 + 3 * 8)(%rsp), %r13;
+	CFI_RESTORE(%r10);
+	CFI_RESTORE(%r11);
+	CFI_RESTORE(%r12);
+	CFI_RESTORE(%r13);
 
 	leave;
+	CFI_LEAVE();
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_camellia_aesni_avx2_ocb_enc,.-_gcry_camellia_aesni_avx2_ocb_enc;)
 
 .align 8
@@ -1434,9 +1423,12 @@ _gcry_camellia_aesni_avx2_ocb_dec:
 	 *	%r8 : checksum
 	 *	%r9 : L pointers (void *L[32])
 	 */
+	CFI_STARTPROC();
 
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	movq %rsp, %rbp;
+	CFI_DEF_CFA_REGISTER(%rbp);
 
 	vzeroupper;
 
@@ -1444,10 +1436,14 @@ _gcry_camellia_aesni_avx2_ocb_dec:
 	andq $~63, %rsp;
 	movq %rsp, %rax;
 
-	movq %r10, (16 * 32 + 0 * 8)(%rax);
-	movq %r11, (16 * 32 + 1 * 8)(%rax);
-	movq %r12, (16 * 32 + 2 * 8)(%rax);
-	movq %r13, (16 * 32 + 3 * 8)(%rax);
+	movq %r10, (16 * 32 + 0 * 8)(%rsp);
+	movq %r11, (16 * 32 + 1 * 8)(%rsp);
+	movq %r12, (16 * 32 + 2 * 8)(%rsp);
+	movq %r13, (16 * 32 + 3 * 8)(%rsp);
+	CFI_REG_ON_STACK(r10, 16 * 32 + 0 * 8);
+	CFI_REG_ON_STACK(r11, 16 * 32 + 1 * 8);
+	CFI_REG_ON_STACK(r12, 16 * 32 + 2 * 8);
+	CFI_REG_ON_STACK(r13, 16 * 32 + 3 * 8);
 
 	vmovdqu (%rcx), %xmm14;
 
@@ -1525,7 +1521,7 @@ _gcry_camellia_aesni_avx2_ocb_dec:
 
 	/* inpack16_pre: */
 	vpbroadcastq (key_table)(CTX, %r8, 8), %ymm15;
-	vpshufb .Lpack_bswap RIP, %ymm15, %ymm15;
+	vpshufb .Lpack_bswap rRIP, %ymm15, %ymm15;
 	vpxor %ymm0, %ymm15, %ymm0;
 	vpxor %ymm1, %ymm15, %ymm1;
 	vpxor %ymm2, %ymm15, %ymm2;
@@ -1596,13 +1592,19 @@ _gcry_camellia_aesni_avx2_ocb_dec:
 
 	vzeroall;
 
-	movq (16 * 32 + 0 * 8)(%rax), %r10;
-	movq (16 * 32 + 1 * 8)(%rax), %r11;
-	movq (16 * 32 + 2 * 8)(%rax), %r12;
-	movq (16 * 32 + 3 * 8)(%rax), %r13;
+	movq (16 * 32 + 0 * 8)(%rsp), %r10;
+	movq (16 * 32 + 1 * 8)(%rsp), %r11;
+	movq (16 * 32 + 2 * 8)(%rsp), %r12;
+	movq (16 * 32 + 3 * 8)(%rsp), %r13;
+	CFI_RESTORE(%r10);
+	CFI_RESTORE(%r11);
+	CFI_RESTORE(%r12);
+	CFI_RESTORE(%r13);
 
 	leave;
+	CFI_LEAVE();
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_camellia_aesni_avx2_ocb_dec,.-_gcry_camellia_aesni_avx2_ocb_dec;)
 
 .align 8
@@ -1617,9 +1619,12 @@ _gcry_camellia_aesni_avx2_ocb_auth:
 	 *	%rcx: checksum
 	 *	%r8 : L pointers (void *L[16])
 	 */
+	CFI_STARTPROC();
 
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	movq %rsp, %rbp;
+	CFI_DEF_CFA_REGISTER(%rbp);
 
 	vzeroupper;
 
@@ -1627,10 +1632,14 @@ _gcry_camellia_aesni_avx2_ocb_auth:
 	andq $~63, %rsp;
 	movq %rsp, %rax;
 
-	movq %r10, (16 * 32 + 0 * 8)(%rax);
-	movq %r11, (16 * 32 + 1 * 8)(%rax);
-	movq %r12, (16 * 32 + 2 * 8)(%rax);
-	movq %r13, (16 * 32 + 3 * 8)(%rax);
+	movq %r10, (16 * 32 + 0 * 8)(%rsp);
+	movq %r11, (16 * 32 + 1 * 8)(%rsp);
+	movq %r12, (16 * 32 + 2 * 8)(%rsp);
+	movq %r13, (16 * 32 + 3 * 8)(%rsp);
+	CFI_REG_ON_STACK(r10, 16 * 32 + 0 * 8);
+	CFI_REG_ON_STACK(r11, 16 * 32 + 1 * 8);
+	CFI_REG_ON_STACK(r12, 16 * 32 + 2 * 8);
+	CFI_REG_ON_STACK(r13, 16 * 32 + 3 * 8);
 
 	vmovdqu (%rdx), %xmm14;
 
@@ -1699,11 +1708,16 @@ _gcry_camellia_aesni_avx2_ocb_auth:
 
 	vmovdqu %xmm14, (%rdx);
 
+	cmpl $128, key_bitlength(CTX);
+	movl $32, %r8d;
+	movl $24, %r10d;
+	cmovel %r10d, %r8d; /* max */
+
 	movq %rcx, %r10;
 
 	/* inpack16_pre: */
 	vpbroadcastq (key_table)(CTX), %ymm15;
-	vpshufb .Lpack_bswap RIP, %ymm15, %ymm15;
+	vpshufb .Lpack_bswap rRIP, %ymm15, %ymm15;
 	vpxor %ymm0, %ymm15, %ymm0;
 	vpxor %ymm1, %ymm15, %ymm1;
 	vpxor %ymm2, %ymm15, %ymm2;
@@ -1749,13 +1763,19 @@ _gcry_camellia_aesni_avx2_ocb_auth:
 
 	vzeroall;
 
-	movq (16 * 32 + 0 * 8)(%rax), %r10;
-	movq (16 * 32 + 1 * 8)(%rax), %r11;
-	movq (16 * 32 + 2 * 8)(%rax), %r12;
-	movq (16 * 32 + 3 * 8)(%rax), %r13;
+	movq (16 * 32 + 0 * 8)(%rsp), %r10;
+	movq (16 * 32 + 1 * 8)(%rsp), %r11;
+	movq (16 * 32 + 2 * 8)(%rsp), %r12;
+	movq (16 * 32 + 3 * 8)(%rsp), %r13;
+	CFI_RESTORE(%r10);
+	CFI_RESTORE(%r11);
+	CFI_RESTORE(%r12);
+	CFI_RESTORE(%r13);
 
 	leave;
+	CFI_LEAVE();
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_camellia_aesni_avx2_ocb_auth,.-_gcry_camellia_aesni_avx2_ocb_auth;)
 
 #endif /*defined(ENABLE_AESNI_SUPPORT) && defined(ENABLE_AVX2_SUPPORT)*/

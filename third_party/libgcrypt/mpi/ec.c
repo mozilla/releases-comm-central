@@ -30,6 +30,7 @@
 #include "ec-context.h"
 #include "ec-internal.h"
 
+extern void reverse_buffer (unsigned char *buffer, unsigned int length);
 
 #define point_init(a)  _gcry_mpi_point_init ((a))
 #define point_free(a)  _gcry_mpi_point_free_parts ((a))
@@ -156,17 +157,18 @@ _gcry_mpi_point_copy (gcry_mpi_point_t point)
 static void
 point_resize (mpi_point_t p, mpi_ec_t ctx)
 {
-  /*
-   * For now, we allocate enough limbs for our EC computation of ec_*.
-   * Once we will improve ec_* to be constant size (and constant
-   * time), NLIMBS can be ctx->p->nlimbs.
-   */
-  size_t nlimbs = 2*ctx->p->nlimbs+1;
+  size_t nlimbs = ctx->p->nlimbs;
 
   mpi_resize (p->x, nlimbs);
-  if (ctx->model != MPI_EC_MONTGOMERY)
-    mpi_resize (p->y, nlimbs);
+  p->x->nlimbs = nlimbs;
   mpi_resize (p->z, nlimbs);
+  p->z->nlimbs = nlimbs;
+
+  if (ctx->model != MPI_EC_MONTGOMERY)
+    {
+      mpi_resize (p->y, nlimbs);
+      p->y->nlimbs = nlimbs;
+    }
 }
 
 
@@ -351,8 +353,310 @@ ec_invm (gcry_mpi_t x, gcry_mpi_t a, mpi_ec_t ctx)
       log_mpidump ("  p", ctx->p);
     }
 }
+
+/* Routines for 2^255 - 19.  */
 
+#define LIMB_SIZE_25519 ((256+BITS_PER_MPI_LIMB-1)/BITS_PER_MPI_LIMB)
 
+static void
+ec_addm_25519 (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx)
+{
+  mpi_ptr_t wp, up, vp;
+  mpi_size_t wsize = LIMB_SIZE_25519;
+  mpi_limb_t n[LIMB_SIZE_25519];
+  mpi_limb_t borrow;
+
+  if (w->nlimbs != wsize || u->nlimbs != wsize || v->nlimbs != wsize)
+    log_bug ("addm_25519: different sizes\n");
+
+  memset (n, 0, sizeof n);
+  up = u->d;
+  vp = v->d;
+  wp = w->d;
+
+  _gcry_mpih_add_n (wp, up, vp, wsize);
+  borrow = _gcry_mpih_sub_n (wp, wp, ctx->p->d, wsize);
+  mpih_set_cond (n, ctx->p->d, wsize, (borrow != 0UL));
+  _gcry_mpih_add_n (wp, wp, n, wsize);
+  wp[LIMB_SIZE_25519-1] &= ~((mpi_limb_t)1 << (255 % BITS_PER_MPI_LIMB));
+}
+
+static void
+ec_subm_25519 (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx)
+{
+  mpi_ptr_t wp, up, vp;
+  mpi_size_t wsize = LIMB_SIZE_25519;
+  mpi_limb_t n[LIMB_SIZE_25519];
+  mpi_limb_t borrow;
+
+  if (w->nlimbs != wsize || u->nlimbs != wsize || v->nlimbs != wsize)
+    log_bug ("subm_25519: different sizes\n");
+
+  memset (n, 0, sizeof n);
+  up = u->d;
+  vp = v->d;
+  wp = w->d;
+
+  borrow = _gcry_mpih_sub_n (wp, up, vp, wsize);
+  mpih_set_cond (n, ctx->p->d, wsize, (borrow != 0UL));
+  _gcry_mpih_add_n (wp, wp, n, wsize);
+  wp[LIMB_SIZE_25519-1] &= ~((mpi_limb_t)1 << (255 % BITS_PER_MPI_LIMB));
+}
+
+static void
+ec_mulm_25519 (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx)
+{
+  mpi_ptr_t wp, up, vp;
+  mpi_size_t wsize = LIMB_SIZE_25519;
+  mpi_limb_t n[LIMB_SIZE_25519*2];
+  mpi_limb_t m[LIMB_SIZE_25519+1];
+  mpi_limb_t cy;
+  int msb;
+
+  (void)ctx;
+  if (w->nlimbs != wsize || u->nlimbs != wsize || v->nlimbs != wsize)
+    log_bug ("mulm_25519: different sizes\n");
+
+  up = u->d;
+  vp = v->d;
+  wp = w->d;
+
+  _gcry_mpih_mul_n (n, up, vp, wsize);
+  memcpy (wp, n, wsize * BYTES_PER_MPI_LIMB);
+  wp[LIMB_SIZE_25519-1] &= ~((mpi_limb_t)1 << (255 % BITS_PER_MPI_LIMB));
+
+  memcpy (m, n+LIMB_SIZE_25519-1, (wsize+1) * BYTES_PER_MPI_LIMB);
+  _gcry_mpih_rshift (m, m, LIMB_SIZE_25519+1, (255 % BITS_PER_MPI_LIMB));
+
+  memcpy (n, m, wsize * BYTES_PER_MPI_LIMB);
+  cy = _gcry_mpih_lshift (m, m, LIMB_SIZE_25519, 4);
+  m[LIMB_SIZE_25519] = cy;
+  cy = _gcry_mpih_add_n (m, m, n, wsize);
+  m[LIMB_SIZE_25519] += cy;
+  cy = _gcry_mpih_add_n (m, m, n, wsize);
+  m[LIMB_SIZE_25519] += cy;
+  cy = _gcry_mpih_add_n (m, m, n, wsize);
+  m[LIMB_SIZE_25519] += cy;
+
+  cy = _gcry_mpih_add_n (wp, wp, m, wsize);
+  m[LIMB_SIZE_25519] += cy;
+
+  memset (m, 0, wsize * BYTES_PER_MPI_LIMB);
+  msb = (wp[LIMB_SIZE_25519-1] >> (255 % BITS_PER_MPI_LIMB));
+  m[0] = (m[LIMB_SIZE_25519] * 2 + msb) * 19;
+  wp[LIMB_SIZE_25519-1] &= ~((mpi_limb_t)1 << (255 % BITS_PER_MPI_LIMB));
+  _gcry_mpih_add_n (wp, wp, m, wsize);
+
+  m[0] = 0;
+  cy = _gcry_mpih_sub_n (wp, wp, ctx->p->d, wsize);
+  mpih_set_cond (m, ctx->p->d, wsize, (cy != 0UL));
+  _gcry_mpih_add_n (wp, wp, m, wsize);
+}
+
+static void
+ec_mul2_25519 (gcry_mpi_t w, gcry_mpi_t u, mpi_ec_t ctx)
+{
+  ec_addm_25519 (w, u, u, ctx);
+}
+
+static void
+ec_pow2_25519 (gcry_mpi_t w, const gcry_mpi_t b, mpi_ec_t ctx)
+{
+  ec_mulm_25519 (w, b, b, ctx);
+}
+
+/* Routines for 2^448 - 2^224 - 1.  */
+
+#define LIMB_SIZE_448 ((448+BITS_PER_MPI_LIMB-1)/BITS_PER_MPI_LIMB)
+#define LIMB_SIZE_HALF_448 ((LIMB_SIZE_448+1)/2)
+
+static void
+ec_addm_448 (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx)
+{
+  mpi_ptr_t wp, up, vp;
+  mpi_size_t wsize = LIMB_SIZE_448;
+  mpi_limb_t n[LIMB_SIZE_448];
+  mpi_limb_t cy;
+
+  if (w->nlimbs != wsize || u->nlimbs != wsize || v->nlimbs != wsize)
+    log_bug ("addm_448: different sizes\n");
+
+  memset (n, 0, sizeof n);
+  up = u->d;
+  vp = v->d;
+  wp = w->d;
+
+  cy = _gcry_mpih_add_n (wp, up, vp, wsize);
+  mpih_set_cond (n, ctx->p->d, wsize, (cy != 0UL));
+  _gcry_mpih_sub_n (wp, wp, n, wsize);
+}
+
+static void
+ec_subm_448 (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx)
+{
+  mpi_ptr_t wp, up, vp;
+  mpi_size_t wsize = LIMB_SIZE_448;
+  mpi_limb_t n[LIMB_SIZE_448];
+  mpi_limb_t borrow;
+
+  if (w->nlimbs != wsize || u->nlimbs != wsize || v->nlimbs != wsize)
+    log_bug ("subm_448: different sizes\n");
+
+  memset (n, 0, sizeof n);
+  up = u->d;
+  vp = v->d;
+  wp = w->d;
+
+  borrow = _gcry_mpih_sub_n (wp, up, vp, wsize);
+  mpih_set_cond (n, ctx->p->d, wsize, (borrow != 0UL));
+  _gcry_mpih_add_n (wp, wp, n, wsize);
+}
+
+static void
+ec_mulm_448 (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx)
+{
+  mpi_ptr_t wp, up, vp;
+  mpi_size_t wsize = LIMB_SIZE_448;
+  mpi_limb_t n[LIMB_SIZE_448*2];
+  mpi_limb_t a2[LIMB_SIZE_HALF_448];
+  mpi_limb_t a3[LIMB_SIZE_HALF_448];
+  mpi_limb_t b0[LIMB_SIZE_HALF_448];
+  mpi_limb_t b1[LIMB_SIZE_HALF_448];
+  mpi_limb_t cy;
+  int i;
+#if (LIMB_SIZE_HALF_448 > LIMB_SIZE_448/2)
+  mpi_limb_t b1_rest, a3_rest;
+#endif
+
+  if (w->nlimbs != wsize || u->nlimbs != wsize || v->nlimbs != wsize)
+    log_bug ("mulm_448: different sizes\n");
+
+  up = u->d;
+  vp = v->d;
+  wp = w->d;
+
+  _gcry_mpih_mul_n (n, up, vp, wsize);
+
+  for (i = 0; i < (wsize + 1)/ 2; i++)
+    {
+      b0[i] = n[i];
+      b1[i] = n[i+wsize/2];
+      a2[i] = n[i+wsize];
+      a3[i] = n[i+wsize+wsize/2];
+    }
+
+#if (LIMB_SIZE_HALF_448 > LIMB_SIZE_448/2)
+  b0[LIMB_SIZE_HALF_448-1] &= ((mpi_limb_t)1UL<<32)-1;
+  a2[LIMB_SIZE_HALF_448-1] &= ((mpi_limb_t)1UL<<32)-1;
+
+  b1_rest = 0;
+  a3_rest = 0;
+
+  for (i = (wsize + 1)/ 2 -1; i >= 0; i--)
+    {
+      mpi_limb_t b1v, a3v;
+      b1v = b1[i];
+      a3v = a3[i];
+      b1[i] = (b1_rest<<32) | (b1v >> 32);
+      a3[i] = (a3_rest<<32) | (a3v >> 32);
+      b1_rest = b1v & (((mpi_limb_t)1UL <<32)-1);
+      a3_rest = a3v & (((mpi_limb_t)1UL <<32)-1);
+    }
+#endif
+
+  cy = _gcry_mpih_add_n (b0, b0, a2, LIMB_SIZE_HALF_448);
+  cy += _gcry_mpih_add_n (b0, b0, a3, LIMB_SIZE_HALF_448);
+  for (i = 0; i < (wsize + 1)/ 2; i++)
+    wp[i] = b0[i];
+#if (LIMB_SIZE_HALF_448 > LIMB_SIZE_448/2)
+  wp[LIMB_SIZE_HALF_448-1] &= (((mpi_limb_t)1UL <<32)-1);
+#endif
+
+#if (LIMB_SIZE_HALF_448 > LIMB_SIZE_448/2)
+  cy = b0[LIMB_SIZE_HALF_448-1] >> 32;
+#endif
+
+  cy = _gcry_mpih_add_1 (b1, b1, LIMB_SIZE_HALF_448, cy);
+  cy += _gcry_mpih_add_n (b1, b1, a2, LIMB_SIZE_HALF_448);
+  cy += _gcry_mpih_add_n (b1, b1, a3, LIMB_SIZE_HALF_448);
+  cy += _gcry_mpih_add_n (b1, b1, a3, LIMB_SIZE_HALF_448);
+#if (LIMB_SIZE_HALF_448 > LIMB_SIZE_448/2)
+  b1_rest = 0;
+  for (i = (wsize + 1)/ 2 -1; i >= 0; i--)
+    {
+      mpi_limb_t b1v = b1[i];
+      b1[i] = (b1_rest<<32) | (b1v >> 32);
+      b1_rest = b1v & (((mpi_limb_t)1UL <<32)-1);
+    }
+  wp[LIMB_SIZE_HALF_448-1] |= (b1_rest << 32);
+#endif
+  for (i = 0; i < wsize / 2; i++)
+    wp[i+(wsize + 1) / 2] = b1[i];
+
+#if (LIMB_SIZE_HALF_448 > LIMB_SIZE_448/2)
+  cy = b1[LIMB_SIZE_HALF_448-1];
+#endif
+
+  memset (n, 0, wsize * BYTES_PER_MPI_LIMB);
+
+#if (LIMB_SIZE_HALF_448 > LIMB_SIZE_448/2)
+  n[LIMB_SIZE_HALF_448-1] = cy << 32;
+#else
+  n[LIMB_SIZE_HALF_448] = cy;
+#endif
+  n[0] = cy;
+  _gcry_mpih_add_n (wp, wp, n, wsize);
+
+  memset (n, 0, wsize * BYTES_PER_MPI_LIMB);
+  cy = _gcry_mpih_sub_n (wp, wp, ctx->p->d, wsize);
+  mpih_set_cond (n, ctx->p->d, wsize, (cy != 0UL));
+  _gcry_mpih_add_n (wp, wp, n, wsize);
+}
+
+static void
+ec_mul2_448 (gcry_mpi_t w, gcry_mpi_t u, mpi_ec_t ctx)
+{
+  ec_addm_448 (w, u, u, ctx);
+}
+
+static void
+ec_pow2_448 (gcry_mpi_t w, const gcry_mpi_t b, mpi_ec_t ctx)
+{
+  ec_mulm_448 (w, b, b, ctx);
+}
+
+struct field_table {
+  const char *p;
+
+  /* computation routines for the field.  */
+  void (* addm) (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx);
+  void (* subm) (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx);
+  void (* mulm) (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx);
+  void (* mul2) (gcry_mpi_t w, gcry_mpi_t u, mpi_ec_t ctx);
+  void (* pow2) (gcry_mpi_t w, const gcry_mpi_t b, mpi_ec_t ctx);
+};
+
+static const struct field_table field_table[] = {
+  {
+    "0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED",
+    ec_addm_25519,
+    ec_subm_25519,
+    ec_mulm_25519,
+    ec_mul2_25519,
+    ec_pow2_25519
+  },
+  {
+   "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE"
+   "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+    ec_addm_448,
+    ec_subm_448,
+    ec_mulm_448,
+    ec_mul2_448,
+    ec_pow2_448
+  },
+  { NULL, NULL, NULL, NULL, NULL, NULL },
+};
+
 /* Force recomputation of all helper variables.  */
 void
 _gcry_mpi_ec_get_reset (mpi_ec_t ec)
@@ -396,15 +700,35 @@ ec_get_two_inv_p (mpi_ec_t ec)
 }
 
 
-static const char *curve25519_bad_points[] = {
+static const char *const curve25519_bad_points[] = {
+  "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed",
   "0x0000000000000000000000000000000000000000000000000000000000000000",
   "0x0000000000000000000000000000000000000000000000000000000000000001",
   "0x00b8495f16056286fdb1329ceb8d09da6ac49ff1fae35616aeb8413b7c7aebe0",
   "0x57119fd0dd4e22d8868e1c58c45c44045bef839c55b1d0b1248c50a3bc959c5f",
   "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec",
-  "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffed",
   "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffee",
   NULL
+};
+
+
+static const char *const curve448_bad_points[] = {
+  "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffe"
+  "ffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "0x00000000000000000000000000000000000000000000000000000000"
+  "00000000000000000000000000000000000000000000000000000000",
+  "0x00000000000000000000000000000000000000000000000000000000"
+  "00000000000000000000000000000000000000000000000000000001",
+  "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffe"
+  "fffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
+  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  "00000000000000000000000000000000000000000000000000000000",
+  NULL
+};
+
+static const char *const *bad_points_table[] = {
+  curve25519_bad_points,
+  curve448_bad_points,
 };
 
 static gcry_mpi_t
@@ -445,10 +769,7 @@ ec_p_init (mpi_ec_t ctx, enum gcry_mpi_ec_models model,
   ctx->model = model;
   ctx->dialect = dialect;
   ctx->flags = flags;
-  if (dialect == ECC_DIALECT_ED25519)
-    ctx->nbits = 256;
-  else
-    ctx->nbits = mpi_get_nbits (p);
+  ctx->nbits = mpi_get_nbits (p);
   ctx->p = mpi_copy (p);
   ctx->a = mpi_copy (a);
   ctx->b = mpi_copy (b);
@@ -459,14 +780,64 @@ ec_p_init (mpi_ec_t ctx, enum gcry_mpi_ec_models model,
 
   if (model == MPI_EC_MONTGOMERY)
     {
-      for (i=0; i< DIM(ctx->t.scratch) && curve25519_bad_points[i]; i++)
-        ctx->t.scratch[i] = scanval (curve25519_bad_points[i]);
+      for (i=0; i< DIM(bad_points_table); i++)
+        {
+          gcry_mpi_t p_candidate = scanval (bad_points_table[i][0]);
+          int match_p = !mpi_cmp (ctx->p, p_candidate);
+          int j;
+
+          mpi_free (p_candidate);
+          if (!match_p)
+            continue;
+
+          for (j=0; i< DIM(ctx->t.scratch) && bad_points_table[i][j]; j++)
+            ctx->t.scratch[j] = scanval (bad_points_table[i][j]);
+        }
     }
   else
     {
       /* Allocate scratch variables.  */
       for (i=0; i< DIM(ctx->t.scratch); i++)
         ctx->t.scratch[i] = mpi_alloc_like (ctx->p);
+    }
+
+  ctx->addm = ec_addm;
+  ctx->subm = ec_subm;
+  ctx->mulm = ec_mulm;
+  ctx->mul2 = ec_mul2;
+  ctx->pow2 = ec_pow2;
+
+  for (i=0; field_table[i].p; i++)
+    {
+      gcry_mpi_t f_p;
+      gpg_err_code_t rc;
+
+      rc = _gcry_mpi_scan (&f_p, GCRYMPI_FMT_HEX, field_table[i].p, 0, NULL);
+      if (rc)
+        log_fatal ("scanning ECC parameter failed: %s\n", gpg_strerror (rc));
+
+      if (!mpi_cmp (p, f_p))
+        {
+          ctx->addm = field_table[i].addm;
+          ctx->subm = field_table[i].subm;
+          ctx->mulm = field_table[i].mulm;
+          ctx->mul2 = field_table[i].mul2;
+          ctx->pow2 = field_table[i].pow2;
+          _gcry_mpi_release (f_p);
+
+          mpi_resize (ctx->a, ctx->p->nlimbs);
+          ctx->a->nlimbs = ctx->p->nlimbs;
+
+          mpi_resize (ctx->b, ctx->p->nlimbs);
+          ctx->b->nlimbs = ctx->p->nlimbs;
+
+          for (i=0; i< DIM(ctx->t.scratch) && ctx->t.scratch[i]; i++)
+            ctx->t.scratch[i]->nlimbs = ctx->p->nlimbs;
+
+          break;
+        }
+
+      _gcry_mpi_release (f_p);
     }
 
   /* Prepare for fast reduction.  */
@@ -503,7 +874,6 @@ ec_deinit (void *opaque)
   mpi_free (ctx->b);
   _gcry_mpi_point_release (ctx->G);
   mpi_free (ctx->n);
-  mpi_free (ctx->h);
 
   /* The key.  */
   _gcry_mpi_point_release (ctx->Q);
@@ -643,14 +1013,17 @@ _gcry_mpi_ec_set_point (const char *name, gcry_mpi_point_t newvalue,
 gpg_err_code_t
 _gcry_mpi_ec_decode_point (mpi_point_t result, gcry_mpi_t value, mpi_ec_t ec)
 {
-  gcry_err_code_t rc;
+  gpg_err_code_t rc;
 
-  if (ec && ec->dialect == ECC_DIALECT_ED25519)
+  if (ec
+      && (ec->dialect == ECC_DIALECT_ED25519
+          || (ec->model == MPI_EC_EDWARDS
+              && ec->dialect == ECC_DIALECT_SAFECURVE)))
     rc = _gcry_ecc_eddsa_decodepoint (value, ec, result, NULL, NULL);
   else if (ec && ec->model == MPI_EC_MONTGOMERY)
     rc = _gcry_ecc_mont_decodepoint (value, ec, result);
   else
-    rc = _gcry_ecc_os2ec (result, value);
+    rc = _gcry_ecc_sec_decodepoint (value, ec, result);
 
   return rc;
 }
@@ -715,10 +1088,21 @@ _gcry_mpi_ec_get_affine (gcry_mpi_t x, gcry_mpi_t y, mpi_point_t point,
         z = mpi_new (0);
         ec_invm (z, point->z, ctx);
 
+        mpi_resize (z, ctx->p->nlimbs);
+        z->nlimbs = ctx->p->nlimbs;
+
         if (x)
-          ec_mulm (x, point->x, z, ctx);
+          {
+            mpi_resize (x, ctx->p->nlimbs);
+            x->nlimbs = ctx->p->nlimbs;
+            ctx->mulm (x, point->x, z, ctx);
+          }
         if (y)
-          ec_mulm (y, point->y, z, ctx);
+          {
+            mpi_resize (y, ctx->p->nlimbs);
+            y->nlimbs = ctx->p->nlimbs;
+            ctx->mulm (y, point->y, z, ctx);
+          }
 
         _gcry_mpi_release (z);
       }
@@ -847,41 +1231,41 @@ dup_point_edwards (mpi_point_t result, mpi_point_t point, mpi_ec_t ctx)
   /* Compute: (X_3 : Y_3 : Z_3) = 2( X_1 : Y_1 : Z_1 ) */
 
   /* B = (X_1 + Y_1)^2  */
-  ec_addm (B, X1, Y1, ctx);
-  ec_pow2 (B, B, ctx);
+  ctx->addm (B, X1, Y1, ctx);
+  ctx->pow2 (B, B, ctx);
 
   /* C = X_1^2 */
   /* D = Y_1^2 */
-  ec_pow2 (C, X1, ctx);
-  ec_pow2 (D, Y1, ctx);
+  ctx->pow2 (C, X1, ctx);
+  ctx->pow2 (D, Y1, ctx);
 
   /* E = aC */
   if (ctx->dialect == ECC_DIALECT_ED25519)
-    mpi_sub (E, ctx->p, C);
+    ctx->subm (E, ctx->p, C, ctx);
   else
-    ec_mulm (E, ctx->a, C, ctx);
+    ctx->mulm (E, ctx->a, C, ctx);
 
   /* F = E + D */
-  ec_addm (F, E, D, ctx);
+  ctx->addm (F, E, D, ctx);
 
   /* H = Z_1^2 */
-  ec_pow2 (H, Z1, ctx);
+  ctx->pow2 (H, Z1, ctx);
 
   /* J = F - 2H */
-  ec_mul2 (J, H, ctx);
-  ec_subm (J, F, J, ctx);
+  ctx->mul2 (J, H, ctx);
+  ctx->subm (J, F, J, ctx);
 
   /* X_3 = (B - C - D) · J */
-  ec_subm (X3, B, C, ctx);
-  ec_subm (X3, X3, D, ctx);
-  ec_mulm (X3, X3, J, ctx);
+  ctx->subm (X3, B, C, ctx);
+  ctx->subm (X3, X3, D, ctx);
+  ctx->mulm (X3, X3, J, ctx);
 
   /* Y_3 = F · (E - D) */
-  ec_subm (Y3, E, D, ctx);
-  ec_mulm (Y3, Y3, F, ctx);
+  ctx->subm (Y3, E, D, ctx);
+  ctx->mulm (Y3, Y3, F, ctx);
 
   /* Z_3 = F · J */
-  ec_mulm (Z3, F, J, ctx);
+  ctx->mulm (Z3, F, J, ctx);
 
 #undef X1
 #undef Y1
@@ -1099,54 +1483,56 @@ add_points_edwards (mpi_point_t result,
 #define G (ctx->t.scratch[6])
 #define tmp (ctx->t.scratch[7])
 
+  point_resize (result, ctx);
+
   /* Compute: (X_3 : Y_3 : Z_3) = (X_1 : Y_1 : Z_1) + (X_2 : Y_2 : Z_3)  */
 
   /* A = Z1 · Z2 */
-  ec_mulm (A, Z1, Z2, ctx);
+  ctx->mulm (A, Z1, Z2, ctx);
 
   /* B = A^2 */
-  ec_pow2 (B, A, ctx);
+  ctx->pow2 (B, A, ctx);
 
   /* C = X1 · X2 */
-  ec_mulm (C, X1, X2, ctx);
+  ctx->mulm (C, X1, X2, ctx);
 
   /* D = Y1 · Y2 */
-  ec_mulm (D, Y1, Y2, ctx);
+  ctx->mulm (D, Y1, Y2, ctx);
 
   /* E = d · C · D */
-  ec_mulm (E, ctx->b, C, ctx);
-  ec_mulm (E, E, D, ctx);
+  ctx->mulm (E, ctx->b, C, ctx);
+  ctx->mulm (E, E, D, ctx);
 
   /* F = B - E */
-  ec_subm (F, B, E, ctx);
+  ctx->subm (F, B, E, ctx);
 
   /* G = B + E */
-  ec_addm (G, B, E, ctx);
+  ctx->addm (G, B, E, ctx);
 
   /* X_3 = A · F · ((X_1 + Y_1) · (X_2 + Y_2) - C - D) */
-  ec_addm (tmp, X1, Y1, ctx);
-  ec_addm (X3, X2, Y2, ctx);
-  ec_mulm (X3, X3, tmp, ctx);
-  ec_subm (X3, X3, C, ctx);
-  ec_subm (X3, X3, D, ctx);
-  ec_mulm (X3, X3, F, ctx);
-  ec_mulm (X3, X3, A, ctx);
+  ctx->addm (tmp, X1, Y1, ctx);
+  ctx->addm (X3, X2, Y2, ctx);
+  ctx->mulm (X3, X3, tmp, ctx);
+  ctx->subm (X3, X3, C, ctx);
+  ctx->subm (X3, X3, D, ctx);
+  ctx->mulm (X3, X3, F, ctx);
+  ctx->mulm (X3, X3, A, ctx);
 
   /* Y_3 = A · G · (D - aC) */
   if (ctx->dialect == ECC_DIALECT_ED25519)
     {
-      ec_addm (Y3, D, C, ctx);
+      ctx->addm (Y3, D, C, ctx);
     }
   else
     {
-      ec_mulm (Y3, ctx->a, C, ctx);
-      ec_subm (Y3, D, Y3, ctx);
+      ctx->mulm (Y3, ctx->a, C, ctx);
+      ctx->subm (Y3, D, Y3, ctx);
     }
-  ec_mulm (Y3, Y3, G, ctx);
-  ec_mulm (Y3, Y3, A, ctx);
+  ctx->mulm (Y3, Y3, G, ctx);
+  ctx->mulm (Y3, Y3, A, ctx);
 
   /* Z_3 = F · G */
-  ec_mulm (Z3, F, G, ctx);
+  ctx->mulm (Z3, F, G, ctx);
 
 
 #undef X1
@@ -1177,24 +1563,24 @@ montgomery_ladder (mpi_point_t prd, mpi_point_t sum,
                    mpi_point_t p1, mpi_point_t p2, gcry_mpi_t dif_x,
                    mpi_ec_t ctx)
 {
-  ec_addm (sum->x, p2->x, p2->z, ctx);
-  ec_subm (p2->z, p2->x, p2->z, ctx);
-  ec_addm (prd->x, p1->x, p1->z, ctx);
-  ec_subm (p1->z, p1->x, p1->z, ctx);
-  ec_mulm (p2->x, p1->z, sum->x, ctx);
-  ec_mulm (p2->z, prd->x, p2->z, ctx);
-  ec_pow2 (p1->x, prd->x, ctx);
-  ec_pow2 (p1->z, p1->z, ctx);
-  ec_addm (sum->x, p2->x, p2->z, ctx);
-  ec_subm (p2->z, p2->x, p2->z, ctx);
-  ec_mulm (prd->x, p1->x, p1->z, ctx);
-  ec_subm (p1->z, p1->x, p1->z, ctx);
-  ec_pow2 (sum->x, sum->x, ctx);
-  ec_pow2 (sum->z, p2->z, ctx);
-  ec_mulm (prd->z, p1->z, ctx->a, ctx); /* CTX->A: (a-2)/4 */
-  ec_mulm (sum->z, sum->z, dif_x, ctx);
-  ec_addm (prd->z, p1->x, prd->z, ctx);
-  ec_mulm (prd->z, prd->z, p1->z, ctx);
+  ctx->addm (sum->x, p2->x, p2->z, ctx);
+  ctx->subm (p2->z, p2->x, p2->z, ctx);
+  ctx->addm (prd->x, p1->x, p1->z, ctx);
+  ctx->subm (p1->z, p1->x, p1->z, ctx);
+  ctx->mulm (p2->x, p1->z, sum->x, ctx);
+  ctx->mulm (p2->z, prd->x, p2->z, ctx);
+  ctx->pow2 (p1->x, prd->x, ctx);
+  ctx->pow2 (p1->z, p1->z, ctx);
+  ctx->addm (sum->x, p2->x, p2->z, ctx);
+  ctx->subm (p2->z, p2->x, p2->z, ctx);
+  ctx->mulm (prd->x, p1->x, p1->z, ctx);
+  ctx->subm (p1->z, p1->x, p1->z, ctx);
+  ctx->pow2 (sum->x, sum->x, ctx);
+  ctx->pow2 (sum->z, p2->z, ctx);
+  ctx->mulm (prd->z, p1->z, ctx->a, ctx); /* CTX->A: (a-2)/4 */
+  ctx->mulm (sum->z, sum->z, dif_x, ctx);
+  ctx->addm (prd->z, p1->x, prd->z, ctx);
+  ctx->mulm (prd->z, prd->z, p1->z, ctx);
 }
 
 
@@ -1257,7 +1643,7 @@ sub_points_edwards (mpi_point_t result,
 {
   mpi_point_t p2i = _gcry_mpi_point_new (0);
   point_set (p2i, p2);
-  mpi_sub (p2i->x, ctx->p, p2i->x);
+  ctx->subm (p2i->x, ctx->p, p2i->x, ctx);
   add_points_edwards (result, p1, p2i, ctx);
   _gcry_mpi_point_release (p2i);
 }
@@ -1325,6 +1711,7 @@ _gcry_mpi_ec_mul_point (mpi_point_t result,
           mpi_set_ui (result->x, 0);
           mpi_set_ui (result->y, 1);
           mpi_set_ui (result->z, 1);
+          point_resize (point, ctx);
         }
 
       if (mpi_is_secure (scalar))
@@ -1346,6 +1733,12 @@ _gcry_mpi_ec_mul_point (mpi_point_t result,
         }
       else
         {
+          if (ctx->model == MPI_EC_EDWARDS)
+            {
+              point_resize (result, ctx);
+              point_resize (point, ctx);
+            }
+
           for (j=nbits-1; j >= 0; j--)
             {
               _gcry_mpi_ec_dup_point (result, result, ctx);
@@ -1362,6 +1755,8 @@ _gcry_mpi_ec_mul_point (mpi_point_t result,
       mpi_point_struct p1_, p2_;
       mpi_point_t q1, q2, prd, sum;
       unsigned long sw;
+      mpi_size_t rsize;
+      int scalar_copied = 0;
 
       /* Compute scalar point multiplication with Montgomery Ladder.
          Note that we don't use Y-coordinate in the points at all.
@@ -1377,10 +1772,39 @@ _gcry_mpi_ec_mul_point (mpi_point_t result,
       p2.x  = mpi_copy (point->x);
       mpi_set_ui (p2.z, 1);
 
+      if (mpi_is_opaque (scalar))
+        {
+          const unsigned int pbits = ctx->nbits;
+          gcry_mpi_t a;
+          unsigned int n;
+          unsigned char *raw;
+
+          scalar_copied = 1;
+
+          raw = _gcry_mpi_get_opaque_copy (scalar, &n);
+          if ((n+7)/8 != (pbits+7)/8)
+            log_fatal ("scalar size (%d) != prime size (%d)\n",
+                       (n+7)/8, (pbits+7)/8);
+
+          reverse_buffer (raw, (n+7)/8);
+          if ((pbits % 8))
+            raw[0] &= (1 << (pbits % 8)) - 1;
+          raw[0] |= (1 << ((pbits + 7) % 8));
+          raw[(pbits+7)/8 - 1] &= (256 - ctx->h);
+          a = mpi_is_secure (scalar) ? mpi_snew (pbits): mpi_new (pbits);
+          _gcry_mpi_set_buffer (a, raw, (n+7)/8, 0);
+          xfree (raw);
+
+          scalar = a;
+        }
+
       point_resize (&p1, ctx);
       point_resize (&p2, ctx);
       point_resize (&p1_, ctx);
       point_resize (&p2_, ctx);
+
+      mpi_resize (point->x, ctx->p->nlimbs);
+      point->x->nlimbs = ctx->p->nlimbs;
 
       q1 = &p1;
       q2 = &p2;
@@ -1403,7 +1827,9 @@ _gcry_mpi_ec_mul_point (mpi_point_t result,
       sw = (nbits & 1);
       point_swap_cond (&p1, &p1_, sw, ctx);
 
-      if (p1.z->nlimbs == 0)
+      rsize = p1.z->nlimbs;
+      MPN_NORMALIZE (p1.z->d, rsize);
+      if (rsize == 0)
         {
           mpi_set_ui (result->x, 1);
           mpi_set_ui (result->z, 0);
@@ -1421,6 +1847,8 @@ _gcry_mpi_ec_mul_point (mpi_point_t result,
       point_free (&p2);
       point_free (&p1_);
       point_free (&p2_);
+      if (scalar_copied)
+        _gcry_mpi_release (scalar);
       return;
     }
 
@@ -1591,19 +2019,21 @@ _gcry_mpi_ec_curve_point (gcry_mpi_point_t point, mpi_ec_t ctx)
         if (_gcry_mpi_ec_get_affine (x, y, point, ctx))
           goto leave;
 
+        mpi_resize (w, ctx->p->nlimbs);
+        w->nlimbs = ctx->p->nlimbs;
+
         /* a · x^2 + y^2 - 1 - b · x^2 · y^2 == 0 */
-        ec_pow2 (x, x, ctx);
-        ec_pow2 (y, y, ctx);
+        ctx->pow2 (x, x, ctx);
+        ctx->pow2 (y, y, ctx);
         if (ctx->dialect == ECC_DIALECT_ED25519)
-          mpi_sub (w, ctx->p, x);
+          ctx->subm (w, ctx->p, x, ctx);
         else
-          ec_mulm (w, ctx->a, x, ctx);
-        ec_addm (w, w, y, ctx);
-        ec_subm (w, w, mpi_const (MPI_C_ONE), ctx);
-        ec_mulm (x, x, y, ctx);
-        ec_mulm (x, x, ctx->b, ctx);
-        ec_subm (w, w, x, ctx);
-        if (!mpi_cmp_ui (w, 0))
+          ctx->mulm (w, ctx->a, x, ctx);
+        ctx->addm (w, w, y, ctx);
+        ctx->mulm (x, x, y, ctx);
+        ctx->mulm (x, x, ctx->b, ctx);
+        ctx->subm (w, w, x, ctx);
+        if (!mpi_cmp_ui (w, 1))
           res = 1;
       }
       break;

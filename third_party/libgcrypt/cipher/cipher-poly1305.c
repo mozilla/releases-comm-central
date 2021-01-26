@@ -1,4 +1,4 @@
-/* cipher-poly1305.c  -  Poly1305 based AEAD cipher mode, RFC-7539
+/* cipher-poly1305.c  -  Poly1305 based AEAD cipher mode, RFC-8439
  * Copyright (C) 2014 Jussi Kivilinna <jussi.kivilinna@iki.fi>
  *
  * This file is part of Libgcrypt.
@@ -164,9 +164,29 @@ _gcry_cipher_poly1305_encrypt (gcry_cipher_hd_t c,
       return GPG_ERR_INV_LENGTH;
     }
 
-  c->spec->stencrypt(&c->context.c, outbuf, (byte*)inbuf, inbuflen);
+  if (LIKELY(inbuflen > 0) && LIKELY(c->spec->algo == GCRY_CIPHER_CHACHA20))
+    {
+      return _gcry_chacha20_poly1305_encrypt (c, outbuf, inbuf, inbuflen);
+    }
 
-  _gcry_poly1305_update (&c->u_mode.poly1305.ctx, outbuf, inbuflen);
+  while (inbuflen)
+    {
+      size_t currlen = inbuflen;
+
+      /* Since checksumming is done after encryption, process input in 24KiB
+       * chunks to keep data loaded in L1 cache for checksumming. */
+      if (currlen > 24 * 1024)
+	currlen = 24 * 1024;
+
+      c->spec->stencrypt(&c->context.c, outbuf, (byte*)inbuf, currlen);
+
+      _gcry_poly1305_update (&c->u_mode.poly1305.ctx, outbuf, currlen);
+
+      outbuf += currlen;
+      inbuf += currlen;
+      outbuflen -= currlen;
+      inbuflen -= currlen;
+    }
 
   return 0;
 }
@@ -202,9 +222,30 @@ _gcry_cipher_poly1305_decrypt (gcry_cipher_hd_t c,
       return GPG_ERR_INV_LENGTH;
     }
 
-  _gcry_poly1305_update (&c->u_mode.poly1305.ctx, inbuf, inbuflen);
+  if (LIKELY(inbuflen > 0) && LIKELY(c->spec->algo == GCRY_CIPHER_CHACHA20))
+    {
+      return _gcry_chacha20_poly1305_decrypt (c, outbuf, inbuf, inbuflen);
+    }
 
-  c->spec->stdecrypt(&c->context.c, outbuf, (byte*)inbuf, inbuflen);
+  while (inbuflen)
+    {
+      size_t currlen = inbuflen;
+
+      /* Since checksumming is done before decryption, process input in 24KiB
+       * chunks to keep data loaded in L1 cache for decryption. */
+      if (currlen > 24 * 1024)
+	currlen = 24 * 1024;
+
+      _gcry_poly1305_update (&c->u_mode.poly1305.ctx, inbuf, currlen);
+
+      c->spec->stdecrypt(&c->context.c, outbuf, (byte*)inbuf, currlen);
+
+      outbuf += currlen;
+      inbuf += currlen;
+      outbuflen -= currlen;
+      inbuflen -= currlen;
+    }
+
   return 0;
 }
 

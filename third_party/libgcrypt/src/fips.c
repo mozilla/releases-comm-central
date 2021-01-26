@@ -57,7 +57,7 @@ enum module_states
    that fips mode is the default unless changed by the initialization
    code. To check whether fips mode is enabled, use the function
    fips_mode()! */
-static int no_fips_mode_required;
+int _gcry_no_fips_mode_required;
 
 /* Flag to indicate that we are in the enforced FIPS mode.  */
 static int enforced_fips_mode;
@@ -118,7 +118,7 @@ _gcry_initialize_fips_mode (int force)
   /* If the calling application explicitly requested fipsmode, do so.  */
   if (force)
     {
-      gcry_assert (!no_fips_mode_required);
+      gcry_assert (!_gcry_no_fips_mode_required);
       goto leave;
     }
 
@@ -129,7 +129,7 @@ _gcry_initialize_fips_mode (int force)
      actually used.  The file itself may be empty.  */
   if ( !access (FIPS_FORCE_FILE, F_OK) )
     {
-      gcry_assert (!no_fips_mode_required);
+      gcry_assert (!_gcry_no_fips_mode_required);
       goto leave;
     }
 
@@ -148,7 +148,7 @@ _gcry_initialize_fips_mode (int force)
           {
             /* System is in fips mode.  */
             fclose (fp);
-            gcry_assert (!no_fips_mode_required);
+            gcry_assert (!_gcry_no_fips_mode_required);
             goto leave;
           }
         fclose (fp);
@@ -171,10 +171,10 @@ _gcry_initialize_fips_mode (int force)
   }
 
   /* Fips not not requested, set flag.  */
-  no_fips_mode_required = 1;
+  _gcry_no_fips_mode_required = 1;
 
  leave:
-  if (!no_fips_mode_required)
+  if (!_gcry_no_fips_mode_required)
     {
       /* Yes, we are in FIPS mode.  */
       FILE *fp;
@@ -255,25 +255,11 @@ unlock_fsm (void)
 }
 
 
-/* This function returns true if fips mode is enabled.  This is
-   independent of the fips required finite state machine and only used
-   to enable fips specific code.  Please use the fips_mode macro
-   instead of calling this function directly. */
-int
-_gcry_fips_mode (void)
-{
-  /* No locking is required because we have the requirement that this
-     variable is only initialized once with no other threads
-     existing.  */
-  return !no_fips_mode_required;
-}
-
-
 /* Return a flag telling whether we are in the enforced fips mode.  */
 int
 _gcry_enforced_fips_mode (void)
 {
-  if (!_gcry_fips_mode ())
+  if (!fips_mode ())
     return 0;
   return enforced_fips_mode;
 }
@@ -292,7 +278,7 @@ _gcry_set_enforced_fips_mode (void)
 void
 _gcry_inactivate_fips_mode (const char *text)
 {
-  gcry_assert (_gcry_fips_mode ());
+  gcry_assert (fips_mode ());
 
   if (_gcry_enforced_fips_mode () )
     {
@@ -323,7 +309,7 @@ _gcry_is_fips_mode_inactive (void)
 {
   int flag;
 
-  if (!_gcry_fips_mode ())
+  if (!fips_mode ())
     return 0;
   lock_fsm ();
   flag = inactive_fips_mode;
@@ -507,21 +493,23 @@ run_digest_selftests (int extended)
 }
 
 
-/* Run self-tests for all HMAC algorithms.  Return 0 on success. */
+/* Run self-tests for MAC algorithms.  Return 0 on success. */
 static int
-run_hmac_selftests (int extended)
+run_mac_selftests (int extended)
 {
   static int algos[] =
     {
-      GCRY_MD_SHA1,
-      GCRY_MD_SHA224,
-      GCRY_MD_SHA256,
-      GCRY_MD_SHA384,
-      GCRY_MD_SHA512,
-      GCRY_MD_SHA3_224,
-      GCRY_MD_SHA3_256,
-      GCRY_MD_SHA3_384,
-      GCRY_MD_SHA3_512,
+      GCRY_MAC_HMAC_SHA1,
+      GCRY_MAC_HMAC_SHA224,
+      GCRY_MAC_HMAC_SHA256,
+      GCRY_MAC_HMAC_SHA384,
+      GCRY_MAC_HMAC_SHA512,
+      GCRY_MAC_HMAC_SHA3_224,
+      GCRY_MAC_HMAC_SHA3_256,
+      GCRY_MAC_HMAC_SHA3_384,
+      GCRY_MAC_HMAC_SHA3_512,
+      GCRY_MAC_CMAC_3DES,
+      GCRY_MAC_CMAC_AES,
       0
     };
   int idx;
@@ -530,9 +518,32 @@ run_hmac_selftests (int extended)
 
   for (idx=0; algos[idx]; idx++)
     {
-      err = _gcry_hmac_selftest (algos[idx], extended, reporter);
-      reporter ("hmac", algos[idx], NULL,
+      err = _gcry_mac_selftest (algos[idx], extended, reporter);
+      reporter ("mac", algos[idx], NULL,
                 err? gpg_strerror (err):NULL);
+      if (err)
+        anyerr = 1;
+    }
+  return anyerr;
+}
+
+/* Run self-tests for all KDF algorithms.  Return 0 on success. */
+static int
+run_kdf_selftests (int extended)
+{
+  static int algos[] =
+    {
+      GCRY_KDF_PBKDF2,
+      0
+    };
+  int idx;
+  gpg_error_t err;
+  int anyerr = 0;
+
+  for (idx=0; algos[idx]; idx++)
+    {
+      err = _gcry_kdf_selftest (algos[idx], extended, reporter);
+      reporter ("kdf", algos[idx], NULL, err? gpg_strerror (err):NULL);
       if (err)
         anyerr = 1;
     }
@@ -692,7 +703,10 @@ _gcry_fips_run_selftests (int extended)
   if (run_digest_selftests (extended))
     goto leave;
 
-  if (run_hmac_selftests (extended))
+  if (run_mac_selftests (extended))
+    goto leave;
+
+  if (run_kdf_selftests (extended))
     goto leave;
 
   /* Run random tests before the pubkey tests because the latter
@@ -703,10 +717,13 @@ _gcry_fips_run_selftests (int extended)
   if (run_pubkey_selftests (extended))
     goto leave;
 
-  /* Now check the integrity of the binary.  We do this this after
-     having checked the HMAC code.  */
-  if (check_binary_integrity ())
-    goto leave;
+  if (fips_mode ())
+    {
+      /* Now check the integrity of the binary.  We do this this after
+         having checked the HMAC code.  */
+      if (check_binary_integrity ())
+        goto leave;
+    }
 
   /* All selftests passed.  */
   result = STATE_OPERATIONAL;

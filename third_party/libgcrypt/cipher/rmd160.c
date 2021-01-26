@@ -166,7 +166,7 @@ rmd160_init (void *context, unsigned int flags)
   hd->bctx.nblocks = 0;
   hd->bctx.nblocks_high = 0;
   hd->bctx.count = 0;
-  hd->bctx.blocksize = 64;
+  hd->bctx.blocksize_shift = _gcry_ctz(64);
   hd->bctx.bwrite = transform;
 }
 
@@ -410,8 +410,6 @@ rmd160_final( void *context )
   byte *p;
   unsigned int burn;
 
-  _gcry_md_block_write(hd, NULL, 0); /* flush */;
-
   t = hd->bctx.nblocks;
   if (sizeof t == sizeof hd->bctx.nblocks)
     th = hd->bctx.nblocks_high;
@@ -431,25 +429,30 @@ rmd160_final( void *context )
   msb <<= 3;
   msb |= t >> 29;
 
-  if( hd->bctx.count < 56 )  /* enough room */
+  if (hd->bctx.count < 56)  /* enough room */
     {
       hd->bctx.buf[hd->bctx.count++] = 0x80; /* pad */
-      while( hd->bctx.count < 56 )
-        hd->bctx.buf[hd->bctx.count++] = 0;  /* pad */
+      if (hd->bctx.count < 56)
+	memset (&hd->bctx.buf[hd->bctx.count], 0, 56 - hd->bctx.count);
+      hd->bctx.count = 56;
+
+      /* append the 64 bit count */
+      buf_put_le32(hd->bctx.buf + 56, lsb);
+      buf_put_le32(hd->bctx.buf + 60, msb);
+      burn = transform (hd, hd->bctx.buf, 1);
     }
-  else  /* need one extra block */
+  else /* need one extra block */
     {
       hd->bctx.buf[hd->bctx.count++] = 0x80; /* pad character */
-      while( hd->bctx.count < 64 )
-        hd->bctx.buf[hd->bctx.count++] = 0;
-      _gcry_md_block_write(hd, NULL, 0);  /* flush */;
-      memset(hd->bctx.buf, 0, 56 ); /* fill next block with zeroes */
+      /* fill pad and next block with zeroes */
+      memset (&hd->bctx.buf[hd->bctx.count], 0, 64 - hd->bctx.count + 56);
+      hd->bctx.count = 64 + 56;
+
+      /* append the 64 bit count */
+      buf_put_le32(hd->bctx.buf + 64 + 56, lsb);
+      buf_put_le32(hd->bctx.buf + 64 + 60, msb);
+      burn = transform (hd, hd->bctx.buf, 2);
     }
-  /* append the 64 bit count */
-  buf_put_le32(hd->bctx.buf + 56, lsb);
-  buf_put_le32(hd->bctx.buf + 60, msb);
-  burn = transform ( hd, hd->bctx.buf, 1 );
-  _gcry_burn_stack (burn);
 
   p = hd->bctx.buf;
 #define X(a) do { buf_put_le32(p, hd->h##a); p += 4; } while(0)
@@ -459,6 +462,8 @@ rmd160_final( void *context )
   X(3);
   X(4);
 #undef X
+
+  _gcry_burn_stack (burn);
 }
 
 static byte *
@@ -486,6 +491,21 @@ _gcry_rmd160_hash_buffer (void *outbuf, const void *buffer, size_t length )
   memcpy ( outbuf, hd.bctx.buf, 20 );
 }
 
+/* Variant of the above shortcut function using a multiple buffers.  */
+static void
+_gcry_rmd160_hash_buffers (void *outbuf, const gcry_buffer_t *iov, int iovcnt)
+{
+  RMD160_CONTEXT hd;
+
+  rmd160_init (&hd, 0);
+  for (;iovcnt > 0; iov++, iovcnt--)
+    _gcry_md_block_write (&hd,
+                          (const char*)iov[0].data + iov[0].off, iov[0].len);
+  rmd160_final ( &hd );
+  memcpy ( outbuf, hd.bctx.buf, 20 );
+}
+
+
 static byte asn[15] = /* Object ID is 1.3.36.3.2.1 */
   { 0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x24, 0x03,
     0x02, 0x01, 0x05, 0x00, 0x04, 0x14 };
@@ -504,5 +524,6 @@ gcry_md_spec_t _gcry_digest_spec_rmd160 =
     GCRY_MD_RMD160, {0, 0},
     "RIPEMD160", asn, DIM (asn), oid_spec_rmd160, 20,
     rmd160_init, _gcry_md_block_write, rmd160_final, rmd160_read, NULL,
+    _gcry_rmd160_hash_buffer, _gcry_rmd160_hash_buffers,
     sizeof (RMD160_CONTEXT)
   };

@@ -29,7 +29,7 @@
 
 /* This is the list of the digest implementations included in
    libgcrypt.  */
-static gcry_mac_spec_t *mac_list[] = {
+static gcry_mac_spec_t * const mac_list[] = {
 #if USE_SHA1
   &_gcry_mac_type_spec_hmac_sha1,
 #endif
@@ -40,6 +40,8 @@ static gcry_mac_spec_t *mac_list[] = {
 #if USE_SHA512
   &_gcry_mac_type_spec_hmac_sha512,
   &_gcry_mac_type_spec_hmac_sha384,
+  &_gcry_mac_type_spec_hmac_sha512_256,
+  &_gcry_mac_type_spec_hmac_sha512_224,
 #endif
 #if USE_SHA3
   &_gcry_mac_type_spec_hmac_sha3_224,
@@ -49,6 +51,7 @@ static gcry_mac_spec_t *mac_list[] = {
 #endif
 #ifdef USE_GOST_R_3411_94
   &_gcry_mac_type_spec_hmac_gost3411_94,
+  &_gcry_mac_type_spec_hmac_gost3411_cp,
 #endif
 #ifdef USE_GOST_R_3411_12
   &_gcry_mac_type_spec_hmac_stribog256,
@@ -68,6 +71,19 @@ static gcry_mac_spec_t *mac_list[] = {
 #endif
 #if USE_MD4
   &_gcry_mac_type_spec_hmac_md4,
+#endif
+#if USE_BLAKE2
+  &_gcry_mac_type_spec_hmac_blake2b_512,
+  &_gcry_mac_type_spec_hmac_blake2b_384,
+  &_gcry_mac_type_spec_hmac_blake2b_256,
+  &_gcry_mac_type_spec_hmac_blake2b_160,
+  &_gcry_mac_type_spec_hmac_blake2s_256,
+  &_gcry_mac_type_spec_hmac_blake2s_224,
+  &_gcry_mac_type_spec_hmac_blake2s_160,
+  &_gcry_mac_type_spec_hmac_blake2s_128,
+#endif
+#if USE_SM3
+  &_gcry_mac_type_spec_hmac_sm3,
 #endif
 #if USE_BLOWFISH
   &_gcry_mac_type_spec_cmac_blowfish,
@@ -111,10 +127,256 @@ static gcry_mac_spec_t *mac_list[] = {
 #endif
 #if USE_GOST28147
   &_gcry_mac_type_spec_cmac_gost28147,
+  &_gcry_mac_type_spec_gost28147_imit,
 #endif
   &_gcry_mac_type_spec_poly1305mac,
+#if USE_SM4
+  &_gcry_mac_type_spec_cmac_sm4,
+#endif
   NULL,
 };
+
+/* HMAC implementations start with index 101 (enum gcry_mac_algos) */
+static gcry_mac_spec_t * const mac_list_algo101[] =
+  {
+#if USE_SHA256
+    &_gcry_mac_type_spec_hmac_sha256,
+    &_gcry_mac_type_spec_hmac_sha224,
+#else
+    NULL,
+    NULL,
+#endif
+#if USE_SHA512
+    &_gcry_mac_type_spec_hmac_sha512,
+    &_gcry_mac_type_spec_hmac_sha384,
+#else
+    NULL,
+    NULL,
+#endif
+#if USE_SHA1
+    &_gcry_mac_type_spec_hmac_sha1,
+#else
+    NULL,
+#endif
+#if USE_MD5
+    &_gcry_mac_type_spec_hmac_md5,
+#else
+    NULL,
+#endif
+#if USE_MD4
+    &_gcry_mac_type_spec_hmac_md4,
+#else
+    NULL,
+#endif
+#if USE_RMD160
+    &_gcry_mac_type_spec_hmac_rmd160,
+#else
+    NULL,
+#endif
+#if USE_TIGER
+    &_gcry_mac_type_spec_hmac_tiger1,
+#else
+    NULL,
+#endif
+#if USE_WHIRLPOOL
+    &_gcry_mac_type_spec_hmac_whirlpool,
+#else
+    NULL,
+#endif
+#ifdef USE_GOST_R_3411_94
+    &_gcry_mac_type_spec_hmac_gost3411_94,
+#else
+    NULL,
+#endif
+#ifdef USE_GOST_R_3411_12
+    &_gcry_mac_type_spec_hmac_stribog256,
+    &_gcry_mac_type_spec_hmac_stribog512,
+#else
+    NULL,
+    NULL,
+#endif
+#if USE_MD2
+    &_gcry_mac_type_spec_hmac_md2,
+#else
+    NULL,
+#endif
+#if USE_SHA3
+    &_gcry_mac_type_spec_hmac_sha3_224,
+    &_gcry_mac_type_spec_hmac_sha3_256,
+    &_gcry_mac_type_spec_hmac_sha3_384,
+    &_gcry_mac_type_spec_hmac_sha3_512,
+#else
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+#endif
+#ifdef USE_GOST_R_3411_94
+    &_gcry_mac_type_spec_hmac_gost3411_cp,
+#else
+    NULL,
+#endif
+#if USE_BLAKE2
+    &_gcry_mac_type_spec_hmac_blake2b_512,
+    &_gcry_mac_type_spec_hmac_blake2b_384,
+    &_gcry_mac_type_spec_hmac_blake2b_256,
+    &_gcry_mac_type_spec_hmac_blake2b_160,
+    &_gcry_mac_type_spec_hmac_blake2s_256,
+    &_gcry_mac_type_spec_hmac_blake2s_224,
+    &_gcry_mac_type_spec_hmac_blake2s_160,
+    &_gcry_mac_type_spec_hmac_blake2s_128,
+#else
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+#endif
+#if USE_SM3
+    &_gcry_mac_type_spec_hmac_sm3,
+#else
+    NULL,
+#endif
+#if USE_SHA512
+    &_gcry_mac_type_spec_hmac_sha512_256,
+    &_gcry_mac_type_spec_hmac_sha512_224,
+#else
+    NULL,
+    NULL,
+#endif
+  };
+
+/* CMAC implementations start with index 201 (enum gcry_mac_algos) */
+static gcry_mac_spec_t * const mac_list_algo201[] =
+  {
+#if USE_AES
+    &_gcry_mac_type_spec_cmac_aes,
+#else
+    NULL,
+#endif
+#if USE_DES
+    &_gcry_mac_type_spec_cmac_tripledes,
+#else
+    NULL,
+#endif
+#if USE_CAMELLIA
+    &_gcry_mac_type_spec_cmac_camellia,
+#else
+    NULL,
+#endif
+#if USE_CAST5
+    &_gcry_mac_type_spec_cmac_cast5,
+#else
+    NULL,
+#endif
+#if USE_BLOWFISH
+    &_gcry_mac_type_spec_cmac_blowfish,
+#else
+    NULL,
+#endif
+#if USE_TWOFISH
+    &_gcry_mac_type_spec_cmac_twofish,
+#else
+    NULL,
+#endif
+#if USE_SERPENT
+    &_gcry_mac_type_spec_cmac_serpent,
+#else
+    NULL,
+#endif
+#if USE_SEED
+    &_gcry_mac_type_spec_cmac_seed,
+#else
+    NULL,
+#endif
+#if USE_RFC2268
+    &_gcry_mac_type_spec_cmac_rfc2268,
+#else
+    NULL,
+#endif
+#ifdef USE_IDEA
+    &_gcry_mac_type_spec_cmac_idea,
+#else
+    NULL,
+#endif
+#if USE_GOST28147
+    &_gcry_mac_type_spec_cmac_gost28147,
+#else
+    NULL,
+#endif
+#if USE_SM4
+    &_gcry_mac_type_spec_cmac_sm4
+#else
+    NULL
+#endif
+  };
+
+/* GMAC implementations start with index 401 (enum gcry_mac_algos) */
+static gcry_mac_spec_t * const mac_list_algo401[] =
+  {
+#if USE_AES
+    &_gcry_mac_type_spec_gmac_aes,
+#else
+    NULL,
+#endif
+#if USE_CAMELLIA
+    &_gcry_mac_type_spec_gmac_camellia,
+#else
+    NULL,
+#endif
+#if USE_TWOFISH
+    &_gcry_mac_type_spec_gmac_twofish,
+#else
+    NULL,
+#endif
+#if USE_SERPENT
+    &_gcry_mac_type_spec_gmac_serpent,
+#else
+    NULL,
+#endif
+#if USE_SEED
+    &_gcry_mac_type_spec_gmac_seed
+#else
+    NULL
+#endif
+  };
+
+/* Poly1305-MAC implementations start with index 501 (enum gcry_mac_algos) */
+static gcry_mac_spec_t * const mac_list_algo501[] =
+  {
+    &_gcry_mac_type_spec_poly1305mac,
+#if USE_AES
+    &_gcry_mac_type_spec_poly1305mac_aes,
+#else
+    NULL,
+#endif
+#if USE_CAMELLIA
+    &_gcry_mac_type_spec_poly1305mac_camellia,
+#else
+    NULL,
+#endif
+#if USE_TWOFISH
+    &_gcry_mac_type_spec_poly1305mac_twofish,
+#else
+    NULL,
+#endif
+#if USE_SERPENT
+    &_gcry_mac_type_spec_poly1305mac_serpent,
+#else
+    NULL,
+#endif
+#if USE_SEED
+    &_gcry_mac_type_spec_poly1305mac_seed
+#else
+    NULL
+#endif
+  };
+
+
+
 
 /* Explicitly initialize this module.  */
 gcry_err_code_t
@@ -140,13 +402,25 @@ _gcry_mac_init (void)
 static gcry_mac_spec_t *
 spec_from_algo (int algo)
 {
-  gcry_mac_spec_t *spec;
-  int idx;
+  gcry_mac_spec_t *spec = NULL;
 
-  for (idx = 0; (spec = mac_list[idx]); idx++)
-    if (algo == spec->algo)
-      return spec;
-  return NULL;
+  if (algo >= 101 && algo < 101 + DIM(mac_list_algo101))
+    spec = mac_list_algo101[algo - 101];
+  else if (algo >= 201 && algo < 201 + DIM(mac_list_algo201))
+    spec = mac_list_algo201[algo - 201];
+  else if (algo >= 401 && algo < 401 + DIM(mac_list_algo401))
+    spec = mac_list_algo401[algo - 401];
+  else if (algo >= 501 && algo < 501 + DIM(mac_list_algo501))
+    spec = mac_list_algo501[algo - 501];
+#ifdef USE_GOST28147
+  else if (algo == GCRY_MAC_GOST28147_IMIT)
+    spec = &_gcry_mac_type_spec_gost28147_imit;
+#endif
+
+  if (spec)
+    gcry_assert (spec->algo == algo);
+
+  return spec;
 }
 
 
@@ -447,6 +721,13 @@ _gcry_mac_ctl (gcry_mac_hd_t hd, int cmd, void *buffer, size_t buflen)
     case GCRYCTL_RESET:
       rc = mac_reset (hd);
       break;
+    case GCRYCTL_SET_SBOX:
+      if (hd->spec->ops->set_extra_info)
+        rc = hd->spec->ops->set_extra_info
+          (hd, GCRYCTL_SET_SBOX, buffer, buflen);
+      else
+        rc = GPG_ERR_NOT_SUPPORTED;
+      break;
     default:
       rc = GPG_ERR_INV_OP;
     }
@@ -499,4 +780,29 @@ _gcry_mac_algo_info (int algo, int what, void *buffer, size_t * nbytes)
     }
 
   return rc;
+}
+
+
+/* Run the self-tests for the MAC.  */
+gpg_error_t
+_gcry_mac_selftest (int algo, int extended, selftest_report_func_t report)
+{
+  gcry_err_code_t ec;
+  gcry_mac_spec_t *spec;
+
+  spec = spec_from_algo (algo);
+  if (spec && !spec->flags.disabled && spec->ops && spec->ops->selftest)
+    ec = spec->ops->selftest (algo, extended, report);
+  else
+    {
+      ec = GPG_ERR_MAC_ALGO;
+      if (report)
+        report ("mac", algo, "module",
+                spec && !spec->flags.disabled?
+                "no selftest available" :
+                spec? "algorithm disabled" :
+                "algorithm not found");
+    }
+
+  return gpg_error (ec);
 }

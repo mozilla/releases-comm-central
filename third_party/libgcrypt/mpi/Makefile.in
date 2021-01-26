@@ -112,12 +112,11 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = mpi
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/gpg-error.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/onceonly.m4 \
-	$(top_srcdir)/m4/socklen.m4 $(top_srcdir)/m4/sys_socket_h.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cc_for_build.m4 \
+	$(top_srcdir)/m4/gpg-error.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/socklen.m4 \
 	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -131,7 +130,7 @@ libmpi_la_LIBADD =
 am_libmpi_la_OBJECTS = mpi-add.lo mpi-bit.lo mpi-cmp.lo mpi-div.lo \
 	mpi-gcd.lo mpi-inline.lo mpi-inv.lo mpi-mul.lo mpi-mod.lo \
 	mpi-pow.lo mpi-mpow.lo mpi-scan.lo mpicoder.lo mpih-div.lo \
-	mpih-mul.lo mpiutil.lo ec.lo ec-ed25519.lo
+	mpih-mul.lo mpih-const-time.lo mpiutil.lo ec.lo ec-ed25519.lo
 @MPI_MOD_ASM_MPIH_ADD1_FALSE@@MPI_MOD_C_MPIH_ADD1_TRUE@am__objects_1 = mpih-add1.lo
 @MPI_MOD_ASM_MPIH_ADD1_TRUE@am__objects_1 = mpih-add1-asm.lo
 @MPI_MOD_ASM_MPIH_SUB1_FALSE@@MPI_MOD_C_MPIH_SUB1_TRUE@am__objects_2 = mpih-sub1.lo
@@ -186,16 +185,17 @@ am__depfiles_remade = ./$(DEPDIR)/ec-ed25519.Plo ./$(DEPDIR)/ec.Plo \
 	./$(DEPDIR)/mpi-mpow.Plo ./$(DEPDIR)/mpi-mul.Plo \
 	./$(DEPDIR)/mpi-pow.Plo ./$(DEPDIR)/mpi-scan.Plo \
 	./$(DEPDIR)/mpicoder.Plo ./$(DEPDIR)/mpih-add1-asm.Plo \
-	./$(DEPDIR)/mpih-add1.Plo ./$(DEPDIR)/mpih-div.Plo \
-	./$(DEPDIR)/mpih-lshift-asm.Plo ./$(DEPDIR)/mpih-lshift.Plo \
-	./$(DEPDIR)/mpih-mul.Plo ./$(DEPDIR)/mpih-mul1-asm.Plo \
-	./$(DEPDIR)/mpih-mul1.Plo ./$(DEPDIR)/mpih-mul2-asm.Plo \
-	./$(DEPDIR)/mpih-mul2.Plo ./$(DEPDIR)/mpih-mul3-asm.Plo \
-	./$(DEPDIR)/mpih-mul3.Plo ./$(DEPDIR)/mpih-rshift-asm.Plo \
-	./$(DEPDIR)/mpih-rshift.Plo ./$(DEPDIR)/mpih-sub1-asm.Plo \
-	./$(DEPDIR)/mpih-sub1.Plo ./$(DEPDIR)/mpiutil.Plo \
-	./$(DEPDIR)/udiv-asm.Plo ./$(DEPDIR)/udiv-qrnnd-asm.Plo \
-	./$(DEPDIR)/udiv-qrnnd.Plo ./$(DEPDIR)/udiv.Plo
+	./$(DEPDIR)/mpih-add1.Plo ./$(DEPDIR)/mpih-const-time.Plo \
+	./$(DEPDIR)/mpih-div.Plo ./$(DEPDIR)/mpih-lshift-asm.Plo \
+	./$(DEPDIR)/mpih-lshift.Plo ./$(DEPDIR)/mpih-mul.Plo \
+	./$(DEPDIR)/mpih-mul1-asm.Plo ./$(DEPDIR)/mpih-mul1.Plo \
+	./$(DEPDIR)/mpih-mul2-asm.Plo ./$(DEPDIR)/mpih-mul2.Plo \
+	./$(DEPDIR)/mpih-mul3-asm.Plo ./$(DEPDIR)/mpih-mul3.Plo \
+	./$(DEPDIR)/mpih-rshift-asm.Plo ./$(DEPDIR)/mpih-rshift.Plo \
+	./$(DEPDIR)/mpih-sub1-asm.Plo ./$(DEPDIR)/mpih-sub1.Plo \
+	./$(DEPDIR)/mpiutil.Plo ./$(DEPDIR)/udiv-asm.Plo \
+	./$(DEPDIR)/udiv-qrnnd-asm.Plo ./$(DEPDIR)/udiv-qrnnd.Plo \
+	./$(DEPDIR)/udiv.Plo
 am__mv = mv -f
 CPPASCOMPILE = $(CCAS) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CCASFLAGS) $(CCASFLAGS)
@@ -225,8 +225,9 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libmpi_la_SOURCES) $(nodist_libmpi_la_SOURCES)
-DIST_SOURCES = $(libmpi_la_SOURCES)
+SOURCES = $(libmpi_la_SOURCES) $(EXTRA_libmpi_la_SOURCES) \
+	$(nodist_libmpi_la_SOURCES)
+DIST_SOURCES = $(libmpi_la_SOURCES) $(EXTRA_libmpi_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -266,6 +267,7 @@ AWK = @AWK@
 BUILD_FILEVERSION = @BUILD_FILEVERSION@
 BUILD_REVISION = @BUILD_REVISION@
 BUILD_TIMESTAMP = @BUILD_TIMESTAMP@
+BUILD_VERSION = @BUILD_VERSION@
 CC = @CC@
 CCAS = @CCAS@
 CCASDEPMODE = @CCASDEPMODE@
@@ -287,6 +289,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+EXEEXT_FOR_BUILD = @EXEEXT_FOR_BUILD@
 FALLBACK_SOCKLEN_T = @FALLBACK_SOCKLEN_T@
 FGREP = @FGREP@
 GCRYPT_CIPHERS = @GCRYPT_CIPHERS@
@@ -295,6 +298,7 @@ GCRYPT_HWF_MODULES = @GCRYPT_HWF_MODULES@
 GCRYPT_KDFS = @GCRYPT_KDFS@
 GCRYPT_PUBKEY_CIPHERS = @GCRYPT_PUBKEY_CIPHERS@
 GCRYPT_RANDOM = @GCRYPT_RANDOM@
+GPGRT_CONFIG = @GPGRT_CONFIG@
 GPG_ERROR_CFLAGS = @GPG_ERROR_CFLAGS@
 GPG_ERROR_CONFIG = @GPG_ERROR_CONFIG@
 GPG_ERROR_LIBS = @GPG_ERROR_LIBS@
@@ -308,6 +312,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
+LDADD_FOR_TESTS_KLUDGE = @LDADD_FOR_TESTS_KLUDGE@
 LDFLAGS = @LDFLAGS@
 LIBGCRYPT_CIPHERS = @LIBGCRYPT_CIPHERS@
 LIBGCRYPT_CONFIG_API_VERSION = @LIBGCRYPT_CONFIG_API_VERSION@
@@ -357,7 +362,6 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 SYSROOT = @SYSROOT@
-SYS_SOCKET_H = @SYS_SOCKET_H@
 VERSION = @VERSION@
 VERSION_NUMBER = @VERSION_NUMBER@
 abs_builddir = @abs_builddir@
@@ -505,9 +509,11 @@ libmpi_la_SOURCES = longlong.h	   \
 	      mpicoder.c     \
 	      mpih-div.c     \
 	      mpih-mul.c     \
-	      mpiutil.c      \
+	      mpih-const-time.c \
+	      mpiutil.c         \
               ec.c ec-internal.h ec-ed25519.c
 
+EXTRA_libmpi_la_SOURCES = asm-common-aarch64.h
 all: all-am
 
 .SUFFIXES:
@@ -579,6 +585,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpicoder.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpih-add1-asm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpih-add1.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpih-const-time.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpih-div.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpih-lshift-asm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpih-lshift.Plo@am__quote@ # am--include-marker
@@ -796,6 +803,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/mpicoder.Plo
 	-rm -f ./$(DEPDIR)/mpih-add1-asm.Plo
 	-rm -f ./$(DEPDIR)/mpih-add1.Plo
+	-rm -f ./$(DEPDIR)/mpih-const-time.Plo
 	-rm -f ./$(DEPDIR)/mpih-div.Plo
 	-rm -f ./$(DEPDIR)/mpih-lshift-asm.Plo
 	-rm -f ./$(DEPDIR)/mpih-lshift.Plo
@@ -877,6 +885,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/mpicoder.Plo
 	-rm -f ./$(DEPDIR)/mpih-add1-asm.Plo
 	-rm -f ./$(DEPDIR)/mpih-add1.Plo
+	-rm -f ./$(DEPDIR)/mpih-const-time.Plo
 	-rm -f ./$(DEPDIR)/mpih-div.Plo
 	-rm -f ./$(DEPDIR)/mpih-lshift-asm.Plo
 	-rm -f ./$(DEPDIR)/mpih-lshift.Plo

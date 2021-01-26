@@ -32,8 +32,8 @@
 #define PGM "curves"
 #include "t-common.h"
 
-/* Number of curves defined in ../cipger/ecc.c */
-#define N_CURVES 22
+/* Number of curves defined in ../cipger/ecc-curves.c */
+#define N_CURVES 27
 
 /* A real world sample public key.  */
 static char const sample_key_1[] =
@@ -178,10 +178,10 @@ main (int argc, char **argv)
   if (!gcry_check_version (GCRYPT_VERSION))
     die ("version mismatch\n");
 
-  xgcry_control (GCRYCTL_DISABLE_SECMEM, 0);
-  xgcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+  xgcry_control ((GCRYCTL_DISABLE_SECMEM, 0));
+  xgcry_control ((GCRYCTL_INITIALIZATION_FINISHED, 0));
   if (debug)
-    xgcry_control (GCRYCTL_SET_DEBUG_FLAGS, 1u, 0);
+    xgcry_control ((GCRYCTL_SET_DEBUG_FLAGS, 1u, 0));
   list_curves ();
   check_matching ();
   check_get_params ();

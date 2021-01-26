@@ -117,12 +117,11 @@ bin_PROGRAMS = dumpsexp$(EXEEXT) hmac256$(EXEEXT) mpicalc$(EXEEXT) \
 @USE_RANDOM_DAEMON_TRUE@am__append_1 = getrandom
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/gpg-error.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/onceonly.m4 \
-	$(top_srcdir)/m4/socklen.m4 $(top_srcdir)/m4/sys_socket_h.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cc_for_build.m4 \
+	$(top_srcdir)/m4/gpg-error.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/socklen.m4 \
 	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -211,8 +210,7 @@ hmac256_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_mpicalc_OBJECTS = mpicalc-mpicalc.$(OBJEXT)
 mpicalc_OBJECTS = $(am_mpicalc_OBJECTS)
-mpicalc_DEPENDENCIES = libgcrypt.la $(am__DEPENDENCIES_2) \
-	$(am__DEPENDENCIES_2)
+mpicalc_DEPENDENCIES = libgcrypt.la $(am__DEPENDENCIES_2)
 mpicalc_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(mpicalc_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
@@ -240,6 +238,7 @@ am__depfiles_remade = ./$(DEPDIR)/dumpsexp-dumpsexp.Po \
 	./$(DEPDIR)/libgcrypt_la-global.Plo \
 	./$(DEPDIR)/libgcrypt_la-hmac256.Plo \
 	./$(DEPDIR)/libgcrypt_la-hwf-arm.Plo \
+	./$(DEPDIR)/libgcrypt_la-hwf-ppc.Plo \
 	./$(DEPDIR)/libgcrypt_la-hwf-x86.Plo \
 	./$(DEPDIR)/libgcrypt_la-hwfeatures.Plo \
 	./$(DEPDIR)/libgcrypt_la-misc.Plo \
@@ -317,6 +316,7 @@ AWK = @AWK@
 BUILD_FILEVERSION = @BUILD_FILEVERSION@
 BUILD_REVISION = @BUILD_REVISION@
 BUILD_TIMESTAMP = @BUILD_TIMESTAMP@
+BUILD_VERSION = @BUILD_VERSION@
 CC = @CC@
 CCAS = @CCAS@
 CCASDEPMODE = @CCASDEPMODE@
@@ -338,6 +338,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+EXEEXT_FOR_BUILD = @EXEEXT_FOR_BUILD@
 FALLBACK_SOCKLEN_T = @FALLBACK_SOCKLEN_T@
 FGREP = @FGREP@
 GCRYPT_CIPHERS = @GCRYPT_CIPHERS@
@@ -346,6 +347,7 @@ GCRYPT_HWF_MODULES = @GCRYPT_HWF_MODULES@
 GCRYPT_KDFS = @GCRYPT_KDFS@
 GCRYPT_PUBKEY_CIPHERS = @GCRYPT_PUBKEY_CIPHERS@
 GCRYPT_RANDOM = @GCRYPT_RANDOM@
+GPGRT_CONFIG = @GPGRT_CONFIG@
 GPG_ERROR_CFLAGS = @GPG_ERROR_CFLAGS@
 GPG_ERROR_CONFIG = @GPG_ERROR_CONFIG@
 GPG_ERROR_LIBS = @GPG_ERROR_LIBS@
@@ -359,6 +361,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
+LDADD_FOR_TESTS_KLUDGE = @LDADD_FOR_TESTS_KLUDGE@
 LDFLAGS = @LDFLAGS@
 LIBGCRYPT_CIPHERS = @LIBGCRYPT_CIPHERS@
 LIBGCRYPT_CONFIG_API_VERSION = @LIBGCRYPT_CONFIG_API_VERSION@
@@ -408,7 +411,6 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 SYSROOT = @SYSROOT@
-SYS_SOCKET_H = @SYS_SOCKET_H@
 VERSION = @VERSION@
 VERSION_NUMBER = @VERSION_NUMBER@
 abs_builddir = @abs_builddir@
@@ -497,7 +499,7 @@ libgcrypt_la_SOURCES = \
 	hmac256.c hmac256.h context.c context.h \
 	ec-context.h
 
-EXTRA_libgcrypt_la_SOURCES = hwf-x86.c hwf-arm.c
+EXTRA_libgcrypt_la_SOURCES = hwf-x86.c hwf-arm.c hwf-ppc.c
 gcrypt_hwf_modules = @GCRYPT_HWF_MODULES@
 @HAVE_W32_SYSTEM_TRUE@RCCOMPILE = $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 @HAVE_W32_SYSTEM_TRUE@	$(libgcrypt_la_CPPFLAGS) $(AM_CPPFLAGS) $(CPPFLAGS)
@@ -532,14 +534,14 @@ libgcrypt_la_LIBADD = $(gcrypt_res) \
 	../cipher/libcipher.la \
 	../random/librandom.la \
 	../mpi/libmpi.la \
-	../compat/libcompat.la  $(GPG_ERROR_LIBS)
+	../compat/libcompat.la $(DL_LIBS) $(GPG_ERROR_LIBS)
 
 dumpsexp_SOURCES = dumpsexp.c
 dumpsexp_CFLAGS = $(arch_gpg_error_cflags)
 dumpsexp_LDADD = $(arch_gpg_error_libs)
 mpicalc_SOURCES = mpicalc.c
 mpicalc_CFLAGS = $(GPG_ERROR_CFLAGS)
-mpicalc_LDADD = libgcrypt.la $(DL_LIBS) $(GPG_ERROR_LIBS)
+mpicalc_LDADD = libgcrypt.la $(GPG_ERROR_LIBS)
 hmac256_SOURCES = hmac256.c
 hmac256_CFLAGS = -DSTANDALONE $(arch_gpg_error_cflags)
 hmac256_LDADD = $(arch_gpg_error_libs)
@@ -547,11 +549,6 @@ hmac256_LDADD = $(arch_gpg_error_libs)
 @USE_RANDOM_DAEMON_TRUE@gcryptrnd_CFLAGS = $(GPG_ERROR_CFLAGS) $(PTH_CFLAGS)
 @USE_RANDOM_DAEMON_TRUE@gcryptrnd_LDADD = libgcrypt.la $(GPG_ERROR_LIBS) $(PTH_LIBS)
 @USE_RANDOM_DAEMON_TRUE@getrandom_SOURCES = getrandom.c
-
-# For unkown reasons that file does no get deleted during make
-# distcheck but it is not distributed either.  Maybe a regression
-# since automake 1.16.
-DISTCLEANFILES = $(DEPDIR)/hwf-x86.Plo
 all: all-am
 
 .SUFFIXES:
@@ -800,6 +797,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-global.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hmac256.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hwf-arm.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hwf-ppc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hwf-x86.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hwfeatures.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-misc.Plo@am__quote@ # am--include-marker
@@ -927,6 +925,13 @@ libgcrypt_la-hwf-arm.lo: hwf-arm.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='hwf-arm.c' object='libgcrypt_la-hwf-arm.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgcrypt_la_CFLAGS) $(CFLAGS) -c -o libgcrypt_la-hwf-arm.lo `test -f 'hwf-arm.c' || echo '$(srcdir)/'`hwf-arm.c
+
+libgcrypt_la-hwf-ppc.lo: hwf-ppc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgcrypt_la_CFLAGS) $(CFLAGS) -MT libgcrypt_la-hwf-ppc.lo -MD -MP -MF $(DEPDIR)/libgcrypt_la-hwf-ppc.Tpo -c -o libgcrypt_la-hwf-ppc.lo `test -f 'hwf-ppc.c' || echo '$(srcdir)/'`hwf-ppc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgcrypt_la-hwf-ppc.Tpo $(DEPDIR)/libgcrypt_la-hwf-ppc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='hwf-ppc.c' object='libgcrypt_la-hwf-ppc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgcrypt_la_CFLAGS) $(CFLAGS) -c -o libgcrypt_la-hwf-ppc.lo `test -f 'hwf-ppc.c' || echo '$(srcdir)/'`hwf-ppc.c
 
 dumpsexp-dumpsexp.o: dumpsexp.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dumpsexp_CFLAGS) $(CFLAGS) -MT dumpsexp-dumpsexp.o -MD -MP -MF $(DEPDIR)/dumpsexp-dumpsexp.Tpo -c -o dumpsexp-dumpsexp.o `test -f 'dumpsexp.c' || echo '$(srcdir)/'`dumpsexp.c
@@ -1174,7 +1179,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1194,6 +1198,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libgcrypt_la-global.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hmac256.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-arm.Plo
+	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-ppc.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-x86.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwfeatures.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-misc.Plo
@@ -1259,6 +1264,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libgcrypt_la-global.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hmac256.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-arm.Plo
+	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-ppc.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-x86.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwfeatures.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-misc.Plo

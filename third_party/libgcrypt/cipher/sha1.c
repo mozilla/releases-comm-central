@@ -68,6 +68,20 @@
 # define USE_BMI2 1
 #endif
 
+/* USE_AVX2 indicates whether to compile with Intel AVX2/BMI2 code. */
+#undef USE_AVX2
+#if defined(USE_BMI2) && defined(HAVE_GCC_INLINE_ASM_AVX2)
+# define USE_AVX2 1
+#endif
+
+/* USE_SHAEXT indicates whether to compile with Intel SHA Extension code. */
+#undef USE_SHAEXT
+#if defined(HAVE_GCC_INLINE_ASM_SHAEXT) && \
+    defined(HAVE_GCC_INLINE_ASM_SSE41) && \
+    defined(ENABLE_SHAEXT_SUPPORT)
+# define USE_SHAEXT 1
+#endif
+
 /* USE_NEON indicates whether to enable ARM NEON assembly code. */
 #undef USE_NEON
 #ifdef ENABLE_NEON_SUPPORT
@@ -103,8 +117,144 @@
 /* #endif */
 
 
+
+/* Assembly implementations use SystemV ABI, ABI conversion and additional
+ * stack to store XMM6-XMM15 needed on Win64. */
+#undef ASM_FUNC_ABI
+#undef ASM_EXTRA_STACK
+#if defined(USE_SSSE3) || defined(USE_AVX) || defined(USE_BMI2) || \
+    defined(USE_SHAEXT)
+# ifdef HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS
+#  define ASM_FUNC_ABI __attribute__((sysv_abi))
+#  define ASM_EXTRA_STACK (10 * 16 + sizeof(void *) * 4)
+# else
+#  define ASM_FUNC_ABI
+#  define ASM_EXTRA_STACK 0
+# endif
+#endif
+
+
+#ifdef USE_SSSE3
+unsigned int
+_gcry_sha1_transform_amd64_ssse3 (void *state, const unsigned char *data,
+                                  size_t nblks) ASM_FUNC_ABI;
+
 static unsigned int
-transform (void *c, const unsigned char *data, size_t nblks);
+do_sha1_transform_amd64_ssse3 (void *ctx, const unsigned char *data,
+                               size_t nblks)
+{
+  SHA1_CONTEXT *hd = ctx;
+  return _gcry_sha1_transform_amd64_ssse3 (&hd->h0, data, nblks)
+         + ASM_EXTRA_STACK;
+}
+#endif
+
+#ifdef USE_AVX
+unsigned int
+_gcry_sha1_transform_amd64_avx (void *state, const unsigned char *data,
+                                 size_t nblks) ASM_FUNC_ABI;
+
+static unsigned int
+do_sha1_transform_amd64_avx (void *ctx, const unsigned char *data,
+                             size_t nblks)
+{
+  SHA1_CONTEXT *hd = ctx;
+  return _gcry_sha1_transform_amd64_avx (&hd->h0, data, nblks)
+         + ASM_EXTRA_STACK;
+}
+#endif
+
+#ifdef USE_BMI2
+unsigned int
+_gcry_sha1_transform_amd64_avx_bmi2 (void *state, const unsigned char *data,
+                                     size_t nblks) ASM_FUNC_ABI;
+
+static unsigned int
+do_sha1_transform_amd64_avx_bmi2 (void *ctx, const unsigned char *data,
+                                  size_t nblks)
+{
+  SHA1_CONTEXT *hd = ctx;
+  return _gcry_sha1_transform_amd64_avx_bmi2 (&hd->h0, data, nblks)
+         + ASM_EXTRA_STACK;
+}
+
+#ifdef USE_AVX2
+unsigned int
+_gcry_sha1_transform_amd64_avx2_bmi2 (void *state, const unsigned char *data,
+                                      size_t nblks) ASM_FUNC_ABI;
+
+static unsigned int
+do_sha1_transform_amd64_avx2_bmi2 (void *ctx, const unsigned char *data,
+                                   size_t nblks)
+{
+  SHA1_CONTEXT *hd = ctx;
+
+  /* AVX2/BMI2 function only handles pair of blocks so nblks needs to be
+   * multiple of 2 and function does not handle zero nblks. Use AVX/BMI2
+   * code to handle these cases. */
+
+  if (nblks <= 1)
+    return do_sha1_transform_amd64_avx_bmi2 (ctx, data, nblks);
+
+  if (nblks & 1)
+    {
+      (void)_gcry_sha1_transform_amd64_avx_bmi2 (&hd->h0, data, 1);
+      nblks--;
+      data += 64;
+    }
+
+  return _gcry_sha1_transform_amd64_avx2_bmi2 (&hd->h0, data, nblks)
+         + ASM_EXTRA_STACK;
+}
+#endif /* USE_AVX2 */
+#endif /* USE_BMI2 */
+
+#ifdef USE_SHAEXT
+/* Does not need ASM_FUNC_ABI */
+unsigned int
+_gcry_sha1_transform_intel_shaext (void *state, const unsigned char *data,
+                                   size_t nblks);
+
+static unsigned int
+do_sha1_transform_intel_shaext (void *ctx, const unsigned char *data,
+                                size_t nblks)
+{
+  SHA1_CONTEXT *hd = ctx;
+  return _gcry_sha1_transform_intel_shaext (&hd->h0, data, nblks);
+}
+#endif
+
+#ifdef USE_NEON
+unsigned int
+_gcry_sha1_transform_armv7_neon (void *state, const unsigned char *data,
+                                 size_t nblks);
+
+static unsigned int
+do_sha1_transform_armv7_neon (void *ctx, const unsigned char *data,
+                              size_t nblks)
+{
+  SHA1_CONTEXT *hd = ctx;
+  return _gcry_sha1_transform_armv7_neon (&hd->h0, data, nblks);
+}
+#endif
+
+#ifdef USE_ARM_CE
+unsigned int
+_gcry_sha1_transform_armv8_ce (void *state, const unsigned char *data,
+                               size_t nblks);
+
+static unsigned int
+do_sha1_transform_armv8_ce (void *ctx, const unsigned char *data,
+                            size_t nblks)
+{
+  SHA1_CONTEXT *hd = ctx;
+  return _gcry_sha1_transform_armv8_ce (&hd->h0, data, nblks);
+}
+#endif
+
+
+static unsigned int
+do_transform_generic (void *c, const unsigned char *data, size_t nblks);
 
 
 static void
@@ -124,26 +274,44 @@ sha1_init (void *context, unsigned int flags)
   hd->bctx.nblocks = 0;
   hd->bctx.nblocks_high = 0;
   hd->bctx.count = 0;
-  hd->bctx.blocksize = 64;
-  hd->bctx.bwrite = transform;
+  hd->bctx.blocksize_shift = _gcry_ctz(64);
 
+  /* Order of feature checks is important here; last match will be
+   * selected.  Keep slower implementations at the top and faster at
+   * the bottom.  */
+  hd->bctx.bwrite = do_transform_generic;
 #ifdef USE_SSSE3
-  hd->use_ssse3 = (features & HWF_INTEL_SSSE3) != 0;
+  if ((features & HWF_INTEL_SSSE3) != 0)
+    hd->bctx.bwrite = do_sha1_transform_amd64_ssse3;
 #endif
 #ifdef USE_AVX
   /* AVX implementation uses SHLD which is known to be slow on non-Intel CPUs.
    * Therefore use this implementation on Intel CPUs only. */
-  hd->use_avx = (features & HWF_INTEL_AVX) && (features & HWF_INTEL_FAST_SHLD);
+  if ((features & HWF_INTEL_AVX) && (features & HWF_INTEL_FAST_SHLD))
+    hd->bctx.bwrite = do_sha1_transform_amd64_avx;
 #endif
 #ifdef USE_BMI2
-  hd->use_bmi2 = (features & HWF_INTEL_AVX) && (features & HWF_INTEL_BMI2);
+  if ((features & HWF_INTEL_AVX) && (features & HWF_INTEL_BMI2))
+    hd->bctx.bwrite = do_sha1_transform_amd64_avx_bmi2;
+#endif
+#ifdef USE_AVX2
+  if ((features & HWF_INTEL_AVX2) && (features & HWF_INTEL_AVX) &&
+      (features & HWF_INTEL_BMI2))
+    hd->bctx.bwrite = do_sha1_transform_amd64_avx2_bmi2;
+#endif
+#ifdef USE_SHAEXT
+  if ((features & HWF_INTEL_SHAEXT) && (features & HWF_INTEL_SSE4_1))
+    hd->bctx.bwrite = do_sha1_transform_intel_shaext;
 #endif
 #ifdef USE_NEON
-  hd->use_neon = (features & HWF_ARM_NEON) != 0;
+  if ((features & HWF_ARM_NEON) != 0)
+    hd->bctx.bwrite = do_sha1_transform_armv7_neon;
 #endif
 #ifdef USE_ARM_CE
-  hd->use_arm_ce = (features & HWF_ARM_SHA1) != 0;
+  if ((features & HWF_ARM_SHA1) != 0)
+    hd->bctx.bwrite = do_sha1_transform_armv8_ce;
 #endif
+
   (void)features;
 }
 
@@ -180,30 +348,20 @@ _gcry_sha1_mixblock_init (SHA1_CONTEXT *hd)
 				 b = rol( b, 30 );    \
 			       } while(0)
 
-
-#ifdef USE_NEON
-unsigned int
-_gcry_sha1_transform_armv7_neon (void *state, const unsigned char *data,
-                                 size_t nblks);
-#endif
-
-#ifdef USE_ARM_CE
-unsigned int
-_gcry_sha1_transform_armv8_ce (void *state, const unsigned char *data,
-                               size_t nblks);
-#endif
-
 /*
  * Transform NBLOCKS of each 64 bytes (16 32-bit words) at DATA.
  */
 static unsigned int
-transform_blk (void *ctx, const unsigned char *data)
+do_transform_generic (void *ctx, const unsigned char *data, size_t nblks)
 {
   SHA1_CONTEXT *hd = ctx;
-  const u32 *idata = (const void *)data;
-  register u32 a, b, c, d, e; /* Local copies of the chaining variables.  */
-  register u32 tm;            /* Helper.  */
-  u32 x[16];                  /* The array we work on. */
+
+  do
+    {
+      const u32 *idata = (const void *)data;
+      u32 a, b, c, d, e; /* Local copies of the chaining variables.  */
+      u32 tm;            /* Helper.  */
+      u32 x[16];         /* The array we work on. */
 
 #define I(i) (x[i] = buf_get_be32(idata + i))
 
@@ -303,91 +461,11 @@ transform_blk (void *ctx, const unsigned char *data)
       hd->h3 += d;
       hd->h4 += e;
 
-  return /* burn_stack */ 88+4*sizeof(void*);
-}
-
-
-/* Assembly implementations use SystemV ABI, ABI conversion and additional
- * stack to store XMM6-XMM15 needed on Win64. */
-#undef ASM_FUNC_ABI
-#undef ASM_EXTRA_STACK
-#if defined(USE_SSSE3) || defined(USE_AVX) || defined(USE_BMI2)
-# ifdef HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS
-#  define ASM_FUNC_ABI __attribute__((sysv_abi))
-#  define ASM_EXTRA_STACK (10 * 16)
-# else
-#  define ASM_FUNC_ABI
-#  define ASM_EXTRA_STACK 0
-# endif
-#endif
-
-
-#ifdef USE_SSSE3
-unsigned int
-_gcry_sha1_transform_amd64_ssse3 (void *state, const unsigned char *data,
-                                  size_t nblks) ASM_FUNC_ABI;
-#endif
-
-#ifdef USE_AVX
-unsigned int
-_gcry_sha1_transform_amd64_avx (void *state, const unsigned char *data,
-                                 size_t nblks) ASM_FUNC_ABI;
-#endif
-
-#ifdef USE_BMI2
-unsigned int
-_gcry_sha1_transform_amd64_avx_bmi2 (void *state, const unsigned char *data,
-                                     size_t nblks) ASM_FUNC_ABI;
-#endif
-
-
-static unsigned int
-transform (void *ctx, const unsigned char *data, size_t nblks)
-{
-  SHA1_CONTEXT *hd = ctx;
-  unsigned int burn;
-
-#ifdef USE_BMI2
-  if (hd->use_bmi2)
-    return _gcry_sha1_transform_amd64_avx_bmi2 (&hd->h0, data, nblks)
-           + 4 * sizeof(void*) + ASM_EXTRA_STACK;
-#endif
-#ifdef USE_AVX
-  if (hd->use_avx)
-    return _gcry_sha1_transform_amd64_avx (&hd->h0, data, nblks)
-           + 4 * sizeof(void*) + ASM_EXTRA_STACK;
-#endif
-#ifdef USE_SSSE3
-  if (hd->use_ssse3)
-    return _gcry_sha1_transform_amd64_ssse3 (&hd->h0, data, nblks)
-           + 4 * sizeof(void*) + ASM_EXTRA_STACK;
-#endif
-#ifdef USE_ARM_CE
-  if (hd->use_arm_ce)
-    return _gcry_sha1_transform_armv8_ce (&hd->h0, data, nblks);
-#endif
-#ifdef USE_NEON
-  if (hd->use_neon)
-    return _gcry_sha1_transform_armv7_neon (&hd->h0, data, nblks)
-           + 4 * sizeof(void*);
-#endif
-
-  do
-    {
-      burn = transform_blk (hd, data);
       data += 64;
     }
   while (--nblks);
 
-#ifdef ASM_EXTRA_STACK
-  /* 'transform_blk' is typically inlined and XMM6-XMM15 are stored at
-   *  the prologue of this function. Therefore need to add ASM_EXTRA_STACK to
-   *  here too.
-   */
-  burn += ASM_EXTRA_STACK;
-#endif
-
-  return burn;
+  return 88+4*sizeof(void*);
 }
 
 
@@ -407,7 +485,7 @@ _gcry_sha1_mixblock (SHA1_CONTEXT *hd, void *blockof64byte)
   u32 *p = blockof64byte;
   unsigned int nburn;
 
-  nburn = transform (hd, blockof64byte, 1);
+  nburn = (*hd->bctx.bwrite) (hd, blockof64byte, 1);
   p[0] = hd->h0;
   p[1] = hd->h1;
   p[2] = hd->h2;
@@ -433,8 +511,6 @@ sha1_final(void *context)
   unsigned char *p;
   unsigned int burn;
 
-  _gcry_md_block_write (hd, NULL, 0); /* flush */;
-
   t = hd->bctx.nblocks;
   if (sizeof t == sizeof hd->bctx.nblocks)
     th = hd->bctx.nblocks_high;
@@ -454,25 +530,30 @@ sha1_final(void *context)
   msb <<= 3;
   msb |= t >> 29;
 
-  if( hd->bctx.count < 56 )  /* enough room */
+  if (hd->bctx.count < 56)  /* enough room */
     {
       hd->bctx.buf[hd->bctx.count++] = 0x80; /* pad */
-      while( hd->bctx.count < 56 )
-        hd->bctx.buf[hd->bctx.count++] = 0;  /* pad */
+      if (hd->bctx.count < 56)
+	memset (&hd->bctx.buf[hd->bctx.count], 0, 56 - hd->bctx.count);
+      hd->bctx.count = 56;
+
+      /* append the 64 bit count */
+      buf_put_be32(hd->bctx.buf + 56, msb);
+      buf_put_be32(hd->bctx.buf + 60, lsb);
+      burn = (*hd->bctx.bwrite) ( hd, hd->bctx.buf, 1 );
     }
   else  /* need one extra block */
     {
       hd->bctx.buf[hd->bctx.count++] = 0x80; /* pad character */
-      while( hd->bctx.count < 64 )
-        hd->bctx.buf[hd->bctx.count++] = 0;
-      _gcry_md_block_write(hd, NULL, 0);  /* flush */;
-      memset(hd->bctx.buf, 0, 56 ); /* fill next block with zeroes */
+      /* fill pad and next block with zeroes */
+      memset (&hd->bctx.buf[hd->bctx.count], 0, 64 - hd->bctx.count + 56);
+      hd->bctx.count = 64 + 56;
+
+      /* append the 64 bit count */
+      buf_put_be32(hd->bctx.buf + 64 + 56, msb);
+      buf_put_be32(hd->bctx.buf + 64 + 60, lsb);
+      burn = (*hd->bctx.bwrite) ( hd, hd->bctx.buf, 2 );
     }
-  /* append the 64 bit count */
-  buf_put_be32(hd->bctx.buf + 56, msb);
-  buf_put_be32(hd->bctx.buf + 60, lsb);
-  burn = transform( hd, hd->bctx.buf, 1 );
-  _gcry_burn_stack (burn);
 
   p = hd->bctx.buf;
 #define X(a) do { buf_put_be32(p, hd->h##a); p += 4; } while(0)
@@ -483,6 +564,7 @@ sha1_final(void *context)
   X(4);
 #undef X
 
+  _gcry_burn_stack (burn);
 }
 
 static unsigned char *
@@ -621,6 +703,7 @@ gcry_md_spec_t _gcry_digest_spec_sha1 =
     GCRY_MD_SHA1, {0, 1},
     "SHA1", asn, DIM (asn), oid_spec_sha1, 20,
     sha1_init, _gcry_md_block_write, sha1_final, sha1_read, NULL,
+    _gcry_sha1_hash_buffer, _gcry_sha1_hash_buffers,
     sizeof (SHA1_CONTEXT),
     run_selftests
   };

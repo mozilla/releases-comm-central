@@ -32,6 +32,12 @@
 
 static int verbosity_level = 0;
 
+#ifndef HAVE_EXPLICIT_MEMSET
+/* Prevent compiler from optimizing away the call to memset by accessing
+   memset through volatile pointer. */
+static void *(*volatile memset_ptr)(void *, int, size_t) = (void *)memset;
+#endif
+
 static void (*fatal_error_handler)(void*,int, const char*) = NULL;
 static void *fatal_error_handler_value = 0;
 static void (*log_handler)(void*,int, const char*, va_list) = NULL;
@@ -498,21 +504,63 @@ _gcry_strtokenize (const char *string, const char *delim)
 
 
 void
+_gcry_fast_wipememory (void *ptr, size_t len)
+{
+  /* Note: This function is called from wipememory/wipememory2 only if LEN
+     is large or unknown at compile time. New wipe function alternatives
+     need to be checked before adding to this function. New implementations
+     need to be faster than wipememory/wipememory2 macros in 'g10lib.h'.
+
+     Following implementations were found to have suboptimal performance:
+
+     - [_WIN32/mingw32] SecureZeroMemory; Inline function, equivalent to
+       volatile byte buffer set: while(buflen--) (volatile char *)(buf++)=set;
+   */
+#ifdef HAVE_EXPLICIT_BZERO
+  explicit_bzero (ptr, len);
+#elif defined(HAVE_EXPLICIT_MEMSET)
+  explicit_memset (ptr, 0, len);
+#else
+  memset_ptr (ptr, 0, len);
+#endif
+}
+
+
+void
+_gcry_fast_wipememory2 (void *ptr, int set, size_t len)
+{
+#ifdef HAVE_EXPLICIT_MEMSET
+  explicit_memset (ptr, set, len);
+#else
+#ifdef HAVE_EXPLICIT_BZERO
+  if (set == 0)
+    {
+      explicit_bzero (ptr, len);
+      return;
+    }
+#endif
+
+  memset_ptr (ptr, set, len);
+#endif
+}
+
+
+void NOINLINE_FUNC
 __gcry_burn_stack (unsigned int bytes)
 {
 #ifdef HAVE_VLA
-    /* (bytes == 0 ? 1 : bytes) == (!bytes + bytes) */
-    unsigned int buflen = ((!bytes + bytes) + 63) & ~63;
-    volatile char buf[buflen];
+  /* (bytes == 0 ? 1 : bytes) == (!bytes + bytes) */
+  unsigned int buflen = ((!bytes + bytes) + 63) & ~63;
+  char buf[buflen];
 
-    wipememory (buf, sizeof buf);
+  _gcry_fast_wipememory (buf, buflen);
 #else
-    volatile char buf[64];
+  volatile char buf[64];
 
-    wipememory (buf, sizeof buf);
+  _gcry_fast_wipememory (buf, sizeof buf);
 
-    if (bytes > sizeof buf)
-        _gcry_burn_stack (bytes - sizeof buf);
+  if (bytes > sizeof buf)
+      _gcry_burn_stack (bytes - sizeof buf);
 #endif
 }
 

@@ -24,11 +24,7 @@
     (defined(HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS) || \
      defined(HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS))
 
-#ifdef HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS
-# define ELF(...) __VA_ARGS__
-#else
-# define ELF(...) /*_*/
-#endif
+#include "asm-common-amd64.h"
 
 .text
 
@@ -137,7 +133,9 @@ __blowfish_enc_blk1:
 	 * output:
 	 *	RX0: output plaintext block
 	 */
+	CFI_STARTPROC();
 	movq %rbp, %r11;
+	CFI_REGISTER(%rbp, %r11);
 
 	load_roundkey_enc(0);
 	round_enc(2);
@@ -151,8 +149,10 @@ __blowfish_enc_blk1:
 	add_roundkey_enc();
 
 	movq %r11, %rbp;
+	CFI_RESTORE(%rbp)
 
 	ret;
+	CFI_ENDPROC();
 ELF(.size __blowfish_enc_blk1,.-__blowfish_enc_blk1;)
 
 .align 8
@@ -165,6 +165,9 @@ _gcry_blowfish_amd64_do_encrypt:
 	 *	%rsi: u32 *ret_xl
 	 *	%rdx: u32 *ret_xr
 	 */
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
+
 	movl (%rdx), RX0d;
 	shlq $32, RX0;
 	movl (%rsi), RT3d;
@@ -178,7 +181,9 @@ _gcry_blowfish_amd64_do_encrypt:
 	shrq $32, RX0;
 	movl RX0d, (RX2);
 
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_blowfish_amd64_do_encrypt,.-_gcry_blowfish_amd64_do_encrypt;)
 
 .align 8
@@ -191,6 +196,8 @@ _gcry_blowfish_amd64_encrypt_block:
 	 *	%rsi: dst
 	 *	%rdx: src
 	 */
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
 
 	movq %rsi, %r10;
 
@@ -202,7 +209,9 @@ _gcry_blowfish_amd64_encrypt_block:
 	movq %r10, RIO;
 	write_block();
 
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_blowfish_amd64_encrypt_block,.-_gcry_blowfish_amd64_encrypt_block;)
 
 .align 8
@@ -215,7 +224,11 @@ _gcry_blowfish_amd64_decrypt_block:
 	 *	%rsi: dst
 	 *	%rdx: src
 	 */
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
+
 	movq %rbp, %r11;
+	CFI_REGISTER(%rbp, %r11);
 
 	movq %rsi, %r10;
 	movq %rdx, RIO;
@@ -237,8 +250,11 @@ _gcry_blowfish_amd64_decrypt_block:
 	write_block();
 
 	movq %r11, %rbp;
+	CFI_RESTORE(%rbp);
 
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_blowfish_amd64_decrypt_block,.-_gcry_blowfish_amd64_decrypt_block;)
 
 /**********************************************************************
@@ -336,6 +352,7 @@ __blowfish_enc_blk4:
 	 * output:
 	 *	RX0,RX1,RX2,RX3: four output ciphertext blocks
 	 */
+	CFI_STARTPROC();
 	preload_roundkey_enc(0);
 
 	round_enc4(0);
@@ -351,6 +368,7 @@ __blowfish_enc_blk4:
 	outbswap_block4();
 
 	ret;
+	CFI_ENDPROC();
 ELF(.size __blowfish_enc_blk4,.-__blowfish_enc_blk4;)
 
 .align 8
@@ -363,6 +381,7 @@ __blowfish_dec_blk4:
 	 * output:
 	 *	RX0,RX1,RX2,RX3: four output plaintext blocks
 	 */
+	CFI_STARTPROC();
 	preload_roundkey_dec(17);
 
 	inbswap_block4();
@@ -380,6 +399,7 @@ __blowfish_dec_blk4:
 	outbswap_block4();
 
 	ret;
+	CFI_ENDPROC();
 ELF(.size __blowfish_dec_blk4,.-__blowfish_dec_blk4;)
 
 .align 8
@@ -392,10 +412,17 @@ _gcry_blowfish_amd64_ctr_enc:
 	 *	%rdx: src (4 blocks)
 	 *	%rcx: iv (big endian, 64bit)
 	 */
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
+
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	pushq %rbx;
+	CFI_PUSH(%rbx);
 	pushq %r12;
+	CFI_PUSH(%r12);
 	pushq %r13;
+	CFI_PUSH(%r13);
 
 	/* %r11-%r13 are not used by __blowfish_enc_blk4 */
 	movq %rcx, %r13; /*iv*/
@@ -432,11 +459,17 @@ _gcry_blowfish_amd64_ctr_enc:
 	movq RX3, 3 * 8(%r11);
 
 	popq %r13;
+	CFI_POP(%r13);
 	popq %r12;
+	CFI_POP(%r12);
 	popq %rbx;
+	CFI_POP(%rbx);
 	popq %rbp;
+	CFI_POP(%rbp);
 
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_blowfish_amd64_ctr_enc,.-_gcry_blowfish_amd64_ctr_enc;)
 
 .align 8
@@ -449,10 +482,17 @@ _gcry_blowfish_amd64_cbc_dec:
 	 *	%rdx: src (4 blocks)
 	 *	%rcx: iv (64bit)
 	 */
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
+
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	pushq %rbx;
+	CFI_PUSH(%rbx);
 	pushq %r12;
+	CFI_PUSH(%r12);
 	pushq %r13;
+	CFI_PUSH(%r13);
 
 	/* %r11-%r13 are not used by __blowfish_dec_blk4 */
 	movq %rsi, %r11; /*dst*/
@@ -480,11 +520,17 @@ _gcry_blowfish_amd64_cbc_dec:
 	movq RX3, 3 * 8(%r11);
 
 	popq %r13;
+	CFI_POP(%r13);
 	popq %r12;
+	CFI_POP(%r12);
 	popq %rbx;
+	CFI_POP(%rbx);
 	popq %rbp;
+	CFI_POP(%rbp);
 
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_blowfish_amd64_cbc_dec,.-_gcry_blowfish_amd64_cbc_dec;)
 
 .align 8
@@ -497,10 +543,17 @@ _gcry_blowfish_amd64_cfb_dec:
 	 *	%rdx: src (4 blocks)
 	 *	%rcx: iv (64bit)
 	 */
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
+
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	pushq %rbx;
+	CFI_PUSH(%rbx);
 	pushq %r12;
+	CFI_PUSH(%r12);
 	pushq %r13;
+	CFI_PUSH(%r13);
 
 	/* %r11-%r13 are not used by __blowfish_enc_blk4 */
 	movq %rcx, %r13; /*iv*/
@@ -531,10 +584,17 @@ _gcry_blowfish_amd64_cfb_dec:
 	movq RX3, 3 * 8(%r11);
 
 	popq %r13;
+	CFI_POP(%r13);
 	popq %r12;
+	CFI_POP(%r12);
 	popq %rbx;
+	CFI_POP(%rbx);
 	popq %rbp;
+	CFI_POP(%rbp);
+
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_blowfish_amd64_cfb_dec,.-_gcry_blowfish_amd64_cfb_dec;)
 
 #endif /*defined(USE_BLOWFISH)*/

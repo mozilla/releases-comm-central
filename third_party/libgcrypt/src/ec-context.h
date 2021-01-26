@@ -38,12 +38,13 @@ struct mpi_ec_ctx_s
   gcry_mpi_t b;         /* Second coefficient of the Weierstrass equation.  */
   gcry_mpi_point_t G;   /* Base point (generator).  */
   gcry_mpi_t n;         /* Order of G.  */
-  gcry_mpi_t h;         /* Cofactor.  */
+  unsigned int h;       /* Cofactor.  */
 
   /* The actual key.  May not be set.  */
   gcry_mpi_point_t Q;   /* Public key.   */
   gcry_mpi_t d;         /* Private key.  */
 
+  const char *name;      /* Name of the curve.  */
 
   /* This structure is private to mpi/ec.c! */
   struct {
@@ -66,6 +67,13 @@ struct mpi_ec_ctx_s
     /*   gcry_mpi_t s[10]; */
     /*   gcry_mpi_t c; */
   } t;
+
+  /* Curve specific computation routines for the field.  */
+  void (* addm) (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx);
+  void (* subm) (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ec);
+  void (* mulm) (gcry_mpi_t w, gcry_mpi_t u, gcry_mpi_t v, mpi_ec_t ctx);
+  void (* pow2) (gcry_mpi_t w, const gcry_mpi_t b, mpi_ec_t ctx);
+  void (* mul2) (gcry_mpi_t w, gcry_mpi_t u, mpi_ec_t ctx);
 };
 
 
@@ -82,7 +90,8 @@ gpg_err_code_t   _gcry_ecc_set_point (const char *name,
                                       gcry_mpi_point_t newvalue, mpi_ec_t ec);
 
 /*-- cipher/ecc-misc.c --*/
-gcry_err_code_t _gcry_ecc_os2ec (mpi_point_t result, gcry_mpi_t value);
+gpg_err_code_t _gcry_ecc_sec_decodepoint (gcry_mpi_t value, mpi_ec_t ec,
+                                          mpi_point_t result);
 gpg_err_code_t _gcry_ecc_mont_decodepoint (gcry_mpi_t pk, mpi_ec_t ctx,
                                            mpi_point_t result);
 

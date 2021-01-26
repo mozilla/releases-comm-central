@@ -31,78 +31,118 @@
 
 
 
+static inline unsigned int
+cbc_encrypt_inner(gcry_cipher_hd_t c, unsigned char *outbuf,
+                  const unsigned char *inbuf, size_t nblocks, size_t blocksize,
+                  int is_cbc_cmac)
+{
+
+  unsigned int burn, nburn;
+  size_t n;
+
+  burn = 0;
+
+  if (c->bulk.cbc_enc)
+    {
+      c->bulk.cbc_enc (&c->context.c, c->u_iv.iv, outbuf, inbuf, nblocks,
+                       is_cbc_cmac);
+    }
+  else
+    {
+      gcry_cipher_encrypt_t enc_fn = c->spec->encrypt;
+      unsigned char *ivp;
+
+      ivp = c->u_iv.iv;
+
+      for (n=0; n < nblocks; n++ )
+        {
+          cipher_block_xor (outbuf, inbuf, ivp, blocksize);
+          nburn = enc_fn ( &c->context.c, outbuf, outbuf );
+          burn = nburn > burn ? nburn : burn;
+          ivp = outbuf;
+          inbuf += blocksize;
+          if (!is_cbc_cmac)
+            outbuf += blocksize;
+        }
+
+      if (ivp != c->u_iv.iv)
+        cipher_block_cpy (c->u_iv.iv, ivp, blocksize);
+    }
+
+  return burn;
+}
+
+
 gcry_err_code_t
 _gcry_cipher_cbc_encrypt (gcry_cipher_hd_t c,
                           unsigned char *outbuf, size_t outbuflen,
                           const unsigned char *inbuf, size_t inbuflen)
 {
-  size_t n;
-  unsigned char *ivp;
-  int i;
-  size_t blocksize = c->spec->blocksize;
-  gcry_cipher_encrypt_t enc_fn = c->spec->encrypt;
-  size_t nblocks = inbuflen / blocksize;
-  unsigned int burn, nburn;
+  size_t blocksize_shift = _gcry_blocksize_shift(c);
+  size_t blocksize = 1 << blocksize_shift;
+  size_t blocksize_mask = blocksize - 1;
+  size_t nblocks = inbuflen >> blocksize_shift;
+  int is_cbc_cmac = !!(c->flags & GCRY_CIPHER_CBC_MAC);
+  unsigned int burn;
 
-  /* Tell compiler that we require a cipher with a 64bit or 128 bit block
-   * length, to allow better optimization of this function.  */
-  if (blocksize > 16 || blocksize < 8 || blocksize & (8 - 1))
-    return GPG_ERR_INV_LENGTH;
-
-  if (outbuflen < ((c->flags & GCRY_CIPHER_CBC_MAC)? blocksize : inbuflen))
+  if (outbuflen < (is_cbc_cmac ? blocksize : inbuflen))
     return GPG_ERR_BUFFER_TOO_SHORT;
 
-  if ((inbuflen % blocksize)
-      && !(inbuflen > blocksize
-           && (c->flags & GCRY_CIPHER_CBC_CTS)))
+  if (inbuflen & blocksize_mask)
+    return GPG_ERR_INV_LENGTH;
+
+  burn = cbc_encrypt_inner(c, outbuf, inbuf, nblocks, blocksize, is_cbc_cmac);
+
+  if (burn > 0)
+    _gcry_burn_stack (burn + 4 * sizeof(void *));
+
+  return 0;
+}
+
+
+gcry_err_code_t
+_gcry_cipher_cbc_cts_encrypt (gcry_cipher_hd_t c,
+                              unsigned char *outbuf, size_t outbuflen,
+                              const unsigned char *inbuf, size_t inbuflen)
+{
+  size_t blocksize_shift = _gcry_blocksize_shift(c);
+  size_t blocksize = 1 << blocksize_shift;
+  size_t blocksize_mask = blocksize - 1;
+  gcry_cipher_encrypt_t enc_fn = c->spec->encrypt;
+  size_t nblocks = inbuflen >> blocksize_shift;
+  unsigned int burn, nburn;
+  unsigned char *ivp;
+  int i;
+
+  if (outbuflen < inbuflen)
+    return GPG_ERR_BUFFER_TOO_SHORT;
+
+  if ((inbuflen & blocksize_mask) && !(inbuflen > blocksize))
     return GPG_ERR_INV_LENGTH;
 
   burn = 0;
 
-  if ((c->flags & GCRY_CIPHER_CBC_CTS) && inbuflen > blocksize)
+  if (inbuflen > blocksize)
     {
-      if ((inbuflen % blocksize) == 0)
+      if ((inbuflen & blocksize_mask) == 0)
 	nblocks--;
     }
 
-  if (c->bulk.cbc_enc)
-    {
-      c->bulk.cbc_enc (&c->context.c, c->u_iv.iv, outbuf, inbuf, nblocks,
-                       (c->flags & GCRY_CIPHER_CBC_MAC));
-      inbuf  += nblocks * blocksize;
-      if (!(c->flags & GCRY_CIPHER_CBC_MAC))
-        outbuf += nblocks * blocksize;
-    }
-  else
-    {
-      ivp = c->u_iv.iv;
+  burn = cbc_encrypt_inner(c, outbuf, inbuf, nblocks, blocksize, 0);
+  inbuf += nblocks << blocksize_shift;
+  outbuf += nblocks << blocksize_shift;
 
-      for (n=0; n < nblocks; n++ )
-        {
-          buf_xor (outbuf, inbuf, ivp, blocksize);
-          nburn = enc_fn ( &c->context.c, outbuf, outbuf );
-          burn = nburn > burn ? nburn : burn;
-          ivp = outbuf;
-          inbuf  += blocksize;
-          if (!(c->flags & GCRY_CIPHER_CBC_MAC))
-            outbuf += blocksize;
-        }
-
-      if (ivp != c->u_iv.iv)
-        buf_cpy (c->u_iv.iv, ivp, blocksize );
-    }
-
-  if ((c->flags & GCRY_CIPHER_CBC_CTS) && inbuflen > blocksize)
+  if (inbuflen > blocksize)
     {
       /* We have to be careful here, since outbuf might be equal to
          inbuf.  */
       size_t restbytes;
       unsigned char b;
 
-      if ((inbuflen % blocksize) == 0)
+      if ((inbuflen & blocksize_mask) == 0)
         restbytes = blocksize;
       else
-        restbytes = inbuflen % blocksize;
+        restbytes = inbuflen & blocksize_mask;
 
       outbuf -= blocksize;
       for (ivp = c->u_iv.iv, i = 0; i < restbytes; i++)
@@ -116,7 +156,7 @@ _gcry_cipher_cbc_encrypt (gcry_cipher_hd_t c,
 
       nburn = enc_fn (&c->context.c, outbuf, outbuf);
       burn = nburn > burn ? nburn : burn;
-      buf_cpy (c->u_iv.iv, outbuf, blocksize);
+      cipher_block_cpy (c->u_iv.iv, outbuf, blocksize);
     }
 
   if (burn > 0)
@@ -126,72 +166,110 @@ _gcry_cipher_cbc_encrypt (gcry_cipher_hd_t c,
 }
 
 
-gcry_err_code_t
-_gcry_cipher_cbc_decrypt (gcry_cipher_hd_t c,
-                          unsigned char *outbuf, size_t outbuflen,
-                          const unsigned char *inbuf, size_t inbuflen)
+static inline unsigned int
+cbc_decrypt_inner(gcry_cipher_hd_t c, unsigned char *outbuf,
+                  const unsigned char *inbuf, size_t nblocks, size_t blocksize)
 {
-  size_t n;
-  int i;
-  size_t blocksize = c->spec->blocksize;
-  gcry_cipher_decrypt_t dec_fn = c->spec->decrypt;
-  size_t nblocks = inbuflen / blocksize;
   unsigned int burn, nburn;
-
-  /* Tell compiler that we require a cipher with a 64bit or 128 bit block
-   * length, to allow better optimization of this function.  */
-  if (blocksize > 16 || blocksize < 8 || blocksize & (8 - 1))
-    return GPG_ERR_INV_LENGTH;
-
-  if (outbuflen < inbuflen)
-    return GPG_ERR_BUFFER_TOO_SHORT;
-
-  if ((inbuflen % blocksize)
-      && !(inbuflen > blocksize
-           && (c->flags & GCRY_CIPHER_CBC_CTS)))
-    return GPG_ERR_INV_LENGTH;
+  size_t n;
 
   burn = 0;
-
-  if ((c->flags & GCRY_CIPHER_CBC_CTS) && inbuflen > blocksize)
-    {
-      nblocks--;
-      if ((inbuflen % blocksize) == 0)
-	nblocks--;
-      buf_cpy (c->lastiv, c->u_iv.iv, blocksize);
-    }
 
   if (c->bulk.cbc_dec)
     {
       c->bulk.cbc_dec (&c->context.c, c->u_iv.iv, outbuf, inbuf, nblocks);
-      inbuf  += nblocks * blocksize;
-      outbuf += nblocks * blocksize;
     }
   else
     {
-      for (n=0; n < nblocks; n++ )
+      gcry_cipher_decrypt_t dec_fn = c->spec->decrypt;
+
+      for (n = 0; n < nblocks; n++)
         {
           /* Because outbuf and inbuf might be the same, we must not overwrite
              the original ciphertext block.  We use LASTIV as intermediate
              storage here because it is not used otherwise.  */
           nburn = dec_fn ( &c->context.c, c->lastiv, inbuf );
           burn = nburn > burn ? nburn : burn;
-          buf_xor_n_copy_2(outbuf, c->lastiv, c->u_iv.iv, inbuf, blocksize);
+          cipher_block_xor_n_copy_2 (outbuf, c->lastiv, c->u_iv.iv, inbuf,
+                                     blocksize);
           inbuf  += blocksize;
           outbuf += blocksize;
         }
     }
 
-  if ((c->flags & GCRY_CIPHER_CBC_CTS) && inbuflen > blocksize)
+  return burn;
+}
+
+
+gcry_err_code_t
+_gcry_cipher_cbc_decrypt (gcry_cipher_hd_t c,
+                          unsigned char *outbuf, size_t outbuflen,
+                          const unsigned char *inbuf, size_t inbuflen)
+{
+  size_t blocksize_shift = _gcry_blocksize_shift(c);
+  size_t blocksize = 1 << blocksize_shift;
+  size_t blocksize_mask = blocksize - 1;
+  size_t nblocks = inbuflen >> blocksize_shift;
+  unsigned int burn;
+
+  if (outbuflen < inbuflen)
+    return GPG_ERR_BUFFER_TOO_SHORT;
+
+  if (inbuflen & blocksize_mask)
+    return GPG_ERR_INV_LENGTH;
+
+  burn = cbc_decrypt_inner(c, outbuf, inbuf, nblocks, blocksize);
+
+  if (burn > 0)
+    _gcry_burn_stack (burn + 4 * sizeof(void *));
+
+  return 0;
+}
+
+
+gcry_err_code_t
+_gcry_cipher_cbc_cts_decrypt (gcry_cipher_hd_t c,
+                              unsigned char *outbuf, size_t outbuflen,
+                              const unsigned char *inbuf, size_t inbuflen)
+{
+  size_t blocksize_shift = _gcry_blocksize_shift(c);
+  size_t blocksize = 1 << blocksize_shift;
+  size_t blocksize_mask = blocksize - 1;
+  gcry_cipher_decrypt_t dec_fn = c->spec->decrypt;
+  size_t nblocks = inbuflen >> blocksize_shift;
+  unsigned int burn, nburn;
+  int i;
+
+  if (outbuflen < inbuflen)
+    return GPG_ERR_BUFFER_TOO_SHORT;
+
+  if ((inbuflen & blocksize_mask) && !(inbuflen > blocksize))
+    return GPG_ERR_INV_LENGTH;
+
+  burn = 0;
+
+  if (inbuflen > blocksize)
+    {
+      nblocks--;
+      if ((inbuflen & blocksize_mask) == 0)
+	nblocks--;
+      cipher_block_cpy (c->lastiv, c->u_iv.iv, blocksize);
+    }
+
+  burn = cbc_decrypt_inner(c, outbuf, inbuf, nblocks, blocksize);
+  inbuf  += nblocks << blocksize_shift;
+  outbuf += nblocks << blocksize_shift;
+
+  if (inbuflen > blocksize)
     {
       size_t restbytes;
 
-      if ((inbuflen % blocksize) == 0)
+      if ((inbuflen & blocksize_mask) == 0)
         restbytes = blocksize;
       else
-        restbytes = inbuflen % blocksize;
+        restbytes = inbuflen & blocksize_mask;
 
-      buf_cpy (c->lastiv, c->u_iv.iv, blocksize );         /* Save Cn-2. */
+      cipher_block_cpy (c->lastiv, c->u_iv.iv, blocksize ); /* Save Cn-2. */
       buf_cpy (c->u_iv.iv, inbuf + blocksize, restbytes ); /* Save Cn. */
 
       nburn = dec_fn ( &c->context.c, outbuf, inbuf );
@@ -203,7 +281,7 @@ _gcry_cipher_cbc_decrypt (gcry_cipher_hd_t c,
         c->u_iv.iv[i] = outbuf[i];
       nburn = dec_fn (&c->context.c, outbuf, c->u_iv.iv);
       burn = nburn > burn ? nburn : burn;
-      buf_xor(outbuf, outbuf, c->lastiv, blocksize);
+      cipher_block_xor(outbuf, outbuf, c->lastiv, blocksize);
       /* c->lastiv is now really lastlastiv, does this matter? */
     }
 

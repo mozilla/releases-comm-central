@@ -1,7 +1,8 @@
 This is gcrypt.info, produced by makeinfo version 6.5 from gcrypt.texi.
 
-This manual is for Libgcrypt (version 1.8.7, 30 July 2020), which is
-GNU's library of cryptographic building blocks.
+This manual is for Libgcrypt version 1.9.0 and was last updated 18
+January 2021.  Libgcrypt is GNU's library of cryptographic building
+blocks.
 
 Copyright (C) 2000, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2011, 2012
 Free Software Foundation, Inc.
@@ -24,8 +25,9 @@ File: gcrypt.info,  Node: Top,  Next: Introduction,  Up: (dir)
 The Libgcrypt Library
 *********************
 
-This manual is for Libgcrypt (version 1.8.7, 30 July 2020), which is
-GNU's library of cryptographic building blocks.
+This manual is for Libgcrypt version 1.9.0 and was last updated 18
+January 2021.  Libgcrypt is GNU's library of cryptographic building
+blocks.
 
 Copyright (C) 2000, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2011, 2012
 Free Software Foundation, Inc.
@@ -485,13 +487,20 @@ are
 'intel-fast-shld'
 'intel-bmi2'
 'intel-ssse3'
+'intel-sse4.1'
 'intel-pclmul'
 'intel-aesni'
 'intel-rdrand'
 'intel-avx'
 'intel-avx2'
+'intel-fast-vpgather'
 'intel-rdtsc'
+'intel-shaext'
 'arm-neon'
+'arm-aes'
+'arm-sha1'
+'arm-sha2'
+'arm-pmull'
 
    To disable a feature for all processes using Libgcrypt 1.6 or newer,
 create the file '/etc/gcrypt/hwf.deny' and put each feature not to be
@@ -617,6 +626,18 @@ File: gcrypt.info,  Node: Controlling the library,  Next: Error Handling,  Up: G
           currently 16384 bytes; you may thus use a value of 1 to
           request that default size.
 
+     'GCRYCTL_AUTO_EXPAND_SECMEM; Arguments: unsigned int chunksize'
+          This command enables on-the-fly expanding of the secure memory
+          area.  Note that by using functions like 'gcry_xmalloc_secure'
+          and 'gcry_mpi_snew' will do this auto expanding anyway.  The
+          argument to this option is the suggested size for new secure
+          memory areas.  A larger size improves performance of all
+          memory allocation and releasing functions.  The given
+          chunksize is rounded up to the next 32KiB. The drawback of
+          auto expanding is that memory might be swapped out to disk;
+          this can be fixed by configuring the system to use an
+          encrypted swap space.
+
      'GCRYCTL_TERM_SECMEM; Arguments: none'
           This command zeroises the secure memory and destroys the
           handler.  The secure memory pool may not be used anymore after
@@ -703,11 +724,11 @@ File: gcrypt.info,  Node: Controlling the library,  Next: Error Handling,  Up: G
 
      'GCRYCTL_SET_DEBUG_FLAGS; Arguments: unsigned int flags'
           Set the debug flag bits as given by the argument.  Be aware
-          that that no memory synchronization is done so the effect of
-          this command might not immediately show up in other threads.
-          The debug flags are not considered part of the API and thus
-          may change without notice.  As of now bit 0 enables debugging
-          of cipher functions and bit 1 debugging of
+          that no memory synchronization is done so the effect of this
+          command might not immediately show up in other threads.  The
+          debug flags are not considered part of the API and thus may
+          change without notice.  As of now bit 0 enables debugging of
+          cipher functions and bit 1 debugging of
           multi-precision-integers.  This command may even be used prior
           to 'gcry_check_version'.
 
@@ -865,9 +886,9 @@ File: gcrypt.info,  Node: Controlling the library,  Next: Error Handling,  Up: G
           has not been registered with Libgpg-error and in turn
           Libgcrypt would not use them.  The control code can be used to
           tell Libgcrypt that a system call clamp has now been
-          registered with Libgpg-error and advised it to read the clamp
-          again.  Obviously this control code may only be used before a
-          second thread is started in a process.
+          registered with Libgpg-error and advise Libgcrypt to read the
+          clamp again.  Obviously this control code may only be used
+          before a second thread is started in a process.
 
 
 File: gcrypt.info,  Node: Error Handling,  Prev: Controlling the library,  Up: Generalities
@@ -1429,15 +1450,15 @@ File: gcrypt.info,  Node: Available ciphers,  Next: Available cipher modes,  Up:
 
 'GCRY_CIPHER_3DES'
      Triple-DES with 3 Keys as EDE. The key size of this algorithm is
-     168 but you have to pass 192 bits because the most significant bits
-     of each byte are ignored.
+     168 bits but you have to pass 192 bits because the most significant
+     bits of each byte are ignored.
 
 'GCRY_CIPHER_CAST5'
      CAST128-5 block cipher algorithm.  The key size is 128 bits.
 
 'GCRY_CIPHER_BLOWFISH'
-     The blowfish algorithm.  The current implementation allows only for
-     a key size of 128 bits.
+     The blowfish algorithm.  The supported key sizes are 8 to 576 bits
+     in 8 bit increments.
 
 'GCRY_CIPHER_SAFER_SK128'
      Reserved and not currently implemented.
@@ -1505,8 +1526,18 @@ File: gcrypt.info,  Node: Available ciphers,  Next: Available cipher modes,  Up:
      The GOST 28147-89 cipher, defined in the respective GOST standard.
      Translation of this GOST into English is provided in the RFC-5830.
 
+'GCRY_CIPHER_GOST28147_MESH'
+     The GOST 28147-89 cipher, defined in the respective GOST standard.
+     Translation of this GOST into English is provided in the RFC-5830.
+     This cipher will use CryptoPro keymeshing as defined in RFC 4357 if
+     it has to be used for the selected parameter set.
+
 'GCRY_CIPHER_CHACHA20'
      This is the ChaCha20 stream cipher.
+
+'GCRY_CIPHER_SM4'
+     A 128 bit cipher by the State Cryptography Administration of China
+     (SCA). See <https://tools.ietf.org/html/draft-ribose-cfrg-sm4-10>.
 
 
 File: gcrypt.info,  Node: Available cipher modes,  Next: Working with cipher handles,  Prev: Available ciphers,  Up: Symmetric cryptography
@@ -1567,7 +1598,7 @@ File: gcrypt.info,  Node: Available cipher modes,  Next: Working with cipher han
 
 'GCRY_CIPHER_MODE_POLY1305'
      This mode implements the Poly1305 Authenticated Encryption with
-     Associated Data (AEAD) mode according to RFC-7539.  This mode can
+     Associated Data (AEAD) mode according to RFC-8439.  This mode can
      be used with ChaCha20 stream cipher.
 
 'GCRY_CIPHER_MODE_OCB'
@@ -1595,6 +1626,11 @@ File: gcrypt.info,  Node: Available cipher modes,  Next: Working with cipher han
      automatically incremented after each call of 'gcry_cipher_encrypt'
      and 'gcry_cipher_decrypt'.  Auto-increment allows avoiding need of
      setting IV between processing of sequential data units.
+
+'GCRY_CIPHER_MODE_EAX'
+     EAX is an Authenticated Encryption with Associated Data (AEAD)
+     block cipher mode by Bellare, Rogaway, and Wagner (see
+     <http://web.cs.ucdavis.edu/~rogaway/papers/eax.html>).
 
 
 File: gcrypt.info,  Node: Working with cipher handles,  Next: General cipher functions,  Prev: Available cipher modes,  Up: Symmetric cryptography
@@ -1628,12 +1664,12 @@ This is to be done using the open function:
      Poly1305 AEAD mode ('GCRY_CIPHER_MODE_POLY1305') only works with
      ChaCha20 stream cipher.  The block cipher modes
      ('GCRY_CIPHER_MODE_ECB', 'GCRY_CIPHER_MODE_CBC',
-     'GCRY_CIPHER_MODE_CFB', 'GCRY_CIPHER_MODE_OFB' and
-     'GCRY_CIPHER_MODE_CTR') will work with any block cipher algorithm.
-     GCM mode ('GCRY_CIPHER_MODE_CCM'), CCM mode
-     ('GCRY_CIPHER_MODE_GCM'), OCB mode ('GCRY_CIPHER_MODE_OCB'), and
-     XTS mode ('GCRY_CIPHER_MODE_XTS') will only work with block cipher
-     algorithms which have the block size of 16 bytes.
+     'GCRY_CIPHER_MODE_CFB', 'GCRY_CIPHER_MODE_OFB',
+     'GCRY_CIPHER_MODE_CTR' and 'GCRY_CIPHER_MODE_EAX') will work with
+     any block cipher algorithm.  GCM mode ('GCRY_CIPHER_MODE_CCM'), CCM
+     mode ('GCRY_CIPHER_MODE_GCM'), OCB mode ('GCRY_CIPHER_MODE_OCB'),
+     and XTS mode ('GCRY_CIPHER_MODE_XTS') will only work with block
+     cipher algorithms which have the block size of 16 bytes.
 
      The third argument FLAGS can either be passed as '0' or as the
      bit-wise OR of the following constants.
@@ -1937,6 +1973,7 @@ cryptography, this chapter explains the one based on S-expressions.
 * Available algorithms::        Algorithms supported by the library.
 * Used S-expressions::          Introduction into the used S-expression.
 * Cryptographic Functions::     Functions for performing the cryptographic actions.
+* Dedicated ECC Functions::     Dedicated functions for elliptic curves.
 * General public-key related Functions::  General functions, not implementing any cryptography.
 
 
@@ -1946,8 +1983,7 @@ File: gcrypt.info,  Node: Available algorithms,  Next: Used S-expressions,  Up: 
 ========================
 
 Libgcrypt supports the RSA (Rivest-Shamir-Adleman) algorithms as well as
-DSA (Digital Signature Algorithm) and Elgamal.  The versatile interface
-allows to add more algorithms in the future.
+DSA (Digital Signature Algorithm), Elgamal, ECDSA, ECDH, and EdDSA.
 
 
 File: gcrypt.info,  Node: Used S-expressions,  Next: Cryptographic Functions,  Prev: Available algorithms,  Up: Public Key cryptography
@@ -1958,7 +1994,7 @@ File: gcrypt.info,  Node: Used S-expressions,  Next: Cryptographic Functions,  P
 Libgcrypt's API for asymmetric cryptography is based on data structures
 called S-expressions (see
 <http://people.csail.mit.edu/rivest/sexp.html>) and does not work with
-contexts as most of the other building blocks of Libgcrypt do.
+contexts/handles as most of the other building blocks of Libgcrypt do.
 
 The following information are stored in S-expressions:
 
@@ -2122,35 +2158,92 @@ parameter may be given in any case and is used to replace missing
 parameters.
 
 Currently implemented curves are:
+
+'Curve25519'
+'X25519'
+'1.3.6.1.4.1.3029.1.5.1'
+'1.3.101.110'
+     The RFC-8410 255 bit curve, its RFC name, OpenPGP and RFC OIDs.
+
+'X448'
+'1.3.101.111'
+     The RFC-8410 448 bit curve and its RFC OID.
+
+'Ed25519'
+'1.3.6.1.4.1.11591.15.1'
+'1.3.101.112'
+     The signing variant of the RFC-8410 255 bit curve, its OpenPGP and
+     RFC OIDs.
+
+'Ed448'
+'1.3.101.113'
+     The signing variant of the RFC-8410 448 bit curve and its RFC OID.
+
 'NIST P-192'
 '1.2.840.10045.3.1.1'
+'nistp192'
 'prime192v1'
 'secp192r1'
-     The NIST 192 bit curve, its OID, X9.62 and SECP aliases.
+     The NIST 192 bit curve, its OID and aliases.
 
 'NIST P-224'
+'1.3.132.0.33'
+'nistp224'
 'secp224r1'
-     The NIST 224 bit curve and its SECP alias.
+     The NIST 224 bit curve, its OID and aliases.
 
 'NIST P-256'
 '1.2.840.10045.3.1.7'
+'nistp256'
 'prime256v1'
 'secp256r1'
-     The NIST 256 bit curve, its OID, X9.62 and SECP aliases.
+     The NIST 256 bit curve, its OID and aliases.
 
 'NIST P-384'
+'1.3.132.0.34'
+'nistp384'
 'secp384r1'
-     The NIST 384 bit curve and its SECP alias.
+     The NIST 384 bit curve, its OID and aliases.
 
 'NIST P-521'
+'1.3.132.0.35'
+'nistp521'
 'secp521r1'
-     The NIST 521 bit curve and its SECP alias.
+     The NIST 521 bit curve, its OID and aliases.
+
+'brainpoolP160r1'
+'1.3.36.3.3.2.8.1.1.1'
+     The Brainpool 160 bit curve and its OID.
+
+'brainpoolP192r1'
+'1.3.36.3.3.2.8.1.1.3'
+     The Brainpool 192 bit curve and its OID.
+
+'brainpoolP224r1'
+'1.3.36.3.3.2.8.1.1.5'
+     The Brainpool 224 bit curve and its OID.
+
+'brainpoolP256r1'
+'1.3.36.3.3.2.8.1.1.7'
+     The Brainpool 256 bit curve and its OID.
+
+'brainpoolP320r1'
+'1.3.36.3.3.2.8.1.1.9'
+     The Brainpool 320 bit curve and its OID.
+
+'brainpoolP384r1'
+'1.3.36.3.3.2.8.1.1.11'
+     The Brainpool 384 bit curve and its OID.
+
+'brainpoolP512r1'
+'1.3.36.3.3.2.8.1.1.13'
+     The Brainpool 512 bit curve and its OID.
 
    As usual the OIDs may optionally be prefixed with the string 'OID.'
 or 'oid.'.
 
 
-File: gcrypt.info,  Node: Cryptographic Functions,  Next: General public-key related Functions,  Prev: Used S-expressions,  Up: Public Key cryptography
+File: gcrypt.info,  Node: Cryptographic Functions,  Next: Dedicated ECC Functions,  Prev: Used S-expressions,  Up: Public Key cryptography
 
 6.3 Cryptographic Functions
 ===========================
@@ -2406,11 +2499,10 @@ similar to the encryption functions:
 
      Where R-MPI and S-MPI are the result of the DSA sign operation.
 
-     For Elgamal signing (which is slow, yields large numbers, hard to
-     use correctly and probably is not as secure as the other
-     algorithms), the same format is used with "elg" replacing "dsa";
-     for ECDSA signing, the same format is used with "ecdsa" replacing
-     "dsa".
+     For Elgamal signing (which is slow, yields large numbers and
+     probably is not as secure as the other algorithms), the same format
+     is used with "elg" replacing "dsa"; for ECDSA signing, the same
+     format is used with "ecdsa" replacing "dsa".
 
      For the EdDSA algorithm (cf.  Ed25515) the required input
      parameters are:
@@ -2421,9 +2513,12 @@ similar to the encryption functions:
             (value MESSAGE))
 
      Note that the MESSAGE may be of any length; hashing is part of the
-     algorithm.  Using a large data block for MESSAGE is not suggested;
-     in that case the used protocol should better require that a hash of
-     the message is used as input to the EdDSA algorithm.
+     algorithm.  Using a large data block for MESSAGE is in general not
+     suggested; in that case the used protocol should better require
+     that a hash of the message is used as input to the EdDSA algorithm.
+     Note that for X.509 certificates MESSAGE is the 'tbsCertificate'
+     part and in CMS MESSAGE is the 'signedAttrs' part; see RFC-8410 and
+     RFC-8419.
 
 The operation most commonly used is definitely the verification of a
 signature.  Libgcrypt provides this function:
@@ -2444,9 +2539,37 @@ signature.  Libgcrypt provides this function:
      match the provided data.
 
 
-File: gcrypt.info,  Node: General public-key related Functions,  Prev: Cryptographic Functions,  Up: Public Key cryptography
+File: gcrypt.info,  Node: Dedicated ECC Functions,  Next: General public-key related Functions,  Prev: Cryptographic Functions,  Up: Public Key cryptography
 
-6.4 General public-key related Functions
+6.4 Dedicated functions for elliptic curves.
+============================================
+
+The S-expression based interface is for certain operations on elliptic
+curves not optimal.  Thus a few special functions are implemented to
+support common operations on curves with one of these assigned curve
+ids:
+
+'GCRY_ECC_CURVE25519'
+'GCRY_ECC_CURVE448'
+
+ -- Function: unsigned int gcry_ecc_get_algo_keylen (int CURVEID);
+
+     Returns the length in bytes of a point on the curve with the id
+     CURVEID.  0 is returned for curves which have no assigned id.
+
+ -- Function: gpg_error_t gcry_ecc_mul_point (int CURVEID,
+          unsigned char *RESULT, const unsigned char *SCALAR,
+          const unsigned char *POINT)
+
+     This function computes the scalar multiplication on the Montgomery
+     form of the curve with id CURVEID.  If POINT is NULL the base point
+     of the curve is used.  The caller needs to provide a large enough
+     buffer for RESULT and a valid SCALAR and POINT.
+
+
+File: gcrypt.info,  Node: General public-key related Functions,  Prev: Dedicated ECC Functions,  Up: Public Key cryptography
+
+6.5 General public-key related Functions
 ========================================
 
 A couple of utility functions are available to retrieve the length of
@@ -2535,7 +2658,7 @@ the key, map algorithm identifiers and perform sanity checks:
           algorithm ALGO consists of.  Return 0 for an unknown algorithm
           or for an algorithm not capable of creating signatures.
 
-     'GCRYCTL_GET_ALGO_NENC'
+     'GCRYCTL_GET_ALGO_NENCR'
           Return the number of elements a encrypted message created with
           the algorithm ALGO consists of.  Return 0 for an unknown
           algorithm or for an algorithm not capable of encryption.
@@ -2869,8 +2992,16 @@ File: gcrypt.info,  Node: Available hash algorithms,  Next: Working with hash al
      bytes.  See FIPS 180-2 for the specification.
 
 'GCRY_MD_SHA512'
-     This is the SHA-384 algorithm which yields a message digest of 64
+     This is the SHA-512 algorithm which yields a message digest of 64
      bytes.  See FIPS 180-2 for the specification.
+
+'GCRY_MD_SHA512_224'
+     This is the SHA-512/224 algorithm which yields a message digest of
+     28 bytes.  See FIPS 180-4 for the specification.
+
+'GCRY_MD_SHA512_256'
+     This is the SHA-512/256 algorithm which yields a message digest of
+     32 bytes.  See FIPS 180-4 for the specification.
 
 'GCRY_MD_SHA3_224'
      This is the SHA3-224 algorithm which yields a message digest of 28
@@ -2960,6 +3091,10 @@ File: gcrypt.info,  Node: Available hash algorithms,  Next: Working with hash al
 'GCRY_MD_BLAKE2S_128'
      This is the BLAKE2s-128 algorithm which yields a message digest of
      16 bytes.  See RFC 7693 for the specification.
+
+'GCRY_MD_SM3'
+     This is the SM3 algorithm which yields a message digest of 32
+     bytes.
 
 
 File: gcrypt.info,  Node: Working with hash algorithms,  Prev: Available hash algorithms,  Up: Hashing
@@ -3329,6 +3464,14 @@ File: gcrypt.info,  Node: Available MAC algorithms,  Next: Working with MAC algo
      This is HMAC message authentication algorithm based on the SHA3-384
      hash algorithm.
 
+'GCRY_MAC_HMAC_SHA512_224'
+     This is HMAC message authentication algorithm based on the
+     SHA-512/224 hash algorithm.
+
+'GCRY_MAC_HMAC_SHA512_256'
+     This is HMAC message authentication algorithm based on the
+     SHA-512/256 hash algorithm.
+
 'GCRY_MAC_HMAC_SHA1'
      This is HMAC message authentication algorithm based on the SHA-1
      hash algorithm.
@@ -3360,6 +3503,42 @@ File: gcrypt.info,  Node: Available MAC algorithms,  Next: Working with MAC algo
 'GCRY_MAC_HMAC_STRIBOG512'
      This is HMAC message authentication algorithm based on the 512-bit
      hash algorithm described in GOST R 34.11-2012.
+
+'GCRY_MAC_HMAC_BLAKE2B_512'
+     This is HMAC message authentication algorithm based on the
+     BLAKE2b-512 hash algorithm.
+
+'GCRY_MAC_HMAC_BLAKE2B_384'
+     This is HMAC message authentication algorithm based on the
+     BLAKE2b-384 hash algorithm.
+
+'GCRY_MAC_HMAC_BLAKE2B_256'
+     This is HMAC message authentication algorithm based on the
+     BLAKE2b-256 hash algorithm.
+
+'GCRY_MAC_HMAC_BLAKE2B_160'
+     This is HMAC message authentication algorithm based on the
+     BLAKE2b-160 hash algorithm.
+
+'GCRY_MAC_HMAC_BLAKE2S_256'
+     This is HMAC message authentication algorithm based on the
+     BLAKE2s-256 hash algorithm.
+
+'GCRY_MAC_HMAC_BLAKE2S_224'
+     This is HMAC message authentication algorithm based on the
+     BLAKE2s-224 hash algorithm.
+
+'GCRY_MAC_HMAC_BLAKE2S_160'
+     This is HMAC message authentication algorithm based on the
+     BLAKE2s-160 hash algorithm.
+
+'GCRY_MAC_HMAC_BLAKE2S_128'
+     This is HMAC message authentication algorithm based on the
+     BLAKE2s-128 hash algorithm.
+
+'GCRY_MAC_HMAC_SM3'
+     This is HMAC message authentication algorithm based on the SM3 hash
+     algorithm.
 
 'GCRY_MAC_CMAC_AES'
      This is CMAC (Cipher-based MAC) message authentication algorithm
@@ -3405,6 +3584,10 @@ File: gcrypt.info,  Node: Available MAC algorithms,  Next: Working with MAC algo
      This is CMAC message authentication algorithm based on the GOST
      28147-89 block cipher algorithm.
 
+'GCRY_MAC_CMAC_SM4'
+     This is CMAC message authentication algorithm based on the SM4
+     block cipher algorithm.
+
 'GCRY_MAC_GMAC_AES'
      This is GMAC (GCM mode based MAC) message authentication algorithm
      based on the AES block cipher algorithm.
@@ -3448,6 +3631,10 @@ File: gcrypt.info,  Node: Available MAC algorithms,  Next: Working with MAC algo
 'GCRY_MAC_POLY1305_SEED'
      This is Poly1305-SEED message authentication algorithm, used with
      key and one-time nonce.
+
+'GCRY_MAC_GOST28147_IMIT'
+     This is MAC construction defined in GOST 28147-89 (see RFC 5830
+     Section 8).
 
 
 File: gcrypt.info,  Node: Working with MAC algorithms,  Prev: Available MAC algorithms,  Up: Message Authentication Codes
@@ -3996,7 +4183,8 @@ There are functions to parse S-expressions and retrieve elements:
      Extract parameters from an S-expression using a list of parameter
      names.  The names of these parameters are specified in LIST. White
      space between the parameter names are ignored.  Some special
-     characters may be given to control the conversion:
+     characters and character sequences may be given to control the
+     conversion:
 
      '+'
           Switch to unsigned integer format (GCRYMPI_FMT_USG). This is
@@ -4008,6 +4196,34 @@ There are functions to parse S-expressions and retrieve elements:
           used for computations; see 'gcry_mpi_get_opaque' for details.
      '&'
           Switch to buffer descriptor mode.  See below for details.
+     '%s'
+          Switch to string mode.  The expected argument is the address
+          of a 'char *' variable; the caller must release that value.
+          If the parameter was marked optional and is not found, NULL is
+          stored.
+     '%#s'
+          Switch to multi string mode.  The expected argument is the
+          address of a 'char *' variable; the caller must release that
+          value.  If the parameter was marked optional and is not found,
+          NULL is stored.  A multi string takes all values, assumes they
+          are strings and concatenates them using a space as delimiter.
+          In case a value is actually another list this is not further
+          parsed but a '()' is inserted in place of that sublist.
+     '%u'
+          Switch to unsigned integer mode.  The expected argument is
+          address of a 'unsigned int' variable.
+     '%lu'
+          Switch to unsigned long integer mode.  The expected argument
+          is address of a 'unsigned long' variable.
+     '%d'
+          Switch to signed integer mode.  The expected argument is
+          address of a 'int' variable.
+     '%ld'
+          Switch to signed long integer mode.  The expected argument is
+          address of a 'long' variable.
+     '%zu'
+          Switch to size_t mode.  The expected argument is address of a
+          'size_t' variable.
      '?'
           If immediately following a parameter letter (no white space
           allowed), that parameter is considered optional.
@@ -4136,6 +4352,17 @@ The simplest operations are used to assign a new value to an MPI:
      This function takes an 'unsigned int' as type for U and thus it is
      only possible to set W to small values (usually up to the word size
      of the CPU).
+
+ -- Function: gcry_error_t gcry_mpi_get_ui (unsigned int *W,
+          gcry_mpi_t U)
+
+     If U is not negative and small enough to be stored in an 'unsigned
+     int' variable, store its value at W.  If the value does not fit or
+     is negative return GPG_ERR_ERANGE and do not change the value
+     stored at W.  Note that this function returns an 'unsigned int' so
+     that this value can immediately be used with the bit test
+     functions.  This is in contrast to the other "_ui" functions which
+     allow for values up to an 'unsigned long'.
 
  -- Function: void gcry_mpi_swap (gcry_mpi_t A, gcry_mpi_t B)
 
@@ -4296,7 +4523,9 @@ Basic arithmetic operations:
           gcry_mpi_t DIVIDEND, gcry_mpi_t DIVISOR, int ROUND)
 
      Q = DIVIDEND / DIVISOR, R = DIVIDEND \bmod DIVISOR.  Q and R may be
-     passed as 'NULL'.  ROUND should be negative or 0.
+     passed as 'NULL'.  ROUND is either negative for floored division
+     (rounds towards the next lower integer) or zero for truncated
+     division (rounds towards zero).
 
  -- Function: void gcry_mpi_mod (gcry_mpi_t R, gcry_mpi_t DIVIDEND,
           gcry_mpi_t DIVISOR)
@@ -4623,7 +4852,7 @@ currently defined flags are:
      Setting this flag converts A into an MPI stored in "secure memory".
      Clearing this flag is not allowed.
 'GCRYMPI_FLAG_OPAQUE'
-     This is an interanl flag, indicating the an opaque valuue and not
+     This is an internal flag, indicating the an opaque valuue and not
      an integer is stored.  This is an read-only flag; it may not be set
      or cleared.
 'GCRYMPI_FLAG_IMMUTABLE'
@@ -5115,6 +5344,10 @@ each block.
      arbitrary amounts of data and as often as needed to encrypt or
      decrypt all data.
 
+     There is no strict alignment requirements for data, but the best
+     performance can be archived if data is aligned to cacheline
+     boundary.
+
    There are also functions to query properties of algorithms or
 context, like block length, key length, map names or to enable features
 like padding methods.
@@ -5149,6 +5382,10 @@ the same data.
 
 'gcry_md_write'
      Pass more data for computing the message digest to an instance.
+
+     There is no strict alignment requirements for data, but the best
+     performance can be archived if data is aligned to cacheline
+     boundary.
 
 'gcry_md_putc'
      Buffered version of 'gcry_md_write' implemented as a macro.
@@ -6861,160 +7098,172 @@ Concept Index
  [index ]
 * Menu:
 
-* /etc/gcrypt/fips_enabled:              Configuration.        (line 69)
-* /etc/gcrypt/hwf.deny:                  Configuration.        (line 48)
-* /etc/gcrypt/random.conf:               Configuration.        (line 52)
-* /proc/cpuinfo:                         Configuration.        (line 74)
-* /proc/self/auxv:                       Configuration.        (line 74)
-* 3DES:                                  Available ciphers.    (line 14)
-* Advanced Encryption Standard:          Available ciphers.    (line 35)
-* AES:                                   Available ciphers.    (line 35)
+* /etc/gcrypt/fips_enabled:              Configuration.       (line  69)
+* /etc/gcrypt/hwf.deny:                  Configuration.       (line  48)
+* /etc/gcrypt/random.conf:               Configuration.       (line  52)
+* /proc/cpuinfo:                         Configuration.       (line  74)
+* /proc/self/auxv:                       Configuration.       (line  74)
+* 3DES:                                  Available ciphers.   (line  14)
+* Advanced Encryption Standard:          Available ciphers.   (line  35)
+* AES:                                   Available ciphers.   (line  35)
 * AES-Wrap mode:                         Available cipher modes.
-                                                               (line 35)
-* Arcfour:                               Available ciphers.    (line 52)
+                                                              (line  35)
+* Arcfour:                               Available ciphers.   (line  52)
 * BLAKE2b-512, BLAKE2b-384, BLAKE2b-256, BLAKE2b-160: Available hash algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * BLAKE2s-256, BLAKE2s-224, BLAKE2s-160, BLAKE2s-128: Available hash algorithms.
-                                                               (line  6)
-* Blowfish:                              Available ciphers.    (line 22)
+                                                              (line   6)
+* Blowfish:                              Available ciphers.   (line  22)
 * bug emulation:                         Working with hash algorithms.
-                                                               (line 38)
-* Camellia:                              Available ciphers.    (line 77)
-* CAST5:                                 Available ciphers.    (line 19)
+                                                              (line  38)
+* Camellia:                              Available ciphers.   (line  77)
+* CAST5:                                 Available ciphers.   (line  19)
 * CBC, Cipher Block Chaining mode:       Available cipher modes.
-                                                               (line 23)
+                                                              (line  23)
 * CBC-MAC:                               Working with cipher handles.
-                                                               (line 56)
+                                                              (line  56)
 * CCM, Counter with CBC-MAC mode:        Available cipher modes.
-                                                               (line 48)
+                                                              (line  48)
 * CFB, Cipher Feedback mode:             Available cipher modes.
-                                                               (line 17)
-* ChaCha20:                              Available ciphers.    (line 92)
+                                                              (line  17)
+* ChaCha20:                              Available ciphers.   (line  98)
 * cipher text stealing:                  Working with cipher handles.
-                                                               (line 50)
+                                                              (line  50)
 * comp:                                  Cryptographic Functions.
-                                                               (line 13)
+                                                              (line  13)
 * CRC32:                                 Available hash algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * CTR, Counter mode:                     Available cipher modes.
-                                                               (line 32)
-* DES:                                   Available ciphers.    (line 57)
-* DES-EDE:                               Available ciphers.    (line 14)
-* Digital Encryption Standard:           Available ciphers.    (line 14)
-* disable-jent:                          Configuration.        (line 58)
+                                                              (line  32)
+* DES:                                   Available ciphers.   (line  57)
+* DES-EDE:                               Available ciphers.   (line  14)
+* Digital Encryption Standard:           Available ciphers.   (line  14)
+* disable-jent:                          Configuration.       (line  58)
+* EAX, EAX mode:                         Available cipher modes.
+                                                              (line  89)
 * ECB, Electronic Codebook mode:         Available cipher modes.
-                                                               (line 13)
+                                                              (line  13)
 * EdDSA:                                 Cryptographic Functions.
-                                                               (line 33)
-* Enforced FIPS mode:                    Enabling FIPS mode.   (line 29)
-* error codes:                           Error Values.         (line  6)
-* error codes, list of:                  Error Sources.        (line  6)
-* error codes, list of <1>:              Error Codes.          (line  6)
-* error codes, printing of:              Error Strings.        (line  6)
-* error sources:                         Error Values.         (line  6)
-* error sources, printing of:            Error Strings.        (line  6)
-* error strings:                         Error Strings.        (line  6)
-* error values:                          Error Values.         (line  6)
-* error values, printing of:             Error Strings.        (line  6)
-* FIPS 140:                              Enabling FIPS mode.   (line  6)
+                                                              (line  33)
+* Enforced FIPS mode:                    Enabling FIPS mode.  (line  29)
+* error codes:                           Error Values.        (line   6)
+* error codes, list of:                  Error Sources.       (line   6)
+* error codes, list of <1>:              Error Codes.         (line   6)
+* error codes, printing of:              Error Strings.       (line   6)
+* error sources:                         Error Values.        (line   6)
+* error sources, printing of:            Error Strings.       (line   6)
+* error strings:                         Error Strings.       (line   6)
+* error values:                          Error Values.        (line   6)
+* error values, printing of:             Error Strings.       (line   6)
+* FIPS 140:                              Enabling FIPS mode.  (line   6)
 * FIPS 186:                              Cryptographic Functions.
-                                                               (line 72)
+                                                              (line  72)
 * FIPS 186 <1>:                          Public-Key Subsystem Architecture.
-                                                               (line 50)
+                                                              (line  50)
 * FIPS 186-2:                            Cryptographic Functions.
-                                                               (line 80)
-* FIPS mode:                             Enabling FIPS mode.   (line  6)
-* fips_enabled:                          Configuration.        (line 69)
+                                                              (line  80)
+* FIPS mode:                             Enabling FIPS mode.  (line   6)
+* fips_enabled:                          Configuration.       (line  69)
 * GCM, Galois/Counter Mode:              Available cipher modes.
-                                                               (line 53)
-* GCRYPT_BARRETT:                        Configuration.        (line 12)
-* GCRYPT_RNDUNIX_DBG:                    Configuration.        (line 17)
-* GCRYPT_RNDUNIX_DBGALL:                 Configuration.        (line 17)
-* GCRYPT_RNDW32_DBG:                     Configuration.        (line 32)
-* GCRYPT_RNDW32_NOPERF:                  Configuration.        (line 25)
-* GOST 28147-89:                         Available ciphers.    (line 88)
-* GPL, GNU General Public License:       Copying.              (line  6)
-* hardware features:                     Hardware features.    (line  6)
+                                                              (line  53)
+* GCRYPT_BARRETT:                        Configuration.       (line  12)
+* GCRYPT_RNDUNIX_DBG:                    Configuration.       (line  17)
+* GCRYPT_RNDUNIX_DBGALL:                 Configuration.       (line  17)
+* GCRYPT_RNDW32_DBG:                     Configuration.       (line  32)
+* GCRYPT_RNDW32_NOPERF:                  Configuration.       (line  25)
+* GOST 28147-89:                         Available ciphers.   (line  88)
+* GOST 28147-89 CryptoPro keymeshing:    Available ciphers.   (line  92)
+* GPL, GNU General Public License:       Copying.             (line   6)
+* hardware features:                     Hardware features.   (line   6)
 * HAVAL:                                 Available hash algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * HMAC:                                  Working with hash algorithms.
-                                                               (line 28)
+                                                              (line  28)
+* HMAC-BLAKE2s, HMAC-BLAKE2b:            Available MAC algorithms.
+                                                              (line   6)
 * HMAC-GOSTR-3411-94:                    Available MAC algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * HMAC-MD2, HMAC-MD4, HMAC-MD5:          Available MAC algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * HMAC-RIPE-MD-160:                      Available MAC algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * HMAC-SHA-1:                            Available MAC algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * HMAC-SHA-224, HMAC-SHA-256, HMAC-SHA-384, HMAC-SHA-512: Available MAC algorithms.
-                                                               (line  6)
+                                                              (line   6)
+* HMAC-SHA-512/224, HMAC-SHA-512/256:    Available MAC algorithms.
+                                                              (line   6)
 * HMAC-SHA3-224, HMAC-SHA3-256, HMAC-SHA3-384, HMAC-SHA3-512: Available MAC algorithms.
-                                                               (line  6)
+                                                              (line   6)
+* HMAC-SM3:                              Available MAC algorithms.
+                                                              (line   6)
 * HMAC-Stribog-256, HMAC-Stribog-512:    Available MAC algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * HMAC-TIGER1:                           Available MAC algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * HMAC-Whirlpool:                        Available MAC algorithms.
-                                                               (line  6)
-* HOME:                                  Configuration.        (line 37)
-* IDEA:                                  Available ciphers.    (line 11)
-* LGPL, GNU Lesser General Public License: Library Copying.    (line  6)
+                                                              (line   6)
+* HOME:                                  Configuration.       (line  37)
+* IDEA:                                  Available ciphers.   (line  11)
+* LGPL, GNU Lesser General Public License: Library Copying.   (line   6)
 * MD2, MD4, MD5:                         Available hash algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * no-blinding:                           Cryptographic Functions.
-                                                               (line 41)
+                                                              (line  41)
 * no-keytest:                            Cryptographic Functions.
-                                                               (line 59)
+                                                              (line  59)
 * nocomp:                                Cryptographic Functions.
-                                                               (line 13)
+                                                              (line  13)
 * OAEP:                                  Cryptographic Functions.
-                                                               (line 27)
+                                                              (line  27)
 * OCB, OCB3:                             Available cipher modes.
-                                                               (line 63)
+                                                              (line  63)
 * OFB, Output Feedback mode:             Available cipher modes.
-                                                               (line 29)
-* only-urandom:                          Configuration.        (line 61)
+                                                              (line  29)
+* only-urandom:                          Configuration.       (line  61)
 * param:                                 Cryptographic Functions.
-                                                               (line 47)
+                                                              (line  47)
 * PKCS1:                                 Cryptographic Functions.
-                                                               (line 23)
+                                                              (line  23)
 * Poly1305 based AEAD mode with ChaCha20: Available cipher modes.
-                                                               (line 58)
+                                                              (line  58)
 * PSS:                                   Cryptographic Functions.
-                                                               (line 30)
-* RC2:                                   Available ciphers.    (line 69)
-* RC4:                                   Available ciphers.    (line 52)
-* rfc-2268:                              Available ciphers.    (line 69)
+                                                              (line  30)
+* RC2:                                   Available ciphers.   (line  69)
+* RC4:                                   Available ciphers.   (line  52)
+* rfc-2268:                              Available ciphers.   (line  69)
 * RFC6979:                               Cryptographic Functions.
-                                                               (line 38)
-* Rijndael:                              Available ciphers.    (line 35)
+                                                              (line  38)
+* Rijndael:                              Available ciphers.   (line  35)
 * RIPE-MD-160:                           Available hash algorithms.
-                                                               (line  6)
-* Salsa20:                               Available ciphers.    (line 81)
-* Salsa20/12:                            Available ciphers.    (line 84)
-* Seed (cipher):                         Available ciphers.    (line 72)
-* Serpent:                               Available ciphers.    (line 65)
+                                                              (line   6)
+* Salsa20:                               Available ciphers.   (line  81)
+* Salsa20/12:                            Available ciphers.   (line  84)
+* Seed (cipher):                         Available ciphers.   (line  72)
+* Serpent:                               Available ciphers.   (line  65)
 * SHA-1:                                 Available hash algorithms.
-                                                               (line  6)
-* SHA-224, SHA-256, SHA-384, SHA-512:    Available hash algorithms.
-                                                               (line  6)
+                                                              (line   6)
+* SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256: Available hash algorithms.
+                                                              (line   6)
 * SHA3-224, SHA3-256, SHA3-384, SHA3-512, SHAKE128, SHAKE256: Available hash algorithms.
-                                                               (line  6)
+                                                              (line   6)
+* SM3:                                   Available hash algorithms.
+                                                              (line   6)
+* SM4 (cipher):                          Available ciphers.   (line 101)
 * sync mode (OpenPGP):                   Working with cipher handles.
-                                                               (line 46)
+                                                              (line  46)
 * TIGER, TIGER1, TIGER2:                 Available hash algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * transient-key:                         Cryptographic Functions.
-                                                               (line 52)
-* Triple-DES:                            Available ciphers.    (line 14)
-* Twofish:                               Available ciphers.    (line 46)
+                                                              (line  52)
+* Triple-DES:                            Available ciphers.   (line  14)
+* Twofish:                               Available ciphers.   (line  46)
 * Whirlpool:                             Available hash algorithms.
-                                                               (line  6)
+                                                              (line   6)
 * X9.31:                                 Cryptographic Functions.
-                                                               (line 65)
+                                                              (line  65)
 * X9.31 <1>:                             Public-Key Subsystem Architecture.
-                                                               (line 50)
+                                                              (line  50)
 * XTS, XTS mode:                         Available cipher modes.
-                                                               (line 74)
+                                                              (line  74)
 

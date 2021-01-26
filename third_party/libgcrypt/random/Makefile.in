@@ -111,12 +111,11 @@ host_triplet = @host@
 @USE_RANDOM_DAEMON_TRUE@am__append_1 = random-daemon.c
 subdir = random
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/gpg-error.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/onceonly.m4 \
-	$(top_srcdir)/m4/socklen.m4 $(top_srcdir)/m4/sys_socket_h.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cc_for_build.m4 \
+	$(top_srcdir)/m4/gpg-error.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/socklen.m4 \
 	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -221,6 +220,7 @@ AWK = @AWK@
 BUILD_FILEVERSION = @BUILD_FILEVERSION@
 BUILD_REVISION = @BUILD_REVISION@
 BUILD_TIMESTAMP = @BUILD_TIMESTAMP@
+BUILD_VERSION = @BUILD_VERSION@
 CC = @CC@
 CCAS = @CCAS@
 CCASDEPMODE = @CCASDEPMODE@
@@ -242,6 +242,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+EXEEXT_FOR_BUILD = @EXEEXT_FOR_BUILD@
 FALLBACK_SOCKLEN_T = @FALLBACK_SOCKLEN_T@
 FGREP = @FGREP@
 GCRYPT_CIPHERS = @GCRYPT_CIPHERS@
@@ -250,6 +251,7 @@ GCRYPT_HWF_MODULES = @GCRYPT_HWF_MODULES@
 GCRYPT_KDFS = @GCRYPT_KDFS@
 GCRYPT_PUBKEY_CIPHERS = @GCRYPT_PUBKEY_CIPHERS@
 GCRYPT_RANDOM = @GCRYPT_RANDOM@
+GPGRT_CONFIG = @GPGRT_CONFIG@
 GPG_ERROR_CFLAGS = @GPG_ERROR_CFLAGS@
 GPG_ERROR_CONFIG = @GPG_ERROR_CONFIG@
 GPG_ERROR_LIBS = @GPG_ERROR_LIBS@
@@ -263,6 +265,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
+LDADD_FOR_TESTS_KLUDGE = @LDADD_FOR_TESTS_KLUDGE@
 LDFLAGS = @LDFLAGS@
 LIBGCRYPT_CIPHERS = @LIBGCRYPT_CIPHERS@
 LIBGCRYPT_CONFIG_API_VERSION = @LIBGCRYPT_CONFIG_API_VERSION@
@@ -312,7 +315,6 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 SYSROOT = @SYSROOT@
-SYS_SOCKET_H = @SYS_SOCKET_H@
 VERSION = @VERSION@
 VERSION_NUMBER = @VERSION_NUMBER@
 abs_builddir = @abs_builddir@

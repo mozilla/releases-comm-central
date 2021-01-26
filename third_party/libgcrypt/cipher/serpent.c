@@ -222,8 +222,23 @@ extern void _gcry_serpent_neon_ocb_auth(serpent_context_t *ctx,
 #endif
 
 
-/* A prototype.  */
+/* Prototypes.  */
 static const char *serpent_test (void);
+
+static void _gcry_serpent_ctr_enc (void *context, unsigned char *ctr,
+				   void *outbuf_arg, const void *inbuf_arg,
+				   size_t nblocks);
+static void _gcry_serpent_cbc_dec (void *context, unsigned char *iv,
+				   void *outbuf_arg, const void *inbuf_arg,
+				   size_t nblocks);
+static void _gcry_serpent_cfb_dec (void *context, unsigned char *iv,
+				   void *outbuf_arg, const void *inbuf_arg,
+				   size_t nblocks);
+static size_t _gcry_serpent_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
+				       const void *inbuf_arg, size_t nblocks,
+				       int encrypt);
+static size_t _gcry_serpent_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
+				      size_t nblocks);
 
 
 /*
@@ -748,7 +763,8 @@ serpent_setkey_internal (serpent_context_t *context,
 /* Initialize CTX with the key KEY of KEY_LENGTH bytes.  */
 static gcry_err_code_t
 serpent_setkey (void *ctx,
-		const byte *key, unsigned int key_length)
+		const byte *key, unsigned int key_length,
+                cipher_bulk_ops_t *bulk_ops)
 {
   serpent_context_t *context = ctx;
   static const char *serpent_test_ret;
@@ -763,6 +779,14 @@ serpent_setkey (void *ctx,
       if (serpent_test_ret)
 	log_error ("Serpent test failure: %s\n", serpent_test_ret);
     }
+
+  /* Setup bulk encryption routines.  */
+  memset (bulk_ops, 0, sizeof(*bulk_ops));
+  bulk_ops->cbc_dec = _gcry_serpent_cbc_dec;
+  bulk_ops->cfb_dec = _gcry_serpent_cfb_dec;
+  bulk_ops->ctr_enc = _gcry_serpent_ctr_enc;
+  bulk_ops->ocb_crypt = _gcry_serpent_ocb_crypt;
+  bulk_ops->ocb_auth  = _gcry_serpent_ocb_auth;
 
   if (serpent_test_ret)
     ret = GPG_ERR_SELFTEST_FAILED;
@@ -899,7 +923,7 @@ serpent_decrypt (void *ctx, byte *buffer_out, const byte *buffer_in)
 /* Bulk encryption of complete blocks in CTR mode.  This function is only
    intended for the bulk encryption feature of cipher.c.  CTR is expected to be
    of size sizeof(serpent_block_t). */
-void
+static void
 _gcry_serpent_ctr_enc(void *context, unsigned char *ctr,
                       void *outbuf_arg, const void *inbuf_arg,
                       size_t nblocks)
@@ -909,7 +933,6 @@ _gcry_serpent_ctr_enc(void *context, unsigned char *ctr,
   const unsigned char *inbuf = inbuf_arg;
   unsigned char tmpbuf[sizeof(serpent_block_t)];
   int burn_stack_depth = 2 * sizeof (serpent_block_t);
-  int i;
 
 #ifdef USE_AVX2
   if (ctx->use_avx2)
@@ -999,16 +1022,11 @@ _gcry_serpent_ctr_enc(void *context, unsigned char *ctr,
       /* Encrypt the counter. */
       serpent_encrypt_internal(ctx, ctr, tmpbuf);
       /* XOR the input with the encrypted counter and store in output.  */
-      buf_xor(outbuf, tmpbuf, inbuf, sizeof(serpent_block_t));
+      cipher_block_xor(outbuf, tmpbuf, inbuf, sizeof(serpent_block_t));
       outbuf += sizeof(serpent_block_t);
       inbuf  += sizeof(serpent_block_t);
       /* Increment the counter.  */
-      for (i = sizeof(serpent_block_t); i > 0; i--)
-        {
-          ctr[i-1]++;
-          if (ctr[i-1])
-            break;
-        }
+      cipher_block_add(ctr, 1, sizeof(serpent_block_t));
     }
 
   wipememory(tmpbuf, sizeof(tmpbuf));
@@ -1017,7 +1035,7 @@ _gcry_serpent_ctr_enc(void *context, unsigned char *ctr,
 
 /* Bulk decryption of complete blocks in CBC mode.  This function is only
    intended for the bulk encryption feature of cipher.c. */
-void
+static void
 _gcry_serpent_cbc_dec(void *context, unsigned char *iv,
                       void *outbuf_arg, const void *inbuf_arg,
                       size_t nblocks)
@@ -1114,7 +1132,8 @@ _gcry_serpent_cbc_dec(void *context, unsigned char *iv,
          the intermediate result to SAVEBUF.  */
       serpent_decrypt_internal (ctx, inbuf, savebuf);
 
-      buf_xor_n_copy_2(outbuf, savebuf, iv, inbuf, sizeof(serpent_block_t));
+      cipher_block_xor_n_copy_2(outbuf, savebuf, iv, inbuf,
+                                sizeof(serpent_block_t));
       inbuf += sizeof(serpent_block_t);
       outbuf += sizeof(serpent_block_t);
     }
@@ -1125,7 +1144,7 @@ _gcry_serpent_cbc_dec(void *context, unsigned char *iv,
 
 /* Bulk decryption of complete blocks in CFB mode.  This function is only
    intended for the bulk encryption feature of cipher.c. */
-void
+static void
 _gcry_serpent_cfb_dec(void *context, unsigned char *iv,
                       void *outbuf_arg, const void *inbuf_arg,
                       size_t nblocks)
@@ -1218,7 +1237,7 @@ _gcry_serpent_cfb_dec(void *context, unsigned char *iv,
   for ( ;nblocks; nblocks-- )
     {
       serpent_encrypt_internal(ctx, iv, iv);
-      buf_xor_n_copy(outbuf, iv, inbuf, sizeof(serpent_block_t));
+      cipher_block_xor_n_copy(outbuf, iv, inbuf, sizeof(serpent_block_t));
       outbuf += sizeof(serpent_block_t);
       inbuf  += sizeof(serpent_block_t);
     }
@@ -1227,7 +1246,7 @@ _gcry_serpent_cfb_dec(void *context, unsigned char *iv,
 }
 
 /* Bulk encryption/decryption of complete blocks in OCB mode. */
-size_t
+static size_t
 _gcry_serpent_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
 			const void *inbuf_arg, size_t nblocks, int encrypt)
 {
@@ -1414,7 +1433,7 @@ _gcry_serpent_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
 }
 
 /* Bulk authentication of complete blocks in OCB mode. */
-size_t
+static size_t
 _gcry_serpent_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
 			size_t nblocks)
 {
@@ -1594,8 +1613,7 @@ selftest_ctr_128 (void)
   const int context_size = sizeof(serpent_context_t);
 
   return _gcry_selftest_helper_ctr("SERPENT", &serpent_setkey,
-           &serpent_encrypt, &_gcry_serpent_ctr_enc, nblocks, blocksize,
-	   context_size);
+           &serpent_encrypt, nblocks, blocksize, context_size);
 }
 
 
@@ -1609,8 +1627,7 @@ selftest_cbc_128 (void)
   const int context_size = sizeof(serpent_context_t);
 
   return _gcry_selftest_helper_cbc("SERPENT", &serpent_setkey,
-           &serpent_encrypt, &_gcry_serpent_cbc_dec, nblocks, blocksize,
-	   context_size);
+           &serpent_encrypt, nblocks, blocksize, context_size);
 }
 
 
@@ -1624,8 +1641,7 @@ selftest_cfb_128 (void)
   const int context_size = sizeof(serpent_context_t);
 
   return _gcry_selftest_helper_cfb("SERPENT", &serpent_setkey,
-           &serpent_encrypt, &_gcry_serpent_cfb_dec, nblocks, blocksize,
-	   context_size);
+           &serpent_encrypt, nblocks, blocksize, context_size);
 }
 
 

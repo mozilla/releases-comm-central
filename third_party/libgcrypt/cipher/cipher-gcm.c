@@ -1,6 +1,6 @@
 /* cipher-gcm.c  - Generic Galois Counter Mode implementation
  * Copyright (C) 2013 Dmitry Eremin-Solenikov
- * Copyright (C) 2013, 2018 Jussi Kivilinna <jussi.kivilinna@iki.fi>
+ * Copyright (C) 2013, 2018-2019 Jussi Kivilinna <jussi.kivilinna@iki.fi>
  *
  * This file is part of Libgcrypt.
  *
@@ -28,6 +28,14 @@
 #include "cipher.h"
 #include "bufhelp.h"
 #include "./cipher-internal.h"
+
+
+/* Helper macro to force alignment to 16 or 64 bytes.  */
+#ifdef HAVE_GCC_ATTRIBUTE_ALIGNED
+# define ATTR_ALIGNED_64  __attribute__ ((aligned (64)))
+#else
+# define ATTR_ALIGNED_64
+#endif
 
 
 #ifdef GCM_USE_INTEL_PCLMUL
@@ -58,45 +66,119 @@ ghash_armv8_ce_pmull (gcry_cipher_hd_t c, byte *result, const byte *buf,
   return _gcry_ghash_armv8_ce_pmull(c->u_mode.gcm.u_ghash_key.key, result, buf,
                                     nblocks, c->u_mode.gcm.gcm_table);
 }
+#endif /* GCM_USE_ARM_PMULL */
 
-#endif
+#ifdef GCM_USE_ARM_NEON
+extern void _gcry_ghash_setup_armv7_neon (void *gcm_key);
+
+extern unsigned int _gcry_ghash_armv7_neon (void *gcm_key, byte *result,
+					    const byte *buf, size_t nblocks);
+
+static void
+ghash_setup_armv7_neon (gcry_cipher_hd_t c)
+{
+  _gcry_ghash_setup_armv7_neon(c->u_mode.gcm.u_ghash_key.key);
+}
+
+static unsigned int
+ghash_armv7_neon (gcry_cipher_hd_t c, byte *result, const byte *buf,
+		  size_t nblocks)
+{
+  return _gcry_ghash_armv7_neon(c->u_mode.gcm.u_ghash_key.key, result, buf,
+				nblocks);
+}
+#endif /* GCM_USE_ARM_NEON */
 
 
 #ifdef GCM_USE_TABLES
-static const u16 gcmR[256] = {
-  0x0000, 0x01c2, 0x0384, 0x0246, 0x0708, 0x06ca, 0x048c, 0x054e,
-  0x0e10, 0x0fd2, 0x0d94, 0x0c56, 0x0918, 0x08da, 0x0a9c, 0x0b5e,
-  0x1c20, 0x1de2, 0x1fa4, 0x1e66, 0x1b28, 0x1aea, 0x18ac, 0x196e,
-  0x1230, 0x13f2, 0x11b4, 0x1076, 0x1538, 0x14fa, 0x16bc, 0x177e,
-  0x3840, 0x3982, 0x3bc4, 0x3a06, 0x3f48, 0x3e8a, 0x3ccc, 0x3d0e,
-  0x3650, 0x3792, 0x35d4, 0x3416, 0x3158, 0x309a, 0x32dc, 0x331e,
-  0x2460, 0x25a2, 0x27e4, 0x2626, 0x2368, 0x22aa, 0x20ec, 0x212e,
-  0x2a70, 0x2bb2, 0x29f4, 0x2836, 0x2d78, 0x2cba, 0x2efc, 0x2f3e,
-  0x7080, 0x7142, 0x7304, 0x72c6, 0x7788, 0x764a, 0x740c, 0x75ce,
-  0x7e90, 0x7f52, 0x7d14, 0x7cd6, 0x7998, 0x785a, 0x7a1c, 0x7bde,
-  0x6ca0, 0x6d62, 0x6f24, 0x6ee6, 0x6ba8, 0x6a6a, 0x682c, 0x69ee,
-  0x62b0, 0x6372, 0x6134, 0x60f6, 0x65b8, 0x647a, 0x663c, 0x67fe,
-  0x48c0, 0x4902, 0x4b44, 0x4a86, 0x4fc8, 0x4e0a, 0x4c4c, 0x4d8e,
-  0x46d0, 0x4712, 0x4554, 0x4496, 0x41d8, 0x401a, 0x425c, 0x439e,
-  0x54e0, 0x5522, 0x5764, 0x56a6, 0x53e8, 0x522a, 0x506c, 0x51ae,
-  0x5af0, 0x5b32, 0x5974, 0x58b6, 0x5df8, 0x5c3a, 0x5e7c, 0x5fbe,
-  0xe100, 0xe0c2, 0xe284, 0xe346, 0xe608, 0xe7ca, 0xe58c, 0xe44e,
-  0xef10, 0xeed2, 0xec94, 0xed56, 0xe818, 0xe9da, 0xeb9c, 0xea5e,
-  0xfd20, 0xfce2, 0xfea4, 0xff66, 0xfa28, 0xfbea, 0xf9ac, 0xf86e,
-  0xf330, 0xf2f2, 0xf0b4, 0xf176, 0xf438, 0xf5fa, 0xf7bc, 0xf67e,
-  0xd940, 0xd882, 0xdac4, 0xdb06, 0xde48, 0xdf8a, 0xddcc, 0xdc0e,
-  0xd750, 0xd692, 0xd4d4, 0xd516, 0xd058, 0xd19a, 0xd3dc, 0xd21e,
-  0xc560, 0xc4a2, 0xc6e4, 0xc726, 0xc268, 0xc3aa, 0xc1ec, 0xc02e,
-  0xcb70, 0xcab2, 0xc8f4, 0xc936, 0xcc78, 0xcdba, 0xcffc, 0xce3e,
-  0x9180, 0x9042, 0x9204, 0x93c6, 0x9688, 0x974a, 0x950c, 0x94ce,
-  0x9f90, 0x9e52, 0x9c14, 0x9dd6, 0x9898, 0x995a, 0x9b1c, 0x9ade,
-  0x8da0, 0x8c62, 0x8e24, 0x8fe6, 0x8aa8, 0x8b6a, 0x892c, 0x88ee,
-  0x83b0, 0x8272, 0x8034, 0x81f6, 0x84b8, 0x857a, 0x873c, 0x86fe,
-  0xa9c0, 0xa802, 0xaa44, 0xab86, 0xaec8, 0xaf0a, 0xad4c, 0xac8e,
-  0xa7d0, 0xa612, 0xa454, 0xa596, 0xa0d8, 0xa11a, 0xa35c, 0xa29e,
-  0xb5e0, 0xb422, 0xb664, 0xb7a6, 0xb2e8, 0xb32a, 0xb16c, 0xb0ae,
-  0xbbf0, 0xba32, 0xb874, 0xb9b6, 0xbcf8, 0xbd3a, 0xbf7c, 0xbebe,
-};
+static struct
+{
+  volatile u32 counter_head;
+  u32 cacheline_align[64 / 4 - 1];
+  u16 R[256];
+  volatile u32 counter_tail;
+} gcm_table ATTR_ALIGNED_64 =
+  {
+    0,
+    { 0, },
+    {
+      0x0000, 0x01c2, 0x0384, 0x0246, 0x0708, 0x06ca, 0x048c, 0x054e,
+      0x0e10, 0x0fd2, 0x0d94, 0x0c56, 0x0918, 0x08da, 0x0a9c, 0x0b5e,
+      0x1c20, 0x1de2, 0x1fa4, 0x1e66, 0x1b28, 0x1aea, 0x18ac, 0x196e,
+      0x1230, 0x13f2, 0x11b4, 0x1076, 0x1538, 0x14fa, 0x16bc, 0x177e,
+      0x3840, 0x3982, 0x3bc4, 0x3a06, 0x3f48, 0x3e8a, 0x3ccc, 0x3d0e,
+      0x3650, 0x3792, 0x35d4, 0x3416, 0x3158, 0x309a, 0x32dc, 0x331e,
+      0x2460, 0x25a2, 0x27e4, 0x2626, 0x2368, 0x22aa, 0x20ec, 0x212e,
+      0x2a70, 0x2bb2, 0x29f4, 0x2836, 0x2d78, 0x2cba, 0x2efc, 0x2f3e,
+      0x7080, 0x7142, 0x7304, 0x72c6, 0x7788, 0x764a, 0x740c, 0x75ce,
+      0x7e90, 0x7f52, 0x7d14, 0x7cd6, 0x7998, 0x785a, 0x7a1c, 0x7bde,
+      0x6ca0, 0x6d62, 0x6f24, 0x6ee6, 0x6ba8, 0x6a6a, 0x682c, 0x69ee,
+      0x62b0, 0x6372, 0x6134, 0x60f6, 0x65b8, 0x647a, 0x663c, 0x67fe,
+      0x48c0, 0x4902, 0x4b44, 0x4a86, 0x4fc8, 0x4e0a, 0x4c4c, 0x4d8e,
+      0x46d0, 0x4712, 0x4554, 0x4496, 0x41d8, 0x401a, 0x425c, 0x439e,
+      0x54e0, 0x5522, 0x5764, 0x56a6, 0x53e8, 0x522a, 0x506c, 0x51ae,
+      0x5af0, 0x5b32, 0x5974, 0x58b6, 0x5df8, 0x5c3a, 0x5e7c, 0x5fbe,
+      0xe100, 0xe0c2, 0xe284, 0xe346, 0xe608, 0xe7ca, 0xe58c, 0xe44e,
+      0xef10, 0xeed2, 0xec94, 0xed56, 0xe818, 0xe9da, 0xeb9c, 0xea5e,
+      0xfd20, 0xfce2, 0xfea4, 0xff66, 0xfa28, 0xfbea, 0xf9ac, 0xf86e,
+      0xf330, 0xf2f2, 0xf0b4, 0xf176, 0xf438, 0xf5fa, 0xf7bc, 0xf67e,
+      0xd940, 0xd882, 0xdac4, 0xdb06, 0xde48, 0xdf8a, 0xddcc, 0xdc0e,
+      0xd750, 0xd692, 0xd4d4, 0xd516, 0xd058, 0xd19a, 0xd3dc, 0xd21e,
+      0xc560, 0xc4a2, 0xc6e4, 0xc726, 0xc268, 0xc3aa, 0xc1ec, 0xc02e,
+      0xcb70, 0xcab2, 0xc8f4, 0xc936, 0xcc78, 0xcdba, 0xcffc, 0xce3e,
+      0x9180, 0x9042, 0x9204, 0x93c6, 0x9688, 0x974a, 0x950c, 0x94ce,
+      0x9f90, 0x9e52, 0x9c14, 0x9dd6, 0x9898, 0x995a, 0x9b1c, 0x9ade,
+      0x8da0, 0x8c62, 0x8e24, 0x8fe6, 0x8aa8, 0x8b6a, 0x892c, 0x88ee,
+      0x83b0, 0x8272, 0x8034, 0x81f6, 0x84b8, 0x857a, 0x873c, 0x86fe,
+      0xa9c0, 0xa802, 0xaa44, 0xab86, 0xaec8, 0xaf0a, 0xad4c, 0xac8e,
+      0xa7d0, 0xa612, 0xa454, 0xa596, 0xa0d8, 0xa11a, 0xa35c, 0xa29e,
+      0xb5e0, 0xb422, 0xb664, 0xb7a6, 0xb2e8, 0xb32a, 0xb16c, 0xb0ae,
+      0xbbf0, 0xba32, 0xb874, 0xb9b6, 0xbcf8, 0xbd3a, 0xbf7c, 0xbebe,
+    },
+    0
+  };
+
+#define gcmR gcm_table.R
+
+static inline
+void prefetch_table(const void *tab, size_t len)
+{
+  const volatile byte *vtab = tab;
+  size_t i;
+
+  for (i = 0; len - i >= 8 * 32; i += 8 * 32)
+    {
+      (void)vtab[i + 0 * 32];
+      (void)vtab[i + 1 * 32];
+      (void)vtab[i + 2 * 32];
+      (void)vtab[i + 3 * 32];
+      (void)vtab[i + 4 * 32];
+      (void)vtab[i + 5 * 32];
+      (void)vtab[i + 6 * 32];
+      (void)vtab[i + 7 * 32];
+    }
+  for (; i < len; i += 32)
+    {
+      (void)vtab[i];
+    }
+
+  (void)vtab[len - 1];
+}
+
+static inline void
+do_prefetch_tables (const void *gcmM, size_t gcmM_size)
+{
+  /* Modify counters to trigger copy-on-write and unsharing if physical pages
+   * of look-up table are shared between processes.  Modifying counters also
+   * causes checksums for pages to change and hint same-page merging algorithm
+   * that these pages are frequently changing.  */
+  gcm_table.counter_head++;
+  gcm_table.counter_tail++;
+
+  /* Prefetch look-up tables to cache.  */
+  prefetch_table(gcmM, gcmM_size);
+  prefetch_table(&gcm_table, sizeof(gcm_table));
+}
 
 #ifdef GCM_TABLES_USE_U64
 static void
@@ -106,7 +188,7 @@ bshift (u64 * b0, u64 * b1)
 
   t[0] = *b0;
   t[1] = *b1;
-  mask = t[1] & 1 ? 0xe1 : 0;
+  mask = -(t[1] & 1) & 0xe1;
   mask <<= 56;
 
   *b1 = (t[1] >> 1) ^ (t[0] << 63);
@@ -138,6 +220,12 @@ do_fillM (unsigned char *h, u64 *M)
         M[(i + j) + 0] = M[i + 0] ^ M[j + 0];
         M[(i + j) + 16] = M[i + 16] ^ M[j + 16];
       }
+
+  for (i = 0; i < 16; i++)
+    {
+      M[i + 32] = (M[i + 0] >> 4) ^ ((u64) gcmR[(M[i + 16] & 0xf) << 4] << 48);
+      M[i + 48] = (M[i + 16] >> 4) ^ (M[i + 0] << 60);
+    }
 }
 
 static inline unsigned int
@@ -150,25 +238,23 @@ do_ghash (unsigned char *result, const unsigned char *buf, const u64 *gcmM)
   u32 A;
   int i;
 
-  buf_xor (V, result, buf, 16);
+  cipher_block_xor (V, result, buf, 16);
   V[0] = be_bswap64 (V[0]);
   V[1] = be_bswap64 (V[1]);
 
   /* First round can be manually tweaked based on fact that 'tmp' is zero. */
-  i = 15;
-
-  M = &gcmM[(V[1] & 0xf)];
+  M = &gcmM[(V[1] & 0xf) + 32];
   V[1] >>= 4;
-  tmp[0] = (M[0] >> 4) ^ ((u64) gcmR[(M[16] & 0xf) << 4] << 48);
-  tmp[1] = (M[16] >> 4) ^ (M[0] << 60);
+  tmp[0] = M[0];
+  tmp[1] = M[16];
   tmp[0] ^= gcmM[(V[1] & 0xf) + 0];
   tmp[1] ^= gcmM[(V[1] & 0xf) + 16];
   V[1] >>= 4;
 
-  --i;
+  i = 6;
   while (1)
     {
-      M = &gcmM[(V[1] & 0xf)];
+      M = &gcmM[(V[1] & 0xf) + 32];
       V[1] >>= 4;
 
       A = tmp[1] & 0xff;
@@ -176,15 +262,34 @@ do_ghash (unsigned char *result, const unsigned char *buf, const u64 *gcmM)
       tmp[0] = (T >> 8) ^ ((u64) gcmR[A] << 48) ^ gcmM[(V[1] & 0xf) + 0];
       tmp[1] = (T << 56) ^ (tmp[1] >> 8) ^ gcmM[(V[1] & 0xf) + 16];
 
-      tmp[0] ^= (M[0] >> 4) ^ ((u64) gcmR[(M[16] & 0xf) << 4] << 48);
-      tmp[1] ^= (M[16] >> 4) ^ (M[0] << 60);
+      tmp[0] ^= M[0];
+      tmp[1] ^= M[16];
 
       if (i == 0)
         break;
-      else if (i == 8)
-        V[1] = V[0];
-      else
-        V[1] >>= 4;
+
+      V[1] >>= 4;
+      --i;
+    }
+
+  i = 7;
+  while (1)
+    {
+      M = &gcmM[(V[0] & 0xf) + 32];
+      V[0] >>= 4;
+
+      A = tmp[1] & 0xff;
+      T = tmp[0];
+      tmp[0] = (T >> 8) ^ ((u64) gcmR[A] << 48) ^ gcmM[(V[0] & 0xf) + 0];
+      tmp[1] = (T << 56) ^ (tmp[1] >> 8) ^ gcmM[(V[0] & 0xf) + 16];
+
+      tmp[0] ^= M[0];
+      tmp[1] ^= M[16];
+
+      if (i == 0)
+        break;
+
+      V[0] >>= 4;
       --i;
     }
 
@@ -206,7 +311,7 @@ bshift (u32 * M, int i)
   t[1] = M[i * 4 + 1];
   t[2] = M[i * 4 + 2];
   t[3] = M[i * 4 + 3];
-  mask = t[3] & 1 ? 0xe1 : 0;
+  mask = -(t[3] & 1) & 0xe1;
 
   M[i * 4 + 3] = (t[3] >> 1) ^ (t[2] << 31);
   M[i * 4 + 2] = (t[2] >> 1) ^ (t[1] << 31);
@@ -247,6 +352,15 @@ do_fillM (unsigned char *h, u32 *M)
         M[(i + j) * 4 + 2] = M[i * 4 + 2] ^ M[j * 4 + 2];
         M[(i + j) * 4 + 3] = M[i * 4 + 3] ^ M[j * 4 + 3];
       }
+
+  for (i = 0; i < 4 * 16; i += 4)
+    {
+      M[i + 0 + 64] = (M[i + 0] >> 4)
+                      ^ ((u64) gcmR[(M[i + 3] << 4) & 0xf0] << 16);
+      M[i + 1 + 64] = (M[i + 1] >> 4) ^ (M[i + 0] << 28);
+      M[i + 2 + 64] = (M[i + 2] >> 4) ^ (M[i + 1] << 28);
+      M[i + 3 + 64] = (M[i + 3] >> 4) ^ (M[i + 2] << 28);
+    }
 }
 
 static inline unsigned int
@@ -259,25 +373,25 @@ do_ghash (unsigned char *result, const unsigned char *buf, const u32 *gcmM)
   u32 T[3];
   int i;
 
-  buf_xor (V, result, buf, 16); /* V is big-endian */
+  cipher_block_xor (V, result, buf, 16); /* V is big-endian */
 
   /* First round can be manually tweaked based on fact that 'tmp' is zero. */
   i = 15;
 
   v = V[i];
-  M = &gcmM[(v & 0xf) * 4];
+  M = &gcmM[(v & 0xf) * 4 + 64];
   v = (v & 0xf0) >> 4;
   m = &gcmM[v * 4];
   v = V[--i];
 
-  tmp[0] = (M[0] >> 4) ^ ((u64) gcmR[(M[3] << 4) & 0xf0] << 16) ^ m[0];
-  tmp[1] = (M[1] >> 4) ^ (M[0] << 28) ^ m[1];
-  tmp[2] = (M[2] >> 4) ^ (M[1] << 28) ^ m[2];
-  tmp[3] = (M[3] >> 4) ^ (M[2] << 28) ^ m[3];
+  tmp[0] = M[0] ^ m[0];
+  tmp[1] = M[1] ^ m[1];
+  tmp[2] = M[2] ^ m[2];
+  tmp[3] = M[3] ^ m[3];
 
   while (1)
     {
-      M = &gcmM[(v & 0xf) * 4];
+      M = &gcmM[(v & 0xf) * 4 + 64];
       v = (v & 0xf0) >> 4;
       m = &gcmM[v * 4];
 
@@ -289,10 +403,10 @@ do_ghash (unsigned char *result, const unsigned char *buf, const u32 *gcmM)
       tmp[2] = (T[1] << 24) ^ (tmp[2] >> 8) ^ m[2];
       tmp[3] = (T[2] << 24) ^ (tmp[3] >> 8) ^ m[3];
 
-      tmp[0] ^= (M[0] >> 4) ^ ((u64) gcmR[(M[3] << 4) & 0xf0] << 16);
-      tmp[1] ^= (M[1] >> 4) ^ (M[0] << 28);
-      tmp[2] ^= (M[2] >> 4) ^ (M[1] << 28);
-      tmp[3] ^= (M[3] >> 4) ^ (M[2] << 28);
+      tmp[0] ^= M[0];
+      tmp[1] ^= M[1];
+      tmp[2] ^= M[2];
+      tmp[3] ^= M[3];
 
       if (i == 0)
         break;
@@ -313,6 +427,8 @@ do_ghash (unsigned char *result, const unsigned char *buf, const u32 *gcmM)
 #define fillM(c) \
   do_fillM (c->u_mode.gcm.u_ghash_key.key, c->u_mode.gcm.gcm_table)
 #define GHASH(c, result, buf) do_ghash (result, buf, c->u_mode.gcm.gcm_table)
+#define prefetch_tables(c) \
+  do_prefetch_tables(c->u_mode.gcm.gcm_table, sizeof(c->u_mode.gcm.gcm_table))
 
 #else
 
@@ -342,7 +458,7 @@ do_ghash (unsigned char *hsub, unsigned char *result, const unsigned char *buf)
 #else
   unsigned long T[4];
 
-  buf_xor (V, result, buf, 16);
+  cipher_block_xor (V, result, buf, 16);
   for (i = 0; i < 4; i++)
     {
       V[i] = (V[i] & 0x00ff00ff) << 8 | (V[i] & 0xff00ff00) >> 8;
@@ -358,7 +474,7 @@ do_ghash (unsigned char *hsub, unsigned char *result, const unsigned char *buf)
       for (j = 0x80; j; j >>= 1)
         {
           if (hsub[i] & j)
-            buf_xor (p, p, V, 16);
+            cipher_block_xor (p, p, V, 16);
           if (bshift (V))
             V[0] ^= 0xe1000000;
         }
@@ -378,6 +494,7 @@ do_ghash (unsigned char *hsub, unsigned char *result, const unsigned char *buf)
 
 #define fillM(c) do { } while (0)
 #define GHASH(c, result, buf) do_ghash (c->u_mode.gcm.u_ghash_key.key, result, buf)
+#define prefetch_tables(c) do {} while (0)
 
 #endif /* !GCM_USE_TABLES */
 
@@ -388,6 +505,8 @@ ghash_internal (gcry_cipher_hd_t c, byte *result, const byte *buf,
 {
   const unsigned int blocksize = GCRY_GCM_BLOCK_LEN;
   unsigned int burn = 0;
+
+  prefetch_tables (c);
 
   while (nblocks)
     {
@@ -421,6 +540,13 @@ setupM (gcry_cipher_hd_t c)
     {
       c->u_mode.gcm.ghash_fn = ghash_armv8_ce_pmull;
       ghash_setup_armv8_ce_pmull (c);
+    }
+#endif
+#ifdef GCM_USE_ARM_NEON
+  else if (features & HWF_ARM_NEON)
+    {
+      c->u_mode.gcm.ghash_fn = ghash_armv7_neon;
+      ghash_setup_armv7_neon (c);
     }
 #endif
   else
@@ -525,8 +651,12 @@ do_ghash_buf(gcry_cipher_hd_t c, byte *hash, const byte *buf,
           if (!do_padding)
             break;
 
-          while (unused < blocksize)
-            c->u_mode.gcm.macbuf[unused++] = 0;
+	  n = blocksize - unused;
+	  if (n > 0)
+	    {
+	      memset (&c->u_mode.gcm.macbuf[unused], 0, n);
+	      unused = blocksize;
+	    }
         }
 
       if (unused > 0)
@@ -598,7 +728,7 @@ gcm_ctr_encrypt (gcry_cipher_hd_t c, byte *outbuf, size_t outbuflen,
                 }
 
               fix_ctr = 1;
-              buf_cpy(ctr_copy, c->u_ctr.ctr, GCRY_GCM_BLOCK_LEN);
+              cipher_block_cpy(ctr_copy, c->u_ctr.ctr, GCRY_GCM_BLOCK_LEN);
             }
         }
 
@@ -666,11 +796,26 @@ _gcry_cipher_gcm_encrypt (gcry_cipher_hd_t c,
       return GPG_ERR_INV_LENGTH;
     }
 
-  err = gcm_ctr_encrypt(c, outbuf, outbuflen, inbuf, inbuflen);
-  if (err != 0)
-    return err;
+  while (inbuflen)
+    {
+      size_t currlen = inbuflen;
 
-  do_ghash_buf(c, c->u_mode.gcm.u_tag.tag, outbuf, inbuflen, 0);
+      /* Since checksumming is done after encryption, process input in 24KiB
+       * chunks to keep data loaded in L1 cache for checksumming. */
+      if (currlen > 24 * 1024)
+	currlen = 24 * 1024;
+
+      err = gcm_ctr_encrypt(c, outbuf, outbuflen, inbuf, currlen);
+      if (err != 0)
+	return err;
+
+      do_ghash_buf(c, c->u_mode.gcm.u_tag.tag, outbuf, currlen, 0);
+
+      outbuf += currlen;
+      inbuf += currlen;
+      outbuflen -= currlen;
+      inbuflen -= currlen;
+    }
 
   return 0;
 }
@@ -682,6 +827,7 @@ _gcry_cipher_gcm_decrypt (gcry_cipher_hd_t c,
                           const byte *inbuf, size_t inbuflen)
 {
   static const unsigned char zerobuf[MAX_BLOCKSIZE];
+  gcry_err_code_t err;
 
   if (c->spec->blocksize != GCRY_GCM_BLOCK_LEN)
     return GPG_ERR_CIPHER_ALGO;
@@ -711,9 +857,28 @@ _gcry_cipher_gcm_decrypt (gcry_cipher_hd_t c,
       return GPG_ERR_INV_LENGTH;
     }
 
-  do_ghash_buf(c, c->u_mode.gcm.u_tag.tag, inbuf, inbuflen, 0);
+  while (inbuflen)
+    {
+      size_t currlen = inbuflen;
 
-  return gcm_ctr_encrypt(c, outbuf, outbuflen, inbuf, inbuflen);
+      /* Since checksumming is done before decryption, process input in
+       * 24KiB chunks to keep data loaded in L1 cache for decryption. */
+      if (currlen > 24 * 1024)
+	currlen = 24 * 1024;
+
+      do_ghash_buf(c, c->u_mode.gcm.u_tag.tag, inbuf, currlen, 0);
+
+      err = gcm_ctr_encrypt(c, outbuf, outbuflen, inbuf, currlen);
+      if (err)
+	return err;
+
+      outbuf += currlen;
+      inbuf += currlen;
+      outbuflen -= currlen;
+      inbuflen -= currlen;
+    }
+
+  return 0;
 }
 
 
@@ -928,8 +1093,8 @@ _gcry_cipher_gcm_tag (gcry_cipher_hd_t c,
       /* Add bitlengths to tag. */
       do_ghash_buf(c, c->u_mode.gcm.u_tag.tag, (byte*)bitlengths,
                    GCRY_GCM_BLOCK_LEN, 1);
-      buf_xor (c->u_mode.gcm.u_tag.tag, c->u_mode.gcm.tagiv,
-               c->u_mode.gcm.u_tag.tag, GCRY_GCM_BLOCK_LEN);
+      cipher_block_xor (c->u_mode.gcm.u_tag.tag, c->u_mode.gcm.tagiv,
+                        c->u_mode.gcm.u_tag.tag, GCRY_GCM_BLOCK_LEN);
       c->marks.tag = 1;
 
       wipememory (bitlengths, sizeof (bitlengths));

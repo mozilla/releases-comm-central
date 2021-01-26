@@ -121,6 +121,7 @@ void _gcry_mpi_immutable_failed (void);
 #define mpi_const(n)          _gcry_mpi_const ((n))
 #define mpi_swap_cond(a,b,sw)  _gcry_mpi_swap_cond ((a),(b),(sw))
 #define mpi_set_cond(w,u,set)  _gcry_mpi_set_cond ((w),(u),(set))
+#define mpi_set_bit_cond(a,n,set) _gcry_mpi_set_bit_cond ((a),(n),(set))
 
 void _gcry_mpi_clear( gcry_mpi_t a );
 gcry_mpi_t _gcry_mpi_set_cond (gcry_mpi_t w, const gcry_mpi_t u,
@@ -130,6 +131,7 @@ gcry_mpi_t  _gcry_mpi_alloc_set_ui( unsigned long u);
 void _gcry_mpi_m_check( gcry_mpi_t a );
 void _gcry_mpi_swap( gcry_mpi_t a, gcry_mpi_t b);
 void _gcry_mpi_swap_cond (gcry_mpi_t a, gcry_mpi_t b, unsigned long swap);
+void _gcry_mpi_set_bit_cond (gcry_mpi_t a, unsigned int n, unsigned long set);
 gcry_mpi_t _gcry_mpi_new (unsigned int nbits);
 gcry_mpi_t _gcry_mpi_snew (unsigned int nbits);
 gcry_mpi_t _gcry_mpi_set_opaque_copy (gcry_mpi_t a,
@@ -182,14 +184,14 @@ gpg_err_code_t _gcry_mpi_to_octet_string (unsigned char **r_frame,
 #define mpi_tdiv_q_2exp(a,b,c) _gcry_mpi_tdiv_q_2exp((a),(b),(c))
 #define mpi_divisible_ui(a,b)  _gcry_mpi_divisible_ui((a),(b))
 
-ulong _gcry_mpi_fdiv_r_ui( gcry_mpi_t rem, gcry_mpi_t dividend, ulong divisor );
+unsigned long _gcry_mpi_fdiv_r_ui( gcry_mpi_t rem, gcry_mpi_t dividend, unsigned long divisor );
 void  _gcry_mpi_fdiv_r( gcry_mpi_t rem, gcry_mpi_t dividend, gcry_mpi_t divisor );
 void  _gcry_mpi_fdiv_q( gcry_mpi_t quot, gcry_mpi_t dividend, gcry_mpi_t divisor );
 void  _gcry_mpi_fdiv_qr( gcry_mpi_t quot, gcry_mpi_t rem, gcry_mpi_t dividend, gcry_mpi_t divisor );
 void  _gcry_mpi_tdiv_r( gcry_mpi_t rem, gcry_mpi_t num, gcry_mpi_t den);
 void  _gcry_mpi_tdiv_qr( gcry_mpi_t quot, gcry_mpi_t rem, gcry_mpi_t num, gcry_mpi_t den);
 void  _gcry_mpi_tdiv_q_2exp( gcry_mpi_t w, gcry_mpi_t u, unsigned count );
-int   _gcry_mpi_divisible_ui(gcry_mpi_t dividend, ulong divisor );
+int   _gcry_mpi_divisible_ui(gcry_mpi_t dividend, unsigned long divisor );
 
 
 /*-- mpi-mod.c --*/
@@ -266,7 +268,8 @@ enum gcry_mpi_ec_models
 enum ecc_dialects
   {
     ECC_DIALECT_STANDARD = 0,
-    ECC_DIALECT_ED25519
+    ECC_DIALECT_ED25519,
+    ECC_DIALECT_SAFECURVE
   };
 
 
@@ -314,6 +317,10 @@ gpg_err_code_t _gcry_mpi_ec_decode_point (mpi_point_t result,
 /*-- ecc-curves.c --*/
 gpg_err_code_t _gcry_mpi_ec_new (gcry_ctx_t *r_ctx,
                                  gcry_sexp_t keyparam, const char *curvename);
+gpg_err_code_t _gcry_mpi_ec_internal_new (mpi_ec_t *r_ec, int *r_flags,
+                                          const char *name_op,
+                                          gcry_sexp_t keyparam,
+                                          const char *curvename);
 
 
 

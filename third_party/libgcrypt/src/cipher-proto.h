@@ -129,10 +129,13 @@ typedef struct gcry_pk_spec
  *
  */
 
+typedef struct cipher_bulk_ops cipher_bulk_ops_t;
+
 /* Type for the cipher_setkey function.  */
 typedef gcry_err_code_t (*gcry_cipher_setkey_t) (void *c,
 						 const unsigned char *key,
-						 unsigned keylen);
+						 unsigned keylen,
+						 cipher_bulk_ops_t *bulk_ops);
 
 /* Type for the cipher_encrypt function.  */
 typedef unsigned int (*gcry_cipher_encrypt_t) (void *c,
@@ -218,6 +221,14 @@ typedef unsigned char *(*gcry_md_read_t) (void *c);
 /* Type for the md_extract function.  */
 typedef void (*gcry_md_extract_t) (void *c, void *outbuf, size_t nbytes);
 
+/* Type for the md_hash_buffer function. */
+typedef void (*gcry_md_hash_buffer_t) (void *outbuf, const void *buffer,
+				       size_t length);
+
+/* Type for the md_hash_buffers function. */
+typedef void (*gcry_md_hash_buffers_t) (void *outbuf, const gcry_buffer_t *iov,
+				        int iovcnt);
+
 typedef struct gcry_md_oid_spec
 {
   const char *oidstring;
@@ -241,6 +252,8 @@ typedef struct gcry_md_spec
   gcry_md_final_t final;
   gcry_md_read_t read;
   gcry_md_extract_t extract;
+  gcry_md_hash_buffer_t hash_buffer;
+  gcry_md_hash_buffers_t hash_buffers;
   size_t contextsize; /* allocate this amount of context */
   selftest_func_t selftest;
 } gcry_md_spec_t;
@@ -254,8 +267,10 @@ gcry_error_t _gcry_md_selftest (int algo, int extended,
                                 selftest_report_func_t report);
 gcry_error_t _gcry_pk_selftest (int algo, int extended,
                                 selftest_report_func_t report);
-gcry_error_t _gcry_hmac_selftest (int algo, int extended,
-                                  selftest_report_func_t report);
+gcry_error_t _gcry_mac_selftest (int algo, int extended,
+                                 selftest_report_func_t report);
+gcry_error_t _gcry_kdf_selftest (int algo, int extended,
+                                 selftest_report_func_t report);
 
 gcry_error_t _gcry_random_selftest (selftest_report_func_t report);
 

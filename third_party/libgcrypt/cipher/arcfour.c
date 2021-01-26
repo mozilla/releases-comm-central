@@ -54,21 +54,7 @@ static void
 encrypt_stream (void *context,
                 byte *outbuf, const byte *inbuf, size_t length)
 {
-#ifdef HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS
-  const void *fn = _gcry_arcfour_amd64;
-  /* Call SystemV ABI function without storing non-volatile XMM registers,
-   * as target function does not use vector instruction sets. */
-  asm volatile ("callq *%0\n\t"
-                : "+a" (fn),
-                  "+D" (context),
-                  "+S" (length),
-                  "+d" (inbuf),
-                  "+c" (outbuf)
-                :
-                : "cc", "memory", "r8", "r9", "r10", "r11");
-#else
   _gcry_arcfour_amd64 (context, length, inbuf, outbuf );
-#endif
 }
 
 #else /*!USE_AMD64_ASM*/
@@ -184,10 +170,12 @@ do_arcfour_setkey (void *context, const byte *key, unsigned int keylen)
 }
 
 static gcry_err_code_t
-arcfour_setkey ( void *context, const byte *key, unsigned int keylen )
+arcfour_setkey ( void *context, const byte *key, unsigned int keylen,
+                 cipher_bulk_ops_t *bulk_ops )
 {
   ARCFOUR_context *ctx = (ARCFOUR_context *) context;
   gcry_err_code_t rc = do_arcfour_setkey (ctx, key, keylen );
+  (void)bulk_ops;
   return rc;
 }
 
@@ -207,11 +195,11 @@ selftest(void)
   static const byte ciphertext_1[] =
     { 0xF1, 0x38, 0x29, 0xC9, 0xDE };
 
-  arcfour_setkey( &ctx, key_1, sizeof(key_1));
+  arcfour_setkey( &ctx, key_1, sizeof(key_1), NULL);
   encrypt_stream( &ctx, scratch, plaintext_1, sizeof(plaintext_1));
   if ( memcmp (scratch, ciphertext_1, sizeof (ciphertext_1)))
     return "Arcfour encryption test 1 failed.";
-  arcfour_setkey( &ctx, key_1, sizeof(key_1));
+  arcfour_setkey( &ctx, key_1, sizeof(key_1), NULL);
   encrypt_stream(&ctx, scratch, scratch, sizeof(plaintext_1)); /* decrypt */
   if ( memcmp (scratch, plaintext_1, sizeof (plaintext_1)))
     return "Arcfour decryption test 1 failed.";

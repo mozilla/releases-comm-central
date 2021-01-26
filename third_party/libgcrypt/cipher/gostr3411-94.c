@@ -35,7 +35,6 @@
 
 typedef struct {
   gcry_md_block_ctx_t bctx;
-  GOST28147_context hd;
   union {
     u32 h[8];
     byte result[32];
@@ -55,13 +54,12 @@ gost3411_init (void *context, unsigned int flags)
 
   (void)flags;
 
-  memset (&hd->hd, 0, sizeof(hd->hd));
   memset (hd->h, 0, 32);
   memset (hd->sigma, 0, 32);
 
   hd->bctx.nblocks = 0;
   hd->bctx.count = 0;
-  hd->bctx.blocksize = 32;
+  hd->bctx.blocksize_shift = _gcry_ctz(32);
   hd->bctx.bwrite = transform;
   hd->cryptopro = 0;
 }
@@ -83,17 +81,45 @@ do_p (u32 *p, u32 *u, u32 *v)
   for (k = 0; k < 8; k++)
     t[k] = u[k] ^ v[k];
 
-  for (k = 0; k < 4; k++)
-    {
-          p[k+0] = ((t[0] >> (8*k)) & 0xff) << 0 |
-                   ((t[2] >> (8*k)) & 0xff) << 8 |
-                   ((t[4] >> (8*k)) & 0xff) << 16 |
-                   ((t[6] >> (8*k)) & 0xff) << 24;
-          p[k+4] = ((t[1] >> (8*k)) & 0xff) << 0 |
-                   ((t[3] >> (8*k)) & 0xff) << 8 |
-                   ((t[5] >> (8*k)) & 0xff) << 16 |
-                   ((t[7] >> (8*k)) & 0xff) << 24;
-    }
+  k = 0;
+  p[k+0] = ((t[0] >> (8*k)) & 0xff) << 0 |
+           ((t[2] >> (8*k)) & 0xff) << 8 |
+           ((t[4] >> (8*k)) & 0xff) << 16 |
+           ((t[6] >> (8*k)) & 0xff) << 24;
+  p[k+4] = ((t[1] >> (8*k)) & 0xff) << 0 |
+           ((t[3] >> (8*k)) & 0xff) << 8 |
+           ((t[5] >> (8*k)) & 0xff) << 16 |
+           ((t[7] >> (8*k)) & 0xff) << 24;
+
+  k = 1;
+  p[k+0] = ((t[0] >> (8*k)) & 0xff) << 0 |
+           ((t[2] >> (8*k)) & 0xff) << 8 |
+           ((t[4] >> (8*k)) & 0xff) << 16 |
+           ((t[6] >> (8*k)) & 0xff) << 24;
+  p[k+4] = ((t[1] >> (8*k)) & 0xff) << 0 |
+           ((t[3] >> (8*k)) & 0xff) << 8 |
+           ((t[5] >> (8*k)) & 0xff) << 16 |
+           ((t[7] >> (8*k)) & 0xff) << 24;
+
+  k = 2;
+  p[k+0] = ((t[0] >> (8*k)) & 0xff) << 0 |
+           ((t[2] >> (8*k)) & 0xff) << 8 |
+           ((t[4] >> (8*k)) & 0xff) << 16 |
+           ((t[6] >> (8*k)) & 0xff) << 24;
+  p[k+4] = ((t[1] >> (8*k)) & 0xff) << 0 |
+           ((t[3] >> (8*k)) & 0xff) << 8 |
+           ((t[5] >> (8*k)) & 0xff) << 16 |
+           ((t[7] >> (8*k)) & 0xff) << 24;
+
+  k = 3;
+  p[k+0] = ((t[0] >> (8*k)) & 0xff) << 0 |
+           ((t[2] >> (8*k)) & 0xff) << 8 |
+           ((t[4] >> (8*k)) & 0xff) << 16 |
+           ((t[6] >> (8*k)) & 0xff) << 24;
+  p[k+4] = ((t[1] >> (8*k)) & 0xff) << 0 |
+           ((t[3] >> (8*k)) & 0xff) << 8 |
+           ((t[5] >> (8*k)) & 0xff) << 16 |
+           ((t[7] >> (8*k)) & 0xff) << 24;
 }
 
 static void
@@ -200,7 +226,7 @@ do_hash_step (GOSTR3411_CONTEXT *hd, u32 *h, u32 *m)
   for (i = 0; i < 4; i++) {
     do_p (k, u, v);
 
-    burn = _gcry_gost_enc_data (&hd->hd, k, &s[2*i], &s[2*i+1], h[2*i], h[2*i+1], hd->cryptopro);
+    burn = _gcry_gost_enc_data (k, &s[2*i], &s[2*i+1], h[2*i], h[2*i+1], hd->cryptopro);
 
     do_a (u);
     if (i == 1)
@@ -344,6 +370,7 @@ gcry_md_spec_t _gcry_digest_spec_gost3411_94 =
     GCRY_MD_GOSTR3411_94, {0, 0},
     "GOSTR3411_94", NULL, 0, NULL, 32,
     gost3411_init, _gcry_md_block_write, gost3411_final, gost3411_read, NULL,
+    NULL, NULL,
     sizeof (GOSTR3411_CONTEXT)
   };
 gcry_md_spec_t _gcry_digest_spec_gost3411_cp =
@@ -351,5 +378,6 @@ gcry_md_spec_t _gcry_digest_spec_gost3411_cp =
     GCRY_MD_GOSTR3411_CP, {0, 0},
     "GOSTR3411_CP", asn, DIM (asn), oid_spec_gostr3411, 32,
     gost3411_cp_init, _gcry_md_block_write, gost3411_final, gost3411_read, NULL,
+    NULL, NULL,
     sizeof (GOSTR3411_CONTEXT)
   };

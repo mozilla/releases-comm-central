@@ -104,6 +104,27 @@
 #endif
 
 
+/* USE_SSSE3_I386 indicates whether to compile with Intel SSSE3/i386 code. */
+#undef USE_SSSE3_I386
+#if defined(__i386__) && SIZEOF_UNSIGNED_LONG == 4 && __GNUC__ >= 4 && \
+    defined(HAVE_GCC_INLINE_ASM_SSSE3)
+# define USE_SSSE3_I386 1
+#endif
+
+
+/* USE_PPC_CRYPTO indicates whether to enable PowerPC vector crypto
+ * accelerated code. */
+#undef USE_PPC_CRYPTO
+#ifdef ENABLE_PPC_CRYPTO_SUPPORT
+# if defined(HAVE_COMPATIBLE_CC_PPC_ALTIVEC) && \
+     defined(HAVE_GCC_INLINE_ASM_PPC_ALTIVEC)
+#  if __GNUC__ >= 4
+#   define USE_PPC_CRYPTO 1
+#  endif
+# endif
+#endif
+
+
 typedef struct
 {
   u64 h0, h1, h2, h3, h4, h5, h6, h7;
@@ -113,102 +134,7 @@ typedef struct
 {
   gcry_md_block_ctx_t bctx;
   SHA512_STATE state;
-#ifdef USE_ARM_NEON_ASM
-  unsigned int use_neon:1;
-#endif
-#ifdef USE_SSSE3
-  unsigned int use_ssse3:1;
-#endif
-#ifdef USE_AVX
-  unsigned int use_avx:1;
-#endif
-#ifdef USE_AVX2
-  unsigned int use_avx2:1;
-#endif
 } SHA512_CONTEXT;
-
-static unsigned int
-transform (void *context, const unsigned char *data, size_t nblks);
-
-static void
-sha512_init (void *context, unsigned int flags)
-{
-  SHA512_CONTEXT *ctx = context;
-  SHA512_STATE *hd = &ctx->state;
-  unsigned int features = _gcry_get_hw_features ();
-
-  (void)flags;
-
-  hd->h0 = U64_C(0x6a09e667f3bcc908);
-  hd->h1 = U64_C(0xbb67ae8584caa73b);
-  hd->h2 = U64_C(0x3c6ef372fe94f82b);
-  hd->h3 = U64_C(0xa54ff53a5f1d36f1);
-  hd->h4 = U64_C(0x510e527fade682d1);
-  hd->h5 = U64_C(0x9b05688c2b3e6c1f);
-  hd->h6 = U64_C(0x1f83d9abfb41bd6b);
-  hd->h7 = U64_C(0x5be0cd19137e2179);
-
-  ctx->bctx.nblocks = 0;
-  ctx->bctx.nblocks_high = 0;
-  ctx->bctx.count = 0;
-  ctx->bctx.blocksize = 128;
-  ctx->bctx.bwrite = transform;
-
-#ifdef USE_ARM_NEON_ASM
-  ctx->use_neon = (features & HWF_ARM_NEON) != 0;
-#endif
-#ifdef USE_SSSE3
-  ctx->use_ssse3 = (features & HWF_INTEL_SSSE3) != 0;
-#endif
-#ifdef USE_AVX
-  ctx->use_avx = (features & HWF_INTEL_AVX) && (features & HWF_INTEL_FAST_SHLD);
-#endif
-#ifdef USE_AVX2
-  ctx->use_avx2 = (features & HWF_INTEL_AVX2) && (features & HWF_INTEL_BMI2);
-#endif
-
-  (void)features;
-}
-
-static void
-sha384_init (void *context, unsigned int flags)
-{
-  SHA512_CONTEXT *ctx = context;
-  SHA512_STATE *hd = &ctx->state;
-  unsigned int features = _gcry_get_hw_features ();
-
-  (void)flags;
-
-  hd->h0 = U64_C(0xcbbb9d5dc1059ed8);
-  hd->h1 = U64_C(0x629a292a367cd507);
-  hd->h2 = U64_C(0x9159015a3070dd17);
-  hd->h3 = U64_C(0x152fecd8f70e5939);
-  hd->h4 = U64_C(0x67332667ffc00b31);
-  hd->h5 = U64_C(0x8eb44a8768581511);
-  hd->h6 = U64_C(0xdb0c2e0d64f98fa7);
-  hd->h7 = U64_C(0x47b5481dbefa4fa4);
-
-  ctx->bctx.nblocks = 0;
-  ctx->bctx.nblocks_high = 0;
-  ctx->bctx.count = 0;
-  ctx->bctx.blocksize = 128;
-  ctx->bctx.bwrite = transform;
-
-#ifdef USE_ARM_NEON_ASM
-  ctx->use_neon = (features & HWF_ARM_NEON) != 0;
-#endif
-#ifdef USE_SSSE3
-  ctx->use_ssse3 = (features & HWF_INTEL_SSSE3) != 0;
-#endif
-#ifdef USE_AVX
-  ctx->use_avx = (features & HWF_INTEL_AVX) && (features & HWF_INTEL_FAST_SHLD);
-#endif
-#ifdef USE_AVX2
-  ctx->use_avx2 = (features & HWF_INTEL_AVX2) && (features & HWF_INTEL_BMI2);
-#endif
-
-  (void)features;
-}
 
 
 static const u64 k[] =
@@ -255,6 +181,261 @@ static const u64 k[] =
     U64_C(0x5fcb6fab3ad6faec), U64_C(0x6c44198c4a475817)
   };
 
+
+/* AMD64 assembly implementations use SystemV ABI, ABI conversion and additional
+ * stack to store XMM6-XMM15 needed on Win64. */
+#undef ASM_FUNC_ABI
+#undef ASM_EXTRA_STACK
+#if defined(USE_SSSE3) || defined(USE_AVX) || defined(USE_AVX2)
+# ifdef HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS
+#  define ASM_FUNC_ABI __attribute__((sysv_abi))
+#  define ASM_EXTRA_STACK (10 * 16 + 4 * sizeof(void *))
+# else
+#  define ASM_FUNC_ABI
+#  define ASM_EXTRA_STACK 0
+# endif
+#endif
+
+
+#ifdef USE_ARM_NEON_ASM
+unsigned int _gcry_sha512_transform_armv7_neon (SHA512_STATE *hd,
+                                                const unsigned char *data,
+                                                const u64 k[], size_t num_blks);
+
+static unsigned int
+do_sha512_transform_armv7_neon(void *ctx, const unsigned char *data,
+                               size_t nblks)
+{
+  SHA512_CONTEXT *hd = ctx;
+  return _gcry_sha512_transform_armv7_neon (&hd->state, data, k, nblks);
+}
+#endif
+
+#ifdef USE_SSSE3
+unsigned int _gcry_sha512_transform_amd64_ssse3(const void *input_data,
+                                                void *state,
+                                                size_t num_blks) ASM_FUNC_ABI;
+
+static unsigned int
+do_sha512_transform_amd64_ssse3(void *ctx, const unsigned char *data,
+                                size_t nblks)
+{
+  SHA512_CONTEXT *hd = ctx;
+  return _gcry_sha512_transform_amd64_ssse3 (data, &hd->state, nblks)
+         + ASM_EXTRA_STACK;
+}
+#endif
+
+#ifdef USE_AVX
+unsigned int _gcry_sha512_transform_amd64_avx(const void *input_data,
+                                              void *state,
+                                              size_t num_blks) ASM_FUNC_ABI;
+
+static unsigned int
+do_sha512_transform_amd64_avx(void *ctx, const unsigned char *data,
+                              size_t nblks)
+{
+  SHA512_CONTEXT *hd = ctx;
+  return _gcry_sha512_transform_amd64_avx (data, &hd->state, nblks)
+         + ASM_EXTRA_STACK;
+}
+#endif
+
+#ifdef USE_AVX2
+unsigned int _gcry_sha512_transform_amd64_avx2(const void *input_data,
+                                               void *state,
+                                               size_t num_blks) ASM_FUNC_ABI;
+
+static unsigned int
+do_sha512_transform_amd64_avx2(void *ctx, const unsigned char *data,
+                               size_t nblks)
+{
+  SHA512_CONTEXT *hd = ctx;
+  return _gcry_sha512_transform_amd64_avx2 (data, &hd->state, nblks)
+         + ASM_EXTRA_STACK;
+}
+#endif
+
+#ifdef USE_SSSE3_I386
+unsigned int _gcry_sha512_transform_i386_ssse3(u64 state[8],
+					       const unsigned char *input_data,
+					       size_t num_blks);
+
+static unsigned int
+do_sha512_transform_i386_ssse3(void *ctx, const unsigned char *data,
+			       size_t nblks)
+{
+  SHA512_CONTEXT *hd = ctx;
+  return _gcry_sha512_transform_i386_ssse3 (&hd->state.h0, data, nblks);
+}
+#endif
+
+
+#ifdef USE_ARM_ASM
+unsigned int _gcry_sha512_transform_arm (SHA512_STATE *hd,
+					 const unsigned char *data,
+					 const u64 k[], size_t num_blks);
+
+static unsigned int
+do_transform_generic (void *context, const unsigned char *data, size_t nblks)
+{
+  SHA512_CONTEXT *hd = context;
+  return _gcry_sha512_transform_armv7_neon (&hd->state, data, k, nblks);
+}
+#else
+static unsigned int
+do_transform_generic (void *context, const unsigned char *data, size_t nblks);
+#endif
+
+
+#ifdef USE_PPC_CRYPTO
+unsigned int _gcry_sha512_transform_ppc8(u64 state[8],
+					 const unsigned char *input_data,
+					 size_t num_blks);
+
+unsigned int _gcry_sha512_transform_ppc9(u64 state[8],
+					 const unsigned char *input_data,
+					 size_t num_blks);
+
+static unsigned int
+do_sha512_transform_ppc8(void *ctx, const unsigned char *data, size_t nblks)
+{
+  SHA512_CONTEXT *hd = ctx;
+  return _gcry_sha512_transform_ppc8 (&hd->state.h0, data, nblks);
+}
+
+static unsigned int
+do_sha512_transform_ppc9(void *ctx, const unsigned char *data, size_t nblks)
+{
+  SHA512_CONTEXT *hd = ctx;
+  return _gcry_sha512_transform_ppc9 (&hd->state.h0, data, nblks);
+}
+#endif
+
+
+static void
+sha512_init_common (SHA512_CONTEXT *ctx, unsigned int flags)
+{
+  unsigned int features = _gcry_get_hw_features ();
+
+  (void)flags;
+  (void)k;
+
+  ctx->bctx.nblocks = 0;
+  ctx->bctx.nblocks_high = 0;
+  ctx->bctx.count = 0;
+  ctx->bctx.blocksize_shift = _gcry_ctz(128);
+
+  /* Order of feature checks is important here; last match will be
+   * selected.  Keep slower implementations at the top and faster at
+   * the bottom.  */
+  ctx->bctx.bwrite = do_transform_generic;
+#ifdef USE_ARM_NEON_ASM
+  if ((features & HWF_ARM_NEON) != 0)
+    ctx->bctx.bwrite = do_sha512_transform_armv7_neon;
+#endif
+#ifdef USE_SSSE3
+  if ((features & HWF_INTEL_SSSE3) != 0)
+    ctx->bctx.bwrite = do_sha512_transform_amd64_ssse3;
+#endif
+#ifdef USE_AVX
+  if ((features & HWF_INTEL_AVX) && (features & HWF_INTEL_FAST_SHLD))
+    ctx->bctx.bwrite = do_sha512_transform_amd64_avx;
+#endif
+#ifdef USE_AVX2
+  if ((features & HWF_INTEL_AVX2) && (features & HWF_INTEL_BMI2))
+    ctx->bctx.bwrite = do_sha512_transform_amd64_avx2;
+#endif
+#ifdef USE_PPC_CRYPTO
+  if ((features & HWF_PPC_VCRYPTO) != 0)
+    ctx->bctx.bwrite = do_sha512_transform_ppc8;
+  if ((features & HWF_PPC_VCRYPTO) != 0 && (features & HWF_PPC_ARCH_3_00) != 0)
+    ctx->bctx.bwrite = do_sha512_transform_ppc9;
+#endif
+#ifdef USE_SSSE3_I386
+  if ((features & HWF_INTEL_SSSE3) != 0)
+    ctx->bctx.bwrite = do_sha512_transform_i386_ssse3;
+#endif
+  (void)features;
+}
+
+
+static void
+sha512_init (void *context, unsigned int flags)
+{
+  SHA512_CONTEXT *ctx = context;
+  SHA512_STATE *hd = &ctx->state;
+
+  hd->h0 = U64_C(0x6a09e667f3bcc908);
+  hd->h1 = U64_C(0xbb67ae8584caa73b);
+  hd->h2 = U64_C(0x3c6ef372fe94f82b);
+  hd->h3 = U64_C(0xa54ff53a5f1d36f1);
+  hd->h4 = U64_C(0x510e527fade682d1);
+  hd->h5 = U64_C(0x9b05688c2b3e6c1f);
+  hd->h6 = U64_C(0x1f83d9abfb41bd6b);
+  hd->h7 = U64_C(0x5be0cd19137e2179);
+
+  sha512_init_common (ctx, flags);
+}
+
+static void
+sha384_init (void *context, unsigned int flags)
+{
+  SHA512_CONTEXT *ctx = context;
+  SHA512_STATE *hd = &ctx->state;
+
+  hd->h0 = U64_C(0xcbbb9d5dc1059ed8);
+  hd->h1 = U64_C(0x629a292a367cd507);
+  hd->h2 = U64_C(0x9159015a3070dd17);
+  hd->h3 = U64_C(0x152fecd8f70e5939);
+  hd->h4 = U64_C(0x67332667ffc00b31);
+  hd->h5 = U64_C(0x8eb44a8768581511);
+  hd->h6 = U64_C(0xdb0c2e0d64f98fa7);
+  hd->h7 = U64_C(0x47b5481dbefa4fa4);
+
+  sha512_init_common (ctx, flags);
+}
+
+
+static void
+sha512_256_init (void *context, unsigned int flags)
+{
+  SHA512_CONTEXT *ctx = context;
+  SHA512_STATE *hd = &ctx->state;
+
+  hd->h0 = U64_C(0x22312194fc2bf72c);
+  hd->h1 = U64_C(0x9f555fa3c84c64c2);
+  hd->h2 = U64_C(0x2393b86b6f53b151);
+  hd->h3 = U64_C(0x963877195940eabd);
+  hd->h4 = U64_C(0x96283ee2a88effe3);
+  hd->h5 = U64_C(0xbe5e1e2553863992);
+  hd->h6 = U64_C(0x2b0199fc2c85b8aa);
+  hd->h7 = U64_C(0x0eb72ddc81c52ca2);
+
+  sha512_init_common (ctx, flags);
+}
+
+
+static void
+sha512_224_init (void *context, unsigned int flags)
+{
+  SHA512_CONTEXT *ctx = context;
+  SHA512_STATE *hd = &ctx->state;
+
+  hd->h0 = U64_C(0x8c3d37c819544da2);
+  hd->h1 = U64_C(0x73e1996689dcd4d6);
+  hd->h2 = U64_C(0x1dfab7ae32ff9c82);
+  hd->h3 = U64_C(0x679dd514582f9fcf);
+  hd->h4 = U64_C(0x0f6d2b697bd44da8);
+  hd->h5 = U64_C(0x77e36f7304c48942);
+  hd->h6 = U64_C(0x3f9d85a86a1d36c8);
+  hd->h7 = U64_C(0x1112e6ad91d692a1);
+
+  sha512_init_common (ctx, flags);
+}
+
+
+
 #ifndef USE_ARM_ASM
 
 static inline u64
@@ -291,372 +472,240 @@ Sum1 (u64 x)
  * Transform the message W which consists of 16 64-bit-words
  */
 static unsigned int
-transform_blk (SHA512_STATE *hd, const unsigned char *data)
+do_transform_generic (void *context, const unsigned char *data, size_t nblks)
 {
-  u64 a, b, c, d, e, f, g, h;
-  u64 w[16];
-  int t;
+  SHA512_CONTEXT *ctx = context;
+  SHA512_STATE *hd = &ctx->state;
 
-  /* get values from the chaining vars */
-  a = hd->h0;
-  b = hd->h1;
-  c = hd->h2;
-  d = hd->h3;
-  e = hd->h4;
-  f = hd->h5;
-  g = hd->h6;
-  h = hd->h7;
+  do
+    {
+      u64 a, b, c, d, e, f, g, h;
+      u64 w[16];
+      int t;
 
-  for ( t = 0; t < 16; t++ )
-    w[t] = buf_get_be64(data + t * 8);
+      /* get values from the chaining vars */
+      a = hd->h0;
+      b = hd->h1;
+      c = hd->h2;
+      d = hd->h3;
+      e = hd->h4;
+      f = hd->h5;
+      g = hd->h6;
+      h = hd->h7;
+
+      for ( t = 0; t < 16; t++ )
+        w[t] = buf_get_be64(data + t * 8);
 
 #define S0(x) (ROTR((x),1) ^ ROTR((x),8) ^ ((x)>>7))
 #define S1(x) (ROTR((x),19) ^ ROTR((x),61) ^ ((x)>>6))
 
-  for (t = 0; t < 80 - 16; )
-    {
-      u64 t1, t2;
+      for (t = 0; t < 80 - 16; )
+        {
+          u64 t1, t2;
 
-      /* Performance on a AMD Athlon(tm) Dual Core Processor 4050e
-         with gcc 4.3.3 using gcry_md_hash_buffer of each 10000 bytes
-         initialized to 0,1,2,3...255,0,... and 1000 iterations:
+          t1 = h + Sum1 (e) + Ch (e, f, g) + k[t] + w[0];
+          w[0] += S1 (w[14]) + w[9] + S0 (w[1]);
+          t2 = Sum0 (a) + Maj (a, b, c);
+          d += t1;
+          h = t1 + t2;
 
-         Not unrolled with macros:  440ms
-         Unrolled with macros:      350ms
-         Unrolled with inline:      330ms
-      */
-#if 0 /* Not unrolled.  */
-      t1 = h + Sum1 (e) + Ch (e, f, g) + k[t] + w[t%16];
-      w[t%16] += S1 (w[(t - 2)%16]) + w[(t - 7)%16] + S0 (w[(t - 15)%16]);
-      t2 = Sum0 (a) + Maj (a, b, c);
-      h = g;
-      g = f;
-      f = e;
-      e = d + t1;
-      d = c;
-      c = b;
-      b = a;
-      a = t1 + t2;
-      t++;
-#else /* Unrolled to interweave the chain variables.  */
-      t1 = h + Sum1 (e) + Ch (e, f, g) + k[t] + w[0];
-      w[0] += S1 (w[14]) + w[9] + S0 (w[1]);
-      t2 = Sum0 (a) + Maj (a, b, c);
-      d += t1;
-      h = t1 + t2;
+          t1 = g + Sum1 (d) + Ch (d, e, f) + k[t+1] + w[1];
+          w[1] += S1 (w[15]) + w[10] + S0 (w[2]);
+          t2 = Sum0 (h) + Maj (h, a, b);
+          c += t1;
+          g  = t1 + t2;
 
-      t1 = g + Sum1 (d) + Ch (d, e, f) + k[t+1] + w[1];
-      w[1] += S1 (w[15]) + w[10] + S0 (w[2]);
-      t2 = Sum0 (h) + Maj (h, a, b);
-      c += t1;
-      g  = t1 + t2;
+          t1 = f + Sum1 (c) + Ch (c, d, e) + k[t+2] + w[2];
+          w[2] += S1 (w[0]) + w[11] + S0 (w[3]);
+          t2 = Sum0 (g) + Maj (g, h, a);
+          b += t1;
+          f  = t1 + t2;
 
-      t1 = f + Sum1 (c) + Ch (c, d, e) + k[t+2] + w[2];
-      w[2] += S1 (w[0]) + w[11] + S0 (w[3]);
-      t2 = Sum0 (g) + Maj (g, h, a);
-      b += t1;
-      f  = t1 + t2;
+          t1 = e + Sum1 (b) + Ch (b, c, d) + k[t+3] + w[3];
+          w[3] += S1 (w[1]) + w[12] + S0 (w[4]);
+          t2 = Sum0 (f) + Maj (f, g, h);
+          a += t1;
+          e  = t1 + t2;
 
-      t1 = e + Sum1 (b) + Ch (b, c, d) + k[t+3] + w[3];
-      w[3] += S1 (w[1]) + w[12] + S0 (w[4]);
-      t2 = Sum0 (f) + Maj (f, g, h);
-      a += t1;
-      e  = t1 + t2;
+          t1 = d + Sum1 (a) + Ch (a, b, c) + k[t+4] + w[4];
+          w[4] += S1 (w[2]) + w[13] + S0 (w[5]);
+          t2 = Sum0 (e) + Maj (e, f, g);
+          h += t1;
+          d  = t1 + t2;
 
-      t1 = d + Sum1 (a) + Ch (a, b, c) + k[t+4] + w[4];
-      w[4] += S1 (w[2]) + w[13] + S0 (w[5]);
-      t2 = Sum0 (e) + Maj (e, f, g);
-      h += t1;
-      d  = t1 + t2;
+          t1 = c + Sum1 (h) + Ch (h, a, b) + k[t+5] + w[5];
+          w[5] += S1 (w[3]) + w[14] + S0 (w[6]);
+          t2 = Sum0 (d) + Maj (d, e, f);
+          g += t1;
+          c  = t1 + t2;
 
-      t1 = c + Sum1 (h) + Ch (h, a, b) + k[t+5] + w[5];
-      w[5] += S1 (w[3]) + w[14] + S0 (w[6]);
-      t2 = Sum0 (d) + Maj (d, e, f);
-      g += t1;
-      c  = t1 + t2;
+          t1 = b + Sum1 (g) + Ch (g, h, a) + k[t+6] + w[6];
+          w[6] += S1 (w[4]) + w[15] + S0 (w[7]);
+          t2 = Sum0 (c) + Maj (c, d, e);
+          f += t1;
+          b  = t1 + t2;
 
-      t1 = b + Sum1 (g) + Ch (g, h, a) + k[t+6] + w[6];
-      w[6] += S1 (w[4]) + w[15] + S0 (w[7]);
-      t2 = Sum0 (c) + Maj (c, d, e);
-      f += t1;
-      b  = t1 + t2;
+          t1 = a + Sum1 (f) + Ch (f, g, h) + k[t+7] + w[7];
+          w[7] += S1 (w[5]) + w[0] + S0 (w[8]);
+          t2 = Sum0 (b) + Maj (b, c, d);
+          e += t1;
+          a  = t1 + t2;
 
-      t1 = a + Sum1 (f) + Ch (f, g, h) + k[t+7] + w[7];
-      w[7] += S1 (w[5]) + w[0] + S0 (w[8]);
-      t2 = Sum0 (b) + Maj (b, c, d);
-      e += t1;
-      a  = t1 + t2;
+          t1 = h + Sum1 (e) + Ch (e, f, g) + k[t+8] + w[8];
+          w[8] += S1 (w[6]) + w[1] + S0 (w[9]);
+          t2 = Sum0 (a) + Maj (a, b, c);
+          d += t1;
+          h  = t1 + t2;
 
-      t1 = h + Sum1 (e) + Ch (e, f, g) + k[t+8] + w[8];
-      w[8] += S1 (w[6]) + w[1] + S0 (w[9]);
-      t2 = Sum0 (a) + Maj (a, b, c);
-      d += t1;
-      h  = t1 + t2;
+          t1 = g + Sum1 (d) + Ch (d, e, f) + k[t+9] + w[9];
+          w[9] += S1 (w[7]) + w[2] + S0 (w[10]);
+          t2 = Sum0 (h) + Maj (h, a, b);
+          c += t1;
+          g  = t1 + t2;
 
-      t1 = g + Sum1 (d) + Ch (d, e, f) + k[t+9] + w[9];
-      w[9] += S1 (w[7]) + w[2] + S0 (w[10]);
-      t2 = Sum0 (h) + Maj (h, a, b);
-      c += t1;
-      g  = t1 + t2;
+          t1 = f + Sum1 (c) + Ch (c, d, e) + k[t+10] + w[10];
+          w[10] += S1 (w[8]) + w[3] + S0 (w[11]);
+          t2 = Sum0 (g) + Maj (g, h, a);
+          b += t1;
+          f  = t1 + t2;
 
-      t1 = f + Sum1 (c) + Ch (c, d, e) + k[t+10] + w[10];
-      w[10] += S1 (w[8]) + w[3] + S0 (w[11]);
-      t2 = Sum0 (g) + Maj (g, h, a);
-      b += t1;
-      f  = t1 + t2;
+          t1 = e + Sum1 (b) + Ch (b, c, d) + k[t+11] + w[11];
+          w[11] += S1 (w[9]) + w[4] + S0 (w[12]);
+          t2 = Sum0 (f) + Maj (f, g, h);
+          a += t1;
+          e  = t1 + t2;
 
-      t1 = e + Sum1 (b) + Ch (b, c, d) + k[t+11] + w[11];
-      w[11] += S1 (w[9]) + w[4] + S0 (w[12]);
-      t2 = Sum0 (f) + Maj (f, g, h);
-      a += t1;
-      e  = t1 + t2;
+          t1 = d + Sum1 (a) + Ch (a, b, c) + k[t+12] + w[12];
+          w[12] += S1 (w[10]) + w[5] + S0 (w[13]);
+          t2 = Sum0 (e) + Maj (e, f, g);
+          h += t1;
+          d  = t1 + t2;
 
-      t1 = d + Sum1 (a) + Ch (a, b, c) + k[t+12] + w[12];
-      w[12] += S1 (w[10]) + w[5] + S0 (w[13]);
-      t2 = Sum0 (e) + Maj (e, f, g);
-      h += t1;
-      d  = t1 + t2;
+          t1 = c + Sum1 (h) + Ch (h, a, b) + k[t+13] + w[13];
+          w[13] += S1 (w[11]) + w[6] + S0 (w[14]);
+          t2 = Sum0 (d) + Maj (d, e, f);
+          g += t1;
+          c  = t1 + t2;
 
-      t1 = c + Sum1 (h) + Ch (h, a, b) + k[t+13] + w[13];
-      w[13] += S1 (w[11]) + w[6] + S0 (w[14]);
-      t2 = Sum0 (d) + Maj (d, e, f);
-      g += t1;
-      c  = t1 + t2;
+          t1 = b + Sum1 (g) + Ch (g, h, a) + k[t+14] + w[14];
+          w[14] += S1 (w[12]) + w[7] + S0 (w[15]);
+          t2 = Sum0 (c) + Maj (c, d, e);
+          f += t1;
+          b  = t1 + t2;
 
-      t1 = b + Sum1 (g) + Ch (g, h, a) + k[t+14] + w[14];
-      w[14] += S1 (w[12]) + w[7] + S0 (w[15]);
-      t2 = Sum0 (c) + Maj (c, d, e);
-      f += t1;
-      b  = t1 + t2;
+          t1 = a + Sum1 (f) + Ch (f, g, h) + k[t+15] + w[15];
+          w[15] += S1 (w[13]) + w[8] + S0 (w[0]);
+          t2 = Sum0 (b) + Maj (b, c, d);
+          e += t1;
+          a  = t1 + t2;
 
-      t1 = a + Sum1 (f) + Ch (f, g, h) + k[t+15] + w[15];
-      w[15] += S1 (w[13]) + w[8] + S0 (w[0]);
-      t2 = Sum0 (b) + Maj (b, c, d);
-      e += t1;
-      a  = t1 + t2;
+          t += 16;
+        }
 
-      t += 16;
-#endif
-    }
+      for (; t < 80; )
+        {
+          u64 t1, t2;
 
-  for (; t < 80; )
-    {
-      u64 t1, t2;
+          t1 = h + Sum1 (e) + Ch (e, f, g) + k[t] + w[0];
+          t2 = Sum0 (a) + Maj (a, b, c);
+          d += t1;
+          h  = t1 + t2;
 
-#if 0 /* Not unrolled.  */
-      t1 = h + Sum1 (e) + Ch (e, f, g) + k[t] + w[t%16];
-      t2 = Sum0 (a) + Maj (a, b, c);
-      h = g;
-      g = f;
-      f = e;
-      e = d + t1;
-      d = c;
-      c = b;
-      b = a;
-      a = t1 + t2;
-      t++;
-#else /* Unrolled to interweave the chain variables.  */
-      t1 = h + Sum1 (e) + Ch (e, f, g) + k[t] + w[0];
-      t2 = Sum0 (a) + Maj (a, b, c);
-      d += t1;
-      h  = t1 + t2;
+          t1 = g + Sum1 (d) + Ch (d, e, f) + k[t+1] + w[1];
+          t2 = Sum0 (h) + Maj (h, a, b);
+          c += t1;
+          g  = t1 + t2;
 
-      t1 = g + Sum1 (d) + Ch (d, e, f) + k[t+1] + w[1];
-      t2 = Sum0 (h) + Maj (h, a, b);
-      c += t1;
-      g  = t1 + t2;
+          t1 = f + Sum1 (c) + Ch (c, d, e) + k[t+2] + w[2];
+          t2 = Sum0 (g) + Maj (g, h, a);
+          b += t1;
+          f  = t1 + t2;
 
-      t1 = f + Sum1 (c) + Ch (c, d, e) + k[t+2] + w[2];
-      t2 = Sum0 (g) + Maj (g, h, a);
-      b += t1;
-      f  = t1 + t2;
+          t1 = e + Sum1 (b) + Ch (b, c, d) + k[t+3] + w[3];
+          t2 = Sum0 (f) + Maj (f, g, h);
+          a += t1;
+          e  = t1 + t2;
 
-      t1 = e + Sum1 (b) + Ch (b, c, d) + k[t+3] + w[3];
-      t2 = Sum0 (f) + Maj (f, g, h);
-      a += t1;
-      e  = t1 + t2;
+          t1 = d + Sum1 (a) + Ch (a, b, c) + k[t+4] + w[4];
+          t2 = Sum0 (e) + Maj (e, f, g);
+          h += t1;
+          d  = t1 + t2;
 
-      t1 = d + Sum1 (a) + Ch (a, b, c) + k[t+4] + w[4];
-      t2 = Sum0 (e) + Maj (e, f, g);
-      h += t1;
-      d  = t1 + t2;
+          t1 = c + Sum1 (h) + Ch (h, a, b) + k[t+5] + w[5];
+          t2 = Sum0 (d) + Maj (d, e, f);
+          g += t1;
+          c  = t1 + t2;
 
-      t1 = c + Sum1 (h) + Ch (h, a, b) + k[t+5] + w[5];
-      t2 = Sum0 (d) + Maj (d, e, f);
-      g += t1;
-      c  = t1 + t2;
+          t1 = b + Sum1 (g) + Ch (g, h, a) + k[t+6] + w[6];
+          t2 = Sum0 (c) + Maj (c, d, e);
+          f += t1;
+          b  = t1 + t2;
 
-      t1 = b + Sum1 (g) + Ch (g, h, a) + k[t+6] + w[6];
-      t2 = Sum0 (c) + Maj (c, d, e);
-      f += t1;
-      b  = t1 + t2;
+          t1 = a + Sum1 (f) + Ch (f, g, h) + k[t+7] + w[7];
+          t2 = Sum0 (b) + Maj (b, c, d);
+          e += t1;
+          a  = t1 + t2;
 
-      t1 = a + Sum1 (f) + Ch (f, g, h) + k[t+7] + w[7];
-      t2 = Sum0 (b) + Maj (b, c, d);
-      e += t1;
-      a  = t1 + t2;
+          t1 = h + Sum1 (e) + Ch (e, f, g) + k[t+8] + w[8];
+          t2 = Sum0 (a) + Maj (a, b, c);
+          d += t1;
+          h  = t1 + t2;
 
-      t1 = h + Sum1 (e) + Ch (e, f, g) + k[t+8] + w[8];
-      t2 = Sum0 (a) + Maj (a, b, c);
-      d += t1;
-      h  = t1 + t2;
+          t1 = g + Sum1 (d) + Ch (d, e, f) + k[t+9] + w[9];
+          t2 = Sum0 (h) + Maj (h, a, b);
+          c += t1;
+          g  = t1 + t2;
 
-      t1 = g + Sum1 (d) + Ch (d, e, f) + k[t+9] + w[9];
-      t2 = Sum0 (h) + Maj (h, a, b);
-      c += t1;
-      g  = t1 + t2;
+          t1 = f + Sum1 (c) + Ch (c, d, e) + k[t+10] + w[10];
+          t2 = Sum0 (g) + Maj (g, h, a);
+          b += t1;
+          f  = t1 + t2;
 
-      t1 = f + Sum1 (c) + Ch (c, d, e) + k[t+10] + w[10];
-      t2 = Sum0 (g) + Maj (g, h, a);
-      b += t1;
-      f  = t1 + t2;
+          t1 = e + Sum1 (b) + Ch (b, c, d) + k[t+11] + w[11];
+          t2 = Sum0 (f) + Maj (f, g, h);
+          a += t1;
+          e  = t1 + t2;
 
-      t1 = e + Sum1 (b) + Ch (b, c, d) + k[t+11] + w[11];
-      t2 = Sum0 (f) + Maj (f, g, h);
-      a += t1;
-      e  = t1 + t2;
+          t1 = d + Sum1 (a) + Ch (a, b, c) + k[t+12] + w[12];
+          t2 = Sum0 (e) + Maj (e, f, g);
+          h += t1;
+          d  = t1 + t2;
 
-      t1 = d + Sum1 (a) + Ch (a, b, c) + k[t+12] + w[12];
-      t2 = Sum0 (e) + Maj (e, f, g);
-      h += t1;
-      d  = t1 + t2;
+          t1 = c + Sum1 (h) + Ch (h, a, b) + k[t+13] + w[13];
+          t2 = Sum0 (d) + Maj (d, e, f);
+          g += t1;
+          c  = t1 + t2;
 
-      t1 = c + Sum1 (h) + Ch (h, a, b) + k[t+13] + w[13];
-      t2 = Sum0 (d) + Maj (d, e, f);
-      g += t1;
-      c  = t1 + t2;
+          t1 = b + Sum1 (g) + Ch (g, h, a) + k[t+14] + w[14];
+          t2 = Sum0 (c) + Maj (c, d, e);
+          f += t1;
+          b  = t1 + t2;
 
-      t1 = b + Sum1 (g) + Ch (g, h, a) + k[t+14] + w[14];
-      t2 = Sum0 (c) + Maj (c, d, e);
-      f += t1;
-      b  = t1 + t2;
+          t1 = a + Sum1 (f) + Ch (f, g, h) + k[t+15] + w[15];
+          t2 = Sum0 (b) + Maj (b, c, d);
+          e += t1;
+          a  = t1 + t2;
 
-      t1 = a + Sum1 (f) + Ch (f, g, h) + k[t+15] + w[15];
-      t2 = Sum0 (b) + Maj (b, c, d);
-      e += t1;
-      a  = t1 + t2;
+          t += 16;
+        }
 
-      t += 16;
-#endif
-    }
+      /* Update chaining vars.  */
+      hd->h0 += a;
+      hd->h1 += b;
+      hd->h2 += c;
+      hd->h3 += d;
+      hd->h4 += e;
+      hd->h5 += f;
+      hd->h6 += g;
+      hd->h7 += h;
 
-  /* Update chaining vars.  */
-  hd->h0 += a;
-  hd->h1 += b;
-  hd->h2 += c;
-  hd->h3 += d;
-  hd->h4 += e;
-  hd->h5 += f;
-  hd->h6 += g;
-  hd->h7 += h;
-
-  return /* burn_stack */ (8 + 16) * sizeof(u64) + sizeof(u32) +
-                          3 * sizeof(void*);
-}
-#endif /*!USE_ARM_ASM*/
-
-/* AMD64 assembly implementations use SystemV ABI, ABI conversion and additional
- * stack to store XMM6-XMM15 needed on Win64. */
-#undef ASM_FUNC_ABI
-#undef ASM_EXTRA_STACK
-#if defined(USE_SSSE3) || defined(USE_AVX) || defined(USE_AVX2)
-# ifdef HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS
-#  define ASM_FUNC_ABI __attribute__((sysv_abi))
-#  define ASM_EXTRA_STACK (10 * 16)
-# else
-#  define ASM_FUNC_ABI
-#  define ASM_EXTRA_STACK 0
-# endif
-#endif
-
-
-#ifdef USE_ARM_NEON_ASM
-void _gcry_sha512_transform_armv7_neon (SHA512_STATE *hd,
-					const unsigned char *data,
-					const u64 k[], size_t num_blks);
-#endif
-
-#ifdef USE_ARM_ASM
-unsigned int _gcry_sha512_transform_arm (SHA512_STATE *hd,
-					 const unsigned char *data,
-					 const u64 k[], size_t num_blks);
-#endif
-
-#ifdef USE_SSSE3
-unsigned int _gcry_sha512_transform_amd64_ssse3(const void *input_data,
-                                                void *state,
-                                                size_t num_blks) ASM_FUNC_ABI;
-#endif
-
-#ifdef USE_AVX
-unsigned int _gcry_sha512_transform_amd64_avx(const void *input_data,
-                                              void *state,
-                                              size_t num_blks) ASM_FUNC_ABI;
-#endif
-
-#ifdef USE_AVX2
-unsigned int _gcry_sha512_transform_amd64_avx2(const void *input_data,
-                                               void *state,
-                                               size_t num_blks) ASM_FUNC_ABI;
-#endif
-
-
-static unsigned int
-transform (void *context, const unsigned char *data, size_t nblks)
-{
-  SHA512_CONTEXT *ctx = context;
-  unsigned int burn;
-
-#ifdef USE_AVX2
-  if (ctx->use_avx2)
-    return _gcry_sha512_transform_amd64_avx2 (data, &ctx->state, nblks)
-           + 4 * sizeof(void*) + ASM_EXTRA_STACK;
-#endif
-
-#ifdef USE_AVX
-  if (ctx->use_avx)
-    return _gcry_sha512_transform_amd64_avx (data, &ctx->state, nblks)
-           + 4 * sizeof(void*) + ASM_EXTRA_STACK;
-#endif
-
-#ifdef USE_SSSE3
-  if (ctx->use_ssse3)
-    return _gcry_sha512_transform_amd64_ssse3 (data, &ctx->state, nblks)
-           + 4 * sizeof(void*) + ASM_EXTRA_STACK;
-#endif
-
-#ifdef USE_ARM_NEON_ASM
-  if (ctx->use_neon)
-    {
-      _gcry_sha512_transform_armv7_neon (&ctx->state, data, k, nblks);
-
-      /* _gcry_sha512_transform_armv7_neon does not store sensitive data
-       * to stack.  */
-      return /* no burn_stack */ 0;
-    }
-#endif
-
-#ifdef USE_ARM_ASM
-  burn = _gcry_sha512_transform_arm (&ctx->state, data, k, nblks);
-#else
-  do
-    {
-      burn = transform_blk (&ctx->state, data) + 3 * sizeof(void*);
       data += 128;
     }
   while (--nblks);
 
-#ifdef ASM_EXTRA_STACK
-  /* 'transform_blk' is typically inlined and XMM6-XMM15 are stored at
-   *  the prologue of this function. Therefore need to add ASM_EXTRA_STACK to
-   *  here too.
-   */
-  burn += ASM_EXTRA_STACK;
-#endif
-#endif
-
-  return burn;
+  return (8 + 16) * sizeof(u64) + sizeof(u32) + 3 * sizeof(void*);
 }
+#endif /*!USE_ARM_ASM*/
 
 
 /* The routine final terminates the computation and
@@ -674,8 +723,6 @@ sha512_final (void *context)
   unsigned int stack_burn_depth;
   u64 t, th, msb, lsb;
   byte *p;
-
-  _gcry_md_block_write (context, NULL, 0); /* flush */ ;
 
   t = hd->bctx.nblocks;
   /* if (sizeof t == sizeof hd->bctx.nblocks) */
@@ -699,21 +746,23 @@ sha512_final (void *context)
   if (hd->bctx.count < 112)
     {				/* enough room */
       hd->bctx.buf[hd->bctx.count++] = 0x80;	/* pad */
-      while (hd->bctx.count < 112)
-        hd->bctx.buf[hd->bctx.count++] = 0;	/* pad */
+      if (hd->bctx.count < 112)
+	memset (&hd->bctx.buf[hd->bctx.count], 0, 112 - hd->bctx.count);
+      hd->bctx.count = 112;
     }
   else
     {				/* need one extra block */
       hd->bctx.buf[hd->bctx.count++] = 0x80;	/* pad character */
-      while (hd->bctx.count < 128)
-        hd->bctx.buf[hd->bctx.count++] = 0;
+      if (hd->bctx.count < 128)
+	memset (&hd->bctx.buf[hd->bctx.count], 0, 128 - hd->bctx.count);
+      hd->bctx.count = 128;
       _gcry_md_block_write (context, NULL, 0); /* flush */ ;
       memset (hd->bctx.buf, 0, 112);	/* fill next block with zeroes */
     }
   /* append the 128 bit count */
   buf_put_be64(hd->bctx.buf + 112, msb);
   buf_put_be64(hd->bctx.buf + 120, lsb);
-  stack_burn_depth = transform (hd, hd->bctx.buf, 1);
+  stack_burn_depth = (*hd->bctx.bwrite) (hd, hd->bctx.buf, 1);
   _gcry_burn_stack (stack_burn_depth);
 
   p = hd->bctx.buf;
@@ -765,6 +814,98 @@ _gcry_sha512_hash_buffers (void *outbuf, const gcry_buffer_t *iov, int iovcnt)
                           (const char*)iov[0].data + iov[0].off, iov[0].len);
   sha512_final (&hd);
   memcpy (outbuf, hd.bctx.buf, 64);
+}
+
+
+
+/* Shortcut functions which puts the hash value of the supplied buffer
+ * into outbuf which must have a size of 48 bytes.  */
+static void
+_gcry_sha384_hash_buffer (void *outbuf, const void *buffer, size_t length)
+{
+  SHA512_CONTEXT hd;
+
+  sha384_init (&hd, 0);
+  _gcry_md_block_write (&hd, buffer, length);
+  sha512_final (&hd);
+  memcpy (outbuf, hd.bctx.buf, 48);
+}
+
+
+/* Variant of the above shortcut function using multiple buffers.  */
+static void
+_gcry_sha384_hash_buffers (void *outbuf, const gcry_buffer_t *iov, int iovcnt)
+{
+  SHA512_CONTEXT hd;
+
+  sha384_init (&hd, 0);
+  for (;iovcnt > 0; iov++, iovcnt--)
+    _gcry_md_block_write (&hd,
+                          (const char*)iov[0].data + iov[0].off, iov[0].len);
+  sha512_final (&hd);
+  memcpy (outbuf, hd.bctx.buf, 48);
+}
+
+
+
+/* Shortcut functions which puts the hash value of the supplied buffer
+ * into outbuf which must have a size of 32 bytes.  */
+static void
+_gcry_sha512_256_hash_buffer (void *outbuf, const void *buffer, size_t length)
+{
+  SHA512_CONTEXT hd;
+
+  sha512_256_init (&hd, 0);
+  _gcry_md_block_write (&hd, buffer, length);
+  sha512_final (&hd);
+  memcpy (outbuf, hd.bctx.buf, 32);
+}
+
+
+/* Variant of the above shortcut function using multiple buffers.  */
+static void
+_gcry_sha512_256_hash_buffers (void *outbuf, const gcry_buffer_t *iov,
+			       int iovcnt)
+{
+  SHA512_CONTEXT hd;
+
+  sha512_256_init (&hd, 0);
+  for (;iovcnt > 0; iov++, iovcnt--)
+    _gcry_md_block_write (&hd,
+                          (const char*)iov[0].data + iov[0].off, iov[0].len);
+  sha512_final (&hd);
+  memcpy (outbuf, hd.bctx.buf, 32);
+}
+
+
+
+/* Shortcut functions which puts the hash value of the supplied buffer
+ * into outbuf which must have a size of 28 bytes.  */
+static void
+_gcry_sha512_224_hash_buffer (void *outbuf, const void *buffer, size_t length)
+{
+  SHA512_CONTEXT hd;
+
+  sha512_224_init (&hd, 0);
+  _gcry_md_block_write (&hd, buffer, length);
+  sha512_final (&hd);
+  memcpy (outbuf, hd.bctx.buf, 28);
+}
+
+
+/* Variant of the above shortcut function using multiple buffers.  */
+static void
+_gcry_sha512_224_hash_buffers (void *outbuf, const gcry_buffer_t *iov,
+			       int iovcnt)
+{
+  SHA512_CONTEXT hd;
+
+  sha512_224_init (&hd, 0);
+  for (;iovcnt > 0; iov++, iovcnt--)
+    _gcry_md_block_write (&hd,
+                          (const char*)iov[0].data + iov[0].off, iov[0].len);
+  sha512_final (&hd);
+  memcpy (outbuf, hd.bctx.buf, 28);
 }
 
 
@@ -877,6 +1018,102 @@ selftests_sha512 (int extended, selftest_report_func_t report)
   return GPG_ERR_SELFTEST_FAILED;
 }
 
+static gpg_err_code_t
+selftests_sha512_224 (int extended, selftest_report_func_t report)
+{
+  const char *what;
+  const char *errtxt;
+
+  what = "short string";
+  errtxt = _gcry_hash_selftest_check_one
+    (GCRY_MD_SHA512_224, 0,
+     "abc", 3,
+     "\x46\x34\x27\x0F\x70\x7B\x6A\x54\xDA\xAE\x75\x30\x46\x08\x42\xE2"
+     "\x0E\x37\xED\x26\x5C\xEE\xE9\xA4\x3E\x89\x24\xAA",
+     28);
+  if (errtxt)
+    goto failed;
+
+  if (extended)
+    {
+      what = "long string";
+      errtxt = _gcry_hash_selftest_check_one
+        (GCRY_MD_SHA512_224, 0,
+         "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn"
+         "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu", 112,
+         "\x23\xFE\xC5\xBB\x94\xD6\x0B\x23\x30\x81\x92\x64\x0B\x0C\x45\x33"
+         "\x35\xD6\x64\x73\x4F\xE4\x0E\x72\x68\x67\x4A\xF9",
+         28);
+      if (errtxt)
+        goto failed;
+
+      what = "one million \"a\"";
+      errtxt = _gcry_hash_selftest_check_one
+        (GCRY_MD_SHA512_224, 1,
+         NULL, 0,
+         "\x37\xab\x33\x1d\x76\xf0\xd3\x6d\xe4\x22\xbd\x0e\xde\xb2\x2a\x28"
+         "\xac\xcd\x48\x7b\x7a\x84\x53\xae\x96\x5d\xd2\x87",
+         28);
+      if (errtxt)
+        goto failed;
+    }
+
+  return 0; /* Succeeded. */
+
+ failed:
+  if (report)
+    report ("digest", GCRY_MD_SHA512_224, what, errtxt);
+  return GPG_ERR_SELFTEST_FAILED;
+}
+
+static gpg_err_code_t
+selftests_sha512_256 (int extended, selftest_report_func_t report)
+{
+  const char *what;
+  const char *errtxt;
+
+  what = "short string";
+  errtxt = _gcry_hash_selftest_check_one
+    (GCRY_MD_SHA512_256, 0,
+     "abc", 3,
+     "\x53\x04\x8E\x26\x81\x94\x1E\xF9\x9B\x2E\x29\xB7\x6B\x4C\x7D\xAB"
+     "\xE4\xC2\xD0\xC6\x34\xFC\x6D\x46\xE0\xE2\xF1\x31\x07\xE7\xAF\x23",
+     32);
+  if (errtxt)
+    goto failed;
+
+  if (extended)
+    {
+      what = "long string";
+      errtxt = _gcry_hash_selftest_check_one
+        (GCRY_MD_SHA512_256, 0,
+         "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmn"
+         "hijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu", 112,
+         "\x39\x28\xE1\x84\xFB\x86\x90\xF8\x40\xDA\x39\x88\x12\x1D\x31\xBE"
+         "\x65\xCB\x9D\x3E\xF8\x3E\xE6\x14\x6F\xEA\xC8\x61\xE1\x9B\x56\x3A",
+         32);
+      if (errtxt)
+        goto failed;
+
+      what = "one million \"a\"";
+      errtxt = _gcry_hash_selftest_check_one
+        (GCRY_MD_SHA512_256, 1,
+         NULL, 0,
+         "\x9a\x59\xa0\x52\x93\x01\x87\xa9\x70\x38\xca\xe6\x92\xf3\x07\x08"
+         "\xaa\x64\x91\x92\x3e\xf5\x19\x43\x94\xdc\x68\xd5\x6c\x74\xfb\x21",
+         32);
+      if (errtxt)
+        goto failed;
+    }
+
+  return 0; /* Succeeded. */
+
+ failed:
+  if (report)
+    report ("digest", GCRY_MD_SHA512_256, what, errtxt);
+  return GPG_ERR_SELFTEST_FAILED;
+}
+
 
 /* Run a full self-test for ALGO and return 0 on success.  */
 static gpg_err_code_t
@@ -891,6 +1128,12 @@ run_selftests (int algo, int extended, selftest_report_func_t report)
       break;
     case GCRY_MD_SHA512:
       ec = selftests_sha512 (extended, report);
+      break;
+    case GCRY_MD_SHA512_224:
+      ec = selftests_sha512_224 (extended, report);
+      break;
+    case GCRY_MD_SHA512_256:
+      ec = selftests_sha512_256 (extended, report);
       break;
     default:
       ec = GPG_ERR_DIGEST_ALGO;
@@ -925,6 +1168,7 @@ gcry_md_spec_t _gcry_digest_spec_sha512 =
     GCRY_MD_SHA512, {0, 1},
     "SHA512", sha512_asn, DIM (sha512_asn), oid_spec_sha512, 64,
     sha512_init, _gcry_md_block_write, sha512_final, sha512_read, NULL,
+    _gcry_sha512_hash_buffer, _gcry_sha512_hash_buffers,
     sizeof (SHA512_CONTEXT),
     run_selftests
   };
@@ -954,6 +1198,45 @@ gcry_md_spec_t _gcry_digest_spec_sha384 =
     GCRY_MD_SHA384, {0, 1},
     "SHA384", sha384_asn, DIM (sha384_asn), oid_spec_sha384, 48,
     sha384_init, _gcry_md_block_write, sha512_final, sha512_read, NULL,
+    _gcry_sha384_hash_buffer, _gcry_sha384_hash_buffers,
+    sizeof (SHA512_CONTEXT),
+    run_selftests
+  };
+
+static byte sha512_256_asn[] = { 0x30 };
+
+static gcry_md_oid_spec_t oid_spec_sha512_256[] =
+  {
+    { "2.16.840.1.101.3.4.2.6" },
+
+    { NULL },
+  };
+
+gcry_md_spec_t _gcry_digest_spec_sha512_256 =
+  {
+    GCRY_MD_SHA512_256, {0, 1},
+    "SHA512_256", sha512_256_asn, DIM (sha512_256_asn), oid_spec_sha512_256, 32,
+    sha512_256_init, _gcry_md_block_write, sha512_final, sha512_read, NULL,
+    _gcry_sha512_256_hash_buffer, _gcry_sha512_256_hash_buffers,
+    sizeof (SHA512_CONTEXT),
+    run_selftests
+  };
+
+static byte sha512_224_asn[] = { 0x30 };
+
+static gcry_md_oid_spec_t oid_spec_sha512_224[] =
+  {
+    { "2.16.840.1.101.3.4.2.5" },
+
+    { NULL },
+  };
+
+gcry_md_spec_t _gcry_digest_spec_sha512_224 =
+  {
+    GCRY_MD_SHA512_224, {0, 1},
+    "SHA512_224", sha512_224_asn, DIM (sha512_224_asn), oid_spec_sha512_224, 28,
+    sha512_224_init, _gcry_md_block_write, sha512_final, sha512_read, NULL,
+    _gcry_sha512_224_hash_buffer, _gcry_sha512_224_hash_buffers,
     sizeof (SHA512_CONTEXT),
     run_selftests
   };

@@ -165,6 +165,8 @@ MARK_VISIBLEX (gcry_pk_sign)
 MARK_VISIBLEX (gcry_pk_testkey)
 MARK_VISIBLEX (gcry_pk_verify)
 MARK_VISIBLEX (gcry_pubkey_get_sexp)
+MARK_VISIBLEX (gcry_ecc_get_algo_keylen)
+MARK_VISIBLEX (gcry_ecc_mul_point)
 
 MARK_VISIBLEX (gcry_kdf_derive)
 
@@ -265,6 +267,7 @@ MARK_VISIBLEX (gcry_mpi_set_highbit)
 MARK_VISIBLEX (gcry_mpi_set_opaque)
 MARK_VISIBLEX (gcry_mpi_set_opaque_copy)
 MARK_VISIBLEX (gcry_mpi_set_ui)
+MARK_VISIBLEX (gcry_mpi_get_ui)
 MARK_VISIBLEX (gcry_mpi_snew)
 MARK_VISIBLEX (gcry_mpi_sub)
 MARK_VISIBLEX (gcry_mpi_sub_ui)
@@ -361,6 +364,8 @@ MARK_VISIBLEX (_gcry_mpi_get_const)
 #define gcry_pk_testkey             _gcry_USE_THE_UNDERSCORED_FUNCTION
 #define gcry_pk_verify              _gcry_USE_THE_UNDERSCORED_FUNCTION
 #define gcry_pubkey_get_sexp        _gcry_USE_THE_UNDERSCORED_FUNCTION
+#define gcry_ecc_get_algo_keylen    _gcry_USE_THE_UNDERSCORED_FUNCTION
+#define gcry_ecc_mul_point          _gcry_USE_THE_UNDERSCORED_FUNCTION
 
 #define gcry_md_algo_info           _gcry_USE_THE_UNDERSCORED_FUNCTION
 #define gcry_md_algo_name           _gcry_USE_THE_UNDERSCORED_FUNCTION
@@ -484,6 +489,7 @@ MARK_VISIBLEX (_gcry_mpi_get_const)
 #define gcry_mpi_set_highbit        _gcry_USE_THE_UNDERSCORED_FUNCTION
 #define gcry_mpi_set_opaque         _gcry_USE_THE_UNDERSCORED_FUNCTION
 #define gcry_mpi_set_ui             _gcry_USE_THE_UNDERSCORED_FUNCTION
+#define gcry_mpi_get_ui             _gcry_USE_THE_UNDERSCORED_FUNCTION
 #define gcry_mpi_snatch             _gcry_USE_THE_UNDERSCORED_FUNCTION
 #define gcry_mpi_snew               _gcry_USE_THE_UNDERSCORED_FUNCTION
 #define gcry_mpi_sub                _gcry_USE_THE_UNDERSCORED_FUNCTION

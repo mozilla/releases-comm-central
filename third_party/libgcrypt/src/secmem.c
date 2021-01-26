@@ -64,7 +64,7 @@ typedef struct pooldesc_s
 {
   /* A link to the next pool.  This is used to connect the overflow
    * pools.  */
-  struct pooldesc_s *next;
+  struct pooldesc_s * volatile next;
 
   /* A memory buffer used as allocation pool.  */
   void *mem;
@@ -117,6 +117,36 @@ GPGRT_LOCK_DEFINE (secmem_lock);
 /* Convert an address into the according memory block structure.  */
 #define ADDR_TO_BLOCK(addr) \
   (memblock_t *) (void *) ((char *) addr - BLOCK_HEAD_SIZE)
+
+/* Prototypes. */
+static void secmem_dump_stats_internal (int extended);
+
+
+/*
+ * Functions
+ */
+
+/* Memory barrier */
+static inline void
+memory_barrier(void)
+{
+#ifdef HAVE_SYNC_SYNCHRONIZE
+#ifdef HAVE_GCC_ASM_VOLATILE_MEMORY
+  asm volatile ("":::"memory");
+#endif
+  /* Use GCC / clang intrinsic for memory barrier. */
+  __sync_synchronize();
+#else
+  /* Slow portable alternative, implement memory barrier by using mutex. */
+  gpgrt_lock_t tmp;
+  memset (&tmp, 0, sizeof(tmp));
+  gpgrt_lock_init (&tmp);
+  gpgrt_lock_lock (&tmp);
+  gpgrt_lock_unlock (&tmp);
+  gpgrt_lock_destroy (&tmp);
+#endif
+}
+
 
 /* Check whether P points into POOL.  */
 static inline int
@@ -520,7 +550,7 @@ _gcry_secmem_get_flags (void)
 }
 
 
-/* This function initializes the main memory pool MAINPOOL.  Itis
+/* This function initializes the main memory pool MAINPOOL.  It is
  * expected to be called with the secmem lock held.  */
 static void
 _gcry_secmem_init_internal (size_t n)
@@ -634,11 +664,18 @@ _gcry_secmem_malloc_internal (size_t size, int xhint)
       return &mb->aligned.c;
     }
 
-  /* If we are called from xmalloc style function resort to the
+  /* If we are called from xmalloc style functions resort to the
    * overflow pools to return memory.  We don't do this in FIPS mode,
-   * though. */
+   * though.  If the auto-expand option is active we do the expanding
+   * also for the standard malloc functions.
+   *
+   * The idea of using them by default only for the xmalloc function
+   * is so that a user can control whether memory will be allocated in
+   * the initial created mlock protected secmem area or may also be
+   * allocated from the overflow pools.  */
   if ((xhint || auto_expand) && !fips_mode ())
     {
+      /* Check whether we can allocate from the overflow pools.  */
       for (pool = pool->next; pool; pool = pool->next)
         {
           mb = mb_get_new (pool, (memblock_t *) pool->mem, size);
@@ -670,8 +707,12 @@ _gcry_secmem_malloc_internal (size_t size, int xhint)
       pool->okay = 1;
 
       /* Take care: in _gcry_private_is_secure we do not lock and thus
-       * we assume that the second assignment below is atomic.  */
+       * we assume that the second assignment below is atomic.  Memory
+       * barrier prevents reordering of stores to new pool structure after
+       * MAINPOOL.NEXT assigment and prevents _gcry_private_is_secure seeing
+       * non-initialized POOL->NEXT pointers.  */
       pool->next = mainpool.next;
+      memory_barrier();
       mainpool.next = pool;
 
       /* After the first time we allocated an overflow pool, print a
@@ -811,9 +852,13 @@ _gcry_private_is_secure (const void *p)
 {
   pooldesc_t *pool;
 
-  /* We do no lock here because once a pool is allocatred it will not
-   * be removed anymore (except for gcry_secmem_term).  Further,
-   * adding a new pool to the list should be atomic.  */
+  /* We do no lock here because once a pool is allocated it will not
+   * be removed anymore (except for gcry_secmem_term).  Further, as
+   * assigment of POOL->NEXT in new pool structure is visible in
+   * this thread before assigment of MAINPOOL.NEXT, pool list can be
+   * iterated locklessly.  This visiblity is ensured by memory barrier
+   * between POOL->NEXT and MAINPOOL.NEXT assignments in
+   * _gcry_secmem_malloc_internal. */
   for (pool = &mainpool; pool; pool = pool->next)
     if (pool->okay && ptr_into_pool_p (pool, p))
       return 1;
@@ -869,11 +914,18 @@ _gcry_secmem_term ()
 void
 _gcry_secmem_dump_stats (int extended)
 {
+  SECMEM_LOCK;
+  secmem_dump_stats_internal (extended);
+  SECMEM_UNLOCK;
+}
+
+
+static void
+secmem_dump_stats_internal (int extended)
+{
   pooldesc_t *pool;
   memblock_t *mb;
   int i, poolno;
-
-  SECMEM_LOCK;
 
   for (pool = &mainpool, poolno = 0; pool; pool = pool->next, poolno++)
     {
@@ -897,5 +949,4 @@ _gcry_secmem_dump_stats (int extended)
                       mb->size);
         }
     }
-  SECMEM_UNLOCK;
 }

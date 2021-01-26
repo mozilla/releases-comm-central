@@ -113,12 +113,11 @@ noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) fipsdrv$(EXEEXT) \
 	rsacvt$(EXEEXT) genhashdata$(EXEEXT) gchash$(EXEEXT)
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/gpg-error.m4 \
-	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
-	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/onceonly.m4 \
-	$(top_srcdir)/m4/socklen.m4 $(top_srcdir)/m4/sys_socket_h.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cc_for_build.m4 \
+	$(top_srcdir)/m4/gpg-error.m4 $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/noexecstack.m4 $(top_srcdir)/m4/socklen.m4 \
 	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -135,16 +134,15 @@ am__EXEEXT_1 = version$(EXEEXT) t-secmem$(EXEEXT) mpitests$(EXEEXT) \
 	hmac$(EXEEXT) hashtest$(EXEEXT) t-kdf$(EXEEXT) \
 	keygrip$(EXEEXT) fips186-dsa$(EXEEXT) aeswrap$(EXEEXT) \
 	pkcs1v2$(EXEEXT) random$(EXEEXT) dsa-rfc6979$(EXEEXT) \
-	t-ed25519$(EXEEXT) t-cv25519$(EXEEXT)
+	t-ed25519$(EXEEXT) t-cv25519$(EXEEXT) t-x448$(EXEEXT) \
+	t-ed448$(EXEEXT)
 am__EXEEXT_2 = benchmark$(EXEEXT) bench-slope$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 aeswrap_SOURCES = aeswrap.c
 aeswrap_OBJECTS = aeswrap.$(OBJEXT)
 aeswrap_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
-am__DEPENDENCIES_2 = ../src/libgcrypt.la $(am__DEPENDENCIES_1) \
-	../compat/libcompat.la
-aeswrap_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+aeswrap_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -152,129 +150,132 @@ am__v_lt_1 =
 basic_SOURCES = basic.c
 basic_OBJECTS = basic.$(OBJEXT)
 basic_LDADD = $(LDADD)
-basic_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+basic_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 bench_slope_SOURCES = bench-slope.c
 bench_slope_OBJECTS = bench-slope.$(OBJEXT)
 bench_slope_LDADD = $(LDADD)
-bench_slope_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+bench_slope_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 benchmark_SOURCES = benchmark.c
 benchmark_OBJECTS = benchmark.$(OBJEXT)
 benchmark_LDADD = $(LDADD)
-benchmark_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+benchmark_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 curves_SOURCES = curves.c
 curves_OBJECTS = curves.$(OBJEXT)
 curves_LDADD = $(LDADD)
-curves_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+curves_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 dsa_rfc6979_SOURCES = dsa-rfc6979.c
 dsa_rfc6979_OBJECTS = dsa-rfc6979.$(OBJEXT)
 dsa_rfc6979_LDADD = $(LDADD)
-dsa_rfc6979_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+dsa_rfc6979_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 fips186_dsa_SOURCES = fips186-dsa.c
 fips186_dsa_OBJECTS = fips186-dsa.$(OBJEXT)
 fips186_dsa_LDADD = $(LDADD)
-fips186_dsa_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+fips186_dsa_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 fipsdrv_SOURCES = fipsdrv.c
 fipsdrv_OBJECTS = fipsdrv.$(OBJEXT)
 fipsdrv_LDADD = $(LDADD)
-fipsdrv_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+fipsdrv_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 gchash_SOURCES = gchash.c
 gchash_OBJECTS = gchash.$(OBJEXT)
 gchash_LDADD = $(LDADD)
-gchash_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+gchash_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 genhashdata_SOURCES = genhashdata.c
 genhashdata_OBJECTS = genhashdata.$(OBJEXT)
 genhashdata_LDADD = $(LDADD)
-genhashdata_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+genhashdata_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 hashtest_SOURCES = hashtest.c
 hashtest_OBJECTS = hashtest.$(OBJEXT)
 hashtest_LDADD = $(LDADD)
-hashtest_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+hashtest_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 hmac_SOURCES = hmac.c
 hmac_OBJECTS = hmac.$(OBJEXT)
 hmac_LDADD = $(LDADD)
-hmac_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+hmac_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 keygen_SOURCES = keygen.c
 keygen_OBJECTS = keygen.$(OBJEXT)
 keygen_LDADD = $(LDADD)
-keygen_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+keygen_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 keygrip_SOURCES = keygrip.c
 keygrip_OBJECTS = keygrip.$(OBJEXT)
 keygrip_LDADD = $(LDADD)
-keygrip_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+keygrip_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 mpitests_SOURCES = mpitests.c
 mpitests_OBJECTS = mpitests.$(OBJEXT)
 mpitests_LDADD = $(LDADD)
-mpitests_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+mpitests_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 pkbench_SOURCES = pkbench.c
 pkbench_OBJECTS = pkbench.$(OBJEXT)
-pkbench_LDADD = $(LDADD)
-pkbench_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+pkbench_DEPENDENCIES = $(standard_ldadd)
 pkcs1v2_SOURCES = pkcs1v2.c
 pkcs1v2_OBJECTS = pkcs1v2.$(OBJEXT)
 pkcs1v2_LDADD = $(LDADD)
-pkcs1v2_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+pkcs1v2_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 prime_SOURCES = prime.c
 prime_OBJECTS = prime.$(OBJEXT)
-prime_LDADD = $(LDADD)
-prime_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+prime_DEPENDENCIES = $(standard_ldadd)
 pubkey_SOURCES = pubkey.c
 pubkey_OBJECTS = pubkey.$(OBJEXT)
 pubkey_LDADD = $(LDADD)
-pubkey_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+pubkey_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 random_SOURCES = random.c
 random_OBJECTS = random.$(OBJEXT)
 random_LDADD = $(LDADD)
-random_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+random_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 rsacvt_SOURCES = rsacvt.c
 rsacvt_OBJECTS = rsacvt.$(OBJEXT)
 rsacvt_LDADD = $(LDADD)
-rsacvt_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+rsacvt_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 t_convert_SOURCES = t-convert.c
 t_convert_OBJECTS = t-convert.$(OBJEXT)
 t_convert_LDADD = $(LDADD)
-t_convert_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+t_convert_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 t_cv25519_SOURCES = t-cv25519.c
 t_cv25519_OBJECTS = t-cv25519.$(OBJEXT)
 t_cv25519_LDADD = $(LDADD)
-t_cv25519_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+t_cv25519_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 t_ed25519_SOURCES = t-ed25519.c
 t_ed25519_OBJECTS = t-ed25519.$(OBJEXT)
 t_ed25519_LDADD = $(LDADD)
-t_ed25519_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+t_ed25519_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
+t_ed448_SOURCES = t-ed448.c
+t_ed448_OBJECTS = t-ed448.$(OBJEXT)
+t_ed448_LDADD = $(LDADD)
+t_ed448_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 t_kdf_SOURCES = t-kdf.c
 t_kdf_OBJECTS = t-kdf.$(OBJEXT)
 t_kdf_LDADD = $(LDADD)
-t_kdf_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+t_kdf_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 t_lock_SOURCES = t-lock.c
 t_lock_OBJECTS = t_lock-t-lock.$(OBJEXT)
-t_lock_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+t_lock_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 t_lock_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(t_lock_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 t_mpi_bit_SOURCES = t-mpi-bit.c
 t_mpi_bit_OBJECTS = t-mpi-bit.$(OBJEXT)
-t_mpi_bit_LDADD = $(LDADD)
-t_mpi_bit_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+t_mpi_bit_DEPENDENCIES = $(standard_ldadd)
 t_mpi_point_SOURCES = t-mpi-point.c
 t_mpi_point_OBJECTS = t-mpi-point.$(OBJEXT)
 t_mpi_point_LDADD = $(LDADD)
-t_mpi_point_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+t_mpi_point_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 t_secmem_SOURCES = t-secmem.c
 t_secmem_OBJECTS = t-secmem.$(OBJEXT)
-t_secmem_LDADD = $(LDADD)
-t_secmem_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+t_secmem_DEPENDENCIES = $(standard_ldadd)
 t_sexp_SOURCES = t-sexp.c
 t_sexp_OBJECTS = t-sexp.$(OBJEXT)
 t_sexp_LDADD = $(LDADD)
-t_sexp_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+t_sexp_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
+t_x448_SOURCES = t-x448.c
+t_x448_OBJECTS = t-x448.$(OBJEXT)
+t_x448_LDADD = $(LDADD)
+t_x448_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 testapi_SOURCES = testapi.c
 testapi_OBJECTS = testapi.$(OBJEXT)
-testapi_LDADD = $(LDADD)
-testapi_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+testapi_DEPENDENCIES = $(standard_ldadd)
 version_SOURCES = version.c
 version_OBJECTS = version.$(OBJEXT)
 version_LDADD = $(LDADD)
-version_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+version_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -302,9 +303,10 @@ am__depfiles_remade = ./$(DEPDIR)/aeswrap.Po ./$(DEPDIR)/basic.Po \
 	./$(DEPDIR)/pubkey.Po ./$(DEPDIR)/random.Po \
 	./$(DEPDIR)/rsacvt.Po ./$(DEPDIR)/t-convert.Po \
 	./$(DEPDIR)/t-cv25519.Po ./$(DEPDIR)/t-ed25519.Po \
-	./$(DEPDIR)/t-kdf.Po ./$(DEPDIR)/t-mpi-bit.Po \
-	./$(DEPDIR)/t-mpi-point.Po ./$(DEPDIR)/t-secmem.Po \
-	./$(DEPDIR)/t-sexp.Po ./$(DEPDIR)/t_lock-t-lock.Po \
+	./$(DEPDIR)/t-ed448.Po ./$(DEPDIR)/t-kdf.Po \
+	./$(DEPDIR)/t-mpi-bit.Po ./$(DEPDIR)/t-mpi-point.Po \
+	./$(DEPDIR)/t-secmem.Po ./$(DEPDIR)/t-sexp.Po \
+	./$(DEPDIR)/t-x448.Po ./$(DEPDIR)/t_lock-t-lock.Po \
 	./$(DEPDIR)/testapi.Po ./$(DEPDIR)/version.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -329,14 +331,14 @@ SOURCES = aeswrap.c basic.c bench-slope.c benchmark.c curves.c \
 	dsa-rfc6979.c fips186-dsa.c fipsdrv.c gchash.c genhashdata.c \
 	hashtest.c hmac.c keygen.c keygrip.c mpitests.c pkbench.c \
 	pkcs1v2.c prime.c pubkey.c random.c rsacvt.c t-convert.c \
-	t-cv25519.c t-ed25519.c t-kdf.c t-lock.c t-mpi-bit.c \
-	t-mpi-point.c t-secmem.c t-sexp.c testapi.c version.c
+	t-cv25519.c t-ed25519.c t-ed448.c t-kdf.c t-lock.c t-mpi-bit.c \
+	t-mpi-point.c t-secmem.c t-sexp.c t-x448.c testapi.c version.c
 DIST_SOURCES = aeswrap.c basic.c bench-slope.c benchmark.c curves.c \
 	dsa-rfc6979.c fips186-dsa.c fipsdrv.c gchash.c genhashdata.c \
 	hashtest.c hmac.c keygen.c keygrip.c mpitests.c pkbench.c \
 	pkcs1v2.c prime.c pubkey.c random.c rsacvt.c t-convert.c \
-	t-cv25519.c t-ed25519.c t-kdf.c t-lock.c t-mpi-bit.c \
-	t-mpi-point.c t-secmem.c t-sexp.c testapi.c version.c
+	t-cv25519.c t-ed25519.c t-ed448.c t-kdf.c t-lock.c t-mpi-bit.c \
+	t-mpi-point.c t-secmem.c t-sexp.c t-x448.c testapi.c version.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -400,6 +402,7 @@ AWK = @AWK@
 BUILD_FILEVERSION = @BUILD_FILEVERSION@
 BUILD_REVISION = @BUILD_REVISION@
 BUILD_TIMESTAMP = @BUILD_TIMESTAMP@
+BUILD_VERSION = @BUILD_VERSION@
 CC = @CC@
 CCAS = @CCAS@
 CCASDEPMODE = @CCASDEPMODE@
@@ -421,6 +424,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+EXEEXT_FOR_BUILD = @EXEEXT_FOR_BUILD@
 FALLBACK_SOCKLEN_T = @FALLBACK_SOCKLEN_T@
 FGREP = @FGREP@
 GCRYPT_CIPHERS = @GCRYPT_CIPHERS@
@@ -429,6 +433,7 @@ GCRYPT_HWF_MODULES = @GCRYPT_HWF_MODULES@
 GCRYPT_KDFS = @GCRYPT_KDFS@
 GCRYPT_PUBKEY_CIPHERS = @GCRYPT_PUBKEY_CIPHERS@
 GCRYPT_RANDOM = @GCRYPT_RANDOM@
+GPGRT_CONFIG = @GPGRT_CONFIG@
 GPG_ERROR_CFLAGS = @GPG_ERROR_CFLAGS@
 GPG_ERROR_CONFIG = @GPG_ERROR_CONFIG@
 GPG_ERROR_LIBS = @GPG_ERROR_LIBS@
@@ -442,6 +447,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
+LDADD_FOR_TESTS_KLUDGE = @LDADD_FOR_TESTS_KLUDGE@
 LDFLAGS = @LDFLAGS@
 LIBGCRYPT_CIPHERS = @LIBGCRYPT_CIPHERS@
 LIBGCRYPT_CONFIG_API_VERSION = @LIBGCRYPT_CONFIG_API_VERSION@
@@ -491,7 +497,6 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 SYSROOT = @SYSROOT@
-SYS_SOCKET_H = @SYS_SOCKET_H@
 VERSION = @VERSION@
 VERSION_NUMBER = @VERSION_NUMBER@
 abs_builddir = @abs_builddir@
@@ -554,7 +559,8 @@ tests_bin = \
         version t-secmem mpitests t-sexp t-convert \
 	t-mpi-bit t-mpi-point curves t-lock \
 	prime basic keygen pubkey hmac hashtest t-kdf keygrip \
-	fips186-dsa aeswrap pkcs1v2 random dsa-rfc6979 t-ed25519 t-cv25519
+	fips186-dsa aeswrap pkcs1v2 random dsa-rfc6979 \
+	t-ed25519 t-cv25519 t-x448 t-ed448
 
 tests_bin_last = benchmark bench-slope
 tests_sh = basic-disable-all-hwf
@@ -567,19 +573,24 @@ AM_CPPFLAGS = -I../src -I$(top_srcdir)/src
 AM_CFLAGS = $(GPG_ERROR_CFLAGS)
 AM_LDFLAGS = -no-install
 standard_ldadd = \
-	../src/libgcrypt.la $(DL_LIBS) \
+	../src/libgcrypt.la \
         ../compat/libcompat.la
 
 noinst_HEADERS = t-common.h
 EXTRA_DIST = README rsa-16k.key cavs_tests.sh cavs_driver.pl \
 	     pkcs1v2-oaep.h pkcs1v2-pss.h pkcs1v2-v15c.h pkcs1v2-v15s.h \
-	     t-ed25519.inp stopwatch.h hashtest-256g.in \
+	     t-ed25519.inp t-ed448.inp stopwatch.h hashtest-256g.in \
 	     sha3-224.h sha3-256.h sha3-384.h sha3-512.h \
 	     blake2b.h blake2s.h \
 	     basic-disable-all-hwf.in basic_all_hwfeature_combinations.sh
 
-LDADD = $(standard_ldadd) $(GPG_ERROR_LIBS)
-t_lock_LDADD = $(standard_ldadd) $(GPG_ERROR_MT_LIBS)
+LDADD = $(standard_ldadd) $(GPG_ERROR_LIBS) @LDADD_FOR_TESTS_KLUDGE@
+pkbench_LDADD = $(standard_ldadd)
+prime_LDADD = $(standard_ldadd)
+t_mpi_bit_LDADD = $(standard_ldadd)
+t_secmem_LDADD = $(standard_ldadd)
+testapi_LDADD = $(standard_ldadd)
+t_lock_LDADD = $(standard_ldadd) $(GPG_ERROR_MT_LIBS) @LDADD_FOR_TESTS_KLUDGE@
 t_lock_CFLAGS = $(GPG_ERROR_MT_CFLAGS)
 all: all-am
 
@@ -724,6 +735,10 @@ t-ed25519$(EXEEXT): $(t_ed25519_OBJECTS) $(t_ed25519_DEPENDENCIES) $(EXTRA_t_ed2
 	@rm -f t-ed25519$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_ed25519_OBJECTS) $(t_ed25519_LDADD) $(LIBS)
 
+t-ed448$(EXEEXT): $(t_ed448_OBJECTS) $(t_ed448_DEPENDENCIES) $(EXTRA_t_ed448_DEPENDENCIES) 
+	@rm -f t-ed448$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(t_ed448_OBJECTS) $(t_ed448_LDADD) $(LIBS)
+
 t-kdf$(EXEEXT): $(t_kdf_OBJECTS) $(t_kdf_DEPENDENCIES) $(EXTRA_t_kdf_DEPENDENCIES) 
 	@rm -f t-kdf$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_kdf_OBJECTS) $(t_kdf_LDADD) $(LIBS)
@@ -747,6 +762,10 @@ t-secmem$(EXEEXT): $(t_secmem_OBJECTS) $(t_secmem_DEPENDENCIES) $(EXTRA_t_secmem
 t-sexp$(EXEEXT): $(t_sexp_OBJECTS) $(t_sexp_DEPENDENCIES) $(EXTRA_t_sexp_DEPENDENCIES) 
 	@rm -f t-sexp$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(t_sexp_OBJECTS) $(t_sexp_LDADD) $(LIBS)
+
+t-x448$(EXEEXT): $(t_x448_OBJECTS) $(t_x448_DEPENDENCIES) $(EXTRA_t_x448_DEPENDENCIES) 
+	@rm -f t-x448$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(t_x448_OBJECTS) $(t_x448_LDADD) $(LIBS)
 
 testapi$(EXEEXT): $(testapi_OBJECTS) $(testapi_DEPENDENCIES) $(EXTRA_testapi_DEPENDENCIES) 
 	@rm -f testapi$(EXEEXT)
@@ -786,11 +805,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-convert.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-cv25519.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-ed25519.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-ed448.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-kdf.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-mpi-bit.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-mpi-point.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-secmem.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-sexp.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-x448.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t_lock-t-lock.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testapi.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/version.Po@am__quote@ # am--include-marker
@@ -1085,11 +1106,13 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/t-convert.Po
 	-rm -f ./$(DEPDIR)/t-cv25519.Po
 	-rm -f ./$(DEPDIR)/t-ed25519.Po
+	-rm -f ./$(DEPDIR)/t-ed448.Po
 	-rm -f ./$(DEPDIR)/t-kdf.Po
 	-rm -f ./$(DEPDIR)/t-mpi-bit.Po
 	-rm -f ./$(DEPDIR)/t-mpi-point.Po
 	-rm -f ./$(DEPDIR)/t-secmem.Po
 	-rm -f ./$(DEPDIR)/t-sexp.Po
+	-rm -f ./$(DEPDIR)/t-x448.Po
 	-rm -f ./$(DEPDIR)/t_lock-t-lock.Po
 	-rm -f ./$(DEPDIR)/testapi.Po
 	-rm -f ./$(DEPDIR)/version.Po
@@ -1162,11 +1185,13 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/t-convert.Po
 	-rm -f ./$(DEPDIR)/t-cv25519.Po
 	-rm -f ./$(DEPDIR)/t-ed25519.Po
+	-rm -f ./$(DEPDIR)/t-ed448.Po
 	-rm -f ./$(DEPDIR)/t-kdf.Po
 	-rm -f ./$(DEPDIR)/t-mpi-bit.Po
 	-rm -f ./$(DEPDIR)/t-mpi-point.Po
 	-rm -f ./$(DEPDIR)/t-secmem.Po
 	-rm -f ./$(DEPDIR)/t-sexp.Po
+	-rm -f ./$(DEPDIR)/t-x448.Po
 	-rm -f ./$(DEPDIR)/t_lock-t-lock.Po
 	-rm -f ./$(DEPDIR)/testapi.Po
 	-rm -f ./$(DEPDIR)/version.Po

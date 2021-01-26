@@ -601,7 +601,7 @@ do_init (void *context, int variant)
   hd->bctx.nblocks = 0;
   hd->bctx.nblocks_high = 0;
   hd->bctx.count = 0;
-  hd->bctx.blocksize = 64;
+  hd->bctx.blocksize_shift = _gcry_ctz(64);
   hd->bctx.bwrite = transform;
   hd->variant = variant;
 }
@@ -736,8 +736,6 @@ tiger_final( void *context )
   unsigned int burn;
   byte pad = hd->variant == 2? 0x80 : 0x01;
 
-  _gcry_md_block_write(hd, NULL, 0); /* flush */;
-
   t = hd->bctx.nblocks;
   if (sizeof t == sizeof hd->bctx.nblocks)
     th = hd->bctx.nblocks_high;
@@ -760,22 +758,26 @@ tiger_final( void *context )
   if( hd->bctx.count < 56 )  /* enough room */
     {
       hd->bctx.buf[hd->bctx.count++] = pad;
-      while( hd->bctx.count < 56 )
-        hd->bctx.buf[hd->bctx.count++] = 0;  /* pad */
+      if (hd->bctx.count < 56)
+	memset (&hd->bctx.buf[hd->bctx.count], 0, 56 - hd->bctx.count);
+      hd->bctx.count = 56;
+      /* append the 64 bit count */
+      buf_put_le32(hd->bctx.buf + 56, lsb);
+      buf_put_le32(hd->bctx.buf + 60, msb);
+      burn = transform( hd, hd->bctx.buf, 1 );
     }
   else  /* need one extra block */
     {
       hd->bctx.buf[hd->bctx.count++] = pad; /* pad character */
-      while( hd->bctx.count < 64 )
-        hd->bctx.buf[hd->bctx.count++] = 0;
-      _gcry_md_block_write(hd, NULL, 0);  /* flush */;
-      memset(hd->bctx.buf, 0, 56 ); /* fill next block with zeroes */
+      /* fill pad and next block with zeroes */
+      memset (&hd->bctx.buf[hd->bctx.count], 0, 64 - hd->bctx.count + 56);
+      hd->bctx.count = 64 + 56;
+
+      /* append the 64 bit count */
+      buf_put_le32(hd->bctx.buf + 64 + 56, lsb);
+      buf_put_le32(hd->bctx.buf + 64 + 60, msb);
+      burn = transform( hd, hd->bctx.buf, 2 );
     }
-  /* append the 64 bit count */
-  buf_put_le32(hd->bctx.buf + 56, lsb);
-  buf_put_le32(hd->bctx.buf + 60, msb);
-  burn = transform( hd, hd->bctx.buf, 1 );
-  _gcry_burn_stack (burn);
 
   p = hd->bctx.buf;
 #define X(a) do { buf_put_be64(p, hd->a); p += 8; } while(0)
@@ -794,6 +796,8 @@ tiger_final( void *context )
     }
 #undef X
 #undef Y
+
+  _gcry_burn_stack (burn);
 }
 
 static byte *
@@ -814,6 +818,7 @@ gcry_md_spec_t _gcry_digest_spec_tiger =
     GCRY_MD_TIGER, {0, 0},
     "TIGER192", NULL, 0, NULL, 24,
     tiger_init, _gcry_md_block_write, tiger_final, tiger_read, NULL,
+    NULL, NULL,
     sizeof (TIGER_CONTEXT)
   };
 
@@ -837,6 +842,7 @@ gcry_md_spec_t _gcry_digest_spec_tiger1 =
     GCRY_MD_TIGER1, {0, 0},
     "TIGER", asn1, DIM (asn1), oid_spec_tiger1, 24,
     tiger1_init, _gcry_md_block_write, tiger_final, tiger_read, NULL,
+    NULL, NULL,
     sizeof (TIGER_CONTEXT)
   };
 
@@ -848,5 +854,6 @@ gcry_md_spec_t _gcry_digest_spec_tiger2 =
     GCRY_MD_TIGER2, {0, 0},
     "TIGER2", NULL, 0, NULL, 24,
     tiger2_init, _gcry_md_block_write, tiger_final, tiger_read, NULL,
+    NULL, NULL,
     sizeof (TIGER_CONTEXT)
   };

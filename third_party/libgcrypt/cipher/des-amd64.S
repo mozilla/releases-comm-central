@@ -23,17 +23,7 @@
 #if defined(USE_DES) && (defined(HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS) || \
     defined(HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS))
 
-#ifdef __PIC__
-#  define RIP (%rip)
-#else
-#  define RIP
-#endif
-
-#ifdef HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS
-# define ELF(...) __VA_ARGS__
-#else
-# define ELF(...) /*_*/
-#endif
+#include "asm-common-amd64.h"
 
 .text
 
@@ -200,15 +190,25 @@ _gcry_3des_amd64_crypt_block:
 	 *	%rsi: dst
 	 *	%rdx: src
 	 */
-	pushq %rbp;
-	pushq %rbx;
-	pushq %r12;
-	pushq %r13;
-	pushq %r14;
-	pushq %r15;
-	pushq %rsi; /*dst*/
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
 
-	leaq .L_s1 RIP, SBOXES;
+	pushq %rbp;
+	CFI_PUSH(%rbp);
+	pushq %rbx;
+	CFI_PUSH(%rbx);
+	pushq %r12;
+	CFI_PUSH(%r12);
+	pushq %r13;
+	CFI_PUSH(%r13);
+	pushq %r14;
+	CFI_PUSH(%r14);
+	pushq %r15;
+	CFI_PUSH(%r15);
+	pushq %rsi; /*dst*/
+	CFI_PUSH(%rsi);
+
+	leaq .L_s1 rRIP, SBOXES;
 
 	read_block(%rdx, RL0, RR0);
 	initial_permutation(RL0, RR0);
@@ -267,17 +267,26 @@ _gcry_3des_amd64_crypt_block:
 	round1(32+15, RL0, RR0, dummy2);
 
 	popq RW2; /*dst*/
+	CFI_POP_TMP_REG();
 	final_permutation(RR0, RL0);
 	write_block(RW2, RR0, RL0);
 
 	popq %r15;
+	CFI_POP(%r15);
 	popq %r14;
+	CFI_POP(%r14);
 	popq %r13;
+	CFI_POP(%r13);
 	popq %r12;
+	CFI_POP(%r12);
 	popq %rbx;
+	CFI_POP(%rbx);
 	popq %rbp;
+	CFI_POP(%rbp);
 
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_3des_amd64_crypt_block,.-_gcry_3des_amd64_crypt_block;)
 
 /***********************************************************************
@@ -472,8 +481,9 @@ _gcry_3des_amd64_crypt_blk3:
 	 *  RL0d, RR0d, RL1d, RR1d, RL2d, RR2d: 3 input blocks
 	 *  RR0d, RL0d, RR1d, RL1d, RR2d, RL2d: 3 output blocks
 	 */
+	CFI_STARTPROC();
 
-	leaq .L_s1 RIP, SBOXES;
+	leaq .L_s1 rRIP, SBOXES;
 
 	initial_permutation3(RL, RR);
 
@@ -535,6 +545,7 @@ _gcry_3des_amd64_crypt_blk3:
 	final_permutation3(RR, RL);
 
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_3des_amd64_crypt_blk3,.-_gcry_3des_amd64_crypt_blk3;)
 
 .align 8
@@ -547,17 +558,28 @@ _gcry_3des_amd64_cbc_dec:
 	 *	%rdx: src (3 blocks)
 	 *	%rcx: iv (64bit)
 	 */
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
 
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	pushq %rbx;
+	CFI_PUSH(%rbx);
 	pushq %r12;
+	CFI_PUSH(%r12);
 	pushq %r13;
+	CFI_PUSH(%r13);
 	pushq %r14;
+	CFI_PUSH(%r14);
 	pushq %r15;
+	CFI_PUSH(%r15);
 
 	pushq %rsi; /*dst*/
+	CFI_PUSH(%rsi);
 	pushq %rdx; /*src*/
+	CFI_PUSH(%rdx);
 	pushq %rcx; /*iv*/
+	CFI_PUSH(%rcx);
 
 	/* load input */
 	movl 0 * 4(%rdx), RL0d;
@@ -577,8 +599,11 @@ _gcry_3des_amd64_cbc_dec:
 	call _gcry_3des_amd64_crypt_blk3;
 
 	popq %rcx; /*iv*/
+	CFI_POP_TMP_REG();
 	popq %rdx; /*src*/
+	CFI_POP_TMP_REG();
 	popq %rsi; /*dst*/
+	CFI_POP_TMP_REG();
 
 	bswapl RR0d;
 	bswapl RL0d;
@@ -604,13 +629,21 @@ _gcry_3des_amd64_cbc_dec:
 	movl RL2d, 5 * 4(%rsi);
 
 	popq %r15;
+	CFI_POP(%r15);
 	popq %r14;
+	CFI_POP(%r14);
 	popq %r13;
+	CFI_POP(%r13);
 	popq %r12;
+	CFI_POP(%r12);
 	popq %rbx;
+	CFI_POP(%rbx);
 	popq %rbp;
+	CFI_POP(%rbp);
 
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_3des_amd64_cbc_dec,.-_gcry_3des_amd64_cbc_dec;)
 
 .align 8
@@ -623,16 +656,26 @@ _gcry_3des_amd64_ctr_enc:
 	 *	%rdx: src (3 blocks)
 	 *	%rcx: iv (64bit)
 	 */
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
 
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	pushq %rbx;
+	CFI_PUSH(%rbx);
 	pushq %r12;
+	CFI_PUSH(%r12);
 	pushq %r13;
+	CFI_PUSH(%r13);
 	pushq %r14;
+	CFI_PUSH(%r14);
 	pushq %r15;
+	CFI_PUSH(%r15);
 
 	pushq %rsi; /*dst*/
+	CFI_PUSH(%rsi);
 	pushq %rdx; /*src*/
+	CFI_PUSH(%rdx);
 	movq %rcx, RW2;
 
 	/* load IV and byteswap */
@@ -658,7 +701,9 @@ _gcry_3des_amd64_ctr_enc:
 	call _gcry_3des_amd64_crypt_blk3;
 
 	popq %rdx; /*src*/
+	CFI_POP_TMP_REG();
 	popq %rsi; /*dst*/
+	CFI_POP_TMP_REG();
 
 	bswapl RR0d;
 	bswapl RL0d;
@@ -682,13 +727,21 @@ _gcry_3des_amd64_ctr_enc:
 	movl RL2d, 5 * 4(%rsi);
 
 	popq %r15;
+	CFI_POP(%r15);
 	popq %r14;
+	CFI_POP(%r14);
 	popq %r13;
+	CFI_POP(%r13);
 	popq %r12;
+	CFI_POP(%r12);
 	popq %rbx;
+	CFI_POP(%rbx);
 	popq %rbp;
+	CFI_POP(%rbp);
 
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_3des_amd64_cbc_dec,.-_gcry_3des_amd64_cbc_dec;)
 
 .align 8
@@ -701,15 +754,26 @@ _gcry_3des_amd64_cfb_dec:
 	 *	%rdx: src (3 blocks)
 	 *	%rcx: iv (64bit)
 	 */
+	CFI_STARTPROC();
+	ENTER_SYSV_FUNC_PARAMS_0_4
+
 	pushq %rbp;
+	CFI_PUSH(%rbp);
 	pushq %rbx;
+	CFI_PUSH(%rbx);
 	pushq %r12;
+	CFI_PUSH(%r12);
 	pushq %r13;
+	CFI_PUSH(%r13);
 	pushq %r14;
+	CFI_PUSH(%r14);
 	pushq %r15;
+	CFI_PUSH(%r15);
 
 	pushq %rsi; /*dst*/
+	CFI_PUSH(%rsi);
 	pushq %rdx; /*src*/
+	CFI_PUSH(%rdx);
 	movq %rcx, RW2;
 
 	/* Load input */
@@ -734,7 +798,9 @@ _gcry_3des_amd64_cfb_dec:
 	call _gcry_3des_amd64_crypt_blk3;
 
 	popq %rdx; /*src*/
+	CFI_POP_TMP_REG();
 	popq %rsi; /*dst*/
+	CFI_POP_TMP_REG();
 
 	bswapl RR0d;
 	bswapl RL0d;
@@ -758,12 +824,21 @@ _gcry_3des_amd64_cfb_dec:
 	movl RL2d, 5 * 4(%rsi);
 
 	popq %r15;
+	CFI_POP(%r15);
 	popq %r14;
+	CFI_POP(%r14);
 	popq %r13;
+	CFI_POP(%r13);
 	popq %r12;
+	CFI_POP(%r12);
 	popq %rbx;
+	CFI_POP(%rbx);
 	popq %rbp;
+	CFI_POP(%rbp);
+
+	EXIT_SYSV_FUNC
 	ret;
+	CFI_ENDPROC();
 ELF(.size _gcry_3des_amd64_cfb_dec,.-_gcry_3des_amd64_cfb_dec;)
 
 .align 16

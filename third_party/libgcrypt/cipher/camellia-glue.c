@@ -203,8 +203,24 @@ extern void _gcry_camellia_aesni_avx2_ocb_auth(CAMELLIA_context *ctx,
 
 static const char *selftest(void);
 
+static void _gcry_camellia_ctr_enc (void *context, unsigned char *ctr,
+				    void *outbuf_arg, const void *inbuf_arg,
+				    size_t nblocks);
+static void _gcry_camellia_cbc_dec (void *context, unsigned char *iv,
+				    void *outbuf_arg, const void *inbuf_arg,
+				    size_t nblocks);
+static void _gcry_camellia_cfb_dec (void *context, unsigned char *iv,
+				    void *outbuf_arg, const void *inbuf_arg,
+				    size_t nblocks);
+static size_t _gcry_camellia_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
+					const void *inbuf_arg, size_t nblocks,
+					int encrypt);
+static size_t _gcry_camellia_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
+				       size_t nblocks);
+
 static gcry_err_code_t
-camellia_setkey(void *c, const byte *key, unsigned keylen)
+camellia_setkey(void *c, const byte *key, unsigned keylen,
+                cipher_bulk_ops_t *bulk_ops)
 {
   CAMELLIA_context *ctx=c;
   static int initialized=0;
@@ -235,6 +251,14 @@ camellia_setkey(void *c, const byte *key, unsigned keylen)
 #endif
 
   ctx->keybitlength=keylen*8;
+
+  /* Setup bulk encryption routines.  */
+  memset (bulk_ops, 0, sizeof(*bulk_ops));
+  bulk_ops->cbc_dec = _gcry_camellia_cbc_dec;
+  bulk_ops->cfb_dec = _gcry_camellia_cfb_dec;
+  bulk_ops->ctr_enc = _gcry_camellia_ctr_enc;
+  bulk_ops->ocb_crypt = _gcry_camellia_ocb_crypt;
+  bulk_ops->ocb_auth  = _gcry_camellia_ocb_auth;
 
   if (0)
     { }
@@ -350,7 +374,7 @@ camellia_decrypt(void *c, byte *outbuf, const byte *inbuf)
 /* Bulk encryption of complete blocks in CTR mode.  This function is only
    intended for the bulk encryption feature of cipher.c.  CTR is expected to be
    of size CAMELLIA_BLOCK_SIZE. */
-void
+static void
 _gcry_camellia_ctr_enc(void *context, unsigned char *ctr,
                        void *outbuf_arg, const void *inbuf_arg,
                        size_t nblocks)
@@ -360,7 +384,6 @@ _gcry_camellia_ctr_enc(void *context, unsigned char *ctr,
   const unsigned char *inbuf = inbuf_arg;
   unsigned char tmpbuf[CAMELLIA_BLOCK_SIZE];
   int burn_stack_depth = CAMELLIA_encrypt_stack_burn_size;
-  int i;
 
 #ifdef USE_AESNI_AVX2
   if (ctx->use_aesni_avx2)
@@ -427,16 +450,11 @@ _gcry_camellia_ctr_enc(void *context, unsigned char *ctr,
       /* Encrypt the counter. */
       Camellia_EncryptBlock(ctx->keybitlength, ctr, ctx->keytable, tmpbuf);
       /* XOR the input with the encrypted counter and store in output.  */
-      buf_xor(outbuf, tmpbuf, inbuf, CAMELLIA_BLOCK_SIZE);
+      cipher_block_xor(outbuf, tmpbuf, inbuf, CAMELLIA_BLOCK_SIZE);
       outbuf += CAMELLIA_BLOCK_SIZE;
       inbuf  += CAMELLIA_BLOCK_SIZE;
       /* Increment the counter.  */
-      for (i = CAMELLIA_BLOCK_SIZE; i > 0; i--)
-        {
-          ctr[i-1]++;
-          if (ctr[i-1])
-            break;
-        }
+      cipher_block_add(ctr, 1, CAMELLIA_BLOCK_SIZE);
     }
 
   wipememory(tmpbuf, sizeof(tmpbuf));
@@ -445,7 +463,7 @@ _gcry_camellia_ctr_enc(void *context, unsigned char *ctr,
 
 /* Bulk decryption of complete blocks in CBC mode.  This function is only
    intended for the bulk encryption feature of cipher.c. */
-void
+static void
 _gcry_camellia_cbc_dec(void *context, unsigned char *iv,
                        void *outbuf_arg, const void *inbuf_arg,
                        size_t nblocks)
@@ -520,7 +538,8 @@ _gcry_camellia_cbc_dec(void *context, unsigned char *iv,
          the intermediate result to SAVEBUF.  */
       Camellia_DecryptBlock(ctx->keybitlength, inbuf, ctx->keytable, savebuf);
 
-      buf_xor_n_copy_2(outbuf, savebuf, iv, inbuf, CAMELLIA_BLOCK_SIZE);
+      cipher_block_xor_n_copy_2(outbuf, savebuf, iv, inbuf,
+                                CAMELLIA_BLOCK_SIZE);
       inbuf += CAMELLIA_BLOCK_SIZE;
       outbuf += CAMELLIA_BLOCK_SIZE;
     }
@@ -531,7 +550,7 @@ _gcry_camellia_cbc_dec(void *context, unsigned char *iv,
 
 /* Bulk decryption of complete blocks in CFB mode.  This function is only
    intended for the bulk encryption feature of cipher.c. */
-void
+static void
 _gcry_camellia_cfb_dec(void *context, unsigned char *iv,
                        void *outbuf_arg, const void *inbuf_arg,
                        size_t nblocks)
@@ -602,7 +621,7 @@ _gcry_camellia_cfb_dec(void *context, unsigned char *iv,
   for ( ;nblocks; nblocks-- )
     {
       Camellia_EncryptBlock(ctx->keybitlength, iv, ctx->keytable, iv);
-      buf_xor_n_copy(outbuf, iv, inbuf, CAMELLIA_BLOCK_SIZE);
+      cipher_block_xor_n_copy(outbuf, iv, inbuf, CAMELLIA_BLOCK_SIZE);
       outbuf += CAMELLIA_BLOCK_SIZE;
       inbuf  += CAMELLIA_BLOCK_SIZE;
     }
@@ -611,7 +630,7 @@ _gcry_camellia_cfb_dec(void *context, unsigned char *iv,
 }
 
 /* Bulk encryption/decryption of complete blocks in OCB mode. */
-size_t
+static size_t
 _gcry_camellia_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
 			  const void *inbuf_arg, size_t nblocks, int encrypt)
 {
@@ -764,7 +783,7 @@ _gcry_camellia_ocb_crypt (gcry_cipher_hd_t c, void *outbuf_arg,
 }
 
 /* Bulk authentication of complete blocks in OCB mode. */
-size_t
+static size_t
 _gcry_camellia_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
 			 size_t nblocks)
 {
@@ -914,8 +933,7 @@ selftest_ctr_128 (void)
   const int context_size = sizeof(CAMELLIA_context);
 
   return _gcry_selftest_helper_ctr("CAMELLIA", &camellia_setkey,
-           &camellia_encrypt, &_gcry_camellia_ctr_enc, nblocks, blocksize,
-	   context_size);
+           &camellia_encrypt, nblocks, blocksize, context_size);
 }
 
 /* Run the self-tests for CAMELLIA-CBC-128, tests bulk CBC decryption.
@@ -928,8 +946,7 @@ selftest_cbc_128 (void)
   const int context_size = sizeof(CAMELLIA_context);
 
   return _gcry_selftest_helper_cbc("CAMELLIA", &camellia_setkey,
-           &camellia_encrypt, &_gcry_camellia_cbc_dec, nblocks, blocksize,
-	   context_size);
+           &camellia_encrypt, nblocks, blocksize, context_size);
 }
 
 /* Run the self-tests for CAMELLIA-CFB-128, tests bulk CFB decryption.
@@ -942,8 +959,7 @@ selftest_cfb_128 (void)
   const int context_size = sizeof(CAMELLIA_context);
 
   return _gcry_selftest_helper_cfb("CAMELLIA", &camellia_setkey,
-           &camellia_encrypt, &_gcry_camellia_cfb_dec, nblocks, blocksize,
-	   context_size);
+           &camellia_encrypt, nblocks, blocksize, context_size);
 }
 
 static const char *
@@ -951,6 +967,7 @@ selftest(void)
 {
   CAMELLIA_context ctx;
   byte scratch[16];
+  cipher_bulk_ops_t bulk_ops;
   const char *r;
 
   /* These test vectors are from RFC-3713 */
@@ -991,7 +1008,7 @@ selftest(void)
       0x20,0xef,0x7c,0x91,0x9e,0x3a,0x75,0x09
     };
 
-  camellia_setkey(&ctx,key_128,sizeof(key_128));
+  camellia_setkey(&ctx,key_128,sizeof(key_128),&bulk_ops);
   camellia_encrypt(&ctx,scratch,plaintext);
   if(memcmp(scratch,ciphertext_128,sizeof(ciphertext_128))!=0)
     return "CAMELLIA-128 test encryption failed.";
@@ -999,7 +1016,7 @@ selftest(void)
   if(memcmp(scratch,plaintext,sizeof(plaintext))!=0)
     return "CAMELLIA-128 test decryption failed.";
 
-  camellia_setkey(&ctx,key_192,sizeof(key_192));
+  camellia_setkey(&ctx,key_192,sizeof(key_192),&bulk_ops);
   camellia_encrypt(&ctx,scratch,plaintext);
   if(memcmp(scratch,ciphertext_192,sizeof(ciphertext_192))!=0)
     return "CAMELLIA-192 test encryption failed.";
@@ -1007,7 +1024,7 @@ selftest(void)
   if(memcmp(scratch,plaintext,sizeof(plaintext))!=0)
     return "CAMELLIA-192 test decryption failed.";
 
-  camellia_setkey(&ctx,key_256,sizeof(key_256));
+  camellia_setkey(&ctx,key_256,sizeof(key_256),&bulk_ops);
   camellia_encrypt(&ctx,scratch,plaintext);
   if(memcmp(scratch,ciphertext_256,sizeof(ciphertext_256))!=0)
     return "CAMELLIA-256 test encryption failed.";

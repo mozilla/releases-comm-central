@@ -22,7 +22,8 @@ tests_bin = \
         version t-secmem mpitests t-sexp t-convert \
 	t-mpi-bit t-mpi-point curves t-lock \
 	prime basic keygen pubkey hmac hashtest t-kdf keygrip \
-	fips186-dsa aeswrap pkcs1v2 random dsa-rfc6979 t-ed25519 t-cv25519
+	fips186-dsa aeswrap pkcs1v2 random dsa-rfc6979 \
+	t-ed25519 t-cv25519 t-x448 t-ed448
 
 tests_bin_last = benchmark bench-slope
 
@@ -47,7 +48,7 @@ AM_CFLAGS = $(GPG_ERROR_CFLAGS)
 AM_LDFLAGS = -no-install
 
 standard_ldadd = \
-	../src/libgcrypt.la $(DL_LIBS) \
+	../src/libgcrypt.la \
         ../compat/libcompat.la
 
 EXTRA_PROGRAMS = testapi pkbench
@@ -57,11 +58,16 @@ noinst_HEADERS = t-common.h
 
 EXTRA_DIST = README rsa-16k.key cavs_tests.sh cavs_driver.pl \
 	     pkcs1v2-oaep.h pkcs1v2-pss.h pkcs1v2-v15c.h pkcs1v2-v15s.h \
-	     t-ed25519.inp stopwatch.h hashtest-256g.in \
+	     t-ed25519.inp t-ed448.inp stopwatch.h hashtest-256g.in \
 	     sha3-224.h sha3-256.h sha3-384.h sha3-512.h \
 	     blake2b.h blake2s.h \
 	     basic-disable-all-hwf.in basic_all_hwfeature_combinations.sh
 
-LDADD = $(standard_ldadd) $(GPG_ERROR_LIBS)
-t_lock_LDADD = $(standard_ldadd) $(GPG_ERROR_MT_LIBS)
+LDADD = $(standard_ldadd) $(GPG_ERROR_LIBS) @LDADD_FOR_TESTS_KLUDGE@
+pkbench_LDADD = $(standard_ldadd)
+prime_LDADD = $(standard_ldadd)
+t_mpi_bit_LDADD = $(standard_ldadd)
+t_secmem_LDADD = $(standard_ldadd)
+testapi_LDADD = $(standard_ldadd)
+t_lock_LDADD = $(standard_ldadd) $(GPG_ERROR_MT_LIBS) @LDADD_FOR_TESTS_KLUDGE@
 t_lock_CFLAGS = $(GPG_ERROR_MT_CFLAGS)

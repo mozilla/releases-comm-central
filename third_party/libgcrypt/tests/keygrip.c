@@ -200,6 +200,26 @@ static struct
       " ))",
       "\x0F\x89\xA5\x65\xD3\xEA\x18\x7C\xE8\x39"
       "\x33\x23\x98\xF5\xD4\x80\x67\x7D\xF4\x9C"
+    },
+    { /* Random key  */
+      GCRY_PK_RSA,
+      "(shadowed-private-key"
+      " (rsa"
+      " (n #00B493C79928398DA9D99AC0E949FE6EB62F683CB974FFFBFBC01066F5C9A89B"
+      "     D3DC48EAD7C65F36EA943C2B2C865C26C4884FF9EDFDA8C99C855B737D77EEF6"
+      "     B85DBC0CCEC0E900C1F89A6893A2A93E8B31028469B6927CEB2F08687E547C68"
+      "     6B0A2F7E50A194FF7AB7637E03DE0912EF7F6E5F1EC37625BD1620CCC2E7A564"
+      "     31E168CDAFBD1D9E61AE47A69A6FA03EF22F844528A710B2392F262B95A3078C"
+      "     F321DC8325F92A5691EF69F34FD0DE0B22C79D29DC87723FCADE463829E8E5F7"
+      "     D196D73D6C9C180F6A6A0DDBF7B9D8F7FA293C36163B12199EF6A1A95CAE4051"
+      "     E3069C522CC6C4A7110F663A5DAD20F66C13A1674D050088208FAE4F33B3AB51"
+      "     03#)"
+      " (e #00010001#)"
+      " (shadowed t1-v1"
+      " (#D2760001240102000005000123350000# OPENPGP.1)"
+      ")))",
+      "\xE5\x6E\xE6\xEE\x5A\x2F\xDC\x3E\x98\x9D"
+      "\xFE\x49\xDA\xF5\x67\x43\xE3\x27\x28\x33"
     }
   };
 
@@ -228,6 +248,9 @@ check (void)
       if (err)
         die ("scanning data %d failed: %s\n", i, gpg_strerror (err));
 
+      if (debug)
+        info ("check(%d): s-exp='%s'\n", i, key_grips[i].key);
+
       for (repn=0; repn < repetitions; repn++)
         {
           ret = gcry_pk_get_keygrip (sexp, buf);
@@ -239,6 +262,8 @@ check (void)
               print_hex ("keygrip: ", buf, sizeof buf);
               die ("keygrip for %d does not match\n", i);
             }
+          else if (debug && !repn)
+            print_hex ("keygrip: ", buf, sizeof buf);
         }
 
       gcry_sexp_release (sexp);
@@ -305,10 +330,10 @@ main (int argc, char **argv)
 
   gcry_set_progress_handler (progress_handler, NULL);
 
-  xgcry_control (GCRYCTL_DISABLE_SECMEM, 0);
-  xgcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+  xgcry_control ((GCRYCTL_DISABLE_SECMEM, 0));
+  xgcry_control ((GCRYCTL_INITIALIZATION_FINISHED, 0));
   if (debug)
-    xgcry_control (GCRYCTL_SET_DEBUG_FLAGS, 1u, 0);
+    xgcry_control ((GCRYCTL_SET_DEBUG_FLAGS, 1u, 0));
 
   check ();
 

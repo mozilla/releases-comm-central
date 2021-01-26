@@ -17,7 +17,7 @@
  * License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "asm-common-aarch64.h"
 
 #if defined(__AARCH64EL__) && \
     defined(HAVE_COMPATIBLE_GCC_AARCH64_PLATFORM_AS) && \
@@ -26,10 +26,6 @@
 .cpu generic+simd+crypto
 
 .text
-
-#define GET_DATA_POINTER(reg, name) \
-		adrp    reg, :got:name ; \
-		ldr     reg, [reg, #:got_lo12:name] ;
 
 
 /* Constants */
@@ -157,15 +153,23 @@ gcry_gcm_reduction_constant:
 
 #define VPUSH_ABI \
         stp d8, d9, [sp, #-16]!; \
+        CFI_ADJUST_CFA_OFFSET(16); \
         stp d10, d11, [sp, #-16]!; \
+        CFI_ADJUST_CFA_OFFSET(16); \
         stp d12, d13, [sp, #-16]!; \
-        stp d14, d15, [sp, #-16]!;
+        CFI_ADJUST_CFA_OFFSET(16); \
+        stp d14, d15, [sp, #-16]!; \
+        CFI_ADJUST_CFA_OFFSET(16);
 
 #define VPOP_ABI \
         ldp d14, d15, [sp], #16; \
+        CFI_ADJUST_CFA_OFFSET(-16); \
         ldp d12, d13, [sp], #16; \
+        CFI_ADJUST_CFA_OFFSET(-16); \
         ldp d10, d11, [sp], #16; \
-        ldp d8, d9, [sp], #16;
+        CFI_ADJUST_CFA_OFFSET(-16); \
+        ldp d8, d9, [sp], #16; \
+        CFI_ADJUST_CFA_OFFSET(-16);
 
 /*
  * unsigned int _gcry_ghash_armv8_ce_pmull (void *gcm_key, byte *result,
@@ -174,7 +178,7 @@ gcry_gcm_reduction_constant:
  */
 .align 3
 .globl _gcry_ghash_armv8_ce_pmull
-.type  _gcry_ghash_armv8_ce_pmull,%function;
+ELF(.type  _gcry_ghash_armv8_ce_pmull,%function;)
 _gcry_ghash_armv8_ce_pmull:
   /* input:
    *    x0: gcm_key
@@ -183,6 +187,8 @@ _gcry_ghash_armv8_ce_pmull:
    *    x3: nblocks
    *    x4: gcm_table
    */
+  CFI_STARTPROC();
+
   cbz x3, .Ldo_nothing;
 
   GET_DATA_POINTER(x5, .Lrconst)
@@ -360,7 +366,8 @@ _gcry_ghash_armv8_ce_pmull:
 .Ldo_nothing:
   mov x0, #0
   ret
-.size _gcry_ghash_armv8_ce_pmull,.-_gcry_ghash_armv8_ce_pmull;
+  CFI_ENDPROC()
+ELF(.size _gcry_ghash_armv8_ce_pmull,.-_gcry_ghash_armv8_ce_pmull;)
 
 
 /*
@@ -368,12 +375,13 @@ _gcry_ghash_armv8_ce_pmull:
  */
 .align 3
 .globl _gcry_ghash_setup_armv8_ce_pmull
-.type  _gcry_ghash_setup_armv8_ce_pmull,%function;
+ELF(.type  _gcry_ghash_setup_armv8_ce_pmull,%function;)
 _gcry_ghash_setup_armv8_ce_pmull:
   /* input:
    *	x0: gcm_key
    *	x1: gcm_table
    */
+  CFI_STARTPROC()
 
   GET_DATA_POINTER(x2, .Lrconst)
 
@@ -410,6 +418,7 @@ _gcry_ghash_setup_armv8_ce_pmull:
   st1 {rh5.16b-rh6.16b}, [x1]
 
   ret
-.size _gcry_ghash_setup_armv8_ce_pmull,.-_gcry_ghash_setup_armv8_ce_pmull;
+  CFI_ENDPROC()
+ELF(.size _gcry_ghash_setup_armv8_ce_pmull,.-_gcry_ghash_setup_armv8_ce_pmull;)
 
 #endif

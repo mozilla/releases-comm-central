@@ -33,18 +33,7 @@
      defined(HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS)) && \
     defined(HAVE_GCC_INLINE_ASM_AVX) && defined(USE_SHA1)
 
-#ifdef __PIC__
-#  define RIP (%rip)
-#else
-#  define RIP
-#endif
-
-
-#ifdef HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS
-# define ELF(...) __VA_ARGS__
-#else
-# define ELF(...) /*_*/
-#endif
+#include "asm-common-amd64.h"
 
 
 /* Context structure */
@@ -161,7 +150,7 @@
 	vpshufb BSWAP_REG, tmp0, W;
 
 #define W_PRECALC_00_15_2(i, W, tmp0) \
-	vpaddd (.LK_XMM + ((i)/20)*16) RIP, W, tmp0;
+	vpaddd (.LK_XMM + ((i)/20)*16) rRIP, W, tmp0;
 
 #define W_PRECALC_00_15_3(i, W, tmp0) \
 	vmovdqa tmp0, WK(i&~3);
@@ -186,7 +175,7 @@
 #define W_PRECALC_16_31_3(i, W, W_m04, W_m08, W_m12, W_m16, tmp0, tmp1) \
 	vpxor W, tmp0, tmp0; \
 	vpxor tmp1, tmp0, W; \
-	vpaddd (.LK_XMM + ((i)/20)*16) RIP, W, tmp0; \
+	vpaddd (.LK_XMM + ((i)/20)*16) rRIP, W, tmp0; \
 	vmovdqa tmp0, WK((i)&~3);
 
 #define W_PRECALC_32_79_0(i, W, W_m04, W_m08, W_m12, W_m16, W_m20, W_m24, W_m28, tmp0) \
@@ -203,7 +192,7 @@
 
 #define W_PRECALC_32_79_3(i, W, W_m04, W_m08, W_m12, W_m16, W_m20, W_m24, W_m28, tmp0) \
 	vpor W, tmp0, W; \
-	vpaddd (.LK_XMM + ((i)/20)*16) RIP, W, tmp0; \
+	vpaddd (.LK_XMM + ((i)/20)*16) rRIP, W, tmp0; \
 	vmovdqa tmp0, WK((i)&~3);
 
 
@@ -223,6 +212,7 @@ _gcry_sha1_transform_amd64_avx:
    *	%rsi: data (64*nblks bytes)
    *	%rdx: nblks
    */
+  CFI_STARTPROC();
 
   xorl %eax, %eax;
   cmpq $0, %rdx;
@@ -234,9 +224,12 @@ _gcry_sha1_transform_amd64_avx:
   movq %rdi, RSTATE;
   movq %rsi, RDATA;
   pushq %rbx;
+  CFI_PUSH(%rbx);
   pushq %rbp;
+  CFI_PUSH(%rbp);
 
   movq %rsp, ROLDSTACK;
+  CFI_DEF_CFA_REGISTER(ROLDSTACK);
 
   subq $(16*4), %rsp;
   andq $(~31), %rsp;
@@ -248,7 +241,7 @@ _gcry_sha1_transform_amd64_avx:
   movl state_h3(RSTATE), d;
   movl state_h4(RSTATE), e;
 
-  movdqa .Lbswap_shufb_ctl RIP, BSWAP_REG;
+  vmovdqa .Lbswap_shufb_ctl rRIP, BSWAP_REG;
 
   /* Precalc 0-15. */
   W_PRECALC_00_15_0(0, W0, Wtmp0);
@@ -380,7 +373,7 @@ _gcry_sha1_transform_amd64_avx:
 .Lend:
   vzeroall;
 
-  /* Transform 64-79. */
+  /* Transform 64-79 + burn stack */
   R( b, c, d, e, a, F4, 64 );
   R( a, b, c, d, e, F4, 65 );
   R( e, a, b, c, d, F4, 66 );
@@ -393,11 +386,14 @@ _gcry_sha1_transform_amd64_avx:
   R( c, d, e, a, b, F4, 73 );
   R( b, c, d, e, a, F4, 74 );
   R( a, b, c, d, e, F4, 75 );
-  R( e, a, b, c, d, F4, 76 );
-  R( d, e, a, b, c, F4, 77 );
-  R( c, d, e, a, b, F4, 78 );
+  R( e, a, b, c, d, F4, 76 ); vmovdqa %xmm0, (0*16)(%rsp);
+  R( d, e, a, b, c, F4, 77 ); vmovdqa %xmm0, (1*16)(%rsp);
+  R( c, d, e, a, b, F4, 78 ); vmovdqa %xmm0, (2*16)(%rsp);
   addl state_h0(RSTATE), a;
   R( b, c, d, e, a, F4, 79 );
+
+  /* 16*4/16-1 = 3 */
+  vmovdqa %xmm0, (3*16)(%rsp);
 
   /* Update the chaining variables. */
   addl state_h3(RSTATE), d;
@@ -412,15 +408,22 @@ _gcry_sha1_transform_amd64_avx:
   movl e, state_h4(RSTATE);
 
   movq ROLDSTACK, %rsp;
+  CFI_REGISTER(ROLDSTACK, %rsp);
+  CFI_DEF_CFA_REGISTER(%rsp);
 
   popq %rbp;
+  CFI_POP(%rbp);
   popq %rbx;
+  CFI_POP(%rbx);
 
-  /* burn_stack */
-  movl $(16*4 + 2*8 + 31), %eax;
+  /* stack already burned */
+  xorl %eax, %eax;
 
 .Lret:
   ret;
+  CFI_ENDPROC();
+ELF(.size _gcry_sha1_transform_amd64_avx,
+    .-_gcry_sha1_transform_amd64_avx;)
 
 #endif
 #endif

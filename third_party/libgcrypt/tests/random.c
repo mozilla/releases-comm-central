@@ -292,7 +292,7 @@ check_close_random_device (void)
     die ("fork failed: %s\n", strerror (errno));
   if (!pid)
     {
-      xgcry_control (GCRYCTL_CLOSE_RANDOM_DEVICE, 0);
+      xgcry_control ((GCRYCTL_CLOSE_RANDOM_DEVICE, 0));
 
       /* The next call will re-open the device.  */
       gcry_randomize (buf, sizeof buf, GCRY_STRONG_RANDOM);
@@ -345,7 +345,7 @@ check_rng_type_switching (void)
   if (rngtype != rng_type ())
     die ("RNG type unexpectedly changed\n");
 
-  xgcry_control (GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_SYSTEM);
+  xgcry_control ((GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_SYSTEM));
 
   rngtype = rng_type ();
   if (debug)
@@ -358,7 +358,7 @@ check_rng_type_switching (void)
   if (rngtype != rng_type ())
     die ("RNG type unexpectedly changed\n");
 
-  xgcry_control (GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_FIPS);
+  xgcry_control ((GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_FIPS));
 
   rngtype = rng_type ();
   if (debug)
@@ -371,7 +371,7 @@ check_rng_type_switching (void)
   if (rngtype != rng_type ())
     die ("RNG type unexpectedly changed\n");
 
-  xgcry_control (GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_STANDARD);
+  xgcry_control ((GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_STANDARD));
 
   rngtype = rng_type ();
   if (debug)
@@ -399,7 +399,7 @@ check_early_rng_type_switching (void)
     info ("rng type: %d\n", rngtype);
   initial = rngtype;
 
-  xgcry_control (GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_SYSTEM);
+  xgcry_control ((GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_SYSTEM));
 
   rngtype = rng_type ();
   if (debug)
@@ -407,7 +407,7 @@ check_early_rng_type_switching (void)
   if (initial >= GCRY_RNG_TYPE_SYSTEM && rngtype != GCRY_RNG_TYPE_SYSTEM)
     die ("switching to System RNG failed\n");
 
-  xgcry_control (GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_FIPS);
+  xgcry_control ((GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_FIPS));
 
   rngtype = rng_type ();
   if (debug)
@@ -415,7 +415,7 @@ check_early_rng_type_switching (void)
   if (initial >= GCRY_RNG_TYPE_FIPS && rngtype != GCRY_RNG_TYPE_FIPS)
     die ("switching to FIPS RNG failed\n");
 
-  xgcry_control (GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_STANDARD);
+  xgcry_control ((GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_STANDARD));
 
   rngtype = rng_type ();
   if (debug)
@@ -505,6 +505,65 @@ check_drbg_reinit (void)
 }
 
 
+#ifdef USE_POSIX_SPAWN_FOR_TESTS
+#include <spawn.h>
+extern char **environ;
+
+static void
+run_all_rng_tests (const char *program)
+{
+  static const char *options[][2] = {
+    { "--early-rng-check",     NULL },
+    { "--early-rng-check",     "--prefer-standard-rng" },
+    { "--early-rng-check",     "--prefer-fips-rng" },
+    { "--early-rng-check",     "--prefer-system-rng" },
+    { "--prefer-standard-rng", NULL },
+    { "--prefer-fips-rng",     NULL },
+    { "--prefer-system-rng",   NULL },
+    { NULL, NULL }
+  };
+  int idx;
+  char *argv[8];
+
+  for (idx=0; options[idx][0]; idx++)
+    {
+      int i;
+      pid_t pid;
+      int status;
+
+      if (verbose)
+        info ("now running with options '%s%s%s'\n",
+              options[idx][0],
+              options[idx][1] ? " " : "",
+              options[idx][1] ? options[idx][1] : "");
+
+      i = 0;
+      argv[i++] = xstrdup (program);
+      argv[i++] = xstrdup ("--in-recursion");
+      argv[i++] = xstrdup ("--verbose");
+      argv[i++] = xstrdup ("--debug");
+      argv[i++] = xstrdup ("--progress");
+      argv[i++] = xstrdup (options[idx][0]);
+      if (options[idx][1])
+        argv[i++] = xstrdup (options[idx][1]);
+      argv[i++] = NULL;
+
+      if (posix_spawn (&pid, program, NULL, NULL, argv, environ))
+        die ("spawning '%s' failed\n", program);
+
+      if (waitpid (pid, &status, 0) < 0)
+        die ("waitpid for '%s' failed\n", program);
+
+      if (WIFEXITED (status) && WEXITSTATUS (status))
+        die ("running '%s' failed with %d\n", program, WEXITSTATUS (status));
+      else if (!WIFEXITED (status))
+        die ("running '%s' failed\n", program);
+
+      while (i)
+        xfree (argv[--i]);
+    }
+}
+#else
 /* Because we want to check initialization behaviour, we need to
    fork/exec this program with several command line arguments.  We use
    system, so that these tests work also on Windows.  */
@@ -559,6 +618,7 @@ run_all_rng_tests (const char *program)
 
   free (cmdline);
 }
+#endif
 
 
 static void
@@ -659,18 +719,18 @@ main (int argc, char **argv)
         {
           /* This is anyway the default, but we may want to use it for
              debugging. */
-          xgcry_control (GCRYCTL_SET_PREFERRED_RNG_TYPE,
-                         GCRY_RNG_TYPE_STANDARD);
+          xgcry_control ((GCRYCTL_SET_PREFERRED_RNG_TYPE,
+                          GCRY_RNG_TYPE_STANDARD));
           argc--; argv++;
         }
       else if (!strcmp (*argv, "--prefer-fips-rng"))
         {
-          xgcry_control (GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_FIPS);
+          xgcry_control ((GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_FIPS));
           argc--; argv++;
         }
       else if (!strcmp (*argv, "--prefer-system-rng"))
         {
-          xgcry_control (GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_SYSTEM);
+          xgcry_control ((GCRYCTL_SET_PREFERRED_RNG_TYPE, GCRY_RNG_TYPE_SYSTEM));
           argc--; argv++;
         }
       else if (!strcmp (*argv, "--disable-hwf"))
@@ -701,7 +761,7 @@ main (int argc, char **argv)
         check_early_rng_type_switching ();
     }
 
-  xgcry_control (GCRYCTL_DISABLE_SECMEM, 0);
+  xgcry_control ((GCRYCTL_DISABLE_SECMEM, 0));
   if (!gcry_check_version (GCRYPT_VERSION))
     die ("version mismatch\n");
 
@@ -718,9 +778,9 @@ main (int argc, char **argv)
       xfree (fname);
     }
 
-  xgcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+  xgcry_control ((GCRYCTL_INITIALIZATION_FINISHED, 0));
   if (debug)
-    xgcry_control (GCRYCTL_SET_DEBUG_FLAGS, 1u, 0);
+    xgcry_control ((GCRYCTL_SET_DEBUG_FLAGS, 1u, 0));
 
   if (benchmark)
     {
@@ -760,7 +820,7 @@ main (int argc, char **argv)
     }
 
   if (debug)
-    xgcry_control (GCRYCTL_DUMP_RANDOM_STATS);
+    xgcry_control ((GCRYCTL_DUMP_RANDOM_STATS));
 
   return 0;
 }

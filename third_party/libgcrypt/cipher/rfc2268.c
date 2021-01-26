@@ -262,8 +262,10 @@ setkey_core (void *context, const unsigned char *key, unsigned int keylen, int w
 }
 
 static gpg_err_code_t
-do_setkey (void *context, const unsigned char *key, unsigned int keylen)
+do_setkey (void *context, const unsigned char *key, unsigned int keylen,
+           cipher_bulk_ops_t *bulk_ops)
 {
+  (void)bulk_ops;
   return setkey_core (context, key, keylen, 1);
 }
 

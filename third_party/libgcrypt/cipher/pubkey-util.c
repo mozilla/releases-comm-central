@@ -81,6 +81,11 @@ _gcry_pk_util_parse_flaglist (gcry_sexp_t list,
               encoding = PUBKEY_ENC_RAW;
               flags |= PUBKEY_FLAG_RAW_FLAG; /* Explicitly given.  */
             }
+          else if (!memcmp (s, "sm2", 3))
+            {
+                encoding = PUBKEY_ENC_RAW;
+                flags |= PUBKEY_FLAG_SM2 | PUBKEY_FLAG_RAW_FLAG;
+            }
           else if (!igninvflag)
             rc = GPG_ERR_INV_FLAG;
           break;
@@ -132,6 +137,8 @@ _gcry_pk_util_parse_flaglist (gcry_sexp_t list,
             flags |= PUBKEY_FLAG_RFC6979;
           else if (!memcmp (s, "noparam", 7))
             ; /* Ignore - it is the default.  */
+          else if (!memcmp (s, "prehash", 7))
+            flags |= PUBKEY_FLAG_PREHASH;
           else if (!igninvflag)
             rc = GPG_ERR_INV_FLAG;
           break;
@@ -221,6 +228,9 @@ get_hash_algo (const char *s, size_t n)
     { "sha3-256", GCRY_MD_SHA3_256 },
     { "sha3-384", GCRY_MD_SHA3_384 },
     { "sha3-512", GCRY_MD_SHA3_512 },
+    { "sm3", GCRY_MD_SM3 },
+    { "shake128", GCRY_MD_SHAKE128 },
+    { "shake256", GCRY_MD_SHAKE256 },
     { NULL, 0 }
   };
   int algo;
@@ -428,6 +438,8 @@ _gcry_pk_util_preparse_sigval (gcry_sexp_t s_sig, const char **algo_names,
         *r_eccflags = PUBKEY_FLAG_EDDSA;
       if (!strcmp (name, "gost"))
         *r_eccflags = PUBKEY_FLAG_GOST;
+      if (!strcmp (name, "sm2"))
+        *r_eccflags = PUBKEY_FLAG_SM2;
     }
 
   *r_parms = l2;
@@ -649,7 +661,8 @@ _gcry_pk_util_free_encoding_ctx (struct pk_encoding_ctx *ctx)
    (<mpi>)
    or
    (data
-    [(flags [raw, direct, pkcs1, oaep, pss, no-blinding, rfc6979, eddsa])]
+    [(flags [raw, direct, pkcs1, oaep, pss,
+             no-blinding, rfc6979, eddsa, prehash])]
     [(hash <algo> <value>)]
     [(value <text>)]
     [(hash-algo <algo>)]
@@ -684,7 +697,10 @@ _gcry_pk_util_data_to_mpi (gcry_sexp_t input, gcry_mpi_t *ret_mpi,
   ldata = sexp_find_token (input, "data", 0);
   if (!ldata)
     { /* assume old style */
-      *ret_mpi = sexp_nth_mpi (input, 0, 0);
+      int mpifmt = (ctx->flags & PUBKEY_FLAG_RAW_FLAG) ?
+        GCRYMPI_FMT_OPAQUE : GCRYMPI_FMT_STD;
+
+      *ret_mpi = sexp_nth_mpi (input, 0, mpifmt);
       return *ret_mpi ? GPG_ERR_NO_ERROR : GPG_ERR_INV_OBJ;
     }
 
@@ -712,7 +728,8 @@ _gcry_pk_util_data_to_mpi (gcry_sexp_t input, gcry_mpi_t *ret_mpi,
   else if (unknown_flag)
     rc = GPG_ERR_INV_FLAG;
   else if (ctx->encoding == PUBKEY_ENC_RAW
-           && (parsed_flags & PUBKEY_FLAG_EDDSA))
+           && ((parsed_flags & PUBKEY_FLAG_EDDSA)
+               || (ctx->flags & PUBKEY_FLAG_EDDSA)))
     {
       /* Prepare for EdDSA.  */
       gcry_sexp_t list;
@@ -724,6 +741,7 @@ _gcry_pk_util_data_to_mpi (gcry_sexp_t input, gcry_mpi_t *ret_mpi,
           rc = GPG_ERR_INV_OBJ;
           goto leave;
         }
+      /* Hash algo is determined by curve.  No hash-algo is OK.  */
       /* Get HASH-ALGO. */
       list = sexp_find_token (ldata, "hash-algo", 0);
       if (list)
@@ -739,10 +757,31 @@ _gcry_pk_util_data_to_mpi (gcry_sexp_t input, gcry_mpi_t *ret_mpi,
             }
           sexp_release (list);
         }
-      else
-        rc = GPG_ERR_INV_OBJ;
       if (rc)
         goto leave;
+
+      /* Get LABEL. */
+      list = sexp_find_token (ldata, "label", 0);
+      if (list)
+        {
+          s = sexp_nth_data (list, 1, &n);
+          if (!s)
+            rc = GPG_ERR_NO_OBJ;
+          else if (n > 0)
+            {
+              ctx->label = xtrymalloc (n);
+              if (!ctx->label)
+                rc = gpg_err_code_from_syserror ();
+              else
+                {
+                  memcpy (ctx->label, s, n);
+                  ctx->labellen = n;
+                }
+            }
+          sexp_release (list);
+          if (rc)
+            goto leave;
+        }
 
       /* Get VALUE.  */
       value = sexp_nth_buffer (lvalue, 1, &valuelen);
@@ -1110,7 +1149,7 @@ _gcry_pk_util_data_to_mpi (gcry_sexp_t input, gcry_mpi_t *ret_mpi,
   sexp_release (lvalue);
 
   if (!rc)
-    ctx->flags = parsed_flags;
+    ctx->flags |= parsed_flags;
   else
     {
       xfree (ctx->label);

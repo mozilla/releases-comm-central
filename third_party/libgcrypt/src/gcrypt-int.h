@@ -109,6 +109,10 @@ const char *_gcry_pk_get_curve (gcry_sexp_t key, int iterator,
 gcry_sexp_t _gcry_pk_get_param (int algo, const char *name);
 gpg_err_code_t _gcry_pubkey_get_sexp (gcry_sexp_t *r_sexp,
                                       int mode, gcry_ctx_t ctx);
+unsigned int _gcry_ecc_get_algo_keylen (int algo);
+gpg_error_t _gcry_ecc_mul_point (int algo, unsigned char *result,
+                                 const unsigned char *scalar,
+                                 const unsigned char *point);
 
 
 gpg_err_code_t _gcry_md_open (gcry_md_hd_t *h, int algo, unsigned int flags);
@@ -362,7 +366,7 @@ gcry_mpi_t _gcry_mpi_copy (const gcry_mpi_t a);
 void _gcry_mpi_snatch (gcry_mpi_t w, gcry_mpi_t u);
 gcry_mpi_t _gcry_mpi_set (gcry_mpi_t w, const gcry_mpi_t u);
 gcry_mpi_t _gcry_mpi_set_ui (gcry_mpi_t w, unsigned long u);
-gcry_err_code_t _gcry_mpi_get_ui (gcry_mpi_t w, unsigned long *u);
+gcry_err_code_t _gcry_mpi_get_ui (unsigned int *w, gcry_mpi_t u);
 void _gcry_mpi_swap (gcry_mpi_t a, gcry_mpi_t b);
 int _gcry_mpi_is_neg (gcry_mpi_t a);
 void _gcry_mpi_neg (gcry_mpi_t w, gcry_mpi_t u);
@@ -465,7 +469,7 @@ int _gcry_mpi_get_flag (gcry_mpi_t a, enum gcry_mpi_flag flag);
 #define mpi_snatch( w, u)      _gcry_mpi_snatch( (w), (u) )
 #define mpi_set( w, u)         _gcry_mpi_set( (w), (u) )
 #define mpi_set_ui( w, u)      _gcry_mpi_set_ui( (w), (u) )
-#define mpi_get_ui(a,b)        _gcry_mpi_get_ui( (a), (b) )
+#define mpi_get_ui(w,u)        _gcry_mpi_get_ui( (w), (u) )
 #define mpi_swap(a,b)          _gcry_mpi_swap ((a),(b))
 #define mpi_abs( w )           _gcry_mpi_abs( (w) )
 #define mpi_neg( w, u)         _gcry_mpi_neg( (w), (u) )

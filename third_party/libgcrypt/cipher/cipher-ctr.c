@@ -38,14 +38,10 @@ _gcry_cipher_ctr_encrypt (gcry_cipher_hd_t c,
   size_t n;
   int i;
   gcry_cipher_encrypt_t enc_fn = c->spec->encrypt;
-  unsigned int blocksize = c->spec->blocksize;
+  size_t blocksize_shift = _gcry_blocksize_shift(c);
+  size_t blocksize = 1 << blocksize_shift;
   size_t nblocks;
   unsigned int burn, nburn;
-
-  /* Tell compiler that we require a cipher with a 64bit or 128 bit block
-   * length, to allow better optimization of this function.  */
-  if (blocksize > 16 || blocksize < 8 || blocksize & (8 - 1))
-    return GPG_ERR_INV_LENGTH;
 
   if (outbuflen < inbuflen)
     return GPG_ERR_BUFFER_TOO_SHORT;
@@ -66,13 +62,13 @@ _gcry_cipher_ctr_encrypt (gcry_cipher_hd_t c,
     }
 
   /* Use a bulk method if available.  */
-  nblocks = inbuflen / blocksize;
+  nblocks = inbuflen >> blocksize_shift;
   if (nblocks && c->bulk.ctr_enc)
     {
       c->bulk.ctr_enc (&c->context.c, c->u_ctr.ctr, outbuf, inbuf, nblocks);
-      inbuf  += nblocks * blocksize;
-      outbuf += nblocks * blocksize;
-      inbuflen -= nblocks * blocksize;
+      inbuf  += nblocks << blocksize_shift;
+      outbuf += nblocks << blocksize_shift;
+      inbuflen -= nblocks << blocksize_shift;
     }
 
   /* If we don't have a bulk method use the standard method.  We also
@@ -81,24 +77,33 @@ _gcry_cipher_ctr_encrypt (gcry_cipher_hd_t c,
     {
       unsigned char tmp[MAX_BLOCKSIZE];
 
-      do {
-        nburn = enc_fn (&c->context.c, tmp, c->u_ctr.ctr);
-        burn = nburn > burn ? nburn : burn;
+      n = blocksize;
+      do
+        {
+          nburn = enc_fn (&c->context.c, tmp, c->u_ctr.ctr);
+          burn = nburn > burn ? nburn : burn;
 
-        for (i = blocksize; i > 0; i--)
-          {
-            c->u_ctr.ctr[i-1]++;
-            if (c->u_ctr.ctr[i-1] != 0)
-              break;
-          }
+	  cipher_block_add(c->u_ctr.ctr, 1, blocksize);
 
-        n = blocksize < inbuflen ? blocksize : inbuflen;
-        buf_xor(outbuf, inbuf, tmp, n);
+          if (inbuflen < blocksize)
+            break;
+          cipher_block_xor(outbuf, inbuf, tmp, blocksize);
 
-        inbuflen -= n;
-        outbuf += n;
-        inbuf += n;
-      } while (inbuflen);
+          inbuflen -= n;
+          outbuf += n;
+          inbuf += n;
+        }
+      while (inbuflen);
+
+      if (inbuflen)
+        {
+          n = inbuflen;
+          buf_xor(outbuf, inbuf, tmp, inbuflen);
+
+          inbuflen -= n;
+          outbuf += n;
+          inbuf += n;
+        }
 
       /* Save the unused bytes of the counter.  */
       c->unused = blocksize - n;

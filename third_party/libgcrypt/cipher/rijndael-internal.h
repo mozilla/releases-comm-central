@@ -29,11 +29,13 @@
 #define BLOCKSIZE               (128/8)
 
 
-/* Helper macro to force alignment to 16 bytes.  */
+/* Helper macro to force alignment to 16 or 64 bytes.  */
 #ifdef HAVE_GCC_ATTRIBUTE_ALIGNED
 # define ATTR_ALIGNED_16  __attribute__ ((aligned (16)))
+# define ATTR_ALIGNED_64  __attribute__ ((aligned (64)))
 #else
 # define ATTR_ALIGNED_16
+# define ATTR_ALIGNED_64
 #endif
 
 
@@ -73,7 +75,7 @@
 #   define USE_PADLOCK 1
 #  endif
 # endif
-#endif /*ENABLE_PADLOCK_SUPPORT*/
+#endif /* ENABLE_PADLOCK_SUPPORT */
 
 /* USE_AESNI inidicates whether to compile with Intel AES-NI code.  We
    need the vector-size attribute which seems to be available since
@@ -102,12 +104,30 @@
 # endif
 #endif /* ENABLE_ARM_CRYPTO_SUPPORT */
 
+/* USE_PPC_CRYPTO indicates whether to enable PowerPC vector crypto
+ * accelerated code.  USE_PPC_CRYPTO_WITH_PPC9LE indicates whether to
+ * enable POWER9 optimized variant.  */
+#undef USE_PPC_CRYPTO
+#undef USE_PPC_CRYPTO_WITH_PPC9LE
+#ifdef ENABLE_PPC_CRYPTO_SUPPORT
+# if defined(HAVE_COMPATIBLE_CC_PPC_ALTIVEC) && \
+     defined(HAVE_GCC_INLINE_ASM_PPC_ALTIVEC)
+#  if __GNUC__ >= 4
+#   define USE_PPC_CRYPTO 1
+#   if !defined(WORDS_BIGENDIAN) && defined(HAVE_GCC_INLINE_ASM_PPC_ARCH_3_00)
+#    define USE_PPC_CRYPTO_WITH_PPC9LE 1
+#   endif
+#  endif
+# endif
+#endif /* ENABLE_PPC_CRYPTO_SUPPORT */
+
 struct RIJNDAEL_context_s;
 
 typedef unsigned int (*rijndael_cryptfn_t)(const struct RIJNDAEL_context_s *ctx,
                                            unsigned char *bx,
                                            const unsigned char *ax);
 typedef void (*rijndael_prefetchfn_t)(void);
+typedef void (*rijndael_prepare_decfn_t)(struct RIJNDAEL_context_s *ctx);
 
 /* Our context object.  */
 typedef struct RIJNDAEL_context_s
@@ -143,6 +163,8 @@ typedef struct RIJNDAEL_context_s
 #endif /*USE_PADLOCK*/
 #ifdef USE_AESNI
   unsigned int use_aesni:1;           /* AES-NI shall be used.  */
+  unsigned int use_avx:1;             /* AVX shall be used. */
+  unsigned int use_avx2:1;            /* AVX2 shall be used. */
 #endif /*USE_AESNI*/
 #ifdef USE_SSSE3
   unsigned int use_ssse3:1;           /* SSSE3 shall be used.  */
@@ -150,10 +172,17 @@ typedef struct RIJNDAEL_context_s
 #ifdef USE_ARM_CE
   unsigned int use_arm_ce:1;          /* ARMv8 CE shall be used.  */
 #endif /*USE_ARM_CE*/
+#ifdef USE_PPC_CRYPTO
+  unsigned int use_ppc_crypto:1;      /* PowerPC crypto shall be used.  */
+#endif /*USE_PPC_CRYPTO*/
+#ifdef USE_PPC_CRYPTO_WITH_PPC9LE
+  unsigned int use_ppc9le_crypto:1;   /* POWER9 LE crypto shall be used.  */
+#endif
   rijndael_cryptfn_t encrypt_fn;
   rijndael_cryptfn_t decrypt_fn;
   rijndael_prefetchfn_t prefetch_enc_fn;
   rijndael_prefetchfn_t prefetch_dec_fn;
+  rijndael_prepare_decfn_t prepare_decryption;
 } RIJNDAEL_context ATTR_ALIGNED_16;
 
 /* Macros defining alias for the keyschedules.  */

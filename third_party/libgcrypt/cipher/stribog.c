@@ -1206,7 +1206,7 @@ stribog_init_512 (void *context, unsigned int flags)
 
   memset (hd, 0, sizeof (*hd));
 
-  hd->bctx.blocksize = 64;
+  hd->bctx.blocksize_shift = _gcry_ctz(64);
   hd->bctx.bwrite = transform;
 }
 
@@ -1223,7 +1223,7 @@ static void
 transform_bits (STRIBOG_CONTEXT *hd, const unsigned char *data, unsigned count)
 {
   u64 M[8];
-  u64 l;
+  u64 l, cf;
   int i;
 
   for (i = 0; i < 8; i++)
@@ -1243,11 +1243,13 @@ transform_bits (STRIBOG_CONTEXT *hd, const unsigned char *data, unsigned count)
     }
 
   hd->Sigma[0] += M[0];
+  cf = 0;
   for (i = 1; i < 8; i++)
-    if (hd->Sigma[i-1] < M[i-1])
-      hd->Sigma[i] += M[i] + 1;
-    else
-      hd->Sigma[i] += M[i];
+    {
+      if (hd->Sigma[i-1] != M[i-1])
+	cf = (hd->Sigma[i-1] < M[i-1]);
+      hd->Sigma[i] += M[i] + cf;
+    }
 }
 
 static unsigned int
@@ -1287,13 +1289,13 @@ stribog_final (void *context)
   u64 Z[8] = {};
   int i;
 
-  _gcry_md_block_write (context, NULL, 0); /* flush */ ;
   /* PAD. It does not count towards message length */
   i = hd->bctx.count;
   /* After flush we have at least one byte free) */
   hd->bctx.buf[i++] = 1;
-  while (i < 64)
-    hd->bctx.buf[i++] = 0;
+  if (i < 64)
+    memset (&hd->bctx.buf[i], 0, 64 - i);
+  i = 64;
   transform_bits (hd, hd->bctx.buf, hd->bctx.count * 8);
 
   g (hd->h, hd->N, Z);
@@ -1344,7 +1346,7 @@ gcry_md_spec_t _gcry_digest_spec_stribog_256 =
     GCRY_MD_STRIBOG256, {0, 0},
     "STRIBOG256", NULL, 0, oid_spec_stribog256, 32,
     stribog_init_256, _gcry_md_block_write, stribog_final, stribog_read_256,
-    NULL,
+    NULL, NULL, NULL,
     sizeof (STRIBOG_CONTEXT)
   };
 
@@ -1353,6 +1355,6 @@ gcry_md_spec_t _gcry_digest_spec_stribog_512 =
     GCRY_MD_STRIBOG512, {0, 0},
     "STRIBOG512", NULL, 0, oid_spec_stribog512, 64,
     stribog_init_512, _gcry_md_block_write, stribog_final, stribog_read_512,
-    NULL,
+    NULL, NULL, NULL,
     sizeof (STRIBOG_CONTEXT)
   };

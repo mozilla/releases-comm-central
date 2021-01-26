@@ -55,16 +55,44 @@
 /* Prevent compiler from issuing SSE instructions between asm blocks. */
 #  pragma GCC target("no-sse")
 #endif
+#if __clang__
+#  pragma clang attribute push (__attribute__((target("no-sse"))), apply_to = function)
+#endif
+
+
+#define ALWAYS_INLINE inline __attribute__((always_inline))
+#define NO_INSTRUMENT_FUNCTION __attribute__((no_instrument_function))
+
+#define ASM_FUNC_ATTR        NO_INSTRUMENT_FUNCTION
+#define ASM_FUNC_ATTR_INLINE ASM_FUNC_ATTR ALWAYS_INLINE
+
+
+/* Copy of ocb_get_l needed here as GCC is unable to inline ocb_get_l
+   because of 'pragma target'. */
+static ASM_FUNC_ATTR_INLINE const unsigned char *
+aes_ocb_get_l (gcry_cipher_hd_t c, u64 n)
+{
+  unsigned long ntz;
+
+  /* Assumes that N != 0. */
+  asm ("rep;bsfl %k[low], %k[ntz]\n\t"
+        : [ntz] "=r" (ntz)
+        : [low] "r" ((unsigned long)n)
+        : "cc");
+
+  return c->u_mode.ocb.L[ntz];
+}
 
 
 /* Assembly functions in rijndael-ssse3-amd64-asm.S. Note that these
-   have custom calling convention and need to be called from assembly
-   blocks, not directly. */
+   have custom calling convention (additional XMM parameters). */
 extern void _gcry_aes_ssse3_enc_preload(void);
 extern void _gcry_aes_ssse3_dec_preload(void);
-extern void _gcry_aes_ssse3_schedule_core(void);
-extern void _gcry_aes_ssse3_encrypt_core(void);
-extern void _gcry_aes_ssse3_decrypt_core(void);
+extern void _gcry_aes_ssse3_schedule_core(const void *key, u64 keybits,
+					  void *buffer, u64 decrypt,
+					  u64 rotoffs);
+extern void _gcry_aes_ssse3_encrypt_core(const void *key, u64 nrounds);
+extern void _gcry_aes_ssse3_decrypt_core(const void *key, u64 nrounds);
 
 
 
@@ -110,8 +138,6 @@ extern void _gcry_aes_ssse3_decrypt_core(void);
                   : \
                   : "r" (ssse3_state) \
                   : "memory" )
-# define PUSH_STACK_PTR
-# define POP_STACK_PTR
 #else
 # define SSSE3_STATE_SIZE 1
 # define vpaes_ssse3_prepare() (void)ssse3_state
@@ -126,34 +152,18 @@ extern void _gcry_aes_ssse3_decrypt_core(void);
                   "pxor	%%xmm7,  %%xmm7 \n\t" \
                   "pxor	%%xmm8,  %%xmm8 \n\t" \
                   ::: "memory" )
-/* Old GCC versions use red-zone of AMD64 SYSV ABI and stack pointer is
- * not properly adjusted for assembly block. Therefore stack pointer
- * needs to be manually corrected. */
-# define PUSH_STACK_PTR "subq $128, %%rsp;\n\t"
-# define POP_STACK_PTR  "addq $128, %%rsp;\n\t"
 #endif
 
 #define vpaes_ssse3_prepare_enc() \
     vpaes_ssse3_prepare(); \
-    asm volatile (PUSH_STACK_PTR \
-                  "callq *%q[core] \n\t" \
-                  POP_STACK_PTR \
-                  : \
-                  : [core] "r" (_gcry_aes_ssse3_enc_preload) \
-                  : "rax", "cc", "memory" )
+    _gcry_aes_ssse3_enc_preload();
 
 #define vpaes_ssse3_prepare_dec() \
     vpaes_ssse3_prepare(); \
-    asm volatile (PUSH_STACK_PTR \
-                  "callq *%q[core] \n\t" \
-                  POP_STACK_PTR \
-                  : \
-                  : [core] "r" (_gcry_aes_ssse3_dec_preload) \
-                  : "rax", "cc", "memory" )
+    _gcry_aes_ssse3_dec_preload();
 
 
-
-void
+void ASM_FUNC_ATTR
 _gcry_aes_ssse3_do_setkey (RIJNDAEL_context *ctx, const byte *key)
 {
   unsigned int keybits = (ctx->rounds - 10) * 32 + 128;
@@ -161,23 +171,7 @@ _gcry_aes_ssse3_do_setkey (RIJNDAEL_context *ctx, const byte *key)
 
   vpaes_ssse3_prepare();
 
-  asm volatile ("leaq %q[key], %%rdi"			"\n\t"
-                "movl %[bits], %%esi"			"\n\t"
-                "leaq %[buf], %%rdx"			"\n\t"
-                "movl %[dir], %%ecx"			"\n\t"
-                "movl %[rotoffs], %%r8d"		"\n\t"
-                PUSH_STACK_PTR
-                "callq *%q[core]"			"\n\t"
-                POP_STACK_PTR
-                :
-                : [core] "r" (&_gcry_aes_ssse3_schedule_core),
-                  [key] "m" (*key),
-                  [bits] "g" (keybits),
-                  [buf] "m" (ctx->keyschenc32[0][0]),
-                  [dir] "g" (0),
-                  [rotoffs] "g" (48)
-                : "r8", "r9", "r10", "r11", "rax", "rcx", "rdx", "rdi", "rsi",
-                  "cc", "memory");
+  _gcry_aes_ssse3_schedule_core(key, keybits, &ctx->keyschenc32[0][0], 0, 48);
 
   /* Save key for setting up decryption. */
   if (keybits > 192)
@@ -208,71 +202,49 @@ _gcry_aes_ssse3_do_setkey (RIJNDAEL_context *ctx, const byte *key)
 
 
 /* Make a decryption key from an encryption key. */
-void
-_gcry_aes_ssse3_prepare_decryption (RIJNDAEL_context *ctx)
+static ASM_FUNC_ATTR_INLINE void
+do_ssse3_prepare_decryption (RIJNDAEL_context *ctx,
+                             byte ssse3_state[SSSE3_STATE_SIZE])
 {
   unsigned int keybits = (ctx->rounds - 10) * 32 + 128;
-  byte ssse3_state[SSSE3_STATE_SIZE];
 
   vpaes_ssse3_prepare();
 
-  asm volatile ("leaq %q[key], %%rdi"			"\n\t"
-                "movl %[bits], %%esi"			"\n\t"
-                "leaq %[buf], %%rdx"			"\n\t"
-                "movl %[dir], %%ecx"			"\n\t"
-                "movl %[rotoffs], %%r8d"		"\n\t"
-                PUSH_STACK_PTR
-                "callq *%q[core]"			"\n\t"
-                POP_STACK_PTR
-                :
-                : [core] "r" (_gcry_aes_ssse3_schedule_core),
-                  [key] "m" (ctx->keyschdec32[0][0]),
-                  [bits] "g" (keybits),
-                  [buf] "m" (ctx->keyschdec32[ctx->rounds][0]),
-                  [dir] "g" (1),
-                  [rotoffs] "g" ((keybits == 192) ? 0 : 32)
-                : "r8", "r9", "r10", "r11", "rax", "rcx", "rdx", "rdi", "rsi",
-                  "cc", "memory");
+  _gcry_aes_ssse3_schedule_core(&ctx->keyschdec32[0][0], keybits,
+				&ctx->keyschdec32[ctx->rounds][0], 1,
+				(keybits == 192) ? 0 : 32);
 
   vpaes_ssse3_cleanup();
+}
+
+void ASM_FUNC_ATTR
+_gcry_aes_ssse3_prepare_decryption (RIJNDAEL_context *ctx)
+{
+  byte ssse3_state[SSSE3_STATE_SIZE];
+
+  do_ssse3_prepare_decryption(ctx, ssse3_state);
 }
 
 
 /* Encrypt one block using the Intel SSSE3 instructions.  Block is input
 * and output through SSE register xmm0. */
-static inline void
+static ASM_FUNC_ATTR_INLINE void
 do_vpaes_ssse3_enc (const RIJNDAEL_context *ctx, unsigned int nrounds)
 {
-  unsigned int middle_rounds = nrounds - 1;
-  const void *keysched = ctx->keyschenc32;
-
-  asm volatile (PUSH_STACK_PTR
-		"callq *%q[core]"			"\n\t"
-		POP_STACK_PTR
-		: "+a" (middle_rounds), "+d" (keysched)
-		: [core] "r" (_gcry_aes_ssse3_encrypt_core)
-		: "rcx", "rsi", "rdi", "cc", "memory");
+  _gcry_aes_ssse3_encrypt_core(ctx->keyschenc32, nrounds);
 }
 
 
 /* Decrypt one block using the Intel SSSE3 instructions.  Block is input
 * and output through SSE register xmm0. */
-static inline void
+static ASM_FUNC_ATTR_INLINE void
 do_vpaes_ssse3_dec (const RIJNDAEL_context *ctx, unsigned int nrounds)
 {
-  unsigned int middle_rounds = nrounds - 1;
-  const void *keysched = ctx->keyschdec32;
-
-  asm volatile (PUSH_STACK_PTR
-		"callq *%q[core]"			"\n\t"
-		POP_STACK_PTR
-		: "+a" (middle_rounds), "+d" (keysched)
-		: [core] "r" (_gcry_aes_ssse3_decrypt_core)
-		: "rcx", "rsi", "cc", "memory");
+  _gcry_aes_ssse3_decrypt_core(ctx->keyschdec32, nrounds);
 }
 
 
-unsigned int
+unsigned int ASM_FUNC_ATTR
 _gcry_aes_ssse3_encrypt (const RIJNDAEL_context *ctx, unsigned char *dst,
                         const unsigned char *src)
 {
@@ -294,10 +266,10 @@ _gcry_aes_ssse3_encrypt (const RIJNDAEL_context *ctx, unsigned char *dst,
 }
 
 
-void
-_gcry_aes_ssse3_cfb_enc (RIJNDAEL_context *ctx, unsigned char *outbuf,
-                        const unsigned char *inbuf, unsigned char *iv,
-                        size_t nblocks)
+void ASM_FUNC_ATTR
+_gcry_aes_ssse3_cfb_enc (RIJNDAEL_context *ctx, unsigned char *iv,
+                         unsigned char *outbuf, const unsigned char *inbuf,
+                         size_t nblocks)
 {
   unsigned int nrounds = ctx->rounds;
   byte ssse3_state[SSSE3_STATE_SIZE];
@@ -333,10 +305,10 @@ _gcry_aes_ssse3_cfb_enc (RIJNDAEL_context *ctx, unsigned char *outbuf,
 }
 
 
-void
-_gcry_aes_ssse3_cbc_enc (RIJNDAEL_context *ctx, unsigned char *outbuf,
-                        const unsigned char *inbuf, unsigned char *iv,
-                        size_t nblocks, int cbc_mac)
+void ASM_FUNC_ATTR
+_gcry_aes_ssse3_cbc_enc (RIJNDAEL_context *ctx, unsigned char *iv,
+                         unsigned char *outbuf, const unsigned char *inbuf,
+                         size_t nblocks, int cbc_mac)
 {
   unsigned int nrounds = ctx->rounds;
   byte ssse3_state[SSSE3_STATE_SIZE];
@@ -378,10 +350,10 @@ _gcry_aes_ssse3_cbc_enc (RIJNDAEL_context *ctx, unsigned char *outbuf,
 }
 
 
-void
-_gcry_aes_ssse3_ctr_enc (RIJNDAEL_context *ctx, unsigned char *outbuf,
-                        const unsigned char *inbuf, unsigned char *ctr,
-                        size_t nblocks)
+void ASM_FUNC_ATTR
+_gcry_aes_ssse3_ctr_enc (RIJNDAEL_context *ctx, unsigned char *ctr,
+                         unsigned char *outbuf, const unsigned char *inbuf,
+                         size_t nblocks)
 {
   static const unsigned char be_mask[16] __attribute__ ((aligned (16))) =
     { 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
@@ -445,9 +417,9 @@ _gcry_aes_ssse3_ctr_enc (RIJNDAEL_context *ctx, unsigned char *outbuf,
 }
 
 
-unsigned int
+unsigned int ASM_FUNC_ATTR
 _gcry_aes_ssse3_decrypt (const RIJNDAEL_context *ctx, unsigned char *dst,
-                        const unsigned char *src)
+                         const unsigned char *src)
 {
   unsigned int nrounds = ctx->rounds;
   byte ssse3_state[SSSE3_STATE_SIZE];
@@ -467,10 +439,10 @@ _gcry_aes_ssse3_decrypt (const RIJNDAEL_context *ctx, unsigned char *dst,
 }
 
 
-void
-_gcry_aes_ssse3_cfb_dec (RIJNDAEL_context *ctx, unsigned char *outbuf,
-                        const unsigned char *inbuf, unsigned char *iv,
-                        size_t nblocks)
+void ASM_FUNC_ATTR
+_gcry_aes_ssse3_cfb_dec (RIJNDAEL_context *ctx, unsigned char *iv,
+                         unsigned char *outbuf, const unsigned char *inbuf,
+                         size_t nblocks)
 {
   unsigned int nrounds = ctx->rounds;
   byte ssse3_state[SSSE3_STATE_SIZE];
@@ -507,13 +479,19 @@ _gcry_aes_ssse3_cfb_dec (RIJNDAEL_context *ctx, unsigned char *outbuf,
 }
 
 
-void
-_gcry_aes_ssse3_cbc_dec (RIJNDAEL_context *ctx, unsigned char *outbuf,
-                        const unsigned char *inbuf, unsigned char *iv,
-                        size_t nblocks)
+void ASM_FUNC_ATTR
+_gcry_aes_ssse3_cbc_dec (RIJNDAEL_context *ctx, unsigned char *iv,
+                         unsigned char *outbuf, const unsigned char *inbuf,
+                         size_t nblocks)
 {
   unsigned int nrounds = ctx->rounds;
   byte ssse3_state[SSSE3_STATE_SIZE];
+
+  if ( !ctx->decryption_prepared )
+    {
+      do_ssse3_prepare_decryption ( ctx, ssse3_state );
+      ctx->decryption_prepared = 1;
+    }
 
   vpaes_ssse3_prepare_dec ();
 
@@ -552,7 +530,7 @@ _gcry_aes_ssse3_cbc_dec (RIJNDAEL_context *ctx, unsigned char *outbuf,
 }
 
 
-static void
+static void ASM_FUNC_ATTR
 ssse3_ocb_enc (gcry_cipher_hd_t c, void *outbuf_arg,
                const void *inbuf_arg, size_t nblocks)
 {
@@ -577,7 +555,7 @@ ssse3_ocb_enc (gcry_cipher_hd_t c, void *outbuf_arg,
     {
       const unsigned char *l;
 
-      l = ocb_get_l(c, ++n);
+      l = aes_ocb_get_l(c, ++n);
 
       /* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
       /* Checksum_i = Checksum_{i-1} xor P_i  */
@@ -615,7 +593,7 @@ ssse3_ocb_enc (gcry_cipher_hd_t c, void *outbuf_arg,
   vpaes_ssse3_cleanup ();
 }
 
-static void
+static void ASM_FUNC_ATTR
 ssse3_ocb_dec (gcry_cipher_hd_t c, void *outbuf_arg,
                const void *inbuf_arg, size_t nblocks)
 {
@@ -625,6 +603,12 @@ ssse3_ocb_dec (gcry_cipher_hd_t c, void *outbuf_arg,
   u64 n = c->u_mode.ocb.data_nblocks;
   unsigned int nrounds = ctx->rounds;
   byte ssse3_state[SSSE3_STATE_SIZE];
+
+  if ( !ctx->decryption_prepared )
+    {
+      do_ssse3_prepare_decryption ( ctx, ssse3_state );
+      ctx->decryption_prepared = 1;
+    }
 
   vpaes_ssse3_prepare_dec ();
 
@@ -640,7 +624,7 @@ ssse3_ocb_dec (gcry_cipher_hd_t c, void *outbuf_arg,
     {
       const unsigned char *l;
 
-      l = ocb_get_l(c, ++n);
+      l = aes_ocb_get_l(c, ++n);
 
       /* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
       /* P_i = Offset_i xor DECIPHER(K, C_i xor Offset_i)  */
@@ -679,7 +663,7 @@ ssse3_ocb_dec (gcry_cipher_hd_t c, void *outbuf_arg,
 }
 
 
-void
+size_t ASM_FUNC_ATTR
 _gcry_aes_ssse3_ocb_crypt(gcry_cipher_hd_t c, void *outbuf_arg,
                           const void *inbuf_arg, size_t nblocks, int encrypt)
 {
@@ -687,10 +671,12 @@ _gcry_aes_ssse3_ocb_crypt(gcry_cipher_hd_t c, void *outbuf_arg,
     ssse3_ocb_enc(c, outbuf_arg, inbuf_arg, nblocks);
   else
     ssse3_ocb_dec(c, outbuf_arg, inbuf_arg, nblocks);
+
+  return 0;
 }
 
 
-void
+size_t ASM_FUNC_ATTR
 _gcry_aes_ssse3_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
                           size_t nblocks)
 {
@@ -714,7 +700,7 @@ _gcry_aes_ssse3_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
     {
       const unsigned char *l;
 
-      l = ocb_get_l(c, ++n);
+      l = aes_ocb_get_l(c, ++n);
 
       /* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
       /* Sum_i = Sum_{i-1} xor ENCIPHER(K, A_i xor Offset_i)  */
@@ -746,6 +732,12 @@ _gcry_aes_ssse3_ocb_auth (gcry_cipher_hd_t c, const void *abuf_arg,
                 : "memory" );
 
   vpaes_ssse3_cleanup ();
+
+  return 0;
 }
+
+#if __clang__
+#  pragma clang attribute pop
+#endif
 
 #endif /* USE_SSSE3 */
