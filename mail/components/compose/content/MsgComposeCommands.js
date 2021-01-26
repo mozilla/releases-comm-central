@@ -41,9 +41,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { InlineSpellChecker } = ChromeUtils.import(
-  "resource://gre/modules/InlineSpellChecker.jsm"
-);
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
@@ -79,8 +76,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 var msgWindow;
 
 var gMessenger;
-
-var gSpellChecker = new InlineSpellChecker();
 
 /**
  * Global variables, need to be re-initialized every time mostly because
@@ -1858,9 +1853,9 @@ function showMessageComposeSecurityStatus() {
 
 function openEditorContextMenu(popup) {
   gSpellChecker.clearSuggestionsFromMenu();
-  gSpellChecker.initFromEvent(
-    document.popupRangeParent,
-    document.popupRangeOffset
+  gSpellChecker.initFromRemote(
+    nsContextMenu.contentData.spellInfo,
+    nsContextMenu.contentData.actor.manager,
   );
   var onMisspelling = gSpellChecker.overMisspelling;
   document.getElementById(
@@ -1944,6 +1939,17 @@ function openEditorContextMenu(popup) {
 
   Services.obs.notifyObservers(subject, "on-prepare-contextmenu");
   Services.obs.notifyObservers(subject, "on-build-contextmenu");
+}
+
+function closeEditorContextMenu() {
+  if (nsContextMenu.contentData.actor) {
+    nsContextMenu.contentData.actor.hiding();
+  }
+
+  nsContextMenu.contentData = null;
+  gSpellChecker.clearSuggestionsFromMenu();
+  gSpellChecker.clearDictionaryListFromMenu();
+  gSpellChecker.uninit();
 }
 
 function updateEditItems() {

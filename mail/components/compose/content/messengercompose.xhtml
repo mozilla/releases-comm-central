@@ -629,7 +629,8 @@
 </panel>
 
 <menupopup id="msgComposeContext"
-           onpopupshowing="if (event.target != this) { return true; } openEditorContextMenu(this);">
+           onpopupshowing="if (event.target != this) { return true; } openEditorContextMenu(this);"
+           onpopuphiding="if (event.target != this) { return true; } closeEditorContextMenu();">
 
   <!-- Spellchecking menu items -->
   <menuitem id="spellCheckNoSuggestions" label="&spellNoSuggestions.label;" disabled="true"/>
