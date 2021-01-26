@@ -460,7 +460,7 @@ aside.settings-btn-container {
 }
 
 #searchButton:before {
-  background-image: url("chrome://messenger/skin/icons/search-glass.svg");
+  background-image: url("chrome://global/skin/icons/search-glass.svg");
 }
 
 #filterButton:before {

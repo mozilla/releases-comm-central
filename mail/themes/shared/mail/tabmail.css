@@ -56,7 +56,7 @@
 }
 
 .tabmail-tab[type="glodaSearch"] {
-  list-style-image: url("chrome://messenger/skin/icons/search-glass.svg");
+  list-style-image: url("chrome://global/skin/icons/search-glass.svg");
 }
 
 .tab-content {

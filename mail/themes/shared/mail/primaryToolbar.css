@@ -187,7 +187,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu_new {
-  list-style-image: url("chrome://messenger/skin/icons/new.svg");
+  list-style-image: url("chrome://global/skin/icons/add.svg");
 }
 
 #appmenu_msgAttachmentMenu {
@@ -210,7 +210,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 }
 
 #appmenu_find {
-  list-style-image: url("chrome://messenger/skin/icons/search-glass.svg");
+  list-style-image: url("chrome://global/skin/icons/search-glass.svg");
 }
 
 #appmenu_print,

@@ -69,7 +69,7 @@ window[systemcolors] > dialog {
 }
 
 #button-privacy {
-  list-style-image: url(chrome://messenger/skin/icons/security.svg);
+  list-style-image: url("chrome://global/skin/icons/privacy-security.svg");
 }
 
 #button-url {
