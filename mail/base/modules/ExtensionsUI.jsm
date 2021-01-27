@@ -886,6 +886,30 @@ var ExtensionsUI = {
         });
       }
 
+      // Reject add-ons using the legacy API. We cannot use the general "ignore
+      // unknown APIs" policy, as add-ons using the Legacy API from TB68 will
+      // not do anything, confusing the user.
+      if (data.manifest.legacy) {
+        let subject = {
+          wrappedJSObject: {
+            browser,
+            originatingURI: null,
+            installs: [
+              {
+                addon: info.addon,
+                name: info.addon.name,
+                error: 0,
+              },
+            ],
+            install: null,
+            cancel: null,
+          },
+        };
+        Services.obs.notifyObservers(subject, "addon-install-failed");
+        info.reject();
+        return;
+      }
+
       this.showPermissionsPrompt(browser, strings, info.icon, histkey).then(
         answer => {
           if (answer) {
