@@ -817,7 +817,7 @@ nsBrowserAccess.prototype = {
       let browser = PrintUtils.startPrintWindow(
         "mailWindow",
         aOpenWindowInfo.parent,
-        aOpenWindowInfo
+        { openWindowInfo: aOpenWindowInfo }
       );
       return browser ? browser.browsingContext : null;
     }
@@ -894,7 +894,7 @@ nsBrowserAccess.prototype = {
       return PrintUtils.startPrintWindow(
         "mailWindow",
         aParams.openWindowInfo.parent,
-        aParams.openWindowInfo
+        { openWindowInfo: aParams.openWindowInfo }
       );
     }
 

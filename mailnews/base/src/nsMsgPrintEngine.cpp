@@ -664,5 +664,8 @@ NS_IMETHODIMP nsMsgPrintEngine::SetMsgType(int32_t aMsgType) {
 NS_IMETHODIMP nsMsgPrintEngine::Observe(nsISupports* aSubject,
                                         const char* aTopic,
                                         const char16_t* aData) {
-  return FireThatLoadOperation(mLoadURI);
+  if (!aTopic) {
+    return FireThatLoadOperation(mLoadURI);
+  }
+  return NS_OK;
 }
