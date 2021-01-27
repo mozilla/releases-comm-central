@@ -52,13 +52,12 @@
 /* :::: Filter Buttons :::: */
 
 #quick-filter-bar toolbarbutton {
-  height: 16px;
   padding: 0 4px;
   margin: 0 3px;
 }
 
-#quick-filter-bar-main-bar toolbarbutton {
-  height: 18px;
+#quick-filter-bar-filter-text-bar toolbarbutton {
+  height: 20px;
 }
 
 #quick-filter-bar-main-bar toolbarbutton:not(#qfb-sticky) > .toolbarbutton-icon {
