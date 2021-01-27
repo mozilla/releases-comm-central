@@ -268,7 +268,7 @@ function folderPropsOnLoad() {
     // We really need a functioning database, so we'll detect problems
     // and create one if we have to.
     try {
-      gMsgFolder.getDatabase(null);
+      gMsgFolder.msgDatabase;
     } catch (e) {
       gMsgFolder.updateFolder(window.arguments[0].msgWindow);
     }
