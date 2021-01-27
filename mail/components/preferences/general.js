@@ -697,8 +697,8 @@ var gGeneralPane = {
       if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
         return;
       }
-      let engineAdd = fp.fileURL.spec;
-      let engine = await Services.search.addEngine(engineAdd, null, false);
+      let uri = fp.fileURL.spec;
+      let engine = await Services.search.addOpenSearchEngine(uri, null);
 
       // Add new engine to the list.
       let engineList = document.getElementById("defaultWebSearch");
