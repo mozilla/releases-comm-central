@@ -96,17 +96,16 @@ macosx64/opt:
             - linux64-sccache
             - macosx64-libotr
 
-macosx64-shippable/opt:
+macosx64-x64-shippable/opt:
     description: "MacOS X x64 Cross-compile"
     attributes:
-        shippable: true
-        nightly: true
         enable-full-crashsymbols: true
+        skip-verify-test-packaging: true
     shipping-phase: build
     shipping-product: thunderbird
     index:
         product: thunderbird
-        job-name: macosx64-opt
+        job-name: macosx64-x64-opt
         type: shippable
     treeherder:
         platform: osx-shippable/opt
@@ -151,8 +150,6 @@ macosx64-shippable/opt:
 macosx64-aarch64-shippable/opt:
     description: "MacOS X aarch64 Cross-compile"
     attributes:
-        # shippable: true
-        # nightly: true
         enable-full-crashsymbols: true
         skip-verify-test-packaging: true
     shipping-phase: build
@@ -172,7 +169,7 @@ macosx64-aarch64-shippable/opt:
         max-run-time: 7200
         env:
             TOOLTOOL_MANIFEST: ""
-            # MOZ_AUTOMATION_PACKAGE_TESTS: "1"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "1"
             PERFHERDER_EXTRA_OPTIONS: aarch64
     run:
         using: mozharness
@@ -204,3 +201,148 @@ macosx64-aarch64-shippable/opt:
             - macosx64-aarch64-libotr
             - macosx64-sdk-11.0
 
+macosx64-shippable/opt:
+    description: "MacOS Universal"
+    attributes:
+        nightly: true
+        shippable: true
+        enable-build-signing: true
+        skip-upload-crashsymbols: true
+        skip-verify-test-packaging: true
+    shipping-phase: build
+    shipping-product: thunderbird
+    index:
+        product: thunderbird
+        job-name: macosx64-opt
+        type: shippable
+    treeherder:
+        platform: osx-shippable/opt
+        symbol: U
+        tier: 1
+    run-on-projects: ['release']
+    worker-type: b-linux
+    worker:
+        docker-image: {in-tree: debian10-amd64-build}
+        max-run-time: 1800
+    run:
+        using: mozharness
+        script: "mozharness/scripts/fx_desktop_build.py"
+        job-script: taskcluster/scripts/misc/unify.sh
+        config:
+            - builds/taskcluster_base_thunderbird.py
+    dependencies:
+        macosx64-x64-shippable-opt: build-macosx64-x64-shippable/opt
+        macosx64-aarch64-shippable-opt: build-macosx64-aarch64-shippable/opt
+    fetches:
+        macosx64-x64-shippable-opt:
+            - artifact: target.dmg
+              extract: false
+              dest: x64
+            - artifact: buildhub.json
+              extract: false
+              dest: ../artifacts
+            - artifact: host/bin/mar
+              extract: false
+              dest: ../artifacts/host/bin
+            - artifact: host/bin/mbsdiff
+              extract: false
+              dest: ../artifacts/host/bin
+            - artifact: target.txt
+              extract: false
+              dest: ../artifacts
+            - artifact: target_info.txt
+              extract: false
+              dest: ../artifacts
+            - artifact: target.json
+              extract: false
+              dest: ../artifacts
+            - artifact: target.mozinfo.json
+              extract: false
+              dest: ../artifacts
+            - artifact: target.test_packages.json
+              extract: false
+              dest: ../artifacts
+            - artifact: target.perftests.tests.tar.gz
+              extract: false
+              dest: ../artifacts
+            - artifact: target.common.tests.tar.gz
+              dest: x64/common
+            - artifact: target.cppunittest.tests.tar.gz
+              dest: x64/cppunittest
+            - artifact: target.gtest.tests.tar.gz
+              dest: x64/gtest
+            - artifact: target.jittest.tests.tar.gz
+              dest: x64/jittest
+            - artifact: target.jsreftest.tests.tar.gz
+              dest: x64/jsreftest
+            - artifact: target.mochitest.tests.tar.gz
+              dest: x64/mochitest
+            - artifact: target.reftest.tests.tar.gz
+              dest: x64/reftest
+            - artifact: target.talos.tests.tar.gz
+              dest: x64/talos
+            - artifact: target.raptor.tests.tar.gz
+              dest: x64/raptor
+            - artifact: target.condprof.tests.tar.gz
+              dest: x64/confprof
+            - artifact: target.awsy.tests.tar.gz
+              dest: x64/awsy
+            - artifact: target.xpcshell.tests.tar.gz
+              dest: x64/xpcshell
+            - artifact: target.web-platform.tests.tar.gz
+              dest: x64/web-platform
+            - artifact: target.updater-dep.tests.tar.gz
+              dest: x64/updater-dep
+            - artifact: target.crashreporter-symbols.zip
+              dest: x64/crashreporter-symbols
+            - artifact: target.jsshell.zip
+              dest: x64/jsshell
+            - artifact: target.generated-files.tar.gz
+              extract: false
+              dest: ../artifacts
+            - artifact: target.langpack.xpi
+              extract: false
+              dest: ../artifacts
+            - artifact: mozharness.zip
+              extract: false
+              dest: ../artifacts
+        macosx64-aarch64-shippable-opt:
+            - artifact: target.dmg
+              extract: false
+              dest: aarch64
+            - artifact: target.common.tests.tar.gz
+              dest: aarch64/common
+            - artifact: target.cppunittest.tests.tar.gz
+              dest: aarch64/cppunittest
+            - artifact: target.gtest.tests.tar.gz
+              dest: aarch64/gtest
+            - artifact: target.jittest.tests.tar.gz
+              dest: aarch64/jittest
+            - artifact: target.jsreftest.tests.tar.gz
+              dest: aarch64/jsreftest
+            - artifact: target.mochitest.tests.tar.gz
+              dest: aarch64/mochitest
+            - artifact: target.reftest.tests.tar.gz
+              dest: aarch64/reftest
+            - artifact: target.talos.tests.tar.gz
+              dest: aarch64/talos
+            - artifact: target.raptor.tests.tar.gz
+              dest: aarch64/raptor
+            - artifact: target.condprof.tests.tar.gz
+              dest: aarch64/confprof
+            - artifact: target.awsy.tests.tar.gz
+              dest: aarch64/awsy
+            - artifact: target.xpcshell.tests.tar.gz
+              dest: aarch64/xpcshell
+            - artifact: target.web-platform.tests.tar.gz
+              dest: aarch64/web-platform
+            - artifact: target.updater-dep.tests.tar.gz
+              dest: aarch64/updater-dep
+            - artifact: target.crashreporter-symbols.zip
+              dest: aarch64/crashreporter-symbols
+            - artifact: target.jsshell.zip
+              dest: aarch64/jsshell
+        toolchain:
+            - linux64-cctools-port
+            - linux64-hfsplus
+            - linux64-libdmg
