@@ -24,8 +24,6 @@ SOURCES += [
     "nsAbLDAPReplicationService.cpp",
     "nsAbLDIFService.cpp",
     "nsAbQueryStringToExpression.cpp",
-    "nsAddbookProtocolHandler.cpp",
-    "nsAddbookUrl.cpp",
 ]
 
 if CONFIG["OS_ARCH"] == "WINNT" and CONFIG["MOZ_MAPI_SUPPORT"]:

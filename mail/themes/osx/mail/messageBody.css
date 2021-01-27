@@ -124,6 +124,7 @@ img[overflowing][shrinktofit] {
   background-color: transparent;
   display: block;
   opacity: .7;
+  cursor: pointer;
 }
 
 .moz-vcard-badge:hover {

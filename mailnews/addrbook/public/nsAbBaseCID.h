@@ -101,31 +101,6 @@
   }
 
 //
-// addbook URL
-//
-#define NS_ADDBOOKURL_CONTRACTID \
-  "@mozilla.org/addressbook/services/url;1?type=addbook"
-
-#define NS_ADDBOOKURL_CID                          \
-  {                                                \
-    0xff04c8e6, 0x501e, 0x11d3, {                  \
-      0xa5, 0x27, 0x0, 0x60, 0xb0, 0xfc, 0x4, 0x44 \
-    }                                              \
-  }
-
-//
-// addbook Protocol Handler
-//
-#define NS_ADDBOOK_HANDLER_CONTRACTID \
-  "@mozilla.org/addressbook/services/addbook;1"
-#define NS_ADDBOOK_HANDLER_CID                     \
-  {                                                \
-    0xff04c8e6, 0x501e, 0x11d3, {                  \
-      0xff, 0xcc, 0x0, 0x60, 0xb0, 0xfc, 0x4, 0x44 \
-    }                                              \
-  }
-
-//
 // directory factory service
 //
 #define NS_ABDIRFACTORYSERVICE_CONTRACTID \

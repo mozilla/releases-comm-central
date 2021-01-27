@@ -469,7 +469,6 @@ bool nsMsgContentPolicy::IsExposedProtocol(nsIURI* aContentLocation) {
   // news, snews, nntp, imap and mailbox are checked before the call
   // to this function by matching content location and requesting location.
   if (contentScheme.LowerCaseEqualsLiteral("mailto") ||
-      contentScheme.LowerCaseEqualsLiteral("addbook") ||
       contentScheme.LowerCaseEqualsLiteral("about"))
     return true;
 

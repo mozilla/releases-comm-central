@@ -9,9 +9,13 @@ const EXPORTED_SYMBOLS = ["VCardChild"];
 
 class VCardChild extends JSWindowActorChild {
   handleEvent(event) {
-    if (event.target.href?.startsWith("addbook:add?action=add&vcard=")) {
+    // This link comes from VCardMimeConverter.convertToHTML in VCardUtils.jsm.
+    if (event.target.classList.contains("moz-vcard-badge")) {
       if (event.button == 0) {
-        this.sendAsyncMessage("addVCard", event.target.href.substring(29));
+        // The href is a data:text/x-vcard URL.
+        let href = event.target.href;
+        href = href.substring(href.indexOf(",") + 1);
+        this.sendAsyncMessage("addVCard", href);
       }
       event.preventDefault();
     }

@@ -357,7 +357,6 @@ pref("network.protocol-handler.expose.news", true);
 pref("network.protocol-handler.expose.snews", true);
 pref("network.protocol-handler.expose.nntp", true);
 pref("network.protocol-handler.expose.imap", true);
-pref("network.protocol-handler.expose.addbook", true);
 pref("network.protocol-handler.expose.pop", true);
 pref("network.protocol-handler.expose.mailbox", true);
 // Although we allow these to be exposed internally, there are various places

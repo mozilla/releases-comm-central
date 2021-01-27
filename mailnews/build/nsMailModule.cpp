@@ -111,8 +111,6 @@
 #include "nsAbContentHandler.h"
 #include "nsAbDirProperty.h"
 #include "nsAbAddressCollector.h"
-#include "nsAddbookProtocolHandler.h"
-#include "nsAddbookUrl.h"
 
 #include "nsAbDirectoryQuery.h"
 #include "nsAbBooleanExpression.h"
@@ -408,8 +406,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbContentHandler)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirProperty)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbCardProperty)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsAbAddressCollector, Init)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAddbookUrl)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAddbookProtocolHandler)
 
 #if defined(MOZ_MAPI_SUPPORT)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOutlookDirectory)
@@ -437,8 +433,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOSXCard)
 NS_DEFINE_NAMED_CID(NS_ABCARDPROPERTY_CID);
 NS_DEFINE_NAMED_CID(NS_ABDIRPROPERTY_CID);
 NS_DEFINE_NAMED_CID(NS_ABADDRESSCOLLECTOR_CID);
-NS_DEFINE_NAMED_CID(NS_ADDBOOKURL_CID);
-NS_DEFINE_NAMED_CID(NS_ADDBOOK_HANDLER_CID);
 NS_DEFINE_NAMED_CID(NS_ABCONTENTHANDLER_CID);
 NS_DEFINE_NAMED_CID(NS_ABDIRECTORYQUERYARGUMENTS_CID);
 NS_DEFINE_NAMED_CID(NS_BOOLEANCONDITIONSTRING_CID);
@@ -806,9 +800,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_ABCARDPROPERTY_CID, false, NULL, nsAbCardPropertyConstructor},
     {&kNS_ABDIRPROPERTY_CID, false, NULL, nsAbDirPropertyConstructor},
     {&kNS_ABADDRESSCOLLECTOR_CID, false, NULL, nsAbAddressCollectorConstructor},
-    {&kNS_ADDBOOKURL_CID, false, NULL, nsAddbookUrlConstructor},
-    {&kNS_ADDBOOK_HANDLER_CID, false, NULL,
-     nsAddbookProtocolHandlerConstructor},
     {&kNS_ABCONTENTHANDLER_CID, false, NULL, nsAbContentHandlerConstructor},
 #if defined(MOZ_MAPI_SUPPORT)
     {&kNS_ABOUTLOOKDIRECTORY_CID, false, NULL, nsAbOutlookDirectoryConstructor},
@@ -1027,8 +1018,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_ABCARDPROPERTY_CONTRACTID, &kNS_ABCARDPROPERTY_CID},
     {NS_ABDIRPROPERTY_CONTRACTID, &kNS_ABDIRPROPERTY_CID},
     {NS_ABADDRESSCOLLECTOR_CONTRACTID, &kNS_ABADDRESSCOLLECTOR_CID},
-    {NS_ADDBOOKURL_CONTRACTID, &kNS_ADDBOOKURL_CID},
-    {NS_NETWORK_PROTOCOL_CONTRACTID_PREFIX "addbook", &kNS_ADDBOOK_HANDLER_CID},
     {NS_CONTENT_HANDLER_CONTRACTID_PREFIX "application/x-addvcard",
      &kNS_ABCONTENTHANDLER_CID},
     {NS_CONTENT_HANDLER_CONTRACTID_PREFIX "text/x-vcard",

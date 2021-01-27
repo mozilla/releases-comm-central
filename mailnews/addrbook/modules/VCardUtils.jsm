@@ -318,11 +318,12 @@ VCardMimeConverter.prototype = {
     }
     propertiesTable += `</table>`;
 
+    // VCardChild.jsm and VCardParent.jsm handle clicking on this link.
     return `<html>
       <body>
         <table class="moz-vcard-table">
           <tr>
-            <td valign="top"><a class="moz-vcard-badge" href="addbook:add?action=add&amp;vcard=${escapedVCard}"></a></td>
+            <td valign="top"><a class="moz-vcard-badge" href="data:text/x-vcard,${escapedVCard}"></a></td>
             <td>
               ${propertiesTable}
             </td>

@@ -20,7 +20,6 @@
 #include "../../../ldap/xpcom/src/nsLDAPURL.h"
 #include "../../imap/src/nsImapService.h"
 #include "../../news/src/nsNntpService.h"
-#include "../../addrbook/src/nsAddbookProtocolHandler.h"
 #include "../src/nsCidProtocolHandler.h"
 
 nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
@@ -65,9 +64,6 @@ nsresult NS_NewMailnewsURI(nsIURI** aURI, const nsACString& aSpec,
   }
   if (scheme.EqualsLiteral("cid")) {
     return nsCidProtocolHandler::NewURI(aSpec, aCharset, aBaseURI, aURI);
-  }
-  if (scheme.EqualsLiteral("addbook")) {
-    return nsAddbookProtocolHandler::NewURI(aSpec, aCharset, aBaseURI, aURI);
   }
   if (scheme.EqualsLiteral("ldap") || scheme.EqualsLiteral("ldaps")) {
     nsCOMPtr<nsILDAPURL> url = do_CreateInstance(NS_LDAPURL_CONTRACTID, &rv);
