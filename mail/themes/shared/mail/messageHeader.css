@@ -277,13 +277,17 @@ mail-headerfield.headerValue:focus {
   margin-inline-start: 8px;
 }
 
-html|table#expandedHeaders {
+#expandedHeaders {
   display: inline-grid;
   vertical-align: baseline;
 }
 
-html|table#expandedHeaders,
-html|table#expandedHeaders2 {
+#expandedHeaders2 {
+  flex: 1;
+}
+
+#expandedHeaders,
+#expandedHeaders2 {
   border-spacing: 0;
 }
 
