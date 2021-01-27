@@ -34,7 +34,6 @@ if CONFIG["OS_ARCH"] == "WINNT" and CONFIG["MOZ_MAPI_SUPPORT"]:
         "nsAbOutlookInterface.cpp",
         "nsAbWinHelper.cpp",
         "nsMapiAddressBook.cpp",
-        "nsWabAddressBook.cpp",
     ]
 
 if CONFIG["OS_ARCH"] == "Darwin":

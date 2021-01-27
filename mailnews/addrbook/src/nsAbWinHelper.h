@@ -11,6 +11,9 @@
 #include "nsString.h"
 #include "mozilla/StaticMutex.h"
 
+#define kOutlookDirectoryScheme "moz-aboutlookdirectory:///"
+#define kOutlookCardScheme "moz-aboutlookcard:///"
+
 struct nsMapiEntry {
   ULONG mByteCount;
   LPENTRYID mEntryId;
@@ -134,15 +137,9 @@ class nsAbWinHelper {
  private:
 };
 
-enum nsAbWinType {
-  nsAbWinType_Unknown,
-  nsAbWinType_Outlook,
-  nsAbWinType_OutlookExp
-};
-
 class nsAbWinHelperGuard {
  public:
-  explicit nsAbWinHelperGuard(uint32_t aType);
+  explicit nsAbWinHelperGuard();
   ~nsAbWinHelperGuard(void);
 
   nsAbWinHelper* operator->(void) { return mHelper; }
@@ -151,14 +148,6 @@ class nsAbWinHelperGuard {
   nsAbWinHelper* mHelper;
 };
 
-extern const char* kOutlookDirectoryScheme;
-extern const int kOutlookDirSchemeLength;
-extern const char* kOutlookStub;
-extern const char* kOutlookExpStub;
-extern const char* kOutlookCardScheme;
-
-nsAbWinType getAbWinType(const char* aScheme, const char* aUri,
-                         nsCString& aStub, nsCString& aEntry);
-void buildAbWinUri(const char* aScheme, uint32_t aType, nsCString& aUri);
-
+void makeEntryIdFromURI(const char* aScheme, const char* aUri,
+                        nsCString& aEntry);
 #endif  // nsAbWinHelper_h___

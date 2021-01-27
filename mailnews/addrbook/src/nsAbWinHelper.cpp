@@ -13,7 +13,6 @@
 
 #include "nsAbWinHelper.h"
 #include "nsMapiAddressBook.h"
-#include "nsWabAddressBook.h"
 
 #include <mapiguid.h>
 
@@ -932,6 +931,8 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
     PRINTF(("Cannot open parent %08lx.\n", mLastError));
     return FALSE;
   }
+  // Historic comment: May be relevant in the future.
+  // WAB removed in bug 1687132.
   // Here, flags for WAB and MAPI could be different, so this works
   // only as long as we don't want to use any flag in GetContentsTable
   mLastError = parent->GetContentsTable(0, contents);
@@ -1106,61 +1107,19 @@ void nsAbWinHelper::MyFreeProws(LPSRowSet aRowset) {
   FreeBuffer(aRowset);
 }
 
-nsAbWinHelperGuard::nsAbWinHelperGuard(uint32_t aType) : mHelper(NULL) {
-  switch (aType) {
-    case nsAbWinType_Outlook:
-      mHelper = new nsMapiAddressBook;
-      break;
-    case nsAbWinType_OutlookExp:
-      mHelper = new nsWabAddressBook;
-      break;
-    default:
-      break;
-  }
+nsAbWinHelperGuard::nsAbWinHelperGuard() : mHelper(NULL) {
+  mHelper = new nsMapiAddressBook;
 }
 
 nsAbWinHelperGuard::~nsAbWinHelperGuard(void) { delete mHelper; }
 
-const char* kOutlookDirectoryScheme = "moz-aboutlookdirectory://";
-const int kOutlookDirSchemeLength = 21;
-const char* kOutlookStub = "op/";
-const int kOutlookStubLength = 3;
-const char* kOutlookExpStub = "oe/";
-const int kOutlookExpStubLength = 3;
-const char* kOutlookCardScheme = "moz-aboutlookcard://";
-
-nsAbWinType getAbWinType(const char* aScheme, const char* aUri,
-                         nsCString& aStub, nsCString& aEntry) {
-  aStub.Truncate();
+void makeEntryIdFromURI(const char* aScheme, const char* aUri,
+                        nsCString& aEntry) {
   aEntry.Truncate();
   uint32_t schemeLength = strlen(aScheme);
 
   if (strncmp(aUri, aScheme, schemeLength) == 0) {
-    if (strncmp(aUri + schemeLength, kOutlookStub, kOutlookStubLength) == 0) {
-      aEntry = aUri + schemeLength + kOutlookStubLength;
-      aStub = kOutlookStub;
-      return nsAbWinType_Outlook;
-    }
-    if (strncmp(aUri + schemeLength, kOutlookExpStub, kOutlookExpStubLength) ==
-        0) {
-      aEntry = aUri + schemeLength + kOutlookExpStubLength;
-      aStub = kOutlookExpStub;
-      return nsAbWinType_OutlookExp;
-    }
-  }
-  return nsAbWinType_Unknown;
-}
-
-void buildAbWinUri(const char* aScheme, uint32_t aType, nsCString& aUri) {
-  aUri.Assign(aScheme);
-  switch (aType) {
-    case nsAbWinType_Outlook:
-      aUri.Append(kOutlookStub);
-      break;
-    case nsAbWinType_OutlookExp:
-      aUri.Append(kOutlookExpStub);
-      break;
-    default:
-      aUri.AssignLiteral("");
+    // Assign string from position `schemeLength`.
+    aEntry = aUri + schemeLength;
   }
 }

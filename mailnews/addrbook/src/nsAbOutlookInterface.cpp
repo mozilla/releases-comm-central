@@ -13,23 +13,13 @@ nsAbOutlookInterface::nsAbOutlookInterface(void) {}
 
 nsAbOutlookInterface::~nsAbOutlookInterface(void) {}
 
-extern const char* kOutlookDirectoryScheme;
-
 NS_IMETHODIMP
 nsAbOutlookInterface::GetFolderURIs(const nsACString& aURI,
                                     nsTArray<nsCString>& uris) {
   uris.Clear();
-
   nsresult rv = NS_OK;
-  nsCString stub;
-  nsCString entry;
-  nsAbWinType abType =
-      getAbWinType(kOutlookDirectoryScheme, nsCString(aURI).get(), stub, entry);
 
-  if (abType == nsAbWinType_Unknown) {
-    return NS_ERROR_FAILURE;
-  }
-  nsAbWinHelperGuard mapiAddBook(abType);
+  nsAbWinHelperGuard mapiAddBook;
   nsMapiEntryArray folders;
   NS_ENSURE_SUCCESS(rv, rv);
   if (!mapiAddBook->IsOK() || !mapiAddBook->GetFolders(folders)) {
@@ -38,12 +28,10 @@ nsAbOutlookInterface::GetFolderURIs(const nsACString& aURI,
 
   uris.SetCapacity(folders.mNbEntries);
 
-  nsAutoCString entryId;
-  nsAutoCString uri;
-
   for (ULONG i = 0; i < folders.mNbEntries; ++i) {
+    nsAutoCString entryId;
+    nsAutoCString uri(kOutlookDirectoryScheme);
     folders.mEntries[i].ToString(entryId);
-    buildAbWinUri(kOutlookDirectoryScheme, abType, uri);
     uri.Append(entryId);
     uris.AppendElement(uri);
   }

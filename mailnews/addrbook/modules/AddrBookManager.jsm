@@ -310,17 +310,7 @@ AddrBookManager.prototype = {
           }
           prefName = "ldap_2.servers.osx";
         } else if (AppConstants.platform == "win") {
-          if (
-            ![
-              "moz-aboutlookdirectory://oe/",
-              "moz-aboutlookdirectory://op/",
-            ].includes(uri)
-          ) {
-            throw Components.Exception(
-              `Can't create new ab of type=${type} for uri=${uri}`,
-              Cr.NS_ERROR_UNEXPECTED
-            );
-          }
+          uri = "moz-aboutlookdirectory:///";
           if (store.has(uri)) {
             throw Components.Exception(
               `Can't create new ab of type=${type} - already exists`,

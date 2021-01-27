@@ -84,8 +84,6 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   // Data for the search interfaces
   nsInterfaceHashtable<nsISupportsHashKey, nsIAbCard> mCardList;
   int32_t mSearchContext;
-  // Windows AB type
-  uint32_t mAbWinType;
 
  private:
   virtual ~nsAbOutlookDirectory(void);
