@@ -68,6 +68,19 @@ macosx64-libotr:
             - linux64-clang-macosx-cross
             - linux64-llvm-dsymutil
 
+macosx64-aarch64-libotr:
+    treeherder:
+        symbol: TM(libotr-aarch64)
+    run:
+        arguments: ['macosx64-aarch64']
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cctools-port
+            - linux64-clang-macosx-cross
+            - linux64-llvm-dsymutil
+            - macosx64-sdk-11.0
+
 win32-libotr:
     worker:
         docker-image: {in-tree: tb-debian-mingw}

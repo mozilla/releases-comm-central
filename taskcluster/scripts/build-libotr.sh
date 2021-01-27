@@ -59,7 +59,7 @@ function clang_cfg() {
     _clang_dir="${MOZ_FETCHES_DIR}/clang/bin"
 
     cp -a ${_clang_cfg_dir}/*.cfg "${_clang_dir}"
-    for _i in x86_64-apple-darwin aarch64-linux-gnu; do
+    for _i in x86_64-apple-darwin aarch64-apple-darwin aarch64-linux-gnu; do
       ln -s clang "${_clang_dir}/${_i}-clang"
     done
     return 0
@@ -211,6 +211,31 @@ case "${_TARGET_OS}" in
         export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
 
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
+        _CONF_STATIC="--enable-static --disable-shared"
+
+        LDFLAGS_otr="-shared"
+
+        _TARGET_LIBS="lib/libotr.5.dylib"
+        ;;
+    macosx64-aarch64)
+        for _t in cctools/bin clang/bin binutils/bin; do
+            PATH="${MOZ_FETCHES_DIR}/${_t}:$PATH"
+        done
+        export PATH
+
+        export _TARGET_TRIPLE="aarch64-apple-darwin"
+        export MACOS_SDK_DIR="${MOZ_FETCHES_DIR}/MacOSX11.0.sdk"
+        export CROSS_PRIVATE_FRAMEWORKS="${MACOS_SDK_DIR}/System/Library/PrivateFrameworks"
+        export CROSS_SYSROOT="${MACOS_SDK_DIR}"
+
+        export CC="${_TARGET_TRIPLE}-clang"
+        export LD="${_TARGET_TRIPLE}-ld"
+        export CFLAGS="-isysroot ${CROSS_SYSROOT}"
+        export LDFLAGS="-isysroot ${CROSS_SYSROOT}"
+        export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
+
+        _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
+        _GCRYPT_CONF_FLAGS="--disable-asm"
         _CONF_STATIC="--enable-static --disable-shared"
 
         LDFLAGS_otr="-shared"
