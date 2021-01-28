@@ -66,8 +66,8 @@ reference-jobs:
     - win32-minidump-stackwalk
     - win32-node
     - win64-cbindgen
-    - win64-clang-cl
-    - win64-clang-cl-11-2stage
+    - win64-clang
+    - win64-clang-11-2stage
     - win64-dump-syms
     - win64-llvm-symbolizer
     - win64-nasm

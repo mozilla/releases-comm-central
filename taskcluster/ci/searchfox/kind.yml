@@ -106,7 +106,7 @@ jobs:
                 - macosx64-libotr
 
     win64-searchfox/debug:
-        description: "Win64 Searchfox Debug (clang-cl)"
+        description: "Win64 Searchfox Debug (clang)"
         index:
             job-name: win64-searchfox-debug
         treeherder:

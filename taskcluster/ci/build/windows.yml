@@ -374,7 +374,7 @@ win64-plain/debug:
     fetches:
         toolchain:
             - win64-cbindgen
-            - win64-clang-cl
+            - win64-clang
             - win64-libotr
             - win64-node
             - win64-nasm
@@ -412,7 +412,7 @@ win64-plain/opt:
     fetches:
         toolchain:
             - win64-cbindgen
-            - win64-clang-cl
+            - win64-clang
             - win64-libotr
             - win64-node
             - win64-nasm
@@ -450,7 +450,7 @@ win64-asan/opt:
     fetches:
         toolchain:
             - win64-cbindgen
-            - win64-clang-cl
+            - win64-clang
             - win64-libotr
             - win64-nasm
             - win64-node
