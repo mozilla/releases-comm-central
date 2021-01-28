@@ -33,9 +33,11 @@ async function testExecuteBrowserActionWithOptions(options = {}) {
             <meta charset="utf-8">
             <script src="popup.js"></script>
           </head>
+          <body>
+            Popup
+          </body>
         </html>
       `,
-
       "popup.js": function() {
         browser.runtime.sendMessage("from-browser-action-popup");
       },
@@ -83,6 +85,7 @@ async function testExecuteBrowserActionWithOptions(options = {}) {
 
   await SimpleTest.promiseFocus(window);
 
+  // trigger setup of listeners in background and the send-keys msg
   extension.sendMessage("withPopup", options.withPopup);
 
   if (options.withPopup) {

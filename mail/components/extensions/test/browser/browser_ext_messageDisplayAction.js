@@ -134,24 +134,7 @@ add_task(async () => {
   info("Message window, no pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  let messageWindowPromise = BrowserTestUtils.domWindowOpened(
-    undefined,
-    async win => {
-      await BrowserTestUtils.waitForEvent(win, "load");
-      if (
-        win.document.documentURI !=
-        "chrome://messenger/content/messageWindow.xhtml"
-      ) {
-        return false;
-      }
-      await BrowserTestUtils.browserLoaded(
-        win.document.getElementById("messagepane")
-      );
-      return true;
-    }
-  );
-  window.MsgOpenNewWindowForMessage();
-  let messageWindow = await messageWindowPromise;
+  let messageWindow = await openNewWindowForMessage();
   await test_it(extension, messageWindow);
   messageWindow.close();
 
@@ -172,24 +155,7 @@ add_task(async () => {
   info("Message window, with pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  messageWindowPromise = BrowserTestUtils.domWindowOpened(
-    undefined,
-    async win => {
-      await BrowserTestUtils.waitForEvent(win, "load");
-      if (
-        win.document.documentURI !=
-        "chrome://messenger/content/messageWindow.xhtml"
-      ) {
-        return false;
-      }
-      await BrowserTestUtils.browserLoaded(
-        win.document.getElementById("messagepane")
-      );
-      return true;
-    }
-  );
-  window.MsgOpenNewWindowForMessage();
-  messageWindow = await messageWindowPromise;
+  messageWindow = await openNewWindowForMessage();
   await test_it(extension, messageWindow);
   messageWindow.close();
 });

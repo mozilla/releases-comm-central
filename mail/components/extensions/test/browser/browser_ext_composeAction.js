@@ -2,48 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let gAccount;
-
-async function openComposeWindow() {
-  let params = Cc[
-    "@mozilla.org/messengercompose/composeparams;1"
-  ].createInstance(Ci.nsIMsgComposeParams);
-  let composeFields = Cc[
-    "@mozilla.org/messengercompose/composefields;1"
-  ].createInstance(Ci.nsIMsgCompFields);
-
-  params.identity = gAccount.defaultIdentity;
-  params.composeFields = composeFields;
-
-  await new Promise(resolve => {
-    let observer = {
-      observe(subject, topic, data) {
-        Services.ww.unregisterNotification(observer);
-        subject.addEventListener(
-          "load",
-          () => {
-            promiseAnimationFrame(subject).then(() => {
-              subject.setTimeout(resolve);
-            });
-          },
-          { once: true }
-        );
-      },
-    };
-    Services.ww.registerNotification(observer);
-    MailServices.compose.OpenComposeWindowWithParams(null, params);
-  });
-  return Services.wm.getMostRecentWindow("msgcompose");
-}
-
-async function test_it(extensionDetails, toolbarId) {
+async function test_it(account, extensionDetails, toolbarId) {
   let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   let buttonId = "compose_action_mochi_test-composeAction-toolbarbutton";
 
   await extension.startup();
   await extension.awaitMessage();
 
-  let composeWindow = await openComposeWindow();
+  let composeWindow = await openComposeWindow(account);
   let composeDocument = composeWindow.document;
 
   await focusWindow(composeWindow);
@@ -117,8 +83,8 @@ async function test_it(extensionDetails, toolbarId) {
 }
 
 add_task(async function setup() {
-  gAccount = createAccount();
-  addIdentity(gAccount);
+  let account = createAccount();
+  addIdentity(account);
 
   async function background_nopopup() {
     browser.test.log("nopopup background script ran");
@@ -181,20 +147,20 @@ add_task(async function setup() {
     useAddonManager: "temporary",
   };
 
-  await test_it(extensionDetails, "composeToolbar2");
+  await test_it(account, extensionDetails, "composeToolbar2");
 
   extensionDetails.background = background_popup;
   extensionDetails.manifest.compose_action.default_popup = "popup.html";
-  await test_it(extensionDetails, "composeToolbar2");
+  await test_it(account, extensionDetails, "composeToolbar2");
 
   extensionDetails.background = background_nopopup;
   extensionDetails.manifest.compose_action.default_area = "formattoolbar";
   delete extensionDetails.manifest.compose_action.default_popup;
-  await test_it(extensionDetails, "FormatToolbar");
+  await test_it(account, extensionDetails, "FormatToolbar");
 
   extensionDetails.background = background_popup;
   extensionDetails.manifest.compose_action.default_popup = "popup.html";
-  await test_it(extensionDetails, "FormatToolbar");
+  await test_it(account, extensionDetails, "FormatToolbar");
 
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messengercompose/messengercompose.xhtml"

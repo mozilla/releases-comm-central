@@ -12,7 +12,23 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/ExtensionToolbarButtons.jsm"
 );
 
+const composeActionMap = new WeakMap();
+
 this.composeAction = class extends ToolbarButtonAPI {
+  static for(extension) {
+    return composeActionMap.get(extension);
+  }
+
+  async onManifestEntry(entryName) {
+    await super.onManifestEntry(entryName);
+    composeActionMap.set(this.extension, this);
+  }
+
+  close() {
+    super.close();
+    composeActionMap.delete(this.extension);
+  }
+
   constructor(extension) {
     super(extension, global);
     this.manifest_name = "compose_action";
@@ -70,3 +86,5 @@ this.composeAction = class extends ToolbarButtonAPI {
     }
   }
 };
+
+global.composeActionFor = this.composeAction.for;

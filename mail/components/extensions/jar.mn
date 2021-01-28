@@ -21,7 +21,7 @@ messenger.jar:
     content/messenger/parent/ext-browserAction.js  (parent/ext-browserAction.js)
     content/messenger/parent/ext-chrome-settings-overrides.js      (parent/ext-chrome-settings-overrides.js)
     content/messenger/parent/ext-cloudFile.js      (parent/ext-cloudFile.js)
-    content/messenger/parent/ext-commands.js       (../../../../browser/components/extensions/parent/ext-commands.js)
+    content/messenger/parent/ext-commands.js       (parent/ext-commands.js)
     content/messenger/parent/ext-compose.js        (parent/ext-compose.js)
     content/messenger/parent/ext-composeAction.js  (parent/ext-composeAction.js)
     content/messenger/parent/ext-extensionScripts.js (parent/ext-extensionScripts.js)

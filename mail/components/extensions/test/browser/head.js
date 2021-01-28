@@ -268,6 +268,56 @@ async function openNewMailWindow(options = {}) {
   return win;
 }
 
+async function openComposeWindow(account) {
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  let composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+
+  params.identity = account.defaultIdentity;
+  params.composeFields = composeFields;
+
+  let composeWindowPromise = BrowserTestUtils.domWindowOpened(
+    undefined,
+    async win => {
+      await BrowserTestUtils.waitForEvent(win, "load");
+      if (
+        win.document.documentURI !=
+        "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+      ) {
+        return false;
+      }
+      await BrowserTestUtils.waitForEvent(win, "compose-editor-ready");
+      return true;
+    }
+  );
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  return composeWindowPromise;
+}
+
+async function openNewWindowForMessage(msg) {
+  let messageWindowPromise = BrowserTestUtils.domWindowOpened(
+    undefined,
+    async win => {
+      await BrowserTestUtils.waitForEvent(win, "load");
+      if (
+        win.document.documentURI !=
+        "chrome://messenger/content/messageWindow.xhtml"
+      ) {
+        return false;
+      }
+      await BrowserTestUtils.browserLoaded(
+        win.document.getElementById("messagepane")
+      );
+      return true;
+    }
+  );
+  window.MsgOpenNewWindowForMessage(msg);
+  return messageWindowPromise;
+}
+
 /**
  * Check the headers of an open compose window against expected values.
  *
