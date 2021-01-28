@@ -15,6 +15,10 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
   ],
 ]);
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  ExtensionData: "resource://gre/modules/Extension.jsm",
+});
+
 (async function() {
   // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
   let textbox = document.querySelector("search-addons > search-textbox");
@@ -35,6 +39,31 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
   // Override logic for detecting unsigned add-ons.
   window.isCorrectlySigned = function() {
     return true;
+  };
+  // Add logic to detect add-ons using the unsupported legacy API.
+  let getMozillaAddonMessageInfo = window.getAddonMessageInfo;
+  window.getAddonMessageInfo = async function(addon) {
+    const formatString = (name, args) =>
+      extBundle.formatStringFromName(
+        `details.notification.${name}`,
+        args,
+        args.length
+      );
+    const { name } = addon;
+    const appName = brandBundle.GetStringFromName("brandShortName");
+    let data = new ExtensionData(addon.getResourceURI());
+    await data.loadManifest();
+    if (data.manifest.legacy) {
+      return {
+        message: formatString("incompatible", [
+          name,
+          appName,
+          Services.appinfo.version,
+        ]),
+        type: "warning",
+      };
+    }
+    return getMozillaAddonMessageInfo(addon);
   };
   document.querySelectorAll("addon-card").forEach(card => card.updateMessage());
 
