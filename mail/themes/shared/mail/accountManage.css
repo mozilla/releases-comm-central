@@ -603,3 +603,12 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   padding: 1px 6px;
   border-radius: 12px;
 }
+
+.input-container > .plain {
+  flex: 1;
+  background-color: transparent;
+  border-style: none;
+  box-shadow: none !important;
+  outline: none;
+  padding-block: 0;
+}
