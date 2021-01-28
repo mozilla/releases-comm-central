@@ -81,4 +81,40 @@ XPCOMUtils.defineLazyModuleGetters(this, {
     }
     return _getScreenshotUrlForAddon(addon);
   };
+
+  // Override parts of the addon-permission-list customElement to be able
+  // to show the usage of Experiments in the permission list.
+  await customElements.whenDefined("addon-permissions-list");
+  AddonPermissionsList.prototype.renderExperimentOnly = function() {
+    let appName = brandBundle.GetStringFromName("brandShortName");
+
+    this.textContent = "";
+    let frag = importTemplate("addon-permissions-list");
+    let section = frag.querySelector(".addon-permissions-required");
+    section.hidden = false;
+    let list = section.querySelector(".addon-permissions-list");
+
+    let msg = browserBundle.formatStringFromName(
+      "webextPerms.description.experiment",
+      [appName]
+    );
+    let item = document.createElement("li");
+    item.classList.add("permission-info", "permission-checked");
+    item.appendChild(document.createTextNode(msg));
+    list.appendChild(item);
+
+    this.appendChild(frag);
+  };
+  // We change this function from sync to async, which does not matter.
+  // It calls this.render() which is async without awaiting it anyway.
+  AddonPermissionsList.prototype.setAddon = async function(addon) {
+    this.addon = addon;
+    let data = new ExtensionData(addon.getResourceURI());
+    await data.loadManifest();
+    if (data.manifest.experiment_apis) {
+      this.renderExperimentOnly();
+    } else {
+      this.render();
+    }
+  };
 })();
