@@ -1776,13 +1776,14 @@ const kSupportedTextMimeTypes = [
   "text/css",
   "text/rdf",
   "text/xsl",
-  "text/javascript",
-  "text/ecmascript",
+  "text/javascript", // obsolete type
+  "text/ecmascript", // obsolete type
   "application/javascript",
   "application/ecmascript",
-  "application/x-javascript",
-  "text/xul",
-  "application/vnd.mozilla.xul+xml",
+  "application/x-javascript", // obsolete type
+  "text/xul", // obsolete type
+  "application/vnd.mozilla.xul+xml", // obsolete type
+  "application/xhtml+xml",
 ];
 
 function IsSupportedTextMimeType(aMimeType) {
