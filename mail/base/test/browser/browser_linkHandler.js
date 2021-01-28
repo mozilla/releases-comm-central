@@ -7,19 +7,19 @@ let { MockRegistrar } = ChromeUtils.import(
 );
 
 const TEST_DOMAIN = "http://example.org";
+const TEST_IP = "http://127.0.0.1:8888";
 const TEST_PATH = "/browser/comm/mail/base/test/browser/files/links.html";
-const TEST_URL = `${TEST_DOMAIN}${TEST_PATH}`;
 
 let links = new Map([
-  ["#this-hash", `${TEST_DOMAIN}${TEST_PATH}#hash`],
-  ["#this-nohash", `${TEST_DOMAIN}${TEST_PATH}`],
+  ["#this-hash", `${TEST_PATH}#hash`],
+  ["#this-nohash", `${TEST_PATH}`],
   [
     "#local-here",
-    `${TEST_DOMAIN}/browser/comm/mail/base/test/browser/files/sampleContent.html`,
+    "/browser/comm/mail/base/test/browser/files/sampleContent.html",
   ],
   [
     "#local-elsewhere",
-    `${TEST_DOMAIN}/browser/comm/mail/components/extensions/test/browser/data/content.html`,
+    "/browser/comm/mail/components/extensions/test/browser/data/content.html",
   ],
   ["#other-https", `https://example.org${TEST_PATH}`],
   ["#other-port", `http://example.org:8000${TEST_PATH}`],
@@ -56,7 +56,13 @@ registerCleanupFunction(() => {
   MockRegistrar.unregister(mockExternalProtocolServiceCID);
 });
 
-async function clickOnLink(browser, selector, url, shouldLoadInternally) {
+async function clickOnLink(
+  browser,
+  selector,
+  url,
+  pageURL,
+  shouldLoadInternally
+) {
   if (
     browser.webProgress?.isLoadingDocument ||
     browser.currentURI?.spec == "about:blank"
@@ -66,7 +72,7 @@ async function clickOnLink(browser, selector, url, shouldLoadInternally) {
   mockExternalProtocolService._loadedURLs.length = 0;
   Assert.equal(
     browser.currentURI?.spec,
-    TEST_URL,
+    pageURL,
     "original URL should be loaded"
   );
 
@@ -93,10 +99,10 @@ async function clickOnLink(browser, selector, url, shouldLoadInternally) {
       `${url} should not load externally`
     );
   } else {
-    if (url != TEST_URL) {
+    if (url != pageURL) {
       Assert.equal(
         browser.currentURI?.spec,
-        TEST_URL,
+        pageURL,
         `${url} should not load internally`
       );
     }
@@ -106,7 +112,7 @@ async function clickOnLink(browser, selector, url, shouldLoadInternally) {
     );
   }
 
-  if (browser.currentURI?.spec != TEST_URL) {
+  if (browser.currentURI?.spec != pageURL) {
     let promise = new Promise(resolve => {
       let event = selector == "#this-hash" ? "hashchange" : "pageshow";
       let unregister = BrowserTestUtils.addContentEventListener(
@@ -122,13 +128,17 @@ async function clickOnLink(browser, selector, url, shouldLoadInternally) {
 
     browser.browsingContext.goBack();
     await promise;
-    Assert.equal(browser.currentURI?.spec, TEST_URL, "should have gone back");
+    Assert.equal(browser.currentURI?.spec, pageURL, "should have gone back");
   }
 }
 
-async function subtest(group, shouldLoadCB) {
+async function subtest(pagePrePath, group, shouldLoadCB) {
   let tabmail = document.getElementById("tabmail");
-  let tab = window.openContentTab(TEST_URL, undefined, group);
+  let tab = window.openContentTab(
+    `${pagePrePath}${TEST_PATH}`,
+    undefined,
+    group
+  );
 
   let expectedGroup = group;
   if (group === null) {
@@ -139,23 +149,68 @@ async function subtest(group, shouldLoadCB) {
   Assert.equal(tab.browser.getAttribute("messagemanagergroup"), expectedGroup);
 
   for (let [selector, url] of links) {
-    await clickOnLink(tab.browser, selector, url, shouldLoadCB(selector));
+    if (url.startsWith("/")) {
+      url = `${pagePrePath}${url}`;
+    }
+    await clickOnLink(
+      tab.browser,
+      selector,
+      url,
+      `${pagePrePath}${TEST_PATH}`,
+      shouldLoadCB(selector)
+    );
   }
   tabmail.closeTab(tab);
 }
 
 add_task(function testNoGroup() {
-  return subtest(undefined, selector => selector != "#other-domain");
+  return subtest(
+    TEST_DOMAIN,
+    undefined,
+    selector => selector != "#other-domain"
+  );
 });
 
 add_task(function testBrowsersGroup() {
-  return subtest(null, selector => true);
+  return subtest(TEST_DOMAIN, null, selector => true);
 });
 
-add_task(function testSSBGroup() {
-  return subtest("single-site", selector => selector != "#other-domain");
+add_task(function testSingleSiteGroup() {
+  return subtest(
+    TEST_DOMAIN,
+    "single-site",
+    selector => selector != "#other-domain"
+  );
 });
 
-add_task(function testStrictGroup() {
-  return subtest("single-page", selector => selector.startsWith("#this"));
+add_task(function testSinglePageGroup() {
+  return subtest(TEST_DOMAIN, "single-page", selector =>
+    selector.startsWith("#this")
+  );
+});
+
+add_task(function testNoGroupWithIP() {
+  return subtest(
+    TEST_IP,
+    undefined,
+    selector => selector.startsWith("#this") || selector.startsWith("#local")
+  );
+});
+
+add_task(function testBrowsersGroupWithIP() {
+  return subtest(TEST_IP, null, selector => true);
+});
+
+add_task(function testSingleSiteGroupWithIP() {
+  return subtest(
+    TEST_IP,
+    "single-site",
+    selector => selector.startsWith("#this") || selector.startsWith("#local")
+  );
+});
+
+add_task(function testSinglePageGroupWithIP() {
+  return subtest(TEST_IP, "single-page", selector =>
+    selector.startsWith("#this")
+  );
 });

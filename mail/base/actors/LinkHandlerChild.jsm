@@ -95,6 +95,11 @@ class LinkHandlerChild extends JSWindowActorChild {
 
     let eventURI = Services.io.newURI(eventHRef);
 
+    if (pageURI.host == eventURI.host) {
+      // Avoid using the eTLD service, and this also works for IP addresses.
+      return;
+    }
+
     try {
       if (
         Services.eTLD.getBaseDomain(eventURI) ==
@@ -103,7 +108,9 @@ class LinkHandlerChild extends JSWindowActorChild {
         return;
       }
     } catch (ex) {
-      Cu.reportError(ex);
+      if (ex.result != Cr.NS_ERROR_HOST_IS_IP_ADDRESS) {
+        Cu.reportError(ex);
+      }
     }
 
     if (
