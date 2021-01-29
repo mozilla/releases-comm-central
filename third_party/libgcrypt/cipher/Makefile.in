@@ -133,8 +133,8 @@ am_libcipher_la_OBJECTS = cipher.lo cipher-cbc.lo cipher-cfb.lo \
 	cipher-gcm-armv8-aarch64-ce.lo cipher-poly1305.lo \
 	cipher-ocb.lo cipher-xts.lo cipher-eax.lo cipher-selftest.lo \
 	pubkey.lo pubkey-util.lo md.lo mac.lo mac-hmac.lo mac-cmac.lo \
-	mac-gmac.lo mac-poly1305.lo poly1305.lo kdf.lo primegen.lo \
-	hash-common.lo dsa-common.lo rsa-common.lo
+	mac-gmac.lo mac-poly1305.lo poly1305.lo poly1305-s390x.lo \
+	kdf.lo primegen.lo hash-common.lo dsa-common.lo rsa-common.lo
 libcipher_la_OBJECTS = $(am_libcipher_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -170,11 +170,11 @@ am__depfiles_remade = ./$(DEPDIR)/arcfour-amd64.Plo \
 	./$(DEPDIR)/chacha20-amd64-avx2.Plo \
 	./$(DEPDIR)/chacha20-amd64-ssse3.Plo \
 	./$(DEPDIR)/chacha20-armv7-neon.Plo \
-	./$(DEPDIR)/chacha20-ppc.Plo ./$(DEPDIR)/chacha20.Plo \
-	./$(DEPDIR)/cipher-aeswrap.Plo ./$(DEPDIR)/cipher-cbc.Plo \
-	./$(DEPDIR)/cipher-ccm.Plo ./$(DEPDIR)/cipher-cfb.Plo \
-	./$(DEPDIR)/cipher-cmac.Plo ./$(DEPDIR)/cipher-ctr.Plo \
-	./$(DEPDIR)/cipher-eax.Plo \
+	./$(DEPDIR)/chacha20-ppc.Plo ./$(DEPDIR)/chacha20-s390x.Plo \
+	./$(DEPDIR)/chacha20.Plo ./$(DEPDIR)/cipher-aeswrap.Plo \
+	./$(DEPDIR)/cipher-cbc.Plo ./$(DEPDIR)/cipher-ccm.Plo \
+	./$(DEPDIR)/cipher-cfb.Plo ./$(DEPDIR)/cipher-cmac.Plo \
+	./$(DEPDIR)/cipher-ctr.Plo ./$(DEPDIR)/cipher-eax.Plo \
 	./$(DEPDIR)/cipher-gcm-armv7-neon.Plo \
 	./$(DEPDIR)/cipher-gcm-armv8-aarch32-ce.Plo \
 	./$(DEPDIR)/cipher-gcm-armv8-aarch64-ce.Plo \
@@ -198,17 +198,17 @@ am__depfiles_remade = ./$(DEPDIR)/arcfour-amd64.Plo \
 	./$(DEPDIR)/mac-cmac.Plo ./$(DEPDIR)/mac-gmac.Plo \
 	./$(DEPDIR)/mac-hmac.Plo ./$(DEPDIR)/mac-poly1305.Plo \
 	./$(DEPDIR)/mac.Plo ./$(DEPDIR)/md.Plo ./$(DEPDIR)/md4.Plo \
-	./$(DEPDIR)/md5.Plo ./$(DEPDIR)/poly1305.Plo \
-	./$(DEPDIR)/primegen.Plo ./$(DEPDIR)/pubkey-util.Plo \
-	./$(DEPDIR)/pubkey.Plo ./$(DEPDIR)/rfc2268.Plo \
-	./$(DEPDIR)/rijndael-aarch64.Plo \
+	./$(DEPDIR)/md5.Plo ./$(DEPDIR)/poly1305-s390x.Plo \
+	./$(DEPDIR)/poly1305.Plo ./$(DEPDIR)/primegen.Plo \
+	./$(DEPDIR)/pubkey-util.Plo ./$(DEPDIR)/pubkey.Plo \
+	./$(DEPDIR)/rfc2268.Plo ./$(DEPDIR)/rijndael-aarch64.Plo \
 	./$(DEPDIR)/rijndael-aesni.Plo ./$(DEPDIR)/rijndael-amd64.Plo \
 	./$(DEPDIR)/rijndael-arm.Plo \
 	./$(DEPDIR)/rijndael-armv8-aarch32-ce.Plo \
 	./$(DEPDIR)/rijndael-armv8-aarch64-ce.Plo \
 	./$(DEPDIR)/rijndael-armv8-ce.Plo \
 	./$(DEPDIR)/rijndael-padlock.Plo ./$(DEPDIR)/rijndael-ppc.Plo \
-	./$(DEPDIR)/rijndael-ppc9le.Plo \
+	./$(DEPDIR)/rijndael-ppc9le.Plo ./$(DEPDIR)/rijndael-s390x.Plo \
 	./$(DEPDIR)/rijndael-ssse3-amd64-asm.Plo \
 	./$(DEPDIR)/rijndael-ssse3-amd64.Plo ./$(DEPDIR)/rijndael.Plo \
 	./$(DEPDIR)/rmd160.Plo ./$(DEPDIR)/rsa-common.Plo \
@@ -503,6 +503,7 @@ libcipher_la_SOURCES = \
 	mac.c mac-internal.h \
 	mac-hmac.c mac-cmac.c mac-gmac.c mac-poly1305.c \
 	poly1305.c poly1305-internal.h \
+	poly1305-s390x.S \
 	kdf.c kdf-internal.h \
 	bithelp.h  \
 	bufhelp.h  \
@@ -514,14 +515,17 @@ libcipher_la_SOURCES = \
 EXTRA_libcipher_la_SOURCES = \
 	asm-common-aarch64.h \
 	asm-common-amd64.h \
+	asm-common-s390x.h \
+	asm-inline-s390x.h \
 	asm-poly1305-aarch64.h \
 	asm-poly1305-amd64.h \
+	asm-poly1305-s390x.h \
 	arcfour.c arcfour-amd64.S \
 	blowfish.c blowfish-amd64.S blowfish-arm.S \
 	cast5.c cast5-amd64.S cast5-arm.S \
 	chacha20.c chacha20-amd64-ssse3.S chacha20-amd64-avx2.S \
 	chacha20-armv7-neon.S chacha20-aarch64.S \
-	chacha20-ppc.c \
+	chacha20-ppc.c chacha20-s390x.S \
 	crc.c crc-intel-pclmul.c crc-armv8-ce.c \
 	crc-armv8-aarch64-ce.S \
 	crc-ppc.c \
@@ -543,6 +547,7 @@ EXTRA_libcipher_la_SOURCES = \
 	rijndael-armv8-aarch64-ce.S rijndael-aarch64.S     \
 	rijndael-ppc.c rijndael-ppc9le.c                   \
 	rijndael-ppc-common.h rijndael-ppc-functions.h     \
+	rijndael-s390x.c                                   \
 	rmd160.c \
 	rsa.c \
 	salsa20.c salsa20-amd64.S salsa20-armv7-neon.S \
@@ -665,6 +670,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-amd64-ssse3.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-armv7-neon.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-ppc.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20-s390x.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chacha20.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-aeswrap.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cipher-cbc.Plo@am__quote@ # am--include-marker
@@ -717,6 +723,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md4.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poly1305-s390x.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/poly1305.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/primegen.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pubkey-util.Plo@am__quote@ # am--include-marker
@@ -732,6 +739,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-padlock.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-ppc.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-ppc9le.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-s390x.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-ssse3-amd64-asm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael-ssse3-amd64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rijndael.Plo@am__quote@ # am--include-marker
@@ -989,6 +997,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/chacha20-amd64-ssse3.Plo
 	-rm -f ./$(DEPDIR)/chacha20-armv7-neon.Plo
 	-rm -f ./$(DEPDIR)/chacha20-ppc.Plo
+	-rm -f ./$(DEPDIR)/chacha20-s390x.Plo
 	-rm -f ./$(DEPDIR)/chacha20.Plo
 	-rm -f ./$(DEPDIR)/cipher-aeswrap.Plo
 	-rm -f ./$(DEPDIR)/cipher-cbc.Plo
@@ -1041,6 +1050,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/md.Plo
 	-rm -f ./$(DEPDIR)/md4.Plo
 	-rm -f ./$(DEPDIR)/md5.Plo
+	-rm -f ./$(DEPDIR)/poly1305-s390x.Plo
 	-rm -f ./$(DEPDIR)/poly1305.Plo
 	-rm -f ./$(DEPDIR)/primegen.Plo
 	-rm -f ./$(DEPDIR)/pubkey-util.Plo
@@ -1056,6 +1066,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/rijndael-padlock.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ppc.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ppc9le.Plo
+	-rm -f ./$(DEPDIR)/rijndael-s390x.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ssse3-amd64-asm.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ssse3-amd64.Plo
 	-rm -f ./$(DEPDIR)/rijndael.Plo
@@ -1176,6 +1187,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/chacha20-amd64-ssse3.Plo
 	-rm -f ./$(DEPDIR)/chacha20-armv7-neon.Plo
 	-rm -f ./$(DEPDIR)/chacha20-ppc.Plo
+	-rm -f ./$(DEPDIR)/chacha20-s390x.Plo
 	-rm -f ./$(DEPDIR)/chacha20.Plo
 	-rm -f ./$(DEPDIR)/cipher-aeswrap.Plo
 	-rm -f ./$(DEPDIR)/cipher-cbc.Plo
@@ -1228,6 +1240,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/md.Plo
 	-rm -f ./$(DEPDIR)/md4.Plo
 	-rm -f ./$(DEPDIR)/md5.Plo
+	-rm -f ./$(DEPDIR)/poly1305-s390x.Plo
 	-rm -f ./$(DEPDIR)/poly1305.Plo
 	-rm -f ./$(DEPDIR)/primegen.Plo
 	-rm -f ./$(DEPDIR)/pubkey-util.Plo
@@ -1243,6 +1256,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/rijndael-padlock.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ppc.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ppc9le.Plo
+	-rm -f ./$(DEPDIR)/rijndael-s390x.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ssse3-amd64-asm.Plo
 	-rm -f ./$(DEPDIR)/rijndael-ssse3-amd64.Plo
 	-rm -f ./$(DEPDIR)/rijndael.Plo

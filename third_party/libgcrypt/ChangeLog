@@ -1,8 +1,229 @@
+2021-01-29  Werner Koch  <wk@gnupg.org>
+
+	Release 1.9.1.
+	+ commit 466299b1ceb82ec7c4dd0ca376de50399a896adf
+	* configure.ac: Bump LT version to C23/A3/R1.
+
+2021-01-29  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	hash-common: fix heap overflow when writing more data after final.
+	+ commit 512c0c75276949f13b6373b5c04f7065af750b08
+	* tests/basic.c (check_one_md): Test writing to digest after read.
+	* cipher/hash-common.c (_gcry_md_block_write): Reset 'hd->count' if
+	greater than blocksize.
+
+2021-01-28  Werner Koch  <wk@gnupg.org>
+
+	Add a compliance keyword to gcry_get_config.
+	+ commit aa3f595341eb263980210776c7fe377b2ed24c5e
+	* src/global.c (print_config): New config line.
+
+2021-01-27  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	asm-common-aarch64: add MacOS support for GET_DATA_POINTER.
+	+ commit 014fed5153647641376b9131ea1d87dc5e88cf42
+	* cipher/asm-common-aarch64.h [__APPLE__] (GET_DATA_POINTER): Add MacOS
+	variant of macro.
+
+2021-01-27  NIIBE Yutaka  <gniibe@fsij.org>
+
+	random: Use getentropy on macOS when available.
+	+ commit 6cb0faf6ceec5b2e799e6fb5f04b85d135a7da9b
+	* random/rndlinux.c [__APPLE__ && __MACH__] (getentropy): Declare.
+	(_gcry_rndlinux_gather_random): Check the symbol and use getentropy.
+
+	mpi: Fix _gcry_mpih_mod implementation.
+	+ commit f06ff4e31c8e162f4a59986241c7ab43d5085927
+	* mpi/mpih-const-time.c (_gcry_mpih_mod): Handle the overflow.
+
+	build: Check spawn.h for MacOS X Tiger.
+	+ commit fc901e978a0c18a3524cad5d1ef3451ed11b9347
+	* configure.ac: Add check for spawn.h.
+	* tests/random.c: Only use posix_spawn if available.
+
+2021-01-26  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	global: fix compile error at pragma GCC diagnostic.
+	+ commit 3d095206c30d772d5fc68bf69bfc384e43f766e9
+	* src/global.c (_gcry_vcontrol): Move "pragma GCC diagnostics" outside
+	function.
+
+	cipher-proto: remove forward typedef of cipher_bulk_ops_t.
+	+ commit 17aad639d29c7c835a7effb89181c7c99b16cb6a
+	* cipher/cipher-proto (cipher_bulk_ops_t): Remove typedef, leave
+	forward declaration of 'struct cipher_bulk_ops'.
+	(gcry_cipher_setkey_t): Change 'bulk_ops' to
+	'struct cipher_bulk_ops *'.
+	* cipher/arcfour.c: Include 'cipher-internal.h'.
+	* cipher/gost28147.c: Ditto.
+	* cipher/idea.c: Ditto.
+	* cipher/rfc2268.c: Ditto.
+	* cipher/salsa20.c: Ditto.
+	* cipher/seed.c: Ditto.
+	* cipher/mac-internal.h (CTX_MAGIC_NORMAL): Rename to...
+	(CTX_MAC_MAGIC_NORMAL): ... this.
+	(CTX_MAGIC_SECURE): Rename to...
+	(CTX_MAC_MAGIC_SECURE): ... this.
+	* cipher/mac-cmac.c (cmac_open): Use CTX_MAC_MAGIC_SECURE.
+	* cipher/mac-gmac.c (gmac_open): Ditto.
+	* cipher/mac-hmac.c (hmac_open): Ditto.
+	* cipher/mac-poly1305.c (poly1305mac_open): Ditto.
+	* cipher/mac.c (mac_open): Use CTX_MAC_MAGIC_SECURE and
+	CTX_MAC_MAGIC_NORMAL.
+
+2021-01-26  David Michael  <fedora.dm0@gmail.com>
+
+	cipher/sha512: Fix non-NEON ARM assembly implementation.
+	+ commit 1e72c50f864ae1c77ba80c191224b9ef1d22a2e2
+	* cipher/sha512.c (do_transform_generic)
+	[USE_ARM_ASM]: Switch to the non-NEON assembly implementation.
+
+2021-01-26  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	blake2: fix RIP register access for AVX/AVX2 implementations.
+	+ commit b2f78ae034b8d4aa3d4cc7bf85262317832f6e0a
+	* cipher/blake2b-amd64-avx2.S: Use rRIP instead of (RIP).
+	* cipher/blake2s-amd64-avx.S: Use rRIP instead of (RIP).
+
+	sha512/sha256: remove assembler macros from AMD64 implementations.
+	+ commit 9f49e806f9506533236fd44b17f17b85961b20f1
+	* configure.ac (gcry_cv_gcc_platform_as_ok_for_intel_syntax): Remove
+	assembler macro check from Intel syntax assembly support check.
+	* cipher/sha256-avx-amd64.S: Replace assembler macros with C
+	preprocessor counterparts.
+	* cipher/sha256-avx2-bmi2-amd64.S: Ditto.
+	* cipher/sha256-ssse3-amd64.S: Ditto.
+	* cipher/sha512-avx-amd64.S: Ditto.
+	* cipher/sha512-avx2-bmi2-amd64.S: Ditto.
+	* cipher/sha512-ssse3-amd64.S: Ditto.
+
+	configure.ac: run assembler checks through linker for better LTO support
+	+ commit 393bd6c3d1aa2b2a1b05be0e2d7fb2514e6c5ad0
+	* configure.ac (gcry_cv_gcc_arm_platform_as_ok)
+	(gcry_cv_gcc_aarch64_platform_as_ok)
+	(gcry_cv_gcc_inline_asm_ssse3, gcry_cv_gcc_inline_asm_pclmul)
+	(gcry_cv_gcc_inline_asm_shaext, gcry_cv_gcc_inline_asm_sse41)
+	(gcry_cv_gcc_inline_asm_avx, gcry_cv_gcc_inline_asm_avx2)
+	(gcry_cv_gcc_inline_asm_bmi2, gcry_cv_gcc_as_const_division_ok)
+	(gcry_cv_gcc_as_const_division_with_wadivide_ok)
+	(gcry_cv_gcc_amd64_platform_as_ok, gcry_cv_gcc_win64_platform_as_ok)
+	(gcry_cv_gcc_platform_as_ok_for_intel_syntax)
+	(gcry_cv_gcc_inline_asm_neon, gcry_cv_gcc_inline_asm_aarch32_crypto)
+	(gcry_cv_gcc_inline_asm_aarch64_neon)
+	(gcry_cv_gcc_inline_asm_aarch64_crypto)
+	(gcry_cv_gcc_inline_asm_ppc_altivec)
+	(gcry_cv_gcc_inline_asm_ppc_arch_3_00)
+	(gcry_cv_gcc_inline_asm_s390x, gcry_cv_gcc_inline_asm_s390x): Use
+	AC_LINK_IFELSE check instead of AC_COMPILE_IFELSE.
+
+	rijndael: remove unused use_xxx flags.
+	+ commit a14447f8169aff30a49f5c2ab06bd5bbd1cc3531
+	* cipher/rijndael-internal.h (RIJNDAEL_context_s): Remove unused
+	'use_padlock', 'use_aesni', 'use_ssse3', 'use_arm_ce', 'use_ppc_crypto'
+	and 'use_ppc9le_crypto'.
+	* cipher/rijndael.c (do_setkey): Do not setup 'use_padlock',
+	'use_aesni', 'use_ssse3', 'use_arm_ce', 'use_ppc_crypto' and
+	'use_ppc9le_crypto'.
+
+	Define HW-feature flags per architecture.
+	+ commit 8d404a629167d67ed56e45de3e65d1e0b7cdeb24
+	* random/rand-internal.h (_gcry_rndhw_poll_slow): Add requested length
+	parameter.
+	* random/rndhw.c (_gcry_rndhw_poll_slow): Limit accounted bytes to 50%
+	(or 25% for RDRAND) - this code is moved from caller side.
+	* random/rndlinux.c (_gcry_rndlinux_gather_random): Move
+	HWF_INTEL_RDRAND check to _gcry_rndhw_poll_slow.
+	* src/g10lib.h (HWF_PADLOCK_*, HWF_INTEL_*): Define only if
+	HAVE_CPU_ARCH_X86.
+	(HWF_ARM_*): Define only if HAVE_CPU_ARCH_ARM.
+	(HWF_PPC_*): Define only if HAVE_CPU_ARCH_PPC.
+	(HWF_S390X_*): Define only if HAVE_CPU_ARCH_S390X.
+
+	Add configure option to force enable 'soft' HW feature bits.
+	+ commit 3b34bd6e178614d6021ee7d1140646f7c8ed7519
+	* configure.ac (force_soft_hwfeatures)
+	(ENABLE_FORCE_SOFT_HWFEATURES): New.
+	* src/hwf-x86.c (detect_x86_gnuc): Enable HWF_INTEL_FAST_SHLD
+	and HWF_INTEL_FAST_VPGATHER if ENABLE_FORCE_SOFT_HWFEATURES enabled.
+
+2021-01-26  NIIBE Yutaka  <gniibe@fsij.org>
+
+	ecc: Fix Ed25519 private key handling for preceding ZEROs.
+	+ commit 1b74f633bd3e358fb07a856a70597019980651d2
+	* cipher/ecc-curves.c (mpi_ec_setup_elliptic_curve): Fill-up or remove
+	preceding ZEROs correctly, fixing the third argument of mpi_set_opaque.
+
+	ecc: Fix initialization of CTX for sign and verify.
+	+ commit 652b102697cbfe2d7bc642fc7374cb21a9cf03e6
+	* cipher/ecc.c (ecc_sign, ecc_verify): Call
+	_gcry_pk_util_init_encoding_ctx at first.
+
+2021-01-21  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Fix build of tests with non-default installation.
+	+ commit fa3420b011c105ca21894489e62c7e882a3ac4dd
+	* tests/Makefile.am: Add forgotten @LDADD_FOR_TESTS_KLUDGE@.
+
+2021-01-20  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	Split inline assembly blocks with many memory operands.
+	+ commit 00df9f27181d77166ceb55f319329400bf2e6a48
+	* cipher/rijndael-aesni.c (aesni_ocb_checksum, aesni_ocb_enc)
+	(aesni_ocb_dec, _gcry_aes_aesni_ocb_auth): Split assembly blocks
+	with more than 4 memory operands to smaller blocks.
+	* cipher/sha512-ssse3-i386.c (W2): Split big assembly block to
+	three smaller blocks.
+
+	tests/basic: fix build on ARM32 when NEON disabled.
+	+ commit 81354e911bfa3e135d3e07f6a8d9e98033cd921a
+	* tests/basic.c (CLUTTER_VECTOR_REGISTER_NEON)
+	(CLUTTER_VECTOR_REGISTER_AARCH64): Remove check for __ARM_FEATURE_SIMD32.
+
+	kdf: make self-test test-vector array read-only.
+	+ commit 097148bc89ec8c18b9e4795733e0f0b1ae0ecd1d
+	* cipher/kdf.c (selftest_pbkdf2): Make 'tv[]' constant.
+
+	kdf: add missing null-terminator for self-test test-vector array.
+	+ commit c6425a5537294dfe2beaafc9105f7af4ceac677f
+	* cipher/kdf.c (selftest_pbkdf2): Add null-terminator to TV array.
+
+	cipher/bithelp: use __builtin_ctzl when available.
+	+ commit 807827cda3bacf5f475167ee6d34657713111838
+	* cipher/bithelp.h (_gcry_ctz64): Use __builtin_ctzl if available.
+
+	mpi/longlong: make use of compiler provided __builtin_ctz/__builtin_clz.
+	+ commit 477355047e5c75ad2b2238a8716e4646b861184c
+	* configure.ac (gcry_cv_have_builtin_ctzl, gcry_cv_have_builtin_clz)
+	(gcry_cv_have_builtin_clzl): New checks.
+	* mpi/longlong.h (count_leading_zeros, count_trailing_zeros): Use
+	__buildin_clz[l]/__builtin_ctz[l] if available and bit counting
+	macros not yet provided by inline assembly.
+
 2021-01-19  Werner Koch  <wk@gnupg.org>
 
 	Release 1.9.0.
 	+ commit 0dc49af9b5371c5e2f766b70c3bede2b10db9f7e
 
+
+2021-01-19  NIIBE Yutaka  <gniibe@fsij.org>
+
+	Fix DSA for FIPS 186-3.
+	+ commit 30ed9593f632c728d918598037358deaeccd1968
+	* cipher/dsa.c (generate_fips186): Supply INITIAL_SEED to
+	_gcry_generate_fips186_3_prime.
+	* tests/fips186-dsa.c (check_dsa_gen_186_2): Add where tv comes from.
+	(check_dsa_gen_186_3): Implement tests.
+	* tests/pubkey.c (get_dsa_key_fips186_with_seed_new): Use the qbits
+	and seed of tests/fips186-dsa.c.
+
+2021-01-19  NIIBE Yutaka  <gniibe@fsij.org>
+	    Tomáš Mráz  <tm@t8m.info>
+
+	Check if FIPS is operational and error return if not.
+	+ commit ebeae53222648c637907f4b358888fc0e7123dc9
+	* src/visibility.c (gcry_kdf_derive): Add the check.
+	(gcry_prime_generate, gcry_prime_group_generator): Likewise.
+	(gcry_mpi_randomize): Likewise, but no return.
 
 2021-01-18  Werner Koch  <wk@gnupg.org>
 
@@ -49,6 +270,57 @@
 	+ commit 3fe7036d05f283df9441d42242f0047b6ea11a32
 	* cipher/ecc-curves.c (_gcry_ecc_get_curve): Flatten.
 
+2020-12-30  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	Add s390x/zSeries implementation of Poly1305.
+	+ commit 1f75681cbba895ea2f7ea0637900721f4522e729
+	* cipher/Makefile.am: Add 'poly1305-s390x.S' and
+	'asm-poly1305-s390x.h'.
+	* cipher/asm-poly1305-s390x.h: New
+	* cipher/chacha20-s390x.S (_gcry_chacha20_poly1305_s390x_vx_blocks8)
+	(_gcry_chacha20_poly1305_s390x_vx_blocks4_2_1): New, stitched
+	chacha20-poly1305 implementation.
+	* cipher/chacha20.c (USE_S390X_VX_POLY1305): New.
+	(_gcry_chacha20_poly1305_s390x_vx_blocks8)
+	(_gcry_chacha20_poly1305_s390x_vx_blocks4_2_1): New prototypes.
+	(_gcry_chacha20_poly1305_encrypt, _gcry_chacha20_poly1305_decrypt): Add
+	s390x/VX stitched chacha20-poly1305 code-path.
+	* cipher/poly1305-s390x.S: New.
+	* cipher/poly1305.c (USE_S390X_ASM, HAVE_ASM_POLY1305_BLOCKS): New.
+	[USE_S390X_ASM] (_gcry_poly1305_s390x_blocks1, poly1305_blocks): New.
+	* configure.ac (gcry_cv_gcc_inline_asm_s390x): Check for 'risbgn' and
+	'algrk' instructions.
+	* tests/basic.c (_check_poly1305_cipher): Add large chacha20-poly1305
+	test vector.
+
+	Add s390x/zSeries implementation of ChaCha20.
+	+ commit 6a0bb9ab7f886087d7edb0725c90485086a1c0b4
+	* cipher/Makefile.am: Add 'asm-common-s390x.h' and 'chacha20-s390x.S'.
+	* cipher/asm-common-s390x.h: New.
+	* cipher/chacha20-s390x.S: New.
+	* cipher/chacha20.c (USE_S390X_VX): New.
+	(CHACHA20_context_t): Change 'use_*' bit-field to unsigned type; Add
+	'use_s390x'.
+	(_gcry_chacha20_s390x_vx_blocks8)
+	(_gcry_chacha20_s390x_vx_blocks4_2_1): New.
+	(chacha20_do_setkey): Add HW feature detect for s390x/VX.
+	(chacha20_blocks, do_chacha20_encrypt_stream_tail): Add s390x/VX
+	code-path.
+	* configure.ac: Add 'chacha20-s390x.lo'.
+
+	hwf-s390x: add VX vector instruction set detection.
+	+ commit 1d13794780e3d052cd5ed6f900bf5900cf44b377
+	* configure.ac (gcry_cv_gcc_inline_asm_s390x_vx): New check.
+	* src/g10lib.h (HWF_S390X_VX): New.
+	* src/hwf-s390x.c (HWCAP_S390_VXRS): New.
+	(s390x_features) [HAVE_GCC_INLINE_ASM_S390X_VX]: Add VX feature check.
+	* src/hwfeatures.c (hwlist): Add "s390x-vx".
+
+	mpi/longlong: add s390x/zSeries macros.
+	+ commit 0252cc9b62dfe20c77211f093b4fda54786177d3
+	* mpi/longlong.h [__s390x__] (add_ssaaaa, sub_ddmmss, UTItype)
+	(umul_ppmm, udiv_qrnnd): New.
+
 2020-12-22  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
 
 	hwf-arm: fix incorrect HWCAP2 for SHA1 and SHA2 on AArch32.
@@ -70,6 +342,114 @@
 	* cipher/mac-hmac.c: ... here.
 
 2020-12-18  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	Add s390x/zSeries acceleration for SHA3.
+	+ commit 7532e27cacb74c92fd561524a0897163b0fcd7f4
+	* cipher/asm-inline-s390x.h (KLMD_PADDING_STATE): New.
+	(kimd_execute): Change 'reg0' from read-only to read/write.
+	(klmd_shake_execute): New.
+	* cipher/keccak.c (USE_S390X_CRYPTO): New.
+	(KECCAK_CONTEXT) [USE_S390X_CRYPTO]: New members.
+	[USE_S390X_CRYPTO] (keccak_bwrite_s390x, keccak_final_s390x)
+	(keccak_bextract_s390x, keccak_write_s390x, keccak_extract_s390x): New.
+	(keccak_write) [USE_S390X_CRYPTO]: Use accelerated function if enabled.
+	(keccak_final) [USE_S390X_CRYPTO]: Likewise.
+	(keccak_extract) [USE_S390X_CRYPTO]: Likewise.
+	(keccak_init) [USE_S390X_CRYPTO]: Detect and setup zSeries
+	acceleration.
+
+	Add s390x/zSeries acceleration for SHA512.
+	+ commit 45f0ec0c4e3b08627cbf7e65f5f110c321710d01
+	* cipher/sha512.c (USE_S390X_CRYPTO): New.
+	(SHA512_CONTEXT) [USE_S390X_CRYPTO]: New members.
+	(do_sha512_transform_s390x, do_sha512_final_s390x): New.
+	(sha512_init_common) [USE_S390X_CRYPTO]: Detect and setup s390x/zSeries
+	acceleration.
+	(sha512_final) [USE_S390X_CRYPTO]: Use accelerated final function.
+
+	Add s390x/zSeries acceleration for SHA256.
+	+ commit 0b555c3cc7c2b80ec2628685946a6139a1996911
+	* cipher/sha256.c (USE_S390X_CRYPTO): New.
+	(SHA256_CONTEXT) [USE_S390X_CRYPTO]: New members.
+	(do_sha256_transform_s390x, do_sha256_final_s390x): New.
+	(sha256_common_init) [USE_S390X_CRYPTO]: Detect and setup s390x/zSeries
+	acceleration.
+	(sha256_final) [USE_S390X_CRYPTO]: Use accelerated final function.
+
+	Add s390x/zSeries acceleration for SHA1.
+	+ commit 88570515b4ca92a44c4e40c31f877c11cc00ab68
+	* cipher/asm-inline-s390x.h (ALWAYS_INLINE): New.
+	(klmd_query): New.
+	(km_function_to_mask, kimd_execute, klmd_execute): Mark as always
+	inline.
+	* cipher/rijndael-s390x.c (ALWAYS_INLINE): Remove.
+	* cipher/sha1.c (do_sha1_transform_s390x, do_sha1_final_s390x): New.
+	(sha1_init) [SHA1_USE_S390X_CRYPTO]: Detect and setup s390x/zSeries
+	acceleration.
+	(sha1_final) [SHA1_USE_S390X_CRYPTO]: Use accelerated final function.
+	* cipher/sha1.h (SHA1_USE_S390X_CRYPTO): New.
+	(SHA1_CONTEXT) [SHA1_USE_S390X_CRYPTO]: New.
+
+	Add bulk AES-GCM acceleration for s390x/zSeries.
+	+ commit 5aeb091f911398217b2e9facb9bdeb05c63d7844
+	* cipher/Makefile.am: Add 'asm-inline-s390x.h'.
+	* cipher/asm-inline-s390x.h: New.
+	* cipher/cipher-gcm.c [GCM_USE_S390X_CRYPTO] (ghash_s390x_kimd): New.
+	(setupM) [GCM_USE_S390X_CRYPTO]: Add setup for s390x GHASH function.
+	* cipher/cipher-internal.h (GCM_USE_S390X_CRYPTO): New.
+	* cipher/rijndael-s390x.c (u128_t, km_functions_e): Move to
+	'asm-inline-s390x.h'.
+	(aes_s390x_gcm_crypt): New.
+	(_gcry_aes_s390x_setup_acceleration): Use 'km_function_to_mask'; Add
+	setup for GCM bulk function.
+
+	Add bulk function interface for GCM mode.
+	+ commit f4e63e92dc0b79633f48b11d292dd7bdf2752ede
+	* cipher/cipher-gcm.c (do_ghash_buf): Proper handling for the case
+	where 'unused' gets filled to full blocksize.
+	(gcm_crypt_inner): New.
+	(_gcry_cipher_gcm_encrypt, _gcry_cipher_gcm_decrypt): Use
+	'gcm_crypt_inner'.
+	* cipher/cipher-internal.h (cipher_bulk_ops_t): Add 'gcm_crypt'.
+
+	Add s390x/zSeries acceleration for AES.
+	+ commit 9219d9d1b60c01a4c7dbde05ee6b5b52e0d7d072
+	* configure.ac: Add 'rijndael-s390x.lo'.
+	* cipher/Makefile.am: Add 'rijndael-s390x.c'.
+	* cipher/rijndael-internal.c (USE_S390X_CRYPTO): New.
+	(RIJNDAEL_context_s) [USE_S390X_CRYPTO]: New 'km*_func' members.
+	* cipher/rijndael-s390x.c: New.
+	* cipher/rijndael.c (_gcry_aes_s390x_setup_acceleration)
+	(_gcry_aes_s390x_setup_setkey)
+	(_gcry_aes_s390x_setup_prepare_decryption, _gcry_aes_s390x_encrypt)
+	(_gcry_aes_s390x_decrypt): New.
+	(do_setkey) [USE_S390X_CRYPTO]: Add s390x acceleration setup.
+
+	Add bulk function interface for OFB mode.
+	+ commit f12b6788f2297391265af93a7794bfbc503de6d7
+	* cipher/cipher-internal.h (cipher_bulk_ops): Add 'ofb_enc'.
+	* cipher/cipher-ofb.c (_gcry_cipher_ofb_encrypt): Use bulk encryption
+	function if defined.
+	* cipher/basic.c (check_bulk_cipher_modes): Add OFB-AES test vectors.
+
+	hwf: add detection of s390x/zSeries hardware features.
+	+ commit 128054767d5f864798a39d432997f7d38c4bf729
+	* configure.ac (gcry_cv_gcc_inline_asm_s390x)
+	(HAVE_CPU_ARCH_S390X): Add s390x detection support.
+	* mpi/config.links: Add setup for s390x links.
+	* src/Makefile.am: Add 'hwf-s390x.c'.
+	* src/g10lib.h (HWF_S390X_MSA, HWF_S390X_MSA_4, HWF_S390X_8): New.
+	* src/hwf_common.h (_gcry_hwf_detect_s390x): New.
+	* src/hwf-s390x.c: New.
+	* src/hwfeatures.c: Add "s390x-msa", "s390x-msa-4" and "s390x-msa-8".
+
+	tests/bench-slope: use same benchmarking for XTS as for other modes.
+	+ commit 0e37bb32e215feb4716341f7053c4f54806645cb
+	* tests/bench-slope.c (bench_xts_encrypt_init): Use same buffer
+	sizes as other tests.
+	(bench_xts_encrypt_do_bench, bench_xts_decrypt_do_bench): Remove.
+	(xts_encrypt_ops): Use 'bench_encrypt_do_bench'.
+	(xts_decrypt_ops): Use 'bench_decrypt_do_bench'.
 
 	aarch64: mpi/longlong.h: fix operand size mismatch.
 	+ commit c59b5b03a063ebc73935dbb10bc4f568faddbedf

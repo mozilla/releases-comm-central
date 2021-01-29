@@ -32,6 +32,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#if defined(__APPLE__) && defined(__MACH__)
+extern int getentropy (void *buf, size_t buflen) __attribute__ ((weak_import));
+#define HAVE_GETENTROPY
+#endif
 #if defined(__linux__) || !defined(HAVE_GETENTROPY)
 #ifdef HAVE_SYSCALL
 # include <sys/syscall.h>
@@ -186,19 +190,10 @@ _gcry_rndlinux_gather_random (void (*add)(const void*, size_t,
     }
 
 
-  /* First read from a hardware source.  However let it account only
-     for up to 50% (or 25% for RDRAND) of the requested bytes.  */
-  n_hw = _gcry_rndhw_poll_slow (add, origin);
-  if ((_gcry_get_hw_features () & HWF_INTEL_RDRAND))
-    {
-      if (n_hw > length/4)
-        n_hw = length/4;
-    }
-  else
-    {
-      if (n_hw > length/2)
-        n_hw = length/2;
-    }
+  /* First read from a hardware source.  Note that _gcry_rndhw_poll_slow lets
+     it account only for up to 50% (or 25% for RDRAND) of the requested
+     bytes.  */
+  n_hw = _gcry_rndhw_poll_slow (add, origin, length);
   if (length > 1)
     length -= n_hw;
 
@@ -260,6 +255,9 @@ _gcry_rndlinux_gather_random (void (*add)(const void*, size_t,
        * not been properly seeded.  And it differs from /dev/random by never
        * blocking once the kernel is seeded.  */
 #if defined(HAVE_GETENTROPY) || defined(__NR_getrandom)
+#if defined(__APPLE__) && defined(__MACH__)
+      if (&getentropy != NULL)
+#endif
         {
           long ret;
           size_t nbytes;

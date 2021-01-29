@@ -39,6 +39,9 @@
 /* Enable support for Intel DRNG (RDRAND instruction). */
 #undef ENABLE_DRNG_SUPPORT
 
+/* Enable forcing 'soft' HW feature bits on (for testing). */
+#undef ENABLE_FORCE_SOFT_HWFEATURES
+
 /* Define to support an HMAC based integrity check */
 #undef ENABLE_HMAC_BINARY_CHECK
 
@@ -84,8 +87,17 @@
 /* Defined if compiler has '__builtin_bswap64' intrinsic */
 #undef HAVE_BUILTIN_BSWAP64
 
+/* Defined if compiler has '__builtin_clz' intrinsic */
+#undef HAVE_BUILTIN_CLZ
+
+/* Defined if compiler has '__builtin_clzl' intrinsic */
+#undef HAVE_BUILTIN_CLZL
+
 /* Defined if compiler has '__builtin_ctz' intrinsic */
 #undef HAVE_BUILTIN_CTZ
+
+/* Defined if compiler has '__builtin_ctzl' intrinsic */
+#undef HAVE_BUILTIN_CTZL
 
 /* Define to 1 if the system has the type `byte'. */
 #undef HAVE_BYTE
@@ -134,6 +146,9 @@
 
 /* Defined for PPC platforms */
 #undef HAVE_CPU_ARCH_PPC
+
+/* Defined for s390x/zSeries platforms */
+#undef HAVE_CPU_ARCH_S390X
 
 /* Defined for SPARC platforms */
 #undef HAVE_CPU_ARCH_SPARC
@@ -240,6 +255,12 @@
 /* Defined if inline assembler supports PowerISA 3.00 instructions */
 #undef HAVE_GCC_INLINE_ASM_PPC_ARCH_3_00
 
+/* Defined if inline assembler supports zSeries instructions */
+#undef HAVE_GCC_INLINE_ASM_S390X
+
+/* Defined if inline assembler supports zSeries vector instructions */
+#undef HAVE_GCC_INLINE_ASM_S390X_VX
+
 /* Defined if inline assembler supports SHA Extensions instructions */
 #undef HAVE_GCC_INLINE_ASM_SHAEXT
 
@@ -303,6 +324,9 @@
 
 /* Define to 1 if you have the `rand' function. */
 #undef HAVE_RAND
+
+/* Define to 1 if you have the <spawn.h> header file. */
+#undef HAVE_SPAWN_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H

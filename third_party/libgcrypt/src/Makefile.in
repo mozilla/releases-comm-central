@@ -239,6 +239,7 @@ am__depfiles_remade = ./$(DEPDIR)/dumpsexp-dumpsexp.Po \
 	./$(DEPDIR)/libgcrypt_la-hmac256.Plo \
 	./$(DEPDIR)/libgcrypt_la-hwf-arm.Plo \
 	./$(DEPDIR)/libgcrypt_la-hwf-ppc.Plo \
+	./$(DEPDIR)/libgcrypt_la-hwf-s390x.Plo \
 	./$(DEPDIR)/libgcrypt_la-hwf-x86.Plo \
 	./$(DEPDIR)/libgcrypt_la-hwfeatures.Plo \
 	./$(DEPDIR)/libgcrypt_la-misc.Plo \
@@ -499,7 +500,7 @@ libgcrypt_la_SOURCES = \
 	hmac256.c hmac256.h context.c context.h \
 	ec-context.h
 
-EXTRA_libgcrypt_la_SOURCES = hwf-x86.c hwf-arm.c hwf-ppc.c
+EXTRA_libgcrypt_la_SOURCES = hwf-x86.c hwf-arm.c hwf-ppc.c hwf-s390x.c
 gcrypt_hwf_modules = @GCRYPT_HWF_MODULES@
 @HAVE_W32_SYSTEM_TRUE@RCCOMPILE = $(RC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 @HAVE_W32_SYSTEM_TRUE@	$(libgcrypt_la_CPPFLAGS) $(AM_CPPFLAGS) $(CPPFLAGS)
@@ -798,6 +799,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hmac256.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hwf-arm.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hwf-ppc.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hwf-s390x.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hwf-x86.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-hwfeatures.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgcrypt_la-misc.Plo@am__quote@ # am--include-marker
@@ -932,6 +934,13 @@ libgcrypt_la-hwf-ppc.lo: hwf-ppc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='hwf-ppc.c' object='libgcrypt_la-hwf-ppc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgcrypt_la_CFLAGS) $(CFLAGS) -c -o libgcrypt_la-hwf-ppc.lo `test -f 'hwf-ppc.c' || echo '$(srcdir)/'`hwf-ppc.c
+
+libgcrypt_la-hwf-s390x.lo: hwf-s390x.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgcrypt_la_CFLAGS) $(CFLAGS) -MT libgcrypt_la-hwf-s390x.lo -MD -MP -MF $(DEPDIR)/libgcrypt_la-hwf-s390x.Tpo -c -o libgcrypt_la-hwf-s390x.lo `test -f 'hwf-s390x.c' || echo '$(srcdir)/'`hwf-s390x.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgcrypt_la-hwf-s390x.Tpo $(DEPDIR)/libgcrypt_la-hwf-s390x.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='hwf-s390x.c' object='libgcrypt_la-hwf-s390x.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgcrypt_la_CFLAGS) $(CFLAGS) -c -o libgcrypt_la-hwf-s390x.lo `test -f 'hwf-s390x.c' || echo '$(srcdir)/'`hwf-s390x.c
 
 dumpsexp-dumpsexp.o: dumpsexp.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(dumpsexp_CFLAGS) $(CFLAGS) -MT dumpsexp-dumpsexp.o -MD -MP -MF $(DEPDIR)/dumpsexp-dumpsexp.Tpo -c -o dumpsexp-dumpsexp.o `test -f 'dumpsexp.c' || echo '$(srcdir)/'`dumpsexp.c
@@ -1199,6 +1208,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hmac256.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-arm.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-ppc.Plo
+	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-s390x.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-x86.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwfeatures.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-misc.Plo
@@ -1265,6 +1275,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hmac256.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-arm.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-ppc.Plo
+	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-s390x.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwf-x86.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-hwfeatures.Plo
 	-rm -f ./$(DEPDIR)/libgcrypt_la-misc.Plo

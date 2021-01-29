@@ -1541,6 +1541,54 @@ extern USItype __udiv_qrnnd ();
 
 
 /***************************************
+ *********** s390x/zSeries  ************
+ ***************************************/
+#if defined (__s390x__) && W_TYPE_SIZE == 64 && __GNUC__ >= 4
+# define add_ssaaaa(sh, sl, ah, al, bh, bl) \
+  __asm__ ("algr %1,%5\n"                                               \
+	   "alcgr %0,%3\n"                                              \
+	   : "=r" ((sh)),                                               \
+	     "=&r" ((sl))                                               \
+	   : "0" ((UDItype)(ah)),                                       \
+	     "r"  ((UDItype)(bh)),                                      \
+	     "1" ((UDItype)(al)),                                       \
+	     "r"  ((UDItype)(bl))                                       \
+	   __CLOBBER_CC)
+# define sub_ddmmss(sh, sl, ah, al, bh, bl) \
+  __asm__ ("slgr %1,%5\n"                                               \
+	   "slbgr %0,%3\n"                                              \
+	   : "=r" ((sh)),                                               \
+	     "=&r" ((sl))                                               \
+	   : "0" ((UDItype)(ah)),                                       \
+	     "r" ((UDItype)(bh)),                                       \
+	     "1" ((UDItype)(al)),                                       \
+	     "r" ((UDItype)(bl))                                        \
+	   __CLOBBER_CC)
+typedef unsigned int UTItype __attribute__ ((mode (TI)));
+#  define umul_ppmm(w1, w0, u, v) \
+  do {                                                                  \
+    UTItype ___r;                                                       \
+    __asm__ ("mlgr %0,%2"                                               \
+	     : "=r" (___r)                                              \
+	     : "0" ((UDItype)(u)),                                      \
+	       "r" ((UDItype)(v)));                                     \
+    (w1) = ___r >> 64;                                                  \
+    (w0) = (UDItype) ___r;                                              \
+  } while (0)
+# define udiv_qrnnd(q, r, n1, n0, d) \
+  do {                                                                  \
+    UTItype ___r = ((UTItype)n1 << 64) | n0;                            \
+    __asm__ ("dlgr %0,%2"                                               \
+	     : "=r" (___r)                                              \
+	     : "0" (___r),                                              \
+	       "r" ((UDItype)(d)));                                     \
+    (r) = ___r >> 64;                                                   \
+    (q) = (UDItype) ___r;                                               \
+  } while (0)
+#endif /* __s390x__ */
+
+
+/***************************************
  *****  End CPU Specific Versions  *****
  ***************************************/
 
@@ -1679,6 +1727,26 @@ extern USItype __udiv_qrnnd ();
 #if !defined (udiv_qrnnd)
 #  define UDIV_NEEDS_NORMALIZATION 1
 #  define udiv_qrnnd __udiv_qrnnd_c
+#endif
+
+#if !defined (count_leading_zeros)
+#  if defined (HAVE_BUILTIN_CLZL) && SIZEOF_UNSIGNED_LONG * 8 == W_TYPE_SIZE
+#    define count_leading_zeros(count, x) (count = __builtin_clzl(x))
+#    undef COUNT_LEADING_ZEROS_0 /* Input X=0 is undefined for the builtin. */
+#  elif defined (HAVE_BUILTIN_CLZ) && SIZEOF_UNSIGNED_INT * 8 == W_TYPE_SIZE
+#    define count_leading_zeros(count, x) (count = __builtin_clz(x))
+#    undef COUNT_LEADING_ZEROS_0 /* Input X=0 is undefined for the builtin. */
+#  endif
+#endif
+
+#if !defined (count_trailing_zeros)
+#  if defined (HAVE_BUILTIN_CTZL) && SIZEOF_UNSIGNED_LONG * 8 == W_TYPE_SIZE
+#    define count_trailing_zeros(count, x) (count = __builtin_ctzl(x))
+#    undef COUNT_LEADING_ZEROS_0 /* Input X=0 is undefined for the builtin. */
+#  elif defined (HAVE_BUILTIN_CTZ) && SIZEOF_UNSIGNED_INT * 8 == W_TYPE_SIZE
+#    define count_trailing_zeros(count, x) (count = __builtin_ctz(x))
+#    undef COUNT_LEADING_ZEROS_0 /* Input X=0 is undefined for the builtin. */
+#  endif
 #endif
 
 #if !defined (count_leading_zeros)

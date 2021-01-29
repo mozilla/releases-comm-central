@@ -1,6 +1,6 @@
-/* asm-common-aarch64.h  -  Common macros for AArch64 assembly
+/* asm-common-s390x.h  -  Common macros for zSeries assembly
  *
- * Copyright (C) 2018 Martin Storsjö <martin@martin.st>
+ * Copyright (C) 2020 Jussi Kivilinna <jussi.kivilinna@iki.fi>
  *
  * This file is part of Libgcrypt.
  *
@@ -18,8 +18,8 @@
  * License along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GCRY_ASM_COMMON_AARCH64_H
-#define GCRY_ASM_COMMON_AARCH64_H
+#ifndef GCRY_ASM_COMMON_S390X_H
+#define GCRY_ASM_COMMON_S390X_H
 
 #include <config.h>
 
@@ -27,20 +27,6 @@
 # define ELF(...) __VA_ARGS__
 #else
 # define ELF(...) /*_*/
-#endif
-
-#ifdef __APPLE__
-#define GET_DATA_POINTER(reg, name) \
-	adrp    reg, name@GOTPAGE ; \
-	add     reg, reg, name@GOTPAGEOFF ;
-#elif defined(_WIN32)
-#define GET_DATA_POINTER(reg, name) \
-	adrp    reg, name ; \
-	add     reg, reg, #:lo12:name ;
-#else
-#define GET_DATA_POINTER(reg, name) \
-	adrp    reg, :got:name ; \
-	ldr     reg, [reg, #:got_lo12:name] ;
 #endif
 
 #ifdef HAVE_GCC_ASM_CFI_DIRECTIVES
@@ -57,7 +43,7 @@
 
 /* CFA expressions are used for pointing CFA and registers to
  * SP relative offsets. */
-# define DW_REGNO_SP 31
+# define DW_REGNO_SP 15
 
 /* Fixed length encoding used for integers for now. */
 # define DW_SLEB128_7BIT(value) \
@@ -72,18 +58,18 @@
 	.cfi_escape \
 	  0x0f, /* DW_CFA_def_cfa_expression */ \
 	    DW_SLEB128_7BIT(11), /* length */ \
-	  0x8f, /* DW_OP_breg31, rsp + constant */ \
+	  0x7f, /* DW_OP_breg15, rsp + constant */ \
 	    DW_SLEB128_28BIT(rsp_offs), \
 	  0x06, /* DW_OP_deref */ \
 	  0x23, /* DW_OP_plus_constu */ \
-	    DW_SLEB128_28BIT((cfa_depth)+8)
+	    DW_SLEB128_28BIT((cfa_depth)+160)
 
 # define CFI_REG_ON_STACK(regno,rsp_offs) \
 	.cfi_escape \
 	  0x10, /* DW_CFA_expression */ \
 	    DW_SLEB128_7BIT(regno), \
 	    DW_SLEB128_7BIT(5), /* length */ \
-	  0x8f, /* DW_OP_breg31, rsp + constant */ \
+	  0x7f, /* DW_OP_breg15, rsp + constant */ \
 	    DW_SLEB128_28BIT(rsp_offs)
 
 #else
@@ -101,4 +87,4 @@
 # define CFI_REG_ON_STACK(reg,rsp_offs)
 #endif
 
-#endif /* GCRY_ASM_COMMON_AARCH64_H */
+#endif /* GCRY_ASM_COMMON_AMD64_H */

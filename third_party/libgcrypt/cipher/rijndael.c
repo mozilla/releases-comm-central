@@ -277,6 +277,24 @@ extern void _gcry_aes_ppc9le_xts_crypt (void *context, unsigned char *tweak,
 					size_t nblocks, int encrypt);
 #endif /*USE_PPC_CRYPTO_WITH_PPC9LE*/
 
+#ifdef USE_S390X_CRYPTO
+/* zSeries crypto implementations of AES */
+extern int _gcry_aes_s390x_setup_acceleration(RIJNDAEL_context *ctx,
+					      unsigned int keylen,
+					      unsigned int hwfeatures,
+					      cipher_bulk_ops_t *bulk_ops);
+extern void _gcry_aes_s390x_setkey(RIJNDAEL_context *ctx, const byte *key);
+extern void _gcry_aes_s390x_prepare_decryption(RIJNDAEL_context *ctx);
+
+extern unsigned int _gcry_aes_s390x_encrypt(const RIJNDAEL_context *ctx,
+					    unsigned char *dst,
+					    const unsigned char *src);
+extern unsigned int _gcry_aes_s390x_decrypt(const RIJNDAEL_context *ctx,
+					    unsigned char *dst,
+					    const unsigned char *src);
+
+#endif /*USE_S390X_CRYPTO*/
+
 static unsigned int do_encrypt (const RIJNDAEL_context *ctx, unsigned char *bx,
                                 const unsigned char *ax);
 static unsigned int do_decrypt (const RIJNDAEL_context *ctx, unsigned char *bx,
@@ -423,24 +441,6 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen,
   hwfeatures = _gcry_get_hw_features ();
 
   ctx->decryption_prepared = 0;
-#ifdef USE_PADLOCK
-  ctx->use_padlock = 0;
-#endif
-#ifdef USE_AESNI
-  ctx->use_aesni = 0;
-#endif
-#ifdef USE_SSSE3
-  ctx->use_ssse3 = 0;
-#endif
-#ifdef USE_ARM_CE
-  ctx->use_arm_ce = 0;
-#endif
-#ifdef USE_PPC_CRYPTO
-  ctx->use_ppc_crypto = 0;
-#endif
-#ifdef USE_PPC_CRYPTO_WITH_PPC9LE
-  ctx->use_ppc9le_crypto = 0;
-#endif
 
   /* Setup default bulk encryption routines.  */
   memset (bulk_ops, 0, sizeof(*bulk_ops));
@@ -468,7 +468,6 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen,
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
       ctx->prepare_decryption = _gcry_aes_aesni_prepare_decryption;
-      ctx->use_aesni = 1;
       ctx->use_avx = !!(hwfeatures & HWF_INTEL_AVX);
       ctx->use_avx2 = !!(hwfeatures & HWF_INTEL_AVX2);
 
@@ -491,7 +490,6 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen,
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
       ctx->prepare_decryption = _gcry_aes_padlock_prepare_decryption;
-      ctx->use_padlock = 1;
       memcpy (ctx->padlockkey, key, keylen);
     }
 #endif
@@ -504,7 +502,6 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen,
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
       ctx->prepare_decryption = _gcry_aes_ssse3_prepare_decryption;
-      ctx->use_ssse3 = 1;
 
       /* Setup SSSE3 bulk encryption routines.  */
       bulk_ops->cfb_enc = _gcry_aes_ssse3_cfb_enc;
@@ -525,7 +522,6 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen,
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
       ctx->prepare_decryption = _gcry_aes_armv8_ce_prepare_decryption;
-      ctx->use_arm_ce = 1;
 
       /* Setup ARM-CE bulk encryption routines.  */
       bulk_ops->cfb_enc = _gcry_aes_armv8_ce_cfb_enc;
@@ -547,8 +543,6 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen,
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
       ctx->prepare_decryption = _gcry_aes_ppc8_prepare_decryption;
-      ctx->use_ppc_crypto = 1; /* same key-setup as USE_PPC_CRYPTO */
-      ctx->use_ppc9le_crypto = 1;
 
       /* Setup PPC9LE bulk encryption routines.  */
       bulk_ops->cfb_enc = _gcry_aes_ppc9le_cfb_enc;
@@ -570,7 +564,6 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen,
       ctx->prefetch_enc_fn = NULL;
       ctx->prefetch_dec_fn = NULL;
       ctx->prepare_decryption = _gcry_aes_ppc8_prepare_decryption;
-      ctx->use_ppc_crypto = 1;
 
       /* Setup PPC8 bulk encryption routines.  */
       bulk_ops->cfb_enc = _gcry_aes_ppc8_cfb_enc;
@@ -581,6 +574,18 @@ do_setkey (RIJNDAEL_context *ctx, const byte *key, const unsigned keylen,
       bulk_ops->ocb_crypt = _gcry_aes_ppc8_ocb_crypt;
       bulk_ops->ocb_auth = _gcry_aes_ppc8_ocb_auth;
       bulk_ops->xts_crypt = _gcry_aes_ppc8_xts_crypt;
+    }
+#endif
+#ifdef USE_S390X_CRYPTO
+  else if (_gcry_aes_s390x_setup_acceleration (ctx, keylen, hwfeatures,
+					       bulk_ops))
+  {
+      hw_setkey = _gcry_aes_s390x_setkey;
+      ctx->encrypt_fn = _gcry_aes_s390x_encrypt;
+      ctx->decrypt_fn = _gcry_aes_s390x_decrypt;
+      ctx->prefetch_enc_fn = NULL;
+      ctx->prefetch_dec_fn = NULL;
+      ctx->prepare_decryption = _gcry_aes_s390x_prepare_decryption;
     }
 #endif
   else

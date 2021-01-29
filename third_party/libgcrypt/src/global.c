@@ -392,6 +392,21 @@ print_config (const char *what, gpgrt_stream_t fp)
       jver = _gcry_rndjent_get_version (&active);
       gpgrt_fprintf (fp, "rng-type:%s:%d:%u:%d:\n", s, i, jver, active);
     }
+
+  if (!what || !strcmp (what, "compliance"))
+    {
+      /* Right now we have no certification for 1.9 so we return an
+       * empty string.  As soon as this version has been approved for
+       * VS-Nfd we will put the string "de-vs" into the second
+       * field. If further specifications are required they are added
+       * as parameters to that field.  Other certifications will go
+       * into field 3 and so on.
+       *  field 1: keyword "compliance"
+       *  field 2: German VS-Nfd is marked with "de-vs"
+       *  field 3: reserved for FIPS.
+       */
+      gpgrt_fprintf (fp, "compliance:%s::\n", "");
+    }
 }
 
 
@@ -453,6 +468,11 @@ _gcry_get_config (int mode, const char *what)
 
 
 
+
+#if _GCRY_GCC_VERSION >= 40200
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wswitch"
+#endif
 
 /* Command dispatcher function, acting as general control
    function.  */
@@ -710,10 +730,6 @@ _gcry_vcontrol (enum gcry_ctl_cmds cmd, va_list arg_ptr)
       rc = _gcry_fips_run_selftests (1);
       break;
 
-#if _GCRY_GCC_VERSION >= 40200
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wswitch"
-#endif
     case PRIV_CTL_INIT_EXTRNG_TEST:  /* Init external random test.  */
       rc = GPG_ERR_NOT_SUPPORTED;
       break;
@@ -738,9 +754,6 @@ _gcry_vcontrol (enum gcry_ctl_cmds cmd, va_list arg_ptr)
     case PRIV_CTL_DUMP_SECMEM_STATS:
       _gcry_secmem_dump_stats (1);
       break;
-#if _GCRY_GCC_VERSION >= 40200
-# pragma GCC diagnostic pop
-#endif
 
     case GCRYCTL_DISABLE_HWF:
       {
@@ -823,6 +836,9 @@ _gcry_vcontrol (enum gcry_ctl_cmds cmd, va_list arg_ptr)
   return rc;
 }
 
+#if _GCRY_GCC_VERSION >= 40200
+# pragma GCC diagnostic pop
+#endif
 
 
 /* Set custom allocation handlers.  This is in general not useful
