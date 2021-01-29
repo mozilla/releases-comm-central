@@ -65,6 +65,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   OS: "resource://gre/modules/osfile.jsm",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
+  SelectionUtils: "resource://gre/modules/SelectionUtils.jsm",
 });
 
 /**
@@ -1883,7 +1884,7 @@ function openEditorContextMenu(popup) {
   // The rest of this block sends menu information to WebExtensions.
   let target = document.popupNode;
 
-  let selectionInfo = BrowserUtils.getSelectionDetails(window);
+  let selectionInfo = SelectionUtils.getSelectionDetails(window);
   let isContentSelected = !selectionInfo.docSelectionIsCollapsed;
   let textSelected = selectionInfo.text;
   let isTextSelected = !!textSelected.length;
