@@ -735,6 +735,7 @@ calMgrCalendarObserver.prototype = {
         "calendar-main-default",
         "readOnly",
         "imip.identity.key",
+        "username",
       ];
       for (let prop of propsToCopy) {
         newCal.setProperty(prop, aCalendar.getProperty(prop));
