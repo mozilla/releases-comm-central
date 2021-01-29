@@ -240,18 +240,6 @@
     }                                              \
   }
 
-//
-// Print Engine...
-//
-#define NS_MSGPRINTENGINE_CONTRACTID "@mozilla.org/messenger/msgPrintEngine;1"
-
-#define NS_MSG_PRINTENGINE_CID                     \
-  {                                                \
-    0x91fd6b19, 0xe0bc, 0x11d3, {                  \
-      0x8f, 0x97, 0x0, 0x0, 0x64, 0x65, 0x73, 0x74 \
-    }                                              \
-  }
-
 #define NS_MSGLOGONREDIRECTORSERVICE_CONTRACTID \
   "@mozilla.org/messenger/msglogonredirector;1"
 

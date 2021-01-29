@@ -2256,9 +2256,7 @@ Enigmail.msg = {
       1,
       messageList,
       statusFeedback,
-      printPreview,
-      Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_MSG,
-      window
+      printPreview
     );
   },
 

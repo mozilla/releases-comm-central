@@ -84,9 +84,6 @@ SOURCES += [
     "Services.cpp",
 ]
 
-if CONFIG["NS_PRINTING"]:
-    SOURCES += ["nsMsgPrintEngine.cpp"]
-
 if CONFIG["OS_ARCH"] == "WINNT":
     SOURCES += ["nsMessengerWinIntegration.cpp"]
 

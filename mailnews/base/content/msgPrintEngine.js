@@ -45,8 +45,6 @@ function PrintEngineCreateGlobals() {
   uriArray = window.arguments[1];
   // argument 2: statusFeedback
   doPrintPreview = window.arguments[3];
-  // argument 4: msgType
-  // argument 5: parentWindow
 }
 
 function addProgressListener() {

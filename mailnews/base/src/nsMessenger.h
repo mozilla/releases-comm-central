@@ -20,6 +20,7 @@
 #include "mozIDOMWindow.h"
 #include "nsTArray.h"
 #include "nsIFolderListener.h"
+#include "nsIMsgStatusFeedback.h"
 
 class nsMessenger : public nsIMessenger,
                     public nsSupportsWeakReference,

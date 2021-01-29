@@ -282,8 +282,7 @@ document.addEventListener("dialogaccept", event => {
       1,
       [printContent],
       statusFeedback,
-      false,
-      0
+      false
     );
 
     let closer = aEvent => {

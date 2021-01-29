@@ -364,7 +364,7 @@ function AbClose() {
   top.close();
 }
 
-function AbPrintCardInternal(doPrintPreview, msgType) {
+function AbPrintCardInternal(doPrintPreview) {
   var selectedItems = GetSelectedAbCards();
   var numSelected = selectedItems.length;
 
@@ -395,24 +395,23 @@ function AbPrintCardInternal(doPrintPreview, msgType) {
     selectionArray.length,
     selectionArray,
     statusFeedback,
-    doPrintPreview,
-    msgType
+    doPrintPreview
   );
 }
 
 function AbPrintCard() {
-  AbPrintCardInternal(false, Ci.nsIMsgPrintEngine.MNAB_PRINT_AB_CARD);
+  AbPrintCardInternal(false);
 }
 
 function AbPrintPreviewCard() {
-  AbPrintCardInternal(true, Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_AB_CARD);
+  AbPrintCardInternal(true);
 }
 
 function CreatePrintCardUrl(card) {
   return "data:application/xml;base64," + card.translateTo("base64xml");
 }
 
-function AbPrintAddressBookInternal(doPrintPreview, msgType) {
+function AbPrintAddressBookInternal(doPrintPreview) {
   let uri = getSelectedDirectoryURI();
   if (!uri) {
     return;
@@ -440,20 +439,16 @@ function AbPrintAddressBookInternal(doPrintPreview, msgType) {
     1,
     [printUrl],
     statusFeedback,
-    doPrintPreview,
-    msgType
+    doPrintPreview
   );
 }
 
 function AbPrintAddressBook() {
-  AbPrintAddressBookInternal(false, Ci.nsIMsgPrintEngine.MNAB_PRINT_ADDRBOOK);
+  AbPrintAddressBookInternal(false);
 }
 
 function AbPrintPreviewAddressBook() {
-  AbPrintAddressBookInternal(
-    true,
-    Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_ADDRBOOK
-  );
+  AbPrintAddressBookInternal(true);
 }
 
 /**

@@ -43,7 +43,6 @@ XPIDL_SOURCES += [
     "nsIMsgMessageService.idl",
     "nsIMsgOfflineManager.idl",
     "nsIMsgPluggableStore.idl",
-    "nsIMsgPrintEngine.idl",
     "nsIMsgProgress.idl",
     "nsIMsgProtocolHandler.idl",
     "nsIMsgProtocolInfo.idl",

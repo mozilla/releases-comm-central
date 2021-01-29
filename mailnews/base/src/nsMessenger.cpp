@@ -33,12 +33,6 @@
 #include "nsLayoutCID.h"
 #include "nsIContentViewer.h"
 
-// embedding
-#ifdef NS_PRINTING
-#  include "nsIWebBrowserPrint.h"
-#  include "nsMsgPrintEngine.h"
-#endif
-
 /* for access to docshell */
 #include "nsPIDOMWindow.h"
 #include "nsIDocShell.h"

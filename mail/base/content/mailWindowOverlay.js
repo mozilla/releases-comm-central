@@ -2736,7 +2736,7 @@ function ToggleInlineAttachment(target) {
   ReloadMessage();
 }
 
-function PrintEnginePrintInternal(doPrintPreview, msgType) {
+function PrintEnginePrintInternal(doPrintPreview) {
   var messageList = gFolderDisplay.selectedMessageUris;
   if (!messageList) {
     dump("PrintEnginePrintInternal(): No messages selected.\n");
@@ -2750,20 +2750,16 @@ function PrintEnginePrintInternal(doPrintPreview, msgType) {
     messageList.length,
     messageList,
     statusFeedback,
-    doPrintPreview,
-    msgType
+    doPrintPreview
   );
 }
 
 function PrintEnginePrint() {
-  return PrintEnginePrintInternal(false, Ci.nsIMsgPrintEngine.MNAB_PRINT_MSG);
+  return PrintEnginePrintInternal(false);
 }
 
 function PrintEnginePrintPreview() {
-  return PrintEnginePrintInternal(
-    true,
-    Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_MSG
-  );
+  return PrintEnginePrintInternal(true);
 }
 
 function IsMailFolderSelected() {
