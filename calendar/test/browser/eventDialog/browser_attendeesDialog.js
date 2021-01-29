@@ -3,8 +3,6 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-Services.prefs.setBoolPref("svg.context-properties.content.enabled", true);
-
 add_task(async () => {
   let manager = cal.getCalendarManager();
   let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
@@ -67,13 +65,22 @@ add_task(async () => {
   let eventEndTime = iframeDocument.getElementById("event-endtime");
   eventEndTime.value = times.THREE_THIRTY;
 
-  function checkListOfAttendees(attendeesDocument, ...expected) {
+  async function checkListOfAttendees(attendeesDocument, ...expected) {
     let attendeesList = attendeesDocument.getElementById("attendee-list");
-    Assert.equal(attendeesList.childElementCount, expected.length + 1);
-    for (let i = 0; i < expected.length; i++) {
-      Assert.equal(attendeesList.children[i].input.value, expected[i]);
-    }
-    Assert.equal(attendeesDocument.activeElement, attendeesList.children[expected.length].input);
+    await TestUtils.waitForCondition(
+      () => attendeesList.childElementCount == expected.length + 1,
+      "empty attendee input should have been added"
+    );
+    Assert.deepEqual(
+      Array.from(attendeesList.children, c => c.input.value),
+      [...expected, ""],
+      "attendees list matches what was expected"
+    );
+    Assert.equal(
+      attendeesDocument.activeElement,
+      attendeesList.children[expected.length].input,
+      "empty attendee input should have focus"
+    );
   }
 
   async function checkFreeBusy(row, count) {
@@ -109,7 +116,7 @@ add_task(async () => {
 
     // Check free/busy of organizer.
 
-    checkListOfAttendees(attendeesDocument, "mochitest@invalid");
+    await checkListOfAttendees(attendeesDocument, "mochitest@invalid");
 
     let organizer = attendeesList.firstElementChild;
     await checkFreeBusy(organizer, 5);
@@ -121,7 +128,7 @@ add_task(async () => {
     EventUtils.sendString("test@invalid", attendeesWindow);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
-    checkListOfAttendees(attendeesDocument, "mochitest@invalid", "test@invalid");
+    await checkListOfAttendees(attendeesDocument, "mochitest@invalid", "test@invalid");
     await checkFreeBusy(attendee, 0);
 
     // Add another attendee, from the address book.
@@ -138,7 +145,7 @@ add_task(async () => {
     Assert.equal(input.popupElement._currentIndex, 1);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
-    checkListOfAttendees(
+    await checkListOfAttendees(
       attendeesDocument,
       "mochitest@invalid",
       "test@invalid",
@@ -159,7 +166,7 @@ add_task(async () => {
     Assert.equal(input.popupElement._currentIndex, 1);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
-    checkListOfAttendees(
+    await checkListOfAttendees(
       attendeesDocument,
       "mochitest@invalid",
       "test@invalid",
@@ -212,7 +219,7 @@ add_task(async () => {
     Assert.equal(attendeesStartTime.value.toISOString(), times.TWO_THIRTY.toISOString());
     Assert.equal(attendeesEndTime.value.toISOString(), times.FOUR.toISOString());
 
-    checkListOfAttendees(
+    await checkListOfAttendees(
       attendeesDocument,
       "mochitest@invalid",
       "test@invalid",
