@@ -425,7 +425,7 @@ SuiteGlue.prototype = {
    * level.
    */
   _migrateUI() {
-    const UI_VERSION = 6;
+    const UI_VERSION = 7;
 
     // If the pref is not set this is a new or pre SeaMonkey 2.49 profile.
     // We can't tell so we just run migration with version 0.
@@ -576,7 +576,7 @@ SuiteGlue.prototype = {
     }
 
     // Update the migration version.
-    Services.prefs.setIntPref("suite.migration.version2", UI_VERSION);
+    Services.prefs.setIntPref("suite.migration.version2", UI_VERSION2);
   },
 
   // Copies additional profile files from the default profile tho the current profile.
