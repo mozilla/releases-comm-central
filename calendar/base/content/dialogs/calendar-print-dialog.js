@@ -251,6 +251,8 @@ function refreshHtml(finishFunc) {
       Cu.reportError("Calendar print dialog:refreshHtml: " + e);
     }
 
+    // eslint-disable-next-line no-unsanitized/property
+    document.getElementById("content").docShell.domWindow.document.body.innerHTML = printContent;
     printContent = "data:text/html," + encodeURIComponent(printContent);
     document.getElementById("content").src = printContent;
 

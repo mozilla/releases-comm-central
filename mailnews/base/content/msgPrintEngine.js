@@ -11,32 +11,70 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
 
 /* globals for a particular window */
-var printEngineContractID = "@mozilla.org/messenger/msgPrintEngine;1";
-var printEngineWindow;
-var printEngine;
 var printSettings = null;
-var printOpener = null;
+var uriArray;
+var doPrintPreview;
+var nextUriIndex = 0;
 
 /* Functions related to startup */
 function OnLoadPrintEngine() {
   PrintEngineCreateGlobals();
   InitPrintEngineWindow();
-  printEngine.startPrintOperation(printSettings);
+
+  addProgressListener();
+  // Load the first URI.
+  loadNext();
 }
 
 function PrintEngineCreateGlobals() {
   // This is needed so that we can handle OPEN_PRINT_BROWSER.
   window.browserDOMWindow = window.opener.browserDOMWindow;
 
-  /* get the print engine instance */
-  printEngine = Cc[printEngineContractID].createInstance();
-  printEngine = printEngine.QueryInterface(Ci.nsIMsgPrintEngine);
   printSettings = PrintUtils.getPrintSettings();
   if (printSettings) {
-    printSettings.isCancelled = false;
+    // Do not show message uri or data uri.
+    printSettings.docURL = " ";
   }
+
+  // argument 0: numSelected
+  uriArray = window.arguments[1];
+  // argument 2: statusFeedback
+  doPrintPreview = window.arguments[3];
+  // argument 4: msgType
+  // argument 5: parentWindow
+}
+
+function addProgressListener() {
+  getSourceBrowser().webProgress.addProgressListener(
+    {
+      loadingStarted: false,
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIWebProgressListener",
+        "nsISupportsWeakReference",
+      ]),
+      onStateChange(progress, request, state, nsresult) {
+        if (state & Ci.nsIWebProgressListener.STATE_START) {
+          this.loadingStarted = true;
+        } else if (state & Ci.nsIWebProgressListener.STATE_STOP) {
+          if (this.loadingStarted) {
+            this.loadingStarted = false;
+            // Start print when an URI is loaded.
+            startPrint();
+          }
+        }
+      },
+    },
+    Ci.nsIWebProgress.NOTIFY_STATE_ALL
+  );
+}
+
+function getSourceBrowser() {
+  return document.getElementById("content");
 }
 
 var PrintPreviewListener = {
@@ -57,16 +95,14 @@ var PrintPreviewListener = {
     }
     return browser;
   },
-  getSourceBrowser() {
-    return document.getElementById("content");
-  },
+  getSourceBrowser,
   getNavToolbox() {
     return document.getElementById("content");
   },
   onEnter() {
     setPPTitle(document.getElementById("content").contentDocument.title);
     document.getElementById("content").collapsed = true;
-    printEngine.showWindow(true);
+    showWindow(true);
   },
   onExit() {
     window.close();
@@ -95,107 +131,117 @@ var gStartupPPObserver = {
   },
 };
 
-function ReplaceWithSelection() {
-  if (!printOpener.content) {
+function InitPrintEngineWindow() {
+  let sourceBrowser = getSourceBrowser();
+  // Register the event listener to be able to replace the document
+  // content with the user selection when loading is finished.
+  if (window.opener.content) {
+    sourceBrowser.addEventListener(
+      "load",
+      () => {
+        var selection = window.opener.content.getSelection();
+
+        if (selection && !selection.isCollapsed) {
+          var range = selection.getRangeAt(0);
+          var contents = range.cloneContents();
+
+          var aBody = window.content.document.querySelector("body");
+
+          /* Replace the content of <body> with the users' selection. */
+          if (aBody) {
+            aBody.innerHTML = "";
+            aBody.appendChild(contents);
+          }
+        }
+      },
+      true
+    );
+  }
+  sourceBrowser.docShell.charset = "UTF-8";
+
+  showWindow(false);
+}
+
+/**
+ * Set the visibility of the current msgPrintEngine.xhtml dialog window.
+ */
+function showWindow(visibility) {
+  window.docShell.treeOwner.QueryInterface(
+    Ci.nsIBaseWindow
+  ).visibility = visibility;
+}
+
+/**
+ * Load a uri into sourceBrowser. When the uri is loaded, onStateChange will be
+ * called.
+ */
+function loadNext() {
+  let uri = uriArray[nextUriIndex++];
+  if (!uri) {
+    window.close();
     return;
   }
 
-  var selection = printOpener.content.getSelection();
-
-  if (selection != "") {
-    var range = selection.getRangeAt(0);
-    var contents = range.cloneContents();
-
-    var aBody = window.content.document.querySelector("body");
-
-    /* Replace the content of <body> with the users' selection. */
-    if (aBody) {
-      aBody.innerHTML = "";
-      aBody.appendChild(contents);
-    }
+  if (
+    (uri.startsWith("data:") ||
+      uri.startsWith("addbook:") ||
+      uri == "about:blank") &&
+    !uri.includes("type=application/x-message-display")
+  ) {
+    // Calendar, address book or other links.
+    MailE10SUtils.loadURI(getSourceBrowser(), uri);
+  } else {
+    // Message uri.
+    let messenger = Cc["@mozilla.org/messenger;1"].getService(Ci.nsIMessenger);
+    let msgSvc = messenger.messageServiceFromURI(uri);
+    let out = {};
+    msgSvc.DisplayMessageForPrinting(
+      uri,
+      getSourceBrowser().docShell,
+      null,
+      null,
+      out
+    );
   }
 }
 
-function InitPrintEngineWindow() {
-  /* Store the current opener for later access in ReplaceWithSelection() */
-  printOpener = opener;
-
-  /* Register the event listener to be able to replace the document
-   * content with the user selection when loading is finished.
-   */
-  document
-    .getElementById("content")
-    .addEventListener("load", ReplaceWithSelection, true);
-
-  /* Tell the nsIPrintEngine object what window is rendering the email */
-  printEngine.setWindow(window);
-
-  /* hide the printEngine window.  see bug #73995 */
-
-  /* See if we got arguments.
-   * Window was opened via window.openDialog.  Copy argument
-   * and perform compose initialization
-   */
-  if (window.arguments && window.arguments[0] != null) {
-    var numSelected = window.arguments[0];
-    var uriArray = window.arguments[1];
-    var statusFeedback = window.arguments[2];
-
-    if (window.arguments[3]) {
-      printEngine.doPrintPreview = window.arguments[3];
-    } else {
-      printEngine.doPrintPreview = false;
-    }
-    printEngine.showWindow(false);
-
-    if (window.arguments.length > 4) {
-      printEngine.setMsgType(window.arguments[4]);
-    } else {
-      printEngine.setMsgType(Ci.nsIMsgPrintEngine.MNAB_START);
-    }
-
-    if (window.arguments.length > 5) {
-      printEngine.setParentWindow(window.arguments[5]);
-    } else {
-      printEngine.setParentWindow(null);
-    }
-
-    printEngine.setStatusFeedback(statusFeedback);
-    printEngine.setStartupPPObserver(gStartupPPObserver);
-
-    if (numSelected > 0) {
-      printEngine.setPrintURICount(numSelected);
-      for (var i = 0; i < numSelected; i++) {
-        printEngine.addPrintURI(uriArray[i]);
+/**
+ * Start print or print preview.
+ */
+async function startPrint() {
+  if (doPrintPreview) {
+    // Print preview.
+    PrintPreviewListener.getPrintPreviewBrowser();
+    PrintUtils.printPreview("msgPrintEngine", PrintPreviewListener);
+  } else {
+    // Print.
+    if (nextUriIndex == 1) {
+      // Only show the print dialog for the first URI.
+      try {
+        let svc = Cc[
+          "@mozilla.org/embedcomp/printingprompt-service;1"
+        ].getService(Ci.nsIPrintingPromptService);
+        svc.showPrintDialog(window, printSettings);
+      } catch (e) {
+        if (e.result != Cr.NS_ERROR_ABORT) {
+          // NS_ERROR_ABORT means cancelled by user.
+          console.error(e);
+        }
+        window.close();
+        return;
       }
     }
+    printSettings.printSilent = true;
+    try {
+      await PrintUtils.printWindow(
+        getSourceBrowser().browsingContext,
+        printSettings
+      );
+    } catch (e) {
+      console.error(e);
+      window.close();
+      return;
+    }
+    loadNext();
   }
-}
-
-function ClearPrintEnginePane() {
-  if (window.frames.content.location.href != "about:blank") {
-    window.frames.content.location.href = "about:blank";
-  }
-}
-
-function StopUrls() {
-  printEngine.stopUrls();
-}
-
-function PrintEnginePrint() {
-  printEngineWindow = window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xhtml",
-    "",
-    "chrome,dialog=no,all,centerscreen",
-    false
-  );
-}
-
-function PrintEnginePrintPreview() {
-  printEngineWindow = window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xhtml",
-    "",
-    "chrome,dialog=no,all,centerscreen",
-    true
-  );
 }
