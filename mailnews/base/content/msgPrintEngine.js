@@ -77,6 +77,8 @@ function getSourceBrowser() {
 
 var PrintPreviewListener = {
   getPrintPreviewBrowser() {
+    var sourceBrowser = getSourceBrowser();
+    var remoteType = sourceBrowser.remoteType;
     var browser = document.getElementById("ppBrowser");
     if (!browser) {
       browser = document.createXULElement("browser");
@@ -89,6 +91,10 @@ var PrintPreviewListener = {
         "initialBrowsingContextGroupId",
         this.getSourceBrowser().browsingContext.group.id
       );
+      if (remoteType) {
+        browser.setAttribute("remote", "true");
+        browser.setAttribute("remoteType", remoteType);
+      }
       document.documentElement.appendChild(browser);
     }
     return browser;
@@ -98,8 +104,9 @@ var PrintPreviewListener = {
     return document.getElementById("content");
   },
   onEnter() {
-    setPPTitle(document.getElementById("content").contentDocument.title);
-    document.getElementById("content").collapsed = true;
+    let sourceBrowser = getSourceBrowser();
+    setPPTitle(sourceBrowser.browsingContext.currentWindowGlobal.documentTitle);
+    sourceBrowser.collapsed = true;
     showWindow(true);
   },
   onExit() {
@@ -117,17 +124,6 @@ function setPPTitle(aTitle) {
   }
   document.title = title;
 }
-
-// Pref listener constants
-var gStartupPPObserver = {
-  observe(subject, topic, prefName) {
-    // Ensure ppBrowser exists first. Without this, there is a timing issue and
-    // printUtils.js won't be able to send message to PrintingChild.jsm.
-    PrintPreviewListener.getPrintPreviewBrowser();
-
-    PrintUtils.printPreview("msgPrintEngine", PrintPreviewListener);
-  },
-};
 
 function InitPrintEngineWindow() {
   let sourceBrowser = getSourceBrowser();
@@ -182,7 +178,7 @@ function loadNext() {
 
   if (
     (uri.startsWith("data:") ||
-      uri.startsWith("addbook:") ||
+      uri.startsWith("blob:") ||
       uri == "about:blank") &&
     !uri.includes("type=application/x-message-display")
   ) {

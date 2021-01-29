@@ -108,6 +108,9 @@ function GetAbViewListener() {
 // we won't show the window until the onload() handler is finished
 // so we do this trick (suggested by hyatt / blaker)
 function OnLoadAddressBook() {
+  // Needed for printing.
+  window.browserDOMWindow = window.opener.browserDOMWindow;
+
   // Set a sane starting width/height for all resolutions on new profiles.
   // Do this before the window loads.
   if (!document.documentElement.hasAttribute("width")) {
@@ -411,33 +414,68 @@ function CreatePrintCardUrl(card) {
   return "data:application/xml;base64," + card.translateTo("base64xml");
 }
 
-function AbPrintAddressBookInternal(doPrintPreview) {
-  let uri = getSelectedDirectoryURI();
-  if (!uri) {
-    return;
+function buildDirectoryXML(directory) {
+  let title = gAddressBookBundle.getString("addressBook");
+  let output = `<?xml version="1.0"?>
+<?xml-stylesheet type="text/css" href="chrome://messagebody/content/addressbook/print.css"?>
+<directory>
+  <title xmlns="http://www.w3.org/1999/xhtml">${title}</title>\n`;
+
+  let collator = new Intl.Collator(undefined, { numeric: true });
+  let nameFormat = Services.prefs.getIntPref("mail.addr_book.lastnamefirst", 0);
+
+  let cards;
+  if (directory) {
+    cards = [...directory.childCards];
+  } else {
+    cards = [];
+    for (let directory of MailServices.ab.directories) {
+      cards = cards.concat([...directory.childCards]);
+    }
+  }
+  cards.sort((a, b) => {
+    let aName = a.generateName(nameFormat);
+    let bName = b.generateName(nameFormat);
+    return collator.compare(aName, bName);
+  });
+
+  for (let card of cards) {
+    if (card.isMailList) {
+      continue;
+    }
+
+    let xml = card.translateTo("xml");
+    output += `<separator/>\n${xml}\n<separator/>\n`;
   }
 
-  var statusFeedback;
+  output += "</directory>\n";
+  return output;
+}
+
+function AbPrintAddressBookInternal(doPrintPreview) {
+  let printXML;
+
+  let uri = getSelectedDirectoryURI();
+  if (!uri || uri == "moz-abdirectory://?") {
+    printXML = buildDirectoryXML();
+  } else {
+    printXML = buildDirectoryXML(getSelectedDirectory());
+  }
+
+  let printURL = URL.createObjectURL(new File([printXML], "text/xml"));
+
+  let statusFeedback;
   statusFeedback = Cc[
     "@mozilla.org/messenger/statusfeedback;1"
   ].createInstance();
   statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
-
-  /*
-    turn "jsaddrbook://abook.sqlite" into
-    "addbook://jsaddrbook/abook.sqlite?action=print"
-   */
-
-  var abURIArr = uri.split("://");
-  var printUrl =
-    "addbook://" + abURIArr[0] + "/" + abURIArr[1] + "?action=print";
 
   window.openDialog(
     "chrome://messenger/content/msgPrintEngine.xhtml",
     "",
     "chrome,dialog=no,all",
     1,
-    [printUrl],
+    [printURL],
     statusFeedback,
     doPrintPreview
   );

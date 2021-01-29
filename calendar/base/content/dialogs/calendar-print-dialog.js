@@ -9,6 +9,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { MailE10SUtils } = ChromeUtils.import("resource:///modules/MailE10SUtils.jsm");
 
 var printContent = "";
 
@@ -251,10 +252,8 @@ function refreshHtml(finishFunc) {
       Cu.reportError("Calendar print dialog:refreshHtml: " + e);
     }
 
-    // eslint-disable-next-line no-unsanitized/property
-    document.getElementById("content").docShell.domWindow.document.body.innerHTML = printContent;
     printContent = "data:text/html," + encodeURIComponent(printContent);
-    document.getElementById("content").src = printContent;
+    MailE10SUtils.loadURI(document.getElementById("content"), printContent);
 
     if (finishFunc) {
       finishFunc();
@@ -267,10 +266,6 @@ function refreshHtml(finishFunc) {
  */
 document.addEventListener("dialogaccept", event => {
   refreshHtml(() => {
-    let printSettings = PrintUtils.getPrintSettings();
-    // Evicts "about:blank" header
-    printSettings.docURL = " ";
-
     // we don't do anything with statusFeedback, msgPrintEngine requires it
     let statusFeedback = Cc["@mozilla.org/messenger/statusfeedback;1"].createInstance();
     statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);

@@ -14,7 +14,9 @@ class ContextMenuParent extends JSWindowActorParent {
     let browser = this.manager.rootFrameLoader.ownerElement;
     let win = browser.ownerGlobal;
 
-    win.openContextMenu(message, browser, this);
+    if ("openContextMenu" in win) {
+      win.openContextMenu(message, browser, this);
+    }
   }
 
   hiding() {
