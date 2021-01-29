@@ -81,4 +81,37 @@ XPCOMUtils.defineLazyModuleGetters(this, {
     }
     return _getScreenshotUrlForAddon(addon);
   };
+
+  // Override parts of the addon-permission-list customElement to be able
+  // to show the usage of Experiments in the permission list.
+  await customElements.whenDefined("addon-permissions-list");
+  AddonPermissionsList.prototype.setAddon = function(addon) {
+    this.addon = addon;
+    let extension = ExtensionParent.GlobalManager.getExtension(addon.id);
+    if (extension.manifest.experiment_apis) {
+      this.renderExperimentOnly();
+    } else {
+      this.render();
+    }
+  };
+  AddonPermissionsList.prototype.renderExperimentOnly = function() {
+    let appName = brandBundle.GetStringFromName("brandShortName");
+
+    this.textContent = "";
+    let frag = importTemplate("addon-permissions-list");
+    let section = frag.querySelector(".addon-permissions-required");
+    section.hidden = false;
+    let list = section.querySelector(".addon-permissions-list");
+
+    let msg = browserBundle.formatStringFromName(
+      "webextPerms.description.experiment",
+      [appName]
+    );
+    let item = document.createElement("li");
+    item.classList.add("permission-info", "permission-checked");
+    item.appendChild(document.createTextNode(msg));
+    list.appendChild(item);
+
+    this.appendChild(frag);
+  };
 })();
