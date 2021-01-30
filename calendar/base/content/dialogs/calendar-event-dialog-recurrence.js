@@ -75,49 +75,41 @@ const RecurrencePreview = {
 
     // Now find out how much elements can be displayed.
     // this is a simple division which always yields a positive integer value.
-    const cWidth = containerWidth % contentWidth;
+    let cWidth = containerWidth % contentWidth;
     let numHorizontal = (containerWidth - cWidth) / contentWidth;
 
     let contentHeight = minimonthRect.height;
     let containerHeight = nodeRect.height;
 
-    const cHeight = containerHeight % contentHeight;
+    let cHeight = containerHeight % contentHeight;
     // Now find out how much elements can be displayed.
     // this is a simple division which always yields a positive integer value.
     let numVertical = (containerHeight - cHeight) / contentHeight;
 
-    // Count the number of existing rows
-    let numRows = 0;
-    let hboxIterator = hbox;
-    while (hboxIterator) {
-      numRows++;
-      hboxIterator = hboxIterator.nextElementSibling;
+    // To cut down on reflows, use a new vbox instead of the live one.
+    let newVbox = document.createXULElement("vbox");
+
+    // Add the existing rows to the fragment.
+    for (let hbox of vbox.children) {
+      newVbox.appendChild(hbox);
     }
 
-    // Adjust rows
-    while (numRows < numVertical) {
-      let newNode = hbox.cloneNode(true);
-      vbox.appendChild(newNode);
-      numRows++;
-    }
-    while (numRows > numVertical) {
-      vbox.firstElementChild.remove();
-      numRows--;
+    // Add the extra rows we can accomodate.
+    for (let i = newVbox.childElementCount; i < numVertical; i++) {
+      newVbox.appendChild(document.createXULElement("hbox"));
     }
 
-    // Walk all rows and adjust column elements
-    hbox = this.node.querySelector("hbox");
-    while (hbox) {
-      let firstElementChild = hbox.firstElementChild;
-      while (hbox.children.length - 1 < numHorizontal) {
-        let newNode = firstElementChild.cloneNode(true);
-        firstElementChild.parentNode.insertBefore(newNode, firstElementChild);
+    // Walk all rows and adjust column elements.
+    for (let hbox of newVbox.children) {
+      for (let i = hbox.childElementCount; i < numHorizontal; i++) {
+        let newNode = document.createXULElement("calendar-minimonth");
+        newNode.setAttribute("readonly", "true");
+        hbox.appendChild(newNode);
       }
-      while (hbox.children.length - 1 > numHorizontal) {
-        hbox.firstElementChild.remove();
-      }
-      hbox = hbox.nextElementSibling;
     }
+
+    // Now replace the current vbox with the new one.
+    vbox.replaceWith(newVbox);
 
     this.updateContent();
     this.updatePreview(this.mRecurrenceInfo);
@@ -129,7 +121,7 @@ const RecurrencePreview = {
     let date = cal.dtz.dateTimeToJsDate(this.dateTime);
     let hbox = this.node.querySelector("hbox");
     while (hbox) {
-      let numChilds = hbox.children.length - 1;
+      let numChilds = hbox.childElementCount;
       for (let i = 0; i < numChilds; i++) {
         let minimonth = hbox.children[i];
         minimonth.showMonth(date);
@@ -160,7 +152,7 @@ const RecurrencePreview = {
     while (hbox) {
       // now iterate all the child nodes of this row
       // in order to visit each minimonth in turn.
-      let numChilds = hbox.children.length - 1;
+      let numChilds = hbox.childElementCount;
       for (let i = 0; i < numChilds; i++) {
         // we now have one of the minimonth controls while 'start'
         // and 'end' are set to the interval this minimonth shows.

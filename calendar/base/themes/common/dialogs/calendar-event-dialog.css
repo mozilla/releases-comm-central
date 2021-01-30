@@ -435,6 +435,8 @@ label.label {
 #preview-border {
   border: none;
   padding: 0;
+  display: flex;
+  -moz-box-flex: 1;
 }
 
 #daypicker-weekday {
