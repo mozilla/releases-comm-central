@@ -251,6 +251,7 @@ case "${_TARGET_OS}" in
         export _TARGET_TRIPLE="i686-pc-linux"
         export CC="clang"
         export CFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
+        export CCASFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
         export LDFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
 
         export AR=llvm-ar
@@ -263,7 +264,6 @@ case "${_TARGET_OS}" in
         LDFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
 
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _GCRYPT_CONF_FLAGS="--disable-asm"
         _CONF_STATIC="--enable-static --disable-shared"
         _TARGET_LIBS='lib/libotr.so.5'
         ;;
