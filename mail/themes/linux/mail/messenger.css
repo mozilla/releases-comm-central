@@ -47,9 +47,6 @@
   --row-grouped-header-bg-color: hsla(0, 0%, 50%, .15);
   --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
                                               hsla(0, 0%, 80%, .6));
-
-  --select-focus-text-color: var(--sidebar-highlight-text-color,
-                             var(--sidebar-text-color));
 }
 
 :root[lwt-tree-brighttext] {
@@ -353,10 +350,6 @@ treechildren::-moz-tree-row {
 
 treechildren::-moz-tree-cell-text {
   padding-inline-start: 5px;
-}
-
-treechildren::-moz-tree-twisty(selected, focus) {
-  color: HighlightText;
 }
 
 /* Status bar */

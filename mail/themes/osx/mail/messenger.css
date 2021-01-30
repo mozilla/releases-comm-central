@@ -53,8 +53,6 @@
   --splitter-color: var(--sidebar-border-color);
   --row-grouped-header-bg-color: hsla(0,0%,50%,.15);
   --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.6));
-
-  --select-focus-text-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 :root[lwt-tree-brighttext] {

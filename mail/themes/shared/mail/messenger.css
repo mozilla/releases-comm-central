@@ -87,6 +87,11 @@ body {
   --urlbar-popup-action-color: hsl(178, 100%, 28%);
 }
 
+:root[lwt-tree] {
+  --select-focus-text-color: var(--sidebar-highlight-text-color,
+                                 var(--sidebar-text-color));
+}
+
 :root[lwt-tree-brighttext] {
   --button-background: #4c4c4e;
   --button-background-hover: #575758;
@@ -184,6 +189,10 @@ treechildren::-moz-tree-row(selected, focus) {
 
 treechildren::-moz-tree-twisty {
   color: #505050;
+}
+
+treechildren::-moz-tree-twisty(selected, focus) {
+  fill: var(--select-focus-text-color);
 }
 
 /* LW theme tree styling */
@@ -700,7 +709,6 @@ html|ul.addon-webext-perm-list:empty {
 }
 
 :root[lwt-tree] treechildren::-moz-tree-image(selected),
-:root[lwt-tree] treechildren::-moz-tree-twisty(selected, focus),
 :root[lwt-tree] #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
 :root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));

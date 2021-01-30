@@ -69,6 +69,9 @@ function addTagToSheet(aKey, aColor, aSheet) {
   let ruleString4 =
     "treechildren::-moz-tree-image(" +
     selector +
+    ", selected, focus)," +
+    "treechildren::-moz-tree-twisty(" +
+    selector +
     ", selected, focus) { --select-focus-text-color: " +
     textColor +
     "; }";
