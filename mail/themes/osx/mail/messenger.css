@@ -243,6 +243,14 @@ treechildren::-moz-tree-cell-text {
   padding-inline-start: 2px;
 }
 
+treechildren::-moz-tree-line {
+  border-color: inherit;
+}
+
+treechildren::-moz-tree-line(selected, focus) {
+  border-color: HighlightText;
+}
+
 /* message column icons */
 
 .treecol-sortdirection {
