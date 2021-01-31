@@ -52,7 +52,7 @@
         <vbox id="detailsBox">
           <vbox id="updateBox">
 #ifdef MOZ_UPDATER
-            <deck id="updateDeck" orient="vertical">
+            <stack id="updateDeck" orient="vertical">
               <hbox id="checkForUpdates" align="center">
                 <button id="checkForUpdatesButton" align="start"
                         label="&update.checkForUpdatesButton.label;"
@@ -103,7 +103,7 @@
               <hbox id="restarting" align="center">
                 <image class="update-throbber"/><label>&update.restarting;</label>
               </hbox>
-            </deck>
+            </stack>
 #endif
           </vbox>
 

@@ -113,6 +113,10 @@ appUpdater.prototype = {
   // true when there is an update check in progress.
   isChecking: false,
 
+  get selectedPanel() {
+    return this.updateDeck.querySelector(".selected");
+  },
+
   // true when there is an update ready to be applied on restart or staged.
   get isPending() {
     if (this.update) {
@@ -226,7 +230,8 @@ appUpdater.prototype = {
           "update.downloadAndInstallButton.accesskey"
         );
       }
-      this.updateDeck.selectedPanel = panel;
+      this.selectedPanel?.classList.remove("selected");
+      panel.classList.add("selected");
       if (
         this.options.buttonAutoFocus &&
         (!document.commandDispatcher.focusedElement || // don't steal the focus
@@ -236,7 +241,8 @@ appUpdater.prototype = {
         button.focus();
       }
     } else {
-      this.updateDeck.selectedPanel = panel;
+      this.selectedPanel?.classList.remove("selected");
+      panel.classList.add("selected");
     }
   },
 

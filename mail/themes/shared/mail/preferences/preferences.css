@@ -424,6 +424,10 @@ html|input.indent {
   white-space: nowrap;
 }
 
+#updateDeck > *:not(.selected) {
+  visibility: hidden;
+}
+
 .update-throbber {
   width: 16px;
   min-height: 16px;

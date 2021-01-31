@@ -730,7 +730,7 @@
         </vbox>
       </hbox>
       <vbox id="updateBox">
-        <deck id="updateDeck" orient="vertical">
+        <stack id="updateDeck" orient="vertical">
           <hbox id="checkForUpdates" align="center">
             <spacer flex="1"/>
             <button is="highlightable-button" id="checkForUpdatesButton"
@@ -810,7 +810,7 @@
           <hbox id="restarting" align="center">
             <image class="update-throbber"/><label>&update.restarting;</label>
           </hbox>
-        </deck>
+        </stack>
       </vbox>
       <separator/>
       <description id="updateAllowDescription" data-l10n-id="allow-description"/>
