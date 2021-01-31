@@ -26,6 +26,10 @@ checkbox.treenode-checkbox {
   font-weight: bold;
 }
 
+checkbox.treenode-checkbox.agenda-checkbox {
+  padding-block: 6px;
+}
+
 checkbox.treenode-checkbox > .checkbox-check {
   appearance: none;
   -moz-box-align: center;
