@@ -2,6 +2,10 @@
 /* vim: set sts=2 sw=2 et tw=80: */
 "use strict";
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+
 let gAccount;
 
 async function testExecuteComposeActionWithOptions(options = {}) {
@@ -18,6 +22,7 @@ async function testExecuteComposeActionWithOptions(options = {}) {
       _execute_compose_action: {
         suggested_key: {
           default: "Alt+Shift+J",
+          mac: "Ctrl+Shift+J",
         },
       },
     },
@@ -99,11 +104,11 @@ async function testExecuteComposeActionWithOptions(options = {}) {
 
   await extension.awaitMessage("send-keys");
   info("Simulating ALT+SHIFT+J");
-  EventUtils.synthesizeKey(
-    "j",
-    { altKey: true, shiftKey: true },
-    composeWindow
-  );
+  let modifiers =
+    AppConstants.platform == "macosx"
+      ? { metaKey: true, shiftKey: true }
+      : { altKey: true, shiftKey: true };
+  EventUtils.synthesizeKey("j", modifiers, composeWindow);
 
   if (options.withPopup) {
     await extension.awaitFinish("execute-compose-action-popup-opened");
