@@ -52,6 +52,10 @@ function OnMailWindowUnload()
   messenger.setWindow(null, null);
 
   msgWindow.closeWindow();
+
+  msgWindow.msgHeaderSink = null;
+  msgWindow.notificationCallbacks = null;
+  gDBView = null;
 }
 
 /**

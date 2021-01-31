@@ -19,6 +19,9 @@ var gSearchBox;
 var gCardViewBox;
 var gCardViewBoxEmail1;
 
+var msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"]
+                  .createInstance(Ci.nsIMsgWindow);
+
 // Constants that correspond to choices
 // in Address Book->View -->Show Name as
 const kDisplayName = 0;
@@ -34,6 +37,8 @@ function OnUnloadAddressBook()
   // Shutdown the tree view - this will also save the open/collapsed
   // state of the tree view to a JSON file.
   gDirectoryTreeView.shutdown(kPersistCollapseMapStorage);
+
+  MailServices.mailSession.RemoveMsgWindow(msgWindow);
 
   CloseAbView();
 }
@@ -96,6 +101,8 @@ function OnLoadAddressBook()
         .getInterface(Ci.nsIWebNavigation)
         .QueryInterface(Ci.nsIDocShell)
         .useErrorPages = false;
+
+  MailServices.mailSession.AddMsgWindow(msgWindow);
 }
 
 function GetCurrentPrefs()
