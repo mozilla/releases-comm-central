@@ -1466,6 +1466,8 @@ function ComposeLoad()
   if (gLogComposePerformance)
     sMsgComposeService.TimeStamp("Start initializing the compose window (ComposeLoad)", false);
 
+  msgWindow.notificationCallbacks = new nsMsgBadCertHandler();
+
   try {
     SetupCommandUpdateHandlers();
     // This will do migration, or create a new account if we need to.
@@ -1521,8 +1523,10 @@ function ComposeUnload()
     gMsgCompose.UnregisterStateListener(stateListener);
   if (gAutoSaveTimeout)
     clearTimeout(gAutoSaveTimeout);
-  if (msgWindow)
+  if (msgWindow) {
     msgWindow.closeWindow();
+    msgWindow.notificationCallbacks = null;
+  }
 
   ReleaseGlobalVariables();
 }
