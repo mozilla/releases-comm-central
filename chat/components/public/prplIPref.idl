@@ -5,6 +5,12 @@
 #include "nsISupports.idl"
 #include "nsISimpleEnumerator.idl"
 
+[scriptable, uuid(8fc16882-ba8e-432a-999f-0d4dc104234b)]
+interface prplIKeyValuePair: nsISupports {
+  readonly attribute AUTF8String name;
+  readonly attribute AUTF8String value;
+};
+
 /*
  * This is a proxy for libpurple PurpleAccountOption
  */
@@ -25,14 +31,9 @@ interface prplIPref: nsISupports {
   long        getInt();
   AUTF8String getString();
   /**
-   * @returns enumerator of prplIKeyValuePair
+   * @returns array of prplIKeyValuePair
    */
-  nsISimpleEnumerator getList();
+  Array<prplIKeyValuePair> getList();
   AUTF8String getListDefault();
 };
 
-[scriptable, uuid(8fc16882-ba8e-432a-999f-0d4dc104234b)]
-interface prplIKeyValuePair: nsISupports {
-  readonly attribute AUTF8String name;
-  readonly attribute AUTF8String value;
-};

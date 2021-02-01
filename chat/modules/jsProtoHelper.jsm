@@ -1047,13 +1047,7 @@ purplePref.prototype = {
   getList() {
     // Convert a JavaScript object map {"value 1": "label 1", ...}
     let keys = Object.keys(this._listValues);
-    if (!keys.length) {
-      return EmptyEnumerator;
-    }
-
-    return new nsSimpleEnumerator(
-      keys.map(key => new purpleKeyValuePair(this._listValues[key], key))
-    );
+    return keys.map(key => new purpleKeyValuePair(this._listValues[key], key));
   },
   getListDefault() {
     return this._defaultValue;
