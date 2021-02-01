@@ -18,6 +18,7 @@ job-defaults:
                 windows.*:
                     - unittests/win_unittest.py
                     - unittests/thunderbird_extra.py
+    python-3: true
 
 gtest:
     description: "GTests run"
