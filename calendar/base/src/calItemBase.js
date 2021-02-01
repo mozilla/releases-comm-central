@@ -56,7 +56,7 @@ calItemBase.prototype = {
     this.wrappedJSObject = this;
     this.mProperties = new Map();
     this.mPropertyParams = {};
-    this.mProperties.set("CREATED", cal.dtz.jsDateToDateTime(new Date()));
+    this.setProperty("CREATED", cal.dtz.jsDateToDateTime(new Date()));
   },
 
   /**
@@ -394,6 +394,9 @@ calItemBase.prototype = {
     aName = aName.toUpperCase();
     if (aValue || !isNaN(parseInt(aValue, 10))) {
       this.mProperties.set(aName, aValue);
+      if (!(aName in this.mPropertyParams)) {
+        this.mPropertyParams[aName] = {};
+      }
     } else {
       this.deleteProperty(aName);
     }
@@ -460,32 +463,13 @@ calItemBase.prototype = {
     return aParamValue;
   },
 
-  // nsISimpleEnumerator getParameterEnumerator(in AString aPropertyName);
-  getParameterEnumerator(aPropName) {
+  // Array<AString> getParameterNames(in AString aPropertyName);
+  getParameterNames(aPropName) {
     let propName = aPropName.toUpperCase();
     if (!(propName in this.mPropertyParams)) {
       throw new Error("Property " + aPropName + " not set");
     }
-    let parameters = this.mPropertyParams[propName];
-    return {
-      // nsISimpleEnumerator
-      QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
-
-      mParamNames: Object.keys(parameters),
-      hasMoreElements() {
-        return this.mParamNames.length > 0;
-      },
-
-      getNext() {
-        let paramName = this.mParamNames.pop();
-        return {
-          // nsIProperty
-          QueryInterface: ChromeUtils.generateQI(["nsIProperty"]),
-          name: paramName,
-          value: parameters[paramName],
-        };
-      },
-    };
+    return Object.keys(this.mPropertyParams[propName]);
   },
 
   // void getAttendees(out PRUint32 count,

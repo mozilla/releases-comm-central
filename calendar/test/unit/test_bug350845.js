@@ -26,23 +26,18 @@ function run_test() {
   equal(event.getPropertyParameter("X-FOO", "X-BAR"), "FNORD");
   notEqual(event.icalString.match(/^X-FOO;X-BAR=FNORD:QUUX$/m), null);
 
-  // Enumerator
+  // Test we can get the parameter names
   throws(() => {
-    event.getParameterEnumerator("X-UNKNOWN");
+    event.getParameterNames("X-UNKNOWN");
   }, /Property X-UNKNOWN not set/);
-
-  // More enumerator
-  let enume = event.getParameterEnumerator("X-FOO");
-  ok(enume.hasMoreElements());
-  let xbar = enume.getNext().QueryInterface(Ci.nsIProperty);
-  equal(xbar.name, "X-BAR");
-  equal(xbar.value, "FNORD");
-  ok(!enume.hasMoreElements());
+  equal(event.getParameterNames("X-FOO").length, 1);
+  ok(event.getParameterNames("X-FOO").includes("X-BAR"));
 
   // Deletion of parameters when deleting properties
   event.deleteProperty("X-FOO");
   ok(!event.hasProperty("X-FOO"));
   event.setProperty("X-FOO", "SNORK");
   equal(event.getProperty("X-FOO"), "SNORK");
+  equal(event.getParameterNames("X-FOO").length, 0);
   equal(event.getPropertyParameter("X-FOO", "X-BAR"), null);
 }

@@ -4,11 +4,8 @@
 
 #include "nsISupports.idl"
 
-interface nsISimpleEnumerator;
 interface nsIJSEnumerator;
 interface nsIVariant;
-
-interface nsIPropertyBag;
 
 interface calIItemACLEntry;
 interface calIAlarm;
@@ -238,12 +235,12 @@ interface calIItemBase : nsISupports
                             in AUTF8String aParameterValue);
 
   /**
-   * Returns a property parameter enumerator for the given property name
+   * Returns the names of all the parameters set on the given property.
    *
-   * @param aPropertyName   The name of the property.
-   * @return                The parameter enumerator.
+   * @param aPropertyName {AString} The name of the property.
+   * @return {Array<AString}        The parameter names.
    */
-  nsISimpleEnumerator getParameterEnumerator(in AString aPropertyName);
+  Array<AString> getParameterNames(in AString aPropertyName);
 
   /**
    * The organizer (originator) of the item.  We will likely not

@@ -7,7 +7,6 @@
 
 interface calIItemBase;
 interface calICalendar;
-interface nsISimpleEnumerator;
 
 /**
  * calIItipItem is an interface used to carry information between the mime

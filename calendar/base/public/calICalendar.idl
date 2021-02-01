@@ -9,7 +9,6 @@
 interface nsIURI;
 interface calIItemBase;
 interface nsIVariant;
-interface nsISimpleEnumerator;
 
 // forward decls for this file
 interface calICalendarACLManager;
