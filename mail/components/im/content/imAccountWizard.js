@@ -48,10 +48,7 @@ var accountWizard = {
     accountWizard.setGetMoreProtocols();
 
     var protoList = document.getElementById("protolist");
-    var protos = [];
-    for (let proto of this.getProtocols()) {
-      protos.push(proto);
-    }
+    var protos = Services.core.getProtocols();
     protos.sort((a, b) => {
       if (a.name < b.name) {
         return -1;
@@ -437,9 +434,6 @@ var accountWizard = {
     for (let iter of aEnumerator) {
       yield iter;
     }
-  },
-  getProtocols() {
-    return this.getIter(Services.core.getProtocols());
   },
   getProtoOptions() {
     return this.getIter(this.proto.getOptions());

@@ -5,12 +5,9 @@
 var EXPORTED_SYMBOLS = ["CoreService"];
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var {
-  XPCOMUtils,
-  ClassInfo,
-  initLogModule,
-  nsSimpleEnumerator,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { XPCOMUtils, ClassInfo, initLogModule } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 
 XPCOMUtils.defineLazyServiceGetter(
   this,
@@ -368,7 +365,7 @@ CoreService.prototype = {
         protocols.push(proto);
       }
     }
-    return new nsSimpleEnumerator(protocols);
+    return protocols;
   },
 
   getProtocolById(aPrplId) {

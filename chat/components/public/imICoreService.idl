@@ -4,7 +4,6 @@
 
 #include "nsISupports.idl"
 #include "imIUserStatusInfo.idl"
-#include "nsISimpleEnumerator.idl"
 #include "prplIProtocol.idl"
 
 [scriptable, uuid(205d4b2b-1ccf-4879-9ef1-f08942566151)]
@@ -20,8 +19,8 @@ interface imICoreService: nsISupports {
   // use the aforementioned services before they are uninitialized.
   void quit();
 
-  // returns an enumerator on a pplIProtocol array
-  nsISimpleEnumerator getProtocols();
+  // Returns the available protocols.
+  Array<prplIProtocol> getProtocols();
 
   prplIProtocol getProtocolById(in AUTF8String aProtocolId);
 
