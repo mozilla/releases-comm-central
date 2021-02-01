@@ -379,6 +379,16 @@ var gFolderTreeView = {
         return modes.indexOf(c) === index;
       });
 
+      // Transition from the pre Thunderbird 86 "*_compact" folder modes.
+      // This might be dropped in the future after the next ESR if deemed safe.
+      modes = modes.map(mode => {
+        if (mode.includes("_compact")) {
+          mode = mode.split("_")[0];
+          this._treeElement.setAttribute("compact", "true");
+        }
+        return mode;
+      });
+
       // Exclude non-existing modes from the activeModes array. This can happen
       // when an extension is removed.
       this._activeModes = modes.filter(mode => mode in this._modes);
