@@ -6307,11 +6307,55 @@ void nsImapProtocol::OnCreateFolder(const char* aSourceMailbox) {
 }
 
 void nsImapProtocol::OnEnsureExistsFolder(const char* aSourceMailbox) {
+  // We need to handle the following edge case where the destination server
+  // wasn't authenticated when the folder name was encoded in
+  // `EnsureFolderExists()'. In this case we always get MUTF-7. Here we are
+  // authenticated and can rely on `m_allowUTF8Accept'. If the folder appears
+  // to be MUTF-7 and we need UTF-8, we re-encode it. If it's not ASCII, it
+  // must be already correct in UTF-8. And if it was ASCII to start with, it
+  // doesn't matter that we MUTF-7 decode and UTF-8 re-encode.
+
+  // `aSourceMailbox' is a path with hierarchy delimiters possibly. To determine
+  // if the edge case is in effect, we only want to check the leaf node for
+  // ASCII and this is only necessary when `m_allowUTF8Accept' is true.
+
+  // `fullPath' is modified below if leaf re-encoding is necessary and it must
+  // be defined here at top level so it stays in scope.
+  nsAutoCString fullPath(aSourceMailbox);
+
+  if (m_allowUTF8Accept) {
+    char onlineDirSeparator = kOnlineHierarchySeparatorUnknown;
+    m_runningUrl->GetOnlineSubDirSeparator(&onlineDirSeparator);
+
+    int32_t leafStart = fullPath.RFindChar(onlineDirSeparator);
+    nsAutoCString leafName;
+    if (leafStart == kNotFound) {
+      // This is a root level mailbox
+      leafName = fullPath;
+      fullPath.SetLength(0);
+    } else {
+      leafName = Substring(fullPath, leafStart + 1);
+      fullPath.SetLength(leafStart + 1);
+    }
+
+    if (NS_IsAscii(leafName.get())) {
+      MOZ_LOG(IMAP, LogLevel::Debug,
+              ("re-encode leaf of mailbox %s to UTF-8", aSourceMailbox));
+      nsAutoString utf16LeafName;
+      CopyMUTF7toUTF16(leafName, utf16LeafName);
+
+      // Convert UTF-16 to UTF-8 to create the folder.
+      nsAutoCString utf8LeafName;
+      CopyUTF16toUTF8(utf16LeafName, utf8LeafName);
+      fullPath.Append(utf8LeafName);
+      aSourceMailbox = fullPath.get();
+      MOZ_LOG(IMAP, LogLevel::Debug,
+              ("re-encoded leaf of mailbox %s to UTF-8", aSourceMailbox));
+    }
+  }
   List(aSourceMailbox, false);  // how to tell if that succeeded?
-  bool exists = false;
 
   // try converting aSourceMailbox to canonical format
-
   nsImapNamespace* nsForMailbox = nullptr;
   m_hostSessionList->GetNamespaceForMailboxForHost(
       GetImapServerKey(), aSourceMailbox, nsForMailbox);
@@ -6326,6 +6370,7 @@ void nsImapProtocol::OnEnsureExistsFolder(const char* aSourceMailbox) {
     m_runningUrl->AllocateCanonicalPath(
         aSourceMailbox, kOnlineHierarchySeparatorUnknown, getter_Copies(name));
 
+  bool exists = false;
   if (m_imapServerSink) m_imapServerSink->FolderVerifiedOnline(name, &exists);
 
   if (exists) {
