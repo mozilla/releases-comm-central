@@ -3075,14 +3075,19 @@ function SetupUndoRedoCommand(command) {
     return false;
   }
 
-  var canUndoOrRedo;
-  var txnType;
-  if (command == "cmd_undo") {
-    canUndoOrRedo = messenger.canUndo();
-    txnType = messenger.getUndoTransactionType();
-  } else {
-    canUndoOrRedo = messenger.canRedo();
-    txnType = messenger.getRedoTransactionType();
+  let canUndoOrRedo = false;
+  let txnType;
+  try {
+    if (command == "cmd_undo") {
+      canUndoOrRedo = messenger.canUndo();
+      txnType = messenger.getUndoTransactionType();
+    } else {
+      canUndoOrRedo = messenger.canRedo();
+      txnType = messenger.getRedoTransactionType();
+    }
+  } catch (ex) {
+    // If this fails, assume we can't undo or redo.
+    Cu.reportError(ex);
   }
 
   if (canUndoOrRedo) {
