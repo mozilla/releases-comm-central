@@ -470,27 +470,13 @@ var gSearchResultsPane = {
         keywordsResult;
     }
 
-    // Should not search unselected child nodes of a <xul:deck> element
-    // except the "historyPane" <xul:deck> element.
-    if (nodeObject.tagName == "deck" && nodeObject.id != "historyPane") {
-      let index = nodeObject.selectedIndex;
-      if (index != -1) {
-        let result = await this.searchChildNodeIfVisible(
-          nodeObject,
-          index,
-          searchPhrase
-        );
-        matchesFound = matchesFound || result;
-      }
-    } else {
-      for (let i = 0; i < nodeObject.childNodes.length; i++) {
-        let result = await this.searchChildNodeIfVisible(
-          nodeObject,
-          i,
-          searchPhrase
-        );
-        matchesFound = matchesFound || result;
-      }
+    for (let i = 0; i < nodeObject.childNodes.length; i++) {
+      let result = await this.searchChildNodeIfVisible(
+        nodeObject,
+        i,
+        searchPhrase
+      );
+      matchesFound = matchesFound || result;
     }
     return matchesFound;
   },

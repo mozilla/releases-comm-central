@@ -236,8 +236,7 @@ label.label {
 #event-grid > tr > td > menulist,
 #event-grid checkbox,
 #event-grid td,
-#event-grid th,
-#event-grid deck {
+#event-grid th {
   margin: 0;
   padding: 0;
   margin-inline-end: 0;
