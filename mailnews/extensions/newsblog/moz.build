@@ -13,4 +13,10 @@ XPCOM_MANIFESTS += [
 ]
 
 JAR_MANIFESTS += ["jar.mn"]
-XPCSHELL_TESTS_MANIFESTS += ["test/unit/xpcshell.ini"]
+
+BROWSER_CHROME_MANIFESTS += [
+    "test/browser/browser.ini",
+]
+XPCSHELL_TESTS_MANIFESTS += [
+    "test/unit/xpcshell.ini",
+]
