@@ -476,7 +476,7 @@ CalDavCalendar.prototype = {
     // Build a string containing the full path, decoded, so it looks like
     // this:
     // /some path/insert string.ics
-    let decodedPath = this.ensureDecodedPath(baseUri.pathQueryRef) + (aInsertString || "");
+    let decodedPath = this.ensureDecodedPath(baseUri.pathQueryRef + (aInsertString || ""));
 
     // Build the nsIURI by specifying a string with a fully encoded path
     // the end result will be something like this:
@@ -628,7 +628,8 @@ CalDavCalendar.prototype = {
           // for instance) so we'd best re-fetch in order to know
           // the current state of the item
           // Observers will be notified in getUpdatedItem()
-          this.safeRefresh();
+          this.getUpdatedItem(parentItem, aListener);
+          return;
         } else if (response.serverError) {
           status = Cr.NS_ERROR_NOT_AVAILABLE;
           detail = "Server Replied with " + response.status;
