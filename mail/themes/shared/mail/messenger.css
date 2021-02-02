@@ -471,13 +471,13 @@ button {
   box-shadow: none;
 }
 
-button:hover {
+button:not([disabled="true"]):hover {
   border-color: var(--button-border-color);
   background-color: var(--button-background-hover);
 }
 
-button[open="true"],
-button:hover:active {
+button:not([disabled="true"])[open="true"],
+button:not([disabled="true"]):hover:active {
   border-color: var(--button-border-color);
   background-color: var(--button-background-active);
 }

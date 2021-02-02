@@ -266,7 +266,7 @@ aside.settings-btn-container {
   box-shadow: 0 5px 20px -5px var(--btn-shadow-hover);
 }
 
-.btn-hub:hover {
+.btn-hub:not([disabled="true"]):hover {
   color: var(--btn-color-hover) !important;
   background-color: var(--btn-bg-hover);
   box-shadow: 0 14px 16px -12px var(--btn-shadow-hover),
