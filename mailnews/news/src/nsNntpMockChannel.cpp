@@ -24,7 +24,8 @@ nsNntpMockChannel::nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow)
       m_protocol(nullptr),
       m_cancelStatus(NS_OK),
       m_loadFlags(0),
-      m_contentLength(-1) {}
+      m_contentLength(-1),
+      m_contentDisposition(nsIChannel::DISPOSITION_INLINE) {}
 
 // For LoadUrl() use.
 nsNntpMockChannel::nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow,
@@ -36,7 +37,8 @@ nsNntpMockChannel::nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow,
       m_protocol(nullptr),
       m_cancelStatus(NS_OK),
       m_loadFlags(0),
-      m_contentLength(-1) {}
+      m_contentLength(-1),
+      m_contentDisposition(nsIChannel::DISPOSITION_INLINE) {}
 
 nsNntpMockChannel::~nsNntpMockChannel() {}
 
@@ -212,12 +214,14 @@ NS_IMETHODIMP nsNntpMockChannel::SetContentCharset(const nsACString& aCharset) {
 
 NS_IMETHODIMP
 nsNntpMockChannel::GetContentDisposition(uint32_t* aContentDisposition) {
-  return NS_ERROR_NOT_AVAILABLE;
+  *aContentDisposition = m_contentDisposition;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNntpMockChannel::SetContentDisposition(uint32_t aContentDisposition) {
-  return NS_ERROR_NOT_AVAILABLE;
+  m_contentDisposition = aContentDisposition;
+  return NS_OK;
 }
 
 NS_IMETHODIMP

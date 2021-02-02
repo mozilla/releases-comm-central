@@ -82,6 +82,7 @@ class nsNntpMockChannel : public nsIChannel, public nsHashPropertyBag {
   nsCString m_contentType;
   nsCString m_contentCharset;
   int64_t m_contentLength;
+  uint32_t m_contentDisposition;
 };
 
 #endif  // nsNntpMockChannel_h___
