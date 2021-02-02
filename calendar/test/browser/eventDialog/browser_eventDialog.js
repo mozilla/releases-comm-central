@@ -256,6 +256,10 @@ add_task(async function testOpenExistingEventDialog() {
     "view"
   );
 
+  eventBox.getNode().focus();
+  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
+  controller.waitForElementNotPresent(eventBox);
+
   Assert.ok(true, "Test ran to completion");
 });
 
@@ -355,7 +359,7 @@ add_task(async function testEventReminderDisplay() {
     "END:VCALENDAR\r\n";
 
   let calendarProxy = cal.async.promisifyCalendar(calendar);
-  await calendarProxy.addItem(new CalEvent(icalString));
+  let calendarEvent = await calendarProxy.addItem(new CalEvent(icalString));
   goToDate(controller, 2020, 3, 1);
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
 
@@ -372,6 +376,10 @@ add_task(async function testEventReminderDisplay() {
     },
     "view"
   );
+
+  // Delete directly, as using the UI causes a prompt to appear.
+  calendarProxy.deleteItem(calendarEvent);
+  controller.waitForElementNotPresent(eventBox);
 });
 
 /**

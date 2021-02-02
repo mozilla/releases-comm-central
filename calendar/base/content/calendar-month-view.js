@@ -128,19 +128,25 @@
     }
 
     setDate(aDate) {
-      if (!aDate) {
-        throw Components.Exception("", Cr.NS_ERROR_NULL_POINTER);
+      if (this.mDate && aDate && this.mDate.compare(aDate) == 0) {
+        return;
       }
 
       // Remove all the old events.
       this.mItemHash = {};
       removeChildren(this.dayItems);
 
-      if (this.mDate && this.mDate.compare(aDate) == 0) {
+      this.mDate = aDate;
+
+      if (!aDate) {
+        // Clearing out these attributes isn't strictly necessary but saves some confusion.
+        this.removeAttribute("year");
+        this.removeAttribute("month");
+        this.removeAttribute("week");
+        this.removeAttribute("day");
+        this.removeAttribute("value");
         return;
       }
-
-      this.mDate = aDate;
 
       // Set up DOM attributes for custom CSS coloring.
       let weekTitle = cal.getWeekInfoService().getWeekTitle(aDate);

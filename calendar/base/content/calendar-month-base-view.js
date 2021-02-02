@@ -441,6 +441,12 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
         // collapse the rest of the rows, otherwise expand them if needed.
         row.toggleAttribute("hidden", finished);
         if (finished) {
+          for (let cell of row.cells) {
+            // Clear out the hidden cells for to avoid holding events in memory
+            // for no reason. Also prevents tests failing due to stray event
+            // boxes from months that are no longer displayed.
+            cell.firstElementChild.setDate();
+          }
           continue;
         }
         for (let j = 0; j < row.children.length; j++) {
