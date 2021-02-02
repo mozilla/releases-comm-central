@@ -662,10 +662,10 @@ Enigmail.hdrView = {
     }
   },
 
-  messageLoad(event) {
+  async messageLoad(event) {
     EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.messageLoad\n");
 
-    Enigmail.msg.messageAutoDecrypt();
+    await Enigmail.msg.messageAutoDecrypt();
     Enigmail.msg.handleAttchmentEvent();
   },
 

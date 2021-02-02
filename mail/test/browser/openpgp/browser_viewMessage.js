@@ -14,6 +14,9 @@ const { open_message_from_file } = ChromeUtils.import(
 const { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
+const { waitForCondition } = ChromeUtils.import(
+  "resource://testing-common/mozmill/utils.jsm"
+);
 const {
   assert_notification_displayed,
   get_notification_button,
@@ -43,6 +46,23 @@ function getMsgBodyTxt(mc) {
 var aliceAcct;
 var aliceIdentity;
 var initialKeyIdPref = "";
+
+async function waitForOpenPGPDone(doc) {
+  // We must wait until after OpenPGP processing is done.
+  // When testing an PGP/INLINE message, the message will initially
+  // be loaded into the message pane, and in a second step, the
+  // message will be decrypted or verified, the shown text will be
+  // updated, and the OpenPGP status icons will be set.
+  // Initially on loading a message, attribute decryptDone is missing.
+  // Once the OpenPGP code is done processing the message, the
+  // attribute will be set to true.
+
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      doc.getElementById("cryptoBox")?.getAttribute("decryptDone") == "true",
+    "Timeout waiting for decrypt processing completion"
+  );
+}
 
 /**
  * Set up the base account, identity and keys needed for the tests.
@@ -382,6 +402,7 @@ add_task(async function testOpenSignedInlineWithUTF8() {
   let mc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/alice-utf.eml"))
   );
+  await waitForOpenPGPDone(mc.window.document);
 
   Assert.ok(
     getMsgBodyTxt(mc).includes("£35.00"),
@@ -406,6 +427,7 @@ add_task(async function testOpenSignedInlineWithLeadingWS() {
   let mc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/signed-inline-indented.eml"))
   );
+  await waitForOpenPGPDone(mc.window.document);
 
   Assert.ok(
     getMsgBodyTxt(mc).includes("indent test with £"),
@@ -430,6 +452,7 @@ add_task(async function testDecryptInlineWithNBSPasQP() {
   let mc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-inline-nbsp-qp.eml"))
   );
+  await waitForOpenPGPDone(mc.window.document);
 
   Assert.ok(
     getMsgBodyTxt(mc).includes("My real name is not Bob."),
@@ -450,6 +473,7 @@ add_task(async function testDecryptHtmlWithNBSP() {
   let mc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-html-nbsp.eml"))
   );
+  await waitForOpenPGPDone(mc.window.document);
 
   Assert.ok(
     getMsgBodyTxt(mc).includes("My real name is not Bob."),
