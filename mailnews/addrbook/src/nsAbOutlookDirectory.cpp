@@ -106,95 +106,49 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetURI(nsACString& aURI) {
   return NS_OK;
 }
 
+// This is an exact copy of nsAbOSXDirectory::GetChildNodes().
 NS_IMETHODIMP nsAbOutlookDirectory::GetChildNodes(
     nsISimpleEnumerator** aNodes) {
   NS_ENSURE_ARG_POINTER(aNodes);
 
-  *aNodes = nullptr;
+  // Mailing lists don't have childnodes.
+  if (m_IsMailList || !m_AddressList) return NS_NewEmptyEnumerator(aNodes);
 
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> nodeList(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = GetNodes(nodeList);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return NS_NewArrayEnumerator(aNodes, nodeList, NS_GET_IID(nsIAbDirectory));
+  return NS_NewArrayEnumerator(aNodes, m_AddressList,
+                               NS_GET_IID(nsIAbDirectory));
 }
 
+// This is an exact copy of nsAbOSXDirectory::GetChildCards().
 NS_IMETHODIMP nsAbOutlookDirectory::GetChildCards(
     nsISimpleEnumerator** aCards) {
   NS_ENSURE_ARG_POINTER(aCards);
   *aCards = nullptr;
 
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> cardList(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  mCardList.Clear();
-
-  rv = GetCards(cardList, nullptr);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (!m_AddressList) {
-    m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  // Fill the results array and update the card list
-  // Also update the address list and notify any changes.
-  uint32_t nbCards = 0;
-
-  NS_NewArrayEnumerator(aCards, cardList, NS_GET_IID(nsIAbCard));
-  cardList->GetLength(&nbCards);
-
-  nsCOMPtr<nsIAbCard> card;
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (uint32_t i = 0; i < nbCards; ++i) {
-    card = do_QueryElementAt(cardList, i, &rv);
-    if (NS_FAILED(rv)) continue;
-
-    if (!mCardList.Get(card, nullptr)) {
-      // We are dealing with a new element (probably directly
-      // added from Outlook), we may need to sync m_AddressList
-      mCardList.Put(card, card);
-
-      bool isMailList = false;
-
-      rv = card->GetIsMailList(&isMailList);
-      NS_ENSURE_SUCCESS(rv, rv);
-      if (isMailList) {
-        // We can have mailing lists only in folder,
-        // we must add the directory to m_AddressList
-        nsCString mailListUri;
-        rv = card->GetMailListURI(getter_Copies(mailListUri));
-        NS_ENSURE_SUCCESS(rv, rv);
-        nsCOMPtr<nsIAbDirectory> mailList;
-        rv = abManager->GetDirectory(mailListUri, getter_AddRefs(mailList));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        m_AddressList->AppendElement(mailList);
-        NotifyItemAddition(mailList);
-      } else if (m_IsMailList) {
-        m_AddressList->AppendElement(card);
-        NotifyItemAddition(card);
-      }
-    }
-  }
-  return rv;
+  // Not a search, so just return the appropriate list of items.
+  return m_IsMailList
+             ? NS_NewArrayEnumerator(aCards, m_AddressList,
+                                     NS_GET_IID(nsIAbCard))
+             : NS_NewArrayEnumerator(aCards, mCardList, NS_GET_IID(nsIAbCard));
 }
 
+// This is an exact copy of nsAbOSXDirectory::HasCard().
 NS_IMETHODIMP nsAbOutlookDirectory::HasCard(nsIAbCard* aCard, bool* aHasCard) {
-  if (!aCard || !aHasCard) return NS_ERROR_NULL_POINTER;
+  NS_ENSURE_ARG_POINTER(aCard);
+  NS_ENSURE_ARG_POINTER(aHasCard);
 
-  *aHasCard = mCardList.Get(aCard, nullptr);
+  nsresult rv = NS_OK;
+  uint32_t index;
+  if (m_IsMailList) {
+    if (m_AddressList) rv = m_AddressList->IndexOf(0, aCard, &index);
+  } else if (mCardList)
+    rv = mCardList->IndexOf(0, aCard, &index);
+
+  *aHasCard = NS_SUCCEEDED(rv);
+
   return NS_OK;
 }
 
+// This is an exact copy of nsAbOSXDirectory::HasDirectory().
 NS_IMETHODIMP nsAbOutlookDirectory::HasDirectory(nsIAbDirectory* aDirectory,
                                                  bool* aHasDirectory) {
   NS_ENSURE_ARG_POINTER(aDirectory);
@@ -255,11 +209,14 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
       if (!mapiAddBook->DeleteEntry(*mDirEntry, cardEntry)) {
         PRINTF(("Cannot delete card %s.\n", entryString.get()));
       } else {
-        mCardList.Remove(card);
         if (m_IsMailList && m_AddressList) {
           uint32_t pos;
           if (NS_SUCCEEDED(m_AddressList->IndexOf(0, card, &pos)))
             m_AddressList->RemoveElementAt(pos);
+        } else if (mCardList) {
+          uint32_t pos;
+          if (NS_SUCCEEDED(mCardList->IndexOf(0, card, &pos)))
+            mCardList->RemoveElementAt(pos);
         }
         retCode = NotifyItemDeletion(card);
         NS_ENSURE_SUCCESS(retCode, retCode);
@@ -324,7 +281,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aData,
   retCode = CreateCard(aData, addedCard);
   NS_ENSURE_SUCCESS(retCode, retCode);
 
-  mCardList.Put(*addedCard, *addedCard);
+  mCardList->AppendElement(*addedCard);
 
   if (!m_AddressList) {
     m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &retCode);
@@ -564,7 +521,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFinished(
 }
 
 NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFoundCard(nsIAbCard* aCard) {
-  mCardList.Put(aCard, aCard);
+  mCardList->AppendElement(aCard);
   return NS_OK;
 }
 
@@ -621,10 +578,26 @@ nsresult nsAbOutlookDirectory::GetCards(nsIMutableArray* aCards,
     return NS_ERROR_FAILURE;
   }
 
+  nsresult rv;
   nsAutoCString ourUID;
-  GetUID(ourUID);
+  if (m_IsMailList) {
+    // Look up the parent directory (top-level directory) in the
+    // AddrBookManager. That relies on the fact that the top-level
+    // directory is already in its map before being initialised.
+    nsCOMPtr<nsIAbManager> abManager(
+        do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoCString dirURI(kOutlookDirectoryScheme);
+    dirURI.Append(mParentEntryId);
+    nsCOMPtr<nsIAbDirectory> owningDir;
+    rv = abManager->GetDirectory(dirURI, getter_AddRefs(owningDir));
+    NS_ENSURE_SUCCESS(rv, rv);
+    owningDir->GetUID(ourUID);
+  } else {
+    GetUID(ourUID);
+  }
 
-  nsresult rv = NS_OK;
+  rv = NS_OK;
 
   for (ULONG card = 0; card < cardEntries.mNbEntries; ++card) {
     nsAutoCString entryId;
@@ -645,8 +618,6 @@ nsresult nsAbOutlookDirectory::GetCards(nsIMutableArray* aCards,
 nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
   NS_ENSURE_ARG_POINTER(aNodes);
 
-  aNodes->Clear();
-
   nsAbWinHelperGuard mapiAddBook;
   nsMapiEntryArray nodeEntries;
 
@@ -662,17 +633,25 @@ nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
   nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsCString dirEntry;
+  mDirEntry->ToString(dirEntry);
+
   for (ULONG node = 0; node < nodeEntries.mNbEntries; ++node) {
     nsAutoCString entryId;
     nsAutoCString uriName(kOutlookDirectoryScheme);
+    uriName.Append(dirEntry);
+    uriName.Append('/');
     nodeEntries.mEntries[node].ToString(entryId);
     uriName.Append(entryId);
 
-    nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(uriName, getter_AddRefs(directory));
-    NS_ENSURE_SUCCESS(rv, rv);
+    RefPtr<nsAbOutlookDirectory> directory = new nsAbOutlookDirectory;
 
-    aNodes->AppendElement(directory);
+    // We will later need the URI of the parent directory, so store it here.
+    directory->mParentEntryId = dirEntry;
+    directory->Init(uriName.get());
+
+    nsCOMPtr<nsIAbDirectory> dir = do_QueryObject(directory);
+    aNodes->AppendElement(dir);
   }
   return rv;
 }
@@ -841,14 +820,26 @@ nsresult nsAbOutlookDirectory::CommitAddressList(void) {
 }
 
 nsresult nsAbOutlookDirectory::UpdateAddressList(void) {
-  if (!m_AddressList) {
-    nsresult rv;
-    m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+  nsresult rv;
+  m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  mCardList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (m_IsMailList) {
+    // For a mailing list, we get all the cards into our member variable.
+    rv = GetCards(m_AddressList, nullptr);
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
+    // First, get the mailing lists, then the cards.
+    rv = GetNodes(m_AddressList);
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    rv = GetCards(mCardList, nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  return m_IsMailList ? GetCards(m_AddressList, nullptr)
-                      : GetNodes(m_AddressList);
+  return rv;
 }
 
 nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
@@ -1202,7 +1193,11 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
   if (mapiAddBook->GetPropertyLong(mapiData, PR_OBJECT_TYPE, cardType)) {
     card->SetIsMailList(cardType == MAPI_DISTLIST);
     if (cardType == MAPI_DISTLIST) {
+      nsCString dirEntry;
+      mDirEntry->ToString(dirEntry);
       nsAutoCString normalChars(kOutlookDirectoryScheme);
+      normalChars.Append(dirEntry);
+      normalChars.Append('/');
       normalChars.Append(entry);
       card->SetMailListURI(normalChars.get());
 

@@ -82,11 +82,19 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   // Keep track of context ID to be passed back from `DoQuery()`.
   int32_t mCurrentQueryId;
   // Data for the search interfaces
-  nsInterfaceHashtable<nsISupportsHashKey, nsIAbCard> mCardList;
   int32_t mSearchContext;
 
  private:
   virtual ~nsAbOutlookDirectory(void);
+  nsCString mParentEntryId;
+
+  // This is totally quirky. `m_AddressList` is defined in
+  // class nsAbDirProperty to hold a list of mailing lists,
+  // but there is no member to hold a list of cards.
+  // So we'll do it as the Mac AB does and define a member for it.
+  // nsIMutableArray is used, because then it is interchangeable with
+  // `m_AddressList`.
+  nsCOMPtr<nsIMutableArray> mCardList;
 };
 
 enum {

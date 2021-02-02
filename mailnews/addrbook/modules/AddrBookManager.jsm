@@ -80,6 +80,9 @@ function createDirectoryObject(uri, shouldStore = false) {
     if (shouldStore) {
       // This must happen before .init is called, or the OS X provider breaks
       // in some circumstances. If .init fails, we'll remove it again.
+      // The Outlook provider also needs this since during the initialisation
+      // of the top-most directory, contained mailing lists already need
+      // to loop that directory.
       store.set(uri, dir);
     }
     dir.init(uri);
@@ -214,8 +217,16 @@ AddrBookManager.prototype = {
     }
     let [, scheme, fileName, tail] = uriParts;
     if (tail && types.includes(scheme)) {
-      if (scheme == "jsaddrbook" && tail.startsWith("/")) {
-        let parent = this.getDirectory(`${scheme}://${fileName}`);
+      if (
+        (scheme == "jsaddrbook" && tail.startsWith("/")) ||
+        scheme == "moz-aboutlookdirectory"
+      ) {
+        let parent;
+        if (scheme == "jsaddrbook") {
+          parent = this.getDirectory(`${scheme}://${fileName}`);
+        } else {
+          parent = this.getDirectory(`${scheme}:///${tail.split("/")[1]}`);
+        }
         for (let list of parent.childNodes) {
           list.QueryInterface(Ci.nsIAbDirectory);
           if (list.URI == uri) {

@@ -1121,5 +1121,11 @@ void makeEntryIdFromURI(const char* aScheme, const char* aUri,
   if (strncmp(aUri, aScheme, schemeLength) == 0) {
     // Assign string from position `schemeLength`.
     aEntry = aUri + schemeLength;
+
+    // Now strip the parent directory before the /.
+    int ind = aEntry.FindChar('/');
+    if (ind != kNotFound) {
+      aEntry = Substring(aEntry, ind + 1);
+    }
   }
 }
