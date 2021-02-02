@@ -875,6 +875,7 @@ var specialTabs = {
       aTab.browser.setAttribute("autocompletepopup", "PopupAutoComplete");
       aTab.browser.setAttribute("datetimepicker", "DateTimePickerPanel");
       aTab.browser.setAttribute("context", "mailContext");
+      aTab.browser.setAttribute("maychangeremoteness", "true");
       aTab.browser.openWindowInfo = aArgs.openWindowInfo || null;
       clone.querySelector("stack").appendChild(aTab.browser);
 
