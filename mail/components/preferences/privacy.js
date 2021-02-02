@@ -283,7 +283,12 @@ var gPrivacyPane = {
   },
 
   openJunkLog() {
-    gSubDialog.open("chrome://messenger/content/junkLog.xhtml");
+    // The junk log dialog can't work as a sub-dialog, because that means
+    // loading it in a browser, and we can't load a chrome: page containing a
+    // file: page in a browser. Open it as a real dialog instead.
+    window.browsingContext.topChromeWindow.openDialog(
+      "chrome://messenger/content/junkLog.xhtml"
+    );
   },
 
   resetTrainingData() {

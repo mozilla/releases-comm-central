@@ -3,6 +3,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gLogView;
@@ -19,7 +22,7 @@ function onLoad() {
   gLogFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   gLogFile.append("junklog.html");
   if (gLogFile.exists()) {
-    gLogView.setAttribute("src", Services.io.newFileURI(gLogFile).spec);
+    MailE10SUtils.loadURI(gLogView, Services.io.newFileURI(gLogFile).spec);
   } else {
     addStyling(); // set style for initial about:blank
   }
