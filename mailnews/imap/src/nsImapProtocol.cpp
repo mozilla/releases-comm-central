@@ -295,7 +295,8 @@ static bool gUseEnvelopeCmd = false;
 static bool gUseLiteralPlus = true;
 static bool gExpungeAfterDelete = false;
 static bool gCheckDeletedBeforeExpunge = false;  // bug 235004
-static int32_t gResponseTimeout = 60;
+static int32_t gResponseTimeout = 100;
+static int32_t gAppendTimeout = gResponseTimeout/5;
 static nsCString gForceSelectDetect;
 static nsTArray<nsCString> gForceSelectServersArray;
 static nsImapProtocol::TCPKeepalive gTCPKeepalive;
@@ -345,6 +346,7 @@ nsresult nsImapProtocol::GlobalInitialization(nsIPrefBranch* aPrefBranch) {
   aPrefBranch->GetIntPref("mail.imap.expunge_threshold_number",
                           &gExpungeThreshold);
   aPrefBranch->GetIntPref("mailnews.tcptimeout", &gResponseTimeout);
+  gAppendTimeout = gResponseTimeout/5;
   aPrefBranch->GetCharPref("mail.imap.force_select_detect", gForceSelectDetect);
   ParseString(gForceSelectDetect, ';', gForceSelectServersArray);
 
@@ -2223,11 +2225,14 @@ nsresult nsImapProtocol::LoadImapUrlInternal() {
     int32_t readWriteTimeout = gResponseTimeout;
     if (m_runningUrl) {
       m_runningUrl->GetImapAction(&m_imapAction);
-      // this is a silly hack, but the default of 100 seconds is way too long
-      // for things like APPEND, which should come back immediately.
+      // This is a silly hack, but the default of 100 seconds is typically way
+      // too long for things like APPEND, which should come back immediately.
+      // However, for large messages on some servers the final append response
+      // time can be longer. So now it is one-fifth of the configured
+      // `mailnews.tcptimeout' which defaults to 20 seconds.
       if (m_imapAction == nsIImapUrl::nsImapAppendMsgFromFile ||
           m_imapAction == nsIImapUrl::nsImapAppendDraftFromFile) {
-        readWriteTimeout = 20;
+        readWriteTimeout = gAppendTimeout;
       } else if (m_imapAction == nsIImapUrl::nsImapOnlineMove ||
                  m_imapAction == nsIImapUrl::nsImapOnlineCopy) {
         nsCString messageIdString;
