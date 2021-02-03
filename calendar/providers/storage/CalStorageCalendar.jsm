@@ -1637,6 +1637,10 @@ CalStorageCalendar.prototype = {
   },
 
   cacheItem(item) {
+    if (item.recurrenceId) {
+      // Do not cache recurring item instances. See bug 1686466.
+      return;
+    }
     this.mItemCache.set(item.id, item);
     if (item.recurrenceInfo) {
       if (cal.item.isEvent(item)) {

@@ -43,11 +43,13 @@ function createStorageCalendar(id) {
  *
  * @param {number} filterType - Number indicating the filter type.
  * @param {calIITemBase} originalItem - The original item to add to the calendar.
- * @param {object} originalProps - The initial properites of originalItem we
- *  change.
- * @param {object} changedProps - The changed properties of originalItem..
+ * @param {object} originalProps - The initial properites of originalItem to
+ *  expect.
+ * @param {object[]} changedProps - A list containing property values to update
+ *  each occurrence with or null. The length indicates how many occurrences to
+ *  expect.
  */
-async function doPropertiesTest(filterType, originalItem, originalProps, changedProps) {
+async function doPropertiesTest(filterType, originalItem, originalProps, changedPropList) {
   for (let [key, value] of Object.entries(originalProps)) {
     if (key == "CATEGORIES") {
       originalItem.setCategories(value);
@@ -72,7 +74,11 @@ async function doPropertiesTest(filterType, originalItem, originalProps, changed
     cal.createDateTime("20201231T000000Z")
   );
 
-  Assert.equal(savedItems.length, 5, `saved ${savedItems.length} items successfully`);
+  Assert.equal(
+    savedItems.length,
+    changedPropList.length,
+    `created ${changedPropList.length} items successfully`
+  );
 
   // Ensure all occurrences have the correct properties initially.
   for (let item of savedItems) {
@@ -89,32 +95,46 @@ async function doPropertiesTest(filterType, originalItem, originalProps, changed
     }
   }
 
-  // Grab the occurrence whose properties we want to modify.
-  let targetOccurrence = savedItems[2];
-  let targetException = targetOccurrence.clone();
+  // Modify the occurrences that have new properties set in changedPropList.
+  for (let idx = 0; idx < changedPropList.length; idx++) {
+    let changedProps = changedPropList[idx];
+    if (changedProps) {
+      let targetOccurrence = savedItems[idx];
+      let targetException = targetOccurrence.clone();
 
-  let targetDate =
-    filterType & Ci.calICalendar.ITEM_FILTER_TYPE_TODO
-      ? targetOccurrence.entryDate
-      : targetOccurrence.startDate;
+      // Make the changes to the properties.
+      for (let [key, value] of Object.entries(changedProps)) {
+        if (key == "CATEGORIES") {
+          targetException.setCategories(value);
+        } else {
+          targetException.setProperty(key, value);
+        }
+      }
 
-  targetDate = targetDate.clone();
+      await new Promise(resolve => {
+        calendar.modifyItem(
+          cal.itip.prepareSequence(targetException, targetOccurrence),
+          targetOccurrence,
+          {
+            onOperationComplete() {
+              resolve();
+            },
+          }
+        );
+      });
 
-  // Make the changes to the properties.
-  for (let [key, value] of Object.entries(changedProps)) {
-    if (key == "CATEGORIES") {
-      targetException.setCategories(value);
-    } else {
-      targetException.setProperty(key, value);
+      // Refresh the saved items list after the change.
+      savedItems = await calendar.getItems(
+        filter,
+        0,
+        cal.createDateTime("20201201T000000Z"),
+        cal.createDateTime("20201231T000000Z")
+      );
     }
   }
 
-  await calendar.modifyItem(
-    cal.itip.prepareSequence(targetException, targetOccurrence),
-    targetOccurrence
-  );
-
-  // Get a fresh copy of the items by using a new calendar with the same id.
+  // Get a fresh copy of the occurrences by using a new calendar with the
+  // same id.
   let itemsAfterUpdate = await createStorageCalendar(calId).getItems(
     filter,
     0,
@@ -122,27 +142,32 @@ async function doPropertiesTest(filterType, originalItem, originalProps, changed
     cal.createDateTime("20201231T000000Z")
   );
 
-  Assert.equal(itemsAfterUpdate.length, 5, "expected occurrence count retrieved from query");
+  Assert.equal(
+    itemsAfterUpdate.length,
+    changedPropList.length,
+    `count of occurrences retrieved after update is ${changedPropList.length}`
+  );
 
-  // Compare each property we changed to ensure the target occurrence has
-  // the properties we expect.
-  for (let item of itemsAfterUpdate) {
-    let isException = targetDate.compare(item.recurrenceId) == 0;
-    let label = isException ? "occurrence exception" : "unmodified occurrence";
-    let checkedProps = isException ? changedProps : originalProps;
+  // Compare each property of each occurrence to ensure the changed
+  // occurrences have the values we expect.
+  for (let i = 0; i < itemsAfterUpdate.length; i++) {
+    let item = itemsAfterUpdate[i];
+    let isException = changedPropList[i] != null;
+    let label = isException ? `modified occurrence ${i}` : `unmodified occurrence ${i}`;
+    let checkedProps = isException ? changedPropList[i] : originalProps;
 
     for (let [key, value] of Object.entries(checkedProps)) {
       if (key == "CATEGORIES") {
         Assert.equal(
           item.getCategories().join(),
           value.join(),
-          `item categories are set to ${value}`
+          `item categories has value "${value}"`
         );
       } else {
         Assert.equal(
           item.getProperty(key),
           value,
-          `property "${key}" is set to "${value}" for ${label}`
+          `property "${key}" has value "${value}" for "${label}"`
         );
       }
     }
@@ -172,11 +197,17 @@ add_task(async function testEventPropertiesForRecurringExceptionsLoad() {
     LOCATION: "Castara",
   };
 
-  let changedProps = {
-    DESCRIPTION: "This is an edited occurrence.",
-    CATEGORIES: ["Holiday"],
-    LOCATION: "Georgetown",
-  };
+  let changedProps = [
+    null,
+    null,
+    {
+      DESCRIPTION: "This is an edited occurrence.",
+      CATEGORIES: ["Holiday"],
+      LOCATION: "Georgetown",
+    },
+    null,
+    null,
+  ];
 
   return doPropertiesTest(
     Ci.calICalendar.ITEM_FILTER_TYPE_EVENT,
@@ -210,12 +241,105 @@ add_task(async function testTodoPropertiesForRecurringExceptionsLoad() {
     STATUS: "NEEDS-ACTION",
   };
 
-  let changedProps = {
-    DESCRIPTION: "This is an edited occurrence.",
-    CATEGORIES: ["Holiday"],
-    LOCATION: "Georgetown",
-    STATUS: "COMPLETE",
+  let changedProps = [
+    null,
+    null,
+    {
+      DESCRIPTION: "This is an edited occurrence.",
+      CATEGORIES: ["Holiday"],
+      LOCATION: "Georgetown",
+      STATUS: "COMPLETE",
+    },
+    null,
+    null,
+  ];
+
+  return doPropertiesTest(Ci.calICalendar.ITEM_FILTER_TYPE_TODO, todo, originalProps, changedProps);
+});
+
+/**
+ * Tests calling getItems() does not overwrite subsequent event occurrence
+ * exceptions with their parent item. See bug 1686466.
+ */
+add_task(async function testRecurringEventChangesAreNotHiddenByCache() {
+  let event = new CalEvent(CalendarTestUtils.dedent`
+      BEGIN:VEVENT
+      CREATED:20201211T000000Z
+      LAST-MODIFIED:20201211T000000Z
+      DTSTAMP:20201210T080410Z
+      UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
+      SUMMARY:Original Test Event
+      DTSTART:20201211T000000Z
+      DTEND:20201211T110000Z
+      RRULE:FREQ=DAILY;UNTIL=20201215T140000Z
+      END:VEVENT
+    `);
+
+  let originalProps = {
+    LOCATION: "San Juan",
   };
+
+  let changedProps = [
+    null,
+    {
+      LOCATION: "Buenos Aries",
+    },
+    {
+      LOCATION: "Bridgetown",
+    },
+    {
+      LOCATION: "Freetown",
+    },
+    null,
+  ];
+
+  return doPropertiesTest(
+    Ci.calICalendar.ITEM_FILTER_TYPE_EVENT,
+    event,
+    originalProps,
+    changedProps,
+    true
+  );
+});
+
+/**
+ * Tests calling getItems() does not overwrite subsequent todo occurrence
+ * exceptions with their parent item. See bug 1686466.
+ */
+add_task(async function testRecurringTodoChangesNotHiddenByCache() {
+  let todo = new CalTodo(CalendarTestUtils.dedent`
+      BEGIN:VTODO
+      CREATED:20201211T000000Z
+      LAST-MODIFIED:20201211T000000Z
+      DTSTAMP:20201210T080410Z
+      UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
+      SUMMARY:Original Test Event
+      DTSTART:20201211T000000Z
+      DTEND:20201211T110000Z
+      RRULE:FREQ=DAILY;UNTIL=20201215T140000Z
+      END:VTODO
+    `);
+
+  let originalProps = {
+    DESCRIPTION: "This is a test todo.",
+    CATEGORIES: ["Birthday"],
+    LOCATION: "Castara",
+    STATUS: "NEEDS-ACTION",
+  };
+
+  let changedProps = [
+    null,
+    {
+      STATUS: "COMPLETE",
+    },
+    {
+      STATUS: "COMPLETE",
+    },
+    {
+      STATUS: "COMPLETE",
+    },
+    null,
+  ];
 
   return doPropertiesTest(Ci.calICalendar.ITEM_FILTER_TYPE_TODO, todo, originalProps, changedProps);
 });
