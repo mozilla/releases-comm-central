@@ -8,7 +8,6 @@ var {
   DAY_VIEW,
   EVENTPATH,
   EVENT_BOX,
-  TIMEOUT_MODAL_DIALOG,
   WEEK_VIEW,
   closeAllEventDialogs,
   controller,
@@ -23,15 +22,8 @@ var {
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var {
-  REC_DLG_ACCEPT,
-  REC_DLG_DAYS,
-  REPEAT_DETAILS,
-  helpersForEditUI,
-  setData,
-} = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -49,25 +41,20 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
-    await setData(event, iframe, { title: TITLE });
-    event.waitForElement(eventid("item-repeat"));
-    plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);
-    menulistSelect(eventid("item-repeat"), "custom", event);
-    wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
-
-    event.click(eventid("button-saveandclose"));
+  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, { title: TITLE, repeat: setRecurrence });
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // Move 5th January occurrence to 6th January.
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  await invokeEditingRepeatEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
-    await setData(event, iframe, { title: TITLE, startdate: STARTDATE, enddate: STARTDATE });
-    event.click(eventid("button-saveandclose"));
+  await invokeEditingRepeatEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, {
+      title: TITLE,
+      startdate: STARTDATE,
+      enddate: STARTDATE,
+    });
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // Change recurrence rule.
@@ -76,17 +63,9 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await invokeEditingRepeatEventDialog(
     controller,
     eventBox,
-    async (event, iframe) => {
-      let { eid: eventid } = helpersForController(event);
-      let { iframeLookup } = helpersForEditUI(iframe);
-
-      await setData(event, iframe, { title: "Event" });
-      event.waitForElement(eventid("item-repeat"));
-      plan_for_modal_dialog("Calendar:EventDialog:Recurrence", changeRecurrence);
-      event.click(iframeLookup(REPEAT_DETAILS));
-      wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
-
-      event.click(eventid("button-saveandclose"));
+    async (eventWindow, iframeWindow) => {
+      await setData(eventWindow, iframeWindow, { title: "Event", repeat: changeRecurrence });
+      saveAndCloseItemDialog(eventWindow);
     },
     true
   );
@@ -188,52 +167,76 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   Assert.ok(true, "Test ran to completion");
 });
 
-function setRecurrence(recurrence) {
-  let { lookup: reclookup, eid: recid } = helpersForController(recurrence);
+async function setRecurrence(recurrenceWindow) {
+  let recurrenceDocument = recurrenceWindow.document;
 
   // weekly
-  menulistSelect(recid("period-list"), "1", recurrence);
+  await menulistSelect(recurrenceDocument.getElementById("period-list"), "1");
 
   let mon = cal.l10n.getDateFmtString("day.2.Mmm");
   let wed = cal.l10n.getDateFmtString("day.4.Mmm");
   let fri = cal.l10n.getDateFmtString("day.6.Mmm");
 
+  let dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
+
   // Starting from Monday so it should be checked.
-  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`).getNode().checked, "mon checked");
+  Assert.ok(dayPicker.querySelector(`[label="${mon}"]`).checked, "mon checked");
 
   // Check Wednesday and Friday too.
-  recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`));
-  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`).getNode().checked, "wed checked");
-  recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`));
-  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`).getNode().checked, "fri checked");
+  EventUtils.synthesizeMouseAtCenter(
+    dayPicker.querySelector(`[label="${wed}"]`),
+    {},
+    recurrenceWindow
+  );
+  Assert.ok(dayPicker.querySelector(`[label="${wed}"]`).checked, "wed checked");
+  EventUtils.synthesizeMouseAtCenter(
+    dayPicker.querySelector(`[label="${fri}"]`),
+    {},
+    recurrenceWindow
+  );
+  Assert.ok(dayPicker.querySelector(`[label="${fri}"]`).checked, "fri checked");
 
   // Close dialog.
-  recurrence.click(reclookup(REC_DLG_ACCEPT));
+  EventUtils.synthesizeMouseAtCenter(
+    recurrenceDocument.querySelector("dialog").getButton("accept"),
+    {},
+    recurrenceWindow
+  );
 }
 
-function changeRecurrence(recurrence) {
-  let { lookup: reclookup, eid: recid } = helpersForController(recurrence);
+async function changeRecurrence(recurrenceWindow) {
+  let recurrenceDocument = recurrenceWindow.document;
 
   // weekly
-  menulistSelect(recid("period-list"), "1", recurrence);
+  await menulistSelect(recurrenceDocument.getElementById("period-list"), "1");
 
   let mon = cal.l10n.getDateFmtString("day.2.Mmm");
   let tue = cal.l10n.getDateFmtString("day.3.Mmm");
   let wed = cal.l10n.getDateFmtString("day.4.Mmm");
   let fri = cal.l10n.getDateFmtString("day.6.Mmm");
 
+  let dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
+
   // Check old rule.
   // Starting from Monday so it should be checked.
-  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`).getNode().checked, "mon checked");
-  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`).getNode().checked, "wed checked");
-  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`).getNode().checked, "fri checked");
+  Assert.ok(dayPicker.querySelector(`[label="${mon}"]`).checked, "mon checked");
+  Assert.ok(dayPicker.querySelector(`[label="${wed}"]`).checked, "wed checked");
+  Assert.ok(dayPicker.querySelector(`[label="${fri}"]`).checked, "fri checked");
 
   // Check Tuesday.
-  recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${tue}"}`));
-  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${tue}"}`).getNode().checked, "tue checked");
+  EventUtils.synthesizeMouseAtCenter(
+    dayPicker.querySelector(`[label="${tue}"]`),
+    {},
+    recurrenceWindow
+  );
+  Assert.ok(dayPicker.querySelector(`[label="${tue}"]`).checked, "tue checked");
 
   // Close dialog.
-  recurrence.click(reclookup(REC_DLG_ACCEPT));
+  EventUtils.synthesizeMouseAtCenter(
+    recurrenceDocument.querySelector("dialog").getButton("accept"),
+    {},
+    recurrenceWindow
+  );
 }
 
 function checkMultiWeekView(view) {

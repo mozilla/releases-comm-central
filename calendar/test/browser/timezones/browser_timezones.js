@@ -19,7 +19,9 @@ var {
   viewForward,
   viewBack,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+);
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -66,12 +68,12 @@ add_task(async function testTimezones2_CreateEvents() {
   let time = cal.createDateTime();
   for (let i = 0; i < TIMEZONES.length; i++) {
     let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, i + 11);
-    await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
+    await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
       time.hour = times[i][0];
       time.minute = times[i][1];
 
       // Set event data.
-      await setData(event, iframe, {
+      await setData(eventWindow, iframeWindow, {
         title: TIMEZONES[i],
         repeat: "weekly",
         repeatuntil: cal.createDateTime("20091231T000000Z"),
@@ -79,9 +81,7 @@ add_task(async function testTimezones2_CreateEvents() {
         timezone: TIMEZONES[i],
       });
 
-      // save
-      let { eid: eventid } = helpersForController(event);
-      event.click(eventid("button-saveandclose"));
+      saveAndCloseItemDialog(eventWindow);
     });
   }
 });

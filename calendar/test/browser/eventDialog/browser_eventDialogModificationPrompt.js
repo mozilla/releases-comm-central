@@ -19,7 +19,9 @@ var {
   invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+);
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
@@ -37,38 +39,34 @@ add_task(async function testEventDialogModificationPrompt() {
   let eventbox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
 
   // Create new event.
-  await invokeNewEventDialog(controller, createbox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
+  await invokeNewEventDialog(controller, createbox, async (eventWindow, iframeWindow) => {
     let categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
     data[0].categories.push(categories[0]);
     data[1].categories.push(categories[1], categories[2]);
 
     // Enter first set of data.
-    await setData(event, iframe, data[0]);
-
-    // save
-    event.click(eventid("button-saveandclose"));
+    await setData(eventWindow, iframeWindow, data[0]);
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // Open, but change nothing.
-  await invokeEditingEventDialog(controller, eventbox, (event, iframe) => {
+  await invokeEditingEventDialog(controller, eventbox, (eventWindow, iframeWindow) => {
     // Escape the event window, there should be no prompt to save event.
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
+    cancelItemDialog(eventWindow);
     // Wait to see if the prompt appears.
     controller.sleep(2000);
   });
 
   // Open, change all values then revert the changes.
-  await invokeEditingEventDialog(controller, eventbox, async (event, iframe) => {
+  await invokeEditingEventDialog(controller, eventbox, async (eventWindow, iframeWindow) => {
     // Change all values.
-    await setData(event, iframe, data[1]);
+    await setData(eventWindow, iframeWindow, data[1]);
 
     // Edit all values back to original.
-    await setData(event, iframe, data[0]);
+    await setData(eventWindow, iframeWindow, data[0]);
 
     // Escape the event window, there should be no prompt to save event.
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
+    cancelItemDialog(eventWindow);
     // Wait to see if the prompt appears.
     controller.sleep(2000);
   });
@@ -91,17 +89,15 @@ add_task(async function testDescriptionWhitespace() {
 
   for (let i = 0; i < newlines.length; i++) {
     // test set i
-    await invokeNewEventDialog(controller, createbox, async (event, iframe) => {
-      let { eid: eventid } = helpersForController(event);
-
-      await setData(event, iframe, newlines[i]);
-      event.click(eventid("button-saveandclose"));
+    await invokeNewEventDialog(controller, createbox, async (eventWindow, iframeWindow) => {
+      await setData(eventWindow, iframeWindow, newlines[i]);
+      saveAndCloseItemDialog(eventWindow);
     });
 
     // Open and close.
-    await invokeEditingEventDialog(controller, eventbox, async (event, iframe) => {
-      await setData(event, iframe, newlines[i]);
-      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
+    await invokeEditingEventDialog(controller, eventbox, async (eventWindow, iframeWindow) => {
+      await setData(eventWindow, iframeWindow, newlines[i]);
+      cancelItemDialog(eventWindow);
       // Wait to see if the prompt appears.
       controller.sleep(2000);
     });

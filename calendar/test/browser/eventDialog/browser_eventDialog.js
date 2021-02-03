@@ -21,7 +21,7 @@ var {
   switchToView,
   viewBack,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { ATTENDEES_ROW, EVENT_TABPANELS, helpersForEditUI, setData } = ChromeUtils.import(
+var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
@@ -79,23 +79,20 @@ add_task(async function testEventDialog() {
   // Create new event on first day in view.
   controller.click(lookupEventBox("month", CANVAS_BOX, 1, 1, null));
 
-  await invokeNewEventDialog(controller, null, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-    let { eid: iframeId } = helpersForController(iframe);
-    let { iframeLookup, getDateTimePicker } = helpersForEditUI(iframe);
+  await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
+    let eventDocument = eventWindow.document;
+    let iframeDocument = iframeWindow.document;
 
     // First check all standard-values are set correctly.
-    let startTimeInput = getDateTimePicker("STARTTIME");
-
-    event.waitForElement(startTimeInput);
-    Assert.equal(startTimeInput.getNode().value, startTime);
+    let startPicker = iframeDocument.getElementById("event-starttime");
+    Assert.equal(startPicker._timepicker._inputField.value, startTime);
 
     // Check selected calendar.
-    Assert.equal(iframeId("item-calendar").getNode().value, CALENDARNAME);
+    Assert.equal(iframeDocument.getElementById("item-calendar").value, CALENDARNAME);
 
     // Check standard title.
     let defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
-    Assert.equal(eventid("item-title").getNode().placeholder, defTitle);
+    Assert.equal(iframeDocument.getElementById("item-title").placeholder, defTitle);
 
     // Prepare category.
     let categories = cal.l10n.getAnyString("calendar", "categories", "categories2");
@@ -106,7 +103,7 @@ add_task(async function testEventDialog() {
     untildate.addDuration(cal.createDuration("P20D"));
 
     // Fill in the rest of the values.
-    await setData(event, iframe, {
+    await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
       location: EVENTLOCATION,
       description: EVENTDESCRIPTION,
@@ -120,37 +117,37 @@ add_task(async function testEventDialog() {
     });
 
     // Verify attendee added.
-    let attendeeLabel = iframeLookup(`
-            ${ATTENDEES_ROW}/{"class":"item-attendees-cell"}/{"class":"item-attendees-cell-label"}
-        `);
+    EventUtils.synthesizeMouseAtCenter(
+      iframeDocument.getElementById("event-grid-tab-attendees"),
+      {},
+      eventWindow
+    );
 
-    event.click(eventid("event-grid-tab-attendees"));
-    event.waitForElement(attendeeLabel);
-    Assert.equal(attendeeLabel.getNode().value, EVENTATTENDEE);
-    event.waitFor(() => !iframeId("notify-attendees-checkbox").getNode().checked);
+    let attendeesTab = iframeDocument.getElementById("event-grid-tabpanel-attendees");
+    let attendee = attendeesTab.querySelector(".item-attendees-cell");
+
+    Assert.ok(attendee);
+    Assert.equal(attendee.querySelector(".item-attendees-cell-label").value, EVENTATTENDEE);
+    Assert.ok(!iframeDocument.getElementById("notify-attendees-checkbox").checked);
 
     // Verify private label visible.
-    event.waitFor(
-      () =>
-        !eventid("status-privacy-private-box")
-          .getNode()
-          .hasAttribute("collapsed")
+    controller.waitFor(
+      () => !eventDocument.getElementById("status-privacy-private-box").hasAttribute("collapsed")
     );
-    eventid("event-privacy-menupopup")
-      .getNode()
-      .hidePopup();
+    eventDocument.getElementById("event-privacy-menupopup").hidePopup();
 
     // Add attachment and verify added.
-    event.click(iframeId("event-grid-tab-attachments"));
-    Assert.ok(
-      iframeLookup(`
-            ${EVENT_TABPANELS}/id("event-grid-tabpanel-attachments")/{"flex":"1"}/
-            id("attachment-link")/[0]/{"value":"mozilla.org"}
-        `).exists()
+    EventUtils.synthesizeMouseAtCenter(
+      iframeDocument.getElementById("event-grid-tab-attachments"),
+      {},
+      iframeWindow
     );
 
+    let attachmentsTab = iframeDocument.getElementById("event-grid-tabpanel-attachments");
+    Assert.equal(attachmentsTab.querySelectorAll("richlistitem").length, 1);
+
     // save
-    event.click(eventid("button-saveandclose"));
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // Catch and dismiss alarm.
@@ -224,14 +221,13 @@ add_task(async function testOpenExistingEventDialog() {
   let eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
 
   // Create a new event.
-  await invokeNewEventDialog(controller, createBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-    await setData(event, iframe, {
+  await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
       location: EVENTLOCATION,
       description: EVENTDESCRIPTION,
     });
-    event.click(eventid("button-saveandclose"));
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // Open the event in the summary dialog, it will fail if otherwise.
@@ -272,14 +268,13 @@ add_task(async function testEventReminderDisplay() {
   let createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
 
   // Create an event without a reminder.
-  await invokeNewEventDialog(controller, createBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-    await setData(event, iframe, {
+  await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
       location: EVENTLOCATION,
       description: EVENTDESCRIPTION,
     });
-    event.click(eventid("button-saveandclose"));
+    saveAndCloseItemDialog(eventWindow);
   });
 
   let eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
@@ -299,15 +294,14 @@ add_task(async function testEventReminderDisplay() {
   createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
 
   // Create an event with a reminder.
-  await invokeNewEventDialog(controller, createBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-    await setData(event, iframe, {
+  await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
       location: EVENTLOCATION,
       description: EVENTDESCRIPTION,
       reminder: "1week",
     });
-    event.click(eventid("button-saveandclose"));
+    saveAndCloseItemDialog(eventWindow);
   });
 
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
@@ -392,13 +386,13 @@ add_task(async function testCtrlEnterShortcut() {
   goToDate(controller, 2020, 9, 1);
 
   let createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-  await invokeNewEventDialog(controller, createBox, async (event, iframe) => {
-    await setData(event, iframe, {
+  await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
       location: EVENTLOCATION,
       description: EVENTDESCRIPTION,
     });
-    EventUtils.synthesizeKey("VK_RETURN", { ctrlKey: true }, event.window);
+    EventUtils.synthesizeKey("VK_RETURN", { ctrlKey: true }, eventWindow);
   });
 
   switchToView(controller, "month");

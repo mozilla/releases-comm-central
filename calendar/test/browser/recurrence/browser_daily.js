@@ -16,13 +16,14 @@ var {
   helpersForController,
   invokeNewEventDialog,
   invokeEditingRepeatEventDialog,
-  menulistSelect,
   switchToView,
   viewBack,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+);
 
 var { lookupEventBox } = helpersForController(controller);
 
@@ -36,15 +37,13 @@ add_task(async function testDailyRecurrence() {
 
   // Create daily event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
-    await setData(event, iframe, {
+  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, {
       title: TITLE,
       repeat: "daily",
       repeatuntil: cal.createDateTime("20090320T000000Z"),
     });
-    event.click(eventid("button-saveandclose"));
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // Check day view for 7 days.
@@ -123,12 +122,9 @@ add_task(async function testDailyRecurrence() {
   await invokeEditingRepeatEventDialog(
     controller,
     eventBox,
-    event => {
-      let { eid: eventid, sleep: eventsleep } = helpersForController(event);
-
-      menulistSelect(eventid("item-repeat"), "every.weekday", event);
-      eventsleep();
-      event.click(eventid("button-saveandclose"));
+    async (eventWindow, iframeWindow) => {
+      await setData(eventWindow, iframeWindow, { repeat: "every.weekday" });
+      saveAndCloseItemDialog(eventWindow);
     },
     true
   );

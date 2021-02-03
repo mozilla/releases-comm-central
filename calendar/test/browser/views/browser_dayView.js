@@ -20,7 +20,7 @@ var {
   invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { helpersForEditUI, setData } = ChromeUtils.import(
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
@@ -43,39 +43,34 @@ add_task(async function testDayView() {
 
   // Create event at 8 AM.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-    let { getDateTimePicker } = helpersForEditUI(iframe);
-
-    let startTimeInput = getDateTimePicker("STARTTIME");
-    let startDateInput = getDateTimePicker("STARTDATE");
-
+  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Check that the start time is correct.
     let someDate = cal.createDateTime();
     someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.floating);
-    event.waitForElement(startTimeInput);
-    Assert.equal(startTimeInput.getNode().value, cal.dtz.formatter.formatTime(someDate));
-    Assert.equal(startDateInput.getNode().value, cal.dtz.formatter.formatDateShort(someDate));
+
+    let startPicker = iframeWindow.document.getElementById("event-starttime");
+    Assert.equal(startPicker._timepicker._inputField.value, cal.dtz.formatter.formatTime(someDate));
+    Assert.equal(
+      startPicker._datepicker._inputField.value,
+      cal.dtz.formatter.formatDateShort(someDate)
+    );
 
     // Fill in title, description and calendar.
-    await setData(event, iframe, {
+    await setData(eventWindow, iframeWindow, {
       title: TITLE1,
       description: DESC,
       calendar: CALENDARNAME,
     });
 
-    // save
-    event.click(eventid("button-saveandclose"));
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // If it was created successfully, it can be opened.
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  await invokeEditingEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
+  await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
-    await setData(event, iframe, { title: TITLE2 });
-    event.click(eventid("button-saveandclose"));
+    await setData(eventWindow, iframeWindow, { title: TITLE2 });
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // Check if name was saved.

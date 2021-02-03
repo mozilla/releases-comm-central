@@ -57,7 +57,9 @@ add_task(async function testAttachWebPage() {
 
   // Give the new event a title.
   let iframe = eventWin.document.querySelector("#lightning-item-panel-iframe");
-  iframe.contentDocument.querySelector("#item-title").value = "Web Link Event";
+  let titleElement = iframe.contentDocument.querySelector("#item-title");
+  EventUtils.synthesizeMouseAtCenter(titleElement, {}, iframe.contentWindow);
+  EventUtils.sendString("Web Link Event", iframe.contentWindow);
 
   // Set its date.
   iframe.contentDocument.querySelector("#event-starttime").value = cal.dtz.dateTimeToJsDate(
@@ -177,7 +179,9 @@ add_task(async function testAttachProvider() {
 
   // Give the new event a title.
   let iframe = eventWin.document.querySelector("#lightning-item-panel-iframe");
-  iframe.contentDocument.querySelector("#item-title").value = "Provider Attachment Event";
+  let titleElement = iframe.contentDocument.querySelector("#item-title");
+  EventUtils.synthesizeMouseAtCenter(titleElement, {}, iframe.contentWindow);
+  EventUtils.sendString("Provider Attachment Event", iframe.contentWindow);
 
   // Set its date.
   iframe.contentDocument.querySelector("#event-starttime").value = cal.dtz.dateTimeToJsDate(

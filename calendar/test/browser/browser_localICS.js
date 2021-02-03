@@ -13,7 +13,9 @@ var {
   helpersForController,
   invokeNewEventDialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+);
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -37,13 +39,9 @@ add_task(async function testLocalICS() {
 
   // Create new event.
   let box = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeNewEventDialog(controller, box, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
-    await setData(event, iframe, { title: calendarName, calendar: calendarName });
-
-    // save
-    event.click(eventid("button-saveandclose"));
+  await invokeNewEventDialog(controller, box, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, { title: calendarName, calendar: calendarName });
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // Assert presence in view.

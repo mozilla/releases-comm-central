@@ -14,7 +14,9 @@ var {
   invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -29,39 +31,35 @@ add_task(async function testUTF8() {
 
   // Create new event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
+  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Fill in name, location, description.
-    await setData(event, iframe, {
+    await setData(eventWindow, iframeWindow, {
       title: UTF8STRING,
       location: UTF8STRING,
       description: UTF8STRING,
       categories: [UTF8STRING],
     });
-
-    // save
-    event.click(eventid("button-saveandclose"));
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // open
   let eventPath = `/{"tooltip":"itemTooltip","calendar":"${UTF8STRING.toLowerCase()}"}`;
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, eventPath);
-  await invokeEditingEventDialog(controller, eventBox, (event, iframe) => {
-    let { eid: iframeId } = helpersForController(iframe);
+  await invokeEditingEventDialog(controller, eventBox, (eventWindow, iframeWindow) => {
+    let iframeDocument = iframeWindow.document;
 
     // Check values.
-    Assert.equal(iframeId("item-title").getNode().value, UTF8STRING);
-    Assert.equal(iframeId("item-location").getNode().value, UTF8STRING);
-    Assert.equal(iframeId("item-description").getNode().value, UTF8STRING);
+    Assert.equal(iframeDocument.getElementById("item-title").value, UTF8STRING);
+    Assert.equal(iframeDocument.getElementById("item-location").value, UTF8STRING);
+    Assert.equal(iframeDocument.getElementById("item-description").value, UTF8STRING);
     Assert.ok(
-      iframeId("item-categories").getNode().querySelector(`
-            menuitem[label="${UTF8STRING}"][checked]
-        `)
+      iframeDocument
+        .getElementById("item-categories")
+        .querySelector(`menuitem[label="${UTF8STRING}"][checked]`)
     );
 
     // Escape the event window.
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
+    cancelItemDialog(eventWindow);
   });
 
   Assert.ok(true, "Test ran to completion");

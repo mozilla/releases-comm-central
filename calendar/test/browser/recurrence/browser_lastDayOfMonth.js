@@ -7,7 +7,6 @@ var {
   CANVAS_BOX,
   EVENTPATH,
   EVENT_BOX,
-  TIMEOUT_MODAL_DIALOG,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -19,12 +18,8 @@ var {
   menulistSelect,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
-var { REC_DLG_ACCEPT } = ChromeUtils.import(
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
-);
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { lookupEventBox } = helpersForController(controller);
@@ -38,15 +33,9 @@ add_task(async function testLastDayOfMonthRecurrence() {
 
   // Create monthly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
-    await setData(event, iframe, { title: "Event" });
-    plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);
-    menulistSelect(eventid("item-repeat"), "custom", event);
-    wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
-
-    event.click(eventid("button-saveandclose"));
+  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // data tuple: [year, month, day, row in month view]
@@ -106,20 +95,26 @@ add_task(async function testLastDayOfMonthRecurrence() {
   Assert.ok(true, "Test ran to completion");
 });
 
-function setRecurrence(recurrence) {
-  let { sleep: recsleep, lookup: reclookup, eid: recid } = helpersForController(recurrence);
-
+async function setRecurrence(recurrenceWindow) {
+  let recurrenceDocument = recurrenceWindow.document;
   // monthly
-  menulistSelect(recid("period-list"), "2", recurrence);
+  await menulistSelect(recurrenceDocument.getElementById("period-list"), "2");
 
   // last day of month
-  recurrence.radio(recid("montly-period-relative-date-radio"));
-  menulistSelect(recid("monthly-ordinal"), "-1", recurrence);
-  menulistSelect(recid("monthly-weekday"), "-1", recurrence);
-  recsleep();
+  EventUtils.synthesizeMouseAtCenter(
+    recurrenceDocument.getElementById("montly-period-relative-date-radio"),
+    {},
+    recurrenceWindow
+  );
+  await menulistSelect(recurrenceDocument.getElementById("monthly-ordinal"), "-1");
+  await menulistSelect(recurrenceDocument.getElementById("monthly-weekday"), "-1");
 
   // Close dialog.
-  recurrence.click(reclookup(REC_DLG_ACCEPT));
+  EventUtils.synthesizeMouseAtCenter(
+    recurrenceDocument.querySelector("dialog").getButton("accept"),
+    {},
+    recurrenceWindow
+  );
 }
 
 registerCleanupFunction(function teardownModule() {

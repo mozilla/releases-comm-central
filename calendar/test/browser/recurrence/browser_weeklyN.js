@@ -7,7 +7,6 @@ var {
   CANVAS_BOX,
   EVENTPATH,
   EVENT_BOX,
-  TIMEOUT_MODAL_DIALOG,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -20,12 +19,8 @@ var {
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
-var { REC_DLG_ACCEPT, REC_DLG_DAYS } = ChromeUtils.import(
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
-);
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -41,16 +36,9 @@ add_task(async function testWeeklyNRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
-    await setData(event, iframe, { title: "Event" });
-    plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);
-    event.waitForElement(eventid("item-repeat"));
-    menulistSelect(eventid("item-repeat"), "custom", event);
-    wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
-
-    event.click(eventid("button-saveandclose"));
+  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
+    saveAndCloseItemDialog(eventWindow);
   });
 
   // Check day view.
@@ -96,13 +84,11 @@ add_task(async function testWeeklyNRecurrence() {
   Assert.ok(true, "Test ran to completion");
 });
 
-function setRecurrence(recurrence) {
-  let { sleep: recsleep, lookup: reclookup, eid: recid } = helpersForController(recurrence);
+async function setRecurrence(recurrenceWindow) {
+  let recurrenceDocument = recurrenceWindow.document;
 
   // weekly
-  recurrence.waitForElement(recid("period-list"));
-  menulistSelect(recid("period-list"), "1", recurrence);
-  recsleep();
+  await menulistSelect(recurrenceDocument.getElementById("period-list"), "1");
 
   let mon = cal.l10n.getDateFmtString("day.2.Mmm");
   let tue = cal.l10n.getDateFmtString("day.3.Mmm");
@@ -110,21 +96,46 @@ function setRecurrence(recurrence) {
   let thu = cal.l10n.getDateFmtString("day.5.Mmm");
   let sat = cal.l10n.getDateFmtString("day.7.Mmm");
 
+  let dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
+
   // Starting from Monday so it should be checked.
-  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`).getNode().checked, "mon checked");
+  Assert.ok(dayPicker.querySelector(`[label="${mon}"]`).checked, "mon checked");
   // Check Tuesday, Wednesday, Thursday and Saturday too.
-  recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${tue}"}`));
-  recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`));
-  recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${thu}"}`));
-  recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${sat}"}`));
+  EventUtils.synthesizeMouseAtCenter(
+    dayPicker.querySelector(`[label="${tue}"]`),
+    {},
+    recurrenceWindow
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    dayPicker.querySelector(`[label="${wed}"]`),
+    {},
+    recurrenceWindow
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    dayPicker.querySelector(`[label="${thu}"]`),
+    {},
+    recurrenceWindow
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    dayPicker.querySelector(`[label="${sat}"]`),
+    {},
+    recurrenceWindow
+  );
 
   // Set number of recurrences.
-  recurrence.click(recid("recurrence-range-for"));
-  let ntimesField = recid("repeat-ntimes-count");
-  ntimesField.getNode().value = "4";
+  EventUtils.synthesizeMouseAtCenter(
+    recurrenceDocument.getElementById("recurrence-range-for"),
+    {},
+    recurrenceWindow
+  );
+  recurrenceDocument.getElementById("repeat-ntimes-count").value = "4";
 
   // Close dialog.
-  recurrence.click(reclookup(REC_DLG_ACCEPT));
+  EventUtils.synthesizeMouseAtCenter(
+    recurrenceDocument.querySelector("dialog").getButton("accept"),
+    {},
+    recurrenceWindow
+  );
 }
 
 function checkMultiWeekView(view) {

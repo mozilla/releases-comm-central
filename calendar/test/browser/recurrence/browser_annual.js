@@ -15,11 +15,12 @@ var {
   handleOccurrencePrompt,
   helpersForController,
   invokeNewEventDialog,
-  menulistSelect,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+);
 
 var { getEventBoxPath, lookup, lookupEventBox } = helpersForController(controller);
 
@@ -33,12 +34,9 @@ add_task(async function testAnnualRecurrence() {
 
   // Create yearly recurring all-day event.
   let eventBox = lookupEventBox("day", ALLDAY, null, 1, null);
-  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
-    menulistSelect(eventid("item-repeat"), "yearly", event);
-    await setData(event, iframe, { title: "Event" });
-    event.click(eventid("button-saveandclose"));
+  await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, { title: "Event", repeat: "yearly" });
+    saveAndCloseItemDialog(eventWindow);
   });
 
   let checkYears = [STARTYEAR, STARTYEAR + 1, EPOCH - 1, EPOCH, EPOCH + 1];

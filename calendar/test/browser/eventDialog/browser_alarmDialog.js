@@ -18,7 +18,9 @@ var {
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+);
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -38,10 +40,8 @@ add_task(async function testAlarmDialog() {
   controller.click(lookupEventBox("day", ALLDAY, undefined, 1));
 
   // Create a new all-day event tomorrow.
-  await invokeNewEventDialog(controller, null, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
-    await setData(event, iframe, {
+  await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, {
       allday: true,
       reminder: "1day",
       title: TITLE,
@@ -57,16 +57,14 @@ add_task(async function testAlarmDialog() {
       alarm.sleep(500);
     });
 
-    event.click(eventid("button-saveandclose"));
+    saveAndCloseItemDialog(eventWindow);
   });
   wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 
   // Change the reminder duration, this resets the alarm.
   let eventBox = lookupEventBox("day", ALLDAY, undefined, 1, undefined, EVENTPATH);
-  await invokeEditingEventDialog(controller, eventBox, async (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-
-    await setData(event, iframe, { reminder: "2days", title: TITLE });
+  await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
+    await setData(eventWindow, iframeWindow, { reminder: "2days", title: TITLE });
 
     // Prepare to snooze the alarm.
     plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
@@ -82,7 +80,7 @@ add_task(async function testAlarmDialog() {
       alarm.sleep(500);
     });
 
-    event.click(eventid("button-saveandclose"));
+    saveAndCloseItemDialog(eventWindow);
   });
   wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 

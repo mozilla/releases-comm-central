@@ -330,9 +330,8 @@ function goToDate(controller, year, month, day) {
 /**
  * This callback should close the dialog when finished.
  * @callback EventDialogCallback
- * @param {MozMillController} eventController - The controller for the event
- *                                              window.
- * @param {Object} mockIframeController       - Used with helpersForControllers.
+ * @param {Window} dialogWindow - Item dialog outer window.
+ * @param {Window} iframeWindow - Item dialog inner iframe.
  * @returns {Promise}
  */
 
@@ -356,6 +355,7 @@ async function invokeNewEventDialog(mWController, clickBox, callback) {
     mWController.mainMenu.click("#calendar-new-event-menuitem");
   }
   await eventWindowPromise;
+  Assert.report(false, undefined, undefined, "New event dialog opened");
   await execEventDialogCallback(mWController, callback);
 }
 
@@ -379,6 +379,7 @@ async function invokeNewTaskDialog(mWController, clickBox, callback) {
     mWController.mainMenu.click("#calendar-new-task-menuitem");
   }
   await taskWindowPromise;
+  Assert.report(false, undefined, undefined, "New task dialog opened");
   await execEventDialogCallback(mWController, callback);
 }
 
@@ -404,14 +405,16 @@ async function invokeNewTaskDialog(mWController, clickBox, callback) {
  *                                                open.
  */
 async function invokeViewingEventDialog(mWController, clickBox, callback) {
-  let eventWindowPromise = CalendarTestUtils.waitForEventDialog();
+  let summaryWindowPromise = CalendarTestUtils.waitForEventDialog();
   doubleClickOptionalEventBox(mWController, clickBox);
-  let eventWindow = await eventWindowPromise;
-  let eventController = new MozMillController(eventWindow);
-  eventController.sleep(MID_SLEEP);
+  let summaryWindow = await summaryWindowPromise;
+  Assert.report(false, undefined, undefined, "Summary dialog opened");
+  let summaryController = new MozMillController(summaryWindow);
+  summaryController.sleep(MID_SLEEP);
 
-  await callback(eventController);
-  BrowserTestUtils.windowClosed(mWController.window);
+  await callback(summaryController);
+  await BrowserTestUtils.windowClosed(summaryWindow);
+  Assert.report(false, undefined, undefined, "Summary dialog closed");
 }
 
 /**
@@ -430,6 +433,7 @@ async function invokeEditingEventDialog(mWController, clickBox, callback) {
   let eventWindowPromise = CalendarTestUtils.waitForEventDialog();
   doubleClickOptionalEventBox(mWController, clickBox);
   let eventWindow = await eventWindowPromise;
+  Assert.report(false, undefined, undefined, "Edit event dialog opened");
   let eventController = new MozMillController(eventWindow);
   eventController.sleep(MID_SLEEP);
 
@@ -457,6 +461,7 @@ async function invokeEditingRepeatEventDialog(mWController, clickBox, callback, 
   let eventWindowPromise = CalendarTestUtils.waitForEventDialog();
   doubleClickOptionalEventBox(mWController, clickBox);
   let eventWindow = await eventWindowPromise;
+  Assert.report(false, undefined, undefined, "Repeating event dialog opened");
   let eventController = new MozMillController(eventWindow);
   eventController.sleep(MID_SLEEP);
 
@@ -468,6 +473,8 @@ async function invokeEditingRepeatEventDialog(mWController, clickBox, callback, 
   );
 
   eventController.click(editButton);
+  await BrowserTestUtils.windowClosed(eventWindow);
+  Assert.report(false, undefined, undefined, "Repeating event dialog closed");
   await execEventDialogCallback(mWController, callback);
 }
 
@@ -488,11 +495,9 @@ async function execEventDialogCallback(mWController, callback) {
   let eventController = new MozMillController(eventWindow);
   let iframe = waitForItemPanelIframe(eventController);
 
-  // We can't use a full mozmill controller on an iframe, but we need
-  // something for helpersForController.
-  let mockIframeController = { window: iframe.contentWindow };
-  await callback(eventController, mockIframeController);
+  await callback(eventWindow, iframe.contentWindow);
   BrowserTestUtils.windowClosed(mWController.window);
+  Assert.report(false, undefined, undefined, "Event dialog closed");
 }
 
 function waitForItemPanelIframe(eventController) {
@@ -722,20 +727,27 @@ function closeLightningPrefs(tab) {
 }
 
 /**
- * Helper to work around a mac bug in Thunderbird's mozmill version. This can
- * likely be removed with Mozmill 2.0's new Element Object.
+ * Selects an item from a menulist.
  *
- * @param aMenuList     The XUL menulist to select in.
- * @param aValue        The value assigned to the desired menuitem.
- * @param aController   The mozmill controller associated to the menulist.
+ * @param {Element} menulist
+ * @param {string} value
  */
-function menulistSelect(aMenuList, aValue, aController) {
-  aController.waitForElement(aMenuList);
-  let menulist = aMenuList.getNode();
-  let menuitem = menulist.querySelector(`menupopup > menuitem[value='${aValue}']`);
-  menulist.click();
-  menuitem.click();
-  aController.waitFor(() => {
-    return menulist.value == aValue;
-  });
+async function menulistSelect(menulist, value) {
+  let win = menulist.ownerGlobal;
+  Assert.ok(menulist, `<menulist id=${menulist.id}> exists`);
+  let menuitem = menulist.querySelector(`menupopup > menuitem[value='${value}']`);
+  Assert.ok(menuitem, `<menuitem value=${value}> exists`);
+
+  menulist.focus();
+
+  let shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(menulist, {}, win);
+  await shownPromise;
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menulist, "popuphidden");
+  EventUtils.synthesizeMouseAtCenter(menuitem, {}, win);
+  await hiddenPromise;
+
+  await new Promise(resolve => win.setTimeout(resolve));
+  Assert.equal(menulist.value, value);
 }

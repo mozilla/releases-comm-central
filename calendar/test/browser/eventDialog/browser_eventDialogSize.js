@@ -12,6 +12,9 @@ var {
   invokeNewEventDialog,
   invokeNewTaskDialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+var { cancelItemDialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -23,33 +26,33 @@ add_task(function setupModule(module) {
 });
 
 add_task(async function testEventDialog() {
-  await invokeNewEventDialog(controller, null, (event, iframe) => {
-    checkLargeEnough(event, iframe);
+  await invokeNewEventDialog(controller, null, (eventWindow, iframeWindow) => {
+    checkLargeEnough(eventWindow, iframeWindow);
 
     // Much larger than necessary.
-    event.window.resizeTo(650, 690);
-    checkWithinTolerance(event.window.outerWidth, 650);
-    checkWithinTolerance(event.window.outerHeight, 690);
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
+    eventWindow.resizeTo(650, 690);
+    checkWithinTolerance(eventWindow.outerWidth, 650);
+    checkWithinTolerance(eventWindow.outerHeight, 690);
+    cancelItemDialog(eventWindow);
   });
 
   checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
-  await invokeNewEventDialog(controller, null, (event, iframe) => {
-    let eventDocEl = event.window.document.documentElement;
+  await invokeNewEventDialog(controller, null, (eventWindow, iframeWindow) => {
+    let eventDocEl = eventWindow.document.documentElement;
 
-    checkWithinTolerance(event.window.outerWidth, 650, LARGE_TOLERANCE);
-    checkWithinTolerance(event.window.outerHeight, 690, LARGE_TOLERANCE);
-    checkLargeEnough(event, iframe);
+    checkWithinTolerance(eventWindow.outerWidth, 650, LARGE_TOLERANCE);
+    checkWithinTolerance(eventWindow.outerHeight, 690, LARGE_TOLERANCE);
+    checkLargeEnough(eventWindow, iframeWindow);
 
     // Much smaller than necessary.
-    event.window.resizeTo(350, 400);
-    checkLargeEnough(event, iframe);
-    Assert.less(event.window.outerWidth, 650, "dialog shrank");
-    Assert.less(event.window.outerHeight, 690, "dialog shrank");
-    Assert.greater(event.window.outerWidth, 350, "requested size not reached");
-    Assert.greater(event.window.outerHeight, 400, "requested size not reached");
+    eventWindow.resizeTo(350, 400);
+    checkLargeEnough(eventWindow, iframeWindow);
+    Assert.less(eventWindow.outerWidth, 650, "dialog shrank");
+    Assert.less(eventWindow.outerHeight, 690, "dialog shrank");
+    Assert.greater(eventWindow.outerWidth, 350, "requested size not reached");
+    Assert.greater(eventWindow.outerHeight, 400, "requested size not reached");
     Assert.equal(
       eventDocEl.getAttribute("minwidth"),
       eventDocEl.getAttribute("width"),
@@ -60,17 +63,17 @@ add_task(async function testEventDialog() {
       eventDocEl.getAttribute("height"),
       "minimum height attribute set"
     );
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
+    cancelItemDialog(eventWindow);
   });
 
-  await invokeNewEventDialog(controller, null, (event, iframe) => {
-    checkLargeEnough(event, iframe);
+  await invokeNewEventDialog(controller, null, (eventWindow, iframeWindow) => {
+    checkLargeEnough(eventWindow, iframeWindow);
 
     // Much larger than necessary.
-    event.window.resizeTo(650, 690);
-    checkWithinTolerance(event.window.outerWidth, 650);
-    checkWithinTolerance(event.window.outerHeight, 690);
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
+    eventWindow.resizeTo(650, 690);
+    checkWithinTolerance(eventWindow.outerWidth, 650);
+    checkWithinTolerance(eventWindow.outerHeight, 690);
+    cancelItemDialog(eventWindow);
   });
 
   checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
@@ -78,36 +81,36 @@ add_task(async function testEventDialog() {
 });
 
 add_task(async function testTaskDialog() {
-  await invokeNewTaskDialog(controller, null, (task, iframe) => {
+  await invokeNewTaskDialog(controller, null, (taskWindow, iframeWindow) => {
     checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
     checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
-    checkLargeEnough(task, iframe);
+    checkLargeEnough(taskWindow, iframeWindow);
 
     // Much larger than necessary.
-    task.window.resizeTo(680, 700);
-    checkWithinTolerance(task.window.outerWidth, 680);
-    checkWithinTolerance(task.window.outerHeight, 700);
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, task.window);
+    taskWindow.resizeTo(680, 700);
+    checkWithinTolerance(taskWindow.outerWidth, 680);
+    checkWithinTolerance(taskWindow.outerHeight, 700);
+    cancelItemDialog(taskWindow);
   });
 
   checkWithinTolerance(getPersistedValue("width"), 680, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 700, LARGE_TOLERANCE);
 
-  await invokeNewTaskDialog(controller, null, (task, iframe) => {
-    let taskDocEl = task.window.document.documentElement;
+  await invokeNewTaskDialog(controller, null, (taskWindow, iframeWindow) => {
+    let taskDocEl = taskWindow.document.documentElement;
 
-    checkWithinTolerance(task.window.outerWidth, 680, LARGE_TOLERANCE);
-    checkWithinTolerance(task.window.outerHeight, 700, LARGE_TOLERANCE);
-    checkLargeEnough(task, iframe);
+    checkWithinTolerance(taskWindow.outerWidth, 680, LARGE_TOLERANCE);
+    checkWithinTolerance(taskWindow.outerHeight, 700, LARGE_TOLERANCE);
+    checkLargeEnough(taskWindow, iframeWindow);
 
     // Much smaller than necessary.
-    task.window.resizeTo(350, 400);
-    checkLargeEnough(task, iframe);
-    Assert.less(task.window.outerWidth, 680, "dialog shrank");
-    Assert.less(task.window.outerHeight, 700, "dialog shrank");
-    Assert.greater(task.window.outerWidth, 350, "minimum size not reached");
-    Assert.greater(task.window.outerHeight, 400, "minimum size not reached");
+    taskWindow.resizeTo(350, 400);
+    checkLargeEnough(taskWindow, iframeWindow);
+    Assert.less(taskWindow.outerWidth, 680, "dialog shrank");
+    Assert.less(taskWindow.outerHeight, 700, "dialog shrank");
+    Assert.greater(taskWindow.outerWidth, 350, "minimum size not reached");
+    Assert.greater(taskWindow.outerHeight, 400, "minimum size not reached");
     Assert.equal(
       taskDocEl.getAttribute("minwidth"),
       taskDocEl.getAttribute("width"),
@@ -118,17 +121,17 @@ add_task(async function testTaskDialog() {
       taskDocEl.getAttribute("height"),
       "minimum height attribute set"
     );
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, task.window);
+    cancelItemDialog(taskWindow);
   });
 
-  await invokeNewTaskDialog(controller, null, (task, iframe) => {
-    checkLargeEnough(task, iframe);
+  await invokeNewTaskDialog(controller, null, (taskWindow, iframeWindow) => {
+    checkLargeEnough(taskWindow, iframeWindow);
 
     // Much larger than necessary.
-    task.window.resizeTo(680, 700);
-    checkWithinTolerance(task.window.outerWidth, 680);
-    checkWithinTolerance(task.window.outerHeight, 700);
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, task.window);
+    taskWindow.resizeTo(680, 700);
+    checkWithinTolerance(taskWindow.outerWidth, 680);
+    checkWithinTolerance(taskWindow.outerHeight, 700);
+    cancelItemDialog(taskWindow);
   });
 });
 
@@ -138,18 +141,16 @@ registerCleanupFunction(function teardownModule(module) {
 });
 
 // Check the dialog is resized large enough to hold the iframe.
-function checkLargeEnough(outer, inner) {
-  let { eid: outerId } = helpersForController(outer);
-
-  let iframeNode = outerId("lightning-item-panel-iframe").getNode();
-  let { scrollWidth, scrollHeight } = inner.window.document.documentElement;
-  outer.waitFor(() => {
+function checkLargeEnough(outerWindow, innerWindow) {
+  let iframeNode = outerWindow.document.getElementById("lightning-item-panel-iframe");
+  let { scrollWidth, scrollHeight } = innerWindow.document.documentElement;
+  controller.waitFor(() => {
     return (
       iframeNode.clientWidth + SMALL_TOLERANCE >= scrollWidth &&
       iframeNode.clientHeight + SMALL_TOLERANCE >= scrollHeight
     );
   });
-  info(`Dialog is ${outer.window.outerWidth} by ${outer.window.outerHeight}`);
+  info(`Dialog is ${outerWindow.outerWidth} by ${outerWindow.outerHeight}`);
 }
 
 function getPersistedValue(which) {

@@ -16,7 +16,9 @@ var {
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarTestUtils.jsm"
 );
-var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
+);
 
 var { eid, lookup, sleep } = helpersForController(controller);
 
@@ -66,21 +68,17 @@ add_task(async function setupModule(module) {
   let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
   controller.doubleClick(lookup(treeChildren), 50, 0);
   await eventWindowPromise;
-  await execEventDialogCallback(controller, async (task, iframe) => {
-    let { eid: taskid } = helpersForController(task);
-    let { eid: iframeId } = helpersForController(iframe);
-
+  await execEventDialogCallback(controller, async (taskWindow, iframeWindow) => {
     // Verify calendar.
-    Assert.equal(iframeId("item-calendar").getNode().value, CALENDARNAME);
+    Assert.equal(iframeWindow.document.getElementById("item-calendar").value, CALENDARNAME);
 
-    await setData(task, iframe, {
+    await setData(taskWindow, iframeWindow, {
       status: "needs-action",
       percent: PERCENTCOMPLETE,
       description: DESCRIPTION,
     });
 
-    // save
-    task.click(taskid("button-saveandclose"));
+    saveAndCloseItemDialog(taskWindow);
   });
 
   Assert.less(taskTreeNode.mTaskArray.length, 2, "Should not have added task");
