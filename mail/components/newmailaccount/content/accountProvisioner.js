@@ -115,10 +115,10 @@ var EmailAccountProvisioner = {
   },
 
   /**
-   * Returns the language that the user currently accepts.
+   * Returns the language tag of the language that the user currently accepts.
    */
   get userLanguage() {
-    return Services.locale.requestedLocale;
+    return Services.locale.requestedLocale.split("-")[0];
   },
 
   /**
@@ -585,19 +585,11 @@ var EmailAccountProvisioner = {
       realName: (firstName + " " + lastName).trim(),
       email,
       searchEngine: provider.search_engine,
-      onLoad(aEvent, aBrowser) {
-        window.close();
-      },
     });
 
-    // Wait for the handler to close us.
-    EmailAccountProvisioner.spinning(true);
-    EmailAccountProvisioner.searchEnabled(false);
-    for (let node of document.querySelectorAll(
-      "#notifications > :not(.spinner)"
-    )) {
-      node.style.display = "none";
-    }
+    // The user has made a selection. Close the provisioner window and let
+    // the provider setup process take place in the tab.
+    window.close();
   },
 
   /**
@@ -611,8 +603,6 @@ var EmailAccountProvisioner = {
       return;
     }
 
-    gLog.info("Trying to populate provider list...");
-
     // If there's a timeout ID for waking the account provisioner, clear it.
     if (this._loadProviderRetryId) {
       window.clearTimeout(this._loadProviderRetryId);
@@ -625,6 +615,8 @@ var EmailAccountProvisioner = {
     let providerListUrl = Services.prefs.getCharPref(
       "mail.provider.providerList"
     );
+
+    gLog.info(`Trying to populate provider list from ${providerListUrl}...`);
 
     let request = new XMLHttpRequest();
     request.open("GET", providerListUrl);
@@ -713,20 +705,13 @@ var EmailAccountProvisioner = {
 
     EmailAccountProvisioner.providers = {};
 
-    data.forEach(function(provider) {
+    for (let provider of data) {
       if (!EmailAccountProvisioner.providerHasCorrectFields(provider)) {
         gLog.error("A provider had incorrect fields, and has been skipped");
         return;
       }
 
       EmailAccountProvisioner.providers[provider.id] = provider;
-
-      // Let's go through the array of languages for this provider, and
-      // check to see if at least one of them matches the user's language.
-      // If so, we'll show / select this provider by default.
-      let supportsSomeUserLang = provider.languages.some(function(x) {
-        return x == "*" || x == EmailAccountProvisioner.userLanguage;
-      });
 
       let checkboxId = provider.id + "-check";
 
@@ -762,7 +747,11 @@ var EmailAccountProvisioner = {
         EmailAccountProvisioner.populateTermsAndPrivacyLinks
       );
 
-      if (supportsSomeUserLang) {
+      // Let's go through the array of languages for this provider, and
+      // check to see if at least one of them matches the user's language.
+      // If so, we'll show / select this provider by default.
+      let ul = EmailAccountProvisioner.userLanguage;
+      if (provider.languages.some(l => l == "*" || l == ul)) {
         providerCheckbox.setAttribute("checked", "true");
         providerEntry.style.display = "inline-block";
         providerList.appendChild(providerEntry);
@@ -770,7 +759,7 @@ var EmailAccountProvisioner = {
         providerEntry.classList.add("otherLanguage");
         otherLangProviders.push(providerEntry);
       }
-    });
+    }
 
     if (otherLangProviders.length) {
       for (let provider of otherLangProviders) {

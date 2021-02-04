@@ -53,18 +53,30 @@ httpRequestObserver.prototype = {
       );
       return;
     }
+    // Helper function to get header values.
+    let getHttpHeader = (httpChannel, header) => {
+      // getResponseHeader throws when header is not set.
+      try {
+        return httpChannel.getResponseHeader(header);
+      } catch (e) {
+        return null;
+      }
+    };
 
-    let contentType = "";
-    try {
-      contentType = aSubject.getResponseHeader("Content-Type");
-    } catch (e) {
-      // If we couldn't get the response header, which can happen,
-      // just swallow the exception and return.
+    let contentType = getHttpHeader(aSubject, "Content-Type");
+    if (!contentType.toLowerCase().startsWith("text/xml")) {
       return;
     }
 
-    if (!contentType.toLowerCase().startsWith("text/xml")) {
-      return;
+    // It's possible the account information changed during the setup at the
+    // provider. Check some headers and set them if needed.
+    let name = getHttpHeader(aSubject, "x-thunderbird-account-name");
+    if (name) {
+      this.params.realName = name;
+    }
+    let email = getHttpHeader(aSubject, "x-thunderbird-account-email");
+    if (email) {
+      this.params.email = email;
     }
 
     let requestWindow = this._getWindowForRequest(aSubject);

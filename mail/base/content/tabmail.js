@@ -1805,10 +1805,8 @@
         if (typeof aThinkingState == "string") {
           statusFeedback.showStatusString(aThinkingState);
         }
-        gStatusBar.removeAttribute("value");
       } else {
         statusFeedback.showProgress(0);
-        gStatusBar.value = 0;
       }
     }
 
