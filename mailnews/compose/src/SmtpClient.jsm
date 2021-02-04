@@ -109,6 +109,7 @@ class SmtpClient {
       {
         [Ci.nsMsgAuthMethod.passwordCleartext]: ["PLAIN", "LOGIN"],
         [Ci.nsMsgAuthMethod.passwordEncrypted]: ["CRAM-MD5"],
+        [Ci.nsMsgAuthMethod.GSSAPI]: ["GSSAPI"],
         [Ci.nsMsgAuthMethod.OAuth2]: ["XOAUTH2"],
         [Ci.nsMsgAuthMethod.secure]: ["CRAM-MD5", "XOAUTH2"],
       }[server.authMethod] || [];
@@ -665,6 +666,21 @@ class SmtpClient {
         let oauthToken = await this._authenticator.getOAuthToken();
         this._sendCommand("AUTH XOAUTH2 " + oauthToken, true);
         return;
+      case "GSSAPI": {
+        this.logger.debug("Authentication via AUTH GSSAPI");
+        this._currentAction = this._actionAUTH_GSSAPI;
+        this._authenticator.initGssapiAuth("smtp");
+        let token;
+        try {
+          token = this._authenticator.getNextGssapiToken("");
+        } catch (e) {
+          this.logger.error(e);
+          this._actionAUTHComplete({ success: false, data: "AUTH GSSAPI" });
+          return;
+        }
+        this._sendCommand(`AUTH GSSAPI ${token}`, true);
+        return;
+      }
     }
 
     this._onError(new Error(`Unknown authentication method ${auth}`));
@@ -800,6 +816,11 @@ class SmtpClient {
     // Detect if the server supports CRAM-MD5 auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)CRAM-MD5/i)) {
       this._supportedAuthMethods.push("CRAM-MD5");
+    }
+
+    // Detect if the server supports GSSAPI auth
+    if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)GSSAPI/i)) {
+      this._supportedAuthMethods.push("GSSAPI");
     }
 
     // If a preferred method is not supported by the server, no need to try it.
@@ -950,6 +971,30 @@ class SmtpClient {
     } else {
       this._actionAUTHComplete(command);
     }
+  }
+
+  /**
+   * Response to AUTH GSSAPI, if successful expects a base64 encoded challenge.
+   *
+   * @param {Object} command Parsed command from the server {statusCode, data}
+   */
+  _actionAUTH_GSSAPI(command) {
+    // GSSAPI auth can be multiple steps. We exchange tokens with the server
+    // until success or failure.
+    if (command.success) {
+      this._actionAUTHComplete(command);
+      return;
+    } else if (command.statusCode !== 334) {
+      this._onError(
+        new Error(
+          `Invalid login sequence while waiting for GSSAPI challenge, ${command}`
+        )
+      );
+      return;
+    }
+    let token = this._authenticator.getNextGssapiToken(command.data);
+    this._currentAction = this._actionAUTH_GSSAPI;
+    this._sendCommand(token, true);
   }
 
   /**

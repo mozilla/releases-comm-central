@@ -1,0 +1,40 @@
+/* -*- Mode: IDL; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+
+/**
+ * nsIAuthModule provides GSSAPI, NTLM authentications, but it is not
+ * scriptable. nsIMailAuthModule wraps nsIAuthModule and makes it easy to use in
+ * JavaScript.
+ *
+ * The contract id is: "@mozilla.org/mail/auth-module;1".
+ *
+ * @see nsIAuthModule
+ */
+[scriptable, uuid(9895e904-642e-11eb-bb69-6b87832ac976)]
+interface nsIMailAuthModule : nsISupports {
+
+    /**
+     * Initialize an auth module. This is a combination of
+     * nsIAuthModule::CreateInstance and nsIAuthModule::Init. The aType argument
+     * is passed to CreateInstance, other arguments are passed to Init.
+     */
+    void init(in string        aType,
+              in string        aServiceName,
+              in unsigned long aServiceFlags,
+              in wstring       aDomain,
+              in wstring       aUsername,
+              in wstring       aPassword);
+
+    /**
+     * Get the next token in a sequence of authentication steps.
+     * @param aInToken
+     *        A base64 encoded string, usually a server challenge.
+     * @returns
+     *        A base64 encoded string, usually a response to a server challenge.
+     */
+    ACString getNextToken(in ACString aInToken);
+};

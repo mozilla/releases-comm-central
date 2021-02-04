@@ -5,6 +5,7 @@
 
 EXPORTS += [
     "nsImapMoveCoalescer.h",
+    "nsMailAuthModule.h",
     "nsMailDirServiceDefs.h",
     "nsMsgCompressIStream.h",
     "nsMsgCompressOStream.h",
@@ -33,6 +34,7 @@ SOURCES += [
     "nsCidProtocolHandler.cpp",
     "nsCopyMessageStreamListener.cpp",
     "nsImapMoveCoalescer.cpp",
+    "nsMailAuthModule.cpp",
     "nsMailDirProvider.cpp",
     "nsMessenger.cpp",
     "nsMessengerBootstrap.cpp",

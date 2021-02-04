@@ -65,6 +65,33 @@ class MailAuthenticator {
   }
 
   /**
+   * Init a nsIMailAuthModule instance.
+   * @param {('smtp'|'imap')} protocol - The protocol name.
+   */
+  initGssapiAuth(protocol) {
+    this._authModule = Cc["@mozilla.org/mail/auth-module;1"].createInstance(
+      Ci.nsIMailAuthModule
+    );
+    this._authModule.init(
+      "sasl-gssapi", // Auth module type
+      `${protocol}@${this.hostname}`,
+      0, // nsIAuthModule::REQ_DEFAULT
+      null, // domain
+      this.username,
+      null // password
+    );
+  }
+
+  /**
+   * Get the next token in a sequence of GSSAPI auth steps.
+   * @param {string} inToken - A base64 encoded string, usually server challenge.
+   * @returns {string}
+   */
+  getNextGssapiToken(inToken) {
+    return this._authModule.getNextToken(inToken);
+  }
+
+  /**
    * Show a dialog for authentication failure.
    * @returns {number} - 0: Retry; 1: Cancel; 2: New password.
    */
