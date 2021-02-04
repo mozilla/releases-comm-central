@@ -65,7 +65,7 @@ messenger.jar:
     content/messenger/gloda-autocomplete-input.js   (content/gloda-autocomplete-input.js)
     content/messenger/tabmail.js                    (content/tabmail.js)
     content/messenger/tabmail-tabs.js               (content/tabmail-tabs.js)
-    content/messenger/tabbrowser-tab.js             (content/tabbrowser-tab.js)
+    content/messenger/tabmail-tab.js                (content/tabmail-tab.js)
     content/messenger/tabmail.css                   (content/tabmail.css)
     content/messenger/statuspanel.js                (content/statuspanel.js)
     content/messenger/newTagDialog.xhtml            (content/newTagDialog.xhtml)

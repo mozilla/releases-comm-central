@@ -267,11 +267,7 @@ var CustomizableUIInternal = {
       CustomizableUI.AREA_TABSTRIP,
       {
         type: CustomizableUI.TYPE_TOOLBAR,
-        defaultPlacements: [
-          "tabbrowser-tabs",
-          "new-tab-button",
-          "alltabs-button",
-        ],
+        defaultPlacements: ["tabmail-tabs", "new-tab-button", "alltabs-button"],
         defaultCollapsed: null,
       },
       true

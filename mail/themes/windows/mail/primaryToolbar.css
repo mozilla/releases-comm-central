@@ -66,7 +66,7 @@
   }
 
   /**
-   * With the tabbrowser-tabs element z-index'd above the nav-bar, we now get the
+   * With the tabmail-tabs element z-index'd above the nav-bar, we now get the
    * scrollbox button borders leaking over the nav-bar highlight. This transparent bottom
    * border forces the scrollbox button borders to terminate a pixel early, working
    * around the issue.

@@ -484,8 +484,14 @@
             return;
           }
 
-          // for the one-close-button case
+          // Stop propagating for the one-close-button case.
           event.stopPropagation();
+
+          // Prevent default only if the double click happened on the close
+          // button. This is to prevent accidental toggle of full size window.
+          if (event.originalTarget.classList.contains("tabs-closebutton")) {
+            event.preventDefault();
+          }
         },
         true
       );
@@ -663,6 +669,8 @@
       this.addEventListener("TabSelect", event => {
         this._handleTabSelect();
       });
+      this.addEventListener("TabOpen", this._toggleArrowScrollboxClosebutton);
+      this.addEventListener("TabClose", this._toggleArrowScrollboxClosebutton);
     }
 
     get tabbox() {
@@ -756,7 +764,34 @@
           this.setAttribute("closebuttons", "noclose");
           break;
       }
-      this.arrowScrollboxClosebutton.collapsed = this.mCloseButtons != 3;
+
+      // Interrupt if the "tabmail-tabs" hasn't been initialized yet.
+      if (!this.tabmail.tabContainer) {
+        return;
+      }
+
+      // Hide the the tabs-closebutton-box based on the pref or if we only have
+      // 1 tab opened.
+      this.arrowScrollboxClosebutton.collapsed =
+        this.mCloseButtons != 3 ||
+        this.tabmail.tabContainer.allTabs.length == 1;
+    }
+
+    /**
+     * Hide or show the tabs-closebutton-box based on the pref and the number
+     * of openend tabs.
+     */
+    _toggleArrowScrollboxClosebutton(event) {
+      // The "TabClose" event is dispatched from the tabNode before is actually
+      // deleted, therefore we need to subtract 1 to the number of currently
+      // opened tabs to reflect the real number.
+      let tabCount =
+        event.type == "TabClose"
+          ? this.tabmail.tabContainer.allTabs.length - 1
+          : this.tabmail.tabContainer.allTabs.length;
+
+      this.arrowScrollboxClosebutton.collapsed =
+        this.mCloseButtons != 3 || tabCount == 1;
     }
 
     _handleTabSelect() {
