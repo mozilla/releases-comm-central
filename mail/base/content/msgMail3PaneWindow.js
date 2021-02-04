@@ -58,7 +58,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",
 });
 
-var gBrowser;
 // A stub for tests to avoid test failures caused by the harness expecting
 // this to exist.
 var NewTabPagePreloading = {
@@ -679,14 +678,6 @@ var gMailInit = {
     preferencesTabType.initialize();
     // accountProvisionerTabType is defined in accountProvisionerTab.js
     tabmail.registerTabType(accountProvisionerTabType);
-
-    // Hack to allow pdfjs to be able to access the tabmail details when it
-    // assumes gBrowser exists.
-    gBrowser = tabmail;
-    gBrowser.getCachedFindBar = tab => tab.findbar;
-    // Thunderbird doesn't yet support this, but we need it defined for tests
-    // to keep working.
-    gBrowser._insertBrowser = () => {};
 
     // Set up the summary frame manager to handle loading pages in the
     // multi-message pane

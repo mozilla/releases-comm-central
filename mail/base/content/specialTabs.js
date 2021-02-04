@@ -945,6 +945,13 @@ var specialTabs = {
       this._setUpTitleListener(aTab);
       this._setUpCloseWindowListener(aTab);
 
+      /**
+       * Override the browser custom element's version, which returns gBrowser.
+       */
+      aTab.browser.getTabBrowser = function() {
+        return document.getElementById("tabmail");
+      };
+
       if ("onLoad" in aArgs) {
         aTab.browser.addEventListener(
           "load",

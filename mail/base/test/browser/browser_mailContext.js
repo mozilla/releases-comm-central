@@ -4,6 +4,9 @@
 
 /* eslint-env webextensions */
 
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -13,6 +16,8 @@ var { MessageGenerator } = ChromeUtils.import(
 
 const TEST_DOCUMENT_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html";
+
+let testFolder;
 
 function checkMenuitems(menu, ...expectedItems) {
   if (expectedItems.length == 0) {
@@ -43,7 +48,7 @@ async function checkABrowser(browser) {
   let mailContext = browser.ownerDocument.getElementById("mailContext");
 
   let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
-  BrowserTestUtils.synthesizeMouseAtCenter(
+  await BrowserTestUtils.synthesizeMouseAtCenter(
     "p",
     { type: "contextmenu" },
     browser
@@ -58,7 +63,7 @@ async function checkABrowser(browser) {
   mailContext.hidePopup();
 
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
-  BrowserTestUtils.synthesizeMouseAtCenter(
+  await BrowserTestUtils.synthesizeMouseAtCenter(
     "a",
     { type: "contextmenu" },
     browser
@@ -73,9 +78,9 @@ async function checkABrowser(browser) {
   );
   mailContext.hidePopup();
 
-  BrowserTestUtils.synthesizeMouseAtCenter("input", {}, browser);
+  await BrowserTestUtils.synthesizeMouseAtCenter("input", {}, browser);
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
-  BrowserTestUtils.synthesizeMouseAtCenter(
+  await BrowserTestUtils.synthesizeMouseAtCenter(
     "input",
     { type: "contextmenu" },
     browser
@@ -99,7 +104,7 @@ add_task(async function testMessagePane() {
   account.addIdentity(MailServices.accounts.createIdentity());
   let rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("test", null);
-  let testFolder = rootFolder
+  testFolder = rootFolder
     .getChildNamed("test")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   let messages = new MessageGenerator().makeMessages({ count: 5 });
@@ -119,18 +124,13 @@ add_task(async function testMessagePane() {
 
   let mailContext = document.getElementById("mailContext");
   let messagePane = document.getElementById("messagepane");
-  await BrowserTestUtils.browserLoaded(messagePane, undefined, "about:blank");
   Assert.equal(messagePane.currentURI.spec, "about:blank");
-  BrowserTestUtils.synthesizeMouseAtCenter(
-    "html",
-    { type: "contextmenu" },
-    messagePane
-  );
+  EventUtils.synthesizeMouseAtCenter(messagePane, { type: "contextmenu" });
   checkMenuitems(mailContext);
 
   // A web page is shown in the message pane.
 
-  BrowserTestUtils.loadURI(messagePane, TEST_DOCUMENT_URL);
+  MailE10SUtils.loadURI(messagePane, TEST_DOCUMENT_URL);
   await checkABrowser(messagePane);
 
   let tree = window.gFolderDisplay.tree;
@@ -149,7 +149,7 @@ add_task(async function testMessagePane() {
   window.gFolderDisplay.selectViewIndex(0);
   await BrowserTestUtils.browserLoaded(messagePane);
   let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
-  BrowserTestUtils.synthesizeMouseAtCenter(
+  await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
     messagePane
@@ -252,6 +252,8 @@ add_task(async function testMessagePane() {
     "downloadSelected"
   );
   mailContext.hidePopup();
+
+  window.gFolderDisplay.selectMessages([]);
 });
 
 add_task(async function testContentTab() {
@@ -284,6 +286,8 @@ add_task(async function testExtensionPopupWindow() {
   await extension.awaitFinish("ready");
 
   let extensionPopup = Services.wm.getMostRecentWindow("mail:extensionPopup");
+  // extensionPopup.xhtml needs time to initialise properly.
+  await new Promise(resolve => extensionPopup.setTimeout(resolve, 500));
   await checkABrowser(extensionPopup.document.getElementById("requestFrame"));
   await BrowserTestUtils.closeWindow(extensionPopup);
 
@@ -300,7 +304,7 @@ add_task(async function testExtensionBrowserAction() {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "mailcontext@mochi.test",
         },
       },
       browser_action: {
@@ -313,12 +317,12 @@ add_task(async function testExtensionBrowserAction() {
 
   let browserPromise = awaitExtensionPanel(extension, window);
   let actionButton = document.getElementById(
-    "test1_mochi_test-browserAction-toolbarbutton"
+    "mailcontext_mochi_test-browserAction-toolbarbutton"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {});
 
   let browser = await browserPromise;
-  let panel = document.getElementById("test1_mochi_test-panel");
+  let panel = document.getElementById("mailcontext_mochi_test-panel");
   // The panel needs some time to decide how big it's going to be.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -338,7 +342,7 @@ add_task(async function testExtensionComposeAction() {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "mailcontext@mochi.test",
         },
       },
       compose_action: {
@@ -366,12 +370,12 @@ add_task(async function testExtensionComposeAction() {
 
   let browserPromise = awaitExtensionPanel(extension, composeWindow);
   let actionButton = composeDocument.getElementById(
-    "test1_mochi_test-composeAction-toolbarbutton"
+    "mailcontext_mochi_test-composeAction-toolbarbutton"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, composeWindow);
 
   let browser = await browserPromise;
-  let panel = composeDocument.getElementById("test1_mochi_test-panel");
+  let panel = composeDocument.getElementById("mailcontext_mochi_test-panel");
   // The panel needs some time to decide how big it's going to be.
   await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
   await checkABrowser(browser);
@@ -391,7 +395,7 @@ add_task(async function testExtensionMessageDisplayAction() {
     manifest: {
       applications: {
         gecko: {
-          id: "test1@mochi.test",
+          id: "mailcontext@mochi.test",
         },
       },
       message_display_action: {
@@ -402,9 +406,8 @@ add_task(async function testExtensionMessageDisplayAction() {
 
   await extension.startup();
 
-  window.gFolderDisplay.selectViewIndex(0);
   let messageWindowPromise = BrowserTestUtils.domWindowOpened();
-  window.MsgOpenNewWindowForMessage();
+  window.MsgOpenNewWindowForMessage(testFolder.messages.getNext());
   let messageWindow = await messageWindowPromise;
   await BrowserTestUtils.waitForEvent(messageWindow, "load");
   let messageDocument = messageWindow.document;
@@ -413,12 +416,12 @@ add_task(async function testExtensionMessageDisplayAction() {
 
   let browserPromise = awaitExtensionPanel(extension, messageWindow);
   let actionButton = messageDocument.getElementById(
-    "test1_mochi_test-messageDisplayAction-toolbarbutton"
+    "mailcontext_mochi_test-messageDisplayAction-toolbarbutton"
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, messageWindow);
 
   let browser = await browserPromise;
-  let panel = messageDocument.getElementById("test1_mochi_test-panel");
+  let panel = messageDocument.getElementById("mailcontext_mochi_test-panel");
   // The panel needs some time to decide how big it's going to be.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
@@ -428,26 +431,3 @@ add_task(async function testExtensionMessageDisplayAction() {
   await extension.unload();
   await BrowserTestUtils.closeWindow(messageWindow);
 });
-
-async function awaitExtensionPanel(extension, win) {
-  let { originalTarget: browser } = await BrowserTestUtils.waitForEvent(
-    win.document,
-    "WebExtPopupLoaded",
-    true,
-    event => event.detail.extension.id === extension.id
-  );
-
-  let popup = browser.closest("panel");
-  if (popup.state != "open") {
-    await BrowserTestUtils.waitForEvent(popup, "popupshown");
-  }
-
-  if (
-    browser.webProgress?.isLoadingDocument ||
-    browser.currentURI?.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
-
-  return browser;
-}

@@ -1963,6 +1963,21 @@
     // Called by <browser>, unused by tabmail.
     finishBrowserRemotenessChange(browser, loadSwitchId) {}
 
+    /**
+     * Returns the find bar for a tab.
+     */
+    getCachedFindBar(tab = this.selectedTab) {
+      return tab.findbar ?? null;
+    }
+
+    /**
+     * Implementation of gBrowser's lazy-loaded find bar. We don't lazily load
+     * the find bar, and some of our tabs don't have a find bar.
+     */
+    async getFindBar(tab = this.selectedTab) {
+      return tab.findbar ?? null;
+    }
+
     disconnectedCallback() {
       window.controllers.removeController(this.tabController);
     }
