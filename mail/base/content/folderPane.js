@@ -1630,7 +1630,7 @@ var gFolderTreeView = {
    * persist their state over-time. It is designed to be used as a JSON object.
    */
   _persistOpenMap: {},
-  _notPersistedModes: ["unread", "favorite", "recent"],
+  _notPersistedModes: ["unread", "recent"],
 
   /**
    * This is a JavaScript map of which folders have a custom color so that we
