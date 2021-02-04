@@ -14,15 +14,15 @@ async function installFile(filename) {
   MockFilePicker.setFiles([file]);
   MockFilePicker.afterOpenCallback = MockFilePicker.cleanup;
 
-  let managerWin = await openAddonsMgr("addons://list/extension");
+  let { document, gViewController } = await openAddonsMgr(
+    "addons://list/extension"
+  );
 
   // Do the install...
-  if (managerWin.gViewController.isLoading) {
-    await BrowserTestUtils.waitForEvent(managerWin.document, "ViewChanged");
+  if (gViewController.isLoading) {
+    await BrowserTestUtils.waitForEvent(document, "ViewChanged");
   }
-  let installButton = managerWin
-    .getHtmlBrowser()
-    .contentDocument.querySelector('[action="install-from-file"]');
+  let installButton = document.querySelector('[action="install-from-file"]');
   installButton.click();
 }
 

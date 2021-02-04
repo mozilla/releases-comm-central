@@ -377,9 +377,12 @@ var contentTabBaseType = {
   // as specified in inContentWhitelist.
   inContentOverlays: [
     // about:addons
-    // The add-ons page contains an inner document which is overlaid by
-    // MailGlue, since by the time we get here it's too late.
-    null,
+    function(aDocument, aTab) {
+      Services.scriptloader.loadSubScript(
+        "chrome://messenger/content/aboutAddonsExtra.js",
+        aDocument.defaultView
+      );
+    },
 
     // Let's not mess with about:blank.
     null,

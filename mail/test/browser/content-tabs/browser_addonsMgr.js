@@ -27,12 +27,7 @@ add_task(function test_open_addons_with_url() {
 
   let tab = mc.tabmail.currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 10000);
-  let innerBrowser = content_tab_e(tab, "html-view-browser");
-  wait_for_browser_load(
-    innerBrowser,
-    "chrome://mozapps/content/extensions/aboutaddons.html"
-  );
-  let categoriesBox = innerBrowser.contentDocument.getElementById("categories");
+  let categoriesBox = tab.browser.contentDocument.getElementById("categories");
   Assert.equal(
     categoriesBox.selectedChild.getAttribute("viewid"),
     "addons://list/theme",
