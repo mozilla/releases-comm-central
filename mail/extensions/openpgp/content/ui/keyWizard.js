@@ -118,6 +118,11 @@ async function init() {
   // Switch directly to the import screen if requested by the user.
   if (window.arguments[0].isImport) {
     document.getElementById("openPgpKeyChoices").value = 1;
+
+    // Disable the "Continue" button so the user can't accidentally click on it.
+    // See bug 1689980.
+    kDialog.getButton("accept").setAttribute("disabled", true);
+
     switchSection();
   }
 }
