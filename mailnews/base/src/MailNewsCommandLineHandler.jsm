@@ -14,7 +14,7 @@ var MESSAGE_ID_PARAM = "?messageid=";
 
 function MailNewsCommandLineHandler() {}
 MailNewsCommandLineHandler.prototype = {
-  get _messenger() {
+  get messenger() {
     delete this._messenger;
     return (this._messenger = Cc["@mozilla.org/messenger;1"].createInstance(
       Ci.nsIMessenger
@@ -66,7 +66,7 @@ MailNewsCommandLineHandler.prototype = {
           }
         } else {
           // message URI
-          msgHdr = this._messenger.msgHdrFromURI(mailURL);
+          msgHdr = this.messenger.msgHdrFromURI(mailURL);
         }
       } else {
         // Necko URL, so convert it into a message header
