@@ -19,10 +19,8 @@ var gUnverified = null;
 
 async function init() {
   let num = window.arguments[0].keys.length;
-
-  document
-    .getElementById("importLabel")
-    .setAttribute("data-l10n-args", JSON.stringify({ key: `(${num})` }));
+  let label = document.getElementById("importLabel");
+  document.l10n.setAttributes(label, "do-import-multiple", { key: `(${num})` });
 
   // TODO: This should be changed to use data-l10n-id in the .xhtml
   // at a later time. We reuse strings on the 78 branch that don't have
