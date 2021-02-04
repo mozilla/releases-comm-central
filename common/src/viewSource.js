@@ -17,7 +17,7 @@ addEventListener("load", () => {
   gBrowser.addEventListener("pagetitlechanged", () => {
     document.title =
       document.documentElement.getAttribute("titlepreface") +
-      gBrowser.contentDocument.title +
+      gBrowser.contentTitle +
       document.documentElement.getAttribute("titlemenuseparator") +
       document.documentElement.getAttribute("titlemodifier");
   });
