@@ -671,6 +671,7 @@ pref("browser.tabs.loadDivertedInBackground", false);
 
 // Enable multi-process.
 pref("browser.tabs.remote.autostart", true);
+pref("browser.tabs.remote.desktopbehavior", true);
 pref("extensions.webextensions.remote", true);
 
 // Browser icon prefs

@@ -30,6 +30,8 @@ async function checkABrowser(browser) {
   let win = browser.ownerGlobal;
   let doc = browser.ownerDocument;
 
+  // Date picker
+
   let picker = doc.getElementById(browser.getAttribute("datetimepicker"));
   Assert.ok(picker, "date/time picker exists");
 
@@ -54,6 +56,40 @@ async function checkABrowser(browser) {
   // Check the date was assigned to the input.
   await SpecialPowers.spawn(browser, [], () => {
     Assert.ok(content.document.querySelector(`input[type="date"]`).value);
+  });
+
+  // Select drop-down
+
+  let menulist = doc.getElementById(browser.getAttribute("selectmenulist"));
+  Assert.ok(menulist, "select menulist exists");
+  let menupopup = menulist.menupopup;
+
+  // Click on the select control to open the popup.
+  shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter("select", {}, browser);
+  await shownPromise;
+
+  // Allow the menulist time to initialise.
+  await new Promise(r => win.setTimeout(r, 500));
+
+  Assert.equal(menulist.value, "0");
+  Assert.equal(menupopup.childElementCount, 3);
+  // Item values do not match the content document, but are 0-indexed.
+  Assert.equal(menupopup.children[0].label, "");
+  Assert.equal(menupopup.children[0].value, "0");
+  Assert.equal(menupopup.children[1].label, "Π");
+  Assert.equal(menupopup.children[1].value, "1");
+  Assert.equal(menupopup.children[2].label, "Τ");
+  Assert.equal(menupopup.children[2].value, "2");
+
+  // Click the second option. This sets the value and closes the menulist.
+  hiddenPromise = BrowserTestUtils.waitForEvent(menulist, "popuphidden");
+  EventUtils.synthesizeMouseAtCenter(menupopup.children[1], {}, win);
+  await hiddenPromise;
+
+  // Check the value was assigned to the control.
+  await SpecialPowers.spawn(browser, [], () => {
+    Assert.equal(content.document.querySelector("select").value, "3.141592654");
   });
 }
 
