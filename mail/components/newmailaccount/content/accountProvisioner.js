@@ -705,7 +705,7 @@ var EmailAccountProvisioner = {
 
     EmailAccountProvisioner.providers = {};
 
-    for (let provider of data) {
+    data.forEach(provider => {
       if (!EmailAccountProvisioner.providerHasCorrectFields(provider)) {
         gLog.error("A provider had incorrect fields, and has been skipped");
         return;
@@ -751,7 +751,7 @@ var EmailAccountProvisioner = {
       // check to see if at least one of them matches the user's language.
       // If so, we'll show / select this provider by default.
       let ul = EmailAccountProvisioner.userLanguage;
-      if (provider.languages.some(l => l == "*" || l == ul)) {
+      if (provider.languages.some(l => l == "*" || l.split("-")[0] == ul)) {
         providerCheckbox.setAttribute("checked", "true");
         providerEntry.style.display = "inline-block";
         providerList.appendChild(providerEntry);
@@ -759,7 +759,7 @@ var EmailAccountProvisioner = {
         providerEntry.classList.add("otherLanguage");
         otherLangProviders.push(providerEntry);
       }
-    }
+    });
 
     if (otherLangProviders.length) {
       for (let provider of otherLangProviders) {
