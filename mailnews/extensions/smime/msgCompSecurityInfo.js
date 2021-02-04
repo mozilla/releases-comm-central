@@ -24,7 +24,8 @@ function onLoad() {
   gViewButton = document.getElementById("viewCertButton");
   gBundle = document.getElementById("bundle_smime_comp_info");
 
-  let allow_ldap_cert_fetching = params.smFields.requireEncryptMessage;
+  let allow_ldap_cert_fetching =
+    params.compFields.composeSecure.requireEncryptMessage;
 
   let emailAddresses = [];
   let certIssuedInfos = [];
@@ -101,7 +102,7 @@ function onLoad() {
 
   let signedElement = document.getElementById("signed");
   let encryptedElement = document.getElementById("encrypted");
-  if (params.smFields.requireEncryptMessage) {
+  if (params.compFields.composeSecure.requireEncryptMessage) {
     if (params.isEncryptionCertAvailable && canEncrypt) {
       encryptedElement.value = gBundle.getString("StatusYes");
     } else {
@@ -111,7 +112,7 @@ function onLoad() {
     encryptedElement.value = gBundle.getString("StatusNo");
   }
 
-  if (params.smFields.signMessage) {
+  if (params.compFields.composeSecure.signMessage) {
     if (params.isSigningCertAvailable) {
       signedElement.value = gBundle.getString("StatusYes");
     } else {

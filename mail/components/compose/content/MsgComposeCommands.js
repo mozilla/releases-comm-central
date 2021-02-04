@@ -107,7 +107,6 @@ var gComposeType;
 var gLanguageObserver;
 var gBodyFromArgs;
 
-var gSMFields = null;
 var gSelectedTechnologyIsPGP = false;
 
 // The initial flags store the value we used at composer open time.
@@ -1834,6 +1833,11 @@ function showMessageComposeSecurityStatus() {
       }
     );
   } else {
+    // gSendEncrypted and gSendSigned keep track of the status before sending.
+    // CompleteGenericSendMessage will set them on composeSecure. Do that here
+    // as well so that the right security info is shown.
+    gMsgCompose.compFields.composeSecure.requireEncryptMessage = gSendEncrypted;
+    gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
     window.openDialog(
       "chrome://messenger-smime/content/msgCompSecurityInfo.xhtml",
       "",
@@ -1841,7 +1845,6 @@ function showMessageComposeSecurityStatus() {
       {
         compFields: gMsgCompose.compFields,
         subject: document.getElementById("msgSubject").value,
-        smFields: gSMFields,
         isSigningCertAvailable:
           gCurrentIdentity.getUnicharAttribute("signing_cert_name") != "",
         isEncryptionCertAvailable:
@@ -3946,9 +3949,9 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     }
   }
 
-  if (gSMFields && !gSelectedTechnologyIsPGP) {
-    gSMFields.requireEncryptMessage = gSendEncrypted;
-    gSMFields.signMessage = gSendSigned;
+  if (gMsgCompose.compFields.composeSecure && !gSelectedTechnologyIsPGP) {
+    gMsgCompose.compFields.composeSecure.requireEncryptMessage = gSendEncrypted;
+    gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
   }
 
   setEncSigStatusUI();
@@ -4041,13 +4044,9 @@ function ComposeLoad() {
   }
 
   top.controllers.appendController(SecurityController);
-  gMsgCompose.compFields.composeSecure = null;
-  gSMFields = Cc[
+  gMsgCompose.compFields.composeSecure = Cc[
     "@mozilla.org/messengercompose/composesecure;1"
   ].createInstance(Ci.nsIMsgComposeSecure);
-  if (gSMFields) {
-    gMsgCompose.compFields.composeSecure = gSMFields;
-  }
 
   adjustSignEncryptAfterIdentityChanged(null);
 
