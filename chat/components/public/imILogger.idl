@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsISimpleEnumerator.idl"
 #include "nsIFile.idl"
 
 interface imIAccount;
@@ -32,11 +31,6 @@ interface imILogConversation: nsISupports {
   readonly attribute prplIAccountBuddy buddy; // always null (compatibility with prplIConvIM).
 
   Array<imIMessage> getMessages();
-
-  // Callers that process the messages asynchronously should use the enumerator
-  // instead of the array version of the getMessages* methods to avoid paying
-  // up front the cost of xpconnect wrapping all message objects.
-  nsISimpleEnumerator getMessagesEnumerator([optional] out unsigned long messageCount);
 };
 
 [scriptable, uuid(27712ece-ad2c-4504-87d5-9e2c16d40fef)]
@@ -67,7 +61,7 @@ interface imILogger: nsISupports {
   // after any pending I/O operations on the files complete.
   jsval getLogPathsForConversation(in prplIConversation aConversation);
 
-  // Below methods return promises that resolve to nsISimpleEnumerator instances.
+  // Below methods return promises that resolve to {imILog[]}.
 
   // Get logs for a username that may not be in the contact list.
   jsval getLogsForAccountAndName(in imIAccount aAccount,

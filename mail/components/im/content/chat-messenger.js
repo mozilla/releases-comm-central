@@ -663,11 +663,11 @@ var chatHandler = {
   /**
    * Display a list of logs into a tree, and optionally handle a default selection.
    *
-   * @param aLogs An nsISimpleEnumerator of imILog.
-   * @param aShouldSelect Either a boolean (true means select the first log
+   * @param {imILog} aLogs - An array of imILog.
+   * @param {boolean|imILog} aShouldSelect - Either a boolean (true means select the first log
    * of the list, false or undefined means don't mess with the selection) or a log
    * item that needs to be selected.
-   * @returns true if there's at least one log in the list, false if empty.
+   * @returns {boolean} True if there's at least one log in the list, false if empty.
    */
   _showLogList(aLogs, aShouldSelect) {
     let logTree = document.getElementById("logTree");

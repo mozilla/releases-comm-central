@@ -5,7 +5,7 @@
 var EXPORTED_SYMBOLS = ["Logger"];
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var { EmptyEnumerator, l10nHelper, XPCOMUtils } = ChromeUtils.import(
+var { l10nHelper, XPCOMUtils } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 var { GenericMessagePrototype } = ChromeUtils.import(
@@ -542,29 +542,6 @@ LogConversation.prototype = {
   getMessages() {
     return this._messages.map(m => new LogMessage(m, this));
   },
-  getMessagesEnumerator(aMessageCount) {
-    if (aMessageCount) {
-      aMessageCount.value = this._messages.length;
-    }
-    let enumerator = {
-      _index: 0,
-      _conv: this,
-      _messages: this._messages,
-      hasMoreElements() {
-        return this._index < this._messages.length;
-      },
-      getNext() {
-        return new LogMessage(this._messages[this._index++], this._conv);
-      },
-      QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
-      *[Symbol.iterator]() {
-        while (this.hasMoreElements()) {
-          yield this.getNext();
-        }
-      },
-    };
-    return enumerator;
-  },
 };
 
 /**
@@ -708,16 +685,13 @@ Log.prototype = {
 };
 
 /**
- * Log enumerators provide lists of log files ("entries"). aEntries is an array
- * of the OS.File.DirectoryIterator.Entry instances which represent the log
- * files to be parsed.
+ * logsGroupedByDay() organizes log entries by date.
  *
- * DailyLogEnumerator organizes entries by date, and enumerates them in order.
- * LogEnumerator enumerates logs in the same order as the input array.
+ * @param {OS.File.DirectoryIterator.Entry[]} aEntries - entries of log files to be parsed.
+ * @returns {imILog[]} Logs, ordered by day.
  */
-function DailyLogEnumerator(aEntries) {
-  this._entries = {};
-
+function logsGroupedByDay(aEntries) {
+  let entries = {};
   for (let entry of aEntries) {
     let path = entry.path;
 
@@ -739,69 +713,31 @@ function DailyLogEnumerator(aEntries) {
       dateForID.setSeconds(0);
       dayID = dateForID.toISOString();
 
-      if (!(dayID in this._entries)) {
-        this._entries[dayID] = [];
+      if (!(dayID in entries)) {
+        entries[dayID] = [];
       }
 
-      this._entries[dayID].push({
+      entries[dayID].push({
         path,
         time: logDate,
       });
     } else {
       // Add legacy text logs as individual paths.
       dayID = dateForID.toISOString() + "txt";
-      this._entries[dayID] = path;
+      entries[dayID] = path;
     }
   }
 
-  this._days = Object.keys(this._entries).sort();
-  this._index = 0;
+  let days = Object.keys(entries);
+  days.sort();
+  return days.map(dayID => new Log(entries[dayID]));
 }
-DailyLogEnumerator.prototype = {
-  _entries: {},
-  _days: [],
-  _index: 0,
-  hasMoreElements() {
-    return this._index < this._days.length;
-  },
-  getNext() {
-    let dayID = this._days[this._index++];
-    return new Log(this._entries[dayID]);
-  },
-  QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
-  *[Symbol.iterator]() {
-    while (this.hasMoreElements()) {
-      yield this.getNext();
-    }
-  },
-};
-
-function LogEnumerator(aEntries) {
-  this._entries = aEntries;
-  this._entries.sort((a, b) => a.name > b.name);
-}
-LogEnumerator.prototype = {
-  _entries: [],
-  hasMoreElements() {
-    return this._entries.length > 0;
-  },
-  getNext() {
-    // Create and return a log from the first entry.
-    return new Log(this._entries.shift().path);
-  },
-  QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
-  *[Symbol.iterator]() {
-    while (this.hasMoreElements()) {
-      yield this.getNext();
-    }
-  },
-};
 
 function Logger() {}
 Logger.prototype = {
   // Returned Promise resolves to an array of entries for the
   // log folder if it exists, otherwise null.
-  async _getLogArray(aAccount, aNormalizedName) {
+  async _getLogEntries(aAccount, aNormalizedName) {
     let iterator, path;
     try {
       path = OS.Path.join(
@@ -867,12 +803,23 @@ Logger.prototype = {
         }
       );
   },
-  // Creates and returns the appropriate LogEnumerator for the given log array
-  // depending on aGroupByDay, or an EmptyEnumerator if the input array is empty.
-  _getEnumerator(aLogArray, aGroupByDay) {
-    let enumerator = aGroupByDay ? DailyLogEnumerator : LogEnumerator;
-    return aLogArray.length ? new enumerator(aLogArray) : EmptyEnumerator;
+
+  /**
+   * Helper to produce array of imILog objects from directory entries.
+   *
+   * @param {OS.File.DirectoryIterator.Entry[]} entries - Directory entries of log files to be parsed.
+   * @param {boolean} groupByDay - If true, order by day (rather than by filename).
+   * @returns {imILog[]} Logs, ordered by day.
+   */
+  _toLogArray(entries, groupByDay) {
+    if (groupByDay) {
+      return logsGroupedByDay(entries);
+    }
+    // Default - sort by filename.
+    entries.sort((a, b) => a.name > b.name);
+    return entries.map(entry => new Log(entry.path));
   },
+
   async getLogPathsForConversation(aConversation) {
     let writer = gLogWritersById.get(aConversation.id);
     // Resolve to null if we haven't created a LogWriter yet for this conv, or
@@ -889,8 +836,8 @@ Logger.prototype = {
     return paths;
   },
   getLogsForAccountAndName(aAccount, aNormalizedName, aGroupByDay) {
-    return this._getLogArray(aAccount, aNormalizedName).then(aEntries =>
-      this._getEnumerator(aEntries, aGroupByDay)
+    return this._getLogEntries(aAccount, aNormalizedName).then(aEntries =>
+      this._toLogArray(aEntries, aGroupByDay)
     );
   },
   getLogsForAccountBuddy(aAccountBuddy, aGroupByDay) {
@@ -904,27 +851,27 @@ Logger.prototype = {
     let entries = [];
     for (let accountBuddy of aBuddy.getAccountBuddies()) {
       entries = entries.concat(
-        await this._getLogArray(
+        await this._getLogEntries(
           accountBuddy.account,
           accountBuddy.normalizedName
         )
       );
     }
-    return this._getEnumerator(entries, aGroupByDay);
+    return this._toLogArray(entries, aGroupByDay);
   },
   async getLogsForContact(aContact, aGroupByDay) {
     let entries = [];
     for (let buddy of aContact.getBuddies()) {
       for (let accountBuddy of buddy.getAccountBuddies()) {
         entries = entries.concat(
-          await this._getLogArray(
+          await this._getLogEntries(
             accountBuddy.account,
             accountBuddy.normalizedName
           )
         );
       }
     }
-    return this._getEnumerator(entries, aGroupByDay);
+    return this._toLogArray(entries, aGroupByDay);
   },
   getLogsForConversation(aConversation, aGroupByDay) {
     let name = aConversation.normalizedName;
@@ -951,7 +898,7 @@ Logger.prototype = {
       );
     }
     // If there was an error, this will return an EmptyEnumerator.
-    return this._getEnumerator(entries, aGroupByDay);
+    return this._toLogArray(entries, aGroupByDay);
   },
 
   getLogFolderPathForAccount(aAccount) {
