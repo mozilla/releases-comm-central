@@ -9,6 +9,7 @@ kind-dependencies:
     - fetch
 
 reference-jobs:
+    - linux64-aarch64-compiler-rt-11
     - linux64-binutils
     - linux64-cbindgen
     - linux64-cctools-port-clang-9
