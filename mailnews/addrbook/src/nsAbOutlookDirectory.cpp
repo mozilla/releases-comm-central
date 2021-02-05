@@ -199,15 +199,15 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
     return NS_ERROR_FAILURE;
   }
 
-  nsAutoCString entryString;
+  nsAutoCString cardEntryString;
   nsMapiEntry cardEntry;
 
   for (auto card : aCards) {
-    retCode = ExtractCardEntry(card, entryString);
-    if (NS_SUCCEEDED(retCode) && !entryString.IsEmpty()) {
-      cardEntry.Assign(entryString);
+    retCode = ExtractCardEntry(card, cardEntryString);
+    if (NS_SUCCEEDED(retCode) && !cardEntryString.IsEmpty()) {
+      cardEntry.Assign(cardEntryString);
       if (!mapiAddBook->DeleteEntry(*mDirEntry, cardEntry)) {
-        PRINTF(("Cannot delete card %s.\n", entryString.get()));
+        PRINTF(("Cannot delete card %s.\n", cardEntryString.get()));
       } else {
         if (m_IsMailList && m_AddressList) {
           uint32_t pos;
@@ -237,18 +237,18 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteDirectory(
   }
   nsresult retCode = NS_OK;
   nsAbWinHelperGuard mapiAddBook;
-  nsAutoCString entryString;
+  nsAutoCString dirEntryString;
 
   if (!mapiAddBook->IsOK()) {
     return NS_ERROR_FAILURE;
   }
-  retCode = ExtractDirectoryEntry(aDirectory, entryString);
-  if (NS_SUCCEEDED(retCode) && !entryString.IsEmpty()) {
+  retCode = ExtractDirectoryEntry(aDirectory, dirEntryString);
+  if (NS_SUCCEEDED(retCode) && !dirEntryString.IsEmpty()) {
     nsMapiEntry directoryEntry;
 
-    directoryEntry.Assign(entryString);
+    directoryEntry.Assign(dirEntryString);
     if (!mapiAddBook->DeleteEntry(*mDirEntry, directoryEntry)) {
-      PRINTF(("Cannot delete directory %s.\n", entryString.get()));
+      PRINTF(("Cannot delete directory %s.\n", dirEntryString.get()));
     } else {
       uint32_t pos;
       if (m_AddressList &&
@@ -305,16 +305,16 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddMailList(nsIAbDirectory* aMailList,
   NS_ENSURE_ARG_POINTER(addedList);
   if (m_IsMailList) return NS_OK;
   nsAbWinHelperGuard mapiAddBook;
-  nsAutoCString entryString;
+  nsAutoCString dirEntryString;
   nsMapiEntry newEntry;
   bool didCopy = false;
 
   if (!mapiAddBook->IsOK()) return NS_ERROR_FAILURE;
-  nsresult rv = ExtractDirectoryEntry(aMailList, entryString);
-  if (NS_SUCCEEDED(rv) && !entryString.IsEmpty()) {
+  nsresult rv = ExtractDirectoryEntry(aMailList, dirEntryString);
+  if (NS_SUCCEEDED(rv) && !dirEntryString.IsEmpty()) {
     nsMapiEntry sourceEntry;
 
-    sourceEntry.Assign(entryString);
+    sourceEntry.Assign(dirEntryString);
     mapiAddBook->CopyEntry(*mDirEntry, sourceEntry, newEntry);
   }
   if (newEntry.mByteCount == 0) {
@@ -323,9 +323,9 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddMailList(nsIAbDirectory* aMailList,
   } else {
     didCopy = true;
   }
-  newEntry.ToString(entryString);
+  newEntry.ToString(dirEntryString);
   nsAutoCString uri(kOutlookDirectoryScheme);
-  uri.Append(entryString);
+  uri.Append(dirEntryString);
 
   nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -600,11 +600,11 @@ nsresult nsAbOutlookDirectory::GetCards(nsIMutableArray* aCards,
   rv = NS_OK;
 
   for (ULONG card = 0; card < cardEntries.mNbEntries; ++card) {
-    nsAutoCString entryId;
+    nsAutoCString cardEntryString;
     nsAutoCString uriName(kOutlookCardScheme);
     nsCOMPtr<nsIAbCard> childCard;
-    cardEntries.mEntries[card].ToString(entryId);
-    uriName.Append(entryId);
+    cardEntries.mEntries[card].ToString(cardEntryString);
+    uriName.Append(cardEntryString);
 
     rv = OutlookCardForURI(uriName, getter_AddRefs(childCard));
     NS_ENSURE_SUCCESS(rv, rv);
@@ -633,21 +633,21 @@ nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
   nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCString dirEntry;
-  mDirEntry->ToString(dirEntry);
+  nsCString topEntryString;
+  mDirEntry->ToString(topEntryString);
 
   for (ULONG node = 0; node < nodeEntries.mNbEntries; ++node) {
-    nsAutoCString entryId;
+    nsAutoCString dirEntryString;
     nsAutoCString uriName(kOutlookDirectoryScheme);
-    uriName.Append(dirEntry);
+    uriName.Append(topEntryString);
     uriName.Append('/');
-    nodeEntries.mEntries[node].ToString(entryId);
-    uriName.Append(entryId);
+    nodeEntries.mEntries[node].ToString(dirEntryString);
+    uriName.Append(dirEntryString);
 
     RefPtr<nsAbOutlookDirectory> directory = new nsAbOutlookDirectory;
 
     // We will later need the URI of the parent directory, so store it here.
-    directory->mParentEntryId = dirEntry;
+    directory->mParentEntryId = topEntryString;
     directory->Init(uriName.get());
 
     nsCOMPtr<nsIAbDirectory> dir = do_QueryObject(directory);
@@ -851,7 +851,7 @@ nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
   nsresult retCode = NS_OK;
   nsAbWinHelperGuard mapiAddBook;
   nsMapiEntry newEntry;
-  nsAutoCString entryString;
+  nsAutoCString cardEntryString;
   bool didCopy = false;
 
   if (!mapiAddBook->IsOK()) {
@@ -859,11 +859,11 @@ nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
   }
   // If we get an nsIAbCard that maps onto an Outlook card uri
   // we simply copy the contents of the Outlook card.
-  retCode = ExtractCardEntry(aData, entryString);
-  if (NS_SUCCEEDED(retCode) && !entryString.IsEmpty()) {
+  retCode = ExtractCardEntry(aData, cardEntryString);
+  if (NS_SUCCEEDED(retCode) && !cardEntryString.IsEmpty()) {
     nsMapiEntry sourceEntry;
 
-    sourceEntry.Assign(entryString);
+    sourceEntry.Assign(cardEntryString);
     if (m_IsMailList) {
       // In the case of a mailing list, we can use the address
       // as a direct template to build the new one (which is done
@@ -904,9 +904,9 @@ nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
       return NS_ERROR_FAILURE;
     }
   }
-  newEntry.ToString(entryString);
+  newEntry.ToString(cardEntryString);
   nsAutoCString uri(kOutlookCardScheme);
-  uri.Append(entryString);
+  uri.Append(cardEntryString);
 
   nsCOMPtr<nsIAbCard> newCard;
   retCode = OutlookCardForURI(uri, getter_AddRefs(newCard));
@@ -965,14 +965,14 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
 
   if (!mapiAddBook->IsOK()) return NS_ERROR_FAILURE;
 
-  nsCString entry;
-  nsresult retCode = ExtractCardEntry(aModifiedCard, entry);
+  nsCString cardEntryString;
+  nsresult retCode = ExtractCardEntry(aModifiedCard, cardEntryString);
   NS_ENSURE_SUCCESS(retCode, retCode);
   // If we don't have the card entry, we can't work.
-  if (entry.IsEmpty()) return NS_ERROR_FAILURE;
+  if (cardEntryString.IsEmpty()) return NS_ERROR_FAILURE;
 
-  nsMapiEntry mapiData;
-  mapiData.Assign(entry);
+  nsMapiEntry cardEntry;
+  cardEntry.Assign(cardEntryString);
 
   // Get the existing card.
   nsCString uri;
@@ -1012,6 +1012,21 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
       aModifiedCard->GetPrimaryEmail(properties[index_DisplayName]);
     }
   }
+
+  nsMapiEntry dirEntry;
+  if (m_IsMailList) {
+    nsAutoCString uri(mURI);
+    // Trim off the mailing list entry ID from the mailing list URI
+    // to get the top-level directory entry ID.
+    nsAutoCString topEntryString;
+    int32_t slashPos = uri.RFindChar('/');
+    uri.SetLength(slashPos);
+    makeEntryIdFromURI(kOutlookDirectoryScheme, uri.get(), topEntryString);
+    dirEntry.Assign(topEntryString);
+  } else {
+    dirEntry.Assign(mDirEntry->mByteCount, mDirEntry->mEntryId);
+  }
+
   aModifiedCard->SetDisplayName(properties[index_DisplayName]);
   aModifiedCard->GetPropertyAsAString(kNicknameProperty,
                                       properties[index_NickName]);
@@ -1051,7 +1066,7 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
                                       properties[index_WorkWebPage]);
   aModifiedCard->GetPropertyAsAString(kHomeWebPageProperty,
                                       properties[index_HomeWebPage]);
-  if (!mapiAddBook->SetPropertiesUString(*mDirEntry, mapiData,
+  if (!mapiAddBook->SetPropertiesUString(dirEntry, cardEntry,
                                          OutlookCardMAPIProps, index_LastProp,
                                          properties)) {
     PRINTF(("Cannot set general properties.\n"));
@@ -1065,7 +1080,7 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
   WORD day = 0;
 
   aModifiedCard->GetPrimaryEmail(unichar);
-  if (!mapiAddBook->SetPropertyUString(mapiData, PR_EMAIL_ADDRESS_W,
+  if (!mapiAddBook->SetPropertyUString(cardEntry, PR_EMAIL_ADDRESS_W,
                                        unichar.get())) {
     PRINTF(("Cannot set primary email.\n"));
   }
@@ -1076,7 +1091,7 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
   if (!utility.IsEmpty()) utility.AppendLiteral("\r\n");
 
   utility.Append(unichar2.get());
-  if (!mapiAddBook->SetPropertyUString(mapiData, PR_HOME_ADDRESS_STREET_W,
+  if (!mapiAddBook->SetPropertyUString(cardEntry, PR_HOME_ADDRESS_STREET_W,
                                        utility.get())) {
     PRINTF(("Cannot set home address.\n"));
   }
@@ -1090,7 +1105,7 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
   if (!utility.IsEmpty()) utility.AppendLiteral("\r\n");
 
   utility.Append(unichar2.get());
-  if (!mapiAddBook->SetPropertyUString(mapiData, PR_BUSINESS_ADDRESS_STREET_W,
+  if (!mapiAddBook->SetPropertyUString(cardEntry, PR_BUSINESS_ADDRESS_STREET_W,
                                        utility.get())) {
     PRINTF(("Cannot set work address.\n"));
   }
@@ -1104,7 +1119,7 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
   unichar.Truncate();
   aModifiedCard->GetPropertyAsAString(kBirthDayProperty, unichar);
   UnicodeToWord(unichar.get(), day);
-  if (!mapiAddBook->SetPropertyDate(*mDirEntry, mapiData, true, PR_BIRTHDAY,
+  if (!mapiAddBook->SetPropertyDate(dirEntry, cardEntry, true, PR_BIRTHDAY,
                                     year, month, day)) {
     PRINTF(("Cannot set date.\n"));
   }
@@ -1139,8 +1154,9 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
                                                  nsIAbCard** newCard) {
   NS_ENSURE_ARG_POINTER(newCard);
 
-  nsAutoCString entry;
-  makeEntryIdFromURI(kOutlookCardScheme, PromiseFlatCString(aUri).get(), entry);
+  nsAutoCString cardEntryString;
+  makeEntryIdFromURI(kOutlookCardScheme, PromiseFlatCString(aUri).get(),
+                     cardEntryString);
 
   nsAbWinHelperGuard mapiAddBook;
   if (!mapiAddBook->IsOK()) return NS_ERROR_FAILURE;
@@ -1152,13 +1168,27 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
 
   card->SetPropertyAsAUTF8String("OutlookEntryURI", aUri);
 
-  nsMapiEntry mapiData;
-  mapiData.Assign(entry);
+  nsMapiEntry cardEntry;
+  cardEntry.Assign(cardEntryString);
 
   nsString unichars[index_LastProp];
   bool success[index_LastProp];
 
-  if (mapiAddBook->GetPropertiesUString(*mDirEntry, mapiData,
+  nsMapiEntry dirEntry;
+  if (m_IsMailList) {
+    nsAutoCString uri(mURI);
+    // Trim off the mailing list entry ID from the mailing list URI
+    // to get the top-level directory entry ID.
+    nsAutoCString topEntryString;
+    int32_t slashPos = uri.RFindChar('/');
+    uri.SetLength(slashPos);
+    makeEntryIdFromURI(kOutlookDirectoryScheme, uri.get(), topEntryString);
+    dirEntry.Assign(topEntryString);
+  } else {
+    dirEntry.Assign(mDirEntry->mByteCount, mDirEntry->mEntryId);
+  }
+
+  if (mapiAddBook->GetPropertiesUString(dirEntry, cardEntry,
                                         OutlookCardMAPIProps, index_LastProp,
                                         unichars, success)) {
     if (success[index_FirstName]) card->SetFirstName(unichars[index_FirstName]);
@@ -1190,15 +1220,15 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
   }
 
   ULONG cardType = 0;
-  if (mapiAddBook->GetPropertyLong(mapiData, PR_OBJECT_TYPE, cardType)) {
+  if (mapiAddBook->GetPropertyLong(cardEntry, PR_OBJECT_TYPE, cardType)) {
     card->SetIsMailList(cardType == MAPI_DISTLIST);
     if (cardType == MAPI_DISTLIST) {
-      nsCString dirEntry;
-      mDirEntry->ToString(dirEntry);
+      nsCString dirEntryString;
+      mDirEntry->ToString(dirEntryString);
       nsAutoCString normalChars(kOutlookDirectoryScheme);
-      normalChars.Append(dirEntry);
+      normalChars.Append(dirEntryString);
       normalChars.Append('/');
-      normalChars.Append(entry);
+      normalChars.Append(cardEntryString);
       card->SetMailListURI(normalChars.get());
 
       // In case the display is by "First Last" or "Last, First", give the card
@@ -1210,16 +1240,16 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
 
   nsAutoString unichar;
   nsAutoString unicharBis;
-  if (mapiAddBook->GetPropertyUString(mapiData, PR_EMAIL_ADDRESS_W, unichar)) {
+  if (mapiAddBook->GetPropertyUString(cardEntry, PR_EMAIL_ADDRESS_W, unichar)) {
     card->SetPrimaryEmail(unichar);
   }
-  if (mapiAddBook->GetPropertyUString(mapiData, PR_HOME_ADDRESS_STREET_W,
+  if (mapiAddBook->GetPropertyUString(cardEntry, PR_HOME_ADDRESS_STREET_W,
                                       unichar)) {
     splitString(unichar, unicharBis);
     card->SetPropertyAsAString(kHomeAddressProperty, unichar);
     card->SetPropertyAsAString(kHomeAddress2Property, unicharBis);
   }
-  if (mapiAddBook->GetPropertyUString(mapiData, PR_BUSINESS_ADDRESS_STREET_W,
+  if (mapiAddBook->GetPropertyUString(cardEntry, PR_BUSINESS_ADDRESS_STREET_W,
                                       unichar)) {
     splitString(unichar, unicharBis);
     card->SetPropertyAsAString(kWorkAddressProperty, unichar);
@@ -1227,8 +1257,8 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
   }
 
   WORD year = 0, month = 0, day = 0;
-  if (mapiAddBook->GetPropertyDate(*mDirEntry, mapiData, true, PR_BIRTHDAY,
-                                   year, month, day)) {
+  if (mapiAddBook->GetPropertyDate(dirEntry, cardEntry, true, PR_BIRTHDAY, year,
+                                   month, day)) {
     card->SetPropertyAsUint32(kBirthYearProperty, year);
     card->SetPropertyAsUint32(kBirthMonthProperty, month);
     card->SetPropertyAsUint32(kBirthDayProperty, day);
