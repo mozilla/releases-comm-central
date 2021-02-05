@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsISimpleEnumerator.idl"
 #include "imIAccount.idl"
+
+interface prplIPref;
+interface prplIUsernameSplit;
 
 [scriptable, uuid(7d302db0-3813-4c51-8372-c7eb5fc9f3d3)]
 interface prplIProtocol: nsISupports {
@@ -27,14 +29,14 @@ interface prplIProtocol: nsISupports {
   readonly attribute AUTF8String iconBaseURI;
 
   /**
-   * @returns an enumerator of prplIPref
+   * @returns an array of prplIPref
    */
-  nsISimpleEnumerator getOptions();
+  Array<prplIPref> getOptions();
 
   /**
-   * @returns an enumerator of prplIUsernameSplit
+   * @returns an array of prplIUsernameSplit
    */
-  nsISimpleEnumerator getUsernameSplit();
+  Array<prplIUsernameSplit> getUsernameSplit();
 
   // descriptive text to put in the username input box when it is empty
   readonly attribute AUTF8String usernameEmptyText;

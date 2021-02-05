@@ -98,12 +98,6 @@ var account = {
     this.populateProtoSpecificBox();
   },
 
-  *getProtoOptions() {
-    for (let option of this.proto.getOptions()) {
-      yield option;
-    }
-  },
-
   populateProtoSpecificBox() {
     let attributes = {};
     attributes[Ci.prplIPref.typeBool] = [
@@ -123,7 +117,7 @@ var account = {
     ];
     let haveOptions = accountOptionsHelper.addOptions(
       "server.",
-      this.getProtoOptions(),
+      this.proto.getOptions(),
       attributes
     );
     let advanced = document.getElementById("advanced");

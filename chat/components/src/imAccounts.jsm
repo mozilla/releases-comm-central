@@ -6,7 +6,6 @@ var EXPORTED_SYMBOLS = ["AccountsService"];
 
 var {
   ClassInfo,
-  EmptyEnumerator,
   nsSimpleEnumerator,
   XPCOMUtils,
   setTimeout,
@@ -109,10 +108,10 @@ UnknownProtocol.prototype = {
     return "chrome://chat/skin/prpl-unknown/";
   },
   getOptions() {
-    return EmptyEnumerator;
+    return [];
   },
   getUsernameSplit() {
-    return EmptyEnumerator;
+    return [];
   },
   get usernameEmptyText() {
     return "";

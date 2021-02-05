@@ -1164,23 +1164,20 @@ var GenericProtocolPrototype = {
   },
   getOptions() {
     if (!this.options) {
-      return EmptyEnumerator;
+      return [];
     }
 
     let purplePrefs = [];
     for (let [name, option] of Object.entries(this.options)) {
       purplePrefs.push(new purplePref(name, option));
     }
-    return new nsSimpleEnumerator(purplePrefs);
+    return purplePrefs;
   },
   getUsernameSplit() {
     if (!this.usernameSplits || !this.usernameSplits.length) {
-      return EmptyEnumerator;
+      return [];
     }
-
-    return new nsSimpleEnumerator(
-      this.usernameSplits.map(split => new UsernameSplit(split))
-    );
+    return this.usernameSplits.map(split => new UsernameSplit(split));
   },
 
   registerCommands() {

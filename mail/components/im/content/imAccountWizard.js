@@ -179,10 +179,7 @@ var accountWizard = {
       vbox.lastChild.remove();
     }
 
-    var splits = [];
-    for (let split of this.getProtoUserSplits()) {
-      splits.push(split);
-    }
+    var splits = this.proto.getUsernameSplit();
 
     var label = bundle.getString("accountUsername");
     this.userNameBoxes = [this.insertUsernameField("name", label, vbox)];
@@ -224,7 +221,7 @@ var accountWizard = {
   populateProtoSpecificBox() {
     let haveOptions = accountOptionsHelper.addOptions(
       this.proto.id + "-",
-      this.getProtoOptions()
+      this.proto.getOptions()
     );
     document.getElementById("protoSpecificGroupbox").hidden = !haveOptions;
     if (haveOptions) {
@@ -301,7 +298,7 @@ var accountWizard = {
 
     var id = this.proto.id;
     this.prefs = [];
-    for (let opt of this.getProtoOptions()) {
+    for (let opt of this.proto.getOptions()) {
       let name = opt.name;
       let eltName = id + "-" + name;
       let val = this.getValue(eltName);
@@ -434,12 +431,6 @@ var accountWizard = {
     for (let iter of aEnumerator) {
       yield iter;
     }
-  },
-  getProtoOptions() {
-    return this.getIter(this.proto.getOptions());
-  },
-  getProtoUserSplits() {
-    return this.getIter(this.proto.getUsernameSplit());
   },
 
   /* Check for correctness and set URL for the "Get more protocols..."-link
