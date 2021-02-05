@@ -684,161 +684,180 @@
       this.internalValue = null;
     }
 
+    /**
+     * Show the child matching the given index.
+     *
+     * @param {integer} index - Child index. Use -1 to not show any child.
+     */
+    showChildAt(index) {
+      for (let i = 0; i < this.children.length; i++) {
+        this.children[i].hidden = i != index;
+      }
+    }
+
+    /**
+     * Find the child that is currently shown.
+     *
+     * @return {Node} the currently shown child node.
+     */
+    findActiveItem() {
+      for (let i = 0; i < this.children.length; i++) {
+        if (!this.children[i].hidden) {
+          return this.children[i];
+        }
+      }
+      return null;
+    }
+
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasChildNodes()) {
         return;
       }
+
+      this.classList.add("input-container");
+
+      // Append all the possible widgets. These will then be shown and
+      // hidden based on child index.
+      this.appendChild(
+        MozXULElement.parseXULToFragment(`
+          <html:input class="input-inline search-value-textbox"
+                      inherits="disabled" />
+          <menulist class="search-value-menulist"
+                    inherits="disabled">
+            <menupopup class="search-value-popup">
+              <menuitem value="6"
+                        stringTag="priorityHighest"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="5"
+                        stringTag="priorityHigh"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="4"
+                        stringTag="priorityNormal"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="3"
+                        stringTag="priorityLow"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="2"
+                        stringTag="priorityLowest"
+                        class="search-value-menuitem"></menuitem>
+            </menupopup>
+          </menulist>
+          <menulist class="search-value-menulist"
+                    inherits="disabled">
+            <menupopup class="search-value-popup">
+              <menuitem value="2"
+                        stringTag="replied"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="1"
+                        stringTag="read"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="65536"
+                        stringTag="new"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="4096"
+                        stringTag="forwarded"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="4"
+                        stringTag="flagged"
+                        class="search-value-menuitem"></menuitem>
+            </menupopup>
+          </menulist>
+          <html:input class="input-inline search-value-textbox"
+                      inherits="disabled" />
+          <menulist is="menulist-addrbooks"
+                    class="search-value-menulist"
+                    inherits="disabled"
+                    localonly="true"/>
+          <menulist class="search-value-menulist"
+                    inherits="disabled">
+            <menupopup class="search-value-popup"></menupopup>
+          </menulist>
+          <menulist class="search-value-menulist"
+                    inherits="disabled">
+            <menupopup class="search-value-popup">
+              <menuitem value="2"
+                        stringTag="junk"
+                        class="search-value-menuitem"></menuitem>
+            </menupopup>
+          </menulist>
+          <menulist class="search-value-menulist"
+                    inherits="disabled">
+            <menupopup class="search-value-popup">
+              <menuitem value="0"
+                        stringTag="hasAttachments"
+                        class="search-value-menuitem"></menuitem>
+            </menupopup>
+          </menulist>
+          <menulist class="search-value-menulist"
+                    inherits="disabled">
+            <menupopup class="search-value-popup">
+              <menuitem value="plugin"
+                        stringTag="junkScoreOriginPlugin"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="user"
+                        stringTag="junkScoreOriginUser"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="filter"
+                        stringTag="junkScoreOriginFilter"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="whitelist"
+                        stringTag="junkScoreOriginWhitelist"
+                        class="search-value-menuitem"></menuitem>
+              <menuitem value="imapflag"
+                        stringTag="junkScoreOriginImapFlag"
+                        class="search-value-menuitem"></menuitem>
+            </menupopup>
+          </menulist>
+          <html:input type="number"
+                      class="input-inline search-value-textbox"
+                      inherits="disabled" />
+          <hbox flex="1"
+                class="search-value-custom"
+                inherits="disabled"></hbox>
+        `)
+      );
+      this.showChildAt(-1);
 
       // Initialize strings.
       const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/messenger.properties"
       );
 
-      if (!this.hasChildNodes()) {
-        this.appendChild(
-          MozXULElement.parseXULToFragment(`
-            <html:input flex="1"
-                        class="input-inline search-value-textbox"
-                        inherits="disabled"/>
-            <menulist flex="1"
-                      class="search-value-menulist"
-                      inherits="disabled">
-              <menupopup class="search-value-popup">
-                <menuitem value="6"
-                          stringTag="priorityHighest"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="5"
-                          stringTag="priorityHigh"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="4"
-                          stringTag="priorityNormal"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="3"
-                          stringTag="priorityLow"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="2"
-                          stringTag="priorityLowest"
-                          class="search-value-menuitem"></menuitem>
-              </menupopup>
-            </menulist>
-            <menulist flex="1"
-                      class="search-value-menulist"
-                      inherits="disabled">
-              <menupopup class="search-value-popup">
-                <menuitem value="2"
-                          stringTag="replied"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="1"
-                          stringTag="read"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="65536"
-                          stringTag="new"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="4096"
-                          stringTag="forwarded"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="4"
-                          stringTag="flagged"
-                          class="search-value-menuitem"></menuitem>
-              </menupopup>
-            </menulist>
-            <html:input flex="1"
-                        class="input-inline search-value-textbox"
-                        inherits="disabled"/>
-            <menulist is="menulist-addrbooks"
-                      flex="1"
-                      class="search-value-menulist"
-                      inherits="disabled"
-                      localonly="true"/>
-            <menulist flex="1"
-                      class="search-value-menulist"
-                      inherits="disabled">
-              <menupopup class="search-value-popup"></menupopup>
-            </menulist>
-            <menulist flex="1"
-                      class="search-value-menulist"
-                      inherits="disabled">
-              <menupopup class="search-value-popup">
-                <menuitem value="2"
-                          stringTag="junk"
-                          class="search-value-menuitem"></menuitem>
-              </menupopup>
-            </menulist>
-            <menulist flex="1"
-                      class="search-value-menulist"
-                      inherits="disabled">
-              <menupopup class="search-value-popup">
-                <menuitem value="0"
-                          stringTag="hasAttachments"
-                          class="search-value-menuitem"></menuitem>
-              </menupopup>
-            </menulist>
-            <menulist flex="1"
-                      class="search-value-menulist"
-                      inherits="disabled">
-              <menupopup class="search-value-popup">
-                <menuitem value="plugin"
-                          stringTag="junkScoreOriginPlugin"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="user"
-                          stringTag="junkScoreOriginUser"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="filter"
-                          stringTag="junkScoreOriginFilter"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="whitelist"
-                          stringTag="junkScoreOriginWhitelist"
-                          class="search-value-menuitem"></menuitem>
-                <menuitem value="imapflag"
-                          stringTag="junkScoreOriginImapFlag"
-                          class="search-value-menuitem"></menuitem>
-              </menupopup>
-            </menulist>
-            <html:input type="number"
-                        class="input-inline search-value-textbox"
-                        inherits="disabled"/>
-            <hbox flex="1"
-                  class="search-value-custom"
-                  inherits="disabled"></hbox>
-          `)
-        );
+      // Initialize the priority picker.
+      this.fillStringsForChildren(
+        this.children[1].querySelector("menupopup"),
+        bundle
+      );
 
-        // Initialize the priority picker.
-        this.fillStringsForChildren(
-          this.children[1].querySelector("menupopup"),
-          bundle
-        );
+      // Initialize the status picker.
+      this.fillStringsForChildren(
+        this.children[2].querySelector("menupopup"),
+        bundle
+      );
 
-        // Initialize the status picker.
-        this.fillStringsForChildren(
-          this.children[2].querySelector("menupopup"),
-          bundle
-        );
+      // initialize the address book picker
+      this.fillStringsForChildren(
+        this.children[4].querySelector("menupopup"),
+        bundle
+      );
 
-        // initialize the address book picker
-        this.fillStringsForChildren(
-          this.children[4].querySelector("menupopup"),
-          bundle
-        );
+      // initialize the junk status picker
+      this.fillStringsForChildren(
+        this.children[6].querySelector("menupopup"),
+        bundle
+      );
 
-        // initialize the junk status picker
-        this.fillStringsForChildren(
-          this.children[6].querySelector("menupopup"),
-          bundle
-        );
+      // initialize the has attachment status picker
+      this.fillStringsForChildren(
+        this.children[7].querySelector("menupopup"),
+        bundle
+      );
 
-        // initialize the has attachment status picker
-        this.fillStringsForChildren(
-          this.children[7].querySelector("menupopup"),
-          bundle
-        );
-
-        // initialize the junk score origin picker
-        this.fillStringsForChildren(
-          this.children[8].querySelector("menupopup"),
-          bundle
-        );
-      }
+      // initialize the junk score origin picker
+      this.fillStringsForChildren(
+        this.children[8].querySelector("menupopup"),
+        bundle
+      );
 
       // Initialize the date picker.
       const datePicker = this.children[3];
@@ -888,9 +907,9 @@
           val == Ci.nsMsgSearchOp.IsEmpty ||
           val == Ci.nsMsgSearchOp.IsntEmpty
         ) {
-          this.setAttribute("selectedIndex", "-1");
+          this.showChildAt(-1);
         } else {
-          this.setAttribute("selectedIndex", "5");
+          this.showChildAt(5);
         }
       }
 
@@ -900,9 +919,9 @@
           val == Ci.nsMsgSearchOp.IsEmpty ||
           val == Ci.nsMsgSearchOp.IsntEmpty
         ) {
-          this.setAttribute("selectedIndex", "-1");
+          this.showChildAt(-1);
         } else {
-          this.setAttribute("selectedIndex", "6");
+          this.showChildAt(6);
         }
       }
 
@@ -933,7 +952,7 @@
           if (abs) {
             children[4].selectedItem = abs;
           }
-          this.setAttribute("selectedIndex", "4");
+          this.showChildAt(4);
         }
       } else if (
         this.internalOperator == Ci.nsMsgSearchOp.IsntInAB ||
@@ -943,7 +962,7 @@
         // IsntInAB or IsInAB, noop because the search value wasn't an ab type, and it still isn't.
         // Otherwise, switch to the textbox and clear it
         children[0].value = "";
-        this.setAttribute("selectedIndex", "0");
+        this.showChildAt(0);
       }
 
       this.internalOperator = val;
@@ -974,7 +993,7 @@
       // We inherit from a deck, so just use it's index attribute to hide/show widgets.
       if (isNaN(val)) {
         // Is this a custom attribute?
-        this.setAttribute("selectedIndex", "10");
+        this.showChildAt(10);
         let customHbox = this.children[10];
         if (this.internalValue) {
           customHbox.setAttribute("value", this.internalValue.str);
@@ -983,42 +1002,42 @@
         // CSS for custom search terms to bind a custom value
         customHbox.setAttribute("searchAttribute", val);
       } else if (val == Ci.nsMsgSearchAttrib.Priority) {
-        this.setAttribute("selectedIndex", "1");
+        this.showChildAt(1);
       } else if (val == Ci.nsMsgSearchAttrib.MsgStatus) {
-        this.setAttribute("selectedIndex", "2");
+        this.showChildAt(2);
       } else if (val == Ci.nsMsgSearchAttrib.Date) {
-        this.setAttribute("selectedIndex", "3");
+        this.showChildAt(3);
       } else if (val == Ci.nsMsgSearchAttrib.Sender) {
         // Since the internalOperator is null, this is the same as the initial state.
         // The initial state for Sender isn't an ab type search, it's a text search,
         // so show the textbox.
-        this.setAttribute("selectedIndex", "0");
+        this.showChildAt(0);
       } else if (val == Ci.nsMsgSearchAttrib.Keywords) {
-        this.setAttribute("selectedIndex", "5");
+        this.showChildAt(5);
       } else if (val == Ci.nsMsgSearchAttrib.JunkStatus) {
-        this.setAttribute("selectedIndex", "6");
+        this.showChildAt(6);
       } else if (val == Ci.nsMsgSearchAttrib.HasAttachmentStatus) {
-        this.setAttribute("selectedIndex", "7");
+        this.showChildAt(7);
       } else if (val == Ci.nsMsgSearchAttrib.JunkScoreOrigin) {
-        this.setAttribute("selectedIndex", "8");
+        this.showChildAt(8);
       } else if (val == Ci.nsMsgSearchAttrib.AgeInDays) {
         let valueBox = this.children[9];
         valueBox.min = -40000; // ~-100 years
         valueBox.max = 40000; // ~100 years
-        this.setAttribute("selectedIndex", "9");
+        this.showChildAt(9);
       } else if (val == Ci.nsMsgSearchAttrib.Size) {
         let valueBox = this.children[9];
         valueBox.min = 0;
         valueBox.max = 1000000000;
-        this.setAttribute("selectedIndex", "9");
+        this.showChildAt(9);
       } else if (val == Ci.nsMsgSearchAttrib.JunkPercent) {
         let valueBox = this.children[9];
         valueBox.min = 0;
         valueBox.max = 100;
-        this.setAttribute("selectedIndex", "9");
+        this.showChildAt(9);
       } else {
         // a normal text field
-        this.setAttribute("selectedIndex", "0");
+        this.showChildAt(0);
       }
     }
 

@@ -56,9 +56,9 @@ checkbox:not([label]) .checkbox-label-box {
   display: none;
 }
 
-.search-menulist,
-.search-value-menulist {
-  width: 12em;
+.search-value-menulist,
+.search-value-textbox[type="number"] {
+  flex: 1;
 }
 
 .search-menulist[unavailable="true"] {

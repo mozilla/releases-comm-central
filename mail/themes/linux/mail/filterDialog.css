@@ -23,6 +23,11 @@
   padding-inline: 4px;
 }
 
+.search-menulist,
+.search-value-menulist {
+  width: 16em;
+}
+
 .small-button {
   min-width: 3em;
   padding: 0;
@@ -31,8 +36,4 @@
 
 .small-button + .small-button {
   margin-inline: 0 4px;
-}
-
-.search-value-textbox {
-  padding-block: 0;
 }

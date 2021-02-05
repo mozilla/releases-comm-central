@@ -694,32 +694,20 @@ function AssignMeaningfulName() {
   } else {
     // Assign a name based on the first search term.
     let searchValue = termRoot.searchvalue;
-    let selIndex = searchValue.getAttribute("selectedIndex");
-    let children = searchValue.children;
-    let activeItem = children[selIndex];
-    let attribs = Ci.nsMsgSearchAttrib;
-
-    // Term, Operator and Value are the three parts of a filter match
-    // Term and Operator are easy to retrieve
-    let term = termRoot.searchattribute.label;
-    let operator = termRoot.searchoperator.label;
+    let activeItem = searchValue.findActiveItem();
 
     // Values are either popup menu items or edit fields.
     // For popup menus use activeItem.label; for
     // edit fields, activeItem.value
     let value;
     switch (Number(termRoot.searchattribute.value)) {
-      case attribs.Priority:
-      case attribs.MsgStatus:
-      case attribs.Keywords:
-      case attribs.HasAttachmentStatus:
-      case attribs.JunkStatus:
-      case attribs.JunkScoreOrigin:
-        if (activeItem) {
-          value = activeItem.label;
-        } else {
-          value = "";
-        }
+      case Ci.nsMsgSearchAttrib.Priority:
+      case Ci.nsMsgSearchAttrib.MsgStatus:
+      case Ci.nsMsgSearchAttrib.Keywords:
+      case Ci.nsMsgSearchAttrib.HasAttachmentStatus:
+      case Ci.nsMsgSearchAttrib.JunkStatus:
+      case Ci.nsMsgSearchAttrib.JunkScoreOrigin:
+        value = activeItem ? activeItem.label : "";
         break;
 
       default:
@@ -738,6 +726,10 @@ function AssignMeaningfulName() {
     // and is not an "untitledFilterName" Filter, so assign it a name using
     // a string format from the Filter Bundle.
     if (!stub) {
+      // Term, Operator and Value are the three parts of a filter match.
+      // Term and Operator are easy to retrieve.
+      let term = termRoot.searchattribute.label;
+      let operator = termRoot.searchoperator.label;
       stub = gFilterBundle.getFormattedString("filterAutoNameStr", [
         term,
         operator,

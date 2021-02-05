@@ -33,10 +33,6 @@ mail-tagfield[collapsed="true"] {
   display: none;
 }
 
-search-value {
-  display: -moz-deck;
-}
-
 .remote-gloda-search-container {
   min-width: 10em;
 }

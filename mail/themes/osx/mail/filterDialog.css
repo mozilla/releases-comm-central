@@ -23,6 +23,11 @@
 
 /* ::::: columns :::::: */
 
+.search-menulist,
+.search-value-menulist {
+  width: 14.5em;
+}
+
 .small-button {
   min-width: 22px;
   height: 20px;
