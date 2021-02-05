@@ -966,6 +966,11 @@ nsresult QPEncoder::Write(const char* buffer, int32_t size) {
     if (mCurrentColumn >= 73)  // Soft line break for readability
     {
       *out++ = '=';
+      if (in + 1 < end && in[1] == ' ') {
+        in++;
+        *out++ = '2';
+        *out++ = '0';
+      }
       *out++ = '\r';
       *out++ = '\n';
 

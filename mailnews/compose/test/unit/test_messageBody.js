@@ -64,5 +64,27 @@ add_task(async function testQP() {
     "QP for non-ascii should work"
   );
 
+  // Bug 1689804 - Avoid a QP soft line break before a space.
+
+  fields = new CompFields();
+  fields.forceMsgEncoding = true;
+  fields.to = "Nobody <nobody@tinderbox.invalid>";
+  fields.subject =
+    "Bug 1689804 - Save a space to the previous line on a quoted printable soft line break.";
+  fields.body = "123456789" + " 123456789".repeat(6) + "1234 56789";
+  await richCreateMessage(fields, [], identity);
+
+  msgData = mailTestUtils.loadMessageToString(
+    gDraftFolder,
+    mailTestUtils.firstMsgHdr(gDraftFolder)
+  );
+  let endOfHeaders = msgData.indexOf("\r\n\r\n");
+  let body = msgData.slice(endOfHeaders + 4);
+
+  Assert.equal(
+    body.trimRight("\r\n"),
+    "123456789 123456789 123456789 123456789 123456789 123456789 1234567891234=20\r\n56789"
+  );
+
   Services.prefs.clearUserPref("mail.strictly_mime");
 });

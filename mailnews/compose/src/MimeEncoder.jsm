@@ -408,7 +408,12 @@ class MimeEncoder {
 
       if (currentColumn >= 73) {
         // Soft line break for readability
-        out += "=\r\n";
+        if (i + 1 < this._bodySize && this._body[i + 1] == " ") {
+          out += "=20\r\n";
+          i++;
+        } else {
+          out += "=\r\n";
+        }
         white = false;
         currentColumn = 0;
       }
