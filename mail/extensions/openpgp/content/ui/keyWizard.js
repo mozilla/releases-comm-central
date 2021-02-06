@@ -181,15 +181,15 @@ async function setIdentity() {
     gIdentity = MailServices.accounts.getIdentity(
       gIdentityList.selectedItem.getAttribute("identitykey")
     );
-  }
 
-  document.l10n.setAttributes(
-    document.documentElement,
-    "key-wizard-dialog-window",
-    {
-      identity: gIdentity.email,
-    }
-  );
+    document.l10n.setAttributes(
+      document.documentElement,
+      "key-wizard-dialog-window",
+      {
+        identity: gIdentity.email,
+      }
+    );
+  }
 }
 
 /**
