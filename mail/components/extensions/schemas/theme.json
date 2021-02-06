@@ -17,12 +17,15 @@
       },
       {
         "id": "ThemeColor",
+        "description": "Defines a color value.",
         "choices": [
           {
-            "type": "string"
+            "type": "string",
+            "description": "A string containing a valid `CSS color string <https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#color_keywords>`__, including hexadecimal or functional representations. For example the color *crimson* can be specified as: <li>``crimson`` <li>``#dc143c`` <li>``rgb(220, 20, 60)`` (or ``rgba(220, 20, 60, 0.5)`` to set 50% opacity) <li>``hsl(348, 83%, 47%)`` (or ``hsla(348, 83%, 47%, 0.5)`` to set 50% opacity)"
           },
           {
             "type": "array",
+            "description": "An RGB array of 3 integers. For example ``[220, 20, 60]`` for the color *crimson*.",
             "minItems": 3,
             "maxItems": 3,
             "items": {
@@ -33,6 +36,7 @@
           },
           {
             "type": "array",
+            "description": "An RGBA array of 3 integers and a fractional (a float between 0 and 1). For example ``[220, 20, 60, 0.5]`` for the color *crimson* with 50% opacity.",
             "minItems": 4,
             "maxItems": 4,
             "items": {
@@ -43,6 +47,7 @@
       },
       {
         "id": "ThemeExperiment",
+        "description" : "Defines additional color, image and property keys to be used in :ref:`theme.ThemeType`, extending the theme-able areas of Thunderbird.",
         "type": "object",
         "properties": {
           "stylesheet": {
@@ -74,9 +79,11 @@
       },
       {
         "id": "ThemeType",
+        "description": "Contains the color, image and property settings of a theme.",
         "type": "object",
         "properties": {
           "images": {
+            "description": "Object with one or more key-value pairs to map images to theme image keys. The following built-in theme image keys are supported:",
             "type": "object",
             "optional": true,
             "properties": {
@@ -85,7 +92,7 @@
                 "items": { "$ref": "ImageDataOrExtensionURL" },
                 "maxItems": 15,
                 "optional": true,
-                "description": "Additional images added on the header area and displayed behind the 'theme_frame' image."
+                "description": "Additional images added to the header area and displayed behind the 'theme_frame' image."
               },
               "headerURL": {
                 "$ref": "ImageDataOrExtensionURL",
@@ -101,13 +108,14 @@
             "additionalProperties": { "$ref": "ImageDataOrExtensionURL" }
           },
           "colors": {
+            "description": "Object with one or more key-value pairs to map color values to theme color keys. The following built-in theme color keys are supported:",
             "type": "object",
             "optional": true,
             "properties": {
               "tab_selected": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "Background color of the selected tab."
+                "description": "Background color of the selected tab. Defaults to the color specified by ``toolbar``."
               },
               "accentcolor": {
                 "$ref": "ThemeColor",
@@ -147,7 +155,7 @@
               "tab_text": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The text color for the selected tab."
+                "description": "The text color for the selected tab.  Defaults to the color specified by ``toolbar_text``."
               },
               "tab_line": {
                 "$ref": "ThemeColor",
@@ -157,12 +165,12 @@
               "toolbar": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The background color of the toolbars."
+                "description": "The background color of the toolbars. Also used as default value for ``tab_selected``."
               },
               "toolbar_text": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                 "description": "This color property is an alias of 'bookmark_text'."
+                 "description": "The text color in the main Thunderbird toolbar. Also used as default value for ``icons`` and ``tab_text``."
               },
               "bookmark_text": {
                 "$ref": "ThemeColor",
@@ -207,7 +215,7 @@
               "icons": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "The color of the toolbar icons."
+                "description": "The color of the toolbar icons. Defaults to the color specified by ``toolbar_text``."
               },
               "icons_attention": {
                 "$ref": "ThemeColor",
@@ -318,6 +326,7 @@
             "additionalProperties": { "$ref": "ThemeColor" }
           },
           "properties": {
+            "description": "Object with one or more key-value pairs to map property values to theme property keys. The following built-in theme property keys are supported:",
             "type": "object",
             "optional": true,
             "properties": {
@@ -396,7 +405,7 @@
   },
   {
     "namespace": "theme",
-    "description": "The theme API allows customizing of visual elements of the browser.",
+    "description": "The theme API allows customizing of visual elements of Thunderbird.",
     "types": [
       {
         "id": "ThemeUpdateInfo",
