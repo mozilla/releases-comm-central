@@ -473,9 +473,12 @@ function countOccurrences(aItem) {
           occCounter = occCounter + ritem.count;
           byCount = true;
         } else {
-          // the rule is limited by as an until date
-          let from = aItem.parentItem.startDate.clone();
-          let until = aItem.parentItem.endDate.clone();
+          // The rule is limited by an until date.
+          let parentItem = aItem.parentItem;
+          let startDate = parentItem.startDate ?? parentItem.entryDate;
+          let endDate = parentItem.endDate ?? parentItem.dueDate ?? startDate;
+          let from = startDate.clone();
+          let until = endDate.clone();
           if (until.compare(ritem.untilDate) == -1) {
             until = ritem.untilDate.clone();
           }
@@ -483,12 +486,13 @@ function countOccurrences(aItem) {
           let exceptionIds = recInfo.getExceptionIds();
           for (let exceptionId of exceptionIds) {
             let recur = recInfo.getExceptionFor(exceptionId);
-            recur.QueryInterface(Ci.calIEvent);
-            if (from.compare(recur.startDate) == 1) {
-              from = recur.startDate.clone();
+            let recurStartDate = recur.startDate ?? recur.entryDate;
+            let recurEndDate = recur.endDate ?? recur.dueDate ?? recurStartDate;
+            if (from.compare(recurStartDate) == 1) {
+              from = recurStartDate.clone();
             }
-            if (until.compare(recur.endDate) == -1) {
-              until = recur.endDate.clone();
+            if (until.compare(recurEndDate) == -1) {
+              until = recurEndDate.clone();
             }
           }
 
