@@ -627,4 +627,14 @@ nsCString nsSmtpServer::GetServerURIInternal(const bool aIncludeUsername) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::ClearAllValues() { return mPrefBranch->DeleteBranch(""); }
+nsSmtpServer::ClearAllValues() {
+  nsTArray<nsCString> prefNames;
+  nsresult rv = mPrefBranch->GetChildList("", prefNames);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  for (auto& prefName : prefNames) {
+    mPrefBranch->ClearUserPref(prefName.get());
+  }
+
+  return NS_OK;
+}
