@@ -124,9 +124,7 @@ var cloudFileAccounts = new (class extends EventEmitter {
       this.emit("accountAdded", account);
       return account;
     } catch (e) {
-      for (let prefName of Services.prefs.getChildList(ACCOUNT_ROOT + key)) {
-        Services.prefs.clearUserPref(prefName);
-      }
+      Services.prefs.deleteBranch(ACCOUNT_ROOT + key);
       throw e;
     }
   }
@@ -136,9 +134,7 @@ var cloudFileAccounts = new (class extends EventEmitter {
     let type = Services.prefs.getCharPref(ACCOUNT_ROOT + key + ".type");
 
     this._accounts.delete(key);
-    for (let prefName of Services.prefs.getChildList(ACCOUNT_ROOT + key)) {
-      Services.prefs.clearUserPref(prefName);
-    }
+    Services.prefs.deleteBranch(ACCOUNT_ROOT + key);
 
     this.emit("accountDeleted", key, type);
   }

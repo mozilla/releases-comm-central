@@ -924,15 +924,7 @@ NS_IMETHODIMP
 nsMsgIncomingServer::ClearAllValues() {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
-  nsTArray<nsCString> prefNames;
-  nsresult rv = mPrefBranch->GetChildList("", prefNames);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (auto& prefName : prefNames) {
-    mPrefBranch->ClearUserPref(prefName.get());
-  }
-
-  return NS_OK;
+  return mPrefBranch->DeleteBranch("");
 }
 
 NS_IMETHODIMP

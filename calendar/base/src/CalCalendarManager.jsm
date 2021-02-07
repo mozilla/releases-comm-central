@@ -451,7 +451,7 @@ CalCalendarManager.prototype = {
     this.notifyObservers("onCalendarUnregistering", [calendar]);
     this.unsetupCalendar(calendar, true);
 
-    deletePrefBranch(calendar.id);
+    Services.prefs.deleteBranch(getPrefBranchFor(calendar.id));
     flushPrefs();
   },
 
@@ -528,7 +528,7 @@ CalCalendarManager.prototype = {
       try {
         if (!ctype || !curi) {
           // sanity check
-          deletePrefBranch(id);
+          Services.prefs.deleteBranch(calBranch + ".");
           continue;
         }
 
@@ -581,7 +581,7 @@ CalCalendarManager.prototype = {
     }
 
     // Delete before to allow pref-type changes, then set the pref.
-    Services.prefs.clearUserPref(branch);
+    Services.prefs.deleteBranch(branch);
     if (value !== null && value !== undefined) {
       Preferences.set(branch, value);
     }
@@ -591,7 +591,7 @@ CalCalendarManager.prototype = {
     cal.ASSERT(calendar, "Invalid Calendar!");
     cal.ASSERT(calendar.id !== null, "Calendar id needs to be set!");
     cal.ASSERT(name && name.length > 0, "Pref Name must be non-empty!");
-    Services.prefs.clearUserPref(getPrefBranchFor(calendar.id) + name);
+    Services.prefs.deleteBranch(getPrefBranchFor(calendar.id) + name);
   },
 
   mObservers: null,
@@ -885,17 +885,6 @@ calDummyCalendar.prototype = {
 
 function getPrefBranchFor(id) {
   return REGISTRY_BRANCH + id + ".";
-}
-
-/**
- * Removes a calendar from the preferences.
- *
- * @param {string} id - ID of the calendar to remove.
- */
-function deletePrefBranch(id) {
-  for (let prefName of Services.prefs.getChildList(getPrefBranchFor(id))) {
-    Services.prefs.clearUserPref(prefName);
-  }
 }
 
 /**

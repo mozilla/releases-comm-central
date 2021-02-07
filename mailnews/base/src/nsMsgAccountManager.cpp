@@ -1246,15 +1246,7 @@ nsresult nsMsgAccountManager::LoadAccounts() {
     nsCOMPtr<nsIPrefBranch> accountPrefBranch;
     rv = prefservice->GetBranch(accountKeyPref.get(),
                                 getter_AddRefs(accountPrefBranch));
-    if (accountPrefBranch) {
-      nsTArray<nsCString> prefNames;
-      nsresult rv = accountPrefBranch->GetChildList("", prefNames);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      for (auto& prefName : prefNames) {
-        accountPrefBranch->ClearUserPref(prefName.get());
-      }
-    }
+    if (accountPrefBranch) accountPrefBranch->DeleteBranch("");
   }
 
   // Make sure we have an account that points at the local folders server

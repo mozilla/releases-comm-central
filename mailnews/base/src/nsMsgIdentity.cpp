@@ -132,15 +132,7 @@ NS_IMETHODIMP
 nsMsgIdentity::ClearAllValues() {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
-  nsTArray<nsCString> prefNames;
-  nsresult rv = mPrefBranch->GetChildList("", prefNames);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (auto& prefName : prefNames) {
-    mPrefBranch->ClearUserPref(prefName.get());
-  }
-
-  return NS_OK;
+  return mPrefBranch->DeleteBranch("");
 }
 
 NS_IMPL_IDPREF_STR(EscapedVCard, "escapedVCard")

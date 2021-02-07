@@ -144,11 +144,8 @@ Sanitizer.prototype = {
 
         // clear any network geolocation provider sessions
         try {
-          for (let prefName of Services.prefs.getChildList(
-            "geo.wifi.access_token."
-          )) {
-            Services.prefs.clearUserPref(prefName);
-          }
+          var branch = Services.prefs.getBranch("geo.wifi.access_token.");
+          branch.deleteBranch("");
         } catch (e) {}
       },
 

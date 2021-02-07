@@ -88,7 +88,7 @@ var AutoLoginCounter = {
     if (this._count != 0) {
       return;
     }
-    Services.prefs.clearUserPref(kPrefAutologinPending);
+    Services.prefs.deleteBranch(kPrefAutologinPending);
     SavePrefTimer.initTimer();
   },
 };
@@ -498,7 +498,7 @@ imAccount.prototype = {
   },
   set firstConnectionState(aState) {
     if (aState == Ci.imIAccount.FIRST_CONNECTION_OK) {
-      this.prefBranch.clearUserPref(kPrefAccountFirstConnectionState);
+      this.prefBranch.deleteBranch(kPrefAccountFirstConnectionState);
     } else {
       this.prefBranch.setIntPref(kPrefAccountFirstConnectionState, aState);
       // We want to save this pref immediately when trying to connect.
@@ -577,7 +577,7 @@ imAccount.prototype = {
     if (val) {
       this.prefBranch.setStringPref(kPrefAccountAlias, val);
     } else {
-      this.prefBranch.clearUserPref(kPrefAccountAlias);
+      this.prefBranch.deleteBranch(kPrefAccountAlias);
     }
     this._sendUpdateNotification();
   },
@@ -764,9 +764,7 @@ imAccount.prototype = {
     }
     this.unInit();
     Services.contacts.forgetAccount(this.numericId);
-    for (let prefName of this.prefBranch.getChildList("")) {
-      this.prefBranch.clearUserPref(prefName);
-    }
+    this.prefBranch.deleteBranch("");
   },
   unInit() {
     // remove any pending reconnection timer.

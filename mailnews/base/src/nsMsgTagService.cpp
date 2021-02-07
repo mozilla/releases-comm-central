@@ -322,15 +322,8 @@ NS_IMETHODIMP nsMsgTagService::DeleteKey(const nsACString& key) {
   // clear the associated prefs
   nsAutoCString prefName(key);
   if (!gMigratingKeys) ToLowerCase(prefName);
-
-  nsTArray<nsCString> prefNames;
-  nsresult rv = m_tagPrefBranch->GetChildList(prefName.get(), prefNames);
+  nsresult rv = m_tagPrefBranch->DeleteBranch(prefName.get());
   NS_ENSURE_SUCCESS(rv, rv);
-
-  for (auto& prefName : prefNames) {
-    m_tagPrefBranch->ClearUserPref(prefName.get());
-  }
-
   return RefreshKeyCache();
 }
 

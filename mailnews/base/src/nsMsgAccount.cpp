@@ -367,13 +367,8 @@ nsMsgAccount::ToString(nsAString& aResult) {
 
 NS_IMETHODIMP
 nsMsgAccount::ClearAllValues() {
-  nsTArray<nsCString> prefNames;
-  nsresult rv = m_prefs->GetChildList("", prefNames);
+  nsresult rv = getPrefService();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  for (auto& prefName : prefNames) {
-    m_prefs->ClearUserPref(prefName.get());
-  }
-
-  return NS_OK;
+  return m_prefs->DeleteBranch("");
 }

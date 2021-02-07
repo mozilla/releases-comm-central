@@ -168,6 +168,17 @@ var gFolderTreeView = {
       document.getElementById("folderPaneBox").collapsed = !hasAccounts;
     }
 
+    try {
+      // Normally our tree takes care of keeping the last selected by itself.
+      // However older versions of TB stored this in a preference, which we need
+      // to migrate
+      let modeIndex = Services.prefs.getIntPref("mail.ui.folderpane.view");
+      this.activeModes = this._modeNames[modeIndex];
+      Services.prefs.deleteBranch("mail.ui.folderpane");
+    } catch (ex) {
+      // This is ok. If we've already migrated we'll end up here.
+    }
+
     if (aJSONFile) {
       // Parse our persistent-state json file
       let data = IOUtils.loadFileToString(aJSONFile);
