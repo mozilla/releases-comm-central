@@ -19,7 +19,6 @@
 #include "nsWeakReference.h"
 #include "nsString.h"
 #include "nsIMsgMailNewsUrl.h"
-#include "nsIWebProgressListener.h"
 #include "nsIMsgCompose.h"
 #include "nsIDocShell.h"
 #include "nsIPermissionManager.h"
@@ -41,7 +40,6 @@ class nsIDocShell;
 
 class nsMsgContentPolicy : public nsIContentPolicy,
                            public nsIObserver,
-                           public nsIWebProgressListener,
                            public nsIMsgContentPolicy,
                            public nsSupportsWeakReference {
  public:
@@ -52,7 +50,6 @@ class nsMsgContentPolicy : public nsIContentPolicy,
   NS_DECL_ISUPPORTS
   NS_DECL_NSICONTENTPOLICY
   NS_DECL_NSIOBSERVER
-  NS_DECL_NSIWEBPROGRESSLISTENER
   NS_DECL_NSIMSGCONTENTPOLICY
 
  protected:

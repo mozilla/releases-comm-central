@@ -28,7 +28,6 @@
 #include "nsMsgI18N.h"
 #include "nsIWebNavigation.h"
 #include "nsContentUtils.h"
-#include "nsMsgContentPolicy.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIAuthPrompt.h"
@@ -223,23 +222,6 @@ NS_IMETHODIMP nsMsgWindow::SetAuthPrompt(nsIAuthPrompt* aAuthPrompt) {
 }
 
 NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell* aDocShell) {
-  nsresult rv;
-  nsCOMPtr<nsIWebProgressListener> contentPolicyListener =
-      do_GetService(NS_MSGCONTENTPOLICY_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // remove the content policy webProgressListener from the root doc shell
-  // we're currently holding, so we don't keep listening for loads that
-  // we don't care about
-  if (mRootDocShellWeak) {
-    nsCOMPtr<nsIWebProgress> oldWebProgress =
-        do_QueryReferent(mRootDocShellWeak, &rv);
-    if (NS_SUCCEEDED(rv)) {
-      rv = oldWebProgress->RemoveProgressListener(contentPolicyListener);
-      NS_ASSERTION(NS_SUCCEEDED(rv), "failed to remove old progress listener");
-    }
-  }
-
   // Query for the doc shell and release it
   mRootDocShellWeak = nullptr;
   if (aDocShell) {
@@ -250,16 +232,6 @@ NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell* aDocShell) {
     nsCOMPtr<nsIURIContentListener> listener(
         do_GetInterface(messagePaneDocShell));
     if (listener) listener->SetParentContentListener(this);
-
-    // set the contentPolicy webProgressListener on the root docshell for this
-    // window so that it can allow JavaScript for non-message content
-    nsCOMPtr<nsIWebProgress> docShellProgress =
-        do_QueryInterface(aDocShell, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = docShellProgress->AddProgressListener(contentPolicyListener,
-                                               nsIWebProgress::NOTIFY_LOCATION);
-    NS_ENSURE_SUCCESS(rv, rv);
   }
   return NS_OK;
 }

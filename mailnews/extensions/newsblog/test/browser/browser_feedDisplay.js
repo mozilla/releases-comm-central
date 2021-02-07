@@ -131,8 +131,17 @@ add_task(async () => {
 
   Assert.notEqual(messagePane.currentURI.spec, "about:blank");
   await SpecialPowers.spawn(messagePane, [], () => {
-    let p = content.document.querySelector("p");
+    let doc = content.document;
+
+    let p = doc.querySelector("p");
     Assert.equal(p.textContent, "This is the description.");
+
+    let style = content.getComputedStyle(doc.body);
+    Assert.equal(style.backgroundColor, "rgba(0, 0, 0, 0)");
+
+    let noscript = doc.querySelector("noscript");
+    style = content.getComputedStyle(noscript);
+    Assert.equal(style.display, "inline");
   });
   await BrowserTestUtils.synthesizeMouseAtCenter("a", {}, messagePane);
   Assert.deepEqual(mockExternalProtocolService._loadedURLs, [
@@ -148,8 +157,17 @@ add_task(async () => {
 
   Assert.notEqual(messagePane.currentURI.spec, "about:blank");
   await SpecialPowers.spawn(messagePane, [], () => {
-    let p = content.document.querySelector("p");
+    let doc = content.document;
+
+    let p = doc.querySelector("p");
     Assert.equal(p.textContent, "This is the article.");
+
+    let style = content.getComputedStyle(doc.body);
+    Assert.equal(style.backgroundColor, "rgb(0, 128, 0)");
+
+    let noscript = doc.querySelector("noscript");
+    style = content.getComputedStyle(noscript);
+    Assert.equal(style.display, "none");
   });
   await BrowserTestUtils.synthesizeMouseAtCenter("a", {}, messagePane);
   Assert.deepEqual(mockExternalProtocolService._loadedURLs, [

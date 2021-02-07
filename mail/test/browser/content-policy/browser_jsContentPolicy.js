@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests whether JavaScript in a local/remote message works.
+ * Tests whether JavaScript in a local/remote message works. The test
+ * mailnews/extensions/newsblog/test/browser/browser_feedDisplay.js does the
+ * same thing for feeds.
  *
- * @note This assumes an existing local account, and will cause the Trash
- * folder of that account to be emptied multiple times.
+ * @note This assumes an existing local account.
  */
 
 "use strict";
@@ -15,13 +16,9 @@ var {
   assert_nothing_selected,
   assert_selected_and_displayed,
   be_in_folder,
-  close_tab,
   create_folder,
-  mc,
-  open_selected_message_in_new_tab,
   select_click_row,
   select_none,
-  wait_for_message_display_completion,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -29,21 +26,16 @@ var {
 var { MailE10SUtils } = ChromeUtils.import(
   "resource:///modules/MailE10SUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var folder = null;
+var folder = create_folder("jsContentPolicy");
+registerCleanupFunction(async () => {
+  let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  folder.deleteSelf(window.msgWindow);
+  await promptPromise;
+});
 
 var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/";
-
-add_task(function setupModule(module) {
-  folder = create_folder("jsContentPolicy");
-  Services.prefs.setBoolPref("javascript.enabled", true);
-});
-
-registerCleanupFunction(function teardownModule(module) {
-  Services.prefs.clearUserPref("javascript.enabled");
-});
 
 function addToFolder(aSubject, aBody, aFolder) {
   let msgId =
@@ -84,6 +76,38 @@ function addToFolder(aSubject, aBody, aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
+/*
+ * Runs in the browser process via SpecialPowers.spawn to check JavaScript
+ * is disabled.
+ */
+function assertJSDisabled() {
+  Assert.ok(content.location.href);
+  Assert.ok(
+    !content.wrappedJSObject.jsIsTurnedOn,
+    "JS should not be turned on in content."
+  );
+
+  let noscript = content.document.querySelector("noscript");
+  let display = content.getComputedStyle(noscript).display;
+  Assert.equal(display, "inline", "noscript display should be 'inline'");
+}
+
+/*
+ * Runs in the browser process via SpecialPowers.spawn to check JavaScript
+ * is enabled.
+ */
+function assertJSEnabled() {
+  Assert.ok(content.location.href);
+  Assert.ok(
+    content.wrappedJSObject.jsIsTurnedOn,
+    "JS should be turned on in content."
+  );
+
+  let noscript = content.document.querySelector("noscript");
+  let display = content.getComputedStyle(noscript).display;
+  Assert.equal(display, "none", "noscript display should be 'none'");
+}
+
 var jsMsgBody =
   '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n' +
   "<html>\n" +
@@ -107,234 +131,86 @@ var jsMsgBody =
 
 var gMsgNo = 0;
 
-function checkJsInMail() {
+var messagePane = document.getElementById("messagepane");
+
+/**
+ * Check JavaScript is disabled when loading messages in the message pane.
+ */
+add_task(async function testJsInMail() {
+  be_in_folder(folder);
+
   let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
   // select the newly created message
   let msgHdr = select_click_row(gMsgNo);
 
-  if (msgDbHdr != msgHdr) {
-    throw new Error(
-      "Selected Message Header is not the same as generated header"
-    );
-  }
+  Assert.equal(
+    msgDbHdr,
+    msgHdr,
+    "selected message header should be the same as generated header"
+  );
 
   assert_selected_and_displayed(gMsgNo);
 
-  // This works because messagepane is type=content-primary in these tests.
-  if (typeof mc.window.content.wrappedJSObject.jsIsTurnedOn != "undefined") {
-    throw new Error("JS is turned on in mail - it shouldn't be.");
-  }
-
-  let noscript = mc.window.content.wrappedJSObject.document.getElementsByTagName(
-    "noscript"
-  )[0];
-  let display = mc.window
-    .getComputedStyle(noscript)
-    .getPropertyValue("display");
-  if (display != "inline") {
-    throw new Error("noscript display should be 'inline'; display=" + display);
-  }
+  await SpecialPowers.spawn(messagePane, [], assertJSDisabled);
 
   ++gMsgNo;
-}
-
-async function checkJsInNonMessageContent() {
-  // Deselect everything so we can load our content
   select_none();
+});
 
-  let browser = mc.window.getMessagePaneBrowser();
-  // load something non-message-like in the message pane
+/**
+ * Check JavaScript is enabled when loading local content in the message pane.
+ */
+add_task(async function testJsInNonMessageContent() {
+  let loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
   MailE10SUtils.loadURI(
-    browser,
+    messagePane,
     "data:text/html;charset=utf-8,<script>var jsIsTurnedOn%3Dtrue%3B<%2Fscript>bar" +
       "<noscript><p id='noscript-p'>hey this is noscript</p><%2Fnoscript>"
   );
+  await loadedPromise;
 
-  await BrowserTestUtils.browserLoaded(browser);
+  await SpecialPowers.spawn(messagePane, [], assertJSEnabled);
 
-  await SpecialPowers.spawn(browser, [], () => {
-    Assert.ok(content.location.href);
-    Assert.ok(
-      content.wrappedJSObject.jsIsTurnedOn,
-      "JS is not turned on in content - it should be."
-    );
-
-    let noscript = content.document.getElementsByTagName("noscript")[0];
-    let display = content
-      .getComputedStyle(noscript)
-      .getPropertyValue("display");
-    Assert.equal(display, "none", "noscript display should be 'none'");
-  });
-}
+  MailE10SUtils.loadURI(messagePane, "about:blank");
+});
 
 /**
- * Check JavaScript for a feed message, when the "View as Web Page" pref is set.
+ * Check JavaScript is enabled when loading remote content in the message pane.
  */
-function checkJsInFeedContent() {
-  let msgDbHdr = addToFolder(
-    "JS test message " + gMsgNo + " (feed!)",
-    jsMsgBody,
-    folder
-  );
-  msgDbHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
+add_task(async function testJsInRemoteContent() {
+  // load something non-message-like in the message pane
+  let loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
+  MailE10SUtils.loadURI(messagePane, url + "remote-noscript.html");
+  await loadedPromise;
 
-  // Set to "View as Web Page" so we get the Content-Base page shown.
-  Services.prefs.setIntPref("rss.show.summary", 0);
+  await SpecialPowers.spawn(messagePane, [], assertJSEnabled);
+
+  MailE10SUtils.loadURI(messagePane, "about:blank");
+});
+
+/**
+ * Check JavaScript is disabled when loading messages in the message pane,
+ * after remote content has been displayed there.
+ */
+add_task(async function testJsInMailAgain() {
+  be_in_folder(folder);
+
+  let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
   // select the newly created message
   let msgHdr = select_click_row(gMsgNo);
+
   Assert.equal(
     msgDbHdr,
     msgHdr,
-    "Selected Message Header is not the same as generated header"
+    "selected message header should be the same as generated header"
   );
 
-  wait_for_message_display_completion();
+  assert_selected_and_displayed(gMsgNo);
 
-  // The above just ensures local "inline" content have loaded. We need to wait
-  // for the remote content to load too before we check anything.
-  let feedUrl = url + "remote-noscript.html";
-  mc.waitFor(
-    () =>
-      mc.window.content.wrappedJSObject.location.href == feedUrl &&
-      mc.window.content.wrappedJSObject.document &&
-      mc.window.content.wrappedJSObject.document.querySelector("body") != null,
-    () =>
-      "Timeout waiting for remote feed doc to load; url=" +
-      mc.window.content.wrappedJSObject.location
-  );
-
-  if (!mc.window.content.wrappedJSObject.jsIsTurnedOn) {
-    throw new Error(
-      "JS is turned off for remote feed content - it should be on."
-    );
-  }
-
-  let noscript = mc.window.content.wrappedJSObject.document.getElementsByTagName(
-    "noscript"
-  )[0];
-  let display = mc.window
-    .getComputedStyle(noscript)
-    .getPropertyValue("display");
-  if (display != "none") {
-    throw new Error("noscript display should be 'none'; display=" + display);
-  }
+  await SpecialPowers.spawn(messagePane, [], assertJSDisabled);
 
   ++gMsgNo;
-
-  Services.prefs.clearUserPref("rss.show.summary");
-}
-
-/**
- * Check JavaScript for a feed message viewed in a tab, when the
- * "View as Web Page" pref is set.
- */
-function checkJsInFeedTab() {
-  let msgDbHdr = addToFolder(
-    "JS test message " + gMsgNo + " (feed!)",
-    jsMsgBody,
-    folder
-  );
-  msgDbHdr.OrFlags(Ci.nsMsgMessageFlags.FeedMsg);
-
-  // Set to "View as Web Page" so we get the Content-Base page shown.
-  Services.prefs.setIntPref("rss.show.summary", 0);
-
-  // Select the newly created message.
-  let msgHdr = select_click_row(gMsgNo);
-  Assert.equal(
-    msgDbHdr,
-    msgHdr,
-    "Selected Message Header is not the same as generated header"
-  );
-
-  wait_for_message_display_completion();
-
-  let feedUrl = url + "remote-noscript.html";
-
-  open_selected_message_in_new_tab();
-
-  // The above just ensures local "inline" content have loaded. We need to wait
-  // for the remote content to load too before we check anything.
-  mc.waitFor(
-    () =>
-      mc.window.content.wrappedJSObject.location.href == feedUrl &&
-      mc.window.content.wrappedJSObject.document &&
-      mc.window.content.wrappedJSObject.document.querySelector("body") != null,
-    () =>
-      "Timeout waiting for remote feed doc to load; url=" +
-      mc.window.content.wrappedJSObject.location
-  );
-
-  if (!mc.window.content.wrappedJSObject.jsIsTurnedOn) {
-    throw new Error(
-      "JS is turned off for remote feed content - it should be on."
-    );
-  }
-
-  let noscript = mc.window.content.wrappedJSObject.document.getElementsByTagName(
-    "noscript"
-  )[0];
-  let display = mc.window
-    .getComputedStyle(noscript)
-    .getPropertyValue("display");
-  if (display != "none") {
-    throw new Error("noscript display should be 'none'; display=" + display);
-  }
-
-  ++gMsgNo;
-
-  Services.prefs.clearUserPref("rss.show.summary");
-  close_tab();
-}
-
-/**
- * Check JavaScript when loading remote content in the message pane.
- */
-async function checkJsInRemoteContent() {
-  // Deselect everything so we can load our content
   select_none();
-
-  // load something non-message-like in the message pane
-  let browser = mc.window.getMessagePaneBrowser();
-  MailE10SUtils.loadURI(browser, url + "remote-noscript.html");
-
-  await BrowserTestUtils.browserLoaded(browser);
-
-  await SpecialPowers.spawn(browser, [], async () => {
-    Assert.ok(
-      content.wrappedJSObject.jsIsTurnedOn,
-      "JS is not turned on in content - it should be."
-    );
-
-    let noscript = content.document.getElementsByTagName("noscript")[0];
-    let display = content
-      .getComputedStyle(noscript)
-      .getPropertyValue("display");
-    Assert.equal(
-      display,
-      "none",
-      "noscript display should be 'none'; display=" + display
-    );
-  });
-}
-
-add_task(async function test_jsContentPolicy() {
-  be_in_folder(folder);
-
-  assert_nothing_selected();
-
-  // run each test twice to ensure that there aren't any weird side effects,
-  // given that these loads all happen in the same docshell
-
-  checkJsInMail();
-  await checkJsInNonMessageContent();
-
-  checkJsInMail();
-  await checkJsInNonMessageContent();
-
-  // checkJsInFeedContent(); // TODO
-  await checkJsInRemoteContent();
-  // checkJsInFeedTab(); // TODO
 });

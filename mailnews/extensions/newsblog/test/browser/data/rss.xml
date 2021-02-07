@@ -15,6 +15,12 @@
       <description><![CDATA[
         <p>This is the description.</p>
         <p><a href="http://example.org/link/from/description">Here's a link.</a></p>
+        <script>
+          document.body.style.backgroundColor = "red";
+        </script>
+        <noscript>
+          <p>This noscript should display.</p>
+        </noscript>
       ]]></description>
     </item>
   </channel>

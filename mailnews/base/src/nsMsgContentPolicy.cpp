@@ -22,7 +22,6 @@
 #include "nsContentPolicyUtils.h"
 #include "nsFrameLoaderOwner.h"
 #include "nsFrameLoader.h"
-#include "nsIWebProgress.h"
 #include "nsMsgUtils.h"
 #include "nsThreadUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
@@ -48,8 +47,8 @@ using namespace mozilla::mailnews;
 #define kBlockRemoteContent 1
 #define kAllowRemoteContent 2
 
-NS_IMPL_ISUPPORTS(nsMsgContentPolicy, nsIContentPolicy, nsIWebProgressListener,
-                  nsIMsgContentPolicy, nsIObserver, nsISupportsWeakReference)
+NS_IMPL_ISUPPORTS(nsMsgContentPolicy, nsIContentPolicy, nsIMsgContentPolicy,
+                  nsIObserver, nsISupportsWeakReference)
 
 nsMsgContentPolicy::nsMsgContentPolicy() { mBlockRemoteImages = true; }
 
@@ -197,15 +196,6 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
       // setting on a subdocument, so we don't worry about TYPE_SUBDOCUMENT
       // here.
 
-      // If the timing were right, we'd enable JavaScript on the docshell
-      // for non mailnews URIs here.  However, at this point, the
-      // old document may still be around, so we can't do any enabling just yet.
-      // Instead, we apply the policy in
-      // nsIWebProgressListener::OnLocationChange. For now, we explicitly
-      // disable JavaScript in order to be safe rather than sorry, because
-      // OnLocationChange isn't guaranteed to necessarily be called soon enough
-      // to disable it in time (though bz says it _should_ be called soon enough
-      // "in all sane cases").
       rv = SetDisableItemsOnMailNewsUrlDocshells(aContentLocation, aLoadInfo);
       // if something went wrong during the tweaking, reject this content
       if (NS_FAILED(rv)) {
@@ -951,95 +941,6 @@ NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports* aSubject,
       prefBranchInt->GetBoolPref(kBlockRemoteImages, &mBlockRemoteImages);
   }
 
-  return NS_OK;
-}
-
-/**
- * We implement the nsIWebProgressListener interface in order to enforce
- * settings at onLocationChange time.
- */
-NS_IMETHODIMP
-nsMsgContentPolicy::OnStateChange(nsIWebProgress* aWebProgress,
-                                  nsIRequest* aRequest, uint32_t aStateFlags,
-                                  nsresult aStatus) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgContentPolicy::OnProgressChange(nsIWebProgress* aWebProgress,
-                                     nsIRequest* aRequest,
-                                     int32_t aCurSelfProgress,
-                                     int32_t aMaxSelfProgress,
-                                     int32_t aCurTotalProgress,
-                                     int32_t aMaxTotalProgress) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgContentPolicy::OnLocationChange(nsIWebProgress* aWebProgress,
-                                     nsIRequest* aRequest, nsIURI* aLocation,
-                                     uint32_t aFlags) {
-  nsresult rv;
-
-  // If anything goes wrong and/or there's no docshell associated with this
-  // request, just give up.  The behavior ends up being "don't consider
-  // re-enabling JS on the docshell", which is the safe thing to do (and if
-  // the problem was that there's no docshell, that means that there was
-  // nowhere for any JavaScript to run, so we're already safe
-
-  nsCOMPtr<nsIDocShell> docShell = do_QueryInterface(aWebProgress, &rv);
-  if (NS_FAILED(rv)) {
-    return NS_OK;
-  }
-
-#ifdef DEBUG
-  nsCOMPtr<nsIChannel> channel = do_QueryInterface(aRequest, &rv);
-  if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIDocShell> docShell2;
-    NS_QueryNotificationCallbacks(channel, docShell2);
-    NS_ASSERTION(docShell == docShell2,
-                 "aWebProgress and channel callbacks"
-                 " do not point to the same docshell");
-  }
-#endif
-
-  nsCOMPtr<nsIMsgMessageUrl> messageUrl = do_QueryInterface(aLocation, &rv);
-  mozilla::Unused << messageUrl;
-  if (NS_SUCCEEDED(rv)) {
-    // Disable javascript on message URLs.
-    rv = docShell->SetAllowJavascript(false);
-    NS_ASSERTION(NS_SUCCEEDED(rv),
-                 "Failed to set javascript disabled on docShell");
-  } else {
-    // Javascript is allowed on non-message URLs. Plugins are not.
-    rv = docShell->SetAllowJavascript(true);
-    NS_ASSERTION(NS_SUCCEEDED(rv),
-                 "Failed to set javascript allowed on docShell");
-  }
-
-  rv = docShell->SetAllowPlugins(false);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "Failed to set plugins disabled on docShell");
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgContentPolicy::OnStatusChange(nsIWebProgress* aWebProgress,
-                                   nsIRequest* aRequest, nsresult aStatus,
-                                   const char16_t* aMessage) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgContentPolicy::OnSecurityChange(nsIWebProgress* aWebProgress,
-                                     nsIRequest* aRequest, uint32_t aState) {
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMsgContentPolicy::OnContentBlockingEvent(nsIWebProgress* aWebProgress,
-                                           nsIRequest* aRequest,
-                                           uint32_t aEvent) {
   return NS_OK;
 }
 
