@@ -4,10 +4,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   assert_messages_in_view,
   be_in_folder,
@@ -29,7 +25,7 @@ var { MailViewConstants } = ChromeUtils.import(
 var baseFolder, savedFolder;
 var setUntagged, setTagged;
 
-add_task(function setupModule(module) {
+add_task(function setup() {
   // Create a folder with some messages that have no tags and some that are
   //  tagged Important ($label1).
   baseFolder = create_folder("MailViewA");
@@ -77,16 +73,10 @@ function subtest_save_mail_view(savc) {
   );
 
   let elem = savc.window.document.getElementById("searchVal0");
-  let index = 0;
 
-  if (elem.hasAttribute("selectedIndex")) {
-    index = parseInt(elem.getAttribute("selectedIndex"));
-  }
-
-  elem = elem.children[index];
-
-  // - make sure the constraint is right
-  Assert.equal(elem.value, "$label1");
+  // Check the value of the search-value.
+  let activeItem = elem.findActiveItem();
+  Assert.equal(activeItem.value, "$label1");
 
   // - save it
   savc.window.onOK();
