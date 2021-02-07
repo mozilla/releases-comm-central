@@ -3,7 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DEPTH		= ../..
+EXTERNALLY_MANAGED_MAKE_FILE := 1
+
+DEPTH		= ../../../..
 topsrcdir	= @top_srcdir@
 srcdir		= @srcdir@
 VPATH		= @srcdir@
@@ -37,11 +39,16 @@ DEFINES += -DCHATZILLA_VERSION=$(CHATZILLA_VERSION) \
 
 include $(topsrcdir)/config/rules.mk
 
-libs realchrome:: locales/Makefile
+misc realchrome:: locales/Makefile
 	@$(EXIT_ON_ERROR)                    \
 	for locale in $(BUILD_LOCALES); do   \
 	  $(MAKE) -C locales AB_CD=$$locale; \
 	done
+
+ifdef AB_CD
+.PHONY: l10n
+l10n: misc ;
+endif
 
 export::
 	$(NSINSTALL) -D $(FINAL_TARGET)/chrome/icons/default

@@ -109,7 +109,7 @@ l10n-%:
 #	@$(MAKE) -C $(DEPTH)/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C ../../calendar/locales AB_CD=$* XPI_NAME=locale-$*
 ifdef MOZ_IRC
-	@$(MAKE) -C $(DEPTH)/extensions/irc/locales l10n-$*
+	@$(MAKE) -C ../extensions/irc/locales l10n-$*
 endif
 ifdef MOZ_DEBUGQA
 	@$(MAKE) -C ../extensions/debugQA/locales AB_CD=$* XPI_NAME=locale-$*
@@ -126,7 +126,7 @@ package-win32-installer: $(SUBMAKEFILES)
 
 repackage-extensions: $(STAGEDIST)
 ifdef MOZ_IRC
-	$(MAKE) -C $(DEPTH)/extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST)
+	$(MAKE) -C ../extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST)
 endif
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST)/extensions;
 

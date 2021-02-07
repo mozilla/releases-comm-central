@@ -4,23 +4,22 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'ff',
-    'sm',
+    "ff",
+    "sm",
 ]
 
-CONFIGURE_SUBST_FILES += ['locales/Makefile']
-NO_JS_MANIFEST = True
+CONFIGURE_SUBST_FILES += ["locales/Makefile"]
 USE_EXTENSION_MANIFEST = True
 
-XPI_NAME = 'chatzilla'
-export('XPI_NAME')
+XPI_NAME = "chatzilla"
+export("XPI_NAME")
 
-JAR_MANIFESTS += ['jar.mn']
+JAR_MANIFESTS += ["jar.mn"]
 
 EXTRA_COMPONENTS += [
-    'js/lib/chatzilla-service.js',
+    "js/lib/chatzilla-service.js",
 ]
 
 FINAL_TARGET_PP_FILES += [
-    'xpi/resources/install.rdf',
+    "xpi/resources/install.rdf",
 ]

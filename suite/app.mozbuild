@@ -10,9 +10,6 @@ include('/toolkit/toolkit.mozbuild')
 if CONFIG['MOZ_EXTENSIONS']:
     DIRS += ['/extensions']
 
-if CONFIG['MOZ_IRC']:
-    DIRS += ['/extensions/irc']
-
 DIRS += [
     '/%s' % CONFIG['MOZ_BRANDING_DIRECTORY'],
     '/comm/calendar',
