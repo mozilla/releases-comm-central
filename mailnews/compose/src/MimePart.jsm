@@ -261,6 +261,8 @@ class MimePart {
         this._bodyAttachment.url
       );
       this.setHeader("content-location", contentLocation);
+    } else if (this._contentType == "application/pgp-keys") {
+      this.setHeader("content-description", "OpenPGP public key");
     }
 
     if (this._bodyAttachment.temporary) {
