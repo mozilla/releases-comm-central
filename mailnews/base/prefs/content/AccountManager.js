@@ -3,24 +3,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
- * here's how this dialog works:
- * The main dialog contains a tree on the left (accounttree) and a
- * deck on the right. Each card in the deck on the right contains an
- * IFRAME which loads a particular preference document (such as am-main.xhtml)
+/**
+ * Here's how this dialog works:
+ * The main dialog contains a tree on the left (id="accounttree") and an
+ * iframe which loads a particular preference document (such as am-main.xhtml)
+ * on the right.
  *
- * when the user clicks on items in the tree on the right, two things have
+ * When the user clicks on items in the tree on the left, two things have
  * to be determined before the UI can be updated:
  * - the relevant account
  * - the relevant page
  *
- * when both of these are known, this is what happens:
+ * When both of these are known, this is what happens:
  * - every form element of the previous page is saved in the account value
  *   hashtable for the previous account
- * - the card containing the relevant page is brought to the front
+ * - the relevant page is loaded into the iframe
  * - each form element in the page is filled in with an appropriate value
  *   from the current account's hashtable
- * - in the IFRAME inside the page, if there is an onInit() method,
+ * - in the iframe inside the page, if there is an onInit() method,
  *   it is called. The onInit method can further update this page based
  *   on values set in the previous step.
  */

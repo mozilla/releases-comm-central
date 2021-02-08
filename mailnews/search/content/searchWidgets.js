@@ -990,7 +990,7 @@
       // If the searchAttribute changing, null out the internalOperator.
       this.internalOperator = null;
 
-      // We inherit from a deck, so just use it's index attribute to hide/show widgets.
+      // Use the index to hide/show the appropriate child.
       if (isNaN(val)) {
         // Is this a custom attribute?
         this.showChildAt(10);

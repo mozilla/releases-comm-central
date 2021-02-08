@@ -30,10 +30,6 @@
   border-bottom: 1px solid var(--tabs-border-color, transparent);
 }
 
-toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
-  text-align: start;
-}
-
 /* primary toolbar buttons */
 
 #button-newcard {
