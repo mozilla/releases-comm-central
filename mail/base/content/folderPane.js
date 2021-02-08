@@ -357,7 +357,7 @@ var gFolderTreeView = {
 
   /**
    * An array representing the currently visible display-modes. Each value here
-   * must correspond to an entry in _modes.
+   * must correspond to an entry in _modeNames.
    */
   _activeModes: [],
   get activeModes() {
@@ -380,13 +380,11 @@ var gFolderTreeView = {
 
       // Exclude non-existing modes from the activeModes array. This can happen
       // when an extension is removed.
-      this._activeModes = modes.filter(mode => mode in this._modes);
+      this._activeModes = modes.filter(mode => this._modeNames.includes(mode));
 
-      // If we end up with an empty array, add the default mode and update all
-      // the menu items.
+      // If we end up with an empty array, add the default mode.
       if (!this._activeModes.length) {
         this._activeModes.push(kDefaultMode);
-        this._updateMenuItems(kDefaultMode);
       }
     }
 
