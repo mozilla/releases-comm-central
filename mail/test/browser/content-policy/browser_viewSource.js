@@ -64,6 +64,24 @@ function addToFolder(aSubject, aBody, aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
+function checkMenuitems(menu, ...expectedItems) {
+  if (expectedItems.length == 0) {
+    // Menu should not be shown.
+    Assert.equal(menu.state, "closed");
+    return;
+  }
+
+  Assert.notEqual(menu.state, "closed");
+
+  let actualItems = [];
+  for (let item of menu.children) {
+    if (["menu", "menuitem"].includes(item.localName) && !item.hidden) {
+      actualItems.push(item.id);
+    }
+  }
+  Assert.deepEqual(actualItems, expectedItems);
+}
+
 /**
  * Test that the view source character encoding can be changed,
  * which requires content policy is correct for view-source:.
@@ -128,6 +146,26 @@ add_task(async function test_view_source_reload() {
     source.includes(contentUTF8),
     "View source must contain the utf-8 text"
   );
+
+  // Check the context menu while were here.
+  let browser = vsc.e("content");
+  let contextMenu = vsc.window.document.getElementById("viewSourceContextMenu");
+  popupshown = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    browser.contentDocument.body,
+    { type: "contextmenu" },
+    browser
+  );
+  await popupshown;
+
+  checkMenuitems(
+    contextMenu,
+    "cMenu_copy",
+    "cMenu_selectAll",
+    "cMenu_find",
+    "cMenu_findAgain",
+  );
+  contextMenu.hidePopup();
 
   close_window(vsc);
 });
