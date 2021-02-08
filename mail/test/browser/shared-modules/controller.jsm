@@ -189,7 +189,7 @@ Menu.prototype = {
       if (item.tagName == "menu") {
         var popup = item.querySelector("menupopup");
         if (popup) {
-          if (popup.allowevents) {
+          if (popup.getAttribute("allowevents") === "true") {
             events.fakeOpenPopup(this._controller.window, popup);
           }
           this._buildMenu(popup);
@@ -215,7 +215,7 @@ var MenuTree = function(aWindow, aMenu) {
         // Fake a click onto the menu to add dynamic entries
         var popup = node.querySelector("menupopup");
         if (popup) {
-          if (popup.allowevents) {
+          if (popup.getAttribute("allowevents") === "true") {
             events.fakeOpenPopup(aWindow, popup);
           }
           entry = new MenuTree(aWindow, popup);

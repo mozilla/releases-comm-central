@@ -896,8 +896,9 @@ add_task(function test_can_pref_off_account_provisioner() {
 
   // First, we do some hackery to allow the "New" menupopup to respond to
   // events...
-  let oldAllowEvents = newMenuPopup.getNode().allowevents;
-  newMenuPopup.getNode().allowevents = true;
+  let oldAllowEvents =
+    newMenuPopup.getNode().getAttribute("allowevents") === "true";
+  newMenuPopup.getNode().setAttribute("allowevents", "true");
 
   // And then call open on the menu.  This doesn't actually open the menu
   // on screen, but it simulates the act, and dynamically generated or
@@ -952,7 +953,11 @@ add_task(function test_can_pref_off_account_provisioner() {
   close_window(wizard);
 
   // And finally restore the menu to the way it was.
-  newMenuPopup.getNode().allowevents = oldAllowEvents;
+  if (oldAllowEvents) {
+    newMenuPopup.getNode().setAttribute("allowevents", "true");
+  } else {
+    newMenuPopup.getNode().removeAttribute("allowevents");
+  }
 }).__skipMe = AppConstants.platform == "macosx";
 // We cannot control menus via Mozmill in OSX, so we'll skip this test.
 
