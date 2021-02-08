@@ -163,7 +163,7 @@ add_task(async function test_view_source_reload() {
     "cMenu_copy",
     "cMenu_selectAll",
     "cMenu_find",
-    "cMenu_findAgain",
+    "cMenu_findAgain"
   );
   contextMenu.hidePopup();
 
