@@ -218,7 +218,9 @@ SmtpServer.prototype = {
   },
 
   clearAllValues() {
-    this._prefs.deleteBranch("");
+    for (let prefName of this._prefs.getChildList("")) {
+      this._prefs.clearUserPref(prefName);
+    }
   },
 
   /**

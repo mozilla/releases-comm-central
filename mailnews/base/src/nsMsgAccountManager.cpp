@@ -1241,12 +1241,21 @@ nsresult nsMsgAccountManager::LoadAccounts() {
     nsCString dupAccountKey;
     dupAccount->GetKey(dupAccountKey);
     if (dupAccountKey.IsEmpty()) continue;
-    accountKeyPref += dupAccountKey;
+    accountKeyPref.Append(dupAccountKey);
+    accountKeyPref.Append('.');
 
     nsCOMPtr<nsIPrefBranch> accountPrefBranch;
     rv = prefservice->GetBranch(accountKeyPref.get(),
                                 getter_AddRefs(accountPrefBranch));
-    if (accountPrefBranch) accountPrefBranch->DeleteBranch("");
+    if (accountPrefBranch) {
+      nsTArray<nsCString> prefNames;
+      nsresult rv = accountPrefBranch->GetChildList("", prefNames);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      for (auto& prefName : prefNames) {
+        accountPrefBranch->ClearUserPref(prefName.get());
+      }
+    }
   }
 
   // Make sure we have an account that points at the local folders server

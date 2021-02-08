@@ -55,7 +55,9 @@ IMIncomingServer.prototype = {
 
   clearAllValues() {
     Services.accounts.deleteAccount(this.imAccount.id);
-    this._prefBranch.deleteBranch("");
+    for (let prefName of this._prefBranch.getChildList("")) {
+      this._prefBranch.clearUserPref(prefName);
+    }
     delete this._prefBranch;
     delete this._imAccount;
   },
