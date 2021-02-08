@@ -25,8 +25,11 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder = null;
 
-add_task(function setupModule(module) {
+add_task(function setup() {
   folder = create_folder("viewsource");
+  registerCleanupFunction(() => {
+    folder.deleteSelf(null);
+  });
 });
 
 function addToFolder(aSubject, aBody, aFolder) {
@@ -65,7 +68,7 @@ function addToFolder(aSubject, aBody, aFolder) {
  * Test that the view source character encoding can be changed,
  * which requires content policy is correct for view-source:.
  */
-add_task(function test_view_source_reload() {
+add_task(async function test_view_source_reload() {
   be_in_folder(folder);
 
   let contentLatin1 = "Testar, ett två tre.";
@@ -100,8 +103,14 @@ add_task(function test_view_source_reload() {
 
   // Click the new window to make it receive further events properly.
   vsc.click(vsc.eid("content"));
+  await new Promise(resolve => setTimeout(resolve));
 
+  let popupshown = BrowserTestUtils.waitForEvent(
+    vsc.e("viewmenu-popup"),
+    "popupshown"
+  );
   vsc.click(vsc.eid("menu_view"));
+  await popupshown;
   vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"), [
     { id: "charsetMenu" },
     { label: "Unicode" },
