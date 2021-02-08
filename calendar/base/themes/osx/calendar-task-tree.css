@@ -3,3 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url(chrome://calendar/skin/shared/calendar-task-tree.css);
+
+.calendar-task-tree-col-priority > .treecol-icon {
+  padding-inline-end: 1px;
+}

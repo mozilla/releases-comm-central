@@ -17,7 +17,7 @@
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
-  padding-inline-start: 1px;
+  padding-inline-start: 4px;
 }
 
 /* ..... junkStatus column ..... */

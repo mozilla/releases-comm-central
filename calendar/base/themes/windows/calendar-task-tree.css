@@ -4,6 +4,10 @@
 
 @import url(chrome://calendar/skin/shared/calendar-task-tree.css);
 
+.calendar-task-tree-col-priority > .treecol-icon {
+  padding-inline-end: 1px;
+}
+
 /* Use on Win7 and up default theme a dark text color when selected focus */
 @media (-moz-windows-default-theme) {
     .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
