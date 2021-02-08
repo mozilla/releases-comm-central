@@ -110,6 +110,7 @@ class SmtpClient {
         [Ci.nsMsgAuthMethod.passwordCleartext]: ["PLAIN", "LOGIN"],
         [Ci.nsMsgAuthMethod.passwordEncrypted]: ["CRAM-MD5"],
         [Ci.nsMsgAuthMethod.GSSAPI]: ["GSSAPI"],
+        [Ci.nsMsgAuthMethod.NTLM]: ["NTLM"],
         [Ci.nsMsgAuthMethod.OAuth2]: ["XOAUTH2"],
         [Ci.nsMsgAuthMethod.secure]: ["CRAM-MD5", "XOAUTH2"],
       }[server.authMethod] || [];
@@ -681,6 +682,21 @@ class SmtpClient {
         this._sendCommand(`AUTH GSSAPI ${token}`, true);
         return;
       }
+      case "NTLM": {
+        this.logger.debug("Authentication via AUTH NTLM");
+        this._currentAction = this._actionAUTH_NTLM;
+        this._authenticator.initNtlmAuth("smtp");
+        let token;
+        try {
+          token = this._authenticator.getNextNtlmToken("");
+        } catch (e) {
+          this.logger.error(e);
+          this._actionAUTHComplete({ success: false, data: "AUTH NTLM" });
+          return;
+        }
+        this._sendCommand(`AUTH NTLM ${token}`, true);
+        return;
+      }
     }
 
     this._onError(new Error(`Unknown authentication method ${auth}`));
@@ -821,6 +837,11 @@ class SmtpClient {
     // Detect if the server supports GSSAPI auth
     if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)GSSAPI/i)) {
       this._supportedAuthMethods.push("GSSAPI");
+    }
+
+    // Detect if the server supports NTLM auth
+    if (command.data.match(/AUTH(?:\s+[^\n]*\s+|\s+)NTLM/i)) {
+      this._supportedAuthMethods.push("NTLM");
     }
 
     // If a preferred method is not supported by the server, no need to try it.
@@ -984,7 +1005,8 @@ class SmtpClient {
     if (command.success) {
       this._actionAUTHComplete(command);
       return;
-    } else if (command.statusCode !== 334) {
+    }
+    if (command.statusCode !== 334) {
       this._onError(
         new Error(
           `Invalid login sequence while waiting for GSSAPI challenge, ${command}`
@@ -994,6 +1016,31 @@ class SmtpClient {
     }
     let token = this._authenticator.getNextGssapiToken(command.data);
     this._currentAction = this._actionAUTH_GSSAPI;
+    this._sendCommand(token, true);
+  }
+
+  /**
+   * Response to AUTH NTLM, if successful expects a base64 encoded challenge.
+   *
+   * @param {Object} command Parsed command from the server {statusCode, data}
+   */
+  _actionAUTH_NTLM(command) {
+    // NTLM auth can be multiple steps. We exchange tokens with the server
+    // until success or failure.
+    if (command.success) {
+      this._actionAUTHComplete(command);
+      return;
+    }
+    if (command.statusCode !== 334) {
+      this._onError(
+        new Error(
+          `Invalid login sequence while waiting for NTLM challenge, ${command}`
+        )
+      );
+      return;
+    }
+    let token = this._authenticator.getNextNtlmToken(command.data);
+    this._currentAction = this._actionAUTH_NTLM;
     this._sendCommand(token, true);
   }
 

@@ -65,7 +65,7 @@ class MailAuthenticator {
   }
 
   /**
-   * Init a nsIMailAuthModule instance.
+   * Init a nsIMailAuthModule instance for GSSAPI auth.
    * @param {('smtp'|'imap')} protocol - The protocol name.
    */
   initGssapiAuth(protocol) {
@@ -88,6 +88,32 @@ class MailAuthenticator {
    * @returns {string}
    */
   getNextGssapiToken(inToken) {
+    return this._authModule.getNextToken(inToken);
+  }
+
+  /**
+   * Init a nsIMailAuthModule instance for NTLM auth.
+   */
+  initNtlmAuth() {
+    this._authModule = Cc["@mozilla.org/mail/auth-module;1"].createInstance(
+      Ci.nsIMailAuthModule
+    );
+    this._authModule.init(
+      "ntlm", // Auth module type
+      null, // Service name
+      0, // nsIAuthModule::REQ_DEFAULT
+      null, // domain
+      this.username,
+      this.getPassword()
+    );
+  }
+
+  /**
+   * Get the next token in a sequence of NTLM auth steps.
+   * @param {string} inToken - A base64 encoded string, usually server challenge.
+   * @returns {string}
+   */
+  getNextNtlmToken(inToken) {
     return this._authModule.getNextToken(inToken);
   }
 
