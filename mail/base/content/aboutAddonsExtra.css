@@ -25,11 +25,6 @@ button[name="plugin"] {
   margin-bottom: 36px;
 }
 
-/* Hide the help button */
-#help-button {
-  display: none;
-}
-
 /* Hide in extension details the private browsing section */
 section > .addon-detail-row-private-browsing,
 .addon-detail-row-private-browsing + .addon-detail-row.addon-detail-help-row {
