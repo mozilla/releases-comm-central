@@ -25,7 +25,6 @@
    * @implements {calIOperationListener}
    * @implements {calIObserver}
    * @implements {calICompositeObserver}
-   * @implements {nsIObserver}
    */
   class CalendarMinimonth extends MozXULElement {
     constructor() {
@@ -34,7 +33,26 @@
       this.calIObserver = this.getCustomInterfaceCallback(Ci.calIObserver);
       this.calICompositeObserver = this.getCustomInterfaceCallback(Ci.calICompositeObserver);
       this.calIOperationListener = this.getCustomInterfaceCallback(Ci.calIOperationListener);
-      this.nsIObserver = this.getCustomInterfaceCallback(Ci.nsIObserver);
+
+      let onPreferenceChanged = () => {
+        delete this.mDayMap; // Days have moved, force a refresh of the grid.
+        this.refreshDisplay();
+      };
+
+      XPCOMUtils.defineLazyPreferenceGetter(
+        this,
+        "weekStart",
+        "calendar.week.start",
+        0,
+        onPreferenceChanged
+      );
+      XPCOMUtils.defineLazyPreferenceGetter(
+        this,
+        "showWeekNumber",
+        "calendar.view-minimonth.showWeekNumber",
+        true,
+        onPreferenceChanged
+      );
     }
 
     static get inheritedAttributes() {
@@ -153,9 +171,6 @@
       if (this.hasAttribute("freebusy")) {
         this._setFreeBusy(this.getAttribute("freebusy") == "true");
       }
-
-      // Add pref observer.
-      Services.prefs.getBranch("").addObserver("calendar.", this.nsIObserver);
 
       // Add event listeners.
       this.addEventListener("click", event => {
@@ -454,19 +469,6 @@
     onDefaultCalendarChanged(aCalendar) {}
 
     // End calICompositeObserver methods.
-    // nsIObserver methods.
-
-    observe(aSubject, aTopic, aData) {
-      switch (aData) {
-        case "calendar.week.start":
-        case "calendar.view-minimonth.showWeekNumber":
-          delete this.mDayMap; // Days have moved, force a refresh of the grid.
-          this.refreshDisplay();
-          break;
-      }
-    }
-
-    // End nsIObserver methods.
 
     refreshDisplay() {
       if (!this.mValue) {
@@ -960,9 +962,6 @@
       if (this.mObservesComposite) {
         cal.view.getCompositeCalendar(window).removeObserver(this.calICompositeObserver);
       }
-
-      // Remove pref observer.
-      Services.prefs.getBranch("").removeObserver("calendar.", this.nsIObserver);
     }
   }
 
@@ -971,24 +970,11 @@
     "dateFormatter",
     () => new Services.intl.DateTimeFormat(undefined, { dateStyle: "long" })
   );
-  XPCOMUtils.defineLazyPreferenceGetter(
-    CalendarMinimonth.prototype,
-    "weekStart",
-    "calendar.week.start",
-    0
-  );
-  XPCOMUtils.defineLazyPreferenceGetter(
-    CalendarMinimonth.prototype,
-    "showWeekNumber",
-    "calendar.view-minimonth.showWeekNumber",
-    true
-  );
 
   MozXULElement.implementCustomInterface(CalendarMinimonth, [
     Ci.calIObserver,
     Ci.calICompositeObserver,
     Ci.calIOperationListener,
-    Ci.nsIObserver,
   ]);
   customElements.define("calendar-minimonth", CalendarMinimonth);
 }
