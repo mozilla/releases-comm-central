@@ -129,7 +129,10 @@ async function checkABrowser(browser) {
 
   // Check the value was assigned to the input.
   await SpecialPowers.spawn(browser, [], () => {
-    Assert.equal(content.document.querySelector(`input[list="letters"]`).value, "zeta");
+    Assert.equal(
+      content.document.querySelector(`input[list="letters"]`).value,
+      "zeta"
+    );
   });
 }
 
