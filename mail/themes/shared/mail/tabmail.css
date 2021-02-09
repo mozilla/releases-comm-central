@@ -163,12 +163,11 @@
 /* Tab hover */
 
 .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]) {
-  background-color: rgba(0,0,0,.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-#tabs-toolbar[brighttext] > #tabmail-tabs > .tabmail-tab:hover > .tab-stack >
-  .tab-background:not([selected=true]) {
-  background-color: rgba(255,255,255,.1);
+#tabs-toolbar[brighttext] .tabmail-tab:hover > .tab-stack > .tab-background:not([selected=true]) {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .tab-line:not([selected=true]) {
@@ -179,14 +178,14 @@
 }
 
 .tabmail-tab:hover > .tab-stack > .tab-background > .tab-line:not([selected=true]) {
-  background-color: rgba(0,0,0,.2);
+  background-color: rgba(0, 0, 0, 0.2);
   opacity: 1;
   transform: none;
 }
 
-#tabs-toolbar[brighttext] > #tabmail-tabs > .tabmail-tab:hover > .tab-stack >
-  .tab-background > .tab-line:not([selected=true]) {
-  background-color: rgba(255,255,255,.2);
+#tabs-toolbar[brighttext] .tabmail-tab:hover > .tab-stack > .tab-background >
+  .tab-line:not([selected=true]) {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .tab-throbber {
