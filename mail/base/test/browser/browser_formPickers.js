@@ -77,9 +77,9 @@ async function checkABrowser(browser) {
   // Item values do not match the content document, but are 0-indexed.
   Assert.equal(menupopup.children[0].label, "");
   Assert.equal(menupopup.children[0].value, "0");
-  Assert.equal(menupopup.children[1].label, "Π");
+  Assert.equal(menupopup.children[1].label, "π");
   Assert.equal(menupopup.children[1].value, "1");
-  Assert.equal(menupopup.children[2].label, "Τ");
+  Assert.equal(menupopup.children[2].label, "τ");
   Assert.equal(menupopup.children[2].value, "2");
 
   // Click the second option. This sets the value and closes the menulist.
@@ -90,6 +90,46 @@ async function checkABrowser(browser) {
   // Check the value was assigned to the control.
   await SpecialPowers.spawn(browser, [], () => {
     Assert.equal(content.document.querySelector("select").value, "3.141592654");
+  });
+
+  // Input auto-complete
+
+  browser.focus();
+
+  let popup = doc.getElementById(browser.getAttribute("autocompletepopup"));
+  Assert.ok(popup, "auto-complete popup exists");
+
+  // Click on the input box and type some letters to open the popup.
+  shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    `input[list="letters"]`,
+    {},
+    browser
+  );
+  await BrowserTestUtils.synthesizeKey("e", {}, browser);
+  await BrowserTestUtils.synthesizeKey("t", {}, browser);
+  await BrowserTestUtils.synthesizeKey("a", {}, browser);
+  await shownPromise;
+
+  // Allow the popup time to initialise.
+  await new Promise(r => win.setTimeout(r, 500));
+
+  let list = popup.querySelector("richlistbox");
+  Assert.ok(list, "list added to popup");
+  Assert.equal(list.itemCount, 4);
+  Assert.equal(list.itemChildren[0].getAttribute("title"), "beta");
+  Assert.equal(list.itemChildren[1].getAttribute("title"), "zeta");
+  Assert.equal(list.itemChildren[2].getAttribute("title"), "eta");
+  Assert.equal(list.itemChildren[3].getAttribute("title"), "theta");
+
+  // Click the second option. This sets the value and closes the popup.
+  hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+  EventUtils.synthesizeMouseAtCenter(list.itemChildren[1], {}, win);
+  await hiddenPromise;
+
+  // Check the value was assigned to the input.
+  await SpecialPowers.spawn(browser, [], () => {
+    Assert.equal(content.document.querySelector(`input[list="letters"]`).value, "zeta");
   });
 }
 

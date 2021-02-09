@@ -346,10 +346,6 @@
   <panel is="glodacomplete-rich-result-popup"
          id="PopupGlodaAutocomplete"
          noautofocus="true"/>
-  <panel is="autocomplete-richlistbox-popup" id="PopupAutoComplete"
-         type="autocomplete"
-         role="group"
-         noautofocus="true"/>
 
   <tooltip id="attachmentListTooltip"/>
 
@@ -764,6 +760,7 @@
                           <stack flex="1">
                             <browser id="messagepane"
                                      context="mailContext"
+                                     autocompletepopup="PopupAutoComplete"
                                      datetimepicker="DateTimePickerPanel"
                                      selectmenulist="ContentSelectDropdown"
                                      autofind="false"
