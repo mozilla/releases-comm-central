@@ -385,6 +385,7 @@ var gFolderTreeView = {
       // If we end up with an empty array, add the default mode.
       if (!this._activeModes.length) {
         this._activeModes.push(kDefaultMode);
+        this._updateMenuItems(kDefaultMode);
       }
     }
 
@@ -2911,6 +2912,13 @@ var gFolderTreeView = {
    * @param {boolean} toggle - True if the compact mode needs to be activated.
    */
   toggleCompactMode(toggle) {
+    // Interrupt if the tree hasn't been defined yet. This might happen on
+    // startup if a user still has old deprecated folder modes from removed
+    // extensions.
+    if (!this._tree) {
+      return;
+    }
+
     this._tree.setAttribute("compact", toggle);
     Services.xulStore.persist(this._tree, "compact");
     this._rebuild();
