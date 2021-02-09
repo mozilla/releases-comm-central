@@ -4,7 +4,7 @@
 
 /* import-globals-from calendar-item-editing.js */
 
-/* globals GetMessagePaneFrame, gFolderDisplay */
+/* globals getMessagePaneBrowser, gFolderDisplay */
 
 var { Extractor } = ChromeUtils.import("resource:///modules/calendar/calExtract.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -115,7 +115,7 @@ var calendarExtract = {
     item.setProperty("DESCRIPTION", content);
     cal.dtz.setDefaultStartEndHour(item);
     cal.alarms.setDefaultValues(item);
-    let sel = GetMessagePaneFrame().getSelection();
+    let sel = getMessagePaneBrowser().contentWindow.getSelection();
     // Thunderbird Conversations might be installed
     if (sel === null) {
       try {
