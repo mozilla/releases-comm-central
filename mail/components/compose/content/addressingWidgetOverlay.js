@@ -14,6 +14,10 @@ var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
 
+// Keep track of the height of the addressing header if the user manually
+// resizes it.
+var kAddressingHeaderHeight;
+
 /**
  * Convert all the written recipients into string and store them into the
  * msgCompFields array to be printed in the message header.
@@ -397,12 +401,13 @@ function awAddRecipients(msgCompFields, recipientType, recipientsList) {
 }
 
 /**
- * Adds a batch of new recipient pill matching recipientType
- * and drops in the array of addresses.
+ * Adds a batch of new recipient pill matching recipientType and drops in the
+ * array of addresses.
  *
  * @param {string} aRecipientType - Type of recipient, e.g. "addr_to".
  * @param {string[]} aAddressArray - Recipient addresses (strings) to add.
- * @param {boolean=false} select - If the newly generated pills should be selected.
+ * @param {boolean=false} select - If the newly generated pills should be
+ *   selected.
  */
 function awAddRecipientsArray(aRecipientType, aAddressArray, select = false) {
   let label = document.getElementById(aRecipientType);
@@ -512,22 +517,26 @@ function DropRecipient(target, recipient) {
   awAddRecipientsArray(recipientType, [recipient]);
 }
 
-function awSizerListen() {
-  // when splitter is clicked, fill in necessary dummy rows each time
-  // the mouse is moved.
-  document.addEventListener("mousemove", awSizerMouseMove, true);
-  document.addEventListener("mouseup", awSizerMouseUp, {
-    capture: false,
-    once: true,
-  });
-}
-// Add the overflow scroll attribute to the recipients container.
-function awSizerMouseMove() {
+/**
+ * Add the overflow class to the addressing header area when the user interacts
+ * with the splitter.
+ */
+function awSizerMouseDown() {
   document.getElementById("recipientsContainer").classList.add("overflow");
 }
 
+/**
+ * Locally store the height of the header area decided by the user to avoid UI
+ * jumps when interacting with the pills. Unless the user resized the area below
+ * 30% of the height of the entire composition window, which is the limit we use
+ * to trigger the overflow of the recipient area.
+ */
 function awSizerMouseUp() {
-  document.removeEventListener("mousemove", awSizerMouseMove, true);
+  kAddressingHeaderHeight =
+    document.getElementById("headers-box").clientHeight >
+    window.outerHeight * 0.3
+      ? Number(document.getElementById("recipientsContainer").clientHeight)
+      : null;
 }
 
 // Returns the load context for the current window
@@ -779,6 +788,8 @@ function recipientAddPills(input, automatic = false) {
   // Attach it again to enable autocomplete.
   input.attachController();
 
+  // Prevent triggering some methods if the pill creation was done automatically
+  // for example during the move of an existing pill between addressing fields.
   if (!automatic) {
     input
       .closest(".address-container")
@@ -1231,7 +1242,8 @@ function calculateHeaderHeight() {
   let header = document.getElementById("headers-box");
   let container = document.getElementById("recipientsContainer");
 
-  // Interrupt if the container scrolling area is taller than its clientHeight.
+  // Interrupt if the container scrolling area is taller than its visible
+  // height.
   if (
     container.classList.contains("overflow") &&
     container.scrollHeight > container.clientHeight
@@ -1240,13 +1252,25 @@ function calculateHeaderHeight() {
   }
 
   // Remove the overflow if the container scrolling area shrinks below its
-  // clientHeight.
+  // visible height but the user didn't manually resize the header.
   if (
     container.classList.contains("overflow") &&
-    container.scrollHeight <= container.clientHeight
+    container.scrollHeight <= container.clientHeight &&
+    !kAddressingHeaderHeight
   ) {
     container.classList.remove("overflow");
     header.removeAttribute("height");
+    return;
+  }
+
+  // Interrupt if the user manually resized the header area and the current
+  // custom height is heigher than the entire container height. We run this
+  // condition alone in order to allow resetting the header height when pills
+  // are deleted and a custom height is not necessary.
+  if (
+    kAddressingHeaderHeight &&
+    kAddressingHeaderHeight >= container.clientHeight
+  ) {
     return;
   }
 

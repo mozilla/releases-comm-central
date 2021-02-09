@@ -2973,14 +2973,14 @@
       }
       focusElement.focus();
 
-      calculateHeaderHeight();
       // Update aria labels for all rows as we allow cross-row pill removal.
       // This may not yet be micro-performance optimized; see bug 1671261.
       updateAriaLabelsAndTooltipsOfAllAddressRows();
 
-      // Don't call onRecipientsChanged() if the pills were removed
-      // automatically during the move to another addressing widget.
+      // Don't trigger some methods if the pills were removed automatically
+      // during the move to another addressing widget.
       if (!moved) {
+        calculateHeaderHeight();
         onRecipientsChanged();
       }
     }
