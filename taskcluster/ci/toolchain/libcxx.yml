@@ -25,6 +25,7 @@ linux64-clang-lib32cxx:
         fetch:
             - clang-11  # Need to keep current with linux64-clang
         toolchain:
+            - linux64-binutils
             - linux64-clang-11
             - linux64-gcc-7  # Use what linux64-clang uses
-            - linux64-toolchain-sysroot
+            - linux32-sysroot
