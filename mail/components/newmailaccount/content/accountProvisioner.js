@@ -581,7 +581,7 @@ var EmailAccountProvisioner = {
     let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
     let tabmail = mail3Pane.document.getElementById("tabmail");
     tabmail.openTab("accountProvisionerTab", {
-      contentPage: url,
+      url,
       realName: (firstName + " " + lastName).trim(),
       email,
       searchEngine: provider.search_engine,

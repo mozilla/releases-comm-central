@@ -109,9 +109,9 @@ function openAboutTab(url) {
   let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
   if (mailWindow) {
     mailWindow.focus();
-    mailWindow.document.getElementById("tabmail").openTab("contentTab", {
-      contentPage: url,
-    });
+    mailWindow.document
+      .getElementById("tabmail")
+      .openTab("contentTab", { url });
     return;
   }
 
@@ -123,9 +123,7 @@ function openAboutTab(url) {
     null,
     {
       tabType: "contentTab",
-      tabParams: {
-        contentPage: url,
-      },
+      tabParams: { url },
     }
   );
 }

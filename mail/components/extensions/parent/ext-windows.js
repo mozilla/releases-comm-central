@@ -164,7 +164,7 @@ this.windows = class extends ExtensionAPI {
               allowScriptsToClose,
               tabs: urls.map(url => ({
                 tabType: "contentTab",
-                tabParams: { contentPage: url },
+                tabParams: { url },
               })),
             };
             actionData.wrappedJSObject = actionData;

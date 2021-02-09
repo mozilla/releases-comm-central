@@ -476,9 +476,7 @@ function toJavaScriptConsole() {
 
 function openAboutDebugging(hash) {
   let url = "about:debugging" + (hash ? "#" + hash : "");
-  document
-    .getElementById("tabmail")
-    .openTab("contentTab", { contentPage: url });
+  document.getElementById("tabmail").openTab("contentTab", { url });
 }
 
 function toOpenWindowByType(inType, uri) {
@@ -657,9 +655,7 @@ function openSavedFilesWnd() {
   if (downloadsBrowser) {
     tabmail.switchToTab(downloadsBrowser);
   } else {
-    tabmail.openTab("chromeTab", {
-      chromePage: "about:downloads",
-    });
+    tabmail.openTab("chromeTab", { url: "about:downloads" });
   }
 }
 
@@ -737,7 +733,7 @@ function openAboutSupport() {
   if (mailWindow) {
     mailWindow.focus();
     mailWindow.document.getElementById("tabmail").openTab("contentTab", {
-      contentPage: "about:support",
+      url: "about:support",
     });
     return;
   }
@@ -749,9 +745,7 @@ function openAboutSupport() {
     null,
     {
       tabType: "contentTab",
-      tabParams: {
-        contentPage: "about:support",
-      },
+      tabParams: { url: "about:support" },
     }
   );
 }

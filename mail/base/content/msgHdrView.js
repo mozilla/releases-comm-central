@@ -2058,7 +2058,7 @@ AttachmentInfo.prototype = {
             url += "type=application/pdf";
           }
           document.getElementById("tabmail").openTab("contentTab", {
-            contentPage: url,
+            url,
             background: false,
           });
           return;

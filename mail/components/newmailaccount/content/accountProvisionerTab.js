@@ -96,7 +96,7 @@ accountProvisionerTabType.persistTab = function(aTab) {
  */
 accountProvisionerTabType.restoreTab = function(aTabmail, aPersistedState) {
   aTabmail.openTab("accountProvisionerTab", {
-    contentPage: aPersistedState.tabURI,
+    url: aPersistedState.tabURI,
     realName: aPersistedState.realName,
     email: aPersistedState.email,
     searchEngine: aPersistedState.searchEngine,

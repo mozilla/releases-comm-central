@@ -584,7 +584,7 @@ MailGlue.prototype = {
     if (!linkHandled.data) {
       let win = Services.wm.getMostRecentWindow("mail:3pane");
       aData = JSON.parse(aData);
-      let tabParams = { contentPage: aData.href, linkHandler: null };
+      let tabParams = { url: aData.href, linkHandler: null };
       if (win) {
         let tabmail = win.document.getElementById("tabmail");
         if (tabmail) {

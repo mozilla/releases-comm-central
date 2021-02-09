@@ -44,7 +44,7 @@ function loadRequestedUrl() {
     ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
     MailE10SUtils.loadURI(
       browser,
-      window.arguments[1].wrappedJSObject.tabs[0].tabParams.contentPage
+      window.arguments[1].wrappedJSObject.tabs[0].tabParams.url
     );
   }
 }

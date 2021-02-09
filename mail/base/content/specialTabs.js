@@ -429,8 +429,8 @@ var contentTabBaseType = {
     },
   ],
 
-  shouldSwitchTo({ contentPage: aContentPage, duplicate: aDuplicate }) {
-    if (aDuplicate) {
+  shouldSwitchTo({ url, duplicate }) {
+    if (duplicate) {
       return -1;
     }
 
@@ -441,7 +441,7 @@ var contentTabBaseType = {
     // to re-use the same tab.
     let regEx = new RegExp("#.*");
 
-    let contentUrl = aContentPage.replace(regEx, "");
+    let contentUrl = url.replace(regEx, "");
 
     for (
       let selectedIndex = 0;
@@ -454,7 +454,7 @@ var contentTabBaseType = {
           contentUrl
       ) {
         // Ensure we go to the correct location on the page.
-        tabInfo[selectedIndex].browser.setAttribute("src", aContentPage);
+        tabInfo[selectedIndex].browser.setAttribute("src", url);
         return selectedIndex;
       }
     }
@@ -835,25 +835,25 @@ var specialTabs = {
      * open a contentTab, use specialTabs.openTab("contentTab", aArgs)
      *
      * @param {Object} aArgs - The options that content tabs accept.
-     * @param {String} aArgs.contentPage - The URL that is to be opened
+     * @param {String} aArgs.url - The URL that is to be opened
      * @param {nsIOpenWindowInfo} [aArgs.openWindowInfo] - The opener window
      * @param {"single-site"|"single-page"|null} [aArgs.linkHandler="single-site"]
      *     Restricts navigation in the browser to be opened:
      *     - "single-site" allows only URLs in the same domain as
-     *     aArgs.contentPage (including subdomains).
-     *     - "single-page" allows only URLs matching aArgs.contentPage.
+     *     aArgs.url (including subdomains).
+     *     - "single-page" allows only URLs matching aArgs.url.
      *     - `null` applies no such restrictions.
      *     All other links are sent to an external browser.
      * @param {Function} [aArgs.onLoad] - A function that takes an Event and a
      *     DOMNode. It is called when the content page is done loading. The
      *     first argument is the load event, and the second argument is the
-     *     xul:browser that holds the contentPage. You can access the inner
-     *     tab's window object by accessing the second parameter's
-     *     contentWindow property.
+     *     xul:browser that holds the page. You can access the inner tab's
+     *     window object by accessing the second parameter's contentWindow
+     *     property.
      */
     openTab(aTab, aArgs) {
-      if (!("contentPage" in aArgs)) {
-        throw new Error("contentPage must be specified");
+      if (!("url" in aArgs)) {
+        throw new Error("url must be specified");
       }
 
       // First clone the page and set up the basics.
@@ -905,7 +905,7 @@ var specialTabs = {
       );
       aTab.security = aTab.toolbar.querySelector(".contentTabSecurity");
       aTab.urlbar = aTab.toolbar.querySelector(".contentTabUrlbar > input");
-      aTab.urlbar.value = aArgs.contentPage;
+      aTab.urlbar.value = aArgs.url;
 
       // As we're opening this tab, showTab may not get called, so set
       // the type according to if we're opening in background or not.
@@ -994,7 +994,7 @@ var specialTabs = {
       aTab.title = this.loadingTabString;
 
       if (!aArgs.skipLoad) {
-        MailE10SUtils.loadURI(aTab.browser, aArgs.contentPage, {
+        MailE10SUtils.loadURI(aTab.browser, aArgs.url, {
           csp: aArgs.csp,
           referrerInfo: aArgs.referrerInfo,
           triggeringPrincipal: aArgs.triggeringPrincipal,
@@ -1018,10 +1018,10 @@ var specialTabs = {
     },
     restoreTab(aTabmail, aPersistedState) {
       let tab = aTabmail.openTab("contentTab", {
-        contentPage: aPersistedState.tabURI,
-        linkHandler: aPersistedState.linkHandler,
-        duplicate: aPersistedState.duplicate,
         background: true,
+        duplicate: aPersistedState.duplicate,
+        linkHandler: aPersistedState.linkHandler,
+        url: aPersistedState.tabURI,
       });
       if (aPersistedState.tabURI == "about:addons") {
         // Also in `openAddonsMgr` in mailCore.js.
@@ -1139,8 +1139,8 @@ var specialTabs = {
         "datareporting.policy.firstRunURL"
       );
       document.getElementById("tabmail").openTab("contentTab", {
-        contentPage: firstRunURL,
         background: true,
+        url: firstRunURL,
       });
     } catch (e) {
       // Show the infobar if it fails to show the privacy policy in the new tab.
@@ -1240,7 +1240,7 @@ var specialTabs = {
         callback(aNotificationBar, aButton) {
           // Show the about:rights tab
           document.getElementById("tabmail").openTab("contentTab", {
-            contentPage: "about:rights",
+            url: "about:rights",
           });
         },
       },
@@ -1281,33 +1281,32 @@ var specialTabs = {
       },
     },
 
-    shouldSwitchTo: ({ chromePage: x }) =>
-      contentTabBaseType.shouldSwitchTo({ contentPage: x }),
+    shouldSwitchTo: ({ url }) => contentTabBaseType.shouldSwitchTo({ url }),
 
     /**
      * This is the internal function used by chrome tabs to open a new tab. To
      * open a chromeTab, use specialTabs.openTab("chromeTab", aArgs)
      *
      * @param {Object} aArgs - The options that chrome tabs accept.
-     * @param {String} aArgs.chromePage - The URL that is to be opened
+     * @param {String} aArgs.url - The URL that is to be opened
      * @param {nsIOpenWindowInfo} [aArgs.openWindowInfo] - The opener window
      * @param {"single-site"|"single-page"|null} [aArgs.linkHandler="single-site"]
      *     Restricts navigation in the browser to be opened:
      *     - "single-site" allows only URLs in the same domain as
-     *     aArgs.chromePage (including subdomains).
-     *     - "single-page" allows only URLs matching aArgs.chromePage.
+     *     aArgs.url (including subdomains).
+     *     - "single-page" allows only URLs matching aArgs.url.
      *     - `null` applies no such restrictions.
      *     All other links are sent to an external browser.
      * @param {Function} [aArgs.onLoad] - A function that takes an Event and a
      *     DOMNode. It is called when the chrome page is done loading. The
      *     first argument is the load event, and the second argument is the
-     *     xul:browser that holds the chromePage. You can access the inner
-     *     tab's window object by accessing the second parameter's
-     *     contentWindow property.
+     *     xul:browser that holds the page. You can access the inner tab's
+     *     window object by accessing the second parameter's contentWindow
+     *     property.
      */
     openTab(aTab, aArgs) {
-      if (!("chromePage" in aArgs)) {
-        throw new Error("chromePage must be specified");
+      if (!("url" in aArgs)) {
+        throw new Error("url must be specified");
       }
 
       // First clone the page and set up the basics.
@@ -1357,7 +1356,7 @@ var specialTabs = {
 
       // Now start loading the content.
       aTab.title = this.loadingTabString;
-      MailE10SUtils.loadURI(aTab.browser, aArgs.chromePage);
+      MailE10SUtils.loadURI(aTab.browser, aArgs.url);
 
       this.lastBrowserId++;
     },
@@ -1392,7 +1391,7 @@ var specialTabs = {
     },
     restoreTab(aTabmail, aPersistedState) {
       aTabmail.openTab("chromeTab", {
-        chromePage: aPersistedState.tabURI,
+        url: aPersistedState.tabURI,
         background: true,
       });
     },

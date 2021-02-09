@@ -726,13 +726,13 @@ nsBrowserAccess.prototype = {
     let tabmail = win.document.getElementById("tabmail");
     let newTab = tabmail.openTab("contentTab", {
       background: loadInBackground,
-      contentPage: aURI ? aURI.spec : "about:blank",
       csp: aCsp,
       linkHandler: aMessageManagerGroup,
       openWindowInfo: aOpenWindowInfo,
       referrerInfo: aReferrerInfo,
       skipLoad: aSkipLoad,
       triggeringPrincipal: aTriggeringPrincipal,
+      url: aURI ? aURI.spec : "about:blank",
     });
 
     if (needToFocusWin || (!loadInBackground && aIsExternal)) {

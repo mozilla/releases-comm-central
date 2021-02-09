@@ -264,9 +264,7 @@ function openTrustedLinkIn(url, where, aParams) {
     url.startsWith("about:certificate") ||
     (url.startsWith("https://addons.thunderbird.net") && where == "tab")
   ) {
-    document.getElementById("tabmail").openTab("contentTab", {
-      contentPage: url,
-    });
+    document.getElementById("tabmail").openTab("contentTab", { url });
     return;
   }
 

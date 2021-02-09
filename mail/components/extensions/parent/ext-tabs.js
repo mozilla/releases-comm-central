@@ -439,7 +439,7 @@ this.tabs = class extends ExtensionAPI {
           tabListener.initTabReady();
 
           let nativeTabInfo = tabmail.openTab("contentTab", {
-            contentPage: url || "about:blank",
+            url: url || "about:blank",
             linkHandler: null,
             background: !active,
             initialBrowsingContextGroupId:

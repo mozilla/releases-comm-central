@@ -168,7 +168,7 @@ function open_content_tab_with_url(
 
   let preCount = mc.tabmail.tabContainer.allTabs.length;
   mc.tabmail.openTab("contentTab", {
-    contentPage: aURL,
+    url: aURL,
     background: aBackground,
     linkHandler: aLinkHandler,
   });

@@ -288,7 +288,7 @@ function openTab(tabType, tabParams, where) {
  * @param {String} [linkHandler] - See specialTabs.contentTabType.openTab.
  */
 function openContentTab(url, where, linkHandler) {
-  return openTab("contentTab", { contentPage: url, linkHandler }, where);
+  return openTab("contentTab", { url, linkHandler }, where);
 }
 
 /**
@@ -299,17 +299,15 @@ function openContentTab(url, where, linkHandler) {
  * @param otherArgs    other prefpane specific arguments.
  */
 function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
-  let url = "about:preferences";
-  let params = {
-    contentPage: url,
+  openTab("preferencesTab", {
+    url: "about:preferences",
     paneID,
     scrollPaneTo,
     otherArgs,
     onLoad(aEvent, aBrowser) {
       aBrowser.contentWindow.selectPrefPane(paneID, scrollPaneTo, otherArgs);
     },
-  };
-  openTab("preferencesTab", params);
+  });
 }
 
 /**

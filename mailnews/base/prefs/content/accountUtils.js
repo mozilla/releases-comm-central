@@ -309,7 +309,7 @@ function MsgAccountManager(selectPage, aServer) {
     browser.contentDocument.getElementById("accounttree").focus();
   };
   tabmail.openTab("contentTab", {
-    contentPage: "about:accountsettings",
+    url: "about:accountsettings",
     onLoad,
   });
 

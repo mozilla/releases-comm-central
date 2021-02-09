@@ -65,8 +65,8 @@ var preferencesTabType = {
   },
 
   openTab(aTab, aArgs) {
-    if (!("contentPage" in aArgs)) {
-      throw new Error("contentPage must be specified");
+    if (!("url" in aArgs)) {
+      throw new Error("url must be specified");
     }
 
     // First clone the page and set up the basics.
@@ -98,7 +98,7 @@ var preferencesTabType = {
     // Default to reload being disabled.
     aTab.reloadEnabled = false;
 
-    aTab.url = aArgs.contentPage;
+    aTab.url = aArgs.url;
     aTab.paneID = aArgs.paneID;
     aTab.scrollPaneTo = aArgs.scrollPaneTo;
     aTab.otherArgs = aArgs.otherArgs;
@@ -141,7 +141,7 @@ var preferencesTabType = {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       postData: aArgs.postData || null,
     };
-    aTab.browser.loadURI(aArgs.contentPage, params);
+    aTab.browser.loadURI(aArgs.url, params);
 
     gPrefTab = aTab;
     this.lastBrowserId++;
@@ -162,7 +162,7 @@ var preferencesTabType = {
 
   restoreTab(aTabmail, aPersistedState) {
     aTabmail.openTab("preferencesTab", {
-      contentPage: aPersistedState.tabURI,
+      url: aPersistedState.tabURI,
       paneID: aPersistedState.paneID,
       scrollPaneTo: aPersistedState.scrollPaneTo,
       otherArgs: aPersistedState.otherArgs,
