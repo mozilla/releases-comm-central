@@ -5,7 +5,7 @@ ac_add_options --target=i686-pc-mingw32
 . $topsrcdir/build/win32/mozconfig.vs-latest
 
 # Set up mapi includes (must be done after visual studio setup)
-export INCLUDE=${TOOLTOOL_DIR}/mapiheader
+export INCLUDE=${MOZ_FETCHES_DIR}/mapiheader
 
 if test `uname -s` = Linux; then
 
@@ -23,17 +23,13 @@ if [ -f "${UPX}" ]; then
     chmod +x "${UPX}"
 fi
 
-export WINE=${MOZ_FETCHES_DIR}/wine/bin/wine64
 mk_add_options "export PATH=${VSPATH}/VC/bin/Hostx64/x86:${MOZ_FETCHES_DIR}/nsis-3.01:${PATH}"
 
 unset VC_PATH
 
 fi
 
-export WINCHECKSEC="${MOZ_FETCHES_DIR}/winchecksec/winchecksec"
-if [ ! -f "${WINCHECKSEC}" ]; then
-    export WINCHECKSEC="${MOZ_FETCHES_DIR}/winchecksec/winchecksec.exe"
-    if [ ! -f "${WINCHECKSEC}" ]; then
-        unset WINCHECKSEC
-    fi
+pdbstr="${MOZ_FETCHES_DIR}/pdbstr/pdbstr.exe"
+if [ -f "${pdbstr}" ]; then
+    chmod +x "${pdbstr}"
 fi
