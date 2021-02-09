@@ -51,7 +51,6 @@ linux-aarch64-libotr:
             - linux64-clang-aarch64-cross
             - linux64-binutils
 
-
 macosx64-libotr:
     worker:
         env:

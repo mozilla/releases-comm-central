@@ -296,6 +296,7 @@ case "${_TARGET_OS}" in
 
         export _TARGET_TRIPLE="aarch64-pc-linux"
         export CC="aarch64-linux-gnu-clang"
+        export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
         export AR=llvm-ar
         export RANLIB=llvm-ranlib
         export NM=llvm-nm
