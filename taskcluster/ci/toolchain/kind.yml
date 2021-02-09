@@ -52,6 +52,7 @@ reference-jobs:
     - linux64-rust-windows-1.47
     - linux64-sccache
     - linux64-sysroot
+    - linux64-toolchain-sysroot
     - linux64-upx
     - linux64-winchecksec
     - linux64-wine
