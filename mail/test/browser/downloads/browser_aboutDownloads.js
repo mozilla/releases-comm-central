@@ -138,9 +138,7 @@ function setupTest(test) {
 
 function open_about_downloads() {
   let preCount = mc.tabmail.tabContainer.allTabs.length;
-  let newTab = mc.tabmail.openTab("chromeTab", {
-    url: "about:downloads",
-  });
+  let newTab = mc.window.openSavedFilesWnd();
   mc.waitFor(
     () => mc.tabmail.tabContainer.allTabs.length == preCount + 1,
     "Timeout waiting for about:downloads tab"

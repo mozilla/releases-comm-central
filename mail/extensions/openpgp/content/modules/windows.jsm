@@ -553,32 +553,6 @@ var EnigmailWindows = {
     );
   },
 
-  /**
-   * Open a URL in a tab on the main window. The URL can either be a web page
-   * (e.g. https://doesnotexist-openpgp-integration.thunderbird/ or a chrome document (e.g. chrome://openpgp/content/ui/x.xhtml))
-   *
-   * @param aURL:    String - the URL to open
-   * @param winName: String - name of the window; used to identify if it is already open
-   */
-  openMailTab(aURL, windowName) {
-    let tabs = EnigmailStdlib.getMail3Pane().document.getElementById("tabmail");
-
-    for (let i = 0; i < tabs.tabInfo.length; i++) {
-      if (
-        "openedUrl" in tabs.tabInfo[i] &&
-        tabs.tabInfo[i].openedUrl.startsWith(aURL)
-      ) {
-        tabs.switchToTab(i);
-        return;
-      }
-    }
-
-    let gotTab = tabs.openTab("chromeTab", {
-      chromePage: aURL,
-    });
-    gotTab.openedUrl = aURL;
-  },
-
   shutdown(reason) {
     EnigmailLog.DEBUG("windows.jsm: shutdown()\n");
 

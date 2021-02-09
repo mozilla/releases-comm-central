@@ -650,13 +650,7 @@ function openIMAccountWizard() {
 }
 
 function openSavedFilesWnd() {
-  let tabmail = document.getElementById("tabmail");
-  let downloadsBrowser = tabmail.getBrowserForDocumentId("aboutDownloads");
-  if (downloadsBrowser) {
-    tabmail.switchToTab(downloadsBrowser);
-  } else {
-    tabmail.openTab("chromeTab", { url: "about:downloads" });
-  }
+  return openContentTab("about:downloads");
 }
 
 function SetBusyCursor(window, enable) {
