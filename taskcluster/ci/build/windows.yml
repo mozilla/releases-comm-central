@@ -12,6 +12,7 @@ job-defaults:
     fetches:
         toolchain:
             - win64-dump-syms
+            - win64-mapiheaders
             - win64-pdbstr
 
 win32/opt:
@@ -46,7 +47,7 @@ win32/opt:
             mozconfig_platform: win32
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     use-sccache: true
     fetches:
         toolchain:
@@ -105,7 +106,7 @@ win32-shippable/opt:
             mozconfig_platform: win32
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     fetches:
         toolchain:
             - linux64-binutils
@@ -157,7 +158,7 @@ win32/debug:
             mozconfig_platform: win32
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     use-sccache: true
     fetches:
         toolchain:
@@ -210,7 +211,7 @@ win64/opt:
             mozconfig_platform: win64
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     use-sccache: true
     fetches:
         toolchain:
@@ -269,7 +270,7 @@ win64-shippable/opt:
             mozconfig_platform: win64
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     fetches:
         toolchain:
             - linux64-binutils
@@ -321,7 +322,7 @@ win64/debug:
             mozconfig_platform: win64
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
-                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+                LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
     use-sccache: true
     fetches:
         toolchain:

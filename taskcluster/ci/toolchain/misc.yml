@@ -1,0 +1,25 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+
+job-defaults:
+    treeherder:
+        kind: build
+        platform: toolchains/opt
+        tier: 1
+    run-on-projects: []
+
+win64-mapiheaders:
+    description: "MS Outlook 2010 MAPI headers"
+    attributes:
+        artifact_prefix: project/comm/mapiheaders-2010
+    treeherder:
+        symbol: TW64(mapiheader)
+    worker-type: b-linux
+    worker:
+        max-run-time: 1800
+    run:
+        using: comm-toolchain-script
+        script: build-mapiheaders.sh
+        toolchain-artifact: project/comm/mapiheaders-2010/mapiheader.tar.xz

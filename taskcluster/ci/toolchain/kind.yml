@@ -94,3 +94,4 @@ jobs-from:
     - libotr.yml
     - libcxx.yml
     - macosx-sdk.yml
+    - misc.yml
