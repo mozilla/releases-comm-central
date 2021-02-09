@@ -28,7 +28,6 @@ reference-jobs:
     - deb8-toolchain-build
     - deb9-toolchain-build
     - deb10-toolchain-build
-    - toolchain-arm64-build
     - fetch
     - funsize-update-generator
     - index-task
