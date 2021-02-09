@@ -3,4 +3,4 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 MOZ_APP_DISPLAYNAME="Thunderbird Daily"
-MOZ_MACBUNDLE_ID=daily
+MOZ_MACBUNDLE_ID="thunderbird-daily"
