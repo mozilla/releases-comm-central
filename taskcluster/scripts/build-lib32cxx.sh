@@ -40,6 +40,7 @@ build() {
   local base_cmake_args="-G Ninja
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=$PKGDIR/lib32-libc++
+    -DCMAKE_SYSROOT=$MOZ_FETCHES_DIR/sysroot
     -DLLVM_LIBDIR_SUFFIX=32
     -DLLVM_LINK_LLVM_DYLIB=ON
     -DLLVM_ENABLE_RTTI=ON

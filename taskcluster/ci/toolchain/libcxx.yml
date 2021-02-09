@@ -16,6 +16,7 @@ linux64-clang-lib32cxx:
     worker-type: b-linux
     worker:
         max-run-time: 1800
+        docker-image: {in-tree: deb10-toolchain-build}
     run:
         using: comm-toolchain-script
         script: build-lib32cxx.sh
@@ -26,3 +27,4 @@ linux64-clang-lib32cxx:
         toolchain:
             - linux64-clang-11
             - linux64-gcc-7  # Use what linux64-clang uses
+            - linux64-toolchain-sysroot

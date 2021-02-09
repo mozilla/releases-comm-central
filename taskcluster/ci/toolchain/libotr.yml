@@ -42,11 +42,12 @@ linux-aarch64-libotr:
     treeherder:
         symbol: TL(libotr-aarch64)
     worker:
-        docker-image: {in-tree: toolchain-arm64-build}
+        docker-image: {in-tree: deb10-toolchain-build}
     run:
         arguments: ['linux-aarch64']
     fetches:
         toolchain:
+            - linux64-aarch64-sysroot
             - linux64-clang-aarch64-cross
             - linux64-binutils
 
