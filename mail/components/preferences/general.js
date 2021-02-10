@@ -1307,7 +1307,7 @@ var gGeneralPane = {
       }
     }
     // Wasn't open already. Open in a new tab.
-    tabmail.openTab("contentTab", { contentPage: "about:config" });
+    tabmail.openTab("contentTab", { url: "about:config" });
   },
 
   /**
