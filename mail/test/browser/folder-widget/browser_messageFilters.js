@@ -313,3 +313,10 @@ add_task(function test_can_quit_on_filter_changes() {
 
   close_window(filterc);
 });
+
+registerCleanupFunction(() => {
+  // Some tests that open new windows don't return focus to the main window
+  // in a way that satisfies mochitest, and the test times out.
+  Services.focus.focusedWindow = window;
+  window.gFolderDisplay.tree.focus();
+});
