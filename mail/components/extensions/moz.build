@@ -15,6 +15,10 @@ EXTRA_JS_MODULES += [
 
 JAR_MANIFESTS += ["jar.mn"]
 
+TESTING_JS_MODULES += [
+    "test/AppUiTestDelegate.jsm",
+]
+
 BROWSER_CHROME_MANIFESTS += ["test/browser/browser.ini"]
 XPCSHELL_TESTS_MANIFESTS += [
     "test/xpcshell/xpcshell-imap.ini",
