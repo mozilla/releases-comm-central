@@ -25,7 +25,15 @@ function onLoad() {
   let args = window.arguments[0];
 
   gCalendar = args.calendar;
+
+  // Some servers provide colors as an 8-character hex string, which the color
+  // picker can't handle. Strip the alpha component.
   let calColor = gCalendar.getProperty("color");
+  let alphaHex = calColor.match(/^(#[0-9A-Fa-f]{6})[0-9A-Fa-f]{2}$/);
+  if (alphaHex) {
+    gCalendar.setProperty("color", alphaHex[1]);
+    calColor = alphaHex[1];
+  }
 
   if (args.canDisable) {
     document.documentElement.setAttribute("canDisable", "true");
