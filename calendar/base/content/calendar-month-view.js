@@ -128,13 +128,13 @@
     }
 
     setDate(aDate) {
-      if (this.mDate && aDate && this.mDate.compare(aDate) == 0) {
-        return;
-      }
-
       // Remove all the old events.
       this.mItemHash = {};
       removeChildren(this.dayItems);
+
+      if (this.mDate && aDate && this.mDate.compare(aDate) == 0) {
+        return;
+      }
 
       this.mDate = aDate;
 

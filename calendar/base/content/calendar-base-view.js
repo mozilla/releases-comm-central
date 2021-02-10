@@ -133,9 +133,15 @@
           }
         // Else fall through.
         case "readOnly":
-        case "disabled":
           // XXXvv We can be smarter about how we handle this stuff.
           this.calView.refresh();
+          break;
+        case "disabled":
+          if (value) {
+            this.calView.deleteItemsFromCalendar(calendar);
+          } else {
+            this.calView.addItemsFromCalendar(calendar);
+          }
           break;
       }
     }

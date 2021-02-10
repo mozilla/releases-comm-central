@@ -90,7 +90,7 @@ const CalendarTestUtils = {
    * @param {string} viewName
    */
   async setCalendarView(win, viewName) {
-    await this.openCalendarTab(win);
+    await CalendarTestUtils.openCalendarTab(win);
 
     let viewTabButton = win.document.getElementById(`calendar-${viewName}-view-button`);
     EventUtils.synthesizeMouseAtCenter(viewTabButton, { clickCount: 1 }, win);
