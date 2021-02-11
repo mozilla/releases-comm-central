@@ -57,6 +57,10 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
     saveAndCloseItemDialog(eventWindow);
   });
 
+  goToDate(controller, 2009, 1, 6);
+  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  controller.waitForElement(eventBox);
+
   // Change recurrence rule.
   goToDate(controller, 2009, 1, 7);
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
