@@ -79,6 +79,13 @@ toolbox > toolbar:last-of-type {
   }
 }
 
+@media (-moz-windows-default-theme) {
+  treechildren::-moz-tree-image(DirCol, selected, focus),
+  treechildren::-moz-tree-image(GeneratedName, selected, focus) {
+    color: -moz-DialogText;
+  }
+}
+
 /* Search Textbox */
 
 #peopleSearchInput {
