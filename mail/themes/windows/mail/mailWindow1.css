@@ -209,7 +209,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         margin-top: -1px;
       }
 
-      :root[tabsintitlebar] #mail-toolbar-menubar2 {
+      :root[tabsintitlebar] #mail-toolbar-menubar2:not([inactive="true"]) {
         margin-top: 1px;
       }
 
