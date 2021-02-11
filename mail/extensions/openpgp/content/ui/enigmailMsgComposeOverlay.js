@@ -96,6 +96,9 @@ var EnigmailMimeEncrypt = ChromeUtils.import(
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
+const { OpenPGPAlias } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/OpenPGPAlias.jsm"
+);
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 var l10nOpenPGP = new Localization(["messenger/openpgp/openpgp.ftl"]);
@@ -1240,6 +1243,8 @@ Enigmail.msg = {
     // gMsgCompose.expandMailingLists();
 
     if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
+      await OpenPGPAlias.load();
+
       var toAddrList = [];
       var arrLen = {};
       var recList;

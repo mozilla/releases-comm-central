@@ -65,6 +65,13 @@ var PgpSqliteDb2 = {
   accCacheEmails: null,
 
   async getFingerprintAcceptance(conn, fingerprint, rv) {
+    // 40 is for modern fingerprints, 32 for older fingerprints.
+    if (fingerprint.length != 40 && fingerprint.length != 32) {
+      throw new Error(
+        "internal error, invalid fingerprint value: " + fingerprint
+      );
+    }
+
     fingerprint = fingerprint.toLowerCase();
     if (fingerprint == this.accCacheFingerprint) {
       rv.fingerprintAcceptance = this.accCacheValue;

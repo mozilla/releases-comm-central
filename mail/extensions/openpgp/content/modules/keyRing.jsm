@@ -14,6 +14,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
@@ -979,32 +980,62 @@ var EnigmailKeyRing = {
     throw new Error("Not implemented");
   },
 
+  isValidForEncryption(keyObj) {
+    return this._getValidityLevelIgnoringAcceptance(keyObj, null) == 0;
+  },
+
   // returns an acceptanceLevel from -1 to 3,
   // or -2 for "doesn't match email" or "not usable"
   async isValidKeyForRecipient(keyObj, emailAddr) {
+    if (!emailAddr) {
+      return -2;
+    }
+
+    let level = this._getValidityLevelIgnoringAcceptance(keyObj, emailAddr);
+    if (level < 0) {
+      return level;
+    }
+    return this._getAcceptanceLevelForEmail(keyObj, emailAddr);
+  },
+
+  /**
+   * This function checks that given key is not expired, not revoked,
+   * and that a (related) encryption (sub-)key is available.
+   * If an email address is provided by the caller, the function
+   * also requires that a matching user id is available.
+   *
+   * @param {Object} keyObj - the key to check
+   * @param {String} [emailAddr] - optional email address
+   * @return {Integer} - validity level, negative for invalid,
+   *                     0 if no problem were found (neutral)
+   */
+  _getValidityLevelIgnoringAcceptance(keyObj, emailAddr) {
     switch (keyObj.keyTrust) {
       case "e":
       case "r":
         return -2;
     }
 
-    let uidMatch = false;
-    for (let uid of keyObj.userIds) {
-      if (uid.type !== "uid") {
-        continue;
-      }
-      let split = {};
-      if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
-        let uidEmail = split.email.toLowerCase();
-        if (uidEmail === emailAddr) {
-          uidMatch = true;
-          break;
+    if (emailAddr) {
+      let uidMatch = false;
+      for (let uid of keyObj.userIds) {
+        if (uid.type !== "uid") {
+          continue;
+        }
+        let split = {};
+        if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
+          let uidEmail = split.email.toLowerCase();
+          if (uidEmail === emailAddr) {
+            uidMatch = true;
+            break;
+          }
         }
       }
+      if (!uidMatch) {
+        return -2;
+      }
     }
-    if (!uidMatch) {
-      return -2;
-    }
+
     // key valid for encryption?
     if (!keyObj.keyUseFor.includes("E")) {
       return -2;
@@ -1033,6 +1064,10 @@ var EnigmailKeyRing = {
       return -2;
     }
 
+    return 0; // no problem found
+  },
+
+  async _getAcceptanceLevelForEmail(keyObj, emailAddr) {
     let acceptanceLevel;
     if (keyObj.secretAvailable) {
       let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
@@ -1138,6 +1173,12 @@ var EnigmailKeyRing = {
   },
 
   async getKeyAcceptanceLevelForEmail(keyObj, email) {
+    if (keyObj.secretAvailable) {
+      throw new Error(
+        `Unexpected private key parameter; keyObj.fpr=${keyObj.fpr}`
+      );
+    }
+
     let acceptanceLevel = 0;
 
     let acceptanceResult = {};
@@ -1200,12 +1241,10 @@ var EnigmailKeyRing = {
    *                                       * addr {String}: email addresses
    *                                       * msg {String}:  related error
    *                                       }
-   *                                   - keyMap {Object<String>}: map of email addr -> keyID
-   * @param {Array<String>} resultingArray: list of found key IDs
    *
    * @return {Boolean}: true if at least one key missing; false otherwise
    */
-  async getValidKeysForAllRecipients(addresses, details, resultingArray) {
+  async getValidKeysForAllRecipients(addresses, details) {
     if (!addresses) {
       return null;
     }
@@ -1213,7 +1252,6 @@ var EnigmailKeyRing = {
     let keyMissing = false;
     if (details) {
       details.errArray = [];
-      details.keyMap = {};
     }
     for (let i = 0; i < addresses.length; i++) {
       let addr = addresses[i];
@@ -1221,7 +1259,6 @@ var EnigmailKeyRing = {
         continue;
       }
       // try to find current address in key list:
-      let keyId = null;
       var errMsg = null;
       if (!addr.includes("@")) {
         throw new Error(
@@ -1230,19 +1267,62 @@ var EnigmailKeyRing = {
         );
       }
 
+      let aliasKeyList = this.getAliasKeyList(addr);
+      if (aliasKeyList) {
+        for (let entry of aliasKeyList) {
+          let foundError = true;
+
+          let key;
+          if ("fingerprint" in entry) {
+            key = this.getKeyById(entry.fingerprint);
+          } else if ("id" in entry) {
+            key = this.getKeyById(entry.id);
+          }
+          if (key && this.isValidForEncryption(key)) {
+            let acceptanceResult = {};
+            await PgpSqliteDb2.getFingerprintAcceptance(
+              null,
+              key.fpr,
+              acceptanceResult
+            );
+            // If we don't have acceptance info for the key yet,
+            // or, we have it and it isn't rejected,
+            // then we accept the key for using it in alias definitions.
+            if (
+              !("fingerprintAcceptance" in acceptanceResult) ||
+              acceptanceResult.fingerprintAcceptance != "rejected"
+            ) {
+              foundError = false;
+            }
+          }
+
+          if (foundError) {
+            keyMissing = true;
+            if (details) {
+              let detEl = {};
+              detEl.addr = addr;
+              detEl.msg = "alias problem";
+              details.errArray.push(detEl);
+            }
+            console.debug(
+              'keyRing.jsm: getValidKeysForAllRecipients(): alias key list for="' +
+                addr +
+                ' refers to missing or unusable key"\n'
+            );
+          }
+        }
+
+        // skip the lookup for direct matching keys by email
+        continue;
+      }
+
       // try email match:
       var addrErrDetails = {};
       let foundKeyId = await this.getValidKeyForRecipient(addr, addrErrDetails);
       if (details && addrErrDetails.msg) {
         errMsg = addrErrDetails.msg;
       }
-      if (foundKeyId) {
-        keyId = "0x" + foundKeyId.toUpperCase();
-        resultingArray.push(keyId);
-        if (details) {
-          details.keyMap[addr.toLowerCase()] = keyId;
-        }
-      } else {
+      if (!foundKeyId) {
         // no key for this address found
         keyMissing = true;
         if (details) {
@@ -1255,9 +1335,9 @@ var EnigmailKeyRing = {
           details.errArray.push(detailsElem);
         }
         EnigmailLog.DEBUG(
-          'keyRing.jsm: getValidKeysForAllRecipients(): return null (no single valid key found for="' +
+          'keyRing.jsm: getValidKeysForAllRecipients(): no single valid key found for="' +
             addr +
-            '")\n'
+            '"\n'
         );
       }
     }
@@ -1299,35 +1379,59 @@ var EnigmailKeyRing = {
   },
 
   /**
-   *  Determine the key ID for a set of given addresses
+   * If the given email address has an alias definition, return its
+   * list of key identifiers.
    *
-   * @param {string[]} addresses - Email addresses to get key id for.
+   * The function will prefer a match to an exact email alias.
+   * If no email alias could be found, the function will search for
+   * an alias rule that matches the domain.
    *
-   * @return {Map<string,keyObj[]>}: map of email addr -> keyObj[]
+   * @param {string} email - The email address to look up
+   * @return {[]} - An array with alias key identifiers found for the
+   *                input, or null if no alias matches the address.
    */
-  async getMultValidKeysForMultRecipients(addresses) {
-    if (!addresses) {
-      return null;
+  getAliasKeyList(email) {
+    let ekl = OpenPGPAlias.getEmailAliasKeyList(email);
+    if (ekl) {
+      return ekl;
     }
-    let allKeysMap = new Map();
-    for (let i = 0; i < addresses.length; i++) {
-      let addr = addresses[i].toLowerCase();
-      if (!addr) {
-        continue;
-      }
 
-      if (!addr.includes("@")) {
-        throw new Error(
-          "getAllRecipientKeys unexpected lookup for non-email addr: " + addr
+    return OpenPGPAlias.getDomainAliasKeyList(email);
+  },
+
+  /**
+   * Return the fingerprint of each usable alias key for the given
+   * email address.
+   *
+   * @param {string} email - The email address to look up.
+   * @param {String[]} keyList - Array of key identifiers
+   * @return {String[]} An array with fingerprints of each usable alias key.
+   */
+  getAliasKeys(email, keyList) {
+    let keys = [];
+
+    for (let entry of keyList) {
+      let key;
+      let lookupId;
+      if ("fingerprint" in entry) {
+        lookupId = entry.fingerprint;
+        key = this.getKeyById(entry.fingerprint);
+      } else if ("id" in entry) {
+        lookupId = entry.id;
+        key = this.getKeyById(entry.id);
+      }
+      if (key && this.isValidForEncryption(key)) {
+        keys.push(key.fpr);
+      } else {
+        let reason = key ? "not usable" : "missing";
+        console.debug(
+          "getAliasKeys: key for identifier: " + lookupId + " is " + reason
         );
-      }
-
-      let found = await this.getMultValidKeysForOneRecipient(addr);
-      if (found) {
-        allKeysMap.set(addr, found);
+        return [];
       }
     }
-    return allKeysMap;
+
+    return keys;
   },
 
   /**

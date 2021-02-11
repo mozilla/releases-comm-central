@@ -2190,6 +2190,38 @@ var RNP = {
     }
   },
 
+  addAliasKeys(aliasKeys, op) {
+    for (let ak of aliasKeys) {
+      let key = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, "0x" + ak);
+      if (!key || key.isNull()) {
+        console.debug(
+          "addAliasKeys: cannot find key used by alias rule: " + ak
+        );
+        return false;
+      }
+      this.addSuitableEncryptKey(key, op);
+      RNPLib.rnp_key_handle_destroy(key);
+    }
+    return true;
+  },
+
+  async addEncryptionKeyForEmail(email, op) {
+    let key = await this.findKeyByEmail(email, true);
+    if (!key || key.isNull()) {
+      return false;
+    }
+    this.addSuitableEncryptKey(key, op);
+    RNPLib.rnp_key_handle_destroy(key);
+    return true;
+  },
+
+  getEmailWithoutBrackets(email) {
+    if (email.startsWith("<") && email.endsWith(">")) {
+      return email.substring(1, email.length - 1);
+    }
+    return email;
+  },
+
   async encryptAndOrSign(plaintext, args, resultStatus) {
     if (args.sign && args.senderKeyIsExternal) {
       if (!GPGME.allDependenciesLoaded()) {
@@ -2339,26 +2371,41 @@ var RNP = {
     }
 
     if (args.encrypt) {
+      // If we have an alias definition, it will be used, and the usual
+      // lookup by email address will be skipped. Earlier code should
+      // have already checked that alias keys are available and usable
+      // for encryption, so we fail if a problem is found.
+
       for (let id in args.to) {
         let toEmail = args.to[id].toLowerCase();
-        let toKey = await this.findKeyByEmail(toEmail, true);
-        if (!toKey || toKey.isNull()) {
+        let aliasKeys = args.aliasKeys.get(
+          this.getEmailWithoutBrackets(toEmail)
+        );
+        if (aliasKeys) {
+          if (!this.addAliasKeys(aliasKeys, op)) {
+            resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
+            return null;
+          }
+        } else if (!(await this.addEncryptionKeyForEmail(toEmail, op))) {
           resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
           return null;
         }
-        this.addSuitableEncryptKey(toKey, op);
-        RNPLib.rnp_key_handle_destroy(toKey);
       }
 
       for (let id in args.bcc) {
         let bccEmail = args.bcc[id].toLowerCase();
-        let bccKey = await this.findKeyByEmail(bccEmail, true);
-        if (bccKey.isNull()) {
+        let aliasKeys = args.aliasKeys.get(
+          this.getEmailWithoutBrackets(bccEmail)
+        );
+        if (aliasKeys) {
+          if (!this.addAliasKeys(aliasKeys, op)) {
+            resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
+            return null;
+          }
+        } else if (!(await this.addEncryptionKeyForEmail(bccEmail, op))) {
           resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
           return null;
         }
-        this.addSuitableEncryptKey(bccKey, op);
-        RNPLib.rnp_key_handle_destroy(bccKey);
       }
 
       if (AppConstants.MOZ_UPDATE_CHANNEL != "release") {
@@ -2477,7 +2524,7 @@ var RNP = {
 
   async findKeyByEmail(id, onlyIfAcceptableAsRecipientKey = false) {
     if (!id.startsWith("<") || !id.endsWith(">") || id.includes(" ")) {
-      throw new Error("invalid parameter given to findKeyByEmail");
+      throw new Error(`Invalid argument; id=${id}`);
     }
 
     let emailWithoutBrackets = id.substring(1, id.length - 1);

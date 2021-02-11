@@ -36,6 +36,12 @@ pref("mail.identity.default.is_gnupg_key_id", false);
 // The hexadecimal OpenPGP key ID externally configured by GnuPG used for an identity.
 pref("mail.identity.default.last_entered_external_gnupg_key_id", "");
 
+// Load a JSON file that contains recipient key alias rules. See bug 1644085.
+// Suggested filename: openpgp-alias-rules.json
+// Simple filenames (without path) are loaded from the profile directory.
+// If you need to specify a path, use a file:// URL
+pref("mail.openpgp.alias_rules_file", "");
+
 // When sending, encrypt to this additional key. Not available in release channel builds.
 pref("mail.openpgp.debug.extra_encryption_key", "");
 

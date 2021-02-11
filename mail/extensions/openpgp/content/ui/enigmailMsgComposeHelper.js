@@ -46,43 +46,15 @@ if (!Enigmail) {
 }
 
 Enigmail.hlp = {
-  /* try to find valid key to passed email addresses (or keys)
-   * @return: list of all found key (with leading "0x") or null
-   *          details in details parameter
+  /**
+   * Check availability of valid keys for passed email addresses (or keys).
+   * @param {String} emailsOrKeys - comma separated list
+   * @param {Object} details - holds details for invalid keys, see
+   *                           EnigmailKeyRing.getValidKeysForAllRecipients
+   * @return {Boolean} - false on failure
    */
   async validKeysForAllRecipients(emailsOrKeys, details) {
-    EnigmailLog.DEBUG("=====> validKeysForAllRecipients()\n");
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeHelper.js: validKeysForAllRecipients(): emailsOrKeys='" +
-        emailsOrKeys +
-        "'\n"
-    );
-
-    // use helper to see when we enter and leave this function
-    let resultingArray = await this.doValidKeysForAllRecipients(
-      emailsOrKeys,
-      details
-    );
-
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeHelper.js: validKeysForAllRecipients(): return '" +
-        resultingArray +
-        "'\n"
-    );
-    EnigmailLog.DEBUG("  <=== validKeysForAllRecipients()\n");
-    return resultingArray;
-  },
-
-  // helper for validKeysForAllRecipients()
-  async doValidKeysForAllRecipients(emailsOrKeys, details) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeHelper.js: doValidKeysForAllRecipients(): emailsOrKeys='" +
-        emailsOrKeys +
-        "'\n"
-    );
-
-    let keyMissing;
-    let resultingArray = []; // resulting key list (if all valid)
+    let keyMissing = true;
     try {
       // create array of address elements (email or key)
       let addresses = [];
@@ -93,30 +65,22 @@ Enigmail.hlp = {
       // resolve all the email addresses if possible:
       keyMissing = await EnigmailKeyRing.getValidKeysForAllRecipients(
         addresses,
-        details,
-        resultingArray
+        details
       );
     } catch (ex) {
       EnigmailLog.DEBUG(
-        "enigmailMsgComposeHelper.js: doValidKeysForAllRecipients(): return null (exception: " +
+        "enigmailMsgComposeHelper.js: validKeysForAllRecipients(): return null (exception: " +
           ex.message +
           "\n" +
           ex.stack +
           ")\n"
       );
-      return null;
     }
     if (keyMissing) {
       EnigmailLog.DEBUG(
-        "enigmailMsgComposeHelper.js: doValidKeysForAllRecipients(): return null (key missing)\n"
+        "enigmailMsgComposeHelper.js: validKeysForAllRecipients(): return null (key missing)\n"
       );
-      return null;
     }
-    EnigmailLog.DEBUG(
-      'enigmailMsgComposeHelper.js: doValidKeysForAllRecipients(): return "' +
-        resultingArray +
-        '"\n'
-    );
-    return resultingArray;
+    return !keyMissing;
   },
 };

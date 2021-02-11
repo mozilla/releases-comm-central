@@ -54,7 +54,7 @@ async function setListEntries(keys = null) {
     } else {
       if (!("acceptance" in keyObj)) {
         throw new Error(
-          "expected getMultValidKeysForMultRecipients to set acceptance"
+          "expected getMultValidKeysForOneRecipient to set acceptance"
         );
       }
       switch (keyObj.acceptance) {

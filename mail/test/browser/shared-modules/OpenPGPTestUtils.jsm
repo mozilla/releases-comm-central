@@ -19,6 +19,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
@@ -69,6 +70,7 @@ const OpenPGPTestUtils = {
     Assert.ok(await RNP.init(), "librnp did load");
     Assert.ok(await EnigmailCore.getService({}), "EnigmailCore did load");
     EnigmailKeyRing.init();
+    await OpenPGPAlias.load();
   },
 
   /**

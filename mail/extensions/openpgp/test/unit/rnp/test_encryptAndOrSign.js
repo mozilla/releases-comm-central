@@ -200,6 +200,7 @@ add_task(async function testEncryptAndOrSignResults() {
     let encryptResult = {};
 
     let encryptArgs = {
+      aliasKeys: new Map(),
       armor: true,
       bcc: [],
       encrypt: true,

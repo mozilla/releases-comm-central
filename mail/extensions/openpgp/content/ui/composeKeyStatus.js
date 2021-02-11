@@ -15,15 +15,24 @@ var { EnigmailWindows } = ChromeUtils.import(
 var { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
 );
+const { OpenPGPAlias } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/OpenPGPAlias.jsm"
+);
 const { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
 
 var gListBox;
 var gViewButton;
+var gLdapBundle;
 
 var gEmailAddresses = [];
 var gRowToEmail = [];
+
+// One boolean entry per row. True means it is an alias row.
+// This allows us to use different dialog behavior for alias entries.
+var gAliasRows = [];
+
 var gMapAddressToKeyObjs = null;
 
 function addRecipients(toAddrList, recList) {
@@ -38,37 +47,53 @@ function addRecipients(toAddrList, recList) {
 }
 
 async function setListEntries() {
-  gMapAddressToKeyObjs = await EnigmailKeyRing.getMultValidKeysForMultRecipients(
-    gEmailAddresses
-  );
-  if (!gMapAddressToKeyObjs) {
-    throw new Error("getMultValidKeysForMultRecipients failed");
-  }
+  gMapAddressToKeyObjs = new Map();
 
   for (let addr of gEmailAddresses) {
-    let emailStatus = null;
-
     addr = addr.toLowerCase();
-    let foundKeys = gMapAddressToKeyObjs.get(addr);
-    if (!foundKeys || !foundKeys.length) {
-      emailStatus = "openpgp-recip-missing";
-    } else {
-      for (let keyObj of foundKeys) {
-        let goodPersonal = false;
-        if (keyObj.secretAvailable) {
-          goodPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
-        }
-        if (
-          goodPersonal ||
-          keyObj.acceptance == "verified" ||
-          keyObj.acceptance == "unverified"
-        ) {
-          emailStatus = "openpgp-recip-good";
-          break;
-        }
+
+    let statusStringID = null;
+    let statusStringDirect = "";
+
+    let aliasKeyList = EnigmailKeyRing.getAliasKeyList(addr);
+    let isAlias = !!aliasKeyList;
+
+    if (isAlias) {
+      let aliasKeys = EnigmailKeyRing.getAliasKeys(addr, aliasKeyList);
+      if (!aliasKeys.length) {
+        // failure, at least one alias key is unusable/unavailable
+        statusStringDirect = gLdapBundle.getString("33");
+      } else {
+        // use a better string after 78, bug 1679301
+        statusStringDirect = "a -> b";
       }
-      if (!emailStatus) {
-        emailStatus = "openpgp-recip-none-accepted";
+    } else {
+      let foundKeys = await EnigmailKeyRing.getMultValidKeysForOneRecipient(
+        addr
+      );
+      if (!foundKeys || !foundKeys.length) {
+        statusStringID = "openpgp-recip-missing";
+      } else {
+        gMapAddressToKeyObjs.set(addr, foundKeys);
+        for (let keyObj of foundKeys) {
+          let goodPersonal = false;
+          if (keyObj.secretAvailable) {
+            goodPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(
+              keyObj.fpr
+            );
+          }
+          if (
+            goodPersonal ||
+            keyObj.acceptance == "verified" ||
+            keyObj.acceptance == "unverified"
+          ) {
+            statusStringID = "openpgp-recip-good";
+            break;
+          }
+        }
+        if (!statusStringID) {
+          statusStringID = "openpgp-recip-none-accepted";
+        }
       }
     }
 
@@ -81,7 +106,13 @@ async function setListEntries() {
     listitem.appendChild(emailItem);
 
     let status = document.createXULElement("label");
-    document.l10n.setAttributes(status, emailStatus);
+
+    if (statusStringID) {
+      document.l10n.setAttributes(status, statusStringID);
+    } else {
+      status.setAttribute("value", statusStringDirect);
+    }
+
     status.setAttribute("crop", "end");
     status.setAttribute("style", "width: var(--statusWidth)");
     listitem.appendChild(status);
@@ -89,6 +120,7 @@ async function setListEntries() {
     gListBox.appendChild(listitem);
 
     gRowToEmail.push(addr);
+    gAliasRows.push(isAlias);
   }
 }
 
@@ -98,8 +130,13 @@ async function onLoad() {
     return;
   }
 
+  await OpenPGPAlias.load();
+
   gListBox = document.getElementById("infolist");
   gViewButton = document.getElementById("detailsButton");
+
+  // Fix as part of bug 1679301
+  gLdapBundle = document.getElementById("bundle_ldap");
 
   var arrLen = {};
   var recList;
@@ -147,7 +184,10 @@ async function reloadAndReselect(selIndex = -1) {
 }
 
 function onSelectionChange(event) {
-  gViewButton.disabled = !gListBox.selectedItems.length;
+  // We don't offer detail management/discovery for email addresses
+  // that match an alias rule.
+  gViewButton.disabled =
+    !gListBox.selectedItems.length || gAliasRows[gListBox.selectedIndex];
 }
 
 function viewSelectedEmail() {

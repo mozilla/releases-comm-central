@@ -45,6 +45,7 @@ const ENC_TYPE_MSG = 0;
 const ENC_TYPE_ATTACH_BINARY = 1;
 
 var EnigmailEncryption = {
+  // return object on success, null on failure
   getCryptParams(
     fromMailAddr,
     toMailAddr,
@@ -100,6 +101,7 @@ var EnigmailEncryption = {
 
     result.to = toMailAddr.split(/\s*,\s*/);
     result.bcc = bccMailAddr.split(/\s*,\s*/);
+    result.aliasKeys = new Map();
 
     if (result.to.length == 1 && result.to[0].length == 0) {
       result.to.splice(0, 1); // remove the single empty entry
@@ -111,7 +113,7 @@ var EnigmailEncryption = {
 
     console.debug(`getCryptParams, got: to=${result.to}, bcc=${result.bcc}`);
 
-    if (fromMailAddr.search(/^0x/) === 0) {
+    if (/^0x[0-9a-f]+$/i.test(fromMailAddr)) {
       result.sender = fromMailAddr;
     } else {
       result.sender = "<" + fromMailAddr + ">";
@@ -136,18 +138,36 @@ var EnigmailEncryption = {
         result.encryptToSender = true;
       }
 
-      var k;
-      for (k = 0; k < result.to.length; k++) {
-        //result.to[k] = result.to[k].replace(/'/g, "\\'");
-        if (result.to[k].length > 0 && result.to[k].search(/^0x/) !== 0) {
-          result.to[k] = "<" + result.to[k] + ">";
-        }
-      }
+      let recipArrays = ["to", "bcc"];
+      for (let recipArray of recipArrays) {
+        let kMax = recipArray == "to" ? result.to.length : result.bcc.length;
+        for (let k = 0; k < kMax; k++) {
+          let email = recipArray == "to" ? result.to[k] : result.bcc[k];
+          if (!email) {
+            continue;
+          }
+          if (/^0x[0-9a-f]+$/i.test(email)) {
+            throw new Error(`Recipient should not be a key ID: ${email}`);
+          }
+          if (recipArray == "to") {
+            result.to[k] = "<" + email + ">";
+          } else {
+            result.bcc[k] = "<" + email + ">";
+          }
 
-      for (k = 0; k < result.bcc.length; k++) {
-        //result.bcc[k] = result.bcc[k].replace(/'/g, "\\'");
-        if (result.bcc[k].length > 0 && result.bcc[k].search(/^0x/) !== 0) {
-          result.bcc[k] = "<" + result.bcc[k] + ">";
+          let aliasKeyList = EnigmailKeyRing.getAliasKeyList(email);
+          if (aliasKeyList) {
+            let aliasKeys = EnigmailKeyRing.getAliasKeys(email, aliasKeyList);
+            if (!aliasKeys.length) {
+              errorMsgObj.value = "bad alias definition for " + email;
+              return null;
+            }
+
+            // We insert the definition even if aliasKeys is empty,
+            // because having an alias means we want to skip the usual
+            // lookup - and having the entry tells RNP to skip.
+            result.aliasKeys.set(email, aliasKeys);
+          }
         }
       }
     } else if (detachedSig) {
@@ -198,7 +218,7 @@ var EnigmailEncryption = {
     let sign = !!(sendFlags & EnigmailConstants.SEND_SIGNED);
     let encrypt = !!(sendFlags & EnigmailConstants.SEND_ENCRYPTED);
 
-    if (fromKeyId.search(/^(0x)?[A-Z0-9]+$/) === 0) {
+    if (/^(0x)?[0-9a-f]+$/i.test(fromKeyId)) {
       // key ID specified
       foundKey = EnigmailKeyRing.getKeyById(fromKeyId);
     }
@@ -248,6 +268,7 @@ var EnigmailEncryption = {
     return ret;
   },
 
+  // return 0 on success, non-zero on failure
   encryptMessageStart(
     win,
     uiFlags,
@@ -316,7 +337,7 @@ var EnigmailEncryption = {
     );
 
     if (!encryptArgs) {
-      return 0;
+      return -1;
     }
 
     if (!listener) {
