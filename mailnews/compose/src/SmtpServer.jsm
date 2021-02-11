@@ -17,11 +17,21 @@ var { MailServices } = ChromeUtils.import(
 function SmtpServer() {
   this._key = "";
   this._loadPrefs();
+
+  Services.obs.addObserver(this, "passwordmgr-storage-changed");
 }
 
 SmtpServer.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsISmtpServer"]),
   classID: Components.ID("{3a75f5ea-651e-4696-9813-848c03da8bbd}"),
+
+  observe(subject, topic, data) {
+    if (topic == "passwordmgr-storage-changed") {
+      // When the state of the password manager changes we need to clear the
+      // password from the cache in case the user just removed it.
+      this.password = "";
+    }
+  },
 
   get key() {
     return this._key;
@@ -175,7 +185,7 @@ SmtpServer.prototype = {
         }
       }
     }
-    return incomingServer?.password;
+    return incomingServer?.password || "";
   },
 
   set password(password) {
