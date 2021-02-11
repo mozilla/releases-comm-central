@@ -3319,8 +3319,7 @@ function HandleMultipleAttachments(attachments, action) {
       );
       return;
     case "open":
-    case "saveAs":
-      // XXX hack alert. If we sit in tight loop and open/save multiple
+      // XXX hack alert. If we sit in tight loop and open multiple
       // attachments, we get chrome errors in layout as we start loading the
       // first helper app dialog then before it loads, we kick off the next
       // one and the next one. Subsequent helper app dialogs were failing
@@ -3328,17 +3327,9 @@ function HandleMultipleAttachments(attachments, action) {
       // (error about the xul cache being empty). For now, work around this by
       // doing the first helper app dialog right away, then waiting a bit
       // before we launch the rest.
-
-      var actionFunction = null;
-      if (action == "open") {
-        actionFunction = function(aAttachment) {
-          aAttachment.open();
-        };
-      } else {
-        actionFunction = function(aAttachment) {
-          aAttachment.save();
-        };
-      }
+      let actionFunction = function(aAttachment) {
+        aAttachment.open();
+      };
 
       for (let i = 0; i < attachments.length; i++) {
         if (i == 0) {
@@ -3347,6 +3338,20 @@ function HandleMultipleAttachments(attachments, action) {
           setTimeout(actionFunction, 100, attachments[i]);
         }
       }
+      return;
+    case "saveAs":
+      // Show one save dialog at a time, which allows to adjust the file name
+      // and folder path for each attachment. For added convenience, we remember
+      // the folder path of each file for the save dialog of the next one.
+      let saveAttachments = function(attachments) {
+        if (attachments.length > 0) {
+          attachments[0].save().then(function() {
+            saveAttachments(attachments.slice(1));
+          });
+        }
+      };
+
+      saveAttachments(attachments);
       return;
     case "copyUrl":
       // Copy external http url(s) to clipboard. The menuitem is hidden unless

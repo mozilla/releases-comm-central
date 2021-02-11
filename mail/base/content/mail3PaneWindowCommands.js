@@ -1276,6 +1276,13 @@ function FocusRingUpdate_Mail() {
 }
 
 function RestoreFocusAfterHdrButton() {
+  // Note: Some callers call this function *after* asynchronous functions like
+  // save-as which will trigger a save dialog. As those dialogs are typically
+  // slower to load, in reality this function may set focus on thread pane
+  // *before* the dialog is shown on screen. This does not seem to cause
+  // problems like dialogs being hidden behind the main window, probably because
+  // they're application-modal OS dialogs and will ensure having focus anyway.
+  //
   // I would love to really restore the focus to the pane that had
   // focus before the user clicked on the hdr button, and gLastFocusedElement
   // would almost do that, except that clicking on the hdr button sets
