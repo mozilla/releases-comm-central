@@ -1476,8 +1476,13 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
         currentImapFolder->SetExplicitlyVerify(false);
         currentImapFolder->List();
       }
-    } else
-      DeleteNonVerifiedFolders(currentFolder);
+    } else {
+      nsCOMPtr<nsIMsgFolder> parent;
+      currentFolder->GetParent(getter_AddRefs(parent));
+      if (parent) {
+        currentImapFolder->RemoveLocalSelf();
+      }
+    }
   }
 
   return rv;
@@ -1523,74 +1528,6 @@ bool nsImapIncomingServer::CheckSpecialFolder(nsCString& folderUri,
   }
 
   return false;
-}
-
-nsresult nsImapIncomingServer::DeleteNonVerifiedFolders(
-    nsIMsgFolder* curFolder) {
-  bool autoUnsubscribeFromNoSelectFolders = true;
-  nsresult rv;
-  nsCOMPtr<nsIPrefBranch> prefBranch =
-      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv))
-    prefBranch->GetBoolPref("mail.imap.auto_unsubscribe_from_noselect_folders",
-                            &autoUnsubscribeFromNoSelectFolders);
-
-  nsCOMPtr<nsISimpleEnumerator> subFolders;
-
-  rv = curFolder->GetSubFolders(getter_AddRefs(subFolders));
-  if (NS_SUCCEEDED(rv)) {
-    bool moreFolders;
-
-    while (NS_SUCCEEDED(subFolders->HasMoreElements(&moreFolders)) &&
-           moreFolders) {
-      nsCOMPtr<nsISupports> child;
-      rv = subFolders->GetNext(getter_AddRefs(child));
-      if (NS_SUCCEEDED(rv) && child) {
-        bool childVerified = false;
-        nsCOMPtr<nsIMsgImapMailFolder> childImapFolder =
-            do_QueryInterface(child, &rv);
-        if (NS_SUCCEEDED(rv) && childImapFolder) {
-          uint32_t flags;
-
-          nsCOMPtr<nsIMsgFolder> childFolder = do_QueryInterface(child, &rv);
-          rv = childImapFolder->GetVerifiedAsOnlineFolder(&childVerified);
-
-          rv = childFolder->GetFlags(&flags);
-          bool folderIsNoSelectFolder =
-              NS_SUCCEEDED(rv) &&
-              ((flags & nsMsgFolderFlags::ImapNoselect) != 0);
-
-          bool usingSubscription = true;
-          GetUsingSubscription(&usingSubscription);
-          if (usingSubscription) {
-            bool folderIsNameSpace = false;
-            bool noDescendentsAreVerified =
-                NoDescendentsAreVerified(childFolder);
-            bool shouldDieBecauseNoSelect =
-                (folderIsNoSelectFolder
-                     ? ((noDescendentsAreVerified ||
-                         AllDescendentsAreNoSelect(childFolder)) &&
-                        !folderIsNameSpace)
-                     : false);
-            if (!childVerified &&
-                (noDescendentsAreVerified || shouldDieBecauseNoSelect)) {
-            }
-          } else {
-          }
-        }
-      }
-    }
-  }
-
-  nsCOMPtr<nsIMsgFolder> parent;
-  rv = curFolder->GetParent(getter_AddRefs(parent));
-
-  if (NS_SUCCEEDED(rv) && parent) {
-    nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(curFolder);
-    if (imapFolder) imapFolder->RemoveLocalSelf();
-  }
-
-  return rv;
 }
 
 bool nsImapIncomingServer::NoDescendentsAreVerified(

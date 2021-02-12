@@ -83,7 +83,6 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
   void GetUnverifiedSubFolders(nsIMsgFolder* parentFolder,
                                nsCOMArray<nsIMsgImapMailFolder>& aFoldersArray);
   void GetUnverifiedFolders(nsCOMArray<nsIMsgImapMailFolder>& aFolderArray);
-  nsresult DeleteNonVerifiedFolders(nsIMsgFolder* parentFolder);
   bool NoDescendentsAreVerified(nsIMsgFolder* parentFolder);
   bool AllDescendentsAreNoSelect(nsIMsgFolder* parentFolder);
 

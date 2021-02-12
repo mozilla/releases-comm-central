@@ -133,7 +133,6 @@ pref("mail.imap.chunk_ideal", 4);
 pref("mail.imap.chunk_add", 8192);
 pref("mail.imap.hide_other_users", false);
 pref("mail.imap.hide_unused_namespaces", true);
-pref("mail.imap.auto_unsubscribe_from_noselect_folders", true);
 pref("mail.imap.mime_parts_on_demand", true);
 pref("mail.imap.mime_parts_on_demand_threshold", 500000);
 pref("mail.imap.use_literal_plus", true);
