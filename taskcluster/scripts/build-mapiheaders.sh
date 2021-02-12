@@ -23,7 +23,7 @@ mkdir "$PROJECT" && \
       7z x -o$PROJECT/ OUTLOO~1.EXE ) || rm -rf "$PROJECT"
 
 rm -f "OUTLOO~1.EXE" MAPIHeaders.exe
-# Disable the MAPI.h hera we want the one in the SDK
+# Disable MAPI.h from the download; use the one in the Win 10 SDK
 mv -f "$PROJECT"/MAPI.h "$PROJECT"/__DISABLED_MAPI.h
 
 # Make the filenames all lowercase characters
