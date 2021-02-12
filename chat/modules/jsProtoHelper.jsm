@@ -16,7 +16,6 @@ const EXPORTED_SYMBOLS = [
 ];
 
 const {
-  EmptyEnumerator,
   initLogModule,
   XPCOMUtils,
   nsSimpleEnumerator,
@@ -253,21 +252,19 @@ var GenericAccountPrototype = {
   },
   getChatRoomFields() {
     if (!this.chatRoomFields) {
-      return EmptyEnumerator;
+      return [];
     }
-
-    let fields = [];
-    for (let fieldName in this.chatRoomFields) {
-      fields.push(new ChatRoomField(fieldName, this.chatRoomFields[fieldName]));
-    }
-    return new nsSimpleEnumerator(fields);
+    let fieldNames = Object.keys(this.chatRoomFields);
+    return fieldNames.map(
+      fieldName => new ChatRoomField(fieldName, this.chatRoomFields[fieldName])
+    );
   },
   getChatRoomDefaultFieldValues(aDefaultChatName) {
     if (!this.chatRoomFields) {
-      return EmptyEnumerator;
+      return new ChatRoomFieldValues({});
     }
 
-    let defaultFieldValues = [];
+    let defaultFieldValues = {};
     for (let fieldName in this.chatRoomFields) {
       defaultFieldValues[fieldName] = this.chatRoomFields[fieldName].default;
     }

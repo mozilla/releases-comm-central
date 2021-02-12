@@ -113,7 +113,7 @@ interface prplIAccount: nsISupports {
   void requestBuddyInfo(in AUTF8String aBuddyName);
 
   readonly attribute boolean canJoinChat;
-  nsISimpleEnumerator getChatRoomFields();
+  Array<prplIChatRoomField> getChatRoomFields();
   prplIChatRoomFieldValues getChatRoomDefaultFieldValues([optional] in AUTF8String aDefaultChatName);
 
   /* Request information on available chat rooms, whose names are returned
