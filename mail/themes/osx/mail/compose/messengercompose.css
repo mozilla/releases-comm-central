@@ -265,6 +265,10 @@ toolbarbutton.formatting-button {
   padding-inline: 4px;
 }
 
+.formatting-button > .toolbarbutton-menu-dropmarker {
+  margin-inline-start: 3px;
+}
+
 #FontFaceSelect {
    max-width: 15em;
 }
