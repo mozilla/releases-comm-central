@@ -120,7 +120,6 @@ linux64/debug:
             - linux64-cbindgen
             - linux64-clang
             - linux64-dump-syms
-            - linux64-fix-stacks  # see bug 1614626
             - linux64-libotr
             - linux64-nasm
             - linux64-node
@@ -334,7 +333,6 @@ linux/debug:
             - linux64-clang
             - linux64-clang-lib32cxx
             - linux64-dump-syms
-            - linux64-fix-stacks  # see bug 1614626
             - linux32-libotr
             - linux64-nasm
             - linux64-node
