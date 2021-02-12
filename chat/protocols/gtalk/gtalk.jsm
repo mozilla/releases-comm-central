@@ -83,7 +83,9 @@ GTalkAccount.prototype = {
 };
 
 function GTalkProtocol() {
-  ChromeUtils.import("resource:///modules/xmpp-commands.jsm", this);
+  this.commands = ChromeUtils.import(
+    "resource:///modules/xmpp-commands.jsm"
+  ).commands;
   this.registerCommands();
 }
 GTalkProtocol.prototype = {

@@ -1630,7 +1630,12 @@ var chatHandler = {
     document.getElementById("conversationsGroup").sortComparator = (a, b) =>
       a.title.toLowerCase().localeCompare(b.title.toLowerCase());
 
-    ChromeUtils.import("resource:///modules/chatHandler.jsm", this);
+    const { allContacts, onlineContacts, ChatCore } = ChromeUtils.import(
+      "resource:///modules/chatHandler.jsm"
+    );
+    this.allContacts = allContacts;
+    this.onlineContacts = onlineContacts;
+    this.ChatCore = ChatCore;
     if (this.ChatCore.initialized) {
       this.initAfterChatCore();
     } else {

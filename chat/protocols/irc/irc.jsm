@@ -2284,7 +2284,9 @@ ircAccount.prototype = {
 function ircProtocol() {
   // ircCommands.jsm exports one variable: commands. Import this directly into
   // the protocol object.
-  ChromeUtils.import("resource:///modules/ircCommands.jsm", this);
+  this.commands = ChromeUtils.import(
+    "resource:///modules/ircCommands.jsm"
+  ).commands;
   this.registerCommands();
 
   // Register the standard handlers.

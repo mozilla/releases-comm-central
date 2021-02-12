@@ -8,7 +8,6 @@ add_task(async function test_proxy_modes_and_autoconfig() {
   // uses these prefs, and changing them interfere with the harness.
 
   // Checks that every Mode value translates correctly to the expected pref value
-  // eslint-disable-next-line mozilla/reject-chromeutils-import-null
   let { ProxyPolicies, PROXY_TYPES_MAP } = ChromeUtils.import(
     "resource:///modules/policies/ProxyPolicies.jsm",
     null

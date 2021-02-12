@@ -24,7 +24,9 @@ function XMPPAccount(aProtoInstance, aImAccount) {
 XMPPAccount.prototype = XMPPAccountPrototype;
 
 function XMPPProtocol() {
-  ChromeUtils.import("resource:///modules/xmpp-commands.jsm", this);
+  this.commands = ChromeUtils.import(
+    "resource:///modules/xmpp-commands.jsm"
+  ).commands;
   this.registerCommands();
 }
 XMPPProtocol.prototype = {

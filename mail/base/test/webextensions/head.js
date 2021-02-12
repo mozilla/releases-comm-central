@@ -24,9 +24,8 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/Extension.jsm"
 );
 
-ChromeUtils.import(
-  "resource://testing-common/CustomizableUITestUtils.jsm",
-  this
+var { CustomizableUITestUtils } = ChromeUtils.import(
+  "resource://testing-common/CustomizableUITestUtils.jsm"
 );
 let gCUITestUtils = new CustomizableUITestUtils(window);
 
