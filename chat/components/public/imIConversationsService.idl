@@ -69,7 +69,7 @@ interface imIConversationsService: nsISupports {
   imIConversation getUIConversation(in prplIConversation aConversation);
   imIConversation getUIConversationByContactId(in long aId);
 
-  nsISimpleEnumerator getConversations();
+  Array<prplIConversation> getConversations();
   prplIConversation getConversationById(in unsigned long aId);
   prplIConversation getConversationByNameAndAccount(in AUTF8String aName,
                                                     in imIAccount aAccount,

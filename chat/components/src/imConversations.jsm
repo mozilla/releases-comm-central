@@ -6,7 +6,7 @@ var EXPORTED_SYMBOLS = ["ConversationsService"];
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
-var { XPCOMUtils, nsSimpleEnumerator, ClassInfo } = ChromeUtils.import(
+var { XPCOMUtils, ClassInfo } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 var { Message } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
@@ -836,7 +836,7 @@ ConversationsService.prototype = {
   },
 
   getConversations() {
-    return new nsSimpleEnumerator(this._prplConversations);
+    return this._prplConversations;
   },
   getConversationById(aId) {
     for (let conv of this._prplConversations) {
