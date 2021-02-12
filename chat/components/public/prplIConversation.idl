@@ -154,9 +154,9 @@ interface prplIConvChat: prplIConversation {
   /**
    * Get the list of people participating in this chat.
    *
-   * @returns an nsISimpleEnumerator of prplIConvChatBuddy objects.
+   * @returns an array of prplIConvChatBuddy objects.
    */
-  nsISimpleEnumerator getParticipants();
+  Array<prplIConvChatBuddy> getParticipants();
 
   /**
    * Normalize the name of a chat buddy. This will be suitable for calling

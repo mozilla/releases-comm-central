@@ -741,6 +741,7 @@ var GenericConvChatPrototype = {
   classDescription: "generic ConvChat object",
 
   _init(aAccount, aName, aNick) {
+    // _participants holds prplIConvChatBuddy objects.
     this._participants = new Map();
     this.nick = aNick;
     GenericConversationPrototype._init.call(this, aAccount, aName);
@@ -849,8 +850,8 @@ var GenericConvChatPrototype = {
     return this._participants.has(aName) ? this._participants.get(aName) : null;
   },
   getParticipants() {
-    // Convert the values of the Map into a nsSimpleEnumerator.
-    return new nsSimpleEnumerator(Array.from(this._participants.values()));
+    // Convert the values of the Map into an array.
+    return Array.from(this._participants.values());
   },
   getNormalizedChatBuddyName: aChatBuddyName => aChatBuddyName,
 
