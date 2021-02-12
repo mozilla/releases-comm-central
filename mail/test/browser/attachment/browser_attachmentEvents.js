@@ -439,12 +439,21 @@ add_task(function test_attachments_pane_toggle() {
   // Open the compose window.
   let cw = open_compose_new_mail(mc);
 
-  // Use the hotkey to toggle attachments-box open.
+  // Use the hotkey to try to toggle attachmentsBox open.
   let opts =
-    AppConstants.platform == "macosx" ? { ctrlKey: true } : { altKey: true };
+    AppConstants.platform == "macosx"
+      ? { metaKey: true, shiftKey: true }
+      : { ctrlKey: true, shiftKey: true };
   EventUtils.synthesizeKey("m", opts, cw.window);
-  let attachmentsBox = cw.window.document.getElementById("attachments-box");
-  cw.waitFor(() => !attachmentsBox.collapsed);
+  let attachmentsBox = cw.window.document.getElementById("attachmentsBox");
+
+  // Since we don't have any uploaded attachment, assert that the box remains
+  // closed.
+  cw.waitFor(() => attachmentsBox.collapsed);
+  Assert.ok(attachmentsBox.collapsed);
+
+  // Add an attachment. This should automatically open the box.
+  add_attachments(cw, ["http://www.example.com/1"]);
   Assert.ok(!attachmentsBox.collapsed);
 
   // Press again, should toggle to closed.
@@ -452,5 +461,17 @@ add_task(function test_attachments_pane_toggle() {
   cw.waitFor(() => attachmentsBox.collapsed);
   Assert.ok(attachmentsBox.collapsed);
 
+  // Press again, should toggle to open.
+  EventUtils.synthesizeKey("m", opts, cw.window);
+  cw.waitFor(() => !attachmentsBox.collapsed);
+  Assert.ok(!attachmentsBox.collapsed);
+
   close_compose_window(cw);
+});
+
+registerCleanupFunction(() => {
+  // Some tests that open new windows don't return focus to the main window
+  // in a way that satisfies mochitest, and the test times out.
+  Services.focus.focusedWindow = window;
+  window.gFolderDisplay.tree.focus();
 });

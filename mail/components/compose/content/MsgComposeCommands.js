@@ -99,6 +99,7 @@ var gSendFormat;
 var gContextMenu;
 
 var gAttachmentBucket;
+var gAttachmentCounter;
 var gMsgHeadersToolbarElement;
 // TODO: Maybe the following two variables can be combined.
 var gManualAttachmentReminder;
@@ -136,6 +137,16 @@ var gIsRelatedToSignedOriginal = false;
 var gEncryptedURIService = Cc[
   "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1"
 ].getService(Ci.nsIEncryptedSMIMEURIsService);
+
+try {
+  var gDragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
+    Ci.nsIDragService
+  );
+} catch (e) {}
+
+// Temporarily store the height of the attachment container allowing users to
+// keep the resized height when toggling the attachment panel on and off.
+var kAttachmentHeight;
 
 // i18n globals
 var _gComposeBundle;
@@ -878,13 +889,10 @@ var defaultController = {
 
     cmd_toggleAttachmentPane: {
       isEnabled() {
-        return !gWindowLocked;
+        return !gWindowLocked && gAttachmentBucket.itemCount;
       },
       doCommand() {
-        // Here we pick up the inbuilt command event, to check modifiers later.
-        // Note: We cannot pass event along the call chain: Bug 461578 / 959494.
-        // eslint-disable-next-line no-restricted-globals
-        toggleAttachmentPane("toggle", event);
+        toggleAttachmentPane("toggle");
       },
     },
 
@@ -1218,18 +1226,18 @@ var attachmentBucketController = {
       },
     },
 
-    cmd_moveAttachmentUp: {
+    cmd_moveAttachmentLeft: {
       isEnabled() {
         return (
           gAttachmentBucket.selectedCount && !attachmentsSelectionIsBlock("top")
         );
       },
       doCommand() {
-        moveSelectedAttachments("up");
+        moveSelectedAttachments("left");
       },
     },
 
-    cmd_moveAttachmentDown: {
+    cmd_moveAttachmentRight: {
       isEnabled() {
         return (
           gAttachmentBucket.selectedCount &&
@@ -1237,7 +1245,7 @@ var attachmentBucketController = {
         );
       },
       doCommand() {
-        moveSelectedAttachments("down");
+        moveSelectedAttachments("right");
       },
     },
 
@@ -1996,8 +2004,8 @@ function updateAttachmentItems() {
 
 function updateReorderAttachmentsItems() {
   goUpdateCommand("cmd_reorderAttachments");
-  goUpdateCommand("cmd_moveAttachmentUp");
-  goUpdateCommand("cmd_moveAttachmentDown");
+  goUpdateCommand("cmd_moveAttachmentLeft");
+  goUpdateCommand("cmd_moveAttachmentRight");
   goUpdateCommand("cmd_moveAttachmentBundleUp");
   goUpdateCommand("cmd_moveAttachmentBundleDown");
   goUpdateCommand("cmd_moveAttachmentTop");
@@ -2901,8 +2909,7 @@ function manageAttachmentNotification(aForce = false) {
   msgKeywords.setAttribute("flex", "1000");
   msgKeywords.setAttribute("value", keywords);
   let addButton = {
-    accessKey: getComposeBundle().getString("addAttachmentButton.accesskey"),
-    label: getComposeBundle().getString("addAttachmentButton"),
+    "l10n-id": "add-attachment-notification-reminder",
     callback(aNotificationBar, aButton) {
       goDoCommand("cmd_attachFile");
       return true; // keep notification open (the state machine will decide on it later)
@@ -3017,7 +3024,6 @@ function AttachmentsChanged(aShowPane, aContentChanged = true) {
 
   gContentChanged = aContentChanged;
   updateAttachmentPane(aShowPane);
-  attachmentBucketMarkEmptyBucket();
   manageAttachmentNotification(true);
   updateAttachmentItems();
 }
@@ -3973,6 +3979,13 @@ function ComposeLoad() {
   let views = ["small", "large", "tile"];
   gAttachmentBucket.view = views[viewMode];
 
+  // Setup the attachment animation counter.
+  gAttachmentCounter = document.getElementById("newAttachmentIndicator");
+  gAttachmentCounter.addEventListener(
+    "animationend",
+    toggleAttachmentAnimation
+  );
+
   try {
     SetupCommandUpdateHandlers();
     // This will do migration, or create a new account if we need to.
@@ -4027,7 +4040,6 @@ function ComposeLoad() {
   };
 
   updateAttachmentPane();
-  attachmentBucketMarkEmptyBucket();
   updateAriaLabelsAndTooltipsOfAllAddressRows();
 
   for (let input of document.querySelectorAll(
@@ -4056,6 +4068,49 @@ function ComposeLoad() {
   );
 
   setDefaultHeaderMinHeight();
+  setKeyboardShortcuts();
+}
+
+/**
+ * Enable a keypress document listener for international keyboard shortcuts.
+ */
+async function setKeyboardShortcuts() {
+  let [filePickerKey, toggleBucket] = await l10nCompose.formatValues([
+    { id: "trigger-attachment-picker-key" },
+    { id: "toggle-attachment-pane-key" },
+  ]);
+
+  document.addEventListener("keydown", event => {
+    // Don't do anything if we don't have the correct combination of
+    // CTRL/CMD + SHIFT, and if the pressed key is a modifier.
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      event.shiftKey &&
+      !["Shift", "Control", "Meta"].includes(event.key)
+    ) {
+      // Always alter the key to compare the lowercase and avoid inconsistencies
+      // betweent different OSs.
+      switch (event.key.toLowerCase()) {
+        case filePickerKey.toLowerCase():
+          // Prevent default behavior and stop propagation to avoid triggering
+          // OS specific shortcuts.
+          event.preventDefault();
+          event.stopPropagation();
+
+          goDoCommand("cmd_attachFile");
+          break;
+
+        case toggleBucket.toLowerCase():
+          // Prevent default behavior and stop propagation to avoid triggering
+          // OS specific shortcuts.
+          event.preventDefault();
+          event.stopPropagation();
+
+          goDoCommand("cmd_toggleAttachmentPane");
+          break;
+      }
+    }
+  });
 }
 
 function ComposeUnload() {
@@ -5485,6 +5540,14 @@ function toggleAttachmentReminder(aState = !gManualAttachmentReminder) {
   manageAttachmentNotification(false);
 }
 
+/**
+ * Triggers or removes the CSS animation for the counter of newly uploaded
+ * attachments.
+ */
+function toggleAttachmentAnimation() {
+  gAttachmentCounter.classList.toggle("is_animating");
+}
+
 function FillIdentityList(menulist) {
   let accounts = allAccountsSorted(true);
 
@@ -5936,23 +5999,41 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
   }
 
   if (addedAttachments.length > 0) {
-    // If no attachment item has had focus yet (currentIndex == -1, or undefined
-    // on some platforms according to spec), make sure there's at least one item
-    // set as currentItem which will be focused when listbox gets focus, because
-    // currently we don't indicate focus on the listbox itself when there are
-    // attachments, assuming that one of them has focus.
-    if (!(gAttachmentBucket.currentIndex >= 0)) {
-      gAttachmentBucket.currentIndex = gAttachmentBucket.getIndexOfItem(
-        items[0]
-      );
-    }
+    // Trigger a visual feedback to let the user know how many attachments have
+    // been added.
+    gAttachmentCounter.value = `+${addedAttachments.length}`;
+    toggleAttachmentAnimation();
+
+    // Move the focus on the last attached file so the user can see a visual
+    // feedback of what was added.
+    gAttachmentBucket.selectedIndex = gAttachmentBucket.getIndexOfItem(
+      items[items.length - 1]
+    );
+
+    // Ensure the selected item is visible and if not the box will scroll to it.
+    gAttachmentBucket.ensureIndexIsVisible(gAttachmentBucket.selectedIndex);
 
     AttachmentsChanged("show", aContentChanged);
     dispatchAttachmentBucketEvent("attachments-added", addedAttachments);
-  } else if (gAttachmentBucket.itemCount) {
-    // We didn't succeed to add attachments (e.g. duplicate files),
-    // but user was trying to; so we must at least react by ensuring the pane
-    // is shown, which might be hidden by user with existing attachments.
+
+    // Get the height of the attachment bucket necessary to show all the
+    // attachments.
+    let newHeight =
+      gAttachmentBucket.scrollHeight +
+      gAttachmentBucket.firstElementChild.getBoundingClientRect().height +
+      6;
+
+    // Increase the height of the attachment bucket to show the uploaded files
+    // only if the new height is taller than the currently saved height.
+    if (newHeight > kAttachmentHeight) {
+      kAttachmentHeight = newHeight;
+    }
+  }
+
+  // Always show the attachment pane if we have any attachment, no matter if the
+  // upload was successful or not to prevent keeping the panel collpased when
+  // the user interacts with the attachment button.
+  if (gAttachmentBucket.itemCount) {
     toggleAttachmentPane("show");
   }
 
@@ -6163,13 +6244,10 @@ function updateAttachmentPane(aShowPane) {
 
   document.getElementById("attachmentBucketSize").value =
     count > 0 ? gMessenger.formatFileSize(gAttachmentsSize) : "";
-  document.getElementById("attachmentBucketCloseButton").collapsed = count > 0;
-
-  document.l10n.setAttributes(
-    document.getElementById("attachments-placeholder-box"),
-    "attachments-placeholder-tooltip",
-    { count }
-  );
+  document.getElementById("attachmentView").collapsed = count == 0;
+  document
+    .getElementById("attachmentToggle")
+    .classList.toggle("closed", count == 0);
 
   attachmentBucketUpdateTooltips();
 
@@ -6235,15 +6313,6 @@ function RemoveAttachments(items) {
     item.remove();
   }
 
-  // Try to restore original focus or somewhere close by.
-  if (gAttachmentBucket.itemCount == 0) {
-    gAttachmentBucket.currentIndex = -1;
-  } else if (focusIndex < gAttachmentBucket.itemCount) {
-    gAttachmentBucket.currentIndex = focusIndex;
-  } else {
-    gAttachmentBucket.currentIndex = gAttachmentBucket.itemCount - 1;
-  }
-
   if (removedAttachments.length > 0) {
     // Bug 1661507 workaround: Force update of selectedCount and selectedItem,
     // both wrong after item removal, to avoid confusion for listening command
@@ -6253,6 +6322,18 @@ function RemoveAttachments(items) {
     AttachmentsChanged();
     dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
   }
+
+  // Collapse the attachment container if all the items have been deleted.
+  if (!gAttachmentBucket.itemCount) {
+    toggleAttachmentPane("hide");
+    return;
+  }
+
+  // Try to restore the original focused item or somewhere close by.
+  gAttachmentBucket.currentIndex =
+    focusIndex < gAttachmentBucket.itemCount
+      ? focusIndex
+      : gAttachmentBucket.itemCount - 1;
 }
 
 function RenameSelectedAttachment() {
@@ -6300,13 +6381,14 @@ function RenameSelectedAttachment() {
 /**
  * Move selected attachment(s) within the attachment list.
  *
- * @param aDirection  "up"        : Move attachments up in the list.
- *                    "down"      : Move attachments down in the list.
- *                    "top"       : Move attachments to the top of the list.
- *                    "bottom"    : Move attachments to the bottom of the list.
- *                    "bundleUp"  : Move attachments together (upwards).
- *                    "bundleDown": Move attachments together (downwards).
- *                    "toggleSort": Sort attachments alphabetically (toggle).
+ * @param {string} aDirection - The direction in which to move the attachments.
+ *   "left"      : Move attachments left in the list.
+ *   "right"     : Move attachments right in the list.
+ *   "top"       : Move attachments to the top of the list.
+ *   "bottom"    : Move attachments to the bottom of the list.
+ *   "bundleUp"  : Move attachments together (upwards).
+ *   "bundleDown": Move attachments together (downwards).
+ *   "toggleSort": Sort attachments alphabetically (toggle).
  */
 function moveSelectedAttachments(aDirection) {
   // Command controllers will bail out if no or all attachments are selected,
@@ -6333,10 +6415,10 @@ function moveSelectedAttachments(aDirection) {
   let targetItem;
 
   switch (aDirection) {
-    case "up":
-    case "down":
+    case "left":
+    case "right":
       // Move selected attachments upwards/downwards.
-      upwards = aDirection == "up";
+      upwards = aDirection == "left";
       let blockItems = [];
 
       for (let item of selItems) {
@@ -6547,34 +6629,46 @@ function moveSelectedAttachments(aDirection) {
 /* eslint-enable complexity */
 
 /**
+ * Save the height of the attachment container if the user manually resized it.
+ */
+function attachmentBucketSizerOnMouseUp() {
+  kAttachmentHeight = Number(
+    document.getElementById("attachmentView").getAttribute("height")
+  );
+}
+/**
  * Toggle attachment pane view state: show or hide it.
  * If aAction parameter is omitted, toggle current view state.
  *
  * @param {string} [aAction = "toggle"] - "show":   show attachment pane
  *                                        "hide":   hide attachment pane
  *                                        "toggle": toggle attachment pane
- * @param {Event} [event] - The command event (cmd_toggleAttachmentPane)
  */
-function toggleAttachmentPane(aAction = "toggle", event) {
-  let attachmentsBox = document.getElementById("attachments-box");
+function toggleAttachmentPane(aAction = "toggle") {
+  let attachmentsBox = document.getElementById("attachmentsBox");
   let attachmentBucketSizer = document.getElementById("attachmentbucket-sizer");
+  let attachmentToggle = document.getElementById("attachmentToggle");
   let bucketHasFocus = document.activeElement == gAttachmentBucket;
 
   if (aAction == "toggle") {
+    // Interrupt if we don't have any attachment as we don't want nor need to
+    // show an empty container.
+    if (!gAttachmentBucket.itemCount) {
+      return;
+    }
+
     let shown = !attachmentsBox.collapsed;
 
-    if (shown && !bucketHasFocus && event && (event.altKey || event.ctrlKey)) {
-      // If attachment pane is shown but not focused, and we're here via
-      // key_toggleAttachmentPane, handle access key here: Focus bucket.
-      gAttachmentBucket.focus();
-      if (gAttachmentBucket.currentItem) {
-        gAttachmentBucket.ensureElementIsVisible(gAttachmentBucket.currentItem);
-      }
+    if (shown && !bucketHasFocus) {
+      // Interrupt and move the focus to the attachment pane if it's already
+      // visible but not currently focused.
+      moveFocusToAttachmentPane();
       return;
     }
 
     // Toggle attachment pane.
     aAction = shown ? "hide" : "show";
+    attachmentToggle.classList.toggle("closed", shown);
   }
 
   switch (aAction) {
@@ -6582,21 +6676,37 @@ function toggleAttachmentPane(aAction = "toggle", event) {
       attachmentsBox.collapsed = false;
       attachmentBucketSizer.collapsed = false;
       attachmentBucketSizer.setAttribute("state", "");
+      attachmentToggle.classList.remove("closed");
+
       if (!bucketHasFocus) {
-        gAttachmentBucket.focus();
+        moveFocusToAttachmentPane();
       }
-      if (gAttachmentBucket.currentItem) {
-        gAttachmentBucket.ensureElementIsVisible(gAttachmentBucket.currentItem);
+
+      // Restore the previously resized container height.
+      if (kAttachmentHeight) {
+        document
+          .getElementById("attachmentView")
+          .setAttribute("height", kAttachmentHeight);
       }
       break;
     }
 
     case "hide": {
+      // Move the focus to the message body only if the bucket was focused.
       if (bucketHasFocus) {
         SetMsgBodyFrameFocus();
       }
+
+      // Save the current bucket height so we can properly restore it.
+      kAttachmentHeight = Number(
+        document.getElementById("attachmentView").getAttribute("height")
+      );
+
       attachmentsBox.collapsed = true;
       attachmentBucketSizer.setAttribute("state", "collapsed");
+      attachmentToggle.classList.add("closed");
+
+      document.getElementById("attachmentView").removeAttribute("height");
       break;
     }
   }
@@ -6608,10 +6718,53 @@ function toggleAttachmentPane(aAction = "toggle", event) {
   )) {
     if (aAction == "show") {
       menuitem.setAttribute("checked", "true");
-    } else {
-      menuitem.removeAttribute("checked");
+      continue;
     }
+    menuitem.removeAttribute("checked");
   }
+
+  // Remove the tooltiptext if we don't have any attachments, meaning we won't
+  // allow the expanding or collpasing of the attachment bucket.
+  if (!gAttachmentBucket.itemCount) {
+    document.getElementById("attachmentToolbar").removeAttribute("tooltiptext");
+    attachmentBucketSizer.collapsed = true;
+    return;
+  }
+
+  // Update the tooltiptext based on the collpased status of the bucket.
+  document.l10n.setAttributes(
+    document.getElementById("attachmentToolbar"),
+    attachmentsBox.collapsed
+      ? "expand-attachment-pane-tooltip"
+      : "collapse-attachment-pane-tooltip"
+  );
+}
+
+/**
+ * Ensure the focus is properly moved to the Attachment Bucket, and to the first
+ * available item if present.
+ */
+function moveFocusToAttachmentPane() {
+  gAttachmentBucket.focus();
+
+  if (gAttachmentBucket.currentItem) {
+    gAttachmentBucket.ensureElementIsVisible(gAttachmentBucket.currentItem);
+  }
+}
+
+/**
+ * Toggle the visibility of the attachment bucket when the user clicks on the
+ * bottom attachment bar.
+ *
+ * @param {Event} event - The DOM Event.
+ */
+function onToggleAttachmentPane(event) {
+  // Skip if it's not a left click.
+  if (event.button != 0) {
+    return;
+  }
+
+  toggleAttachmentPane("toggle");
 }
 
 function showReorderAttachmentsPanel() {
@@ -6775,34 +6928,82 @@ function attachmentBucketOnBlur() {
   }
 }
 
-function attachmentBucketOnKeyPress(aEvent) {
-  // When ESC is pressed ...
-  if (aEvent.key == "Escape") {
-    let reorderAttachmentsPanel = document.getElementById(
-      "reorderAttachmentsPanel"
-    );
-    if (reorderAttachmentsPanel.state == "open") {
-      // First close reorderAttachmentsPanel if open.
-      reorderAttachmentsPanel.hidePopup();
-    } else if (gAttachmentBucket.itemCount) {
-      if (gAttachmentBucket.selectedCount) {
-        // Then deselect selected items in full gAttachmentBucket if any.
-        gAttachmentBucket.clearSelection();
-      } else {
-        // Then unfocus full gAttachmentBucket to continue with msg body.
-        SetMsgBodyFrameFocus();
-      }
-    } else {
-      // (gAttachmentBucket.itemCount == 0)
-      // Otherwise close empty gAttachmentBucket.
-      toggleAttachmentPane("hide");
-    }
+/**
+ * Handle the keypress on the attachment bucket.
+ *
+ * @param {Event} event - The keypress DOM Event.
+ */
+function attachmentBucketOnKeyPress(event) {
+  // Interrupt if the Alt modifier is pressed, meaning the user is reordering
+  // the list of attachments.
+  if (event.altKey) {
+    return;
   }
 
-  if (aEvent.key == "Enter" && !gAttachmentBucket.itemCount) {
-    // Enter on empty bucket to add file attachments, convenience
-    // keyboard equivalent of single-click on bucket whitespace.
-    goDoCommand("cmd_attachFile");
+  switch (event.key) {
+    case "Escape":
+      let reorderAttachmentsPanel = document.getElementById(
+        "reorderAttachmentsPanel"
+      );
+
+      // Close the reorderAttachmentsPanel if open and interrupt.
+      if (reorderAttachmentsPanel.state == "open") {
+        reorderAttachmentsPanel.hidePopup();
+        return;
+      }
+
+      if (gAttachmentBucket.itemCount) {
+        // Deselect selected items in a full bucket if any.
+        if (gAttachmentBucket.selectedCount) {
+          gAttachmentBucket.clearSelection();
+          return;
+        }
+
+        // Move the focus to the message body.
+        SetMsgBodyFrameFocus();
+        return;
+      }
+
+      // Close an empty bucket.
+      toggleAttachmentPane("hide");
+      break;
+
+    case "Enter":
+      // Enter on empty bucket to add file attachments, convenience
+      // keyboard equivalent of single-click on bucket whitespace.
+      if (!gAttachmentBucket.itemCount) {
+        goDoCommand("cmd_attachFile");
+      }
+      break;
+
+    case "ArrowLeft":
+      gAttachmentBucket.moveByOffset(-1, !event.ctrlKey, event.shiftKey);
+      event.preventDefault();
+      break;
+
+    case "ArrowRight":
+      gAttachmentBucket.moveByOffset(1, !event.ctrlKey, event.shiftKey);
+      event.preventDefault();
+      break;
+
+    case "ArrowDown":
+      gAttachmentBucket.moveByOffset(
+        gAttachmentBucket._itemsPerRow(),
+        !event.ctrlKey,
+        event.shiftKey
+      );
+      event.preventDefault();
+      break;
+
+    case "ArrowUp":
+      gAttachmentBucket.moveByOffset(
+        -gAttachmentBucket._itemsPerRow(),
+        !event.ctrlKey,
+        event.shiftKey
+      );
+
+      event.preventDefault();
+      break;
   }
 }
 
@@ -6833,34 +7034,6 @@ function attachmentBucketUpdateTooltips() {
     gAttachmentBucket.tooltipText = getComposeBundle().getString(
       "attachmentBucketAttachFilesTooltip"
     );
-  }
-}
-
-function attachmentBucketHeaderOnClick(aEvent) {
-  if (aEvent.button == 0) {
-    // Left click
-    goDoCommand("cmd_toggleAttachmentPane");
-  }
-}
-
-function attachmentBucketCloseButtonOnCommand() {
-  toggleAttachmentPane("hide");
-}
-
-function attachmentBucketSizerOnMouseUp() {
-  updateViewItems();
-  if (document.getElementById("attachments-box").collapsed) {
-    // If user collapsed the attachment pane, move focus to message body.
-    SetMsgBodyFrameFocus();
-  }
-}
-
-function attachmentBucketMarkEmptyBucket() {
-  let attachmentsBox = document.getElementById("attachments-box");
-  if (gAttachmentBucket.itemCount) {
-    attachmentsBox.removeAttribute("empty");
-  } else {
-    attachmentsBox.setAttribute("empty", "true");
   }
 }
 
@@ -7338,14 +7511,16 @@ function subjectKeyPress(event) {
   }
 }
 
-// content types supported in the envelopeDragObserver.
-let flavours = [
+// Content types supported in the envelopeDragObserver.
+let flavors = [
   "text/x-moz-address",
   "text/x-moz-message",
   "application/x-moz-file",
   "text/x-moz-url",
 ];
-// we can drag and drop addresses, files, messages and urls into the compose envelope
+
+// We can drag and drop addresses, files, messages and urls into the compose
+// envelope.
 var envelopeDragObserver = {
   /**
    * Adjust the drop target when dragging from the attachment bucket onto itself
@@ -7443,9 +7618,9 @@ var envelopeDragObserver = {
 
     if (targetItem == "afterLastItem") {
       targetItem = gAttachmentBucket.lastElementChild;
-      targetItem.setAttribute("dropOn", "bottom");
+      targetItem.setAttribute("dropOn", "after");
     } else {
-      targetItem.setAttribute("dropOn", "top");
+      targetItem.setAttribute("dropOn", "before");
     }
   },
 
@@ -7460,11 +7635,15 @@ var envelopeDragObserver = {
 
   // eslint-disable-next-line complexity
   onDrop(event) {
-    let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
-      .getService(Ci.nsIDragService)
-      .getCurrentSession();
-    let dragSourceNode = dragSession.sourceNode;
-    if (dragSourceNode && dragSourceNode.parentNode == gAttachmentBucket) {
+    document.getElementById("dropAttachmentOverlay").classList.remove("show");
+    // Clear the hover CSS class from the target elements inside the overlay.
+    for (let box of document.querySelectorAll(".drop-attachment-box")) {
+      box.classList.remove("hover");
+    }
+
+    let dragSession = gDragService.getCurrentSession();
+
+    if (dragSession.sourceNode?.parentNode == gAttachmentBucket) {
       // We dragged from the attachment pane onto itself, so instead of
       // attaching a new object, we're just reordering them.
 
@@ -7544,32 +7723,57 @@ var envelopeDragObserver = {
       return;
     }
 
+    // Interrupt if we're dropping elements from within the message body.
+    if (dragSession.sourceNode?.ownerDocument.URL == "about:blank?compose") {
+      return;
+    }
+
+    // Interrupt if we're not dropping a file from outside the compose window
+    // and we're not draggin an address from the contacts sidebar.
+    if (
+      !event.dataTransfer.files.length &&
+      !event.dataTransfer.types.includes("text/x-moz-address") &&
+      !event.dataTransfer.types.includes("text/plain")
+    ) {
+      return;
+    }
+
+    // Handle the inline adding of images without triggering the creation of
+    // any attachment if the user dropped only images above the #addInline box.
+    if (
+      ["addInline", "addInlineLabel"].includes(event.target.id) &&
+      !this.isNotDraggingOnlyImages(event.dataTransfer)
+    ) {
+      this.appendImagesInline(event.dataTransfer);
+      return;
+    }
+
     let attachments = [];
     let dt = event.dataTransfer;
     let dataList = [];
     for (let i = 0; i < dt.mozItemCount; i++) {
       let types = Array.from(dt.mozTypesAt(i));
-      for (let flavour of flavours) {
-        if (types.includes(flavour)) {
-          let data = dt.mozGetDataAt(flavour, i);
+      for (let flavor of flavors) {
+        if (types.includes(flavor)) {
+          let data = dt.mozGetDataAt(flavor, i);
           if (data) {
-            dataList.push({ data, flavour });
+            dataList.push({ data, flavor });
           }
           break;
         }
       }
     }
 
-    for (let { data, flavour } of dataList) {
+    for (let { data, flavor } of dataList) {
       let isValidAttachment = false;
       let prettyName;
       let size;
 
-      // We could be dropping an attachment of various flavours OR an address;
+      // We could be dropping an attachment of various flavors OR an address;
       // check and do the right thing.
-      switch (flavour) {
+      switch (flavor) {
         // Process attachments.
-        case "application/x-moz-file": {
+        case "application/x-moz-file":
           if (data instanceof Ci.nsIFile) {
             size = data.fileSize;
           }
@@ -7585,9 +7789,8 @@ var envelopeDragObserver = {
             );
           }
           break;
-        }
 
-        case "text/x-moz-message": {
+        case "text/x-moz-message":
           isValidAttachment = true;
           let msgHdr = gMessenger
             .messageServiceFromURI(data)
@@ -7595,9 +7798,8 @@ var envelopeDragObserver = {
           prettyName = msgHdr.mime2DecodedSubject + ".eml";
           size = msgHdr.messageSize;
           break;
-        }
 
-        case "text/x-moz-url": {
+        case "text/x-moz-url":
           let pieces = data.split("\n");
           data = pieces[0];
           if (pieces.length > 1) {
@@ -7617,18 +7819,18 @@ var envelopeDragObserver = {
             }
           } catch (ex) {}
           break;
-        }
 
         // Process address: Drop it into recipient field.
-        case "text/x-moz-address": {
-          DropRecipient(event.target, data);
+        case "text/x-moz-address":
+          // Process the drop only if the message body wasn't the target.
+          if (event.target.baseURI != "about:blank?compose") {
+            DropRecipient(event.target, data);
+            // Prevent the default behaviour which drops the address text into
+            // the widget.
+            event.preventDefault();
+          }
 
-          // Since we are now using ondrop (eDrop) instead of previously using
-          // ondragdrop (eLegacyDragDrop), we must prevent the default
-          // which is dropping the address text into the widget.
-          event.preventDefault();
           break;
-        }
       }
 
       // Create the attachment and add it to attachments array.
@@ -7647,24 +7849,27 @@ var envelopeDragObserver = {
       }
     }
 
-    // Add attachments if any.
-    if (attachments.length > 0) {
-      AddAttachments(attachments);
+    // Interrupt if we don't have anything to attach.
+    if (!attachments.length) {
+      return;
     }
 
+    AddAttachments(attachments);
     gAttachmentBucket.focus();
+
+    // Stop the propagation only if we actually attached something.
     event.stopPropagation();
   },
 
   onDragOver(event) {
-    let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
-      .getService(Ci.nsIDragService)
-      .getCurrentSession();
-    let dragSourceNode = dragSession.sourceNode;
-    if (dragSourceNode && dragSourceNode.parentNode == gAttachmentBucket) {
-      // If we're dragging from the attachment gAttachmentBucket onto itself,
-      // we need to show a drop marker.
+    let dragSession = gDragService.getCurrentSession();
 
+    // Check if we're dragging from the attachment bucket onto itself.
+    if (dragSession.sourceNode?.parentNode == gAttachmentBucket) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      // Show a drop marker.
       let target = this._adjustDropTarget(event);
 
       if (
@@ -7673,34 +7878,128 @@ var envelopeDragObserver = {
       ) {
         // Adjusted target is an attachment list item; show dropmarker.
         this._showDropMarker(target);
-      } else {
-        // target == "none", target is not a listItem, or no target:
-        // Indicate that we can't drop here.
-        this._hideDropMarker();
-        event.dataTransfer.dropEffect = "none";
+        return;
       }
-      event.stopPropagation();
-      event.preventDefault();
+
+      // target == "none", target is not a listItem, or no target:
+      // Indicate that we can't drop here.
+      this._hideDropMarker();
+      event.dataTransfer.dropEffect = "none";
       return;
     }
 
-    for (let flavour of flavours) {
-      if (dragSession.isDataFlavorSupported(flavour)) {
-        if (flavour != "text/x-moz-address") {
-          // Make sure the attachment pane is visible during drag over.
-          toggleAttachmentPane("show");
-        } else {
-          DragAddressOverTargetControl(event);
-        }
+    // Interrupt if we're dragging elements from within the message body.
+    if (dragSession.sourceNode?.ownerDocument.URL == "about:blank?compose") {
+      return;
+    }
+
+    for (let flavor of flavors) {
+      if (!dragSession.isDataFlavorSupported(flavor)) {
+        continue;
+      }
+
+      // Show the drop overlay only if the dragged element is a file.
+      if (event.dataTransfer.files.length) {
         event.stopPropagation();
         event.preventDefault();
-        break;
+        document.getElementById("dropAttachmentOverlay").classList.add("show");
+
+        document.l10n.setAttributes(
+          document.getElementById("addAsAttachmentLabel"),
+          "drop-file-label-attachment",
+          { count: event.dataTransfer.files.length }
+        );
+
+        document.l10n.setAttributes(
+          document.getElementById("addInlineLabel"),
+          "drop-file-label-inline",
+          { count: event.dataTransfer.files.length }
+        );
+
+        // Show the #addInline box only if the user is dragging only images and
+        // this is not a plain text message.
+        document
+          .getElementById("addInline")
+          .classList.toggle(
+            "hidden",
+            this.isNotDraggingOnlyImages(event.dataTransfer) ||
+              !gMsgCompose.composeHTML
+          );
+        continue;
       }
+
+      DragAddressOverTargetControl(event);
     }
   },
 
   onDragExit(event) {
+    // Hide the drop overlay.
+    document.getElementById("dropAttachmentOverlay").classList.remove("show");
     this._hideDropMarker();
+  },
+
+  /**
+   * Loop through all the currently dragged or dropped files to see if there's
+   * at least 1 file which is not an image.
+   *
+   * @param {DataTransfer} dataTransfer - The dataTransfer object from the drag
+   *   or drop event.
+   * @return {boolean} True if at least 1 file not an image.
+   */
+  isNotDraggingOnlyImages(dataTransfer) {
+    for (let file of dataTransfer.files) {
+      if (!file.type.includes("image/")) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  /**
+   * Loop through all the images that have been dropped above the #addInline
+   * box and create an image element to append to the message body.
+   *
+   * @param {DataTransfer} dataTransfer - The dataTransfer object from the drop
+   *   event.
+   */
+  appendImagesInline(dataTransfer) {
+    SetMsgBodyFrameFocus();
+    let editor = GetCurrentEditor();
+    editor.beginTransaction();
+
+    for (let file of dataTransfer.files) {
+      if (!file.mozFullPath) {
+        continue;
+      }
+
+      let realFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      realFile.initWithPath(file.mozFullPath);
+
+      let imageElement;
+      try {
+        imageElement = editor.createElementWithDefaults("img");
+      } catch (e) {
+        dump("Failed to create a new image element!\n");
+        Cu.reportError(e);
+        continue;
+      }
+
+      let src = Services.io.newFileURI(realFile).spec;
+      imageElement.setAttribute("src", src);
+      imageElement.setAttribute("moz-do-not-send", "false");
+
+      editor.insertElementAtSelection(imageElement, true);
+
+      try {
+        loadBlockedImage(src);
+      } catch (e) {
+        dump("Failed to load the appended image!\n");
+        Cu.reportError(e);
+        continue;
+      }
+    }
+
+    editor.endTransaction();
   },
 };
 
@@ -7713,6 +8012,41 @@ let attachmentBucketDNDObserver = {
     event.stopPropagation();
   },
 };
+
+/**
+ * Add a class to highlight the current drop area.
+ *
+ * @param {Element} target - The target element of the dragover action.
+ */
+function addHighlightDropBox(target) {
+  // Force the attachment overlay to stay visible when a dropexit is registered
+  // as the user enters one of the drop boxes.
+  document.getElementById("dropAttachmentOverlay").classList.add("show");
+
+  // We need to loop through the available drop targets and remove the .hover
+  // class since the ondragexit listener sometimes fails when moving too fast.
+  for (let box of document.querySelectorAll(".drop-attachment-box")) {
+    if (box == target) {
+      continue;
+    }
+    box.classList.remove("hover");
+  }
+
+  target.classList.add("hover");
+}
+
+/**
+ * Remove the highlight class from the exited drop area.
+ *
+ * @param {Element} target - The target element of the dragexit action.
+ */
+function removeHighlightDropBox(target) {
+  // Force the attachment overlay to stay visible when a dropexit is registered
+  // as the user exits one of the drop boxes.
+  document.getElementById("dropAttachmentOverlay").classList.add("show");
+
+  target.classList.remove("hover");
+}
 
 function DisplaySaveFolderDlg(folderURI) {
   try {
@@ -7911,6 +8245,11 @@ function SwitchElementFocus(event) {
         SetFocusOnPreviousAvailableElement(focusedElement);
         break;
       case document.getElementById("msgIdentity"):
+        // Focus attachment bucket if visible.
+        if (!document.getElementById("attachmentsBox").collapsed) {
+          gAttachmentBucket.focus();
+          return;
+        }
         // Focus the search input of contacts side bar if that's available,
         // otherwise focus message body.
         if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
@@ -7920,15 +8259,10 @@ function SwitchElementFocus(event) {
       case sidebarDocumentGetElementById("abContactsPanel"):
         SetMsgBodyFrameFocus();
         break;
-      case document.getElementById("content-frame"): // message body
-        // Focus attachment bucket if shown, otherwise message subject.
-        if (!document.getElementById("attachments-box").collapsed) {
-          gAttachmentBucket.focus();
-        } else {
-          SetMsgSubjectElementFocus();
-        }
-        break;
       case gAttachmentBucket:
+        SetMsgBodyFrameFocus();
+        break;
+      case document.getElementById("content-frame"): // message body
         SetMsgSubjectElementFocus();
         break;
       case document.getElementById("msgSubject"):
@@ -7962,22 +8296,22 @@ function SwitchElementFocus(event) {
       SetFocusOnNextAvailableElement(focusedElement);
       break;
     case document.getElementById("msgSubject"):
-      // Focus attachment bucket if shown, otherwise message body.
-      if (!document.getElementById("attachments-box").collapsed) {
-        gAttachmentBucket.focus();
-      } else {
-        SetMsgBodyFrameFocus();
-      }
-      break;
-    case gAttachmentBucket:
       SetMsgBodyFrameFocus();
       break;
     case document.getElementById("content-frame"): // message body
+      // Focus attachment bucket if visible.
+      if (!document.getElementById("attachmentsBox").collapsed) {
+        gAttachmentBucket.focus();
+        return;
+      }
       // Focus the search input of contacts side bar if that's available,
       // otherwise focus "From" selector.
       if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
         SetMsgIdentityElementFocus();
       }
+      break;
+    case gAttachmentBucket:
+      SetMsgIdentityElementFocus();
       break;
     case sidebarDocumentGetElementById("abContactsPanel"):
       SetMsgIdentityElementFocus();

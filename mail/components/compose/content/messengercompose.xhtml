@@ -314,10 +314,10 @@
            oncommand="goDoCommand('cmd_account')"/>
 
   <!-- Reorder Attachments Panel -->
-  <command id="cmd_moveAttachmentUp"
-           oncommand="goDoCommand('cmd_moveAttachmentUp')" disabled="true"/>
-  <command id="cmd_moveAttachmentDown"
-           oncommand="goDoCommand('cmd_moveAttachmentDown')" disabled="true"/>
+  <command id="cmd_moveAttachmentLeft"
+           oncommand="goDoCommand('cmd_moveAttachmentLeft')" disabled="true"/>
+  <command id="cmd_moveAttachmentRight"
+           oncommand="goDoCommand('cmd_moveAttachmentRight')" disabled="true"/>
   <command id="cmd_moveAttachmentBundleUp"
            oncommand="goDoCommand('cmd_moveAttachmentBundleUp')" disabled="true"/>
   <command id="cmd_moveAttachmentBundleDown"
@@ -385,19 +385,7 @@
 
 <keyset id="tasksKeys">
   <!-- File Menu -->
-#ifdef XP_MACOSX
-  <!-- Mac has Command+M as system shortcut to minimize current window, so we offer Command+Shift+M for New Message,
-       in addition to cross-platform Command+N. With goOpenNewMessage(), pass null instead of event because
-       we don't allow Shift in *keyboard shortcuts* for toggling HTML vs. plaintext format, see bug 672475.
-    -->
-  <key id="key_newMessage" key="&newMessage.key;" oncommand="goOpenNewMessage(null);" modifiers="accel,shift"/>
-  <key id="key_newMessage2" key="&newMessageCmd2.key;" oncommand="goOpenNewMessage(null);" modifiers="accel"/>
-#else
-  <key id="key_newMessage" key="&newMessage.key;" oncommand="goOpenNewMessage(null);" modifiers="accel"/>
-  <key id="key_newMessage2" key="&newMessageCmd2.key;" oncommand="goOpenNewMessage(null);" modifiers="accel"/>
-#endif
-  <key id="key_attachFile" key="&attachFileCmd.key;" command="cmd_attachFile"
-       modifiers="accel,shift"/>
+  <key id="key_newMessage" key="&newMessageCmd2.key;" oncommand="goOpenNewMessage(null);" modifiers="accel"/>
   <key id="key_close" key="&closeCmd.key;" command="cmd_close"  modifiers="accel"/>
   <key id="key_save" key="&saveCmd.key;" command="cmd_saveDefault" modifiers="accel"/>
   <key id="key_send" keycode="&sendCmd.keycode;" observes="cmd_sendWithCheck" modifiers="accel"/>
@@ -426,16 +414,10 @@
 #ifdef XP_MACOSX
   <key id="key_delete" keycode="VK_BACK" command="cmd_delete"/>
   <key id="key_delete2" keycode="VK_DELETE" command="cmd_delete"/>
-  <key id="key_toggleAttachmentPane"
-       data-l10n-id="key-toggle-attachment-pane" modifiers="control"
-       command="cmd_toggleAttachmentPane"/>
 #else
   <key id="key_delete" keycode="VK_DELETE" command="cmd_delete"/>
   <key id="key_renameAttachment" keycode="VK_F2"
        command="cmd_renameAttachment"/>
-  <key id="key_toggleAttachmentPane"
-       data-l10n-id="key-toggle-attachment-pane" modifiers="alt"
-       command="cmd_toggleAttachmentPane"/>
 #endif
   <key id="key_reorderAttachments"
        key="&reorderAttachmentsCmd.key;" modifiers="accel,shift"
@@ -451,13 +433,13 @@
   <key keycode="&findPrevCmd.key2;"  command="cmd_findPrev" modifiers="shift"/>
 
   <!-- Reorder Attachments Panel -->
-  <key id="key_moveAttachmentUp" keycode="VK_UP" modifiers="alt"
-       command="cmd_moveAttachmentUp"/>
-  <key id="key_moveAttachmentDown" keycode="VK_DOWN" modifiers="alt"
-       command="cmd_moveAttachmentDown"/>
-  <key id="key_moveAttachmentBundleUp" keycode="VK_LEFT" modifiers="alt"
+  <key id="key_moveAttachmentLeft" keycode="VK_LEFT" modifiers="alt"
+       command="cmd_moveAttachmentLeft"/>
+  <key id="key_moveAttachmentRight" keycode="VK_RIGHT" modifiers="alt"
+       command="cmd_moveAttachmentRight"/>
+  <key id="key_moveAttachmentBundleUp" keycode="VK_UP" modifiers="alt"
        command="cmd_moveAttachmentBundleUp"/>
-  <key id="key_moveAttachmentBundleDown" keycode="VK_RIGHT" modifiers="alt"
+  <key id="key_moveAttachmentBundleDown" keycode="VK_DOWN" modifiers="alt"
        command="cmd_moveAttachmentBundleDown"/>
 #ifdef XP_MACOSX
   <key id="key_moveAttachmentTop" keycode="VK_UP" modifiers="accel alt"
@@ -567,29 +549,29 @@
        consumeoutsideclicks="false"
        noautohide="true">
   <description class="panelTitle">&reorderAttachmentsPanel.label;</description>
-  <toolbarbutton id="btn_moveAttachmentTop"
+  <toolbarbutton id="btn_moveAttachmentFirst"
                  class="panelButton"
-                 label="&moveAttachmentTopPanelBtn.label;"
+                 data-l10n-id="move-attachment-first-panel-button"
                  key="key_moveAttachmentTop"
                  command="cmd_moveAttachmentTop"/>
-  <toolbarbutton id="btn_moveAttachmentUp"
+  <toolbarbutton id="btn_moveAttachmentLeft"
                  class="panelButton"
-                 label="&moveAttachmentUpPanelBtn.label;"
-                 key="key_moveAttachmentUp"
-                 command="cmd_moveAttachmentUp"/>
+                 data-l10n-id="move-attachment-left-panel-button"
+                 key="key_moveAttachmentLeft"
+                 command="cmd_moveAttachmentLeft"/>
   <toolbarbutton id="btn_moveAttachmentBundleUp"
                  class="panelButton"
                  label="&moveAttachmentBundleUpPanelBtn.label;"
                  key="key_moveAttachmentBundleUp"
                  command="cmd_moveAttachmentBundleUp"/>
-  <toolbarbutton id="btn_moveAttachmentDown"
+  <toolbarbutton id="btn_moveAttachmentRight"
                  class="panelButton"
-                 label="&moveAttachmentDownPanelBtn.label;"
-                 key="key_moveAttachmentDown"
-                 command="cmd_moveAttachmentDown"/>
-  <toolbarbutton id="btn_moveAttachmentBottom"
+                 data-l10n-id="move-attachment-right-panel-button"
+                 key="key_moveAttachmentRight"
+                 command="cmd_moveAttachmentRight"/>
+  <toolbarbutton id="btn_moveAttachmentLast"
                  class="panelButton"
-                 label="&moveAttachmentBottomPanelBtn.label;"
+                 data-l10n-id="move-attachment-last-panel-button"
                  key="key_moveAttachmentBottom"
                  command="cmd_moveAttachmentBottom"/>
   <toolbarbutton id="btn_sortAttachmentsToggle"
@@ -724,8 +706,8 @@
             command="cmd_selectAll"/>
   <menuseparator/>
   <menuitem id="attachmentListContext_attachFileItem"
-            label="&attachFile.label;"
-            accesskey="&attachFile.accesskey;"
+            data-l10n-id="context-menuitem-attach-files"
+            data-l10n-attrs="acceltext"
             command="cmd_attachFile"/>
   <menu id="attachmentListContext_attachCloudMenu"
         label="&attachCloud.label;"
@@ -857,7 +839,7 @@
 #endif
            context="toolbar-context-menu" mode="full">
 
-     <toolbaritem id="menubar-items" align="center">
+    <toolbaritem id="menubar-items" align="center">
       <menubar id="mail-menubar">
       <menu id="menu_File" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
         <menupopup id="menu_FilePopup">
@@ -865,8 +847,8 @@
                 label="&newMenu.label;" accesskey="&newMenu.accesskey;">
             <menupopup id="menu_NewPopup">
               <menuitem id="menu_NewMessage" class="menuitem-iconic"
-                        label="&newMessage.label;" accesskey="&newMessage.accesskey;"
-                        key="key_newMessage2" oncommand="goOpenNewMessage(event);"/>
+                        label="&newMessage.label;" accesskey="&newMenu.accesskey;"
+                        key="key_newMessage" oncommand="goOpenNewMessage(event);"/>
               <menuseparator/>
               <menuitem id="menu_NewContact" label="&newContact.label;"
                         accesskey="&newContact.accesskey;" class="menuitem-iconic"
@@ -875,8 +857,9 @@
           </menu>
           <menu id="menu_Attach" label="&attachMenu.label;" accesskey="&attachMenu.accesskey;">
             <menupopup id="menu_AttachPopup" onpopupshowing="updateAttachmentItems();">
-              <menuitem label="&attachFileCmd.label;" accesskey="&attachFileCmd.accesskey;"
-                        key="key_attachFile" command="cmd_attachFile"/>
+              <menuitem data-l10n-id="menuitem-attach-files"
+                        data-l10n-attrs="acceltext"
+                        command="cmd_attachFile"/>
               <menu label="&attachCloudCmd.label;" accesskey="&attachCloudCmd.accesskey;"
                     command="cmd_attachCloud">
                 <menupopup onpopupshowing="if (event.target == this) { addAttachCloudMenuItems(this); }"/>
@@ -1089,10 +1072,9 @@
                     key="key_addressSidebar"
                     oncommand="toggleAddressPicker();"/>
           <menuitem id="menu_toggleAttachmentPane"
-                    label="&toggleAttachmentPaneCmd.label;"
-                    accesskey="&toggleAttachmentPaneCmd.accesskey;"
+                    data-l10n-id="menuitem-toggle-attachment-pane"
+                    data-l10n-attrs="acceltext"
                     type="checkbox"
-                    key="key_toggleAttachmentPane"
                     command="cmd_toggleAttachmentPane"/>
           <menuseparator id="viewMenuBeforeSecurityStatusSeparator"/>
           <menuitem id="menu_viewSecurityStatus"
@@ -1877,18 +1859,14 @@
                oncommand="toggleAddressPicker();"/>
 
     <toolbarbutton is="toolbarbutton-menu-button" id="button-attach"
+                   data-l10n-id="toolbar-button-add-attachment"
                    type="menu-button"
                    class="toolbarbutton-1"
-                   label="&attachButton.label;"
-                   tooltiptext="&attachButton.tooltip2;"
-                   command="cmd_attachFile"
-                   ondragover="envelopeDragObserver.onDragOver(event);"
-                   ondrop="envelopeDragObserver.onDrop(event);"
-                   ondragexit="envelopeDragObserver.onDragExit(event);">
+                   command="cmd_attachFile">
       <menupopup id="button-attachPopup" onpopupshowing="updateAttachmentItems();">
         <menuitem id="button-attachPopup_attachFileItem"
-                  label="&attachFileCmd.label;"
-                  accesskey="&attachFileCmd.accesskey;"
+                  data-l10n-id="menuitem-attach-files"
+                  data-l10n-attrs="acceltext"
                   command="cmd_attachFile"/>
         <menu id="button-attachPopup_attachCloudMenu"
               label="&attachCloudCmd.label;"
@@ -2453,56 +2431,6 @@
                 </hbox>
               </hbox>
             </vbox>
-            <splitter id="attachmentbucket-sizer"
-                      collapsed="true"
-                      collapse="after"
-                      onmouseup="attachmentBucketSizerOnMouseUp();"/>
-            <vbox id="attachments-box" collapsed="true" persist="width">
-              <hbox id="attachments-header-box"
-                    align="stretch"
-                    tooltiptext="&attachmentBucketCloseButton.tooltip;"
-                    onclick="attachmentBucketHeaderOnClick(event);"
-                    context="attachmentHeaderContext">
-                <hbox id="attachmentBucketCountBox"
-                      align="center"
-                      context="msgComposeAttachmentListContext">
-                  <label id="attachmentBucketCount"
-                         flex="1" crop="end"/>
-                </hbox>
-                <toolbarspring/>
-                <hbox id="attachmentBucketSizeBox"
-                      align="center"
-                      context="msgComposeAttachmentListContext">
-                  <label id="attachmentBucketSize"/>
-                </hbox>
-                <toolbarbutton id="attachmentBucketCloseButton"
-                               class="ab-closebutton close-icon"
-                               tooltiptext="&attachmentBucketCloseButton.tooltip;"
-                               context=""
-                               oncommand="attachmentBucketCloseButtonOnCommand();"/>
-              </hbox>
-              <richlistbox is="attachment-list" id="attachmentBucket"
-                           aria-describedby="attachmentBucketCount"
-                           class="attachmentList"
-                           orient="vertical"
-                           tooltiptext=""
-                           disableonsend="true"
-                           seltype="multiple"
-                           flex="1"
-                           height="0"
-                           role="listbox"
-                           context="msgComposeAttachmentListContext"
-                           itemcontext="msgComposeAttachmentItemContext"
-                           onclick="attachmentBucketOnClick(event);"
-                           onkeypress="attachmentBucketOnKeyPress(event);"
-                           onselect="attachmentBucketOnSelect();"
-                           ondragstart="attachmentBucketDNDObserver.onDragStart(event);"
-                           onblur="attachmentBucketOnBlur();"/>
-            </vbox>
-            <vbox id="attachments-placeholder-box"
-                  hidden="true"
-                  tooltiptext=""
-                  onclick="goDoCommand('cmd_toggleAttachmentPane')"/>
           </hbox>
         </toolbar>
 
@@ -2526,7 +2454,29 @@
     so that WebExtension content scripts are not loaded here in the moments
     before navigation to about:blank?compose occurs.
   -->
-      <vbox id="appcontent" flex="1">
+      <vbox id="appcontent" flex="1"
+            ondragover="envelopeDragObserver.onDragOver(event);"
+            ondrop="envelopeDragObserver.onDrop(event);"
+            ondragexit="envelopeDragObserver.onDragExit(event);">
+        <html:div id="dropAttachmentOverlay" class="drop-attachment-overlay">
+          <html:aside id="addAsAttachment"
+                      class="drop-attachment-box"
+                      ondragenter="addHighlightDropBox(this);"
+                      ondragexit="removeHighlightDropBox(this);">
+            <html:span id="addAsAttachmentLabel"
+                       data-l10n-id="drop-file-label-attachment"
+                       data-l10n-args='{"count": 1}'
+                       class="drop-as-attachment"></html:span>
+          </html:aside>
+          <html:aside id="addInline" class="drop-attachment-box"
+                      ondragenter="addHighlightDropBox(this);"
+                      ondragexit="removeHighlightDropBox(this);">
+            <html:span id="addInlineLabel"
+                       data-l10n-id="drop-file-label-inline"
+                       data-l10n-args='{"count": 1}'
+                       class="drop-inline"></html:span>
+          </html:aside>
+        </html:div>
         <editor id="content-frame"
                 type="content"
                 primary="true"
@@ -2540,6 +2490,44 @@
                 context="msgComposeContext"
                 onclick="deselectAllPills();"/>
         <findbar id="FindToolbar" browserid="content-frame"/>
+      </vbox>
+
+      <splitter id="attachmentbucket-sizer" collapsed="true" orient="vertical"
+                onmouseup="attachmentBucketSizerOnMouseUp();"/>
+
+      <vbox id="attachmentView" collapsed="true">
+        <hbox id="attachmentToolbar" align="center"
+              onclick="onToggleAttachmentPane(event);">
+          <hbox id="attachmentInfo" align="center">
+            <label id="newAttachmentIndicator"/>
+            <image id="attachmentToggle"/>
+            <label id="attachmentBucketCount" crop="end"/>
+            <label id="attachmentBucketSize"/>
+          </hbox>
+
+          <spacer flex="1"/>
+        </hbox>
+
+        <vbox id="attachmentsBox" collapsed="true"
+              ondragover="envelopeDragObserver.onDragOver(event);"
+              ondrop="envelopeDragObserver.onDrop(event);"
+              ondragexit="envelopeDragObserver.onDragExit(event);">
+          <richlistbox is="attachment-list" id="attachmentBucket"
+                       aria-describedby="attachmentBucketCount"
+                       class="attachmentList"
+                       orient="horizontal"
+                       disableonsend="true"
+                       seltype="multiple"
+                       flex="1"
+                       role="listbox"
+                       context="msgComposeAttachmentListContext"
+                       itemcontext="msgComposeAttachmentItemContext"
+                       onclick="attachmentBucketOnClick(event);"
+                       onkeypress="attachmentBucketOnKeyPress(event);"
+                       onselect="attachmentBucketOnSelect();"
+                       ondragstart="attachmentBucketDNDObserver.onDragStart(event);"
+                       onblur="attachmentBucketOnBlur();"/>
+        </vbox>
       </vbox>
     </vbox>
   </hbox>

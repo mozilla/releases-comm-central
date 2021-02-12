@@ -11,10 +11,6 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#attachments-box[empty] > #attachmentBucket:focus {
-  box-shadow: 0 0 2px Highlight inset, 0 0 2px Highlight inset;
-}
-
 #compose-toolbox {
   background-color: var(--toolbar-bgcolor);
   border-bottom: 1px solid var(--chrome-content-separator-color);
@@ -81,23 +77,6 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
 }
 
 /* ::::: special toolbar colors ::::: */
-
-#attachmentbucket-sizer {
-  appearance: none;
-}
-
-#attachments-header-box {
-  min-height: 28px;
-}
-
-#attachmentBucketSize {
-  color: GrayText;
-  padding-inline-end: 2px;
-}
-
-#attachmentBucketCloseButton {
-  padding: 0 1px;
-}
 
 #subjectLabel {
   margin-bottom: 0;

@@ -1594,8 +1594,23 @@
       textContainer.appendChild(spacer);
       textContainer.appendChild(sizeLabel);
 
+      let dropIndicatorBefore = document.createElement("img");
+      dropIndicatorBefore.setAttribute(
+        "src",
+        "chrome://messenger/skin/icons/tab-drag-indicator.svg"
+      );
+      dropIndicatorBefore.classList.add("attach-drop-indicator", "before");
+      let dropIndicatorAfter = document.createElement("img");
+      dropIndicatorAfter.setAttribute(
+        "src",
+        "chrome://messenger/skin/icons/tab-drag-indicator.svg"
+      );
+      dropIndicatorAfter.classList.add("attach-drop-indicator", "after");
+
+      itemContainer.appendChild(dropIndicatorBefore);
       itemContainer.appendChild(iconContainer);
       itemContainer.appendChild(textContainer);
+      itemContainer.appendChild(dropIndicatorAfter);
       item.appendChild(itemContainer);
 
       let imageSize = this.sizes[this.getAttribute("view")] || 16;
@@ -2748,8 +2763,13 @@
           break;
 
         case "a":
-          if (!(event.ctrlKey || event.metaKey) || event.repeat) {
-            // Bail out if it's not Ctrl+A or Cmd+A or if repeated keypress.
+          if (
+            !(event.ctrlKey || event.metaKey) ||
+            event.repeat ||
+            event.shiftKey
+          ) {
+            // Bail out if it's not Ctrl+A or Cmd+A, if the Shift key is
+            // pressed, or if repeated keypress.
             break;
           }
           if (

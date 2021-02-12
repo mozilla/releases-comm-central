@@ -377,37 +377,6 @@ function check_attachment_names(aController, aNames) {
 }
 
 /**
- * Execute a test of opening and closing reorderAttachmentsPanel via keyboard.
- *
- * @param aCwc        The controller for the compose window
- * @param aActions    An array of objects specifying an action of opening the
- *                    panel via keyboard.
- *                    { focusEl: the element to be focused for keypresses
- *                      key:     keycode of key to press
- *                      key_modifiers: { accelKey: bool, ctrlKey: bool
- *                                       shiftKey: bool, altKey: bool, etc. },
- *                    }
- */
-function subtest_reordering_panel_keyboard(aCwc, aActions) {
-  let panel = aCwc.e("reorderAttachmentsPanel");
-
-  for (let action of aActions) {
-    action.focusEl.focus();
-    EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc.window);
-    wait_for_popup_to_open(panel);
-    aCwc.sleep(0);
-
-    // Press ESC which should close the panel.
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, aCwc.window);
-    aCwc.sleep(0);
-    aCwc.waitFor(
-      () => panel.state == "closed",
-      "Reordering panel didn't close when Escape was pressed."
-    );
-  }
-}
-
-/**
  * Execute a test of attachment reordering actions and check the resulting order.
  *
  * @param aCwc              The controller for the compose window
@@ -521,21 +490,6 @@ add_task(function test_attachment_reordering() {
     "Reordering panel didn't close when editor was clicked."
   );
 
-  // Show 'Reorder Attachments' panel via keyboard.
-  // key_reorderAttachments, Bug 1427037
-  // const openPanelActions = [
-  //   { focusEl: editorEl,
-  //     key: "x",
-  //     key_modifiers: openReorderPanelModifiers },
-  //   { focusEl: bucket,
-  //     key: "x",
-  //     key_modifiers: openReorderPanelModifiers },
-  // ];
-
-  // XXX this doesn't work on any platform yet, ESC doesn't close the panel.
-  // Execute test of opening 'Reorder Attachments' panel via keyboard.
-  // subtest_reordering_panel_keyboard(cwc, openPanelActions);
-
   // Clean up for a new set of attachments.
   cwc.window.RemoveAllAttachments();
 
@@ -550,22 +504,22 @@ add_task(function test_attachment_reordering() {
     },
     {
       select: [4],
-      button: "btn_moveAttachmentUp",
+      button: "btn_moveAttachmentLeft",
       result: ["a", "b", "B", "bb", "C", "x"],
     },
     {
       select: [5],
-      button: "btn_moveAttachmentTop",
+      button: "btn_moveAttachmentFirst",
       result: ["x", "a", "b", "B", "bb", "C"],
     },
     {
       select: [0],
-      button: "btn_moveAttachmentDown",
+      button: "btn_moveAttachmentRight",
       result: ["a", "x", "b", "B", "bb", "C"],
     },
     {
       select: [1],
-      button: "btn_moveAttachmentBottom",
+      button: "btn_moveAttachmentLast",
       result: ["a", "b", "B", "bb", "C", "x"],
     },
     {
@@ -597,22 +551,22 @@ add_task(function test_attachment_reordering() {
     // For starters: moving a single attachment around in the list.
     {
       select: [1],
-      button: "btn_moveAttachmentUp",
+      button: "btn_moveAttachmentLeft",
       result: ["x", "a", "C", "y1", "y2", "B", "b", "z", "bb"],
     },
     {
       select: [0],
-      button: "btn_moveAttachmentBottom",
+      button: "btn_moveAttachmentLast",
       result: ["a", "C", "y1", "y2", "B", "b", "z", "bb", "x"],
     },
     {
       select: [8],
-      button: "btn_moveAttachmentTop",
+      button: "btn_moveAttachmentFirst",
       result: ["x", "a", "C", "y1", "y2", "B", "b", "z", "bb"],
     },
     {
       select: [0],
-      button: "btn_moveAttachmentDown",
+      button: "btn_moveAttachmentRight",
       result: ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"],
     },
 
@@ -624,56 +578,56 @@ add_task(function test_attachment_reordering() {
     // {description1.txt, photo1.jpg, description2.txt, photo2.txt}.
     {
       select: [1, 3, 4, 7],
-      button: "btn_moveAttachmentDown",
+      button: "btn_moveAttachmentRight",
       result: ["a", "C", "x", "B", "y1", "y2", "b", "bb", "z"],
     },
     {
       select: [2, 4, 5, 8],
-      button: "btn_moveAttachmentUp",
+      button: "btn_moveAttachmentLeft",
       result: ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"],
     },
     {
       select: [1, 3, 4, 7],
-      button: "btn_moveAttachmentUp",
+      button: "btn_moveAttachmentLeft",
       result: ["x", "a", "y1", "y2", "C", "B", "z", "b", "bb"],
     },
 
     // Folding multiple, disjunct selection with inner block towards top/bottom.
     {
       select: [0, 2, 3, 6],
-      button: "btn_moveAttachmentUp",
+      button: "btn_moveAttachmentLeft",
       result: ["x", "y1", "y2", "a", "C", "z", "B", "b", "bb"],
     },
     {
       select: [0, 1, 2, 5],
-      button: "btn_moveAttachmentUp",
+      button: "btn_moveAttachmentLeft",
       result: ["x", "y1", "y2", "a", "z", "C", "B", "b", "bb"],
     },
     {
       select: [0, 1, 2, 4],
-      button: "btn_moveAttachmentUp",
+      button: "btn_moveAttachmentLeft",
       result: ["x", "y1", "y2", "z", "a", "C", "B", "b", "bb"],
     },
     {
       select: [3, 5, 6, 8],
-      button: "btn_moveAttachmentDown",
+      button: "btn_moveAttachmentRight",
       result: ["x", "y1", "y2", "a", "z", "b", "C", "B", "bb"],
     },
     {
       select: [4, 6, 7, 8],
-      button: "btn_moveAttachmentDown",
+      button: "btn_moveAttachmentRight",
       result: ["x", "y1", "y2", "a", "b", "z", "C", "B", "bb"],
     },
 
     // Prepare scenario for and test 'Group together' (upwards).
     {
       select: [1, 2],
-      button: "btn_moveAttachmentDown",
+      button: "btn_moveAttachmentRight",
       result: ["x", "a", "y1", "y2", "b", "z", "C", "B", "bb"],
     },
     {
       select: [0, 2, 3, 5],
-      button: "btn_moveAttachmentDown",
+      button: "btn_moveAttachmentRight",
       result: ["a", "x", "b", "y1", "y2", "C", "z", "B", "bb"],
     },
     {
@@ -725,12 +679,12 @@ add_task(function test_attachment_reordering() {
     // Collapsing multiple, disjunct selection with inner block to top/bottom.
     {
       select: [3, 5, 6, 8],
-      button: "btn_moveAttachmentTop",
+      button: "btn_moveAttachmentFirst",
       result: ["x", "bb", "B", "a", "z", "y2", "y1", "C", "b"],
     },
     {
       select: [0, 2, 3, 7],
-      button: "btn_moveAttachmentBottom",
+      button: "btn_moveAttachmentLast",
       result: ["bb", "z", "y2", "y1", "b", "x", "B", "a", "C"],
     },
   ];
@@ -756,8 +710,8 @@ add_task(function test_attachment_reordering() {
     // For starters: moving a single attachment around in the list.
     {
       select: [1],
-      // key_moveAttachmentUp
-      key: "VK_UP",
+      // key_moveAttachmentLeft
+      key: "VK_LEFT",
       key_modifiers: modAlt,
       result: ["x", "a", "C", "y1", "y2", "B", "b", "z", "bb"],
     },
@@ -791,8 +745,8 @@ add_task(function test_attachment_reordering() {
     },
     {
       select: [0],
-      // key_moveAttachmentDown
-      key: "VK_DOWN",
+      // key_moveAttachmentRight
+      key: "VK_RIGHT",
       key_modifiers: modAlt,
       result: ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"],
     },
@@ -805,22 +759,22 @@ add_task(function test_attachment_reordering() {
     // {description1.txt, photo1.jpg, description2.txt, photo2.txt}.
     {
       select: [1, 3, 4, 7],
-      // key_moveAttachmentDown
-      key: "VK_DOWN",
+      // key_moveAttachmentRight
+      key: "VK_RIGHT",
       key_modifiers: modAlt,
       result: ["a", "C", "x", "B", "y1", "y2", "b", "bb", "z"],
     },
     {
       select: [2, 4, 5, 8],
-      // key_moveAttachmentUp
-      key: "VK_UP",
+      // key_moveAttachmentLeft
+      key: "VK_LEFT",
       key_modifiers: modAlt,
       result: ["a", "x", "C", "y1", "y2", "B", "b", "z", "bb"],
     },
     {
       select: [1, 3, 4, 7],
-      // key_moveAttachmentUp
-      key: "VK_UP",
+      // key_moveAttachmentLeft
+      key: "VK_LEFT",
       key_modifiers: modAlt,
       result: ["x", "a", "y1", "y2", "C", "B", "z", "b", "bb"],
     },
@@ -828,36 +782,36 @@ add_task(function test_attachment_reordering() {
     // Folding multiple, disjunct selection with inner block towards top/bottom.
     {
       select: [0, 2, 3, 6],
-      // key_moveAttachmentUp
-      key: "VK_UP",
+      // key_moveAttachmentLeft
+      key: "VK_LEFT",
       key_modifiers: modAlt,
       result: ["x", "y1", "y2", "a", "C", "z", "B", "b", "bb"],
     },
     {
       select: [0, 1, 2, 5],
-      // key_moveAttachmentUp
-      key: "VK_UP",
+      // key_moveAttachmentLeft
+      key: "VK_LEFT",
       key_modifiers: modAlt,
       result: ["x", "y1", "y2", "a", "z", "C", "B", "b", "bb"],
     },
     {
       select: [0, 1, 2, 4],
-      // key_moveAttachmentUp
-      key: "VK_UP",
+      // key_moveAttachmentLeft
+      key: "VK_LEFT",
       key_modifiers: modAlt,
       result: ["x", "y1", "y2", "z", "a", "C", "B", "b", "bb"],
     },
     {
       select: [3, 5, 6, 8],
-      // key_moveAttachmentDown
-      key: "VK_DOWN",
+      // key_moveAttachmentRight
+      key: "VK_RIGHT",
       key_modifiers: modAlt,
       result: ["x", "y1", "y2", "a", "z", "b", "C", "B", "bb"],
     },
     {
       select: [4, 6, 7, 8],
-      // key_moveAttachmentDown
-      key: "VK_DOWN",
+      // key_moveAttachmentRight
+      key: "VK_RIGHT",
       key_modifiers: modAlt,
       result: ["x", "y1", "y2", "a", "b", "z", "C", "B", "bb"],
     },
@@ -865,36 +819,36 @@ add_task(function test_attachment_reordering() {
     // Prepare scenario for and test 'Group together' (upwards/downwards).
     {
       select: [1, 2],
-      // key_moveAttachmentDown
-      key: "VK_DOWN",
+      // key_moveAttachmentRight
+      key: "VK_RIGHT",
       key_modifiers: modAlt,
       result: ["x", "a", "y1", "y2", "b", "z", "C", "B", "bb"],
     },
     {
       select: [0, 2, 3, 5],
-      // key_moveAttachmentDown
-      key: "VK_DOWN",
+      // key_moveAttachmentRight
+      key: "VK_RIGHT",
       key_modifiers: modAlt,
       result: ["a", "x", "b", "y1", "y2", "C", "z", "B", "bb"],
     },
     {
       select: [1, 3, 4, 6],
       // key_moveAttachmentBundleUp
-      key: "VK_LEFT",
+      key: "VK_UP",
       key_modifiers: modAlt,
       result: ["a", "x", "y1", "y2", "z", "b", "C", "B", "bb"],
     },
     {
       select: [5, 6],
-      // key_moveAttachmentUp
-      key: "VK_UP",
+      // key_moveAttachmentLeft
+      key: "VK_LEFT",
       key_modifiers: modAlt,
       result: ["a", "x", "y1", "y2", "b", "C", "z", "B", "bb"],
     },
     {
       select: [0, 4, 5, 7],
       // key_moveAttachmentBundleDown
-      key: "VK_RIGHT",
+      key: "VK_DOWN",
       key_modifiers: modAlt,
       result: ["x", "y1", "y2", "z", "a", "b", "C", "B", "bb"],
     },

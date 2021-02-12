@@ -21,10 +21,6 @@
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
-#attachments-box[empty] > #attachmentBucket:focus {
-  box-shadow: 0 0 1.5px 1px -moz-mac-focusring inset;
-}
-
 #compose-toolbox toolbarbutton[checked="true"] {
   background-color: transparent;
 }
@@ -122,25 +118,6 @@ toolbar[nowindowdrag="true"] {
 
 :root[lwt-tree] #msgIdentityPopup > menuitem {
   padding-block: 5px;
-}
-
-#attachments-header-box {
-  min-height: 28px;
-}
-
-#attachmentBucketCount {
-  padding-top: 2px;
-}
-
-#attachmentBucketSize {
-  padding-top: 2px;
-  padding-inline-end: 2px;
-  color: #999;
-}
-
-#attachmentBucketCloseButton {
-  padding: 0 1px;
-  margin-top: 1px;
 }
 
 /* ::::: attachment reminder ::::: */

@@ -192,13 +192,14 @@
 }
 
 #attachmentbucket-sizer {
+  appearance: none;
+  border-width: 0;
+  min-height: 0;
+  height: 5px;
+  margin-top: -5px;
   position: relative;
   z-index: 10;
-  min-width: 0;
-  width: 5px;
-  margin-inline-end: -4px;
-  border-inline-end-width: 0;
-  border-inline-start: 1px solid var(--splitter-color);
+  border-bottom: 1px solid var(--splitter-color);
   background-color: transparent;
 }
 
@@ -207,33 +208,173 @@
   cursor: default;
 }
 
+#attachmentsBox:empty {
+  border: 4px solid red;
+}
+
+#attachmentsBox:not([collapsed="true"]) {
+  min-height: 24px;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
 #attachmentBucket {
   appearance: none;
   border-top: 1px solid var(--splitter-color); /* The same color as the splitters */
   border-bottom: 1px solid var(--splitter-color);
-  width: 15em;
-  min-width: 15em;
   padding: 1px;
+  background-color: Field;
+  color: FieldText;
 }
 
-#attachmentBucket[orient="vertical"] .attachmentItem {
-  width: 100%;
+#attachmentView {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  text-shadow: none;
 }
 
-#attachments-box[collapsed="true"]:not([empty="true"]) + #attachments-placeholder-box {
-  display: -moz-box;
-  width: 32px;
-  background: url("chrome://messenger/skin/icons/attach.svg") center / 32px no-repeat;
+:root[lwt-tree] #attachmentView,
+:root[lwt-tree] #attachmentBucket {
+  background-color: var(--toolbar-bgcolor) !important;
+  background-image: none !important;
+  color: var(--toolbar-color);
+}
+
+#attachmentToolbar {
+  margin: 6px 3px;
+}
+
+#attachmentInfo label {
+  margin-block: 0;
+}
+
+#newAttachmentIndicator {
+  color: HighlightText;
+  background-color: Highlight;
+  font-size: 0.85em;
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-weight: 600;
+  position: absolute;
+  z-index: 9;
+  margin-inline-end: -29px;
+  opacity: 0;
+}
+
+.is_animating {
+  animation: new-attachment 1s steps(30) 1;
+}
+
+@keyframes new-attachment {
+  0% {
+    opacity: 0;
+    margin-top: 0;
+  }
+  50% {
+    opacity: 1;
+    margin-top: -50px;
+  }
+  100% {
+    opacity: 0;
+    margin-top: -100px;
+  }
+}
+
+#attachmentToggle {
+  margin-inline: 3px;
+  background-color: transparent;
+  color: inherit;
+  list-style-image: url("chrome://global/skin/icons/twisty-expanded.svg");
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 1;
+}
+
+#attachmentToggle.closed {
+  list-style-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
+}
+
+#attachmentToggle:-moz-locale-dir(rtl) {
+  list-style-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+}
+
+#attachmentBucketSize {
+  color: HighlightText;
+  background-color: Highlight;
+  font-size: 0.85em;
+  padding: 2px 5px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.drop-attachment-overlay {
+  position: fixed;
+  z-index: 12; /* above the attachment bucket splitter */
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  inset: 0;
+  display: none;
+  justify-content: space-around;
+}
+
+:root[lwt-tree-brighttext] .drop-attachment-overlay {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.drop-attachment-overlay.show {
+  display: flex;
+}
+
+.drop-attachment-box {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+  margin: 21px;
+  border-radius: 15px;
+  border: 4px dashed #333;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drop-attachment-box span {
   -moz-context-properties: fill;
   fill: currentColor;
+  background-size: contain;
+  padding-inline-start: 21px;
 }
 
-#attachments-box[collapsed="true"]:not([empty="true"]) + #attachments-placeholder-box:hover {
-  background-color: var(--toolbarbutton-hover-background);
+.drop-attachment-box .drop-as-attachment {
+  background: url("chrome://messenger/skin/icons/attach.svg") left center no-repeat;
 }
 
-#attachments-box[collapsed="true"]:not([empty="true"]) + #attachments-placeholder-box:hover:active {
-  background-color: var(--toolbarbutton-active-background);
+.drop-attachment-box .drop-inline {
+  background: url("chrome://messenger/skin/icons/image.svg") left center no-repeat;
+}
+
+:root[lwt-tree-brighttext] .drop-attachment-box:not(.hover) {
+  color: #999;
+  border-color: #999;
+}
+
+.drop-attachment-box.hidden {
+  display: none;
+}
+
+.drop-attachment-box.hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+.add-attachment-label {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  background: url("chrome://messenger/skin/icons/attach.svg") left center no-repeat;
+  background-size: contain;
+  padding-inline-start: 25px;
 }
 
 #compose-toolbox > toolbar {
@@ -258,6 +399,10 @@
   border-bottom: 1px solid var(--tabs-border-color, transparent);
 }
 
+#composeToolbar2 {
+  padding-inline: 3px;
+}
+
 #composeContentBox {
   /*
   * In order to remove the shadow border on left/right edges elegantly,
@@ -270,6 +415,7 @@
 
 #appcontent {
   border-top: 1px solid var(--splitter-color);
+  position: relative;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -436,20 +582,20 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   --arrowpanel-padding: 4px;
 }
 
-#btn_moveAttachmentTop {
-  list-style-image: url("chrome://messenger/skin/icons/move-top.svg");
+#btn_moveAttachmentFirst {
+  list-style-image: url("chrome://messenger/skin/icons/move-first.svg");
 }
 
-#btn_moveAttachmentUp {
-  list-style-image: url("chrome://messenger/skin/icons/move-up.svg");
+#btn_moveAttachmentLeft {
+  list-style-image: url("chrome://messenger/skin/icons/move-left.svg");
 }
 
-#btn_moveAttachmentDown {
-  list-style-image: url("chrome://messenger/skin/icons/move-down.svg");
+#btn_moveAttachmentRight {
+  list-style-image: url("chrome://messenger/skin/icons/move-right.svg");
 }
 
-#btn_moveAttachmentBottom {
-  list-style-image: url("chrome://messenger/skin/icons/move-bottom.svg");
+#btn_moveAttachmentLast {
+  list-style-image: url("chrome://messenger/skin/icons/move-last.svg");
 }
 
 #btn_moveAttachmentBundleUp {

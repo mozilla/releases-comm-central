@@ -613,8 +613,9 @@ function addressInputOnBeforeHandleKeyDown(event) {
 
   switch (event.key) {
     case "a":
-      // Select all the pills if the input is empty.
-      if ((event.ctrlKey || event.metaKey) && !input.value) {
+      // Select all the pills if the input is empty and the SHIFT key wasn't
+      // pressed, to not interfere with global compose shortcuts.
+      if ((event.ctrlKey || event.metaKey) && !input.value && !event.shiftKey) {
         // Prevent a pill keypress event when the focus moves on it.
         event.preventDefault();
 

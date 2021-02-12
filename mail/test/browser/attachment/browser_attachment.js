@@ -586,14 +586,19 @@ add_task(function test_attachments_compose_menu() {
     }
   }
 
-  // Click on a portion of the attachmentBucket that will focus it, but not
-  // bring up the file picker
+  // Click on a portion of the attachmentBucket to focus on it. The last
+  // attachment should be selected since we don't handle any action on an empty
+  // bucket, and we always ensure that the last attached file is visible.
   force_focus("attachmentBucket");
+
   Assert.equal(
-    "Remove Attachments",
+    "Remove Attachment",
     cwc.e("cmd_delete").getAttribute("label"),
-    "attachmentBucket is focused!"
+    "attachmentBucket with last attachment is focused!"
   );
+
+  // We opened a message with 2 attachments, so index 1 should be focused.
+  Assert.equal(attachment.selectedIndex, 1, "Last attachment is focused!");
 
   // Select 1 attachment, and
   // focus the subject to see the label change and to execute isCommandEnabled

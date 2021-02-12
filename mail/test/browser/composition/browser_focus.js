@@ -45,18 +45,26 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
 
   // We start on the addressing widget and go from there.
 
+  // From To to Subject.
   EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
   Assert.equal(subjectElement, controller.window.WhichElementHasFocus());
+
+  // From Subject to Message Body.
+  EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
+  Assert.equal(editorElement, controller.window.WhichElementHasFocus());
+
+  // From Message Body to Attachment bucket if visible.
   if (attachmentsExpanded) {
     EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
     Assert.equal(attachmentElement, controller.window.WhichElementHasFocus());
   }
-  EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
-  Assert.equal(editorElement, controller.window.WhichElementHasFocus());
+
+  // From Message Body (or Attachment bucket) to From.
   EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
   Assert.equal(identityElement, controller.window.WhichElementHasFocus());
+
+  // From From to the first available Addressing field.
   EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
-  mc.sleep(0); // Focusing the addressing element happens in a timeout...
   Assert.equal(addressingElement, controller.window.WhichElementHasFocus());
 
   EventUtils.synthesizeKey(
@@ -65,26 +73,28 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
     controller.window
   );
 
+  // Handle possible interaction with the Extra Recipients labels.
   if (ctrlTab) {
     Assert.equal(
       extraRecipientsLabel,
       controller.window.WhichElementHasFocus()
     );
+
+    // From Extra Recipients to Bcc.
     EventUtils.synthesizeKey(key, { shiftKey: true }, controller.window);
     Assert.equal(bccLabel, controller.window.WhichElementHasFocus());
+
+    // From Bcc to Cc.
     EventUtils.synthesizeKey(key, { shiftKey: true }, controller.window);
     Assert.equal(ccLabel, controller.window.WhichElementHasFocus());
 
     EventUtils.synthesizeKey(key, { shiftKey: true }, controller.window);
   }
 
+  // From a visible Addressing field (or extra recipient label) to From.
   Assert.equal(identityElement, controller.window.WhichElementHasFocus());
-  EventUtils.synthesizeKey(
-    key,
-    { ctrlKey: ctrlTab, shiftKey: true },
-    controller.window
-  );
-  Assert.equal(editorElement, controller.window.WhichElementHasFocus());
+
+  // From From to Attachment bucket if visible.
   if (attachmentsExpanded) {
     EventUtils.synthesizeKey(
       key,
@@ -93,18 +103,29 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
     );
     Assert.equal(attachmentElement, controller.window.WhichElementHasFocus());
   }
+
+  // From From (or Attachment bucket) to Message Body.
+  EventUtils.synthesizeKey(
+    key,
+    { ctrlKey: ctrlTab, shiftKey: true },
+    controller.window
+  );
+  Assert.equal(editorElement, controller.window.WhichElementHasFocus());
+
+  // From Message Body to Subject.
   EventUtils.synthesizeKey(
     key,
     { ctrlKey: ctrlTab, shiftKey: true },
     controller.window
   );
   Assert.equal(subjectElement, controller.window.WhichElementHasFocus());
+
+  // From Subject to the first available Addressing field.
   EventUtils.synthesizeKey(
     key,
     { ctrlKey: ctrlTab, shiftKey: true },
     controller.window
   );
-  mc.sleep(0); // Focusing the addressing element happens in a timeout...
   Assert.equal(addressingElement, controller.window.WhichElementHasFocus());
 
   // Reset the preferences.

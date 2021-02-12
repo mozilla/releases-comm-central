@@ -11,10 +11,6 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#attachments-box[empty] > #attachmentBucket:focus {
-  box-shadow: 0 0 1px Highlight inset, 0 0 1px Highlight inset;
-}
-
 /* ::::: special toolbar colors ::::: */
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
@@ -258,15 +254,6 @@ toolbar:not(:-moz-lwtheme) {
 
 .findbar-container {
   padding-block: 2px;
-}
-
-#attachments-header-box {
-  min-height: 26px;
-}
-
-#attachmentBucketSize {
-  padding-inline-end: 2px;
-  color: GrayText;
 }
 
 #compose-toolbar-sizer {

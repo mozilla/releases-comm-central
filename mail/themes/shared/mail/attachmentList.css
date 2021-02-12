@@ -38,12 +38,25 @@
   outline: none;
 }
 
-#attachmentBucket .attachmentItem[dropOn="top"] {
-  border-top-color: Highlight;
+/* Hide the drop indicator for the message pane attachment list. */
+#attachmentList .attachmentItem .attach-drop-indicator {
+  display: none !important;
 }
 
-#attachmentBucket .attachmentItem[dropOn="bottom"] {
-  border-bottom-color: Highlight;
+#attachmentBucket .attachmentItem .attach-drop-indicator {
+  position: absolute;
+  z-index: 3;
+  display: none;
+  margin: -6px -6px -4px;
+  transform: scale(0.8);
+}
+
+#attachmentBucket .attachmentItem[dropOn="before"] .attach-drop-indicator.before {
+  display: inline;
+}
+
+#attachmentBucket .attachmentItem[dropOn="after"] .attach-drop-indicator.after {
+  display: inline;
 }
 
 .attachmentList[seltype="multiple"]:focus
