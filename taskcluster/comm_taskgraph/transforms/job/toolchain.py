@@ -191,7 +191,18 @@ def docker_macos_sdk_fetch(config, job, taskdesc):
     upload_dir = "{workdir}/artifacts".format(**run)
 
     attributes = taskdesc.setdefault("attributes", {})
-    sdk_task_id = taskcluster.find_task_id(attributes["gecko_index"])
+    # Level 1 builds can use level 2 & 3 toolchains if available
+    sdk_task_id = None
+    for level in reversed(range(int(config.params["level"]), 4)):
+        gecko_index = attributes["gecko_index"].format(level=level)
+        try:
+            sdk_task_id = taskcluster.find_task_id(gecko_index)
+            break
+        except KeyError:
+            continue
+    if sdk_task_id is None:
+        raise KeyError("toolchain index path {} not found".format(gecko_index))
+
     # Sets the MOZ_FETCHES environment variable with the task id and artifact
     # path of the gecko artifact. This bypasses the usual setup done in
     # taskgraph/transforms/job/__init__.py.

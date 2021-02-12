@@ -3,24 +3,40 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
 
-macosx64-sdk-11.0:
-    description: "MacOSX11.0 SDK"
+job-defaults:
     attributes:
         artifact_prefix: project/comm/mac-sdk
-        gecko_index: gecko.cache.level-3.toolchains.v3.macosx64-sdk-11.0.latest
-        gecko_artifact_path: project/gecko/mac-sdk/MacOSX11.0.sdk.tar.zst
     treeherder:
-        symbol: TM(sdk11)
         kind: build
         platform: toolchains/opt
         tier: 1
+    run-on-projects: []
     worker-type: b-linux
     worker:
         max-run-time: 1800
     run:
         using: macos-sdk-fetch
-        toolchain-artifact: project/comm/mac-sdk/MacOSX11.0.sdk.tar.zst
     scopes:
         - queue:get-artifact:project/gecko/mac-sdk/*
     # Expiry similar to that of fetches
     expires-after: 1000 years
+
+macosx64-sdk-10.12:
+    description: "MacOSX10.12 SDK"
+    attributes:
+        gecko_index: gecko.cache.level-{level}.toolchains.v3.macosx64-sdk-10.12.latest
+        gecko_artifact_path: project/gecko/mac-sdk/MacOSX10.12.sdk.tar.zst
+    treeherder:
+        symbol: TM(sdk10.12)
+    run:
+        toolchain-artifact: project/comm/mac-sdk/MacOSX10.12.sdk.tar.zst
+
+macosx64-sdk-11.0:
+    description: "MacOSX11.0 SDK"
+    attributes:
+        gecko_index: gecko.cache.level-{level}.toolchains.v3.macosx64-sdk-11.0.latest
+        gecko_artifact_path: project/gecko/mac-sdk/MacOSX11.0.sdk.tar.zst
+    treeherder:
+        symbol: TM(sdk11)
+    run:
+        toolchain-artifact: project/comm/mac-sdk/MacOSX11.0.sdk.tar.zst
