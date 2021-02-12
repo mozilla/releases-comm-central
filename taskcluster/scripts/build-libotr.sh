@@ -44,10 +44,6 @@ _OS_CONFIGURE_FLAGS="" # May be overridden per target OS
 _BASE_MAKE_FLAGS="-j$(nproc)"
 _OS_MAKE_FLAGS="" # May be overridden per target OS
 
-# Download the macOS SDK when building for macOS
-if [[ -n "$TOOLTOOL_MANIFEST" ]]; then
-    source "${GECKO_PATH}/taskcluster/scripts/misc/tooltool-download.sh"
-fi
 
 function clang_cfg() {
     # autotools and friends seem to work better with Clang if the compiler
