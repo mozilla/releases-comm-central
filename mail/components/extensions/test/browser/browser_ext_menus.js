@@ -258,7 +258,7 @@ add_task(async function set_up() {
 
   gAccount = createAccount();
   addIdentity(gAccount);
-  gFolders = [...gAccount.incomingServer.rootFolder.subFolders];
+  gFolders = gAccount.incomingServer.rootFolder.subFolders;
   createMessages(gFolders[0], {
     count: 1,
     body: {

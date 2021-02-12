@@ -11,14 +11,7 @@ const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.
 
 function GetSubFoldersInFolderPaneOrder(folder)
 {
-  var subFolders = folder.subFolders;
-  var msgFolders = Array();
-
-  // get all the subfolders
-  while (subFolders.hasMoreElements()) {
-    msgFolders[msgFolders.length] =
-      subFolders.getNext().QueryInterface(Ci.nsIMsgFolder);
-  }
+  var msgFolders = folder.subFolders;
 
   function compareFolderSortKey(folder1, folder2) {
     return folder1.compareSortKeys(folder2);

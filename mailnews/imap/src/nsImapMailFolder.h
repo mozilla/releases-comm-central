@@ -221,7 +221,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_DECL_ISUPPORTS_INHERITED
 
   // nsIMsgFolder methods:
-  NS_IMETHOD GetSubFolders(nsISimpleEnumerator** aResult) override;
+  NS_IMETHOD GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) override;
 
   NS_IMETHOD UpdateFolder(nsIMsgWindow* aWindow) override;
 

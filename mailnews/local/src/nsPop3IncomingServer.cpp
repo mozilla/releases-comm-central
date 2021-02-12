@@ -116,41 +116,36 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal) {
           // think Sent Mail could end up here, but if any folders have
           // messages, might as well copy them to the real Local Folders
           // account.
-          nsCOMPtr<nsISimpleEnumerator> enumerator;
-          rv = hiddenRootFolder->GetSubFolders(getter_AddRefs(enumerator));
+          nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+          rv = hiddenRootFolder->GetSubFolders(subFolders);
           if (NS_SUCCEEDED(rv)) {
-            bool hasMore;
-            while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) &&
-                   hasMore) {
-              nsCOMPtr<nsISupports> item;
-              enumerator->GetNext(getter_AddRefs(item));
-              nsCOMPtr<nsIMsgFolder> subFolder(do_QueryInterface(item));
-              if (subFolder) {
-                nsCOMPtr<nsIMsgDatabase> subFolderDB;
-                subFolder->GetMsgDatabase(getter_AddRefs(subFolderDB));
-                if (subFolderDB) {
-                  // Copy any messages in this sub-folder of the hidden
-                  // account to the corresponding folder in Local Folders.
-                  nsTArray<nsMsgKey> keys;
-                  rv = subFolderDB->ListAllKeys(keys);
-                  if (NS_FAILED(rv)) {
-                    continue;  // Next subfolder.
-                  }
-                  nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToCopy;
-                  MsgGetHeadersFromKeys2(subFolderDB, keys, hdrsToCopy);
-                  if (!hdrsToCopy.IsEmpty()) {
-                    // Look for a folder with the same name in Local Folders.
-                    nsCOMPtr<nsIMsgFolder> dest;
-                    nsString folderName;
-                    subFolder->GetName(folderName);
-                    localFoldersRoot->GetChildNamed(folderName,
-                                                    getter_AddRefs(dest));
-                    if (dest)
-                      dest->CopyMessages(subFolder, hdrsToCopy, false, nullptr,
-                                         nullptr, false, false);
-                    // Should we copy the folder if the dest doesn't exist?
-                  }
+            for (nsIMsgFolder* subFolder : subFolders) {
+              nsCOMPtr<nsIMsgDatabase> subFolderDB;
+              subFolder->GetMsgDatabase(getter_AddRefs(subFolderDB));
+              if (!subFolderDB) {
+                continue;
+              }
+              // Copy any messages in this sub-folder of the hidden
+              // account to the corresponding folder in Local Folders.
+              nsTArray<nsMsgKey> keys;
+              rv = subFolderDB->ListAllKeys(keys);
+              if (NS_FAILED(rv)) {
+                continue;  // Next subfolder.
+              }
+              nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToCopy;
+              MsgGetHeadersFromKeys2(subFolderDB, keys, hdrsToCopy);
+              if (!hdrsToCopy.IsEmpty()) {
+                // Look for a folder with the same name in Local Folders.
+                nsCOMPtr<nsIMsgFolder> dest;
+                nsString folderName;
+                subFolder->GetName(folderName);
+                localFoldersRoot->GetChildNamed(folderName,
+                                                getter_AddRefs(dest));
+                if (dest) {
+                  dest->CopyMessages(subFolder, hdrsToCopy, false, nullptr,
+                                     nullptr, false, false);
                 }
+                // Should we copy the folder if the dest doesn't exist?
               }
             }
           }

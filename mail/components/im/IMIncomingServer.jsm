@@ -4,9 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["IMIncomingServer"];
 
-var { EmptyEnumerator } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 function IMIncomingServer() {}
@@ -327,7 +324,7 @@ IMIncomingServer.prototype = {
       getFolderWithFlags: aFlags => null,
       getFoldersWithFlags: aFlags => [],
       get subFolders() {
-        return EmptyEnumerator;
+        return [];
       },
       getStringProperty: aPropertyName => "",
       getNumUnread: aDeep => 0,

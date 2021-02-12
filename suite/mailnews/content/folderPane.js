@@ -243,9 +243,9 @@ var gFolderTreeController = {
       return;
 
     // Delete any sub-folders this folder might have.
-    let iter = folder.subFolders;
-    while (iter.hasMoreElements())
-      folder.propagateDelete(iter.getNext(), true, msgWindow);
+    for (let f of folder.subFolders) {
+      folder.propagateDelete(f, true, msgWindow);
+    }
 
     // Now delete the messages.
     let messages = Array.from(fixIterator(folder.messages));

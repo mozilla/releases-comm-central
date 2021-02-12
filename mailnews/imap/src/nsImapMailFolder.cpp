@@ -514,7 +514,8 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::GetSubFolders(nsISimpleEnumerator** aResult) {
+NS_IMETHODIMP nsImapMailFolder::GetSubFolders(
+    nsTArray<RefPtr<nsIMsgFolder>>& folders) {
   bool isServer;
   nsresult rv = GetIsServer(&isServer);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -554,18 +555,20 @@ NS_IMETHODIMP nsImapMailFolder::GetSubFolders(nsISimpleEnumerator** aResult) {
       }
     }
 
-    int32_t count = mSubFolders.Count();
-    nsCOMPtr<nsISimpleEnumerator> dummy;
-    for (int32_t i = 0; i < count; i++)
-      mSubFolders[i]->GetSubFolders(getter_AddRefs(dummy));
+    // Force initialisation recursively.
+    for (nsIMsgFolder* f : mSubFolders) {
+      nsTArray<RefPtr<nsIMsgFolder>> dummy;
+      rv = f->GetSubFolders(dummy);
+      if (NS_FAILED(rv)) {
+        break;
+      }
+    }
 
     UpdateSummaryTotals(false);
     if (NS_FAILED(rv)) return rv;
   }
 
-  return aResult ? NS_NewArrayEnumerator(aResult, mSubFolders,
-                                         NS_GET_IID(nsIMsgFolder))
-                 : NS_ERROR_NULL_POINTER;
+  return nsMsgDBFolder::GetSubFolders(folders);
 }
 
 // Makes sure the database is open and exists.  If the database is valid then
@@ -1372,31 +1375,14 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow* aMsgWindow,
     // finish.
     NS_ENSURE_SUCCESS(rv, rv);
 
-    bool hasSubfolders = false;
-    rv = trashFolder->GetHasSubFolders(&hasSubfolders);
+    // Delete any subfolders under Trash.
+    nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+    rv = trashFolder->GetSubFolders(subFolders);
     NS_ENSURE_SUCCESS(rv, rv);
-    if (hasSubfolders) {
-      nsCOMPtr<nsISimpleEnumerator> enumerator;
-      nsCOMPtr<nsISupports> item;
-      nsCOMArray<nsIMsgFolder> array;
-
-      rv = trashFolder->GetSubFolders(getter_AddRefs(enumerator));
+    while (!subFolders.IsEmpty()) {
+      RefPtr<nsIMsgFolder> f = subFolders.PopLastElement();
+      rv = trashFolder->PropagateDelete(f, true, aMsgWindow);
       NS_ENSURE_SUCCESS(rv, rv);
-
-      bool hasMore;
-      while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-        rv = enumerator->GetNext(getter_AddRefs(item));
-        if (NS_SUCCEEDED(rv)) {
-          nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(item, &rv));
-          if (NS_SUCCEEDED(rv)) array.AppendObject(folder);
-        }
-      }
-      for (int32_t i = array.Count() - 1; i >= 0; i--) {
-        trashFolder->PropagateDelete(array[i], true, aMsgWindow);
-        // Remove the object, presumably to free it up before we delete the
-        // next.
-        array.RemoveObjectAt(i);
-      }
     }
 
     nsCOMPtr<nsIDBFolderInfo> transferInfo;
@@ -7162,35 +7148,29 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           // check if the source folder has children. If it does, list them
           // into m_srcChildFolders, and set m_destParents for the
           // corresponding indexes to the newly created folder.
-          nsCOMPtr<nsISimpleEnumerator> enumerator;
-          rv = m_curSrcFolder->GetSubFolders(getter_AddRefs(enumerator));
+          nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+          rv = m_curSrcFolder->GetSubFolders(subFolders);
           NS_ENSURE_SUCCESS(rv, rv);
-
-          nsCOMPtr<nsISupports> item;
-          bool hasMore = false;
           uint32_t childIndex = 0;
-          while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) &&
-                 hasMore) {
-            rv = enumerator->GetNext(getter_AddRefs(item));
-            nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(item, &rv));
-            if (NS_SUCCEEDED(rv)) {
-              m_srcChildFolders.InsertElementAt(m_childIndex + childIndex + 1,
-                                                folder);
-              m_destParents.InsertElementAt(m_childIndex + childIndex + 1,
-                                            newMsgFolder);
-            }
+          for (nsIMsgFolder* folder : subFolders) {
+            m_srcChildFolders.InsertElementAt(m_childIndex + childIndex + 1,
+                                              folder);
+            m_destParents.InsertElementAt(m_childIndex + childIndex + 1,
+                                          newMsgFolder);
             ++childIndex;
           }
 
+          nsCOMPtr<nsISimpleEnumerator> enumerator;
           rv = m_curSrcFolder->GetMessages(getter_AddRefs(enumerator));
           nsTArray<RefPtr<nsIMsgDBHdr>> msgArray;
-          hasMore = false;
+          bool hasMore = false;
 
           if (enumerator) rv = enumerator->HasMoreElements(&hasMore);
 
           if (!hasMore) return AdvanceToNextFolder(NS_OK);
 
           while (NS_SUCCEEDED(rv) && hasMore) {
+            nsCOMPtr<nsISupports> item;
             rv = enumerator->GetNext(getter_AddRefs(item));
             NS_ENSURE_SUCCESS(rv, rv);
             nsCOMPtr<nsIMsgDBHdr> hdr(do_QueryInterface(item, &rv));
@@ -7818,53 +7798,45 @@ NS_IMETHODIMP nsImapMailFolder::ResetNamespaceReferences() {
                                           hierarchyDelimiter, m_namespace)
                                     : false;
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  GetSubFolders(getter_AddRefs(enumerator));
-  if (!enumerator) return NS_OK;
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  nsresult rv = GetSubFolders(subFolders);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  nsresult rv;
-  bool hasMore;
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> item;
-    rv = enumerator->GetNext(getter_AddRefs(item));
-    if (NS_FAILED(rv)) break;
-
-    nsCOMPtr<nsIMsgImapMailFolder> folder(do_QueryInterface(item, &rv));
-    if (NS_FAILED(rv)) return rv;
-
-    folder->ResetNamespaceReferences();
+  for (nsIMsgFolder* f : subFolders) {
+    nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(f, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = imapFolder->ResetNamespaceReferences();
+    NS_ENSURE_SUCCESS(rv, rv);
   }
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailFolder::FindOnlineSubFolder(
     const nsACString& targetOnlineName, nsIMsgImapMailFolder** aResultFolder) {
+  *aResultFolder = nullptr;
   nsresult rv = NS_OK;
 
   nsCString onlineName;
   GetOnlineName(onlineName);
 
-  if (onlineName.Equals(targetOnlineName))
+  if (onlineName.Equals(targetOnlineName)) {
     return QueryInterface(NS_GET_IID(nsIMsgImapMailFolder),
                           (void**)aResultFolder);
-
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  GetSubFolders(getter_AddRefs(enumerator));
-  if (!enumerator) return NS_OK;
-
-  bool hasMore;
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> item;
-    rv = enumerator->GetNext(getter_AddRefs(item));
-    if (NS_FAILED(rv)) break;
-
-    nsCOMPtr<nsIMsgImapMailFolder> folder(do_QueryInterface(item, &rv));
-    if (NS_FAILED(rv)) return rv;
-
-    rv = folder->FindOnlineSubFolder(targetOnlineName, aResultFolder);
-    if (*aResultFolder) return rv;
   }
-  return rv;
+
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  rv = GetSubFolders(subFolders);
+  NS_ENSURE_SUCCESS(rv, rv);
+  for (nsIMsgFolder* f : subFolders) {
+    nsCOMPtr<nsIMsgImapMailFolder> imapFolder(do_QueryInterface(f, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = imapFolder->FindOnlineSubFolder(targetOnlineName, aResultFolder);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (*aResultFolder) {
+      return NS_OK;  // Found it!
+    }
+  }
+  return NS_OK;  // Not found.
 }
 
 NS_IMETHODIMP nsImapMailFolder::GetFolderNeedsAdded(bool* bVal) {
@@ -8060,20 +8032,13 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
 NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
                                                  nsIMsgFolder* oldFolder) {
   m_initialized = true;
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  nsresult rv = oldFolder->GetSubFolders(getter_AddRefs(enumerator));
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  nsresult rv = oldFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool hasMore;
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> item;
-    if (NS_FAILED(enumerator->GetNext(getter_AddRefs(item)))) continue;
-
-    nsCOMPtr<nsIMsgFolder> msgFolder(do_QueryInterface(item, &rv));
-    if (NS_FAILED(rv)) return rv;
-
+  for (nsIMsgFolder* msgFolder : subFolders) {
     nsCOMPtr<nsIMsgImapMailFolder> folder(do_QueryInterface(msgFolder, &rv));
-    if (NS_FAILED(rv)) return rv;
+    NS_ENSURE_SUCCESS(rv, rv);
 
     char hierarchyDelimiter = '/';
     folder->GetHierarchyDelimiter(&hierarchyDelimiter);

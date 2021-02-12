@@ -16,18 +16,11 @@ var { allAccountsSorted } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function GetSubFoldersInFolderPaneOrder(folder) {
-  var msgFolders = [];
-
-  // get all the subfolders
-  msgFolders = [...folder.subFolders];
-
   function compareFolderSortKey(folder1, folder2) {
     return folder1.compareSortKeys(folder2);
   }
-
   // sort the subfolders
-  msgFolders.sort(compareFolderSortKey);
-  return msgFolders;
+  return folder.subFolders.sort(compareFolderSortKey);
 }
 
 function FindNextChildFolder(aParent, aAfter) {

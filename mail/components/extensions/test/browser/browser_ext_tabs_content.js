@@ -140,7 +140,7 @@ add_task(async function testFirstTab() {
 
   let gAccount = createAccount();
   window.gFolderTreeView.selectFolder(
-    [...gAccount.incomingServer.rootFolder.subFolders][0]
+    gAccount.incomingServer.rootFolder.subFolders[0]
   );
   window.ClearMessagePane();
   return subTest(createTab, getBrowser, false);

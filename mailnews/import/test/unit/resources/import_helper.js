@@ -407,24 +407,17 @@ MailImportHelper.prototype = {
   interfaceType: Ci.nsIImportGeneric,
   _checkEqualFolder(expectedFolder, actualFolder) {
     Assert.equal(expectedFolder.leafName, actualFolder.name);
-    let expectedSubFolderCount = 0;
 
     let expectedSubFolders = [];
     for (let entry of expectedFolder.directoryEntries) {
       if (entry.isDirectory()) {
-        expectedSubFolderCount++;
         expectedSubFolders.push(entry);
       }
     }
-    Assert.equal(expectedSubFolderCount, actualFolder.numSubFolders);
-
-    let actualEnumerator = actualFolder.subFolders;
-    for (let i = 0; i < expectedSubFolderCount; i++) {
-      let expectedSubFolder = expectedSubFolders[i];
-      let actualSubFolder = actualEnumerator
-        .getNext()
-        .QueryInterface(Ci.nsIMsgFolder);
-      this._checkEqualFolder(expectedSubFolder, actualSubFolder);
+    let actualSubFolders = actualFolder.subFolders;
+    Assert.equal(expectedSubFolders.length, actualSubFolders.length);
+    for (let i = 0; i < expectedSubFolders.length; i++) {
+      this._checkEqualFolder(expectedSubFolders[i], actualSubFolders[i]);
     }
   },
 

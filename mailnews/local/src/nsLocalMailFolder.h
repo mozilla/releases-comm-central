@@ -106,7 +106,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
   NS_IMETHOD OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) override;
 
   // nsIMsgFolder methods:
-  NS_IMETHOD GetSubFolders(nsISimpleEnumerator** aResult) override;
+  NS_IMETHOD GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) override;
   NS_IMETHOD GetMsgDatabase(nsIMsgDatabase** aMsgDatabase) override;
 
   NS_IMETHOD OnAnnouncerGoingAway(nsIDBChangeAnnouncer* instigator) override;

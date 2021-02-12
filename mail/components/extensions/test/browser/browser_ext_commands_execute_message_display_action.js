@@ -142,7 +142,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
 add_task(async function prepare_test() {
   let account = createAccount();
   let rootFolder = account.incomingServer.rootFolder;
-  let subFolders = [...rootFolder.subFolders];
+  let subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
   gMessages = [...subFolders[0].messages];
 

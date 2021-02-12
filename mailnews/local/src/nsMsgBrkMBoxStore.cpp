@@ -469,8 +469,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
   rv = aSrcFolder->MatchOrChangeFilterDestination(newMsgFolder, true, &changed);
   if (changed) aSrcFolder->AlertFilterChanged(aMsgWindow);
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  rv = aSrcFolder->GetSubFolders(getter_AddRefs(enumerator));
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  rv = aSrcFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Copy subfolders to the new location
@@ -478,15 +478,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
   nsCOMPtr<nsIMsgLocalMailFolder> localNewFolder(
       do_QueryInterface(newMsgFolder, &rv));
   if (NS_SUCCEEDED(rv)) {
-    bool hasMore;
-    while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore &&
-           NS_SUCCEEDED(copyStatus)) {
-      nsCOMPtr<nsISupports> item;
-      enumerator->GetNext(getter_AddRefs(item));
-
-      nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(item));
-      if (!folder) continue;
-
+    for (nsIMsgFolder* folder : subFolders) {
       copyStatus =
           localNewFolder->CopyFolderLocal(folder, false, aMsgWindow, aListener);
       // Test if the call succeeded, if not we have to stop recursive call

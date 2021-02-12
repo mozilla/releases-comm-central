@@ -115,7 +115,7 @@ add_task(async () => {
   EventUtils.synthesizeMouseAtCenter(menuItem, {});
   await Promise.all([hiddenPromise, dialogPromise]);
 
-  let folder = [...rootFolder.subFolders].find(f => f.name == "Test Feed");
+  let folder = rootFolder.subFolders.find(f => f.name == "Test Feed");
   Assert.ok(folder);
 
   index = window.gFolderTreeView.getIndexOfFolder(folder);

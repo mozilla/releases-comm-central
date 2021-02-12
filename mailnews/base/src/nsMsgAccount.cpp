@@ -138,17 +138,11 @@ nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer* aIncomingServer) {
 
     // Force built-in folders to be created and discovered. Then, notify
     // listeners about them.
-    nsCOMPtr<nsISimpleEnumerator> enumerator;
-    rv = rootFolder->GetSubFolders(getter_AddRefs(enumerator));
+    nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+    rv = rootFolder->GetSubFolders(subFolders);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    bool hasMore;
-    while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-      nsCOMPtr<nsISupports> item;
-      enumerator->GetNext(getter_AddRefs(item));
-
-      nsCOMPtr<nsIMsgFolder> msgFolder(do_QueryInterface(item));
-      if (!msgFolder) continue;
+    for (nsIMsgFolder* msgFolder : subFolders) {
       mailSession->OnItemAdded(rootFolder, msgFolder);
       notifier->NotifyFolderAdded(msgFolder);
     }

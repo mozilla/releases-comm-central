@@ -180,12 +180,12 @@ add_task(async function test_accounts() {
   extension.sendMessage(account2.key, account2.incomingServer.prettyName);
 
   await extension.awaitMessage("create folders");
-  let inbox1 = [...account1.incomingServer.rootFolder.subFolders][0];
+  let inbox1 = account1.incomingServer.rootFolder.subFolders[0];
   // Test our code can handle characters that might be escaped.
   inbox1.createSubfolder("foo 'bar'(!)", null);
   inbox1.createSubfolder("Ϟ", null); // Test our code can handle unicode.
 
-  let inbox2 = [...account2.incomingServer.rootFolder.subFolders][0];
+  let inbox2 = account2.incomingServer.rootFolder.subFolders[0];
   inbox2.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter = "/";
   // Test our code can handle characters that might be escaped.
   inbox2.createSubfolder("foo 'bar'(!)", null);

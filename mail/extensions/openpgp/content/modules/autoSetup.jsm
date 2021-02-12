@@ -416,10 +416,8 @@ function getMsgFolders(folder, msgFolderArr) {
   }
 
   // add all subfolders
-  if (folder.hasSubFolders) {
-    for (let folder of folder.subFolders) {
-      getMsgFolders(folder, msgFolderArr);
-    }
+  for (let folder of folder.subFolders) {
+    getMsgFolders(folder, msgFolderArr);
   }
 }
 

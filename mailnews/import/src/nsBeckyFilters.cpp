@@ -609,26 +609,18 @@ nsresult nsBeckyFilters::FindMessageFolder(const nsAString& aName,
   nsCOMPtr<nsIMsgFolder> found;
   rv = aParentFolder->GetChildNamed(aName, getter_AddRefs(found));
   if (found) {
-    found.forget(_retval);
+    NS_ADDREF(*_retval = found);
     return NS_OK;
   }
 
-  nsCOMPtr<nsISimpleEnumerator> children;
-  rv = aParentFolder->GetSubFolders(getter_AddRefs(children));
+  nsTArray<RefPtr<nsIMsgFolder>> children;
+  rv = aParentFolder->GetSubFolders(children);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool more;
-  nsCOMPtr<nsISupports> entry;
-  while (NS_SUCCEEDED(children->HasMoreElements(&more)) && more) {
-    rv = children->GetNext(getter_AddRefs(entry));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgFolder> child = do_QueryInterface(entry, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+  for (nsIMsgFolder* child : children) {
     rv = FindMessageFolder(aName, child, getter_AddRefs(found));
     if (found) {
-      found.forget(_retval);
+      NS_ADDREF(*_retval = found);
       return NS_OK;
     }
   }

@@ -18,9 +18,6 @@
     getSpecialFolderString,
     getMostRecentFolders,
   } = ChromeUtils.import("resource:///modules/folderUtils.jsm");
-  const { fixIterator, toArray } = ChromeUtils.import(
-    "resource:///modules/iteratorUtils.jsm"
-  );
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
@@ -450,9 +447,7 @@
 
         // If we have a parent folder, just get the subFolders for that parent.
         if (parentFolder) {
-          folders = toArray(
-            fixIterator(parentFolder.subFolders, Ci.nsIMsgFolder)
-          );
+          folders = parentFolder.subFolders;
         } else {
           // If we don't have a parent, then we assume we should build the
           // top-level accounts. (Actually we build the fake root folders for

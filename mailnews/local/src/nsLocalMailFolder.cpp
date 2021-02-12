@@ -171,7 +171,7 @@ nsMsgLocalMailFolder::GetMsgDatabase(nsIMsgDatabase** aMsgDatabase) {
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::GetSubFolders(nsISimpleEnumerator** aResult) {
+nsMsgLocalMailFolder::GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) {
   if (!mInitialized) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     nsresult rv = GetServer(getter_AddRefs(server));
@@ -218,9 +218,7 @@ nsMsgLocalMailFolder::GetSubFolders(nsISimpleEnumerator** aResult) {
     UpdateSummaryTotals(false);
   }
 
-  return aResult ? NS_NewArrayEnumerator(aResult, mSubFolders,
-                                         NS_GET_IID(nsIMsgFolder))
-                 : NS_ERROR_NULL_POINTER;
+  return nsMsgDBFolder::GetSubFolders(folders);
 }
 
 nsresult nsMsgLocalMailFolder::GetDatabase() {
@@ -543,13 +541,13 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIMsgWindow* msgWindow,
     int32_t totalMessages = 0;
     rv = trashFolder->GetTotalMessages(true, &totalMessages);
     if (totalMessages <= 0) {
-      nsCOMPtr<nsISimpleEnumerator> enumerator;
-      rv = trashFolder->GetSubFolders(getter_AddRefs(enumerator));
-      NS_ENSURE_SUCCESS(rv, rv);
       // Any folders to deal with?
-      bool hasMore;
-      rv = enumerator->HasMoreElements(&hasMore);
-      if (NS_FAILED(rv) || !hasMore) return NS_OK;
+      nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+      rv = trashFolder->GetSubFolders(subFolders);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (subFolders.IsEmpty()) {
+        return NS_OK;
+      }
     }
     nsCOMPtr<nsIMsgFolder> parentFolder;
     rv = trashFolder->GetParent(getter_AddRefs(parentFolder));
@@ -755,8 +753,8 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsAString& aNewName,
     if (count > 0) newFolder->RenameSubFolders(msgWindow, this);
 
     // Discover the subfolders inside this folder (this is recursive)
-    nsCOMPtr<nsISimpleEnumerator> dummy;
-    newFolder->GetSubFolders(getter_AddRefs(dummy));
+    nsTArray<RefPtr<nsIMsgFolder>> dummy;
+    newFolder->GetSubFolders(dummy);
 
     // the newFolder should have the same flags
     newFolder->SetFlags(mFlags);
@@ -785,18 +783,11 @@ NS_IMETHODIMP nsMsgLocalMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
   oldFolder->GetFlags(&flags);
   SetFlags(flags);
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  rv = oldFolder->GetSubFolders(getter_AddRefs(enumerator));
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  rv = oldFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool hasMore;
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> item;
-    enumerator->GetNext(getter_AddRefs(item));
-
-    nsCOMPtr<nsIMsgFolder> msgFolder(do_QueryInterface(item));
-    if (!msgFolder) continue;
-
+  for (nsIMsgFolder* msgFolder : subFolders) {
     nsString folderName;
     rv = msgFolder->GetName(folderName);
     nsCOMPtr<nsIMsgFolder> newFolder;
@@ -1509,19 +1500,14 @@ nsresult  // copy the sub folders
 nsMsgLocalMailFolder::CopyAllSubFolders(nsIMsgFolder* srcFolder,
                                         nsIMsgWindow* msgWindow,
                                         nsIMsgCopyServiceListener* listener) {
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  nsresult rv = srcFolder->GetSubFolders(getter_AddRefs(enumerator));
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  nsresult rv = srcFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool hasMore;
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> item;
-    enumerator->GetNext(getter_AddRefs(item));
-
-    nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(item));
-    if (folder) CopyFolderAcrossServer(folder, msgWindow, listener);
+  for (nsIMsgFolder* folder : subFolders) {
+    CopyFolderAcrossServer(folder, msgWindow, listener);
   }
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP

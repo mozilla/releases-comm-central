@@ -190,7 +190,7 @@ nsresult nsMsgNewsFolder::AddDirectorySeparator(nsIFile* path) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetSubFolders(nsISimpleEnumerator** aResult) {
+nsMsgNewsFolder::GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) {
   if (!mInitialized) {
     // do this first, so we make sure to do it, even on failure.
     // see bug #70494
@@ -209,9 +209,7 @@ nsMsgNewsFolder::GetSubFolders(nsISimpleEnumerator** aResult) {
     (void)UpdateSummaryTotals(false);
   }
 
-  return aResult ? NS_NewArrayEnumerator(aResult, mSubFolders,
-                                         NS_GET_IID(nsIMsgFolder))
-                 : NS_ERROR_NULL_POINTER;
+  return nsMsgDBFolder::GetSubFolders(folders);
 }
 
 // Makes sure the database is open and exists.  If the database is valid then

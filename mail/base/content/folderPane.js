@@ -1373,7 +1373,7 @@ var gFolderTreeView = {
   },
 
   _subFoldersWithStringProperty(folder, folders, aFolderName, deep) {
-    for (let child of fixIterator(folder.subFolders, Ci.nsIMsgFolder)) {
+    for (let child of folder.subFolders) {
       // if the folder selection is based on a string property, use that
       if (aFolderName == getSmartFolderName(child)) {
         folders.push(child);
@@ -2613,7 +2613,7 @@ var gFolderTreeView = {
    * @param folders  the array to add the folders to.
    */
   addSubFolders(folder, folders) {
-    for (let f of fixIterator(folder.subFolders, Ci.nsIMsgFolder)) {
+    for (let f of folder.subFolders) {
       folders.push(f);
       this.addSubFolders(f, folders);
     }
@@ -3195,9 +3195,9 @@ FtvItem.prototype = {
   get children() {
     // We're caching our child list to save perf.
     if (!this._children) {
-      let iter;
+      let subFolders;
       try {
-        iter = fixIterator(this._folder.subFolders, Ci.nsIMsgFolder);
+        subFolders = this._folder.subFolders;
       } catch (ex) {
         Services.console.logStringMessage(
           "Discovering children for " +
@@ -3205,12 +3205,12 @@ FtvItem.prototype = {
             " failed with exception: " +
             ex
         );
-        iter = [];
+        subFolders = [];
       }
       this._children = [];
       // Out of all children, only keep those that match the _folderFilter
       // and those that contain such children.
-      for (let folder of iter) {
+      for (let folder of subFolders) {
         if (!this._folderFilter || this._folderFilter(folder)) {
           this._children.push(new FtvItem(folder, this._folderFilter));
         }
@@ -3878,13 +3878,11 @@ FtvSmartItem.prototype = {
     // We're caching our child list to save perf.
     if (!this._children) {
       this._children = [];
-      let iter = fixIterator(this._folder.subFolders, Ci.nsIMsgFolder);
-      for (let folder of iter) {
+      for (let folder of this._folder.subFolders) {
         if (!smartMode.isSmartFolder(folder)) {
           this._children.push(new FtvSmartItem(folder));
         } else if (folder.getFlag(Ci.nsMsgFolderFlags.Inbox)) {
-          let subIter = fixIterator(folder.subFolders, Ci.nsIMsgFolder);
-          for (let subfolder of subIter) {
+          for (let subfolder of folder.subFolders) {
             if (!smartMode.isSmartFolder(subfolder)) {
               this._children.push(new FtvSmartItem(subfolder));
             }

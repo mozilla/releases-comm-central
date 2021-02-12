@@ -7,7 +7,7 @@ let account, rootFolder, subFolders;
 add_task(async () => {
   account = createAccount();
   rootFolder = account.incomingServer.rootFolder;
-  subFolders = [...rootFolder.subFolders];
+  subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
 
   window.gFolderTreeView.selectFolder(rootFolder);

@@ -1474,25 +1474,16 @@ nsMsgAccountManager::CleanupOnExit() {
           if (isImap) urlListener = do_QueryInterface(accountManager, &rv);
 
           if (isImap && cleanupInboxOnExit) {
-            nsCOMPtr<nsISimpleEnumerator> enumerator;
-            rv = root->GetSubFolders(getter_AddRefs(enumerator));
+            nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+            rv = root->GetSubFolders(subFolders);
             if (NS_SUCCEEDED(rv)) {
-              bool hasMore;
-              while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) &&
-                     hasMore) {
-                nsCOMPtr<nsISupports> item;
-                enumerator->GetNext(getter_AddRefs(item));
-
-                nsCOMPtr<nsIMsgFolder> inboxFolder(do_QueryInterface(item));
-                if (!inboxFolder) continue;
-
+              for (nsIMsgFolder* folder : subFolders) {
                 uint32_t flags;
-                inboxFolder->GetFlags(&flags);
+                folder->GetFlags(&flags);
                 if (flags & nsMsgFolderFlags::Inbox) {
-                  rv = inboxFolder->Compact(urlListener,
-                                            nullptr /* msgwindow */);
+                  rv = folder->Compact(urlListener, nullptr /* msgwindow */);
                   if (NS_SUCCEEDED(rv))
-                    accountManager->SetFolderDoingCleanupInbox(inboxFolder);
+                    accountManager->SetFolderDoingCleanupInbox(folder);
                   break;
                 }
               }

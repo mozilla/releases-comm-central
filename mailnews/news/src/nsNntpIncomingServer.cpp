@@ -300,7 +300,6 @@ nsNntpIncomingServer::WriteNewsrcFile() {
                                                  newsrcFile, -1, 00600);
     if (NS_FAILED(rv)) return rv;
 
-    nsCOMPtr<nsISimpleEnumerator> subFolders;
     nsCOMPtr<nsIMsgFolder> rootFolder;
     rv = GetRootFolder(getter_AddRefs(rootFolder));
     if (NS_FAILED(rv)) return rv;
@@ -339,25 +338,18 @@ nsNntpIncomingServer::WriteNewsrcFile() {
     }
 #endif /* DEBUG_NEWS */
 
-    rv = rootFolder->GetSubFolders(getter_AddRefs(subFolders));
-    if (NS_FAILED(rv)) return rv;
-
-    bool moreFolders;
-
-    while (NS_SUCCEEDED(subFolders->HasMoreElements(&moreFolders)) &&
-           moreFolders) {
-      nsCOMPtr<nsISupports> child;
-      rv = subFolders->GetNext(getter_AddRefs(child));
-      if (NS_SUCCEEDED(rv) && child) {
-        newsFolder = do_QueryInterface(child, &rv);
-        if (NS_SUCCEEDED(rv) && newsFolder) {
-          nsCString newsrcLine;
-          rv = newsFolder->GetNewsrcLine(newsrcLine);
-          if (NS_SUCCEEDED(rv) && !newsrcLine.IsEmpty()) {
-            // write the line to the newsrc file
-            newsrcStream->Write(newsrcLine.get(), newsrcLine.Length(),
-                                &bytesWritten);
-          }
+    nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+    rv = rootFolder->GetSubFolders(subFolders);
+    NS_ENSURE_SUCCESS(rv, rv);
+    for (nsIMsgFolder* child : subFolders) {
+      newsFolder = do_QueryInterface(child, &rv);
+      if (NS_SUCCEEDED(rv) && newsFolder) {
+        nsCString newsrcLine;
+        rv = newsFolder->GetNewsrcLine(newsrcLine);
+        if (NS_SUCCEEDED(rv) && !newsrcLine.IsEmpty()) {
+          // write the line to the newsrc file
+          newsrcStream->Write(newsrcLine.get(), newsrcLine.Length(),
+                              &bytesWritten);
         }
       }
     }
@@ -638,17 +630,10 @@ nsresult nsNntpIncomingServer::DownloadMail(nsIMsgWindow* aMsgWindow) {
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> groups;
-  rv = rootFolder->GetSubFolders(getter_AddRefs(groups));
+  nsTArray<RefPtr<nsIMsgFolder>> groups;
+  rv = rootFolder->GetSubFolders(groups);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  bool hasNext;
-  while (NS_SUCCEEDED(rv = groups->HasMoreElements(&hasNext)) && hasNext) {
-    nsCOMPtr<nsISupports> nextGroup;
-    rv = groups->GetNext(getter_AddRefs(nextGroup));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgFolder> group(do_QueryInterface(nextGroup));
+  for (nsIMsgFolder* group : groups) {
     rv = group->GetNewMessages(aMsgWindow, nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
   }
@@ -714,8 +699,8 @@ nsNntpIncomingServer::ContainsNewsgroup(const nsACString& aName,
     nsCOMPtr<nsIMsgFolder> rootFolder;
     GetRootFolder(getter_AddRefs(rootFolder));
     if (rootFolder) {
-      nsCOMPtr<nsISimpleEnumerator> subfolders;
-      rootFolder->GetSubFolders(getter_AddRefs(subfolders));
+      nsTArray<RefPtr<nsIMsgFolder>> dummy;
+      rootFolder->GetSubFolders(dummy);
     }
   }
   nsAutoCString unescapedName;
@@ -1272,27 +1257,18 @@ nsNntpIncomingServer::ForgetPassword() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   // clear password of all child folders
-  nsCOMPtr<nsISimpleEnumerator> subFolders;
-
-  rv = rootFolder->GetSubFolders(getter_AddRefs(subFolders));
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  rv = rootFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool moreFolders = false;
-
   nsresult return_rv = NS_OK;
-
-  while (NS_SUCCEEDED(subFolders->HasMoreElements(&moreFolders)) &&
-         moreFolders) {
-    nsCOMPtr<nsISupports> child;
-    rv = subFolders->GetNext(getter_AddRefs(child));
-    if (NS_SUCCEEDED(rv) && child) {
-      newsFolder = do_QueryInterface(child, &rv);
-      if (NS_SUCCEEDED(rv) && newsFolder) {
-        rv = newsFolder->ForgetAuthenticationCredentials();
-        if (NS_FAILED(rv)) return_rv = rv;
-      } else {
-        return_rv = NS_ERROR_FAILURE;
-      }
+  for (nsIMsgFolder* child : subFolders) {
+    newsFolder = do_QueryInterface(child, &rv);
+    if (NS_SUCCEEDED(rv) && newsFolder) {
+      rv = newsFolder->ForgetAuthenticationCredentials();
+      if (NS_FAILED(rv)) return_rv = rv;
+    } else {
+      return_rv = NS_ERROR_FAILURE;
     }
   }
 
@@ -1921,28 +1897,21 @@ nsNntpIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
   rv = GetRootMsgFolder(getter_AddRefs(serverFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> subFolders;
-  rv = serverFolder->GetSubFolders(getter_AddRefs(subFolders));
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  rv = serverFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTArray<nsString> groupList;
-  nsString folderName;
-
   // Prepare the group list
-  bool hasMore;
-  while (NS_SUCCEEDED(subFolders->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> item;
-    subFolders->GetNext(getter_AddRefs(item));
-    nsCOMPtr<nsIMsgFolder> newsgroupFolder(do_QueryInterface(item));
-    if (!newsgroupFolder) continue;
-
+  nsTArray<nsString> groupList(subFolders.Length());
+  for (nsIMsgFolder* newsgroupFolder : subFolders) {
+    nsString folderName;
     rv = newsgroupFolder->GetName(folderName);
     NS_ENSURE_SUCCESS(rv, rv);
     groupList.AppendElement(folderName);
   }
 
   // If nothing subscribed then we're done.
-  if (groupList.Length() == 0) return NS_OK;
+  if (groupList.IsEmpty()) return NS_OK;
 
   // Now unsubscribe & subscribe.
   uint32_t i;

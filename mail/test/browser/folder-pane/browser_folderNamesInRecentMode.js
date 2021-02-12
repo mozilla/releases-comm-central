@@ -22,9 +22,6 @@ var {
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 add_task(function setupModule(module) {
   assert_folder_mode("all");
@@ -36,10 +33,7 @@ add_task(function test_folder_names_in_recent_view_mode() {
   // unmodified times, so that it does not influence the
   // list of Recent folders. So clear out the most-recently-used time.
   for (let acc of MailServices.accounts.accounts) {
-    for (let fld of fixIterator(
-      acc.incomingServer.rootFolder.subFolders,
-      Ci.nsIMsgFolder
-    )) {
+    for (let fld of acc.incomingServer.rootFolder.subFolders) {
       fld.setStringProperty("MRUTime", "0");
     }
   }

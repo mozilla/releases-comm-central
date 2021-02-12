@@ -2664,10 +2664,13 @@ typedef bool
 ////////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP
-nsMsgDBFolder::GetSubFolders(nsISimpleEnumerator** aResult) {
-  return aResult ? NS_NewArrayEnumerator(aResult, mSubFolders,
-                                         NS_GET_IID(nsIMsgFolder))
-                 : NS_ERROR_NULL_POINTER;
+nsMsgDBFolder::GetSubFolders(nsTArray<RefPtr<nsIMsgFolder>>& folders) {
+  folders.ClearAndRetainStorage();
+  folders.SetCapacity(mSubFolders.Length());
+  for (nsIMsgFolder* f : mSubFolders) {
+    folders.AppendElement(f);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -3113,18 +3116,17 @@ NS_IMETHODIMP nsMsgDBFolder::GetAbbreviatedName(nsAString& aAbbreviatedName) {
 NS_IMETHODIMP
 nsMsgDBFolder::GetChildNamed(const nsAString& aName, nsIMsgFolder** aChild) {
   NS_ENSURE_ARG_POINTER(aChild);
-  nsCOMPtr<nsISimpleEnumerator> dummy;
-  GetSubFolders(getter_AddRefs(dummy));  // initialize mSubFolders
+  nsTArray<RefPtr<nsIMsgFolder>> dummy;
+  GetSubFolders(dummy);  // initialize mSubFolders
   *aChild = nullptr;
-  int32_t count = mSubFolders.Count();
 
-  for (int32_t i = 0; i < count; i++) {
+  for (nsIMsgFolder* child : mSubFolders) {
     nsString folderName;
-    nsresult rv = mSubFolders[i]->GetName(folderName);
+    nsresult rv = child->GetName(folderName);
     // case-insensitive compare is probably LCD across OS filesystems
     if (NS_SUCCEEDED(rv) &&
         folderName.Equals(aName, nsCaseInsensitiveStringComparator)) {
-      NS_ADDREF(*aChild = mSubFolders[i]);
+      NS_ADDREF(*aChild = child);
       return NS_OK;
     }
   }
@@ -3140,34 +3142,27 @@ NS_IMETHODIMP nsMsgDBFolder::GetChildWithURI(const nsACString& uri, bool deep,
   NS_ENSURE_ARG_POINTER(child);
   // will return nullptr if we can't find it
   *child = nullptr;
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  nsresult rv = GetSubFolders(getter_AddRefs(enumerator));
-  if (NS_FAILED(rv)) return rv;
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  nsresult rv = GetSubFolders(subFolders);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  bool hasMore;
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> item;
-    enumerator->GetNext(getter_AddRefs(item));
+  for (nsIMsgFolder* folder : subFolders) {
+    nsCString folderURI;
+    rv = folder->GetURI(folderURI);
+    NS_ENSURE_SUCCESS(rv, rv);
+    bool equal =
+        (caseInsensitive
+             ? uri.Equals(folderURI, nsCaseInsensitiveCStringComparator)
+             : uri.Equals(folderURI));
+    if (equal) {
+      NS_ADDREF(*child = folder);
+      return NS_OK;
+    }
+    if (deep) {
+      rv = folder->GetChildWithURI(uri, deep, caseInsensitive, child);
+      if (NS_FAILED(rv)) return rv;
 
-    nsCOMPtr<nsIMsgFolder> folder(do_QueryInterface(item));
-    if (folder) {
-      nsCString folderURI;
-      rv = folder->GetURI(folderURI);
-      NS_ENSURE_SUCCESS(rv, rv);
-      bool equal =
-          (caseInsensitive
-               ? uri.Equals(folderURI, nsCaseInsensitiveCStringComparator)
-               : uri.Equals(folderURI));
-      if (equal) {
-        folder.forget(child);
-        return NS_OK;
-      }
-      if (deep) {
-        rv = folder->GetChildWithURI(uri, deep, caseInsensitive, child);
-        if (NS_FAILED(rv)) return rv;
-
-        if (*child) return NS_OK;
-      }
+      if (*child) return NS_OK;
     }
   }
   return NS_OK;
@@ -3415,18 +3410,11 @@ nsresult nsMsgDBFolder::CheckIfFolderExists(const nsAString& newFolderName,
                                             nsIMsgFolder* parentFolder,
                                             nsIMsgWindow* msgWindow) {
   NS_ENSURE_ARG_POINTER(parentFolder);
-  nsCOMPtr<nsISimpleEnumerator> subFolders;
-  nsresult rv = parentFolder->GetSubFolders(getter_AddRefs(subFolders));
+  nsTArray<RefPtr<nsIMsgFolder>> subFolders;
+  nsresult rv = parentFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool hasMore;
-  while (NS_SUCCEEDED(subFolders->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> item;
-    rv = subFolders->GetNext(getter_AddRefs(item));
-
-    nsCOMPtr<nsIMsgFolder> msgFolder(do_QueryInterface(item));
-    if (!msgFolder) break;
-
+  for (nsIMsgFolder* msgFolder : subFolders) {
     nsString folderName;
 
     msgFolder->GetName(folderName);
@@ -3955,8 +3943,8 @@ NS_IMETHODIMP nsMsgDBFolder::GetFolderWithFlags(uint32_t aFlags,
     return NS_OK;
   }
 
-  nsCOMPtr<nsISimpleEnumerator> dummy;
-  GetSubFolders(getter_AddRefs(dummy));  // initialize mSubFolders
+  nsTArray<RefPtr<nsIMsgFolder>> dummy;
+  GetSubFolders(dummy);  // initialize mSubFolders
 
   int32_t count = mSubFolders.Count();
   *aResult = nullptr;
@@ -3971,15 +3959,15 @@ NS_IMETHODIMP nsMsgDBFolder::GetFoldersWithFlags(
   aResult.Clear();
 
   // Ensure initialisation of mSubFolders.
-  nsCOMPtr<nsISimpleEnumerator> dummy;
-  GetSubFolders(getter_AddRefs(dummy));
+  nsTArray<RefPtr<nsIMsgFolder>> dummy;
+  GetSubFolders(dummy);
 
   if ((mFlags & aFlags) == aFlags) {
     aResult.AppendElement(this);
   }
 
   // Recurse down through children.
-  for (auto child : mSubFolders) {
+  for (nsIMsgFolder* child : mSubFolders) {
     nsTArray<RefPtr<nsIMsgFolder>> subMatches;
     child->GetFoldersWithFlags(aFlags, subMatches);
     aResult.AppendElements(subMatches);

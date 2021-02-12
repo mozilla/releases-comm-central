@@ -653,10 +653,10 @@ interface nsIMsgFolder : nsISupports {
   attribute nsMsgKey lastMessageLoaded;
 
   /**
-   * Returns an enumerator containing a list of nsIMsgFolder items that are
+   * Returns an array containing nsIMsgFolder items that are
    * subfolders of the instance this is called on.
    */
-  readonly attribute nsISimpleEnumerator subFolders;
+  readonly attribute Array<nsIMsgFolder> subFolders;
 
   /**
    * Returns true if this folder has sub folders.

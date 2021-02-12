@@ -710,8 +710,8 @@ bool nsImportGenericMail::CreateFolder(nsIMsgFolder** ppFolder) {
     if (localRootFolder) {
       // we need to call GetSubFolders() so that the folders get initialized
       // if they are not initialized yet.
-      nsCOMPtr<nsISimpleEnumerator> aEnumerator;
-      rv = localRootFolder->GetSubFolders(getter_AddRefs(aEnumerator));
+      nsTArray<RefPtr<nsIMsgFolder>> dummy;
+      rv = localRootFolder->GetSubFolders(dummy);
       if (NS_SUCCEEDED(rv)) {
         // check if the folder name we picked already exists.
         bool exists = false;
@@ -772,8 +772,8 @@ GetSubFoldersRunnable::GetSubFoldersRunnable(nsIMsgFolder* aFolder)
     : mozilla::Runnable("GetSubFoldersRunnable"), m_folder(aFolder) {}
 
 NS_IMETHODIMP GetSubFoldersRunnable::Run() {
-  nsCOMPtr<nsISimpleEnumerator> dummy;
-  mResult = m_folder->GetSubFolders(getter_AddRefs(dummy));
+  nsTArray<RefPtr<nsIMsgFolder>> dummy;
+  mResult = m_folder->GetSubFolders(dummy);
   return NS_OK;  // Sync runnable must return OK.
 }
 
