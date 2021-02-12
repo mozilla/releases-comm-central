@@ -1169,7 +1169,8 @@ function SocketUtil(
     socketTypeName,
     hostname,
     port,
-    proxy
+    proxy,
+    null
   );
 
   transport.setTimeout(Ci.nsISocketTransport.TIMEOUT_CONNECT, timeout);

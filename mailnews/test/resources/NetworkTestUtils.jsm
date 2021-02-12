@@ -170,7 +170,7 @@ SocksClient.prototype = {
     let sts = Cc["@mozilla.org/network/socket-transport-service;1"].getService(
       Ci.nsISocketTransportService
     );
-    let trans = sts.createTransport([], "localhost", foundPort, null);
+    let trans = sts.createTransport([], "localhost", foundPort, null, null);
     let tunnelInput = trans.openInputStream(0, 1024, 1024);
     let tunnelOutput = trans.openOutputStream(0, 1024, 1024);
     this.sub_transport = trans;

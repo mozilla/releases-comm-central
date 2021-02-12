@@ -975,12 +975,12 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo) {
   // NOTE: Some errors won't show up until the first read attempt (SSL bad
   // certificate errors, for example).
   rv = socketService->CreateTransport(connectionTypeArray, m_realHostName, port,
-                                      aProxyInfo, getter_AddRefs(m_transport));
+                                      aProxyInfo, nullptr, getter_AddRefs(m_transport));
   if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS) {
     connectionType = nullptr;
     m_socketType = nsMsgSocketType::plain;
     rv = socketService->CreateTransport(connectionTypeArray, m_realHostName,
-                                        port, aProxyInfo,
+                                        port, aProxyInfo, nullptr,
                                         getter_AddRefs(m_transport));
   }
 

@@ -132,7 +132,7 @@ nsresult nsMsgProtocol::OpenNetworkSocketWithInfo(
   if (connectionType) connectionTypeArray.AppendElement(connectionType);
   rv = socketService->CreateTransport(connectionTypeArray,
                                       nsDependentCString(aHostName), aGetPort,
-                                      aProxyInfo, getter_AddRefs(strans));
+                                      aProxyInfo, nullptr, getter_AddRefs(strans));
   if (NS_FAILED(rv)) return rv;
 
   strans->SetSecurityCallbacks(callbacks);
