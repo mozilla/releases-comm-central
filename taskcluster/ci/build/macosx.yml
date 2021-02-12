@@ -62,7 +62,6 @@ macosx64/opt:
     index:
         job-name: macosx64-opt
     attributes:
-        enable-build-signing: true
         enable-full-crashsymbols: true
     treeherder:
         platform: osx-cross/opt
@@ -76,7 +75,6 @@ macosx64/opt:
         config:
             - builds/taskcluster_base_thunderbird.py
             - builds/releng_base_mac_64_cross_builds.py
-    run-on-projects: ['comm-central']
     use-sccache: true
     fetches:
         toolchain:
