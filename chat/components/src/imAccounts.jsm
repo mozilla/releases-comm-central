@@ -6,7 +6,6 @@ var EXPORTED_SYMBOLS = ["AccountsService"];
 
 var {
   ClassInfo,
-  nsSimpleEnumerator,
   XPCOMUtils,
   setTimeout,
   clearTimeout,
@@ -1226,7 +1225,7 @@ AccountsService.prototype = {
     return this._accountsById[aAccountId];
   },
   getAccounts() {
-    return new nsSimpleEnumerator(this._accounts);
+    return this._accounts;
   },
 
   createAccount(aName, aPrpl) {

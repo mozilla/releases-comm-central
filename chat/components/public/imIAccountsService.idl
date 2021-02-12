@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsISimpleEnumerator.idl"
 #include "imIAccount.idl"
 
 [scriptable, uuid(b3b6459a-5c26-47b8-8e9c-ba838b6f632a)]
@@ -37,7 +36,7 @@ interface imIAccountsService: nsISupports {
   /* will throw NS_ERROR_FAILURE if not found */
   imIAccount getAccountByNumericId(in unsigned long aAccountId);
 
-  nsISimpleEnumerator getAccounts();
+  Array<imIAccount> getAccounts();
 
   /* will fire the event account-added */
   imIAccount createAccount(in AUTF8String aName, in AUTF8String aPrpl);
