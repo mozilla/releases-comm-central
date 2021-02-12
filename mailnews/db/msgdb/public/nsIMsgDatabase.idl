@@ -461,7 +461,6 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   // but it would have to be in nsMailDatabase, since local folders can be move destinations
   nsIMsgOfflineImapOperation GetOfflineOpForKey(in nsMsgKey messageKey, in boolean create);
   void  RemoveOfflineOp(in nsIMsgOfflineImapOperation op);
-  nsISimpleEnumerator EnumerateOfflineOps();
   [noscript] void ListAllOfflineOpIds(in nsMsgKeyArrayPtr offlineOpIds);
   [noscript] void ListAllOfflineDeletes(in nsMsgKeyArrayPtr offlineDeletes);
   Array<nsMsgKey> ListAllOfflineMsgs();

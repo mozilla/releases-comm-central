@@ -189,12 +189,6 @@ NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(
   return err;
 }
 
-NS_IMETHODIMP nsMailDatabase::EnumerateOfflineOps(
-    nsISimpleEnumerator** enumerator) {
-  NS_ASSERTION(false, "not impl yet");
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
     nsTArray<nsMsgKey>* offlineOpIds) {
   NS_ENSURE_ARG(offlineOpIds);

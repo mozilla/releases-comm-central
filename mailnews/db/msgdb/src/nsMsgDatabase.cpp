@@ -4400,12 +4400,6 @@ NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsTArray<nsMsgKey>& keys) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDatabase::EnumerateOfflineOps(
-    nsISimpleEnumerator** enumerator) {
-  NS_ASSERTION(false, "overridden by nsMailDatabase");
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 NS_IMETHODIMP nsMsgDatabase::ListAllOfflineOpIds(
     nsTArray<nsMsgKey>* offlineOpIds) {
   NS_ASSERTION(false, "overridden by nsMailDatabase");

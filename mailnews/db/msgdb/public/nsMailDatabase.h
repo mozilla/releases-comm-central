@@ -38,7 +38,6 @@ class nsMailDatabase : public nsMsgDatabase {
   NS_IMETHOD SetSummaryValid(bool valid) override;
   NS_IMETHOD GetSummaryValid(bool* valid) override;
 
-  NS_IMETHOD EnumerateOfflineOps(nsISimpleEnumerator** enumerator) override;
   NS_IMETHOD ListAllOfflineOpIds(nsTArray<nsMsgKey>* offlineOpIds) override;
   NS_IMETHOD ListAllOfflineDeletes(nsTArray<nsMsgKey>* offlineDeletes) override;
 
