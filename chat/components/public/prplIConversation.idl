@@ -4,7 +4,6 @@
 
 
 #include "nsISupports.idl"
-#include "nsISimpleEnumerator.idl"
 #include "nsIObserver.idl"
 
 interface prplIAccountBuddy;

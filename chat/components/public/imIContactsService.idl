@@ -6,7 +6,6 @@
 #include "imITagsService.idl"
 #include "nsISupports.idl"
 #include "nsIObserver.idl"
-#include "nsISimpleEnumerator.idl"
 
 interface imIContact;
 interface imIBuddy;
