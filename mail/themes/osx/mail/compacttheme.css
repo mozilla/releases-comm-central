@@ -4,21 +4,21 @@
 
 @import url("chrome://messenger/skin/shared/compacttheme.css");
 
-/* Get rid of 1px bright strip at the top of window */
-#messengerWindow[tabsintitlebar] #titlebar-content {
-  background: var(--lwt-accent-color);
+/**
+ * macOS vibrancy effects only work when there is no background colour behind
+ * the effect.
+ */
+#messengerWindow[tabsintitlebar]:-moz-lwtheme {
+  background-color: transparent;
 }
 
-#tabs-toolbar:-moz-lwtheme-brighttext {
+:root[tabsintitlebar] #tabs-toolbar:-moz-lwtheme-brighttext {
   appearance: auto;
   -moz-default-appearance: -moz-mac-vibrant-titlebar-dark;
   -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-dark;
-  background-color: #232323;
-  color: hsl(240, 9%, 98%);
-  text-shadow: none;
 }
 
-#tabs-toolbar:-moz-lwtheme-darktext {
+:root[tabsintitlebar] #tabs-toolbar:-moz-lwtheme-darktext {
   appearance: auto;
   -moz-default-appearance: -moz-mac-vibrant-titlebar-light;
   -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-light;
