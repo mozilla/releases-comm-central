@@ -696,7 +696,7 @@ add_task(function test_add_contact_from_context_menu() {
     throw new Error("addToAddressBookItem is hidden for unknown contact");
   }
   var editContactItem = mc.window.document.getElementById("editContactItem");
-  if (!editContactItem.getAttribute("hidden")) {
+  if (!editContactItem.hidden) {
     throw new Error("editContactItem is NOT hidden for unknown contact");
   }
 

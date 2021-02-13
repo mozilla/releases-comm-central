@@ -709,7 +709,7 @@ FolderDisplayWidget.prototype = {
               colChild.ordinal = colState.ordinal;
             }
           }
-          let isHidden = colChild.getAttribute("hidden") == "true";
+          let isHidden = colChild.hidden;
           if (isHidden != shouldBeHidden) {
             if (shouldBeHidden) {
               colChild.setAttribute("hidden", "true");
@@ -759,7 +759,7 @@ FolderDisplayWidget.prototype = {
         continue;
       }
       columnStates[colChild.id] = {
-        visible: colChild.getAttribute("hidden") != "true",
+        visible: !colChild.hidden,
         ordinal: colChild.ordinal,
       };
     }

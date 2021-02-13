@@ -243,19 +243,11 @@ function checkNotification(panel, checkIcon, permissions, warning = false) {
     `Permissions list has ${permissions.length} entries`
   );
   if (!permissions.length) {
-    is(header.getAttribute("hidden"), "true", "Permissions header is hidden");
-    is(
-      learnMoreLink.getAttribute("hidden"),
-      "true",
-      "Permissions learn more is hidden"
-    );
+    is(header.hidden, true, "Permissions header is hidden");
+    is(learnMoreLink.hidden, true, "Permissions learn more is hidden");
   } else {
-    is(header.getAttribute("hidden"), "", "Permissions header is visible");
-    is(
-      learnMoreLink.getAttribute("hidden"),
-      "",
-      "Permissions learn more is visible"
-    );
+    is(header.hidden, false, "Permissions header is visible");
+    is(learnMoreLink.hidden, false, "Permissions learn more is visible");
   }
 
   for (let i in permissions) {
@@ -269,17 +261,9 @@ function checkNotification(panel, checkIcon, permissions, warning = false) {
   }
 
   if (warning) {
-    is(
-      experimentWarning.getAttribute("hidden"),
-      "",
-      "Experiments warning is visible"
-    );
+    is(experimentWarning.hidden, false, "Experiments warning is visible");
   } else {
-    is(
-      experimentWarning.getAttribute("hidden"),
-      "true",
-      "Experiments warning is hidden"
-    );
+    is(experimentWarning.hidden, true, "Experiments warning is hidden");
   }
 }
 

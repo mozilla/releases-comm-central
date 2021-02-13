@@ -936,10 +936,7 @@ function GetCardViewBoxEmail1() {
 
 function IsDirPaneCollapsed() {
   var dirPaneBox = GetDirTree().parentNode;
-  return (
-    dirPaneBox.getAttribute("collapsed") == "true" ||
-    dirPaneBox.getAttribute("hidden") == "true"
-  );
+  return dirPaneBox.getAttribute("collapsed") == "true" || dirPaneBox.hidden;
 }
 
 function IsCardViewAndAbResultsPaneSplitterCollapsed() {

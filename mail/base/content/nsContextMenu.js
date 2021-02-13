@@ -590,19 +590,15 @@ class nsContextMenu {
     this.setSingleSelection("mailContext-editAsNew");
     this.setSingleSelection(
       "mailContext-editDraftMsg",
-      document.getElementById("cmd_editDraftMsg").getAttribute("hidden") !=
-        "true"
+      !document.getElementById("cmd_editDraftMsg").hidden
     );
     this.setSingleSelection(
       "mailContext-newMsgFromTemplate",
-      document
-        .getElementById("cmd_newMsgFromTemplate")
-        .getAttribute("hidden") != "true"
+      !document.getElementById("cmd_newMsgFromTemplate").hidden
     );
     this.setSingleSelection(
       "mailContext-editTemplateMsg",
-      document.getElementById("cmd_editTemplateMsg").getAttribute("hidden") !=
-        "true"
+      !document.getElementById("cmd_editTemplateMsg").hidden
     );
 
     this.showItem(
@@ -1266,7 +1262,7 @@ class nsContextMenu {
     if (separator) {
       var sibling = separator.previousElementSibling;
       while (sibling && sibling.localName != "menuseparator") {
-        if (sibling.getAttribute("hidden") != "true") {
+        if (!sibling.hidden) {
           return true;
         }
         sibling = sibling.previousElementSibling;
@@ -1283,7 +1279,7 @@ class nsContextMenu {
   checkLastSeparator(aPopup) {
     let sibling = aPopup.lastElementChild;
     while (sibling) {
-      if (sibling.getAttribute("hidden") != "true") {
+      if (!sibling.hidden) {
         if (sibling.localName == "menuseparator") {
           // If we got here then the item is a menuseparator and everything
           // below it hidden.

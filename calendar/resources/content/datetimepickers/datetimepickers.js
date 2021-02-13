@@ -594,7 +594,7 @@
       // If not, we need to do these corrections;
       let fiveMinuteBox = this.querySelector(".time-picker-five-minute-grid-box");
 
-      if (fiveMinuteBox.getAttribute("hidden") == "false") {
+      if (!fiveMinuteBox.hidden) {
         number *= 5;
         idPrefix = ".time-picker-five-minute-class";
 

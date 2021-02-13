@@ -640,7 +640,7 @@ function fillFolderPaneContextMenu(aEvent) {
     var separator = document.getElementById(aID);
     var sibling = separator.previousElementSibling;
     while (sibling) {
-      if (sibling.getAttribute("hidden") != "true") {
+      if (!sibling.hidden) {
         ShowMenuItem(
           aID,
           sibling.localName != "menuseparator" &&
@@ -680,10 +680,7 @@ function SetMenuItemLabel(id, label) {
 function hasAVisibleNextSibling(aNode) {
   var sibling = aNode.nextElementSibling;
   while (sibling) {
-    if (
-      sibling.getAttribute("hidden") != "true" &&
-      sibling.localName != "menuseparator"
-    ) {
+    if (!sibling.hidden && sibling.localName != "menuseparator") {
       return true;
     }
     sibling = sibling.nextElementSibling;

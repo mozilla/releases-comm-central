@@ -392,7 +392,7 @@ var PrintPreviewListener = {
 
 function sidebar_is_hidden() {
   let sidebar_box = document.getElementById("sidebar-box");
-  return sidebar_box.getAttribute("hidden") == "true";
+  return sidebar_box.hidden;
 }
 
 function sidebar_is_collapsed() {

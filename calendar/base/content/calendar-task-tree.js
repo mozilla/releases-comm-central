@@ -336,7 +336,7 @@
       const widths = columns.map(col => col.width || 0);
       const ordinals = columns.map(col => col.ordinal);
       const visibleColumns = columns
-        .filter(col => col.getAttribute("hidden") != "true")
+        .filter(col => !col.hidden)
         .map(col => col.getAttribute("itemproperty"));
 
       this.setAttribute("widths", widths.join(" "));

@@ -109,7 +109,7 @@ function get_visible_threadtree_columns() {
   let cols = mc.e("threadTree").columns;
   let visibleColumnIds = [];
   for (let col = cols.getFirstColumn(); col != null; col = col.getNext()) {
-    if (col.element.getAttribute("hidden") != "true") {
+    if (!col.element.hidden) {
       visibleColumnIds.push(col.id);
     }
   }
@@ -130,7 +130,7 @@ function assert_visible_columns(aDesiredColumns) {
   let visibleColumnIds = [];
   let failCol = null;
   for (let col = cols.getFirstColumn(); col != null; col = col.getNext()) {
-    if (col.element.getAttribute("hidden") != "true") {
+    if (!col.element.hidden) {
       visibleColumnIds.push(col.id);
       if (!failCol) {
         if (aDesiredColumns[iDesired] != col.id) {

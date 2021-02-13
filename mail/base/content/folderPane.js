@@ -326,8 +326,7 @@ var gFolderTreeView = {
           if (!aSetup) {
             // If user hides the columns store their visible state in a special attribute
             // that is persisted by XUL.
-            let state = column.getAttribute("hidden");
-            column.setAttribute("hiddeninactive", state);
+            column.setAttribute("hiddeninactive", column.hidden);
           }
           column.setAttribute("hidden", "true");
         }
