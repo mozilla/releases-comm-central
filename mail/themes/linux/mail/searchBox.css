@@ -4,6 +4,10 @@
 
 @import url("chrome://messenger/skin/shared/searchBox.css");
 
+:root {
+  --toolbar-field-focus-border-color: -moz-accent-color;
+}
+
 .search-icon {
   margin-inline-start: 7px;
 }
