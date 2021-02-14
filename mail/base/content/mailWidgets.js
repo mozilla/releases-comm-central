@@ -2617,15 +2617,26 @@
           this.removeSelectedPills(pill);
           return;
         }
+
+        // Edit pill on unmodified single left-click on single selected pill,
+        // which also fires for unmodified double-click ("dblclick") on a pill.
+        if (
+          event.button == 0 &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.shiftKey &&
+          !pill.isEditing &&
+          pill.hasAttribute("selected") &&
+          this.getAllSelectedPills().length == 1
+        ) {
+          this.startEditing(pill, event);
+          return;
+        }
+
         // Handle selection, especially with Ctrl/Cmd and/or Shift modifiers.
         this.checkSelected(pill, event);
       });
-      pill.addEventListener("dblclick", event => {
-        if (pill.hasAttribute("disabled")) {
-          return;
-        }
-        this.startEditing(pill, event);
-      });
+
       pill.addEventListener("keypress", event => {
         if (pill.hasAttribute("disabled")) {
           return;
