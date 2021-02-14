@@ -421,11 +421,10 @@ async function handleAddingAttachment(dialogWindow, url) {
       let attachmentDocument = attachmentWindow.document;
 
       attachmentDocument.getElementById("loginTextbox").value = url;
-      synthesizeMouseAtCenter(
-        attachmentDocument.querySelector("dialog").getButton("accept"),
-        {},
-        attachmentWindow
-      );
+      attachmentDocument
+        .querySelector("dialog")
+        .getButton("accept")
+        .click();
     }
   );
   synthesizeMouseAtCenter(dialogDocument.querySelector("#button-attach-url"), {}, dialogWindow);
