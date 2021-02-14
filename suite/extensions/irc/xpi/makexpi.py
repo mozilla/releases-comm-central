@@ -340,7 +340,7 @@ def do_build_base():
     print '                done'
 
     progress_echo('  Updating extension files')
-    progress_preprocess(joinpath(xpifiles, 'install.rdf'), joinpath(xpiroot, 'install.rdf'), {'CHATZILLA_VERSION': version, 'FIREFOX_MAXVERSION': ffversion, 'SEAMONKEY_MAXVERSION': smversion})
+    progress_preprocess(joinpath(xpifiles, 'install.rdf'), joinpath(xpiroot, 'install.rdf'), {'CHATZILLA_VERSION': version, 'SEAMONKEY_MAXVERSION': smversion})
     progress_copy(joinpath(xpifiles, 'chatzilla-window.ico'), joinpath(xpiroot, 'chrome', 'icons', 'default', 'chatzilla-window.ico'))
     progress_copy(joinpath(xpifiles, 'chatzilla-window.xpm'), joinpath(xpiroot, 'chrome', 'icons', 'default', 'chatzilla-window.xpm'))
     progress_copy(joinpath(xpifiles, 'chatzilla-window16.xpm'), joinpath(xpiroot, 'chrome', 'icons', 'default', 'chatzilla-window16.xpm'))
@@ -385,7 +385,7 @@ def do_build_locale():
 
     progress_echo('  Updating extension files')
     progress_preprocess([joinpath(localedir, locale, 'defines.inc'), joinpath(localedir, 'generic', 'install.rdf')], joinpath(xpiroot, 'install.rdf.pp'),
-             {'IRC_STANDALONE_BUILD': '1', 'CHATZILLA_VERSION': version, 'CHATZILLA_BASE_VERSION': version, 'AB_CD': locale, 'INSTALL_EXTENSION_ID': 'langpack-%s@chatzilla.mozilla.org' % locale, 'MOZ_LANG_TITLE': locale, 'FIREFOX_MAXVERSION': ffversion, 'SEAMONKEY_MAXVERSION': smversion})
+             {'IRC_STANDALONE_BUILD': '1', 'CHATZILLA_VERSION': version, 'CHATZILLA_BASE_VERSION': version, 'AB_CD': locale, 'INSTALL_EXTENSION_ID': 'langpack-%s@chatzilla.mozilla.org' % locale, 'MOZ_LANG_TITLE': locale, 'SEAMONKEY_MAXVERSION': smversion})
     progress_sed(joinpath(xpiroot, 'install.rdf.pp'), joinpath(xpiroot, 'install.rdf'), ('chatzilla.jar', 'chatzilla-%s.jar' % locale))
     progress_rm(joinpath(xpiroot, 'install.rdf.pp'))
     print '    done'

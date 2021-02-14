@@ -3,6 +3,3 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!ENTITY czButton.label   "ChatZilla">
-  
-<!ENTITY czMenu.label     "ChatZilla">
-<!ENTITY czMenu.accesskey "Z">

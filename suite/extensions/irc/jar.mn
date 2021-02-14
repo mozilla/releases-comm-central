@@ -3,21 +3,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 chatzilla.jar:
-%       component {38a95514-1dd2-11b2-97e7-9da958640f2c} components/chatzilla-service.js
-%       component {ae6ad015-433b-42ab-9afc-1636af5a7fc4} components/chatzilla-service.js
-%       contract @mozilla.org/commandlinehandler/general-startup;1?type=chat {38a95514-1dd2-11b2-97e7-9da958640f2c}
-%       category command-line-handler m-irc @mozilla.org/commandlinehandler/general-startup;1?type=chat
-%       contract @chatzilla.mozilla.org/startup;1 {ae6ad015-433b-42ab-9afc-1636af5a7fc4}
-%       category profile-after-change chatzilla-startup @chatzilla.mozilla.org/startup;1
 %       content chatzilla            %content/chatzilla/
 %       skin    chatzilla modern/1.0 %skin/modern/chatzilla/
-%       overlay chrome://browser/content/browser.xul chrome://chatzilla/content/browserOverlay.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
-%       overlay chrome://browser/content/browser.xul chrome://chatzilla/content/browserOverlay.xul application={a463f10c-3994-11da-9945-000d60ca027b}
-%       overlay chrome://navigator/content/navigator.xul chrome://chatzilla/content/browserOverlay.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
-%       overlay chrome://editor/content/editorTasksOverlay.xul chrome://chatzilla/content/chatzillaOverlay.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
-%       overlay chrome://communicator/content/pref/preferences.xul chrome://chatzilla/content/prefsOverlay.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
-%       overlay chrome://communicator/content/pref/pref-appearance.xul chrome://chatzilla/content/prefsOverlay.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
-%       style   chrome://browser/content/browser.xul chrome://chatzilla/skin/browserOverlay.css
+%       overlay chrome://navigator/content/navigator.xul chrome://chatzilla/content/browserOverlay.xul
+%       overlay chrome://communicator/content/tasksOverlay.xul chrome://chatzilla/content/chatzillaOverlay.xul
+%       overlay chrome://communicator/content/pref/preferences.xul chrome://chatzilla/content/prefsOverlay.xul
+%       overlay chrome://communicator/content/pref/pref-appearance.xul chrome://chatzilla/content/prefsOverlay.xul
+%       overlay chrome://chatzilla/content/chatzilla.xul chrome://communicator/content/utilityOverlay.xul
+%       overlay chrome://chatzilla/content/menus.xul chrome://communicator/content/tasksOverlay.xul
 %       style   chrome://global/content/customizeToolbar.xul chrome://chatzilla/skin/browserOverlay.css
 	content/chatzilla/lib/js/utils.js            (js/lib/utils.js)
 	content/chatzilla/lib/js/events.js           (js/lib/events.js)
@@ -62,7 +55,6 @@ chatzilla.jar:
 	content/chatzilla/chatzillaOverlay.js        (xul/content/chatzillaOverlay.js)
 	content/chatzilla/browserOverlay.xul         (xul/content/browserOverlay.xul) 
 	content/chatzilla/prefsOverlay.xul           (xul/content/prefsOverlay.xul)
-	content/chatzilla/pref-irc.xul               (xul/content/pref-irc.xul)
 	content/chatzilla/pref-irc-toolkit.xul       (xul/content/pref-irc-toolkit.xul)
 	content/chatzilla/config.xul                 (xul/content/config.xul)
 	content/chatzilla/config-add.xul             (xul/content/config-add.xul)

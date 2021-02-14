@@ -1,0 +1,6 @@
+component {38a95514-1dd2-11b2-97e7-9da958640f2c} chatzilla-service.js
+contract @mozilla.org/commandlinehandler/general-startup;1?type=chat {38a95514-1dd2-11b2-97e7-9da958640f2c}
+category command-line-handler m-irc @mozilla.org/commandlinehandler/general-startup;1?type=chat
+component {ae6ad015-433b-42ab-9afc-1636af5a7fc4} chatzilla-service.js
+contract @chatzilla.mozilla.org/startup;1 {ae6ad015-433b-42ab-9afc-1636af5a7fc4}
+category profile-after-change chatzilla-startup @chatzilla.mozilla.org/startup;1
