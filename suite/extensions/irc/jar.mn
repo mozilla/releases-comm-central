@@ -11,7 +11,7 @@ chatzilla.jar:
 %       overlay chrome://communicator/content/pref/pref-appearance.xul chrome://chatzilla/content/prefsOverlay.xul
 %       overlay chrome://chatzilla/content/chatzilla.xul chrome://communicator/content/utilityOverlay.xul
 %       overlay chrome://chatzilla/content/menus.xul chrome://communicator/content/tasksOverlay.xul
-%       style   chrome://global/content/customizeToolbar.xul chrome://chatzilla/skin/browserOverlay.css
+%       style   chrome://communicator/content/customizeToolbar.xul chrome://chatzilla/skin/browserOverlay.css
 	content/chatzilla/lib/js/utils.js            (js/lib/utils.js)
 	content/chatzilla/lib/js/events.js           (js/lib/events.js)
 	content/chatzilla/lib/js/connection-xpcom.js (js/lib/connection-xpcom.js)
