@@ -41,13 +41,13 @@ rnp_key_matches_search(const pgp_key_t *key, const pgp_key_search_t *search)
     }
     switch (search->type) {
     case PGP_KEY_SEARCH_KEYID:
-        return pgp_key_get_keyid(key) == search->by.keyid;
+        return key->keyid() == search->by.keyid;
     case PGP_KEY_SEARCH_FINGERPRINT:
-        return pgp_key_get_fp(key) == search->by.fingerprint;
+        return key->fp() == search->by.fingerprint;
     case PGP_KEY_SEARCH_GRIP:
-        return pgp_key_get_grip(key) == search->by.grip;
+        return key->grip() == search->by.grip;
     case PGP_KEY_SEARCH_USERID:
-        if (pgp_key_has_userid(key, search->by.userid)) {
+        if (key->has_uid(search->by.userid)) {
             return true;
         }
         break;
@@ -69,7 +69,7 @@ pgp_request_key(const pgp_key_provider_t *provider, const pgp_key_request_ctx_t 
         return NULL;
     }
     // confirm that the key actually matches the search criteria
-    if (!rnp_key_matches_search(key, &ctx->search) && pgp_key_is_secret(key) == ctx->secret) {
+    if (!rnp_key_matches_search(key, &ctx->search) && key->is_secret() == ctx->secret) {
         return NULL;
     }
     return key;
@@ -81,8 +81,7 @@ rnp_key_provider_key_ptr_list(const pgp_key_request_ctx_t *ctx, void *userdata)
     list key_list = (list) userdata;
     for (list_item *item = list_front(key_list); item; item = list_next(item)) {
         pgp_key_t *key = *(pgp_key_t **) item;
-        if (rnp_key_matches_search(key, &ctx->search) &&
-            pgp_key_is_secret(key) == ctx->secret) {
+        if (rnp_key_matches_search(key, &ctx->search) && (key->is_secret() == ctx->secret)) {
             return key;
         }
     }
@@ -111,7 +110,7 @@ rnp_key_provider_store(const pgp_key_request_ctx_t *ctx, void *userdata)
 
     for (pgp_key_t *key = rnp_key_store_search(ks, &ctx->search, NULL); key;
          key = rnp_key_store_search(ks, &ctx->search, key)) {
-        if (pgp_key_is_secret(key) == ctx->secret) {
+        if (key->is_secret() == ctx->secret) {
             return key;
         }
     }

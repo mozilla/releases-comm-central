@@ -49,6 +49,7 @@
 #endif
 
 #include "rnp.h"
+#include "rekey/rnp_key_store.h"
 #include "../rnp/fficli.h"
 
 #ifdef _WIN32
@@ -63,20 +64,12 @@ char *mkdtemp(char *templ);
 #define realpath(N, R) _fullpath((R), (N), _MAX_PATH)
 #endif
 
-/* Check if a file exists.
- * Use with assert_true and rnp_assert_false(rstate, .
- */
-bool file_exists(const char *path);
-
 /* Check if a file is empty
  * Use with assert_true and rnp_assert_false(rstate, .
  */
 bool file_empty(const char *path);
 
 off_t file_size(const char *path);
-
-/* Check if a directory exists */
-bool dir_exists(const char *path);
 
 /* Read file contents into the std::string */
 std::string file_to_str(const std::string &path);
@@ -100,7 +93,7 @@ char *paths_concat(char *buffer, size_t buffer_length, const char *first, ...);
  * check that the file exists.
  * Final argument must be NULL.
  */
-int path_file_exists(const char *first, ...);
+int path_rnp_file_exists(const char *first, ...);
 
 /* Concatenate multiple strings into a full path and
  * create the directory.
@@ -151,6 +144,7 @@ int test_value_equal(const char *  what,
                      const uint8_t v[],
                      size_t        v_len);
 
+bool mpi_empty(const pgp_mpi_t &val);
 /*
  */
 char *uint_to_string(char *buff, const int buffsize, unsigned int num, int base);

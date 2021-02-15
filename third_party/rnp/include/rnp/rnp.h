@@ -86,6 +86,12 @@ typedef uint32_t rnp_result_t;
 #define RNP_OUTPUT_FILE_RANDOM (1U << 1)
 
 /**
+ * User id type
+ */
+#define RNP_USER_ID (1U)
+#define RNP_USER_ATTR (2U)
+
+/**
  * Return a constant string describing the result code
  */
 RNP_API const char *rnp_result_to_string(rnp_result_t result);
@@ -479,7 +485,8 @@ RNP_API rnp_result_t rnp_save_keys(rnp_ffi_t    ffi,
 RNP_API rnp_result_t rnp_get_public_key_count(rnp_ffi_t ffi, size_t *count);
 RNP_API rnp_result_t rnp_get_secret_key_count(rnp_ffi_t ffi, size_t *count);
 
-/** search for the key
+/** Search for the key
+ *  Note: only valid userids are checked while searching by userid.
  *
  *  @param ffi
  *  @param identifier_type string with type of the identifier: userid, keyid, fingerprint, grip
@@ -963,7 +970,10 @@ RNP_API rnp_result_t rnp_enarmor(rnp_input_t input, rnp_output_t output, const c
 RNP_API rnp_result_t rnp_dearmor(rnp_input_t input, rnp_output_t output);
 
 /** Get key's primary user id.
- *
+ *  Note: userid considered as primary if it has marked as primary in self-certification, and
+ *        is valid (i.e. both certification and key are valid, not expired and not revoked). If
+ *        there is no userid marked as primary then the first valid userid handle will be
+ *        returned.
  * @param key key handle.
  * @param uid pointer to the string with primary user id will be stored here.
  *            You must free it using the rnp_buffer_destroy().
@@ -1002,6 +1012,44 @@ RNP_API rnp_result_t rnp_key_get_uid_handle_at(rnp_key_handle_t  key,
                                                size_t            idx,
                                                rnp_uid_handle_t *uid);
 
+/** Get userid's type. Currently two possible values are defined:
+ *  - RNP_USER_ID - string representation of user's name and email.
+ *  - RNP_USER_ATTR - binary photo of the user
+
+ * @param uid uid handle, cannot be NULL.
+ * @param type on success userid type will be stored here.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_uid_get_type(rnp_uid_handle_t uid, uint32_t *type);
+
+/** Get userid's data. Representation of data depends on userid type (see rnp_uid_get_type()
+ * function)
+ *
+ * @param uid uid handle, cannot be NULL.
+ * @param data cannot be NULL. On success pointer to the allocated buffer with data will be
+ * stored here. Must be deallocated by caller via rnp_buffer_destroy().
+ * @param size cannot be NULL. On success size of the data will be stored here.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_uid_get_data(rnp_uid_handle_t uid, void **data, size_t *size);
+
+/** Check whether uid is marked as primary.
+ *
+ * @param uid uid handle, cannot be NULL
+ * @param primary cannot be NULL. On success true or false will be stored here.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_uid_is_primary(rnp_uid_handle_t uid, bool *primary);
+
+/** Get userid validity status. Userid is considered as valid if it has at least one
+ *  valid, non-expired self-certification.
+ *
+ * @param uid user id handle.
+ * @param valid validity status will be stored here on success.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_uid_is_valid(rnp_uid_handle_t uid, bool *valid);
+
 /** Get number of key's signatures.
  *  Note: this will not count user id certifications and subkey(s) signatures if any.
  *        I.e. it will return only number of direct-key and key revocation signatures for the
@@ -1027,6 +1075,17 @@ RNP_API rnp_result_t rnp_key_get_signature_at(rnp_key_handle_t        key,
                                               size_t                  idx,
                                               rnp_signature_handle_t *sig);
 
+/**
+ * @brief Get key's revocation signature handle, if any.
+ *
+ * @param key key handle
+ * @param sig signature handle or NULL will be stored here on success. NULL will be stored in
+ *            case when there is no valid revocation signature.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_key_get_revocation_signature(rnp_key_handle_t        key,
+                                                      rnp_signature_handle_t *sig);
+
 /** Get the number of user id's signatures.
  *
  * @param uid user id handle.
@@ -1046,6 +1105,34 @@ RNP_API rnp_result_t rnp_uid_get_signature_count(rnp_uid_handle_t uid, size_t *c
 RNP_API rnp_result_t rnp_uid_get_signature_at(rnp_uid_handle_t        uid,
                                               size_t                  idx,
                                               rnp_signature_handle_t *sig);
+
+/**
+ * @brief Get signature's type.
+ *
+ * @param sig signature handle.
+ * @param type on success string with signature type will be saved here. Cannot be NULL.
+ *             You must free it using the rnp_buffer_destroy().
+ *             Currently defined values are:
+ *             - 'binary' : signature of a binary document
+ *             - 'text' : signature of a canonical text document
+ *             - 'standalone' : standalone signature
+ *             - 'certification (generic)` : generic certification of a user id
+ *             - 'certification (persona)' : persona certification of a user id
+ *             - 'certification (casual)' : casual certification of a user id
+ *             - 'certification (positive)' : positive certification of a user id
+ *             - 'subkey binding' : subkey binding signature
+ *             - 'primary key binding' : primary key binding signature
+ *             - 'direct' : direct-key signature
+ *             - 'key revocation' : primary key revocation signature
+ *             - 'subkey revocation' : subkey revocation signature
+ *             - 'certification revocation' : certification revocation signature
+ *             - 'timestamp' : timestamp signature
+ *             - 'third-party' : third party confirmation signature
+ *             - 'uknown: 0..255' : unknown signature with it's type specified as number
+ *
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_signature_get_type(rnp_signature_handle_t sig, char **type);
 
 /** Get signature's algorithm.
  *
@@ -1089,10 +1176,30 @@ RNP_API rnp_result_t rnp_signature_get_keyid(rnp_signature_handle_t sig, char **
  * @param sig signature handle
  * @param key on success and key availability will contain signing key's handle. You must
  *            destroy it using the rnp_key_handle_destroy() function.
- * @return RNP_SUCCESS or error code if f4ailed.
+ * @return RNP_SUCCESS or error code if failed.
  */
 RNP_API rnp_result_t rnp_signature_get_signer(rnp_signature_handle_t sig,
                                               rnp_key_handle_t *     key);
+
+/**
+ * @brief Get signature validity, revalidating it if didn't before.
+ *
+ * @param sig key/userid signature handle
+ * @param flags validation flags, currently must be zero.
+ * @return Following error codes represents the validation status:
+ *         RNP_SUCCESS : operation succeeds and signature is valid
+ *         RNP_ERROR_KEY_NOT_FOUND : signer's key not found
+ *         RNP_ERROR_VERIFICATION_FAILED: verification failed, so validity cannot be checked
+ *         RNP_ERROR_SIGNATURE_EXPIRED: signature is valid but expired
+ *         RNP_ERROR_SIGNATURE_INVALID: signature is invalid (corrupted, malformed, was issued
+ *             by invalid key, whatever else.)
+ *
+ *         Please also note that other error codes may be returned because of wrong
+ *         function call (included, but not limited to):
+ *         RNP_ERROR_NULL_POINTER: sig as well as some of it's fields are NULL
+ *         RNP_ERROR_BAD_PARAMETERS: invalid parameter value (unsupported flag, etc).
+ */
+RNP_API rnp_result_t rnp_signature_is_valid(rnp_signature_handle_t sig, uint32_t flags);
 
 /** Dump signature packet to JSON, obtaining the whole information about it.
  *
@@ -1121,6 +1228,16 @@ RNP_API rnp_result_t rnp_signature_handle_destroy(rnp_signature_handle_t sig);
  * @return RNP_SUCCESS or error code if failed.
  */
 RNP_API rnp_result_t rnp_uid_is_revoked(rnp_uid_handle_t uid, bool *result);
+
+/** Retrieve uid revocation signature, if any.
+ *
+ * @param uid user id handle, should not be NULL.
+ * @param sig on success signature handle or NULL will be stored here. NULL will be stored in
+ *            case when uid is not revoked.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_uid_get_revocation_signature(rnp_uid_handle_t        uid,
+                                                      rnp_signature_handle_t *sig);
 
 /** Destroy previously allocated user id handle.
  *
@@ -1301,6 +1418,29 @@ RNP_API rnp_result_t rnp_key_get_expiration(rnp_key_handle_t key, uint32_t *resu
  * @return RNP_SUCCESS or error code on failure.
  */
 RNP_API rnp_result_t rnp_key_set_expiration(rnp_key_handle_t key, uint32_t expiry);
+
+/**
+ * @brief Check whether public key is valid. This includes checks of the self-signatures,
+ *        expiration times, revocations and so on.
+ *        Note: it doesn't take in account secret key, if it is available.
+ *
+ * @param key key's handle.
+ * @param result on success true or false will be stored here. Cannot be NULL.
+ * @return RNP_SUCCESS or error code on failure.
+ */
+RNP_API rnp_result_t rnp_key_is_valid(rnp_key_handle_t key, bool *result);
+
+/**
+ * @brief Get the timestamp till which key can be considered as valid.
+ *        Note: this will take into account not only key's expiration, but revocations as well.
+ *        For the subkey primary key's validity time will be also checked.
+ * @param key key's handle.
+ * @param result on success timestamp will be stored here. If key doesn't expire then maximum
+ *               value will be stored here. If key was never valid then zero value will be
+ * stored here.
+ * @return RNP_SUCCESS or error code on failure.
+ */
+RNP_API rnp_result_t rnp_key_valid_till(rnp_key_handle_t key, uint32_t *result);
 
 /**
  * @brief Check whether key is revoked.

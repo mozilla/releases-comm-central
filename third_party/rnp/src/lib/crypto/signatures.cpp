@@ -27,6 +27,7 @@
 #include <string.h>
 #include "crypto/signatures.h"
 #include "librepgp/stream-packet.h"
+#include "librepgp/stream-sig.h"
 #include "utils.h"
 
 /**
@@ -180,10 +181,16 @@ signature_calculate(pgp_signature_t *         sig,
         RNP_LOG("Unsupported algorithm %d", sig->palg);
         break;
     }
-    if (!ret) {
-        write_signature_material(*sig, material);
+    if (ret) {
+        return ret;
     }
-    return ret;
+    try {
+        sig->write_material(material);
+        return RNP_SUCCESS;
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return RNP_ERROR_GENERIC;
+    }
 }
 
 static bool is_hash_alg_allowed_in_sig(const pgp_hash_alg_t hash_alg)
@@ -282,7 +289,12 @@ signature_validate(const pgp_signature_t *sig, const pgp_key_material_t *key, pg
     /* validate signature */
 
     pgp_signature_material_t material = {};
-    parse_signature_material(*sig, material);
+    try {
+        sig->parse_material(material);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
     switch (sig->palg) {
     case PGP_PKA_DSA:
         ret = dsa_verify(&material.dsa, hval, hlen, &key->dsa);
