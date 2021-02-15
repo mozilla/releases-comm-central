@@ -15,6 +15,8 @@
 #define kOutlookCardScheme "moz-aboutlookcard:///"
 
 struct nsMapiEntry {
+  // Can't be assigned since it would double up the reference in `mEntryId`.
+  nsMapiEntry& operator=(nsMapiEntry&) = delete;
   ULONG mByteCount;
   LPENTRYID mEntryId;
 
@@ -22,6 +24,7 @@ struct nsMapiEntry {
   ~nsMapiEntry(void);
   nsMapiEntry(ULONG aByteCount, LPENTRYID aEntryId);
 
+  static void Move(nsMapiEntry& target, nsMapiEntry& source);
   void Assign(ULONG aByteCount, LPENTRYID aEntryId);
   void Assign(const nsCString& aString);
   void ToString(nsCString& aString) const;
@@ -35,7 +38,6 @@ struct nsMapiEntryArray {
   nsMapiEntryArray(void);
   ~nsMapiEntryArray(void);
 
-  const nsMapiEntry& operator[](int aIndex) const { return mEntries[aIndex]; }
   void CleanUp(void);
 };
 
@@ -65,8 +67,8 @@ class nsAbWinHelper {
   // Retrieves the properties from the associated contact object (IMessage)
   // not the address book entry (IMailUser).
   BOOL GetPropertiesUString(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
-                            const ULONG* aPropertiesTag, ULONG aNbProperties,
-                            nsString* aValues, bool* aSuccess);
+                            const ULONG aPropertyTags[], ULONG aNbProperties,
+                            nsString aValues[], bool aSuccess[]);
   // Get the value of a MAPI property of type SYSTIME
   BOOL GetPropertyDate(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
                        bool fromContact, ULONG aPropertyTag, WORD& aYear,
@@ -77,10 +79,22 @@ class nsAbWinHelper {
   // Get the value of a MAPI property of type BIN
   BOOL GetPropertyBin(const nsMapiEntry& aObject, ULONG aPropertyTag,
                       nsMapiEntry& aValue);
+  // Get the values of a multiple MAPI properties of type MV BIN
+  BOOL GetPropertiesMVBin(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
+                          const ULONG aPropertyTags[], ULONG aNbProperties,
+                          nsMapiEntry* aEntryIDs[], ULONG aNbElements[]);
+  // Set the value of a MAPI property of type MV BIN
+  BOOL SetPropertiesMVBin(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
+                          const ULONG aPropertyTags[], ULONG aNbProperties,
+                          nsMapiEntry* aEntryIDs[], ULONG aNbElements[]);
   // Tests if a container contains an entry
   BOOL TestOpenEntry(const nsMapiEntry& aContainer, const nsMapiEntry& aEntry);
   // Delete an entry in the address book
   BOOL DeleteEntry(const nsMapiEntry& aContainer, const nsMapiEntry& aEntry);
+  // Delete an entry from an Outlook distribution list.
+  BOOL DeleteEntryfromDL(const nsMapiEntry& aTopDir,
+                         const nsMapiEntry& aDistList,
+                         const nsMapiEntry& aEntry);
   // Set the value of a MAPI property of type string in unicode
   BOOL SetPropertyUString(const nsMapiEntry& aObject, ULONG aPropertyTag,
                           const char16_t* aValue);
@@ -88,8 +102,8 @@ class nsAbWinHelper {
   // Sets the properties on the associated contact object (IMessage)
   // not the address book entry (IMailUser).
   BOOL SetPropertiesUString(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
-                            const ULONG* aPropertiesTag, ULONG aNbProperties,
-                            nsString* aValues);
+                            const ULONG aPropertyTags[], ULONG aNbProperties,
+                            nsString aValues[]);
   // Set the value of a MAPI property of type SYSTIME
   BOOL SetPropertyDate(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
                        bool fromContact, ULONG aPropertyTag, WORD aYear,
@@ -105,11 +119,15 @@ class nsAbWinHelper {
   BOOL GetDefaultContainer(nsMapiEntry& aContainer);
   // Is the helper correctly initialised?
   BOOL IsOK(void) const { return mAddressBook != NULL; }
+  // Helper to get distribution list members tag.
+  BOOL GetDlMembersTag(IMAPIProp* aMsg, ULONG& aDlMembersTag,
+                       ULONG& aDlMembersTagOneOff);
 
  protected:
   HRESULT mLastError;
   LPADRBOOK mAddressBook;
   LPMAPISESSION mAddressSession;
+  LPMAPIFREEBUFFER mAddressFreeBuffer;
   static uint32_t sEntryCounter;
   static mozilla::StaticMutex sMutex;
 
@@ -118,13 +136,16 @@ class nsAbWinHelper {
                    nsMapiEntry** aList, ULONG& aNbElements, ULONG aMapiType);
   // Retrieve the values of a set of properties on a MAPI object
   BOOL GetMAPIProperties(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
-                         const ULONG* aPropertyTags, ULONG aNbProperties,
+                         const ULONG aPropertyTags[], ULONG aNbProperties,
                          LPSPropValue& aValues, ULONG& aValueCount,
-                         bool fromContact = false);
+                         bool aFromContact = false);
   // Set the values of a set of properties on a MAPI object
   BOOL SetMAPIProperties(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
                          ULONG aNbProperties, const LPSPropValue& aValues,
-                         bool fromContact = false);
+                         bool aFromContact);
+  // Delete a set of properties on a MAPI object
+  BOOL DeleteMAPIProperties(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
+                            const LPSPropTagArray aProps, bool aFromContact);
   HRESULT OpenMAPIObject(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
                          bool aFromContact, ULONG aFlags, LPUNKNOWN* aResult);
   // Clean-up a rowset returned by QueryRows

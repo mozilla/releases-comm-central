@@ -71,6 +71,7 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult NotifyItemAddition(nsISupports* aItem);
   nsresult NotifyItemModification(nsISupports* aItem);
   nsresult NotifyCardPropertyChanges(nsIAbCard* aOld, nsIAbCard* aNew);
+  nsresult commonNotification(nsISupports* aItem, const char* aTopic);
   // Force update of MAPI repository for mailing list
   nsresult CommitAddressList(void);
   // Read MAPI repository

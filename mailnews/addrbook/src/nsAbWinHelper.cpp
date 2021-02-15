@@ -42,6 +42,7 @@ struct nsMapiInterfaceWrapper {
   }
   tInterface operator->(void) const { return mInterface; }
   operator tInterface*(void) { return &mInterface; }
+  tInterface Get(void) const { return mInterface; }
 };
 
 static void assignEntryID(LPENTRYID& aTarget, LPENTRYID aSource,
@@ -64,6 +65,13 @@ nsMapiEntry::nsMapiEntry(ULONG aByteCount, LPENTRYID aEntryId)
     : mByteCount(0), mEntryId(NULL) {
   Assign(aByteCount, aEntryId);
   MOZ_COUNT_CTOR(nsMapiEntry);
+}
+
+void nsMapiEntry::Move(nsMapiEntry& target, nsMapiEntry& source) {
+  target.mByteCount = source.mByteCount;
+  target.mEntryId = source.mEntryId;
+  source.mByteCount = 0;
+  source.mEntryId = NULL;
 }
 
 nsMapiEntry::~nsMapiEntry(void) {
@@ -179,6 +187,23 @@ struct AbEntryId {
   BYTE type[ABENTRY_TYPE_LENGTH];
   ULONG index;
   ULONG length;
+  BYTE idBytes[];
+};
+
+// Some stuff to access the entry IDs of members in a distribution list
+// (IMessage, IPM.DistList):
+// https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxocntc/02656215-1cb0-4b06-a077-b07e756216be
+// Also handy the reference to the so-called "one off" members:
+// https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxcdata/b32d23af-85f6-4e92-8387-53a1950ae7ba
+#define DLENTRY_FLAGS_LENGTH 4
+#define DL_PROVIDER_ID \
+  "\xC0\x91\xAD\xD3\x51\x9D\xCF\x11\xA4\xA9\x00\xAA\x00\x47\xFA\xA4"
+#define DL_PROVIDER_ID_LENGTH 16
+#define DLENTRY_TYPE_LENGTH 1
+struct DlEntryId {
+  BYTE flags[DLENTRY_FLAGS_LENGTH];
+  BYTE provider[DL_PROVIDER_ID_LENGTH];
+  BYTE type[DLENTRY_TYPE_LENGTH];
   BYTE idBytes[];
 };
 
@@ -345,9 +370,9 @@ BOOL nsAbWinHelper::GetPropertyUString(const nsMapiEntry& aObject,
 
 BOOL nsAbWinHelper::GetPropertiesUString(const nsMapiEntry& aDir,
                                          const nsMapiEntry& aObject,
-                                         const ULONG* aPropertyTags,
-                                         ULONG aNbProperties, nsString* aNames,
-                                         bool* aSuccess) {
+                                         const ULONG aPropertyTags[],
+                                         ULONG aNbProperties, nsString aNames[],
+                                         bool aSuccess[]) {
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
@@ -472,6 +497,92 @@ BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject,
   return success;
 }
 
+BOOL nsAbWinHelper::GetPropertiesMVBin(const nsMapiEntry& aDir,
+                                       const nsMapiEntry& aObject,
+                                       const ULONG aPropertyTags[],
+                                       ULONG aNbProperties,
+                                       nsMapiEntry* aEntryIDs[],
+                                       ULONG aNbElements[]) {
+  LPSPropValue values = NULL;
+  ULONG valueCount = 0;
+
+  // Initialise output arrays.
+  for (ULONG i = 0; i < aNbProperties; i++) {
+    aEntryIDs[i] = NULL;
+    aNbElements[i] = 0;
+  }
+
+  if (!GetMAPIProperties(aDir, aObject, aPropertyTags, aNbProperties, values,
+                         valueCount, true)) {
+    return FALSE;
+  }
+  if (valueCount != aNbProperties || values == NULL) {
+    PRINTF(("Unexpected return value in nsAbWinHelper::GetPropertyMVBin"));
+    return FALSE;
+  }
+
+  BOOL success = TRUE;
+  for (ULONG i = 0; i < valueCount; i++) {
+    if (PROP_TYPE(values[i].ulPropTag) == PT_MV_BINARY) {
+      ULONG count = values[i].Value.MVbin.cValues;
+      PRINTF(("Found %lu members in DL.\n", count));
+      aEntryIDs[i] = new nsMapiEntry[count];
+      aNbElements[i] = count;
+      SBinary* currentValue = values[i].Value.MVbin.lpbin;
+      for (ULONG j = 0; j < count; j++) {
+        nsMapiEntry& current = aEntryIDs[i][j];
+        current.Assign(currentValue->cb,
+                       reinterpret_cast<LPENTRYID>(currentValue->lpb));
+        currentValue++;
+      }
+    } else {
+      PRINTF(
+          ("Cannot retrieve PT_MV_BINARY property %08lx (x0A is PT_ERROR).\n",
+           values[i].ulPropTag));
+      success = FALSE;
+    }
+  }
+
+  FreeBuffer(values);
+  if (!success) {
+    for (ULONG i = 0; i < aNbProperties; i++) {
+      if (aNbElements[i] > 0) delete[] aEntryIDs[i];
+      aEntryIDs[i] = NULL;
+      aNbElements[i] = 0;
+    }
+  }
+  return success;
+}
+
+BOOL nsAbWinHelper::SetPropertiesMVBin(const nsMapiEntry& aDir,
+                                       const nsMapiEntry& aObject,
+                                       const ULONG aPropertyTags[],
+                                       ULONG aNbProperties,
+                                       nsMapiEntry* aEntryIDs[],
+                                       ULONG aNbElements[]) {
+  LPSPropValue values = new SPropValue[aNbProperties];
+  if (!values) return FALSE;
+
+  for (ULONG i = 0; i < aNbProperties; i++) {
+    values[i].ulPropTag = aPropertyTags[i];
+    values[i].Value.MVbin.cValues = aNbElements[i];
+    values[i].Value.MVbin.lpbin = new SBinary[aNbElements[i]];
+
+    SBinary* currentValue = values[i].Value.MVbin.lpbin;
+    for (ULONG j = 0; j < aNbElements[i]; j++) {
+      currentValue->cb = aEntryIDs[i][j].mByteCount;
+      currentValue->lpb = reinterpret_cast<LPBYTE>(aEntryIDs[i][j].mEntryId);
+      currentValue++;
+    }
+  }
+  BOOL retCode = SetMAPIProperties(aDir, aObject, aNbProperties, values, true);
+  for (ULONG i = 0; i < aNbProperties; i++) {
+    delete[] values[i].Value.MVbin.lpbin;
+  }
+  delete[] values;
+  return retCode;
+}
+
 // This function, supposedly indicating whether a particular entry was
 // in a particular container, doesn't seem to work very well (has
 // a tendency to return TRUE even if we're talking to different containers...).
@@ -519,6 +630,145 @@ BOOL nsAbWinHelper::DeleteEntry(const nsMapiEntry& aContainer,
   return TRUE;
 }
 
+BOOL nsAbWinHelper::GetDlMembersTag(IMAPIProp* aMsg, ULONG& aDlMembersTag,
+                                    ULONG& aDlMembersTagOneOff) {
+  const GUID guid = {0x00062004,
+                     0x0000,
+                     0x0000,
+                     {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
+  MAPINAMEID nameID;
+  nameID.lpguid = (GUID*)&guid;
+  nameID.ulKind = MNID_ID;
+  LPSPropTagArray lppPropTags;
+  LPMAPINAMEID lpNameID[1] = {&nameID};
+
+  // Strangely requesting two tags at the same time doesn't appear to work,
+  // so request them separately.
+  // One should be able to set up `lpNameID` with two entries and get two
+  // tags returned in `lppPropTags`, but sadly the second one is always 0.
+  nameID.Kind.lID = 0x8055;  // PidLidDistributionListMembers
+  mLastError = aMsg->GetIDsFromNames(1, lpNameID, 0, &lppPropTags);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot get DL prop tag %08lx.\n", mLastError));
+    return FALSE;
+  }
+  aDlMembersTag = lppPropTags[0].aulPropTag[0] | PT_MV_BINARY;
+  mAddressFreeBuffer(lppPropTags);
+
+  nameID.Kind.lID = 0x8054;  // PidLidDistributionListOneOffMembers
+  mLastError = aMsg->GetIDsFromNames(1, lpNameID, 0, &lppPropTags);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot open DL prop tag (one off) %08lx.\n", mLastError));
+    return FALSE;
+  }
+  aDlMembersTagOneOff = lppPropTags[0].aulPropTag[0] | PT_MV_BINARY;
+  mAddressFreeBuffer(lppPropTags);
+
+  return TRUE;
+}
+
+BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
+                                      const nsMapiEntry& aDistList,
+                                      const nsMapiEntry& aEntry) {
+  // First we need to open the distribution list to get the property tag.
+  ULONG dlMembersTag = 0;
+  ULONG dlMembersTagOnOff = 0;
+  {
+    // We do this in a block is `msg` going out of scope will release the
+    // object.
+    nsMapiInterfaceWrapper<LPMAPIPROP> msg;
+    mLastError = OpenMAPIObject(aTopDir, aDistList, true, 0, msg);
+    if (HR_FAILED(mLastError)) {
+      PRINTF(("Cannot open DL entry %08lx.\n", mLastError));
+      return FALSE;
+    }
+    if (!GetDlMembersTag(msg.Get(), dlMembersTag, dlMembersTagOnOff))
+      return FALSE;
+  }
+
+  // This will self-destruct when it goes out of scope.
+  nsMapiEntryArray dlMembers;
+  nsMapiEntryArray dlMembersOneOff;
+
+  // Turn IMailUser into IMessage/IPM.Contact.
+  // Check for magic provider GUID.
+  struct AbEntryId* abEntryId = (struct AbEntryId*)aEntry.mEntryId;
+  if (memcmp(abEntryId->provider, CONTAB_PROVIDER_ID,
+             CONTAB_PROVIDER_ID_LENGTH) != 0) {
+    PRINTF(("Cannot get to IMessage/IPM.Contact.\n"));
+    return FALSE;
+  }
+  ULONG contactIdLength = abEntryId->length;
+  LPENTRYID contactId = reinterpret_cast<LPENTRYID>(&(abEntryId->idBytes));
+
+  ULONG tags[2] = {dlMembersTag, dlMembersTagOnOff};
+  nsMapiEntry* values[2];
+  ULONG counts[2];
+  if (!GetPropertiesMVBin(aTopDir, aDistList, tags, 2, values, counts)) {
+    PRINTF(("Cannot get DL members.\n"));
+    return FALSE;
+  }
+  dlMembers.mEntries = values[0];
+  dlMembersOneOff.mEntries = values[1];
+  dlMembers.mNbEntries = counts[0];
+  dlMembersOneOff.mNbEntries = counts[1];
+
+  if (dlMembers.mNbEntries == 0) return FALSE;
+  if (dlMembers.mNbEntries != dlMembersOneOff.mNbEntries) {
+    PRINTF(("DL members and DL one off members have different length.\n"));
+    return FALSE;
+  }
+
+  ULONG result;
+  for (ULONG i = 0; i < dlMembers.mNbEntries; i++) {
+    struct DlEntryId* dlEntryId =
+        (struct DlEntryId*)dlMembers.mEntries[i].mEntryId;
+    if (memcmp(dlEntryId->provider, DL_PROVIDER_ID, DL_PROVIDER_ID_LENGTH) != 0)
+      continue;
+    mLastError = mAddressSession->CompareEntryIDs(
+        contactIdLength, contactId,
+        dlMembers.mEntries[i].mByteCount - sizeof(struct DlEntryId),
+        reinterpret_cast<LPENTRYID>(dlEntryId->idBytes), 0, &result);
+    if (HR_FAILED(mLastError)) {
+      PRINTF(("CompareEntryIDs failed with %08lx (DeleteEntryfromDL()).\n",
+              mLastError));
+    }
+    if (result) {
+      PRINTF(("Found card to be deleted at position %lu.\n", i));
+
+      // Kill/free entry and shuffle remaining cards down.
+      dlMembers.mEntries[i].Assign(0, NULL);
+      dlMembersOneOff.mEntries[i].Assign(0, NULL);
+      for (ULONG j = i + 1; j < dlMembers.mNbEntries; j++) {
+        nsMapiEntry::Move(dlMembers.mEntries[j - 1], dlMembers.mEntries[j]);
+        nsMapiEntry::Move(dlMembersOneOff.mEntries[j - 1],
+                          dlMembersOneOff.mEntries[j]);
+      }
+      dlMembers.mNbEntries--;
+      dlMembersOneOff.mNbEntries--;
+
+      counts[0] = dlMembers.mNbEntries;
+      counts[1] = dlMembersOneOff.mNbEntries;
+      if (counts[0] >= 1) {
+        if (!SetPropertiesMVBin(aTopDir, aDistList, tags, 2, values, counts)) {
+          PRINTF(("Cannot set DL members.\n"));
+          return FALSE;
+        }
+      } else {
+        static const SizedSPropTagArray(2, properties) = {
+            2, {dlMembersTag, dlMembersTagOnOff}};
+        if (!DeleteMAPIProperties(aTopDir, aDistList,
+                                  (LPSPropTagArray)&properties, true)) {
+          PRINTF(("Cannot delete DL members.\n"));
+          return FALSE;
+        }
+      }
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject,
                                        ULONG aPropertyTag,
                                        const char16_t* aValue) {
@@ -536,28 +786,27 @@ BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject,
     PRINTF(("Property %08lx is not a string.\n", aPropertyTag));
     return FALSE;
   }
-  return SetMAPIProperties(nullEntry, aObject, 1, &value);
+  return SetMAPIProperties(nullEntry, aObject, 1, &value, false);
 }
 
 BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aDir,
                                          const nsMapiEntry& aObject,
-                                         const ULONG* aPropertiesTag,
+                                         const ULONG aPropertyTags[],
                                          ULONG aNbProperties,
-                                         nsString* aValues) {
+                                         nsString aValues[]) {
   LPSPropValue values = new SPropValue[aNbProperties];
   if (!values) return FALSE;
 
-  ULONG i = 0;
   ULONG currentValue = 0;
   nsAutoCString alternativeValue;
   BOOL retCode = TRUE;
 
-  for (i = 0; i < aNbProperties; ++i) {
-    values[currentValue].ulPropTag = aPropertiesTag[i];
-    if (PROP_TYPE(aPropertiesTag[i]) == PT_UNICODE) {
+  for (ULONG i = 0; i < aNbProperties; ++i) {
+    values[currentValue].ulPropTag = aPropertyTags[i];
+    if (PROP_TYPE(aPropertyTags[i]) == PT_UNICODE) {
       const wchar_t* value = aValues[i].get();
       values[currentValue++].Value.lpszW = const_cast<wchar_t*>(value);
-    } else if (PROP_TYPE(aPropertiesTag[i]) == PT_STRING8) {
+    } else if (PROP_TYPE(aPropertyTags[i]) == PT_STRING8) {
       LossyCopyUTF16toASCII(aValues[i], alternativeValue);
       char* av = strdup(alternativeValue.get());
       if (!av) {
@@ -569,8 +818,8 @@ BOOL nsAbWinHelper::SetPropertiesUString(const nsMapiEntry& aDir,
   }
   if (retCode)
     retCode = SetMAPIProperties(aDir, aObject, currentValue, values, true);
-  for (i = 0; i < currentValue; ++i) {
-    if (PROP_TYPE(aPropertiesTag[i]) == PT_STRING8) {
+  for (ULONG i = 0; i < currentValue; ++i) {
+    if (PROP_TYPE(aPropertyTags[i]) == PT_STRING8) {
       free(values[i].Value.lpszA);
     }
   }
@@ -1039,13 +1288,13 @@ HRESULT nsAbWinHelper::OpenMAPIObject(const nsMapiEntry& aDir,
 
 BOOL nsAbWinHelper::GetMAPIProperties(const nsMapiEntry& aDir,
                                       const nsMapiEntry& aObject,
-                                      const ULONG* aPropertyTags,
+                                      const ULONG aPropertyTags[],
                                       ULONG aNbProperties, LPSPropValue& aValue,
-                                      ULONG& aValueCount, bool fromContact) {
+                                      ULONG& aValueCount, bool aFromContact) {
   nsMapiInterfaceWrapper<LPMAPIPROP> object;
   LPSPropTagArray properties = NULL;
 
-  mLastError = OpenMAPIObject(aDir, aObject, fromContact, 0, object);
+  mLastError = OpenMAPIObject(aDir, aObject, aFromContact, 0, object);
   if (HR_FAILED(mLastError)) {
     PRINTF(("Cannot open entry %08lx.\n", mLastError));
     return FALSE;
@@ -1068,11 +1317,11 @@ BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aDir,
                                       const nsMapiEntry& aObject,
                                       ULONG aNbProperties,
                                       const LPSPropValue& aValues,
-                                      bool fromContact) {
+                                      bool aFromContact) {
   nsMapiInterfaceWrapper<LPMAPIPROP> object;
   LPSPropProblemArray problems = NULL;
 
-  mLastError = OpenMAPIObject(aDir, aObject, fromContact, MAPI_MODIFY, object);
+  mLastError = OpenMAPIObject(aDir, aObject, aFromContact, MAPI_MODIFY, object);
   if (HR_FAILED(mLastError)) {
     PRINTF(("Cannot open entry %08lx.\n", mLastError));
     return FALSE;
@@ -1087,6 +1336,38 @@ BOOL nsAbWinHelper::SetMAPIProperties(const nsMapiEntry& aDir,
       PRINTF(("Problem %lu: index %lu code %08lx.\n", i,
               problems->aProblem[i].ulIndex, problems->aProblem[i].scode));
     }
+    mAddressFreeBuffer(problems);
+  }
+  mLastError = object->SaveChanges(0);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot commit changes %08lx.\n", mLastError));
+  }
+  return HR_SUCCEEDED(mLastError);
+}
+
+BOOL nsAbWinHelper::DeleteMAPIProperties(const nsMapiEntry& aDir,
+                                         const nsMapiEntry& aObject,
+                                         const LPSPropTagArray aProps,
+                                         bool aFromContact) {
+  nsMapiInterfaceWrapper<LPMAPIPROP> object;
+  LPSPropProblemArray problems = NULL;
+
+  mLastError = OpenMAPIObject(aDir, aObject, aFromContact, MAPI_MODIFY, object);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot open entry %08lx.\n", mLastError));
+    return FALSE;
+  }
+  mLastError = object->DeleteProps(aProps, &problems);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot update the object (DeleteProps) %08lx.\n", mLastError));
+    return FALSE;
+  }
+  if (problems != NULL) {
+    for (ULONG i = 0; i < problems->cProblem; ++i) {
+      PRINTF(("Problem %lu: index %lu code %08lx.\n", i,
+              problems->aProblem[i].ulIndex, problems->aProblem[i].scode));
+    }
+    mAddressFreeBuffer(problems);
   }
   mLastError = object->SaveChanges(0);
   if (HR_FAILED(mLastError)) {

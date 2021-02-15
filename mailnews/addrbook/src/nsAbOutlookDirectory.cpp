@@ -206,13 +206,30 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
     retCode = ExtractCardEntry(card, cardEntryString);
     if (NS_SUCCEEDED(retCode) && !cardEntryString.IsEmpty()) {
       cardEntry.Assign(cardEntryString);
-      if (!mapiAddBook->DeleteEntry(*mDirEntry, cardEntry)) {
+      bool success = false;
+      if (m_IsMailList) {
+        nsAutoCString uri(mURI);
+        // Trim off the mailing list entry ID from the mailing list URI
+        // to get the top-level directory entry ID.
+        nsAutoCString topEntryString;
+        int32_t slashPos = uri.RFindChar('/');
+        uri.SetLength(slashPos);
+        makeEntryIdFromURI(kOutlookDirectoryScheme, uri.get(), topEntryString);
+        nsMapiEntry topDirEntry;
+        topDirEntry.Assign(topEntryString);
+        success =
+            mapiAddBook->DeleteEntryfromDL(topDirEntry, *mDirEntry, cardEntry);
+      } else {
+        success = mapiAddBook->DeleteEntry(*mDirEntry, cardEntry);
+      }
+      if (!success) {
         PRINTF(("Cannot delete card %s.\n", cardEntryString.get()));
       } else {
-        if (m_IsMailList && m_AddressList) {
-          uint32_t pos;
-          if (NS_SUCCEEDED(m_AddressList->IndexOf(0, card, &pos)))
-            m_AddressList->RemoveElementAt(pos);
+        if (m_IsMailList) {
+          // It appears that removing a card from a mailing list makes
+          // our list go stale, so refresh it.
+          m_AddressList->Clear();
+          GetCards(m_AddressList, nullptr);
         } else if (mCardList) {
           uint32_t pos;
           if (NS_SUCCEEDED(mCardList->IndexOf(0, card, &pos)))
@@ -656,13 +673,17 @@ nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
   return rv;
 }
 
-static nsresult commonNotification(nsISupports* aItem, const char* aTopic) {
+nsresult nsAbOutlookDirectory::commonNotification(nsISupports* aItem,
+                                                  const char* aTopic) {
   nsCOMPtr<nsIAbCard> card = do_QueryInterface(aItem);
   // Right now, mailing lists are not fully working, see bug 1685166.
   if (!card) return NS_OK;
 
   nsAutoCString dirUID;
-  card->GetDirectoryUID(dirUID);
+  // For the notification we need to notify the directory the card is contained
+  // in. We can't use `card->GetDirectoryUID(dirUID);` since for cards in a
+  // mailing list the card's directory UID is the top level UID.
+  GetUID(dirUID);
 
   nsCOMPtr<nsIObserverService> observerService =
       mozilla::services::GetObserverService();
