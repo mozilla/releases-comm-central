@@ -512,15 +512,15 @@ encrypted_add_recipient(pgp_write_handler_t *handler,
     if (!userkey) {
         return RNP_ERROR_NO_SUITABLE_KEY;
     }
-    if (!userkey->valid) {
+    if (!userkey->valid()) {
         RNP_LOG("attempt to use invalid key as recipient");
         return RNP_ERROR_NO_SUITABLE_KEY;
     }
 
     /* Fill pkey */
     pkey.version = PGP_PKSK_V3;
-    pkey.alg = pgp_key_get_alg(userkey);
-    pkey.key_id = pgp_key_get_keyid(userkey);
+    pkey.alg = userkey->alg();
+    pkey.key_id = userkey->keyid();
 
     /* Encrypt the session key */
     enckey[0] = param->ctx->ealg;
@@ -533,14 +533,16 @@ encrypted_add_recipient(pgp_write_handler_t *handler,
     enckey[keylen + 1] = (checksum >> 8) & 0xff;
     enckey[keylen + 2] = checksum & 0xff;
 
-    switch (pgp_key_get_alg(userkey)) {
+    pgp_encrypted_material_t material;
+
+    switch (userkey->alg()) {
     case PGP_PKA_RSA:
     case PGP_PKA_RSA_ENCRYPT_ONLY: {
         ret = rsa_encrypt_pkcs1(rnp_ctx_rng_handle(handler->ctx),
-                                &pkey.material.rsa,
+                                &material.rsa,
                                 enckey,
                                 keylen + 3,
-                                &pgp_key_get_material(userkey)->rsa);
+                                &userkey->material().rsa);
         if (ret) {
             RNP_LOG("rsa_encrypt_pkcs1 failed");
             goto finish;
@@ -549,11 +551,11 @@ encrypted_add_recipient(pgp_write_handler_t *handler,
     }
     case PGP_PKA_SM2: {
         ret = sm2_encrypt(rnp_ctx_rng_handle(handler->ctx),
-                          &pkey.material.sm2,
+                          &material.sm2,
                           enckey,
                           keylen + 3,
                           PGP_HASH_SM3,
-                          &pgp_key_get_material(userkey)->ec);
+                          &userkey->material().ec);
         if (ret != RNP_SUCCESS) {
             RNP_LOG("sm2_encrypt failed");
             goto finish;
@@ -562,11 +564,11 @@ encrypted_add_recipient(pgp_write_handler_t *handler,
     }
     case PGP_PKA_ECDH: {
         ret = ecdh_encrypt_pkcs5(rnp_ctx_rng_handle(handler->ctx),
-                                 &pkey.material.ecdh,
+                                 &material.ecdh,
                                  enckey,
                                  keylen + 3,
-                                 &pgp_key_get_material(userkey)->ec,
-                                 pgp_key_get_fp(userkey));
+                                 &userkey->material().ec,
+                                 userkey->fp());
         if (ret != RNP_SUCCESS) {
             RNP_LOG("ECDH encryption failed %d", ret);
             goto finish;
@@ -575,10 +577,10 @@ encrypted_add_recipient(pgp_write_handler_t *handler,
     }
     case PGP_PKA_ELGAMAL: {
         ret = elgamal_encrypt_pkcs1(rnp_ctx_rng_handle(handler->ctx),
-                                    &pkey.material.eg,
+                                    &material.eg,
                                     enckey,
                                     keylen + 3,
-                                    &pgp_key_get_material(userkey)->eg);
+                                    &userkey->material().eg);
         if (ret) {
             RNP_LOG("pgp_elgamal_public_encrypt failed");
             goto finish;
@@ -586,17 +588,18 @@ encrypted_add_recipient(pgp_write_handler_t *handler,
         break;
     }
     default:
-        RNP_LOG("unsupported alg: %d", pgp_key_get_alg(userkey));
+        RNP_LOG("unsupported alg: %d", (int) userkey->alg());
         goto finish;
     }
 
     /* Writing symmetric key encrypted session key packet */
-    if (!stream_write_pk_sesskey(&pkey, param->pkt.origdst)) {
+    try {
+        pkey.write_material(material);
+        pkey.write(*param->pkt.origdst);
+        ret = param->pkt.origdst->werr;
+    } catch (const std::exception &e) {
         ret = RNP_ERROR_WRITE;
-        goto finish;
     }
-
-    ret = RNP_SUCCESS;
 finish:
     pgp_forget(enckey, sizeof(enckey));
     pgp_forget(&checksum, sizeof(checksum));
@@ -699,10 +702,12 @@ encrypted_add_password(rnp_symmetric_pass_info_t * pass,
     }
 
     /* Writing symmetric key encrypted session key packet */
-    if (!stream_write_sk_sesskey(&skey, param->pkt.origdst)) {
+    try {
+        skey.write(*param->pkt.origdst);
+    } catch (const std::exception &e) {
         return RNP_ERROR_WRITE;
     }
-    return RNP_SUCCESS;
+    return param->pkt.origdst->werr;
 }
 
 static rnp_result_t
@@ -939,20 +944,15 @@ cleartext_dst_writeline(pgp_dest_signed_param_t *param,
     dst_write(param->writedst, buf, len);
 
     if (eol) {
-        /* skipping trailing eol - \n, or \r\n. For the last line eol may be true without \n */
         bool hashcrlf = false;
         ptr = buf + len - 1;
-        if (*ptr == CH_LF) {
-            ptr--;
-            hashcrlf = true;
 
-            if ((ptr >= buf) && (*ptr == CH_CR)) {
-                ptr--;
+        /* skipping trailing characters - space, tab, carriage return, line feed */
+        while ((ptr >= buf) && ((*ptr == CH_SPACE) || (*ptr == CH_TAB) || (*ptr == CH_CR) ||
+                                (*ptr == CH_LF))) {
+            if (*ptr == CH_LF) {
+                hashcrlf = true;
             }
-        }
-
-        /* skipping trailing spaces */
-        while ((ptr >= buf) && ((*ptr == CH_SPACE) || (*ptr == CH_TAB))) {
             ptr--;
         }
 
@@ -1054,15 +1054,15 @@ signed_fill_signature(pgp_dest_signed_param_t *param,
                       pgp_signature_t *        sig,
                       pgp_dest_signer_info_t * signer)
 {
-    pgp_key_pkt_t *    deckey = NULL;
-    pgp_hash_t         hash;
-    pgp_password_ctx_t ctx = {.op = PGP_OP_SIGN, .key = signer->key};
-    rnp_result_t       ret = RNP_ERROR_GENERIC;
+    const pgp_key_pkt_t *deckey = NULL;
+    pgp_hash_t           hash;
+    pgp_password_ctx_t   ctx = {.op = PGP_OP_SIGN, .key = signer->key};
+    rnp_result_t         ret = RNP_ERROR_GENERIC;
 
     /* fill signature fields */
     try {
-        sig->set_keyfp(pgp_key_get_fp(signer->key));
-        sig->set_keyid(pgp_key_get_keyid(signer->key));
+        sig->set_keyfp(signer->key->fp());
+        sig->set_keyid(signer->key->keyid());
         sig->set_creation(signer->sigcreate ? signer->sigcreate : time(NULL));
         sig->set_expiration(signer->sigexpire);
     } catch (const std::exception &e) {
@@ -1080,7 +1080,7 @@ signed_fill_signature(pgp_dest_signed_param_t *param,
     }
 
     /* decrypt the secret key if needed */
-    if (pgp_key_is_encrypted(signer->key)) {
+    if (signer->key->encrypted()) {
         deckey = pgp_decrypt_seckey(signer->key, param->password_provider, &ctx);
         if (!deckey) {
             RNP_LOG("wrong secret key password");
@@ -1088,14 +1088,14 @@ signed_fill_signature(pgp_dest_signed_param_t *param,
             return RNP_ERROR_BAD_PASSWORD;
         }
     } else {
-        deckey = &(signer->key->pkt);
+        deckey = &signer->key->pkt();
     }
 
     /* calculate the signature */
     ret = signature_calculate(sig, &deckey->material, &hash, rnp_ctx_rng_handle(param->ctx));
 
     /* destroy decrypted secret key */
-    if (pgp_key_is_encrypted(signer->key)) {
+    if (signer->key->encrypted()) {
         delete deckey;
     }
     return ret;
@@ -1107,23 +1107,28 @@ signed_write_signature(pgp_dest_signed_param_t *param,
                        pgp_dest_t *             writedst)
 {
     pgp_signature_t sig;
-    rnp_result_t    ret;
-
     sig.version = (pgp_version_t) 4;
     if (signer->onepass.version) {
         sig.halg = signer->onepass.halg;
         sig.palg = signer->onepass.palg;
         sig.set_type(signer->onepass.type);
     } else {
-        sig.halg = pgp_hash_adjust_alg_to_key(signer->halg, pgp_key_get_pkt(signer->key));
-        sig.palg = pgp_key_get_alg(signer->key);
+        sig.halg = pgp_hash_adjust_alg_to_key(signer->halg, &signer->key->pkt());
+        sig.palg = signer->key->alg();
         sig.set_type(param->ctx->detached ? PGP_SIG_BINARY : PGP_SIG_TEXT);
     }
 
-    if (!(ret = signed_fill_signature(param, &sig, signer))) {
-        ret = stream_write_signature(&sig, writedst) ? RNP_SUCCESS : RNP_ERROR_WRITE;
+    rnp_result_t ret = signed_fill_signature(param, &sig, signer);
+    if (ret) {
+        return ret;
     }
-    return ret;
+    try {
+        sig.write(*writedst);
+        return writedst->werr;
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return RNP_ERROR_WRITE;
+    }
 }
 
 static rnp_result_t
@@ -1216,7 +1221,7 @@ signed_add_signer(pgp_dest_signed_param_t *param, rnp_signer_info_t *signer, boo
 {
     pgp_dest_signer_info_t sinfo = {};
 
-    if (!pgp_key_is_secret(signer->key)) {
+    if (!signer->key->is_secret()) {
         RNP_LOG("secret key required for signing");
         return RNP_ERROR_BAD_PARAMETERS;
     }
@@ -1227,7 +1232,7 @@ signed_add_signer(pgp_dest_signed_param_t *param, rnp_signer_info_t *signer, boo
     sinfo.sigexpire = signer->sigexpire;
 
     /* Add hash to the list */
-    sinfo.halg = pgp_hash_adjust_alg_to_key(signer->halg, pgp_key_get_pkt(signer->key));
+    sinfo.halg = pgp_hash_adjust_alg_to_key(signer->halg, &signer->key->pkt());
     if (!pgp_hash_list_add(param->hashes, sinfo.halg)) {
         return RNP_ERROR_BAD_PARAMETERS;
     }
@@ -1248,8 +1253,8 @@ signed_add_signer(pgp_dest_signed_param_t *param, rnp_signer_info_t *signer, boo
     sinfo.onepass.version = 3;
     sinfo.onepass.type = PGP_SIG_BINARY;
     sinfo.onepass.halg = sinfo.halg;
-    sinfo.onepass.palg = pgp_key_get_alg(sinfo.key);
-    sinfo.onepass.keyid = pgp_key_get_keyid(sinfo.key);
+    sinfo.onepass.palg = sinfo.key->alg();
+    sinfo.onepass.keyid = sinfo.key->keyid();
     sinfo.onepass.nested = false;
     try {
         param->siginfos.push_back(sinfo);
@@ -1259,17 +1264,19 @@ signed_add_signer(pgp_dest_signed_param_t *param, rnp_signer_info_t *signer, boo
     }
 
     // write onepasses in reverse order so signature order will match signers list
-    if (last) {
+    if (!last) {
+        return RNP_SUCCESS;
+    }
+    try {
         for (auto it = param->siginfos.rbegin(); it != param->siginfos.rend(); it++) {
             pgp_dest_signer_info_t &sinfo = *it;
             sinfo.onepass.nested = &sinfo == &param->siginfos.front();
-            if (!stream_write_one_pass(&sinfo.onepass, param->writedst)) {
-                return RNP_ERROR_WRITE;
-            }
+            sinfo.onepass.write(*param->writedst);
         }
+        return param->writedst->werr;
+    } catch (const std::exception &e) {
+        return RNP_ERROR_WRITE;
     }
-
-    return RNP_SUCCESS;
 }
 
 pgp_dest_signed_param_t::~pgp_dest_signed_param_t()

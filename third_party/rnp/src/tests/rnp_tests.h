@@ -193,6 +193,8 @@ void test_ffi_clear_keys(void **state);
 
 void test_ffi_save_keys(void **state);
 
+void test_ffi_load_save_keys_to_utf8_path(void **state);
+
 void test_ffi_encrypt_pass(void **state);
 
 void test_ffi_encrypt_pass_provider(void **state);
@@ -327,6 +329,10 @@ void test_ffi_decrypt_edge_cases(void **state);
 
 void test_ffi_key_get_protection_info(void **state);
 
+void test_ffi_sig_validity(void **state);
+
+void test_ffi_get_signature_type(void **state);
+
 void test_rnp_mkstemp(void **state);
 
 void test_dsa_roundtrip(void **state);
@@ -374,6 +380,8 @@ void test_stream_825_dearmor_blank_line(void **state);
 void test_stream_dearmor_edge_cases(void **state);
 
 void test_cli_rnpkeys(void **state);
+
+void test_cli_rnpkeys_unicode(void **state);
 
 void test_cli_rnp(void **state);
 
@@ -426,6 +434,10 @@ void test_fuzz_keyring_g10(void **state);
 void test_fuzz_keyring_kbx(void **state);
 
 void test_fuzz_keyimport(void **state);
+
+void test_fuzz_dump(void **state);
+
+void test_fuzz_verify_detached(void **state);
 
 #define assert_true(a) EXPECT_TRUE((a))
 #define assert_false(a) EXPECT_FALSE((a))

@@ -60,9 +60,8 @@ TEST_F(rnp_tests, test_issue_1171_key_import_and_remove)
     assert_int_equal(bits, 256);
 
     /* directly use rnp_key_store_get_key_by_grip() which caused crash */
-    pgp_key_t *subkey =
-      rnp_key_store_get_key_by_grip(ffi->pubring, pgp_key_get_grip(key->pub));
-    assert_int_equal(pgp_key_get_bits(subkey), 256);
+    pgp_key_t *subkey = rnp_key_store_get_key_by_grip(ffi->pubring, key->pub->grip());
+    assert_int_equal(subkey->material().bits(), 256);
     assert_rnp_success(rnp_key_handle_destroy(key));
 
     assert_rnp_success(

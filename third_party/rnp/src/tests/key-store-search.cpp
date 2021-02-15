@@ -24,6 +24,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <algorithm>
+#include <set>
 #include "../librekey/key_store_pgp.h"
 #include "pgp-key.h"
 
@@ -53,25 +55,30 @@ TEST_F(rnp_tests, test_key_store_search)
         for (size_t n = 0; n < testdata[i].count; n++) {
             pgp_key_t key;
 
-            key.pkt.tag = PGP_PKT_PUBLIC_KEY;
-            key.pkt.version = PGP_V4;
-            key.pkt.alg = PGP_PKA_RSA;
+            key.pkt().tag = PGP_PKT_PUBLIC_KEY;
+            key.pkt().version = PGP_V4;
+            key.pkt().alg = PGP_PKA_RSA;
 
             // set the keyid
-            assert_true(rnp_hex_decode(testdata[i].keyid, key.keyid.data(), key.keyid.size()));
-            // keys should have different grips otherwise rnp_key_store_add_key will fail here
-            assert_true(rnp_hex_decode(testdata[i].keyid, key.grip.data(), key.grip.size()));
-            key.grip[0] = (uint8_t) n;
-            // and fingerprint
             assert_true(rnp_hex_decode(
-              testdata[i].keyid, key.fingerprint.fingerprint, PGP_FINGERPRINT_SIZE));
-            key.fingerprint.fingerprint[0] = (uint8_t) n;
-            key.fingerprint.length = PGP_FINGERPRINT_SIZE;
+              testdata[i].keyid, (uint8_t *) key.keyid().data(), key.keyid().size()));
+            // keys should have different grips otherwise rnp_key_store_add_key will fail here
+            pgp_key_grip_t &grip = (pgp_key_grip_t &) key.grip();
+            assert_true(rnp_hex_decode(testdata[i].keyid, grip.data(), grip.size()));
+            grip[0] = (uint8_t) n;
+            // and fingerprint
+            pgp_fingerprint_t &fp = (pgp_fingerprint_t &) key.fp();
+            assert_true(
+              rnp_hex_decode(testdata[i].keyid, fp.fingerprint, PGP_FINGERPRINT_SIZE));
+            fp.fingerprint[0] = (uint8_t) n;
+            fp.length = PGP_FINGERPRINT_SIZE;
             // set the userids
+            pgp_transferable_key_t tkey;
             for (size_t uidn = 0; testdata[i].userids[uidn]; uidn++) {
-                pgp_userid_t *userid = pgp_key_add_userid(&key);
-                assert_non_null(userid);
-                userid->str = testdata[i].userids[uidn];
+                pgp_transferable_userid_t *uid =
+                  transferable_key_add_userid(tkey, testdata[i].userids[uidn]);
+                assert_non_null(uid);
+                key.add_uid(*uid);
             }
             // add to the store
             assert_true(rnp_key_store_add_key(store, &key));
@@ -82,95 +89,70 @@ TEST_F(rnp_tests, test_key_store_search)
     for (size_t i = 0; i < ARRAY_SIZE(testdata); i++) {
         pgp_key_id_t keyid = {};
         assert_true(rnp_hex_decode(testdata[i].keyid, keyid.data(), keyid.size()));
-        list seen_keys = NULL;
+        std::set<pgp_key_t *> seen_keys;
         for (pgp_key_t *key = rnp_key_store_get_key_by_id(store, keyid, NULL); key;
              key = rnp_key_store_get_key_by_id(store, keyid, key)) {
             // check that the keyid actually matches
-            assert_true(pgp_key_get_keyid(key) == keyid);
+            assert_true(key->keyid() == keyid);
             // check that we have not already encountered this key pointer
-            assert_null(list_find(seen_keys, &key, sizeof(key)));
+            assert_int_equal(seen_keys.count(key), 0);
             // keep track of what key pointers we have seen
-            assert_non_null(list_append(&seen_keys, &key, sizeof(key)));
+            seen_keys.insert(key);
         }
-        assert_int_equal(list_length(seen_keys), testdata[i].count);
-        list_destroy(&seen_keys);
+        assert_int_equal(seen_keys.size(), testdata[i].count);
     }
     // keyid search (by_name)
     for (size_t i = 0; i < ARRAY_SIZE(testdata); i++) {
-        list       seen_keys = NULL;
-        pgp_key_t *key = NULL;
+        std::set<pgp_key_t *> seen_keys;
+        pgp_key_t *           key = NULL;
         key = rnp_tests_get_key_by_id(store, testdata[i].keyid, NULL);
         while (key) {
             // check that the keyid actually matches
             pgp_key_id_t expected_keyid = {};
             assert_true(
               rnp_hex_decode(testdata[i].keyid, expected_keyid.data(), expected_keyid.size()));
-            assert_true(pgp_key_get_keyid(key) == expected_keyid);
+            assert_true(key->keyid() == expected_keyid);
             // check that we have not already encountered this key pointer
-            assert_null(list_find(seen_keys, &key, sizeof(key)));
+            assert_int_equal(seen_keys.count(key), 0);
             // keep track of what key pointers we have seen
-            assert_non_null(list_append(&seen_keys, &key, sizeof(key)));
-
+            seen_keys.insert(key);
             // this only returns false on error, regardless of whether it found a match
             key = rnp_tests_get_key_by_id(store, testdata[i].keyid, key);
         }
         // check the count
-        assert_int_equal(list_length(seen_keys), testdata[i].count);
-        // cleanup
-        list_destroy(&seen_keys);
+        assert_int_equal(seen_keys.size(), testdata[i].count);
     }
 
     // userid search (literal)
+    for (auto &key : store->keys) {
+        for (size_t i = 0; i < key.uid_count(); i++) {
+            key.get_uid(i).valid = true;
+        }
+    }
     for (size_t i = 0; i < ARRAY_SIZE(testdata); i++) {
         for (size_t uidn = 0; testdata[i].userids[uidn]; uidn++) {
-            list        seen_keys = NULL;
-            pgp_key_t * key = NULL;
-            const char *userid = testdata[i].userids[uidn];
-            key = rnp_tests_key_search(store, userid);
+            std::set<pgp_key_t *> seen_keys;
+            const std::string     userid = testdata[i].userids[uidn];
+            pgp_key_t *           key = rnp_tests_key_search(store, userid);
             while (key) {
                 // check that the userid actually matches
                 bool found = false;
-                for (unsigned j = 0; j < pgp_key_get_userid_count(key); j++) {
-                    if (pgp_key_get_userid(key, j)->str == userid) {
+                for (unsigned j = 0; j < key->uid_count(); j++) {
+                    if (key->get_uid(j).str == userid) {
                         found = true;
                     }
                 }
                 assert_true(found);
                 // check that we have not already encountered this key pointer
-                assert_null(list_find(seen_keys, &key, sizeof(key)));
+                assert_int_equal(seen_keys.count(key), 0);
                 // keep track of what key pointers we have seen
-                assert_non_null(list_append(&seen_keys, &key, sizeof(key)));
-
+                seen_keys.insert(key);
                 key = rnp_tests_get_key_by_id(store, testdata[i].keyid, key);
             }
             // check the count
-            assert_int_equal(list_length(seen_keys), testdata[i].count);
-            // cleanup
-            list_destroy(&seen_keys);
+            assert_int_equal(seen_keys.size(), testdata[i].count);
         }
     }
-
-#ifdef RNP_KEY_STORE_SEARCH_REGEX
-    // userid search (regex)
-    {
-        list        seen_keys = NULL;
-        pgp_key_t * key = NULL;
-        const char *userid = "user1-.*";
-        key = rnp_key_store_get_key_by_name(store, userid, NULL);
-        while (key) {
-            // check that we have not already encountered this key pointer
-            assert_null(list_find(seen_keys, &key, sizeof(key)));
-            // keep track of what key pointers we have seen
-            assert_non_null(list_append(&seen_keys, &key, sizeof(key)));
-
-            key = rnp_key_store_get_key_by_name(store, userid, key);
-        }
-        // check the count
-        assert_int_equal(list_length(seen_keys), 3);
-        // cleanup
-        list_destroy(&seen_keys);
-    }
-#endif // RNP_KEY_STORE_SEARCH_REGEX
 
     // cleanup
     delete store;

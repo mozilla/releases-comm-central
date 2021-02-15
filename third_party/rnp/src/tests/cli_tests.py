@@ -14,7 +14,7 @@ from os import path
 import cli_common
 from cli_common import (file_text, find_utility, is_windows, list_upto,
                         path_for_gpg, pswd_pipe, raise_err, random_text,
-                        rnp_file_path, run_proc)
+                        rnp_file_path, run_proc, CONSOLE_ENCODING)
 from gnupg import GnuPG as GnuPG
 from rnp import Rnp as Rnp
 
@@ -31,6 +31,27 @@ TESTS_SUCCEEDED = []
 TESTS_FAILED = []
 TEST_WORKFILES = []
 
+if sys.version_info >= (3,):
+    unichr = chr
+
+UNICODE_LATIN_CAPITAL_A_GRAVE = unichr(192)
+UNICODE_LATIN_SMALL_A_GRAVE = unichr(224)
+UNICODE_LATIN_CAPITAL_A_MACRON = unichr(256)
+UNICODE_LATIN_SMALL_A_MACRON = unichr(257)
+UNICODE_GREEK_CAPITAL_HETA = unichr(880)
+UNICODE_GREEK_SMALL_HETA = unichr(881)
+UNICODE_GREEK_CAPITAL_OMEGA = unichr(937)
+UNICODE_GREEK_SMALL_OMEGA = unichr(969)
+UNICODE_CYRILLIC_CAPITAL_A = unichr(0x0410)
+UNICODE_CYRILLIC_SMALL_A = unichr(0x0430)
+UNICODE_CYRILLIC_CAPITAL_YA = unichr(0x042F)
+UNICODE_CYRILLIC_SMALL_YA = unichr(0x044F)
+UNICODE_SEQUENCE_1 = UNICODE_LATIN_CAPITAL_A_GRAVE + UNICODE_LATIN_SMALL_A_MACRON \
+    + UNICODE_GREEK_CAPITAL_HETA + UNICODE_GREEK_SMALL_OMEGA \
+    + UNICODE_CYRILLIC_CAPITAL_A + UNICODE_CYRILLIC_SMALL_YA
+UNICODE_SEQUENCE_2 = UNICODE_LATIN_SMALL_A_GRAVE + UNICODE_LATIN_CAPITAL_A_MACRON \
+    + UNICODE_GREEK_SMALL_HETA + UNICODE_GREEK_CAPITAL_OMEGA \
+    + UNICODE_CYRILLIC_SMALL_A + UNICODE_CYRILLIC_CAPITAL_YA
 
 # Key userids
 KEY_ENCRYPT = 'encryption@rnp'
@@ -1007,7 +1028,39 @@ class Keystore(unittest.TestCase):
         match = re.match(RE_RNP_ENCRYPTED_KEY, out)
         if not match:
             raise_err('wrong encrypted secret key listing', err)
+
+    def test_generate_protection_password(self):
+        '''
+        Generate key with RNP, using the --password parameter, and make sure key is encrypted
+        '''
+        clear_keyrings()
+        params = ['--homedir', RNPDIR, '--password', 'password', '--userid', 'enc@rnp', '--generate-key']
+        ret, _, err = run_proc(RNPK, params)
+        if ret != 0:
+            raise_err('key generation failed', err)
+        # Check packets using the gpg
+        params = ['--homedir', RNPDIR, '--list-packets', path.join(RNPDIR, 'secring.gpg')]
+        ret, out, err = run_proc(RNP, params)
+        match = re.match(RE_RNP_ENCRYPTED_KEY, out)
+        if not match:
+            raise_err('wrong encrypted secret key listing', err)
     
+    def test_generate_unprotected_key(self):
+        '''
+        Generate key with RNP, using the --password parameter, and make sure key is encrypted
+        '''
+        clear_keyrings()
+        params = ['--homedir', RNPDIR, '--password=', '--userid', 'enc@rnp', '--generate-key']
+        ret, _, err = run_proc(RNPK, params)
+        if ret != 0:
+            raise_err('key generation failed', err)
+        # Check packets using the gpg
+        params = ['--homedir', RNPDIR, '--list-packets', path.join(RNPDIR, 'secring.gpg')]
+        ret, out, err = run_proc(RNP, params)
+        match = re.match(RE_RNP_ENCRYPTED_KEY, out)
+        if match:
+            raise_err('wrong unprotected secret key listing', err)
+
     def test_import_signatures(self):
         clear_keyrings()
         # Import command without the path parameter
@@ -1322,6 +1375,22 @@ class Misc(unittest.TestCase):
 
     def tearDown(self):
         clear_workfiles()
+
+    def test_encryption_unicode(self):
+        if sys.version_info >= (3,):
+            filename = UNICODE_SEQUENCE_1
+        else:
+            filename = UNICODE_SEQUENCE_1.encode(CONSOLE_ENCODING)
+
+        src, dst, dec = reg_workfiles(filename, '.txt', '.rnp', '.dec')
+        # Generate random file of required size
+        random_text(src, 128000)
+
+        rnp_encrypt_file_ex(src, dst, [KEY_ENCRYPT])
+        rnp_decrypt_file(dst, dec)
+        compare_files(src, dec, 'rnp decrypted data differs')
+
+        remove_files(src, dst, dec)
 
     def test_encryption_no_mdc(self):
         src, dst, dec = reg_workfiles('cleartext', '.txt', '.gpg', '.rnp')

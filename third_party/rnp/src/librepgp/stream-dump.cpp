@@ -725,8 +725,12 @@ stream_dump_signature_pkt(rnp_dump_ctx_t *ctx, pgp_signature_t *sig, pgp_dest_t 
     indent_dest_increase(dst);
 
     pgp_signature_material_t material = {};
-    parse_signature_material(*sig, material);
-
+    try {
+        sig->parse_material(material);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return;
+    }
     switch (sig->palg) {
     case PGP_PKA_RSA:
     case PGP_PKA_RSA_ENCRYPT_ONLY:
@@ -760,15 +764,21 @@ static void
 stream_dump_signature(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
 {
     pgp_signature_t sig;
+    rnp_result_t    ret;
 
     dst_printf(dst, "Signature packet\n");
-    if (stream_parse_signature(src, &sig)) {
+    try {
+        ret = sig.parse(*src);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         indent_dest_increase(dst);
         dst_printf(dst, "failed to parse\n");
         indent_dest_decrease(dst);
         return;
     }
-
     stream_dump_signature_pkt(ctx, &sig, dst);
 }
 
@@ -779,7 +789,13 @@ stream_dump_key(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
     rnp_result_t      ret;
     pgp_fingerprint_t keyfp = {};
 
-    if ((ret = stream_parse_key(src, &key))) {
+    try {
+        ret = key.parse(*src);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
 
@@ -862,14 +878,14 @@ stream_dump_key(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
     }
 
     pgp_key_id_t keyid = {};
-    if (!pgp_keyid(keyid, &key)) {
+    if (!pgp_keyid(keyid, key)) {
         dst_print_hex(dst, "keyid", keyid.data(), keyid.size(), false);
     } else {
         dst_printf(dst, "keyid: failed to calculate");
     }
 
     if ((key.version > PGP_V3) && (ctx->dump_grips)) {
-        if (!pgp_fingerprint(keyfp, &key)) {
+        if (!pgp_fingerprint(keyfp, key)) {
             dst_print_hex(dst, "fingerprint", keyfp.fingerprint, keyfp.length, false);
         } else {
             dst_printf(dst, "fingerprint: failed to calculate");
@@ -896,7 +912,12 @@ stream_dump_userid(pgp_source_t *src, pgp_dest_t *dst)
     rnp_result_t     ret;
     const char *     utype;
 
-    if ((ret = stream_parse_userid(src, &uid))) {
+    try {
+        ret = uid.parse(*src);
+    } catch (const std::exception &e) {
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
 
@@ -933,10 +954,19 @@ stream_dump_userid(pgp_source_t *src, pgp_dest_t *dst)
 static rnp_result_t
 stream_dump_pk_session_key(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
 {
-    pgp_pk_sesskey_t pkey;
-    rnp_result_t     ret;
+    pgp_pk_sesskey_t         pkey;
+    pgp_encrypted_material_t material;
+    rnp_result_t             ret;
 
-    if ((ret = stream_parse_pk_sesskey(src, &pkey))) {
+    try {
+        ret = pkey.parse(*src);
+        if (!pkey.parse_material(material)) {
+            ret = RNP_ERROR_BAD_FORMAT;
+        }
+    } catch (const std::exception &e) {
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
 
@@ -953,22 +983,22 @@ stream_dump_pk_session_key(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *d
     case PGP_PKA_RSA:
     case PGP_PKA_RSA_ENCRYPT_ONLY:
     case PGP_PKA_RSA_SIGN_ONLY:
-        dst_print_mpi(dst, "rsa m", &pkey.material.rsa.m, ctx->dump_mpi);
+        dst_print_mpi(dst, "rsa m", &material.rsa.m, ctx->dump_mpi);
         break;
     case PGP_PKA_ELGAMAL:
     case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
-        dst_print_mpi(dst, "eg g", &pkey.material.eg.g, ctx->dump_mpi);
-        dst_print_mpi(dst, "eg m", &pkey.material.eg.m, ctx->dump_mpi);
+        dst_print_mpi(dst, "eg g", &material.eg.g, ctx->dump_mpi);
+        dst_print_mpi(dst, "eg m", &material.eg.m, ctx->dump_mpi);
         break;
     case PGP_PKA_SM2:
-        dst_print_mpi(dst, "sm2 m", &pkey.material.sm2.m, ctx->dump_mpi);
+        dst_print_mpi(dst, "sm2 m", &material.sm2.m, ctx->dump_mpi);
         break;
     case PGP_PKA_ECDH:
-        dst_print_mpi(dst, "ecdh p", &pkey.material.ecdh.p, ctx->dump_mpi);
+        dst_print_mpi(dst, "ecdh p", &material.ecdh.p, ctx->dump_mpi);
         if (ctx->dump_mpi) {
-            dst_print_hex(dst, "ecdh m", pkey.material.ecdh.m, pkey.material.ecdh.mlen, true);
+            dst_print_hex(dst, "ecdh m", material.ecdh.m, material.ecdh.mlen, true);
         } else {
-            dst_printf(dst, "ecdh m: %d bytes\n", (int) pkey.material.ecdh.mlen);
+            dst_printf(dst, "ecdh m: %d bytes\n", (int) material.ecdh.mlen);
         }
         break;
     default:
@@ -986,7 +1016,12 @@ stream_dump_sk_session_key(pgp_source_t *src, pgp_dest_t *dst)
     pgp_sk_sesskey_t skey;
     rnp_result_t     ret;
 
-    if ((ret = stream_parse_sk_sesskey(src, &skey))) {
+    try {
+        ret = skey.parse(*src);
+    } catch (const std::exception &e) {
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
 
@@ -1083,7 +1118,12 @@ stream_dump_one_pass(pgp_source_t *src, pgp_dest_t *dst)
     pgp_one_pass_sig_t onepass;
     rnp_result_t       ret;
 
-    if ((ret = stream_parse_one_pass(src, &onepass))) {
+    try {
+        ret = onepass.parse(*src);
+    } catch (const std::exception &e) {
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
 
@@ -1747,7 +1787,12 @@ stream_dump_signature_pkt_json(rnp_dump_ctx_t *       ctx,
         goto done;
     }
 
-    parse_signature_material(*sig, sigmaterial);
+    try {
+        sig->parse_material(sigmaterial);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
     switch (sig->palg) {
     case PGP_PKA_RSA:
     case PGP_PKA_RSA_ENCRYPT_ONLY:
@@ -1790,7 +1835,14 @@ static rnp_result_t
 stream_dump_signature_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object *pkt)
 {
     pgp_signature_t sig;
-    if (stream_parse_signature(src, &sig)) {
+    rnp_result_t    ret;
+    try {
+        ret = sig.parse(*src);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return RNP_SUCCESS;
     }
     return stream_dump_signature_pkt_json(ctx, &sig, pkt);
@@ -1805,7 +1857,13 @@ stream_dump_key_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object *pkt)
     pgp_fingerprint_t keyfp = {};
     json_object *     material = NULL;
 
-    if ((ret = stream_parse_key(src, &key))) {
+    try {
+        ret = key.parse(*src);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
 
@@ -1908,13 +1966,12 @@ stream_dump_key_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object *pkt)
         }
     }
 
-    if (pgp_keyid(keyid, &key) ||
-        !obj_add_hex_json(pkt, "keyid", keyid.data(), keyid.size())) {
+    if (pgp_keyid(keyid, key) || !obj_add_hex_json(pkt, "keyid", keyid.data(), keyid.size())) {
         goto done;
     }
 
     if (ctx->dump_grips) {
-        if (pgp_fingerprint(keyfp, &key) ||
+        if (pgp_fingerprint(keyfp, key) ||
             !obj_add_hex_json(pkt, "fingerprint", keyfp.fingerprint, keyfp.length)) {
             goto done;
         }
@@ -1936,7 +1993,12 @@ stream_dump_userid_json(pgp_source_t *src, json_object *pkt)
     pgp_userid_pkt_t uid;
     rnp_result_t     ret;
 
-    if ((ret = stream_parse_userid(src, &uid))) {
+    try {
+        ret = uid.parse(*src);
+    } catch (const std::exception &e) {
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
 
@@ -1960,10 +2022,19 @@ stream_dump_userid_json(pgp_source_t *src, json_object *pkt)
 static rnp_result_t
 stream_dump_pk_session_key_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object *pkt)
 {
-    pgp_pk_sesskey_t pkey;
-    rnp_result_t     ret;
+    pgp_pk_sesskey_t         pkey;
+    pgp_encrypted_material_t pkmaterial;
+    rnp_result_t             ret;
 
-    if ((ret = stream_parse_pk_sesskey(src, &pkey))) {
+    try {
+        ret = pkey.parse(*src);
+        if (!pkey.parse_material(pkmaterial)) {
+            ret = RNP_ERROR_BAD_FORMAT;
+        }
+    } catch (const std::exception &e) {
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
 
@@ -1982,30 +2053,30 @@ stream_dump_pk_session_key_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_obj
     case PGP_PKA_RSA:
     case PGP_PKA_RSA_ENCRYPT_ONLY:
     case PGP_PKA_RSA_SIGN_ONLY:
-        if (!obj_add_mpi_json(material, "m", &pkey.material.rsa.m, ctx->dump_mpi)) {
+        if (!obj_add_mpi_json(material, "m", &pkmaterial.rsa.m, ctx->dump_mpi)) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
         break;
     case PGP_PKA_ELGAMAL:
     case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
-        if (!obj_add_mpi_json(material, "g", &pkey.material.eg.g, ctx->dump_mpi) ||
-            !obj_add_mpi_json(material, "m", &pkey.material.eg.m, ctx->dump_mpi)) {
+        if (!obj_add_mpi_json(material, "g", &pkmaterial.eg.g, ctx->dump_mpi) ||
+            !obj_add_mpi_json(material, "m", &pkmaterial.eg.m, ctx->dump_mpi)) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
         break;
     case PGP_PKA_SM2:
-        if (!obj_add_mpi_json(material, "m", &pkey.material.sm2.m, ctx->dump_mpi)) {
+        if (!obj_add_mpi_json(material, "m", &pkmaterial.sm2.m, ctx->dump_mpi)) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
         break;
     case PGP_PKA_ECDH:
-        if (!obj_add_mpi_json(material, "p", &pkey.material.ecdh.p, ctx->dump_mpi) ||
+        if (!obj_add_mpi_json(material, "p", &pkmaterial.ecdh.p, ctx->dump_mpi) ||
             !obj_add_field_json(
-              material, "m.bytes", json_object_new_int(pkey.material.ecdh.mlen))) {
+              material, "m.bytes", json_object_new_int(pkmaterial.ecdh.mlen))) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
         if (ctx->dump_mpi &&
-            !obj_add_hex_json(material, "m", pkey.material.ecdh.m, pkey.material.ecdh.mlen)) {
+            !obj_add_hex_json(material, "m", pkmaterial.ecdh.m, pkmaterial.ecdh.mlen)) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
         break;
@@ -2021,9 +2092,15 @@ stream_dump_sk_session_key_json(pgp_source_t *src, json_object *pkt)
     pgp_sk_sesskey_t skey;
     rnp_result_t     ret;
 
-    if ((ret = stream_parse_sk_sesskey(src, &skey))) {
+    try {
+        ret = skey.parse(*src);
+    } catch (const std::exception &e) {
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
+
     if (!obj_add_field_json(pkt, "version", json_object_new_int(skey.version)) ||
         !obj_add_intstr_json(pkt, "algorithm", skey.alg, symm_alg_map)) {
         return RNP_ERROR_OUT_OF_MEMORY;
@@ -2076,7 +2153,12 @@ stream_dump_one_pass_json(pgp_source_t *src, json_object *pkt)
     pgp_one_pass_sig_t onepass;
     rnp_result_t       ret;
 
-    if ((ret = stream_parse_one_pass(src, &onepass))) {
+    try {
+        ret = onepass.parse(*src);
+    } catch (const std::exception &e) {
+        ret = RNP_ERROR_GENERIC;
+    }
+    if (ret) {
         return ret;
     }
 

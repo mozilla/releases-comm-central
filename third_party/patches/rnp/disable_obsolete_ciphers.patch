@@ -1,21 +1,13 @@
-
-# HG changeset patch
-# User Kai Engert <kaie@kuix.de>
-# Date 1598528704 -7200
-# Node ID 2cab33d64909409be0ca9b008631fb9dd6dbfa2d
-# Parent  0d45417c5ad6ba182de5b41d8698e9ae3530c9c6
-Bug 1641720 - Patch RNP to disable several nonstandard or obsolete ciphers. r=mkmelin a=rjl
-
 diff --git a/third_party/rnp/src/lib/crypto/signatures.cpp b/third_party/rnp/src/lib/crypto/signatures.cpp
 --- a/third_party/rnp/src/lib/crypto/signatures.cpp
 +++ b/third_party/rnp/src/lib/crypto/signatures.cpp
-@@ -181,29 +181,90 @@ signature_calculate(pgp_signature_t *   
-         break;
+@@ -188,29 +188,90 @@ signature_calculate(pgp_signature_t *   
+         sig->write_material(material);
+         return RNP_SUCCESS;
+     } catch (const std::exception &e) {
+         RNP_LOG("%s", e.what());
+         return RNP_ERROR_GENERIC;
      }
-     if (!ret) {
-         write_signature_material(*sig, material);
-     }
-     return ret;
  }
  
 +static bool is_hash_alg_allowed_in_sig(const pgp_hash_alg_t hash_alg)
@@ -100,5 +92,3 @@ diff --git a/third_party/rnp/src/lib/crypto/signatures.cpp b/third_party/rnp/src
      }
  
      /* Finalize hash */
-
-
