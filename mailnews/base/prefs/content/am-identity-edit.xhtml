@@ -40,21 +40,16 @@
   <script src="chrome://messenger/content/am-copies.js"/>
   <script src="chrome://messenger/content/am-addressing.js"/>
   <script src="chrome://messenger/content/am-e2e.js"/>
-  <script>
-  <![CDATA[
-    window.addEventListener("load", e2eOnLoadEditor);
-  ]]>
-  </script>
 
   <description>&identityListDesc.label;</description>
   <separator class="thin"/>
 
   <tabbox flex="1" style="overflow: auto;">
     <tabs id="identitySettings">
-      <tab label="&settingsTab.label;"/>
-      <tab label="&copiesFoldersTab.label;"/>
-      <tab label="&addressingTab.label;"/>
-      <tab label="&e2eTitle.label;"/>
+      <tab id="identitySettingsTab" label="&settingsTab.label;"/>
+      <tab id="identityCopiesFoldersTab" label="&copiesFoldersTab.label;"/>
+      <tab id="identityAddressingTab" label="&addressingTab.label;"/>
+      <tab id="identityE2ETab" label="&e2eTitle.label;"/>
     </tabs>
 
     <tabpanels id="identityTabsPanels" flex="1">

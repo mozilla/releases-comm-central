@@ -37,6 +37,10 @@ function onLoadIdentityProperties() {
   initIdentityValues(gIdentity);
   initCopiesAndFolder(gIdentity);
   initCompositionAndAddressing(gIdentity);
+  initE2EEncryption(gIdentity);
+
+  // E2E needs an email... hide until we have one.
+  document.getElementById("identityE2ETab").hidden = !gIdentity?.email;
 }
 
 // based on the values of gIdentity, initialize the identity fields we expose to the user
@@ -212,7 +216,7 @@ function onOk(event) {
   saveIdentitySettings(gIdentity);
   saveCopiesAndFolderSettings(gIdentity);
   saveAddressingAndCompositionSettings(gIdentity);
-  e2eOnAcceptEditor(event);
+  saveE2EEncryptionSettings(gIdentity);
 
   window.arguments[0].result = true;
 }

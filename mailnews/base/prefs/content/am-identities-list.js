@@ -1,15 +1,12 @@
-/* -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var gIdentityListBox; // the root <listbox> node
+var gIdentityListBox; // the root <richlistbox> node
 var gAddButton;
 var gEditButton;
 var gSetDefaultButton;
@@ -41,7 +38,7 @@ function onLoad() {
 /**
  * Rebuilds the listbox holding the list of identities.
  *
- * @param aSelectIndex  Attempt to select the identity with this index.
+ * @param {number} aSelectIndex - Attempt to select the identity with this index.
  */
 function refreshIdentityList(aSelectIndex) {
   // Remove all children.
@@ -110,7 +107,7 @@ function getSelectedIdentity() {
 }
 
 function onEdit(event) {
-  var id = event.target.localName == "listbox" ? null : getSelectedIdentity();
+  var id = getSelectedIdentity();
   openIdentityEditor(id);
 }
 

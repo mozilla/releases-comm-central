@@ -686,10 +686,10 @@ async function openPgpKeygenConfirm() {
   // Create a revokation cert in the Thunderbird profile directoy.
   EnigmailFiles.writeFileContents(revFile, revFull, DEFAULT_FILE_PERMS);
 
-  // Key succesfully created. Assign the new key to the current identity, close
-  // the dialog and show a confirmation message.
-  gIdentity.setUnicharAttribute("openpgp_key_id", gGeneratedKey);
-  window.arguments[0].okCallback();
+  // Key succesfully created. Close the dialog and show a confirmation message.
+  // Assigning the key to an identity is the responsibility of the caller,
+  // so we pass back what we created.
+  window.arguments[0].okCallback(gGeneratedKey);
   window.close();
 }
 
@@ -1109,12 +1109,8 @@ function openPgpExternalComplete() {
   gIdentity.setBoolAttribute("is_gnupg_key_id", true);
 
   let externalKey = document.getElementById("externalKey").value;
-  gIdentity.setUnicharAttribute(
-    "last_entered_external_gnupg_key_id",
-    externalKey
-  );
   gIdentity.setUnicharAttribute("openpgp_key_id", externalKey);
 
-  window.arguments[0].okExternalCallback();
+  window.arguments[0].okExternalCallback(externalKey);
   window.close();
 }

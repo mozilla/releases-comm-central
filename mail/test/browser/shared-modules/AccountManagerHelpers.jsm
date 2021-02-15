@@ -5,6 +5,7 @@
 "use strict";
 
 const EXPORTED_SYMBOLS = [
+  "openAccountSettings",
   "open_advanced_settings",
   "open_mail_account_setup_wizard",
   "click_account_tree_row",
@@ -43,6 +44,14 @@ function wait_for_account_tree_load(tab) {
     () => tab.browser.contentWindow.currentAccount != null,
     "Timeout waiting for currentAccount to become non-null"
   );
+}
+
+async function openAccountSettings() {
+  return new Promise(resolve => {
+    let tab = open_content_tab_with_url("about:accountsettings");
+    wait_for_account_tree_load(tab);
+    resolve(tab);
+  });
 }
 
 /**

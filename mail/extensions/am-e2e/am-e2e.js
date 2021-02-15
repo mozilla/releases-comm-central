@@ -1,4 +1,4 @@
-/* -*- Mode: Java; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -39,10 +39,6 @@ if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
   );
 }
 
-var nsIX509CertDB = Ci.nsIX509CertDB;
-var nsX509CertDBContractID = "@mozilla.org/security/x509certdb;1";
-var nsIX509Cert = Ci.nsIX509Cert;
-
 var email_signing_cert_usage = 4; // SECCertUsage.certUsageEmailSigner
 var email_recipient_cert_usage = 5; // SECCertUsage.certUsageEmailRecipient
 
@@ -54,7 +50,7 @@ var gTechChoices = null;
 var gSignMessages = null;
 var gRequireEncrypt = null;
 var gDoNotEncrypt = null;
-var gKeyId = null;
+var gKeyId = null; // "" will denote selection 'None'.
 var gBundle = null;
 var gBrandBundle;
 var gSmimePrefbranch;
@@ -71,48 +67,30 @@ function onInit() {
       item.hidden = true;
     }
   }
-  e2eInitializeFields();
+  initE2EEncryption(gIdentity);
 }
 
-function e2eInitializeFields() {
-  // initialize all of our elements based on the current identity values....
+async function initE2EEncryption(identity) {
+  // Initialize all of our elements based on the current identity values...
   gEncryptionCertName = document.getElementById(kEncryptionCertPref);
   gEncryptionChoices = document.getElementById("encryptionChoices");
   gSignCertName = document.getElementById(kSigningCertPref);
   gSignMessages = document.getElementById("identity_sign_mail");
   gRequireEncrypt = document.getElementById("encrypt_require");
   gDoNotEncrypt = document.getElementById("encrypt_no");
+
   gBundle = document.getElementById("bundle_e2e");
   gBrandBundle = document.getElementById("bundle_brand");
 
   if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-    document
-      .getElementById("openPgpKeyListRadio")
-      .setAttribute(
-        "preference",
-        `mail.identity.${gIdentity.key}.openpgp_key_id`
-      );
-
-    if (!Preferences.get(`mail.identity.${gIdentity.key}.openpgp_key_id`)) {
-      Preferences.add({
-        id: `mail.identity.${gIdentity.key}.openpgp_key_id`,
-        type: "string",
-      });
-    }
-
     gTechChoices = document.getElementById("technologyChoices");
-    gKeyId = Services.prefs.getStringPref(
-      `mail.identity.${gIdentity.key}.openpgp_key_id`,
-      ""
-    );
     gTechAuto = document.getElementById("technology_automatic");
     gTechPrefOpenPGP = document.getElementById("technology_prefer_openpgp");
     gTechPrefSMIME = document.getElementById("technology_prefer_smime");
   }
 
-  if (!gIdentity) {
-    // The user is going to create a new identity.
-    // Set everything to default values.
+  if (!identity) {
+    // We're setting up a new identity. Set everything to default values.
     // Do not take over the values from gAccount.defaultIdentity
     // as the new identity is going to have a different mail address.
 
@@ -124,86 +102,32 @@ function e2eInitializeFields() {
     gSignCertName.displayName = "";
     gSignCertName.dbKey = "";
 
-    // If the user doesn't have an identity defined but OpenPGP is available,
-    // we hide the entire section to avoid issues and edge cases.
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-      document
-        .getElementById("openpgpOptions")
-        .setAttribute("hidden", "hidden");
-    }
-
     gRequireEncrypt.disabled = true;
     gDoNotEncrypt.disabled = true;
     gSignMessages.disabled = true;
-
     gSignMessages.checked = false;
     gEncryptionChoices.value = 0;
     if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
       gTechChoices.value = 0;
     }
   } else {
-    var certdb = Cc[nsX509CertDBContractID].getService(nsIX509CertDB);
-    var x509cert = null;
+    // We're editing an existing identity.
 
-    gEncryptionCertName.value = gIdentity.getUnicharAttribute(
-      "encryption_cert_name"
-    );
-    gEncryptionCertName.dbKey = gIdentity.getCharAttribute(
-      "encryption_cert_dbkey"
-    );
-    // If we succeed in looking up the certificate by the dbkey pref, then
-    // append the serial number " [...]" to the display value, and remember the
-    // displayName in a separate property.
-    try {
-      if (
-        certdb &&
-        gEncryptionCertName.dbKey &&
-        (x509cert = certdb.findCertByDBKey(gEncryptionCertName.dbKey))
-      ) {
-        gEncryptionCertName.value =
-          x509cert.displayName + " [" + x509cert.serialNumber + "]";
-        gEncryptionCertName.displayName = x509cert.displayName;
-      }
-    } catch (e) {}
-
-    gEncryptionChoices.value = gIdentity.getIntAttribute("encryptionpolicy");
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
-      gTechChoices.value = gIdentity.getIntAttribute("e2etechpref");
-    }
+    initSMIMESettings();
+    await initOpenPgpSettings();
 
     let enableEnc = !!gEncryptionCertName.value;
     if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
       enableEnc = enableEnc || !!gKeyId;
     }
-
-    gRequireEncrypt.disabled = !enableEnc;
-    gDoNotEncrypt.disabled = !enableEnc;
     enableEncryptionControls(enableEnc);
 
-    gSignCertName.value = gIdentity.getUnicharAttribute("signing_cert_name");
-    gSignCertName.dbKey = gIdentity.getCharAttribute("signing_cert_dbkey");
-    x509cert = null;
-    // same procedure as with gEncryptionCertName (see above)
-    try {
-      if (
-        certdb &&
-        gSignCertName.dbKey &&
-        (x509cert = certdb.findCertByDBKey(gSignCertName.dbKey))
-      ) {
-        gSignCertName.value =
-          x509cert.displayName + " [" + x509cert.serialNumber + "]";
-        gSignCertName.displayName = x509cert.displayName;
-      }
-    } catch (e) {}
-
-    gSignMessages.checked = gIdentity.getBoolAttribute("sign_mail");
+    gSignMessages.checked = identity.getBoolAttribute("sign_mail");
 
     let enableSig = gSignCertName.value;
     if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
       enableSig = enableSig || !!gKeyId;
     }
-
-    gSignMessages.disabled = !enableSig;
     enableSigningControls(enableSig);
   }
 
@@ -212,8 +136,57 @@ function e2eInitializeFields() {
   // jumps from security panel of one account to another.
   enableSelectButtons();
   updateTechPref();
+}
 
-  initOpenPgpSettings();
+/**
+ * Initialize the S/MIME settings based on identity preferences.
+ */
+function initSMIMESettings() {
+  let certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(
+    Ci.nsIX509CertDB
+  );
+
+  gEncryptionCertName.value = gIdentity.getUnicharAttribute(
+    "encryption_cert_name"
+  );
+  gEncryptionCertName.dbKey = gIdentity.getCharAttribute(
+    "encryption_cert_dbkey"
+  );
+  // If we succeed in looking up the certificate by the dbkey pref, then
+  // append the serial number " [...]" to the display value, and remember the
+  // displayName in a separate property.
+  try {
+    let x509cert = null;
+    if (
+      gEncryptionCertName.dbKey &&
+      (x509cert = certdb.findCertByDBKey(gEncryptionCertName.dbKey))
+    ) {
+      gEncryptionCertName.value =
+        x509cert.displayName + " [" + x509cert.serialNumber + "]";
+      gEncryptionCertName.displayName = x509cert.displayName;
+    }
+  } catch (e) {}
+
+  gEncryptionChoices.value = gIdentity.getIntAttribute("encryptionpolicy");
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
+    gTechChoices.value = gIdentity.getIntAttribute("e2etechpref");
+  }
+
+  gSignCertName.value = gIdentity.getUnicharAttribute("signing_cert_name");
+  gSignCertName.dbKey = gIdentity.getCharAttribute("signing_cert_dbkey");
+
+  // same procedure as with gEncryptionCertName (see above)
+  try {
+    let x509cert = null;
+    if (
+      gSignCertName.dbKey &&
+      (x509cert = certdb.findCertByDBKey(gSignCertName.dbKey))
+    ) {
+      gSignCertName.value =
+        x509cert.displayName + " [" + x509cert.serialNumber + "]";
+      gSignCertName.displayName = x509cert.displayName;
+    }
+  } catch (e) {}
 }
 
 /**
@@ -232,7 +205,6 @@ async function initOpenPgpSettings() {
   );
 
   let allKeys = result.all.length + (externalKey ? 1 : 0);
-
   document.l10n.setAttributes(
     document.getElementById("openPgpDescription"),
     "openpgp-description",
@@ -242,55 +214,51 @@ async function initOpenPgpSettings() {
     }
   );
 
-  // Load the available keys.
-  reloadOpenPgpUI();
   closeNotification();
 
-  // Listen for the preference changes.
-  Preferences.get(`mail.identity.${gIdentity.key}.openpgp_key_id`).on(
-    "change",
-    updateOpenPgpSettings
-  );
+  let keyId = gIdentity.getUnicharAttribute("openpgp_key_id");
+  useOpenPGPKey(keyId);
+
+  // When key changes, update settings.
+  let openPgpKeyListRadio = document.getElementById("openPgpKeyListRadio");
+  openPgpKeyListRadio.addEventListener("command", event => {
+    closeNotification();
+    useOpenPGPKey(event.target.value);
+  });
 }
 
 function onPreInit(account, accountValues) {
   gIdentity = account.defaultIdentity;
 }
 
+// NOTE: AccountManager.js checks and calls "onSave" in savePage.
 function onSave() {
-  e2eSave();
+  saveE2EEncryptionSettings(gIdentity);
 }
 
-function e2eSave() {
-  // find out which radio for the encryption radio group is selected and set
+function saveE2EEncryptionSettings(identity) {
+  // Find out which radio for the encryption radio group is selected and set
   // that on our hidden encryptionChoice pref.
-  var newValue = gEncryptionChoices.value;
-  gIdentity.setIntAttribute("encryptionpolicy", newValue);
+  let newValue = gEncryptionChoices.value;
+  identity.setIntAttribute("encryptionpolicy", newValue);
 
   if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
     newValue = gTechChoices.value;
-    gIdentity.setIntAttribute("e2etechpref", newValue);
+    identity.setIntAttribute("e2etechpref", newValue);
   }
 
-  gIdentity.setUnicharAttribute(
+  identity.setUnicharAttribute(
     "encryption_cert_name",
     gEncryptionCertName.displayName || gEncryptionCertName.value
   );
-  gIdentity.setCharAttribute(
-    "encryption_cert_dbkey",
-    gEncryptionCertName.dbKey
-  );
+  identity.setCharAttribute("encryption_cert_dbkey", gEncryptionCertName.dbKey);
 
-  gIdentity.setBoolAttribute("sign_mail", gSignMessages.checked);
-  gIdentity.setUnicharAttribute(
+  identity.setBoolAttribute("sign_mail", gSignMessages.checked);
+  identity.setUnicharAttribute(
     "signing_cert_name",
     gSignCertName.displayName || gSignCertName.value
   );
-  gIdentity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
-}
-
-function e2eOnAcceptEditor(event) {
-  e2eSave();
+  identity.setCharAttribute("signing_cert_dbkey", gSignCertName.dbKey);
 }
 
 function alertUser(message) {
@@ -378,7 +346,7 @@ function smimeSelectCert(smime_cert) {
     Ci.nsIUserCertPicker
   );
   var canceled = {};
-  var x509cert = 0;
+  var x509cert;
   var certUsage;
   var selectEncryptionCert;
 
@@ -535,7 +503,6 @@ function updateTechPref() {
   gTechPrefSMIME.disabled = !enable;
 
   if (!enable) {
-    gIdentity.setIntAttribute("e2etechpref", 0);
     gTechChoices.value = 0;
   }
 }
@@ -546,10 +513,6 @@ function openCertManager() {
 
 function openDeviceManager() {
   parent.gSubDialog.open("chrome://pippki/content/device_manager.xhtml");
-}
-
-function e2eOnLoadEditor() {
-  e2eInitializeFields();
 }
 
 /**
@@ -604,8 +567,10 @@ function openKeyWizard() {
 /**
  * Show a succesfull notification after a new OpenPGP key was created, and
  * trigger the reload of the key listing UI.
+ *
+ * @param {string} keyId - Id of key that the key wizard set up.
  */
-async function keyWizardSuccess() {
+async function keyWizardSuccess(keyId) {
   document.l10n.setAttributes(
     document.getElementById("openPgpNotificationDescription"),
     "openpgp-keygen-success"
@@ -613,9 +578,50 @@ async function keyWizardSuccess() {
   document.getElementById("openPgpNotification").collapsed = false;
   document.getElementById("openPgpKeyList").collapsed = false;
 
-  // Update the global key with the recently generated key that was assigned to
-  // this identity from the Key generation wizard.
-  gKeyId = gIdentity.getUnicharAttribute("openpgp_key_id");
+  useOpenPGPKey(keyId);
+}
+
+/**
+ * Show a succesfull notification after an external key was saved, and trigger
+ * the reload of the key listing UI.
+ *
+ * @param {string} keyId - Id of key that the key wizard set up.
+ */
+async function keyExternalSuccess(keyId) {
+  document.l10n.setAttributes(
+    document.getElementById("openPgpNotificationDescription"),
+    "openpgp-keygen-external-success"
+  );
+  document.getElementById("openPgpNotification").collapsed = false;
+  document.getElementById("openPgpKeyList").collapsed = false;
+
+  gIdentity.setUnicharAttribute("last_entered_external_gnupg_key_id", keyId);
+  useOpenPGPKey(keyId);
+}
+
+/**
+ * Adjust the key listing to account for newly created keys. Then set
+ * the current identity to start using this key and adjust the UI elements
+ * to be enabled now that there's a key to use.
+ *
+ * NOTE! Please always go through this to change gKeyId!
+ *
+ * @param {string} keyId - Id of key that the key wizard set up.
+ */
+function useOpenPGPKey(keyId) {
+  // Rebuild the UI so that any new keys are listed.
+  gKeyId = keyId;
+
+  // Update the identity with the key obtained from the key wizard.
+  gIdentity.setUnicharAttribute("openpgp_key_id", keyId || "");
+
+  // Always update the GnuPG boolean pref to be sure the currently used key is
+  // internal or external.
+  gIdentity.setBoolAttribute(
+    "is_gnupg_key_id",
+    gKeyId ==
+      gIdentity.getUnicharAttribute("last_entered_external_gnupg_key_id")
+  );
 
   reloadOpenPgpUI();
 }
@@ -628,21 +634,6 @@ async function keyImportSuccess() {
   document.l10n.setAttributes(
     document.getElementById("openPgpNotificationDescription"),
     "openpgp-keygen-import-success"
-  );
-  document.getElementById("openPgpNotification").collapsed = false;
-  document.getElementById("openPgpKeyList").collapsed = false;
-
-  reloadOpenPgpUI();
-}
-
-/**
- * Show a succesfull notification after an external key was saved, and trigger
- * the reload of the key listing UI.
- */
-async function keyExternalSuccess() {
-  document.l10n.setAttributes(
-    document.getElementById("openPgpNotificationDescription"),
-    "openpgp-keygen-external-success"
   );
   document.getElementById("openPgpNotification").collapsed = false;
   document.getElementById("openPgpKeyList").collapsed = false;
@@ -688,25 +679,19 @@ async function reloadOpenPgpUI() {
     }
   );
 
-  // Interrupt and udpate the UI accordingly if no Key is associated with the
+  let radiogroup = document.getElementById("openPgpKeyListRadio");
+
+  // Interrupt and update the UI accordingly if no key is associated with the
   // current identity.
   if (!allKeys) {
-    gKeyId = null;
+    radiogroup.selectedIndex = 0; // None
     updateUIForSelectedOpenPgpKey();
     return;
   }
 
-  let radiogroup = document.getElementById("openPgpKeyListRadio");
-
   // Remove all the previously generated radio options, except the first.
   while (radiogroup.lastChild.id != "openPgpOptionNone") {
     radiogroup.removeChild(radiogroup.lastChild);
-  }
-
-  // Force deselect the currently selected "None" first index fo the radiogroup.
-  // This is necessary to allow the selection of the currently used key.
-  if (gKeyId) {
-    radiogroup.selectedIndex = -1;
   }
 
   // Sort keys by create date from newest to oldest.
@@ -731,10 +716,6 @@ async function reloadOpenPgpUI() {
     radio.id = `openPgp${externalKey}`;
     radio.value = externalKey;
     radio.label = `0x${externalKey}`;
-
-    if (externalKey == gIdentity.getUnicharAttribute("openpgp_key_id")) {
-      radio.setAttribute("selected", "true");
-    }
 
     let remove = document.createXULElement("button");
     document.l10n.setAttributes(remove, "openpgp-key-remove-external");
@@ -777,10 +758,6 @@ async function reloadOpenPgpUI() {
     radio.id = `openPgp${key.keyId}`;
     radio.value = key.keyId;
     radio.label = `0x${key.keyId}`;
-
-    if (key.keyId == gIdentity.getUnicharAttribute("openpgp_key_id")) {
-      radio.setAttribute("selected", "true");
-    }
 
     let toggle = document.createXULElement("button");
     toggle.classList.add("arrowhead");
@@ -994,6 +971,29 @@ async function reloadOpenPgpUI() {
     radiogroup.appendChild(container);
   }
 
+  // Reflect the selected key in the UI.
+  radiogroup.selectedItem = radiogroup.querySelector(
+    `radio[value="${gKeyId}"]`
+  );
+
+  // Update all the encryption options based on the selected OpenPGP key.
+  if (gKeyId) {
+    enableEncryptionControls(true);
+    enableSigningControls(true);
+  } else {
+    let stillHaveOtherEncryption =
+      gEncryptionCertName && gEncryptionCertName.value;
+    if (!stillHaveOtherEncryption) {
+      enableEncryptionControls(false);
+    }
+    let stillHaveOtherSigning = gSignCertName && gSignCertName.value;
+    if (!stillHaveOtherSigning) {
+      enableSigningControls(false);
+    }
+  }
+
+  updateTechPref();
+  enableSelectButtons();
   updateUIForSelectedOpenPgpKey();
 }
 
@@ -1018,10 +1018,6 @@ function enigmailKeyDetails(keyId) {
  * @param {Object} key - The selected OpenPGP Key.
  */
 async function enigmailDeleteKey(key) {
-  if (!GetEnigmailSvc()) {
-    return;
-  }
-
   // Interrupt if the selected key is currently being used.
   if (key.keyId == gIdentity.getUnicharAttribute("openpgp_key_id")) {
     let [alertTitle, alertDescription] = await document.l10n.formatValues([
@@ -1129,55 +1125,7 @@ function toggleExpansion(event) {
     "aria-expanded",
     carat.getAttribute("aria-expanded") === "false"
   );
-}
-
-/**
- * Update all the encryption options based on the newly selected OpenPGP Key.
- */
-function updateOpenPgpSettings() {
-  // Get the newly selected OpenPgp Key for this identity.
-  let newKey = Services.prefs.getStringPref(
-    `mail.identity.${gIdentity.key}.openpgp_key_id`,
-    ""
-  );
-
-  // Avoid running the method if the key didn't change.
-  if (gKeyId == newKey) {
-    return;
-  }
-
-  // Always update the GnuPG boolean pref to be sure the currently used key is
-  // internal or external.
-  gIdentity.setBoolAttribute(
-    "is_gnupg_key_id",
-    newKey &&
-      newKey ==
-        gIdentity.getUnicharAttribute("last_entered_external_gnupg_key_id")
-  );
-
-  gKeyId = newKey;
-
-  if (gKeyId) {
-    enableEncryptionControls(true);
-    enableSigningControls(true);
-  } else {
-    let stillHaveOtherEncryption =
-      gEncryptionCertName && gEncryptionCertName.value;
-    if (!stillHaveOtherEncryption) {
-      enableEncryptionControls(false);
-    }
-
-    let stillHaveOtherSigning = gSignCertName && gSignCertName.value;
-    if (!stillHaveOtherSigning) {
-      enableSigningControls(false);
-    }
-  }
-
-  updateTechPref();
-  enableSelectButtons();
-  onSave();
-
-  updateUIForSelectedOpenPgpKey();
+  event.stopPropagation();
 }
 
 /**
@@ -1205,9 +1153,6 @@ function updateUIForSelectedOpenPgpKey() {
       radio.closest(".content-blocking-category").classList.add("selected");
     }
   }
-
-  document.getElementById("openPgpSelectionStatus").hidden = gKeyId === null;
-  document.getElementById("openPgpLearnMore").hidden = gKeyId === null;
 
   // Reset the image in case of async reload of the list.
   let image = document.getElementById("openPgpStatusImage");
@@ -1237,11 +1182,10 @@ function updateUIForSelectedOpenPgpKey() {
     );
   }
 
-  if (gKeyId) {
-    image.removeAttribute("hidden");
-  } else {
-    image.setAttribute("hidden", "true");
-  }
+  let hide = !gKeyId;
+  document.getElementById("openPgpSelectionStatus").hidden = hide;
+  document.getElementById("openPgpLearnMore").hidden = hide;
+  image.hidden = hide;
 }
 
 /**
