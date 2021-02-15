@@ -16,6 +16,19 @@ const URL_BASE =
 const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);
 
 /**
+ * Left-click on something and wait for the context menu to appear.
+ * For elements in the parent process only.
+ *
+ * @param {Element} menu     The <menu> that should appear.
+ * @param {Element} element  The element to be clicked on.
+ * @returns {Promise}        A promise that resolves when the menu appears.
+ */
+function leftClick(menu, element) {
+  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(element, {}, element.ownerGlobal);
+  return shownPromise;
+}
+/**
  * Right-click on something and wait for the context menu to appear.
  * For elements in the parent process only.
  *
@@ -167,6 +180,9 @@ async function checkClickedEvent(extension, expectedInfo, expectedTab) {
 
   Assert.equal(info.selectionText, expectedInfo.selectionText, "selectionText");
   Assert.equal(info.linkText, expectedInfo.linkText, "linkText");
+  if (expectedInfo.menuItemId) {
+    Assert.equal(info.menuItemId, expectedInfo.menuItemId, "menuItemId");
+  }
 
   for (let infoKey of ["pageUrl", "linkUrl", "srcUrl"]) {
     Assert.equal(
@@ -206,6 +222,7 @@ function createExtension(...permissions) {
         "message_list",
         "folder_pane",
         "compose_attachments",
+        "tools_menu",
       ]) {
         browser.menus.create({
           id: context,
@@ -241,6 +258,7 @@ function createExtension(...permissions) {
         }
         browser.test.sendMessage("onClicked", args);
       });
+      browser.test.sendMessage("menus-created");
     },
     manifest: {
       applications: {
@@ -277,9 +295,91 @@ add_task(async function set_up() {
   }
 });
 
+async function subtest_tools_menu(testwindow, expectedInfo, expectedTab) {
+  let extension = createExtension();
+  await extension.startup();
+  await extension.awaitMessage("menus-created");
+
+  let element = testwindow.document.getElementById("tasksMenu");
+  let menu = testwindow.document.getElementById("taskPopup");
+  await leftClick(menu, element);
+  await checkShownEvent(
+    extension,
+    { menuIds: ["tools_menu"], contexts: ["tools_menu"] },
+    expectedTab
+  );
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  EventUtils.synthesizeMouseAtCenter(
+    menu.querySelector("#menus_mochi_test-menuitem-_tools_menu"),
+    {},
+    testwindow
+  );
+  await checkClickedEvent(extension, expectedInfo, expectedTab);
+  await hiddenPromise;
+  await extension.unload();
+}
+
+add_task(async function test_tools_menu() {
+  let toolbar = window.document.getElementById("mail-toolbar-menubar2");
+  let initialState = toolbar.getAttribute("inactive");
+  toolbar.setAttribute("inactive", "false");
+
+  await subtest_tools_menu(
+    window,
+    {
+      pageUrl: "about:blank",
+      menuItemId: "tools_menu",
+    },
+    { active: true, index: 0, mailTab: true }
+  );
+
+  toolbar.setAttribute("inactive", initialState);
+}).__skipMe = AppConstants.platform == "macosx";
+
+add_task(async function test_compose_tools_menu() {
+  let testwindow = await openComposeWindow(gAccount);
+  await focusWindow(testwindow);
+  await subtest_tools_menu(
+    testwindow,
+    {
+      menuItemId: "tools_menu",
+    },
+    { active: true, index: 0, mailTab: false }
+  );
+  testwindow.close();
+}).__skipMe = AppConstants.platform == "macosx";
+
+add_task(async function test_messagewindow_tools_menu() {
+  let testwindow = await openNewWindowForMessage(gMessage);
+  await focusWindow(testwindow);
+  await subtest_tools_menu(
+    testwindow,
+    {
+      menuItemId: "tools_menu",
+    },
+    { active: true, index: 0, mailTab: false }
+  );
+  testwindow.close();
+}).__skipMe = AppConstants.platform == "macosx";
+
+add_task(async function test_addressbook_tools_menu() {
+  let testwindow = await openAddressbookWindow();
+  await focusWindow(testwindow);
+  await subtest_tools_menu(
+    testwindow,
+    {
+      menuItemId: "tools_menu",
+    },
+    { active: true, index: 0, mailTab: false }
+  );
+  testwindow.close();
+}).__skipMe = AppConstants.platform == "macosx";
+
 async function subtest_folder_pane(...permissions) {
   let extension = createExtension(...permissions);
   await extension.startup();
+  await extension.awaitMessage("menus-created");
 
   let folderTree = document.getElementById("folderTree");
   let menu = document.getElementById("folderPaneContext");
@@ -321,6 +421,7 @@ async function subtest_message_panes(...permissions) {
 
   let extension = createExtension(...permissions);
   await extension.startup();
+  await extension.awaitMessage("menus-created");
 
   info("Test the thread pane in the 3-pane tab.");
 
@@ -442,6 +543,7 @@ add_task(async function test_tab() {
 
   let extension = createExtension();
   await extension.startup();
+  await extension.awaitMessage("menus-created");
 
   let tabmail = document.getElementById("tabmail");
   window.openContentTab("about:config");
@@ -642,6 +744,7 @@ add_task(async function test_content() {
 
   let extension = createExtension("<all_urls>");
   await extension.startup();
+  await extension.awaitMessage("menus-created");
 
   await subtest_content(
     extension,
@@ -662,6 +765,7 @@ add_task(async function test_content_tab() {
 
   let extension = createExtension("<all_urls>");
   await extension.startup();
+  await extension.awaitMessage("menus-created");
 
   await subtest_content(
     extension,
@@ -701,6 +805,7 @@ add_task(async function test_content_window() {
 
   let extension = createExtension("<all_urls>");
   await extension.startup();
+  await extension.awaitMessage("menus-created");
 
   await subtest_content(
     extension,
@@ -718,6 +823,7 @@ add_task(async function test_content_window() {
 async function subtest_compose(...permissions) {
   let extension = createExtension(...permissions);
   await extension.startup();
+  await extension.awaitMessage("menus-created");
 
   let params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"

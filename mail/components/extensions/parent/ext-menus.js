@@ -589,7 +589,7 @@ const contextsMap = {
 
   onBrowserAction: "browser_action",
   onTab: "tab",
-
+  inToolsMenu: "tools_menu",
   selectedMessages: "message_list",
   selectedFolder: "folder_pane",
   attachments: "compose_attachments",
@@ -608,8 +608,8 @@ const getMenuContexts = contextData => {
     contexts.add("page");
   }
 
-  // New non-content contexts supported in Firefox are not part of "all".
-  if (!contextData.onTab) {
+  // New non-content contexts supported in Thunderbird are not part of "all".
+  if (!contextData.onTab && !contextData.inToolsMenu) {
     contexts.add("all");
   }
 
@@ -962,6 +962,7 @@ const menuTracker = {
     "tabContextMenu",
     "folderPaneContext",
     "msgComposeAttachmentItemContext",
+    "taskPopup",
   ],
 
   register() {
@@ -1006,6 +1007,22 @@ const menuTracker = {
   handleEvent(event) {
     const menu = event.target;
     switch (menu.id) {
+      case "taskPopup": {
+        let win = menu.ownerGlobal;
+        let info = { menu, inToolsMenu: true };
+        if (
+          win.document.location.href ==
+          "chrome://messenger/content/messenger.xhtml"
+        ) {
+          info.tab = tabTracker.activeTab;
+          // Calendar and Task view do not have a browser/URL.
+          info.pageUrl = info.tab.linkedBrowser?.currentURI?.spec;
+        } else {
+          info.tab = win;
+        }
+        gMenuBuilder.build(info);
+        break;
+      }
       case "tabContextMenu": {
         let trigger = menu.triggerNode.closest("tab");
         const tab = trigger || tabTracker.activeTab;
