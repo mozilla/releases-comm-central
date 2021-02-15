@@ -749,22 +749,21 @@ MessageSend.prototype = {
     let content = await OS.File.read(this._messageFile.path, {
       encoding: "utf-8",
     });
+    let bodyIndex = content.indexOf("\r\n\r\n");
+    let header = content.slice(0, bodyIndex);
     let lastLinePruned = false;
-    let bodyLine = false;
-    for (let line of content.split("\r\n")) {
-      if (
-        !bodyLine &&
-        (line.startsWith("Bcc") || (line.startsWith(" ") && lastLinePruned))
-      ) {
+    for (let line of header.split("\r\n")) {
+      if (line.startsWith("Bcc") || (line.startsWith(" ") && lastLinePruned)) {
         lastLinePruned = true;
         continue;
       }
       lastLinePruned = false;
-      if (line == "") {
-        bodyLine = true;
-      }
       await fileWriter.write(new TextEncoder().encode(`${line}\r\n`));
     }
+    await fileWriter.write(
+      // Prevent extra \r\n, which was already added to the last head line.
+      new TextEncoder().encode(content.slice(bodyIndex + 2))
+    );
     await fileWriter.close();
     return deliveryFile;
   },

@@ -72,10 +72,15 @@ add_task(async function testBcc() {
   await promise;
   gServer.performTest();
 
+  let expectedBody = `\r\n\r\n${fields.body}`;
+  // Should not contain extra \r\n between head and body.
+  let notExpectedBody = `\r\n\r\n\r\n${fields.body}`;
+
   Assert.ok(gServer._daemon.post.includes("Subject: Test bcc"));
   // Check that bcc header doesn't exist in the sent mail.
   Assert.ok(!gServer._daemon.post.includes("Bcc: bcc@tinderbox.invalid"));
-  Assert.ok(gServer._daemon.post.includes(fields.body));
+  Assert.ok(gServer._daemon.post.includes(expectedBody));
+  Assert.ok(!gServer._daemon.post.includes(notExpectedBody));
 
   let msgData = mailTestUtils.loadMessageToString(
     gSentFolder,
@@ -85,4 +90,6 @@ add_task(async function testBcc() {
   // Check that bcc header exists in the mail copy.
   Assert.ok(msgData.includes("Bcc: bcc@tinderbox.invalid"));
   Assert.ok(msgData.includes(fields.body));
+  Assert.ok(msgData.includes(expectedBody));
+  Assert.ok(!msgData.includes(notExpectedBody));
 });
