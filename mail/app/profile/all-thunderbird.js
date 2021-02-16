@@ -204,6 +204,8 @@ pref("extensions.dss.switchPending", false);    // Non-dynamic switch pending af
 
 // Don't show recommendations on the extension and theme list views.
 pref("extensions.htmlaboutaddons.recommendations.enabled", false);
+// Don't allow content scripts on these web sites
+pref("extensions.webextensions.restrictedDomains", "accounts-static.cdn.mozilla.net,accounts.firefox.com,addons.cdn.mozilla.net,addons.mozilla.org,api.accounts.firefox.com,content.cdn.mozilla.net,discovery.addons.mozilla.org,install.mozilla.org,oauth.accounts.firefox.com,profile.accounts.firefox.com,support.mozilla.org,sync.services.mozilla.com,addons.thunderbird.net");
 
 pref("lightweightThemes.update.enabled", true);
 
