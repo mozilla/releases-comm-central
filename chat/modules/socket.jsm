@@ -538,7 +538,8 @@ var Socket = {
       this.originPort,
       this.host,
       this.port,
-      this.proxy
+      this.proxy,
+      null
     );
 
     this._openStreams();
