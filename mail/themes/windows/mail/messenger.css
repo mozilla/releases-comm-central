@@ -90,6 +90,7 @@
   :root {
     --tabs-border-color: ThreeDShadow;
     --tabline-color: Highlight;
+    --item-focus-selected-border-color: HighlightText;
   }
 
   :root:not(:-moz-lwtheme) .themeable-full,
