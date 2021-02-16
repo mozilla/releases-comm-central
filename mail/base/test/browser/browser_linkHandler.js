@@ -76,13 +76,33 @@ async function clickOnLink(
     "original URL should be loaded"
   );
 
+  let listener = {
+    QueryInterface: ChromeUtils.generateQI(["nsISupportsWeakReference"]),
+
+    _locationChanges: [],
+    onLocationChange(webProgress, request, location) {
+      this._locationChanges.push(location);
+    },
+  };
+  browser.addProgressListener(
+    listener,
+    Ci.nsIWebProgress.NOTIFY_STATE_ALL | Ci.nsIWebProgress.NOTIFY_LOCATION
+  );
+
   info(`clicking on ${selector}`);
   await BrowserTestUtils.synthesizeMouseAtCenter(selector, {}, browser);
   // Responding to the click probably won't happen immediately. Let's hang
   // around and see what happens.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(r => setTimeout(r, 500));
-  // If a load does start and is still happening after the 500ms, wait until
+  await new Promise(r => setTimeout(r, 250));
+  if (
+    listener._locationChanges.length == 0 &&
+    mockExternalProtocolService._loadedURLs.length == 0
+  ) {
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(r => setTimeout(r, 500));
+  }
+  // If a load does start and is still happening after the 750ms, wait until
   // it finishes before continuing.
   if (browser.webProgress?.isLoadingDocument) {
     await BrowserTestUtils.browserLoaded(browser);
@@ -90,7 +110,12 @@ async function clickOnLink(
 
   if (shouldLoadInternally) {
     Assert.equal(
-      browser.currentURI?.spec,
+      listener._locationChanges.length,
+      1,
+      "location should have changed"
+    );
+    Assert.equal(
+      listener._locationChanges[0].spec,
       url,
       `${url} should load internally`
     );
@@ -99,6 +124,11 @@ async function clickOnLink(
       `${url} should not load externally`
     );
   } else {
+    Assert.equal(
+      listener._locationChanges.length,
+      0,
+      "location should not have changed"
+    );
     if (url != pageURL) {
       Assert.equal(
         browser.currentURI?.spec,
@@ -111,6 +141,8 @@ async function clickOnLink(
       `${url} should load externally`
     );
   }
+
+  browser.removeProgressListener(listener);
 
   if (browser.currentURI?.spec != pageURL) {
     let promise = new Promise(resolve => {
@@ -148,19 +180,22 @@ async function subtest(pagePrePath, group, shouldLoadCB) {
   }
   Assert.equal(tab.browser.getAttribute("messagemanagergroup"), expectedGroup);
 
-  for (let [selector, url] of links) {
-    if (url.startsWith("/")) {
-      url = `${pagePrePath}${url}`;
+  try {
+    for (let [selector, url] of links) {
+      if (url.startsWith("/")) {
+        url = `${pagePrePath}${url}`;
+      }
+      await clickOnLink(
+        tab.browser,
+        selector,
+        url,
+        `${pagePrePath}${TEST_PATH}`,
+        shouldLoadCB(selector)
+      );
     }
-    await clickOnLink(
-      tab.browser,
-      selector,
-      url,
-      `${pagePrePath}${TEST_PATH}`,
-      shouldLoadCB(selector)
-    );
+  } finally {
+    tabmail.closeTab(tab);
   }
-  tabmail.closeTab(tab);
 }
 
 add_task(function testNoGroup() {
