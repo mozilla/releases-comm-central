@@ -478,7 +478,8 @@ class nsContextMenu {
       this.onCanvas ||
       this.onLink ||
       this.onImage ||
-      this.onPlayableMedia ||
+      this.onAudio ||
+      this.onVideo ||
       this.onTextInput
     );
     // Ensure these commands are updated with their current status.
@@ -740,179 +741,6 @@ class nsContextMenu {
     this.checkLastSeparator(this.xulMenu);
   }
 
-  /* eslint-disable complexity */
-  /**
-   * Set the nsContextMenu properties based on the selected node and
-   * its ancestors.
-   */
-  setTarget(aNode) {
-    // Clear any old spellchecking items from the menu, this used to
-    // be in the menu hiding code but wasn't getting called in all
-    // situations. Here, we can ensure it gets cleaned up any time the
-    // menu is shown. Note: must be before uninit because that clears the
-    // internal vars
-    // We also need to do that before we possibly bail because we just clicked
-    // on some XUL node. Otherwise, dictionary choices just accumulate until we
-    // right-click on some HTML element again.
-    gSpellChecker.clearSuggestionsFromMenu();
-    gSpellChecker.clearDictionaryListFromMenu();
-    gSpellChecker.uninit();
-
-    if (
-      aNode.namespaceURI ==
-      "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    ) {
-      if (aNode.localName == "treecol") {
-        // The column header was clicked, show the column picker.
-        let treecols = aNode.parentNode;
-        let treeColPicker = treecols.querySelector("treecolpicker");
-        let popup = treeColPicker.querySelector(`menupopup[anonid="popup"]`);
-        treeColPicker.buildPopup(popup);
-        popup.openPopup(aNode, "before_start", 0, 0, true);
-        this.shouldDisplay = false;
-      }
-      return;
-    }
-    this.onImage = false;
-    this.onLoadedImage = false;
-    this.onMetaDataItem = false;
-    this.onTextInput = false;
-    this.onEditable = false;
-    this.imageURL = "";
-    this.onLink = false;
-    this.onVideo = false;
-    this.onAudio = false;
-    this.mediaURL = "";
-    this.linkURL = "";
-    this.linkURI = null;
-    this.linkProtocol = null;
-    this.onMathML = false;
-
-    this.target = aNode;
-
-    // Set up early the right flags for editable / not editable.
-    let editFlags = SpellCheckHelper.isEditable(this.target, window);
-    this.onTextInput = (editFlags & SpellCheckHelper.TEXTINPUT) !== 0;
-    this.onEditable = (editFlags & SpellCheckHelper.EDITABLE) !== 0;
-
-    // First, do checks for nodes that never have children.
-    if (this.target.nodeType == Node.ELEMENT_NODE) {
-      if (
-        this.target instanceof Ci.nsIImageLoadingContent &&
-        this.target.currentURI
-      ) {
-        this.onImage = true;
-        this.onMetaDataItem = true;
-
-        var request = this.target.getRequest(
-          Ci.nsIImageLoadingContent.CURRENT_REQUEST
-        );
-        if (request && request.imageStatus & request.STATUS_SIZE_AVAILABLE) {
-          this.onLoadedImage = true;
-        }
-
-        this.imageURL = this.target.currentURI.spec;
-      } else if (this.target instanceof HTMLInputElement) {
-        this.onTextInput = this.isTargetATextBox(this.target);
-      } else if (
-        editFlags &
-        (SpellCheckHelper.INPUT | SpellCheckHelper.TEXTAREA)
-      ) {
-        if (!this.target.readOnly) {
-          this.onEditable = true;
-          gSpellChecker.init(this.target.editor);
-          gSpellChecker.initFromEvent(
-            document.popupRangeParent,
-            document.popupRangeOffset
-          );
-        }
-      } else if (editFlags & SpellCheckHelper.CONTENTEDITABLE) {
-        let targetWin = this.target.ownerGlobal;
-        let editingSession = targetWin
-          ?.getInterface(Ci.nsIWebNavigation)
-          .QueryInterface(Ci.nsIInterfaceRequestor)
-          .getInterface(Ci.nsIEditingSession);
-        gSpellChecker.init(editingSession.getEditorForWindow(targetWin));
-        gSpellChecker.initFromEvent(
-          document.popupRangeParent,
-          document.popupRangeOffset
-        );
-      } else if (this.target instanceof HTMLCanvasElement) {
-        this.onCanvas = true;
-      } else if (this.target instanceof HTMLVideoElement) {
-        this.onVideo = true;
-        this.onPlayableMedia = true;
-        this.mediaURL = this.target.currentSrc || this.target.src;
-      } else if (this.target instanceof HTMLAudioElement) {
-        this.onAudio = true;
-        this.onPlayableMedia = true;
-        this.mediaURL = this.target.currentSrc || this.target.src;
-        // Browser supports background images here but we don't need to.
-      }
-    }
-
-    // Second, bubble out, looking for items of interest that might be
-    // parents of the click target, picking the innermost of each.
-    const XMLNS = "http://www.w3.org/XML/1998/namespace";
-    var elem = this.target;
-    while (elem) {
-      if (elem.nodeType == Node.ELEMENT_NODE) {
-        // Link?
-        if (
-          !this.onLink &&
-          ((elem instanceof HTMLAnchorElement && elem.href) ||
-            (elem instanceof HTMLAreaElement && elem.href) ||
-            elem instanceof HTMLLinkElement ||
-            elem.getAttributeNS("http://www.w3.org/1999/xlink", "type") ==
-              "simple")
-        ) {
-          // Target is a link or a descendant of a link.
-          this.onLink = true;
-          this.onMetaDataItem = true;
-          // Remember corresponding element.
-          this.link = elem;
-          this.linkURL = this.getLinkURL();
-          this.linkURI = this.getLinkURI();
-          this.linkProtocol = this.getLinkProtocol();
-          this.onMailtoLink = this.linkProtocol == "mailto";
-          this.onSaveableLink = this.isLinkSaveable();
-        }
-
-        // Text input?
-        if (!this.onTextInput) {
-          this.onTextInput = this.isTargetATextBox(elem);
-        }
-
-        // Metadata item?
-        if (!this.onMetaDataItem) {
-          if (
-            (elem instanceof HTMLQuoteElement && elem.cite) ||
-            (elem instanceof HTMLTableElement && elem.summary) ||
-            (elem instanceof HTMLModElement && (elem.cite || elem.dateTime)) ||
-            (elem instanceof HTMLElement && (elem.title || elem.lang)) ||
-            elem.getAttributeNS(XMLNS, "lang")
-          ) {
-            this.onMetaDataItem = true;
-          }
-        }
-
-        // Browser supports background images here but we don't need to.
-      }
-      elem = elem.parentNode;
-    }
-
-    // See if the user clicked on MathML.
-    const NS_MathML = "http://www.w3.org/1998/Math/MathML";
-    if (
-      (this.target.nodeType == Node.TEXT_NODE &&
-        this.target.parentNode.namespaceURI == NS_MathML) ||
-      this.target.namespaceURI == NS_MathML
-    ) {
-      this.onMathML = true;
-    }
-  }
-  /* eslint-enable complexity */
-
   setMessageTargets() {
     if (this.browser) {
       this.inAMessage = ["imap", "mailbox", "news", "snews"].includes(
@@ -1003,7 +831,7 @@ class nsContextMenu {
    */
   saveImage() {
     saveURL(
-      this.imageURL,
+      this.imageInfo.currentSrc,
       null,
       "SaveImageTitle",
       false,

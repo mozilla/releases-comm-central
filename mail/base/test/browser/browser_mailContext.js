@@ -16,8 +16,25 @@ var { MessageGenerator } = ChromeUtils.import(
 
 const TEST_DOCUMENT_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html";
+const TEST_MESSAGE_URL =
+  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.eml";
+const TEST_IMAGE_URL =
+  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/tb-logo.png";
 
 let testFolder;
+
+async function getImageArrayBuffer() {
+  let response = await fetch(TEST_IMAGE_URL);
+  let blob = await response.blob();
+
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader();
+    reader.addEventListener("loadend", event => {
+      resolve(event.target.result);
+    });
+    reader.readAsArrayBuffer(blob);
+  });
+}
 
 function checkMenuitems(menu, ...expectedItems) {
   if (expectedItems.length == 0) {
@@ -47,6 +64,8 @@ async function checkABrowser(browser) {
 
   let mailContext = browser.ownerDocument.getElementById("mailContext");
 
+  // Just some text.
+
   let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     "p",
@@ -61,6 +80,8 @@ async function checkABrowser(browser) {
     "mailContext-selectall"
   );
   mailContext.hidePopup();
+
+  // A link.
 
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -77,6 +98,8 @@ async function checkABrowser(browser) {
     "mailContext-savelink"
   );
   mailContext.hidePopup();
+
+  // A text input widget.
 
   await BrowserTestUtils.synthesizeMouseAtCenter("input", {}, browser);
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
@@ -96,6 +119,37 @@ async function checkABrowser(browser) {
     "mailContext-spell-check-enabled"
   );
   mailContext.hidePopup();
+
+  // An image. Also checks Save Image As works.
+
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    "img",
+    { type: "contextmenu" },
+    browser
+  );
+  await shownPromise;
+  checkMenuitems(
+    mailContext,
+    "mailContext-selectall",
+    "mailContext-copyimage",
+    "mailContext-saveimage"
+  );
+
+  let pickerPromise = new Promise(resolve => {
+    SpecialPowers.MockFilePicker.init(window);
+    SpecialPowers.MockFilePicker.showCallback = picker => {
+      resolve(picker.defaultString);
+      return Ci.nsIFilePicker.returnCancel;
+    };
+  });
+  EventUtils.synthesizeMouseAtCenter(
+    browser.ownerDocument.getElementById("mailContext-saveimage"),
+    {},
+    browser.ownerGlobal
+  );
+  Assert.equal(await pickerPromise, "tb-logo.png");
+  SpecialPowers.MockFilePicker.cleanup();
 }
 
 add_task(async function testMessagePane() {
@@ -107,6 +161,8 @@ add_task(async function testMessagePane() {
   testFolder = rootFolder
     .getChildNamed("test")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  let message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
+  testFolder.addMessageBatch([message]);
   let messages = new MessageGenerator().makeMessages({ count: 5 });
   let messageStrings = messages.map(message => message.toMboxString());
   testFolder.addMessageBatch(messageStrings);
@@ -279,6 +335,7 @@ add_task(async function testExtensionPopupWindow() {
       "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
       ),
+      "tb-logo.png": await getImageArrayBuffer(),
     },
   });
 
@@ -300,6 +357,7 @@ add_task(async function testExtensionBrowserAction() {
       "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
       ),
+      "tb-logo.png": await getImageArrayBuffer(),
     },
     manifest: {
       applications: {
@@ -338,6 +396,7 @@ add_task(async function testExtensionComposeAction() {
       "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
       ),
+      "tb-logo.png": await getImageArrayBuffer(),
     },
     manifest: {
       applications: {
@@ -391,6 +450,7 @@ add_task(async function testExtensionMessageDisplayAction() {
       "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
         response.text()
       ),
+      "tb-logo.png": await getImageArrayBuffer(),
     },
     manifest: {
       applications: {
