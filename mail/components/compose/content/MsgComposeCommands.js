@@ -6022,7 +6022,7 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
   if (addedAttachments.length > 0) {
     // Trigger a visual feedback to let the user know how many attachments have
     // been added.
-    gAttachmentCounter.value = `+${addedAttachments.length}`;
+    gAttachmentCounter.textContent = `+${addedAttachments.length}`;
     toggleAttachmentAnimation();
 
     // Move the focus on the last attached file so the user can see a visual
@@ -6263,7 +6263,7 @@ function updateAttachmentPane(aShowPane) {
     { count }
   );
 
-  document.getElementById("attachmentBucketSize").value =
+  document.getElementById("attachmentBucketSize").textContent =
     count > 0 ? gMessenger.formatFileSize(gAttachmentsSize) : "";
   document.getElementById("attachmentView").collapsed = count == 0;
   document

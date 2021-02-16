@@ -80,11 +80,10 @@ context-menuitem-attach-files =
     .acceltext = { ctrl-cmd-shift-pretty-prefix }{ trigger-attachment-picker-key }
 
 #   $count (Number) - the number of attachments in the attachment bucket
-attachment-bucket-count =
-    .value = { $count ->
-        [1]      { $count } Attachment
-        *[other] { $count } Attachments
-    }
+attachment-bucket-count = { $count ->
+    [1]      { $count } Attachment
+    *[other] { $count } Attachments
+}
 
 expand-attachment-pane-tooltip =
     .tooltiptext = Show the attachment pane ({ ctrl-cmd-shift-pretty-prefix }{ toggle-attachment-pane-key })

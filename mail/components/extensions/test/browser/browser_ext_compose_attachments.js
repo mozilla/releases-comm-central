@@ -220,9 +220,9 @@ add_task(async function() {
 
     let bucketTotal = composeDocument.getElementById("attachmentBucketSize");
     if (totalSize == 0) {
-      Assert.equal(bucketTotal.value, "");
+      Assert.equal(bucketTotal.textContent, "");
     } else {
-      Assert.equal(bucketTotal.value, `${totalSize} bytes`);
+      Assert.equal(bucketTotal.textContent, `${totalSize} bytes`);
     }
 
     extension.sendMessage();

@@ -246,8 +246,10 @@
   margin: 6px 3px;
 }
 
-#attachmentInfo label {
-  margin-block: 0;
+#attachmentInfo {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 #newAttachmentIndicator {
@@ -284,29 +286,37 @@
 
 #attachmentToggle {
   margin-inline: 3px;
-  background-color: transparent;
   color: inherit;
-  list-style-image: url("chrome://global/skin/icons/twisty-expanded.svg");
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 1;
 }
 
 #attachmentToggle.closed {
-  list-style-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
+  transform: rotate(-90deg);
 }
 
-#attachmentToggle:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+#attachmentToggle:-moz-locale-dir(rtl).closed {
+  transform: rotate(90deg);
+}
+
+#attachmentBucketCount {
+  margin-inline: 3px;
+  text-overflow: ellipsis;
+  /* Required for text-overflow to do anything */
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #attachmentBucketSize {
   color: HighlightText;
   background-color: Highlight;
   font-size: 0.85em;
-  padding: 2px 5px;
+  line-height: 1em;
+  padding: 3px 5px;
   border-radius: 10px;
   font-weight: 500;
+  margin-inline: 3px;
 }
 
 .drop-attachment-overlay {

@@ -2499,12 +2499,13 @@
       <vbox id="attachmentView" collapsed="true">
         <hbox id="attachmentToolbar" align="center"
               onclick="onToggleAttachmentPane(event);">
-          <hbox id="attachmentInfo" align="center">
-            <label id="newAttachmentIndicator"/>
-            <image id="attachmentToggle"/>
-            <label id="attachmentBucketCount" crop="end"/>
-            <label id="attachmentBucketSize"/>
-          </hbox>
+          <html:div id="attachmentInfo">
+            <html:span id="newAttachmentIndicator"></html:span>
+            <html:img id="attachmentToggle"
+                      src="chrome://global/skin/icons/twisty-expanded.svg"/>
+            <html:span id="attachmentBucketCount"></html:span>
+            <html:span id="attachmentBucketSize"></html:span>
+          </html:div>
 
           <spacer flex="1"/>
         </hbox>

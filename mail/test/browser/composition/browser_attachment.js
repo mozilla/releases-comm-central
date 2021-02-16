@@ -183,12 +183,11 @@ function check_total_attachment_size(controller, count) {
   }
 
   // Next, make sure that the formatted size in the label is correct
-  let formattedSize = sizeNode.getAttribute("value");
   let expectedFormattedSize = messenger.formatFileSize(size);
-  if (formattedSize != expectedFormattedSize) {
+  if (sizeNode.textContent != expectedFormattedSize) {
     throw new Error(
       "Formatted attachment size (" +
-        formattedSize +
+        sizeNode.textContent +
         ") does not " +
         "match expected value (" +
         expectedFormattedSize +
