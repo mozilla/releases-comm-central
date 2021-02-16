@@ -1864,11 +1864,16 @@ function showMessageComposeSecurityStatus() {
 }
 
 function openEditorContextMenu(popup) {
-  gSpellChecker.clearSuggestionsFromMenu();
   gSpellChecker.initFromRemote(
     nsContextMenu.contentData.spellInfo,
     nsContextMenu.contentData.actor.manager
   );
+
+  let checker = GetCurrentEditor().getInlineSpellChecker(true);
+  document
+    .getElementById("spellCheckEnable")
+    .setAttribute("checked", checker.enableRealTimeSpell);
+
   var onMisspelling = gSpellChecker.overMisspelling;
   document.getElementById(
     "spellCheckSuggestionsSeparator"
@@ -4130,7 +4135,7 @@ function ComposeUnload() {
   // In some tests, the window is closed so quickly that the observer
   // hasn't fired and removed itself yet, so let's remove it here.
   spellCheckReadyObserver.removeObserver();
-  // Stop gSpellChecker so personal dictionary is saved.
+  // Stop spell checker so personal dictionary is saved.
   enableInlineSpellCheck(false);
 
   EditorCleanup();
@@ -5078,6 +5083,18 @@ function MessageFcc(aFolder) {
   msgCompFields.fcc2 = msgCompFields.fcc2 == fccURI ? "nocopy://" : fccURI;
 }
 
+function updateOptionsMenu() {
+  setSecuritySettings("_Menubar");
+
+  let checker = GetCurrentEditor().getInlineSpellChecker(true);
+  let menuItem = document.getElementById("menu_inlineSpellCheck");
+  if (checker.enableRealTimeSpell) {
+    menuItem.setAttribute("checked", "true");
+  } else {
+    menuItem.removeAttribute("checked");
+  }
+}
+
 function updatePriorityMenu() {
   if (gMsgCompose) {
     var msgCompFields = gMsgCompose.compFields;
@@ -5189,7 +5206,8 @@ function OutputFormatMenuSelect(target) {
  * @param {string} aAddressesToAdd - A (comma-separated) recipient(s) string.
  */
 function addRecipientsToIgnoreList(aAddressesToAdd) {
-  if (gSpellChecker.enabled) {
+  let checker = GetCurrentEditor().getInlineSpellChecker(true);
+  if (checker.enableRealTimeSpell) {
     // break the list of potentially many recipients back into individual names
     let addresses = MailServices.headerParser.parseEncodedHeader(
       aAddressesToAdd
@@ -5262,7 +5280,8 @@ var spellCheckReadyObserver = {
 
   addWordsToIgnore(aIgnoreWords) {
     this._ignoreWords.push(...aIgnoreWords);
-    if (gSpellChecker.mInlineSpellChecker.spellCheckPending) {
+    let checker = GetCurrentEditor().getInlineSpellChecker(true);
+    if (checker.spellCheckPending) {
       // spellchecker is enabled, but we must wait for its init to complete
       this.addObserver();
     } else {
@@ -5274,8 +5293,9 @@ var spellCheckReadyObserver = {
     // At the time the speller finally got initialized, we may already be closing
     // the compose together with the speller, so we need to check if they
     // are still valid.
-    if (gMsgCompose && gSpellChecker.enabled) {
-      gSpellChecker.mInlineSpellChecker.ignoreWords(this._ignoreWords);
+    let checker = GetCurrentEditor().getInlineSpellChecker(true);
+    if (gMsgCompose && checker.enableRealTimeSpell) {
+      checker.ignoreWords(this._ignoreWords);
     }
     this._clearPendingWords();
   },
@@ -5404,13 +5424,14 @@ function ComposeChangeLanguage(aLang) {
     // the subject).
     document.documentElement.setAttribute("lang", aLang);
 
-    let spellChecker = gSpellChecker.mInlineSpellChecker.spellChecker;
+    let checker = GetCurrentEditor().getInlineSpellChecker(true);
+    let spellChecker = checker.spellChecker;
     if (spellChecker) {
       spellChecker.SetCurrentDictionary(aLang);
 
       // now check the document over again with the new dictionary
-      if (gSpellChecker.enabled) {
-        gSpellChecker.mInlineSpellChecker.spellCheckRange(null);
+      if (checker.enableRealTimeSpell) {
+        checker.spellCheckRange(null);
 
         // Also force a recheck of the subject. If for some reason the spell
         // checker isn't ready yet, don't auto-create it, hence pass 'false'.
@@ -8819,20 +8840,6 @@ function InitEditor() {
 
   gMsgCompose.initEditor(editor, window.content);
 
-  // We always go through this function every time we init an editor.
-  // First step is making sure we can spell check.
-  gSpellChecker.init(editor);
-  document
-    .getElementById("menu_inlineSpellCheck")
-    .setAttribute("disabled", !gSpellChecker.canSpellCheck);
-  document
-    .getElementById("spellCheckEnable")
-    .setAttribute("disabled", !gSpellChecker.canSpellCheck);
-  // If canSpellCheck = false, then hidden = false, i.e. show it so that we can
-  // still add dictionaries. Else, hide that.
-  document
-    .getElementById("spellCheckAddDictionariesMain")
-    .setAttribute("hidden", gSpellChecker.canSpellCheck);
   // Then, we enable related UI entries.
   enableInlineSpellCheck(Services.prefs.getBoolPref("mail.spellcheck.inline"));
   gAttachmentNotifier.init(editor.document);
@@ -9003,28 +9010,25 @@ function updateDocumentLanguage(e) {
   document.documentElement.setAttribute("lang", e.detail.dictionary);
 }
 
-// This function modifies gSpellChecker and updates the UI accordingly. It's
-// called either at startup (see InitEditor above), or when the user clicks on
-// one of the two menu items that allow them to toggle the spellcheck feature
-// (either context menu or Options menu).
+function toggleSpellCheckingEnabled() {
+  let checker = GetCurrentEditor().getInlineSpellChecker(true);
+  enableInlineSpellCheck(!checker.enableRealTimeSpell);
+}
+
+// This function is called either at startup (see InitEditor above), or when
+// the user clicks on one of the two menu items that allow them to toggle the
+// spellcheck feature (either context menu or Options menu).
 function enableInlineSpellCheck(aEnableInlineSpellCheck) {
-  if (gSpellChecker.enabled != aEnableInlineSpellCheck) {
+  let checker = GetCurrentEditor().getInlineSpellChecker(true);
+  if (checker.enableRealTimeSpell != aEnableInlineSpellCheck) {
     // If state of spellchecker is about to change, clear any pending observer.
     spellCheckReadyObserver.removeObserver();
   }
-  gSpellChecker.enabled = aEnableInlineSpellCheck;
+
+  checker.enableRealTimeSpell = aEnableInlineSpellCheck;
   document
     .getElementById("msgSubject")
     .setAttribute("spellcheck", aEnableInlineSpellCheck);
-  document
-    .getElementById("menu_inlineSpellCheck")
-    .setAttribute("checked", aEnableInlineSpellCheck);
-  document
-    .getElementById("spellCheckEnable")
-    .setAttribute("checked", aEnableInlineSpellCheck);
-  document
-    .getElementById("spellCheckDictionaries")
-    .setAttribute("hidden", !aEnableInlineSpellCheck);
 }
 
 function getMailToolbox() {

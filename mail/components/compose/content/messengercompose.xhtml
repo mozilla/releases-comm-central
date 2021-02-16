@@ -635,7 +635,7 @@
             label="&spellCheckToggle.label;"
             type="checkbox"
             accesskey="&spellCheckToggle.accesskey;"
-            oncommand="enableInlineSpellCheck(!gSpellChecker.enabled);"/>
+            oncommand="toggleSpellCheckingEnabled();"/>
   <menuitem id="spellCheckAddDictionariesMain"
             label="&spellAddDictionaries.label;"
             accesskey="&spellAddDictionaries.accesskey;"
@@ -1680,17 +1680,18 @@
       </menu>
 
       <menu id="optionsMenu" label="&optionsMenu.label;" accesskey="&optionsMenu.accesskey;">
-        <menupopup id="optionsMenuPopup" onpopupshowing="setSecuritySettings('_Menubar');">
+        <menupopup id="optionsMenuPopup" onpopupshowing="updateOptionsMenu();">
           <menuitem id="menu_checkspelling"
                     label="&checkSpellingCmd2.label;"
                     accesskey="&checkSpellingCmd2.accesskey;"
                     key="key_checkspelling"
                     command="cmd_spelling"
                     class="menuitem-iconic"/>
-          <menuitem label="&enableInlineSpellChecker.label;" id="menu_inlineSpellCheck"
-                    accesskey="&enableInlineSpellChecker.accesskey;" checked="false"
+          <menuitem id="menu_inlineSpellCheck"
+                    label="&enableInlineSpellChecker.label;"
+                    accesskey="&enableInlineSpellChecker.accesskey;"
                     type="checkbox"
-                    oncommand="enableInlineSpellCheck(!gSpellChecker.enabled);"/>
+                    oncommand="toggleSpellCheckingEnabled();"/>
           <menuitem id="menu_quoteMessage"
                     label="&quoteCmd.label;"
                     accesskey="&quoteCmd.accesskey;"
