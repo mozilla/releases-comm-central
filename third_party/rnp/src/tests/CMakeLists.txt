@@ -69,15 +69,11 @@ add_executable(rnp_tests
   ../fuzzing/keyring_g10.cpp
   ../fuzzing/keyring_kbx.c
   ../fuzzing/keyimport.c
-  ../fuzzing/dump.c
-  ../fuzzing/verify_detached.c
   cipher.cpp
   cli.cpp
   exportkey.cpp
   ffi.cpp
   ffi-enc.cpp
-  ffi-uid.cpp
-  ffi-key-sig.cpp
   file-utils.cpp
   generatekey.cpp
   kbx-nsigs-test.cpp
@@ -111,8 +107,6 @@ add_executable(rnp_tests
   fuzz_keyring_g10.cpp
   fuzz_keyring_kbx.cpp
   fuzz_keyimport.cpp
-  fuzz_dump.cpp
-  fuzz_verify_detached.cpp
 )
 if(MSVC)
   find_package(WindowsSDK)

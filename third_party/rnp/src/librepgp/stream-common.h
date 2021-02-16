@@ -30,7 +30,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/types.h>
-#include "types.h"
 
 #define PGP_INPUT_CACHE_SIZE 32768
 #define PGP_OUTPUT_CACHE_SIZE 32768
@@ -359,11 +358,8 @@ rnp_result_t init_null_dest(pgp_dest_t *dst);
 /** @brief reads from source and writes to destination
  *  @param src initialized source
  *  @param dst initialized destination
- *  @param limit sets the maximum amount of bytes to be read,
- *         returning an error if the source hasn't come to eof after that amount
- *         if 0, no limit is imposed
  *  @return RNP_SUCCESS or error code
  **/
-rnp_result_t dst_write_src(pgp_source_t *src, pgp_dest_t *dst, uint64_t limit = 0);
+rnp_result_t dst_write_src(pgp_source_t *src, pgp_dest_t *dst);
 
 #endif

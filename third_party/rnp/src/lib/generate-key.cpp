@@ -83,11 +83,11 @@ load_generated_g10_key(pgp_key_t *    dst,
     pgp_key_provider_t prov = {};
 
     // this should generally be zeroed
-    assert(dst->type() == 0);
+    assert(pgp_key_get_type(dst) == 0);
     // if a primary is provided, make sure it's actually a primary key
-    assert(!primary_key || primary_key->is_primary());
+    assert(!primary_key || pgp_key_is_primary_key(primary_key));
     // if a pubkey is provided, make sure it's actually a public key
-    assert(!pubkey || pubkey->is_public());
+    assert(!pubkey || pgp_key_is_public(pubkey));
     // G10 always needs pubkey here
     assert(pubkey);
 
@@ -131,7 +131,8 @@ load_generated_g10_key(pgp_key_t *    dst,
         goto end;
     }
     // if a primary key is provided, it should match the sub with regards to type
-    assert(!primary_key || (primary_key->is_secret() == key_store->keys.front().is_secret()));
+    assert(!primary_key ||
+           (pgp_key_is_secret(primary_key) == pgp_key_is_secret(&key_store->keys.front())));
     try {
         *dst = pgp_key_t(key_store->keys.front());
         ok = true;
@@ -333,6 +334,18 @@ keygen_primary_merge_defaults(rnp_keygen_primary_desc_t &desc)
     }
 }
 
+static void
+pgp_key_mark_valid(pgp_key_t *key)
+{
+    key->valid = true;
+    key->validated = true;
+    for (size_t i = 0; i < pgp_key_get_subsig_count(key); i++) {
+        pgp_subsig_t *sub = pgp_key_get_subsig(key, i);
+        sub->validated = true;
+        sub->valid = true;
+    }
+}
+
 bool
 pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
                          bool                       merge_defaults,
@@ -344,7 +357,7 @@ pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
     if (!desc || !primary_pub || !primary_sec) {
         return false;
     }
-    if (primary_sec->type() || primary_pub->type()) {
+    if (pgp_key_get_type(primary_sec) || pgp_key_get_type(primary_pub)) {
         RNP_LOG("invalid parameters (should be zeroed)");
         return false;
     }
@@ -386,19 +399,19 @@ pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
     pgp_transferable_key_t tkeypub;
     try {
         tkeypub = pgp_transferable_key_t(tkeysec, true);
-        *primary_pub = tkeypub;
     } catch (const std::exception &e) {
         RNP_LOG("failed to copy public key part: %s", e.what());
+        return false;
+    }
+
+    if (!rnp_key_from_transferable_key(primary_pub, &tkeypub)) {
         return false;
     }
 
     switch (secformat) {
     case PGP_KEY_STORE_GPG:
     case PGP_KEY_STORE_KBX:
-        try {
-            *primary_sec = tkeysec;
-        } catch (const std::exception &e) {
-            RNP_LOG("%s", e.what());
+        if (!rnp_key_from_transferable_key(primary_sec, &tkeysec)) {
             return false;
         }
         break;
@@ -414,10 +427,10 @@ pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
     }
 
     /* mark it as valid */
-    primary_pub->mark_valid();
-    primary_sec->mark_valid();
+    pgp_key_mark_valid(primary_pub);
+    pgp_key_mark_valid(primary_sec);
     /* refresh key's data */
-    return primary_pub->refresh_data() && primary_sec->refresh_data();
+    return pgp_key_refresh_data(primary_pub) && pgp_key_refresh_data(primary_sec);
 }
 
 static bool
@@ -466,12 +479,12 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
         RNP_LOG("NULL args");
         goto end;
     }
-    if (!primary_sec->is_primary() || !primary_pub->is_primary() ||
-        !primary_sec->is_secret() || !primary_pub->is_public()) {
+    if (!pgp_key_is_primary_key(primary_sec) || !pgp_key_is_primary_key(primary_pub) ||
+        !pgp_key_is_secret(primary_sec) || !pgp_key_is_public(primary_pub)) {
         RNP_LOG("invalid parameters");
         goto end;
     }
-    if (subkey_sec->type() || subkey_pub->type()) {
+    if (pgp_key_get_type(subkey_sec) || pgp_key_get_type(subkey_pub)) {
         RNP_LOG("invalid parameters (should be zeroed)");
         goto end;
     }
@@ -489,14 +502,14 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
     ctx = {.op = PGP_OP_ADD_SUBKEY, .key = primary_sec};
 
     // decrypt the primary seckey if needed (for signatures)
-    if (primary_sec->encrypted()) {
+    if (pgp_key_is_encrypted(primary_sec)) {
         decrypted_primary_seckey = pgp_decrypt_seckey(primary_sec, password_provider, &ctx);
         if (!decrypted_primary_seckey) {
             goto end;
         }
         primary_seckey = decrypted_primary_seckey;
     } else {
-        primary_seckey = &primary_sec->pkt();
+        primary_seckey = pgp_key_get_pkt(primary_sec);
     }
 
     // generate the raw key pair
@@ -511,19 +524,20 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
     }
 
     try {
-        *subkey_pub = pgp_key_t(pgp_transferable_subkey_t(tskeysec, true), primary_pub);
+        tskeypub = pgp_transferable_subkey_t(tskeysec, true);
     } catch (const std::exception &e) {
         RNP_LOG("failed to copy public subkey part: %s", e.what());
+        goto end;
+    }
+
+    if (!rnp_key_from_transferable_subkey(subkey_pub, &tskeypub, primary_pub)) {
         goto end;
     }
 
     switch (secformat) {
     case PGP_KEY_STORE_GPG:
     case PGP_KEY_STORE_KBX:
-        try {
-            *subkey_sec = pgp_key_t(tskeysec, primary_sec);
-        } catch (const std::exception &e) {
-            RNP_LOG("%s", e.what());
+        if (!rnp_key_from_transferable_subkey(subkey_sec, &tskeysec, primary_sec)) {
             goto end;
         }
         break;
@@ -539,9 +553,10 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
         break;
     }
 
-    subkey_pub->mark_valid();
-    subkey_sec->mark_valid();
-    ok = subkey_pub->refresh_data(primary_pub) && subkey_sec->refresh_data(primary_sec);
+    pgp_key_mark_valid(subkey_pub);
+    pgp_key_mark_valid(subkey_sec);
+    ok = pgp_subkey_refresh_data(subkey_pub, primary_pub) &&
+         pgp_subkey_refresh_data(subkey_sec, primary_sec);
 end:
     if (decrypted_primary_seckey) {
         delete decrypted_primary_seckey;

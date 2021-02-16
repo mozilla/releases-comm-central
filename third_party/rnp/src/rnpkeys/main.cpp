@@ -36,7 +36,7 @@
 #endif
 #include <stdio.h>
 #include <string.h>
-#include "utils.h"
+
 #include "rnp/rnpcfg.h"
 #include "rnpkeys.h"
 
@@ -67,16 +67,6 @@ rnpkeys_main(int argc, char **argv)
         print_usage(usage);
         return EXIT_FAILURE;
     }
-
-#if !defined(RNP_RUN_TESTS) && defined(_WIN32)
-    bool args_are_substituted = false;
-    try {
-        args_are_substituted = rnp_win_substitute_cmdline_args(&argc, &argv);
-    } catch (std::exception &ex) {
-        RNP_LOG("Error converting arguments ('%s')", ex.what());
-        return EXIT_FAILURE;
-    }
-#endif
 
     rnp_cfg_init(&cfg);
 
@@ -117,11 +107,6 @@ rnpkeys_main(int argc, char **argv)
         goto end;
     }
 
-    if (!cli_rnp_setup(&rnp)) {
-        ret = EXIT_FAILURE;
-        goto end;
-    }
-
     /* now do the required action for each of the command line args */
     ret = EXIT_SUCCESS;
     if (optind == argc) {
@@ -139,10 +124,5 @@ rnpkeys_main(int argc, char **argv)
 end:
     rnp_cfg_free(&cfg);
     cli_rnp_end(&rnp);
-#if !defined(RNP_RUN_TESTS) && defined(_WIN32)
-    if (args_are_substituted) {
-        rnp_win_clear_args(argc, argv);
-    }
-#endif
     return ret;
 }

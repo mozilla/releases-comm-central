@@ -1062,37 +1062,38 @@ g10_decrypt_seckey(const uint8_t *      data,
 }
 
 static bool
-copy_secret_fields(pgp_key_pkt_t &dst, const pgp_key_pkt_t &src)
+copy_secret_fields(pgp_key_pkt_t *dst, const pgp_key_pkt_t *src)
 {
-    switch (src.alg) {
+    switch (src->alg) {
     case PGP_PKA_DSA:
-        dst.material.dsa.x = src.material.dsa.x;
+        dst->material.dsa.x = src->material.dsa.x;
         break;
     case PGP_PKA_RSA:
     case PGP_PKA_RSA_ENCRYPT_ONLY:
     case PGP_PKA_RSA_SIGN_ONLY:
-        dst.material.rsa.d = src.material.rsa.d;
-        dst.material.rsa.p = src.material.rsa.p;
-        dst.material.rsa.q = src.material.rsa.q;
-        dst.material.rsa.u = src.material.rsa.u;
+        dst->material.rsa.d = src->material.rsa.d;
+        dst->material.rsa.p = src->material.rsa.p;
+        dst->material.rsa.q = src->material.rsa.q;
+        dst->material.rsa.u = src->material.rsa.u;
         break;
     case PGP_PKA_ELGAMAL:
     case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
-        dst.material.eg.x = src.material.eg.x;
+        dst->material.eg.x = src->material.eg.x;
         break;
     case PGP_PKA_ECDSA:
     case PGP_PKA_ECDH:
     case PGP_PKA_EDDSA:
-        dst.material.ec.x = src.material.ec.x;
+        dst->material.ec.x = src->material.ec.x;
         break;
     default:
-        RNP_LOG("Unsupported public key algorithm: %d", (int) src.alg);
+        RNP_LOG("Unsupported public key algorithm: %d", (int) src->alg);
         return false;
     }
 
-    dst.material.secret = src.material.secret;
-    dst.sec_protection = src.sec_protection;
-    dst.tag = is_subkey_pkt(dst.tag) ? PGP_PKT_SECRET_SUBKEY : PGP_PKT_SECRET_KEY;
+    dst->material.secret = src->material.secret;
+    dst->sec_protection = src->sec_protection;
+    dst->tag = is_subkey_pkt(dst->tag) ? PGP_PKT_SECRET_SUBKEY : PGP_PKT_SECRET_KEY;
+
     return true;
 }
 
@@ -1142,16 +1143,16 @@ rnp_key_store_g10_from_src(rnp_key_store_t *         key_store,
             goto done;
         }
 
-        if (!copy_secret_fields(key.pkt(), seckey)) {
+        if (!copy_secret_fields(&key.pkt, &seckey)) {
             goto done;
         }
     } else {
-        key.set_pkt(std::move(seckey));
+        key.pkt = std::move(seckey);
     }
 
     try {
-        key.set_rawpkt(pgp_rawpacket_t(
-          (uint8_t *) mem_src_get_memory(&memsrc), memsrc.size, PGP_PKT_RESERVED));
+        key.rawpkt = pgp_rawpacket_t(
+          (uint8_t *) mem_src_get_memory(&memsrc), memsrc.size, PGP_PKT_RESERVED);
     } catch (const std::exception &e) {
         RNP_LOG("failed to add packet: %s", e.what());
         goto done;
@@ -1558,11 +1559,14 @@ error:
 bool
 rnp_key_store_g10_key_to_dst(pgp_key_t *key, pgp_dest_t *dest)
 {
+    if (!pgp_key_get_rawpacket_count(key)) {
+        return false;
+    }
     if (key->format != PGP_KEY_STORE_G10) {
         RNP_LOG("incorrect format: %d", key->format);
         return false;
     }
-    pgp_rawpacket_t &packet = key->rawpkt();
+    pgp_rawpacket_t &packet = pgp_key_get_rawpacket(key);
     dst_write(dest, packet.raw.data(), packet.raw.size());
     return dest->werr == RNP_SUCCESS;
 }

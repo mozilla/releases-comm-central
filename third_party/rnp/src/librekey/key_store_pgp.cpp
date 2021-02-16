@@ -68,43 +68,105 @@ __RCSID("$NetBSD: keyring.c,v 1.50 2011/06/25 00:37:44 agc Exp $");
 #include "pgp-key.h"
 
 bool
+rnp_key_add_signature(pgp_key_t *key, const pgp_signature_t *sig)
+{
+    pgp_subsig_t *subsig = pgp_key_add_subsig(key);
+    if (!subsig) {
+        RNP_LOG("Failed to add subsig");
+        return false;
+    }
+    /* setup subsig and key from signature */
+    if (!pgp_subsig_from_signature(*subsig, *sig)) {
+        return false;
+    }
+    subsig->uid = pgp_key_get_userid_count(key) - 1;
+    return true;
+}
+
+static bool
+rnp_key_add_signatures(pgp_key_t *key, pgp_signature_list_t &signatures)
+{
+    for (auto &sig : signatures) {
+        if (!rnp_key_add_signature(key, &sig)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
 rnp_key_store_add_transferable_subkey(rnp_key_store_t *          keyring,
                                       pgp_transferable_subkey_t *tskey,
                                       pgp_key_t *                pkey)
 {
-    try {
-        /* create subkey */
-        pgp_key_t skey(*tskey, pkey);
-        /* add it to the storage */
-        return rnp_key_store_add_key(keyring, &skey);
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
-        RNP_LOG_KEY_PKT("failed to create subkey %s", tskey->subkey);
+    pgp_key_t skey;
+
+    /* create subkey */
+    if (!rnp_key_from_transferable_subkey(&skey, tskey, pkey)) {
+        RNP_LOG_KEY_PKT("failed to create subkey %s", &tskey->subkey);
         RNP_LOG_KEY("primary key is %s", pkey);
         return false;
     }
+
+    /* add it to the storage */
+    return rnp_key_store_add_key(keyring, &skey);
+}
+
+bool
+rnp_key_add_transferable_userid(pgp_key_t *key, pgp_transferable_userid_t *uid)
+{
+    pgp_userid_t *userid = pgp_key_add_userid(key);
+    if (!userid) {
+        RNP_LOG("Failed to add userid");
+        return false;
+    }
+    try {
+        userid->rawpkt = pgp_rawpacket_t(uid->uid);
+    } catch (const std::exception &e) {
+        RNP_LOG("Raw packet allocation failed: %s", e.what());
+        return false;
+    }
+
+    try {
+        if (uid->uid.tag == PGP_PKT_USER_ID) {
+            userid->str = std::string(uid->uid.uid, uid->uid.uid + uid->uid.uid_len);
+        } else {
+            userid->str = "(photo)";
+        }
+    } catch (const std::exception &e) {
+        RNP_LOG(
+          "%s alloc failed: %s", uid->uid.tag == PGP_PKT_USER_ID ? "uid" : "uattr", e.what());
+        return false;
+    }
+
+    try {
+        userid->pkt = uid->uid;
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return false;
+    }
+
+    return rnp_key_add_signatures(key, uid->signatures);
 }
 
 bool
 rnp_key_store_add_transferable_key(rnp_key_store_t *keyring, pgp_transferable_key_t *tkey)
 {
+    pgp_key_t  key;
     pgp_key_t *addkey = NULL;
 
     /* create key from transferable key */
-    try {
-        pgp_key_t key(*tkey);
-        /* temporary disable key validation */
-        keyring->disable_validation = true;
-        /* add key to the storage before subkeys */
-        addkey = rnp_key_store_add_key(keyring, &key);
-    } catch (const std::exception &e) {
-        keyring->disable_validation = false;
-        RNP_LOG_KEY_PKT("failed to add key %s", tkey->key);
+    if (!rnp_key_from_transferable_key(&key, tkey)) {
+        RNP_LOG_KEY_PKT("failed to create key %s", &tkey->key);
         return false;
     }
 
+    /* temporary disable key validation */
+    keyring->disable_validation = true;
+
+    /* add key to the storage before subkeys */
+    addkey = rnp_key_store_add_key(keyring, &key);
     if (!addkey) {
-        keyring->disable_validation = false;
         RNP_LOG("Failed to add key to key store.");
         return false;
     }
@@ -113,19 +175,68 @@ rnp_key_store_add_transferable_key(rnp_key_store_t *keyring, pgp_transferable_ke
     for (auto &subkey : tkey->subkeys) {
         if (!rnp_key_store_add_transferable_subkey(keyring, &subkey, addkey)) {
             RNP_LOG("Failed to add subkey to key store.");
-            keyring->disable_validation = false;
             goto error;
         }
     }
 
     /* now validate/refresh the whole key with subkeys */
     keyring->disable_validation = false;
-    addkey->revalidate(*keyring);
+    pgp_key_revalidate_updated(addkey, keyring);
     return true;
 error:
     /* during key addition all fields are copied so will be cleaned below */
     rnp_key_store_remove_key(keyring, addkey, false);
     return false;
+}
+
+bool
+rnp_key_from_transferable_key(pgp_key_t *key, pgp_transferable_key_t *tkey)
+{
+    *key = pgp_key_t();
+    /* create key */
+    if (!pgp_key_from_pkt(key, &tkey->key)) {
+        return false;
+    }
+
+    /* add direct-key signatures */
+    if (!rnp_key_add_signatures(key, tkey->signatures)) {
+        return false;
+    }
+
+    /* add userids and their signatures */
+    for (auto &uid : tkey->userids) {
+        if (!rnp_key_add_transferable_userid(key, &uid)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool
+rnp_key_from_transferable_subkey(pgp_key_t *                subkey,
+                                 pgp_transferable_subkey_t *tskey,
+                                 pgp_key_t *                primary)
+{
+    *subkey = pgp_key_t();
+
+    /* create key */
+    if (!pgp_key_from_pkt(subkey, &tskey->subkey)) {
+        return false;
+    }
+
+    /* add subkey binding signatures */
+    if (!rnp_key_add_signatures(subkey, tskey->signatures)) {
+        RNP_LOG("failed to add subkey signatures");
+        return false;
+    }
+
+    /* setup key grips if primary is available */
+    if (primary && !pgp_key_link_subkey_fp(primary, subkey)) {
+        return false;
+    }
+
+    return true;
 }
 
 rnp_result_t
@@ -197,8 +308,8 @@ rnp_key_to_src(const pgp_key_t *key, pgp_source_t *src)
         return false;
     }
 
-    key->write(dst);
-    res = !dst.werr && !init_mem_src(src, mem_dest_own_memory(&dst), dst.writeb, true);
+    res = pgp_key_write_packets(key, &dst) &&
+          !init_mem_src(src, mem_dest_own_memory(&dst), dst.writeb, true);
     dst_close(&dst, true);
     return res;
 }
@@ -207,11 +318,11 @@ static bool
 do_write(rnp_key_store_t *key_store, pgp_dest_t *dst, bool secret)
 {
     for (auto &key : key_store->keys) {
-        if (key.is_secret() != secret) {
+        if (pgp_key_is_secret(&key) != secret) {
             continue;
         }
         // skip subkeys, they are written below (orphans are ignored)
-        if (!key.is_primary()) {
+        if (!pgp_key_is_primary_key(&key)) {
             continue;
         }
 
@@ -219,18 +330,16 @@ do_write(rnp_key_store_t *key_store, pgp_dest_t *dst, bool secret)
             RNP_LOG("incorrect format (conversions not supported): %d", key.format);
             return false;
         }
-        key.write(*dst);
-        if (dst->werr) {
+        if (!pgp_key_write_packets(&key, dst)) {
             return false;
         }
-        for (auto &sfp : key.subkey_fps()) {
+        for (auto &sfp : key.subkey_fps) {
             pgp_key_t *subkey = rnp_key_store_get_key_by_fpr(key_store, sfp);
             if (!subkey) {
                 RNP_LOG("Missing subkey");
                 continue;
             }
-            subkey->write(*dst);
-            if (dst->werr) {
+            if (!pgp_key_write_packets(subkey, dst)) {
                 return false;
             }
         }

@@ -29,7 +29,7 @@
 
 TEST_F(rnp_tests, test_rnp_mkstemp)
 {
-#ifdef _WIN32
+#ifdef _MSC_VER
     const char  tmpl[17] = "test-file.XXXXXX";
     char        buf[17];
     const int   size = 20;

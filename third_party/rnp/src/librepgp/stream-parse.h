@@ -33,7 +33,6 @@
 #include "rnp.h"
 #include "stream-common.h"
 #include "stream-ctx.h"
-#include "stream-packet.h"
 
 typedef struct pgp_parse_handler_t  pgp_parse_handler_t;
 typedef struct pgp_signature_info_t pgp_signature_info_t;

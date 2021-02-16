@@ -569,14 +569,14 @@ rnp_key_store_kbx_write_pgp(rnp_key_store_t *key_store, pgp_key_t *key, pgp_dest
         goto finish;
     }
 
-    if (!pu16(&memdst, 1 + key->subkey_count())) { // number of keys in keyblock
+    if (!pu16(&memdst, 1 + key->subkey_fps.size())) { // number of keys in keyblock
         goto finish;
     }
     if (!pu16(&memdst, 28)) { // size of key info structure)
         goto finish;
     }
 
-    if (!pbuf(&memdst, key->fp().fingerprint, PGP_FINGERPRINT_SIZE) ||
+    if (!pbuf(&memdst, pgp_key_get_fp(key).fingerprint, PGP_FINGERPRINT_SIZE) ||
         !pu32(&memdst, memdst.writeb - 8) || // offset to keyid (part of fpr for V4)
         !pu16(&memdst, 0) ||                 // flags, not used by GnuPG
         !pu16(&memdst, 0)) {                 // RFU
@@ -584,17 +584,17 @@ rnp_key_store_kbx_write_pgp(rnp_key_store_t *key_store, pgp_key_t *key, pgp_dest
     }
 
     // same as above, for each subkey
-    for (auto &sfp : key->subkey_fps()) {
-        pgp_key_t *subkey = rnp_key_store_get_key_by_fpr(key_store, sfp);
-        if (!pbuf(&memdst, subkey->fp().fingerprint, PGP_FINGERPRINT_SIZE) ||
+    for (auto &sfp : key->subkey_fps) {
+        const pgp_key_t *subkey = rnp_key_store_get_key_by_fpr(key_store, sfp);
+        if (!pbuf(&memdst, pgp_key_get_fp(subkey).fingerprint, PGP_FINGERPRINT_SIZE) ||
             !pu32(&memdst, memdst.writeb - 8) || // offset to keyid (part of fpr for V4)
             !pu16(&memdst, 0) ||                 // flags, not used by GnuPG
             !pu16(&memdst, 0)) {                 // RFU
             goto finish;
         }
         // load signature expirations while we're at it
-        for (i = 0; i < subkey->sig_count(); i++) {
-            expiration = subkey->get_sig(i).sig.key_expiration();
+        for (i = 0; i < pgp_key_get_subsig_count(subkey); i++) {
+            expiration = pgp_key_get_subsig(subkey, i)->sig.key_expiration();
             if (list_append(&subkey_sig_expirations, &expiration, sizeof(expiration)) ==
                 NULL) {
                 goto finish;
@@ -608,13 +608,13 @@ rnp_key_store_kbx_write_pgp(rnp_key_store_t *key_store, pgp_key_t *key, pgp_dest
 
     // skip serial number
 
-    if (!pu16(&memdst, key->uid_count()) || !pu16(&memdst, 12)) {
+    if (!pu16(&memdst, pgp_key_get_userid_count(key)) || !pu16(&memdst, 12)) {
         goto finish;
     }
 
     uid_start = memdst.writeb;
 
-    for (i = 0; i < key->uid_count(); i++) {
+    for (i = 0; i < pgp_key_get_userid_count(key); i++) {
         if (!pu32(&memdst, 0) ||
             !pu32(&memdst, 0)) { // UID offset and length, update when blob has done
             goto finish;
@@ -629,13 +629,13 @@ rnp_key_store_kbx_write_pgp(rnp_key_store_t *key_store, pgp_key_t *key, pgp_dest
         }
     }
 
-    if (!pu16(&memdst, key->sig_count() + list_length(subkey_sig_expirations)) ||
+    if (!pu16(&memdst, pgp_key_get_subsig_count(key) + list_length(subkey_sig_expirations)) ||
         !pu16(&memdst, 4)) {
         goto finish;
     }
 
-    for (i = 0; i < key->sig_count(); i++) {
-        if (!pu32(&memdst, key->get_sig(i).sig.key_expiration())) {
+    for (i = 0; i < pgp_key_get_subsig_count(key); i++) {
+        if (!pu32(&memdst, pgp_key_get_subsig(key, i)->sig.key_expiration())) {
             goto finish;
         }
     }
@@ -666,18 +666,18 @@ rnp_key_store_kbx_write_pgp(rnp_key_store_t *key_store, pgp_key_t *key, pgp_dest
     }
 
     // wrtite UID, we might redesign PGP write and use this information from keyblob
-    for (i = 0; i < key->uid_count(); i++) {
-        const pgp_userid_t &uid = key->get_uid(i);
+    for (i = 0; i < pgp_key_get_userid_count(key); i++) {
+        const char *uid = (const char *) pgp_key_get_userid(key, i);
         p = (uint8_t *) mem_dest_get_memory(&memdst) + uid_start + (12 * i);
         /* store absolute uid offset in the output stream */
         pt = memdst.writeb + dst->writeb;
         STORE32BE(p, pt);
         /* and uid length */
-        pt = uid.str.size();
+        pt = strlen(uid);
         p = (uint8_t *) mem_dest_get_memory(&memdst) + uid_start + (12 * i) + 4;
         STORE32BE(p, pt);
         /* uid data itself */
-        if (!pbuf(&memdst, uid.str.c_str(), pt)) {
+        if (!pbuf(&memdst, uid, pt)) {
             goto finish;
         }
     }
@@ -688,15 +688,13 @@ rnp_key_store_kbx_write_pgp(rnp_key_store_t *key_store, pgp_key_t *key, pgp_dest
     p = (uint8_t *) mem_dest_get_memory(&memdst) + 8;
     STORE32BE(p, pt);
 
-    key->write(memdst);
-    if (memdst.werr) {
+    if (!pgp_key_write_packets(key, &memdst)) {
         goto finish;
     }
 
-    for (auto &sfp : key->subkey_fps()) {
+    for (auto &sfp : key->subkey_fps) {
         const pgp_key_t *subkey = rnp_key_store_get_key_by_fpr(key_store, sfp);
-        subkey->write(memdst);
-        if (memdst.werr) {
+        if (!pgp_key_write_packets(subkey, &memdst)) {
             goto finish;
         }
     }
@@ -767,7 +765,7 @@ rnp_key_store_kbx_to_dst(rnp_key_store_t *key_store, pgp_dest_t *dst)
     }
 
     for (auto &key : key_store->keys) {
-        if (!key.is_primary()) {
+        if (!pgp_key_is_primary_key(&key)) {
             continue;
         }
         if (!rnp_key_store_kbx_write_pgp(key_store, &key, dst)) {

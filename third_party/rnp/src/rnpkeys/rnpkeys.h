@@ -33,7 +33,6 @@ typedef enum {
     OPT_VERBOSE,
     OPT_COREDUMPS,
     OPT_PASSWDFD,
-    OPT_PASSWD,
     OPT_RESULTS,
     OPT_CIPHER,
     OPT_FORMAT,

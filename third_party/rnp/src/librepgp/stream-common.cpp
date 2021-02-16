@@ -42,11 +42,13 @@
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
+#ifndef HAVE_MKSTEMP
+#include "file-utils.h"
+#endif
 #include <rnp/rnp_def.h>
 #include "rnp.h"
 #include "stream-common.h"
 #include "types.h"
-#include "file-utils.h"
 #include <algorithm>
 
 bool
@@ -398,31 +400,14 @@ file_src_close(pgp_source_t *src)
     }
 }
 
-static rnp_result_t
-init_fd_src(pgp_source_t *src, int fd, uint64_t *size)
-{
-    if (!init_src_common(src, sizeof(pgp_source_file_param_t))) {
-        return RNP_ERROR_OUT_OF_MEMORY;
-    }
-
-    pgp_source_file_param_t *param = (pgp_source_file_param_t *) src->param;
-    param->fd = fd;
-    src->read = file_src_read;
-    src->close = file_src_close;
-    src->type = PGP_STREAM_FILE;
-    src->size = size ? *size : 0;
-    src->knownsize = !!size;
-
-    return RNP_SUCCESS;
-}
-
 rnp_result_t
 init_file_src(pgp_source_t *src, const char *path)
 {
-    int         fd;
-    struct stat st;
+    int                      fd;
+    struct stat              st;
+    pgp_source_file_param_t *param;
 
-    if (rnp_stat(path, &st) != 0) {
+    if (stat(path, &st) != 0) {
         RNP_LOG("can't stat '%s'", path);
         return RNP_ERROR_READ;
     }
@@ -441,18 +426,27 @@ init_file_src(pgp_source_t *src, const char *path)
     flags |= _O_BINARY;
 #endif
 #endif
-    fd = rnp_open(path, flags, 0);
+    fd = open(path, flags);
 
     if (fd < 0) {
         RNP_LOG("can't open '%s'", path);
         return RNP_ERROR_READ;
     }
-    uint64_t     size = st.st_size;
-    rnp_result_t ret = init_fd_src(src, fd, &size);
-    if (ret) {
+
+    if (!init_src_common(src, sizeof(pgp_source_file_param_t))) {
         close(fd);
+        return RNP_ERROR_OUT_OF_MEMORY;
     }
-    return ret;
+
+    param = (pgp_source_file_param_t *) src->param;
+    param->fd = fd;
+    src->read = file_src_read;
+    src->close = file_src_close;
+    src->type = PGP_STREAM_FILE;
+    src->size = st.st_size;
+    src->knownsize = 1;
+
+    return RNP_SUCCESS;
 }
 
 rnp_result_t
@@ -763,7 +757,7 @@ file_dst_close(pgp_dest_t *dst, bool discard)
     if (dst->type == PGP_STREAM_FILE) {
         close(param->fd);
         if (discard) {
-            rnp_unlink(param->path);
+            unlink(param->path);
         }
     }
 
@@ -809,7 +803,7 @@ init_file_dest(pgp_dest_t *dst, const char *path, bool overwrite)
     }
 
     /* check whether file/dir already exists */
-    if (!rnp_stat(path, &st)) {
+    if (!stat(path, &st)) {
         if (!overwrite) {
             RNP_LOG("file already exists: '%s'", path);
             return RNP_ERROR_WRITE;
@@ -833,8 +827,7 @@ init_file_dest(pgp_dest_t *dst, const char *path, bool overwrite)
     flags |= _O_BINARY;
 #endif
 #endif
-    fd = rnp_open(path, flags, S_IRUSR | S_IWUSR);
-
+    fd = open(path, flags, S_IRUSR | S_IWUSR);
     if (fd < 0) {
         RNP_LOG("failed to create file '%s'. Error %d.", path, errno);
         return RNP_ERROR_WRITE;
@@ -873,7 +866,7 @@ file_tmpdst_finish(pgp_dest_t *dst)
     param->fd = -1;
 
     /* check if file already exists */
-    if (!rnp_stat(origpath, &st)) {
+    if (!stat(origpath, &st)) {
         if (!param->overwrite) {
             RNP_LOG("target path already exists");
             return RNP_ERROR_BAD_STATE;
@@ -881,7 +874,7 @@ file_tmpdst_finish(pgp_dest_t *dst)
 #ifdef _WIN32
         /* rename() call on Windows fails if destination exists */
         else {
-            rnp_unlink(origpath);
+            unlink(origpath);
         }
 #endif
 
@@ -892,7 +885,7 @@ file_tmpdst_finish(pgp_dest_t *dst)
         }
     }
 
-    if (rnp_rename(param->path, origpath)) {
+    if (rename(param->path, origpath)) {
         RNP_LOG("failed to rename temporary path to target file: %s", strerror(errno));
         return RNP_ERROR_BAD_STATE;
     }
@@ -913,7 +906,7 @@ file_tmpdst_close(pgp_dest_t *dst, bool discard)
     if (!dst->finished && (dst->type == PGP_STREAM_FILE)) {
         close(param->fd);
         if (discard) {
-            rnp_unlink(param->path);
+            unlink(param->path);
         }
     }
 
@@ -934,7 +927,7 @@ init_tmpfile_dest(pgp_dest_t *dst, const char *path, bool overwrite)
         RNP_LOG("failed to build file path");
         return RNP_ERROR_BAD_PARAMETERS;
     }
-#if defined(HAVE_MKSTEMP) && !defined(_WIN32)
+#ifdef HAVE_MKSTEMP
     int fd = mkstemp(tmp);
 #else
     int fd = rnp_mkstemp(tmp);
@@ -1157,46 +1150,28 @@ init_null_dest(pgp_dest_t *dst)
 }
 
 rnp_result_t
-dst_write_src(pgp_source_t *src, pgp_dest_t *dst, uint64_t limit)
+dst_write_src(pgp_source_t *src, pgp_dest_t *dst)
 {
-    const size_t bufsize = PGP_INPUT_CACHE_SIZE;
-    uint8_t *    readbuf = (uint8_t *) malloc(bufsize);
-    if (!readbuf) {
-        return RNP_ERROR_OUT_OF_MEMORY;
-    }
+    uint8_t      readbuf[PGP_INPUT_CACHE_SIZE];
     rnp_result_t res = RNP_SUCCESS;
-    try {
-        size_t   read;
-        uint64_t totalread = 0;
+    size_t       read;
 
-        while (!src->eof) {
-            if (!src_read(src, readbuf, bufsize, &read)) {
-                res = RNP_ERROR_GENERIC;
-                break;
-            }
-            if (!read) {
-                continue;
-            }
-            totalread += read;
-            if (limit && totalread > limit) {
-                res = RNP_ERROR_GENERIC;
-                break;
-            }
-            if (dst) {
-                dst_write(dst, readbuf, read);
-                if (dst->werr) {
-                    RNP_LOG("failed to output data");
-                    res = RNP_ERROR_WRITE;
-                    break;
-                }
-            }
+    while (!src->eof) {
+        if (!src_read(src, readbuf, sizeof(readbuf), &read)) {
+            res = RNP_ERROR_GENERIC;
+            break;
         }
-    } catch (...) {
-        free(readbuf);
-        throw;
+        if (!read) {
+            continue;
+        }
+        dst_write(dst, readbuf, read);
+        if (dst->werr) {
+            RNP_LOG("failed to output data");
+            res = RNP_ERROR_WRITE;
+            break;
+        }
     }
-    free(readbuf);
-    if (res || !dst) {
+    if (res) {
         return res;
     }
     dst_flush(dst);

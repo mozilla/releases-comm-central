@@ -35,7 +35,6 @@
 #define CH_SPACE (' ')
 #define CH_TAB ('\t')
 #define CH_COMMA (',')
-#define ST_CR ("\r")
 #define ST_LF ("\n")
 #define ST_CRLF ("\r\n")
 #define ST_CRLFCRLF ("\r\n\r\n")
@@ -63,8 +62,5 @@
 
 /* Maximum OpenPGP packet nesting level */
 #define MAXIMUM_NESTING_LEVEL 32
-
-/* Maximum text line length supported by GnuPG */
-#define MAXIMUM_GNUPG_LINELEN 19995
 
 #endif /* !STREAM_DEF_H_ */

@@ -26,7 +26,7 @@
 
 #include "support.h"
 #include "rnp_tests.h"
-#include "file-utils.h"
+#include "utils.h"
 
 #ifdef _MSC_VER
 #include "uniwin.h"
@@ -72,19 +72,37 @@ unsetenv(const char *name)
 }
 #endif
 
+/* Check if a file exists.
+ * Use with assert_true and rnp_assert_false(rstate, .
+ */
+bool
+file_exists(const char *path)
+{
+    struct stat st = {0};
+    return stat(path, &st) == 0 && S_ISREG(st.st_mode);
+}
+
+/* Check if a directory exists */
+bool
+dir_exists(const char *path)
+{
+    struct stat st = {0};
+    return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+}
+
 /* Check if a file is empty
  * Use with assert_true and rnp_assert_false(rstate, .
  */
 bool
 file_empty(const char *path)
 {
-    return file_size(path) == 0;
+    struct stat st = {0};
+    return stat(path, &st) == 0 && S_ISREG(st.st_mode) && st.st_size == 0;
 }
 
 std::string
 file_to_str(const std::string &path)
 {
-    // TODO: wstring path _WIN32
     std::ifstream infile(path);
     assert_true(infile);
     return std::string(std::istreambuf_iterator<char>(infile),
@@ -94,7 +112,6 @@ file_to_str(const std::string &path)
 std::vector<uint8_t>
 file_to_vec(const std::string &path)
 {
-    // TODO: wstring path _WIN32
     std::ifstream stream(path, std::ios::in | std::ios::binary);
     assert_true(stream);
     return std::vector<uint8_t>((std::istreambuf_iterator<char>(stream)),
@@ -105,7 +122,7 @@ off_t
 file_size(const char *path)
 {
     struct stat path_stat;
-    if (rnp_stat(path, &path_stat) != -1) {
+    if (stat(path, &path_stat) != -1) {
         if (S_ISDIR(path_stat.st_mode)) {
             return -1;
         }
@@ -157,7 +174,7 @@ paths_concat(char *buffer, size_t buffer_length, const char *first, ...)
  * Final argument must be NULL.
  */
 int
-path_rnp_file_exists(const char *first, ...)
+path_file_exists(const char *first, ...)
 {
     va_list ap;
     char    buffer[512] = {0};
@@ -165,7 +182,7 @@ path_rnp_file_exists(const char *first, ...)
     va_start(ap, first);
     vpaths_concat(buffer, sizeof(buffer), first, ap);
     va_end(ap);
-    return rnp_file_exists(buffer);
+    return file_exists(buffer);
 }
 
 /* Concatenate multiple strings into a full path and
@@ -480,13 +497,6 @@ test_value_equal(const char *what, const char *expected_value, const uint8_t v[]
     return 0;
 }
 
-bool
-mpi_empty(const pgp_mpi_t &val)
-{
-    pgp_mpi_t zero{};
-    return (val.len == 0) && !memcmp(val.mpi, zero.mpi, PGP_MPINT_SIZE);
-}
-
 char *
 uint_to_string(char *buff, const int buffsize, unsigned int num, int base)
 {
@@ -568,7 +578,7 @@ setup_rnp_cfg(rnp_cfg_t *cfg, const char *ks_format, const char *homedir, int *p
         /* if we use default homedir then we append '.rnp' and create directory as well */
         homedir = getenv("HOME");
         paths_concat(homepath, sizeof(homepath), homedir, ".rnp", NULL);
-        if (!rnp_dir_exists(homepath)) {
+        if (!dir_exists(homepath)) {
             path_mkdir(0700, homepath, NULL);
         }
         homedir = homepath;
