@@ -98,6 +98,7 @@ SYMBOLS_FILE = "rnp.symbols"
 SOURCES += [
     "src/common/file-utils.cpp",
     "src/common/list.cpp",
+    "src/common/str-utils.cpp",
     "src/lib/crypto.cpp",
     "src/lib/crypto/bn.cpp",
     "src/lib/crypto/dsa.cpp",
