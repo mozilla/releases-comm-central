@@ -68,23 +68,18 @@ int16_t nsMAPIConfiguration::RegisterSession(
              n_SessionId == 0)  // checking for n_SessionId is a concession
   {
     // create a new session; if new session is specified OR there is no session
-    nsMAPISession* pTemp = nullptr;
-    pTemp =
-        new nsMAPISession(aHwnd, aUserName, aPassword, aForceDownLoad, aIdKey);
+    session_generator++;
 
-    if (pTemp != nullptr) {
-      session_generator++;
-
-      // I don't think there will be (2 power 32) sessions alive
-      // in a cycle.  This is an assumption
-
-      if (session_generator == 0) session_generator++;
-      m_SessionMap.Put(session_generator, pTemp);
-      if (!aUserName.IsEmpty()) m_ProfileMap.Put(aUserName, session_generator);
-      *aSession = session_generator;
-      sessionCount++;
-      nResult = 1;
-    }
+    // I don't think there will be (2 power 32) sessions alive
+    // in a cycle. This is an assumption.
+    if (session_generator == 0) session_generator++;
+    m_SessionMap.Put(session_generator,
+                     mozilla::MakeUnique<nsMAPISession>(
+                         aHwnd, aUserName, aPassword, aForceDownLoad, aIdKey));
+    if (!aUserName.IsEmpty()) m_ProfileMap.Put(aUserName, session_generator);
+    *aSession = session_generator;
+    sessionCount++;
+    nResult = 1;
   }
 
   PR_Unlock(m_Lock);
