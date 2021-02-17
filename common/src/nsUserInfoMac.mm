@@ -19,27 +19,27 @@ nsUserInfo::~nsUserInfo() {}
 
 NS_IMETHODIMP
 nsUserInfo::GetFullname(nsAString& aFullname) {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK
+  NS_OBJC_BEGIN_TRY_IGNORE_BLOCK
 
   nsCocoaUtils::GetStringForNSString(NSFullUserName(), aFullname);
 
-  NS_OBJC_END_TRY_ABORT_BLOCK
+  NS_OBJC_END_TRY_IGNORE_BLOCK
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsUserInfo::GetUsername(nsAString& aUsername) {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK
+  NS_OBJC_BEGIN_TRY_IGNORE_BLOCK
 
   nsCocoaUtils::GetStringForNSString(NSUserName(), aUsername);
 
-  NS_OBJC_END_TRY_ABORT_BLOCK
+  NS_OBJC_END_TRY_IGNORE_BLOCK
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsUserInfo::GetEmailAddress(nsAString& aEmailAddress) {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK
+  NS_OBJC_BEGIN_TRY_IGNORE_BLOCK
 
   aEmailAddress.Truncate();
   // Try to get this user's primary email from the system addressbook's "me card"
@@ -53,7 +53,7 @@ nsUserInfo::GetEmailAddress(nsAString& aEmailAddress) {
                                        aEmailAddress);
   }
 
-  NS_OBJC_END_TRY_ABORT_BLOCK
+  NS_OBJC_END_TRY_IGNORE_BLOCK
 
   return NS_OK;
 }
