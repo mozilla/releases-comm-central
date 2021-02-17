@@ -173,7 +173,30 @@ var calview = {
       let comp = (aWindow._compositeCalendar = Cc[
         "@mozilla.org/calendar/calendar;1?type=composite"
       ].createInstance(Ci.calICompositeCalendar));
-      comp.prefPrefix = "calendar-main";
+      const prefix = "calendar-main";
+
+      const calManagerObserver = {
+        QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
+
+        onCalendarRegistered(calendar) {
+          let inComposite = calendar.getProperty(prefix + "-in-composite");
+          if (inComposite === null && !calendar.getProperty("disabled")) {
+            comp.addCalendar(calendar);
+          }
+        },
+        onCalendarUnregistering(calendar) {
+          comp.removeCalendar(calendar);
+          if (!comp.defaultCalendar || comp.defaultCalendar.id == calendar.id) {
+            comp.defaultCalendar = comp.getCalendars()[0];
+          }
+        },
+        onCalendarDeleting(calendar) {},
+      };
+      const calManager = cal.getCalendarManager();
+      calManager.addObserver(calManagerObserver);
+      aWindow.addEventListener("unload", () => calManager.removeObserver(calManagerObserver));
+
+      comp.prefPrefix = prefix; // populate calendar from existing calendars
 
       if (typeof aWindow.gCalendarStatusFeedback != "undefined") {
         // If we are in a window that has calendar status feedback, set

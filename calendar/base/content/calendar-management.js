@@ -445,23 +445,12 @@ function loadCalendarManager() {
     QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver"]),
 
     onCalendarRegistered(calendar) {
-      let inComposite = calendar.getProperty("calendar-main-in-composite");
-      if (inComposite === null && !calendar.getProperty("disabled")) {
-        compositeCalendar.addCalendar(calendar);
-      }
       addCalendarItem(calendar);
       saveSortOrder();
     },
     onCalendarUnregistering(calendar) {
-      compositeCalendar.removeCalendar(calendar);
       let item = calendarList.getElementsByAttribute("calendar-id", calendar.id)[0];
       item.remove();
-      if (
-        !compositeCalendar.defaultCalendar ||
-        compositeCalendar.defaultCalendar.id == calendar.id
-      ) {
-        compositeCalendar.defaultCalendar = compositeCalendar.getCalendars()[0];
-      }
       saveSortOrder();
     },
     onCalendarDeleting(calendar) {},
