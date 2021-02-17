@@ -10,6 +10,9 @@ folder-pane-toolbar =
     .toolbarname = Folder Pane Toolbar
     .accesskey = F
 
+folder-pane-toolbar-options-button =
+    .tooltiptext = Folder Pane Options
+
 folder-pane-header-label = Folders
 
 ## Folder Toolbar Header Popup
