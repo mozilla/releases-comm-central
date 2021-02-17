@@ -97,7 +97,7 @@ nsresult nsEmlxHelperUtils::ConvertToMboxRD(const char* aMessageBufferStart,
 }
 
 nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile* aMessage, nsIOutputStream* aOut) {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   // needed to be sure autoreleased objects are released too, which they might not
   // in a C++ environment where the main event loop has no autorelease pool (e.g on a XPCOM thread)
@@ -226,5 +226,5 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile* aMessage, nsIOutputS
 
   return rv;
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }

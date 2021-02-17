@@ -413,18 +413,18 @@ nsresult nsMessengerOSXIntegration::BounceDockIcon() {
 }
 
 nsresult nsMessengerOSXIntegration::RestoreDockIcon() {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   id tile = [[NSApplication sharedApplication] dockTile];
   [tile setBadgeLabel:nil];
 
   return NS_OK;
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
 nsresult nsMessengerOSXIntegration::BadgeDockIcon() {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   int32_t unreadCount = mUnreadTotal + mUnreadChat;
   // If count is less than one, we should restore the original dock icon.
@@ -465,7 +465,7 @@ nsresult nsMessengerOSXIntegration::BadgeDockIcon() {
   [tile setBadgeLabel:[NSString stringWithFormat:@"%S", (const unichar*)badgeString.get()]];
   return NS_OK;
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
 NS_IMETHODIMP

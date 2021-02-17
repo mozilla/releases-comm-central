@@ -45,7 +45,7 @@ static nsresult GetOrCreateGroup(NSString* aUid, nsIAbDirectory** aResult) {
 }
 
 static nsresult GetCard(ABRecord* aRecord, nsIAbCard** aResult, nsIAbOSXDirectory* osxDirectory) {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   NSString* uid = [aRecord uniqueId];
   NS_ASSERTION(uid, "No UID for card!.");
@@ -63,11 +63,11 @@ static nsresult GetCard(ABRecord* aRecord, nsIAbCard** aResult, nsIAbOSXDirector
   NS_IF_ADDREF(*aResult = card);
   return NS_OK;
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
 static nsresult CreateCard(ABRecord* aRecord, nsIAbCard** aResult) {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   NSString* uid = [aRecord uniqueId];
   NS_ASSERTION(uid, "No UID for card!.");
@@ -89,11 +89,11 @@ static nsresult CreateCard(ABRecord* aRecord, nsIAbCard** aResult) {
   NS_IF_ADDREF(*aResult = card);
   return NS_OK;
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
 static nsresult Sync(NSString* aUid) {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
   ABRecord* card = [addressBook recordForUniqueId:aUid];
@@ -128,7 +128,7 @@ static nsresult Sync(NSString* aUid) {
   }
   return NS_OK;
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
 @interface ABChangedMonitor : NSObject
@@ -232,7 +232,7 @@ NS_IMPL_ISUPPORTS_INHERITED(nsAbOSXDirectory, nsAbDirProperty, nsIAbOSXDirectory
 
 NS_IMETHODIMP
 nsAbOSXDirectory::Init(const char* aUri) {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   nsresult rv;
   rv = nsAbDirProperty::Init(aUri);
@@ -321,7 +321,7 @@ nsAbOSXDirectory::Init(const char* aUri) {
 
   return NS_OK;
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
 NS_IMETHODIMP
@@ -388,7 +388,7 @@ nsresult nsAbOSXDirectory::GetRootOSXDirectory(nsIAbOSXDirectory** aResult) {
 }
 
 nsresult nsAbOSXDirectory::Update() {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   nsresult rv;
   nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
@@ -502,11 +502,11 @@ nsresult nsAbOSXDirectory::Update() {
 
   return NS_OK;
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
 nsresult nsAbOSXDirectory::AssertChildNodes() {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   // Mailing lists can't have childnodes.
   if (m_IsMailList) {
@@ -537,7 +537,7 @@ nsresult nsAbOSXDirectory::AssertChildNodes() {
 
   return NS_OK;
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
 nsresult nsAbOSXDirectory::AssertDirectory(nsIAbManager* aManager, nsIAbDirectory* aDirectory) {
@@ -614,7 +614,7 @@ nsAbOSXDirectory::GetChildNodes(nsISimpleEnumerator** aNodes) {
 
 NS_IMETHODIMP
 nsAbOSXDirectory::GetChildCards(nsISimpleEnumerator** aCards) {
-  NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   NS_ENSURE_ARG_POINTER(aCards);
 
@@ -622,7 +622,7 @@ nsAbOSXDirectory::GetChildCards(nsISimpleEnumerator** aCards) {
   return m_IsMailList ? NS_NewArrayEnumerator(aCards, m_AddressList, NS_GET_IID(nsIAbCard))
                       : NS_NewArrayEnumerator(aCards, mCardList, NS_GET_IID(nsIAbCard));
 
-  NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
+  NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
 
 /* Recursive method that searches for a child card by URI.  If it cannot find
