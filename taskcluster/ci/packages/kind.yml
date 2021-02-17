@@ -17,6 +17,7 @@ jobs:
     - deb8-python-zstandard
     - deb8-python3-defaults
     - deb8-python3-setuptools
+    - deb8-python-cffi
     - deb8-python3.6
     - deb8-valgrind
     - deb8-xz-utils
