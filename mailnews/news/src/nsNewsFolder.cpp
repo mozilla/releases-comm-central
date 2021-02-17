@@ -1370,7 +1370,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(nsTArray<nsMsgKey>& aMsgKeys) {
 
   if (notifier) {
     nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrs;
-    rv = MsgGetHeadersFromKeys2(mDatabase, aMsgKeys, msgHdrs);
+    rv = MsgGetHeadersFromKeys(mDatabase, aMsgKeys, msgHdrs);
     NS_ENSURE_SUCCESS(rv, rv);
     notifier->NotifyMsgsDeleted(msgHdrs);
   }

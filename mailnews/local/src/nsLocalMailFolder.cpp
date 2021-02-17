@@ -1098,7 +1098,7 @@ nsMsgLocalMailFolder::MarkAllMessagesRead(nsIMsgWindow* aMsgWindow) {
   }
 
   nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-  rv = MsgGetHeadersFromKeys2(mDatabase, thoseMarked, messages);
+  rv = MsgGetHeadersFromKeys(mDatabase, thoseMarked, messages);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
@@ -1130,7 +1130,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::MarkThreadRead(nsIMsgThread* thread) {
   }
 
   nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-  rv = MsgGetHeadersFromKeys2(mDatabase, thoseMarked, messages);
+  rv = MsgGetHeadersFromKeys(mDatabase, thoseMarked, messages);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;

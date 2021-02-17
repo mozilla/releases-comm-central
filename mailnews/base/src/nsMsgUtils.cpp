@@ -1472,40 +1472,9 @@ NS_MSG_BASE nsresult MsgEscapeURL(const nsACString& aStr, uint32_t aFlags,
   return nu->EscapeURL(aStr, aFlags, aResult);
 }
 
-NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
-                                           const nsTArray<nsMsgKey>& aMsgKeys,
-                                           nsIMutableArray* aHeaders) {
-  NS_ENSURE_ARG_POINTER(aDB);
-
-  uint32_t count = aMsgKeys.Length();
-  nsresult rv = NS_OK;
-
-  for (uint32_t kindex = 0; kindex < count; kindex++) {
-    nsMsgKey key = aMsgKeys.ElementAt(kindex);
-
-    bool hasKey;
-    rv = aDB->ContainsKey(key, &hasKey);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // This function silently skips when the key is not found. This is an
-    // expected case.
-    if (hasKey) {
-      nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      rv = aDB->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      aHeaders->AppendElement(msgHdr);
-    }
-  }
-
-  return rv;
-}
-
-// Stopgap while we complete removal of nsIArray usage (Bug 1583030).
-// Then this function can replace MsgGetHeadersFromKeys().
 NS_MSG_BASE nsresult
-MsgGetHeadersFromKeys2(nsIMsgDatabase* aDB, const nsTArray<nsMsgKey>& aMsgKeys,
-                       nsTArray<RefPtr<nsIMsgDBHdr>>& aHeaders) {
+MsgGetHeadersFromKeys(nsIMsgDatabase* aDB, const nsTArray<nsMsgKey>& aMsgKeys,
+                      nsTArray<RefPtr<nsIMsgDBHdr>>& aHeaders) {
   NS_ENSURE_ARG_POINTER(aDB);
   aHeaders.Clear();
   aHeaders.SetCapacity(aMsgKeys.Length());

@@ -2503,7 +2503,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
   m_totalKeysToFetch = m_keysToFetch.Length();
   if (!keysToDelete.IsEmpty() && mDatabase) {
     nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToDelete;
-    MsgGetHeadersFromKeys2(mDatabase, keysToDelete, hdrsToDelete);
+    MsgGetHeadersFromKeys(mDatabase, keysToDelete, hdrsToDelete);
     // Notify nsIMsgFolderListeners of a mass delete, but only if we actually
     // have headers
     if (!hdrsToDelete.IsEmpty()) {
@@ -4996,7 +4996,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
 
                 nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrs;
                 if (notifier || !supportsCompaction) {
-                  MsgGetHeadersFromKeys2(db, keyArray, msgHdrs);
+                  MsgGetHeadersFromKeys(db, keyArray, msgHdrs);
                 }
 
                 // Notify listeners of delete.
@@ -8941,7 +8941,7 @@ void nsImapMailFolder::DeleteStoreMessages(const nsTArray<nsMsgKey>& aMessages,
       aFolder->GetMsgDatabase(getter_AddRefs(db));
       nsresult rv = NS_ERROR_FAILURE;
       nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-      if (db) rv = MsgGetHeadersFromKeys2(db, aMessages, messages);
+      if (db) rv = MsgGetHeadersFromKeys(db, aMessages, messages);
       if (NS_SUCCEEDED(rv))
         offlineStore->DeleteMessages(messages);
       else

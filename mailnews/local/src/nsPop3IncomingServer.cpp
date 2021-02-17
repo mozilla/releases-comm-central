@@ -133,7 +133,7 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal) {
                 continue;  // Next subfolder.
               }
               nsTArray<RefPtr<nsIMsgDBHdr>> hdrsToCopy;
-              MsgGetHeadersFromKeys2(subFolderDB, keys, hdrsToCopy);
+              MsgGetHeadersFromKeys(subFolderDB, keys, hdrsToCopy);
               if (!hdrsToCopy.IsEmpty()) {
                 // Look for a folder with the same name in Local Folders.
                 nsCOMPtr<nsIMsgFolder> dest;

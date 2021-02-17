@@ -2056,7 +2056,7 @@ nsMsgDBFolder::OnMessageClassified(const char* aMsgURI,
 
     // If we classified any messages, send out a notification.
     nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
-    rv = MsgGetHeadersFromKeys2(mDatabase, mClassifiedMsgKeys, hdrs);
+    rv = MsgGetHeadersFromKeys(mDatabase, mClassifiedMsgKeys, hdrs);
     NS_ENSURE_SUCCESS(rv, rv);
     if (!hdrs.IsEmpty()) {
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
@@ -2506,7 +2506,7 @@ nsresult nsMsgDBFolder::NotifyHdrsNotBeingClassified() {
       nsresult rv = GetDatabase();
       NS_ENSURE_SUCCESS(rv, rv);
       nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrsNotBeingClassified;
-      rv = MsgGetHeadersFromKeys2(mDatabase, keys, msgHdrsNotBeingClassified);
+      rv = MsgGetHeadersFromKeys(mDatabase, keys, msgHdrsNotBeingClassified);
       NS_ENSURE_SUCCESS(rv, rv);
 
       // Since we know we've handled all the NotReportedClassified messages,

@@ -242,17 +242,11 @@ NS_MSG_BASE nsresult MsgUnescapeString(const nsACString& aStr, uint32_t aFlags,
 NS_MSG_BASE nsresult MsgEscapeURL(const nsACString& aStr, uint32_t aFlags,
                                   nsACString& aResult);
 
-// Converts an nsTArray of nsMsgKeys plus a database, to an array of
-// nsIMsgDBHdrs.
-NS_MSG_BASE nsresult MsgGetHeadersFromKeys(nsIMsgDatabase* aDB,
-                                           const nsTArray<nsMsgKey>& aKeys,
-                                           nsIMutableArray* aHeaders);
-
-// Stopgap while we complete removal of nsIArray usage (Bug 1583030).
-// Then this function can replace MsgGetHeadersFromKeys().
+// Given a message db and a set of keys, fetch the corresponding message
+// headers.
 NS_MSG_BASE nsresult
-MsgGetHeadersFromKeys2(nsIMsgDatabase* aDB, const nsTArray<nsMsgKey>& aKeys,
-                       nsTArray<RefPtr<nsIMsgDBHdr>>& aHeaders);
+MsgGetHeadersFromKeys(nsIMsgDatabase* aDB, const nsTArray<nsMsgKey>& aKeys,
+                      nsTArray<RefPtr<nsIMsgDBHdr>>& aHeaders);
 
 NS_MSG_BASE nsresult MsgExamineForProxyAsync(nsIChannel* channel,
                                              nsIProtocolProxyCallback* listener,
