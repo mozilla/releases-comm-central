@@ -87,6 +87,10 @@ async function checkABrowser(browser) {
   EventUtils.synthesizeMouseAtCenter(menupopup.children[1], {}, win);
   await hiddenPromise;
 
+  // Sometimes the next change doesn't happen soon enough.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 1000));
+
   // Check the value was assigned to the control.
   await SpecialPowers.spawn(browser, [], () => {
     Assert.equal(content.document.querySelector("select").value, "3.141592654");
