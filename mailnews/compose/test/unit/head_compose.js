@@ -260,6 +260,17 @@ function getAttachmentFromContent(aContent) {
   return attachments[1];
 }
 
+/**
+ * Get the body part of an MIME message.
+ * @param {string} content - The message content.
+ * @returns {string}
+ */
+function getMessageBody(content) {
+  let separatorIndex = content.indexOf("\r\n\r\n");
+  Assert.equal(content.slice(-2), "\r\n", "Should end with a line break.");
+  return content.slice(separatorIndex + 4, -2);
+}
+
 registerCleanupFunction(function() {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });

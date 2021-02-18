@@ -115,7 +115,7 @@ var MsgUtils = {
    */
   convertToPlainText(input, formatFlowed) {
     let wrapWidth = Services.prefs.getIntPref("mailnews.wraplength", 72);
-    if (wrapWidth > 990) {
+    if (wrapWidth == 0 || wrapWidth > 990) {
       wrapWidth = 990;
     } else if (wrapWidth < 10) {
       wrapWidth = 10;

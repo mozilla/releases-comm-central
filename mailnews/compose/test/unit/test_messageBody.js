@@ -8,9 +8,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-add_task(async function setup() {
-  localAccountUtils.loadLocalMailAccount();
-});
+localAccountUtils.loadLocalMailAccount();
 
 /**
  * Test trailing whitespace is QP encoded.
@@ -87,4 +85,57 @@ add_task(async function testQP() {
   );
 
   Services.prefs.clearUserPref("mail.strictly_mime");
+});
+
+/**
+ * Test plain text body is wrapped correctly with different mailnews.wraplength
+ * pref value.
+ */
+add_task(async function testWrapLength() {
+  let identity = getSmtpIdentity(
+    "from@tinderbox.invalid",
+    getBasicSmtpServer()
+  );
+  let CompFields = CC(
+    "@mozilla.org/messengercompose/composefields;1",
+    Ci.nsIMsgCompFields
+  );
+
+  let word = "abcd ";
+  let body = word.repeat(20);
+
+  let fields = new CompFields();
+  fields.to = "Nobody <nobody@tinderbox.invalid>";
+  fields.subject = "Test text wrapping";
+  fields.body = `<html><body>${body}</body></html>`;
+  fields.forcePlainText = true;
+  await richCreateMessage(fields, [], identity);
+
+  let msgData = mailTestUtils.loadMessageToString(
+    gDraftFolder,
+    mailTestUtils.firstMsgHdr(gDraftFolder)
+  );
+  Assert.equal(
+    getMessageBody(msgData),
+    // Default wrap length is 72.
+    word.repeat(14) + "\r\n" + word.repeat(6).trim(),
+    "Text wraps at 72 by default"
+  );
+
+  // 0 means no wrap.
+  Services.prefs.setIntPref("mailnews.wraplength", 0);
+
+  await richCreateMessage(fields, [], identity);
+
+  msgData = mailTestUtils.loadMessageToString(
+    gDraftFolder,
+    mailTestUtils.firstMsgHdr(gDraftFolder)
+  );
+  Assert.equal(
+    getMessageBody(msgData),
+    body.trim(),
+    "Should not wrap when wraplength is 0"
+  );
+
+  Services.prefs.clearUserPref("mailnews.wraplength");
 });
