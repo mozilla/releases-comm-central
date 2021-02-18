@@ -121,10 +121,8 @@ var mailTestUtils = {
   // Gets the first message header in a folder.
   firstMsgHdr(folder) {
     let enumerator = folder.msgDatabase.EnumerateMessages();
-    if (enumerator.hasMoreElements()) {
-      return enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    }
-    return null;
+    let first = enumerator[Symbol.iterator]().next();
+    return first.done ? null : first.value;
   },
 
   // Gets message header number N (0 based index) in a folder.

@@ -20,10 +20,7 @@ function test_enumerator_cleanup() {
   localAccountUtils.inboxFolder.msgDatabase = null;
   db = null;
   gc();
-  while (enumerator.hasMoreElements()) {
-    enumerator.getNext();
-  }
-
+  [...enumerator];
   do_test_finished();
 }
 

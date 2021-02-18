@@ -13,7 +13,7 @@ var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 var gTestFiles = ["../../../data/bug505221", "../../../data/bug513543"];
 
-var gMsgEnumerator;
+var gMessages;
 
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
@@ -34,7 +34,9 @@ function run_test() {
       IOUtils.loadFileToString(do_get_file(fileName))
     );
   }
-  gMsgEnumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
+  gMessages = [
+    ...localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages(),
+  ];
   doNextTest();
 }
 
@@ -78,8 +80,9 @@ var gStreamListener = {
 };
 
 function doNextTest() {
-  if (gMsgEnumerator.hasMoreElements()) {
-    streamMsg(gMsgEnumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr));
+  if (gMessages.length > 0) {
+    let msgHdr = gMessages.shift();
+    streamMsg(msgHdr);
   } else {
     do_test_finished();
   }

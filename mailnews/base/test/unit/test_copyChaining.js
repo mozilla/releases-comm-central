@@ -13,14 +13,14 @@ var { MailServices } = ChromeUtils.import(
 
 var gCopySource;
 var gCopyDest;
-var gMsgEnumerator;
+var gMessages;
 var gCurTestNum = 1;
 
 // main test
 
 var gTestArray = [
   function copyMsg1() {
-    gMsgEnumerator = gCopySource.msgDatabase.EnumerateMessages();
+    gMessages = [...gCopySource.msgDatabase.EnumerateMessages()];
     CopyNextMessage();
   },
   function copyMsg2() {
@@ -35,8 +35,8 @@ var gTestArray = [
 ];
 
 function CopyNextMessage() {
-  if (gMsgEnumerator.hasMoreElements()) {
-    let msgHdr = gMsgEnumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  if (gMessages.length > 0) {
+    let msgHdr = gMessages.shift();
     MailServices.copy.CopyMessages(
       gCopySource,
       [msgHdr],
@@ -90,7 +90,7 @@ function doTest() {
 function endTest() {
   // Cleanup, null out everything
   dump(" Exiting mail tests\n");
-  gMsgEnumerator = null;
+  gMessages = null;
   do_test_finished(); // for the one in run_test()
 }
 

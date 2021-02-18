@@ -20,8 +20,6 @@ load("../../../resources/MessageGenerator.jsm");
 var mimeMsg = {};
 ChromeUtils.import("resource:///modules/gloda/MimeMessage.jsm", mimeMsg);
 
-var gSecondMsg;
-
 // IMAP pump
 
 setupIMAPPump();
@@ -97,12 +95,9 @@ function* startMime() {
 
 // test that we don't mark all inline messages as read.
 function* testAllInlineMessage() {
-  let enumerator = IMAPPump.inbox.msgDatabase.EnumerateMessages();
-
-  if (enumerator.hasMoreElements()) {
-    gSecondMsg = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  for (let msg of IMAPPump.inbox.msgDatabase.EnumerateMessages()) {
     mimeMsg.MsgHdrToMimeMessage(
-      gSecondMsg,
+      msg,
       this,
       function(aMsgHdr, aMimeMessage) {
         async_driver();

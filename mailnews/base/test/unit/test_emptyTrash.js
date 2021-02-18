@@ -116,8 +116,8 @@ var gTestArray = [
     // and has no messages.
     Assert.equal(0, gLocalTrashFolder.filePath.fileSize);
     Assert.equal(0, gLocalTrashFolder.msgDatabase.dBFolderInfo.numMessages);
-    let enumerator = gLocalTrashFolder.msgDatabase.EnumerateMessages();
-    Assert.equal(false, enumerator.hasMoreElements());
+    let msgs = [...gLocalTrashFolder.msgDatabase.EnumerateMessages()];
+    Assert.equal(0, msgs.length);
     urlListener.OnStopRunningUrl(null, 0);
   },
 ];

@@ -56,25 +56,19 @@ var gTestArray = [
   },
   function verifyMessages() {
     // check MoveFolder message
-    let hdrs = [];
-    let keys = [];
-    let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
-    let hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    keys.push(hdr.messageKey);
-    hdrs.push(hdr);
-    Assert.ok(!gMoveFolder.fetchMsgPreviewText(keys, false, null));
-    Assert.equal(hdrs[0].getStringProperty("preview"), bugmail10_preview);
+    let hdr = [...gMoveFolder.msgDatabase.EnumerateMessages()][0];
+    Assert.ok(!gMoveFolder.fetchMsgPreviewText([hdr.messageKey], false, null));
+    Assert.equal(hdr.getStringProperty("preview"), bugmail10_preview);
     // check inbox message
-    hdrs = [];
-    keys = [];
-    enumerator = localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages();
-    hdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    keys.push(hdr.messageKey);
-    hdrs.push(hdr);
+    hdr = [...localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages()][0];
     Assert.ok(
-      !localAccountUtils.inboxFolder.fetchMsgPreviewText(keys, false, null)
+      !localAccountUtils.inboxFolder.fetchMsgPreviewText(
+        [hdr.messageKey],
+        false,
+        null
+      )
     );
-    Assert.equal(hdrs[0].getStringProperty("preview"), basic1_preview);
+    Assert.equal(hdr.getStringProperty("preview"), basic1_preview);
   },
 ];
 

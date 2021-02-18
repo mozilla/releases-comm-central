@@ -55,9 +55,9 @@ var gTestArray = [
     // operation was a move
     Assert.equal(folderCount(localAccountUtils.inboxFolder), 0);
 
-    let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
-    let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    let msgs = [...gMoveFolder.msgDatabase.EnumerateMessages()];
+    let firstMsgHdr = msgs[0];
+    let secondMsgHdr = msgs[1];
     // Check that the messages have content
     let messageContent = getContentFromMessage(firstMsgHdr);
     Assert.ok(
@@ -71,9 +71,9 @@ var gTestArray = [
     );
   },
   async function copyMovedMessages() {
-    let enumerator = gMoveFolder.msgDatabase.EnumerateMessages();
-    let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    let msgs = [...gMoveFolder.msgDatabase.EnumerateMessages()];
+    let firstMsgHdr = msgs[0];
+    let secondMsgHdr = msgs[1];
     let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.CopyMessages(
       gMoveFolder,
@@ -93,9 +93,9 @@ var gTestArray = [
   function verifyFolders2() {
     Assert.equal(folderCount(gMoveFolder2), 2);
 
-    let enumerator = gMoveFolder2.msgDatabase.EnumerateMessages();
-    let firstMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-    let secondMsgHdr = enumerator.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    let msgs = [...gMoveFolder2.msgDatabase.EnumerateMessages()];
+    let firstMsgHdr = msgs[0];
+    let secondMsgHdr = msgs[1];
     // Check that the messages have content
     let messageContent = getContentFromMessage(firstMsgHdr);
     Assert.ok(
