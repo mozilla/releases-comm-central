@@ -20,12 +20,12 @@ function launchBrowser(url, event) {
   }
 
   // 0. Prevent people from trying to launch URLs such as javascript:foo();
-  //    by only allowing URLs starting with http or https.
+  //    by only allowing URLs starting with http or https or mid.
   // XXX: We likely will want to do this using nsIURLs in the future to
   //      prevent sneaky nasty escaping issues, but this is fine for now.
-  if (!url.startsWith("http")) {
+  if (!/^https?:/i.test(url) && !/^mid:/i.test(url)) {
     Cu.reportError(
-      "launchBrowser: Invalid URL provided: " + url + " Only http:// and https:// URLs are valid."
+      "launchBrowser: Invalid URL provided: " + url + " Only http(s):// and mid:// URLs are valid."
     );
     return;
   }

@@ -53,8 +53,11 @@ nsMacShellService::IsDefaultClient(bool aStartupCheck, uint16_t aApps,
 NS_IMETHODIMP
 nsMacShellService::SetDefaultClient(bool aForAllUsers, uint16_t aApps) {
   nsresult rv = NS_OK;
-  if (aApps & nsIShellService::MAIL)
+  if (aApps & nsIShellService::MAIL) {
     rv = setAsDefaultHandlerForProtocol(CFSTR("mailto"));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = setAsDefaultHandlerForProtocol(CFSTR("mid"));
+  }
   if (NS_SUCCEEDED(rv) && aApps & nsIShellService::NEWS)
     rv = setAsDefaultHandlerForProtocol(CFSTR("news"));
   if (NS_SUCCEEDED(rv) && aApps & nsIShellService::RSS)

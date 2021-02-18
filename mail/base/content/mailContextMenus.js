@@ -186,34 +186,8 @@ function OpenMessageForMessageId(messageId) {
   let startServer = msgWindow.openFolder.server;
 
   window.setCursor("wait");
-
-  // first search in current folder for message id
-  let messageHeader = CheckForMessageIdInFolder(
-    msgWindow.openFolder,
-    messageId
-  );
-
-  // if message id not found in current folder search in all folders
-  if (!messageHeader) {
-    messageHeader = SearchForMessageIdInSubFolder(
-      startServer.rootFolder,
-      messageId
-    );
-
-    for (let server of MailServices.accounts.allServers) {
-      if (
-        server &&
-        startServer != server &&
-        server.canSearchMessages &&
-        !server.isDeferredTo
-      ) {
-        messageHeader = SearchForMessageIdInSubFolder(
-          server.rootFolder,
-          messageId
-        );
-      }
-    }
-  }
+  let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+  let messageHeader = MailUtils.getMsgHdrForMsgId(messageId, startServer);
   window.setCursor("auto");
 
   // if message id was found open corresponding message
@@ -280,55 +254,6 @@ function OpenMessageByHeader(messageHeader, openInNewWindow) {
       tree.ensureRowIsVisible(tree.currentIndex);
     }
   }
-}
-
-// search for message by message id in given folder and its subfolders
-// return message header if message was found
-function SearchForMessageIdInSubFolder(folder, messageId) {
-  var messageHeader;
-
-  // search in folder
-  if (!folder.isServer) {
-    messageHeader = CheckForMessageIdInFolder(folder, messageId);
-  }
-
-  // search subfolders recursively
-  for (let currentFolder of folder.subFolders && !messageHeader) {
-    // search in current folder
-    messageHeader = CheckForMessageIdInFolder(currentFolder, messageId);
-
-    // search in its subfolder
-    if (!messageHeader && currentFolder.hasSubFolders) {
-      messageHeader = SearchForMessageIdInSubFolder(currentFolder, messageId);
-    }
-  }
-
-  return messageHeader;
-}
-
-/**
- * Check folder for corresponding message to given message id.
- * @return the message header if message was found
- */
-function CheckForMessageIdInFolder(folder, messageId) {
-  var messageDatabase = folder.msgDatabase;
-  var messageHeader;
-  try {
-    messageHeader = messageDatabase.getMsgHdrForMessageID(messageId);
-  } catch (ex) {
-    Cu.reportError(
-      "Failed to find message-id in folder; messageId=" + messageId
-    );
-  }
-
-  if (
-    !MailServices.mailSession.IsFolderOpenInWindow(folder) &&
-    !(folder.flags & (Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Inbox))
-  ) {
-    folder.msgDatabase = null;
-  }
-
-  return messageHeader;
 }
 
 function folderPaneOnPopupHiding() {

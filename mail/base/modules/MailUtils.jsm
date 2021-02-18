@@ -565,4 +565,57 @@ var MailUtils = {
     }
     return null;
   },
+
+  /**
+   * Recursively search for message id in a given folder and its subfolders,
+   * return the first one found.
+   * @param {string} msgId - The message id to find.
+   * @param {nsIMsgFolder} folder - The folder to check.
+   * @returns {nsIMsgDBHdr}
+   */
+  findMsgIdInFolder(msgId, folder) {
+    let msgHdr;
+
+    // Search in folder.
+    if (!folder.isServer) {
+      msgHdr = folder.msgDatabase.getMsgHdrForMessageID(msgId);
+      if (msgHdr) {
+        return msgHdr;
+      }
+    }
+
+    // Search subfolders recursively.
+    for (let currentFolder of folder.subFolders) {
+      msgHdr = this.findMsgIdInFolder(msgId, currentFolder);
+      if (msgHdr) {
+        return msgHdr;
+      }
+    }
+    return null;
+  },
+
+  /**
+   * Recursively search for message id in all msg folders, return the first one
+   * found.
+   * @param {string} msgId - The message id to search for.
+   * @param {nsIMsgIncomingServer} [startServer] - The server to check first.
+   * @returns {nsIMsgDBHdr}
+   */
+  getMsgHdrForMsgId(msgId, startServer) {
+    let allServers = MailServices.accounts.allServers;
+    if (startServer) {
+      allServers = [startServer].concat(
+        allServers.filter(s => s.key != startServer.key)
+      );
+    }
+    for (let server of allServers) {
+      if (server && server.canSearchMessages && !server.isDeferredTo) {
+        let msgHdr = this.findMsgIdInFolder(msgId, server.rootFolder);
+        if (msgHdr) {
+          return msgHdr;
+        }
+      }
+    }
+    return null;
+  },
 };

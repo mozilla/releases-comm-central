@@ -25,7 +25,7 @@
 
 using mozilla::ArrayLength;
 
-static const char* const sMailProtocols[] = {"mailto"};
+static const char* const sMailProtocols[] = {"mailto", "mid"};
 
 static const char* const sNewsProtocols[] = {"news", "snews", "nntp"};
 
