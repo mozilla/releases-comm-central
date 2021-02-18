@@ -151,7 +151,8 @@ class PromptParent extends JSWindowActorParent {
 
     try {
       if (browser) {
-        browser.enterModalState();
+        // The compose editor does not support enter/leaveModalState.
+        browser.enterModalState?.();
         PromptUtils.fireDialogEvent(win, "DOMWillOpenModalDialog", browser);
       }
 
@@ -168,7 +169,7 @@ class PromptParent extends JSWindowActorParent {
       PromptUtils.propBagToObject(bag, args);
     } finally {
       if (browser) {
-        browser.leaveModalState();
+        browser.leaveModalState?.();
         PromptUtils.fireDialogEvent(win, "DOMModalDialogClosed", browser);
       }
     }
