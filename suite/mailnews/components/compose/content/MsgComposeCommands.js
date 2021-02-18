@@ -11,6 +11,8 @@ const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 
+ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+
 /**
  * interfaces
  */
@@ -72,6 +74,7 @@ var gMsgAttachmentElement;
 var gMsgHeadersToolbarElement;
 var gComposeType;
 var gFormatToolbarHidden = false;
+var gBodyFromArgs;
 
 // i18n globals
 var gCharsetConvertManager;
@@ -173,6 +176,8 @@ var stateListener = {
     // Look at the compose types which require action (nsIMsgComposeParams.idl):
     switch (gComposeType) {
 
+      case Ci.nsIMsgCompType.MailToUrl:
+        gBodyFromArgs = true;
       case Ci.nsIMsgCompType.New:
       case Ci.nsIMsgCompType.NewsPost:
       case Ci.nsIMsgCompType.ForwardAsAttachment:
@@ -222,12 +227,29 @@ var stateListener = {
   },
 
   NotifyComposeBodyReadyNew: function() {
+    let insertParagraph = this.useParagraph;
+
+    let mailDoc = document.getElementById("content-frame").contentDocument;
+    let mailBody = mailDoc.querySelector("body");
+    if (insertParagraph && gBodyFromArgs) {
+      // Check for "empty" body before allowing paragraph to be inserted.
+      // Non-empty bodies in a new message can occur when clicking on a
+      // mailto link or when using the command line option -compose.
+      // An "empty" body can be one of these two cases:
+      // 1) <br> and nothing follows (no next sibling)
+      // 2) <div/pre class="moz-signature">
+      // Note that <br><div/pre class="moz-signature"> doesn't happen in
+      // paragraph mode.
+      let firstChild = mailBody.firstChild;
+      if ((firstChild.nodeName != "BR" || firstChild.nextSibling) &&
+          !isSignature(firstChild))
+        insertParagraph = false;
+    }
+
     // Control insertion of line breaks.
-    if (this.useParagraph) {
+    if (insertParagraph) {
       this.editor.enableUndo(false);
 
-      let mailDoc = document.getElementById("content-frame").contentDocument;
-      let mailBody = mailDoc.querySelector("body");
       this.editor.selection.collapse(mailBody, 0);
       let pElement = this.editor.createElementWithDefaults("p");
       let brElement = this.editor.createElementWithDefaults("br");
@@ -1145,6 +1167,7 @@ function ComposeStartup(aParams)
 {
   var params = null; // New way to pass parameters to the compose window as a nsIMsgComposeParameters object
   var args = null;   // old way, parameters are passed as a string
+  gBodyFromArgs = false;
 
   if (aParams)
     params = aParams;
@@ -1187,16 +1210,27 @@ function ComposeStartup(aParams)
 
     if (args) { //Convert old fashion arguments into params
       var composeFields = params.composeFields;
-      if (args.bodyislink == "true")
+      if (args.bodyislink && args.bodyislink == "true")
         params.bodyIsLink = true;
       if (args.type)
         params.type = args.type;
-      if (args.format)
-        params.format = args.format;
+      if (args.format) {
+        // Only use valid values.
+        if (args.format == Ci.nsIMsgCompFormat.PlainText ||
+            args.format == Ci.nsIMsgCompFormat.HTML ||
+            args.format == Ci.nsIMsgCompFormat.OppositeOfDefault)
+          params.format = args.format;
+        else if (args.format.toLowerCase().trim() == "html")
+          params.format = Ci.nsIMsgCompFormat.HTML;
+        else if (args.format.toLowerCase().trim() == "text")
+          params.format = Ci.nsIMsgCompFormat.PlainText;
+      }
       if (args.originalMsgURI)
         params.originalMsgURI = args.originalMsgURI;
       if (args.preselectid)
         params.identity = getIdentityForKey(args.preselectid);
+      if (args.from)
+        composeFields.from = args.from;
       if (args.to)
         composeFields.to = args.to;
       if (args.cc)
@@ -1238,33 +1272,141 @@ function ComposeStartup(aParams)
             let title = sComposeMsgsBundle.getString("errorFileAttachTitle");
             let msg = sComposeMsgsBundle.getFormattedString("errorFileAttachMessage",
                                                             [attachmentStr]);
-            Services.prompt.alert(window, title, msg);
+            Services.prompt.alert(null, title, msg);
           }
         }
       }
       if (args.newshost)
         composeFields.newshost = args.newshost;
-      if (args.body)
-         composeFields.body = args.body;
+      if (args.message) {
+        let msgFile = Cc["@mozilla.org/file/local;1"]
+                        .createInstance(Ci.nsIFile);
+        if (OS.Path.dirname(args.message) == ".") {
+          let workingDir = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
+          args.message = OS.Path.join(workingDir.path, OS.Path.basename(args.message));
+        }
+        msgFile.initWithPath(args.message);
+
+        if (!msgFile.exists()) {
+          let title = sComposeMsgsBundle.getString("errorFileMessageTitle");
+          let msg = sComposeMsgsBundle.getFormattedString("errorFileMessageMessage",
+                                                          [args.message]);
+          Services.prompt.alert(null, title, msg);
+        } else {
+          let data = "";
+          let fstream = null;
+          let cstream = null;
+
+          try {
+            fstream = Cc["@mozilla.org/network/file-input-stream;1"]
+                        .createInstance(Ci.nsIFileInputStream);
+            cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
+                        .createInstance(Ci.nsIConverterInputStream);
+            fstream.init(msgFile, -1, 0, 0); // Open file in default/read-only mode.
+            cstream.init(fstream, "UTF-8", 0, 0);
+
+            let str = {};
+            let read = 0;
+
+            do {
+              // Read as much as we can and put it in str.value.
+              read = cstream.readString(0xffffffff, str);
+              data += str.value;
+            } while (read != 0);
+          } catch (e) {
+            let title = sComposeMsgsBundle.getString("errorFileMessageTitle");
+            let msg = sComposeMsgsBundle.getFormattedString("errorLoadFileMessageMessage",
+                                                            [args.message]);
+            Services.prompt.alert(null, title, msg);
+
+          } finally {
+            if (cstream)
+              cstream.close();
+            if (fstream)
+              fstream.close();
+          }
+
+          if (data) {
+            let pos = data.search(/\S/); // Find first non-whitespace character.
+
+            if (params.format != Ci.nsIMsgCompFormat.PlainText &&
+                (args.message.endsWith(".htm") ||
+                 args.message.endsWith(".html") ||
+                 data.substr(pos, 14).toLowerCase() == "<!doctype html" ||
+                 data.substr(pos, 5).toLowerCase() == "<html")) {
+              // We replace line breaks because otherwise they'll be converted
+              // to <br> in nsMsgCompose::BuildBodyMessageAndSignature().
+              // Don't do the conversion if the user asked explicitly for plain
+              // text.
+              data = data.replace(/\r?\n/g, " ");
+            }
+            gBodyFromArgs = true;
+            composeFields.body = data;
+          }
+        }
+      } else if (args.body) {
+        gBodyFromArgs = true;
+        composeFields.body = args.body;
+      }
     }
   }
 
   gComposeType = params.type;
 
+  // Detect correct identity when missing or mismatched.
   // An identity with no email is likely not valid.
-  if (!params.identity || !params.identity.email) {
-    let identities;
-    // no pre selected identity, so use the default account
-    let defaultAccount = MailServices.accounts.defaultAccount;
-    if (defaultAccount)
-      identities = defaultAccount.identities;
-    if (identities && identities.length > 0) {
-      params.identity = identities[0];
-    } else {
-      // Get the first identity we have in the list.
-      let identitykey = identityList.getItemAtIndex(0).getAttribute("identitykey");
-      params.identity = MailServices.accounts.getIdentity(identitykey);
+  // When editing a draft, 'params.identity' is pre-populated with the identity
+  // that created the draft or the identity owning the draft folder for a
+  // "foreign", draft, see ComposeMessage() in mailCommands.js. We don't want
+  // the latter, so use the creator identity which could be null.
+  if (gComposeType == Ci.nsIMsgCompType.Draft) {
+    let creatorKey = params.composeFields.creatorIdentityKey;
+    params.identity = creatorKey ? getIdentityForKey(creatorKey) : null;
+  }
+  let from = [];
+  if (params.composeFields.from)
+    from = MailServices.headerParser
+                       .parseEncodedHeader(params.composeFields.from, null);
+  from = (from.length && from[0] && from[0].email) ?
+    from[0].email.toLowerCase().trim() : null;
+  if (!params.identity || !params.identity.email ||
+      (from && !emailSimilar(from, params.identity.email))) {
+    let identities = MailServices.accounts.allIdentities;
+    let suitableCount = 0;
+
+    // Search for a matching identity.
+    if (from) {
+      for (let ident of fixIterator(identities, Ci.nsIMsgIdentity)) {
+        if (ident.email && from == ident.email.toLowerCase()) {
+          if (suitableCount == 0)
+            params.identity = ident;
+          suitableCount++;
+          if (suitableCount > 1)
+            break; // No need to find more, it's already not unique.
+        }
+      }
     }
+
+    if (!params.identity || !params.identity.email) {
+      let identity = null;
+      // No preset identity and no match, so use the default account.
+      let defaultAccount = MailServices.accounts.defaultAccount;
+      if (defaultAccount) {
+        identity = defaultAccount.defaultIdentity;
+        if (!identity) {
+          let identities = MailServices.accounts.allIdentities;
+          if (identities.length > 0)
+            identity = identities.queryElementAt(0, Ci.nsIMsgIdentity);
+        }
+      }
+      params.identity = identity;
+    }
+
+    // Warn if no or more than one match was found.
+    // But don't warn for +suffix additions (a+b@c.com).
+    if (from && (suitableCount > 1 ||
+        (suitableCount == 0 && !emailSimilar(from, params.identity.email))))
+      gComposeNotificationBar.setIdentityWarning(params.identity.identityName);
   }
 
   identityList.selectedItem =
@@ -1387,6 +1529,21 @@ function ComposeStartup(aParams)
 
   if (gAutoSaveInterval)
     gAutoSaveTimeout = setTimeout(AutoSave, gAutoSaveInterval);
+}
+
+function splitEmailAddress(aEmail) {
+  let at = aEmail.lastIndexOf("@");
+  return (at != -1) ? [aEmail.slice(0, at), aEmail.slice(at + 1)]
+                    : [aEmail, ""];
+}
+
+// Emails are equal ignoring +suffixes (email+suffix@example.com).
+function emailSimilar(a, b) {
+  if (!a || !b)
+    return a == b;
+  a = splitEmailAddress(a.toLowerCase());
+  b = splitEmailAddress(b.toLowerCase());
+  return a[1] == b[1] && a[0].split("+", 1)[0] == b[0].split("+", 1)[0];
 }
 
 // The new, nice, simple way of getting notified when a new editor has been created
@@ -2862,6 +3019,8 @@ function LoadIdentity(startup)
           var event = document.createEvent('Events');
           event.initEvent('compose-from-changed', false, true);
           document.getElementById("msgcomposeWindow").dispatchEvent(event);
+
+          gComposeNotificationBar.clearIdentityWarning();
         }
 
       if (!startup) {
@@ -3492,8 +3651,32 @@ var gComposeNotificationBar = {
     return !!this.notificationBar.getNotificationWithValue("blockedContent");
   },
 
+  clearBlockedContentNotification: function() {
+    this.notificationBar.removeNotification(
+      this.notificationBar.getNotificationWithValue("blockedContent"));
+  },
+
   clearNotifications: function(aValue) {
     this.notificationBar.removeAllNotifications(true);
+  },
+
+  setIdentityWarning: function(aIdentityName) {
+    if (!this.notificationBar.getNotificationWithValue("identityWarning")) {
+      let text = sComposeMsgsBundle.getString("identityWarning").split("%S");
+      let label = new DocumentFragment();
+      label.appendChild(document.createTextNode(text[0]));
+      label.appendChild(document.createElement("b"));
+      label.lastChild.appendChild(document.createTextNode(aIdentityName));
+      label.appendChild(document.createTextNode(text[1]));
+      this.notificationBar.appendNotification(label, "identityWarning", null,
+        this.notificationBar.PRIORITY_WARNING_HIGH, null);
+    }
+  },
+
+  clearIdentityWarning: function() {
+    let idWarning = this.notificationBar.getNotificationWithValue("identityWarning");
+    if (idWarning)
+      this.notificationBar.removeNotification(idWarning);
   }
 };
 
@@ -3543,7 +3726,7 @@ function onUnblockResource(aURL, aNode) {
         urls.splice(i, 1);
         aNode.value = urls.join(" ");
         if (urls.length == 0) {
-          gComposeNotificationBar.clearNotifications();
+          gComposeNotificationBar.clearBlockedContentNotification();
         }
         break;
       }
