@@ -66,10 +66,10 @@ function appUpdater(options = {}) {
   let manualURL = Services.urlFormatter.formatURLPref("app.update.url.manual");
   document
     .getElementById("manualLink")
-    .setAttribute("onclick", 'openURL("' + manualURL + '");');
+    .setAttribute("onclick", 'openLink("' + manualURL + '");');
   document
     .getElementById("failedLink")
-    .setAttribute("onclick", 'openURL("' + manualURL + '");');
+    .setAttribute("onclick", 'openLink("' + manualURL + '");');
 
   if (this.updateDisabledByPolicy) {
     this.selectPanel("policyDisabled");
