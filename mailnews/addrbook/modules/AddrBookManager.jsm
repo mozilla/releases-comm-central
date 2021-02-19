@@ -428,21 +428,15 @@ AddrBookManager.prototype = {
       );
     }
 
-    Services.prefs.clearUserPref(`${prefName}.description`);
+    for (let name of Services.prefs.getChildList(`${prefName}.`)) {
+      Services.prefs.clearUserPref(name);
+    }
     if (dirType == Ci.nsIAbManager.MAPI_DIRECTORY_TYPE) {
       // The prefs for this directory type are defaults. Setting the dirType
       // to -1 ensures the directory is ignored.
       Services.prefs.setIntPref(`${prefName}.dirType`, -1);
-    } else {
-      if (dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE) {
-        Services.prefs.clearUserPref(`${prefName}.carddav.token`);
-        Services.prefs.clearUserPref(`${prefName}.carddav.url`);
-      }
-      Services.prefs.clearUserPref(`${prefName}.dirType`);
     }
-    Services.prefs.clearUserPref(`${prefName}.filename`);
-    Services.prefs.clearUserPref(`${prefName}.uid`);
-    Services.prefs.clearUserPref(`${prefName}.uri`);
+
     store.delete(uri);
     updateSortedDirectoryList();
 
