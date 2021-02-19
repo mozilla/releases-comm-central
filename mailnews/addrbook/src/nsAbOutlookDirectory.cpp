@@ -235,7 +235,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
           if (NS_SUCCEEDED(mCardList->IndexOf(0, card, &pos)))
             mCardList->RemoveElementAt(pos);
         }
-        retCode = NotifyItemDeletion(card);
+        retCode = NotifyItemDeletion(card, true);
         NS_ENSURE_SUCCESS(retCode, retCode);
 
         card->SetDirectoryUID(EmptyCString());
@@ -272,7 +272,28 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteDirectory(
           NS_SUCCEEDED(m_AddressList->IndexOf(0, aDirectory, &pos)))
         m_AddressList->RemoveElementAt(pos);
 
-      retCode = NotifyItemDeletion(aDirectory);
+      // Iterate over the cards of the directory to find the one
+      // representing the mailing list and also remove it.
+      if (mCardList) {
+        nsAutoCString listUID;
+        aDirectory->GetUID(listUID);
+
+        uint32_t nbCards = 0;
+        nsresult rv = mCardList->GetLength(&nbCards);
+        NS_ENSURE_SUCCESS(rv, rv);
+        for (uint32_t i = 0; i < nbCards; i++) {
+          nsCOMPtr<nsIAbCard> card = do_QueryElementAt(mCardList, i, &rv);
+          NS_ENSURE_SUCCESS(rv, rv);
+          nsAutoCString cardUID;
+          rv = card->GetUID(cardUID);
+          NS_ENSURE_SUCCESS(rv, rv);
+          if (cardUID.Equals(listUID)) {
+            mCardList->RemoveElementAt(i);
+            break;
+          }
+        }
+      }
+      retCode = NotifyItemDeletion(aDirectory, false);
       NS_ENSURE_SUCCESS(retCode, retCode);
     }
   } else {
@@ -306,7 +327,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aData,
   }
 
   if (m_IsMailList) m_AddressList->AppendElement(*addedCard);
-  NotifyItemAddition(*addedCard);
+  NotifyItemAddition(*addedCard, true);
   return retCode;
 }
 
@@ -363,7 +384,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddMailList(nsIAbDirectory* aMailList,
     NS_ENSURE_SUCCESS(rv, rv);
   }
   m_AddressList->AppendElement(newList);
-  NotifyItemAddition(newList);
+  NotifyItemAddition(newList, false);
   newList.forget(addedList);
 
   return rv;
@@ -384,7 +405,58 @@ NS_IMETHODIMP nsAbOutlookDirectory::EditMailListToDatabase(
                                        name.get()))
     return NS_ERROR_FAILURE;
 
-  return CommitAddressList();
+  // Let's skip this for now, see bug 1693154. With this call, editing
+  // the list name will kill all the list members :-(
+  // The function needs to be revisited since `CreateCard()` will not
+  // add a card to a distribution list. That code is totally defective.
+  // rv = CommitAddressList();
+  // NS_ENSURE_SUCCESS(rv, rv);
+
+  // Iterate over the cards of the parent directory to find the one
+  // representing the mailing list and also change its name.
+  nsAutoCString uri(mURI);
+  // Trim off the mailing list entry ID from the mailing list URI
+  // to get the top-level directory entry ID.
+  nsAutoCString topEntryString;
+  int32_t slashPos = uri.RFindChar('/');
+  uri.SetLength(slashPos);
+  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIAbDirectory> parent;
+  rv = abManager->GetDirectory(uri, getter_AddRefs(parent));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsAutoCString listUID;
+  GetUID(listUID);
+
+  uint32_t nbCards = 0;
+  nsAbOutlookDirectory* olDir =
+      static_cast<nsAbOutlookDirectory*>(parent.get());
+  rv = olDir->mCardList->GetLength(&nbCards);
+  NS_ENSURE_SUCCESS(rv, rv);
+  for (uint32_t i = 0; i < nbCards; i++) {
+    nsCOMPtr<nsIAbCard> card = do_QueryElementAt(olDir->mCardList, i, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsAutoCString cardUID;
+    rv = card->GetUID(cardUID);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (cardUID.Equals(listUID)) {
+      card->SetDisplayName(name);
+      break;
+    }
+  }
+
+  nsAutoCString dirUID;
+  if (listCard) {
+    // For mailing list cards, we use the UID of the top level directory.
+    listCard->GetDirectoryUID(dirUID);
+    NotifyItemModification(listCard, true, dirUID.get());
+  }
+  nsCOMPtr<nsIAbDirectory> dir = do_QueryObject(this);
+  // Use the UID of the parent.
+  parent->GetUID(dirUID);
+  NotifyItemModification(dir, false, dirUID.get());
+  return NS_OK;
 }
 
 static nsresult FindPrimaryEmailCondition(nsIAbBooleanExpression* aLevel,
@@ -673,36 +745,53 @@ nsresult nsAbOutlookDirectory::GetNodes(nsIMutableArray* aNodes) {
   return rv;
 }
 
-nsresult nsAbOutlookDirectory::commonNotification(nsISupports* aItem,
-                                                  const char* aTopic) {
-  nsCOMPtr<nsIAbCard> card = do_QueryInterface(aItem);
-  // Right now, mailing lists are not fully working, see bug 1685166.
-  if (!card) return NS_OK;
-
-  nsAutoCString dirUID;
-  // For the notification we need to notify the directory the card is contained
-  // in. We can't use `card->GetDirectoryUID(dirUID);` since for cards in a
-  // mailing list the card's directory UID is the top level UID.
-  GetUID(dirUID);
-
+nsresult nsAbOutlookDirectory::commonNotification(
+    nsISupports* aItem, const char* aTopic, const char* aNotificationUID) {
   nsCOMPtr<nsIObserverService> observerService =
       mozilla::services::GetObserverService();
-  observerService->NotifyObservers(card, aTopic,
-                                   NS_ConvertUTF8toUTF16(dirUID).get());
 
+  // `dirUID` needs to stay in scope until the end of the function.
+  nsAutoCString dirUID;
+  if (!aNotificationUID) {
+    // Use the UID of the directory.
+    GetUID(dirUID);
+    aNotificationUID = dirUID.get();
+  }
+
+  observerService->NotifyObservers(
+      aItem, aTopic, NS_ConvertUTF8toUTF16(aNotificationUID).get());
   return NS_OK;
 }
 
-nsresult nsAbOutlookDirectory::NotifyItemDeletion(nsISupports* aItem) {
-  return commonNotification(aItem, "addrbook-contact-deleted");
+nsresult nsAbOutlookDirectory::NotifyItemDeletion(
+    nsISupports* aItem, bool aIsCard, const char* aNotificationUID) {
+  const char* topic;
+  if (aIsCard) {
+    topic = m_IsMailList ? "addrbook-list-member-removed"
+                         : "addrbook-contact-deleted";
+  } else {
+    topic = "addrbook-list-deleted";
+  }
+  return commonNotification(aItem, topic, aNotificationUID);
 }
 
-nsresult nsAbOutlookDirectory::NotifyItemAddition(nsISupports* aItem) {
-  return commonNotification(aItem, "addrbook-contact-created");
+nsresult nsAbOutlookDirectory::NotifyItemAddition(
+    nsISupports* aItem, bool aIsCard, const char* aNotificationUID) {
+  const char* topic;
+  if (aIsCard) {
+    topic = m_IsMailList ? "addrbook-list-member-added"
+                         : "addrbook-contact-created";
+  } else {
+    topic = "addrbook-list-created";
+  }
+  return commonNotification(aItem, topic, aNotificationUID);
 }
 
-nsresult nsAbOutlookDirectory::NotifyItemModification(nsISupports* aItem) {
-  return commonNotification(aItem, "addrbook-contact-updated");
+nsresult nsAbOutlookDirectory::NotifyItemModification(
+    nsISupports* aItem, bool aIsCard, const char* aNotificationUID) {
+  return commonNotification(
+      aItem, aIsCard ? "addrbook-contact-updated" : "addrbook-list-updated",
+      aNotificationUID);
 }
 
 class CStringWriter final : public mozilla::JSONWriteFunc {
@@ -1146,7 +1235,7 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
   }
 
   if (!aIsAddition) {
-    NotifyItemModification(aModifiedCard);
+    NotifyItemModification(aModifiedCard, true);
     if (oldCard) NotifyCardPropertyChanges(oldCard, aModifiedCard);
   }
 
@@ -1249,8 +1338,11 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
       nsAutoCString normalChars(kOutlookDirectoryScheme);
       normalChars.Append(dirEntryString);
       normalChars.Append('/');
+      nsCString originalUID;
+      AlignListEntryStringAndGetUID(cardEntryString, originalUID);
       normalChars.Append(cardEntryString);
       card->SetMailListURI(normalChars.get());
+      if (!originalUID.IsEmpty()) card->SetUID(originalUID);
 
       // In case the display is by "First Last" or "Last, First", give the card
       // a name, otherwise nothing is displayed.
@@ -1287,4 +1379,41 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
 
   card.forget(newCard);
   return NS_OK;
+}
+
+void nsAbOutlookDirectory::AlignListEntryStringAndGetUID(
+    nsCString& aEntryString, nsCString& aOriginalUID) {
+  // Sadly when scanning for cards and finding a distribution list, the
+  // entry ID is different to the entry ID returned when scanning the top level
+  // directory for distribution lists. We make the adjustment here.
+  // We also retrieve the original UID from the mailing list.
+  nsAbWinHelperGuard mapiAddBook;
+  if (!mapiAddBook->IsOK()) return;
+
+  uint32_t nbLists = 0;
+  nsresult rv = m_AddressList->GetLength(&nbLists);
+  NS_ENSURE_SUCCESS_VOID(rv);
+  for (uint32_t i = 0; i < nbLists; i++) {
+    nsCOMPtr<nsIAbDirectory> list = do_QueryElementAt(m_AddressList, i, &rv);
+    NS_ENSURE_SUCCESS_VOID(rv);
+
+    // Get URI and extract entry ID.
+    nsAutoCString listURI;
+    list->GetURI(listURI);
+    int ind = listURI.RFindChar('/');
+    listURI = Substring(listURI, ind + 1);
+
+    if (aEntryString.Equals(listURI)) {
+      list->GetUID(aOriginalUID);
+      return;
+    }
+    if (mapiAddBook->CompareEntryIDs(aEntryString, listURI)) {
+      PRINTF(("Entry ID for mailing list replaced:\nWas: %s\nNow: %s\n",
+              aEntryString.get(), listURI.get()));
+      aEntryString = listURI;
+      list->GetUID(aOriginalUID);
+      return;
+    }
+  }
+  PRINTF(("Entry ID for mailing list not found.\n"));
 }

@@ -58,6 +58,8 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult StopSearch();
   nsresult ExtractCardEntry(nsIAbCard* aCard, nsCString& aEntry);
   nsresult ExtractDirectoryEntry(nsIAbDirectory* aDirectory, nsCString& aEntry);
+  void AlignListEntryStringAndGetUID(nsCString& aEntryString,
+                                     nsCString& aOriginalUID);
 
   // Retrieve hierarchy as cards, with an optional restriction
   nsresult GetCards(nsIMutableArray* aCards, SRestriction* aRestriction);
@@ -66,12 +68,16 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   // Create a new card
   nsresult CreateCard(nsIAbCard* aData, nsIAbCard** aNewCard);
   nsresult ModifyCardInternal(nsIAbCard* aModifiedCard, bool aIsAddition);
-  // Notification for the UI
-  nsresult NotifyItemDeletion(nsISupports* aItem);
-  nsresult NotifyItemAddition(nsISupports* aItem);
-  nsresult NotifyItemModification(nsISupports* aItem);
+  // Notification for the UI.
+  nsresult NotifyItemDeletion(nsISupports* aItem, bool aIsCard,
+                              const char* aNotificationUID = nullptr);
+  nsresult NotifyItemAddition(nsISupports* aItem, bool aIsCard,
+                              const char* aNotificationUID = nullptr);
+  nsresult NotifyItemModification(nsISupports* aItem, bool aIsCard,
+                                  const char* aNotificationUID = nullptr);
   nsresult NotifyCardPropertyChanges(nsIAbCard* aOld, nsIAbCard* aNew);
-  nsresult commonNotification(nsISupports* aItem, const char* aTopic);
+  nsresult commonNotification(nsISupports* aItem, const char* aTopic,
+                              const char* aNotificationUID);
   // Force update of MAPI repository for mailing list
   nsresult CommitAddressList(void);
   // Read MAPI repository

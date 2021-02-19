@@ -164,8 +164,9 @@ void nsMapiEntryArray::CleanUp(void) {
 // Apart from Microsoft documentation, the best source of information
 // is the MAPI programmers mailing list at MAPI-L@PEACH.EASE.LSOFT.COM.
 // All the information that was needed to "refresh" the MAPI implementation
-// in Thunderbird was obtained via this thread:
+// in Thunderbird was obtained via these threads:
 // https://peach.ease.lsoft.com/scripts/wa-PEACH.exe?A2=2012&L=MAPI-L&D=0&P=20988415
+// https://peach.ease.lsoft.com/scripts/wa-PEACH.exe?A2=2101&L=MAPI-L&D=0&P=21034512
 
 // Some stuff to access the entry ID of the contact (IMessage, IPM.Contact)
 // from the address book entry ID (IMailUser).
@@ -1409,4 +1410,21 @@ void makeEntryIdFromURI(const char* aScheme, const char* aUri,
       aEntry = Substring(aEntry, ind + 1);
     }
   }
+}
+
+bool nsAbWinHelper::CompareEntryIDs(nsCString& aEntryID1,
+                                    nsCString& aEntryID2) {
+  ULONG result;
+  nsMapiEntry e1;
+  nsMapiEntry e2;
+  e1.Assign(aEntryID1);
+  e2.Assign(aEntryID2);
+  mLastError = mAddressSession->CompareEntryIDs(
+      e1.mByteCount, e1.mEntryId, e2.mByteCount, e2.mEntryId, 0, &result);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("CompareEntryIDs failed with %08lx (CompareEntryIDs()).\n",
+            mLastError));
+    return false;
+  }
+  return result ? true : false;
 }

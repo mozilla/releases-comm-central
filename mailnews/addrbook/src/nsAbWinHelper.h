@@ -122,6 +122,8 @@ class nsAbWinHelper {
   // Helper to get distribution list members tag.
   BOOL GetDlMembersTag(IMAPIProp* aMsg, ULONG& aDlMembersTag,
                        ULONG& aDlMembersTagOneOff);
+  // Helper to compare entry IDs.
+  bool CompareEntryIDs(nsCString& aEntryID1, nsCString& aEntryID2);
 
  protected:
   HRESULT mLastError;

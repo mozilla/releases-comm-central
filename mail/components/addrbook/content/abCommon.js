@@ -934,17 +934,26 @@ function GetDirectoryFromURI(uri) {
 function GetParentDirectoryFromMailingListURI(abURI) {
   var abURIArr = abURI.split("/");
   /*
-   turn turn "jsaddrbook://abook.sqlite/MailList6"
-   into ["jsaddrbook:","","abook.sqlite","MailList6"]
-   then, turn ["jsaddrbook:","","abook.sqlite","MailList6"]
-   into "jsaddrbook://abook.sqlite"
+   Turn "jsaddrbook://abook.sqlite/MailList6"
+   into ["jsaddrbook:","","abook.sqlite","MailList6"],
+   then into "jsaddrbook://abook.sqlite".
+
+   Turn "moz-aboutlookdirectory:///<top dir ID>/<ML dir ID>"
+   into ["moz-aboutlookdirectory:","","","<top dir ID>","<ML dir ID>"],
+   and then into: "moz-aboutlookdirectory:///<top dir ID>".
   */
   if (
     abURIArr.length == 4 &&
     ["jsaddrbook:", "moz-abmdbdirectory:"].includes(abURIArr[0]) &&
     abURIArr[3] != ""
   ) {
-    return abURIArr[0] + "/" + abURIArr[1] + "/" + abURIArr[2];
+    return abURIArr[0] + "//" + abURIArr[2];
+  } else if (
+    abURIArr.length == 5 &&
+    abURIArr[0] == "moz-aboutlookdirectory:" &&
+    abURIArr[4] != ""
+  ) {
+    return abURIArr[0] + "///" + abURIArr[3];
   }
 
   return null;

@@ -400,7 +400,12 @@ AddrBookManager.prototype = {
 
     let [, scheme, fileName, tail] = uriParts;
     if (tail && tail.startsWith("/")) {
-      let dir = store.get(`${scheme}://${fileName}`);
+      let dir;
+      if (scheme == "jsaddrbook") {
+        dir = store.get(`${scheme}://${fileName}`);
+      } else if (scheme == "moz-aboutlookdirectory") {
+        dir = store.get(`${scheme}:///${tail.split("/")[1]}`);
+      }
       let list = this.getDirectory(uri);
       if (dir && list) {
         dir.deleteDirectory(list);
