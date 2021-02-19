@@ -364,11 +364,6 @@ function UpdateSortIndicators(colID, sortDirection) {
     if (currCol != sortedColumn && currCol.localName == "treecol") {
       currCol.removeAttribute("sortDirection");
     }
-    // Change the column header's border colour to force it to redraw.
-    // Otherwise redrawing doesn't happen until something else causes it to.
-    currCol.style.borderColor = currCol.style.borderColor
-      ? null
-      : "transparent";
     currCol = currCol.nextElementSibling;
   }
 }
