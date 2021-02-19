@@ -117,9 +117,7 @@ messenger.jar:
 % override chrome://mozapps/content/profile/profileDowngrade.xhtml chrome://messenger/content/profileDowngrade.xhtml
 
 *   content/messenger/buildconfig.html              (content/buildconfig.html)
-    content/messenger/buildconfig.css               (content/buildconfig.css)
 % override chrome://global/content/buildconfig.html chrome://messenger/content/buildconfig.html
-% override chrome://global/content/buildconfig.css chrome://messenger/content/buildconfig.css
 
 # L10n resources and overrides.
 % override chrome://mozapps/locale/profile/profileDowngrade.dtd chrome://messenger/locale/profileDowngrade.dtd

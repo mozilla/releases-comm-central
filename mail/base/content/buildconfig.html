@@ -7,97 +7,100 @@
 #include @TOPOBJDIR@/source-repo.h
 #include @TOPOBJDIR@/buildid.h
 <html>
-<head>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src chrome:" />
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width; user-scalable=false;">
-  <title>Build Configuration</title>
-  <link rel="stylesheet" href="chrome://messenger/content/buildconfig.css" type="text/css">
-</head>
-<body class="aboutPageWideContainer">
-<h1>Build Configuration</h1>
-<h2>@MOZ_APP_DISPLAYNAME@ @THUNDERBIRD_VERSION_DISPLAY@ - @MOZ_BUILDID@</h2>
-<table>
-  <tbody>
-#ifdef MOZ_COMM_SOURCE_URL
-  <tr>
-    <th>
-      @MOZ_APP_DISPLAYNAME@ source
-    </th>
-  </tr>
-  <tr>
-    <td>
-      <a href="@MOZ_COMM_SOURCE_URL@">@MOZ_COMM_SOURCE_URL@</a>
-    </td>
-  </tr>
-#endif
-#ifdef MOZ_GECKO_SOURCE_URL
-  <tr>
-    <th>
-      Platform source
-    </th>
-  </tr>
-  <tr>
-    <td>
-      <a href="@MOZ_GECKO_SOURCE_URL@">@MOZ_GECKO_SOURCE_URL@</a>
-    </td>
-  </tr>
-#endif
-  </tbody>
-</table>
+  <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src chrome:; object-src 'none'" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width; user-scalable=false;">
+    <title>Build Configuration</title>
+    <link rel="stylesheet" href="chrome://global/skin/in-content/info-pages.css" type="text/css">
+    <link rel="stylesheet" href="chrome://global/content/buildconfig.css" type="text/css">
+  </head>
+  <body>
+    <div>
+      <h1>Build Configuration</h1>
+      <h2>@MOZ_APP_DISPLAYNAME@ @THUNDERBIRD_VERSION_DISPLAY@ - @MOZ_BUILDID@</h2>
+      <table>
+        <tbody>
+          #ifdef MOZ_COMM_SOURCE_URL
+          <tr>
+            <th>
+              @MOZ_APP_DISPLAYNAME@ source
+            </th>
+          </tr>
+          <tr>
+            <td>
+              <a href="@MOZ_COMM_SOURCE_URL@">@MOZ_COMM_SOURCE_URL@</a>
+            </td>
+          </tr>
+          #endif
+          #ifdef MOZ_GECKO_SOURCE_URL
+          <tr>
+            <th>
+              Platform source
+            </th>
+          </tr>
+          <tr>
+            <td>
+              <a href="@MOZ_GECKO_SOURCE_URL@">@MOZ_GECKO_SOURCE_URL@</a>
+            </td>
+          </tr>
+          #endif
+        </tbody>
+      </table>
 
-<p>The latest information on building @MOZ_APP_DISPLAYNAME@ can be found at
-  <a href="@THUNDERBIRD_DEVELOPER_WWW@">
-    @THUNDERBIRD_DEVELOPER_WWW@</a>.
-</p>
+      <p>
+        The latest information on building @MOZ_APP_DISPLAYNAME@ can be found at
+        <a href="@THUNDERBIRD_DEVELOPER_WWW@">@THUNDERBIRD_DEVELOPER_WWW@</a>.
+      </p>
 
-<h2>Build platform</h2>
-<table>
-  <tbody>
-  <tr>
-    <th>Target</th>
-  </tr>
-  <tr>
-    <td>@target@</td>
-  </tr>
-  </tbody>
-</table>
-#if defined(CC) && defined(CXX) && defined(RUSTC)
-<h2>Build tools</h2>
-<table>
-  <tbody>
-  <tr>
-    <th>Compiler</th>
-    <th>Version</th>
-    <th>Compiler flags</th>
-  </tr>
-  <tr>
-    <td><code>@CC@</code></td>
-    <td><code>@CC_VERSION@</code></td>
-    <td><code>@CFLAGS@</code></td>
-  </tr>
-  <tr>
-    <td><code>@CXX@</code></td>
-    <td><code>@CC_VERSION@</code></td>
-    <td><code>@CXXFLAGS@</code></td>
-  </tr>
-  <tr>
-    <td><code>@RUSTC@</code></td>
-    <td><code>@RUSTC_VERSION@</code></td>
-    <td><cpde>@RUSTFLAGS@</cpde></td>
-  </tr>
-  </tbody>
-</table>
-#endif
-<h2>Configure options</h2>
-<table>
-  <tbody>
-  <tr>
-    <td>
-      <code>@MOZ_CONFIGURE_OPTIONS@</code>
-    </td>
-  </tr>
-  </tbody>
-</table>
-</body>
+      <h2>Build platform</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Target</th>
+          </tr>
+          <tr>
+            <td>@target@</td>
+          </tr>
+        </tbody>
+      </table>
+      #if defined(CC) && defined(CXX) && defined(RUSTC)
+      <h2>Build tools</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Compiler</th>
+            <th>Version</th>
+            <th>Compiler flags</th>
+          </tr>
+          <tr>
+            <td><code>@CC@</code></td>
+            <td><code>@CC_VERSION@</code></td>
+            <td><code>@CFLAGS@</code></td>
+          </tr>
+          <tr>
+            <td><code>@CXX@</code></td>
+            <td><code>@CC_VERSION@</code></td>
+            <td><code>@CXXFLAGS@</code></td>
+          </tr>
+          <tr>
+            <td><code>@RUSTC@</code></td>
+            <td><code>@RUSTC_VERSION@</code></td>
+            <td><code>@RUSTFLAGS@</code></td>
+          </tr>
+        </tbody>
+      </table>
+      #endif
+      <h2>Configure options</h2>
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <code>@MOZ_CONFIGURE_OPTIONS@</code>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
 </html>
