@@ -5,6 +5,5 @@
 
 XPCSHELL_TESTS_MANIFESTS += [
     "unit/xpcshell-cpp.ini",
-    "unit/xpcshell-jsm-smtp.ini",
     "unit/xpcshell-jsm.ini",
 ]
