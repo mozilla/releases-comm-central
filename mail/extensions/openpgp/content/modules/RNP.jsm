@@ -1502,24 +1502,22 @@ var RNP = {
       }
     }
 
-    let lockFailure = false;
+    let unlocked = false;
     try {
       if (passphrase != null && passphrase.length != 0) {
         if (RNPLib.rnp_key_unlock(primaryKey, passphrase)) {
           throw new Error("rnp_key_unlock failed");
         }
+        unlocked = true;
       }
 
       if (RNPLib.rnp_op_generate_execute(genOp)) {
         throw new Error("rnp_op_generate_execute sub failed");
       }
     } finally {
-      if (RNPLib.rnp_key_lock(primaryKey)) {
-        lockFailure = true;
+      if (unlocked) {
+        RNPLib.rnp_key_lock(primaryKey);
       }
-    }
-    if (lockFailure) {
-      throw new Error("rnp_key_lock failed");
     }
 
     RNPLib.rnp_op_generate_destroy(genOp);
@@ -1805,9 +1803,16 @@ var RNP = {
 
       if (k.secretAvailable) {
         while (!userFlags.canceled) {
-          let rv = RNPLib.rnp_key_unprotect(impKey, recentPass);
+          // After we unprotect a key, immediately re-protect it with
+          // the new passphrase. If a failure occurrs at some point,
+          // all keys remain protected in memory.
 
+          let rv = RNPLib.rnp_key_unprotect(impKey, recentPass);
           if (rv == 0) {
+            if (RNPLib.rnp_key_protect(impKey, newPass, null, null, null, 0)) {
+              throw new Error("rnp_key_protect failed");
+            }
+
             let sub_count = new ctypes.size_t();
             if (RNPLib.rnp_key_get_subkey_count(impKey, sub_count.address())) {
               throw new Error("rnp_key_get_subkey_count failed");
@@ -1821,6 +1826,10 @@ var RNP = {
               }
               if (RNPLib.rnp_key_unprotect(sub_handle, recentPass)) {
                 unableToUnprotectId = RNP.getKeyIDFromHandle(sub_handle);
+              } else if (
+                RNPLib.rnp_key_protect(sub_handle, newPass, null, null, null, 0)
+              ) {
+                throw new Error("rnp_key_protect failed");
               }
               RNPLib.rnp_key_handle_destroy(sub_handle);
             }
@@ -1950,15 +1959,6 @@ var RNP = {
         ) {
           throw new Error("rnp_import_keys failed");
         }
-
-        let impKey2 = await this.getKeyHandleByIdentifier(
-          RNPLib.ffi,
-          "0x" + k.fpr
-        );
-        if (k.secretAvailable) {
-          this.protectKeyWithSubKeys(impKey2, newPass);
-        }
-        RNPLib.rnp_key_handle_destroy(impKey2);
 
         result.importedKeys.push("0x" + k.id);
 
@@ -2810,12 +2810,12 @@ var RNP = {
         throw new Error("rnp_key_unlock failed");
       }
 
-      if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
-        throw new Error("rnp_key_export failed");
-      }
-
-      if (RNPLib.rnp_key_lock(expKey)) {
-        throw new Error("rnp_key_unlock failed");
+      try {
+        if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
+          throw new Error("rnp_key_export failed");
+        }
+      } finally {
+        RNPLib.rnp_key_lock(expKey);
       }
 
       let result_buf = new ctypes.uint8_t.ptr();
@@ -2856,10 +2856,14 @@ var RNP = {
         throw new Error("rnp_key_unlock failed");
       }
 
-      if (
-        RNPLib.rnp_key_protect(tempKey, backupPassword, null, null, null, 0)
-      ) {
-        throw new Error("rnp_key_protect failed");
+      try {
+        if (
+          RNPLib.rnp_key_protect(tempKey, backupPassword, null, null, null, 0)
+        ) {
+          throw new Error("rnp_key_protect failed");
+        }
+      } finally {
+        RNPLib.rnp_key_lock(tempKey);
       }
 
       let sub_count = new ctypes.size_t();
@@ -2876,19 +2880,23 @@ var RNP = {
           throw new Error("rnp_key_unlock failed");
         }
 
-        if (
-          RNPLib.rnp_key_protect(
-            sub_handle,
-            backupPassword,
-            null,
-            null,
-            null,
-            0
-          )
-        ) {
-          throw new Error("rnp_key_protect failed");
+        try {
+          if (
+            RNPLib.rnp_key_protect(
+              sub_handle,
+              backupPassword,
+              null,
+              null,
+              null,
+              0
+            )
+          ) {
+            throw new Error("rnp_key_protect failed");
+          }
+        } finally {
+          RNPLib.rnp_key_lock(sub_handle);
+          RNPLib.rnp_key_handle_destroy(sub_handle);
         }
-        RNPLib.rnp_key_handle_destroy(sub_handle);
       }
 
       if (RNPLib.rnp_key_export(tempKey, out_binary, exportFlags)) {
@@ -3047,7 +3055,7 @@ var RNP = {
   // array, too. If it isn't, the function will fail, because the
   // primary key must be unlocked, before changing a subkey works.
   async changeExpirationDate(fingerprintArray, newExpiry) {
-    let handles = [];
+    let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
 
     for (let fingerprint of fingerprintArray) {
       let handle = this.getKeyHandleByKeyIdOrFingerprint(
@@ -3058,28 +3066,23 @@ var RNP = {
       if (handle.isNull()) {
         return false;
       }
-      handles.push(handle);
-    }
 
-    for (let handle of handles) {
-      let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
-      if (RNPLib.rnp_key_unlock(handle, pass)) {
-        throw new Error("rnp_key_unlock failed");
+      let unlocked = false;
+      try {
+        if (RNPLib.rnp_key_unlock(handle, pass)) {
+          throw new Error("rnp_key_unlock failed");
+        }
+        unlocked = true;
+
+        if (RNPLib.rnp_key_set_expiration(handle, newExpiry)) {
+          throw new Error("rnp_key_set_expiration failed");
+        }
+      } finally {
+        if (unlocked) {
+          RNPLib.rnp_key_lock(handle);
+        }
+        RNPLib.rnp_key_handle_destroy(handle);
       }
-    }
-
-    for (let handle of handles) {
-      if (RNPLib.rnp_key_set_expiration(handle, newExpiry)) {
-        throw new Error("rnp_key_set_expiration failed");
-      }
-    }
-
-    for (let handle of handles) {
-      if (RNPLib.rnp_key_lock(handle)) {
-        throw new Error("rnp_key_lock failed");
-      }
-
-      RNPLib.rnp_key_handle_destroy(handle);
     }
 
     await this.saveKeyRings();
