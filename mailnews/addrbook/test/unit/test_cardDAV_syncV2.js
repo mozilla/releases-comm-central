@@ -266,6 +266,12 @@ add_task(async function testNormal() {
   await subtest();
 });
 
+add_task(async function testGoogle() {
+  CardDAVServer.mimicGoogle = true;
+  await subtest();
+  CardDAVServer.mimicGoogle = false;
+});
+
 add_task(async function testReadOnly() {
   Services.prefs.setBoolPref("ldap_2.servers.carddav.readOnly", true);
   await subtest();

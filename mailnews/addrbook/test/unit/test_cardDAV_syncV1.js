@@ -255,6 +255,7 @@ add_task(async function testNormal() {
 add_task(async function testYahoo() {
   CardDAVServer.mimicYahoo = true;
   await subtest();
+  CardDAVServer.mimicYahoo = false;
 });
 
 add_task(async function testReadOnly() {

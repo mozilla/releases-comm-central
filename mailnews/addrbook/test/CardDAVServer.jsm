@@ -353,7 +353,7 @@ var CardDAVServer = {
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
     for (let [href, card] of this.cards) {
       if (card.changed > token) {
-        output += this._cardResponse(href, card, propNames);
+        output += this._cardResponse(href, card, propNames, !this.mimicGoogle);
       }
     }
     for (let [href, deleted] of this.deletedCards) {
@@ -376,12 +376,15 @@ var CardDAVServer = {
     response.write(output.replace(/>\s+</g, "><"));
   },
 
-  _cardResponse(href, card, propNames) {
+  _cardResponse(href, card, propNames, includeAddressData = true) {
     let propValues = {
-      "card:address-data": card.vCard,
       "cs:getetag": card.etag,
       "d:resourcetype": null,
     };
+
+    if (includeAddressData) {
+      propValues["card:address-data"] = card.vCard;
+    }
 
     let outString = `<response>
       <href>${href}</href>

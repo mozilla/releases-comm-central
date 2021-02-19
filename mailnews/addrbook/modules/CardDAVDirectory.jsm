@@ -253,6 +253,54 @@ class CardDAVDirectory extends AddrBookDirectory {
   }
 
   /**
+   * Performs a multiget request for the provided hrefs, and adds each response
+   * to the directory, adding or modifying as necessary.
+   *
+   * @param {String[]} hrefsToFetch - The href of each card to be requested.
+   */
+  async _fetchAndStore(hrefsToFetch) {
+    if (hrefsToFetch.length == 0) {
+      return;
+    }
+
+    let response = await this._multigetRequest(hrefsToFetch);
+
+    // If this directory is set to read-only, the following operations would
+    // throw NS_ERROR_FAILURE, but sync operations are allowed on a read-only
+    // directory, so set this._overrideReadOnly to avoid the exception.
+    //
+    // Do not use await while it is set, and use a try/finally block to ensure
+    // it is cleared.
+
+    try {
+      this._overrideReadOnly = true;
+      for (let { href, properties } of this._readResponse(response.dom)) {
+        if (!properties) {
+          continue;
+        }
+
+        let etag = properties.querySelector("getetag")?.textContent;
+        let vCard = normalizeLineEndings(
+          properties.querySelector("address-data")?.textContent
+        );
+
+        let abCard = VCardUtils.vCardToAbCard(vCard);
+        abCard.setProperty("_etag", etag);
+        abCard.setProperty("_href", href);
+        abCard.setProperty("_vCard", vCard);
+
+        if (!this._cards.has(abCard.UID)) {
+          super.dropCard(abCard, false);
+        } else if (this._loadCardProperties(abCard.UID).get("_etag") != etag) {
+          super.modifyCard(abCard);
+        }
+      }
+    } finally {
+      this._overrideReadOnly = false;
+    }
+  }
+
+  /**
    * Reads a multistatus response, yielding once for each response element.
    *
    * @param {Document} dom - as returned by makeRequest.
@@ -525,8 +573,6 @@ class CardDAVDirectory extends AddrBookDirectory {
 
     let cardMap = new Map();
     let hrefsToFetch = [];
-    let cardsToAdd = [];
-    let cardsToModify = [];
     let cardsToDelete = [];
     for (let card of this.childCards) {
       let href = card.getProperty("_href", "");
@@ -541,7 +587,6 @@ class CardDAVDirectory extends AddrBookDirectory {
         if (hrefMap.get(href) != etag) {
           // The card was updated on server.
           hrefsToFetch.push(href);
-          cardsToModify.push(href);
         }
       } else {
         // The card doesn't exist on the server.
@@ -553,7 +598,6 @@ class CardDAVDirectory extends AddrBookDirectory {
       if (!cardMap.has(href)) {
         // The card is new on the server.
         hrefsToFetch.push(href);
-        cardsToAdd.push(href);
       }
     }
 
@@ -573,38 +617,7 @@ class CardDAVDirectory extends AddrBookDirectory {
       }
     }
 
-    if (hrefsToFetch.length == 0) {
-      return;
-    }
-
-    response = await this._multigetRequest(hrefsToFetch);
-
-    this._overrideReadOnly = true;
-    try {
-      for (let { href, properties } of this._readResponse(response.dom)) {
-        if (!properties) {
-          continue;
-        }
-
-        let etag = properties.querySelector("getetag")?.textContent;
-        let vCard = normalizeLineEndings(
-          properties.querySelector("address-data")?.textContent
-        );
-
-        let abCard = VCardUtils.vCardToAbCard(vCard);
-        abCard.setProperty("_etag", etag);
-        abCard.setProperty("_href", href);
-        abCard.setProperty("_vCard", vCard);
-
-        if (cardsToAdd.includes(href)) {
-          super.dropCard(abCard, false);
-        } else {
-          super.modifyCard(abCard);
-        }
-      }
-    } finally {
-      this._overrideReadOnly = false;
-    }
+    await this._fetchAndStore(hrefsToFetch);
 
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
   }
@@ -671,10 +684,12 @@ class CardDAVDirectory extends AddrBookDirectory {
     let response = await this._makeRequest("", {
       method: "REPORT",
       body: data,
+      headers: {
+        Depth: 1, // Only Google seems to need this.
+      },
       expectedStatuses: [207],
     });
     let dom = response.dom;
-    this._syncToken = dom.querySelector("sync-token").textContent;
 
     // If this directory is set to read-only, the following operations would
     // throw NS_ERROR_FAILURE, but sync operations are allowed on a read-only
@@ -683,8 +698,9 @@ class CardDAVDirectory extends AddrBookDirectory {
     // Do not use await while it is set, and use a try/finally block to ensure
     // it is cleared.
 
-    this._overrideReadOnly = true;
+    let hrefsToFetch = [];
     try {
+      this._overrideReadOnly = true;
       let cardsToDelete = [];
       for (let { href, notFound, properties } of this._readResponse(dom)) {
         let card = this.getCardFromProperty("_href", href, true);
@@ -698,10 +714,16 @@ class CardDAVDirectory extends AddrBookDirectory {
           continue;
         }
 
-        let etag = properties.querySelector("getetag").textContent;
-        let vCard = normalizeLineEndings(
-          properties.querySelector("address-data").textContent
-        );
+        let etag = properties.querySelector("getetag")?.textContent;
+        if (!etag) {
+          continue;
+        }
+        let vCard = properties.querySelector("address-data")?.textContent;
+        if (!vCard) {
+          hrefsToFetch.push(href);
+          continue;
+        }
+        vCard = normalizeLineEndings(vCard);
 
         let abCard = VCardUtils.vCardToAbCard(vCard);
         abCard.setProperty("_etag", etag);
@@ -723,6 +745,10 @@ class CardDAVDirectory extends AddrBookDirectory {
     } finally {
       this._overrideReadOnly = false;
     }
+
+    await this._fetchAndStore(hrefsToFetch);
+
+    this._syncToken = dom.querySelector("sync-token").textContent;
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
   }
 
