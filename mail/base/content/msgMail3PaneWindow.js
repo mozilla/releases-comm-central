@@ -2128,11 +2128,6 @@ var TabsInTitlebar = {
     }
 
     if (!drawInTitlebar) {
-      if (AppConstants.platform == "macosx") {
-        let secondaryButtonsWidth = rect($("titlebar-fullscreen-button")).width;
-        this._sizePlaceholder("fullscreen-button", secondaryButtonsWidth);
-      }
-
       // Reset styles that might have been modified:
       titlebar.style.marginBottom = "";
       menubar.style.paddingBottom = "";
@@ -2164,9 +2159,8 @@ var TabsInTitlebar = {
     // Buttons first:
     let captionButtonsBoxWidth = rect(titlebarButtons).width;
 
-    let secondaryButtonsWidth, menuHeight, fullMenuHeight, menuStyles;
+    let menuHeight, fullMenuHeight, menuStyles;
     if (AppConstants.platform == "macosx") {
-      secondaryButtonsWidth = rect($("titlebar-fullscreen-button")).width;
       // No need to look up the menubar stuff on OS X:
       menuHeight = 0;
       fullMenuHeight = 0;
@@ -2245,9 +2239,6 @@ var TabsInTitlebar = {
     titlebar.style.marginBottom = "-" + maxTitlebarOrTabsHeight + "px";
 
     // Finally, size the placeholders:
-    if (AppConstants.platform == "macosx") {
-      this._sizePlaceholder("fullscreen-button", secondaryButtonsWidth);
-    }
     this._sizePlaceholder("caption-buttons", captionButtonsBoxWidth);
   },
 

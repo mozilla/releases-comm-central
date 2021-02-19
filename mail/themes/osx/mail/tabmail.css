@@ -19,7 +19,7 @@
 
 :root[tabsintitlebar][sizemode=normal] #navigation-toolbox > #tabs-toolbar >
   #tabbar-toolbar {
-  margin-inline-start: 40px;
+  margin-inline: 40px;
 }
 
 /**
