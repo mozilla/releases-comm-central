@@ -378,7 +378,7 @@ var CardDAVServer = {
 
   _cardResponse(href, card, propNames, includeAddressData = true) {
     let propValues = {
-      "cs:getetag": card.etag,
+      "d:getetag": card.etag,
       "d:resourcetype": null,
     };
 
@@ -405,11 +405,11 @@ var CardDAVServer = {
           propNames.push(`card:${p.localName}`);
           break;
         case "getctag":
-        case "getetag":
           Assert.equal(p.namespaceURI, PREFIX_BINDINGS.cs);
           propNames.push(`cs:${p.localName}`);
           break;
         case "displayname":
+        case "getetag":
         case "resourcetype":
         case "sync-token":
           Assert.equal(p.namespaceURI, PREFIX_BINDINGS.d);

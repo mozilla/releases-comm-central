@@ -236,7 +236,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     );
     let data = `<card:addressbook-multiget ${NAMESPACE_STRING}>
       <d:prop>
-        <cs:getetag/>
+        <d:getetag/>
         <card:address-data/>
       </d:prop>
       ${hrefsToFetch.join("\n")}
@@ -450,7 +450,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
         <resourcetype/>
-        <cs:getetag/>
+        <getetag/>
         <cs:getctag/>
       </prop>
     </propfind>`;
@@ -543,7 +543,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
         <resourcetype/>
-        <cs:getetag/>
+        <getetag/>
         <cs:getctag/>
       </prop>
     </propfind>`;
@@ -676,7 +676,7 @@ class CardDAVDirectory extends AddrBookDirectory {
       <sync-token>${xmlEncode(syncToken)}</sync-token>
       <sync-level>1</sync-level>
       <prop>
-        <cs:getetag/>
+        <getetag/>
         <card:address-data/>
       </prop>
     </sync-collection>`;
