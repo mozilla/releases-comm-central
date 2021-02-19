@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* This is where functions related to the 3 pane window are kept */
+const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 const {msgDBCacheManager} = ChromeUtils.import("resource:///modules/msgDBCacheManager.js");
 const {PeriodicFilterManager} = ChromeUtils.import("resource:///modules/PeriodicFilterManager.jsm");
 
@@ -1369,7 +1370,7 @@ function EnsureFolderIndex(builder, msgFolder)
 
 function SelectFolder(folderUri)
 {
-  let msgFolder = GetMsgFolderFromUri(folderUri);
+  let msgFolder = MailUtils.getFolderForURI(folderUri);
   SelectMsgFolder(msgFolder);
 }
 

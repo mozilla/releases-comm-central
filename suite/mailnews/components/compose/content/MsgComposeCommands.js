@@ -9,6 +9,7 @@ const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm")
 ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 
 /**
  * interfaces
@@ -3052,7 +3053,7 @@ function DisplaySaveFolderDlg(folderURI)
   }
 
   if (showDialog){
-    var msgfolder = GetMsgFolderFromUri(folderURI, true);
+    let msgfolder = MailUtils.getFolderForURI(folderURI, true);
     if (!msgfolder)
       return;
     var checkbox = {value:0};

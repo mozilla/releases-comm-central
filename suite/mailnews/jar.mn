@@ -61,7 +61,6 @@ messenger.jar:
     content/messenger/tabmail.xml                                              (content/tabmail.xml)
     content/messenger/threadPane.js                                            (content/threadPane.js)
     content/messenger/threadPane.xul                                           (content/threadPane.xul)
-    content/messenger/widgetglue.js                                            (content/widgetglue.js)
 
     content/messenger/SearchDialog.xul                                         (content/SearchDialog.xul)
     content/messenger/SearchDialog.js                                          (content/SearchDialog.js)

@@ -51,7 +51,6 @@
 <script src="chrome://messenger/content/jsTreeView.js"/>
 <script src="chrome://messenger/content/addressbook/abTrees.js"/>
 <script src="chrome://messenger/content/accountUtils.js"/>
-<script src="chrome://messenger/content/widgetglue.js"/>
 <script src="chrome://messenger/content/addressbook/addressbook.js"/>
 <script src="chrome://messenger/content/addressbook/abCommon.js"/>
 <script src="chrome://communicator/content/contentAreaClick.js"/>

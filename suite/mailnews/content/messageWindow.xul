@@ -46,7 +46,6 @@
   <script src="chrome://communicator/content/contentAreaClick.js"/>
   <script src="chrome://global/content/nsDragAndDrop.js"/>
   <script src="chrome://messenger/content/msgViewNavigation.js"/>
-  <script src="chrome://messenger/content/widgetglue.js"/>
   <script src="chrome://messenger/content/tabmail.js"/>
 
   <commandset id="mailCommands">

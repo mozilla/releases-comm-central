@@ -7,9 +7,10 @@
 /*
  * Command-specific code. This stuff should be called by the widgets
  */
-
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+ 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 
 //NOTE: gMessengerBundle and gBrandBundle must be defined and set
 //      for this Overlay to work properly
@@ -27,7 +28,7 @@ function GetServer(uri)
 {
     if (!uri) return null;
     try {
-        var folder = GetMsgFolderFromUri(uri, true);
+        var folder = MailUtils.getFolderForURI(uri, true);
         return folder.server;
     }
     catch (ex) {
@@ -737,7 +738,7 @@ function FolderPaneSelectionChange()
                       uriToLoad = srchFolderUri;
                       // we need to load the db for the actual folder so that many hdrs to download
                       // will return false...
-                      realFolder = GetMsgFolderFromUri(uriToLoad);
+                      realFolder = MailUtils.getFolderForURI(uriToLoad);
                       msgDatabase = realFolder.msgDatabase;
 //                      dump("search term string = " + searchTermString + "\n");
 
@@ -921,7 +922,7 @@ function setupXFVirtualFolderSearch(folderUrisToSearch, searchTerms, searchOnlin
 
   for (i in folderUrisToSearch)
     {
-      let realFolder = GetMsgFolderFromUri(folderUrisToSearch[i]);
+      let realFolder = MailUtils.getFolderForURI(folderUrisToSearch[i]);
       if (!realFolder.isServer)
         gSearchSession.addScopeTerm(!searchOnline ? nsMsgSearchScope.offlineMail : GetScopeForFolder(realFolder), realFolder);
     }

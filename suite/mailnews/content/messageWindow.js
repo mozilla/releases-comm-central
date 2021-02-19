@@ -3,6 +3,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
+
 /* This is where functions related to the standalone message window are kept */
 
 // from MailNewsTypes.h
@@ -434,7 +436,8 @@ function GetSelectedIndices(dbView)
 
 function GetLoadedMsgFolder()
 {
-  return gCurrentFolderUri ? GetMsgFolderFromUri(gCurrentFolderUri) : null;
+  return gCurrentFolderUri ? MailUtils.getFolderForURI(gCurrentFolderUri)
+                           : null;
 }
 
 function GetLoadedMessage()
@@ -460,7 +463,7 @@ function SelectFolder(folderUri)
   if (folderUri == gCurrentFolderUri)
     return;
 
-  let msgfolder = GetMsgFolderFromUri(folderUri);
+  let msgfolder = MailUtils.getFolderForURI(folderUri);
   if (!msgfolder || msgfolder.isServer)
     return;
 

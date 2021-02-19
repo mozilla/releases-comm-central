@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 
 /**
  * Get the identity that most likely is the best one to use, given the hint.
@@ -255,7 +256,7 @@ function Subscribe(preselectedMsgFolder)
 function SubscribeOKCallback(changeTable)
 {
   for (var serverURI in changeTable) {
-    var folder = GetMsgFolderFromUri(serverURI, true);
+    var folder = MailUtils.getFolderForURI(serverURI, true);
     var server = folder.server;
     var subscribableServer =
           server.QueryInterface(Ci.nsISubscribableServer);

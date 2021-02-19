@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 
 var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";
@@ -334,7 +335,7 @@ function updateSearchFolderPicker(folderURI)
     SetFolderPicker(folderURI, gFolderPicker.id);
 
     // use the URI to get the real folder
-    gMsgFolderSelected = GetMsgFolderFromUri(folderURI);
+    gMsgFolderSelected = MailUtils.getFolderForURI(folderURI);
 
     var searchSubFolders = document.getElementById("checkSearchSubFolders");
     if (searchSubFolders)

@@ -59,7 +59,7 @@ var gSearchNotificationListener =
         if (gCurrentVirtualFolderUri &&
             (!gSearchInput || gSearchInput.value == ""))
         {
-          var vFolder = GetMsgFolderFromUri(gCurrentVirtualFolderUri, false);
+          var vFolder = MailUtils.getFolderForURI(gCurrentVirtualFolderUri, false);
           var dbFolderInfo = vFolder.msgDatabase.dBFolderInfo;
           dbFolderInfo.numUnreadMessages = gNumUnreadMessages;
           dbFolderInfo.numMessages = gNumTotalMessages;
@@ -308,7 +308,7 @@ function createSearchTermsWithList(aTermsArray)
       var srchFolderUriArray = srchFolderUri.split('|');
       for (i in srchFolderUriArray)
       {
-        let realFolder = GetMsgFolderFromUri(srchFolderUriArray[i]);
+        let realFolder = MailUtils.getFolderForURI(srchFolderUriArray[i]);
         if (!realFolder.isServer)
           gSearchSession.addScopeTerm(nsMsgSearchScope.offlineMail, realFolder);
       }

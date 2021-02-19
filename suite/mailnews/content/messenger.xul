@@ -39,7 +39,6 @@
   <stringbundle id="bundle_search" src="chrome://messenger/locale/search.properties"/>
 </stringbundleset>
 
-<script src="chrome://messenger/content/widgetglue.js"/>
 <script src="chrome://messenger/content/commandglue.js"/>
 <script src="chrome://messenger/content/msgViewNavigation.js"/>
 <script src="chrome://messenger/content/mailWindow.js"/>
