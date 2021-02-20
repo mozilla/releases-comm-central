@@ -9,6 +9,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 function run_test() {
@@ -24,6 +25,8 @@ function really_run_test() {
   test_lastack();
   test_categories();
   test_alarm();
+  test_isEvent();
+  test_isTodo();
 }
 
 function test_aclmanager() {
@@ -276,4 +279,26 @@ function test_lastack() {
   e.icalComponent = comp;
 
   equal(e.alarmLastAck.icalString, "20120101T010102Z");
+}
+
+/**
+ * Test isEvent() returns the correct value for events and todos.
+ */
+function test_isEvent() {
+  let event = new CalEvent();
+  let todo = new CalTodo();
+
+  Assert.ok(event.isEvent(), "isEvent() returns true for events");
+  Assert.ok(!todo.isEvent(), "isEvent() returns false for todos");
+}
+
+/**
+ * Test isTodo() returns the correct value for events and todos.
+ */
+function test_isTodo() {
+  let todo = new CalTodo();
+  let event = new CalEvent();
+
+  Assert.ok(todo.isTodo(), "isTodo() returns true for todos");
+  Assert.ok(!event.isTodo(), "isTodo() returns false for events");
 }

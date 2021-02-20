@@ -77,7 +77,7 @@ var calendarViewController = {
 
       if (newStartTime || newEndTime) {
         // Yay for variable names that make this next line look silly
-        if (cal.item.isEvent(instance)) {
+        if (instance.isEvent()) {
           if (newStartTime && instance.startDate) {
             instance.startDate = newStartTime;
           }

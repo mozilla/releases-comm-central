@@ -89,7 +89,7 @@ var unifinderObserver = {
 
   onAddItem(aItem) {
     if (
-      cal.item.isEvent(aItem) &&
+      aItem.isEvent() &&
       !gUnifinderNeedsRefresh &&
       unifinderTreeView.mFilter.isItemInFilters(aItem)
     ) {
@@ -103,7 +103,7 @@ var unifinderObserver = {
   },
 
   onDeleteItem(aDeletedItem) {
-    if (cal.item.isEvent(aDeletedItem) && !gUnifinderNeedsRefresh) {
+    if (aDeletedItem.isEvent() && !gUnifinderNeedsRefresh) {
       this.removeItemFromTree(aDeletedItem);
     }
   },

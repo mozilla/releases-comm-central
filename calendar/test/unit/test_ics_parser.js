@@ -123,13 +123,13 @@ function test_async() {
       let items = parser.getItems();
       equal(items.length, 2);
       let item = items[0];
-      ok(cal.item.isToDo(item));
+      ok(item.isTodo());
 
       equal(item.entryDate.icalString, "20120101T010101");
       equal(item.dueDate.icalString, "20120101T010102");
 
       item = items[1];
-      ok(cal.item.isToDo(item));
+      ok(item.isTodo());
 
       equal(item.entryDate.icalString, "20120101T010103");
       equal(item.dueDate.icalString, "20120101T010104");

@@ -344,9 +344,9 @@ CalMemoryCalendar.prototype = {
     let item = this.mItems[aId];
     let iid = null;
 
-    if (cal.item.isEvent(item)) {
+    if (item.isEvent()) {
       iid = Ci.calIEvent;
-    } else if (cal.item.isToDo(item)) {
+    } else if (item.isTodo()) {
       iid = Ci.calITodo;
     } else {
       this.notifyOperationComplete(
@@ -471,7 +471,7 @@ CalMemoryCalendar.prototype = {
     cal.iterate.forEach(
       this.mItems,
       ([id, item]) => {
-        let isEvent_ = cal.item.isEvent(item);
+        let isEvent_ = item.isEvent();
         if (isEvent_) {
           if (!wantEvents) {
             return cal.iterate.forEach.CONTINUE;
@@ -494,7 +494,7 @@ CalMemoryCalendar.prototype = {
           }
 
           let startDate = aRangeStart;
-          if (!aRangeStart && cal.item.isToDo(item)) {
+          if (!aRangeStart && item.isTodo()) {
             startDate = item.entryDate;
           }
           let occurrences = item.recurrenceInfo.getOccurrences(

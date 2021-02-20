@@ -67,9 +67,9 @@ function showToolTip(aToolTip, aItem) {
  * @param {boolean}  aIsTooltip  enabled if used for tooltip composition (default)
  */
 function getPreviewForItem(aItem, aIsTooltip = true) {
-  if (cal.item.isEvent(aItem)) {
+  if (aItem.isEvent()) {
     return getPreviewForEvent(aItem, aIsTooltip);
-  } else if (cal.item.isToDo(aItem)) {
+  } else if (aItem.isTodo()) {
     return getPreviewForTask(aItem, aIsTooltip);
   }
   return null;

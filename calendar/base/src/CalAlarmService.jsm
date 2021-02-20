@@ -314,7 +314,7 @@ CalAlarmService.prototype = {
   },
 
   addAlarmsForItem(aItem) {
-    if (cal.item.isToDo(aItem) && aItem.isCompleted) {
+    if (aItem.isTodo() && aItem.isCompleted) {
       // If this is a task and it is completed, don't add the alarm.
       return;
     }

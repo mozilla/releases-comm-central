@@ -70,7 +70,7 @@ async function setData(dialogWindow, iframeWindow, data) {
   let dialogDocument = dialogWindow.document;
   let iframeDocument = iframeWindow.document;
 
-  let isEvent = cal.item.isEvent(iframeWindow.calendarItem);
+  let isEvent = iframeWindow.calendarItem.isEvent();
   let startPicker = iframeDocument.getElementById(isEvent ? "event-starttime" : "todo-entrydate");
   let endPicker = iframeDocument.getElementById(isEvent ? "event-endtime" : "todo-duedate");
 

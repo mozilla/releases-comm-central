@@ -53,7 +53,7 @@ function setDefaultItemValues(
   let initialDate = aInitialDate ? aInitialDate.clone() : cal.dtz.now();
   initialDate.isDate = true;
 
-  if (cal.item.isEvent(aItem)) {
+  if (aItem.isEvent()) {
     if (aStartDate) {
       aItem.startDate = aStartDate.clone();
       if (aStartDate.isDate && !aForceAllday) {
@@ -96,7 +96,7 @@ function setDefaultItemValues(
 
     // Free/busy status is only valid for events, must not be set for tasks.
     aItem.setProperty("TRANSP", cal.item.getEventDefaultTransparency(aForceAllday));
-  } else if (cal.item.isToDo(aItem)) {
+  } else if (aItem.isTodo()) {
     let now = cal.dtz.now();
     let initDate = initialDate ? initialDate.clone() : now;
     initDate.isDate = false;
@@ -424,11 +424,11 @@ function openEventDialog(
   calendars = calendars.filter(cal.acl.isCalendarWritable);
 
   let isItemSupported;
-  if (cal.item.isToDo(calendarItem)) {
+  if (calendarItem.isTodo()) {
     isItemSupported = function(aCalendar) {
       return aCalendar.getProperty("capabilities.tasks.supported") !== false;
     };
-  } else if (cal.item.isEvent(calendarItem)) {
+  } else if (calendarItem.isEvent()) {
     isItemSupported = function(aCalendar) {
       return aCalendar.getProperty("capabilities.events.supported") !== false;
     };
@@ -528,7 +528,7 @@ function openEventDialog(
     // never opened in a tab
     args.url = url;
     let tabmail = document.getElementById("tabmail");
-    let tabtype = cal.item.isEvent(args.calendarEvent) ? "calendarEvent" : "calendarTask";
+    let tabtype = args.calendarEvent.isEvent() ? "calendarEvent" : "calendarTask";
     tabmail.openTab(tabtype, args);
   } else {
     // open in a window

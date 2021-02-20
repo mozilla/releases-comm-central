@@ -322,7 +322,7 @@
 
     set item(item) {
       this.mItem = item;
-      this.mIsToDoItem = cal.item.isToDo(item);
+      this.mIsToDoItem = item.isTodo();
 
       // When used in places like the import dialog, there is no calendar (yet).
       if (item.calendar) {

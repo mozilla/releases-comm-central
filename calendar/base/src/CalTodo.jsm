@@ -84,6 +84,10 @@ CalTodo.prototype = {
     this.makeItemBaseImmutable();
   },
 
+  isTodo() {
+    return true;
+  },
+
   get isCompleted() {
     return this.completedDate != null || this.percentComplete == 100 || this.status == "COMPLETED";
   },

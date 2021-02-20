@@ -23,7 +23,7 @@ CalMimeConverter.prototype = {
     parser.parseString(data);
     let event = null;
     for (let item of parser.getItems()) {
-      if (cal.item.isEvent(item)) {
+      if (item.isEvent()) {
         if (item.hasProperty("X-MOZ-FAKED-MASTER")) {
           // if it's a faked master, take any overridden item to get a real occurrence:
           let exc = item.recurrenceInfo.getExceptionFor(item.startDate);

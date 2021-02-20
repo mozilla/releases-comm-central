@@ -537,7 +537,7 @@ ltn.invitation = {
    * @return {String} JsObject.comment           A comment of the attendee, if any
    */
   parseCounter(aProposedItem, aExistingItem) {
-    let isEvent = cal.item.isEvent(aProposedItem);
+    let isEvent = aProposedItem.isEvent();
     // atm we only support a subset of properties, for a full list see RfC 5546 section 3.2.7
     let properties = ["SUMMARY", "LOCATION", "DTSTART", "DTEND", "COMMENT"];
     if (!isEvent) {

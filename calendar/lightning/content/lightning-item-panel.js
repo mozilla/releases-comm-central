@@ -317,7 +317,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
 
   // event or task
   let calendarItem = iframe.contentWindow.arguments[0].calendarEvent;
-  gConfig.isEvent = cal.item.isEvent(calendarItem);
+  gConfig.isEvent = calendarItem.isEvent();
 
   // for tasks in a window dialog, set the dialog id for CSS selection, etc.
   if (!gTabmail) {

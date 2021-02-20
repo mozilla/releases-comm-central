@@ -329,12 +329,12 @@
       // in the <content> section of this custom element, and all that inherit it.
 
       // Event type specific properties.
-      if (cal.item.isEvent(item)) {
+      if (item.isEvent()) {
         if (item.startDate.isDate) {
           this.setAttribute("allday", "true");
         }
         this.setAttribute("itemType", "event");
-      } else if (cal.item.isToDo(item)) {
+      } else if (item.isTodo()) {
         // Progress attribute.
         this.setAttribute("progress", cal.item.getProgressAtom(item));
         // Attribute for tasks and tasks image.

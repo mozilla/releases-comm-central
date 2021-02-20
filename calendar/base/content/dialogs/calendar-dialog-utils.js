@@ -475,7 +475,7 @@ function commonUpdateReminder(
   // approach as with recurring tasks. in case the reminder is related
   // to the entry date we check the entry date automatically and disable
   // the checkbox. the same goes for end related reminder and the due date.
-  if (cal.item.isToDo(calendarItem)) {
+  if (calendarItem.isTodo()) {
     // In general, (re-)enable the due/entry checkboxes. This will be
     // changed in case the alarms are related to START/END below.
     enableElementWithLock("todo-has-duedate", "reminder-lock");

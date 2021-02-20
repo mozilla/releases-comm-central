@@ -633,10 +633,10 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       const boxes = [];
 
       // All our boxes are in default time zone, so we need these times in them too.
-      if (cal.item.isEvent(item)) {
+      if (item.isEvent()) {
         targetDate = item.startDate.getInTimezone(this.mTimezone);
         finishDate = item.endDate.getInTimezone(this.mTimezone);
-      } else if (cal.item.isToDo(item)) {
+      } else if (item.isTodo()) {
         // Consider tasks without entry OR due date.
         if (item.entryDate || item.dueDate) {
           targetDate = (item.entryDate || item.dueDate).getInTimezone(this.mTimezone);

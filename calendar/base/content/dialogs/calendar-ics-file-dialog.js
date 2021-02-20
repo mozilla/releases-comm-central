@@ -162,7 +162,7 @@ async function setUpItemSummaries(items) {
 
     let importButton = document.createXULElement("button");
     importButton.classList.add("calendar-ics-file-dialog-item-import-button");
-    importButton.setAttribute("label", cal.item.isEvent(item) ? eventButtonText : taskButtonText);
+    importButton.setAttribute("label", item.isEvent() ? eventButtonText : taskButtonText);
     importButton.addEventListener("command", importSingleItem.bind(null, item, index));
 
     let buttonBox = document.createXULElement("hbox");

@@ -33,9 +33,9 @@ function onLoad() {
   document.title = item.title;
 
   // set the dialog-id to enable the right window-icon to be loaded.
-  if (cal.item.isEvent(item)) {
+  if (item.isEvent()) {
     setDialogId(dialog, "calendar-event-summary-dialog");
-  } else if (cal.item.isToDo(item)) {
+  } else if (item.isTodo()) {
     setDialogId(dialog, "calendar-task-summary-dialog");
   }
 
@@ -152,7 +152,7 @@ function updateToolbar() {
   if (window.attendee) {
     // we display a notification about the users partstat
     let partStat = window.attendee.participationStatus || "NEEDS-ACTION";
-    let type = cal.item.isEvent(window.calendarItem) ? "event" : "task";
+    let type = window.calendarItem.isEvent() ? "event" : "task";
 
     let msgStr = {
       ACCEPTED: type + "Accepted",

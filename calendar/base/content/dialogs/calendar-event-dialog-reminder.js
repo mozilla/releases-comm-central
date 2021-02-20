@@ -383,7 +383,7 @@ function updateReminder(event) {
  * @return              The full string name.
  */
 function getItemBundleStringName(aPrefix) {
-  if (cal.item.isEvent(window.arguments[0].item)) {
+  if (window.arguments[0].item.isEvent()) {
     return aPrefix + "Event";
   }
   return aPrefix + "Task";
@@ -394,7 +394,7 @@ function getItemBundleStringName(aPrefix) {
  * new reminder item.
  */
 function onNewReminder() {
-  let itemType = cal.item.isEvent(window.arguments[0].item) ? "event" : "todo";
+  let itemType = window.arguments[0].item.isEvent() ? "event" : "todo";
   let listbox = document.getElementById("reminder-listbox");
 
   let reminder = new CalAlarm();

@@ -334,11 +334,11 @@ var calview = {
       return 1;
     }
 
-    let aIsEvent = cal.item.isEvent(a);
-    let aIsTodo = cal.item.isToDo(a);
+    let aIsEvent = a.isEvent();
+    let aIsTodo = a.isTodo();
 
-    let bIsEvent = cal.item.isEvent(b);
-    let bIsTodo = cal.item.isToDo(b);
+    let bIsEvent = b.isEvent();
+    let bIsTodo = b.isTodo();
 
     // sort todos before events
     if (aIsTodo && bIsEvent) {

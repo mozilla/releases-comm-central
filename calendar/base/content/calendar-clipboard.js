@@ -218,9 +218,9 @@ function pasteFromClipboard() {
       } else {
         let pasteText = "paste";
         if (withAttendees.length) {
-          if (withAttendees.every(cal.item.isEvent)) {
+          if (withAttendees.every(item => item.isEvent())) {
             pasteText += "Event";
-          } else if (withAttendees.every(cal.item.isToDo)) {
+          } else if (withAttendees.every(item => item.isTodo())) {
             pasteText += "Task";
           } else {
             pasteText += "Item";

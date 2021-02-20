@@ -851,13 +851,13 @@ function setupContextItemType(aEvent, aItems) {
       menuItem.setAttribute("accesskey", cal.l10n.getCalString(`delete${aItemType}Accesskey`));
     }
   }
-  if (aItems.some(cal.item.isEvent) && aItems.some(cal.item.isToDo)) {
+  if (aItems.some(item => item.isEvent()) && aItems.some(item => item.isTodo())) {
     aEvent.target.setAttribute("type", "mixed");
     adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Item");
-  } else if (aItems.length && cal.item.isEvent(aItems[0])) {
+  } else if (aItems.length && aItems[0].isEvent()) {
     aEvent.target.setAttribute("type", "event");
     adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Event");
-  } else if (aItems.length && cal.item.isToDo(aItems[0])) {
+  } else if (aItems.length && aItems[0].isTodo()) {
     aEvent.target.setAttribute("type", "todo");
     adaptModificationMenuItem("calendar-item-context-menu-delete-menuitem", "Task");
   } else {

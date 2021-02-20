@@ -154,11 +154,11 @@ CalRecurrenceInfo.prototype = {
    * @return {calIDateTime | null} The ending date or null.
    */
   getItemEndingDate(item) {
-    if (cal.item.isEvent(item)) {
+    if (item.isEvent()) {
       if (item.endDate) {
         return item.endDate;
       }
-    } else if (cal.item.isToDo(item)) {
+    } else if (item.isTodo()) {
       // Due date must be considered since it is used when displaying the task in agenda view.
       if (item.dueDate) {
         return item.dueDate;

@@ -77,7 +77,7 @@ CalIcsParser.prototype = {
 
         if (!parent) {
           // a parentless one, fake a master and override it's occurrence
-          parent = cal.item.isEvent(item) ? new CalEvent() : new CalTodo();
+          parent = item.isEvent() ? new CalEvent() : new CalTodo();
           parent.id = item.id;
           parent.setProperty("DTSTART", item.recurrenceId);
           parent.setProperty("X-MOZ-FAKED-MASTER", "1"); // this tag might be useful in the future

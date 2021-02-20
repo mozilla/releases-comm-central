@@ -29,7 +29,7 @@ var calalarms = {
    * @param aItem     The item to apply the default alarm values to.
    */
   setDefaultValues(aItem) {
-    let type = cal.item.isEvent(aItem) ? "event" : "todo";
+    let type = aItem.isEvent() ? "event" : "todo";
     if (Services.prefs.getIntPref("calendar.alarms.onfor" + type + "s", 0) == 1) {
       let alarmOffset = cal.createDuration();
       let alarm = new CalAlarm();

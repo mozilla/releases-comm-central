@@ -250,6 +250,20 @@ calItemBase.prototype = {
     );
   },
 
+  /**
+   * Overridden by CalEvent to indicate the item is an event.
+   */
+  isEvent() {
+    return false;
+  },
+
+  /**
+   * Overridden by CalTodo to indicate the item is a todo.
+   */
+  isTodo() {
+    return false;
+  },
+
   // calIItemBase clone();
   clone() {
     return this.cloneShallow(this.mParentItem);

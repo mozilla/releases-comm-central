@@ -204,9 +204,9 @@ var calitem = {
    * @return true or false
    */
   isItemSupported(aItem, aCalendar) {
-    if (calitem.isToDo(aItem)) {
+    if (aItem.isTodo()) {
       return aCalendar.getProperty("capabilities.tasks.supported") !== false;
-    } else if (calitem.isEvent(aItem)) {
+    } else if (aItem.isEvent()) {
       return aCalendar.getProperty("capabilities.events.supported") !== false;
     }
     return false;
@@ -231,26 +231,6 @@ var calitem = {
   },
 
   /**
-   * Determines whether or not the aObject is a calIEvent
-   *
-   * @param aObject  the object to test
-   * @returns        true if the object is a calIEvent, false otherwise
-   */
-  isEvent(aObject) {
-    return cal.wrapInstance(aObject, Ci.calIEvent) != null;
-  },
-
-  /**
-   * Determines whether or not the aObject is a calITodo
-   *
-   * @param aObject  the object to test
-   * @returns        true if the object is a calITodo, false otherwise
-   */
-  isToDo(aObject) {
-    return cal.wrapInstance(aObject, Ci.calITodo) != null;
-  },
-
-  /**
    * Checks whether the passed item fits into the demanded range.
    *
    * @param item               the item
@@ -263,7 +243,7 @@ var calitem = {
     let startDate;
     let endDate;
     let queryStart = cal.dtz.ensureDateTime(rangeStart);
-    if (calitem.isEvent(item)) {
+    if (item.isEvent()) {
       startDate = item.startDate;
       if (!startDate) {
         // DTSTART mandatory
@@ -519,7 +499,7 @@ var calitem = {
     // since those may triggers e.g. calIRecurrenceInfo::onStartDateChange
     // or invalidate other properties. Moreover don't modify the date-time objects
     // without cloning, because changes cannot be calculated if doing so.
-    if (calitem.isEvent(item)) {
+    if (item.isEvent()) {
       let date = item.startDate.clone();
       date.addDuration(offset);
       item.startDate = date;

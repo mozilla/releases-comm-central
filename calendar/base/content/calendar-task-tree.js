@@ -37,13 +37,13 @@
     }
 
     onAddItem(item) {
-      if (cal.item.isToDo(item)) {
+      if (item.isTodo()) {
         this.tree.mTreeView.addItems(this.tree.mFilter.getOccurrences(item));
       }
     }
 
     onModifyItem(newItem, oldItem) {
-      if (cal.item.isToDo(newItem) || cal.item.isToDo(oldItem)) {
+      if (newItem.isTodo() || oldItem.isTodo()) {
         this.tree.mTreeView.modifyItems(
           this.tree.mFilter.getOccurrences(newItem),
           this.tree.mFilter.getOccurrences(oldItem)
@@ -56,7 +56,7 @@
     }
 
     onDeleteItem(deletedItem) {
-      if (cal.item.isToDo(deletedItem)) {
+      if (deletedItem.isTodo()) {
         this.tree.mTreeView.removeItems(this.tree.mFilter.getOccurrences(deletedItem));
       }
     }

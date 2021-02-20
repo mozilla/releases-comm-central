@@ -359,7 +359,7 @@
     set occurrence(val) {
       cal.ASSERT(!this.mOccurrence, "Code changes needed to set the occurrence twice", true);
       this.mOccurrence = val;
-      if (cal.item.isEvent(val) && !val.startDate.isDate) {
+      if (val.isEvent() && !val.startDate.isDate) {
         let icon = this.querySelector(".calendar-item-image");
         let label = this.querySelector(".calendar-month-day-box-item-label");
         let formatter = cal.dtz.formatter;

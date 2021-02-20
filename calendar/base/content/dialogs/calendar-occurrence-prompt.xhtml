@@ -38,7 +38,7 @@
                        ? "single" : "multiple";
           let itemType;
           for (let item of window.arguments[0].items) {
-              let type = cal.item.isEvent(item) ? "event" : "task";
+              let type = item.isEvent() ? "event" : "task";
               if (itemType != type) {
                   itemType = (itemType) ? "mixed" : type;
               }

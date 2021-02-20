@@ -577,9 +577,9 @@ CalStorageCalendar.prototype = {
     }
 
     let item_iid = null;
-    if (cal.item.isEvent(item)) {
+    if (item.isEvent()) {
       item_iid = Ci.calIEvent;
-    } else if (cal.item.isToDo(item)) {
+    } else if (item.isTodo()) {
       item_iid = Ci.calITodo;
     } else {
       this.notifyOperationComplete(
@@ -876,7 +876,7 @@ CalStorageCalendar.prototype = {
   async getItemOfflineFlag(aItem, aListener) {
     let flag = null;
     if (aItem) {
-      let query = cal.item.isEvent(aItem) ? this.mSelectEvent : this.mSelectTodo;
+      let query = aItem.isEvent() ? this.mSelectEvent : this.mSelectTodo;
       this.prepareStatement(query);
       query.params.id = aItem.id;
       try {
@@ -901,7 +901,7 @@ CalStorageCalendar.prototype = {
 
   async setOfflineJournalFlag(aItem, flag) {
     let aID = aItem.id;
-    let query = cal.item.isEvent(aItem) ? this.mEditEventOfflineFlag : this.mEditTodoOfflineFlag;
+    let query = aItem.isEvent() ? this.mEditEventOfflineFlag : this.mEditTodoOfflineFlag;
     this.prepareStatement(query);
     query.params.id = aID;
     query.params.offline_journal = flag || null;
@@ -1643,7 +1643,7 @@ CalStorageCalendar.prototype = {
     }
     this.mItemCache.set(item.id, item);
     if (item.recurrenceInfo) {
-      if (cal.item.isEvent(item)) {
+      if (item.isEvent()) {
         this.mRecEventCache.set(item.id, item);
       } else {
         this.mRecTodoCache.set(item.id, item);
@@ -2008,7 +2008,7 @@ CalStorageCalendar.prototype = {
 
       let rec = item.recurrenceInfo;
 
-      if (cal.item.isEvent(item)) {
+      if (item.isEvent()) {
         this.mSelectEventExceptions.params.id = item.id;
         this.prepareStatement(this.mSelectEventExceptions);
         try {
@@ -2022,7 +2022,7 @@ CalStorageCalendar.prototype = {
             e
           );
         }
-      } else if (cal.item.isToDo(item)) {
+      } else if (item.isTodo()) {
         this.mSelectTodoExceptions.params.id = item.id;
         this.prepareStatement(this.mSelectTodoExceptions);
         try {
@@ -2218,9 +2218,9 @@ CalStorageCalendar.prototype = {
     flags |= this.prepareRelations(stmts, item, olditem);
     flags |= this.prepareAlarms(stmts, item, olditem);
 
-    if (cal.item.isEvent(item)) {
+    if (item.isEvent()) {
       this.prepareEvent(stmts, item, olditem, flags);
-    } else if (cal.item.isToDo(item)) {
+    } else if (item.isTodo()) {
       this.prepareTodo(stmts, item, olditem, flags);
     } else {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);

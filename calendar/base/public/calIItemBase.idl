@@ -39,6 +39,16 @@ interface calIItemBase : nsISupports
   calIItemBase clone();
 
   /**
+   * Returns true if this item is an instance of calIEvent.
+   */
+  boolean isEvent();
+
+  /**
+   * Returns true if this item is an instance of calITodo.
+   */
+  boolean isTodo();
+
+  /**
    * Hash Id that incorporates the item's UID, RECURRENCE-ID and calendar.id
    * to be used for lookup of items that come from different calendars.
    * Setting either id, recurrenceId or the calendar attribute leads to

@@ -94,9 +94,9 @@
       let dateLabel = this.querySelector(".alarm-date-label");
 
       // Dates
-      if (cal.item.isEvent(this.mItem)) {
+      if (this.mItem.isEvent()) {
         dateLabel.value = formatter.formatItemInterval(this.mItem);
-      } else if (cal.item.isToDo(this.mItem)) {
+      } else if (this.mItem.isTodo()) {
         let startDate = this.mItem.entryDate || this.mItem.dueDate;
         if (startDate) {
           // A task with a start or due date, show with label.

@@ -493,7 +493,7 @@ CalOutlookCSVExporter.prototype = {
     aStream.write(str, str.length);
 
     for (let item of aItems) {
-      if (!cal.item.isEvent(item)) {
+      if (!item.isEvent()) {
         // XXX TODO: warn the user (once) that tasks are not supported
         // (bug 336175)
         continue;

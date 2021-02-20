@@ -73,6 +73,10 @@ CalEvent.prototype = {
     this.makeItemBaseImmutable();
   },
 
+  isEvent() {
+    return true;
+  },
+
   get duration() {
     if (this.endDate && this.startDate) {
       return this.endDate.subtractDate(this.startDate);
