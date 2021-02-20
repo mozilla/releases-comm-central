@@ -30,7 +30,6 @@ var mozISpellCheckingEngine = Ci.mozISpellCheckingEngine;
 /**
  * static globals, need to be initialized only once
  */
-var sMsgComposeService = Cc["@mozilla.org/messengercompose;1"].getService(Ci.nsIMsgComposeService);
 var sComposeMsgsBundle;
 var sBrandBundle;
 
@@ -108,9 +107,9 @@ function InitializeGlobalVariables()
   gSendFormat = nsIMsgCompSendFormat.AskUser;
   gCharsetConvertManager = Cc['@mozilla.org/charset-converter-manager;1'].getService(Ci.nsICharsetConverterManager);
   gHideMenus = false;
-  // We are storing the value of the bool logComposePerformance inorder to avoid logging unnecessarily.
-  if (sMsgComposeService)
-    gLogComposePerformance = sMsgComposeService.logComposePerformance;
+  // We are storing the value of the bool logComposePerformance inorder to
+  // avoid logging unnecessarily.
+  gLogComposePerformance = MailServices.compose.logComposePerformance;
 
   gLastWindowToHaveFocus = null;
   gReceiptOptionChanged = false;
@@ -1008,7 +1007,7 @@ function handleMailtoArgs(mailtoUrl)
     var uri = Services.io.newURI(mailtoUrl);
 
     if (uri)
-      return sMsgComposeService.getParamsForMailto(uri);
+      return MailServices.compose.getParamsForMailto(uri);
   }
 
   return null;
@@ -1276,116 +1275,100 @@ function ComposeStartup(aParams)
   if (params.composeFields.from)
     identityList.value = MailServices.headerParser.parseDecodedHeader(params.composeFields.from)[0].toString();
   LoadIdentity(true);
-  if (sMsgComposeService)
-  {
-    // Get the <editor> element to startup an editor
-    var editorElement = GetCurrentEditorElement();
 
-    // Remember the original message URI. When editing a draft which is a reply
-    // or forwarded message, this gets overwritten by the ancestor's message URI so
-    // the disposition flags ("replied" or "forwarded") can be set on the ancestor.
-    // For our purposes we need the URI of the message being processed, not its
-    // original ancestor.
-    gOriginalMsgURI = params.originalMsgURI;
-    gMsgCompose = sMsgComposeService.initCompose(params, window,
+  // Get the <editor> element to startup an editor
+  var editorElement = GetCurrentEditorElement();
+
+  // Remember the original message URI. When editing a draft which is a reply
+  // or forwarded message, this gets overwritten by the ancestor's message URI
+  // so the disposition flags ("replied" or "forwarded") can be set on the
+  // ancestor.
+  // For our purposes we need the URI of the message being processed, not its
+  // original ancestor.
+  gOriginalMsgURI = params.originalMsgURI;
+  gMsgCompose = MailServices.compose.initCompose(params, window,
                                                  editorElement.docShell);
-    if (gMsgCompose)
-    {
-      if (!editorElement)
-      {
-        dump("Failed to get editor element!\n");
-        return;
-      }
 
-      document.getElementById("returnReceiptMenu")
-              .setAttribute("checked", gMsgCompose.compFields.returnReceipt);
-      document.getElementById("dsnMenu")
-              .setAttribute('checked', gMsgCompose.compFields.DSN);
-      document.getElementById("cmd_attachVCard")
-              .setAttribute("checked", gMsgCompose.compFields.attachVCard);
-      document.getElementById("menu_inlineSpellCheck")
-              .setAttribute("checked", Services.prefs.getBoolPref("mail.spellcheck.inline"));
+  document.getElementById("returnReceiptMenu")
+          .setAttribute("checked", gMsgCompose.compFields.returnReceipt);
+  document.getElementById("dsnMenu")
+          .setAttribute('checked', gMsgCompose.compFields.DSN);
+  document.getElementById("cmd_attachVCard")
+          .setAttribute("checked", gMsgCompose.compFields.attachVCard);
+  document.getElementById("menu_inlineSpellCheck")
+          .setAttribute("checked",
+                        Services.prefs.getBoolPref("mail.spellcheck.inline"));
 
+  let editortype = gMsgCompose.composeHTML ? "htmlmail" : "textmail";
+  editorElement.makeEditable(editortype, true);
+
+  // setEditorType MUST be call before setContentWindow
+  if (gMsgCompose.composeHTML) {
+    initLocalFontFaceMenu(document.getElementById("FontFacePopup"));
+  } else {
+    //Remove HTML toolbar, format and insert menus as we are editing in plain
+    //text mode.
+    let toolbar = document.getElementById("FormatToolbar");
+    toolbar.hidden = true;
+    toolbar.setAttribute("hideinmenu", "true");
+    document.getElementById("outputFormatMenu").setAttribute("hidden", true);
+    document.getElementById("formatMenu").setAttribute("hidden", true);
+    document.getElementById("insertMenu").setAttribute("hidden", true);
+  }
+
+  // Do setup common to Message Composer and Web Composer.
+  EditorSharedStartup();
+
+  if (params.bodyIsLink) {
+    let body = gMsgCompose.compFields.body;
+    if (gMsgCompose.composeHTML) {
+      let cleanBody;
       try {
-        var editortype = gMsgCompose.composeHTML ? "htmlmail" : "textmail";
-        editorElement.makeEditable(editortype, true);
-      } catch (e) { dump(" FAILED TO START EDITOR: "+e+"\n"); }
-
-      // setEditorType MUST be call before setContentWindow
-      if (gMsgCompose.composeHTML)
-      {
-        initLocalFontFaceMenu(document.getElementById("FontFacePopup"));
-      }
-      else
-      {
-        //Remove HTML toolbar, format and insert menus as we are editing in plain text mode
-        let toolbar = document.getElementById("FormatToolbar");
-        toolbar.hidden = true;
-        toolbar.setAttribute("hideinmenu", "true");
-        document.getElementById("outputFormatMenu").setAttribute("hidden", true);
-        document.getElementById("formatMenu").setAttribute("hidden", true);
-        document.getElementById("insertMenu").setAttribute("hidden", true);
+        cleanBody = decodeURI(body);
+      } catch(e) {
+        cleanBody = body;
       }
 
-      // Do setup common to Message Composer and Web Composer
-      EditorSharedStartup();
-
-      var msgCompFields = gMsgCompose.compFields;
-      if (msgCompFields)
-      {
-        if (params.bodyIsLink)
-        {
-          var body = msgCompFields.body;
-          if (gMsgCompose.composeHTML)
-          {
-            var cleanBody;
-            try {
-              cleanBody = decodeURI(body);
-            } catch(e) { cleanBody = body;}
-
-            // XXX : need to do html-escaping here !
-            msgCompFields.body = "<BR><A HREF=\"" + body + "\">" + cleanBody + "</A><BR>";
-          }
-          else
-            msgCompFields.body = "\n<" + body + ">\n";
-        }
-
-        var subjectValue = msgCompFields.subject;
-        GetMsgSubjectElement().value = subjectValue;
-
-        var attachments = msgCompFields.attachments;
-        while (attachments.hasMoreElements()) {
-          AddAttachment(attachments.getNext().QueryInterface(Ci.nsIMsgAttachment));
-        }
-      }
-
-      var event = document.createEvent('Events');
-      event.initEvent('compose-window-init', false, true);
-      document.getElementById("msgcomposeWindow").dispatchEvent(event);
-
-      gMsgCompose.RegisterStateListener(stateListener);
-
-      // Add an observer to be called when document is done loading,
-      //   which creates the editor
-      try {
-        GetCurrentCommandManager().
-              addCommandObserver(gMsgEditorCreationObserver, "obs_documentCreated");
-
-        // Load empty page to create the editor
-        editorElement.webNavigation.loadURI("about:blank",
-                         Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
-                         null,                             // referrer
-                         null,                             // post-data stream
-                         null,                             // HTTP headers
-                         Services.scriptSecurityManager.getSystemPrincipal());
-      } catch (e) {
-        dump(" Failed to startup editor: "+e+"\n");
-      }
+      body = body.replace(/&/g, "&amp;");
+      gMsgCompose.compFields.body =
+        "<br /><a href=\"" + body + "\">" + cleanBody + "</a><br />";
+    } else {
+      gMsgCompose.compFields.body = "\n<" + body + ">\n";
     }
   }
 
+  GetMsgSubjectElement().value = gMsgCompose.compFields.subject;
+
+  var attachments = gMsgCompose.compFields.attachments;
+  while (attachments.hasMoreElements()) {
+    AddAttachment(attachments.getNext().QueryInterface(Ci.nsIMsgAttachment));
+  }
+
+  var event = document.createEvent('Events');
+  event.initEvent('compose-window-init', false, true);
+  document.getElementById("msgcomposeWindow").dispatchEvent(event);
+
+  gMsgCompose.RegisterStateListener(stateListener);
+
+  // Add an observer to be called when document is done loading,
+  // which creates the editor.
+  try {
+    GetCurrentCommandManager().addCommandObserver(gMsgEditorCreationObserver,
+                                                  "obs_documentCreated");
+
+    // Load empty page to create the editor
+    editorElement.webNavigation.loadURI("about:blank",
+                     Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
+                     null,                             // referrer
+                     null,                             // post-data stream
+                     null,                             // HTTP headers
+                     Services.scriptSecurityManager.getSystemPrincipal());
+  } catch (e) {
+    dump(" Failed to startup editor: "+e+"\n");
+  }
+
   // create URI of the folder from draftId
-  var draftId = msgCompFields.draftId;
+  var draftId = gMsgCompose.compFields.draftId;
   var folderURI = draftId.substring(0, draftId.indexOf("#")).replace("-message", "");
 
   try {
@@ -1465,7 +1448,7 @@ function ComposeLoad()
   AddMessageComposeOfflineQuitObserver();
 
   if (gLogComposePerformance)
-    sMsgComposeService.TimeStamp("Start initializing the compose window (ComposeLoad)", false);
+    MailServices.compose.TimeStamp("Start initializing the compose window (ComposeLoad)", false);
 
   msgWindow.notificationCallbacks = new nsMsgBadCertHandler();
 
@@ -1494,7 +1477,7 @@ function ComposeLoad()
     return;
   }
   if (gLogComposePerformance)
-    sMsgComposeService.TimeStamp("Done with the initialization (ComposeLoad). Waiting on editor to load about:blank", false);
+    MailServices.compose.TimeStamp("Done with the initialization (ComposeLoad). Waiting on editor to load about:blank", false);
 
   // Before and after callbacks for the customizeToolbar code
   var mailToolbox = getMailToolbox();
