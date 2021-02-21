@@ -90,14 +90,12 @@ static SETTING gMailSettings[] = {
     // Protocol Handler Class - for Vista and above
     {MAKE_KEY_NAME1(CLS_MAILTOURL, SOP), "", VAL_COMPOSE_OPEN,
      APP_PATH_SUBSTITUTION},
-    {MAKE_KEY_NAME1(CLS_MIDURL, SOP), "", VAL_OPEN,
-     APP_PATH_SUBSTITUTION},
+    {MAKE_KEY_NAME1(CLS_MIDURL, SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
 
     // Protocol Handlers
     {MAKE_KEY_NAME1("mailto", SOP), "", VAL_COMPOSE_OPEN,
      APP_PATH_SUBSTITUTION},
-    {MAKE_KEY_NAME1("mid", SOP), "", VAL_OPEN,
-     APP_PATH_SUBSTITUTION},
+    {MAKE_KEY_NAME1("mid", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
 };
 
 static SETTING gNewsSettings[] = {

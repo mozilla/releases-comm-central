@@ -130,9 +130,9 @@ nsresult nsMsgProtocol::OpenNetworkSocketWithInfo(
   nsCOMPtr<nsISocketTransport> strans;
   AutoTArray<nsCString, 1> connectionTypeArray;
   if (connectionType) connectionTypeArray.AppendElement(connectionType);
-  rv = socketService->CreateTransport(connectionTypeArray,
-                                      nsDependentCString(aHostName), aGetPort,
-                                      aProxyInfo, nullptr, getter_AddRefs(strans));
+  rv = socketService->CreateTransport(
+      connectionTypeArray, nsDependentCString(aHostName), aGetPort, aProxyInfo,
+      nullptr, getter_AddRefs(strans));
   if (NS_FAILED(rv)) return rv;
 
   strans->SetSecurityCallbacks(callbacks);

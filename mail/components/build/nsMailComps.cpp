@@ -91,5 +91,5 @@ const mozilla::Module::ContractIDEntry kMailContracts[] = {
 #endif
     {NULL}};
 
-extern const mozilla::Module kMailCompsModule = {
-    mozilla::Module::kVersion, kMailCIDs, kMailContracts};
+extern const mozilla::Module kMailCompsModule = {mozilla::Module::kVersion,
+                                                 kMailCIDs, kMailContracts};

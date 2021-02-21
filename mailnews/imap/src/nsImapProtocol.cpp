@@ -296,7 +296,7 @@ static bool gUseLiteralPlus = true;
 static bool gExpungeAfterDelete = false;
 static bool gCheckDeletedBeforeExpunge = false;  // bug 235004
 static int32_t gResponseTimeout = 100;
-static int32_t gAppendTimeout = gResponseTimeout/5;
+static int32_t gAppendTimeout = gResponseTimeout / 5;
 static nsCString gForceSelectDetect;
 static nsTArray<nsCString> gForceSelectServersArray;
 static nsImapProtocol::TCPKeepalive gTCPKeepalive;
@@ -346,7 +346,7 @@ nsresult nsImapProtocol::GlobalInitialization(nsIPrefBranch* aPrefBranch) {
   aPrefBranch->GetIntPref("mail.imap.expunge_threshold_number",
                           &gExpungeThreshold);
   aPrefBranch->GetIntPref("mailnews.tcptimeout", &gResponseTimeout);
-  gAppendTimeout = gResponseTimeout/5;
+  gAppendTimeout = gResponseTimeout / 5;
   aPrefBranch->GetCharPref("mail.imap.force_select_detect", gForceSelectDetect);
   ParseString(gForceSelectDetect, ';', gForceSelectServersArray);
 
@@ -975,7 +975,8 @@ nsresult nsImapProtocol::SetupWithUrlCallback(nsIProxyInfo* aProxyInfo) {
   // NOTE: Some errors won't show up until the first read attempt (SSL bad
   // certificate errors, for example).
   rv = socketService->CreateTransport(connectionTypeArray, m_realHostName, port,
-                                      aProxyInfo, nullptr, getter_AddRefs(m_transport));
+                                      aProxyInfo, nullptr,
+                                      getter_AddRefs(m_transport));
   if (NS_FAILED(rv) && m_socketType == nsMsgSocketType::trySTARTTLS) {
     connectionType = nullptr;
     m_socketType = nsMsgSocketType::plain;

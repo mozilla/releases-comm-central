@@ -67,8 +67,7 @@ static const AppTypeAssociation sAppTypes[] = {
     {nsIShellService::RSS, sFeedProtocols, ArrayLength(sFeedProtocols),
      "application/rss+xml", "rss"},
     {nsIShellService::CALENDAR, sCalendarProtocols,
-        ArrayLength(sCalendarProtocols), "text/calendar", "ics"}
-};
+     ArrayLength(sCalendarProtocols), "text/calendar", "ics"}};
 
 nsGNOMEShellService::nsGNOMEShellService()
     : mCheckedThisSession(false), mAppIsInPath(false) {}
@@ -223,16 +222,16 @@ bool nsGNOMEShellService::checkDefault(const char* const* aProtocols,
   nsresult rv;
 
   for (unsigned int i = 0; i < aLength; ++i) {
-
     if (IsRunningAsASnap()) {
-      const gchar* argv[] = {"xdg-settings", "get", "default-url-scheme-handler",
-                             aProtocols[i], nullptr};
+      const gchar* argv[] = {"xdg-settings", "get",
+                             "default-url-scheme-handler", aProtocols[i],
+                             nullptr};
       GSpawnFlags flags = static_cast<GSpawnFlags>(G_SPAWN_SEARCH_PATH |
                                                    G_SPAWN_STDERR_TO_DEV_NULL);
       gchar* output = nullptr;
       gint exit_status = 0;
-      if (!g_spawn_sync(nullptr, (gchar**)argv, nullptr, flags, nullptr, nullptr,
-                        &output, nullptr, &exit_status, nullptr)) {
+      if (!g_spawn_sync(nullptr, (gchar**)argv, nullptr, flags, nullptr,
+                        nullptr, &output, nullptr, &exit_status, nullptr)) {
         return false;
       }
       if (exit_status != 0) {
@@ -240,8 +239,8 @@ bool nsGNOMEShellService::checkDefault(const char* const* aProtocols,
         return false;
       }
       if (strcmp(output, "thunderbird.desktop\n") == 0) {
-          g_free(output);
-          return true;
+        g_free(output);
+        return true;
       }
       g_free(output);
       return false;
@@ -288,8 +287,12 @@ nsresult nsGNOMEShellService::MakeDefault(const char* const* aProtocols,
 
   if (IsRunningAsASnap()) {
     for (unsigned int i = 0; i < aProtocolsLength; ++i) {
-      const gchar* argv[] = {"xdg-settings", "set", "default-url-scheme-handler",
-                             aProtocols[i], "thunderbird.desktop", nullptr};
+      const gchar* argv[] = {"xdg-settings",
+                             "set",
+                             "default-url-scheme-handler",
+                             aProtocols[i],
+                             "thunderbird.desktop",
+                             nullptr};
       GSpawnFlags flags = static_cast<GSpawnFlags>(G_SPAWN_SEARCH_PATH |
                                                    G_SPAWN_STDOUT_TO_DEV_NULL |
                                                    G_SPAWN_STDERR_TO_DEV_NULL);
