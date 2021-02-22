@@ -483,16 +483,12 @@ function compactOver4GiB() {
   Assert.ok(gInboxSize > kSizeLimit);
   Assert.equal(gInbox.expungedBytes, 0);
   // Delete the last small message at folder end.
-  let enumerator = gInbox.messages;
-  let messages = [];
+  let doomed = [...gInbox.messages].slice(-1);
   let sizeToExpunge = 0;
-  for (let header of enumerator) {
-    if (!enumerator.hasMoreElements()) {
-      messages.push(header);
-      sizeToExpunge = header.messageSize;
-    }
+  for (let header of doomed) {
+    sizeToExpunge = header.messageSize;
   }
-  gInbox.deleteMessages(messages, null, true, false, null, false);
+  gInbox.deleteMessages(doomed, null, true, false, null, false);
   Assert.equal(gInbox.expungedBytes, sizeToExpunge);
 
   /* Unfortunately, the compaction now would kill the sparse markings in the file
@@ -535,16 +531,12 @@ function compactUnder4GiB() {
 
   // Very last header in folder is retained,
   // but all other preceding headers are marked as deleted.
-  let enumerator = gInbox.messages;
-  let messages = [];
+  let doomed = [...gInbox.messages].slice(0, -1);
   let sizeToExpunge = gInbox.expungedBytes; // If compact in compactOver4GB was skipped, this is not 0.
-  for (let header of enumerator) {
-    if (enumerator.hasMoreElements()) {
-      messages.push(header);
-      sizeToExpunge += header.messageSize;
-    }
+  for (let header of doomed) {
+    sizeToExpunge += header.messageSize;
   }
-  gInbox.deleteMessages(messages, null, true, false, null, false);
+  gInbox.deleteMessages(doomed, null, true, false, null, false);
 
   // Bug 894012: size of messages to expunge is now higher than 4GB.
   // Only the small 1MiB message remains.
@@ -611,10 +603,7 @@ var CompactListener_compactUnder4GiB = {
     Assert.equal(FListener.msgsHistory(0), 1);
 
     // The message has its key preserved in compact.
-    Assert.equal(
-      gInbox.messages.getNext().QueryInterface(Ci.nsIMsgDBHdr).messageKey,
-      60
-    );
+    Assert.equal([...gInbox.messages][0].messageKey, 60);
 
     endTest();
   },

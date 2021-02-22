@@ -3593,8 +3593,14 @@ var gFolderTreeController = {
     }
 
     // Now delete the messages
-    let messages = Array.from(fixIterator(folder.messages));
-    folder.deleteMessages(messages, msgWindow, true, false, null, false);
+    folder.deleteMessages(
+      [...folder.messages],
+      msgWindow,
+      true,
+      false,
+      null,
+      false
+    );
 
     gFolderTreeView.rebuildAfterChange();
   },

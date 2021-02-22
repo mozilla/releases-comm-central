@@ -239,7 +239,7 @@ add_task(async () => {
   window.MsgOpenNewWindowForFolder(testFolder.URI);
 
   await extension.awaitMessage("openDisplayWindow");
-  window.MsgOpenNewWindowForMessage([testFolder.messages.getNext()]);
+  window.MsgOpenNewWindowForMessage([...testFolder.messages].slice(0, 1));
 
   await extension.awaitFinish("finished");
   await extension.unload();

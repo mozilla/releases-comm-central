@@ -199,12 +199,8 @@ add_task(function test_mark_messages_flagged() {
 function subtest_check_queued_message() {
   // Always check the last message in the Outbox for the correct flag.
   be_in_folder(gOutbox);
-  let messages = gOutbox.messages;
-  for (let msg of messages) {
-    if (!messages.hasMoreElements()) {
-      check_status(msg, null, null, Ci.nsMsgMessageFlags.Queued);
-    }
-  }
+  let lastMsg = [...gOutbox.messages].pop();
+  check_status(lastMsg, null, null, Ci.nsMsgMessageFlags.Queued);
 }
 
 /**

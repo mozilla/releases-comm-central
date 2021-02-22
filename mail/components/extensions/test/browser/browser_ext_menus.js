@@ -284,7 +284,7 @@ add_task(async function set_up() {
       body: await fetch(`${URL_BASE}/content.html`).then(r => r.text()),
     },
   });
-  gMessage = gFolders[0].messages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  gMessage = [...gFolders[0].messages][0];
 
   window.gFolderTreeView.selectFolder(gAccount.incomingServer.rootFolder);
   if (

@@ -17,12 +17,9 @@ let outbox = localAccount.incomingServer.rootFolder.getChildNamed("outbox");
 function messagesInOutbox(count) {
   info(`Checking for ${count} messages in outbox`);
 
-  let messages = outbox.messages;
-  while (messages.hasMoreElements()) {
-    if (--count == 0) {
-      return Promise.resolve();
-    }
-    messages.getNext();
+  count -= [...outbox.messages].length;
+  if (count <= 0) {
+    return Promise.resolve();
   }
 
   info(`Waiting for ${count} messages in outbox`);
@@ -395,9 +392,9 @@ add_task(async function testChangeDetails() {
 
   await messagesInOutbox(2);
 
-  let outboxMessages = outbox.messages;
-  ok(outboxMessages.hasMoreElements());
-  let sentMessage5 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  let outboxMessages = [...outbox.messages];
+  ok(outboxMessages.length > 0);
+  let sentMessage5 = outboxMessages.shift();
   is(sentMessage5.author, "nondefault@invalid", "author was changed");
   is(sentMessage5.subject, "Changed by listener5", "subject was changed");
   is(sentMessage5.recipients, "to@test5.invalid", "to was changed");
@@ -414,8 +411,8 @@ add_task(async function testChangeDetails() {
     });
   });
 
-  ok(outboxMessages.hasMoreElements());
-  let sentMessage6 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  ok(outboxMessages.length > 0);
+  let sentMessage6 = outboxMessages.shift();
   is(sentMessage6.author, "nondefault@invalid", "author was changed");
   is(sentMessage6.subject, "Changed by listener6", "subject was changed");
   is(sentMessage6.recipients, "to@test6.invalid", "to was changed");
@@ -432,7 +429,7 @@ add_task(async function testChangeDetails() {
     });
   });
 
-  ok(!outboxMessages.hasMoreElements());
+  ok(outboxMessages.length == 0);
 
   await new Promise(resolve => {
     outbox.deleteMessages(
@@ -518,9 +515,9 @@ add_task(async function testChangeAttachments() {
 
   await messagesInOutbox(1);
 
-  let outboxMessages = outbox.messages;
-  ok(outboxMessages.hasMoreElements());
-  let sentMessage12 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  let outboxMessages = [...outbox.messages];
+  ok(outboxMessages.length > 0);
+  let sentMessage12 = outboxMessages.shift();
 
   await new Promise(resolve => {
     window.MsgHdrToMimeMessage(sentMessage12, null, (msgHdr, mimeMessage) => {
@@ -532,7 +529,7 @@ add_task(async function testChangeAttachments() {
     });
   });
 
-  ok(!outboxMessages.hasMoreElements());
+  ok(outboxMessages.length == 0);
 
   await new Promise(resolve => {
     outbox.deleteMessages(
@@ -691,9 +688,9 @@ add_task(async function testListExpansion() {
 
   await messagesInOutbox(2);
 
-  let outboxMessages = outbox.messages;
-  ok(outboxMessages.hasMoreElements());
-  let sentMessage7 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  let outboxMessages = [...outbox.messages];
+  ok(outboxMessages.length > 0);
+  let sentMessage7 = outboxMessages.shift();
   is(sentMessage7.subject, "Changed by listener7", "subject was changed");
   is(
     sentMessage7.recipients,
@@ -706,8 +703,8 @@ add_task(async function testListExpansion() {
     "list in changed field was expanded"
   );
 
-  ok(outboxMessages.hasMoreElements());
-  let sentMessage8 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  ok(outboxMessages.length > 0);
+  let sentMessage8 = outboxMessages.shift();
   is(sentMessage8.subject, "Test", "subject was not changed");
   is(
     sentMessage8.recipients,
@@ -715,7 +712,7 @@ add_task(async function testListExpansion() {
     "list in unchanged field was expanded"
   );
 
-  ok(!outboxMessages.hasMoreElements());
+  ok(outboxMessages.length == 0);
 
   await new Promise(resolve => {
     outbox.deleteMessages(
@@ -841,9 +838,9 @@ add_task(async function testMultipleListeners() {
 
   await messagesInOutbox(1);
 
-  let outboxMessages = outbox.messages;
-  Assert.ok(outboxMessages.hasMoreElements());
-  let sentMessage = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+  let outboxMessages = [...outbox.messages];
+  Assert.ok(outboxMessages.length > 0);
+  let sentMessage = outboxMessages.shift();
   Assert.equal(
     sentMessage.subject,
     "Changed by listener11",
@@ -855,7 +852,7 @@ add_task(async function testMultipleListeners() {
     "recipient was changed"
   );
 
-  Assert.ok(!outboxMessages.hasMoreElements());
+  Assert.ok(outboxMessages.length == 0);
 
   await new Promise(resolve => {
     outbox.deleteMessages(

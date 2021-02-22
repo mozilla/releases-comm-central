@@ -165,7 +165,7 @@ add_task(async function test_managers() {
                   let realFolder = MailServices.accounts.allFolders.find(
                     f => f.name == "test1"
                   );
-                  let realMessage = realFolder.messages.getNext();
+                  let realMessage = [...realFolder.messages][0];
                   return context.extension.messageManager.convert(realMessage);
                 },
                 async testCanStartMessageList() {

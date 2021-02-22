@@ -64,14 +64,13 @@ var urlListenerWrap = {
 
     if (gMsgKeys.length > 0) {
       // Bug 854798: Check if the new message keys are the same as before compaction.
-      let folderMsgs = gMsgKeys.folder.messages;
+      let folderMsgs = [...gMsgKeys.folder.messages];
       // First message was deleted so skip it in the old array.
-      for (let i = 1; i < gMsgKeys.length; i++) {
-        Assert.ok(folderMsgs.hasMoreElements());
-        let header = folderMsgs.getNext().QueryInterface(Ci.nsIMsgDBHdr);
-        Assert.equal(header.messageKey, gMsgKeys[i]);
+      let expectedKeys = [...gMsgKeys].slice(1);
+      Assert.equal(folderMsgs.length, expectedKeys.length);
+      for (let i = 1; i < expectedKeys.length; i++) {
+        Assert.equal(folderMsgs[i], expectedKeys[i]);
       }
-      Assert.ok(!folderMsgs.hasMoreElements());
       gMsgKeys.length = 0;
     }
   },

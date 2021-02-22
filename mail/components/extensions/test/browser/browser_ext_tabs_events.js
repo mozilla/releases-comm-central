@@ -10,7 +10,7 @@ add_task(async () => {
   rootFolder.createSubfolder("tabsEvents", null);
   let testFolder = rootFolder.findSubFolder("tabsEvents");
   createMessages(testFolder, 5);
-  let messages = testFolder.messages;
+  let messages = [...testFolder.messages];
 
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
@@ -344,7 +344,7 @@ add_task(async () => {
   });
 
   extension.onMessage("openMessageTab", async background => {
-    let msgHdr = messages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+    let msgHdr = messages.shift();
     tabmail.openTab("message", { msgHdr, background });
   });
 

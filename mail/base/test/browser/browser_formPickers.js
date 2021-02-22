@@ -319,7 +319,7 @@ add_task(async function testExtensionMessageDisplayAction() {
   await extension.startup();
 
   let messageWindowPromise = BrowserTestUtils.domWindowOpened();
-  window.MsgOpenNewWindowForMessage(testFolder.messages.getNext());
+  window.MsgOpenNewWindowForMessage([...testFolder.messages][0]);
   let messageWindow = await messageWindowPromise;
   await BrowserTestUtils.waitForEvent(messageWindow, "load");
   let messageDocument = messageWindow.document;
