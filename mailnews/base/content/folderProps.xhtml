@@ -30,9 +30,9 @@
   <tabs id="folderPropTabs">
     <tab id="GeneralTab" label="&generalInfo.label;"/>
     <tab id="Retention" label="&retention.label;"/>
-    <tab id="SynchronizationTab" hidefor="movemail,pop3,rss,none" label="&folderSynchronizationTab.label;"/>
-    <tab id="SharingTab" hidefor="movemail,pop3,rss,none,nntp" label="&folderSharingTab.label;"/>
-    <tab id="QuotaTab" hidefor="movemail,pop3,rss,none,nntp" label="&folderQuotaTab.label;"/>
+    <tab id="SynchronizationTab" hidefor="pop3,rss,none" label="&folderSynchronizationTab.label;"/>
+    <tab id="SharingTab" hidefor="pop3,rss,none,nntp" label="&folderSharingTab.label;"/>
+    <tab id="QuotaTab" hidefor="pop3,rss,none,nntp" label="&folderQuotaTab.label;"/>
   </tabs>
   <tabpanels id="folderPropTabPanels">
 
@@ -82,7 +82,7 @@
       <checkbox id="folderIncludeInGlobalSearch" hidefor="nntp"
                 label="&folderIncludeInGlobalSearch.label;"
                 accesskey="&folderIncludeInGlobalSearch.accesskey;"/>
-      <checkbox hidefor="movemail,pop3,none,nntp"
+      <checkbox hidefor="pop3,none,nntp"
                 id="folderCheckForNewMessages"
                 label="&folderCheckForNewMessages2.label;"
                 accesskey="&folderCheckForNewMessages2.accesskey;"/>
@@ -104,8 +104,8 @@
 
     <vbox id="RetentionPanel" align="start">
     <description hidefor="imap,pop3" class="desc">&retentionCleanup.label;</description>
-    <description hidefor="movemail,pop3,rss,none,nntp" class="desc">&retentionCleanupImap.label;</description>
-    <description hidefor="movemail,imap,rss,none,nntp" class="desc">&retentionCleanupPop.label;</description>
+    <description hidefor="pop3,rss,none,nntp" class="desc">&retentionCleanupImap.label;</description>
+    <description hidefor="imap,rss,none,nntp" class="desc">&retentionCleanupPop.label;</description>
 
         <hbox align="center" class="indent">
           <checkbox wsm_persist="true" id="retention.useDefault" accesskey="&retentionUseAccount.accesskey;"
@@ -183,7 +183,7 @@
       </vbox>
       <spacer flex="100%"/>
       <vbox align="start">
-        <button hidefor="movemail,pop3,none,rss,nntp" label="&privileges.button.label;"
+        <button hidefor="pop3,none,rss,nntp" label="&privileges.button.label;"
                 oncommand="onFolderPrivileges();" accesskey="&privileges.button.accesskey;"
                 id="imap.FolderPrivileges" orient="right"/>
       </vbox>

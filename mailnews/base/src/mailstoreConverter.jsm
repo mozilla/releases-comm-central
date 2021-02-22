@@ -245,11 +245,7 @@ function installNewRoot(server, dir, newStoreTypeID) {
   // If the account is imap then copy the msf file for the original
   // root folder and rename the copy with the name of the new root
   // folder.
-  if (
-    server.type != "pop3" &&
-    server.type != "none" &&
-    server.type != "movemail"
-  ) {
+  if (server.type != "pop3" && server.type != "none") {
     let converterFolderMsf = new FileUtils.File(
       OS.Path.join(parent.path, dir.leafName + ".msf")
     );

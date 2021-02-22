@@ -214,8 +214,6 @@ function initAccountWizardTB(args) {
   let selType = null;
   if (type == "newsgroups") {
     selType = "newsaccount";
-  } else if (type == "movemail") {
-    selType = "movemail";
   }
   let accountwizard = document.querySelector("wizard");
   let acctyperadio = document.getElementById("acctyperadio");

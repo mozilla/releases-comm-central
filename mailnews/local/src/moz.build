@@ -26,10 +26,4 @@ SOURCES += [
     "nsRssService.cpp",
 ]
 
-if CONFIG["MOZ_MOVEMAIL"]:
-    SOURCES += [
-        "nsMovemailIncomingServer.cpp",
-        "nsMovemailService.cpp",
-    ]
-
 FINAL_LIBRARY = "mail"

@@ -35,22 +35,6 @@
     }                                              \
   }
 
-#ifdef HAVE_MOVEMAIL
-//
-// nsMovemailIncomingServer
-//
-#  define NS_MOVEMAILINCOMINGSERVER_CONTRACTID \
-    NS_MSGINCOMINGSERVER_CONTRACTID_PREFIX "movemail"
-
-#  define NS_MOVEMAILINCOMINGSERVER_CID                \
-    { /* efbb77e4-1dd2-11b2-bbcf-961563396fec */       \
-      0xefbb77e4, 0x1dd2, 0x11b2, {                    \
-        0xbb, 0xcf, 0x96, 0x15, 0x63, 0x39, 0x6f, 0xec \
-      }                                                \
-    }
-
-#endif /* HAVE_MOVEMAIL */
-
 //
 // nsNoIncomingServer
 //
@@ -163,25 +147,6 @@
       0x98, 0x73, 0xbb, 0x37, 0x5e, 0x15, 0x50, 0xfa \
     }                                                \
   }
-
-#ifdef HAVE_MOVEMAIL
-//
-// nsMovemailService
-//
-
-#  define NS_MOVEMAILSERVICE_CONTRACTID \
-    "@mozilla.org/messenger/movemailservice;1"
-
-#  define NS_MOVEMAILPROTOCOLINFO_CONTRACTID \
-    NS_MSGPROTOCOLINFO_CONTRACTID_PREFIX "movemail"
-
-#  define NS_MOVEMAILSERVICE_CID                       \
-    { /* 0e4db62e-1dd2-11b2-a5e4-f128fe4f1b69 */       \
-      0x0e4db62e, 0x1dd2, 0x11b2, {                    \
-        0xa5, 0xe4, 0xf1, 0x28, 0xfe, 0x4f, 0x1b, 0x69 \
-      }                                                \
-    }
-#endif /* HAVE_MOVEMAIL */
 
 //
 // nsParseMailMsgState

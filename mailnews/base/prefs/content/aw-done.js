@@ -15,10 +15,6 @@ function donePageInit() {
   var pageData = parent.GetPageData();
   gPrefsBundle = document.getElementById("bundle_prefs");
 
-  // Find out if we need to hide details for incoming servers
-  var hideIncoming =
-    pageData.server && pageData.server.servertype.value == "movemail";
-
   var email = "";
   if (pageData.identity && pageData.identity.email) {
     // fixup the email
@@ -36,7 +32,7 @@ function donePageInit() {
 
   // Hide the "username" field if we don't want to show information
   // on the incoming server.
-  setDivTextFromForm("server.username", hideIncoming ? null : userName);
+  setDivTextFromForm("server.username", userName);
 
   let smtpUserName = "";
   if (pageData.login && pageData.login.smtpusername) {
@@ -60,9 +56,7 @@ function donePageInit() {
     if (pageData.server && pageData.server.hostname) {
       incomingServerName = pageData.server.hostname.value;
     }
-    // Hide the incoming server name field if the user specified
-    // wizardHideIncoming in the ISP defaults file
-    setDivTextFromForm("server.name", hideIncoming ? null : incomingServerName);
+    setDivTextFromForm("server.name", incomingServerName);
     setDivTextFromForm(
       "server.port",
       pageData.server.port ? pageData.server.port.value : null

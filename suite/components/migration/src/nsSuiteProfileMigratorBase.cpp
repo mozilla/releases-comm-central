@@ -673,8 +673,7 @@ nsSuiteProfileMigratorBase::CopyMailFolderPrefs(PBStructArray &aMailServers,
         mTargetProfile->Clone(getter_AddRefs(targetMailFolder));
         targetMailFolder->Append(IMAP_MAIL_DIR_50_NAME);
       }
-      else if (serverType.Equals("none") || serverType.Equals("pop3") ||
-               serverType.Equals("movemail")) {
+      else if (serverType.Equals("none") || serverType.Equals("pop3")) {
         // local folders and POP3 servers go under <profile>\Mail
         mTargetProfile->Clone(getter_AddRefs(targetMailFolder));
         targetMailFolder->Append(MAIL_DIR_50_NAME);

@@ -405,7 +405,7 @@ interface nsIMsgIncomingServer : nsISupports {
    * Each server can initialize itself to the support level if needed
    * to override the default choice i.e., no offline support.
    *
-   * POP3, None and Movemail will default to 0.
+   * POP3, None will default to 0.
    * IMAP level 10 and NEWS with level 20.
    *
    */

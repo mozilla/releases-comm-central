@@ -40,10 +40,6 @@ set_define("MOZ_OPENPGP", openpgp)
 
 include("../third_party/openpgp.configure", when="--enable-openpgp")
 
-set_config("MOZ_MOVEMAIL", target_is_unix)
-set_define("HAVE_MOVEMAIL", target_is_unix)
-
-
 option(
     "--enable-calendar",
     default=False,

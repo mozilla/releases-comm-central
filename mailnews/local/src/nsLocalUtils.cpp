@@ -58,18 +58,6 @@ static nsresult nsGetMailboxServer(const char* uriStr,
     rss_server.forget(aResult);
     return rv;
   }
-#ifdef HAVE_MOVEMAIL
-  // find all movemail "servers" matching the given hostname
-  nsCOMPtr<nsIMsgIncomingServer> movemail_server;
-  rv = NS_MutateURI(url).SetScheme("movemail"_ns).Finalize(url);
-  NS_ENSURE_SUCCESS(rv, rv);
-  rv = accountManager->FindServerByURI(url, false,
-                                       getter_AddRefs(movemail_server));
-  if (NS_SUCCEEDED(rv)) {
-    movemail_server.forget(aResult);
-    return rv;
-  }
-#endif /* HAVE_MOVEMAIL */
 
   // if that fails, look for the pop hosts matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> server;
@@ -91,8 +79,7 @@ static nsresult nsGetMailboxServer(const char* uriStr,
     return rv;
   }
 
-  // if you fail after looking at all "pop3", "movemail" and "none" servers, you
-  // fail.
+  // If you fail after looking at all "pop3", "none" servers, you fail.
   return rv;
 }
 

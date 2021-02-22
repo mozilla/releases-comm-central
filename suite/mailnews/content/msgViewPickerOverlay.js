@@ -138,7 +138,6 @@ function UpdateViewPicker(aValue, aLabel)
 
 function GetFolderInfo(aFolder)
 {
-  // accounts may not have a msgDatabase, eg. Movemail or RSS
   try
   {
     var db = aFolder.msgDatabase;

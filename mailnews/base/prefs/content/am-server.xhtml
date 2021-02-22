@@ -63,7 +63,7 @@
                     class="uri-element input-flex input-inline"
                     aria-labelledby="fixedServerName"/>
       </div>
-      <div class="input-container" hidefor="movemail" style="grid-row: 2;">
+      <div class="input-container" style="grid-row: 2;">
         <xul:label value="&port.label;"
                    accesskey="&port.accesskey;" control="server.port"/>
         <xul:label id="fixedServerPort"
@@ -97,7 +97,7 @@
     <separator/>
 
     <html:div>
-    <html:fieldset hidefor="movemail">
+    <html:fieldset>
       <html:legend>&securitySettings.label;</html:legend>
       <html:table>
         <html:tr>
@@ -126,14 +126,14 @@
             <label value="&authMethod.label;"
                    accesskey="&authMethod.accesskey;"
                    control="server.authMethod"
-                   hidefor="nntp,movemail"/>
+                   hidefor="nntp"/>
           </html:td>
           <html:td>
             <menulist id="server.authMethod"
                       wsm_persist="true"
                       preftype="int"
                       prefstring="mail.server.%serverkey%.authMethod"
-                      hidefor="nntp,movemail"
+                      hidefor="nntp"
                       style="width:100%;">
               <menupopup id="server.authMethodPopup">
                 <menuitem id="authMethod-no" value="1"/>
@@ -184,7 +184,7 @@
                value="&biffEnd.label;"/>
       </hbox>
       <vbox align="start"
-            hidefor="pop3,nntp,movemail">
+            hidefor="pop3,nntp">
         <checkbox wsm_persist="true"
                   id="imap.useIdle"
                   label="&useIdleNotifications.label;"
@@ -193,7 +193,7 @@
                   prefstring="mail.server.%serverkey%.use_idle"/>
       </vbox>
 
-    <!-- Necessary for POP3 and Movemail (Bug 480945) -->
+    <!-- Necessary for POP3 (Bug 480945) -->
     <!-- https://bugzilla.mozilla.org/show_bug.cgi?id=480945 -->
     <vbox align="start" hidefor="imap,nntp">
       <checkbox wsm_persist="true" id="server.downloadOnBiff"
@@ -202,7 +202,7 @@
                 prefstring="mail.server.%serverkey%.download_on_biff"/>
     </vbox>
     <!-- POP3 -->
-    <vbox align="start" hidefor="imap,nntp,movemail">
+    <vbox align="start" hidefor="imap,nntp">
       <checkbox wsm_persist="true" id="pop3.headersOnly"
                 label="&headersOnly.label;"
                 accesskey="&headersOnly.accesskey;"
@@ -237,7 +237,7 @@
                 prefstring="mail.server.%serverkey%.delete_mail_left_on_server"/>
 
     <!-- hidden elements for data transfer to and from advanced... dialog -->
-    <hbox flex="1" hidefor="imap,nntp,movemail" hidden="true">
+    <hbox flex="1" hidefor="imap,nntp" hidden="true">
       <checkbox hidden="true" wsm_persist="true" id="pop3.deferGetNewMail"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.deferGetNewMail"/>
@@ -254,14 +254,14 @@
 
     <separator class="thin"/>
 
-    <hbox align="center" hidefor="pop3,nntp,movemail">
+    <hbox align="center" hidefor="pop3,nntp">
       <label value="&deleteMessagePrefix.label;" align="start"
              control="imap.deleteModel"/>
     </hbox>
     <vbox>
       <hbox align="center"
             id="imap.deleteModel.box"
-            hidefor="pop3,nntp,movemail"
+            hidefor="pop3,nntp"
             flex="1">
         <radiogroup id="imap.deleteModel"
                     wsm_persist="true"
@@ -310,12 +310,12 @@
                 wsm_persist="true"
                 id="server.imapAdvancedButton"
                 prefstring="mail.server.%serverkey%.advanced.disable"
-                hidefor="pop3,nntp,movemail"/>
+                hidefor="pop3,nntp"/>
       </hbox>
     </vbox>
 
     <!-- Advanced IMAP settings -->
-    <hbox flex="1" hidefor="pop3,nntp,movemail" hidden="true">
+    <hbox flex="1" hidefor="pop3,nntp" hidden="true">
       <checkbox hidden="true" wsm_persist="true" id="imap.dualUseFolders"
                 prefattribute="value"
                 prefstring="mail.server.%serverkey%.dual_use_folders"/>
@@ -333,7 +333,7 @@
     </hbox>
 
     <!-- NNTP -->
-    <hbox hidefor="pop3,imap,movemail" align="center">
+    <hbox hidefor="pop3,imap" align="center">
       <checkbox id="nntp.notifyOn"
                 wsm_persist="true"
                 label="&maxMessagesStart.label;"
@@ -349,7 +349,7 @@
                   prefstring="mail.server.%serverkey%.max_articles"/>
       <label control="nntp.maxArticles" value="&maxMessagesEnd.label;" id="maxMessagesEnd"/>
     </hbox>
-    <checkbox hidefor="pop3,imap,movemail" wsm_persist="true" id="nntp.pushAuth"
+    <checkbox hidefor="pop3,imap" wsm_persist="true" id="nntp.pushAuth"
               label="&alwaysAuthenticate.label;"
               accesskey="&alwaysAuthenticate.accesskey;"
               prefattribute="value"
@@ -363,7 +363,7 @@
 
       <hbox align="end">
         <vbox align="start" flex="1" id="exitHandlingBox=">
-          <checkbox hidefor="pop3,nntp,movemail"
+          <checkbox hidefor="pop3,nntp"
                     wsm_persist="true"
                     id="imap.cleanupInboxOnExit"
                     label="&expungeOnExit.label;"
@@ -384,7 +384,7 @@
                 wsm_persist="true"
                 id="server.popAdvancedButton"
                 prefstring="mail.server.%serverkey%.advanced.disable"
-                hidefor="imap,nntp,movemail"/>
+                hidefor="imap,nntp"/>
       </hbox>
       <hbox align="center">
         <label value="&storeType.label;"
@@ -403,7 +403,7 @@
         </menulist>
       </hbox>
 
-      <hbox align="center" hidefor="imap,pop3,movemail">
+      <hbox align="center" hidefor="imap,pop3">
         <label id="nntp.newsrcFilePath.label" value="&newsrcFilePath1.label;"
                control="nntp.newsrcFilePath"/>
         <hbox class="input-container" flex="1">
@@ -448,13 +448,13 @@
     </html:fieldset>
     </html:div>
 
-    <hbox hidefor="imap,pop3,movemail" align="center" valign="middle" iscontrolcontainer="true">
+    <hbox hidefor="imap,pop3" align="center" valign="middle" iscontrolcontainer="true">
 
     <separator class="thin"/>
       <label value="&serverDefaultCharset2.label;" control="nntp.charset"/>
       <menulist is="menulist-charsetpicker-viewing" id="nntp.charset"
                 hidable="true"
-                hidefor="imap,pop3,movemail"
+                hidefor="imap,pop3"
                 wsm_persist="true"
                 preftype="string"
                 prefstring="mail.server.%serverkey%.charset"/>

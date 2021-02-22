@@ -15,7 +15,7 @@ function setAccountTypeData() {
   setPageData(pageData, "accounttype", "mailaccount", mail);
   setPageData(pageData, "accounttype", "newsaccount", news);
 
-  // Other account type, e.g. Movemail
+  // Other account types.
   setPageData(pageData, "accounttype", "otheraccount", !(news || mail));
 }
 
@@ -51,14 +51,7 @@ function setupWizardPanels() {
   } else {
     // An account created by an extension and XUL overlays
     let pages = document.getElementById("acctyperadio").selectedItem.value;
-    if (pages == "movemail") {
-      wizardPanels = ["identitypage", "outgoingpage", "accnamepage"];
-      setPageData(pageData, "server", "servertype", "movemail");
-      setPageData(pageData, "server", "hostname", "localhost");
-      setPageData(pageData, "server", "port", "");
-    } else {
-      wizardPanels = pages.split(/ *, */);
-    }
+    wizardPanels = pages.split(/ *, */);
   }
   wizardPanels.push("done");
 

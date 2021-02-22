@@ -2780,14 +2780,6 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType) {
         if (NS_SUCCEEDED(rv) && server)
           mType.AssignLiteral("rss");
         else {
-#ifdef HAVE_MOVEMAIL
-          // next try "movemail"
-          rv = NS_MutateURI(url).SetScheme("movemail"_ns).Finalize(url);
-          NS_ENSURE_SUCCESS(rv, rv);
-          rv = accountManager->FindServerByURI(url, false,
-                                               getter_AddRefs(server));
-          if (NS_SUCCEEDED(rv) && server) mType.AssignLiteral("movemail");
-#endif /* HAVE_MOVEMAIL */
         }
       }
     }
