@@ -42,6 +42,12 @@ add_task(async function testHeaders() {
             browser.test.assertEq(0, state[field].length, `${field} is empty`);
           }
         }
+
+        if (expected.from) {
+          // From will always return a value, only check if explicitly requested.
+          browser.test.assertEq(expected.from, state.from, "from is correct");
+        }
+
         if (expected.subject) {
           browser.test.assertEq(
             expected.subject,
@@ -70,6 +76,10 @@ add_task(async function testHeaders() {
           DisplayName: "John Watson",
           PrimaryEmail: "john@bakerstreet.invalid",
         }),
+        empty: await browser.contacts.create(addressBook, {
+          DisplayName: "Jim Moriarty",
+          PrimaryEmail: "",
+        }),
       };
       let list = await browser.mailingLists.create(addressBook, {
         name: "Holmes and Watson",
@@ -96,20 +106,29 @@ add_task(async function testHeaders() {
 
       let tests = [
         {
-          // Change the identity.
+          // Change the identity and check default from.
           input: { identityId: nonDefaultIdentity.id },
-          expected: { identityId: nonDefaultIdentity.id },
+          expected: {
+            identityId: nonDefaultIdentity.id,
+            from: "mochitest@localhost",
+          },
           expectIdentityChanged: nonDefaultIdentity.id,
         },
         {
           // Don't change the identity.
           input: {},
-          expected: { identityId: nonDefaultIdentity.id },
+          expected: {
+            identityId: nonDefaultIdentity.id,
+            from: "mochitest@localhost",
+          },
         },
         {
           // Change the identity back again.
           input: { identityId: defaultIdentity.id },
-          expected: { identityId: defaultIdentity.id },
+          expected: {
+            identityId: defaultIdentity.id,
+            from: "mochitest@localhost",
+          },
           expectIdentityChanged: defaultIdentity.id,
         },
         {
@@ -260,9 +279,97 @@ add_task(async function testHeaders() {
           },
           expected: {},
         },
+        {
+          // Override from with string address
+          input: { from: "Mycroft Holmes <mycroft@bakerstreet.invalid>" },
+          expected: { from: "Mycroft Holmes <mycroft@bakerstreet.invalid>" },
+        },
+        {
+          // Override from with contact id
+          input: { from: { id: contacts.sherlock, type: "contact" } },
+          expected: { from: "Sherlock Holmes <sherlock@bakerstreet.invalid>" },
+        },
+        {
+          // Override from with multiple string address
+          input: {
+            from:
+              "Mycroft Holmes <mycroft@bakerstreet.invalid>, Mary Watson <mary@bakerstreet.invalid>",
+          },
+          expected: {
+            errorDescription:
+              "Setting from to multiple addresses should throw.",
+            errorRejected:
+              "ComposeDetails.from: Exactly one address instead of 2 is required.",
+          },
+        },
+        {
+          // Override from with empty string address 1
+          input: { from: "Mycroft Holmes <>" },
+          expected: {
+            errorDescription:
+              "Setting from to a display name without address should throw (#1).",
+            errorRejected: "ComposeDetails.from: Invalid address: ",
+          },
+        },
+        {
+          // Override from with empty string address 2
+          input: { from: "Mycroft Holmes" },
+          expected: {
+            errorDescription:
+              "Setting from to a display name without address should throw (#2).",
+            errorRejected:
+              "ComposeDetails.from: Invalid address: Mycroft Holmes",
+          },
+        },
+        {
+          // Override from with contact id with empty address
+          input: { from: { id: contacts.empty, type: "contact" } },
+          expected: {
+            errorDescription:
+              "Setting from to a contact with an empty PrimaryEmail should throw.",
+            errorRejected: `ComposeDetails.from: Contact does not have a valid email address: ${contacts.empty}`,
+          },
+        },
+        {
+          // Override from with invalid contact id
+          input: { from: { id: "1234", type: "contact" } },
+          expected: {
+            errorDescription:
+              "Setting from to a contact with an invalid contact id should throw.",
+            errorRejected:
+              "ComposeDetails.from: contact with id=1234 could not be found.",
+          },
+        },
+        {
+          // Override from with mailinglist id
+          input: { from: { id: list, type: "mailingList" } },
+          expected: {
+            errorDescription: "Setting from to a mailing list should throw.",
+            errorRejected: "ComposeDetails.from: Mailing list not allowed.",
+          },
+        },
+        {
+          // From may not be cleared.
+          input: { from: "" },
+          expected: {
+            errorDescription: "Setting from to an empty string should throw.",
+            errorRejected:
+              "ComposeDetails.from: Address must not be set to an empty string.",
+          },
+        },
       ];
       for (let test of tests) {
         browser.test.log(`Checking input: ${JSON.stringify(test.input)}`);
+
+        if (test.expected.errorRejected) {
+          await browser.test.assertRejects(
+            browser.compose.setComposeDetails(createdTab.id, test.input),
+            test.expected.errorRejected,
+            test.expected.errorDescription
+          );
+          continue;
+        }
+
         await browser.compose.setComposeDetails(createdTab.id, test.input);
         await checkWindow(test.expected);
 

@@ -17,47 +17,82 @@ ChromeUtils.defineModuleGetter(
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);
 
-async function parseComposeRecipientList(list) {
-  if (Array.isArray(list)) {
-    let recipients = [];
-    for (let recipient of list) {
-      if (typeof recipient == "string") {
-        let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
-          recipient
-        );
-        for (let ao of addressObjects) {
-          recipients.push(
-            MailServices.headerParser.makeMimeAddress(ao.name, ao.email)
-          );
-        }
-        continue;
-      }
-      if (!("addressBookCache" in this)) {
-        await extensions.asyncLoadModule("addressBook");
-      }
-      if (recipient.type == "contact") {
-        let contactNode = this.addressBookCache.findContactById(recipient.id);
-        recipients.push(
-          MailServices.headerParser.makeMimeAddress(
-            contactNode.item.displayName,
-            contactNode.item.primaryEmail
-          )
-        );
-      } else {
-        let mailingListNode = this.addressBookCache.findMailingListById(
-          recipient.id
-        );
-        recipients.push(
-          MailServices.headerParser.makeMimeAddress(
-            mailingListNode.item.dirName,
-            mailingListNode.item.description || mailingListNode.item.dirName
-          )
-        );
-      }
-    }
-    return recipients.join(",");
+async function parseComposeRecipientList(
+  list,
+  requireSingleValidEmail = false
+) {
+  if (!list) {
+    return list;
   }
-  return list;
+
+  function isValidAddress(address) {
+    return address.includes("@", 1) && !address.endsWith("@");
+  }
+
+  // A ComposeRecipientList could be just a single ComposeRecipient.
+  if (!Array.isArray(list)) {
+    list = [list];
+  }
+
+  let recipients = [];
+  for (let recipient of list) {
+    if (typeof recipient == "string") {
+      let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
+        recipient
+      );
+
+      for (let ao of addressObjects) {
+        if (requireSingleValidEmail && !isValidAddress(ao.email)) {
+          throw new ExtensionError(`Invalid address: ${ao.email}`);
+        }
+        recipients.push(
+          MailServices.headerParser.makeMimeAddress(ao.name, ao.email)
+        );
+      }
+      continue;
+    }
+    if (!("addressBookCache" in this)) {
+      await extensions.asyncLoadModule("addressBook");
+    }
+    if (recipient.type == "contact") {
+      let contactNode = this.addressBookCache.findContactById(recipient.id);
+
+      if (
+        requireSingleValidEmail &&
+        !isValidAddress(contactNode.item.primaryEmail)
+      ) {
+        throw new ExtensionError(
+          `Contact does not have a valid email address: ${recipient.id}`
+        );
+      }
+      recipients.push(
+        MailServices.headerParser.makeMimeAddress(
+          contactNode.item.displayName,
+          contactNode.item.primaryEmail
+        )
+      );
+    } else {
+      if (requireSingleValidEmail) {
+        throw new ExtensionError("Mailing list not allowed.");
+      }
+
+      let mailingListNode = this.addressBookCache.findMailingListById(
+        recipient.id
+      );
+      recipients.push(
+        MailServices.headerParser.makeMimeAddress(
+          mailingListNode.item.dirName,
+          mailingListNode.item.description || mailingListNode.item.dirName
+        )
+      );
+    }
+  }
+  if (requireSingleValidEmail && recipients.length != 1) {
+    throw new ExtensionError(
+      `Exactly one address instead of ${recipients.length} is required.`
+    );
+  }
+  return recipients.join(",");
 }
 
 async function openComposeWindow(relatedMessageId, type, details, extension) {
@@ -242,10 +277,14 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   }
 
   params.composeFields = composeFields;
-
   let newWindowPromise = waitForWindow();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
-  return newWindowPromise;
+  let composeWindow = await newWindowPromise;
+
+  await setFromField(composeWindow, details, extension);
+  composeWindow.gContentChanged = false;
+
+  return composeWindow;
 }
 
 async function getComposeDetails(composeWindow, extension) {
@@ -294,6 +333,7 @@ async function getComposeDetails(composeWindow, extension) {
   }
 
   let details = {
+    from: composeFields.splitRecipients(composeFields.from, false).shift(),
     to: composeFields.splitRecipients(composeFields.to, false),
     cc: composeFields.splitRecipients(composeFields.cc, false),
     bcc: composeFields.splitRecipients(composeFields.bcc, false),
@@ -312,6 +352,38 @@ async function getComposeDetails(composeWindow, extension) {
     details.identityId = composeWindow.getCurrentIdentityKey();
   }
   return details;
+}
+
+async function setFromField(composeWindow, details, extension) {
+  if (!details || details.from == null) {
+    return;
+  }
+
+  let from;
+  // Re-throw exceptions from parseComposeRecipientList with a prefix to
+  // minimize developers debugging time and make clear where restrictions are
+  // coming from.
+  try {
+    from = await parseComposeRecipientList(details.from, true);
+  } catch (e) {
+    throw new ExtensionError(`ComposeDetails.from: ${e.message}`);
+  }
+  if (!from) {
+    throw new ExtensionError(
+      "ComposeDetails.from: Address must not be set to an empty string."
+    );
+  }
+
+  let identityList = composeWindow.document.getElementById("msgIdentity");
+  // Make the from field editable only, if from differs from the currently shown identity.
+  if (from != identityList.value) {
+    let activeElement = composeWindow.document.activeElement;
+    // Manually update from, using the same approach used in
+    // https://hg.mozilla.org/comm-central/file/1283451c02926e2b7506a6450445b81f6d076f89/mail/components/compose/content/MsgComposeCommands.js#l3621
+    composeWindow.MakeFromFieldEditable(true);
+    identityList.value = from;
+    activeElement.focus();
+  }
 }
 
 async function setComposeDetails(composeWindow, details, extension) {
@@ -358,6 +430,7 @@ async function setComposeDetails(composeWindow, details, extension) {
     details.newsgroups = details.newsgroups.join(",");
   }
   composeWindow.SetComposeDetails(details);
+  await setFromField(composeWindow, details, extension);
 }
 
 async function fileURLForFile(file) {
