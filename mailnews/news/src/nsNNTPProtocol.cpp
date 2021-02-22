@@ -670,7 +670,7 @@ bool nsNNTPProtocol::ReadFromLocalCache() {
       // get the file stream from the folder, somehow (through the message or
       // folder sink?) We also need to set the transfer offset to the message
       // offset
-      if (fileStream && NS_SUCCEEDED(rv)) {
+      if (NS_SUCCEEDED(rv) && fileStream) {
         // dougt - This may break the ablity to "cancel" a read from offline
         // mail reading. fileChannel->SetLoadGroup(m_loadGroup);
 

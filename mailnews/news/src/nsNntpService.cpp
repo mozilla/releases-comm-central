@@ -1421,9 +1421,16 @@ NS_IMETHODIMP nsNntpService::StreamHeaders(const char* aMessageURI,
   if (hasMsgOffline) {
     int64_t messageOffset;
     uint32_t messageSize;
-    folder->GetOfflineFileStream(key, &messageOffset, &messageSize,
-                                 getter_AddRefs(inputStream));
-    if (inputStream) return MsgStreamMsgHeaders(inputStream, aConsumer);
+    nsresult rv = folder->GetOfflineFileStream(
+        key, &messageOffset, &messageSize, getter_AddRefs(inputStream));
+    if (NS_SUCCEEDED(rv) && inputStream)
+      return MsgStreamMsgHeaders(inputStream, aConsumer);
+    else {
+      NS_ASSERTION(false,
+                   "UNLIKELY but returning in StreamHeaders. Bug 1596036 "
+                   "comment 14 onwards\n");
+      return NS_ERROR_FAILURE;
+    }
   }
   nsAutoCString urlStr;
   rv = CreateMessageIDURL(folder, key, getter_Copies(urlStr));

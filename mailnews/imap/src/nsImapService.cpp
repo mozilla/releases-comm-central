@@ -1087,67 +1087,68 @@ NS_IMETHODIMP nsImapService::StreamMessage(
   if (msgKey.IsEmpty()) return NS_MSG_MESSAGE_NOT_FOUND;
   rv = nsParseImapMessageURI(aMessageURI, folderURI, &key,
                              getter_Copies(mimePart));
-  if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIImapMessageSink> imapMessageSink(
-        do_QueryInterface(folder, &rv));
-    if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIImapUrl> imapUrl;
-      nsAutoCString urlSpec;
-      char hierarchyDelimiter = GetHierarchyDelimiter(folder);
-      rv = CreateStartOfImapUrl(nsDependentCString(aMessageURI),
-                                getter_AddRefs(imapUrl), folder, aUrlListener,
-                                urlSpec, hierarchyDelimiter);
+
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIImapMessageSink> imapMessageSink(do_QueryInterface(folder, &rv));
+
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIImapUrl> imapUrl;
+  nsAutoCString urlSpec;
+  char hierarchyDelimiter = GetHierarchyDelimiter(folder);
+  rv = CreateStartOfImapUrl(nsDependentCString(aMessageURI),
+                            getter_AddRefs(imapUrl), folder, aUrlListener,
+                            urlSpec, hierarchyDelimiter);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl(do_QueryInterface(imapUrl));
+
+  // This option is used by the JS Mime Emitter, in case we want a cheap
+  // streaming, for example, if we just want a quick look at some header,
+  // without having to download all the attachments...
+
+  uint32_t messageSize = 0;
+  imapMessageSink->GetMessageSizeFromDB(msgKey.get(), &messageSize);
+  nsAutoCString additionalHeader(aAdditionalHeader);
+  bool fetchOnDemand =
+      additionalHeader.Find("&fetchCompleteMessage=false") != kNotFound &&
+      messageSize > (uint32_t)gMIMEOnDemandThreshold;
+  imapUrl->SetFetchPartsOnDemand(fetchOnDemand);
+
+  // We need to add the fetch command here for the cache lookup to behave
+  // correctly
+  rv = AddImapFetchToUrl(mailnewsurl, folder, msgKey, additionalHeader);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgIncomingServer> aMsgIncomingServer;
+
+  mailnewsurl->SetMsgWindow(aMsgWindow);
+  rv = mailnewsurl->GetServer(getter_AddRefs(aMsgIncomingServer));
+
+  // Try to check if the message is offline
+  bool hasMsgOffline = false;
+  folder->HasMsgOffline(key, &hasMsgOffline);
+  mailnewsurl->SetMsgIsInLocalCache(hasMsgOffline);
+  imapUrl->SetLocalFetchOnly(aLocalOnly);
+
+  // If we don't have the message available locally, and we can't get it
+  // over the network, return with an error
+  if (aLocalOnly || WeAreOffline()) {
+    bool isMsgInMemCache = false;
+    if (!hasMsgOffline) {
+      rv = IsMsgInMemCache(mailnewsurl, folder, &isMsgInMemCache);
       NS_ENSURE_SUCCESS(rv, rv);
-      nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl(do_QueryInterface(imapUrl));
 
-      // This option is used by the JS Mime Emitter, in case we want a cheap
-      // streaming, for example, if we just want a quick look at some header,
-      // without having to download all the attachments...
-
-      uint32_t messageSize = 0;
-      imapMessageSink->GetMessageSizeFromDB(msgKey.get(), &messageSize);
-      nsAutoCString additionalHeader(aAdditionalHeader);
-      bool fetchOnDemand =
-          additionalHeader.Find("&fetchCompleteMessage=false") != kNotFound &&
-          messageSize > (uint32_t)gMIMEOnDemandThreshold;
-      imapUrl->SetFetchPartsOnDemand(fetchOnDemand);
-
-      // We need to add the fetch command here for the cache lookup to behave
-      // correctly
-      rv = AddImapFetchToUrl(mailnewsurl, folder, msgKey, additionalHeader);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      nsCOMPtr<nsIMsgIncomingServer> aMsgIncomingServer;
-
-      mailnewsurl->SetMsgWindow(aMsgWindow);
-      rv = mailnewsurl->GetServer(getter_AddRefs(aMsgIncomingServer));
-
-      // Try to check if the message is offline
-      bool hasMsgOffline = false;
-      folder->HasMsgOffline(key, &hasMsgOffline);
-      mailnewsurl->SetMsgIsInLocalCache(hasMsgOffline);
-      imapUrl->SetLocalFetchOnly(aLocalOnly);
-
-      // If we don't have the message available locally, and we can't get it
-      // over the network, return with an error
-      if (aLocalOnly || WeAreOffline()) {
-        bool isMsgInMemCache = false;
-        if (!hasMsgOffline) {
-          rv = IsMsgInMemCache(mailnewsurl, folder, &isMsgInMemCache);
-          NS_ENSURE_SUCCESS(rv, rv);
-
-          if (!isMsgInMemCache) return NS_ERROR_FAILURE;
-        }
-      }
-
-      bool shouldStoreMsgOffline = false;
-      folder->ShouldStoreMsgOffline(key, &shouldStoreMsgOffline);
-      imapUrl->SetStoreResultsOffline(shouldStoreMsgOffline);
-      rv = GetMessageFromUrl(imapUrl, nsIImapUrl::nsImapMsgFetchPeek, folder,
-                             imapMessageSink, aMsgWindow, aConsumer,
-                             aConvertData, aURL);
+      if (!isMsgInMemCache) return NS_ERROR_FAILURE;
     }
   }
+
+  bool shouldStoreMsgOffline = false;
+  folder->ShouldStoreMsgOffline(key, &shouldStoreMsgOffline);
+  imapUrl->SetStoreResultsOffline(shouldStoreMsgOffline);
+  rv = GetMessageFromUrl(imapUrl, nsIImapUrl::nsImapMsgFetchPeek, folder,
+                         imapMessageSink, aMsgWindow, aConsumer, aConvertData,
+                         aURL);
   return rv;
 }
 
@@ -1171,6 +1172,7 @@ NS_IMETHODIMP nsImapService::StreamHeaders(const char* aMessageURI,
   if (msgKey.IsEmpty()) return NS_MSG_MESSAGE_NOT_FOUND;
   rv = nsParseImapMessageURI(aMessageURI, folderURI, &key,
                              getter_Copies(mimePart));
+
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIInputStream> inputStream;
     bool hasMsgOffline = false;
@@ -1178,9 +1180,16 @@ NS_IMETHODIMP nsImapService::StreamHeaders(const char* aMessageURI,
     if (hasMsgOffline) {
       int64_t messageOffset;
       uint32_t messageSize;
-      folder->GetOfflineFileStream(key, &messageOffset, &messageSize,
-                                   getter_AddRefs(inputStream));
-      if (inputStream) return MsgStreamMsgHeaders(inputStream, aConsumer);
+      rv = folder->GetOfflineFileStream(key, &messageOffset, &messageSize,
+                                        getter_AddRefs(inputStream));
+      if (NS_SUCCEEDED(rv) && inputStream)
+        return MsgStreamMsgHeaders(inputStream, aConsumer);
+      else {
+        NS_ASSERTION(false,
+                     "UNLIKELY but returning in StreamHeaders. Bug 1596036 "
+                     "comment 14 onwards\n");
+        return NS_ERROR_FAILURE;
+      }
     }
   }
 
