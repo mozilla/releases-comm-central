@@ -263,10 +263,41 @@ async function getComposeDetails(composeWindow, extension) {
   }
   let editor = composeWindow.GetCurrentEditor();
 
+  let type;
+  // check all known nsIMsgComposeParams
+  switch (composeWindow.gComposeType) {
+    case Ci.nsIMsgCompType.Draft:
+      type = "draft";
+      break;
+    case Ci.nsIMsgCompType.New:
+    case Ci.nsIMsgCompType.Template:
+    case Ci.nsIMsgCompType.MailToUrl:
+    case Ci.nsIMsgCompType.EditAsNew:
+    case Ci.nsIMsgCompType.EditTemplate:
+    case Ci.nsIMsgCompType.Redirect:
+    case Ci.nsIMsgCompType.NewsPost:
+      type = "new";
+      break;
+    case Ci.nsIMsgCompType.Reply:
+    case Ci.nsIMsgCompType.ReplyAll:
+    case Ci.nsIMsgCompType.ReplyToSender:
+    case Ci.nsIMsgCompType.ReplyToGroup:
+    case Ci.nsIMsgCompType.ReplyToSenderAndGroup:
+    case Ci.nsIMsgCompType.ReplyWithTemplate:
+    case Ci.nsIMsgCompType.ReplyToList:
+      type = "reply";
+      break;
+    case Ci.nsIMsgCompType.ForwardAsAttachment:
+    case Ci.nsIMsgCompType.ForwardInline:
+      type = "forward";
+      break;
+  }
+
   let details = {
     to: composeFields.splitRecipients(composeFields.to, false),
     cc: composeFields.splitRecipients(composeFields.cc, false),
     bcc: composeFields.splitRecipients(composeFields.bcc, false),
+    type,
     replyTo: composeFields.splitRecipients(composeFields.replyTo, false),
     followupTo: composeFields.splitRecipients(composeFields.followupTo, false),
     newsgroups: composeFields.newsgroups

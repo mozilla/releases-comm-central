@@ -109,6 +109,17 @@
             "type": "string",
             "optional": true
           },
+          "type": {
+            "type": "string",
+            "description": "Read-only. The type of the message being composed, depending on how the compose window was opened by the user.",
+            "enum": [
+              "draft",
+              "new",
+              "reply",
+              "forward"
+            ],
+            "optional": true
+          },
           "body": {
             "type": "string",
             "optional": true

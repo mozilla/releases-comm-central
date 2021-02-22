@@ -5,6 +5,16 @@
 let account = createAccount();
 let defaultIdentity = addIdentity(account);
 let nonDefaultIdentity = addIdentity(account);
+let gRootFolder = account.incomingServer.rootFolder;
+
+gRootFolder.createSubfolder("test", null);
+let gTestFolder = gRootFolder.getChildNamed("test");
+createMessages(gTestFolder, 4);
+
+gRootFolder.createSubfolder("drafts", null);
+let gDraftsFolder = gRootFolder.getChildNamed("drafts");
+gDraftsFolder.flags = Ci.nsMsgFolderFlags.Drafts;
+createMessages(gDraftsFolder, 2);
 
 add_task(async function testHeaders() {
   let files = {
@@ -602,4 +612,124 @@ add_task(async function testBody() {
   ];
   plainTextWindow.DoCommandClose();
   await Promise.all(closePromises);
+});
+
+add_task(async function testType() {
+  let files = {
+    "background.js": async () => {
+      let accounts = await browser.accounts.list();
+      browser.test.assertEq(1, accounts.length, "number of accounts");
+
+      let testFolder = accounts[0].folders.find(f => f.name == "test");
+      let messages = (await browser.messages.list(testFolder)).messages;
+      browser.test.assertEq(4, messages.length, "number of messages");
+
+      let draftFolder = accounts[0].folders.find(f => f.name == "drafts");
+      let drafts = (await browser.messages.list(draftFolder)).messages;
+      browser.test.assertEq(2, drafts.length, "number of drafts");
+
+      async function checkComposer(tab, expected) {
+        browser.test.assertEq("object", typeof tab, "type of tab");
+        browser.test.assertEq("number", typeof tab.id, "type of tab ID");
+        browser.test.assertEq(
+          "number",
+          typeof tab.windowId,
+          "type of window ID"
+        );
+
+        let details = await browser.compose.getComposeDetails(tab.id);
+        browser.test.assertEq(expected.type, details.type, "type of composer");
+        await browser.windows.remove(tab.windowId);
+      }
+
+      let tests = [
+        {
+          funcName: "beginNew",
+          args: [],
+          expected: { type: "new" },
+        },
+        {
+          funcName: "beginReply",
+          args: [messages[0].id],
+          expected: { type: "reply" },
+        },
+        {
+          funcName: "beginReply",
+          args: [messages[1].id, "replyToAll"],
+          expected: { type: "reply" },
+        },
+        {
+          funcName: "beginReply",
+          args: [messages[2].id, "replyToList"],
+          expected: { type: "reply" },
+        },
+        {
+          funcName: "beginReply",
+          args: [messages[3].id, "replyToSender"],
+          expected: { type: "reply" },
+        },
+        {
+          funcName: "beginForward",
+          args: [messages[0].id],
+          expected: { type: "forward" },
+        },
+        {
+          funcName: "beginForward",
+          args: [messages[1].id, "forwardAsAttachment"],
+          expected: { type: "forward" },
+        },
+        // Uses a different code path.
+        {
+          funcName: "beginForward",
+          args: [messages[2].id, "forwardInline"],
+          expected: { type: "forward" },
+        },
+        {
+          funcName: "beginNew",
+          args: [messages[3].id],
+          expected: { type: "new" },
+        },
+      ];
+      for (let test of tests) {
+        browser.test.log(test.funcName);
+        let tab = await browser.compose[test.funcName](...test.args);
+        await checkComposer(tab, test.expected);
+      }
+
+      browser.tabs.onCreated.addListener(async tab => {
+        let window = await browser.windows.get(tab.windowId);
+        if (window.type == "messageCompose") {
+          await checkComposer(tab, { type: "draft" });
+          browser.test.notifyPass("Finish");
+        }
+      });
+      browser.test.sendMessage("openDrafts");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose", "accountsRead", "messagesRead"],
+    },
+  });
+
+  await extension.startup();
+
+  // The first part of the test is done in the background script using the
+  // compose API to open compose windows. For the second part we need to open
+  // a draft, which is not possible with the compose API.
+  await extension.awaitMessage("openDrafts");
+  // Select a draft and click on the Edit button.
+  window.gFolderTreeView.selectFolder(gDraftsFolder);
+  window.gFolderDisplay.selectViewIndex(0);
+  await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
+  let button = window.document.querySelector(
+    `notification[value="draftMsgContent"] button`
+  );
+  EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 });
+
+  await extension.awaitFinish("Finish");
+  await extension.unload();
 });
