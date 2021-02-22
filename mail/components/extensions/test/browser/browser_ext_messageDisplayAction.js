@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 let account;
+let messages;
 
 add_task(async () => {
   account = createAccount();
   let rootFolder = account.incomingServer.rootFolder;
   let subFolders = rootFolder.subFolders;
   createMessages(subFolders[0], 10);
+  messages = subFolders[0].messages;
 
   window.gFolderTreeView.selectFolder(subFolders[0]);
   window.gFolderDisplay.selectViewIndex(0);
@@ -134,7 +136,7 @@ add_task(async () => {
   info("Message window, no pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  let messageWindow = await openNewWindowForMessage();
+  let messageWindow = await openNewWindowForMessage(messages.getNext());
   await test_it(extension, messageWindow);
   messageWindow.close();
 
@@ -155,7 +157,7 @@ add_task(async () => {
   info("Message window, with pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  messageWindow = await openNewWindowForMessage();
+  messageWindow = await openNewWindowForMessage(messages.getNext());
   await test_it(extension, messageWindow);
   messageWindow.close();
 });
