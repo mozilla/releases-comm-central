@@ -58,6 +58,10 @@ var VCardUtils = {
         }
       }
 
+      // Remove group prefixes since we have no way to handle them, and the
+      // unprefixed property might be useful.
+      name = name.replace(/^[a-z0-9-]+\./, "");
+
       // Special cases for address and telephone types.
       if (name == "adr") {
         name = type.includes("home") ? "adr.home" : "adr.work";

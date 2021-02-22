@@ -212,6 +212,39 @@ add_task(function testVCardToAbCard() {
       SecondEmail: "second@invalid",
     }
   );
+
+  // Group-prefixed properties.
+  check(
+    formatVCard`
+      item1.EMAIL:first@invalid
+      item1.X-ABLabel:First`,
+    {
+      PrimaryEmail: "first@invalid",
+    }
+  );
+  check(
+    formatVCard`
+      item1.EMAIL:first@invalid
+      item1.X-ABLabel:First
+      item2.EMAIL:second@invalid
+      item2.X-ABLabel:Second`,
+    { PrimaryEmail: "first@invalid", SecondEmail: "second@invalid" }
+  );
+  check(
+    formatVCard`
+      foo-bar.EMAIL:first@invalid
+      foo-bar.X-ABLabel:First
+      EMAIL:second@invalid`,
+    { PrimaryEmail: "first@invalid", SecondEmail: "second@invalid" }
+  );
+  check(
+    formatVCard`
+      EMAIL:first@invalid
+      abc.EMAIL:second@invalid
+      abc.X-ABLabel:Second`,
+    { PrimaryEmail: "first@invalid", SecondEmail: "second@invalid" }
+  );
+  check("xyz.TEL:11-2358-13-21", { WorkPhone: "11-2358-13-21" });
 });
 
 add_task(function testModifyVCard() {
@@ -431,6 +464,74 @@ add_task(function testModifyVCard() {
       SecondEmail: null,
     },
     ["EMAIL:first@invalid", "EMAIL:third@invalid", ANY_UID]
+  );
+
+  // Group-prefixed properties.
+
+  // No changes.
+  check(
+    formatVCard`
+      item1.EMAIL:first@invalid
+      item1.X-ABLabel:First`,
+    {},
+    ["ITEM1.EMAIL:first@invalid", "ITEM1.X-ABLABEL:First"],
+    ["EMAIL"]
+  );
+
+  // Set primary email to existing value.
+  check(
+    formatVCard`
+      item1.EMAIL:first@invalid
+      item1.X-ABLabel:First`,
+    {
+      PrimaryEmail: "first@invalid",
+    },
+    ["ITEM1.EMAIL:first@invalid", "ITEM1.X-ABLABEL:First"],
+    ["EMAIL"]
+  );
+
+  // Set primary email to a different value.
+  check(
+    formatVCard`
+      item1.EMAIL:first@invalid
+      item1.X-ABLabel:First`,
+    {
+      PrimaryEmail: "second@invalid",
+    },
+    ["ITEM1.EMAIL:second@invalid", "ITEM1.X-ABLABEL:First"],
+    ["EMAIL"]
+  );
+
+  // Add second email.
+  check(
+    formatVCard`
+      item1.EMAIL:first@invalid
+      item1.X-ABLabel:First`,
+    {
+      SecondEmail: "second@invalid",
+    },
+    [
+      "ITEM1.EMAIL:first@invalid",
+      "ITEM1.X-ABLABEL:First",
+      "EMAIL:second@invalid",
+    ]
+  );
+
+  // Remove the email.
+  check(
+    formatVCard`
+      item1.EMAIL:first@invalid
+      item1.X-ABLabel:First`,
+    {
+      PrimaryEmail: null,
+    },
+    [],
+    [
+      "ITEM1.EMAIL",
+      // We can't do much about this stray label. Just leave it behind.
+      // "ITEM1.X-ABLABEL",
+      "EMAIL",
+    ]
   );
 
   // Card with properties we don't support. They should remain unchanged.
