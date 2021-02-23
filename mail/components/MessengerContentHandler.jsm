@@ -431,9 +431,21 @@ MailDefaultHandler.prototype = {
                 inputStream,
                 inputStream.available()
               );
+
+              // Try to detect the character set and decode. Only UTF-8 is
+              // valid from vCard 4.0, but we support older versions, so other
+              // charsets are possible.
+              let charset = Cc["@mozilla.org/messengercompose/computils;1"]
+                .createInstance(Ci.nsIMsgCompUtils)
+                .detectCharset(data);
+              let buffer = new Uint8Array(
+                Array.from(data, c => c.charCodeAt(0))
+              );
+              data = new TextDecoder(charset).decode(buffer);
+
               let card = Cc["@mozilla.org/addressbook/msgvcardservice;1"]
                 .getService(Ci.nsIMsgVCardService)
-                .escapedVCardToAbCard(data);
+                .vCardToAbCard(data);
               Services.ww.openWindow(
                 null,
                 "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",

@@ -11,12 +11,20 @@ interface nsIAbCard;
 interface nsIMsgVCardService : nsISupports {
 
   /**
+   * Translates a vCard string into a nsIAbCard.
+   *
+   * @param vCardStr - The string containing the vCard data.
+   * @return - A card containing the translated vCard data.
+   */
+  nsIAbCard vCardToAbCard(in AString vCardStr);
+
+  /**
    * Translates an URL-encoded vCard string into a nsIAbCard.
    *
    * @param escapedVCardStr - The string containing the vCard data.
    * @return - A card containing the translated vCard data.
    */
-  nsIAbCard escapedVCardToAbCard(in string escapedVCardStr);
+  nsIAbCard escapedVCardToAbCard(in AString escapedVCardStr);
 
   /**
    * Translates a nsIAbCard into an URL-encoded vCard.
@@ -24,5 +32,5 @@ interface nsIMsgVCardService : nsISupports {
    * @param abCard - A card to be translated.
    * @return - The string containing the vCard data.
    */
-  ACString abCardToEscapedVCard(in nsIAbCard abCard);
+  AString abCardToEscapedVCard(in nsIAbCard abCard);
 };

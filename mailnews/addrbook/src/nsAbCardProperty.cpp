@@ -491,8 +491,12 @@ nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString& aResult) {
       do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIAbCard> cardFromVCard;
-  return vCardService->AbCardToEscapedVCard(this, aResult);
+  nsAutoString result;
+  rv = vCardService->AbCardToEscapedVCard(this, result);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  aResult = NS_ConvertUTF16toUTF8(result);
+  return NS_OK;
 }
 
 nsresult nsAbCardProperty::ConvertToBase64EncodedXML(nsACString& result) {

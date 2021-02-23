@@ -11,7 +11,8 @@
 #include "nsIAbDirectory.h"
 #include "nsIFile.h"
 #include "nsIInputStream.h"
-#include "nsILineInputStream.h"
+#include "nsIUnicharLineInputStream.h"
+#include "nsIConverterInputStream.h"
 #include "nsIMsgVCardService.h"
 
 #include "plstr.h"
@@ -46,9 +47,26 @@ nsresult nsVCardAddress::ImportAddresses(bool* pAbort, const char16_t* pName,
     inputStream->Close();
     return rv;
   }
-
   uint64_t totalBytes = bytesLeft;
-  nsCOMPtr<nsILineInputStream> lineStream(do_QueryInterface(inputStream, &rv));
+
+  // Try to detect the character set and decode. Only UTF-8 is valid from
+  // vCard 4.0, but we support older versions, so other charsets are possible.
+
+  nsAutoCString sourceCharset;
+  rv = MsgDetectCharsetFromFile(pSrc, sourceCharset);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIConverterInputStream> converterStream =
+      do_CreateInstance("@mozilla.org/intl/converter-input-stream;1");
+  NS_ENSURE_TRUE(converterStream, NS_ERROR_FAILURE);
+
+  rv = converterStream->Init(
+      inputStream, sourceCharset.get(), 8192,
+      nsIConverterInputStream::DEFAULT_REPLACEMENT_CHARACTER);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIUnicharLineInputStream> lineStream(
+      do_QueryInterface(converterStream, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgVCardService> vCardService =
@@ -56,14 +74,13 @@ nsresult nsVCardAddress::ImportAddresses(bool* pAbort, const char16_t* pName,
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool more = true;
-  nsCString record;
+  nsAutoString record;
   while (!(*pAbort) && more && NS_SUCCEEDED(rv)) {
     rv = ReadRecord(lineStream, record, &more);
     if (NS_SUCCEEDED(rv) && !record.IsEmpty()) {
       // Parse the vCard and build an nsIAbCard from it
       nsCOMPtr<nsIAbCard> cardFromVCard;
-      rv = vCardService->EscapedVCardToAbCard(record.get(),
-                                              getter_AddRefs(cardFromVCard));
+      rv = vCardService->VCardToAbCard(record, getter_AddRefs(cardFromVCard));
       NS_ENSURE_SUCCESS(rv, rv);
 
       nsIAbCard* outCard;
@@ -76,7 +93,7 @@ nsresult nsVCardAddress::ImportAddresses(bool* pAbort, const char16_t* pName,
     }
     if (NS_SUCCEEDED(rv) && pProgress) {
       // This won't be totally accurate, but its the best we can do
-      // considering that lineStream won't give us how many bytes
+      // considering that converterStream won't give us how many bytes
       // are actually left.
       bytesLeft -= record.Length();
       *pProgress = totalBytes - bytesLeft;
@@ -93,11 +110,11 @@ nsresult nsVCardAddress::ImportAddresses(bool* pAbort, const char16_t* pName,
   return NS_OK;
 }
 
-nsresult nsVCardAddress::ReadRecord(nsILineInputStream* aLineStream,
-                                    nsCString& aRecord, bool* aMore) {
+nsresult nsVCardAddress::ReadRecord(nsIUnicharLineInputStream* aLineStream,
+                                    nsString& aRecord, bool* aMore) {
   bool more = true;
   nsresult rv;
-  nsCString line;
+  nsAutoString line;
 
   aRecord.Truncate();
 

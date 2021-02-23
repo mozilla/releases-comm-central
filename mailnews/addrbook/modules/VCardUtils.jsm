@@ -263,6 +263,9 @@ VCardService.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgVCardService"]),
   classID: Components.ID("{e2e0f615-bc5a-4441-a16b-a26e75949376}"),
 
+  vCardToAbCard(vCard) {
+    return vCard ? VCardUtils.vCardToAbCard(vCard) : null;
+  },
   escapedVCardToAbCard(vCard) {
     return vCard ? VCardUtils.vCardToAbCard(decodeURIComponent(vCard)) : null;
   },

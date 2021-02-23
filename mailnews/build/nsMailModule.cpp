@@ -108,7 +108,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "nsAbBaseCID.h"
 #include "nsAbCardProperty.h"
-#include "nsAbContentHandler.h"
 #include "nsAbDirProperty.h"
 #include "nsAbAddressCollector.h"
 
@@ -397,7 +396,6 @@ NS_DEFINE_NAMED_CID(NS_MAILNEWSDLF_CID);
 ////////////////////////////////////////////////////////////////////////////////
 // addrbook factories
 ////////////////////////////////////////////////////////////////////////////////
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbContentHandler)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirProperty)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbCardProperty)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsAbAddressCollector, Init)
@@ -428,7 +426,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbOSXCard)
 NS_DEFINE_NAMED_CID(NS_ABCARDPROPERTY_CID);
 NS_DEFINE_NAMED_CID(NS_ABDIRPROPERTY_CID);
 NS_DEFINE_NAMED_CID(NS_ABADDRESSCOLLECTOR_CID);
-NS_DEFINE_NAMED_CID(NS_ABCONTENTHANDLER_CID);
 NS_DEFINE_NAMED_CID(NS_ABDIRECTORYQUERYARGUMENTS_CID);
 NS_DEFINE_NAMED_CID(NS_BOOLEANCONDITIONSTRING_CID);
 NS_DEFINE_NAMED_CID(NS_BOOLEANEXPRESSION_CID);
@@ -785,7 +782,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_ABCARDPROPERTY_CID, false, NULL, nsAbCardPropertyConstructor},
     {&kNS_ABDIRPROPERTY_CID, false, NULL, nsAbDirPropertyConstructor},
     {&kNS_ABADDRESSCOLLECTOR_CID, false, NULL, nsAbAddressCollectorConstructor},
-    {&kNS_ABCONTENTHANDLER_CID, false, NULL, nsAbContentHandlerConstructor},
 #if defined(MOZ_MAPI_SUPPORT)
     {&kNS_ABOUTLOOKDIRECTORY_CID, false, NULL, nsAbOutlookDirectoryConstructor},
     {&kNS_ABOUTLOOKINTERFACE_CID, false, NULL, nsAbOutlookInterfaceConstructor},
@@ -996,10 +992,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_ABCARDPROPERTY_CONTRACTID, &kNS_ABCARDPROPERTY_CID},
     {NS_ABDIRPROPERTY_CONTRACTID, &kNS_ABDIRPROPERTY_CID},
     {NS_ABADDRESSCOLLECTOR_CONTRACTID, &kNS_ABADDRESSCOLLECTOR_CID},
-    {NS_CONTENT_HANDLER_CONTRACTID_PREFIX "application/x-addvcard",
-     &kNS_ABCONTENTHANDLER_CID},
-    {NS_CONTENT_HANDLER_CONTRACTID_PREFIX "text/x-vcard",
-     &kNS_ABCONTENTHANDLER_CID},
 #if defined(MOZ_MAPI_SUPPORT)
     {NS_ABOUTLOOKDIRECTORY_CONTRACTID, &kNS_ABOUTLOOKDIRECTORY_CID},
     {NS_ABOUTLOOKINTERFACE_CONTRACTID, &kNS_ABOUTLOOKINTERFACE_CID},

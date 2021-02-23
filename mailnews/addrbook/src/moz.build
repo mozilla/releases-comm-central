@@ -12,7 +12,6 @@ SOURCES += [
     "nsAbBooleanExpression.cpp",
     "nsAbBoolExprToLDAPFilter.cpp",
     "nsAbCardProperty.cpp",
-    "nsAbContentHandler.cpp",
     "nsAbDirectoryQuery.cpp",
     "nsAbDirectoryQueryProxy.cpp",
     "nsAbDirProperty.cpp",

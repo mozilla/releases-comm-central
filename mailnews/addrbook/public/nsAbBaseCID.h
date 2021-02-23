@@ -28,16 +28,6 @@
 #define NS_ABMANAGER_CONTRACTID "@mozilla.org/abmanager;1"
 
 //
-// nsAbContentHandler
-//
-#define NS_ABCONTENTHANDLER_CID                      \
-  {                                                  \
-    0xa72ad552, 0x0484, 0x4b5f, {                    \
-      0x8d, 0x45, 0x2d, 0x79, 0x15, 0x8d, 0x22, 0xe3 \
-    }                                                \
-  }
-
-//
 // JS/SQLite address book
 //
 #define NS_ABJSDIRECTORY_CONTRACTID \
