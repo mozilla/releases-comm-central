@@ -64,7 +64,7 @@ httpRequestObserver.prototype = {
     };
 
     let contentType = getHttpHeader(aSubject, "Content-Type");
-    if (!contentType.toLowerCase().startsWith("text/xml")) {
+    if (!contentType || !contentType.toLowerCase().startsWith("text/xml")) {
       return;
     }
 
