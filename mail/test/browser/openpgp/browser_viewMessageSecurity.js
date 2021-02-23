@@ -41,6 +41,9 @@ const { FileUtils } = ChromeUtils.import(
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
@@ -220,6 +223,44 @@ add_task(async function testBrokenMSExchangeEncryption() {
     "encrypted icon is displayed"
   );
 
+  // Delete the message.
+  press_delete();
+});
+
+/**
+ * Test the working keyboard shortcut event listener for the message header.
+ * Ctrl+Alt+S for Windows and Linux, Control+Cmd+S for macOS.
+ */
+add_task(async function testMessageSecurityShortcut() {
+  // Create an S/MIME message and add it to the inbox folder.
+  add_message_to_folder(gInbox, create_encrypted_smime_message());
+
+  // Select the first row, which should contain the S/MIME message.
+  select_click_row(0);
+
+  Assert.equal(
+    mc.window.document.getElementById("encryptionTechBtn").querySelector("span")
+      .textContent,
+    "S/MIME"
+  );
+
+  let modifiers =
+    AppConstants.platform == "macosx"
+      ? { accelKey: true, ctrlKey: true }
+      : { accelKey: true, altKey: true };
+
+  let popupshown = BrowserTestUtils.waitForEvent(
+    mc.e("messageSecurityPanel"),
+    "popupshown"
+  );
+
+  EventUtils.synthesizeKey("s", modifiers, mc.window);
+
+  // The Message Security popup panel should show up.
+  await popupshown;
+
+  // Select the row again since the focus moved to the popup panel.
+  select_click_row(0);
   // Delete the message.
   press_delete();
 });

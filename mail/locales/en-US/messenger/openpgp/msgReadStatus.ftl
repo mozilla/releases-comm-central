@@ -9,7 +9,7 @@ message-header-show-security-info-key = S
 #   $type (String) - the shortcut key defined in the message-header-show-security-info-key
 message-security-button =
     .title = { PLATFORM() ->
-        [macos] Show Message Security (⌘ ⌥ { message-header-show-security-info-key })
+        [macos] Show Message Security (⌃ ⌘ { message-header-show-security-info-key })
         *[other] Show Message Security (Ctrl+Alt+{ message-header-show-security-info-key })
     }
 

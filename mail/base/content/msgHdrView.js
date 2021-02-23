@@ -297,15 +297,16 @@ async function OnLoadMsgHeaderPane() {
   }
 
   // Add the keyboard shortcut event listener for the message header.
-  // Ctrl+Alt+S / Cmd+Alt+S.
+  // Ctrl+Alt+S / Cmd+Control+S. We don't use the Alt/Option key on macOS
+  // because it alters the pressed key to an ASCII character. See bug 1692263.
   let shortcut = await document.l10n.formatValue(
     "message-header-show-security-info-key"
   );
   document.addEventListener("keypress", event => {
     if (
-      (event.ctrlKey || event.metaKey) &&
-      event.altKey &&
-      event.key == shortcut.toLowerCase()
+      event.ctrlKey &&
+      (event.altKey || event.metaKey) &&
+      event.key.toLowerCase() == shortcut.toLowerCase()
     ) {
       showMessageReadSecurityInfo();
     }
