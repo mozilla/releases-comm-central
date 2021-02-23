@@ -1111,6 +1111,78 @@ add_task(function test_window_open_link_opening_behaviour() {
 });
 
 /**
+ * Test that if the final provider sends ok account settings back in config.xml
+ * then the account is created and we're done.
+ */
+add_task(function test_provisioner_ok_account_setup() {
+  get_to_order_form("green@example.com");
+
+  let accounts0 = MailServices.accounts.accounts;
+
+  let tab = mc.tabmail.currentTabInfo;
+
+  plan_for_modal_dialog("AccountCreation", function(aController) {
+    aController.window.close();
+  });
+
+  // Click the OK button to order the account.
+  BrowserTestUtils.synthesizeMouseAtCenter(
+    "input[value=Send]",
+    {},
+    tab.browser
+  );
+
+  // Submitting will generate a response with a config.xml configuration for
+  // the account. That will be intercepted and the account set up automatically.
+
+  // The "Congratulations" dialog will be shown.
+  wait_for_modal_dialog("AccountCreation");
+
+  let accounts2 = MailServices.accounts.accounts;
+  Assert.equal(
+    accounts2.length,
+    accounts0.length + 1,
+    "Should have added an account"
+  );
+
+  let account = accounts2[accounts2.length - 1];
+  Assert.equal(account.incomingServer.type, "imap");
+  Assert.equal(account.incomingServer.hostName, "imap-provisioned.example.com");
+
+  let inURL = "imap://imap-provisioned.example.com";
+  let imapLogins = Services.logins.findLogins(inURL, null, inURL);
+  Assert.equal(imapLogins.length, 1, "should have incoming login");
+  Assert.equal(
+    imapLogins[0].username,
+    "green@example.com",
+    "imap username should be correct"
+  );
+  Assert.equal(
+    imapLogins[0].password,
+    "Håhå",
+    "imap password should be correct"
+  );
+
+  let outURL = "smtp://smtp-provisioned.example.com";
+  let smtpLogins = Services.logins.findLogins(outURL, null, outURL);
+  Assert.equal(smtpLogins.length, 1, "should have outgoing login");
+  Assert.equal(
+    smtpLogins[0].username,
+    "green@example.com",
+    "smtp username should be correct"
+  );
+  Assert.equal(
+    smtpLogins[0].password,
+    "Östad3",
+    "smtp password should be correct"
+  );
+
+  Services.logins.removeAllLogins();
+
+  // TODO: check that the folder pane is now visible
+});
+
+/**
  * Test that if the provider returns XML that we can't turn into an account,
  * then we error out and go back to the Account Provisioner dialog.
  */

@@ -2,8 +2,7 @@
 <clientConfig>
   <emailProvider id="example.com">
     <domain>example.com</domain>
-    <displayName>Example</displayName>
-    <displayShortName>Example</displayShortName>
+    <displayName>Example Två</displayName>
     <incomingServer type="pop3">
       <hostname>testin.%EMAILDOMAIN%</hostname>
       <port>995</port>
@@ -16,6 +15,7 @@
       <port>587</port>
       <socketType>STARTTLS</socketType>
       <username>%EMAILADDRESS%</username>
+      <password>Blä4</password>
       <authentication>plain</authentication>
       <addThisServer>true</addThisServer>
       <useGlobalPreferredServer>false</useGlobalPreferredServer>

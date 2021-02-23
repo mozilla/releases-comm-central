@@ -71,7 +71,7 @@ function createAccountInBackend(config) {
       .replace(/[{}]/g, "");
   }
 
-  if (config.rememberPassword && config.incoming.password.length) {
+  if (config.rememberPassword && config.incoming.password) {
     rememberPassword(inServer, config.incoming.password);
   }
 
@@ -166,9 +166,9 @@ function createAccountInBackend(config) {
     }
     if (config.outgoing.auth != Ci.nsMsgAuthMethod.none) {
       outServer.username = username;
-      outServer.password = config.incoming.password;
-      if (config.rememberPassword && config.incoming.password.length) {
-        rememberPassword(outServer, config.incoming.password);
+      outServer.password = config.outgoing.password;
+      if (config.rememberPassword && config.outgoing.password) {
+        rememberPassword(outServer, config.outgoing.password);
       }
     }
 
@@ -195,11 +195,7 @@ function createAccountInBackend(config) {
       outServer.socketType = Ci.nsMsgSocketType.alwaysSTARTTLS;
     }
 
-    // API problem: <http://mxr.mozilla.org/seamonkey/source/mailnews/compose/public/nsISmtpServer.idl#93>
     outServer.description = config.displayName;
-    if (config.password) {
-      outServer.password = config.outgoing.password;
-    }
 
     // If this is the first SMTP server, set it as default
     if (

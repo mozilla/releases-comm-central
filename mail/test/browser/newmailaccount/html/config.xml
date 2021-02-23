@@ -2,17 +2,16 @@
   <emailProvider id="%DOMAIN%">
     <domain>%EMAILDOMAIN%</domain>
     <displayName>Provisioned Account</displayName>
-    <displayShortName>Provisioned Account</displayShortName>
     <incomingServer type="imap">
-      <hostname>imap.%EMAILDOMAIN%</hostname>
+      <hostname>imap-provisioned.%EMAILDOMAIN%</hostname>
       <port>993</port>
       <socketType>SSL</socketType>
       <username>%EMAILADDRESS%</username>
       <authentication>password-cleartext</authentication>
-      <password>Testing</password>
+      <password>Håhå</password>
     </incomingServer>
     <incomingServer type="pop3">
-      <hostname>pop.%EMAILDOMAIN%</hostname>
+      <hostname>pop-provisioned.%EMAILDOMAIN%</hostname>
       <port>995</port>
       <socketType>SSL</socketType>
       <username>%EMAILLOCALPART%</username>
@@ -23,12 +22,12 @@
       </pop3>
     </incomingServer>
     <outgoingServer type="smtp">
-      <hostname>smtp.%EMAILDOMAIN%</hostname>
+      <hostname>smtp-provisioned.%EMAILDOMAIN%</hostname>
       <port>465</port>
       <socketType>SSL</socketType>
       <username>%EMAILADDRESS%</username>
       <authentication>password-cleartext</authentication>
-      <password>Testing</password>
+      <password>Östad3</password>
     </outgoingServer>
   </emailProvider>
 </clientConfig>

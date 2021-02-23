@@ -198,13 +198,18 @@ TracingListener.prototype = {
     let account;
 
     try {
-      // Attempt to construct the downloaded data into XML
-      let data = this.chunks.join("");
+      // Construct the downloaded data (we'll assume UTF-8 bytes) into XML.
+      let xml = this.chunks.join("");
+      let bytes = new Uint8Array(xml.length);
+      for (let i = 0; i < xml.length; i++) {
+        bytes[i] = xml.charCodeAt(i);
+      }
+      xml = new TextDecoder().decode(bytes);
 
       // Attempt to derive email account information
       let domParser = new DOMParser();
       let accountConfig = accountCreationFuncs.readFromXML(
-        JXON.build(domParser.parseFromString(data, "text/xml"))
+        JXON.build(domParser.parseFromString(xml, "text/xml"))
       );
       accountCreationFuncs.replaceVariables(
         accountConfig,
