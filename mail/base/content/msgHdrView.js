@@ -484,17 +484,17 @@ var messageHeaderSink = {
     ClearAttachmentList();
     gMessageNotificationBar.clearMsgNotifications();
 
-    for (let index in gMessageListeners) {
-      gMessageListeners[index].onStartHeaders();
+    for (let listener of gMessageListeners) {
+      listener.onStartHeaders();
     }
   },
 
   onEndHeaders() {
     // Give add-ons a chance to modify currentHeaderData before it actually
     // gets displayed.
-    for (let index in gMessageListeners) {
-      if ("onBeforeShowHeaderPane" in gMessageListeners[index]) {
-        gMessageListeners[index].onBeforeShowHeaderPane();
+    for (let listener of gMessageListeners) {
+      if ("onBeforeShowHeaderPane" in listener) {
+        listener.onBeforeShowHeaderPane();
       }
     }
 
@@ -527,8 +527,8 @@ var messageHeaderSink = {
     gMessageNotificationBar.setDraftEditMessage();
     UpdateJunkButton();
 
-    for (let index in gMessageListeners) {
-      gMessageListeners[index].onEndHeaders();
+    for (let listener of gMessageListeners) {
+      listener.onEndHeaders();
     }
   },
 
