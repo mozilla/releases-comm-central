@@ -111,10 +111,10 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
 
   let view = document.getElementById(`${viewName}-view`);
 
-  window.goToDate(cal.createDateTime("20150201Z"));
+  window.goToDate(cal.createDateTime("20150201T000000Z"));
   await setCalendarView(window, viewName);
   await makeChangeWithReload(() => {
-    window.goToDate(cal.createDateTime("20160201Z"));
+    window.goToDate(cal.createDateTime("20160201T000000Z"));
   });
 
   info("Check initial state.");
