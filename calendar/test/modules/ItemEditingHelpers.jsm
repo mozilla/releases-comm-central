@@ -8,7 +8,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
-var { menulistSelect } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
@@ -571,4 +570,30 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
   Assert.report(false, undefined, undefined, "Timezone dialog closed");
 
   await new Promise(resolve => iframeWindow.setTimeout(resolve, 500));
+}
+
+/**
+ * Selects an item from a menulist.
+ *
+ * @param {Element} menulist
+ * @param {string} value
+ */
+async function menulistSelect(menulist, value) {
+  let win = menulist.ownerGlobal;
+  Assert.ok(menulist, `<menulist id=${menulist.id}> exists`);
+  let menuitem = menulist.querySelector(`menupopup > menuitem[value='${value}']`);
+  Assert.ok(menuitem, `<menuitem value=${value}> exists`);
+
+  menulist.focus();
+
+  let shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
+  synthesizeMouseAtCenter(menulist, {}, win);
+  await shownPromise;
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menulist, "popuphidden");
+  synthesizeMouseAtCenter(menuitem, {}, win);
+  await hiddenPromise;
+
+  await new Promise(resolve => win.setTimeout(resolve));
+  Assert.equal(menulist.value, value);
 }

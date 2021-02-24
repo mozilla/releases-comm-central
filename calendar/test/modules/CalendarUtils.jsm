@@ -726,6 +726,7 @@ function closeLightningPrefs(tab) {
   close_pref_tab(tab);
 }
 
+// TODO: Remove this and imports to point to ItemEditingHelpers.jsm
 /**
  * Selects an item from a menulist.
  *
