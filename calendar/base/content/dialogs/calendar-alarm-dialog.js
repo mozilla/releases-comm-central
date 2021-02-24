@@ -15,6 +15,23 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+var gShutdownDetected = false;
+
+/**
+ * Detects the "mail-unloading-messenger" notification to prevent snoozing items
+ * as well as closes this window when the main window is closed. Not doing so can
+ * cause data loss with CalStorageCalendar.
+ */
+var gShutdownObserver = {
+  observe() {
+    let windows = Array.from(Services.wm.getEnumerator("mail:3pane"));
+    if (windows.filter(win => !win.closed).length == 0) {
+      gShutdownDetected = true;
+      window.close();
+    }
+  },
+};
+
 addEventListener("DOMContentLoaded", () => {
   document.getElementById("alarm-snooze-all-popup").addEventListener("snooze", event => {
     snoozeAllItems(event.detail);
@@ -131,6 +148,9 @@ function setupWindow() {
     gRelativeDateUpdateTimer = setInterval(updateRelativeDates, 60 * 1000);
   }, timeout);
 
+  // Configure the shutdown observer.
+  Services.obs.addObserver(gShutdownObserver, "mail-unloading-messenger");
+
   // Give focus to the alarm richlist after onload completes. See bug 103197
   setTimeout(onFocusWindow, 0);
 }
@@ -140,6 +160,12 @@ function setupWindow() {
  * alarms and clean up the relative date update timer.
  */
 function finishWindow() {
+  Services.obs.removeObserver(gShutdownObserver, "mail-unloading-messenger");
+
+  if (gShutdownDetected) {
+    return;
+  }
+
   let alarmRichlist = document.getElementById("alarm-richlist");
 
   if (alarmRichlist.children.length > 0) {
@@ -151,6 +177,7 @@ function finishWindow() {
     if (snoozePref <= 0) {
       snoozePref = 5;
     }
+
     snoozeAllItems(snoozePref);
   }
 
