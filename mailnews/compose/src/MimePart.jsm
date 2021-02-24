@@ -286,6 +286,7 @@ class MimeMultiPart extends MimePart {
    */
   constructor(subtype) {
     super();
+    this.subtype = subtype;
     this._separator = this._makePartSeparator();
     this.setHeader(
       "content-type",

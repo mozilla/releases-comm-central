@@ -464,7 +464,7 @@ class MimeMessage {
       if (curPart.parts.length > 1) {
         // Move child parts one layer deeper so that the message is still well
         // formed after crypto encaspsulation.
-        let newChild = new MimeMultiPart("mixed");
+        let newChild = new MimeMultiPart(curPart.subtype);
         newChild.parts = curPart._parts;
         curPart.parts = [newChild];
       }
