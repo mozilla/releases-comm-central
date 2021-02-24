@@ -228,7 +228,7 @@ static int do_main(int argc, char* argv[], char* envp[]) {
   return gBootstrap->XRE_main(argc, argv, config);
 }
 
-static nsresult InitXPCOMGlue() {
+static nsresult InitXPCOMGlue(LibLoadingStrategy aLibLoadingStrategy) {
   if (gBootstrap) {
     return NS_OK;
   }
@@ -239,11 +239,14 @@ static nsresult InitXPCOMGlue() {
     return NS_ERROR_FAILURE;
   }
 
-  gBootstrap = mozilla::GetBootstrap(exePath.get());
-  if (!gBootstrap) {
+  auto bootstrapResult =
+      mozilla::GetBootstrap(exePath.get(), aLibLoadingStrategy);
+  if (bootstrapResult.isErr()) {
     Output("Couldn't load XPCOM.\n");
     return NS_ERROR_FAILURE;
   }
+
+  gBootstrap = bootstrapResult.unwrap();
 
   // This will set this thread as the main thread.
   gBootstrap->NS_LogInit();
@@ -303,7 +306,7 @@ int main(int argc, char* argv[], char* envp[]) {
     }
 #  endif
 
-    nsresult rv = InitXPCOMGlue();
+    nsresult rv = InitXPCOMGlue(LibLoadingStrategy::NoReadAhead);
     if (NS_FAILED(rv)) {
       return 255;
     }
@@ -321,7 +324,7 @@ int main(int argc, char* argv[], char* envp[]) {
   DllBlocklist_Initialize(gBlocklistInitFlags);
 #endif
 
-  nsresult rv = InitXPCOMGlue();
+  nsresult rv = InitXPCOMGlue(LibLoadingStrategy::NoReadAhead);
   if (NS_FAILED(rv)) {
     return 255;
   }
