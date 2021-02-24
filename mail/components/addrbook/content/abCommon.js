@@ -1247,6 +1247,7 @@ var gImageDownloader = (function() {
         null,
         null,
         null,
+        null,
         tempFile,
         Ci.nsIContentPolicy.TYPE_IMAGE,
         privacy
@@ -1408,6 +1409,7 @@ var gImageDownloader = (function() {
     downloader.saveURI(
       source,
       principal,
+      null,
       null,
       null,
       null,
