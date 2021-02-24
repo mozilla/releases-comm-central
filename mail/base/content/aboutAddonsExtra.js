@@ -20,6 +20,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 (async function() {
+  window.MozXULElement.insertFTLIfNeeded("messenger/aboutAddonsExtra.ftl");
+
   // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
   let textbox = document.querySelector("search-addons > search-textbox");
   let placeholder = textbox.getAttribute("placeholder");
@@ -40,6 +42,21 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   window.isCorrectlySigned = function() {
     return true;
   };
+  // Load our permissions strings.
+  delete window.browserBundle;
+  window.browserBundle = Services.strings.createBundle(
+    "chrome://messenger/locale/addons.properties"
+  );
+
+  // Load our theme screenshots.
+  let _getScreenshotUrlForAddon = getScreenshotUrlForAddon;
+  getScreenshotUrlForAddon = function(addon) {
+    if (THUNDERBIRD_THEME_PREVIEWS.has(addon.id)) {
+      return THUNDERBIRD_THEME_PREVIEWS.get(addon.id);
+    }
+    return _getScreenshotUrlForAddon(addon);
+  };
+
   // Add logic to detect add-ons using the unsupported legacy API.
   let getMozillaAddonMessageInfo = window.getAddonMessageInfo;
   window.getAddonMessageInfo = async function(addon) {
@@ -67,19 +84,47 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   };
   document.querySelectorAll("addon-card").forEach(card => card.updateMessage());
 
-  // Load our permissions strings.
-  delete window.browserBundle;
-  window.browserBundle = Services.strings.createBundle(
-    "chrome://messenger/locale/addons.properties"
-  );
-
-  // Load our theme screenshots.
-  let _getScreenshotUrlForAddon = getScreenshotUrlForAddon;
-  getScreenshotUrlForAddon = function(addon) {
-    if (THUNDERBIRD_THEME_PREVIEWS.has(addon.id)) {
-      return THUNDERBIRD_THEME_PREVIEWS.get(addon.id);
+  // Override parts of the addon-card customElement to be able
+  // to add a dedicated button for extension preferences.
+  await customElements.whenDefined("addon-card");
+  AddonCard.prototype.addOptionsButton = async function() {
+    let { addon, optionsButton } = this;
+    if (addon.type != "extension") {
+      return;
     }
-    return _getScreenshotUrlForAddon(addon);
+
+    let addonOptionsButton = this.querySelector(".extension-options-button");
+    if (addon.isActive) {
+      if (!addon.optionsType) {
+        // Upon fresh install the manifest has not been parsed and optionsType
+        // is not known, manually trigger parsing.
+        let data = new ExtensionData(addon.getResourceURI());
+        await data.loadManifest();
+      }
+
+      if (addon.optionsType) {
+        if (!addonOptionsButton) {
+          addonOptionsButton = document.createElement("button");
+          addonOptionsButton.classList.add("extension-options-button");
+          addonOptionsButton.setAttribute("action", "preferences");
+          addonOptionsButton.setAttribute(
+            "data-l10n-id",
+            "add-on-options-button"
+          );
+          optionsButton.parentNode.insertBefore(
+            addonOptionsButton,
+            optionsButton
+          );
+        }
+      }
+    } else if (addonOptionsButton) {
+      addonOptionsButton.remove();
+    }
+  };
+  AddonCard.prototype._update = AddonCard.prototype.update;
+  AddonCard.prototype.update = function() {
+    this._update();
+    this.addOptionsButton();
   };
 
   // Override parts of the addon-permission-list customElement to be able

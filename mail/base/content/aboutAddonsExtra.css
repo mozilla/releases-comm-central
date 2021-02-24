@@ -30,3 +30,26 @@ section > .addon-detail-row-private-browsing,
 .addon-detail-row-private-browsing + .addon-detail-row.addon-detail-help-row {
   display: none;
 }
+
+/* Hide the options entry in the options menu, as we have a dedicated button */
+addon-options panel-item[action="preferences"] {
+  display:none;
+}
+
+.extension-options-button {
+  min-width: auto;
+  min-height: auto;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  margin-inline-start: 8px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  background-image: url("chrome://messenger/skin/icons/developer.svg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  /* Get the -badged ::after element in the right spot. */
+  padding: 1px;
+  display: flex;
+  justify-content: flex-end;
+}
