@@ -687,22 +687,20 @@ void nsMessengerWinIntegration::FillToolTipInfo() {
 
   ::wcsncpy(sBiffIconData.szTip, toolTipText.get(), kMaxTooltipSize);
 
-  if (!mBiffIconVisible) {
 #ifndef MOZ_THUNDERBIRD
-    nsresult rv;
-    bool showNewAlert = false;
-    nsCOMPtr<nsIPrefBranch> prefBranch(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS_VOID(rv);
+  nsresult rv;
+  bool showNewAlert = false;
+  nsCOMPtr<nsIPrefBranch> prefBranch(
+      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS_VOID(rv);
 
-    prefBranch->GetBoolPref(SHOW_NEW_ALERT_PREF, &showNewAlert);
-    if (!showNewAlert)
-      ShowAlertMessage(accountName, animatedAlertText, EmptyCString());
-    else
+  prefBranch->GetBoolPref(SHOW_NEW_ALERT_PREF, &showNewAlert);
+  if (!showNewAlert)
+    ShowAlertMessage(accountName, animatedAlertText, EmptyCString());
+  else
 #endif
-      ShowNewAlertNotification(false, accountName, animatedAlertText);
-  } else
-    GenericShellNotify(NIM_MODIFY);
+    ShowNewAlertNotification(false, accountName, animatedAlertText);
+  GenericShellNotify(NIM_MODIFY);
 }
 
 // Get the first top level folder which we know has new mail, then enumerate
@@ -867,6 +865,8 @@ nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder* aItem,
       // If timer wasn't running, start it.
       if (!mUnreadTimerActive) rv = SetupUnreadCountUpdateTimer();
     }
+  } else if (aProperty.Equals(kNewMailReceived)) {
+    FillToolTipInfo();
   }
   return NS_OK;
 }
