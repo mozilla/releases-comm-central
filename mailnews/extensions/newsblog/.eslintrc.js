@@ -8,7 +8,6 @@ module.exports = {
     FeedParser: true,
     FeedUtils: true,
     GetNumSelectedMessages: true,
-    Log4Moz: true,
     MailServices: true,
     MsgHdrToMimeMessage: true,
     ReloadMessage: true,

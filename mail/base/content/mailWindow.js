@@ -28,7 +28,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   appIdleManager: "resource:///modules/AppIdleManager.jsm",
   Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
-  Log4Moz: "resource:///modules/gloda/Log4moz.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
 });
 
