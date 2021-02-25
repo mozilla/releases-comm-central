@@ -1899,9 +1899,12 @@ function ThreadPaneOnDragOver(aEvent) {
 
   let dt = aEvent.dataTransfer;
   if (Array.from(dt.mozTypesAt(0)).includes("application/x-moz-file")) {
-    let extFile = dt
-      .mozGetDataAt("application/x-moz-file", 0)
-      .QueryInterface(Ci.nsIFile);
+    let extFile = dt.mozGetDataAt("application/x-moz-file", 0);
+    if (!extFile) {
+      return;
+    }
+
+    extFile = extFile.QueryInterface(Ci.nsIFile);
     if (extFile.isFile()) {
       let len = extFile.leafName.length;
       if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml")) {
@@ -1914,9 +1917,12 @@ function ThreadPaneOnDragOver(aEvent) {
 function ThreadPaneOnDrop(aEvent) {
   let dt = aEvent.dataTransfer;
   for (let i = 0; i < dt.mozItemCount; i++) {
-    let extFile = dt
-      .mozGetDataAt("application/x-moz-file", i)
-      .QueryInterface(Ci.nsIFile);
+    let extFile = dt.mozGetDataAt("application/x-moz-file", i);
+    if (!extFile) {
+      continue;
+    }
+
+    extFile = extFile.QueryInterface(Ci.nsIFile);
     if (extFile.isFile()) {
       let len = extFile.leafName.length;
       if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml")) {
