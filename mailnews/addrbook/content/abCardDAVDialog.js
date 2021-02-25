@@ -9,6 +9,8 @@ var { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   ConsoleAPI: "resource://gre/modules/Console.jsm",
+  ContextualIdentityService:
+    "resource://gre/modules/ContextualIdentityService.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
@@ -21,6 +23,7 @@ console.prefix = "CardDAV setup";
 var oAuth = null;
 var authInfo = null;
 var uiElements = {};
+var userContextId;
 
 window.addEventListener("DOMContentLoaded", async () => {
   for (let id of [
@@ -101,7 +104,7 @@ async function check() {
   }
 
   // Use a unique context for each attempt, so a prompt is always shown.
-  let privateBrowsingID = Math.floor(Date.now() / 1000);
+  userContextId = Math.floor(Date.now() / 1000);
 
   try {
     let url = uiElements.url.value;
@@ -114,7 +117,7 @@ async function check() {
 
     let requestParams = {
       method: "PROPFIND",
-      privateBrowsingID,
+      userContextId,
       headers: {
         Depth: 0,
       },
@@ -124,7 +127,6 @@ async function check() {
             <displayname/>
           </prop>
         </propfind>`,
-      shouldSaveAuth: false,
     };
 
     let details = OAuth2Providers.getHostnameDetails(url.host);
@@ -347,6 +349,10 @@ window.addEventListener("dialogaccept", event => {
       }
 
       let dir = CardDAVDirectory.forFile(book.fileName);
+      // Pass the context to the created address book. This prevents asking
+      // for a username/password again in the case that we didn't save it.
+      // The user won't be prompted again until Thunderbird is restarted.
+      dir._userContextId = userContextId;
       dir.fetchAllFromServer();
     }
   }

@@ -64,6 +64,7 @@ async function attemptInit(
     url = CardDAVServer.origin,
     certError,
     password,
+    savePassword,
     expectedStatus = "carddav-connection-error",
     expectedBooks = [],
   }
@@ -81,7 +82,9 @@ async function attemptInit(
   let certPromise =
     certError === undefined ? Promise.resolve() : handleCertError();
   let promptPromise =
-    password === undefined ? Promise.resolve() : handlePasswordPrompt(password);
+    password === undefined
+      ? Promise.resolve()
+      : handlePasswordPrompt(password, savePassword);
 
   acceptButton.click();
 
@@ -123,8 +126,10 @@ function handleCertError() {
   );
 }
 
-function handlePasswordPrompt(password) {
-  return BrowserTestUtils.promiseAlertDialog(null, undefined, prompt => {
+function handlePasswordPrompt(password, savePassword = true) {
+  return BrowserTestUtils.promiseAlertDialog(null, undefined, async prompt => {
+    await new Promise(resolve => prompt.setTimeout(resolve));
+
     if (!password) {
       prompt.document
         .querySelector("dialog")
@@ -132,12 +137,19 @@ function handlePasswordPrompt(password) {
         .click();
       return;
     }
+
     prompt.document.getElementById("loginTextbox").value = "alice";
     prompt.document.getElementById("password1Textbox").value = password;
 
     let checkbox = prompt.document.getElementById("checkbox");
     Assert.greater(checkbox.getBoundingClientRect().width, 0);
     Assert.ok(checkbox.checked);
+
+    if (!savePassword) {
+      EventUtils.synthesizeMouseAtCenter(checkbox, {}, prompt);
+      Assert.ok(!checkbox.checked);
+    }
+
     prompt.document
       .querySelector("dialog")
       .getButton("accept")
@@ -285,7 +297,192 @@ add_task(async function testEveryThingOK() {
   Assert.equal(dirTree.view.getCellText(2, dirTree.columns[0]), "CardDAV Test");
 
   await closeAddressBookWindow();
+
+  // Don't close the server or delete the directory, they're needed below.
+});
+
+/**
+ * Tests adding a second directory on the same server. The auth prompt should
+ * show again, even though we've saved the credentials in the previous test.
+ */
+add_task(async function testEveryThingOKAgain() {
+  // Ensure at least a second has passed since the previous test, since we use
+  // context identifiers based on the current time in seconds.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(r => setTimeout(r, 1000));
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let dirTree = abDocument.getElementById("dirTree");
+
+  Assert.equal(dirTree.view.rowCount, 4);
+
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
+    async dialogWindow => {
+      await attemptInit(dialogWindow, {
+        password: "alice",
+        expectedStatus: "",
+        expectedBooks: [DEFAULT_BOOKS[0]],
+      });
+
+      dialogWindow.document
+        .querySelector("dialog")
+        .getButton("accept")
+        .click();
+    }
+  );
+  let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+
+  abWindow.AbNewCardDAVBook();
+
+  await dialogPromise;
+  let [directory] = await syncPromise;
+  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.url`, ""),
+    CardDAVServer.altURL
+  );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.token`, ""),
+    "http://mochi.test/sync/0"
+  );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.username`, ""),
+    "alice"
+  );
+  Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
+
+  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  Assert.equal(logins.length, 1, "login was saved");
+  Assert.equal(logins[0].username, "alice");
+  Assert.equal(logins[0].password, "alice");
+
+  Assert.equal(dirTree.view.rowCount, 5);
+  Assert.equal(dirTree.view.getCellText(2, dirTree.columns[0]), "CardDAV Test");
+  Assert.equal(dirTree.view.getCellText(3, dirTree.columns[0]), "Not This One");
+
+  await closeAddressBookWindow();
+  await CardDAVServer.close();
+
+  let otherDirectory = MailServices.ab.getDirectoryFromId(
+    "ldap_2.servers.CardDAVTest"
+  );
+  await promiseDirectoryRemoved(directory.URI);
+  await promiseDirectoryRemoved(otherDirectory.URI);
+
+  Services.logins.removeAllLogins();
+});
+
+/**
+ * Test setting up a directory but not saving the password. The username
+ * should be saved and no further password prompt should appear. We can't test
+ * restarting Thunderbird but if we could the password prompt would appear
+ * next time the directory makes a reqeust.
+ */
+add_task(async function testNoSavePassword() {
+  CardDAVServer.open("alice", "alice");
+
+  let abWindow = await openAddressBookWindow();
+  let abDocument = abWindow.document;
+  let dirTree = abDocument.getElementById("dirTree");
+
+  Assert.equal(dirTree.view.rowCount, 3);
+
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
+    async dialogWindow => {
+      await attemptInit(dialogWindow, {
+        password: "alice",
+        savePassword: false,
+        expectedStatus: "",
+        expectedBooks: DEFAULT_BOOKS,
+      });
+
+      let availableBooks = dialogWindow.document.getElementById(
+        "carddav-availableBooks"
+      );
+      availableBooks.children[0].checked = false;
+
+      dialogWindow.document
+        .querySelector("dialog")
+        .getButton("accept")
+        .click();
+    }
+  );
+  let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+
+  abWindow.AbNewCardDAVBook();
+  await dialogPromise;
+  let [directory] = await syncPromise;
+  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.url`, ""),
+    CardDAVServer.url
+  );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.token`, ""),
+    "http://mochi.test/sync/0"
+  );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.username`, ""),
+    "alice"
+  );
+  Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
+
+  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  Assert.equal(logins.length, 0, "login was NOT saved");
+
+  Assert.equal(dirTree.view.rowCount, 4);
+  Assert.equal(dirTree.view.getCellText(2, dirTree.columns[0]), "CardDAV Test");
+
+  await closeAddressBookWindow();
+
+  // Disable sync as we're going to start the address book manager again.
+  directory.setIntValue("carddav.syncinterval", 0);
+
+  // Don't close the server or delete the directory, they're needed below.
+});
+
+/**
+ * Tests saving a previously unsaved password. This uses the directory from
+ * the previous test and simulates a restart of the address book manager.
+ */
+add_task(async function testSavePasswordLater() {
+  let reloadPromise = TestUtils.topicObserved("addrbook-reloaded");
+  Services.obs.notifyObservers(null, "addrbook-reload");
+  await reloadPromise;
+
+  Assert.equal(MailServices.ab.directories.length, 3);
+  let directory = MailServices.ab.getDirectoryFromId(
+    "ldap_2.servers.CardDAVTest"
+  );
+  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+
+  let promptPromise = handlePasswordPrompt("alice");
+  let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
+  davDirectory.fetchAllFromServer();
+  await promptPromise;
+  await syncPromise;
+
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.username`, ""),
+    "alice",
+    "username was saved"
+  );
+
+  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  Assert.equal(logins.length, 1, "login was saved");
+  Assert.equal(logins[0].username, "alice");
+  Assert.equal(logins[0].password, "alice");
+
   await CardDAVServer.close();
 
   await promiseDirectoryRemoved(directory.URI);
+
+  Services.logins.removeAllLogins();
 });

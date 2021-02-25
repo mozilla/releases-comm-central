@@ -11,6 +11,8 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookDirectory: "resource:///modules/AddrBookDirectory.jsm",
   clearInterval: "resource://gre/modules/Timer.jsm",
+  ContextualIdentityService:
+    "resource://gre/modules/ContextualIdentityService.jsm",
   fixIterator: "resource:///modules/iteratorUtils.jsm",
   OAuth2Module: "resource:///modules/OAuth2Module.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
@@ -197,9 +199,9 @@ class CardDAVDirectory extends AddrBookDirectory {
     details.oAuth = this._oAuth;
 
     details.username = this.getStringValue("carddav.username", "");
-    details.privateBrowsingId = CardDAVDirectory._contextForUsername(
-      details.username
-    );
+    details.userContextId =
+      this._userContextId ??
+      CardDAVDirectory._contextForUsername(details.username);
 
     let response = await CardDAVDirectory.makeRequest(uri, details);
     if (
@@ -210,6 +212,12 @@ class CardDAVDirectory extends AddrBookDirectory {
         `Incorrect response from server: ${response.status} ${response.statusText}`,
         Cr.NS_ERROR_FAILURE
       );
+    }
+
+    if (response.authInfo.shouldSave) {
+      // The user was prompted for a username and password. Save the response.
+      this.setStringValue("carddav.username", response.authInfo.username);
+      response.authInfo.save();
     }
     return response;
   }
@@ -765,23 +773,20 @@ class CardDAVDirectory extends AddrBookDirectory {
   static _contextMap = new Map();
   /**
    * Returns the id of a unique private context for each username. When the
-   * privateBrowsingId is set on a principal, this allows the use of multiple
+   * userContextId is set on a principal, this allows the use of multiple
    * usernames on the same server without the networking code causing issues.
    *
    * @param {String} username
    * @return {integer}
    */
   static _contextForUsername(username) {
-    if (!username) {
-      return Ci.nsIScriptSecurityManager.DEFAULT_PRIVATE_BROWSING_ID;
-    }
-
-    if (CardDAVDirectory._contextMap.has(username)) {
+    if (username && CardDAVDirectory._contextMap.has(username)) {
       return CardDAVDirectory._contextMap.get(username);
     }
 
     // This could be any 32-bit integer, as long as it isn't already in use.
     let nextId = 25000 + CardDAVDirectory._contextMap.size;
+    ContextualIdentityService.remove(nextId);
     CardDAVDirectory._contextMap.set(username, nextId);
     return nextId;
   }
@@ -799,10 +804,7 @@ class CardDAVDirectory extends AddrBookDirectory {
    * @param {msgIOAuth2Module}  [details.oAuth] - If this is present the
    *     request will use OAuth2 authorization.
    * @param {String}  [details.username] - Used to pre-fill any auth dialogs.
-   * @param {boolean} [details.shouldSaveAuth] - If false, defers saving
-   *     username/password data to the password manager. Otherwise this
-   *     happens immediately after a successful request, where applicable.
-   * @param {integer} [details.privateBrowsingId] - See _contextForUsername.
+   * @param {integer} [details.userContextId] - See _contextForUsername.
    *
    * @return {Promise<Object>} - Resolves to an object with getters for:
    *    - status, the HTTP response code
@@ -821,12 +823,9 @@ class CardDAVDirectory extends AddrBookDirectory {
       contentType = "text/xml",
       oAuth = null,
       username = null,
-      shouldSaveAuth = false,
-      privateBrowsingId = Ci.nsIScriptSecurityManager
-        .DEFAULT_PRIVATE_BROWSING_ID,
+      userContextId = Ci.nsIScriptSecurityManager.DEFAULT_USER_CONTEXT_ID,
     } = details;
     headers["Content-Type"] = contentType;
-
     if (oAuth) {
       headers.Authorization = await new Promise((resolve, reject) => {
         oAuth.connect(true, {
@@ -848,7 +847,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     return new Promise((resolve, reject) => {
       let principal = Services.scriptSecurityManager.createContentPrincipal(
         uri,
-        { privateBrowsingId }
+        { userContextId }
       );
 
       let channel = Services.io.newChannelFromURI(
@@ -938,11 +937,6 @@ class CardDAVDirectory extends AddrBookDirectory {
             );
             return;
           }
-
-          if (shouldSaveAuth) {
-            callbacks.saveAuth();
-          }
-
           resolve({
             get status() {
               return finalChannel.responseStatus;
@@ -968,6 +962,7 @@ class CardDAVDirectory extends AddrBookDirectory {
             },
             get authInfo() {
               return {
+                shouldSave: callbacks.shouldSaveAuth,
                 username: callbacks.authInfo?.username,
                 save() {
                   callbacks.saveAuth();
@@ -1033,6 +1028,8 @@ class NotificationCallbacks {
         return true;
       }
     }
+
+    authInfo.username = this.username;
 
     let savePasswordLabel = null;
     let savePassword = {};

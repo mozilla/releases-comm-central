@@ -70,6 +70,17 @@ var CardDAVServer = {
       this.directoryHandler.bind(this)
     );
     this.server.registerPrefixHandler(this.path, this.cardHandler.bind(this));
+
+    // Secondary address book. There's no cards here.
+
+    this.server.registerPathHandler(
+      this.altPath,
+      this.directoryHandler.bind(this)
+    );
+    this.server.registerPrefixHandler(
+      this.altPath,
+      this.cardHandler.bind(this)
+    );
   },
 
   close() {
@@ -98,11 +109,18 @@ var CardDAVServer = {
     return `${this.origin}${this.path}`;
   },
 
+  get altPath() {
+    return "/addressbooks/me/default/";
+  },
+
+  get altURL() {
+    return `${this.origin}${this.altPath}`;
+  },
+
   checkAuth(request, response) {
     if (!this.username || !this.password) {
       return true;
     }
-
     if (!request.hasHeader("Authorization")) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
@@ -202,7 +220,7 @@ var CardDAVServer = {
           </propstat>
         </response>
         <response>
-          <href>/addressbooks/me/default/</href>
+          <href>${this.altPath}</href>
           <propstat>
             <prop>
               <resourcetype>
@@ -237,6 +255,7 @@ var CardDAVServer = {
       return;
     }
 
+    let isRealDirectory = request.path == this.path;
     let input = new DOMParser().parseFromString(
       CommonUtils.readBytesFromInputStream(request.bodyInputStream),
       "text/xml"
@@ -246,12 +265,12 @@ var CardDAVServer = {
       case "addressbook-query":
         Assert.equal(request.method, "REPORT");
         Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.card);
-        this.addressBookQuery(input, response);
+        this.addressBookQuery(input, response, isRealDirectory);
         return;
       case "addressbook-multiget":
         Assert.equal(request.method, "REPORT");
         Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.card);
-        this.addressBookMultiGet(input, response);
+        this.addressBookMultiGet(input, response, isRealDirectory);
         return;
       case "propfind":
         Assert.equal(request.method, "PROPFIND");
@@ -259,13 +278,14 @@ var CardDAVServer = {
         this.propFind(
           input,
           request.hasHeader("Depth") ? request.getHeader("Depth") : 0,
-          response
+          response,
+          isRealDirectory
         );
         return;
       case "sync-collection":
         Assert.equal(request.method, "REPORT");
         Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.d);
-        this.syncCollection(input, response);
+        this.syncCollection(input, response, isRealDirectory);
         return;
     }
 
@@ -275,7 +295,7 @@ var CardDAVServer = {
     response.write(`No handler found for <${input.documentElement.localName}>`);
   },
 
-  addressBookQuery(input, response) {
+  addressBookQuery(input, response, isRealDirectory) {
     if (this.mimicYahoo) {
       response.setStatusLine("1.1", 400, "Bad Request");
       return;
@@ -283,56 +303,7 @@ var CardDAVServer = {
 
     let propNames = this._inputProps(input);
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
-    for (let [href, card] of this.cards) {
-      output += this._cardResponse(href, card, propNames);
-    }
-    output += `</multistatus>`;
-
-    response.setStatusLine("1.1", 207, "Multi-Status");
-    response.setHeader("Content-Type", "text/xml");
-    response.write(output.replace(/>\s+</g, "><"));
-  },
-
-  addressBookMultiGet(input, response) {
-    let propNames = this._inputProps(input);
-    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
-    for (let href of input.querySelectorAll("href")) {
-      href = href.textContent;
-      let card = this.cards.get(href);
-      if (card) {
-        output += this._cardResponse(href, card, propNames);
-      }
-    }
-    output += `</multistatus>`;
-
-    response.setStatusLine("1.1", 207, "Multi-Status");
-    response.setHeader("Content-Type", "text/xml");
-    response.write(output.replace(/>\s+</g, "><"));
-  },
-
-  propFind(input, depth, response) {
-    let propNames = this._inputProps(input);
-
-    if (this.mimicYahoo && !propNames.includes("cs:getctag")) {
-      response.setStatusLine("1.1", 400, "Bad Request");
-      return;
-    }
-
-    let propValues = {
-      "cs:getctag": this.changeCount,
-      "d:displayname": "CardDAV Test",
-      "d:resourcetype": "<collection/><card:addressbook/>",
-    };
-    if (!this.mimicYahoo) {
-      propValues["d:sync-token"] = `http://mochi.test/sync/${this.changeCount}`;
-    }
-
-    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
-      <response>
-        <href>${this.path}</href>
-        ${this._outputProps(propNames, propValues)}
-      </response>`;
-    if (depth == 1) {
+    if (isRealDirectory) {
       for (let [href, card] of this.cards) {
         output += this._cardResponse(href, card, propNames);
       }
@@ -344,28 +315,88 @@ var CardDAVServer = {
     response.write(output.replace(/>\s+</g, "><"));
   },
 
-  syncCollection(input, response) {
+  addressBookMultiGet(input, response, isRealDirectory) {
+    let propNames = this._inputProps(input);
+    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
+    if (isRealDirectory) {
+      for (let href of input.querySelectorAll("href")) {
+        href = href.textContent;
+        let card = this.cards.get(href);
+        if (card) {
+          output += this._cardResponse(href, card, propNames);
+        }
+      }
+    }
+    output += `</multistatus>`;
+
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(output.replace(/>\s+</g, "><"));
+  },
+
+  propFind(input, depth, response, isRealDirectory) {
+    let propNames = this._inputProps(input);
+
+    if (this.mimicYahoo && !propNames.includes("cs:getctag")) {
+      response.setStatusLine("1.1", 400, "Bad Request");
+      return;
+    }
+
+    let propValues = {
+      "cs:getctag": this.changeCount,
+      "d:displayname": isRealDirectory ? "CardDAV Test" : "Not This One",
+      "d:resourcetype": "<collection/><card:addressbook/>",
+    };
+    if (!this.mimicYahoo) {
+      propValues["d:sync-token"] = `http://mochi.test/sync/${this.changeCount}`;
+    }
+
+    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
+      <response>
+        <href>${isRealDirectory ? this.path : this.altPath}</href>
+        ${this._outputProps(propNames, propValues)}
+      </response>`;
+    if (depth == 1 && isRealDirectory) {
+      for (let [href, card] of this.cards) {
+        output += this._cardResponse(href, card, propNames);
+      }
+    }
+    output += `</multistatus>`;
+
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(output.replace(/>\s+</g, "><"));
+  },
+
+  syncCollection(input, response, isRealDirectory) {
     let token = input
       .querySelector("sync-token")
       .textContent.replace(/\D/g, "");
     let propNames = this._inputProps(input);
 
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
-    for (let [href, card] of this.cards) {
-      if (card.changed > token) {
-        output += this._cardResponse(href, card, propNames, !this.mimicGoogle);
+    if (isRealDirectory) {
+      for (let [href, card] of this.cards) {
+        if (card.changed > token) {
+          output += this._cardResponse(
+            href,
+            card,
+            propNames,
+            !this.mimicGoogle
+          );
+        }
       }
-    }
-    for (let [href, deleted] of this.deletedCards) {
-      if (deleted > token) {
-        output += `<response>
-          <status>HTTP/1.1 404 Not Found</status>
-          <href>${href}</href>
-          <propstat>
-            <prop/>
-            <status>HTTP/1.1 418 I'm a teapot</status>
-          </propstat>
-        </response>`;
+      for (let [href, deleted] of this.deletedCards) {
+        if (deleted > token) {
+          output += `<response>
+            <status>HTTP/1.1 404 Not Found</status>
+            <href>${href}</href>
+            <propstat>
+              <prop/>
+              <status>HTTP/1.1 418 I'm a teapot</status>
+            </propstat>
+          </response>`;
+        }
       }
     }
     output += `<sync-token>http://mochi.test/sync/${this.changeCount}</sync-token>
@@ -469,7 +500,8 @@ var CardDAVServer = {
       return;
     }
 
-    if (!/\/[\w-]+\.vcf$/.test(request.path)) {
+    let isRealDirectory = request.path.startsWith(this.path);
+    if (!isRealDirectory || !/\/[\w-]+\.vcf$/.test(request.path)) {
       response.setStatusLine("1.1", 404, "Not Found");
       response.setHeader("Content-Type", "text/plain");
       response.write(`Card not found at ${request.path}`);
