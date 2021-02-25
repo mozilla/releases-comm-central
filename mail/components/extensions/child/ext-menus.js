@@ -275,15 +275,17 @@ this.menus = class extends ExtensionAPI {
                   // eslint-disable-next-line no-undef
                   new ComposeAttachment(context, a).api()
                 );
-              }
-              withHandlingUserInput(context.contentWindow, () =>
                 fire.asyncWithoutClone(
                   Cu.cloneInto(info, context.cloneScope, {
                     cloneFunctions: true,
                   }),
                   Cu.cloneInto(tab, context.cloneScope)
-                )
-              );
+                );
+              } else {
+                withHandlingUserInput(context.contentWindow, () =>
+                  fire.sync(info, tab)
+                );
+              }
             };
 
             let event = context.childManager.getParentEvent("menus.onClicked");

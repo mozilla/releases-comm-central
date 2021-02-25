@@ -489,7 +489,7 @@
       {
         "name": "onClicked",
         "type": "function",
-        "description": "Fired when a context menu item is clicked.",
+        "description": "Fired when a context menu item is clicked. For asynchronous listeners some `restrictions <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/User_actions>`__ apply.",
         "parameters": [
           {
             "name": "info",
