@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+   
+<!DOCTYPE overlay SYSTEM "chrome://chatzilla/locale/pref-irc.dtd">
+
+<overlay id="ovCZPrefs" 
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <!-- Tree entry (Mozilla/SeaMonkey 1.x) -->
+  <treechildren id="panelChildren">
+    <treeitem container="false" id="chatzillaItem" insertbefore="advancedItem">
+      <treerow>
+        <treecell url="chrome://chatzilla/content/pref-irc.xul" 
+            label="&pref-irc.window.title;"/>
+      </treerow>
+    </treeitem>
+  </treechildren>
+  <!-- Tree entry (SeaMonkey 2) -->
+  <treechildren id="prefsPanelChildren">
+    <treeitem id="chatzillaItem"
+              insertbefore="securityItem"
+              label="&pref-irc.window.title;"
+              prefpane="chatzilla_pane"
+              url="chrome://chatzilla/content/pref-irc-toolkit.xul"/>
+  </treechildren>
+
+  <!-- Startup code (Mozilla/SeaMonkey 1.x) -->
+  <script type="application/x-javascript">
+    <![CDATA[
+        var panel;
+        if (panel != undefined && 
+            (panel == "chrome://communicator/content/pref/pref-appearance.xul"))
+            _elementIDs.push("generalStartupChat");
+    ]]>
+  </script>
+  <!-- Startup preference (SeaMonkey 2) -->
+  <preferences id="appearance_preferences">
+    <preference id="general.startup.chat"
+                name="general.startup.chat"
+                type="bool"/>
+  </preferences>
+  <!-- Startup checkbox -->
+  <groupbox id="generalStartupPreferences">
+    <checkbox id="generalStartupChat" label="&startup.chat.label;"
+              accesskey="&startup.chat.accesskey;" pref="true" preftype="bool"
+              prefstring="general.startup.chat" prefattribute="checked"
+              wsm_persist="true" preference="general.startup.chat"/>
+  </groupbox>
+</overlay>
+

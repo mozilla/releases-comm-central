@@ -1,0 +1,33 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/* OSX uses lotsa padding on tabs. Need to allow window to expand. */
+
+/* Instead of setting on dialog, we're going to set it on the two main 
+ * components of the window, so that large changes in the size of bits of the 
+ * dialog don't upset things.
+ */
+
+/* Set min-width on the left-side tree. */
+#pref-objects {
+	min-width: 25ex;
+}
+
+/* Set min-width and min-height on tabs container. */
+#pref-object-deck {
+	min-width: 65ex;
+	min-height: 32em;
+	width: 65ex;
+	height: 32em;
+}
+
+scroller {
+	overflow: auto;
+}
+
+listbox {
+	min-height: 7em;
+}

@@ -1,0 +1,67 @@
+/* -*- Mode: Text; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* 
+ *  a version of the output window that uses only your default foreground and
+ *  backgrond colors.  Message types are distinguished by font changes.
+ *  see output-base.css for details. 
+ */
+
+@import url(chrome://chatzilla/content/output-base.css);
+
+.header-outer {
+    background-color: white;
+}
+
+.progress-fg {
+    background-color: grey;
+}
+
+.msg[msg-type="ACTION"] .msg-data {
+    font-style: italic;
+}
+
+.msg[msg-type="JOIN"] .msg-type,
+.msg[msg-type="PART"] .msg-type,
+.msg[msg-type="QUIT"] .msg-type {
+    font-weight: bold;
+}
+
+.msg[msg-type="QUIT"] .msg-data {
+    font-variant: small-caps;
+    font-weight: bold;
+}
+
+.msg[msg-type="JOIN"] .msg-data,
+.msg[msg-type="PART"] .msg-data {
+    font-variant: small-caps;
+}
+
+.msg[msg-type="HELLO"] .msg-data,
+.msg[msg-type="NICK"] .msg-type,
+.msg[msg-type="NOTICE"] .msg-data {
+    font-weight: bold;
+}
+
+.msg[msg-type="NICK"] .msg-data {
+    font-family: monospace;
+}
+
+/* :before and :after pseudoclasses form the decorations around nicknames.     */
+.msg-user:before,
+.msg-user:after {
+    font-size: 100%;
+    font-family: monospace;
+    font-weight: bolder;
+}
+
+.msg[dest-type="IRCUser"] .msg-user,
+.msg[dest-type="IRCUser"][msg-dest$="ME!"] .msg-user {
+    font-style: italic;
+}
+
+.msg[msg-user$="ME!"] .msg-user {
+    font-weight: bold;
+}

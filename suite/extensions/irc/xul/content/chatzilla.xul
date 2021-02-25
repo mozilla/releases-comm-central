@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE window SYSTEM "chrome://chatzilla/locale/chatzilla.dtd">
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://chatzilla/skin/chatzilla.css" type="text/css"?>
+
+<?xul-overlay href="chrome://chatzilla/content/scripts.xul"?>
+<?xul-overlay href="chrome://chatzilla/content/popups.xul"?>
+<?xul-overlay href="chrome://chatzilla/content/menus.xul"?>
+
+<window id="chatzilla-window"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:aaa="http://www.w3.org/2005/07/aaa"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  orient="vertical" onload="onLoad();" onunload="onUnload();"
+  onclose="return onClose();" onmouseover="onMouseOver(event);"
+  persist="width height screenX screenY sizemode" windowtype="irc:chatzilla">
+
+  <html:link rel="icon" href="chrome://chatzilla/skin/images/logo.png" style="display:none"/>
+  
+  <overlaytarget id="scripts-overlay-target"/>
+  <overlaytarget id="popup-overlay-target"/>
+  <overlaytarget id="menu-overlay-target"/>
+  <stringbundleset id="chatzilla-stringbundle">
+    <stringbundle id="findBundle" src="chrome://global/locale/finddialog.properties"/>
+  </stringbundleset>
+
+    <vbox id="upper-box" flex="1">
+      <hbox id="tabpanels-contents-box" flex="1">
+        <vbox id="user-list-box" width="125" persist="collapsed width">
+ 
+          <tree id="user-list" flex="1" hidecolumnpicker="true"
+                ondblclick="onUserDoubleClick(event);"
+                context="context:userlist" aaa:live="off" aria-live="off"
+                aaa:relevant="additions removals text"
+                aria-relevant="additions removals text">
+            <treecols>
+              <treecol id="usercol" hideheader="true" flex="1"/>
+            </treecols>
+            <treechildren/>
+          </tree>
+    
+        </vbox> <!-- user-list-box -->
+  
+        <splitter id="main-splitter" collapse="before" persist="collapsed left">
+          <grippy/>
+        </splitter>
+  
+        <vbox flex="1" id="browser-box">
+          <deck id="output-deck" flex="1"/>
+        </vbox>
+  
+      </hbox> <!-- tabpanels-contents-box -->
+    
+      <vbox id="tabstrip-box" flex="0" crop="right">
+        <hbox id="view-tabs" persist="collapsed" flex="1"
+            ondragover="nsDragAndDrop.dragOver(event, tabsDropObserver)"
+            ondragexit="nsDragAndDrop.dragExit(event, tabsDropObserver)"
+            ondrop="nsDragAndDrop.drop(event, tabsDropObserver)">
+          <tabs id="views-tbar-inner" flex="1"
+              onselect="onTabSelect(event)" setfocus="false">
+            <tab hidden="true"/> <!-- dummy tab to keep the freaking xbl from
+                                      causing an exception -->
+          </tabs>
+          <spacer id="views-tbar-spacer"/>
+        </hbox>
+        <hbox id="tabs-drop-indicator-bar" collapsed="true">
+          <hbox id="tabs-drop-indicator" mousethrough="always"/>
+        </hbox>
+      </vbox>
+  
+    </vbox> <!-- upper-box -->
+  
+    <splitter id="input-splitter" orient="vertical" collapse="after"
+      collapsed="true"/>
+  
+    <hbox id="input-widgets" align="center">
+      <button id="server-nick" type="menu" label="" tooltiptext="&server-nick.tooltip;"/>
+      <hbox id="multiline-box" flex="1" collapsed="true">
+        <box id="multiline-hug-box" flex="1">
+          <textbox id="multiline-input" multiline="true" flex="1" height="100px"
+            class="multiline-input-widget" onfocus="onInputFocus();"
+            tabindex="-1"/>
+        </box>
+        <vbox>
+          <toolbarbutton id="button-input" flex="1"
+            oncommand="onMultilineSend(event);"
+            tooltiptext="&multiline-send.tooltip;" />
+          <toolbarbutton id="button-multiline-contract"
+            oncommand="dispatch('pref multiline false');" 
+            tooltiptext="&multiline-contract.tooltip;" />
+        </vbox>
+      </hbox>
+      <hbox id="singleline-box" flex="1" collapsed="true">
+        <box id="singleline-hug-box" flex="1">
+          <textbox id="input" class="input-widget" flex="1"
+            onfocus="onInputFocus();" tabindex="-1"/>
+        </box>
+        <toolbarbutton id="button-multiline-expand" 
+          oncommand="dispatch('pref multiline true');" 
+          tooltiptext="&multiline-expand.tooltip;"/>
+      </hbox>
+    </hbox>
+
+  <overlaytarget id="statusbar-overlay-target"/>
+
+</window>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+
+<!DOCTYPE overlay SYSTEM "chrome://chatzilla/locale/browserOverlay.dtd" >
+
+<!-- This is the overlay that adds a "Chatzilla" button to the toolbar palette. -->
+
+<?xml-stylesheet href="chrome://chatzilla/skin/browserOverlay.css" type="text/css"?> 
+
+<overlay id="ChatzillaBrowserToolbar"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript" src="chrome://chatzilla/content/chatzillaOverlay.js"/>
+
+<toolbarpalette id="BrowserToolbarPalette">
+  <toolbarbutton id="tb-chatzilla-open" oncommand="toIRC()" 
+      class="toolbarbutton-1 chromeclass-toolbar-additional"
+      label="&czButton.label;" tooltiptext="&czButton.label;"/>
+</toolbarpalette>
+
+<menupopup id="menu_ToolsPopup">
+  <menuitem id="tb-chatzilla-menu" oncommand="toIRC()" 
+      insertafter="menu_pageInfo,javascriptConsole,devToolsSeparator"
+      label="&czMenu.label;" accesskey="&czMenu.accesskey;"/>
+</menupopup>
+
+<vbox id="appmenuSecondaryPane">
+  <menuitem id="tb-chatzilla-appmenu" oncommand="toIRC()" 
+      insertafter="appmenu_addons"
+      label="&czMenu.label;" accesskey="&czMenu.accesskey;"/>
+</vbox>
+
+</overlay>

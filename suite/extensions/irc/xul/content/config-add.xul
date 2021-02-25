@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE dialog SYSTEM "chrome://chatzilla/locale/config.dtd">
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="config.css" type="text/css"?>
+
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    windowtype="irc:chatzilla:config:add"
+    buttons="accept,cancel"
+    ondialogaccept="onOK();"
+    ondialogcancel="onCancel();"
+    onload="onLoad();"
+    title="&config.add.title;">
+  
+  <script src="config-add.js"/>
+  
+  <vbox>
+    <hbox align="center">
+      <label value="&config.type.label;" accesskey="&config.type.accesskey;" 
+          tooltiptext="&config.type.hint;" control="prefType"/>
+      <!-- Beware the hacks, number 264: add |value| attribute to make .value 
+           work when the dialog loads (|selected| selects an item, but doesn't
+           set .value). -->
+      <radiogroup orient="horizontal" id="prefType" value="chan" 
+          onselect="changeType();">
+        <radio value="net"  label="&network;"/>
+        <radio value="chan" label="&channel;" selected="true"/>
+        <radio value="user" label="&user;"/>
+      </radiogroup>
+    </hbox>
+    <separator class="groove"/>
+    <grid>
+      <columns><column/><column flex="1"/></columns>
+      <rows>
+        <row align="center">
+          <label value="&config.network.label;" control="prefName1" 
+            tooltiptext="&config.network.hint;" 
+            accesskey="&config.network.accesskey;"/>
+          <textbox id="prefName1"/>
+        </row>
+        <row align="center">
+          <label value="&config.target.label;" control="prefName2" 
+            tooltiptext="&config.target.hint;" 
+            accesskey="&config.target.accesskey;"/>
+          <textbox id="prefName2"/>
+        </row>
+      </rows>
+    </grid>
+  </vbox>
+</dialog>

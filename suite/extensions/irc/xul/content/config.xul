@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE dialog SYSTEM "chrome://chatzilla/locale/config.dtd">
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="config.css" type="text/css"?>
+
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    windowtype="irc:chatzilla:config"
+    id="chatzilla-window"
+    buttons="accept,cancel,extra1"
+    extra1Label="&dialog.apply;"
+    ondialogaccept="gPrefWindow.onOK();"
+    ondialogcancel="gPrefWindow.onCancel();"
+    ondialogextra1="gPrefWindow.onApply();"
+    onload="setupButtons(); gPrefWindow.onLoad();"
+    onunload="gPrefWindow.onClose();"
+    title="&window.title;">
+
+  <script src="chrome://chatzilla/content/lib/js/utils.js"/>
+  <script src="chrome://chatzilla/content/lib/js/file-utils.js"/>
+  <script src="chrome://chatzilla/content/lib/js/pref-manager.js"/>
+  <script src="chrome://chatzilla/content/lib/js/message-manager.js"/>
+  <script src="chrome://chatzilla/content/prefs.js"/>
+  <script src="chrome://chatzilla/content/messages.js"/>
+  <script src="config.js"/>
+  <script src="chrome://chatzilla/content/static.js"/>
+
+  <tooltip id="czPrefTip" orient="vertical" 
+      onpopupshowing="return gPrefWindow.onTooltipPopupShowing(this);">
+    <vbox>
+      <label id="czPrefTipTitle" class="header">.</label>
+      <label id="czPrefTipLabel">.</label>
+    </vbox>
+    <spacer flex="1"/>
+  </tooltip>
+  
+  <deck id="loadDeck" flex="1">
+    <vbox flex="1" align="center" pack="center">
+      <label class="loading" value="&loading.label;"/>
+    </vbox>
+    <hbox flex="1">
+      <vbox id="pref-objects">
+        <tree id="pref-tree-object" flex="1" seltype="single" 
+            hidecolumnpicker="true" onselect="gPrefWindow.onSelectObject();">
+          <treecols>
+            <treecol id="pref-col-name" primary="true" flex="1" 
+                hideheader="true"/>
+          </treecols>
+          <treechildren id="pref-tree"/>
+        </tree>
+        <hbox>
+          <!--
+          <button label="&object.add.label;" tooltiptext="&object.add.hint;" 
+              accesskey="&object.add.accesskey;" flex="1" 
+              oncommand="gPrefWindow.onAddObject();"/>
+          -->
+          <button label="&object.del.label;" tooltiptext="&object.del.hint;" 
+              accesskey="&object.del.accesskey;" flex="1" 
+              oncommand="gPrefWindow.onDeleteObject();" id="object-delete"/>
+        </hbox>
+      </vbox>
+      <vbox flex="1">
+        <dialogheader id="pref-header" title=""/>
+        <deck flex="1" id="pref-object-deck"/>
+        <hbox align="center">
+          <button label="&object.reset.label;" tooltiptext="&object.reset.hint;"
+              accesskey="&object.reset.accesskey;" 
+              oncommand="gPrefWindow.onResetObject();"/>
+          <spacer flex="1"/>
+          <html:a onclick="" target="_blank" href="&homepage.url;" 
+              style="display: block; color: blue; text-decoration: 
+              underline;">&homepage.label;</html:a>
+        </hbox>
+      </vbox>
+    </hbox>
+  </deck>
+</dialog>

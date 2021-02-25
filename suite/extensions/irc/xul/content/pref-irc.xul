@@ -1,0 +1,29 @@
+<?xml version="1.0"?> 
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
+<!DOCTYPE page SYSTEM "chrome://chatzilla/locale/pref-irc.dtd">
+
+<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    onload="parent.initPanel('chrome://chatzilla/content/pref-irc.xul');"
+    headertitle="&pref-irc.window.title;">
+
+  <script type="application/x-javascript">
+  <![CDATA[
+    var _elementIDs = [];
+  ]]>
+  </script>
+  
+  <label>&pref-irc.open.desc;</label>
+  <separator/>
+  <hbox pack="center">
+    <button label="&pref-irc.open.label;" accesskey="&pref-irc.open.accesskey;" 
+        oncommand="disabled = true;
+                   window.openDialog('chrome://chatzilla/content/config.xul', 
+                                     '', 'chrome,modal,resizable');
+                   disabled = false;"/>
+  </hbox>
+</page>

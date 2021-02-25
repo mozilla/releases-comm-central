@@ -1,0 +1,48 @@
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+DEPTH		= ../..
+topsrcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
+
+include $(DEPTH)/config/autoconf.mk
+include $(srcdir)/maxversions.mk
+
+PACKAGE_FILE = chatzilla.pkg
+
+DIST_FILES = xpi/resources/install.rdf
+
+CHATZILLA_VERSION=$(shell grep "const __cz_version" "$(srcdir)/xul/content/static.js" | sed "s|.*\"\([^\"]\{1,\}\)\".*|\1|")
+
+XPI_NAME               = chatzilla
+INSTALL_EXTENSION_ID   = {59c81df5-4b7a-477b-912d-4e0fdf64e5f2}
+XPI_PKGNAME            = chatzilla-$(CHATZILLA_VERSION)
+
+# include config.mk before using the AB_CD var it sets in an if statement
+include $(topsrcdir)/config/config.mk
+
+# always build en-US locale, add build locale if supported
+BUILD_LOCALES = en-US
+ifneq (,$(filter $(AB_CD),$(shell cat $(srcdir)/locales/all-locales)))
+BUILD_LOCALES += $(AB_CD)
+endif
+
+DEFINES += -DCHATZILLA_VERSION=$(CHATZILLA_VERSION) \
+           -DSEAMONKEY_MAXVERSION=$(SEAMONKEY_MAXVERSION) \
+           -DFIREFOX_MAXVERSION=$(FIREFOX_MAXVERSION) \
+           $(NULL)
+
+include $(topsrcdir)/config/rules.mk
+
+libs realchrome:: locales/Makefile
+	@$(EXIT_ON_ERROR)                    \
+	for locale in $(BUILD_LOCALES); do   \
+	  $(MAKE) -C locales AB_CD=$$locale; \
+	done
+
+export::
+	$(NSINSTALL) -D $(FINAL_TARGET)/chrome/icons/default
+	$(INSTALL) $(srcdir)/xpi/resources/chatzilla-window* $(FINAL_TARGET)/chrome/icons/default
