@@ -2,6 +2,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { TestUtils } = ChromeUtils.import(
+  "resource://testing-common/TestUtils.jsm"
+);
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -17,16 +20,10 @@ registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });
 
-function promiseDirectoryRemoved() {
-  return new Promise(resolve => {
-    let observer = {
-      observe() {
-        Services.obs.removeObserver(observer, "addrbook-directory-deleted");
-        resolve();
-      },
-    };
-    Services.obs.addObserver(observer, "addrbook-directory-deleted");
-  });
+function promiseDirectoryRemoved(uri) {
+  let removePromise = TestUtils.topicObserved("addrbook-directory-deleted");
+  MailServices.ab.deleteAddressBook(uri);
+  return removePromise;
 }
 
 function acObserver() {}

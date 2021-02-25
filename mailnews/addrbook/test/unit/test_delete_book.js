@@ -37,8 +37,7 @@ add_task(async function clearPref() {
   ]);
   Services.prefs.setStringPref("mail.collect_addressbook", book.URI);
 
-  MailServices.ab.deleteAddressBook(book.URI);
-  await promiseDirectoryRemoved();
+  await promiseDirectoryRemoved(book.URI);
 
   Assert.deepEqual(getExistingDirectories(), [
     "ldap_2.servers.pab",

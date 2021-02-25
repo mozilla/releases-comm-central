@@ -31,9 +31,7 @@ add_task(async () => {
   let directory = MailServices.ab.getDirectoryFromId(dirPrefId);
   let davDirectory = CardDAVDirectory.forFile(directory.fileName);
   registerCleanupFunction(async () => {
-    let removePromise = promiseDirectoryRemoved();
-    MailServices.ab.deleteAddressBook(directory.URI);
-    await removePromise;
+    await promiseDirectoryRemoved(directory.URI);
 
     Assert.equal(davDirectory._syncTimer, null, "sync timer cleaned up");
   });

@@ -37,9 +37,7 @@ add_task(async function createAddressBook() {
   Assert.notEqual(newFromUID, pabFromUID);
   Assert.notEqual(newFromUID, historyFromUID);
 
-  let deletePromise = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(newFromId.URI);
-  await deletePromise;
+  await promiseDirectoryRemoved(newFromId.URI);
 
   Assert.ok(!MailServices.ab.getDirectoryFromUID(newFromId.UID));
 });

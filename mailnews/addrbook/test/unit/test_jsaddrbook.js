@@ -389,9 +389,7 @@ add_task(async function createContactWithUID() {
 });
 
 add_task(async function deleteAddressBook() {
-  let deletePromise = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(book.URI);
-  await deletePromise;
+  await promiseDirectoryRemoved(book.URI);
 
   observer.checkEvents(["addrbook-directory-deleted", book, null]);
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.dirType"));

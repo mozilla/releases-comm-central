@@ -15,12 +15,6 @@ function renameDirectory(directory, newName) {
   directory.dirName = newName;
 }
 
-async function removeDirectory(directory) {
-  let deletePromise = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(directory.URI);
-  await deletePromise;
-}
-
 /**
  * Create 4 addressbooks (directories). Rename the second one and delete
  * the third one. Check if their names are still correct. (bug 745664)
@@ -38,7 +32,7 @@ async function run_test() {
   for (let dir in dirNames) {
     Assert.equal(dirNames[dir], directories[dir].dirName);
   }
-  await removeDirectory(directories[2]);
+  await promiseDirectoryRemoved(directories[2].URI);
   dirNames.splice(2, 1);
   directories.splice(2, 1);
 

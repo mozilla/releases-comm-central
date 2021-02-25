@@ -57,9 +57,7 @@ add_task(async () => {
   registerCleanupFunction(async () => {
     abWindow.close();
     personalBook.deleteCards(cardsToRemove);
-    let deletePromise = promiseDirectoryRemoved();
-    MailServices.ab.deleteAddressBook(book.URI);
-    await deletePromise;
+    await promiseDirectoryRemoved(book.URI);
     LDAPServer.close();
   });
 

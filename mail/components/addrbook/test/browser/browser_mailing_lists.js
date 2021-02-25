@@ -506,7 +506,7 @@ add_task(async () => {
     "accept",
     "chrome://global/content/commonDialog.xhtml"
   );
-  let deletePromise = promiseDirectoryRemoved();
+  let deletePromise = TestUtils.topicObserved("addrbook-directory-deleted");
 
   Assert.equal(
     global.dirTree.view.getCellText(2, global.dirTree.columns[0]),

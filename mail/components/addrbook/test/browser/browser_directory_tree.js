@@ -215,9 +215,7 @@ add_task(async () => {
 
   // Delete the displayed book, and check that we return to "All Address Books".
 
-  let directoryRemoved = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(newBook2.URI);
-  await directoryRemoved;
+  await promiseDirectoryRemoved(newBook2.URI);
   checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
@@ -230,9 +228,7 @@ add_task(async () => {
 
   // Remove the first book.
 
-  directoryRemoved = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(newBook1.URI);
-  await directoryRemoved;
+  await promiseDirectoryRemoved(newBook1.URI);
   checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },

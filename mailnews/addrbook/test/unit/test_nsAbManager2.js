@@ -33,13 +33,6 @@ function addDirectory(dirName) {
   return MailServices.ab.getDirectoryFromId(dirPrefId);
 }
 
-async function removeDirectory(directory) {
-  // Remove the directory
-  let deletePromise = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(directory.URI);
-  await deletePromise;
-}
-
 async function run_test() {
   var expectedABs = [kPABData.URI, kCABData.URI];
 
@@ -71,7 +64,7 @@ async function run_test() {
 
   expectedABs.splice(pos, 1);
 
-  await removeDirectory(newDirectory1);
+  await promiseDirectoryRemoved(newDirectory1.URI);
   newDirectory1 = null;
 
   // Test - Check new directory list
@@ -80,7 +73,7 @@ async function run_test() {
 
   // Test - Repeat the removal
 
-  await removeDirectory(newDirectory2);
+  await promiseDirectoryRemoved(newDirectory2.URI);
   newDirectory2 = null;
 
   expectedABs.pop();

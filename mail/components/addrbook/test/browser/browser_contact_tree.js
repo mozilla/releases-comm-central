@@ -260,9 +260,7 @@ add_task(async function test_insertion_order() {
   );
   await closeAddressBookWindow();
 
-  let deletePromise = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(bookA.URI);
-  await deletePromise;
+  await promiseDirectoryRemoved(bookA.URI);
 });
 
 /**
@@ -425,7 +423,5 @@ add_task(async function test_name_column() {
 
   await closeAddressBookWindow();
 
-  let deletePromise = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(book.URI);
-  await deletePromise;
+  await promiseDirectoryRemoved(book.URI);
 });

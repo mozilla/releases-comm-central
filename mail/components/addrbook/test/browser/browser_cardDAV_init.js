@@ -287,7 +287,5 @@ add_task(async function testEveryThingOK() {
   await closeAddressBookWindow();
   await CardDAVServer.close();
 
-  let removePromise = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(directory.URI);
-  await removePromise;
+  await promiseDirectoryRemoved(directory.URI);
 });
