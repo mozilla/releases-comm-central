@@ -250,11 +250,14 @@ InitXPCOMGlue(LibLoadingStrategy aLibLoadingStrategy)
     return NS_ERROR_FAILURE;
   }
 
-  gBootstrap = mozilla::GetBootstrap(exePath.get(), aLibLoadingStrategy);
-  if (!gBootstrap) {
+  auto bootstrapResult =
+      mozilla::GetBootstrap(exePath.get(), aLibLoadingStrategy);
+  if (bootstrapResult.isErr()) {
     Output("Couldn't load XPCOM.\n");
     return NS_ERROR_FAILURE;
   }
+
+  gBootstrap = bootstrapResult.unwrap();
 
   // This will set this thread as the main thread.
   gBootstrap->NS_LogInit();
