@@ -1327,7 +1327,7 @@ var PanelView = class extends AssociatedToNode {
     let header = this.node.firstElementChild;
     if (header && header.classList.contains("panel-header")) {
       if (value) {
-        header.querySelector("label").setAttribute("value", value);
+        header.querySelector(".panel-header > h1 > span").textContent = value;
       } else {
         header.remove();
       }
@@ -1359,10 +1359,12 @@ var PanelView = class extends AssociatedToNode {
       backButton.blur();
     });
 
-    let label = this.document.createXULElement("label");
-    label.setAttribute("value", value);
+    let h1 = this.document.createElement("h1");
+    let span = this.document.createElement("span");
+    span.textContent = value;
+    h1.appendChild(span);
 
-    header.append(backButton, label);
+    header.append(backButton, h1);
     this.node.prepend(header);
   }
 
