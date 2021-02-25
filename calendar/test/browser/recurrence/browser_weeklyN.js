@@ -15,11 +15,10 @@ var {
   handleOccurrencePrompt,
   helpersForController,
   invokeNewEventDialog,
-  menulistSelect,
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
+var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 

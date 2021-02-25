@@ -47,7 +47,6 @@ const EXPORTED_SYMBOLS = [
   "findEventsInNode",
   "openLightningPrefs",
   "closeLightningPrefs",
-  "menulistSelect",
   "controller",
 ];
 
@@ -724,31 +723,4 @@ function openLightningPrefs(aCallback, aParentController) {
 
 function closeLightningPrefs(tab) {
   close_pref_tab(tab);
-}
-
-// TODO: Remove this and imports to point to ItemEditingHelpers.jsm
-/**
- * Selects an item from a menulist.
- *
- * @param {Element} menulist
- * @param {string} value
- */
-async function menulistSelect(menulist, value) {
-  let win = menulist.ownerGlobal;
-  Assert.ok(menulist, `<menulist id=${menulist.id}> exists`);
-  let menuitem = menulist.querySelector(`menupopup > menuitem[value='${value}']`);
-  Assert.ok(menuitem, `<menuitem value=${value}> exists`);
-
-  menulist.focus();
-
-  let shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(menulist, {}, win);
-  await shownPromise;
-
-  let hiddenPromise = BrowserTestUtils.waitForEvent(menulist, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(menuitem, {}, win);
-  await hiddenPromise;
-
-  await new Promise(resolve => win.setTimeout(resolve));
-  Assert.equal(menulist.value, value);
 }
