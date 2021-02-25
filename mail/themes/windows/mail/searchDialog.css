@@ -14,8 +14,9 @@
   -moz-default-appearance: listbox;
 }
 
-menulist {
-  width: 12em;
+.search-menulist,
+.search-value-menulist {
+  width: 11em;
 }
 
 .small-button {

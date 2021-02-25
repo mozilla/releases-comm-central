@@ -26,12 +26,9 @@
   -moz-default-appearance: listbox;
 }
 
-menulist {
-  width: 18em;
-}
-
-.search-menulist {
-  width: 12em;
+.search-menulist,
+.search-value-menulist {
+  width: 14.5em;
 }
 
 .small-button {
