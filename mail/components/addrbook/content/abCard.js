@@ -283,7 +283,6 @@ function OnLoadEditCard() {
 
         // the photo field and buttons
         document.getElementById("PhotoType").disabled = true;
-        document.getElementById("GenericPhotoList").disabled = true;
         document.getElementById("PhotoURI").disabled = true;
         document.getElementById("PhotoURI").placeholder = "";
         document.getElementById("BrowsePhoto").disabled = true;
@@ -916,36 +915,19 @@ function loadPhoto(aCard) {
 }
 
 /**
- * Event handler for when the user switches the type of
- * photo for the nsIAbCard being edited. Tries to initiate a
- * photo download.
+ * Event handler for when the user switches the type of photo for the nsIAbCard
+ * being edited. Tries to initiate a photo download.
  *
- * @param aPhotoType {string}  The type to switch to
- * @param aEvent {Event}       The event object if used as an event handler
+ * @param {string} aPhotoType - The type to switch to.
  */
-function onSwitchPhotoType(aPhotoType, aEvent) {
-  if (!gEditCard) {
-    return;
-  }
+function onSwitchPhotoType(aPhotoType) {
+  document.getElementById("PhotoType").value = aPhotoType;
 
-  // Stop event propagation to the radiogroup command event in case that the
-  // child button is pressed. Otherwise, the download is started twice in a row.
-  if (aEvent) {
-    aEvent.stopPropagation();
-  }
-
-  if (aPhotoType) {
-    if (aPhotoType != document.getElementById("PhotoType").value) {
-      document.getElementById("PhotoType").value = aPhotoType;
-    }
+  let photoHandler = gPhotoHandlers[aPhotoType];
+  if (!photoHandler.onRead(gEditCard.card, document)) {
+    onSwitchPhotoType("generic");
   } else {
-    aPhotoType = document.getElementById("PhotoType").value;
-  }
-
-  if (gPhotoHandlers[aPhotoType]) {
-    if (!gPhotoHandlers[aPhotoType].onRead(gEditCard.card, document)) {
-      onSwitchPhotoType("generic");
-    }
+    photoHandler.onShow(gEditCard.card, document, "photo");
   }
 }
 
@@ -1152,7 +1134,8 @@ var gPhotoDownloadUI = (function() {
   };
 })();
 
-/* A photo handler defines the behaviour of the contact editor
+/**
+ * A photo handler defines the behaviour of the contact editor
  * for a particular photo type. Each photo handler must implement
  * the following interface:
  *

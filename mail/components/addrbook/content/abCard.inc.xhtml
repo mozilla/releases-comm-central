@@ -627,17 +627,12 @@
         </vbox>
 
         <vbox flex="1">
-          <radiogroup id="PhotoType" oncommand="onSwitchPhotoType();">
+          <radiogroup id="PhotoType">
             <vbox id="GenericPhotoContainer">
-              <radio id="GenericPhotoType" value="generic" label="&GenericPhoto.label;"
-                     accesskey="&GenericPhoto.accesskey;"/>
-              <menulist id="GenericPhotoList" class="indent" flex="1"
-                        oncommand="onSwitchPhotoType('generic', event);">
-                <menupopup>
-                  <menuitem label="&DefaultPhoto.label;" selected="true"
-                            value="default"/>
-                </menupopup>
-              </menulist>
+              <radio id="GenericPhotoType" value="generic"
+                     label="&GenericPhoto.label;"
+                     accesskey="&GenericPhoto.accesskey;"
+                     oncommand="onSwitchPhotoType('generic');"/>
             </vbox>
 
             <vbox id="FilePhotoContainer">
@@ -668,7 +663,7 @@
                             class="input-inline"
                             placeholder="&PhotoURL.placeholder;"/>
                 <button id="UpdatePhoto"
-                        oncommand="onSwitchPhotoType('web', event);"
+                        oncommand="onSwitchPhotoType('web');"
                         label="&UpdatePhoto.label;"
                         accesskey="&UpdatePhoto.accesskey;"/>
               </hbox>
