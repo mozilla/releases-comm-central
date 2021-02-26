@@ -53,7 +53,7 @@ int16_t nsMAPIConfiguration::RegisterSession(
     return -1;
   }
 
-  if (!aUserName.IsEmpty()) m_ProfileMap.Get(aUserName, &n_SessionId);
+  if (!aUserName.IsEmpty()) n_SessionId = m_ProfileMap.Get(aUserName);
 
   // try to share a session; if not create a session
   if (n_SessionId > 0) {

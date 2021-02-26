@@ -4971,9 +4971,8 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
   const char* nsPrefix = ns ? ns->GetPrefix() : 0;
 
   if (m_specialXListMailboxes.Count() > 0) {
-    int32_t hashValue = 0;
     nsCString strHashKey(adoptedBoxSpec->mAllocatedPathName);
-    m_specialXListMailboxes.Get(strHashKey, &hashValue);
+    int32_t hashValue = m_specialXListMailboxes.Get(strHashKey);
     adoptedBoxSpec->mBoxFlags |= hashValue;
   }
 

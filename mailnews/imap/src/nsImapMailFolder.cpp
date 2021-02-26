@@ -2852,9 +2852,8 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     // db/folder listeners that the pseudo-header has become the new
     // header, i.e., the key has changed.
     nsCString newMessageId;
-    nsMsgKey pseudoKey = nsMsgKey_None;
     newMsgHdr->GetMessageId(getter_Copies(newMessageId));
-    m_pseudoHdrs.Get(newMessageId, &pseudoKey);
+    nsMsgKey pseudoKey = m_pseudoHdrs.MaybeGet(newMessageId).valueOr(nsMsgKey_None);
     if (notifier && pseudoKey != nsMsgKey_None) {
       notifier->NotifyMsgKeyChanged(pseudoKey, newMsgHdr);
       m_pseudoHdrs.Remove(newMessageId);
@@ -5798,8 +5797,7 @@ bool nsMsgIMAPFolderACL::SetFolderRightsForUser(const nsACString& userName,
   if (ourUserName.IsEmpty()) return false;
 
   ToLowerCase(ourUserName);
-  nsCString oldValue;
-  m_rightsHash.Get(ourUserName, &oldValue);
+  nsCString oldValue = m_rightsHash.Get(ourUserName);
   if (!oldValue.IsEmpty()) {
     m_rightsHash.Remove(ourUserName);
     m_aclCount--;
@@ -5861,7 +5859,7 @@ nsresult nsMsgIMAPFolderACL::GetRightsStringForUser(
     server->GetRealUsername(userName);
   }
   ToLowerCase(userName);
-  m_rightsHash.Get(userName, &rights);
+  rights = m_rightsHash.Get(userName);
   return NS_OK;
 }
 
@@ -5974,8 +5972,7 @@ bool nsMsgIMAPFolderACL::GetIsFolderShared() {
   if (m_aclCount > 1) return true;
 
   // Or, if "anyone" has rights to it, it is shared.
-  nsCString anyonesRights;
-  m_rightsHash.Get(nsLiteralCString(IMAP_ACL_ANYONE_STRING), &anyonesRights);
+  nsCString anyonesRights = m_rightsHash.Get(nsLiteralCString(IMAP_ACL_ANYONE_STRING));
   return (!anyonesRights.IsEmpty());
 }
 
