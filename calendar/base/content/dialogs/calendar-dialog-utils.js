@@ -210,14 +210,14 @@ function updateReminderDetails(reminderDetails, reminderList, calendar) {
   if (reminderList.value == "custom") {
     // Depending on how many alarms we have, show either the "Multiple Alarms"
     // label or the single reminder label.
-    setElementValue(reminderMultipleLabel, reminders.length < 2 && "true", "hidden");
-    setElementValue(reminderSingleLabel, reminders.length > 1 && "true", "hidden");
+    reminderMultipleLabel.hidden = reminders.length < 2;
+    reminderSingleLabel.hidden = reminders.length > 1;
 
     cal.alarms.addReminderImages(iconBox, reminders);
 
     // If there is only one reminder, display the reminder string
     if (reminders.length == 1) {
-      setElementValue(reminderSingleLabel, reminders[0].toString(window.calendarItem));
+      reminderSingleLabel.value = reminders[0].toString(window.calendarItem);
     }
   } else {
     reminderMultipleLabel.setAttribute("hidden", "true");
@@ -491,7 +491,7 @@ function commonUpdateReminder(
       if (reminders.some(x => x.related == Ci.calIAlarm.ALARM_RELATED_START)) {
         // ...automatically check 'has entrydate'.
         if (!getElementValue("todo-has-entrydate", "checked")) {
-          setElementValue("todo-has-entrydate", "true", "checked");
+          document.getElementById("todo-has-entrydate").checked = true;
 
           // Make sure gStartTime is properly initialized
           updateEntryDate();
@@ -505,7 +505,7 @@ function commonUpdateReminder(
       if (reminders.some(x => x.related == Ci.calIAlarm.ALARM_RELATED_END)) {
         // ...automatically check 'has duedate'.
         if (!getElementValue("todo-has-duedate", "checked")) {
-          setElementValue("todo-has-duedate", "true", "checked");
+          document.getElementById("todo-has-duedate").checked = true;
 
           // Make sure gStartTime is properly initialized
           updateDueDate();
@@ -561,8 +561,8 @@ function updateLink(itemUrlString, linkRow, urlLink) {
 
     setTimeout(() => {
       // HACK the url link doesn't crop when setting the value in onLoad
-      setElementValue(urlLink, itemUrlString);
-      setElementValue(urlLink, itemUrlString, "href");
+      urlLink.value = itemUrlString;
+      urlLink.href = itemUrlString;
     }, 0);
   }
 }

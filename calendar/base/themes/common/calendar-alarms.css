@@ -14,7 +14,7 @@
     list-style-image: url(chrome://calendar/skin/shared/icons/alarm.svg);
 }
 
-.alarm-icons-box[suppressed="true"] > .reminder-icon[value="DISPLAY"] {
+.alarm-icons-box[suppressed] > .reminder-icon[value="DISPLAY"] {
     list-style-image: url(chrome://calendar/skin/shared/icons/alarm-no.svg);
 }
 

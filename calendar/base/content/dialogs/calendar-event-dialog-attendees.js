@@ -247,8 +247,8 @@ var dateTimePickerUI = {
 
   changeAllDay() {
     let allDay = this.allDay.checked;
-    setElementValue("event-starttime", allDay, "timepickerdisabled");
-    setElementValue("event-endtime", allDay, "timepickerdisabled");
+    document.getElementById("event-starttime").toggleAttribute("timepickerdisabled", allDay);
+    document.getElementById("event-endtime").toggleAttribute("timepickerdisabled", allDay);
 
     if (allDay) {
       // Store date-times and related timezones so we can restore

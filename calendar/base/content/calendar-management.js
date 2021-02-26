@@ -546,7 +546,7 @@ function calendarListTooltipShowing(event) {
     tooltipText = cal.l10n.getCalString("tooltipCalendarReadOnly", [calendarName]);
   }
 
-  setElementValue("calendar-list-tooltip", tooltipText, "label");
+  document.getElementById("calendar-list-tooltip").label = tooltipText;
   return !!tooltipText;
 }
 
@@ -574,20 +574,16 @@ function calendarListSetupContextMenu(event) {
 
   if (calendar) {
     let stringName = composite.getCalendarById(calendar.id) ? "hideCalendar" : "showCalendar";
-    setElementValue(
-      "list-calendars-context-togglevisible",
-      cal.l10n.getCalString(stringName, [calendar.name]),
-      "label"
-    );
+    document.getElementById(
+      "list-calendars-context-togglevisible"
+    ).label = cal.l10n.getCalString(stringName, [calendar.name]);
     let accessKey = document
       .getElementById("list-calendars-context-togglevisible")
       .getAttribute(composite.getCalendarById(calendar.id) ? "accesskeyhide" : "accesskeyshow");
-    setElementValue("list-calendars-context-togglevisible", accessKey, "accesskey");
-    setElementValue(
-      "list-calendars-context-showonly",
-      cal.l10n.getCalString("showOnlyCalendar", [calendar.name]),
-      "label"
-    );
+    document.getElementById("list-calendars-context-togglevisible").accessKey = accessKey;
+    document.getElementById(
+      "list-calendars-context-showonly"
+    ).label = cal.l10n.getCalString("showOnlyCalendar", [calendar.name]);
     setupDeleteMenuitem("list-calendars-context-delete", calendar);
     for (let elem of event.target.querySelectorAll(".needs-calendar")) {
       elem.removeAttribute("collapsed");
@@ -620,8 +616,10 @@ function setupDeleteMenuitem(aDeleteId, aCalendar) {
   }
 
   let deleteItem = document.getElementById(aDeleteId);
-  setElementValue(deleteItem, deleteItem.getAttribute("label" + type), "label");
-  setElementValue(deleteItem, deleteItem.getAttribute("accesskey" + type), "accesskey");
+  // Dynamically set labelremove, labeldelete, labelunsubscribe
+  deleteItem.setAttribute("label", deleteItem.getAttribute("label" + type, "label"));
+  // Dynamically set accesskeyremove, accesskeydelete, accesskeyunsubscribe
+  deleteItem.setAttribute("label", deleteItem.getAttribute("accesskey" + type, "accesskey"));
 }
 
 /**

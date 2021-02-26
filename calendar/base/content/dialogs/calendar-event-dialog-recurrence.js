@@ -378,7 +378,7 @@ function onLoad() {
 
   // Set starting value for 'repeat until' rule and highlight the start date.
   let repeatDate = cal.dtz.dateTimeToJsDate(gStartTime.getInTimezone(cal.dtz.floating));
-  setElementValue("repeat-until-date", repeatDate);
+  document.getElementById("repeat-until-date").value = repeatDate;
   document.getElementById("repeat-until-date").extraDate = repeatDate;
 
   if (item.parentItem != item) {
@@ -431,8 +431,8 @@ function initializeControls(rule) {
     if (aByMonthDay == -1) {
       // The last day of the month.
       document.getElementById("yearly-group").selectedIndex = 1;
-      setElementValue("yearly-ordinal", -1);
-      setElementValue("yearly-weekday", -1);
+      document.getElementById("yearly-ordinal").value = -1;
+      document.getElementById("yearly-weekday").value = -1;
     } else {
       if (aByMonthDay < -1) {
         // The UI doesn't manage negative days apart from -1 but we can
@@ -440,7 +440,7 @@ function initializeControls(rule) {
         aByMonthDay += aDate.endOfMonth.day + 1;
       }
       document.getElementById("yearly-group").selectedIndex = 0;
-      setElementValue("yearly-days", aByMonthDay);
+      document.getElementById("yearly-days").value = aByMonthDay;
     }
   }
 
@@ -453,18 +453,18 @@ function initializeControls(rule) {
   switch (rule.type) {
     case "DAILY":
       document.getElementById("period-list").selectedIndex = 0;
-      setElementValue("daily-days", rule.interval);
+      document.getElementById("daily-days").value = rule.interval;
       break;
     case "WEEKLY":
-      setElementValue("weekly-weeks", rule.interval);
+      document.getElementById("weekly-weeks").value = rule.interval;
       document.getElementById("period-list").selectedIndex = 1;
       break;
     case "MONTHLY":
-      setElementValue("monthly-interval", rule.interval);
+      document.getElementById("monthly-interval").value = rule.interval;
       document.getElementById("period-list").selectedIndex = 2;
       break;
     case "YEARLY":
-      setElementValue("yearly-interval", rule.interval);
+      document.getElementById("yearly-interval").value = rule.interval;
       document.getElementById("period-list").selectedIndex = 3;
       break;
     default:
@@ -502,24 +502,24 @@ function initializeControls(rule) {
     document.getElementById("monthly-group").selectedIndex = 1;
     DaypickerMonthday.days = [startDate.day];
     let day = Math.floor((startDate.day - 1) / 7) + 1;
-    setElementValue("monthly-ordinal", day);
-    setElementValue("monthly-weekday", startDate.weekday + 1);
+    document.getElementById("monthly-ordinal").value = day;
+    document.getElementById("monthly-weekday").value = startDate.weekday + 1;
   } else if (everyWeekDay(byDayRuleComponent)) {
     // Every day of the month.
     document.getElementById("monthly-group").selectedIndex = 0;
-    setElementValue("monthly-ordinal", 0);
-    setElementValue("monthly-weekday", -1);
+    document.getElementById("monthly-ordinal").value = 0;
+    document.getElementById("monthly-weekday").value = -1;
   } else if (byDayRuleComponent.length > 0) {
     // One of the first five days or weekdays of the month.
     document.getElementById("monthly-group").selectedIndex = 0;
     let ruleInfo = getOrdinalAndWeekdayOfRule(byDayRuleComponent[0]);
-    setElementValue("monthly-ordinal", ruleInfo.ordinal);
-    setElementValue("monthly-weekday", ruleInfo.weekday);
+    document.getElementById("monthly-ordinal").value = ruleInfo.ordinal;
+    document.getElementById("monthly-weekday").value = ruleInfo.weekday;
   } else if (byMonthDayRuleComponent.length == 1 && byMonthDayRuleComponent[0] == -1) {
     // The last day of the month.
     document.getElementById("monthly-group").selectedIndex = 0;
-    setElementValue("monthly-ordinal", byMonthDayRuleComponent[0]);
-    setElementValue("monthly-weekday", byMonthDayRuleComponent[0]);
+    document.getElementById("monthly-ordinal").value = byMonthDayRuleComponent[0];
+    document.getElementById("monthly-weekday").value = byMonthDayRuleComponent[0];
   } else if (byMonthDayRuleComponent.length > 0) {
     document.getElementById("monthly-group").selectedIndex = 1;
     DaypickerMonthday.days = byMonthDayRuleComponent;
@@ -527,19 +527,19 @@ function initializeControls(rule) {
 
   // "YEARLY" ruletype
   if (byMonthRuleComponent.length == 0 || rule.type != "YEARLY") {
-    setElementValue("yearly-month-rule", startDate.month + 1);
-    setElementValue("yearly-month-ordinal", startDate.month + 1);
+    document.getElementById("yearly-month-rule").value = startDate.month + 1;
+    document.getElementById("yearly-month-ordinal").value = startDate.month + 1;
     if (byMonthDayRuleComponent.length > 0) {
       setControlsForByMonthDay_YearlyRule(startDate, byMonthDayRuleComponent[0]);
     } else {
-      setElementValue("yearly-days", startDate.day);
+      document.getElementById("yearly-days").value = startDate.day;
       let ordinalDay = Math.floor((startDate.day - 1) / 7) + 1;
-      setElementValue("yearly-ordinal", ordinalDay);
-      setElementValue("yearly-weekday", startDate.weekday + 1);
+      document.getElementById("yearly-ordinal").value = ordinalDay;
+      document.getElementById("yearly-weekday").value = startDate.weekday + 1;
     }
   } else {
-    setElementValue("yearly-month-rule", byMonthRuleComponent[0]);
-    setElementValue("yearly-month-ordinal", byMonthRuleComponent[0]);
+    document.getElementById("yearly-month-rule").value = byMonthRuleComponent[0];
+    document.getElementById("yearly-month-ordinal").value = byMonthRuleComponent[0];
     if (byMonthDayRuleComponent.length > 0) {
       let date = startDate.clone();
       date.month = byMonthRuleComponent[0] - 1;
@@ -548,26 +548,26 @@ function initializeControls(rule) {
       document.getElementById("yearly-group").selectedIndex = 1;
       if (everyWeekDay(byDayRuleComponent)) {
         // Every day of the month.
-        setElementValue("yearly-ordinal", 0);
-        setElementValue("yearly-weekday", -1);
+        document.getElementById("yearly-ordinal").value = 0;
+        document.getElementById("yearly-weekday").value = -1;
       } else {
         let yearlyRuleInfo = getOrdinalAndWeekdayOfRule(byDayRuleComponent[0]);
-        setElementValue("yearly-ordinal", yearlyRuleInfo.ordinal);
-        setElementValue("yearly-weekday", yearlyRuleInfo.weekday);
+        document.getElementById("yearly-ordinal").value = yearlyRuleInfo.ordinal;
+        document.getElementById("yearly-weekday").value = yearlyRuleInfo.weekday;
       }
     } else if (byMonthRuleComponent.length > 0) {
       document.getElementById("yearly-group").selectedIndex = 0;
-      setElementValue("yearly-days", startDate.day);
+      document.getElementById("yearly-days").value = startDate.day;
     }
   }
 
   /* load up the duration of the event radiogroup */
   if (rule.isByCount) {
     if (rule.count == -1) {
-      setElementValue("recurrence-duration", "forever");
+      document.getElementById("recurrence-duration").value = "forever";
     } else {
-      setElementValue("recurrence-duration", "ntimes");
-      setElementValue("repeat-ntimes-count", rule.count);
+      document.getElementById("recurrence-duration").value = "ntimes";
+      document.getElementById("repeat-ntimes-count").value = rule.count;
     }
   } else {
     let untilDate = rule.untilDate;
@@ -579,10 +579,10 @@ function initializeControls(rule) {
         gUntilDate = gStartTime.clone();
       }
       let repeatDate = cal.dtz.dateTimeToJsDate(gUntilDate.getInTimezone(cal.dtz.floating));
-      setElementValue("recurrence-duration", "until");
-      setElementValue("repeat-until-date", repeatDate);
+      document.getElementById("recurrence-duration").value = "until";
+      document.getElementById("repeat-until-date").value = repeatDate;
     } else {
-      setElementValue("recurrence-duration", "forever");
+      document.getElementById("recurrence-duration").value = "forever";
     }
   }
 }
@@ -963,7 +963,7 @@ function checkUntilDate() {
     let repeatDate = cal.dtz.dateTimeToJsDate(
       (gUntilDate || gStartTime).getInTimezone(cal.dtz.floating)
     );
-    setElementValue("repeat-until-date", repeatDate);
+    document.getElementById("repeat-until-date").value = repeatDate;
     checkUntilDate.warning = true;
     let callback = function() {
       // No warning when the dialog is being closed with the Cancel button.

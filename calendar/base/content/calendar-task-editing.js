@@ -57,8 +57,8 @@ var taskEdit = {
    */
   setupTaskField(aTarget, aDisable, aValue) {
     aTarget.value = aValue;
-    setElementValue(aTarget, aDisable && "true", "readonly");
-    setElementValue(aTarget, aDisable && "true", "aria-disabled");
+    aTarget.readonly = aDisable;
+    aTarget.ariaDisabled = aDisable;
   },
 
   /**

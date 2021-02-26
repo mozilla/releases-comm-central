@@ -105,7 +105,7 @@ function receiveMessage(aEvent) {
     case "disableLinkCommand": {
       let linkCommand = document.getElementById("cmd_toggle_link");
       if (linkCommand) {
-        setElementValue(linkCommand, "true", "disabled");
+        linkCommand.setAttribute("disabled", true);
       }
       break;
     }
@@ -136,7 +136,7 @@ function receiveMessage(aEvent) {
       break;
     case "setElementAttribute": {
       let arg = aEvent.data.argument;
-      setElementValue(arg.id, arg.value, arg.attribute);
+      document.getElementById(arg.id)[arg.attribute] = arg.value;
       break;
     }
     case "loadCloudProviders": {
@@ -659,12 +659,12 @@ function updatePrivacy(aArg) {
     }
   } else {
     // aArg.hasPrivacy is false
-    setElementValue("button-privacy", "true", "disabled");
-    setElementValue("status-privacy", "true", "collapsed");
+    document.getElementById("button-privacy").disabled = true;
+    document.getElementById("status-privacy").collapsed = true;
     // in the tab case the menu item does not exist
     let privacyMenuItem = document.getElementById("options-privacy-menu");
     if (privacyMenuItem) {
-      setElementValue("options-privacy-menu", "true", "disabled");
+      document.getElementById("options-privacy-menu").disabled = true;
     }
   }
 }
@@ -689,12 +689,12 @@ function editPriority(aTarget) {
 function updatePriority(aArg) {
   // Set up capabilities
   if (document.getElementById("button-priority")) {
-    setElementValue("button-priority", !aArg.hasPriority && "true", "disabled");
+    document.getElementById("button-priority").disabled = !aArg.hasPriority;
   }
   if (!gTabmail && document.getElementById("options-priority-menu")) {
-    setElementValue("options-priority-menu", !aArg.hasPriority && "true", "disabled");
+    document.getElementById("options-priority-menu").disabled = !aArg.hasPriority;
   }
-  setElementValue("status-priority", !aArg.hasPriority && "true", "collapsed");
+  document.getElementById("status-priority").collapsed = !aArg.hasPriority;
 
   if (aArg.hasPriority) {
     let priorityLevel = "none";
@@ -917,7 +917,7 @@ function attachURL() {
  * @param {boolean} aArg.attachUrlCommand  Enable the attach url command?
  */
 function updateAttachment(aArg) {
-  setElementValue("cmd_attach_url", !aArg.attachUrlCommand && "true", "disabled");
+  document.getElementById("cmd_attach_url").setAttribute("disabled", !aArg.attachUrlCommand);
 }
 
 /**
@@ -927,7 +927,7 @@ function updateAttachment(aArg) {
  * @param {boolean} aArg.attendeesCommand  Enable the attendees command?
  */
 function updateAttendeesCommand(aArg) {
-  setElementValue("cmd_attendees", !aArg.attendeesCommand, "disabled");
+  document.getElementById("cmd_attendees").setAttribute("disabled", !aArg.attendeesCommand);
 }
 
 /**
@@ -937,8 +937,8 @@ function updateAttendeesCommand(aArg) {
  * @param {boolean} aEnable  Enable the commands?
  */
 function enableAcceptCommand(aEnable) {
-  setElementValue("cmd_accept", !aEnable, "disabled");
-  setElementValue("cmd_save", !aEnable, "disabled");
+  document.getElementById("cmd_accept").setAttribute("disabled", !aEnable);
+  document.getElementById("cmd_save").setAttribute("disabled", !aEnable);
 }
 
 /**

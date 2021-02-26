@@ -312,7 +312,7 @@ function eventsAndTasksOptions(targetId) {
   checkbox.setAttribute("checked", checked ? "true" : "false");
 
   if (targetId == "tasks") {
-    setElementValue("tasks-with-no-due-date", !checked, "disabled");
-    setElementValue("completed-tasks", !checked, "disabled");
+    document.getElementById("tasks-with-no-due-date").disabled = !checked;
+    document.getElementById("completed-tasks").disabled = !checked;
   }
 }

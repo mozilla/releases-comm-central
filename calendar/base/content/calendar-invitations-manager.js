@@ -9,8 +9,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  *          tearDownInvitationsManager
  */
 
-/* globals setElementValue */
-
 /**
  * This object contains functions to take care of manipulating requests.
  */
@@ -75,7 +73,7 @@ var gInvitationsOperationListener = {
     if (Components.isSuccessCode(aStatus)) {
       let value = cal.l10n.getLtnString("invitationsLink.label", [this.mCount]);
       document.getElementById("calendar-invitations-label").value = value;
-      setElementValue(invitationsBox, this.mCount < 1 && "true", "hidden");
+      invitationsBox.hidden = this.mCount < 1;
     } else {
       invitationsBox.setAttribute("hidden", "true");
     }

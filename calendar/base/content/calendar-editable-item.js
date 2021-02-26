@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* global MozElements, MozXULElement, setBooleanAttribute, onMouseOverItem
-   invokeEventDragSession, setElementValue */
+   invokeEventDragSession */
 
 "use strict";
 
@@ -311,11 +311,7 @@
         cal.alarms.addReminderImages(iconsBox, alarms);
 
         // Set suppressed status on the icons box.
-        setElementValue(
-          iconsBox,
-          item.calendar.getProperty("suppressAlarms") || false,
-          "suppressed"
-        );
+        iconsBox.toggleAttribute("suppressed", item.calendar.getProperty("suppressAlarms"));
       }
 
       // Item classification / privacy.

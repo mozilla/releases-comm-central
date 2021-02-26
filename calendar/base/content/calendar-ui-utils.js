@@ -20,65 +20,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
- * Helper function for filling the form,
- * Set the value of a property of a XUL element
- *
- * @param aElement      ID of XUL element to set, or the element node itself
- * @param aNewValue     value to set property to ( if undefined no change is made )
- * @param aPropertyName OPTIONAL name of property to set, default is "value",
- *                        use "checked" for radios & checkboxes, "data" for
- *                        drop-downs
- */
-function setElementValue(aElement, aNewValue, aPropertyName) {
-  cal.ASSERT(aElement, "aElement");
-
-  if (aNewValue !== undefined) {
-    if (typeof aElement == "string") {
-      aElement = document.getElementById(aElement);
-      cal.ASSERT(aElement, "aElement");
-    }
-
-    if (!aElement) {
-      return;
-    }
-
-    if (aNewValue === false) {
-      try {
-        aElement.removeAttribute(aPropertyName);
-      } catch (e) {
-        cal.ERROR(
-          "setElementValue: aElement.removeAttribute couldn't remove " +
-            aPropertyName +
-            " from " +
-            (aElement && aElement.localName) +
-            " e: " +
-            e +
-            "\n"
-        );
-      }
-    } else if (aPropertyName) {
-      try {
-        aElement.setAttribute(aPropertyName, aNewValue);
-      } catch (e) {
-        cal.ERROR(
-          "setElementValue: aElement.setAttribute couldn't set " +
-            aPropertyName +
-            " from " +
-            (aElement && aElement.localName) +
-            " to " +
-            aNewValue +
-            " e: " +
-            e +
-            "\n"
-        );
-      }
-    } else {
-      aElement.value = aNewValue;
-    }
-  }
-}
-
-/**
  * Helper function for getting data from the form,
  * Get the value of a property of a XUL element
  *
@@ -106,7 +47,14 @@ function getElementValue(aElement, aPropertyName) {
  * @return                Returns aValue (for chaining)
  */
 function setBooleanAttribute(aXulElement, aAttribute, aValue) {
-  setElementValue(aXulElement, aValue ? "true" : false, aAttribute);
+  if (typeof aXulElement == "string") {
+    aXulElement = document.getElementById(aXulElement);
+  }
+  if (aValue === false) {
+    aXulElement.removeAttribute(aAttribute);
+  } else {
+    aXulElement.setAttribute(aAttribute, !!aValue);
+  }
   return aValue;
 }
 
@@ -314,11 +262,11 @@ function setAttributeToChildren(aParent, aAttribute, aValue, aFilterAttribute, a
   for (let i = 0; i < aParent.children.length; i++) {
     let element = aParent.children[i];
     if (aFilterAttribute == null) {
-      setElementValue(element, aValue, aAttribute);
+      element[aAttribute] = aValue;
     } else if (element.hasAttribute(aFilterAttribute)) {
       let compValue = element.getAttribute(aFilterAttribute);
       if (compValue === aFilterValue) {
-        setElementValue(element, aValue, aAttribute);
+        element[aAttribute] = aValue;
       }
     }
   }

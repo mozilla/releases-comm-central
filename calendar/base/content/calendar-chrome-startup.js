@@ -208,10 +208,10 @@ var calendarWindowPrefs = {
     if (aTopic == "nsPref:changed") {
       switch (aData) {
         case "calendar.view.useSystemColors": {
-          let attributeValue =
+          let useSystemColors =
             Services.prefs.getBoolPref("calendar.view.useSystemColors", false) && "true";
           for (let win of Services.ww.getWindowEnumerator()) {
-            setElementValue(win.document.documentElement, attributeValue, "systemcolors");
+            win.document.documentElement.toggleAttribute("systemcolors", useSystemColors);
           }
           break;
         }
@@ -219,9 +219,9 @@ var calendarWindowPrefs = {
     } else if (aTopic == "domwindowopened") {
       let win = aSubject;
       win.addEventListener("load", () => {
-        let attributeValue =
+        let useSystemColors =
           Services.prefs.getBoolPref("calendar.view.useSystemColors", false) && "true";
-        setElementValue(win.document.documentElement, attributeValue, "systemcolors");
+        win.document.documentElement.toggleAttribute("systemcolors", useSystemColors);
       });
     }
   },

@@ -38,17 +38,21 @@ function onLoad() {
     return cal.l10n.getString("calendar-alarms", getItemBundleStringName(x));
   }
 
-  setElementValue(
-    "reminder-before-start-menuitem",
-    _sn("reminderCustomOriginBeginBefore"),
-    "label"
+  document.getElementById("reminder-before-start-menuitem").label = _sn(
+    "reminderCustomOriginBeginBefore"
   );
 
-  setElementValue("reminder-after-start-menuitem", _sn("reminderCustomOriginBeginAfter"), "label");
+  document.getElementById("reminder-after-start-menuitem").label = _sn(
+    "reminderCustomOriginBeginAfter"
+  );
 
-  setElementValue("reminder-before-end-menuitem", _sn("reminderCustomOriginEndBefore"), "label");
+  document.getElementById("reminder-before-end-menuitem").label = _sn(
+    "reminderCustomOriginEndBefore"
+  );
 
-  setElementValue("reminder-after-end-menuitem", _sn("reminderCustomOriginEndAfter"), "label");
+  document.getElementById("reminder-after-end-menuitem").label = _sn(
+    "reminderCustomOriginEndAfter"
+  );
 
   // Set up the action map
   let supportedActions = calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"]; // TODO email support, "EMAIL"
@@ -63,7 +67,7 @@ function onLoad() {
     let shouldHide =
       !(actionNode.value in allowedActionsMap) ||
       (actionNode.hasAttribute("provider") && actionNode.getAttribute("provider") != calendar.type);
-    setElementValue(actionNode, shouldHide && "true", "hidden");
+    actionNode.hidden = shouldHide;
     if (!firstAvailableItem && !shouldHide) {
       firstAvailableItem = actionNode;
     }
@@ -132,33 +136,28 @@ function setupRadioEnabledState(aDisableAll) {
   let relationItem = document.getElementById("reminder-relation-radiogroup").selectedItem;
   let relativeDisabled, absoluteDisabled;
 
-  // Note that the mix of string/boolean here is not a mistake.
-  // setElementValue removes the attribute from the node if the second
-  // parameter is === false, otherwise sets the attribute value to the given
-  // string (i.e "true").
   if (aDisableAll) {
-    relativeDisabled = "true";
-    absoluteDisabled = "true";
+    relativeDisabled = true;
+    absoluteDisabled = true;
   } else if (relationItem) {
     // This is not a mistake, when this function is called from onselect,
     // the value has not been set.
-    relativeDisabled = relationItem.value == "absolute" && "true";
-    absoluteDisabled = relationItem.value == "relative" && "true";
+    relativeDisabled = relationItem.value == "absolute";
+    absoluteDisabled = relationItem.value == "relative";
   } else {
     relativeDisabled = false;
     absoluteDisabled = false;
   }
 
-  setElementValue("reminder-length", relativeDisabled, "disabled");
-  setElementValue("reminder-unit", relativeDisabled, "disabled");
-  setElementValue("reminder-relation-origin", relativeDisabled, "disabled");
+  document.getElementById("reminder-length").disabled = relativeDisabled;
+  document.getElementById("reminder-unit").disabled = relativeDisabled;
+  document.getElementById("reminder-relation-origin").disabled = relativeDisabled;
 
-  setElementValue("reminder-absolute-date", absoluteDisabled, "disabled");
+  document.getElementById("reminder-absolute-date").setAttribute("disabled", !!absoluteDisabled);
 
-  let disableAll = aDisableAll ? "true" : false;
-  setElementValue("reminder-relative-radio", disableAll, "disabled");
-  setElementValue("reminder-absolute-radio", disableAll, "disabled");
-  setElementValue("reminder-actions-menulist", disableAll, "disabled");
+  document.getElementById("reminder-relative-radio").disabled = aDisableAll;
+  document.getElementById("reminder-absolute-radio").disabled = aDisableAll;
+  document.getElementById("reminder-actions-menulist").disabled = aDisableAll;
 }
 
 /**
@@ -170,13 +169,11 @@ function setupMaxReminders() {
   let listbox = document.getElementById("reminder-listbox");
   let maxReminders = args.calendar.getProperty("capabilities.alarms.maxCount");
 
-  // != null is needed here to ensure cond to be true/false, instead of
-  // true/null. The former is needed for setElementValue.
-  let cond = maxReminders != null && listbox.children.length >= maxReminders;
+  let hitMaxReminders = maxReminders && listbox.children.length >= maxReminders;
 
   // If we hit the maximum number of reminders, show the error box and
   // disable the new button.
-  setElementValue("reminder-new-button", cond && "true", "disabled");
+  document.getElementById("reminder-new-button").disabled = hitMaxReminders;
 
   let localeErrorString = cal.l10n.getString(
     "calendar-alarms",
@@ -188,7 +185,7 @@ function setupMaxReminders() {
     maxReminders
   );
 
-  if (cond) {
+  if (hitMaxReminders) {
     let notification = gReminderNotification.appendNotification(
       pluralErrorLabel,
       "reminderNotification",
@@ -455,7 +452,7 @@ function onRemoveReminder() {
   listitem.remove();
   listbox.selectItem(newSelection);
 
-  setElementValue("reminder-remove-button", listbox.children.length < 1 && "true", "disabled");
+  document.getElementById("reminder-remove-button").disabled = listbox.children.length < 1;
   setupMaxReminders();
 }
 
