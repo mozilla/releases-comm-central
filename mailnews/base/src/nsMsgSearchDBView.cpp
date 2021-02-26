@@ -592,7 +592,7 @@ void nsMsgSearchDBView::MoveThreadAt(nsMsgViewIndex threadIndex) {
 }
 
 nsresult nsMsgSearchDBView::GetMessageEnumerator(
-    nsISimpleEnumerator** enumerator) {
+    nsIMsgEnumerator** enumerator) {
   // We do not have an m_db, so the default behavior (in nsMsgDBView) is not
   // what we want (it will crash).  We just want someone to enumerate the
   // headers that we already have.  Conveniently, nsMsgDBView already knows
@@ -1079,7 +1079,7 @@ nsMsgSearchDBView::GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) {
 }
 
 NS_IMETHODIMP
-nsMsgSearchDBView::OpenWithHdrs(nsISimpleEnumerator* aHeaders,
+nsMsgSearchDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                                 nsMsgViewSortTypeValue aSortType,
                                 nsMsgViewSortOrderValue aSortOrder,
                                 nsMsgViewFlagsTypeValue aViewFlags,
@@ -1094,15 +1094,13 @@ nsMsgSearchDBView::OpenWithHdrs(nsISimpleEnumerator* aHeaders,
   SaveSortInfo(m_sortType, m_sortOrder);
 
   bool hasMore;
-  nsCOMPtr<nsISupports> supports;
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = NS_OK;
   while (NS_SUCCEEDED(rv) &&
          NS_SUCCEEDED(rv = aHeaders->HasMoreElements(&hasMore)) && hasMore) {
-    rv = aHeaders->GetNext(getter_AddRefs(supports));
-    if (NS_SUCCEEDED(rv) && supports) {
-      msgHdr = do_QueryInterface(supports);
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
+    nsCOMPtr<nsIMsgFolder> folder;
+    rv = aHeaders->GetNext(getter_AddRefs(msgHdr));
+    if (NS_SUCCEEDED(rv) && msgHdr) {
       msgHdr->GetFolder(getter_AddRefs(folder));
       AddHdrFromFolder(msgHdr, folder);
     }

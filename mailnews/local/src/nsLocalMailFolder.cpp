@@ -1457,7 +1457,7 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
                                         getter_AddRefs(newMsgFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> messages;
+  nsCOMPtr<nsIMsgEnumerator> messages;
   rv = srcFolder->GetMessages(getter_AddRefs(messages));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1467,10 +1467,8 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
   if (messages) rv = messages->HasMoreElements(&hasMoreElements);
 
   while (NS_SUCCEEDED(rv) && hasMoreElements) {
-    nsCOMPtr<nsISupports> iface;
-    rv = messages->GetNext(getter_AddRefs(iface));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIMsgDBHdr> msg(do_QueryInterface(iface, &rv));
+    nsCOMPtr<nsIMsgDBHdr> msg;
+    rv = messages->GetNext(getter_AddRefs(msg));
     NS_ENSURE_SUCCESS(rv, rv);
 
     msgArray.AppendElement(msg);

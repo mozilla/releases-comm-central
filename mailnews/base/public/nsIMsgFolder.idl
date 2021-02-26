@@ -8,7 +8,7 @@
 #include "nsIMsgIncomingServer.idl"
 #include "nsIMsgCopyServiceListener.idl"
 #include "nsIUrlListener.idl"
-#include "nsISimpleEnumerator.idl"
+#include "nsIMsgEnumerator.idl"
 
 interface nsIMsgDBHdr;
 interface nsIMsgWindow;
@@ -53,7 +53,7 @@ interface nsIMsgFolder : nsISupports {
   attribute nsIMsgFolder parent;
 
   /// Returns an enumerator containing the messages within the current database.
-  readonly attribute nsISimpleEnumerator messages;
+  readonly attribute nsIMsgEnumerator messages;
 
   /**
    * This method is called by the folder-lookup-service after constructing

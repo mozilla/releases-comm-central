@@ -27,7 +27,7 @@
 #include "PLDHashTable.h"
 #include "nsTArray.h"
 #include "nsTObserverArray.h"
-#include "nsSimpleEnumerator.h"
+#include "nsMsgEnumerator.h"
 
 class nsMsgThread;
 class nsMsgDatabase;
@@ -67,12 +67,11 @@ class nsMsgDBService final : public nsIMsgDBService {
   AutoTArray<nsMsgDatabase*, kInitialMsgDBCacheSize> m_dbCache;
 };
 
-class nsMsgDBEnumerator : public nsSimpleEnumerator {
+class nsMsgDBEnumerator : public nsMsgEnumerator {
  public:
-  const nsID& DefaultInterface() override { return NS_GET_IID(nsIMsgDBHdr); }
-
-  // nsISimpleEnumerator methods:
-  NS_DECL_NSISIMPLEENUMERATOR
+  // nsIMsgEnumerator support.
+  NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;
+  NS_IMETHOD HasMoreElements(bool* aResult) override;
 
   // nsMsgDBEnumerator methods:
   typedef nsresult (*nsMsgDBEnumeratorFilter)(nsIMsgDBHdr* hdr, void* closure);
@@ -82,6 +81,8 @@ class nsMsgDBEnumerator : public nsSimpleEnumerator {
                     bool iterateForwards = true);
   void Clear();
 
+ protected:
+  // internals
   nsresult GetRowCursor();
   virtual nsresult PrefetchNext();
   RefPtr<nsMsgDatabase> mDB;
@@ -98,8 +99,7 @@ class nsMsgDBEnumerator : public nsSimpleEnumerator {
   // enumerator looks at in any given time slice.
   mdb_pos mStopPos;
 
- protected:
-  ~nsMsgDBEnumerator() override;
+  virtual ~nsMsgDBEnumerator() override;
 };
 
 class nsMsgFilteredDBEnumerator : public nsMsgDBEnumerator {
@@ -162,7 +162,7 @@ class nsMsgDatabase : public nsIMsgDatabase {
   virtual nsresult CreateMsgHdr(nsIMdbRow* hdrRow, nsMsgKey key,
                                 nsIMsgDBHdr** result);
   virtual nsresult GetThreadForMsgKey(nsMsgKey msgKey, nsIMsgThread** result);
-  virtual nsresult EnumerateMessagesWithFlag(nsISimpleEnumerator** result,
+  virtual nsresult EnumerateMessagesWithFlag(nsIMsgEnumerator** result,
                                              uint32_t* pFlag);
   nsresult GetSearchResultsTable(const char* searchFolderUri,
                                  bool createIfMissing, nsIMdbTable** table);

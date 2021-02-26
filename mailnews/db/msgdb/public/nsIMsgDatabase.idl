@@ -30,6 +30,7 @@
 interface nsIMsgDatabase;
 interface nsIDBChangeListener;
 interface nsIMsgDBHdr;
+interface nsIMsgEnumerator;
 interface nsISimpleEnumerator;
 interface nsIMsgThread;
 interface nsIDBFolderInfo;
@@ -300,19 +301,19 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    */
   Array<nsMsgKey> listAllKeys();
 
-  nsISimpleEnumerator EnumerateMessages();
-  nsISimpleEnumerator ReverseEnumerateMessages();
+  nsIMsgEnumerator EnumerateMessages();
+  nsIMsgEnumerator ReverseEnumerateMessages();
   nsISimpleEnumerator EnumerateThreads();
 
   /**
-   * Get an enumerator got messages matching the passed-in search terms.
+   * Get an enumerator of messages matching the passed-in search terms.
    *
-   * @param     searchTerms       array of search terms to evaluate.
-   * @param     reverse           start at the end, defaults to false.
+   * @param searchTerms  Array of search terms to evaluate.
+   * @param reverse      Start at the end, defaults to false.
    *
-   * @returns   an enumerator to iterate over matching messages.
+   * @returns An enumerator to iterate over matching messages.
    */
-  nsISimpleEnumerator getFilterEnumerator(in Array<nsIMsgSearchTerm> searchTerms,
+  nsIMsgEnumerator getFilterEnumerator(in Array<nsIMsgSearchTerm> searchTerms,
                                           [optional] in boolean reverse);
 
   // count the total and unread msgs, and adjust global count if needed
@@ -520,7 +521,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   Array<nsMsgKey> getNewList();
 
   // These are used for caching search hits in a db, to speed up saved search folders.
-  nsISimpleEnumerator getCachedHits(in string aSearchFolderUri);
+  nsIMsgEnumerator getCachedHits(in string aSearchFolderUri);
 
   /**
    * Update search cache to ensure it contains aNewHits.

@@ -1173,7 +1173,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyRetentionSettings() {
     bool dbWasCached = mDatabase != nullptr;
     rv = GetDatabase();
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsISimpleEnumerator> hdrs;
+    nsCOMPtr<nsIMsgEnumerator> hdrs;
     rv = mDatabase->EnumerateMessages(getter_AddRefs(hdrs));
     NS_ENSURE_SUCCESS(rv, rv);
     bool hasMore = false;
@@ -1181,22 +1181,19 @@ NS_IMETHODIMP nsImapMailFolder::ApplyRetentionSettings() {
     PRTime cutOffDay =
         MsgConvertAgeInDaysToCutoffDate(numDaysToKeepOfflineMsgs);
 
-    nsCOMPtr<nsIMsgDBHdr> pHeader;
     // so now cutOffDay is the PRTime cut-off point. Any offline msg with
     // a date less than that will get marked for pending removal.
     while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
-      nsCOMPtr<nsISupports> supports;
-      rv = hdrs->GetNext(getter_AddRefs(supports));
-      NS_ENSURE_SUCCESS(rv, rv);
-      pHeader = do_QueryInterface(supports, &rv);
+      nsCOMPtr<nsIMsgDBHdr> header;
+      rv = hdrs->GetNext(getter_AddRefs(header));
       NS_ENSURE_SUCCESS(rv, rv);
 
       uint32_t msgFlags;
       PRTime msgDate;
-      pHeader->GetFlags(&msgFlags);
+      header->GetFlags(&msgFlags);
       if (msgFlags & nsMsgMessageFlags::Offline) {
-        pHeader->GetDate(&msgDate);
-        MarkPendingRemoval(pHeader, msgDate < cutOffDay);
+        header->GetDate(&msgDate);
+        MarkPendingRemoval(header, msgDate < cutOffDay);
         // I'm horribly tempted to break out of the loop if we've found
         // a message after the cut-off date, because messages will most likely
         // be in date order in the db, but there are always edge cases.
@@ -2312,20 +2309,18 @@ nsresult nsImapMailFolder::GetBodysToDownload(
   NS_ENSURE_ARG(keysOfMessagesToDownload);
   NS_ENSURE_TRUE(mDatabase, NS_ERROR_FAILURE);
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
+  nsCOMPtr<nsIMsgEnumerator> enumerator;
   nsresult rv = mDatabase->EnumerateMessages(getter_AddRefs(enumerator));
   if (NS_SUCCEEDED(rv) && enumerator) {
     bool hasMore;
     while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) &&
            hasMore) {
-      nsCOMPtr<nsISupports> supports;
-      rv = enumerator->GetNext(getter_AddRefs(supports));
-      NS_ENSURE_SUCCESS(rv, rv);
-      nsCOMPtr<nsIMsgDBHdr> pHeader = do_QueryInterface(supports, &rv);
+      nsCOMPtr<nsIMsgDBHdr> header;
+      rv = enumerator->GetNext(getter_AddRefs(header));
       NS_ENSURE_SUCCESS(rv, rv);
       bool shouldStoreMsgOffline = false;
       nsMsgKey msgKey;
-      pHeader->GetMessageKey(&msgKey);
+      header->GetMessageKey(&msgKey);
       // MsgFitsDownloadCriteria ignores nsMsgFolderFlags::Offline, which we
       // want
       if (m_downloadingFolderForOfflineUse)
@@ -3868,22 +3863,19 @@ void nsImapMailFolder::FindKeysToDelete(const nsTArray<nsMsgKey>& existingKeys,
       // we've just issued an expunge with a partial flag state. We should
       // delete headers with the imap deleted flag set, because we can't
       // tell from the expunge response which messages were deleted.
-      nsCOMPtr<nsISimpleEnumerator> hdrs;
+      nsCOMPtr<nsIMsgEnumerator> hdrs;
       nsresult rv = GetMessages(getter_AddRefs(hdrs));
       NS_ENSURE_SUCCESS_VOID(rv);
       bool hasMore = false;
-      nsCOMPtr<nsIMsgDBHdr> pHeader;
       while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
-        nsCOMPtr<nsISupports> supports;
-        rv = hdrs->GetNext(getter_AddRefs(supports));
-        NS_ENSURE_SUCCESS_VOID(rv);
-        pHeader = do_QueryInterface(supports, &rv);
+        nsCOMPtr<nsIMsgDBHdr> header;
+        rv = hdrs->GetNext(getter_AddRefs(header));
         NS_ENSURE_SUCCESS_VOID(rv);
         uint32_t msgFlags;
-        pHeader->GetFlags(&msgFlags);
+        header->GetFlags(&msgFlags);
         if (msgFlags & nsMsgMessageFlags::IMAPDeleted) {
           nsMsgKey msgKey;
-          pHeader->GetMessageKey(&msgKey);
+          header->GetMessageKey(&msgKey);
           keysToDelete.AppendElement(msgKey);
         }
       }
@@ -7160,7 +7152,7 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
             ++childIndex;
           }
 
-          nsCOMPtr<nsISimpleEnumerator> enumerator;
+          nsCOMPtr<nsIMsgEnumerator> enumerator;
           rv = m_curSrcFolder->GetMessages(getter_AddRefs(enumerator));
           nsTArray<RefPtr<nsIMsgDBHdr>> msgArray;
           bool hasMore = false;
@@ -7170,10 +7162,8 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
           if (!hasMore) return AdvanceToNextFolder(NS_OK);
 
           while (NS_SUCCEEDED(rv) && hasMore) {
-            nsCOMPtr<nsISupports> item;
-            rv = enumerator->GetNext(getter_AddRefs(item));
-            NS_ENSURE_SUCCESS(rv, rv);
-            nsCOMPtr<nsIMsgDBHdr> hdr(do_QueryInterface(item, &rv));
+            nsCOMPtr<nsIMsgDBHdr> hdr;
+            rv = enumerator->GetNext(getter_AddRefs(hdr));
             NS_ENSURE_SUCCESS(rv, rv);
             msgArray.AppendElement(hdr);
             rv = enumerator->HasMoreElements(&hasMore);

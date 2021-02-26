@@ -1407,20 +1407,18 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener* listener,
 
   // build up message keys.
   if (mDatabase) {
-    nsCOMPtr<nsISimpleEnumerator> enumerator;
+    nsCOMPtr<nsIMsgEnumerator> enumerator;
     rv = mDatabase->EnumerateMessages(getter_AddRefs(enumerator));
     if (NS_SUCCEEDED(rv) && enumerator) {
       bool hasMore;
       while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) &&
              hasMore) {
-        nsCOMPtr<nsISupports> supports;
-        rv = enumerator->GetNext(getter_AddRefs(supports));
-        NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
-        nsCOMPtr<nsIMsgDBHdr> pHeader = do_QueryInterface(supports);
-        if (pHeader && NS_SUCCEEDED(rv)) {
+        nsCOMPtr<nsIMsgDBHdr> header;
+        rv = enumerator->GetNext(getter_AddRefs(header));
+        if (header && NS_SUCCEEDED(rv)) {
           bool shouldStoreMsgOffline = false;
           nsMsgKey msgKey;
-          pHeader->GetMessageKey(&msgKey);
+          header->GetMessageKey(&msgKey);
           MsgFitsDownloadCriteria(msgKey, &shouldStoreMsgOffline);
           if (shouldStoreMsgOffline) srcKeyArray.AppendElement(msgKey);
         }

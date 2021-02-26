@@ -53,8 +53,7 @@ class nsMsgXFVirtualFolderDBView : public nsMsgSearchDBView {
   void RemovePendingDBListeners();
 
  protected:
-  virtual nsresult GetMessageEnumerator(
-      nsISimpleEnumerator** enumerator) override;
+  virtual nsresult GetMessageEnumerator(nsIMsgEnumerator** enumerator) override;
 
   // array index of next folder with cached hits to deal with.
   uint32_t m_cachedFolderArrayIndex;

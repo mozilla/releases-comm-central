@@ -81,7 +81,7 @@ class DownloadNewsArticlesToOfflineStore : public nsNewsDownloader {
   virtual int32_t FinishDownload();
   virtual bool GetNextHdrToRetrieve();
 
-  nsCOMPtr<nsISimpleEnumerator> m_headerEnumerator;
+  nsCOMPtr<nsIMsgEnumerator> m_headerEnumerator;
   nsCOMPtr<nsIMsgDBHdr> m_newsHeader;
 };
 

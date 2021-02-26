@@ -1571,17 +1571,15 @@ nsresult nsMsgDatabase::InitExistingDB() {
     m_dbFolderInfo->GetBooleanProperty(kFixedBadRefThreadingProp, false,
                                        &fixedBadRefThreading);
     if (!fixedBadRefThreading) {
-      nsCOMPtr<nsISimpleEnumerator> enumerator;
+      nsCOMPtr<nsIMsgEnumerator> enumerator;
       err = EnumerateMessages(getter_AddRefs(enumerator));
       if (NS_SUCCEEDED(err) && enumerator) {
         bool hasMore;
 
         while (NS_SUCCEEDED(err = enumerator->HasMoreElements(&hasMore)) &&
                hasMore) {
-          nsCOMPtr<nsISupports> supports;
-          err = enumerator->GetNext(getter_AddRefs(supports));
-          NS_ASSERTION(NS_SUCCEEDED(err), "nsMsgDBEnumerator broken");
-          nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryInterface(supports);
+          nsCOMPtr<nsIMsgDBHdr> msgHdr;
+          err = enumerator->GetNext(getter_AddRefs(msgHdr));
           if (msgHdr && NS_SUCCEEDED(err)) {
             nsCString messageId;
             nsAutoCString firstReference;
@@ -2438,29 +2436,27 @@ nsMsgDatabase::MarkHdrNotNew(nsIMsgDBHdr* aMsgHdr,
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkAllRead(nsTArray<nsMsgKey>& aThoseMarked) {
-  nsMsgHdr* pHeader;
   aThoseMarked.ClearAndRetainStorage();
 
-  nsCOMPtr<nsISimpleEnumerator> hdrs;
+  nsCOMPtr<nsIMsgEnumerator> hdrs;
   nsresult rv = EnumerateMessages(getter_AddRefs(hdrs));
-  if (NS_FAILED(rv)) return rv;
+  NS_ENSURE_SUCCESS(rv, rv);
   bool hasMore = false;
 
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
-    rv = hdrs->GetNext((nsISupports**)&pHeader);
-    NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
+    nsCOMPtr<nsIMsgDBHdr> msg;
+    rv = hdrs->GetNext(getter_AddRefs(msg));
     if (NS_FAILED(rv)) break;
 
     bool isRead;
-    IsHeaderRead(pHeader, &isRead);
+    IsHeaderRead(msg, &isRead);
 
     if (!isRead) {
       nsMsgKey key;
-      (void)pHeader->GetMessageKey(&key);
+      (void)msg->GetMessageKey(&key);
       aThoseMarked.AppendElement(key);
-      rv = MarkHdrRead(pHeader, true, nullptr);  // ### dmb - blow off error?
+      rv = MarkHdrRead(msg, true, nullptr);  // ### dmb - blow off error?
     }
-    NS_RELEASE(pHeader);
   }
 
   // force num new to 0.
@@ -2567,7 +2563,7 @@ nsresult nsMsgDBEnumerator::GetRowCursor() {
                                    getter_AddRefs(mRowCursor));
 }
 
-NS_IMETHODIMP nsMsgDBEnumerator::GetNext(nsISupports** aItem) {
+NS_IMETHODIMP nsMsgDBEnumerator::GetNext(nsIMsgDBHdr** aItem) {
   if (!aItem) return NS_ERROR_NULL_POINTER;
   nsresult rv = NS_OK;
   if (!mNextPrefetched) rv = PrefetchNext();
@@ -2689,7 +2685,7 @@ nsresult nsMsgFilteredDBEnumerator::PrefetchNext() {
 ////////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP
-nsMsgDatabase::EnumerateMessages(nsISimpleEnumerator** result) {
+nsMsgDatabase::EnumerateMessages(nsIMsgEnumerator** result) {
   RememberLastUseTime();
   NS_ENSURE_ARG_POINTER(result);
   NS_ADDREF(*result = new nsMsgDBEnumerator(this, m_mdbAllMsgHeadersTable,
@@ -2698,7 +2694,7 @@ nsMsgDatabase::EnumerateMessages(nsISimpleEnumerator** result) {
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::ReverseEnumerateMessages(nsISimpleEnumerator** result) {
+nsMsgDatabase::ReverseEnumerateMessages(nsIMsgEnumerator** result) {
   NS_ENSURE_ARG_POINTER(result);
   NS_ADDREF(*result = new nsMsgDBEnumerator(this, m_mdbAllMsgHeadersTable,
                                             nullptr, nullptr, false));
@@ -2708,7 +2704,7 @@ nsMsgDatabase::ReverseEnumerateMessages(nsISimpleEnumerator** result) {
 NS_IMETHODIMP
 nsMsgDatabase::GetFilterEnumerator(
     const nsTArray<RefPtr<nsIMsgSearchTerm>>& searchTerms, bool aReverse,
-    nsISimpleEnumerator** aResult) {
+    nsIMsgEnumerator** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   RefPtr<nsMsgFilteredDBEnumerator> e =
       new nsMsgFilteredDBEnumerator(this, m_mdbAllMsgHeadersTable, aReverse);
@@ -2723,7 +2719,7 @@ nsMsgDatabase::GetFilterEnumerator(
 
 NS_IMETHODIMP
 nsMsgDatabase::SyncCounts() {
-  nsCOMPtr<nsISimpleEnumerator> hdrs;
+  nsCOMPtr<nsIMsgEnumerator> hdrs;
   nsresult rv = EnumerateMessages(getter_AddRefs(hdrs));
   if (NS_FAILED(rv)) return rv;
   bool hasMore = false;
@@ -2738,15 +2734,13 @@ nsMsgDatabase::SyncCounts() {
     return NS_ERROR_NULL_POINTER;
 
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> supports;
-    rv = hdrs->GetNext(getter_AddRefs(supports));
+    nsCOMPtr<nsIMsgDBHdr> header;
+    rv = hdrs->GetNext(getter_AddRefs(header));
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
     if (NS_FAILED(rv)) break;
 
-    nsCOMPtr<nsIMsgDBHdr> pHeader = do_QueryInterface(supports);
-
     bool isRead;
-    IsHeaderRead(pHeader, &isRead);
+    IsHeaderRead(header, &isRead);
     if (!isRead) numUnread++;
     numHdrs++;
   }
@@ -2986,6 +2980,7 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::HasMoreElements(bool* aResult) {
   return NS_OK;
 }
 
+// XYZZY: TODO!
 NS_IMETHODIMP
 nsMsgDatabase::EnumerateThreads(nsISimpleEnumerator** result) {
   RememberLastUseTime();
@@ -3001,7 +2996,7 @@ static nsresult nsMsgFlagSetFilter(nsIMsgDBHdr* msg, void* closure) {
   return (msgFlags & desiredFlags) ? NS_OK : NS_ERROR_FAILURE;
 }
 
-nsresult nsMsgDatabase::EnumerateMessagesWithFlag(nsISimpleEnumerator** result,
+nsresult nsMsgDatabase::EnumerateMessagesWithFlag(nsIMsgEnumerator** result,
                                                   uint32_t* pFlag) {
   RememberLastUseTime();
   NS_ADDREF(*result = new nsMsgDBEnumerator(this, m_mdbAllMsgHeadersTable,
@@ -3788,7 +3783,7 @@ nsresult nsMsgDatabase::InitRefHash() {
   if (!m_msgReferences) return NS_ERROR_OUT_OF_MEMORY;
 
   // Create enumerator to go through all messages with references
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
+  nsCOMPtr<nsIMsgEnumerator> enumerator;
   enumerator = new nsMsgDBEnumerator(this, m_mdbAllMsgHeadersTable,
                                      nsReferencesOnlyFilter, nullptr);
   if (enumerator == nullptr) return NS_ERROR_OUT_OF_MEMORY;
@@ -3797,10 +3792,8 @@ nsresult nsMsgDatabase::InitRefHash() {
   bool hasMore;
   nsresult rv = NS_OK;
   while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> supports;
-    rv = enumerator->GetNext(getter_AddRefs(supports));
-    NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
-    nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryInterface(supports);
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
+    rv = enumerator->GetNext(getter_AddRefs(msgHdr));
     if (msgHdr && NS_SUCCEEDED(rv)) rv = AddMsgRefsToHash(msgHdr);
     if (NS_FAILED(rv)) break;
   }
@@ -4372,7 +4365,7 @@ NS_IMETHODIMP nsMsgDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation* op) {
 
 NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsTArray<nsMsgKey>& keys) {
   keys.Clear();
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
+  nsCOMPtr<nsIMsgEnumerator> enumerator;
   uint32_t flag = nsMsgMessageFlags::Offline;
   // if we change this routine to return an enumerator that generates the keys
   // one by one, we'll need to somehow make a copy of flag for the enumerator
@@ -4383,13 +4376,10 @@ NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsTArray<nsMsgKey>& keys) {
     bool hasMoreElements;
     while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMoreElements)) &&
            hasMoreElements) {
-      nsCOMPtr<nsISupports> childSupports;
-      rv = enumerator->GetNext(getter_AddRefs(childSupports));
-      if (NS_FAILED(rv)) return rv;
-
       // clear out db hdr, because it won't be valid when we get rid of the .msf
       // file
-      nsCOMPtr<nsIMsgDBHdr> dbMessage(do_QueryInterface(childSupports, &rv));
+      nsCOMPtr<nsIMsgDBHdr> dbMessage;
+      rv = enumerator->GetNext(getter_AddRefs(dbMessage));
       if (NS_SUCCEEDED(rv) && dbMessage) {
         nsMsgKey msgKey;
         dbMessage->GetMessageKey(&msgKey);
@@ -4723,8 +4713,7 @@ nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
                                                bool applyToFlaggedMessages,
                                                nsIMutableArray* hdrsToDelete) {
   nsresult rv = NS_OK;
-  nsMsgHdr* pHeader;
-  nsCOMPtr<nsISimpleEnumerator> hdrs;
+  nsCOMPtr<nsIMsgEnumerator> hdrs;
   rv = EnumerateMessages(getter_AddRefs(hdrs));
   nsTArray<nsMsgKey> keysToDelete;
 
@@ -4738,28 +4727,28 @@ nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
     bool purgeHdr = false;
 
-    rv = hdrs->GetNext((nsISupports**)&pHeader);
+    nsCOMPtr<nsIMsgDBHdr> msg;
+    rv = hdrs->GetNext(getter_AddRefs(msg));
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
     if (NS_FAILED(rv)) break;
 
     if (!applyToFlaggedMessages) {
       uint32_t flags;
-      (void)pHeader->GetFlags(&flags);
+      (void)msg->GetFlags(&flags);
       if (flags & nsMsgMessageFlags::Marked) continue;
     }
 
     if (!purgeHdr) {
       PRTime date;
-      pHeader->GetDate(&date);
+      msg->GetDate(&date);
       if (date < cutOffDay) purgeHdr = true;
     }
     if (purgeHdr) {
       nsMsgKey msgKey;
-      pHeader->GetMessageKey(&msgKey);
+      msg->GetMessageKey(&msgKey);
       keysToDelete.AppendElement(msgKey);
-      if (hdrsToDelete) hdrsToDelete->AppendElement(pHeader);
+      if (hdrsToDelete) hdrsToDelete->AppendElement(msg);
     }
-    NS_RELEASE(pHeader);
   }
 
   if (!hdrsToDelete) {
@@ -4778,8 +4767,7 @@ nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
                                             bool applyToFlaggedMessages,
                                             nsIMutableArray* hdrsToDelete) {
   nsresult rv = NS_OK;
-  nsMsgHdr* pHeader;
-  nsCOMPtr<nsISimpleEnumerator> hdrs;
+  nsCOMPtr<nsIMsgEnumerator> hdrs;
   rv = EnumerateMessages(getter_AddRefs(hdrs));
   if (NS_FAILED(rv)) return rv;
   bool hasMore = false;
@@ -4792,14 +4780,15 @@ nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
     return NS_ERROR_NULL_POINTER;
 
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
+    nsCOMPtr<nsIMsgDBHdr> msg;
     bool purgeHdr = false;
-    rv = hdrs->GetNext((nsISupports**)&pHeader);
+    rv = hdrs->GetNext(getter_AddRefs(msg));
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
     if (NS_FAILED(rv)) break;
 
     if (!applyToFlaggedMessages) {
       uint32_t flags;
-      (void)pHeader->GetFlags(&flags);
+      (void)msg->GetFlags(&flags);
       if (flags & nsMsgMessageFlags::Marked) continue;
     }
 
@@ -4809,12 +4798,11 @@ nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
 
     if (purgeHdr) {
       nsMsgKey msgKey;
-      pHeader->GetMessageKey(&msgKey);
+      msg->GetMessageKey(&msgKey);
       keysToDelete.AppendElement(msgKey);
       numHdrs--;
-      if (hdrsToDelete) hdrsToDelete->AppendElement(pHeader);
+      if (hdrsToDelete) hdrsToDelete->AppendElement(msg);
     }
-    NS_RELEASE(pHeader);
   }
 
   if (!hdrsToDelete) {
@@ -5066,7 +5054,7 @@ nsresult nsMsgDatabase::GetSearchResultsTable(const char* searchFolderUri,
 
 NS_IMETHODIMP
 nsMsgDatabase::GetCachedHits(const char* aSearchFolderUri,
-                             nsISimpleEnumerator** aEnumerator) {
+                             nsIMsgEnumerator** aEnumerator) {
   nsCOMPtr<nsIMdbTable> table;
   (void)GetSearchResultsTable(aSearchFolderUri, false, getter_AddRefs(table));
   if (!table) return NS_ERROR_FAILURE;  // expected result for no cached hits

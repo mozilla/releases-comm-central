@@ -322,7 +322,7 @@ class MsgMapiListContext {
 
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsCOMPtr<nsIMsgDatabase> m_db;
-  nsCOMPtr<nsISimpleEnumerator> m_msgEnumerator;
+  nsCOMPtr<nsIMsgEnumerator> m_msgEnumerator;
 };
 
 LONG CMapiImp::InitContext(unsigned long session,
@@ -494,12 +494,9 @@ nsMsgKey MsgMapiListContext::GetNext() {
   if (m_msgEnumerator && m_db) {
     do {
       keepTrying = FALSE;
-      nsCOMPtr<nsISupports> hdrISupports;
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      if (NS_SUCCEEDED(
-              m_msgEnumerator->GetNext(getter_AddRefs(hdrISupports))) &&
-          hdrISupports) {
-        msgHdr = do_QueryInterface(hdrISupports);
+      if (NS_SUCCEEDED(m_msgEnumerator->GetNext(getter_AddRefs(msgHdr))) &&
+          msgHdr) {
         msgHdr->GetMessageKey(&key);
 
         // Check here for IMAP message...if not, just return...

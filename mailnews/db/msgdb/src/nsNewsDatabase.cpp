@@ -99,17 +99,17 @@ NS_IMETHODIMP nsNewsDatabase::GetHighWaterArticleNum(nsMsgKey* key) {
 // Do we need to keep track of known arts permanently?
 NS_IMETHODIMP nsNewsDatabase::GetLowWaterArticleNum(nsMsgKey* key) {
   nsresult rv;
-  nsMsgHdr* pHeader;
 
-  nsCOMPtr<nsISimpleEnumerator> hdrs;
+  nsCOMPtr<nsIMsgEnumerator> hdrs;
   rv = EnumerateMessages(getter_AddRefs(hdrs));
   if (NS_FAILED(rv)) return rv;
 
-  rv = hdrs->GetNext((nsISupports**)&pHeader);
+  nsCOMPtr<nsIMsgDBHdr> first;
+  rv = hdrs->GetNext(getter_AddRefs(first));
   NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
   if (NS_FAILED(rv)) return rv;
 
-  return pHeader->GetMessageKey(key);
+  return first->GetMessageKey(key);
 }
 
 nsresult nsNewsDatabase::ExpireUpTo(nsMsgKey expireKey) {
@@ -208,7 +208,7 @@ nsresult nsNewsDatabase::SyncWithReadSet() {
   // of read/unread flags to match the read set in the .newsrc file. It should
   // only be called when they don't match, e.g., we crashed after committing the
   // db but before writing out the .newsrc
-  nsCOMPtr<nsISimpleEnumerator> hdrs;
+  nsCOMPtr<nsIMsgEnumerator> hdrs;
   nsresult rv = EnumerateMessages(getter_AddRefs(hdrs));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -217,11 +217,8 @@ nsresult nsNewsDatabase::SyncWithReadSet() {
 
   // Scan all messages in DB
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
-    nsCOMPtr<nsISupports> supports;
-    rv = hdrs->GetNext(getter_AddRefs(supports));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIMsgDBHdr> header = do_QueryInterface(supports, &rv);
+    nsCOMPtr<nsIMsgDBHdr> header;
+    rv = hdrs->GetNext(getter_AddRefs(header));
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = nsMsgDatabase::IsHeaderRead(header, &isReadInDB);

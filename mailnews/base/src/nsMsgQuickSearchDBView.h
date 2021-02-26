@@ -26,7 +26,7 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
   NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
                   nsMsgViewFlagsTypeValue viewFlags, int32_t* pCount) override;
-  NS_IMETHOD OpenWithHdrs(nsISimpleEnumerator* aHeaders,
+  NS_IMETHOD OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
                           nsMsgViewFlagsTypeValue aViewFlags,
@@ -89,8 +89,7 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
                                         uint32_t callLevel, nsMsgKey keyToSkip,
                                         nsMsgViewIndex* viewIndex,
                                         uint32_t* pNumListed);
-  virtual nsresult GetMessageEnumerator(
-      nsISimpleEnumerator** enumerator) override;
+  virtual nsresult GetMessageEnumerator(nsIMsgEnumerator** enumerator) override;
   void SavePreSearchInfo();
   void ClearPreSearchInfo();
 };

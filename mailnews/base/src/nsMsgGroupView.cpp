@@ -40,7 +40,7 @@ nsMsgGroupView::Open(nsIMsgFolder* aFolder, nsMsgViewSortTypeValue aSortType,
   nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
   PersistFolderInfo(getter_AddRefs(dbFolderInfo));
 
-  nsCOMPtr<nsISimpleEnumerator> headers;
+  nsCOMPtr<nsIMsgEnumerator> headers;
   rv = m_db->EnumerateMessages(getter_AddRefs(headers));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -361,7 +361,7 @@ nsMsgGroupThread* nsMsgGroupView::AddHdrToThread(nsIMsgDBHdr* msgHdr,
 }
 
 NS_IMETHODIMP
-nsMsgGroupView::OpenWithHdrs(nsISimpleEnumerator* aHeaders,
+nsMsgGroupView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                              nsMsgViewSortTypeValue aSortType,
                              nsMsgViewSortOrderValue aSortOrder,
                              nsMsgViewFlagsTypeValue aViewFlags,
@@ -395,10 +395,9 @@ nsMsgGroupView::OpenWithHdrs(nsISimpleEnumerator* aHeaders,
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   while (NS_SUCCEEDED(rv) &&
          NS_SUCCEEDED(rv = aHeaders->HasMoreElements(&hasMore)) && hasMore) {
-    rv = aHeaders->GetNext(getter_AddRefs(supports));
-    if (NS_SUCCEEDED(rv) && supports) {
+    rv = aHeaders->GetNext(getter_AddRefs(msgHdr));
+    if (NS_SUCCEEDED(rv) && msgHdr) {
       bool notUsed;
-      msgHdr = do_QueryInterface(supports);
       AddHdrToThread(msgHdr, &notUsed);
     }
   }
@@ -474,7 +473,7 @@ nsMsgGroupView::CopyDBView(nsMsgDBView* aNewMsgDBView,
 // rebuild the new view based on the new view type. So we pass the new
 // view flags to OpenWithHdrs.
 nsresult nsMsgGroupView::RebuildView(nsMsgViewFlagsTypeValue newFlags) {
-  nsCOMPtr<nsISimpleEnumerator> headers;
+  nsCOMPtr<nsIMsgEnumerator> headers;
   if (NS_SUCCEEDED(GetMessageEnumerator(getter_AddRefs(headers)))) {
     int32_t count;
     m_dayChanged = false;

@@ -89,16 +89,14 @@ class nsMsgSendLater : public nsIMsgSendLater,
   bool OnSendStepFinished(nsresult aStatus);
   void OnCopyStepFinished(nsresult aStatus);
 
+ private:
   // counters and things for enumeration
   uint32_t mTotalSentSuccessfully;
   uint32_t mTotalSendCount;
   nsCOMArray<nsIMsgDBHdr> mMessagesToSend;
-  nsCOMPtr<nsISimpleEnumerator> mEnumerator;
   nsWeakPtr mMessageFolder;
   nsCOMPtr<nsIMsgStatusFeedback> mFeedback;
 
-  // Private Information
- private:
   virtual ~nsMsgSendLater();
   nsresult GetIdentityFromKey(const char* aKey, nsIMsgIdentity** aIdentity);
   nsresult ReparseDBIfNeeded(nsIUrlListener* aListener);

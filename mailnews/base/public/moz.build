@@ -28,6 +28,7 @@ XPIDL_SOURCES += [
     "nsIMsgCopyServiceListener.idl",
     "nsIMsgCustomColumnHandler.idl",
     "nsIMsgDBView.idl",
+    "nsIMsgEnumerator.idl",
     "nsIMsgFolder.idl",
     "nsIMsgFolderCache.idl",
     "nsIMsgFolderCacheElement.idl",

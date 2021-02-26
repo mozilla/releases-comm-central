@@ -53,7 +53,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   NS_IMETHOD DoCommandWithFolder(nsMsgViewCommandTypeValue command,
                                  nsIMsgFolder* destFolder) override;
   NS_IMETHOD GetHdrForFirstSelectedMessage(nsIMsgDBHdr** hdr) override;
-  NS_IMETHOD OpenWithHdrs(nsISimpleEnumerator* aHeaders,
+  NS_IMETHOD OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
                           nsMsgViewFlagsTypeValue aViewFlags,
@@ -127,8 +127,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
       int32_t numIndices, nsIMsgFolder* destFolder) override;
   void MoveThreadAt(nsMsgViewIndex threadIndex);
 
-  virtual nsresult GetMessageEnumerator(
-      nsISimpleEnumerator** enumerator) override;
+  virtual nsresult GetMessageEnumerator(nsIMsgEnumerator** enumerator) override;
   virtual nsresult InsertHdrFromFolder(nsIMsgDBHdr* msgHdr,
                                        nsIMsgFolder* folder);
 

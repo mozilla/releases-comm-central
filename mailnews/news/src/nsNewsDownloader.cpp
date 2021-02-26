@@ -119,9 +119,7 @@ bool DownloadNewsArticlesToOfflineStore::GetNextHdrToRetrieve() {
 
   while (NS_SUCCEEDED(rv = m_headerEnumerator->HasMoreElements(&hasMore)) &&
          hasMore) {
-    nsCOMPtr<nsISupports> supports;
-    rv = m_headerEnumerator->GetNext(getter_AddRefs(supports));
-    m_newsHeader = do_QueryInterface(supports);
+    rv = m_headerEnumerator->GetNext(getter_AddRefs(m_newsHeader));
     NS_ENSURE_SUCCESS(rv, false);
     uint32_t hdrFlags;
     m_newsHeader->GetFlags(&hdrFlags);

@@ -405,7 +405,6 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
     nsCOMPtr<nsIMsgFolder> searchFolder;
     searchSession->GetNthSearchScope(i, &scopeId, getter_AddRefs(searchFolder));
     if (searchFolder) {
-      nsCOMPtr<nsISimpleEnumerator> cachedHits;
       nsCOMPtr<nsIMsgDatabase> searchDB;
       nsCString searchUri;
       m_viewFolder->GetURI(searchUri);
@@ -418,6 +417,7 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
         // Ignore cached hits in quick search case.
         if (m_doingQuickSearch) continue;
 
+        nsCOMPtr<nsIMsgEnumerator> cachedHits;
         searchDB->GetCachedHits(searchUri.get(), getter_AddRefs(cachedHits));
         bool hasMore;
         if (cachedHits) {
@@ -425,19 +425,17 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
           if (hasMore) {
             mozilla::DebugOnly<nsMsgKey> prevKey = nsMsgKey_None;
             while (hasMore) {
-              nsCOMPtr<nsISupports> supports;
-              nsresult rv = cachedHits->GetNext(getter_AddRefs(supports));
-              NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
-              nsCOMPtr<nsIMsgDBHdr> pHeader = do_QueryInterface(supports);
-              if (pHeader && NS_SUCCEEDED(rv)) {
+              nsCOMPtr<nsIMsgDBHdr> header;
+              nsresult rv = cachedHits->GetNext(getter_AddRefs(header));
+              if (header && NS_SUCCEEDED(rv)) {
                 nsMsgKey msgKey;
-                pHeader->GetMessageKey(&msgKey);
+                header->GetMessageKey(&msgKey);
                 NS_ASSERTION(prevKey == nsMsgKey_None || msgKey > prevKey,
                              "cached Hits not sorted");
 #ifdef DEBUG
                 prevKey = msgKey;
 #endif
-                AddHdrFromFolder(pHeader, searchFolder);
+                AddHdrFromFolder(header, searchFolder);
               } else {
                 break;
               }
@@ -498,6 +496,6 @@ nsMsgXFVirtualFolderDBView::SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) {
 }
 
 nsresult nsMsgXFVirtualFolderDBView::GetMessageEnumerator(
-    nsISimpleEnumerator** enumerator) {
+    nsIMsgEnumerator** enumerator) {
   return GetViewEnumerator(enumerator);
 }

@@ -2735,7 +2735,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetParent(nsIMsgFolder** aParent) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::GetMessages(nsISimpleEnumerator** result) {
+nsMsgDBFolder::GetMessages(nsIMsgEnumerator** result) {
   NS_ENSURE_ARG_POINTER(result);
   // Make sure mDatabase is set.
   nsresult rv = GetDatabase();

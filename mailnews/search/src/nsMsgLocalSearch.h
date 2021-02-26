@@ -13,7 +13,6 @@
 
 // inherit base implementation
 #include "nsMsgSearchAdapter.h"
-#include "nsISimpleEnumerator.h"
 
 class nsIMsgDBHdr;
 class nsIMsgSearchScopeTerm;
@@ -74,7 +73,7 @@ class nsMsgSearchOfflineMail : public nsMsgSearchAdapter,
       uint32_t& aStartPosInList, nsMsgSearchBoolExpression** aExpressionTree);
 
   nsCOMPtr<nsIMsgDatabase> m_db;
-  nsCOMPtr<nsISimpleEnumerator> m_listContext;
+  nsCOMPtr<nsIMsgEnumerator> m_listContext;
   void CleanUpScope();
 };
 

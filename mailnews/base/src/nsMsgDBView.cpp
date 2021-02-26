@@ -464,7 +464,6 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr* aHdr,
 
   uint32_t numAddresses = names.Length();
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
   nsCOMPtr<nsIAbManager> abManager(
       do_GetService("@mozilla.org/abmanager;1", &rv));
 
@@ -918,7 +917,7 @@ nsresult nsMsgDBView::GenerateURIForMsgKey(nsMsgKey aMsgKey,
   return folder->GenerateMessageURI(aMsgKey, aURI);
 }
 
-nsresult nsMsgDBView::GetMessageEnumerator(nsISimpleEnumerator** enumerator) {
+nsresult nsMsgDBView::GetMessageEnumerator(nsIMsgEnumerator** enumerator) {
   return m_db->EnumerateMessages(enumerator);
 }
 
@@ -2221,7 +2220,7 @@ nsMsgDBView::Close() {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::OpenWithHdrs(nsISimpleEnumerator* aHeaders,
+nsMsgDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
                           nsMsgViewFlagsTypeValue aViewFlags, int32_t* aCount) {
@@ -3131,22 +3130,20 @@ nsresult nsMsgDBView::DownloadForOffline(nsIMsgWindow* window,
 nsresult nsMsgDBView::DownloadFlaggedForOffline(nsIMsgWindow* window) {
   nsresult rv = NS_OK;
   nsTArray<RefPtr<nsIMsgDBHdr>> messages;
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
+  nsCOMPtr<nsIMsgEnumerator> enumerator;
   rv = GetMessageEnumerator(getter_AddRefs(enumerator));
   if (NS_SUCCEEDED(rv) && enumerator) {
     bool hasMore;
     while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) &&
            hasMore) {
-      nsCOMPtr<nsISupports> supports;
-      rv = enumerator->GetNext(getter_AddRefs(supports));
-      NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
-      nsCOMPtr<nsIMsgDBHdr> pHeader = do_QueryInterface(supports);
-      if (pHeader && NS_SUCCEEDED(rv)) {
+      nsCOMPtr<nsIMsgDBHdr> header;
+      rv = enumerator->GetNext(getter_AddRefs(header));
+      if (header && NS_SUCCEEDED(rv)) {
         uint32_t flags;
-        pHeader->GetFlags(&flags);
+        header->GetFlags(&flags);
         if ((flags & nsMsgMessageFlags::Marked) &&
             !(flags & nsMsgMessageFlags::Offline))
-          messages.AppendElement(pHeader);
+          messages.AppendElement(header);
       }
     }
   }
@@ -7424,7 +7421,7 @@ nsMsgDBView::nsMsgViewHdrEnumerator::~nsMsgViewHdrEnumerator() {
 }
 
 NS_IMETHODIMP
-nsMsgDBView::nsMsgViewHdrEnumerator::GetNext(nsISupports **aItem) {
+nsMsgDBView::nsMsgViewHdrEnumerator::GetNext(nsIMsgDBHdr **aItem) {
   NS_ENSURE_ARG_POINTER(aItem);
 
   if (m_curHdrIndex >= m_view->GetSize()) return NS_ERROR_FAILURE;
@@ -7448,7 +7445,7 @@ nsMsgDBView::nsMsgViewHdrEnumerator::HasMoreElements(bool *aResult) {
   return NS_OK;
 }
 
-nsresult nsMsgDBView::GetViewEnumerator(nsISimpleEnumerator **enumerator) {
+nsresult nsMsgDBView::GetViewEnumerator(nsIMsgEnumerator **enumerator) {
   NS_IF_ADDREF(*enumerator = new nsMsgViewHdrEnumerator(this));
   return (*enumerator) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }

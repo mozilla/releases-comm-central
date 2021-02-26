@@ -30,7 +30,8 @@
 #include "nsHashKeys.h"
 #include "nsIMsgCustomColumnHandler.h"
 #include "nsIWeakReferenceUtils.h"
-#include "nsSimpleEnumerator.h"
+#include "nsMsgEnumerator.h"
+
 #define MESSENGER_STRING_URL "chrome://messenger/locale/messenger.properties"
 
 typedef AutoTArray<nsMsgViewIndex, 1> nsMsgViewIndexArray;
@@ -158,9 +159,9 @@ class nsMsgDBView : public nsIMsgDBView,
 
   // The default enumerator is over the db, but things like
   // quick search views will enumerate just the displayed messages.
-  virtual nsresult GetMessageEnumerator(nsISimpleEnumerator** enumerator);
+  virtual nsresult GetMessageEnumerator(nsIMsgEnumerator** enumerator);
   // this is a message enumerator that enumerates based on the view contents
-  virtual nsresult GetViewEnumerator(nsISimpleEnumerator** enumerator);
+  virtual nsresult GetViewEnumerator(nsIMsgEnumerator** enumerator);
 
   // Save and Restore Selection are a pair of routines you should
   // use when performing an operation which is going to change the view
@@ -533,21 +534,19 @@ class nsMsgDBView : public nsIMsgDBView,
                                          bool& changeReadState,
                                          nsIMsgFolder** targetFolder);
 
-  class nsMsgViewHdrEnumerator final : public nsSimpleEnumerator {
+  class nsMsgViewHdrEnumerator final : public nsMsgEnumerator {
    public:
-    const nsID& DefaultInterface() override { return NS_GET_IID(nsIMsgDBHdr); }
-
-    // nsISimpleEnumerator methods:
-    NS_DECL_NSISIMPLEENUMERATOR
-
-    // nsMsgThreadEnumerator methods:
     explicit nsMsgViewHdrEnumerator(nsMsgDBView* view);
+
+    // nsIMsgEnumerator support.
+    NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;
+    NS_IMETHOD HasMoreElements(bool* aResult) override;
 
     RefPtr<nsMsgDBView> m_view;
     nsMsgViewIndex m_curHdrIndex;
 
    private:
-    ~nsMsgViewHdrEnumerator() override;
+    virtual ~nsMsgViewHdrEnumerator() override;
   };
 };
 

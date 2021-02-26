@@ -361,7 +361,7 @@ nsMsgQuickSearchDBView::OnNewSearch() {
   // check if it's a virtual folder - if so, we should get the cached hits
   // from the db, and set a flag saying that we're using cached values.
   if (folderFlags & nsMsgFolderFlags::Virtual) {
-    nsCOMPtr<nsISimpleEnumerator> cachedHits;
+    nsCOMPtr<nsIMsgEnumerator> cachedHits;
     nsCString searchUri;
     m_viewFolder->GetURI(searchUri);
     m_db->GetCachedHits(searchUri.get(), getter_AddRefs(cachedHits));
@@ -373,12 +373,10 @@ nsMsgQuickSearchDBView::OnNewSearch() {
       m_cacheEmpty = !hasMore;
       if (mTree) mTree->BeginUpdateBatch();
       while (hasMore) {
-        nsCOMPtr<nsISupports> supports;
-        nsresult rv = cachedHits->GetNext(getter_AddRefs(supports));
-        NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
-        nsCOMPtr<nsIMsgDBHdr> pHeader = do_QueryInterface(supports);
-        if (pHeader && NS_SUCCEEDED(rv))
-          AddHdr(pHeader);
+        nsCOMPtr<nsIMsgDBHdr> header;
+        nsresult rv = cachedHits->GetNext(getter_AddRefs(header));
+        if (header && NS_SUCCEEDED(rv))
+          AddHdr(header);
         else
           break;
         cachedHits->HasMoreElements(&hasMore);
@@ -740,7 +738,7 @@ nsresult nsMsgQuickSearchDBView::ExpansionDelta(nsMsgViewIndex index,
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::OpenWithHdrs(nsISimpleEnumerator* aHeaders,
+nsMsgQuickSearchDBView::OpenWithHdrs(nsIMsgEnumerator* aHeaders,
                                      nsMsgViewSortTypeValue aSortType,
                                      nsMsgViewSortOrderValue aSortOrder,
                                      nsMsgViewFlagsTypeValue aViewFlags,
@@ -755,15 +753,15 @@ nsMsgQuickSearchDBView::OpenWithHdrs(nsISimpleEnumerator* aHeaders,
 
   bool hasMore;
   nsCOMPtr<nsISupports> supports;
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsresult rv = NS_OK;
   while (NS_SUCCEEDED(rv = aHeaders->HasMoreElements(&hasMore)) && hasMore) {
-    rv = aHeaders->GetNext(getter_AddRefs(supports));
-    if (NS_SUCCEEDED(rv) && supports) {
-      msgHdr = do_QueryInterface(supports);
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
+    rv = aHeaders->GetNext(getter_AddRefs(msgHdr));
+    if (NS_SUCCEEDED(rv) && msgHdr) {
       AddHdr(msgHdr);
-    } else
+    } else {
       break;
+    }
   }
   *aCount = m_keys.Length();
   return rv;
@@ -782,7 +780,7 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::SetViewFlags(
 }
 
 nsresult nsMsgQuickSearchDBView::GetMessageEnumerator(
-    nsISimpleEnumerator** enumerator) {
+    nsIMsgEnumerator** enumerator) {
   return GetViewEnumerator(enumerator);
 }
 

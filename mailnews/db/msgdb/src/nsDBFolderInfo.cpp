@@ -291,7 +291,7 @@ NS_IMETHODIMP nsDBFolderInfo::GetHighWater(nsMsgKey* result) {
   // the highwater mark.
   *result = m_highWaterMessageKey;
   if (m_highWaterMessageKey > 0xFFFFFF00 && m_mdb) {
-    nsCOMPtr<nsISimpleEnumerator> hdrs;
+    nsCOMPtr<nsIMsgEnumerator> hdrs;
     nsresult rv = m_mdb->ReverseEnumerateMessages(getter_AddRefs(hdrs));
     if (NS_FAILED(rv)) return rv;
     bool hasMore = false;
@@ -300,9 +300,7 @@ NS_IMETHODIMP nsDBFolderInfo::GetHighWater(nsMsgKey* result) {
     int32_t i = 0;
     while (i++ < 100 && NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) &&
            hasMore) {
-      nsCOMPtr<nsISupports> supports;
-      (void)hdrs->GetNext(getter_AddRefs(supports));
-      pHeader = do_QueryInterface(supports);
+      (void)hdrs->GetNext(getter_AddRefs(pHeader));
       if (pHeader) {
         nsMsgKey msgKey;
         pHeader->GetMessageKey(&msgKey);

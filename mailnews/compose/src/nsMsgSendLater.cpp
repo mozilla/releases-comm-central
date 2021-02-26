@@ -517,10 +517,7 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
 }
 
 nsresult nsMsgSendLater::StartNextMailFileSend(nsresult prevStatus) {
-  bool hasMoreElements = false;
-  if ((!mEnumerator) ||
-      NS_FAILED(mEnumerator->HasMoreElements(&hasMoreElements)) ||
-      !hasMoreElements) {
+  if (mTotalSendCount >= (uint32_t)mMessagesToSend.Count()) {
     // Notify that this message has finished being sent.
     NotifyListenersOnProgress(mTotalSendCount, mMessagesToSend.Count(), 100,
                               100);
@@ -536,20 +533,17 @@ nsresult nsMsgSendLater::StartNextMailFileSend(nsresult prevStatus) {
 
   // If we've already sent a message, and are sending more, send out a progress
   // update with 100% for both send and copy as we must have finished by now.
-  if (mTotalSendCount)
+  if (mTotalSendCount > 0) {
     NotifyListenersOnProgress(mTotalSendCount, mMessagesToSend.Count(), 100,
                               100);
+  }
 
-  nsCOMPtr<nsISupports> currentItem;
-  nsresult rv = mEnumerator->GetNext(getter_AddRefs(currentItem));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  mMessage = do_QueryInterface(currentItem);
-  if (!mMessage) return NS_ERROR_NOT_AVAILABLE;
+  mMessage = mMessagesToSend[mTotalSendCount++];
 
   if (!mMessageFolder) return NS_ERROR_UNEXPECTED;
 
   nsCString messageURI;
+  nsresult rv;
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mMessageFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   folder->GetUriForMsg(mMessage, messageURI);
@@ -560,8 +554,6 @@ nsresult nsMsgSendLater::StartNextMailFileSend(nsresult prevStatus) {
   nsCOMPtr<nsIMsgMessageService> messageService;
   rv = GetMessageServiceFromURI(messageURI, getter_AddRefs(messageService));
   if (NS_FAILED(rv) && !messageService) return NS_ERROR_FACTORY_NOT_LOADED;
-
-  ++mTotalSendCount;
 
   nsCString identityKey;
   rv = mMessage->GetStringProperty(HEADER_X_MOZILLA_IDENTITY_KEY,
@@ -720,41 +712,31 @@ nsresult nsMsgSendLater::InternalSendMessages(bool aUserInitiated,
   NS_ENSURE_SUCCESS(rv, rv);
   mIdentity = nullptr;  // don't hold onto the identity since we're a service.
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mMessageFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgEnumerator> enumerator;
   rv = folder->GetMessages(getter_AddRefs(enumerator));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // copy all the elements in the enumerator into our isupports array....
-
-  nsCOMPtr<nsISupports> currentItem;
-  nsCOMPtr<nsIMsgDBHdr> messageHeader;
+  // Build mMessagesToSend array.
   bool hasMoreElements = false;
   while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMoreElements)) &&
          hasMoreElements) {
-    rv = enumerator->GetNext(getter_AddRefs(currentItem));
+    nsCOMPtr<nsIMsgDBHdr> messageHeader;
+    rv = enumerator->GetNext(getter_AddRefs(messageHeader));
     if (NS_SUCCEEDED(rv)) {
-      messageHeader = do_QueryInterface(currentItem, &rv);
-      if (NS_SUCCEEDED(rv)) {
-        if (aUserInitiated)
-          // If the user initiated the send, add all messages
+      if (aUserInitiated) {
+        // If the user initiated the send, add all messages
+        mMessagesToSend.AppendObject(messageHeader);
+      } else {
+        // Else just send those that are NOT marked as Queued.
+        uint32_t flags;
+        rv = messageHeader->GetFlags(&flags);
+        if (NS_SUCCEEDED(rv) && !(flags & nsMsgMessageFlags::Queued))
           mMessagesToSend.AppendObject(messageHeader);
-        else {
-          // Else just send those that are NOT marked as Queued.
-          uint32_t flags;
-          rv = messageHeader->GetFlags(&flags);
-          if (NS_SUCCEEDED(rv) && !(flags & nsMsgMessageFlags::Queued))
-            mMessagesToSend.AppendObject(messageHeader);
-        }
       }
     }
   }
-
-  // Now get an enumerator for our array.
-  rv = NS_NewArrayEnumerator(getter_AddRefs(mEnumerator), mMessagesToSend,
-                             NS_GET_IID(nsIMsgDBHdr));
-  NS_ENSURE_SUCCESS(rv, rv);
 
   // We're now sending messages so its time to signal that and reset our counts.
   mSendingMessages = true;
@@ -1201,8 +1183,7 @@ void nsMsgSendLater::EndSendMessages(nsresult aStatus, const char16_t* aMsg,
   // We don't need to keep hold of the database now we've finished sending.
   (void)folder->SetMsgDatabase(nullptr);
 
-  // or the enumerator, temp file or output stream
-  mEnumerator = nullptr;
+  // or temp file or output stream
   mTempFile = nullptr;
   mOutFile = nullptr;
 

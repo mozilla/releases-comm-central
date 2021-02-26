@@ -640,7 +640,6 @@ nsresult nsMsgSearchOfflineMail::Search(bool* aDone) {
 
   NS_ENSURE_ARG(aDone);
   nsresult dbErr = NS_OK;
-  nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
   nsMsgSearchBoolExpression* expressionTree = nullptr;
 
   const uint32_t kTimeSliceInMS = 200;
@@ -660,12 +659,8 @@ nsresult nsMsgSearchOfflineMail::Search(bool* aDone) {
       while (!*aDone)  // we'll break out of the loop after kTimeSliceInMS
                        // milliseconds
       {
-        nsCOMPtr<nsISupports> currentItem;
-
-        dbErr = m_listContext->GetNext(getter_AddRefs(currentItem));
-        if (NS_SUCCEEDED(dbErr)) {
-          msgDBHdr = do_QueryInterface(currentItem, &dbErr);
-        }
+        nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
+        dbErr = m_listContext->GetNext(getter_AddRefs(msgDBHdr));
         if (NS_FAILED(dbErr))
           *aDone = true;  //###phil dbErr is dropped on the floor. just note
                           // that we did have an error so we'll clean up later

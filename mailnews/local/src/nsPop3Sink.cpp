@@ -99,7 +99,7 @@ partialRecord::~partialRecord() {}
 // matches the current Account, then look for the Uidl and save
 // this message for later processing.
 nsresult nsPop3Sink::FindPartialMessages() {
-  nsCOMPtr<nsISimpleEnumerator> messages;
+  nsCOMPtr<nsIMsgEnumerator> messages;
   bool hasMore = false;
   bool isOpen = false;
   nsLocalFolderScanState folderScanState;
@@ -112,10 +112,10 @@ nsresult nsPop3Sink::FindPartialMessages() {
   nsresult rv = db->EnumerateMessages(getter_AddRefs(messages));
   if (messages) messages->HasMoreElements(&hasMore);
   while (hasMore && NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsISupports> aSupport;
     uint32_t flags = 0;
-    rv = messages->GetNext(getter_AddRefs(aSupport));
-    nsCOMPtr<nsIMsgDBHdr> msgDBHdr(do_QueryInterface(aSupport, &rv));
+    nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
+    rv = messages->GetNext(getter_AddRefs(msgDBHdr));
+    if (!NS_SUCCEEDED(rv)) break;
     msgDBHdr->GetFlags(&flags);
     if (flags & nsMsgMessageFlags::Partial) {
       // Open the various streams we need to seek and read from the mailbox
