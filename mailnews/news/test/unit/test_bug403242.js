@@ -26,9 +26,7 @@ function run_test() {
   ].getService(Ci.nsIMsgMessageService);
 
   // Does the URL lie to us?
-  let outObj = { value: null };
-  msgService.GetUrlForUri(uri, outObj, null);
-  let neckoUrl = outObj.value.QueryInterface(Ci.nsINntpUrl);
+  let neckoUrl = msgService.getUrlForUri(uri).QueryInterface(Ci.nsINntpUrl);
   Assert.equal(neckoUrl.newsAction, Ci.nsINntpUrl.ActionFetchArticle);
 
   // Pretend to display the message

@@ -217,8 +217,8 @@ NS_IMETHODIMP nsImapService::LiteSelectFolder(nsIMsgFolder* aImapMailFolder,
 }
 
 NS_IMETHODIMP nsImapService::GetUrlForUri(const nsACString& aMessageURI,
-                                          nsIURI** aURL,
-                                          nsIMsgWindow* aMsgWindow) {
+                                          nsIMsgWindow* aMsgWindow,
+                                          nsIURI** aURL) {
   nsAutoCString messageURI(aMessageURI);
 
   if (messageURI.Find("&type=application/x-message-display"_ns) != kNotFound)

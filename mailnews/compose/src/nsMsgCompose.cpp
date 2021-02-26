@@ -396,7 +396,7 @@ nsresult nsMsgCompose::ResetUrisForEmbeddedObjects() {
         rv = GetMessageServiceFromURI(newURI, getter_AddRefs(msgService));
         if (NS_FAILED(rv)) continue;
         nsCOMPtr<nsIURI> newUrl;
-        rv = msgService->GetUrlForUri(newURI, getter_AddRefs(newUrl), nullptr);
+        rv = msgService->GetUrlForUri(newURI, nullptr, getter_AddRefs(newUrl));
         if (NS_FAILED(rv) || !newUrl) continue;
         nsCString spec;
         rv = newUrl->GetSpec(spec);
@@ -452,8 +452,8 @@ nsresult nsMsgCompose::TagEmbeddedObjects(nsIEditor* aEditor) {
   nsCOMPtr<nsIMsgMessageService> msgService;
   rv = GetMessageServiceFromURI(mOriginalMsgURI, getter_AddRefs(msgService));
   if (NS_SUCCEEDED(rv)) {
-    rv = msgService->GetUrlForUri(mOriginalMsgURI, getter_AddRefs(originalUrl),
-                                  nullptr);
+    rv = msgService->GetUrlForUri(mOriginalMsgURI, nullptr,
+                                  getter_AddRefs(originalUrl));
     if (NS_SUCCEEDED(rv) && originalUrl) {
       originalUrl->GetScheme(originalScheme);
       originalUrl->GetAsciiHost(originalHost);

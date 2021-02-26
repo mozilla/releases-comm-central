@@ -26,9 +26,8 @@ function neckoURLForMessageURI(aMessageURI)
   let msgSvc = Cc["@mozilla.org/messenger;1"]
     .createInstance(Ci.nsIMessenger)
     .messageServiceFromURI(aMessageURI);
-  let neckoURI = {};
-  msgSvc.GetUrlForUri(aMessageURI, neckoURI, null);
-  return neckoURI.value.spec;
+  let neckoURI = msgSvc.getUrlForUri(aMessageURI);
+  return neckoURI.spec;
 }
 
 var smimeHeaderSink =

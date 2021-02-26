@@ -133,10 +133,11 @@ interface nsIMsgMessageService : nsISupports {
    * the Uri MUST refer to a message and not a folder!
    *
    * @param aMessageURI A message uri to convert.
-   * @param aURL URL which can be run through necko.
    * @param aMsgWindow
+   *
+   * @return a URL which can be run through necko
    */
-  void GetUrlForUri(in AUTF8String aMessageURI, out nsIURI aURL, in nsIMsgWindow aMsgWindow);
+  nsIURI getUrlForUri(in AUTF8String aMessageURI, [optional] in nsIMsgWindow aMsgWindow);
 
   /**
    * When you want a message displayed in a format that is suitable for printing....

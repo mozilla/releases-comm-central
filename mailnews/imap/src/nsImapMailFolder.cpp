@@ -8473,7 +8473,7 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     nsCString messageUri;
     rv = GetUriForMsg(msgHdr, messageUri);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = msgService->GetUrlForUri(messageUri, getter_AddRefs(url), nullptr);
+    rv = msgService->GetUrlForUri(messageUri, nullptr, getter_AddRefs(url));
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Lets look in the offline store.

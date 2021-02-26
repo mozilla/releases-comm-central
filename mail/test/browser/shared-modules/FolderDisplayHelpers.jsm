@@ -2404,9 +2404,10 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     let msgService = troller.folderDisplay.messenger.messageServiceFromURI(
       msgUri
     );
-    let msgUrlObj = {};
-    msgService.GetUrlForUri(msgUri, msgUrlObj, troller.folderDisplay.msgWindow);
-    let msgUrl = msgUrlObj.value;
+    let msgUrl = msgService.getUrlForUri(
+      msgUri,
+      troller.folderDisplay.msgWindow
+    );
     if (troller.window.content?.location.href != msgUrl.spec) {
       throw new Error(
         "The content pane is not displaying the right message! " +

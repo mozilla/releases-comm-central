@@ -18,14 +18,11 @@ function run_test() {
   let imapS = Cc[
     "@mozilla.org/messenger/messageservice;1?type=imap"
   ].getService(Ci.nsIMsgMessageService);
-  let uri = {};
-  imapS.GetUrlForUri(
-    "imap-message://user@localhost/INBOX#4294967168",
-    uri,
-    null
+  let uri = imapS.getUrlForUri(
+    "imap-message://user@localhost/INBOX#4294967168"
   );
   Assert.equal(
-    uri.value.spec,
+    uri.spec,
     "imap://user@localhost:" +
       IMAPPump.server.port +
       "/fetch%3EUID%3E%5EINBOX%3E4294967168"

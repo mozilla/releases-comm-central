@@ -555,7 +555,7 @@ nsresult nsMsgAttachmentHandler::SnarfMsgAttachment(
       }
 
       nsCOMPtr<nsIURI> aURL;
-      rv = messageService->GetUrlForUri(uri, getter_AddRefs(aURL), nullptr);
+      rv = messageService->GetUrlForUri(uri, nullptr, getter_AddRefs(aURL));
       if (NS_FAILED(rv)) goto done;
 
       nsCOMPtr<nsIPrincipal> nullPrincipal =

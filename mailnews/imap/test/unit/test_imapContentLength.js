@@ -60,12 +60,11 @@ function verifyContentLength() {
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  let neckoURL = {};
   let messageService = messenger.messageServiceFromURI(messageUri);
-  messageService.GetUrlForUri(messageUri, neckoURL, null);
+  let neckoURL = messageService.getUrlForUri(messageUri);
   // Don't use the necko URL directly. Instead, get the spec and create a new
   // URL using the IO service
-  let urlToRun = Services.io.newURI(neckoURL.value.spec);
+  let urlToRun = Services.io.newURI(neckoURL.spec);
 
   // Get a channel from this URI, and check its content length
   let channel = Services.io.newChannelFromURI(
@@ -79,7 +78,7 @@ function verifyContentLength() {
   Assert.equal(channel.contentLength, gFile.fileSize);
 
   // Now try an attachment. &part=1.2
-  let attachmentURL = Services.io.newURI(neckoURL.value.spec + "&part=1.2");
+  let attachmentURL = Services.io.newURI(neckoURL.spec + "&part=1.2");
   let attachmentChannel = Services.io.newChannelFromURI(
     attachmentURL,
     null,

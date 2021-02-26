@@ -3361,10 +3361,9 @@ function InitEditor(editor)
       let msgSvc = Cc["@mozilla.org/messenger;1"]
                      .createInstance(Ci.nsIMessenger)
                      .messageServiceFromURI(gOriginalMsgURI);
-      let originalMsgNeckoURI = {};
-      msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
+      let originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
 
-      if (src.startsWith(removeQueryPart(originalMsgNeckoURI.value.spec,
+      if (src.startsWith(removeQueryPart(originalMsgNeckoURI.spec,
                                          "type=application/x-message-display"))) {
         // Reply/Forward/Edit Draft/Edit as New can contain references to
         // images in the original message. Load those and make them data: URLs
@@ -3396,11 +3395,10 @@ function InitEditor(editor)
     let msgSvc = Cc["@mozilla.org/messenger;1"]
                    .createInstance(Ci.nsIMessenger)
                    .messageServiceFromURI(gOriginalMsgURI);
-    let originalMsgNeckoURI = {};
-    msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
+    let originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
 
     if (background.startsWith(
-        removeQueryPart(originalMsgNeckoURI.value.spec,
+        removeQueryPart(originalMsgNeckoURI.spec,
                         "type=application/x-message-display"))) {
       try {
         editor.document.body.background = loadBlockedImage(background, true);

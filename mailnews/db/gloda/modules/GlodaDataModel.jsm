@@ -1076,10 +1076,9 @@ GlodaAttachment.prototype = {
         "The message doesn't exist anymore, unable to rebuild attachment URL"
       );
     }
-    let neckoURL = {};
     let msgService = getMessenger().messageServiceFromURI(uri);
-    msgService.GetUrlForUri(uri, neckoURL, null);
-    let url = neckoURL.value.spec;
+    let neckoURL = msgService.getUrlForUri(uri);
+    let url = neckoURL.spec;
     let hasParamAlready = url.match(/\?[a-z]+=[^\/]+$/);
     let sep = hasParamAlready ? "&" : "?";
     return (

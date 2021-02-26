@@ -197,12 +197,11 @@ class MimePart {
     let headers = {};
 
     if (/^[^:]+-message:/i.test(url)) {
-      let outUri = {};
-      Cc["@mozilla.org/messenger;1"]
+      let outUri = Cc["@mozilla.org/messenger;1"]
         .createInstance(Ci.nsIMessenger)
         .messageServiceFromURI(this._bodyAttachment.url)
-        .GetUrlForUri(this._bodyAttachment.url, outUri, null);
-      url = outUri.value.spec;
+        .getUrlForUri(this._bodyAttachment.url);
+      url = outUri.spec;
     }
 
     // Fetch doesn't support url with embedded credentials. Turn

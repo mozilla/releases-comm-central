@@ -8886,21 +8886,20 @@ function InitEditor() {
         let msgSvc = Cc["@mozilla.org/messenger;1"]
           .createInstance(Ci.nsIMessenger)
           .messageServiceFromURI(gOriginalMsgURI);
-        let originalMsgNeckoURI = {};
-        msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
+        let originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
         if (
           src.startsWith(
             removeQueryPart(
-              originalMsgNeckoURI.value.spec,
+              originalMsgNeckoURI.spec,
               "type=application/x-message-display"
             )
           ) ||
           // Special hack for saved messages.
           (src.includes("?number=0&") &&
-            originalMsgNeckoURI.value.spec.startsWith("file://") &&
+            originalMsgNeckoURI.spec.startsWith("file://") &&
             src.startsWith(
               removeQueryPart(
-                originalMsgNeckoURI.value.spec,
+                originalMsgNeckoURI.spec,
                 "type=application/x-message-display"
               ).replace("file://", "mailbox://") + "number=0"
             ))
@@ -8935,12 +8934,11 @@ function InitEditor() {
     let msgSvc = Cc["@mozilla.org/messenger;1"]
       .createInstance(Ci.nsIMessenger)
       .messageServiceFromURI(gOriginalMsgURI);
-    let originalMsgNeckoURI = {};
-    msgSvc.GetUrlForUri(gOriginalMsgURI, originalMsgNeckoURI, null);
+    let originalMsgNeckoURI = msgSvc.getUrlForUri(gOriginalMsgURI);
     if (
       background.startsWith(
         removeQueryPart(
-          originalMsgNeckoURI.value.spec,
+          originalMsgNeckoURI.spec,
           "type=application/x-message-display"
         )
       )

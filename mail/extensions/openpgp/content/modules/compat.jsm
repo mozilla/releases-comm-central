@@ -43,12 +43,8 @@ var EnigmailCompat = {
       );
       let msgService = messenger.messageServiceFromURI(uriSpec);
 
-      let url;
       // TB
-      let urlObj = {};
-      msgService.GetUrlForUri(uriSpec, urlObj, null);
-
-      url = urlObj.value;
+      let url = msgService.getUrlForUri(uriSpec);
 
       if (url.scheme == "file") {
         return url;

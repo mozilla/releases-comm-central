@@ -1787,18 +1787,13 @@ function ThreadPaneOnDragStart(aEvent) {
 
     msgFileName = msgFileName + ".eml";
 
-    let msgUrl = {};
-    msgService.GetUrlForUri(msgUri, msgUrl, null);
+    let msgUrl = msgService.getUrlForUri(msgUri);
 
     aEvent.dataTransfer.mozSetDataAt("text/x-moz-message", msgUri, index);
-    aEvent.dataTransfer.mozSetDataAt(
-      "text/x-moz-url",
-      msgUrl.value.spec,
-      index
-    );
+    aEvent.dataTransfer.mozSetDataAt("text/x-moz-url", msgUrl.spec, index);
     aEvent.dataTransfer.mozSetDataAt(
       "application/x-moz-file-promise-url",
-      msgUrl.value.spec + "?fileName=" + encodeURIComponent(msgFileName),
+      msgUrl.spec + "?fileName=" + encodeURIComponent(msgFileName),
       index
     );
     aEvent.dataTransfer.mozSetDataAt(

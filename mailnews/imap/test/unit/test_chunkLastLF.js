@@ -69,12 +69,11 @@ function* verifyContentLength() {
   ].getService(Ci.nsIMsgMessageService);
 
   dump("getting uri\n");
-  let uri = {};
-  imapS.GetUrlForUri("imap-message://user@localhost/INBOX#1", uri, null);
+  let uri = imapS.getUrlForUri("imap-message://user@localhost/INBOX#1");
 
   // Get a channel from this URI, and check its content length
   let channel = Services.io.newChannelFromURI(
-    uri.value,
+    uri,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
     null,

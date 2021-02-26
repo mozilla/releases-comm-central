@@ -181,10 +181,8 @@ function msgHdrToMessageBody(aMessageHeader, aStripHtml, aLength) {
  */
 function msgHdrToNeckoURL(aMsgHdr) {
   let uri = aMsgHdr.folder.getUriForMsg(aMsgHdr);
-  let neckoURL = {};
   let msgService = MailServices.messenger.messageServiceFromURI(uri);
-  msgService.GetUrlForUri(uri, neckoURL, null);
-  return neckoURL.value;
+  return msgService.getUrlForUri(uri);
 }
 
 /**

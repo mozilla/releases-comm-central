@@ -371,8 +371,8 @@ nsMailboxService::SaveMessageToDisk(const char* aMessageURI, nsIFile* aFile,
 }
 
 NS_IMETHODIMP nsMailboxService::GetUrlForUri(const nsACString& aMessageURI,
-                                             nsIURI** aURL,
-                                             nsIMsgWindow* aMsgWindow) {
+                                             nsIMsgWindow* aMsgWindow,
+                                             nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aURL);
   if (!strncmp(PromiseFlatCString(aMessageURI).get(), "file:", 5) ||
       PL_strstr(PromiseFlatCString(aMessageURI).get(),

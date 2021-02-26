@@ -109,12 +109,11 @@ function addMsgToFolder(folder) {
     .createInstance(Ci.nsIMessenger)
     .messageServiceFromURI(msgSimpleURL);
 
-  var neckoURL = {};
-  msgService.GetUrlForUri(msgSimpleURL, neckoURL, null);
+  let neckoURL = msgService.getUrlForUri(msgSimpleURL);
 
   // This is the full url to the message that we want (i.e. passing this to
   // a browser element or iframe will display it).
-  return neckoURL.value.spec;
+  return neckoURL.spec;
 }
 
 async function checkContentTab(msgURL) {

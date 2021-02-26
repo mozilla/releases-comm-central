@@ -445,8 +445,8 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(
 }
 
 NS_IMETHODIMP nsNntpService::GetUrlForUri(const nsACString& aMessageURI,
-                                          nsIURI** aURL,
-                                          nsIMsgWindow* aMsgWindow) {
+                                          nsIMsgWindow* aMsgWindow,
+                                          nsIURI** aURL) {
   nsresult rv = NS_OK;
   const nsCString& temp = PromiseFlatCString(aMessageURI);
 

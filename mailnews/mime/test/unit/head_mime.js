@@ -113,11 +113,10 @@ function apply_mime_conversion(msgUri, headerSink = {}, msgWindow = undefined) {
   let listener = new PromiseTestUtils.PromiseStreamListener();
 
   // Make the underlying channel--we need this for the converter parameter.
-  let url = {};
-  service.GetUrlForUri(msgUri, url, msgWindow);
+  let url = service.getUrlForUri(msgUri, msgWindow);
 
   let channel = Services.io.newChannelFromURI(
-    url.value,
+    url,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
     null,

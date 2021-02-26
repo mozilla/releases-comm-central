@@ -78,10 +78,9 @@ function* streamMessages() {
     }
 
     for (let i = 1; i < inbox.uidnext; i++) {
-      let uri = {};
-      imapS.GetUrlForUri("imap-message://user@localhost/INBOX#" + i, uri, null);
+      let uri = imapS.getUrlForUri("imap-message://user@localhost/INBOX#" + i);
       let channel = Services.io.newChannelFromURI(
-        uri.value,
+        uri,
         null,
         Services.scriptSecurityManager.getSystemPrincipal(),
         null,

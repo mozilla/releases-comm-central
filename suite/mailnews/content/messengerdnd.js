@@ -281,7 +281,6 @@ function BeginDragThreadPane(aEvent)
   // disadvantage, even if it is a copy operation.
   SetNextMessageAfterDelete();
   var fileNames = [];
-  var msgUrls = {};
   var dataTransfer = aEvent.dataTransfer;
 
   // Dragging multiple messages to desktop does not currently work, pending
@@ -289,17 +288,16 @@ function BeginDragThreadPane(aEvent)
   for (let i = 0; i < messages.length; i++)
   {
     let messageService = messenger.messageServiceFromURI(messages[i]);
-    messageService.GetUrlForUri(messages[i], msgUrls, null);
+    let msgUrls = messageService.getUrlForUri(messages[i]);
     let subject = messageService.messageURIToMsgHdr(messages[i])
                                 .mime2DecodedSubject;
     let uniqueFileName = suggestUniqueFileName(subject.substr(0, 120), ".eml",
                                                fileNames);
     fileNames[i] = uniqueFileName;
     dataTransfer.mozSetDataAt("text/x-moz-message", messages[i], i);
-    dataTransfer.mozSetDataAt("text/x-moz-url", msgUrls.value.spec, i);
+    dataTransfer.mozSetDataAt("text/x-moz-url", msgUrls.spec, i);
     dataTransfer.mozSetDataAt("application/x-moz-file-promise-url",
-                               msgUrls.value.spec + "?fileName=" + uniqueFileName,
-                               i);
+                               msgUrls.spec + "?fileName=" + uniqueFileName, i);
     dataTransfer.mozSetDataAt("application/x-moz-file-promise", null, i);
   }
   aEvent.dataTransfer.effectAllowed = "copyMove";

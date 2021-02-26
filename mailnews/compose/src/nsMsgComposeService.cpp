@@ -1278,7 +1278,7 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
                      "&type=application/x-message-display") >= 0)
     rv = NS_NewURI(getter_AddRefs(url), mailboxUri);
   else
-    rv = messageService->GetUrlForUri(aMsgURI, getter_AddRefs(url), aMsgWindow);
+    rv = messageService->GetUrlForUri(aMsgURI, aMsgWindow, getter_AddRefs(url));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(url);
