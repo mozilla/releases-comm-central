@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests using the global search input retains focus after a search. What we are
- * really interested in however, is the search input not causing an error when
- * it gains focus.
+ * Tests Gloda search bar is focused after a search. What we are really
+ * interested in however, is the search input not causing an error when it
+ * gains focus.
  */
 add_task(async function testGlobalSearchInputGainsFocus() {
   let searchInput = document.querySelector("#searchInput");
@@ -13,9 +13,25 @@ add_task(async function testGlobalSearchInputGainsFocus() {
   EventUtils.synthesizeMouseAtCenter(searchInput, {}, window);
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
-  Assert.ok(
-    document.activeElement === searchInput,
-    "global search input has focus"
+  let tabmail = document.querySelector("tabmail");
+  Assert.equal(tabmail.tabInfo.length, 2);
+  Assert.equal(tabmail.currentTabInfo, tabmail.tabInfo[1]);
+
+  await TestUtils.waitForCondition(() => {
+    let browser = tabmail.currentTabInfo.browser;
+    return (
+      browser &&
+      !browser.webProgress?.isLoadingDocument &&
+      browser.currentURI?.spec != "about:blank"
+    );
+  });
+
+  let activeElement = document.activeElement;
+  info(`<${activeElement.localName}>`);
+  Assert.equal(
+    activeElement.getAttribute("is"),
+    "gloda-autocomplete-input",
+    "gloda search input has focus"
   );
 });
 
