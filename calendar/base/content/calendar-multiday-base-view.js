@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* global calendarNavigationBar, currentView, MozElements, MozXULElement, Services,
-   setAttributeToChildren, setBooleanAttribute, timeIndicator, gCurrentMode */
+   setBooleanAttribute, timeIndicator, gCurrentMode */
 
 "use strict";
 
@@ -1056,24 +1056,23 @@
         this.querySelector(selector).setAttribute("orient", otherOrient);
       }
 
-      const scrollbox = this.scrollbox;
-      const mainbox = this.querySelector(".mainbox");
-
       if (orient == "vertical") {
-        scrollbox.setAttribute("style", "overflow-x: hidden; overflow-y: auto;");
-        mainbox.setAttribute("style", "overflow-x: auto; overflow-y: hidden;");
+        this.scrollbox.setAttribute("style", "overflow-x:hidden; overflow-y:auto;");
+        this.querySelector(".mainbox").setAttribute("style", "overflow-x:auto; overflow-y:hidden;");
       } else {
-        scrollbox.setAttribute("style", "overflow-x: auto; overflow-y: hidden;");
-        mainbox.setAttribute("style", "overflow-x: hidden; overflow-y: auto;");
+        this.scrollbox.setAttribute("style", "overflow-x: auto; overflow-y: hidden;");
+        this.querySelector(".mainbox").setAttribute("style", "overflow-x:hidden; overflow-y:auto;");
       }
 
-      const boxes = [".daybox", ".headerdaybox"];
-      for (const selector of boxes) {
-        const box = this.querySelector(selector);
-        setAttributeToChildren(box, "orient", orient);
+      for (const selector of [".daybox", ".headerdaybox"]) {
+        for (let child of this.querySelector(selector).children) {
+          child.setAttribute("orient", orient);
+        }
       }
 
-      setAttributeToChildren(this.labeldaybox, "orient", otherOrient);
+      for (let child of this.labeldaybox.children) {
+        child.setAttribute("orient", otherOrient);
+      }
 
       this.refresh();
     }

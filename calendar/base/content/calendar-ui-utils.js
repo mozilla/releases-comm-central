@@ -246,33 +246,6 @@ function addMenuItem(aParent, aLabel, aValue, aCommand) {
 }
 
 /**
- * Sets a given attribute value on the children of a passed node
- *
- * @param aParent           The parent node.
- * @param aAttribute        The name of the attribute to be set.
- * @param aValue            The value of the attribute.
- * @param aFilterAttribute  (optional) The name of an attribute that the child nodes carry
- *                            and that is used to filter the childnodes.
- * @param aFilterValue      (optional) The value of the filterattribute. If set only those
- *                            childnodes are modified that have an attribute
- *                            'aFilterAttribute' with the given value
- *                            'aFilterValue' set.
- */
-function setAttributeToChildren(aParent, aAttribute, aValue, aFilterAttribute, aFilterValue) {
-  for (let i = 0; i < aParent.children.length; i++) {
-    let element = aParent.children[i];
-    if (aFilterAttribute == null) {
-      element[aAttribute] = aValue;
-    } else if (element.hasAttribute(aFilterAttribute)) {
-      let compValue = element.getAttribute(aFilterAttribute);
-      if (compValue === aFilterValue) {
-        element[aAttribute] = aValue;
-      }
-    }
-  }
-}
-
-/**
  * Gets the correct plural form of a given unit.
  *
  * @param aLength         The number to use to determine the plural form

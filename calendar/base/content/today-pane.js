@@ -104,15 +104,13 @@ var TodayPane = {
 
     // Disable or enable the today pane menuitems that have an attribute
     // name="minidisplay" depending on the visibility of elements.
-    let menu = document.getElementById("ltnTodayPaneMenuPopup");
-    if (menu) {
-      setAttributeToChildren(
-        menu,
-        "disabled",
-        !todayIsVisible || !agendaIsVisible,
-        "name",
-        "minidisplay"
-      );
+    let menupopup = document.getElementById("ltnTodayPaneMenuPopup");
+    if (menupopup) {
+      for (let child of menupopup.children) {
+        if (child.getAttribute("name") == "minidisplay") {
+          child.disabled = !todayIsVisible || !agendaIsVisible;
+        }
+      }
     }
 
     if (todayIsVisible) {
