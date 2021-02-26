@@ -2053,8 +2053,7 @@ NS_IMETHODIMP nsMsgIncomingServer::IsNewHdrDuplicate(nsIMsgDBHdr* aNewHdr,
   // err on the side of caution and ignore messages w/o subject or messageid.
   if (subject.IsEmpty() || messageId.IsEmpty()) return NS_OK;
   strHashKey.Append(subject);
-  int32_t hashValue = 0;
-  m_downloadedHdrs.Get(strHashKey, &hashValue);
+  int32_t hashValue = m_downloadedHdrs.Get(strHashKey);
   if (hashValue)
     *aResult = true;
   else {

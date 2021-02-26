@@ -291,8 +291,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::GetCustomAttribute(
   nsCString key;
   key.AppendInt((int64_t)aUid);
   key.Append(aCustomAttributeName);
-  nsCString val;
-  m_customAttributesHash.Get(key, &val);
+  nsCString val = m_customAttributesHash.Get(key);
   aCustomAttributeValue.Assign(val);
   return NS_OK;
 }
