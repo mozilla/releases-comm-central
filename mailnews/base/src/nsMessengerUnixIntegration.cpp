@@ -667,7 +667,7 @@ nsresult nsMessengerUnixIntegration::PutMRUTimestampForFolder(
 
   nsCString rootFolderURI;
   rootFolder->GetURI(rootFolderURI);
-  mLastMRUTimes.Put(rootFolderURI, aLastMRUTime);
+  mLastMRUTimes.InsertOrUpdate(rootFolderURI, aLastMRUTime);
 
   return NS_OK;
 }

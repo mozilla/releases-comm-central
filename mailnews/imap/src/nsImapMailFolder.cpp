@@ -3579,7 +3579,7 @@ NS_IMETHODIMP nsImapMailFolder::AddMoveResultPseudoKey(nsMsgKey aMsgKey) {
   pseudoHdr->GetMessageId(getter_Copies(messageId));
   // err on the side of caution and ignore messages w/o messageid.
   if (messageId.IsEmpty()) return NS_OK;
-  m_pseudoHdrs.Put(messageId, aMsgKey);
+  m_pseudoHdrs.InsertOrUpdate(messageId, aMsgKey);
   return NS_OK;
 }
 
@@ -5806,7 +5806,7 @@ bool nsMsgIMAPFolderACL::SetFolderRightsForUser(const nsACString& userName,
     NS_ASSERTION(m_aclCount >= 0, "acl count can't go negative");
   }
   m_aclCount++;
-  m_rightsHash.Put(ourUserName, PromiseFlatCString(rights));
+  m_rightsHash.InsertOrUpdate(ourUserName, PromiseFlatCString(rights));
 
   if (myUserName.Equals(ourUserName) ||
       ourUserName.EqualsLiteral(IMAP_ACL_ANYONE_STRING))

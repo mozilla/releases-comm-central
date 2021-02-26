@@ -598,7 +598,7 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
     NS_ENSURE_SUCCESS(rv, rv);
     rv = seekable->Seek(nsISeekableStream::NS_SEEK_END, 0);
     NS_ENSURE_SUCCESS(rv, rv);
-    m_outputStreams.Put(URI, *aResult);
+    m_outputStreams.InsertOrUpdate(URI, *aResult);
   }
   int64_t filePos;
   seekable->Tell(&filePos);
@@ -786,7 +786,7 @@ nsresult nsMsgBrkMBoxStore::GetOutputStream(
     NS_ENSURE_SUCCESS(rv, rv);
     rv = MsgGetFileStream(mboxFile, getter_AddRefs(outputStream));
     seekableStream = do_QueryInterface(outputStream);
-    if (NS_SUCCEEDED(rv)) m_outputStreams.Put(URI, outputStream);
+    if (NS_SUCCEEDED(rv)) m_outputStreams.InsertOrUpdate(URI, outputStream);
   }
   return rv;
 }

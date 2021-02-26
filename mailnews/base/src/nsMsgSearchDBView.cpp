@@ -114,10 +114,10 @@ nsMsgSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
   if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay) {
     // We need to clone the thread and msg hdr hash tables.
     for (auto iter = m_threadsTable.Iter(); !iter.Done(); iter.Next()) {
-      newMsgDBView->m_threadsTable.Put(iter.Key(), iter.UserData());
+      newMsgDBView->m_threadsTable.InsertOrUpdate(iter.Key(), iter.UserData());
     }
     for (auto iter = m_hdrsTable.Iter(); !iter.Done(); iter.Next()) {
-      newMsgDBView->m_hdrsTable.Put(iter.Key(), iter.UserData());
+      newMsgDBView->m_hdrsTable.InsertOrUpdate(iter.Key(), iter.UserData());
     }
   }
 
@@ -1201,7 +1201,7 @@ nsresult nsMsgSearchDBView::AddRefToHash(nsCString& reference,
   m_threadsTable.Get(reference, getter_AddRefs(oldThread));
   if (oldThread) return NS_OK;
 
-  m_threadsTable.Put(reference, thread);
+  m_threadsTable.InsertOrUpdate(reference, thread);
   return NS_OK;
 }
 
@@ -1224,7 +1224,7 @@ nsresult nsMsgSearchDBView::AddMsgToHashTables(nsIMsgDBHdr* msgHdr,
 
   nsCString messageId;
   msgHdr->GetMessageId(getter_Copies(messageId));
-  m_hdrsTable.Put(messageId, msgHdr);
+  m_hdrsTable.InsertOrUpdate(messageId, msgHdr);
   if (!gReferenceOnlyThreading) {
     nsCString subject;
     msgHdr->GetSubject(getter_Copies(subject));

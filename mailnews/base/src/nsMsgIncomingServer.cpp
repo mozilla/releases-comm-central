@@ -2060,7 +2060,7 @@ NS_IMETHODIMP nsMsgIncomingServer::IsNewHdrDuplicate(nsIMsgDBHdr* aNewHdr,
   else {
     // we store the current size of the hash table as the hash
     // value - this allows us to delete older entries.
-    m_downloadedHdrs.Put(strHashKey, ++m_numMsgsDownloaded);
+    m_downloadedHdrs.InsertOrUpdate(strHashKey, ++m_numMsgsDownloaded);
     // Check if hash table is larger than some reasonable size
     // and if is it, iterate over hash table deleting messages
     // with an arrival index < number of msgs downloaded - half the reasonable

@@ -251,7 +251,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(
   } else {
     ourCustomFlags.Assign(customFlag);
   }
-  m_customFlagsHash.Put(uid, ourCustomFlags);
+  m_customFlagsHash.InsertOrUpdate(uid, ourCustomFlags);
   return NS_OK;
 }
 
@@ -281,7 +281,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::SetCustomAttribute(
   key.Append(aCustomAttributeName);
   nsCString value;
   value.Assign(aCustomAttributeValue);
-  m_customAttributesHash.Put(key, value);
+  m_customAttributesHash.InsertOrUpdate(key, value);
   return NS_OK;
 }
 

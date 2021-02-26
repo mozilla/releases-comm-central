@@ -249,7 +249,7 @@ nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
 
     uint32_t rowId;
     card->GetPropertyAsUint32(kRowIDProperty, &rowId);
-    cardMap.Put(rowId, card);
+    cardMap.InsertOrUpdate(rowId, card);
 
     nsIAbCard* outCard;
     newDirectory->AddCard(card, &outCard);

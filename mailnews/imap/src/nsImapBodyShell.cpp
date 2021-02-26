@@ -1103,7 +1103,7 @@ bool nsImapBodyShellCache::AddShellToCache(nsImapBodyShell* shell) {
   // Add the new one to the cache
   m_shellList->AppendElement(shell);
 
-  m_shellHash.Put(shell->GetUID_validity(), RefPtr{shell});
+  m_shellHash.InsertOrUpdate(shell->GetUID_validity(), RefPtr{shell});
   shell->SetIsCached(true);
 
   // while we're not over our size limit, eject entries

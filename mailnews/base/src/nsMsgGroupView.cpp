@@ -286,7 +286,7 @@ nsMsgGroupThread* nsMsgGroupView::AddHdrToThread(nsIMsgDBHdr* msgHdr,
   if (!foundThread) {
     foundThread = CreateGroupThread(m_db);
     msgThread = foundThread;
-    m_groupsTable.Put(hashKey, msgThread);
+    m_groupsTable.InsertOrUpdate(hashKey, msgThread);
     if (GroupViewUsesDummyRow()) {
       foundThread->m_dummy = true;
       msgFlags |= MSG_VIEW_FLAG_DUMMY | MSG_VIEW_FLAG_HASCHILDREN;
@@ -460,7 +460,7 @@ nsMsgGroupView::CopyDBView(nsMsgDBView* aNewMsgDBView,
   // If grouped, we need to clone the group thread hash table.
   if (m_viewFlags & nsMsgViewFlagsType::kGroupBySort) {
     for (auto iter = m_groupsTable.Iter(); !iter.Done(); iter.Next()) {
-      newMsgDBView->m_groupsTable.Put(iter.Key(), iter.UserData());
+      newMsgDBView->m_groupsTable.InsertOrUpdate(iter.Key(), iter.UserData());
     }
   }
   return NS_OK;

@@ -464,7 +464,7 @@ calIcalComponent::AddTimezoneReference(calITimezone* aTimezone) {
   nsAutoCString tzid;
   nsresult rv = aTimezone->GetTzid(tzid);
   NS_ENSURE_SUCCESS(rv, rv);
-  mReferencedTimezones.Put(tzid, aTimezone);
+  mReferencedTimezones.InsertOrUpdate(tzid, aTimezone);
 
   return NS_OK;
 }

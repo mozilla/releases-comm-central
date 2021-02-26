@@ -309,7 +309,7 @@ nsresult nsMsgFolderCache::AddCacheElement(const nsACString& key,
   // if caller didn't pass in key, try to get it from row.
   if (key.IsEmpty()) folderCacheEl->GetStringProperty("key", hashStrKey);
   folderCacheEl->SetKey(hashStrKey);
-  m_cacheElements.Put(hashStrKey, folderCacheEl);
+  m_cacheElements.InsertOrUpdate(hashStrKey, folderCacheEl);
   if (result) folderCacheEl.forget(result);
   return NS_OK;
 }

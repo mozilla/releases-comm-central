@@ -4983,7 +4983,7 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
           (kImapXListTrash | kImapAllMail | kImapInbox | kImapSent | kImapSpam |
            kImapDrafts)) {
         nsCString mailboxName(adoptedBoxSpec->mAllocatedPathName);
-        m_specialXListMailboxes.Put(mailboxName, adoptedBoxSpec->mBoxFlags);
+        m_specialXListMailboxes.InsertOrUpdate(mailboxName, adoptedBoxSpec->mBoxFlags);
         // Remember hierarchy delimiter in case this is the first time we've
         // connected to the server and we need it to be correct for the
         // two-level XLIST we send (INBOX is guaranteed to be in the first
@@ -4996,7 +4996,7 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
     case kListingForFolderFlags: {
       // store mailbox flags from LIST for use by LSUB
       nsCString mailboxName(adoptedBoxSpec->mAllocatedPathName);
-      m_standardListMailboxes.Put(mailboxName, adoptedBoxSpec->mBoxFlags);
+      m_standardListMailboxes.InsertOrUpdate(mailboxName, adoptedBoxSpec->mBoxFlags);
     } break;
     case kListingForCreate:
     case kNoOperationInProgress:

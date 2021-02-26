@@ -48,7 +48,7 @@ NS_IMETHODIMP nsMsgTxn::GetProperty(const nsAString& name,
 
 NS_IMETHODIMP nsMsgTxn::SetProperty(const nsAString& name, nsIVariant* value) {
   NS_ENSURE_ARG_POINTER(value);
-  mPropertyHash.Put(name, value);
+  mPropertyHash.InsertOrUpdate(name, value);
   return NS_OK;
 }
 

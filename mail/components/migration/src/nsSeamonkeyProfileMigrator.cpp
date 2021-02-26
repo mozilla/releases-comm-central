@@ -703,7 +703,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformIdentitiesForImport(
       NS_ENSURE_SUCCESS(rv, rv);
 
       identity->GetKey(newKey);
-      keyHashTable.Put(key, newKey);
+      keyHashTable.InsertOrUpdate(key, newKey);
     }
 
     // Replace the prefName with the new key.
@@ -755,7 +755,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformMailAccountsForImport(
     if (!keyHashTable.Get(key, &newKey)) {
       accountManager->GetUniqueAccountKey(newKey);
       newKeys.AppendElement(newKey);
-      keyHashTable.Put(key, newKey);
+      keyHashTable.InsertOrUpdate(key, newKey);
     }
 
     // Replace the prefName with the new key.
@@ -817,7 +817,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformMailServersForImport(
         accountManager->GetUniqueServerKey(newKey);
       } while (newKeys.Contains(newKey));
       newKeys.AppendElement(newKey);
-      keyHashTable.Put(key, newKey);
+      keyHashTable.InsertOrUpdate(key, newKey);
     }
 
     prefName.Assign(moz_xstrdup(newKey.get()));
@@ -877,7 +877,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformSmtpServersForImport(
       server->GetKey(&str);
       newKey.Assign(str);
       newKeys.AppendElement(newKey);
-      keyHashTable.Put(key, newKey);
+      keyHashTable.InsertOrUpdate(key, newKey);
     }
 
     // Replace the prefName with the new key.
@@ -938,7 +938,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformAddressbooksForImport(
             break;
           }
         }
-        keyHashTable.Put(key, newKey);
+        keyHashTable.InsertOrUpdate(key, newKey);
       }
     }
 
@@ -1018,7 +1018,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformAddressbooksForImport(
           }
 
           // Store the directories to be migrated for later.
-          pendingMigrations.Put(newKey, oldFileName);
+          pendingMigrations.InsertOrUpdate(newKey, oldFileName);
         }
       }
     }

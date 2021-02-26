@@ -400,7 +400,7 @@ nsresult nsMsgAccountManager::createKeyedIdentity(const nsACString& key,
   NS_ENSURE_SUCCESS(rv, rv);
 
   identity->SetKey(key);
-  m_identities.Put(key, identity);
+  m_identities.InsertOrUpdate(key, identity);
   identity.forget(aIdentity);
   return NS_OK;
 }
@@ -562,7 +562,7 @@ nsresult nsMsgAccountManager::createKeyedServer(
   // don't allow duplicate servers.
   if (existingServer) return NS_ERROR_FAILURE;
 
-  m_incomingServers.Put(key, server);
+  m_incomingServers.InsertOrUpdate(key, server);
 
   // now add all listeners that are supposed to be
   // waiting on root folders

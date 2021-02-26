@@ -325,7 +325,7 @@ nsresult nsLDAPConnection::AddPendingOperation(uint32_t aOperationID,
       new nsLDAPConnectionRunnable(aOperationID, aOperation, this);
   {
     MutexAutoLock lock(mPendingOperationsMutex);
-    mPendingOperations.Put((uint32_t)aOperationID, aOperation);
+    mPendingOperations.InsertOrUpdate((uint32_t)aOperationID, aOperation);
     MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
             ("Operation id=%d added (%d now pending)", aOperationID,
              mPendingOperations.Count()));

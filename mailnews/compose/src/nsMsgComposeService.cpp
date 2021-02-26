@@ -1155,7 +1155,7 @@ nsMsgComposeService::RegisterComposeDocShell(nsIDocShell* aDocShell,
   NS_ENSURE_SUCCESS(rv, rv);
   nsWeakPtr weakMsgComposePtr = do_GetWeakReference(aComposeObject);
   NS_ENSURE_SUCCESS(rv, rv);
-  mOpenComposeWindows.Put(weakDocShell, weakMsgComposePtr);
+  mOpenComposeWindows.InsertOrUpdate(weakDocShell, weakMsgComposePtr);
 
   return rv;
 }

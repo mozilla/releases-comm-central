@@ -575,7 +575,7 @@ nsresult nsAbOSXDirectory::AssertCard(nsIAbManager* aManager, nsIAbCard* aCard) 
   rv = osxCard->GetURI(uri);
 
   nsCOMPtr<nsIAbOSXCard> retrievedCard;
-  if (!mCardStore.Get(uri, getter_AddRefs(retrievedCard))) mCardStore.Put(uri, osxCard);
+  if (!mCardStore.Get(uri, getter_AddRefs(retrievedCard))) mCardStore.InsertOrUpdate(uri, osxCard);
 
   return NS_OK;
 }

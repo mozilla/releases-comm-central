@@ -16,7 +16,7 @@ namespace mailnews {
 NS_IMPL_ISUPPORTS(DelegateList, msgIDelegateList)
 
 NS_IMETHODIMP DelegateList::Add(const nsACString& aMethodName) {
-  mMethods.Put(aMethodName, true);
+  mMethods.InsertOrUpdate(aMethodName, true);
   return NS_OK;
 }
 
