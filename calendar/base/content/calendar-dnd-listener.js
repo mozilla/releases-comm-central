@@ -6,10 +6,15 @@
 /* import-globals-from calendar-management.js */
 /* import-globals-from import-export.js */
 
-/* exported invokeEventDragSession, calendarViewDNDObserver,
+/* exported invokeEventDragSession,
  *          calendarMailButtonDNDObserver, calendarCalendarButtonDNDObserver,
  *          calendarTaskButtonDNDObserver
  */
+
+var calendarViewDNDObserver;
+var calendarMailButtonDNDObserver;
+var calendarCalendarButtonDNDObserver;
+var calendarTaskButtonDNDObserver;
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -836,10 +841,10 @@
     }
   }
 
-  window.calendarViewDNDObserver = new CalViewDNDObserver();
-  window.calendarMailButtonDNDObserver = new CalMailButtonDNDObserver();
-  window.calendarCalendarButtonDNDObserver = new CalCalendarButtonObserver();
-  window.calendarTaskButtonDNDObserver = new CalTaskButtonObserver();
+  calendarViewDNDObserver = new CalViewDNDObserver();
+  calendarMailButtonDNDObserver = new CalMailButtonDNDObserver();
+  calendarCalendarButtonDNDObserver = new CalCalendarButtonObserver();
+  calendarTaskButtonDNDObserver = new CalTaskButtonObserver();
 }
 
 /**
