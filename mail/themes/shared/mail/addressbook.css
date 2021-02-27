@@ -30,6 +30,10 @@
   border-bottom: 1px solid var(--tabs-border-color, transparent);
 }
 
+#ab-toolbox > toolbar {
+  background-color: var(--toolbar-bgcolor);
+}
+
 /* primary toolbar buttons */
 
 #button-newcard {

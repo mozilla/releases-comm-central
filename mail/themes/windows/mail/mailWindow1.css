@@ -205,12 +205,24 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         background-color: #d1d1d1;
       }
 
+      :root[tabsintitlebar]:-moz-lwtheme {
+        background-color: var(--lwt-accent-color);
+      }
+
+      :root[tabsintitlebar]:-moz-lwtheme:-moz-window-inactive {
+        background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+      }
+
       :root[tabsintitlebar] #navigation-toolbox {
         margin-top: -1px;
       }
 
       :root[tabsintitlebar] #mail-toolbar-menubar2:not([inactive="true"]) {
         margin-top: 1px;
+      }
+
+      :root[tabsintitlebar] #LW-background-box:-moz-lwtheme {
+        top: 1px;
       }
 
       @media (-moz-windows-accent-color-in-titlebar: 0) {

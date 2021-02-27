@@ -37,6 +37,7 @@
   --field-border-hover-color: rgba(0, 0, 0, 0.4);
   --popup-item-hover: rgba(69, 161, 255, 0.2);
   --popup-item-hover-text: var(--box-text-color);
+  background-color: var(--lwt-accent-color);
 }
 
 :root:-moz-lwtheme-brighttext {
@@ -59,6 +60,16 @@
 
 :root[lwt-tree] {
   --richlist-button-background: var(--sidebar-background-color);
+}
+
+:root:not([lwt-tree]):-moz-lwtheme[lwtheme-image] {
+  background-image: var(--lwt-header-image) !important;
+  background-repeat: no-repeat;
+  background-position: right top !important;
+}
+
+:root:not([lwt-tree]):-moz-lwtheme:-moz-window-inactive {
+  background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
 }
 
 :root:not([lwt-tree]):-moz-lwtheme dialog,

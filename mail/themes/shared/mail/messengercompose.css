@@ -390,6 +390,7 @@
 #compose-toolbox > toolbar {
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;
+  background-color: var(--toolbar-bgcolor);
 }
 
 #compose-toolbox:-moz-lwtheme {

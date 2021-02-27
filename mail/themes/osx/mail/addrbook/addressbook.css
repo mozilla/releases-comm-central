@@ -19,7 +19,7 @@
   appearance: none;
 }
 
-#ab-toolbox:-moz-lwtheme::before {
+#ab-toolbox:-moz-lwtheme::after {
   content: "";
   display: -moz-box;
   position: absolute;
@@ -34,12 +34,10 @@
   counter-reset: smallicons;
 }
 
-#abContent:-moz-lwtheme {
-  background-color: -moz-OddTreeRow;
-}
-
-/* directory pane icons */
-
+/* Give the tree a vibrant appearance. Only do this when no lwtheme tree rules
+ * are in use. Vibrant appearance values only work if there is no
+ * background-color rendered behind the element. If the active theme has tree
+ * rules, we want to show the theme's background-color in the tree. */
 :root:not([lwt-tree]) #dirTree {
   appearance: auto;
   -moz-default-appearance: -moz-mac-source-list;

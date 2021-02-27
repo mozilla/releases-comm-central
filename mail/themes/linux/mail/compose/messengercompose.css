@@ -12,7 +12,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 #compose-toolbox {
-  background-color: var(--toolbar-bgcolor);
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 

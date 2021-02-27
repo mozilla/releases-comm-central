@@ -2120,7 +2120,7 @@ var TabsInTitlebar = {
     // Calculate the LW-backgroundBox height to place the images correctly.
     let root = $("messengerWindow");
     let bgBox = $("LW-background-box");
-    if (root.getAttribute("lwtheme-image")) {
+    if (root.getAttribute("lwtheme")) {
       let bgBoxHeight =
         rect($("navigation-toolbox")).height + rect($("mail-toolbox")).height;
       bgBox.style.height = bgBoxHeight + "px";

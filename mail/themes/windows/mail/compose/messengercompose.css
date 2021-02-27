@@ -217,7 +217,6 @@ toolbarbutton.formatting-button {
 
 #compose-toolbox {
   appearance: none;
-  background-color: var(--toolbar-bgcolor);
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 

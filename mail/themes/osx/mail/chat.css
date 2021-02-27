@@ -72,7 +72,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 }
 
 /* Adaptation of #folderPaneBox/#folderPaneTree from osx/mail/mailWindow1.css */
-:root:not([lwt-tree],:-moz-lwtheme) #chatPanel {
+:root:not([lwt-tree]) #chatPanel {
   appearance: auto;
   -moz-default-appearance: -moz-mac-source-list;
   -moz-font-smoothing-background-color: -moz-mac-source-list;

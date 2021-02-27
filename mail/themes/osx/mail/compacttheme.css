@@ -4,14 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/compacttheme.css");
 
-/**
- * macOS vibrancy effects only work when there is no background colour behind
- * the effect.
- */
-#messengerWindow[tabsintitlebar]:-moz-lwtheme {
-  background-color: transparent;
-}
-
 :root[tabsintitlebar] #tabs-toolbar:-moz-lwtheme-brighttext {
   appearance: auto;
   -moz-default-appearance: -moz-mac-vibrant-titlebar-dark;

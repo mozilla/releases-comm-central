@@ -14,10 +14,6 @@
 @import url("chrome://messenger/skin/messageIcons.css");
 @import url("chrome://messenger/skin/shared/mailWindow1.css");
 
-#messengerBox:-moz-lwtheme {
-  background-color: -moz-OddTreeRow;
-}
-
 #tabmail:-moz-lwtheme {
   text-shadow: inherit;
 }
@@ -40,6 +36,10 @@
   appearance: auto;
   -moz-default-appearance: -moz-mac-source-list;
   -moz-font-smoothing-background-color: -moz-mac-source-list;
+}
+
+treechildren::-moz-tree-row(modeHeader) {
+  appearance: none !important;
 }
 
 #folderTree treechildren::-moz-tree-indentation {
@@ -72,6 +72,7 @@
 :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-twisty(selected, focus),
 :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
   color: #282828;
+  fill: #282828;
 }
 
 /* ::::: thread decoration ::::: */

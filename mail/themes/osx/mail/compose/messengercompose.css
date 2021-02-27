@@ -11,7 +11,7 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-#compose-toolbox:-moz-lwtheme::before {
+#compose-toolbox:-moz-lwtheme::after {
   content: "";
   display: -moz-box;
   position: absolute;
@@ -58,6 +58,8 @@ toolbar[nowindowdrag="true"] {
 /* ::::: special toolbar colors ::::: */
 
 #composeContentBox {
+  color: -moz-DialogText;
+  text-shadow: none;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;
   background-color: rgb(242, 242, 242);
 }
@@ -68,12 +70,6 @@ toolbar[nowindowdrag="true"] {
 
 #headers-box {
   padding-bottom: 3px;
-}
-
-#MsgHeadersToolbar {
-  color: -moz-DialogText;
-  text-shadow: none;
-  border-bottom: 0 solid;
 }
 
 #addresses-box {
@@ -203,8 +199,6 @@ toolbar[nowindowdrag="true"] {
 /* ::::: format toolbar ::::: */
 
 #FormatToolbar {
-  border-bottom: none;
-  background-color: rgb(242, 242, 242) !important;
   padding-block: 4px;
   margin-inline: 3px;
 }
@@ -303,12 +297,6 @@ toolbarbutton.formatting-button {
 #sidebarHeader {
   background: transparent;
   text-shadow: none;
-}
-
-#sidebar-box {
-  appearance: auto;
-  -moz-default-appearance: -moz-mac-source-list;
-  -moz-font-smoothing-background-color: -moz-mac-source-list;
 }
 
 #sidebar-splitter {

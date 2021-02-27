@@ -26,6 +26,9 @@
   background-repeat: no-repeat;
   background-position: 5px center;
   padding-inline-start: 21px;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.8;
 }
 
 /* special treatment because these boxes are on themable toolbars */

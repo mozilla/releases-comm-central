@@ -28,6 +28,11 @@
 
 @media (-moz-os-version: windows-win7) {
   @media (-moz-windows-default-theme) {
+    /* Hide the LW-background-box to show the window background */
+    :root[tabsintitlebar] #LW-background-box {
+      display: none;
+    }
+
     /* Always show light toolbar elements on aero surface. */
     #tabs-toolbar {
       color: hsl(240,9%,98%);
@@ -46,6 +51,24 @@
     }
     .tabmail-tab:hover > .tab-stack > .tab-background > .tab-line:not([selected=true]):-moz-lwtheme-darktext {
       background-color: rgba(0,0,0,.2) !important;
+    }
+
+    :root[tabsintitlebar] #mail-menubar {
+      color: CaptionText;
+    }
+
+    :root[tabsintitlebar]:not([inFullscreen]) #mail-menubar:-moz-window-inactive {
+      color: InactiveCaptionText;
+    }
+
+    #messengerWindow[tabsintitlebar] #mail-menubar > menu {
+      color: inherit;
+    }
+
+    :root[tabsintitlebar] #tabs-toolbar .toolbarbutton-1,
+    :root[tabsintitlebar] #tabmail-arrowscrollbox::part(scrollbutton-up),
+    :root[tabsintitlebar] #tabmail-arrowscrollbox::part(scrollbutton-down) {
+      fill: CaptionText;
     }
   }
 }
@@ -112,8 +135,7 @@
   }
 
   /* Use proper menu text styling in Win7 classic mode (copied from browser.css) */
-  @media (-moz-windows-compositor: 0),
-         (-moz-windows-default-theme: 0) {
+  @media (-moz-windows-default-theme: 0) {
     :root[tabsintitlebar]:not([inFullscreen]) #mail-menubar {
       color: CaptionText;
     }
