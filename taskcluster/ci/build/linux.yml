@@ -156,6 +156,7 @@ linux64-asan/opt:
         mozconfig-variant: nightly-asan
         tooltool-downloads: public
         need-xvfb: true
+    run-on-projects: ['release']
     use-sccache: true
     fetches:
         toolchain:
