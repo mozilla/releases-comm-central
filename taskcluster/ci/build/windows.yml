@@ -107,6 +107,7 @@ win32-shippable/opt:
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
+    run-on-projects: ['release']
     fetches:
         toolchain:
             - linux64-binutils
@@ -271,6 +272,7 @@ win64-shippable/opt:
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4"
+    run-on-projects: ['release']
     fetches:
         toolchain:
             - linux64-binutils
