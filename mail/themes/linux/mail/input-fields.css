@@ -10,9 +10,8 @@ html|input.input-inline {
 }
 
 html|input.input-filefield {
-  padding: 5px 6px;
   padding-inline-start: 25px !important;
-  background: center left 6px / 16px no-repeat -moz-dialog;
+  background: center left 6px / 16px no-repeat;
 }
 
 html|input.input-filefield:-moz-locale-dir(rtl) {

@@ -10,8 +10,7 @@ html|input.input-inline {
 }
 
 html|input.input-filefield {
-  padding: 2px 4px;
-  background: center left 2px / 16px no-repeat Field;
+  background: center left 2px / 16px no-repeat;
 }
 
 html|input[type="number"] {
