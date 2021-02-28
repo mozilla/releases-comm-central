@@ -228,7 +228,7 @@ radio[pane]:hover:active {
 }
 
 .sidebar-footer-link:hover,
-.sidebar-footer-button > .text-link:hover {
+.sidebar-footer-list > .text-link:hover {
   border-end-end-radius: 0;
   border-start-end-radius: 0;
 }

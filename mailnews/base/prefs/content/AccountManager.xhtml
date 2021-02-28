@@ -83,33 +83,25 @@
         </menupopup>
       </button>
 
-      <hbox class="sidebar-footer-button"
-            pack="center"
-            onclick="openOptionsDialog();">
-        <label is="text-link" id="prefsButton">
-          <hbox align="center">
-            <image class="sidebar-footer-icon preferences-icon"/>
-            <label class="sidebar-footer-label"
+      <vbox class="sidebar-footer-list">
+        <label is="text-link" id="prefsButton" class="sidebar-footer-link"
+               onclick="openOptionsDialog();">
+          <image class="sidebar-footer-icon preferences-icon"/>
+          <label class="sidebar-footer-label"
 #ifdef XP_WIN
-                   value="&preferencesCmd2.label;"
+                 value="&preferencesCmd2.label;"
 #else
-                   value="&preferencesCmdUnix.label;"
+                 value="&preferencesCmdUnix.label;"
 #endif
-                   flex="1"/>
-          </hbox>
+                 flex="1"/>
         </label>
-      </hbox>
 
-      <hbox class="sidebar-footer-button"
-            pack="center"
-            onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
-        <label is="text-link" id="addonsButton">
-          <hbox align="center">
-            <image class="sidebar-footer-icon addons-icon"/>
-            <label value="&addonsButton.label;" class="sidebar-footer-label" flex="1"/>
-          </hbox>
+        <label is="text-link" id="addonsButton" class="sidebar-footer-link"
+               onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
+          <image class="sidebar-footer-icon addons-icon"/>
+          <label value="&addonsButton.label;" class="sidebar-footer-label" flex="1"/>
         </label>
-      </hbox>
+      </vbox>
 #else
       <button label="&addAccountButton.label;" oncommand="onAddAccount(event);" id="addAccountButton"
               prefstring="mail.disable_new_account_addition"

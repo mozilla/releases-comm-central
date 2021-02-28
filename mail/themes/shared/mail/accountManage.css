@@ -106,12 +106,16 @@ fieldset:last-of-type {
   border-bottom: none;
 }
 
-.sidebar-footer-button:first-of-type {
+.sidebar-footer-list {
   margin-top: 24px;
 }
 
-.sidebar-footer-button > .text-link {
+.sidebar-footer-list > .text-link {
   margin-inline-start: 0;
+}
+
+.preferences-icon {
+  background-image: url("chrome://global/skin/icons/settings.svg");
 }
 
 #archiveHierarchyButton,
