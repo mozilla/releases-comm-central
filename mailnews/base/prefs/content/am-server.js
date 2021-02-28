@@ -11,9 +11,6 @@ var { fixIterator } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { BrowserUtils } = ChromeUtils.import(
-  "resource://gre/modules/BrowserUtils.jsm"
-);
 
 var gServer;
 var gOriginalStoreType;
@@ -67,7 +64,7 @@ function changeStoreType(aResponse) {
     document.getElementById("server.localPath").value = aResponse.newRootFolder;
     gOriginalStoreType = document.getElementById("server.storeTypeMenulist")
       .value;
-    BrowserUtils.restartApplication();
+    MailUtils.restartApplication();
   } else {
     // The conversion failed or was cancelled.
     // Restore selected item to what was selected before conversion.

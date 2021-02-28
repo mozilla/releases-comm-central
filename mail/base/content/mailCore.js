@@ -796,10 +796,8 @@ function safeModeRestart() {
       Ci.nsIEnvironment
     );
     environment.set("MOZ_SAFE_MODE_RESTART", "1");
-    let { BrowserUtils } = ChromeUtils.import(
-      "resource://gre/modules/BrowserUtils.jsm"
-    );
-    BrowserUtils.restartApplication();
+    let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+    MailUtils.restartApplication();
   }
 }
 

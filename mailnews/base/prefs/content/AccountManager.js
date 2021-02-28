@@ -33,9 +33,7 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { BrowserUtils } = ChromeUtils.import(
-  "resource://gre/modules/BrowserUtils.jsm"
-);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
@@ -302,9 +300,10 @@ function onAccept(aDoChecks) {
   Services.prefs.savePrefFile(null);
 
   if (gRestartNeeded) {
-    gRestartNeeded = !BrowserUtils.restartApplication();
-    // returns false so that Account manager is not exited when restart failed
-    return !gRestartNeeded;
+    MailUtils.restartApplication();
+    // Prevent closing Account manager incase restart failed. If restart did not fail,
+    // return value does not matter, as we are restarting.
+    return false;
   }
 
   return true;

@@ -12,9 +12,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { BrowserUtils } = ChromeUtils.import(
-  "resource://gre/modules/BrowserUtils.jsm"
-);
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gImportType = null;
 var gImportMsgsBundle;
@@ -91,7 +89,7 @@ function OnUnloadImportDialog() {
     !gErrorStr.data &&
     nextButton.label == nextButton.getAttribute("finishedval")
   ) {
-    BrowserUtils.restartApplication();
+    MailUtils.restartApplication();
   }
 }
 

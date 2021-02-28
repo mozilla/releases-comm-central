@@ -22,6 +22,34 @@ var MC = MailConsts;
  */
 var MailUtils = {
   /**
+   * Restarts the application, keeping it in
+   * safe mode if it is already in safe mode.
+   */
+  restartApplication() {
+    let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+      Ci.nsISupportsPRBool
+    );
+    Services.obs.notifyObservers(
+      cancelQuit,
+      "quit-application-requested",
+      "restart"
+    );
+    if (cancelQuit.data) {
+      return;
+    }
+    // If already in safe mode restart in safe mode.
+    if (Services.appinfo.inSafeMode) {
+      Services.startup.restartInSafeMode(
+        Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart
+      );
+      return;
+    }
+    Services.startup.quit(
+      Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart
+    );
+  },
+
+  /**
    * Discover all folders. This is useful during startup, when you have code
    * that deals with folders and that executes before the main 3pane window is
    * open (the folder tree wouldn't have been initialized yet).

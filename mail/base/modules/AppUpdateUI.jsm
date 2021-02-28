@@ -10,9 +10,7 @@ const EXPORTED_SYMBOLS = ["AppUpdateUI"];
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { BrowserUtils } = ChromeUtils.import(
-  "resource://gre/modules/BrowserUtils.jsm"
-);
+const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
@@ -108,7 +106,7 @@ const AppUpdateUI_Internal = {
         "updateRestartPrimaryButtonAccessKey"
       ),
       callback: () => {
-        BrowserUtils.restartApplication();
+        MailUtils.restartApplication();
       },
     };
     let secondaryActions = [
