@@ -397,7 +397,7 @@ add_task(async function testRegister() {
   messagePane.contentDocument.body.style.backgroundColor = "red";
   messagePane.contentDocument.body.textContent = "Nope.";
 
-  window.MsgOpenSelectedMessages();
+  await openMessageInTab(messages[6]);
   Assert.equal(tabmail.tabInfo.length, 2);
   await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
   await checkMessageBody(
@@ -439,9 +439,7 @@ add_task(async function testRegister() {
   );
 
   // Open the message in a new window.
-  let newWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  window.MsgOpenNewWindowForMessage(messages[7]);
-  let newWindow = await newWindowPromise;
+  let newWindow = await openMessageInWindow(messages[7]);
   let newWindowMessagePane = newWindow.document.getElementById("messagepane");
 
   await BrowserTestUtils.waitForEvent(newWindow, "extension-scripts-added");

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals gFolderDisplay, gFolderTreeView, MsgOpenNewWindowForMessage, MsgOpenSelectedMessages  */
-
 add_task(async () => {
   let files = {
     "background.js": async () => {
@@ -139,26 +137,27 @@ add_task(async () => {
     subFolders[folder.name] = folder;
   }
   createMessages(subFolders.test1, 5);
+  let messages = [...subFolders.test1.messages];
 
-  gFolderTreeView.selectFolder(subFolders.test1);
-  gFolderDisplay.selectViewIndex(0);
+  window.gFolderTreeView.selectFolder(subFolders.test1);
+  window.gFolderDisplay.selectViewIndex(0);
 
   await extension.startup();
 
   await extension.awaitMessage("show message 1");
-  gFolderDisplay.selectViewIndex(1);
+  window.gFolderDisplay.selectViewIndex(1);
 
   await extension.awaitMessage("show message 2");
-  gFolderDisplay.selectViewIndex(2);
+  window.gFolderDisplay.selectViewIndex(2);
 
   await extension.awaitMessage("open message tab");
-  MsgOpenSelectedMessages();
+  await openMessageInTab(messages[2]);
 
   await extension.awaitMessage("open message window");
-  MsgOpenNewWindowForMessage();
+  await openMessageInWindow(messages[2]);
 
   await extension.awaitMessage("show messages 1 and 2");
-  gFolderDisplay.selectMessages([...subFolders.test1.messages].slice(1, 3));
+  window.gFolderDisplay.selectMessages(messages.slice(1, 3));
 
   await extension.awaitFinish("finished");
   await extension.unload();

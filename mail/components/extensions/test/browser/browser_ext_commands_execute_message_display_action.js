@@ -88,29 +88,31 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
   };
 
   let extension = ExtensionTestUtils.loadExtension(extensionOptions);
-  await extension.startup();
-  await promiseAnimationFrame();
-  let messageWindow = window;
 
+  extension.onMessage("send-keys", () => {
+    info("Simulating ALT+SHIFT+J");
+    EventUtils.synthesizeKey(
+      "j",
+      { altKey: true, shiftKey: true },
+      messageWindow
+    );
+  });
+
+  await extension.startup();
+
+  let messageWindow = window;
   switch (options.displayType) {
     case "tab":
-      window.MsgOpenSelectedMessages();
+      await openMessageInTab(msg);
       break;
     case "window":
-      messageWindow = await openNewWindowForMessage(msg);
+      messageWindow = await openMessageInWindow(msg);
       break;
   }
+  await SimpleTest.promiseFocus(messageWindow);
 
   // trigger setup of listeners in background and the send-keys msg
   extension.sendMessage("withPopup", options.withPopup);
-
-  await extension.awaitMessage("send-keys");
-  info("Simulating ALT+SHIFT+J");
-  EventUtils.synthesizeKey(
-    "j",
-    { altKey: true, shiftKey: true },
-    messageWindow
-  );
 
   if (options.withPopup) {
     await extension.awaitFinish("execute-message-display-action-popup-opened");

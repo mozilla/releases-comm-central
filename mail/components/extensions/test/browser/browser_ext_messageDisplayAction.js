@@ -129,14 +129,14 @@ add_task(async () => {
   info("Message tab, no pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  window.MsgOpenSelectedMessages();
+  await openMessageInTab(messages.getNext());
   await test_it(extension, window);
   document.getElementById("tabmail").closeTab();
 
   info("Message window, no pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  let messageWindow = await openNewWindowForMessage(messages.getNext());
+  let messageWindow = await openMessageInWindow(messages.getNext());
   await test_it(extension, messageWindow);
   messageWindow.close();
 
@@ -150,14 +150,14 @@ add_task(async () => {
   info("Message tab, with pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  window.MsgOpenSelectedMessages();
+  await openMessageInTab(messages.getNext());
   await test_it(extension, window);
   document.getElementById("tabmail").closeTab();
 
   info("Message window, with pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  messageWindow = await openNewWindowForMessage(messages.getNext());
+  messageWindow = await openMessageInWindow(messages.getNext());
   await test_it(extension, messageWindow);
   messageWindow.close();
 });

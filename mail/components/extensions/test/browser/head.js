@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -315,25 +316,64 @@ async function openComposeWindow(account) {
   return composeWindowPromise;
 }
 
-async function openNewWindowForMessage(msg) {
-  let messageWindowPromise = BrowserTestUtils.domWindowOpened(
-    undefined,
-    async win => {
-      await BrowserTestUtils.waitForEvent(win, "load");
-      if (
-        win.document.documentURI !=
-        "chrome://messenger/content/messageWindow.xhtml"
-      ) {
-        return false;
-      }
-      await BrowserTestUtils.browserLoaded(
-        win.document.getElementById("messagepane")
-      );
-      return true;
-    }
+async function openMessageInTab(msgHdr) {
+  if (!msgHdr.QueryInterface(Ci.nsIMsgDBHdr)) {
+    throw new Error("No message passed to openMessageInTab");
+  }
+
+  // Ensure the behaviour pref is set to open a new tab. It is the default,
+  // but you never know.
+  let oldPrefValue = Services.prefs.getIntPref("mail.openMessageBehavior");
+  Services.prefs.setIntPref(
+    "mail.openMessageBehavior",
+    MailConsts.OpenMessageBehavior.NEW_TAB
   );
-  MailUtils.openMessageInNewWindow(msg);
-  return messageWindowPromise;
+  MailUtils.displayMessages([msgHdr]);
+  Services.prefs.setIntPref("mail.openMessageBehavior", oldPrefValue);
+
+  let win = Services.wm.getMostRecentWindow("mail:3pane");
+  let tab = win.document.getElementById("tabmail").currentTabInfo;
+  let browser = tab.browser;
+
+  await promiseMessageLoaded(browser, msgHdr);
+  return tab;
+}
+
+async function openMessageInWindow(msgHdr) {
+  if (!msgHdr.QueryInterface(Ci.nsIMsgDBHdr)) {
+    throw new Error("No message passed to openMessageInWindow");
+  }
+
+  let messageWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    async win =>
+      win.document.documentURI ==
+      "chrome://messenger/content/messageWindow.xhtml"
+  );
+  MailUtils.openMessageInNewWindow(msgHdr);
+
+  let messageWindow = await messageWindowPromise;
+  let browser = messageWindow.document.getElementById("messagepane");
+
+  await promiseMessageLoaded(browser, msgHdr);
+  return messageWindow;
+}
+
+async function promiseMessageLoaded(browser, msgHdr) {
+  let uri = msgHdr.folder.getUriForMsg(msgHdr);
+  let urlOut = {};
+  window.messenger.messageServiceFromURI(uri).GetUrlForUri(uri, urlOut, null);
+
+  if (
+    browser.webProgress?.isLoadingDocument ||
+    !browser.currentURI?.equals(urlOut.value)
+  ) {
+    await BrowserTestUtils.browserLoaded(
+      browser,
+      null,
+      uri => uri == urlOut.value.spec
+    );
+  }
 }
 
 /**

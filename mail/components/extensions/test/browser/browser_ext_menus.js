@@ -351,7 +351,7 @@ add_task(async function test_compose_tools_menu() {
 }).__skipMe = AppConstants.platform == "macosx";
 
 add_task(async function test_messagewindow_tools_menu() {
-  let testwindow = await openNewWindowForMessage(gMessage);
+  let testwindow = await openMessageInWindow(gMessage);
   await focusWindow(testwindow);
   await subtest_tools_menu(
     testwindow,
@@ -495,10 +495,7 @@ async function subtest_message_panes(...permissions) {
 
   info("Test the message pane in a separate window.");
 
-  let displayWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  window.MsgOpenNewWindowForMessage(gMessage);
-  let displayWindow = await displayWindowPromise;
-
+  let displayWindow = await openMessageInWindow(gMessage);
   let displayDocument = displayWindow.document;
   menu = displayDocument.getElementById("mailContext");
   messagePane = displayDocument.getElementById("messagepane");

@@ -97,9 +97,7 @@ add_task(async () => {
   await extension.startup();
 
   await extension.awaitMessage("openMessage");
-  let newWindowPromise = BrowserTestUtils.domWindowOpened();
-  window.MsgOpenNewWindowForMessage([...subFolders.test1.messages].slice(0, 1));
-  let newWindow = await newWindowPromise;
+  let newWindow = await openMessageInWindow([...subFolders.test1.messages][0]);
 
   await extension.awaitMessage("closeMessage");
   newWindow.close();

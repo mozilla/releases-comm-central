@@ -9,13 +9,14 @@ add_task(async () => {
   rootFolder.createSubfolder("test", null);
   let folder = rootFolder.getChildNamed("test");
   createMessages(folder, 1);
+  let [message] = [...folder.messages];
 
   let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   window.gFolderTreeView.selectFolder(folder);
   window.gFolderDisplay.selectViewIndex(0);
   await msgLoaded;
-  window.MsgOpenSelectedMessages();
-  window.MsgOpenNewWindowForMessage();
+  await openMessageInTab(message);
+  await openMessageInWindow(message);
   await new Promise(resolve => executeSoon(resolve));
 
   let files = {
