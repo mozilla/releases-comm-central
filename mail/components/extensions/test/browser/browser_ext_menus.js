@@ -403,6 +403,26 @@ async function subtest_folder_pane(...permissions) {
     { active: true, index: 0, mailTab: true }
   );
 
+  treeClick(folderTree, 0, 0, {});
+  shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  treeClick(folderTree, 0, 0, { type: "contextmenu" });
+
+  await shownPromise;
+  Assert.ok(menu.querySelector("#menus_mochi_test-menuitem-_folder_pane"));
+  menu.hidePopup();
+
+  await checkShownEvent(
+    extension,
+    {
+      menuIds: ["folder_pane"],
+      contexts: ["folder_pane", "all"],
+      selectedAccount: permissions.length
+        ? { id: gAccount.key, type: "none" }
+        : undefined,
+    },
+    { active: true, index: 0, mailTab: true }
+  );
+
   await extension.unload();
 }
 add_task(async function test_folder_pane() {

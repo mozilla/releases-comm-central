@@ -1390,6 +1390,36 @@ class WindowManager extends WindowManagerBase {
 }
 
 /**
+ * Converts an nsIMsgAccount to a simple object
+ * @param {nsIMsgAccount} account
+ * @return {Object}
+ */
+function convertAccount(account) {
+  if (!account) {
+    return null;
+  }
+
+  account = account.QueryInterface(Ci.nsIMsgAccount);
+  let server = account.incomingServer;
+  if (server.type == "im") {
+    return null;
+  }
+
+  let folders = traverseSubfolders(
+    account.incomingServer.rootFolder,
+    account.key
+  ).subFolders;
+
+  return {
+    id: account.key,
+    name: account.incomingServer.prettyName,
+    type: account.incomingServer.type,
+    folders,
+    identities: account.identities.map(id => convertMailIdentity(account, id)),
+  };
+}
+
+/**
  * Converts an nsIMsgIdentity to a simple object for use in messages.
  * @param {nsIMsgAccount} account
  * @param {nsIMsgIdentity} identity

@@ -20,6 +20,78 @@
     "permissions": [
       "accountsRead"
     ],
+    "types": [
+      {
+        "id": "MailAccount",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "A unique identifier for this account."
+          },
+          "name": {
+            "type": "string",
+            "description": "The human-friendly name of this account."
+          },
+          "type": {
+            "type": "string",
+            "description": "What sort of account this is, e.g. ``imap``, ``nntp``, or ``pop3``."
+          },
+          "folders": {
+            "type": "array",
+            "description": "The folders for this account.",
+            "items": {
+              "$ref": "folders.MailFolder"
+            }
+          },
+          "identities": {
+            "type": "array",
+            "description": "The identities associated with this account. The default identity is listed first, others in no particular order.",
+            "items": {
+              "$ref": "accounts.MailIdentity"
+            }
+          }
+        }
+      },
+      {
+        "id": "MailIdentity",
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "The id of the :ref:`accounts.MailAccount` this identity belongs to."
+          },
+          "id": {
+            "type": "string",
+            "description": "A unique identifier for this identity."
+          },
+          "label": {
+            "type": "string",
+            "description": "A user-defined label for this identity."
+          },
+          "name": {
+            "type": "string",
+            "description": "The user's name as used when messages are sent from this identity."
+          },
+          "email": {
+            "type": "string",
+            "description": "The user's email address as used when messages are sent from this identity."
+          },
+          "replyTo": {
+            "type": "string",
+            "description": "The reply-to email address associated with this identity."
+          },
+          "organization": {
+            "type": "string",
+            "description": "The organization associated with this identity."
+          },
+          "composeHtml": {
+            "type": "boolean",
+            "description": "Wether the identity uses HTML as the default compose format."
+          }
+        }
+      }
+    ],
     "functions": [
       {
         "name": "list",

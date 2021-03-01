@@ -52,6 +52,96 @@
         "description": "The type of menu item."
       },
       {
+        "id": "OnShowData",
+        "type": "object",
+        "description": "Information sent when a context menu is being shown. For more information about each property, see :ref:`menus.OnClickData`. \nSome properties are only included if the extension has host permission for the given context, for example :permission:`activeTab` for content tabs, :permission:`compose` for compose tabs and :permission:`messagesRead` for message display tabs.",
+        "properties": {
+          "menuIds": {
+            "description": "A list of IDs of the menu items that were shown.",
+            "type": "array",
+            "items": {
+              "choices": [
+                { "type": "integer" },
+                { "type": "string" }
+              ]
+            }
+          },
+          "contexts": {
+            "description": "A list of all contexts that apply to the menu.",
+            "type": "array",
+            "items": {"$ref": "ContextType"}
+          },
+          "viewType": {
+            "$ref": "extension.ViewType",
+            "optional": true
+          },
+          "editable": {
+            "type": "boolean"
+          },
+          "mediaType": {
+            "type": "string",
+            "optional": true
+          },
+          "linkUrl": {
+            "type": "string",
+            "description": "Host permission is required.",
+            "optional": true
+          },
+          "linkText": {
+            "type": "string",
+            "description": "Host permission is required.",
+            "optional": true
+          },
+          "srcUrl": {
+            "type": "string",
+            "description": "Host permission is required.",
+            "optional": true
+          },
+          "pageUrl": {
+            "type": "string",
+            "description": "Host permission is required.",
+            "optional": true
+          },
+          "frameUrl": {
+            "type": "string",
+            "description": "Host permission is required.",
+            "optional": true
+          },
+          "selectionText": {
+            "type": "string",
+            "description": "Host permission is required.",
+            "optional": true
+          },
+          "targetElementId": {
+            "type": "integer",
+            "optional": true
+          },
+          "selectedMessages": {
+            "$ref": "messages.MessageList",
+            "optional": true
+          },
+          "displayedFolder": {
+            "$ref": "folders.MailFolder",
+            "optional": true
+          },
+          "selectedFolder": {
+            "$ref": "folders.MailFolder",
+            "optional": true
+          },
+          "selectedAccount": {
+            "$ref": "accounts.MailAccount",
+            "optional": true
+          },
+          "attachments": {
+            "type": "array",
+            "optional": true,
+            "items": {
+              "$ref": "compose.ComposeAttachment"
+            }
+          }
+        }
+      },
+      {
         "id": "OnClickData",
         "type": "object",
         "description": "Information sent when a context menu item is clicked.",
@@ -163,6 +253,11 @@
             "$ref": "folders.MailFolder",
             "optional": true,
             "description": "The selected folder, if the context menu was opened in the folder pane. The <permission>accountsRead</permission> permission is required."
+          },
+          "selectedAccount": {
+            "$ref": "accounts.MailAccount",
+            "optional": true,
+            "description": "The selected account, if the context menu was opened on an account entry in the folder pane. The <permission>accountsRead</permission> permission is required."
           },
           "attachments": {
             "type": "array",
@@ -507,75 +602,12 @@
       {
         "name": "onShown",
         "type": "function",
-        "description": "Fired when a menu is shown. The extension can add, modify or remove menu items and call menus.refresh() to update the menu.",
+        "description": "Fired when a menu is shown. The extension can add, modify or remove menu items and call ``menus.refresh()`` to update the menu.",
         "parameters": [
           {
             "name": "info",
-            "type": "object",
-            "description": "Information about the context of the menu action and the created menu items. For more information about each property, see OnClickData. The following properties are only set if the extension has host permissions for the given context: linkUrl, linkText, srcUrl, pageUrl, frameUrl, selectionText.",
-            "properties": {
-              "menuIds": {
-                "description": "A list of IDs of the menu items that were shown.",
-                "type": "array",
-                "items": {
-                  "choices": [
-                    { "type": "integer" },
-                    { "type": "string" }
-                  ]
-                }
-              },
-              "contexts": {
-                "description": "A list of all contexts that apply to the menu.",
-                "type": "array",
-                "items": {"$ref": "ContextType"}
-              },
-              "viewType": {
-                "$ref": "extension.ViewType",
-                "optional": true
-              },
-              "editable": {
-                "type": "boolean"
-              },
-              "mediaType": {
-                "type": "string",
-                "optional": true
-              },
-              "linkUrl": {
-                "type": "string",
-                "optional": true
-              },
-              "linkText": {
-                "type": "string",
-                "optional": true
-              },
-              "srcUrl": {
-                "type": "string",
-                "optional": true
-              },
-              "pageUrl": {
-                "type": "string",
-                "optional": true
-              },
-              "frameUrl": {
-                "type": "string",
-                "optional": true
-              },
-              "selectionText": {
-                "type": "string",
-                "optional": true
-              },
-              "targetElementId": {
-                "type": "integer",
-                "optional": true
-              },
-              "attachments": {
-                "type": "array",
-                "optional": true,
-                "items": {
-                  "$ref": "compose.ComposeAttachment"
-                }
-              }
-            }
+            "$ref": "OnShowData",
+            "description": "Information about the context of the menu action and the created menu items."
           },
           {
             "name": "tab",

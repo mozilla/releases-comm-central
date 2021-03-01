@@ -6,6 +6,12 @@
 
 "use strict";
 
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
@@ -681,7 +687,20 @@ function addMenuEventInfo(info, contextData, extension, includeSensitiveData) {
   if (extension.hasPermission("accountsRead")) {
     for (let folderType of ["displayedFolder", "selectedFolder"]) {
       if (contextData[folderType]) {
-        info[folderType] = traverseSubfolders(contextData[folderType]);
+        let folder = convertFolder(contextData[folderType]);
+        // If the context menu click in the folder pane occurred on a root folder
+        // representing an account, do not include a selectedFolder object, but
+        // the corresponding selectedAccount object.
+        if (folderType == "selectedFolder" && folder.path == "/") {
+          info.selectedAccount = convertAccount(
+            MailServices.accounts.getAccount(folder.accountId)
+          );
+        } else {
+          info[folderType] = traverseSubfolders(
+            contextData[folderType],
+            folder.accountId
+          );
+        }
       }
     }
   }
