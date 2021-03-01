@@ -4471,34 +4471,6 @@ nsresult nsMsgDatabase::DumpContents() {
   }
   return NS_OK;
 }
-
-nsresult nsMsgDatabase::DumpMsgChildren(nsIMsgDBHdr* msgHdr) { return NS_OK; }
-
-nsresult nsMsgDatabase::DumpThread(nsMsgKey threadId) {
-  nsresult rv = NS_OK;
-  nsIMsgThread* thread = nullptr;
-
-  thread = GetThreadForThreadId(threadId);
-  if (thread) {
-    nsISimpleEnumerator* enumerator = nullptr;
-
-    rv = thread->EnumerateMessages(nsMsgKey_None, &enumerator);
-    if (NS_SUCCEEDED(rv) && enumerator) {
-      bool hasMore = false;
-
-      while (NS_SUCCEEDED(rv = enumerator->HasMoreElements(&hasMore)) &&
-             hasMore) {
-        nsCOMPtr<nsISupports> supports;
-        rv = enumerator->GetNext(getter_AddRefs(supports));
-        NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
-        nsCOMPtr<nsIMsgDBHdr> pMessage = do_QueryInterface(supports);
-        if (NS_FAILED(rv) || !pMessage) break;
-      }
-      NS_RELEASE(enumerator);
-    }
-  }
-  return rv;
-}
 #endif /* DEBUG */
 
 NS_IMETHODIMP nsMsgDatabase::SetMsgRetentionSettings(

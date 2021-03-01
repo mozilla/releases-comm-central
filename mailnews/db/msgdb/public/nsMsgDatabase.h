@@ -257,8 +257,6 @@ class nsMsgDatabase : public nsIMsgDatabase {
 
 #ifdef DEBUG
   virtual nsresult DumpContents();
-  nsresult DumpThread(nsMsgKey threadId);
-  nsresult DumpMsgChildren(nsIMsgDBHdr* msgHdr);
 #endif
 
   friend class nsMsgHdr;     // use this to get access to cached tokens for hdr

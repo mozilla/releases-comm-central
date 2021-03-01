@@ -286,12 +286,11 @@ NS_IMETHODIMP nsMsgGroupThread::MarkChildRead(bool bRead) {
 }
 
 // this could be moved into utils, because I think it's the same as the db impl.
-class nsMsgGroupThreadEnumerator : public nsSimpleEnumerator {
+class nsMsgGroupThreadEnumerator : public nsMsgEnumerator {
  public:
-  const nsID& DefaultInterface() override { return NS_GET_IID(nsIMsgDBHdr); }
-
-  // nsISimpleEnumerator methods:
-  NS_DECL_NSISIMPLEENUMERATOR
+  // nsIMsgEnumerator support.
+  NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;
+  NS_IMETHOD HasMoreElements(bool* aResult) override;
 
   // nsMsgGroupThreadEnumerator methods:
   typedef nsresult (*nsMsgGroupThreadEnumeratorFilter)(nsIMsgDBHdr* hdr,
@@ -405,7 +404,7 @@ int32_t nsMsgGroupThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey) {
   return firstChildIndex;
 }
 
-NS_IMETHODIMP nsMsgGroupThreadEnumerator::GetNext(nsISupports** aItem) {
+NS_IMETHODIMP nsMsgGroupThreadEnumerator::GetNext(nsIMsgDBHdr** aItem) {
   NS_ENSURE_ARG_POINTER(aItem);
   nsresult rv = NS_OK;
 
@@ -486,8 +485,8 @@ NS_IMETHODIMP nsMsgGroupThreadEnumerator::HasMoreElements(bool* aResult) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgGroupThread::EnumerateMessages(
-    nsMsgKey parentKey, nsISimpleEnumerator** result) {
+NS_IMETHODIMP nsMsgGroupThread::EnumerateMessages(nsMsgKey parentKey,
+                                                  nsIMsgEnumerator** result) {
   NS_ADDREF(*result = new nsMsgGroupThreadEnumerator(this, parentKey, nullptr,
                                                      nullptr));
   return NS_OK;

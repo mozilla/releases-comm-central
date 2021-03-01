@@ -5233,9 +5233,10 @@ nsresult nsMsgDBView::ListIdsInThreadOrder(nsIMsgThread* threadHdr,
                                            nsMsgKey parentKey, uint32_t level,
                                            nsMsgViewIndex* viewIndex,
                                            uint32_t* pNumListed) {
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsISimpleEnumerator> msgEnumerator;
-  threadHdr->EnumerateMessages(parentKey, getter_AddRefs(msgEnumerator));
+  nsCOMPtr<nsIMsgEnumerator> msgEnumerator;
+  nsresult rv =
+      threadHdr->EnumerateMessages(parentKey, getter_AddRefs(msgEnumerator));
+  NS_ENSURE_SUCCESS(rv, rv);
   uint32_t numChildren;
   (void)threadHdr->GetNumChildren(&numChildren);
   NS_ASSERTION(numChildren, "Empty thread in view/db");
@@ -5247,54 +5248,45 @@ nsresult nsMsgDBView::ListIdsInThreadOrder(nsIMsgThread* threadHdr,
 
   // Skip the first one.
   bool hasMore;
-  nsCOMPtr<nsISupports> supports;
-  nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  while (NS_SUCCEEDED(rv) &&
-         NS_SUCCEEDED(rv = msgEnumerator->HasMoreElements(&hasMore)) &&
-         hasMore) {
-    rv = msgEnumerator->GetNext(getter_AddRefs(supports));
-    if (NS_SUCCEEDED(rv) && supports) {
-      if (*pNumListed == numChildren) {
-        MOZ_ASSERT_UNREACHABLE("thread corrupt in db");
-        // If we've listed more messages than are in the thread, then the db
-        // is corrupt, and we should invalidate it.
-        // We'll use this rv to indicate there's something wrong with the db
-        // though for now it probably won't get paid attention to.
-        m_db->SetSummaryValid(false);
-        rv = NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
-        break;
-      }
-
-      msgHdr = do_QueryInterface(supports);
-      if (!(m_viewFlags & nsMsgViewFlagsType::kShowIgnored)) {
-        bool ignored;
-        msgHdr->GetIsKilled(&ignored);
-        // We are not going to process subthreads, horribly invalidating the
-        // numChildren characteristic.
-        if (ignored) continue;
-      }
-
-      nsMsgKey msgKey;
-      uint32_t msgFlags, newFlags;
-      msgHdr->GetMessageKey(&msgKey);
-      msgHdr->GetFlags(&msgFlags);
-      AdjustReadFlag(msgHdr, &msgFlags);
-      SetMsgHdrAt(msgHdr, *viewIndex, msgKey, msgFlags & ~MSG_VIEW_FLAGS,
-                  level);
-      // Turn off thread or elided bit if they got turned on (maybe from new
-      // only view?)
-      msgHdr->AndFlags(~(MSG_VIEW_FLAG_ISTHREAD | nsMsgMessageFlags::Elided),
-                       &newFlags);
-      (*pNumListed)++;
-      (*viewIndex)++;
-      rv = ListIdsInThreadOrder(threadHdr, msgKey, level + 1, viewIndex,
-                                pNumListed);
+  while (NS_SUCCEEDED(msgEnumerator->HasMoreElements(&hasMore)) && hasMore) {
+    nsCOMPtr<nsIMsgDBHdr> msgHdr;
+    rv = msgEnumerator->GetNext(getter_AddRefs(msgHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (*pNumListed == numChildren) {
+      MOZ_ASSERT_UNREACHABLE("thread corrupt in db");
+      // If we've listed more messages than are in the thread, then the db
+      // is corrupt, and we should invalidate it.
+      // We'll use this rv to indicate there's something wrong with the db
+      // though for now it probably won't get paid attention to.
+      m_db->SetSummaryValid(false);
+      return NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE;
     }
-  }
 
-  // We don't want to return the rv from the enumerator when it reaches the
-  // end, do we?
-  return rv;
+    if (!(m_viewFlags & nsMsgViewFlagsType::kShowIgnored)) {
+      bool ignored;
+      msgHdr->GetIsKilled(&ignored);
+      // We are not going to process subthreads, horribly invalidating the
+      // numChildren characteristic.
+      if (ignored) continue;
+    }
+
+    nsMsgKey msgKey;
+    uint32_t msgFlags, newFlags;
+    msgHdr->GetMessageKey(&msgKey);
+    msgHdr->GetFlags(&msgFlags);
+    AdjustReadFlag(msgHdr, &msgFlags);
+    SetMsgHdrAt(msgHdr, *viewIndex, msgKey, msgFlags & ~MSG_VIEW_FLAGS, level);
+    // Turn off thread or elided bit if they got turned on (maybe from new
+    // only view?)
+    msgHdr->AndFlags(~(MSG_VIEW_FLAG_ISTHREAD | nsMsgMessageFlags::Elided),
+                     &newFlags);
+    (*pNumListed)++;
+    (*viewIndex)++;
+    rv = ListIdsInThreadOrder(threadHdr, msgKey, level + 1, viewIndex,
+                              pNumListed);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  return NS_OK;
 }
 
 void nsMsgDBView::InsertEmptyRows(nsMsgViewIndex viewIndex, int32_t numRows) {

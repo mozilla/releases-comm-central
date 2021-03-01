@@ -366,10 +366,6 @@ NS_IMETHODIMP nsMsgThread::AddChild(nsIMsgDBHdr* child, nsIMsgDBHdr* inReplyTo,
   NS_ASSERTION(msgHdrThreadKey == m_threadKey,
                "adding msg to thread it doesn't belong to");
 #endif
-#ifdef DEBUG_bienvenu1
-  nsMsgDatabase* msgDB = static_cast<nsMsgDatabase*>(m_mdbDB);
-  msgDB->DumpThread(m_threadRootKey);
-#endif
   return rv;
 }
 
@@ -552,12 +548,11 @@ NS_IMETHODIMP nsMsgThread::MarkChildRead(bool bRead) {
   return NS_OK;
 }
 
-class nsMsgThreadEnumerator : public nsSimpleEnumerator {
+class nsMsgThreadEnumerator : public nsMsgEnumerator {
  public:
-  const nsID& DefaultInterface() override { return NS_GET_IID(nsIMsgDBHdr); }
-
-  // nsISimpleEnumerator methods:
-  NS_DECL_NSISIMPLEENUMERATOR
+  // nsIMsgEnumerator support.
+  NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;
+  NS_IMETHOD HasMoreElements(bool* aResult) override;
 
   // nsMsgThreadEnumerator methods:
   typedef nsresult (*nsMsgThreadEnumeratorFilter)(nsIMsgDBHdr* hdr,
@@ -682,7 +677,7 @@ int32_t nsMsgThreadEnumerator::MsgKeyFirstChildIndex(nsMsgKey inMsgKey) {
   return firstChildIndex;
 }
 
-NS_IMETHODIMP nsMsgThreadEnumerator::GetNext(nsISupports** aItem) {
+NS_IMETHODIMP nsMsgThreadEnumerator::GetNext(nsIMsgDBHdr** aItem) {
   NS_ENSURE_ARG_POINTER(aItem);
   nsresult rv;
 
@@ -766,7 +761,7 @@ NS_IMETHODIMP nsMsgThreadEnumerator::HasMoreElements(bool* aResult) {
 }
 
 NS_IMETHODIMP nsMsgThread::EnumerateMessages(nsMsgKey parentKey,
-                                             nsISimpleEnumerator** result) {
+                                             nsIMsgEnumerator** result) {
   NS_ADDREF(*result =
                 new nsMsgThreadEnumerator(this, parentKey, nullptr, nullptr));
   return NS_OK;

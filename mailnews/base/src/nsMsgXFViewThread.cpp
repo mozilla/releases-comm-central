@@ -442,7 +442,7 @@ nsMsgXFViewThread::GetFirstUnreadChild(nsIMsgDBHdr** aResult) {
 
 NS_IMETHODIMP
 nsMsgXFViewThread::EnumerateMessages(nsMsgKey aParentKey,
-                                     nsISimpleEnumerator** aResult) {
+                                     nsIMsgEnumerator** aResult) {
   NS_ERROR("shouldn't call this");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
