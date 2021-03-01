@@ -360,18 +360,19 @@ async function openMessageInWindow(msgHdr) {
 }
 
 async function promiseMessageLoaded(browser, msgHdr) {
-  let uri = msgHdr.folder.getUriForMsg(msgHdr);
-  let urlOut = {};
-  window.messenger.messageServiceFromURI(uri).GetUrlForUri(uri, urlOut, null);
+  let messageURI = msgHdr.folder.getUriForMsg(msgHdr);
+  messageURI = window.messenger
+    .messageServiceFromURI(messageURI)
+    .getUrlForUri(messageURI, null);
 
   if (
     browser.webProgress?.isLoadingDocument ||
-    !browser.currentURI?.equals(urlOut.value)
+    !browser.currentURI?.equals(messageURI)
   ) {
     await BrowserTestUtils.browserLoaded(
       browser,
       null,
-      uri => uri == urlOut.value.spec
+      uri => uri == messageURI.spec
     );
   }
 }
