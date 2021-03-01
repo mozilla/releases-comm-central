@@ -73,10 +73,12 @@ int16_t nsMAPIConfiguration::RegisterSession(
     // I don't think there will be (2 power 32) sessions alive
     // in a cycle. This is an assumption.
     if (session_generator == 0) session_generator++;
-    m_SessionMap.InsertOrUpdate(session_generator,
-                     mozilla::MakeUnique<nsMAPISession>(
-                         aHwnd, aUserName, aPassword, aForceDownLoad, aIdKey));
-    if (!aUserName.IsEmpty()) m_ProfileMap.InsertOrUpdate(aUserName, session_generator);
+    m_SessionMap.InsertOrUpdate(
+        session_generator,
+        mozilla::MakeUnique<nsMAPISession>(aHwnd, aUserName, aPassword,
+                                           aForceDownLoad, aIdKey));
+    if (!aUserName.IsEmpty())
+      m_ProfileMap.InsertOrUpdate(aUserName, session_generator);
     *aSession = session_generator;
     sessionCount++;
     nResult = 1;

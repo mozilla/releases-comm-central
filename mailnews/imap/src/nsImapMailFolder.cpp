@@ -2853,7 +2853,8 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     // header, i.e., the key has changed.
     nsCString newMessageId;
     newMsgHdr->GetMessageId(getter_Copies(newMessageId));
-    nsMsgKey pseudoKey = m_pseudoHdrs.MaybeGet(newMessageId).valueOr(nsMsgKey_None);
+    nsMsgKey pseudoKey =
+        m_pseudoHdrs.MaybeGet(newMessageId).valueOr(nsMsgKey_None);
     if (notifier && pseudoKey != nsMsgKey_None) {
       notifier->NotifyMsgKeyChanged(pseudoKey, newMsgHdr);
       m_pseudoHdrs.Remove(newMessageId);
@@ -5972,7 +5973,8 @@ bool nsMsgIMAPFolderACL::GetIsFolderShared() {
   if (m_aclCount > 1) return true;
 
   // Or, if "anyone" has rights to it, it is shared.
-  nsCString anyonesRights = m_rightsHash.Get(nsLiteralCString(IMAP_ACL_ANYONE_STRING));
+  nsCString anyonesRights =
+      m_rightsHash.Get(nsLiteralCString(IMAP_ACL_ANYONE_STRING));
   return (!anyonesRights.IsEmpty());
 }
 
