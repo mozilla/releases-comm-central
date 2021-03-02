@@ -134,10 +134,10 @@ function showAlert() {
   resizeAlert(false);
 
   var alertContainer = document.getElementById("alertContainer");
-  // Don't fade in if the user opened the alert or the pref is true.
+  // Don't fade in if the user opened the alert or the prefers-reduced-motion is true.
   if (
     gUserInitiated ||
-    !Services.prefs.getBoolPref("toolkit.cosmeticAnimations.enabled", true)
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
   ) {
     alertContainer.setAttribute("noanimation", true);
     setTimeout(closeAlert, gOpenTime);

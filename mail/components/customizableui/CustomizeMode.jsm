@@ -64,11 +64,6 @@ XPCOMUtils.defineLazyGetter(this, "gWidgetsBundle", function() {
     "chrome://browser/locale/customizableui/customizableWidgets.properties";
   return Services.strings.createBundle(kUrl);
 });
-XPCOMUtils.defineLazyPreferenceGetter(
-  this,
-  "gCosmeticAnimationsEnabled",
-  "toolkit.cosmeticAnimations.enabled"
-);
 
 let gDebug;
 XPCOMUtils.defineLazyGetter(this, "log", () => {
@@ -607,7 +602,7 @@ CustomizeMode.prototype = {
 
   _promiseWidgetAnimationOut(aNode) {
     if (
-      !gCosmeticAnimationsEnabled ||
+      this.window.gReduceMotion ||
       aNode.getAttribute("cui-anchorid") == "nav-bar-overflow-button" ||
       (aNode.tagName != "toolbaritem" && aNode.tagName != "toolbarbutton") ||
       (aNode.id == "downloads-button" && aNode.hidden)
@@ -738,7 +733,7 @@ CustomizeMode.prototype = {
         aNode.classList.remove("animate-out");
       }
     }
-    if (gCosmeticAnimationsEnabled) {
+    if (!this.window.gReduceMotion) {
       let overflowButton = this.$("nav-bar-overflow-button");
       BrowserUtils.setToolbarButtonHeightProperty(overflowButton).then(() => {
         overflowButton.setAttribute("animate", "true");
