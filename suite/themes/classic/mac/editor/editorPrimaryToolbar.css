@@ -97,6 +97,19 @@
   -moz-image-region: rect(60px 89px 89px 60px) !important;
 }
 
+#formButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons.png");
+  -moz-image-region: rect(450px 29px 479px 0);
+}
+
+#formButton:hover:active {
+  -moz-image-region: rect(450px 59px 479px 30px);
+}
+
+#formButton[disabled="true"] {
+  -moz-image-region: rect(450px 89px 479px 60px) !important;
+}
+
 #namedAnchorButton {
   list-style-image: url("chrome://editor/skin/icons/editoricons.png");
   -moz-image-region: rect(0 29px 29px 0);
@@ -299,6 +312,20 @@ toolbar[iconsize="small"] > #imageButton:hover:active {
 
 toolbar[iconsize="small"] > #imageButton[disabled="true"] {
   -moz-image-region: rect(40px 59px 59px 40px) !important;
+}
+
+toolbar[iconsize="small"] > #formButton,
+toolbar[iconsize="small"] > toolbarpaletteitem > #formButton {
+  list-style-image: url("chrome://editor/skin/icons/editoricons-small.png");
+  -moz-image-region: rect(300px 19px 319px 0);
+}
+
+toolbar[iconsize="small"] > #formButton:hover:active {
+  -moz-image-region: rect(300px 39px 319px 20px);
+}
+
+toolbar[iconsize="small"] > #formButton[disabled="true"] {
+  -moz-image-region: rect(300px 59px 319px 40px) !important;
 }
 
 toolbar[iconsize="small"] > #namedAnchorButton,

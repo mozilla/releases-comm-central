@@ -58,3 +58,5 @@
 <!ENTITY publishToolbarCmd.tooltip "Upload file to a remote location">
 <!ENTITY printToolbarCmd.label "Print">
 <!ENTITY printToolbarCmd.tooltip "Print this page">
+<!ENTITY formToolbarCmd.label "Form">
+<!ENTITY formToolbarCmd.tooltip "Insert new form or edit selected form's properties">

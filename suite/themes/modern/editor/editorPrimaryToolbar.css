@@ -157,6 +157,23 @@
   -moz-image-region: rect(68px 199px 101px 150px) !important;
 }
 
+#formButton {
+  list-style-image: url("chrome://editor/skin/icons/btn1.png");
+  -moz-image-region: rect(510px 49px 543px 0);
+}
+
+#formButton:hover {
+  -moz-image-region: rect(510px 99px 543px 50px);
+}
+
+#formButton:hover:active {
+  -moz-image-region: rect(510px 149px 543px 100px);
+}
+
+#formButton[disabled="true"] {
+  -moz-image-region: rect(510px 199px 543px 150px) !important;
+}
+
 #namedAnchorButton {
   list-style-image: url("chrome://editor/skin/icons/btn1.png");
   -moz-image-region: rect(0 49px 33px 0);
