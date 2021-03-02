@@ -236,6 +236,19 @@ function GetCurrentEditorType() {
   return "";
 }
 
+/**
+ * Gets the editor's spell checker. Could return null if there are no
+ * dictionaries installed.
+ *
+ * @return {nsIInlineSpellChecker?}
+ */
+function GetCurrentEditorSpellChecker() {
+  try {
+    return GetCurrentEditor().getInlineSpellChecker(true);
+  } catch (ex) {}
+  return null;
+}
+
 function IsHTMLEditor() {
   // We don't have an editorElement, just return false
   if (!GetCurrentEditorElement()) {

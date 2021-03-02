@@ -1864,36 +1864,67 @@ function showMessageComposeSecurityStatus() {
 }
 
 function openEditorContextMenu(popup) {
+  // gSpellChecker handles all spell checking related to the context menu,
+  // except whether or not spell checking is enabled. We need the editor's
+  // spell checker for that.
   gSpellChecker.initFromRemote(
     nsContextMenu.contentData.spellInfo,
     nsContextMenu.contentData.actor.manager
   );
+  let checker = GetCurrentEditorSpellChecker();
 
-  let checker = GetCurrentEditor().getInlineSpellChecker(true);
+  let canSpell = gSpellChecker.canSpellCheck;
+  let showDictionaries = canSpell && gSpellChecker.enabled;
+  let onMisspelling = gSpellChecker.overMisspelling;
+  let showUndo = canSpell && gSpellChecker.canUndo();
+
+  document.getElementById("spellCheckSeparator").hidden = !canSpell;
+  document.getElementById("spellCheckEnable").hidden = !canSpell;
   document
     .getElementById("spellCheckEnable")
-    .setAttribute("checked", checker.enableRealTimeSpell);
+    .setAttribute("checked", canSpell && checker?.enableRealTimeSpell);
 
-  var onMisspelling = gSpellChecker.overMisspelling;
-  document.getElementById(
-    "spellCheckSuggestionsSeparator"
-  ).hidden = !onMisspelling;
   document.getElementById("spellCheckAddToDictionary").hidden = !onMisspelling;
+  document.getElementById("spellCheckUndoAddToDictionary").hidden = !showUndo;
   document.getElementById("spellCheckIgnoreWord").hidden = !onMisspelling;
-  var separator = document.getElementById("spellCheckAddSep");
-  separator.hidden = !onMisspelling;
-  document.getElementById("spellCheckNoSuggestions").hidden =
-    !onMisspelling || gSpellChecker.addSuggestionsToMenu(popup, separator, 5);
 
-  // We ought to do that, otherwise changing dictionaries will have no effect!
-  // InlineSpellChecker only registers callbacks for entries that are not the
-  // current dictionary, so if we changed dictionaries in the meanwhile, we must
-  // rebuild the list so that the right callbacks are registered in the Language
-  // menu.
-  gSpellChecker.clearDictionaryListFromMenu();
-  let dictMenu = document.getElementById("spellCheckDictionariesMenu");
-  let dictSep = document.getElementById("spellCheckLanguageSeparator");
-  gSpellChecker.addDictionaryListToMenu(dictMenu, dictSep);
+  // Suggestion list.
+  document.getElementById("spellCheckSuggestionsSeparator").hidden =
+    !onMisspelling && !showUndo;
+  if (onMisspelling) {
+    let addMenuItem = document.getElementById("spellCheckAddToDictionary");
+    let suggestionCount = gSpellChecker.addSuggestionsToMenu(
+      addMenuItem.parentNode,
+      addMenuItem,
+      5
+    );
+    document.getElementById("spellCheckNoSuggestions").hidden =
+      !suggestionCount == 0;
+  } else {
+    document.getElementById("spellCheckNoSuggestions").hidden = !false;
+  }
+
+  // Dictionary list.
+  document.getElementById("spellCheckDictionaries").hidden = !showDictionaries;
+  if (canSpell) {
+    let dictMenu = document.getElementById("spellCheckDictionariesMenu");
+    let dictSep = document.getElementById("spellCheckLanguageSeparator");
+    let count = gSpellChecker.addDictionaryListToMenu(dictMenu, dictSep);
+    dictSep.hidden = count == 0;
+    document.getElementById("spellCheckAddDictionariesMain").hidden = !false;
+  } else if (this.onSpellcheckable) {
+    // when there is no spellchecker but we might be able to spellcheck
+    // add the add to dictionaries item. This will ensure that people
+    // with no dictionaries will be able to download them
+    document.getElementById(
+      "spellCheckLanguageSeparator"
+    ).hidden = !showDictionaries;
+    document.getElementById(
+      "spellCheckAddDictionariesMain"
+    ).hidden = !showDictionaries;
+  } else {
+    document.getElementById("spellCheckAddDictionariesMain").hidden = !false;
+  }
 
   updateEditItems();
 
@@ -5086,9 +5117,9 @@ function MessageFcc(aFolder) {
 function updateOptionsMenu() {
   setSecuritySettings("_Menubar");
 
-  let checker = GetCurrentEditor().getInlineSpellChecker(true);
+  let checker = GetCurrentEditorSpellChecker();
   let menuItem = document.getElementById("menu_inlineSpellCheck");
-  if (checker.enableRealTimeSpell) {
+  if (checker?.enableRealTimeSpell) {
     menuItem.setAttribute("checked", "true");
   } else {
     menuItem.removeAttribute("checked");
@@ -5206,8 +5237,8 @@ function OutputFormatMenuSelect(target) {
  * @param {string} aAddressesToAdd - A (comma-separated) recipient(s) string.
  */
 function addRecipientsToIgnoreList(aAddressesToAdd) {
-  let checker = GetCurrentEditor().getInlineSpellChecker(true);
-  if (checker.enableRealTimeSpell) {
+  let checker = GetCurrentEditorSpellChecker();
+  if (checker?.enableRealTimeSpell) {
     // break the list of potentially many recipients back into individual names
     let addresses = MailServices.headerParser.parseEncodedHeader(
       aAddressesToAdd
@@ -5280,8 +5311,8 @@ var spellCheckReadyObserver = {
 
   addWordsToIgnore(aIgnoreWords) {
     this._ignoreWords.push(...aIgnoreWords);
-    let checker = GetCurrentEditor().getInlineSpellChecker(true);
-    if (checker.spellCheckPending) {
+    let checker = GetCurrentEditorSpellChecker();
+    if (!checker || checker.spellCheckPending) {
       // spellchecker is enabled, but we must wait for its init to complete
       this.addObserver();
     } else {
@@ -5293,8 +5324,8 @@ var spellCheckReadyObserver = {
     // At the time the speller finally got initialized, we may already be closing
     // the compose together with the speller, so we need to check if they
     // are still valid.
-    let checker = GetCurrentEditor().getInlineSpellChecker(true);
-    if (gMsgCompose && checker.enableRealTimeSpell) {
+    let checker = GetCurrentEditorSpellChecker();
+    if (gMsgCompose && checker?.enableRealTimeSpell) {
       checker.ignoreWords(this._ignoreWords);
     }
     this._clearPendingWords();
@@ -5424,8 +5455,8 @@ function ComposeChangeLanguage(aLang) {
     // the subject).
     document.documentElement.setAttribute("lang", aLang);
 
-    let checker = GetCurrentEditor().getInlineSpellChecker(true);
-    let spellChecker = checker.spellChecker;
+    let checker = GetCurrentEditorSpellChecker();
+    let spellChecker = checker?.spellChecker;
     if (spellChecker) {
       spellChecker.SetCurrentDictionary(aLang);
 
@@ -9009,15 +9040,18 @@ function updateDocumentLanguage(e) {
 }
 
 function toggleSpellCheckingEnabled() {
-  let checker = GetCurrentEditor().getInlineSpellChecker(true);
-  enableInlineSpellCheck(!checker.enableRealTimeSpell);
+  let checker = GetCurrentEditorSpellChecker();
+  enableInlineSpellCheck(checker && !checker.enableRealTimeSpell);
 }
 
 // This function is called either at startup (see InitEditor above), or when
 // the user clicks on one of the two menu items that allow them to toggle the
 // spellcheck feature (either context menu or Options menu).
 function enableInlineSpellCheck(aEnableInlineSpellCheck) {
-  let checker = GetCurrentEditor().getInlineSpellChecker(true);
+  let checker = GetCurrentEditorSpellChecker();
+  if (!checker) {
+    return;
+  }
   if (checker.enableRealTimeSpell != aEnableInlineSpellCheck) {
     // If state of spellchecker is about to change, clear any pending observer.
     spellCheckReadyObserver.removeObserver();
