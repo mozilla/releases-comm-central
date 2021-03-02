@@ -19,9 +19,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  * Add registered calendars to the given menupopup. Removes all previous
  * children.
  *
- * XXX Either replace the existing items using replaceNode, or use helper
- * functions (cal.removeChildren).
- *
  * @param aEvent    The popupshowing event of the opening menu
  */
 function addCalendarNames(aEvent) {

@@ -179,7 +179,9 @@ var taskDetailsView = {
       textbox.value = description;
       textbox.readOnly = true;
       let attachmentRows = document.getElementById("calendar-task-details-attachment-rows");
-      removeChildren(attachmentRows);
+      while (attachmentRows.lastChild) {
+        attachmentRows.lastChild.remove();
+      }
       let attachments = item.getAttachments();
       if (displayElement("calendar-task-details-attachment-row", attachments.length > 0)) {
         displayElement("calendar-task-details-attachment-rows", true);

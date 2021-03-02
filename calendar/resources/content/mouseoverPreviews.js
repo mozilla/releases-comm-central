@@ -51,7 +51,9 @@ function showToolTip(aToolTip, aItem) {
   if (aItem) {
     let holderBox = getPreviewForItem(aItem);
     if (holderBox) {
-      removeChildren(aToolTip);
+      while (aToolTip.lastChild) {
+        aToolTip.lastChild.remove();
+      }
       aToolTip.appendChild(holderBox);
       return true;
     }

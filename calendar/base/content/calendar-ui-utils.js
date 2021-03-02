@@ -4,8 +4,8 @@
 
 /* exported getElementValue, setBooleanAttribute,
  *          disableElementWithLock,
- *          enableElementWithLock, removeChildren,
- *          appendCalendarItems, setAttributeToChildren, checkRadioControl,
+ *          enableElementWithLock,
+ *          appendCalendarItems, checkRadioControl,
  *          checkRadioControlAppmenu,
  *          updateUnitLabelPlural, updateMenuLabelsPlural, menuListSelectItem,
  *          getOptimalMinimumWidth, getOptimalMinimumHeight,
@@ -113,21 +113,6 @@ function enableElementWithLock(elementId, lockId) {
     if (n <= 0) {
       element.removeAttribute("disabled");
     }
-  }
-}
-
-/**
- * Removes all child nodes of the given node
- *
- * @param aElement  The Node (or its id) to remove children from
- */
-function removeChildren(aElement) {
-  if (typeof aElement == "string") {
-    aElement = document.getElementById(aElement);
-  }
-
-  while (aElement.lastChild) {
-    aElement.lastChild.remove();
   }
 }
 

@@ -224,7 +224,9 @@ function updateReminderDetails(reminderDetails, reminderList, calendar) {
     reminderSingleLabel.setAttribute("hidden", "true");
     if (reminderList.value == "none") {
       // No reminder selected means show no icons.
-      removeChildren(iconBox);
+      while (iconBox.lastChild) {
+        iconBox.lastChild.remove();
+      }
     } else {
       // This is one of the predefined dropdown items. We should show a
       // single icon in the icons box to tell the user what kind of alarm
@@ -439,7 +441,10 @@ function commonUpdateReminder(
     // Clear the reminder icons first, this will make sure that while the
     // dialog is open the default reminder image is not shown which may
     // confuse users.
-    removeChildren(reminderDetails.querySelector(".reminder-icon-box"));
+    let iconBox = reminderDetails.querySelector(".reminder-icon-box");
+    while (iconBox.lastChild) {
+      iconBox.lastChild.remove();
+    }
 
     // show the dialog. This call blocks until the dialog is closed. Don't
     // pop up the dialog if aSuppressDialogs was specified or if this

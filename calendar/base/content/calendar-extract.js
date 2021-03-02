@@ -60,7 +60,9 @@ var calendarExtract = {
       }
       return -1;
     });
-    removeChildren(localeList);
+    while (localeList.lastChild) {
+      localeList.lastChild.remove();
+    }
 
     for (let lang of langs) {
       addMenuItem(localeList, lang[0], lang[1], null);

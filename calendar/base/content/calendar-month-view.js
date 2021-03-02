@@ -130,7 +130,9 @@
     setDate(aDate) {
       // Remove all the old events.
       this.mItemHash = {};
-      removeChildren(this.dayItems);
+      while (this.dayItems.lastChild) {
+        this.dayItems.lastChild.remove();
+      }
 
       if (this.mDate && aDate && this.mDate.compare(aDate) == 0) {
         return;
