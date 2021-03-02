@@ -6,7 +6,6 @@ loader: comm_taskgraph.loader.reference:loader
 base-path: taskcluster/ci
 
 jobs:
-    - deb8-32-xz-utils
     - deb8-cmake
     - deb8-dh-python
     - deb8-gdb

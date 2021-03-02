@@ -11,9 +11,6 @@ kind-dependencies:
 reference-jobs:
     - debian8-amd64-build
     - debian8-base
-    - debian8-i386-build
-    - debian8-i386-packages
-    - debian8-i386-raw
     - debian8-packages
     - debian8-raw
     - debian9-amd64-build
