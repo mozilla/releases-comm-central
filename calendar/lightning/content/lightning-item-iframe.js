@@ -1206,17 +1206,17 @@ function dateTimeControls2State(aStartDatepicker) {
     return;
   }
   let keepAttribute = document.getElementById("keepduration-button").getAttribute("keep") == "true";
-  let allDay = getElementValue("event-all-day", "checked");
+  let allDay = document.getElementById("event-all-day").checked;
   let startWidgetId;
   let endWidgetId;
   if (window.calendarItem.isEvent()) {
     startWidgetId = "event-starttime";
     endWidgetId = "event-endtime";
   } else {
-    if (!getElementValue("todo-has-entrydate", "checked")) {
+    if (!document.getElementById("todo-has-entrydate").checked) {
       gItemDuration = null;
     }
-    if (!getElementValue("todo-has-duedate", "checked")) {
+    if (!document.getElementById("todo-has-duedate").checked) {
       gItemDuration = null;
     }
     startWidgetId = "todo-entrydate";
@@ -1232,10 +1232,16 @@ function dateTimeControls2State(aStartDatepicker) {
     // object from the jsDate representation then we convert the timezone
     // in order to keep gStartTime in default timezone.
     if (gTimezonesEnabled || allDay) {
-      gStartTime = cal.dtz.jsDateToDateTime(getElementValue(startWidgetId), gStartTimezone);
+      gStartTime = cal.dtz.jsDateToDateTime(
+        document.getElementById(startWidgetId).value,
+        gStartTimezone
+      );
       gStartTime = gStartTime.getInTimezone(kDefaultTimezone);
     } else {
-      gStartTime = cal.dtz.jsDateToDateTime(getElementValue(startWidgetId), kDefaultTimezone);
+      gStartTime = cal.dtz.jsDateToDateTime(
+        document.getElementById(startWidgetId).value,
+        kDefaultTimezone
+      );
     }
     gStartTime.isDate = allDay;
   }
@@ -1254,10 +1260,13 @@ function dateTimeControls2State(aStartDatepicker) {
         }
       }
       if (gTimezonesEnabled || allDay) {
-        gEndTime = cal.dtz.jsDateToDateTime(getElementValue(endWidgetId), timezone);
+        gEndTime = cal.dtz.jsDateToDateTime(document.getElementById(endWidgetId).value, timezone);
         gEndTime = gEndTime.getInTimezone(kDefaultTimezone);
       } else {
-        gEndTime = cal.dtz.jsDateToDateTime(getElementValue(endWidgetId), kDefaultTimezone);
+        gEndTime = cal.dtz.jsDateToDateTime(
+          document.getElementById(endWidgetId).value,
+          kDefaultTimezone
+        );
       }
       gEndTime.isDate = allDay;
       if (keepAttribute && gItemDuration) {
@@ -1396,26 +1405,29 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
   }
 
   // force something to get set if there was nothing there before
-  aDatePickerId.value = getElementValue(aDatePickerId);
+  aDatePickerId.value = document.getElementById(aDatePickerId).value;
 
   // first of all disable the datetime picker if we don't have a date
-  let hasDate = getElementValue(aCheckboxId, "checked");
+  let hasDate = document.getElementById(aCheckboxId).checked;
   aDatePickerId.disabled = !hasDate;
 
   // create a new datetime object if date is now checked for the first time
   if (hasDate && !aDateTime.isValid()) {
-    let date = cal.dtz.jsDateToDateTime(getElementValue(aDatePickerId), cal.dtz.defaultTimezone);
+    let date = cal.dtz.jsDateToDateTime(
+      document.getElementById(aDatePickerId).value,
+      cal.dtz.defaultTimezone
+    );
     aDateTime.setDateTime(date);
   } else if (!hasDate && aDateTime.isValid()) {
     aDateTime.setDateTime(null);
   }
 
   // calculate the duration if possible
-  let hasEntryDate = getElementValue("todo-has-entrydate", "checked");
-  let hasDueDate = getElementValue("todo-has-duedate", "checked");
+  let hasEntryDate = document.getElementById("todo-has-entrydate").checked;
+  let hasDueDate = document.getElementById("todo-has-duedate").checked;
   if (hasEntryDate && hasDueDate) {
-    let start = cal.dtz.jsDateToDateTime(getElementValue("todo-entrydate"));
-    let end = cal.dtz.jsDateToDateTime(getElementValue("todo-duedate"));
+    let start = cal.dtz.jsDateToDateTime(document.getElementById("todo-entrydate").value);
+    let end = cal.dtz.jsDateToDateTime(document.getElementById("todo-duedate").value);
     gItemDuration = end.subtractDate(start);
   } else {
     gItemDuration = null;
@@ -1628,15 +1640,18 @@ function saveDialog(item) {
   // Calendar
   item.calendar = getCurrentCalendar();
 
-  cal.item.setItemProperty(item, "title", getElementValue("item-title"));
-  cal.item.setItemProperty(item, "LOCATION", getElementValue("item-location"));
+  cal.item.setItemProperty(item, "title", document.getElementById("item-title").value);
+  cal.item.setItemProperty(item, "LOCATION", document.getElementById("item-location").value);
 
   saveDateTime(item);
 
   if (item.isTodo()) {
     let percentCompleteInteger = 0;
-    if (getElementValue("percent-complete-textbox") != "") {
-      percentCompleteInteger = parseInt(getElementValue("percent-complete-textbox"), 10);
+    if (document.getElementById("percent-complete-textbox").value != "") {
+      percentCompleteInteger = parseInt(
+        document.getElementById("percent-complete-textbox").value,
+        10
+      );
     }
     if (percentCompleteInteger < 0) {
       percentCompleteInteger = 0;
@@ -1660,7 +1675,7 @@ function saveDialog(item) {
   }
 
   // Description
-  cal.item.setItemProperty(item, "DESCRIPTION", getElementValue("item-description"));
+  cal.item.setItemProperty(item, "DESCRIPTION", document.getElementById("item-description").value);
 
   // Event Status
   if (item.isEvent()) {
@@ -1670,7 +1685,7 @@ function saveDialog(item) {
       item.deleteProperty("STATUS");
     }
   } else {
-    let status = getElementValue("todo-status");
+    let status = document.getElementById("todo-status").value;
     if (status != "COMPLETED") {
       item.completedDate = null;
     }
@@ -1701,7 +1716,7 @@ function saveDialog(item) {
   cal.item.setItemProperty(item, "CLASS", gConfig.privacy, "privacy");
 
   if (item.status == "COMPLETED" && item.isTodo()) {
-    let elementValue = getElementValue("completed-date-picker");
+    let elementValue = document.getElementById("completed-date-picker").value;
     item.completedDate = cal.dtz.jsDateToDateTime(elementValue);
   }
 
@@ -1720,7 +1735,7 @@ function saveDateTime(item) {
   if (item.isEvent()) {
     let startTime = gStartTime.getInTimezone(gStartTimezone);
     let endTime = gEndTime.getInTimezone(gEndTimezone);
-    let isAllDay = getElementValue("event-all-day", "checked");
+    let isAllDay = document.getElementById("event-all-day").checked;
     if (isAllDay) {
       startTime = startTime.clone();
       endTime = endTime.clone();
@@ -1786,7 +1801,7 @@ function updateTitle() {
   sendMessage({
     command: "updateTitle",
     prefix: cal.l10n.getCalString(strName),
-    title: getElementValue("item-title"),
+    title: document.getElementById("item-title").value,
   });
 }
 
@@ -1804,14 +1819,14 @@ function updateAccept() {
 
   // don't allow for end dates to be before start dates
   if (isEvent) {
-    startDate = cal.dtz.jsDateToDateTime(getElementValue("event-starttime"));
-    endDate = cal.dtz.jsDateToDateTime(getElementValue("event-endtime"));
+    startDate = cal.dtz.jsDateToDateTime(document.getElementById("event-starttime").value);
+    endDate = cal.dtz.jsDateToDateTime(document.getElementById("event-endtime").value);
   } else {
-    startDate = getElementValue("todo-has-entrydate", "checked")
-      ? cal.dtz.jsDateToDateTime(getElementValue("todo-entrydate"))
+    startDate = document.getElementById("todo-has-entrydate").checked
+      ? cal.dtz.jsDateToDateTime(document.getElementById("todo-entrydate").value)
       : null;
-    endDate = getElementValue("todo-has-duedate", "checked")
-      ? cal.dtz.jsDateToDateTime(getElementValue("todo-duedate"))
+    endDate = document.getElementById("todo-has-duedate").checked
+      ? cal.dtz.jsDateToDateTime(document.getElementById("todo-duedate").value)
       : null;
   }
 
@@ -1837,7 +1852,7 @@ function updateAccept() {
 
     // For all-day events we are not interested in times and compare only
     // dates.
-    if (isEvent && getElementValue("event-all-day", "checked")) {
+    if (isEvent && document.getElementById("event-all-day").checked) {
       // jsDateToDateTime returns the values in UTC. Depending on the
       // local timezone and the values selected in datetimepicker the date
       // in UTC might be shifted to the previous or next day.
@@ -1887,7 +1902,7 @@ function onUpdateAllDay() {
   if (!window.calendarItem.isEvent()) {
     return;
   }
-  let allDay = getElementValue("event-all-day", "checked");
+  let allDay = document.getElementById("event-all-day").checked;
   let kDefaultTimezone = cal.dtz.defaultTimezone;
 
   if (allDay) {
@@ -1957,7 +1972,7 @@ function updateAllDay() {
     return;
   }
 
-  let allDay = getElementValue("event-all-day", "checked");
+  let allDay = document.getElementById("event-all-day").checked;
   document.getElementById("event-starttime").toggleAttribute("timepickerdisabled", allDay);
   document.getElementById("event-endtime").toggleAttribute("timepickerdisabled", allDay);
 
@@ -2061,7 +2076,7 @@ function editAttendees() {
   let startTime = gStartTime.getInTimezone(gStartTimezone);
   let endTime = gEndTime.getInTimezone(gEndTimezone);
 
-  let isAllDay = getElementValue("event-all-day", "checked");
+  let isAllDay = document.getElementById("event-all-day").checked;
   if (isAllDay) {
     startTime.isDate = true;
     endTime.isDate = true;
@@ -2824,7 +2839,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     // an entry-date, otherwise we can't create a recurrence.
     if (item.isTodo()) {
       // automatically check 'has entrydate' if needed.
-      if (!getElementValue("todo-has-entrydate", "checked")) {
+      if (!document.getElementById("todo-has-entrydate").checked) {
         document.getElementById("todo-has-entrydate").checked = true;
 
         // make sure gStartTime is properly initialized
@@ -2997,7 +3012,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
     window.recurrenceInfo = recurrenceInfo;
 
     if (item.isTodo()) {
-      if (!getElementValue("todo-has-entrydate", "checked")) {
+      if (!document.getElementById("todo-has-entrydate").checked) {
         document.getElementById("todo-has-entrydate").checked = true;
       }
       disableElementWithLock("todo-has-entrydate", "repeat-lock");
@@ -3041,7 +3056,7 @@ function updateUntildateRecRule(recRule) {
   } else if (itemRepeat == "custom") {
     repeatUntilDate = gUntilDate;
   } else {
-    let untilDatepickerDate = getElementValue("repeat-until-datepicker");
+    let untilDatepickerDate = document.getElementById("repeat-until-datepicker").value;
     if (untilDatepickerDate != "forever") {
       repeatUntilDate = cal.dtz.jsDateToDateTime(untilDatepickerDate, defaultTimezone);
     }
@@ -3080,8 +3095,8 @@ function updateToDoStatus(aStatus, aCompletedDate = null) {
   // date will get lost.
 
   // remember the original values
-  let oldPercentComplete = parseInt(getElementValue("percent-complete-textbox"), 10);
-  let oldCompletedDate = getElementValue("completed-date-picker");
+  let oldPercentComplete = parseInt(document.getElementById("percent-complete-textbox").value, 10);
+  let oldCompletedDate = document.getElementById("completed-date-picker").value;
 
   // If the percent completed has changed to 100 or from 100 to another
   // value, the status must change.
@@ -3946,12 +3961,12 @@ function updateRepeatDetails() {
     let kDefaultTimezone = cal.dtz.defaultTimezone;
     let event = item.isEvent();
 
-    let startDate = getElementValue(event ? "event-starttime" : "todo-entrydate");
-    let endDate = getElementValue(event ? "event-endtime" : "todo-duedate");
+    let startDate = document.getElementById(event ? "event-starttime" : "todo-entrydate").value;
+    let endDate = document.getElementById(event ? "event-endtime" : "todo-duedate").value;
     startDate = cal.dtz.jsDateToDateTime(startDate, kDefaultTimezone);
     endDate = cal.dtz.jsDateToDateTime(endDate, kDefaultTimezone);
 
-    let allDay = getElementValue("event-all-day", "checked");
+    let allDay = document.getElementById("event-all-day").checked;
     let detailsString = recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay);
 
     if (!detailsString) {
@@ -4134,7 +4149,11 @@ function isItemChanged() {
   // newlines are getting converted which would indicate changes to the
   // text.
   document.getElementById("item-description").value = oldItem.getProperty("DESCRIPTION");
-  cal.item.setItemProperty(oldItem, "DESCRIPTION", getElementValue("item-description"));
+  cal.item.setItemProperty(
+    oldItem,
+    "DESCRIPTION",
+    document.getElementById("item-description").value
+  );
   document.getElementById("item-description").value = newItem.getProperty("DESCRIPTION");
 
   if (newItem.calendar.id == oldItem.calendar.id && cal.item.compareContent(newItem, oldItem)) {
@@ -4172,7 +4191,7 @@ function capValues(aCap, aDefault) {
  * the dialog when the user enters a wrong until date.
  */
 function checkUntilDate() {
-  let repeatUntilDate = getElementValue("repeat-until-datepicker");
+  let repeatUntilDate = document.getElementById("repeat-until-datepicker").value;
   if (repeatUntilDate == "forever") {
     updateRepeat();
     // "forever" is never earlier than another date.

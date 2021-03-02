@@ -495,7 +495,7 @@ function commonUpdateReminder(
       // If a reminder is related to the entry date...
       if (reminders.some(x => x.related == Ci.calIAlarm.ALARM_RELATED_START)) {
         // ...automatically check 'has entrydate'.
-        if (!getElementValue("todo-has-entrydate", "checked")) {
+        if (!document.getElementById("todo-has-entrydate").checked) {
           document.getElementById("todo-has-entrydate").checked = true;
 
           // Make sure gStartTime is properly initialized
@@ -509,7 +509,7 @@ function commonUpdateReminder(
       // If a reminder is related to the due date...
       if (reminders.some(x => x.related == Ci.calIAlarm.ALARM_RELATED_END)) {
         // ...automatically check 'has duedate'.
-        if (!getElementValue("todo-has-duedate", "checked")) {
+        if (!document.getElementById("todo-has-duedate").checked) {
           document.getElementById("todo-has-duedate").checked = true;
 
           // Make sure gStartTime is properly initialized

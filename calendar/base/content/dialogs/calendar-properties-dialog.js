@@ -123,7 +123,7 @@ function onAcceptDialog() {
 
   // Save refresh interval
   if (gCalendar.canRefresh) {
-    let value = getElementValue("calendar-refreshInterval-menulist");
+    let value = document.getElementById("calendar-refreshInterval-menulist").value;
     gCalendar.setProperty("refreshInterval", value);
   }
 

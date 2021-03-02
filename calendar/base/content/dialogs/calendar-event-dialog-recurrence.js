@@ -607,7 +607,7 @@ function onSave(item) {
   // matters, so we can't always just append at the end.  This
   // code here always inserts a rule first, because all our
   // exceptions should come afterward.
-  let periodNumber = Number(getElementValue("period-list"));
+  let periodNumber = Number(document.getElementById("period-list").value);
 
   let args = window.arguments[0];
   let recurrenceInfo = args.recurrenceInfo;
@@ -629,7 +629,7 @@ function onSave(item) {
       recRule.type = "DAILY";
       let dailyGroup = document.getElementById("daily-group");
       if (dailyGroup.selectedIndex == 0) {
-        let ndays = Math.max(1, Number(getElementValue("daily-days")));
+        let ndays = Math.max(1, Number(document.getElementById("daily-days").value));
         recRule.interval = ndays;
       } else {
         recRule.interval = 1;
@@ -640,7 +640,7 @@ function onSave(item) {
     }
     case 1: {
       recRule.type = "WEEKLY";
-      let ndays = Number(getElementValue("weekly-weeks"));
+      let ndays = Number(document.getElementById("weekly-weeks").value);
       recRule.interval = ndays;
       let onDays = DaypickerWeekday.days;
       if (onDays.length > 0) {
@@ -650,12 +650,12 @@ function onSave(item) {
     }
     case 2: {
       recRule.type = "MONTHLY";
-      let monthInterval = Number(getElementValue("monthly-interval"));
+      let monthInterval = Number(document.getElementById("monthly-interval").value);
       recRule.interval = monthInterval;
       let monthlyGroup = document.getElementById("monthly-group");
       if (monthlyGroup.selectedIndex == 0) {
-        let monthlyOrdinal = Number(getElementValue("monthly-ordinal"));
-        let monthlyDOW = Number(getElementValue("monthly-weekday"));
+        let monthlyOrdinal = Number(document.getElementById("monthly-ordinal").value);
+        let monthlyDOW = Number(document.getElementById("monthly-weekday").value);
         if (monthlyDOW < 0) {
           if (monthlyOrdinal == 0) {
             // Monthly rule "Every day of the month".
@@ -679,19 +679,19 @@ function onSave(item) {
     }
     case 3: {
       recRule.type = "YEARLY";
-      let yearInterval = Number(getElementValue("yearly-interval"));
+      let yearInterval = Number(document.getElementById("yearly-interval").value);
       recRule.interval = yearInterval;
       let yearlyGroup = document.getElementById("yearly-group");
       if (yearlyGroup.selectedIndex == 0) {
-        let yearlyByMonth = [Number(getElementValue("yearly-month-ordinal"))];
+        let yearlyByMonth = [Number(document.getElementById("yearly-month-ordinal").value)];
         recRule.setComponent("BYMONTH", yearlyByMonth);
-        let yearlyByDay = [Number(getElementValue("yearly-days"))];
+        let yearlyByDay = [Number(document.getElementById("yearly-days").value)];
         recRule.setComponent("BYMONTHDAY", yearlyByDay);
       } else {
-        let yearlyByMonth = [Number(getElementValue("yearly-month-rule"))];
+        let yearlyByMonth = [Number(document.getElementById("yearly-month-rule").value)];
         recRule.setComponent("BYMONTH", yearlyByMonth);
-        let yearlyOrdinal = Number(getElementValue("yearly-ordinal"));
-        let yearlyDOW = Number(getElementValue("yearly-weekday"));
+        let yearlyOrdinal = Number(document.getElementById("yearly-ordinal").value);
+        let yearlyDOW = Number(document.getElementById("yearly-weekday").value);
         if (yearlyDOW < 0) {
           if (yearlyOrdinal == 0) {
             // Yearly rule "Every day of a month".
@@ -717,12 +717,12 @@ function onSave(item) {
       break;
     }
     case "ntimes": {
-      recRule.count = Math.max(1, getElementValue("repeat-ntimes-count"));
+      recRule.count = Math.max(1, document.getElementById("repeat-ntimes-count").value);
       break;
     }
     case "until": {
       let untilDate = cal.dtz.jsDateToDateTime(
-        getElementValue("repeat-until-date"),
+        document.getElementById("repeat-until-date").value,
         gStartTime.timezone
       );
       untilDate.isDate = gStartTime.isDate; // enforce same value type as DTSTART
@@ -850,7 +850,7 @@ function enableRecurrenceFields(aAttributeName) {
  */
 function updateRecurrenceBox() {
   let periodBox = document.getElementById("period-box");
-  let periodNumber = Number(getElementValue("period-list"));
+  let periodNumber = Number(document.getElementById("period-list").value);
   for (let i = 0; i < periodBox.children.length; i++) {
     periodBox.children[i].hidden = i != periodNumber;
   }
@@ -954,7 +954,7 @@ function checkUntilDate() {
   }
 
   let untilDate = cal.dtz.jsDateToDateTime(
-    getElementValue("repeat-until-date"),
+    document.getElementById("repeat-until-date").value,
     gStartTime.timezone
   );
   let startDate = gStartTime.clone();
@@ -1005,7 +1005,7 @@ function updateRecurrencePattern() {
     return;
   }
 
-  switch (Number(getElementValue("period-list"))) {
+  switch (Number(document.getElementById("period-list").value)) {
     // daily
     case 0: {
       let dailyGroup = document.getElementById("daily-group");

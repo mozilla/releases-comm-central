@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported getElementValue, setBooleanAttribute,
+/* exported setBooleanAttribute,
  *          disableElementWithLock,
  *          enableElementWithLock,
  *          appendCalendarItems, checkRadioControl,
@@ -18,24 +18,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-/**
- * Helper function for getting data from the form,
- * Get the value of a property of a XUL element
- *
- * @param aElement      ID of XUL element to set, or the element node itself
- * @param propertyName  OPTIONAL name of property to set, default is "value",
- *                        use "checked" for radios & checkboxes, "data" for
- *                        drop-downs
- * @return newValue     Value of property
- *
- */
-function getElementValue(aElement, aPropertyName) {
-  if (typeof aElement == "string") {
-    aElement = document.getElementById(aElement);
-  }
-  return aElement[aPropertyName || "value"];
-}
 
 /**
  * Sets the value of a boolean attribute by either setting the value or
