@@ -27,6 +27,7 @@ linux32-libotr:
         toolchain:
             - linux64-clang
             - linux64-binutils
+            - linux32-sysroot
 
 linux64-libotr:
     treeherder:
@@ -37,12 +38,11 @@ linux64-libotr:
         toolchain:
             - linux64-clang
             - linux64-binutils
+            - linux64-sysroot
 
 linux-aarch64-libotr:
     treeherder:
         symbol: TL(libotr-aarch64)
-    worker:
-        docker-image: {in-tree: deb10-toolchain-build}
     run:
         arguments: ['linux-aarch64']
     fetches:

@@ -247,7 +247,9 @@ case "${_TARGET_OS}" in
         export _TARGET_TRIPLE="i686-pc-linux"
         export CC="clang"
         export CFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
+        export CFLAGS+=" --sysroot=${MOZ_FETCHES_DIR}/sysroot"
         export CCASFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
+        export CCASFLAGS+=" --sysroot=${MOZ_FETCHES_DIR}/sysroot"
         export LDFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
 
         export AR=llvm-ar
@@ -271,6 +273,7 @@ case "${_TARGET_OS}" in
 
         export _TARGET_TRIPLE="x86_64-pc-linux"
         export CC="clang"
+        export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
         export AR=llvm-ar
         export RANLIB=llvm-ranlib
         export NM=llvm-nm
