@@ -589,7 +589,7 @@ agendaListbox.setupContextMenu = function(popup) {
   let enabled = this.isEventListItem(listItem);
   let menuitems = popup.children;
   for (let i = 0; i < menuitems.length; i++) {
-    setBooleanAttribute(menuitems[i], "disabled", !enabled);
+    menuitems[i].disabled = !enabled;
   }
 
   let menu = document.getElementById("calendar-today-pane-menu-attendance-menu");

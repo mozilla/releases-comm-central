@@ -97,12 +97,12 @@ td {
   font-size: 0.82em;
 }
 
-#network-calendar-list > richlistitem[calendar-disabled="true"] > .calendar-color {
+#network-calendar-list > richlistitem[calendar-disabled] > .calendar-color {
   filter: grayscale(1);
 }
 
 #network-calendar-list
-  > richlistitem[calendar-disabled="true"]:not([selected="true"])
+  > richlistitem[calendar-disabled]:not([selected="true"])
   > .calendar-name {
   color: #808080;
 }

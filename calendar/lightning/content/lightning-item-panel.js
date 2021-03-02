@@ -767,7 +767,7 @@ function updateStatus(aArg) {
     "cmd_status_cancelled",
   ];
   let found = false;
-  setBooleanAttribute("status-status", "collapsed", true);
+  document.getElementById("status-status").collapsed = true;
   commands.forEach((aElement, aIndex, aArray) => {
     let node = document.getElementById(aElement);
     let matches = node.getAttribute("value") == aArg.status;
@@ -776,9 +776,9 @@ function updateStatus(aArg) {
     node.setAttribute("checked", matches ? "true" : "false");
 
     if (aIndex > 0) {
-      setBooleanAttribute(statusLabels[aIndex - 1], "hidden", !matches);
+      statusLabels[aIndex - 1].hidden = !matches;
       if (matches) {
-        setBooleanAttribute("status-status", "collapsed", false);
+        document.getElementById("status-status").collapsed = false;
       }
     }
   });
@@ -812,13 +812,10 @@ function updateShowTimeAs(aArg) {
   showAsBusy.setAttribute("checked", aArg.showTimeAs == "OPAQUE" ? "true" : "false");
   showAsFree.setAttribute("checked", aArg.showTimeAs == "TRANSPARENT" ? "true" : "false");
 
-  setBooleanAttribute(
-    "status-freebusy",
-    "collapsed",
-    aArg.showTimeAs != "OPAQUE" && aArg.showTimeAs != "TRANSPARENT"
-  );
-  setBooleanAttribute("status-freebusy-free-label", "hidden", aArg.showTimeAs == "OPAQUE");
-  setBooleanAttribute("status-freebusy-busy-label", "hidden", aArg.showTimeAs == "TRANSPARENT");
+  document.getElementById("status-freebusy").collapsed =
+    aArg.showTimeAs != "OPAQUE" && aArg.showTimeAs != "TRANSPARENT";
+  document.getElementById("status-freebusy-free-label").hidden = aArg.showTimeAs == "OPAQUE";
+  document.getElementById("status-freebusy-busy-label").hidden = aArg.showTimeAs == "TRANSPARENT";
 }
 
 /**

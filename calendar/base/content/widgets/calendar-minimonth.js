@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals cal MozXULElement setBooleanAttribute */
+/* globals cal MozXULElement */
 
 "use strict";
 
@@ -546,7 +546,7 @@
         }
       }
 
-      setBooleanAttribute(this._getCalBoxNode(0, 0), "hidden", !this.showWeekNumber);
+      this._getCalBoxNode(0, 0).hidden = !this.showWeekNumber;
       for (let column = 1; column < 8; column++) {
         let node = this._getCalBoxNode(0, column);
         node.textContent = dayList[column - 1];
@@ -624,7 +624,7 @@
       for (let k = 1; k < 7; k++) {
         // Set the week number.
         let firstElement = this._getCalBoxNode(k, 0);
-        setBooleanAttribute(firstElement, "hidden", !this.showWeekNumber);
+        firstElement.hidden = !this.showWeekNumber;
         if (this.showWeekNumber) {
           let weekNumber = cal
             .getWeekInfoService()

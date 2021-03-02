@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements, MozXULElement, setBooleanAttribute, onMouseOverItem
-   invokeEventDragSession */
+/* global MozElements, MozXULElement, onMouseOverItem, invokeEventDragSession */
 
 "use strict";
 
@@ -288,7 +287,7 @@
       let showLocation = Services.prefs.getBoolPref("calendar.view.showLocation", false);
 
       locationLabel.value = showLocation && location ? location : "";
-      setBooleanAttribute(locationLabel, "hidden", !showLocation || !location);
+      locationLabel.hidden = !showLocation || !location;
     }
 
     setCSSClasses() {

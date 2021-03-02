@@ -24,7 +24,7 @@ var taskDetailsView = {
    */
   onSelect(event) {
     function displayElement(id, flag) {
-      setBooleanAttribute(id, "hidden", !flag);
+      document.getElementById(id).hidden = !flag;
       return flag;
     }
 

@@ -799,7 +799,7 @@ function loadDialog(aItem) {
     // Synchronize link-top-image with keep-duration-button status
     let keepAttribute =
       document.getElementById("keepduration-button").getAttribute("keep") == "true";
-    setBooleanAttribute("link-image-top", "keep", keepAttribute);
+    document.getElementById("link-image-top").setAttribute("keep", keepAttribute);
 
     updateDateTime();
 
@@ -969,8 +969,8 @@ function updateCategoryMenulist() {
   document
     .getElementById("event-grid-category-color-row")
     .toggleAttribute("hidden", maxCount === 0);
-  setBooleanAttribute("item-calendar-label", "hidden", maxCount === 0);
-  setBooleanAttribute("item-calendar-aux-label", "hidden", maxCount !== 0);
+  document.getElementById("item-calendar-label").hidden = maxCount === 0;
+  document.getElementById("item-calendar-aux-label").hidden = maxCount !== 0;
 
   let label;
   let categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category[checked]");
@@ -1160,7 +1160,7 @@ function loadDateTime(item) {
     }
     if (!gNewItemUI) {
       document.getElementById("cmd_attendees").setAttribute("disabled", true);
-      setBooleanAttribute("keepduration-button", "disabled", !(hasEntryDate && hasDueDate));
+      document.getElementById("keepduration-button").disabled = !(hasEntryDate && hasDueDate);
     }
     sendMessage({
       command: "updateConfigState",
@@ -1186,7 +1186,7 @@ function toggleKeepDuration() {
   // To make the "keep" attribute persistent, it mustn't be removed when in
   // false state (bug 15232).
   kdb.setAttribute("keep", keepAttribute ? "false" : "true");
-  setBooleanAttribute("link-image-top", "keep", !keepAttribute);
+  document.getElementById("link-image-top").setAttribute("keep", !keepAttribute);
 }
 
 /**
@@ -1432,7 +1432,7 @@ function updateDateCheckboxes(aDatePickerId, aCheckboxId, aDateTime) {
   } else {
     gItemDuration = null;
   }
-  setBooleanAttribute("keepduration-button", "disabled", !(hasEntryDate && hasDueDate));
+  document.getElementById("keepduration-button").disabled = !(hasEntryDate && hasDueDate);
   updateDateTime();
   updateTimezone();
 }
@@ -3896,7 +3896,7 @@ function updateAttendees() {
       icon.setAttribute("usertype", userType);
       icon.setAttribute("role", role);
     } else {
-      setBooleanAttribute("item-organizer-row", "collapsed", true);
+      document.getElementById("item-organizer-row").collapsed = true;
     }
 
     let { attendeesInRow, maxLabelWidth } = setupAttendees(

@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported setBooleanAttribute,
- *          disableElementWithLock,
+/* exported disableElementWithLock,
  *          enableElementWithLock,
  *          appendCalendarItems, checkRadioControl,
  *          checkRadioControlAppmenu,
@@ -18,27 +17,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-
-/**
- * Sets the value of a boolean attribute by either setting the value or
- * removing the attribute
- *
- * @param aXulElement     The XUL element/string ID the attribute is applied to.
- * @param aAttribute      The name of the attribute
- * @param aValue          The boolean value
- * @return                Returns aValue (for chaining)
- */
-function setBooleanAttribute(aXulElement, aAttribute, aValue) {
-  if (typeof aXulElement == "string") {
-    aXulElement = document.getElementById(aXulElement);
-  }
-  if (aValue === false) {
-    aXulElement.removeAttribute(aAttribute);
-  } else {
-    aXulElement.setAttribute(aAttribute, !!aValue);
-  }
-  return aValue;
-}
 
 /**
  * This function unconditionally disables the element for

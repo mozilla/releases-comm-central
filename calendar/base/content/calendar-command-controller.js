@@ -217,7 +217,7 @@ var calendarController = {
         }
 
         // Small hack, we want to hide instead of disable.
-        setBooleanAttribute("calendar_attendance_command", "hidden", !attendSel);
+        document.getElementById("calendar_attendance_command").setAttribute("hidden", !attendSel);
         return attendSel;
       }
 

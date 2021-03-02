@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozXULElement, setBooleanAttribute, getSummarizedStyleValues */
+/* global MozXULElement, getSummarizedStyleValues */
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -98,8 +98,8 @@
     set shortWeekNames(val) {
       // cache before change, in case we are switching to short
       this.getLongWeekdayPixels();
-      setBooleanAttribute(this.longWeekdayName, "hidden", val);
-      setBooleanAttribute(this.shortWeekdayName, "hidden", !val);
+      this.longWeekdayName.hidden = val;
+      this.shortWeekdayName.hidden = !val;
     }
 
     getLongWeekdayPixels() {

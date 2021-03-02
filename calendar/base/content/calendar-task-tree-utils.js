@@ -147,9 +147,9 @@ function changeMenuForTask(aEvent) {
   if (tasksSelected) {
     let cmd = document.getElementById("calendar_toggle_completed_command");
     if (tasks.every(task => task.isCompleted == tasks[0].isCompleted)) {
-      setBooleanAttribute(cmd, "checked", tasks[0].isCompleted);
+      cmd.checked = tasks[0].isCompleted;
     } else {
-      setBooleanAttribute(cmd, "checked", false);
+      cmd.checked = false;
     }
   }
 }

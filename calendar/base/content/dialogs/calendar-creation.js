@@ -531,7 +531,7 @@ function renderCalendarList(calendarList, calendars) {
 
     if (calendar.getProperty("disabled")) {
       item.disabled = true;
-      item.setAttribute("calendar-disabled", "true");
+      item.toggleAttribute("calendar-disabled", true);
       checkbox.disabled = true;
       propertiesButton.disabled = true;
     } else {

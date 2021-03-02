@@ -255,7 +255,7 @@ checkbox.calendar-displayed:focus > .checkbox-check {
   -moz-box-flex: 1;
 }
 
-#calendar-list > richlistitem[calendar-disabled="true"]:not([selected="true"]) > .calendar-name {
+#calendar-list > richlistitem[calendar-disabled]:not([selected="true"]) > .calendar-name {
   color: #808080;
 }
 
@@ -266,10 +266,10 @@ checkbox.calendar-displayed:focus > .checkbox-check {
   opacity: 0.7;
 }
 
-#calendar-list > richlistitem[calendar-readonly="true"] > .calendar-readstatus {
+#calendar-list > richlistitem[calendar-readonly] > .calendar-readstatus {
   list-style-image: url(chrome://calendar/skin/shared/icons/locked.svg);
 }
 
-#calendar-list > richlistitem[calendar-readfailed="true"] > .calendar-readstatus {
+#calendar-list > richlistitem[calendar-readfailed] > .calendar-readstatus {
   list-style-image: url(chrome://calendar/skin/shared/icons/warn.svg);
 }

@@ -49,7 +49,7 @@ add_task(async () => {
           Assert.equal(item.querySelector(".calendar-displayed").checked, expectedValue);
           break;
         case "color":
-          if (item.getAttribute("calendar-disabled")) {
+          if (item.hasAttribute("calendar-disabled")) {
             Assert.equal(getComputedStyle(colorImage).backgroundColor, "rgba(0, 0, 0, 0)");
           } else {
             Assert.equal(getComputedStyle(colorImage).backgroundColor, expectedValue);

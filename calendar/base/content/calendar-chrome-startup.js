@@ -247,17 +247,17 @@ function refreshEventsAndTasksMenu(event) {
   // the menu items (toolbarbuttons) are given a "command" or "observes" attribute that is set to
   // their respective commands, then their "oncommand" attribute is automatically overwritten
   // (because the commands have an oncommand attribute).  And then the sub-menus will not open.
-  setBooleanAttribute(
-    "appmenu_ltnTaskActionsPriorityMenuitem",
-    "disabled",
-    document.getElementById("calendar_general-priority_command").hasAttribute("disabled")
-  );
+  document.getElementById(
+    "appmenu_ltnTaskActionsPriorityMenuitem"
+  ).disabled = document
+    .getElementById("calendar_general-priority_command")
+    .hasAttribute("disabled");
 
-  setBooleanAttribute(
-    "appmenu_ltnTaskActionsProgressMenuitem",
-    "disabled",
-    document.getElementById("calendar_general-progress_command").hasAttribute("disabled")
-  );
+  document.getElementById(
+    "appmenu_ltnTaskActionsProgressMenuitem"
+  ).disabled = document
+    .getElementById("calendar_general-progress_command")
+    .hasAttribute("disabled");
 }
 
 /**
@@ -459,7 +459,7 @@ function updateTodayPaneButton() {
   todaypane.appendChild(iconEnd);
 
   let calSidebar = document.getElementById("ltnSidebar");
-  todaypane.setAttribute("checked", !calSidebar.getAttribute("collapsed"));
+  todaypane.setAttribute("checked", !calSidebar.collapsed);
 }
 
 /**
@@ -551,13 +551,9 @@ function customizeMailToolbarForTabType() {
 function initViewCalendarPaneMenu() {
   let calSidebar = document.getElementById("ltnSidebar");
 
-  setBooleanAttribute("ltnViewCalendarPane", "checked", !calSidebar.getAttribute("collapsed"));
+  document.getElementById("ltnViewCalendarPane").checked = !calSidebar.collapsed;
 
   if (document.getElementById("appmenu_ltnViewCalendarPane")) {
-    setBooleanAttribute(
-      "appmenu_ltnViewCalendarPane",
-      "checked",
-      !calSidebar.getAttribute("collapsed")
-    );
+    document.getElementById("appmenu_ltnViewCalendarPane").checked = !calSidebar.collapsed;
   }
 }

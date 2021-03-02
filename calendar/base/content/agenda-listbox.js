@@ -5,7 +5,7 @@
 "use strict";
 
 /* global MozXULElement, MozElements, unitPluralForm, agendaListbox,
-   invokeEventDragSession, setBooleanAttribute, onMouseOverItem */
+   invokeEventDragSession, onMouseOverItem */
 {
   var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   /**
@@ -158,7 +158,7 @@
       let date = "";
       let iconType = "";
       let allDayDateLabel = this.querySelector(".agenda-event-start");
-      setBooleanAttribute(allDayDateLabel, "hidden", !showDate);
+      allDayDateLabel.hidden = !showDate;
       if (startDate.compare(endPreviousDay) == 0) {
         // All day event one day duration.
         date = dateFormatter.formatDate(startDate);

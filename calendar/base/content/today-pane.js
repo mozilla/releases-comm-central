@@ -99,7 +99,7 @@ var TodayPane = {
     todayHeader.setAttribute("index", index);
     todayHeader.setAttribute("value", this.paneViews[index]);
     let todayPaneSplitter = document.getElementById("today-pane-splitter");
-    setBooleanAttribute(todayPaneSplitter, "hidden", index != 0);
+    todayPaneSplitter.hidden = index != 0;
     let todayIsVisible = document.getElementById("today-pane-panel").isVisible();
 
     // Disable or enable the today pane menuitems that have an attribute
@@ -458,11 +458,7 @@ var TodayPane = {
     document.getElementById("today-minimonth-box").setVisible(aSection == "minimonth");
     document.getElementById("mini-day-box").setVisible(aSection == "miniday");
     document.getElementById("today-none-box").setVisible(aSection == "none");
-    setBooleanAttribute(
-      document.getElementById("today-minimonth"),
-      "freebusy",
-      aSection == "minimonth"
-    );
+    document.getElementById("today-minimonth").setAttribute("freebusy", aSection == "minimonth");
   },
 
   /**

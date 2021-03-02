@@ -136,15 +136,12 @@ function loadCalendarManager() {
     let item = document.createXULElement("richlistitem");
     item.searchLabel = calendar.name;
     item.setAttribute("calendar-id", calendar.id);
-    if (calendar.getProperty("disabled")) {
-      item.setAttribute("calendar-disabled", "true");
-    }
-    if (!Components.isSuccessCode(calendar.getProperty("currentStatus"))) {
-      item.setAttribute("calendar-readfailed", "true");
-    }
-    if (calendar.readOnly) {
-      item.setAttribute("calendar-readonly", "true");
-    }
+    item.toggleAttribute("calendar-disabled", calendar.getProperty("disabled"));
+    item.toggleAttribute(
+      "calendar-readfailed",
+      !Components.isSuccessCode(calendar.getProperty("currentStatus"))
+    );
+    item.toggleAttribute("calendar-readonly", calendar.readOnly);
 
     let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
     let image = document.createXULElement("image");
@@ -392,11 +389,11 @@ function loadCalendarManager() {
 
       switch (name) {
         case "disabled":
-          setBooleanAttribute(item, "calendar-disabled", value);
-          setBooleanAttribute(item.querySelector(".calendar-displayed"), "hidden", value);
+          item.toggleAttribute("calendar-disabled", value);
+          item.querySelector(".calendar-displayed").hidden = value;
           // Update the "ENABLE" button.
           let enableButton = item.querySelector(".calendar-enable-button");
-          setBooleanAttribute(enableButton, "hidden", !value);
+          enableButton.hidden = !value;
           // We need to set the string if the button was hidden on creation.
           if (value && enableButton.label == "") {
             if (!bundle) {
@@ -418,17 +415,17 @@ function loadCalendarManager() {
           }
           break;
         case "calendar-main-in-composite":
-          setBooleanAttribute(item.querySelector(".calendar-displayed"), "checked", value);
+          item.querySelector(".calendar-displayed").checked = value;
           break;
         case "name":
           item.searchLabel = calendar.name;
           item.querySelector(".calendar-name").value = value;
           break;
         case "currentStatus":
-          setBooleanAttribute(item, "calendar-readfailed", !Components.isSuccessCode(value));
+          item.toggleAttribute("calendar-readfailed", !Components.isSuccessCode(value));
           break;
         case "readOnly":
-          setBooleanAttribute(item, "calendar-readonly", value);
+          item.toggleAttribute("calendar-readonly", value);
           break;
       }
     },

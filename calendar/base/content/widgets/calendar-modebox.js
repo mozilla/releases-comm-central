@@ -4,7 +4,7 @@
 
 "use strict";
 
-/* globals MozXULElement setBooleanAttribute */
+/* globals MozXULElement */
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -144,7 +144,7 @@
         display = !collapsedInMode;
       }
 
-      setBooleanAttribute(this, "collapsed", !display || !this.isVisibleInMode());
+      this.collapsed = !display || !this.isVisibleInMode();
 
       if (pushModeCollapsedAttribute) {
         if (!display) {
@@ -169,7 +169,7 @@
         let command = document.getElementById(this.getAttribute("refcontrol"));
         if (command) {
           command.setAttribute("checked", display);
-          setBooleanAttribute(command, "disabled", !this.isVisibleInMode());
+          command.disabled = !this.isVisibleInMode();
         }
       }
     }

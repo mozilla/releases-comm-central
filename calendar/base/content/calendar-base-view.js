@@ -550,6 +550,7 @@
 
     set rotated(rotated) {
       this.setAttribute("orient", rotated ? "horizontal" : "vertical");
+      this.toggleAttribute("rotated", rotated);
     }
 
     get rotated() {

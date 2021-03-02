@@ -540,13 +540,13 @@ function updateLink(itemUrlString, linkRow, urlLink) {
 
   if (linkCommand) {
     // Disable if there is no url.
-    setBooleanAttribute(linkCommand, "disabled", !itemUrlString);
+    linkCommand.disabled = !itemUrlString;
   }
 
   if ((linkCommand && linkCommand.getAttribute("checked") != "true") || !itemUrlString.length) {
     // Hide if there is no url, or the menuitem was chosen so that the url
     // should be hidden
-    setBooleanAttribute(linkRow, "hidden", true);
+    linkRow.hidden = true;
   } else {
     let handler, uri;
     try {
@@ -554,7 +554,7 @@ function updateLink(itemUrlString, linkRow, urlLink) {
       handler = Services.io.getProtocolHandler(uri.scheme);
     } catch (e) {
       // No protocol handler for the given protocol, or invalid uri
-      setBooleanAttribute(linkRow, "hidden", true);
+      linkRow.hidden = true;
       return;
     }
 
@@ -562,7 +562,7 @@ function updateLink(itemUrlString, linkRow, urlLink) {
     // and there is an external app for the scheme
     handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
     let show = !handler || handler.externalAppExistsForScheme(uri.scheme);
-    setBooleanAttribute(linkRow, "hidden", !show);
+    linkRow.hidden = !show;
 
     setTimeout(() => {
       // HACK the url link doesn't crop when setting the value in onLoad

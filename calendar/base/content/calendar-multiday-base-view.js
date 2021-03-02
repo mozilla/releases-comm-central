@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* global calendarNavigationBar, currentView, MozElements, MozXULElement, Services,
-   setBooleanAttribute, timeIndicator, gCurrentMode */
+   timeIndicator, gCurrentMode */
 
 "use strict";
 
@@ -543,11 +543,11 @@
      */
     enableTimeIndicator() {
       const hideIndicator = this.mTimeIndicatorInterval == 0;
-      setBooleanAttribute(this.timeBarTimeIndicator, "hidden", hideIndicator);
+      this.timeBarTimeIndicator.hidden = hideIndicator;
 
       const todayColumn = this.findColumnForDate(this.today());
       if (todayColumn) {
-        setBooleanAttribute(todayColumn.column.timeIndicatorBox, "hidden", hideIndicator);
+        todayColumn.column.timeIndicatorBox.hidden = hideIndicator;
       }
 
       // Update the timer but only under some circumstances, otherwise
@@ -1138,7 +1138,7 @@
         // Since the calendar-header-container boxes have the same vertical
         // orientation for normal and rotated views, it needs an attribute
         // "rotated" in order to have different css rules.
-        setBooleanAttribute(dayBox, "rotated", orient == "horizontal");
+        dayBox.rotated = orient == "horizontal";
       };
 
       this.mDateColumns = [];
@@ -1213,11 +1213,7 @@
             dayHeaderBox.setAttribute("relation", relation_);
             dayEventsBox.setAttribute("relation", relation_);
             labelbox.setAttribute("relation", relation_);
-            setBooleanAttribute(
-              dayEventsBox.timeIndicatorBox,
-              "hidden",
-              this.mTimeIndicatorInterval == 0
-            );
+            dayEventsBox.timeIndicatorBox.hidden = this.mTimeIndicatorInterval == 0;
             updateTimeIndicator = true;
 
             // Due to equalsize=always being set on the dayboxes
