@@ -471,6 +471,7 @@ nsresult nsMessenger::CompleteOpenURL() {
 NS_IMETHODIMP
 nsMessenger::OpenURL(const nsACString& aURL) {
   mURLToLoad = aURL;
+  RemotenessChangeOptions changeState;
 
   nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(mWindow);
   nsIDocShell* rootShell = win->GetDocShell();
@@ -490,11 +491,13 @@ nsMessenger::OpenURL(const nsACString& aURL) {
     return CompleteOpenURL();
   }
 
+
   // This browsing context is in a child process. Change it to the parent
   // process, then load the message.
+  changeState.mRemoteType = NOT_REMOTE_TYPE;
   canonicalBrowsingContext
-      ->ChangeRemoteness(NOT_REMOTE_TYPE,
-                         nsContentUtils::GenerateLoadIdentifier(), false, 0)
+      ->ChangeRemoteness(changeState,
+                         nsContentUtils::GenerateLoadIdentifier())
       ->Then(
           GetMainThreadSerialEventTarget(), __func__,
           [flo, self = RefPtr{this}](
