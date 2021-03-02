@@ -7,13 +7,15 @@
 
 /* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { MailE10SUtils } = ChromeUtils.import(
-  "resource:///modules/MailE10SUtils.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  setTimeout: "resource://gre/modules/Timer.jsm",
+  clearTimeout: "resource://gre/modules/Timer.jsm",
+  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 /* globals for a particular window */
 var printSettings = null;
@@ -51,6 +53,7 @@ function addProgressListener() {
   getSourceBrowser().webProgress.addProgressListener(
     {
       loadingStarted: false,
+      timer: null,
       QueryInterface: ChromeUtils.generateQI([
         "nsIWebProgressListener",
         "nsISupportsWeakReference",
@@ -58,9 +61,17 @@ function addProgressListener() {
       onStateChange(progress, request, state, nsresult) {
         if (state & Ci.nsIWebProgressListener.STATE_START) {
           this.loadingStarted = true;
+          this.timer = setTimeout(() => {
+            if (this.loadingStarted) {
+              this.loadingStarted = false;
+              // Start print even when some remote contents are still loading.
+              startPrint();
+            }
+          }, 10000);
         } else if (state & Ci.nsIWebProgressListener.STATE_STOP) {
           if (this.loadingStarted) {
             this.loadingStarted = false;
+            clearTimeout(this.timer);
             // Start print when an URI is loaded.
             startPrint();
           }
