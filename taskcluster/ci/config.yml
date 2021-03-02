@@ -11,7 +11,6 @@ treeherder:
         # Images/Packages/Toolchain
         'Deb8': 'Packages for Debian 8'
         'Deb8-32': 'Packages for Debian 8 32-bits'
-        'Deb9': 'Packages for Debian 9'
         'Deb10': 'Packages for Debian 10'
         'Fetch': 'Fetch and store content'
         'I': 'Docker Image Builds'
