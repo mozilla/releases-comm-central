@@ -6,9 +6,7 @@
  *          ltnSaveMailIdentitySelection, ltnNotifyOnIdentitySelection
  */
 
-/* global MozElements */
-
-/* import-globals-from ../../base/content/calendar-ui-utils.js */
+/* global MozElements, addMenuItem */
 
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -65,15 +63,11 @@ function ltnInitMailIdentitiesRow(aCalendar) {
   for (let identity of identities) {
     addMenuItem(menuPopup, identity.identityName, identity.key);
   }
-  try {
-    let sel = aCalendar.getProperty("imip.identity");
-    if (sel) {
-      sel = sel.QueryInterface(Ci.nsIMsgIdentity);
-    }
-    menuListSelectItem("email-identity-menulist", sel ? sel.key : "none");
-  } catch (exc) {
-    // Don't select anything if the identity can't be found
+  let sel = aCalendar.getProperty("imip.identity");
+  if (sel) {
+    sel = sel.QueryInterface(Ci.nsIMsgIdentity);
   }
+  document.getElementById("email-identity-menulist").value = sel ? sel.key : "none";
 }
 
 /**

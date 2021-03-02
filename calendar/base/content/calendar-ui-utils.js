@@ -7,7 +7,7 @@
  *          enableElementWithLock,
  *          appendCalendarItems, checkRadioControl,
  *          checkRadioControlAppmenu,
- *          updateUnitLabelPlural, updateMenuLabelsPlural, menuListSelectItem,
+ *          updateUnitLabelPlural, updateMenuLabelsPlural,
  *          getOptimalMinimumWidth, getOptimalMinimumHeight,
  *          setupAttendanceMenu
  */
@@ -287,47 +287,6 @@ function updateMenuLabelsPlural(aLengthFieldId, aMenuId) {
   let saveSelectedIndex = menu.selectedIndex;
   menu.selectedIndex = -1;
   menu.selectedIndex = saveSelectedIndex;
-}
-
-/**
- * Select value in menuList. Throws string if no such value.
- *
- * XXX Isn't it enough to just do menuList.value = value ?
- *
- * @param menuListId    The ID of the menulist to check.
- * @param value         The value to set.
- * @throws              String error if value not found.
- */
-function menuListSelectItem(menuListId, value) {
-  let menuList = document.getElementById(menuListId);
-  let index = menuListIndexOf(menuList, value);
-  if (index == -1) {
-    throw new Error("menuListSelectItem: No such Element: " + value);
-  } else {
-    menuList.selectedIndex = index;
-  }
-}
-
-/**
- * Find index of menuitem with the given value, or return -1 if not found.
- *
- * @param menuListId    The XUL menulist node to check.
- * @param value         The value to look for.
- * @return              The child index of the node that matches, or -1.
- */
-function menuListIndexOf(menuList, value) {
-  let items = menuList.menupopup.children;
-  let index = -1;
-  for (let i = 0; i < items.length; i++) {
-    let element = items[i];
-    if (element.nodeName == "menuitem") {
-      index++;
-    }
-    if (element.getAttribute("value") == value) {
-      return index;
-    }
-  }
-  return -1; // not found
 }
 
 /**
