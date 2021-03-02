@@ -127,6 +127,7 @@ enum {
   index_Company,
   index_WorkWebPage,
   index_HomeWebPage,
+  index_Notes,
   index_LastProp
 };
 
@@ -155,7 +156,8 @@ static const ULONG OutlookCardMAPIProps[] = {
     PR_DEPARTMENT_NAME_W,
     PR_COMPANY_NAME_W,
     PR_BUSINESS_HOME_PAGE_W,
-    PR_PERSONAL_HOME_PAGE_W};
+    PR_PERSONAL_HOME_PAGE_W,
+    PR_BODY_W};
 
 static const char* CardStringProperties[] = {
     kFirstNameProperty,   kLastNameProperty,     kDisplayNameProperty,
@@ -172,7 +174,8 @@ static const char* CardStringProperties[] = {
     kHomePhoneProperty,   kWorkPhoneProperty,    kFaxProperty,
     kPagerProperty,       kCellularProperty,
 
-    kJobTitleProperty,    kDepartmentProperty,   kCompanyProperty};
+    kJobTitleProperty,    kDepartmentProperty,   kCompanyProperty,
+    kNotesProperty};
 
 static const char* CardIntProperties[] = {
     kBirthYearProperty, kBirthMonthProperty, kBirthDayProperty};

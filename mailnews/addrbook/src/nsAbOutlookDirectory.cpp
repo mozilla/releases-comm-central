@@ -1176,6 +1176,7 @@ nsresult nsAbOutlookDirectory::ModifyCardInternal(nsIAbCard* aModifiedCard,
                                       properties[index_WorkWebPage]);
   aModifiedCard->GetPropertyAsAString(kHomeWebPageProperty,
                                       properties[index_HomeWebPage]);
+  aModifiedCard->GetPropertyAsAString(kNotesProperty, properties[index_Notes]);
   if (!mapiAddBook->SetPropertiesUString(dirEntry, cardEntry,
                                          OutlookCardMAPIProps, index_LastProp,
                                          properties)) {
@@ -1327,6 +1328,7 @@ nsresult nsAbOutlookDirectory::OutlookCardForURI(const nsACString& aUri,
     SETPROP(kCompanyProperty, index_Company);
     SETPROP(kWorkWebPageProperty, index_WorkWebPage);
     SETPROP(kHomeWebPageProperty, index_HomeWebPage);
+    SETPROP(kNotesProperty, index_Notes);
   }
 
   ULONG cardType = 0;
