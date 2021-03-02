@@ -12,7 +12,6 @@ linux64/opt:
         symbol: B
     worker-type: b-linux
     worker:
-        docker-image: {in-tree: "debian8-amd64-build"}
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
@@ -40,6 +39,7 @@ linux64/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - linux64-sysroot
 
 linux64-shippable/opt:
     description: "Linux64 Shippable"
@@ -58,7 +58,6 @@ linux64-shippable/opt:
         symbol: B
     worker-type: b-linux
     worker:
-        docker-image: {in-tree: "debian8-amd64-build"}
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
@@ -86,6 +85,7 @@ linux64-shippable/opt:
             - linux64-node
             - linux64-rust
             - linux64-rust-size
+            - linux64-sysroot
 
 linux64/debug:
     description: "Linux64 Debug"
@@ -97,7 +97,6 @@ linux64/debug:
         symbol: B
     worker-type: b-linux
     worker:
-        docker-image: {in-tree: "debian8-amd64-build"}
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
@@ -127,6 +126,7 @@ linux64/debug:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - linux64-sysroot
 
 linux64-asan/opt:
     description: "Linux64 Opt ASAN"
@@ -172,6 +172,7 @@ linux64-asan/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - linux64-sysroot
 
 
 linux64-aarch64/opt:
@@ -228,7 +229,6 @@ linux/opt:
         symbol: B
     worker-type: b-linux
     worker:
-        docker-image: {in-tree: "debian8-i386-build"}
         max-run-time: 7200
     run:
         using: mozharness
@@ -255,6 +255,7 @@ linux/opt:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - linux32-sysroot
 
 linux-shippable/opt:
     description: "Linux32 Shippable"
@@ -273,7 +274,6 @@ linux-shippable/opt:
         symbol: B
     worker-type: b-linux
     worker:
-        docker-image: {in-tree: "debian8-i386-build"}
         max-run-time: 7200
         env:
             MOZ_AUTOMATION_PACKAGE_TESTS: "1"
@@ -302,6 +302,7 @@ linux-shippable/opt:
             - linux64-node
             - linux64-rust
             - linux64-rust-size
+            - linux32-sysroot
 
 linux/debug:
     description: "Linux32 Debug"
@@ -313,7 +314,6 @@ linux/debug:
         symbol: B
     worker-type: b-linux
     worker:
-        docker-image: {in-tree: "debian8-i386-build"}
         max-run-time: 7200
     run:
         using: mozharness
@@ -342,3 +342,4 @@ linux/debug:
             - linux64-rust
             - linux64-rust-size
             - linux64-sccache
+            - linux32-sysroot
