@@ -339,7 +339,13 @@ function updateEditableFields(aDisable) {
   if (aDisable) {
     gMsgCompose.editor.flags |= Ci.nsIEditor.eEditorReadonlyMask;
   } else {
+    // Setting flags can cause the spell checker to become enabled (yes, even
+    // if eEditorSkipSpellCheck is one of the flags) so remember the state and
+    // restore it after setting flags.
+    let checker = GetCurrentEditor().getInlineSpellChecker(true);
+    let spellCheckWasEnabled = checker.enableRealTimeSpell;
     gMsgCompose.editor.flags &= ~Ci.nsIEditor.eEditorReadonlyMask;
+    checker.enableRealTimeSpell = spellCheckWasEnabled;
   }
 
   // Disable all the input fields nad labels.
