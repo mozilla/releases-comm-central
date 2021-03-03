@@ -54,6 +54,17 @@ nsSmtpServer::Observe(nsISupports* aSubject, const char* aTopic,
   // When the state of the password manager changes we need to clear the
   // password from the cache in case the user just removed it.
   if (strcmp(aTopic, "passwordmgr-storage-changed") == 0) {
+    // Check that the notification is for this server.
+    nsCOMPtr<nsILoginInfo> loginInfo = do_QueryInterface(aSubject);
+    if (loginInfo) {
+      nsAutoString hostnameInfo;
+      loginInfo->GetHostname(hostnameInfo);
+      nsAutoCString hostname;
+      GetHostname(hostname);
+      nsAutoCString fullName;
+      fullName = "smtp://"_ns + hostname;
+      if (!fullName.Equals(NS_ConvertUTF16toUTF8(hostnameInfo))) return NS_OK;
+    }
     m_password.Truncate();
   } else if (strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID) == 0) {
     // Now remove ourselves from the observer service as well.
