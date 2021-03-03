@@ -33,15 +33,11 @@ if CONFIG["CC_TYPE"] == "clang-cl":
 # LLVM's libc++ statically to circumvent the issues with undesired libstdc++
 # symbols that keep popping up
 if CONFIG["MOZ_LIBSTDCXX_TARGET_VERSION"]:
-    static_libdir = {"i686": "-L{}/../lib32",
-                     "x86_64": "-L{}"}[CONFIG["TARGET_CPU"]].format(
-        CONFIG["MOZ_LIBCLANG_PATH"])
+    static_libdir = {"i686": "-L{}/../lib32", "x86_64": "-L{}"}[
+        CONFIG["TARGET_CPU"]
+    ].format(CONFIG["MOZ_LIBCLANG_PATH"])
 
     DEFINES["_GLIBCXX_USE_CXX11_ABI"] = 0
     CXXFLAGS += ["-stdlib=libc++"]
     LDFLAGS += ["-nostdlib++"]
-    OS_LIBS += [
-        static_libdir,
-        "-l:libc++.a",
-        "-l:libc++abi.a"
-    ]
+    OS_LIBS += [static_libdir, "-l:libc++.a", "-l:libc++abi.a"]
