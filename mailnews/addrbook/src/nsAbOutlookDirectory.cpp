@@ -164,6 +164,38 @@ NS_IMETHODIMP nsAbOutlookDirectory::HasDirectory(nsIAbDirectory* aDirectory,
   return NS_OK;
 }
 
+// This is an exact copy of nsAbOSXDirectory::CardForEmailAddress().
+NS_IMETHODIMP
+nsAbOutlookDirectory::CardForEmailAddress(const nsACString& aEmailAddress,
+                                          nsIAbCard** aResult) {
+  NS_ENSURE_ARG_POINTER(aResult);
+
+  *aResult = nullptr;
+
+  if (aEmailAddress.IsEmpty()) return NS_OK;
+
+  nsIMutableArray* list = m_IsMailList ? m_AddressList : mCardList;
+
+  if (!list) return NS_OK;
+
+  uint32_t length;
+  nsresult rv = list->GetLength(&length);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIAbCard> card;
+
+  for (uint32_t i = 0; i < length && !*aResult; ++i) {
+    card = do_QueryElementAt(list, i, &rv);
+    if (NS_SUCCEEDED(rv)) {
+      bool hasEmailAddress = false;
+
+      rv = card->HasEmailAddress(aEmailAddress, &hasEmailAddress);
+      if (NS_SUCCEEDED(rv) && hasEmailAddress) NS_IF_ADDREF(*aResult = card);
+    }
+  }
+  return NS_OK;
+}
+
 nsresult nsAbOutlookDirectory::ExtractCardEntry(nsIAbCard* aCard,
                                                 nsCString& aEntry) {
   aEntry.Truncate();

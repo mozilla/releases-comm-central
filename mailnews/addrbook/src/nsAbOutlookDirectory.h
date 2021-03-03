@@ -42,6 +42,8 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   NS_IMETHOD AddMailList(nsIAbDirectory* aMailList,
                          nsIAbDirectory** addedList) override;
   NS_IMETHOD EditMailListToDatabase(nsIAbCard* listCard) override;
+  NS_IMETHOD CardForEmailAddress(const nsACString& aEmailAddress,
+                                 nsIAbCard** aResult) override;
 
   // nsAbDirProperty method
   NS_IMETHOD Init(const char* aUri) override;
