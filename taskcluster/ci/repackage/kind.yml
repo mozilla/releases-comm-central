@@ -25,7 +25,7 @@ only-for-build-platforms:
 job-template:
     worker-type: 'b-linux'
     worker:
-        docker-image: {"in-tree": "debian8-amd64-build"}
+        docker-image: {"in-tree": "debian10-amd64-build"}
     mozharness:
         comm-checkout: true
         config-paths:
