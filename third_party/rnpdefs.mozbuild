@@ -9,7 +9,6 @@ AllowCompilerWarnings()
 DisableStlWrapping()
 NoVisibilityFlags()
 
-
 rnp_dist_info = "{} {} rnp".format(
     CONFIG["MOZ_APP_DISPLAYNAME"], CONFIG["MOZ_APP_VERSION_DISPLAY"]
 )
@@ -34,11 +33,15 @@ if CONFIG["CC_TYPE"] == "clang-cl":
 # LLVM's libc++ statically to circumvent the issues with undesired libstdc++
 # symbols that keep popping up
 if CONFIG["MOZ_LIBSTDCXX_TARGET_VERSION"]:
+    static_libdir = {"i686": "-L{}/../lib32",
+                     "x86_64": "-L{}"}[CONFIG["TARGET_CPU"]].format(
+        CONFIG["MOZ_LIBCLANG_PATH"])
+
     DEFINES["_GLIBCXX_USE_CXX11_ABI"] = 0
     CXXFLAGS += ["-stdlib=libc++"]
     LDFLAGS += ["-nostdlib++"]
-    if CONFIG["TARGET_CPU"] == "i686":
-        OS_LIBS += [
-            "-L{}/../lib32".format(CONFIG["MOZ_LIBCLANG_PATH"]),
-        ]
-    OS_LIBS += ["-l:libc++.a", "-l:libc++abi.a"]
+    OS_LIBS += [
+        static_libdir,
+        "-l:libc++.a",
+        "-l:libc++abi.a"
+    ]
