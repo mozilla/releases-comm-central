@@ -1608,7 +1608,7 @@ var RNP = {
     permissive = true
   ) {
     if (!keyBlockStr) {
-      throw new Error("invalid data parameter");
+      throw new Error(`Invalid parameter; keyblock: ${keyBlockStr}`);
     }
 
     if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
