@@ -65,10 +65,13 @@ function ListFields() {
     return;
   }
 
-  var count = top.fieldMap.mapSize;
-  var index;
+  // Add rows for every mapped field.
+  let count = top.fieldMap.mapSize;
   for (let i = 0; i < count; i++) {
-    index = top.fieldMap.GetFieldMap(i);
+    let index = top.fieldMap.GetFieldMap(i);
+    if (index == -1) {
+      continue;
+    }
     AddFieldToList(
       top.fieldMap.GetFieldDescription(index),
       index,
@@ -76,11 +79,22 @@ function ListFields() {
     );
   }
 
+  // Add rows every possible field we don't already have a row for.
   count = top.fieldMap.numMozFields;
   for (let i = 0; i < count; i++) {
     if (!IndexInMap(i)) {
       AddFieldToList(top.fieldMap.GetFieldDescription(i), i, false);
     }
+  }
+
+  // Add dummy rows if the data has more fields than Thunderbird does.
+  let data = top.addInterface.GetData("sampleData-0");
+  if (!(data instanceof Ci.nsISupportsString)) {
+    return;
+  }
+  count = data.data.split("\n").length;
+  for (let i = gListbox.itemCount; i < count; i++) {
+    AddFieldToList(null, -1, false);
   }
 }
 
@@ -93,14 +107,16 @@ function CreateField(name, index, on) {
   var checkboxCell = document.createXULElement("hbox");
   checkboxCell.setAttribute("style", "width: var(--column1width)");
   let checkbox = document.createXULElement("checkbox");
-  if (on) {
+  if (!name) {
+    checkbox.disabled = true;
+  } else if (on) {
     checkbox.setAttribute("checked", "true");
   }
   checkboxCell.appendChild(checkbox);
 
   var firstCell = document.createXULElement("label");
   firstCell.setAttribute("style", "width: var(--column2width)");
-  firstCell.setAttribute("value", name);
+  firstCell.setAttribute("value", name || "");
 
   var secondCell = document.createXULElement("label");
   secondCell.setAttribute("class", "importsampledata");

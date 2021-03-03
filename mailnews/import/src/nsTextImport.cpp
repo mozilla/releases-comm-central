@@ -582,6 +582,9 @@ NS_IMETHODIMP ImportAddressImpl::InitFieldMap(nsIImportFieldMap* fieldMap) {
           }
           while (*pStr && (*pStr != ',')) pStr++;
           if (*pStr == ',') pStr++;
+          if (!active) {
+            fNum *= -1; // Re-add the stripped minus sign.
+          }
           fieldMap->SetFieldMap(-1, fNum);
           fieldMap->SetFieldActive(fIndex, active);
           fIndex++;
