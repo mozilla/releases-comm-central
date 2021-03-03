@@ -7784,11 +7784,10 @@ var envelopeDragObserver = {
     }
 
     // Interrupt if we're not dropping a file from outside the compose window
-    // and we're not draggin an address from the contacts sidebar.
+    // and we're not draggin a supported data type.
     if (
       !event.dataTransfer.files.length &&
-      !event.dataTransfer.types.includes("text/x-moz-address") &&
-      !event.dataTransfer.types.includes("text/plain")
+      !flavors.some(f => event.dataTransfer.types.includes(f))
     ) {
       return;
     }
@@ -7796,7 +7795,7 @@ var envelopeDragObserver = {
     // Handle the inline adding of images without triggering the creation of
     // any attachment if the user dropped only images above the #addInline box.
     if (
-      ["addInline", "addInlineLabel"].includes(event.target.id) &&
+      event.target.id == "addInline" &&
       !this.isNotDraggingOnlyImages(event.dataTransfer)
     ) {
       this.appendImagesInline(event.dataTransfer);
@@ -7953,8 +7952,11 @@ var envelopeDragObserver = {
         continue;
       }
 
-      // Show the drop overlay only if the dragged element is a file.
-      if (event.dataTransfer.files.length) {
+      // Show the drop overlay only if we dragged files or supperted types.
+      if (
+        event.dataTransfer.files.length ||
+        event.dataTransfer.types.includes("text/x-moz-message")
+      ) {
         event.stopPropagation();
         event.preventDefault();
         document.getElementById("dropAttachmentOverlay").classList.add("show");
@@ -7962,13 +7964,13 @@ var envelopeDragObserver = {
         document.l10n.setAttributes(
           document.getElementById("addAsAttachmentLabel"),
           "drop-file-label-attachment",
-          { count: event.dataTransfer.files.length }
+          { count: event.dataTransfer.files.length || 1 }
         );
 
         document.l10n.setAttributes(
           document.getElementById("addInlineLabel"),
           "drop-file-label-inline",
-          { count: event.dataTransfer.files.length }
+          { count: event.dataTransfer.files.length || 1 }
         );
 
         // Show the #addInline box only if the user is dragging only images and
@@ -7977,7 +7979,8 @@ var envelopeDragObserver = {
           .getElementById("addInline")
           .classList.toggle(
             "hidden",
-            this.isNotDraggingOnlyImages(event.dataTransfer) ||
+            !event.dataTransfer.files.length ||
+              this.isNotDraggingOnlyImages(event.dataTransfer) ||
               !gMsgCompose.composeHTML
           );
         continue;
