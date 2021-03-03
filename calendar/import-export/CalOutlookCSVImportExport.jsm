@@ -419,7 +419,25 @@ CalOutlookCSVImporter.prototype = {
       return null;
     }
 
-    date.year = datepart[aLocale.dateYearIndex];
+    let year = parseInt(datepart[aLocale.dateYearIndex], 10);
+    if (year >= 0 && year < 100) {
+      // If 0 <= year < 100, treat as 2-digit year:
+      //   parse year as up to 30 years in future or 69 years in past.
+      //   (Covers 30-year mortgage and most working people's birthdate.)
+      // otherwise will be treated as four digit year.
+      //
+      // Matches the behaviour in datetimepickers.js.
+      let currentYear = new Date().getFullYear();
+      let currentCentury = currentYear - (currentYear % 100);
+      year = currentCentury + year;
+      if (year < currentYear - 69) {
+        year += 100;
+      }
+      if (year > currentYear + 30) {
+        year -= 100;
+      }
+    }
+    date.year = year;
     date.month = datepart[aLocale.dateMonthIndex] - 1;
     date.day = datepart[aLocale.dateDayIndex];
     if (timepart) {
