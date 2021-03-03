@@ -44,6 +44,11 @@ class CryptoAPI {
       })
       .catch(gotResult => {
         console.log("CryptoAPI.sync() failed result: %o", gotResult);
+        if (gotResult instanceof Error) {
+          inspector.exitNestedEventLoop();
+          throw gotResult;
+        }
+
         res = gotResult;
         inspector.exitNestedEventLoop();
       });

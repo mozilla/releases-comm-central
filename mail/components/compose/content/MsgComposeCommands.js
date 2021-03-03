@@ -4742,7 +4742,10 @@ async function CompleteGenericSendMessage(msgType) {
     msgcomposeWindow.setAttribute("msgtype", msgType);
     msgcomposeWindow.dispatchEvent(event);
     if (event.defaultPrevented) {
-      throw Components.Exception("", Cr.NS_ERROR_ABORT);
+      throw Components.Exception(
+        "compose-send-message prevented",
+        Cr.NS_ERROR_ABORT
+      );
     }
 
     gAutoSaving = msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft;
