@@ -145,8 +145,10 @@ try {
 } catch (e) {}
 
 // Temporarily store the height of the attachment container allowing users to
-// keep the resized height when toggling the attachment panel on and off.
-var kAttachmentHeight;
+// keep the resized height when toggling the attachment panel on and off. Set
+// a default value in order to properly run the condition against a new height
+// value when a message with multiple attachments is forwarded.
+var kAttachmentHeight = 0;
 
 // i18n globals
 var _gComposeBundle;
@@ -6819,7 +6821,9 @@ function onToggleAttachmentPane(event) {
     return;
   }
 
-  toggleAttachmentPane("toggle");
+  toggleAttachmentPane(
+    !document.getElementById("attachmentsBox").collapsed ? "hide" : "show"
+  );
 }
 
 function showReorderAttachmentsPanel() {
