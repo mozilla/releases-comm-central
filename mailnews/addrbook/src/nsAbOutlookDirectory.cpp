@@ -405,13 +405,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::EditMailListToDatabase(
                                        name.get()))
     return NS_ERROR_FAILURE;
 
-  // Let's skip this for now, see bug 1693154. With this call, editing
-  // the list name will kill all the list members :-(
-  // The function needs to be revisited since `CreateCard()` will not
-  // add a card to a distribution list. That code is totally defective.
-  // rv = CommitAddressList();
-  // NS_ENSURE_SUCCESS(rv, rv);
-
   // Iterate over the cards of the parent directory to find the one
   // representing the mailing list and also change its name.
   nsAutoCString uri(mURI);
@@ -873,60 +866,6 @@ nsresult nsAbOutlookDirectory::NotifyCardPropertyChanges(nsIAbCard* aOld,
             .get());
   }
   return NS_OK;
-}
-
-// This is called from EditMailListToDatabase.
-// We got m_AddressList containing the list of cards the mailing
-// list is supposed to contain at the end.
-nsresult nsAbOutlookDirectory::CommitAddressList(void) {
-  if (!m_IsMailList) {
-    PRINTF(("We are not in a mailing list, no commit can be done.\n"));
-    return NS_ERROR_UNEXPECTED;
-  }
-
-  nsresult rv;
-  uint32_t i = 0;
-  nsCOMPtr<nsIMutableArray> oldList(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = GetCards(oldList, nullptr);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (!m_AddressList) return NS_ERROR_NULL_POINTER;
-
-  uint32_t nbCards = 0;
-  rv = m_AddressList->GetLength(&nbCards);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsISupports> element;
-  nsCOMPtr<nsIAbCard> newCard;
-  uint32_t pos;
-
-  nsTArray<RefPtr<nsIAbCard>> cardsToDelete;
-  for (i = 0; i < nbCards; ++i) {
-    element = do_QueryElementAt(m_AddressList, i, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (NS_SUCCEEDED(oldList->IndexOf(0, element, &pos))) {
-      rv = oldList->RemoveElementAt(pos);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      // The entry was not already there
-      nsCOMPtr<nsIAbCard> card(do_QueryInterface(element, &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      rv = CreateCard(card, getter_AddRefs(newCard));
-      NS_ENSURE_SUCCESS(rv, rv);
-      m_AddressList->ReplaceElementAt(newCard, i);
-    } else {
-      RefPtr<nsIAbCard> cardToDelete = do_QueryObject(element);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      cardsToDelete.AppendElement(cardToDelete);
-    }
-  }
-  return DeleteCards(cardsToDelete);
 }
 
 nsresult nsAbOutlookDirectory::UpdateAddressList(void) {
