@@ -272,11 +272,14 @@ function fillFolderPaneContextMenu(aEvent) {
     return false;
   }
 
-  // Do not show menu if rows are selected.
   var bundle = document.getElementById("bundle_messenger");
   var folders = gFolderTreeView.getSelectedFolders();
 
+  // Do not show the context menu if no rows are selected.
   if (!folders.length) {
+    // Force the restore of the previously selected folder to avoid making the
+    // tree unresponsive if the right click happens on a Mode Header.
+    RestoreSelectionWithoutContentLoad(gFolderDisplay.tree);
     return false;
   }
 
