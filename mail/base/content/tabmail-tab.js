@@ -43,7 +43,7 @@
               <hbox class="tab-line"></hbox>
             </vbox>
             <hbox class="tab-content" align="center">
-              <image class="tab-throbber" role="presentation"></image>
+              <hbox class="tab-throbber" role="presentation"></hbox>
               <image class="tab-icon-image" role="presentation"></image>
               <hbox class="tab-label-container"
                     onoverflow="this.setAttribute('textoverflow', 'true');"
