@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from AccountManager.js */
-/* globals SelectFolder */ // From messageWindow.js or msgMail3PaneWindow.js.
+/* globals SelectFolder, LoadPostAccountWizard */ // From messageWindow.js or msgMail3PaneWindow.js.
 /* globals MsgGetMessage */ // From mailWindowOverlay.js.
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -416,9 +416,6 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
   if (!args) {
     args = {};
   }
-  if (!aMsgWindow) {
-    aMsgWindow = MailServices.mailSession.topmostMsgWindow;
-  }
 
   args.msgWindow = aMsgWindow;
 
@@ -472,7 +469,17 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
 
   let windowParams = "chrome,titlebar,centerscreen,width=640,height=480";
 
-  if (!args.success) {
+  // A new email address was successfully created and we need to load the UI
+  // in case the account was created but the UI wasn't properly loaded. This
+  // might happen if the user switches to the account provisioner dialog from
+  // the emailWizard dialog on first launch. The okCallback of the emailWizard
+  // is overwritten and it doesn't properly go through the verifyAccount().
+  // FIXME: This can be removed after the account creation is moved to a tab.
+  if (args.success) {
+    if (document.getElementById("folderPaneBox").collapsed) {
+      LoadPostAccountWizard(true);
+    }
+  } else {
     args.success = false;
     // If we're not opening up the success dialog, then our window should be
     // modal.
@@ -481,7 +488,7 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
 
   // NOTE: If you're a developer, and you notice that the jQuery code in
   // accountProvisioner.xhtml isn't throwing errors or warnings, that's due
-  // to bug 688273.  Just make the window non-modal to get those errors and
+  // to bug 688273. Just make the window non-modal to get those errors and
   // warnings back, and then clear this comment when bug 688273 is closed.
   window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml",

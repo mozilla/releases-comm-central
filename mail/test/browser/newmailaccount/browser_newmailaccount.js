@@ -63,6 +63,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
+);
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
@@ -75,6 +78,7 @@ var kSuggestFromNamePref = "mail.provider.suggestFromName";
 var kProviderListPref = "mail.provider.providerList";
 var kDefaultServerPort = 4444;
 var kDefaultServerRoot = "http://localhost:" + kDefaultServerPort;
+var gDefaultEngine;
 
 Services.prefs.setCharPref(kProviderListPref, url + "providerList");
 Services.prefs.setCharPref(kSuggestFromNamePref, url + "suggestFromName");
@@ -89,13 +93,29 @@ var gProvisionerEnabled = Services.prefs.getBoolPref(kProvisionerEnabledPref);
 var gOldAcceptLangs = Services.locale.requestedLocales;
 var gNumAccounts;
 
+var originalAlertsServiceCID;
+// We need a mock alerts service to capture notification events when loading the
+// UI after a successful account configuration in order to catch the alert
+// triggered when trying to connect to a fake IMAP server.
+class MockAlertsService {
+  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
+  showAlertNotification() {}
+}
+
 add_task(function setupModule(module) {
   requestLongerTimeout(2);
+
+  originalAlertsServiceCID = MockRegistrar.register(
+    "@mozilla.org/alerts-service;1",
+    MockAlertsService
+  );
 
   // Make sure we enable the Account Provisioner.
   Services.prefs.setBoolPref(kProvisionerEnabledPref, true);
   // Restrict the user's language to just en-US
   Services.locale.requestedLocales = ["en-US"];
+
+  gDefaultEngine = Services.search.defaultEngine;
 
   // Add a "bar" search engine that we can switch to be the default.
   let engineAdded = false;
@@ -108,11 +128,25 @@ add_task(function setupModule(module) {
   mc.waitFor(() => engineAdded);
 });
 
-registerCleanupFunction(function teardownModule(module) {
+registerCleanupFunction(async function teardownModule(module) {
   // Put the mail.provider.enabled pref back the way it was.
   Services.prefs.setBoolPref(kProvisionerEnabledPref, gProvisionerEnabled);
   // And same with the user languages
   Services.locale.requestedLocales = gOldAcceptLangs;
+  // Delete the search engine.
+  let engine = Services.search.getEngineByName("bar");
+  if (engine) {
+    await Services.search.removeEngine(engine);
+  }
+  // Restore the original search engine.
+  Services.search.defaultEngine = gDefaultEngine;
+
+  MockRegistrar.unregister(originalAlertsServiceCID);
+
+  // Some tests that open new windows don't return focus to the main window
+  // in a way that satisfies mochitest, and the test times out.
+  Services.focus.focusedWindow = window;
+  window.gFolderDisplay.tree.focus();
 });
 
 /* Helper function that returns the number of accounts associated with the
@@ -139,7 +173,6 @@ function nAccounts() {
  *                         in the form. Defaults to false.
  */
 async function test_get_an_account(aCloseAndRestore) {
-  let originalEngine = Services.search.defaultEngine;
   // Open the provisioner - once opened, let subtest_get_an_account run.
   plan_for_modal_dialog("AccountCreation", subtest_get_an_account);
   open_provisioner_window();
@@ -182,7 +215,25 @@ async function test_get_an_account(aCloseAndRestore) {
     tab.browser
   );
 
+  // Since we mocked the OS notification, we will get an alert due to the fake
+  // imap server we're using for the tests. Handle the accept of the alert.
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    undefined,
+    prompt => {
+      prompt.document
+        .querySelector("dialog")
+        .getButton("accept")
+        .click();
+    }
+  );
   let ac = wait_for_new_window("AccountCreation");
+
+  // Wait for the alert dialog only if this is a first run and we're trying to
+  // load the newly created account for the first time.
+  if (!aCloseAndRestore) {
+    await dialogPromise;
+  }
 
   plan_for_window_close(ac);
   subtest_get_an_account_part_2(ac);
@@ -193,7 +244,7 @@ async function test_get_an_account(aCloseAndRestore) {
   Assert.equal(engine, Services.search.defaultEngine);
 
   // Restore the original search engine.
-  Services.search.defaultEngine = originalEngine;
+  Services.search.defaultEngine = gDefaultEngine;
   remove_email_account("green@example.com");
 }
 add_task(test_get_an_account);
@@ -1179,7 +1230,8 @@ add_task(function test_provisioner_ok_account_setup() {
 
   Services.logins.removeAllLogins();
 
-  // TODO: check that the folder pane is now visible
+  // Check that the folder pane is now visible.
+  Assert.ok(!mc.e("folderPaneBox").collapsed);
 });
 
 /**

@@ -61,6 +61,10 @@ add_task(function setupModule(module) {
   make_new_sets_in_folder(folder, [{ count: NUM_MESSAGES_IN_FOLDER }]);
 });
 
+registerCleanupFunction(async function teardownModule(module) {
+  folder.deleteSelf(null);
+});
+
 /**
  * Verifies our test environment is setup correctly and initializes
  * all global variables.

@@ -6,7 +6,6 @@
 /* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from accountConfig.js */
 /* import-globals-from createInBackend.js */
-/* import-globals-from emailWizard.js */
 /* import-globals-from exchangeAutoDiscover.js */
 /* import-globals-from fetchConfig.js */
 /* import-globals-from fetchhttp.js */
@@ -2128,10 +2127,14 @@ EmailConfigWizard.prototype = {
 
   finish(concreteConfig) {
     gEmailWizardLogger.info("creating account in backend");
-    var account = createAccountInBackend(concreteConfig);
+    let newAccount = createAccountInBackend(concreteConfig);
 
-    // Trigger first login, to get folder structure, show account, etc..
-    account.incomingServer.rootFolder.getNewMessages(null, null);
+    // Trigger the first login to download the folder structure and messages.
+    newAccount.incomingServer.getNewMessages(
+      newAccount.incomingServer.rootFolder,
+      this._parentMsgWindow,
+      null
+    );
 
     window.close();
   },

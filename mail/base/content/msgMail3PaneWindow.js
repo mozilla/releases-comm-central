@@ -830,7 +830,17 @@ function _showNewInstallModal() {
   }
 }
 
-function LoadPostAccountWizard() {
+/**
+ * Trigger the initialization of the entire UI. Called after the okCallback of
+ * the emailWizard during a first run, or directly from the accountProvisioner
+ * in case a user configures a new email account on first run.
+ *
+ * @param {boolean} isFromProvisioner - True if the method was called from the
+ *   New Account Provisioner. This is used to avoid triggering the system
+ *   integration dialog since the New Account Provinsioner uses a secondary
+ *   success dialog after a new account has been created.
+ */
+function LoadPostAccountWizard(isFromProvisioner) {
   InitMsgWindow();
   messenger.setWindow(window, msgWindow);
 
@@ -854,18 +864,115 @@ function LoadPostAccountWizard() {
 
   gPhishingDetector.init();
 
+  // Add to session before trying to load the start folder otherwise the
+  // listeners aren't set up correctly.
   AddToSession();
 
-  // need to add to session before trying to load start folder otherwise listeners aren't
-  // set up correctly.
+  // Show the system integration dialog only if an existing account was set up.
+  if (!isFromProvisioner) {
+    // Timeout necessary to wait for the emailWizard dialog to close before
+    // showing the system integration dialog.
+    setTimeout(showSystemIntegrationDialog, 0);
+  }
 
-  let startFolderURI = null,
-    startMsgHdr = null;
+  // Check if Thunderbird was launched in safe mode.
+  if (Services.appinfo.inSafeMode) {
+    let safeMode = document.getElementById("helpSafeMode");
+    safeMode.label = safeMode.getAttribute("stoplabel");
+    safeMode.accessKey = safeMode.getAttribute("stopaccesskey");
+
+    let appSafeMode = document.getElementById("appmenu_safeMode");
+    appSafeMode.label = appSafeMode.getAttribute("stoplabel");
+  }
+
+  // Load the message header pane.
+  OnLoadMsgHeaderPane();
+
+  // Set focus to the Thread Pane the first time the window is opened.
+  SetFocusThreadPane();
+
+  // Initialize the customizeDone method on the customizeable toolbar.
+  let toolbox = document.getElementById("mail-toolbox");
+  toolbox.customizeDone = function(aEvent) {
+    MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar");
+  };
+
+  // Restore the previous folder selection before shutdown, or select the first
+  // inbox folder of a newly created account.
+  selectFirstFolder();
+
+  // All core modal dialogs are done, the user can now interact with the 3-pane
+  // window.
+  Services.obs.notifyObservers(window, "mail-startup-done");
+
+  // Idle dispatch the telemetry reports.
+  Services.tm.idleDispatchToMainThread(() => {
+    reportAccountTypes();
+    reportAddressBookTypes();
+  });
+}
+
+/**
+ * Check if we need to show the system integration dialog before notifying the
+ * application that the startup process is completed.
+ */
+function showSystemIntegrationDialog() {
+  // Check the shell service.
+  let shellService;
+  try {
+    shellService = Cc["@mozilla.org/mail/shell-service;1"].getService(
+      Ci.nsIShellService
+    );
+  } catch (ex) {}
+  let defaultAccount = accountManager.defaultAccount;
+
+  // Load the search integration module.
+  let { SearchIntegration } = ChromeUtils.import(
+    "resource:///modules/SearchIntegration.jsm"
+  );
+
+  // Show the default client dialog only if
+  // EITHER: we have at least one account, and we aren't already the default
+  // for mail,
+  // OR: we have the search integration module, the OS version is suitable,
+  // and the first run hasn't already been completed.
+  // Needs to be shown outside the he normal load sequence so it doesn't appear
+  // before any other displays, in the wrong place of the screen.
+  if (
+    (shellService &&
+      defaultAccount &&
+      shellService.shouldCheckDefaultClient &&
+      !shellService.isDefaultClient(true, Ci.nsIShellService.MAIL)) ||
+    (SearchIntegration &&
+      !SearchIntegration.osVersionTooLow &&
+      !SearchIntegration.osComponentsNotRunning &&
+      !SearchIntegration.firstRunDone)
+  ) {
+    window.openDialog(
+      "chrome://messenger/content/systemIntegrationDialog.xhtml",
+      "SystemIntegration",
+      "modal,centerscreen,chrome,resizable=no"
+    );
+    // On Windows, there seems to be a delay between setting TB as the
+    // default client, and the isDefaultClient check succeeding.
+    if (shellService.isDefaultClient(true, Ci.nsIShellService.MAIL)) {
+      Services.obs.notifyObservers(window, "mail:setAsDefault");
+    }
+  }
+}
+
+/**
+ * Properly select the starting folder or message header if we have one.
+ */
+function selectFirstFolder() {
+  let startFolderURI = null;
+  let startMsgHdr = null;
+
   if ("arguments" in window && window.arguments.length > 0) {
     let arg0 = window.arguments[0];
-    // If the argument is a string, it is either a folder URI or a feed URI
+    // If the argument is a string, it is either a folder URI or a feed URI.
     if (typeof arg0 == "string") {
-      // filter our any feed urls that came in as arguments to the new window...
+      // Filter out any feed urls that came in as arguments to the new window.
       if (arg0.toLowerCase().startsWith("feed:")) {
         let feedHandler = Cc[
           "@mozilla.org/newsblog-feed-downloader;1"
@@ -885,94 +992,14 @@ function LoadPostAccountWizard() {
     }
   }
 
-  function completeStartup() {
-    // Check whether we need to show the default client dialog
-    // First, check the shell service
-    var nsIShellService = Ci.nsIShellService;
-    if (nsIShellService) {
-      var shellService;
-      try {
-        shellService = Cc["@mozilla.org/mail/shell-service;1"].getService(
-          nsIShellService
-        );
-      } catch (ex) {}
-      let defaultAccount = accountManager.defaultAccount;
-
-      // Next, try loading the search integration module
-      // We'll get a null SearchIntegration if we don't have one
-      var { SearchIntegration } = ChromeUtils.import(
-        "resource:///modules/SearchIntegration.jsm"
-      );
-
-      // Show the default client dialog only if
-      // EITHER: we have at least one account, and we aren't already the default
-      // for mail,
-      // OR: we have the search integration module, the OS version is suitable,
-      // and the first run hasn't already been completed.
-      // Needs to be shown outside the he normal load sequence so it doesn't appear
-      // before any other displays, in the wrong place of the screen.
-      if (
-        (shellService &&
-          defaultAccount &&
-          shellService.shouldCheckDefaultClient &&
-          !shellService.isDefaultClient(true, nsIShellService.MAIL)) ||
-        (SearchIntegration &&
-          !SearchIntegration.osVersionTooLow &&
-          !SearchIntegration.osComponentsNotRunning &&
-          !SearchIntegration.firstRunDone)
-      ) {
-        window.openDialog(
-          "chrome://messenger/content/systemIntegrationDialog.xhtml",
-          "SystemIntegration",
-          "modal,centerscreen,chrome,resizable=no"
-        );
-        // On windows, there seems to be a delay between setting TB as the
-        // default client, and the isDefaultClient check succeeding.
-        if (shellService.isDefaultClient(true, nsIShellService.MAIL)) {
-          Services.obs.notifyObservers(window, "mail:setAsDefault");
-        }
-      }
-    }
-    // All core modal dialogs are done, the user can now interact with the 3-pane window
-    Services.obs.notifyObservers(window, "mail-startup-done");
-  }
-
-  setTimeout(completeStartup, 0);
-
-  let safeMode = document.getElementById("helpSafeMode");
-  let appSafeMode = document.getElementById("appmenu_safeMode");
-  if (Services.appinfo.inSafeMode) {
-    safeMode.label = safeMode.getAttribute("stoplabel");
-    safeMode.accessKey = safeMode.getAttribute("stopaccesskey");
-    appSafeMode.label = appSafeMode.getAttribute("stoplabel");
-  }
-
-  // FIX ME - later we will be able to use onload from the overlay
-  OnLoadMsgHeaderPane();
-
-  // Set focus to the Thread Pane the first time the window is opened.
-  SetFocusThreadPane();
-
-  // initialize the customizeDone method on the customizeable toolbar
-  var toolbox = document.getElementById("mail-toolbox");
-  toolbox.customizeDone = function(aEvent) {
-    MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar");
-  };
-
-  // XXX Do not select the folder until the window displays or the threadpane
-  //  will be at minimum size.  We used to have
-  //  gFolderDisplay.ensureRowIsVisible use settimeout itself to defer that
-  //  calculation, but that was ugly.  Also, in theory we will open the window
-  //  faster if we let the event loop start doing things sooner.
-
+  // Don't try to be smart with this because we need the loadStartFolder()
+  // method to run even if startFolderURI is null otherwise our UI won't
+  // properly restore.
   if (startMsgHdr) {
     Services.tm.dispatchToMainThread(() => loadStartMsgHdr(startMsgHdr));
   } else {
     Services.tm.dispatchToMainThread(() => loadStartFolder(startFolderURI));
   }
-
-  setTimeout(reportAccountTypes, 0);
-  setTimeout(reportAddressBookTypes, 0);
 }
 
 /**
