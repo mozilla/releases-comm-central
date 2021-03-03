@@ -265,22 +265,28 @@
   opacity: 0;
 }
 
-.is_animating {
-  animation: new-attachment 1s steps(30) 1;
-}
+@media (prefers-reduced-motion: no-preference) {
+  .is_animating {
+    animation: new-attachment 1s steps(30) 1;
+  }
 
-@keyframes new-attachment {
-  0% {
-    opacity: 0;
-    margin-top: 0;
+  @keyframes new-attachment {
+    0% {
+      opacity: 0;
+      margin-top: 0;
+    }
+    50% {
+      opacity: 1;
+      margin-top: -50px;
+    }
+    100% {
+      opacity: 0;
+      margin-top: -100px;
+    }
   }
-  50% {
-    opacity: 1;
-    margin-top: -50px;
-  }
-  100% {
-    opacity: 0;
-    margin-top: -100px;
+
+  #attachmentToggle {
+    transition: transform 200ms ease;
   }
 }
 
