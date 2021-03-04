@@ -19,6 +19,10 @@
   width: 11em;
 }
 
+.input-inline.search-value-textbox {
+  padding-block: 3px;
+}
+
 .small-button {
   min-width: 3em;
   margin: 2px;
