@@ -2058,11 +2058,11 @@ nsresult nsMsgComposeAndSend::HackAttachments(
       nsString msg;
       nsAutoString attachmentFileName;
       AutoTArray<nsString, 1> formatParams;
+      nsCString asciiSpec;
       if (!(m_attachments[i]->m_realName).IsEmpty()) {
         CopyUTF8toUTF16(m_attachments[i]->m_realName,
                         *formatParams.AppendElement());
       } else if (m_attachments[i]->mURL) {
-        nsCString asciiSpec;
         m_attachments[i]->mURL->GetAsciiSpec(asciiSpec);
         attachmentFileName.AssignASCII(asciiSpec.get());
         formatParams.AppendElement(attachmentFileName);
@@ -2081,6 +2081,12 @@ nsresult nsMsgComposeAndSend::HackAttachments(
 
       nsresult status = m_attachments[i]->SnarfAttachment(mCompFields);
       if (NS_FAILED(status)) {
+        if (StringBeginsWith(asciiSpec, "data:"_ns,
+                             nsCaseInsensitiveCStringComparator)) {
+          // Invalid data uri should not prevent sending memssage.
+          m_attachment_pending_count--;
+          continue;
+        }
         nsString errorMsg;
         NS_CopyNativeToUnicode(m_attachments[i]->m_realName,
                                attachmentFileName);
@@ -2099,7 +2105,8 @@ nsresult nsMsgComposeAndSend::HackAttachments(
   }
 
   // If no attachments - finish now (this will call the done_callback).
-  if (needToCallGatherMimeAttachments) return GatherMimeAttachments();
+  if (needToCallGatherMimeAttachments || m_attachment_pending_count == 0)
+    return GatherMimeAttachments();
 
   return NS_OK;
 }

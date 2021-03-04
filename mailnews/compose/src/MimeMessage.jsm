@@ -456,7 +456,16 @@ class MimeMessage {
    * @param {number} [depth=0] - Nested level of a part.
    */
   async _writePart(curPart, depth = 0) {
-    let bodyString = await curPart.getEncodedBodyString();
+    let bodyString;
+    try {
+      bodyString = await curPart.getEncodedBodyString();
+    } catch (e) {
+      if (e.data && /^data:/i.test(e.data.url)) {
+        // Invalid data uri should not prevent sending message.
+        return;
+      }
+      throw e;
+    }
 
     if (depth == 0 && this._composeSecure) {
       // Crypto encaspsulation will add a new content-type header.

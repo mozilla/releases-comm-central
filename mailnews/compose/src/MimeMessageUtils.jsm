@@ -94,6 +94,12 @@ var MsgUtils = {
   NS_ERROR_CLIENTID: generateNSError(12610),
   NS_ERROR_CLIENTID_PERMISSION: generateNSError(12611),
 
+  sendLogger: console.createInstance({
+    prefix: "mailnews.send",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mailnews.send.loglevel",
+  }),
+
   /**
    * NS_IS_MSG_ERROR in msgCore.h.
    * @param {nsresult} err - The nsresult value.

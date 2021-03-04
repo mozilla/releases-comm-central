@@ -119,7 +119,8 @@ MessageSend.prototype = {
       // Create a local file from MimeMessage, then pass it to _deliverMessage.
       messageFile = await this._message.createMessageFile();
     } catch (e) {
-      this.fail(e.result);
+      MsgUtils.sendLogger.error(e);
+      this.fail(e.result || Cr.NS_ERROR_FAILURE);
       this.notifyListenerOnStopSending(null, e.result, null, null);
       return null;
     }
@@ -300,11 +301,9 @@ MessageSend.prototype = {
   fail(exitCode, errorMsg) {
     let prompt = this.getDefaultPrompt();
     if (!Components.isSuccessCode(exitCode) && prompt) {
-      if (this._originalMsgURI) {
-        Cu.reportError(
-          `Sending failed: exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
-        );
-      }
+      MsgUtils.sendLogger.error(
+        `Sending failed: ${errorMsg}, exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
+      );
       this._sendReport.setError(
         Ci.nsIMsgSendReport.process_Current,
         exitCode,

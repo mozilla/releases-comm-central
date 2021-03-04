@@ -319,6 +319,7 @@ pref("mail.forward_message_mode", 2);
 pref("mail.default_html_action", 3);
 
 pref("mailnews.send.jsmodule", true);
+pref("mailnews.send.loglevel", "Warn");
 
 pref("mailnews.smtp.jsmodule", true);
 

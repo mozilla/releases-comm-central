@@ -155,7 +155,19 @@ class MimePart {
     let bodyString = this._bodyText;
     // If this is an attachment part, use the attachment content as bodyString.
     if (this._bodyAttachment) {
-      bodyString = await this._fetchFile();
+      try {
+        bodyString = await this._fetchFile();
+      } catch (e) {
+        MsgUtils.sendLogger.error(
+          `Failed to fetch attachment: name=${this._bodyAttachment.name}, url=${this._bodyAttachment.url}`
+        );
+        throw Components.Exception(
+          "Failed to fetch attachment",
+          MsgUtils.NS_MSG_ERROR_ATTACHING_FILE,
+          e.stack,
+          this._bodyAttachment
+        );
+      }
     }
     if (bodyString) {
       let encoder = new MimeEncoder(
