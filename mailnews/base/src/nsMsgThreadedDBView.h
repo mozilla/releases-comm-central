@@ -22,8 +22,6 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
                          nsIMsgDBViewCommandUpdater* aCommandUpdater,
                          nsIMsgDBView** _retval) override;
   NS_IMETHOD Close() override;
-  int32_t AddKeys(nsMsgKey* pKeys, int32_t* pFlags, const char* pLevels,
-                  nsMsgViewSortTypeValue sortType, int32_t numKeysToAdd);
   NS_IMETHOD Sort(nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder) override;
   NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
@@ -40,8 +38,9 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
                                            nsIMsgDBHdr* msgHdr,
                                            bool ensureListed);
   nsresult ListThreadIds(nsMsgKey* startMsg, bool unreadOnly, nsMsgKey* pOutput,
-                         int32_t* pFlags, char* pLevels, int32_t numToList,
-                         int32_t* pNumListed, int32_t* pTotalHeaders);
+                         int32_t* pFlags, int32_t numToList,
+                         int32_t* pNumListed);
+  int32_t AddKeys(nsMsgKey* pKeys, int32_t* pFlags, int32_t numKeysToAdd);
   nsresult InitSort(nsMsgViewSortTypeValue sortType,
                     nsMsgViewSortOrderValue sortOrder);
   virtual nsresult SortThreads(nsMsgViewSortTypeValue sortType,
@@ -62,7 +61,7 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
   nsTArray<nsMsgKey> m_prevKeys;  // this is used for caching non-threaded view.
   nsTArray<uint32_t> m_prevFlags;
   nsTArray<uint8_t> m_prevLevels;
-  nsCOMPtr<nsISimpleEnumerator> m_threadEnumerator;
+  nsCOMPtr<nsIMsgThreadEnumerator> m_threadEnumerator;
 };
 
 #endif

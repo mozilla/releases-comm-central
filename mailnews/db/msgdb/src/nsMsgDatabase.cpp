@@ -2780,14 +2780,23 @@ NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsTArray<nsMsgKey>& keys) {
   return rv;
 }
 
-class nsMsgDBThreadEnumerator : public nsSimpleEnumerator, nsIDBChangeListener {
+/**
+ * Helper class for fetching message threads from a database.
+ * It derives from nsIDBChangeListener so we can tell if the database is
+ * forcibly closed, in which case we need to stop using it right away. (In fact,
+ * this is probably unnecessary because this enumerator is never used in a
+ * context where a DB is likely to have ForceClosed() called upon it, but for
+ * safety let's leave it in. It'd be nice to have a less brittle mechanism than
+ * ForceClosed()).
+ */
+class nsMsgDBThreadEnumerator : public nsBaseMsgThreadEnumerator,
+                                nsIDBChangeListener {
  public:
   NS_DECL_ISUPPORTS_INHERITED
 
-  // nsISimpleEnumerator methods:
-  NS_DECL_NSISIMPLEENUMERATOR
-
-  const nsID& DefaultInterface() override { return NS_GET_IID(nsIMsgThread); }
+  // nsIMsgThreadEnumerator support.
+  NS_IMETHOD GetNext(nsIMsgThread** aItem) override;
+  NS_IMETHOD HasMoreElements(bool* aResult) override;
 
   NS_DECL_NSIDBCHANGELISTENER
 
@@ -2801,7 +2810,7 @@ class nsMsgDBThreadEnumerator : public nsSimpleEnumerator, nsIDBChangeListener {
   ~nsMsgDBThreadEnumerator() override;
   nsresult GetTableCursor(void);
   nsresult PrefetchNext();
-  nsMsgDatabase* mDB;
+  RefPtr<nsMsgDatabase> mDB;
   nsCOMPtr<nsIMdbPortTableCursor> mTableCursor;
   RefPtr<nsIMsgThread> mResultThread;
   bool mDone;
@@ -2821,12 +2830,10 @@ nsMsgDBThreadEnumerator::nsMsgDBThreadEnumerator(
 }
 
 nsMsgDBThreadEnumerator::~nsMsgDBThreadEnumerator() {
-  mTableCursor = nullptr;
-  mResultThread = nullptr;
   if (mDB) mDB->RemoveListener(this);
 }
 
-NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBThreadEnumerator, nsSimpleEnumerator,
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBThreadEnumerator, nsBaseMsgThreadEnumerator,
                             nsIDBChangeListener)
 
 /* void OnHdrFlagsChanged (in nsIMsgDBHdr aHdrChanged, in unsigned long
@@ -2874,6 +2881,8 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::OnParentChanged(
 /* void onAnnouncerGoingAway (in nsIDBChangeAnnouncer instigator); */
 NS_IMETHODIMP nsMsgDBThreadEnumerator::OnAnnouncerGoingAway(
     nsIDBChangeAnnouncer* instigator) {
+  // Somebody has called ForceClosed() on the database, so we need to stop
+  // using it, right now (ugh).
   mTableCursor = nullptr;
   mResultThread = nullptr;
   mDB->RemoveListener(this);
@@ -2901,6 +2910,7 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::OnJunkScoreChanged(
 nsresult nsMsgDBThreadEnumerator::GetTableCursor(void) {
   nsresult rv = NS_OK;
 
+  // DB might have disappeared.
   if (!mDB || !mDB->m_mdbStore) return NS_ERROR_NULL_POINTER;
 
   mDB->m_mdbStore->GetPortTableCursor(mDB->GetEnv(), mDB->m_hdrRowScopeToken,
@@ -2911,7 +2921,7 @@ nsresult nsMsgDBThreadEnumerator::GetTableCursor(void) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBThreadEnumerator::GetNext(nsISupports** aItem) {
+NS_IMETHODIMP nsMsgDBThreadEnumerator::GetNext(nsIMsgThread** aItem) {
   NS_ENSURE_ARG_POINTER(aItem);
 
   *aItem = nullptr;
@@ -2930,6 +2940,7 @@ nsresult nsMsgDBThreadEnumerator::PrefetchNext() {
   nsresult rv;
   nsCOMPtr<nsIMdbTable> table;
 
+  // DB might have disappeared.
   if (!mDB) return NS_ERROR_NULL_POINTER;
 
   if (!mTableCursor) {
@@ -2980,9 +2991,8 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::HasMoreElements(bool* aResult) {
   return NS_OK;
 }
 
-// XYZZY: TODO!
 NS_IMETHODIMP
-nsMsgDatabase::EnumerateThreads(nsISimpleEnumerator** result) {
+nsMsgDatabase::EnumerateThreads(nsIMsgThreadEnumerator** result) {
   RememberLastUseTime();
   NS_ADDREF(*result = new nsMsgDBThreadEnumerator(this, nullptr));
   return NS_OK;
@@ -4307,30 +4317,6 @@ nsresult nsMsgDatabase::GetIntPref(const char* prefName, int32_t* result) {
   return rv;
 }
 
-nsresult nsMsgDatabase::ListAllThreads(nsTArray<nsMsgKey>* threadIds) {
-  nsresult rv;
-  nsMsgThread* pThread;
-
-  nsCOMPtr<nsISimpleEnumerator> threads;
-  rv = EnumerateThreads(getter_AddRefs(threads));
-  if (NS_FAILED(rv)) return rv;
-  bool hasMore = false;
-
-  while (NS_SUCCEEDED(rv = threads->HasMoreElements(&hasMore)) && hasMore) {
-    rv = threads->GetNext((nsISupports**)&pThread);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (threadIds) {
-      nsMsgKey key;
-      (void)pThread->GetThreadKey(&key);
-      threadIds->AppendElement(key);
-    }
-    // NS_RELEASE(pThread);
-    pThread = nullptr;
-  }
-  return rv;
-}
-
 NS_IMETHODIMP nsMsgDatabase::SetAttributeOnPendingHdr(nsIMsgDBHdr* pendingHdr,
                                                       const char* property,
                                                       const char* propertyVal) {
@@ -4462,10 +4448,18 @@ nsresult nsMsgDatabase::DumpContents() {
              subject.get());
     }
   }
-  nsTArray<nsMsgKey> threads;
-  rv = ListAllThreads(&threads);
+
+  nsCOMPtr<nsIMsgThreadEnumerator> threads;
+  rv = EnumerateThreads(getter_AddRefs(threads));
   NS_ENSURE_SUCCESS(rv, rv);
-  for (nsMsgKey key : threads) {
+  bool hasMore = false;
+  while (NS_SUCCEEDED(rv = threads->HasMoreElements(&hasMore)) && hasMore) {
+    nsCOMPtr<nsIMsgThread> thread;
+    rv = threads->GetNext(getter_AddRefs(thread));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    nsMsgKey key;
+    thread->GetThreadKey(&key);
     printf("thread key = %u\n", key);
     // DumpThread(key);
   }

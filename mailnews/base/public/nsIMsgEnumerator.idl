@@ -6,6 +6,7 @@
 #include "nsISupports.idl"
 
 interface nsIMsgDBHdr;
+interface nsIMsgThread;
 
 /**
  * nsIJSIterator implements the JavaScript iterator protocol.
@@ -57,5 +58,38 @@ interface nsIMsgEnumerator : nsISupports {
    * @returns the next element in the enumeration.
    */
   nsIMsgDBHdr getNext();
+};
+
+/**
+ * nsIMsgThreadEnumerator is an object for iterating forward over an ordered set of
+ * message threads (nsIMsgThread). There is no provision to reset the iteration.
+ */
+[scriptable, uuid(e39ae1a8-2b94-4f2b-abb4-250171047501)]
+interface nsIMsgThreadEnumerator : nsISupports {
+  /**
+   * Implements the JavaScript iterable protocol, which allows
+   * for...of constructs and the like.
+   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#the_iterable_protocol
+   * NOTE: the nsIMsgThreadEnumerator is "used up" by iterator(), just as it is by
+   * getNext()/hasMoreElements(). So you can only loop over the enumerator once.
+   */
+  [symbol]
+  nsIJSIterator iterator();
+
+  /**
+   * Called to determine whether or not there are any messages remaining
+   * to be retrived from the enumerator.
+   *
+   * @returns true if getNext() may be called to fetch a message, or
+   *          false if there are no more messages.
+   */
+  boolean hasMoreElements();
+
+  /**
+   * Called to retrieve the next thread in the set.
+   *
+   * @returns the next element in the enumeration.
+   */
+  nsIMsgThread getNext();
 };
 

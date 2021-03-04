@@ -534,7 +534,7 @@ class nsMsgDBView : public nsIMsgDBView,
                                          bool& changeReadState,
                                          nsIMsgFolder** targetFolder);
 
-  class nsMsgViewHdrEnumerator final : public nsMsgEnumerator {
+  class nsMsgViewHdrEnumerator final : public nsBaseMsgEnumerator {
    public:
     explicit nsMsgViewHdrEnumerator(nsMsgDBView* view);
 

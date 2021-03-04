@@ -286,7 +286,7 @@ NS_IMETHODIMP nsMsgGroupThread::MarkChildRead(bool bRead) {
 }
 
 // this could be moved into utils, because I think it's the same as the db impl.
-class nsMsgGroupThreadEnumerator : public nsMsgEnumerator {
+class nsMsgGroupThreadEnumerator : public nsBaseMsgEnumerator {
  public:
   // nsIMsgEnumerator support.
   NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;

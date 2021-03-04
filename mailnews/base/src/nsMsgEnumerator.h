@@ -8,19 +8,38 @@
 
 #include "nsIMsgEnumerator.h"
 
-// A base implementation nsIMsgEnumerator for stepping over an ordered set
-// of nsIMsgDBHdr objects.
-// This provides the javascript iterable protocol (to support for...of
-// constructs), but getNext() and hasMoreElements() must be implemented by
-// derived classes.
-class nsMsgEnumerator : public nsIMsgEnumerator {
+/**
+ * A base implementation nsIMsgEnumerator for stepping over an ordered set
+ * of nsIMsgDBHdr objects.
+ * This provides the javascript iterable protocol (to support for...of
+ * constructs), but getNext() and hasMoreElements() must be implemented by
+ * derived classes.
+ */
+class nsBaseMsgEnumerator : public nsIMsgEnumerator {
  public:
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGENUMERATOR
-  nsMsgEnumerator(){};
+  nsBaseMsgEnumerator(){};
 
  protected:
-  virtual ~nsMsgEnumerator(){};
+  virtual ~nsBaseMsgEnumerator(){};
+};
+
+/**
+ * A base implementation nsIMsgThreadEnumerator for stepping over an ordered
+ * set of nsIMsgThread objects.
+ * This provides the javascript iterable protocol (to support for...of
+ * constructs), but getNext() and hasMoreElements() must be implemented by
+ * derived classes.
+ */
+class nsBaseMsgThreadEnumerator : public nsIMsgThreadEnumerator {
+ public:
+  NS_DECL_ISUPPORTS
+  NS_DECL_NSIMSGTHREADENUMERATOR
+  nsBaseMsgThreadEnumerator(){};
+
+ protected:
+  virtual ~nsBaseMsgThreadEnumerator(){};
 };
 
 #endif /* _nsMsgEnumerator_H_ */

@@ -548,7 +548,7 @@ NS_IMETHODIMP nsMsgThread::MarkChildRead(bool bRead) {
   return NS_OK;
 }
 
-class nsMsgThreadEnumerator : public nsMsgEnumerator {
+class nsMsgThreadEnumerator : public nsBaseMsgEnumerator {
  public:
   // nsIMsgEnumerator support.
   NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;

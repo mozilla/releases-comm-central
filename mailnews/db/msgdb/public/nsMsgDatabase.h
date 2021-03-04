@@ -67,7 +67,7 @@ class nsMsgDBService final : public nsIMsgDBService {
   AutoTArray<nsMsgDatabase*, kInitialMsgDBCacheSize> m_dbCache;
 };
 
-class nsMsgDBEnumerator : public nsMsgEnumerator {
+class nsMsgDBEnumerator : public nsBaseMsgEnumerator {
  public:
   // nsIMsgEnumerator support.
   NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;
@@ -167,8 +167,6 @@ class nsMsgDatabase : public nsIMsgDatabase {
   nsresult GetSearchResultsTable(const char* searchFolderUri,
                                  bool createIfMissing, nsIMdbTable** table);
 
-  // this might just be for debugging - we'll see.
-  nsresult ListAllThreads(nsTArray<nsMsgKey>* threadIds);
   //////////////////////////////////////////////////////////////////////////////
   // nsMsgDatabase methods:
   nsMsgDatabase();

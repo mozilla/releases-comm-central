@@ -107,15 +107,13 @@ nsresult nsMsgThreadedDBView::InitThreadedView(int32_t* pCount) {
     int32_t numListed = 0;
     nsMsgKey idArray[kIdChunkSize];
     int32_t flagArray[kIdChunkSize];
-    char levelArray[kIdChunkSize];
 
-    rv = ListThreadIds(
-        &startMsg, (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly) != 0,
-        idArray, flagArray, levelArray, kIdChunkSize, &numListed, nullptr);
+    rv = ListThreadIds(&startMsg,
+                       (m_viewFlags & nsMsgViewFlagsType::kUnreadOnly) != 0,
+                       idArray, flagArray, kIdChunkSize, &numListed);
 
     if (NS_SUCCEEDED(rv)) {
-      int32_t numAdded =
-          AddKeys(idArray, flagArray, levelArray, m_sortType, numListed);
+      int32_t numAdded = AddKeys(idArray, flagArray, numListed);
       if (pCount) *pCount += numAdded;
     }
 
@@ -201,8 +199,6 @@ nsresult nsMsgThreadedDBView::SortThreads(nsMsgViewSortTypeValue sortType,
 }
 
 int32_t nsMsgThreadedDBView::AddKeys(nsMsgKey* pKeys, int32_t* pFlags,
-                                     const char* pLevels,
-                                     nsMsgViewSortTypeValue sortType,
                                      int32_t numKeysToAdd) {
   int32_t numAdded = 0;
   // Allocate enough space first to avoid memory allocation/deallocation.
@@ -236,7 +232,7 @@ int32_t nsMsgThreadedDBView::AddKeys(nsMsgKey* pKeys, int32_t* pFlags,
     flag |= MSG_VIEW_FLAG_ISTHREAD;
     m_keys.AppendElement(pKeys[i]);
     m_flags.AppendElement(flag);
-    m_levels.AppendElement(pLevels[i]);
+    m_levels.AppendElement(0);
     numAdded++;
 
     // We expand as we build the view, which allows us to insert at the end
@@ -382,9 +378,8 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
 // This actually returns the ids of the first message in each thread.
 nsresult nsMsgThreadedDBView::ListThreadIds(nsMsgKey* startMsg, bool unreadOnly,
                                             nsMsgKey* pOutput, int32_t* pFlags,
-                                            char* pLevels, int32_t numToList,
-                                            int32_t* pNumListed,
-                                            int32_t* pTotalHeaders) {
+                                            int32_t numToList,
+                                            int32_t* pNumListed) {
   nsresult rv = NS_OK;
   // N.B..don't ret before assigning numListed to *pNumListed.
   int32_t numListed = 0;
@@ -404,19 +399,14 @@ nsresult nsMsgThreadedDBView::ListThreadIds(nsMsgKey* startMsg, bool unreadOnly,
   bool hasMore = false;
 
   nsCOMPtr<nsIMsgThread> threadHdr;
-  int32_t threadsRemoved = 0;
   while (numListed < numToList &&
          NS_SUCCEEDED(rv = m_threadEnumerator->HasMoreElements(&hasMore)) &&
          hasMore) {
     nsCOMPtr<nsISupports> supports;
-    rv = m_threadEnumerator->GetNext(getter_AddRefs(supports));
+    rv = m_threadEnumerator->GetNext(getter_AddRefs(threadHdr));
     if (NS_FAILED(rv)) {
-      threadHdr = nullptr;
       break;
     }
-
-    threadHdr = do_QueryInterface(supports);
-    if (!threadHdr) break;
 
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     uint32_t numChildren;
@@ -430,7 +420,6 @@ nsresult nsMsgThreadedDBView::ListThreadIds(nsMsgKey* startMsg, bool unreadOnly,
     if (numChildren != 0) {
       // Not an empty thread.
       int32_t unusedRootIndex;
-      if (pTotalHeaders) *pTotalHeaders += numChildren;
 
       if (unreadOnly)
         rv = threadHdr->GetFirstUnreadChild(getter_AddRefs(msgHdr));
@@ -446,7 +435,6 @@ nsresult nsMsgThreadedDBView::ListThreadIds(nsMsgKey* startMsg, bool unreadOnly,
         // Turn off high byte of msg flags - used for view flags.
         msgFlags &= ~MSG_VIEW_FLAGS;
         pOutput[numListed] = msgKey;
-        pLevels[numListed] = 0;
         // Turn off these flags on msg hdr - they belong in thread.
         msgHdr->AndFlags(~(nsMsgMessageFlags::Watched), &newMsgFlags);
         AdjustReadFlag(msgHdr, &msgFlags);
@@ -459,16 +447,6 @@ nsresult nsMsgThreadedDBView::ListThreadIds(nsMsgKey* startMsg, bool unreadOnly,
         NS_ASSERTION(NS_SUCCEEDED(rv) && msgHdr,
                      "couldn't get header for some reason");
       }
-    } else if (threadsRemoved < 10 &&
-               !(threadFlags &
-                 (nsMsgMessageFlags::Watched | nsMsgMessageFlags::Ignored))) {
-      // ### remove thread.
-      // Don't want to remove all empty threads first time around as it will
-      // choke performance for upgrade.
-      threadsRemoved++;
-#ifdef DEBUG_bienvenu
-      printf("removing empty non-ignored non-watched thread\n");
-#endif
     }
   }
 
@@ -476,12 +454,6 @@ nsresult nsMsgThreadedDBView::ListThreadIds(nsMsgKey* startMsg, bool unreadOnly,
     threadHdr->GetThreadKey(startMsg);
   } else {
     *startMsg = nsMsgKey_None;
-    nsCOMPtr<nsIDBChangeListener> dbListener =
-        do_QueryInterface(m_threadEnumerator);
-    // This is needed to make the thread enumerator release its reference
-    // to the db.
-    if (dbListener) dbListener->OnAnnouncerGoingAway(nullptr);
-
     m_threadEnumerator = nullptr;
   }
 

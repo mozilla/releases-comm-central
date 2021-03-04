@@ -31,8 +31,8 @@ interface nsIMsgDatabase;
 interface nsIDBChangeListener;
 interface nsIMsgDBHdr;
 interface nsIMsgEnumerator;
-interface nsISimpleEnumerator;
 interface nsIMsgThread;
+interface nsIMsgThreadEnumerator;
 interface nsIDBFolderInfo;
 interface nsIMsgOfflineImapOperation;
 interface nsIMsgFolder;
@@ -303,7 +303,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
 
   nsIMsgEnumerator EnumerateMessages();
   nsIMsgEnumerator ReverseEnumerateMessages();
-  nsISimpleEnumerator EnumerateThreads();
+  nsIMsgThreadEnumerator enumerateThreads();
 
   /**
    * Get an enumerator of messages matching the passed-in search terms.
