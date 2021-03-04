@@ -94,6 +94,11 @@ button.notification-button[type="menu-button"] > .button-box > button {
   border-inline-end-color: var(--notification-button-active-border);
 }
 
+.messageCloseButton > .toolbarbutton-icon {
+  width: 16px !important;
+  height: 16px !important;
+  padding: 0;
+
 .messageCloseButton:-moz-focusring > .toolbarbutton-icon {
   outline: 1px dashed;
   outline-offset: -2px;

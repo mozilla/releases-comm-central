@@ -98,6 +98,10 @@
   transform: scaleX(-1);
 }
 
+#today-closer {
+  margin-inline-end: 3px;
+}
+
 #today-pane-panel:-moz-lwtheme > vbox {
   text-shadow: none;
   background-color: -moz-Dialog;

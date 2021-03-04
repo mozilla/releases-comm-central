@@ -34,6 +34,10 @@
   background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
 }
 
+#sidebarCloseButton {
+  margin-inline-end: 3px;
+}
+
 /* Styles for the default system dark theme */
 
 :root[lwt-tree] #headers-box {

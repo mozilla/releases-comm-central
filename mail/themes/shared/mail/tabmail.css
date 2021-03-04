@@ -89,7 +89,7 @@
 .tab-content > .tab-close-button {
   margin-inline-start: 1px;
   margin-inline-end: -2px;
-  padding: 0;
+  padding: 2px;
   -moz-context-properties: fill, fill-opacity;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
   -moz-image-region: auto;
