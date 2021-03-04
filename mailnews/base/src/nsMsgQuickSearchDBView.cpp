@@ -37,9 +37,12 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::Open(nsIMsgFolder* folder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!m_db) return NS_ERROR_NULL_POINTER;
-  if (pCount) *pCount = 0;
   m_viewFolder = nullptr;
-  return InitThreadedView(pCount);
+
+  int32_t count;
+  rv = InitThreadedView(count);
+  if (pCount) *pCount = count;
+  return rv;
 }
 
 NS_IMETHODIMP

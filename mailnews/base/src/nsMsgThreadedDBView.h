@@ -31,16 +31,12 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
 
  protected:
   virtual const char* GetViewName(void) override { return "ThreadedDBView"; }
-  nsresult InitThreadedView(int32_t* pCount);
+  nsresult InitThreadedView(int32_t& count);
   virtual nsresult OnNewHeader(nsIMsgDBHdr* newHdr, nsMsgKey aParentKey,
                                bool ensureListed) override;
   virtual nsresult AddMsgToThreadNotInView(nsIMsgThread* threadHdr,
                                            nsIMsgDBHdr* msgHdr,
                                            bool ensureListed);
-  nsresult ListThreadIds(nsMsgKey* startMsg, bool unreadOnly, nsMsgKey* pOutput,
-                         int32_t* pFlags, int32_t numToList,
-                         int32_t* pNumListed);
-  int32_t AddKeys(nsMsgKey* pKeys, int32_t* pFlags, int32_t numKeysToAdd);
   nsresult InitSort(nsMsgViewSortTypeValue sortType,
                     nsMsgViewSortOrderValue sortOrder);
   virtual nsresult SortThreads(nsMsgViewSortTypeValue sortType,
@@ -61,7 +57,6 @@ class nsMsgThreadedDBView : public nsMsgGroupView {
   nsTArray<nsMsgKey> m_prevKeys;  // this is used for caching non-threaded view.
   nsTArray<uint32_t> m_prevFlags;
   nsTArray<uint8_t> m_prevLevels;
-  nsCOMPtr<nsIMsgThreadEnumerator> m_threadEnumerator;
 };
 
 #endif
