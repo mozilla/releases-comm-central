@@ -98,6 +98,7 @@ button.notification-button[type="menu-button"] > .button-box > button {
   width: 16px !important;
   height: 16px !important;
   padding: 0;
+}
 
 .messageCloseButton:-moz-focusring > .toolbarbutton-icon {
   outline: 1px dashed;
