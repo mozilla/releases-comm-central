@@ -99,7 +99,11 @@ nsMsgIncomingServer::Observe(nsISupports* aSubject, const char* aTopic,
       GetHostName(hostname);
       nsAutoCString fullName;
       GetType(fullName);
-      fullName += "://"_ns + hostname;
+      if (fullName.EqualsLiteral("pop3")) {
+        fullName = "mailbox://"_ns + hostname;
+      } else {
+        fullName += "://"_ns + hostname;
+      }
       if (!fullName.Equals(NS_ConvertUTF16toUTF8(hostnameInfo))) return NS_OK;
     }
     rv = ForgetSessionPassword();
