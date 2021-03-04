@@ -40,9 +40,17 @@ function prefillAlertInfo() {
   if (!foldersWithNewMail || foldersWithNewMail.length < 1) {
     return;
   }
-  let rootFolder = foldersWithNewMail
-    .queryElementAt(0, Ci.nsIWeakReference)
-    .QueryReferent(Ci.nsIMsgFolder);
+  let rootFolder;
+  if (foldersWithNewMail instanceof Ci.nsIArray) {
+    rootFolder = foldersWithNewMail
+      .queryElementAt(0, Ci.nsIWeakReference)
+      .QueryReferent(Ci.nsIMsgFolder);
+  } else {
+    // Temporary workaround, after the refactoring of all
+    // nsMessenger*Integration, foldersWithNewMail will always be a
+    // nsIMsgFolder.
+    rootFolder = foldersWithNewMail;
+  }
 
   // Generate an account label string based on the root folder.
   var label = document.getElementById("alertTitle");

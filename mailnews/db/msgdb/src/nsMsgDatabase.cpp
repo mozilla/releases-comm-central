@@ -3412,7 +3412,7 @@ nsresult nsMsgDatabase::RowCellColumnToCharPtr(nsIMdbRow* row,
                                                 nsAString& str) {
   const char* buf = (const char*)yarn->mYarn_Buf;
   if (buf)
-    CopyASCIItoUTF16(Substring(buf, buf + yarn->mYarn_Fill), str);
+    CopyUTF8toUTF16(Substring(buf, buf + yarn->mYarn_Fill), str);
   else
     str.Truncate();
 }

@@ -233,10 +233,10 @@ add_task(function test_revert_to_newmailalert() {
 /**
  * Test that receiving new mail causes a notification to appear
  */
-add_task(function test_new_mail_received_causes_notification() {
+add_task(async function test_new_mail_received_causes_notification() {
   setupTest();
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
-  Assert.ok(gMockAlertsService._didNotify, "Did not show alert notification.");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
 });
 
 /**
@@ -260,14 +260,14 @@ add_task(function test_dont_show_newmailalert() {
  * Test that we notify, showing the oldest new, unread message received
  * since the last notification.
  */
-add_task(function test_show_oldest_new_unread_since_last_notification() {
+add_task(async function test_show_oldest_new_unread_since_last_notification() {
   setupTest();
   let notifyFirst = "This should notify first";
   Assert.ok(!gMockAlertsService._didNotify, "Should not have notified yet.");
   make_gradually_newer_sets_in_folder(gFolder, [
     { count: 1, body: { body: notifyFirst } },
   ]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified.");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     gMockAlertsService._text.includes(notifyFirst, 1),
     "Should have notified for the first message"
@@ -282,7 +282,7 @@ add_task(function test_show_oldest_new_unread_since_last_notification() {
   make_gradually_newer_sets_in_folder(gFolder, [
     { count: 1, body: { body: notifySecond } },
   ]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified.");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     gMockAlertsService._text.includes(notifySecond, 1),
     "Should have notified for the second message"
@@ -292,11 +292,11 @@ add_task(function test_show_oldest_new_unread_since_last_notification() {
 /**
  * Test that notifications work across different accounts.
  */
-add_task(function test_notification_works_across_accounts() {
+add_task(async function test_notification_works_across_accounts() {
   setupTest();
   // Cause a notification in the first folder
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified.");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
 
   gMockAlertsService._reset();
   // We'll set the time for these messages to be slightly further
@@ -306,7 +306,7 @@ add_task(function test_notification_works_across_accounts() {
   make_gradually_newer_sets_in_folder(gFolder2, [
     { count: 2, age: { minutes: gMsgMinutes + 20 } },
   ]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified.");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
 });
 
 /* Test that notification timestamps are independent from account
@@ -315,10 +315,10 @@ add_task(function test_notification_works_across_accounts() {
  * account completes, if it has new mail, it should notify, even if second
  * account's newest mail is older than the first account's newest mail.
  */
-add_task(function test_notifications_independent_across_accounts() {
+add_task(async function test_notifications_independent_across_accounts() {
   setupTest();
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified.");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
 
   gMockAlertsService._reset();
   // Next, let's make some mail arrive in the second folder, but
@@ -327,17 +327,17 @@ add_task(function test_notifications_independent_across_accounts() {
   make_gradually_newer_sets_in_folder(gFolder2, [
     { count: 2, age: { minutes: gMsgMinutes + 10 } },
   ]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified.");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
 });
 
 /**
  * Test that we can show the message subject in the notification.
  */
-add_task(function test_show_subject() {
+add_task(async function test_show_subject() {
   setupTest();
   let subject = "This should be displayed";
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 1, subject }]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     gMockAlertsService._text.includes(subject),
     "Should have displayed the subject"
@@ -347,12 +347,12 @@ add_task(function test_show_subject() {
 /**
  * Test that we can hide the message subject in the notification.
  */
-add_task(function test_hide_subject() {
+add_task(async function test_hide_subject() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_subject", false);
   let subject = "This should not be displayed";
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 1, subject }]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     !gMockAlertsService._text.includes(subject),
     "Should not have displayed the subject"
@@ -362,7 +362,7 @@ add_task(function test_hide_subject() {
 /**
  * Test that we can show just the message sender in the notification.
  */
-add_task(function test_show_only_subject() {
+add_task(async function test_show_only_subject() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
   Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
@@ -375,7 +375,7 @@ add_task(function test_show_only_subject() {
   make_gradually_newer_sets_in_folder(gFolder, [
     { count: 1, from: sender, subject, body: { body: messageBody } },
   ]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     gMockAlertsService._text.includes(subject),
     "Should have displayed the subject"
@@ -393,11 +393,11 @@ add_task(function test_show_only_subject() {
 /**
  * Test that we can show the message sender in the notification.
  */
-add_task(function test_show_sender() {
+add_task(async function test_show_sender() {
   setupTest();
   let sender = ["John Cleese", "john@cleese.invalid"];
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 1, from: sender }]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     gMockAlertsService._text.includes(sender[0]),
     "Should have displayed the sender"
@@ -407,12 +407,12 @@ add_task(function test_show_sender() {
 /**
  * Test that we can hide the message sender in the notification.
  */
-add_task(function test_hide_sender() {
+add_task(async function test_hide_sender() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
   let sender = ["John Cleese", "john@cleese.invalid"];
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 1, from: sender }]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     !gMockAlertsService._text.includes(sender[0]),
     "Should not have displayed the sender"
@@ -422,7 +422,7 @@ add_task(function test_hide_sender() {
 /**
  * Test that we can show just the message sender in the notification.
  */
-add_task(function test_show_only_sender() {
+add_task(async function test_show_only_sender() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
   Services.prefs.setBoolPref("mail.biff.alert.show_sender", true);
@@ -435,7 +435,7 @@ add_task(function test_show_only_sender() {
   make_gradually_newer_sets_in_folder(gFolder, [
     { count: 1, from: sender, subject, body: { body: messageBody } },
   ]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     gMockAlertsService._text.includes(sender[0]),
     "Should have displayed the sender"
@@ -453,14 +453,14 @@ add_task(function test_show_only_sender() {
 /**
  * Test that we can show the message preview in the notification.
  */
-add_task(function test_show_preview() {
+add_task(async function test_show_preview() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", true);
   let messageBody = "My message preview";
   make_gradually_newer_sets_in_folder(gFolder, [
     { count: 1, body: { body: messageBody } },
   ]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     gMockAlertsService._text.includes(messageBody),
     "Should have displayed the preview"
@@ -470,14 +470,14 @@ add_task(function test_show_preview() {
 /**
  * Test that we can hide the message preview in the notification.
  */
-add_task(function test_hide_preview() {
+add_task(async function test_hide_preview() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", false);
   let messageBody = "My message preview";
   make_gradually_newer_sets_in_folder(gFolder, [
     { count: 1, body: { body: messageBody } },
   ]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     !gMockAlertsService._text.includes(messageBody),
     "Should not have displayed the preview"
@@ -487,7 +487,7 @@ add_task(function test_hide_preview() {
 /**
  * Test that we can show justthe message preview in the notification.
  */
-add_task(function test_show_only_preview() {
+add_task(async function test_show_only_preview() {
   setupTest();
   Services.prefs.setBoolPref("mail.biff.alert.show_preview", true);
   Services.prefs.setBoolPref("mail.biff.alert.show_sender", false);
@@ -499,7 +499,7 @@ add_task(function test_show_only_preview() {
   make_gradually_newer_sets_in_folder(gFolder, [
     { count: 1, from: sender, subject, body: { body: messageBody } },
   ]);
-  Assert.ok(gMockAlertsService._didNotify, "Should have notified");
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
   Assert.ok(
     gMockAlertsService._text.includes(messageBody),
     "Should have displayed the preview: " + gMockAlertsService._text
@@ -518,7 +518,7 @@ add_task(function test_show_only_preview() {
  * Test that we can receive notifications even when the biff state of
  * the folder has not been changed.
  */
-add_task(function test_still_notify_with_unchanged_biff() {
+add_task(async function test_still_notify_with_unchanged_biff() {
   setupTest();
   // For now, we'll make sure that if we receive 10 pieces
   // of email, one after the other, we'll be notified for all
@@ -531,7 +531,7 @@ add_task(function test_still_notify_with_unchanged_biff() {
 
   for (let i = 0; i < HOW_MUCH_MAIL; i++) {
     make_gradually_newer_sets_in_folder(gFolder, [{ count: 1 }]);
-    Assert.ok(gMockAlertsService._didNotify, "Should have notified.");
+    await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
     gMockAlertsService._reset();
   }
 });
@@ -540,7 +540,7 @@ add_task(function test_still_notify_with_unchanged_biff() {
  * Test that we don't receive notifications for Draft, Queue, SentMail,
  * Templates or Junk folders.
  */
-add_task(function test_no_notification_for_uninteresting_folders() {
+add_task(async function test_no_notification_for_uninteresting_folders() {
   setupTest();
   var someFolder = create_folder("Uninteresting Folder");
   var uninterestingFlags = [
@@ -555,6 +555,8 @@ add_task(function test_no_notification_for_uninteresting_folders() {
   for (let i = 0; i < uninterestingFlags.length; i++) {
     someFolder.flags = uninterestingFlags[i];
     make_gradually_newer_sets_in_folder(someFolder, [{ count: 1 }]);
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 100));
     Assert.ok(!gMockAlertsService._didNotify, "Showed alert notification.");
   }
 
@@ -565,10 +567,7 @@ add_task(function test_no_notification_for_uninteresting_folders() {
   for (let i = 0; i < uninterestingFlags.length; i++) {
     someFolder.flags |= uninterestingFlags[i];
     make_gradually_newer_sets_in_folder(someFolder, [{ count: 1 }]);
-    Assert.ok(
-      gMockAlertsService._didNotify,
-      "Did not show alert notification."
-    );
+    await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
     someFolder.flags = someFolder.flags & ~uninterestingFlags[i];
   }
 });
