@@ -27,6 +27,18 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
+);
+
+var originalAlertsServiceCID;
+// We need a mock alerts service to capture notification events when loading the
+// UI after a successful account configuration in order to catch the alert
+// triggered when trying to connect to the fake IMAP server.
+class MockAlertsService {
+  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
+  showAlertNotification() {}
+}
 
 var user = {
   name: "Roger Sterling",
@@ -38,17 +50,18 @@ const PREF_NAME = "mailnews.auto_config_url";
 const PREF_VALUE = Services.prefs.getCharPref(PREF_NAME);
 
 add_task(function setupModule(module) {
+  originalAlertsServiceCID = MockRegistrar.register(
+    "@mozilla.org/alerts-service;1",
+    MockAlertsService
+  );
+
   let url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
 });
 
-registerCleanupFunction(function teardownModule(module) {
-  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
-});
-
-add_task(function test_mail_account_setup() {
-  open_mail_account_setup_wizard(function(awc) {
+add_task(async function test_mail_account_setup() {
+  open_mail_account_setup_wizard(async function(awc) {
     // Input user's account information
     awc.e("realname").focus();
     input_value(awc, user.name);
@@ -66,10 +79,17 @@ add_task(function test_mail_account_setup() {
       600
     );
     plan_for_window_close(awc);
+
+    // Since we mocked the OS notification, we will get an alert due to the fake
+    // imap server we're using for the tests. Handle the accept of the alert.
+    let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+
     awc.e("create_button").click();
 
     let events = mc.window.MailInstrumentation._currentState.events;
     wait_for_window_close();
+
+    await dialogPromise;
 
     // we expect to have accountAdded and smtpServerAdded events.
     if (!events.accountAdded.data) {
@@ -82,6 +102,8 @@ add_task(function test_mail_account_setup() {
 
 // Remove the accounts we added.
 registerCleanupFunction(function teardownModule(module) {
+  MockRegistrar.unregister(originalAlertsServiceCID);
+
   let incomingServer = MailServices.accounts.FindServer(
     "roger.sterling",
     user.incomingHost,
@@ -95,4 +117,6 @@ registerCleanupFunction(function teardownModule(module) {
   Assert.equal(outgoingServer.hostname, user.outgoingHost);
   MailServices.smtp.deleteServer(outgoingServer);
   MailServices.accounts.removeAccount(account, true);
+
+  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 });
