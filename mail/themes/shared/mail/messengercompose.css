@@ -326,11 +326,13 @@
 }
 
 .drop-attachment-overlay {
+  pointer-events: none;
   position: fixed;
   z-index: 12; /* above the attachment bucket splitter */
   background-color: rgba(0, 0, 0, 0.5);
   color: #fff;
   inset: 0;
+  padding: 30px;
   display: none;
   justify-content: space-around;
 }
@@ -339,24 +341,68 @@
   background-color: rgba(0, 0, 0, 0.75);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes hiding-animation {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes showing-animation {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .drop-attachment-box {
+    transition: color 120ms ease, border-color 120ms ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /*
+  * Redefine these animations but without any visible transition as we still
+  * need the timing for the animationend JavaScript event.
+  */
+  @keyframes hiding-animation {
+    0% { opacity: 1; }
+    100% { opacity: 1; }
+  }
+  @keyframes showing-animation {
+    0% { opacity: 1; }
+    100% { opacity: 1; }
+  }
+}
+
+.drop-attachment-overlay.hiding {
+  animation: hiding-animation 120ms ease 1;
+}
+
+.drop-attachment-overlay.showing {
+  display: flex;
+  animation: showing-animation 120ms ease 1;
+}
+
 .drop-attachment-overlay.show {
   display: flex;
 }
 
 .drop-attachment-box {
+  pointer-events: auto;
   font-size: 1.4rem;
   font-weight: 600;
-  color: #333;
-  margin: 21px;
+  color: #222;
   border-radius: 15px;
-  border: 4px dashed #333;
+  border: 4px dashed #222;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.drop-attachment-box + .drop-attachment-box {
+  margin-inline-start: 30px;
+}
+
 .drop-attachment-box span {
+  pointer-events: none;
   -moz-context-properties: fill;
   fill: currentColor;
   background-size: contain;

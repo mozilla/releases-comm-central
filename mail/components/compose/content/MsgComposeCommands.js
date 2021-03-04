@@ -148,7 +148,11 @@ try {
 // keep the resized height when toggling the attachment panel on and off. Set
 // a default value in order to properly run the condition against a new height
 // value when a message with multiple attachments is forwarded.
-var kAttachmentHeight = 0;
+var gAttachmentHeight = 0;
+
+// Boolean variable to keep track of the dragging action of files above the
+// compose window.
+var gIsDraggingAttachments;
 
 // i18n globals
 var _gComposeBundle;
@@ -4030,6 +4034,27 @@ function ComposeLoad() {
     toggleAttachmentAnimation
   );
 
+  // Setup the attachment overlay animation listeners.
+  let overlay = document.getElementById("dropAttachmentOverlay");
+  overlay.addEventListener("animationend", e => {
+    // Make the overlay constantly visible If the user is dragging a file over
+    // the compose windown.
+    if (e.animationName == "showing-animation") {
+      // We don't remove the "showing" class here since the dragOver event will
+      // keep adding it and we would have a flashing effect.
+      overlay.classList.add("show");
+      return;
+    }
+
+    // Permanently hide the overlay after the hiding animation ended.
+    if (e.animationName == "hiding-animation") {
+      overlay.classList.remove("show", "hiding");
+      // Remove the hover class from the child items to reset the style.
+      document.getElementById("addInline").classList.remove("hover");
+      document.getElementById("addAsAttachment").classList.remove("hover");
+    }
+  });
+
   try {
     SetupCommandUpdateHandlers();
     // This will do migration, or create a new account if we need to.
@@ -4153,6 +4178,19 @@ async function setKeyboardShortcuts() {
           goDoCommand("cmd_toggleAttachmentPane");
           break;
       }
+    }
+  });
+
+  document.addEventListener("keypress", event => {
+    // If the user presses Esc and the drop attachment overlay is stil visible,
+    // call the onDragLeave() method to properly hide it.
+    if (
+      event.key == "Escape" &&
+      document
+        .getElementById("dropAttachmentOverlay")
+        .classList.contains("show")
+    ) {
+      envelopeDragObserver.onDragLeave(event);
     }
   });
 }
@@ -6088,8 +6126,8 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
 
     // Increase the height of the attachment bucket to show the uploaded files
     // only if the new height is taller than the currently saved height.
-    if (newHeight > kAttachmentHeight) {
-      kAttachmentHeight = newHeight;
+    if (newHeight > gAttachmentHeight) {
+      gAttachmentHeight = newHeight;
     }
   }
 
@@ -6695,7 +6733,7 @@ function moveSelectedAttachments(aDirection) {
  * Save the height of the attachment container if the user manually resized it.
  */
 function attachmentBucketSizerOnMouseUp() {
-  kAttachmentHeight = Number(
+  gAttachmentHeight = Number(
     document.getElementById("attachmentView").getAttribute("height")
   );
 }
@@ -6746,10 +6784,10 @@ function toggleAttachmentPane(aAction = "toggle") {
       }
 
       // Restore the previously resized container height.
-      if (kAttachmentHeight) {
+      if (gAttachmentHeight) {
         document
           .getElementById("attachmentView")
-          .setAttribute("height", kAttachmentHeight);
+          .setAttribute("height", gAttachmentHeight);
       }
       break;
     }
@@ -6761,7 +6799,7 @@ function toggleAttachmentPane(aAction = "toggle") {
       }
 
       // Save the current bucket height so we can properly restore it.
-      kAttachmentHeight = Number(
+      gAttachmentHeight = Number(
         document.getElementById("attachmentView").getAttribute("height")
       );
 
@@ -7700,11 +7738,8 @@ var envelopeDragObserver = {
 
   // eslint-disable-next-line complexity
   onDrop(event) {
-    document.getElementById("dropAttachmentOverlay").classList.remove("show");
-    // Clear the hover CSS class from the target elements inside the overlay.
-    for (let box of document.querySelectorAll(".drop-attachment-box")) {
-      box.classList.remove("hover");
-    }
+    // Call the dragLeave event to properly hide the overlay.
+    this.onDragLeave(event);
 
     let dragSession = gDragService.getCurrentSession();
 
@@ -7957,6 +7992,10 @@ var envelopeDragObserver = {
       return;
     }
 
+    // We're dragging files that can potentially be attached or added inline, so
+    // update the variable.
+    gIsDraggingAttachments = true;
+
     for (let flavor of flavors) {
       if (!dragSession.isDataFlavorSupported(flavor)) {
         continue;
@@ -7969,7 +8008,9 @@ var envelopeDragObserver = {
       ) {
         event.stopPropagation();
         event.preventDefault();
-        document.getElementById("dropAttachmentOverlay").classList.add("show");
+        document
+          .getElementById("dropAttachmentOverlay")
+          .classList.add("showing");
 
         document.l10n.setAttributes(
           document.getElementById("addAsAttachmentLabel"),
@@ -7998,11 +8039,37 @@ var envelopeDragObserver = {
 
       DragAddressOverTargetControl(event);
     }
+
+    // Add or remove the hover effect to the droppable containers. We can't do
+    // it simply via CSS since the hover events don't work when draggin an item.
+    document
+      .getElementById("addInline")
+      .classList.toggle("hover", event.target.id == "addInline");
+    document
+      .getElementById("addAsAttachment")
+      .classList.toggle("hover", event.target.id == "addAsAttachment");
   },
 
-  onDragExit(event) {
-    // Hide the drop overlay.
-    document.getElementById("dropAttachmentOverlay").classList.remove("show");
+  onDragLeave(event) {
+    // Set the variable to false as a drag leave event was triggered.
+    gIsDraggingAttachments = false;
+
+    // We use a timeout since a drag leave event might occur also when the drag
+    // motion passes above a child element and doesn't actually leave the
+    // compose window.
+    setTimeout(() => {
+      // If after the timeout, the dragging boolean is true, it means the user
+      // is still dragging something above the compose window.
+      if (gIsDraggingAttachments) {
+        return;
+      }
+
+      // Hide the drop overlay.
+      let overlay = document.getElementById("dropAttachmentOverlay");
+      overlay.classList.remove("showing");
+      overlay.classList.add("hiding");
+    }, 100);
+
     this._hideDropMarker();
   },
 
@@ -8080,41 +8147,6 @@ let attachmentBucketDNDObserver = {
     event.stopPropagation();
   },
 };
-
-/**
- * Add a class to highlight the current drop area.
- *
- * @param {Element} target - The target element of the dragover action.
- */
-function addHighlightDropBox(target) {
-  // Force the attachment overlay to stay visible when a dropexit is registered
-  // as the user enters one of the drop boxes.
-  document.getElementById("dropAttachmentOverlay").classList.add("show");
-
-  // We need to loop through the available drop targets and remove the .hover
-  // class since the ondragexit listener sometimes fails when moving too fast.
-  for (let box of document.querySelectorAll(".drop-attachment-box")) {
-    if (box == target) {
-      continue;
-    }
-    box.classList.remove("hover");
-  }
-
-  target.classList.add("hover");
-}
-
-/**
- * Remove the highlight class from the exited drop area.
- *
- * @param {Element} target - The target element of the dragexit action.
- */
-function removeHighlightDropBox(target) {
-  // Force the attachment overlay to stay visible when a dropexit is registered
-  // as the user exits one of the drop boxes.
-  document.getElementById("dropAttachmentOverlay").classList.add("show");
-
-  target.classList.remove("hover");
-}
 
 function DisplaySaveFolderDlg(folderURI) {
   try {

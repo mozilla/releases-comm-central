@@ -2121,7 +2121,7 @@
                  customizable="true" nowindowdrag="true"
                  ondragover="envelopeDragObserver.onDragOver(event);"
                  ondrop="envelopeDragObserver.onDrop(event);"
-                 ondragexit="envelopeDragObserver.onDragExit(event);">
+                 ondragleave="envelopeDragObserver.onDragLeave(event);">
           <hbox id="msgheaderstoolbar-box" flex="1">
             <vbox id="addresses-box" flex="1" >
               <hbox id="top-gradient-box" class="address-identity-recipient">
@@ -2461,20 +2461,16 @@
       <vbox id="appcontent" flex="1"
             ondragover="envelopeDragObserver.onDragOver(event);"
             ondrop="envelopeDragObserver.onDrop(event);"
-            ondragexit="envelopeDragObserver.onDragExit(event);">
+            ondragleave="envelopeDragObserver.onDragLeave(event);">
         <html:div id="dropAttachmentOverlay" class="drop-attachment-overlay">
           <html:aside id="addAsAttachment"
-                      class="drop-attachment-box"
-                      ondragenter="addHighlightDropBox(this);"
-                      ondragexit="removeHighlightDropBox(this);">
+                      class="drop-attachment-box">
             <html:span id="addAsAttachmentLabel"
                        data-l10n-id="drop-file-label-attachment"
                        data-l10n-args='{"count": 1}'
                        class="drop-as-attachment"></html:span>
           </html:aside>
-          <html:aside id="addInline" class="drop-attachment-box"
-                      ondragenter="addHighlightDropBox(this);"
-                      ondragexit="removeHighlightDropBox(this);">
+          <html:aside id="addInline" class="drop-attachment-box">
             <html:span id="addInlineLabel"
                        data-l10n-id="drop-file-label-inline"
                        data-l10n-args='{"count": 1}'
@@ -2516,7 +2512,7 @@
         <vbox id="attachmentsBox" collapsed="true"
               ondragover="envelopeDragObserver.onDragOver(event);"
               ondrop="envelopeDragObserver.onDrop(event);"
-              ondragexit="envelopeDragObserver.onDragExit(event);">
+              ondragleave="envelopeDragObserver.onDragLeave(event);">
           <richlistbox is="attachment-list" id="attachmentBucket"
                        aria-describedby="attachmentBucketCount"
                        class="attachmentList"
