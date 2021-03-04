@@ -92,13 +92,13 @@ collapse-attachment-pane-tooltip =
     .tooltiptext = Hide the attachment pane ({ ctrl-cmd-shift-pretty-prefix }{ toggle-attachment-pane-key })
 
 drop-file-label-attachment = { $count ->
-    [one]   Add as Attachment
-   *[other] Add as Attachments
+    [one]   Add as attachment
+   *[other] Add as attachments
 }
 
 drop-file-label-inline = { $count ->
-    [one]   Append inline
-   *[other] Append inline
+    [one]   Insert inline
+   *[other] Insert inline
 }
 
 # Reorder Attachment Panel

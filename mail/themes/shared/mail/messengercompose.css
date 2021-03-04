@@ -401,7 +401,7 @@
   justify-content: center;
 }
 
-.drop-attachment-box + .drop-attachment-box {
+.drop-attachment-box:not(.hidden) + .drop-attachment-box {
   margin-inline-start: 30px;
 }
 
@@ -419,6 +419,11 @@
 
 .drop-attachment-box .drop-inline {
   background: url("chrome://messenger/skin/icons/image.svg") left center no-repeat;
+}
+
+.drop-attachment-box .drop-as-attachment:-moz-locale-dir(rtl),
+.drop-attachment-box .drop-inline:-moz-locale-dir(rtl) {
+  background-position-x: right;
 }
 
 :root[lwt-tree-brighttext] .drop-attachment-box:not(.hover) {
