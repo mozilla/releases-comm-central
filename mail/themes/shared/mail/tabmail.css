@@ -90,8 +90,8 @@
   margin-inline-start: 1px;
   margin-inline-end: -2px;
   padding: 0;
-  -moz-context-properties: fill, fill-opacity, stroke-opacity;
-  stroke-opacity: var(--toolbarbutton-icon-fill-opacity);
+  -moz-context-properties: fill, fill-opacity;
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
   -moz-image-region: auto;
 }
 
