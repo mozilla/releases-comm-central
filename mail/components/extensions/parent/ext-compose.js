@@ -288,10 +288,12 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
 }
 
 async function getComposeDetails(composeWindow, extension) {
-  let composeFields = composeWindow.GetComposeDetails();
+  // Force all recipient fields to be pillified, so their content can be accessed.
+  composeWindow.pillifyRecipients();
 
-  // register the event listener before checking composeEditorReady
-  // to a eliminate potential race condition
+  let composeFields = composeWindow.GetComposeDetails();
+  // Register the event listener before checking composeEditorReady
+  // to a eliminate potential race condition.
   let composeEditorReady = new Promise(resolve =>
     composeWindow.addEventListener("compose-editor-ready", resolve, {
       once: true,
@@ -303,7 +305,7 @@ async function getComposeDetails(composeWindow, extension) {
   let editor = composeWindow.GetCurrentEditor();
 
   let type;
-  // check all known nsIMsgComposeParams
+  // Check all known nsIMsgComposeParams.
   switch (composeWindow.gComposeType) {
     case Ci.nsIMsgCompType.Draft:
       type = "draft";
