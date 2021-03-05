@@ -786,7 +786,7 @@ nsMessengerWinIntegration::OnItemBoolPropertyChanged(
     rv = ResetCurrent();
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = UpdateUnreadCount();
+    rv = UpdateUnreadCountOld();
     NS_ENSURE_SUCCESS(rv, rv);
   }
   return NS_OK;
@@ -860,7 +860,7 @@ nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder* aItem,
     if (!mUnreadTimerActive ||
         (!mCurrentUnreadCount && mLastUnreadCountWrittenToRegistry) ||
         (mCurrentUnreadCount && mLastUnreadCountWrittenToRegistry < 1)) {
-      rv = UpdateUnreadCount();
+      rv = UpdateUnreadCountOld();
       NS_ENSURE_SUCCESS(rv, rv);
       // If timer wasn't running, start it.
       if (!mUnreadTimerActive) rv = SetupUnreadCountUpdateTimer();
@@ -877,7 +877,7 @@ void nsMessengerWinIntegration::OnUnreadCountUpdateTimer(nsITimer* timer,
       (nsMessengerWinIntegration*)osIntegration;
 
   winIntegration->mUnreadTimerActive = false;
-  mozilla::DebugOnly<nsresult> rv = winIntegration->UpdateUnreadCount();
+  mozilla::DebugOnly<nsresult> rv = winIntegration->UpdateUnreadCountOld();
   NS_ASSERTION(NS_SUCCEEDED(rv), "updating unread count failed");
 }
 
@@ -1035,7 +1035,7 @@ nsresult nsMessengerWinIntegration::SetupInbox() {
   return NS_OK;
 }
 
-nsresult nsMessengerWinIntegration::UpdateUnreadCount() {
+nsresult nsMessengerWinIntegration::UpdateUnreadCountOld() {
   nsresult rv;
 
   if (mDefaultAccountMightHaveAnInbox && mInboxURI.IsEmpty()) {
@@ -1150,5 +1150,10 @@ nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
 
   ::Shell_NotifyIconW(NIM_ADD, &sMailIconData);
   ::Shell_NotifyIconW(NIM_SETVERSION, &sMailIconData);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMessengerWinIntegration::UpdateUnreadCount(const uint32_t unreadCount) {
   return NS_OK;
 }

@@ -7,60 +7,18 @@
 #define __nsMessengerOSXIntegration_h
 
 #include "nsIMessengerOSIntegration.h"
-#include "nsIFolderListener.h"
-#include "nsITimer.h"
-#include "nsCOMPtr.h"
-#include "nsString.h"
-#include "nsIObserver.h"
-#include "nsIAlertsService.h"
-#include "mozINewMailListener.h"
 
-#define NS_MESSENGEROSXINTEGRATION_CID               \
-  {                                                  \
-    0xaa83266, 0x4225, 0x4c4b, {                     \
-      0x93, 0xf8, 0x94, 0xb1, 0x82, 0x58, 0x6f, 0x93 \
-    }                                                \
-  }
-
-class nsIStringBundle;
-
-class nsMessengerOSXIntegration : public nsIMessengerOSIntegration,
-                                  public nsIFolderListener,
-                                  public nsIObserver,
-                                  public mozINewMailListener {
+class nsMessengerOSXIntegration : public nsIMessengerOSIntegration {
  public:
   nsMessengerOSXIntegration();
-  virtual nsresult Init();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMESSENGEROSINTEGRATION
-  NS_DECL_NSIFOLDERLISTENER
-  NS_DECL_NSIOBSERVER
-  NS_DECL_MOZINEWMAILLISTENER
 
  private:
   virtual ~nsMessengerOSXIntegration();
 
-  nsresult ShowAlertMessage(const nsAString& aAlertTitle,
-                            const nsAString& aAlertText,
-                            const nsACString& aFolderURI);
-  nsresult OnAlertFinished();
-  nsresult OnAlertClicked(const char16_t* aAlertCookie);
-#ifdef MOZ_SUITE
-  nsresult OnAlertClickedSimple();
-#endif
-  nsresult GetStringBundle(nsIStringBundle** aBundle);
-  void FillToolTipInfo(nsIMsgFolder* aFolder, int32_t aNewCount);
-  nsresult GetFirstFolderWithNewMail(nsIMsgFolder* aFolder,
-                                     nsCString& aFolderURI);
-  nsresult BadgeDockIcon();
   nsresult RestoreDockIcon();
-  nsresult BounceDockIcon();
-  nsresult GetNewMailAuthors(nsIMsgFolder* aFolder, nsString& aAuthors,
-                             int32_t aNewCount, int32_t* aNotDisplayed);
-
-  int32_t mUnreadTotal;
-  int32_t mUnreadChat;
 };
 
 #endif  // __nsMessengerOSXIntegration_h

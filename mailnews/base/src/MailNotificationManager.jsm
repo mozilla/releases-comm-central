@@ -20,13 +20,20 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  * mails if necessary.
  */
 class MailNotificationManager {
-  QueryInterface = ChromeUtils.generateQI(["nsIObserver", "nsIFolderListener"]);
+  QueryInterface = ChromeUtils.generateQI([
+    "nsIObserver",
+    "nsIFolderListener",
+    "mozINewMailListener",
+  ]);
 
   constructor() {
-    // Only handles mail notification on Linux for now.
-    if (AppConstants.platform != "linux") {
+    // Only handles mail notification on Linux and macOS for now.
+    if (AppConstants.platform != "linux" && AppConstants.platform != "macosx") {
       return;
     }
+
+    this._unreadChatCount = 0;
+    this._unreadMailCount = 0;
 
     this._logger = console.createInstance({
       prefix: "mail.notification",
@@ -36,10 +43,29 @@ class MailNotificationManager {
     this._bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
+    try {
+      this._osIntegration = Cc[
+        "@mozilla.org/messenger/osintegration;1"
+      ].getService(Ci.nsIMessengerOSIntegration);
+    } catch (e) {
+      // We don't have OS integration on all platforms.
+    }
     MailServices.mailSession.AddFolderListener(
       this,
       Ci.nsIFolderListener.intPropertyChanged
     );
+
+    if (["macosx", "win"].includes(AppConstants.platform)) {
+      // We don't have indicator for unread count on Linux yet.
+      Cc["@mozilla.org/newMailNotificationService;1"]
+        .getService(Ci.mozINewMailNotificationService)
+        .addListener(this, Ci.mozINewMailNotificationService.count);
+    }
+
+    if (AppConstants.platform == "macosx") {
+      Services.obs.addObserver(this, "unread-im-count-changed");
+      Services.obs.addObserver(this, "new-directed-incoming-message");
+    }
   }
 
   observe(subject, topic, data) {
@@ -49,6 +75,12 @@ class MailNotificationManager {
         .getService(Ci.nsIMessenger)
         .msgHdrFromURI(data);
       MailUtils.displayMessageInFolderTab(msgHdr);
+    } else if (topic == "unread-im-count-changed") {
+      this._logger.log(`Unread chat count changed to ${this._unreadChatCount}`);
+      this._unreadChatCount = parseInt(data, 10) || 0;
+      this._updateUnreadCount();
+    } else if (topic == "new-directed-incoming-messenger") {
+      this._animateDockIcon();
     }
   }
 
@@ -91,6 +123,15 @@ class MailNotificationManager {
   }
 
   /**
+   * @see mozINewMailNotificationService
+   */
+  onCountChanged(count) {
+    this._logger.log(`Unread mail count changed to ${this._unreadMailCount}`);
+    this._unreadMailCount = count;
+    this._updateUnreadCount();
+  }
+
+  /**
    * Show an alert according the changed folder.
    * @param {nsIMsgFolder} changedFolder - The folder that emitted the change
    *   event, can be a root folder or a real folder.
@@ -120,6 +161,7 @@ class MailNotificationManager {
       return;
     }
     this._showAlert(firstNewMsgHdr, title, body);
+    this._animateDockIcon();
   }
 
   /**
@@ -235,7 +277,7 @@ class MailNotificationManager {
     let folder = msgHdr.folder;
 
     // Try to use system alert first.
-    if (Services.prefs.getBoolPref("mail.biff.use_system_alert")) {
+    if (Services.prefs.getBoolPref("mail.biff.use_system_alert", true)) {
       let alertsService = Cc["@mozilla.org/system-alerts-service;1"].getService(
         Ci.nsIAlertsService
       );
@@ -262,5 +304,17 @@ class MailNotificationManager {
       "chrome,dialog=yes,titlebar=no,popup=yes",
       folder.server.rootFolder
     );
+  }
+
+  _updateUnreadCount() {
+    this._osIntegration?.updateUnreadCount(
+      this._unreadMailCount + this._unreadChatCount
+    );
+  }
+
+  _animateDockIcon() {
+    if (Services.prefs.getBoolPref("mail.biff.animate_dock_icon", false)) {
+      Services.wm.getMostRecentWindow("mail:3pane")?.getAttention();
+    }
   }
 }

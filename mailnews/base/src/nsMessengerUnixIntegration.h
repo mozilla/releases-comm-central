@@ -7,66 +7,16 @@
 #define __nsMessengerUnixIntegration_h
 
 #include "nsIMessengerOSIntegration.h"
-#include "nsIFolderListener.h"
-#include "nsIUrlListener.h"
-#include "nsIMutableArray.h"
-#include "nsIStringBundle.h"
-#include "nsIObserver.h"
-#include "nsDataHashtable.h"
-#include "nsTArray.h"
 
-#define NS_MESSENGERUNIXINTEGRATION_CID              \
-  {                                                  \
-    0xf62f3d3a, 0x1dd1, 0x11b2, {                    \
-      0xa5, 0x16, 0xef, 0xad, 0xb1, 0x31, 0x61, 0x5c \
-    }                                                \
-  }
-
-class nsIStringBundle;
-
-class nsMessengerUnixIntegration : public nsIFolderListener,
-                                   public nsIObserver,
-                                   public nsIUrlListener,
-                                   public nsIMessengerOSIntegration {
+class nsMessengerUnixIntegration : public nsIMessengerOSIntegration {
  public:
   nsMessengerUnixIntegration();
-  virtual nsresult Init();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMESSENGEROSINTEGRATION
-  NS_DECL_NSIFOLDERLISTENER
-  NS_DECL_NSIOBSERVER
-  NS_DECL_NSIURLLISTENER
 
  private:
   virtual ~nsMessengerUnixIntegration() {}
-  nsresult ShowAlertMessage(const nsAString& aAlertTitle,
-                            const nsAString& aAlertText,
-                            const nsACString& aFolderURI);
-  nsresult GetFirstFolderWithNewMail(nsACString& aFolderURI);
-  nsresult GetStringBundle(nsIStringBundle** aBundle);
-  nsresult AlertFinished();
-  nsresult AlertClicked();
-  void FillToolTipInfo();
-  nsresult GetMRUTimestampForFolder(nsIMsgFolder* aFolder,
-                                    uint32_t* aLastMRUTime);
-
-  bool BuildNotificationBody(nsIMsgDBHdr* aHdr, nsIStringBundle* Bundle,
-                             nsString& aBody);
-  bool BuildNotificationTitle(nsIMsgFolder* aFolder, nsIStringBundle* aBundle,
-                              nsString& aTitle);
-  nsresult ShowNewAlertNotification(bool aUserInitiated);
-  nsresult PutMRUTimestampForFolder(nsIMsgFolder* aFolder,
-                                    uint32_t aLastMRUTime);
-
-  nsCOMPtr<nsIMutableArray>
-      mFoldersWithNewMail;  // keep track of all the root folders with pending
-                            // new mail
-  bool mAlertInProgress;
-  nsDataHashtable<nsCStringHashKey, uint32_t>
-      mLastMRUTimes;  // We keep track of the last time we did a new mail
-                      // notification for each account
-  nsTArray<nsCString> mFetchingURIs;
 };
 
 #endif  // __nsMessengerUnixIntegration_h

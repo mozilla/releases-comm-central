@@ -40,6 +40,7 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration,
   NS_DECL_NSIFOLDERLISTENER
   NS_DECL_NSIOBSERVER
 
+  NS_IMETHOD UpdateUnreadCount(uint32_t unreadCount);
   nsresult ShowNewAlertNotification(bool aUserInitiated,
                                     const nsString& aAlertTitle,
                                     const nsString& aAlertText);
@@ -88,7 +89,7 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration,
 
   nsresult SetupUnreadCountUpdateTimer();
   static void OnUnreadCountUpdateTimer(nsITimer* timer, void* osIntegration);
-  nsresult UpdateUnreadCount();
+  nsresult UpdateUnreadCountOld();
 
   nsCOMPtr<nsITimer> mUnreadCountUpdateTimer;
 

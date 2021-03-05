@@ -5,10 +5,15 @@
 
 #include "nsISupports.idl"
 
+/**
+ * Common interfaces to integrate with different platforms, how they are
+ * implemented depends on the specific platform.
+ */
 [scriptable, uuid(d9e45fee-1dd1-11b2-938c-9147855ed837)]
 interface nsIMessengerOSIntegration : nsISupports {
-  // for now, nothing.  it's up to the implementation to
-  // do all the work of registering itself as listeners
-  // all we guarantee is your service will be created
-  // when accounts are loaded by the account manager
+  /**
+   * Update the unread count.
+   * @param unreadCount - The number of unread messages.
+   */
+  void updateUnreadCount(in unsigned long unreadCount);
 };

@@ -222,6 +222,11 @@ add_task(function test_revert_to_newmailalert() {
   // to send a notification.
   gMockAlertsService._doFail = true;
 
+  if (AppConstants.platform == "macosx") {
+    // newmailalert.xhtml doesn't work on macOS.
+    return;
+  }
+
   // We expect the newmailalert.xhtml window...
   plan_for_new_window("alert:alert");
   make_gradually_newer_sets_in_folder(gFolder, [{ count: 2 }]);
