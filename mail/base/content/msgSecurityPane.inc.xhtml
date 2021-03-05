@@ -71,7 +71,7 @@
       <vbox id="signatureKey" class="message-security-container"
             collapsed="true">
         <hbox flex="1" align="center">
-          <label id="signatureKeyId" flex="1"/>
+          <label id="signatureKeyId" flex="1" context="copyPopup"/>
           <button id="viewSignatureKey" data-l10n-id="openpgp-view-signer-key"
                   class="button-focusable"
                   oncommand="viewSignatureKey()" collapsed="true"/>
@@ -108,7 +108,7 @@
 
       <vbox id="encryptionKey" class="message-security-container"
             collapsed="true">
-        <label id="encryptionKeyId"/>
+        <label id="encryptionKeyId" context="copyPopup"/>
         <hbox pack="end">
           <button id="viewEncryptionKey"
                   data-l10n-id="openpgp-view-your-encryption-key"

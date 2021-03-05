@@ -736,6 +736,14 @@ html|header.message-security-header html|h3 {
   font-size: 0.9em;
 }
 
+#signatureKeyId,
+#encryptionKeyId,
+.openpgp-key-id,
+.openpgp-key-name {
+  user-select: text;
+  cursor: text;
+}
+
 .button-focusable {
   -moz-user-focus: normal;
 }
