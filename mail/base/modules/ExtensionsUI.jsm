@@ -17,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
   AMTelemetry: "resource://gre/modules/AddonManager.jsm",
   AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.jsm",
-  BrowserUtils: "resource://gre/modules/BrowserUtils.jsm",
   ExtensionData: "resource://gre/modules/Extension.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
   Services: "resource://gre/modules/Services.jsm",
@@ -407,7 +406,7 @@ var gXPInstallObserver = {
             );
             let b = doc.createElementNS("http://www.w3.org/1999/xhtml", "b");
             b.textContent = options.name;
-            let fragment = BrowserUtils.getLocalizedFragment(doc, text, b);
+            let fragment = getLocalizedFragment(doc, text, b);
             message.appendChild(fragment);
           } else {
             message.textContent = addonsBundle.GetStringFromName(
@@ -1012,7 +1011,9 @@ var ExtensionsUI = {
       collapseOrigins: true,
     });
     strings.addonName = info.addon.name;
-    strings.learnMore = addonsBundle.GetStringFromName("webextPerms.learnMore");
+    strings.learnMore = addonsBundle.GetStringFromName(
+      "webextPerms.learnMore2"
+    );
     return strings;
   },
 
@@ -1209,3 +1210,75 @@ var ExtensionsUI = {
 };
 
 EventEmitter.decorate(ExtensionsUI);
+
+/**
+ * Generate a document fragment for a localized string that has DOM
+ * node replacements. This avoids using getFormattedString followed
+ * by assigning to innerHTML. Fluent can probably replace this when
+ * it is in use everywhere.
+ *
+ * Lifted from BrowserUIUtils.jsm.
+ *
+ * @param {Document} doc
+ * @param {String}   msg
+ *                   The string to put replacements in. Fetch from
+ *                   a stringbundle using getString or GetStringFromName,
+ *                   or even an inserted dtd string.
+ * @param {Node|String} nodesOrStrings
+ *                   The replacement items. Can be a mix of Nodes
+ *                   and Strings. However, for correct behaviour, the
+ *                   number of items provided needs to exactly match
+ *                   the number of replacement strings in the l10n string.
+ * @returns {DocumentFragment}
+ *                   A document fragment. In the trivial case (no
+ *                   replacements), this will simply be a fragment with 1
+ *                   child, a text node containing the localized string.
+ */
+function getLocalizedFragment(doc, msg, ...nodesOrStrings) {
+  // Ensure replacement points are indexed:
+  for (let i = 1; i <= nodesOrStrings.length; i++) {
+    if (!msg.includes("%" + i + "$S")) {
+      msg = msg.replace(/%S/, "%" + i + "$S");
+    }
+  }
+  let numberOfInsertionPoints = msg.match(/%\d+\$S/g).length;
+  if (numberOfInsertionPoints != nodesOrStrings.length) {
+    Cu.reportError(
+      `Message has ${numberOfInsertionPoints} insertion points, ` +
+        `but got ${nodesOrStrings.length} replacement parameters!`
+    );
+  }
+
+  let fragment = doc.createDocumentFragment();
+  let parts = [msg];
+  let insertionPoint = 1;
+  for (let replacement of nodesOrStrings) {
+    let insertionString = "%" + insertionPoint++ + "$S";
+    let partIndex = parts.findIndex(
+      part => typeof part == "string" && part.includes(insertionString)
+    );
+    if (partIndex == -1) {
+      fragment.appendChild(doc.createTextNode(msg));
+      return fragment;
+    }
+
+    if (typeof replacement == "string") {
+      parts[partIndex] = parts[partIndex].replace(insertionString, replacement);
+    } else {
+      let [firstBit, lastBit] = parts[partIndex].split(insertionString);
+      parts.splice(partIndex, 1, firstBit, replacement, lastBit);
+    }
+  }
+
+  // Put everything in a document fragment:
+  for (let part of parts) {
+    if (typeof part == "string") {
+      if (part) {
+        fragment.appendChild(doc.createTextNode(part));
+      }
+    } else {
+      fragment.appendChild(part);
+    }
+  }
+  return fragment;
+}
