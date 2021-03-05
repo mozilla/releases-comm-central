@@ -14,6 +14,7 @@
   background-color: var(--body-background-color);
   color: var(--body-text-color);
   appearance: none;
+  height: unset; /* needed to allow elements to react to events */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,6 +56,11 @@ body {
   font-size: large;
   font-weight: normal;
   vertical-align: middle;
+}
+
+#content {
+  height: 100%;
+  overflow-y: auto;
 }
 
 .hidden {
