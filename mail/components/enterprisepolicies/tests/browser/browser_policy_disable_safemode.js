@@ -12,13 +12,13 @@ add_task(async function setup() {
 
 add_task(async function test_help_menu() {
   buildHelpMenu();
-  let safeModeMenu = document.getElementById("helpSafeMode");
+  let safeModeMenu = document.getElementById("helpTroubleshootMode");
   is(
     safeModeMenu.getAttribute("disabled"),
     "true",
     "The `Restart with Add-ons Disabled...` item should be disabled"
   );
-  let safeModeAppMenu = document.getElementById("appmenu_safeMode");
+  let safeModeAppMenu = document.getElementById("appmenu_troubleshootMode");
   is(
     safeModeAppMenu.getAttribute("disabled"),
     "true",

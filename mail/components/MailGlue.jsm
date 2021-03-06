@@ -379,7 +379,7 @@ MailGlue.prototype = {
     if (Services.appinfo.inSafeMode) {
       Services.ww.openWindow(
         null,
-        "chrome://messenger/content/safeMode.xhtml",
+        "chrome://messenger/content/troubleshootMode.xhtml",
         "_blank",
         "chrome,centerscreen,modal,resizable=no",
         null

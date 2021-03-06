@@ -877,12 +877,14 @@ function LoadPostAccountWizard(isFromProvisioner) {
 
   // Check if Thunderbird was launched in safe mode.
   if (Services.appinfo.inSafeMode) {
-    let safeMode = document.getElementById("helpSafeMode");
-    safeMode.label = safeMode.getAttribute("stoplabel");
-    safeMode.accessKey = safeMode.getAttribute("stopaccesskey");
+    let safeMode = document.getElementById("helpTroubleshootMode");
+    document.l10n.setAttributes(safeMode, "menu-help-exit-troubleshoot-mode");
 
-    let appSafeMode = document.getElementById("appmenu_safeMode");
-    appSafeMode.label = appSafeMode.getAttribute("stoplabel");
+    let appSafeMode = document.getElementById("appmenu_troubleshootMode");
+    document.l10n.setAttributes(
+      appSafeMode,
+      "menu-help-exit-troubleshoot-mode"
+    );
   }
 
   // Load the message header pane.

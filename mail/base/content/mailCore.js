@@ -772,9 +772,13 @@ function safeModeRestart() {
   let bundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
-  let promptTitle = bundle.GetStringFromName("safeModeRestartPromptTitle");
-  let promptMessage = bundle.GetStringFromName("safeModeRestartPromptMessage");
-  let restartText = bundle.GetStringFromName("safeModeRestartButton");
+  let promptTitle = bundle.GetStringFromName(
+    "troubleshootModeRestartPromptTitle"
+  );
+  let promptMessage = bundle.GetStringFromName(
+    "troubleshootModeRestartPromptMessage"
+  );
+  let restartText = bundle.GetStringFromName("troubleshootModeRestartButton");
   let buttonFlags =
     Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
     Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +

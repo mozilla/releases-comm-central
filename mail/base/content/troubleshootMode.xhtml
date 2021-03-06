@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+  - License, v. 2.0. If a copy of the MPL was not distributed with this
+  - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE window [
+<!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
+%utilityDTD;
+]>
+
+<?xml-stylesheet href="chrome://global/skin/global.css"?>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        data-l10n-id="troubleshoot-mode-window"
+        data-l10n-attrs="style"
+        onload="onLoad();">
+<dialog id="safeModeDialog"
+        buttons="accept,cancel,extra1"
+        buttonidaccept="troubleshoot-mode-change-and-restart"
+        buttonidcancel="troubleshoot-mode-quit"
+        buttonidextra1="troubleshoot-mode-continue"
+        buttondisabledaccept="true">
+
+  <script src="chrome://messenger/content/troubleshootMode.js"/>
+
+  <linkset>
+    <html:link rel="localization" href="branding/brand.ftl"/>
+    <html:link rel="localization" href="messenger/troubleshootMode.ftl"/>
+  </linkset>
+
+  <description data-l10n-id="troubleshoot-mode-description"/>
+
+  <separator class="thin"/>
+
+  <label data-l10n-id="troubleshoot-mode-description2"/>
+  <vbox id="tasks">
+    <checkbox id="disableAddons" data-l10n-id="troubleshoot-mode-disable-addons"/>
+    <checkbox id="resetToolbars" data-l10n-id="troubleshoot-mode-reset-toolbars"/>
+  </vbox>
+
+  <separator class="thin"/>
+</dialog>
+</window>

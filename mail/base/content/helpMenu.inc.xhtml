@@ -39,16 +39,12 @@
                     accesskey="&helpFeedbackPage.accesskey;"
                     oncommand="openFormattedURL('app.feedback.baseURL');"/>
           <menuseparator id="functionsSeparator"/>
-          <menuitem id="aboutsupport_open"
-                    label="&helpTroubleshootingInfo.label;"
-                    accesskey="&helpTroubleshootingInfo.accesskey;"
-                    oncommand="openAboutSupport();"/>
-          <menuitem id="helpSafeMode"
-                    label="&helpSafeMode.label;"
-                    accesskey="&helpSafeMode.accesskey;"
-                    stoplabel="&helpSafeMode.stop.label;"
-                    stopaccesskey="&helpSafeMode.stop.accesskey;"
+          <menuitem id="helpTroubleshootMode"
+                    data-l10n-id="menu-help-enter-troubleshoot-mode"
                     oncommand="safeModeRestart();"/>
+          <menuitem id="aboutsupport_open"
+                    data-l10n-id="menu-help-more-troubleshooting-info"
+                    oncommand="openAboutSupport();"/>
 #ifndef XP_MACOSX
           <menuseparator id="aboutSeparator"/>
 #endif

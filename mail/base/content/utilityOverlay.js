@@ -391,12 +391,20 @@ function goOnEvent(aNode, aEvent) {
 }
 
 function buildHelpMenu() {
-  let helpSafeModeItem = document.getElementById("helpSafeMode");
-  if (helpSafeModeItem) {
-    helpSafeModeItem.disabled = !Services.policies.isAllowed("safeMode");
+  let helpTroubleshootModeItem = document.getElementById(
+    "helpTroubleshootMode"
+  );
+  if (helpTroubleshootModeItem) {
+    helpTroubleshootModeItem.disabled = !Services.policies.isAllowed(
+      "safeMode"
+    );
   }
-  let appmenu_safeModeItem = document.getElementById("appmenu_safeMode");
-  if (appmenu_safeModeItem) {
-    appmenu_safeModeItem.disabled = !Services.policies.isAllowed("safeMode");
+  let appmenu_troubleshootModeItem = document.getElementById(
+    "appmenu_troubleshootMode"
+  );
+  if (appmenu_troubleshootModeItem) {
+    appmenu_troubleshootModeItem.disabled = !Services.policies.isAllowed(
+      "safeMode"
+    );
   }
 }

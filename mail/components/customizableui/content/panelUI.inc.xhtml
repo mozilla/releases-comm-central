@@ -1776,15 +1776,14 @@
                        label="&helpFeedbackPage.label;"
                        oncommand="openFormattedURL('app.feedback.baseURL');"/>
         <toolbarseparator/>
+        <toolbarbutton id="appmenu_troubleshootMode"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="menu-help-enter-troubleshoot-mode"
+                       oncommand="safeModeRestart();"/>
         <toolbarbutton id="appmenu_troubleshootingInfo"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&helpTroubleshootingInfo.label;"
+                       data-l10n-id="menu-help-more-troubleshooting-info"
                        oncommand="openAboutSupport();"/>
-        <toolbarbutton id="appmenu_safeMode"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&helpSafeMode.label;"
-                       stoplabel="&helpSafeMode.stop.label;"
-                       oncommand="safeModeRestart();"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_about"
                        class="subviewbutton subviewbutton-iconic"
