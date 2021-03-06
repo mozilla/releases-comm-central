@@ -14,7 +14,7 @@ function CanDropOnFolderTree(aIndex, aOrientation)
   if (!dragSession)
     return false;
 
-  var folderTree = GetFolderTree();
+  var folderTree = document.getElementById("folderTree");
   var targetFolder = GetFolderResource(folderTree, aIndex)
                        .QueryInterface(Ci.nsIMsgFolder);
   var dt = dragSession.dataTransfer;
@@ -146,7 +146,7 @@ function DropOnFolderTree(aRow, aOrientation)
   if (!dragSession)
     return;
 
-  var folderTree = GetFolderTree();
+  var folderTree = document.getElementById("folderTree");
   var targetFolder = GetFolderResource(folderTree, aRow)
                        .QueryInterface(Ci.nsIMsgFolder);
   var dt = dragSession.dataTransfer;

@@ -142,7 +142,7 @@ var gFolderTreeController = {
         Cu.reportError("got back a different folder to rename!");
 
       controller._resetThreadPane();
-      let folderTree = GetFolderTree();
+      let folderTree = document.getElementById("folderTree");
       folderTree.view.selection.clearSelection();
 
       folder.rename(aName, msgWindow);

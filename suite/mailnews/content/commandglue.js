@@ -652,7 +652,7 @@ function CreateDBView(msgFolder, viewType, viewFlags, sortType, sortOrder)
 
 function FolderPaneSelectionChange()
 {
-    var folderTree = GetFolderTree();
+    var folderTree = document.getElementById("folderTree");
     var folderSelection = folderTree.view.selection;
 
     // This prevents a folder from being loaded in the case that the user

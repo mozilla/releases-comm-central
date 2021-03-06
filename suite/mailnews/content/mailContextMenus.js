@@ -250,7 +250,7 @@ function hideIfAppropriate(aID) {
 
 function FolderPaneOnPopupHiding()
 {
-  RestoreSelectionWithoutContentLoad(GetFolderTree());
+  RestoreSelectionWithoutContentLoad(document.getElementById("folderTree"));
 }
 
 function FillFolderPaneContextMenu()

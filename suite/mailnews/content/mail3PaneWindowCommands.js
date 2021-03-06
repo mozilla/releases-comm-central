@@ -814,7 +814,7 @@ function FocusRingUpdate_Mail()
 function SetupCommandUpdateHandlers()
 {
   // folder pane
-  var widget = GetFolderTree();
+  var widget = document.getElementById("folderTree");
   if (widget)
     widget.controllers.appendController(FolderPaneController);
 }
@@ -822,7 +822,7 @@ function SetupCommandUpdateHandlers()
 // Called from <msgMail3PaneWindow.js>.
 function UnloadCommandUpdateHandlers()
 {
-  var widget = GetFolderTree();
+  var widget = document.getElementById("folderTree");
   if (widget)
     widget.controllers.removeController(FolderPaneController);
 }
@@ -938,9 +938,11 @@ function SetFocusThreadPaneIfNotOnMessagePane()
 
 function SwitchPaneFocus(event)
 {
-  var folderTree = GetFolderTree();
+  var folderTree = document.getElementById("folderTree");
   var threadTree = GetThreadTree();
   var messagePane = GetMessagePane();
+
+  var folderPaneCollapsed = document.getElementById("folderPaneBox").collapsed;
 
   // Although internally this is actually a four-pane window, it is presented as
   // a three-pane -- the search pane is more of a toolbar.  So, shift among the
@@ -953,7 +955,7 @@ function SwitchPaneFocus(event)
   if (event && event.shiftKey)
   {
     // Reverse traversal: Message -> Thread -> Folder -> Message
-    if (focusedElement == threadTree && !IsFolderPaneCollapsed())
+    if (focusedElement == threadTree && !folderPaneCollapsed)
       folderTree.focus();
     else if (focusedElement != messagePane && !IsMessagePaneCollapsed())
       SetFocusMessagePane();
@@ -965,7 +967,7 @@ function SwitchPaneFocus(event)
     // Forward traversal: Folder -> Thread -> Message -> Folder
     if (focusedElement == threadTree && !IsMessagePaneCollapsed())
       SetFocusMessagePane();
-    else if (focusedElement != folderTree && !IsFolderPaneCollapsed())
+    else if (focusedElement != folderTree && !folderPaneCollapsed)
       folderTree.focus();
     else
       threadTree.focus();

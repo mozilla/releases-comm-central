@@ -1606,7 +1606,7 @@
     <handlers>
       <handler event="popupshowing">
         <![CDATA[
-          var folderTree = GetFolderTree();
+          var folderTree = document.getElementById("folderTree");
           var { row, col } = folderTree.treeBoxObject.getCellAt(event.clientX, event.clientY);
           if (row == -1)
             return false;

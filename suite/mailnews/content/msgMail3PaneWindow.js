@@ -13,7 +13,6 @@ const nsMsgKey_None = 0xFFFFFFFF;
 const nsMsgViewIndex_None = 0xFFFFFFFF;
 const kMailCheckOncePrefName = "mail.startup.enabledMailCheckOnce";
 
-var gFolderTree;
 var gSearchInput;
 
 var gUnreadCount = null;
@@ -326,7 +325,7 @@ var folderObserver = {
 
     onToggleOpenState: function(index)
     {
-      var folderTree = GetFolderTree();
+      var folderTree = document.getElementById("folderTree");
 
       // Nothing to do when collapsing an item.
       if (folderTree.view.isContainerOpen(index))
@@ -985,12 +984,13 @@ function OnLoadFolderPane()
     UpgradeFolderPaneUI();
     AddMutationObserver(UpdateFolderUnreadCol);
 
+    var folderTree = document.getElementById("folderTree");
+
     //Add folderDataSource and accountManagerDataSource to folderPane
-    var database = GetFolderDatasource();
+    var database = folderTree.database;
     database.AddDataSource(accountManagerDataSource);
     database.AddDataSource(folderDataSource);
 
-    var folderTree = GetFolderTree();
     folderTree.setAttribute("ref", "msgaccounts:/");
 
     var folderTreeBuilder = folderTree.builder.QueryInterface(Ci.nsIXULTreeBuilder);
@@ -1015,7 +1015,7 @@ function UpdateAttachmentCol()
 
 function UpdateLocationBar(resource)
 {
-    var tree = GetFolderTree();
+    var tree = document.getElementById("folderTree");
     var folders = document.getElementById('locationFolders');
     var icon = document.getElementById('locationIcon');
     var names = ['BiffState', 'NewMessages', 'HasUnreadMessages',
@@ -1039,19 +1039,6 @@ function UpdateLocationBar(resource)
         icon.setAttribute(name, value);
     }
     folders.setAttribute('uri', resource.Value);
-}
-
-function GetFolderDatasource()
-{
-  return GetFolderTree().database;
-}
-
-/* Functions for accessing particular parts of the window*/
-function GetFolderTree()
-{
-  if (!gFolderTree)
-    gFolderTree = document.getElementById("folderTree");
-  return gFolderTree;
 }
 
 function GetSearchInput()
@@ -1185,13 +1172,15 @@ function FolderPaneOnClick(event)
   if (event.originalTarget.localName != "treechildren")
     return;
 
+  var folderTree = document.getElementById("folderTree");
+
   // we may want to open the folder in a new tab on middle click
   if (event.button == kMouseButtonMiddle)
   {
     if (AllowOpenTabOnMiddleClick())
     {
       FolderPaneContextMenuNewTab(event);
-      RestoreSelectionWithoutContentLoad(GetFolderTree());
+      RestoreSelectionWithoutContentLoad(folderTree);
       return;
     }
   }
@@ -1200,7 +1189,6 @@ function FolderPaneOnClick(event)
   if (event.button != kMouseButtonLeft)
     return;
 
-  var folderTree = GetFolderTree();
   var cell = folderTree.treeBoxObject.getCellAt(event.clientX, event.clientY);
   if (cell.row == -1)
   {
@@ -1214,11 +1202,11 @@ function FolderPaneOnClick(event)
            (cell.childElt != "twisty") &&
            (folderTree.view.getLevel(cell.row) != 0))
   {
-    FolderPaneDoubleClick(cell.row, event);
+    FolderPaneDoubleClick(folderTree, cell.row, event);
   }
 }
 
-function FolderPaneDoubleClick(folderIndex, event)
+function FolderPaneDoubleClick(folderTree, folderIndex, event)
 {
   // In tabmail land, lazyness is dead!
   // We either open the folder in a tab or a new window...
@@ -1228,7 +1216,7 @@ function FolderPaneDoubleClick(folderIndex, event)
   }
   else
   {
-    let folderResource = GetFolderResource(GetFolderTree(), folderIndex);
+    let folderResource = GetFolderResource(folderTree, folderIndex);
     // Open a new msg window only if we are double clicking on
     // folders or newsgroups.
     MsgOpenNewWindowForFolder(folderResource.Value, nsMsgKey_None);
@@ -1260,7 +1248,7 @@ function ChangeSelection(tree, newIndex)
 function GetSelectedMsgFolders()
 {
     var folderArray = [];
-    var folderTree = GetFolderTree();
+    var folderTree = document.getElementById("folderTree");
     var rangeCount = folderTree.view.selection.getRangeCount();
 
     for (let i = 0; i < rangeCount; i++)
@@ -1367,7 +1355,7 @@ function EnsureFolderIndex(builder, msgFolder)
 }
 
 function SelectMsgFolder(msgFolder) {
-  var folderTree = GetFolderTree();
+  var folderTree = document.getElementById("folderTree");
 
   // Before we can select a folder, we need to make sure it is "visible"
   // in the tree. To do that, we need to ensure that all its

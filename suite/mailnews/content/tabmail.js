@@ -194,7 +194,7 @@ var gMailNewsTabsType =
       // new tab needs to have SelectFolder think the selection has changed.
       // We also need to clear these globals to subvert the code that prevents
       // folder loads when things haven't changed.
-      let folderTree = GetFolderTree();
+      let folderTree = document.getElementById("folderTree");
       folderTree.view.selection.clearSelection();
       folderTree.view.selection.currentIndex = -1;
       gMsgFolderSelected = null;
@@ -251,7 +251,7 @@ var gMailNewsTabsType =
     let folderToSelect = aTabInfo.msgSelectedFolder || gDBView && gDBView.msgFolder;
 
     // restore view state if we had one
-    let folderTree = GetFolderTree();
+    let folderTree = document.getElementById("folderTree");
     let row = EnsureFolderIndex(folderTree.builderView, folderToSelect);
     let treeBoxObj = folderTree.treeBoxObject;
     let folderTreeSelection = folderTree.view.selection;
@@ -883,18 +883,6 @@ function ShowAccountCentral(displayedFolder)
   }
 }
 
-function ShowingAccountCentral()
-{
-  if (!IsFolderPaneCollapsed())
-    GetFolderTree().focus();
-  gAccountCentralLoaded = true;
-}
-
-function HidingAccountCentral()
-{
-  gAccountCentralLoaded = false;
-}
-
 function ShowThreadPane()
 {
   GetDisplayDeck().selectedPanel = GetThreadPane();
@@ -943,13 +931,12 @@ function ObserveDisplayDeckChange(aEvent)
     else
       HidingThreadPane();
 
-    if (nowSelected == "accountCentralBox")
-    {
-      ShowingAccountCentral();
-    }
-    else
-    {
-      HidingAccountCentral();
+    if (nowSelected == "accountCentralBox") {
+      if (!document.getElementById("folderPaneBox").collapsed)
+        document.getElementById("folderTree").focus();
+      gAccountCentralLoaded = true;
+    } else {
+      gAccountCentralLoaded = false;
     }
     gCurrentDisplayDeckId = nowSelected;
   }
