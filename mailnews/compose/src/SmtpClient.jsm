@@ -435,22 +435,8 @@ class SmtpClient {
   _onError(e) {
     this.logger.error(e);
     let nsError = Cr.NS_ERROR_FAILURE;
-    if (e instanceof TCPSocketErrorEvent) {
-      // TCPSocketErrorEvent name is set in TCPSocket.cpp.
-      switch (e.name) {
-        case "ConnectionRefusedError":
-          nsError = Cr.NS_ERROR_CONNECTION_REFUSED;
-          break;
-        case "NetworkTimeoutError":
-          nsError = Cr.NS_ERROR_NET_TIMEOUT;
-          break;
-        case "DomainNotFoundError":
-          nsError = Cr.NS_ERROR_UNKNOWN_HOST;
-          break;
-        case "NetworkInterruptError":
-          nsError = Cr.NS_ERROR_NET_INTERRUPT;
-          break;
-      }
+    if (TCPSocketErrorEvent.isInstance(e)) {
+      nsError = e.errorCode;
     }
     // Use nsresult to integrate with other parts of sending process, e.g.
     // MessageSend.jsm will show an error message depending on the nsresult.
