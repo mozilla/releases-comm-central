@@ -444,7 +444,7 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest* request,
         nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
             do_QueryInterface(secInfo);
         if (transportSecInfo) {
-          mailNewsUrl->SetFailedSecInfoInternal(transportSecInfo);
+          mailNewsUrl->SetFailedSecInfo(transportSecInfo);
         }
       }
     }

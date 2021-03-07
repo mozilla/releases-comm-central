@@ -875,7 +875,7 @@ NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest* aRequest,
         if (NS_SUCCEEDED(strans->GetSecurityInfo(getter_AddRefs(secInfo)))) {
           if (nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
                   do_QueryInterface(secInfo)) {
-            msgUrl->SetFailedSecInfoInternal(transportSecInfo);
+            msgUrl->SetFailedSecInfo(transportSecInfo);
           }
         }
       }

@@ -1014,8 +1014,8 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetSaveAsListener(
                                         (void**)aSaveListener);
 }
 
-nsresult nsMsgMailNewsUrl::SetFailedSecInfoInternal(
-    nsITransportSecurityInfo* secInfo) {
+NS_IMETHODIMP
+nsMsgMailNewsUrl::SetFailedSecInfo(nsITransportSecurityInfo* secInfo) {
   mFailedSecInfo = secInfo;
   return NS_OK;
 }

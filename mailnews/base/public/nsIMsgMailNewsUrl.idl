@@ -39,9 +39,6 @@ interface nsIMsgMailNewsUrl : nsIURL {
   [noscript,notxpcom,nostdcall]
   nsresult setUsernameInternal(in ACString aUsername);
 
-  [noscript,notxpcom,nostdcall]
-  nsresult setFailedSecInfoInternal(in nsITransportSecurityInfo secInfo);
-
   ///////////////////////////////////////////////////////////////////////////////
   // Eventually we'd like to push this type of functionality up into nsIURI.
   // The idea is to allow the "application" (the part of the code which wants to
@@ -72,7 +69,7 @@ interface nsIMsgMailNewsUrl : nsIURL {
    * certificate, so as to have the option of adding an exemption (See
    * Bug 1590473).
    */
-  readonly attribute nsITransportSecurityInfo failedSecInfo;
+  attribute nsITransportSecurityInfo failedSecInfo;
 
   /**
    * The folder associated with this url.

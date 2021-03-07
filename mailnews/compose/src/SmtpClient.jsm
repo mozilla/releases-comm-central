@@ -139,7 +139,7 @@ class SmtpClient {
     });
 
     // Event placeholders
-    this.onerror = e => {}; // Will be run when an error occurs. The `onclose` event will fire subsequently.
+    this.onerror = (e, failedSecInfo) => {}; // Will be run when an error occurs. The `onclose` event will fire subsequently.
     this.ondrain = () => {}; // More data can be buffered in the socket.
     this.onclose = () => {}; // The connection to the server has been closed
     this.onidle = () => {}; // The connection is established and idle, you can send mail now
@@ -223,7 +223,7 @@ class SmtpClient {
         if (firstInvalid != null) {
           if (!lastAt) {
             // Invalid char found in the localpart, throw error until we implement RFC 6532.
-            this.onerror(NS_ERROR_BUT_DONT_SHOW_ALERT);
+            this.onerror(NS_ERROR_BUT_DONT_SHOW_ALERT, null);
             return;
           }
           // Invalid char found in the domainpart, convert it to ACE.
@@ -435,12 +435,14 @@ class SmtpClient {
   _onError(e) {
     this.logger.error(e);
     let nsError = Cr.NS_ERROR_FAILURE;
+    let secInfo = null;
     if (TCPSocketErrorEvent.isInstance(e)) {
       nsError = e.errorCode;
+      secInfo = e.target.transport?.securityInfo;
     }
     // Use nsresult to integrate with other parts of sending process, e.g.
     // MessageSend.jsm will show an error message depending on the nsresult.
-    this.onerror(nsError);
+    this.onerror(nsError, secInfo);
     this.close();
   }
 

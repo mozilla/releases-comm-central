@@ -4893,7 +4893,7 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
               nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
                   do_QueryInterface(secInfo);
               if (transportSecInfo) {
-                mailNewsUrl->SetFailedSecInfoInternal(transportSecInfo);
+                mailNewsUrl->SetFailedSecInfo(transportSecInfo);
               }
             }
           }
