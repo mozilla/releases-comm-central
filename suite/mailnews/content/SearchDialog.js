@@ -15,7 +15,6 @@ var nsIMsgFolder = Ci.nsIMsgFolder;
 var nsIMsgWindow = Ci.nsIMsgWindow;
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
 
-var gFolderDatasource;
 var gFolderPicker;
 var gStatusBar = null;
 var gStatusFeedback = new nsMsgStatusFeedback();
@@ -538,21 +537,6 @@ function setupSearchListener()
     gSearchSession.registerListener(gSearchNotificationListener);
 }
 
-// stuff after this is implemented to make the thread pane work
-function GetFolderDatasource()
-{
-    if (!gFolderDatasource)
-        gFolderDatasource = Cc["@mozilla.org/rdf/datasource;1?name=mailnewsfolders"]
-                              .getService(Ci.nsIRDFDataSource);
-    return gFolderDatasource;
-}
-
-// used to determine if we should try to load a message
-function IsThreadAndMessagePaneSplitterCollapsed()
-{
-    return true;
-}
-
 // used to toggle functionality for Search/Stop button.
 function onSearchButton(event)
 {
@@ -562,7 +546,7 @@ function onSearchButton(event)
         onSearchStop();
 }
 
-// threadPane.js will be needing this, too
+// Stuff after this is implemented to make the thread pane work.
 function GetNumSelectedMessages()
 {
    try {
