@@ -26,14 +26,16 @@ SmtpServer.prototype = {
   classID: Components.ID("{3a75f5ea-651e-4696-9813-848c03da8bbd}"),
 
   observe(subject, topic, data) {
-    // When the state of the password manager changes we need to clear the
-    // password from the cache.
-    if (
-      topic == "passwordmgr-storage-changed" &&
+    if (topic == "passwordmgr-storage-changed") {
       // Check that the notification is for this server.
-      subject instanceof Ci.nsILoginInfo &&
-      subject.hostname == "smtp://" + this.hostname
-    ) {
+      if (
+        subject instanceof Ci.nsILoginInfo &&
+        subject.hostname != "smtp://" + this.hostname
+      ) {
+        return;
+      }
+      // When the state of the password manager changes we need to clear the
+      // password from the cache in case the user just removed it.
       this.password = "";
     }
   },
