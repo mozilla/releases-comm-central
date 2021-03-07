@@ -19,30 +19,6 @@ var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
 
-function saveKeyToFile(content, fileName) {
-  let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-  let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
-  picker.init(mail3PaneWindow, fileName, Ci.nsIFilePicker.modeSave);
-  picker.defaultString = fileName;
-  picker.defaultExtension = "pem";
-  picker.appendFilters(Ci.nsIFilePicker.filterAll);
-  return new Promise(resolve => {
-    picker.open(rv => {
-      if (
-        rv != Ci.nsIFilePicker.returnOK &&
-        rv != Ci.nsIFilePicker.returnReplace
-      ) {
-        resolve(null);
-        return;
-      }
-      try {
-        OS.File.writeAtomic(picker.file.path, decodeURI(content));
-        resolve(picker.file);
-      } catch (ex) {}
-    });
-  });
-}
-
 function tabProgressListener(aTab, aStartsBlank) {
   this.mTab = aTab;
   this.mBrowser = aTab.browser;
@@ -368,7 +344,6 @@ var contentTabBaseType = {
     "about:addons",
     "about:blank",
     "about:profiles",
-    "about:certificate?*",
     "about:*",
   ],
 
@@ -402,24 +377,6 @@ var contentTabBaseType = {
           );
         }
       }, 500);
-    },
-
-    // about:certificate
-    function(aDocument, aTab) {
-      // Need a timeout to let the script run to create the needed links.
-      setTimeout(() => {
-        let downloadLinks = aDocument
-          .querySelector("certificate-section")
-          .shadowRoot.querySelector(".miscellaneous")
-          .shadowRoot.querySelector(".download")
-          .shadowRoot.querySelectorAll(".download-link");
-        for (let link of downloadLinks) {
-          link.addEventListener("click", event => {
-            let content = link.getAttribute("href").split(",");
-            saveKeyToFile(content[1], link.getAttribute("download"));
-          });
-        }
-      }, 1000);
     },
 
     // Other about:* pages.
@@ -504,10 +461,6 @@ var contentTabBaseType = {
 
       // If this document has an overlay defined, run it now.
       let ind = self.inContentWhitelist.indexOf(url);
-      if (ind < 0) {
-        // about:certificate?<certid> like URLs.
-        ind = self.inContentWhitelist.indexOf(url.replace(/\?.*/, "?*"));
-      }
       if (ind < 0) {
         // Try a wildcard.
         ind = self.inContentWhitelist.indexOf(url.replace(/:.*/, ":*"));
