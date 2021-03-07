@@ -367,6 +367,8 @@ pref("network.protocol-handler.expose.mailbox", true);
 // Although we allow these to be exposed internally, there are various places
 // (e.g. message pane) where we may divert them out to external applications.
 pref("network.protocol-handler.expose.about", true);
+pref("network.protocol-handler.expose.blob", true);
+pref("network.protocol-handler.expose.data", true);
 pref("network.protocol-handler.expose.http", true);
 pref("network.protocol-handler.expose.https", true);
 
