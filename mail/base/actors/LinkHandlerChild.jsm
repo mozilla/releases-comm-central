@@ -49,7 +49,7 @@ function hRefForClickEvent(aEvent) {
     target instanceof HTMLAreaElement ||
     target instanceof HTMLLinkElement
   ) {
-    if (target.hasAttribute("href")) {
+    if (target.hasAttribute("href") && !target.download) {
       href = target.href;
     }
   } else {
@@ -59,7 +59,7 @@ function hRefForClickEvent(aEvent) {
       linkNode = linkNode.parentNode;
     }
 
-    if (linkNode) {
+    if (linkNode && !linkNode.download) {
       href = linkNode.href;
     }
   }
@@ -95,22 +95,27 @@ class LinkHandlerChild extends JSWindowActorChild {
 
     let eventURI = Services.io.newURI(eventHRef);
 
-    if (pageURI.host == eventURI.host) {
-      // Avoid using the eTLD service, and this also works for IP addresses.
-      return;
-    }
-
     try {
-      if (
-        Services.eTLD.getBaseDomain(eventURI) ==
-        Services.eTLD.getBaseDomain(pageURI)
-      ) {
+      if (pageURI.host == eventURI.host) {
+        // Avoid using the eTLD service, and this also works for IP addresses.
         return;
       }
-    } catch (ex) {
-      if (ex.result != Cr.NS_ERROR_HOST_IS_IP_ADDRESS) {
-        Cu.reportError(ex);
+
+      try {
+        if (
+          Services.eTLD.getBaseDomain(eventURI) ==
+          Services.eTLD.getBaseDomain(pageURI)
+        ) {
+          return;
+        }
+      } catch (ex) {
+        if (ex.result != Cr.NS_ERROR_HOST_IS_IP_ADDRESS) {
+          Cu.reportError(ex);
+        }
       }
+    } catch (ex) {
+      // The page or link might be from a host-less URL scheme such as about,
+      // blob, or data. The host is never going to match, carry on.
     }
 
     if (
