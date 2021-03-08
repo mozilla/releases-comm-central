@@ -563,21 +563,20 @@ function otherHeaderInputOnKeyDown(event) {
         input.value = "";
       }
       break;
+
     case "Enter":
-      // Move focus to the next available element,
-      // but not for Ctrl/Cmd+[Shift]+Enter keyboard shortcuts for sending.
-      if (!event.ctrlKey && !event.metaKey) {
-        // Prevent Enter from firing again on the element we move the focus to.
-        event.preventDefault();
-        SetFocusOnNextAvailableElement(input);
+      // Break if modifier keys were used, to prevent hijacking unrelated
+      // keyboard shortcuts like Ctrl/Cmd+[Shift]+Enter for sending.
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+        break;
       }
 
-      // macOS only variation to prevent the cursor from moving to the next
-      // element while sending.
-      if (event.metaKey) {
-        event.stopPropagation();
-      }
+      // Enter was pressed: Focus the next available address row or subject.
+      // Prevent Enter from firing again on the element we move the focus to.
+      event.preventDefault();
+      SetFocusOnNextAvailableElement(input);
       break;
+
     case "Backspace":
     case "Delete":
       if (
@@ -717,21 +716,31 @@ function addressInputOnBeforeHandleKeyDown(event) {
       break;
 
     case "Enter":
-      // If no address entered, move focus to the next available element,
-      // but not for Ctrl/Cmd+[Shift]+Enter keyboard shortcuts for sending.
-      if (!input.value.trim() && !event.ctrlKey && !event.metaKey) {
-        // Prevent Enter from firing again on the element we move the focus to.
-        event.preventDefault();
-        SetFocusOnNextAvailableElement(input);
+      // Break if unrelated modifier keys are used. The toolkit hack for Mac
+      // will consume metaKey, and we'll exclude shiftKey after that.
+      if (event.ctrlKey || event.altKey) {
+        break;
       }
 
-      // macOS only variation necessary to send messages since autocomplete
-      // input fields prevent that by default.
+      // MacOS-only variation necessary to send messages via Cmd+[Shift]+Enter
+      // since autocomplete input fields prevent that by default (bug 1682147).
       if (event.metaKey) {
-        // Prevent the focus from moving to the next element.
-        event.stopPropagation();
-        goDoCommand("cmd_sendWithCheck");
+        // Cmd+[Shift]+Enter: Send message [later].
+        let sendCmd = event.shiftKey ? "cmd_sendLater" : "cmd_sendWithCheck";
+        goDoCommand(sendCmd);
+        break;
       }
+
+      // Break if there's text in the address input, or if Shift modifier is
+      // used, to prevent hijacking shortcuts like Ctrl+Shift+Enter.
+      if (input.value.trim() || event.shiftKey) {
+        break;
+      }
+
+      // Enter on empty input: Focus the next available address row or subject.
+      // Prevent Enter from firing again on the element we move the focus to.
+      event.preventDefault();
+      SetFocusOnNextAvailableElement(input);
       break;
 
     case "Tab":
