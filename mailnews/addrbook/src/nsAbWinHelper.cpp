@@ -208,6 +208,24 @@ struct DlEntryId {
   BYTE idBytes[];
 };
 
+#define DLENTRY_OO_FLAGS_LENGTH 4
+#define DL_OO_PROVIDER_ID \
+  "\x81\x2B\x1F\xA4\xBE\xA3\x10\x19\x9D\x6E\x00\xDD\x01\x0F\x54\x02"
+#define DL_OO_PROVIDER_ID_LENGTH 16
+struct DlEntryIdOo {
+  BYTE flags[DLENTRY_OO_FLAGS_LENGTH];
+  BYTE provider[DL_OO_PROVIDER_ID_LENGTH];
+  // Note that the documentation specifies a two-byte version followed by a
+  // two-byte "bit collection", but MFCMapi
+  // (https://github.com/stephenegriffin/mfcmapi) shows, for example:
+  // dwBitmask: 0x80010000 = MAPI_UNICODE | MAPI_SEND_NO_RICH_INFO.
+  // Intel x86 and AMD64 / x86-64 hardware is little-endian, so that
+  // equates to 0x0000 0x01 0x80 in memory:
+  // M (1 bit): (mask 0x0100) (MIME) and U (1 bit): (mask 0x0080) (Unicode).
+  ULONG versionAndBits;
+  BYTE variable[];
+};
+
 using namespace mozilla;
 
 static nsMapiEntry nullEntry;
@@ -498,12 +516,10 @@ BOOL nsAbWinHelper::GetPropertyBin(const nsMapiEntry& aObject,
   return success;
 }
 
-BOOL nsAbWinHelper::GetPropertiesMVBin(const nsMapiEntry& aDir,
-                                       const nsMapiEntry& aObject,
-                                       const ULONG aPropertyTags[],
-                                       ULONG aNbProperties,
-                                       nsMapiEntry* aEntryIDs[],
-                                       ULONG aNbElements[]) {
+BOOL nsAbWinHelper::GetPropertiesMVBin(
+    const nsMapiEntry& aDir, const nsMapiEntry& aObject,
+    const ULONG aPropertyTags[], ULONG aNbProperties, nsMapiEntry* aEntryIDs[],
+    ULONG aNbElements[], bool aAllocateMore) {
   LPSPropValue values = NULL;
   ULONG valueCount = 0;
 
@@ -527,7 +543,7 @@ BOOL nsAbWinHelper::GetPropertiesMVBin(const nsMapiEntry& aDir,
     if (PROP_TYPE(values[i].ulPropTag) == PT_MV_BINARY) {
       ULONG count = values[i].Value.MVbin.cValues;
       PRINTF(("Found %lu members in DL.\n", count));
-      aEntryIDs[i] = new nsMapiEntry[count];
+      aEntryIDs[i] = new nsMapiEntry[aAllocateMore ? count + 1 : count];
       aNbElements[i] = count;
       SBinary* currentValue = values[i].Value.MVbin.lpbin;
       for (ULONG j = 0; j < count; j++) {
@@ -770,6 +786,114 @@ BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
   return FALSE;
 }
 
+BOOL nsAbWinHelper::AddEntryToDL(const nsMapiEntry& aTopDir,
+                                 const nsMapiEntry& aDistList,
+                                 const nsMapiEntry& aEntry,
+                                 const wchar_t* aDisplay,
+                                 const wchar_t* aEmail) {
+  // First we need to open the distribution list to get the property tag.
+  ULONG dlMembersTag = 0;
+  ULONG dlMembersTagOnOff = 0;
+  {
+    // We do this in a block is `msg` going out of scope will release the
+    // object.
+    nsMapiInterfaceWrapper<LPMAPIPROP> msg;
+    mLastError = OpenMAPIObject(aTopDir, aDistList, true, 0, msg);
+    if (HR_FAILED(mLastError)) {
+      PRINTF(("Cannot open DL entry %08lx.\n", mLastError));
+      return FALSE;
+    }
+    if (!GetDlMembersTag(msg.Get(), dlMembersTag, dlMembersTagOnOff))
+      return FALSE;
+  }
+
+  // This will self-destruct when it goes out of scope.
+  nsMapiEntryArray dlMembers;
+  nsMapiEntryArray dlMembersOneOff;
+
+  // Turn IMailUser into IMessage/IPM.Contact.
+  // Check for magic provider GUID.
+  struct AbEntryId* abEntryId = (struct AbEntryId*)aEntry.mEntryId;
+  if (memcmp(abEntryId->provider, CONTAB_PROVIDER_ID,
+             CONTAB_PROVIDER_ID_LENGTH) != 0) {
+    PRINTF(("Cannot get to IMessage/IPM.Contact.\n"));
+    return FALSE;
+  }
+  ULONG contactIdLength = abEntryId->length;
+  LPENTRYID contactId = reinterpret_cast<LPENTRYID>(&(abEntryId->idBytes));
+
+  ULONG tags[2] = {dlMembersTag, dlMembersTagOnOff};
+  nsMapiEntry* values[2];
+  ULONG counts[2];
+  // We ask for and array one entry larger.
+  if (!GetPropertiesMVBin(aTopDir, aDistList, tags, 2, values, counts, true)) {
+    // If the properties aren't there, the list has no entries so far.
+    values[0] = new nsMapiEntry[1];
+    values[1] = new nsMapiEntry[1];
+    counts[0] = counts[1] = 0;
+  }
+  dlMembers.mEntries = values[0];
+  dlMembersOneOff.mEntries = values[1];
+  dlMembers.mNbEntries = counts[0];
+  dlMembersOneOff.mNbEntries = counts[1];
+
+  if (dlMembers.mNbEntries != dlMembersOneOff.mNbEntries) {
+    PRINTF(("DL members and DL one off members have different length.\n"));
+    return FALSE;
+  }
+
+  // Append a new entry at the end. The array is already large enough.
+
+  // Construct a distribution list entry based on a contact.
+  size_t dlEntryIdLength = sizeof(struct DlEntryId) + contactIdLength;
+  struct DlEntryId* dlEntryId = (DlEntryId*)moz_xmalloc(dlEntryIdLength);
+  memset(dlEntryId->flags, 0, DLENTRY_FLAGS_LENGTH);
+  memcpy(dlEntryId->provider, DL_PROVIDER_ID, DL_PROVIDER_ID_LENGTH);
+  // See documentation referenced above: 0xC3 = 0x80 | 0x40 | 0x03.
+  memset(dlEntryId->type, 0xC3, DLENTRY_TYPE_LENGTH);
+  memcpy(dlEntryId->idBytes, contactId, contactIdLength);
+  dlMembers.mEntries[dlMembers.mNbEntries].Assign(
+      dlEntryIdLength, reinterpret_cast<LPENTRYID>(dlEntryId));
+
+  // Construct a one-off entry.
+  size_t dlEntryIdOoLength = sizeof(struct DlEntryIdOo) +
+                             2 * (wcslen(aDisplay) + 4 + wcslen(aEmail) + 3);
+  struct DlEntryIdOo* dlEntryIdOo =
+      (DlEntryIdOo*)moz_xmalloc(dlEntryIdOoLength);
+  memset(dlEntryIdOo->flags, 0, DLENTRY_OO_FLAGS_LENGTH);
+  memcpy(dlEntryIdOo->provider, DL_OO_PROVIDER_ID, DL_OO_PROVIDER_ID_LENGTH);
+  dlEntryIdOo->versionAndBits = MAPI_UNICODE | MAPI_SEND_NO_RICH_INFO;
+
+  // Populate the variable part. A bit of stone-age programming ;-)
+  size_t length = 2 * (wcslen(aDisplay) + 1);
+  memcpy(dlEntryIdOo->variable, aDisplay, length);
+  size_t offset = length;
+
+  length = 2 * (4 + 1);
+  memcpy(dlEntryIdOo->variable + offset, L"SMTP", length);
+  offset += length;
+
+  length = 2 * (wcslen(aEmail) + 1);
+  memcpy(dlEntryIdOo->variable + offset, aEmail, length);
+
+  dlMembersOneOff.mEntries[dlMembersOneOff.mNbEntries].Assign(
+      dlEntryIdOoLength, reinterpret_cast<LPENTRYID>(dlEntryIdOo));
+
+  free(dlEntryId);
+  free(dlEntryIdOo);
+
+  dlMembers.mNbEntries++;
+  dlMembersOneOff.mNbEntries++;
+
+  counts[0] = dlMembers.mNbEntries;
+  counts[1] = dlMembersOneOff.mNbEntries;
+  if (!SetPropertiesMVBin(aTopDir, aDistList, tags, 2, values, counts)) {
+    PRINTF(("Cannot set DL members.\n"));
+    return FALSE;
+  }
+  return TRUE;
+}
+
 BOOL nsAbWinHelper::SetPropertyUString(const nsMapiEntry& aObject,
                                        ULONG aPropertyTag,
                                        const char16_t* aValue) {
@@ -1010,7 +1134,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
   SPropValue displayName;
   nsAutoString tempName;
   displayName.ulPropTag = PR_DISPLAY_NAME_W;
-  tempName.AssignLiteral("__MailUser__");
+  tempName.AssignLiteral(kDummyDisplayName);
   tempName.AppendInt(sEntryCounter++);
   const wchar_t* tempNameValue = tempName.get();
   displayName.Value.lpszW = const_cast<wchar_t*>(tempNameValue);

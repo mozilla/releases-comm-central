@@ -13,6 +13,7 @@
 
 #define kOutlookDirectoryScheme "moz-aboutlookdirectory:///"
 #define kOutlookCardScheme "moz-aboutlookcard:///"
+#define kDummyDisplayName "__MailUser__"
 
 struct nsMapiEntry {
   // Can't be assigned since it would double up the reference in `mEntryId`.
@@ -82,7 +83,8 @@ class nsAbWinHelper {
   // Get the values of a multiple MAPI properties of type MV BIN
   BOOL GetPropertiesMVBin(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
                           const ULONG aPropertyTags[], ULONG aNbProperties,
-                          nsMapiEntry* aEntryIDs[], ULONG aNbElements[]);
+                          nsMapiEntry* aEntryIDs[], ULONG aNbElements[],
+                          bool aAllocateMore = false);
   // Set the value of a MAPI property of type MV BIN
   BOOL SetPropertiesMVBin(const nsMapiEntry& aDir, const nsMapiEntry& aObject,
                           const ULONG aPropertyTags[], ULONG aNbProperties,
@@ -95,6 +97,10 @@ class nsAbWinHelper {
   BOOL DeleteEntryfromDL(const nsMapiEntry& aTopDir,
                          const nsMapiEntry& aDistList,
                          const nsMapiEntry& aEntry);
+  // Add an entry to an Outlook distribution list.
+  BOOL AddEntryToDL(const nsMapiEntry& aTopDir, const nsMapiEntry& aDistList,
+                    const nsMapiEntry& aEntry, const wchar_t* aDisplay,
+                    const wchar_t* aEmail);
   // Set the value of a MAPI property of type string in unicode
   BOOL SetPropertyUString(const nsMapiEntry& aObject, ULONG aPropertyTag,
                           const char16_t* aValue);

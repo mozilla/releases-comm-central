@@ -67,8 +67,6 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult GetCards(nsIMutableArray* aCards, SRestriction* aRestriction);
   // Retrieve hierarchy as directories
   nsresult GetNodes(nsIMutableArray* aNodes);
-  // Create a new card
-  nsresult CreateCard(nsIAbCard* aData, nsIAbCard** aNewCard);
   nsresult ModifyCardInternal(nsIAbCard* aModifiedCard, bool aIsAddition);
   // Notification for the UI.
   nsresult NotifyItemDeletion(nsISupports* aItem, bool aIsCard,
@@ -98,6 +96,8 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   // This is totally quirky. `m_AddressList` is defined in
   // class nsAbDirProperty to hold a list of mailing lists,
   // but there is no member to hold a list of cards.
+  // It gets worse: For mailing lists, `m_AddressList` holds the
+  // list of cards.
   // So we'll do it as the Mac AB does and define a member for it.
   // nsIMutableArray is used, because then it is interchangeable with
   // `m_AddressList`.

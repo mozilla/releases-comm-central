@@ -334,33 +334,132 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteDirectory(
   return retCode;
 }
 
-NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aData,
-                                            nsIAbCard** addedCard) {
-  NS_ENSURE_ARG_POINTER(aData);
+NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aCard,
+                                            nsIAbCard** aNewCard) {
+  NS_ENSURE_ARG_POINTER(aCard);
+  NS_ENSURE_ARG_POINTER(aNewCard);
 
+  *aNewCard = nullptr;
   nsresult retCode = NS_OK;
-  bool hasCard = false;
+  nsAbWinHelperGuard mapiAddBook;
+  nsMapiEntry newEntry;
+  nsAutoCString cardEntryString;
+  bool isNewCard = false;
+  nsCOMPtr<nsIAbDirectory> topDir;
 
-  retCode = HasCard(aData, &hasCard);
-  NS_ENSURE_SUCCESS(retCode, retCode);
-  if (hasCard) {
-    PRINTF(("Has card.\n"));
-    NS_IF_ADDREF(*addedCard = aData);
-    return NS_OK;
+  if (!mapiAddBook->IsOK()) {
+    return NS_ERROR_FAILURE;
   }
-  retCode = CreateCard(aData, addedCard);
+
+  nsAutoCString ourUID;
+  if (!m_IsMailList) {
+    // We're not dealing with a mailing list, so just create a new entry.
+    if (!mapiAddBook->CreateEntry(*mDirEntry, newEntry)) {
+      return NS_ERROR_FAILURE;
+    }
+    isNewCard = true;
+    GetUID(ourUID);
+  } else {
+    nsAutoCString dirURI(mURI);
+    // Trim off the mailing list entry ID from the mailing list URI
+    // to get the top-level directory entry ID.
+    nsAutoCString topEntryString;
+    int32_t slashPos = dirURI.RFindChar('/');
+    dirURI.SetLength(slashPos);
+    makeEntryIdFromURI(kOutlookDirectoryScheme, dirURI.get(), topEntryString);
+    nsMapiEntry topDirEntry;
+    topDirEntry.Assign(topEntryString);
+
+    // Add a card to a mailing list. We distinguish two cases:
+    // If there is already an Outlook card, we can just add it.
+    // If none exists, we need to create it first. Outlook has an option
+    // that allows a creation of a mailing list member solely in the list
+    // but we don't support this for now to avoid more MAPI complication.
+    retCode = ExtractCardEntry(aCard, cardEntryString);
+    if (NS_SUCCEEDED(retCode) && !cardEntryString.IsEmpty()) {
+      newEntry.Assign(cardEntryString);
+    } else {
+      if (!mapiAddBook->CreateEntry(topDirEntry, newEntry)) {
+        return NS_ERROR_FAILURE;
+      }
+      isNewCard = true;
+    }
+    nsAutoString display;
+    nsAutoString email;
+    aCard->GetDisplayName(display);
+    aCard->GetPrimaryEmail(email);
+    if (!mapiAddBook->AddEntryToDL(topDirEntry, *mDirEntry, newEntry,
+                                   display.get(), email.get())) {
+      return NS_ERROR_FAILURE;
+    }
+    // The UID of the card is the top directory's UID.
+    nsCOMPtr<nsIAbManager> abManager(
+        do_GetService(NS_ABMANAGER_CONTRACTID, &retCode));
+    NS_ENSURE_SUCCESS(retCode, retCode);
+    retCode = abManager->GetDirectory(dirURI, getter_AddRefs(topDir));
+    NS_ENSURE_SUCCESS(retCode, retCode);
+    topDir->GetUID(ourUID);
+  }
+
+  newEntry.ToString(cardEntryString);
+  nsAutoCString cardURI(kOutlookCardScheme);
+  cardURI.Append(cardEntryString);
+
+  nsCOMPtr<nsIAbCard> newCard;
+  retCode = OutlookCardForURI(cardURI, getter_AddRefs(newCard));
   NS_ENSURE_SUCCESS(retCode, retCode);
 
-  mCardList->AppendElement(*addedCard);
+  // Make sure the card has a UID before setting its directory UID.
+  // This is a bit of a hack. If we get the UID of the card before setting its
+  // directory UID, we can avoid an unwanted `ModifyCard()` call inside
+  // `nsAbCardProperty::SetUID()`.
+  nsCString dummy;
+  newCard->GetUID(dummy);
+  newCard->SetDirectoryUID(ourUID);
 
-  if (!m_AddressList) {
-    m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &retCode);
+  if (isNewCard) {
+    retCode = newCard->Copy(aCard);
+    NS_ENSURE_SUCCESS(retCode, retCode);
+
+    // Set a decent display name of the card. This needs to be set
+    // on the card and not on the related contact via `SetPropertiesUString()`.
+    nsAutoString displayName;
+    newCard->GetDisplayName(displayName);
+    mapiAddBook->SetPropertyUString(newEntry, PR_DISPLAY_NAME_W,
+                                    displayName.get());
+
+    if (m_IsMailList) {
+      // Observed behavior for a new card in a mailing list is that
+      // Outlook returns __MailUser__ as first name. That value was
+      // previously set as display name when creating the bare card.
+      nsAutoString firstName;
+      newCard->GetFirstName(firstName);
+      if (StringBeginsWith(firstName,
+                           NS_LITERAL_STRING_FROM_CSTRING(kDummyDisplayName))) {
+        newCard->SetFirstName(EmptyString());
+      }
+    }
+
+    retCode = ModifyCardInternal(newCard, true);
     NS_ENSURE_SUCCESS(retCode, retCode);
   }
 
-  if (m_IsMailList) m_AddressList->AppendElement(*addedCard);
-  NotifyItemAddition(*addedCard, true);
-  return retCode;
+  if (m_IsMailList) {
+    m_AddressList->AppendElement(newCard);
+    if (isNewCard) {
+      // Add the new card to the cards of the top directory as well.
+      nsAbOutlookDirectory* topDirOL =
+          static_cast<nsAbOutlookDirectory*>(topDir.get());
+      topDirOL->mCardList->AppendElement(newCard);
+    }
+  } else {
+    mCardList->AppendElement(newCard);
+  }
+
+  NotifyItemAddition(newCard, true);
+
+  newCard.forget(aNewCard);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbOutlookDirectory::DropCard(nsIAbCard* aData,
@@ -559,15 +658,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::DoQuery(
   // Ambiguous name restrictions are property restrictions using the PR_ANR
   // property to match recipient names with entries in address book containers.
 
-  // Note the following:
-  // This code is also run for the "OE" address book provider which provides
-  // access to the "Windows Contacts" stored in C:\Users\<user>\Contacts.
-  // Ultimately the cards are retrieved by `nsAbWinHelper::GetContents()` which
-  // executes a `Restrict()` on the MAPI table. Unlike for Outlook, for
-  // "Windows Contacts" that call always succeeds, regardless of whether
-  // PR_ANR_A/W, PR_EMAIL_ADDRESS_A/W or PR_DISPLAY_NAME_A/W is used.
-  // However, no cards are ever returned.
-
   SRestriction restriction;
   SPropValue val;
   restriction.rt = RES_PROPERTY;
@@ -715,13 +805,19 @@ nsresult nsAbOutlookDirectory::GetCards(nsIMutableArray* aCards,
 
   for (ULONG card = 0; card < cardEntries.mNbEntries; ++card) {
     nsAutoCString cardEntryString;
-    nsAutoCString uriName(kOutlookCardScheme);
+    nsAutoCString cardURI(kOutlookCardScheme);
     nsCOMPtr<nsIAbCard> childCard;
     cardEntries.mEntries[card].ToString(cardEntryString);
-    uriName.Append(cardEntryString);
+    cardURI.Append(cardEntryString);
 
-    rv = OutlookCardForURI(uriName, getter_AddRefs(childCard));
+    rv = OutlookCardForURI(cardURI, getter_AddRefs(childCard));
     NS_ENSURE_SUCCESS(rv, rv);
+    // Make sure the card has a UID before setting its directory UID.
+    // This is a bit of a hack. If we get the UID of the card before setting its
+    // directory UID, we can avoid an unwanted `ModifyCard()` call inside
+    // `nsAbCardProperty::SetUID()`.
+    nsCString dummy;
+    childCard->GetUID(dummy);
     childCard->SetDirectoryUID(ourUID);
 
     aCards->AppendElement(childCard);
@@ -921,98 +1017,6 @@ nsresult nsAbOutlookDirectory::UpdateAddressList(void) {
   }
 
   return rv;
-}
-
-nsresult nsAbOutlookDirectory::CreateCard(nsIAbCard* aData,
-                                          nsIAbCard** aNewCard) {
-  if (!aData || !aNewCard) {
-    return NS_ERROR_NULL_POINTER;
-  }
-  *aNewCard = nullptr;
-  nsresult retCode = NS_OK;
-  nsAbWinHelperGuard mapiAddBook;
-  nsMapiEntry newEntry;
-  nsAutoCString cardEntryString;
-  bool didCopy = false;
-
-  if (!mapiAddBook->IsOK()) {
-    return NS_ERROR_FAILURE;
-  }
-  // If we get an nsIAbCard that maps onto an Outlook card uri
-  // we simply copy the contents of the Outlook card.
-  retCode = ExtractCardEntry(aData, cardEntryString);
-  if (NS_SUCCEEDED(retCode) && !cardEntryString.IsEmpty()) {
-    nsMapiEntry sourceEntry;
-
-    sourceEntry.Assign(cardEntryString);
-    if (m_IsMailList) {
-      // In the case of a mailing list, we can use the address
-      // as a direct template to build the new one (which is done
-      // by CopyEntry).
-      mapiAddBook->CopyEntry(*mDirEntry, sourceEntry, newEntry);
-      didCopy = true;
-    } else {
-      // Else, we have to create a temporary address and copy the
-      // source into it. Yes it's silly.
-      mapiAddBook->CreateEntry(*mDirEntry, newEntry);
-    }
-  }
-  // If this approach doesn't work, well we're back to creating and copying.
-  if (newEntry.mByteCount == 0) {
-    // In the case of a mailing list, we cannot directly create a new card,
-    // we have to create a temporary one in a real folder (to be able to use
-    // templates) and then copy it to the mailing list.
-    if (m_IsMailList) {
-      nsMapiEntry parentEntry;
-      nsMapiEntry temporaryEntry;
-
-      if (!mapiAddBook->GetDefaultContainer(parentEntry)) {
-        return NS_ERROR_FAILURE;
-      }
-      if (!mapiAddBook->CreateEntry(parentEntry, temporaryEntry)) {
-        return NS_ERROR_FAILURE;
-      }
-      if (!mapiAddBook->CopyEntry(*mDirEntry, temporaryEntry, newEntry)) {
-        return NS_ERROR_FAILURE;
-      }
-      if (!mapiAddBook->DeleteEntry(parentEntry, temporaryEntry)) {
-        return NS_ERROR_FAILURE;
-      }
-    }
-    // If we're on a real address book folder, we can directly create an
-    // empty card.
-    else if (!mapiAddBook->CreateEntry(*mDirEntry, newEntry)) {
-      return NS_ERROR_FAILURE;
-    }
-  }
-  newEntry.ToString(cardEntryString);
-  nsAutoCString uri(kOutlookCardScheme);
-  uri.Append(cardEntryString);
-
-  nsCOMPtr<nsIAbCard> newCard;
-  retCode = OutlookCardForURI(uri, getter_AddRefs(newCard));
-  NS_ENSURE_SUCCESS(retCode, retCode);
-
-  nsAutoCString ourUID;
-  GetUID(ourUID);
-  newCard->SetDirectoryUID(ourUID);
-
-  if (!didCopy) {
-    retCode = newCard->Copy(aData);
-    NS_ENSURE_SUCCESS(retCode, retCode);
-
-    // Set a decent display name of the card. This needs to be set
-    // on the card and not on the related contact via `SetPropertiesUString()`.
-    nsAutoString displayName;
-    newCard->GetDisplayName(displayName);
-    mapiAddBook->SetPropertyUString(newEntry, PR_DISPLAY_NAME_W,
-                                    displayName.get());
-
-    retCode = ModifyCardInternal(newCard, true);
-    NS_ENSURE_SUCCESS(retCode, retCode);
-  }
-  newCard.forget(aNewCard);
-  return retCode;
 }
 
 static void UnicodeToWord(const char16_t* aUnicode, WORD& aWord) {
