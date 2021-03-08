@@ -2701,7 +2701,7 @@ function DoCommandPrint() {
 }
 
 function DoCommandPrintPreview() {
-  PrintUtils.printPreview("MsgComposeCommands", PrintPreviewListener);
+  PrintUtils.printPreview(PrintPreviewListener);
 }
 
 /**

@@ -217,7 +217,7 @@ async function startPrint() {
   if (doPrintPreview) {
     // Print preview.
     PrintPreviewListener.getPrintPreviewBrowser();
-    PrintUtils.printPreview("msgPrintEngine", PrintPreviewListener);
+    PrintUtils.printPreview(PrintPreviewListener);
   } else {
     // Print.
     if (nextUriIndex == 1) {
