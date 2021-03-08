@@ -590,6 +590,9 @@ this.addressBook = class extends ExtensionAPI {
                     resolve();
                   },
                   onSearchFoundCard(contact) {
+                    if (contact.isMailList) {
+                      return;
+                    }
                     results.push(
                       addressBookCache.findContactById(contact.UID, book)
                     );
