@@ -828,14 +828,12 @@ add_task(async function testType() {
   // compose API to open compose windows. For the second part we need to open
   // a draft, which is not possible with the compose API.
   await extension.awaitMessage("openDrafts");
-  // Select a draft and click on the Edit button.
-  window.gFolderTreeView.selectFolder(gDraftsFolder);
-  window.gFolderDisplay.selectViewIndex(0);
-  await BrowserTestUtils.browserLoaded(window.getMessagePaneBrowser());
-  let button = window.document.querySelector(
-    `notification[value="draftMsgContent"] button`
+  window.ComposeMessage(
+    Ci.nsIMsgCompType.Draft,
+    Ci.nsIMsgCompFormat.Default,
+    gDraftsFolder,
+    [gDraftsFolder.generateMessageURI(1)]
   );
-  EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 });
 
   await extension.awaitFinish("Finish");
   await extension.unload();
