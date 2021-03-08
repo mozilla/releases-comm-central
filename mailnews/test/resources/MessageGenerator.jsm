@@ -324,7 +324,7 @@ SyntheticPartMulti.prototype = {
         }
       }
       s += "\r\n";
-      s += part.toMessageString() + "\r\n\r\n";
+      s += part.toMessageString() + "\r\n";
     }
     s += "--" + this._boundary + "--";
     return s;
@@ -780,9 +780,7 @@ SyntheticMessage.prototype = {
         headerKey + ": " + this._formatHeaderValues(this.headers[headerKey])
     );
 
-    return (
-      lines.join("\r\n") + "\r\n\r\n" + this.bodyPart.toMessageString() + "\r\n"
-    );
+    return lines.join("\r\n") + "\r\n\r\n" + this.bodyPart.toMessageString();
   },
 
   toMboxString() {

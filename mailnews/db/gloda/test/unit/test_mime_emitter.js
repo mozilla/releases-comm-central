@@ -356,7 +356,7 @@ function synTransformBody(aSynBodyPart) {
   if (aSynBodyPart._contentType == "text/enriched") {
     // Our job here is just to transform just enough for our example above.
     // We also could have provided a manual translation on the body part.
-    text = text.replace(/bold/g, "B").replace(/italic/g, "I") + "\n<BR>";
+    text = text.replace(/bold/g, "B").replace(/italic/g, "I");
   }
   return text;
 }

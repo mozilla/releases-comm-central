@@ -22,7 +22,12 @@ var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 // Create a message generator
 var msgGen = (gMessageGenerator = new MessageGenerator());
 
+// The attachments need to have some content or the stream converter won't
+// display them inline. In the case of the email attachment it must have
+// trailing CRLFs or it will fail to parse.
 var textAttachment = "inline text attachment";
+var emailAttachment = "Subject: fake email\r\n\r\n";
+var htmlAttachment = "<html><body></body></html>";
 
 // create a message with a text attachment
 var messages = [
@@ -35,7 +40,7 @@ var messages = [
         format: "",
       },
       {
-        body: "",
+        body: emailAttachment,
         expectedFilename: "ForwardedMessage.eml",
         contentType: "message/rfc822",
       },
@@ -50,7 +55,7 @@ var messages = [
         format: "",
       },
       {
-        body: "",
+        body: emailAttachment,
         filename: "Attached Message",
         contentType: "message/rfc822",
       },
@@ -64,7 +69,7 @@ var messages = [
         format: "",
       },
       {
-        body: "",
+        body: htmlAttachment,
         filename:
           "<iframe src=&quote;http://www.example.com&quote></iframe>.htm",
         expectedFilename:
