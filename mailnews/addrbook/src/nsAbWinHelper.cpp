@@ -684,6 +684,29 @@ BOOL nsAbWinHelper::GetDlMembersTag(IMAPIProp* aMsg, ULONG& aDlMembersTag,
   return TRUE;
 }
 
+BOOL nsAbWinHelper::GetDlNameTag(IMAPIProp* aMsg, ULONG& aDlNameTag) {
+  const GUID guid = {0x00062004,
+                     0x0000,
+                     0x0000,
+                     {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
+  MAPINAMEID nameID;
+  nameID.lpguid = (GUID*)&guid;
+  nameID.ulKind = MNID_ID;
+  LPSPropTagArray lppPropTags;
+  LPMAPINAMEID lpNameID[1] = {&nameID};
+
+  nameID.Kind.lID = 0x8053;  // PidLidDistributionListName
+  mLastError = aMsg->GetIDsFromNames(1, lpNameID, 0, &lppPropTags);
+  if (HR_FAILED(mLastError)) {
+    PRINTF(("Cannot get DL prop tag %08lx.\n", mLastError));
+    return FALSE;
+  }
+  aDlNameTag = lppPropTags[0].aulPropTag[0] | PT_UNICODE;
+  mAddressFreeBuffer(lppPropTags);
+
+  return TRUE;
+}
+
 BOOL nsAbWinHelper::DeleteEntryfromDL(const nsMapiEntry& aTopDir,
                                       const nsMapiEntry& aDistList,
                                       const nsMapiEntry& aEntry) {
@@ -978,9 +1001,11 @@ BOOL nsAbWinHelper::SetPropertyDate(const nsMapiEntry& aDir,
   return FALSE;
 }
 
-BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
-                                nsMapiEntry& aNewEntry) {
-  // We create an IPM.Contact message (contact) in the contacts folder.
+BOOL nsAbWinHelper::CreateEntryInternal(const nsMapiEntry& aParent,
+                                        nsMapiEntry& aNewEntry,
+                                        const char* aContactClass,
+                                        const wchar_t* aName) {
+  // We create an IPM.Contact or IPM.DistList message in the contacts folder.
   // To find that folder, we look for our `aParent` in the hierarchy table
   // and use the matching `PR_CONTAB_FOLDER_ENTRYID` for the folder.
   nsMapiInterfaceWrapper<LPABCONT> rootFolder;
@@ -1079,7 +1104,7 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
     return FALSE;
   }
 
-  // Crazy as it seems, contacts are stored as message.
+  // Crazy as it seems, contacts and distribution lists are stored as message.
   nsMapiInterfaceWrapper<LPMESSAGE> newEntry;
   mLastError = contactFolder->CreateMessage(&IID_IMessage, 0, newEntry);
   if (HR_FAILED(mLastError)) {
@@ -1087,15 +1112,28 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
     return FALSE;
   }
 
-  SPropValue messageClass;
+  SPropValue propValue;
   LPSPropProblemArray problems = NULL;
-  messageClass.ulPropTag = PR_MESSAGE_CLASS_A;
-  messageClass.Value.lpszA = const_cast<char*>("IPM.Contact");
-  mLastError = newEntry->SetProps(1, &messageClass, &problems);
+  propValue.ulPropTag = PR_MESSAGE_CLASS_A;
+  propValue.Value.lpszA = const_cast<char*>(aContactClass);
+  mLastError = newEntry->SetProps(1, &propValue, &problems);
   if (HR_FAILED(mLastError)) {
     PRINTF(("Cannot set message class %08lx.\n", mLastError));
     return FALSE;
   }
+
+  if (strcmp(aContactClass, "IPM.DistList") == 0) {
+    // Set distribution list name.
+    problems = NULL;
+    GetDlNameTag(newEntry.Get(), propValue.ulPropTag);
+    propValue.Value.lpszW = const_cast<wchar_t*>(aName);
+    mLastError = newEntry->SetProps(1, &propValue, &problems);
+    if (HR_FAILED(mLastError)) {
+      PRINTF(("Cannot set DL name %08lx.\n", mLastError));
+      return FALSE;
+    }
+  }
+
   mLastError = newEntry->SaveChanges(KEEP_OPEN_READONLY);
   if (HR_FAILED(mLastError)) {
     PRINTF(("Cannot commit new entry %08lx.\n", mLastError));
@@ -1132,12 +1170,8 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
 
   // We need to set a display name otherwise MAPI is really unhappy internally.
   SPropValue displayName;
-  nsAutoString tempName;
   displayName.ulPropTag = PR_DISPLAY_NAME_W;
-  tempName.AssignLiteral(kDummyDisplayName);
-  tempName.AppendInt(sEntryCounter++);
-  const wchar_t* tempNameValue = tempName.get();
-  displayName.Value.lpszW = const_cast<wchar_t*>(tempNameValue);
+  displayName.Value.lpszW = const_cast<wchar_t*>(aName);
   nsMapiInterfaceWrapper<LPMAPIPROP> object;
   mLastError =
       mAddressBook->OpenEntry(aNewEntry.mByteCount, aNewEntry.mEntryId,
@@ -1155,125 +1189,17 @@ BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
   return TRUE;
 }
 
-BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent,
-                                   nsMapiEntry& aNewEntry) {
-  nsMapiInterfaceWrapper<LPABCONT> container;
-  ULONG objType = 0;
-
-  mLastError = mAddressBook->OpenEntry(aParent.mByteCount, aParent.mEntryId,
-                                       &IID_IABContainer, MAPI_MODIFY, &objType,
-                                       container);
-  if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08lx.\n", mLastError));
-    return FALSE;
-  }
-  SPropTagArray property;
-  LPSPropValue value = NULL;
-  ULONG valueCount = 0;
-
-  property.cValues = 1;
-  property.aulPropTag[0] = PR_DEF_CREATE_DL;
-  mLastError = container->GetProps(&property, 0, &valueCount, &value);
-  if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot obtain template %08lx.\n", mLastError));
-    return FALSE;
-  }
-  nsMapiInterfaceWrapper<LPMAPIPROP> newEntry;
-
-  mLastError = container->CreateEntry(
-      value->Value.bin.cb, reinterpret_cast<LPENTRYID>(value->Value.bin.lpb),
-      CREATE_CHECK_DUP_LOOSE, newEntry);
-  FreeBuffer(value);
-  if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot create new entry %08lx.\n", mLastError));
-    return FALSE;
-  }
-  SPropValue displayName;
-  LPSPropProblemArray problems = NULL;
-  nsAutoString tempName;
-
-  displayName.ulPropTag = PR_DISPLAY_NAME_W;
-  tempName.AssignLiteral("__MailList__");
+BOOL nsAbWinHelper::CreateEntry(const nsMapiEntry& aParent,
+                                nsMapiEntry& aNewEntry) {
+  nsAutoString tempName(L"" kDummyDisplayName);
   tempName.AppendInt(sEntryCounter++);
-  const wchar_t* tempNameValue = tempName.get();
-  displayName.Value.lpszW = const_cast<wchar_t*>(tempNameValue);
-  mLastError = newEntry->SetProps(1, &displayName, &problems);
-  if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot set temporary name %08lx.\n", mLastError));
-    return FALSE;
-  }
-  mLastError = newEntry->SaveChanges(KEEP_OPEN_READONLY);
-  if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot commit new entry %08lx.\n", mLastError));
-    return FALSE;
-  }
-  property.aulPropTag[0] = PR_ENTRYID;
-  mLastError = newEntry->GetProps(&property, 0, &valueCount, &value);
-  if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot get entry id %08lx.\n", mLastError));
-    return FALSE;
-  }
-  aNewEntry.Assign(value->Value.bin.cb,
-                   reinterpret_cast<LPENTRYID>(value->Value.bin.lpb));
-  FreeBuffer(value);
-  return TRUE;
+  return CreateEntryInternal(aParent, aNewEntry, "IPM.Contact", tempName.get());
 }
 
-BOOL nsAbWinHelper::CopyEntry(const nsMapiEntry& aContainer,
-                              const nsMapiEntry& aSource,
-                              nsMapiEntry& aTarget) {
-  nsMapiInterfaceWrapper<LPABCONT> container;
-  ULONG objType = 0;
-
-  mLastError = mAddressBook->OpenEntry(aContainer.mByteCount,
-                                       aContainer.mEntryId, &IID_IABContainer,
-                                       MAPI_MODIFY, &objType, container);
-  if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot open container %08lx.\n", mLastError));
-    return FALSE;
-  }
-  nsMapiInterfaceWrapper<LPMAPIPROP> newEntry;
-
-  mLastError = container->CreateEntry(aSource.mByteCount, aSource.mEntryId,
-                                      CREATE_CHECK_DUP_LOOSE, newEntry);
-  if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot create new entry %08lx.\n", mLastError));
-    return FALSE;
-  }
-  mLastError = newEntry->SaveChanges(KEEP_OPEN_READONLY);
-  if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot commit new entry %08lx.\n", mLastError));
-    return FALSE;
-  }
-  SPropTagArray property;
-  LPSPropValue value = NULL;
-  ULONG valueCount = 0;
-
-  property.cValues = 1;
-  property.aulPropTag[0] = PR_ENTRYID;
-  mLastError = newEntry->GetProps(&property, 0, &valueCount, &value);
-  if (HR_FAILED(mLastError) || valueCount != 1) {
-    PRINTF(("Cannot get entry id %08lx.\n", mLastError));
-    return FALSE;
-  }
-  aTarget.Assign(value->Value.bin.cb,
-                 reinterpret_cast<LPENTRYID>(value->Value.bin.lpb));
-  FreeBuffer(value);
-  return TRUE;
-}
-
-BOOL nsAbWinHelper::GetDefaultContainer(nsMapiEntry& aContainer) {
-  LPENTRYID entryId = NULL;
-  ULONG byteCount = 0;
-
-  mLastError = mAddressBook->GetPAB(&byteCount, &entryId);
-  if (HR_FAILED(mLastError)) {
-    PRINTF(("Cannot get PAB %08lx.\n", mLastError));
-    return FALSE;
-  }
-  aContainer.Assign(byteCount, entryId);
-  FreeBuffer(entryId);
-  return TRUE;
+BOOL nsAbWinHelper::CreateDistList(const nsMapiEntry& aParent,
+                                   nsMapiEntry& aNewEntry,
+                                   const wchar_t* aName) {
+  return CreateEntryInternal(aParent, aNewEntry, "IPM.DistList", aName);
 }
 
 enum {
@@ -1353,6 +1279,14 @@ BOOL nsAbWinHelper::GetContents(const nsMapiEntry& aParent,
         nsMapiEntry& current = (*aList)[aNbElements];
         SPropValue& currentValue = rowSet->aRow->lpProps[ContentsColumnEntryId];
 
+        // Sometimes Outlooks spits the dummy here :-(
+        // That is meant to be a byte count and NOT an error code of 0x8004010F.
+        // We gloss over it.
+        if (currentValue.Value.bin.cb == MAPI_E_NOT_FOUND ||
+            currentValue.Value.bin.lpb == NULL) {
+          PRINTF(("Error fetching rows.\n"));
+          return TRUE;
+        }
         current.Assign(currentValue.Value.bin.cb,
                        reinterpret_cast<LPENTRYID>(currentValue.Value.bin.lpb));
       }

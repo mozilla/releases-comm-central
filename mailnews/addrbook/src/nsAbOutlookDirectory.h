@@ -78,8 +78,6 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult NotifyCardPropertyChanges(nsIAbCard* aOld, nsIAbCard* aNew);
   nsresult commonNotification(nsISupports* aItem, const char* aTopic,
                               const char* aNotificationUID);
-  // Read MAPI repository
-  nsresult UpdateAddressList(void);
   // Utility to produce a card from a URI.
   nsresult OutlookCardForURI(const nsACString& aUri, nsIAbCard** card);
 

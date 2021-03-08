@@ -117,17 +117,18 @@ class nsAbWinHelper {
   // Create entry in the address book
   BOOL CreateEntry(const nsMapiEntry& aParent, nsMapiEntry& aNewEntry);
   // Create a distribution list in the address book
-  BOOL CreateDistList(const nsMapiEntry& aParent, nsMapiEntry& aNewEntry);
-  // Copy an existing entry in the address book
-  BOOL CopyEntry(const nsMapiEntry& aContainer, const nsMapiEntry& aSource,
-                 nsMapiEntry& aTarget);
-  // Get a default address book container
-  BOOL GetDefaultContainer(nsMapiEntry& aContainer);
+  BOOL CreateDistList(const nsMapiEntry& aParent, nsMapiEntry& aNewEntry,
+                      const wchar_t* aName);
+  // Create entry worker
+  BOOL CreateEntryInternal(const nsMapiEntry& aParent, nsMapiEntry& aNewEntry,
+                           const char* aContactClass, const wchar_t* aName);
   // Is the helper correctly initialised?
   BOOL IsOK(void) const { return mAddressBook != NULL; }
   // Helper to get distribution list members tag.
   BOOL GetDlMembersTag(IMAPIProp* aMsg, ULONG& aDlMembersTag,
                        ULONG& aDlMembersTagOneOff);
+  // Helper to get distribution list name tag.
+  BOOL GetDlNameTag(IMAPIProp* aMsg, ULONG& aDlNameTag);
   // Helper to compare entry IDs.
   bool CompareEntryIDs(nsCString& aEntryID1, nsCString& aEntryID2);
 
