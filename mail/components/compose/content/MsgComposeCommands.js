@@ -4998,13 +4998,12 @@ function CheckValidEmailAddress(aMsgCompFields) {
  * Cycle through all the currently visible autocomplete addressing rows and
  * generate pills for those inputs with leftover strings. This is necessary in
  * case a user writes an extra address and clicks "Send" before the text is
- * converted into a pill.
+ * converted into a pill. We don't know why input's onblur doesn't do the trick.
  */
 function pillifyRecipients() {
-  for (let row of document.querySelectorAll(".address-row:not(.hidden)")) {
-    let input = row.querySelector(
-      `input[is="autocomplete-input"][recipienttype]`
-    );
+  for (let input of document.querySelectorAll(
+    `.address-row:not(.hidden) input[is="autocomplete-input"][recipienttype]`
+  )) {
     // If we find a leftover string in the input field, create a pill. If the
     // newly created pill is not a valid address, the sending will stop.
     if (input?.value.trim()) {
