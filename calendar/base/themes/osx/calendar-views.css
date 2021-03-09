@@ -50,7 +50,7 @@ richlistitem[is="agenda-richlistitem"][status="CANCELLED"] .agenda-container-box
 /* Navigation controls for the views */
 #calendar-nav-control {
     background-color: #e8e8e8;
-    --calview-tabline-color: #0a84ff;
+    --calview-tabline-color: -moz-accent-color;
     --calview-border-color: #bdbdbd;
     --calview-border-bottom-color: #d2d2d2;
 }

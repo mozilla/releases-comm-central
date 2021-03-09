@@ -11,7 +11,7 @@
 @import url("chrome://messenger/skin/shared/messenger.css");
 
 :root {
-  --tabline-color: #0a84ff;
+  --tabline-color: -moz-accent-color;
 
   --toolbar-non-lwt-bgcolor: #f9f9fa;
   --toolbar-non-lwt-textcolor: #0c0c0d;
