@@ -330,7 +330,7 @@ class CalDavDetector {
 
     // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
-    let homeSet = response.firstProps["C:calendar-home-set"];
+    let homeSets = response.firstProps["C:calendar-home-set"];
     let target = response.uri;
 
     if (response.authError) {
@@ -338,10 +338,15 @@ class CalDavDetector {
     } else if (!response.firstProps["D:resourcetype"].has("D:principal")) {
       cal.LOG(`[CalDavProvider] ${target.spec} is not a principal collection`);
       return null;
-    } else if (homeSet) {
-      cal.LOG(`[CalDavProvider] ${target.spec} has a home set at ${homeSet}, checking that`);
-      let homeSetUrl = Services.io.newURI(homeSet, null, target);
-      return this.handleHomeSet(homeSetUrl);
+    } else if (homeSets) {
+      let calendars = [];
+      for (let homeSet of homeSets) {
+        cal.LOG(`[CalDavProvider] ${target.spec} has a home set at ${homeSet}, checking that`);
+        let homeSetUrl = Services.io.newURI(homeSet, null, target);
+        calendars.push(...(await this.handleHomeSet(homeSetUrl)));
+        // If one homeSet fails, it's likely they all will, so don't handle failures here.
+      }
+      return calendars.length ? calendars : null;
     } else {
       cal.LOG(`[CalDavProvider] ${target.spec} doesn't have a home set`);
       return null;
