@@ -59,7 +59,7 @@ async function setListEntries() {
     let isAlias = !!aliasKeyList;
 
     if (isAlias) {
-      let aliasKeys = EnigmailKeyRing.getAliasKeys(addr, aliasKeyList);
+      let aliasKeys = EnigmailKeyRing.getAliasKeys(aliasKeyList);
       if (!aliasKeys.length) {
         // failure, at least one alias key is unusable/unavailable
         statusStringDirect = gLdapBundle.getString("33");
@@ -130,7 +130,11 @@ async function onLoad() {
     return;
   }
 
-  await OpenPGPAlias.load();
+  try {
+    await OpenPGPAlias.load();
+  } catch (ex) {
+    console.log("failed to load OpenPGP alias file: " + ex);
+  }
 
   gListBox = document.getElementById("infolist");
   gViewButton = document.getElementById("detailsButton");

@@ -578,7 +578,9 @@ PgpMimeEncrypt.prototype = {
           "\n"
       );
       if (this.exitCode !== 0) {
-        throw new Error("failure in finishCryptoEncapsulation");
+        throw new Error(
+          "failure in finishCryptoEncapsulation, exitCode: " + this.exitCode
+        );
       }
 
       if (this.mimeStructure == MIME_SIGNED) {

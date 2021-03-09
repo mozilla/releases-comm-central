@@ -36,6 +36,20 @@ var OpenPGPAlias = {
     this._aliasEmails = new Map();
   },
 
+  _hasExpectedKeysStructure(keys) {
+    try {
+      for (let entry of keys) {
+        if (!("id" in entry) && !("fingerprint" in entry)) {
+          return false;
+        }
+      }
+      // all entries passed the test
+      return true;
+    } catch (ex) {
+      return false;
+    }
+  },
+
   async _loadFromFile(src) {
     this._clear();
 
@@ -59,31 +73,54 @@ var OpenPGPAlias = {
     aliasRules = jsonData.rules;
 
     for (let entry of aliasRules) {
-      if (!("keys" in entry)) {
+      if (!("keys" in entry) || !entry.keys || !entry.keys.length) {
+        console.log("Ignoring invalid alias rule without keys");
+        continue;
+      }
+      if ("email" in entry && "domain" in entry) {
+        console.log("Ignoring invalid alias rule with both email and domain");
         continue;
       }
       // Ignore duplicate rules, only use first rule per key.
       // Require email address contains @, and domain doesn't contain @.
       if ("email" in entry) {
-        if (!entry.email.includes("@")) {
-          console.log("Ignoring invalid email alias rule: " + entry.email);
+        let email = entry.email.toLowerCase();
+        if (!email.includes("@")) {
+          console.log("Ignoring invalid email alias rule: " + email);
           continue;
         }
-        if (this._aliasEmails.get(entry.email)) {
-          console.log("Ignoring duplicate email alias rule: " + entry.email);
-        } else {
-          this._aliasEmails.set(entry.email, entry.keys);
+        if (this._aliasEmails.get(email)) {
+          console.log("Ignoring duplicate email alias rule: " + email);
+          continue;
         }
+        if (!this._hasExpectedKeysStructure(entry.keys)) {
+          console.log(
+            "Ignoring alias rule with invalid key entries for email " + email
+          );
+          continue;
+        }
+        this._aliasEmails.set(email, entry.keys);
       } else if ("domain" in entry) {
-        if (entry.domain.includes("@")) {
-          console.log("Ignoring invalid domain alias rule: " + entry.domain);
+        let domain = entry.domain.toLowerCase();
+        if (domain.includes("@")) {
+          console.log("Ignoring invalid domain alias rule: " + domain);
           continue;
         }
-        if (this._aliasDomains.get(entry.domain)) {
-          console.log("Ignoring duplicate domain alias rule: " + entry.domain);
-        } else {
-          this._aliasDomains.set(entry.domain, entry.keys);
+        if (this._aliasDomains.get(domain)) {
+          console.log("Ignoring duplicate domain alias rule: " + domain);
+          continue;
         }
+        if (!this._hasExpectedKeysStructure(entry.keys)) {
+          console.log(
+            "Ignoring alias rule with invalid key entries for domain " + domain
+          );
+          continue;
+        }
+        this._aliasDomains.set(domain, entry.keys);
+      } else {
+        console.log(
+          "Ignoring invalid alias rule without domain and without email"
+        );
       }
     }
   },
@@ -103,13 +140,13 @@ var OpenPGPAlias = {
       return null;
     }
 
-    return this._aliasDomains.get(domain);
+    return this._aliasDomains.get(domain.toLowerCase());
   },
 
   getEmailAliasKeyList(email) {
     if (!this._loaded()) {
       return null;
     }
-    return this._aliasEmails.get(email);
+    return this._aliasEmails.get(email.toLowerCase());
   },
 };

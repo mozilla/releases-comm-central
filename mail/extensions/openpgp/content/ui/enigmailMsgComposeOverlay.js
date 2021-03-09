@@ -1243,7 +1243,11 @@ Enigmail.msg = {
     // gMsgCompose.expandMailingLists();
 
     if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
-      await OpenPGPAlias.load();
+      try {
+        await OpenPGPAlias.load();
+      } catch (ex) {
+        console.log("failed to load OpenPGP alias file: " + ex);
+      }
 
       var toAddrList = [];
       var arrLen = {};

@@ -131,6 +131,77 @@ const tests = [
     expectedMissing: true,
     expectedAliasKeys: null,
   },
+  {
+    info: "Mixed case test a",
+    filename: `${mailNewsDir}/alias-8.json`,
+    to: "a@UPPERDOM.EXAMPLE",
+    expectedMissing: false,
+    expectedAliasKeys: ["EB85BB5FA33A75E15E944E63F231550C4F47E38E"],
+  },
+  {
+    info: "Mixed case test b",
+    filename: `${mailNewsDir}/alias-8.json`,
+    to: "b@lowerdom.example",
+    expectedMissing: false,
+    expectedAliasKeys: ["D1A66E1A23B182C9980F788CFBFCC82A015E7330"],
+  },
+  {
+    info: "Mixed case test c",
+    filename: `${mailNewsDir}/alias-8.json`,
+    to: "C@MIXed.EXample",
+    expectedMissing: false,
+    expectedAliasKeys: ["B8F2F6F4BD3AD3F82DC446833099FF1238852B9F"],
+  },
+  {
+    info: "Mixed case test d",
+    filename: `${mailNewsDir}/alias-13.json`,
+    to: "NAME@DOMAIN.NET",
+    expectedMissing: false,
+    expectedAliasKeys: ["D1A66E1A23B182C9980F788CFBFCC82A015E7330"],
+  },
+  {
+    info: "Mixed case test e",
+    filename: `${mailNewsDir}/alias-14.json`,
+    to: "name@domain.net",
+    expectedMissing: false,
+    expectedAliasKeys: ["D1A66E1A23B182C9980F788CFBFCC82A015E7330"],
+  },
+  {
+    info: "Mixed case test f",
+    filename: `${mailNewsDir}/alias-15.json`,
+    to: "name@domain.net",
+    expectedMissing: false,
+    expectedAliasKeys: ["D1A66E1A23B182C9980F788CFBFCC82A015E7330"],
+  },
+  {
+    info: "JSON with bad syntax, should find Alice's key directly",
+    filename: `${mailNewsDir}/alias-9.json`,
+    to: "alice@openpgp.example",
+    expectedMissing: false,
+    expectedAliasKeys: null,
+    expectException: true,
+  },
+  {
+    info: "JSON with missing keys entry, should find Alice's key directly",
+    filename: `${mailNewsDir}/alias-10.json`,
+    to: "alice@openpgp.example",
+    expectedMissing: false,
+    expectedAliasKeys: null,
+  },
+  {
+    info: "JSON with empty keys entry, should find Alice's key directly",
+    filename: `${mailNewsDir}/alias-11.json`,
+    to: "alice@openpgp.example",
+    expectedMissing: false,
+    expectedAliasKeys: null,
+  },
+  {
+    info: "JSON with bad type keys entry, should find Alice's key directly",
+    filename: `${mailNewsDir}/alias-12.json`,
+    to: "alice@openpgp.example",
+    expectedMissing: false,
+    expectedAliasKeys: null,
+  },
 ];
 
 /**
@@ -172,7 +243,21 @@ add_task(async function testAlias() {
       let inFile = do_get_file(test.filename);
       inFile.copyTo(profileDir, aliasFilename);
 
-      await OpenPGPAlias._loadFromFile(aliasFilename);
+      try {
+        await OpenPGPAlias._loadFromFile(aliasFilename);
+        Assert.ok(
+          !("expectException" in test) || !test.expectException,
+          "expected no load exception"
+        );
+      } catch (ex) {
+        console.log(
+          "exception when loading alias file " + aliasFilename + " : " + ex
+        );
+        Assert.ok(
+          "expectException" in test && test.expectException,
+          "expected load exception"
+        );
+      }
     } else {
       info(`Running alias test without rules`);
       OpenPGPAlias._clear();
@@ -210,7 +295,7 @@ add_task(async function testAlias() {
       logFileObj
     );
 
-    let foundAliasKeys = encryptArgs.aliasKeys.get(test.to);
+    let foundAliasKeys = encryptArgs.aliasKeys.get(test.to.toLowerCase());
 
     if (!test.expectedAliasKeys) {
       Assert.ok(!foundAliasKeys, "foundAliasKeys should be empty");

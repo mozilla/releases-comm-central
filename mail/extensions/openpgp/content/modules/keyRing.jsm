@@ -1260,6 +1260,7 @@ var EnigmailKeyRing = {
       }
       // try to find current address in key list:
       var errMsg = null;
+      addr = addr.toLowerCase();
       if (!addr.includes("@")) {
         throw new Error(
           "getValidKeysForAllRecipients unexpected lookup for non-email addr: " +
@@ -1403,11 +1404,11 @@ var EnigmailKeyRing = {
    * Return the fingerprint of each usable alias key for the given
    * email address.
    *
-   * @param {string} email - The email address to look up.
    * @param {String[]} keyList - Array of key identifiers
-   * @return {String[]} An array with fingerprints of each usable alias key.
+   * @return {String[]} An array with fingerprints of all alias keys,
+   *                    or an empty array on failure.
    */
-  getAliasKeys(email, keyList) {
+  getAliasKeys(keyList) {
     let keys = [];
 
     for (let entry of keyList) {

@@ -146,6 +146,7 @@ var EnigmailEncryption = {
           if (!email) {
             continue;
           }
+          email = email.toLowerCase();
           if (/^0x[0-9a-f]+$/i.test(email)) {
             throw new Error(`Recipient should not be a key ID: ${email}`);
           }
@@ -157,15 +158,20 @@ var EnigmailEncryption = {
 
           let aliasKeyList = EnigmailKeyRing.getAliasKeyList(email);
           if (aliasKeyList) {
-            let aliasKeys = EnigmailKeyRing.getAliasKeys(email, aliasKeyList);
+            // We have an alias definition.
+
+            let aliasKeys = EnigmailKeyRing.getAliasKeys(aliasKeyList);
             if (!aliasKeys.length) {
+              // An empty result means there was a failure obtaining the
+              // defined keys, this happens if at least one key is missing
+              // or unusable.
+              // We don't allow composing an email that involves a
+              // bad alias definition, return null to signal that
+              // sending should be aborted.
               errorMsgObj.value = "bad alias definition for " + email;
               return null;
             }
 
-            // We insert the definition even if aliasKeys is empty,
-            // because having an alias means we want to skip the usual
-            // lookup - and having the entry tells RNP to skip.
             result.aliasKeys.set(email, aliasKeys);
           }
         }
