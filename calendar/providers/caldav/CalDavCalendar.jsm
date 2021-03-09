@@ -1786,6 +1786,9 @@ CalDavCalendar.prototype = {
           return normalized == chs.path || normalized == chs.spec;
         };
         let createBoxUrl = path => {
+          if (!path) {
+            return null;
+          }
           let newPath = this.ensureDecodedPath(path);
           // Make sure the uri has a / at the end, as we do with the calendarUri.
           if (newPath.charAt(newPath.length - 1) != "/") {
@@ -1819,7 +1822,7 @@ CalDavCalendar.prototype = {
           this.mInboxUrl = createBoxUrl(response.firstProps["C:schedule-inbox-URL"]);
           this.mOutboxUrl = createBoxUrl(response.firstProps["C:schedule-outbox-URL"]);
 
-          if (this.calendarUri.spec == this.mInboxUrl.spec) {
+          if (!this.mInboxUrl || this.calendarUri.spec == this.mInboxUrl.spec) {
             // If the inbox matches the calendar uri (i.e SOGo), then we
             // don't need to poll the inbox.
             this.mShouldPollInbox = false;
