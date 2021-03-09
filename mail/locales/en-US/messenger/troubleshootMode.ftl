@@ -6,8 +6,7 @@ troubleshoot-mode-window =
     .title = { -brand-short-name } Troubleshoot Mode
     .style = width: 37em;
 
-troubleshoot-mode-description = { -brand-short-name } is now running in Troubleshoot Mode, which temporarily disables your<br>
-                                custom settings, themes, and extensions.
+troubleshoot-mode-description = Use { -brand-short-name } troubleshooting mode to diagnose issues. Your add-ons and customizations will be temporarily disabled.
 
 troubleshoot-mode-description2 = You can make some or all of these changes permanent:
 
