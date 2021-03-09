@@ -399,7 +399,7 @@ class CalDavDetector {
     }
 
     // Some servers provide colors as an 8-character hex string. Strip the alpha component.
-    color = color.replace(/^(#[0-9A-Fa-f]{6})[0-9A-Fa-f]{2}$/, "$1");
+    color = color?.replace(/^(#[0-9A-Fa-f]{6})[0-9A-Fa-f]{2}$/, "$1");
 
     let calMgr = cal.getCalendarManager();
     let calendar = calMgr.createCalendar("caldav", uri);
