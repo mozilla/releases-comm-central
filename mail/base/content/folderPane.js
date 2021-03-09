@@ -2749,6 +2749,13 @@ var gFolderTreeView = {
         aItem
       );
     }
+
+    // Force the rebuild of the tree if the user is using multiple modes at
+    // once. This is to avoid showing multiple new folders in the same mode.
+    // See bug 1696965.
+    if (this.activeModes.length > 1) {
+      this._rebuild();
+    }
   },
 
   addFolder(aParentItem, aItem) {
@@ -3285,23 +3292,21 @@ FtvItemHeader.prototype = {
 var gFolderTreeController = {
   /**
    * Opens the dialog to create a new sub-folder, and creates it if the user
-   * accepts
+   * accepts.
    *
-   * @param aParent (optional)  the parent for the new subfolder
+   * @param {?nsIMsgFolder} aParent - The parent for the new subfolder.
    */
   newFolder(aParent) {
     let folder = aParent || gFolderTreeView.getSelectedFolders()[0];
 
-    // Make sure we actually can create subfolders
+    // Make sure we actually can create subfolders.
     if (!folder.canCreateSubfolders) {
-      // Check if we can create them at the root
+      // Check if we can create them at the root, otherwise use the default
+      // account as root folder.
       let rootMsgFolder = folder.server.rootMsgFolder;
-      if (rootMsgFolder.canCreateSubfolders) {
-        folder = rootMsgFolder;
-      } else {
-        // Just use the default account.
-        folder = GetDefaultAccountRootFolder();
-      }
+      folder = rootMsgFolder.canCreateSubfolders
+        ? rootMsgFolder
+        : GetDefaultAccountRootFolder();
     }
 
     if (!folder) {
@@ -3322,7 +3327,8 @@ var gFolderTreeController = {
         return;
       }
       aFolder.createSubfolder(aName, msgWindow);
-      gFolderTreeView.rebuildAfterChange();
+      // Don't call the rebuildAfterChange() here as we'll need to wait for the
+      // new folder to be properly created before rebuilding the tree.
     }
 
     window.openDialog(
@@ -3453,8 +3459,9 @@ var gFolderTreeController = {
 
       controller._tree.view.selection.clearSelection();
 
-      // Actually do the rename
+      // Actually do the rename.
       folder.rename(aName, msgWindow);
+      gFolderTreeView.rebuildAfterChange();
     }
     window.openDialog(
       "chrome://messenger/content/renameFolderDialog.xhtml",
