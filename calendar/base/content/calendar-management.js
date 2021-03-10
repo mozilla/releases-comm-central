@@ -614,9 +614,9 @@ function setupDeleteMenuitem(aDeleteId, aCalendar) {
 
   let deleteItem = document.getElementById(aDeleteId);
   // Dynamically set labelremove, labeldelete, labelunsubscribe
-  deleteItem.setAttribute("label", deleteItem.getAttribute("label" + type, "label"));
+  deleteItem.label = deleteItem.getAttribute("label" + type);
   // Dynamically set accesskeyremove, accesskeydelete, accesskeyunsubscribe
-  deleteItem.setAttribute("label", deleteItem.getAttribute("accesskey" + type, "accesskey"));
+  deleteItem.accessKey = deleteItem.getAttribute("accesskey" + type);
 }
 
 /**
