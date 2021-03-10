@@ -5,6 +5,9 @@
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * This module has several utility functions for use by both core and
@@ -20,9 +23,7 @@ var MailUtils =
    */
   discoverFolders: function MailUtils_discoverFolders()
   {
-    let accountManager = Cc["@mozilla.org/messenger/account-manager;1"]
-                           .getService(Ci.nsIMsgAccountManager);
-    for (let server of accountManager.allServers)
+    for (let server of MailServices.accounts.allServers)
       server.rootFolder.subFolders;
   },
 

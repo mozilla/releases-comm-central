@@ -384,31 +384,27 @@ function ViewPageSource(messages)
 
   var browser = getBrowser();
 
-    try {
-        // First, get the mail session
-        const nsIMsgMailSession = Ci.nsIMsgMailSession;
-        var mailSession = Cc["@mozilla.org/messenger/services/session;1"]
-                            .getService(nsIMsgMailSession);
+  try {
+    // First, get the mail session.
+    for (let i = 0; i < numMessages; i++) {
+      // Now, we need to get a URL from a URI.
+      var url = MailServices.mailSession.ConvertMsgURIToMsgURL(messages[i],
+                                                               msgWindow);
 
-        for (var i = 0; i < numMessages; i++)
-        {
-            // Now, we need to get a URL from a URI
-            var url = mailSession.ConvertMsgURIToMsgURL(messages[i], msgWindow);
-
-            // Strip out the message-display parameter to ensure that attached
-            // emails display the message source, not the processed HTML.
-            url = url.replace(/(\?|&)type=application\/x-message-display(&|$)/, "$1")
-                     .replace(/\?$/, "");
-            window.openDialog( "chrome://global/content/viewSource.xul",
-                               "_blank", "all,dialog=no",
-                               {URL: url, browser: browser,
-                                outerWindowID: browser.outerWindowID});
-        }
-        return true;
-    } catch (e) {
-        // Couldn't get mail session
-        return false;
+      // Strip out the message-display parameter to ensure that attached
+      // emails display the message source, not the processed HTML.
+      url = url.replace(/(\?|&)type=application\/x-message-display(&|$)/, "$1")
+               .replace(/\?$/, "");
+      window.openDialog("chrome://global/content/viewSource.xul", "_blank",
+                        "all,dialog=no",
+                        {URL: url, browser: browser,
+                         outerWindowID: browser.outerWindowID});
     }
+    return true;
+  } catch (e) {
+    // Couldn't get mail session.
+    return false;
+  }
 }
 
 function doHelpButton()

@@ -10,6 +10,9 @@
  
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 //NOTE: gMessengerBundle and gBrandBundle must be defined and set
 //      for this Overlay to work properly
@@ -721,8 +724,7 @@ function FolderPaneSelectionChange()
                     var srchFolderUriArray = srchFolderUri.split('|');
                     var searchOnline = dbFolderInfo.getBooleanProperty("searchOnline", false);
                     // cross folder search
-                    var filterService = Cc["@mozilla.org/messenger/services/filters;1"].getService(Ci.nsIMsgFilterService);
-                    var filterList = filterService.getTempFilterList(msgFolder);
+                    var filterList = MailServices.filters.getTempFilterList(msgFolder);
                     var tempFilter = filterList.createFilter("temp");
                     filterList.parseCondition(tempFilter, searchTermString);
                     if (srchFolderUriArray.length > 1)
@@ -874,8 +876,7 @@ function  CreateVirtualFolder(newName, parentFolder, searchFolderURIs, searchTer
       vfdb.summaryValid = true;
       vfdb.Close(true);
       parentFolder.NotifyItemAdded(newFolder);
-      var accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
-      accountManager.saveVirtualFolders();
+      MailServices.accounts.saveVirtualFolders();
     }
     catch(e)
     {

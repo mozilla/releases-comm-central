@@ -383,9 +383,7 @@ function RefreshTagsPopup(aMenupopup)
 
   // create tag menuitems
   var currentTagKey = isNaN(gCurrentViewValue) ? gCurrentViewValue.substr(kViewTagMarker.length) : "";
-  var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
-                     .getService(Ci.nsIMsgTagService);
-  var tagArray = tagService.getAllTags();
+  var tagArray = MailServices.tags.getAllTags();
   for (var i = 0; i < tagArray.length; ++i)
   {
     var tagInfo = tagArray[i];

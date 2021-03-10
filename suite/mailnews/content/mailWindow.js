@@ -186,7 +186,7 @@ function CreateMailWindowGlobals()
   msgComposeService = Cc['@mozilla.org/messengercompose;1']
                         .getService(Ci.nsIMsgComposeService);
 
-  accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+  accountManager = MailServices.accounts;
 
   RDF = Cc['@mozilla.org/rdf/rdf-service;1']
           .getService(Ci.nsIRDFService);

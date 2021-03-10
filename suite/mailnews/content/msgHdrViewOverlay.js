@@ -40,8 +40,6 @@ var gProfileDirURL;
 // Show the friendly display names for people I know, instead of the name + email address.
 var gShowCondensedEmailAddresses;
 
-var msgHeaderParser = Cc["@mozilla.org/messenger/headerparser;1"]
-                        .getService(Ci.nsIMsgHeaderParser);
 var abAddressCollector = null;
 
 // other components may listen to on start header & on end header notifications for each message we display
@@ -230,9 +228,8 @@ function OnLoadMsgHeaderPane()
 
   // Add an address book listener so we can update the header view when things
   // change.
-  Cc["@mozilla.org/abmanager;1"]
-    .getService(Ci.nsIAbManager)
-    .addAddressBookListener(AddressBookListener, nsIAbListener.all);
+  MailServices.ab.addAddressBookListener(AddressBookListener,
+                                         Ci.nsIAbListener.all);
 
   var toggleHeaderView = GetHeaderPane();
   var initialCollapsedSetting = toggleHeaderView.getAttribute("state");
@@ -248,9 +245,7 @@ function OnUnloadMsgHeaderPane()
 {
   Services.prefs.removeObserver("mail.showCondensedAddresses", MsgHdrViewObserver);
 
-  Cc["@mozilla.org/abmanager;1"]
-    .getService(Ci.nsIAbManager)
-    .removeAddressBookListener(AddressBookListener);
+  MailServices.ab.removeAddressBookListener(AddressBookListener);
 
   // dispatch an event letting any listeners know that we have unloaded the message pane
   GetHeaderPane().dispatchEvent(new Event('messagepane-unloaded',
@@ -483,13 +478,13 @@ var messageHeaderSink = {
       // process message tags as if they were headers in the message
       SetTagHeader();
 
-      if (("from" in currentHeaderData) && ("sender" in currentHeaderData) && msgHeaderParser)
+      if (("from" in currentHeaderData) && ("sender" in currentHeaderData))
       {
         var senderMailbox = kMailboxSeparator +
-          msgHeaderParser.extractHeaderAddressMailboxes(
+          MailServices.headerParser.extractHeaderAddressMailboxes(
             currentHeaderData.sender.headerValue) + kMailboxSeparator;
         var fromMailboxes = kMailboxSeparator +
-          msgHeaderParser.extractHeaderAddressMailboxes(
+          MailServices.headerParser.extractHeaderAddressMailboxes(
             currentHeaderData.from.headerValue) + kMailboxSeparator;
         if (fromMailboxes.includes(senderMailbox))
           delete currentHeaderData.sender;
@@ -686,9 +681,7 @@ function SetTagHeader()
   }
 
   // get the list of known tags
-  var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
-                   .getService(Ci.nsIMsgTagService);
-  var tagArray = tagService.getAllTags();
+  var tagArray = MailServices.tags.getAllTags();
   var tagKeys = {};
   for (var tagInfo of tagArray)
     if (tagInfo.tag)
@@ -1083,33 +1076,33 @@ function OutputEmailAddresses(headerEntry, emailAddresses)
   if (!emailAddresses)
     return;
 
-  if (msgHeaderParser)
-  {
-    // The email addresses are still RFC2047 encoded but libmime has already
-    // converted from "raw UTF-8" to "wide" (UTF-16) characters.
-    var addresses = msgHeaderParser.parseEncodedHeaderW(emailAddresses);
+  // The email addresses are still RFC2047 encoded but libmime has already
+  // converted from "raw UTF-8" to "wide" (UTF-16) characters.
+  var addresses =
+    MailServices.headerParser.parseEncodedHeaderW(emailAddresses);
 
-    for (let addr of addresses) {
-      // if we want to include short/long toggle views and we have a long view, always add it.
-      // if we aren't including a short/long view OR if we are and we haven't parsed enough
-      // addresses to reach the cutoff valve yet then add it to the default (short) div.
-      var address = {};
-      address.emailAddress = addr.email || "";
-      address.fullAddress = addr.toString() || "";
-      address.displayName = addr.name || "";
-      if (headerEntry.useToggle)
-        headerEntry.enclosingBox.addAddressView(address);
-      else
-        updateEmailAddressNode(headerEntry.enclosingBox.emailAddressNode, address);
-
-      if (headerEntry.enclosingBox.getAttribute("id") == "expandedfromBox") {
-        setFromBuddyIcon(addr.email);
-      }
-    }
-
+  for (let addr of addresses) {
+    // If we want to include short/long toggle views and we have a long view,
+    // always add it. If we aren't including a short/long view OR if we are and
+    // we haven't parsed enough addresses to reach the cutoff valve yet then
+    // add it to the default (short) div.
+    let address = {};
+    address.emailAddress = addr.email || "";
+    address.fullAddress = addr.toString() || "";
+    address.displayName = addr.name || "";
     if (headerEntry.useToggle)
-      headerEntry.enclosingBox.buildViews();
-  } // if msgheader parser
+      headerEntry.enclosingBox.addAddressView(address);
+    else
+      updateEmailAddressNode(headerEntry.enclosingBox.emailAddressNode,
+                             address);
+
+    if (headerEntry.enclosingBox.getAttribute("id") == "expandedfromBox") {
+      setFromBuddyIcon(addr.email);
+    }
+  }
+
+  if (headerEntry.useToggle)
+    headerEntry.enclosingBox.buildViews();
 }
 
 function setFromBuddyIcon(email)
@@ -1309,9 +1302,7 @@ function SetupEmailAddressPopup(aAddressNode)
  */
 function GetCardForEmail(aEmailAddress)
 {
-  var books = Cc["@mozilla.org/abmanager;1"]
-                .getService(Ci.nsIAbManager)
-                .directories;
+  var books = MailServices.ab.directories;
 
   var result = { book: null, card: null};
 

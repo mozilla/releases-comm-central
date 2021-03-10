@@ -267,9 +267,7 @@ function searchOnUnload()
     gSearchSession.unregisterListener(gViewSearchListener);
     gSearchSession.unregisterListener(gSearchNotificationListener);
 
-    Cc["@mozilla.org/messenger/services/session;1"]
-      .getService(Ci.nsIMsgMailSession)
-      .RemoveFolderListener(gFolderListener);
+    MailServices.mailSession.RemoveFolderListener(gFolderListener);
 
     if (gDBView)
     {
@@ -526,9 +524,7 @@ function setupDatasource() {
 
     var nsIFolderListener = Ci.nsIFolderListener;
     var notifyFlags = nsIFolderListener.event;
-    Cc["@mozilla.org/messenger/services/session;1"]
-      .getService(Ci.nsIMsgMailSession)
-      .AddFolderListener(gFolderListener, notifyFlags);
+    MailServices.mailSession.AddFolderListener(gFolderListener, notifyFlags);
 
     // the datasource is a listener on the search results
     gViewSearchListener = gDBView.QueryInterface(Ci.nsIMsgSearchNotify);

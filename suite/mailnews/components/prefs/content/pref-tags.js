@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
 // Each tag entry in our list looks like this:
 //    <listitem>
 //      <listcell>
@@ -18,8 +22,6 @@ const kOrdinalCharHigh = "z";
 const kOrdinalPadding  = String.fromCharCode(kOrdinalCharLow.charCodeAt(0) - 1);
 
 var gInstantApply = document.documentElement.instantApply; // read only once
-var gTagService   = Cc["@mozilla.org/messenger/tagservice;1"]
-                      .getService(Ci.nsIMsgTagService);
 var gTagList      = null;  // tagList root element
 var gAddButton    = null;
 var gDeleteButton = null;
@@ -45,7 +47,7 @@ function Startup()
 function InitTagList()
 {
   // Read the tags from preferences via the tag service.
-  var tagArray = gTagService.getAllTags();
+  var tagArray = MailServices.tags.getAllTags();
   for (var i = 0; i < tagArray.length; ++i)
   {
     var t = tagArray[i];
@@ -275,14 +277,14 @@ function ApplyChange(aEntry)
     {
       // Do not clear the "new" flag!
       // The key will only stick after closing the dialog.
-      gTagService.deleteKey(tagInfo.key);
+      MailServices.tags.deleteKey(tagInfo.key);
       tagInfo.key = '';
     }
     if (!tagInfo.key)
     {
       // create a new key, based upon the new tag
-      gTagService.addTag(tagInfo.tag, '', '');
-      tagInfo.key = gTagService.getKeyForTag(tagInfo.tag);
+      MailServices.tags.addTag(tagInfo.tag, '', '');
+      tagInfo.key = MailServices.tags.getKeyForTag(tagInfo.tag);
     }
 
     // Recalculate the sort ordinal, if necessary.
@@ -298,10 +300,8 @@ function WriteTag(aTagInfo)
 //dump('********** WriteTag: ' + aTagInfo.toSource() + '\n');
   try
   {
-    gTagService.addTagForKey(aTagInfo.key,
-                             aTagInfo.tag,
-                             aTagInfo.color,
-                             aTagInfo.ordinal);
+    MailServices.tags.addTagForKey(aTagInfo.key, aTagInfo.tag, aTagInfo.color,
+                                   aTagInfo.ordinal);
     aTagInfo.changed = false;
   }
   catch (e)
@@ -377,7 +377,7 @@ function DeleteTag()
   if (key)
   {
     if (gInstantApply)
-      gTagService.deleteKey(key);
+      MailServices.tags.deleteKey(key);
     else
       gDeletedTags[key] = true; // dummy value
   }
@@ -417,7 +417,7 @@ function Restore()
     if (key)
     {
       if (gInstantApply)
-        gTagService.deleteKey(key);
+        MailServices.tags.deleteKey(key);
       else
         gDeletedTags[key] = true; // dummy value
     }
@@ -445,7 +445,7 @@ function OnOK()
 {
   // remove all deleted tags from the preferences system
   for (var key in gDeletedTags)
-    gTagService.deleteKey(key);
+    MailServices.tags.deleteKey(key);
 
   // Write tags to the preferences system, creating keys and ordinal strings.
   for (var entry = gTagList.firstChild; entry; entry = entry.nextSibling)
@@ -459,8 +459,8 @@ function OnOK()
         if (!tagInfo.key)
         {
           // newly added tag, need to create a key and read it
-          gTagService.addTag(tagInfo.tag, '', '');
-          tagInfo.key = gTagService.getKeyForTag(tagInfo.tag);
+          MailServices.tags.addTag(tagInfo.tag, '', '');
+          tagInfo.key = MailServices.tags.getKeyForTag(tagInfo.tag);
         }
         if (tagInfo.key)
         {

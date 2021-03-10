@@ -388,10 +388,7 @@ var gMailNewsTabsType =
   onTitleChanged: function(aTabInfo, aTabNode)
   {
     // If we have an account, we also always have a "Local Folders" account,
-    let accountCount = Cc["@mozilla.org/messenger/account-manager;1"]
-                         .getService(Ci.nsIMsgAccountManager)
-                         .accounts.length;
-    let multipleRealAccounts = accountCount > 2;
+    let multipleRealAccounts = MailServices.accounts.accounts.length > 2;
 
     // clear out specific tab data now, because we might need to return early
     aTabNode.removeAttribute("SpecialFolder");

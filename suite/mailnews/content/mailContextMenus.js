@@ -644,12 +644,9 @@ function OpenMessageForMessageId(messageId)
   // if message id not found in current folder search in all folders
   if (!messageHeader)
   {
-    var accountManager = Cc["@mozilla.org/messenger/account-manager;1"]
-                           .getService(Ci.nsIMsgAccountManager);
-
     messageHeader = SearchForMessageIdInSubFolder(startServer.rootFolder, messageId);
 
-    for (let currentServer of accountManager.allServers)
+    for (let currentServer of MailServices.accounts.allServers)
     {
       if (currentServer && startServer != currentServer &&
           currentServer.canSearchMessages && !currentServer.isDeferredTo)

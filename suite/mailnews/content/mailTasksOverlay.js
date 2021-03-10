@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
 // biff observer topic
 const BIFF_TOPIC = "mail:biff-state-changed";
 
@@ -59,15 +63,12 @@ function MailTasksGetMessagesForAllServers(aBiff, aMsgWindow, aDefaultServer)
   // now log into any server
   try
   {
-    var allServers = Cc["@mozilla.org/messenger/account-manager;1"]
-                       .getService(Ci.nsIMsgAccountManager)
-                       .allServers;
     // array of array of servers for a particular folder
     var pop3DownloadServersArray = [];
     // parallel array of folders to download to...
     var localFoldersToDownloadTo = [];
     var pop3Server = null;
-    for (let currentServer of allServers)
+    for (let currentServer of MailServices.accounts.allServers)
     {
       if (currentServer)
       {

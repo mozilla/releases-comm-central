@@ -724,9 +724,6 @@
             for (var i = headerValueNode.childNodes.length - 1; i >= 0; --i)
               headerValueNode.childNodes[i].remove();
 
-            var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
-                             .getService(Ci.nsIMsgTagService);
-
             // tokenize the keywords based on ' '
             var tagsArray = aTags.split(' ');
             for (var index = 0; index < tagsArray.length; index++)
@@ -737,10 +734,10 @@
               try {
                 // if we got a bad tag name, getTagForKey will throw an exception, skip it
                 // and go to the next one.
-                tagName = tagService.getTagForKey(tagsArray[index]);
+                tagName = MailServices.tags.getTagForKey(tagsArray[index]);
               } catch (ex) { continue; }
 
-              var color = tagService.getColorForKey(tagsArray[index]);
+              var color = MailServices.tags.getColorForKey(tagsArray[index]);
 
               // now create a label for the tag name, and set the color
               var label = document.createElement("label");
@@ -752,6 +749,13 @@
         ]]>
         </body>
       </method>
+      <constructor>
+        <![CDATA[
+          var { MailServices } = ChromeUtils.import(
+           "resource:///modules/MailServices.jsm"
+          );
+        ]]>
+      </constructor>
     </implementation>
   </binding>
 
@@ -769,10 +773,6 @@
         <![CDATA[
            Cc['@mozilla.org/mail/search/validityManager;1'].getService(Ci.nsIMsgSearchValidityManager);
         ]]>
-      </field>
-      <field name="filterService">
-        Cc["@mozilla.org/messenger/services/filters;1"]
-          .getService(Ci.nsIMsgFilterService);
       </field>
       <property name="searchScope" onget="return this.internalScope;">
         <!-- scope ID - retrieve the table -->
@@ -1000,7 +1000,7 @@
           <![CDATA[
             if (isNaN(this.value)) // is this a custom term?
             {
-              let customTerm = this.filterService.getCustomTerm(this.value);
+              let customTerm = MailServices.filters.getCustomTerm(this.value);
               if (customTerm)
                 return customTerm.name;
               // The custom term may be missing after the extension that added
@@ -1023,7 +1023,7 @@
           <![CDATA[
             let result = this.validityTable.getAvailableAttributes();
             // add any available custom search terms
-            for (let customTerm of this.filterService.getCustomTerms()) {
+            for (let customTerm of MailServices.filters.getCustomTerms()) {
               // for custom terms, the array element is a string with the custom id
               // instead of the integer attribute
               if (customTerm.getAvailable(this.searchScope, null))
@@ -1055,7 +1055,7 @@
             {
               if (isNaN(ids[i])) // Is this a custom search term?
               {
-                let customTerm = this.filterService.getCustomTerm(ids[i]);
+                let customTerm = MailServices.filters.getCustomTerm(ids[i]);
                 if (customTerm)
                   strings[i] = customTerm.name;
                 else
@@ -1073,6 +1073,9 @@
       </property>
       <constructor>
       <![CDATA[
+        var { MailServices } = ChromeUtils.import(
+          "resource:///modules/MailServices.jsm"
+        );
         ChromeUtils.import("resource://gre/modules/Services.jsm", this);
         initializeTermFromId(this.id);
       ]]>
@@ -1103,7 +1106,7 @@
             let isCustom = isNaN(this.searchAttribute);
             if (isCustom)
             {
-              let customTerm = this.filterService.getCustomTerm(this.searchAttribute);
+              let customTerm = MailServices.filters.getCustomTerm(this.searchAttribute);
               if (customTerm)
                 return customTerm.getAvailableOperators(this.searchScope);
               return [Ci.nsMsgSearchOp.Contains];
@@ -1144,6 +1147,9 @@
       </property>
       <constructor>
       <![CDATA[
+        var { MailServices } = ChromeUtils.import(
+          "resource:///modules/MailServices.jsm"
+        );
         ChromeUtils.import("resource://gre/modules/Services.jsm", this);
       ]]>
       </constructor>
@@ -1215,10 +1221,6 @@
       <field name="internalOperator">null</field>
       <field name="internalAttribute">null</field>
       <field name="internalValue">null</field>
-      <field name="filterService">
-        Cc["@mozilla.org/messenger/services/filters;1"]
-          .getService(Ci.nsIMsgFilterService);
-      </field>
       <property name="opParentValue" onget="return this.internalOperator;">
         <setter>
           <![CDATA[
@@ -1498,9 +1500,7 @@
           <![CDATA[
             var children = document.getAnonymousNodes(this);
             var popupMenu = children[5].firstChild;
-            var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
-                               .getService(Ci.nsIMsgTagService);
-            var tagArray = tagService.getAllTags();
+            var tagArray = MailServices.tags.getAllTags();
             for (var i = 0; i < tagArray.length; ++i)
             {
               var taginfo = tagArray[i];
@@ -1543,6 +1543,9 @@
       </method>
       <constructor>
       <![CDATA[
+        var { MailServices } = ChromeUtils.import(
+          "resource:///modules/MailServices.jsm"
+         );
         ChromeUtils.import("resource://gre/modules/Services.jsm", this);
 
         // initialize strings
@@ -1724,8 +1727,6 @@
               foundNewMsg = true;
 
               var index = 0;
-              var hdrParser = Cc["@mozilla.org/messenger/headerparser;1"]
-                                .getService(Ci.nsIMsgHeaderParser);
               while (document.getAnonymousNodes(this)[0].childNodes.length < this.mMaxMsgHdrsInPopup && index < msgKeys.length)
               {
                 var msgPopup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummaryMessage");
@@ -1753,7 +1754,7 @@
 
                 var names = {};
                 var emails = {};
-                var numAddresses = hdrParser.parseHeadersWithArray(msgHdr.mime2DecodedAuthor, emails, names, {});
+                var numAddresses = MailServices.headerParser.parseHeadersWithArray(msgHdr.mime2DecodedAuthor, emails, names, {});
                 msgPopup.setAttribute('sender', names.value[0] ? names.value[0] : emails.value[0]);
                 msgPopup.messageUri = aFolder.getUriForMsg(msgHdr);
                 msgPopup.folderUri = aFolder.URI;
@@ -1779,6 +1780,9 @@
       </method>
       <constructor>
       <![CDATA[
+        var { MailServices } = ChromeUtils.import(
+          "resource:///modules/MailServices.jsm"
+         );
         ChromeUtils.import("resource://gre/modules/Services.jsm", this);
       ]]>
       </constructor>
@@ -1799,6 +1803,9 @@
     <implementation>
       <constructor>
         <![CDATA[
+          var { MailServices } = ChromeUtils.import(
+           "resource:///modules/MailServices.jsm"
+          );
           ChromeUtils.import("resource://gre/modules/Services.jsm", this);
 
           if (!this.Services.prefs.getBoolPref("mail.biff.alert.show_preview"))
@@ -1817,11 +1824,9 @@
     <handlers>
       <handler event="click" button="0">
         <![CDATA[
-          var mailSession = Cc["@mozilla.org/messenger/services/session;1"].
-                              getService(Ci.nsIMsgMailSession);
           var topmostMsgWindow;
           try {
-           topmostMsgWindow = mailSession.topmostMsgWindow;
+           topmostMsgWindow = MailServices.mailSession.topmostMsgWindow;
           } catch (ex) {}
 
           if (topmostMsgWindow)
@@ -1831,8 +1836,8 @@
 
             try {
               // SelectFolder throws an exception if the folder is not in the current folder view
-              mailSession.topmostMsgWindow.windowCommands.selectFolder(this.folderUri);
-              mailSession.topmostMsgWindow.windowCommands.selectMessage(this.messageUri);
+              MailServices.mailSession.topmostMsgWindow.windowCommands.selectFolder(this.folderUri);
+              MailServices.mailSession.topmostMsgWindow.windowCommands.selectMessage(this.messageUri);
             } catch (ex) {}
           }
           else

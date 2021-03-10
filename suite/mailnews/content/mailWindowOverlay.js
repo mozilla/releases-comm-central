@@ -34,8 +34,6 @@ var kMsgForwardAsAttachment = 0;
 
 var gMessengerBundle;
 var gOfflineManager;
-var gCopyService = Cc["@mozilla.org/messenger/messagecopyservice;1"]
-                     .getService(Ci.nsIMsgCopyService);
 var gMarkViewedMessageAsReadTimer = null; // if the user has configured the app to mark a message as read if it is viewed for more than n seconds
 
 var gDisallow_classes_no_html = 1; /* the user preference,
@@ -486,9 +484,7 @@ function RemoveAllMessageTags()
     return;
 
   var messages = [];
-  var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
-                     .getService(Ci.nsIMsgTagService);
-  var tagArray = tagService.getAllTags();
+  var tagArray = MailServices.tags.getAllTags();
 
   var allKeys = "";
   for (let j = 0; j < tagArray.length; ++j)
@@ -581,9 +577,7 @@ function ToggleMessageTagKey(index)
   if (!msgHdr)
     return;
 
-  var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
-                     .getService(Ci.nsIMsgTagService);
-  var tagArray = tagService.getAllTags();
+  var tagArray = MailServices.tags.getAllTags();
   for (var i = 0; i < tagArray.length; ++i)
   {
     var key = tagArray[i].key;
@@ -658,9 +652,7 @@ function SetMessageTagLabel(menuitem, index, name)
 
 function InitMessageTags(menuPopup)
 {
-  var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
-                     .getService(Ci.nsIMsgTagService);
-  var tagArray = tagService.getAllTags();
+  var tagArray = MailServices.tags.getAllTags();
   var tagCount = tagArray.length;
 
   // remove any existing non-static entries...
@@ -1129,9 +1121,7 @@ BatchMessageMover.prototype =
       this._batches[copyBatchKey].push(msgHdr);
     }
 
-    let notificationService = Cc["@mozilla.org/messenger/msgnotificationservice;1"]
-                                .getService(Ci.nsIMsgFolderNotificationService);
-    notificationService.addListener(this, notificationService.folderAdded);
+    MailServices.mfn.addListener(this, notificationService.folderAdded);
 
     // Now we launch the code iterating over all message copies, one in turn.
     this.processNextBatch();
@@ -1146,9 +1136,7 @@ BatchMessageMover.prototype =
     }
 
     // all done
-    Cc["@mozilla.org/messenger/msgnotificationservice;1"]
-      .getService(Ci.nsIMsgFolderNotificationService)
-      .removeListener(this);
+    MailServices.mfn.removeListener(this);
 
     // We're just going to select the message now.
     let treeView = gDBView.QueryInterface(Ci.nsITreeView);
@@ -1284,8 +1272,9 @@ BatchMessageMover.prototype =
 
       // If the source folder doesn't support deleting messages, we
       // make archive a copy, not a move.
-      gCopyService.CopyMessages(srcFolder, moveArray, dstFolder,
-                                srcFolder.canDeleteMessages, this, msgWindow, true);
+      MailServices.copy.CopyMessages(srcFolder, moveArray, dstFolder,
+                                     srcFolder.canDeleteMessages, this,
+                                     msgWindow, true);
       return; // continues with OnStopCopy
     }
     return this.processNextBatch();
@@ -1408,8 +1397,8 @@ function MsgCreateFilter()
 {
   // retrieve Sender direct from selected message's headers
   var msgHdr = gFolderDisplay.selectedMessage;
-  var headerParser = Cc["@mozilla.org/messenger/headerparser;1"].getService(Ci.nsIMsgHeaderParser);
-  var emailAddress = headerParser.extractHeaderAddressMailboxes(msgHdr.author);
+  var emailAddress =
+    MailServices.headerParser.extractHeaderAddressMailboxes(msgHdr.author);
   var accountKey = msgHdr.accountKey;
   var folder;
   if (accountKey.length > 0)
@@ -1807,9 +1796,6 @@ function MsgFilters(emailAddress, folder)
 
 function MsgApplyFilters()
 {
-  var filterService = Cc["@mozilla.org/messenger/services/filters;1"]
-                        .getService(Ci.nsIMsgFilterService);
-
   var preselectedFolder = GetFirstSelectedMsgFolder();
 
   var curFilterList = preselectedFolder.getFilterList(msgWindow);
@@ -1818,7 +1804,8 @@ function MsgApplyFilters()
   // disabled filters because the Filter Dialog filter after the fact
   // code would have to clone filters to allow disabled filters to run,
   // and we don't support cloning filters currently.
-  var tempFilterList = filterService.getTempFilterList(preselectedFolder);
+  var tempFilterList =
+    MailServices.filters.getTempFilterList(preselectedFolder);
   var numFilters = curFilterList.filterCount;
   // make sure the temp filter list uses the same log stream
   tempFilterList.logStream = curFilterList.logStream;
@@ -1835,14 +1822,13 @@ function MsgApplyFilters()
       newFilterIndex++;
     }
   }
-  filterService.applyFiltersToFolders(tempFilterList, [preselectedFolder], msgWindow);
+  MailServices.filters.applyFiltersToFolders(tempFilterList,
+                                             [preselectedFolder],
+                                             msgWindow);
 }
 
 function MsgApplyFiltersToSelection()
 {
-  var filterService = Cc["@mozilla.org/messenger/services/filters;1"]
-                        .getService(Ci.nsIMsgFilterService);
-
   var folder = gDBView.msgFolder;
   var indices = GetSelectedIndices(gDBView);
   if (indices && indices.length)
@@ -1863,10 +1849,8 @@ function MsgApplyFiltersToSelection()
       } catch (ex) {}
     }
 
-    filterService.applyFilters(Ci.nsMsgFilterType.Manual,
-                               selectedMsgs,
-                               folder,
-                               msgWindow);
+    MailServices.filters.applyFilters(Ci.nsMsgFilterType.Manual, selectedMsgs,
+                                      folder, msgWindow);
   }
 }
 
@@ -2951,11 +2935,9 @@ function MsgJunkMailInfo(aCheckFirstUse)
       return;
     Services.prefs.setBoolPref("mailnews.ui.junk.firstuse", false);
 
-    // check to see if this is an existing profile where the user has started using
-    // the junk mail feature already
-    var junkmailPlugin = Cc["@mozilla.org/messenger/filter-plugin;1?name=bayesianfilter"]
-                           .getService(Ci.nsIJunkMailPlugin);
-    if (junkmailPlugin.userHasClassified)
+    // Check to see if this is an existing profile where the user has started
+    // using the junk mail feature already.
+    if (MailServices.junk.userHasClassified)
       return;
   }
 
