@@ -243,7 +243,7 @@
     cancel() {
       this.calView.mLog.info("Refresh cancelled for calendar " + this.calId);
       this.cancelled = true;
-      const operation = cal.wrapInstance(this.operation, Ci.calIOperation);
+      let { operation } = this;
       if (operation && operation.isPending) {
         operation.cancel();
         this.operation = null;
@@ -296,7 +296,6 @@
         this
       );
 
-      operation = cal.wrapInstance(operation, Ci.calIOperation);
       if (operation && operation.isPending) {
         this.operation = operation;
         this.calView.mPendingRefreshJobs.set(this.calId, this);
