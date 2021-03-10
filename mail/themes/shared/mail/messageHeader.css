@@ -155,18 +155,24 @@
   background-color: transparent;
   color: inherit;
   -moz-user-focus: normal;
-  list-style-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
+  list-style-image: url("chrome://global/skin/icons/twisty-expanded.svg");
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 1;
 }
 
-#attachmentToggle[checked="true"] {
-  list-style-image: url("chrome://global/skin/icons/twisty-expanded.svg");
+#attachmentToggle:not([checked="true"]) {
+  transform: rotate(-90deg);
 }
 
-#attachmentToggle:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+#attachmentToggle:not([checked="true"]):-moz-locale-dir(rtl) {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #attachmentToggle {
+    transition: transform 200ms ease;
+  }
 }
 
 #attachmentToggle:focus {
