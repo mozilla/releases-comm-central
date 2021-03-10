@@ -986,6 +986,12 @@ pref("mailnews.import.text.skipfirstrecord", true);
 pref("mail.enable_automatic_image_resizing", true);
 #endif
 
+#ifdef XP_WIN
+pref("ldap_2.servers.outlook.uri", "moz-aboutlookdirectory:///");
+pref("ldap_2.servers.outlook.description", "chrome://messenger/locale/addressbook/addressBook.properties");
+// Set to 3 to enable.
+pref("ldap_2.servers.outlook.dirType", -1);
+#endif
 #ifdef XP_MACOSX
 pref("ldap_2.servers.osx.uri", "moz-abosxdirectory:///");
 pref("ldap_2.servers.osx.description", "chrome://messenger/locale/addressbook/addressBook.properties");

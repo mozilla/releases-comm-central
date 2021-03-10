@@ -328,7 +328,7 @@ AddrBookManager.prototype = {
               Cr.NS_ERROR_UNEXPECTED
             );
           }
-          prefName = "ldap_2.servers.oe";
+          prefName = "ldap_2.servers.outlook";
         } else {
           throw Components.Exception(
             "Can't create new ab of type=MAPI_DIRECTORY_TYPE",
