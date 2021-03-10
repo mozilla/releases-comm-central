@@ -14,7 +14,7 @@ notification {
   --notification-button-active-background: #c2c2c3;
   --notification-button-active-border: #a2a2a3;
   height: auto;
-  min-height: initial;
+  min-height: 32px;
   font-size: 1em;
 }
 
@@ -96,7 +96,6 @@ button.notification-button[type="menu-button"] > .button-box > button {
 
 .messageCloseButton > .toolbarbutton-icon {
   width: 16px !important;
-  height: 16px !important;
   padding: 0;
 }
 
