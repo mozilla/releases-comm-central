@@ -274,7 +274,10 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   nsIMsgDBHdr getMsgHdrForMessageID(in string messageID);
 
   /**
-   * get a message header for a Gmail message with the given X-GM-MSGID.
+   * Get a message header for a Gmail message with the given X-GM-MSGID.
+   * @param {string} aGmailMessageID - The ID of the message to find.
+   *
+   * @returns the message, or null if not found (without throwing an error).
    */
   nsIMsgDBHdr GetMsgHdrForGMMsgID(in string aGmailMessageID);
   //Returns whether or not this database contains the given key

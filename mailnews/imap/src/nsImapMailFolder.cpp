@@ -8866,20 +8866,22 @@ NS_IMETHODIMP nsImapMailFolder::GetOfflineFileStream(
 
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
-  if (NS_FAILED(rv)) return rv;
-  if (hdr) {
-    nsCString gmMsgID;
-    hdr->GetStringProperty("X-GM-MSGID", getter_Copies(gmMsgID));
-    nsCOMPtr<nsIMsgDatabase> db;
-    offlineFolder->GetMsgDatabase(getter_AddRefs(db));
-    rv = db->GetMsgHdrForGMMsgID(gmMsgID.get(), getter_AddRefs(hdr));
-    if (NS_FAILED(rv)) return rv;
-    nsMsgKey newMsgKey;
-    hdr->GetMessageKey(&newMsgKey);
-    return offlineFolder->GetOfflineFileStream(newMsgKey, offset, size,
-                                               aFileStream);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString gmMsgID;
+  hdr->GetStringProperty("X-GM-MSGID", getter_Copies(gmMsgID));
+  nsCOMPtr<nsIMsgDatabase> db;
+  offlineFolder->GetMsgDatabase(getter_AddRefs(db));
+  rv = db->GetMsgHdrForGMMsgID(gmMsgID.get(), getter_AddRefs(hdr));
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (!hdr) {
+    return NS_ERROR_FAILURE;
   }
-  return NS_OK;
+
+  nsMsgKey newMsgKey;
+  hdr->GetMessageKey(&newMsgKey);
+  return offlineFolder->GetOfflineFileStream(newMsgKey, offset, size,
+                                             aFileStream);
 }
 
 NS_IMETHODIMP nsImapMailFolder::GetIncomingServerType(nsACString& serverType) {

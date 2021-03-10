@@ -694,15 +694,15 @@ NS_IMETHODIMP nsMsgDBFolder::GetOfflineFileStream(
   *offset = *size = 0;
 
   nsresult rv = GetDatabase();
-  NS_ENSURE_SUCCESS(rv, NS_OK);
+  NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgDBHdr> hdr;
   rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
-  NS_ENSURE_TRUE(hdr, NS_OK);
   NS_ENSURE_SUCCESS(rv, rv);
-  if (hdr) hdr->GetOfflineMessageSize(size);
+  hdr->GetOfflineMessageSize(size);
 
   bool reusable;
   rv = GetMsgInputStream(hdr, &reusable, aFileStream);
+  NS_ENSURE_SUCCESS(rv, rv);
   // Check if the database has the correct offset into the offline store by
   // reading up to 199 bytes. If it is incorrect, clear the offline flag on the
   // message and return false. This will cause a fall back to reading the
