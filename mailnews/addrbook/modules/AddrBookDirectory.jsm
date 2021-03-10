@@ -13,7 +13,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookMailingList: "resource:///modules/AddrBookMailingList.jsm",
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
   FileUtils: "resource://gre/modules/FileUtils.jsm",
-  fixIterator: "resource:///modules/iteratorUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
   Services: "resource://gre/modules/Services.jsm",
   SimpleEnumerator: "resource:///modules/AddrBookUtils.jsm",
@@ -319,7 +318,7 @@ class AddrBookDirectory {
       }
     };
 
-    for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
+    for (let { name, value } of card.properties) {
       if (
         name != "LastModifiedDate" &&
         value !== null &&
@@ -385,10 +384,7 @@ class AddrBookDirectory {
         this._cards.set(uid, cachedCard);
       }
 
-      for (let { name, value } of fixIterator(
-        card.properties,
-        Ci.nsIProperty
-      )) {
+      for (let { name, value } of card.properties) {
         if (
           [
             "DbRowID",
@@ -756,7 +752,7 @@ class AddrBookDirectory {
     let oldProperties = this._loadCardProperties(card.UID);
     let changedProperties = new Set(oldProperties.keys());
 
-    for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
+    for (let { name, value } of card.properties) {
       if (!oldProperties.has(name) && ![null, undefined, ""].includes(value)) {
         changedProperties.add(name);
       } else if (oldProperties.get(name) == value) {
@@ -847,7 +843,7 @@ class AddrBookDirectory {
       this._cards.set(newCard._uid, new Map());
     }
 
-    for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
+    for (let { name, value } of card.properties) {
       if (
         [
           "DbRowID",

@@ -345,37 +345,24 @@ AddrBookMailingList.prototype = {
         return false;
       },
       get properties() {
-        let entries = [];
-        entries.push(["DisplayName", this.displayName]);
-        entries.push(["NickName", this.getProperty("NickName", "")]);
-        entries.push(["Notes", this.getProperty("Notes", "")]);
-        let enumerator = {
-          hasMoreElements() {
-            return entries.length > 0;
-          },
-          getNext() {
-            if (!this.hasMoreElements()) {
-              throw Components.Exception("No next!", Cr.NS_ERROR_NOT_AVAILABLE);
-            }
-            let [name, value] = entries.shift();
-            return {
-              get name() {
-                return name;
-              },
-              get value() {
-                return value;
-              },
-              QueryInterface: ChromeUtils.generateQI(["nsIProperty"]),
-            };
-          },
-          *[Symbol.iterator]() {
-            while (this.hasMoreElements()) {
-              yield this.getNext();
-            }
-          },
-          QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
-        };
-        return enumerator;
+        const entries = [
+          ["DisplayName", this.displayName],
+          ["NickName", this.getProperty("NickName", "")],
+          ["Notes", this.getProperty("Notes", "")],
+        ];
+        let props = [];
+        for (const [name, value] of entries) {
+          props.push({
+            get name() {
+              return name;
+            },
+            get value() {
+              return value;
+            },
+            QueryInterface: ChromeUtils.generateQI(["nsIProperty"]),
+          });
+        }
+        return props;
       },
       translateTo(type) {
         // Get nsAbCardProperty to do the work, the code is in C++ anyway.

@@ -13,7 +13,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   clearInterval: "resource://gre/modules/Timer.jsm",
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.jsm",
-  fixIterator: "resource:///modules/iteratorUtils.jsm",
   OAuth2Module: "resource:///modules/OAuth2Module.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   Services: "resource://gre/modules/Services.jsm",
@@ -90,7 +89,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     let oldProperties = this._loadCardProperties(card.UID);
 
     let newProperties = new Map();
-    for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
+    for (let { name, value } of card.properties) {
       newProperties.set(name, value);
     }
 
@@ -100,10 +99,7 @@ class CardDAVDirectory extends AddrBookDirectory {
       // properties changed on the server, and copy them to `card`, but only
       // if they haven't also changed on the client.
       let serverCard = VCardUtils.vCardToAbCard(card.getProperty("_vCard", ""));
-      for (let { name, value } of fixIterator(
-        serverCard.properties,
-        Ci.nsIProperty
-      )) {
+      for (let { name, value } of serverCard.properties) {
         if (
           value != newProperties.get(name) &&
           newProperties.get(name) == oldProperties.get(name)

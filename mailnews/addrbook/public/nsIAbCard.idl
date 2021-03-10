@@ -5,7 +5,7 @@
 
 #include "nsISupports.idl"
 
-interface nsISimpleEnumerator;
+interface nsIProperty;
 interface nsIStringBundle;
 interface nsIVariant;
 
@@ -125,7 +125,7 @@ interface nsIAbCard : nsISupports {
    * A list of all the properties that this card has as an enumerator, whose
    * members are all nsIProperty objects.
    */
-  readonly attribute nsISimpleEnumerator properties;
+  readonly attribute Array<nsIProperty> properties;
 
   /**
    * Returns a property for the given name.

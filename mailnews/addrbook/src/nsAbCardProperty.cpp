@@ -178,13 +178,14 @@ nsAbSimpleProperty::GetValue(nsIVariant** aValue) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetProperties(nsISimpleEnumerator** props) {
-  nsCOMArray<nsIProperty> propertyArray(m_properties.Count());
+NS_IMETHODIMP nsAbCardProperty::GetProperties(
+    nsTArray<RefPtr<nsIProperty>>& props) {
+  props.ClearAndRetainStorage();
+  props.SetCapacity(m_properties.Count());
   for (auto iter = m_properties.Iter(); !iter.Done(); iter.Next()) {
-    propertyArray.AppendObject(
-        new nsAbSimpleProperty(iter.Key(), iter.UserData()));
+    props.AppendElement(new nsAbSimpleProperty(iter.Key(), iter.UserData()));
   }
-  return NS_NewArrayEnumerator(props, propertyArray, NS_GET_IID(nsIProperty));
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbCardProperty::GetProperty(const nsACString& name,
@@ -425,19 +426,12 @@ NS_IMETHODIMP nsAbCardProperty::HasEmailAddress(const nsACString& aEmailAddress,
 NS_IMETHODIMP nsAbCardProperty::Copy(nsIAbCard* srcCard) {
   NS_ENSURE_ARG_POINTER(srcCard);
 
-  nsCOMPtr<nsISimpleEnumerator> properties;
-  nsresult rv = srcCard->GetProperties(getter_AddRefs(properties));
+  nsTArray<RefPtr<nsIProperty>> properties;
+  nsresult rv = srcCard->GetProperties(properties);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool hasMore;
-  nsCOMPtr<nsISupports> result;
-  while (NS_SUCCEEDED(rv = properties->HasMoreElements(&hasMore)) && hasMore) {
-    rv = properties->GetNext(getter_AddRefs(result));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIProperty> property = do_QueryInterface(result, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+  for (nsIProperty* property : properties) {
     nsAutoString name;
     property->GetName(name);
     nsCOMPtr<nsIVariant> value;
@@ -445,7 +439,6 @@ NS_IMETHODIMP nsAbCardProperty::Copy(nsIAbCard* srcCard) {
 
     SetProperty(NS_ConvertUTF16toUTF8(name), value);
   }
-  NS_ENSURE_SUCCESS(rv, rv);
 
   bool isMailList;
   srcCard->GetIsMailList(&isMailList);

@@ -78,34 +78,19 @@ AddrBookCard.prototype = {
     }
   },
   get properties() {
-    let entries = [...this._properties.entries()];
-    let enumerator = {
-      hasMoreElements() {
-        return entries.length > 0;
-      },
-      getNext() {
-        if (!this.hasMoreElements()) {
-          throw Components.Exception("No next!", Cr.NS_ERROR_NOT_AVAILABLE);
-        }
-        let [name, value] = entries.shift();
-        return {
-          get name() {
-            return name;
-          },
-          get value() {
-            return value;
-          },
-          QueryInterface: ChromeUtils.generateQI(["nsIProperty"]),
-        };
-      },
-      *[Symbol.iterator]() {
-        while (this.hasMoreElements()) {
-          yield this.getNext();
-        }
-      },
-      QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
-    };
-    return enumerator;
+    let props = [];
+    for (const [name, value] of this._properties) {
+      props.push({
+        get name() {
+          return name;
+        },
+        get value() {
+          return value;
+        },
+        QueryInterface: ChromeUtils.generateQI(["nsIProperty"]),
+      });
+    }
+    return props;
   },
   get firstName() {
     return this.getProperty("FirstName", "");
