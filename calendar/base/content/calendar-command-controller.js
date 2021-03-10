@@ -202,7 +202,7 @@ var calendarController = {
         return this.item_selected;
 
       case "calendar_reload_remote_calendars":
-        return this.has_enabled_network_calendars && !this.offline;
+        return this.has_enabled_reloadable_calendars && !this.offline;
       case "calendar_attendance_command": {
         let attendSel = false;
         if (this.todo_tasktree_focused) {
@@ -576,15 +576,17 @@ var calendarController = {
 
   /**
    * Returns a boolean indicating whether there is at least one enabled
-   * calendar that requires network access.
+   * calendar that can be reloaded. Note: ICS calendars can have a network URL
+   * or a file URL, but both are reloadable.
    */
-  get has_enabled_network_calendars() {
+  get has_enabled_reloadable_calendars() {
     return cal
       .getCalendarManager()
       .getCalendars()
       .some(
         calendar =>
-          !calendar.getProperty("disabled") && calendar.getProperty("requiresNetwork") !== false
+          !calendar.getProperty("disabled") &&
+          (calendar.type == "ics" || calendar.getProperty("requiresNetwork") !== false)
       );
   },
 
