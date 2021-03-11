@@ -32,7 +32,7 @@
 
   <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
 
-  <wizard>
+  <wizard id="wizard">
     <wizardpage id="accountprotocol" pageid="accountprotocol" next="accountusername"
                 label="&accountProtocolTitle.label;">
       <description>&accountProtocolInfo.label;</description>
@@ -40,7 +40,7 @@
       <label value="&accountProtocolField.label;" control="protolist"
              id="protoLabel" hidden="true"/>
       <richlistbox flex="1" id="protolist" class="theme-listbox"
-                   ondblclick="document.getElementById('accountWizard').advance();"/>
+                   ondblclick="document.getElementById('wizard').advance();"/>
       <hbox pack="end">
         <label id="getMoreProtocols" class="text-link" value="&accountProtocolGetMore.label;"
                onclick="if (event.button == 0) { accountWizard.openURL(this.getAttribute('getMoreURL')); }"/>
