@@ -36,24 +36,21 @@ var teardownModule = function(module) {
 };
 
 function waitForNotification(id, buttonToClickSelector, callback) {
-  let path = `
-    /id("messengerWindow")/{"class":"body"}/id("mainPopupSet")/id("notification-popup")/id("${id}-notification")
-  `.trim();
-  let notification = new elib.Lookup(gDocument, path);
-  mc.waitForElement(notification);
-  mc.waitFor(() => !gDocument.querySelector(`#${id}-notification`).hidden);
-  // Give the UI some time to settle.
+  let notificationSelector = `#notification-popup > #${id}-notification`;
+  let notification;
+  mc.waitFor(() => {
+    notification = gDocument.querySelector(notificationSelector);
+    return notification && !notification.hidden;
+  });
   mc.sleep(500);
   if (callback) {
     callback();
   }
   if (buttonToClickSelector) {
-    let button = gDocument.querySelector(
-      `#${id}-notification ${buttonToClickSelector}`
-    );
+    let button = notification.querySelector(buttonToClickSelector);
     mc.click(new elib.Elem(button));
   }
-  mc.waitForElementNotPresent(notification, 15000);
+  mc.waitFor(() => !gDocument.querySelector(notificationSelector));
 }
 
 add_task(async function test_install_corrupt_xpi() {
