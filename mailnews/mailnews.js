@@ -841,6 +841,7 @@ pref("mail.biff.show_alert", true);
 #ifdef XP_WIN
 pref("mail.biff.show_tray_icon", true);
 pref("mail.biff.show_balloon", false);
+pref("mail.biff.use_system_alert", true);
 #elifdef XP_MACOSX
 pref("mail.biff.animate_dock_icon", false);
 #elifdef XP_UNIX

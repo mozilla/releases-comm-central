@@ -55,7 +55,6 @@
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIImapIncomingServer.h"
 #include "nsIImapUrl.h"
-#include "nsIMessengerOSIntegration.h"
 #include "nsICategoryManager.h"
 #include "nsISupportsPrimitives.h"
 #include "nsIMsgFilterService.h"
@@ -952,12 +951,6 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   nsCOMPtr<nsIPrefService> prefservice(
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  // Ensure messenger OS integration service has started
-  // note, you can't expect the integrationService to be there
-  // we don't have OS integration on all platforms.
-  nsCOMPtr<nsIMessengerOSIntegration> integrationService =
-      do_GetService(NS_MESSENGEROSINTEGRATION_CONTRACTID, &rv);
 
   // mail.accountmanager.accounts is the main entry point for all accounts
   nsCString accountList;

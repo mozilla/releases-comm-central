@@ -27,11 +27,6 @@ class MailNotificationManager {
   ]);
 
   constructor() {
-    // Only handles mail notification on Linux and macOS for now.
-    if (AppConstants.platform != "linux" && AppConstants.platform != "macosx") {
-      return;
-    }
-
     this._unreadChatCount = 0;
     this._unreadMailCount = 0;
 

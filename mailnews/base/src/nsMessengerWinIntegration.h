@@ -6,103 +6,23 @@
 #ifndef __nsMessengerWinIntegration_h
 #define __nsMessengerWinIntegration_h
 
-#include <windows.h>
-
-// shellapi.h is needed to build with WIN32_LEAN_AND_MEAN
-#include <shellapi.h>
-
 #include "nsIMessengerWindowsIntegration.h"
-#include "nsIFolderListener.h"
-#include "nsITimer.h"
-#include "nsCOMPtr.h"
-#include "nsString.h"
-#include "nsIMutableArray.h"
-#include "nsIObserver.h"
-
-#define NS_MESSENGERWININTEGRATION_CID               \
-  {                                                  \
-    0xf62f3d3a, 0x1dd1, 0x11b2, {                    \
-      0xa5, 0x16, 0xef, 0xad, 0xb1, 0x31, 0x61, 0x5c \
-    }                                                \
-  }
 
 class nsIStringBundle;
 
-class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration,
-                                  public nsIFolderListener,
-                                  public nsIObserver {
+class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
  public:
   nsMessengerWinIntegration();
-  virtual nsresult Init();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMESSENGERWINDOWSINTEGRATION
-  NS_DECL_NSIFOLDERLISTENER
-  NS_DECL_NSIOBSERVER
 
   NS_IMETHOD UpdateUnreadCount(uint32_t unreadCount);
-  nsresult ShowNewAlertNotification(bool aUserInitiated,
-                                    const nsString& aAlertTitle,
-                                    const nsString& aAlertText);
-#ifndef MOZ_THUNDERBIRD
-  nsresult ShowAlertMessage(const nsString& aAlertTitle,
-                            const nsString& aAlertText,
-                            const nsACString& aFolderURI);
-#endif
 
  private:
   virtual ~nsMessengerWinIntegration();
-  nsresult AlertFinished();
-  nsresult AlertClicked();
-#ifdef MOZ_SUITE
-  nsresult AlertClickedSimple();
-#endif
-
-  void InitializeBiffStatusIcon();
-  void FillToolTipInfo();
-  void GenericShellNotify(DWORD aMessage);
-  void DestroyBiffIcon();
-
-  nsresult GetFirstFolderWithNewMail(nsACString& aFolderURI);
 
   nsresult GetStringBundle(nsIStringBundle** aBundle);
-  nsCOMPtr<nsIMutableArray>
-      mFoldersWithNewMail;  // keep track of all the root folders with pending
-                            // new mail
-
-  bool mBiffIconVisible;
-  bool mBiffIconInitialized;
-  bool mSuppressBiffIcon;
-  bool mAlertInProgress;
-
-  // "might" because we don't know until we check
-  // what type of server is associated with the default account
-  bool mDefaultAccountMightHaveAnInbox;
-
-  // True if the timer is running
-  bool mUnreadTimerActive;
-
-  nsresult ResetCurrent();
-  nsresult RemoveCurrentFromRegistry();
-  nsresult UpdateRegistryWithCurrent();
-  nsresult SetupInbox();
-
-  nsresult SetupUnreadCountUpdateTimer();
-  static void OnUnreadCountUpdateTimer(nsITimer* timer, void* osIntegration);
-  nsresult UpdateUnreadCountOld();
-
-  nsCOMPtr<nsITimer> mUnreadCountUpdateTimer;
-
-  nsCString mInboxURI;
-  nsCString mEmail;
-
-  nsString mAppName;
-  nsString mEmailPrefix;
-
-  nsString mProfilePath;
-
-  int32_t mCurrentUnreadCount;
-  int32_t mLastUnreadCountWrittenToRegistry;
 };
 
 #endif  // __nsMessengerWinIntegration_h
