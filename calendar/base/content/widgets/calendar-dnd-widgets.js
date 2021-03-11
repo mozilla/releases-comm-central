@@ -138,6 +138,7 @@
       if (
         !draggedDOMNode ||
         !draggedDOMNode.parentNode ||
+        !draggedDOMNode.occurrence ||
         (draggedDOMNode.parentNode != this &&
           !draggedDOMNode.parentNode.classList.contains("calendar-day-items"))
       ) {
