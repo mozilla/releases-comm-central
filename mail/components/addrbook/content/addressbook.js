@@ -108,8 +108,11 @@ function GetAbViewListener() {
 // we won't show the window until the onload() handler is finished
 // so we do this trick (suggested by hyatt / blaker)
 function OnLoadAddressBook() {
-  // Needed for printing.
-  window.browserDOMWindow = window.opener.browserDOMWindow;
+  // Needed for printing. If there is no window.opener, printing will be
+  // disabled.
+  if (window.opener) {
+    window.browserDOMWindow = window.opener.browserDOMWindow;
+  }
 
   // Set a sane starting width/height for all resolutions on new profiles.
   // Do this before the window loads.
@@ -453,6 +456,10 @@ function buildDirectoryXML(directory) {
 }
 
 function AbPrintAddressBookInternal(doPrintPreview) {
+  // Silently fail when we don't have an opener (browserDOMWindow is null).
+  if (!window.browserDOMWindow) {
+    return;
+  }
   let printXML;
 
   let uri = getSelectedDirectoryURI();

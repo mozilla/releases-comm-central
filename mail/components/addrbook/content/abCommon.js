@@ -134,7 +134,9 @@ var DirPaneController = {
       }
       case "cmd_printcard":
       case "cmd_printcardpreview":
-        return GetSelectedCardIndex() != -1;
+        // Prevent printing when we don't have an opener (browserDOMWindow is
+        // null).
+        return window.browserDOMWindow && GetSelectedCardIndex() != -1;
       case "cmd_properties": {
         let attrs = {
           label: "valueGeneric",
