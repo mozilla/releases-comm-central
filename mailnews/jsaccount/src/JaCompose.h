@@ -12,7 +12,7 @@
 #include "msgIOverride.h"
 #include "nsMsgCompose.h"
 #include "nsIMsgCompose.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsIInterfaceRequestor.h"
 
 // This file specifies the definition of nsIMsgCompose.idl objects
@@ -80,7 +80,7 @@ class JaCppComposeDelegator : public JaBaseCppCompose, public msgIOverride {
   nsCOMPtr<nsIMsgCompose> mCppBase;
 
   RefPtr<DelegateList> mDelegateList;
-  nsDataHashtable<nsCStringHashKey, bool>* mMethods;
+  nsTHashMap<nsCStringHashKey, bool>* mMethods;
 };
 
 }  // namespace mailnews

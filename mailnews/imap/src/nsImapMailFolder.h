@@ -25,7 +25,7 @@
 #include "nsIMsgFilterPlugin.h"
 #include "nsISimpleEnumerator.h"
 #include "nsIStringEnumerator.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsITimer.h"
 #include "nsCOMArray.h"
 #include "nsAutoSyncState.h"
@@ -174,7 +174,7 @@ class nsMsgIMAPFolderACL {
   void UpdateACLCache();
 
  protected:
-  nsDataHashtable<nsCStringHashKey, nsCString>
+  nsTHashMap<nsCStringHashKey, nsCString>
       m_rightsHash;  // Hash table, mapping username strings to rights strings.
   nsImapMailFolder* m_folder;
   int32_t m_aclCount;
@@ -590,7 +590,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   nsTArray<RefPtr<nsImapMoveCopyMsgTxn>> m_pendingOfflineMoves;
   // hash table of mapping between messageids and message keys
   // for pseudo hdrs.
-  nsDataHashtable<nsCStringHashKey, nsMsgKey> m_pseudoHdrs;
+  nsTHashMap<nsCStringHashKey, nsMsgKey> m_pseudoHdrs;
 
   nsTArray<nsMsgKey> m_keysToFetch;
   uint32_t m_totalKeysToFetch;

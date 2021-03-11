@@ -11,7 +11,7 @@
 #include "msgCore.h"
 #include "msgIOverride.h"
 #include "nsCycleCollectionParticipant.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsIFile.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIMsgFolder.h"
@@ -121,7 +121,7 @@ class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
   nsCOMPtr<nsIMsgMailNewsUrl> mCppBase;
 
   RefPtr<DelegateList> mDelegateList;
-  nsDataHashtable<nsCStringHashKey, bool>* mMethods;
+  nsTHashMap<nsCStringHashKey, bool>* mMethods;
 };
 
 }  // namespace mailnews

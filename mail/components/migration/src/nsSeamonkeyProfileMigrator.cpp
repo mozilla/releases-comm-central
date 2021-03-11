@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsDataHashtable.h"
 #include "nsMailProfileMigratorUtils.h"
 #include "nsDirectoryServiceDefs.h"
 #include "nsIMsgAccountManager.h"
@@ -726,7 +725,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformMailAccountsForImport(
     nsIMsgAccountManager* accountManager,
     PrefKeyHashTable& identityKeyHashTable,
     PrefKeyHashTable& serverKeyHashTable) {
-  nsDataHashtable<nsCStringHashKey, nsCString> keyHashTable;
+  nsTHashMap<nsCStringHashKey, nsCString> keyHashTable;
   nsTArray<nsCString> newKeys;
 
   for (auto pref : aAccounts) {
@@ -897,8 +896,8 @@ nsresult nsSeamonkeyProfileMigrator::TransformSmtpServersForImport(
  */
 nsresult nsSeamonkeyProfileMigrator::TransformAddressbooksForImport(
     nsIPrefService* aPrefService, PBStructArray& aAddressbooks, bool aReplace) {
-  nsDataHashtable<nsCStringHashKey, nsCString> keyHashTable;
-  nsDataHashtable<nsCStringHashKey, nsCString> pendingMigrations;
+  nsTHashMap<nsCStringHashKey, nsCString> keyHashTable;
+  nsTHashMap<nsCStringHashKey, nsCString> pendingMigrations;
   nsTArray<nsCString> newKeys;
   nsresult rv;
 

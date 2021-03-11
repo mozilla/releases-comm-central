@@ -12,7 +12,7 @@
 #include "msgIOverride.h"
 #include "nsIMsgSend.h"
 #include "nsMsgSend.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsIMsgOperationListener.h"
 
@@ -86,7 +86,7 @@ class JaCppSendDelegator : public JaBaseCppSend, public msgIOverride {
   nsCOMPtr<nsIMsgSend> mCppBase;
 
   RefPtr<DelegateList> mDelegateList;
-  nsDataHashtable<nsCStringHashKey, bool>* mMethods;
+  nsTHashMap<nsCStringHashKey, bool>* mMethods;
 };
 
 }  // namespace mailnews

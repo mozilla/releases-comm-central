@@ -710,9 +710,9 @@ class nsImapProtocol : public nsIImapProtocol,
   RefPtr<nsMsgImapHdrXferInfo> m_hdrDownloadCache;
   nsCOMPtr<nsIImapHeaderInfo> m_curHdrInfo;
   // mapping between mailboxes and the corresponding folder flags
-  nsDataHashtable<nsCStringHashKey, int32_t> m_standardListMailboxes;
+  nsTHashMap<nsCStringHashKey, int32_t> m_standardListMailboxes;
   // mapping between special xlist mailboxes and the corresponding folder flags
-  nsDataHashtable<nsCStringHashKey, int32_t> m_specialXListMailboxes;
+  nsTHashMap<nsCStringHashKey, int32_t> m_specialXListMailboxes;
 
   nsCOMPtr<nsIImapHostSessionList> m_hostSessionList;
 

@@ -14,8 +14,7 @@
 
 const int32_t kImapFlagAndUidStateSize = 100;
 
-#include "nsBaseHashtable.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 
 class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
  public:
@@ -43,9 +42,9 @@ class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
   nsTArray<nsMsgKey> fUids;
   nsTArray<imapMessageFlagsType> fFlags;
   // Hash table, mapping uids to extra flags
-  nsDataHashtable<nsUint32HashKey, nsCString> m_customFlagsHash;
+  nsTHashMap<nsUint32HashKey, nsCString> m_customFlagsHash;
   // Hash table, mapping UID+customAttributeName to customAttributeValue.
-  nsDataHashtable<nsCStringHashKey, nsCString> m_customAttributesHash;
+  nsTHashMap<nsCStringHashKey, nsCString> m_customAttributesHash;
   uint16_t fSupportedUserFlags;
   int32_t fNumberDeleted;
   bool fPartialUIDFetch;

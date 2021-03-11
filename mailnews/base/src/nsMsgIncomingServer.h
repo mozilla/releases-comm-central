@@ -19,7 +19,7 @@
 #include "nsIMsgDatabase.h"
 #include "nsISpamSettings.h"
 #include "nsIMsgFilterPlugin.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsIMsgPluggableStore.h"
 #include "nsIObserver.h"
 
@@ -84,7 +84,7 @@ class nsMsgIncomingServer : public nsIMsgIncomingServer,
   nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
 
   // these allow us to handle duplicate incoming messages, e.g. delete them.
-  nsDataHashtable<nsCStringHashKey, int32_t> m_downloadedHdrs;
+  nsTHashMap<nsCStringHashKey, int32_t> m_downloadedHdrs;
   int32_t m_numMsgsDownloaded;
 
  private:

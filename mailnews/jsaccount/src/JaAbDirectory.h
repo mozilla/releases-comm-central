@@ -12,7 +12,7 @@
 #include "msgIOverride.h"
 #include "nsIAbDirectory.h"
 #include "nsAbDirProperty.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsIInterfaceRequestor.h"
 
 namespace mozilla {
@@ -75,7 +75,7 @@ class JaCppAbDirectoryDelegator : public JaBaseCppAbDirectory,
   nsCOMPtr<nsIAbDirectory> mCppBase;
 
   RefPtr<DelegateList> mDelegateList;
-  nsDataHashtable<nsCStringHashKey, bool>* mMethods;
+  nsTHashMap<nsCStringHashKey, bool>* mMethods;
 };
 
 }  // namespace mailnews

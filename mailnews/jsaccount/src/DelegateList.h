@@ -9,7 +9,7 @@
 
 #include "nsISupports.h"
 #include "msgIDelegateList.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsString.h"
 
 namespace mozilla {
@@ -21,7 +21,7 @@ class DelegateList : public msgIDelegateList {
   NS_DECL_ISUPPORTS
   NS_DECL_MSGIDELEGATELIST
   DelegateList() {}
-  nsDataHashtable<nsCStringHashKey, bool> mMethods;
+  nsTHashMap<nsCStringHashKey, bool> mMethods;
 
  protected:
   virtual ~DelegateList() {}

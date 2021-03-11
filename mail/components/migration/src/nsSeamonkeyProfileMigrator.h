@@ -6,10 +6,9 @@
 #ifndef seamonkeyprofilemigrator___h___
 #define seamonkeyprofilemigrator___h___
 
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsIMailProfileMigrator.h"
 #include "nsIMsgAccountManager.h"
-#include "nsIMutableArray.h"
 #include "nsNetscapeProfileMigratorBase.h"
 
 class nsIPrefBranch;
@@ -51,7 +50,7 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
   nsresult CopySignatureFiles(PBStructArray& aIdentities,
                               nsIPrefService* aPrefBranch);
 
-  typedef nsDataHashtable<nsCStringHashKey, nsCString> PrefKeyHashTable;
+  typedef nsTHashMap<nsCStringHashKey, nsCString> PrefKeyHashTable;
 
   nsresult TransformIdentitiesForImport(
       PBStructArray& aIdentities, nsIMsgAccountManager* accountManager,

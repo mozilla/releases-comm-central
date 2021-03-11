@@ -12,7 +12,7 @@
 #include "msgIOverride.h"
 #include "nsIMsgIncomingServer.h"
 #include "nsMsgIncomingServer.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsIInterfaceRequestor.h"
 
 // This file specifies the definition of nsIMsgIncomingServer.idl objects
@@ -86,7 +86,7 @@ class JaCppIncomingServerDelegator : public JaBaseCppIncomingServer,
   nsCOMPtr<nsIMsgIncomingServer> mCppBase;
 
   RefPtr<DelegateList> mDelegateList;
-  nsDataHashtable<nsCStringHashKey, bool>* mMethods;
+  nsTHashMap<nsCStringHashKey, bool>* mMethods;
 };
 
 }  // namespace mailnews

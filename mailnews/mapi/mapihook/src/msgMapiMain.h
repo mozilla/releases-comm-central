@@ -15,7 +15,7 @@
 #define PREF_MAPI_BLIND_SEND_ENABLED "mapi.blind-send.enabled"
 
 #include "nspr.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsClassHashtable.h"
 #include "nsString.h"
 
@@ -29,7 +29,7 @@ class nsMAPIConfiguration {
   PRLock* m_Lock;
   uint32_t m_nMaxSessions;
 
-  nsDataHashtable<nsCStringHashKey, uint32_t> m_ProfileMap;
+  nsTHashMap<nsCStringHashKey, uint32_t> m_ProfileMap;
   nsClassHashtable<nsUint32HashKey, nsMAPISession> m_SessionMap;
   nsMAPIConfiguration();
   ~nsMAPIConfiguration();

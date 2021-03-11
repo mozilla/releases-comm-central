@@ -13,7 +13,7 @@
 #include "nsIMsgFolder.h"
 #include "nsMsgDBFolder.h"
 #include "nsCycleCollectionParticipant.h"
-#include "nsDataHashtable.h"
+#include "nsTHashMap.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsNetUtil.h"
 #include "nsIDBChangeListener.h"
@@ -128,7 +128,7 @@ class JaCppMsgFolderDelegator : public JaBaseCppMsgFolder, public msgIOverride {
 
   nsCOMPtr<nsIMsgFolder> mCppBase;
   RefPtr<DelegateList> mDelegateList;
-  nsDataHashtable<nsCStringHashKey, bool>* mMethods;
+  nsTHashMap<nsCStringHashKey, bool>* mMethods;
 };
 
 }  // namespace mailnews
