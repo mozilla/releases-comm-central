@@ -123,14 +123,12 @@ function cancelRequest() {
 }
 
 function reportUserClosed() {
-  let request = window.arguments[0];
-  request.QueryInterface(Ci.prplIRequestBrowser);
+  let request = window.arguments[0].wrappedJSObject;
   request.cancelled();
 }
 
 function loadRequestedUrl() {
-  let request = window.arguments[0];
-  request.QueryInterface(Ci.prplIRequestBrowser);
+  let request = window.arguments[0].wrappedJSObject;
   document.getElementById("headerMessage").textContent = request.promptText;
   let account = request.account;
   document.getElementById("headerLabel").value =
@@ -139,16 +137,13 @@ function loadRequestedUrl() {
     account.protocol.iconBaseURI + "icon48.png";
 
   let browser = document.getElementById("requestFrame");
-  browser.docShell.allowPlugins = false;
-
-  if (Services.prefs.getBoolPref("chat.browserRequest.disableJavascript")) {
-    browser.docShell.allowJavascript = false;
-  }
 
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
   let url = request.url;
   if (url != "") {
-    browser.setAttribute("src", url);
+    browser.loadURI(url, {
+      triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+    });
   }
   request.loaded(window, browser.webProgress);
 }

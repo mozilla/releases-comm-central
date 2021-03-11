@@ -330,7 +330,15 @@ MatrixAccount.prototype = {
     delete this.roomList;
     // We want to clear data stored for syncing in indexedDB so when
     // user logins again, one gets the fresh start.
-    this._client.clearStores();
+    if (this._client) {
+      let sessionDisposed = Promise.resolve();
+      if (this._client.isLoggedIn()) {
+        sessionDisposed = this._client.logout();
+      }
+      sessionDisposed.finally(() => {
+        this._client.clearStores();
+      });
+    }
   },
   unInit() {},
   connect() {
@@ -345,19 +353,61 @@ MatrixAccount.prototype = {
         indexedDB,
         dbName,
       }),
+      deviceId: this.prefs.getStringPref("deviceId", "") || undefined,
+      accessToken: this.prefs.getStringPref("accessToken", "") || undefined,
+      userId: this.prefs.getStringPref("userId", "") || undefined,
     };
 
     opts.store.startup().then(() => {
       this._client = MatrixSDK.createClient(opts);
+      if (this._client.isLoggedIn()) {
+        this.startClient();
+        return;
+      }
       this._client
-        .loginWithPassword(this.name, this.imAccount.password)
-        .then(data => {
-          // TODO: Check data.errcode to pass more accurate value as the first
-          // parameter of reportDisconnecting.
-          if (data.error) {
-            throw new Error(data.error);
+        .loginFlows()
+        .then(({ flows }) => {
+          const usePasswordFlow = Boolean(this.imAccount.password);
+          let wantedFlows = [];
+          if (usePasswordFlow) {
+            wantedFlows.push("m.login.password");
+          } else {
+            wantedFlows.push("m.login.sso", "m.login.token");
           }
-          this.startClient();
+          if (
+            wantedFlows.every(flowType =>
+              flows.some(flow => flow.type === flowType)
+            )
+          ) {
+            if (usePasswordFlow) {
+              this._client
+                .loginWithPassword(this.name, this.imAccount.password)
+                .then(data => {
+                  // TODO: Check data.errcode to pass more accurate value as the first
+                  // parameter of reportDisconnecting.
+                  if (data.error) {
+                    throw new Error(data.error);
+                  }
+                  this.storeSessionInformation(data);
+                  this.startClient();
+                })
+                .catch(error => {
+                  this.reportDisconnecting(
+                    Ci.prplIAccount.ERROR_OTHER_ERROR,
+                    error.message
+                  );
+                  this.reportDisconnected();
+                });
+            } else {
+              this.requestAuthorization();
+            }
+          } else {
+            this.reportDisconnecting(
+              Ci.prplIAccount.ERROR_AUTHENTICATION_IMPOSSIBLE,
+              _("connection.error.noSupportedFlow")
+            );
+            this.reportDisconnected();
+          }
         })
         .catch(error => {
           this.reportDisconnecting(
@@ -368,6 +418,157 @@ MatrixAccount.prototype = {
         });
     });
   },
+
+  /**
+   * Login to the homeserver using m.login.token.
+   *
+   * @param {string} token - The auth token received from the SSO flow.
+   */
+  loginWithToken(token) {
+    this._client
+      .loginWithToken(token)
+      .then(data => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        this.storeSessionInformation(data);
+        this.startClient();
+      })
+      .catch(error => {
+        let errorType = Ci.prplIAccount.ERROR_OTHER_ERROR;
+        if (error.errcode === "M_FORBIDDEN") {
+          errorType = Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED;
+        }
+        this.reportDisconnecting(errorType, error.message);
+        this.reportDisconnected();
+        if (errorType !== Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED) {
+          this.requestAuthorization();
+        }
+      });
+  },
+
+  /**
+   * Show SSO prompt and handle response token.
+   */
+  requestAuthorization() {
+    this.reportConnecting(_("connection.requestAuth"));
+    let completionURL = "http://localhost";
+    let url = this._client.getSsoLoginUrl(completionURL, "sso");
+    let cookies = new Set();
+    this._browserRequest = {
+      get promptText() {
+        return _("authPrompt");
+      },
+      account: this,
+      url,
+      _active: true,
+      cancelled() {
+        if (!this._active) {
+          return;
+        }
+
+        this.account.reportDisconnecting(
+          Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
+          _("connection.error.authCancelled")
+        );
+        this.account.reportDisconnected();
+      },
+      loaded(window, webProgress) {
+        if (!this._active) {
+          return;
+        }
+
+        this._listener = {
+          QueryInterface: ChromeUtils.generateQI([
+            Ci.nsIWebProgressListener,
+            Ci.nsISupportsWeakReference,
+          ]),
+          _cleanUp() {
+            this.webProgress.removeProgressListener(this);
+            this.window.close();
+            delete this.window;
+          },
+          _checkForRedirect(currentUrl) {
+            if (!currentUrl.startsWith(completionURL)) {
+              return;
+            }
+
+            let parsedUrl = new URL(currentUrl);
+            let rawUrlData = parsedUrl.searchParams;
+            let urlData = new URLSearchParams(rawUrlData);
+            if (!urlData.has("loginToken")) {
+              return;
+            }
+
+            this._parent.finishAuthorizationRequest(cookies);
+            this._parent.reportConnecting(_("connection.requestAccess"));
+            this._parent.loginWithToken(urlData.get("loginToken"));
+          },
+          onStateChange(aWebProgress, request, stateFlags, aStatus) {
+            const wpl = Ci.nsIWebProgressListener;
+            if (stateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK)) {
+              this._checkForRedirect(request.name);
+            }
+          },
+          onLocationChange(webProgress, request, location) {
+            if (!cookies.has(location.displayHost)) {
+              cookies.add(location.displayHost);
+            }
+            this._checkForRedirect(location.spec);
+          },
+          onProgressChange() {},
+          onStatusChange() {},
+          onSecurityChange() {},
+
+          window,
+          webProgress,
+          _parent: this.account,
+        };
+
+        webProgress.addProgressListener(
+          this._listener,
+          Ci.nsIWebProgress.NOTIFY_ALL
+        );
+      },
+      QueryInterface: ChromeUtils.generateQI([Ci.prplIRequestBrowser]),
+    };
+    Services.obs.notifyObservers(this._browserRequest, "browser-request");
+  },
+
+  /**
+   * Removes any cookies created during the SSO flow and cleans up the SSO window.
+   *
+   * @param {Set<string>} cookies - List of origins that potentially created cookies during the auth flow.
+   */
+  finishAuthorizationRequest(cookies) {
+    //TODO instead of deleting all the cookies, use a per-account cookie jar?
+    for (let url of cookies) {
+      Services.cookies.removeCookiesWithOriginAttributes("{}", url);
+    }
+    if (!("_browserRequest" in this)) {
+      return;
+    }
+    this._browserRequest._active = false;
+    if ("_listener" in this._browserRequest) {
+      this._browserRequest._listener._cleanUp();
+    }
+    delete this._browserRequest;
+  },
+
+  /**
+   * Stores the device ID and if enabled the access token in the account preferences, so they can be
+   * re-used in the next Thunderbird session.
+   *
+   * @param {object} data - Response data from a matrix login request.
+   */
+  storeSessionInformation(data) {
+    if (this.getBool("saveToken")) {
+      this.prefs.setStringPref("accessToken", data.access_token);
+    }
+    this.prefs.setStringPref("deviceId", data.access_token);
+    this.prefs.setStringPref("userId", data.user_id);
+  },
+
   /*
    * Hook up the Matrix Client to callbacks to handle various events.
    *
@@ -381,9 +582,7 @@ MatrixAccount.prototype = {
           this.reportConnected();
           break;
         case "STOPPED":
-          this._client.logout().then(() => {
-            this.reportDisconnected();
-          });
+          this.reportDisconnected();
           break;
         // TODO: Handle other states (RECONNECTING, ERROR, SYNCING).
       }
@@ -469,18 +668,6 @@ MatrixAccount.prototype = {
     this._client.on("RoomMember.name", this.updateRoomMember.bind(this));
     this._client.on("RoomMember.powerLevel", this.updateRoomMember.bind(this));
 
-    // TODO Other events to handle:
-    //  Room.localEchoUpdated
-    //  Room.tags
-    //  RoomMember.typing
-    //  Session.logged_out
-    //  User.avatarUrl
-    //  User.currentlyActive
-    //  User.displayName
-    //  User.presence
-
-    this._client.startClient();
-
     this._client.on("Room.name", room => {
       // Update the title to the human readable version.
       let conv = this.roomList.get(room.roomId);
@@ -560,6 +747,31 @@ MatrixAccount.prototype = {
         }
       }
     });
+
+    this._client.on("Session.logged_out", error => {
+      this.prefs.clearUserPref("accessToken");
+      // https://spec.matrix.org/unstable/client-server-api/#soft-logout
+      if (!error.data.soft_logout) {
+        this.prefs.clearUserPref("deviceId");
+        this.prefs.clearUserPref("userId");
+      }
+      // TODO handle soft logout with an auto reconnect
+      this.reportDisconnecting(
+        Ci.prplIAccount.ERROR_OTHER_ERROR,
+        _("connection.error.sessionEnded")
+      );
+      this.reportDisconnected();
+    });
+
+    // TODO Other events to handle:
+    //  Room.localEchoUpdated
+    //  Room.tags
+    //  User.avatarUrl
+    //  User.currentlyActive
+    //  User.displayName
+    //  User.presence
+
+    this._client.startClient();
   },
 
   /*
@@ -1067,9 +1279,18 @@ MatrixProtocol.prototype = {
       },
       default: 443,
     },
+    saveToken: {
+      get label() {
+        return _("options.saveToken");
+      },
+      default: true,
+    },
   },
 
   get chatHasTopic() {
+    return true;
+  },
+  get passwordOptional() {
     return true;
   },
 };

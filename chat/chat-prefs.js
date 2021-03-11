@@ -95,8 +95,6 @@ pref("chat.prpls.prpl-twitter.disable", true);
 pref("chat.prpls.prpl-yahoo.disable", true);
 // Whether to disable SRV lookups that use the system DNS library.
 pref("chat.dns.srv.disable", false);
-// Disable JavaScript in browser requests.
-pref("chat.browserRequest.disableJavascript", false);
 
 // loglevel is the minimum severity level that a libpurple message
 // must have to be reported in the Error Console.
