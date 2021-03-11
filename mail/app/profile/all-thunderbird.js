@@ -436,7 +436,11 @@ pref("browser.helperApps.deleteTempFileOnExit", true);
 #endif
 
 // Not used in Thunderbird.
+#ifdef NIGHTLY_BUILD
+pref("browser.startup.homepage.abouthome_cache.enabled", true);
+#else
 pref("browser.startup.homepage.abouthome_cache.enabled", false);
+#endif
 // Whether to start the private browsing mode at application startup. Not used in Thunderbird.
 pref("browser.privatebrowsing.autostart", false);
 
@@ -888,9 +892,13 @@ pref("devtools.inspector.new-rulesview.enabled", false);
 // Enable the inline CSS compatiblity warning in inspector rule view
 pref("devtools.inspector.ruleview.inline-compatibility-warning.enabled", false);
 // Enable the compatibility tool in the inspector.
+#ifdef NIGHTLY_BUILD
+pref("devtools.inspector.compatibility.enabled", true);
+#else
 pref("devtools.inspector.compatibility.enabled", false);
+#endif
 // Enable color scheme simulation in the inspector.
-pref("devtools.inspector.color-scheme-simulation.enabled", false);
+pref("devtools.inspector.color-scheme-simulation.enabled", true);
 
 // Grid highlighter preferences
 pref("devtools.gridinspector.gridOutlineMaxColumns", 50);
@@ -1096,7 +1104,11 @@ pref("devtools.webconsole.filter.netxhr", false);
 
 // Webconsole autocomplete preference
 pref("devtools.webconsole.input.autocomplete",true);
-pref("devtools.webconsole.input.context", false);
+#ifdef NIGHTLY_BUILD
+  pref("devtools.webconsole.input.context", true);
+#else
+  pref("devtools.webconsole.input.context", false);
+#endif
 
 // Set to true to eagerly show the results of webconsole terminal evaluations
 // when they don't have side effects.
