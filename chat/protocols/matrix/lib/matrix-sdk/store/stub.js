@@ -1,7 +1,15 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.StubStore = StubStore;
+
 /*
 Copyright 2015, 2016 OpenMarket Ltd
 Copyright 2017 Vector Creations Ltd
 Copyright 2018 New Vector Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,13 +23,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-"use strict";
-
-var _bluebird = require("bluebird");
-
-var _bluebird2 = _interopRequireDefault(_bluebird);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  * This is an internal module.
@@ -37,10 +38,9 @@ function StubStore() {
 }
 
 StubStore.prototype = {
-
   /** @return {Promise<bool>} whether or not the database was newly created in this session. */
   isNewlyCreated: function () {
-    return _bluebird2.default.resolve(true);
+    return Promise.resolve(true);
   },
 
   /**
@@ -214,7 +214,7 @@ StubStore.prototype = {
    * @return {Promise} An immediately resolved promise.
    */
   setSyncData: function (syncData) {
-    return _bluebird2.default.resolve();
+    return Promise.resolve();
   },
 
   /**
@@ -236,7 +236,7 @@ StubStore.prototype = {
    * @return {Promise} An immediately resolved promise.
    */
   startup: function () {
-    return _bluebird2.default.resolve();
+    return Promise.resolve();
   },
 
   /**
@@ -245,7 +245,7 @@ StubStore.prototype = {
    * is no saved sync data.
    */
   getSavedSync: function () {
-    return _bluebird2.default.resolve(null);
+    return Promise.resolve(null);
   },
 
   /**
@@ -253,7 +253,7 @@ StubStore.prototype = {
    * for this sync, otherwise null.
    */
   getSavedSyncToken: function () {
-    return _bluebird2.default.resolve(null);
+    return Promise.resolve(null);
   },
 
   /**
@@ -262,29 +262,21 @@ StubStore.prototype = {
    * @return {Promise} An immediately resolved promise.
    */
   deleteAllData: function () {
-    return _bluebird2.default.resolve();
+    return Promise.resolve();
   },
-
   getOutOfBandMembers: function () {
-    return _bluebird2.default.resolve(null);
+    return Promise.resolve(null);
   },
-
   setOutOfBandMembers: function () {
-    return _bluebird2.default.resolve();
+    return Promise.resolve();
   },
-
   clearOutOfBandMembers: function () {
-    return _bluebird2.default.resolve();
+    return Promise.resolve();
   },
-
   getClientOptions: function () {
-    return _bluebird2.default.resolve();
+    return Promise.resolve();
   },
-
   storeClientOptions: function () {
-    return _bluebird2.default.resolve();
+    return Promise.resolve();
   }
 };
-
-/** Stub Store class. */
-module.exports = StubStore;

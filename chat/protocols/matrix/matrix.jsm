@@ -871,8 +871,7 @@ MatrixAccount.prototype = {
           this.ERROR(error);
           conv.joining = false;
           conv.close();
-        })
-        .done();
+        });
 
       return conv;
     }
@@ -910,8 +909,7 @@ MatrixAccount.prototype = {
           this.ERROR(error);
           conv.joining = false;
           conv.close();
-        })
-        .done();
+        });
       return conv;
     }
     return null;
@@ -1111,8 +1109,7 @@ MatrixAccount.prototype = {
           this.ERROR(error);
           conv.joining = false;
           conv.close();
-        })
-        .done();
+        });
 
       return conv;
     }
@@ -1148,8 +1145,7 @@ MatrixAccount.prototype = {
           this.ERROR(error);
           conv.joining = false;
           conv.close();
-        })
-        .done();
+        });
 
       return conv;
     }

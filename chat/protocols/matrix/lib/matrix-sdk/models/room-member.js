@@ -1,5 +1,23 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RoomMember = RoomMember;
+
+var _events = require("events");
+
+var _contentRepo = require("../content-repo");
+
+var utils = _interopRequireWildcard(require("../utils"));
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
 /*
 Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,15 +31,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-"use strict";
+
 /**
  * @module models/room-member
  */
-
-const EventEmitter = require("events").EventEmitter;
-const ContentRepo = require("../content-repo");
-
-const utils = require("../utils");
 
 /**
  * Construct a new room member.
@@ -47,39 +60,41 @@ const utils = require("../utils");
  * @prop {MatrixEvent} events.member The m.room.member event for this RoomMember.
  */
 function RoomMember(roomId, userId) {
-    this.roomId = roomId;
-    this.userId = userId;
-    this.typing = false;
-    this.name = userId;
-    this.rawDisplayName = userId;
-    this.powerLevel = 0;
-    this.powerLevelNorm = 0;
-    this.user = null;
-    this.membership = null;
-    this.events = {
-        member: null
-    };
-    this._isOutOfBand = false;
-    this._updateModifiedTime();
-}
-utils.inherits(RoomMember, EventEmitter);
+  this.roomId = roomId;
+  this.userId = userId;
+  this.typing = false;
+  this.name = userId;
+  this.rawDisplayName = userId;
+  this.powerLevel = 0;
+  this.powerLevelNorm = 0;
+  this.user = null;
+  this.membership = null;
+  this.events = {
+    member: null
+  };
+  this._isOutOfBand = false;
 
+  this._updateModifiedTime();
+}
+
+utils.inherits(RoomMember, _events.EventEmitter);
 /**
  * Mark the member as coming from a channel that is not sync
  */
-RoomMember.prototype.markOutOfBand = function () {
-    this._isOutOfBand = true;
-};
 
+RoomMember.prototype.markOutOfBand = function () {
+  this._isOutOfBand = true;
+};
 /**
  * @return {bool} does the member come from a channel that is not sync?
  * This is used to store the member seperately
  * from the sync state so it available across browser sessions.
  */
-RoomMember.prototype.isOutOfBand = function () {
-    return this._isOutOfBand;
-};
 
+
+RoomMember.prototype.isOutOfBand = function () {
+  return this._isOutOfBand;
+};
 /**
  * Update this room member's membership event. May fire "RoomMember.name" if
  * this event updates this member's name.
@@ -89,32 +104,33 @@ RoomMember.prototype.isOutOfBand = function () {
  * @fires module:client~MatrixClient#event:"RoomMember.name"
  * @fires module:client~MatrixClient#event:"RoomMember.membership"
  */
+
+
 RoomMember.prototype.setMembershipEvent = function (event, roomState) {
-    if (event.getType() !== "m.room.member") {
-        return;
-    }
+  if (event.getType() !== "m.room.member") {
+    return;
+  }
 
-    this._isOutOfBand = false;
+  this._isOutOfBand = false;
+  this.events.member = event;
+  const oldMembership = this.membership;
+  this.membership = event.getDirectionalContent().membership;
+  const oldName = this.name;
+  this.name = calculateDisplayName(this.userId, event.getDirectionalContent().displayname, roomState);
+  this.rawDisplayName = event.getDirectionalContent().displayname || this.userId;
 
-    this.events.member = event;
+  if (oldMembership !== this.membership) {
+    this._updateModifiedTime();
 
-    const oldMembership = this.membership;
-    this.membership = event.getDirectionalContent().membership;
+    this.emit("RoomMember.membership", event, this, oldMembership);
+  }
 
-    const oldName = this.name;
-    this.name = calculateDisplayName(this.userId, event.getDirectionalContent().displayname, roomState);
+  if (oldName !== this.name) {
+    this._updateModifiedTime();
 
-    this.rawDisplayName = event.getDirectionalContent().displayname || this.userId;
-    if (oldMembership !== this.membership) {
-        this._updateModifiedTime();
-        this.emit("RoomMember.membership", event, this, oldMembership);
-    }
-    if (oldName !== this.name) {
-        this._updateModifiedTime();
-        this.emit("RoomMember.name", event, this, oldName);
-    }
+    this.emit("RoomMember.name", event, this, oldName);
+  }
 };
-
 /**
  * Update this room member's power level event. May fire
  * "RoomMember.powerLevel" if this event updates this member's power levels.
@@ -122,118 +138,128 @@ RoomMember.prototype.setMembershipEvent = function (event, roomState) {
  * event
  * @fires module:client~MatrixClient#event:"RoomMember.powerLevel"
  */
+
+
 RoomMember.prototype.setPowerLevelEvent = function (powerLevelEvent) {
-    if (powerLevelEvent.getType() !== "m.room.power_levels") {
-        return;
-    }
+  if (powerLevelEvent.getType() !== "m.room.power_levels") {
+    return;
+  }
 
-    const evContent = powerLevelEvent.getDirectionalContent();
+  const evContent = powerLevelEvent.getDirectionalContent();
+  let maxLevel = evContent.users_default || 0;
+  utils.forEach(utils.values(evContent.users), function (lvl) {
+    maxLevel = Math.max(maxLevel, lvl);
+  });
+  const oldPowerLevel = this.powerLevel;
+  const oldPowerLevelNorm = this.powerLevelNorm;
 
-    let maxLevel = evContent.users_default || 0;
-    utils.forEach(utils.values(evContent.users), function (lvl) {
-        maxLevel = Math.max(maxLevel, lvl);
-    });
-    const oldPowerLevel = this.powerLevel;
-    const oldPowerLevelNorm = this.powerLevelNorm;
+  if (evContent.users && evContent.users[this.userId] !== undefined) {
+    this.powerLevel = evContent.users[this.userId];
+  } else if (evContent.users_default !== undefined) {
+    this.powerLevel = evContent.users_default;
+  } else {
+    this.powerLevel = 0;
+  }
 
-    if (evContent.users && evContent.users[this.userId] !== undefined) {
-        this.powerLevel = evContent.users[this.userId];
-    } else if (evContent.users_default !== undefined) {
-        this.powerLevel = evContent.users_default;
-    } else {
-        this.powerLevel = 0;
-    }
-    this.powerLevelNorm = 0;
-    if (maxLevel > 0) {
-        this.powerLevelNorm = this.powerLevel * 100 / maxLevel;
-    }
+  this.powerLevelNorm = 0;
 
-    // emit for changes in powerLevelNorm as well (since the app will need to
-    // redraw everyone's level if the max has changed)
-    if (oldPowerLevel !== this.powerLevel || oldPowerLevelNorm !== this.powerLevelNorm) {
-        this._updateModifiedTime();
-        this.emit("RoomMember.powerLevel", powerLevelEvent, this);
-    }
+  if (maxLevel > 0) {
+    this.powerLevelNorm = this.powerLevel * 100 / maxLevel;
+  } // emit for changes in powerLevelNorm as well (since the app will need to
+  // redraw everyone's level if the max has changed)
+
+
+  if (oldPowerLevel !== this.powerLevel || oldPowerLevelNorm !== this.powerLevelNorm) {
+    this._updateModifiedTime();
+
+    this.emit("RoomMember.powerLevel", powerLevelEvent, this);
+  }
 };
-
 /**
  * Update this room member's typing event. May fire "RoomMember.typing" if
  * this event changes this member's typing state.
  * @param {MatrixEvent} event The typing event
  * @fires module:client~MatrixClient#event:"RoomMember.typing"
  */
-RoomMember.prototype.setTypingEvent = function (event) {
-    if (event.getType() !== "m.typing") {
-        return;
-    }
-    const oldTyping = this.typing;
-    this.typing = false;
-    const typingList = event.getContent().user_ids;
-    if (!utils.isArray(typingList)) {
-        // malformed event :/ bail early. TODO: whine?
-        return;
-    }
-    if (typingList.indexOf(this.userId) !== -1) {
-        this.typing = true;
-    }
-    if (oldTyping !== this.typing) {
-        this._updateModifiedTime();
-        this.emit("RoomMember.typing", event, this);
-    }
-};
 
+
+RoomMember.prototype.setTypingEvent = function (event) {
+  if (event.getType() !== "m.typing") {
+    return;
+  }
+
+  const oldTyping = this.typing;
+  this.typing = false;
+  const typingList = event.getContent().user_ids;
+
+  if (!utils.isArray(typingList)) {
+    // malformed event :/ bail early. TODO: whine?
+    return;
+  }
+
+  if (typingList.indexOf(this.userId) !== -1) {
+    this.typing = true;
+  }
+
+  if (oldTyping !== this.typing) {
+    this._updateModifiedTime();
+
+    this.emit("RoomMember.typing", event, this);
+  }
+};
 /**
  * Update the last modified time to the current time.
  */
-RoomMember.prototype._updateModifiedTime = function () {
-    this._modified = Date.now();
-};
 
+
+RoomMember.prototype._updateModifiedTime = function () {
+  this._modified = Date.now();
+};
 /**
  * Get the timestamp when this RoomMember was last updated. This timestamp is
  * updated when properties on this RoomMember are updated.
  * It is updated <i>before</i> firing events.
  * @return {number} The timestamp
  */
+
+
 RoomMember.prototype.getLastModifiedTime = function () {
-    return this._modified;
+  return this._modified;
 };
 
 RoomMember.prototype.isKicked = function () {
-    return this.membership === "leave" && this.events.member.getSender() !== this.events.member.getStateKey();
+  return this.membership === "leave" && this.events.member.getSender() !== this.events.member.getStateKey();
 };
-
 /**
  * If this member was invited with the is_direct flag set, return
  * the user that invited this member
  * @return {string} user id of the inviter
  */
+
+
 RoomMember.prototype.getDMInviter = function () {
-    // when not available because that room state hasn't been loaded in,
-    // we don't really know, but more likely to not be a direct chat
-    if (this.events.member) {
-        // TODO: persist the is_direct flag on the member as more member events
-        //       come in caused by displayName changes.
+  // when not available because that room state hasn't been loaded in,
+  // we don't really know, but more likely to not be a direct chat
+  if (this.events.member) {
+    // TODO: persist the is_direct flag on the member as more member events
+    //       come in caused by displayName changes.
+    // the is_direct flag is set on the invite member event.
+    // This is copied on the prev_content section of the join member event
+    // when the invite is accepted.
+    const memberEvent = this.events.member;
+    let memberContent = memberEvent.getContent();
+    let inviteSender = memberEvent.getSender();
 
-        // the is_direct flag is set on the invite member event.
-        // This is copied on the prev_content section of the join member event
-        // when the invite is accepted.
-
-        const memberEvent = this.events.member;
-        let memberContent = memberEvent.getContent();
-        let inviteSender = memberEvent.getSender();
-
-        if (memberContent.membership === "join") {
-            memberContent = memberEvent.getPrevContent();
-            inviteSender = memberEvent.getUnsigned().prev_sender;
-        }
-
-        if (memberContent.membership === "invite" && memberContent.is_direct) {
-            return inviteSender;
-        }
+    if (memberContent.membership === "join") {
+      memberContent = memberEvent.getPrevContent();
+      inviteSender = memberEvent.getUnsigned().prev_sender;
     }
-};
 
+    if (memberContent.membership === "invite" && memberContent.is_direct) {
+      return inviteSender;
+    }
+  }
+};
 /**
  * Get the avatar URL for a room member.
  * @param {string} baseUrl The base homeserver URL See
@@ -252,74 +278,83 @@ RoomMember.prototype.getDMInviter = function () {
  * to anyone who they share a room with.
  * @return {?string} the avatar URL or null.
  */
+
+
 RoomMember.prototype.getAvatarUrl = function (baseUrl, width, height, resizeMethod, allowDefault, allowDirectLinks) {
-    if (allowDefault === undefined) {
-        allowDefault = true;
-    }
+  if (allowDefault === undefined) {
+    allowDefault = true;
+  }
 
-    const rawUrl = this.getMxcAvatarUrl();
+  const rawUrl = this.getMxcAvatarUrl();
 
-    if (!rawUrl && !allowDefault) {
-        return null;
-    }
-    const httpUrl = ContentRepo.getHttpUriForMxc(baseUrl, rawUrl, width, height, resizeMethod, allowDirectLinks);
-    if (httpUrl) {
-        return httpUrl;
-    } else if (allowDefault) {
-        return ContentRepo.getIdenticonUri(baseUrl, this.userId, width, height);
-    }
+  if (!rawUrl && !allowDefault) {
     return null;
+  }
+
+  const httpUrl = (0, _contentRepo.getHttpUriForMxc)(baseUrl, rawUrl, width, height, resizeMethod, allowDirectLinks);
+
+  if (httpUrl) {
+    return httpUrl;
+  }
+
+  return null;
 };
 /**
  * get the mxc avatar url, either from a state event, or from a lazily loaded member
  * @return {string} the mxc avatar url
  */
+
+
 RoomMember.prototype.getMxcAvatarUrl = function () {
-    if (this.events.member) {
-        return this.events.member.getDirectionalContent().avatar_url;
-    } else if (this.user) {
-        return this.user.avatarUrl;
-    }
-    return null;
+  if (this.events.member) {
+    return this.events.member.getDirectionalContent().avatar_url;
+  } else if (this.user) {
+    return this.user.avatarUrl;
+  }
+
+  return null;
 };
 
 function calculateDisplayName(selfUserId, displayName, roomState) {
-    if (!displayName || displayName === selfUserId) {
-        return selfUserId;
-    }
+  if (!displayName || displayName === selfUserId) {
+    return selfUserId;
+  } // First check if the displayname is something we consider truthy
+  // after stripping it of zero width characters and padding spaces
 
-    // First check if the displayname is something we consider truthy
-    // after stripping it of zero width characters and padding spaces
-    if (!utils.removeHiddenChars(displayName)) {
-        return selfUserId;
-    }
 
-    if (!roomState) {
-        return displayName;
-    }
+  if (!utils.removeHiddenChars(displayName)) {
+    return selfUserId;
+  }
 
-    // Next check if the name contains something that look like a mxid
-    // If it does, it may be someone trying to impersonate someone else
-    // Show full mxid in this case
+  if (!roomState) {
+    return displayName;
+  } // Next check if the name contains something that look like a mxid
+  // If it does, it may be someone trying to impersonate someone else
+  // Show full mxid in this case
+
+
+  let disambiguate = /@.+:.+/.test(displayName);
+
+  if (!disambiguate) {
+    // Also show mxid if the display name contains any LTR/RTL characters as these
+    // make it very difficult for us to find similar *looking* display names
+    // E.g "Mark" could be cloned by writing "kraM" but in RTL.
+    disambiguate = /[\u200E\u200F\u202A-\u202F]/.test(displayName);
+  }
+
+  if (!disambiguate) {
     // Also show mxid if there are other people with the same or similar
     // displayname, after hidden character removal.
-    let disambiguate = /@.+:.+/.test(displayName);
-    if (!disambiguate) {
-        const userIds = roomState.getUserIdsWithDisplayName(displayName);
-        disambiguate = userIds.some(u => u !== selfUserId);
-    }
+    const userIds = roomState.getUserIdsWithDisplayName(displayName);
+    disambiguate = userIds.some(u => u !== selfUserId);
+  }
 
-    if (disambiguate) {
-        return displayName + " (" + selfUserId + ")";
-    }
-    return displayName;
+  if (disambiguate) {
+    return displayName + " (" + selfUserId + ")";
+  }
+
+  return displayName;
 }
-
-/**
- * The RoomMember class.
- */
-module.exports = RoomMember;
-
 /**
  * Fires whenever any room member's name changes.
  * @event module:client~MatrixClient#"RoomMember.name"

@@ -7,6 +7,7 @@
 EXTRA_JS_MODULES.matrix.matrix_sdk += [
     'matrix-sdk/autodiscovery.js',
     'matrix-sdk/base-apis.js',
+    'matrix-sdk/browser-index.js',
     'matrix-sdk/client.js',
     'matrix-sdk/content-helpers.js',
     'matrix-sdk/content-repo.js',
@@ -32,15 +33,20 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
-    'matrix-sdk/crypto/backup_password.js',
+    'matrix-sdk/crypto/aes.js',
+    'matrix-sdk/crypto/CrossSigning.js',
+    'matrix-sdk/crypto/dehydration.js',
     'matrix-sdk/crypto/deviceinfo.js',
     'matrix-sdk/crypto/DeviceList.js',
+    'matrix-sdk/crypto/EncryptionSetup.js',
     'matrix-sdk/crypto/index.js',
+    'matrix-sdk/crypto/key_passphrase.js',
     'matrix-sdk/crypto/OlmDevice.js',
     'matrix-sdk/crypto/olmlib.js',
     'matrix-sdk/crypto/OutgoingRoomKeyRequestManager.js',
     'matrix-sdk/crypto/recoverykey.js',
     'matrix-sdk/crypto/RoomList.js',
+    'matrix-sdk/crypto/SecretStorage.js',
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.algorithms += [
@@ -61,8 +67,15 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.store += [
 EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification += [
     'matrix-sdk/crypto/verification/Base.js',
     'matrix-sdk/crypto/verification/Error.js',
+    'matrix-sdk/crypto/verification/IllegalMethod.js',
     'matrix-sdk/crypto/verification/QRCode.js',
     'matrix-sdk/crypto/verification/SAS.js',
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification.request += [
+    'matrix-sdk/crypto/verification/request/InRoomChannel.js',
+    'matrix-sdk/crypto/verification/request/ToDeviceChannel.js',
+    'matrix-sdk/crypto/verification/request/VerificationRequest.js',
 ]
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
@@ -93,8 +106,14 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.store.session += [
     'matrix-sdk/store/session/webstorage.js',
 ]
 
+EXTRA_JS_MODULES.matrix.matrix_sdk.types += [
+    'matrix-sdk/@types/event.js',
+]
+
 EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
     'matrix-sdk/webrtc/call.js',
+    'matrix-sdk/webrtc/callEventHandler.js',
+    'matrix-sdk/webrtc/callEventTypes.js',
 ]
 
 # Dependencies of the Matrix SDK.
@@ -103,8 +122,8 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
 # matrix module.
 EXTRA_JS_MODULES.matrix += [
     'another-json/another-json.js',
-    'bluebird/bluebird.js',
     'events/events.js',
+    'qs/dist/qs.js',
 ]
 
 EXTRA_JS_MODULES.matrix.base_x += [

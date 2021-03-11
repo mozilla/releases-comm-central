@@ -1,7 +1,18 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getPrefixedLogger = getPrefixedLogger;
+exports.logger = void 0;
+
+var _loglevel = _interopRequireDefault(require("loglevel"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /*
 Copyright 2018 André Jaenisch
+Copyright 2019, 2021 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,20 +30,58 @@ limitations under the License.
 /**
  * @module logger
  */
-const log = require("loglevel");
-
 // This is to demonstrate, that you can use any namespace you want.
 // Namespaces allow you to turn on/off the logging for specific parts of the
 // application.
 // An idea would be to control this via an environment variable (on Node.js).
 // See https://www.npmjs.com/package/debug to see how this could be implemented
 // Part of #332 is introducing a logging library in the first place.
-const DEFAULT_NAME_SPACE = "matrix";
-const logger = log.getLogger(DEFAULT_NAME_SPACE);
-logger.setLevel(log.levels.DEBUG);
+const DEFAULT_NAMESPACE = "matrix"; // because rageshakes in react-sdk hijack the console log, also at module load time,
+// initializing the logger here races with the initialization of rageshakes.
+// to avoid the issue, we override the methodFactory of loglevel that binds to the
+// console methods at initialization time by a factory that looks up the console methods
+// when logging so we always get the current value of console methods.
 
+_loglevel.default.methodFactory = function (methodName, logLevel, loggerName) {
+  return function (...args) {
+    /* eslint-disable babel/no-invalid-this */
+    if (this.prefix) {
+      args.unshift(this.prefix);
+    }
+    /* eslint-enable babel/no-invalid-this */
+
+
+    const supportedByConsole = methodName === "error" || methodName === "warn" || methodName === "trace" || methodName === "info";
+    /* eslint-disable no-console */
+
+    if (supportedByConsole) {
+      return console[methodName](...args);
+    } else {
+      return console.log(...args);
+    }
+    /* eslint-enable no-console */
+
+  };
+};
 /**
  * Drop-in replacement for <code>console</code> using {@link https://www.npmjs.com/package/loglevel|loglevel}.
  * Can be tailored down to specific use cases if needed.
-*/
-module.exports = logger;
+ */
+
+
+const logger = _loglevel.default.getLogger(DEFAULT_NAMESPACE);
+
+exports.logger = logger;
+logger.setLevel(_loglevel.default.levels.DEBUG);
+
+function getPrefixedLogger(prefix) {
+  const prefixLogger = _loglevel.default.getLogger(`${DEFAULT_NAMESPACE}-${prefix}`);
+
+  if (prefixLogger.prefix !== prefix) {
+    // Only do this setup work the first time through, as loggers are saved by name.
+    prefixLogger.prefix = prefix;
+    prefixLogger.setLevel(_loglevel.default.levels.DEBUG);
+  }
+
+  return prefixLogger;
+}

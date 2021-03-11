@@ -1,11 +1,15 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 exports.randomString = randomString;
+exports.randomLowercaseString = randomLowercaseString;
+exports.randomUppercaseString = randomUppercaseString;
+
 /*
 Copyright 2018 New Vector Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,14 +23,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
+const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const DIGITS = "0123456789";
 
 function randomString(len) {
-    let ret = "";
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  return randomStringFrom(len, UPPERCASE + LOWERCASE + DIGITS);
+}
 
-    for (let i = 0; i < len; ++i) {
-        ret += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+function randomLowercaseString(len) {
+  return randomStringFrom(len, LOWERCASE);
+}
 
-    return ret;
+function randomUppercaseString(len) {
+  return randomStringFrom(len, UPPERCASE);
+}
+
+function randomStringFrom(len, chars) {
+  let ret = "";
+
+  for (let i = 0; i < len; ++i) {
+    ret += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  return ret;
 }

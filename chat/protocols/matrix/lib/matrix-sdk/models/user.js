@@ -1,5 +1,21 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.User = User;
+
+var utils = _interopRequireWildcard(require("../utils"));
+
+var _events = require("events");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
 /*
 Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,13 +29,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-"use strict";
+
 /**
  * @module models/user
  */
-
-const EventEmitter = require("events").EventEmitter;
-const utils = require("../utils");
 
 /**
  * Construct a new User. A User must have an ID and can optionally have extra
@@ -47,24 +60,25 @@ const utils = require("../utils");
  * @prop {MatrixEvent} events.presence The m.presence event for this user.
  */
 function User(userId) {
-    this.userId = userId;
-    this.presence = "offline";
-    this.presenceStatusMsg = null;
-    this._unstable_statusMessage = "";
-    this.displayName = userId;
-    this.rawDisplayName = userId;
-    this.avatarUrl = null;
-    this.lastActiveAgo = 0;
-    this.lastPresenceTs = 0;
-    this.currentlyActive = false;
-    this.events = {
-        presence: null,
-        profile: null
-    };
-    this._updateModifiedTime();
-}
-utils.inherits(User, EventEmitter);
+  this.userId = userId;
+  this.presence = "offline";
+  this.presenceStatusMsg = null;
+  this._unstable_statusMessage = "";
+  this.displayName = userId;
+  this.rawDisplayName = userId;
+  this.avatarUrl = null;
+  this.lastActiveAgo = 0;
+  this.lastPresenceTs = 0;
+  this.currentlyActive = false;
+  this.events = {
+    presence: null,
+    profile: null
+  };
 
+  this._updateModifiedTime();
+}
+
+utils.inherits(User, _events.EventEmitter);
 /**
  * Update this User with the given presence event. May fire "User.presence",
  * "User.avatarUrl" and/or "User.displayName" if this event updates this user's
@@ -74,127 +88,149 @@ utils.inherits(User, EventEmitter);
  * @fires module:client~MatrixClient#event:"User.displayName"
  * @fires module:client~MatrixClient#event:"User.avatarUrl"
  */
+
 User.prototype.setPresenceEvent = function (event) {
-    if (event.getType() !== "m.presence") {
-        return;
-    }
-    const firstFire = this.events.presence === null;
-    this.events.presence = event;
+  if (event.getType() !== "m.presence") {
+    return;
+  }
 
-    const eventsToFire = [];
-    if (event.getContent().presence !== this.presence || firstFire) {
-        eventsToFire.push("User.presence");
-    }
-    if (event.getContent().avatar_url && event.getContent().avatar_url !== this.avatarUrl) {
-        eventsToFire.push("User.avatarUrl");
-    }
-    if (event.getContent().displayname && event.getContent().displayname !== this.displayName) {
-        eventsToFire.push("User.displayName");
-    }
-    if (event.getContent().currently_active !== undefined && event.getContent().currently_active !== this.currentlyActive) {
-        eventsToFire.push("User.currentlyActive");
-    }
+  const firstFire = this.events.presence === null;
+  this.events.presence = event;
+  const eventsToFire = [];
 
-    this.presence = event.getContent().presence;
-    eventsToFire.push("User.lastPresenceTs");
+  if (event.getContent().presence !== this.presence || firstFire) {
+    eventsToFire.push("User.presence");
+  }
 
-    if (event.getContent().status_msg) {
-        this.presenceStatusMsg = event.getContent().status_msg;
-    }
-    if (event.getContent().displayname) {
-        this.displayName = event.getContent().displayname;
-    }
-    if (event.getContent().avatar_url) {
-        this.avatarUrl = event.getContent().avatar_url;
-    }
-    this.lastActiveAgo = event.getContent().last_active_ago;
-    this.lastPresenceTs = Date.now();
-    this.currentlyActive = event.getContent().currently_active;
+  if (event.getContent().avatar_url && event.getContent().avatar_url !== this.avatarUrl) {
+    eventsToFire.push("User.avatarUrl");
+  }
 
-    this._updateModifiedTime();
+  if (event.getContent().displayname && event.getContent().displayname !== this.displayName) {
+    eventsToFire.push("User.displayName");
+  }
 
-    for (let i = 0; i < eventsToFire.length; i++) {
-        this.emit(eventsToFire[i], event, this);
-    }
+  if (event.getContent().currently_active !== undefined && event.getContent().currently_active !== this.currentlyActive) {
+    eventsToFire.push("User.currentlyActive");
+  }
+
+  this.presence = event.getContent().presence;
+  eventsToFire.push("User.lastPresenceTs");
+
+  if (event.getContent().status_msg) {
+    this.presenceStatusMsg = event.getContent().status_msg;
+  }
+
+  if (event.getContent().displayname) {
+    this.displayName = event.getContent().displayname;
+  }
+
+  if (event.getContent().avatar_url) {
+    this.avatarUrl = event.getContent().avatar_url;
+  }
+
+  this.lastActiveAgo = event.getContent().last_active_ago;
+  this.lastPresenceTs = Date.now();
+  this.currentlyActive = event.getContent().currently_active;
+
+  this._updateModifiedTime();
+
+  for (let i = 0; i < eventsToFire.length; i++) {
+    this.emit(eventsToFire[i], event, this);
+  }
 };
-
 /**
  * Manually set this user's display name. No event is emitted in response to this
  * as there is no underlying MatrixEvent to emit with.
  * @param {string} name The new display name.
  */
-User.prototype.setDisplayName = function (name) {
-    const oldName = this.displayName;
-    this.displayName = name;
-    if (name !== oldName) {
-        this._updateModifiedTime();
-    }
-};
 
+
+User.prototype.setDisplayName = function (name) {
+  const oldName = this.displayName;
+
+  if (typeof name === "string") {
+    this.displayName = name;
+  } else {
+    this.displayName = undefined;
+  }
+
+  if (name !== oldName) {
+    this._updateModifiedTime();
+  }
+};
 /**
  * Manually set this user's non-disambiguated display name. No event is emitted
  * in response to this as there is no underlying MatrixEvent to emit with.
  * @param {string} name The new display name.
  */
-User.prototype.setRawDisplayName = function (name) {
-    this.rawDisplayName = name;
-};
 
+
+User.prototype.setRawDisplayName = function (name) {
+  if (typeof name === "string") {
+    this.rawDisplayName = name;
+  } else {
+    this.rawDisplayName = undefined;
+  }
+};
 /**
  * Manually set this user's avatar URL. No event is emitted in response to this
  * as there is no underlying MatrixEvent to emit with.
  * @param {string} url The new avatar URL.
  */
-User.prototype.setAvatarUrl = function (url) {
-    const oldUrl = this.avatarUrl;
-    this.avatarUrl = url;
-    if (url !== oldUrl) {
-        this._updateModifiedTime();
-    }
-};
 
+
+User.prototype.setAvatarUrl = function (url) {
+  const oldUrl = this.avatarUrl;
+  this.avatarUrl = url;
+
+  if (url !== oldUrl) {
+    this._updateModifiedTime();
+  }
+};
 /**
  * Update the last modified time to the current time.
  */
-User.prototype._updateModifiedTime = function () {
-    this._modified = Date.now();
-};
 
+
+User.prototype._updateModifiedTime = function () {
+  this._modified = Date.now();
+};
 /**
  * Get the timestamp when this User was last updated. This timestamp is
  * updated when this User receives a new Presence event which has updated a
  * property on this object. It is updated <i>before</i> firing events.
  * @return {number} The timestamp
  */
-User.prototype.getLastModifiedTime = function () {
-    return this._modified;
-};
 
+
+User.prototype.getLastModifiedTime = function () {
+  return this._modified;
+};
 /**
  * Get the absolute timestamp when this User was last known active on the server.
  * It is *NOT* accurate if this.currentlyActive is true.
  * @return {number} The timestamp
  */
-User.prototype.getLastActiveTs = function () {
-    return this.lastPresenceTs - this.lastActiveAgo;
-};
 
+
+User.prototype.getLastActiveTs = function () {
+  return this.lastPresenceTs - this.lastActiveAgo;
+};
 /**
  * Manually set the user's status message.
  * @param {MatrixEvent} event The <code>im.vector.user_status</code> event.
  * @fires module:client~MatrixClient#event:"User._unstable_statusMessage"
  */
+
+
 User.prototype._unstable_updateStatusMessage = function (event) {
-    if (!event.getContent()) this._unstable_statusMessage = "";else this._unstable_statusMessage = event.getContent()["status"];
-    this._updateModifiedTime();
-    this.emit("User._unstable_statusMessage", this);
+  if (!event.getContent()) this._unstable_statusMessage = "";else this._unstable_statusMessage = event.getContent()["status"];
+
+  this._updateModifiedTime();
+
+  this.emit("User._unstable_statusMessage", this);
 };
-
-/**
- * The User class.
- */
-module.exports = User;
-
 /**
  * Fires whenever any user's lastPresenceTs changes,
  * ie. whenever any presence event is received for a user.

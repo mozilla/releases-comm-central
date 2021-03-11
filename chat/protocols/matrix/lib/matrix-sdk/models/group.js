@@ -1,7 +1,21 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Group = Group;
+
+var utils = _interopRequireWildcard(require("../utils"));
+
+var _events = require("events");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
 /*
 Copyright 2017 New Vector Ltd
+Copyright 2019 The Matrix.org Foundation C.I.C.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,9 +33,6 @@ limitations under the License.
 /**
  * @module models/group
  */
-const EventEmitter = require("events").EventEmitter;
-
-const utils = require("../utils");
 
 /**
  * Construct a new Group.
@@ -37,43 +48,38 @@ const utils = require("../utils");
  * @prop {string} inviter.userId The user ID of the inviter
  */
 function Group(groupId) {
-    this.groupId = groupId;
-    this.name = null;
-    this.avatarUrl = null;
-    this.myMembership = null;
-    this.inviter = null;
+  this.groupId = groupId;
+  this.name = null;
+  this.avatarUrl = null;
+  this.myMembership = null;
+  this.inviter = null;
 }
-utils.inherits(Group, EventEmitter);
+
+utils.inherits(Group, _events.EventEmitter);
 
 Group.prototype.setProfile = function (name, avatarUrl) {
-    if (this.name === name && this.avatarUrl === avatarUrl) return;
-
-    this.name = name || this.groupId;
-    this.avatarUrl = avatarUrl;
-
-    this.emit("Group.profile", this);
+  if (this.name === name && this.avatarUrl === avatarUrl) return;
+  this.name = name || this.groupId;
+  this.avatarUrl = avatarUrl;
+  this.emit("Group.profile", this);
 };
 
 Group.prototype.setMyMembership = function (membership) {
-    if (this.myMembership === membership) return;
-
-    this.myMembership = membership;
-
-    this.emit("Group.myMembership", this);
+  if (this.myMembership === membership) return;
+  this.myMembership = membership;
+  this.emit("Group.myMembership", this);
 };
-
 /**
  * Sets the 'inviter' property. This does not emit an event (the inviter
  * will only change when the user is revited / reinvited to a room),
  * so set this before setting myMembership.
  * @param {Object} inviter Infomation about who invited us to the room
  */
+
+
 Group.prototype.setInviter = function (inviter) {
-    this.inviter = inviter;
+  this.inviter = inviter;
 };
-
-module.exports = Group;
-
 /**
  * Fires whenever a group's profile information is updated.
  * This means the 'name' and 'avatarUrl' properties.

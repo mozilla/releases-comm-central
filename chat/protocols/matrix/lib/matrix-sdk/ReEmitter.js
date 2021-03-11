@@ -1,8 +1,12 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
+exports.ReEmitter = void 0;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /*
 Copyright 2015, 2016 OpenMarket Ltd
 Copyright 2017 Vector Creations Ltd
@@ -20,39 +24,37 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+class ReEmitter {
+  constructor(target) {
+    _defineProperty(this, "target", void 0);
 
-/**
- * @module
- */
+    this.target = target;
+  }
 
-class Reemitter {
-    constructor(target) {
-        this.target = target;
+  reEmit(source, eventNames) {
+    for (const eventName of eventNames) {
+      // We include the source as the last argument for event handlers which may need it,
+      // such as read receipt listeners on the client class which won't have the context
+      // of the room.
+      const forSource = (...args) => {
+        // EventEmitter special cases 'error' to make the emit function throw if no
+        // handler is attached, which sort of makes sense for making sure that something
+        // handles an error, but for re-emitting, there could be a listener on the original
+        // source object so the test doesn't really work. We *could* try to replicate the
+        // same logic and throw if there is no listener on either the source or the target,
+        // but this behaviour is fairly undesireable for us anyway: the main place we throw
+        // 'error' events is for calls, where error events are usually emitted some time
+        // later by a different part of the code where 'emit' throwing because the app hasn't
+        // added an error handler isn't terribly helpful. (A better fix in retrospect may
+        // have been to just avoid using the event name 'error', but backwards compat...)
+        if (eventName === 'error' && this.target.listenerCount('error') === 0) return;
+        this.target.emit(eventName, ...args, source);
+      };
 
-        // We keep one bound event handler for each event name so we know
-        // what event is arriving
-        this.boundHandlers = {};
+      source.on(eventName, forSource);
     }
+  }
 
-    _handleEvent(eventName, ...args) {
-        this.target.emit(eventName, ...args);
-    }
-
-    reEmit(source, eventNames) {
-        // We include the source as the last argument for event handlers which may need it,
-        // such as read receipt listeners on the client class which won't have the context
-        // of the room.
-        const forSource = (handler, ...args) => {
-            handler(...args, source);
-        };
-        for (const eventName of eventNames) {
-            if (this.boundHandlers[eventName] === undefined) {
-                this.boundHandlers[eventName] = this._handleEvent.bind(this, eventName);
-            }
-
-            const boundHandler = forSource.bind(this, this.boundHandlers[eventName]);
-            source.on(eventName, boundHandler);
-        }
-    }
 }
-exports.default = Reemitter;
+
+exports.ReEmitter = ReEmitter;

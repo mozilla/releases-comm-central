@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.InvalidStoreError = InvalidStoreError;
 exports.InvalidCryptoStoreError = InvalidCryptoStoreError;
+exports.KeySignatureUploadError = void 0;
+
 // can't just do InvalidStoreError extends Error
 // because of http://babeljs.io/docs/usage/caveats/#classes
 function InvalidStoreError(reason, value) {
@@ -17,7 +19,6 @@ function InvalidStoreError(reason, value) {
 }
 
 InvalidStoreError.TOGGLED_LAZY_LOADING = "TOGGLED_LAZY_LOADING";
-
 InvalidStoreError.prototype = Object.create(Error.prototype, {
   constructor: {
     value: Error,
@@ -38,7 +39,6 @@ function InvalidCryptoStoreError(reason) {
 }
 
 InvalidCryptoStoreError.TOO_NEW = "TOO_NEW";
-
 InvalidCryptoStoreError.prototype = Object.create(Error.prototype, {
   constructor: {
     value: Error,
@@ -48,3 +48,13 @@ InvalidCryptoStoreError.prototype = Object.create(Error.prototype, {
   }
 });
 Reflect.setPrototypeOf(InvalidCryptoStoreError, Error);
+
+class KeySignatureUploadError extends Error {
+  constructor(message, value) {
+    super(message);
+    this.value = value;
+  }
+
+}
+
+exports.KeySignatureUploadError = KeySignatureUploadError;

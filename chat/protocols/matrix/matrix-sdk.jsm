@@ -32,10 +32,13 @@ let loader = Loader({
   paths: {
     // Matrix SDK files.
     "": matrixPath + "matrix_sdk/",
+    matrix: matrixPath + "matrix_sdk/matrix.js",
     "../content-repo": matrixPath + "matrix_sdk/content-repo.js",
     "../../errors": matrixPath + "matrix_sdk/errors.js",
+    "../errors": matrixPath + "matrix_sdk/errors.js",
     "../indexeddb-helpers": matrixPath + "matrix_sdk/indexeddb-helpers.js",
     "../../indexeddb-helpers": matrixPath + "matrix_sdk/indexeddb-helpers.js",
+    "../http-api": matrixPath + "matrix_sdk/http-api.js",
     "../logger": matrixPath + "matrix_sdk/logger.js",
     "../../logger": matrixPath + "matrix_sdk/logger.js",
     "../randomstring": matrixPath + "matrix_sdk/randomstring.js",
@@ -45,9 +48,10 @@ let loader = Loader({
     "../utils.js": matrixPath + "matrix_sdk/utils.js",
     "../../utils": matrixPath + "matrix_sdk/utils.js",
 
+    // @types
+    "@types/event": matrixPath + "matrix_sdk/types/event.js",
+
     // crypto
-    "crypto/backup_password":
-      matrixPath + "matrix_sdk/crypto/backup_password.js",
     deviceinfo: matrixPath + "matrix_sdk/crypto/deviceinfo.js",
     "../deviceinfo": matrixPath + "matrix_sdk/crypto/deviceinfo.js",
     DeviceList: matrixPath + "matrix_sdk/crypto/DeviceList.js",
@@ -57,10 +61,21 @@ let loader = Loader({
     "../olmlib": matrixPath + "matrix_sdk/crypto/olmlib.js",
     "crypto/olmlib": matrixPath + "matrix_sdk/crypto/olmlib.js",
     OlmDevice: matrixPath + "matrix_sdk/crypto/OlmDevice.js",
+    "../OlmDevice": matrixPath + "matrix_sdk/crypto/OlmDevice.js",
     "crypto/recoverykey": matrixPath + "matrix_sdk/crypto/recoverykey.js",
+    recoverykey: matrixPath + "matrix_sdk/crypto/recoverykey.js",
     OutgoingRoomKeyRequestManager:
       matrixPath + "matrix_sdk/crypto/OutgoingRoomKeyRequestManager.js",
     "crypto/RoomList": matrixPath + "matrix_sdk/crypto/RoomList.js",
+    "crypto/CrossSigning": matrixPath + "matrix_sdk/crypto/CrossSigning.js",
+    CrossSigning: matrixPath + "matrix_sdk/crypto/CrossSigning.js",
+    EncryptionSetup: matrixPath + "matrix_sdk/crypto/EncryptionSetup.js",
+    SecretStorage: matrixPath + "matrix_sdk/crypto/SecretStorage.js",
+    aes: matrixPath + "matrix_sdk/crypto/aes.js",
+    dehydration: matrixPath + "matrix_sdk/crypto/dehydration.js",
+    "crypto/dehydration": matrixPath + "matrix_sdk/crypto/dehydration.js",
+    key_passphrase: matrixPath + "matrix_sdk/crypto/key_passphrase.js",
+    "crypto/key_passphrase": matrixPath + "matrix_sdk/crypto/key_passphrase.js",
 
     // crypto/algorithms
     base: matrixPath + "matrix_sdk/crypto/algorithms/base.js",
@@ -72,6 +87,8 @@ let loader = Loader({
     "store/indexeddb-crypto-store":
       matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store.js",
     "crypto/store/indexeddb-crypto-store":
+      matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store.js",
+    "../crypto/store/indexeddb-crypto-store":
       matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store.js",
     "crypto/store/indexeddb-crypto-store-backend":
       matrixPath + "matrix_sdk/crypto/store/indexeddb-crypto-store-backend.js",
@@ -89,6 +106,17 @@ let loader = Loader({
     "verification/QRCode":
       matrixPath + "matrix_sdk/crypto/verification/QRCode.js",
     "verification/SAS": matrixPath + "matrix_sdk/crypto/verification/SAS.js",
+    "verification/IllegalMethod":
+      matrixPath + "matrix_sdk/crypto/verification/IllegalMethod.js",
+
+    // crypto/verification/request
+    "verification/request/InRoomChannel":
+      matrixPath + "matrix_sdk/crypto/verification/request/InRoomChannel.js",
+    "verification/request/ToDeviceChannel":
+      matrixPath + "matrix_sdk/crypto/verification/request/ToDeviceChannel.js",
+    "verification/request/VerificationRequest":
+      matrixPath +
+      "matrix_sdk/crypto/verification/request/VerificationRequest.js",
 
     // models
     "../models/event": matrixPath + "matrix_sdk/models/event.js",
@@ -100,17 +128,17 @@ let loader = Loader({
     // Simple (one-file) dependencies.
     "another-json": matrixPath + "another-json.js",
     "base-x": matrixPath + "base_x/index.js",
-    bluebird: matrixPath + "bluebird.js",
     "browser-request": matrixPath + "browser_request/index.js",
     bs58: matrixPath + "bs58/index.js",
     "content-type": matrixPath + "content_type/index.js",
-    events: matrixPath + "events.js",
+    qs: matrixPath + "qs.js",
 
     // unhomoglyph
     unhomoglyph: matrixPath + "unhomoglyph/index.js",
     "data.json": matrixPath + "unhomoglyph/data.json",
 
     // Packages that are not included, but an alternate implementation is given.
+    events: matrixPath + "events.js",
     loglevel: matrixPath + "loglevel.js",
     "safe-buffer": matrixPath + "safe-buffer.js",
     url: matrixPath + "url.js",
@@ -138,8 +166,7 @@ let requirer = Module("matrix-module", "");
 let require = Require(loader, requirer);
 
 // The main entry point into the Matrix client.
-let MatrixSDK = require("matrix.js");
-MatrixSDK.request(require("browser-request"));
+let MatrixSDK = require("browser-index.js");
 
 // Helper functions.
 let getHttpUriForMxc = require("../content-repo").getHttpUriForMxc;
