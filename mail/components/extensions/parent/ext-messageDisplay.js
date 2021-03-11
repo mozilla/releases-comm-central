@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function getDisplayedMessages(tab, extension) {
+async function getDisplayedMessages(tab, extension) {
   let displayedMessages;
 
   if (tab instanceof TabmailTab) {
@@ -22,7 +22,7 @@ function getDisplayedMessages(tab, extension) {
 
   let result = [];
   for (let msg of displayedMessages) {
-    let hdr = convertMessage(msg, extension);
+    let hdr = await convertMessage(msg, extension);
     if (hdr) {
       result.push(hdr);
     }
@@ -41,11 +41,11 @@ this.messageDisplay = class extends ExtensionAPI {
           name: "messageDisplay.onMessageDisplayed",
           register: fire => {
             let listener = {
-              handleEvent(event) {
+              async handleEvent(event) {
                 let win = windowManager.wrapWindow(event.target);
                 fire.async(
                   tabManager.convert(win.activeTab.nativeTab),
-                  convertMessage(event.detail, extension)
+                  await convertMessage(event.detail, extension)
                 );
               },
             };
@@ -61,10 +61,10 @@ this.messageDisplay = class extends ExtensionAPI {
           name: "messageDisplay.onMessageDisplayed",
           register: fire => {
             let listener = {
-              handleEvent(event) {
+              async handleEvent(event) {
                 let win = windowManager.wrapWindow(event.target);
                 let tab = tabManager.convert(win.activeTab.nativeTab);
-                let msgs = getDisplayedMessages(win.activeTab, extension);
+                let msgs = await getDisplayedMessages(win.activeTab, extension);
                 fire.async(tab, msgs);
               },
             };

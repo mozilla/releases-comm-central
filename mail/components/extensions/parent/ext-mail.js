@@ -20,6 +20,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
+  MimeParser: "resource:///modules/mimeParser.jsm",
   fixIterator: "resource:///modules/iteratorUtils.jsm",
 });
 
@@ -1624,7 +1625,7 @@ class FolderManager {
  * This function WILL change as the API develops.
  * @return {Object}
  */
-function convertMessage(msgHdr, extension) {
+async function convertMessage(msgHdr, extension) {
   if (!msgHdr) {
     return null;
   }
@@ -1657,6 +1658,26 @@ function convertMessage(msgHdr, extension) {
   let tags = msgHdr.getProperty("keywords");
   tags = tags ? tags.split(" ") : [];
   messageObject.tags = tags.filter(MailServices.tags.isValidKey);
+
+  // As long as bug 1696895 is not fixed, manually add missing info
+  // for nntp/news.
+  if (msgHdr.folder.server.type == "nntp") {
+    try {
+      let raw = await MsgHdrToRawMessage(msgHdr);
+      let headers = MimeParser.extractHeaders(raw);
+      messageObject.recipients = composeFields.splitRecipients(
+        headers.getRawHeader("to"),
+        false
+      );
+      messageObject.ccList = composeFields.splitRecipients(
+        headers.getRawHeader("cc"),
+        false
+      );
+    } catch (e) {
+      // Ignore rejections of the Promise for MsgHdrToRawMessage.
+      Cu.reportError(e);
+    }
+  }
   return messageObject;
 }
 
@@ -1729,7 +1750,7 @@ var messageListTracker = {
    * Takes an array or enumerator of messages and returns the first chunk.
    * @returns {Object}
    */
-  startList(messageList, extension) {
+  async startList(messageList, extension) {
     if (Array.isArray(messageList)) {
       messageList = this._createEnumerator(messageList);
     }
@@ -1744,10 +1765,11 @@ var messageListTracker = {
       }
       lists.set(messageListId, messageList);
     }
-
     return {
       id: messageListId,
-      messages: firstPage.map(message => convertMessage(message, extension)),
+      messages: await Promise.all(
+        firstPage.map(message => convertMessage(message, extension))
+      ),
     };
   },
 
@@ -1755,7 +1777,7 @@ var messageListTracker = {
    * Returns any subsequent chunk of messages.
    * @returns {Object}
    */
-  continueList(messageListId, extension) {
+  async continueList(messageListId, extension) {
     let lists = this._contextLists.get(extension);
     let messageList = lists ? lists.get(messageListId, null) : null;
     if (!messageList) {
@@ -1771,7 +1793,9 @@ var messageListTracker = {
     }
     return {
       id: messageListId,
-      messages: nextPage.map(message => convertMessage(message, extension)),
+      messages: await Promise.all(
+        nextPage.map(message => convertMessage(message, extension))
+      ),
     };
   },
 
