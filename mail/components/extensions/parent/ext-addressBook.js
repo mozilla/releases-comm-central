@@ -6,6 +6,10 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { AddrBookDirectory } = ChromeUtils.import(
+  "resource:///modules/AddrBookDirectory.jsm"
+);
+var { newUID } = ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
 
 const AB_WINDOW_TYPE = "mail:addressbook";
 const AB_WINDOW_URI =
@@ -22,6 +26,96 @@ const hiddenProperties = [
   "RecordKey",
   "UID",
 ];
+
+/**
+ * Address book that supports finding cards only for a search (like LDAP).
+ * @implements {nsIAbDirectory}
+ */
+class ExtSearchBook extends AddrBookDirectory {
+  constructor(fire, context, args = {}) {
+    super();
+    this.fire = fire;
+    this._readOnly = true;
+    this._isSecure = Boolean(args.isSecure);
+    this._dirName = String(args.addressBookName ?? context.extension.name);
+    this._fileName = "";
+    this._uid = String(args.id ?? newUID());
+    this._uri = "searchaddr://" + this.UID;
+    this.lastModifiedDate = 0;
+    this.isMailList = false;
+    this.listNickName = "";
+    this.description = "";
+    this._dirPrefId = "";
+  }
+  /**
+   * @see {AddrBookDirectory}
+   */
+  get lists() {
+    return new Map();
+  }
+  /**
+   * @see {AddrBookDirectory}
+   */
+  get cards() {
+    return new Map();
+  }
+  // nsIAbDirectory
+  get isRemote() {
+    return true;
+  }
+  get isSecure() {
+    return this._isSecure;
+  }
+  getCardFromProperty(aProperty, aValue, aCaseSensitive) {
+    return null;
+  }
+  getCardsFromProperty(aProperty, aValue, aCaseSensitive) {
+    return [];
+  }
+  get dirType() {
+    return Ci.nsIAbManager.ASYNC_DIRECTORY_TYPE;
+  }
+  get position() {
+    return 0;
+  }
+  useForAutocomplete(aIdentityKey) {
+    // AddrBookDirectory defaults to true
+    return false;
+  }
+  get supportsMailingLists() {
+    return false;
+  }
+  setLocalizedStringValue(aName, aValue) {}
+  async search(aQuery, aSearchString, aListener) {
+    try {
+      let { results, isCompleteResult } = await this.fire.async(
+        addressBookCache.convert(addressBookCache.addressBooks.get(this.UID)),
+        aSearchString,
+        aQuery
+      );
+      for (let properties of results) {
+        let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+          Ci.nsIAbCard
+        );
+        card.directoryUID = this.UID;
+        for (let [name, value] of Object.entries(properties)) {
+          if (!hiddenProperties.includes(name)) {
+            card.setProperty(name, value);
+          }
+        }
+        aListener.onSearchFoundCard(card);
+      }
+      aListener.onSearchFinished(Cr.NS_OK, isCompleteResult, null, "");
+    } catch (ex) {
+      aListener.onSearchFinished(
+        ex.result || Cr.NS_ERROR_FAILURE,
+        true,
+        null,
+        ""
+      );
+    }
+  }
+}
 
 /**
  * Cache of items in the address book "tree".
@@ -550,6 +644,25 @@ this.addressBook = class extends ExtensionAPI {
             };
           },
         }).api(),
+        provider: {
+          onSearchRequest: new EventManager({
+            context,
+            name: "addressBooks.provider.onSearchRequest",
+            register: (fire, args) => {
+              if (addressBookCache.addressBooks.has(args.id)) {
+                throw new ExtensionUtils.ExtensionError(
+                  `addressBook with id=${args.id} already exists.`
+                );
+              }
+              let dir = new ExtSearchBook(fire, context, args);
+              dir.init();
+              MailServices.ab.addAddressBook(dir);
+              return () => {
+                MailServices.ab.deleteAddressBook(dir.URI);
+              };
+            },
+          }).api(),
+        },
       },
       contacts: {
         list(parentId) {

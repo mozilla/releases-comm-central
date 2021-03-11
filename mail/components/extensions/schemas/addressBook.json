@@ -247,6 +247,60 @@
     ]
   },
   {
+    "namespace": "addressBooks.provider",
+    "permissions": [
+      "addressBooks"
+    ],
+    "events": [
+      {
+        "name": "onSearchRequest",
+        "type": "function",
+        "description": "Creates a read-only addressbook that fires this event when searching for a contact. Note: This event may change in future releases of Thunderbird.",
+        "parameters": [
+          {
+            "name": "node",
+            "$ref": "AddressBookNode"
+          },
+          {
+            "name": "searchString",
+            "description": "The search text that the user entered. Not available when invoked from the advanced address book search dialog.",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "name": "query",
+            "type": "string",
+            "description": "The boolean query expression corresponding to the search. Note: This parameter may change in future releases of Thunderbird.",
+            "optional": true
+          }
+        ],
+        "extraParameters": [
+          {
+            "name": "parameters",
+            "type": "object",
+            "properties": {
+              "addressBookName": {
+                "type": "string",
+                "optional": true,
+                "description": "The initial name of the address book."
+              },
+              "isSecure": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Whether the address book is searched securely."
+              },
+              "id": {
+                "type": "string",
+                "optional": true,
+                "description": "The id of the address book."
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     "namespace": "contacts",
     "permissions": [
       "addressBooks"
