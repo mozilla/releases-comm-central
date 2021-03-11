@@ -151,6 +151,58 @@ global.makeWidgetId = id => {
   return id.replace(/[^a-z0-9_-]/g, "_");
 };
 
+/*
+ * Get raw message for a given msgHdr. This is not using aConvertData
+ * and therefore also works for nntp/news.
+ *
+ * @param aMsgHdr The message header to retrieve the raw message for.
+ * @return {string} - A Promise for the raw message.
+ */
+function MsgHdrToRawMessage(msgHdr) {
+  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    Ci.nsIMessenger
+  );
+  let msgUri = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
+  let service = messenger.messageServiceFromURI(msgUri);
+  return new Promise((resolve, reject) => {
+    let streamlistener = {
+      _data: [],
+      _stream: null,
+      onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
+        if (!this._stream) {
+          this._stream = Cc[
+            "@mozilla.org/scriptableinputstream;1"
+          ].createInstance(Ci.nsIScriptableInputStream);
+          this._stream.init(aInputStream);
+        }
+        this._data.push(this._stream.read(aCount));
+      },
+      onStartRequest() {},
+      onStopRequest(aRequest, aStatus) {
+        if (aStatus == Cr.NS_OK) {
+          resolve(this._data.join(""));
+        } else {
+          Cu.reportError(aStatus);
+          reject();
+        }
+      },
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIStreamListener",
+        "nsIRequestObserver",
+      ]),
+    };
+
+    service.streamMessage(
+      msgUri,
+      streamlistener,
+      null, // aMsgWindow
+      null, // aUrlListener
+      false, // aConvertData
+      "" //aAdditionalHeader
+    );
+  });
+}
+
 /**
  * Gets the window for a tabmail tabInfo.
  *

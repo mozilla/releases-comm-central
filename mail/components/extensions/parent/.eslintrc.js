@@ -40,6 +40,7 @@ module.exports = {
     TabmailTab: true,
     Window: true,
     TabmailWindow: true,
+    MsgHdrToRawMessage: true,
     clickModifiersFromEvent: true,
     convertFolder: true,
     convertAccount: true,

@@ -235,42 +235,10 @@ this.messages = class extends ExtensionAPI {
           return convertMessagePart(mimeMsg);
         },
         async getRaw(messageId) {
-          let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
-            Ci.nsIMessenger
-          );
           let msgHdr = messageTracker.getMessage(messageId);
-          let msgUri = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
-          let service = messenger.messageServiceFromURI(msgUri);
-
-          let streamListener = Cc[
-            "@mozilla.org/network/sync-stream-listener;1"
-          ].createInstance(Ci.nsISyncStreamListener);
-          await new Promise((resolve, reject) => {
-            service.streamMessage(
-              msgUri,
-              streamListener,
-              null,
-              {
-                OnStartRunningUrl() {},
-                OnStopRunningUrl(url, exitCode) {
-                  if (exitCode !== 0) {
-                    Cu.reportError(exitCode);
-                    reject();
-                    return;
-                  }
-                  resolve();
-                },
-              },
-              false,
-              ""
-            );
-          }).catch(() => {
+          return MsgHdrToRawMessage(msgHdr).catch(() => {
             throw new ExtensionError(`Error reading message ${messageId}`);
           });
-          return NetUtil.readInputStreamToString(
-            streamListener.inputStream,
-            streamListener.available()
-          );
         },
         async listAttachments(messageId) {
           let msgHdr = messageTracker.getMessage(messageId);
