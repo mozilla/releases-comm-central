@@ -76,7 +76,7 @@ class nsAbOSXDirectory final : public nsAbDirProperty,
       nsTArray<RefPtr<nsIAbCard>>& aResult) override;
   NS_IMETHOD CardForEmailAddress(const nsACString& aEmailAddress,
                                  nsIAbCard** aResult) override;
-  NS_IMETHOD Search(const nsAString& query,
+  NS_IMETHOD Search(const nsAString& query, const nsAString& searchString,
                     nsIAbDirSearchListener* listener) override;
 
   // nsIAbOSXDirectory

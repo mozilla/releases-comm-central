@@ -795,7 +795,8 @@ nsAbOSXDirectory::HasDirectory(nsIAbDirectory* aDirectory, bool* aHasDirectory) 
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::Search(const nsAString& query, nsIAbDirSearchListener* listener) {
+nsAbOSXDirectory::Search(const nsAString& query, const nsAString& searchString,
+                         nsIAbDirSearchListener* listener) {
   nsresult rv;
 
   nsCOMPtr<nsIAbBooleanExpression> expression;

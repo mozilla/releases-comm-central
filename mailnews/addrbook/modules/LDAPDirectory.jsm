@@ -154,9 +154,9 @@ class LDAPDirectory extends AddrBookDirectory {
     return null;
   }
 
-  search(queryString, listener) {
+  search(queryString, searchString, listener) {
     if (Services.io.offline) {
-      this.replicationDB.search(queryString, listener);
+      this.replicationDB.search(queryString, searchString, listener);
       return;
     }
     if (!this._query) {

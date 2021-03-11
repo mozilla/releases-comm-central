@@ -853,7 +853,7 @@ function onEnterInSearchBar() {
       !gDirectoryTreeView.hasRemoteAB || searchURI != kAllDirectoryRoot + "?"
     );
 
-  SetAbView(searchURI, searchQuery);
+  SetAbView(searchURI, searchQuery, searchInput ? searchInput.value : "");
 
   // XXX todo
   // this works for synchronous searches of local addressbooks,

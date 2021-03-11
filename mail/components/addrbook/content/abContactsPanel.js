@@ -276,7 +276,7 @@ function onEnterInSearchBar() {
     searchQuery = generateQueryURI(gQueryURIFormat, searchWords);
   }
 
-  SetAbView(searchURI, searchQuery);
+  SetAbView(searchURI, searchQuery, searchInput ? searchInput.value : "");
 }
 
 /**

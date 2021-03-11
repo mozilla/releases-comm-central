@@ -63,6 +63,7 @@ let abSortOrder = {
   [Ci.nsIAbManager.JS_DIRECTORY_TYPE]: 1,
   [Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE]: 2,
   [Ci.nsIAbManager.LDAP_DIRECTORY_TYPE]: 3,
+  [Ci.nsIAbManager.ASYNC_DIRECTORY_TYPE]: 3,
   [Ci.nsIAbManager.MAPI_DIRECTORY_TYPE]: 4,
 };
 let abNameComparer = new Intl.Collator(undefined, { numeric: true });

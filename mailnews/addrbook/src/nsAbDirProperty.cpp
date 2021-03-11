@@ -563,6 +563,7 @@ NS_IMETHODIMP nsAbDirProperty::SetLocalizedStringValue(
 }
 
 NS_IMETHODIMP nsAbDirProperty::Search(const nsAString& query,
+                                      const nsAString& searchString,
                                       nsIAbDirSearchListener* listener) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

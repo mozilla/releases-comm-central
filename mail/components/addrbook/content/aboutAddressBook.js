@@ -933,6 +933,7 @@ var cardsPane = {
     this.cardsList.view = new ABView(
       book,
       this.getQuery(),
+      this.searchInput.value,
       null,
       sortColumn,
       sortDirection
@@ -956,6 +957,7 @@ var cardsPane = {
     this.cardsList.view = this.cardsList.view = new ABView(
       list,
       this.getQuery(),
+      this.searchInput.value,
       null,
       "GeneratedName",
       "ascending"
@@ -1066,6 +1068,7 @@ var cardsPane = {
     this.cardsList.view = new ABView(
       this.cardsList.view.directory,
       this.getQuery(),
+      this.searchInput.value,
       undefined,
       this.cardsList.view.sortColumn,
       this.cardsList.view.sortDirection

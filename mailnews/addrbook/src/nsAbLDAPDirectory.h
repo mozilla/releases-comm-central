@@ -28,7 +28,7 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
   NS_IMETHOD GetURI(nsACString& aURI) override;
   NS_IMETHOD GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& result) override;
   NS_IMETHOD GetChildCards(nsTArray<RefPtr<nsIAbCard>>& result) override;
-  NS_IMETHOD Search(const nsAString& query,
+  NS_IMETHOD Search(const nsAString& query, const nsAString& searchString,
                     nsIAbDirSearchListener* listener) override;
   NS_IMETHOD HasCard(nsIAbCard* cards, bool* hasCard) override;
   NS_IMETHOD GetSupportsMailingLists(bool* aSupportsMailingsLists) override;

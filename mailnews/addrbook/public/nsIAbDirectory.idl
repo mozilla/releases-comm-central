@@ -188,7 +188,7 @@ interface nsIAbDirectory : nsISupports {
    *         The value must be URL encoded by the caller, if it contains any
    *         special characters including '(' and ')'.
    */
-  void search(in AString query, in nsIAbDirSearchListener listener);
+  void search(in AString query, in AString searchString, in nsIAbDirSearchListener listener);
 
   /**
    * Initializes a directory, pointing to a particular URI.

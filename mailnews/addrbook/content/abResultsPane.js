@@ -43,7 +43,7 @@ var gAbResultsTree = null;
 // through XPCOM, so we can access extra functions if necessary.
 var gAbView = null;
 
-function SetAbView(aURI, aSearchQuery) {
+function SetAbView(aURI, aSearchQuery, aSearchString) {
   // If we don't have a URI, just clear the view and leave everything else
   // alone.
   if (!aURI) {
@@ -80,6 +80,7 @@ function SetAbView(aURI, aSearchQuery) {
   gAbView = gAbResultsTree.view = new ABView(
     GetDirectoryFromURI(aURI),
     aSearchQuery,
+    aSearchString,
     GetAbViewListener(),
     sortColumn,
     sortDirection

@@ -735,6 +735,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::StopQuery(int32_t aContext) {
 }
 
 NS_IMETHODIMP nsAbOutlookDirectory::Search(const nsAString& query,
+                                           const nsAString& searchString,
                                            nsIAbDirSearchListener* listener) {
   nsresult retCode = NS_OK;
 
@@ -770,7 +771,7 @@ nsresult nsAbOutlookDirectory::StopSearch(void) {
 
 // nsIAbDirSearchListener
 NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFinished(
-    nsresult status, nsITransportSecurityInfo* secInfo,
+    nsresult status, bool complete, nsITransportSecurityInfo* secInfo,
     nsACString const& location) {
   return NS_OK;
 }
@@ -814,7 +815,7 @@ nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction* aRestriction,
     aListener->OnSearchFoundCard(card);
   }
 
-  aListener->OnSearchFinished(NS_OK, nullptr, ""_ns);
+  aListener->OnSearchFinished(NS_OK, true, nullptr, ""_ns);
   return retCode;
 }
 

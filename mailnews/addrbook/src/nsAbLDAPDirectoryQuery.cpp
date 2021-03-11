@@ -105,7 +105,7 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPError(
     nsresult status, nsITransportSecurityInfo* secInfo,
     nsACString const& location) {
   if (mResultListener) {
-    mResultListener->OnSearchFinished(status, secInfo, location);
+    mResultListener->OnSearchFinished(status, true, secInfo, location);
   }
   return NS_OK;
 }
@@ -173,7 +173,8 @@ NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(
     if (mOperation) rv = mOperation->AbandonExt();
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = mResultListener->OnSearchFinished(NS_ERROR_ABORT, nullptr, ""_ns);
+    rv =
+        mResultListener->OnSearchFinished(NS_ERROR_ABORT, true, nullptr, ""_ns);
 
     // reset because we might re-use this listener...except don't do this
     // until the search is done, so we'll ignore results from a previous
@@ -221,9 +222,9 @@ void nsAbQueryLDAPMessageListener::InitFailed(bool aCancelled) {
   if (!mResultListener) return;
 
   if (aCancelled) {
-    mResultListener->OnSearchFinished(NS_ERROR_ABORT, nullptr, ""_ns);
+    mResultListener->OnSearchFinished(NS_ERROR_ABORT, true, nullptr, ""_ns);
   } else {
-    mResultListener->OnSearchFinished(NS_ERROR_FAILURE, nullptr, ""_ns);
+    mResultListener->OnSearchFinished(NS_ERROR_FAILURE, true, nullptr, ""_ns);
   }
 }
 
@@ -257,12 +258,15 @@ nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchResult(
   nsresult rv = aMessage->GetErrorCode(&errorCode);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (errorCode == nsILDAPErrors::SUCCESS ||
-      errorCode == nsILDAPErrors::SIZELIMIT_EXCEEDED) {
-    return mResultListener->OnSearchFinished(NS_OK, nullptr, ""_ns);
+  if (errorCode == nsILDAPErrors::SUCCESS) {
+    return mResultListener->OnSearchFinished(NS_OK, true, nullptr, ""_ns);
+  }
+  if (errorCode == nsILDAPErrors::SIZELIMIT_EXCEEDED) {
+    return mResultListener->OnSearchFinished(NS_OK, false, nullptr, ""_ns);
   }
 
-  return mResultListener->OnSearchFinished(NS_ERROR_FAILURE, nullptr, ""_ns);
+  return mResultListener->OnSearchFinished(NS_ERROR_FAILURE, true, nullptr,
+                                           ""_ns);
 }
 
 // nsAbLDAPDirectoryQuery
@@ -526,7 +530,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnSearchFoundCard(nsIAbCard* aCard) {
 }
 
 NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnSearchFinished(
-    nsresult status, nsITransportSecurityInfo* secInfo,
+    nsresult status, bool complete, nsITransportSecurityInfo* secInfo,
     nsACString const& location) {
   uint32_t count = mListeners.Count();
 
@@ -536,7 +540,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnSearchFinished(
   NS_ADDREF_THIS();
 
   for (int32_t i = count - 1; i >= 0; --i) {
-    mListeners[i]->OnSearchFinished(status, secInfo, location);
+    mListeners[i]->OnSearchFinished(status, complete, secInfo, location);
     mListeners.RemoveObjectAt(i);
   }
 

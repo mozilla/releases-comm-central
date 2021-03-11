@@ -22,6 +22,7 @@ function nsAbAutoCompleteResult(aSearchString) {
   this._searchResults = [];
   this.searchString = aSearchString;
   this.modelQuery = getModelQuery("mail.addr_book.autocompletequery.format");
+  this.asyncDirectories = [];
 }
 
 nsAbAutoCompleteResult.prototype = {
@@ -74,6 +75,11 @@ nsAbAutoCompleteResult.prototype = {
   getEmailToUse: function getEmailToUse(aIndex) {
     // For this test we can just use the primary email here.
     return this._searchResults[aIndex].card.primaryEmail;
+  },
+
+  isCompleteResult: function isCompleteResult(aIndex) {
+    // For this test we claim all results are complete.
+    return true;
   },
 
   // nsISupports

@@ -406,6 +406,33 @@ AddrBookManager.prototype = {
 
     return prefName;
   },
+  addAddressBook(dir) {
+    if (
+      !dir.URI ||
+      !dir.dirName ||
+      !dir.UID ||
+      dir.isMailList ||
+      dir.isQuery ||
+      dir.dirPrefId
+    ) {
+      throw new Components.Exception(
+        "Invalid directory",
+        Cr.NS_ERROR_INVALID_ARG
+      );
+    }
+
+    ensureInitialized();
+    if (store.has(dir.URI)) {
+      throw new Components.Exception(
+        "Directory already exists",
+        Cr.NS_ERROR_UNEXPECTED
+      );
+    }
+
+    store.set(dir.URI, dir);
+    updateSortedDirectoryList();
+    Services.obs.notifyObservers(dir, "addrbook-directory-created");
+  },
   deleteAddressBook(uri) {
     let uriParts = URI_REGEXP.exec(uri);
     if (!uriParts) {
@@ -436,24 +463,26 @@ AddrBookManager.prototype = {
     }
 
     let prefName = dir.dirPrefId;
-    let dirType = Services.prefs.getIntPref(`${prefName}.dirType`, 0);
-    fileName = dir.fileName;
+    if (prefName) {
+      let dirType = Services.prefs.getIntPref(`${prefName}.dirType`, 0);
+      fileName = dir.fileName;
 
-    // Deleting the built-in address books is very bad.
-    if (["ldap_2.servers.pab", "ldap_2.servers.history"].includes(prefName)) {
-      throw new Components.Exception(
-        "Refusing to delete a built-in address book",
-        Cr.NS_ERROR_FAILURE
-      );
-    }
+      // Deleting the built-in address books is very bad.
+      if (["ldap_2.servers.pab", "ldap_2.servers.history"].includes(prefName)) {
+        throw new Components.Exception(
+          "Refusing to delete a built-in address book",
+          Cr.NS_ERROR_FAILURE
+        );
+      }
 
-    for (let name of Services.prefs.getChildList(`${prefName}.`)) {
-      Services.prefs.clearUserPref(name);
-    }
-    if (dirType == Ci.nsIAbManager.MAPI_DIRECTORY_TYPE) {
-      // The prefs for this directory type are defaults. Setting the dirType
-      // to -1 ensures the directory is ignored.
-      Services.prefs.setIntPref(`${prefName}.dirType`, -1);
+      for (let name of Services.prefs.getChildList(`${prefName}.`)) {
+        Services.prefs.clearUserPref(name);
+      }
+      if (dirType == Ci.nsIAbManager.MAPI_DIRECTORY_TYPE) {
+        // The prefs for this directory type are defaults. Setting the dirType
+        // to -1 ensures the directory is ignored.
+        Services.prefs.setIntPref(`${prefName}.dirType`, -1);
+      }
     }
 
     store.delete(uri);

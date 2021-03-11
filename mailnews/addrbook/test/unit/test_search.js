@@ -38,11 +38,11 @@ add_task(async () => {
         onSearchFoundCard(card) {
           this.cards.push(card);
         },
-        onSearchFinished(status, secInfo, location) {
+        onSearchFinished(status, complete, secInfo, location) {
           resolve(this.cards);
         },
       };
-      book.search(searchString, listener);
+      book.search(searchString, "", listener);
     });
 
     Assert.equal(foundCards.length, expectedContacts.length);

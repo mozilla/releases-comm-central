@@ -25,6 +25,7 @@ interface nsIAbManager : nsISupports
   const unsigned long MAPI_DIRECTORY_TYPE = 3;
   const unsigned long JS_DIRECTORY_TYPE = 101;
   const unsigned long CARDDAV_DIRECTORY_TYPE = 102;
+  const unsigned long ASYNC_DIRECTORY_TYPE = 103;
 
   /**
    * Returns an array containing all the top-level directories.
@@ -68,6 +69,14 @@ interface nsIAbManager : nsISupports
   ACString newAddressBook(in AString aDirName, in ACString aURI,
                           in unsigned long aType,
                           [optional] in ACString aPrefName);
+
+  /**
+   * Adds a previously created address book object. If it has not been removed
+   * (using `deleteAddressBook`) it will be removed at the end of the session.
+   *
+   * @param aDir The address book object.
+   */
+  void addAddressBook(in nsIAbDirectory aDir);
 
   /**
    * Deletes an address book.

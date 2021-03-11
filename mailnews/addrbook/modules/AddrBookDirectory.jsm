@@ -218,12 +218,12 @@ class AddrBookDirectory {
     return true;
   }
 
-  search(query, listener) {
+  search(query, string, listener) {
     if (!listener) {
       return;
     }
     if (!query) {
-      listener.onSearchFinished(Cr.NS_ERROR_FAILURE, null, "");
+      listener.onSearchFinished(Cr.NS_ERROR_FAILURE, true, null, "");
       return;
     }
     if (query[0] == "?") {
@@ -346,7 +346,7 @@ class AddrBookDirectory {
     for (let card of results) {
       listener.onSearchFoundCard(card);
     }
-    listener.onSearchFinished(Cr.NS_OK, null, "");
+    listener.onSearchFinished(Cr.NS_OK, true, null, "");
   }
   generateName(generateFormat, bundle) {
     return this.dirName;

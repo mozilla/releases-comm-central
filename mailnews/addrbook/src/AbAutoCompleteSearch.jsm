@@ -18,9 +18,12 @@ var {
 var ACR = Ci.nsIAutoCompleteResult;
 var nsIAbAutoCompleteResult = Ci.nsIAbAutoCompleteResult;
 
+var MAX_ASYNC_RESULTS = 100;
+
 function nsAbAutoCompleteResult(aSearchString) {
   // Can't create this in the prototype as we'd get the same array for
   // all instances
+  this.asyncDirectories = [];
   this._searchResults = []; // final results
   this.searchString = aSearchString;
   this._collectedValues = new Map(); // temporary unsorted results
@@ -38,7 +41,6 @@ nsAbAutoCompleteResult.prototype = {
 
   // nsIAutoCompleteResult
 
-  modelQuery: null,
   searchString: null,
   searchResult: ACR.RESULT_NOMATCH,
   defaultIndex: -1,
@@ -84,6 +86,13 @@ nsAbAutoCompleteResult.prototype = {
     return this._searchResults[aIndex].emailToUse;
   },
 
+  isCompleteResult(aIndex) {
+    return this._searchResults[aIndex].isCompleteResult;
+  },
+
+  modelQuery: null,
+  asyncDirectories: null,
+
   // nsISupports
 
   QueryInterface: ChromeUtils.generateQI([
@@ -102,6 +111,7 @@ AbAutoCompleteSearch.prototype = {
   _parser: MailServices.headerParser,
   _abManager: MailServices.ab,
   applicableHeaders: new Set(["addr_to", "addr_cc", "addr_bcc", "addr_reply"]),
+  _result: null,
 
   // Private methods
 
@@ -197,10 +207,11 @@ AbAutoCompleteSearch.prototype = {
    * that exists.
    *
    * @param searchQuery  The boolean search query to use.
+   * @param searchString The original search string.
    * @param directory    An nsIAbDirectory to search.
    * @param result       The result element to append results to.
    */
-  _searchCards(searchQuery, directory, result) {
+  _searchCards(searchQuery, searchString, directory, result) {
     // Cache this values to save going through xpconnect each time
     let commentColumn = this._commentColumn == 1 ? directory.dirName : "";
 
@@ -208,7 +219,7 @@ AbAutoCompleteSearch.prototype = {
       searchQuery = searchQuery.substring(1);
     }
     return new Promise(resolve => {
-      directory.search(searchQuery, {
+      directory.search(searchQuery, searchString, {
         onSearchFoundCard: card => {
           if (card.isMailList) {
             this._addToResult(commentColumn, directory, card, "", true, result);
@@ -238,7 +249,7 @@ AbAutoCompleteSearch.prototype = {
             }
           }
         },
-        onSearchFinished(status, secInfo, location) {
+        onSearchFinished(status, complete, secInfo, location) {
           resolve();
         },
       });
@@ -362,6 +373,7 @@ AbAutoCompleteSearch.prototype = {
       card,
       isPrimaryEmail,
       emailToUse,
+      isCompleteResult: true,
       popularity: this._getPopularityIndex(directory, card),
       score: this._getScore(card, lcEmailAddress, result.searchString),
     });
@@ -407,6 +419,8 @@ AbAutoCompleteSearch.prototype = {
       0
     );
 
+    let asyncDirectories = [];
+
     if (
       aPreviousResult instanceof nsIAbAutoCompleteResult &&
       aSearchString.startsWith(aPreviousResult.searchString) &&
@@ -426,25 +440,30 @@ AbAutoCompleteSearch.prototype = {
       // js query yet because it is hardcoded (mimic default model query).
       // At least we now allow users to customize their autocomplete model query...
       for (let i = 0; i < aPreviousResult.matchCount; ++i) {
-        let card = aPreviousResult.getCardAt(i);
-        let email = aPreviousResult.getEmailToUse(i);
-        if (this._checkEntry(card, email, searchWords)) {
-          // Add matches into the results array. We re-sort as needed later.
-          result._searchResults.push({
-            value: aPreviousResult.getValueAt(i),
-            comment: aPreviousResult.getCommentAt(i),
-            card,
-            isPrimaryEmail: card.primaryEmail == email,
-            emailToUse: email,
-            popularity: parseInt(card.getProperty("PopularityIndex", "0")),
-            score: this._getScore(
+        if (aPreviousResult.isCompleteResult(i)) {
+          let card = aPreviousResult.getCardAt(i);
+          let email = aPreviousResult.getEmailToUse(i);
+          if (this._checkEntry(card, email, searchWords)) {
+            // Add matches into the results array. We re-sort as needed later.
+            result._searchResults.push({
+              value: aPreviousResult.getValueAt(i),
+              comment: aPreviousResult.getCommentAt(i),
               card,
-              aPreviousResult.getValueAt(i).toLocaleLowerCase(),
-              fullString
-            ),
-          });
+              isPrimaryEmail: card.primaryEmail == email,
+              emailToUse: email,
+              isCompleteResult: true,
+              popularity: parseInt(card.getProperty("PopularityIndex", "0")),
+              score: this._getScore(
+                card,
+                aPreviousResult.getValueAt(i).toLocaleLowerCase(),
+                fullString
+              ),
+            });
+          }
         }
       }
+
+      asyncDirectories = aPreviousResult.asyncDirectories;
     } else {
       // Construct the search query from pref; using a query means we can
       // optimise on running the search through c++ which is better for string
@@ -467,7 +486,9 @@ AbAutoCompleteSearch.prototype = {
         // A failure in one address book should no break the whole search.
         try {
           if (dir.useForAutocomplete("idKey" in params ? params.idKey : null)) {
-            await this._searchCards(searchQuery, dir, result);
+            await this._searchCards(searchQuery, aSearchString, dir, result);
+          } else if (dir.dirType == Ci.nsIAbManager.ASYNC_DIRECTORY_TYPE) {
+            asyncDirectories.push(dir);
           }
         } catch (ex) {
           Cu.reportError(
@@ -483,7 +504,9 @@ AbAutoCompleteSearch.prototype = {
     }
 
     // Sort the results. Scoring may have changed so do it even if this is
-    // just filtered previous results.
+    // just filtered previous results. Only local results are sorted,
+    // because the autocomplete widget doesn't let us alter the order of
+    // results that have already been notified.
     result._searchResults.sort(function(a, b) {
       // Order by 1) descending score, then 2) descending popularity,
       // then 3) primary email before secondary for the same card, then
@@ -501,10 +524,81 @@ AbAutoCompleteSearch.prototype = {
       result.defaultIndex = 0;
     }
 
+    if (!asyncDirectories.length) {
+      // We're done. Just return our result immediately.
+      aListener.onSearchResult(this, result);
+      return;
+    }
+
+    // Let the widget know the sync results we have so far.
+    result.searchResult = result.matchCount
+      ? ACR.RESULT_SUCCESS_ONGOING
+      : ACR.RESULT_NOMATCH_ONGOING;
     aListener.onSearchResult(this, result);
+
+    // Start searching our asynchronous autocomplete directories.
+    this._result = result;
+    let searches = new Set();
+    for (let dir of asyncDirectories) {
+      let comment = this._commentColumn == 1 ? dir.dirName : "";
+      let cards = [];
+      let searchListener = {
+        onSearchFoundCard: card => {
+          cards.push(card);
+        },
+        onSearchFinished: (status, isCompleteResult, secInfo, location) => {
+          if (this._result != result) {
+            // The search was aborted, so give up.
+            return;
+          }
+          searches.delete(searchListener);
+          if (cards.length) {
+            // Avoid overwhelming the UI with excessive results.
+            if (cards.length > MAX_ASYNC_RESULTS) {
+              cards.length = MAX_ASYNC_RESULTS;
+              isCompleteResult = false;
+            }
+            // We can't guarantee to score the extension's results accurately so
+            // we assume that the extension has sorted the results appropriately
+            for (let card of cards) {
+              let emailToUse = card.primaryEmail;
+              let value = MailServices.headerParser
+                .makeMailboxObject(card.displayName, emailToUse)
+                .toString();
+              result._searchResults.push({
+                value,
+                comment,
+                card,
+                emailToUse,
+                isCompleteResult,
+              });
+            }
+            if (!isCompleteResult) {
+              // Next time perform a full search again to get better results.
+              result.asyncDirectories.push(dir);
+            }
+          }
+          if (result._searchResults.length) {
+            result.searchResult = searches.size
+              ? ACR.RESULT_SUCCESS_ONGOING
+              : ACR.RESULT_SUCCESS;
+          } else {
+            result.searchResult = searches.size
+              ? ACR.RESULT_NOMATCH_ONGOING
+              : ACR.RESULT_NOMATCH;
+          }
+          aListener.onSearchResult(this, result);
+        },
+      };
+      // Keep track of the pending searches so that we know when we've finished.
+      searches.add(searchListener);
+      dir.search(null, aSearchString, searchListener);
+    }
   },
 
-  stopSearch() {},
+  stopSearch() {
+    this._result = null;
+  },
 
   // nsISupports
 

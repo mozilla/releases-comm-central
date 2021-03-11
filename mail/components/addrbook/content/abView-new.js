@@ -9,7 +9,14 @@ var { MailServices } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-function ABView(directory, searchQuery, listener, sortColumn, sortDirection) {
+function ABView(
+  directory,
+  searchQuery,
+  searchString,
+  listener,
+  sortColumn,
+  sortDirection
+) {
   this.__proto__.__proto__ = new PROTO_TREE_VIEW();
   this.directory = directory;
   this.listener = listener;
@@ -18,7 +25,7 @@ function ABView(directory, searchQuery, listener, sortColumn, sortDirection) {
   if (searchQuery) {
     searchQuery = searchQuery.replace(/^\?+/, "");
     for (let dir of directories) {
-      dir.search(searchQuery, this);
+      dir.search(searchQuery, searchString, this);
     }
   } else {
     for (let dir of directories) {
@@ -175,7 +182,7 @@ ABView.prototype = {
     // Instead of duplicating the insertion code below, just call it.
     this.observe(card, "addrbook-contact-created", this.directory?.UID);
   },
-  onSearchFinished(status, secInfo, location) {
+  onSearchFinished(status, complete, secInfo, location) {
     // Special handling for Bad Cert errors.
     let offerCertException = false;
     try {

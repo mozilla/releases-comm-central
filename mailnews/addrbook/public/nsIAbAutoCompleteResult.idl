@@ -6,6 +6,7 @@
 #include "nsIAutoCompleteResult.idl"
 
 interface nsIAbCard;
+interface nsIAbDirectory;
 
 /**
  * This interface is used to extend the nsIAutoCompleteResult interface to
@@ -30,7 +31,21 @@ interface nsIAbAutoCompleteResult : nsIAutoCompleteResult {
   AString getEmailToUse(in long index);
 
   /**
+   * Indicates whether the source that returned this result returned a
+   * complete result for the query. If true, refining the search will not
+   * trigger a new query, instead simply filtering the previous results.
+   * If false, the directory will be present in asyncDirectories.
+   */
+  bool isCompleteResult(in long index);
+
+  /**
    * The template used to build the query for this search. Optional.
    */
   attribute AString modelQuery;
+
+  /**
+   * Asynchronous address books that were unable to return full results.
+   * This means that they need to be requeried rather than simply filtered.
+   */
+  attribute Array<nsIAbDirectory> asyncDirectories;
 };

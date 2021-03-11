@@ -52,7 +52,7 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult ExecuteQuery(SRestriction* aRestriction,
                         nsIAbDirSearchListener* aListener,
                         int32_t aResultLimit);
-  NS_IMETHOD Search(const nsAString& query,
+  NS_IMETHOD Search(const nsAString& query, const nsAString& searchString,
                     nsIAbDirSearchListener* listener) override;
 
  protected:

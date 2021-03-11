@@ -189,7 +189,7 @@ class LDAPDirectoryQuery extends LDAPListenerBase {
   }
 
   _onSearchFinished(status, secInfo, localtion) {
-    this._listener.onSearchFinished(status, secInfo, localtion);
+    this._listener.onSearchFinished(status, false, secInfo, localtion);
   }
 }
 

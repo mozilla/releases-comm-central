@@ -210,6 +210,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL* aUrl) {
 }
 
 NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString& query,
+                                        const nsAString& searchString,
                                         nsIAbDirSearchListener* listener) {
   // When offline, get the child cards from the local, replicated directory.
   bool offline;
@@ -225,7 +226,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString& query,
 
     // If there is no fileName, bail out now.
     if (fileName.IsEmpty()) {
-      listener->OnSearchFinished(NS_OK, nullptr, ""_ns);
+      listener->OnSearchFinished(NS_OK, true, nullptr, ""_ns);
       return NS_OK;
     }
 
@@ -241,7 +242,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString& query,
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Perform the query.
-    return directory->Search(query, listener);
+    return directory->Search(query, searchString, listener);
   }
 
   rv = StopSearch();
