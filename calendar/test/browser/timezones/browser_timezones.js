@@ -6,9 +6,7 @@ requestLongerTimeout(3);
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
   createCalendar,
-  DAY_VIEW,
   controller,
   deleteCalendars,
   helpersForController,
@@ -23,10 +21,14 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
+var { dayView } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+).CalendarTestUtils;
+
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var { eid, lookupEventBox } = helpersForController(controller);
+var { eid } = helpersForController(controller);
 
 var DATES = [
   [2009, 1, 1],
@@ -67,7 +69,7 @@ add_task(async function testTimezones2_CreateEvents() {
   ];
   let time = cal.createDateTime();
   for (let i = 0; i < TIMEZONES.length; i++) {
-    let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, i + 11);
+    let eventBox = dayView.getHourBox(controller.window, i + 11);
     await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
       time.hour = times[i][0];
       time.minute = times[i][1];
@@ -822,18 +824,6 @@ function verify(dates, timezones, times) {
       yield [dates[idx][0], dates[idx][1], dates[idx][2], times[idx]];
     }
   }
-
-  let { lookup } = helpersForController(controller);
-
-  let dayStack = `
-        ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
-        {"class":"daybox"}/[0]/{"class":"multiday-column-box-stack"}/
-        {"class":"multiday-column-top-box"}/{"flex":"1"}
-    `;
-  let timeLine = `
-        ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
-        {"class":"timebar"}/{"class":"timebarboxstack"}/{"class":"topbox"}
-    `;
   let allowedDifference = 3;
 
   /* Event box' time can't be deduced from it's position in                    ----------------
@@ -850,7 +840,10 @@ function verify(dates, timezones, times) {
     for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {
       let [correctHour, minutes, day] = selectedTime[tzIdx];
 
-      let timeNode = lookup(`${timeLine}/[${correctHour}]`).getNode();
+      let timeNode = window.document.querySelector(
+        `#day-view .timebarboxstack > .topbox > box:nth-of-type(${correctHour + 1})`
+      );
+      Assert.ok(timeNode);
       let boundingRect = timeNode.getBoundingClientRect();
       let timeY = boundingRect.y + boundingRect.height * (minutes / 60);
 
@@ -863,11 +856,7 @@ function verify(dates, timezones, times) {
         viewBack(controller, 1);
       }
 
-      let stackNode = lookup(dayStack);
-      controller.waitForElement(stackNode);
-      stackNode = stackNode.getNode();
-
-      findEventsInNode(stackNode, eventNodes);
+      eventNodes = Array.from(dayView.getEventBoxes(controller.window));
       eventNodes = eventNodes
         .filter(node => node.mOccurrence.title == timezones[tzIdx])
         .map(node => node.getBoundingClientRect().y);

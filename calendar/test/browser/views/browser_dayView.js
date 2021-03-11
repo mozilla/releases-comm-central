@@ -4,16 +4,10 @@
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
-  DAY_VIEW,
-  EVENTPATH,
-  EVENT_BOX,
-  LABELDAYBOX,
   closeAllEventDialogs,
   controller,
   createCalendar,
   deleteCalendars,
-  getEventDetails,
   goToDate,
   helpersForController,
   invokeNewEventDialog,
@@ -24,9 +18,13 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var { lookup, lookupEventBox } = helpersForController(controller);
+const { dayView } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+).CalendarTestUtils;
 
 const TITLE1 = "Day View Event";
 const TITLE2 = "Day View Event Changed";
@@ -38,11 +36,15 @@ add_task(async function testDayView() {
   goToDate(controller, 2009, 1, 1);
 
   // Verify date in view.
-  let day = lookup(`${DAY_VIEW}/${LABELDAYBOX}/{"flex":"1"}`);
-  controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
+  await TestUtils.waitForCondition(() => {
+    let dateLabel = controller.window.document.querySelector(
+      "#day-view .labeldaybox calendar-day-label"
+    );
+    return dateLabel && dateLabel.mDate.icalString == "20090101";
+  }, "Inspecting the date");
 
   // Create event at 8 AM.
-  let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+  let eventBox = dayView.getHourBox(controller.window, 8);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Check that the start time is correct.
     let someDate = cal.createDateTime();
@@ -66,7 +68,7 @@ add_task(async function testDayView() {
   });
 
   // If it was created successfully, it can be opened.
-  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  eventBox = await dayView.waitForEventBox(controller.window);
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
@@ -74,24 +76,16 @@ add_task(async function testDayView() {
   });
 
   // Check if name was saved.
-  let eventName = lookupEventBox(
-    "day",
-    EVENT_BOX,
-    null,
-    1,
-    null,
-    `${EVENTPATH}/${getEventDetails(
-      "day"
-    )}/{"flex":"1"}/{"class":"calendar-event-details-core event-name-label"}`
-  );
-  controller.waitForElement(eventName);
-  controller.waitFor(() => eventName.getNode().textContent == TITLE2);
+  eventBox = await dayView.waitForEventBox(controller.window);
+  let eventName = eventBox.querySelector(".calendar-event-details-core");
+  Assert.ok(eventName);
+  Assert.ok(eventName.textContent == TITLE2);
 
   // Delete event
-  controller.click(eventBox);
-  eventBox.getNode().focus();
+  controller.click(new elib.Elem(eventBox));
+  eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  controller.waitForElementNotPresent(eventBox);
+  await dayView.waitForNoEvents(controller.window);
 
   Assert.ok(true, "Test ran to completion");
 });

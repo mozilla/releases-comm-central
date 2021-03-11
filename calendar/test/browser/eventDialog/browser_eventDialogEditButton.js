@@ -6,10 +6,6 @@
  * Tests for the edit button displayed in the calendar summary dialog.
  */
 
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
-);
-
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 

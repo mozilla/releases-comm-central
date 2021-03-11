@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {
-  ALLDAY,
   CALENDARNAME,
-  CANVAS_BOX,
-  EVENTPATH,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -18,11 +15,13 @@ var {
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
-var { getEventBoxPath, lookup, lookupEventBox } = helpersForController(controller);
+var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 
 const STARTYEAR = 1950;
 const EPOCH = 1970;
@@ -33,7 +32,7 @@ add_task(async function testAnnualRecurrence() {
   goToDate(controller, STARTYEAR, 1, 1);
 
   // Create yearly recurring all-day event.
-  let eventBox = lookupEventBox("day", ALLDAY, null, 1, null);
+  let eventBox = dayView.getAllDayHeader(controller.window);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: "yearly" });
     saveAndCloseItemDialog(eventWindow);
@@ -47,29 +46,31 @@ add_task(async function testAnnualRecurrence() {
 
     // day view
     switchToView(controller, "day");
-    controller.waitForElement(lookupEventBox("day", ALLDAY, null, 1, null, EVENTPATH));
+    await dayView.waitForAllDayItem(controller.window);
 
     // week view
     switchToView(controller, "week");
-    controller.waitForElement(lookupEventBox("week", ALLDAY, null, column, null, EVENTPATH));
+    await weekView.waitForAllDayItem(controller.window, column);
 
     // multiweek view
     switchToView(controller, "multiweek");
-    controller.waitForElement(lookupEventBox("multiweek", CANVAS_BOX, 1, column, null, EVENTPATH));
+    await multiweekView.waitForItemAt(controller.window, 1, column);
 
     // month view
     switchToView(controller, "month");
-    controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 1, column, null, EVENTPATH));
+    await monthView.waitForItemAt(controller.window, 1, column);
   }
 
   // Delete event.
   goToDate(controller, checkYears[0], 1, 1);
   switchToView(controller, "day");
-  const boxPath = getEventBoxPath("day", ALLDAY, null, 1, null) + EVENTPATH;
-  const box = lookup(boxPath);
+  const box = new elib.Elem(await dayView.waitForAllDayItem(controller.window));
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);
-  controller.waitForElementNotPresent(box);
+  await TestUtils.waitForCondition(
+    () => !dayView.getAllDayItem(controller.window),
+    "No all-day events"
+  );
 
   Assert.ok(true, "Test ran to completion");
 });

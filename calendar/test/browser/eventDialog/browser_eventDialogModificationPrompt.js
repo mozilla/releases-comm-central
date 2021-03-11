@@ -6,9 +6,6 @@ requestLongerTimeout(2);
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
-  EVENTPATH,
-  EVENT_BOX,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -22,12 +19,13 @@ var {
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var { eid, lookupEventBox } = helpersForController(controller);
-
 var { data, newlines } = setupData();
+
+var { dayView } = CalendarTestUtils;
 
 // Test that closing an event dialog with no changes does not prompt for save.
 add_task(async function testEventDialogModificationPrompt() {
@@ -35,8 +33,7 @@ add_task(async function testEventDialogModificationPrompt() {
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
-  let createbox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-  let eventbox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  let createbox = dayView.getHourBox(controller.window, 8);
 
   // Create new event.
   await invokeNewEventDialog(controller, createbox, async (eventWindow, iframeWindow) => {
@@ -48,6 +45,7 @@ add_task(async function testEventDialogModificationPrompt() {
     await setData(eventWindow, iframeWindow, data[0]);
     saveAndCloseItemDialog(eventWindow);
   });
+  let eventbox = await dayView.waitForEventBox(controller.window);
 
   // Open, but change nothing.
   await invokeEditingEventDialog(controller, eventbox, (eventWindow, iframeWindow) => {
@@ -57,6 +55,7 @@ add_task(async function testEventDialogModificationPrompt() {
     controller.sleep(2000);
   });
 
+  eventbox = await dayView.waitForEventBox(controller.window);
   // Open, change all values then revert the changes.
   await invokeEditingEventDialog(controller, eventbox, async (eventWindow, iframeWindow) => {
     // Change all values.
@@ -74,25 +73,25 @@ add_task(async function testEventDialogModificationPrompt() {
   // Delete event.
   controller.window.document.getElementById("day-view").focus();
   if (controller.window.currentView().getSelectedItems().length == 0) {
-    controller.click(eventbox);
+    controller.click(new elib.Elem(eventbox));
   }
-  Assert.equal(eventbox.getNode().isEditing, false, "event is not being edited");
+  Assert.equal(eventbox.isEditing, false, "event is not being edited");
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  controller.waitForElementNotPresent(eventbox);
+  await dayView.waitForNoEvents(controller.window);
 
   Assert.ok(true, "Test ran to completion");
 });
 
 add_task(async function testDescriptionWhitespace() {
-  let createbox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-  let eventbox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-
   for (let i = 0; i < newlines.length; i++) {
     // test set i
+    let createbox = dayView.getHourBox(controller.window, 8);
     await invokeNewEventDialog(controller, createbox, async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, newlines[i]);
       saveAndCloseItemDialog(eventWindow);
     });
+
+    let eventbox = await dayView.waitForEventBox(controller.window);
 
     // Open and close.
     await invokeEditingEventDialog(controller, eventbox, async (eventWindow, iframeWindow) => {
@@ -105,11 +104,11 @@ add_task(async function testDescriptionWhitespace() {
     // Delete it.
     controller.window.document.getElementById("day-view").focus();
     if (controller.window.currentView().getSelectedItems().length == 0) {
-      controller.click(eventbox);
+      controller.click(new elib.Elem(eventbox));
     }
-    Assert.equal(eventbox.getNode().isEditing, false, "event is not being edited");
+    Assert.equal(eventbox.isEditing, false, "event is not being edited");
     EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-    controller.waitForElementNotPresent(eventbox);
+    await dayView.waitForNoEvents(window);
   }
 
   Assert.ok(true, "Test ran to completion");

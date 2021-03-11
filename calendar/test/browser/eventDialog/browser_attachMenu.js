@@ -5,9 +5,6 @@
 /**
  * Tests for the attach menu in the event dialog window.
  */
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
-);
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");

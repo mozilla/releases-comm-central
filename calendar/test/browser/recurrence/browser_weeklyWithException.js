@@ -4,11 +4,6 @@
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
-  DAY_VIEW,
-  EVENTPATH,
-  EVENT_BOX,
-  WEEK_VIEW,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -21,13 +16,16 @@ var {
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
 var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var { lookup, lookupEventBox } = helpersForController(controller);
+var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 
 const HOUR = 8;
 const STARTDATE = cal.createDateTime("20090106T000000Z");
@@ -39,14 +37,14 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   goToDate(controller, 2009, 1, 5);
 
   // Create weekly recurring event.
-  let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
+  let eventBox = dayView.getHourBox(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: TITLE, repeat: setRecurrence });
     saveAndCloseItemDialog(eventWindow);
   });
 
   // Move 5th January occurrence to 6th January.
-  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  eventBox = await dayView.waitForEventBox(controller.window);
   await invokeEditingRepeatEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: TITLE,
@@ -57,12 +55,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   });
 
   goToDate(controller, 2009, 1, 6);
-  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  controller.waitForElement(eventBox);
+  await dayView.waitForEventBox(controller.window);
 
   // Change recurrence rule.
   goToDate(controller, 2009, 1, 7);
-  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  eventBox = await dayView.waitForEventBox(controller.window);
   await invokeEditingRepeatEventDialog(
     controller,
     eventBox,
@@ -76,96 +73,123 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   // Check two weeks.
   // day view
   switchToView(controller, "day");
-  let path = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
 
   goToDate(controller, 2009, 1, 5);
-  controller.waitForElementNotPresent(path);
+  await dayView.waitForNoEvents(controller.window);
 
   viewForward(controller, 1);
-  let tuesPath = `
-        ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
-        {"class":"daybox"}/[0]/{"class":"multiday-column-box-stack"}/
-        {"class":"multiday-column-top-box"}/{"flex":"1"}/{"flex":"1"}/[eventIndex]
-    `;
 
   // Assert exactly two.
-  controller.waitForElement(lookup(tuesPath.replace("eventIndex", "0") + EVENTPATH));
-  Assert.ok(lookup(tuesPath.replace("eventIndex", "1") + EVENTPATH).exists());
-  Assert.ok(!lookup(tuesPath.replace("eventIndex", "2") + EVENTPATH).exists());
+  await TestUtils.waitForCondition(
+    () => dayView.getEventBoxes(controller.window).length === 2,
+    "Two events on Tuesday day-view"
+  );
 
   viewForward(controller, 1);
-  controller.waitForElement(path);
+  await dayView.waitForEventBox(controller.window);
   viewForward(controller, 1);
-  controller.waitForElementNotPresent(path);
+  await dayView.waitForNoEvents(controller.window);
   viewForward(controller, 1);
-  controller.waitForElement(path);
+  await dayView.waitForEventBox(controller.window);
   viewForward(controller, 1);
-  controller.waitForElementNotPresent(path);
+  await dayView.waitForNoEvents(controller.window);
   viewForward(controller, 1);
-  controller.waitForElementNotPresent(path);
+  await dayView.waitForNoEvents(controller.window);
 
   // next week
   viewForward(controller, 1);
-  controller.waitForElement(path);
+  await dayView.waitForEventBox(controller.window);
   viewForward(controller, 1);
-  controller.waitForElement(path);
+  await dayView.waitForEventBox(controller.window);
   viewForward(controller, 1);
-  controller.waitForElement(path);
+  await dayView.waitForEventBox(controller.window);
   viewForward(controller, 1);
-  controller.waitForElementNotPresent(path);
+  await dayView.waitForNoEvents(controller.window);
   viewForward(controller, 1);
-  controller.waitForElement(path);
+  await dayView.waitForEventBox(controller.window);
   viewForward(controller, 1);
-  controller.waitForElementNotPresent(path);
+  await dayView.waitForNoEvents(controller.window);
 
   // week view
   switchToView(controller, "week");
   goToDate(controller, 2009, 1, 5);
 
-  tuesPath = `
-        ${WEEK_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
-        {"class":"daybox"}/[2]/{"class":"multiday-column-box-stack"}/
-        {"class":"multiday-column-top-box"}/{"flex":"1"}/{"flex":"1"}/[eventIndex]
-    `;
-
-  // Assert exactly two.
-  controller.waitForElement(lookup(tuesPath.replace("eventIndex", "0") + EVENTPATH));
-  Assert.ok(lookup(tuesPath.replace("eventIndex", "1") + EVENTPATH).exists());
-  Assert.ok(!lookup(tuesPath.replace("eventIndex", "2") + EVENTPATH).exists());
+  // Assert exactly two on Tuesday.
+  await TestUtils.waitForCondition(
+    () => weekView.getEventBoxes(controller.window, 3).length === 2,
+    "Two events on Tuesday week-view"
+  );
 
   // Wait for the last occurrence because this appears last.
-  controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 6, null));
-  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 1, null).exists());
-  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 2, null).exists());
-  Assert.ok(lookupEventBox("week", EVENT_BOX, null, 4, null).exists());
-  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 5, null).exists());
-  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null).exists());
+  await weekView.waitForEventBox(controller.window, 6);
+  Assert.ok(!weekView.getEventBox(controller.window, 1));
+  Assert.ok(!weekView.getEventBox(controller.window, 2));
+  Assert.ok(weekView.getEventBox(controller.window, 4));
+  Assert.ok(!weekView.getEventBox(controller.window, 5));
+  Assert.ok(!weekView.getEventBox(controller.window, 7));
 
   viewForward(controller, 1);
-  controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 6, null));
-  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 1, null).exists());
-  Assert.ok(lookupEventBox("week", EVENT_BOX, null, 2, null).exists());
-  Assert.ok(lookupEventBox("week", EVENT_BOX, null, 3, null).exists());
-  Assert.ok(lookupEventBox("week", EVENT_BOX, null, 4, null).exists());
-  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 5, null).exists());
-  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null).exists());
+  await weekView.waitForEventBox(controller.window, 6);
+  Assert.ok(!weekView.getEventBox(controller.window, 1));
+  Assert.ok(weekView.getEventBox(controller.window, 2));
+  Assert.ok(weekView.getEventBox(controller.window, 3));
+  Assert.ok(weekView.getEventBox(controller.window, 4));
+  Assert.ok(!weekView.getEventBox(controller.window, 5));
+  Assert.ok(!weekView.getEventBox(controller.window, 7));
 
   // multiweek view
   switchToView(controller, "multiweek");
   goToDate(controller, 2009, 1, 5);
-  checkMultiWeekView("multiweek");
+  // Wait for the first items, then check the ones not to be present.
+  // Assert exactly two.
+  await multiweekView.waitForItemAt(controller.window, 1, 3, 1);
+  Assert.ok(multiweekView.getItemAt(controller.window, 1, 3, 2));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 3, 3));
+  // Then check no item on the 5th.
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 2));
+  Assert.ok(multiweekView.getItemAt(controller.window, 1, 4));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 5));
+  Assert.ok(multiweekView.getItemAt(controller.window, 1, 6));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 7));
+
+  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 1));
+  Assert.ok(multiweekView.getItemAt(controller.window, 2, 2));
+  Assert.ok(multiweekView.getItemAt(controller.window, 2, 3));
+  Assert.ok(multiweekView.getItemAt(controller.window, 2, 4));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 5));
+  Assert.ok(multiweekView.getItemAt(controller.window, 2, 6));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 7));
 
   // month view
   switchToView(controller, "month");
-  checkMultiWeekView("month");
+  // Wait for the first items, then check the ones not to be present.
+  // Assert exactly two.
+  // start on the second week
+  await monthView.waitForItemAt(controller.window, 2, 3, 1);
+  Assert.ok(monthView.getItemAt(controller.window, 2, 3, 2));
+  Assert.ok(!monthView.getItemAt(controller.window, 2, 3, 3));
+  // Then check no item on the 5th.
+  Assert.ok(!monthView.getItemAt(controller.window, 2, 2));
+  Assert.ok(monthView.getItemAt(controller.window, 2, 4));
+  Assert.ok(!monthView.getItemAt(controller.window, 2, 5));
+  Assert.ok(monthView.getItemAt(controller.window, 2, 6));
+  Assert.ok(!monthView.getItemAt(controller.window, 2, 7));
+
+  Assert.ok(!monthView.getItemAt(controller.window, 3, 1));
+  Assert.ok(monthView.getItemAt(controller.window, 3, 2));
+  Assert.ok(monthView.getItemAt(controller.window, 3, 3));
+  Assert.ok(monthView.getItemAt(controller.window, 3, 4));
+  Assert.ok(!monthView.getItemAt(controller.window, 3, 5));
+  Assert.ok(monthView.getItemAt(controller.window, 3, 6));
+  Assert.ok(!monthView.getItemAt(controller.window, 3, 7));
 
   // Delete event.
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 12);
-  path = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  controller.click(path);
-  handleOccurrencePrompt(controller, path, "delete", true);
-  controller.waitForElementNotPresent(path);
+  eventBox = new elib.Elem(await dayView.waitForEventBox(controller.window));
+  controller.click(eventBox);
+  handleOccurrencePrompt(controller, eventBox, "delete", true);
+  await dayView.waitForNoEvents(controller.window);
 
   Assert.ok(true, "Test ran to completion");
 });
@@ -240,37 +264,6 @@ async function changeRecurrence(recurrenceWindow) {
     {},
     recurrenceWindow
   );
-}
-
-function checkMultiWeekView(view) {
-  let startWeek = view == "multiweek" ? 1 : 2;
-  let assertNodeLookup = (...args) => {
-    return Assert.ok(lookupEventBox(...args).exists());
-  };
-  let assertNodeNotExistLookup = (...args) => {
-    return Assert.ok(!lookupEventBox(...args).exists());
-  };
-
-  // Wait for the first items, then check the ones not to be present.
-  // Assert exactly two.
-  controller.waitForElement(lookupEventBox(view, EVENT_BOX, startWeek, 3, null, "/[0]"));
-  assertNodeLookup(view, CANVAS_BOX, startWeek, 3, null, "/[1]");
-  assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 3, null, "/[2]");
-  // Then check no item on the 5th.
-  assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 2, null, EVENTPATH);
-  assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 3, null, "/[2]");
-  assertNodeLookup(view, CANVAS_BOX, startWeek, 4, null, EVENTPATH);
-  assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 5, null, EVENTPATH);
-  assertNodeLookup(view, CANVAS_BOX, startWeek, 6, null, EVENTPATH);
-  assertNodeNotExistLookup(view, EVENT_BOX, startWeek, 7, null, EVENTPATH);
-
-  assertNodeNotExistLookup(view, EVENT_BOX, startWeek + 1, 1, null, EVENTPATH);
-  assertNodeLookup(view, CANVAS_BOX, startWeek + 1, 2, null, EVENTPATH);
-  assertNodeLookup(view, CANVAS_BOX, startWeek + 1, 3, null, EVENTPATH);
-  assertNodeLookup(view, CANVAS_BOX, startWeek + 1, 4, null, EVENTPATH);
-  assertNodeNotExistLookup(view, EVENT_BOX, startWeek + 1, 5, null, EVENTPATH);
-  assertNodeLookup(view, CANVAS_BOX, startWeek + 1, 6, null, EVENTPATH);
-  assertNodeNotExistLookup(view, EVENT_BOX, startWeek + 1, 7, null, EVENTPATH);
 }
 
 registerCleanupFunction(function teardownModule() {

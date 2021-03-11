@@ -5,9 +5,6 @@
 /* globals createCalendarUsingDialog */
 
 var {
-  CANVAS_BOX,
-  EVENT_BOX,
-  TIMEOUT_MODAL_DIALOG,
   controller,
   deleteCalendars,
   helpersForController,
@@ -22,8 +19,6 @@ var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var { lookupEventBox } = helpersForController(controller);
-
 const HOUR = 8;
 
 // Unique name needed as deleting a calendar only unsubscribes from it and
@@ -34,27 +29,18 @@ var calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
 calendarFile.append(calendarName + ".ics");
 
 add_task(async function testLocalICS() {
-  await CalendarTestUtils.setCalendarView(window, "day");
+  await CalendarTestUtils.setCalendarView(controller.window, "day");
   await createCalendarUsingDialog(calendarName, { network: {} });
 
   // Create new event.
-  let box = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
+  let box = CalendarTestUtils.dayView.getHourBox(controller.window, HOUR);
   await invokeNewEventDialog(controller, box, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: calendarName, calendar: calendarName });
     saveAndCloseItemDialog(eventWindow);
   });
 
   // Assert presence in view.
-  controller.waitForElement(
-    lookupEventBox(
-      "day",
-      EVENT_BOX,
-      null,
-      1,
-      null,
-      `/{"tooltip":"itemTooltip","calendar":"${calendarName.toLowerCase()}"}`
-    )
-  );
+  await CalendarTestUtils.dayView.waitForEventBox(controller.window);
 
   // Verify in file.
   let fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(

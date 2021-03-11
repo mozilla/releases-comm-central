@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { CalendarTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+);
+
 // If the "do you want to save the event?" prompt appears, the test failed.
 // Listen for all windows opening, and if one is the save prompt, fail.
 var savePromptObserver = {

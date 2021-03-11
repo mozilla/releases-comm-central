@@ -4,11 +4,8 @@
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
-  EVENTPATH,
-  EVENT_BOX,
   TIMEOUT_MODAL_DIALOG,
-  checkAlarmIcon,
+  checkMonthAlarmIcon,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -24,6 +21,7 @@ var {
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -34,7 +32,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
-var { eid, lookup, lookupEventBox } = helpersForController(controller);
+var { eid } = helpersForController(controller);
 
 const EVENTTITLE = "Event";
 const EVENTLOCATION = "Location";
@@ -42,6 +40,8 @@ const EVENTDESCRIPTION = "Event Description";
 const EVENTATTENDEE = "foo@bar.com";
 const EVENTURL = "http://mozilla.org/";
 var firstDay;
+
+var { dayView, monthView } = CalendarTestUtils;
 
 add_task(async function testEventDialog() {
   let now = new Date();
@@ -77,7 +77,7 @@ add_task(async function testEventDialog() {
   let endTime = cal.dtz.formatter.formatTime(nextHour);
 
   // Create new event on first day in view.
-  controller.click(lookupEventBox("month", CANVAS_BOX, 1, 1, null));
+  controller.click(new elib.Elem(monthView.getDayBox(controller.window, 1, 1)));
 
   await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
     let eventDocument = eventWindow.document;
@@ -164,46 +164,45 @@ add_task(async function testEventDialog() {
   // Verify event and alarm icon visible until endDate (3 full rows) and check tooltip.
   for (let row = 1; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      controller.waitForElement(lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH));
-      checkAlarmIcon(controller, "month", row, col);
+      await monthView.waitForItemAt(controller.window, row, col);
+      checkMonthAlarmIcon(controller, row, col);
       checkTooltip(row, col, startTime, endTime);
     }
   }
-  Assert.ok(!lookupEventBox("month", EVENT_BOX, 4, 1, null, EVENTPATH).exists());
+  Assert.ok(!monthView.getItemAt(controller.window, 4, 1));
 
   // Delete and verify deleted 6th col in row 1.
-  controller.click(lookupEventBox("month", CANVAS_BOX, 1, 6, null, EVENTPATH));
+  controller.click(new elib.Elem(monthView.getItemAt(controller.window, 1, 6)));
   let elemToDelete = eid("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", false);
-  controller.waitForElementNotPresent(lookupEventBox("month", CANVAS_BOX, 1, 6, null, EVENTPATH));
+
+  await monthView.waitForNoItemsAt(controller.window, 1, 6);
 
   // Verify all others still exist.
   for (let col = 1; col <= 5; col++) {
-    Assert.ok(lookupEventBox("month", CANVAS_BOX, 1, col, null, EVENTPATH).exists());
+    Assert.ok(monthView.getItemAt(controller.window, 1, col));
   }
-  Assert.ok(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH).getNode());
+  Assert.ok(monthView.getItemAt(controller.window, 1, 7));
 
   for (let row = 2; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      Assert.ok(lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH).exists());
+      Assert.ok(monthView.getItemAt(controller.window, row, col));
     }
   }
 
   // Delete series by deleting last item in row 1 and confirming to delete all.
-  controller.click(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH));
+  controller.click(new elib.Elem(monthView.getItemAt(controller.window, 1, 7)));
   elemToDelete = eid("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", true);
 
   // Verify all deleted.
-  controller.waitForElementNotPresent(lookupEventBox("month", EVENT_BOX, 1, 5, null, EVENTPATH));
-  controller.waitForElementNotPresent(lookupEventBox("month", CANVAS_BOX, 1, 6, null, EVENTPATH));
-  controller.waitForElementNotPresent(lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH));
+  await monthView.waitForNoItemsAt(controller.window, 1, 5);
+  await monthView.waitForNoItemsAt(controller.window, 1, 6);
+  await monthView.waitForNoItemsAt(controller.window, 1, 7);
 
   for (let row = 2; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      controller.waitForElementNotPresent(
-        lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH)
-      );
+      await monthView.waitForNoItemsAt(controller.window, row, col);
     }
   }
 
@@ -217,8 +216,7 @@ add_task(async function testOpenExistingEventDialog() {
   switchToView(controller, "day");
   goToDate(controller, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
 
-  let createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-  let eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  let createBox = dayView.getHourBox(controller.window, 8);
 
   // Create a new event.
   await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
@@ -229,6 +227,8 @@ add_task(async function testOpenExistingEventDialog() {
     });
     saveAndCloseItemDialog(eventWindow);
   });
+
+  let eventBox = await dayView.waitForEventBox(controller.window);
 
   // Open the event in the summary dialog, it will fail if otherwise.
   await invokeViewingEventDialog(
@@ -252,9 +252,9 @@ add_task(async function testOpenExistingEventDialog() {
     "view"
   );
 
-  eventBox.getNode().focus();
+  eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  controller.waitForElementNotPresent(eventBox);
+  await dayView.waitForNoEvents(controller.window);
 
   Assert.ok(true, "Test ran to completion");
 });
@@ -265,7 +265,7 @@ add_task(async function testEventReminderDisplay() {
   switchToView(controller, "day");
   goToDate(controller, 2020, 1, 1);
 
-  let createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+  let createBox = dayView.getHourBox(controller.window, 8);
 
   // Create an event without a reminder.
   await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
@@ -277,7 +277,8 @@ add_task(async function testEventReminderDisplay() {
     saveAndCloseItemDialog(eventWindow);
   });
 
-  let eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  let eventBox = await dayView.waitForEventBox(controller.window);
+
   await invokeViewingEventDialog(
     controller,
     eventBox,
@@ -291,7 +292,7 @@ add_task(async function testEventReminderDisplay() {
   );
 
   goToDate(controller, 2020, 2, 1);
-  createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+  createBox = dayView.getHourBox(controller.window, 8);
 
   // Create an event with a reminder.
   await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
@@ -304,7 +305,7 @@ add_task(async function testEventReminderDisplay() {
     saveAndCloseItemDialog(eventWindow);
   });
 
-  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  eventBox = await dayView.waitForEventBox(controller.window);
   await invokeViewingEventDialog(
     controller,
     eventBox,
@@ -355,7 +356,7 @@ add_task(async function testEventReminderDisplay() {
   let calendarProxy = cal.async.promisifyCalendar(calendar);
   let calendarEvent = await calendarProxy.addItem(new CalEvent(icalString));
   goToDate(controller, 2020, 3, 1);
-  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  eventBox = await dayView.waitForEventBox(controller.window);
 
   await invokeViewingEventDialog(
     controller,
@@ -373,7 +374,7 @@ add_task(async function testEventReminderDisplay() {
 
   // Delete directly, as using the UI causes a prompt to appear.
   calendarProxy.deleteItem(calendarEvent);
-  controller.waitForElementNotPresent(eventBox);
+  await dayView.waitForNoEvents(controller.window);
 });
 
 /**
@@ -385,7 +386,7 @@ add_task(async function testCtrlEnterShortcut() {
   switchToView(controller, "day");
   goToDate(controller, 2020, 9, 1);
 
-  let createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+  let createBox = dayView.getHourBox(controller.window, 8);
   await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
@@ -412,28 +413,31 @@ add_task(async function testCtrlEnterShortcut() {
 });
 
 function checkTooltip(row, col, startTime, endTime) {
-  let item = lookupEventBox("month", CANVAS_BOX, row, col, null, EVENTPATH);
+  let item = monthView.getItemAt(controller.window, row, col);
 
-  let toolTip = '/id("messengerWindow")/{"class":"body"}/id("calendar-popupset")/id("itemTooltip")';
-  let toolTipNode = lookup(toolTip).getNode();
-  toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item.getNode() });
+  let toolTipNode = window.document.getElementById("itemTooltip");
+  toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item });
+
+  function getDescription(index) {
+    return toolTipNode.querySelector(
+      `.tooltipHeaderTable > tr:nth-of-type(${index}) > .tooltipHeaderDescription`
+    ).textContent;
+  }
 
   // Check title.
-  let toolTipTable = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderTable"}/';
-  let eventName = lookup(`${toolTipTable}/[0]/[1]`);
-  Assert.equal(eventName.getNode().textContent, EVENTTITLE);
+  Assert.equal(getDescription(1), EVENTTITLE);
 
   // Check date and time.
-  let dateTime = lookup(`${toolTipTable}/[2]/[1]`);
+  let dateTime = getDescription(3);
 
   let currDate = firstDay.clone();
   currDate.addDuration(cal.createDuration(`P${7 * (row - 1) + (col - 1)}D`));
   let startDate = cal.dtz.formatter.formatDate(currDate);
 
-  Assert.ok(dateTime.getNode().textContent.includes(`${startDate} ${startTime} – `));
+  Assert.ok(dateTime.includes(`${startDate} ${startTime} – `));
 
   // This could be on the next day if it is 00:00.
-  Assert.ok(dateTime.getNode().textContent.endsWith(endTime));
+  Assert.ok(dateTime.endsWith(endTime));
 }
 
 registerCleanupFunction(function teardownModule(module) {

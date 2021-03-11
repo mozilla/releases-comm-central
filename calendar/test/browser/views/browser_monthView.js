@@ -4,14 +4,10 @@
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
-  EVENTPATH,
-  MONTH_VIEW,
   closeAllEventDialogs,
   controller,
   createCalendar,
   deleteCalendars,
-  getEventDetails,
   goToDate,
   helpersForController,
   invokeNewEventDialog,
@@ -22,9 +18,13 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var { lookup, lookupEventBox } = helpersForController(controller);
+const { monthView } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+).CalendarTestUtils;
 
 const TITLE1 = "Month View Event";
 const TITLE2 = "Month View Event Changed";
@@ -36,15 +36,17 @@ add_task(async function testMonthView() {
   goToDate(controller, 2009, 1, 1);
 
   // Verify date.
-  let day = lookup(`
-        ${MONTH_VIEW}/{"class":"mainbox"}/{"class":"monthgrid"}/[0]/{"selected":"true"}/[0]
-    `);
-  controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
+  await TestUtils.waitForCondition(() => {
+    let dateLabel = controller.window.document.querySelector(
+      '#month-view td[selected="true"] > calendar-month-day-box'
+    );
+    return dateLabel && dateLabel.mDate.icalString == "20090101";
+  }, "Inspecting the date");
 
   // Create event.
   // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
   let hour = new Date().getUTCHours(); // Remember time at click.
-  let eventBox = lookupEventBox("month", CANVAS_BOX, 1, 5);
+  let eventBox = monthView.getDayBox(controller.window, 1, 5);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Check that the start time is correct.
     // Next full hour except last hour hour of the day.
@@ -70,7 +72,7 @@ add_task(async function testMonthView() {
   });
 
   // If it was created successfully, it can be opened.
-  eventBox = lookupEventBox("month", CANVAS_BOX, 1, 5, null, EVENTPATH);
+  eventBox = await monthView.waitForItemAt(controller.window, 1, 5);
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
@@ -78,23 +80,16 @@ add_task(async function testMonthView() {
   });
 
   // Check if name was saved.
-  let eventName = lookupEventBox(
-    "month",
-    CANVAS_BOX,
-    1,
-    5,
-    null,
-    `${EVENTPATH}/${getEventDetails("month")}/{"flex":"1"}/{"class":"event-name-label"}`
-  );
-
-  controller.waitForElement(eventName);
-  controller.waitFor(() => eventName.getNode().value == TITLE2);
+  eventBox = await monthView.waitForItemAt(controller.window, 1, 5);
+  let eventName = eventBox.querySelector(".event-name-label");
+  Assert.ok(eventName);
+  Assert.ok(eventName.value == TITLE2);
 
   // Delete event.
-  controller.click(eventBox);
-  eventBox.getNode().focus();
+  controller.click(new elib.Elem(eventBox));
+  eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  controller.waitForElementNotPresent(eventBox);
+  await monthView.waitForNoItemsAt(controller.window, 1, 5);
 
   Assert.ok(true, "Test ran to completion");
 });

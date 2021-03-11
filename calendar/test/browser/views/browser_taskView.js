@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {
-  CALENDARLIST,
   CALENDARNAME,
-  TASK_VIEW,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -20,7 +18,9 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
-var { eid, lookup, sleep } = helpersForController(controller);
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
+var { eid, sleep } = helpersForController(controller);
 
 const TITLE = "Task";
 const DESCRIPTION = "1. Do A\n2. Do B";
@@ -29,44 +29,41 @@ const PERCENTCOMPLETE = "50";
 // Mozmill doesn't support trees yet, therefore completed checkbox and line-through style are not
 // checked.
 add_task(async function setupModule(module) {
+  const winDoc = controller.window.document;
   let CALENDARID = createCalendar(controller, CALENDARNAME);
-
-  // paths
-  let treeChildren = `${TASK_VIEW}/[2]/id("calendar-task-tree")/{"class":"calendar-task-treechildren"}`;
-  let taskTree = TASK_VIEW + '[2]/id("calendar-task-tree")';
-  let toolTip =
-    '/id("messengerWindow")/{"class":"body"}/id("calendar-popupset")/id("taskTreeTooltip")';
-  let toolTipTable = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderTable"}/';
 
   // Open task view.
   controller.click(eid("task-tab-button"));
   sleep();
 
   // Make sure that testing calendar is selected.
-  controller.click(lookup(`${CALENDARLIST}/{"calendar-id":"${CALENDARID}"}`));
+  let calList = winDoc.querySelector(`#calendar-list > [calendar-id="${CALENDARID}"]`);
+  Assert.ok(calList);
+  controller.click(new elib.Elem(calList));
 
-  let taskTreeNode = lookup(taskTree).getNode();
+  let taskTreeNode = winDoc.getElementById("calendar-task-tree");
   Assert.equal(taskTreeNode.mTaskArray.length, 0);
 
   // Add task.
-  let taskInput = lookup(`
-        ${TASK_VIEW}/id("task-addition-box")/[0]/[1]/id("view-task-edit-field")
-    `);
-  controller.type(taskInput, TITLE);
-  taskInput.getNode().focus();
+  let taskInput = winDoc.getElementById("view-task-edit-field");
+  controller.type(new elib.Elem(taskInput), TITLE);
+  taskInput.focus();
   EventUtils.synthesizeKey("VK_RETURN", {}, controller.window);
 
   // Verify added.
   controller.waitFor(() => taskTreeNode.mTaskArray.length == 1, "Added Task did not appear");
 
   // Last added task is automatically selected so verify detail window data.
-  Assert.equal(eid("calendar-task-details-title").getNode().textContent, TITLE);
+  Assert.equal(winDoc.getElementById("calendar-task-details-title").textContent, TITLE);
 
   // Open added task
   // Double-click on completion checkbox is ignored as opening action, so don't
   // click at immediate left where the checkbox is located.
   let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
-  controller.doubleClick(lookup(treeChildren), 50, 0);
+  let treeChildren = winDoc.querySelector("#calendar-task-tree .calendar-task-treechildren");
+  Assert.ok(treeChildren);
+  controller.doubleClick(new elib.Elem(treeChildren), 50, 0);
+
   await eventWindowPromise;
   await execEventDialogCallback(controller, async (taskWindow, iframeWindow) => {
     // Verify calendar.
@@ -85,14 +82,11 @@ add_task(async function setupModule(module) {
   Assert.greater(taskTreeNode.mTaskArray.length, 0, "Should not have removed task");
 
   // Verify description and status in details pane.
-  controller.waitFor(
-    () =>
-      lookup(`
-    ${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/{"flex":"1"}/
-    id("calendar-task-details-description")
-  `).getNode().value == DESCRIPTION
-  );
-  Assert.equal(eid("calendar-task-details-status").getNode().textContent, "Needs Action");
+  await TestUtils.waitForCondition(() => {
+    let desc = winDoc.getElementById("calendar-task-details-description");
+    return desc && desc.value == DESCRIPTION;
+  }, "Calendar task description");
+  Assert.equal(winDoc.getElementById("calendar-task-details-status").textContent, "Needs Action");
 
   // This is a hack.
   taskTreeNode.getTaskAtRow(0).calendar.setProperty("capabilities.priority.supported", true);
@@ -100,45 +94,43 @@ add_task(async function setupModule(module) {
   // Set high priority and verify it in detail pane.
   controller.click(eid("task-actions-priority"));
   sleep();
-  controller.click(
-    lookup(
-      `${TASK_VIEW}/{"flex":"1"}/id("calendar-task-details-container")/
-        id("calendar-task-details")/id("other-actions-box")/
-        id("task-actions-toolbox")/id("task-actions-toolbar")/
-        id("task-actions-priority")/id("task-actions-priority-menupopup")/
-        {"class":"priority-1-menuitem"}`
-    )
+
+  let priorityMenu = winDoc.querySelector(
+    "#task-actions-priority-menupopup > .priority-1-menuitem"
   );
+  Assert.ok(priorityMenu);
+  controller.click(new elib.Elem(priorityMenu));
   sleep();
 
-  Assert.ok(
-    !eid("calendar-task-details-priority-high")
-      .getNode()
-      .hasAttribute("hidden")
-  );
+  Assert.ok(!winDoc.getElementById("calendar-task-details-priority-high").hasAttribute("hidden"));
 
   // Verify that tooltip shows status, priority and percent complete.
-  let toolTipNode = lookup(toolTip).getNode();
+  let toolTipNode = winDoc.getElementById("taskTreeTooltip");
   toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
 
-  let toolTipName = lookup(toolTipTable + "[0]/[1]");
-  let toolTipCalendar = lookup(toolTipTable + "[1]/[1]");
-  let toolTipPriority = lookup(toolTipTable + "[2]/[1]");
-  let toolTipStatus = lookup(toolTipTable + "[3]/[1]");
-  let toolTipComplete = lookup(toolTipTable + "[4]/[1]");
+  function getTooltipDescription(index) {
+    return toolTipNode.querySelector(
+      `.tooltipHeaderTable > tr:nth-of-type(${index}) > .tooltipHeaderDescription`
+    ).textContent;
+  }
 
-  Assert.equal(toolTipName.getNode().textContent, TITLE);
-  Assert.equal(toolTipCalendar.getNode().textContent, CALENDARNAME);
-  Assert.equal(toolTipPriority.getNode().textContent, "High");
-  Assert.equal(toolTipStatus.getNode().textContent, "Needs Action");
-  Assert.equal(toolTipComplete.getNode().textContent, PERCENTCOMPLETE + "%");
+  // Name
+  Assert.equal(getTooltipDescription(1), TITLE);
+  // Calendar
+  Assert.equal(getTooltipDescription(2), CALENDARNAME);
+  // Priority
+  Assert.equal(getTooltipDescription(3), "High");
+  // Status
+  Assert.equal(getTooltipDescription(4), "Needs Action");
+  // Complete
+  Assert.equal(getTooltipDescription(5), PERCENTCOMPLETE + "%");
 
   // Mark completed, verify.
   controller.click(eid("task-actions-markcompleted"));
   sleep();
 
   toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
-  Assert.equal(toolTipStatus.getNode().textContent, "Completed");
+  Assert.equal(getTooltipDescription(4), "Completed");
 
   // Delete task and verify.
   controller.click(eid("calendar-delete-task-button"));

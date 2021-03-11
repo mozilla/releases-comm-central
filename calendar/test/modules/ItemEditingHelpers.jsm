@@ -198,10 +198,7 @@ async function setData(dialogWindow, iframeWindow, data) {
   }
   if (data.repeatuntil !== undefined && data.repeatuntil instanceof Ci.calIDateTime) {
     // Only fill in date, when the Datepicker is visible.
-    if (
-      !iframeDocument.getElementById("repeat-untilDate").hidden &&
-      !iframeDocument.getElementById("repeat-details").hidden
-    ) {
+    if (!iframeDocument.getElementById("repeat-untilDate").hidden) {
       let untildate = dateFormatter.formatDateShort(data.repeatuntil);
       replaceText(untilDateInput, untildate);
     }

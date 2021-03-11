@@ -4,9 +4,6 @@
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
-  EVENTPATH,
-  EVENT_BOX,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -19,11 +16,13 @@ var {
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
-var { lookupEventBox } = helpersForController(controller);
+var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 
 const HOUR = 8;
 
@@ -33,7 +32,7 @@ add_task(async function testBiweeklyRecurrence() {
   goToDate(controller, 2009, 1, 31);
 
   // Create biweekly event.
-  let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
+  let eventBox = dayView.getHourBox(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: "bi.weekly" });
     saveAndCloseItemDialog(eventWindow);
@@ -42,7 +41,7 @@ add_task(async function testBiweeklyRecurrence() {
   // Check day view.
   switchToView(controller, "day");
   for (let i = 0; i < 4; i++) {
-    controller.waitForElement(lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH));
+    await dayView.waitForEventBox(controller.window);
     viewForward(controller, 14);
   }
 
@@ -51,7 +50,7 @@ add_task(async function testBiweeklyRecurrence() {
   goToDate(controller, 2009, 1, 31);
 
   for (let i = 0; i < 4; i++) {
-    controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH));
+    await weekView.waitForEventBox(controller.window, 7);
     viewForward(controller, 2);
   }
 
@@ -61,10 +60,8 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Always two occurrences in view, 1st and 3rd or 2nd and 4th week.
   for (let i = 0; i < 5; i++) {
-    controller.waitForElement(
-      lookupEventBox("multiweek", CANVAS_BOX, (i % 2) + 1, 7, null, EVENTPATH)
-    );
-    Assert.ok(lookupEventBox("multiweek", CANVAS_BOX, (i % 2) + 3, 7, null, EVENTPATH).exists());
+    await multiweekView.waitForItemAt(controller.window, (i % 2) + 1, 7);
+    Assert.ok(multiweekView.getItemAt(controller.window, (i % 2) + 3, 7));
     viewForward(controller, 1);
   }
 
@@ -73,23 +70,26 @@ add_task(async function testBiweeklyRecurrence() {
   goToDate(controller, 2009, 1, 31);
 
   // January
-  controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 5, 7, null, EVENTPATH));
+  await monthView.waitForItemAt(controller.window, 5, 7);
   viewForward(controller, 1);
 
   // February
-  controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 2, 7, null, EVENTPATH));
-  Assert.ok(lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH).exists());
+  await monthView.waitForItemAt(controller.window, 2, 7);
+  Assert.ok(monthView.getItemAt(controller.window, 4, 7));
   viewForward(controller, 1);
 
   // March
-  controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 2, 7, null, EVENTPATH));
-  Assert.ok(lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH).exists());
+  await monthView.waitForItemAt(controller.window, 2, 7);
+
+  let box = monthView.getItemAt(controller.window, 4, 7);
+  Assert.ok(box);
 
   // Delete event.
-  let box = lookupEventBox("month", CANVAS_BOX, 4, 7, null, EVENTPATH);
-  controller.click(box);
-  handleOccurrencePrompt(controller, box, "delete", true);
-  controller.waitForElementNotPresent(box);
+  let elemBox = new elib.Elem(box);
+  controller.click(elemBox);
+  handleOccurrencePrompt(controller, elemBox, "delete", true);
+
+  await monthView.waitForNoItemsAt(controller.window, 4, 7);
 
   Assert.ok(true, "Test ran to completion");
 });

@@ -8,9 +8,6 @@
  */
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-const { CalendarTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
-);
 
 const manager = cal.getCalendarManager();
 const _calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));

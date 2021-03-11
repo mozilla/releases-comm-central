@@ -7,25 +7,6 @@ const EXPORTED_SYMBOLS = [
   "MID_SLEEP",
   "TIMEOUT_MODAL_DIALOG",
   "CALENDARNAME",
-  "CALENDAR_PANEL",
-  "VIEWDECK",
-  "DAY_VIEW",
-  "WEEK_VIEW",
-  "DAYBOX",
-  "LABELDAYBOX",
-  "MULTIWEEK_VIEW",
-  "MONTH_VIEW",
-  "TASK_VIEW",
-  "MINIMONTH",
-  "TODAY_BUTTON",
-  "CALENDARLIST",
-  "TODAY_PANE",
-  "AGENDA_LISTBOX",
-  "EVENTPATH",
-  "ALARM_ICON_PATH",
-  "EVENT_BOX",
-  "CANVAS_BOX",
-  "ALLDAY",
   "helpersForController",
   "handleOccurrencePrompt",
   "switchToView",
@@ -36,15 +17,12 @@ const EXPORTED_SYMBOLS = [
   "invokeEditingEventDialog",
   "invokeEditingRepeatEventDialog",
   "execEventDialogCallback",
-  "getEventBoxPath",
-  "getEventDetails",
-  "checkAlarmIcon",
+  "checkMonthAlarmIcon",
   "viewForward",
   "viewBack",
   "closeAllEventDialogs",
   "deleteCalendars",
   "createCalendar",
-  "findEventsInNode",
   "openLightningPrefs",
   "closeLightningPrefs",
   "controller",
@@ -78,62 +56,6 @@ var CALENDARNAME = "Mozmill";
 var EVENT_DIALOG_NAME = "Calendar:EventDialog";
 var EVENT_SUMMARY_DIALOG_NAME = "Calendar:EventSummaryDialog";
 
-// These are used in EventBox lookup.
-var EVENT_BOX = 0; // Use when you need an event box.
-var CANVAS_BOX = 1; // Use when you need a calendar canvas box.
-var ALLDAY = 2; // Use when you need an allday canvas or event box.
-
-// Lookup paths and path-snippets.
-var CALENDAR_PANEL = `
-    /id("messengerWindow")/{"class":"body"}/id("tabmail-container")/id("tabmail")/id("tabmail-tabbox")/
-    id("tabpanelcontainer")/id("calendarTabPanel")/id("calendarContent")
-`;
-var VIEWDECK = `
-    ${CALENDAR_PANEL}/id("calendarDisplayBox")/id("calendar-view-box")/
-    id("view-box")
-`;
-var DAY_VIEW = `${VIEWDECK}/id("day-view")`;
-var WEEK_VIEW = `${VIEWDECK}/id("week-view")`;
-// Multiday-view-day-box of day and week view.
-var DAYBOX = `
-    {"class":"mainbox"}/{"class":"scrollbox"}/{"class":"daybox"}
-`;
-// Multiday-view-label-day-box of day and week view.
-var LABELDAYBOX = `
-    {"class":"mainbox"}/{"class":"labelbox"}/{"class":"labeldaybox"}
-`;
-var MULTIWEEK_VIEW = `${VIEWDECK}/id("multiweek-view")`;
-var MONTH_VIEW = `${VIEWDECK}/id("month-view")`;
-var TASK_VIEW = `${CALENDAR_PANEL}/id("calendarDisplayBox")/id("calendar-task-box")/`;
-
-var MINIMONTH = `
-    ${CALENDAR_PANEL}/id("ltnSidebar")/id("minimonth-pane")/{"align":"center"}/
-    id("calMinimonthBox")/id("calMinimonth")
-`;
-var TODAY_BUTTON = `
-    ${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
-    {"class":"today-button minimonth-nav-btns"}
-`;
-var CALENDARLIST = `
-    ${CALENDAR_PANEL}/id("ltnSidebar")/id("calendar-panel")/id("calendar-list-pane")/
-    id("calendar-list-inner-pane")/id("calendar-list")
-`;
-var TODAY_PANE = `
-    /id("messengerWindow")/{"class":"body"}/id("tabmail-container")/id("today-pane-panel")
-`;
-var AGENDA_LISTBOX = `
-    ${TODAY_PANE}/{"flex":"1"}/id("agenda-panel")/{"flex":"1"}/id("agenda-listbox")
-`;
-
-var EVENTPATH = `
-    /{"tooltip":"itemTooltip","calendar":"${CALENDARNAME.toLowerCase()}"}
-`;
-// Used after "${EVENTPATH}/${getEventDetails([view])}/".
-var ALARM_ICON_PATH = `
-    {"class":"category-container-box"}/{"align":"center"}/
-    {"class":"alarm-icons-box"}/{"class":"reminder-icon"}
-`;
-
 var controller;
 
 function setupModule() {
@@ -147,19 +69,9 @@ function setupModule() {
 setupModule();
 
 function helpersForController(controller) {
-  function selector(sel) {
-    return sel.trim().replace(/\n(\s*)/g, "");
-  }
-
   return {
-    lookup: sel => new elementslib.Lookup(controller.window.document, selector(sel)),
     eid: id => new elementslib.ID(controller.window.document, id),
     sleep: (timeout = MID_SLEEP) => controller.sleep(timeout),
-    getEventBoxPath: (...args) => getEventBoxPath(controller, ...args),
-    lookupEventBox: (view, option, row, column, hour, extra = "/") => {
-      let path = getEventBoxPath(controller, view, option, row, column, hour);
-      return new elementslib.Lookup(controller.window.document, selector(path + extra));
-    },
     replaceText: (textbox, text) => {
       textbox.getNode().focus();
       EventUtils.synthesizeKey("a", { accelKey: true }, controller.window);
@@ -251,78 +163,45 @@ function switchToView(controller, view) {
  * @param day           1-based index of a day
  */
 function goToDate(controller, year, month, day) {
-  let { lookup } = helpersForController(controller);
+  let miniMonth = controller.window.document.getElementById("calMinimonth");
 
-  let activeYear = lookup(`
-        ${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
-        {"class":"yearcell minimonth-year-name"}
-    `)
-    .getNode()
-    .getAttribute("value");
+  let activeYear = miniMonth.querySelector(".minimonth-year-name").value;
 
-  let activeMonth = lookup(`
-        ${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
-        {"class":"minimonth-month-name"}
-    `)
-    .getNode()
-    .getAttribute("monthIndex");
+  let activeMonth = miniMonth.querySelector(".minimonth-month-name").getAttribute("monthIndex");
 
-  let yearDifference = activeYear - year;
-  let monthDifference = activeMonth - (month - 1);
+  function doScroll(name, difference, sleepTime) {
+    if (difference === 0) {
+      return;
+    }
+    let query = `.${name}s-${difference > 0 ? "back" : "forward"}-button`;
+    let scrollArrow;
+    controller.waitFor(() => {
+      scrollArrow = miniMonth.querySelector(query);
+      return scrollArrow;
+    }, `Query for scroll: ${query}`);
 
-  if (yearDifference != 0) {
-    let scrollArrow =
-      yearDifference > 0
-        ? "years-back-button minimonth-nav-btns"
-        : "years-forward-button minimonth-nav-btns";
-    scrollArrow = lookup(
-      `${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
-            {"class":"${scrollArrow}"}`
-    );
-
-    controller.waitForElement(scrollArrow);
-    scrollArrow = scrollArrow.getNode();
-
-    for (let i = 0; i < Math.abs(yearDifference); i++) {
+    for (let i = 0; i < Math.abs(difference); i++) {
       scrollArrow.doCommand();
-      controller.sleep(10);
+      controller.sleep(sleepTime);
     }
   }
 
-  if (monthDifference != 0) {
-    let scrollArrow =
-      monthDifference > 0
-        ? "months-back-button minimonth-nav-btns"
-        : "months-forward-button minimonth-nav-btns";
-    scrollArrow = lookup(
-      `${MINIMONTH}/{"class":"minimonth-header minimonth-month-box"}/
-            {"class":"${scrollArrow}"}`
+  doScroll("year", activeYear - year, 10);
+  doScroll("month", activeMonth - (month - 1), 25);
+
+  function getMiniMonthDay(week, day) {
+    return miniMonth.querySelector(
+      `.minimonth-cal-box > tr.minimonth-row-body:nth-of-type(${week + 1}) > ` +
+        `td.minimonth-day:nth-of-type(${day})`
     );
-
-    controller.waitForElement(scrollArrow);
-    scrollArrow = scrollArrow.getNode();
-
-    for (let i = 0; i < Math.abs(monthDifference); i++) {
-      scrollArrow.doCommand();
-      controller.sleep(25);
-    }
   }
 
-  let lastDayInFirstRow = lookup(`
-        ${MINIMONTH}/{"class":"minimonth-calendar minimonth-cal-box"}/[1]/[7]
-    `).getNode().innerHTML;
-
-  let positionOfFirst = 7 - lastDayInFirstRow;
-  let dateColumn = (positionOfFirst + day - 1) % 7;
-  let dateRow = Math.floor((positionOfFirst + day - 1) / 7);
+  let positionOfFirst = 7 - getMiniMonthDay(1, 7).textContent;
+  let weekDay = ((positionOfFirst + day - 1) % 7) + 1;
+  let week = Math.floor((positionOfFirst + day - 1) / 7) + 1;
 
   // Pick day.
-  controller.click(
-    lookup(`
-        ${MINIMONTH}/{"class":"minimonth-calendar minimonth-cal-box"}/
-        [${dateRow + 1}]/[${dateColumn + 1}]
-    `)
-  );
+  controller.click(new elementslib.Elem(getMiniMonthDay(week, weekDay)));
   ensureViewLoaded(controller);
 }
 
@@ -342,7 +221,7 @@ function goToDate(controller, year, month, day) {
  * use the other invoke*EventDialog() functions for existing events instead.
  *
  * @param {MozMillController}   mWController - The main window controller.
- * @param {MozMillElement|null} clickBox     - The optional box to click on.
+ * @param {Element|null} clickBox            - The optional box to click on.
  * @param {EventDialogCallback} callback     - The function to execute while
  *                                             the event dialog is open.
  */
@@ -366,7 +245,7 @@ async function invokeNewEventDialog(mWController, clickBox, callback) {
  * use the other invoke*EventDialog() functions for existing tasks instead.
  *
  * @param {MozMillController}   mWController - The main window controller.
- * @param {MozMillElement|null} clickBox     - The optional box to click on.
+ * @param {Element|null} clickBox            - The optional box to click on.
  * @param {EventDialogCallback} callback     - The function to execute while
  *                                             the task dialog is open.
  */
@@ -398,7 +277,7 @@ async function invokeNewTaskDialog(mWController, clickBox, callback) {
  * instead of an existing one.
  *
  * @param {MozMillController} mWController      - The main window controller.
- * @param {MozMillElement|null} clickBox        - The optional box to click on.
+ * @param {Element|null} clickBox               - The optional box to click on.
  * @param {EventSummaryDialogCallback} callback - The function to execute while
  *                                                the event summary dialog is
  *                                                open.
@@ -424,7 +303,7 @@ async function invokeViewingEventDialog(mWController, clickBox, callback) {
  * of an existing one.
  *
  * @param {MozMillController} mWController - The main window controller.
- * @param {MozMillElement|null} clickBox   - The box to click on.
+ * @param {Element|null} clickBox          - The box to click on.
  * @param {EventDialogCallback} callback   - The function to execute while
  *                                           the event dialog is open.
  */
@@ -450,7 +329,7 @@ async function invokeEditingEventDialog(mWController, clickBox, callback) {
  * of an existing one.
  *
  * @param {MozMillController} mWController - The main window controller.
- * @param {MozMillElement|null} clickBox   - The box to click on.
+ * @param {Element|null} clickBox          - The box to click on.
  * @param {EventDialogCallback} callback   - The function to execute while
  *                                           the event dialog is open.
  * @param {boolean} [editAll=false]        - If true, will edit all
@@ -479,7 +358,7 @@ async function invokeEditingRepeatEventDialog(mWController, clickBox, callback, 
 
 function doubleClickOptionalEventBox(mWController, clickBox) {
   if (clickBox) {
-    mWController.waitForElement(clickBox);
+    clickBox = new elementslib.Elem(clickBox);
     mWController.doubleClick(clickBox, 1, 1);
   }
 }
@@ -517,98 +396,14 @@ function waitForItemPanelIframe(eventController) {
 }
 
 /**
- * Gets the path for an event box.
- *
- * @param controller    main window controller
- * @param view          day, week, multiweek or month
- * @param option        CANVAS_BOX or ALLDAY for creating event, EVENT_BOX for existing event
- * @param row           Only used in multiweek and month view, 1-based index of a row.
- * @param column        1-based index of a column
- * @param hour          Only used in day and week view, index of hour box.
- * @returns             path string
- */
-function getEventBoxPath(controller, view, option, row, column, hour) {
-  let path = `${VIEWDECK}/id("${view}-view")`;
-
-  if ((view == "day" || view == "week") && option == ALLDAY) {
-    return (
-      path +
-      `
-            /{"class":"mainbox"}/{"class":"headerbox"}/{"class":"headerdaybox"}/[${column - 1}]
-        `
-    );
-  } else if (view == "day" || view == "week") {
-    path += `
-            /{"class":"mainbox"}/{"class":"scrollbox"}/{"class":"daybox"}/
-            [${column - 1}]/{"class":"multiday-column-box-stack"}
-        `;
-
-    if (option == CANVAS_BOX) {
-      path += `/{"class":"multiday-column-bg-box"}/[${hour}]`;
-    } else {
-      path += `
-                /{"class":"multiday-column-top-box"}/{"flex":"1"}/{"flex":"1"}/{"flex":"1"}
-            `;
-    }
-
-    return path;
-  }
-  path += `
-            /{"class":"mainbox"}/{"class":"monthgrid"}/
-            [${row - 1}]/[${column - 1}]/[0]
-        `;
-
-  if (option == CANVAS_BOX) {
-    path += `
-                /{"class":"calendar-day-items"}
-            `;
-  }
-
-  return path;
-}
-
-/**
- * Gets the path snippet for event-details. This is different for day/week and
- * multiweek/month view.
- *
- * @param view          day, week, multiweek or month
- */
-function getEventDetails(view) {
-  if (view == "day" || view == "week") {
-    return `
-            {"flex":"1"}/{"class":"calendar-color-box"}/
-            {"class":"calendar-event-selection"}/{"class":"calendar-event-box-container"}/
-            {"class":"calendar-event-details"}
-        `;
-  }
-  return `
-            {"flex":"1"}/[0]/{"class":"calendar-color-box"}/
-            {"class":"calendar-event-selection"}/{"class":"calendar-event-box-container"}/
-            {"class":"calendar-event-details"}
-        `;
-}
-
-/**
  * Checks if Alarm-Icon is shown on a given Event-Box.
  *
- * @param view          day, week, multiweek or month
- * @param row           Only used in multiweek and month view, 1-based index of a row.
- * @param column        1-based index of a column
+ * @param week - Week to check between 1-6
+ * @param day  - Day to check between 1-7
  */
-function checkAlarmIcon(controller, view, row, column) {
-  let { lookupEventBox } = helpersForController(controller);
-  Assert.ok(
-    lookupEventBox(
-      view,
-      CANVAS_BOX,
-      row,
-      column,
-      null,
-      `
-        ${EVENTPATH}/${getEventDetails([view])}/${ALARM_ICON_PATH}
-    `
-    ).exists()
-  );
+function checkMonthAlarmIcon(controller, week, day) {
+  let dayBox = CalendarTestUtils.monthView.getItemAt(controller.window, week, day);
+  Assert.ok(dayBox.querySelector(".alarm-icons-box > .reminder-icon"));
 }
 
 /**
@@ -678,34 +473,19 @@ function deleteCalendars(controller, name) {
  * @param name          calendar name
  */
 function createCalendar(controller, name) {
-  let { lookup, eid } = helpersForController(controller);
-
-  let win = eid("messengerWindow").getNode().ownerGlobal;
-  let manager = win.cal.getCalendarManager();
+  let manager = controller.window.cal.getCalendarManager();
 
   let url = Services.io.newURI("moz-storage-calendar://");
   let calendar = manager.createCalendar("storage", url);
   calendar.name = name;
   manager.registerCalendar(calendar);
 
-  controller.click(lookup(`${CALENDARLIST}/{"calendar-id":"${calendar.id}"}`));
+  controller.click(
+    new elementslib.Elem(
+      controller.window.document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`)
+    )
+  );
   return calendar.id;
-}
-
-/**
- * Retrieves array of all calendar-event-box elements in node.
- *
- * @param node          Node to be searched.
- * @param eventNodes    Array where to put resulting nodes.
- */
-function findEventsInNode(node, eventNodes) {
-  if (node.tagName == "calendar-event-box") {
-    eventNodes.push(node);
-  } else if (node.children.length > 0) {
-    for (let child of node.children) {
-      findEventsInNode(child, eventNodes);
-    }
-  }
 }
 
 function openLightningPrefs(aCallback, aParentController) {

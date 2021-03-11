@@ -4,9 +4,6 @@
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
-  EVENTPATH,
-  EVENT_BOX,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -18,13 +15,16 @@ var {
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
 var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var { lookupEventBox } = helpersForController(controller);
+var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 
 const HOUR = 8;
 
@@ -34,51 +34,65 @@ add_task(async function testWeeklyNRecurrence() {
   goToDate(controller, 2009, 1, 5);
 
   // Create weekly recurring event.
-  let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
+  let eventBox = dayView.getHourBox(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
     saveAndCloseItemDialog(eventWindow);
   });
 
   // Check day view.
-  let box = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 0; i < 4; i++) {
-    controller.waitForElement(box);
+    await dayView.waitForEventBox(controller.window);
     viewForward(controller, 1);
   }
 
   // Not Friday.
-  controller.waitForElementNotPresent(box);
+  await dayView.waitForNoEvents(controller.window);
   viewForward(controller, 1);
 
   // Not Saturday as only 4 occurrences are set.
-  controller.waitForElementNotPresent(box);
+  await dayView.waitForNoEvents(controller.window);
 
   // Check week view.
   switchToView(controller, "week");
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {
-    controller.waitForElement(lookupEventBox("week", EVENT_BOX, null, i, null, EVENTPATH));
+    await weekView.waitForEventBox(controller.window, i);
   }
 
   // Saturday
-  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH).exists());
+  await weekView.waitForNoEvents(controller.window, 7);
 
   // Check multiweek view.
   switchToView(controller, "multiweek");
-  checkMultiWeekView("multiweek");
+
+  // Monday, Tuesday, Wednesday, Thursday
+  for (let i = 2; i < 6; i++) {
+    await multiweekView.waitForItemAt(controller.window, 1, i);
+  }
+
+  // Saturday
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 7));
 
   // Check month view.
   switchToView(controller, "month");
-  checkMultiWeekView("month");
+
+  // Monday, Tuesday, Wednesday, Thursday
+  for (let i = 2; i < 6; i++) {
+    // in month-view, start on week 2
+    await monthView.waitForItemAt(controller.window, 2, i);
+  }
+
+  // Saturday
+  Assert.ok(!monthView.getItemAt(controller.window, 2, 7));
 
   // Delete event.
-  box = lookupEventBox("month", CANVAS_BOX, 2, 2, null, EVENTPATH);
+  let box = new elib.Elem(await monthView.waitForItemAt(controller.window, 2, 2));
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);
-  controller.waitForElementNotPresent(box);
+  await monthView.waitForNoItemsAt(controller.window, 2, 2);
 
   Assert.ok(true, "Test ran to completion");
 });
@@ -135,19 +149,6 @@ async function setRecurrence(recurrenceWindow) {
     {},
     recurrenceWindow
   );
-}
-
-function checkMultiWeekView(view) {
-  // In month view event starts from 2nd row.
-  let week = view == "month" ? 2 : 1;
-
-  // Monday, Tuesday, Wednesday, Thursday
-  for (let i = 2; i < 6; i++) {
-    Assert.ok(lookupEventBox(view, CANVAS_BOX, week, i, null, EVENTPATH).exists());
-  }
-
-  // Saturday
-  Assert.ok(!lookupEventBox(view, CANVAS_BOX, week, 7, null, EVENTPATH).exists());
 }
 
 registerCleanupFunction(function teardownModule() {

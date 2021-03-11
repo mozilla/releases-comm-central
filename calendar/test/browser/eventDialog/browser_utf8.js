@@ -3,13 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {
-  CANVAS_BOX,
-  EVENT_BOX,
   closeAllEventDialogs,
   controller,
   createCalendar,
   deleteCalendars,
-  helpersForController,
   invokeNewEventDialog,
   invokeEditingEventDialog,
   switchToView,
@@ -20,8 +17,6 @@ var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var { lookupEventBox } = helpersForController(controller);
-
 var UTF8STRING = " 💣 💥  ☣  ";
 
 add_task(async function testUTF8() {
@@ -30,7 +25,7 @@ add_task(async function testUTF8() {
   switchToView(controller, "day");
 
   // Create new event.
-  let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+  let eventBox = CalendarTestUtils.dayView.getHourBox(controller.window, 8);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Fill in name, location, description.
     await setData(eventWindow, iframeWindow, {
@@ -43,8 +38,7 @@ add_task(async function testUTF8() {
   });
 
   // open
-  let eventPath = `/{"tooltip":"itemTooltip","calendar":"${UTF8STRING.toLowerCase()}"}`;
-  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, eventPath);
+  eventBox = await CalendarTestUtils.dayView.waitForEventBox(controller.window);
   await invokeEditingEventDialog(controller, eventBox, (eventWindow, iframeWindow) => {
     let iframeDocument = iframeWindow.document;
 

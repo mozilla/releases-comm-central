@@ -4,9 +4,6 @@
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
-  EVENTPATH,
-  EVENT_BOX,
   closeAllEventDialogs,
   controller,
   createCalendar,
@@ -16,27 +13,35 @@ var {
   helpersForController,
   invokeNewEventDialog,
   invokeEditingRepeatEventDialog,
-  switchToView,
-  viewBack,
-  viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
-var { lookupEventBox } = helpersForController(controller);
+var {
+  calendarViewBackward,
+  calendarViewForward,
+  setCalendarView,
+  dayView,
+  weekView,
+  multiweekView,
+  monthView,
+} = CalendarTestUtils;
 
 const HOUR = 8;
 const TITLE = "Event";
 
 add_task(async function testDailyRecurrence() {
   createCalendar(controller, CALENDARNAME);
-  switchToView(controller, "day");
+  await setCalendarView(controller.window, "day");
   goToDate(controller, 2009, 1, 1);
 
   // Create daily event.
-  let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
+  let eventBox = dayView.getHourBox(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: TITLE,
@@ -47,78 +52,73 @@ add_task(async function testDailyRecurrence() {
   });
 
   // Check day view for 7 days.
-  let daybox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  controller.waitForElement(daybox);
-
   for (let day = 1; day <= 7; day++) {
-    controller.waitForElement(daybox);
-    viewForward(controller, 1);
+    await dayView.waitForEventBox(controller.window);
+    await calendarViewForward(controller.window, 1);
   }
 
   // Check week view for 2 weeks.
-  switchToView(controller, "week");
+  await setCalendarView(controller.window, "week");
   goToDate(controller, 2009, 1, 1);
 
   for (let day = 5; day <= 7; day++) {
-    controller.waitForElement(lookupEventBox("week", EVENT_BOX, 1, day, null, EVENTPATH));
+    await weekView.waitForEventBox(controller.window, day);
   }
 
-  viewForward(controller, 1);
+  await calendarViewForward(controller.window, 1);
 
   for (let day = 1; day <= 7; day++) {
-    controller.waitForElement(lookupEventBox("week", EVENT_BOX, 2, day, null, EVENTPATH));
+    await weekView.waitForEventBox(controller.window, day);
   }
 
   // Check multiweek view for 4 weeks.
-  switchToView(controller, "multiweek");
+  await setCalendarView(controller.window, "multiweek");
   goToDate(controller, 2009, 1, 1);
 
   for (let day = 5; day <= 7; day++) {
-    controller.waitForElement(lookupEventBox("multiweek", CANVAS_BOX, 1, day, null, EVENTPATH));
+    await multiweekView.waitForItemAt(controller.window, 1, day);
   }
 
   for (let week = 2; week <= 4; week++) {
     for (let day = 1; day <= 7; day++) {
-      controller.waitForElement(
-        lookupEventBox("multiweek", CANVAS_BOX, week, day, null, EVENTPATH)
-      );
+      await multiweekView.waitForItemAt(controller.window, week, day);
     }
   }
   // Check month view for all 5 weeks.
-  switchToView(controller, "month");
+  await setCalendarView(controller.window, "month");
   goToDate(controller, 2009, 1, 1);
 
   for (let day = 5; day <= 7; day++) {
-    controller.waitForElement(lookupEventBox("month", CANVAS_BOX, 1, day, null, EVENTPATH));
+    await monthView.waitForItemAt(controller.window, 1, day);
   }
 
   for (let week = 2; week <= 5; week++) {
     for (let day = 1; day <= 7; day++) {
-      Assert.ok(lookupEventBox("month", CANVAS_BOX, week, day, null, EVENTPATH).exists());
+      await monthView.waitForItemAt(controller.window, week, day);
     }
   }
 
   // Delete 3rd January occurrence.
-  let saturday = lookupEventBox("month", CANVAS_BOX, 1, 7, null, EVENTPATH);
+  let saturday = new elib.Elem(await monthView.waitForItemAt(controller.window, 1, 7));
   controller.click(saturday);
   handleOccurrencePrompt(controller, saturday, "delete", false);
 
   // Verify in all views.
-  controller.waitForElementNotPresent(saturday);
+  await monthView.waitForNoItemsAt(controller.window, 1, 7);
 
-  switchToView(controller, "multiweek");
-  Assert.ok(!lookupEventBox("multiweek", CANVAS_BOX, 1, 7, null, EVENTPATH).exists());
+  await setCalendarView(controller.window, "multiweek");
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 7));
 
-  switchToView(controller, "week");
-  Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH).exists());
+  await setCalendarView(controller.window, "week");
+  Assert.ok(!weekView.getEventBox(controller.window, 7));
 
-  switchToView(controller, "day");
-  Assert.ok(!lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH).exists());
+  await setCalendarView(controller.window, "day");
+  Assert.ok(!dayView.getEventBox(controller.window));
 
   // Go to previous day to edit event to occur only on weekdays.
-  viewBack(controller, 1);
+  await calendarViewBackward(controller.window, 1);
 
-  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  eventBox = await dayView.waitForEventBox(controller.window);
   await invokeEditingRepeatEventDialog(
     controller,
     eventBox,
@@ -130,53 +130,48 @@ add_task(async function testDailyRecurrence() {
   );
 
   // Check day view for 7 days.
-  let day = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
   let dates = [
     [2009, 1, 3],
     [2009, 1, 4],
   ];
   for (let [y, m, d] of dates) {
     goToDate(controller, y, m, d);
-    Assert.ok(!day.exists());
+    Assert.ok(!dayView.getEventBox(controller.window));
   }
 
   // Check week view for 2 weeks.
-  switchToView(controller, "week");
+  await setCalendarView(controller.window, "week");
   goToDate(controller, 2009, 1, 1);
 
   for (let i = 0; i <= 1; i++) {
-    controller.waitForElementNotPresent(
-      lookupEventBox("week", EVENT_BOX, null, 1, null, EVENTPATH)
-    );
-    Assert.ok(!lookupEventBox("week", EVENT_BOX, null, 7, null, EVENTPATH).exists());
-    viewForward(controller, 1);
+    await weekView.waitForNoEvents(controller.window, 1);
+    Assert.ok(!weekView.getEventBox(controller.window, 7));
+    await calendarViewForward(controller.window, 1);
   }
 
   // Check multiweek view for 4 weeks.
-  switchToView(controller, "multiweek");
+  await setCalendarView(controller.window, "multiweek");
   goToDate(controller, 2009, 1, 1);
 
   for (let i = 1; i <= 4; i++) {
-    controller.waitForElementNotPresent(
-      lookupEventBox("multiweek", CANVAS_BOX, i, 1, null, EVENTPATH)
-    );
-    Assert.ok(!lookupEventBox("multiweek", CANVAS_BOX, i, 7, null, EVENTPATH).exists());
+    await multiweekView.waitForNoItemsAt(controller.window, i, 1);
+    Assert.ok(!multiweekView.getItemAt(controller.window, i, 7));
   }
 
   // Check month view for all 5 weeks.
-  switchToView(controller, "month");
+  await setCalendarView(controller.window, "month");
   goToDate(controller, 2009, 1, 1);
 
   for (let i = 1; i <= 5; i++) {
-    controller.waitForElementNotPresent(lookupEventBox("month", CANVAS_BOX, i, 1, null, EVENTPATH));
-    Assert.ok(!lookupEventBox("month", CANVAS_BOX, i, 7, null, EVENTPATH).exists());
+    await monthView.waitForNoItemsAt(controller.window, i, 1);
+    Assert.ok(!monthView.getItemAt(controller.window, i, 7));
   }
 
   // Delete event.
-  day = lookupEventBox("month", CANVAS_BOX, 1, 5, null, EVENTPATH);
+  let day = new elib.Elem(monthView.getItemAt(controller.window, 1, 5));
   controller.click(day);
   handleOccurrencePrompt(controller, day, "delete", true);
-  controller.waitForElementNotPresent(day);
+  await monthView.waitForNoItemsAt(controller.window, 1, 5);
 
   Assert.ok(true, "Test ran to completion");
 });

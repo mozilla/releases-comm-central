@@ -4,15 +4,10 @@
 
 var {
   CALENDARNAME,
-  CANVAS_BOX,
-  EVENTPATH,
-  EVENT_BOX,
-  WEEK_VIEW,
   closeAllEventDialogs,
   controller,
   createCalendar,
   deleteCalendars,
-  getEventDetails,
   goToDate,
   helpersForController,
   invokeNewEventDialog,
@@ -23,9 +18,13 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
 
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var { lookup, lookupEventBox } = helpersForController(controller);
+const { weekView } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+).CalendarTestUtils;
 
 var TITLE1 = "Week View Event";
 var TITLE2 = "Week View Event Changed";
@@ -37,15 +36,16 @@ add_task(async function testWeekView() {
   goToDate(controller, 2009, 1, 1);
 
   // Verify date.
-  let day = lookup(`
-        ${WEEK_VIEW}/{"class":"mainbox"}/{"class":"headerbox"}/
-        {"class":"headerdaybox"}/{"selected":"true"}
-    `);
-  controller.waitFor(() => day.getNode().mDate.icalString == "20090101");
+  await TestUtils.waitForCondition(() => {
+    let dateLabel = controller.window.document.querySelector(
+      "#week-view calendar-header-container[selected=true]"
+    );
+    return dateLabel && dateLabel.mDate.icalString == "20090101";
+  }, "Inspecting the date");
 
   // Create event at 8 AM.
   // Thursday of 2009-01-01 is 4th with default settings.
-  let eventBox = lookupEventBox("week", CANVAS_BOX, null, 5, 8);
+  let eventBox = weekView.getHourBox(controller.window, 5, 8);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Check that the start time is correct.
     let someDate = cal.createDateTime();
@@ -69,7 +69,7 @@ add_task(async function testWeekView() {
   });
 
   // If it was created successfully, it can be opened.
-  eventBox = lookupEventBox("week", EVENT_BOX, null, 5, null, EVENTPATH);
+  eventBox = await weekView.waitForEventBox(controller.window, 5);
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
@@ -77,24 +77,16 @@ add_task(async function testWeekView() {
   });
 
   // Check if name was saved.
-  let eventName = lookupEventBox(
-    "week",
-    EVENT_BOX,
-    null,
-    5,
-    null,
-    `${EVENTPATH}/${getEventDetails(
-      "week"
-    )}/{"flex":"1"}/{"class":"calendar-event-details-core event-name-label"}`
-  );
-  controller.waitForElement(eventName);
-  controller.waitFor(() => eventName.getNode().textContent == TITLE2);
+  eventBox = await weekView.waitForEventBox(controller.window, 5);
+  let eventName = eventBox.querySelector(".calendar-event-details-core");
+  Assert.ok(eventName);
+  Assert.ok(eventName.textContent == TITLE2);
 
   // Delete event.
-  controller.click(eventBox);
-  eventBox.getNode().focus();
+  controller.click(new elib.Elem(eventBox));
+  eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  controller.waitForElementNotPresent(eventBox);
+  await weekView.waitForNoEvents(controller.window, 5);
 
   Assert.ok(true, "Test ran to completion");
 });

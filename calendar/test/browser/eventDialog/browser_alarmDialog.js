@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {
-  ALLDAY,
   CALENDARNAME,
-  EVENTPATH,
   TIMEOUT_MODAL_DIALOG,
   closeAllEventDialogs,
   controller,
@@ -18,6 +16,9 @@ var {
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+
+var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
+
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
@@ -25,7 +26,7 @@ var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { lookupEventBox } = helpersForController(controller);
+var { dayView } = CalendarTestUtils;
 
 add_task(async function testAlarmDialog() {
   let now = new Date();
@@ -37,7 +38,9 @@ add_task(async function testAlarmDialog() {
   goToDate(controller, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
   viewForward(controller, 1);
 
-  controller.click(lookupEventBox("day", ALLDAY, undefined, 1));
+  let allDayHeader = dayView.getAllDayHeader(controller.window);
+  Assert.ok(allDayHeader);
+  controller.click(new elib.Elem(allDayHeader));
 
   // Create a new all-day event tomorrow.
   await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
@@ -62,7 +65,7 @@ add_task(async function testAlarmDialog() {
   wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 
   // Change the reminder duration, this resets the alarm.
-  let eventBox = lookupEventBox("day", ALLDAY, undefined, 1, undefined, EVENTPATH);
+  let eventBox = await dayView.waitForAllDayItem(controller.window);
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { reminder: "2days", title: TITLE });
 
