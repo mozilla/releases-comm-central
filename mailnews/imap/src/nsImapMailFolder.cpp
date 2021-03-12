@@ -8473,9 +8473,11 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     if (msgFlags & nsMsgMessageFlags::Offline) {
       int64_t messageOffset;
       uint32_t messageSize;
-      GetOfflineFileStream(msgKey, &messageOffset, &messageSize,
-                           getter_AddRefs(inputStream));
-      if (inputStream) rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
+      rv = GetOfflineFileStream(msgKey, &messageOffset, &messageSize,
+                                getter_AddRefs(inputStream));
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = GetMsgPreviewTextFromStream(msgHdr, inputStream);
+      NS_ENSURE_SUCCESS(rv, rv);
     } else if (!aLocalOnly) {
       keysToFetchFromServer.AppendElement(msgKey);
     }

@@ -296,10 +296,6 @@ NS_IMETHODIMP nsMailboxService::StreamHeaders(const char* aMessageURI,
   rv = folder->GetOfflineFileStream(msgKey, &messageOffset, &messageSize,
                                     getter_AddRefs(inputStream));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  // GetOfflineFileStream returns NS_OK but null inputStream when there is an
-  // error getting the database
-  if (!inputStream) return NS_ERROR_FAILURE;
   return MsgStreamMsgHeaders(inputStream, aConsumer);
 }
 

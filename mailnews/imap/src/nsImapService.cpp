@@ -1087,11 +1087,9 @@ NS_IMETHODIMP nsImapService::StreamMessage(
   if (msgKey.IsEmpty()) return NS_MSG_MESSAGE_NOT_FOUND;
   rv = nsParseImapMessageURI(aMessageURI, folderURI, &key,
                              getter_Copies(mimePart));
-
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImapMessageSink> imapMessageSink(do_QueryInterface(folder, &rv));
-
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIImapUrl> imapUrl;
@@ -1172,29 +1170,22 @@ NS_IMETHODIMP nsImapService::StreamHeaders(const char* aMessageURI,
   if (msgKey.IsEmpty()) return NS_MSG_MESSAGE_NOT_FOUND;
   rv = nsParseImapMessageURI(aMessageURI, folderURI, &key,
                              getter_Copies(mimePart));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIInputStream> inputStream;
-    bool hasMsgOffline = false;
-    folder->HasMsgOffline(key, &hasMsgOffline);
-    if (hasMsgOffline) {
-      int64_t messageOffset;
-      uint32_t messageSize;
-      rv = folder->GetOfflineFileStream(key, &messageOffset, &messageSize,
-                                        getter_AddRefs(inputStream));
-      if (NS_SUCCEEDED(rv) && inputStream)
-        return MsgStreamMsgHeaders(inputStream, aConsumer);
-      else {
-        NS_ASSERTION(false,
-                     "UNLIKELY but returning in StreamHeaders. Bug 1596036 "
-                     "comment 14 onwards\n");
-        return NS_ERROR_FAILURE;
-      }
-    }
+  nsCOMPtr<nsIInputStream> inputStream;
+  bool hasMsgOffline = false;
+  folder->HasMsgOffline(key, &hasMsgOffline);
+  if (hasMsgOffline) {
+    int64_t messageOffset;
+    uint32_t messageSize;
+    rv = folder->GetOfflineFileStream(key, &messageOffset, &messageSize,
+                                      getter_AddRefs(inputStream));
+    NS_ENSURE_SUCCESS(rv, rv);
+    return MsgStreamMsgHeaders(inputStream, aConsumer);
   }
 
   if (aLocalOnly) return NS_ERROR_FAILURE;
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsImapService::IsMsgInMemCache(nsIURI* aUrl,

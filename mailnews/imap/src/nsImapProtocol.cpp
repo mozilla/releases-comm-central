@@ -9493,55 +9493,53 @@ bool nsImapMockChannel::ReadFromLocalCache() {
 
   bool useLocalCache = false;
   mailnewsUrl->GetMsgIsInLocalCache(&useLocalCache);
-  if (useLocalCache) {
-    nsAutoCString messageIdString;
+  if (!useLocalCache) {
+    return false;
+  }
 
-    SetupPartExtractorListener(imapUrl, m_channelListener);
+  nsAutoCString messageIdString;
 
-    imapUrl->GetListOfMessageIds(messageIdString);
-    nsCOMPtr<nsIMsgFolder> folder;
-    rv = mailnewsUrl->GetFolder(getter_AddRefs(folder));
-    if (folder && NS_SUCCEEDED(rv)) {
-      // we want to create a file channel and read the msg from there.
-      nsCOMPtr<nsIInputStream> fileStream;
-      nsMsgKey msgKey = strtoul(messageIdString.get(), nullptr, 10);
-      uint32_t size;
-      int64_t offset;
-      rv = folder->GetOfflineFileStream(msgKey, &offset, &size,
-                                        getter_AddRefs(fileStream));
-      // get the file channel from the folder, somehow (through the message or
-      // folder sink?) We also need to set the transfer offset to the message
-      // offset
-      if (NS_SUCCEEDED(rv) && fileStream) {
-        // dougt - This may break the ablity to "cancel" a read from offline
-        // mail reading. fileChannel->SetLoadGroup(m_loadGroup);
-        RefPtr<nsImapCacheStreamListener> cacheListener =
-            new nsImapCacheStreamListener();
-        cacheListener->Init(m_channelListener, this);
+  SetupPartExtractorListener(imapUrl, m_channelListener);
 
-        // create a stream pump that will async read the specified amount of
-        // data.
-        // XXX make size 64-bit int
-        RefPtr<SlicedInputStream> slicedStream = new SlicedInputStream(
-            fileStream.forget(), uint64_t(offset), uint64_t(size));
-        nsCOMPtr<nsIInputStreamPump> pump;
-        rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
-        if (NS_SUCCEEDED(rv)) rv = pump->AsyncRead(cacheListener);
+  imapUrl->GetListOfMessageIds(messageIdString);
+  nsCOMPtr<nsIMsgFolder> folder;
+  rv = mailnewsUrl->GetFolder(getter_AddRefs(folder));
+  NS_ENSURE_SUCCESS(rv, false);
+  if (!folder) {
+    return false;
+  }
+  // we want to create a file channel and read the msg from there.
+  nsCOMPtr<nsIInputStream> fileStream;
+  nsMsgKey msgKey = strtoul(messageIdString.get(), nullptr, 10);
+  uint32_t size;
+  int64_t offset;
+  rv = folder->GetOfflineFileStream(msgKey, &offset, &size,
+                                    getter_AddRefs(fileStream));
+  NS_ENSURE_SUCCESS(rv, false);
+  // get the file channel from the folder, somehow (through the message or
+  // folder sink?) We also need to set the transfer offset to the message
+  // offset
+  // dougt - This may break the ablity to "cancel" a read from offline
+  // mail reading. fileChannel->SetLoadGroup(m_loadGroup);
+  RefPtr<nsImapCacheStreamListener> cacheListener =
+      new nsImapCacheStreamListener();
+  cacheListener->Init(m_channelListener, this);
 
-        if (NS_SUCCEEDED(rv))  // ONLY if we succeeded in actually starting the
-                               // read should we return
-        {
-          // if the msg is unread, we should mark it read on the server. This
-          // lets the code running this url we're loading from the cache, if it
-          // cares.
-          imapUrl->SetMsgLoadingFromCache(true);
-          return true;
-        }
-      }  // if we got an offline file transport
-    }    // if we got the folder for this url
-  }      // if use local cache
+  // create a stream pump that will async read the specified amount of
+  // data.
+  // XXX make size 64-bit int
+  RefPtr<SlicedInputStream> slicedStream = new SlicedInputStream(
+      fileStream.forget(), uint64_t(offset), uint64_t(size));
+  nsCOMPtr<nsIInputStreamPump> pump;
+  rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
+  NS_ENSURE_SUCCESS(rv, false);
+  rv = pump->AsyncRead(cacheListener);
+  NS_ENSURE_SUCCESS(rv, false);
 
-  return false;
+  // if the msg is unread, we should mark it read on the server. This lets
+  // the code running this url know we're loading from the cache, if it cares.
+  imapUrl->SetMsgLoadingFromCache(true);
+  return true;
 }
 
 NS_IMETHODIMP nsImapMockChannel::AsyncOpen(nsIStreamListener* aListener) {
