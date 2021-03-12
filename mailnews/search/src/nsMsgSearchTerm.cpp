@@ -43,6 +43,7 @@
 #include "nsIAbManager.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/Utf8.h"
 
 using namespace mozilla::mailnews;
 
