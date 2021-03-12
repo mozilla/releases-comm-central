@@ -145,7 +145,7 @@
       {
         "name": "getRaw",
         "type": "function",
-        "description": "Returns the unmodified source of a message.",
+        "description": "Returns the unmodified source of a message as a `binary string <https://developer.mozilla.org/en-US/docs/Web/API/DOMString/Binary>`__.",
         "async": true,
         "parameters": [
           {

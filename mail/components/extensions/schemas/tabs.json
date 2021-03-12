@@ -59,8 +59,17 @@
       {
         "id": "WindowType",
         "type": "string",
-        "enum": ["normal", "popup", "panel", "app", "devtools"],
-        "description": "The type of window."
+        "description": "The type of a window. Under some circumstances a Window may not be assigned a type property.",
+        "enum": [
+          "normal",
+          "popup",
+          "panel",
+          "app",
+          "devtools",
+          "addressBook",
+          "messageCompose",
+          "messageDisplay"
+        ]
       },
       {
         "id": "UpdatePropertyName",

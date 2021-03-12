@@ -43,7 +43,7 @@
       {
         "name": "getDisplayedMessage",
         "type": "function",
-        "description": "Gets the currently displayed message in the specified tab. It returns null if no messages are selected, or if multiple messages are selected.",
+        "description": "Gets the currently displayed message in the specified tab. It returns null if no messages are displayed, or if multiple messages are displayed.",
         "async": true,
         "parameters": [
           {

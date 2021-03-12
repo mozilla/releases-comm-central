@@ -191,7 +191,7 @@
       {
         "name": "onBeforeSend",
         "type": "function",
-        "description": "Fired when a message is about to be sent from the compose window.",
+        "description": "Fired when a message is about to be sent from the compose window. This is a user input event handler. For asynchronous listeners some `restrictions <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/User_actions>`__ apply.",
         "permissions": [
           "compose"
         ],
