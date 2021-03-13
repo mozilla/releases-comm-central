@@ -612,17 +612,38 @@ function addressInputOnBeforeHandleKeyDown(event) {
 
   switch (event.key) {
     case "a":
-      // Select all the pills if the input is empty and the SHIFT key wasn't
-      // pressed, to not interfere with global compose shortcuts.
-      if ((event.ctrlKey || event.metaKey) && !input.value && !event.shiftKey) {
-        // Prevent a pill keypress event when the focus moves on it.
-        event.preventDefault();
+      // Break if there's text in the input, if not Ctrl/Cmd+A, or for other
+      // modifiers, to not hijack our own (Ctrl/Cmd+Shift+A) or OS shortcuts.
+      if(
+        input.value ||
+        !(AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey) ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        break;
+      }
 
-        let previous = input.previousElementSibling;
-        if (previous && previous.tagName == "mail-address-pill") {
-          input.closest("mail-recipients-area").selectPills(previous);
-          previous.focus();
-        }
+      // Ctrl/Cmd+A on empty input: Select all pills of the current row.
+      // Prevent a pill keypress event when the focus moves on it.
+      event.preventDefault();
+
+      let lastPill = input.closest(".address-container").querySelector(
+        "mail-address-pill:last-of-type"
+      );
+      let mailRecipientsArea = input.closest("mail-recipients-area");
+      if (lastPill) {
+        // Select all pills of current address row.
+        mailRecipientsArea.selectPills(lastPill);
+        lastPill.focus();
+        break;
+      }
+      // No pills in the current address row, select all pills in all rows.
+      let lastPillGlobal = mailRecipientsArea.querySelector(
+        "mail-address-pill:last-of-type"
+      );
+      if (lastPillGlobal) {
+        mailRecipientsArea.selectAllPills(lastPillGlobal);
+        lastPillGlobal.focus();
       }
       break;
 
