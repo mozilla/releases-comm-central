@@ -43,8 +43,20 @@ ChromeUtils.defineModuleGetter(
 
 ChromeUtils.defineModuleGetter(
   this,
+  "EventTimeline",
+  "resource:///modules/matrix-sdk.jsm"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
   "DownloadUtils",
   "resource://gre/modules/DownloadUtils.jsm"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "MatrixPowerLevels",
+  "resource:///modules/matrixPowerLevels.jsm"
 );
 
 function MatrixParticipant(roomMember, account) {
@@ -68,18 +80,17 @@ MatrixParticipant.prototype = {
     return "";
   },
 
-  // See https://matrix.org/docs/spec/client_server/r0.5.0#m-room-power-levels
   get voiced() {
-    return this._roomMember.powerLevelNorm >= 10;
+    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.voice;
   },
   get halfOp() {
-    return this._roomMember.powerLevelNorm >= 25;
+    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.halfOp;
   },
   get op() {
-    return this._roomMember.powerLevelNorm >= 50;
+    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.op;
   },
   get founder() {
-    return this._roomMember.powerLevelNorm == 100;
+    return this._roomMember.powerLevelNorm == MatrixPowerLevels.founder;
   },
 };
 
@@ -155,6 +166,9 @@ MatrixConversation.prototype = {
   get room() {
     return this._account._client.getRoom(this._roomId);
   },
+  get roomState() {
+    return this.room.getLiveTimeline().getState(EventTimeline.FORWARDS);
+  },
   addParticipant(roomMember) {
     if (this._participants.has(roomMember.userId)) {
       return;
@@ -204,8 +218,9 @@ MatrixConversation.prototype = {
       );
     }
 
-    if (room.currentState.getStateEvents("m.room.topic").length) {
-      let event = room.currentState.getStateEvents("m.room.topic")[0];
+    let roomState = this.roomState;
+    if (roomState.getStateEvents("m.room.topic").length) {
+      let event = roomState.getStateEvents("m.room.topic")[0];
       this.setTopic(event.getContent().topic, event.getSender().name, true);
     }
   },
@@ -216,16 +231,17 @@ MatrixConversation.prototype = {
 
   set topic(aTopic) {
     // Check if our user has the permissions to set the topic.
-    if (this.topicSettable) {
+    if (this.topicSettable && aTopic !== this.topic) {
       this._account._client.setRoomTopic(this._roomId, aTopic);
+      //TODO write system notice about topic change?
     }
   },
 
   get topicSettable() {
-    return (
-      this.room &&
-      this.room.currentState.maySendEvent("m.room.topic", this._account.userId)
-    );
+    if (this.room) {
+      return this.roomState.maySendEvent("m.room.topic", this._account.userId);
+    }
+    return false;
   },
 };
 Object.assign(MatrixConversation.prototype, GenericMatrixConversation);
@@ -870,6 +886,9 @@ MatrixAccount.prototype = {
         .catch(error => {
           this.ERROR(error);
           conv.joining = false;
+          // TODO we should probably only close (send a leave) when the actual
+          // join failed, not when initRoom errors, at least for rooms we get
+          // during initial sync.
           conv.close();
         });
 
@@ -1245,7 +1264,12 @@ MatrixAccount.prototype = {
   _client: null,
 };
 
-function MatrixProtocol() {}
+function MatrixProtocol() {
+  this.commands = ChromeUtils.import(
+    "resource:///modules/matrixCommands.jsm"
+  ).commands;
+  this.registerCommands();
+}
 MatrixProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get normalizedName() {
