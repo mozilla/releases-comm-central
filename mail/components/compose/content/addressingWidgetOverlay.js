@@ -614,7 +614,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
     case "a":
       // Break if there's text in the input, if not Ctrl/Cmd+A, or for other
       // modifiers, to not hijack our own (Ctrl/Cmd+Shift+A) or OS shortcuts.
-      if(
+      if (
         input.value ||
         !(AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey) ||
         event.shiftKey ||
@@ -627,9 +627,9 @@ function addressInputOnBeforeHandleKeyDown(event) {
       // Prevent a pill keypress event when the focus moves on it.
       event.preventDefault();
 
-      let lastPill = input.closest(".address-container").querySelector(
-        "mail-address-pill:last-of-type"
-      );
+      let lastPill = input
+        .closest(".address-container")
+        .querySelector("mail-address-pill:last-of-type");
       let mailRecipientsArea = input.closest("mail-recipients-area");
       if (lastPill) {
         // Select all pills of current address row.
