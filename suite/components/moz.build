@@ -17,6 +17,7 @@ DIRS += [
     "places",
     "pref",
     "profile",
+    "sanitize",
     "search",
     "security",
     "sessionstore",

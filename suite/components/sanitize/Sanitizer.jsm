@@ -52,7 +52,7 @@ var Sanitizer = {
       let win = AppConstants.platform == "macosx" ? null : aParentWindow;
 
       Services.ww.openWindow(win,
-                             "chrome://communicator/content/sanitize.xul",
+                             "chrome://communicator/content/sanitizeDialog.xul",
                              "Sanitize",
                              "chrome,titlebar,centerscreen,dialog,modal",
                              null);

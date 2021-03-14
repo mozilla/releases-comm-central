@@ -10,7 +10,6 @@ EXTRA_JS_MODULES += [
     "OpenInTabsUtils.jsm",
     "PermissionUI.jsm",
     "RecentWindow.jsm",
-    "Sanitizer.jsm",
     "SitePermissions.jsm",
     "ThemeVariableMap.jsm",
     "WindowsPreviewPerTab.jsm",
