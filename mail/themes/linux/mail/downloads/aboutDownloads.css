@@ -3,3 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/aboutDownloads.css");
+
+.downloadButton > .button-box > .button-icon {
+  list-style-image: url("chrome://global/skin/icons/folder.svg");
+}

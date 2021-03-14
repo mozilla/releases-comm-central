@@ -41,3 +41,7 @@
     outline-offset: -2px;
   }
 }
+
+.downloadButton > .button-box > .button-icon {
+  list-style-image: url("chrome://global/skin/icons/folder.svg");
+}

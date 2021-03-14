@@ -127,7 +127,6 @@
   width: 16px;
   height: 16px;
   margin: 0;
-  list-style-image: url("chrome://global/skin/icons/findFile.svg");
   -moz-context-properties: fill;
   fill: currentColor;
 }
