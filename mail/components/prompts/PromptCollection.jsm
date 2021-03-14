@@ -24,7 +24,7 @@ class PromptCollection {
 
     try {
       title = this.domBundle.GetStringFromName("OnBeforeUnloadTitle");
-      message = this.domBundle.GetStringFromName("OnBeforeUnloadMessage");
+      message = this.domBundle.GetStringFromName("OnBeforeUnloadMessage2");
       leaveLabel = this.domBundle.GetStringFromName(
         "OnBeforeUnloadLeaveButton"
       );
