@@ -561,6 +561,7 @@ modern.jar:
   skin/modern/messenger/smime/icons/hdrCryptoOk.gif                (messenger/smime/icons/hdrCryptoOk.gif)
   skin/modern/messenger/smime/icons/hdrCryptoNotOk.gif             (messenger/smime/icons/hdrCryptoNotOk.gif)
   skin/modern/messenger-newsblog/feed-subscriptions.css            (messenger/newsblog/feed-subscriptions.css)
+  skin/modern/messenger-newsblog/icons/rss-feed.png                (messenger/newsblog/rss-feed.png)
   skin/modern/mozapps/aboutNetworking.css                          (mozapps/aboutNetworking.css)
   skin/modern/mozapps/downloads/downloadIcon.png                   (mozapps/downloads/downloadIcon.png)
   skin/modern/mozapps/downloads/downloads.css                      (mozapps/downloads/downloads.css)

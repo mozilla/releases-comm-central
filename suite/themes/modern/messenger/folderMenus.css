@@ -18,9 +18,13 @@
   list-style-image: url("chrome://messenger/skin/icons/folder-open.gif");
 }
 
-.folderMenuItem[ServerType="rss"],
 .folderMenuItem[ServerType="nntp"] {
   list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.gif");
+}
+
+.folderMenuItem[ServerType="rss"] {
+  list-style-image: url("chrome://messenger-newsblog/skin/icons/rss-feed.png");
+  -moz-image-region: rect(0 16px 16px 0);
 }
 
 /* ..... special folders ..... */

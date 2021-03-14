@@ -453,6 +453,7 @@ classic.jar:
   skin/classic/messenger/smime/icons/hdrCryptoOk.gif                    (messenger/smime/icons/hdrCryptoOk.gif)
   skin/classic/messenger/smime/icons/hdrCryptoNotOk.gif                 (messenger/smime/icons/hdrCryptoNotOk.gif)
   skin/classic/messenger-newsblog/feed-subscriptions.css                (messenger/newsblog/feed-subscriptions.css)
+  skin/classic/messenger-newsblog/icons/rss-feed.png                    (messenger/newsblog/rss-feed.png)
 #ifdef XP_MACOSX
   skin/classic/navigator/navigator.css                                  (mac/navigator/navigator.css)
   skin/classic/navigator/linkToolbar.css                                (mac/navigator/linkToolbar.css)
