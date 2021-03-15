@@ -63,11 +63,6 @@ misc realchrome::
 	  $(srcdir)/generic/install.rdf -o $(DIST)/xpi-stage/$(XPI_NAME)/install.rdf)
 endif
 
-ifdef AB_CD
-.PHONY: l10n
-l10n: misc ;
-endif
-
 l10n-%: AB_CD=$*
 l10n-%:
 	# XXX: it would be nice if we could just do nothing if no langpack is being done

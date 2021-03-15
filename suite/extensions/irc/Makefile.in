@@ -44,11 +44,6 @@ misc realchrome:: locales/Makefile
 	  $(MAKE) -C locales AB_CD=$$locale; \
 	done
 
-ifdef AB_CD
-.PHONY: l10n
-l10n: misc ;
-endif
-
 export::
 	$(NSINSTALL) -D $(FINAL_TARGET)/chrome/icons/default
 	$(INSTALL) $(srcdir)/xpi/resources/chatzilla-window* $(FINAL_TARGET)/chrome/icons/default
