@@ -9,11 +9,6 @@ ChromeUtils.defineModuleGetter(
   "Services",
   "resource://gre/modules/Services.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "SimpleEnumerator",
-  "resource:///modules/AddrBookUtils.jsm"
-);
 
 /* Prototype for mailing lists. A mailing list can appear as nsIAbDirectory
  * or as nsIAbCard. Here we keep all relevant information in the class itself
@@ -65,7 +60,7 @@ AddrBookMailingList.prototype = {
         return true;
       },
       get childNodes() {
-        return new SimpleEnumerator([]);
+        return [];
       },
       get childCards() {
         let selectStatement = self._parent._dbConnection.createStatement(
@@ -77,7 +72,7 @@ AddrBookMailingList.prototype = {
           results.push(self._parent._getCard(selectStatement.row.card));
         }
         selectStatement.finalize();
-        return new SimpleEnumerator(results);
+        return results;
       },
       get supportsMailingLists() {
         return false;
@@ -95,7 +90,7 @@ AddrBookMailingList.prototype = {
           query = query.substring(1);
         }
 
-        let results = Array.from(this.childCards);
+        let results = this.childCards;
 
         // Process the query string into a tree of conditions to match.
         let lispRegexp = /^\((and|or|not|([^\)]*)(\)+))/;

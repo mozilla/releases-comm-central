@@ -499,7 +499,7 @@ class AddrBookDirectory {
         ).asDirectory
     );
     lists.sort(compareAddressBooks);
-    return new SimpleEnumerator(lists);
+    return lists;
   }
   get childCards() {
     let results = Array.from(
@@ -514,7 +514,7 @@ class AddrBookDirectory {
         ).asCard
     ).concat(Array.from(this._cards.keys(), this._getCard, this));
 
-    return new SimpleEnumerator(results);
+    return results;
   }
   get supportsMailingLists() {
     return true;

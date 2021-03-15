@@ -162,13 +162,13 @@ interface nsIAbDirectory : nsISupports {
   attribute boolean isMailList;
 
   // Get the children directories
-  readonly attribute nsISimpleEnumerator childNodes;
+  readonly attribute Array<nsIAbDirectory> childNodes;
 
   /**
    * Get the cards associated with the directory. This will return the cards
    * associated with the mailing lists too.
    */
-  readonly attribute nsISimpleEnumerator childCards;
+  readonly attribute Array<nsIAbCard> childCards;
 
   /**
    * Searches the directory for cards matching query.

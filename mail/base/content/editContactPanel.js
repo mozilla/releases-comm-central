@@ -7,9 +7,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 var editContactInlineUI = {
   _overlayLoaded: false,
@@ -156,7 +153,7 @@ var editContactInlineUI = {
           continue;
         }
 
-        for (let card of fixIterator(list.childCards, Ci.nsIAbCard)) {
+        for (let card of list.childCards) {
           if (card.primaryEmail == this._cardDetails.card.primaryEmail) {
             inMailList = true;
             break;

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals DisplayNameUtils, fixIterator, MailServices, MailUtils */
+/* globals DisplayNameUtils, MailServices, MailUtils */
 
 var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
@@ -164,7 +164,7 @@ add_task(async () => {
     "address one was saved"
   );
 
-  let childCards = [...global.addressBook.childCards];
+  let childCards = global.addressBook.childCards;
 
   Assert.ok(
     childCards.find(card => card.primaryEmail == inputs.addresses[0]),
@@ -197,8 +197,8 @@ add_task(async () => {
     "mailing list description was saved"
   );
 
-  let listCards = [...fixIterator(mailList.childCards, Ci.nsIAbCard)];
-
+  let listCards = mailList.childCards;
+  Assert.equal(listCards.length, 2, "two cards exist in the mailing list");
   Assert.ok(
     listCards[0].hasEmailAddress(inputs.addresses[0]),
     "address zero was saved in the mailing list"
@@ -207,7 +207,6 @@ add_task(async () => {
     listCards[1].hasEmailAddress(inputs.addresses[1]),
     "address one was saved in the mailing list"
   );
-  Assert.equal(listCards.length, 2, "two cards exist in the mailing list");
 });
 
 /**
@@ -345,7 +344,7 @@ add_task(async () => {
     "address three was saved"
   );
 
-  let childCards = [...global.addressBook.childCards];
+  let childCards = global.addressBook.childCards;
 
   Assert.ok(
     childCards.find(card => card.primaryEmail == inputs.addresses[2]),
@@ -386,7 +385,9 @@ add_task(async () => {
     "modified mailing list description was saved"
   );
 
-  let listCards = [...fixIterator(mailList.childCards, Ci.nsIAbCard)];
+  let listCards = mailList.childCards;
+
+  Assert.equal(listCards.length, 3, "three cards exist in the mailing list");
 
   Assert.ok(
     listCards[0].hasEmailAddress(inputs.addresses[0]),
@@ -406,8 +407,6 @@ add_task(async () => {
   );
 
   Assert.ok(!hasAddressOne, "address one was deleted from the mailing list");
-
-  Assert.equal(listCards.length, 3, "three cards exist in the mailing list");
 });
 
 /**

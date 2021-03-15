@@ -16,7 +16,7 @@ add_task(async () => {
 
   // Check we have the initial version of the card.
 
-  let cards = [...directory.childCards];
+  let cards = directory.childCards;
   Assert.equal(cards.length, 1);
 
   let [conflictCard] = cards;
@@ -69,7 +69,7 @@ add_task(async () => {
   directory.modifyCard(conflictCard);
 
   await observer.waitFor("addrbook-contact-updated");
-  cards = [...directory.childCards];
+  cards = directory.childCards;
   Assert.equal(cards.length, 1);
   [conflictCard] = cards;
 

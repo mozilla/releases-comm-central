@@ -346,7 +346,7 @@ function run_test() {
   );
 
   // Address book should have no cards present.
-  Assert.ok(!collectChecker.AB.childCards.hasMoreElements());
+  Assert.equal(collectChecker.AB.childCards.length, 0);
 
   // Test - Email doesn't exist, but don't add it.
 
@@ -373,10 +373,10 @@ function run_test() {
   // Test - Do all emails at the same time.
 
   // First delete all existing cards
-  collectChecker.AB.deleteCards([...collectChecker.AB.childCards]);
+  collectChecker.AB.deleteCards(collectChecker.AB.childCards);
 
   // Address book should have no cards present.
-  Assert.ok(!collectChecker.AB.childCards.hasMoreElements());
+  Assert.equal(collectChecker.AB.childCards.length, 0);
 
   Assert.equal(
     collectChecker.AB.cardForEmailAddress(addEmailChecks[0].emailHeader),

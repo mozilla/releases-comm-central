@@ -430,7 +430,6 @@ NS_IMETHODIMP nsAbCardProperty::Copy(nsIAbCard* srcCard) {
   nsresult rv = srcCard->GetProperties(properties);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool hasMore;
   for (nsIProperty* property : properties) {
     nsAutoString name;
     property->GetName(name);
@@ -627,24 +626,14 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString& aXMLSubstr) {
     rv = abManager->GetDirectory(m_MailListURI, getter_AddRefs(mailList));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsISimpleEnumerator> mailListAddresses;
-    rv = mailList->GetChildCards(getter_AddRefs(mailListAddresses));
+    nsTArray<RefPtr<nsIAbCard>> mailListAddresses;
+    rv = mailList->GetChildCards(mailListAddresses);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    bool hasMore = false;
-    nsCOMPtr<nsISupports> support;
-    nsCOMPtr<nsIAbCard> listCard;
-    nsAutoString displayName;
-    nsAutoString primaryEmail;
-    while (NS_SUCCEEDED(mailListAddresses->HasMoreElements(&hasMore)) &&
-           hasMore) {
-      rv = mailListAddresses->GetNext(getter_AddRefs(support));
-      NS_ENSURE_SUCCESS(rv, rv);
-      listCard = do_QueryInterface(support, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-
+    for (nsIAbCard* listCard : mailListAddresses) {
       xmlStr.AppendLiteral("<PrimaryEmail>\n");
 
+      nsAutoString displayName;
       rv = listCard->GetDisplayName(displayName);
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -656,6 +645,7 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString& aXMLSubstr) {
 
       xmlStr.AppendLiteral(" &lt;");
 
+      nsAutoString primaryEmail;
       listCard->GetPrimaryEmail(primaryEmail);
 
       // use ScanTXT to convert < > & to safe values.

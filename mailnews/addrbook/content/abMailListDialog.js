@@ -132,7 +132,7 @@ function updateMailListMembers(mailList, parentDirectory) {
   let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
     addresses
   );
-  let existingCards = [...fixIterator(mailList.childCards, Ci.nsIAbCard)];
+  let existingCards = mailList.childCards;
 
   // Work out which addresses need to be added...
   let existingCardAddresses = existingCards.map(card => card.primaryEmail);
@@ -296,13 +296,14 @@ function OnLoadEditList() {
     [gOldListName]
   );
 
-  if (gEditList.childCards.hasMoreElements()) {
+  let cards = gEditList.childCards;
+  if (cards.length > 0) {
     let listbox = document.getElementById("addressingWidget");
     let newListBoxNode = listbox.cloneNode(false);
     let templateNode = listbox.querySelector("richlistitem");
 
     top.MAX_RECIPIENTS = 0;
-    for (let card of fixIterator(gEditList.childCards, Ci.nsIAbCard)) {
+    for (let card of cards) {
       let address = MailServices.headerParser
         .makeMailboxObject(card.displayName, card.primaryEmail)
         .toString();

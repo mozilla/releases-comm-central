@@ -4354,24 +4354,14 @@ nsresult nsMsgCompose::GetABDirAndMailLists(
   rv = abManager->GetDirectory(aDirUri, getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> subDirectories;
-  if (NS_SUCCEEDED(directory->GetChildNodes(getter_AddRefs(subDirectories))) &&
-      subDirectories) {
-    nsCOMPtr<nsISupports> item;
-    bool hasMore;
-    while (NS_SUCCEEDED(rv = subDirectories->HasMoreElements(&hasMore)) &&
-           hasMore) {
-      if (NS_SUCCEEDED(subDirectories->GetNext(getter_AddRefs(item)))) {
-        directory = do_QueryInterface(item, &rv);
-        if (NS_SUCCEEDED(rv)) {
-          bool bIsMailList;
-
-          if (NS_SUCCEEDED(directory->GetIsMailList(&bIsMailList)) &&
-              bIsMailList) {
-            aMailListArray.AppendElement(directory);
-          }
-        }
-      }
+  nsTArray<RefPtr<nsIAbDirectory>> subDirectories;
+  rv = directory->GetChildNodes(subDirectories);
+  NS_ENSURE_SUCCESS(rv, rv);
+  for (nsIAbDirectory* subDirectory : subDirectories) {
+    bool bIsMailList;
+    if (NS_SUCCEEDED(subDirectory->GetIsMailList(&bIsMailList)) &&
+        bIsMailList) {
+      aMailListArray.AppendElement(subDirectory);
     }
   }
   return rv;
@@ -4437,20 +4427,11 @@ nsresult nsMsgCompose::ResolveMailList(
     nsTArray<nsMsgRecipient>& aListMembers) {
   nsresult rv = NS_OK;
 
-  nsCOMPtr<nsISimpleEnumerator> mailListAddresses;
-  rv = aMailList->GetChildCards(getter_AddRefs(mailListAddresses));
-  if (NS_FAILED(rv)) return rv;
+  nsTArray<RefPtr<nsIAbCard>> mailListAddresses;
+  rv = aMailList->GetChildCards(mailListAddresses);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  bool hasMore = false;
-  nsCOMPtr<nsISupports> support;
-  nsCOMPtr<nsIAbCard> existingCard;
-  while (NS_SUCCEEDED(mailListAddresses->HasMoreElements(&hasMore)) &&
-         hasMore) {
-    rv = mailListAddresses->GetNext(getter_AddRefs(support));
-    NS_ENSURE_SUCCESS(rv, rv);
-    existingCard = do_QueryInterface(support, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+  for (nsIAbCard* existingCard : mailListAddresses) {
     nsMsgRecipient newRecipient;
 
     rv = existingCard->GetDisplayName(newRecipient.mName);

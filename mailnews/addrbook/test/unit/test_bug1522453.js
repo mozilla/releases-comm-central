@@ -41,23 +41,17 @@ add_task(async function() {
 
   // book.childCards should contain the list and all three contacts.
   let bookCards = book.childCards;
-  ok(bookCards.hasMoreElements());
-  equal(list.UID, bookCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
-  ok(bookCards.hasMoreElements());
-  equal(contact1.UID, bookCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
-  ok(bookCards.hasMoreElements());
-  equal(contact2.UID, bookCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
-  ok(bookCards.hasMoreElements());
-  equal(contact3.UID, bookCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
-  ok(!bookCards.hasMoreElements());
+  equal(bookCards.length, 1 + 3);
+  equal(list.UID, bookCards[0].UID);
+  equal(contact1.UID, bookCards[1].UID);
+  equal(contact2.UID, bookCards[2].UID);
+  equal(contact3.UID, bookCards[3].UID);
 
   // list.childCards should contain contacts 1 and 3, and crucially, not die at 2.
   let listCards = list.childCards;
-  ok(listCards.hasMoreElements());
-  equal(contact1.UID, listCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
-  ok(listCards.hasMoreElements());
-  equal(contact3.UID, listCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
-  ok(!listCards.hasMoreElements());
+  equal(listCards.length, 2);
+  equal(contact1.UID, listCards[0].UID);
+  equal(contact3.UID, listCards[1].UID);
 
   // Reload the address book manager.
   Services.obs.notifyObservers(null, "addrbook-reload");
@@ -70,9 +64,7 @@ add_task(async function() {
 
   // list.childCards should contain contacts 1 and 3.
   listCards = list.childCards;
-  ok(listCards.hasMoreElements());
-  equal(contact1.UID, listCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
-  ok(listCards.hasMoreElements());
-  equal(contact3.UID, listCards.getNext().QueryInterface(Ci.nsIAbCard).UID);
-  ok(!listCards.hasMoreElements());
+  equal(listCards.length, 2);
+  equal(contact1.UID, listCards[0].UID);
+  equal(contact3.UID, listCards[1].UID);
 });

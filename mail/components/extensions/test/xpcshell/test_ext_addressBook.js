@@ -7,9 +7,6 @@
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 add_task(async function setup() {
   Services.prefs.setIntPref("ldap_2.servers.osx.dirType", -1);
@@ -670,7 +667,7 @@ add_task(async function test_addressBooks() {
       return null;
     }
     function findMailingList(id) {
-      for (let list of fixIterator(parent.childNodes, Ci.nsIAbDirectory)) {
+      for (let list of parent.childNodes) {
         if (list.UID == id) {
           return list;
         }
@@ -771,7 +768,7 @@ add_task(async function test_addressBooks() {
 
         if (list && contact) {
           list.addCard(contact);
-          equal(1, [...list.childCards].length);
+          equal(1, list.childCards.length);
           extension.sendMessage();
           return;
         }
@@ -783,7 +780,7 @@ add_task(async function test_addressBooks() {
 
         if (list && contact) {
           list.deleteCards([contact]);
-          equal(0, [...list.childCards].length);
+          equal(0, list.childCards.length);
           ok(findContact(args[1]), "Contact was not removed");
           extension.sendMessage();
           return;

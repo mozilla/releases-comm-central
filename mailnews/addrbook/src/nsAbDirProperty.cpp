@@ -235,12 +235,12 @@ nsAbDirProperty::Init(const char* aURI) {
 
 // nsIAbDirectory NOT IMPLEMENTED methods
 NS_IMETHODIMP
-nsAbDirProperty::GetChildNodes(nsISimpleEnumerator** childList) {
+nsAbDirProperty::GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& childList) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsAbDirProperty::GetChildCards(nsISimpleEnumerator** childCards) {
+nsAbDirProperty::GetChildCards(nsTArray<RefPtr<nsIAbCard>>& childCards) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

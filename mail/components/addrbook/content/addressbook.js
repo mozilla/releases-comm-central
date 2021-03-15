@@ -429,11 +429,11 @@ function buildDirectoryXML(directory) {
 
   let cards;
   if (directory) {
-    cards = [...directory.childCards];
+    cards = directory.childCards;
   } else {
     cards = [];
     for (let directory of MailServices.ab.directories) {
-      cards = cards.concat([...directory.childCards]);
+      cards = cards.concat(directory.childCards);
     }
   }
   cards.sort((a, b) => {

@@ -282,10 +282,7 @@ AbImportHelper.prototype = {
       // make sure an address book was created
       var newAb = this.getAbByName(this.mAbName);
       Assert.ok(newAb !== null);
-      Assert.ok(
-        newAb.QueryInterface(Ci.nsIAbDirectory) &&
-          newAb.childCards.QueryInterface(Ci.nsISimpleEnumerator)
-      );
+      Assert.ok(newAb.QueryInterface(Ci.nsIAbDirectory));
       // get the imported card(s) and check each one
       var count = 0;
       for (let importedCard of newAb.childCards) {

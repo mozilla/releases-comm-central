@@ -78,7 +78,7 @@ add_task(async () => {
 
   Services.io.offline = true;
 
-  let cards = [...book.childCards];
+  let cards = book.childCards;
   deepEqual(cards.map(c => c.displayName).sort(), [
     "Eurus Holmes",
     "Greg Lestrade",
@@ -129,7 +129,7 @@ add_task(async () => {
   await progressPromise;
   equal(book.replicationFileName, "ldap.sqlite");
 
-  cards = [...book.childCards];
+  cards = book.childCards;
   deepEqual(cards.map(c => c.displayName).sort(), [
     "Eurus Holmes",
     "Mary Watson",
@@ -152,7 +152,7 @@ add_task(async () => {
 
   await progressPromise;
 
-  cards = [...book.childCards];
+  cards = book.childCards;
   deepEqual(cards.map(c => c.displayName).sort(), [
     "Eurus Holmes",
     "Mary Watson",

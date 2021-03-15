@@ -202,9 +202,8 @@ function create_mailing_list(aMailingListName) {
  * @param aDirName the dirName of the mailing list
  */
 function get_mailing_list_from_address_book(aAddressBook, aDirName) {
-  for (let item of aAddressBook.childNodes) {
-    let list = item.QueryInterface(Ci.nsIAbDirectory);
-    if (list && list.dirName == aDirName) {
+  for (let list of aAddressBook.childNodes) {
+    if (list.dirName == aDirName) {
       return list;
     }
   }

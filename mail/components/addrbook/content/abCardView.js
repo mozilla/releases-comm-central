@@ -570,7 +570,7 @@ function cvAddAddressNodes(node, uri) {
       node.lastChild.remove();
     }
     let i = 0;
-    for (let card of fixIterator(editList.childCards, Ci.nsIAbCard)) {
+    for (let card of editList.childCards) {
       var descNode = document.createXULElement("description");
       descNode.setAttribute("class", "CardViewLink");
       node.appendChild(descNode);

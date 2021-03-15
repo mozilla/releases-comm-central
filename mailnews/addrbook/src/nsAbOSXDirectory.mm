@@ -602,28 +602,46 @@ nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager* aManager, nsIAbDirect
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsAbOSXDirectory::GetChildNodes(nsISimpleEnumerator** aNodes) {
-  NS_ENSURE_ARG_POINTER(aNodes);
-
+NS_IMETHODIMP nsAbOSXDirectory::GetChildNodes(
+    nsTArray<RefPtr<nsIAbDirectory>>& aNodes) {
+  aNodes.Clear();
   // Mailing lists don't have childnodes.
-  if (m_IsMailList || !m_AddressList) return NS_NewEmptyEnumerator(aNodes);
+  if (m_IsMailList || !m_AddressList) {
+    return NS_OK;
+  }
 
-  return NS_NewArrayEnumerator(aNodes, m_AddressList, NS_GET_IID(nsIAbDirectory));
+  uint32_t count = 0;
+  nsresult rv = m_AddressList->GetLength(&count);
+  NS_ENSURE_SUCCESS(rv, rv);
+  aNodes.SetCapacity(count);
+  for (uint32_t i = 0; i < count; i++) {
+    nsCOMPtr<nsIAbDirectory> dir = do_QueryElementAt(m_AddressList, i, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    aNodes.AppendElement(&*dir);
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetChildCards(nsISimpleEnumerator** aCards) {
+nsAbOSXDirectory::GetChildCards(nsTArray<RefPtr<nsIAbCard>>& aCards) {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
-
-  NS_ENSURE_ARG_POINTER(aCards);
+  aCards.Clear();
 
   // Not a search, so just return the appropriate list of items.
-  return m_IsMailList ? NS_NewArrayEnumerator(aCards, m_AddressList, NS_GET_IID(nsIAbCard))
-                      : NS_NewArrayEnumerator(aCards, mCardList, NS_GET_IID(nsIAbCard));
-
+  nsIMutableArray* srcCards = m_IsMailList ? m_AddressList : mCardList;
+  uint32_t count = 0;
+  nsresult rv = srcCards->GetLength(&count);
+  NS_ENSURE_SUCCESS(rv, rv);
+  aCards.SetCapacity(count);
+  for (uint32_t i = 0; i < count; i++) {
+    nsCOMPtr<nsIAbCard> card = do_QueryElementAt(srcCards, i, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+    aCards.AppendElement(&*card);
+  }
+  return NS_OK;
   NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
+
 
 /* Recursive method that searches for a child card by URI.  If it cannot find
  * it within this directory, it checks all subfolders.
@@ -638,18 +656,12 @@ nsAbOSXDirectory::GetCardByUri(const nsACString& aUri, nsIAbOSXCard** aResult) {
     return NS_OK;
   }
   // Search children
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  nsresult rv = this->GetChildNodes(getter_AddRefs(enumerator));
+  nsTArray<RefPtr<nsIAbDirectory>> children;
+  nsresult rv = this->GetChildNodes(children);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISupports> item;
-  bool hasMore = false;
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    rv = enumerator->GetNext(getter_AddRefs(item));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIAbOSXDirectory> childDirectory;
-    childDirectory = do_QueryInterface(item, &rv);
+  for (nsIAbDirectory* dir : children) {
+    nsCOMPtr<nsIAbOSXDirectory> childDirectory = do_QueryInterface(dir, &rv);
     if (NS_SUCCEEDED(rv)) {
       rv = childDirectory->GetCardByUri(aUri, getter_AddRefs(osxCard));
       if (NS_SUCCEEDED(rv)) {

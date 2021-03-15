@@ -27,8 +27,8 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
   // nsIAbDirectory methods
   NS_IMETHOD GetPropertiesChromeURI(nsACString& aResult) override;
   NS_IMETHOD GetURI(nsACString& aURI) override;
-  NS_IMETHOD GetChildNodes(nsISimpleEnumerator** result) override;
-  NS_IMETHOD GetChildCards(nsISimpleEnumerator** result) override;
+  NS_IMETHOD GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& result) override;
+  NS_IMETHOD GetChildCards(nsTArray<RefPtr<nsIAbCard>>& result) override;
   NS_IMETHOD Search(const nsAString& query,
                     nsIAbDirSearchListener* listener) override;
   NS_IMETHOD HasCard(nsIAbCard* cards, bool* hasCard) override;

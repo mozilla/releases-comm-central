@@ -199,12 +199,9 @@ add_task(async function createContact() {
   contact = book.addCard(contact);
   observer.checkEvents(["addrbook-contact-created", contact, book.UID]);
 
-  // Check enumerations.
-  let childCards = Array.from(book.childCards, cc =>
-    cc.QueryInterface(Ci.nsIAbCard)
-  );
-  equal(childCards.length, 1);
-  ok(childCards[0].equals(contact));
+  let cards = book.childCards;
+  equal(cards.length, 1);
+  ok(cards[0].equals(contact));
 
   // Check nsIAbCard properties.
   equal(contact.directoryUID, book.UID);
@@ -286,14 +283,10 @@ add_task(async function createMailingList() {
   // Skip checking events temporarily, until listCard is defined.
 
   // Check enumerations.
-  let childNodes = Array.from(book.childNodes, cn =>
-    cn.QueryInterface(Ci.nsIAbDirectory)
-  );
+  let childNodes = book.childNodes;
   equal(childNodes.length, 1);
   equal(childNodes[0].UID, list.UID); // TODO Object equality doesn't work because of XPCOM.
-  let childCards = Array.from(book.childCards, cc =>
-    cc.QueryInterface(Ci.nsIAbCard)
-  );
+  let childCards = book.childCards;
   equal(childCards.length, 2);
   if (childCards[0].isMailList) {
     listCard = childCards[0];
@@ -337,9 +330,7 @@ add_task(async function addMailingListMember() {
 
   // Check list enumerations.
   equal(Array.from(list.childNodes).length, 0);
-  let childCards = Array.from(list.childCards, cc =>
-    cc.QueryInterface(Ci.nsIAbCard)
-  );
+  let childCards = list.childCards;
   equal(childCards.length, 1);
   ok(childCards[0].equals(contact));
 });

@@ -33,17 +33,14 @@ function run_test() {
 
   let PAB = MailServices.ab.getDirectory(kPABData.URI);
 
-  var childCards = PAB.childCards;
+  var cards = PAB.childCards;
 
-  Assert.ok(childCards.hasMoreElements());
+  Assert.equal(cards.length, 1);
 
-  var card = childCards.getNext().QueryInterface(Ci.nsIAbCard);
-
-  Assert.equal(card.displayName, "Other Book");
-  Assert.equal(card.primaryEmail, "other@book.invalid");
+  Assert.equal(cards[0].displayName, "Other Book");
+  Assert.equal(cards[0].primaryEmail, "other@book.invalid");
 
   // Check the CAB has no cards.
   let CAB = MailServices.ab.getDirectory(kCABData.URI);
-
-  Assert.ok(!CAB.childCards.hasMoreElements());
+  Assert.equal(CAB.childCards.length, 0);
 }

@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsAbLDAPDirectory.h"
+#include "nsIAbCard.h"
 
 #include "nsAbQueryStringToExpression.h"
 
@@ -81,12 +82,16 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetURI(nsACString& aURI) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetChildNodes(nsISimpleEnumerator** aResult) {
-  return NS_NewEmptyEnumerator(aResult);
+NS_IMETHODIMP nsAbLDAPDirectory::GetChildNodes(
+    nsTArray<RefPtr<nsIAbDirectory>>& aResult) {
+  aResult.Clear();
+  return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result) {
+NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(
+    nsTArray<RefPtr<nsIAbCard>>& result) {
   nsresult rv;
+  result.Clear();
 
   // When offline, get the child cards from the local, replicated directory.
   bool offline;
@@ -95,34 +100,35 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result) {
   rv = ioService->GetOffline(&offline);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (offline) {
-    nsCString fileName;
-    rv = GetReplicationFileName(fileName);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // If there is no fileName, bail out now.
-    if (fileName.IsEmpty()) {
-      return NS_NewEmptyEnumerator(result);
-    }
-
-    // Get the local directory.
-    nsAutoCString localDirectoryURI(nsLiteralCString(kJSDirectoryRoot));
-    localDirectoryURI.Append(fileName);
-
-    nsCOMPtr<nsIAbDirectory> directory =
-        do_CreateInstance(NS_ABJSDIRECTORY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = directory->Init(localDirectoryURI.get());
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = directory->GetChildCards(result);
-  } else {
-    rv = NS_NewEmptyEnumerator(result);
+  if (!offline) {
+    // No results when online. This seems unintuitive, but seems to be
+    // because GetChildCards() is used for autocomplete, and the LDAP
+    // UseForAutocomplete() returns false when online.
+    // (See the comments about useForAutoComplete() in nsIAbDirectory.idl)
+    return NS_OK;
   }
 
+  nsCString fileName;
+  rv = GetReplicationFileName(fileName);
   NS_ENSURE_SUCCESS(rv, rv);
-  return rv;
+
+  // If there is no fileName, bail out now.
+  if (fileName.IsEmpty()) {
+    return NS_OK;
+  }
+
+  // Get the local directory.
+  nsAutoCString localDirectoryURI(nsLiteralCString(kJSDirectoryRoot));
+  localDirectoryURI.Append(fileName);
+
+  nsCOMPtr<nsIAbDirectory> directory =
+      do_CreateInstance(NS_ABJSDIRECTORY_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  rv = directory->Init(localDirectoryURI.get());
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return directory->GetChildCards(result);
 }
 
 NS_IMETHODIMP nsAbLDAPDirectory::HasCard(nsIAbCard* card, bool* hasCard) {

@@ -62,8 +62,8 @@ class nsAbOSXDirectory final : public nsAbDirProperty,
 
   // nsAbDirProperty methods
   NS_IMETHOD GetReadOnly(bool* aReadOnly) override;
-  NS_IMETHOD GetChildCards(nsISimpleEnumerator** aCards) override;
-  NS_IMETHOD GetChildNodes(nsISimpleEnumerator** aNodes) override;
+  NS_IMETHOD GetChildCards(nsTArray<RefPtr<nsIAbCard>>& result) override;
+  NS_IMETHOD GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& result) override;
   NS_IMETHOD HasCard(nsIAbCard* aCard, bool* aHasCard) override;
   NS_IMETHOD HasDirectory(nsIAbDirectory* aDirectory,
                           bool* aHasDirectory) override;

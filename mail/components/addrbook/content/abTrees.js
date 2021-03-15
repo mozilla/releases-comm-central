@@ -57,14 +57,14 @@ abDirTreeItem.prototype = {
   get children() {
     if (!this._children) {
       this._children = [];
-      let myEnum;
+      let dirs;
       if (this._directory.URI == kAllDirectoryRoot + "?") {
-        myEnum = MailServices.ab.directories;
+        dirs = MailServices.ab.directories;
       } else {
-        myEnum = this._directory.childNodes;
+        dirs = this._directory.childNodes;
       }
 
-      for (let dir of myEnum) {
+      for (let dir of dirs) {
         var abItem = new abDirTreeItem(dir);
         if (
           gDirectoryTreeView &&

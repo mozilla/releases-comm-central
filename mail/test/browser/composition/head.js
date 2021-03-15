@@ -13,7 +13,7 @@ registerCleanupFunction(() => {
     if (
       ["ldap_2.servers.history", "ldap_2.servers.pab"].includes(book.dirPrefId)
     ) {
-      let cards = [...book.childCards];
+      let cards = book.childCards;
       if (cards.length > 0) {
         info(`Cleaning up ${cards.length} card(s) from ${book.dirName}`);
         for (let card of cards) {
@@ -26,7 +26,7 @@ registerCleanupFunction(() => {
           book.deleteCards(cards);
         }
       }
-      is([...book.childCards].length, 0);
+      is(book.childCards.length, 0);
     } else {
       Assert.report(true, undefined, undefined, "Unexpected address book!");
       MailServices.ab.deleteAddressBook(book.URI);

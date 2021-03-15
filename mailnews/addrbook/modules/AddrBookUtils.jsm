@@ -197,7 +197,7 @@ function exportDirectoryToDelimitedText(directory, delimiter) {
       if (i != 0) {
         output += delimiter;
       }
-      let value = card.getProperty(abPropertyName) || "";
+      let value = card.getProperty(abPropertyName, "");
 
       // If a string contains at least one comma, tab, double quote or line
       // break then we need to quote the entire string. Also if double quote
@@ -300,7 +300,7 @@ function exportDirectoryToLDIF(directory) {
         let [abPropertyName] = exportAttributes[i];
         let attrName = attrMap.getFirstAttribute(abPropertyName);
         if (attrName) {
-          let attrValue = card.getProperty(abPropertyName);
+          let attrValue = card.getProperty(abPropertyName, "");
           if (abPropertyName == "PreferMailFormat") {
             if (attrValue == "html") {
               attrValue = "true";

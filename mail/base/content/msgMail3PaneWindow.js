@@ -1061,7 +1061,7 @@ function reportAddressBookTypes() {
 
     // Ignore LDAP contacts for now.
     if (type !== "moz-abldapdirectory") {
-      report[type].contactCount += [...dir.childCards].filter(
+      report[type].contactCount += dir.childCards.filter(
         c => !c.isMailList
       ).length;
     }

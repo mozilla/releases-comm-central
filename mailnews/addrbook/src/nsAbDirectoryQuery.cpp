@@ -235,22 +235,11 @@ nsresult nsAbDirectoryQuery::queryChildren(nsIAbDirectory* directory,
                                            nsIAbDirSearchListener* listener,
                                            bool doSubDirectories,
                                            int32_t* resultLimit) {
-  nsresult rv = NS_OK;
-
-  nsCOMPtr<nsISimpleEnumerator> subDirectories;
-  rv = directory->GetChildNodes(getter_AddRefs(subDirectories));
+  nsTArray<RefPtr<nsIAbDirectory>> subDirectories;
+  nsresult rv = directory->GetChildNodes(subDirectories);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  bool hasMore;
-  while (NS_SUCCEEDED(rv = subDirectories->HasMoreElements(&hasMore)) &&
-         hasMore) {
-    nsCOMPtr<nsISupports> item;
-    rv = subDirectories->GetNext(getter_AddRefs(item));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIAbDirectory> subDirectory(do_QueryInterface(item, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
+  for (nsIAbDirectory* subDirectory : subDirectories) {
     rv = query(subDirectory, expression, listener, doSubDirectories,
                resultLimit);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -262,28 +251,14 @@ nsresult nsAbDirectoryQuery::queryCards(nsIAbDirectory* directory,
                                         nsIAbBooleanExpression* expression,
                                         nsIAbDirSearchListener* listener,
                                         int32_t* resultLimit) {
-  nsresult rv = NS_OK;
-
-  nsCOMPtr<nsISimpleEnumerator> cards;
-  rv = directory->GetChildCards(getter_AddRefs(cards));
-  if (NS_FAILED(rv)) {
-    if (rv != NS_ERROR_NOT_IMPLEMENTED)
-      NS_ENSURE_SUCCESS(rv, rv);
-    else
-      return NS_OK;
+  nsTArray<RefPtr<nsIAbCard>> cards;
+  nsresult rv = directory->GetChildCards(cards);
+  if (rv == NS_ERROR_NOT_IMPLEMENTED) {
+    return NS_OK;
   }
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!cards) return NS_OK;
-
-  bool more;
-  while (NS_SUCCEEDED(cards->HasMoreElements(&more)) && more) {
-    nsCOMPtr<nsISupports> item;
-    rv = cards->GetNext(getter_AddRefs(item));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    nsCOMPtr<nsIAbCard> card(do_QueryInterface(item, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-
+  for (nsIAbCard* card : cards) {
     rv = matchCard(card, expression, listener, resultLimit);
     NS_ENSURE_SUCCESS(rv, rv);
 
