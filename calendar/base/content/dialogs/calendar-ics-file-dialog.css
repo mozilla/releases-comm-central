@@ -41,6 +41,11 @@
   background-color: var(--item-color);
 }
 
+#calendar-ics-file-dialog-sort-button {
+  list-style-image: url("chrome://calendar/skin/shared/icons/sort.svg");
+  margin: 2px 4px;
+}
+
 #calendar-ics-file-dialog-items-container {
   border-block: 1px solid #ccc;
   margin: 0.7em 0;

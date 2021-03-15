@@ -258,6 +258,45 @@ function filterItemSummaries(searchString = "") {
 }
 
 /**
+ * Sort item summaries.
+ *
+ * @param {Event} event - The oncommand event that triggered this sort.
+ */
+function sortItemSummaries(event) {
+  let [key, direction] = event.target.value.split(" ");
+
+  let comparer;
+  if (key == "title") {
+    let collator = new Intl.Collator(undefined, { numeric: true });
+    if (direction == "ascending") {
+      comparer = (a, b) => collator.compare(a.item.title, b.item.title);
+    } else {
+      comparer = (a, b) => collator.compare(b.item.title, a.item.title);
+    }
+  } else if (key == "start") {
+    if (direction == "ascending") {
+      comparer = (a, b) => a.item.startDate.nativeTime - b.item.startDate.nativeTime;
+    } else {
+      comparer = (a, b) => b.item.startDate.nativeTime - a.item.startDate.nativeTime;
+    }
+  } else {
+    // How did we get here?
+    throw new Error(`Unexpected sort key: ${key}`);
+  }
+
+  let items = [...gModel.itemSummaries.values()].sort(comparer);
+  let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
+  for (let item of items) {
+    itemsContainer.appendChild(item.closest(".calendar-ics-file-dialog-item-frame"));
+  }
+  itemsContainer.scrollTo(0, 0);
+
+  for (let menuitem of document.querySelectorAll("#calendar-ics-file-dialog-sort-popup > menuitem")) {
+    menuitem.checked = menuitem == event.target;
+  }
+}
+
+/**
  * Get the currently selected calendar.
  *
  * @return {calICalendar} The currently selected calendar.

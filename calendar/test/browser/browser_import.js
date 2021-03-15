@@ -166,6 +166,34 @@ add_task(async () => {
       await check_filter(`"event t"`, ["Event Two", "Event Three"]);
       await check_filter("", ["Event One", "Event Two", "Event Three", "Event Four"]);
 
+      async function check_sort(order, expectedTitles) {
+        let sortButton = doc.getElementById("calendar-ics-file-dialog-sort-button");
+        let shownPromise = BrowserTestUtils.waitForEvent(sortButton, "popupshown");
+        EventUtils.synthesizeMouseAtCenter(sortButton, {}, dialogWindow);
+        await shownPromise;
+        let hiddenPromise = BrowserTestUtils.waitForEvent(sortButton, "popuphidden");
+        EventUtils.synthesizeMouseAtCenter(
+          doc.getElementById(`calendar-ics-file-dialog-sort-${order}`),
+          {},
+          dialogWindow
+        );
+        await hiddenPromise;
+
+        let items = doc.querySelectorAll("calendar-item-summary");
+        is(items.length, 4, "four calendar items are displayed");
+        Assert.deepEqual(
+          [...items].map(summary => summary.item.title),
+          expectedTitles
+        );
+      }
+
+      await check_sort("title-ascending", ["Event Four", "Event One", "Event Three", "Event Two"]);
+      await check_sort("start-descending", ["Event Four", "Event Three", "Event Two", "Event One"]);
+      await check_sort("title-descending", ["Event Two", "Event Three", "Event One", "Event Four"]);
+      await check_sort("start-ascending", ["Event One", "Event Two", "Event Three", "Event Four"]);
+
+      items = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
+
       // Import just the first item, and check that the correct number of items remains.
       let firstItemImportButton = items[0].querySelector(
         ".calendar-ics-file-dialog-item-import-button"

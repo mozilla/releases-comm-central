@@ -23,6 +23,19 @@ calendar-ics-file-dialog-items-loading-message =
 calendar-ics-file-dialog-search-input =
   .placeholder = Filter items…
 
+calendar-ics-file-dialog-sort-start-ascending =
+  .label = Sort by start date (first to last)
+calendar-ics-file-dialog-sort-start-descending =
+  .label = Sort by start date (last to first)
+# "A > Z" is used as a concise way to say "alphabetical order".
+# You may replace it with something appropriate to your language.
+calendar-ics-file-dialog-sort-title-ascending =
+  .label = Sort by title (A > Z)
+# "Z > A" is used as a concise way to say "reverse alphabetical order".
+# You may replace it with something appropriate to your language.
+calendar-ics-file-dialog-sort-title-descending =
+  .label = Sort by title (Z > A)
+
 calendar-ics-file-dialog-progress-message = Importing…
 
 calendar-ics-file-import-success = Successfully imported!

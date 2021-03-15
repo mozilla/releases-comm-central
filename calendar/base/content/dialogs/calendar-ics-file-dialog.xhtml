@@ -53,6 +53,33 @@
                           data-l10n-id="calendar-ics-file-dialog-search-input"
                           data-l10n-attrs="placeholder"
                           oncommand="filterItemSummaries(this.value);"/>
+          <toolbarbutton id="calendar-ics-file-dialog-sort-button"
+                         type="menu"
+                         oncommand="sortItemSummaries(event);">
+            <menupopup id="calendar-ics-file-dialog-sort-popup">
+              <menuitem id="calendar-ics-file-dialog-sort-start-ascending"
+                        type="radio"
+                        checked="true"
+                        data-l10n-id="calendar-ics-file-dialog-sort-start-ascending"
+                        data-l10n-attrs="label"
+                        value="start ascending"/>
+              <menuitem id="calendar-ics-file-dialog-sort-start-descending"
+                        type="radio"
+                        data-l10n-id="calendar-ics-file-dialog-sort-start-descending"
+                        data-l10n-attrs="label"
+                        value="start descending"/>
+              <menuitem id="calendar-ics-file-dialog-sort-title-ascending"
+                        type="radio"
+                        data-l10n-id="calendar-ics-file-dialog-sort-title-ascending"
+                        data-l10n-attrs="label"
+                        value="title ascending"/>
+              <menuitem id="calendar-ics-file-dialog-sort-title-descending"
+                        type="radio"
+                        data-l10n-id="calendar-ics-file-dialog-sort-title-descending"
+                        data-l10n-attrs="label"
+                        value="title descending"/>
+            </menupopup>
+          </toolbarbutton>
         </hbox>
       </vbox>
 
