@@ -88,6 +88,17 @@ add_task(async function test_attachments() {
 
         browser.test.assertEq("textAttachment", await file.text());
 
+        let reader = new FileReader();
+        let data = await new Promise(resolve => {
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+
+        browser.test.assertEq(
+          "data:text/plain;base64,dGV4dEF0dGFjaG1lbnQ=",
+          data
+        );
+
         // "1 binary attachment" message.
 
         attachments = await browser.messages.listAttachments(messages[2].id);
@@ -112,6 +123,17 @@ add_task(async function test_attachments() {
         browser.test.assertEq(16, file.size);
 
         browser.test.assertEq("binaryAttachment", await file.text());
+
+        reader = new FileReader();
+        data = await new Promise(resolve => {
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+
+        browser.test.assertEq(
+          "data:application/octet-stream;base64,YmluYXJ5QXR0YWNobWVudA==",
+          data
+        );
 
         // "2 attachments" message.
 

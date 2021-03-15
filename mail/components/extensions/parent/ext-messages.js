@@ -311,7 +311,9 @@ this.messages = class extends ExtensionAPI {
             channel.asyncOpen(listener, null);
           });
 
-          return new File([byteArray], attachment.name);
+          return new File([byteArray], attachment.name, {
+            type: attachment.contentType,
+          });
         },
         async query(queryInfo) {
           let query = Gloda.newQuery(Gloda.NOUN_MESSAGE);
