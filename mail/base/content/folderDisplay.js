@@ -2120,7 +2120,7 @@ FolderDisplayWidget.prototype = {
    *  Tb15 and later.
    */
   get selectedMessageIsFeed() {
-    return FeedMessageHandler.isFeedMessage(this.selectedMessage);
+    return FeedUtils.isFeedMessage(this.selectedMessage);
   },
 
   /**

@@ -231,7 +231,7 @@ function ComposeMessage(type, format, folder, messageArray) {
       for (var i = 0; i < messageArray.length; ++i) {
         var messageUri = messageArray[i];
         hdr = messenger.msgHdrFromURI(messageUri);
-        if (FeedMessageHandler.isFeedMessage(hdr)) {
+        if (FeedUtils.isFeedMessage(hdr)) {
           // Do not use the header derived identity for feeds, pass on only a
           // possible server identity from above.
           openComposeWindowForRSSArticle(

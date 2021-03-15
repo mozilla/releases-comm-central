@@ -106,6 +106,8 @@ var FeedUtils = {
   CANCEL_REQUESTED: false,
   AUTOTAG: "~AUTOTAG",
 
+  FEED_ACCOUNT_TYPES: ["rss"],
+
   /**
    * Get all rss account servers rootFolders.
    *
@@ -661,6 +663,39 @@ var FeedUtils = {
     }
 
     return true;
+  },
+
+  /**
+   * Determine if a message is a feed message. Prior to Tb15, a message had to
+   * be in an rss acount type folder. In Tb15 and later, a flag is set on the
+   * message itself upon initial store; the message can be moved to any folder.
+   *
+   * @param {nsIMsgDBHdr} aMsgHdr - The message.
+   *
+   * @returns {Boolean} - true if message is a feed, false if not.
+   */
+  isFeedMessage(aMsgHdr) {
+    return Boolean(
+      aMsgHdr instanceof Ci.nsIMsgDBHdr &&
+        (aMsgHdr.flags & Ci.nsMsgMessageFlags.FeedMsg ||
+          this.isFeedFolder(aMsgHdr.folder))
+    );
+  },
+
+  /**
+   * Determine if a folder is a feed acount folder. Trash or a folder in Trash
+   * should be checked with FeedUtils.isInTrash() if required.
+   *
+   * @param {nsIMsgFolder} aFolder - The folder.
+   *
+   * @returns {Boolean} - true if folder's server.type is in FEED_ACCOUNT_TYPES,
+   *                      false if not.
+   */
+  isFeedFolder(aFolder) {
+    return Boolean(
+      aFolder instanceof Ci.nsIMsgFolder &&
+        this.FEED_ACCOUNT_TYPES.includes(aFolder.server.type)
+    );
   },
 
   /**

@@ -255,7 +255,7 @@ function InitGoMessagesMenu() {
 function view_init() {
   let isFeed =
     gFolderDisplay &&
-    (FeedMessageHandler.isFeedFolder(gFolderDisplay.displayedFolder) ||
+    (FeedUtils.isFeedFolder(gFolderDisplay.displayedFolder) ||
       gFolderDisplay.selectedMessageIsFeed);
 
   let accountCentralDisplayed = gFolderDisplay.isAccountCentralDisplayed;
@@ -1913,7 +1913,7 @@ function MsgPauseUpdates(aMenuitem) {
   // folder is the account folder.
   let selectedFolders = GetSelectedMsgFolders();
   let folder = selectedFolders.length ? selectedFolders[0] : null;
-  if (!FeedMessageHandler.isFeedFolder(folder)) {
+  if (!FeedUtils.isFeedFolder(folder)) {
     return;
   }
 
@@ -2197,7 +2197,7 @@ function MsgCreateFilter() {
 function MsgSubscribe(folder) {
   var preselectedFolder = folder || GetFirstSelectedMsgFolder();
 
-  if (FeedMessageHandler.isFeedFolder(preselectedFolder)) {
+  if (FeedUtils.isFeedFolder(preselectedFolder)) {
     // Open feed subscription dialog.
     openSubscriptionsDialog(preselectedFolder);
   } else {

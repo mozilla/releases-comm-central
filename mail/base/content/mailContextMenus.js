@@ -385,7 +385,7 @@ function fillFolderPaneContextMenu(aEvent) {
   let showPausedAll =
     numSelected == 1 &&
     folders[0].isServer &&
-    FeedMessageHandler.isFeedFolder(folders[0]);
+    FeedUtils.isFeedFolder(folders[0]);
   ShowMenuItem("folderPaneContext-pauseAllUpdates", showPausedAll);
   // Adjust the checked state on the menu item.
   if (showPausedAll) {

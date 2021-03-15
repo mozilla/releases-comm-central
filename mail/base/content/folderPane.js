@@ -3180,7 +3180,7 @@ FtvItem.prototype = {
       properties += ` customColor-${customColor.replace("#", "")}`;
     }
 
-    if (FeedMessageHandler.isFeedFolder(this._folder)) {
+    if (FeedUtils.isFeedFolder(this._folder)) {
       properties += FeedUtils.getFolderProperties(this._folder, null);
     }
 
