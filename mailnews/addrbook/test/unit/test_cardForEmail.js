@@ -75,7 +75,7 @@ function run_test() {
   check_correct_card(card);
 
   var cards = AB.getCardsFromProperty("LastName", "DOE", true);
-  Assert.ok(!cards.hasMoreElements());
+  Assert.equal(cards.length, 0);
 
   cards = AB.getCardsFromProperty("LastName", "Doe", true);
   var i = 0;

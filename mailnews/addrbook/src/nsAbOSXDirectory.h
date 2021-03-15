@@ -71,9 +71,9 @@ class nsAbOSXDirectory final : public nsAbDirProperty,
   NS_IMETHOD GetCardFromProperty(const char* aProperty,
                                  const nsACString& aValue, bool caseSensitive,
                                  nsIAbCard** aResult) override;
-  NS_IMETHOD GetCardsFromProperty(const char* aProperty,
-                                  const nsACString& aValue, bool aCaseSensitive,
-                                  nsISimpleEnumerator** aResult) override;
+  NS_IMETHOD GetCardsFromProperty(
+      const char* aProperty, const nsACString& aValue, bool aCaseSensitive,
+      nsTArray<RefPtr<nsIAbCard>>& aResult) override;
   NS_IMETHOD CardForEmailAddress(const nsACString& aEmailAddress,
                                  nsIAbCard** aResult) override;
   NS_IMETHOD Search(const nsAString& query,

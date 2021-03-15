@@ -338,7 +338,7 @@ NS_IMETHODIMP nsAbDirProperty::GetCardFromProperty(const char* aProperty,
 
 NS_IMETHODIMP nsAbDirProperty::GetCardsFromProperty(
     const char* aProperty, const nsACString& aValue, bool caseSensitive,
-    nsISimpleEnumerator** result) {
+    nsTArray<RefPtr<nsIAbCard>>& result) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

@@ -709,38 +709,31 @@ nsAbOSXDirectory::GetCardFromProperty(const char* aProperty, const nsACString& a
 
 NS_IMETHODIMP
 nsAbOSXDirectory::GetCardsFromProperty(const char* aProperty, const nsACString& aValue,
-                                       bool aCaseSensitive, nsISimpleEnumerator** aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  *aResult = nullptr;
-
-  if (aValue.IsEmpty()) return NS_NewEmptyEnumerator(aResult);
+                                       bool aCaseSensitive, nsTArray<RefPtr<nsIAbCard>>& aResult) {
+  aResult.Clear();
+  if (aValue.IsEmpty()) return NS_OK;
 
   nsIMutableArray* list = m_IsMailList ? m_AddressList : mCardList;
-
-  if (!list) return NS_NewEmptyEnumerator(aResult);
+  if (!list) return NS_OK;
 
   uint32_t length;
   nsresult rv = list->GetLength(&length);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMArray<nsIAbCard> resultArray;
-  nsCOMPtr<nsIAbCard> card;
-  nsAutoCString cardValue;
-
+  aResult.SetCapacity(length);
   for (uint32_t i = 0; i < length; ++i) {
-    card = do_QueryElementAt(list, i, &rv);
+    nsCOMPtr<nsIAbCard> card = do_QueryElementAt(list, i, &rv);
     if (NS_SUCCEEDED(rv)) {
+      nsAutoCString cardValue;
       rv = card->GetPropertyAsAUTF8String(aProperty, cardValue);
       if (NS_SUCCEEDED(rv)) {
         bool equal = aCaseSensitive ? cardValue.Equals(aValue)
                                     : cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator);
-        if (equal) resultArray.AppendObject(card);
+        if (equal) aResult.AppendElement(&*card);
       }
     }
   }
 
-  return NS_NewArrayEnumerator(aResult, resultArray, NS_GET_IID(nsIAbCard));
+  return NS_OK;
 }
 
 NS_IMETHODIMP

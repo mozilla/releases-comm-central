@@ -15,7 +15,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   FileUtils: "resource://gre/modules/FileUtils.jsm",
   newUID: "resource:///modules/AddrBookUtils.jsm",
   Services: "resource://gre/modules/Services.jsm",
-  SimpleEnumerator: "resource:///modules/AddrBookUtils.jsm",
 });
 
 var log = console.createInstance({
@@ -685,7 +684,7 @@ class AddrBookDirectory {
       results.push(this._getCard(selectStatement.row.card));
     }
     selectStatement.finalize();
-    return new SimpleEnumerator(results);
+    return results;
   }
   deleteDirectory(directory) {
     if (this._readOnly) {
