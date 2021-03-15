@@ -37,10 +37,6 @@ html|input {
   padding: 4px;
 }
 
-html|input[type="number"]::-moz-number-spin-box {
-  margin-inline-end: -3px;
-}
-
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
   width: 16px;

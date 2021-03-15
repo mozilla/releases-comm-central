@@ -47,5 +47,5 @@ html|input[type="number"].input-number-inline {
 }
 
 html|input[type="number"]::-moz-number-spin-box {
-  margin-inline-start: 4px;
+  padding-inline-start: 4px;
 }

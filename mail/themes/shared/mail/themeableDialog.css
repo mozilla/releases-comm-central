@@ -133,6 +133,10 @@ html|input:is([type="email"],[type="tel"],[type="text"],[type="password"],
   opacity: 0.4;
 }
 
+html|input[type="number"] {
+  padding-inline-end: 1px;
+}
+
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
   appearance: none;

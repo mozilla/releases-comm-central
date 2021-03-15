@@ -33,7 +33,7 @@ html|input[type="number"] {
 }
 
 html|input[type="number"]::-moz-number-spin-box {
-  margin-inline-end: 11px;
+  padding-inline-end: 11px;
 }
 
 html|input[type="number"]::-moz-number-spin-up,

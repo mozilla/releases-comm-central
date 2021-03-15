@@ -24,10 +24,6 @@ html|input[type="number"] {
   min-height: 28px;
 }
 
-html|input[type="number"]::-moz-number-spin-box {
-  margin-inline-end: 0;
-}
-
 html|input[type="number"]::-moz-number-spin-up {
   min-height: 12px;
 }

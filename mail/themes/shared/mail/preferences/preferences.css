@@ -342,7 +342,7 @@ html|input[type="number"].size5 {
 }
 
 html|input[type="number"]::-moz-number-spin-box {
-  margin-inline-start: 10px;
+  padding-inline-start: 10px;
 }
 
 html|input[type="number"]::-moz-number-spin-up,
