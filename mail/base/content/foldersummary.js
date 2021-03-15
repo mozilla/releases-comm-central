@@ -176,11 +176,16 @@
 
         // In the case of async fetching for more than one folder, we may
         //  already have got enough to show (added by another urllistener).
-        if (this.children.length >= this.maxMsgHdrsInPopup) {
+        let curHdrsInPopup = this.children.length;
+        if (curHdrsInPopup >= this.maxMsgHdrsInPopup) {
           return false;
         }
 
-        for (let i = 0; i < this.maxMsgHdrsInPopup && i < msgKeys.length; i++) {
+        for (
+          let i = 0;
+          i + curHdrsInPopup < this.maxMsgHdrsInPopup && i < msgKeys.length;
+          i++
+        ) {
           let msgBox = createFolderSummaryMessage();
           let msgHdr = msgDatabase.GetMsgHdrForKey(msgKeys[i]);
           msgBox.addEventListener("click", event => {
