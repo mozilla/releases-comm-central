@@ -12,14 +12,14 @@ const gModel = {
   /** @type {calICalendar[]} */
   calendars: [],
 
-  /** @type {calIItemBase[]} */
-  itemsToImport: [],
+  /** @type {Map(number -> calIItemBase)} */
+  itemsToImport: new Map(),
 
   /** @type {nsIFile | null} */
   file: null,
 
-  /** @type {CalendarItemSummary[]} */
-  itemSummaries: [],
+  /** @type {Map(number -> CalendarItemSummary)} */
+  itemSummaries: new Map(),
 };
 
 /**
@@ -52,8 +52,10 @@ async function onWindowLoad() {
   Services.tm.dispatchToMainThread(async () => {
     let startTime = Date.now();
 
-    gModel.itemsToImport = getItemsFromFile(gModel.file);
-    if (!gModel.itemsToImport.length) {
+    getItemsFromFile(gModel.file).forEach((item, index) => {
+      gModel.itemsToImport.set(index, item);
+    });
+    if (gModel.itemsToImport.size == 0) {
       // No items to import, close the window. An error dialog has already been
       // shown by `getItemsFromFile`.
       window.close();
@@ -69,11 +71,11 @@ async function onWindowLoad() {
     }
 
     // Not much point filtering or sorting if there's only one event.
-    if (gModel.itemsToImport.length == 1) {
+    if (gModel.itemsToImport.size == 1) {
       document.getElementById("calendar-ics-file-dialog-filters").collapsed = true;
     }
 
-    await setUpItemSummaries(gModel.itemsToImport);
+    await setUpItemSummaries();
 
     // Remove the loading message from the DOM to avoid it causing problems later.
     loadingMessage.remove();
@@ -81,10 +83,8 @@ async function onWindowLoad() {
     document.addEventListener("dialogaccept", importRemainingItems);
 
     window.addEventListener("resize", () => {
-      for (let summary of gModel.itemSummaries) {
-        if (summary) {
-          summary.onWindowResize();
-        }
+      for (let summary of gModel.itemSummaries.values()) {
+        summary.onWindowResize();
       }
     });
   });
@@ -144,15 +144,14 @@ function updateCalendarMenu() {
 
 /**
  * Display summaries of each calendar item from the file being imported.
- *
- * @param {calIItemBase[]} items - An array of calendar events and tasks.
  */
-async function setUpItemSummaries(items) {
+async function setUpItemSummaries() {
+  let items = [...gModel.itemsToImport];
   let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
 
   // Sort the items, chronologically first, then alphabetically.
   let collator = new Intl.Collator(undefined, { numeric: true });
-  items.sort((a, b) => {
+  items.sort(([, a], [, b]) => {
     return a.startDate.nativeTime - b.startDate.nativeTime || collator.compare(a.title, b.title);
   });
 
@@ -161,7 +160,7 @@ async function setUpItemSummaries(items) {
     "calendar-ics-file-dialog-import-task-button-label",
   ]);
 
-  items.forEach((item, index) => {
+  items.forEach(([index, item]) => {
     let itemFrame = document.createXULElement("vbox");
     itemFrame.classList.add("calendar-ics-file-dialog-item-frame");
 
@@ -185,7 +184,7 @@ async function setUpItemSummaries(items) {
     summary.item = item;
 
     summary.updateItemDetails();
-    gModel.itemSummaries.push(summary);
+    gModel.itemSummaries.set(index, summary);
   });
 }
 
@@ -338,11 +337,11 @@ async function importSingleItem(item, itemIndex, event) {
   });
 
   event.target.closest(".calendar-ics-file-dialog-item-frame").remove();
-  delete gModel.itemsToImport[itemIndex];
-  delete gModel.itemSummaries[itemIndex];
+  gModel.itemsToImport.delete(itemIndex);
+  gModel.itemSummaries.delete(itemIndex);
 
   acceptButton.disabled = false;
-  if (gModel.itemsToImport.some(item => item)) {
+  if (gModel.itemsToImport.size > 0) {
     // Change the cancel button label to Close, as we've done some work that
     // won't be cancelled.
     cancelButton.label = await document.l10n.formatValue(
@@ -376,8 +375,8 @@ async function importRemainingItems(event) {
   cancelButton.disabled = true;
 
   let calendar = getCurrentlySelectedCalendar();
-  let filteredSummaries = gModel.itemSummaries.filter(
-    summary => summary && !summary.closest(".calendar-ics-file-dialog-item-frame").hidden
+  let filteredSummaries = [...gModel.itemSummaries.values()].filter(
+    summary => !summary.closest(".calendar-ics-file-dialog-item-frame").hidden
   );
   let remainingItems = filteredSummaries.map(summary => summary.item);
 
@@ -433,8 +432,8 @@ async function importRemainingItems(event) {
 
       filteredSummaries.forEach(summary => {
         let itemIndex = parseInt(summary.id.substring("import-item-summary-".length), 10);
-        delete gModel.itemsToImport[itemIndex];
-        delete gModel.itemSummaries[itemIndex];
+        gModel.itemsToImport.delete(itemIndex);
+        gModel.itemSummaries.delete(itemIndex);
         summary.closest(".calendar-ics-file-dialog-item-frame").remove();
       });
 
