@@ -370,10 +370,10 @@ this.mailTabs = class extends ExtensionAPI {
           context,
           name: "mailTabs.onSelectedMessagesChanged",
           register: fire => {
-            let listener = async (event, tab, messages) => {
+            let listener = (event, tab, messages) => {
               fire.sync(
                 tabManager.convert(tab),
-                await messageListTracker.startList(messages, extension)
+                messageListTracker.startList(messages, extension)
               );
             };
 

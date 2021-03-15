@@ -178,13 +178,10 @@ this.messages = class extends ExtensionAPI {
           context,
           name: "messageDisplay.onNewMailReceived",
           register: fire => {
-            let listener = async (event, folder, newMessages) => {
+            let listener = (event, folder, newMessages) => {
               fire.async(
                 convertFolder(folder),
-                await messageListTracker.startList(
-                  newMessages,
-                  context.extension
-                )
+                messageListTracker.startList(newMessages, context.extension)
               );
             };
 
