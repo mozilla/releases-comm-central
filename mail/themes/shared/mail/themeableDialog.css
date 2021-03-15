@@ -374,7 +374,7 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
 }
 
 .radio-check[selected] {
-  list-style-image: url("chrome://global/skin/in-content/radio.svg");
+  list-style-image: url("chrome://global/skin/icons/radio.svg");
   -moz-context-properties: fill;
   fill: var(--highlight-color);
 }
