@@ -5,9 +5,6 @@
 newsblog.jar:
 % content messenger-newsblog %content/messenger-newsblog/
    content/messenger-newsblog/newsblogOverlay.js                (newsblogOverlay.js)
-   content/messenger-newsblog/Feed.js                           (Feed.js)
-   content/messenger-newsblog/FeedItem.js                       (FeedItem.js)
-   content/messenger-newsblog/feed-parser.js                    (feed-parser.js)
    content/messenger-newsblog/feed-subscriptions.js             (feed-subscriptions.js)
    content/messenger-newsblog/feed-subscriptions.xhtml          (feed-subscriptions.xhtml)
    content/messenger-newsblog/am-newsblog.js                    (am-newsblog.js)

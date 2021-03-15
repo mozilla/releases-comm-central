@@ -1,7 +1,24 @@
-/* -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+const EXPORTED_SYMBOLS = ["Feed"];
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "FeedParser",
+  "resource:///modules/FeedParser.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "FeedUtils",
+  "resource:///modules/FeedUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Services",
+  "resource://gre/modules/Services.jsm"
+);
 
 // Cache for all of the feeds currently being downloaded, indexed by URL,
 // so the load event listener can access the Feed objects after it finishes

@@ -3,29 +3,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["Feed", "FeedItem", "FeedParser", "FeedUtils"];
+const EXPORTED_SYMBOLS = ["FeedUtils"];
 
-/* eslint-disable-next-line no-unused-vars */
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { JSONFile } = ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
 
-Services.scriptloader.loadSubScript(
-  "chrome://messenger-newsblog/content/Feed.js"
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger-newsblog/content/FeedItem.js"
-);
-Services.scriptloader.loadSubScript(
-  "chrome://messenger-newsblog/content/feed-parser.js"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  Feed: "resource:///modules/Feed.jsm",
+  jsmime: "resource:///modules/jsmime.jsm",
+  JSONFile: "resource://gre/modules/JSONFile.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 var FeedUtils = {
   MOZ_PARSERERROR_NS: "http://www.mozilla.org/newlayout/xml/parsererror.xml",

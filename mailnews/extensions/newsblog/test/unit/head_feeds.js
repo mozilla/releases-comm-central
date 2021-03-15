@@ -12,9 +12,9 @@ var { localAccountUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
 
-let { Feed, FeedItem, FeedParser, FeedUtils } = ChromeUtils.import(
-  "resource:///modules/FeedUtils.jsm"
-);
+let { FeedParser } = ChromeUtils.import("resource:///modules/FeedParser.jsm");
+let { Feed } = ChromeUtils.import("resource:///modules/Feed.jsm");
+let { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 let { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
 
 // Set up local web server to serve up test files.

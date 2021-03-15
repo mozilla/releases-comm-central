@@ -3,6 +3,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const EXPORTED_SYMBOLS = ["FeedItem", "FeedEnclosure"];
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "FeedUtils",
+  "resource:///modules/FeedUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailServices",
+  "resource:///modules/MailServices.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "Services",
+  "resource://gre/modules/Services.jsm"
+);
+
 function FeedItem() {
   this.mDate = FeedUtils.getValidRFC5322Date();
   this.mParserUtils = Cc["@mozilla.org/parserutils;1"].getService(

@@ -8,9 +8,8 @@
  * GUI-side code for managing folder subscriptions.
  */
 
-var { Feed, FeedItem, FeedParser, FeedUtils } = ChromeUtils.import(
-  "resource:///modules/FeedUtils.jsm"
-);
+var { Feed } = ChromeUtils.import("resource:///modules/Feed.jsm");
+var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
