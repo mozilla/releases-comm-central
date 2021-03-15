@@ -327,6 +327,8 @@
                       "${AppRegNameMail} Document" "" ""
   ${AddHandlerValues} "$0\Thunderbird.Url.mailto"  "$2" "$8,0" "${AppRegNameMail} URL" "delete" ""
   ${AddHandlerValues} "$0\mailto" "$2" "$8,0" "${AppRegNameMail} URL" "true" ""
+  ${AddHandlerValues} "$0\Thunderbird.Url.mid"  "$1" "$8,0" "${AppRegNameMail} URL" "delete" ""
+  ${AddHandlerValues} "$0\mid" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
   ; An empty string is used for the 5th param because ThunderbirdICS is not a
   ; protocol handler
   ${AddHandlerValues} "$0\ThunderbirdICS" "$1" "$8,0" \
@@ -431,7 +433,9 @@
 
   ; Protocols
   StrCpy $1 "$\"$8$\" -osint -compose $\"%1$\""
+  StrCpy $2 "$\"$8$\" $\"%1$\""
   ${AddHandlerValues} "$0\Protocols\mailto" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
+  ${AddHandlerValues} "$0\Protocols\mid" "$2" "$8,0" "${AppRegNameMail} URL" "true" ""
 
   ; Capabilities registry keys
   WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
@@ -442,6 +446,7 @@
   WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".ics"    "ThunderbirdICS"
   WriteRegStr ${RegKey} "$0\Capabilities\StartMenu" "Mail" "${ClientsRegName}"
   WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "mailto" "Thunderbird.Url.mailto"
+  WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "mid" "Thunderbird.Url.mid"
 
   ; Registered Application
   WriteRegStr ${RegKey} "Software\RegisteredApplications" "${AppRegNameMail}" "$0\Capabilities"
@@ -695,6 +700,17 @@
   ${IsHandlerForInstallDir} "mailto" $R9
   ${If} "$R9" == "true"
     ${AddHandlerValues} "SOFTWARE\Classes\mailto" "$1" "$8,0" "" "" ""
+  ${EndIf}
+
+  ${IsHandlerForInstallDir} "Thunderbird.Url.mid" $R9
+  ${If} "$R9" == "true"
+    ${AddHandlerValues} "SOFTWARE\Classes\Thunderbird.Url.mid" "$3" "$8,0" \
+                        "${AppRegNameMail} URL" "delete" ""
+  ${EndIf}
+
+  ${IsHandlerForInstallDir} "mid" $R9
+  ${If} "$R9" == "true"
+    ${AddHandlerValues} "SOFTWARE\Classes\mid" "$3" "$8,0" "" "" ""
   ${EndIf}
 
   ${IsHandlerForInstallDir} "Thunderbird.Url.news" $R9

@@ -429,7 +429,7 @@ Section "-Application" APP_IDX
   ${SetUninstallKeys}
 
   ; On install always add the ThunderbirdEML, Thunderbird.Url.mailto,
-  ; Thunderbird.Url.news, and ThunderbirdICS keys.
+  ; Thunderbird.Url.mid, Thunderbird.Url.news, and ThunderbirdICS keys.
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
   StrCpy $0 "SOFTWARE\Classes"
   StrCpy $1 "$\"$8$\" $\"%1$\""
@@ -444,6 +444,8 @@ Section "-Application" APP_IDX
                       "${AppRegNameMail} URL" "delete" ""
   ${AddHandlerValues} "$0\Thunderbird.Url.news" "$3" "$8,0" \
                       "${AppRegNameNews} URL" "delete" ""
+  ${AddHandlerValues} "$0\Thunderbird.Url.mid"  "$1" "$8,0" \
+                      "${AppRegNameMail} URL" "delete" ""
   ; An empty string is used for the 5th param because ThunderbirdICS is not a
   ; protocol handler
   ${AddHandlerValues} "$0\ThunderbirdICS" "$1" "$8,0" \

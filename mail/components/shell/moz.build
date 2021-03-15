@@ -33,3 +33,7 @@ if SOURCES:
     FINAL_LIBRARY = "mailcomps"
 
 CXXFLAGS += CONFIG["TK_CFLAGS"]
+
+XPCSHELL_TESTS_MANIFESTS += [
+    "test/unit/xpcshell.ini",
+]

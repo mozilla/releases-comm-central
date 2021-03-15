@@ -299,10 +299,12 @@ Section "Uninstall"
   ${EndIf}
 
   ${un.RegCleanAppHandler} "Thunderbird.Url.mailto"
+  ${un.RegCleanAppHandler} "Thunderbird.Url.mid"
   ${un.RegCleanAppHandler} "Thunderbird.Url.news"
   ${un.RegCleanAppHandler} "ThunderbirdEML"
   ${un.RegCleanAppHandler} "ThunderbirdICS"
   ${un.RegCleanProtocolHandler} "mailto"
+  ${un.RegCleanProtocolHandler} "mid"
   ${un.RegCleanProtocolHandler} "news"
   ${un.RegCleanProtocolHandler} "nntp"
   ${un.RegCleanProtocolHandler} "snews"
