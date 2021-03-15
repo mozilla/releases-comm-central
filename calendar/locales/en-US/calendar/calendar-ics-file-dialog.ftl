@@ -20,6 +20,9 @@ calendar-ics-file-dialog-calendar-menu-label = Import into calendar:
 calendar-ics-file-dialog-items-loading-message =
   .value = Loading items…
 
+calendar-ics-file-dialog-search-input =
+  .placeholder = Filter items…
+
 calendar-ics-file-dialog-progress-message = Importing…
 
 calendar-ics-file-import-success = Successfully imported!

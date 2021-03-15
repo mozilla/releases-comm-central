@@ -46,6 +46,14 @@
 
         <menulist id="calendar-ics-file-dialog-calendar-menu"
                   oncommand="updateCalendarMenu();"/>
+
+        <hbox id="calendar-ics-file-dialog-filters">
+          <search-textbox id="calendar-ics-file-dialog-search-input"
+                          flex="1"
+                          data-l10n-id="calendar-ics-file-dialog-search-input"
+                          data-l10n-attrs="placeholder"
+                          oncommand="filterItemSummaries(this.value);"/>
+        </hbox>
       </vbox>
 
       <vbox id="calendar-ics-file-dialog-items-container" flex="1">

@@ -133,23 +133,67 @@ add_task(async () => {
         "event 4 end date should be correct"
       );
 
+      function check_displayed_titles(expectedTitles) {
+        let items = doc.querySelectorAll(
+          ".calendar-ics-file-dialog-item-frame:not([hidden]) > calendar-item-summary"
+        );
+        Assert.deepEqual(
+          [...items].map(summary => summary.item.title),
+          expectedTitles
+        );
+      }
+
+      let filterInput = doc.getElementById("calendar-ics-file-dialog-search-input");
+      async function check_filter(filterText, expectedTitles) {
+        let commandPromise = BrowserTestUtils.waitForEvent(filterInput, "command");
+
+        EventUtils.synthesizeMouseAtCenter(filterInput, {}, dialogWindow);
+        if (filterText) {
+          EventUtils.synthesizeKey("a", { accelKey: true }, dialogWindow);
+          EventUtils.sendString(filterText, dialogWindow);
+        } else {
+          EventUtils.synthesizeKey("VK_ESCAPE", {}, dialogWindow);
+        }
+
+        await commandPromise;
+
+        check_displayed_titles(expectedTitles);
+      }
+
+      await check_filter("event", ["Event One", "Event Two", "Event Three", "Event Four"]);
+      await check_filter("four", ["Event Four"]);
+      await check_filter("ONE", ["Event One"]);
+      await check_filter(`"event t"`, ["Event Two", "Event Three"]);
+      await check_filter("", ["Event One", "Event Two", "Event Three", "Event Four"]);
+
       // Import just the first item, and check that the correct number of items remains.
       let firstItemImportButton = items[0].querySelector(
         ".calendar-ics-file-dialog-item-import-button"
       );
       EventUtils.synthesizeMouseAtCenter(firstItemImportButton, { clickCount: 1 }, dialogWindow);
 
-      let remainingItems;
       await TestUtils.waitForCondition(() => {
-        remainingItems = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
+        let remainingItems = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
         return remainingItems.length == 3;
       }, "three items remain after importing the first item");
-      is(
-        remainingItems[0].querySelector(".item-title").textContent,
-        "Event Two",
-        "'Event Two' should now be the first item in the dialog"
-      );
+      check_displayed_titles(["Event Two", "Event Three", "Event Four"]);
 
+      // Filter and import the shown items.
+      await check_filter("four", ["Event Four"]);
+
+      dialogElement.getButton("accept").click();
+      ok(optionsPane.hidden);
+      ok(!progressPane.hidden);
+      ok(resultPane.hidden);
+
+      await TestUtils.waitForCondition(() => !optionsPane.hidden);
+      ok(progressPane.hidden);
+      ok(resultPane.hidden);
+
+      is(filterInput.value, "");
+      check_displayed_titles(["Event Two", "Event Three"]);
+
+      // Click the accept button to import the remaining items.
       dialogElement.getButton("accept").click();
       ok(optionsPane.hidden);
       ok(!progressPane.hidden);
@@ -162,7 +206,6 @@ add_task(async () => {
       let messageElement = doc.querySelector("#calendar-ics-file-dialog-result-message");
       is(messageElement.textContent, "Import complete.", "import success message appeared");
 
-      // Click the accept button to import the remaining items.
       dialogElement.getButton("accept").click();
     }
   );

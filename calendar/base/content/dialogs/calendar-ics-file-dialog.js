@@ -68,6 +68,11 @@ async function onWindowLoad() {
       await new Promise(resolve => requestAnimationFrame(resolve));
     }
 
+    // Not much point filtering or sorting if there's only one event.
+    if (gModel.itemsToImport.length == 1) {
+      document.getElementById("calendar-ics-file-dialog-filters").collapsed = true;
+    }
+
     await setUpItemSummaries(gModel.itemsToImport);
 
     // Remove the loading message from the DOM to avoid it causing problems later.
@@ -185,6 +190,74 @@ async function setUpItemSummaries(items) {
 }
 
 /**
+ * Filter item summaries by search string.
+ *
+ * @param {searchString} [searchString] - Terms to search for.
+ */
+function filterItemSummaries(searchString = "") {
+  let itemsContainer = document.getElementById("calendar-ics-file-dialog-items-container");
+
+  searchString = searchString.trim();
+  // Nothing to search for. Display all item summaries.
+  if (!searchString) {
+    gModel.itemSummaries.forEach(s => {
+      s.closest(".calendar-ics-file-dialog-item-frame").hidden = false;
+    });
+
+    itemsContainer.scrollTo(0, 0);
+    return;
+  }
+
+  searchString = searchString.toLowerCase().normalize();
+
+  // Split the search string into tokens. Quoted strings are preserved.
+  let searchTokens = [];
+  let startIndex;
+  while ((startIndex = searchString.indexOf('"')) != -1) {
+    let endIndex = searchString.indexOf('"', startIndex + 1);
+    if (endIndex == -1) {
+      endIndex = searchString.length;
+    }
+
+    searchTokens.push(searchString.substring(startIndex + 1, endIndex));
+    let query = searchString.substring(0, startIndex);
+    if (endIndex < searchString.length) {
+      query += searchString.substr(endIndex + 1);
+    }
+
+    searchString = query.trim();
+  }
+
+  if (searchString.length != 0) {
+    searchTokens = searchTokens.concat(searchString.split(/\s+/));
+  }
+
+  // Check the title and description of each item for matches.
+  gModel.itemSummaries.forEach(s => {
+    let title, description;
+    let matches = searchTokens.every(term => {
+      if (title === undefined) {
+        title = s.item.title.toLowerCase().normalize();
+      }
+      if (title?.includes(term)) {
+        return true;
+      }
+
+      if (description === undefined) {
+        description = s.item
+          .getProperty("description")
+          ?.toLowerCase()
+          .normalize();
+      }
+      return description?.includes(term);
+    });
+    s.closest(".calendar-ics-file-dialog-item-frame").hidden = !matches;
+  });
+
+  itemsContainer.scrollTo(0, 0);
+}
+
+/**
  * Get the currently selected calendar.
  *
  * @return {calICalendar} The currently selected calendar.
@@ -261,17 +334,13 @@ async function importRemainingItems(event) {
   let cancelButton = dialog.getButton("cancel");
 
   acceptButton.disabled = true;
-  cancelButton.hidden = true;
-
-  document.getElementById("calendar-ics-file-dialog-file-path").hidden = true;
-  document.getElementById("calendar-ics-file-dialog-items-container").hidden = true;
-  document.getElementById("calendar-ics-file-dialog-calendar-menu-label").hidden = true;
-  document.getElementById("calendar-ics-file-dialog-calendar-menu").hidden = true;
-
-  document.removeEventListener("dialogaccept", importRemainingItems);
+  cancelButton.disabled = true;
 
   let calendar = getCurrentlySelectedCalendar();
-  let remainingItems = gModel.itemsToImport.filter(item => item);
+  let filteredSummaries = gModel.itemSummaries.filter(
+    summary => summary && !summary.closest(".calendar-ics-file-dialog-item-frame").hidden
+  );
+  let remainingItems = filteredSummaries.map(summary => summary.item);
 
   let progressElement = document.getElementById("calendar-ics-file-dialog-progress");
   let duplicatesElement = document.getElementById("calendar-ics-file-dialog-duplicates-message");
@@ -318,13 +387,38 @@ async function importRemainingItems(event) {
       });
       errorsElement.hidden = this.errorsCount == 0;
 
-      let btnLabel = await document.l10n.formatValue("calendar-ics-file-accept-button-ok-label");
-      setTimeout(() => {
-        acceptButton.label = btnLabel;
-        acceptButton.disabled = false;
+      let [acceptButtonLabel, cancelButtonLabel] = await document.l10n.formatValues([
+        { id: "calendar-ics-file-accept-button-ok-label" },
+        { id: "calendar-ics-file-cancel-button-close-label" },
+      ]);
 
+      filteredSummaries.forEach(summary => {
+        let itemIndex = parseInt(summary.id.substring("import-item-summary-".length), 10);
+        delete gModel.itemsToImport[itemIndex];
+        delete gModel.itemSummaries[itemIndex];
+        summary.closest(".calendar-ics-file-dialog-item-frame").remove();
+      });
+
+      document.getElementById("calendar-ics-file-dialog-search-input").value = "";
+      filterItemSummaries();
+      let itemsRemain = !!document.querySelector(".calendar-ics-file-dialog-item-frame");
+
+      // An artificial delay so the progress pane doesn't appear then immediately disappear.
+      setTimeout(() => {
+        if (itemsRemain) {
+          acceptButton.disabled = false;
+          cancelButton.label = cancelButtonLabel;
+          cancelButton.disabled = false;
+        } else {
+          acceptButton.label = acceptButtonLabel;
+          acceptButton.disabled = false;
+          cancelButton.hidden = true;
+          document.removeEventListener("dialogaccept", importRemainingItems);
+        }
+
+        optionsPane.hidden = !itemsRemain;
         progressPane.hidden = true;
-        resultPane.hidden = false;
+        resultPane.hidden = itemsRemain;
       }, 500);
     },
   };
