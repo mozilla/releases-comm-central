@@ -2058,11 +2058,18 @@ AttachmentInfo.prototype = {
             url += url.includes("?") ? "&" : "?";
             url += "type=application/pdf";
           }
-          document.getElementById("tabmail").openTab("contentTab", {
-            url,
-            background: false,
-          });
-          return;
+          let tabmail = document.getElementById("tabmail");
+          if (!tabmail) {
+            // If no tabmail available in this window, try and find it in
+            // another.
+            let win = Services.wm.getMostRecentWindow("mail:3pane");
+            tabmail = win && win.document.getElementById("tabmail");
+          }
+          if (tabmail) {
+            tabmail.openTab("contentTab", { url, background: false });
+            return;
+          }
+          // If no tabmail, open PDF same as other attachments.
         }
       }
       messenger.openAttachment(
