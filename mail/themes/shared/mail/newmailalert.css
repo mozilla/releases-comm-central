@@ -45,14 +45,13 @@
 
 #alertTextBox {
   padding: 4px;
-  padding-inline-end: 25px;
+  padding-inline-end: 0;
 }
 
 #alertTitle {
   font-weight: bold;
   font-size: 110%;
-  padding-inline-start: 5px;
-  padding-inline-end: 5px;
+  padding-inline: 5px;
 }
 
 #alertSeparator {
@@ -113,4 +112,8 @@ folder-summary {
 
 #closeButton {
   -moz-box-align: start;
+}
+
+#closeButton > .toolbarbutton-icon {
+  padding: 5px;
 }
