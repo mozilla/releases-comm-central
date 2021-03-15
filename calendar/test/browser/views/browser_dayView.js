@@ -13,6 +13,7 @@ var {
   invokeNewEventDialog,
   invokeEditingEventDialog,
   switchToView,
+  ensureViewLoaded,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
@@ -75,11 +76,14 @@ add_task(async function testDayView() {
     saveAndCloseItemDialog(eventWindow);
   });
 
+  ensureViewLoaded(controller);
+
   // Check if name was saved.
   eventBox = await dayView.waitForEventBox(controller.window);
   let eventName = eventBox.querySelector(".calendar-event-details-core");
+
   Assert.ok(eventName);
-  Assert.ok(eventName.textContent == TITLE2);
+  Assert.equal(eventName.textContent, TITLE2);
 
   // Delete event
   controller.click(new elib.Elem(eventBox));

@@ -17,6 +17,7 @@ const EXPORTED_SYMBOLS = [
   "invokeEditingEventDialog",
   "invokeEditingRepeatEventDialog",
   "execEventDialogCallback",
+  "ensureViewLoaded",
   "checkMonthAlarmIcon",
   "viewForward",
   "viewBack",
