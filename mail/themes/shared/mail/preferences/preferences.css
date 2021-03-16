@@ -6,15 +6,13 @@
 
 :root {
   --in-content-categories-background: #ebebef;
-  --in-content-warning-container: var(--grey-20);
   --in-content-item-selected-unfocused: var(--grey-20);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --in-content-categories-background: rgba(249,249,250,0.1);
-    --in-content-warning-container: var(--grey-90-a30);
-    --in-content-item-selected-unfocused: rgba(249,249,250,0.05);
+    --in-content-categories-background: rgba(249, 249, 250, 0.1);
+    --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
   }
 }
 
@@ -185,110 +183,15 @@ tabpanel > hbox > description {
   padding: 1px; /* Adding padding around richlistitem in order to make entire keyboard focusing outline visible */
 }
 
-.paneSelector {
-  padding: 71px 0 0;
-  margin: 0;
-}
-
-radio[pane] {
-  -moz-box-orient: horizontal;
-  -moz-box-align: center;
-  appearance: none;
-  width: 240px;
-  color: var(--in-content-text-color);
-  border-right-width: 0;
-  border-left-width: 0;
-  border-radius: 2px;
-  border-end-end-radius: 0;
-  border-start-end-radius: 0;
-  margin-block: 0;
-  margin-inline: 34px 0;
-  padding: 5px 10px;
-  min-height: 42px;
-  outline-offset: -1px;
-  transition: background-color 150ms;
-}
-
-radio[pane][selected] {
-  color: var(--in-content-category-text-selected);
-  background: none;
-}
-
-radio[pane]:not([selected]):hover {
-  background: var(--in-content-category-background-hover);
-}
-
-radio[pane][selected]:hover {
-  background-color: var(--in-content-category-background-selected-hover);
-}
-
-radio[pane]:hover:active {
-  color: var(--in-content-category-text-selected-active);
-  background-color: var(--in-content-category-background-selected-active);
-}
-
 .sidebar-footer-link:hover,
 .sidebar-footer-list > .text-link:hover {
   border-end-end-radius: 0;
   border-start-end-radius: 0;
 }
 
-.paneSelector[focused="true"][keyboard-navigation="true"] > radio[pane][focused="true"] {
-  outline: var(--in-content-category-outline-focus);
-}
-
-radio[pane]:hover::before,
-radio[pane][selected]::before {
-  display: none;
-}
-
-radio[pane] > .radio-label-box {
-  line-height: 22px;
-  padding-bottom: 2px;
-  padding-inline-start: 9px;
-  margin: 0;
-  user-select: none;
-}
-
-radio[pane][focused="true"] > .radio-label-box {
-  outline: none;
-}
-
-radio[pane] > .radio-label-box > .radio-label {
-  margin: 0;
-}
-
-radio[pane] > .radio-check {
-  width: 24px;
-  height: 24px;
-  border-width: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-  margin-inline-end: 0;
-  -moz-image-region: auto;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: 0.8;
-}
-
-radio[pane][selected] > .radio-check {
-  fill-opacity: 1;
-}
-
 @media (max-width: 830px) {
   #pref-category-box {
     width: 118px;
-  }
-
-  radio[pane] > .radio-label-box {
-    display: none;
-  }
-
-  radio[pane] {
-    min-width: 44px;
-    padding-inline-start: 13px; /* make icons align center */
-    margin-inline-end: 35px;
   }
 
   #preferencesContainer {
@@ -442,7 +345,7 @@ html|input.indent {
 }
 
 .updateSettingCrossUserWarningContainer {
-  background: var(--in-content-warning-container);
+  background: var(--in-content-box-info-background);
   border-radius: 5px;
   padding: 2px 8px 8px;
   margin-block-end: 17px;
