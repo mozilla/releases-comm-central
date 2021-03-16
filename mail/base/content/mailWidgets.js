@@ -1950,7 +1950,28 @@
         this.finishEditing(event);
       });
 
+      // Disable the inbuilt autocomplete on blur as we handle it here.
+      this.emailInput._dontBlur = true;
+
       this.emailInput.addEventListener("blur", () => {
+        // If the input is still the active element after blur (when switching
+        // to another window), return to prevent autocompletion and
+        // pillification and let the user continue editing the address later.
+        if (document.activeElement == this.emailInput) {
+          return;
+        }
+
+        if (
+          this.emailInput.forceComplete &&
+          this.emailInput.mController.matchCount >= 1
+        ) {
+          // If input.forceComplete is true and there are autocomplete matches,
+          // we need to call the inbuilt Enter handler to force the input text
+          // to the best autocomplete match because we've set input._dontBlur.
+          this.emailInput.mController.handleEnter(true);
+          return;
+        }
+
         this.updatePill();
       });
     }
@@ -2174,6 +2195,9 @@
       this.hasConnected = true;
 
       for (let input of this.querySelectorAll(".mail-input,.news-input")) {
+        // Disable inbuilt autocomplete on blur to handle it with our handlers.
+        input._dontBlur = true;
+
         setupAutocompleteInput(input);
 
         input.addEventListener("keypress", event => {
@@ -2553,6 +2577,8 @@
         input.setAttribute("completeselectedindex", true);
         input.setAttribute("minresultsforpopup", 2);
         input.setAttribute("ignoreblurwhilesearching", true);
+        // Disable the inbuilt autocomplete on blur as we handle it below.
+        input._dontBlur = true;
 
         setupAutocompleteInput(input);
 

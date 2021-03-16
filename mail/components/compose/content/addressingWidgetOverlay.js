@@ -765,6 +765,11 @@ function addressInputOnBeforeHandleKeyDown(event) {
       break;
 
     case "Tab":
+      // Return if the Alt or Cmd modifiers were pressed, meaning the user is
+      // switching between windows and not tabbing out of the address input.
+      if (event.altKey || event.metaKey) {
+        return;
+      }
       // Trigger the autocomplete controller only if we have a value,
       // to prevent interfering with the natural change of focus on Tab.
       if (input.value.trim()) {
@@ -875,8 +880,15 @@ function deselectAllPills() {
 function addressInputOnBlur(input) {
   input.closest(".address-container").removeAttribute("focused");
 
+  // If the input is still the active element after blur (when switching to
+  // another window), return to prevent autocompletion and pillification
+  // and let the user continue editing the address later where he left.
+  if (document.activeElement == input) {
+    return;
+  }
+
+  // For other headers aka raw input, trim and we are done.
   if (input.getAttribute("is") != "autocomplete-input") {
-    // For other headers aka raw input, trim and we are done.
     input.value = input.value.trim();
     return;
   }
@@ -890,6 +902,16 @@ function addressInputOnBlur(input) {
     return;
   }
 
+  if (input.forceComplete && input.mController.matchCount >= 1) {
+    // If input.forceComplete is true and there are autocomplete matches,
+    // we need to call the inbuilt Enter handler to force the input text
+    // to the best autocomplete match because we've set input._dontBlur.
+    input.mController.handleEnter(true);
+    return;
+  }
+
+  // Otherwise, try to parse the input text as comma-separated recipients and
+  // convert them into recipient pills.
   let listNames = MimeParser.parseHeaderField(
     address,
     MimeParser.HEADER_ADDRESS
