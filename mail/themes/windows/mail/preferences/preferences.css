@@ -32,10 +32,6 @@ html|input[type="number"] {
   min-height: 27px;
 }
 
-html|input[type="number"]::-moz-number-spin-box {
-  padding-inline-end: 11px;
-}
-
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
   min-height: 12px;
