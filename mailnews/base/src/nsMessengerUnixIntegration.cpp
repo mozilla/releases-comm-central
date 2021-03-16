@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsMessengerUnixIntegration.h"
+#include "nsString.h"
 
 /**
  * This is only a placeholder for now, register it in components.conf later if
@@ -14,6 +15,7 @@ nsMessengerUnixIntegration::nsMessengerUnixIntegration() {}
 NS_IMPL_ISUPPORTS(nsMessengerUnixIntegration, nsIMessengerOSIntegration)
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::UpdateUnreadCount(const uint32_t unreadCount) {
+nsMessengerUnixIntegration::UpdateUnreadCount(uint32_t unreadCount,
+                                              const nsAString& unreadTooltip) {
   return NS_OK;
 }

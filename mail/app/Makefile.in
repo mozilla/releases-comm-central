@@ -59,6 +59,7 @@ DESKTOP_ICONS = \
 
 BRANDED_ICONS = \
 	messengerWindow \
+	newmail \
 	$(NULL)
 
 
@@ -68,7 +69,7 @@ BRANDED_ICON_FILES = $(addsuffix $(ICON_SUFFIX), $(BRANDED_ICONS) $(BRANDED_ICON
 libs:: $(addprefix $(srcdir)/icons/$(MOZ_WIDGET_TOOLKIT)/,$(DESKTOP_ICON_FILES))
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
 
-libs:: $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/messengerWindow.ico
+libs:: $(addprefix $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/, $(BRANDED_ICON_FILES))
 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/chrome/icons/default
 endif
 

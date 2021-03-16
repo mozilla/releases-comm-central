@@ -13,7 +13,14 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
+  WinUnreadBadge: "resource:///modules/WinUnreadBadge.jsm",
 });
+
+XPCOMUtils.defineLazyGetter(
+  this,
+  "l10n",
+  () => new Localization(["messenger/messenger.ftl"])
+);
 
 /**
  * A module that listens to folder change events, and show notifications for new
@@ -55,11 +62,14 @@ class MailNotificationManager {
       Cc["@mozilla.org/newMailNotificationService;1"]
         .getService(Ci.mozINewMailNotificationService)
         .addListener(this, Ci.mozINewMailNotificationService.count);
+      Services.obs.addObserver(this, "unread-im-count-changed");
     }
 
     if (AppConstants.platform == "macosx") {
-      Services.obs.addObserver(this, "unread-im-count-changed");
       Services.obs.addObserver(this, "new-directed-incoming-message");
+    }
+    if (AppConstants.platform == "win") {
+      Services.obs.addObserver(this, "window-restored-from-tray");
     }
   }
 
@@ -76,6 +86,8 @@ class MailNotificationManager {
       this._updateUnreadCount();
     } else if (topic == "new-directed-incoming-messenger") {
       this._animateDockIcon();
+    } else if (topic == "window-restored-from-tray") {
+      this._updateUnreadCount();
     }
   }
 
@@ -301,10 +313,21 @@ class MailNotificationManager {
     );
   }
 
-  _updateUnreadCount() {
-    this._osIntegration?.updateUnreadCount(
-      this._unreadMailCount + this._unreadChatCount
+  async _updateUnreadCount() {
+    this._logger.debug(
+      `Update unreadMailCount=${this._unreadMailCount}, unreadChatCount=${this._unreadChatCount}`
     );
+    let count = this._unreadMailCount + this._unreadChatCount;
+    let tooltip = "";
+    if (AppConstants.platform == "win") {
+      if (count > 0) {
+        tooltip = await l10n.formatValue("unread-messages-os-tooltip", {
+          count,
+        });
+      }
+      WinUnreadBadge.updateUnreadCount(count, tooltip);
+    }
+    this._osIntegration?.updateUnreadCount(count, tooltip);
   }
 
   _animateDockIcon() {

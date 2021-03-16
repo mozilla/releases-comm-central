@@ -123,6 +123,7 @@ EXTRA_JS_MODULES += [
     "TemplateUtils.jsm",
     "TraceHelper.jsm",
     "VirtualFolderWrapper.jsm",
+    "WinUnreadBadge.jsm",
 ]
 LOCAL_INCLUDES += [
     "/%s/dom/base" % CONFIG["mozreltopsrcdir"],

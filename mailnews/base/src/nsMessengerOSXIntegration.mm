@@ -5,6 +5,7 @@
 
 #include "nsMessengerOSXIntegration.h"
 #include "nsObjCExceptions.h"
+#include "nsString.h"
 #include "mozilla/ErrorResult.h"
 
 #include <Carbon/Carbon.h>
@@ -34,7 +35,7 @@ nsresult nsMessengerOSXIntegration::RestoreDockIcon() {
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::UpdateUnreadCount(const uint32_t unreadCount) {
+nsMessengerOSXIntegration::UpdateUnreadCount(uint32_t unreadCount, const nsAString& unreadTooltip) {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
   if (unreadCount == 0) {

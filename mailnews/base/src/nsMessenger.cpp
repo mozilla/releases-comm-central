@@ -491,13 +491,11 @@ nsMessenger::OpenURL(const nsACString& aURL) {
     return CompleteOpenURL();
   }
 
-
   // This browsing context is in a child process. Change it to the parent
   // process, then load the message.
   changeState.mRemoteType = NOT_REMOTE_TYPE;
   canonicalBrowsingContext
-      ->ChangeRemoteness(changeState,
-                         nsContentUtils::GenerateLoadIdentifier())
+      ->ChangeRemoteness(changeState, nsContentUtils::GenerateLoadIdentifier())
       ->Then(
           GetMainThreadSerialEventTarget(), __func__,
           [flo, self = RefPtr{this}](

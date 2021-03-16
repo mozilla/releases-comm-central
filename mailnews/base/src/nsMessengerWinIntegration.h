@@ -6,9 +6,10 @@
 #ifndef __nsMessengerWinIntegration_h
 #define __nsMessengerWinIntegration_h
 
+#include "nsCOMPtr.h"
+#include "nsString.h"
 #include "nsIMessengerWindowsIntegration.h"
-
-class nsIStringBundle;
+#include "nsIStringBundle.h"
 
 class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
  public:
@@ -17,12 +18,17 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMESSENGERWINDOWSINTEGRATION
 
-  NS_IMETHOD UpdateUnreadCount(uint32_t unreadCount);
+  NS_IMETHOD UpdateUnreadCount(uint32_t unreadCount,
+                               const nsAString& unreadTooltip);
 
  private:
   virtual ~nsMessengerWinIntegration();
 
-  nsresult GetStringBundle(nsIStringBundle** aBundle);
+  nsresult SetTooltip();
+
+  nsString mBrandShortName;
+  uint32_t mUnreadCount;
+  nsString mUnreadTooltip;
 };
 
 #endif  // __nsMessengerWinIntegration_h

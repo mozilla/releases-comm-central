@@ -5,14 +5,16 @@
 
 #include <windows.h>
 #include <shellapi.h>
+#include <strsafe.h>
 
 #include "nsMessengerWinIntegration.h"
 #include "nsMsgDBFolder.h"
-#include "nsCOMPtr.h"
 #include "nsIBaseWindow.h"
 #include "nsIWidget.h"
-#include "nsIStringBundle.h"
 #include "mozilla/Services.h"
+#include "nsIObserverService.h"
+
+#define IDI_MAILBIFF 32576
 
 // since we are including windows.h in this file, undefine get user name....
 #ifdef GetUserName
@@ -41,18 +43,6 @@ NS_INTERFACE_MAP_BEGIN(nsMessengerWinIntegration)
   NS_INTERFACE_MAP_ENTRY(nsIMessengerWindowsIntegration)
   NS_INTERFACE_MAP_ENTRY(nsIMessengerOSIntegration)
 NS_INTERFACE_MAP_END
-
-nsresult nsMessengerWinIntegration::GetStringBundle(nsIStringBundle** aBundle) {
-  NS_ENSURE_ARG_POINTER(aBundle);
-  nsCOMPtr<nsIStringBundleService> bundleService =
-      mozilla::services::GetStringBundleService();
-  NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-  nsCOMPtr<nsIStringBundle> bundle;
-  bundleService->CreateBundle("chrome://messenger/locale/messenger.properties",
-                              getter_AddRefs(bundle));
-  bundle.forget(aBundle);
-  return NS_OK;
-}
 
 NOTIFYICONDATAW sMailIconData = {
     /* cbSize */ (DWORD)NOTIFYICONDATAW_V2_SIZE,
@@ -88,6 +78,10 @@ static LRESULT CALLBACK IconWindowProc(HWND msgWindow, UINT msg, WPARAM wp,
       HWND hwnd = (HWND)(widget->GetNativeData(NS_NATIVE_WIDGET));
       ::ShowWindow(hwnd, SW_RESTORE);
       ::SetForegroundWindow(hwnd);
+
+      nsCOMPtr<nsIObserverService> obs =
+          mozilla::services::GetObserverService();
+      obs->NotifyObservers(sHiddenWindows[i], "window-restored-from-tray", 0);
     }
 
     sHiddenWindows.Clear();
@@ -127,19 +121,15 @@ nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
                        /* create struct */ 0),
                    NS_ERROR_FAILURE);
     sMailIconData.hWnd = sIconWindow;
-    sMailIconData.hIcon = ::LoadIcon(::GetModuleHandle(NULL), IDI_APPLICATION);
-
-    nsCOMPtr<nsIStringBundleService> bundleService =
-        mozilla::services::GetStringBundleService();
-    NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
-    nsCOMPtr<nsIStringBundle> bundle;
-    bundleService->CreateBundle("chrome://branding/locale/brand.properties",
-                                getter_AddRefs(bundle));
-    nsString brandShortName;
-    bundle->GetStringFromName("brandShortName", brandShortName);
-    ::wcsncpy(sMailIconData.szTip, brandShortName.get(),
-              brandShortName.Length());
   }
+
+  auto idi = IDI_APPLICATION;
+  if (mUnreadCount > 0) {
+    idi = MAKEINTRESOURCE(IDI_MAILBIFF);
+  }
+  sMailIconData.hIcon = ::LoadIcon(::GetModuleHandle(NULL), idi);
+  nsresult rv = SetTooltip();
+  NS_ENSURE_SUCCESS(rv, rv);
 
   ::Shell_NotifyIconW(NIM_ADD, &sMailIconData);
   ::Shell_NotifyIconW(NIM_SETVERSION, &sMailIconData);
@@ -147,6 +137,56 @@ nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::UpdateUnreadCount(uint32_t unreadCount) {
+nsMessengerWinIntegration::UpdateUnreadCount(uint32_t unreadCount,
+                                             const nsAString& unreadTooltip) {
+  if (sHiddenWindows.Length() > 0) {
+    // sHiddenWindows is not empty means tray icon is visible.
+    if (mUnreadCount == 0 && unreadCount > 0) {
+      // Unread count changes from 0, update tray icon.
+      sMailIconData.hIcon =
+          ::LoadIcon(::GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAILBIFF));
+    } else if (mUnreadCount > 0 && unreadCount == 0) {
+      // Unread count changes to 0, update tray icon.
+      sMailIconData.hIcon =
+          ::LoadIcon(::GetModuleHandle(NULL), IDI_APPLICATION);
+    }
+    mUnreadCount = unreadCount;
+    mUnreadTooltip = unreadTooltip;
+    nsresult rv = SetTooltip();
+    NS_ENSURE_SUCCESS(rv, rv);
+    ::Shell_NotifyIconW(NIM_MODIFY, &sMailIconData);
+    return rv;
+  }
+  mUnreadCount = unreadCount;
+  mUnreadTooltip = unreadTooltip;
   return NS_OK;
+}
+
+/**
+ * Set a tooltip to the tray icon. Including the brand short name, and unread
+ * message count.
+ */
+nsresult nsMessengerWinIntegration::SetTooltip() {
+  nsresult rv = NS_OK;
+  if (mBrandShortName.IsEmpty()) {
+    nsCOMPtr<nsIStringBundleService> bundleService =
+        mozilla::services::GetStringBundleService();
+    NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
+    nsCOMPtr<nsIStringBundle> bundle;
+    rv = bundleService->CreateBundle(
+        "chrome://branding/locale/brand.properties", getter_AddRefs(bundle));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = bundle->GetStringFromName("brandShortName", mBrandShortName);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  nsString tooltip = mBrandShortName;
+  if (!mUnreadTooltip.IsEmpty()) {
+    tooltip.AppendLiteral("\n");
+    tooltip.Append(mUnreadTooltip);
+  }
+  size_t destLength =
+      sizeof sMailIconData.szTip / (sizeof sMailIconData.szTip[0]);
+  ::StringCchCopyNW(sMailIconData.szTip, destLength, tooltip.get(),
+                    tooltip.Length());
+  return rv;
 }
