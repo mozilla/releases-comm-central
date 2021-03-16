@@ -7617,9 +7617,13 @@ function subjectKeyPress(event) {
 let flavors = [
   "text/x-moz-address",
   "text/x-moz-message",
+  "text/uri-list",
   "application/x-moz-file",
   "text/x-moz-url",
 ];
+
+// Array of content types that should trigger the attachment overlay.
+let overlayFlavors = ["text/x-moz-message", "text/uri-list"];
 
 // We can drag and drop addresses, files, messages and urls into the compose
 // envelope.
@@ -7897,6 +7901,7 @@ var envelopeDragObserver = {
           size = msgHdr.messageSize;
           break;
 
+        case "text/uri-list":
         case "text/x-moz-url":
           let pieces = data.split("\n");
           data = pieces[0];
@@ -8003,7 +8008,7 @@ var envelopeDragObserver = {
       // Show the drop overlay only if we dragged files or supperted types.
       if (
         event.dataTransfer.files.length ||
-        event.dataTransfer.types.includes("text/x-moz-message")
+        event.dataTransfer.types.some(type => overlayFlavors.includes(type))
       ) {
         event.stopPropagation();
         event.preventDefault();
