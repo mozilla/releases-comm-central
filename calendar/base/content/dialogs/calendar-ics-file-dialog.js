@@ -290,7 +290,9 @@ function sortItemSummaries(event) {
   }
   itemsContainer.scrollTo(0, 0);
 
-  for (let menuitem of document.querySelectorAll("#calendar-ics-file-dialog-sort-popup > menuitem")) {
+  for (let menuitem of document.querySelectorAll(
+    "#calendar-ics-file-dialog-sort-popup > menuitem"
+  )) {
     menuitem.checked = menuitem == event.target;
   }
 }
