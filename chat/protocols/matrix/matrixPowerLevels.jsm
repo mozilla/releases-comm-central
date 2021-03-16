@@ -4,6 +4,14 @@
 
 this.EXPORTED_SYMBOLS = ["MatrixPowerLevels"];
 
+var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyGetter(this, "_", () =>
+  l10nHelper("chrome://chat/locale/matrix.properties")
+);
+
 // See https://matrix.org/docs/spec/client_server/r0.5.0#m-room-power-levels
 var MatrixPowerLevels = {
   user: 0,
@@ -11,4 +19,26 @@ var MatrixPowerLevels = {
   halfOp: 25,
   op: 50,
   founder: 100,
+  /**
+   * Turns a power level into a human readable string.
+   * Only exactly matching level names are returned, except for restricted
+   * power levels.
+   *
+   * @param {number} powerLevel - Power level to format.
+   * @param {number} [defaultLevel=0] - The default power level in the room.
+   * @returns {string} Representation of the power level including the raw level.
+   */
+  toText(powerLevel, defaultLevel = MatrixPowerLevels.user) {
+    let levelName = _("powerLevel.custom");
+    if (powerLevel == MatrixPowerLevels.founder) {
+      levelName = _("powerLevel.admin");
+    } else if (powerLevel == MatrixPowerLevels.op) {
+      levelName = _("powerLevel.moderator");
+    } else if (powerLevel < defaultLevel) {
+      levelName = _("powerLevel.restricted");
+    } else if (powerLevel == defaultLevel) {
+      levelName = _("powerLevel.default");
+    }
+    return _("powerLevel.detailed", levelName, powerLevel);
+  },
 };

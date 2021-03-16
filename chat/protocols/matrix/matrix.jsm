@@ -22,6 +22,9 @@ var {
   GenericConvIMPrototype,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+var { getMatrixTextForEvent } = ChromeUtils.import(
+  "resource:///modules/matrixTextForEvent.jsm"
+);
 
 Cu.importGlobalProperties(["indexedDB"]);
 
@@ -81,6 +84,7 @@ MatrixParticipant.prototype = {
   },
 
   get voiced() {
+    //TODO this should require the power level specified in m.room.power_levels for m.room.message.
     return this._roomMember.powerLevelNorm >= MatrixPowerLevels.voice;
   },
   get halfOp() {
@@ -652,31 +656,33 @@ MatrixAccount.prototype = {
           return;
         }
         if (event.getType() === "m.room.message") {
-          conv.writeMessage(event.sender.name, event.getContent().body, {
-            incoming: true,
+          const isOutgoing = event.getSender() == conv._account.userId;
+          const eventContent = event.getContent();
+          //TODO We should prefer the formatted body (when it's html)
+          let message = eventContent.body;
+          if (eventContent.msgtype === "m.emote") {
+            message = "/me " + message;
+          }
+          //TODO handle media messages better (currently just show file name)
+          conv.writeMessage(event.sender.name, message, {
+            outgoing: isOutgoing,
+            incoming: !isOutgoing,
+            system: eventContent.msgtype === "m.notice",
+            time: Math.floor(event.getDate() / 1000),
           });
         } else if (event.getType() == "m.room.topic") {
           conv.setTopic(event.getContent().topic, event.sender.name);
-        } else if (conv && event.getType() == "m.room.power_levels") {
-          conv.notifyObservers(null, "chat-update-topic");
-          conv.writeMessage(
-            event.sender.name,
-            event.getType() + ": " + JSON.stringify(event.getContent()),
-            {
-              system: true,
-            }
-          );
         } else {
-          // This is an unhandled event type, for now just put it in the room as
-          // the JSON body. This will need to be updated once (most) events are
-          // handled.
-          conv.writeMessage(
-            event.sender.name,
-            event.getType() + ": " + JSON.stringify(event.getContent()),
-            {
-              system: true,
-            }
-          );
+          let message = getMatrixTextForEvent(event);
+          // We don't think we should show a notice for this event.
+          if (!message) {
+            this.LOG("Unhandled event: " + JSON.stringify(event));
+            return;
+          }
+          conv.writeMessage(event.sender.name, message, {
+            system: true,
+            time: Math.floor(event.getDate() / 1000),
+          });
         }
       }
     );
@@ -824,6 +830,7 @@ MatrixAccount.prototype = {
     this.roomList.set(groupConv._roomId, conv);
     let directRoom = this._client.getRoom(groupConv._roomId);
     conv.initRoom(directRoom);
+    //TODO re-select conv if it was already selected
   },
 
   /*
@@ -838,6 +845,7 @@ MatrixAccount.prototype = {
     this.roomList.set(directConv._roomId, conv);
     let groupRoom = this._client.getRoom(directConv._roomId);
     conv.initRoom(groupRoom);
+    //TODO re-select conv if it was already selected
   },
 
   /*

@@ -39,26 +39,6 @@ function getAccount(conv) {
   return getConv(conv)._account;
 }
 
-/**
- * Returns human readable names for power levels (Default/Moderator/Admin).
- *
- * @param {number} power - Power level to get the name for.
- * @returns {string} Name of the power level.
- */
-function getUserPower(power) {
-  if (power >= MatrixPowerLevels.user && power < MatrixPowerLevels.op) {
-    return _("powerLevel.default");
-  } else if (
-    power >= MatrixPowerLevels.op &&
-    power < MatrixPowerLevels.founder
-  ) {
-    return _("powerLevel.moderator");
-  } else if (power == MatrixPowerLevels.founder) {
-    return _("powerLevel.admin");
-  }
-  return null;
-}
-
 var EVENT_TO_STRING = {
   ban: "powerLevel.ban",
   "m.room.avatar": "powerLevel.roomAvatar",
@@ -183,13 +163,14 @@ function publishRoomDetails(account, conv) {
     system: true,
   });
 
+  const defaultLevel = powerLevel.users_default;
   for (let [key, value] of Object.entries(powerLevel)) {
     if (key == "users") {
       continue;
     }
     if (key == "events") {
       for (let [userKey, userValue] of Object.entries(powerLevel.events)) {
-        let userPower = getUserPower(userValue);
+        let userPower = MatrixPowerLevels.toText(userValue, defaultLevel);
         let powerString = getEventString(userKey, userPower);
         if (!powerString) {
           continue;
@@ -200,7 +181,7 @@ function publishRoomDetails(account, conv) {
       }
       continue;
     }
-    let userPower = getUserPower(value);
+    let userPower = MatrixPowerLevels.toText(value, defaultLevel);
     let powerString = getEventString(key, userPower);
     if (!powerString) {
       continue;
@@ -292,7 +273,10 @@ function clientCommand(clientMethod, parameterCount, options) {
   return runCommand(
     (account, conv, params) => {
       account._client[clientMethod](...params).catch(error => {
-        conv.writeMessage(account.userId, error.message, { system: true });
+        conv.writeMessage(account.userId, error.message, {
+          system: true,
+          error: true,
+        });
       });
       return true;
     },

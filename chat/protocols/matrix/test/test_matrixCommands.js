@@ -9,6 +9,8 @@ function run_test() {
   add_test(testMsgSuccess);
   add_test(testMsgMissingMessage);
   add_test(testMsgNoRoom);
+  add_test(testJoinNotRoomId);
+  add_test(testJoinSuccess);
   run_next_test();
 }
 
@@ -166,6 +168,8 @@ function testJoinSuccess() {
   const result = command(roomName, conversation);
   ok(result, "Did not handle join command");
   equal(conversation.roomId, roomName, "Did not try to join expected room");
+
+  run_next_test();
 }
 
 function testJoinNotRoomId() {
@@ -174,6 +178,8 @@ function testJoinNotRoomId() {
   const command = _getRunCommand("join");
   const result = command(roomName, conversation);
   ok(!result, "Handled join command for unsupported room Id");
+
+  run_next_test();
 }
 
 // Fetch the run() of a named command.
