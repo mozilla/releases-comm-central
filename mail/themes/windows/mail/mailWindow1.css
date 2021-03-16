@@ -230,7 +230,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
           border-top: 1px solid rgba(0,0,0,.7);
         }
         :root[sizemode=normal][tabsintitlebar][always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
-          border-top-color: -moz-win-accentcolor;
+          border-top-color: -moz-accent-color;
         }
         :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
           background-color: #a8cbdb;
@@ -239,25 +239,25 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
       @media (-moz-windows-accent-color-in-titlebar) {
         :root[sizemode=normal][tabsintitlebar] {
-          border-top: 1px solid -moz-win-accentcolor;
+          border-top: 1px solid -moz-accent-color;
         }
         :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme),
         :root[tabsintitlebar]:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
-          background-color: -moz-win-accentcolor;
+          background-color: -moz-accent-color;
         }
 
         :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme),
         :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive)[lwt-default-theme-in-dark-mode] {
-          color: -moz-win-accentcolortext;
+          color: -moz-accent-color-foreground;
         }
 
         :root[tabsintitlebar][lwt-default-theme-in-dark-mode]:not(:-moz-window-inactive)
           .titlebar-button {
-          stroke: -moz-win-accentcolortext;
+          stroke: -moz-accent-color-foreground;
         }
 
         :root[tabsintitlebar][lwt-default-theme-in-dark-mode]:not(:-moz-window-inactive) #tabs-toolbar {
-          --lwt-toolbarbutton-icon-fill: -moz-win-accentcolortext;
+          --lwt-toolbarbutton-icon-fill: -moz-accent-color-foreground;
           --toolbarbutton-icon-fill-opacity: .7;
         }
       }
@@ -296,7 +296,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     @media (-moz-windows-default-theme) {
       @media (-moz-windows-accent-color-in-titlebar) {
         .titlebar-button:not(:-moz-window-inactive,:-moz-lwtheme) {
-          stroke: -moz-win-accentcolortext;
+          stroke: -moz-accent-color-foreground;
         }
       }
     }
