@@ -1266,14 +1266,14 @@
       let buddy = aItem.chatBuddy;
       let image;
       if (!buddy.noFlags) {
-        if (buddy.op) {
+        if (buddy.founder) {
+          image = "founder";
+        } else if (buddy.op) {
           image = "operator";
         } else if (buddy.halfOp) {
           image = "half-operator";
         } else if (buddy.voiced) {
           image = "voice";
-        } else if (buddy.founder) {
-          image = "founder";
         }
       }
       if (image) {
