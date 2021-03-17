@@ -335,7 +335,13 @@ function MatrixAccount(aProtocol, aImAccount) {
 }
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
-  observe(aSubject, aTopic, aData) {},
+  observe(aSubject, aTopic, aData) {
+    if (aTopic === "status-changed") {
+      this.setPresence(aSubject);
+    } else if (aTopic === "user-display-name-changed") {
+      this._client.setDisplayName(aData);
+    }
+  },
   remove() {
     for (let conv of this.roomList.values()) {
       // We want to remove all the conversations. We are not using conv.close
@@ -599,6 +605,7 @@ MatrixAccount.prototype = {
     this._client.on("sync", (state, prevState, data) => {
       switch (state) {
         case "PREPARED":
+          this.setPresence(this.imAccount.statusInfo);
           this.reportConnected();
           break;
         case "STOPPED":
@@ -796,6 +803,22 @@ MatrixAccount.prototype = {
     //  User.presence
 
     this._client.startClient();
+  },
+
+  setPresence(statusInfo) {
+    const presenceDetails = {
+      presence: "offline",
+      status_msg: statusInfo.statusText,
+    };
+    if (statusInfo.statusType === Ci.imIStatusInfo.STATUS_AVAILABLE) {
+      presenceDetails.presence = "online";
+    } else if (
+      statusInfo.statusType === Ci.imIStatusInfo.STATUS_AWAY ||
+      statusInfo.statusType === Ci.imIStatusInfo.STATUS_IDLE
+    ) {
+      presenceDetails.presence = "unavailable";
+    }
+    this._client.setPresence(presenceDetails);
   },
 
   /*
@@ -1024,6 +1047,7 @@ MatrixAccount.prototype = {
   },
 
   disconnect() {
+    this._client.setPresence({ presence: "offline" });
     this._client.stopClient();
     this.reportDisconnected();
   },
