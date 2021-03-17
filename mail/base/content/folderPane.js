@@ -734,11 +734,13 @@ var gFolderTreeView = {
    * Returns the FtvItem mode of the currently selected folder or the currently
    * active mode if only one is available.
    *
-   * @param {string} index - The selected folder position.
+   * @param {?string} index - The selected folder position or null.
    * @returns {string} - The FtvItem mode.
    */
   getModeForIndex(index) {
-    if (this.activeModes.length == 1) {
+    // Return the first available mode if the user doesn't have more than one
+    // mode currently visible, or the folder index is null.
+    if (this.activeModes.length == 1 || index === null) {
       return this.activeModes[0];
     }
 
