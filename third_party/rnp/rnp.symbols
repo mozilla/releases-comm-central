@@ -60,6 +60,7 @@ rnp_key_get_protection_iterations
 rnp_key_get_protection_mode
 rnp_key_get_protection_type
 rnp_key_get_revocation_reason
+rnp_key_get_revocation_signature
 rnp_key_get_signature_at
 rnp_key_get_signature_count
 rnp_key_get_subkey_at
@@ -78,6 +79,7 @@ rnp_key_is_retired
 rnp_key_is_revoked
 rnp_key_is_sub
 rnp_key_is_superseded
+rnp_key_is_valid
 rnp_key_lock
 rnp_key_packets_to_json
 rnp_key_protect
@@ -87,6 +89,7 @@ rnp_key_set_expiration
 rnp_key_to_json
 rnp_key_unlock
 rnp_key_unprotect
+rnp_key_valid_till
 rnp_load_keys
 rnp_locate_key
 rnp_op_encrypt_add_password
@@ -188,7 +191,9 @@ rnp_signature_get_creation
 rnp_signature_get_hash_alg
 rnp_signature_get_keyid
 rnp_signature_get_signer
+rnp_signature_get_type
 rnp_signature_handle_destroy
+rnp_signature_is_valid
 rnp_signature_packet_to_json
 rnp_supported_features
 rnp_supports_feature
@@ -197,10 +202,15 @@ rnp_symenc_get_cipher
 rnp_symenc_get_hash_alg
 rnp_symenc_get_s2k_iterations
 rnp_symenc_get_s2k_type
+rnp_uid_get_data
+rnp_uid_get_revocation_signature
 rnp_uid_get_signature_at
 rnp_uid_get_signature_count
+rnp_uid_get_type
 rnp_uid_handle_destroy
+rnp_uid_is_primary
 rnp_uid_is_revoked
+rnp_uid_is_valid
 rnp_unload_keys
 rnp_version
 rnp_version_commit_timestamp
