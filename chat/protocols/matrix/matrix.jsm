@@ -664,11 +664,12 @@ MatrixAccount.prototype = {
             message = "/me " + message;
           }
           //TODO handle media messages better (currently just show file name)
-          conv.writeMessage(event.sender.name, message, {
+          conv.writeMessage(event.getSender(), message, {
             outgoing: isOutgoing,
             incoming: !isOutgoing,
             system: eventContent.msgtype === "m.notice",
             time: Math.floor(event.getDate() / 1000),
+            _alias: event.sender.name,
           });
         } else if (event.getType() == "m.room.topic") {
           conv.setTopic(event.getContent().topic, event.sender.name);
@@ -676,12 +677,13 @@ MatrixAccount.prototype = {
           let message = getMatrixTextForEvent(event);
           // We don't think we should show a notice for this event.
           if (!message) {
-            this.LOG("Unhandled event: " + JSON.stringify(event));
+            this.LOG("Unhandled event: " + JSON.stringify(event.toJSON()));
             return;
           }
-          conv.writeMessage(event.sender.name, message, {
+          conv.writeMessage(event.getSender(), message, {
             system: true,
             time: Math.floor(event.getDate() / 1000),
+            _alias: event.sender.name,
           });
         }
       }
