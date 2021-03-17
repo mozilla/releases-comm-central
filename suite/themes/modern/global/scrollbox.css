@@ -45,23 +45,23 @@ autorepeatbutton:not([disabled="true"]):hover {
 /* Vertical enabled */
 .autorepeatbutton-up,
 .scrollbutton-up {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif")
+  list-style-image: url("chrome://global/skin/arrow/arrow-up.png")
 }
 
 .autorepeatbutton-down,
 .scrollbutton-down {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif")
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png")
 }
 
 /* Vertical disabled */
 .autorepeatbutton-up[disabled="true"],
 .scrollbutton-up[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up-dis.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up-dis.png");
 }
 
 .autorepeatbutton-down[disabled="true"],
 .scrollbutton-down[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.png");
 }
 
 /* Horizontal enabled */
@@ -69,14 +69,14 @@ autorepeatbutton:not([disabled="true"]):hover {
 .autorepeatbutton-down[orient="horizontal"]:-moz-locale-dir(rtl),
 .scrollbutton-up[orient="horizontal"],
 .scrollbutton-down[orient="horizontal"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft.png");
 }
 
 .autorepeatbutton-down[orient="horizontal"],
 .autorepeatbutton-up[orient="horizontal"]:-moz-locale-dir(rtl),
 .scrollbutton-down[orient="horizontal"],
 .scrollbutton-up[orient="horizontal"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit.png");
 }
 
  /* Horizontal disabled */
@@ -84,12 +84,12 @@ autorepeatbutton:not([disabled="true"]):hover {
 .autorepeatbutton-down[orient="horizontal"][disabled="true"]:-moz-locale-dir(rtl),
 .scrollbutton-up[orient="horizontal"][disabled="true"],
 .scrollbutton-down[orient="horizontal"][disabled="true"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft-dis.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft-dis.png");
 }
 
 .autorepeatbutton-down[orient="horizontal"][disabled="true"],
 .autorepeatbutton-up[orient="horizontal"][disabled="true"]:-moz-locale-dir(rtl),
 .scrollbutton-down[orient="horizontal"][disabled="true"],
 .scrollbutton-up[orient="horizontal"][disabled="true"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit-dis.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit-dis.png");
 }

@@ -90,7 +90,7 @@
   border-radius: 8px;
   border: thin solid gray;
   margin-top: 10px;
-  background: url("chrome://communicator/skin/toolbar/prtb-bg-noline.gif") repeat-x;
+  background: url("chrome://communicator/skin/toolbar/prtb-bg-noline.png") repeat-x;
   background-position: 0px -1px;
 }
 
@@ -107,7 +107,7 @@
   height: 30px;
   width: 30px;
   display: block;
-  background-image: url("chrome://messenger/skin/icons/btn1.gif");
+  background-image: url("chrome://messenger/skin/icons/btn1.png");
   background-position: -5px -308px;
 }
 

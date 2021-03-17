@@ -5,93 +5,93 @@
 /* ::::: Link toolbar items ::::: */
 
 #link-top {
-  list-style-image: url("chrome://navigator/skin/btn1/top.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/top.png");
 }
 
 #link-top[disabled="true"],
 #link-top[disabled="true"]:hover,
 #link-top[disabled="true"]:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/top-dis.gif") !important;
+  list-style-image: url("chrome://navigator/skin/btn1/top-dis.png") !important;
 }
 
 #link-top:hover,
 #link-top:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/top-hov.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/top-hov.png");
 }
 
 #link-up {
-  list-style-image: url("chrome://navigator/skin/btn1/up.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/up.png");
 }
 
 #link-up[disabled="true"],
 #link-up[disabled="true"]:hover,
 #link-up[disabled="true"]:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/up-dis.gif") !important;
+  list-style-image: url("chrome://navigator/skin/btn1/up-dis.png") !important;
 }
 
 #link-up:hover,
 #link-up:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/up-hov.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/up-hov.png");
 }
 
 #link-first {
-  list-style-image: url("chrome://navigator/skin/btn1/first.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/first.png");
 }
 
 #link-first[disabled="true"],
 #link-first[disabled="true"]:hover,
 #link-first[disabled="true"]:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/first-dis.gif") !important;
+  list-style-image: url("chrome://navigator/skin/btn1/first-dis.png") !important;
 }
 
 #link-first:hover,
 #link-first:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/first-hov.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/first-hov.png");
 }
 
 #link-prev {
-  list-style-image: url("chrome://navigator/skin/btn1/previous.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/previous.png");
 }
 
 #link-prev[disabled="true"],
 #link-prev[disabled="true"]:hover,
 #link-prev[disabled="true"]:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/previous-dis.gif") !important;
+  list-style-image: url("chrome://navigator/skin/btn1/previous-dis.png") !important;
 }
 
 #link-prev:hover,
 #link-prev:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/previous-hov.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/previous-hov.png");
 }
 
 #link-next {
-  list-style-image: url("chrome://navigator/skin/btn1/next.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/next.png");
 }
 
 #link-next[disabled="true"],
 #link-next[disabled="true"]:hover,
 #link-next[disabled="true"]:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/next-dis.gif") !important;
+  list-style-image: url("chrome://navigator/skin/btn1/next-dis.png") !important;
 }
 
 #link-next:hover,
 #link-next:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/next-hov.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/next-hov.png");
 }
 
 #link-last {
-  list-style-image: url("chrome://navigator/skin/btn1/last.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/last.png");
 }
 
 #link-last[disabled="true"],
 #link-last[disabled="true"]:hover,
 #link-last[disabled="true"]:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/last-dis.gif") !important;
+  list-style-image: url("chrome://navigator/skin/btn1/last-dis.png") !important;
 }
 
 #link-last:hover,
 #link-last:hover:active {
-  list-style-image: url("chrome://navigator/skin/btn1/last-hov.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/last-hov.png");
 }
 
 #link-feed {

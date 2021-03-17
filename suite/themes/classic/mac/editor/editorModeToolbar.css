@@ -12,19 +12,19 @@
 }
 
 #NormalModeButton {
-  list-style-image: url("chrome://editor/skin/icons/editmode-normal.gif");
+  list-style-image: url("chrome://editor/skin/icons/editmode-normal.png");
 }
 
 #TagModeButton {
-  list-style-image: url("chrome://editor/skin/icons/editmode-tags.gif");
+  list-style-image: url("chrome://editor/skin/icons/editmode-tags.png");
 }
 
 #SourceModeButton {
-  list-style-image: url("chrome://editor/skin/icons/editmode-html.gif");
+  list-style-image: url("chrome://editor/skin/icons/editmode-html.png");
 }
 
 #PreviewModeButton {
-  list-style-image: url("chrome://editor/skin/icons/editmode-preview.gif"); 
+  list-style-image: url("chrome://editor/skin/icons/editmode-preview.png"); 
 }
 
 #EditModeTabs {

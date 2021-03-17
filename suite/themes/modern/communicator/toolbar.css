@@ -16,7 +16,7 @@
 }
 
 .toolbar-primary-holder {
-  background: url("chrome://communicator/skin/toolbar/prtb-bg-line.gif") repeat-x top;
+  background: url("chrome://communicator/skin/toolbar/prtb-bg-line.png") repeat-x top;
   border-top: none;
   border-right: 1px solid #95A0AD;
   border-bottom: 1px solid #95A0AD;
@@ -27,7 +27,7 @@
 .toolbar-primary-holder[mode="text"],
 .toolbar-primary-holder[iconsize="small"],
 .toolbar-primary-holder[labelalign="end"] {
-  background-image: url("chrome://communicator/skin/toolbar/prtb-bg-noline.gif");
+  background-image: url("chrome://communicator/skin/toolbar/prtb-bg-noline.png");
 }
 
 .toolbar-primary-icon {
@@ -46,7 +46,7 @@
 
 .toolbar-primary > .toolbaritem-noline,
 .toolbar-primary > toolbarpaletteitem > .toolbaritem-noline {
-  background: url("chrome://communicator/skin/toolbar/prtb-bg-noline.gif") #B1BDC9 repeat-x top;
+  background: url("chrome://communicator/skin/toolbar/prtb-bg-noline.png") #B1BDC9 repeat-x top;
 }
 
 toolbar[mode="text"] toolbarbutton[type="menu-button"],
@@ -64,14 +64,14 @@ toolbar[labelalign="end"] .toolbarbutton-1 .toolbarbutton-text {
 .toolbar-primary-grippy { 
   -moz-binding: url("chrome://communicator/skin/toolbar/toolbarBindings.xml#toolbargrippy-primary");
   border: none;
-  background: url("chrome://communicator/skin/toolbar/prtb-grip-mid.gif") repeat-y;
-  list-style-image: url("chrome://communicator/skin/toolbar/prtb-grip-btm.gif");
+  background: url("chrome://communicator/skin/toolbar/prtb-grip-mid.png") repeat-y;
+  list-style-image: url("chrome://communicator/skin/toolbar/prtb-grip-btm.png");
 } 
 
 .toolbar-primary-grippy > .toolbargrippy-texture {
   width: 13px;
   height: 0px;
-  list-style-image: url("chrome://communicator/skin/toolbar/prtb-grip-top.gif");
+  list-style-image: url("chrome://communicator/skin/toolbar/prtb-grip-top.png");
 }
 
 .toolbar-primary-grippy > .toolbargrippy-arrow {
@@ -82,12 +82,12 @@ toolbar[labelalign="end"] .toolbarbutton-1 .toolbarbutton-text {
 }
 
 .toolbar-primary-grippy:hover:active {
-  background-image: url("chrome://communicator/skin/toolbar/prtb-grip-mid-act.gif");
-  list-style-image: url("chrome://communicator/skin/toolbar/prtb-grip-btm-act.gif");
+  background-image: url("chrome://communicator/skin/toolbar/prtb-grip-mid-act.png");
+  list-style-image: url("chrome://communicator/skin/toolbar/prtb-grip-btm-act.png");
 }
 
 .toolbar-primary-grippy:hover:active > .toolbargrippy-texture {
-  list-style-image: url("chrome://communicator/skin/toolbar/prtb-grip-top-act.gif");
+  list-style-image: url("chrome://communicator/skin/toolbar/prtb-grip-top-act.png");
 }
 
 /* ::::: toolbar-primary separator ::::: */

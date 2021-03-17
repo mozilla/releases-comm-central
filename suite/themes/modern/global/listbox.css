@@ -54,20 +54,20 @@ listcell {
 
 .listcell-check {
   margin: 0px 2px;
-  list-style-image: url("chrome://global/skin/checkbox/cbox.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox.png");
 }
 
 .listcell-check[checked="true"] {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-check.png");
 }
 
 .listcell-check[disabled="true"] {
   border-color: #999999;
-  list-style-image: url("chrome://global/skin/checkbox/cbox-dis.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-dis.png");
 }
 
 .listcell-check[disabled="true"][checked="true"] {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-dis-check.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-dis-check.png");
 }
 
 /* ::::: listheader ::::: */
@@ -110,11 +110,11 @@ listheader[sortable="true"]:hover:active {
 }
 
 .listheader-sortdirection[sortDirection="ascending"] {
-  list-style-image: url("chrome://global/skin/tree/sort-asc.gif");
+  list-style-image: url("chrome://global/skin/tree/sort-asc.png");
 }
 
 .listheader-sortdirection[sortDirection="descending"] {
-  list-style-image: url("chrome://global/skin/tree/sort-dsc.gif");
+  list-style-image: url("chrome://global/skin/tree/sort-dsc.png");
 }
 
 /* ::::: listcell ::::: */

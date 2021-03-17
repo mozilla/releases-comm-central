@@ -42,28 +42,28 @@ checkbox[disabled="true"] > .checkbox-label-box > .checkbox-label {
 .checkbox-check {
   width: 13px;
   height: 13px;
-  list-style-image: url("chrome://global/skin/checkbox/cbox.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox.png");
 }
   
 checkbox:hover:active > .checkbox-check {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-act.gif");  
+  list-style-image: url("chrome://global/skin/checkbox/cbox-act.png");  
 }
   
 .checkbox-check[disabled="true"] {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-dis.gif") !important
+  list-style-image: url("chrome://global/skin/checkbox/cbox-dis.png") !important
 }
 
 /* ..... checked state ..... */
 
 .checkbox-check[checked="true"] {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-check.png");
 }
     
 checkbox:hover:active > .checkbox-check[checked="true"] {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-act-check.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-act-check.png");
 }
 
 .checkbox-check[checked="true"][disabled="true"] {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-dis-check.gif") !important;
+  list-style-image: url("chrome://global/skin/checkbox/cbox-dis-check.png") !important;
 }
 

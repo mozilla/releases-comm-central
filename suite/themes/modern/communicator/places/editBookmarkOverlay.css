@@ -13,7 +13,7 @@
 }
 
 .folder-icon {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.gif") !important;
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.png") !important;
 }
 
 
@@ -27,11 +27,11 @@
 }
 
 .expander-up {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up.png");
 }
 
 .expander-down {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
 }
 
 #editBookmarkPanelContent {

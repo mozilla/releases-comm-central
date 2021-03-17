@@ -237,15 +237,15 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 #minimize-button {
-  list-style-image: url("chrome://navigator/skin/icons/minimize.gif");
+  list-style-image: url("chrome://navigator/skin/icons/minimize.png");
 } 
 
 #restore-button {
-  list-style-image: url("chrome://navigator/skin/icons/restore.gif");
+  list-style-image: url("chrome://navigator/skin/icons/restore.png");
 } 
 
 #close-button {
-  list-style-image: url("chrome://navigator/skin/icons/close.gif");
+  list-style-image: url("chrome://navigator/skin/icons/close.png");
 } 
   
 /* ::::: nav-bar-inner ::::: */
@@ -694,7 +694,7 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
 }
 
 toolbarbutton.chevron {
-  list-style-image: url("chrome://navigator/skin/icons/chevron.gif") !important;
+  list-style-image: url("chrome://navigator/skin/icons/chevron.png") !important;
 }
 
 toolbarbutton.chevron > .toolbarbutton-menu-dropmarker {

@@ -20,23 +20,23 @@ treechildren::-moz-tree-image(noicon) {
 }
 
 treechildren::-moz-tree-image(container, noicon) {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.gif");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.png");
 }
 
 treechildren::-moz-tree-image(container, noicon, open) {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-open.gif");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-open.png");
 }
 
 treechildren::-moz-tree-checkbox {
-  list-style-image: url("chrome://global/skin/checkbox/cbox.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox.png");
 }
 
 treechildren::-moz-tree-checkbox(checked) {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-check.png");
 }
 
 treechildren::-moz-tree-checkbox(partial) {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-dis-check.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-dis-check.png");
 }
 
 #buttons {

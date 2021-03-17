@@ -23,7 +23,7 @@
 .toolbarbutton-icon {
   height: 16px;
   width: 16px;
-  list-style-image: url("chrome://communicator/skin/directory/file-icon.gif");
+  list-style-image: url("chrome://communicator/skin/directory/file-icon.png");
 }
 
 .toolbarbutton-menu-dropmarker {
@@ -44,7 +44,7 @@
 
 .search-go-button {
   padding: 0px 2px;
-  list-style-image: url("chrome://global/skin/icons/search.gif");
+  list-style-image: url("chrome://global/skin/icons/search.png");
 }
 
 @media (-moz-touch-enabled) {

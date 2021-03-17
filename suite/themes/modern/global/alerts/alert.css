@@ -90,7 +90,7 @@ label {
 }
 
 .alertCloseButton {
-  list-style-image: url("chrome://global/skin/icons/closebox.gif");
+  list-style-image: url("chrome://global/skin/icons/closebox.png");
   padding: 4px;
   border: none;
 }

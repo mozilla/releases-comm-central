@@ -66,124 +66,124 @@ treechildren::-moz-tree-cell-text(priorityCol, selected, focus) {
 /* ..... thread column ..... */
 
 .threadColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/threadcol-unthreaded.gif");
+  list-style-image: url("chrome://messenger/skin/icons/threadcol-unthreaded.png");
 }
 
 .threadColumnHeader[sortDirection="ascending"]  {
-  list-style-image: url("chrome://messenger/skin/icons/threadcol-threaded.gif");
+  list-style-image: url("chrome://messenger/skin/icons/threadcol-threaded.png");
 }
 
 .threadColumnHeader[sortDirection="descending"] {
-  list-style-image: url("chrome://messenger/skin/icons/threadcol-threaded.gif");
+  list-style-image: url("chrome://messenger/skin/icons/threadcol-threaded.png");
 }
 
 treechildren::-moz-tree-image(threadCol, container) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-closed.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-closed.png");
 }
 
 treechildren::-moz-tree-image(threadCol, container, hasUnread) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed.png");
 }
 
 /* ::::: new thread icons for watch and ignore ::::: */
 
 treechildren::-moz-tree-image(news, threadCol, watch) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-closed-eye.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-closed-eye.png");
 }
 
 treechildren::-moz-tree-image(news, threadCol, ignore) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-closed-kill.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-closed-kill.png");
 }
 
 treechildren::-moz-tree-image(news, threadCol, watch, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-closed-offl-eye.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-closed-offl-eye.png");
 }
 
 treechildren::-moz-tree-image(news, threadCol, ignore, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-closed-offl-kill.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-closed-offl-kill.png");
 }
 
 treechildren::-moz-tree-image(news, threadCol, container, hasUnread, watch) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed-eye.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed-eye.png");
 }
 
 treechildren::-moz-tree-image(news, threadCol, container, hasUnread, ignore) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed-kill.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed-kill.png");
 }
 
 treechildren::-moz-tree-image(news, threadCol, container, hasUnread, watch, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed-offl-eye.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed-offl-eye.png");
 }
 
 treechildren::-moz-tree-image(news, threadCol, container, hasUnread, ignore, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed-offl-kill.gif");
+  list-style-image: url("chrome://messenger/skin/icons/thread-new-closed-offl-kill.png");
 }
 
 /* ..... read column ..... */
 
 .readColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/readcol-unread.gif");
+  list-style-image: url("chrome://messenger/skin/icons/readcol-unread.png");
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader) {
-  list-style-image: url("chrome://messenger/skin/icons/readcol-read.gif");
+  list-style-image: url("chrome://messenger/skin/icons/readcol-read.png");
   padding-inline-start: 0px;
   padding-inline-end: 4px;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
-  list-style-image: url("chrome://messenger/skin/icons/readcol-unread.gif");
+  list-style-image: url("chrome://messenger/skin/icons/readcol-unread.png");
 }
 
 /* ..... attachment column ..... */
 
 .attachmentColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/attachment-col.gif");
+  list-style-image: url("chrome://messenger/skin/icons/attachment-col.png");
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
-  list-style-image: url("chrome://messenger/skin/icons/attachment.gif");
+  list-style-image: url("chrome://messenger/skin/icons/attachment.png");
 }
 
 treechildren::-moz-tree-image(attachmentCol, attach, focus, selected) {
-  list-style-image: url("chrome://messenger/skin/icons/attachment-selected.gif");
+  list-style-image: url("chrome://messenger/skin/icons/attachment-selected.png");
 }
 
 /* ..... flag column ..... */
 
 .flagColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/flagcol-flagged.gif");
+  list-style-image: url("chrome://messenger/skin/icons/flagcol-flagged.png");
 }
 
 treechildren::-moz-tree-image(flaggedCol) {
-  list-style-image: url("chrome://messenger/skin/icons/readcol-read.gif");
+  list-style-image: url("chrome://messenger/skin/icons/readcol-read.png");
   padding-inline-start: 0px;
   padding-inline-end: 4px;
 }
 
 treechildren::-moz-tree-image(flaggedCol, flagged) {
-  list-style-image: url("chrome://messenger/skin/icons/flagcol-flagged.gif");
+  list-style-image: url("chrome://messenger/skin/icons/flagcol-flagged.png");
 }
 
 /* ..... junkStatus column ..... */
 
 .junkStatusHeader {
-  list-style-image: url("chrome://messenger/skin/icons/message-junk-other.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-junk-other.png");
 }
 
 /* "unknown" now looks like "not junk".  see bug #182386 */
 treechildren::-moz-tree-image(junkStatusCol) {
-  list-style-image: url("chrome://messenger/skin/icons/readcol-read.gif");
+  list-style-image: url("chrome://messenger/skin/icons/readcol-read.png");
   padding-inline-start: 0px;
   padding-inline-end: 4px;
 }
 
 treechildren::-moz-tree-image(junkStatusCol, junk) {
-  list-style-image: url("chrome://messenger/skin/icons/message-junk-other.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-junk-other.png");
 }
 
 treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-  list-style-image: url("chrome://messenger/skin/icons/readcol-read.gif");
+  list-style-image: url("chrome://messenger/skin/icons/readcol-read.png");
   padding-inline-start: 0px;
   padding-inline-end: 4px;
 }
@@ -192,7 +192,7 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
 
 .icon-holder[type="message"],
 treechildren::-moz-tree-image(subjectCol) {
-  list-style-image: url("chrome://messenger/skin/icons/message-mail.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-mail.png");
 }
 
 treechildren::-moz-tree-image(subjectCol) {
@@ -200,7 +200,7 @@ treechildren::-moz-tree-image(subjectCol) {
 }
 
 treechildren::-moz-tree-image(subjectCol, new) {
-  list-style-image: url("chrome://messenger/skin/icons/message-mail-new.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-mail-new.png");
 }
 
 treechildren::-moz-tree-image(subjectCol, forwarded) {
@@ -217,7 +217,7 @@ treechildren::-moz-tree-image(subjectCol, forwarded, replied) {
 
 .icon-holder[type="message"][Attachment="true"],
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, attach) {
-  list-style-image: url("chrome://messenger/skin/icons/message-mail-attach.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-mail-attach.png");
 }
 
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, attach, forwarded) {
@@ -234,15 +234,15 @@ tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, attach, for
 
 .icon-holder[type="message"][IMAPDeleted="true"],
 treechildren::-moz-tree-image(subjectCol, imapdeleted) {
-  list-style-image: url("chrome://messenger/skin/icons/message-mail-imapdelete.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-mail-imapdelete.png");
 }
 .icon-holder[type="message"][Offline="true"],
 treechildren::-moz-tree-image(subjectCol, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/message-mail-offl.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-mail-offl.png");
 }
 
 treechildren::-moz-tree-image(subjectCol, new, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/message-mail-new-offl.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-mail-new-offl.png");
 }
 
 treechildren::-moz-tree-image(subjectCol, forwarded, offline) {
@@ -259,7 +259,7 @@ treechildren::-moz-tree-image(subjectCol, forwarded, offline, replied) {
 
 .icon-holder[type="message"][Attachment="true"][Offline="true"],
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, attach, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/message-mail-attach-offl.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-mail-attach-offl.png");
 }
 
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, attach, forwarded, offline) {
@@ -276,14 +276,14 @@ tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, attach, for
 
 .icon-holder[type="message"][IMAPDeleted="true"][Offline="true"],
 treechildren::-moz-tree-image(subjectCol, imapdeleted, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/message-mail-delete-offl.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-mail-delete-offl.png");
 }
 
 .icon-holder[type="message"][MessageType="rss"],
 .icon-holder[type="message"][MessageType="nntp"],
 treechildren::-moz-tree-image(subjectCol, rss),
 treechildren::-moz-tree-image(subjectCol, news) {
-  list-style-image: url("chrome://messenger/skin/icons/message-news.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-news.png");
 }
 
 treechildren::-moz-tree-image(subjectCol, rss, ignoreSubthread),
@@ -295,7 +295,7 @@ treechildren::-moz-tree-image(subjectCol, news, ignoreSubthread) {
 .icon-holder[type="message"][MessageType="nntp"][Attachment="true"],
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, rss, attach),
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, news, attach) {
-  list-style-image: url("chrome://messenger/skin/icons/message-news-attach.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-news-attach.png");
 }
 
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, rss, attach, ignoreSubthread),
@@ -307,7 +307,7 @@ tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, news, attac
 .icon-holder[type="message"][MessageType="nntp"][Attachment="true"][Offline="true"],
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, rss, attach, offline),
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, news, attach, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/message-news-attach-offl.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-news-attach-offl.png");
 }
 
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, rss, attach, offline, ignoreSubthread),
@@ -317,26 +317,26 @@ tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, news, attac
 
 treechildren::-moz-tree-image(subjectCol, rss, new),
 treechildren::-moz-tree-image(subjectCol, news, new) {
-  list-style-image: url("chrome://messenger/skin/icons/message-news-new.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-news-new.png");
 }
 
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, news, new, attach) {
-  list-style-image: url("chrome://messenger/skin/icons/message-news-new-attach.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-news-new-attach.png");
 }
 
 tree[noattachcol="true"] > treechildren::-moz-tree-image(subjectCol, news, new, attach, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/message-news-new-attach-off.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-news-new-attach-off.png");
 }
 
 treechildren::-moz-tree-image(subjectCol, news, new, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/message-news-new-offl.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-news-new-offl.png");
 }
 
 .icon-holder[type="message"][MessageType="rss"][Offline="true"],
 .icon-holder[type="message"][MessageType="nntp"][Offline="true"],
 treechildren::-moz-tree-image(subjectCol, rss, offline),
 treechildren::-moz-tree-image(subjectCol, news, offline) {
-  list-style-image: url("chrome://messenger/skin/icons/message-news-offl.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-news-offl.png");
 }
 
 treechildren::-moz-tree-image(subjectCol, rss, offline, ignoreSubthread),

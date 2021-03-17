@@ -18,7 +18,7 @@ toolbargrippy {
   -moz-box-align: center;
   width: 10px;
   padding: 2px 1px;
-  list-style-image: url("chrome://communicator/skin/toolbar/tbgrip-arrow.gif");
+  list-style-image: url("chrome://communicator/skin/toolbar/tbgrip-arrow.png");
 }
 
 toolbargrippy:hover {
@@ -28,7 +28,7 @@ toolbargrippy:hover {
 .toolbargrippy-texture {
   margin-top: 2px;
   width: 6px;
-  background: url("chrome://communicator/skin/toolbar/tbgrip-texture.gif");
+  background: url("chrome://communicator/skin/toolbar/tbgrip-texture.png");
 }
 
 /* ::::: collapsed tray and grippies ::::: */
@@ -42,7 +42,7 @@ toolbargrippy[tbgrippy-collapsed="true"] {
   width: 40px;
   height: 10px;
   padding: 1px 2px;
-  list-style-image: url("chrome://communicator/skin/toolbar/tbgrip-arrow-clps.gif");
+  list-style-image: url("chrome://communicator/skin/toolbar/tbgrip-arrow-clps.png");
 }
 
 toolbargrippy[tbgrippy-collapsed="true"] > .toolbargrippy-texture {

@@ -161,11 +161,11 @@ treechildren::-moz-tree-drop-feedback {
 /* ::::: tree checkbox ::::: */
 
 treechildren::-moz-tree-checkbox {
-  list-style-image: url("chrome://global/skin/tree/checkbox.gif");
+  list-style-image: url("chrome://global/skin/tree/checkbox.png");
 }
 
 treechildren::-moz-tree-checkbox(checked) {
-  list-style-image: url("chrome://global/skin/tree/checkbox-checked.gif");
+  list-style-image: url("chrome://global/skin/tree/checkbox-checked.png");
 }
 
 /* ::::: tree progress meter ::::: */
@@ -181,7 +181,7 @@ treechildren::-moz-tree-progressmeter {
 }
 
 treechildren::-moz-tree-progressmeter(progressUndetermined) {
-  list-style-image: url("chrome://global/skin/progressmeter/progress-busy.gif");
+  list-style-image: url("chrome://global/skin/progressmeter/progress-busy.png");
 }
 
 treechildren::-moz-tree-cell-text(progressmeter) {
@@ -276,17 +276,17 @@ treechildren::-moz-tree-column(insertafter) {
 }
 
 .treecol-sortdirection[sortDirection="ascending"] {
-  list-style-image: url("chrome://global-platform/skin/tree/sort-asc.gif");
+  list-style-image: url("chrome://global-platform/skin/tree/sort-asc.png");
 }
 
 .treecol-sortdirection[sortDirection="descending"] {
-  list-style-image: url("chrome://global-platform/skin/tree/sort-dsc.gif");
+  list-style-image: url("chrome://global-platform/skin/tree/sort-dsc.png");
 }
 
 /* ::::: column picker :::::  */
 
 .tree-columnpicker-icon {
-  list-style-image: url("chrome://global/skin/tree/columnpicker.gif");
+  list-style-image: url("chrome://global/skin/tree/columnpicker.png");
 }
 
 /* ::::: twisty :::::  */
@@ -294,12 +294,12 @@ treechildren::-moz-tree-column(insertafter) {
 treechildren::-moz-tree-twisty {
   padding-inline-end: 2px;
   width: 10px; /* The image's width is 10 pixels */
-  list-style-image: url("chrome://global/skin/tree/twisty-clsd.gif");
+  list-style-image: url("chrome://global/skin/tree/twisty-clsd.png");
 }
 
 treechildren::-moz-tree-twisty(open) {
   width: 10px; /* The image's width is 10 pixels */
-  list-style-image: url("chrome://global/skin/tree/twisty-open.gif");
+  list-style-image: url("chrome://global/skin/tree/twisty-open.png");
 }
 
 treechildren::-moz-tree-indentation {

@@ -27,32 +27,32 @@ treechildren::-moz-tree-image(FilenameColumn) {
 
 treechildren::-moz-tree-image(treecolAutoCompleteValue, directory),
 treechildren::-moz-tree-image(FilenameColumn, directory) {
-  list-style-image: url("chrome://global/skin/filepicker/dir-closed.gif");
+  list-style-image: url("chrome://global/skin/filepicker/dir-closed.png");
 }
 
 treechildren::-moz-tree-image(treecolAutoCompleteValue, file),
 treechildren::-moz-tree-image(FilenameColumn, file) {
-  list-style-image: url("chrome://global/skin/filepicker/blank.gif");
+  list-style-image: url("chrome://global/skin/filepicker/blank.png");
 }
 
 /* ::::: button items ::::: */
 
 .up-button {
-  list-style-image: url("chrome://global/skin/filepicker/folder-up.gif");
+  list-style-image: url("chrome://global/skin/filepicker/folder-up.png");
   min-width: 0%; /* don't let XUL layout min-size override our max-width setting */
   min-height: 0%;
   max-width: 36px;
 }
 
 .home-button {
-  list-style-image: url("chrome://global/skin/filepicker/folder-home.gif");
+  list-style-image: url("chrome://global/skin/filepicker/folder-home.png");
   min-width: 0%; /* don't let XUL layout min-size override our max-width setting */
   min-height: 0%;
   max-width: 36px;
 }
 
 .new-dir-button {
-  list-style-image: url("chrome://global/skin/filepicker/folder-new.gif");
+  list-style-image: url("chrome://global/skin/filepicker/folder-new.png");
   min-width: 0%; /* don't let XUL layout min-size override our max-width setting */
   min-height: 0%;
   max-width: 36px;

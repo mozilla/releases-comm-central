@@ -13,98 +13,98 @@
 
 #link-top
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/top.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/top.png");
 }
 
 #link-top[disabled="true"]
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/top-disabled.gif") !important;
+  list-style-image    : url("chrome://navigator/skin/btn1/top-disabled.png") !important;
 }
 
 #link-top:hover,
 #link-top:hover:active
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/top-hover.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/top-hover.png");
 }
 
 #link-up
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/up.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/up.png");
 }
 
 #link-up[disabled="true"]
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/up-disabled.gif") !important;
+  list-style-image    : url("chrome://navigator/skin/btn1/up-disabled.png") !important;
 }
 
 #link-up:hover,
 #link-up:hover:active
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/up-hover.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/up-hover.png");
 }
 
 #link-first
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/first.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/first.png");
 }
 
 #link-first[disabled="true"]
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/first-disabled.gif") !important;
+  list-style-image    : url("chrome://navigator/skin/btn1/first-disabled.png") !important;
 }
 
 #link-first:hover,
 #link-first:hover:active
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/first-hover.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/first-hover.png");
 }
 
 #link-prev
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/previous.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/previous.png");
 }
 
 #link-prev[disabled="true"]
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/previous-disabled.gif") !important;
+  list-style-image    : url("chrome://navigator/skin/btn1/previous-disabled.png") !important;
 }
 
 #link-prev:hover,
 #link-prev:hover:active
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/previous-hover.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/previous-hover.png");
 }
 
 #link-next
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/next.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/next.png");
 }
 
 #link-next[disabled="true"]
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/next-disabled.gif") !important;
+  list-style-image    : url("chrome://navigator/skin/btn1/next-disabled.png") !important;
 }
 
 #link-next:hover,
 #link-next:hover:active
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/next-hover.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/next-hover.png");
 }
 
 #link-last
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/last.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/last.png");
 }
 
 #link-last[disabled="true"]
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/last-disabled.gif") !important;
+  list-style-image    : url("chrome://navigator/skin/btn1/last-disabled.png") !important;
 }
 
 #link-last:hover,
 #link-last:hover:active
 {
-  list-style-image    : url("chrome://navigator/skin/btn1/last-hover.gif");
+  list-style-image    : url("chrome://navigator/skin/btn1/last-hover.png");
 }
 
 #link-feed {

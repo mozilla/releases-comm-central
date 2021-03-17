@@ -17,7 +17,7 @@
 
 .toolbar-primary-holder {
   -moz-box-align: start;
-  background-image: url("chrome://communicator/skin/toolbar/prtb-bg-noline.gif");
+  background-image: url("chrome://communicator/skin/toolbar/prtb-bg-noline.png");
 }
 
 .toolbar-primary-icon {

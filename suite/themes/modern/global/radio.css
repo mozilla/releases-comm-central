@@ -46,27 +46,27 @@ radio[disabled="true"] > .radio-label-box > .radio-label {
 .radio-check {
   width: 13px;
   height: 13px;
-  list-style-image: url("chrome://global/skin/radio/radio.gif");
+  list-style-image: url("chrome://global/skin/radio/radio.png");
 }
 
 radio:hover:active > .radio-check {
-  list-style-image: url("chrome://global/skin/radio/radio-act.gif");
+  list-style-image: url("chrome://global/skin/radio/radio-act.png");
 }
 
 radio[disabled="true"] > .radio-check {
-  list-style-image: url("chrome://global/skin/radio/radio-dis.gif") !important;
+  list-style-image: url("chrome://global/skin/radio/radio-dis.png") !important;
 }
 
 /* ..... checked state ..... */
 
 radio[selected] > .radio-check {
-  list-style-image: url("chrome://global/skin/radio/radio-check.gif");
+  list-style-image: url("chrome://global/skin/radio/radio-check.png");
 }
   
 radio[selected]:hover:active > .radio-check {
-  list-style-image: url("chrome://global/skin/radio/radio-act-check.gif");  
+  list-style-image: url("chrome://global/skin/radio/radio-act-check.png");  
 }
 
 radio[selected][disabled="true"] > .radio-check {
-  list-style-image: url("chrome://global/skin/radio/radio-dis-check.gif") !important;
+  list-style-image: url("chrome://global/skin/radio/radio-dis-check.png") !important;
 }

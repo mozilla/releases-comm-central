@@ -7,7 +7,7 @@
 /* ::::: formatting toolbar ::::: */
 
 #FormatToolbar {
-  background: url("chrome://global/skin/toolbar/tb-mid.gif") #C7D0D9 repeat-x top;
+  background: url("chrome://global/skin/toolbar/tb-mid.png") #C7D0D9 repeat-x top;
 }
 
 #FormatToolbar > toolbargrippy,
@@ -26,7 +26,7 @@
 
 toolbarbutton.formatting-button {
   border: none !important;
-  list-style-image: url("chrome://editor/skin/icons/btn2.gif");
+  list-style-image: url("chrome://editor/skin/icons/btn2.png");
   background-color: transparent !important;
 }
 
@@ -328,7 +328,7 @@ toolbarbutton.formatting-button {
 /* ..... align menu ..... */
 
 #AlignPopup > menuitem {
-  list-style-image: url("chrome://editor/skin/icons/btn2.gif");
+  list-style-image: url("chrome://editor/skin/icons/btn2.png");
 }
 
 #AlignLeftItem {
@@ -366,7 +366,7 @@ toolbarbutton.formatting-button {
 /* ..... insert menu ..... */
 
 #InsertPopup > menuitem {
-  list-style-image: url("chrome://editor/skin/icons/btn2.gif");
+  list-style-image: url("chrome://editor/skin/icons/btn2.png");
 }
 
 #InsertLinkItem {
@@ -564,19 +564,19 @@ toolbarbutton.formatting-button {
 }
 
 #increaseZIndexButton {
-  list-style-image: url("chrome://editor/content/images/bringtofront.gif");
+  list-style-image: url("chrome://editor/content/images/bringtofront.png");
 }
 
 #increaseZIndexButton[disabled="true"] {
-  list-style-image: url("chrome://editor/content/images/bringtofront-disabled.gif");
+  list-style-image: url("chrome://editor/content/images/bringtofront-disabled.png");
 }
 
 #decreaseZIndexButton {
-  list-style-image: url("chrome://editor/content/images/sendtoback.gif");
+  list-style-image: url("chrome://editor/content/images/sendtoback.png");
 }
 
 #decreaseZIndexButton[disabled="true"] {
-  list-style-image: url("chrome://editor/content/images/sendtoback-disabled.gif");
+  list-style-image: url("chrome://editor/content/images/sendtoback-disabled.png");
 }
 
 /* Force the folder location and mail view items to fit in the available width

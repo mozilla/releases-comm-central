@@ -696,7 +696,7 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
 }
 
 toolbarbutton.chevron {
-  list-style-image: url("chrome://navigator/skin/icons/chevron.gif");
+  list-style-image: url("chrome://navigator/skin/icons/chevron.png");
   height: 16px;
   width: 16px;
 }

@@ -100,7 +100,7 @@ description > .text-link:focus {
 
 #add-device-throbber,
 #login-throbber {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 #successPageIcon {

@@ -31,7 +31,7 @@ treechildren::-moz-tree-image(title, open) {
 }
 
 .bookmark-item[container="true"][open="true"][loading="true"] {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif") !important;
+  list-style-image: url("chrome://communicator/skin/icons/loading.png") !important;
 }
 
 .bookmark-item > .toolbarbutton-box > .toolbarbutton-icon {

@@ -18,12 +18,12 @@ treechildren::-moz-tree-checkbox {
 
 treechildren::-moz-tree-image(subscribedColumn),
 treechildren::-moz-tree-image(subscribedColumn2) {
-  list-style-image: url("chrome://global/skin/checkbox/cbox.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox.png");
 }
 
 treechildren::-moz-tree-image(subscribedColumn, subscribed-true),
 treechildren::-moz-tree-image(subscribedColumn2, subscribed-true) {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-check.png");
 }
 
 treechildren::-moz-tree-image(subscribedColumn, subscribable-false) {
@@ -39,31 +39,31 @@ treechildren::-moz-tree-cell-text(nameColumn, subscribable-false) {
 
 treechildren::-moz-tree-image(nameColumn) {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/folder-closed.gif");
+  list-style-image: url("chrome://messenger/skin/icons/folder-closed.png");
 }
 
 treechildren::-moz-tree-image(nameColumn, serverType-nntp),
 treechildren::-moz-tree-image(nameColumn2, serverType-nntp) {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.gif");
+  list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.png");
 }
 
 /* ::::: server icons :::::: */
 
 .subscribeMenuItem {
-  list-style-image: url("chrome://messenger/skin/icons/server-mail.gif");
+  list-style-image: url("chrome://messenger/skin/icons/server-mail.png");
 }
 
 .subscribeMenuItem[ServerType="imap"][IsSecure="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/server-remote-lock.gif");
+  list-style-image: url("chrome://messenger/skin/icons/server-remote-lock.png");
 }
 
 .subscribeMenuItem[ServerType="nntp"] {
-  list-style-image: url("chrome://messenger/skin/icons/server-news.gif");
+  list-style-image: url("chrome://messenger/skin/icons/server-news.png");
 }
 
 .subscribeMenuItem[ServerType="nntp"][IsSecure="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/server-news-lock.gif");
+  list-style-image: url("chrome://messenger/skin/icons/server-news-lock.png");
 }
 
 /* ::::: statusbar adjustments :::::: */

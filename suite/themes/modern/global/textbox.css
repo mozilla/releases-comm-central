@@ -83,11 +83,11 @@ textbox.plain {
 /* ::::: search textbox ::::: */
 
 .textbox-search-icon {
-  list-style-image: url("chrome://global/skin/icons/search.gif");
+  list-style-image: url("chrome://global/skin/icons/search.png");
 }
 
 .textbox-search-clear {
-  list-style-image: url("chrome://global/skin/icons/closebox.gif");
+  list-style-image: url("chrome://global/skin/icons/closebox.png");
 }
 
 /* ::::: scrollable textbox ::::: */

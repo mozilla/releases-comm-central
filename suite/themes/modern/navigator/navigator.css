@@ -375,7 +375,7 @@ toolbar[iconsize=small][mode="icons"] #print-button > .toolbarbutton-menubutton-
 
 .toolbar-primary-holder {
   -moz-box-align: start;
-  background-image: url("chrome://communicator/skin/toolbar/prtb-bg-noline.gif");
+  background-image: url("chrome://communicator/skin/toolbar/prtb-bg-noline.png");
 }
 
 /* ::::: the grooved area around the urlbar and associated buttons ::::: */
@@ -688,7 +688,7 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
 
 #page-proxy-button[pageproxystate="invalid"] {
   cursor: default;
-  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.gif"); 
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.png"); 
 }
 
 /* ::::: autocomplete ::::: */
@@ -747,11 +747,11 @@ panel[nomatch="true"] > .autocomplete-search-box {
   margin-bottom: 0px;
   margin-inline-start: 0px;
   margin-inline-end: 3px;
-  list-style-image: url("chrome://navigator/skin/toolbar/ubhist-arrow.gif");
+  list-style-image: url("chrome://navigator/skin/toolbar/ubhist-arrow.png");
 }
 
 .autocomplete-history-dropmarker[open="true"] {
-  list-style-image: url("chrome://navigator/skin/toolbar/ubhist-arrow-act.gif");
+  list-style-image: url("chrome://navigator/skin/toolbar/ubhist-arrow-act.png");
 }
 
 .autocomplete-treebody::-moz-tree-cell-text(treecolAutoCompleteComment) {
@@ -772,7 +772,7 @@ panel[nomatch="true"] > .autocomplete-search-box {
 }
 
 #search-button {
-  list-style-image: url("chrome://global/skin/icons/search.gif");
+  list-style-image: url("chrome://global/skin/icons/search.png");
 }
 
 /* ::::: navigator throbber ::::: */
@@ -784,7 +784,7 @@ panel[nomatch="true"] > .autocomplete-search-box {
 /* ::::: personal toolbar ::::: */
 
 #PersonalToolbar {
-  background: url("chrome://global/skin/toolbar/tb-mid.gif") #C7D0D9 repeat-x top;
+  background: url("chrome://global/skin/toolbar/tb-mid.png") #C7D0D9 repeat-x top;
 }
 
 #PersonalToolbar > .toolbar-box > toolbargrippy,
@@ -800,7 +800,7 @@ panel[nomatch="true"] > .autocomplete-search-box {
 }
 
 toolbarbutton.chevron {
-  list-style-image: url("chrome://global/skin/toolbar/chevron.gif") !important;
+  list-style-image: url("chrome://global/skin/toolbar/chevron.png") !important;
 }
 
 toolbarbutton.chevron > .toolbarbutton-menu-dropmarker {

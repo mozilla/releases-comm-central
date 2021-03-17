@@ -60,7 +60,7 @@
 }
 
 #closeButton {
-  list-style-image: url("chrome://navigator/skin/icons/close.gif");
+  list-style-image: url("chrome://navigator/skin/icons/close.png");
   -moz-appearance: none;
   border: none !important;
   padding: 2px 0px 0px;

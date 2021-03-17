@@ -196,7 +196,7 @@ treechildren::-moz-tree-image(local-abook) {
   margin-bottom: 2px;
   margin-inline-start: 4px;
   margin-inline-end: -1px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
 
 treechildren::-moz-tree-image(remote-abook) {
@@ -204,7 +204,7 @@ treechildren::-moz-tree-image(remote-abook) {
   margin-bottom: 2px;
   margin-inline-start: 2px;
   margin-inline-end: -3px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook.png");
 }
 
 treechildren::-moz-tree-image(remote-err) {
@@ -212,7 +212,7 @@ treechildren::-moz-tree-image(remote-err) {
   margin-bottom: 2px;
   margin-inline-start: 2px;
   margin-inline-end: -3px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/remote-addrbook-error.png");
 }
 
 treechildren::-moz-tree-image(subscribed-news) {

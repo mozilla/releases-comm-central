@@ -92,7 +92,7 @@ tab[busy] {
 }
 
 .alltabs-item[busy] {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 .alltabs-item[tabIsScrolled] {
@@ -105,20 +105,20 @@ tab[busy] {
   margin: 0px 4px;
   padding: 3px 2px;
   border: none;
-  list-style-image: url("chrome://global/skin/icons/close.gif");
+  list-style-image: url("chrome://global/skin/icons/close.png");
 }
 
 .tabs-closebutton:hover {
-  list-style-image: url("chrome://global/skin/icons/close-hov.gif");
+  list-style-image: url("chrome://global/skin/icons/close-hov.png");
 }
 
 .tabs-closebutton:hover:active {
-  list-style-image: url("chrome://global/skin/icons/close-act.gif");
+  list-style-image: url("chrome://global/skin/icons/close-act.png");
 }
 
 .tabs-closebutton[disabled="true"] {
   padding: 3px 2px !important;
-  list-style-image: url("chrome://global/skin/icons/close-dis.gif") !important;
+  list-style-image: url("chrome://global/skin/icons/close-dis.png") !important;
 }
 
 .tabs-newbutton {
@@ -128,15 +128,15 @@ tab[busy] {
   padding-inline-start: 2px;
   padding-inline-end: 0px;
   border: none;
-  list-style-image: url("chrome://navigator/skin/icons/tab-new.gif");
+  list-style-image: url("chrome://navigator/skin/icons/tab-new.png");
 }
 
 .tabs-newbutton:hover {
-  list-style-image: url("chrome://navigator/skin/icons/tab-new-hov.gif");
+  list-style-image: url("chrome://navigator/skin/icons/tab-new-hov.png");
 }
 
 .tabs-newbutton:hover:active {
-  list-style-image: url("chrome://navigator/skin/icons/tab-new-act.gif");
+  list-style-image: url("chrome://navigator/skin/icons/tab-new-act.png");
 }
 
 .tab-drop-indicator-bar {
@@ -151,5 +151,5 @@ tab[busy] {
     width: 11px;
     margin-bottom: -5px;
     position: relative;
-    list-style-image: url('chrome://navigator/skin/icons/tab-drag-indicator.gif');
+    list-style-image: url('chrome://navigator/skin/icons/tab-drag-indicator.png');
 }

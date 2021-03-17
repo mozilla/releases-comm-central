@@ -189,23 +189,23 @@
 }
 
 .align-menu[value="top"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-top.gif") !important;
+  list-style-image:url("chrome://editor/skin/icons/img-align-top.png") !important;
 }
 
 .align-menu[value="middle"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-middle.gif") !important;
+  list-style-image:url("chrome://editor/skin/icons/img-align-middle.png") !important;
 }
 
 .align-menu[value="bottom"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-bottom.gif") !important;
+  list-style-image:url("chrome://editor/skin/icons/img-align-bottom.png") !important;
 }
 
 .align-menu[value="right"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-right.gif") !important;
+  list-style-image:url("chrome://editor/skin/icons/img-align-right.png") !important;
 }
 
 .align-menu[value="left"] {
-  list-style-image:url("chrome://editor/skin/icons/img-align-left.gif") !important;
+  list-style-image:url("chrome://editor/skin/icons/img-align-left.png") !important;
 }
 
 /* Don't change width/height of these without changing values in 
@@ -255,13 +255,13 @@
 /* ::::: Publishing Progress ::::: */
 
 .progressitem[progress="busy"] {
-	list-style-image: url("chrome://editor/skin/icons/progress-busy.gif");
+	list-style-image: url("chrome://editor/skin/icons/progress-busy.png");
 }
 
 .progressitem[progress="done"] {
-	list-style-image: url("chrome://editor/skin/icons/progress-done.gif");
+	list-style-image: url("chrome://editor/skin/icons/progress-done.png");
 }
 
 .progressitem[progress="failed"] {
-	list-style-image: url("chrome://editor/skin/icons/progress-failed.gif");
+	list-style-image: url("chrome://editor/skin/icons/progress-failed.png");
 }

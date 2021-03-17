@@ -30,27 +30,27 @@
 }
 
 #link-top {
-  list-style-image: url("chrome://navigator/skin/btn1/top.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/top.png");
 }
 
 #link-up {
-  list-style-image: url("chrome://navigator/skin/btn1/up.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/up.png");
 }
 
 #link-first {
-  list-style-image: url("chrome://navigator/skin/btn1/first.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/first.png");
 }
 
 #link-prev {
-  list-style-image: url("chrome://navigator/skin/btn1/previous.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/previous.png");
 }
 
 #link-next {
-  list-style-image: url("chrome://navigator/skin/btn1/next.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/next.png");
 }
 
 #link-last {
-  list-style-image: url("chrome://navigator/skin/btn1/last.gif");
+  list-style-image: url("chrome://navigator/skin/btn1/last.png");
 }
 
 #link-feed {

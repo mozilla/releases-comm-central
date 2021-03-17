@@ -98,10 +98,10 @@ td:not(:first-child) {
   margin-inline-end: 4px;
   margin-inline-start: -24px;
   vertical-align: middle;
-  content: url("chrome://global/skin/filepicker/folder-up.gif");
+  content: url("chrome://global/skin/filepicker/folder-up.png");
 }
 
 .dir::before {
-  content: url("chrome://communicator/skin/places/bookmark-folder-closed.gif");
+  content: url("chrome://communicator/skin/places/bookmark-folder-closed.png");
 }
 

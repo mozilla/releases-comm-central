@@ -84,7 +84,7 @@ html|a {
 
 .throbber {
   padding-left: 16px; /* width of the background image */
-  background: url("chrome://communicator/skin/icons/loading.gif") no-repeat;
+  background: url("chrome://communicator/skin/icons/loading.png") no-repeat;
   margin-left: 5px;
 }
 
@@ -167,7 +167,7 @@ html|a {
   right: 4px;
   border-style: none;
   background-color: transparent;
-  background-image: url(chrome://global/skin/icons/close.gif);
+  background-image: url(chrome://global/skin/icons/close.png);
   background-repeat: no-repeat;
 }
 
@@ -178,11 +178,11 @@ html|a {
 
 .closeIcon:focus,
 .closeIcon:hover {
-  background-image: url(chrome://global/skin/icons/close-hov.gif);
+  background-image: url(chrome://global/skin/icons/close-hov.png);
 }
 
 .closeIcon:active {
-  background-image: url(chrome://global/skin/icons/close-act.gif);
+  background-image: url(chrome://global/skin/icons/close-act.png);
 }
 
 .closeIcon::-moz-focus-inner {

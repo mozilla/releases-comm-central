@@ -24,7 +24,7 @@
 .sidebarheader-main {
   -moz-binding: url("chrome://communicator/skin/sidebar/sidebarBindings.xml#sidebarheader") !important;
   background-color: #B9C4D0;
-  background-image: url("chrome://communicator/skin/sidebar/sbar-top.gif");
+  background-image: url("chrome://communicator/skin/sidebar/sbar-top.png");
   background-repeat: no-repeat;
   overflow-x: hidden;
 }
@@ -46,7 +46,7 @@
 }
 
 #sidebar-panel-picker > .toolbarbutton-menu-dropmarker {
-  list-style-image: url("chrome://communicator/skin/sidebar/sbpicker-arrow.gif");
+  list-style-image: url("chrome://communicator/skin/sidebar/sbpicker-arrow.png");
   padding-inline-end: 2px;
   padding-inline-start: 2px;
 }
@@ -56,7 +56,7 @@
 #sidebar-close-button {
   margin: 0px 1px;
   padding: 0px;
-  list-style-image: url("chrome://global/skin/icons/closebox.gif");
+  list-style-image: url("chrome://global/skin/icons/closebox.png");
 }
 
 #sidebar-close-button > .toolbarbutton-icon {
@@ -75,7 +75,7 @@
 
 .image-panel-loading {
   margin: 5px;
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 /* ::::: sidebar panel ::::: */
@@ -116,18 +116,18 @@
 
 .sidebar-tab-left {
   width: 10px;
-  background: url("chrome://communicator/skin/sidebar/sbtab-lft.gif") no-repeat;
+  background: url("chrome://communicator/skin/sidebar/sbtab-lft.png") no-repeat;
 }
 
 .sidebar-tab-text {
   margin: 0px !important;
-  background: url("chrome://communicator/skin/sidebar/sbtab-mid.gif") repeat-x top;
+  background: url("chrome://communicator/skin/sidebar/sbtab-mid.png") repeat-x top;
 }
 
 .sidebar-tab-right-img {
   width: 32px;
   height: 13px;
-  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top.gif");
+  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top.png");
 }
 
 .sidebar-tab-right-btm {
@@ -149,11 +149,11 @@
 .box-texttab:hover > .sidebar-tab-right-box > .sidebar-tab-right-top-box 
     > .sidebar-tab-right-img 
 {
-  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top-hov.gif");
+  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top-hov.png");
 }
 
 .box-texttab:hover > .sidebar-tab-right-box > .sidebar-tab-right-btm {
-  background: url("chrome://communicator/skin/sidebar/sbtab-rit-btm-hov.gif") no-repeat bottom left;
+  background: url("chrome://communicator/skin/sidebar/sbtab-rit-btm-hov.png") no-repeat bottom left;
 }
 
 /* ..... active state ..... */
@@ -172,21 +172,21 @@
 }
 
 .box-texttab:hover:active > .sidebar-tab-left-box > .sidebar-tab-left {
-  background-image: url("chrome://communicator/skin/sidebar/sbtab-lft-act.gif");
+  background-image: url("chrome://communicator/skin/sidebar/sbtab-lft-act.png");
 }
 
 .box-texttab:hover:active > .sidebar-tab-left-box > .sidebar-tab-text {
-  background-image: url("chrome://communicator/skin/sidebar/sbtab-mid-act.gif");
+  background-image: url("chrome://communicator/skin/sidebar/sbtab-mid-act.png");
 }
 
 .box-texttab:hover:active > .sidebar-tab-right-box > .sidebar-tab-right-top-box 
     > .sidebar-tab-right-img 
 {
-  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top-act.gif");
+  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top-act.png");
 }
 
 .box-texttab:hover:active > .sidebar-tab-right-box > .sidebar-tab-right-btm {
-  background-image: url("chrome://communicator/skin/sidebar/sbtab-rit-btm-act.gif");
+  background-image: url("chrome://communicator/skin/sidebar/sbtab-rit-btm-act.png");
 }
 
 /* ..... selected state ..... */
@@ -210,17 +210,17 @@
 }
 
 .box-texttab[selected] > .sidebar-tab-left-box > .sidebar-tab-left {
-  background-image: url("chrome://communicator/skin/sidebar/sbtab-lft-sel.gif") !important;
+  background-image: url("chrome://communicator/skin/sidebar/sbtab-lft-sel.png") !important;
 }
 
 .box-texttab[selected] > .sidebar-tab-left-box > .sidebar-tab-text {
-  background-image: url("chrome://communicator/skin/sidebar/sbtab-mid-sel.gif") !important;
+  background-image: url("chrome://communicator/skin/sidebar/sbtab-mid-sel.png") !important;
 }
 
 .box-texttab[selected] > .sidebar-tab-right-box > .sidebar-tab-right-top-box 
     > .sidebar-tab-right-img 
 {
-  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top-sel.gif") !important;
+  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-rit-top-sel.png") !important;
 }
 
 .box-texttab[selected] > .sidebar-tab-right-box > .sidebar-tab-right-btm {
@@ -239,9 +239,9 @@
 }
 
 .tab-fwd {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up.png");
 }
 
 .tab-back {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
 }

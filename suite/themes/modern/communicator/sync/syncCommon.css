@@ -10,7 +10,7 @@
 }
 
 .statusIcon[status="active"] {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 .statusIcon[status="error"] {

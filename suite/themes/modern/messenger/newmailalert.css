@@ -60,7 +60,7 @@
 }
 
 #closeButton {
-  list-style-image: url("chrome://global/skin/icons/closebox.gif");
+  list-style-image: url("chrome://global/skin/icons/closebox.png");
   -moz-appearance: none;
   border: none !important;
   padding: 2px 0px 0px;

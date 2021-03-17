@@ -144,7 +144,7 @@
 }
 
 .loading {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
   padding-left: 20px;
   padding-right: 20px;
 }
@@ -323,11 +323,11 @@
 }
 
 .sorter[checkState="1"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
 }
 
 .sorter[checkState="2"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up.png");
 }
 
 .sorter .button-icon {
@@ -556,7 +556,7 @@
   font-weight: bold;
   -moz-box-direction: reverse;
   cursor: pointer;
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
 }
 
 .addon .relnotes-toggle > .button-box > .button-icon {
@@ -564,7 +564,7 @@
 }
 
 .addon[show-relnotes] .relnotes-toggle {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up.png");
 }
 
 .addon[active="false"] {

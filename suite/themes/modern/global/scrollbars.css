@@ -21,11 +21,11 @@ scrollbar {
 slider {
   min-width: 15px;
   min-height: 15px;
-  background: url("chrome://global/skin/scrollbar/slider-hrz.gif") repeat-x;
+  background: url("chrome://global/skin/scrollbar/slider-hrz.png") repeat-x;
 }
 
 slider[orient="vertical"] {
-  background: url("chrome://global/skin/scrollbar/slider-vrt.gif") repeat-y;
+  background: url("chrome://global/skin/scrollbar/slider-vrt.png") repeat-y;
 }
 
 /* ::::: borders for thumb and buttons ::::: */
@@ -58,12 +58,12 @@ scrollbarbutton[sbattr="scrollbar-down-bottom"] {
 
 thumb {
   min-height: 18px;
-  background-image: url("chrome://global/skin/scrollbar/thumb-vrt-grip.gif");
+  background-image: url("chrome://global/skin/scrollbar/thumb-vrt-grip.png");
 }
 
 thumb[orient="horizontal"] {
   min-width: 18px;
-  background-image: url("chrome://global/skin/scrollbar/thumb-hrz-grip.gif");
+  background-image: url("chrome://global/skin/scrollbar/thumb-hrz-grip.png");
 }
 
 /* ::::: scrollbar button ::::: */
@@ -95,21 +95,21 @@ scrollcorner {
 /* ..... increment .... */
 
 scrollbarbutton[type="increment"] {
-  background-image: url("chrome://global/skin/scrollbar/btn-rit.gif")
+  background-image: url("chrome://global/skin/scrollbar/btn-rit.png")
 }
 
 scrollbar[orient="vertical"] > scrollbarbutton[type="increment"] {
-  background-image: url("chrome://global/skin/scrollbar/btn-dn.gif")
+  background-image: url("chrome://global/skin/scrollbar/btn-dn.png")
 }
 
 /* ..... decrement .... */
 
 scrollbarbutton[type="decrement"] {
-   background-image: url("chrome://global/skin/scrollbar/btn-lft.gif")
+   background-image: url("chrome://global/skin/scrollbar/btn-lft.png")
 }
 
 scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"] {
-   background-image: url("chrome://global/skin/scrollbar/btn-up.gif")
+   background-image: url("chrome://global/skin/scrollbar/btn-up.png")
 }
 
 /* :::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
@@ -121,12 +121,12 @@ scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"] {
 
   html|div slider {
     height: 15px;
-    background: url("chrome://global/skin/scrollbar/slider-hrz.gif") repeat-x;
+    background: url("chrome://global/skin/scrollbar/slider-hrz.png") repeat-x;
   }
 
   html|div slider[orient="vertical"] {
     width: 15px;
-    background: url("chrome://global/skin/scrollbar/slider-vrt.gif") repeat-y;
+    background: url("chrome://global/skin/scrollbar/slider-vrt.png") repeat-y;
   }
 
   /* ::::: borders for thumb and buttons ::::: */
@@ -147,12 +147,12 @@ scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"] {
 
   html|div thumb {
     min-height: 18px;
-    background-image: url("chrome://global/skin/scrollbar/thumb-vrt-grip.gif");
+    background-image: url("chrome://global/skin/scrollbar/thumb-vrt-grip.png");
   }
 
   html|div thumb[orient="horizontal"] {
     min-width: 18px;
-    background-image: url("chrome://global/skin/scrollbar/thumb-hrz-grip.gif");
+    background-image: url("chrome://global/skin/scrollbar/thumb-hrz-grip.png");
   }
 
   /* ::::: scrollbar button ::::: */
@@ -172,21 +172,21 @@ scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"] {
   /* ..... increment .... */
 
   html|div scrollbarbutton[type="increment"] {
-    background-image: url("chrome://global/skin/scrollbar/btn-rit.gif")
+    background-image: url("chrome://global/skin/scrollbar/btn-rit.png")
   }
 
   html|div scrollbar[orient="vertical"] > scrollbarbutton[type="increment"] {
-    background-image: url("chrome://global/skin/scrollbar/btn-dn.gif")
+    background-image: url("chrome://global/skin/scrollbar/btn-dn.png")
   }
 
   /* ..... decrement .... */
 
   html|div scrollbarbutton[type="decrement"] {
-     background-image: url("chrome://global/skin/scrollbar/btn-lft.gif")
+     background-image: url("chrome://global/skin/scrollbar/btn-lft.png")
   }
 
   html|div scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"] {
-     background-image: url("chrome://global/skin/scrollbar/btn-up.gif")
+     background-image: url("chrome://global/skin/scrollbar/btn-up.png")
   }
 
 }

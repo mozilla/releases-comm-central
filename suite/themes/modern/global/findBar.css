@@ -5,7 +5,7 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 .findbar-closebutton {
-  list-style-image: url("chrome://global/skin/icons/close.gif");
+  list-style-image: url("chrome://global/skin/icons/close.png");
   padding: 0 !important;
   margin-top: 3px !important;
   margin-bottom: 3px !important;
@@ -15,11 +15,11 @@
 }
 
 .findbar-closebutton:hover {
-  list-style-image: url("chrome://global/skin/icons/close-hov.gif");
+  list-style-image: url("chrome://global/skin/icons/close-hov.png");
 }
 
 .findbar-closebutton:hover:active {
-  list-style-image: url("chrome://global/skin/icons/close-act.gif");
+  list-style-image: url("chrome://global/skin/icons/close-act.png");
 }
 
 findbar {

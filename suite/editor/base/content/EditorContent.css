@@ -14,7 +14,7 @@
 a[name] {
   min-height: 17px; margin-left: 2px; margin-top: 2px;
   padding-left: 20px;
-  background-image: url(chrome://editor/content/images/tag-anchor.gif);
+  background-image: url(chrome://editor/content/images/tag-anchor.png);
   background-repeat: no-repeat;
   background-position: top left;
 }

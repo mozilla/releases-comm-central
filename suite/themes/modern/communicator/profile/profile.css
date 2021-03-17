@@ -14,11 +14,11 @@
 
 treechildren::-moz-tree-image {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://communicator/skin/profile/profile.gif");
+  list-style-image: url("chrome://communicator/skin/profile/profile.png");
 }
 
 treechildren::-moz-tree-image(rowMigrate-no) {
-  list-style-image: url("chrome://communicator/skin/profile/migrate.gif");
+  list-style-image: url("chrome://communicator/skin/profile/migrate.png");
 }
 
 /* Override global.css */

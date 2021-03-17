@@ -12,19 +12,19 @@
 
 treechildren::-moz-tree-image(DirCol) {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/myaddrbk.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/myaddrbk.png");
 }
 
 treechildren::-moz-tree-image(DirCol, IsMailList-true) {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/list.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/list.png");
 }
 
 treechildren::-moz-tree-image(DirCol, IsRemote-true) {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/directory.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/directory.png");
 }
 
 treechildren::-moz-tree-image(DirCol, IsRemote-true, IsSecure-true) {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/secure-directory.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/secure-directory.png");
 }
 
 #dirTree [sortDirection="ascending"] {

@@ -46,7 +46,7 @@
 
 #sidebar-panel-picker > .toolbarbutton-dropmarker {
   padding: 0 2px;
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
 }
 
 .sidebar-header-text {
@@ -60,7 +60,7 @@
   padding-bottom: 1px;
   padding-inline-start: 4px;
   padding-inline-end: 3px;
-  list-style-image: url("chrome://communicator/skin/icons/close-button.gif");
+  list-style-image: url("chrome://communicator/skin/icons/close-button.png");
 }
 
 /* ::::: sidebar panel ::::: */
@@ -89,7 +89,7 @@
 
 .image-panel-loading {
   margin: 5px;
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 /* ::::: sidebar tabs ::::: */
@@ -139,12 +139,12 @@
 
 .sbtab-twisty {
   margin: 0px 7px;
-  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-twisty.gif");
+  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-twisty.png");
 }
 
 .sbtab-texture {
   margin: 2px 0px;
-  background: url("chrome://communicator/skin/toolbar/tbgrip-texture.gif") repeat-y;
+  background: url("chrome://communicator/skin/toolbar/tbgrip-texture.png") repeat-y;
   width: 12px;
   height: 12px;
 }
@@ -155,7 +155,7 @@
 }
 
 .sbtab-twisty[selected="true"] {
-  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-twisty-open.gif");
+  list-style-image: url("chrome://communicator/skin/sidebar/sbtab-twisty-open.png");
 }
 
 /* ::::: sidebar navigation buttons ::::: */
@@ -165,9 +165,9 @@
 }
 
 .tab-fwd {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up.png");
 }
 
 .tab-back {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
 }

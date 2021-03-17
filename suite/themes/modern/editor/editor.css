@@ -38,7 +38,7 @@
 /* ::::: formatting toolbar ::::: */
 
 #FormatToolbar {
-  background: url("chrome://global/skin/toolbar/tb-mid.gif") #C7D0D9 repeat-x top;
+  background: url("chrome://global/skin/toolbar/tb-mid.png") #C7D0D9 repeat-x top;
 }
 
 #FormatToolbar > .toolbar-box > toolbargrippy,

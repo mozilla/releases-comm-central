@@ -57,17 +57,17 @@ notification[type="critical"] {
 }
 
 .messageCloseButton {
-  list-style-image: url("chrome://global/skin/icons/close.gif");
+  list-style-image: url("chrome://global/skin/icons/close.png");
   padding: 4px 2px;
   border: none;
 }
 
 .messageCloseButton:hover {
-  list-style-image: url("chrome://global/skin/icons/close-hov.gif");
+  list-style-image: url("chrome://global/skin/icons/close-hov.png");
 }
 
 .messageCloseButton:hover:active {
-  list-style-image: url("chrome://global/skin/icons/close-act.gif");
+  list-style-image: url("chrome://global/skin/icons/close-act.png");
 }
 
 /* Popup notifications */
@@ -86,7 +86,7 @@ popupnotification {
 }
 
 .popup-notification-closeitem {
-  list-style-image: url("chrome://global/skin/icons/closebox.gif");
+  list-style-image: url("chrome://global/skin/icons/closebox.png");
 }
 
 .popup-notification-button-container {

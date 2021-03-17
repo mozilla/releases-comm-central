@@ -9,7 +9,7 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 #button-security {
-  list-style-image: url("chrome://messenger/skin/smime/icons/smbtn1.gif");
+  list-style-image: url("chrome://messenger/skin/smime/icons/smbtn1.png");
   -moz-image-region: rect(0px 49px 33px 0px);
 }
 
@@ -32,12 +32,12 @@
 }
 
 #msgcomposeWindow[signing="ok"] #signing-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignOk.gif");
+  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignOk.png");
   visibility: visible;
 }
 
 #msgcomposeWindow[signing="notok"] #signing-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignNotOk.gif");
+  list-style-image: url("chrome://messenger/skin/smime/icons/sbSignNotOk.png");
   visibility: visible;
 }
 
@@ -48,11 +48,11 @@
 }
 
 #msgcomposeWindow[crypto="ok"] #encryption-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoOk.gif");
+  list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoOk.png");
   visibility: visible;
 }
 
 #msgcomposeWindow[crypto="notok"] #encryption-status {
-  list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoNotOk.gif");
+  list-style-image: url("chrome://messenger/skin/smime/icons/sbCryptoNotOk.png");
   visibility: visible;
 }

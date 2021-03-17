@@ -13,11 +13,11 @@
 /* ::::: columns :::::: */
 
 treechildren::-moz-tree-image(activeColumn) {
-  list-style-image: url("chrome://global/skin/checkbox/cbox.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox.png");
 }
 
 treechildren::-moz-tree-image(activeColumn, Enabled-true) {
-  list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
+  list-style-image: url("chrome://global/skin/checkbox/cbox-check.png");
 }
 
 .search-menulist, .search-value-menulist {

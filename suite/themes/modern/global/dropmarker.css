@@ -14,11 +14,11 @@ dropmarker {
   padding-top: 3px;
   padding-bottom: 2px;
   background-color: #A6B3C0;
-  list-style-image: url("chrome://global/skin/menulist/mlist-arrow.gif");
+  list-style-image: url("chrome://global/skin/menulist/mlist-arrow.png");
 }
 
 dropmarker[disabled="true"] {
   border-color: #727D8E !important;
   background-color: #B7BFCB !important;
-  list-style-image: url("chrome://global/skin/menulist/mlist-dis-arrow.gif") !important;
+  list-style-image: url("chrome://global/skin/menulist/mlist-dis-arrow.png") !important;
 }

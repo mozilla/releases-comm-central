@@ -11,7 +11,7 @@
 /* ::::: primary toolbar masthead ::::: */
 
 #msgToolbar > .toolbar-holder > .toolbar-primary-icon {
-  list-style-image: url("chrome://messenger/skin/icons/mast-mail.gif");
+  list-style-image: url("chrome://messenger/skin/icons/mast-mail.png");
 }
 
 /* ::::: primary toolbar buttons ::::: */
@@ -21,7 +21,7 @@
 }
 
 #button-getmsg {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(102px 49px 135px 0);
 }
 
@@ -38,7 +38,7 @@
 } 
 
 #button-newmsg {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(170px 49px 203px 0);
 }
 
@@ -55,7 +55,7 @@
 } 
 
 #button-reply {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(238px 49px 271px 0);
 }
 
@@ -72,7 +72,7 @@
 } 
 
 #button-replyall {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(272px 49px 305px 0);
 }
 
@@ -89,7 +89,7 @@
 } 
 
 #button-forward {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(68px 49px 101px 0);
 }
 
@@ -106,7 +106,7 @@
 } 
 
 #button-file {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(34px 49px 67px 0);
 }
 
@@ -124,7 +124,7 @@
 } 
 
 #button-goback {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(578px 49px 611px 0);
 }
 
@@ -141,7 +141,7 @@
 }
 
 #button-goforward {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(612px 49px 645px 0);
 }
 
@@ -158,7 +158,7 @@
 }
 
 #button-next {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(204px 49px 237px 0);
 }
 
@@ -175,7 +175,7 @@
 } 
 
 #button-delete {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(0 49px 33px 0);
 }
 
@@ -196,7 +196,7 @@ toolbarpaletteitem > #button-delete {
 }
 
 #button-mark {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(136px 49px 169px 0);
 }
 
@@ -213,7 +213,7 @@ toolbarpaletteitem > #button-delete {
 } 
 
 #button-junk {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(544px 49px 577px 0);
 }
 
@@ -257,7 +257,7 @@ toolbar[iconsize="small"] > #print-button[disabled="true"],
 }
 
 #button-stop {
-  list-style-image: url("chrome://communicator/skin/icons/btn1.gif");
+  list-style-image: url("chrome://communicator/skin/icons/btn1.png");
   -moz-image-region: rect(68px 49px 101px 0);
 }
 

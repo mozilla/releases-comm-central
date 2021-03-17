@@ -35,7 +35,7 @@ wizardpage {
 }
 
 .remoteLoadingThrobber[state="loading"] {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 .remoteLoadingThrobber[state="error"] {

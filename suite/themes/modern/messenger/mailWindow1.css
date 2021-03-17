@@ -35,12 +35,12 @@
 
 .folderview-cycler[dir="prev"],
 .folderview-cycler[dir="next"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft.png");
 }
 
 .folderview-cycler[dir="next"],
 .folderview-cycler[dir="prev"]:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit.png");
 }
 
 /* ::::: border adjustments for focus ring and joined splitters ::::: */
@@ -82,7 +82,7 @@
 /* ::::: search toolbar ::::: */
 
 #searchToolbar {
-  background: url("chrome://global/skin/toolbar/tb-mid.gif") #C7D0D9 repeat-x top;
+  background: url("chrome://global/skin/toolbar/tb-mid.png") #C7D0D9 repeat-x top;
 }
 
 #searchToolbar > .toolbar-box > toolbargrippy,
@@ -125,7 +125,7 @@
 /* ..... tabmail ..... */
 
 .tab-close-button {
-  list-style-image: url("chrome://global/skin/icons/close.gif");
+  list-style-image: url("chrome://global/skin/icons/close.png");
 }
 
 .tabmail-tab[type="folder"][IsServer="true"],

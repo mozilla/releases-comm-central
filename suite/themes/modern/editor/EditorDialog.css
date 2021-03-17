@@ -49,31 +49,31 @@
 /* ::::: common buttons ::::: */
 
 #MoreFewerButton[more="0"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
   min-width: 12em;
 }
 
 #MoreFewerButton[more="1"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up.png");
   min-width: 12em;
 }
 
 /* ::::: table properties dialog ::::: */
 
 #PreviousButton {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft.png");
 }
 
 #NextButton {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit.png");
 }
 
 #PreviousButton[type="row"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up.png");
 }
 
 #NextButton[type="row"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
 }
 
 /* ::::: spelling dialog ::::: */
@@ -195,35 +195,35 @@ groupbox {
 }
 
 .align-menu[value="top"] {
-  list-style-image: url("chrome://editor/skin/icons/img-align-top.gif") !important;
+  list-style-image: url("chrome://editor/skin/icons/img-align-top.png") !important;
 }
 
 .align-menu[value="top"]:hover {
-  list-style-image: url("chrome://editor/skin/icons/img-align-top-sel.gif") !important;
+  list-style-image: url("chrome://editor/skin/icons/img-align-top-sel.png") !important;
 }
 
 .align-menu[value="middle"] {
-  list-style-image: url("chrome://editor/skin/icons/img-align-mid.gif") !important;
+  list-style-image: url("chrome://editor/skin/icons/img-align-mid.png") !important;
 }
 
 .align-menu[value="middle"]:hover {
-  list-style-image: url("chrome://editor/skin/icons/img-align-mid-sel.gif") !important;
+  list-style-image: url("chrome://editor/skin/icons/img-align-mid-sel.png") !important;
 }
 
 .align-menu[value="bottom"] {
-  list-style-image: url("chrome://editor/skin/icons/img-align-btm.gif") !important;
+  list-style-image: url("chrome://editor/skin/icons/img-align-btm.png") !important;
 }
 
 .align-menu[value="bottom"]:hover {
-  list-style-image: url("chrome://editor/skin/icons/img-align-btm-sel.gif") !important;
+  list-style-image: url("chrome://editor/skin/icons/img-align-btm-sel.png") !important;
 }
 
 .align-menu[value="right"] {
-  list-style-image: url("chrome://editor/skin/icons/img-align-rit.gif") !important;
+  list-style-image: url("chrome://editor/skin/icons/img-align-rit.png") !important;
 }
 
 .align-menu[value="left"] {
-  list-style-image: url("chrome://editor/skin/icons/img-align-lft.gif") !important;
+  list-style-image: url("chrome://editor/skin/icons/img-align-lft.png") !important;
 }
 
 /* Don't change width/height of these without changing values in
@@ -269,21 +269,21 @@ groupbox {
 /* ::::: select edit dialog ::::: */
 
 #SelectTreeChildren::-moz-tree-cell(SelectSelCol, checked-false) {
-  background: url("chrome://global/skin/checkbox/cbox.gif") 50% 50% no-repeat;
+  background: url("chrome://global/skin/checkbox/cbox.png") 50% 50% no-repeat;
 }
 
 #SelectTreeChildren::-moz-tree-cell(SelectSelCol, checked-true) {
-  background: url("chrome://global/skin/checkbox/cbox-check.gif") 50% 50% no-repeat;
+  background: url("chrome://global/skin/checkbox/cbox-check.png") 50% 50% no-repeat;
 }
 
 /* ::::: Publishing Progress ::::: */
 
 .progressitem[progress="busy"] {
-  list-style-image: url("chrome://editor/skin/icons/progress-busy.gif");
+  list-style-image: url("chrome://editor/skin/icons/progress-busy.png");
 }
 .progressitem[progress="done"] {
-  list-style-image: url("chrome://editor/skin/icons/progress-done.gif");
+  list-style-image: url("chrome://editor/skin/icons/progress-done.png");
 }
 .progressitem[progress="failed"] {
-  list-style-image: url("chrome://editor/skin/icons/progress-failed.gif");
+  list-style-image: url("chrome://editor/skin/icons/progress-failed.png");
 }

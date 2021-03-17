@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .portrait-page {
-  list-style-image: url("chrome://global/skin/icons/pg-portrait.gif");
+  list-style-image: url("chrome://global/skin/icons/pg-portrait.png");
 }
 
 .landscape-page {
-  list-style-image: url("chrome://global/skin/icons/pg-landscape.gif");
+  list-style-image: url("chrome://global/skin/icons/pg-landscape.png");
 }

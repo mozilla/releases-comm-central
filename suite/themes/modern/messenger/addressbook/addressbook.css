@@ -14,13 +14,13 @@
 /* ::::: primary toolbar masthead ::::: */
 
 #ab-bar2 > .toolbar-holder > .toolbar-primary-icon {
-  background-image: url("chrome://messenger/skin/addressbook/icons/mast-ab.gif");
+  background-image: url("chrome://messenger/skin/addressbook/icons/mast-ab.png");
 }
 
 /* ::::: primary toolbar buttons ::::: */
 
 #button-newcard {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(476px 49px 509px 0);
 }
 
@@ -37,7 +37,7 @@
 } 
 
 #button-newlist {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(510px 49px 543px 0);
 }
 
@@ -54,7 +54,7 @@
 } 
 
 #button-editcard {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(442px 49px 475px 0);
 }
 
@@ -71,7 +71,7 @@
 } 
 
 #button-newmessage {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(170px 49px 203px 0);
 }
 
@@ -89,23 +89,23 @@
 } 
 
 #button-newim {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/im.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/im.png");
 }
 
 #button-newim:hover {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/im-hov.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/im-hov.png");
 } 
 
 #button-newim:hover:active {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/im-act.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/im-act.png");
 } 
 
 #button-newim[disabled] {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/im-dis.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/im-dis.png");
 } 
 
 #button-abdelete {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(408px 49px 441px 0);
 }
 

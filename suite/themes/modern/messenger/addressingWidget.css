@@ -39,5 +39,5 @@
   cursor: default !important;
   margin: 2px 4px;
   border: none;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/person.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/person.png");
 }

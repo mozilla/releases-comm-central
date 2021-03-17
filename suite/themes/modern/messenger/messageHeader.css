@@ -125,11 +125,11 @@ mail-emailaddress:-moz-focusring {
 
 .addresstwisty {
   margin: 2px;
-  list-style-image: url("chrome://global/skin/tree/twisty-clsd.gif");
+  list-style-image: url("chrome://global/skin/tree/twisty-clsd.png");
 }
 
 .addresstwisty[open] {
-  list-style-image: url("chrome://global/skin/tree/twisty-open.gif");
+  list-style-image: url("chrome://global/skin/tree/twisty-open.png");
 }
 
 /* ::::: view expand and collapse twisties  ::::: */
@@ -140,11 +140,11 @@ mail-emailaddress:-moz-focusring {
 }
 
 .expandHeaderViewButton {
-  list-style-image: url("chrome://global/skin/tree/twisty-open.gif");
+  list-style-image: url("chrome://global/skin/tree/twisty-open.png");
 }
 
 .collapsedHeaderViewButton  {
-  list-style-image: url("chrome://global/skin/tree/twisty-clsd.gif");
+  list-style-image: url("chrome://global/skin/tree/twisty-clsd.png");
 }
 
 /* ::::: collapsed view styles ::::: */
@@ -184,6 +184,6 @@ mail-emailaddress:-moz-focusring {
 }
 
 .collapsedAttachmentButton {
-  list-style-image: url("chrome://messenger/skin/icons/message-mail-attach.gif");
+  list-style-image: url("chrome://messenger/skin/icons/message-mail-attach.png");
   margin-inline-end: .5em;
 }

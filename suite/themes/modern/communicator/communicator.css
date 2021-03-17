@@ -31,8 +31,8 @@ textbox[autocompletesearch="history file"] .autocomplete-treebody::-moz-tree-ima
 }
 
 textbox[autocompletesearch="history file"] .autocomplete-treebody::-moz-tree-image(treecolAutoCompleteValue, directory) {
-  /*list-style-image: url("chrome://global/skin/filepicker/dir-closed.gif");*/
-  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.gif");
+  /*list-style-image: url("chrome://global/skin/filepicker/dir-closed.png");*/
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.png");
 }
 
 textbox[autocompletesearch="history file"] .autocomplete-treebody::-moz-tree-image(treecolAutoCompleteValue, file) {
@@ -42,11 +42,11 @@ textbox[autocompletesearch="history file"] .autocomplete-treebody::-moz-tree-ima
 /* ::::: online/offline icons ::::: */
 
 #offline-status[offline="true"] {
-  list-style-image: url("chrome://communicator/skin/icons/offline.gif");
+  list-style-image: url("chrome://communicator/skin/icons/offline.png");
 }
 
 #offline-status {
-  list-style-image: url("chrome://communicator/skin/icons/online.gif");
+  list-style-image: url("chrome://communicator/skin/icons/online.png");
 }
 
 /* ::::: spell checker ::::: */
@@ -59,20 +59,20 @@ textbox[autocompletesearch="history file"] .autocomplete-treebody::-moz-tree-ima
 
 .up {
   min-width: 0px;
-  list-style-image: url("chrome://global/skin/arrow/arrow-up.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up.png");
 }
 
 .up[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-up-dis.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-up-dis.png");
 }
 
 .down {
   min-width: 0px;
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn.png");
 }
 
 .down[disabled="true"] {
-  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-dn-dis.png");
 }
 
 .sidebarTree {

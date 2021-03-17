@@ -22,7 +22,7 @@ progressmeter {
 }
 
 progressmeter[mode="undetermined"] {
-  background: url("chrome://global/skin/progressmeter/progress-busy.gif");
+  background: url("chrome://global/skin/progressmeter/progress-busy.png");
 }
 
 .progress-bar {

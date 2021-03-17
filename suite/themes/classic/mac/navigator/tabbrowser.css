@@ -215,7 +215,7 @@ tabpanels {
 .tabs-newbutton {
   margin: 0;
   padding: 1px;
-  list-style-image: url("chrome://navigator/skin/icons/tab-new.gif");
+  list-style-image: url("chrome://navigator/skin/icons/tab-new.png");
 }
 
 .tab-drop-indicator-bar {
@@ -230,7 +230,7 @@ tabpanels {
   width: 11px;
   margin-bottom: -5px;
   position: relative;
-  list-style-image: url('chrome://navigator/skin/icons/tab-drag-indicator.gif');
+  list-style-image: url('chrome://navigator/skin/icons/tab-drag-indicator.png');
 }
 
 tooltip[tabpreview="true"] {

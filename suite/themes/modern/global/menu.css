@@ -77,17 +77,17 @@ menuitem[_moz-menuactive="true"][disabled="true"] {
   margin-inline-start: 6px;
   margin-inline-end: 4px;
   width: 4px;
-  list-style-image: url("chrome://global/skin/menu/menu-arrow.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-arrow.png");
   -moz-image-region: auto;
 }
 
 .menu-right[_moz-menuactive="true"] {
-  list-style-image: url("chrome://global/skin/menu/menu-arrow-hov.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-arrow-hov.png");
   -moz-image-region: auto;
 }
 
 .menu-right[disabled="true"] {
-  list-style-image: url("chrome://global/skin/menu/menu-arrow-dis.gif") !important;
+  list-style-image: url("chrome://global/skin/menu/menu-arrow-dis.png") !important;
   -moz-image-region: auto;
 }
 
@@ -160,46 +160,46 @@ menulist > menupopup > menuitem {
 /* ..... selected state ..... */
 
 menulist > menupopup > menuitem[selected="true"] {
-  list-style-image: url("chrome://global/skin/menu/menu-check.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-check.png");
   -moz-image-region: auto;
 }
   
 menulist > menupopup > menuitem[_moz-menuactive="true"][selected="true"] {
-  list-style-image: url("chrome://global/skin/menu/menu-check-hov.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-check-hov.png");
   -moz-image-region: auto;
 }
 
 /* ::::: checkbox menuitem ::::: */
 
 menuitem[checked="true"] {
-  list-style-image: url("chrome://global/skin/menu/menu-check.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-check.png");
   -moz-image-region: auto;
 }
 
 menuitem[checked="true"][disabled="true"] {
-  list-style-image: url("chrome://global/skin/menu/menu-check-dis.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-check-dis.png");
   -moz-image-region: auto;
 }
 
 menuitem[checked="true"][_moz-menuactive="true"] {
-  list-style-image: url("chrome://global/skin/menu/menu-check-hov.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-check-hov.png");
   -moz-image-region: auto;
 }
 
 /* ::::: radio menuitem ::::: */
 
 menuitem[checked="true"][type="radio"] {
-  list-style-image: url("chrome://global/skin/menu/menu-radio.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-radio.png");
   -moz-image-region: auto;
 }
 
 menuitem[checked="true"][type="radio"][disabled="true"] {
-  list-style-image: url("chrome://global/skin/menu/menu-radio-dis.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-radio-dis.png");
   -moz-image-region: auto;
 }
 
 menuitem[checked="true"][type="radio"][_moz-menuactive="true"] {
-  list-style-image: url("chrome://global/skin/menu/menu-radio-hov.gif");
+  list-style-image: url("chrome://global/skin/menu/menu-radio-hov.png");
   -moz-image-region: auto;
 }
 
@@ -228,6 +228,6 @@ menulist > menupopup > menuseparator,
 
 .treecell-popupcell-menu {
   margin-inline-start: -2px;
-  list-style-image: url("chrome://global/skin/tree/columnpicker.gif");
+  list-style-image: url("chrome://global/skin/tree/columnpicker.png");
   -moz-image-region: auto;
 }

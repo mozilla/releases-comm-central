@@ -13,13 +13,13 @@
 /* ::::: primary toolbar masthead ::::: */
 
 #composeToolbar > .toolbar-holder > .toolbar-primary-icon {
-  background-image: url("chrome://messenger/skin/messengercompose/icons/mast-msgcomp.gif");
+  background-image: url("chrome://messenger/skin/messengercompose/icons/mast-msgcomp.png");
 }
 
 /* ::::: primary toolbar buttons ::::: */
 
 #button-send {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(374px 49px 407px 0);
 }
 
@@ -36,7 +36,7 @@
 } 
 
 #button-address {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(306px 49px 339px 0);
 }
 
@@ -53,7 +53,7 @@
 } 
 
 #button-attach {
-  list-style-image: url("chrome://messenger/skin/icons/btn1.gif");
+  list-style-image: url("chrome://messenger/skin/icons/btn1.png");
   -moz-image-region: rect(340px 49px 373px 0);
 }
 
@@ -70,7 +70,7 @@
 } 
 
 #spellingButton {
-  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
+  list-style-image: url("chrome://editor/skin/icons/btn1.png");
   -moz-image-region: rect(272px 49px 305px 0);
 }
 
@@ -87,7 +87,7 @@
 }
 
 #button-save {
-  list-style-image: url("chrome://editor/skin/icons/btn1.gif");
+  list-style-image: url("chrome://editor/skin/icons/btn1.png");
   -moz-image-region: rect(238px 49px 271px 0);
 }
 
@@ -133,7 +133,7 @@ toolbar[iconsize="small"] > #print-button[disabled="true"],
 }
 
 #FormatToolbar {
-  background: url("chrome://global/skin/toolbar/tb-mid.gif") #C7D0D9 repeat-x top;
+  background: url("chrome://global/skin/toolbar/tb-mid.png") #C7D0D9 repeat-x top;
 }
 
 #MsgHeadersToolbar > toolbargrippy,
@@ -185,7 +185,7 @@ treechildren::-moz-tree-image(local-abook) {
   margin-bottom: 2px;
   margin-inline-start: 4px;
   margin-inline-end: -3px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/myaddrbk.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/myaddrbk.png");
 }
 
 treechildren::-moz-tree-image(remote-abook) {
@@ -193,7 +193,7 @@ treechildren::-moz-tree-image(remote-abook) {
   margin-bottom: 2px;
   margin-inline-start: 3px;
   margin-inline-end: -4px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/directory.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/directory.png");
 }
 
 treechildren::-moz-tree-image(remote-err) {
@@ -201,11 +201,11 @@ treechildren::-moz-tree-image(remote-err) {
   margin-bottom: 2px;
   margin-inline-start: 3px;
   margin-inline-end: -4px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/directory-down.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/directory-down.png");
 }
 
 treechildren::-moz-tree-image(subscribed-news) {
   margin-inline-start: 3px;
   margin-inline-end: -4px;
-  list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.gif");
+  list-style-image: url("chrome://messenger/skin/icons/folder-newsgroup.png");
 }

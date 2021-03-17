@@ -7,7 +7,7 @@
 }
 
 .throbber {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
   width: 16px;
   height: 16px;
   margin-top: 5px;

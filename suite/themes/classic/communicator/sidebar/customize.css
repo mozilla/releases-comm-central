@@ -13,25 +13,25 @@
 .treecell-panel[haslink="true"],
 treeitem[container="true"] > treerow > .treecell-panel
 {
- list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.gif");
+ list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.png");
 }
 treeitem[selected="true"] > treerow > .treecell-panel[haslink="true"],
 treeitem[selected="true"][container="true"] > treerow > .treecell-panel
 {
- list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed-sel.gif");
+ list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed-sel.png");
 }
 
 treeitem[container="true"][open="true"] > treerow > .treecell-panel
 {
- list-style-image: url("chrome://communicator/skin/places/bookmark-folder-open.gif");
+ list-style-image: url("chrome://communicator/skin/places/bookmark-folder-open.png");
 }
 treeitem[selected="true"][container="true"][open="true"] > treerow > .treecell-panel
 {
- list-style-image: url("chrome://communicator/skin/places/bookmark-folder-open-sel.gif");
+ list-style-image: url("chrome://communicator/skin/places/bookmark-folder-open-sel.png");
 }
 
 #header {
-  list-style-image: url("chrome://communicator/skin/sidebar/sidebar-icon.gif");
+  list-style-image: url("chrome://communicator/skin/sidebar/sidebar-icon.png");
 }
 
 box#reorder {

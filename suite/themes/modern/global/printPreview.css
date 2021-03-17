@@ -8,30 +8,30 @@
 
 .home-arrow,
 .end-arrow:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft-sharp-end.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft-sharp-end.png");
 }
 
 .end-arrow,
 .home-arrow:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit-sharp-end.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit-sharp-end.png");
 }
 
 .previous-arrow,
 .next-arrow:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-lft-sharp.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-lft-sharp.png");
 }
 
 .next-arrow,
 .previous-arrow:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://global/skin/arrow/arrow-rit-sharp.gif");
+  list-style-image: url("chrome://global/skin/arrow/arrow-rit-sharp.png");
 }
 
 /* ..... orientation ..... */
 
 .toolbar-portrait-page {
-  list-style-image: url("chrome://global/skin/icons/pg-portrait-small.gif");
+  list-style-image: url("chrome://global/skin/icons/pg-portrait-small.png");
 }
 
 .toolbar-landscape-page {
-  list-style-image: url("chrome://global/skin/icons/pg-landscape-small.gif");
+  list-style-image: url("chrome://global/skin/icons/pg-landscape-small.png");
 }

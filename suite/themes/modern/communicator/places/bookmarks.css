@@ -24,16 +24,16 @@ treechildren::-moz-tree-image(title) {
 
 .bookmark-item[container="true"],
 treechildren::-moz-tree-image(title, container) {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.gif");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-closed.png");
 }
 
 .bookmark-item[open="true"],
 treechildren::-moz-tree-image(title, open) {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-open.gif");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-open.png");
 }
 
 .bookmark-item[container="true"][open="true"][loading="true"] {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif") !important;
+  list-style-image: url("chrome://communicator/skin/icons/loading.png") !important;
 }
 
 .bookmark-item > .toolbarbutton-box > .toolbarbutton-icon {
@@ -50,7 +50,7 @@ treechildren::-moz-tree-image(title, container, livemark) {
 
 .bookmark-item[container][livemark] .bookmark-item,
 treechildren::-moz-tree-image(title, livemarkItem) {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-item-updated.gif");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-updated.png");
 }
 
 .bookmark-item[container][livemark] .bookmark-item[visited],

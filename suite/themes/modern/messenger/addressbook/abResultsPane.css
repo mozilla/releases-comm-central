@@ -6,10 +6,10 @@
 
 treechildren::-moz-tree-image(GeneratedName) {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/person.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/person.png");
 }
 
 treechildren::-moz-tree-image(GeneratedName, MailList) {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/list.gif");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/list.png");
 }
 

@@ -11,7 +11,7 @@
 /* ::::: scale ::::: */
 
 .scale-slider {
-  background: url("chrome://global/skin/scrollbar/slider-hrz.gif") repeat-x;
+  background: url("chrome://global/skin/scrollbar/slider-hrz.png") repeat-x;
   border-left: 1px solid black;
   border-right: 1px solid black;
   margin: 2px 4px;
@@ -21,7 +21,7 @@
 
 .scale-slider[orient="vertical"]
 {
-  background: url("chrome://global/skin/scrollbar/slider-vrt.gif") repeat-y;
+  background: url("chrome://global/skin/scrollbar/slider-vrt.png") repeat-y;
   border-left: none;
   border-right: none;
   border-top: 1px solid black;
@@ -35,12 +35,12 @@
 
 .scale-thumb {
   border: 1px solid #000000;
-  background-image: url("chrome://global/skin/scrollbar/thumb-hrz-grip.gif");
+  background-image: url("chrome://global/skin/scrollbar/thumb-hrz-grip.png");
   min-width: 18px;
 }
 
 .scale-thumb[orient="vertical"] {
-  background-image: url("chrome://global/skin/scrollbar/thumb-vrt-grip.gif");
+  background-image: url("chrome://global/skin/scrollbar/thumb-vrt-grip.png");
   min-height: 18px;
   min-width: 0px;
 }

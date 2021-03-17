@@ -37,11 +37,11 @@ toolbarbutton.bookmark-item:not([container="true"]):hover:active {
 toolbarbutton.bookmark-item[disabled="true"] {
   cursor: default !important;
   text-decoration: none !important;
-  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.gif") !important;
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.png") !important;
 }
 
 toolbarbutton.bookmark-item[disabled="true"][container="true"] {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-dis.gif") !important;
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-dis.png") !important;
 }
 
 .bookmark-item > .toolbarbutton-icon {
@@ -78,11 +78,11 @@ menuitem.bookmark-item {
 }
 
 menuitem.bookmark-item[disabled="true"] {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.gif");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-item-dis.png");
 }
 
 menuitem.bookmark-item[disabled="true"][container="true"] {
-  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-dis.gif");
+  list-style-image: url("chrome://communicator/skin/places/bookmark-folder-dis.png");
 }
 
 /* ..... drag and drop styles ..... */

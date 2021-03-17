@@ -81,7 +81,7 @@ menulist[open="true"] > .menulist-label-box {
 }
 
 menulist[open="true"] > .menulist-dropmarker {
-  list-style-image: url("chrome://global/skin/menulist/mlist-act-arrow.gif");
+  list-style-image: url("chrome://global/skin/menulist/mlist-act-arrow.png");
 }
 
 /* ..... disabled state ..... */
@@ -164,7 +164,7 @@ menulist[focused="true"] {
 
 .menulist-compact > .menulist-dropmarker,
 .menulist-compact[open="true"] > .menulist-dropmarker {
-  list-style-image: url("chrome://global/skin/menulist/mlist-compact-arrow.gif");
+  list-style-image: url("chrome://global/skin/menulist/mlist-compact-arrow.png");
 }
 
 .menulist-compact:focus {

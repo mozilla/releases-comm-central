@@ -29,11 +29,11 @@ scrollcorner {
 /* ::::: slider ::::: */
 
 slider {
-  background: url("chrome://global/skin/scrollbar/mini-slider-hrz.gif") repeat-x;
+  background: url("chrome://global/skin/scrollbar/mini-slider-hrz.png") repeat-x;
 }
 
 slider[orient="vertical"] {
-  background: url("chrome://global/skin/scrollbar/mini-slider-vrt.gif") repeat-y;
+  background: url("chrome://global/skin/scrollbar/mini-slider-vrt.png") repeat-y;
 }
 
 /* ::::: borders for thumb and buttons ::::: */
@@ -53,11 +53,11 @@ thumb:active {
 /* ::::: thumb (horizontal) ::::: */
 
 thumb {
-  background-image: url("chrome://global/skin/scrollbar/thumb-vrt-grip.gif");
+  background-image: url("chrome://global/skin/scrollbar/thumb-vrt-grip.png");
 }
 
 thumb[orient="horizontal"] {
-  background-image: url("chrome://global/skin/scrollbar/thumb-hrz-grip.gif");
+  background-image: url("chrome://global/skin/scrollbar/thumb-hrz-grip.png");
 }
 
 /* ::::: scrollbar button ::::: */
@@ -89,20 +89,20 @@ scrollbarbutton:hover:active {
 /* ..... increment .... */
 
 scrollbarbutton[type="increment"] {
-  background-image: url("chrome://global/skin/scrollbar/mini-btn-rit.gif")
+  background-image: url("chrome://global/skin/scrollbar/mini-btn-rit.png")
 }
 
 scrollbar[orient="vertical"] > scrollbarbutton[type="increment"] {
-  background-image: url("chrome://global/skin/scrollbar/mini-btn-dn.gif")
+  background-image: url("chrome://global/skin/scrollbar/mini-btn-dn.png")
 }
 
 /* ..... decrement .... */
 
 scrollbarbutton[type="decrement"] {
-   background-image: url("chrome://global/skin/scrollbar/mini-btn-lft.gif")
+   background-image: url("chrome://global/skin/scrollbar/mini-btn-lft.png")
 }
 
 scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"] {
-   background-image: url("chrome://global/skin/scrollbar/mini-btn-up.gif")
+   background-image: url("chrome://global/skin/scrollbar/mini-btn-up.png")
 }
 

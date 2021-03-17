@@ -10,11 +10,11 @@
 
 treechildren::-moz-tree-image {
   margin-inline-end: 2px;
-  list-style-image: url("chrome://communicator/skin/profile/profileicon-large.gif");
+  list-style-image: url("chrome://communicator/skin/profile/profileicon-large.png");
 }
 
 treechildren::-moz-tree-image(rowMigrate-no) {
-  list-style-image: url("chrome://communicator/skin/profile/migrate.gif");
+  list-style-image: url("chrome://communicator/skin/profile/migrate.png");
 }
 
 /* profile selection dialog */

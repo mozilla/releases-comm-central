@@ -43,7 +43,7 @@ tabpanels {
 }
 
 .tabbrowser-tab[busy] {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 .tabbrowser-tab[selected="true"] {
@@ -106,12 +106,12 @@ tabpanels {
 
 .scrollbutton-up,
 .scrollbutton-down:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://navigator/skin/icons/tab-arrow-left.gif");
+  list-style-image: url("chrome://navigator/skin/icons/tab-arrow-left.png");
 }
 
 .scrollbutton-down,
 .scrollbutton-up:-moz-locale-dir(rtl) {
-  list-style-image: url("chrome://navigator/skin/icons/tab-arrow-right.gif");
+  list-style-image: url("chrome://navigator/skin/icons/tab-arrow-right.png");
 }
 
 .scrollbutton-up,
@@ -159,7 +159,7 @@ tabpanels {
 }
 
 .alltabs-item[busy] {
-  list-style-image: url("chrome://communicator/skin/icons/loading.gif");
+  list-style-image: url("chrome://communicator/skin/icons/loading.png");
 }
 
 .alltabs-item[tabIsScrolled] {
@@ -170,12 +170,12 @@ tabpanels {
 
 .tabs-closebutton {
   margin: 3px;
-  list-style-image: url("chrome://communicator/skin/icons/close-button.gif");
+  list-style-image: url("chrome://communicator/skin/icons/close-button.png");
 }
 
 .tabs-newbutton {
   margin: 0px;
-  list-style-image: url("chrome://navigator/skin/icons/tab-new.gif");
+  list-style-image: url("chrome://navigator/skin/icons/tab-new.png");
 }
 
 .tab-drop-indicator-bar {
@@ -190,7 +190,7 @@ tabpanels {
     width: 11px;
     margin-bottom: -5px;
     position: relative;
-    list-style-image: url('chrome://navigator/skin/icons/tab-drag-indicator.gif');
+    list-style-image: url('chrome://navigator/skin/icons/tab-drag-indicator.png');
 }
 
 tooltip[tabpreview="true"] {
