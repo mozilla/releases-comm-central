@@ -319,34 +319,35 @@ var RNP = {
           break;
         }
 
-        let have_handle = false;
         let handle = new RNPLib.rnp_key_handle_t();
 
         if (RNPLib.rnp_locate_key(ffi, "grip", grip, handle.address())) {
           throw new Error("rnp_locate_key failed");
         }
-        have_handle = true;
 
         let keyObj = {};
         try {
+          if (RNP.isBadKey(handle)) {
+            continue;
+          }
+
           // Skip if it is a sub key, it will be processed together with primary key later.
-          let ok = this.getKeyInfoFromHandle(
-            ffi,
-            handle,
-            keyObj,
-            false,
-            forListing,
-            onlySecret
-          );
-          if (!ok) {
+          if (
+            !this.getKeyInfoFromHandle(
+              ffi,
+              handle,
+              keyObj,
+              false,
+              forListing,
+              onlySecret
+            )
+          ) {
             continue;
           }
         } catch (ex) {
           console.log(ex);
         } finally {
-          if (have_handle) {
-            RNPLib.rnp_key_handle_destroy(handle);
-          }
+          RNPLib.rnp_key_handle_destroy(handle);
         }
 
         if (keyObj) {
@@ -490,37 +491,47 @@ var RNP = {
 
     /* The remaining actions are done for primary keys, only. */
     if (!is_subkey.value) {
-      let primary_uid_set = false;
-
       if (RNPLib.rnp_key_get_uid_count(handle, uid_count.address())) {
         throw new Error("rnp_key_get_uid_count failed");
       }
+      let firstValidUid = null;
       for (let i = 0; i < uid_count.value; i++) {
         let uid_handle = new RNPLib.rnp_uid_handle_t();
-        let is_revoked = new ctypes.bool();
 
         if (RNPLib.rnp_key_get_uid_handle_at(handle, i, uid_handle.address())) {
           throw new Error("rnp_key_get_uid_handle_at failed");
         }
 
-        if (RNPLib.rnp_uid_is_revoked(uid_handle, is_revoked.address())) {
-          throw new Error("rnp_uid_is_revoked failed");
+        // Never allow revoked user IDs
+        let uidOkToUse = !this.isRevokedUid(uid_handle);
+        if (uidOkToUse) {
+          // Usually, we don't allow user IDs reported as not valid
+          uidOkToUse = !this.isBadUid(uid_handle);
+          if (!uidOkToUse && keyObj.keyTrust == "e") {
+            // However, a user might be not valid, because it has
+            // expired. If the primary key has expired, we should show
+            // some user ID, even if all user IDs have expired,
+            // otherwise the user cannot see any text description.
+            // We allow showing user IDs with a good self-signature.
+            uidOkToUse = this.uidHasGoodSignature(keyObj.keyId, uid_handle);
+          }
         }
 
-        if (!is_revoked.value) {
+        if (uidOkToUse) {
           let uid_str = new ctypes.char.ptr();
           if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
             throw new Error("rnp_key_get_uid_at failed");
           }
           let userIdStr = uid_str.readStringReplaceMalformed();
           RNPLib.rnp_buffer_destroy(uid_str);
+
           if (userIdStr !== RNP_PHOTO_USERID_ID) {
-            if (!primary_uid_set) {
+            if (!firstValidUid) {
+              firstValidUid = userIdStr;
+            }
+
+            if (!keyObj.userId && this.isPrimaryUid(uid_handle)) {
               keyObj.userId = userIdStr;
-              if (forListing) {
-                keyObj.name = keyObj.userId;
-              }
-              primary_uid_set = true;
             }
 
             let uidObj = {};
@@ -536,18 +547,17 @@ var RNP = {
         RNPLib.rnp_uid_handle_destroy(uid_handle);
       }
 
+      if (!keyObj.userId && firstValidUid) {
+        // No user ID marked as primary, so let's use the first valid.
+        keyObj.userId = firstValidUid;
+      }
+
       if (!keyObj.userId) {
-        let prim_uid_str = new ctypes.char.ptr();
-        if (RNPLib.rnp_key_get_primary_uid(handle, prim_uid_str.address())) {
-          // Seen with some stripped keys from keys.openpgp.org
-          // if an essential key is distributed, but the owner didn't
-          // agree to ship their user id.
-          keyObj.userId = "?";
-          console.debug("rnp_key_get_primary_uid failed");
-        } else {
-          keyObj.userId = prim_uid_str.readStringReplaceMalformed();
-          RNPLib.rnp_buffer_destroy(prim_uid_str);
-        }
+        keyObj.userId = "?";
+      }
+
+      if (forListing) {
+        keyObj.name = keyObj.userId;
       }
 
       if (RNPLib.rnp_key_get_subkey_count(handle, sub_count.address())) {
@@ -559,13 +569,14 @@ var RNP = {
           throw new Error("rnp_key_get_subkey_at failed");
         }
 
-        let subKeyObj = {};
-        this.addKeyAttributes(sub_handle, meta, subKeyObj, true, forListing);
-        keyObj.subKeys.push(subKeyObj);
+        if (!RNP.isBadKey(sub_handle)) {
+          let subKeyObj = {};
+          this.addKeyAttributes(sub_handle, meta, subKeyObj, true, forListing);
+          keyObj.subKeys.push(subKeyObj);
+          hasAnySecretKey = hasAnySecretKey || subKeyObj.secretAvailable;
+        }
 
         RNPLib.rnp_key_handle_destroy(sub_handle);
-
-        hasAnySecretKey = hasAnySecretKey || subKeyObj.secretAvailable;
       }
 
       let haveNonExpiringEncryptionKey = false;
@@ -698,6 +709,83 @@ var RNP = {
     return true;
   },
 
+  isBadKey(handle) {
+    let validTill = new ctypes.uint32_t();
+    if (RNPLib.rnp_key_valid_till(handle, validTill.address())) {
+      throw new Error("rnp_key_valid_till failed");
+    }
+
+    // A bad key is invalid for any time
+    return !validTill.value;
+  },
+
+  isPrimaryUid(uid_handle) {
+    let is_primary = new ctypes.bool();
+
+    if (RNPLib.rnp_uid_is_primary(uid_handle, is_primary.address())) {
+      throw new Error("rnp_uid_is_primary failed");
+    }
+
+    return is_primary.value;
+  },
+
+  uidHasGoodSignature(self_key_id, uid_handle) {
+    let sig_count = new ctypes.size_t();
+    if (RNPLib.rnp_uid_get_signature_count(uid_handle, sig_count.address())) {
+      throw new Error("rnp_uid_get_signature_count failed");
+    }
+
+    let found_result = false;
+    let is_good = false;
+    for (let i = 0; !found_result && i < sig_count.value; i++) {
+      let sig_handle = new RNPLib.rnp_signature_handle_t();
+
+      if (
+        RNPLib.rnp_uid_get_signature_at(uid_handle, i, sig_handle.address())
+      ) {
+        throw new Error("rnp_uid_get_signature_at failed");
+      }
+
+      let sig_id_str = new ctypes.char.ptr();
+      if (RNPLib.rnp_signature_get_keyid(sig_handle, sig_id_str.address())) {
+        throw new Error("rnp_signature_get_keyid failed");
+      }
+
+      if (sig_id_str.readString() == self_key_id) {
+        found_result = true;
+
+        let sig_validity = RNPLib.rnp_signature_is_valid(sig_handle, 0);
+        is_good =
+          sig_validity == RNPLib.RNP_SUCCESS ||
+          sig_validity == RNPLib.RNP_ERROR_SIGNATURE_EXPIRED;
+      }
+
+      RNPLib.rnp_signature_handle_destroy(sig_handle);
+    }
+
+    return is_good;
+  },
+
+  isBadUid(uid_handle) {
+    let is_valid = new ctypes.bool();
+
+    if (RNPLib.rnp_uid_is_valid(uid_handle, is_valid.address())) {
+      throw new Error("rnp_uid_is_valid failed");
+    }
+
+    return !is_valid.value;
+  },
+
+  isRevokedUid(uid_handle) {
+    let is_revoked = new ctypes.bool();
+
+    if (RNPLib.rnp_uid_is_revoked(uid_handle, is_revoked.address())) {
+      throw new Error("rnp_uid_is_revoked failed");
+    }
+
+    return is_revoked.value;
+  },
+
   getKeySignatures(keyId, ignoreUnknownUid) {
     let handle = this.getKeyHandleByKeyIdOrFingerprint(
       RNPLib.ffi,
@@ -723,17 +811,12 @@ var RNP = {
       let outputIndex = 0;
       for (let i = 0; i < uid_count.value; i++) {
         let uid_handle = new RNPLib.rnp_uid_handle_t();
-        let is_revoked = new ctypes.bool();
 
         if (RNPLib.rnp_key_get_uid_handle_at(handle, i, uid_handle.address())) {
           throw new Error("rnp_key_get_uid_handle_at failed");
         }
 
-        if (RNPLib.rnp_uid_is_revoked(uid_handle, is_revoked.address())) {
-          throw new Error("rnp_uid_is_revoked failed");
-        }
-
-        if (!is_revoked.value) {
+        if (!this.isBadUid(uid_handle) && !this.isRevokedUid(uid_handle)) {
           let uid_str = new ctypes.char.ptr();
           if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
             throw new Error("rnp_key_get_uid_at failed");
@@ -816,7 +899,7 @@ var RNP = {
                 throw new Error("rnp_signature_get_signer failed");
               }
 
-              if (signerHandle.isNull()) {
+              if (signerHandle.isNull() || this.isBadKey(signerHandle)) {
                 if (!ignoreUnknownUid) {
                   sigObj.userId = "?";
                   sigObj.sigKnown = false;
@@ -830,7 +913,7 @@ var RNP = {
                     signer_uid_str.address()
                   )
                 ) {
-                  throw new Error("rnp_key_get_uid_at failed");
+                  throw new Error("rnp_key_get_primary_uid failed");
                 }
                 sigObj.userId = signer_uid_str.readStringReplaceMalformed();
                 RNPLib.rnp_buffer_destroy(signer_uid_str);
@@ -1224,14 +1307,29 @@ var RNP = {
       }
     }
 
+    let signer_key = new RNPLib.rnp_key_handle_t();
+    let have_signer_key = false;
+    let use_signer_key = false;
+
     if (query_signer) {
-      let key = new RNPLib.rnp_key_handle_t();
-      if (RNPLib.rnp_op_verify_signature_get_key(sig, key.address())) {
+      if (RNPLib.rnp_op_verify_signature_get_key(sig, signer_key.address())) {
         throw new Error("rnp_op_verify_signature_get_key");
       }
 
+      have_signer_key = true;
+      use_signer_key = !this.isBadKey(signer_key);
+    }
+
+    if (use_signer_key) {
       let keyInfo = {};
-      let ok = this.getKeyInfoFromHandle(ffi, key, keyInfo, true, false, false);
+      let ok = this.getKeyInfoFromHandle(
+        ffi,
+        signer_key,
+        keyInfo,
+        true,
+        false,
+        false
+      );
       if (!ok) {
         throw new Error("getKeyInfoFromHandle failed");
       }
@@ -1323,8 +1421,10 @@ var RNP = {
         result.statusFlags &= ~EnigmailConstants.GOOD_SIGNATURE;
         result.statusFlags |= EnigmailConstants.UNCERTAIN_SIGNATURE;
       }
+    }
 
-      RNPLib.rnp_key_handle_destroy(key);
+    if (have_signer_key) {
+      RNPLib.rnp_key_handle_destroy(signer_key);
     }
 
     return true;
@@ -2088,6 +2188,12 @@ var RNP = {
     if (RNPLib.rnp_locate_key(ffi, type, id, key.address())) {
       throw new Error("rnp_locate_key failed, " + type + ", " + id);
     }
+
+    if (!key.isNull() && this.isBadKey(key)) {
+      RNPLib.rnp_key_handle_destroy(key);
+      key = new RNPLib.rnp_key_handle_t();
+    }
+
     return key;
   },
 
@@ -2132,7 +2238,7 @@ var RNP = {
       if (RNPLib.rnp_key_get_subkey_at(primary, i, sub_handle.address())) {
         throw new Error("rnp_key_get_subkey_at failed");
       }
-      let skip = this.isKeyExpired(sub_handle);
+      let skip = this.isBadKey(sub_handle) || this.isKeyExpired(sub_handle);
       if (!skip) {
         let key_revoked = new ctypes.bool();
         if (RNPLib.rnp_key_is_revoked(sub_handle, key_revoked.address())) {
@@ -2566,7 +2672,9 @@ var RNP = {
         if (is_subkey.value) {
           continue;
         }
-
+        if (this.isBadKey(handle)) {
+          continue;
+        }
         let key_revoked = new ctypes.bool();
         if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
           throw new Error("rnp_key_is_revoked failed");
@@ -2587,7 +2695,6 @@ var RNP = {
         let foundUid = false;
         for (let i = 0; i < uid_count.value && !foundUid; i++) {
           let uid_handle = new RNPLib.rnp_uid_handle_t();
-          let is_revoked = new ctypes.bool();
 
           if (
             RNPLib.rnp_key_get_uid_handle_at(handle, i, uid_handle.address())
@@ -2595,11 +2702,7 @@ var RNP = {
             throw new Error("rnp_key_get_uid_handle_at failed");
           }
 
-          if (RNPLib.rnp_uid_is_revoked(uid_handle, is_revoked.address())) {
-            throw new Error("rnp_uid_is_revoked failed");
-          }
-
-          if (!is_revoked.value) {
+          if (!this.isBadUid(uid_handle) && !this.isRevokedUid(uid_handle)) {
             let uid_str = new ctypes.char.ptr();
             if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
               throw new Error("rnp_key_get_uid_at failed");
