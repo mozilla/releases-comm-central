@@ -90,7 +90,7 @@ const ThemeVariableMap = [
     },
   ],
   [
-    "--lwt-toolbar-vertical-separator",
+    "--toolbarseparator-color",
     {
       lwtProperty: "toolbar_vertical_separator",
     },

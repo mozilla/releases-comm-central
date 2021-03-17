@@ -53,6 +53,8 @@ body {
   --toolbarbutton-checked-background: rgba(200, 200, 200, .5);
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
 
+  --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
+
   --item-focus-selected-border-color: #0060df;
 }
 
@@ -606,24 +608,16 @@ html|ul.addon-webext-perm-list:empty {
   min-height: 10px;
 }
 
-.chromeclass-toolbar toolbarseparator:-moz-lwtheme {
+.chromeclass-toolbar toolbarseparator {
   appearance: none;
   min-width: 1px;
   background-image: linear-gradient(
                     transparent 4px,
-                    var(--lwt-toolbar-vertical-separator, rgba(0,0,0,.2)) 4px,
-                    var(--lwt-toolbar-vertical-separator, rgba(0,0,0,.2)) calc(100% - 4px),
+                    var(--toolbarseparator-color) 4px,
+                    var(--toolbarseparator-color) calc(100% - 4px),
                     transparent calc(100% - 4px));
   margin-left: 1px;
   margin-right: 1px;
-}
-
-.chromeclass-toolbar[brighttext] toolbarseparator:-moz-lwtheme {
-  background-image: linear-gradient(
-                    transparent 4px,
-                    var(--lwt-toolbar-vertical-separator, rgba(255,255,255,.3)) 4px,
-                    var(--lwt-toolbar-vertical-separator, rgba(255,255,255,.3)) calc(100% - 4px),
-                    transparent calc(100% - 4px));
 }
 
 #folderPaneHeader {
