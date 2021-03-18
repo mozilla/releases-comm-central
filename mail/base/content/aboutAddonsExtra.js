@@ -24,12 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
   // Fix the "Search on addons.mozilla.org" placeholder text in the searchbox.
   let textbox = document.querySelector("search-addons > search-textbox");
-  let placeholder = textbox.getAttribute("placeholder");
-  placeholder = placeholder.replace(
-    "addons.mozilla.org",
-    "addons.thunderbird.net"
-  );
-  textbox.setAttribute("placeholder", placeholder);
+  document.l10n.setAttributes(textbox, "atn-addons-heading-search-input");
 
   // Add our stylesheet.
   let contentStylesheet = document.createProcessingInstruction(
