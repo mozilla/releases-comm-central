@@ -34,7 +34,7 @@ add_task(async function testWeeklyNRecurrence() {
   goToDate(controller, 2009, 1, 5);
 
   // Create weekly recurring event.
-  let eventBox = dayView.getHourBox(controller.window, HOUR);
+  let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
     saveAndCloseItemDialog(eventWindow);
@@ -43,38 +43,38 @@ add_task(async function testWeeklyNRecurrence() {
   // Check day view.
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 0; i < 4; i++) {
-    await dayView.waitForEventBox(controller.window);
+    await dayView.waitForEventBoxAt(controller.window, 1);
     viewForward(controller, 1);
   }
 
   // Not Friday.
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
 
   // Not Saturday as only 4 occurrences are set.
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   // Check week view.
   switchToView(controller, "week");
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {
-    await weekView.waitForEventBox(controller.window, i);
+    await weekView.waitForEventBoxAt(controller.window, i, 1);
   }
 
   // Saturday
-  await weekView.waitForNoEvents(controller.window, 7);
+  await weekView.waitForNoEventBoxAt(controller.window, 7, 1);
 
   // Check multiweek view.
   switchToView(controller, "multiweek");
 
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {
-    await multiweekView.waitForItemAt(controller.window, 1, i);
+    await multiweekView.waitForItemAt(controller.window, 1, i, 1);
   }
 
   // Saturday
-  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 7));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 7, 1));
 
   // Check month view.
   switchToView(controller, "month");
@@ -82,17 +82,17 @@ add_task(async function testWeeklyNRecurrence() {
   // Monday, Tuesday, Wednesday, Thursday
   for (let i = 2; i < 6; i++) {
     // in month-view, start on week 2
-    await monthView.waitForItemAt(controller.window, 2, i);
+    await monthView.waitForItemAt(controller.window, 2, i, 1);
   }
 
   // Saturday
-  Assert.ok(!monthView.getItemAt(controller.window, 2, 7));
+  Assert.ok(!monthView.getItemAt(controller.window, 2, 7, 1));
 
   // Delete event.
-  let box = new elib.Elem(await monthView.waitForItemAt(controller.window, 2, 2));
+  let box = new elib.Elem(await monthView.waitForItemAt(controller.window, 2, 2, 1));
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);
-  await monthView.waitForNoItemsAt(controller.window, 2, 2);
+  await monthView.waitForNoItemAt(controller.window, 2, 2, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

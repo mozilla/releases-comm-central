@@ -45,7 +45,7 @@ add_task(async function testWeekView() {
 
   // Create event at 8 AM.
   // Thursday of 2009-01-01 is 4th with default settings.
-  let eventBox = weekView.getHourBox(controller.window, 5, 8);
+  let eventBox = weekView.getHourBoxAt(controller.window, 5, 8);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Check that the start time is correct.
     let someDate = cal.createDateTime();
@@ -69,7 +69,7 @@ add_task(async function testWeekView() {
   });
 
   // If it was created successfully, it can be opened.
-  eventBox = await weekView.waitForEventBox(controller.window, 5);
+  eventBox = await weekView.waitForEventBoxAt(controller.window, 5, 1);
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
@@ -77,7 +77,7 @@ add_task(async function testWeekView() {
   });
 
   // Check if name was saved.
-  eventBox = await weekView.waitForEventBox(controller.window, 5);
+  eventBox = await weekView.waitForEventBoxAt(controller.window, 5, 1);
   let eventName = eventBox.querySelector(".calendar-event-details-core");
   Assert.ok(eventName);
   Assert.ok(eventName.textContent == TITLE2);
@@ -86,7 +86,7 @@ add_task(async function testWeekView() {
   controller.click(new elib.Elem(eventBox));
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await weekView.waitForNoEvents(controller.window, 5);
+  await weekView.waitForNoEventBoxAt(controller.window, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

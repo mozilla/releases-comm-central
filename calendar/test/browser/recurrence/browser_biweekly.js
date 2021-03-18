@@ -32,7 +32,7 @@ add_task(async function testBiweeklyRecurrence() {
   goToDate(controller, 2009, 1, 31);
 
   // Create biweekly event.
-  let eventBox = dayView.getHourBox(controller.window, HOUR);
+  let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: "bi.weekly" });
     saveAndCloseItemDialog(eventWindow);
@@ -41,7 +41,7 @@ add_task(async function testBiweeklyRecurrence() {
   // Check day view.
   switchToView(controller, "day");
   for (let i = 0; i < 4; i++) {
-    await dayView.waitForEventBox(controller.window);
+    await dayView.waitForEventBoxAt(controller.window, 1);
     viewForward(controller, 14);
   }
 
@@ -50,7 +50,7 @@ add_task(async function testBiweeklyRecurrence() {
   goToDate(controller, 2009, 1, 31);
 
   for (let i = 0; i < 4; i++) {
-    await weekView.waitForEventBox(controller.window, 7);
+    await weekView.waitForEventBoxAt(controller.window, 7, 1);
     viewForward(controller, 2);
   }
 
@@ -60,8 +60,8 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Always two occurrences in view, 1st and 3rd or 2nd and 4th week.
   for (let i = 0; i < 5; i++) {
-    await multiweekView.waitForItemAt(controller.window, (i % 2) + 1, 7);
-    Assert.ok(multiweekView.getItemAt(controller.window, (i % 2) + 3, 7));
+    await multiweekView.waitForItemAt(controller.window, (i % 2) + 1, 7, 1);
+    Assert.ok(multiweekView.getItemAt(controller.window, (i % 2) + 3, 7, 1));
     viewForward(controller, 1);
   }
 
@@ -70,18 +70,18 @@ add_task(async function testBiweeklyRecurrence() {
   goToDate(controller, 2009, 1, 31);
 
   // January
-  await monthView.waitForItemAt(controller.window, 5, 7);
+  await monthView.waitForItemAt(controller.window, 5, 7, 1);
   viewForward(controller, 1);
 
   // February
-  await monthView.waitForItemAt(controller.window, 2, 7);
-  Assert.ok(monthView.getItemAt(controller.window, 4, 7));
+  await monthView.waitForItemAt(controller.window, 2, 7, 1);
+  Assert.ok(monthView.getItemAt(controller.window, 4, 7, 1));
   viewForward(controller, 1);
 
   // March
-  await monthView.waitForItemAt(controller.window, 2, 7);
+  await monthView.waitForItemAt(controller.window, 2, 7, 1);
 
-  let box = monthView.getItemAt(controller.window, 4, 7);
+  let box = monthView.getItemAt(controller.window, 4, 7, 1);
   Assert.ok(box);
 
   // Delete event.
@@ -89,7 +89,7 @@ add_task(async function testBiweeklyRecurrence() {
   controller.click(elemBox);
   handleOccurrencePrompt(controller, elemBox, "delete", true);
 
-  await monthView.waitForNoItemsAt(controller.window, 4, 7);
+  await monthView.waitForNoItemAt(controller.window, 4, 7, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

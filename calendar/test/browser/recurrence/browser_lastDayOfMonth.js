@@ -33,7 +33,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
   goToDate(controller, 2008, 1, 31); // Start with a leap year.
 
   // Create monthly recurring event.
-  let eventBox = dayView.getHourBox(controller.window, HOUR);
+  let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
     saveAndCloseItemDialog(eventWindow);
@@ -67,28 +67,28 @@ add_task(async function testLastDayOfMonthRecurrence() {
 
     // day view
     await setCalendarView(controller.window, "day");
-    await dayView.waitForEventBox(controller.window);
+    await dayView.waitForEventBoxAt(controller.window, 1);
 
     // week view
     await setCalendarView(controller.window, "week");
-    await weekView.waitForEventBox(controller.window, column);
+    await weekView.waitForEventBoxAt(controller.window, column, 1);
 
     // multiweek view
     await setCalendarView(controller.window, "multiweek");
-    await multiweekView.waitForItemAt(controller.window, 1, column);
+    await multiweekView.waitForItemAt(controller.window, 1, column, 1);
 
     // month view
     await setCalendarView(controller.window, "month");
-    await monthView.waitForItemAt(controller.window, correctRow, column);
+    await monthView.waitForItemAt(controller.window, correctRow, column, 1);
   }
 
   // Delete event.
   goToDate(controller, checkingData[0][0], checkingData[0][1], checkingData[0][2]);
   await setCalendarView(controller.window, "day");
-  let box = new elib.Elem(await dayView.waitForEventBox(controller.window));
+  let box = new elib.Elem(await dayView.waitForEventBoxAt(controller.window, 1));
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

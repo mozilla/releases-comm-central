@@ -33,7 +33,7 @@ add_task(async function testEventDialogModificationPrompt() {
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
-  let createbox = dayView.getHourBox(controller.window, 8);
+  let createbox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create new event.
   await invokeNewEventDialog(controller, createbox, async (eventWindow, iframeWindow) => {
@@ -45,7 +45,7 @@ add_task(async function testEventDialogModificationPrompt() {
     await setData(eventWindow, iframeWindow, data[0]);
     saveAndCloseItemDialog(eventWindow);
   });
-  let eventbox = await dayView.waitForEventBox(controller.window);
+  let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
 
   // Open, but change nothing.
   await invokeEditingEventDialog(controller, eventbox, (eventWindow, iframeWindow) => {
@@ -55,7 +55,7 @@ add_task(async function testEventDialogModificationPrompt() {
     controller.sleep(2000);
   });
 
-  eventbox = await dayView.waitForEventBox(controller.window);
+  eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
   // Open, change all values then revert the changes.
   await invokeEditingEventDialog(controller, eventbox, async (eventWindow, iframeWindow) => {
     // Change all values.
@@ -77,7 +77,7 @@ add_task(async function testEventDialogModificationPrompt() {
   }
   Assert.equal(eventbox.isEditing, false, "event is not being edited");
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   Assert.ok(true, "Test ran to completion");
 });
@@ -85,13 +85,13 @@ add_task(async function testEventDialogModificationPrompt() {
 add_task(async function testDescriptionWhitespace() {
   for (let i = 0; i < newlines.length; i++) {
     // test set i
-    let createbox = dayView.getHourBox(controller.window, 8);
+    let createbox = dayView.getHourBoxAt(controller.window, 8);
     await invokeNewEventDialog(controller, createbox, async (eventWindow, iframeWindow) => {
       await setData(eventWindow, iframeWindow, newlines[i]);
       saveAndCloseItemDialog(eventWindow);
     });
 
-    let eventbox = await dayView.waitForEventBox(controller.window);
+    let eventbox = await dayView.waitForEventBoxAt(controller.window, 1);
 
     // Open and close.
     await invokeEditingEventDialog(controller, eventbox, async (eventWindow, iframeWindow) => {
@@ -108,7 +108,7 @@ add_task(async function testDescriptionWhitespace() {
     }
     Assert.equal(eventbox.isEditing, false, "event is not being edited");
     EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-    await dayView.waitForNoEvents(window);
+    await dayView.waitForNoEventBoxAt(window, 1);
   }
 
   Assert.ok(true, "Test ran to completion");

@@ -164,45 +164,45 @@ add_task(async function testEventDialog() {
   // Verify event and alarm icon visible until endDate (3 full rows) and check tooltip.
   for (let row = 1; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      await monthView.waitForItemAt(controller.window, row, col);
+      await monthView.waitForItemAt(controller.window, row, col, 1);
       checkMonthAlarmIcon(controller, row, col);
       checkTooltip(row, col, startTime, endTime);
     }
   }
-  Assert.ok(!monthView.getItemAt(controller.window, 4, 1));
+  Assert.ok(!monthView.getItemAt(controller.window, 4, 1, 1));
 
   // Delete and verify deleted 6th col in row 1.
-  controller.click(new elib.Elem(monthView.getItemAt(controller.window, 1, 6)));
+  controller.click(new elib.Elem(monthView.getItemAt(controller.window, 1, 6, 1)));
   let elemToDelete = eid("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", false);
 
-  await monthView.waitForNoItemsAt(controller.window, 1, 6);
+  await monthView.waitForNoItemAt(controller.window, 1, 6, 1);
 
   // Verify all others still exist.
   for (let col = 1; col <= 5; col++) {
-    Assert.ok(monthView.getItemAt(controller.window, 1, col));
+    Assert.ok(monthView.getItemAt(controller.window, 1, col, 1));
   }
-  Assert.ok(monthView.getItemAt(controller.window, 1, 7));
+  Assert.ok(monthView.getItemAt(controller.window, 1, 7, 1));
 
   for (let row = 2; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      Assert.ok(monthView.getItemAt(controller.window, row, col));
+      Assert.ok(monthView.getItemAt(controller.window, row, col, 1));
     }
   }
 
   // Delete series by deleting last item in row 1 and confirming to delete all.
-  controller.click(new elib.Elem(monthView.getItemAt(controller.window, 1, 7)));
+  controller.click(new elib.Elem(monthView.getItemAt(controller.window, 1, 7, 1)));
   elemToDelete = eid("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", true);
 
   // Verify all deleted.
-  await monthView.waitForNoItemsAt(controller.window, 1, 5);
-  await monthView.waitForNoItemsAt(controller.window, 1, 6);
-  await monthView.waitForNoItemsAt(controller.window, 1, 7);
+  await monthView.waitForNoItemAt(controller.window, 1, 5, 1);
+  await monthView.waitForNoItemAt(controller.window, 1, 6, 1);
+  await monthView.waitForNoItemAt(controller.window, 1, 7, 1);
 
   for (let row = 2; row <= 3; row++) {
     for (let col = 1; col <= 7; col++) {
-      await monthView.waitForNoItemsAt(controller.window, row, col);
+      await monthView.waitForNoItemAt(controller.window, row, col, 1);
     }
   }
 
@@ -216,7 +216,7 @@ add_task(async function testOpenExistingEventDialog() {
   switchToView(controller, "day");
   goToDate(controller, now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
 
-  let createBox = dayView.getHourBox(controller.window, 8);
+  let createBox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create a new event.
   await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
@@ -228,7 +228,7 @@ add_task(async function testOpenExistingEventDialog() {
     saveAndCloseItemDialog(eventWindow);
   });
 
-  let eventBox = await dayView.waitForEventBox(controller.window);
+  let eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
 
   // Open the event in the summary dialog, it will fail if otherwise.
   await invokeViewingEventDialog(
@@ -254,7 +254,7 @@ add_task(async function testOpenExistingEventDialog() {
 
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   Assert.ok(true, "Test ran to completion");
 });
@@ -265,7 +265,7 @@ add_task(async function testEventReminderDisplay() {
   switchToView(controller, "day");
   goToDate(controller, 2020, 1, 1);
 
-  let createBox = dayView.getHourBox(controller.window, 8);
+  let createBox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create an event without a reminder.
   await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
@@ -277,7 +277,7 @@ add_task(async function testEventReminderDisplay() {
     saveAndCloseItemDialog(eventWindow);
   });
 
-  let eventBox = await dayView.waitForEventBox(controller.window);
+  let eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
 
   await invokeViewingEventDialog(
     controller,
@@ -292,7 +292,7 @@ add_task(async function testEventReminderDisplay() {
   );
 
   goToDate(controller, 2020, 2, 1);
-  createBox = dayView.getHourBox(controller.window, 8);
+  createBox = dayView.getHourBoxAt(controller.window, 8);
 
   // Create an event with a reminder.
   await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
@@ -305,7 +305,7 @@ add_task(async function testEventReminderDisplay() {
     saveAndCloseItemDialog(eventWindow);
   });
 
-  eventBox = await dayView.waitForEventBox(controller.window);
+  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   await invokeViewingEventDialog(
     controller,
     eventBox,
@@ -356,7 +356,7 @@ add_task(async function testEventReminderDisplay() {
   let calendarProxy = cal.async.promisifyCalendar(calendar);
   let calendarEvent = await calendarProxy.addItem(new CalEvent(icalString));
   goToDate(controller, 2020, 3, 1);
-  eventBox = await dayView.waitForEventBox(controller.window);
+  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
 
   await invokeViewingEventDialog(
     controller,
@@ -374,7 +374,7 @@ add_task(async function testEventReminderDisplay() {
 
   // Delete directly, as using the UI causes a prompt to appear.
   calendarProxy.deleteItem(calendarEvent);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 });
 
 /**
@@ -386,7 +386,7 @@ add_task(async function testCtrlEnterShortcut() {
   switchToView(controller, "day");
   goToDate(controller, 2020, 9, 1);
 
-  let createBox = dayView.getHourBox(controller.window, 8);
+  let createBox = dayView.getHourBoxAt(controller.window, 8);
   await invokeNewEventDialog(controller, createBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: EVENTTITLE,
@@ -413,7 +413,7 @@ add_task(async function testCtrlEnterShortcut() {
 });
 
 function checkTooltip(row, col, startTime, endTime) {
-  let item = monthView.getItemAt(controller.window, row, col);
+  let item = monthView.getItemAt(controller.window, row, col, 1);
 
   let toolTipNode = window.document.getElementById("itemTooltip");
   toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item });

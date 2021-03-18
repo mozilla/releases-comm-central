@@ -403,7 +403,7 @@ function waitForItemPanelIframe(eventController) {
  * @param day  - Day to check between 1-7
  */
 function checkMonthAlarmIcon(controller, week, day) {
-  let dayBox = CalendarTestUtils.monthView.getItemAt(controller.window, week, day);
+  let dayBox = CalendarTestUtils.monthView.getItemAt(controller.window, week, day, 1);
   Assert.ok(dayBox.querySelector(".alarm-icons-box > .reminder-icon"));
 }
 

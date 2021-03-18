@@ -26,9 +26,9 @@ async function clickAndWait(win, button) {
  * @typedef EditItemAtResult
  * @property {Window} dialogWindow - The window of the dialog.
  * @property {HTMLDocument} dialogDocument - The document of the dialog window.
- * @property {Window} iframeWindow - The contentWindow property of the embeded
+ * @property {Window} iframeWindow - The contentWindow property of the embedded
  *  iframe.
- * @property {HTMLDocument} iframeDocument - The contentDocument of the embeded
+ * @property {HTMLDocument} iframeDocument - The contentDocument of the embedded
  *  iframe.
  */
 
@@ -36,24 +36,17 @@ async function clickAndWait(win, button) {
  * Helper class for testing the day view of the calendar.
  */
 class CalendarDayViewTestUtils {
+  _helper = new CalendarWeekViewTestUtils("#day-view");
+
   /**
-   * Provides the element located at the specified hour, which can be double
-   * clicked to create a new event at the specified hour.
+   * Provides the calendar-event-column for the day displayed.
    *
    * @param {Window} win - The window the calendar is displayed in.
-   * @param {number} hour - Must be between 0-23.
    *
-   * @throws If the hour is out of range.
-   * @returns {XULElement}
+   * @return {MozCalendarEventColumn|null}
    */
-  getHourBox(win, hour) {
-    if (!(hour >= 0 && hour <= 23)) {
-      throw new Error(`Invalid parameters to getHourBox(): expected hour=0-23, got hour=${hour}.`);
-    }
-
-    return win.document.querySelector(
-      `#day-view .multiday-column-bg-box > spacer:nth-of-type(${hour + 1})`
-    );
+  getEventColumn(win) {
+    return this._helper.getEventColumn(win, 1);
   }
 
   /**
@@ -61,57 +54,36 @@ class CalendarDayViewTestUtils {
    *
    * @param {Window} win - The window the calendar is displayed in.
    *
-   * @returns {NodeList} A list of all events in the day.
+   * @return {MozCalendarEventBox[]}
    */
   getEventBoxes(win) {
-    return win.document.querySelectorAll("#day-view .multiday-column-top-box calendar-event-box");
+    return this._helper.getEventBoxes(win, 1);
   }
 
   /**
-   * Provides the single calendar-event-box element for the day.
+   * Provides the calendar-event-box at "index" located in the event column for
+   * the day displayed.
    *
    * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} index - Indicates which event box to select.
    *
-   * @throws If more than one event found on the day.
-   * @returns {MozCalendarEventBox} The single event, or null if none found.
+   * @return {MozCalendarEventBox|null}
    */
-  getEventBox(win) {
-    let found = CalendarTestUtils.dayView.getEventBoxes(win);
-    switch (found.length) {
-      case 0:
-        return null;
-      case 1:
-        return found[0];
-      default:
-        throw new Error(`Found ${found.length} events in the day-view, rather than one`);
-    }
+  getEventBoxAt(win, index) {
+    return this._helper.getEventBoxAt(win, 1, index);
   }
 
   /**
-   * Wait for the single calendar-event-box element for the day.
+   * Provides the element located at the specified hour, which can be double
+   * clicked to create a new event at the specified hour.
    *
    * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} hour - Must be between 0-23.
    *
-   * @throws If more than one event found on the day.
-   * @returns {MozCalendarEventBox}
+   * @returns {XULElement}
    */
-  async waitForEventBox(win) {
-    return TestUtils.waitForCondition(
-      () => CalendarTestUtils.dayView.getEventBox(win),
-      "Day event box in the day-view"
-    );
-  }
-
-  /**
-   * Wait for the day to contain no events.
-   *
-   * @param {Window} win - The window the calendar is displayed in.
-   */
-  async waitForNoEvents(win) {
-    await TestUtils.waitForCondition(
-      () => !CalendarTestUtils.dayView.getEventBoxes(win).length,
-      "No events in the day-view"
-    );
+  getHourBoxAt(win, hour) {
+    return this._helper.getHourBoxAt(win, 1, hour);
   }
 
   /**
@@ -123,44 +95,108 @@ class CalendarDayViewTestUtils {
    * @returns {CalendarHeaderContainer}
    */
   getAllDayHeader(win) {
-    return win.document.querySelector("#day-view .headerdaybox > calendar-header-container");
+    return this._helper.getAllDayHeader(win, 1);
   }
 
   /**
-   * Provides the all-day calendar-editable-item for the day.
+   * Provides the all-day calendar-editable-item located at index for the
+   * current day.
    *
    * @param {Window} win - The window the calendar is displayed in.
-   * @param {number} index - Indicates which item to select (starting from 1).
-   *
-   * @throws If the index is out of range.
+   * @param {number} index - Indicates which item to select (1-based).
    *
    * @returns {MozCalendarEditableItem}
    */
-  getAllDayItem(win, index = 1) {
-    if (!(index >= 1)) {
-      throw new Error(
-        `Invalid parameter to getAllDayItem(): expected index>=1, got index=${index}`
-      );
-    }
-    let allDayHeader = CalendarTestUtils.dayView.getAllDayHeader(win);
-    return allDayHeader.querySelector(`calendar-editable-item:nth-of-type(${index})`);
+  getAllDayItemAt(win, index) {
+    return this._helper.getAllDayItemAt(win, 1, index);
+  }
+
+  /**
+   * Waits for the calendar-event-box at "index", located in the event
+   * column for the day displayed to appear.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} index - Indicates which item to select (1-based).
+   *
+   * @return {MozCalendarEventBox}
+   */
+  async waitForEventBoxAt(win, index) {
+    return this._helper.waitForEventBoxAt(win, 1, index);
+  }
+
+  /**
+   * Waits for the calendar-event-box at "index", located in the event column
+   * for the current day to disappear.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} index - Indicates the event box (1-based).
+   */
+  async waitForNoEventBoxAt(win, index) {
+    return this._helper.waitForNoEventBoxAt(win, 1, index);
   }
 
   /**
    * Wait for the all-day calendar-editable-item for the day.
    *
    * @param {Window} win - The window the calendar is displayed in.
-   * @param {number} index - Indicates which item to select (starting from 1).
-   *
-   * @throws If the index is out of range.
+   * @param {number} index - Indicates which item to select (1-based).
    *
    * @returns {MozCalendarEditableItem}
    */
-  async waitForAllDayItem(win, index = 1) {
-    return TestUtils.waitForCondition(
-      () => CalendarTestUtils.dayView.getAllDayItem(win, index),
-      `All-day item for index ${index}, in the day-view`
-    );
+  async waitForAllDayItemAt(win, index) {
+    return this._helper.waitForAllDayItemAt(win, 1, index);
+  }
+
+  /**
+   * Opens the event dialog for viewing for the event box located at the
+   * specified index.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} index - Indicates which event to select.
+   *
+   * @returns {Window} - The summary event dialog window.
+   */
+  async viewEventAt(win, index) {
+    return this._helper.viewEventAt(win, 1, index);
+  }
+
+  /**
+   * Opens the event dialog for editing for the event box located at the
+   * specified index.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} index - Indicates which event to select.
+   *
+   * @returns {EditItemAtResult}
+   */
+  async editEventAt(win, index) {
+    return this._helper.editEventAt(win, 1, index);
+  }
+
+  /**
+   * Opens the event dialog for editing for a single occurrence of the event
+   * box located at the specified index.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} index - Indicates which event box to select.
+   *
+   * @returns {EditItemAtResult}
+   */
+  async editEventOccurrenceAt(win, index) {
+    return this._helper.editEventOccurrenceAt(win, 1, index);
+  }
+
+  /**
+   * Opens the event dialog for editing all occurrences of the event box
+   * located at the specified index.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} index - Indicates which event box to select.
+   *
+   * @returns {EditItemAtResult}
+   */
+  async editEventOccurrencesAt(win, index) {
+    return this._helper.editEventOccurrencesAt(win, 1, index);
   }
 }
 
@@ -168,6 +204,58 @@ class CalendarDayViewTestUtils {
  * Helper class for testing the week view of the calendar.
  */
 class CalendarWeekViewTestUtils {
+  constructor(rootSelector = "#week-view") {
+    this.rootSelector = rootSelector;
+  }
+
+  /**
+   * Provides the calendar-event-column for the day specified.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Must be between 1-7
+   *
+   * @throws - If the day parameter is out of range.
+   * @return {MozCalendarEventColumn|null}
+   */
+  getEventColumn(win, day) {
+    if (day < 1 || day > 7) {
+      throw new Error(`Invalid parameter to getEventColumn(): expected day=1-7, got day=${day}.`);
+    }
+
+    return win.document.documentElement.querySelector(
+      `${this.rootSelector} .daybox > calendar-event-column:nth-of-type(${day})`
+    );
+  }
+
+  /**
+   * Provides the calendar-event-box elements for the day specified.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Must be between 1-7.
+   *
+   * @return {MozCalendarEventBox[]}
+   */
+  getEventBoxes(win, day) {
+    let column = this.getEventColumn(win, day);
+    return column.querySelectorAll(
+      `.multiday-column-box-stack > .multiday-column-top-box > stack calendar-event-box`
+    );
+  }
+
+  /**
+   * Provides the calendar-event-box at "index" located in the event column for
+   * the specified day.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Must be between 1-7.
+   * @param {number} index - Indicates which event box to select.
+   *
+   * @return {MozCalendarEventBox|null}
+   */
+  getEventBoxAt(win, day, index) {
+    return this.getEventBoxes(win, day)[index - 1];
+  }
+
   /**
    * Provides the .multiday-column-bg-box element located at the specified
    * hour, which can be double clicked to create a new event at the specified
@@ -180,93 +268,9 @@ class CalendarWeekViewTestUtils {
    * @throws If the day or hour are out of range.
    * @returns {XULElement}
    */
-  getHourBox(win, day, hour) {
-    if (!(day >= 1 && day <= 7 && hour >= 0 && hour <= 23)) {
-      throw new Error(
-        `Invalid parameters to getHourBox(): ` +
-          `expected day=1-7, hour=0-23, got day=${day}, hour=${hour},`
-      );
-    }
-
-    return win.document.querySelector(
-      `#week-view .daybox > calendar-event-column:nth-of-type(${day}) ` +
-        `.multiday-column-bg-box > spacer:nth-of-type(${hour + 1})`
-    );
-  }
-
-  /**
-   * Provides the calendar-event-box elements for the specified day.
-   *
-   * @param {Window} win - The window the calendar is displayed in.
-   * @param {number} day - Day of the week, between 1-7.
-   *
-   * @throws If the day is out of range.
-   * @returns {NodeList} A list of all events in the day.
-   */
-  getEventBoxes(win, day) {
-    if (!(day >= 1 && day <= 7)) {
-      throw new Error(`Invalid parameter to getEventBox(): expected day=1-7, got day=${day}`);
-    }
-    return win.document.querySelectorAll(
-      `#week-view .daybox > calendar-event-column:nth-of-type(${day}) ` +
-        `.multiday-column-top-box calendar-event-box`
-    );
-  }
-
-  /**
-   * Provides the single calendar-event-box element for the specified day.
-   *
-   * @param {Window} win - The window the calendar is displayed in.
-   * @param {number} day - Day of the week, between 1-7.
-   *
-   * @throws If more than one event found on the day.
-   * @throws If the day is out of range.
-   * @returns {MozCalendarEventBox} The single event, or null if none found.
-   */
-  getEventBox(win, day) {
-    let found = CalendarTestUtils.weekView.getEventBoxes(win, day);
-    switch (found.length) {
-      case 0:
-        return null;
-      case 1:
-        return found[0];
-      default:
-        throw new Error(
-          `Found ${found.length} events in the week-view for day ${day}, rather than one`
-        );
-    }
-  }
-
-  /**
-   * Wait for the single calendar-event-box element for the specified day.
-   *
-   * @param {Window} win - The window the calendar is displayed in.
-   * @param {number} day - Day of the week, between 1-7.
-   *
-   * @throws If more than one event found on the day.
-   * @throws If the day is out of range.
-   * @returns {MozCalendarEventBox}
-   */
-  async waitForEventBox(win, day) {
-    return TestUtils.waitForCondition(
-      () => CalendarTestUtils.weekView.getEventBox(win, day),
-      `Day event box in the week-view for day ${day}`
-    );
-  }
-
-  /**
-   * Wait for the specified day to contain no events.
-   *
-   * @param {Window} win - The window the calendar is displayed in.
-   * @param {number} day - Day of the week, between 1-7.
-   *
-   * @throws If the day is out of range.
-   */
-  async waitForNoEvents(win, day) {
-    await TestUtils.waitForCondition(
-      () => !CalendarTestUtils.weekView.getEventBoxes(win, day).length,
-      `No events in the week-view day ${day}`
-    );
+  getHourBoxAt(win, day, hour) {
+    let column = this.getEventColumn(win, day);
+    return column.querySelector(`.multiday-column-bg-box > spacer:nth-of-type(${hour + 1})`);
   }
 
   /**
@@ -284,12 +288,13 @@ class CalendarWeekViewTestUtils {
       throw new Error(`Invalid parameter to getAllDayHeader(): expected day=1-7, got day=${day}`);
     }
     return win.document.querySelector(
-      `#day-view .headerdaybox > calendar-header-container:nth-of-type(${day})`
+      `${this.rootSelector} .headerdaybox > calendar-header-container:nth-of-type(${day})`
     );
   }
 
   /**
-   * Provides the all-day calendar-editable-item for the specified day.
+   * Provides the all-day calendar-editable-item located at "index" for the
+   * specified day.
    *
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} day - Day of the week, between 1-7.
@@ -298,31 +303,118 @@ class CalendarWeekViewTestUtils {
    * @throws If the day or index are out of range.
    * @returns {MozCalendarEditableItem}
    */
-  getAllDayItem(win, day, index = 1) {
-    if (!(index >= 1)) {
-      throw new Error(
-        `Invalid parameter to getAllDayItem(): expected index>=1, got index=${index}`
-      );
-    }
-    let allDayHeader = CalendarTestUtils.weekView.getAllDayHeader(win, day);
+  getAllDayItemAt(win, day, index) {
+    let allDayHeader = this.getAllDayHeader(win, day);
     return allDayHeader.querySelector(`calendar-editable-item:nth-of-type(${index})`);
   }
 
   /**
-   * Wait for the all-day calendar-editable-item for the day.
+   * Waits for the calendar-event-box at "index", located in the event column
+   * for the day specified to appear.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Day of the week, between 1-7.
+   * @param {number} index - Indicates which event box to select.
+   *
+   * @returns {MozCalendarEventBox}
+   */
+  async waitForEventBoxAt(win, day, index) {
+    return TestUtils.waitForCondition(
+      () => this.getEventBoxAt(win, day, index),
+      `calendar-event-box at day=${day}, index=${index} did not appear in time`
+    );
+  }
+
+  /**
+   * Waits until the calendar-event-box at "index", located in the event column
+   * for the day specified disappears.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Day of the week, between 1-7.
+   * @param {number} index - Indicates which event box to select.
+   */
+  async waitForNoEventBoxAt(win, day, index) {
+    await TestUtils.waitForCondition(
+      () => !this.getEventBoxAt(win, day, index),
+      `calendar-event-box at day=${day}, index=${index} still present`
+    );
+  }
+
+  /**
+   * Waits for the all-day calendar-editable-item at "index", located in the
+   * event column for the day specified to appear.
    *
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} day - Day of the week, between 1-7.
    * @param {number} index - Indicates which item to select (starting from 1).
    *
-   * @throws If the day or index are out of range.
    * @returns {MozCalendarEditableItem}
    */
-  async waitForAllDayItem(win, day, index = 1) {
+  async waitForAllDayItemAt(win, day, index) {
     return TestUtils.waitForCondition(
-      () => CalendarTestUtils.weekView.getAllDayItem(win, index),
-      `All-day item for day ${day} and index ${index}, in the week-view`
+      () => this.getAllDayItemAt(win, day, index),
+      `All-day calendar-editable-item at day=${day}, index=${index} did not appear in time`
     );
+  }
+
+  /**
+   * Opens the event dialog for viewing for the event box located at the
+   * specified parameters.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Must be between 1-7.
+   * @param {number} index - Indicates which event to select.
+   *
+   * @returns {Window} - The summary event dialog window.
+   */
+  async viewEventAt(win, day, index) {
+    let item = await this.waitForEventBoxAt(win, day, index);
+    return CalendarTestUtils.viewItem(win, item);
+  }
+
+  /**
+   * Opens the event dialog for editing for the event box located at the
+   * specified parameters.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Must be between 1-7.
+   * @param {number} index - Indicates which event to select.
+   *
+   * @returns {EditItemAtResult}
+   */
+  async editEventAt(win, day, index) {
+    let item = await this.waitForEventBoxAt(win, day, index);
+    return CalendarTestUtils.editItem(win, item);
+  }
+
+  /**
+   * Opens the event dialog for editing for a single occurrence of the event
+   * box located at the specified parameters.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Must be between 1-7.
+   * @param {number} index - Indicates which event box to select.
+   *
+   * @returns {EditItemAtResult}
+   */
+  async editEventOccurrenceAt(win, day, index) {
+    let item = await this.waitForEventBoxAt(win, day, index);
+    return CalendarTestUtils.editItemOccurrence(win, item);
+  }
+
+  /**
+   * Opens the event dialog for editing all occurrences of the event box
+   * located at the specified parameters.
+   *
+   * @param {Window} win - The window the calendar is displayed in.
+   * @param {number} day - Must be between 1-7.
+   * @param {number} index - Indicates which event box to select.
+   *
+   * @returns {EditItemAtResult}
+   */
+  async editEventOccurrencesAt(win, day, index) {
+    let item = await this.waitForEventBoxAt(win, day, index);
+    return CalendarTestUtils.editItemOccurrences(win, item);
   }
 }
 
@@ -357,14 +449,10 @@ class CalendarMonthViewTestUtils {
       );
     }
 
-    let row = win.document.documentElement.querySelector(
-      `${this.rootSelector} .monthgrid > tr:nth-of-type(${week})`
+    return win.document.documentElement.querySelector(
+      `${this.rootSelector} .monthgrid > tr:nth-of-type(${week}) >
+        td:nth-of-type(${day}) > calendar-month-day-box`
     );
-    if (row.hidden) {
-      throw new Error(`The row for week=${week} is hidden in ${this.rootSelector}`);
-    }
-
-    return row.querySelector(`:scope > td:nth-of-type(${day}) > calendar-month-day-box`);
   }
 
   /**
@@ -374,33 +462,32 @@ class CalendarMonthViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} week - Must be between 1-6.
    * @param {number} day - Must be between 1-7.
-   * @param {number} index - Indicates which item to select (starting from 1).
+   * @param {number} index - Indicates which item to select.
    *
    * @throws If the index, day or week parameters are out of range.
    * @return {MozCalendarMonthDayBoxItem}
    */
-  getItemAt(win, week, day, index = 1) {
+  getItemAt(win, week, day, index) {
     if (!(index >= 1)) {
-      throw new Error(`Invalid parameters to getItemAt(): expected index>=1, got index=${index},`);
+      throw new Error(`Invalid parameters to getItemAt(): expected index>=1, got index=${index}.`);
     }
-    let dayBox = this.getDayBox(win, week, day);
 
+    let dayBox = this.getDayBox(win, week, day);
     return dayBox.querySelector(`calendar-month-day-box-item:nth-of-type(${index})`);
   }
 
   /**
-   * Attempts to provide the calendar-month-day-box-item located in the
-   * specified day box, at the target index.
+   * Waits for the calendar-month-day-box-item at "index", located in the
+   * specified week,day combination to appear.
    *
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} week - Must be between 1-6.
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which item to select.
    *
-   * @throws If the index, day or week parameters are out of range.
    * @return {MozCalendarMonthDayBoxItem}
    */
-  async waitForItemAt(win, week, day, index = 1) {
+  async waitForItemAt(win, week, day, index) {
     return TestUtils.waitForCondition(
       () => this.getItemAt(win, week, day, index),
       `calendar-month-day-box-item at week=${week}, day=${day}, index=${index} did not appear in time`
@@ -408,18 +495,18 @@ class CalendarMonthViewTestUtils {
   }
 
   /**
-   * Wait for there to be no items on the specified day.
+   * Waits for the calendar-month-day-box-item at "index", located in the
+   * specified week,day combination to disappear.
    *
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} week - Must be between 1-6.
    * @param {number} day - Must be between 1-7.
-   *
-   * @throws If the day or week parameters are out of range.
+   * @param {number} index - Indicates the item that should no longer be present.
    */
-  async waitForNoItemsAt(win, week, day) {
+  async waitForNoItemAt(win, week, day, index) {
     await TestUtils.waitForCondition(
-      () => !this.getItemAt(win, week, day),
-      `No events in ${this.rootSelector} at week=${week}, day=${day}`
+      () => !this.getItemAt(win, week, day, index),
+      `calendar-month-day-box-item at week=${week}, day=${day}, index=${index} still present`
     );
   }
 
@@ -432,7 +519,6 @@ class CalendarMonthViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which item to select.
    *
-   * @throws If the index, day or week parameters are out of range.
    * @returns {Window} - The summary event dialog window.
    */
   async viewItemAt(win, week, day, index) {
@@ -449,7 +535,6 @@ class CalendarMonthViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which item to select.
    *
-   * @throws If the index, day or week parameters are out of range.
    * @returns {EditItemAtResult}
    */
   async editItemAt(win, week, day, index) {
@@ -466,7 +551,6 @@ class CalendarMonthViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which item to select.
    *
-   * @throws If the index, day or week parameters are out of range.
    * @returns {EditItemAtResult}
    */
   async editItemOccurrenceAt(win, week, day, index) {
@@ -483,10 +567,8 @@ class CalendarMonthViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which item to select.
    *
-   * @throws If the index, day or week parameters are out of range.
    * @returns {EditItemAtResult}
    */
-
   async editItemOccurrencesAt(win, week, day, index) {
     let item = await this.waitForItemAt(win, week, day, index);
     return CalendarTestUtils.editItemOccurrences(win, item);

@@ -37,14 +37,14 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   goToDate(controller, 2009, 1, 5);
 
   // Create weekly recurring event.
-  let eventBox = dayView.getHourBox(controller.window, HOUR);
+  let eventBox = dayView.getHourBoxAt(controller.window, HOUR);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { title: TITLE, repeat: setRecurrence });
     saveAndCloseItemDialog(eventWindow);
   });
 
   // Move 5th January occurrence to 6th January.
-  eventBox = await dayView.waitForEventBox(controller.window);
+  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   await invokeEditingRepeatEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, {
       title: TITLE,
@@ -55,11 +55,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   });
 
   goToDate(controller, 2009, 1, 6);
-  await dayView.waitForEventBox(controller.window);
+  await dayView.waitForEventBoxAt(controller.window, 1);
 
   // Change recurrence rule.
   goToDate(controller, 2009, 1, 7);
-  eventBox = await dayView.waitForEventBox(controller.window);
+  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   await invokeEditingRepeatEventDialog(
     controller,
     eventBox,
@@ -75,90 +75,86 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   switchToView(controller, "day");
 
   goToDate(controller, 2009, 1, 5);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   viewForward(controller, 1);
 
   // Assert exactly two.
-  await TestUtils.waitForCondition(
-    () => dayView.getEventBoxes(controller.window).length === 2,
-    "Two events on Tuesday day-view"
-  );
+  Assert.ok(await dayView.waitForEventBoxAt(controller.window, 1));
+  Assert.ok(await dayView.waitForEventBoxAt(controller.window, 2));
 
   viewForward(controller, 1);
-  await dayView.waitForEventBox(controller.window);
+  await dayView.waitForEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
-  await dayView.waitForEventBox(controller.window);
+  await dayView.waitForEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   // next week
   viewForward(controller, 1);
-  await dayView.waitForEventBox(controller.window);
+  await dayView.waitForEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
-  await dayView.waitForEventBox(controller.window);
+  await dayView.waitForEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
-  await dayView.waitForEventBox(controller.window);
+  await dayView.waitForEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
-  await dayView.waitForEventBox(controller.window);
+  await dayView.waitForEventBoxAt(controller.window, 1);
   viewForward(controller, 1);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   // week view
   switchToView(controller, "week");
   goToDate(controller, 2009, 1, 5);
 
   // Assert exactly two on Tuesday.
-  await TestUtils.waitForCondition(
-    () => weekView.getEventBoxes(controller.window, 3).length === 2,
-    "Two events on Tuesday week-view"
-  );
+  Assert.ok(await weekView.waitForEventBoxAt(controller.window, 3, 1));
+  Assert.ok(await weekView.waitForEventBoxAt(controller.window, 3, 2));
 
   // Wait for the last occurrence because this appears last.
-  await weekView.waitForEventBox(controller.window, 6);
-  Assert.ok(!weekView.getEventBox(controller.window, 1));
-  Assert.ok(!weekView.getEventBox(controller.window, 2));
-  Assert.ok(weekView.getEventBox(controller.window, 4));
-  Assert.ok(!weekView.getEventBox(controller.window, 5));
-  Assert.ok(!weekView.getEventBox(controller.window, 7));
+  await weekView.waitForEventBoxAt(controller.window, 6, 1);
+  Assert.ok(!weekView.getEventBoxAt(controller.window, 1, 1));
+  Assert.ok(!weekView.getEventBoxAt(controller.window, 2, 1));
+  Assert.ok(weekView.getEventBoxAt(controller.window, 4, 1));
+  Assert.ok(!weekView.getEventBoxAt(controller.window, 5, 1));
+  Assert.ok(!weekView.getEventBoxAt(controller.window, 7, 1));
 
   viewForward(controller, 1);
-  await weekView.waitForEventBox(controller.window, 6);
-  Assert.ok(!weekView.getEventBox(controller.window, 1));
-  Assert.ok(weekView.getEventBox(controller.window, 2));
-  Assert.ok(weekView.getEventBox(controller.window, 3));
-  Assert.ok(weekView.getEventBox(controller.window, 4));
-  Assert.ok(!weekView.getEventBox(controller.window, 5));
-  Assert.ok(!weekView.getEventBox(controller.window, 7));
+  await weekView.waitForEventBoxAt(controller.window, 6, 1);
+  Assert.ok(!weekView.getEventBoxAt(controller.window, 1, 1));
+  Assert.ok(weekView.getEventBoxAt(controller.window, 2, 1));
+  Assert.ok(weekView.getEventBoxAt(controller.window, 3, 1));
+  Assert.ok(weekView.getEventBoxAt(controller.window, 4, 1));
+  Assert.ok(!weekView.getEventBoxAt(controller.window, 5, 1));
+  Assert.ok(!weekView.getEventBoxAt(controller.window, 7, 1));
 
   // multiweek view
   switchToView(controller, "multiweek");
   goToDate(controller, 2009, 1, 5);
   // Wait for the first items, then check the ones not to be present.
   // Assert exactly two.
-  await multiweekView.waitForItemAt(controller.window, 1, 3, 1);
-  Assert.ok(multiweekView.getItemAt(controller.window, 1, 3, 2));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 3, 3));
+  await multiweekView.waitForItemAt(controller.window, 1, 3, 1, 1);
+  Assert.ok(multiweekView.getItemAt(controller.window, 1, 3, 2, 1));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 3, 3, 1));
   // Then check no item on the 5th.
-  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 2));
-  Assert.ok(multiweekView.getItemAt(controller.window, 1, 4));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 5));
-  Assert.ok(multiweekView.getItemAt(controller.window, 1, 6));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 7));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 2, 1));
+  Assert.ok(multiweekView.getItemAt(controller.window, 1, 4, 1));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 5, 1));
+  Assert.ok(multiweekView.getItemAt(controller.window, 1, 6, 1));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 1, 7, 1));
 
-  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 1));
-  Assert.ok(multiweekView.getItemAt(controller.window, 2, 2));
-  Assert.ok(multiweekView.getItemAt(controller.window, 2, 3));
-  Assert.ok(multiweekView.getItemAt(controller.window, 2, 4));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 5));
-  Assert.ok(multiweekView.getItemAt(controller.window, 2, 6));
-  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 7));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 1, 1));
+  Assert.ok(multiweekView.getItemAt(controller.window, 2, 2, 1));
+  Assert.ok(multiweekView.getItemAt(controller.window, 2, 3, 1));
+  Assert.ok(multiweekView.getItemAt(controller.window, 2, 4, 1));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 5, 1));
+  Assert.ok(multiweekView.getItemAt(controller.window, 2, 6, 1));
+  Assert.ok(!multiweekView.getItemAt(controller.window, 2, 7, 1));
 
   // month view
   switchToView(controller, "month");
@@ -169,27 +165,27 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   Assert.ok(monthView.getItemAt(controller.window, 2, 3, 2));
   Assert.ok(!monthView.getItemAt(controller.window, 2, 3, 3));
   // Then check no item on the 5th.
-  Assert.ok(!monthView.getItemAt(controller.window, 2, 2));
-  Assert.ok(monthView.getItemAt(controller.window, 2, 4));
-  Assert.ok(!monthView.getItemAt(controller.window, 2, 5));
-  Assert.ok(monthView.getItemAt(controller.window, 2, 6));
-  Assert.ok(!monthView.getItemAt(controller.window, 2, 7));
+  Assert.ok(!monthView.getItemAt(controller.window, 2, 2, 1));
+  Assert.ok(monthView.getItemAt(controller.window, 2, 4, 1));
+  Assert.ok(!monthView.getItemAt(controller.window, 2, 5, 1));
+  Assert.ok(monthView.getItemAt(controller.window, 2, 6, 1));
+  Assert.ok(!monthView.getItemAt(controller.window, 2, 7, 1));
 
-  Assert.ok(!monthView.getItemAt(controller.window, 3, 1));
-  Assert.ok(monthView.getItemAt(controller.window, 3, 2));
-  Assert.ok(monthView.getItemAt(controller.window, 3, 3));
-  Assert.ok(monthView.getItemAt(controller.window, 3, 4));
-  Assert.ok(!monthView.getItemAt(controller.window, 3, 5));
-  Assert.ok(monthView.getItemAt(controller.window, 3, 6));
-  Assert.ok(!monthView.getItemAt(controller.window, 3, 7));
+  Assert.ok(!monthView.getItemAt(controller.window, 3, 1, 1));
+  Assert.ok(monthView.getItemAt(controller.window, 3, 2, 1));
+  Assert.ok(monthView.getItemAt(controller.window, 3, 3, 1));
+  Assert.ok(monthView.getItemAt(controller.window, 3, 4, 1));
+  Assert.ok(!monthView.getItemAt(controller.window, 3, 5, 1));
+  Assert.ok(monthView.getItemAt(controller.window, 3, 6, 1));
+  Assert.ok(!monthView.getItemAt(controller.window, 3, 7, 1));
 
   // Delete event.
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 12);
-  eventBox = new elib.Elem(await dayView.waitForEventBox(controller.window));
+  eventBox = new elib.Elem(await dayView.waitForEventBoxAt(controller.window, 1));
   controller.click(eventBox);
   handleOccurrencePrompt(controller, eventBox, "delete", true);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

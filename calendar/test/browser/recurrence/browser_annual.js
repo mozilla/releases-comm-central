@@ -46,29 +46,29 @@ add_task(async function testAnnualRecurrence() {
 
     // day view
     switchToView(controller, "day");
-    await dayView.waitForAllDayItem(controller.window);
+    await dayView.waitForAllDayItemAt(controller.window, 1);
 
     // week view
     switchToView(controller, "week");
-    await weekView.waitForAllDayItem(controller.window, column);
+    await weekView.waitForAllDayItemAt(controller.window, column, 1);
 
     // multiweek view
     switchToView(controller, "multiweek");
-    await multiweekView.waitForItemAt(controller.window, 1, column);
+    await multiweekView.waitForItemAt(controller.window, 1, column, 1);
 
     // month view
     switchToView(controller, "month");
-    await monthView.waitForItemAt(controller.window, 1, column);
+    await monthView.waitForItemAt(controller.window, 1, column, 1);
   }
 
   // Delete event.
   goToDate(controller, checkYears[0], 1, 1);
   switchToView(controller, "day");
-  const box = new elib.Elem(await dayView.waitForAllDayItem(controller.window));
+  const box = new elib.Elem(await dayView.waitForAllDayItemAt(controller.window, 1));
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);
   await TestUtils.waitForCondition(
-    () => !dayView.getAllDayItem(controller.window),
+    () => !dayView.getAllDayItemAt(controller.window, 1),
     "No all-day events"
   );
 

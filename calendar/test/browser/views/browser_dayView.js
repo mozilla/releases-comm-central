@@ -45,7 +45,7 @@ add_task(async function testDayView() {
   }, "Inspecting the date");
 
   // Create event at 8 AM.
-  let eventBox = dayView.getHourBox(controller.window, 8);
+  let eventBox = dayView.getHourBoxAt(controller.window, 8);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Check that the start time is correct.
     let someDate = cal.createDateTime();
@@ -69,7 +69,7 @@ add_task(async function testDayView() {
   });
 
   // If it was created successfully, it can be opened.
-  eventBox = await dayView.waitForEventBox(controller.window);
+  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
@@ -79,7 +79,7 @@ add_task(async function testDayView() {
   ensureViewLoaded(controller);
 
   // Check if name was saved.
-  eventBox = await dayView.waitForEventBox(controller.window);
+  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   let eventName = eventBox.querySelector(".calendar-event-details-core");
 
   Assert.ok(eventName);
@@ -89,7 +89,7 @@ add_task(async function testDayView() {
   controller.click(new elib.Elem(eventBox));
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await dayView.waitForNoEvents(controller.window);
+  await dayView.waitForNoEventBoxAt(controller.window, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

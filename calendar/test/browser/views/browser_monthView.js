@@ -72,7 +72,7 @@ add_task(async function testMonthView() {
   });
 
   // If it was created successfully, it can be opened.
-  eventBox = await monthView.waitForItemAt(controller.window, 1, 5);
+  eventBox = await monthView.waitForItemAt(controller.window, 1, 5, 1);
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
@@ -80,7 +80,7 @@ add_task(async function testMonthView() {
   });
 
   // Check if name was saved.
-  eventBox = await monthView.waitForItemAt(controller.window, 1, 5);
+  eventBox = await monthView.waitForItemAt(controller.window, 1, 5, 1);
   let eventName = eventBox.querySelector(".event-name-label");
   Assert.ok(eventName);
   Assert.ok(eventName.value == TITLE2);
@@ -89,7 +89,7 @@ add_task(async function testMonthView() {
   controller.click(new elib.Elem(eventBox));
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await monthView.waitForNoItemsAt(controller.window, 1, 5);
+  await monthView.waitForNoItemAt(controller.window, 1, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

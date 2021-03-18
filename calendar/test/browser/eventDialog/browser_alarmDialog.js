@@ -65,7 +65,7 @@ add_task(async function testAlarmDialog() {
   wait_for_modal_dialog("Calendar:AlarmWindow", TIMEOUT_MODAL_DIALOG);
 
   // Change the reminder duration, this resets the alarm.
-  let eventBox = await dayView.waitForAllDayItem(controller.window);
+  let eventBox = await dayView.waitForAllDayItemAt(controller.window, 1);
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     await setData(eventWindow, iframeWindow, { reminder: "2days", title: TITLE });
 

@@ -72,7 +72,7 @@ add_task(async function setupModule(module) {
   });
 
   // If it was created successfully, it can be opened.
-  eventBox = await multiweekView.waitForItemAt(controller.window, 1, 5);
+  eventBox = await multiweekView.waitForItemAt(controller.window, 1, 5, 1);
   await invokeEditingEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Change title and save changes.
     await setData(eventWindow, iframeWindow, { title: TITLE2 });
@@ -81,7 +81,7 @@ add_task(async function setupModule(module) {
 
   // Check if name was saved.
   await TestUtils.waitForCondition(() => {
-    eventBox = multiweekView.getItemAt(controller.window, 1, 5);
+    eventBox = multiweekView.getItemAt(controller.window, 1, 5, 1);
     if (eventBox === null) {
       return false;
     }
@@ -93,7 +93,7 @@ add_task(async function setupModule(module) {
   controller.click(new elib.Elem(eventBox));
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
-  await multiweekView.waitForNoItemsAt(controller.window, 1, 5);
+  await multiweekView.waitForNoItemAt(controller.window, 1, 5, 1);
 
   Assert.ok(true, "Test ran to completion");
 });

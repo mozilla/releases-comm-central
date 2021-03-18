@@ -25,7 +25,7 @@ add_task(async function testUTF8() {
   switchToView(controller, "day");
 
   // Create new event.
-  let eventBox = CalendarTestUtils.dayView.getHourBox(controller.window, 8);
+  let eventBox = CalendarTestUtils.dayView.getHourBoxAt(controller.window, 8);
   await invokeNewEventDialog(controller, eventBox, async (eventWindow, iframeWindow) => {
     // Fill in name, location, description.
     await setData(eventWindow, iframeWindow, {
@@ -38,7 +38,7 @@ add_task(async function testUTF8() {
   });
 
   // open
-  eventBox = await CalendarTestUtils.dayView.waitForEventBox(controller.window);
+  eventBox = await CalendarTestUtils.dayView.waitForEventBoxAt(controller.window, 1);
   await invokeEditingEventDialog(controller, eventBox, (eventWindow, iframeWindow) => {
     let iframeDocument = iframeWindow.document;
 
