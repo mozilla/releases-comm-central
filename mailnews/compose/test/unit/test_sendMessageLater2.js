@@ -235,10 +235,10 @@ function* actually_run_test() {
   do_test_finished();
 }
 
-function run_test() {
+add_task(async function run_the_test() {
   // Load in the test files so we have a record of length and their data.
   for (var i = 0; i < gMsgFile.length; ++i) {
-    gMsgFileData[i] = IOUtils.loadFileToString(gMsgFile[i]);
+    gMsgFileData[i] = await IOUtils.readUTF8(gMsgFile[i].path);
   }
 
   // Ensure we have a local mail account, an normal account and appropriate
@@ -287,4 +287,4 @@ function run_test() {
 
   // Do the test
   async_run({ func: actually_run_test });
-}
+});

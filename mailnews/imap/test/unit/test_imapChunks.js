@@ -1,9 +1,7 @@
-/*
+/**
  * Test bug 92111 - imap download-by-chunks doesn't download complete file if the
  * server lies about rfc822.size (known to happen for Exchange and gmail)
  */
-
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 var gIMAPDaemon, gServer, gIMAPIncomingServer, gSavedMsgFile;
 
@@ -14,7 +12,7 @@ var gIMAPService = Cc[
 var gFileName = "bug92111";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
 
-function run_test() {
+add_task(async function run_the_test() {
   /*
    * Set up an IMAP server. The bug is only triggered when nsMsgSaveAsListener
    * is used (i.e., for IMAP and NNTP).
@@ -55,12 +53,10 @@ function run_test() {
   message.setSize(gMsgFile.fileSize - 100);
   inbox.addMessage(message);
 
-  /*
-   * Save the message to a local file. IMapMD corresponds to
-   * <profile_dir>/mailtest/ImapMail (where fakeserver puts the IMAP mailbox
-   * files). If we pass the test, we'll remove the file afterwards
-   * (cf. UrlListener), otherwise it's kept in IMapMD.
-   */
+  // Save the message to a local file. IMapMD corresponds to
+  // <profile_dir>/mailtest/ImapMail (where fakeserver puts the IMAP mailbox
+  // files). If we pass the test, we'll remove the file afterwards
+  // (cf. UrlListener), otherwise it's kept in IMapMD.
   gSavedMsgFile = Services.dirsvc.get("IMapMD", Ci.nsIFile);
   gSavedMsgFile.append(gFileName + ".eml");
 
@@ -72,26 +68,30 @@ function run_test() {
     );
   });
 
-  /*
-   * From nsIMsgMessageService.idl:
-   * void SaveMessageToDisk(in string aMessageURI, in nsIFile aFile,
-   *                        in boolean aGenerateDummyEnvelope,
-   *                        in nsIUrlListener aUrlListener, out nsIURI aURL,
-   *                        in boolean canonicalLineEnding,
-   *                        in nsIMsgWindow aMsgWindow);
-   * Enforcing canonicalLineEnding (i.e., CRLF) makes sure that the
-   * test also runs successfully on platforms not using CRLF by default.
-   */
+  // Enforcing canonicalLineEnding (i.e., CRLF) makes sure that the
+  // test also runs successfully on platforms not using CRLF by default.
+  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   gIMAPService.SaveMessageToDisk(
     "imap-message://user@localhost/INBOX#" + (inbox.uidnext - 1),
     gSavedMsgFile,
     false,
-    UrlListener,
+    promiseUrlListener,
     {},
     true,
     null
   );
-}
+  await promiseUrlListener.promise;
+
+  let msgFileContent = await IOUtils.readUTF8(gMsgFile.path);
+  let savedMsgFileContent = await IOUtils.readUTF8(gSavedMsgFile.path);
+  // File contents should not have been modified.
+  Assert.equal(msgFileContent, savedMsgFileContent);
+
+  // The file doesn't get closed straight away, but does after a little bit.
+  // So wait, and then remove it. We need to test this to ensure we don't
+  // indefinitely lock the file.
+  do_timeout(1000, endTest);
+});
 
 function endTest() {
   gIMAPIncomingServer.closeCachedConnections();
@@ -109,25 +109,6 @@ function endTest() {
   }
   do_test_finished();
 }
-
-var UrlListener = {
-  OnStartRunningUrl(url) {},
-  OnStopRunningUrl(url, rc) {
-    // operation succeeded
-    Assert.equal(rc, 0);
-
-    // File contents were not modified
-    Assert.equal(
-      IOUtils.loadFileToString(gMsgFile),
-      IOUtils.loadFileToString(gSavedMsgFile)
-    );
-
-    // The file doesn't get closed straight away, but does after a little bit.
-    // So wait, and then remove it. We need to test this to ensure we don't
-    // indefinitely lock the file.
-    do_timeout(1000, endTest);
-  },
-};
 
 // XXX IRVING we need a separate check somehow to make sure we store the correct
 // content size for chunked messages where the server lied

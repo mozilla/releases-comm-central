@@ -9,7 +9,6 @@
 const { localAccountUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/LocalAccountUtils.jsm"
 );
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 var gTestFiles = ["../../../data/bug505221", "../../../data/bug513543"];
 
@@ -26,19 +25,19 @@ var gUrlListener = {
 
 localAccountUtils.loadLocalMailAccount();
 
-function run_test() {
+add_task(async function run_the_test() {
   do_test_pending();
   localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   for (let fileName of gTestFiles) {
     localAccountUtils.inboxFolder.addMessage(
-      IOUtils.loadFileToString(do_get_file(fileName))
+      await IOUtils.readUTF8(do_get_file(fileName).path)
     );
   }
   gMessages = [
     ...localAccountUtils.inboxFolder.msgDatabase.EnumerateMessages(),
   ];
   doNextTest();
-}
+});
 
 function streamMsg(msgHdr) {
   let msgURI = localAccountUtils.inboxFolder.getUriForMsg(msgHdr);

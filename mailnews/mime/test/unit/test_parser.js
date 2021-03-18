@@ -8,7 +8,6 @@
 // HeaderParser methods are run correctly.
 
 const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 // Utility method to compare objects
 function compare_objects(real, expected) {
@@ -46,10 +45,12 @@ var file_cache = {};
 /**
  * Read a file into a string (all line endings become CRLF).
  */
-function read_file(file, start, end) {
+async function read_file(file, start, end) {
   if (!(file in file_cache)) {
     var realFile = do_get_file("../../../data/" + file);
-    file_cache[file] = IOUtils.loadFileToString(realFile).split(/\r\n|[\r\n]/);
+    file_cache[file] = (await IOUtils.readUTF8(realFile.path)).split(
+      /\r\n|[\r\n]/
+    );
   }
   var contents = file_cache[file];
   if (start !== undefined) {
@@ -76,10 +77,19 @@ function read_file(file, start, end) {
  *                 accumulated body part data for partnum would be the contents
  *                 of the file from [line start, line end) [1-based lines]
  */
-function make_body_test(test, file, opts, partspec) {
-  var results = partspec.map(p => [p[0], read_file(file, p[1], p[2])]);
-  var msgcontents = read_file(file);
+async function make_body_test(test, file, opts, partspec) {
+  let results = [];
+  for (let p of partspec) {
+    results.push([p[0], await read_file(file, p[1], p[2])]);
+  }
+
+  let msgcontents = await read_file(file);
   return [test, msgcontents, opts, results];
+}
+
+async function make_bodydecode_test(test, file, opts, expected) {
+  let msgcontents = await read_file(file);
+  return [test, msgcontents, opts, expected];
 }
 
 // This is the expected part specifier for the multipart-complex1 test file,
@@ -100,8 +110,8 @@ var mpart_complex1 = [
 //            either a {partnum: header object} (to check headers)
 //            or a [[partnum body], [partnum body], ...] (to check bodies)
 //            (the partnums refer to the expected part numbers of the MIME test)
-// Note that for body tests, unless you're testing decoding, it is preferable to
-// use make_body_test instead of writing the array yourself.
+// For body tests, unless you're testing decoding, use make_body_test.
+// For decoding tests, use make_bodydecode_test
 var parser_tests = [
   // Body tests from data
   // (Note: line numbers are 1-based. Also, to capture trailing EOF, add 2 to
@@ -124,9 +134,9 @@ var parser_tests = [
   make_body_test("Raw body", "multipart1", { bodyformat: "raw" }, [
     ["", 4, 14],
   ]),
-  [
+  make_bodydecode_test(
     "Base64 decode 1",
-    read_file("base64-1"),
+    "base64-1",
     { bodyformat: "decode" },
     [
       [
@@ -136,11 +146,11 @@ var parser_tests = [
           "'s even a CRLF at the end and one at the beginning, but the output" +
           " shouldn't have it.\r\n",
       ],
-    ],
-  ],
-  [
+    ]
+  ),
+  make_bodydecode_test(
     "Base64 decode 2",
-    read_file("base64-2"),
+    "base64-2",
     { bodyformat: "decode" },
     [
       [
@@ -148,12 +158,12 @@ var parser_tests = [
         "<html><body>This is base64 encoded HTML text, and the tags shouldn" +
           "'t be stripped.\r\n<b>Bold text is bold!</b></body></html>\r\n",
       ],
-    ],
-  ],
+    ]
+  ),
   make_body_test("Base64 nodecode", "base64-1", {}, [["", 4, 9]]),
-  [
+  make_bodydecode_test(
     "QP decode",
-    read_file("bug505221"),
+    "bug505221",
     { pruneat: "1", bodyformat: "decode" },
     [
       [
@@ -163,8 +173,8 @@ var parser_tests = [
           'tml; charset=us-ascii">\r\n\r\n\r\n<META content="MSHTML 6.00.600' +
           '0.16735" name=GENERATOR></HEAD>\r\n<BODY> bbb\r\n</BODY></HTML>',
       ],
-    ],
-  ],
+    ]
+  ),
 
   // Comprehensive tests from the torture test
   make_body_test("Torture regular body", "mime-torture", {}, [
@@ -212,12 +222,12 @@ function test_parser(message, opts, results) {
   var emitter = {
     stack: [],
     startMessage: function emitter_startMsg() {
-      Assert.equal(this.stack.length, 0);
+      Assert.equal(this.stack.length, 0, "no stack at start");
       calls++;
       this.partData = "";
     },
     endMessage: function emitter_endMsg() {
-      Assert.equal(this.stack.length, 0);
+      Assert.equal(this.stack.length, 0, "no stack at end");
       calls++;
     },
     startPart: function emitter_startPart(partNum, headers) {
@@ -294,8 +304,9 @@ function test_header(headerValue, flags, expected) {
   compare_objects(result, expected[1]);
 }
 
-function run_test() {
+add_task(async function testit() {
   for (let test of parser_tests) {
+    test = await test;
     dump("Testing message " + test[0]);
     if (test[1] instanceof Array) {
       dump(" using " + test[1].length + " packets");
@@ -307,4 +318,4 @@ function run_test() {
     dump("Testing value ->" + test[0] + "<- with flags " + test[1] + "\n");
     test_header(test[0], test[1], test[2]);
   }
-}
+});

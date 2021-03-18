@@ -17,7 +17,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 /**
  * Each abDirTreeItem corresponds to one row in the tree view.
@@ -121,12 +120,22 @@ directoryTreeView.prototype = {
     "addrbook-reloaded",
   ],
 
-  init(aTree, aJSONFile) {
+  /**
+   * Init the tree view.
+   *
+   * @param {XULTreeElement} aTree - The element to init.
+   * @param {string} [aJSONFile] - The persistent-open-state JSON file; directoryTree.json
+   */
+  async init(aTree, aJSONFile = null) {
     if (aJSONFile) {
       // Parse our persistent-open-state json file
-      let data = IOUtils.loadFileToString(aJSONFile);
-      if (data) {
-        this._persistOpenMap = JSON.parse(data);
+      let spec = PathUtils.join(await PathUtils.getProfileDir(), aJSONFile);
+      try {
+        this._persistOpenMap = await IOUtils.readJSON(spec);
+      } catch (ex) {
+        if (!["NotFoundError"].includes(ex.name)) {
+          Cu.reportError(ex);
+        }
       }
     }
 
@@ -138,12 +147,12 @@ directoryTreeView.prototype = {
     }
   },
 
-  shutdown(aJSONFile) {
+  async shutdown(aJSONFile) {
     // Write out the persistOpenMap to our JSON file
     if (aJSONFile) {
       // Write out our json file...
-      let data = JSON.stringify(this._persistOpenMap);
-      IOUtils.saveStringToFile(aJSONFile, data);
+      let spec = PathUtils.join(await PathUtils.getProfileDir(), aJSONFile);
+      await IOUtils.writeJSON(spec, this._persistOpenMap);
     }
   },
 

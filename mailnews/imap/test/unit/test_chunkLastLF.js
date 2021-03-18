@@ -11,11 +11,9 @@
  * that are run externally.
  */
 
-// async support
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var gFile = do_get_file("../../../data/bug92111b");
 var gIMAPDaemon, gIMAPServer, gIMAPIncomingServer;
@@ -29,7 +27,7 @@ function addMessageToServer(file, mailbox) {
   mailbox.addMessage(msg);
 }
 
-function run_test() {
+add_task(async function verifyContentLength() {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);
@@ -56,10 +54,6 @@ function run_test() {
   // We aren't interested in downloading messages automatically
   Services.prefs.setBoolPref("mail.server.server1.download_on_biff", false);
 
-  async_run_tests([verifyContentLength, endTest]);
-}
-
-function* verifyContentLength() {
   dump("adding message to server\n");
   // Add a message to the IMAP server
   addMessageToServer(gFile, gIMAPDaemon.getMailbox("INBOX"));
@@ -68,7 +62,6 @@ function* verifyContentLength() {
     "@mozilla.org/messenger/messageservice;1?type=imap"
   ].getService(Ci.nsIMsgMessageService);
 
-  dump("getting uri\n");
   let uri = imapS.getUrlForUri("imap-message://user@localhost/INBOX#1");
 
   // Get a channel from this URI, and check its content length
@@ -81,15 +74,15 @@ function* verifyContentLength() {
     Ci.nsIContentPolicy.TYPE_OTHER
   );
 
-  dump(channel + "\n");
+  let promiseStreamListener = new PromiseTestUtils.PromiseStreamListener();
 
   // Read all the contents
-  channel.asyncOpen(gStreamListener, null);
-  yield false;
+  channel.asyncOpen(promiseStreamListener, null);
+  let streamData = (await promiseStreamListener.promise).replace(/\r\n/g, "\n");
+
   // Now check whether our stream listener got the right bytes
   // First, clean up line endings to avoid CRLF vs. LF differences
-  let origData = IOUtils.loadFileToString(gFile).replace(/\r\n/g, "\n");
-  let streamData = gStreamListener._data.replace(/\r\n/g, "\n");
+  let origData = (await IOUtils.readUTF8(gFile.path)).replace(/\r\n/g, "\n");
   Assert.equal(origData.length, streamData.length);
   Assert.equal(origData, streamData);
 
@@ -106,38 +99,10 @@ function* verifyContentLength() {
   // entire message
   // do_check_eq(attachmentChannel.contentLength, gFile.fileSize);
 
-  yield true;
-}
-
-function* endTest() {
   gIMAPIncomingServer.closeCachedConnections();
   gIMAPServer.stop();
   let thread = gThreadManager.currentThread;
   while (thread.hasPendingEvents()) {
     thread.processNextEvent(true);
   }
-
-  yield true;
-}
-
-var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
-  _stream: null,
-  _data: null,
-  onStartRequest(aRequest) {
-    this._data = "";
-    this._stream = null;
-  },
-  onStopRequest(aRequest, aStatusCode) {
-    async_driver();
-  },
-  onDataAvailable(aRequest, aInputStream, aOff, aCount) {
-    if (this._stream == null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-        Ci.nsIScriptableInputStream
-      );
-      this._stream.init(aInputStream);
-    }
-    this._data += this._stream.read(aCount);
-  },
-};
+});

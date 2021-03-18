@@ -125,7 +125,7 @@ MsgSendListener.prototype = {
   ]),
 };
 
-function DoSendTest(aRecipient, aRecipientExpected) {
+async function doSendTest(aRecipient, aRecipientExpected) {
   info(`Testing send to ${aRecipient} will get sent to ${aRecipientExpected}`);
   test = aRecipient;
   server = setupServerDaemon();
@@ -136,7 +136,7 @@ function DoSendTest(aRecipient, aRecipientExpected) {
 
   // Random test file with data we don't actually care about. ;-)
   var testFile = do_get_file("data/message1.eml");
-  var originalData = IOUtils.loadFileToString(testFile);
+  var originalData = await IOUtils.readUTF8(testFile.path);
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
@@ -191,13 +191,13 @@ add_task(function setup() {
   sentFolder = localAccountUtils.rootFolder.createLocalSubfolder("Sent");
 });
 
-add_task(function plainASCIIRecipient() {
+add_task(async function plainASCIIRecipient() {
   // Test 1:
   // Plain ASCII recipient address.
-  DoSendTest(kToASCII, kToASCII);
+  await doSendTest(kToASCII, kToASCII);
 });
 
-add_task(function domainContainsNonAscii() {
+add_task(async function domainContainsNonAscii() {
   // Test 2:
   // The recipient's domain part contains a non-ASCII character, hence the
   // address needs to be converted to ACE before sending.
@@ -205,21 +205,21 @@ add_task(function domainContainsNonAscii() {
   // the message to the remaining - wrong! - address.
   // The new code will translate the domain part to ACE for the SMTP
   // transaction (only), i.e. the To: header will stay as stated by the sender.
-  DoSendTest(kToValid, kToValidACE);
+  await doSendTest(kToValid, kToValidACE);
 });
 
-add_task(function localContainsNonAscii() {
+add_task(async function localContainsNonAscii() {
   // Test 3:
   // The recipient's local part contains a non-ASCII character, which is not
   // allowed with unextended SMTP.
   // The old code would just strip the invalid character and try to send the
   // message to the remaining - wrong! - address.
   // The new code will present an informational message box and deny sending.
-  DoSendTest(kToInvalid, kToInvalid);
+  await doSendTest(kToInvalid, kToInvalid);
 });
 
-add_task(function invalidCharNoAt() {
+add_task(async function invalidCharNoAt() {
   // Test 4:
   // Bug 856506. invalid char without '@' causes crash.
-  DoSendTest(kToInvalidWithoutDomain, kToInvalidWithoutDomain);
+  await doSendTest(kToInvalidWithoutDomain, kToInvalidWithoutDomain);
 });

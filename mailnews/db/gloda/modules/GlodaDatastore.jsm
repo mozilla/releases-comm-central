@@ -10,7 +10,6 @@
 const EXPORTED_SYMBOLS = ["GlodaDatastore"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 const {
   GlodaAttributeDBDef,
@@ -1363,7 +1362,7 @@ var GlodaDatastore = {
       );
       cachePermillage = Math.min(cachePermillage, 50);
       cachePermillage = Math.max(cachePermillage, 0);
-      let physMem = IOUtils.getPhysicalMemorySize();
+      let physMem = Services.sysinfo.getPropertyAsInt64("memsize");
       if (physMem == 0) {
         physMem = MEMSIZE_FALLBACK_BYTES;
       }

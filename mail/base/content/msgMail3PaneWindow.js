@@ -25,7 +25,6 @@
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 var { JSTreeSelection } = ChromeUtils.import(
   "resource:///modules/JsTreeSelection.jsm"
 );
@@ -798,7 +797,7 @@ var gMailInit = {
 
     OnMailWindowUnload();
     try {
-      MailInstrumentation.uninit();
+      MailInstrumentation.uninit.bind(MailInstrumentation);
     } catch (ex) {
       logException(ex);
     }
@@ -840,11 +839,11 @@ function _showNewInstallModal() {
  *   integration dialog since the New Account Provinsioner uses a secondary
  *   success dialog after a new account has been created.
  */
-function LoadPostAccountWizard(isFromProvisioner) {
+async function LoadPostAccountWizard(isFromProvisioner) {
   InitMsgWindow();
   messenger.setWindow(window, msgWindow);
 
-  InitPanes();
+  await InitPanes();
   MigrateJunkMailSettings();
   MigrateFolderViews();
   MigrateOpenMessageBehavior();
@@ -1360,8 +1359,8 @@ function AddToSession() {
   MailServices.mailSession.AddFolderListener(folderListener, notifyFlags);
 }
 
-function InitPanes() {
-  gFolderTreeView.load(
+async function InitPanes() {
+  await gFolderTreeView.load(
     document.getElementById("folderTree"),
     "folderTree.json"
   );

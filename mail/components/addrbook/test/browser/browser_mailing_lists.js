@@ -40,6 +40,7 @@ add_task(async () => {
   let abWindow = await openAddressBookWindow();
 
   let dirTree = abWindow.document.getElementById("dirTree");
+
   Assert.equal(
     dirTree.view.getCellText(2, dirTree.columns[0]),
     inputs.abName,

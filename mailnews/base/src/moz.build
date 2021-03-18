@@ -103,7 +103,6 @@ EXTRA_JS_MODULES += [
     "FolderLookupService.jsm",
     "folderUtils.jsm",
     "hostnameUtils.jsm",
-    "IOUtils.jsm",
     "iteratorUtils.jsm",
     "JsTreeSelection.jsm",
     "JXON.jsm",

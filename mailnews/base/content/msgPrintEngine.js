@@ -14,7 +14,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   setTimeout: "resource://gre/modules/Timer.jsm",
   clearTimeout: "resource://gre/modules/Timer.jsm",
   MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 /* globals for a particular window */

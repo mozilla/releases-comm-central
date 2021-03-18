@@ -33,7 +33,7 @@ async function migrationTest(testDataDir) {
   }
 
   // Perform the migration
-  MailMigrator._migrateRSSServer(account.incomingServer);
+  await MailMigrator._migrateRSSServer(account.incomingServer);
 
   // Check actual results against expectations.
   let loadJSON = async function(filename) {

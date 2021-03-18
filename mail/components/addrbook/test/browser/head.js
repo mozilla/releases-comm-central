@@ -42,7 +42,6 @@ async function openAddressBookWindow() {
     abWindow,
     "address book window has focus"
   );
-
   return abWindow;
 }
 
@@ -60,7 +59,7 @@ function getAddressBookWindow() {
   return Services.wm.getMostRecentWindow("mail:addressbook");
 }
 
-function openRootDirectory() {
+async function openRootDirectory() {
   let abWindow = getAddressBookWindow();
   let abDirTree = abWindow.gDirTree;
   mailTestUtils.treeClick(EventUtils, abWindow, abDirTree, 0, 0, {});

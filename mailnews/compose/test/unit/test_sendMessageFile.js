@@ -94,12 +94,12 @@ msl.prototype = {
   ]),
 };
 
-function run_test() {
+add_task(async function run_the_test() {
   server = setupServerDaemon();
 
   // Test file - for bug 429891
   var testFile = do_get_file("data/429891_testcase.eml");
-  originalData = IOUtils.loadFileToString(testFile);
+  originalData = await IOUtils.readUTF8(testFile.path);
 
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
@@ -169,4 +169,4 @@ function run_test() {
       thread.processNextEvent(true);
     }
   }
-}
+});

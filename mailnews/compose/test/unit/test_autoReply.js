@@ -206,7 +206,6 @@ function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
 
   let headers, body;
   [headers, body] = MimeParser.extractHeadersAndBody(gServer._daemon.post);
-  // dump("xxxmagnus gServer._daemon.post=" + gServer._daemon.post + "\n");
   Assert.ok(headers.get("Subject").startsWith("Auto: "));
   Assert.equal(headers.get("Auto-submitted"), "auto-replied");
   Assert.equal(headers.get("In-Reply-To"), "<" + msgHdr.messageId + ">");

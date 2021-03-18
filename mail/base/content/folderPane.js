@@ -21,7 +21,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -143,8 +142,10 @@ var gFolderTreeView = {
   /**
    * Called when the window is initially loaded. This function initializes the
    * folder-pane to the view last shown before the application was closed.
+   * @param {XULTreeElement} aTree - the tree to load
+   * @param {string} [aJSONFile] - name of JSON file to load data from.
    */
-  load(aTree, aJSONFile) {
+  async load(aTree, aJSONFile = null) {
     this._treeElement = aTree;
     this.messengerBundle = document.getElementById("bundle_messenger");
     this.folderColorStyle = document.getElementById("folderColorsStyle");
@@ -167,19 +168,19 @@ var gFolderTreeView = {
 
     if (aJSONFile) {
       // Parse our persistent-state json file
-      let data = IOUtils.loadFileToString(aJSONFile);
-      if (data) {
-        try {
-          let parsedData = JSON.parse(data);
-          // Migrate all the data from the old stored object if the "open"
-          // object doesn't exist.
-          this._persistOpenMap = parsedData.open || parsedData;
-          this._persistColorMap = parsedData.colors;
-        } catch (x) {
+      let spec = OS.Path.join(OS.Constants.Path.profileDir, aJSONFile);
+      try {
+        let data = await IOUtils.readJSON(spec);
+        // Migrate all the data from the old stored object if the "open"
+        // object doesn't exist.
+        this._persistOpenMap = data.open || data;
+        this._persistColorMap = data.colors;
+      } catch (ex) {
+        if (!["NotFoundError"].includes(ex.name)) {
           Cu.reportError(
             gFolderTreeView.messengerBundle.getFormattedString(
               "failedToReadFile",
-              [aJSONFile, x]
+              [aJSONFile, ex]
             )
           );
         }
@@ -201,18 +202,20 @@ var gFolderTreeView = {
   /**
    * Called when the window is being torn down. Here we undo everything we did
    * onload. That means removing our listener and serializing our JSON.
+   * @param {string} [filename] - Name of the file to serialize to.
    */
-  unload(aJSONFile) {
+  async unload(filename = null) {
     // Remove our listener
     MailServices.mailSession.RemoveFolderListener(this);
 
-    if (aJSONFile) {
+    if (filename) {
       // Write out our json file...
-      let data = JSON.stringify({
+      let data = {
         open: this._persistOpenMap,
         colors: this._persistColorMap,
-      });
-      IOUtils.saveStringToFile(aJSONFile, data);
+      };
+      let spec = OS.Path.join(OS.Constants.Path.profileDir, filename);
+      await IOUtils.writeJSON(spec, data);
     }
   },
 

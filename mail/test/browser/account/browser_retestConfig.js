@@ -50,7 +50,6 @@ add_task(function test_re_test_config() {
   // unwind before opening the next one, so do that here.
   mc.sleep(0);
   open_mail_account_setup_wizard(function(awc) {
-    dump("xxxmagnus opened!\n");
     // Input user's account information
     awc.click(awc.eid("realname"));
     if (awc.e("realname").value) {

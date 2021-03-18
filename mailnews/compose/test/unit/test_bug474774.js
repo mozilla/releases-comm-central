@@ -187,9 +187,9 @@ function sendMessageLater() {
   }
 }
 
-function run_test() {
+add_task(async function run_the_test() {
   // Test file - for bug 429891
-  originalData = IOUtils.loadFileToString(testFile);
+  originalData = await IOUtils.readUTF8(testFile.path);
 
   // Ensure we have a local mail account, an normal account and appropriate
   // servers and identities.
@@ -250,4 +250,4 @@ function run_test() {
 
   // Now we wait till we get copy notification of completion.
   do_test_pending();
-}
+});

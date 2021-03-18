@@ -13,7 +13,6 @@
  */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["Element", "Node"]);
 

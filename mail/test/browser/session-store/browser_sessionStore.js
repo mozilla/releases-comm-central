@@ -9,6 +9,10 @@
 
 "use strict";
 
+var { mailTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MailTestUtils.jsm"
+);
+
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
@@ -41,7 +45,6 @@ var {
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { SessionStoreManager } = ChromeUtils.import(
   "resource:///modules/SessionStoreManager.jsm"
@@ -61,18 +64,30 @@ var asyncFileWriteDelayMS = 3000;
 /**
  * Reads the contents of the session file into a JSON object.
  */
-function readFile() {
+async function readFile2() {
   try {
-    let data = IOUtils.loadFileToString(SessionStoreManager.sessionFile);
-    if (data) {
-      return JSON.parse(data);
-    }
+    return await IOUtils.readJSON(SessionStoreManager.sessionFile.path);
   } catch (ex) {
+    if (!["NotFoundError"].includes(ex.name)) {
+      Cu.reportError(ex);
+    }
     // fall through and return null if the session file cannot be read
     // or is bad
+    dump(ex + "\n");
   }
-
   return null;
+}
+
+/**
+ * Reads the contents of the session file into a JSON object.
+ * FIXME: readFile2 should really be used instead. For some weird reason using
+ * that, OR making this function async (+ await the results) will
+ * not work - seem like the file reading just dies (???)
+ * So use the sync file reading for now...
+ */
+function readFile() {
+  let data = mailTestUtils.loadFileToString(SessionStoreManager.sessionFile);
+  return JSON.parse(data);
 }
 
 function waitForFileRefresh() {
@@ -169,7 +184,7 @@ add_task(function test_periodic_nondirty_session_persistence() {
   utils.waitFor(() => !sessionFile.exists(), "session file should not exist");
 });
 
-add_task(function test_single_3pane_periodic_session_persistence() {
+add_task(async function test_single_3pane_periodic_session_persistence() {
   be_in_folder(folderA);
 
   // get the state object. this assumes there is one and only one
@@ -453,7 +468,7 @@ add_task(function test_message_pane_width_persistence() {
   wait_for_window_close();
 });
 
-add_task(function test_multiple_3pane_periodic_session_persistence() {
+add_task(async function test_multiple_3pane_periodic_session_persistence() {
   // open a few more 3pane windows
   for (var i = 0; i < 3; ++i) {
     open3PaneWindow();
@@ -470,6 +485,7 @@ add_task(function test_multiple_3pane_periodic_session_persistence() {
 
   // load the saved state from disk
   let loadedState = readFile();
+
   Assert.ok(loadedState, "previously saved state should be non-null");
 
   Assert.equal(
@@ -486,11 +502,9 @@ add_task(function test_multiple_3pane_periodic_session_persistence() {
   }
 
   // close all but one 3pane window
-  let enumerator = Services.wm.getEnumerator("mail:3pane");
-  for (let window of enumerator) {
-    if (enumerator.hasMoreElements()) {
-      window.close();
-    }
+  let windows = Services.wm.getEnumerator("mail:3pane");
+  for (let win of windows) {
+    win.close();
   }
 });
 
@@ -520,7 +534,7 @@ async function test_bad_session_file_simple() {
   );
 }
 
-add_task(function test_clean_shutdown_session_persistence_simple() {
+add_task(async function test_clean_shutdown_session_persistence_simple() {
   // open a few more 3pane windows
   for (var i = 0; i < 3; ++i) {
     open3PaneWindow();

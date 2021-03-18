@@ -1,8 +1,10 @@
-/*
+/**
  * Test bug 460636 - Saving message in local folder as .EML removes starting dot in all lines, and ignores line if single dot only line.
  */
 
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var MSG_LINEBREAK = "\r\n";
 var dot = do_get_file("data/dot");
@@ -22,7 +24,7 @@ function run_test() {
   copyFileMessageInLocalFolder(dot, 0, "", null, save_message);
 }
 
-function save_message(aMessageHeaderKeys, aStatus) {
+async function save_message(aMessageHeaderKeys, aStatus) {
   let headerKeys = aMessageHeaderKeys;
   Assert.notEqual(headerKeys, null);
 
@@ -31,15 +33,22 @@ function save_message(aMessageHeaderKeys, aStatus) {
   let messageService = Cc[
     "@mozilla.org/messenger/messageservice;1?type=mailbox-message"
   ].getService(Ci.nsIMsgMessageService);
+  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   messageService.SaveMessageToDisk(
     msgURI,
     saveFile,
     false,
-    UrlListener,
+    promiseUrlListener,
     {},
     true,
     null
   );
+  await promiseUrlListener.promise;
+  check_each_line(
+    await IOUtils.readUTF8(dot.path),
+    await IOUtils.readUTF8(saveFile.path)
+  );
+  do_test_finished();
 }
 
 function check_each_line(aExpectedLines, aActualLines) {
@@ -52,18 +61,6 @@ function check_each_line(aExpectedLines, aActualLines) {
     Assert.equal(expectedStrings[line], actualStrings[line]);
   }
 }
-
-var UrlListener = {
-  OnStartRunningUrl(aUrl) {},
-  OnStopRunningUrl(aUrl, aExitCode) {
-    Assert.equal(aExitCode, 0);
-    check_each_line(
-      IOUtils.loadFileToString(dot),
-      IOUtils.loadFileToString(saveFile)
-    );
-    do_test_finished();
-  },
-};
 
 function teardown() {
   if (saveFile.exists()) {

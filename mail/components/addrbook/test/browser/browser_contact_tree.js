@@ -73,7 +73,8 @@ add_task(async function test_additions_and_removals() {
 
   observer.setUp();
 
-  openRootDirectory();
+  await openRootDirectory();
+  info("Performing check #1");
   checkCardsListed(contactA1, contactB1);
 
   // While in bookA, add a contact and list. Check that they show up.
@@ -87,7 +88,8 @@ add_task(async function test_additions_and_removals() {
   listC.addCard(contactA1);
   checkCardsListed(contactA1, contactA2, listC);
 
-  openRootDirectory();
+  await openRootDirectory();
+  info("Performing check #2");
   checkCardsListed(contactA1, contactA2, contactB1, listC);
 
   // While in listC, add a member and remove a member. Check that they show up
@@ -99,7 +101,8 @@ add_task(async function test_additions_and_removals() {
   await deleteRowWithPrompt(0);
   checkCardsListed(contactA2);
 
-  openRootDirectory();
+  await openRootDirectory();
+  info("Performing check #3");
   checkCardsListed(contactA1, contactA2, contactB1, listC);
 
   // While in bookA, delete a contact. Check it disappears.
@@ -116,7 +119,8 @@ add_task(async function test_additions_and_removals() {
   listD.addCard(contactB1);
   checkCardsListed(contactA2, listC);
 
-  openRootDirectory();
+  await openRootDirectory();
+  info("Performing check #4");
   checkCardsListed(contactA2, contactB1, contactB2, listC, listD);
 
   // While in listC, do some things in an unrelated list. Check nothing
@@ -130,7 +134,8 @@ add_task(async function test_additions_and_removals() {
   bookB.deleteCards([contactB1]);
   checkCardsListed(contactA2);
 
-  openRootDirectory();
+  await openRootDirectory();
+  info("Performing check #5");
   checkCardsListed(contactA2, contactB2, listC, listD);
 
   // While in bookA, do some things in an unrelated book. Check nothing
@@ -145,7 +150,8 @@ add_task(async function test_additions_and_removals() {
 
   // While in "All Address Books", make some changes and check that things
   // appear or disappear as appropriate.
-  openRootDirectory();
+  await openRootDirectory();
+  info("Performing check #6");
   checkCardsListed(contactA2, contactB2);
   let listE = bookB.addMailList(createMailingList("list E")); // Add E.
   checkDirectoryDisplayed(null);

@@ -37,7 +37,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
 var statusHeader = "X-Mozilla-Status: ";
 
@@ -94,7 +93,7 @@ add_task(function setupModule(module) {
  * @param aStatusOffset  Offset from the start of the message where the status line is. Optional.
  * @param aStatus        The required status of the message.
  */
-function check_status(aMsgHdr, aOffset, aStatusOffset, aStatus) {
+async function check_status(aMsgHdr, aOffset, aStatusOffset, aStatus) {
   if (aOffset == null) {
     aOffset = aMsgHdr.messageOffset;
   }
@@ -103,8 +102,7 @@ function check_status(aMsgHdr, aOffset, aStatusOffset, aStatus) {
   }
 
   let folder = aMsgHdr == null ? gInbox : aMsgHdr.folder;
-
-  let mboxstring = IOUtils.loadFileToString(folder.filePath);
+  let mboxstring = await IOUtils.readUTF8(folder.filePath.path);
 
   let expectedStatusString = aStatus.toString(16);
   while (expectedStatusString.length < 4) {
@@ -127,7 +125,7 @@ function check_status(aMsgHdr, aOffset, aStatusOffset, aStatus) {
   );
 }
 
-add_task(function test_mark_messages_read() {
+add_task(async function test_mark_messages_read() {
   // 5 messages in the folder
   be_in_folder(gInbox);
   let curMessage = select_click_row(0);
@@ -135,10 +133,10 @@ add_task(function test_mark_messages_read() {
   // after the message is deleted.
   let offset = curMessage.messageOffset;
   let statusOffset = curMessage.statusOffset;
-  check_status(curMessage, null, null, 0); // status = unread
+  await check_status(curMessage, null, null, 0); // status = unread
   press_delete(mc);
   Assert.notEqual(curMessage, select_click_row(0));
-  check_status(
+  await check_status(
     null,
     offset,
     statusOffset,
@@ -147,7 +145,7 @@ add_task(function test_mark_messages_read() {
 
   // 4 messages in the folder.
   curMessage = select_click_row(0);
-  check_status(curMessage, null, null, 0); // status = unread
+  await check_status(curMessage, null, null, 0); // status = unread
 
   // Make sure we can mark all read with >0 messages unread.
   right_click_on_row(0);
@@ -158,16 +156,16 @@ add_task(function test_mark_messages_read() {
 
   // All the 4 messages should now be read.
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
-  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
+  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
   curMessage = select_click_row(1);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
-  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
+  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
   curMessage = select_click_row(2);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
-  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
+  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
   curMessage = select_click_row(3);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
-  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
+  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
 
   // Let's have the last message unread.
   right_click_on_row(3);
@@ -176,10 +174,10 @@ add_task(function test_mark_messages_read() {
     { id: "mailContext-markUnread" },
   ]);
   Assert.ok(!curMessage.isRead, "Message should have not been marked Read!");
-  check_status(curMessage, null, null, 0);
+  await check_status(curMessage, null, null, 0);
 });
 
-add_task(function test_mark_messages_flagged() {
+add_task(async function test_mark_messages_flagged() {
   // Mark a message with the star.
   let curMessage = select_click_row(1);
   right_click_on_row(1);
@@ -188,7 +186,7 @@ add_task(function test_mark_messages_flagged() {
     { id: "mailContext-markFlagged" },
   ]);
   Assert.ok(curMessage.isFlagged, "Message should have been marked Flagged!");
-  check_status(
+  await check_status(
     curMessage,
     null,
     null,
@@ -196,11 +194,11 @@ add_task(function test_mark_messages_flagged() {
   );
 });
 
-function subtest_check_queued_message() {
+async function subtest_check_queued_message() {
   // Always check the last message in the Outbox for the correct flag.
   be_in_folder(gOutbox);
   let lastMsg = [...gOutbox.messages].pop();
-  check_status(lastMsg, null, null, Ci.nsMsgMessageFlags.Queued);
+  await check_status(lastMsg, null, null, Ci.nsMsgMessageFlags.Queued);
 }
 
 /**
@@ -209,7 +207,7 @@ function subtest_check_queued_message() {
  * @param aMsgRow  Row index of message in Inbox that is to be replied/forwarded.
  * @param aReply   true = reply, false = forward.
  */
-function reply_forward_message(aMsgRow, aReply) {
+async function reply_forward_message(aMsgRow, aReply) {
   be_in_folder(gInbox);
   select_click_row(aMsgRow);
   let cwc;
@@ -237,7 +235,7 @@ function reply_forward_message(aMsgRow, aReply) {
   );
   wait_for_window_close(cwc);
 
-  subtest_check_queued_message();
+  await subtest_check_queued_message();
 
   // Now this is hacky. We can't get the message to be sent out of TB because there
   // is no fake SMTP server support yet.
@@ -253,10 +251,10 @@ function reply_forward_message(aMsgRow, aReply) {
   gInbox.addMessageDispositionState(curMessage, disposition);
 }
 
-add_task(function test_mark_messages_replied() {
-  reply_forward_message(2, true);
+add_task(async function test_mark_messages_replied() {
+  await reply_forward_message(2, true);
   let curMessage = select_click_row(2);
-  check_status(
+  await check_status(
     curMessage,
     null,
     null,
@@ -264,23 +262,23 @@ add_task(function test_mark_messages_replied() {
   );
 });
 
-add_task(function test_mark_messages_forwarded() {
+add_task(async function test_mark_messages_forwarded() {
   be_in_folder(gInbox);
   // Forward a clean message.
-  reply_forward_message(3, false);
+  await reply_forward_message(3, false);
   let curMessage = select_click_row(3);
-  check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Forwarded);
+  await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Forwarded);
 
   // Forward a message that is read and already replied to.
   curMessage = select_click_row(2);
-  check_status(
+  await check_status(
     curMessage,
     null,
     null,
     Ci.nsMsgMessageFlags.Replied + Ci.nsMsgMessageFlags.Read
   );
-  reply_forward_message(2, false);
-  check_status(
+  await reply_forward_message(2, false);
+  await check_status(
     curMessage,
     null,
     null,

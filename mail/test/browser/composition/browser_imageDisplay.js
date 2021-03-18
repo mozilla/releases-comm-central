@@ -31,8 +31,6 @@ var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
-
 var gImageFolder;
 
 add_task(function setupModule(module) {
@@ -89,7 +87,7 @@ add_task(async function test_cid_image_load() {
   );
 
   // Make sure there is a cid: referenced image in the message.
-  let msgSource = IOUtils.loadFileToString(file);
+  let msgSource = await IOUtils.readUTF8(file.path);
   Assert.ok(msgSource.includes('<img src="cid:'));
 
   // Our image should be in the loaded eml document.

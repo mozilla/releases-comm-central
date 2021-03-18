@@ -2,10 +2,9 @@
  * Test bug 460636 - nsMsgSaveAsListener sometimes inserts extra LF characters
  */
 
-/* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/asyncTestUtils.js */
-load("../../../resources/logHelper.js");
-load("../../../resources/asyncTestUtils.js");
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var gSavedMsgFile;
 
@@ -16,15 +15,17 @@ var gIMAPService = Cc[
 var gFileName = "bug460636";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
 
-var tests = [setup, checkSavedMessage, teardown];
+add_task(async function run_the_test() {
+  await setup();
+  await checkSavedMessage();
+  teardown();
+});
 
-function* setup() {
+async function setup() {
   setupIMAPPump();
 
-  /*
-   * Ok, prelude done. Read the original message from disk
-   * (through a file URI), and add it to the Inbox.
-   */
+  // Ok, prelude done. Read the original message from disk
+  // (through a file URI), and add it to the Inbox.
   var msgfileuri = Services.io
     .newFileURI(gMsgFile)
     .QueryInterface(Ci.nsIFileURL);
@@ -32,44 +33,41 @@ function* setup() {
   IMAPPump.mailbox.addMessage(
     new imapMessage(msgfileuri.spec, IMAPPump.mailbox.uidnext++, [])
   );
-  IMAPPump.inbox.updateFolderWithListener(null, asyncUrlListener);
-  yield false;
+  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
+  await promiseUrlListener.promise;
 
-  /*
-   * Save the message to a local file. IMapMD corresponds to
-   * <profile_dir>/mailtest/ImapMail (where fakeserver puts the IMAP mailbox
-   * files). If we pass the test, we'll remove the file afterwards
-   * (cf. UrlListener), otherwise it's kept in IMapMD.
-   */
+  // Save the message to a local file. IMapMD corresponds to
+  // <profile_dir>/mailtest/ImapMail (where fakeserver puts the IMAP mailbox
+  // files). If we pass the test, we'll remove the file afterwards
+  // (cf. UrlListener), otherwise it's kept in IMapMD.
   gSavedMsgFile = Services.dirsvc.get("IMapMD", Ci.nsIFile);
   gSavedMsgFile.append(gFileName + ".eml");
 
-  /*
-   * From nsIMsgMessageService.idl:
-   * void SaveMessageToDisk(in string aMessageURI, in nsIFile aFile,
-   *                        in boolean aGenerateDummyEnvelope,
-   *                        in nsIUrlListener aUrlListener, out nsIURI aURL,
-   *                        in boolean canonicalLineEnding,
-   *                        in nsIMsgWindow aMsgWindow);
-   * Enforcing canonicalLineEnding (i.e., CRLF) makes sure that the
-   * test also runs successfully on platforms not using CRLF by default.
-   */
+  // From nsIMsgMessageService.idl:
+  // void SaveMessageToDisk(in string aMessageURI, in nsIFile aFile,
+  //                        in boolean aGenerateDummyEnvelope,
+  //                        in nsIUrlListener aUrlListener, out nsIURI aURL,
+  //                        in boolean canonicalLineEnding,
+  //                        in nsIMsgWindow aMsgWindow);
+  // Enforcing canonicalLineEnding (i.e., CRLF) makes sure that the
+  let promiseUrlListener2 = new PromiseTestUtils.PromiseUrlListener();
   gIMAPService.SaveMessageToDisk(
     "imap-message://user@localhost/INBOX#" + (IMAPPump.mailbox.uidnext - 1),
     gSavedMsgFile,
     false,
-    asyncUrlListener,
+    promiseUrlListener2,
     {},
     true,
     null
   );
-  yield false;
+  await promiseUrlListener2.promise;
 }
 
-function checkSavedMessage() {
+async function checkSavedMessage() {
   Assert.equal(
-    IOUtils.loadFileToString(gMsgFile),
-    IOUtils.loadFileToString(gSavedMsgFile)
+    await IOUtils.readUTF8(gMsgFile.path),
+    await IOUtils.readUTF8(gSavedMsgFile.path)
   );
 }
 
@@ -81,8 +79,4 @@ function teardown() {
     do_throw(ex);
   }
   teardownIMAPPump();
-}
-
-function run_test() {
-  async_run_tests(tests);
 }

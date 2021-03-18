@@ -162,6 +162,7 @@ ABView.prototype = {
       if (tree) {
         Services.obs.addObserver(this, topic, true);
       } else {
+        // XXX: seems |this| is not usually a valid observer here
         Services.obs.removeObserver(this, topic);
       }
     }

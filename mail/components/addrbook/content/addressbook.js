@@ -61,7 +61,7 @@ var kFirstNameFirst = 2;
 // of IM contacts).
 var kChatProperties = ["_GoogleTalk", "_JabberId"];
 
-function OnUnloadAddressBook() {
+async function OnUnloadAddressBook() {
   // If there's no default startupURI, save the last used URI as new startupURI.
   let saveLastURIasStartupURI = !Services.prefs.getBoolPref(
     "mail.addr_book.view.startupURIisDefault"
@@ -76,7 +76,7 @@ function OnUnloadAddressBook() {
 
   // Shutdown the tree view - this will also save the open/collapsed
   // state of the tree view to a JSON file.
-  gDirectoryTreeView.shutdown(kPersistCollapseMapStorage);
+  await gDirectoryTreeView.shutdown(kPersistCollapseMapStorage);
 
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
 
@@ -145,10 +145,10 @@ function OnLoadAddressBook() {
     chatHandler.ChatCore.init();
   }
 
-  setTimeout(delayedOnLoadAddressBook, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
+  delayedOnLoadAddressBook();
 }
 
-function delayedOnLoadAddressBook() {
+async function delayedOnLoadAddressBook() {
   InitCommonJS();
 
   GetCurrentPrefs();
@@ -157,7 +157,7 @@ function delayedOnLoadAddressBook() {
   OnLoadCardView();
 
   // Initialize the Address Book tree view
-  gDirectoryTreeView.init(gDirTree, kPersistCollapseMapStorage);
+  await gDirectoryTreeView.init(gDirTree, kPersistCollapseMapStorage);
 
   selectStartupViewDirectory();
   gAbResultsTree.focus();

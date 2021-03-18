@@ -14,9 +14,11 @@ var EXPORTED_SYMBOLS = [
 ];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
   "resource://testing-common/mailnews/Auth.jsm"
+);
+var { mailTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
 // Since we don't really need to worry about peristence, we can just
@@ -64,7 +66,7 @@ function readFile(fileName) {
     throw new Error("Cannot find file named " + fileName);
   }
 
-  return IOUtils.loadFileToString(file);
+  return mailTestUtils.loadFileToString(file);
 }
 
 function pop3Daemon(flags) {

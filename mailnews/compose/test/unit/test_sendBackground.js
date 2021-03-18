@@ -94,7 +94,7 @@ msll.prototype = {
   },
 };
 
-function run_test() {
+add_task(async function run_the_test() {
   // The point of this test - send in background.
   Services.prefs.setBoolPref("mailnews.sendInBackground", true);
 
@@ -108,7 +108,7 @@ function run_test() {
   );
 
   // Test file - for bug 429891
-  originalData = IOUtils.loadFileToString(testFile1);
+  originalData = await IOUtils.readUTF8(testFile1.path);
 
   // Check that the send later service thinks we don't have messages to send
   Assert.equal(gMsgSendLater.hasUnsentMessages(identity), false);
@@ -220,4 +220,4 @@ function run_test() {
       thread.processNextEvent(true);
     }
   }
-}
+});

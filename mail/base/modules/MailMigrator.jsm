@@ -11,11 +11,6 @@
 
 var EXPORTED_SYMBOLS = ["MailMigrator"];
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "IOUtils",
-  "resource:///modules/IOUtils.jsm"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -214,21 +209,23 @@ var MailMigrator = {
       // This one is needed also in all new profiles.
       // Add an expanded entry for All Address Books.
       if (currentUIVersion < 10 || newProfile) {
-        const DIR_TREE_FILE = "directoryTree.json";
-
         // If the file exists, read its contents, prepend the "All ABs" URI
         // and save it, else, just write the "All ABs" URI to the file.
-        let data = IOUtils.loadFileToString(DIR_TREE_FILE);
-        if (!data || data == "[]") {
-          data = "";
-        } else if (data.length > 0) {
-          data = data.substring(1, data.length - 1);
-        }
-
-        data =
-          '["moz-abdirectory://?"' + (data.length > 0 ? "," + data : "") + "]";
-
-        IOUtils.saveStringToFile(DIR_TREE_FILE, data);
+        PathUtils.getProfileDir().then(dir => {
+          let spec = PathUtils.join(dir, "directoryTree.json");
+          IOUtils.readJSON(spec)
+            .then(data => {
+              data.unshift("moz-abdirectory://?");
+              IOUtils.writeJSON(spec, data);
+            })
+            .catch(ex => {
+              if (["NotFoundError"].includes(ex.name)) {
+                IOUtils.writeJSON(spec, ["moz-abdirectory://?"]);
+              } else {
+                Cu.reportError(ex);
+              }
+            });
+        });
       }
 
       // Several Latin language groups were consolidated into x-western.
@@ -605,7 +602,7 @@ var MailMigrator = {
    *
    * @returns {void}
    */
-  _migrateRSS() {
+  async _migrateRSS() {
     // Find all the RSS IncomingServers.
     let rssServers = [];
     for (let server of MailServices.accounts.allServers) {
@@ -616,48 +613,46 @@ var MailMigrator = {
 
     // For each one...
     for (let server of rssServers) {
-      this._migrateRSSServer(server);
+      await this._migrateRSSServer(server);
     }
   },
 
-  _migrateRSSServer(server) {
+  async _migrateRSSServer(server) {
     let rssServer = server.QueryInterface(Ci.nsIRssIncomingServer);
 
     // Convert feeds.rdf to feeds.json (if needed).
     let feedsFile = rssServer.subscriptionsPath;
     let legacyFeedsFile = server.localPath;
     legacyFeedsFile.append("feeds.rdf");
-    if (!feedsFile.exists() && legacyFeedsFile.exists()) {
-      try {
-        this._migrateRSSSubscriptions(legacyFeedsFile, feedsFile);
-      } catch (err) {
-        Cu.reportError(
-          "Failed to migrate '" +
-            feedsFile.path +
-            "' to '" +
-            legacyFeedsFile.path +
-            "': " +
-            err
-        );
-      }
+
+    try {
+      await this._migrateRSSSubscriptions(legacyFeedsFile, feedsFile);
+    } catch (err) {
+      Cu.reportError(
+        "Failed to migrate '" +
+          feedsFile.path +
+          "' to '" +
+          legacyFeedsFile.path +
+          "': " +
+          err
+      );
     }
+
     // Convert feeditems.rdf to feeditems.json (if needed).
     let itemsFile = rssServer.feedItemsPath;
     let legacyItemsFile = server.localPath;
     legacyItemsFile.append("feeditems.rdf");
-    if (!itemsFile.exists() && legacyItemsFile.exists()) {
-      try {
-        this._migrateRSSItems(legacyItemsFile, itemsFile);
-      } catch (err) {
-        Cu.reportError(
-          "Failed to migrate '" +
-            itemsFile.path +
-            "' to '" +
-            legacyItemsFile.path +
-            "': " +
-            err
-        );
-      }
+    try {
+      await this._migrateRSSItems(legacyItemsFile, itemsFile);
+    } catch (err) {
+      Cu.reportError(
+        "Failed to migrate '" +
+          itemsFile.path +
+          "' to '" +
+          legacyItemsFile.path +
+          "': " +
+          err
+      );
     }
   },
 
@@ -675,11 +670,17 @@ var MailMigrator = {
    * @param {nsIFile} legacyFile - Location of the rdf file.
    * @param {nsIFile} jsonFile - Location for the output JSON file.
    * @returns {void}
-   * @throws Will throw an error if the conversion fails.
    */
-  _migrateRSSSubscriptions(legacyFile, jsonFile) {
+  async _migrateRSSSubscriptions(legacyFile, jsonFile) {
     // Load .rdf file into an XMLDocument.
-    let rawXMLRDF = IOUtils.loadFileToString(legacyFile);
+    let rawXMLRDF;
+    try {
+      rawXMLRDF = await IOUtils.readUTF8(legacyFile.path);
+    } catch (ex) {
+      if (["NotFoundError"].includes(ex.name)) {
+        return; // nothing legacy file to migrate
+      }
+    }
     let parser = new DOMParser();
     let doc = parser.parseFromString(rawXMLRDF, "text/xml");
 
@@ -737,8 +738,7 @@ var MailMigrator = {
       }
     }
 
-    let data = JSON.stringify(feeds);
-    IOUtils.saveStringToFile(jsonFile, data);
+    await IOUtils.writeJSON(jsonFile.path, feeds);
     legacyFile.remove(false);
   },
 
@@ -749,11 +749,17 @@ var MailMigrator = {
    * @param {nsIFile} legacyFile - Location of the rdf file.
    * @param {nsIFile} jsonFile - Location for the output JSON file.
    * @returns {void}
-   * @throws Will throw an error if the conversion fails.
    */
-  _migrateRSSItems(legacyFile, jsonFile) {
+  async _migrateRSSItems(legacyFile, jsonFile) {
     // Load .rdf file into an XMLDocument.
-    let rawXMLRDF = IOUtils.loadFileToString(legacyFile);
+    let rawXMLRDF;
+    try {
+      rawXMLRDF = await IOUtils.readUTF8(legacyFile.path);
+    } catch (ex) {
+      if (["NotFoundError"].includes(ex.name)) {
+        return; // nothing legacy file to migrate
+      }
+    }
     let parser = new DOMParser();
     let doc = parser.parseFromString(rawXMLRDF, "text/xml");
 
@@ -834,8 +840,7 @@ var MailMigrator = {
       }
     }
 
-    let data = JSON.stringify(items);
-    IOUtils.saveStringToFile(jsonFile, data);
+    await IOUtils.writeJSON(jsonFile.path, items);
     legacyFile.remove(false);
   },
 
