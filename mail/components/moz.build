@@ -24,7 +24,6 @@ DIRS += [
     "prompts",
     "search",
     "shell",
-    "wintaskbar",
 ]
 
 DIRS += ["build"]
