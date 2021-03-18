@@ -60,7 +60,7 @@ add_task(async function test_pagination() {
 
       browser.test.assertRejects(
         browser.messages.continueList(originalPageId),
-        null
+        /No message list for id .*\. Have you reached the end of a list\?/
       );
 
       await window.sendMessage("setPref");
