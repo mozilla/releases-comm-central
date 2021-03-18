@@ -66,3 +66,4 @@ for var in ("OS_CPPFLAGS", "OS_CXXFLAGS", "DEBUG", "OPTIMIZE", "FRAMEPTR"):
     cxx_flags += COMPILE_FLAGS[var] or []
 
 DEFINES["CXXFLAGS"] = " ".join(cxx_flags)
+DEFINES["CXXFLAGS"] += " -fPIC"

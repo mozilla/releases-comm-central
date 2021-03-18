@@ -27,7 +27,7 @@ if CONFIG['OS_ARCH'] == 'WINNT':
     botan_os = 'windows'
 elif CONFIG['OS_ARCH'] == 'Linux':
     botan_os = 'linux'
-    CXXFLAGS += ['-pthread']
+    CXXFLAGS += ['-pthread', "-fPIC"]
 else:
     botan_os = CONFIG['OS_ARCH'].lower()
 
