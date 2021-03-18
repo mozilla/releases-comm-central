@@ -840,8 +840,7 @@ pref("mail.biff.play_sound.url", "");
 pref("mail.biff.show_alert", true);
 #ifdef XP_WIN
 pref("mail.biff.show_tray_icon", true);
-pref("mail.biff.show_balloon", false);
-pref("mail.biff.use_system_alert", true);
+pref("mail.biff.use_system_alert", false);
 #elifdef XP_MACOSX
 pref("mail.biff.animate_dock_icon", false);
 #elifdef XP_UNIX
@@ -992,8 +991,8 @@ pref("ldap_2.servers.osx.uri", "moz-abosxdirectory:///");
 pref("ldap_2.servers.osx.description", "chrome://messenger/locale/addressbook/addressBook.properties");
 pref("ldap_2.servers.osx.dirType", 3);
 pref("mail.notification.sound", "");
-pref("mail.notification.count.inbox_only", true);
 #endif
+pref("mail.notification.count.inbox_only", true);
 pref("mail.notification.loglevel", "Warn");
 
 // For the Empty Junk/Trash confirmation dialogs.

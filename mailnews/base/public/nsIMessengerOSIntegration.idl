@@ -18,4 +18,9 @@ interface nsIMessengerOSIntegration : nsISupports {
    */
   void updateUnreadCount(in unsigned long unreadCount,
                          in AString unreadTooltip);
+
+  /**
+   * Use this to do necessary clean up on exit, e.g. reset the badge/tray icon.
+   */
+  void onExit();
 };

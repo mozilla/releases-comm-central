@@ -193,9 +193,6 @@
               return;
             }
             MailUtils.displayMessageInFolderTab(msgHdr);
-            if (gAlertListener) {
-              gAlertListener.observe(null, "alertclickcallback", "");
-            }
           });
 
           if (this.showSubject) {

@@ -213,29 +213,6 @@ function make_gradually_newer_sets_in_folder(aFolder, aArgs) {
 }
 
 /**
- * Test that we revert to newmailalert.xhtml if there is no system
- * notification service present.
- */
-add_task(function test_revert_to_newmailalert() {
-  setupTest();
-  // Set up the gMockAlertsService so that it fails
-  // to send a notification.
-  gMockAlertsService._doFail = true;
-
-  if (AppConstants.platform == "macosx") {
-    // newmailalert.xhtml doesn't work on macOS.
-    return;
-  }
-
-  // We expect the newmailalert.xhtml window...
-  plan_for_new_window("alert:alert");
-  make_gradually_newer_sets_in_folder(gFolder, [{ count: 2 }]);
-  let controller = wait_for_new_window("alert:alert");
-  plan_for_window_close(controller);
-  wait_for_window_close();
-});
-
-/**
  * Test that receiving new mail causes a notification to appear
  */
 add_task(async function test_new_mail_received_causes_notification() {
@@ -575,4 +552,31 @@ add_task(async function test_no_notification_for_uninteresting_folders() {
     await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
     someFolder.flags = someFolder.flags & ~uninterestingFlags[i];
   }
+});
+
+/**
+ * Test that we revert to newmailalert.xhtml if there is no system notification
+ * service present.
+ *
+ * NOTE: this test should go last because if
+ * nsIAlertsService.showAlertNotification failed for once, we always fallback to
+ * newmailalert.xhtml afterwards.
+ */
+add_task(function test_revert_to_newmailalert() {
+  setupTest();
+  // Set up the gMockAlertsService so that it fails
+  // to send a notification.
+  gMockAlertsService._doFail = true;
+
+  if (AppConstants.platform == "macosx") {
+    // newmailalert.xhtml doesn't work on macOS.
+    return;
+  }
+
+  // We expect the newmailalert.xhtml window...
+  plan_for_new_window("alert:alert");
+  make_gradually_newer_sets_in_folder(gFolder, [{ count: 2 }]);
+  let controller = wait_for_new_window("alert:alert");
+  plan_for_window_close(controller);
+  wait_for_window_close();
 });

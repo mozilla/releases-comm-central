@@ -34,6 +34,7 @@ class MailNotificationManager {
   ]);
 
   constructor() {
+    this._systemAlertAvailable = true;
     this._unreadChatCount = 0;
     this._unreadMailCount = 0;
 
@@ -63,6 +64,7 @@ class MailNotificationManager {
         .getService(Ci.mozINewMailNotificationService)
         .addListener(this, Ci.mozINewMailNotificationService.count);
       Services.obs.addObserver(this, "unread-im-count-changed");
+      Services.obs.addObserver(this, "profile-before-change");
     }
 
     if (AppConstants.platform == "macosx") {
@@ -88,6 +90,8 @@ class MailNotificationManager {
       this._animateDockIcon();
     } else if (topic == "window-restored-from-tray") {
       this._updateUnreadCount();
+    } else if (topic == "profile-before-change") {
+      this._osIntegration?.onExit();
     }
   }
 
@@ -284,7 +288,10 @@ class MailNotificationManager {
     let folder = msgHdr.folder;
 
     // Try to use system alert first.
-    if (Services.prefs.getBoolPref("mail.biff.use_system_alert", true)) {
+    if (
+      Services.prefs.getBoolPref("mail.biff.use_system_alert", true) &&
+      this._systemAlertAvailable
+    ) {
       let alertsService = Cc["@mozilla.org/system-alerts-service;1"].getService(
         Ci.nsIAlertsService
       );
@@ -299,7 +306,10 @@ class MailNotificationManager {
           this
         );
         return;
-      } catch (e) {}
+      } catch (e) {
+        this._logger.error(e);
+        this._systemAlertAvailable = false;
+      }
     }
 
     // The use_system_alert pref is false or showAlertNotification somehow

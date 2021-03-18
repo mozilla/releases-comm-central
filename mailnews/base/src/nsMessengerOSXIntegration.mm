@@ -13,7 +13,7 @@
 
 nsMessengerOSXIntegration::nsMessengerOSXIntegration() {}
 
-nsMessengerOSXIntegration::~nsMessengerOSXIntegration() { RestoreDockIcon(); }
+nsMessengerOSXIntegration::~nsMessengerOSXIntegration() {}
 
 NS_IMPL_ADDREF(nsMessengerOSXIntegration)
 NS_IMPL_RELEASE(nsMessengerOSXIntegration)
@@ -54,4 +54,10 @@ nsMessengerOSXIntegration::UpdateUnreadCount(uint32_t unreadCount, const nsAStri
   return NS_OK;
 
   NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
+}
+
+NS_IMETHODIMP
+nsMessengerOSXIntegration::OnExit() {
+  RestoreDockIcon();
+  return NS_OK;
 }

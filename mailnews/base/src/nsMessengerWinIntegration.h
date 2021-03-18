@@ -10,6 +10,7 @@
 #include "nsString.h"
 #include "nsIMessengerWindowsIntegration.h"
 #include "nsIStringBundle.h"
+#include "nsIPrefBranch.h"
 
 class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
  public:
@@ -20,14 +21,17 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
 
   NS_IMETHOD UpdateUnreadCount(uint32_t unreadCount,
                                const nsAString& unreadTooltip);
+  NS_IMETHOD OnExit();
 
  private:
   virtual ~nsMessengerWinIntegration();
 
   nsresult SetTooltip();
+  nsresult UpdateTrayIcon();
 
+  nsCOMPtr<nsIPrefBranch> mPrefBranch;
+  bool mTrayIconShown = false;
   nsString mBrandShortName;
-  uint32_t mUnreadCount;
   nsString mUnreadTooltip;
 };
 

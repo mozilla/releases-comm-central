@@ -17,40 +17,13 @@ var NS_ALERT_TOP = 4;
 var gNumNewMsgsToShowInAlert = 6;
 var gOpenTime = 4000; // total time the alert should stay up once we are done animating.
 
-var gAlertListener = null;
 var gPendingPreviewFetchRequests = 0;
-var gUserInitiated = false;
 var gOrigin = 0; // Default value: alert from bottom right.
 
 function prefillAlertInfo() {
   // unwrap all the args....
-  // arguments[0] --> nsIArray of folders with new mail
-  // arguments[1] --> the observer to call back with notifications about the alert
-  // arguments[2] --> user initiated boolean. true if the user initiated opening the alert
-  //                 (which means skip the fade effect and don't auto close the alert)
-  // arguments[3] --> the alert origin returned by the look and feel
-  var foldersWithNewMail = window.arguments[0];
-  gAlertListener = window.arguments[1];
-  gUserInitiated = window.arguments[2];
-  gOrigin = window.arguments[3];
-
-  // For now just grab the first folder which should be a root folder
-  // for the account that has new mail. If we can't find a folder, just
-  // return to avoid the exception and empty dialog in upper left-hand corner.
-  if (!foldersWithNewMail || foldersWithNewMail.length < 1) {
-    return;
-  }
-  let rootFolder;
-  if (foldersWithNewMail instanceof Ci.nsIArray) {
-    rootFolder = foldersWithNewMail
-      .queryElementAt(0, Ci.nsIWeakReference)
-      .QueryReferent(Ci.nsIMsgFolder);
-  } else {
-    // Temporary workaround, after the refactoring of all
-    // nsMessenger*Integration, foldersWithNewMail will always be a
-    // nsIMsgFolder.
-    rootFolder = foldersWithNewMail;
-  }
+  // arguments[0] --> The nsIMsgFolder with new mail
+  var rootFolder = window.arguments[0];
 
   // Generate an account label string based on the root folder.
   var label = document.getElementById("alertTitle");
@@ -142,11 +115,8 @@ function showAlert() {
   resizeAlert(false);
 
   var alertContainer = document.getElementById("alertContainer");
-  // Don't fade in if the user opened the alert or the prefers-reduced-motion is true.
-  if (
-    gUserInitiated ||
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  ) {
+  // Don't fade in if the prefers-reduced-motion is true.
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     alertContainer.setAttribute("noanimation", true);
     setTimeout(closeAlert, gOpenTime);
     return;
@@ -203,8 +173,5 @@ function fadeOutAlert() {
 }
 
 function closeAlert() {
-  if (gAlertListener) {
-    gAlertListener.observe(null, "alertfinished", "");
-  }
   window.close();
 }

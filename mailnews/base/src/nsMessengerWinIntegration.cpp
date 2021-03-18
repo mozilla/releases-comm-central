@@ -7,14 +7,22 @@
 #include <shellapi.h>
 #include <strsafe.h>
 
-#include "nsMessengerWinIntegration.h"
-#include "nsMsgDBFolder.h"
-#include "nsIBaseWindow.h"
-#include "nsIWidget.h"
 #include "mozilla/Services.h"
+#include "mozIDOMWindow.h"
+#include "nsIBaseWindow.h"
+#include "nsIDocShell.h"
+#include "nsIMsgMailSession.h"
+#include "nsIMsgWindow.h"
 #include "nsIObserverService.h"
+#include "nsIPrefService.h"
+#include "nsIWidget.h"
+#include "nsMessengerWinIntegration.h"
+#include "nsMsgBaseCID.h"
+#include "nsMsgDBFolder.h"
+#include "nsPIDOMWindow.h"
 
 #define IDI_MAILBIFF 32576
+#define SHOW_TRAY_ICON_PREF "mail.biff.show_tray_icon"
 
 // since we are including windows.h in this file, undefine get user name....
 #ifdef GetUserName
@@ -44,6 +52,37 @@ NS_INTERFACE_MAP_BEGIN(nsMessengerWinIntegration)
   NS_INTERFACE_MAP_ENTRY(nsIMessengerOSIntegration)
 NS_INTERFACE_MAP_END
 
+static HWND hwndForDOMWindow(mozIDOMWindowProxy* window) {
+  if (!window) {
+    return 0;
+  }
+  nsCOMPtr<nsPIDOMWindowOuter> pidomwindow = nsPIDOMWindowOuter::From(window);
+
+  nsCOMPtr<nsIBaseWindow> ppBaseWindow =
+      do_QueryInterface(pidomwindow->GetDocShell());
+  if (!ppBaseWindow) return 0;
+
+  nsCOMPtr<nsIWidget> ppWidget;
+  ppBaseWindow->GetMainWidget(getter_AddRefs(ppWidget));
+
+  return (HWND)(ppWidget->GetNativeData(NS_NATIVE_WIDGET));
+}
+
+static void activateWindow(mozIDOMWindowProxy* win) {
+  // Try to get native window handle.
+  HWND hwnd = hwndForDOMWindow(win);
+  if (hwnd) {
+    // Restore the window if it is minimized.
+    if (::IsIconic(hwnd)) ::ShowWindow(hwnd, SW_RESTORE);
+    // Use the OS call, if possible.
+    ::SetForegroundWindow(hwnd);
+  } else {
+    // Use internal method.
+    nsCOMPtr<nsPIDOMWindowOuter> privateWindow = nsPIDOMWindowOuter::From(win);
+    privateWindow->Focus(mozilla::dom::CallerType::System);
+  }
+}
+
 NOTIFYICONDATAW sMailIconData = {
     /* cbSize */ (DWORD)NOTIFYICONDATAW_V2_SIZE,
     /* hWnd */ 0,
@@ -61,11 +100,41 @@ NOTIFYICONDATAW sMailIconData = {
 
 static nsCOMArray<nsIBaseWindow> sHiddenWindows;
 static HWND sIconWindow;
+static uint32_t sUnreadCount;
 static LRESULT CALLBACK IconWindowProc(HWND msgWindow, UINT msg, WPARAM wp,
                                        LPARAM lp) {
+  nsresult rv;
   if (msg == WM_USER && lp == WM_LBUTTONDOWN) {
-    ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
+    nsCOMPtr<nsIPrefBranch> prefBranch =
+        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, FALSE);
+    bool showTrayIcon;
+    rv = prefBranch->GetBoolPref(SHOW_TRAY_ICON_PREF, &showTrayIcon);
+    NS_ENSURE_SUCCESS(rv, FALSE);
+    if (!showTrayIcon || !sUnreadCount) {
+      ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
+    }
 
+    // No minimzed window, bring the topMostMsgWindow to the front.
+    if (sHiddenWindows.Length() == 0) {
+      nsCOMPtr<nsIMsgMailSession> mailSession(
+          do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
+      if (NS_FAILED(rv)) return FALSE;
+
+      nsCOMPtr<nsIMsgWindow> topMostMsgWindow;
+      rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(topMostMsgWindow));
+      if (NS_FAILED(rv)) return FALSE;
+      if (topMostMsgWindow) {
+        nsCOMPtr<mozIDOMWindowProxy> domWindow;
+        topMostMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
+        if (domWindow) {
+          activateWindow(domWindow);
+          return TRUE;
+        }
+      }
+    }
+
+    // Bring the minimized windows to the front.
     for (uint32_t i = 0; i < sHiddenWindows.Length(); i++) {
       sHiddenWindows[i]->SetVisibility(true);
 
@@ -106,59 +175,36 @@ nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
   aWindow->SetVisibility(false);
   sHiddenWindows.AppendElement(aWindow);
 
-  if (sMailIconData.hWnd == 0) {
-    // Register the window class.
-    NS_ENSURE_TRUE(::RegisterClass(&sClassStruct), NS_ERROR_FAILURE);
-    // Create the window.
-    NS_ENSURE_TRUE(sIconWindow = ::CreateWindow(
-                       /* className */ L"IconWindowClass",
-                       /* title */ 0,
-                       /* style */ WS_CAPTION,
-                       /* x, y, cx, cy */ 0, 0, 0, 0,
-                       /* parent */ 0,
-                       /* menu */ 0,
-                       /* instance */ 0,
-                       /* create struct */ 0),
-                   NS_ERROR_FAILURE);
-    sMailIconData.hWnd = sIconWindow;
-  }
+  if (!mTrayIconShown) {
+    auto idi = IDI_APPLICATION;
+    if (sUnreadCount > 0) {
+      idi = MAKEINTRESOURCE(IDI_MAILBIFF);
+    }
+    sMailIconData.hIcon = ::LoadIcon(::GetModuleHandle(NULL), idi);
+    nsresult rv = SetTooltip();
+    NS_ENSURE_SUCCESS(rv, rv);
 
-  auto idi = IDI_APPLICATION;
-  if (mUnreadCount > 0) {
-    idi = MAKEINTRESOURCE(IDI_MAILBIFF);
+    ::Shell_NotifyIconW(NIM_ADD, &sMailIconData);
+    ::Shell_NotifyIconW(NIM_SETVERSION, &sMailIconData);
+    mTrayIconShown = true;
   }
-  sMailIconData.hIcon = ::LoadIcon(::GetModuleHandle(NULL), idi);
-  nsresult rv = SetTooltip();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  ::Shell_NotifyIconW(NIM_ADD, &sMailIconData);
-  ::Shell_NotifyIconW(NIM_SETVERSION, &sMailIconData);
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMessengerWinIntegration::UpdateUnreadCount(uint32_t unreadCount,
                                              const nsAString& unreadTooltip) {
-  if (sHiddenWindows.Length() > 0) {
-    // sHiddenWindows is not empty means tray icon is visible.
-    if (mUnreadCount == 0 && unreadCount > 0) {
-      // Unread count changes from 0, update tray icon.
-      sMailIconData.hIcon =
-          ::LoadIcon(::GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAILBIFF));
-    } else if (mUnreadCount > 0 && unreadCount == 0) {
-      // Unread count changes to 0, update tray icon.
-      sMailIconData.hIcon =
-          ::LoadIcon(::GetModuleHandle(NULL), IDI_APPLICATION);
-    }
-    mUnreadCount = unreadCount;
-    mUnreadTooltip = unreadTooltip;
-    nsresult rv = SetTooltip();
-    NS_ENSURE_SUCCESS(rv, rv);
-    ::Shell_NotifyIconW(NIM_MODIFY, &sMailIconData);
-    return rv;
-  }
-  mUnreadCount = unreadCount;
+  sUnreadCount = unreadCount;
   mUnreadTooltip = unreadTooltip;
+  nsresult rv = UpdateTrayIcon();
+  return rv;
+}
+
+NS_IMETHODIMP
+nsMessengerWinIntegration::OnExit() {
+  if (mTrayIconShown) {
+    ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
+  }
   return NS_OK;
 }
 
@@ -188,5 +234,67 @@ nsresult nsMessengerWinIntegration::SetTooltip() {
       sizeof sMailIconData.szTip / (sizeof sMailIconData.szTip[0]);
   ::StringCchCopyNW(sMailIconData.szTip, destLength, tooltip.get(),
                     tooltip.Length());
+  return rv;
+}
+
+/**
+ * Update the tray icon according to the current unread count and pref value.
+ */
+nsresult nsMessengerWinIntegration::UpdateTrayIcon() {
+  if (sMailIconData.hWnd == 0) {
+    // Register the window class.
+    NS_ENSURE_TRUE(::RegisterClass(&sClassStruct), NS_ERROR_FAILURE);
+    // Create the window.
+    NS_ENSURE_TRUE(sIconWindow = ::CreateWindow(
+                       /* className */ L"IconWindowClass",
+                       /* title */ 0,
+                       /* style */ WS_CAPTION,
+                       /* x, y, cx, cy */ 0, 0, 0, 0,
+                       /* parent */ 0,
+                       /* menu */ 0,
+                       /* instance */ 0,
+                       /* create struct */ 0),
+                   NS_ERROR_FAILURE);
+    sMailIconData.hWnd = sIconWindow;
+  }
+
+  nsresult rv;
+  if (!mPrefBranch) {
+    mPrefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  rv = SetTooltip();
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (sUnreadCount > 0) {
+    sMailIconData.hIcon =
+        ::LoadIcon(::GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAILBIFF));
+    if (mTrayIconShown) {
+      // If the tray icon is already shown, just modify it.
+      ::Shell_NotifyIconW(NIM_MODIFY, &sMailIconData);
+    } else {
+      bool showTrayIcon;
+      rv = mPrefBranch->GetBoolPref(SHOW_TRAY_ICON_PREF, &showTrayIcon);
+      NS_ENSURE_SUCCESS(rv, rv);
+      if (showTrayIcon) {
+        // Show a tray icon only if the pref value is true.
+        ::Shell_NotifyIconW(NIM_ADD, &sMailIconData);
+        ::Shell_NotifyIconW(NIM_SETVERSION, &sMailIconData);
+        mTrayIconShown = true;
+      }
+    }
+  } else if (mTrayIconShown) {
+    if (sHiddenWindows.Length() > 0) {
+      // At least one window is minimized, modify the icon only.
+      sMailIconData.hIcon =
+          ::LoadIcon(::GetModuleHandle(NULL), IDI_APPLICATION);
+      ::Shell_NotifyIconW(NIM_MODIFY, &sMailIconData);
+    } else {
+      // No unread, no need to show the tray icon.
+      ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
+      mTrayIconShown = false;
+    }
+  }
   return rv;
 }

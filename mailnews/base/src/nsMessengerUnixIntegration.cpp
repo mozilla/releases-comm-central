@@ -19,3 +19,6 @@ nsMessengerUnixIntegration::UpdateUnreadCount(uint32_t unreadCount,
                                               const nsAString& unreadTooltip) {
   return NS_OK;
 }
+
+NS_IMETHODIMP
+nsMessengerUnixIntegration::OnExit() { return NS_OK; }
