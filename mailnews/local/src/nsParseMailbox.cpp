@@ -868,112 +868,77 @@ nsresult nsParseMailMessageState::ParseHeaders() {
     if (!colon) break;
 
     end = colon;
+    nsDependentCSubstring headerStr(buf, end);
+    ToLowerCase(headerStr);
 
-    switch (buf[0]) {
-      case 'B':
-      case 'b':
-        if (!PL_strncasecmp("BCC", buf, end - buf)) header = &m_bccList;
-        break;
-      case 'C':
-      case 'c':
-        if (!PL_strncasecmp("CC", buf, end - buf))
-          header = GetNextHeaderInAggregate(m_ccList);
-        else if (!PL_strncasecmp("Content-Type", buf, end - buf))
-          header = &m_content_type;
-        break;
-      case 'D':
-      case 'd':
-        if (!PL_strncasecmp("Date", buf, end - buf))
-          header = &m_date;
-        else if (!PL_strncasecmp("Disposition-Notification-To", buf, end - buf))
-          header = &m_mdn_dnt;
-        else if (!PL_strncasecmp("Delivery-date", buf, end - buf))
-          header = &m_delivery_date;
-        break;
-      case 'F':
-      case 'f':
-        if (!PL_strncasecmp("From", buf, end - buf)) header = &m_from;
-        break;
-      case 'I':
-      case 'i':
-        if (!PL_strncasecmp("In-Reply-To", buf, end - buf))
-          header = &m_in_reply_to;
-        break;
-      case 'M':
-      case 'm':
-        if (!PL_strncasecmp("Message-ID", buf, end - buf))
-          header = &m_message_id;
-        break;
-      case 'N':
-      case 'n':
-        if (!PL_strncasecmp("Newsgroups", buf, end - buf))
-          header = &m_newsgroups;
-        break;
-      case 'O':
-      case 'o':
-        if (!PL_strncasecmp("Original-Recipient", buf, end - buf))
-          header = &m_mdn_original_recipient;
-        break;
-      case 'R':
-      case 'r':
-        if (!PL_strncasecmp("References", buf, end - buf))
-          header = &m_references;
-        else if (!PL_strncasecmp("Return-Path", buf, end - buf))
-          header = &m_return_path;
-        // treat conventional Return-Receipt-To as MDN
-        // Disposition-Notification-To
-        else if (!PL_strncasecmp("Return-Receipt-To", buf, end - buf))
-          header = &m_mdn_dnt;
-        else if (!PL_strncasecmp("Reply-To", buf, end - buf))
-          header = &m_replyTo;
-        else if (!PL_strncasecmp("Received", buf, end - buf)) {
-          header = &receivedBy;
-          header->length = 0;
-        }
-        break;
-      case 'S':
-      case 's':
-        if (!PL_strncasecmp("Subject", buf, end - buf) && !m_subject.length)
-          header = &m_subject;
-        else if (!PL_strncasecmp("Sender", buf, end - buf))
-          header = &m_sender;
-        else if (!PL_strncasecmp("Status", buf, end - buf))
-          header = &m_status;
-        break;
-      case 'T':
-      case 't':
-        if (!PL_strncasecmp("To", buf, end - buf))
-          header = GetNextHeaderInAggregate(m_toList);
-        break;
-      case 'X':
-        if (X_MOZILLA_STATUS2_LEN == end - buf &&
-            !PL_strncasecmp(X_MOZILLA_STATUS2, buf, end - buf) &&
-            !m_IgnoreXMozillaStatus && !m_mozstatus2.length)
-          header = &m_mozstatus2;
-        else if (X_MOZILLA_STATUS_LEN == end - buf &&
-                 !PL_strncasecmp(X_MOZILLA_STATUS, buf, end - buf) &&
-                 !m_IgnoreXMozillaStatus && !m_mozstatus.length)
-          header = &m_mozstatus;
-        else if (!PL_strncasecmp(HEADER_X_MOZILLA_ACCOUNT_KEY, buf,
-                                 end - buf) &&
-                 !m_account_key.length)
-          header = &m_account_key;
-        // we could very well care what the priority header was when we
-        // remember its value. If so, need to remember it here. Also,
-        // different priority headers can appear in the same message,
-        // but we only remember the last one that we see.
-        else if (!PL_strncasecmp("X-Priority", buf, end - buf) ||
-                 !PL_strncasecmp("Priority", buf, end - buf))
-          header = &m_priority;
-        else if (!PL_strncasecmp(HEADER_X_MOZILLA_KEYWORDS, buf, end - buf) &&
-                 !m_keywords.length)
-          header = &m_keywords;
-        break;
-    }
+    if (headerStr.Equals("bcc"_ns))
+      header = &m_bccList;
+    else if (headerStr.Equals("cc"_ns))
+      header = GetNextHeaderInAggregate(m_ccList);
+    else if (headerStr.Equals("content-type"_ns))
+      header = &m_content_type;
+    else if (headerStr.Equals("date"_ns))
+      header = &m_date;
+    else if (headerStr.Equals("disposition-notification-to"_ns))
+      header = &m_mdn_dnt;
+    else if (headerStr.Equals("delivery-date"_ns))
+      header = &m_delivery_date;
+    else if (headerStr.Equals("from"_ns))
+      header = &m_from;
+    else if (headerStr.Equals("in-reply-to"_ns))
+      header = &m_in_reply_to;
+    else if (headerStr.Equals("message-id"_ns))
+      header = &m_message_id;
+    else if (headerStr.Equals("newsgroups"_ns))
+      header = &m_newsgroups;
+    else if (headerStr.Equals("original-recipient"_ns))
+      header = &m_mdn_original_recipient;
+    else if (headerStr.Equals("references"_ns))
+      header = &m_references;
+    else if (headerStr.Equals("return-path"_ns))
+      header = &m_return_path;
+    // treat conventional Return-Receipt-To as MDN
+    // Disposition-Notification-To
+    else if (headerStr.Equals("return-receipt-to"_ns))
+      header = &m_mdn_dnt;
+    else if (headerStr.Equals("reply-to"_ns))
+      header = &m_replyTo;
+    else if (headerStr.Equals("received"_ns)) {
+      header = &receivedBy;
+      header->length = 0;
+    } else if (headerStr.Equals("subject"_ns) && !m_subject.length)
+      header = &m_subject;
+    else if (headerStr.Equals("sender"_ns))
+      header = &m_sender;
+    else if (headerStr.Equals("status"_ns))
+      header = &m_status;
+    else if (headerStr.Equals("to"_ns))
+      header = GetNextHeaderInAggregate(m_toList);
+    else if (headerStr.Equals(nsLiteralCString(X_MOZILLA_STATUS2),
+                              nsCaseInsensitiveCStringComparator) &&
+             !m_IgnoreXMozillaStatus && !m_mozstatus2.length)
+      header = &m_mozstatus2;
+    else if (headerStr.Equals(nsLiteralCString(X_MOZILLA_STATUS),
+                              nsCaseInsensitiveCStringComparator) &&
+             !m_IgnoreXMozillaStatus && !m_mozstatus.length)
+      header = &m_mozstatus;
+    else if (headerStr.Equals(nsLiteralCString(HEADER_X_MOZILLA_ACCOUNT_KEY),
+                              nsCaseInsensitiveCStringComparator) &&
+             !m_account_key.length)
+      header = &m_account_key;
+    // we could very well care what the priority header was when we
+    // remember its value. If so, need to remember it here. Also,
+    // different priority headers can appear in the same message,
+    // but we only remember the last one that we see.
+    else if (headerStr.Equals("x-priority"_ns) ||
+             headerStr.Equals("priority"_ns))
+      header = &m_priority;
+    else if (headerStr.Equals(nsLiteralCString(HEADER_X_MOZILLA_KEYWORDS),
+                              nsCaseInsensitiveCStringComparator) &&
+             !m_keywords.length)
+      header = &m_keywords;
+
     if (!header && m_customDBHeaders.Length()) {
-      nsDependentCSubstring headerStr(buf, end);
-
-      ToLowerCase(headerStr);
       size_t customHeaderIndex = m_customDBHeaders.IndexOf(headerStr);
       if (customHeaderIndex != m_customDBHeaders.NoIndex)
         header = &m_customDBHeaderValues[customHeaderIndex];

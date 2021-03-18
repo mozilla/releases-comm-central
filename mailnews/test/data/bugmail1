@@ -25,6 +25,7 @@ Received: from mrapp51.mozilla.org (mrapp51.mozilla.org [127.0.0.1])
 Received: (from root@localhost)
 	by mrapp51.mozilla.org (8.13.8/8.13.8/Submit) id m47LtAEf007542;
 	Wed, 7 May 2008 14:55:10 -0700
+sUbJ: Now since Bug 1615064 don't see this as a subject since header name abbreviated
 Date: Wed, 7 May 2008 14:55:10 -0700
 Message-Id: <200805072155.m47LtAEf007542@mrapp51.mozilla.org>
 To: invalid@example.com
@@ -50,6 +51,7 @@ Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
 X-user: ::::63.245.208.146:host29.hostmonster.com::::::
 DomainKey-Status: no signature
+Subject: Only one Subject header allowed, don't store this one (but appears in all header view). 
 
 Do not reply to this email.  You can add comments to this bug at
 https://bugzilla.mozilla.org/show_bug.cgi?id=397009
