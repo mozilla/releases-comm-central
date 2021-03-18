@@ -873,6 +873,23 @@ function setAccountLabel(aAccountKey, aAccountNode, aLabel) {
 }
 
 /**
+ * Notify the UI to rebuild the account tree.
+ */
+function rebuildAccountTree() {
+  for (let win of Services.wm.getEnumerator("mail:3pane")) {
+    win.gFolderTreeView._rebuild();
+    let tabmail = win.document.getElementById("tabmail");
+    for (let tabInfo of tabmail.tabInfo) {
+      let tab = tabmail.getTabForBrowser(tabInfo.browser);
+      if (tab && tab.urlbar && tab.urlbar.value == "about:accountsettings") {
+        tab.browser.reload();
+        return;
+      }
+    }
+  }
+}
+
+/**
  * Make currentAccount (currently selected in the account tree) the default one.
  */
 function onSetDefault(event) {
@@ -884,11 +901,19 @@ function onSetDefault(event) {
   let previousDefault = MailServices.accounts.defaultAccount;
   MailServices.accounts.defaultAccount = currentAccount;
   markDefaultServer(currentAccount, previousDefault);
+  let accountList = allAccountsSorted(true);
+  let accountKeyList = accountList
+    .map(account => account.key)
+    .filter(key => key != currentAccount.key);
+  accountKeyList.unshift(currentAccount.key);
+  MailServices.accounts.reorderAccounts(accountKeyList);
+  rebuildAccountTree();
   // Update gloda's myContact with the new default account's default identity.
   Gloda._initMyIdentities();
 
   // This is only needed on Seamonkey which has this button.
   setEnabled(document.getElementById("setDefaultButton"), false);
+  gAccountTree.load();
 }
 
 function onRemoveAccount(event) {
@@ -1705,6 +1730,19 @@ function getValueArrayFor(account) {
   return accountArray[serverId];
 }
 
+function accountReordered() {
+  let accountIds = [];
+  for (let account of document.getElementById("account-tree-children")
+    .children) {
+    if (account.hasAttribute("id")) {
+      accountIds.push(account.getAttribute("id"));
+    }
+  }
+
+  MailServices.accounts.reorderAccounts(accountIds);
+  rebuildAccountTree();
+}
+
 var gAccountTree = {
   load() {
     this._build();
@@ -1766,6 +1804,73 @@ var gAccountTree = {
     while (mainTree.hasChildNodes()) {
       mainTree.lastChild.remove();
     }
+
+    let accountTree = document.getElementById("accounttree");
+
+    // By default, data/elements cannot be dropped in other elements.
+    // To allow a drop, we must prevent the default handling of the element.
+    accountTree.addEventListener("dragover", event => {
+      event.preventDefault();
+    });
+
+    accountTree.addEventListener("drop", event => {
+      let row = accountTree.getRowAt(event.clientX, event.clientY);
+      let dragId = event.dataTransfer.getData("text/account");
+      if (!dragId) {
+        return;
+      }
+      let dropId = null;
+      let length = 0;
+      for (let childElement of mainTree.children) {
+        length += childElement.querySelectorAll("treerow").length;
+        if (length > row) {
+          dropId = childElement.getAttribute("id");
+          break;
+        }
+      }
+      if (dropId && dragId != dropId) {
+        let dragitem = mainTree.querySelector("#" + dragId);
+        let dropItem = mainTree.querySelector("#" + dropId);
+        mainTree.insertBefore(dragitem, dropItem);
+        accountReordered();
+      }
+    });
+
+    accountTree.addEventListener("dragstart", event => {
+      if (getCurrentAccount()) {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.dropEffect = "move";
+        event.dataTransfer.setData("text/account", getCurrentAccount().key);
+      }
+    });
+
+    accountTree.addEventListener(
+      "keydown",
+      event => {
+        if (event.code == "ArrowDown" && event.altKey && getCurrentAccount()) {
+          let treeItem = mainTree.querySelector("#" + getCurrentAccount().key);
+          if (
+            treeItem &&
+            treeItem.nextElementSibling &&
+            treeItem.nextElementSibling != mainTree.lastElementChild
+          ) {
+            mainTree.insertBefore(treeItem.nextElementSibling, treeItem);
+          }
+          accountReordered();
+        } else if (
+          event.code == "ArrowUp" &&
+          event.altKey &&
+          getCurrentAccount()
+        ) {
+          let treeItem = mainTree.querySelector("#" + getCurrentAccount().key);
+          if (treeItem && treeItem.previousElementSibling) {
+            mainTree.insertBefore(treeItem, treeItem.previousElementSibling);
+          }
+          accountReordered();
+        }
+      },
+      true
+    );
 
     for (let account of accounts) {
       let accountName = null;
@@ -1878,6 +1983,7 @@ var gAccountTree = {
             "src",
             server.wrappedJSObject.imAccount.protocol.iconBaseURI + "icon.png"
           );
+          treeitem.id = accountKey;
         }
       }
 

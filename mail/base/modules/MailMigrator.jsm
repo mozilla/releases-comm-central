@@ -19,6 +19,10 @@ var { migrateMailnews } = ChromeUtils.import(
   "resource:///modules/MailnewsMigrator.jsm"
 );
 
+const { compareAccounts } = ChromeUtils.import(
+  "resource:///modules/folderUtils.jsm"
+);
+
 var MailMigrator = {
   /**
    * Switch the given fonts to the given encodings, but only if the current fonts
@@ -123,7 +127,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 26;
+    const UI_VERSION = 27;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -540,6 +544,15 @@ var MailMigrator = {
           "folderPane-toolbar",
           "folderPaneHeader"
         );
+      }
+
+      if (currentUIVersion < 27) {
+        let accountList = MailServices.accounts.accounts.filter(
+          a => a.incomingServer && a.incomingServer.type != "im"
+        );
+        accountList.sort(compareAccounts);
+        let accountKeyList = accountList.map(account => account.key);
+        MailServices.accounts.reorderAccounts(accountKeyList);
       }
 
       // Update the migration version.
