@@ -204,7 +204,7 @@ tabpanel > hbox > description {
 }
 
 #category-privacy > .category-icon {
-  list-style-image: url("chrome://global/skin/icons/privacy-security.svg");
+  list-style-image: url("chrome://messenger/skin/icons/privacy-security.svg");
 }
 
 #category-compose > .category-icon {
