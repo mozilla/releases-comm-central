@@ -37,10 +37,9 @@ function FindNextChildFolder(aParent, aAfter)
     while (folder != aAfter)
       folder = subFolders[i++];
 
-    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-    let ignoreFlags = nsMsgFolderFlags.Trash | nsMsgFolderFlags.SentMail |
-                      nsMsgFolderFlags.Drafts | nsMsgFolderFlags.Queue |
-                      nsMsgFolderFlags.Templates | nsMsgFolderFlags.Junk;
+    let ignoreFlags = Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.SentMail |
+                      Ci.nsMsgFolderFlags.Drafts | Ci.nsMsgFolderFlags.Queue |
+                      Ci.nsMsgFolderFlags.Templates | Ci.nsMsgFolderFlags.Junk;
     while (i < subFolders.length) {
       folder = subFolders[i++];
       // if there is unread mail in the trash, sent, drafts, unsent messages

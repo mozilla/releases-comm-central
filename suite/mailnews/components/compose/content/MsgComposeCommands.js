@@ -1511,11 +1511,10 @@ function ComposeStartup(aParams)
   var folderURI = draftId.substring(0, draftId.indexOf("#")).replace("-message", "");
 
   try {
-    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
     var folder = sRDF.GetResource(folderURI);
 
     gEditingDraft = (folder instanceof Ci.nsIMsgFolder) &&
-                    (folder.flags & nsMsgFolderFlags.Drafts);
+                    (folder.flags & Ci.nsMsgFolderFlags.Drafts);
   }
   catch (ex) {
     gEditingDraft = false;

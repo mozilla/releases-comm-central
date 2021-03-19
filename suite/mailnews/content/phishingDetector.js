@@ -35,9 +35,10 @@ function isMsgEmailScam(aUrl)
       return isEmailScam;
 
     // Also ignore messages in Sent/Drafts/Templates/Outbox.
-    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-    let outgoingFlags = nsMsgFolderFlags.SentMail | nsMsgFolderFlags.Drafts |
-                        nsMsgFolderFlags.Templates | nsMsgFolderFlags.Queue;
+    let outgoingFlags = Ci.nsMsgFolderFlags.SentMail |
+                        Ci.nsMsgFolderFlags.Drafts |
+                        Ci.nsMsgFolderFlags.Templates |
+                        Ci.nsMsgFolderFlags.Queue;
     if (folder.isSpecialFolder(outgoingFlags, true))
       return isEmailScam;
 

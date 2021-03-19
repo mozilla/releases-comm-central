@@ -179,12 +179,11 @@ function HandleColumnClick(columnID)
 }
 
 function ThreadPaneDoubleClick(event) {
-  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-  if (IsSpecialFolderSelected(nsMsgFolderFlags.Drafts, true))
+  if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Drafts, true))
   {
     MsgComposeDraftMessage();
   }
-  else if(IsSpecialFolderSelected(nsMsgFolderFlags.Templates, true))
+  else if (IsSpecialFolderSelected(Ci.nsMsgFolderFlags.Templates, true))
   {
     ComposeMsgByType(Ci.nsIMsgCompType.Template, null,
                      Ci.nsIMsgCompFormat.Default);

@@ -4,8 +4,6 @@
 
 var gFolderDisplay =
 {
-  nsMsgFolderFlags: Ci.nsMsgFolderFlags,
-
   get selectedCount()
   {
     return gDBView ? gDBView.numSelected : 0;
@@ -34,14 +32,14 @@ var gFolderDisplay =
   {
     var message = this.selectedMessage;
     return message && message.folder &&
-           (message.folder.flags & this.nsMsgFolderFlags.ImapBox) != 0;
+           (message.folder.flags & Ci.nsMsgFolderFlags.ImapBox) != 0;
   },
 
   get selectedMessageIsNews()
   {
     var message = this.selectedMessage;
     return message && message.folder &&
-           (message.folder.flags & this.nsMsgFolderFlags.Newsgroup) != 0;
+           (message.folder.flags & Ci.nsMsgFolderFlags.Newsgroup) != 0;
   },
 
   get selectedMessageIsExternal()

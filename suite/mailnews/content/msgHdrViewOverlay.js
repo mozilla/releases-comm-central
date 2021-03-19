@@ -1847,8 +1847,7 @@ function ShowEditMessageBox()
     var msgHdr = gDBView.hdrForFirstSelectedMessage;
     if (!msgHdr || !msgHdr.folder)
      return;
-    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-    if (msgHdr.folder.isSpecialFolder(nsMsgFolderFlags.Drafts, true))
+    if (msgHdr.folder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true))
       document.getElementById("editMessageBox").collapsed = false;
   }
   catch (ex) {}

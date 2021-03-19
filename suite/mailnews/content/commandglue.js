@@ -263,9 +263,10 @@ function RerootFolder(uri, newFolder, viewType, viewFlags, sortType, sortOrder)
 
   // If this is the  sent, drafts, templates, or send later folder,
   // we show "Recipient" instead of "Author".
-  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-  let outgoingFlags = nsMsgFolderFlags.SentMail | nsMsgFolderFlags.Drafts |
-                      nsMsgFolderFlags.Templates | nsMsgFolderFlags.Queue;
+  let outgoingFlags = Ci.nsMsgFolderFlags.SentMail |
+                      Ci.nsMsgFolderFlags.Drafts |
+                      Ci.nsMsgFolderFlags.Templates |
+                      Ci.nsMsgFolderFlags.Queue;
   SetSentFolderColumns(newFolder.isSpecialFolder(outgoingFlags, true));
   ShowLocationColumn(viewType == nsMsgViewType.eShowVirtualFolderResults);
   // Only show 'Received' column for e-mails.  For newsgroup messages, the 'Date' header is as reliable as an e-mail's
@@ -281,7 +282,7 @@ function RerootFolder(uri, newFolder, viewType, viewFlags, sortType, sortOrder)
 
      /*we don't null out the db reference for inbox because inbox is like the "main" folder
        and performance outweighs footprint */
-    if (!oldFolder.isSpecialFolder(nsMsgFolderFlags.Inbox, false))
+    if (!oldFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox, false))
       if (oldFolder.URI != newFolder.URI)
         oldFolder.msgDatabase = null;
   }
@@ -415,10 +416,11 @@ function UpdateReceivedColumn(newFolder)
   // 'Received' header, as it is replaced with the news server's (more reliable) date.
   var receivedColumn = document.getElementById("receivedCol");
 
-  const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
-  var newFolderShowsRcvd = (newFolder.flags & nsMsgFolderFlags.Mail) &&
-    !(newFolder.flags & (nsMsgFolderFlags.Queue | nsMsgFolderFlags.Templates |
-                         nsMsgFolderFlags.Drafts | nsMsgFolderFlags.SentMail));
+  var newFolderShowsRcvd = (newFolder.flags & Ci.nsMsgFolderFlags.Mail) &&
+                           !(newFolder.flags & (Ci.nsMsgFolderFlags.Queue |
+                                                Ci.nsMsgFolderFlags.Templates |
+                                                Ci.nsMsgFolderFlags.Drafts |
+                                                Ci.nsMsgFolderFlags.SentMail));
 
   var tempHidden = receivedColumn.getAttribute("temphidden") == "true";
   var isHidden = receivedColumn.getAttribute("hidden") == "true";

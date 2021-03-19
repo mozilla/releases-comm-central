@@ -486,12 +486,14 @@ var gMailNewsTabsType =
         aTabInfo.title += " - " + aTabInfo.hdr.folder.server.prettyName;
 
       // message specific tab data
-      const nsMsgMessageFlags = Ci.nsMsgMessageFlags;
       let flags = aTabInfo.hdr.flags;
       aTabNode.setAttribute("MessageType", msgSelectedFolder.server.type);
-      aTabNode.setAttribute("Offline",     Boolean(flags & nsMsgMessageFlags.Offline));
-      aTabNode.setAttribute("Attachment",  Boolean(flags & nsMsgMessageFlags.Attachment));
-      aTabNode.setAttribute("IMAPDeleted", Boolean(flags & nsMsgMessageFlags.IMAPDeleted));
+      aTabNode.setAttribute("Offline",
+                            Boolean(flags & Ci.nsMsgMessageFlags.Offline));
+      aTabNode.setAttribute("Attachment",
+                            Boolean(flags & Ci.nsMsgMessageFlags.Attachment));
+      aTabNode.setAttribute("IMAPDeleted",
+                            Boolean(flags & Ci.nsMsgMessageFlags.IMAPDeleted));
     }
   },
 
