@@ -19,7 +19,7 @@
   height: 32px;
   width: 32px;
   padding: 0;
-  background: url("chrome://global/skin/icons/sslWarning.png") no-repeat;
+  background: url("chrome://global/skin/icons/security-warning.svg") no-repeat;
   background-size: 32px;
   margin-right: 1em;
 }
