@@ -548,11 +548,19 @@ var MailMigrator = {
 
       if (currentUIVersion < 27) {
         let accountList = MailServices.accounts.accounts.filter(
-          a => a.incomingServer && a.incomingServer.type != "im"
+          a => a.incomingServer
         );
         accountList.sort(compareAccounts);
         let accountKeyList = accountList.map(account => account.key);
-        MailServices.accounts.reorderAccounts(accountKeyList);
+        try {
+          MailServices.accounts.reorderAccounts(accountKeyList);
+        } catch (error) {
+          Cu.reportError(
+            "Migrating account list order failed. Error message was: " +
+              error +
+              " -- Will not reattempt migration."
+          );
+        }
       }
 
       // Update the migration version.

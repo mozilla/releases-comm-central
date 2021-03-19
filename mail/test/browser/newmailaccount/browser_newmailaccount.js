@@ -1197,7 +1197,7 @@ add_task(function test_provisioner_ok_account_setup() {
     "Should have added an account"
   );
 
-  let account = accounts2[accounts2.length - 1];
+  let account = accounts2[accounts2.length - 2];
   Assert.equal(account.incomingServer.type, "imap");
   Assert.equal(account.incomingServer.hostName, "imap-provisioned.example.com");
 

@@ -3317,21 +3317,39 @@ nsMsgAccountManager::GetSortOrder(nsIMsgIncomingServer* aServer,
 
 NS_IMETHODIMP
 nsMsgAccountManager::ReorderAccounts(const nsTArray<nsCString> &newAccounts) {
+  nsTArray<nsCString> allNewAccounts = newAccounts.Clone();
+
+  // Add all hidden accounts to the list of new accounts.
+  nsresult rv;
+  for (auto account : m_accounts) {
+    nsCString key;
+    account->GetKey(key);
+    nsCOMPtr<nsIMsgIncomingServer> server;
+    rv = account->GetIncomingServer(getter_AddRefs(server));
+    if (NS_SUCCEEDED(rv) && server) {
+      bool hidden = false;
+      rv = server->GetHidden(&hidden);
+      if (NS_SUCCEEDED(rv) && hidden && !allNewAccounts.Contains(key)) {
+        allNewAccounts.AppendElement(key);
+      }
+    }
+  }
+
   // Check that the new account list contains all the existing accounts,
   // just in a different order.
-  if (newAccounts.Length() != m_accounts.Length())
+  if (allNewAccounts.Length() != m_accounts.Length())
     return NS_ERROR_INVALID_ARG;
 
   for (uint32_t i = 0; i < m_accounts.Length(); i++) {
     nsCString accountKey;
     m_accounts[i]->GetKey(accountKey);
-    if (!newAccounts.Contains(accountKey))
+    if (!allNewAccounts.Contains(accountKey))
       return NS_ERROR_INVALID_ARG;
   }
 
   // In-place swap the elements in m_accounts to the order defined in newAccounts.
-  for (uint32_t i = 0; i < newAccounts.Length(); i++) {
-    nsCString newKey = newAccounts[i];
+  for (uint32_t i = 0; i < allNewAccounts.Length(); i++) {
+    nsCString newKey = allNewAccounts[i];
     for (uint32_t j = i; j < m_accounts.Length(); j++) {
       nsCString oldKey;
       m_accounts[j]->GetKey(oldKey);

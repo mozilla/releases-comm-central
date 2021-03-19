@@ -901,7 +901,7 @@ function onSetDefault(event) {
   let previousDefault = MailServices.accounts.defaultAccount;
   MailServices.accounts.defaultAccount = currentAccount;
   markDefaultServer(currentAccount, previousDefault);
-  let accountList = allAccountsSorted(true);
+  let accountList = allAccountsSorted(false);
   let accountKeyList = accountList
     .map(account => account.key)
     .filter(key => key != currentAccount.key);
