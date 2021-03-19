@@ -10,15 +10,16 @@ Services.conversations.initConversations();
 add_task(async function test_sharedInit() {
   const roomStub = {};
   matrix.GenericMatrixConversation.sharedInit.call(roomStub);
-  equal(typeof roomStub._setInitialized, "function");
+  equal(typeof roomStub._resolveInitializer, "function");
   ok(roomStub._initialized);
-  roomStub._setInitialized();
+  roomStub._resolveInitializer();
   await roomStub._initialized;
 });
 
 add_task(function test_replaceRoom() {
   const roomStub = {
-    _setInitialized() {
+    __proto__: matrix.GenericMatrixConversation,
+    _resolveInitializer() {
       this.initialized = true;
     },
     _mostRecentEventId: "foo",
@@ -41,7 +42,9 @@ add_task(async function test_waitForRoom() {
 });
 
 add_task(async function test_waitForRoomReplaced() {
-  const roomStub = {};
+  const roomStub = {
+    __proto__: matrix.GenericMatrixConversation,
+  };
   matrix.GenericMatrixConversation.sharedInit.call(roomStub);
   const newRoom = {
     waitForRoom() {
@@ -394,4 +397,16 @@ add_task(function test_sendTyping() {
   ok(!roomStub._typingState);
   ok(!roomStub._typingTimer);
   equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
+});
+
+add_task(function test_setInitialized() {
+  const roomStub = {
+    _resolveInitializer() {
+      this.calledResolve = true;
+    },
+    joining: true,
+  };
+  matrix.GenericMatrixConversation._setInitialized.call(roomStub);
+  ok(roomStub.calledResolve);
+  ok(!roomStub.joining);
 });

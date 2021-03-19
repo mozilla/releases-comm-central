@@ -236,8 +236,13 @@ var GenericMatrixConversation = {
    */
   sharedInit() {
     this._initialized = new Promise(resolve => {
-      this._setInitialized = resolve;
+      this._resolveInitializer = resolve;
     });
+  },
+
+  _setInitialized() {
+    this.joining = false;
+    this._resolveInitializer();
   },
 
   /**
@@ -621,6 +626,8 @@ function MatrixAccount(aProtocol, aImAccount) {
   this.roomList = new Map();
   this._userToRoom = {};
   this.buddies = new Map();
+  this._pendingDirectChats = new Map();
+  this._pendingRoomAliases = new Map();
 }
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
@@ -916,6 +923,7 @@ MatrixAccount.prototype = {
       let conv = this.roomList.get(room.roomId);
       if (
         !this._catchingUp &&
+        conv &&
         room?.summary?.info?.title &&
         conv._name != room.summary.info.title
       ) {
@@ -959,11 +967,15 @@ MatrixAccount.prototype = {
         }
       } else if (me && me.membership == "join") {
         // To avoid the race condition. Whenever we will create the room,
-        // this will also be fired. So we want to avoid making of multiple
-        // conversations with the same room.
-        if (!this.createRoomReturned || this.roomList.has(room.roomId)) {
+        // this will also be fired. So we want to avoid creating duplicate
+        // conversations for the same room.
+        if (
+          this.roomList.has(room.roomId) ||
+          this._pendingRoomAliases.size + this._pendingDirectChats.size > 0
+        ) {
           return;
         }
+        // Joined a new room that we don't know about yet.
         if (this.isDirectRoom(room.roomId)) {
           let interlocutorId;
           for (let roomMember of room.getJoinedMembers()) {
@@ -1188,6 +1200,12 @@ MatrixAccount.prototype = {
   },
 
   /**
+   * Room aliases and their conversation that are currently being created.
+   * @type {Map<string, MatrixConversation>}
+   */
+  _pendingRoomAliases: null,
+
+  /**
    * Returns the group conversation according to the room-id.
    * 1) If we have a group conversation already, we will return that.
    * 2) If the room exists on the server, we will join it. It will not do
@@ -1196,9 +1214,9 @@ MatrixAccount.prototype = {
    * 3) Create a new room if the conversation does not exist.
    *
    * @param {string} roomId - ID of the room.
-   * @param {string} roomName (optional) - Name of the room.
+   * @param {string} [roomName] - Name of the room.
    *
-   * @return {MatrixConversation} - The resulted conversation.
+   * @return {MatrixConversation?} - The resulted conversation.
    */
   getGroupConversation(roomId, roomName) {
     // If there is a conversation return it.
@@ -1219,7 +1237,6 @@ MatrixAccount.prototype = {
         })
         .then(room => {
           conv.initRoom(room);
-          conv.joining = false;
         })
         .catch(error => {
           this.ERROR(error);
@@ -1232,49 +1249,27 @@ MatrixAccount.prototype = {
       return conv;
     }
 
-    if (
-      this.createRoomReturned &&
-      roomId.endsWith(":" + this._client.getDomain())
-    ) {
-      this.createRoomReturned = false;
+    if (roomId.endsWith(":" + this._client.getDomain())) {
+      if (this._pendingRoomAliases.has(roomId)) {
+        return this._pendingRoomAliases.get(roomId);
+      }
       let conv = new MatrixConversation(this, roomId, this.userId);
-      conv.joining = true;
       let name = roomId.split(":", 1)[0];
-      this._client
-        .createRoom({
-          room_alias_name: name,
-          name,
-          visibility: "private",
-          preset: "private_chat",
-          content: {
-            guest_access: "can_join",
-          },
-          type: "m.room.guest_access",
-          state_key: "",
-        })
-        .then(res => {
-          this.createRoomReturned = true;
-          let newRoomId = res.room_id;
-          let room = this._client.getRoom(newRoomId);
-          conv.initRoom(room);
-          this.roomList.set(newRoomId, conv);
-          conv.joining = false;
-        })
-        .catch(error => {
-          this.createRoomReturned = true;
-          this.ERROR(error);
-          conv.joining = false;
-          conv.close();
-        });
+      this.createRoom(this._pendingRoomAliases, roomId, conv, {
+        room_alias_name: name,
+        name,
+        visibility: "private",
+        preset: "private_chat",
+        content: {
+          guest_access: "can_join",
+        },
+        type: "m.room.guest_access",
+        state_key: "",
+      });
       return conv;
     }
     return null;
   },
-
-  /*
-   * Flag to avoid the race condition when we create any conversation.
-   */
-  createRoomReturned: true,
 
   /**
    * Returns the room ID for user ID if exists for direct messaging.
@@ -1284,45 +1279,56 @@ MatrixAccount.prototype = {
    * @return {string} - ID of the room.
    */
   getDMRoomIdForUserId(userId) {
-    // Select the mostRecentRoom base on the timestamp of the
+    // Check in the 'other' user's roomList for common m.direct rooms.
+    // Select the most recent room based on the timestamp of the
     // most recent event in the room's timeline.
-    let mostRecentRoom = null;
-    let mostRecentTimeStamp = 0;
-
-    // Check in the 'other' user's roomList and add to our list.
-    if (this._userToRoom[userId]) {
-      for (let roomId of this._userToRoom[userId]) {
-        let room = this._client.getRoom(roomId);
-        if (room) {
-          let user = room.getMember(userId);
-          if (user) {
-            let latestEvent = room.timeline[room.timeline.length - 1];
-            // Timeline is null if our user's membership is invite.
-            if (latestEvent) {
-              let eventTimestamp = latestEvent.getTs();
-              if (eventTimestamp > mostRecentTimeStamp) {
-                mostRecentTimeStamp = eventTimestamp;
-                mostRecentRoom = room;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    if (mostRecentRoom) {
-      return mostRecentRoom.roomId;
+    const rooms = this.getDMRoomIdsForUserId(userId)
+      .map(roomId => {
+        const room = this._client.getRoom(roomId);
+        const mostRecentTimestamp = room.getLastActiveTimestamp();
+        return {
+          roomId,
+          mostRecentTimestamp,
+        };
+      })
+      .sort(
+        (roomA, roomB) => roomB.mostRecentTimestamp - roomA.mostRecentTimestamp
+      );
+    if (rooms.length) {
+      return rooms[0].roomId;
     }
     return null;
   },
 
-  /*
+  /**
+   * Get all room IDs of active DM rooms with the given user.
+   *
+   * @param {string} userId - User ID to find rooms for.
+   * @returns {string[]} Array of rooom IDs.
+   */
+  getDMRoomIdsForUserId(userId) {
+    if (!Array.isArray(this._userToRoom[userId])) {
+      return [];
+    }
+    return this._userToRoom[userId].filter(roomId => {
+      const room = this._client.getRoom(roomId);
+      if (!room) {
+        return false;
+      }
+      const accountMembership = room.getMyMembership() ?? "leave";
+      let userMembership = room.getMember(userId)?.membership ?? "leave";
+      // If either party left the room we shouldn't try to rejoin.
+      return userMembership !== "leave" && accountMembership !== "leave";
+    });
+  },
+
+  /**
    * Sets the room ID for for corresponding user ID for direct messaging
    * by setting the "m.direct" event of accont data of the SDK client.
    *
-   * @param {String} roomId - ID of the user.
+   * @param {string} roomId - ID of the user.
    *
-   * @param {String} - ID of the room.
+   * @param {string} - ID of the room.
    */
   setDirectRoom(userId, roomId) {
     let dmRoomMap = this._userToRoom;
@@ -1398,12 +1404,11 @@ MatrixAccount.prototype = {
         return null;
       }
       let conv = new MatrixConversation(this, room.name, this.userId);
-      conv.init(room);
+      conv.initRoom(room);
       this.roomList.set(roomIdOrAlias, conv);
       // It can be any type of room so update it according to direct conversation
       // or group conversation.
-      this.checkRoomForUpdate(conv);
-      return conv;
+      return this.checkRoomForUpdate(conv);
     }
 
     // If the ID does not start with @ or #, assume it is a group conversation and append #.
@@ -1425,7 +1430,13 @@ MatrixAccount.prototype = {
     return this.getDirectConversation(userId);
   },
 
-  /*
+  /**
+   * User IDs and their DM conversations which are being created.
+   * @type {Map<string, MatrixDirectConversation>}
+   */
+  _pendingDirectChats: null,
+
+  /**
    * Returns the direct conversation according to the room-id or user-id.
    * 1) If we have a direct conversation already, we will return that.
    * 2) If the room exists on the server, we will join it. It will not do
@@ -1433,12 +1444,12 @@ MatrixAccount.prototype = {
    *    conversation. This is used mainly when a new room gets added.
    * 3) Create a new room if the conversation does not exist.
    *
-   * @param {String} userId - ID of the user for which we want to get the
+   * @param {string} userId - ID of the user for which we want to get the
    *                          direct conversation.
-   * @param {String} roomId (optional) - ID of the room.
-   * @param {String} roomName (optional) - Name of the room.
+   * @param {string} [roomId] - ID of the room.
+   * @param {string} [roomName] - Name of the room.
    *
-   * @return {Object} - The resulted conversation.
+   * @return {MatrixDirectConversation} - The resulted conversation.
    */
   getDirectConversation(userId, roomID, roomName) {
     let DMRoomId = this.getDMRoomIdForUserId(userId);
@@ -1465,7 +1476,6 @@ MatrixAccount.prototype = {
         })
         .then(room => {
           conv.initRoom(room);
-          conv.joining = false;
         })
         .catch(error => {
           this.ERROR(
@@ -1480,42 +1490,76 @@ MatrixAccount.prototype = {
       return conv;
     }
 
-    if (this.createRoomReturned) {
-      this.createRoomReturned = false;
-      let conv = new MatrixDirectConversation(this, userId);
-      conv.joining = true;
-      this._client
-        .createRoom({
-          is_direct: true,
-          invite: [userId],
-          visibility: "private",
-          preset: "trusted_private_chat",
-          content: {
-            guest_access: "can_join",
-          },
-          type: "m.room.guest_access",
-          state_key: "",
-        })
-        .then(res => {
-          this.createRoomReturned = true;
-          let newRoomId = res.room_id;
-          let room = this._client.getRoom(newRoomId);
-          conv.initRoom(room);
-          this.setDirectRoom(userId, newRoomId);
-          this.roomList.set(newRoomId, conv);
-          conv.joining = false;
-          this.checkRoomForUpdate(conv);
-        })
-        .catch(error => {
-          this.createRoomReturned = true;
-          this.ERROR(error);
-          conv.joining = false;
-          conv.close();
-        });
-
-      return conv;
+    if (this._pendingDirectChats.has(userId)) {
+      return this._pendingDirectChats.get(userId);
     }
-    return null;
+
+    let conv = new MatrixDirectConversation(this, userId);
+    this.createRoom(
+      this._pendingDirectChats,
+      userId,
+      conv,
+      {
+        is_direct: true,
+        invite: [userId],
+        visibility: "private",
+        preset: "trusted_private_chat",
+        content: {
+          guest_access: "can_join",
+        },
+        type: "m.room.guest_access",
+        state_key: "",
+      },
+      roomId => {
+        this.setDirectRoom(userId, roomId);
+      }
+    );
+    return conv;
+  },
+
+  /**
+   * Create a new matrix room. Locks room creation handling during the
+   * operation. If there are no more pending rooms on completion, we need to
+   * make sure we didn't miss a join from another room.
+   *
+   * @param {Map<string, GenericMatrixConversation>} pendingMap - One of the lock maps.
+   * @param {string} key - The key to lock with in the set.
+   * @param {GenericMatrixConversation} conversation - Conversation for the room.
+   * @param {Object} roomInit - Parameters for room creation.
+   * @param {function} [onCreated] - Callback to execute before room creation
+   *  is finalized.
+   * @returns {Promise}
+   */
+  async createRoom(pendingMap, key, conversation, roomInit, onCreated) {
+    conversation.joining = true;
+    pendingMap.set(key, conversation);
+    try {
+      const res = await this._client.createRoom(roomInit);
+      const newRoomId = res.room_id;
+      if (typeof onCreated === "function") {
+        onCreated(newRoomId);
+      }
+      this.roomList.set(newRoomId, conversation);
+      const room = this._client.getRoom(newRoomId);
+      if (room) {
+        conversation.initRoom(room);
+      }
+    } catch (error) {
+      this.ERROR(error);
+      const wasJoining = conversation.joining;
+      conversation.joining = false;
+      // Only leave room if it was ever associated with the conversation
+      if (wasJoining) {
+        conversation.forget();
+      } else {
+        conversation.close();
+      }
+    } finally {
+      pendingMap.delete(key);
+      if (this._pendingDirectChats.size + this._pendingRoomAliases.size === 0) {
+        this.handleCaughtUp();
+      }
+    }
   },
 
   addBuddy(aTag, aName) {
