@@ -212,6 +212,9 @@ MatrixConversation.prototype = {
   get roomState() {
     return this.room.getLiveTimeline().getState(EventTimeline.FORWARDS);
   },
+  get normalizedName() {
+    return this._roomId;
+  },
   addParticipant(roomMember) {
     if (this._participants.has(roomMember.userId)) {
       return;
@@ -309,6 +312,10 @@ MatrixDirectConversation.prototype = {
 
   get room() {
     return this._account._client.getRoom(this._roomId);
+  },
+
+  get normalizedName() {
+    return this._roomId;
   },
 
   _typingTimer: null,
