@@ -1095,7 +1095,7 @@ BatchMessageMover.prototype =
       }
       let archiveFolder = MailUtils.getFolderForURI(archiveFolderUri, false);
 
-      let copyBatchKey = msgHdr.folder.URI + '\000' + monthFolderName;
+      let copyBatchKey = msgHdr.folder.URI + '\0' + monthFolderName;
       if (!(copyBatchKey in this._batches))
         this._batches[copyBatchKey] = [msgHdr.folder,
                                        archiveFolderUri,
