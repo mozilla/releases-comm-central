@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Implements a tree of folders. It shows icons depending on folder type
+// and other fancy styling.
+// This is used in the main folder pane, but also some dialogs that need
+// to show a nice list of folders.
+
 var { FeedUtils } =
   ChromeUtils.import("resource:///modules/FeedUtils.jsm");
 var { folderUtils } =
@@ -16,6 +21,10 @@ var { MailUtils } =
   ChromeUtils.import("resource:///modules/MailUtils.js");
 var { Services } =
   ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+if (typeof FeedMessageHandler != "object") {
+  Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/newsblogOverlay.js");
+}
 
 const kDefaultMode = "all";
 
@@ -854,6 +863,10 @@ let gFolderTreeView = {
         this._tree.rowCountChanged(aIndex + 1, this._rowMap.length - oldCount);
         this._tree.invalidateRow(aIndex);
       }
+
+      if (this._treeElement.getAttribute("simplelist") == "true")
+        return;
+
       // If this was a server that was expanded, let it update its counts.
       let folder = this._rowMap[aIndex]._folder;
       if (aExpandServer) {
@@ -1489,8 +1502,7 @@ let gFolderTreeView = {
 /**
  * The ftvItem object represents a single row in the tree view. Because I'm lazy
  * I'm just going to define the expected interface here.  You are free to return
- * an alternative object in a _mapGenerator, provided that it matches this
- * interface:
+ * an alternative object, provided that it matches this interface:
  *
  * id (attribute) - a unique string for this object. Must persist over sessions
  * text (attribute) - the text to display in the tree
@@ -1551,10 +1563,16 @@ ftvItem.prototype = {
           text = this._folder.server.prettyName;
         else {
           text = this._folder.abbreviatedName;
-          if (this.addServerName)
+          if (this.addServerName) {
             text = gFolderTreeView.messengerBundle.getFormattedString(
               "folderWithAccount", [text, this._folder.server.prettyName]);
+          }
         }
+
+        // In a simple list tree we don't care for attributes other than folder
+        // name.
+        if (gFolderTreeView._treeElement.getAttribute("simplelist") == "true")
+          return text;
 
         // If the unread column is shown, we don't need to add the count
         // to the name.

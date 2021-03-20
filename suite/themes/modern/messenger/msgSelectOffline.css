@@ -1,0 +1,33 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* ===== msgSelectOffline.css =================================================
+   == The dialog where you select which folders to enable for offline use.
+   ========================================================================== */
+
+@import url("chrome://messenger/skin/");
+@import url("chrome://messenger/skin/folderPane.css");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+treechildren::-moz-tree-image(syncCol) {
+  margin-inline-end: 2px;
+  list-style-image: url("chrome://global/skin/checkbox/cbox.png");
+}
+
+treechildren::-moz-tree-image(syncCol, synchronize-true) {
+  list-style-image: url("chrome://global/skin/checkbox/cbox-check.png");
+}
+
+treechildren::-moz-tree-image(syncCol, isServer-true) {
+  list-style-image: none;
+}
+
+#folderNameCol [sortDirection="ascending"] {
+  list-style-image: none;
+}
+
+#folderNameCol [sortDirection="descending"] {
+  list-style-image: none;
+}

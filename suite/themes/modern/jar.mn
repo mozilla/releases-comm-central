@@ -392,6 +392,7 @@ modern.jar:
   skin/modern/messenger/folderPaneExtras.css                       (messenger/folderPaneExtras.css)
   skin/modern/messenger/threadPaneExtras.css                       (messenger/threadPaneExtras.css)
   skin/modern/messenger/messageBody.css                            (messenger/messageBody.css)
+  skin/modern/messenger/msgSelectOffline.css                       (messenger/msgSelectOffline.css)
   skin/modern/messenger/messageHeader.css                          (messenger/messageHeader.css)
   skin/modern/messenger/messageQuotes.css                          (messenger/messageQuotes.css)
   skin/modern/messenger/messageKeywords.css                        (messenger/messageKeywords.css)
