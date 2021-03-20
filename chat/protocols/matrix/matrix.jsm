@@ -98,7 +98,8 @@ MatrixParticipant.prototype = {
   },
 };
 
-let GenericMatrixConversation = {
+// var so it can be tested using script loader.
+var GenericMatrixConversation = {
   /*
    * Leave the room if we close the conversation.
    */
@@ -151,6 +152,43 @@ let GenericMatrixConversation = {
       this.notifyObservers(null, "update-conv-title");
     }
   },
+
+  /**
+   * Shared initialization in constructor of MatrixDirectConversation and
+   * MatrixConversation.
+   */
+  sharedInit() {
+    this._initialized = new Promise(resolve => {
+      this._setInitialized = resolve;
+    });
+  },
+
+  /**
+   * Function to mark this room instance superceded by another one.
+   * Useful when converting between DM and MUC or possibly room version
+   * upgrades.
+   *
+   * @param {GenericMatrixConversation} newRoom - Room that replaces this room.
+   */
+  replaceRoom(newRoom) {
+    this._replacedBy = newRoom;
+    this._setInitialized();
+  },
+
+  /**
+   * Wait until the conversation is fully initialized. Handles replacements of
+   * the conversation in the meantime.
+   *
+   * @returns {GenericMatrixConversation} The most recent instance of this room
+   * that is fully initialized.
+   */
+  async waitForRoom() {
+    await this._initialized;
+    if (this._replacedBy) {
+      return this._replacedBy.waitForRoom();
+    }
+    return this;
+  },
 };
 
 /*
@@ -163,6 +201,7 @@ let GenericMatrixConversation = {
  */
 function MatrixConversation(account, name, nick) {
   this._init(account, name, nick);
+  this.sharedInit();
 }
 MatrixConversation.prototype = {
   __proto__: GenericConvChatPrototype,
@@ -227,6 +266,7 @@ MatrixConversation.prototype = {
       let event = roomState.getStateEvents("m.room.topic")[0];
       this.setTopic(event.getContent().topic, event.getSender().name, true);
     }
+    this._setInitialized();
   },
 
   get topic() {
@@ -252,6 +292,7 @@ Object.assign(MatrixConversation.prototype, GenericMatrixConversation);
 
 function MatrixDirectConversation(account, name) {
   this._init(account, name);
+  this.sharedInit();
 }
 MatrixDirectConversation.prototype = {
   __proto__: GenericConvIMPrototype,
@@ -263,6 +304,7 @@ MatrixDirectConversation.prototype = {
    */
   initRoom(room) {
     this.sharedInitRoom(room);
+    this._setInitialized();
   },
 
   get room() {
@@ -852,6 +894,7 @@ MatrixAccount.prototype = {
   convertToDM(groupConv) {
     GenericConversationPrototype.close.call(groupConv);
     let conv = new MatrixDirectConversation(this, groupConv._roomId);
+    groupConv.replaceRoom(conv);
     this.roomList.set(groupConv._roomId, conv);
     let directRoom = this._client.getRoom(groupConv._roomId);
     conv.initRoom(directRoom);
@@ -867,6 +910,7 @@ MatrixAccount.prototype = {
   convertToGroup(directConv) {
     GenericConversationPrototype.close.call(directConv);
     let conv = new MatrixConversation(this, directConv._roomId, this.userId);
+    directConv.replaceRoom(conv);
     this.roomList.set(directConv._roomId, conv);
     let groupRoom = this._client.getRoom(directConv._roomId);
     conv.initRoom(groupRoom);
@@ -1159,7 +1203,9 @@ MatrixAccount.prototype = {
           conv.joining = false;
         })
         .catch(error => {
-          this.ERROR(error);
+          this.ERROR(
+            "Error creating conversation " + (DMRoomId || roomID) + ": " + error
+          );
           conv.joining = false;
           conv.close();
         });

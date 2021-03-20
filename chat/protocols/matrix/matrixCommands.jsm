@@ -4,7 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["commands"];
 
-var { XPCOMUtils, l10nHelper, setTimeout } = ChromeUtils.import(
+var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 
@@ -448,7 +448,9 @@ var commands = [
     run: runCommand((account, conv, [roomId, userId, message]) => {
       const room = account.getDirectConversation(userId);
       if (room) {
-        waitForRoom(room, message);
+        room.waitForRoom().then(readyRoom => {
+          readyRoom.sendMsg(message);
+        });
       } else {
         account.ERROR("Could not create room for direct message to " + userId);
       }
@@ -475,15 +477,3 @@ var commands = [
     ),
   },
 ];
-
-function waitForRoom(room, message, tries = 0) {
-  if (tries > 10) {
-    return;
-  }
-  if (!room.joining && room._roomId) {
-    room.sendMsg(message);
-    return;
-  }
-  // wait 10 seconds to try again.
-  setTimeout(() => waitForRoom(room, message, tries + 1), 10000);
-}

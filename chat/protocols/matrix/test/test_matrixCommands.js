@@ -6,7 +6,6 @@ var { commands } = ChromeUtils.import("resource:///modules/matrixCommands.jsm");
 function run_test() {
   add_test(testUnhandledEmptyCommands);
   add_test(testTopic);
-  add_test(testMsgSuccess);
   add_test(testMsgMissingMessage);
   add_test(testMsgNoRoom);
   add_test(testJoinNotRoomId);
@@ -84,14 +83,19 @@ function testTopic() {
   run_next_test();
 }
 
-function testMsgSuccess() {
+add_task(async function testMsgSuccess() {
   const targetUser = "@test:example.com";
   const directMessage = "lorem ipsum";
+  let onMessage;
+  const sendMsgPromise = new Promise(resolve => {
+    onMessage = resolve;
+  });
   const dm = {
-    joining: false,
-    _roomId: "!asdf:foo.bar",
+    waitForRoom() {
+      return Promise.resolve(this);
+    },
     sendMsg(message) {
-      this.message = message;
+      onMessage(message);
     },
   };
   const conversation = {
@@ -109,10 +113,9 @@ function testMsgSuccess() {
   const command = _getRunCommand("msg");
   const result = command(targetUser + " " + directMessage, conversation);
   ok(result, "Sending direct message was not handled");
-  equal(dm.message, directMessage, "Message was not sent in DM room");
-
-  run_next_test();
-}
+  const message = await sendMsgPromise;
+  equal(message, directMessage, "Message was not sent in DM room");
+});
 
 function testMsgMissingMessage() {
   const targetUser = "@test:example.com";
