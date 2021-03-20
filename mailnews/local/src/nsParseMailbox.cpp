@@ -871,72 +871,93 @@ nsresult nsParseMailMessageState::ParseHeaders() {
     nsDependentCSubstring headerStr(buf, end);
     ToLowerCase(headerStr);
 
-    if (headerStr.Equals("bcc"_ns))
-      header = &m_bccList;
-    else if (headerStr.Equals("cc"_ns))
-      header = GetNextHeaderInAggregate(m_ccList);
-    else if (headerStr.Equals("content-type"_ns))
-      header = &m_content_type;
-    else if (headerStr.Equals("date"_ns))
-      header = &m_date;
-    else if (headerStr.Equals("disposition-notification-to"_ns))
-      header = &m_mdn_dnt;
-    else if (headerStr.Equals("delivery-date"_ns))
-      header = &m_delivery_date;
-    else if (headerStr.Equals("from"_ns))
-      header = &m_from;
-    else if (headerStr.Equals("in-reply-to"_ns))
-      header = &m_in_reply_to;
-    else if (headerStr.Equals("message-id"_ns))
-      header = &m_message_id;
-    else if (headerStr.Equals("newsgroups"_ns))
-      header = &m_newsgroups;
-    else if (headerStr.Equals("original-recipient"_ns))
-      header = &m_mdn_original_recipient;
-    else if (headerStr.Equals("references"_ns))
-      header = &m_references;
-    else if (headerStr.Equals("return-path"_ns))
-      header = &m_return_path;
-    // treat conventional Return-Receipt-To as MDN
-    // Disposition-Notification-To
-    else if (headerStr.Equals("return-receipt-to"_ns))
-      header = &m_mdn_dnt;
-    else if (headerStr.Equals("reply-to"_ns))
-      header = &m_replyTo;
-    else if (headerStr.Equals("received"_ns)) {
-      header = &receivedBy;
-      header->length = 0;
-    } else if (headerStr.Equals("subject"_ns) && !m_subject.length)
-      header = &m_subject;
-    else if (headerStr.Equals("sender"_ns))
-      header = &m_sender;
-    else if (headerStr.Equals("status"_ns))
-      header = &m_status;
-    else if (headerStr.Equals("to"_ns))
-      header = GetNextHeaderInAggregate(m_toList);
-    else if (headerStr.Equals(nsLiteralCString(X_MOZILLA_STATUS2),
-                              nsCaseInsensitiveCStringComparator) &&
-             !m_IgnoreXMozillaStatus && !m_mozstatus2.length)
-      header = &m_mozstatus2;
-    else if (headerStr.Equals(nsLiteralCString(X_MOZILLA_STATUS),
-                              nsCaseInsensitiveCStringComparator) &&
-             !m_IgnoreXMozillaStatus && !m_mozstatus.length)
-      header = &m_mozstatus;
-    else if (headerStr.Equals(nsLiteralCString(HEADER_X_MOZILLA_ACCOUNT_KEY),
-                              nsCaseInsensitiveCStringComparator) &&
-             !m_account_key.length)
-      header = &m_account_key;
-    // we could very well care what the priority header was when we
-    // remember its value. If so, need to remember it here. Also,
-    // different priority headers can appear in the same message,
-    // but we only remember the last one that we see.
-    else if (headerStr.Equals("x-priority"_ns) ||
-             headerStr.Equals("priority"_ns))
-      header = &m_priority;
-    else if (headerStr.Equals(nsLiteralCString(HEADER_X_MOZILLA_KEYWORDS),
-                              nsCaseInsensitiveCStringComparator) &&
-             !m_keywords.length)
-      header = &m_keywords;
+    switch (headerStr.First()) {
+      case 'b':
+        if (headerStr.EqualsLiteral("bcc")) header = &m_bccList;
+        break;
+      case 'c':
+        if (headerStr.EqualsLiteral("cc"))
+          header = GetNextHeaderInAggregate(m_ccList);
+        else if (headerStr.EqualsLiteral("content-type"))
+          header = &m_content_type;
+        break;
+      case 'd':
+        if (headerStr.EqualsLiteral("date"))
+          header = &m_date;
+        else if (headerStr.EqualsLiteral("disposition-notification-to"))
+          header = &m_mdn_dnt;
+        else if (headerStr.EqualsLiteral("delivery-date"))
+          header = &m_delivery_date;
+        break;
+      case 'f':
+        if (headerStr.EqualsLiteral("from")) header = &m_from;
+        break;
+      case 'i':
+        if (headerStr.EqualsLiteral("in-reply-to")) header = &m_in_reply_to;
+        break;
+      case 'm':
+        if (headerStr.EqualsLiteral("message-id")) header = &m_message_id;
+        break;
+      case 'n':
+        if (headerStr.EqualsLiteral("newsgroups")) header = &m_newsgroups;
+        break;
+      case 'o':
+        if (headerStr.EqualsLiteral("original-recipient"))
+          header = &m_mdn_original_recipient;
+        break;
+      case 'p':
+        // we could very well care what the priority header was when we
+        // remember its value. If so, need to remember it here. Also,
+        // different priority headers can appear in the same message,
+        // but we only remember the last one that we see. Applies also to
+        // x-priority checked below.
+        if (headerStr.EqualsLiteral("priority")) header = &m_priority;
+        break;
+      case 'r':
+        if (headerStr.EqualsLiteral("references"))
+          header = &m_references;
+        else if (headerStr.EqualsLiteral("return-path"))
+          header = &m_return_path;
+        // treat conventional Return-Receipt-To as MDN
+        // Disposition-Notification-To
+        else if (headerStr.EqualsLiteral("return-receipt-to"))
+          header = &m_mdn_dnt;
+        else if (headerStr.EqualsLiteral("reply-to"))
+          header = &m_replyTo;
+        else if (headerStr.EqualsLiteral("received")) {
+          header = &receivedBy;
+          header->length = 0;
+        }
+        break;
+      case 's':
+        if (headerStr.EqualsLiteral("subject") && !m_subject.length)
+          header = &m_subject;
+        else if (headerStr.EqualsLiteral("sender"))
+          header = &m_sender;
+        else if (headerStr.EqualsLiteral("status"))
+          header = &m_status;
+        break;
+      case 't':
+        if (headerStr.EqualsLiteral("to"))
+          header = GetNextHeaderInAggregate(m_toList);
+        break;
+      case 'x':
+        if (headerStr.EqualsIgnoreCase(X_MOZILLA_STATUS2) &&
+            !m_IgnoreXMozillaStatus && !m_mozstatus2.length)
+          header = &m_mozstatus2;
+        else if (headerStr.EqualsIgnoreCase(X_MOZILLA_STATUS) &&
+                 !m_IgnoreXMozillaStatus && !m_mozstatus.length)
+          header = &m_mozstatus;
+        else if (headerStr.EqualsIgnoreCase(HEADER_X_MOZILLA_ACCOUNT_KEY) &&
+                 !m_account_key.length)
+          header = &m_account_key;
+        else if (headerStr.EqualsLiteral("x-priority"))  // See case 'p' above.
+          header = &m_priority;
+        else if (headerStr.EqualsIgnoreCase(HEADER_X_MOZILLA_KEYWORDS) &&
+                 !m_keywords.length)
+          header = &m_keywords;
+        break;
+    }
 
     if (!header && m_customDBHeaders.Length()) {
       size_t customHeaderIndex = m_customDBHeaders.IndexOf(headerStr);
