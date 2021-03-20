@@ -66,6 +66,11 @@ var { MailServices } = ChromeUtils.import(
 var { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
+var { SearchTestUtils } = ChromeUtils.import(
+  "resource://testing-common/SearchTestUtils.jsm"
+);
+
+SearchTestUtils.init(this);
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
@@ -102,7 +107,7 @@ class MockAlertsService {
   showAlertNotification() {}
 }
 
-add_task(function setupModule(module) {
+add_task(async function setupModule(module) {
   requestLongerTimeout(2);
 
   originalAlertsServiceCID = MockRegistrar.register(
@@ -118,14 +123,10 @@ add_task(function setupModule(module) {
   gDefaultEngine = Services.search.defaultEngine;
 
   // Add a "bar" search engine that we can switch to be the default.
-  let engineAdded = false;
-  Services.search
-    .addEngineWithDetails("bar", {
-      method: "post",
-      template: "http://www.example.com/search?q={searchTerms}",
-    })
-    .then(() => (engineAdded = true));
-  mc.waitFor(() => engineAdded);
+  await SearchTestUtils.installSearchExtension({
+    name: "bar",
+    template: "http://www.example.com/search?q={searchTerms}",
+  });
 });
 
 registerCleanupFunction(async function teardownModule(module) {
