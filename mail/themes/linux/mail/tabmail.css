@@ -23,8 +23,7 @@
 }
 
 #tabs-toolbar:not(:-moz-lwtheme) {
-  appearance: auto;
-  -moz-default-appearance: menubar;
+  appearance: none;
   color: -moz-menubartext;
 }
 
@@ -65,7 +64,7 @@ tabpanels {
 }
 
 @media (-moz-gtk-csd-reversed-placement) {
-  .tabmail-tab:first-child::before {
+  :root[tabsintitlebar] .tabmail-tab:first-child::before {
     content: '';
     display: -moz-box;
     margin-inline-start: 0;
