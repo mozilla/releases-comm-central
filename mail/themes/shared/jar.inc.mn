@@ -230,6 +230,7 @@
   skin/classic/messenger/shared/preferences/calendar.svg      (../shared/mail/preferences/calendar.svg)
   skin/classic/messenger/shared/preferences/chat.svg          (../shared/mail/preferences/chat.svg)
   skin/classic/messenger/shared/preferences/general.svg       (../shared/mail/preferences/general.svg)
+  skin/classic/messenger/shared/preferences/privacy-security.svg  (../shared/mail/preferences/privacy-security.svg)
   skin/classic/messenger/shared/mailWindow1.css               (../shared/mail/mailWindow1.css)
   skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
   skin/classic/messenger/shared/messageIcons.css              (../shared/mail/messageIcons.css)
