@@ -204,6 +204,12 @@ async function roundTripTest() {
   await populateMaildir(foodir, testEmails);
   await populateMaildir(bardir, testEmails);
 
+  // Add a pick of "special" files, which should survive the trip verbatim.
+  for (let special of ["filterlog.html", "feeds.json", "rules.dat"]) {
+    let f = PathUtils.join(initialRoot, special);
+    await IOUtils.writeUTF8(f, f); // Use the filename for content.
+  }
+
   // Create root dirs for intermediate and final result.
   let mboxRoot = await tempDir("mbox");
   let finalRoot = await tempDir("final");
@@ -268,40 +274,36 @@ async function populateMaildir(maildir, emailFiles) {
   }
 }
 
-/**
- * Calculate checksums for all the messages in an individual maildir.
- * Used to compare the contents of two maildirs. Note that the checksums are
- * disassociated from the filenames they correspond to, as the filenames are
- * not useful for the comparison - two equivalent maildirs can have entirely
- * different filenames.
+/*
+ * List files in a directory (excludes subdirectories).
  *
- * @param {String} maildir - Path to the maildir directory.
- * @returns {Array<String>} sorted list of checksums (as base64 strings).
+ * @param {String} dirPath - Full path of directory.
+ * @returns {Array<String} full paths of the files.
  */
-async function scanMaildir(maildir) {
-  let cur = OS.Path.join(maildir, "cur");
-
-  // Get a list of all the email files.
+async function listFiles(dirPath) {
   let files = [];
-  let it = new OS.File.DirectoryIterator(cur);
-  await it.forEach(function(ent) {
-    files.push(ent.path);
-  });
-
-  // Calculate checksums for them all.
-  let checksums = [];
-  for (let f of files) {
-    let md5 = Cc["@mozilla.org/security/hash;1"].createInstance(
-      Ci.nsICryptoHash
-    );
-    md5.init(Ci.nsICryptoHash.MD5);
-    let raw = await OS.File.read(f);
-    md5.update(raw, raw.byteLength);
-
-    checksums.push(md5.finish(true));
+  // Note: IOUtils has no dir iterator at time of writing.
+  for (const path of await IOUtils.getChildren(dirPath)) {
+    let fileInfo = await IOUtils.stat(path);
+    if (!fileInfo.isDir) {
+      files.push(path);
+    }
   }
-  checksums.sort();
-  return checksums;
+  return files;
+}
+
+/*
+ * Calculate md5 checksum for a file.
+ *
+ * @param {String} fileName - Full path to file.
+ * @returns {String} checksum of the file contents.
+ */
+async function md5Sum(fileName) {
+  let md5 = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
+  md5.init(Ci.nsICryptoHash.MD5);
+  let raw = await IOUtils.read(fileName);
+  md5.update(raw, raw.byteLength);
+  return md5.finish(true);
 }
 
 /**
@@ -316,6 +318,7 @@ async function recursiveMaildirCompare(rootA, rootB) {
   let it = new OS.File.DirectoryIterator(rootA);
   let subdirs = [];
   let maildirs = [];
+  let otherFiles = [];
   await it.forEach(function(ent) {
     if (ent.isDir) {
       if (ent.name.endsWith(".sbd")) {
@@ -324,14 +327,26 @@ async function recursiveMaildirCompare(rootA, rootB) {
         // Assume all other dirs are maildirs.
         maildirs.push(ent.name);
       }
+    } else {
+      otherFiles.push(ent.name);
     }
   });
 
   // Compare the maildirs we found here.
-  for (let name of maildirs) {
-    let checksumsA = await scanMaildir(OS.Path.join(rootA, name));
-    let checksumsB = await scanMaildir(OS.Path.join(rootB, name));
+  let md5DirContents = async function(dirPath) {
+    let checksums = [];
+    for (let f of await listFiles(dirPath)) {
+      checksums.push(await md5Sum(f));
+    }
+    return checksums;
+  };
 
+  for (let name of maildirs) {
+    let checksumsA = await md5DirContents(PathUtils.join(rootA, name, "cur"));
+    let checksumsB = await md5DirContents(PathUtils.join(rootB, name, "cur"));
+
+    checksumsA.sort();
+    checksumsB.sort();
     let match = checksumsA.length == checksumsB.length;
     for (let i = 0; match && i < checksumsA.length; i++) {
       match = checksumsA[i] == checksumsB[i];
@@ -339,11 +354,19 @@ async function recursiveMaildirCompare(rootA, rootB) {
     Assert.ok(match, "roundtrip preserves messages in maildir " + name);
   }
 
+  // Make sure any "special" files survived the trip intact.
+  for (let name of otherFiles) {
+    let checksumA = await md5Sum(PathUtils.join(rootA, name));
+    let pathB = PathUtils.join(rootB, name);
+    let checksumB = (await IOUtils.exists(pathB)) ? await md5Sum(pathB) : null;
+    Assert.equal(checksumA, checksumB, "roundtrip preserves " + name);
+  }
+
   // Recurse down into .sbd dirs.
   for (let name of subdirs) {
     await recursiveMaildirCompare(
-      OS.Path.join(rootA, name),
-      OS.Path.join(rootB, name)
+      PathUtils.join(rootA, name),
+      PathUtils.join(rootB, name)
     );
   }
 }

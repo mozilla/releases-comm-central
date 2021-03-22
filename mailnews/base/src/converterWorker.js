@@ -312,13 +312,31 @@ function isSBD(name) {
 /**
  * Check if file is a type which should be copied verbatim as part of a
  * conversion.
+ * See also: nsMsgLocalStoreUtils::nsShouldIgnoreFile().
  *
  * @param {String} name     - Name of file to check.
  * @returns {Boolean}       - true if file should be copied verbatim.
  */
 function isFileToCopy(name) {
   let ext4 = name.substr(-4);
+  // Database and config files.
   if (ext4 == ".msf" || ext4 == ".dat") {
+    return true;
+  }
+  // Summary files.
+  if (ext4 == ".snm" || ext4 == ".toc") {
+    return true;
+  }
+  // A few files we know might be lurking there.
+  const SPECIAL_FILES = [
+    "filterlog.html",
+    "junklog.html",
+    "feeds.json",
+    "feeditems.json",
+    "mailfilt.log",
+    "filters.js",
+  ];
+  if (SPECIAL_FILES.includes(name)) {
     return true;
   }
   return false;
@@ -333,12 +351,8 @@ function isFileToCopy(name) {
  * @returns {Boolean}       - true if file is an mbox
  */
 function isMBoxName(name) {
-  let ext4 = name.substr(-4);
-  if (ext4 == ".msf" || ext4 == ".dat") {
-    return false;
-  }
-  // Assume all other files are mbox.
-  return true;
+  // If it's not a "special" file, assume it's mbox.
+  return !isFileToCopy(name);
 }
 
 /**
