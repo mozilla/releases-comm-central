@@ -60,6 +60,7 @@ async function testExperimentPrompt(filename) {
     panel,
     isDefaultIcon,
     [["webextPerms.description.experiment"]],
+    false,
     true
   );
   panel.secondaryButton.click();

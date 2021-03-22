@@ -842,6 +842,12 @@ var ExtensionsUI = {
       let data = new ExtensionData(info.addon.getResourceURI());
       await data.loadManifest();
       if (data.manifest.experiment_apis) {
+        // Add the experiment permission text and use the header for
+        // extensions with permissions.
+        strings.header = addonsBundle.formatStringFromName(
+          "webextPerms.headerWithPerms",
+          ["<>"]
+        );
         strings.msgs = [
           addonsBundle.formatStringFromName(
             "webextPerms.description.experiment",
@@ -1037,7 +1043,7 @@ var ExtensionsUI = {
 
           let listIntroEl = doc.getElementById("addon-webext-perm-intro");
           listIntroEl.textContent = strings.listIntro;
-          listIntroEl.hidden = !strings.msgs.length;
+          listIntroEl.hidden = !strings.msgs.length || !strings.listIntro;
 
           let listInfoEl = doc.getElementById("addon-webext-perm-info");
           listInfoEl.textContent = strings.learnMore;
@@ -1050,11 +1056,23 @@ var ExtensionsUI = {
           while (list.firstChild) {
             list.firstChild.remove();
           }
+          let singleEntryEl = doc.getElementById(
+            "addon-webext-perm-single-entry"
+          );
+          singleEntryEl.textContent = "";
+          singleEntryEl.hidden = true;
+          list.hidden = true;
 
-          for (let msg of strings.msgs) {
-            let item = doc.createElementNS(HTML_NS, "li");
-            item.textContent = msg;
-            list.appendChild(item);
+          if (strings.msgs.length === 1) {
+            singleEntryEl.textContent = strings.msgs[0];
+            singleEntryEl.hidden = false;
+          } else if (strings.msgs.length) {
+            for (let msg of strings.msgs) {
+              let item = doc.createElementNS(HTML_NS, "li");
+              item.textContent = msg;
+              list.appendChild(item);
+            }
+            list.hidden = false;
           }
 
           let experimentsEl = doc.getElementById(
@@ -1172,8 +1190,8 @@ var ExtensionsUI = {
     let document = window.document;
 
     let message = addonsBundle.formatStringFromName(
-      "addonPostInstall.message1",
-      ["<>", brandShortName]
+      "addonPostInstall.message2",
+      ["<>"]
     );
 
     let icon = DEFAULT_EXTENSION_ICON;
@@ -1196,13 +1214,7 @@ var ExtensionsUI = {
       "addon-installed",
       message,
       "addons-notification-icon",
-      {
-        label: addonsBundle.GetStringFromName("addonPostInstall.okay.label"),
-        accessKey: addonsBundle.GetStringFromName(
-          "addonPostInstall.okay.accesskey"
-        ),
-        callback: () => {},
-      },
+      null,
       null,
       options
     );

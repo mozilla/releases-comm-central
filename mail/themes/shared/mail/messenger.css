@@ -583,12 +583,61 @@ button > .button-box > dropmarker {
   background-color: #FFE900;
 }
 
-html|ul.addon-installed-list {
+.popup-notification-body[popupid="addon-progress"],
+.popup-notification-body[popupid="addon-install-confirmation"] {
+  width: 28em;
+  max-width: 28em;
+}
+
+.addon-install-confirmation-name {
+  font-weight: bold;
+}
+
+html|*.addon-webext-perm-list {
+  margin-block-end: 0;
+  padding-inline-start: 10px;
+}
+
+.addon-webext-perm-single-entry {
+  margin-top: 11px;
+}
+
+.addon-webext-perm-text,
+.addon-webext-perm-single-entry {
+  margin-inline-start: 0;
+}
+
+.popup-notification-description[popupid="addon-webext-permissions"],
+.popup-notification-description[popupid="addon-webext-permissions-notification"] {
+  margin-inline-start: -1px;
+}
+
+.addon-webext-perm-notification-content,
+.addon-installed-notification-content {
   margin-top: 0;
 }
 
-html|ul.addon-webext-perm-list:empty {
-  display: none;
+#addon-webext-experiment-warning {
+  margin-top: 11px;
+  margin-inline-start: 0;
+}
+
+#addon-webext-perm-info {
+  margin-inline-start: 0;
+}
+
+#addon-progress-notification-progressmeter {
+  margin: 2px 4px;
+}
+
+.addon-webext-name {
+  display: inline;
+  font-weight: bold;
+  margin: 0;
+}
+
+html|ul.addon-installed-list {
+  margin-top: 0;
 }
 
 #tabbar-toolbar {
