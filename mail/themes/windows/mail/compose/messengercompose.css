@@ -211,10 +211,6 @@ toolbarbutton.formatting-button {
   margin-inline-end: 0; /* override toolkit's default value */
 }
 
-#findbar-replaceButton > .toolbarbutton-icon {
-  display: none;
-}
-
 #compose-toolbox {
   appearance: none;
   border-bottom: 1px solid var(--chrome-content-separator-color);
@@ -249,10 +245,6 @@ toolbar:not(:-moz-lwtheme) {
     margin: 1px 4px;
     padding: 1px 2px;
   }
-}
-
-.findbar-container {
-  padding-block: 2px;
 }
 
 #compose-toolbar-sizer {

@@ -3277,7 +3277,7 @@ function ComposeStartup(aParams) {
   if (!document.getElementById("findbar-replaceButton")) {
     let replaceButton = document.createXULElement("toolbarbutton");
     replaceButton.setAttribute("id", "findbar-replaceButton");
-    replaceButton.setAttribute("class", "findbar-button tabbable");
+    replaceButton.setAttribute("class", "toolbarbutton-1 tabbable");
     replaceButton.setAttribute(
       "label",
       getComposeBundle().getString("replaceButton.label")

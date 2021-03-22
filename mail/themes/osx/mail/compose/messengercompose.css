@@ -46,13 +46,11 @@ toolbar[nowindowdrag="true"] {
 }
 
 /* Findbar */
-.findbar-container {
-  padding-block: 2px;
-}
 
 #findbar-replaceButton {
-  padding: 2px 9px;
+  height: 18px;
   margin-inline-start: 5px;
+  padding-block: 2px;
 }
 
 /* ::::: special toolbar colors ::::: */

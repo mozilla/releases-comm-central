@@ -1190,6 +1190,14 @@ label.extra-recipients-label {
   list-style-image: url("chrome://messenger/skin/icons/table.svg");
 }
 
+#findbar-replaceButton {
+  margin-block: 0;
+}
+
+#findbar-replaceButton > .toolbarbutton-icon {
+  display: none;
+}
+
 /* OpenPGP and S/MIME encryption and signature status icons */
 
 #signing-status,

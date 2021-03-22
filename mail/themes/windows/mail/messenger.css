@@ -515,11 +515,6 @@ button.notification-button[type="menu-button"] {
 
 /* ::::: primary toolbar buttons ::::: */
 
-.findbar-button {
-  padding: 2px 6px;
-  color: inherit;
-}
-
 .toolbarbutton-1[disabled=true] .toolbarbutton-icon,
 .toolbarbutton-1[disabled=true] .toolbarbutton-text,
 .toolbarbutton-1[disabled=true] .toolbarbutton-menu-dropmarker,
@@ -537,7 +532,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
   padding-inline-end: 2px;
 }
 
-.findbar-button,
 .toolbarbutton-1,
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {

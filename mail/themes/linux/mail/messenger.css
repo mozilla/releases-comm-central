@@ -268,11 +268,6 @@ toolbarbutton[type="menu-button"] {
 
 /* ::::: toolbarbutton ::::: */
 
-.findbar-button {
-  appearance: none;
-  padding: 5px;
-}
-
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button,
 .toolbarbutton-1[type="menu-button"],

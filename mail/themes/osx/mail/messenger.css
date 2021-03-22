@@ -121,10 +121,6 @@ toolbarbutton[type="menu-button"] {
 
 /* ::::: primary toolbar buttons ::::: */
 
-.findbar-button {
-  background: none;
-}
-
 .toolbarbutton-1[open],
 .toolbarbutton-1[open] > .toolbarbutton-menubutton-button {
   text-shadow: none;
