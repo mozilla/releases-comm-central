@@ -488,13 +488,6 @@ pref("mail.tabs.tabClipWidth", 140);
 pref("mail.tabs.autoHide", false);
 pref("mail.tabs.closeWindowWithLastTab", true);
 
-// Where to show tab close buttons:
-// 0 - active tab only
-// 1 - all tabs until tabClipWidth is reached, then active tab only
-// 2 - no close buttons
-// 3 - at the end of the tabstrip
-pref("mail.tabs.closeButtons", 1);
-
 // Allow the tabs to be in the titlebar on supported systems
 #ifdef UNIX_BUT_NOT_MAC
 pref("mail.tabs.drawInTitlebar", false);

@@ -509,10 +509,6 @@
 
       this.arrowScrollbox = this.querySelector("arrowscrollbox");
 
-      this.arrowScrollboxClosebutton = this.querySelector(
-        ".tabs-closebutton-box"
-      );
-
       this.mToolbar = document.getElementById(this.getAttribute("tabtoolbar"));
 
       this.mCollapseToolbar = document.getElementById(
@@ -523,14 +519,8 @@
       this._prefObserver = (subject, topic, data) => {
         if (topic == "nsPref:changed") {
           subject.QueryInterface(Ci.nsIPrefBranch);
-          switch (data) {
-            case "mail.tabs.closeButtons":
-              this.mCloseButtons = subject.getIntPref("mail.tabs.closeButtons");
-              this._updateCloseButtons();
-              break;
-            case "mail.tabs.autoHide":
-              this.mAutoHide = subject.getBoolPref("mail.tabs.autoHide");
-              break;
+          if (data == "mail.tabs.autoHide") {
+            this.mAutoHide = subject.getBoolPref("mail.tabs.autoHide");
           }
         }
       };
@@ -546,8 +536,6 @@
       this.mTabMaxWidth = 250;
 
       this.mTabClipWidth = 140;
-
-      this.mCloseButtons = 1;
 
       this._mAutoHide = false;
 
@@ -630,7 +618,6 @@
       this.mTabMinWidth = Services.prefs.getIntPref("mail.tabs.tabMinWidth");
       this.mTabMaxWidth = Services.prefs.getIntPref("mail.tabs.tabMaxWidth");
       this.mTabClipWidth = Services.prefs.getIntPref("mail.tabs.tabClipWidth");
-      this.mCloseButtons = Services.prefs.getIntPref("mail.tabs.closeButtons");
       this.mAutoHide = Services.prefs.getBoolPref("mail.tabs.autoHide");
 
       if (this.mAutoHide) {
@@ -669,8 +656,6 @@
       this.addEventListener("TabSelect", event => {
         this._handleTabSelect();
       });
-      this.addEventListener("TabOpen", this._toggleArrowScrollboxClosebutton);
-      this.addEventListener("TabClose", this._toggleArrowScrollboxClosebutton);
     }
 
     get tabbox() {
@@ -739,59 +724,15 @@
     }
 
     _updateCloseButtons() {
-      // modes for tabstrip
-      // 0 - activetab  = close button on active tab only
-      // 1 - alltabs    = close buttons on all tabs
-      // 2 - noclose    = no close buttons at all
-      // 3 - closeatend = close button at the end of the tabstrip
-      switch (this.mCloseButtons) {
-        case 0:
-          this.setAttribute("closebuttons", "activetab");
-          break;
-        case 1:
-          let width = this.arrowScrollbox.firstElementChild.getBoundingClientRect()
-            .width;
-          // 0 width is an invalid value and indicates
-          // an item without display, so ignore.
-          if (width > this.mTabClipWidth || width == 0) {
-            this.setAttribute("closebuttons", "alltabs");
-          } else {
-            this.setAttribute("closebuttons", "activetab");
-          }
-          break;
-        case 2:
-        case 3:
-          this.setAttribute("closebuttons", "noclose");
-          break;
+      let width = this.arrowScrollbox.firstElementChild.getBoundingClientRect()
+        .width;
+      // 0 width is an invalid value and indicates
+      // an item without display, so ignore.
+      if (width > this.mTabClipWidth || width == 0) {
+        this.setAttribute("closebuttons", "alltabs");
+      } else {
+        this.setAttribute("closebuttons", "activetab");
       }
-
-      // Interrupt if the "tabmail-tabs" hasn't been initialized yet.
-      if (!this.tabmail.tabContainer) {
-        return;
-      }
-
-      // Hide the the tabs-closebutton-box based on the pref or if we only have
-      // 1 tab opened.
-      this.arrowScrollboxClosebutton.collapsed =
-        this.mCloseButtons != 3 ||
-        this.tabmail.tabContainer.allTabs.length == 1;
-    }
-
-    /**
-     * Hide or show the tabs-closebutton-box based on the pref and the number
-     * of openend tabs.
-     */
-    _toggleArrowScrollboxClosebutton(event) {
-      // The "TabClose" event is dispatched from the tabNode before is actually
-      // deleted, therefore we need to subtract 1 to the number of currently
-      // opened tabs to reflect the real number.
-      let tabCount =
-        event.type == "TabClose"
-          ? this.tabmail.tabContainer.allTabs.length - 1
-          : this.tabmail.tabContainer.allTabs.length;
-
-      this.arrowScrollboxClosebutton.collapsed =
-        this.mCloseButtons != 3 || tabCount == 1;
     }
 
     _handleTabSelect() {

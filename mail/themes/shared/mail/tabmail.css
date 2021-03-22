@@ -480,7 +480,3 @@
 .forward-btn:-moz-locale-dir(ltr) {
   transform: scaleX(-1);
 }
-
-.tabs-closebutton-box {
-  height: var(--tab-min-height);
-}
