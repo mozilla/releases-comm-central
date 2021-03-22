@@ -13,62 +13,77 @@ const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var abi = ctypes.default_abi;
 
-// Open libotr. Determine the path to the chrome directory and look for it
-// there first. If not, fallback to searching the standard locations.
 var libotr, libotrPath;
 
-function tryLoadOTR(name, suffix) {
-  let filename = ctypes.libraryName(name) + suffix;
-  let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
-  let binDir = OS.Path.dirname(binPath);
-  libotrPath = OS.Path.join(binDir, filename);
+function getLibraryFilename(baseName, suffix) {
+  return ctypes.libraryName(baseName) + suffix;
+}
 
-  let loadFromInfo;
+function getDistributionFilename() {
+  let baseName;
+  let suffix;
 
-  try {
-    loadFromInfo = libotrPath;
-    libotr = ctypes.open(libotrPath);
-  } catch (e) {}
-
-  if (!libotr) {
-    try {
-      loadFromInfo = "system's standard library locations";
-      // look in standard locations
-      libotrPath = filename;
-      libotr = ctypes.open(libotrPath);
-    } catch (e) {}
+  switch (systemOS) {
+    case "winnt":
+      baseName = "libotr-5";
+      suffix = "";
+      break;
+    case "darwin":
+      baseName = "otr.5";
+      suffix = "";
+      break;
+    default:
+      baseName = "otr";
+      suffix = ".5";
+      break;
   }
 
+  return getLibraryFilename(baseName, suffix);
+}
+
+function getDistributionFullPath() {
+  let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
+  let binDir = OS.Path.dirname(binPath);
+  return OS.Path.join(binDir, getDistributionFilename());
+}
+
+function tryLoadOTR(filename, info) {
+  console.debug(`Trying to load ${filename}${info}`);
+
+  try {
+    libotr = ctypes.open(filename);
+  } catch (e) {}
+
   if (libotr) {
-    console.debug(
-      "Successfully loaded OTR library " + filename + " from " + loadFromInfo
-    );
+    console.debug("Successfully loaded OTR library " + filename + info);
   }
 }
 
 function loadExternalOTRLib() {
-  if (!libotr && (systemOS === "winnt" || systemOS === "darwin")) {
-    // otr.5.dll or otr.5.dylib
-    tryLoadOTR("otr.5", "");
+  const systemInfo = " from system's standard library locations";
+
+  // Try to load using an absolute path from our install directory
+  if (!libotr) {
+    tryLoadOTR(getDistributionFullPath(), "");
   }
 
-  if (!libotr && systemOS === "winnt") {
-    // otr-5.dll
-    tryLoadOTR("otr-5", "");
+  // Try to load using our expected filename from system directories
+  if (!libotr) {
+    tryLoadOTR(getDistributionFilename(), systemInfo);
   }
 
-  if (!libotr && systemOS === "winnt") {
-    // libotr-5.dll
-    tryLoadOTR("libotr-5", "");
+  // Try other filenames
+
+  if (!libotr && systemOS == "winnt") {
+    tryLoadOTR(getLibraryFilename("otr.5", ""), systemInfo);
   }
 
-  if (!libotr && !(systemOS === "winnt") && !(systemOS === "darwin")) {
-    // libotr.so.5
-    tryLoadOTR("otr", ".5");
+  if (!libotr && systemOS == "winnt") {
+    tryLoadOTR(getLibraryFilename("otr-5", ""), systemInfo);
   }
 
   if (!libotr) {
-    tryLoadOTR("otr", "");
+    tryLoadOTR(getLibraryFilename("otr", ""), systemInfo);
   }
 
   if (!libotr) {
