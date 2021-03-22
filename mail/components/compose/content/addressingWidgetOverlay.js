@@ -648,19 +648,25 @@ function addressInputOnBeforeHandleKeyDown(event) {
       break;
 
     case " ":
-      // If the existing input value is empty string or whitespace only,
-      // prevent entering space and clear whitespace-only input text.
-      if (!input.value.trim()) {
-        event.preventDefault();
-        input.value = "";
-      }
-      break;
-
     case ",":
       let selection = input.value.substring(
         input.selectionStart,
         input.selectionEnd
       );
+
+      // If keydown would normally replace all of the current trimmed input,
+      // including if the current input is empty, then suppress the key and
+      // clear the input instead.
+      if (selection.includes(input.value.trim())) {
+        event.preventDefault();
+        input.value = "";
+        break;
+      }
+
+      // Otherwise, comma may trigger pill creation.
+      if (event.key !== ",") {
+        break;
+      }
 
       // Don't trigger autocomplete if a comma is present as a first character
       // to prevent early pill creation when the autocomplete suggests contacts

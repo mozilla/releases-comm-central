@@ -2663,6 +2663,13 @@
         this.checkSelected(pill, event);
       });
 
+      pill.addEventListener("keydown", event => {
+        if (!pill.isEditing || pill.hasAttribute("disabled")) {
+          return;
+        }
+        this.handleKeyDown(pill, event);
+      });
+
       pill.addEventListener("keypress", event => {
         if (pill.hasAttribute("disabled")) {
           return;
@@ -2711,6 +2718,33 @@
       pill.updatePillStatus();
 
       return pill;
+    }
+
+    /**
+     * Handle keydown event on a pill in the mail-recipients-area.
+     *
+     * @param {Element} pill - The mail-address-pill element where Event fired.
+     * @param {Event} event - The DOM Event.
+     */
+    handleKeyDown(pill, event) {
+      switch (event.key) {
+        case " ":
+        case ",":
+          // Behaviour consistent with row input:
+          // If keydown would normally replace all of the current trimmed input,
+          // including if the current input is empty, then suppress the key and
+          // clear the input instead.
+          let input = pill.emailInput;
+          let selection = input.value.substring(
+            input.selectionStart,
+            input.selectionEnd
+          );
+          if (selection.includes(input.value.trim())) {
+            event.preventDefault();
+            input.value = "";
+          }
+          break;
+      }
     }
 
     /**

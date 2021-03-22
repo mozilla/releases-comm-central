@@ -170,3 +170,142 @@ add_task(function test_address_types() {
   check_mail_address_types();
   close_compose_window(cwc);
 });
+
+add_task(async function test_address_suppress_leading_comma_space() {
+  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  let controller = open_compose_new_mail();
+
+  let addrInput = controller.window.document.getElementById("toAddrInput");
+  Assert.ok(addrInput);
+  Assert.equal(addrInput.value, "");
+
+  // Create a pill.
+  addrInput.value = "person@org";
+  // Comma triggers the pill creation.
+  // Note: the address input should already have focus.
+  EventUtils.synthesizeKey(",", {}, controller.window);
+
+  let addrPill = await TestUtils.waitForCondition(
+    () =>
+      controller.window.document.querySelector(
+        "#toAddrContainer > .address-pill"
+      ),
+    "Pill creation"
+  );
+  Assert.equal(addrInput.value, "");
+  let pillInput = addrPill.querySelector("input");
+  Assert.ok(pillInput);
+
+  // Asserts that the input has the correct exceptional behaviour for 'comma'
+  // and 'space'.
+  async function assertKeyInput(input) {
+    // Since we will be partially testing for a lack of response to the " " and
+    // "," key presses, we first run the tests with the "a" key press to assure
+    // us that the tests would otherwise capture the normal behaviour. This will
+    // also shows us that the comma and space behaviour is exceptional.
+    for (let key of ["a", " ", ","]) {
+      // Clear input.
+      input.value = "";
+      await TestUtils.waitForTick();
+
+      // Type the key in an empty input.
+      let eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
+      EventUtils.synthesizeKey(key, {}, controller.window);
+      await eventPromise;
+
+      if (key === " " || key === ",") {
+        // Key is suppressed, so the input remains empty.
+        Assert.equal(input.value, "");
+      } else {
+        // Normal behaviour: key is added to the input.
+        Assert.equal(input.value, key);
+      }
+
+      // If the input is not empty, we should still have the normal behaviour.
+      input.value = "z";
+      input.selectionStart = 1;
+      input.SelectionEnd = 1;
+      await TestUtils.waitForTick();
+
+      eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
+      EventUtils.synthesizeKey(key, {}, controller.window);
+      await eventPromise;
+
+      Assert.equal(input.value, "z" + key);
+
+      // Test typing the key to replace all the trimmed input.
+      // Sample text with two spaces as start and end. Also includes a 2
+      // character emoji.
+      let someText = "  some, text📜  ";
+      for (let selection of [
+        { start: 0, end: 0 },
+        { start: 1, end: 0 },
+        { start: 0, end: 1 },
+        { start: 2, end: 2 },
+      ]) {
+        input.value = someText;
+        input.selectionStart = selection.start;
+        input.selectionEnd = someText.length - selection.end;
+        await TestUtils.waitForTick();
+
+        // Type the key to replace the text.
+        eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
+        EventUtils.synthesizeKey(key, {}, controller.window);
+        await eventPromise;
+
+        if (key === " " || key === ",") {
+          // Key is suppressed and input is empty.
+          Assert.equal(input.value, "");
+        } else {
+          // Normal behaviour: key replaces the selected text.
+          Assert.equal(
+            input.value,
+            someText.slice(0, selection.start) +
+              key +
+              someText.slice(someText.length - selection.end)
+          );
+        }
+      }
+
+      // If we do not replace all the trimmed input, we should still have
+      // normal behaviour.
+      input.value = "  text ";
+      input.selectionStart = 1;
+      // Select up to 'x'.
+      input.selectionEnd = 5;
+      await TestUtils.waitForTick();
+
+      eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
+      EventUtils.synthesizeKey(key, {}, controller.window);
+      await eventPromise;
+      Assert.equal(input.value, " " + key + "t ");
+    }
+  }
+
+  // Assert that the address input has the correct behaviour for key presses.
+  // Note: the address input should still have focus.
+  await assertKeyInput(addrInput);
+
+  // Now test the behaviour when editing a pill.
+  // First, we need to get into editing mode by clicking the pill twice.
+  EventUtils.synthesizeMouseAtCenter(
+    addrPill,
+    { clickCount: 1 },
+    controller.window
+  );
+  let clickPromise = BrowserTestUtils.waitForEvent(addrPill, "click");
+  // We do not want a double click, but two separate clicks.
+  EventUtils.synthesizeMouseAtCenter(
+    addrPill,
+    { clickCount: 1 },
+    controller.window
+  );
+  await clickPromise;
+
+  Assert.ok(!pillInput.hidden);
+
+  // Assert that editing a pill has the same behaviour as the address input.
+  await assertKeyInput(pillInput);
+
+  close_compose_window(controller);
+});
