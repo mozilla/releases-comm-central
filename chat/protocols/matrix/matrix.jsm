@@ -415,7 +415,11 @@ MatrixAccount.prototype = {
       });
     }
   },
-  unInit() {},
+  unInit() {
+    if (this._client) {
+      this._client.stopClient();
+    }
+  },
   connect() {
     this.reportConnecting();
     let dbName = "chat:matrix:" + this.imAccount.id;
