@@ -832,6 +832,7 @@ var specialTabs = {
       aTab.browser.setAttribute("selectmenulist", "ContentSelectDropdown");
       aTab.browser.setAttribute("context", "mailContext");
       aTab.browser.setAttribute("maychangeremoteness", "true");
+      aTab.browser.setAttribute("onclick", "return contentAreaClick(event);");
       aTab.browser.openWindowInfo = aArgs.openWindowInfo || null;
       clone.querySelector("stack").appendChild(aTab.browser);
 

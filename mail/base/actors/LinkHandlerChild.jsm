@@ -21,8 +21,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "nsIExternalProtocolService"
 );
 
-const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
-
 /**
  * Extract the href from the link click event.
  * We look for HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement,
@@ -76,15 +74,17 @@ function hRefForClickEvent(aEvent) {
  */
 class LinkHandlerChild extends JSWindowActorChild {
   handleEvent(event) {
-    // Don't handle events that: a) aren't trusted, b) have already been
-    // handled or c) aren't left-click.
-    if (!event.isTrusted || event.defaultPrevented || event.button) {
-      return;
-    }
-
-    // Link handling in mail messages is handled elsewhere.
-    let pageURI = Services.io.newURI(this.document.location.href);
-    if (MESSAGE_PROTOCOLS.includes(pageURI.scheme)) {
+    // Don't handle events that:
+    //   a) are in the parent process (handled by onclick),
+    //   b) aren't trusted,
+    //   c) have already been handled or
+    //   d) aren't left-click.
+    if (
+      this.manager.isInProcess ||
+      !event.isTrusted ||
+      event.defaultPrevented ||
+      event.button
+    ) {
       return;
     }
 
@@ -93,6 +93,7 @@ class LinkHandlerChild extends JSWindowActorChild {
       return;
     }
 
+    let pageURI = Services.io.newURI(this.document.location.href);
     let eventURI = Services.io.newURI(eventHRef);
 
     try {
@@ -138,15 +139,17 @@ class LinkHandlerChild extends JSWindowActorChild {
  */
 class StrictLinkHandlerChild extends JSWindowActorChild {
   handleEvent(event) {
-    // Don't handle events that: a) aren't trusted, b) have already been
-    // handled or c) aren't left-click.
-    if (!event.isTrusted || event.defaultPrevented || event.button) {
-      return;
-    }
-
-    // Link handling in mail messages is handled elsewhere.
-    let pageURI = Services.io.newURI(this.document.location.href);
-    if (MESSAGE_PROTOCOLS.includes(pageURI.scheme)) {
+    // Don't handle events that:
+    //   a) are in the parent process (handled by onclick),
+    //   b) aren't trusted,
+    //   c) have already been handled or
+    //   d) aren't left-click.
+    if (
+      this.manager.isInProcess ||
+      !event.isTrusted ||
+      event.defaultPrevented ||
+      event.button
+    ) {
       return;
     }
 
@@ -155,6 +158,7 @@ class StrictLinkHandlerChild extends JSWindowActorChild {
       return;
     }
 
+    let pageURI = Services.io.newURI(this.document.location.href);
     let eventURI = Services.io.newURI(eventHRef);
     if (eventURI.specIgnoringRef == pageURI.specIgnoringRef) {
       return;

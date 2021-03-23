@@ -2066,7 +2066,11 @@ AttachmentInfo.prototype = {
             tabmail = win && win.document.getElementById("tabmail");
           }
           if (tabmail) {
-            tabmail.openTab("contentTab", { url, background: false });
+            tabmail.openTab("contentTab", {
+              url,
+              background: false,
+              linkHandler: "single-page",
+            });
             return;
           }
           // If no tabmail, open PDF same as other attachments.

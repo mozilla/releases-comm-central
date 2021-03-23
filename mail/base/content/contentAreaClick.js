@@ -124,6 +124,10 @@ function isLinkToAnchorOnPage(aTargetNode) {
 // should always return true for click to go through.
 function contentAreaClick(aEvent) {
   let target = aEvent.target;
+  if (target.localName == "browser") {
+    // This is a remote browser. Nothing useful can happen.
+    return false;
+  }
 
   // If we've loaded a web page url, and the element's or its ancestor's href
   // points to an anchor on the page, let the click go through.
@@ -137,7 +141,7 @@ function contentAreaClick(aEvent) {
   if (!href && !aEvent.button) {
     // Is this an image that we might want to scale?
 
-    if (target instanceof Ci.nsIImageLoadingContent) {
+    if (target instanceof HTMLImageElement) {
       // Make sure it loaded successfully. No action if not or a broken link.
       var req = target.getRequest(Ci.nsIImageLoadingContent.CURRENT_REQUEST);
       if (!req || req.imageStatus & Ci.imgIRequest.STATUS_ERROR) {
