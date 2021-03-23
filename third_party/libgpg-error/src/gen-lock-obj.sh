@@ -2,7 +2,7 @@
 #
 # gen-lock-obj.sh - Build tool to construct the lock object.
 #
-# Copyright (C) 2020 g10 Code GmbH
+# Copyright (C) 2020, 2021  g10 Code GmbH
 #
 # This file is part of libgpg-error.
 #
@@ -38,6 +38,29 @@
 #     AWK=gawk ./gen-lock-obj.sh
 #
 
+if test -n `echo -n`; then
+    ECHO_C='\c'
+    ECHO_N=''
+else
+    ECHO_C=''
+    ECHO_N='-n'
+fi
+
+if test "$1" = --disable-threads; then
+    cat <<EOF
+## lock-obj-pub.$host.h - NO LOCK SUPPORT
+## File created by gen-lock-obj.sh - DO NOT EDIT
+## To be included by mkheader into gpg-error.h
+
+/* Dummy object - no locking available.  */
+typedef struct
+{
+  long _vers;
+} gpgrt_lock_t;
+
+#define GPGRT_LOCK_INITIALIZER {-1}
+EOF
+else
 AWK_VERSION_OUTPUT=$($AWK 'BEGIN { print PROCINFO["version"] }')
 if test -n "$AWK_VERSION_OUTPUT"; then
     # It's GNU awk, which supports PROCINFO.
@@ -84,20 +107,21 @@ EOF
 #     USE_LONG_DOUBLE_FOR_ALIGNMENT
 #
 
-echo -n "#define GPGRT_LOCK_INITIALIZER {$LOCK_ABI_VERSION,{{"
+echo ${ECHO_N} "#define GPGRT_LOCK_INITIALIZER {$LOCK_ABI_VERSION,{{${ECHO_C}"
 
 i=0
 while test "$i" -lt $ac_mtx_size; do
     if test "$i" -ne 0 -a "$(( $i % 8 ))" -eq 0; then
         echo ' \'
-        echo -n "                                    "
+        echo ${ECHO_N} "                                    ${ECHO_C}"
     fi
-    echo -n '0'
+    echo ${ECHO_N} "0${ECHO_C}"
     if test "$i" -lt $(($ac_mtx_size - 1)); then
-        echo -n ','
+        echo ${ECHO_N} ",${ECHO_C}"
     fi
     i=$(( i + 1 ))
 done
+fi
 
 cat <<'EOF'
 }}}

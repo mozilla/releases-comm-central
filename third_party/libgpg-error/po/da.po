@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.10\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-08-24 13:06+0200\n"
-"PO-Revision-Date: 2018-03-21 19:01+0100\n"
+"POT-Creation-Date: 2021-03-22 11:49+0100\n"
+"PO-Revision-Date: 2021-03-22 10:24+0100\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <debian-l10n-danish@lists.debian.org>\n"
 "Language: da\n"
@@ -85,30 +85,34 @@ msgid "Assuan"
 msgstr "Assuan"
 
 #: src/err-sources.h:44
+msgid "TPM2d"
+msgstr "TPM2d"
+
+#: src/err-sources.h:45
 msgid "TLS"
 msgstr "TLS"
 
-#: src/err-sources.h:45
+#: src/err-sources.h:46
 msgid "Any source"
 msgstr "Enhver kilde"
 
-#: src/err-sources.h:46
+#: src/err-sources.h:47
 msgid "User defined source 1"
 msgstr "Brugerdefineret kilde 1"
 
-#: src/err-sources.h:47
+#: src/err-sources.h:48
 msgid "User defined source 2"
 msgstr "Brugerdefineret kilde 2"
 
-#: src/err-sources.h:48
+#: src/err-sources.h:49
 msgid "User defined source 3"
 msgstr "Brugerdefineret kilde 3"
 
-#: src/err-sources.h:49
+#: src/err-sources.h:50
 msgid "User defined source 4"
 msgstr "Brugerdefineret kilde 4"
 
-#: src/err-sources.h:50
+#: src/err-sources.h:51
 msgid "Unknown source"
 msgstr "Ukendt kilde"
 
@@ -2134,22 +2138,22 @@ msgstr "kommando »%.50s« er tvetydig\n"
 msgid "invalid option \"%.50s\"\n"
 msgstr "ugyldigt tilvalg »%.50s«\n"
 
-#: src/argparse.c:1658 src/argparse.c:1753
+#: src/argparse.c:1694 src/argparse.c:1789
 #, c-format
 msgid "Note: no default option file '%s'\n"
 msgstr ""
 
-#: src/argparse.c:1668 src/argparse.c:1760
+#: src/argparse.c:1704 src/argparse.c:1796
 #, c-format
 msgid "reading options from '%s'\n"
 msgstr ""
 
-#: src/argparse.c:1745
+#: src/argparse.c:1781
 #, c-format
 msgid "option file '%s': %s\n"
 msgstr ""
 
-#: src/argparse.c:2182
+#: src/argparse.c:2218
 #, c-format
 msgid "Note: ignoring option \"--%s\" due to global config\n"
 msgstr ""

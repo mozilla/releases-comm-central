@@ -764,7 +764,7 @@ handle_meta_ignore (gpgrt_argparse_t *arg, unsigned int alternate, char *args)
 }
 
 
-/* Implementation of the "ignore" command.  ARG is the context.  If
+/* Implementation of the "echo" command.  ARG is the context.  If
  * ALTERNATE is true the filename is not printed.  ARGS is the string
  * to log.  */
 static int
@@ -911,6 +911,34 @@ handle_metacmd (gpgrt_argparse_t *arg, char *keyword)
 }
 
 
+/* Helper for _gpgrt_argparse.  */
+static void
+prepare_arg_return (gpgrt_argparse_t *arg, opttable_t *opts,
+                    int idx, int in_alias, int set_ignore)
+{
+  /* No argument found at the end of the line.  */
+  if (in_alias)
+    arg->r_opt = ARGPARSE_MISSING_ARG;
+  else if (!(opts[idx].flags & ARGPARSE_TYPE_MASK))
+    arg->r_type = ARGPARSE_TYPE_NONE; /* Does not take an arg. */
+  else if ((opts[idx].flags & ARGPARSE_OPT_OPTIONAL))
+    arg->r_type = ARGPARSE_TYPE_NONE; /* No optional argument. */
+  else if (!(opts[idx].ignore && !opts[idx].forced) && !set_ignore)
+    arg->r_opt = ARGPARSE_MISSING_ARG;
+
+  /* If the caller wants us to return the attributes or
+   * ignored options, or these flags in.  */
+  if ((arg->flags & ARGPARSE_FLAG_WITHATTR))
+    {
+      if (opts[idx].ignore)
+        arg->r_type |= ARGPARSE_ATTR_IGNORE;
+      if (opts[idx].forced)
+        arg->r_type |= ARGPARSE_ATTR_FORCE;
+      if (set_ignore)
+        arg->r_type |= ARGPARSE_OPT_IGNORE;
+    }
+}
+
 /****************
  * Get options from a file.
  * Lines starting with '#' are comment lines.
@@ -956,6 +984,7 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
   char *buffer = NULL;
   size_t buflen = 0;
   int in_alias=0;
+  int set_ignore = 0;
   int unread_buf[3];  /* We use an int so that we can store EOF.  */
   int unread_buf_count = 0;
 
@@ -1053,12 +1082,8 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
                     goto leave;
                 }
             }
-          else if (state == Akeyword_spc)
-            {
-              /* Known option but need to scan for args.  */
-              state = Awaitarg;
-            }
-          else if (arg->internal->in_sysconf
+          else if (state != Akeyword_spc
+                   && arg->internal->in_sysconf
                    && arg->internal->user_seen
                    && !arg->internal->user_active)
             {
@@ -1067,7 +1092,8 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
               state = state == Akeyword_eol? Ainit : Acomment;
               i = 0;
             }
-          else if ((opts[idx].flags & ARGPARSE_OPT_IGNORE))
+          else if (state != Akeyword_spc
+                   && (opts[idx].flags & ARGPARSE_OPT_IGNORE))
             {
               /* Known option is configured to be ignored.  Start from
                * scratch (new line) or process like a comment.  */
@@ -1076,7 +1102,7 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
             }
           else /* Known option */
             {
-              int set_ignore = 0;
+              set_ignore = 0;
 
               if (arg->internal->in_sysconf)
                 {
@@ -1087,6 +1113,23 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
                     opts[idx].ignore = 1;
                   if (arg->internal->explicit_ignore)
                     opts[idx].explicit_ignore = 1;
+
+                  if (opts[idx].ignore && !opts[idx].forced)
+                    {
+                      if (arg->internal->verbose)
+                        _gpgrt_log_info ("%s:%u: ignoring option \"--%s\"\n",
+                                         arg->internal->confname,
+                                         arg->lineno,
+                                         opts[idx].long_opt);
+                      if ((arg->flags & ARGPARSE_FLAG_WITHATTR))
+                        set_ignore = 1;
+                      else
+                        {
+                          state = state == Akeyword_eol? Ainit : Acomment;
+                          i = 0;
+                          goto nextstate;  /* Ignore this one.  */
+                        }
+                    }
                 }
               else /* Non-sysconf file  */
                 {  /* Act upon the forced and ignored attributes.  */
@@ -1104,34 +1147,34 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
                         set_ignore = 1;
                       else
                         {
-                          state = Ainit;
+                          state = state == Akeyword_eol? Ainit : Acomment;
                           i = 0;
                           goto nextstate;  /* Ignore this one.  */
                         }
                     }
                 }
 
-              arg->r_opt = opts[idx].short_opt;
-              if (!(opts[idx].flags & ARGPARSE_TYPE_MASK))
-                arg->r_type = ARGPARSE_TYPE_NONE; /* Does not take an arg. */
-              else if ((opts[idx].flags & ARGPARSE_OPT_OPTIONAL) )
-                arg->r_type = ARGPARSE_TYPE_NONE; /* Arg is optional.  */
-              else
-                arg->r_opt = ARGPARSE_MISSING_ARG;
-
-              /* If the caller wants us to return the attributes or
-               * ignored options, or the flags in.  */
-              if ((arg->flags & ARGPARSE_FLAG_WITHATTR))
+              if (state == Akeyword_spc)
                 {
-                  if (opts[idx].ignore)
-                    arg->r_type |= ARGPARSE_ATTR_IGNORE;
-                  if (opts[idx].forced)
-                    arg->r_type |= ARGPARSE_ATTR_FORCE;
-                  if (set_ignore)
-                    arg->r_type |= ARGPARSE_OPT_IGNORE;
+                  /* If we shall ignore but not set the option we skip
+                   * the argument.  Otherwise we would need to use a
+                   * made-up but not used args in the conf file. */
+                  if (set_ignore || (opts[idx].ignore && !opts[idx].forced))
+                    {
+                      prepare_arg_return (arg, opts, idx, 0, set_ignore);
+                      set_ignore = 0;
+                      state = Askipandleave;
+                    }
+                  else
+                    state = Awaitarg;
+                }
+              else
+                {
+                  prepare_arg_return (arg, opts, idx, 0, set_ignore);
+                  set_ignore = 0;
+                  goto leave;
                 }
 
-              goto leave;
             }
         } /* (end state Akeyword_eol/Akeyword_spc) */
       else if (state == Ametacmd)
@@ -1185,15 +1228,8 @@ _gpgrt_argparse (estream_t fp, gpgrt_argparse_t *arg, gpgrt_opt_t *opts_orig)
           else if (state == Awaitarg)
             {
               /* No argument found at the end of the line.  */
-              if (in_alias)
-                arg->r_opt = ARGPARSE_MISSING_ARG;
-              else if (!(opts[idx].flags & ARGPARSE_TYPE_MASK))
-                arg->r_type = ARGPARSE_TYPE_NONE; /* Does not take an arg. */
-              else if ((opts[idx].flags & ARGPARSE_OPT_OPTIONAL))
-                arg->r_type = ARGPARSE_TYPE_NONE; /* No optional argument. */
-              else
-                arg->r_opt = ARGPARSE_MISSING_ARG;
-
+              prepare_arg_return (arg, opts, idx, in_alias, set_ignore);
+              set_ignore = 0;
               goto leave;
 	    }
           else if (state == Acopyarg)
@@ -1467,7 +1503,7 @@ try_versioned_conffile (const char *configname)
   endp = dash + strlen (dash) - 1;
   while (endp > dash)
     {
-      if (!access (name, R_OK))
+      if (!_gpgrt_access (name, R_OK))
         {
           return name;
         }
@@ -2649,6 +2685,9 @@ _gpgrt_usage (int level)
  *          First char is '1':
  *             The short usage notes needs to be printed
  *             before the long usage note.
+ *    95: Application flag string
+ *          First character is '1':
+ *             On Windows enable argument globbing
  */
 const char *
 _gpgrt_strusage (int level)
@@ -2707,7 +2746,7 @@ _gpgrt_strusage (int level)
 "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
 "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
 "GNU Lesser General Public License for more details.\n\n"
-"You should have received a copy of the GNU General Public License\n"
+"You should have received a copy of the GNU Lesser General Public License\n"
 "along with this software.  If not, see <https://gnu.org/licenses/>.\n";
       else /* Default */
         p =

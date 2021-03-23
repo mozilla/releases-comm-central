@@ -19,7 +19,7 @@
 
 # (Process this file with autoconf to produce a configure script.)
 # The following lines are used by ./autogen.sh.
-AC_PREREQ(2.59)
+AC_PREREQ([2.59])
 min_automake_version="1.14"
 
 # To build a release you need to create a tag with the version number
@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [39])
+m4_define([mym4_minor], [42])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -42,15 +42,15 @@ m4_define([mym4_version],      m4_argn(4, mym4_verslist))
 m4_define([mym4_revision],     m4_argn(7, mym4_verslist))
 m4_define([mym4_revision_dec], m4_argn(8, mym4_verslist))
 m4_esyscmd([echo ]mym4_version[>VERSION])
-AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
+AC_INIT([mym4_package],[mym4_version],[https://bugs.gnupg.org])
 # LT Version numbers, remember to change them just *before* a release.
 #   (Code changed:			REVISION++)
 #   (Interfaces added/removed/changed:	CURRENT++, REVISION=0)
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=30
-LIBGPG_ERROR_LT_AGE=30
+LIBGPG_ERROR_LT_CURRENT=32
+LIBGPG_ERROR_LT_AGE=32
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -80,7 +80,8 @@ AM_PROG_CC_C_O
 AC_PROG_CPP
 AC_PROG_AWK
 AC_CHECK_TOOL(AR, ar, :)
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
+
 
 # Taken from mpfr-4.0.1, then modified for LDADD_FOR_TESTS_KLUDGE
 dnl Under Linux, make sure that the old dtags are used if LD_LIBRARY_PATH
@@ -444,7 +445,7 @@ case "${host}" in
         ;;
 esac
 AC_ARG_ENABLE([ld-version-script],
-              AC_HELP_STRING([--enable-ld-version-script],
+              AS_HELP_STRING([--enable-ld-version-script],
                              [enable/disable use of linker version script.
                               (default is system dependent)]),
               [have_ld_version_script=$enableval],
@@ -594,15 +595,21 @@ if test "$have_w32_system" = yes; then
     fi
     force_use_syscfg=yes
 fi
-if test x$cross_compiling = xyes; then
+if test x"$gl_use_threads" = xno; then
+  lock_obj_h_generated=yes
+  if test ! -d src; then mkdir src; fi
+  host=$host $srcdir/src/gen-lock-obj.sh --disable-threads \
+    >src/lock-obj-pub.native.h
+  AC_MSG_NOTICE([generated src/lock-obj-pub.native.h for $host])
+elif test x$cross_compiling = xyes; then
   case $host in
-    *-*-linux*)
-    AC_CHECK_PROG(CROSS_HOST_OBJDUMP, [$host_alias-objdump], [yes])
-    if test "$CROSS_HOST_OBJDUMP" = "yes" ; then
+    *-*-linux-gnu*)
+    AC_CHECK_TOOL(OBJDUMP, [objdump])
+    if test -n "$OBJDUMP"; then
       lock_obj_h_generated=yes
       if test ! -d src; then mkdir src; fi
       LOCK_ABI_VERSION=1 host=$host host_alias=$host_alias \
-          CC=$CC OBJDUMP=$host_alias-objdump \
+          CC=$CC OBJDUMP=$OBJDUMP \
           ac_ext=$ac_ext ac_objext=$ac_objext \
           AWK=$AWK $srcdir/src/gen-lock-obj.sh \
           >src/lock-obj-pub.native.h
@@ -634,7 +641,7 @@ AC_DEFINE_UNQUOTED(HOST_TRIPLET_STRING, "$host", [The host triplet])
 #
 AC_MSG_CHECKING([whether to enable log_clock])
 AC_ARG_ENABLE(log_clock,
-              AC_HELP_STRING([--enable-log-clock],
+              AS_HELP_STRING([--enable-log-clock],
                              [enable log_clock timestamps]),
               enable_log_clock=$enableval, enable_log_clock=no)
 AC_MSG_RESULT($enable_log_clock)
@@ -649,7 +656,7 @@ fi
 build_gpgscm=no
 #AC_MSG_CHECKING([whether to build gpgscm])
 #AC_ARG_ENABLE(gpgscm,
-#              AC_HELP_STRING([--enable-gpgscm],
+#              AS_HELP_STRING([--enable-gpgscm],
 #                             [build the gpgscm tool]),
 #              build_gpgscm=$enableval, build_gpgscm=no)
 #AC_MSG_RESULT($build_gpgscm)
@@ -661,7 +668,7 @@ AM_CONDITIONAL([BUILD_GPGSCM], [test "x$build_gpgscm" != xno])
 # misbehaving autoconf tests in case the user supplied -Werror.
 #
 AC_ARG_ENABLE(werror,
-   AC_HELP_STRING([--enable-werror],
+   AS_HELP_STRING([--enable-werror],
                   [append -Werror to CFLAGS]),
                   [if test $enableval = yes ; then
                       CFLAGS="$CFLAGS -Werror"
@@ -685,7 +692,7 @@ AC_SUBST(BUILD_VERSION)
 AC_SUBST(BUILD_FILEVERSION)
 
 AC_ARG_ENABLE([build-timestamp],
-  AC_HELP_STRING([--enable-build-timestamp],
+  AS_HELP_STRING([--enable-build-timestamp],
                  [set an explicit build timestamp for reproducibility.
                   (default is the current time in ISO-8601 format)]),
      [if test "$enableval" = "yes"; then
@@ -700,18 +707,18 @@ AC_DEFINE_UNQUOTED(BUILD_TIMESTAMP, "$BUILD_TIMESTAMP",
 
 
 
-AC_ARG_ENABLE(languages, AC_HELP_STRING([--disable-languages],
+AC_ARG_ENABLE(languages, AS_HELP_STRING([--disable-languages],
                         [do not build support for other languages than C]))
 AM_CONDITIONAL([LANGUAGES_SOME], [test "x$enable_languages" != xno])
 
 build_doc=yes
-AC_ARG_ENABLE([doc], AC_HELP_STRING([--disable-doc],
+AC_ARG_ENABLE([doc], AS_HELP_STRING([--disable-doc],
                                     [do not build the documentation]),
                      build_doc=$enableval, build_doc=yes)
 AM_CONDITIONAL([BUILD_DOC], [test "x$build_doc" != xno])
 
 build_tests=yes
-AC_ARG_ENABLE([tests], AC_HELP_STRING([--disable-tests],
+AC_ARG_ENABLE([tests], AS_HELP_STRING([--disable-tests],
                                     [do not build the tests]),
                      build_tests=$enableval, build_tests=yes)
 AM_CONDITIONAL([BUILD_TESTS], [test "x$build_tests" != xno])

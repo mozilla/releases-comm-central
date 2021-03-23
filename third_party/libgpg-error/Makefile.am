@@ -24,7 +24,7 @@
 RELEASE_ARCHIVE_DIR  = wk@vigenere:tarballs/libgpg-error/
 
 # The key used to sign the released sources.  Adjust as needed.
-RELEASE_SIGNING_KEY  = D8692123C4065DEA5E0F3AB5249B39D24F25E3B6
+RELEASE_SIGNING_KEY  = 6DAA6E64A76D2840571B4902528897B826403ADA
 
 # Autoconf flags
 ACLOCAL_AMFLAGS = -I m4

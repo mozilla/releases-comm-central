@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2018 g10 Code GmbH
+# Copyright (C) 2018, 2021 g10 Code GmbH
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -517,7 +517,6 @@ libs=""
 mtcflags=""
 mtlibs=""
 
-delimiter=" "
 output=""
 
 mt="no"
@@ -543,8 +542,6 @@ while test $# -gt 0; do
 	--version)
 	    # In future, use --modversion instead.
 	    want_attr=Version
-	    delimiter="
-"
 	    ;;
 	--api-version)
 	    # In future, use --variable=api_version instead.
@@ -561,8 +558,6 @@ while test $# -gt 0; do
 	#### pkg-config incompatible options: end
 	--modversion)
 	    want_attr=Version
-	    delimiter="
-"
 	    ;;
 	--exists)
 	    want_exists=yes

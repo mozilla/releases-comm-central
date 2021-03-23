@@ -1,3 +1,146 @@
+2021-03-22  Werner Koch  <wk@gnupg.org>
+
+	Release 1.42.
+	+ commit 303062bf9a383de67227ff942c5482f3a87c71ed
+
+
+	core: Add GPG_ERR_SOURCE_TPM2D.
+	+ commit 200bf2ed9d610219cc0b12a91dedb3bfd52d36b7
+	* src/err-sources.h.in (GPG_ERR_SOURCE_TPM2D): New.
+
+2021-03-05  Werner Koch  <wk@gnupg.org>
+
+	w32: Allow Unicode paths for the gettext domain.
+	+ commit 618ce381f9d70f3a94e87f58f667a6138411018e
+	* src/w32-gettext.c: Remove remaining WindowsCE support
+	(load_domain): Use CreateFileW.
+
+2021-03-04  Werner Koch  <wk@gnupg.org>
+
+	w32: Minor cleanup of w32-gettext.
+	+ commit 3bf1de7b72be8e1d9fa78eb94730772d9cf61c44
+	* src/w32-gettext.c: Include gpgrt.h instead gpg-error.h.
+	(utf8_to_wchar): Use underscored function.
+	(_gpg_w32_textdomain): Ditto.
+
+2021-02-18  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Support --disable-threads by gen-lock-obj.sh.
+	+ commit 1fb90a7da186ee2ee098a666f6f3a35bb1720e59
+	* configure.ac: Supply --disable-threads to gen-lock-obj.sh.
+	Tighten the condition of using gen-lock-obj.sh for GNU/Linux.
+	* src/gen-lock-obj.sh: Support --disable-threads.
+
+2021-02-16  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Fix gpgrt-config.
+	+ commit ed3cd20de8d3eab92dd8fff02bcc214c55d08398
+	* src/gpgrt-config.in: Remove delimiter variable.
+
+	build: More fix for determining libdir for gpgrt-config.
+	+ commit 28a21addc2e30b0756cdc6774c79f69070df8829
+	* src/gpg-error.m4: Use CC -print-search-dirs for better support of
+	GNU style cross prefix.
+
+2021-02-15  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Fix the previous change.
+	+ commit d7fd25bbfb83cd445bc81aa695b2c6127c22fa59
+	* src/gpg-error.m4: Fix test condition for GPGRT_CONFIG.
+	Fix behaviour when there is no GPG_ERROR_CONFIG.
+
+2021-02-12  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Improve how to determine $libdir for gpgrt-config.
+	+ commit 3cabbad4eec0e5bc6bdaa9f8626578934138adee
+	* src/gpg-error.m4: Fix $gpgrt_libdir handling.
+
+2021-02-09  NIIBE Yutaka  <gniibe@fsij.org>
+
+	Support cross-compiling on more platforms.
+	+ commit 99ae862a96a569724f49a604ebb7d3f6d2c2d374
+	* src/gen-lock-obj.sh (ECHO_C, ECHO_N): Portability fix.
+
+2020-12-21  Werner Koch  <wk@gnupg.org>
+
+	Release 1.41.
+	+ commit 98032624ae89a67ee6fe3b1db5d95032e681d163
+
+
+	core: Yet another fix to the ignore meta command.
+	+ commit 7021b58b0f2d95b94a2bac43e15ec97d89706b7f
+	* src/argparse.c (_gpgrt_argparse): Entirely skip ignored sysconf
+	commands.  Fix state transitions in the ignore case.
+
+	Release 1.40.
+	+ commit c1f4ed561e9d214be9fdc3005134b9d0ed87554f
+	* configure.ac: Bump LT version to C31/A31/R0.
+
+	w32: Allow Unicode for internal getusername function.
+	+ commit 007cfe8a0ca4c03412f031878d6ce232612a90d8
+	* src/sysutils.c (_gpgrt_getusername) [W32]: Use GetUserNameW.
+
+2020-12-18  Werner Koch  <wk@gnupg.org>
+
+	core: Fix the "ignore" meta command of the argparser.
+	+ commit 4b09c8c2023d52b97be6069c20897ebfb25f9bca
+	* src/argparse.c (_gpgrt_argparse): Factor some code out to ...
+	(prepare_arg_return): new.
+	(_gpgrt_argparse): No missing arg error in ignore sections.
+
+2020-12-07  NIIBE Yutaka  <gniibe@fsij.org>
+	    John Ericson
+
+	build: Use AC_CHECK_TOOL to detect objdump for cross build.
+	+ commit 9ee011259f819a3cf50fe7019fa4366dbc437e0e
+	* configure.ac (CROSS_HOST_OBJDUMP): Remove, but use AC_CHECK_TOOL.
+
+2020-11-17  NIIBE Yutaka  <gniibe@fsij.org>
+
+	m4: Update with newer autoconf constructs.
+	+ commit 8047ca99858a7ee812ef11ed3bd2868e920ac1b7
+	* src/gpg-error.m4: Replace AC_HELP_STRING to AS_HELP_STRING.
+
+	build: Update to new autoconf constructs.
+	+ commit 41d753e21eaae3e4332e841de2f40e7055f2a68c
+	* configure.ac Replace AC_GNU_SOURCE to Use AC_USE_SYSTEM_EXTENSIONS.
+	Replace AC_HELP_STRING to AS_HELP_STRING.
+	* m4/estream.m4: Replace AC_TRY_LINK to AC_LINK_IFELSE.
+	* m4/gnupg-misc.m4: Replace AC_TRY_COMPILE to AC_COMPILE_IFELSE.
+	* m4/libtool.m4: Use AC_LANG_PUSH/AC_LANG_POP instead of
+	AC_LANG_SAVE/AC_LANG_RESTORE.
+	* m4/readline.m4: Replace AC_HELP_STRING to AS_HELP_STRING.
+	Fix quote for _combo.
+	* m4/threadlib.m4: Replace AC_HELP_STRING to AS_HELP_STRING.
+
+2020-10-19  Werner Koch  <wk@gnupg.org>
+
+	New public function gpgrt_access.
+	+ commit 4764c5a3a4d704b3b42bafc5eba3996579030703
+	* src/gpg-error.h.in (gpgrt_access): New.
+	* src/gpg-error.vers. src/gpg-error.def.in: Add new function.
+	* src/sysutils.c (any8bitchar): New.
+	(_gpgrt_access): New.
+	* src/visibility.c (gpgrt_access): New.
+
+	* src/spawn-w32.c (_gpgrt_spawn_process_detached): Use it.
+	* src/argparse.c (try_versioned_conffile): Use it.
+	* tests/t-stringutils.c (check_access): New simple test.
+
+2020-10-09  Werner Koch  <wk@gnupg.org>
+
+	w32: Support utf8 also for getcwd.
+	+ commit dbedf190969de1a796560cfa15fb4ea986bc79dc
+	* src/sysutils.c (_gpgrt_getcwd) [W32]: Implement utf-8 support.
+	* src/w32-gettext.c (wchar_to_native): Factor some code out to ..
+	(wchar_to_cp): new.
+	(_gpgrt_wchar_to_utf8): New.
+	* tests/t-stringutils.c: Include windows.h.
+	(utf8_to_wchar): New.
+	(wchar_to_utf8): New.
+	(mygetcwd): Use wchar version for Windows.
+	(main): New option --pwd.
+
 2020-08-24  Werner Koch  <wk@gnupg.org>
 
 	Release 1.39.

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: libgpg-error 1.39\n"
+"Project-Id-Version: libgpg-error 1.42\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-08-24 13:06+0200\n"
+"POT-Creation-Date: 2021-03-22 11:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -82,30 +82,34 @@ msgid "Assuan"
 msgstr ""
 
 #: src/err-sources.h:44
-msgid "TLS"
+msgid "TPM2d"
 msgstr ""
 
 #: src/err-sources.h:45
-msgid "Any source"
+msgid "TLS"
 msgstr ""
 
 #: src/err-sources.h:46
-msgid "User defined source 1"
+msgid "Any source"
 msgstr ""
 
 #: src/err-sources.h:47
-msgid "User defined source 2"
+msgid "User defined source 1"
 msgstr ""
 
 #: src/err-sources.h:48
-msgid "User defined source 3"
+msgid "User defined source 2"
 msgstr ""
 
 #: src/err-sources.h:49
-msgid "User defined source 4"
+msgid "User defined source 3"
 msgstr ""
 
 #: src/err-sources.h:50
+msgid "User defined source 4"
+msgstr ""
+
+#: src/err-sources.h:51
 msgid "Unknown source"
 msgstr ""
 
@@ -1952,22 +1956,22 @@ msgstr ""
 msgid "invalid option \"%.50s\"\n"
 msgstr ""
 
-#: src/argparse.c:1658 src/argparse.c:1753
+#: src/argparse.c:1694 src/argparse.c:1789
 #, c-format
 msgid "Note: no default option file '%s'\n"
 msgstr ""
 
-#: src/argparse.c:1668 src/argparse.c:1760
+#: src/argparse.c:1704 src/argparse.c:1796
 #, c-format
 msgid "reading options from '%s'\n"
 msgstr ""
 
-#: src/argparse.c:1745
+#: src/argparse.c:1781
 #, c-format
 msgid "option file '%s': %s\n"
 msgstr ""
 
-#: src/argparse.c:2182
+#: src/argparse.c:2218
 #, c-format
 msgid "Note: ignoring option \"--%s\" due to global config\n"
 msgstr ""

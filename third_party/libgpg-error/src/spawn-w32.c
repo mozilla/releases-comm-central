@@ -826,12 +826,14 @@ _gpgrt_spawn_process_detached (const char *pgmname, const char *argv[],
   int cr_flags;
   char *cmdline;
   int ret;
+  gpg_err_code_t ec;
 
   /* We don't use ENVP.  */
   (void)envp;
 
-  if (access (pgmname, X_OK))
-    return _gpg_err_code_from_syserror ();
+  ec = _gpgrt_access (pgmname, X_OK);
+  if (ec)
+    return ec;
 
   /* Prepare security attributes.  */
   memset (&sec_attr, 0, sizeof sec_attr );

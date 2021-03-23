@@ -39,6 +39,19 @@
 #include "gpgrt-int.h"
 
 
+#ifdef HAVE_W32_SYSTEM
+/* Return true if STRING has any 8 bit character.  */
+static int
+any8bitchar (const char *string)
+{
+  if (string)
+    for ( ; *string; string++)
+      if ((*string & 0x80))
+        return 1;
+  return 0;
+}
+#endif /*HAVE_W32_SYSTEM*/
+
 
 /* Return true if FD is valid.  */
 int
@@ -345,28 +358,85 @@ _gpgrt_chdir (const char *name)
 char *
 _gpgrt_getcwd (void)
 {
+#ifdef HAVE_W32CE_SYSTEM
+
+  return xtrystrdup ("/");
+
+#elif defined(HAVE_W32_SYSTEM)
+  wchar_t wbuffer[MAX_PATH + sizeof(wchar_t)];
+  DWORD wlen;
+  char *buf, *p;
+
+  wlen = GetCurrentDirectoryW (MAX_PATH, wbuffer);
+  if (!wlen)
+    {
+      _gpgrt_w32_set_errno (-1);
+      return NULL;
+
+    }
+  else if (wlen > MAX_PATH)
+    {
+      _gpg_err_set_errno (ENAMETOOLONG);
+      return NULL;
+    }
+  buf = _gpgrt_wchar_to_utf8 (wbuffer, wlen);
+  if (buf)
+    {
+      for (p=buf; *p; p++)
+        if (*p == '\\')
+          *p = '/';
+    }
+  return buf;
+
+#else /*Unix*/
   char *buffer;
   size_t size = 100;
 
-  /* FIXME: We need to support utf8  */
   for (;;)
     {
       buffer = xtrymalloc (size+1);
       if (!buffer)
         return NULL;
-#ifdef HAVE_W32CE_SYSTEM
-      strcpy (buffer, "/");  /* Always "/".  */
-      return buffer;
-#else
       if (getcwd (buffer, size) == buffer)
         return buffer;
       xfree (buffer);
       if (errno != ERANGE)
         return NULL;
       size *= 2;
-#endif
     }
+#endif /*Unix*/
 }
+
+
+/* Wrapper around access to handle file name encoding under Windows.
+ * Returns 0 if FNAME can be accessed in MODE or an error code.  ERRNO
+ * is also set on error. */
+gpg_err_code_t
+_gpgrt_access (const char *fname, int mode)
+{
+  gpg_err_code_t ec;
+
+#ifdef HAVE_W32_SYSTEM
+  if (any8bitchar (fname))
+    {
+      wchar_t *wfname;
+
+      wfname = _gpgrt_utf8_to_wchar (fname);
+      if (!wfname)
+        ec = _gpg_err_code_from_syserror ();
+      else
+        {
+          ec = _waccess (wfname, mode)? _gpg_err_code_from_syserror () : 0;
+          _gpgrt_free_wchar (wfname);
+        }
+    }
+  else
+#endif /*HAVE_W32_SYSTEM*/
+    ec = access (fname, mode)? _gpg_err_code_from_syserror () : 0;
+
+  return ec;
+}
+
 
 
 /* Get the standard home directory for user NAME. If NAME is NULL the
@@ -413,17 +483,27 @@ _gpgrt_getusername (void)
   char *result = NULL;
 
 #ifdef HAVE_W32_SYSTEM
-  char tmp[1];
-  DWORD size = 1;
+  wchar_t wtmp[1];
+  wchar_t *wbuf;
+  DWORD wsize = 1;
+  char *buf;
 
-  /* FIXME: We need to support utf8  */
-  GetUserNameA (tmp, &size);
-  result = _gpgrt_malloc (size);
-  if (result && !GetUserNameA (result, &size))
+  GetUserNameW (wtmp, &wsize);
+  wbuf = _gpgrt_malloc (wsize * sizeof *wbuf);
+  if (!wbuf)
     {
-      xfree (result);
-      result = NULL;
+      _gpgrt_w32_set_errno (-1);
+      return NULL;
     }
+  if (!GetUserNameW (wbuf, &wsize))
+    {
+      _gpgrt_w32_set_errno (-1);
+      xfree (wbuf);
+      return NULL;
+    }
+  buf = _gpgrt_wchar_to_utf8 (wbuf, wsize);
+  xfree (wbuf);
+  return buf;
 
 #else /* !HAVE_W32_SYSTEM */
 

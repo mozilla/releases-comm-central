@@ -794,6 +794,9 @@ gpg_err_code_t _gpgrt_chdir (const char *name);
 /* Return the current WD as a malloced string.  */
 char *_gpgrt_getcwd (void);
 
+/* Wrapper for Windows to allow utf8 file names.  */
+gpg_err_code_t _gpgrt_access (const char *fname, int mode);
+
 /* Return the home directory of user NAME.  */
 char *_gpgrt_getpwdir (const char *name);
 

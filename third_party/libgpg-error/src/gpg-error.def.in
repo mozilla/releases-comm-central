@@ -240,4 +240,6 @@ EXPORTS
 
  gpgrt_fcancel                @182
 
+ gpgrt_access                 @183
+
 ;; end of file with public symbols for Windows.

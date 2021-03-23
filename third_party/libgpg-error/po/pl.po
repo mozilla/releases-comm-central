@@ -1,14 +1,14 @@
 # Polish translation for libgpg-error.
 # Copyright (C) 2004, 2005, 2006 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
-# Jakub Bogusz <qboosh@pld-linux.org>, 2004-2019.
+# Jakub Bogusz <qboosh@pld-linux.org>, 2004-2020.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgpg-error 1.36\n"
+"Project-Id-Version: libgpg-error 1.38\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-08-24 13:06+0200\n"
-"PO-Revision-Date: 2019-03-24 09:01+0100\n"
+"POT-Creation-Date: 2021-03-22 11:49+0100\n"
+"PO-Revision-Date: 2021-03-22 10:42+0100\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "Language: pl\n"
@@ -81,30 +81,34 @@ msgid "Assuan"
 msgstr "Assuan"
 
 #: src/err-sources.h:44
+msgid "TPM2d"
+msgstr "TPM2d"
+
+#: src/err-sources.h:45
 msgid "TLS"
 msgstr "TLS"
 
-#: src/err-sources.h:45
+#: src/err-sources.h:46
 msgid "Any source"
 msgstr "Dowolne źródło"
 
-#: src/err-sources.h:46
+#: src/err-sources.h:47
 msgid "User defined source 1"
 msgstr "Zdefiniowane przez użytkownika źródło 1"
 
-#: src/err-sources.h:47
+#: src/err-sources.h:48
 msgid "User defined source 2"
 msgstr "Zdefiniowane przez użytkownika źródło 2"
 
-#: src/err-sources.h:48
+#: src/err-sources.h:49
 msgid "User defined source 3"
 msgstr "Zdefiniowane przez użytkownika źródło 3"
 
-#: src/err-sources.h:49
+#: src/err-sources.h:50
 msgid "User defined source 4"
 msgstr "Zdefiniowane przez użytkownika źródło 4"
 
-#: src/err-sources.h:50
+#: src/err-sources.h:51
 msgid "Unknown source"
 msgstr "Nieznane źródło"
 
@@ -1285,26 +1289,20 @@ msgid "Bad authentication"
 msgstr "Niewłaściwe uwierzytelnienie"
 
 #: src/err-codes.h:322
-#, fuzzy
-#| msgid "No agent running"
 msgid "No Keybox daemon running"
-msgstr "Agent nie uruchomiony"
+msgstr "Demon Keybox nie uruchomiony"
 
 #: src/err-codes.h:323
-#, fuzzy
-#| msgid "SmartCard daemon error"
 msgid "Keybox daemon error"
-msgstr "Błąd demona SmartCard"
+msgstr "Błąd demona Keybox"
 
 #: src/err-codes.h:324
 msgid "Service is not running"
-msgstr ""
+msgstr "Usługa nie jest uruchomiona"
 
 #: src/err-codes.h:325
-#, fuzzy
-#| msgid "Keyserver error"
 msgid "Service error"
-msgstr "Błąd serwera kluczy"
+msgstr "Błąd usługi"
 
 #: src/err-codes.h:326
 msgid "System bug detected"
@@ -1731,136 +1729,129 @@ msgid "User defined error code 16"
 msgstr "Zdefiniowany przez użytkownika kod błędu 16"
 
 #: src/err-codes.h:432
-#, fuzzy
-#| msgid "LDAP success"
 msgid "SQL success"
-msgstr "Sukces LDAP"
+msgstr "Sukces SQL"
 
 #: src/err-codes.h:433
-#, fuzzy
-#| msgid "Syntax error"
 msgid "SQL error"
-msgstr "Błąd składni"
+msgstr "Błąd SQL"
 
 #: src/err-codes.h:434
 msgid "Internal logic error in SQL library"
-msgstr ""
+msgstr "Wewnętrzny błąd logiczny w bibliotece SQL"
 
 #: src/err-codes.h:435
 msgid "Access permission denied (SQL)"
-msgstr ""
+msgstr "Brak uprawnień (SQL)"
 
 #: src/err-codes.h:436
 msgid "SQL abort was requested"
-msgstr ""
+msgstr "Zapytanie SQL przerwane na żądanie"
 
 #: src/err-codes.h:437
 msgid "SQL database file is locked"
-msgstr ""
+msgstr "Plik bazy danych SQL jest zablokowany"
 
 #: src/err-codes.h:438
 msgid "An SQL table in the database is locked"
-msgstr ""
+msgstr "Tabela SQL w bazie danych jest zablokowana"
 
 #: src/err-codes.h:439
 msgid "SQL library ran out of core"
-msgstr ""
+msgstr "Pamięć wyczerpana w bibliotece SQL"
 
 #: src/err-codes.h:440
 msgid "Attempt to write a readonly SQL database"
-msgstr ""
+msgstr "Próba zapisu do bazy danych SQL tylko do odczytu"
 
 #: src/err-codes.h:441
 msgid "SQL operation terminated by interrupt"
-msgstr ""
+msgstr "Operacja SQL zakończona przez przerwanie"
 
 #: src/err-codes.h:442
 msgid "I/O error during SQL operation"
-msgstr ""
+msgstr "Błąd we/wy podczas operacji SQL"
 
 #: src/err-codes.h:443
 msgid "SQL database disk image is malformed"
-msgstr ""
+msgstr "Obraz dysku bazy danych SQL jest uszkodzony"
 
 #: src/err-codes.h:444
 msgid "Unknown opcode in SQL file control"
-msgstr ""
+msgstr "Nieznany kod operacji w pliku sterującym SQL"
 
 #: src/err-codes.h:445
 msgid "Insertion failed because SQL database is full"
-msgstr ""
+msgstr "Wstawianie nie powiodło się, ponieważ baza danych SQL jest pełna"
 
 #: src/err-codes.h:446
 msgid "Unable to open the SQL database file"
-msgstr ""
+msgstr "Nie udało się otworzyć pliku bazy danych SQL"
 
 #: src/err-codes.h:447
-#, fuzzy
-#| msgid "LDAP protocol error"
 msgid "SQL database lock protocol error"
-msgstr "Błąd protokołu LDAP"
+msgstr "Błąd protokołu blokowania bazy danych SQL"
 
 #: src/err-codes.h:448
 msgid "(internal SQL code: empty)"
-msgstr ""
+msgstr "(wewnętrzny kod SQL: pusty)"
 
 #: src/err-codes.h:449
 msgid "SQL database schema changed"
-msgstr ""
+msgstr "Schemat bazy danych SQL uległ zmianie"
 
 #: src/err-codes.h:450
 msgid "String or blob exceeds size limit (SQL)"
-msgstr ""
+msgstr "Łańcuch lub blok danych przekracza limit rozmiaru (SQL)"
 
 #: src/err-codes.h:451
 msgid "SQL abort due to constraint violation"
-msgstr ""
+msgstr "Operacja SQL przerwana z powodu naruszenia ograniczeń"
 
 #: src/err-codes.h:452
 msgid "Data type mismatch (SQL)"
-msgstr ""
+msgstr "Niezgodność typów danych (SQL)"
 
 #: src/err-codes.h:453
 msgid "SQL library used incorrectly"
-msgstr ""
+msgstr "Biblioteka SQL użyta niepoprawnie"
 
 #: src/err-codes.h:454
 msgid "SQL library uses unsupported OS features"
 msgstr ""
+"Biblioteka SQL wykorzystuje nie obsługiwane funkcje systemu operacyjnego"
 
 #: src/err-codes.h:455
-#, fuzzy
-#| msgid "Proxied authorization denied by LDAP"
 msgid "Authorization denied (SQL)"
-msgstr "Autoryzacja przez proxy odrzucona przez LDAP"
+msgstr "Autoryzacja odrzucona (SQL)"
 
 #: src/err-codes.h:456
 msgid "(unused SQL code: format)"
-msgstr ""
+msgstr "(nie używany kod SQL: format)"
 
 #: src/err-codes.h:457
 msgid "SQL bind parameter out of range"
-msgstr ""
+msgstr "Parametr dowiązania SQL spoza zakresu"
 
 #: src/err-codes.h:458
 msgid "File opened that is not an SQL database file"
-msgstr ""
+msgstr "Otwarty plik nie jest bazą danych SQL"
 
 #: src/err-codes.h:459
 msgid "Notifications from SQL logger"
-msgstr ""
+msgstr "Powiadomienia z loggera SQL"
 
 #: src/err-codes.h:460
 msgid "Warnings from SQL logger"
-msgstr ""
+msgstr "Ostrzeżenia z loggera SQL"
 
 #: src/err-codes.h:461
 msgid "SQL has another row ready"
-msgstr ""
+msgstr "Baza SQL ma gotowy kolejny wiersz"
 
 #: src/err-codes.h:462
 msgid "SQL has finished executing"
-msgstr ""
+msgstr "Baza SQL zakończyła wykonywanie"
 
 #: src/err-codes.h:463
 msgid "System error w/o errno"
@@ -1907,32 +1898,24 @@ msgid "invalid alias definition"
 msgstr "błędna definicja aliasu"
 
 #: src/argparse.c:482 src/argparse.c:519
-#, fuzzy
-#| msgid "LDAP operations error"
 msgid "permission error"
-msgstr "Błąd operacji LDAP"
+msgstr "błąd uprawnień"
 
 #: src/argparse.c:484 src/argparse.c:517
 msgid "out of core"
 msgstr "brak pamięci"
 
 #: src/argparse.c:488 src/argparse.c:523
-#, fuzzy
-#| msgid "invalid command"
 msgid "invalid meta command"
-msgstr "błędne polecenie"
+msgstr "błędne polecenie meta"
 
 #: src/argparse.c:490 src/argparse.c:525
-#, fuzzy
-#| msgid "Unknown command"
 msgid "unknown meta command"
-msgstr "Nieznane polecenie"
+msgstr "nieznane polecenie meta"
 
 #: src/argparse.c:492 src/argparse.c:527
-#, fuzzy
-#| msgid "Unexpected IPC command"
 msgid "unexpected meta command"
-msgstr "Nieoczekiwane polecenie IPC"
+msgstr "nieoczekiwane polecenie meta"
 
 #: src/argparse.c:494
 msgid "invalid option"
@@ -1973,25 +1956,26 @@ msgstr "polecenie ,,%.50s'' jest niejednoznaczne\n"
 msgid "invalid option \"%.50s\"\n"
 msgstr "błędna opcja ,,%.50s''\n"
 
-#: src/argparse.c:1658 src/argparse.c:1753
+#: src/argparse.c:1694 src/argparse.c:1789
 #, c-format
 msgid "Note: no default option file '%s'\n"
-msgstr ""
+msgstr "Uwaga: brak domyślnego pliku opcji ,,%s''\n"
 
-#: src/argparse.c:1668 src/argparse.c:1760
+#: src/argparse.c:1704 src/argparse.c:1796
 #, c-format
 msgid "reading options from '%s'\n"
-msgstr ""
+msgstr "odczyt opcji z ,,%s''\n"
 
-#: src/argparse.c:1745
+#: src/argparse.c:1781
 #, c-format
 msgid "option file '%s': %s\n"
-msgstr ""
+msgstr "plik opcji ,,%s'': %s\n"
 
-#: src/argparse.c:2182
+#: src/argparse.c:2218
 #, c-format
 msgid "Note: ignoring option \"--%s\" due to global config\n"
 msgstr ""
+"Uwaga: ignorowanie opcji ,,--%s'' ze względu na konfigurację globalną\n"
 
 #: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
@@ -2001,6 +1985,3 @@ msgstr "Błędy prosimy zgłaszać pod <https://bugs.gnupg.org>.\n"
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "uwaga: nie rozpoznano %s\n"
-
-#~ msgid "out of core\n"
-#~ msgstr "brak pamięci\n"

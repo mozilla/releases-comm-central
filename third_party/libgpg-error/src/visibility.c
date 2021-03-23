@@ -847,6 +847,12 @@ gpgrt_getcwd (void)
   return _gpgrt_getcwd ();
 }
 
+gpg_err_code_t
+gpgrt_access (const char *fname, int mode)
+{
+  return _gpgrt_access (fname, mode);
+}
+
 
 
 gpgrt_b64state_t

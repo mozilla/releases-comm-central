@@ -1,24 +1,26 @@
 # zh_TW.po - Chinese traditional translations for libgpg-error
 # Copyright (C) 2014 Jedi Lin
 # This file is distributed under the same license as the libngpg-error package.
-# Jedi Lin <Jedi@Jedi.org>, 2014
+# Chinese (traditional) <zh-l10n@linux.org.tw>, 2014.
+# Jedi Lin <Jedi@Jedi.org>, 2014.
 #
+# bobwxc <bobwxc@yeah.net>, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: libgpg-error 1.17\n"
+"Project-Id-Version: libgpg-error 1.39\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-08-24 13:06+0200\n"
-"PO-Revision-Date: 2018-03-21 19:04+0100\n"
-"Last-Translator: Jedi Lin <Jedi@Jedi.org>\n"
-"Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
+"POT-Creation-Date: 2021-03-22 11:49+0100\n"
+"PO-Revision-Date: 2021-03-22 10:45+0100\n"
+"Last-Translator: bobwxc <bobwxc@yeah.net>\n"
+"Language-Team: None\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 2.2.1\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-Basepath: libgpg-error-1.17\n"
+"X-Poedit-Basepath: libgpg-error-1.39\n"
 
 #: src/err-sources.h:28
 msgid "Unspecified source"
@@ -85,30 +87,34 @@ msgid "Assuan"
 msgstr "Assuan"
 
 #: src/err-sources.h:44
+msgid "TPM2d"
+msgstr "TPM2d"
+
+#: src/err-sources.h:45
 msgid "TLS"
 msgstr "TLS"
 
-#: src/err-sources.h:45
+#: src/err-sources.h:46
 msgid "Any source"
 msgstr "任何來源"
 
-#: src/err-sources.h:46
+#: src/err-sources.h:47
 msgid "User defined source 1"
 msgstr "使用者定義來源 1"
 
-#: src/err-sources.h:47
+#: src/err-sources.h:48
 msgid "User defined source 2"
 msgstr "使用者定義來源 2"
 
-#: src/err-sources.h:48
+#: src/err-sources.h:49
 msgid "User defined source 3"
 msgstr "使用者定義來源 3"
 
-#: src/err-sources.h:49
+#: src/err-sources.h:50
 msgid "User defined source 4"
 msgstr "使用者定義來源 4"
 
-#: src/err-sources.h:50
+#: src/err-sources.h:51
 msgid "Unknown source"
 msgstr "未知的來源"
 
@@ -282,7 +288,7 @@ msgstr "錯誤的公鑰演算法"
 
 #: src/err-codes.h:70
 msgid "Tribute to D. A."
-msgstr "向 D. A. 致意"
+msgstr "向 Douglas Adams 致意"
 
 #: src/err-codes.h:71
 msgid "Weak encryption key"
@@ -370,7 +376,7 @@ msgstr "內部錯誤"
 
 #: src/err-codes.h:92
 msgid "EOF (gcrypt)"
-msgstr "EOF (gcrypt)"
+msgstr "EOF 文件結尾 (gcrypt)"
 
 #: src/err-codes.h:93
 msgid "Invalid object"
@@ -970,49 +976,39 @@ msgstr "S-表示式中有不良的八進制字符"
 
 #: src/err-codes.h:242
 msgid "All subkeys are expired or revoked"
-msgstr ""
+msgstr "所有子金鑰都已過期或吊銷"
 
 #: src/err-codes.h:243
-#, fuzzy
-#| msgid "Data not encrypted"
 msgid "Database is corrupted"
-msgstr "資料未經加密"
+msgstr "資料庫已損壞"
 
 #: src/err-codes.h:244
 msgid "Server indicated a failure"
-msgstr ""
+msgstr "伺服器故障"
 
 #: src/err-codes.h:245
-#, fuzzy
-#| msgid "Unknown name"
 msgid "No name"
-msgstr "無效的名稱"
+msgstr "無名稱"
 
 #: src/err-codes.h:246
-#, fuzzy
-#| msgid "No public key"
 msgid "No key"
-msgstr "沒有公鑰"
+msgstr "沒有金鑰"
 
 #: src/err-codes.h:247
 msgid "Legacy key"
-msgstr ""
+msgstr "遺留的金鑰"
 
 #: src/err-codes.h:248
-#, fuzzy
-#| msgid "Buffer too short"
 msgid "Request too short"
-msgstr "緩衝區太短"
+msgstr "請求過短"
 
 #: src/err-codes.h:249
-#, fuzzy
-#| msgid "Line too long"
 msgid "Request too long"
-msgstr "列太長"
+msgstr "請求過長"
 
 #: src/err-codes.h:250
 msgid "Object is in termination state"
-msgstr ""
+msgstr "對象處於終止狀態"
 
 #: src/err-codes.h:251
 msgid "No certificate chain"
@@ -1116,7 +1112,7 @@ msgstr "假造的字串"
 
 #: src/err-codes.h:276
 msgid "Forbidden"
-msgstr ""
+msgstr "禁止"
 
 #: src/err-codes.h:277
 msgid "Key disabled"
@@ -1132,11 +1128,11 @@ msgstr "無效的鎖定物件"
 
 #: src/err-codes.h:280
 msgid "True"
-msgstr ""
+msgstr "正確"
 
 #: src/err-codes.h:281
 msgid "False"
-msgstr ""
+msgstr "錯誤"
 
 #: src/err-codes.h:282
 msgid "General IPC error"
@@ -1235,594 +1231,444 @@ msgid "Unknown IPC inquire"
 msgstr "未知的 IPC 查詢"
 
 #: src/err-codes.h:306
-#, fuzzy
-#| msgid "No crypto engine"
 msgid "Crypto engine too old"
-msgstr "沒有密碼法引擎"
+msgstr "加密引擎太舊"
 
 #: src/err-codes.h:307
 msgid "Screen or window too small"
-msgstr ""
+msgstr "螢幕或窗口過小"
 
 #: src/err-codes.h:308
 msgid "Screen or window too large"
-msgstr ""
+msgstr "螢幕或窗口過大"
 
 #: src/err-codes.h:309
 msgid "Required environment variable not set"
-msgstr ""
+msgstr "需要的環境變數未設定"
 
 #: src/err-codes.h:310
 msgid "User ID already exists"
-msgstr ""
+msgstr "用戶 ID 已存在"
 
 #: src/err-codes.h:311
 msgid "Name already exists"
-msgstr ""
+msgstr "名字已存在"
 
 #: src/err-codes.h:312
-#, fuzzy
-#| msgid "Duplicated value"
 msgid "Duplicated name"
-msgstr "重複的值"
+msgstr "重複的名稱"
 
 #: src/err-codes.h:313
-#, fuzzy
-#| msgid "Certificate too young"
 msgid "Object is too young"
-msgstr "憑證太年輕"
+msgstr "對象太新"
 
 #: src/err-codes.h:314
-#, fuzzy
-#| msgid "Provided object is too short"
 msgid "Object is too old"
-msgstr "提供的物件太短"
+msgstr "對象太舊"
 
 #: src/err-codes.h:315
-#, fuzzy
-#| msgid "Unknown name"
 msgid "Unknown flag"
-msgstr "無效的名稱"
+msgstr "未知標誌"
 
 #: src/err-codes.h:316
-#, fuzzy
-#| msgid "Invalid operation code"
 msgid "Invalid execution order"
-msgstr "無效的操作碼"
+msgstr "無效的執行順序"
 
 #: src/err-codes.h:317
 msgid "Already fetched"
-msgstr ""
+msgstr "已經獲得"
 
 #: src/err-codes.h:318
 msgid "Try again later"
-msgstr ""
+msgstr "稍後再試"
 
 #: src/err-codes.h:319
-#, fuzzy
-#| msgid "Unknown name"
 msgid "Wrong name"
-msgstr "無效的名稱"
+msgstr "錯誤名稱"
 
 #: src/err-codes.h:320
-#, fuzzy
-#| msgid "Not enabled"
 msgid "Not authenticated"
-msgstr "未啟用"
+msgstr "未驗證"
 
 #: src/err-codes.h:321
-#, fuzzy
-#| msgid "Unsupported protection"
 msgid "Bad authentication"
-msgstr "未支援的保護"
+msgstr "無效驗證"
 
 #: src/err-codes.h:322
-#, fuzzy
-#| msgid "No agent running"
 msgid "No Keybox daemon running"
-msgstr "沒有執行中的代理程式"
+msgstr "無運行的 Keybox 守護進程"
 
 #: src/err-codes.h:323
-#, fuzzy
-#| msgid "SmartCard daemon error"
 msgid "Keybox daemon error"
-msgstr "智慧卡服務錯誤"
+msgstr "Keybox 守護進程錯誤"
 
 #: src/err-codes.h:324
 msgid "Service is not running"
-msgstr ""
+msgstr "服務未運行"
 
 #: src/err-codes.h:325
-#, fuzzy
-#| msgid "Keyserver error"
 msgid "Service error"
-msgstr "金鑰伺服器錯誤"
+msgstr "服務錯誤"
 
 #: src/err-codes.h:326
 msgid "System bug detected"
-msgstr ""
+msgstr "系統錯誤"
 
 #: src/err-codes.h:327
-#, fuzzy
-#| msgid "Unknown system error"
 msgid "Unknown DNS error"
-msgstr "未知的系統錯誤"
+msgstr "未知的 DNS 錯誤"
 
 #: src/err-codes.h:328
-#, fuzzy
-#| msgid "Invalid OID string"
 msgid "Invalid DNS section"
-msgstr "無效的 OID 字串"
+msgstr "無效的 DNS 部分"
 
 #: src/err-codes.h:329
-#, fuzzy
-#| msgid "Invalid S-expression"
 msgid "Invalid textual address form"
-msgstr "無效的 S-表示式"
+msgstr "無效的文本地址形式"
 
 #: src/err-codes.h:330
-#, fuzzy
-#| msgid "Missing issuer certificate"
 msgid "Missing DNS query packet"
-msgstr "遺失發行者憑證"
+msgstr "缺少 DNS 查詢封包"
 
 #: src/err-codes.h:331
 msgid "Missing DNS answer packet"
-msgstr ""
+msgstr "無 DNS 迴應封包"
 
 #: src/err-codes.h:332
 msgid "Connection closed in DNS"
-msgstr ""
+msgstr "DNS 連接關閉"
 
 #: src/err-codes.h:333
-#, fuzzy
-#| msgid "Decryption failed"
 msgid "Verification failed in DNS"
-msgstr "解密失敗"
+msgstr "DNS 驗證失敗"
 
 #: src/err-codes.h:334
-#, fuzzy
-#| msgid "Timeout"
 msgid "DNS Timeout"
-msgstr "逾時"
+msgstr "DNS 逾時"
 
 #: src/err-codes.h:335
-#, fuzzy
-#| msgid "General IPC error"
 msgid "General LDAP error"
-msgstr "一般性的 IPC 錯誤"
+msgstr "一般 LDAP 錯誤"
 
 #: src/err-codes.h:336
-#, fuzzy
-#| msgid "General error"
 msgid "General LDAP attribute error"
-msgstr "一般錯誤"
+msgstr "一般 LDAP 屬性錯誤"
 
 #: src/err-codes.h:337
-#, fuzzy
-#| msgid "General error"
 msgid "General LDAP name error"
-msgstr "一般錯誤"
+msgstr "一般 LDAP 名稱錯誤"
 
 #: src/err-codes.h:338
-#, fuzzy
-#| msgid "General Assuan error"
 msgid "General LDAP security error"
-msgstr "一般性的 Assuan 錯誤"
+msgstr "一般 LDAP 安全錯誤"
 
 #: src/err-codes.h:339
-#, fuzzy
-#| msgid "General error"
 msgid "General LDAP service error"
-msgstr "一般錯誤"
+msgstr "一般 LDAP 服務錯誤"
 
 #: src/err-codes.h:340
-#, fuzzy
-#| msgid "General Assuan error"
 msgid "General LDAP update error"
-msgstr "一般性的 Assuan 錯誤"
+msgstr "一般 LDAP 升級錯誤"
 
 #: src/err-codes.h:341
 msgid "Experimental LDAP error code"
-msgstr ""
+msgstr "試驗性 LDAP 錯誤代碼"
 
 #: src/err-codes.h:342
-#, fuzzy
-#| msgid "IPC write error"
 msgid "Private LDAP error code"
-msgstr "IPC 寫入錯誤"
+msgstr "專用 LDAP 錯誤代碼"
 
 #: src/err-codes.h:343
-#, fuzzy
-#| msgid "General IPC error"
 msgid "Other general LDAP error"
-msgstr "一般性的 IPC 錯誤"
+msgstr "其他一般 LDAP 錯誤"
 
 #: src/err-codes.h:344
-#, fuzzy
-#| msgid "IPC connect call failed"
 msgid "LDAP connecting failed (X)"
-msgstr "IPC 連線叫用失敗"
+msgstr "LDAP 連接失敗（X）"
 
 #: src/err-codes.h:345
-#, fuzzy
-#| msgid "General error"
 msgid "LDAP referral limit exceeded"
-msgstr "一般錯誤"
+msgstr "超過 LDAP 引用限制"
 
 #: src/err-codes.h:346
 msgid "LDAP client loop"
-msgstr ""
+msgstr "LDAP 客戶端循環"
 
 #: src/err-codes.h:347
-#, fuzzy
-#| msgid "Card reset required"
 msgid "No LDAP results returned"
-msgstr "卡片需要重設"
+msgstr "無 LDAP 結果返回"
 
 #: src/err-codes.h:348
-#, fuzzy
-#| msgid "Element not found"
 msgid "LDAP control not found"
-msgstr "找不到元素"
+msgstr "未找到 LDAP 元件"
 
 #: src/err-codes.h:349
-#, fuzzy
-#| msgid "Not supported"
 msgid "Not supported by LDAP"
-msgstr "未支援"
+msgstr "不受 LDAP 支援"
 
 #: src/err-codes.h:350
-#, fuzzy
-#| msgid "Unexpected error"
 msgid "LDAP connect error"
-msgstr "未預期的錯誤"
+msgstr "LDAP 連接錯誤"
 
 #: src/err-codes.h:351
 msgid "Out of memory in LDAP"
-msgstr ""
+msgstr "LDAP 記憶體耗盡"
 
 #: src/err-codes.h:352
 msgid "Bad parameter to an LDAP routine"
-msgstr ""
+msgstr "LDAP 事務參數錯誤"
 
 #: src/err-codes.h:353
-#, fuzzy
-#| msgid "Unsupported operation"
 msgid "User cancelled LDAP operation"
-msgstr "未支援的操作"
+msgstr "用戶取消 LDAP 操作"
 
 #: src/err-codes.h:354
-#, fuzzy
-#| msgid "Bad certificate"
 msgid "Bad LDAP search filter"
 msgstr "不良的憑證"
 
 #: src/err-codes.h:355
-#, fuzzy
-#| msgid "Unknown extension"
 msgid "Unknown LDAP authentication method"
-msgstr "未知的擴充"
+msgstr "未知的 LDAP 身份驗證方法"
 
 #: src/err-codes.h:356
-#, fuzzy
-#| msgid "Timeout"
 msgid "Timeout in LDAP"
-msgstr "逾時"
+msgstr "LDAP 逾時"
 
 #: src/err-codes.h:357
-#, fuzzy
-#| msgid "dirmngr error"
 msgid "LDAP decoding error"
-msgstr "dirmngr 錯誤"
+msgstr "dirmngr 解碼錯誤"
 
 #: src/err-codes.h:358
-#, fuzzy
-#| msgid "dirmngr error"
 msgid "LDAP encoding error"
-msgstr "dirmngr 錯誤"
+msgstr "dirmngr 編碼錯誤"
 
 #: src/err-codes.h:359
-#, fuzzy
-#| msgid "IPC read error"
 msgid "LDAP local error"
-msgstr "IPC 讀取錯誤"
+msgstr "LDAP 本地錯誤"
 
 #: src/err-codes.h:360
-#, fuzzy
-#| msgid "Not an IPC server"
 msgid "Cannot contact LDAP server"
-msgstr "不是 IPC 伺服器"
+msgstr "無法聯絡 LDAP 伺服器"
 
 #: src/err-codes.h:361
-#, fuzzy
-#| msgid "Success"
 msgid "LDAP success"
-msgstr "成功"
+msgstr "LDAP 成功"
 
 #: src/err-codes.h:362
-#, fuzzy
-#| msgid "Configuration error"
 msgid "LDAP operations error"
-msgstr "組態錯誤"
+msgstr "LDAP 操作錯誤"
 
 #: src/err-codes.h:363
-#, fuzzy
-#| msgid "Protocol violation"
 msgid "LDAP protocol error"
-msgstr "未依協定進行"
+msgstr "LDAP 協定錯誤"
 
 #: src/err-codes.h:364
 msgid "Time limit exceeded in LDAP"
-msgstr ""
+msgstr "LDAP 逾時"
 
 #: src/err-codes.h:365
 msgid "Size limit exceeded in LDAP"
-msgstr ""
+msgstr "LDAP 大小超限"
 
 #: src/err-codes.h:366
 msgid "LDAP compare false"
-msgstr ""
+msgstr "LDAP 比較錯誤"
 
 #: src/err-codes.h:367
 msgid "LDAP compare true"
-msgstr ""
+msgstr "LDAP 比較正確"
 
 #: src/err-codes.h:368
-#, fuzzy
-#| msgid "Unknown extension"
 msgid "LDAP authentication method not supported"
-msgstr "未知的擴充"
+msgstr "未支援的 LDAP 身份驗證方法"
 
 #: src/err-codes.h:369
 msgid "Strong(er) LDAP authentication required"
-msgstr ""
+msgstr "LDAP 需要增強型身份驗證"
 
 #: src/err-codes.h:370
-#, fuzzy
-#| msgid "Fatal alert message received"
 msgid "Partial LDAP results+referral received"
-msgstr "已收到嚴重警告訊息"
+msgstr "收到部分 LDAP 結果與引用"
 
 #: src/err-codes.h:371
-#, fuzzy
-#| msgid "General error"
 msgid "LDAP referral"
-msgstr "一般錯誤"
+msgstr "LDAP 轉送"
 
 #: src/err-codes.h:372
 msgid "Administrative LDAP limit exceeded"
-msgstr ""
+msgstr "超過 LDAP 管理限制"
 
 #: src/err-codes.h:373
 msgid "Critical LDAP extension is unavailable"
-msgstr ""
+msgstr "關鍵 LDAP 擴展不可用"
 
 #: src/err-codes.h:374
-#, fuzzy
-#| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
-msgstr "卡片需要重設"
+msgstr "LDAP 要求保密"
 
 #: src/err-codes.h:375
 msgid "LDAP SASL bind in progress"
-msgstr ""
+msgstr "正在進行 LDAP SASL 綁定"
 
 #: src/err-codes.h:376
 msgid "No such LDAP attribute"
-msgstr ""
+msgstr "沒有此 LDAP 屬性"
 
 #: src/err-codes.h:377
-#, fuzzy
-#| msgid "Invalid attribute"
 msgid "Undefined LDAP attribute type"
-msgstr "無效的屬性"
+msgstr "未定義的 LDAP 屬性類型"
 
 #: src/err-codes.h:378
-#, fuzzy
-#| msgid "Unsupported protection"
 msgid "Inappropriate matching in LDAP"
-msgstr "未支援的保護"
+msgstr "LDAP 不當匹配"
 
 #: src/err-codes.h:379
-#, fuzzy
-#| msgid "Protocol violation"
 msgid "Constraint violation in LDAP"
-msgstr "未依協定進行"
+msgstr "LDAP 約束沖突"
 
 #: src/err-codes.h:380
 msgid "LDAP type or value exists"
-msgstr ""
+msgstr "LDAP 類型或值存在"
 
 #: src/err-codes.h:381
-#, fuzzy
-#| msgid "Invalid state"
 msgid "Invalid syntax in LDAP"
-msgstr "無效的狀態"
+msgstr "LDAP 語法無效"
 
 #: src/err-codes.h:382
-#, fuzzy
-#| msgid "No CMS object"
 msgid "No such LDAP object"
-msgstr "不是 CMS 物件"
+msgstr "無此 LDAP 對象"
 
 #: src/err-codes.h:383
-#, fuzzy
-#| msgid "Hardware problem"
 msgid "LDAP alias problem"
-msgstr "硬體問題"
+msgstr "LDAP 別名問題"
 
 #: src/err-codes.h:384
-#, fuzzy
-#| msgid "Invalid state"
 msgid "Invalid DN syntax in LDAP"
-msgstr "無效的狀態"
+msgstr "LDAP 無效的 DN 語法"
 
 #: src/err-codes.h:385
 msgid "LDAP entry is a leaf"
-msgstr ""
+msgstr "LDAP 葉狀入口"
 
 #: src/err-codes.h:386
-#, fuzzy
-#| msgid "Encoding problem"
 msgid "LDAP alias dereferencing problem"
-msgstr "編碼問題"
+msgstr "LDAP 別名引用取消問題"
 
 #: src/err-codes.h:387
 msgid "LDAP proxy authorization failure (X)"
-msgstr ""
+msgstr "LDAP 代理授權失敗（X）"
 
 #: src/err-codes.h:388
-#, fuzzy
-#| msgid "Unsupported protection"
 msgid "Inappropriate LDAP authentication"
-msgstr "未支援的保護"
+msgstr "不當 LDAP 身份驗證"
 
 #: src/err-codes.h:389
-#, fuzzy
-#| msgid "Invalid card"
 msgid "Invalid LDAP credentials"
-msgstr "無效的卡片"
+msgstr "無效 LDAP 憑據"
 
 #: src/err-codes.h:390
 msgid "Insufficient access for LDAP"
-msgstr ""
+msgstr "無 LDAP 訪問權限"
 
 #: src/err-codes.h:391
 msgid "LDAP server is busy"
-msgstr ""
+msgstr "LDAP 伺服器忙"
 
 #: src/err-codes.h:392
-#, fuzzy
-#| msgid "No keyserver available"
 msgid "LDAP server is unavailable"
-msgstr "沒有可用的金鑰伺服器"
+msgstr "LDAP 伺服器不可用"
 
 #: src/err-codes.h:393
 msgid "LDAP server is unwilling to perform"
-msgstr ""
+msgstr "LDAP 伺服器拒絕處理"
 
 #: src/err-codes.h:394
 msgid "Loop detected by LDAP"
-msgstr ""
+msgstr "LDAP 檢測到循環"
 
 #: src/err-codes.h:395
-#, fuzzy
-#| msgid "Missing action"
 msgid "LDAP naming violation"
-msgstr "遺失行動"
+msgstr "LDAP 命名沖突"
 
 #: src/err-codes.h:396
-#, fuzzy
-#| msgid "Protocol violation"
 msgid "LDAP object class violation"
-msgstr "未依協定進行"
+msgstr "LDAP 對象類沖突"
 
 #: src/err-codes.h:397
-#, fuzzy
-#| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
-msgstr "操作尚未完成"
+msgstr "不允許在非葉上執行 LDAP 操作"
 
 #: src/err-codes.h:398
-#, fuzzy
-#| msgid "Operation cancelled"
 msgid "LDAP operation not allowed on RDN"
-msgstr "操作已取消"
+msgstr "RDN 上不允許 LDAP 操作"
 
 #: src/err-codes.h:399
 msgid "Already exists (LDAP)"
-msgstr ""
+msgstr "LDAP 已經存在"
 
 #: src/err-codes.h:400
 msgid "Cannot modify LDAP object class"
-msgstr ""
+msgstr "無法修改 LDAP 對象類"
 
 #: src/err-codes.h:401
-#, fuzzy
-#| msgid "Line too long"
 msgid "LDAP results too large"
-msgstr "列太長"
+msgstr "LDAP 結果過大"
 
 #: src/err-codes.h:402
-#, fuzzy
-#| msgid "Operation cancelled"
 msgid "LDAP operation affects multiple DSAs"
-msgstr "操作已取消"
+msgstr "LDAP 操作影響多個 DSA"
 
 #: src/err-codes.h:403
 msgid "Virtual LDAP list view error"
-msgstr ""
+msgstr "虛擬 LDAP 列表視圖錯誤"
 
 #: src/err-codes.h:404
-#, fuzzy
-#| msgid "General IPC error"
 msgid "Other LDAP error"
-msgstr "一般性的 IPC 錯誤"
+msgstr "其他 LDAP 錯誤"
 
 #: src/err-codes.h:405
-#, fuzzy
-#| msgid "Resources exhausted"
 msgid "Resources exhausted in LCUP"
-msgstr "資源已耗盡"
+msgstr "LCUP 資源耗盡"
 
 #: src/err-codes.h:406
-#, fuzzy
-#| msgid "Protocol violation"
 msgid "Security violation in LCUP"
-msgstr "未依協定進行"
+msgstr "LCUP 安全沖突"
 
 #: src/err-codes.h:407
-#, fuzzy
-#| msgid "Invalid state"
 msgid "Invalid data in LCUP"
-msgstr "無效的狀態"
+msgstr "LCUP 數據無效"
 
 #: src/err-codes.h:408
-#, fuzzy
-#| msgid "Unsupported certificate"
 msgid "Unsupported scheme in LCUP"
-msgstr "未支援的憑證"
+msgstr "LCUP 未支援的方案"
 
 #: src/err-codes.h:409
-#, fuzzy
-#| msgid "Card reset required"
 msgid "Reload required in LCUP"
-msgstr "卡片需要重設"
+msgstr "LCUP 需要重新加載"
 
 #: src/err-codes.h:410
-#, fuzzy
-#| msgid "Success"
 msgid "LDAP cancelled"
-msgstr "成功"
+msgstr "LDAP 已取消"
 
 #: src/err-codes.h:411
-#, fuzzy
-#| msgid "Not operational"
 msgid "No LDAP operation to cancel"
-msgstr "無法操作"
+msgstr "沒有要取消的 LDAP 操作"
 
 #: src/err-codes.h:412
-#, fuzzy
-#| msgid "Not operational"
 msgid "Too late to cancel LDAP"
-msgstr "無法操作"
+msgstr "LDAP 已不能取消"
 
 #: src/err-codes.h:413
-#, fuzzy
-#| msgid "Not an IPC server"
 msgid "Cannot cancel LDAP"
-msgstr "不是 IPC 伺服器"
+msgstr "無法取消 LDAP"
 
 #: src/err-codes.h:414
-#, fuzzy
-#| msgid "Decryption failed"
 msgid "LDAP assertion failed"
-msgstr "解密失敗"
+msgstr "LDAP 斷言失敗"
 
 #: src/err-codes.h:415
 msgid "Proxied authorization denied by LDAP"
-msgstr ""
+msgstr "LDAP 禁止代理驗證"
 
 #: src/err-codes.h:416
 msgid "User defined error code 1"
@@ -1889,134 +1735,128 @@ msgid "User defined error code 16"
 msgstr "使用者定義錯誤代碼 16"
 
 #: src/err-codes.h:432
-#, fuzzy
-#| msgid "Success"
 msgid "SQL success"
-msgstr "成功"
+msgstr "SQL 成功"
 
 #: src/err-codes.h:433
-#, fuzzy
-#| msgid "Syntax error"
 msgid "SQL error"
-msgstr "語法錯誤"
+msgstr "SQL 錯誤"
 
 #: src/err-codes.h:434
 msgid "Internal logic error in SQL library"
-msgstr ""
+msgstr "SQL 庫內部邏輯錯誤"
 
 #: src/err-codes.h:435
 msgid "Access permission denied (SQL)"
-msgstr ""
+msgstr "SQL 無訪問權限"
 
 #: src/err-codes.h:436
 msgid "SQL abort was requested"
-msgstr ""
+msgstr "SQL 請求中止"
 
 #: src/err-codes.h:437
 msgid "SQL database file is locked"
-msgstr ""
+msgstr "SQL 資料庫文件被鎖定"
 
 #: src/err-codes.h:438
 msgid "An SQL table in the database is locked"
-msgstr ""
+msgstr "資料庫中 SLQ 表被鎖定"
 
 #: src/err-codes.h:439
 msgid "SQL library ran out of core"
-msgstr ""
+msgstr "SQL 庫耗盡核心資源"
 
 #: src/err-codes.h:440
 msgid "Attempt to write a readonly SQL database"
-msgstr ""
+msgstr "嘗試寫入唯讀 SQL 資料庫"
 
 #: src/err-codes.h:441
 msgid "SQL operation terminated by interrupt"
-msgstr ""
+msgstr "SQL 操作被中斷終止"
 
 #: src/err-codes.h:442
 msgid "I/O error during SQL operation"
-msgstr ""
+msgstr "SQL 操作 I/O 錯誤"
 
 #: src/err-codes.h:443
 msgid "SQL database disk image is malformed"
-msgstr ""
+msgstr "SQL 資料庫磁碟鏡像格式錯誤"
 
 #: src/err-codes.h:444
 msgid "Unknown opcode in SQL file control"
-msgstr ""
+msgstr "SQL 文件未知操作碼"
 
 #: src/err-codes.h:445
 msgid "Insertion failed because SQL database is full"
-msgstr ""
+msgstr "插入失敗，因為 SQL 資料庫已滿"
 
 #: src/err-codes.h:446
 msgid "Unable to open the SQL database file"
-msgstr ""
+msgstr "無法打開 SQL 資料庫文件"
 
 #: src/err-codes.h:447
-#, fuzzy
-#| msgid "Protocol violation"
 msgid "SQL database lock protocol error"
-msgstr "未依協定進行"
+msgstr "SQL 資料庫鎖定協定錯誤"
 
 #: src/err-codes.h:448
 msgid "(internal SQL code: empty)"
-msgstr ""
+msgstr "（內部 SQL 代碼：empty 空）"
 
 #: src/err-codes.h:449
 msgid "SQL database schema changed"
-msgstr ""
+msgstr "SQL 資料庫架構已更改"
 
 #: src/err-codes.h:450
 msgid "String or blob exceeds size limit (SQL)"
-msgstr ""
+msgstr "SQL 字串或blob超出大小限制"
 
 #: src/err-codes.h:451
 msgid "SQL abort due to constraint violation"
-msgstr ""
+msgstr "SQL 約束沖突導致中止"
 
 #: src/err-codes.h:452
 msgid "Data type mismatch (SQL)"
-msgstr ""
+msgstr "SQL 數據類型不匹配"
 
 #: src/err-codes.h:453
 msgid "SQL library used incorrectly"
-msgstr ""
+msgstr "SQL 庫使用錯誤"
 
 #: src/err-codes.h:454
 msgid "SQL library uses unsupported OS features"
-msgstr ""
+msgstr "SQL 庫使用了未支援的操作系統功能"
 
 #: src/err-codes.h:455
 msgid "Authorization denied (SQL)"
-msgstr ""
+msgstr "SQL 授權拒絕"
 
 #: src/err-codes.h:456
 msgid "(unused SQL code: format)"
-msgstr ""
+msgstr "（未使用的SQL代碼：format 格式）"
 
 #: src/err-codes.h:457
 msgid "SQL bind parameter out of range"
-msgstr ""
+msgstr "SQL 綁定参數越界"
 
 #: src/err-codes.h:458
 msgid "File opened that is not an SQL database file"
-msgstr ""
+msgstr "打開的文件不是 SQL 資料庫文件"
 
 #: src/err-codes.h:459
 msgid "Notifications from SQL logger"
-msgstr ""
+msgstr "來自 SQL 日誌記錄的通知"
 
 #: src/err-codes.h:460
 msgid "Warnings from SQL logger"
-msgstr ""
+msgstr "來自 SQL 日誌記錄的警告"
 
 #: src/err-codes.h:461
 msgid "SQL has another row ready"
-msgstr ""
+msgstr "SQL 已準備好另一行"
 
 #: src/err-codes.h:462
 msgid "SQL has finished executing"
-msgstr ""
+msgstr "SQL 已執行完成"
 
 #: src/err-codes.h:463
 msgid "System error w/o errno"
@@ -2063,32 +1903,24 @@ msgid "invalid alias definition"
 msgstr "無效的別名定義"
 
 #: src/argparse.c:482 src/argparse.c:519
-#, fuzzy
-#| msgid "Configuration error"
 msgid "permission error"
-msgstr "組態錯誤"
+msgstr "權限錯誤"
 
 #: src/argparse.c:484 src/argparse.c:517
 msgid "out of core"
 msgstr "超出核心"
 
 #: src/argparse.c:488 src/argparse.c:523
-#, fuzzy
-#| msgid "invalid command"
 msgid "invalid meta command"
-msgstr "無效的指令"
+msgstr "無效元命令"
 
 #: src/argparse.c:490 src/argparse.c:525
-#, fuzzy
-#| msgid "Unknown command"
 msgid "unknown meta command"
-msgstr "未知的指令"
+msgstr "未知元命令"
 
 #: src/argparse.c:492 src/argparse.c:527
-#, fuzzy
-#| msgid "Unexpected IPC command"
 msgid "unexpected meta command"
-msgstr "未預期的 IPC 指令"
+msgstr "意外元命令"
 
 #: src/argparse.c:494
 msgid "invalid option"
@@ -2129,57 +1961,37 @@ msgstr "\"%.50s\" 指令不明確\n"
 msgid "invalid option \"%.50s\"\n"
 msgstr "無效的選項 \"%.50s\"\n"
 
-#: src/argparse.c:1658 src/argparse.c:1753
+#: src/argparse.c:1694 src/argparse.c:1789
 #, c-format
 msgid "Note: no default option file '%s'\n"
-msgstr ""
+msgstr "注意：文件 '%s' 中無缺省選項\n"
 
-#: src/argparse.c:1668 src/argparse.c:1760
+#: src/argparse.c:1704 src/argparse.c:1796
 #, c-format
 msgid "reading options from '%s'\n"
-msgstr ""
+msgstr "從 '%s' 中讀取選項\n"
 
-#: src/argparse.c:1745
+#: src/argparse.c:1781
 #, c-format
 msgid "option file '%s': %s\n"
-msgstr ""
+msgstr "選項文件 '%s': %s\n"
 
-#: src/argparse.c:2182
+#: src/argparse.c:2218
 #, c-format
 msgid "Note: ignoring option \"--%s\" due to global config\n"
-msgstr ""
+msgstr "注意： 由於整體設定，選項 \"--%s\" 被忽視\n"
 
 #: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
-msgstr ""
+msgstr "請向  <https://bugs.gnupg.org> 報告錯誤。\n"
 
 #: src/gpg-error.c:762
 #, c-format
 msgid "warning: could not recognize %s\n"
-msgstr "警告: 無法辨識 %s\n"
+msgstr "警告: 無法辨識  %s\n"
 
 #~ msgid "out of core\n"
-#~ msgstr "超出核心\n"
+#~ msgstr "內存耗盡\n"
 
 #~ msgid "Usage: %s GPG-ERROR [...]\n"
 #~ msgstr "用法: %s GPG-ERROR [...]\n"
-
-#, fuzzy
-#~| msgid "Resources exhausted"
-#~ msgid "LCUP Resources exhausted"
-#~ msgstr "資源已耗盡"
-
-#, fuzzy
-#~| msgid "Invalid data"
-#~ msgid "LCUP Invalid data"
-#~ msgstr "無效的資料"
-
-#, fuzzy
-#~| msgid "General error"
-#~ msgid "LDAP Other general error"
-#~ msgstr "一般錯誤"
-
-#, fuzzy
-#~| msgid "dirmngr error"
-#~ msgid "Encoding error"
-#~ msgstr "dirmngr 錯誤"

@@ -35,6 +35,9 @@
 # include <pwd.h>
 #endif
 #include <errno.h>
+#ifdef HAVE_W32_SYSTEM
+# include <windows.h>
+#endif
 
 #define PGM "t-stringutils"
 #include "t-common.h"
@@ -81,9 +84,80 @@ mygethome (void)
 }
 
 
+#ifdef HAVE_W32_SYSTEM
+static wchar_t *
+utf8_to_wchar (const char *string)
+{
+  int n;
+  wchar_t *result;
+  size_t nbytes;
+  int cbmultibyte = -1;
+
+  n = MultiByteToWideChar (CP_UTF8, 0, string, cbmultibyte, NULL, 0);
+  if (n < 0 || (n+1) <= 0)
+    die ("utf8_to_wchar failed\n");
+  nbytes = (size_t)(n+1) * sizeof(*result);
+  if (nbytes / sizeof(*result) != (n+1))
+    die ("utf8_to_wchar failed\n");
+  result = xmalloc (nbytes);
+  n = MultiByteToWideChar (CP_UTF8, 0, string, cbmultibyte, result, n);
+  if (n < 0)
+    die ("utf8_to_wchar failed\n");
+  return result;
+
+}
+
+
+static char *
+wchar_to_utf8 (const wchar_t *string, size_t length)
+{
+  int n;
+  char *result;
+
+  n = WideCharToMultiByte (CP_UTF8, 0, string, length, NULL, 0, NULL, NULL);
+  if (n < 0 || (n+1) <= 0)
+    die ("wchar_to_utf8 failed\n");
+
+  result = xmalloc (n+1);
+  if (!result)
+    die ("wchar_to_utf8 failed\n");
+  n = WideCharToMultiByte (CP_UTF8, 0, string, length, result, n, NULL, NULL);
+  if (n < 0)
+    die ("wchar_to_utf8 failed\n");
+  result[n] = 0;
+  return result;
+}
+#endif
+
 static char *
 mygetcwd (void)
 {
+#ifdef HAVE_W32_SYSTEM
+  wchar_t wbuffer[MAX_PATH + sizeof(wchar_t)];
+  wchar_t *wp;
+  DWORD wlen;
+  char *buf, *p;
+
+  wlen = GetCurrentDirectoryW (MAX_PATH, wbuffer);
+  if (!wlen)
+    die ("GCDW failed - error code: %d\n", (int)GetLastError ());
+  else if (wlen > MAX_PATH)
+    die ("GCDW failed - wlen too large\n");
+
+  buf = wchar_to_utf8 (wbuffer, wlen);
+
+  /* Quick test that the reverse works.  */
+  wp = utf8_to_wchar (buf);
+  if (wcscmp (wp, wbuffer))
+    die ("GCDW: reverse converting failed\n");
+  xfree (wp);
+
+  for (p=buf; *p; p++)
+    if (*p == '\\')
+      *p = '/';
+  return buf;
+
+#else
   char *buffer;
   size_t size = 100;
 
@@ -91,12 +165,15 @@ mygetcwd (void)
     {
       buffer = xmalloc (size+1);
       if (getcwd (buffer, size) == buffer)
-        return buffer;
+        {
+          return buffer;
+        }
       xfree (buffer);
       if (errno != ERANGE)
         die ("error getting current cwd: %s\n", strerror (errno));
       size *= 2;
     }
+#endif
 }
 
 
@@ -248,15 +325,33 @@ check_absfnameconcat (void)
 }
 
 
+static void
+check_access (void)
+{
+  char *cwd = mygetcwd ();
+
+  if (gpgrt_access (cwd, F_OK))
+    fail ("gpgrt_access(%s) failed: %s\n",
+          cwd, gpg_strerror (gpg_error_from_syserror ()));
+  else
+    show ("gpgrt_access(%s) succeeded\n", cwd);
+
+  xfree (cwd);
+}
+
+
 int
 main (int argc, char **argv)
 {
   gpgrt_opt_t opts[] = {
     ARGPARSE_x  ('v', "verbose", NONE, 0, "Print more diagnostics"),
     ARGPARSE_s_n('d', "debug", "Flyswatter"),
+    ARGPARSE_x  (501, "pwd", NONE, 0, "Print working directory"),
     ARGPARSE_end()
   };
   gpgrt_argparse_t pargs = { &argc, &argv, 0 };
+  char *cwd;
+  int opt_pwd = 0;
 
   gpgrt_set_strusage (my_strusage);
   gpgrt_log_set_prefix (gpgrt_strusage (11), GPGRT_LOG_WITH_PREFIX);
@@ -267,15 +362,33 @@ main (int argc, char **argv)
         {
         case 'v': verbose++; break;
         case 'd': debug++; break;
+        case 501: opt_pwd = 1; break;
         default : pargs.err = ARGPARSE_PRINT_ERROR; break;
 	}
     }
   gpgrt_argparse (NULL, &pargs, NULL);
 
+  cwd = gpgrt_getcwd ();
+  if (!cwd)
+    fail ("gpgrt_getcwd returned error: %s\n",
+          gpg_strerror (gpg_error_from_syserror ()));
+  else
+    {
+      if (opt_pwd)
+        {
+          int save_verbose = verbose;
+          verbose = 1;
+          show ("getcwd -> '%s'\n", cwd);
+          verbose = save_verbose;
+        }
+      xfree (cwd);
+    }
+
   show ("testing string utilities\n");
 
   check_fnameconcat ();
   check_absfnameconcat ();
+  check_access ();
 
   show ("testing string utilities finished\n");
   return !!errorcount;

@@ -498,6 +498,14 @@ GPG_ERR_PIN_BLOCKED             PIN blocked
 
 GPG_ERR_USE_CONDITIONS          Conditions of use not satisfied
 
+    GNUPG: - The PIN given to a smartcard is too short or has
+             unacceptable characters so that the smartcard does
+             not even try to verify it.
+           - The smartcard can't do an operation because some
+             intermediate command send to a card is missing or the
+             card can't use the provided data due to an unsupported
+             algorithm.
+
 GPG_ERR_PIN_NOT_SYNCED          PINs are not synced
 
 GPG_ERR_INV_CRL                         Invalid CRL

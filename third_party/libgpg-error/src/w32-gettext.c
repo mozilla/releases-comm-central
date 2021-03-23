@@ -34,9 +34,7 @@
 #include <sys/types.h>
 #endif
 #include <stdint.h>
-#ifndef HAVE_W32CE_SYSTEM
-# include <locale.h>
-#endif /*HAVE_W32CE_SYSTEM*/
+#include <locale.h>
 #include <windows.h>
 
 #ifdef JNLIB_IN_JNLIB
@@ -51,7 +49,7 @@
 #endif /*!jnlib_malloc*/
 
 #include "init.h"
-#include "gpg-error.h"
+#include "gpgrt-int.h"
 #include "protos.h"
 
 /* Override values initialized by gpgrt_w32_override_locale.  If NAME
@@ -64,37 +62,6 @@ static struct
 } override_locale;
 
 
-#ifdef HAVE_W32CE_SYSTEM
-/* Forward declaration.  */
-static wchar_t *utf8_to_wchar (const char *string, size_t length, size_t *retlen);
-
-static HANDLE
-MyCreateFileA (LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwSharedMode,
-	     LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-	     DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes,
-	     HANDLE hTemplateFile)
-{
-  wchar_t *filename;
-  HANDLE result;
-  int err;
-  size_t size;
-
-  filename = utf8_to_wchar (lpFileName, -1, &size);
-  if (!filename)
-    return INVALID_HANDLE_VALUE;
-
-  result = CreateFileW (filename, dwDesiredAccess, dwSharedMode,
-			lpSecurityAttributes, dwCreationDisposition,
-			dwFlagsAndAttributes, hTemplateFile);
-
-  err = GetLastError ();
-  free (filename);
-  SetLastError (err);
-  return result;
-}
-#undef CreateFileA
-#define CreateFileA MyCreateFileA
-#endif
 
 
 /* localname.c from gettext BEGIN.  */
@@ -655,9 +622,7 @@ MyCreateFileA (LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwSharedMode,
 static const char *
 my_nl_locale_name (const char *categoryname)
 {
-#ifndef HAVE_W32CE_SYSTEM
   const char *retval;
-#endif
   LANGID langid;
   int primary, sub;
 
@@ -673,7 +638,6 @@ my_nl_locale_name (const char *categoryname)
 
       /* Let the user override the system settings through environment
        *  variables, as on POSIX systems.  */
-#ifndef HAVE_W32CE_SYSTEM
       retval = getenv ("LC_ALL");
       if (retval != NULL && retval[0] != '\0')
         return retval;
@@ -683,14 +647,9 @@ my_nl_locale_name (const char *categoryname)
       retval = getenv ("LANG");
       if (retval != NULL && retval[0] != '\0')
         return retval;
-#endif /*!HAVE_W32CE_SYSTEM*/
 
       /* Use native Win32 API locale ID.  */
-#ifdef HAVE_W32CE_SYSTEM
-      lcid = GetSystemDefaultLCID ();
-#else
       lcid = GetThreadLocale ();
-#endif
       /* Strip off the sorting rules, keep only the language part.  */
       langid = LANGIDFROMLCID (lcid);
     }
@@ -1251,8 +1210,16 @@ load_domain (const char *filename)
   size_t to_read;
   char *read_ptr;
 
-  fh = CreateFileA (filename, GENERIC_READ, FILE_SHARE_WRITE, NULL,
-                    OPEN_EXISTING, 0, NULL);
+  {
+    wchar_t *wfilename = _gpgrt_utf8_to_wchar (filename);
+
+    if (!wfilename)
+      fh = INVALID_HANDLE_VALUE;
+    else
+      fh = CreateFileW (wfilename, GENERIC_READ, FILE_SHARE_WRITE, NULL,
+                        OPEN_EXISTING, 0, NULL);
+    xfree (wfilename);
+  }
   if (fh == INVALID_HANDLE_VALUE)
     return NULL;
 
@@ -1378,7 +1345,7 @@ utf8_to_wchar (const char *string, size_t length, size_t *retlen)
   nbytes = (size_t)(n+1) * sizeof(*result);
   if (nbytes / sizeof(*result) != (n+1))
     {
-      gpg_err_set_errno (ENOMEM);
+      _gpg_err_set_errno (ENOMEM);
       return NULL;
     }
   result = jnlib_malloc (nbytes);
@@ -1417,27 +1384,20 @@ _gpgrt_free_wchar (wchar_t *wstring)
 }
 
 
-/* Return a malloced string encoded in the native console codepage
-   from the wide char input string STRING.
-   Caller must free this value. On failure returns NULL.
-   The result of calling this function with STRING set to NULL
-   is not defined. */
+/* Helper for wchar_to_native and wchar_to_utf8.  */
 static char *
-wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
+wchar_to_cp (const wchar_t *string, size_t length, size_t *retlen,
+             unsigned int cpno)
 {
   int n;
   char *result;
-  unsigned int cpno = GetConsoleOutputCP ();
-
-  /* GetConsoleOutputCP returns the 8-Bit codepage that should be used
-     for console output. If the codepage is not returned we fall back
-     to the codepage GUI programs should use (CP_ACP). */
-  if (!cpno)
-    cpno = GetACP ();
 
   n = WideCharToMultiByte (cpno, 0, string, length, NULL, 0, NULL, NULL);
   if (n < 0 || (n+1) <= 0)
-    return NULL;
+    {
+      _gpgrt_w32_set_errno (-1);
+      return NULL;
+    }
 
   result = jnlib_malloc (n+1);
   if (!result)
@@ -1446,11 +1406,43 @@ wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
   n = WideCharToMultiByte (cpno, 0, string, length, result, n, NULL, NULL);
   if (n < 0)
     {
+      _gpgrt_w32_set_errno (-1);
       jnlib_free (result);
       return NULL;
     }
-  *retlen = n;
+  result[n] = 0;
+  if (retlen)
+    *retlen = n;
   return result;
+}
+
+
+/* Return a malloced string encoded in the native console codepage
+   from the wide char input string STRING.
+   Caller must free this value. On failure returns NULL.
+   The result of calling this function with STRING set to NULL
+   is not defined. */
+static char *
+wchar_to_native (const wchar_t *string, size_t length, size_t *retlen)
+{
+  unsigned int cpno = GetConsoleOutputCP ();
+
+  /* GetConsoleOutputCP returns the 8-Bit codepage that should be used
+     for console output. If the codepage is not returned we fall back
+     to the codepage GUI programs should use (CP_ACP). */
+  if (!cpno)
+    cpno = GetACP ();
+
+  return wchar_to_cp (string, length, retlen, cpno);
+}
+
+
+/* Convert a WCHAR string to UTF-8.  Caller should use xfree to
+ * release the result.  Returns NULL on error and sets ERRNO. */
+char *
+_gpgrt_wchar_to_utf8 (const wchar_t *string, size_t length)
+{
+  return wchar_to_cp (string, length, NULL, CP_UTF8);
 }
 
 
@@ -1897,7 +1889,7 @@ _gpg_w32_textdomain (const char *domainname)
   if (!domainname)
     {
       if (!current_domainname)
-        gpg_err_set_errno (0);
+        _gpg_err_set_errno (0);
     }
   else
     {
@@ -2017,7 +2009,7 @@ main (int argc, char **argv)
   return 0;
 }
 /*
- * Local Variables:
+ *No-Local Variables:
  *  compile-command: "i586-mingw32msvc-gcc -DTEST -Wall -g w32-gettext.c"
  * End:
  */

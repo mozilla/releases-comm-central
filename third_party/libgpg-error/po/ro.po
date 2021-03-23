@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.1\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2020-08-24 13:06+0200\n"
-"PO-Revision-Date: 2018-03-21 19:03+0100\n"
+"POT-Creation-Date: 2021-03-22 11:49+0100\n"
+"PO-Revision-Date: 2021-03-22 10:42+0100\n"
 "Last-Translator: Laurentiu Buzdugan <lbuz@rolix.org>\n"
 "Language-Team: Romanian <translation-team-ro@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -84,31 +84,35 @@ msgid "Assuan"
 msgstr "Assuan"
 
 #: src/err-sources.h:44
-msgid "TLS"
-msgstr ""
+msgid "TPM2d"
+msgstr "TPM2d"
 
 #: src/err-sources.h:45
+msgid "TLS"
+msgstr "TLS"
+
+#: src/err-sources.h:46
 #, fuzzy
 msgid "Any source"
 msgstr "Sursă necunoscută"
 
-#: src/err-sources.h:46
+#: src/err-sources.h:47
 msgid "User defined source 1"
 msgstr "Sursă definită de utilizator 1"
 
-#: src/err-sources.h:47
+#: src/err-sources.h:48
 msgid "User defined source 2"
 msgstr "Sursă definită de utilizator 2"
 
-#: src/err-sources.h:48
+#: src/err-sources.h:49
 msgid "User defined source 3"
 msgstr "Sursă definită de utilizator 3"
 
-#: src/err-sources.h:49
+#: src/err-sources.h:50
 msgid "User defined source 4"
 msgstr "Sursă definită de utilizator 4"
 
-#: src/err-sources.h:50
+#: src/err-sources.h:51
 msgid "Unknown source"
 msgstr "Sursă necunoscută"
 
@@ -2185,22 +2189,22 @@ msgstr ""
 msgid "invalid option \"%.50s\"\n"
 msgstr "opţiuni enumerare invalide\n"
 
-#: src/argparse.c:1658 src/argparse.c:1753
+#: src/argparse.c:1694 src/argparse.c:1789
 #, c-format
 msgid "Note: no default option file '%s'\n"
 msgstr ""
 
-#: src/argparse.c:1668 src/argparse.c:1760
+#: src/argparse.c:1704 src/argparse.c:1796
 #, c-format
 msgid "reading options from '%s'\n"
 msgstr ""
 
-#: src/argparse.c:1745
+#: src/argparse.c:1781
 #, c-format
 msgid "option file '%s': %s\n"
 msgstr ""
 
-#: src/argparse.c:2182
+#: src/argparse.c:2218
 #, c-format
 msgid "Note: ignoring option \"--%s\" due to global config\n"
 msgstr ""

@@ -26,8 +26,9 @@ AC_DEFUN([estream_PRINTF_INIT],
   AC_CHECK_SIZEOF([void *])
   AC_CACHE_CHECK([for nl_langinfo and THOUSEP],
                   estream_cv_langinfo_thousep,
-      [AC_TRY_LINK([#include <langinfo.h>],
-        [char* cs = nl_langinfo(THOUSEP); return !cs;],
+      [AC_LINK_IFELSE(
+        [AC_LANG_PROGRAM([[#include <langinfo.h>]],
+          [[char* cs = nl_langinfo(THOUSEP); return !cs;]])],
         estream_cv_langinfo_thousep=yes,
         estream_cv_langinfo_thousep=no)
       ])
