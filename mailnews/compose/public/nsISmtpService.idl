@@ -44,6 +44,7 @@ interface nsISmtpService : nsISupports {
    * @param aNotificationCallbacks  More notification callbacks
    * @param aRequestDSN             Pass true to request Delivery Status
    *                                Notification.
+   * @param aMessageId              The message id can be used as ENVID for DSN.
    * @param aURL                    Provides a handle on the running url. You
    *                                can later interrupt the action by asking the
    *                                netlib service manager to interrupt the url
@@ -60,6 +61,7 @@ interface nsISmtpService : nsISupports {
                        in nsIMsgStatusFeedback aStatusListener,
                        in nsIInterfaceRequestor aNotificationCallbacks,
                        in boolean aRequestDSN,
+                       in ACString aMessageId,
                        out nsIURI aURL,
                        out nsIRequest aRequest);
 

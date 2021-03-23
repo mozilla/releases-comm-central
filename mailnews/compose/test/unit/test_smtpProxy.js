@@ -36,6 +36,7 @@ add_task(async function sendMessage() {
     null,
     null,
     false,
+    "",
     {},
     {}
   );

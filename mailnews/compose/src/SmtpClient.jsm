@@ -193,7 +193,12 @@ class SmtpClient {
    * Initiates a new message by submitting envelope data, starting with
    * `MAIL FROM:` command. Use after `onidle` event
    *
-   * @param {{from: string, to: string[], size: number}} envelope - The envelope object.
+   * @param {object} envelope - The envelope object.
+   * @param {string} envelope.from - The from address.
+   * @param {string[]} envelope.to - The to addresses.
+   * @param {number} envelope.size - The file size.
+   * @param {boolean} envelope.requestDSN - Whether to request Delivery Status Notifications.
+   * @param {boolean} envelope.messageId - The message id.
    */
   useEnvelope(envelope) {
     this._envelope = envelope || {};
@@ -255,6 +260,12 @@ class SmtpClient {
     }
     if (this._capabilities.includes("SIZE")) {
       cmd += ` SIZE=${this._envelope.size}`;
+    }
+    if (this._capabilities.includes("DSN")) {
+      let ret = Services.prefs.getBoolPref("mail.dsn.ret_full_on")
+        ? "FULL"
+        : "HDRS";
+      cmd += ` RET=${ret} ENVID=${envelope.messageId}`;
     }
     this._sendCommand(cmd);
   }
@@ -854,7 +865,7 @@ class SmtpClient {
       }
     }
 
-    for (let cap of ["8BITMIME", "SIZE", "SMTPUTF8"]) {
+    for (let cap of ["8BITMIME", "SIZE", "SMTPUTF8", "DSN"]) {
       if (new RegExp(cap, "i").test(command.data)) {
         this._capabilities.push(cap);
       }
@@ -1075,17 +1086,37 @@ class SmtpClient {
 
     if (!this._envelope.rcptQueue.length) {
       this._onError(new Error("Can't send mail - no recipients defined"));
-    } else {
-      this.logger.debug(
-        "MAIL FROM successful, proceeding with " +
-          this._envelope.rcptQueue.length +
-          " recipients"
-      );
-      this.logger.debug("Adding recipient...");
-      this._envelope.curRecipient = this._envelope.rcptQueue.shift();
-      this._currentAction = this._actionRCPT;
-      this._sendCommand(`RCPT TO:<${this._envelope.curRecipient}>`);
+      return;
     }
+    this.logger.debug(
+      "MAIL FROM successful, proceeding with " +
+        this._envelope.rcptQueue.length +
+        " recipients"
+    );
+    this.logger.debug("Adding recipient...");
+    this._envelope.curRecipient = this._envelope.rcptQueue.shift();
+    this._currentAction = this._actionRCPT;
+    let cmd = `RCPT TO:<${this._envelope.curRecipient}>`;
+    if (this._capabilities.includes("DSN") && this._envelope.requestDSN) {
+      let notify = [];
+      if (Services.prefs.getBoolPref("mail.dsn.request_never_on")) {
+        notify.push("NEVER");
+      } else {
+        if (Services.prefs.getBoolPref("mail.dsn.request_on_success_on")) {
+          notify.push("SUCCESS");
+        }
+        if (Services.prefs.getBoolPref("mail.dsn.request_on_failure_on")) {
+          notify.push("FAILURE");
+        }
+        if (Services.prefs.getBoolPref("mail.dsn.request_on_delay_on")) {
+          notify.push("DELAY");
+        }
+      }
+      if (notify.length > 0) {
+        cmd += ` NOTIFY=${notify.join(",")}`;
+      }
+    }
+    this._sendCommand(cmd);
   }
 
   /**

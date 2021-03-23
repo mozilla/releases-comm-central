@@ -104,6 +104,7 @@ add_task(async function() {
       null,
       null,
       false,
+      "",
       {},
       {}
     );

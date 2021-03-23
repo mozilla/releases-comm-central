@@ -2864,7 +2864,7 @@ nsresult nsMsgComposeAndSend::DeliverFileAsMail() {
     rv = smtpService->SendMailMessage(
         mTempFile, buf, mUserIdentity, mCompFields->GetFrom(), mSmtpPassword,
         deliveryListener, msgStatus, callbacks, mCompFields->GetDSN(),
-        getter_AddRefs(runningUrl), getter_AddRefs(mRunningRequest));
+        ""_ns, getter_AddRefs(runningUrl), getter_AddRefs(mRunningRequest));
     // set envid on the returned URL
     if (NS_SUCCEEDED(rv)) {
       nsCOMPtr<nsISmtpUrl> smtpUrl(do_QueryInterface(runningUrl, &rv));

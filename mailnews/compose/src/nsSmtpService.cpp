@@ -75,7 +75,7 @@ NS_IMETHODIMP nsSmtpService::SendMailMessage(
     const nsAString& aPassword, nsIUrlListener* aUrlListener,
     nsIMsgStatusFeedback* aStatusFeedback,
     nsIInterfaceRequestor* aNotificationCallbacks, bool aRequestDSN,
-    nsIURI** aURL, nsIRequest** aRequest) {
+    const nsACString& aMessageId, nsIURI** aURL, nsIRequest** aRequest) {
   nsIURI* urlToRun = nullptr;
   nsresult rv = NS_OK;
 

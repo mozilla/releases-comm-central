@@ -273,6 +273,11 @@ MessageSend.prototype = {
         Cr.NS_ERROR_ABORT
       );
     }
+    if (!this._failed) {
+      // Emit stopsending event if the sending is cancelled by user, so that
+      // listeners can do necessary clean up, e.g. reset the sending button.
+      this.notifyListenerOnStopSending(null, Cr.NS_ERROR_ABORT, null, null);
+    }
     this._cleanup();
     this._aborting = false;
   },
@@ -299,6 +304,7 @@ MessageSend.prototype = {
   },
 
   fail(exitCode, errorMsg) {
+    this._failed = true;
     let prompt = this.getDefaultPrompt();
     if (!Components.isSuccessCode(exitCode) && prompt) {
       MsgUtils.sendLogger.error(
@@ -1011,6 +1017,7 @@ MessageSend.prototype = {
       msgStatus,
       null,
       this._compFields.DSN,
+      this._compFields.messageId,
       {},
       this._smtpRequest
     );

@@ -52,6 +52,7 @@ function test_8bitmime(aStrictMime, aServer8bit) {
       null,
       null,
       false,
+      "",
       {},
       {}
     );

@@ -67,6 +67,7 @@ add_task(async function test_mails_sent() {
         null,
         null,
         false,
+        "",
         {},
         {}
       );

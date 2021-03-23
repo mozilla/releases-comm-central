@@ -71,6 +71,7 @@ SmtpService.prototype = {
     statusListener,
     notificationCallbacks,
     requestDSN,
+    messageId,
     outURI,
     outRequest
   ) {
@@ -104,6 +105,8 @@ SmtpService.prototype = {
         )[0].email,
         to,
         size: messageFile.fileSize,
+        requestDSN,
+        messageId,
       });
     };
     client.onready = () => {
