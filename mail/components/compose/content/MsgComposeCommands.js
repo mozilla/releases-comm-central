@@ -7623,7 +7623,7 @@ let flavors = [
 ];
 
 // Array of content types that should trigger the attachment overlay.
-let overlayFlavors = ["text/x-moz-message", "text/uri-list"];
+let overlayFlavors = ["text/x-moz-message", "text/uri-list", "text/x-moz-url"];
 
 // We can drag and drop addresses, files, messages and urls into the compose
 // envelope.
@@ -8005,7 +8005,7 @@ var envelopeDragObserver = {
         continue;
       }
 
-      // Show the drop overlay only if we dragged files or supperted types.
+      // Show the drop overlay only if we dragged files or supported types.
       if (
         event.dataTransfer.files.length ||
         event.dataTransfer.types.some(type => overlayFlavors.includes(type))
