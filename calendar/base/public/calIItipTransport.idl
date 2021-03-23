@@ -38,7 +38,6 @@ interface calIItipTransport : nsISupports
      * representation of those objects are generated and attached to the email.
      * If the calIItipItem is null, then the item(s) is sent without any
      * text/calendar mime part.
-     * @param count             size of recipient array
      * @param recipientArray    array of recipients
      * @param calIItipItem      set of calIItems encapsulated as calIItipItems
      */
