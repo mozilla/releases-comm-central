@@ -25,7 +25,6 @@ const EXPORTED_SYMBOLS = [
   "open_compose_with_reply_to_all",
   "open_compose_with_reply_to_list",
   "setup_msg_contents",
-  "toggle_recipient_type",
   "type_in_composer",
   "wait_for_compose_window",
 ];
@@ -376,19 +375,6 @@ function get_first_pill(aController) {
   return new elib.Elem(
     aController.window.document.querySelector("mail-address-pill")
   );
-}
-
-/**
- * Change recipient type in compose widget.
- *
- * @param aController    Compose window controller.
- * @param aType          The recipient type, e.g. "addr_to".
- * @param aRecipientRow  The compose widget row containing recipient to remove.
- */
-function toggle_recipient_type(aController, aType, aRecipientRow = 1) {
-  let addrType = aController.window.awGetPopupElement(aRecipientRow);
-  aController.click(new elib.Elem(addrType));
-  aController.click_menus_in_sequence(addrType.menupopup, [{ value: aType }]);
 }
 
 /**

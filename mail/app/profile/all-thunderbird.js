@@ -529,9 +529,6 @@ pref("toolbar.customization.usesheet", true);
 pref("toolbar.customization.usesheet", false);
 #endif
 
-// Number of recipient rows shown by default
-pref("mail.compose.addresswidget.numRowsShownDefault", 3);
-
 // Start compositions with (empty) attachment pane showing
 pref("mail.compose.show_attachment_pane", false);
 // Check for missing attachments?

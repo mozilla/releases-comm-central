@@ -35,7 +35,6 @@ var {
   close_compose_window,
   open_compose_new_mail,
   setup_msg_contents,
-  toggle_recipient_type,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { wait_for_frame_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
