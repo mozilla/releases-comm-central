@@ -775,27 +775,27 @@
             oncommand="editAddressPill(document.popupNode, event)"/>
   <menuitem id="menu_delete"
             data-l10n-id="text-action-delete"
-            oncommand="deleteSelectedPills(document.popupNode)"/>
+            oncommand="deleteSelectedPillsOnCommand()"/>
   <menuseparator/>
   <menuitem id="menu_cut"
             data-l10n-id="text-action-cut"
-            oncommand="cutEmailNewsAddress(document.popupNode)"/>
+            oncommand="cutSelectedPillsOnCommand()"/>
   <menuitem id="menu_copy"
             data-l10n-id="text-action-copy"
-            oncommand="copyEmailNewsAddress(document.popupNode)"/>
+            oncommand="copySelectedPillsOnCommand()"/>
   <menuseparator/>
   <menuitem id="moveAddressPillTo"
             class="pill-action-move"
             data-l10n-id="pill-action-move-to"
-            oncommand="moveSelectedPills(document.popupNode, 'addr_to')"/>
+            oncommand="moveSelectedPillsOnCommand('addr_to')"/>
   <menuitem id="moveAddressPillCc"
             class="pill-action-move"
             data-l10n-id="pill-action-move-cc"
-            oncommand="moveSelectedPills(document.popupNode, 'addr_cc')"/>
+            oncommand="moveSelectedPillsOnCommand('addr_cc')"/>
   <menuitem id="moveAddressPillBcc"
             class="pill-action-move"
             data-l10n-id="pill-action-move-bcc"
-            oncommand="moveSelectedPills(document.popupNode, 'addr_bcc')"/>
+            oncommand="moveSelectedPillsOnCommand('addr_bcc')"/>
 </menupopup>
 
   <toolbox id="compose-toolbox"
@@ -2146,7 +2146,7 @@
                              disableonsend="true"
                              class="mail-primary-label mail-label recipient-label"
                              onclick="showAddressRow(this, 'addressRowTo')"
-                             ondrop="dropAddressPill(this, 'addressRowTo', 'addr_to')"
+                             ondrop="dropAddressPills(this)"
                              ondragover="event.preventDefault();"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowTo')"
                              control="toAddrInput"
@@ -2155,7 +2155,7 @@
                              disableonsend="true"
                              class="mail-label recipient-label"
                              onclick="showAddressRow(this, 'addressRowCc')"
-                             ondrop="dropAddressPill(this, 'addressRowCc', 'addr_cc')"
+                             ondrop="dropAddressPills(this)"
                              ondragover="event.preventDefault();"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowCc')"
                              control="ccAddrInput"/>
@@ -2163,7 +2163,7 @@
                              disableonsend="true"
                              class="mail-label recipient-label"
                              onclick="showAddressRow(this, 'addressRowBcc')"
-                             ondrop="dropAddressPill(this, 'addressRowBcc', 'addr_bcc')"
+                             ondrop="dropAddressPills(this)"
                              ondragover="event.preventDefault();"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowBcc')"
                              control="bccAddrInput"/>

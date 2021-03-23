@@ -642,7 +642,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
         "mail-address-pill:last-of-type"
       );
       if (lastPillGlobal) {
-        mailRecipientsArea.selectAllPills(lastPillGlobal);
+        mailRecipientsArea.selectAllPills();
         lastPillGlobal.focus();
       }
       break;
@@ -967,46 +967,6 @@ function editAddressPill(element, event) {
 }
 
 /**
- * Copy the selected pills email address.
- *
- * @param {XULElement} element - The element from which the context menu was
- *   opened.
- */
-function copyEmailNewsAddress(element) {
-  let selectedAddresses = [
-    ...document.getElementById("recipientsContainer").getAllSelectedPills(),
-  ].map(pill => pill.fullAddress);
-
-  let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
-    Ci.nsIClipboardHelper
-  );
-  clipboard.copyString(selectedAddresses.join(", "));
-}
-
-/**
- * Cut the selected pills email address.
- *
- * @param {XULElement} element - The element from which the context menu was
- *   opened.
- */
-function cutEmailNewsAddress(element) {
-  copyEmailNewsAddress(element);
-  deleteSelectedPills(element);
-}
-
-/**
- * Delete the selected pill(s).
- *
- * @param {Element} element - The label element from which the context menu was
- *   opened.
- */
-function deleteSelectedPills(element) {
-  // element is the <label> of the focused pill, get the pill itself.
-  let pill = element.closest("mail-address-pill");
-  document.getElementById("recipientsContainer").removeSelectedPills(pill);
-}
-
-/**
  * Handle the disabling of context menu items according to the types and count
  * of selected pills.
  */
@@ -1074,19 +1034,6 @@ function emailAddressPillOnPopupShown() {
 }
 
 /**
- * Move the selected pills email address to another addressing row.
- *
- * @param {Element} element - The element from which the context menu was
- *   opened.
- * @param {string} targetFieldType - The target recipient type, e.g. "addr_to".
- */
-function moveSelectedPills(element, targetFieldType) {
-  document
-    .getElementById("recipientsContainer")
-    .moveSelectedPills(element, targetFieldType);
-}
-
-/**
  * Handle the keypress event on the recipient labels for keyboard navigation and
  * to show the container row of a hidden recipient (Cc, Bcc, etc.).
  *
@@ -1150,20 +1097,13 @@ function showAddressRow(label, rowID) {
 }
 
 /**
- * Move the selected pills to the container row of an hidden recipient (Cc, Bcc, etc.)
- * in drag and drop operation.
+ * Move the selected pills to the address row of the recipient label they were
+ * dropped on (Cc, Bcc, etc.), which will also show the row if needed.
  *
- * @param {XULElement} label - The clicked label to hide.
- * @param {string} rowID - The ID of the container to reveal.
- * @param {string} recipientType - The recipient type for dropped pills to move.
+ * @param {XULElement} label - The label element on which the drop event occured.
  */
-function dropAddressPill(label, rowID, recipientType) {
-  let mailRecipientsArea = document.querySelector("mail-recipients-area");
-  mailRecipientsArea.moveSelectedPills(
-    mailRecipientsArea.getAllSelectedPills()[0],
-    recipientType
-  );
-  showAddressRow(label, rowID);
+function dropAddressPills(label) {
+  document.getElementById("recipientsContainer").moveSelectedPills(label.id);
 }
 
 /**

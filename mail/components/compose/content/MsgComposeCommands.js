@@ -5012,6 +5012,39 @@ function pillifyRecipients() {
   }
 }
 
+/**
+ * Command handler: Cut the selected pills.
+ */
+function cutSelectedPillsOnCommand() {
+  document.getElementById("recipientsContainer").cutSelectedPills();
+}
+
+/**
+ * Command handler: Copy the selected pills.
+ */
+function copySelectedPillsOnCommand() {
+  document.getElementById("recipientsContainer").copySelectedPills();
+}
+
+/**
+ * Command handler: Delete the selected pills.
+ */
+function deleteSelectedPillsOnCommand() {
+  document.getElementById("recipientsContainer").removeSelectedPills();
+}
+
+/**
+ * Command handler: Move the selected pills to another address row.
+ *
+ * @param {string} targetRecipientType - The target recipient type,
+ *   e.g. "addr_to".
+ */
+function moveSelectedPillsOnCommand(targetRecipientType) {
+  document
+    .getElementById("recipientsContainer")
+    .moveSelectedPills(targetRecipientType);
+}
+
 function SendMessage() {
   pillifyRecipients();
   let sendInBackground = Services.prefs.getBoolPref(

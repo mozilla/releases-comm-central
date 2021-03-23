@@ -2640,7 +2640,7 @@
             this.clearSelected();
             pill.setAttribute("selected", "selected");
           }
-          this.removeSelectedPills(pill);
+          this.removeSelectedPills();
           return;
         }
 
@@ -2777,7 +2777,7 @@
           // Delete selected pills, handle focus and select another pill
           // where applicable.
           let focusType = event.key == "Delete" ? "next" : "previous";
-          this.removeSelectedPills(pill, focusType, true);
+          this.removeSelectedPills(focusType, true);
           break;
 
         case "ArrowLeft":
@@ -2855,19 +2855,18 @@
           }
           // For non-repeated Ctrl+A, if pills in same container are already
           // selected, select all pills of the entire <mail-recipients-area>.
-          this.selectAllPills(pill);
+          this.selectAllPills();
           break;
 
         case "c":
           if (event.ctrlKey || event.metaKey) {
-            copyEmailNewsAddress(pill);
+            this.copySelectedPills();
           }
           break;
 
         case "x":
           if (event.ctrlKey || event.metaKey) {
-            copyEmailNewsAddress(pill);
-            this.removeSelectedPills(pill);
+            this.cutSelectedPills();
           }
           break;
       }
@@ -2973,25 +2972,44 @@
     }
 
     /**
-     * Move the selected pills email address to another addressing row.
+     * Copy the selected pills to clipboard.
+     */
+    copySelectedPills() {
+      let selectedAddresses = [
+        ...document.getElementById("recipientsContainer").getAllSelectedPills(),
+      ].map(pill => pill.fullAddress);
+
+      let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(
+        Ci.nsIClipboardHelper
+      );
+      clipboard.copyString(selectedAddresses.join(", "));
+    }
+
+    /**
+     * Cut the selected pills to clipboard.
+     */
+    cutSelectedPills() {
+      this.copySelectedPills();
+      this.removeSelectedPills();
+    }
+
+    /**
+     * Move the selected email address pills to another address row.
      *
-     * @param {Element} element - The element from which the context menu was
-     *   opened.
      * @param {string} targetFieldType - The target recipient type,
      *   e.g. "addr_to".
      */
-    moveSelectedPills(element, targetFieldType) {
+    moveSelectedPills(targetFieldType) {
       // Store all the selected addresses inside an array.
       let selectedAddresses = [...this.getAllSelectedPills()].map(
         pill => pill.fullAddress
       );
 
-      // Remove all the selected pills.
-      let pill = element.closest("mail-address-pill");
-      this.removeSelectedPills(pill, "next", false, true);
+      // Remove the selected pills.
+      this.removeSelectedPills("next", false, true);
 
-      // Create new addressing pills inside the target recipient row and maintain
-      // the current selection.
+      // Create new address pills inside the target address row and
+      // maintain the current selection.
       awAddRecipientsArray(targetFieldType, selectedAddresses, true);
 
       // Move focus to the last selected pill.
@@ -3002,21 +3020,26 @@
     /**
      * Delete all selected pills and handle focus and selection smartly as needed.
      *
-     * @param {Element} pill - The mail-address-pill element where Event fired.
      * @param {("next"|"previous")} [focusType="next"] - How to move focus after
      *   removing pills: try to focus one of the next siblings (for DEL etc.)
      *   or one of the previous siblings (for BACKSPACE).
      * @param {boolean} [select=false] - After deletion, whether to select the
      *   focused pill where applicable.
      * @param {boolean} [moved=false] - Whether the method was originally called
-     *   from the moveSelectedPills.
+     *   from moveSelectedPills().
      */
-    removeSelectedPills(
-      pill,
-      focusType = "next",
-      select = false,
-      moved = false
-    ) {
+    removeSelectedPills(focusType = "next", select = false, moved = false) {
+      // Return if no pills selected.
+      let firstSelectedPill = this.querySelector("mail-address-pill[selected]");
+      if (!firstSelectedPill) {
+        return;
+      }
+      // Get the pill which has focus before we start removing selected pills,
+      // which may or may not include the focused pill. If no pill has focus,
+      // consider the first selected pill as focused pill for our purposes.
+      let pill =
+        this.querySelector("mail-address-pill:focus") || firstSelectedPill;
+
       // We'll look hard for an appropriate element to focus after the removal.
       let focusElement = null;
       // Get addressContainer and rowInput now as pill might be deleted later.
@@ -3077,13 +3100,11 @@
     }
 
     /**
-     * Select all the pills from the mail-recipients-area element.
-     *
-     * @param {Element} pill - The focused mail-address-pill element.
+     * Select all the pills of the <mail-recipients-area> element.
      */
-    selectAllPills(pill) {
-      for (let item of this.getAllPills(pill)) {
-        item.setAttribute("selected", "selected");
+    selectAllPills() {
+      for (let pill of this.getAllPills()) {
+        pill.setAttribute("selected", "selected");
       }
     }
 
@@ -3093,8 +3114,8 @@
      * @param {Element} pill - The focused <mail-address-pill> element.
      */
     selectPills(pill) {
-      for (let item of this.getSiblingPills(pill)) {
-        item.setAttribute("selected", "selected");
+      for (let sPill of this.getSiblingPills(pill)) {
+        sPill.setAttribute("selected", "selected");
       }
     }
 

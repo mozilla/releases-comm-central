@@ -359,8 +359,8 @@ function clear_recipients(aController) {
     "mail-address-pill"
   )) {
     pill.toggleAttribute("selected", true);
-    aController.e("recipientsContainer").removeSelectedPills(pill);
   }
+  aController.e("recipientsContainer").removeSelectedPills();
 }
 
 /**
