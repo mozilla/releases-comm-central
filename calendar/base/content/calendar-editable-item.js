@@ -209,9 +209,11 @@
       if (val && !this.mSelected) {
         this.mSelected = true;
         this.setAttribute("selected", "true");
+        this.focus();
       } else if (!val && this.mSelected) {
         this.mSelected = false;
         this.removeAttribute("selected");
+        this.blur();
       }
     }
 
