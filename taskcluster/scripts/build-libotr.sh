@@ -207,6 +207,7 @@ case "${_TARGET_OS}" in
         export DSYMUTIL="${MOZ_FETCHES_DIR}/llvm-dsymutil/llvm-dsymutil"
 
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
+        _GCRYPT_CONF_FLAGS="--disable-asm"
         _CONF_STATIC="--enable-static --disable-shared"
 
         LDFLAGS_otr="-shared"
