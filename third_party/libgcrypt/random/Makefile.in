@@ -396,7 +396,7 @@ jitterentropy-base.c jitterentropy.h jitterentropy-base-user.h
 @ENABLE_O_FLAG_MUNGING_FALSE@o_flag_munging = cat
 
 # The rndjent module needs to be compiled without optimization.  */
-@ENABLE_O_FLAG_MUNGING_TRUE@o_flag_munging = sed -e 's/-O\([1-9s][1-9s]*\)/-O0/g' -e 's/-Ofast/-O0/g'
+@ENABLE_O_FLAG_MUNGING_TRUE@o_flag_munging = sed -e 's/-O\([1-9sg][1-9sg]*\)/-O0/g' -e 's/-Ofast/-O0/g'
 all: all-am
 
 .SUFFIXES:

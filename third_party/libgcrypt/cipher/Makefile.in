@@ -581,7 +581,7 @@ EXTRA_libcipher_la_SOURCES = \
 	blake2b-amd64-avx2.S blake2s-amd64-avx.S
 
 @ENABLE_O_FLAG_MUNGING_FALSE@o_flag_munging = cat
-@ENABLE_O_FLAG_MUNGING_TRUE@o_flag_munging = sed -e 's/-O\([2-9s][2-9s]*\)/-O1/' -e 's/-Ofast/-O1/g'
+@ENABLE_O_FLAG_MUNGING_TRUE@o_flag_munging = sed -e 's/-O\([2-9sg][2-9sg]*\)/-O1/' -e 's/-Ofast/-O1/g'
 @ENABLE_INSTRUMENTATION_MUNGING_FALSE@instrumentation_munging = cat
 
 # We need to disable instrumentation for these modules as they use cc as

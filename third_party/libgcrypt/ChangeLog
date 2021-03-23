@@ -1,3 +1,102 @@
+2021-02-17  Werner Koch  <wk@gnupg.org>
+
+	Release 1.9.2.
+	+ commit 24bd7e8215f7982b0c8db46fd87b47b370a52ec6
+
+
+2021-02-12  NIIBE Yutaka  <gniibe@fsij.org>
+
+	random: Fix build for macOS.
+	+ commit d78cdf42854b17e2216890e7b78f9e7e05c0b1f8
+	* random/rndlinux.c [__APPLE__] (HAVE_GETENTROPY): Valid only when the
+	macro __MAC_10_11 is available.
+
+2021-02-08  Werner Koch  <wk@gnupg.org>
+
+	tests: Fix minor glitches.
+	+ commit 82395f11b444651f544f5e51c62fc6b65c04f9ef
+	* tests/basic.c (ALWAYS_INLINE): Make sure it is defined.
+	* tests/version.c (main): Print the config info to stdout.
+
+	New test Makefile target xtestsuite.
+	+ commit ebc4d5670a1ada54ad907a4836eb8f6f573c2c38
+	* tests/Makefile.am (xtestsuite, xcheck): New targets.
+
+	New test driver to allow for standalone regression tests.
+	+ commit b142da4c88deef4798ef96061dac399df3ddd73d
+	* tests/testdrv.c: New.
+
+2021-02-03  Jussi Kivilinna  <jussi.kivilinna@iki.fi>
+
+	sha256-avx2: fix reading beyond end of input buffer.
+	+ commit 24af2a55d862d45fe3aef6b5626a52d9bb0fb17e
+	* cipher/sha256-avx2-bmi2-amd64.S
+	(_gcry_sha256_transform_amd64_avx2): Use 'last block' code path if
+	input length is only one block.
+	* tests/basic.c (check_one_md_final): Use dynamic allocated buffer
+	so that in future similar access errors get detected by
+	tests/basic + valgrind.
+
+	ecc-ecdh: fix memory leak.
+	+ commit 289543544e41cd5fe90352c5c7548ac09da533cc
+	* cipher/ecc-ecdh.c (_gcry_ecc_mul_point): Free 'ec' at function exit.
+
+	tests: allow running 'make check' with ASAN.
+	+ commit f46a6bd9b3d7ef7d1a72c5b6da5cf34ace2ff156
+	* tests/t-secmem.c (main): Skip test if environment variable
+	GCRYPT_IN_ASAN_TEST is defined.
+	* tests/t-sexp.c (main): Do not initialize secmem if environment
+	variable GCRYPT_IN_ASAN_TEST is defined.
+
+	global: make sure that bulk config string is null-terminated.
+	+ commit 8716e4b2ada21456802aee67c2bc8edfec78f820
+	* src/global.c (_gcry_get_config): Append null-terminator to output
+	in the 'what == NULL' case.
+
+	Add handling for -Og with O-flag munging.
+	+ commit a71b7de32b0c7c41359335a488cfe4dd70c65121
+	* cipher/Makefile.am (o_flag_munging): Add handling for '-Og'.
+	* random/Makefile.am (o_flag_munging): Add handling for '-Og'.
+
+	jent: silence ubsan warning about signed overflow.
+	+ commit 6fc11291282a668839040c72a1d558a6ebbd4972
+	* random/jitterentropy-base.c (jent_stuck): Cast 'delta2' values to
+	'uint64_t' for calculation.
+
+	Fix ubsan warnings for i386 build.
+	+ commit 364e9e9d10503b36f98fbb1b489e00026f22c9d7
+	* mpi/mpicoder.c (_gcry_mpi_set_buffer) [BYTES_PER_MPI_LIMB == 4]: Cast
+	"*p--" values to mpi_limb_t before left shifting.
+	* tests/t-lock.c (main): Cast 'time(NULL)' to unsigned type.
+
+	Fix building with --disable-asm on x86.
+	+ commit af23ab5c5482d625ff52e60606cf044e2b0106c8
+	* cipher/keccak.c (USE_64BIT_BMI2, USE_64BIT_SHLD)
+	(USE_32BIT_BMI2): Depend also on HAVE_CPU_ARCH_X86.
+	* random/rndjent.c [__i386__ || __x86_64__] (USE_JENT): Depend
+	also on HAVE_CPU_ARCH_X86.
+
+	md: clear bctx.count at final function.
+	+ commit cb95fc53003e9f34ff80fc33627ceda605de223c
+	* cipher/md4.c (md4_final): Set bctx.count zero after
+	finalizing.
+	* cipher/md5.c (md5_final): Ditto.
+	* cipher/rmd160.c (rmd160_final): Ditto.
+	* cipher/sha1.c (sha1_final): Ditto.
+	* cipher/sha256.c (sha256_final): Ditto.
+	* cipher/sha512.c (sha512_final): Ditto.
+	* cipher/sm3.c (sm3_final): Ditto.
+	* cipher/stribog.c (stribog_final): Ditto.
+	* cipher/tiger.c (tiger_final): Ditto.
+
+2021-02-02  NIIBE Yutaka  <gniibe@fsij.org>
+
+	ecc: Add checking key for ECDSA.
+	+ commit 598d0f3e0294a487e01b88cc714a8cd0a47329bb
+	* cipher/ecc-ecdsa.c (_gcry_ecc_ecdsa_verify): Validate public key.
+	* cipher/ecc-gost.c (_gcry_ecc_gost_verify): Likewise.
+	* cipher/ecc-sm2.c (_gcry_ecc_sm2_verify): Likewise.
+
 2021-01-29  Werner Koch  <wk@gnupg.org>
 
 	Release 1.9.1.

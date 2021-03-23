@@ -109,8 +109,9 @@ build_triplet = @build@
 host_triplet = @host@
 TESTS = $(am__EXEEXT_1) $(tests_sh) $(am__EXEEXT_2) $(tests_sh_last)
 EXTRA_PROGRAMS = testapi$(EXEEXT) pkbench$(EXEEXT)
-noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) fipsdrv$(EXEEXT) \
-	rsacvt$(EXEEXT) genhashdata$(EXEEXT) gchash$(EXEEXT)
+noinst_PROGRAMS = testdrv$(EXEEXT) $(am__EXEEXT_1) $(am__EXEEXT_2) \
+	fipsdrv$(EXEEXT) rsacvt$(EXEEXT) genhashdata$(EXEEXT) \
+	gchash$(EXEEXT)
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cc_for_build.m4 \
@@ -272,6 +273,9 @@ t_x448_DEPENDENCIES = $(standard_ldadd) $(am__DEPENDENCIES_1)
 testapi_SOURCES = testapi.c
 testapi_OBJECTS = testapi.$(OBJEXT)
 testapi_DEPENDENCIES = $(standard_ldadd)
+testdrv_SOURCES = testdrv.c
+testdrv_OBJECTS = testdrv.$(OBJEXT)
+testdrv_DEPENDENCIES = $(am__DEPENDENCIES_1)
 version_SOURCES = version.c
 version_OBJECTS = version.$(OBJEXT)
 version_LDADD = $(LDADD)
@@ -307,7 +311,8 @@ am__depfiles_remade = ./$(DEPDIR)/aeswrap.Po ./$(DEPDIR)/basic.Po \
 	./$(DEPDIR)/t-mpi-bit.Po ./$(DEPDIR)/t-mpi-point.Po \
 	./$(DEPDIR)/t-secmem.Po ./$(DEPDIR)/t-sexp.Po \
 	./$(DEPDIR)/t-x448.Po ./$(DEPDIR)/t_lock-t-lock.Po \
-	./$(DEPDIR)/testapi.Po ./$(DEPDIR)/version.Po
+	./$(DEPDIR)/testapi.Po ./$(DEPDIR)/testdrv.Po \
+	./$(DEPDIR)/version.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -332,13 +337,15 @@ SOURCES = aeswrap.c basic.c bench-slope.c benchmark.c curves.c \
 	hashtest.c hmac.c keygen.c keygrip.c mpitests.c pkbench.c \
 	pkcs1v2.c prime.c pubkey.c random.c rsacvt.c t-convert.c \
 	t-cv25519.c t-ed25519.c t-ed448.c t-kdf.c t-lock.c t-mpi-bit.c \
-	t-mpi-point.c t-secmem.c t-sexp.c t-x448.c testapi.c version.c
+	t-mpi-point.c t-secmem.c t-sexp.c t-x448.c testapi.c testdrv.c \
+	version.c
 DIST_SOURCES = aeswrap.c basic.c bench-slope.c benchmark.c curves.c \
 	dsa-rfc6979.c fips186-dsa.c fipsdrv.c gchash.c genhashdata.c \
 	hashtest.c hmac.c keygen.c keygrip.c mpitests.c pkbench.c \
 	pkcs1v2.c prime.c pubkey.c random.c rsacvt.c t-convert.c \
 	t-cv25519.c t-ed25519.c t-ed448.c t-kdf.c t-lock.c t-mpi-bit.c \
-	t-mpi-point.c t-secmem.c t-sexp.c t-x448.c testapi.c version.c
+	t-mpi-point.c t-secmem.c t-sexp.c t-x448.c testapi.c testdrv.c \
+	version.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -555,6 +562,10 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+
+# Note: Please keep these tests in sync with those in testdrv.c.
+# We will eventually switch over to the the new driver but as of now
+# the driver is only used for cross-compiling.
 tests_bin = \
         version t-secmem mpitests t-sexp t-convert \
 	t-mpi-bit t-mpi-point curves t-lock \
@@ -577,6 +588,7 @@ standard_ldadd = \
         ../compat/libcompat.la
 
 noinst_HEADERS = t-common.h
+CLEANFILES = testdrv-build
 EXTRA_DIST = README rsa-16k.key cavs_tests.sh cavs_driver.pl \
 	     pkcs1v2-oaep.h pkcs1v2-pss.h pkcs1v2-v15c.h pkcs1v2-v15s.h \
 	     t-ed25519.inp t-ed448.inp stopwatch.h hashtest-256g.in \
@@ -592,6 +604,13 @@ t_secmem_LDADD = $(standard_ldadd) @LDADD_FOR_TESTS_KLUDGE@
 testapi_LDADD = $(standard_ldadd) @LDADD_FOR_TESTS_KLUDGE@
 t_lock_LDADD = $(standard_ldadd) $(GPG_ERROR_MT_LIBS) @LDADD_FOR_TESTS_KLUDGE@
 t_lock_CFLAGS = $(GPG_ERROR_MT_CFLAGS)
+testdrv_LDADD = $(LDADD_FOR_TESTS_KLUDGE)
+@HAVE_W32_SYSTEM_FALSE@xtestsuite_libs = ../src/.libs/libgcrypt.so*
+@HAVE_W32_SYSTEM_TRUE@xtestsuite_libs = ../src/.libs/libgcrypt-20.dll \
+@HAVE_W32_SYSTEM_TRUE@                  $(prefix)/bin/libgpg-error*-0.dll
+
+@HAVE_W32_SYSTEM_FALSE@xtestsuite_driver = testdrv
+@HAVE_W32_SYSTEM_TRUE@xtestsuite_driver = .libs/testdrv.exe
 all: all-am
 
 .SUFFIXES:
@@ -771,6 +790,10 @@ testapi$(EXEEXT): $(testapi_OBJECTS) $(testapi_DEPENDENCIES) $(EXTRA_testapi_DEP
 	@rm -f testapi$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(testapi_OBJECTS) $(testapi_LDADD) $(LIBS)
 
+testdrv$(EXEEXT): $(testdrv_OBJECTS) $(testdrv_DEPENDENCIES) $(EXTRA_testdrv_DEPENDENCIES) 
+	@rm -f testdrv$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(testdrv_OBJECTS) $(testdrv_LDADD) $(LIBS)
+
 version$(EXEEXT): $(version_OBJECTS) $(version_DEPENDENCIES) $(EXTRA_version_DEPENDENCIES) 
 	@rm -f version$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(version_OBJECTS) $(version_LDADD) $(LIBS)
@@ -814,6 +837,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t-x448.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/t_lock-t-lock.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testapi.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testdrv.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/version.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -1068,6 +1092,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
@@ -1115,6 +1140,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/t-x448.Po
 	-rm -f ./$(DEPDIR)/t_lock-t-lock.Po
 	-rm -f ./$(DEPDIR)/testapi.Po
+	-rm -f ./$(DEPDIR)/testdrv.Po
 	-rm -f ./$(DEPDIR)/version.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -1194,6 +1220,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/t-x448.Po
 	-rm -f ./$(DEPDIR)/t_lock-t-lock.Po
 	-rm -f ./$(DEPDIR)/testapi.Po
+	-rm -f ./$(DEPDIR)/testdrv.Po
 	-rm -f ./$(DEPDIR)/version.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
@@ -1235,6 +1262,31 @@ uninstall-am:
 # Force sequential run of some tests.
 bench-slope.log:    benchmark.log
 hashtest-256g.log:  bench-slope.log
+
+# Build a version of the test driver for the build platform.
+testdrv-build: testdrv.c
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) \
+	  $(CPPFLAGS_FOR_BUILD) -DTESTDRV_EXEEXT=\"$(EXEEXT)\" \
+          -o $@ $(srcdir)/testdrv.c
+
+# xcheck uses our new testdrv instead of the automake test runner.
+.PHONY: xcheck xtestsuite
+xcheck: testdrv$(EXEEXT)
+	srcdir=$(srcdir) ./testdrv$(EXEEXT) --verbose
+
+# Make a tarballs with all the tests.
+xtestsuite: testdrv$(EXEEXT) testdrv-build $(TESTS)
+	+(set -e; \
+         name="$(PACKAGE_TARNAME)-tests-$(PACKAGE_VERSION)";\
+	 xname="$$name/$(host)" ;\
+	 rm -rf $$name; mkdir $$name ; mkdir $$xname ;\
+	 cp -L $(xtestsuite_driver) \
+           $$(srcdir=$(srcdir) ./testdrv-build --files|sort|uniq) $$xname/ ;\
+         cp -P $(xtestsuite_libs) $$xname/ ;\
+	 touch $$xname/libgcrypt-standalone-tests ;\
+         $(AMTAR) czf "$(PACKAGE_TARNAME)-tests-$(PACKAGE_VERSION)".tar.gz \
+             $$name ;\
+	 )
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -1,7 +1,7 @@
-Directory ./libgcrypt contains a copy of version 1.9.0 of the libgcrypt library,
+Directory ./libgcrypt contains a copy of version 1.9.2 of the libgcrypt library,
 which has been obtained from https://www.gnupg.org/ftp/gcrypt/libgcrypt/ .
 
 For licensing information, please refer to the included documentation.
 
 The SHA256SUM of the imported file is:
-5cf9313eb8ab5101e505f35dc0f3932b30a30e4b142cac06d2e1a6eb7cb3732a  libgcrypt-1.9.1.tar.gz
+b2c10d091513b271e47177274607b1ffba3d95b188bbfa8797f948aec9053c5a  libgcrypt-1.9.2.tar.bz2
