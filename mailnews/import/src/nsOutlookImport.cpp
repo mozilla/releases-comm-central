@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
-  Outlook Express (Win32) import mail and addressbook interfaces
+  Outlook (Win32) import mail and addressbook interfaces
 */
 #include "nscore.h"
 #include "nsString.h"

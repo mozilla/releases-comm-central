@@ -49,12 +49,10 @@ interface nsIImportAddressBooks : nsISupports {
   boolean GetSupportsMultiple();
 
   /**
-   * If the address book is not found via a file location.then return true
+   * If the address book is not found via a file location, then return true
    * along with a description string of how or where the address book is
-   * located.  If it is a file location then return false.
-   * If true, return a string like: "Outlook Express standard address book,
-   * also known as the Windows address book" or just "Outlook Express address
-   * book".
+   * located. If it is a file location then return false.
+   * If true, return a string like: "Outlook address book".
    * If false, GetDefaultLocation will be called.
    */
   boolean GetAutoFind(out wstring description);
