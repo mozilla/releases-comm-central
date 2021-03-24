@@ -426,6 +426,10 @@
           return;
         }
 
+        if (!event.originalTarget.classList.contains("tabs-closebutton")) {
+          return;
+        }
+
         let tabbedBrowser = document.getElementById("tabmail");
         if (this.localName == "tab") {
           // The only sequence in which a second click event (i.e. dblclik)
@@ -482,6 +486,12 @@
 
           // Stop propagating for the one-close-button case.
           event.stopPropagation();
+
+          // Prevent default only if the double click happened on the close
+          // button. This is to prevent accidental toggle of full size window.
+          if (event.originalTarget.classList.contains("tabs-closebutton")) {
+            event.preventDefault();
+          }
         },
         true
       );
