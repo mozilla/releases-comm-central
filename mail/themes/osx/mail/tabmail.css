@@ -94,18 +94,6 @@ tabmail > tabbox > tabpanels {
 }
 
 /**
- * Tabstrip close button
- */
-
-.tabs-closebutton {
-  margin-top: 1px;
-}
-
-.tabs-closebutton:hover > .toolbarbutton-icon {
-  background-image: none !important;
-}
-
-/**
  * Tab Scrollbox Arrow Buttons
  */
 

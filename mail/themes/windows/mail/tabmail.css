@@ -46,19 +46,6 @@ tabpanels {
 }
 
 /**
- * close buttons
- */
-
-.tabs-closebutton-box > .tabs-closebutton {
-  margin-top: 1px;
-  padding: 0 2px;
-}
-
-.tabs-closebutton:focus {
-  outline: none !important;
-}
-
-/**
  * Tab Scrollbox Arrow Buttons
  */
 
