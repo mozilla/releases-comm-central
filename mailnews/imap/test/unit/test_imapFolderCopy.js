@@ -11,9 +11,6 @@ load("../../../resources/MessageGenerator.jsm");
 
 var gEmptyLocal1, gEmptyLocal2, gEmptyLocal3, gNotEmptyLocal4;
 
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

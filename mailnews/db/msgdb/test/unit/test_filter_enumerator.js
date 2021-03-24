@@ -1,10 +1,6 @@
 /* import-globals-from ../../../../test/resources/MessageGenerator.jsm */
 load("../../../../resources/MessageGenerator.jsm");
 
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
-
 var gMessages = [];
 
 const kSetCount = 13;
@@ -86,15 +82,15 @@ function run_test() {
   searchTerm.value = value;
   searchTerms.push(searchTerm);
 
-  let filterEnumerator = inboxDB.getFilterEnumerator(searchTerms);
-  let matchingHdrs = Array.from(fixIterator(filterEnumerator, Ci.nsIMsgDBHdr));
+  let msgEnumerator = inboxDB.getFilterEnumerator(searchTerms);
+  let matchingHdrs = [...msgEnumerator];
   Assert.equal(kNumExpectedMatches, matchingHdrs.length);
   Assert.equal(matchingHdrs[0].messageId, gMessages[1].messageId);
   Assert.equal(matchingHdrs[1].messageId, gMessages[3].messageId);
 
   // try it backwards, with roller skates:
-  filterEnumerator = inboxDB.getFilterEnumerator(searchTerms, true);
-  matchingHdrs = Array.from(fixIterator(filterEnumerator, Ci.nsIMsgDBHdr));
+  msgEnumerator = inboxDB.getFilterEnumerator(searchTerms, true);
+  matchingHdrs = [...msgEnumerator];
   Assert.equal(kNumExpectedMatches, matchingHdrs.length);
   Assert.equal(matchingHdrs[0].messageId, gMessages[12].messageId);
   Assert.equal(matchingHdrs[1].messageId, gMessages[11].messageId);

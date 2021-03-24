@@ -8,11 +8,6 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailServices.jsm"
 );
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
-ChromeUtils.defineModuleGetter(
-  this,
-  "toXPCOMArray",
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["File", "FileReader"]);

@@ -28,9 +28,6 @@ var { MailServices } = ChromeUtils.import(
 var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 document.addEventListener("dialogaccept", onOK);

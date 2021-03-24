@@ -5,10 +5,6 @@
 
 /* import-globals-from dateFormat.js */
 
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
-
 var MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
 var MICROSECONDS_PER_DAY = 1000 * MILLISECONDS_PER_HOUR * 24;
 
@@ -114,8 +110,8 @@ function markInDatabase(lower, upper) {
     searchTerms.push(searchTerm);
   }
 
-  let filterEnumerator = messageDatabase.getFilterEnumerator(searchTerms);
-  let headers = Array.from(fixIterator(filterEnumerator, Ci.nsIMsgDBHdr));
+  let msgEnumerator = messageDatabase.getFilterEnumerator(searchTerms);
+  let headers = [...msgEnumerator];
 
   if (headers.length) {
     messageFolder.markMessagesRead(headers, true);

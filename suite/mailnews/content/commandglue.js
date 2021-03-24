@@ -8,8 +8,7 @@
  * Command-specific code. This stuff should be called by the widgets
  */
  
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 
 //NOTE: gMessengerBundle and gBrandBundle must be defined and set

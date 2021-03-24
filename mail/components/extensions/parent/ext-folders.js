@@ -7,16 +7,6 @@ ChromeUtils.defineModuleGetter(
   "MailServices",
   "resource:///modules/MailServices.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "fixIterator",
-  "resource:///modules/iteratorUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "toXPCOMArray",
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 this.folders = class extends ExtensionAPI {
   getAPI(context) {

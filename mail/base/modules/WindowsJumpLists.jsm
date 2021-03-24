@@ -9,9 +9,6 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 // Prefs
 var PREF_TASKBAR_BRANCH = "mail.taskbar.lists.";
@@ -156,10 +153,12 @@ var WinTaskbarJumpList = {
 
   _buildTasks() {
     if (this._tasks.length > 0) {
-      let items = toXPCOMArray(
-        this._tasks.map(task => this._createHandlerAppItem(task)),
-        Ci.nsIMutableArray
-      );
+      var items = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+      for (let item of this._tasks.map(task =>
+        this._createHandlerAppItem(task)
+      )) {
+        items.appendElement(item);
+      }
       this._builder.addListToBuild(
         this._builder.JUMPLIST_CATEGORY_TASKS,
         items

@@ -14,9 +14,6 @@
 
 const EXPORTED_SYMBOLS = ["GlodaMsgIndexer"];
 
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -37,6 +34,9 @@ const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
 );
 const { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
+);
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
 );
 
 // Cr does not have mailnews error codes!
@@ -1421,10 +1421,7 @@ var GlodaMsgIndexer = {
     if (glodaFolder.dirtyStatus == glodaFolder.kFolderFilthy) {
       this._indexerGetEnumerator(this.kEnumIndexedMsgs, true);
       let count = 0;
-      for (let msgHdr of fixIterator(
-        this._indexingEnumerator,
-        Ci.nsIMsgDBHdr
-      )) {
+      for (let msgHdr of this._indexingEnumerator) {
         // we still need to avoid locking up the UI, pause periodically...
         if (++count % HEADER_CHECK_SYNC_BLOCK_SIZE == 0) {
           yield this.kWorkSync;
@@ -1462,7 +1459,7 @@ var GlodaMsgIndexer = {
 
     let numMessagesToIndex = 0;
     // eslint-disable-next-line no-unused-vars
-    for (let ignore of fixIterator(this._indexingEnumerator, Ci.nsIMsgDBHdr)) {
+    for (let ignore of this._indexingEnumerator) {
       // We're only counting, so do bigger chunks on this pass.
       ++numMessagesToIndex;
       if (numMessagesToIndex % (HEADER_CHECK_SYNC_BLOCK_SIZE * 8) == 0) {
@@ -1478,10 +1475,7 @@ var GlodaMsgIndexer = {
 
       // Pass 2: index the messages.
       let count = 0;
-      for (let msgHdr of fixIterator(
-        this._indexingEnumerator,
-        Ci.nsIMsgDBHdr
-      )) {
+      for (let msgHdr of this._indexingEnumerator) {
         // per above, we want to periodically release control while doing all
         // this header traversal/investigation.
         if (++count % HEADER_CHECK_SYNC_BLOCK_SIZE == 0) {

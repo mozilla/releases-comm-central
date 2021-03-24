@@ -34,7 +34,7 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var { allAccountsSorted } = ChromeUtils.import(
   "resource:///modules/folderUtils.jsm"
 );
-var { fixIterator, toArray } = ChromeUtils.import(
+var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
 var { MailServices } = ChromeUtils.import(
@@ -2438,7 +2438,7 @@ function attachToCloudNew(aAccount) {
       return;
     }
 
-    let files = Array.from(fixIterator(fp.files, Ci.nsIFile));
+    let files = [...fp.files];
     let attachments = files.map(f => FileToAttachment(f));
 
     let i = 0;
@@ -5994,7 +5994,7 @@ function AttachFile() {
     let file;
     let attachments = [];
 
-    for (file of fixIterator(fp.files, Ci.nsIFile)) {
+    for (file of [...fp.files]) {
       attachments.push(FileToAttachment(file));
     }
 

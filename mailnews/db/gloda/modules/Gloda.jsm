@@ -29,10 +29,6 @@ const { GlodaQueryClassFactory } = ChromeUtils.import(
 const { GlodaUtils } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaUtils.jsm"
 );
-
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -259,8 +255,7 @@ var Gloda = {
    *  in your listener's onQueryCompleted method; no results will be present in
    *  the collection when this method returns.)
    *
-   * @param aHeaders A javascript Array or and XPCOM list that fixIterator can
-   *     can handle.
+   * @param aHeaders An array of headers
    * @param aListener The listener that should be registered with the collection
    * @param aData The (optional) value to set as the data attribute on the
    *     collection.
@@ -272,7 +267,7 @@ var Gloda = {
   getMessageCollectionForHeaders(aHeaders, aListener, aData) {
     // group the headers by the folder they are found in
     let headersByFolder = {};
-    for (let header of fixIterator(aHeaders)) {
+    for (let header of aHeaders) {
       let folderURI = header.folder.URI;
       let headersForFolder = headersByFolder[folderURI];
       if (headersForFolder === undefined) {

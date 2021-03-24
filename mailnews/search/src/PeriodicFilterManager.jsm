@@ -15,9 +15,6 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 const log = console.createInstance({
   prefix: "mail.periodicfilters",
@@ -143,7 +140,7 @@ var PeriodicFilterManager = {
       );
       MailServices.filters.applyFiltersToFolders(
         tempFilterList,
-        [...fixIterator(foldersToFilter, Ci.nsIMsgFolder)],
+        foldersToFilter,
         null
       );
     }

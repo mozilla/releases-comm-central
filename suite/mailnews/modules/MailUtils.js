@@ -4,8 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
-const {fixIterator} = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
  * This module has several utility functions for use by both core and

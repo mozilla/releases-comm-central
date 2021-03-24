@@ -12,9 +12,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 // Only load these files if we're an XPCShell test. This file is also included by
 // MozMill tests (mail/test/mozmill/shared-modules/test-folder-display-helpers.js).

@@ -11,9 +11,6 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { GlodaIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 // Create some folders and populate them.
 add_task(async function setup() {

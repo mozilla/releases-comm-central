@@ -24,11 +24,6 @@ ChromeUtils.defineModuleGetter(
 );
 ChromeUtils.defineModuleGetter(
   this,
-  "toXPCOMArray",
-  "resource:///modules/iteratorUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
   "NetUtil",
   "resource://gre/modules/NetUtil.jsm"
 );

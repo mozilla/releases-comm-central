@@ -12,9 +12,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 var VirtualFolderHelper = {
   /**
@@ -135,16 +132,14 @@ VirtualFolderWrapper.prototype = {
   /**
    * Set the search folders that back this virtual folder.
    *
-   * @param aFolders Either a "|"-delimited string of folder URIs or a list of
-   *     nsIMsgFolders that fixIterator can traverse (JS array/nsIMutableArray).
+   * @param {string|nsIMsgFolder[]} - aFolders Either a "|"-delimited string of
+   *   folder URIs or a list of folders
    */
   set searchFolders(aFolders) {
     if (typeof aFolders == "string") {
       this.dbFolderInfo.setCharProperty("searchFolderUri", aFolders);
     } else {
-      let uris = Array.from(fixIterator(aFolders, Ci.nsIMsgFolder)).map(
-        folder => folder.URI
-      );
+      let uris = aFolders.map(folder => folder.URI);
       this.dbFolderInfo.setCharProperty("searchFolderUri", uris.join("|"));
     }
   },
@@ -184,13 +179,12 @@ VirtualFolderWrapper.prototype = {
    *  a strinigified version of the search constraint, just set |searchString|
    *  directly.
    *
-   * @param aTerms Some collection that fixIterator can traverse.  A JS list or
-   *     XPCOM array (nsIMutableArray) should work.
+   * @param {string[]} aTerms - a list of search terms
    */
   set searchTerms(aTerms) {
     let condition = "";
     for (let term of aTerms) {
-      if (condition.length) {
+      if (condition) {
         condition += " ";
       }
       if (term.matchAll) {

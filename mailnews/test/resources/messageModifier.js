@@ -7,9 +7,6 @@
  *  for testing purposes.
  */
 
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -213,12 +210,13 @@ SyntheticMessageSet.prototype = {
     }
 
     let str = aIsJunk ? "junk" : "notjunk";
-    MailServices.mfn.notifyItemEvent(
-      toXPCOMArray(msgHdrs, Ci.nsIMutableArray),
-      "JunkStatusChanged",
-      null,
-      str
+    let msgHdrsMA = Cc["@mozilla.org/array;1"].createInstance(
+      Ci.nsIMutableArray
     );
+    for (let hdr of msgHdrs) {
+      msgHdrsMA.appendElement(hdr);
+    }
+    MailServices.mfn.notifyItemEvent(msgHdrsMA, "JunkStatusChanged", null, str);
   },
 
   /**

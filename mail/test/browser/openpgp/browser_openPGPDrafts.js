@@ -25,9 +25,6 @@ const { FileUtils } = ChromeUtils.import(
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 function waitForComposeWindow() {
   return BrowserTestUtils.domWindowOpened(null, async win => {

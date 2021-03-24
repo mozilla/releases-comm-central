@@ -6,10 +6,6 @@
 /* import-globals-from ../../../test/resources/MessageGenerator.jsm */
 load("../../../resources/MessageGenerator.jsm");
 
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
-
 /**
  * Bug 66763
  * Test deletion of a folder with a name already existing in Trash.

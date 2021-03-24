@@ -10,6 +10,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
+var { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 var kUploadNotificationValue = "bigAttachmentUploading";
 var kPrivacyWarningNotificationValue = "bigAttachmentPrivacyWarning";

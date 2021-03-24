@@ -7,9 +7,6 @@
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 add_task(async function setup() {
   Services.prefs.setIntPref("ldap_2.servers.osx.dirType", -1);

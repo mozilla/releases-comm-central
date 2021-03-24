@@ -13,9 +13,6 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 function registerFolderEventLogHelper() {
   // Bail if there's no one on the other end who cares about our very

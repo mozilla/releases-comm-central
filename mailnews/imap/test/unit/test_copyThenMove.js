@@ -19,10 +19,6 @@ var gLastKey;
 var gMessages = [];
 var gCopyService = MailServices.copy;
 
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
-
 var tests = [
   setup,
   function* copyFolder1() {

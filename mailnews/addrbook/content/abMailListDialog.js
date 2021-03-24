@@ -12,9 +12,6 @@ var { MailServices } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 top.MAX_RECIPIENTS = 1;
 var inputElementType = "";

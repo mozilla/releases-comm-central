@@ -6,12 +6,13 @@
 /* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
 
 // This file is loaded in messenger.xhtml.
-/* globals fixIterator, MailToolboxCustomizeDone, openIMAccountMgr,
-   PROTO_TREE_VIEW, Services, Status, statusSelector, ZoomManager */
+/* globals MailToolboxCustomizeDone, openIMAccountMgr,
+   PROTO_TREE_VIEW, Status, statusSelector, ZoomManager */
 
 var { Notifications } = ChromeUtils.import(
   "resource:///modules/chatNotifications.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { Services: imServices } = ChromeUtils.import(
   "resource:///modules/imServices.jsm"
 );

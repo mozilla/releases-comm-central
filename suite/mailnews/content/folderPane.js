@@ -4,8 +4,6 @@
 
 var { folderUtils } =
   ChromeUtils.import("resource:///modules/folderUtils.jsm");
-var { iteratorUtils } =
-  ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var { Services } =
   ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -248,8 +246,7 @@ var gFolderTreeController = {
     }
 
     // Now delete the messages.
-    let messages = Array.from(fixIterator(folder.messages));
-    folder.deleteMessages(messages, msgWindow, true, false, null, false);
+    folder.deleteMessages([...folder.messages], msgWindow, true, false, null, false);
   },
 
   /**

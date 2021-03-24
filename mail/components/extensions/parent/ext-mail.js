@@ -20,7 +20,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
-  fixIterator: "resource:///modules/iteratorUtils.jsm",
 });
 
 XPCOMUtils.defineLazyPreferenceGetter(

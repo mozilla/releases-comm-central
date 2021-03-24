@@ -7,7 +7,6 @@ module.exports = {
       globals: {
         AppConstants: true,
         chatHandler: true,
-        fixIterator: true,
         gChatTab: true,
         Services: true,
 

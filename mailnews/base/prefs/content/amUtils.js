@@ -10,9 +10,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 function BrowseForLocalFolders() {
   const nsIFilePicker = Ci.nsIFilePicker;

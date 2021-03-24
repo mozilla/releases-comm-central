@@ -7,9 +7,6 @@
 /* import-globals-from ../../content/retention.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 var gIncomingServer;
 var gServerType;

@@ -8,7 +8,6 @@
 
 /* global MozElements, addMenuItem */
 
-var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -56,7 +55,7 @@ function ltnInitMailIdentitiesRow(aCalendar) {
   addMenuItem(menuPopup, cal.l10n.getLtnString("imipNoIdentity"), "none");
   let identities;
   if (aCalendar && aCalendar.aclEntry && aCalendar.aclEntry.hasAccessControl) {
-    identities = [...fixIterator(aCalendar.aclEntry.getOwnerIdentities(), Ci.nsIMsgIdentity)];
+    identities = aCalendar.aclEntry.getOwnerIdentities();
   } else {
     identities = MailServices.accounts.allIdentities;
   }
