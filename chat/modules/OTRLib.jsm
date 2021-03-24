@@ -49,6 +49,7 @@ function getDistributionFullPath() {
 
 function tryLoadOTR(filename, info) {
   console.debug(`Trying to load ${filename}${info}`);
+  libotrPath = filename;
 
   try {
     libotr = ctypes.open(filename);
