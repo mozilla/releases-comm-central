@@ -209,7 +209,7 @@ add_task(async function createInvitationOverlay_test() {
       input: { description: "DESCRIPTION:Let's see if +/- still can be displayed.\r\n" },
       expected: {
         node: "imipHtml-description-content",
-        value: "Let's see if ± still can be displayed.",
+        value: "Let's see if +/- still can be displayed.",
       },
     },
     {
@@ -234,9 +234,7 @@ add_task(async function createInvitationOverlay_test() {
       input: { description: "DESCRIPTION:It's up to you ;-)\r\n" },
       expected: {
         node: "imipHtml-description-content",
-        value:
-          'It\'s up to you <span xmlns="http://www.w3.org/1999/xhtml" class="moz-smile' +
-          'y-s3" title=";-)"><span>;-)</span></span>',
+        value: "It's up to you ;-)",
       },
     },
     {
@@ -270,7 +268,7 @@ add_task(async function createInvitationOverlay_test() {
       expected: {
         node: "imipHtml-description-content",
         value:
-          'Check <a xmlns="http://www.w3.org/1999/xhtml" href="http://example.com">example.com</a>\u00A0\u00A0\u2014 only 3 €',
+          'Check <a xmlns="http://www.w3.org/1999/xhtml" href="http://example.com">example.com</a>  \u2014 only 3 €',
       },
     },
     {
@@ -573,6 +571,8 @@ add_task(async function compareInvitationOverlay_test() {
   // make sure that the Europe/Berlin timezone and long datetime format is set
   // and to use the app locale to avoid test failures when running locally on
   // an OS with a regional setting other than en-US
+  // XXX: doesn't work if your OS is in English but not US English.
+  // Work around it by `export LC_TIME=en_US.UTF-8` before running the test.
   let dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
   let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Europe/Berlin");
   let useOsLocale = Services.prefs.getBoolPref("intl.regional_prefs.use_os_locales", false);

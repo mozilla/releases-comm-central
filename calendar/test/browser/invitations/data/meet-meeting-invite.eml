@@ -1,0 +1,384 @@
+Sender: Google Kalender <calendar-notification@google.com>
+Message-ID: <0000000000008c6d7005be1c767c@google.com>
+Date: Mon, 22 Mar 2021 09:12:20 +0000
+Subject: Meet invite (HTML)
+From: example@gmail.com
+To: homer@example.com
+Content-Type: multipart/mixed; boundary="0000000000008c6d6205be1c767e"
+Return-Path: example@gmail.com
+MIME-Version: 1.0
+
+--0000000000008c6d6205be1c767e
+Content-Type: multipart/alternative; boundary="0000000000008c6d6005be1c767c"
+
+--0000000000008c6d6005be1c767c
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Transfer-Encoding: base64
+
+RHUgaGFyIGJsaXZpdCBpbmJqdWRlbiB0aWxsIGbDtmxqYW5kZSBow6RuZGVsc2UuCgpUaXRlbDog
+TWVlZWVldCBtZSBIVE1MClRoaXMgaXMgYSB0ZXN0LiBCb2xkLiBJdGFsaWMuJm5ic3A7V2lsbCBk
+aXNjdXNzIGFkZHJlc3MgZm9yIGVtYWlsICAKJmx0O2Zvb0BleGFtcGxlLmNvbSZndDsgYW5kIGh0
+dHA6Ly9leGFtcGxlLmNvbT9mb289YmFyLgpOw6RyOiBtw6VuIGRlbiAyMiBtYXJzIDIwMjEgMTE6
+MzBhbSDigJMgMTI6MzBwbSDDlnN0ZXVyb3BlaXNrIHRpZCAtIEhlbHNpbmdmb3JzCgpBbnNsdXRu
+aW5nc2luZm86IEFuc2x1dCB0aWxsIEdvb2dsZSBNZWV0Cmh0dHBzOi8vbWVldC5nb29nbGUuY29t
+L3B5Yi1uZGN1LWhoYz9ocz0yMjQKCkthbGVuZGVyOiBob21lckBleGFtcGxlLmNvbQpWZW06CiAg
+ICAgKiBleGFtcGxlQGdtYWlsLmNvbeKAkyBvcmdhbmlzYXTDtnIKICAgICAqIGhvbWVyQGV4YW1w
+bGUuY29tCgpJbmZvcm1hdGlvbiBvbSBow6RuZGVsc2VuOiAgCmh0dHBzOi8vY2FsZW5kYXIuZ29v
+Z2xlLmNvbS9jYWxlbmRhci9ldmVudD9hY3Rpb249VklFVyZlaWQ9TmpWdE1UZG9jMlJ2YkcxdmRI
+WXphM1p0Y25Sbk5EQnZiblFnYldGbmJuVnpMbTFsYkdsdVFHaDFkQzVtYVEmdG9rPU1qRWpZbVZ5
+ZEdGMGFHVmliM1JBWjIxaGFXd3VZMjl0WlRnMk5HRmpZbU5qWVdFMU1qVmxaV0ptWTJVelltUm1N
+REF5TldVME1Ea3pOREF4WmpSaFpnJmN0ej1FdXJvcGUlMkZIZWxzaW5raSZobD1zdiZlcz0wCgpJ
+bmJqdWRhbiBmcsOlbiBHb29nbGUgS2FsZW5kZXI6IGh0dHBzOi8vY2FsZW5kYXIuZ29vZ2xlLmNv
+bS9jYWxlbmRhci8KCkRldHRhIGUtcG9zdG1lZGRlbGFuZGUgaGFyIHNraWNrYXRzIHRpbGwga29u
+dG90IGhvbWVyQGV4YW1wbGUuY29tICAKZWZ0ZXJzb20gZHUgw6RyIGRlbHRhZ2FyZSB2aWQgZGVu
+bmEgaMOkbmRlbHNlLgoKT20gZHUgaW50ZSB2aWxsIGbDpSB1cHBkYXRlcmluZ2FyIG9tIGRlbm5h
+IGjDpG5kZWxzZSBpIGZyYW10aWRlbiBrYW4gZHUgdGFja2EgIApuZWogdGlsbCBkZW5uYSBow6Ru
+ZGVsc2UuIER1IGthbiDDpHZlbiByZWdpc3RyZXJhIGRpZyBmw7ZyIGF0dCBmw6UgZXR0ICAKR29v
+Z2xlLWtvbnRvIHDDpSBodHRwczovL2NhbGVuZGFyLmdvb2dsZS5jb20vY2FsZW5kYXIvIG9jaCBr
+b250cm9sbGVyYSAgCmF2aXNlcmluZ3NpbnN0w6RsbG5pbmdhcm5hIGbDtnIgaGVsYSBrYWxlbmRl
+cm4uCgpPbSBkdSB2aWRhcmViZWZvcmRyYXIgZGVuIGjDpHIgaW5ianVkYW4ga2FuIGRldCBnw7Zy
+YSBkZXQgbcO2amxpZ3QgZsO2ciBhbGxhICAKbW90dGFnYXJlIGF0dCBza2lja2EgZXR0IHN2YXIg
+dGlsbCBvcmdhbmlzYXTDtnJlbiBvY2ggbMOkZ2dhcyB0aWxsIHDDpSAgCmfDpHN0bGlzdGFuLCBi
+anVkYSBpbiBhbmRyYSBvYXZzZXR0IGRlcmFzIGVnZW4gaW5ianVkbmluZ3NzdGF0dXMgZWxsZXIg
+IAptb2RpZmllcmEgZGl0dCBPU0EuIEzDpHMgbWVyIHDDpSAgCmh0dHBzOi8vc3VwcG9ydC5nb29n
+bGUuY29tL2NhbGVuZGFyL2Fuc3dlci8zNzEzNSNmb3J3YXJkaW5nCg==
+--0000000000008c6d6005be1c767c
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf-8">
+</head>
+<body>
+<span itemscope=3D"" itemtype=3D"http://schema.org/InformAction"><span styl=
+e=3D"display:none" itemprop=3D"about" itemscope=3D"" itemtype=3D"http://sch=
+ema.org/Person">
+<meta itemprop=3D"description" content=3D"Inbjudan fr=C3=A5n example@gm=
+ail.com">
+</span><span itemprop=3D"object" itemscope=3D"" itemtype=3D"http://schema.o=
+rg/Event">
+<div style=3D"">
+<table cellspacing=3D"0" cellpadding=3D"8" border=3D"0" summary=3D"" style=
+=3D"width:100%;font-family:Arial,Sans-serif;border:1px Solid #ccc;border-wi=
+dth:1px 2px 2px 1px;background-color:#fff;">
+<tbody>
+<tr>
+<td>
+<meta itemprop=3D"eventStatus" content=3D"http://schema.org/EventScheduled"=
+>
+<h4 style=3D"padding:6px 0;margin:0 0 4px 0;font-family:Arial,Sans-serif;fo=
+nt-size:13px;line-height:1.4;border:1px Solid #fff;background:#fff;color:#0=
+90;font-weight:normal">
+<strong>Du har blivit inbjuden till f=C3=B6ljande h=C3=A4ndelse.</strong></=
+h4>
+<div style=3D"padding:2px"><span itemprop=3D"publisher" itemscope=3D"" item=
+type=3D"http://schema.org/Organization">
+<meta itemprop=3D"name" content=3D"Google Calendar">
+</span>
+<meta itemprop=3D"eventId/googleCalendar" content=3D"65m17hsdolmotv3kvmrtg4=
+0ont">
+<h3 style=3D"padding:0 0 6px 0;margin:0;font-family:Arial,Sans-serif;font-s=
+ize:16px;font-weight:bold;color:#222">
+<span itemprop=3D"name">Meeeeet me HTML</span></h3>
+<table style=3D"display:inline-table" cellpadding=3D"0" cellspacing=3D"0" b=
+order=3D"0" summary=3D"Uppgifter om h=C3=A4ndelse">
+<tbody>
+<tr>
+<td style=3D"padding:0 1em 10px 0;font-family:Arial,Sans-serif;font-size:13=
+px;color:#888;white-space:nowrap;width:90px" valign=3D"top">
+<div><i style=3D"font-style:normal">N=C3=A4r</i></div>
+</td>
+<td style=3D"padding-bottom:10px;font-family:Arial,Sans-serif;font-size:13p=
+x;color:#222" valign=3D"top">
+<div style=3D"text-indent:-1px"><time itemprop=3D"startDate" datetime=3D"20=
+210322T093000Z"></time><time itemprop=3D"endDate" datetime=3D"20210322T1030=
+00Z"></time>m=C3=A5n den 22 mars 2021 11:30am =E2=80=93 12:30pm
+<span style=3D"color:#888">=C3=96steuropeisk tid - Helsingfors</span></div>
+</td>
+</tr>
+<tr>
+<td style=3D"padding:0 1em 4px 0;font-family:Arial,Sans-serif;font-size:13p=
+x;color:#888;white-space:nowrap;width:90px" valign=3D"top">
+<div><i style=3D"font-style:normal">Anslutningsinfo</i></div>
+</td>
+<td style=3D"padding-bottom:4px;font-family:Arial,Sans-serif;font-size:13px=
+;color:#222" valign=3D"top">
+<div style=3D"text-indent:-1px">Anslut till Google Meet</div>
+</td>
+</tr>
+<tr>
+<td style=3D"padding:0 1em 10px 0;font-family:Arial,Sans-serif;font-size:13=
+px;color:#888;white-space:nowrap;width:90px">
+</td>
+<td style=3D"padding-bottom:10px;font-family:Arial,Sans-serif;font-size:13p=
+x;color:#222" valign=3D"top">
+<div style=3D"text-indent:-1px">
+<div style=3D"text-indent:-1px"><span itemprop=3D"potentialaction" itemscop=
+e=3D"" itemtype=3D"http://schema.org/JoinAction"><span itemprop=3D"name" co=
+ntent=3D"meet.google.com/pyb-ndcu-hhc"><span itemprop=3D"target" itemscope=
+=3D"" itemtype=3D"http://schema.org/EntryPoint"><span itemprop=3D"url" cont=
+ent=3D"https://meet.google.com/pyb-ndcu-hhc?hs=3D224"><span itemprop=3D"htt=
+pMethod" content=3D"GET"><a href=3D"https://meet.google.com/pyb-ndcu-hhc?hs=
+=3D224" style=3D"color:#20c;white-space:nowrap" target=3D"_blank">meet.goog=
+le.com/pyb-ndcu-hhc</a></span></span></span></span></span>
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td style=3D"padding:0 1em 10px 0;font-family:Arial,Sans-serif;font-size:13=
+px;color:#888;white-space:nowrap;width:90px" valign=3D"top">
+<div><i style=3D"font-style:normal">Kalender</i></div>
+</td>
+<td style=3D"padding-bottom:10px;font-family:Arial,Sans-serif;font-size:13p=
+x;color:#222" valign=3D"top">
+<div style=3D"text-indent:-1px">homer@example.com</div>
+</td>
+</tr>
+<tr>
+<td style=3D"padding:0 1em 10px 0;font-family:Arial,Sans-serif;font-size:13=
+px;color:#888;white-space:nowrap;width:90px" valign=3D"top">
+<div><i style=3D"font-style:normal">Vem</i></div>
+</td>
+<td style=3D"padding-bottom:10px;font-family:Arial,Sans-serif;font-size:13p=
+x;color:#222" valign=3D"top">
+<table cellspacing=3D"0" cellpadding=3D"0">
+<tbody>
+<tr>
+<td style=3D"padding-right:10px;font-family:Arial,Sans-serif;font-size:13px=
+;color:#222;width:10px">
+<div style=3D"text-indent:-1px"><span style=3D"font-family:Courier New,mono=
+space">=E2=80=A2</span></div>
+</td>
+<td style=3D"padding-right:10px;font-family:Arial,Sans-serif;font-size:13px=
+;color:#222">
+<div style=3D"text-indent:-1px">
+<div>
+<div style=3D"margin:0 0 0.3em 0"><span itemprop=3D"attendee" itemscope=3D"=
+" itemtype=3D"http://schema.org/Person"><span itemprop=3D"name" class=3D"no=
+translate">example@gmail.com</span>
+<meta itemprop=3D"email" content=3D"example@gmail.com">
+</span><span itemprop=3D"organizer" itemscope=3D"" itemtype=3D"http://schem=
+a.org/Person">
+<meta itemprop=3D"name" content=3D"example@gmail.com">
+<meta itemprop=3D"email" content=3D"example@gmail.com">
+</span><span style=3D"font-size:11px;color:#888">=E2=80=93 organisat=C3=B6r=
+</span></div>
+</div>
+</div>
+</td>
+</tr>
+<tr>
+<td style=3D"padding-right:10px;font-family:Arial,Sans-serif;font-size:13px=
+;color:#222;width:10px">
+<div style=3D"text-indent:-1px"><span style=3D"font-family:Courier New,mono=
+space">=E2=80=A2</span></div>
+</td>
+<td style=3D"padding-right:10px;font-family:Arial,Sans-serif;font-size:13px=
+;color:#222">
+<div style=3D"text-indent:-1px">
+<div>
+<div style=3D"margin:0 0 0.3em 0"><span itemprop=3D"attendee" itemscope=3D"=
+" itemtype=3D"http://schema.org/Person"><span itemprop=3D"name" class=3D"no=
+translate">homer@example.com</span>
+<meta itemprop=3D"email" content=3D"homer@example.com">
+</span></div>
+</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<div style=3D"float:right;font-weight:bold;font-size:13px"><a href=3D"https=
+://calendar.google.com/calendar/event?action=3DVIEW&amp;eid=3DNjVtMTdoc2Rvb=
+G1vdHYza3ZtcnRnNDBvbnQgbWFnbnVzLm1lbGluQGh1dC5maQ&amp;tok=3DMjEjYmVydGF0aGV=
+ib3RAZ21haWwuY29tZTg2NGFjYmNjYWE1MjVlZWJmY2UzYmRmMDAyNWU0MDkzNDAxZjRhZg&amp=
+;ctz=3DEurope%2FHelsinki&amp;hl=3Dsv&amp;es=3D0" style=3D"color:#20c;white-=
+space:nowrap" itemprop=3D"url">mer
+ information =C2=BB</a><br>
+</div>
+<div style=3D"padding-bottom:15px;font-family:Arial,Sans-serif;font-size:13=
+px;color:#222;white-space:pre-wrap!important;white-space:-moz-pre-wrap!impo=
+rtant;white-space:-pre-wrap!important;white-space:-o-pre-wrap!important;whi=
+te-space:pre;word-wrap:break-word">
+<span>This is a test. <b>Bold</b>. <i>Italic</i>. <br>
+<br>
+Will discuss address for email &lt;<a href=3D"mailto:foo@example.com" targe=
+t=3D"_blank">foo@example.com</a>&gt; and
+<a href=3D"https://www.google.com/url?q=3Dhttp%3A%2F%2Fexample.com%3Ffoo%3D=
+bar&amp;sa=3DD&amp;ust=3D1616836340813000&amp;usg=3DAOvVaw04gjO0O3Bf1tJs9vs=
+BMj3x" target=3D"_blank">
+http://example.com?foo=3Dbar</a>.</span>
+<meta itemprop=3D"description" content=3D"This is a test. Bold. Italic.&nbs=
+p;Will discuss address for email &lt;foo@example.com&gt; and http://example=
+.com?foo=3Dbar.">
+</div>
+</div>
+<p style=3D"color:#222;font-size:13px;margin:0"><span style=3D"color:#888">=
+Ska du delta (homer@example.com)?
+</span><wbr><strong><span itemprop=3D"potentialaction" itemscope=3D"" itemt=
+ype=3D"http://schema.org/RsvpAction">
+<meta itemprop=3D"attendance" content=3D"http://schema.org/RsvpAttendance/Y=
+es">
+<span itemprop=3D"handler" itemscope=3D"" itemtype=3D"http://schema.org/Htt=
+pActionHandler"><link itemprop=3D"method" href=3D"http://schema.org/HttpReq=
+uestMethod/GET"><a href=3D"https://calendar.google.com/calendar/event?actio=
+n=3DRESPOND&amp;eid=3DNjVtMTdoc2RvbG1vdHYza3ZtcnRnNDBvbnQgbWFnbnVzLm1lbGluQ=
+Gh1dC5maQ&amp;rst=3D1&amp;tok=3DMjEjYmVydGF0aGVib3RAZ21haWwuY29tZTg2NGFjYmN=
+jYWE1MjVlZWJmY2UzYmRmMDAyNWU0MDkzNDAxZjRhZg&amp;ctz=3DEurope%2FHelsinki&amp=
+;hl=3Dsv&amp;es=3D0" style=3D"color:#20c;white-space:nowrap" itemprop=3D"ur=
+l">Ja</a></span></span><span style=3D"margin:0 0.4em;font-weight:normal">
+ - </span><span itemprop=3D"potentialaction" itemscope=3D"" itemtype=3D"htt=
+p://schema.org/RsvpAction">
+<meta itemprop=3D"attendance" content=3D"http://schema.org/RsvpAttendance/M=
+aybe">
+<span itemprop=3D"handler" itemscope=3D"" itemtype=3D"http://schema.org/Htt=
+pActionHandler"><link itemprop=3D"method" href=3D"http://schema.org/HttpReq=
+uestMethod/GET"><a href=3D"https://calendar.google.com/calendar/event?actio=
+n=3DRESPOND&amp;eid=3DNjVtMTdoc2RvbG1vdHYza3ZtcnRnNDBvbnQgbWFnbnVzLm1lbGluQ=
+Gh1dC5maQ&amp;rst=3D3&amp;tok=3DMjEjYmVydGF0aGVib3RAZ21haWwuY29tZTg2NGFjYmN=
+jYWE1MjVlZWJmY2UzYmRmMDAyNWU0MDkzNDAxZjRhZg&amp;ctz=3DEurope%2FHelsinki&amp=
+;hl=3Dsv&amp;es=3D0" style=3D"color:#20c;white-space:nowrap" itemprop=3D"ur=
+l">Kanske</a></span></span><span style=3D"margin:0 0.4em;font-weight:normal=
+">
+ - </span><span itemprop=3D"potentialaction" itemscope=3D"" itemtype=3D"htt=
+p://schema.org/RsvpAction">
+<meta itemprop=3D"attendance" content=3D"http://schema.org/RsvpAttendance/N=
+o">
+<span itemprop=3D"handler" itemscope=3D"" itemtype=3D"http://schema.org/Htt=
+pActionHandler"><link itemprop=3D"method" href=3D"http://schema.org/HttpReq=
+uestMethod/GET"><a href=3D"https://calendar.google.com/calendar/event?actio=
+n=3DRESPOND&amp;eid=3DNjVtMTdoc2RvbG1vdHYza3ZtcnRnNDBvbnQgbWFnbnVzLm1lbGluQ=
+Gh1dC5maQ&amp;rst=3D2&amp;tok=3DMjEjYmVydGF0aGVib3RAZ21haWwuY29tZTg2NGFjYmN=
+jYWE1MjVlZWJmY2UzYmRmMDAyNWU0MDkzNDAxZjRhZg&amp;ctz=3DEurope%2FHelsinki&amp=
+;hl=3Dsv&amp;es=3D0" style=3D"color:#20c;white-space:nowrap" itemprop=3D"ur=
+l">Nej</a></span></span></strong>
+<wbr><a href=3D"https://calendar.google.com/calendar/event?action=3DVIEW&am=
+p;eid=3DNjVtMTdoc2RvbG1vdHYza3ZtcnRnNDBvbnQgbWFnbnVzLm1lbGluQGh1dC5maQ&amp;=
+tok=3DMjEjYmVydGF0aGVib3RAZ21haWwuY29tZTg2NGFjYmNjYWE1MjVlZWJmY2UzYmRmMDAyN=
+WU0MDkzNDAxZjRhZg&amp;ctz=3DEurope%2FHelsinki&amp;hl=3Dsv&amp;es=3D0" style=
+=3D"color:#20c;white-space:nowrap" itemprop=3D"url">fler
+ alternativ =C2=BB</a></p>
+</td>
+</tr>
+<tr>
+<td style=3D"background-color:#f6f6f6;color:#888;border-top:1px Solid #ccc;=
+font-family:Arial,Sans-serif;font-size:11px">
+<p>Inbjudan fr=C3=A5n <a href=3D"https://calendar.google.com/calendar/" tar=
+get=3D"_blank" style=3D"">
+Google Kalender</a></p>
+<p>Detta e-postmeddelande har skickats till kontot homer@example.com efte=
+rsom du =C3=A4r deltagare vid denna h=C3=A4ndelse.</p>
+<p>Om du inte vill f=C3=A5 uppdateringar om denna h=C3=A4ndelse i framtiden=
+ kan du tacka nej till denna h=C3=A4ndelse. Du kan =C3=A4ven registrera dig=
+ f=C3=B6r att f=C3=A5 ett Google-konto p=C3=A5 https://calendar.google.com/=
+calendar/ och kontrollera aviseringsinst=C3=A4llningarna f=C3=B6r hela kale=
+ndern.</p>
+<p>Om du vidarebefordrar den h=C3=A4r inbjudan kan det g=C3=B6ra det m=C3=
+=B6jligt f=C3=B6r alla mottagare att skicka ett svar till organisat=C3=B6re=
+n och l=C3=A4ggas till p=C3=A5 g=C3=A4stlistan, bjuda in andra oavsett dera=
+s egen inbjudningsstatus eller modifiera ditt OSA.
+<a href=3D"https://support.google.com/calendar/answer/37135#forwarding">L=
+=C3=A4s mer</a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</span></span>
+</body>
+</html>
+
+--0000000000008c6d6005be1c767c
+Content-Type: text/calendar; charset="UTF-8"; method=REQUEST
+Content-Transfer-Encoding: quoted-printable
+
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTART:20210322T093000Z
+DTEND:20210322T103000Z
+DTSTAMP:20210322T091220Z
+ORGANIZER;CN=3Dexample@gmail.com:mailto:example@gmail.com
+UID:65m17hsdolmotv3kvmrtg40ont@google.com
+ATTENDEE;CUTYPE=3DINDIVIDUAL;ROLE=3DREQ-PARTICIPANT;PARTSTAT=3DACCEPTED;RSV=
+P=3DTRUE
+ ;CN=3Dexample@gmail.com;X-NUM-GUESTS=3D0:mailto:example@gmail.com
+ATTENDEE;CUTYPE=3DINDIVIDUAL;ROLE=3DREQ-PARTICIPANT;PARTSTAT=3DNEEDS-ACTION=
+;RSVP=3D
+ TRUE;CN=3Dhomer@example.com;X-NUM-GUESTS=3D0:mailto:homer@example.com
+X-MICROSOFT-CDO-OWNERAPPTID:-410050292
+CREATED:20210322T091220Z
+DESCRIPTION:This is a test. <b>Bold</b>. <i>Italic</i>.&nbsp\;<br><br>Will=
+=20
+ discuss address for email &lt\;foo@example.com&gt\; and http://example.com=
+?
+ foo=3Dbar.\n\n-::~:~::~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:=
+~:~
+ :~:~:~:~:~:~:~:~::~:~::-\n=C3=84ndra inte det h=C3=A4r avsnittet i beskriv=
+ningen.\n\n
+ Den h=C3=A4r h=C3=A4ndelsen har ett videosamtal.\nG=C3=A5 med: https://mee=
+t.google.com/pyb
+ -ndcu-hhc\n\nVisa din h=C3=A4ndelse p=C3=A5 https://calendar.google.com/ca=
+lendar/even
+ t?action=3DVIEW&eid=3DNjVtMTdoc2RvbG1vdHYza3ZtcnRnNDBvbnQgbWFnbnVzLm1lbGlu=
+QGh1d
+ C5maQ&tok=3DMjEjYmVydGF0aGVib3RAZ21haWwuY29tZTg2NGFjYmNjYWE1MjVlZWJmY2UzYm=
+RmM
+ DAyNWU0MDkzNDAxZjRhZg&ctz=3DEurope%2FHelsinki&hl=3Dsv&es=3D1.\n-::~:~::~:~=
+:~:~:~:
+ ~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~::~:~::-
+LAST-MODIFIED:20210322T091220Z
+LOCATION:
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Meeeeet me HTML
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR
+
+--0000000000008c6d6005be1c767c--
+
+--0000000000008c6d6205be1c767e
+Content-Type: application/ics; name="invite.ics"
+Content-Disposition: attachment; filename="invite.ics"
+Content-Transfer-Encoding: base64
+
+QkVHSU46VkNBTEVOREFSClBST0RJRDotLy9Hb29nbGUgSW5jLy9Hb29nbGUgQ2FsZW5kYXIgNzAu
+OTA1NC8vRU4KVkVSU0lPTjoyLjAKQ0FMU0NBTEU6R1JFR09SSUFOCk1FVEhPRDpSRVFVRVNUCkJF
+R0lOOlZFVkVOVApEVFNUQVJUOjIwMjEwMzIyVDA5MzAwMFoKRFRFTkQ6MjAyMTAzMjJUMTAzMDAw
+WgpEVFNUQU1QOjIwMjEwMzIyVDA5MTIyMFoKT1JHQU5JWkVSO0NOPWV4YW1wbGVAZ21haWwuY29t
+Om1haWx0bzpleGFtcGxlQGdtYWlsLmNvbQpVSUQ6NjVtMTdoc2RvbG1vdHYza3ZtcnRnNDBvbnRA
+Z29vZ2xlLmNvbQpBVFRFTkRFRTtDVVRZUEU9SU5ESVZJRFVBTDtST0xFPVJFUS1QQVJUSUNJUEFO
+VDtQQVJUU1RBVD1BQ0NFUFRFRDtSU1ZQPVRSVUUKIDtDTj1leGFtcGxlQGdtYWlsLmNvbTtYLU5V
+TS1HVUVTVFM9MDptYWlsdG86ZXhhbXBsZUBnbWFpbC5jb20KQVRURU5ERUU7Q1VUWVBFPUlORElW
+SURVQUw7Uk9MRT1SRVEtUEFSVElDSVBBTlQ7UEFSVFNUQVQ9TkVFRFMtQUNUSU9OO1JTVlA9CiBU
+UlVFO0NOPWhvbWVyQGV4YW1wbGUuY29tO1gtTlVNLUdVRVNUUz0wOm1haWx0bzpob21lckBleGFt
+cGxlLmNvbQpYLU1JQ1JPU09GVC1DRE8tT1dORVJBUFBUSUQ6LTQxMDA1MDI5MgpDUkVBVEVEOjIw
+MjEwMzIyVDA5MTIyMFoKREVTQ1JJUFRJT046VGhpcyBpcyBhIHRlc3QuIDxiPkJvbGQ8L2I+LiA8
+aT5JdGFsaWM8L2k+LiZuYnNwXDs8YnI+PGJyPldpbGwgCiBkaXNjdXNzIGFkZHJlc3MgZm9yIGVt
+YWlsICZsdFw7Zm9vQGV4YW1wbGUuY29tJmd0XDsgYW5kIGh0dHA6Ly9leGFtcGxlLmNvbT8KIGZv
+bz1iYXIuXG5cbi06On46fjo6fjp+On46fjp+On46fjp+On46fjp+On46fjp+On46fjp+On46fjp+
+On46fjp+On46fjp+On46fgogOn46fjp+On46fjp+On46fjo6fjp+OjotXG7DhG5kcmEgaW50ZSBk
+ZXQgaMOkciBhdnNuaXR0ZXQgaSBiZXNrcml2bmluZ2VuLlxuXG4KIERlbiBow6RyIGjDpG5kZWxz
+ZW4gaGFyIGV0dCB2aWRlb3NhbXRhbC5cbkfDpSBtZWQ6IGh0dHBzOi8vbWVldC5nb29nbGUuY29t
+L3B5YgogLW5kY3UtaGhjXG5cblZpc2EgZGluIGjDpG5kZWxzZSBww6UgaHR0cHM6Ly9jYWxlbmRh
+ci5nb29nbGUuY29tL2NhbGVuZGFyL2V2ZW4KIHQ/YWN0aW9uPVZJRVcmZWlkPU5qVnRNVGRvYzJS
+dmJHMXZkSFl6YTNadGNuUm5OREJ2Ym5RZ2JXRm5iblZ6TG0xbGJHbHVRR2gxZAogQzVtYVEmdG9r
+PU1qRWpZbVZ5ZEdGMGFHVmliM1JBWjIxaGFXd3VZMjl0WlRnMk5HRmpZbU5qWVdFMU1qVmxaV0pt
+WTJVelltUm1NCiBEQXlOV1UwTURrek5EQXhaalJoWmcmY3R6PUV1cm9wZSUyRkhlbHNpbmtpJmhs
+PXN2JmVzPTEuXG4tOjp+On46On46fjp+On46fjoKIH46fjp+On46fjp+On46fjp+On46fjp+On46
+fjp+On46fjp+On46fjp+On46fjp+On46fjp+On46fjp+On46On46fjo6LQpMQVNULU1PRElGSUVE
+OjIwMjEwMzIyVDA5MTIyMFoKTE9DQVRJT046ClNFUVVFTkNFOjAKU1RBVFVTOkNPTkZJUk1FRApT
+VU1NQVJZOk1lZWVlZXQgbWUgSFRNTApUUkFOU1A6T1BBUVVFCkVORDpWRVZFTlQKRU5EOlZDQUxF
+TkRBUgo=
+
+--0000000000008c6d6205be1c767e--

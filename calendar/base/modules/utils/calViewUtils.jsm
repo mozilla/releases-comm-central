@@ -13,7 +13,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/parserutils;1",
   "nsIParserUtils"
 );
-
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "gTextToHtmlConverter",
@@ -21,7 +20,7 @@ XPCOMUtils.defineLazyServiceGetter(
   "mozITXTToHTMLConv"
 );
 
-/*
+/**
  * View and DOM related helper functions
  */
 
@@ -383,16 +382,19 @@ var calview = {
   },
 
   /**
-   * Converts plain text into an HTML document fragment.
+   * Converts possible plain text into an HTML document fragment.
    *
-   * @param {string} text - The text to convert.
+   * @param {string} text - The text to convert. Can unfortunately contain HTML
+   *   mixed with plain text.
    * @param {Document} doc - The document where the fragment will be appended.
    * @return {DocumentFragment} An HTML document fragment.
    */
   textToHtmlDocumentFragment(text, doc) {
-    // Convert plain text to HTML. The main motivation here is to convert plain
-    // text URLs into <a> tags (to linkify them).
-    text = text.replace(/\r?\n/g, "<br/>");
+    text = text.trim();
+
+    // There shouldn't be any html. But google adds some, mixed with bare \n
+    // and unlinkified urls.
+
     // Resolve some of the most common entities.
     text = text.replace(/&nbsp;/g, "\u00A0");
     text = text.replace(/&copy;/g, "\u00A9");
@@ -400,18 +402,29 @@ var calview = {
     text = text.replace(/&ndash;/g, "\u2013");
     text = text.replace(/&mdash;/g, "\u2014");
     text = text.replace(/&euro;/g, "\u20AC");
-    let html;
-    try {
-      // kGlyphSubstitution may lead to unexpected results when used in scanHTML.
-      let mode =
-        Ci.mozITXTToHTMLConv.kStructPhrase |
-        Ci.mozITXTToHTMLConv.kGlyphSubstitution |
-        Ci.mozITXTToHTMLConv.kURLs;
-      html = gTextToHtmlConverter.scanHTML(text, mode);
-    } catch (e) {
-      let mode = Ci.mozITXTToHTMLConv.kStructPhrase | Ci.mozITXTToHTMLConv.kURLs;
-      html = gTextToHtmlConverter.scanHTML(text, mode);
-    }
+
+    // Replace xml/html specials.
+    text = text.replace(/&/g, "&amp;");
+    text = text.replace(/</g, "&lt;");
+    text = text.replace(/>/g, "&gt;");
+
+    text = text.replace(/\r?\n/g, "<br />");
+    text = gParserUtils.convertToPlainText(
+      text,
+      Ci.nsIDocumentEncoder.OutputForPlainTextClipboardCopy,
+      0
+    );
+    text = text.replace(/\r?\n/g, "\n<br />");
+
+    // Replace URLs in brackets: <http://example.com> - otherwise they are
+    // treated as unknown elements and obliverated in the sanitization.
+    text = text.replace(/<(([a-z+]{3,}):\S+)>/g, "<a href='$1'>&lt;$1&gt;</a>");
+
+    // Linkify other URLs.
+    text = gTextToHtmlConverter.scanHTML(
+      text,
+      Ci.mozITXTToHTMLConv.kStructPhrase | Ci.mozITXTToHTMLConv.kURLs
+    );
 
     // Sanitize and convert the HTML into a document fragment.
     let flags =
@@ -420,9 +433,7 @@ var calview = {
       gParserUtils.SanitizerDropMedia;
 
     let uri = Services.io.newURI(doc.baseURI);
-    let context = doc.createElement("div");
-    let docFragment = gParserUtils.parseFragment(html, flags, false, uri, context);
-    return docFragment;
+    return gParserUtils.parseFragment(text, flags, false, uri, doc.createElement("div"));
   },
 };
 
