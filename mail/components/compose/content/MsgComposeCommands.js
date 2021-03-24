@@ -8000,11 +8000,7 @@ var envelopeDragObserver = {
     // update the variable.
     gIsDraggingAttachments = true;
 
-    for (let flavor of flavors) {
-      if (!dragSession.isDataFlavorSupported(flavor)) {
-        continue;
-      }
-
+    if (flavors.some(f => event.dataTransfer.types.includes(f))) {
       // Show the drop overlay only if we dragged files or supported types.
       if (
         event.dataTransfer.files.length ||
@@ -8038,10 +8034,9 @@ var envelopeDragObserver = {
               this.isNotDraggingOnlyImages(event.dataTransfer) ||
               !gMsgCompose.composeHTML
           );
-        continue;
+      } else {
+        DragAddressOverTargetControl(event);
       }
-
-      DragAddressOverTargetControl(event);
     }
 
     // Add or remove the hover effect to the droppable containers. We can't do

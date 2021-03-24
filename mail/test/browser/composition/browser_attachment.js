@@ -26,7 +26,6 @@ var {
   create_folder,
   create_message,
   select_click_row,
-
   wait_for_popup_to_open,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -922,6 +921,3 @@ add_task(function test_attachment_reordering() {
 
   close_compose_window(cwc);
 });
-
-// XXX: Test attached emails dragged onto composer and files pulled from other
-// emails (this probably requires better drag-and-drop support from Mozmill)
