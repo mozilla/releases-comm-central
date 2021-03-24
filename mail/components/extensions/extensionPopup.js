@@ -23,6 +23,15 @@ function loadRequestedUrl() {
   let browser = document.getElementById("requestFrame");
   browser.addProgressListener(reporterListener, Ci.nsIWebProgress.NOTIFY_ALL);
   browser.addEventListener(
+    "DOMWindowClose",
+    () => {
+      if (browser.getAttribute("allowscriptstoclose") == "true") {
+        window.close();
+      }
+    },
+    true
+  );
+  browser.addEventListener(
     "pagetitlechanged",
     () => gBrowser.updateTitlebar(),
     true
@@ -39,7 +48,7 @@ function loadRequestedUrl() {
     MailE10SUtils.loadURI(browser, window.arguments[0]);
   } else {
     if (window.arguments[1].wrappedJSObject.allowScriptsToClose) {
-      browser.contentWindow.windowUtils.allowScriptsToClose();
+      browser.setAttribute("allowscriptstoclose", "true");
     }
     ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
     MailE10SUtils.loadURI(

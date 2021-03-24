@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const TEST_DOCUMENT_URL = getRootDirectory(gTestPath) + "data/content.html";
-
 let { BrowserTestUtils } = ChromeUtils.import(
   "resource://testing-common/BrowserTestUtils.jsm"
 );
@@ -210,9 +208,27 @@ add_task(async () => {
 add_task(async function checkTitlePreface() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
-      "content.html": await fetch(TEST_DOCUMENT_URL).then(response =>
-        response.text()
-      ),
+      "content.html": `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8"/>
+          <title>A test document</title>
+          <script type="text/javascript" src="content.js"></script>
+        </head>
+        <body>
+          <p>This is text.</p>
+        </body>
+        </html>
+      `,
+      "content.js": `
+        browser.runtime.onMessage.addListener(
+          (data, sender) => {
+            if (data.command == "close") {
+              window.close();
+            }
+          }
+        );`,
       "utils.js": await getUtilsJS(),
       "background.js": async () => {
         let popup;
@@ -225,6 +241,7 @@ add_task(async function checkTitlePreface() {
             titlePreface,
             url: "content.html",
             type: "popup",
+            allowScriptsToClose: true,
           });
           await windowCreatePromise;
           await window.sendMessage("checkTitle", titlePreface);
@@ -242,7 +259,10 @@ add_task(async function checkTitlePreface() {
         // Finish
         {
           let windowRemovePromise = window.waitForEvent("windows.onRemoved");
-          await browser.windows.remove(popup.id);
+          browser.test.log(
+            "Testing allowScriptsToClose, waiting for window to close."
+          );
+          await browser.runtime.sendMessage({ command: "close" });
           await windowRemovePromise;
           browser.test.notifyPass("finished");
         }
