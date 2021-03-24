@@ -18,6 +18,7 @@ FakeAccount.prototype = {
       getRoom: () => {
         return this._room;
       },
+      leave() {},
     };
   },
 
@@ -55,10 +56,14 @@ add_task(async function test_toDMConversation() {
   acc.convertToDM(groupConv);
   ok(!groupConv.joined);
   const newRoom = await groupConv.waitForRoom();
-  notStrictEqual(newRoom, groupConv);
-  equal(newRoom._roomId, groupConv._roomId);
-  const roomListInstance = acc.roomList.get(roomId);
-  strictEqual(roomListInstance, newRoom);
+  try {
+    notStrictEqual(newRoom, groupConv);
+    equal(newRoom._roomId, groupConv._roomId);
+    const roomListInstance = acc.roomList.get(roomId);
+    strictEqual(roomListInstance, newRoom);
+  } finally {
+    newRoom.close();
+  }
 });
 
 add_task(async function test_toGroupConversation() {
@@ -70,8 +75,12 @@ add_task(async function test_toGroupConversation() {
   acc.convertToGroup(directConv);
   ok(!directConv.joined);
   const newRoom = await directConv.waitForRoom();
-  notStrictEqual(newRoom, directConv);
-  equal(newRoom._roomId, directConv._roomId);
-  const roomListInstance = acc.roomList.get(roomId);
-  strictEqual(roomListInstance, newRoom);
+  try {
+    notStrictEqual(newRoom, directConv);
+    equal(newRoom._roomId, directConv._roomId);
+    const roomListInstance = acc.roomList.get(roomId);
+    strictEqual(roomListInstance, newRoom);
+  } finally {
+    newRoom.close();
+  }
 });
