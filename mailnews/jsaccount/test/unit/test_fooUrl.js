@@ -24,12 +24,16 @@ var tests = [
     for (let iface of JaBaseUrlProperties.baseInterfaces) {
       Assert.ok(url instanceof iface);
       let urlQI = url.QueryInterface(iface);
-      Assert.ok(urlQI);
+      // Since the URL wasn't properly initialised, that is, it has no spec
+      // the following will crash. The underlying nsMsgMailNewsUrl
+      // has no m_baseURL yet and hence GetSpec() triggered by the
+      // Assert.uk(urlQI) will crash. So use this instead:
+      Assert.ok(urlQI != null);
     }
     for (let iface of extraInterfaces) {
       let fooUrl = url.getInterface(iface);
       Assert.ok(fooUrl instanceof iface);
-      Assert.ok(fooUrl.QueryInterface(iface));
+      Assert.ok(fooUrl.QueryInterface(iface) != null);
     }
   },
   function test_msgIOverride() {
