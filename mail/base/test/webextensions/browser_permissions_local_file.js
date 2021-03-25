@@ -14,14 +14,10 @@ async function installFile(filename) {
   MockFilePicker.setFiles([file]);
   MockFilePicker.afterOpenCallback = MockFilePicker.cleanup;
 
-  let { document, gViewController } = await openAddonsMgr(
-    "addons://list/extension"
-  );
+  let { document } = await openAddonsMgr("addons://list/extension");
 
   // Do the install...
-  if (gViewController.isLoading) {
-    await BrowserTestUtils.waitForEvent(document, "ViewChanged");
-  }
+  await waitAboutAddonsViewLoaded(document);
   let installButton = document.querySelector('[action="install-from-file"]');
   installButton.click();
 }

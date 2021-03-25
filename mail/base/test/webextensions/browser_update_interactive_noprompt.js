@@ -31,7 +31,7 @@ async function testUpdateNoPrompt(
   // Go to Extensions in about:addons
   let win = await openAddonsMgr("addons://list/extension");
 
-  await BrowserTestUtils.waitForEvent(win.document, "ViewChanged");
+  await waitAboutAddonsViewLoaded(win.document);
 
   let sawPopup = false;
   function popupListener() {
