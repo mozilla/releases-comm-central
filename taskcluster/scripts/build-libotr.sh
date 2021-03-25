@@ -13,6 +13,12 @@ MOZ_FETCHES_DIR=${MOZ_FETCHES_DIR:-"/builds/worker/workspace/fetches"}
 UPLOAD_DIR=${UPLOAD_DIR:-"/builds/worker/artifacts"}
 WORKSPACE=${WORKSPACE:-"${HOME}/workspace"}
 
+# Set $DEVEL_TESTING during script development on a local machine
+if [[ -n ${DEVEL_TESTING} ]]; then
+  rm -rf "${UPLOAD_DIR}" "${WORKSPACE}"
+  mkdir "${UPLOAD_DIR}" "${WORKSPACE}"
+fi
+
 cd "$WORKSPACE"
 if [[ ! -d build ]]; then
   mkdir build
@@ -77,6 +83,11 @@ function build_libgpg-error() {
     ./configure ${_CONFIGURE_FLAGS} ${_CONF_STATIC} \
         --disable-tests --disable-doc --with-pic
 
+    # Hack... *sigh*
+    if [[ ${_TARGET_OS} == "linux-aarch64" ]]; then
+      cp src/syscfg/lock-obj-pub.aarch64-unknown-linux-gnu.h src/lock-obj-pub.native.h
+    fi
+
     make ${_MAKE_FLAGS} -C src code-to-errno.h
     make ${_MAKE_FLAGS} -C src code-from-errno.h
     make ${_MAKE_FLAGS} -C src gpg-error.h
@@ -121,6 +132,11 @@ function build_libotr() {
 
     ./configure ${_CONFIGURE_FLAGS} --enable-shared --with-pic \
         --with-libgcrypt-prefix="${_PREFIX}"
+
+    # libtool archive (*.la) files are the devil's work
+    rm -f ${_PREFIX}/lib/*.la
+    sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+    sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 
     make ${_MAKE_FLAGS} -C src
 
@@ -300,6 +316,7 @@ case "${_TARGET_OS}" in
         export AR=llvm-ar
         export RANLIB=llvm-ranlib
         export NM=llvm-nm
+        export OBJDUMP=llvm-objdump
         export LD=ld.lld
         export STRIP=llvm-strip
 
@@ -307,6 +324,7 @@ case "${_TARGET_OS}" in
         LDFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
 
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
+        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/sysroot"
         _CONF_STATIC="--enable-static --disable-shared"
         _TARGET_LIBS='lib/libotr.so.5'
         ;;
