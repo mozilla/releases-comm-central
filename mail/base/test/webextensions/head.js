@@ -342,7 +342,7 @@ async function testInstallMethod(installFn, telemetryBase) {
   registerCleanupFunction(() => PermissionTestUtils.remove(testURI, "install"));
 
   async function runOnce(filename, cancel) {
-    let tab = openContentTab("about:blank");
+    openContentTab("about:blank");
 
     let installPromise = new Promise(resolve => {
       let listener = {
@@ -422,7 +422,8 @@ async function testInstallMethod(installFn, telemetryBase) {
       await addon.uninstall();
     }
 
-    document.getElementById("tabmail").closeTab(tab);
+    let tabmail = document.getElementById("tabmail");
+    tabmail.closeOtherTabs(tabmail.tabInfo[0]);
   }
 
   // A few different tests for each installation method:
