@@ -316,6 +316,7 @@ Enigmail.msg = {
     ]) {
       this.removeNotification(value);
     }
+    Enigmail.msg.showPartialDecryptionReminder = false;
 
     let element = document.getElementById("openpgpKeyBox");
     if (element) {
