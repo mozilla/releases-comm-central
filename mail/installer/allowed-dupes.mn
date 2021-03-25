@@ -99,3 +99,9 @@ chrome/messenger/search-extensions/amazondotcn/favicon.ico
 chrome/messenger/search-extensions/amazondotcom/favicon.ico
 chrome/messenger/search-extensions/mercadolibre/favicon.ico
 chrome/messenger/search-extensions/mercadolivre/favicon.ico
+
+# Bug 1699889 - Temporarily cloned icons will be resolved when toolkit svgs updated
+chrome/toolkit/skin/classic/global/icons/arrow-dropdown-12.svg
+chrome/devtools/skin/images/arrow-dropdown-12.svg
+chrome/toolkit/skin/classic/global/icons/check.svg
+chrome/devtools/skin/images/check.svg
