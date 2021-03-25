@@ -20,6 +20,7 @@ var {
   GenericProtocolPrototype,
   GenericConversationPrototype,
   GenericConvIMPrototype,
+  GenericAccountBuddyPrototype,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 var { getMatrixTextForEvent } = ChromeUtils.import(
@@ -77,10 +78,7 @@ MatrixParticipant.prototype = {
   },
 
   get buddyIconFilename() {
-    if (this._roomMember.user && this._roomMember.user.avatarUrl) {
-      return this._roomMember.getAvatarUrl(this._account._baseURL) || "";
-    }
-    return "";
+    return this._roomMember.getAvatarUrl(this._account._baseURL) || "";
   },
 
   get voiced() {
@@ -98,12 +96,107 @@ MatrixParticipant.prototype = {
   },
 };
 
+const kPresenceToStatusEnum = {
+  online: Ci.imIStatusInfo.STATUS_AVAILABLE,
+  offline: Ci.imIStatusInfo.STATUS_OFFLINE,
+  unavailable: Ci.imIStatusInfo.STATUS_IDLE,
+};
+const kSetIdleStatusAfterSeconds = 300;
+
+/**
+ * Map matrix presence information to a Ci.imIStatusInfo statusType.
+ *
+ * @param {User} user - Matrix JS SDK User instance to get the status for.
+ * @returns {number} Status enum value for the user.
+ */
+function getStatusFromPresence(user) {
+  let status = kPresenceToStatusEnum[user.presence];
+  // If the user hasn't been seen in a long time, consider them idle.
+  if (
+    user.presence === "online" &&
+    !user.currentlyActive &&
+    user.lastActiveAgo > kSetIdleStatusAfterSeconds
+  ) {
+    status = Ci.imIStatusInfo.STATUS_IDLE;
+  }
+  if (!status) {
+    status = Ci.imIStatusInfo.STATUS_UNKNOWN;
+  }
+  return status;
+}
+
+/**
+ * Matrix buddies only exist in association with at least one direct
+ * conversation. They serve primarily to provide metadata to the
+ * direct conversation rooms.
+ *
+ * @param {imIAccount} account
+ * @param {imIBuddy?} buddy
+ * @param {imITag?} tag
+ * @param {User} [user]
+ */
+function MatrixBuddy(account, buddy, tag, user) {
+  this._init(account, buddy, tag, user?.userId);
+  if (user) {
+    this.setUser(user);
+  }
+}
+
+MatrixBuddy.prototype = {
+  __proto__: GenericAccountBuddyPrototype,
+
+  get buddyIconFilename() {
+    return (
+      (this._user &&
+        getHttpUriForMxc(this._account._baseURL, this._user.avatarUrl)) ||
+      ""
+    );
+  },
+
+  /**
+   * Initialize the buddy with a user.
+   *
+   * @param {User} user - Matrix user.
+   */
+  setUser(user) {
+    this._user = user;
+    this._serverAlias = user.displayName;
+    this._statusType = getStatusFromPresence(user);
+    this._statusText = user.presenceStatusMsg ?? "";
+  },
+
+  /**
+   * Updates the buddy's status based on its JS SDK user's presence.
+   */
+  setStatusFromPresence() {
+    this.setStatus(
+      getStatusFromPresence(this._user),
+      this._user.presenceStatusMsg ?? ""
+    );
+  },
+
+  remove() {
+    const otherDMRooms = this._account._userToRoom[this.userName];
+    for (const roomId of otherDMRooms) {
+      if (this._account.roomList.has(roomId)) {
+        const room = this._account.roomList.get(roomId);
+        // Prevent the room from doing buddy cleanup
+        delete room.buddy;
+        room.close();
+      }
+    }
+    this._account.buddies.delete(this.userName);
+    GenericAccountBuddyPrototype.remove.call(this);
+  },
+};
+
 // var so it can be tested using script loader.
 var GenericMatrixConversation = {
   /*
    * Leave the room if we close the conversation.
    */
   close() {
+    this._close?.();
     this._account._client.leave(this._roomId);
     this._account.roomList.delete(this._roomId);
     GenericConversationPrototype.close.call(this);
@@ -114,19 +207,11 @@ var GenericMatrixConversation = {
       body: msg,
       msgtype: "m.text",
     };
-    this._account._client.sendEvent(
-      this._roomId,
-      "m.room.message",
-      content,
-      "",
-      (err, res) => {
-        if (err) {
-          this._account.ERROR("Failed to send message to: " + this._roomId);
-        } else {
-          // If there's no error, display the message to the user.
-        }
-      }
-    );
+    this._account._client
+      .sendEvent(this._roomId, "m.room.message", content, "")
+      .catch(error => {
+        this._account.ERROR("Failed to send message to: " + this._roomId);
+      });
   },
 
   /*
@@ -196,8 +281,6 @@ var GenericMatrixConversation = {
  *  sendNotice
  *  sendReadReceipt
  *  sendTyping
- *  setPowerLevel
- *  setRoomTopic
  */
 function MatrixConversation(account, name, nick) {
   this._init(account, name, nick);
@@ -303,10 +386,36 @@ MatrixDirectConversation.prototype = {
   /*
    * Initialize the room after the response from the Matrix client.
    *
-   * @param {Object} room - associated room with the conversation.
+   * @param {Room} room - associated room with the conversation.
    */
   initRoom(room) {
     this.sharedInitRoom(room);
+
+    const dmUserId = room.guessDMUserId();
+    if (dmUserId === this._account.userId) {
+      // We are the only member of the room.
+      return;
+    }
+    if (!this.buddy) {
+      if (this._account.buddies.has(dmUserId)) {
+        this.buddy = this._account.buddies.get(dmUserId);
+        if (!this.buddy._user) {
+          const user = this._account._client.getUser(dmUserId);
+          this.buddy.setUser(user);
+        }
+        return;
+      }
+      const user = this._account._client.getUser(dmUserId);
+      this.buddy = new MatrixBuddy(
+        this._account,
+        null,
+        Services.tags.defaultTag,
+        user
+      );
+      Services.contacts.accountBuddyAdded(this.buddy);
+      this._account.buddies.set(dmUserId, this.buddy);
+    }
+
     this._setInitialized();
   },
 
@@ -347,6 +456,20 @@ MatrixDirectConversation.prototype = {
     this._setTypingState(false);
   },
 
+  _close() {
+    if (this.buddy) {
+      const dmUserId = this.buddy.userName;
+      const otherDMRooms = Array.from(this._account.roomList.values()).filter(
+        conv => conv.buddy && conv.buddy === this.buddy && conv !== this
+      );
+      if (otherDMRooms.length == 0) {
+        Services.contacts.accountBuddyRemoved(this.buddy);
+        this._account.buddies.delete(dmUserId);
+        delete this.buddy;
+      }
+    }
+  },
+
   _setTypingState(isTyping) {
     if (this._typingState == isTyping) {
       return;
@@ -373,14 +496,13 @@ Object.assign(MatrixDirectConversation.prototype, GenericMatrixConversation);
  *  redactEvent
  *  scrollback
  *  setAvatarUrl
- *  setDisplayName
  *  setPassword
- *  setPresence
  */
 function MatrixAccount(aProtocol, aImAccount) {
   this._init(aProtocol, aImAccount);
   this.roomList = new Map();
-  this._userToRoom = new Set();
+  this._userToRoom = {};
+  this.buddies = new Map();
 }
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
@@ -686,6 +808,7 @@ MatrixAccount.prototype = {
         // conversations.
         if (member.membership === "leave" && member.userId == this.userId) {
           this.roomList.delete(member.roomId);
+          conv._close?.();
           GenericConversationPrototype.close.call(conv);
         } else if (
           member.membership === "join" ||
@@ -847,13 +970,14 @@ MatrixAccount.prototype = {
       this.reportDisconnected();
     });
 
+    this._client.on("User.avatarUrl", this.updateBuddy.bind(this));
+    this._client.on("User.displayName", this.updateBuddy.bind(this));
+    this._client.on("User.presence", this.updateBuddy.bind(this));
+    this._client.on("User.currentlyActive", this.updateBuddy.bind(this));
+
     // TODO Other events to handle:
     //  Room.localEchoUpdated
     //  Room.tags
-    //  User.avatarUrl
-    //  User.currentlyActive
-    //  User.displayName
-    //  User.presence
 
     this._client.startClient();
   },
@@ -872,6 +996,28 @@ MatrixAccount.prototype = {
       presenceDetails.presence = "unavailable";
     }
     this._client.setPresence(presenceDetails);
+  },
+
+  updateBuddy(event, user) {
+    const buddy = this.buddies.get(user.userId);
+    if (!buddy) {
+      return;
+    }
+    if (!buddy._user) {
+      buddy.setUser(user);
+    } else {
+      buddy._user = user;
+    }
+    if (event.getType() === "User.avatarUrl") {
+      buddy._notifyObservers("icon-changed");
+    } else if (
+      event.getType() === "User.presence" ||
+      event.getType() === "User.currentlyActive"
+    ) {
+      buddy.setStatusFromPresence();
+    } else if (event.getType() === "User.displayName") {
+      buddy.serverAlias = user.displayName;
+    }
   },
 
   /*
@@ -919,6 +1065,7 @@ MatrixAccount.prototype = {
    *                              converted.
    */
   convertToGroup(directConv) {
+    directConv._close();
     GenericConversationPrototype.close.call(directConv);
     let conv = new MatrixConversation(this, directConv._roomId, this.userId);
     directConv.replaceRoom(conv);
@@ -1262,6 +1409,15 @@ MatrixAccount.prototype = {
     return null;
   },
 
+  addBuddy(aTag, aName) {
+    throw new Error("Adding buddies is not yet supported");
+  },
+  loadBuddy(aBuddy, aTag) {
+    const buddy = new MatrixBuddy(this, aBuddy, aTag);
+    this.buddies.set(buddy.userName, buddy);
+    return buddy;
+  },
+
   requestBuddyInfo(aUserId) {
     let user = this._client.getUser(aUserId);
     if (!user) {
@@ -1293,20 +1449,8 @@ MatrixAccount.prototype = {
     }
 
     // Add the user's current status.
-    const kSetIdleStatusAfterSeconds = 3600;
-    const kPresentToStatusEnum = {
-      online: Ci.imIStatusInfo.STATUS_AVAILABLE,
-      offline: Ci.imIStatusInfo.STATUS_AWAY,
-      unavailable: Ci.imIStatusInfo.STATUS_OFFLINE,
-    };
-    let status = kPresentToStatusEnum[user.presence];
-    // If the user hasn't been seen in a long time, consider them idle.
-    if (
-      !user.currentlyActive &&
-      user.lastActiveAgo > kSetIdleStatusAfterSeconds
-    ) {
-      status = Ci.imIStatusInfo.STATUS_IDLE;
-
+    let status = getStatusFromPresence(user);
+    if (status === Ci.imIStatusInfo.STATUS_IDLE) {
       tooltipInfo.push(
         new TooltipInfo(
           _("tooltip.lastActive"),
