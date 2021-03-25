@@ -292,7 +292,7 @@ class RNPCryptoAPI extends CryptoAPI {
     //options.verifyOnly = true;
     //options.uiFlags = EnigmailConstants.UI_PGP_MIME;
 
-    if (!options.mimeSignatureFile) {
+    if (!options.mimeSignatureData) {
       throw new Error("inline verify not yet implemented");
     }
     return RNP.verifyDetached(signed, options);

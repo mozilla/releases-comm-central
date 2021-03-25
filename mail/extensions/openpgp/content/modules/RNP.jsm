@@ -1439,10 +1439,16 @@ var RNP = {
     result.userId = "";
     result.keyId = "";
 
-    let input_sig = await RNPLib.createInputFromPath(options.mimeSignatureFile);
-    if (!input_sig) {
-      return result;
-    }
+    let sig_arr = options.mimeSignatureData.split("").map(e => e.charCodeAt());
+    var sig_array = ctypes.uint8_t.array()(sig_arr);
+
+    let input_sig = new RNPLib.rnp_input_t();
+    RNPLib.rnp_input_from_memory(
+      input_sig.address(),
+      sig_array,
+      sig_array.length,
+      false
+    );
 
     let input_from_memory = new RNPLib.rnp_input_t();
 
