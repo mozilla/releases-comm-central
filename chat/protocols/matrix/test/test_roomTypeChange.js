@@ -43,6 +43,9 @@ FakeAccount.prototype = {
           },
         };
       },
+      guessDMUserId() {
+        return "@test:example.com";
+      },
     };
   },
 };

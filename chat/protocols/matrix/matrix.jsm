@@ -394,6 +394,7 @@ MatrixDirectConversation.prototype = {
     const dmUserId = room.guessDMUserId();
     if (dmUserId === this._account.userId) {
       // We are the only member of the room.
+      this._setInitialized();
       return;
     }
     if (!this.buddy) {
@@ -403,6 +404,7 @@ MatrixDirectConversation.prototype = {
           const user = this._account._client.getUser(dmUserId);
           this.buddy.setUser(user);
         }
+        this._setInitialized();
         return;
       }
       const user = this._account._client.getUser(dmUserId);
