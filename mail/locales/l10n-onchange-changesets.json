@@ -1,0 +1,77 @@
+{
+    "de": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
+    "en-GB": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
+    "es-ES": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
+    "fr": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
+    "ja": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
+    "ja-JP-mac": {
+        "platforms": [
+            "macosx64"
+        ],
+        "revision": "default"
+    },
+    "ru": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
+    "zh-CN": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    }
+}
