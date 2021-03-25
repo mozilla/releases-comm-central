@@ -65,7 +65,7 @@ add_task(async () => {
   let account = MailServices.accounts.getAccount("account1");
   let rootFolder = account.incomingServer.rootFolder;
   let index = window.gFolderTreeView.getIndexOfFolder(rootFolder);
-  Assert.equal(index, 3);
+  Assert.equal(index, 0);
 
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   folderTreeClick(index, { type: "mousedown", button: 2 });
