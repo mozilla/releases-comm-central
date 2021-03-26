@@ -113,10 +113,12 @@ add_task(async function testRecurringTaskDeletion() {
   let handleSingleDelete = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-occurrence-prompt.xhtml",
-    async win => {
-      let dialog = win.document.querySelector("dialog");
-      let button = dialog.querySelector("#accept-occurrence-button");
-      EventUtils.synthesizeMouseAtCenter(button, {}, win);
+    {
+      async callback(win) {
+        let dialog = win.document.querySelector("dialog");
+        let button = dialog.querySelector("#accept-occurrence-button");
+        EventUtils.synthesizeMouseAtCenter(button, {}, win);
+      },
     }
   );
   mailTestUtils.treeClick(EventUtils, window, tree, 1, 1, { clickCount: 1 });
@@ -159,10 +161,12 @@ add_task(async function testRecurringTaskDeletion() {
   let handleAllDelete = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-occurrence-prompt.xhtml",
-    async win => {
-      let dialog = win.document.querySelector("dialog");
-      let button = dialog.querySelector("#accept-parent-button");
-      EventUtils.synthesizeMouseAtCenter(button, {}, win);
+    {
+      async callback(win) {
+        let dialog = win.document.querySelector("dialog");
+        let button = dialog.querySelector("#accept-parent-button");
+        EventUtils.synthesizeMouseAtCenter(button, {}, win);
+      },
     }
   );
 

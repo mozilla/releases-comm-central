@@ -77,39 +77,41 @@ add_task(async () => {
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger-newsblog/content/feed-subscriptions.xhtml",
-    async dialogWindow => {
-      let dialogDocument = dialogWindow.document;
+    {
+      async callback(dialogWindow) {
+        let dialogDocument = dialogWindow.document;
 
-      let list = dialogDocument.getElementById("rssSubscriptionsList");
-      let locationInput = dialogDocument.getElementById("locationValue");
-      let addFeedButton = dialogDocument.getElementById("addFeed");
+        let list = dialogDocument.getElementById("rssSubscriptionsList");
+        let locationInput = dialogDocument.getElementById("locationValue");
+        let addFeedButton = dialogDocument.getElementById("addFeed");
 
-      await BrowserTestUtils.waitForEvent(list, "select");
+        await BrowserTestUtils.waitForEvent(list, "select");
 
-      EventUtils.synthesizeMouseAtCenter(locationInput, {}, dialogWindow);
-      await TestUtils.waitForCondition(() => !addFeedButton.disabled);
-      EventUtils.sendString(
-        "http://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/rss.xml",
-        dialogWindow
-      );
-      EventUtils.synthesizeKey("VK_TAB", {}, dialogWindow);
+        EventUtils.synthesizeMouseAtCenter(locationInput, {}, dialogWindow);
+        await TestUtils.waitForCondition(() => !addFeedButton.disabled);
+        EventUtils.sendString(
+          "http://example.org/browser/comm/mailnews/extensions/newsblog/test/browser/data/rss.xml",
+          dialogWindow
+        );
+        EventUtils.synthesizeKey("VK_TAB", {}, dialogWindow);
 
-      // There's no good way to know if we're ready to continue.
-      await new Promise(r => dialogWindow.setTimeout(r, 250));
+        // There's no good way to know if we're ready to continue.
+        await new Promise(r => dialogWindow.setTimeout(r, 250));
 
-      let hiddenPromise = BrowserTestUtils.waitForAttribute(
-        "hidden",
-        addFeedButton,
-        "true"
-      );
-      EventUtils.synthesizeMouseAtCenter(addFeedButton, {}, dialogWindow);
-      await hiddenPromise;
+        let hiddenPromise = BrowserTestUtils.waitForAttribute(
+          "hidden",
+          addFeedButton,
+          "true"
+        );
+        EventUtils.synthesizeMouseAtCenter(addFeedButton, {}, dialogWindow);
+        await hiddenPromise;
 
-      EventUtils.synthesizeMouseAtCenter(
-        dialogDocument.getElementById("close"),
-        {},
-        dialogWindow
-      );
+        EventUtils.synthesizeMouseAtCenter(
+          dialogDocument.getElementById("close"),
+          {},
+          dialogWindow
+        );
+      },
     }
   );
   EventUtils.synthesizeMouseAtCenter(menuItem, {});

@@ -34,17 +34,19 @@ async function wrappedTest(testInitCallback, ...attemptArgs) {
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
-    async dialogWindow => {
-      for (let args of attemptArgs) {
-        if (args.url?.startsWith("/")) {
-          args.url = CardDAVServer.origin + args.url;
+    {
+      async callback(dialogWindow) {
+        for (let args of attemptArgs) {
+          if (args.url?.startsWith("/")) {
+            args.url = CardDAVServer.origin + args.url;
+          }
+          await attemptInit(dialogWindow, args);
         }
-        await attemptInit(dialogWindow, args);
-      }
-      dialogWindow.document
-        .querySelector("dialog")
-        .getButton("cancel")
-        .click();
+        dialogWindow.document
+          .querySelector("dialog")
+          .getButton("cancel")
+          .click();
+      },
     }
   );
   abWindow.AbNewCardDAVBook();
@@ -127,33 +129,35 @@ function handleCertError() {
 }
 
 function handlePasswordPrompt(password, savePassword = true) {
-  return BrowserTestUtils.promiseAlertDialog(null, undefined, async prompt => {
-    await new Promise(resolve => prompt.setTimeout(resolve));
+  return BrowserTestUtils.promiseAlertDialog(null, undefined, {
+    async callback(prompt) {
+      await new Promise(resolve => prompt.setTimeout(resolve));
 
-    if (!password) {
+      if (!password) {
+        prompt.document
+          .querySelector("dialog")
+          .getButton("cancel")
+          .click();
+        return;
+      }
+
+      prompt.document.getElementById("loginTextbox").value = "alice";
+      prompt.document.getElementById("password1Textbox").value = password;
+
+      let checkbox = prompt.document.getElementById("checkbox");
+      Assert.greater(checkbox.getBoundingClientRect().width, 0);
+      Assert.ok(checkbox.checked);
+
+      if (!savePassword) {
+        EventUtils.synthesizeMouseAtCenter(checkbox, {}, prompt);
+        Assert.ok(!checkbox.checked);
+      }
+
       prompt.document
         .querySelector("dialog")
-        .getButton("cancel")
+        .getButton("accept")
         .click();
-      return;
-    }
-
-    prompt.document.getElementById("loginTextbox").value = "alice";
-    prompt.document.getElementById("password1Textbox").value = password;
-
-    let checkbox = prompt.document.getElementById("checkbox");
-    Assert.greater(checkbox.getBoundingClientRect().width, 0);
-    Assert.ok(checkbox.checked);
-
-    if (!savePassword) {
-      EventUtils.synthesizeMouseAtCenter(checkbox, {}, prompt);
-      Assert.ok(!checkbox.checked);
-    }
-
-    prompt.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .click();
+    },
   });
 }
 
@@ -240,22 +244,24 @@ add_task(async function testEveryThingOK() {
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
-    async dialogWindow => {
-      await attemptInit(dialogWindow, {
-        password: "alice",
-        expectedStatus: "",
-        expectedBooks: DEFAULT_BOOKS,
-      });
+    {
+      async callback(dialogWindow) {
+        await attemptInit(dialogWindow, {
+          password: "alice",
+          expectedStatus: "",
+          expectedBooks: DEFAULT_BOOKS,
+        });
 
-      let availableBooks = dialogWindow.document.getElementById(
-        "carddav-availableBooks"
-      );
-      availableBooks.children[0].checked = false;
+        let availableBooks = dialogWindow.document.getElementById(
+          "carddav-availableBooks"
+        );
+        availableBooks.children[0].checked = false;
 
-      dialogWindow.document
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+        dialogWindow.document
+          .querySelector("dialog")
+          .getButton("accept")
+          .click();
+      },
     }
   );
   let syncPromise = new Promise(resolve => {
@@ -320,17 +326,19 @@ add_task(async function testEveryThingOKAgain() {
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
-    async dialogWindow => {
-      await attemptInit(dialogWindow, {
-        password: "alice",
-        expectedStatus: "",
-        expectedBooks: [DEFAULT_BOOKS[0]],
-      });
+    {
+      async callback(dialogWindow) {
+        await attemptInit(dialogWindow, {
+          password: "alice",
+          expectedStatus: "",
+          expectedBooks: [DEFAULT_BOOKS[0]],
+        });
 
-      dialogWindow.document
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+        dialogWindow.document
+          .querySelector("dialog")
+          .getButton("accept")
+          .click();
+      },
     }
   );
   let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
@@ -394,23 +402,25 @@ add_task(async function testNoSavePassword() {
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
-    async dialogWindow => {
-      await attemptInit(dialogWindow, {
-        password: "alice",
-        savePassword: false,
-        expectedStatus: "",
-        expectedBooks: DEFAULT_BOOKS,
-      });
+    {
+      async callback(dialogWindow) {
+        await attemptInit(dialogWindow, {
+          password: "alice",
+          savePassword: false,
+          expectedStatus: "",
+          expectedBooks: DEFAULT_BOOKS,
+        });
 
-      let availableBooks = dialogWindow.document.getElementById(
-        "carddav-availableBooks"
-      );
-      availableBooks.children[0].checked = false;
+        let availableBooks = dialogWindow.document.getElementById(
+          "carddav-availableBooks"
+        );
+        availableBooks.children[0].checked = false;
 
-      dialogWindow.document
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+        dialogWindow.document
+          .querySelector("dialog")
+          .getButton("accept")
+          .click();
+      },
     }
   );
   let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");

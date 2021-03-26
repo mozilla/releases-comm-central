@@ -178,13 +178,15 @@ async function setData(dialogWindow, iframeWindow, data) {
       let repeatWindowPromise = BrowserTestUtils.promiseAlertDialog(
         undefined,
         "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml",
-        async recurrenceWindow => {
-          Assert.report(false, undefined, undefined, "Reccurrence dialog opened");
-          if (Services.focus.activeWindow != recurrenceWindow) {
-            await BrowserTestUtils.waitForEvent(recurrenceWindow, "focus");
-          }
+        {
+          async callback(recurrenceWindow) {
+            Assert.report(false, undefined, undefined, "Reccurrence dialog opened");
+            if (Services.focus.activeWindow != recurrenceWindow) {
+              await BrowserTestUtils.waitForEvent(recurrenceWindow, "focus");
+            }
 
-          recurrenceWindow.setTimeout(() => data.repeat(recurrenceWindow), 500);
+            recurrenceWindow.setTimeout(() => data.repeat(recurrenceWindow), 500);
+          },
         }
       );
       await Promise.all([
@@ -414,10 +416,8 @@ async function handleAddingAttachment(dialogWindow, url) {
   synthesizeMouseAtCenter(attachButton, {}, dialogWindow);
   await menuShowing;
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
-    undefined,
-    undefined,
-    attachmentWindow => {
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
+    callback(attachmentWindow) {
       Assert.report(false, undefined, undefined, "Attachment dialog opened");
       let attachmentDocument = attachmentWindow.document;
 
@@ -426,8 +426,8 @@ async function handleAddingAttachment(dialogWindow, url) {
         .querySelector("dialog")
         .getButton("accept")
         .click();
-    }
-  );
+    },
+  });
   synthesizeMouseAtCenter(dialogDocument.querySelector("#button-attach-url"), {}, dialogWindow);
   await dialogPromise;
   Assert.report(false, undefined, undefined, "Attachment dialog closed");
@@ -452,20 +452,22 @@ async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
       let dialogPromise = BrowserTestUtils.promiseAlertDialog(
         undefined,
         "chrome://calendar/content/calendar-event-dialog-attendees.xhtml",
-        async attendeesWindow => {
-          Assert.report(false, undefined, undefined, "Attendees dialog opened");
-          await sleep(attendeesWindow);
-          let attendeesDocument = attendeesWindow.document;
+        {
+          async callback(attendeesWindow) {
+            Assert.report(false, undefined, undefined, "Attendees dialog opened");
+            await sleep(attendeesWindow);
+            let attendeesDocument = attendeesWindow.document;
 
-          await sleep(attendeesWindow);
-          Assert.equal(attendeesDocument.activeElement.localName, "input");
-          Assert.equal(attendeesDocument.activeElement.value, "");
-          sendString(attendee, attendeesWindow);
-          synthesizeMouseAtCenter(
-            attendeesDocument.querySelector("dialog").getButton("accept"),
-            {},
-            attendeesWindow
-          );
+            await sleep(attendeesWindow);
+            Assert.equal(attendeesDocument.activeElement.localName, "input");
+            Assert.equal(attendeesDocument.activeElement.value, "");
+            sendString(attendee, attendeesWindow);
+            synthesizeMouseAtCenter(
+              attendeesDocument.querySelector("dialog").getButton("accept"),
+              {},
+              attendeesWindow
+            );
+          },
         }
       );
       synthesizeMouseAtCenter(dialogDocument.getElementById("button-attendees"), {}, dialogWindow);
@@ -534,33 +536,35 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
   let dialogPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
-    async timezoneWindow => {
-      Assert.report(false, undefined, undefined, "Timezone dialog opened");
-      if (Services.focus.activeWindow != timezoneWindow) {
-        let focus = BrowserTestUtils.waitForEvent(timezoneWindow, "focus", true);
-        timezoneWindow.focus();
-        await focus;
-      }
+    {
+      async callback(timezoneWindow) {
+        Assert.report(false, undefined, undefined, "Timezone dialog opened");
+        if (Services.focus.activeWindow != timezoneWindow) {
+          let focus = BrowserTestUtils.waitForEvent(timezoneWindow, "focus", true);
+          timezoneWindow.focus();
+          await focus;
+        }
 
-      let timezoneDocument = timezoneWindow.document;
-      let timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
-      let timezoneMenuitem = timezoneMenulist.querySelector(`[value="${timezone}"]`);
+        let timezoneDocument = timezoneWindow.document;
+        let timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
+        let timezoneMenuitem = timezoneMenulist.querySelector(`[value="${timezone}"]`);
 
-      let popupshown = BrowserTestUtils.waitForEvent(timezoneMenulist, "popupshown");
-      synthesizeMouseAtCenter(timezoneMenulist, {}, timezoneWindow);
-      await popupshown;
+        let popupshown = BrowserTestUtils.waitForEvent(timezoneMenulist, "popupshown");
+        synthesizeMouseAtCenter(timezoneMenulist, {}, timezoneWindow);
+        await popupshown;
 
-      timezoneMenuitem.scrollIntoView();
+        timezoneMenuitem.scrollIntoView();
 
-      let popuphidden = BrowserTestUtils.waitForEvent(timezoneMenulist, "popuphidden");
-      synthesizeMouseAtCenter(timezoneMenuitem, {}, timezoneWindow);
-      await popuphidden;
+        let popuphidden = BrowserTestUtils.waitForEvent(timezoneMenulist, "popuphidden");
+        synthesizeMouseAtCenter(timezoneMenuitem, {}, timezoneWindow);
+        await popuphidden;
 
-      synthesizeMouseAtCenter(
-        timezoneDocument.querySelector("dialog").getButton("accept"),
-        {},
-        timezoneWindow
-      );
+        synthesizeMouseAtCenter(
+          timezoneDocument.querySelector("dialog").getButton("accept"),
+          {},
+          timezoneWindow
+        );
+      },
     }
   );
 

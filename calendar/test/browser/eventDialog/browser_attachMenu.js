@@ -76,9 +76,11 @@ add_task(async function testAttachWebPage() {
   let urlPrompt = BrowserTestUtils.promiseAlertDialogOpen(
     "",
     "chrome://global/content/commonDialog.xhtml",
-    async win => {
-      win.document.querySelector("#loginTextbox").value = url;
-      EventUtils.synthesizeKey("VK_RETURN", {}, win);
+    {
+      async callback(win) {
+        win.document.querySelector("#loginTextbox").value = url;
+        EventUtils.synthesizeKey("VK_RETURN", {}, win);
+      },
     }
   );
   EventUtils.synthesizeMouseAtCenter(

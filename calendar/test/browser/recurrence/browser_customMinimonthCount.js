@@ -54,78 +54,80 @@ add_task(async function testMinimonthsFillAvailableSpaceOnResize() {
       let getRepeatWin = BrowserTestUtils.promiseAlertDialogOpen(
         "",
         "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml",
-        async win => {
-          let container = win.document.querySelector("#recurrence-preview");
-          let containerRect = container.getBoundingClientRect();
-          let containerWidth = containerRect.width;
-          let containerHeight = containerRect.height;
-          let minimonth = container.querySelector("calendar-minimonth");
-          let minimonthRect = minimonth.getBoundingClientRect();
-          let minimonthWidth = minimonthRect.width;
-          let minimonthHeight = minimonthRect.height;
-          let widthRemainder = containerWidth % minimonthWidth;
-          let heightRemainder = containerHeight % minimonthHeight;
+        {
+          async callback(win) {
+            let container = win.document.querySelector("#recurrence-preview");
+            let containerRect = container.getBoundingClientRect();
+            let containerWidth = containerRect.width;
+            let containerHeight = containerRect.height;
+            let minimonth = container.querySelector("calendar-minimonth");
+            let minimonthRect = minimonth.getBoundingClientRect();
+            let minimonthWidth = minimonthRect.width;
+            let minimonthHeight = minimonthRect.height;
+            let widthRemainder = containerWidth % minimonthWidth;
+            let heightRemainder = containerHeight % minimonthHeight;
 
-          // Determine how many rows and columns to expect when first opened.
-          let defaultCols = (containerWidth - widthRemainder) / minimonthRect.width;
-          let defaultRows = (containerHeight - heightRemainder) / minimonthRect.height;
-          let defaultMinimonthCount = container.querySelectorAll("calendar-minimonth").length;
-          let expectedDefaultMinimonthCount = defaultCols * defaultRows;
+            // Determine how many rows and columns to expect when first opened.
+            let defaultCols = (containerWidth - widthRemainder) / minimonthRect.width;
+            let defaultRows = (containerHeight - heightRemainder) / minimonthRect.height;
+            let defaultMinimonthCount = container.querySelectorAll("calendar-minimonth").length;
+            let expectedDefaultMinimonthCount = defaultCols * defaultRows;
 
-          // Ensure the number of minimonths shown is the amount we expect.
-          Assert.equal(
-            defaultMinimonthCount,
-            expectedDefaultMinimonthCount,
-            `default minimonth box count is ${expectedDefaultMinimonthCount}`
-          );
+            // Ensure the number of minimonths shown is the amount we expect.
+            Assert.equal(
+              defaultMinimonthCount,
+              expectedDefaultMinimonthCount,
+              `default minimonth box count is ${expectedDefaultMinimonthCount}`
+            );
 
-          // Calculate the expected number of minimonths after resize.
-          let expectedCols = defaultCols + x;
-          let expectedRows = defaultRows + y;
-          let expectedCount = expectedCols * expectedRows;
+            // Calculate the expected number of minimonths after resize.
+            let expectedCols = defaultCols + x;
+            let expectedRows = defaultRows + y;
+            let expectedCount = expectedCols * expectedRows;
 
-          // Calculate the actual number of pixels to resize the window by.
-          let xDelta = Math.ceil(minimonthWidth * x);
-          let yDelta = Math.ceil(minimonthHeight * y);
+            // Calculate the actual number of pixels to resize the window by.
+            let xDelta = Math.ceil(minimonthWidth * x);
+            let yDelta = Math.ceil(minimonthHeight * y);
 
-          // Resize the window.
-          let wasResized = BrowserTestUtils.waitForEvent(win, "resize");
-          win.resizeBy(xDelta, yDelta);
-          await wasResized;
+            // Resize the window.
+            let wasResized = BrowserTestUtils.waitForEvent(win, "resize");
+            win.resizeBy(xDelta, yDelta);
+            await wasResized;
 
-          // Occasionally, the container's vertical height is not what we expect
-          // (12px less when resized by 1 minimonth). This seems to be only
-          // happening during mochitests. The onResize() handler will not render
-          // extra rows when this happens so resize the window incrementally
-          // here until the container has the desired vertical height.
-          let expectedContainerWidth = containerWidth + xDelta;
-          let expectedContainerHeight = containerHeight + yDelta;
-          await TestUtils.waitForCondition(async () => {
-            let { width, height } = container.getBoundingClientRect();
+            // Occasionally, the container's vertical height is not what we expect
+            // (12px less when resized by 1 minimonth). This seems to be only
+            // happening during mochitests. The onResize() handler will not render
+            // extra rows when this happens so resize the window incrementally
+            // here until the container has the desired vertical height.
+            let expectedContainerWidth = containerWidth + xDelta;
+            let expectedContainerHeight = containerHeight + yDelta;
+            await TestUtils.waitForCondition(async () => {
+              let { width, height } = container.getBoundingClientRect();
 
-            if (width >= expectedContainerWidth && height >= expectedContainerHeight) {
-              return true;
-            }
+              if (width >= expectedContainerWidth && height >= expectedContainerHeight) {
+                return true;
+              }
 
-            let reXDelta = Math.ceil(expectedContainerWidth - width);
-            let reYDelta = Math.ceil(expectedContainerHeight - height);
-            let wasResizedAgain = BrowserTestUtils.waitForEvent(win, "resize");
-            win.resizeBy(reXDelta, reYDelta);
-            await wasResizedAgain;
+              let reXDelta = Math.ceil(expectedContainerWidth - width);
+              let reYDelta = Math.ceil(expectedContainerHeight - height);
+              let wasResizedAgain = BrowserTestUtils.waitForEvent(win, "resize");
+              win.resizeBy(reXDelta, reYDelta);
+              await wasResizedAgain;
 
-            let rect = container.getBoundingClientRect();
-            return rect.width >= expectedContainerWidth && rect.height >= expectedContainerHeight;
-          }, `(+${x},+${y}): minimonth container was not resized to ${expectedContainerWidth}x${expectedContainerHeight}`);
+              let rect = container.getBoundingClientRect();
+              return rect.width >= expectedContainerWidth && rect.height >= expectedContainerHeight;
+            }, `(+${x},+${y}): minimonth container was not resized to ${expectedContainerWidth}x${expectedContainerHeight}`);
 
-          let actualCount = container.querySelectorAll("calendar-minimonth").length;
-          Assert.equal(
-            actualCount,
-            expectedCount,
-            `minimonth count is ${expectedCount} when resized by +${x},+${y} minimonths`
-          );
+            let actualCount = container.querySelectorAll("calendar-minimonth").length;
+            Assert.equal(
+              actualCount,
+              expectedCount,
+              `minimonth count is ${expectedCount} when resized by +${x},+${y} minimonths`
+            );
 
-          // Close the window here to avoid blocking.
-          await BrowserTestUtils.closeWindow(win);
+            // Close the window here to avoid blocking.
+            await BrowserTestUtils.closeWindow(win);
+          },
         }
       );
       let repeatMenu = iframe.contentDocument.querySelector("#item-repeat");

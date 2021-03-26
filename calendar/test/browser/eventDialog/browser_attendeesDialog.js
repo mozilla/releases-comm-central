@@ -355,8 +355,10 @@ function openAttendeesWindow(eventWindowOrArgs) {
   let attendeesWindowPromise = BrowserTestUtils.promiseAlertDialogOpen(
     null,
     "chrome://calendar/content/calendar-event-dialog-attendees.xhtml",
-    async win => {
-      await new Promise(resolve => win.setTimeout(resolve));
+    {
+      async callback(win) {
+        await new Promise(resolve => win.setTimeout(resolve));
+      },
     }
   );
 

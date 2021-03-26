@@ -90,12 +90,14 @@ async function createAddressBookWithUI(abName) {
   let newAddressBookPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml",
-    abNameDialog => {
-      EventUtils.sendString(abName, abNameDialog);
-      abNameDialog.document
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+    {
+      callback(abNameDialog) {
+        EventUtils.sendString(abName, abNameDialog);
+        abNameDialog.document
+          .querySelector("dialog")
+          .getButton("accept")
+          .click();
+      },
     }
   );
 
@@ -138,16 +140,18 @@ async function createMailingListWithUI(mlParent, mlName) {
   let newAddressBookPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
-    async abListDialog => {
-      let abListDocument = abListDialog.document;
-      await new Promise(resolve => abListDialog.setTimeout(resolve));
+    {
+      async callback(abListDialog) {
+        let abListDocument = abListDialog.document;
+        await new Promise(resolve => abListDialog.setTimeout(resolve));
 
-      abListDocument.getElementById("abPopup").value = mlParent.URI;
-      abListDocument.getElementById("ListName").value = mlName;
-      abListDocument
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+        abListDocument.getElementById("abPopup").value = mlParent.URI;
+        abListDocument.getElementById("ListName").value = mlName;
+        abListDocument
+          .querySelector("dialog")
+          .getButton("accept")
+          .click();
+      },
     }
   );
   abWindow.AbNewList();

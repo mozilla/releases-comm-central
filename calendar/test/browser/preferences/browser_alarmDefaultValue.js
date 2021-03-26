@@ -58,7 +58,7 @@ add_task(async function testDefaultAlarms() {
   let reminderDialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-event-dialog-reminder.xhtml",
-    handleReminderDialog
+    { callback: handleReminderDialog }
   );
   EventUtils.synthesizeMouseAtCenter(reminderDetails, {}, iframeWindow);
   await reminderDialogPromise;
@@ -89,7 +89,7 @@ add_task(async function testDefaultAlarms() {
   reminderDialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-event-dialog-reminder.xhtml",
-    handleReminderDialog
+    { callback: handleReminderDialog }
   );
   EventUtils.synthesizeMouseAtCenter(reminderDetails, {}, iframeWindow);
   await reminderDialogPromise;

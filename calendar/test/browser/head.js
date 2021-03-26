@@ -319,7 +319,7 @@ async function createCalendarUsingDialog(name, data = {}) {
   let dialogWindowPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-creation.xhtml",
-    useDialog
+    { callback: useDialog }
   );
   // Open the "create new calendar" dialog.
   CalendarTestUtils.openCalendarTab(window);

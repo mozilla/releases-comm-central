@@ -196,18 +196,20 @@ add_task(async () => {
   dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-properties-dialog.xhtml",
-    win => {
-      let doc = win.document;
-      let nameElement = doc.getElementById("calendar-name");
-      let colorElement = doc.getElementById("calendar-color");
-      Assert.equal(nameElement.value, "Mochitest 1");
-      Assert.equal(colorElement.value, "#a8c2e1");
-      nameElement.value = "A New Calendar!";
-      colorElement.value = "#009900";
-      doc
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+    {
+      callback(win) {
+        let doc = win.document;
+        let nameElement = doc.getElementById("calendar-name");
+        let colorElement = doc.getElementById("calendar-color");
+        Assert.equal(nameElement.value, "Mochitest 1");
+        Assert.equal(colorElement.value, "#a8c2e1");
+        nameElement.value = "A New Calendar!";
+        colorElement.value = "#009900";
+        doc
+          .querySelector("dialog")
+          .getButton("accept")
+          .click();
+      },
     }
   );
   EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[1], { clickCount: 2 });
@@ -223,17 +225,19 @@ add_task(async () => {
   dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-properties-dialog.xhtml",
-    win => {
-      let doc = win.document;
-      let nameElement = doc.getElementById("calendar-name");
-      let colorElement = doc.getElementById("calendar-color");
-      Assert.equal(nameElement.value, "A New Calendar!");
-      Assert.equal(colorElement.value, "#009900");
-      nameElement.value = "Mochitest 1";
-      doc
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+    {
+      callback(win) {
+        let doc = win.document;
+        let nameElement = doc.getElementById("calendar-name");
+        let colorElement = doc.getElementById("calendar-color");
+        Assert.equal(nameElement.value, "A New Calendar!");
+        Assert.equal(colorElement.value, "#009900");
+        nameElement.value = "Mochitest 1";
+        doc
+          .querySelector("dialog")
+          .getButton("accept")
+          .click();
+      },
     }
   );
   calendarListContextMenu(calendarList.itemChildren[1], "list-calendars-context-edit");
@@ -249,15 +253,17 @@ add_task(async () => {
   dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-properties-dialog.xhtml",
-    win => {
-      let doc = win.document;
-      let enabledElement = doc.getElementById("calendar-enabled-checkbox");
-      Assert.ok(enabledElement.checked);
-      enabledElement.checked = false;
-      doc
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+    {
+      callback(win) {
+        let doc = win.document;
+        let enabledElement = doc.getElementById("calendar-enabled-checkbox");
+        Assert.ok(enabledElement.checked);
+        enabledElement.checked = false;
+        doc
+          .querySelector("dialog")
+          .getButton("accept")
+          .click();
+      },
     }
   );
   calendarListContextMenu(calendarList.itemChildren[3], "list-calendars-context-edit");

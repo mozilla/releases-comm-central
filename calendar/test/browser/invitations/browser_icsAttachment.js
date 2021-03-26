@@ -31,37 +31,39 @@ add_task(async function test_ics_attachment() {
   await BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://mozapps/content/downloads/unknownContentType.xhtml",
-    async dialogWindow => {
-      ok(true, "unknownContentType dialog opened");
-      let dialogElement = dialogWindow.document.querySelector("dialog");
-      let acceptButton = dialogElement.getButton("accept");
-      return new Promise(resolve => {
-        let observer = new MutationObserver(mutationList => {
-          mutationList.forEach(async mutation => {
-            if (mutation.attributeName == "disabled" && !acceptButton.disabled) {
-              is(acceptButton.disabled, false, "Accept button enabled");
-              if (AppConstants.platform != "macosx") {
-                let bundle = Services.strings.createBundle(
-                  "chrome://branding/locale/brand.properties"
-                );
-                let name = bundle.GetStringFromName("brandShortName");
-                // macOS requires extra step in Finder to set TB as default calendar app.
-                ok(
-                  dialogWindow.document.getElementById("openHandler").label.includes(name),
-                  `${name} is the default calendar app`
-                );
-              }
+    {
+      async callback(dialogWindow) {
+        ok(true, "unknownContentType dialog opened");
+        let dialogElement = dialogWindow.document.querySelector("dialog");
+        let acceptButton = dialogElement.getButton("accept");
+        return new Promise(resolve => {
+          let observer = new MutationObserver(mutationList => {
+            mutationList.forEach(async mutation => {
+              if (mutation.attributeName == "disabled" && !acceptButton.disabled) {
+                is(acceptButton.disabled, false, "Accept button enabled");
+                if (AppConstants.platform != "macosx") {
+                  let bundle = Services.strings.createBundle(
+                    "chrome://branding/locale/brand.properties"
+                  );
+                  let name = bundle.GetStringFromName("brandShortName");
+                  // macOS requires extra step in Finder to set TB as default calendar app.
+                  ok(
+                    dialogWindow.document.getElementById("openHandler").label.includes(name),
+                    `${name} is the default calendar app`
+                  );
+                }
 
-              // Should really click acceptButton and test
-              // calender-ics-file-dialog is opened. But on local, a new TB
-              // instance is started and this test will fail.
-              dialogElement.getButton("cancel").click();
-              resolve();
-            }
+                // Should really click acceptButton and test
+                // calender-ics-file-dialog is opened. But on local, a new TB
+                // instance is started and this test will fail.
+                dialogElement.getButton("cancel").click();
+                resolve();
+              }
+            });
           });
+          observer.observe(acceptButton, { attributes: true });
         });
-        observer.observe(acceptButton, { attributes: true });
-      });
+      },
     }
   );
 

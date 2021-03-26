@@ -47,16 +47,18 @@ async function handleUnableToSendEncryptedDialog() {
   return BrowserTestUtils.promiseAlertDialogOpen(
     "",
     "chrome://openpgp/content/ui/enigmailMsgBox.xhtml",
-    async win => {
-      // Ensure this contains text related to the tests here.
-      Assert.ok(
-        win.document.documentElement.textContent.includes(
-          "Unable to send this message with end-to-end encryption"
-        ),
-        "unable to send encrypted dialog should be displayed"
-      );
+    {
+      async callback(win) {
+        // Ensure this contains text related to the tests here.
+        Assert.ok(
+          win.document.documentElement.textContent.includes(
+            "Unable to send this message with end-to-end encryption"
+          ),
+          "unable to send encrypted dialog should be displayed"
+        );
 
-      await closeDialog(win);
+        await closeDialog(win);
+      },
     }
   );
 }
@@ -72,20 +74,22 @@ async function handleKeyStatusDialog(callback) {
   return BrowserTestUtils.promiseAlertDialogOpen(
     "",
     "chrome://openpgp/content/ui/composeKeyStatus.xhtml",
-    async win => {
-      if (Services.focus.activeWindow != win) {
-        await BrowserTestUtils.waitForEvent(win, "focus");
-      }
-      // Wait for the onLoad() handler to finish loading. It does some async
-      // work to build the displayed columns.
-      await BrowserTestUtils.waitForCondition(
-        () =>
-          win.gRowToEmail &&
-          win.gEmailAddresses &&
-          (win.gRowToEmail.length = win.gEmailAddresses.length),
-        "status list columns did not load in time"
-      );
-      return callback(win);
+    {
+      async callback(win) {
+        if (Services.focus.activeWindow != win) {
+          await BrowserTestUtils.waitForEvent(win, "focus");
+        }
+        // Wait for the onLoad() handler to finish loading. It does some async
+        // work to build the displayed columns.
+        await BrowserTestUtils.waitForCondition(
+          () =>
+            win.gRowToEmail &&
+            win.gEmailAddresses &&
+            (win.gRowToEmail.length = win.gEmailAddresses.length),
+          "status list columns did not load in time"
+        );
+        return callback(win);
+      },
     }
   );
 }

@@ -76,69 +76,78 @@ add_task(async () => {
     null,
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
     // A callback that can interact with the mailing list dialog.
-    async mlWindow => {
-      let mlDocument = mlWindow.document;
-      let mlDocElement = mlDocument.querySelector("dialog");
+    {
+      async callback(mlWindow) {
+        let mlDocument = mlWindow.document;
+        let mlDocElement = mlDocument.querySelector("dialog");
 
-      let listName = mlDocument.getElementById("ListName");
-      let listNameFocusEvent = await BrowserTestUtils.waitForEvent(
-        listName,
-        "focus"
-      );
+        let listName = mlDocument.getElementById("ListName");
+        let listNameFocusEvent = await BrowserTestUtils.waitForEvent(
+          listName,
+          "focus"
+        );
 
-      let abPopup = mlDocument.getElementById("abPopup");
-      let listNickName = mlDocument.getElementById("ListNickName");
-      let listDescription = mlDocument.getElementById("ListDescription");
-      let addressInput1 = mlDocument.getElementById("addressCol1#1");
-      let addressInputsCount = mlDocument
-        .getElementById("addressingWidget")
-        .querySelectorAll("input").length;
+        let abPopup = mlDocument.getElementById("abPopup");
+        let listNickName = mlDocument.getElementById("ListNickName");
+        let listDescription = mlDocument.getElementById("ListDescription");
+        let addressInput1 = mlDocument.getElementById("addressCol1#1");
+        let addressInputsCount = mlDocument
+          .getElementById("addressingWidget")
+          .querySelectorAll("input").length;
 
-      Assert.equal(
-        abPopup.label,
-        global.addressBook.dirName,
-        "the correct address book is selected in the menu"
-      );
-      Assert.equal(
-        abPopup.value,
-        global.addressBook.URI,
-        "the address book selected in the menu has the correct address book URI"
-      );
-      Assert.equal(
-        listNameFocusEvent.type,
-        "focus",
-        "list name field is focused"
-      );
-      Assert.equal(listName.value, "", "no text in the list name field");
-      Assert.equal(
-        listNickName.value,
-        "",
-        "no text in the list nickname field"
-      );
-      Assert.equal(
-        listDescription.value,
-        "",
-        "no text in the description field"
-      );
-      Assert.equal(addressInput1.value, "", "no text in the addresses list");
-      Assert.equal(addressInputsCount, 1, "only one address list input exists");
+        Assert.equal(
+          abPopup.label,
+          global.addressBook.dirName,
+          "the correct address book is selected in the menu"
+        );
+        Assert.equal(
+          abPopup.value,
+          global.addressBook.URI,
+          "the address book selected in the menu has the correct address book URI"
+        );
+        Assert.equal(
+          listNameFocusEvent.type,
+          "focus",
+          "list name field is focused"
+        );
+        Assert.equal(listName.value, "", "no text in the list name field");
+        Assert.equal(
+          listNickName.value,
+          "",
+          "no text in the list nickname field"
+        );
+        Assert.equal(
+          listDescription.value,
+          "",
+          "no text in the description field"
+        );
+        Assert.equal(addressInput1.value, "", "no text in the addresses list");
+        Assert.equal(
+          addressInputsCount,
+          1,
+          "only one address list input exists"
+        );
 
-      EventUtils.sendString(inputs.mlName, mlWindow);
+        EventUtils.sendString(inputs.mlName, mlWindow);
 
-      // Tab to nickname input.
-      EventUtils.sendKey("TAB", mlWindow);
-      EventUtils.sendString(inputs.nickName, mlWindow);
+        // Tab to nickname input.
+        EventUtils.sendKey("TAB", mlWindow);
+        EventUtils.sendString(inputs.nickName, mlWindow);
 
-      // Tab to description input.
-      EventUtils.sendKey("TAB", mlWindow);
-      EventUtils.sendString(inputs.description, mlWindow);
+        // Tab to description input.
+        EventUtils.sendKey("TAB", mlWindow);
+        EventUtils.sendString(inputs.description, mlWindow);
 
-      // Tab to address input and add addresses zero and one by entering
-      // both of them there.
-      EventUtils.sendKey("TAB", mlWindow);
-      EventUtils.sendString(inputs.addresses.slice(0, 2).join(", "), mlWindow);
+        // Tab to address input and add addresses zero and one by entering
+        // both of them there.
+        EventUtils.sendKey("TAB", mlWindow);
+        EventUtils.sendString(
+          inputs.addresses.slice(0, 2).join(", "),
+          mlWindow
+        );
 
-      mlDocElement.getButton("accept").click();
+        mlDocElement.getButton("accept").click();
+      },
     }
   );
 
@@ -218,88 +227,95 @@ add_task(async () => {
     null,
     "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
     // A callback that can interact with the mailing list dialog.
-    async mlWindow => {
-      let mlDocument = mlWindow.document;
-      let mlDocElement = mlDocument.querySelector("dialog");
+    {
+      async callback(mlWindow) {
+        let mlDocument = mlWindow.document;
+        let mlDocElement = mlDocument.querySelector("dialog");
 
-      // The address input nodes are not there yet when the dialog window is
-      // loaded, so wait until they exist.
-      await mailTestUtils.awaitElementExistence(
-        MutationObserver,
-        mlDocument,
-        "addressingWidget",
-        "addressCol1#3"
-      );
+        // The address input nodes are not there yet when the dialog window is
+        // loaded, so wait until they exist.
+        await mailTestUtils.awaitElementExistence(
+          MutationObserver,
+          mlDocument,
+          "addressingWidget",
+          "addressCol1#3"
+        );
 
-      await BrowserTestUtils.waitForEvent(
-        mlDocument.getElementById("addressCol1#3"),
-        "focus"
-      );
+        await BrowserTestUtils.waitForEvent(
+          mlDocument.getElementById("addressCol1#3"),
+          "focus"
+        );
 
-      let listName = mlDocument.getElementById("ListName");
-      let listNickName = mlDocument.getElementById("ListNickName");
-      let listDescription = mlDocument.getElementById("ListDescription");
-      let addressInput1 = mlDocument.getElementById("addressCol1#1");
-      let addressInput2 = mlDocument.getElementById("addressCol1#2");
+        let listName = mlDocument.getElementById("ListName");
+        let listNickName = mlDocument.getElementById("ListNickName");
+        let listDescription = mlDocument.getElementById("ListDescription");
+        let addressInput1 = mlDocument.getElementById("addressCol1#1");
+        let addressInput2 = mlDocument.getElementById("addressCol1#2");
 
-      Assert.equal(
-        listName.value,
-        inputs.mlName,
-        "list name is displayed correctly"
-      );
-      Assert.equal(
-        listNickName.value,
-        inputs.nickName,
-        "list nickname is displayed correctly"
-      );
-      Assert.equal(
-        listDescription.value,
-        inputs.description,
-        "list description is displayed correctly"
-      );
-      Assert.equal(
-        addressInput1 && addressInput1.value,
-        getDisplayedAddress(inputs.addresses[0]),
-        "address zero is displayed correctly"
-      );
-      Assert.equal(
-        addressInput2 && addressInput2.value,
-        getDisplayedAddress(inputs.addresses[1]),
-        "address one is displayed correctly"
-      );
+        Assert.equal(
+          listName.value,
+          inputs.mlName,
+          "list name is displayed correctly"
+        );
+        Assert.equal(
+          listNickName.value,
+          inputs.nickName,
+          "list nickname is displayed correctly"
+        );
+        Assert.equal(
+          listDescription.value,
+          inputs.description,
+          "list description is displayed correctly"
+        );
+        Assert.equal(
+          addressInput1 && addressInput1.value,
+          getDisplayedAddress(inputs.addresses[0]),
+          "address zero is displayed correctly"
+        );
+        Assert.equal(
+          addressInput2 && addressInput2.value,
+          getDisplayedAddress(inputs.addresses[1]),
+          "address one is displayed correctly"
+        );
 
-      let textInputs = mlDocument.querySelectorAll(".textbox-addressingWidget");
-      Assert.equal(
-        textInputs.length,
-        3,
-        "no extraneous addresses are displayed"
-      );
+        let textInputs = mlDocument.querySelectorAll(
+          ".textbox-addressingWidget"
+        );
+        Assert.equal(
+          textInputs.length,
+          3,
+          "no extraneous addresses are displayed"
+        );
 
-      // Add addresses two and three.
-      EventUtils.sendString(inputs.addresses.slice(2, 4).join(", "), mlWindow);
-      EventUtils.sendKey("RETURN", mlWindow);
-      await new Promise(resolve => mlWindow.setTimeout(resolve));
+        // Add addresses two and three.
+        EventUtils.sendString(
+          inputs.addresses.slice(2, 4).join(", "),
+          mlWindow
+        );
+        EventUtils.sendKey("RETURN", mlWindow);
+        await new Promise(resolve => mlWindow.setTimeout(resolve));
 
-      // Delete the address in the second row (address one).
-      EventUtils.synthesizeMouseAtCenter(
-        addressInput2,
-        { clickCount: 1 },
-        mlWindow
-      );
-      EventUtils.synthesizeKey("a", { accelKey: true }, mlWindow);
-      EventUtils.sendKey("BACK_SPACE", mlWindow);
+        // Delete the address in the second row (address one).
+        EventUtils.synthesizeMouseAtCenter(
+          addressInput2,
+          { clickCount: 1 },
+          mlWindow
+        );
+        EventUtils.synthesizeKey("a", { accelKey: true }, mlWindow);
+        EventUtils.sendKey("BACK_SPACE", mlWindow);
 
-      // Modify the list's name, nick name, and description fields.
-      let modifyField = id => {
-        id.focus();
-        EventUtils.sendKey("END", mlWindow);
-        EventUtils.sendString(inputs.modification, mlWindow);
-      };
-      modifyField(listName);
-      modifyField(listNickName);
-      modifyField(listDescription);
+        // Modify the list's name, nick name, and description fields.
+        let modifyField = id => {
+          id.focus();
+          EventUtils.sendKey("END", mlWindow);
+          EventUtils.sendString(inputs.modification, mlWindow);
+        };
+        modifyField(listName);
+        modifyField(listNickName);
+        modifyField(listDescription);
 
-      mlDocElement.getButton("accept").click();
+        mlDocElement.getButton("accept").click();
+      },
     }
   );
 
@@ -418,70 +434,74 @@ add_task(async () => {
     null,
     "chrome://messenger/content/addressbook/abEditListDialog.xhtml",
     // A callback that can interact with the mailing list dialog.
-    async mailingListWindow => {
-      let mlDocument = mailingListWindow.document;
-      let mlDocElement = mlDocument.querySelector("dialog");
+    {
+      async callback(mailingListWindow) {
+        let mlDocument = mailingListWindow.document;
+        let mlDocElement = mlDocument.querySelector("dialog");
 
-      // The address input nodes are not there yet when the dialog window is
-      // loaded, so wait until they exist.
-      await mailTestUtils.awaitElementExistence(
-        MutationObserver,
-        mlDocument,
-        "addressingWidget",
-        "addressCol1#4"
-      );
+        // The address input nodes are not there yet when the dialog window is
+        // loaded, so wait until they exist.
+        await mailTestUtils.awaitElementExistence(
+          MutationObserver,
+          mlDocument,
+          "addressingWidget",
+          "addressCol1#4"
+        );
 
-      await BrowserTestUtils.waitForEvent(
-        mlDocument.getElementById("addressCol1#4"),
-        "focus"
-      );
+        await BrowserTestUtils.waitForEvent(
+          mlDocument.getElementById("addressCol1#4"),
+          "focus"
+        );
 
-      let listName = mlDocument.getElementById("ListName");
-      let listNickName = mlDocument.getElementById("ListNickName");
-      let listDescription = mlDocument.getElementById("ListDescription");
-      let addressInput1 = mlDocument.getElementById("addressCol1#1");
-      let addressInput2 = mlDocument.getElementById("addressCol1#2");
-      let addressInput3 = mlDocument.getElementById("addressCol1#3");
+        let listName = mlDocument.getElementById("ListName");
+        let listNickName = mlDocument.getElementById("ListNickName");
+        let listDescription = mlDocument.getElementById("ListDescription");
+        let addressInput1 = mlDocument.getElementById("addressCol1#1");
+        let addressInput2 = mlDocument.getElementById("addressCol1#2");
+        let addressInput3 = mlDocument.getElementById("addressCol1#3");
 
-      Assert.equal(
-        listName.value,
-        inputs.mlName + inputs.modification,
-        "modified list name is displayed correctly"
-      );
-      Assert.equal(
-        listNickName.value,
-        inputs.nickName + inputs.modification,
-        "modified list nickname is displayed correctly"
-      );
-      Assert.equal(
-        listDescription.value,
-        inputs.description + inputs.modification,
-        "modified list description is displayed correctly"
-      );
-      Assert.equal(
-        addressInput1 && addressInput1.value,
-        getDisplayedAddress(inputs.addresses[0]),
-        "address zero is displayed correctly (is still there)"
-      );
-      Assert.equal(
-        addressInput2 && addressInput2.value,
-        getDisplayedAddress(inputs.addresses[2]),
-        "address two is displayed correctly"
-      );
-      Assert.equal(
-        addressInput3 && addressInput3.value,
-        getDisplayedAddress(inputs.addresses[3]),
-        "address three is displayed correctly"
-      );
+        Assert.equal(
+          listName.value,
+          inputs.mlName + inputs.modification,
+          "modified list name is displayed correctly"
+        );
+        Assert.equal(
+          listNickName.value,
+          inputs.nickName + inputs.modification,
+          "modified list nickname is displayed correctly"
+        );
+        Assert.equal(
+          listDescription.value,
+          inputs.description + inputs.modification,
+          "modified list description is displayed correctly"
+        );
+        Assert.equal(
+          addressInput1 && addressInput1.value,
+          getDisplayedAddress(inputs.addresses[0]),
+          "address zero is displayed correctly (is still there)"
+        );
+        Assert.equal(
+          addressInput2 && addressInput2.value,
+          getDisplayedAddress(inputs.addresses[2]),
+          "address two is displayed correctly"
+        );
+        Assert.equal(
+          addressInput3 && addressInput3.value,
+          getDisplayedAddress(inputs.addresses[3]),
+          "address three is displayed correctly"
+        );
 
-      let textInputs = mlDocument.querySelectorAll(".textbox-addressingWidget");
-      Assert.equal(
-        textInputs.length,
-        4,
-        "no extraneous addresses are displayed"
-      );
+        let textInputs = mlDocument.querySelectorAll(
+          ".textbox-addressingWidget"
+        );
+        Assert.equal(
+          textInputs.length,
+          4,
+          "no extraneous addresses are displayed"
+        );
 
-      mlDocElement.getButton("cancel").click();
+        mlDocElement.getButton("cancel").click();
+      },
     }
   );
 

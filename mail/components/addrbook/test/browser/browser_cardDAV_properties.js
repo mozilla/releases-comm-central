@@ -86,64 +86,72 @@ add_task(async () => {
     let dialogPromise = BrowserTestUtils.promiseAlertDialog(
       undefined,
       "chrome://messenger/content/addressbook/abCardDAVProperties.xhtml",
-      async dialogWindow => {
-        let dialogDocument = dialogWindow.document;
+      {
+        async callback(dialogWindow) {
+          let dialogDocument = dialogWindow.document;
 
-        let nameInput = dialogDocument.getElementById("carddav-name");
-        Assert.equal(nameInput.value, expectedValues.name);
-        if ("name" in newValues) {
-          nameInput.value = newValues.name;
-        }
+          let nameInput = dialogDocument.getElementById("carddav-name");
+          Assert.equal(nameInput.value, expectedValues.name);
+          if ("name" in newValues) {
+            nameInput.value = newValues.name;
+          }
 
-        let urlInput = dialogDocument.getElementById("carddav-url");
-        Assert.equal(urlInput.value, expectedValues.url);
-        if ("url" in newValues) {
-          urlInput.value = newValues.url;
-        }
+          let urlInput = dialogDocument.getElementById("carddav-url");
+          Assert.equal(urlInput.value, expectedValues.url);
+          if ("url" in newValues) {
+            urlInput.value = newValues.url;
+          }
 
-        let refreshActiveInput = dialogDocument.getElementById(
-          "carddav-refreshActive"
-        );
-        let refreshIntervalInput = dialogDocument.getElementById(
-          "carddav-refreshInterval"
-        );
-
-        Assert.equal(refreshActiveInput.checked, expectedValues.refreshActive);
-        Assert.equal(
-          refreshIntervalInput.disabled,
-          !expectedValues.refreshActive
-        );
-        if (
-          "refreshActive" in newValues &&
-          newValues.refreshActive != expectedValues.refreshActive
-        ) {
-          EventUtils.synthesizeMouseAtCenter(
-            refreshActiveInput,
-            {},
-            dialogWindow
+          let refreshActiveInput = dialogDocument.getElementById(
+            "carddav-refreshActive"
           );
-          Assert.equal(refreshIntervalInput.disabled, !newValues.refreshActive);
-        }
+          let refreshIntervalInput = dialogDocument.getElementById(
+            "carddav-refreshInterval"
+          );
 
-        Assert.equal(
-          refreshIntervalInput.value,
-          expectedValues.refreshInterval
-        );
-        if ("refreshInterval" in newValues) {
-          refreshIntervalInput.value = newValues.refreshInterval;
-        }
+          Assert.equal(
+            refreshActiveInput.checked,
+            expectedValues.refreshActive
+          );
+          Assert.equal(
+            refreshIntervalInput.disabled,
+            !expectedValues.refreshActive
+          );
+          if (
+            "refreshActive" in newValues &&
+            newValues.refreshActive != expectedValues.refreshActive
+          ) {
+            EventUtils.synthesizeMouseAtCenter(
+              refreshActiveInput,
+              {},
+              dialogWindow
+            );
+            Assert.equal(
+              refreshIntervalInput.disabled,
+              !newValues.refreshActive
+            );
+          }
 
-        let readOnlyInput = dialogDocument.getElementById("carddav-readOnly");
+          Assert.equal(
+            refreshIntervalInput.value,
+            expectedValues.refreshInterval
+          );
+          if ("refreshInterval" in newValues) {
+            refreshIntervalInput.value = newValues.refreshInterval;
+          }
 
-        Assert.equal(readOnlyInput.checked, expectedValues.readOnly);
-        if ("readOnly" in newValues) {
-          readOnlyInput.checked = newValues.readOnly;
-        }
+          let readOnlyInput = dialogDocument.getElementById("carddav-readOnly");
 
-        dialogDocument
-          .querySelector("dialog")
-          .getButton(buttonAction)
-          .click();
+          Assert.equal(readOnlyInput.checked, expectedValues.readOnly);
+          if ("readOnly" in newValues) {
+            readOnlyInput.checked = newValues.readOnly;
+          }
+
+          dialogDocument
+            .querySelector("dialog")
+            .getButton(buttonAction)
+            .click();
+        },
       }
     );
     EventUtils.synthesizeMouseAtCenter(menuItem, {}, abWindow);
