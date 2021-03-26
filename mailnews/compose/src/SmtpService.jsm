@@ -214,13 +214,13 @@ SmtpService.prototype = {
    * @see nsISmtpService
    */
   findServer(username, hostname) {
-    username = username.toLowerCase();
-    hostname = hostname.toLowerCase();
-    return [...this.servers].find(server => {
-      if (username && server.username.toLowerCase() != username) {
-        return false;
-      }
-      if (hostname && server.hostname.toLowerCase() != hostname) {
+    username = username?.toLowerCase();
+    hostname = hostname?.toLowerCase();
+    return this.servers.find(server => {
+      if (
+        (username && server.username.toLowerCase() != username) ||
+        (hostname && server.hostname.toLowerCase() != hostname)
+      ) {
         return false;
       }
       return true;
