@@ -248,21 +248,6 @@ py-black:
             - 'comm/**/moz.build'
             - 'comm/**/*.mozbuild'
 
-py-compat:
-    description: lint for python 2/3 compatibility issues
-    treeherder:
-        symbol: py(py-compat)
-    run:
-        mach: >
-            lint -v -l py2 -l py3 -f treeherder
-            -f json:/builds/worker/mozlint.json
-            --config-path=comm/tools/lint
-            comm/*
-    when:
-        files-changed:
-            - 'comm/**/*.py'
-            - 'comm/**/.flake8'
-
 py-flake8:
     description: flake8 run over the thunderbird codebase
     treeherder:
