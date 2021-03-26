@@ -36,7 +36,7 @@ add_task(function setup() {
 add_task(function test_put_view_picker_on_toolbar() {
   let toolbar = mc.e("mail-bar3");
   toolbar.insertItem("mailviews-container", null);
-  Assert.ok(mc.eid("mailviews-container").exists());
+  Assert.ok(mc.e("mailviews-container"));
 });
 
 /**
@@ -67,10 +67,7 @@ add_task(function test_save_view_as_folder() {
 
 function subtest_save_mail_view(savc) {
   // - make sure the name is right
-  Assert.equal(
-    savc.eid("name").getNode().value,
-    baseFolder.prettyName + "-Important"
-  );
+  Assert.equal(savc.e("name").value, baseFolder.prettyName + "-Important");
 
   let elem = savc.window.document.getElementById("searchVal0");
 

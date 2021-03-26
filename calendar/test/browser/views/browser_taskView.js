@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var {
+  MID_SLEEP,
   CALENDARNAME,
   closeAllEventDialogs,
   controller,
   createCalendar,
   deleteCalendars,
   execEventDialogCallback,
-  helpersForController,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarTestUtils.jsm"
@@ -17,10 +17,6 @@ var { CalendarTestUtils } = ChromeUtils.import(
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
-
-var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
-
-var { eid, sleep } = helpersForController(controller);
 
 const TITLE = "Task";
 const DESCRIPTION = "1. Do A\n2. Do B";
@@ -33,20 +29,20 @@ add_task(async function setupModule(module) {
   let CALENDARID = createCalendar(controller, CALENDARNAME);
 
   // Open task view.
-  controller.click(eid("task-tab-button"));
-  sleep();
+  controller.click(controller.window.document.getElementById("task-tab-button"));
+  controller.sleep(MID_SLEEP);
 
   // Make sure that testing calendar is selected.
   let calList = winDoc.querySelector(`#calendar-list > [calendar-id="${CALENDARID}"]`);
   Assert.ok(calList);
-  controller.click(new elib.Elem(calList));
+  controller.click(calList);
 
   let taskTreeNode = winDoc.getElementById("calendar-task-tree");
   Assert.equal(taskTreeNode.mTaskArray.length, 0);
 
   // Add task.
   let taskInput = winDoc.getElementById("view-task-edit-field");
-  controller.type(new elib.Elem(taskInput), TITLE);
+  controller.type(taskInput, TITLE);
   taskInput.focus();
   EventUtils.synthesizeKey("VK_RETURN", {}, controller.window);
 
@@ -62,7 +58,7 @@ add_task(async function setupModule(module) {
   let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
   let treeChildren = winDoc.querySelector("#calendar-task-tree .calendar-task-treechildren");
   Assert.ok(treeChildren);
-  controller.doubleClick(new elib.Elem(treeChildren), 50, 0);
+  controller.doubleClick(treeChildren, 50, 0);
 
   await eventWindowPromise;
   await execEventDialogCallback(controller, async (taskWindow, iframeWindow) => {
@@ -92,15 +88,15 @@ add_task(async function setupModule(module) {
   taskTreeNode.getTaskAtRow(0).calendar.setProperty("capabilities.priority.supported", true);
 
   // Set high priority and verify it in detail pane.
-  controller.click(eid("task-actions-priority"));
-  sleep();
+  controller.click(controller.window.document.getElementById("task-actions-priority"));
+  controller.sleep(MID_SLEEP);
 
   let priorityMenu = winDoc.querySelector(
     "#task-actions-priority-menupopup > .priority-1-menuitem"
   );
   Assert.ok(priorityMenu);
-  controller.click(new elib.Elem(priorityMenu));
-  sleep();
+  controller.click(priorityMenu);
+  controller.sleep(MID_SLEEP);
 
   Assert.ok(!winDoc.getElementById("calendar-task-details-priority-high").hasAttribute("hidden"));
 
@@ -126,14 +122,14 @@ add_task(async function setupModule(module) {
   Assert.equal(getTooltipDescription(5), PERCENTCOMPLETE + "%");
 
   // Mark completed, verify.
-  controller.click(eid("task-actions-markcompleted"));
-  sleep();
+  controller.click(controller.window.document.getElementById("task-actions-markcompleted"));
+  controller.sleep(MID_SLEEP);
 
   toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
   Assert.equal(getTooltipDescription(4), "Completed");
 
   // Delete task and verify.
-  controller.click(eid("calendar-delete-task-button"));
+  controller.click(controller.window.document.getElementById("calendar-delete-task-button"));
   controller.waitFor(() => taskTreeNode.mTaskArray.length == 0, "Task did not delete");
 
   let tabmail = controller.window.document.getElementById("tabmail");

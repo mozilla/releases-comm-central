@@ -10,14 +10,11 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  helpersForController,
   invokeNewEventDialog,
   invokeEditingEventDialog,
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-
-var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
@@ -40,7 +37,7 @@ add_task(async function testAlarmDialog() {
 
   let allDayHeader = dayView.getAllDayHeader(controller.window);
   Assert.ok(allDayHeader);
-  controller.click(new elib.Elem(allDayHeader));
+  controller.click(allDayHeader);
 
   // Create a new all-day event tomorrow.
   await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
@@ -52,9 +49,7 @@ add_task(async function testAlarmDialog() {
 
     // Prepare to dismiss the alarm.
     plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
-      let { eid: alarmid } = helpersForController(alarm);
-      let button = alarmid("alarm-dismiss-all-button");
-      alarm.waitForElement(button);
+      let button = alarm.window.document.getElementById("alarm-dismiss-all-button");
       alarm.click(button);
       // The dialog will close itself if we wait long enough.
       alarm.sleep(500);
@@ -71,12 +66,9 @@ add_task(async function testAlarmDialog() {
 
     // Prepare to snooze the alarm.
     plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
-      let { eid: alarmid } = helpersForController(alarm);
-      let snoozeAllButton = alarmid("alarm-snooze-all-button");
-      let popup = alarmid("alarm-snooze-all-popup").getNode();
-      let menuitems = popup.querySelectorAll(":scope > menuitem");
+      let snoozeAllButton = alarm.window.document.getElementById("alarm-snooze-all-button");
+      let menuitems = alarm.window.document.querySelectorAll("#alarm-snooze-all-popup > menuitem");
 
-      alarm.waitForElement(snoozeAllButton);
       alarm.click(snoozeAllButton);
       menuitems[5].click();
       // The dialog will close itself if we wait long enough.

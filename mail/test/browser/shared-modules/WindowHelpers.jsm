@@ -32,9 +32,6 @@ const EXPORTED_SYMBOLS = [
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
@@ -969,20 +966,15 @@ var AugmentEverybodyWith = {
     },
 
     /**
-     * @return an elementlib.Elem for the element with the given id on the
-     *  window's document.
-     */
-    eid: function _get_elementid_by_id_helper(aId, aQuery) {
-      return new elib.Elem(this.e(aId, aQuery));
-    },
-
-    /**
      * Wait for an element with the given id to show up.
      *
      * @param aId The DOM id of the element you want to wait to show up.
      */
     ewait: function _wait_for_element_by_id_helper(aId) {
-      this.waitForElement(new elib.ID(this.window.document, aId));
+      this.waitFor(
+        () => this.window.document.getElementById(aId),
+        `Waiting for element with id ${aId}`
+      );
     },
 
     /**
@@ -1093,7 +1085,7 @@ var AugmentEverybodyWith = {
           );
         }
 
-        this.click(new elib.Elem(matchingNode));
+        this.click(matchingNode);
 
         let newPopup = null;
         if ("menupopup" in matchingNode) {
@@ -1210,7 +1202,7 @@ var AugmentEverybodyWith = {
 
           const foundNode = kids.find(findFunction);
 
-          controller.click(new elib.Elem(foundNode));
+          controller.click(foundNode);
         }
 
         // We are all done when there are no more navigation targets.
@@ -1256,7 +1248,7 @@ var AugmentEverybodyWith = {
      *                    the last shown <panelview>.
      */
     click_through_appmenu(navTargets, nonNavTarget) {
-      this.click(this.eid("button-appmenu"));
+      this.click(this.window.document.getElementById("button-appmenu"));
       return this.click_appmenu_in_sequence(navTargets, nonNavTarget);
     },
 
@@ -1329,8 +1321,7 @@ var MOUSE_OPS_TO_WRAP = [
 
 for (let mouseOp of MOUSE_OPS_TO_WRAP) {
   let thisMouseOp = mouseOp;
-  let wrapperFunc = function(aElem, aLeft, aTop) {
-    let el = aElem.getNode();
+  let wrapperFunc = function(el, aLeft, aTop) {
     let rect = el.getBoundingClientRect();
     if (aLeft === undefined) {
       aLeft = rect.width / 2;
@@ -1347,7 +1338,7 @@ for (let mouseOp of MOUSE_OPS_TO_WRAP) {
       aTop,
     ]);
     // |this| refers to the window that gets augmented, which is what we want
-    this.__proto__[thisMouseOp](aElem, aLeft, aTop);
+    this.__proto__[thisMouseOp](el, aLeft, aTop);
   };
   AugmentEverybodyWith.methods[thisMouseOp] = wrapperFunc;
 }
@@ -1368,13 +1359,6 @@ var PerWindowTypeAugmentations = {
       threadTree: "threadTree",
       folderTree: "folderTree",
       tabmail: "tabmail",
-    },
-    /**
-     * DOM elements to expose as elementslib.IDs as attributes (at augmentation
-     *  time.)
-     */
-    elementIDsToExpose: {
-      eThreadTree: "threadTree",
     },
     /**
      * Globals from the controller's windows global scope at augmentation time.
@@ -1463,12 +1447,6 @@ function _augment_helper(aController, aAugmentDef) {
     for (let key in aAugmentDef.elementsToExpose) {
       let value = aAugmentDef.elementsToExpose[key];
       aController[key] = aController.window.document.getElementById(value);
-    }
-  }
-  if (aAugmentDef.elementsIDsToExpose) {
-    for (let key in aAugmentDef.elementIDsToExpose) {
-      let value = aAugmentDef.elementIDsToExpose[key];
-      aController[key] = new elib.ID(aController.window.document, value);
     }
   }
   if (aAugmentDef.globalsToExposeAtStartup) {

@@ -7,9 +7,6 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 
 var {
   be_in_folder,
@@ -58,7 +55,7 @@ add_task(async function test_copy_eml_message() {
   let msgc = await open_message_from_file(file);
 
   let documentChild = msgc.e("messagepane").contentDocument.firstElementChild;
-  msgc.rightClick(new elib.Elem(documentChild));
+  msgc.rightClick(documentChild);
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },
     { label: "Recent" },

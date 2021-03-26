@@ -15,7 +15,7 @@ var { close_popup, wait_for_popup_to_open } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var { content_tab_e, content_tab_eid } = ChromeUtils.import(
+var { content_tab_e } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 
@@ -96,7 +96,7 @@ function subtest_check_account_actions(
   click_account_tree_row(tab, accountRow);
 
   // click the Actions Button to bring up the popup with menuitems to test
-  mc.click(content_tab_eid(tab, "accountActionsButton"), 5, 5);
+  mc.click(content_tab_e(tab, "accountActionsButton"), 5, 5);
   wait_for_popup_to_open(content_tab_e(tab, "accountActionsDropdown"));
 
   let actionAddMailAccount = content_tab_e(tab, "accountActionsAddMailAccount");
@@ -127,7 +127,7 @@ function subtest_check_account_actions(
   Assert.notEqual(actionRemove, undefined);
   Assert.equal(!actionRemove.getAttribute("disabled"), isRemoveEnabled);
 
-  close_popup(mc, content_tab_eid(tab, "accountActionsDropdown"));
+  close_popup(mc, content_tab_e(tab, "accountActionsDropdown"));
 }
 
 add_task(function test_account_actions() {

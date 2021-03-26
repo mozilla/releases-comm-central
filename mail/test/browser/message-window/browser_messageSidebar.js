@@ -9,5 +9,5 @@ var { mc } = ChromeUtils.import(
 );
 
 add_task(function test_messagepane_extension_points_exist() {
-  Assert.ok(mc.eid("messagepanewrapper").exists());
+  Assert.ok(mc.e("messagepanewrapper"));
 });

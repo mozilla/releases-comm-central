@@ -9,10 +9,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   click_account_tree_row,
   get_account_tree_row,
@@ -20,7 +16,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
-var { input_value, delete_all_existing } = ChromeUtils.import(
+var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
 var { gMockPromptService } = ChromeUtils.import(
@@ -108,7 +104,7 @@ function subtest_check_default_CC_address(tab) {
   Assert.ok(!ccCheck.checked);
   Assert.equal(ccAddress.value, "");
   // After ticking the CC checkbox the default address should be prefilled.
-  mc.check(new elib.Elem(ccCheck), true);
+  mc.check(ccCheck, true);
   Assert.equal(ccAddress.value, defaultAddress);
 
   let bccCheck = iframe.contentDocument.getElementById("identity.doBcc");
@@ -119,7 +115,7 @@ function subtest_check_default_CC_address(tab) {
   let bccUserAddress = "somebody@else.invalid";
   bccAddress.value = bccUserAddress;
   // After ticking the BCC checkbox the current value of the address should not change.
-  mc.check(new elib.Elem(bccCheck), true);
+  mc.check(bccCheck, true);
   Assert.equal(bccAddress.value, bccUserAddress);
 }
 
@@ -393,8 +389,8 @@ function subtest_check_trailing_spaces(tab) {
   let defaultAddress = iframe.contentDocument.getElementById("identity.email");
   accountName.value = "";
   defaultAddress.value = "";
-  input_value(mc, badName, new elib.Elem(accountName));
-  input_value(mc, badEmail, new elib.Elem(defaultAddress));
+  input_value(mc, badName, accountName);
+  input_value(mc, badEmail, defaultAddress);
 
   Assert.equal(accountName.value, badName);
   Assert.equal(defaultAddress.value, badEmail);

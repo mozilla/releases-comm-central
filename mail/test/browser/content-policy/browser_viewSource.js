@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { be_in_folder, create_folder, mc, select_click_row } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -120,14 +116,14 @@ add_task(async function test_view_source_reload() {
   let doc = vsc.e("content").contentDocument; // keep a ref to the latin1 doc
 
   // Click the new window to make it receive further events properly.
-  vsc.click(vsc.eid("content"));
+  vsc.click(vsc.e("content"));
   await new Promise(resolve => setTimeout(resolve));
 
   let popupshown = BrowserTestUtils.waitForEvent(
     vsc.e("viewmenu-popup"),
     "popupshown"
   );
-  vsc.click(vsc.eid("menu_view"));
+  vsc.click(vsc.e("menu_view"));
   await popupshown;
   vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"), [
     { id: "charsetMenu" },

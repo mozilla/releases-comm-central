@@ -6,10 +6,6 @@
 
 const EXPORTED_SYMBOLS = ["CustomizeDialogHelper"];
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -45,7 +41,7 @@ CustomizeDialogHelper.prototype = {
    */
   open: function CustomizeDialogHelper_open(aController) {
     let ctc;
-    aController.click(aController.eid(this._openElementId));
+    aController.click(aController.e(this._openElementId));
     // Depending on preferences the customization dialog is
     // either a normal window or embedded into a sheet.
     if (!this._openInWindow) {
@@ -70,7 +66,7 @@ CustomizeDialogHelper.prototype = {
       wh.plan_for_window_close(aCtc);
     }
 
-    aCtc.click(aCtc.eid("donebutton"));
+    aCtc.click(aCtc.e("donebutton"));
     // XXX There should be an equivalent for testing the closure of
     // XXX the dialog embedded in a sheet, but I do not know how.
     if (this._openInWindow) {
@@ -95,7 +91,7 @@ CustomizeDialogHelper.prototype = {
       .getElementById("main-box")
       .querySelector("[oncommand*='overlayRestoreDefaultSet();']");
 
-    ctc.click(new elib.Elem(restoreButton));
+    ctc.click(restoreButton);
 
     this.close(ctc);
 

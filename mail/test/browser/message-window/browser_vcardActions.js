@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { get_cards_in_all_address_books_for_email } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"
 );
@@ -52,7 +48,7 @@ add_task(async function test_check_vcard_icon() {
     .contentDocument.querySelector(".moz-vcard-badge");
   // Check new card dialog opens.
   plan_for_modal_dialog("mailnews:newcarddialog", subtest_check_card);
-  msgc.click(new elib.Elem(vcard));
+  msgc.click(vcard);
   wait_for_modal_dialog("mailnews:newcarddialog");
 
   // Check new card was created from the vcard.

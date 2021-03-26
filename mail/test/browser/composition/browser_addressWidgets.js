@@ -146,7 +146,7 @@ add_task(function test_address_types() {
   check_nntp_address_types();
 
   let NNTPidentity = accountNNTP.defaultIdentity.key;
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: NNTPidentity },
   ]);
@@ -154,7 +154,7 @@ add_task(function test_address_types() {
 
   // Switch back to the POP3 account.
   let POP3identity = accountPOP3.defaultIdentity.key;
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: POP3identity },
   ]);

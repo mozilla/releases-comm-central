@@ -9,9 +9,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var {
@@ -131,7 +128,9 @@ add_task(function test_wrong_reply_charset() {
 
   plan_for_new_window("msgcompose");
   mc.click(
-    mc.eid("mail-notification-top", { tagName: "button", label: "Edit" })
+    mc.window.document.querySelector(
+      "#mail-notification-top button[label='Edit']"
+    )
   );
   rwc = wait_for_compose_window();
   EventUtils.synthesizeKey(
@@ -200,7 +199,9 @@ add_task(function test_no_mojibake() {
 
   plan_for_new_window("msgcompose");
   mc.click(
-    mc.eid("mail-notification-top", { tagName: "button", label: "Edit" })
+    mc.window.document.querySelector(
+      "#mail-notification-top button[label='Edit']"
+    )
   );
   rwc = wait_for_compose_window();
   EventUtils.synthesizeKey(

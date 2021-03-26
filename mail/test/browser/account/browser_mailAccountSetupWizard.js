@@ -16,9 +16,6 @@ var { input_value, delete_all_existing } = ChromeUtils.import(
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -67,10 +64,10 @@ add_task(function test_mail_account_setup() {
 
   open_mail_account_setup_wizard(function(awc) {
     // Input user's account information
-    awc.click(awc.eid("realname"));
+    awc.click(awc.e("realname"));
     if (awc.e("realname").value) {
       // If any realname is already filled, clear it out, we have our own.
-      delete_all_existing(awc, awc.eid("realname"));
+      delete_all_existing(awc, awc.e("realname"));
     }
     input_value(awc, user.name);
     EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
@@ -79,7 +76,7 @@ add_task(function test_mail_account_setup() {
     input_value(awc, user.password);
 
     // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
-    awc.click(awc.eid("next_button"));
+    awc.click(awc.e("next_button"));
 
     // XXX: This should probably use a notification, once we fix bug 561143.
     awc.waitFor(
@@ -185,10 +182,10 @@ add_task(function test_bad_password_uses_old_settings() {
   open_mail_account_setup_wizard(function(awc) {
     try {
       // Input user's account information
-      awc.click(awc.eid("realname"));
+      awc.click(awc.e("realname"));
       if (awc.e("realname").value) {
         // If any realname is already filled, clear it out, we have our own.
-        delete_all_existing(awc, awc.eid("realname"));
+        delete_all_existing(awc, awc.e("realname"));
       }
       input_value(awc, user.name);
       EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
@@ -282,18 +279,17 @@ function remember_password_test(aPrefValue) {
   mc.sleep(0);
   open_mail_account_setup_wizard(function(awc) {
     try {
-      let password = new elib.ID(awc.window.document, "password");
-      let rememberPassword = new elib.ID(
-        awc.window.document,
-        "remember_password"
-      );
+      let password = awc.window.document.getElementById("password");
 
       // type something in the password field
-      awc.e("password").focus();
+      password.focus();
       input_value(awc, "testing");
 
-      Assert.ok(rememberPassword.getNode().disabled != aPrefValue);
-      Assert.equal(rememberPassword.getNode().checked, aPrefValue);
+      let rememberPassword = awc.window.document.getElementById(
+        "remember_password"
+      );
+      Assert.ok(rememberPassword.disabled != aPrefValue);
+      Assert.equal(rememberPassword.checked, aPrefValue);
 
       // empty the password field
       delete_all_existing(awc, password);

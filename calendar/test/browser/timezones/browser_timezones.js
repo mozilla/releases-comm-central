@@ -9,7 +9,6 @@ var {
   createCalendar,
   controller,
   deleteCalendars,
-  helpersForController,
   invokeNewEventDialog,
   switchToView,
   goToDate,
@@ -27,8 +26,6 @@ var { dayView } = ChromeUtils.import(
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-var { eid } = helpersForController(controller);
 
 var DATES = [
   [2009, 1, 1],
@@ -172,7 +169,7 @@ add_task(function testTimezones3_checkStJohns() {
       [11, 30],
     ],
   ];
-  controller.click(eid("calendar-tab-button"));
+  controller.click(controller.window.document.getElementById("calendar-tab-button"));
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
@@ -265,7 +262,7 @@ add_task(function testTimezones4_checkCaracas() {
       [11, 0],
     ],
   ];
-  controller.click(eid("calendar-tab-button"));
+  controller.click(controller.window.document.getElementById("calendar-tab-button"));
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
@@ -356,7 +353,7 @@ add_task(function testTimezones5_checkPhoenix() {
       [8, 0],
     ],
   ];
-  controller.click(eid("calendar-tab-button"));
+  controller.click(controller.window.document.getElementById("calendar-tab-button"));
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
@@ -447,7 +444,7 @@ add_task(function testTimezones6_checkLosAngeles() {
       [7, 0],
     ],
   ];
-  controller.click(eid("calendar-tab-button"));
+  controller.click(controller.window.document.getElementById("calendar-tab-button"));
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
@@ -538,7 +535,7 @@ add_task(function testTimezones7_checkBuenosAires() {
       [12, 0],
     ],
   ];
-  controller.click(eid("calendar-tab-button"));
+  controller.click(controller.window.document.getElementById("calendar-tab-button"));
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
@@ -629,7 +626,7 @@ add_task(function testTimezones8_checkParis() {
       [16, 0],
     ],
   ];
-  controller.click(eid("calendar-tab-button"));
+  controller.click(controller.window.document.getElementById("calendar-tab-button"));
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
@@ -720,7 +717,7 @@ add_task(function testTimezones9_checkKathmandu() {
       [20, 45],
     ],
   ];
-  controller.click(eid("calendar-tab-button"));
+  controller.click(controller.window.document.getElementById("calendar-tab-button"));
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 
@@ -811,7 +808,7 @@ add_task(function testTimezones10_checkAdelaide() {
       [1, 30, +1],
     ],
   ];
-  controller.click(eid("calendar-tab-button"));
+  controller.click(controller.window.document.getElementById("calendar-tab-button"));
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
 

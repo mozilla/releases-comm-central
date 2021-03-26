@@ -140,7 +140,7 @@ function mark_read_via_menu(index, read) {
     { id: "mailContext-mark" },
     { id: menuItem },
   ]);
-  close_popup(mc, mc.eid("mailContext"));
+  close_popup(mc, mc.e("mailContext"));
 }
 
 add_task(function test_mark_one_read() {
@@ -290,7 +290,7 @@ add_task(function test_mark_all_read() {
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
   ]);
-  close_popup(mc, mc.eid("mailContext"));
+  close_popup(mc, mc.e("mailContext"));
 
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
 
@@ -335,7 +335,7 @@ add_task(function test_mark_thread_as_read() {
     { id: "mailContext-mark" },
     { id: "mailContext-markThreadAsRead" },
   ]);
-  close_popup(mc, mc.eid("mailContext"));
+  close_popup(mc, mc.e("mailContext"));
 
   let curMessage = select_click_row(0);
   Assert.ok(curMessage.isRead, "Message should have been marked read!");

@@ -51,7 +51,7 @@ function subtest_create_virtual_folder(vfc) {
     "mailnews:virtualFolderList",
     subtest_check_virtual_folder_list
   );
-  vfc.click(vfc.eid("folderListPicker"));
+  vfc.click(vfc.e("folderListPicker"));
   wait_for_modal_dialog("mailnews:virtualFolderList");
 
   vfc.window.document.documentElement.querySelector("dialog").cancelDialog();
@@ -88,7 +88,7 @@ function subtest_offline_sync(osc) {
     "mailnews:selectOffline",
     subtest_check_offline_folder_list
   );
-  osc.click(osc.eid("select"));
+  osc.click(osc.e("select"));
   wait_for_modal_dialog("mailnews:selectOffline");
 
   osc.window.document.documentElement.querySelector("dialog").cancelDialog();

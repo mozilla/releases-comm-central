@@ -389,7 +389,9 @@ add_task(function test_writing_to_mailing_list() {
   // window...
   plan_for_new_window("msgcompose");
   // ... and click the "Write" button
-  abController.click(abController.eid("button-newmessage"));
+  abController.click(
+    abController.window.document.getElementById("button-newmessage")
+  );
   let composeWin = wait_for_compose_window(abController);
   let to = composeWin.window.gMsgCompose.compFields.to;
 

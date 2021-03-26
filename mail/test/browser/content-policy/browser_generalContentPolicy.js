@@ -19,9 +19,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var {
   close_compose_window,
   open_compose_with_forward,
@@ -364,7 +361,7 @@ function allowRemoteContentAndCheck(test) {
   let prefButton = get_notification_button(mc, kBoxId, kNotificationValue, {
     popup: "remoteContentOptions",
   });
-  mc.click(new elib.Elem(prefButton));
+  mc.click(prefButton);
   mc.click_menus_in_sequence(mc.e("remoteContentOptions"), [
     { id: "remoteContentOptionAllowForMsg" },
   ]);
@@ -666,12 +663,12 @@ function subtest_insertImageIntoReplyForward(aReplyType) {
     mwc.sleep(0);
 
     // Don't add alternate text
-    mwc.click(mwc.eid("noAltTextRadio"));
+    mwc.click(mwc.e("noAltTextRadio"));
 
     // Accept the dialog
     mwc.window.document.querySelector("dialog").acceptDialog();
   });
-  replyWindow.click(replyWindow.eid("insertImage"));
+  replyWindow.click(replyWindow.e("insertImage"));
 
   wait_for_modal_dialog();
   wait_for_window_close();

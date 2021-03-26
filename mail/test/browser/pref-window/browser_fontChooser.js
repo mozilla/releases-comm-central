@@ -12,7 +12,7 @@
 
 "use strict";
 
-var { content_tab_e, content_tab_eid } = ChromeUtils.import(
+var { content_tab_e } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var { mc } = ChromeUtils.import(

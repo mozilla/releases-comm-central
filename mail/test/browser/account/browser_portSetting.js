@@ -4,10 +4,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   click_account_tree_row,
   get_account_tree_row,
@@ -64,7 +60,7 @@ function subtest_check_set_port_number(tab, dontSet) {
   }
 
   if (!dontSet) {
-    delete_all_existing(mc, new elib.Elem(portElem));
+    delete_all_existing(mc, portElem);
     input_value(mc, PORT_NUMBERS_TO_TEST[gTestNumber]);
 
     mc.sleep(0);

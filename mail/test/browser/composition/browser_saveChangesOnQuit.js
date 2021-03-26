@@ -94,7 +94,7 @@ add_task(function test_can_cancel_quit_on_changes() {
   cwc = open_compose_new_mail(mc);
 
   // Make some changes
-  cwc.type(cwc.eid("content-frame"), "Hey check out this megalol link");
+  cwc.type(cwc.e("content-frame"), "Hey check out this megalol link");
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -137,7 +137,7 @@ add_task(function test_can_quit_on_changes() {
   cwc = open_compose_new_mail(mc);
 
   // Make some changes
-  cwc.type(cwc.eid("content-frame"), "Hey check out this megalol link");
+  cwc.type(cwc.e("content-frame"), "Hey check out this megalol link");
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -180,8 +180,8 @@ add_task(function test_window_quit_state_reset_on_aborted_quit() {
   let cwc2 = open_compose_new_mail(mc);
 
   // Type something in each window.
-  cwc1.type(cwc1.eid("content-frame"), "Marco!");
-  cwc2.type(cwc2.eid("content-frame"), "Polo!");
+  cwc1.type(cwc1.e("content-frame"), "Marco!");
+  cwc2.type(cwc2.e("content-frame"), "Polo!");
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -213,7 +213,7 @@ add_task(function test_window_quit_state_reset_on_aborted_quit() {
   // The first window should still prompt when attempting to close the
   // window.
   gMockPromptService.returnValue = DONT_SAVE;
-  cwc2.click(cwc2.eid("menu_close"));
+  cwc2.click(cwc2.e("menu_close"));
 
   let promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
@@ -252,15 +252,15 @@ add_task(function test_prompt_on_close_for_modified() {
   assert_selected_and_displayed(mc, msg);
 
   let nwc = open_compose_new_mail();
-  nwc.type(nwc.eid("content-frame"), "Hey hey hey!");
+  nwc.type(nwc.e("content-frame"), "Hey hey hey!");
   close_compose_window(nwc, true);
 
   let rwc = open_compose_with_reply();
-  rwc.type(rwc.eid("content-frame"), "Howdy!");
+  rwc.type(rwc.e("content-frame"), "Howdy!");
   close_compose_window(rwc, true);
 
   let fwc = open_compose_with_forward();
-  fwc.type(fwc.eid("content-frame"), "Greetings!");
+  fwc.type(fwc.e("content-frame"), "Greetings!");
   close_compose_window(fwc, true);
 });
 

@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   click_account_tree_row,
   get_account_tree_row,
@@ -22,9 +18,6 @@ var {
 );
 const { wait_for_frame_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
-var { input_value, delete_all_existing } = ChromeUtils.import(
-  "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"

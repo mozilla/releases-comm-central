@@ -7,9 +7,6 @@
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -81,7 +78,7 @@ function subtest_check_whitelist_init_and_save(tab) {
   // Now we'll check both address books
   for (let i = 0; i < list.getRowCount(); i++) {
     let abNode = list.getItemAtIndex(i);
-    mc.click(new elib.Elem(abNode.firstElementChild));
+    mc.click(abNode.firstElementChild);
   }
 }
 
@@ -112,7 +109,7 @@ function subtest_check_whitelist_load_and_clear(tab) {
     // prefs
     Assert.ok(whiteListURIs.includes(abNode.getAttribute("value")));
     // Now un-check that address book
-    mc.click(new elib.Elem(abNode.firstElementChild));
+    mc.click(abNode.firstElementChild);
   }
 }
 

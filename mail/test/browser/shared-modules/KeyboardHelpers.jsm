@@ -23,7 +23,7 @@ var EventUtils = ChromeUtils.import(
  */
 function input_value(aController, aStr, aElement) {
   if (aElement) {
-    aElement.getNode().focus();
+    aElement.focus();
   }
   for (let i = 0; i < aStr.length; i++) {
     EventUtils.synthesizeKey(aStr.charAt(i), {}, aController.window);
@@ -39,7 +39,7 @@ function input_value(aController, aStr, aElement) {
  */
 function delete_existing(aController, aElement, aNumber) {
   for (let i = 0; i < aNumber; ++i) {
-    aElement.getNode().focus();
+    aElement.focus();
     EventUtils.synthesizeKey("VK_BACK_SPACE", {}, aController.window);
   }
 }
@@ -51,8 +51,8 @@ function delete_existing(aController, aElement, aNumber) {
  * @param aElement    The element in which to delete characters
  */
 function delete_all_existing(aController, aElement) {
-  aElement.getNode().focus();
+  aElement.focus();
   EventUtils.synthesizeKey("a", { accelKey: true }, aController.window);
-  aElement.getNode().focus();
+  aElement.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, aController.window);
 }

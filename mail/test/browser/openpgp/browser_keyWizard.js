@@ -8,9 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 const { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -317,10 +314,7 @@ add_task(async function add_external_key() {
     "Timeout waiting for the #wizardExternalKey to appear"
   );
 
-  wizard.type(
-    new elib.Elem(doc.getElementById("externalKey")),
-    EXTERNAL_GNUP_KEY
-  );
+  wizard.type(doc.getElementById("externalKey"), EXTERNAL_GNUP_KEY);
 
   let keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
 

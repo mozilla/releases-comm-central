@@ -10,10 +10,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   be_in_folder,
   close_tab,
@@ -400,7 +396,7 @@ function invoke_column_picker_option(aActions) {
   let colPickerPopup = colPicker.querySelector("[anonid=popup]");
 
   mc.sleep(500);
-  mc.click(new elib.Elem(colPicker));
+  mc.click(colPicker);
   mc.click_menus_in_sequence(colPickerPopup, aActions);
 }
 

@@ -8,9 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var {
@@ -102,9 +99,9 @@ add_task(function test_send_enabled_manual_address() {
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
   clear_recipients(cwc);
-  cwc.click(cwc.eid("extraRecipientsLabel"));
+  cwc.click(cwc.e("extraRecipientsLabel"));
   wait_for_popup_to_open(panel);
-  cwc.click(cwc.eid("addr_reply"));
+  cwc.click(cwc.e("addr_reply"));
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
   check_send_commands_state(cwc, false);
 
@@ -117,7 +114,7 @@ add_task(function test_send_enabled_manual_address() {
   setup_msg_contents(cwc, " recipient@", "", "");
   check_send_commands_state(cwc, false);
 
-  cwc.click(cwc.eid("addr_cc"));
+  cwc.click(cwc.e("addr_cc"));
   check_send_commands_state(cwc, false);
 
   // Select the newly generated pill.
@@ -125,7 +122,7 @@ add_task(function test_send_enabled_manual_address() {
   // Delete the selected pill.
   EventUtils.synthesizeKey("VK_DELETE", {}, cwc.window);
   // Confirm the address row is now empty.
-  Assert.ok(!get_first_pill(cwc).length);
+  Assert.ok(!get_first_pill(cwc));
   // Confirm the send button is disabled.
   check_send_commands_state(cwc, false);
   // Add multiple recipients.
@@ -161,12 +158,12 @@ add_task(function test_send_enabled_manual_address() {
   // Show the extraRecipientsLabel in order to trigger the opening og the
   // extraRecipientsPanel.
   cwc.e("extraRecipientsLabel").removeAttribute("collapsed");
-  cwc.click(cwc.eid("extraRecipientsLabel"));
+  cwc.click(cwc.e("extraRecipientsLabel"));
   wait_for_popup_to_open(panel);
 
   // - some string as a newsgroup
   cwc.e("addr_newsgroups").removeAttribute("collapsed");
-  cwc.click(cwc.eid("addr_newsgroups"));
+  cwc.click(cwc.e("addr_newsgroups"));
   setup_msg_contents(cwc, "newsgroup ", "", "", "newsgroupsAddrInput");
   check_send_commands_state(cwc, true);
 
@@ -220,14 +217,14 @@ add_task(function test_send_enabled_prefilled_address_from_identity() {
   Assert.ok(account.identities.length >= 2);
   let identityWithoutCC = account.identities[1];
   Assert.ok(!identityWithoutCC.doCc);
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: identityWithoutCC.key },
   ]);
   check_send_commands_state(cwc, false);
 
   // Check the first identity again.
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: identityWithCC.key },
   ]);

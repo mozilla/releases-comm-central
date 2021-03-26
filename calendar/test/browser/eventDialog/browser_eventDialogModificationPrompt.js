@@ -11,7 +11,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  helpersForController,
   invokeNewEventDialog,
   invokeEditingEventDialog,
   switchToView,
@@ -19,7 +18,6 @@ var {
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
-var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
@@ -73,7 +71,7 @@ add_task(async function testEventDialogModificationPrompt() {
   // Delete event.
   controller.window.document.getElementById("day-view").focus();
   if (controller.window.currentView().getSelectedItems().length == 0) {
-    controller.click(new elib.Elem(eventbox));
+    controller.click(eventbox);
   }
   Assert.equal(eventbox.isEditing, false, "event is not being edited");
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
@@ -104,7 +102,7 @@ add_task(async function testDescriptionWhitespace() {
     // Delete it.
     controller.window.document.getElementById("day-view").focus();
     if (controller.window.currentView().getSelectedItems().length == 0) {
-      controller.click(new elib.Elem(eventbox));
+      controller.click(eventbox);
     }
     Assert.equal(eventbox.isEditing, false, "event is not being edited");
     EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);

@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   add_sets_to_folders,
   assert_displayed,
@@ -89,7 +85,7 @@ add_task(function test_right_click_with_nothing_selected() {
   assert_selected(1);
   assert_displayed();
 
-  close_popup(mc, mc.eid("mailContext"));
+  close_popup(mc, mc.e("mailContext"));
   assert_nothing_selected();
 });
 
@@ -110,12 +106,12 @@ add_task(function test_right_click_column_header_shows_col_picker() {
 
   // Right click the subject column header
   // This should show the column picker popup.
-  mc.rightClick(mc.eid("subjectCol"));
+  mc.rightClick(mc.e("subjectCol"));
 
   // Check that the popup opens.
   wait_for_popup_to_open(popup);
   // Hide it again, we just wanted to know it was going to be shown.
-  close_popup(mc, new elib.Elem(popup));
+  close_popup(mc, popup);
 });
 
 /**
@@ -131,7 +127,7 @@ add_task(function test_right_click_with_one_thing_selected() {
   assert_selected(1);
   assert_displayed(0);
 
-  close_popup(mc, mc.eid("mailContext"));
+  close_popup(mc, mc.e("mailContext"));
   assert_selected_and_displayed(0);
 });
 
@@ -149,7 +145,7 @@ add_task(function test_right_click_with_many_things_selected() {
   assert_selected(6);
   assert_displayed([0, 5]);
 
-  close_popup(mc, mc.eid("mailContext"));
+  close_popup(mc, mc.e("mailContext"));
   assert_selected_and_displayed([0, 5]);
 });
 
@@ -165,7 +161,7 @@ add_task(function test_right_click_on_existing_single_selection() {
   right_click_on_row(3);
   assert_selected_and_displayed(3);
 
-  close_popup(mc, mc.eid("mailContext"));
+  close_popup(mc, mc.e("mailContext"));
   assert_selected_and_displayed(3);
 });
 
@@ -182,7 +178,7 @@ add_task(function test_right_click_on_existing_multi_selection() {
   right_click_on_row(5);
   assert_selected_and_displayed([3, 6]);
 
-  close_popup(mc, mc.eid("mailContext"));
+  close_popup(mc, mc.e("mailContext"));
   assert_selected_and_displayed([3, 6]);
 });
 

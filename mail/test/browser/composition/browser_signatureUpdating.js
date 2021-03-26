@@ -122,7 +122,7 @@ function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   Assert.equal(sigNode.textContent, expectedText);
 
   // Now switch identities!
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: "id2" },
   ]);
@@ -213,7 +213,7 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
   }
 
   // Now switch identities!
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: "id2" },
   ]);

@@ -60,13 +60,13 @@ add_task(function test_open_draft_again() {
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
+  mc.click(mc.window.document.querySelector(`#${kBoxId} button[label='Edit']`));
   let cwc = wait_for_compose_window();
 
   let cwins = [...Services.wm.getEnumerator("msgcompose")].length;
 
   // click edit in main win again
-  mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
+  mc.click(mc.window.document.querySelector(`#${kBoxId} button[label='Edit']`));
 
   mc.sleep(1000); // wait a sec to see if it caused a new window
 
@@ -81,7 +81,7 @@ add_task(function test_open_draft_again() {
   Assert.equal(cwins, cwins2, "The number of compose windows changed!");
 
   // Type something and save, then check that we only have one draft.
-  cwc.type(cwc.eid("content-frame"), "Hello!");
+  cwc.type(cwc.e("content-frame"), "Hello!");
   EventUtils.synthesizeKey(
     "s",
     { shiftKey: false, accelKey: true },
@@ -110,7 +110,7 @@ function internal_check_delivery_format(editDraft) {
 
   // Select our wanted format.
   if (["linux", "win"].includes(AppConstants.platform)) {
-    cwc.click(cwc.eid("optionsMenu"));
+    cwc.click(cwc.e("optionsMenu"));
     cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
       { id: "outputFormatMenu" },
       { id: "format_both" },
@@ -134,7 +134,7 @@ function internal_check_delivery_format(editDraft) {
    */
   function assert_format_value(aMenuItemId, aValue) {
     if (["linux", "win"].includes(AppConstants.platform)) {
-      cwc.click(cwc.eid("optionsMenu"));
+      cwc.click(cwc.e("optionsMenu"));
       let formatMenu = cwc.click_menus_in_sequence(
         cwc.e("optionsMenuPopup"),
         [{ id: "outputFormatMenu" }],
@@ -173,7 +173,9 @@ function internal_check_delivery_format(editDraft) {
   plan_for_new_window("msgcompose");
   if (editDraft) {
     // Trigger "edit draft".
-    mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
+    mc.click(
+      mc.window.document.querySelector(`#${kBoxId} button[label='Edit']`)
+    );
   } else {
     // Trigger "edit as new" resulting in template processing.
     EventUtils.synthesizeKey(
@@ -218,7 +220,7 @@ add_task(function test_edit_as_new_in_draft() {
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
   let cwc = wait_for_compose_window();
 
-  cwc.type(cwc.eid("content-frame"), "Hello!");
+  cwc.type(cwc.e("content-frame"), "Hello!");
   EventUtils.synthesizeKey(
     "s",
     { shiftKey: false, accelKey: true },
@@ -340,7 +342,7 @@ add_task(function test_remove_space_stuffing_format_flowed() {
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
+  mc.click(mc.window.document.querySelector(`#${kBoxId} button[label='Edit']`));
   cwc = wait_for_compose_window();
 
   let bodyText = get_compose_body(cwc).innerHTML;

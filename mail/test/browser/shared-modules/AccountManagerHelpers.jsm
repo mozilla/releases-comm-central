@@ -14,9 +14,6 @@ const EXPORTED_SYMBOLS = [
   "wait_for_account_tree_load",
 ];
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var fdh = ChromeUtils.import(
@@ -26,11 +23,7 @@ var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var {
-  content_tab_e,
-  content_tab_eid,
-  open_content_tab_with_url,
-} = ChromeUtils.import(
+var { content_tab_e, open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 
@@ -76,7 +69,7 @@ function open_advanced_settings(callback) {
  */
 function open_mail_account_setup_wizard(callback) {
   wh.plan_for_modal_dialog("mail:autoconfig", callback);
-  mc.click(new elib.Elem(mc.menus.menu_File.menu_New.newMailAccountMenuItem));
+  mc.click(mc.menus.menu_File.menu_New.newMailAccountMenuItem);
   return wh.wait_for_modal_dialog("mail:autoconfig", 30000);
 }
 
@@ -189,8 +182,8 @@ function remove_account(
 
   account = null;
   // Use the Remove item in the Account actions menu.
-  mc.click(content_tab_eid(tab, "accountActionsButton"));
-  mc.click(content_tab_eid(tab, "accountActionsDropdownRemove"));
+  mc.click(content_tab_e(tab, "accountActionsButton"));
+  mc.click(content_tab_e(tab, "accountActionsDropdownRemove"));
 
   let cdc = wh.wait_for_frame_load(
     tab.browser.contentWindow.gSubDialog._topDialog._frame,
@@ -199,12 +192,10 @@ function remove_account(
 
   // Account removal confirmation dialog. Select what to remove.
   if (removeAccount) {
-    cdc.click(
-      new elib.Elem(cdc.window.document.getElementById("removeAccount"))
-    );
+    cdc.click(cdc.window.document.getElementById("removeAccount"));
   }
   if (removeData) {
-    cdc.click(new elib.Elem(cdc.window.document.getElementById("removeData")));
+    cdc.click(cdc.window.document.getElementById("removeData"));
   }
 
   cdc.window.document.documentElement.querySelector("dialog").acceptDialog();

@@ -20,10 +20,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   close_compose_window,
   open_compose_with_edit_as_new,
@@ -69,7 +65,7 @@ async function subtest_replyEditAsNewForward_charset(
   // opened from a file gives different results on different platforms.
   // All platforms behave the same when using a folder-stored message.
   let documentChild = msgc.e("messagepane").contentDocument.firstChild;
-  msgc.rightClick(new elib.Elem(documentChild));
+  msgc.rightClick(documentChild);
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },
     { label: "Local Folders" },

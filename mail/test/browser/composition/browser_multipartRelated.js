@@ -8,9 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
@@ -85,9 +82,9 @@ function getMsgHeaders(aMsgHdr) {
  */
 add_task(function test_basic_multipart_related() {
   let compWin = open_compose_new_mail();
-  compWin.type(null, "someone@example.com");
-  compWin.type(compWin.eid("msgSubject"), "multipart/related");
-  compWin.type(compWin.eid("content-frame"), "Here is a prologue.\n");
+  compWin.type(compWin.window, "someone@example.com");
+  compWin.type(compWin.e("msgSubject"), "multipart/related");
+  compWin.type(compWin.e("content-frame"), "Here is a prologue.\n");
 
   const fname = "data/tb-logo.png";
   let file = new FileUtils.File(getTestFilePath(fname));
@@ -99,14 +96,14 @@ add_task(function test_basic_multipart_related() {
   // Add a simple image to our dialog
   plan_for_modal_dialog("Mail:image", function(dialog) {
     // Insert the url of the image.
-    dialog.type(null, fileURL);
-    dialog.type(dialog.eid("altTextInput"), "Alt text");
+    dialog.type(dialog.window, fileURL);
+    dialog.type(dialog.e("altTextInput"), "Alt text");
     dialog.sleep(0);
 
     // Accept the dialog
     dialog.window.document.querySelector("dialog").acceptDialog();
   });
-  compWin.click(compWin.eid("insertImage"));
+  compWin.click(compWin.e("insertImage"));
   wait_for_modal_dialog();
   wait_for_window_close();
 

@@ -8,7 +8,6 @@ var {
   controller,
   createCalendar,
   deleteCalendars,
-  helpersForController,
   invokeNewEventDialog,
   invokeNewTaskDialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");

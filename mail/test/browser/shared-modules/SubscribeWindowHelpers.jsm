@@ -41,9 +41,9 @@ function open_subscribe_window_from_context_menu(aFolder, aFunction) {
     aFunction(controller);
   };
   windowHelper.plan_for_modal_dialog("mailnews:subscribe", callback);
-  mc.click(mc.eid("folderPaneContext-subscribe"));
+  mc.click(mc.e("folderPaneContext-subscribe"));
   windowHelper.wait_for_modal_dialog("mailnews:subscribe");
-  folderDisplayHelper.close_popup(mc, mc.eid("folderPaneContext"));
+  folderDisplayHelper.close_popup(mc, mc.e("folderPaneContext"));
 }
 
 /**
@@ -53,7 +53,7 @@ function open_subscribe_window_from_context_menu(aFolder, aFunction) {
  * @param text The text to enter
  */
 function enter_text_in_search_box(swc, text) {
-  let textbox = swc.eid("namefield");
+  let textbox = swc.e("namefield");
   delete_all_existing(swc, textbox);
   input_value(swc, text, textbox);
 }
@@ -66,7 +66,7 @@ function enter_text_in_search_box(swc, text) {
  * @returns {Boolean} Result of the check
  */
 function check_newsgroup_displayed(swc, name) {
-  let tree = swc.eid("searchTree").getNode();
+  let tree = swc.e("searchTree");
   if (!tree.columns) {
     // Maybe not yet available.
     return false;

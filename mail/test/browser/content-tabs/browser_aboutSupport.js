@@ -13,7 +13,6 @@ var {
   assert_content_tab_text_absent,
   assert_content_tab_text_present,
   content_tab_e,
-  content_tab_eid,
   get_content_tab_element_display,
   get_element_by_text,
   open_content_tab_with_click,
@@ -130,7 +129,7 @@ function open_about_support() {
  * @param aTab The about:support tab.
  */
 function open_send_via_email(aTab) {
-  let button = content_tab_eid(aTab, "send-via-email");
+  let button = content_tab_e(aTab, "send-via-email");
   plan_for_new_window("msgcompose");
   mc.click(button);
   let cwc = wait_for_compose_window();
@@ -285,7 +284,7 @@ add_task(function test_modified_pref_on_blacklist() {
  */
 add_task(function test_private_data() {
   let tab = open_about_support();
-  let checkbox = content_tab_eid(tab, "check-show-private-data");
+  let checkbox = content_tab_e(tab, "check-show-private-data");
 
   // We use the profile path and some other element as an example
   // of a private-only element.
@@ -388,7 +387,7 @@ add_task(function test_copy_to_clipboard_private() {
 
   // Display private data.
   let privateElem = find_private_element(tab);
-  mc.click(content_tab_eid(tab, "check-show-private-data"));
+  mc.click(content_tab_e(tab, "check-show-private-data"));
   wait_for_content_tab_element_display(tab, privateElem);
 
   // To avoid destroying the current contents of the clipboard, instead of
@@ -506,7 +505,7 @@ add_task(function test_send_via_email_private() {
 
   // Display private data.
   let privateElem = find_private_element(tab);
-  mc.click(content_tab_eid(tab, "check-show-private-data"));
+  mc.click(content_tab_e(tab, "check-show-private-data"));
   wait_for_content_tab_element_display(tab, privateElem);
 
   let cwc = open_send_via_email(tab);

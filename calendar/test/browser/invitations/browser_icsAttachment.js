@@ -6,7 +6,6 @@
  * Test TB can be set as default calendar app.
  */
 
-var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 var { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -27,7 +26,7 @@ add_task(function setupModule() {
 add_task(async function test_ics_attachment() {
   let file = new FileUtils.File(getTestFilePath("data/message-containing-event.eml"));
   let mc = await open_message_from_file(file);
-  mc.click(new elib.Elem(mc.e("button-openAllAttachments")));
+  mc.click(mc.e("button-openAllAttachments"));
   await BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://mozapps/content/downloads/unknownContentType.xhtml",

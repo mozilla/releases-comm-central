@@ -4,10 +4,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { open_mail_account_setup_wizard } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
@@ -51,10 +47,10 @@ add_task(function test_re_test_config() {
   mc.sleep(0);
   open_mail_account_setup_wizard(function(awc) {
     // Input user's account information
-    awc.click(awc.eid("realname"));
+    awc.click(awc.e("realname"));
     if (awc.e("realname").value) {
       // If any realname is already filled, clear it out, we have our own.
-      delete_all_existing(awc, awc.eid("realname"));
+      delete_all_existing(awc, awc.e("realname"));
     }
     input_value(awc, user.name);
     EventUtils.synthesizeKey("VK_TAB", {}, awc.window);

@@ -175,15 +175,7 @@ var triggerKeyEvent = function(
     }
 
     // If no target has been specified use the specified element
-    var target = expectedEvent.target
-      ? expectedEvent.target.getNode()
-      : element;
-    if (!target) {
-      throw new Error(
-        "triggerKeyEvent: could not find element " +
-          expectedEvent.target.getInfo()
-      );
-    }
+    var target = expectedEvent.target || element;
 
     EventUtils.synthesizeKeyExpectEvent(
       aKey,

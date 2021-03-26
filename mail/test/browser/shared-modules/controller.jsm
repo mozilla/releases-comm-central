@@ -46,9 +46,6 @@ var EventUtils = ChromeUtils.import(
 
 var events = ChromeUtils.import("resource://testing-common/mozmill/events.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 
 // Declare most used utils functions in the controller namespace
 var sleep = utils.sleep;
@@ -73,8 +70,7 @@ var Menu = function(controller, menuSelector, document) {
   var node = document.querySelector(menuSelector);
   if (node) {
     // We don't unwrap nodes automatically yet (Bug 573185)
-    node = node.wrappedJSObject || node;
-    this._menu = new elib.Elem(node);
+    this._menu = node.wrappedJSObject || node;
   } else {
     throw new Error("Menu element '" + menuSelector + "' not found.");
   }
@@ -84,17 +80,16 @@ Menu.prototype = {
   /**
    * Open and populate the menu
    *
-   * @param {ElemBase} contextElement
+   * @param {Element} contextElement
    *        Element whose context menu has to be opened
    * @returns {Menu} The Menu instance
    */
   open(contextElement) {
     // We have to open the context menu
-    var menu = this._menu.getNode();
+    var menu = this._menu;
     if (
       (menu.localName == "popup" || menu.localName == "menupopup") &&
-      contextElement &&
-      contextElement.exists()
+      contextElement
     ) {
       this._controller.rightClick(contextElement);
       this._controller.waitFor(function() {
@@ -114,7 +109,7 @@ Menu.prototype = {
    * @returns {Menu} The Menu instance
    */
   close() {
-    var menu = this._menu.getNode();
+    var menu = this._menu;
     menu.focus();
     EventUtils.synthesizeKey("VK_ESCAPE", {}, this._controller.window);
     this._controller.waitFor(function() {
@@ -129,17 +124,17 @@ Menu.prototype = {
    *
    * @param {string} itemSelector
    *        jQuery like selector string of the menu item
-   * @returns {ElemBase} Menu element
+   * @returns {Element} Menu element
    * @throws Error If menu element has not been found
    */
   getItem(itemSelector) {
-    var node = this._menu.getNode().querySelector(itemSelector);
+    var node = this._menu.querySelector(itemSelector);
 
     if (!node) {
       throw new Error("Menu entry '" + itemSelector + "' not found.");
     }
 
-    return new elib.Elem(node);
+    return node;
   },
 
   /**
@@ -258,7 +253,7 @@ MozMillController.prototype.sleep = utils.sleep;
 /**
  * Synthesize keypress events for each character on the given element
  *
- * @param {ElemBase} aTarget
+ * @param {Element} element
  *        Element which will receive the type event
  * @param {string} aText
  *        The text to send as single keypress events
@@ -268,10 +263,9 @@ MozMillController.prototype.sleep = utils.sleep;
  *                               [optional - default: current element]
  *                  type       - Type of the expected key event
  */
-MozMillController.prototype.type = function(aTarget, aText, aExpectedEvent) {
-  var element = aTarget == null ? this.window : aTarget.getNode();
+MozMillController.prototype.type = function(element, aText, aExpectedEvent) {
   if (!element) {
-    throw new Error("could not find element " + aTarget.getInfo());
+    throw new Error("type: Missing element");
   }
 
   Array.from(aText).forEach(function(letter) {
@@ -284,7 +278,7 @@ MozMillController.prototype.type = function(aTarget, aText, aExpectedEvent) {
 /**
  * Synthesize a general mouse event on the given element
  *
- * @param {ElemBase} aTarget
+ * @param {Element} element
  *        Element which will receive the mouse event
  * @param {number} aOffsetX
  *        Relative x offset in the elements bounds to click on
@@ -316,15 +310,14 @@ MozMillController.prototype.type = function(aTarget, aText, aExpectedEvent) {
  *                  type       - Type of the expected mouse event
  */
 MozMillController.prototype.mouseEvent = function(
-  aTarget,
+  element,
   aOffsetX,
   aOffsetY,
   aEvent,
   aExpectedEvent
 ) {
-  var element = aTarget.getNode();
   if (!element) {
-    throw new Error("mouseEvent: could not find element " + aTarget.getInfo());
+    throw new Error("mouseEvent: Missing element");
   }
 
   // If no offset is given we will use the center of the element to click on.
@@ -348,14 +341,7 @@ MozMillController.prototype.mouseEvent = function(
     }
 
     // If no target has been specified use the specified element
-    var target = aExpectedEvent.target
-      ? aExpectedEvent.target.getNode()
-      : element;
-    if (!target) {
-      throw new Error(
-        "mouseEvent: could not find element " + aExpectedEvent.target.getInfo()
-      );
-    }
+    var target = aExpectedEvent.target || element;
 
     EventUtils.synthesizeMouseExpectEvent(
       element,
@@ -383,14 +369,17 @@ MozMillController.prototype.mouseEvent = function(
 /**
  * Synthesize a mouse click event on the given element
  */
-MozMillController.prototype.click = function(elem, left, top, expectedEvent) {
-  var element = elem.getNode();
-
+MozMillController.prototype.click = function(
+  element,
+  left,
+  top,
+  expectedEvent
+) {
   // Handle menu items differently
   if (element && element.tagName == "menuitem") {
     element.click();
   } else {
-    this.mouseEvent(elem, left, top, {}, expectedEvent);
+    this.mouseEvent(element, left, top, {}, expectedEvent);
   }
 };
 
@@ -398,12 +387,12 @@ MozMillController.prototype.click = function(elem, left, top, expectedEvent) {
  * Synthesize a double click on the given element
  */
 MozMillController.prototype.doubleClick = function(
-  elem,
+  element,
   left,
   top,
   expectedEvent
 ) {
-  this.mouseEvent(elem, left, top, { clickCount: 2 }, expectedEvent);
+  this.mouseEvent(element, left, top, { clickCount: 2 }, expectedEvent);
   return true;
 };
 
@@ -411,13 +400,13 @@ MozMillController.prototype.doubleClick = function(
  * Synthesize a mouse right click event on the given element
  */
 MozMillController.prototype.rightClick = function(
-  elem,
+  element,
   left,
   top,
   expectedEvent
 ) {
   this.mouseEvent(
-    elem,
+    element,
     left,
     top,
     { type: "contextmenu", button: 2 },
@@ -436,22 +425,21 @@ MozMillController.prototype.rightclick = function(...aArgs) {
 /**
  * Enable/Disable a checkbox depending on the target state
  */
-MozMillController.prototype.check = function(el, state) {
+MozMillController.prototype.check = function(element, state) {
   var result = false;
-  var element = el.getNode();
 
   if (!element) {
-    throw new Error("could not find element " + el.getInfo());
+    throw new Error("check: Missing element");
   }
 
   state = typeof state == "boolean" ? state : false;
   if (state != element.checked) {
-    this.click(el);
+    this.click(element);
     this.waitFor(
       function() {
         return element.checked == state;
       },
-      "Checkbox " + el.getInfo() + " could not be checked/unchecked",
+      "Checkbox could not be checked/unchecked",
       500
     );
 
@@ -464,18 +452,17 @@ MozMillController.prototype.check = function(el, state) {
 /**
  * Select the given radio button
  */
-MozMillController.prototype.radio = function(el) {
-  var element = el.getNode();
+MozMillController.prototype.radio = function(element) {
   if (!element) {
-    throw new Error("could not find element " + el.getInfo());
+    throw new Error("radio: Missing element");
   }
 
-  this.click(el);
+  this.click(element);
   this.waitFor(
     function() {
       return element.checked || element.selected;
     },
-    "Radio button " + el.getInfo() + " could not be selected",
+    "Radio button could not be selected",
     500
   );
 
@@ -503,32 +490,6 @@ MozMillController.prototype.waitFor = function(
   thisObject
 ) {
   utils.waitFor(callback, message, timeout, interval, thisObject);
-};
-
-MozMillController.prototype.waitForElement = function(elem, timeout, interval) {
-  this.waitFor(
-    function() {
-      return elem.exists();
-    },
-    "Timeout exceeded for waitForElement " + elem.getInfo(),
-    timeout,
-    interval
-  );
-};
-
-MozMillController.prototype.waitForElementNotPresent = function(
-  elem,
-  timeout,
-  interval
-) {
-  this.waitFor(
-    function() {
-      return !elem.exists();
-    },
-    "Timeout exceeded for waitForElementNotPresent " + elem.getInfo(),
-    timeout,
-    interval
-  );
 };
 
 /**

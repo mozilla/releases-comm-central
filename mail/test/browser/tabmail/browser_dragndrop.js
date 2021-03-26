@@ -8,9 +8,6 @@
  * Test rearanging tabs via drag'n'drop.
  */
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
@@ -362,7 +359,7 @@ add_task(function test_tab_undo() {
 });
 
 function _synthesizeRecentlyClosedMenu() {
-  mc.rightClick(new elib.Elem(mc.tabmail.tabContainer.allTabs[1]));
+  mc.rightClick(mc.tabmail.tabContainer.allTabs[1]);
 
   let tabContextMenu = mc.window.document.getElementById("tabContextMenu");
   wait_for_popup_to_open(tabContextMenu);
@@ -379,7 +376,7 @@ function _synthesizeRecentlyClosedMenu() {
 
 function _teardownRecentlyClosedMenu() {
   let menu = mc.window.document.getElementById("tabContextMenu");
-  close_popup(mc, new elib.Elem(menu));
+  close_popup(mc, menu);
 }
 
 /**

@@ -7,7 +7,6 @@ const EXPORTED_SYMBOLS = [
   "MID_SLEEP",
   "TIMEOUT_MODAL_DIALOG",
   "CALENDARNAME",
-  "helpersForController",
   "handleOccurrencePrompt",
   "switchToView",
   "goToDate",
@@ -29,7 +28,6 @@ const EXPORTED_SYMBOLS = [
   "controller",
 ];
 
-var elementslib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { MozMillController } = ChromeUtils.import("resource://testing-common/mozmill/controller.jsm");
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
@@ -69,57 +67,40 @@ function setupModule() {
 }
 setupModule();
 
-function helpersForController(controller) {
-  return {
-    eid: id => new elementslib.ID(controller.window.document, id),
-    sleep: (timeout = MID_SLEEP) => controller.sleep(timeout),
-    replaceText: (textbox, text) => {
-      textbox.getNode().focus();
-      EventUtils.synthesizeKey("a", { accelKey: true }, controller.window);
-      controller.type(textbox, text);
-    },
-  };
-}
-
 /**
  * Make sure, the current view has finished loading.
  *
  * @param controller        Mozmill window controller
  */
 function ensureViewLoaded(controller) {
-  let { sleep } = helpersForController(controller);
   controller.waitFor(() => controller.window.currentView().mPendingRefreshJobs.size == 0);
   // After the queue is empty the view needs a moment to settle.
-  sleep(200);
+  controller.sleep(200);
 }
 
 /**
  * Open and click the appropriate button on the recurrence-Prompt Dialog.
  *
  * @param controller      Mozmill window controller
- * @param element         Mozmill element which will open the dialog.
+ * @param element         Element which will open the dialog.
  * @param mode            Action to exec on element (delete OR modify).
  * @param selectParent    true if all occurrences should be deleted.
  */
 function handleOccurrencePrompt(controller, element, mode, selectParent) {
-  controller.waitForElement(element);
   let handleOccurrenceDialog = dController => {
-    let { eid: dlgid } = helpersForController(dController);
+    let buttonId;
     if (selectParent) {
-      let acceptButton = dlgid("accept-parent-button");
-      dController.waitForElement(acceptButton);
-      dController.click(acceptButton);
+      buttonId = "accept-parent-button";
     } else {
-      let acceptButton = dlgid("accept-occurrence-button");
-      dController.waitForElement(acceptButton);
-      dController.click(acceptButton);
+      buttonId = "accept-occurrence-button";
     }
+    let acceptButton = dController.window.document.getElementById(buttonId);
+    dController.click(acceptButton);
   };
   let handleSummaryDialog = dController => {
     let dialog = dController.window.document.querySelector("dialog");
-    let editButton = new elementslib.Elem(dialog.getButton("accept"));
+    let editButton = dialog.getButton("accept");
     plan_for_modal_dialog("Calendar:OccurrencePrompt", handleOccurrenceDialog);
-    dController.waitForElement(editButton);
     dController.click(editButton);
     wait_for_modal_dialog("Calendar:OccurrencePrompt", TIMEOUT_MODAL_DIALOG);
   };
@@ -142,14 +123,10 @@ function handleOccurrencePrompt(controller, element, mode, selectParent) {
  * @param view              day, week, multiweek or month
  */
 function switchToView(controller, view) {
-  let { eid } = helpersForController(controller);
-
-  let tabButton = eid("calendar-tab-button");
-  controller.waitForElement(tabButton);
+  let tabButton = controller.window.document.getElementById("calendar-tab-button");
   controller.click(tabButton);
 
-  let button = eid(`calendar-${view}-view-button`);
-  controller.waitForElement(button);
+  let button = controller.window.document.getElementById(`calendar-${view}-view-button`);
   controller.click(button);
 
   ensureViewLoaded(controller);
@@ -202,7 +179,7 @@ function goToDate(controller, year, month, day) {
   let week = Math.floor((positionOfFirst + day - 1) / 7) + 1;
 
   // Pick day.
-  controller.click(new elementslib.Elem(getMiniMonthDay(week, weekDay)));
+  controller.click(getMiniMonthDay(week, weekDay));
   ensureViewLoaded(controller);
 }
 
@@ -317,8 +294,7 @@ async function invokeEditingEventDialog(mWController, clickBox, callback) {
   eventController.sleep(MID_SLEEP);
 
   let dialog = eventController.window.document.querySelector("dialog");
-  let editButton = new elementslib.Elem(dialog.getButton("accept"));
-  eventController.click(editButton);
+  eventController.click(dialog.getButton("accept"));
   await execEventDialogCallback(mWController, callback);
 }
 
@@ -347,9 +323,7 @@ async function invokeEditingRepeatEventDialog(mWController, clickBox, callback, 
   let target = editAll
     ? "edit-button-context-menu-all-occurrences"
     : "edit-button-context-menu-this-occurrence";
-  let editButton = new elementslib.Elem(
-    eventController.window.document.querySelector(`#${target}`)
-  );
+  let editButton = eventController.window.document.getElementById(target);
 
   eventController.click(editButton);
   await BrowserTestUtils.windowClosed(eventWindow);
@@ -359,7 +333,6 @@ async function invokeEditingRepeatEventDialog(mWController, clickBox, callback, 
 
 function doubleClickOptionalEventBox(mWController, clickBox) {
   if (clickBox) {
-    clickBox = new elementslib.Elem(clickBox);
     mWController.doubleClick(clickBox, 1, 1);
   }
 }
@@ -380,15 +353,11 @@ async function execEventDialogCallback(mWController, callback) {
 }
 
 function waitForItemPanelIframe(eventController) {
-  let { eid } = helpersForController(eventController);
-
-  let iframeid = "lightning-item-panel-iframe";
-  eventController.waitForElement(eid(iframeid));
-
-  let iframe = eventController.window.document.getElementById(iframeid);
+  let iframe;
   eventController.waitFor(
     () => {
-      return iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded;
+      iframe = eventController.window.document.getElementById("lightning-item-panel-iframe");
+      return iframe && iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded;
     },
     "lightning-item-panel-iframe did not load in time",
     10000
@@ -414,11 +383,9 @@ function checkMonthAlarmIcon(controller, week, day) {
  * @param n             How many times next button in view is clicked.
  */
 function viewForward(controller, n) {
-  let { eid, sleep } = helpersForController(controller);
-
   for (let i = 0; i < n; i++) {
-    controller.click(eid("next-view-button"));
-    sleep(SHORT_SLEEP);
+    controller.click(controller.window.document.getElementById("next-view-button"));
+    controller.sleep(SHORT_SLEEP);
   }
   ensureViewLoaded(controller);
 }
@@ -430,11 +397,9 @@ function viewForward(controller, n) {
  * @param n             How many times previous button in view is clicked.
  */
 function viewBack(controller, n) {
-  let { eid, sleep } = helpersForController(controller);
-
   for (let i = 0; i < n; i++) {
-    controller.click(eid("previous-view-button"));
-    sleep(SHORT_SLEEP);
+    controller.click(controller.window.document.getElementById("previous-view-button"));
+    controller.sleep(SHORT_SLEEP);
   }
   ensureViewLoaded(controller);
 }
@@ -455,10 +420,7 @@ function closeAllEventDialogs() {
  * @param name          calendar name
  */
 function deleteCalendars(controller, name) {
-  let { eid } = helpersForController(controller);
-
-  let win = eid("messengerWindow").getNode().ownerGlobal;
-  let manager = win.cal.getCalendarManager();
+  let manager = controller.window.cal.getCalendarManager();
 
   for (let calendar of manager.getCalendars()) {
     if (calendar.name == name) {
@@ -482,9 +444,7 @@ function createCalendar(controller, name) {
   manager.registerCalendar(calendar);
 
   controller.click(
-    new elementslib.Elem(
-      controller.window.document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`)
-    )
+    controller.window.document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`)
   );
   return calendar.id;
 }

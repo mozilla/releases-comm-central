@@ -146,7 +146,7 @@ add_task(function test_compose_from_composer() {
 
   // Switch to identity2 in the main compose window, new compose windows
   // starting from here should use the same identity as its "parent".
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: identityKey2 },
   ]);
@@ -183,13 +183,13 @@ add_task(function test_editing_identity() {
   let customEmail = "custom@edited.invalid";
   let identityCustom = customName + " <" + customEmail + ">";
 
-  compWin.click(compWin.eid("msgIdentity"));
+  compWin.click(compWin.e("msgIdentity"));
   compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"), [
     { command: "cmd_customizeFromAddress" },
   ]);
   compWin.waitFor(() => compWin.e("msgIdentity").editable);
 
-  compWin.type(compWin.eid("msgIdentityPopup"), identityCustom);
+  compWin.type(compWin.e("msgIdentityPopup"), identityCustom);
   checkCompIdentity(
     compWin,
     account.defaultIdentity.key,
@@ -231,13 +231,13 @@ add_task(function test_display_of_identities() {
   let cwc = open_compose_new_mail();
   checkCompIdentity(cwc, account.defaultIdentity.key, identity1Email);
 
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: identityKey2 },
   ]);
   checkCompIdentity(cwc, identityKey2, identity2From, identity2From);
 
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: identityKey4 },
   ]);
@@ -247,7 +247,7 @@ add_task(function test_display_of_identities() {
     "[nsIMsgIdentity: " + identityKey4 + "]"
   );
 
-  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click(cwc.e("msgIdentity"));
   cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: identityKey3 },
   ]);

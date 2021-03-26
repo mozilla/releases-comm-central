@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { create_ldap_address_book } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"
 );
@@ -70,28 +66,28 @@ add_task(function test_message_filter_shows_newsgroup_server() {
   let filterc = wait_for_new_window("mailnews:filterlist");
   wait_for_window_focused(filterc.window);
 
-  let popup = filterc.eid("serverMenuPopup");
-  Assert.ok(popup.exists());
+  let popup = filterc.e("serverMenuPopup");
+  Assert.ok(popup);
   filterc.click(popup);
 
-  let nntp = new elib.Elem(popup.node.children.item(1));
-  Assert.ok(nntp.exists());
+  let nntp = popup.children.item(1);
+  Assert.ok(nntp);
   // We need to get the newsgroups to pop up somehow.
   // These all fail.
   // filterc.click(nntp);
   // filterc.mouseover(nntp);
-  // filterc.select(popup, popup.node.parentNode.getIndexOfItem(nntp.node));
-  // filterc.select(nntp, popup.node.parentNode.getIndexOfItem(nntp.node));
+  // filterc.select(popup, popup.parentNode.getIndexOfItem(nntp));
+  // filterc.select(nntp, popup.parentNode.getIndexOfItem(nntp));
   // filterc.select(popup, 2);
-  // let nntpPopup = new elib.Elem(nntp.node.menupopup);
+  // let nntpPopup = nntp.menupopup;
   // filterc.click(nntpPopup);
   // filterc.mouseover(nntpPopup);
   // filterc.select(nntpPopup, 2);
 
   // This one initializes the menuitems, but it's kinda hacky.
-  nntp.node.menupopup._ensureInitialized();
+  nntp.menupopup._ensureInitialized();
   Assert.equal(
-    nntp.node.itemCount,
+    nntp.itemCount,
     5,
     "Incorrect number of children for the NNTP server"
   );
@@ -123,21 +119,21 @@ add_task(function test_customize_toolbar_doesnt_double_get_mail_menu() {
     );
 
     // Close the appmenu.
-    mc.click(mc.eid("button-appmenu"));
+    mc.click(mc.e("button-appmenu"));
   }
 
   check_getAllNewMsgMenu();
 
   plan_for_new_window("mailnews:customizeToolbar");
   // Open the customization dialog.
-  mc.rightClick(mc.eid("mail-bar3"));
-  mc.click(mc.eid("CustomizeMailToolbar"));
-  close_popup(mc, mc.eid("toolbar-context-menu"));
+  mc.rightClick(mc.e("mail-bar3"));
+  mc.click(mc.e("CustomizeMailToolbar"));
+  close_popup(mc, mc.e("toolbar-context-menu"));
 
   let customc = wait_for_new_window("mailnews:customizeToolbar");
   wait_for_window_focused(customc.window);
   plan_for_window_close(customc);
-  customc.click(customc.eid("donebutton"));
+  customc.click(customc.e("donebutton"));
   wait_for_window_close();
 
   check_getAllNewMsgMenu();
@@ -178,7 +174,7 @@ function create_simple_filter() {
 
   // Let's open the filter editor.
   plan_for_modal_dialog("mailnews:filtereditor", fill_in_filter_fields);
-  filterc.click(filterc.eid("newButton"));
+  filterc.click(filterc.e("newButton"));
   wait_for_modal_dialog("mailnews:filtereditor");
 }
 
@@ -229,7 +225,7 @@ add_task(function test_address_books_appear_in_message_filter_dropdown() {
 
   // Let's open the filter editor.
   plan_for_modal_dialog("mailnews:filtereditor", filterEditorOpened);
-  filterc.click(filterc.eid("newButton"));
+  filterc.click(filterc.e("newButton"));
   wait_for_modal_dialog("mailnews:filtereditor");
 });
 

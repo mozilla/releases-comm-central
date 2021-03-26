@@ -39,16 +39,16 @@ add_task(function setupModule(module) {
 
 add_task(function test_add_folder_toolbar() {
   // It should not be present by default
-  let folderLoc = mc.eid("locationFolders");
-  Assert.ok(!folderLoc.exists());
+  let folderLoc = mc.e("locationFolders");
+  Assert.ok(!folderLoc);
 
   // But it should show up when we call
   add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
-  folderLoc = mc.eid("locationFolders");
-  Assert.ok(folderLoc.exists());
+  folderLoc = mc.e("locationFolders");
+  Assert.ok(folderLoc);
 
   Assert.equal(
-    !!folderLoc.node.label,
+    !!folderLoc.label,
     true,
     "Uninitialized Folder doesn't have a default label."
   );
@@ -56,14 +56,14 @@ add_task(function test_add_folder_toolbar() {
 
 add_task(function test_folder_toolbar_shows_correct_item() {
   add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
-  let folderLoc = mc.eid("locationFolders");
+  let folderLoc = mc.e("locationFolders");
 
   // Start in folder a.
   let tabFolderA = be_in_folder(folderA);
   assert_folder_selected_and_displayed(folderA);
   assert_nothing_selected();
   Assert.equal(
-    folderLoc.node.label,
+    folderLoc.label,
     "FolderToolbarA",
     "Opening FolderA doesn't update toolbar."
   );
@@ -74,7 +74,7 @@ add_task(function test_folder_toolbar_shows_correct_item() {
   assert_folder_selected_and_displayed(folderB);
   assert_nothing_selected();
   Assert.equal(
-    folderLoc.node.label,
+    folderLoc.label,
     "FolderToolbarB",
     "Opening FolderB in a tab doesn't update toolbar."
   );
@@ -84,7 +84,7 @@ add_task(function test_folder_toolbar_shows_correct_item() {
   assert_folder_selected_and_displayed(folderA);
   assert_nothing_selected();
   Assert.equal(
-    folderLoc.node.label,
+    folderLoc.label,
     "FolderToolbarA",
     "Switching back to FolderA's tab doesn't update toolbar."
   );
@@ -94,7 +94,7 @@ add_task(function test_folder_toolbar_shows_correct_item() {
   assert_folder_selected_and_displayed(folderB);
   assert_nothing_selected();
   Assert.equal(
-    folderLoc.node.label,
+    folderLoc.label,
     "FolderToolbarB",
     "Switching back to FolderB's tab doesn't update toolbar."
   );
@@ -104,14 +104,14 @@ add_task(function test_folder_toolbar_shows_correct_item() {
 add_task(function test_folder_toolbar_disappears_on_message_tab() {
   add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
   be_in_folder(folderB);
-  let folderLoc = mc.eid("locationFolders");
-  Assert.ok(folderLoc.exists());
+  let folderLoc = mc.e("locationFolders");
+  Assert.ok(folderLoc);
   Assert.equal(
-    folderLoc.node.label,
+    folderLoc.label,
     "FolderToolbarB",
     "We should have started in FolderB."
   );
-  Assert.equal(folderLoc.node.collapsed, false, "The toolbar should be shown.");
+  Assert.equal(folderLoc.collapsed, false, "The toolbar should be shown.");
 
   // Select one message
   select_click_row(0);
@@ -131,5 +131,5 @@ add_task(function test_folder_toolbar_disappears_on_message_tab() {
 add_task(function test_remove_folder_toolbar() {
   remove_from_toolbar(mc.e("mail-bar3"), "folder-location-container");
 
-  Assert.ok(!mc.eid("locationFolders").exists());
+  Assert.ok(!mc.e("locationFolders"));
 });

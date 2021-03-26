@@ -6,9 +6,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
@@ -68,8 +65,6 @@ add_task(function test_content_tab_open() {
  * spell checking options.
  */
 add_task(function test_spellcheck_in_content_tabs() {
-  let eidMailContext = mc.eid("mailContext");
-
   // Test a few random items
   BrowserTestUtils.synthesizeMouseAtCenter(
     "textarea",
@@ -86,11 +81,12 @@ add_task(function test_spellcheck_in_content_tabs() {
     { type: "contextmenu" },
     mc.tabmail.selectedTab.browser
   );
-  wait_for_popup_to_open(eidMailContext.getNode());
+  let mailContext = mc.e("mailContext");
+  wait_for_popup_to_open(mailContext);
   assert_element_visible("mailContext-spell-dictionaries");
   assert_element_visible("mailContext-spell-check-enabled");
   assert_element_not_visible("mailContext-replySender"); // we're in a content tab!
-  close_popup(mc, eidMailContext);
+  close_popup(mc, mailContext);
 
   // Different test
   BrowserTestUtils.synthesizeMouseAtCenter(
@@ -98,10 +94,11 @@ add_task(function test_spellcheck_in_content_tabs() {
     { type: "contextmenu" },
     mc.tabmail.selectedTab.browser
   );
-  wait_for_popup_to_open(eidMailContext.getNode());
+  mailContext = mc.e("mailContext");
+  wait_for_popup_to_open(mailContext);
   assert_element_not_visible("mailContext-spell-dictionaries");
   assert_element_not_visible("mailContext-spell-check-enabled");
-  close_popup(mc, eidMailContext);
+  close_popup(mc, mailContext);
 
   // Right-click on "zombocom" and add to dictionary
   BrowserTestUtils.synthesizeMouse(
@@ -111,13 +108,14 @@ add_task(function test_spellcheck_in_content_tabs() {
     { type: "contextmenu", button: 2 },
     mc.tabmail.selectedTab.browser
   );
-  wait_for_popup_to_open(eidMailContext.getNode());
+  mailContext = mc.e("mailContext");
+  wait_for_popup_to_open(mailContext);
   let suggestions = mc.window.document.getElementsByClassName(
     "spell-suggestion"
   );
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
-  mc.click(mc.eid("mailContext-spell-add-to-dictionary"));
-  close_popup(mc, eidMailContext);
+  mc.click(mc.e("mailContext-spell-add-to-dictionary"));
+  close_popup(mc, mailContext);
 
   // Now check we don't have any suggestionss
   BrowserTestUtils.synthesizeMouse(
@@ -127,10 +125,11 @@ add_task(function test_spellcheck_in_content_tabs() {
     { type: "contextmenu", button: 2 },
     mc.tabmail.selectedTab.browser
   );
-  wait_for_popup_to_open(eidMailContext.getNode());
+  mailContext = mc.e("mailContext");
+  wait_for_popup_to_open(mailContext);
   suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length == 0, "But I just taught you this word!");
-  close_popup(mc, eidMailContext);
+  close_popup(mc, mailContext);
 });
 
 /*
@@ -138,7 +137,7 @@ add_task(function test_spellcheck_in_content_tabs() {
 add_task(function test_content_tab_open_same() {
   let preCount = mc.tabmail.tabContainer.allTabs.length;
 
-  mc.click(new elib.Elem(mc.menus.helpMenu.whatsNew));
+  mc.click(mc.menus.helpMenu.whatsNew);
 
   controller.sleep(0);
 

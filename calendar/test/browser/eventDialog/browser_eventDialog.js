@@ -12,7 +12,6 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  helpersForController,
   invokeNewEventDialog,
   invokeViewingEventDialog,
   switchToView,
@@ -21,7 +20,6 @@ var {
 var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
-var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -31,8 +29,6 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
-
-var { eid } = helpersForController(controller);
 
 const EVENTTITLE = "Event";
 const EVENTLOCATION = "Location";
@@ -77,7 +73,7 @@ add_task(async function testEventDialog() {
   let endTime = cal.dtz.formatter.formatTime(nextHour);
 
   // Create new event on first day in view.
-  controller.click(new elib.Elem(monthView.getDayBox(controller.window, 1, 1)));
+  controller.click(monthView.getDayBox(controller.window, 1, 1));
 
   await invokeNewEventDialog(controller, null, async (eventWindow, iframeWindow) => {
     let eventDocument = eventWindow.document;
@@ -152,9 +148,7 @@ add_task(async function testEventDialog() {
 
   // Catch and dismiss alarm.
   plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {
-    let { eid: alarmid } = helpersForController(alarm);
-    let dismissAllButton = alarmid("alarm-dismiss-all-button");
-    alarm.waitForElement(dismissAllButton);
+    let dismissAllButton = alarm.window.document.getElementById("alarm-dismiss-all-button");
     alarm.click(dismissAllButton);
     // The dialog will close itself if we wait long enough.
     alarm.sleep(500);
@@ -172,8 +166,8 @@ add_task(async function testEventDialog() {
   Assert.ok(!monthView.getItemAt(controller.window, 4, 1, 1));
 
   // Delete and verify deleted 6th col in row 1.
-  controller.click(new elib.Elem(monthView.getItemAt(controller.window, 1, 6, 1)));
-  let elemToDelete = eid("month-view");
+  controller.click(monthView.getItemAt(controller.window, 1, 6, 1));
+  let elemToDelete = controller.window.document.getElementById("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", false);
 
   await monthView.waitForNoItemAt(controller.window, 1, 6, 1);
@@ -191,8 +185,8 @@ add_task(async function testEventDialog() {
   }
 
   // Delete series by deleting last item in row 1 and confirming to delete all.
-  controller.click(new elib.Elem(monthView.getItemAt(controller.window, 1, 7, 1)));
-  elemToDelete = eid("month-view");
+  controller.click(monthView.getItemAt(controller.window, 1, 7, 1));
+  elemToDelete = controller.window.document.getElementById("month-view");
   handleOccurrencePrompt(controller, elemToDelete, "delete", true);
 
   // Verify all deleted.

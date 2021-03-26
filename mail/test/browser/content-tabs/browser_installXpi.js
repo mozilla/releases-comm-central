@@ -7,11 +7,8 @@
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 
-var { content_tab_eid, open_content_tab_with_url } = ChromeUtils.import(
+var { open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var { mc } = ChromeUtils.import(
@@ -48,7 +45,7 @@ function waitForNotification(id, buttonToClickSelector, callback) {
   }
   if (buttonToClickSelector) {
     let button = notification.querySelector(buttonToClickSelector);
-    mc.click(new elib.Elem(button));
+    mc.click(button);
   }
   mc.waitFor(() => !gDocument.querySelector(notificationSelector));
 }

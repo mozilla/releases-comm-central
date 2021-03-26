@@ -45,7 +45,7 @@ add_task(function test_open_context_menu() {
   Assert.notEqual(contextPopup.state, "open");
 
   // Right click on the tab bar
-  mc.rightClick(mc.eid("tabmail-tabs"));
+  mc.rightClick(mc.e("tabmail-tabs"));
 
   // Ensure that the popup opened
   wait_for_popup_to_open(contextPopup);

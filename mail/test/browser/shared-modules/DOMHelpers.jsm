@@ -36,11 +36,11 @@ var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 function element_visible(aElt) {
   let e;
   if (typeof aElt == "string") {
-    e = mc.eid(aElt);
+    e = mc.e(aElt);
   } else {
     e = aElt;
   }
-  return !e.getNode().hidden;
+  return !e.hidden;
 }
 
 /**

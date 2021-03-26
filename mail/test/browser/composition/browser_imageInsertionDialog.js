@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
@@ -39,11 +35,11 @@ add_task(function test_image_insertion_dialog_persist() {
     mwc.sleep(0);
 
     // Don't add alternate text
-    mwc.click(mwc.eid("noAltTextRadio"));
+    mwc.click(mwc.e("noAltTextRadio"));
 
     mwc.window.document.documentElement.querySelector("dialog").acceptDialog();
   });
-  cwc.click(cwc.eid("insertImage"));
+  cwc.click(cwc.e("insertImage"));
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
 
@@ -54,10 +50,10 @@ add_task(function test_image_insertion_dialog_persist() {
       "We should persist the previously selected value"
     );
     // We change to "use alt text"
-    mwc.click(mwc.eid("altTextRadio"));
+    mwc.click(mwc.e("altTextRadio"));
     mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
-  cwc.click(cwc.eid("insertImage"));
+  cwc.click(cwc.e("insertImage"));
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
 
@@ -70,7 +66,7 @@ add_task(function test_image_insertion_dialog_persist() {
     // Accept the dialog
     mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
-  cwc.click(cwc.eid("insertImage"));
+  cwc.click(cwc.e("insertImage"));
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
   cwc.sleep(1000);
@@ -85,7 +81,7 @@ add_task(function test_image_insertion_dialog_persist() {
     );
     mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
-  cwc.doubleClick(new elib.Elem(img));
+  cwc.doubleClick(img);
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
   // It's not clear why we have to wait here to avoid test failures,
@@ -98,7 +94,7 @@ add_task(function test_image_insertion_dialog_persist() {
       mwc.window.document.getElementById("noAltTextRadio").selected,
       "That value should persist still..."
     );
-    mwc.click(mwc.eid("altTextRadio"));
+    mwc.click(mwc.e("altTextRadio"));
 
     let srcloc = mwc.window.document.getElementById("altTextInput");
     srcloc.focus();
@@ -107,7 +103,7 @@ add_task(function test_image_insertion_dialog_persist() {
     // Accept the dialog
     mwc.window.document.documentElement.querySelector("dialog").acceptDialog();
   });
-  cwc.doubleClick(new elib.Elem(img));
+  cwc.doubleClick(img);
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
   // It's not clear why we have to wait here to avoid test failures,
@@ -124,7 +120,7 @@ add_task(function test_image_insertion_dialog_persist() {
     // Accept the dialog
     mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
-  cwc.doubleClick(new elib.Elem(img));
+  cwc.doubleClick(img);
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
 

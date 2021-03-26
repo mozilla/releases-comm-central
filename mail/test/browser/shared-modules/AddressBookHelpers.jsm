@@ -405,7 +405,9 @@ function select_contacts(aContacts) {
  */
 function edit_selected_contact(aController, aFunction) {
   windowHelper.plan_for_modal_dialog("Mail:abcard", aFunction);
-  aController.click(aController.eid("button-editcard"));
+  aController.click(
+    aController.window.document.getElementById("button-editcard")
+  );
   windowHelper.wait_for_modal_dialog("Mail:abcard");
 }
 

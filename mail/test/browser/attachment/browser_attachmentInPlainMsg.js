@@ -29,7 +29,7 @@ add_task(async function test_attachment_not_empty() {
   let msgc = await open_message_from_file(file);
 
   wait_for_element_visible(msgc, "attachmentToggle");
-  msgc.click(msgc.eid("attachmentToggle"));
+  msgc.click(msgc.e("attachmentToggle"));
 
   wait_for_element_visible(msgc, "attachmentList");
   Assert.equal(msgc.e("attachmentList").itemCount, 1);

@@ -7,7 +7,7 @@
 var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
-var { content_tab_eid, open_content_tab_with_url } = ChromeUtils.import(
+var { open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var { mc } = ChromeUtils.import(
@@ -62,12 +62,12 @@ add_task(function test_checkInsertImage() {
     mwc.sleep(0);
 
     // Don't add alternate text
-    mwc.click(mwc.eid("noAltTextRadio"));
+    mwc.click(mwc.e("noAltTextRadio"));
 
     // Accept the dialog
     mwc.window.document.querySelector("dialog").acceptDialog();
   });
-  gComposeWin.click(gComposeWin.eid("insertImage"));
+  gComposeWin.click(gComposeWin.e("insertImage"));
 
   wait_for_modal_dialog();
   wait_for_window_close();

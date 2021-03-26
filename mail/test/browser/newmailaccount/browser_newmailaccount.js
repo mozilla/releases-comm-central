@@ -8,9 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var { HttpServer } = ChromeUtils.import(
   "resource://testing-common/mozmill/httpd.jsm"
 );
@@ -263,12 +260,12 @@ function subtest_get_an_account(w) {
   // Fill in some data
   type_in_search_name(w, "Green Llama");
 
-  w.click(w.eid("searchSubmit"));
+  w.click(w.e("searchSubmit"));
   wait_for_search_results(w);
 
   // Click on the first address. This reveals the button with the price.
   let address = w.window.document.querySelector(".address:first-child");
-  w.click(new elib.Elem(address));
+  w.click(address);
   w.waitFor(
     () =>
       w.window.document.querySelectorAll('button.create:not([disabled="true"])')
@@ -282,7 +279,7 @@ function subtest_get_an_account(w) {
   let button = w.window.document.querySelector(
     'button.create[address="green@example.com"]'
   );
-  w.click(new elib.Elem(button));
+  w.click(button);
 }
 
 /**
@@ -301,7 +298,7 @@ function subtest_get_an_account_part_2(w) {
   Assert.ok(w.e("search_engine_check").checked);
 
   // Then click "Finish"
-  mc.click(w.eid("closeWindow"));
+  mc.click(w.e("closeWindow"));
 }
 
 /**
@@ -334,7 +331,7 @@ add_task(function test_can_dismiss_account_provisioner() {
 function subtest_can_dismiss_account_provisioner(w) {
   plan_for_window_close(w);
   // Click on the "I think I'll configure my account later" button.
-  mc.click(new elib.Elem(w.window.document.querySelector(".close")));
+  mc.click(w.window.document.querySelector(".close"));
 
   // Ensure that the window has closed.
   wait_for_window_close();
@@ -368,7 +365,7 @@ function subtest_can_switch_to_existing_email_account_wizard(w) {
   plan_for_new_window("mail:autoconfig");
 
   // Click on the "Skip this and use my existing email" button
-  mc.click(new elib.Elem(w.window.document.querySelector(".existing")));
+  mc.click(w.window.document.querySelector(".existing"));
 
   // Ensure that the Account Provisioner window closed
   wait_for_window_close();
@@ -399,10 +396,10 @@ function subtest_can_display_providers_in_other_languages(w) {
   wait_for_element_visible(w, "otherLangDesc");
   let otherLanguages = w.window.document.querySelectorAll(".otherLanguage");
   for (let element of otherLanguages) {
-    assert_element_visible(new elib.Elem(element));
+    assert_element_visible(element);
   }
   // Click on the "Other languages" div
-  mc.click(w.eid("otherLangDesc"));
+  mc.click(w.e("otherLangDesc"));
 
   wait_for_element_invisible(w, "otherLangDesc");
 }
@@ -433,13 +430,13 @@ add_task(function test_flip_flop_from_provisioner_menuitem() {
     );
     plan_for_new_window("mail:autoconfig");
     plan_for_window_close(wizard);
-    wizard.click(wizard.eid("provisioner_button"));
+    wizard.click(wizard.e("provisioner_button"));
     wait_for_modal_dialog("AccountCreation");
   }
 
   wizard = wait_for_new_window("mail:autoconfig");
   plan_for_modal_dialog("AccountCreation", subtest_close_provisioner);
-  wizard.click(wizard.eid("provisioner_button"));
+  wizard.click(wizard.e("provisioner_button"));
   wait_for_modal_dialog("AccountCreation");
 });
 
@@ -453,7 +450,7 @@ function subtest_flip_flop_from_provisioner_menuitem(w) {
   // open it.
   wait_for_the_wizard_to_be_closed(w);
   plan_for_window_close(w);
-  mc.click(new elib.Elem(w.window.document.querySelector(".existing")));
+  mc.click(w.window.document.querySelector(".existing"));
   wait_for_window_close();
 }
 
@@ -465,7 +462,7 @@ function subtest_close_provisioner(w) {
   // Now make sure we can dismiss the provisioner.
   plan_for_window_close(w);
   // Click on the "I think I'll configure my account later" button.
-  mc.click(new elib.Elem(w.window.document.querySelector(".close")));
+  mc.click(w.window.document.querySelector(".close"));
   // Ensure that the window has closed.
   wait_for_window_close();
 }
@@ -502,12 +499,12 @@ function subtest_persist_name_in_search_field(w) {
   type_in_search_name(w, NAME);
 
   // Do a search
-  w.click(w.eid("searchSubmit"));
+  w.click(w.e("searchSubmit"));
   wait_for_search_results(w);
 
   plan_for_window_close(w);
   // Click on the "I think I'll configure my account later" button.
-  mc.click(new elib.Elem(w.window.document.querySelector(".close")));
+  mc.click(w.window.document.querySelector(".close"));
   wait_for_window_close();
 }
 
@@ -550,7 +547,7 @@ function subtest_html_characters_and_ampersands(w) {
   type_in_search_name(w, CLEVER_STRING);
 
   // Do the search.
-  w.click(w.eid("searchSubmit"));
+  w.click(w.e("searchSubmit"));
 
   wait_for_search_results(w);
 
@@ -615,7 +612,7 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
   let input = w.window.document.querySelector(
     'input[type="checkbox"][value="foo"]'
   );
-  w.click(new elib.Elem(input));
+  w.click(input);
 
   assert_links_not_shown(w, [
     "http://www.example.com/foo-tos",
@@ -625,14 +622,14 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
   // Ensure that the "Other languages" div is visible
   wait_for_element_visible(w, "otherLangDesc");
   // Now show the providers from different locales...
-  w.click(w.eid("otherLangDesc"));
+  w.click(w.e("otherLangDesc"));
   wait_for_element_invisible(w, "otherLangDesc");
 
   // And click on one of those providers...
   input = w.window.document.querySelector(
     'input[type="checkbox"][value="French"]'
   );
-  w.click(new elib.Elem(input));
+  w.click(input);
   // We should be showing the French TOS / Privacy links, along
   // with those from the bar provider.
   assert_links_shown(w, [
@@ -653,7 +650,7 @@ function subtest_show_tos_privacy_links_for_selected_providers(w) {
   input = w.window.document.querySelector(
     'input[type="checkbox"][value="German"]'
   );
-  w.click(new elib.Elem(input));
+  w.click(input);
   assert_links_shown(w, [
     "http://www.example.com/French-tos",
     "http://www.example.com/French-privacy",
@@ -698,7 +695,7 @@ function subtest_shows_error_on_bad_suggest_from_name(w) {
   type_in_search_name(w, "Boston Low");
 
   // Do the search.
-  w.click(w.eid("searchSubmit"));
+  w.click(w.e("searchSubmit"));
 
   mc.waitFor(
     () => !w.window.document.querySelector("#notifications > .error").hidden
@@ -736,7 +733,7 @@ function subtest_shows_error_on_empty_suggest_from_name(w) {
   type_in_search_name(w, "Maggie Robbins");
 
   // Do the search.
-  w.click(w.eid("searchSubmit"));
+  w.click(w.e("searchSubmit"));
 
   mc.waitFor(
     () => !w.window.document.querySelector("#notifications > .error").hidden
@@ -864,22 +861,22 @@ add_task(function test_search_button_disabled_cases() {
  */
 function subtest_search_button_disabled_cases(w) {
   wait_for_provider_list_loaded(w);
-  let searchInput = w.eid("name");
+  let searchInput = w.e("name");
   // Case 1:  Search input empty, some providers selected.
 
   // Empty any strings in the search input.  Select all of the input with
   // Ctrl-A, and then hit backspace.
-  searchInput.getNode().focus();
+  searchInput.focus();
   EventUtils.synthesizeKey("a", { accelKey: true }, w.window);
   EventUtils.synthesizeKey("VK_BACK_SPACE", {}, w.window);
 
   // Make sure at least one provider is checked
   let input = w.window.document.querySelector('input[type="checkbox"]:checked');
-  w.click(new elib.Elem(input));
+  w.click(input);
   input = w.window.document.querySelector(
     'input[type="checkbox"][value="foo"]'
   );
-  w.click(new elib.Elem(input));
+  w.click(input);
 
   // The search submit button should become disabled
   wait_for_element_enabled(w, w.e("searchSubmit"), false);
@@ -899,7 +896,7 @@ function subtest_search_button_disabled_cases(w) {
     'input[type="checkbox"]:checked'
   );
   for (input of inputs) {
-    mc.click(new elib.Elem(input));
+    mc.click(input);
   }
 
   // The search submit button should now be disabled
@@ -911,7 +908,7 @@ function subtest_search_button_disabled_cases(w) {
   input = w.window.document.querySelector(
     'input[type="checkbox"][value="foo"]'
   );
-  w.click(new elib.Elem(input));
+  w.click(input);
   wait_for_element_enabled(w, w.e("searchSubmit"), true);
 
   // Case 4:  Search input has no text, and no providers are
@@ -921,7 +918,7 @@ function subtest_search_button_disabled_cases(w) {
   EventUtils.synthesizeKey("a", { accelKey: true }, w.window);
   EventUtils.synthesizeKey("VK_BACK_SPACE", {}, w.window);
   input = w.window.document.querySelector('input[type="checkbox"]:checked');
-  w.click(new elib.Elem(input));
+  w.click(input);
 
   wait_for_element_enabled(w, w.e("searchSubmit"), false);
 }
@@ -941,14 +938,13 @@ add_task(function test_can_pref_off_account_provisioner() {
 
   // We'll use the Mozmill Menu API to grab the main menu...
   let mailMenuBar = mc.getMenu("#mail-menubar");
-  let newMenuPopup = mc.eid("menu_NewPopup");
-  let newMailAccountMenuitem = mc.eid("newMailAccountMenuItem");
+  let newMenuPopup = mc.e("menu_NewPopup");
+  let newMailAccountMenuitem = mc.e("newMailAccountMenuItem");
 
   // First, we do some hackery to allow the "New" menupopup to respond to
   // events...
-  let oldAllowEvents =
-    newMenuPopup.getNode().getAttribute("allowevents") === "true";
-  newMenuPopup.getNode().setAttribute("allowevents", "true");
+  let oldAllowEvents = newMenuPopup.getAttribute("allowevents") === "true";
+  newMenuPopup.setAttribute("allowevents", "true");
 
   // And then call open on the menu.  This doesn't actually open the menu
   // on screen, but it simulates the act, and dynamically generated or
@@ -959,7 +955,7 @@ add_task(function test_can_pref_off_account_provisioner() {
   // Next, we'll ensure that the "Get a new mail account"
   // menuitem is no longer available
   mc.waitFor(function() {
-    return mc.eid("newCreateEmailAccountMenuItem").getNode().hidden;
+    return mc.e("newCreateEmailAccountMenuItem").hidden;
   }, "Timed out waiting for the Account Provisioner menuitem to be hidden");
 
   // Open up the Existing Account wizard
@@ -970,7 +966,7 @@ add_task(function test_can_pref_off_account_provisioner() {
   let wizard = wait_for_new_window("mail:autoconfig");
 
   // And make sure the Get a New Account button is hidden.
-  Assert.ok(wizard.eid("provisioner_button").getNode().hidden);
+  Assert.ok(wizard.e("provisioner_button").hidden);
 
   // Alright, close the Wizard.
   plan_for_window_close(wizard);
@@ -985,7 +981,7 @@ add_task(function test_can_pref_off_account_provisioner() {
 
   // Make sure that the "Get a new mail account" menuitem is NOT hidden.
   mc.waitFor(function() {
-    return !mc.eid("newCreateEmailAccountMenuItem").getNode().hidden;
+    return !mc.e("newCreateEmailAccountMenuItem").hidden;
   }, "Timed out waiting for the Account Provisioner menuitem to appear");
 
   // Open up the Existing Account wizard
@@ -997,16 +993,16 @@ add_task(function test_can_pref_off_account_provisioner() {
 
   // Make sure that the button to open the Account Provisioner dialog is
   // NOT hidden.
-  Assert.ok(!wizard.eid("provisioner_button").getNode().hidden);
+  Assert.ok(!wizard.e("provisioner_button").hidden);
 
   // Alright, close up.
   close_window(wizard);
 
   // And finally restore the menu to the way it was.
   if (oldAllowEvents) {
-    newMenuPopup.getNode().setAttribute("allowevents", "true");
+    newMenuPopup.setAttribute("allowevents", "true");
   } else {
-    newMenuPopup.getNode().removeAttribute("allowevents");
+    newMenuPopup.removeAttribute("allowevents");
   }
 }).__skipMe = AppConstants.platform == "macosx";
 // We cannot control menus via Mozmill in OSX, so we'll skip this test.
@@ -1073,7 +1069,7 @@ function sub_get_to_order_form(aController, aAddress) {
   // Fill in some data
   type_in_search_name(aController, "Joe Nobody");
 
-  aController.click(aController.eid("searchSubmit"));
+  aController.click(aController.e("searchSubmit"));
   wait_for_search_results(aController);
 
   // Click on the requested address. This reveals the button with the price.
@@ -1082,7 +1078,7 @@ function sub_get_to_order_form(aController, aAddress) {
   ];
   let address = addressElts.filter(a => a.textContent == aAddress).shift();
   Assert.ok(!!address, "Couldn't find the requested address " + aAddress);
-  aController.click(new elib.Elem(address));
+  aController.click(address);
   aController.waitFor(
     () =>
       aController.window.document.querySelectorAll(
@@ -1107,7 +1103,7 @@ function sub_get_to_order_form(aController, aAddress) {
  */
 function close_dialog_immediately(aController) {
   plan_for_window_close(aController);
-  mc.click(new elib.Elem(aController.window.document.querySelector(".close")));
+  mc.click(aController.window.document.querySelector(".close"));
   wait_for_window_close();
 }
 
@@ -1336,7 +1332,7 @@ function subtest_disabled_fields_when_searching(aController) {
   let doc = aController.window.document;
   type_in_search_name(aController, "Fone Bone");
 
-  aController.click(aController.eid("searchSubmit"));
+  aController.click(aController.e("searchSubmit"));
 
   // Our slow search has started. We have kSearchMSeconds milliseconds before
   // the search completes. Plenty of time to check that the right things are
@@ -1495,11 +1491,11 @@ add_task(function test_get_new_account_focuses_existing_ap_tab() {
   plan_for_new_window("mail:autoconfig");
 
   // Open the wizard...
-  mc.click(new elib.Elem(mc.menus.menu_File.menu_New.newMailAccountMenuItem));
+  mc.click(mc.menus.menu_File.menu_New.newMailAccountMenuItem);
   let wizard = wait_for_new_window("mail:autoconfig");
 
   // Click on the "Get a new Account" button in the wizard.
-  wizard.click(wizard.eid("provisioner_button"));
+  wizard.click(wizard.e("provisioner_button"));
 
   // If we got here, that means that we weren't blocked by a dialog
   // being opened, which is what we wanted..
@@ -1530,7 +1526,7 @@ function subtest_per_address_prices(w) {
   type_in_search_name(w, "Joanna Finkelstein");
 
   // Do the search.
-  mc.click(w.eid("searchSubmit"));
+  mc.click(w.e("searchSubmit"));
 
   wait_for_search_results(w);
 
@@ -1550,7 +1546,7 @@ function subtest_per_address_prices(w) {
   Assert.equal(price.innerHTML, prices[0].slice(0, 6));
 
   // Click on the multi provider. This reveals the buttons with the prices.
-  mc.click(new elib.Elem(multi));
+  mc.click(multi);
   mc.waitFor(
     () =>
       w.window.document.querySelectorAll('button.create:not([disabled="true"])')

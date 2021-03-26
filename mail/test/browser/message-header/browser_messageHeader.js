@@ -9,10 +9,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   create_address_book,
   create_mailing_list,
@@ -54,11 +50,6 @@ var { MailServices } = ChromeUtils.import(
 
 var folder, folderMore;
 var gInterestingMessage;
-
-/**
- * Wraps a call to querySelector in an elib.Elem.
- */
-const getElement = (elem, query) => new elib.Elem(elem.querySelector(query));
 
 add_task(function setupModule(module) {
   folder = create_folder("MessageWindowA");
@@ -108,12 +99,12 @@ add_task(function setupModule(module) {
 
   // Disable animations on the panel, so that we don't have to deal with
   // async openings.
-  let contactPanel = mc.eid("editContactPanel").getNode();
+  let contactPanel = mc.e("editContactPanel");
   contactPanel.setAttribute("animate", false);
 });
 
 registerCleanupFunction(function teardownModule(module) {
-  let contactPanel = mc.eid("editContactPanel").getNode();
+  let contactPanel = mc.e("editContactPanel");
   contactPanel.removeAttribute("animate");
 
   // Now restore the panes we hid in setupModule
@@ -145,8 +136,8 @@ add_task(function test_add_tag_with_really_long_label() {
 
   assert_selected_and_displayed(mc, curMessage);
 
-  let topColumn = mc.eid("expandedfromTableHeader").node;
-  let bottomColumn = mc.eid("expandedsubjectTableHeader").node;
+  let topColumn = mc.e("expandedfromTableHeader");
+  let bottomColumn = mc.e("expandedsubjectTableHeader");
 
   if (topColumn.clientWidth != bottomColumn.clientWidth) {
     throw new Error(
@@ -159,7 +150,7 @@ add_task(function test_add_tag_with_really_long_label() {
   let defaultWidth = topColumn.clientWidth;
 
   // Make the tags label really long.
-  let tagsLabel = mc.eid("expandedtagsLabel").node;
+  let tagsLabel = mc.e("expandedtagsLabel");
   let oldTagsValue = tagsLabel.value;
   tagsLabel.value = "taaaaaaaaaaaaaaaaaags";
 
@@ -432,20 +423,20 @@ add_task(function test_more_button_with_many_recipients() {
   assert_selected_and_displayed(mc, curMessage);
 
   // Check the mode of the header.
-  let headerBox = mc.eid("expandedHeaderView");
-  let previousHeaderMode = headerBox.node.getAttribute("show_header_mode");
+  let headerBox = mc.e("expandedHeaderView");
+  let previousHeaderMode = headerBox.getAttribute("show_header_mode");
 
   // Click the "more" button.
   let moreIndicator = mc.window.document.getElementById("expandedccBox").more;
   moreIndicator.click();
 
   // Check the new mode of the header.
-  if (headerBox.node.getAttribute("show_header_mode") != "all") {
+  if (headerBox.getAttribute("show_header_mode") != "all") {
     throw new Error(
       "Header Mode didn't change to 'all'!  old=" +
         previousHeaderMode +
         ", new=" +
-        headerBox.node.getAttribute("show_header_mode")
+        headerBox.getAttribute("show_header_mode")
     );
   }
 
@@ -457,12 +448,12 @@ add_task(function test_more_button_with_many_recipients() {
   assert_selected_and_displayed(mc, curMessage);
 
   // Check the even newer mode of the header.
-  if (headerBox.node.getAttribute("show_header_mode") != previousHeaderMode) {
+  if (headerBox.getAttribute("show_header_mode") != previousHeaderMode) {
     throw new Error(
       "Header Mode changed from " +
         previousHeaderMode +
         " to " +
-        headerBox.node.getAttribute("show_header_mode") +
+        headerBox.getAttribute("show_header_mode") +
         " and didn't change back."
     );
   }
@@ -487,7 +478,7 @@ add_task(function test_clicking_star_opens_inline_contact_editor() {
     .emailAddresses;
 
   // Ensure that the inline contact editing panel is not open
-  let contactPanel = mc.eid("editContactPanel").getNode();
+  let contactPanel = mc.e("editContactPanel");
   Assert.notEqual(contactPanel.state, "open");
   subtest_more_widget_star_click(toDescription);
 
@@ -498,7 +489,7 @@ add_task(function test_clicking_star_opens_inline_contact_editor() {
 
   // Click on the star, and ensure that the inline contact
   // editing panel opens
-  mc.click(getElement(lastAddr, ".emailStar"));
+  mc.click(lastAddr.querySelector(".emailStar"));
   mc.waitFor(
     () => contactPanel.state == "open",
     () =>
@@ -541,7 +532,9 @@ add_task(function test_msg_id_context_menu() {
   select_click_row(-1);
 
   // Right click to show the context menu.
-  mc.rightClick(mc.eid("expandedreferencesBox", { tagName: "mail-messageid" }));
+  mc.rightClick(
+    mc.window.document.querySelector("#expandedreferencesBox mail-messageid")
+  );
   wait_for_popup_to_open(mc.e("messageIdContext"));
 
   // Ensure Open Message For ID is shown... and that Open Browser With Message-ID
@@ -549,7 +542,7 @@ add_task(function test_msg_id_context_menu() {
   assert_shown("messageIdContext-openMessageForMsgId", true);
   assert_shown("messageIdContext-openBrowserWithMsgId", false);
 
-  close_popup(mc, mc.eid("messageIdContext"));
+  close_popup(mc, mc.e("messageIdContext"));
 
   Services.prefs.setBoolPref("mailnews.headers.showReferences", false);
 });
@@ -581,7 +574,7 @@ add_task(
       .emailAddresses;
 
     // Ensure that the inline contact editing panel is not open
-    let contactPanel = mc.eid("editContactPanel").getNode();
+    let contactPanel = mc.e("editContactPanel");
     Assert.notEqual(contactPanel.state, "open");
 
     subtest_more_widget_star_click(toDescription);
@@ -593,15 +586,15 @@ add_task(
 
     // Click on the star, and ensure that the inline contact
     // editing panel opens
-    mc.click(getElement(lastAddr, ".emailStar"));
+    mc.click(lastAddr.querySelector(".emailStar"));
     mc.waitFor(
       () => contactPanel.state == "open",
       () =>
         "Timeout waiting for contactPanel to open; state=" + contactPanel.state
     );
 
-    let abDrop = mc.eid("editContactAddressBookList").getNode();
-    let warningMsg = mc.eid("contactMoveDisabledText").getNode();
+    let abDrop = mc.e("editContactAddressBookList");
+    let warningMsg = mc.e("contactMoveDisabledText");
 
     // Ensure that the address book dropdown is not disabled
     Assert.ok(!abDrop.disabled);
@@ -643,7 +636,7 @@ add_task(
     ml.addCard(card);
 
     // Re-open the inline contact editing panel
-    mc.click(getElement(lastAddr, ".emailStar"));
+    mc.click(lastAddr.querySelector(".emailStar"));
     mc.waitFor(
       () => contactPanel.state == "open",
       () =>
@@ -664,7 +657,7 @@ add_task(
     ml.deleteCards([card]);
 
     // Re-open the inline contact editing panel
-    mc.click(getElement(lastAddr, ".emailStar"));
+    mc.click(lastAddr.querySelector(".emailStar"));
     mc.waitFor(
       () => contactPanel.state == "open",
       () =>
@@ -686,7 +679,7 @@ add_task(
 add_task(function test_add_contact_from_context_menu() {
   // Click the contact to show the emailAddressPopup popup menu.
   mc.click(
-    new elib.Elem(mc.e("expandedfromBox", { tagName: "mail-emailaddress" }))
+    mc.window.document.querySelector("#expandedfromBox mail-emailaddress")
   );
 
   var addToAddressBookItem = mc.window.document.getElementById(
@@ -701,17 +694,17 @@ add_task(function test_add_contact_from_context_menu() {
   }
 
   // Click the Add to Address Book context menu entry.
-  mc.click(mc.eid("addToAddressBookItem"));
+  mc.click(mc.e("addToAddressBookItem"));
   // (for reasons unknown, the pop-up does not close itself)
-  close_popup(mc, mc.eid("emailAddressPopup"));
+  close_popup(mc, mc.e("emailAddressPopup"));
 
   // Now click the contact again, the context menu should now show the
   // Edit Contact menu instead.
   mc.click(
-    new elib.Elem(mc.e("expandedfromBox", { tagName: "mail-emailaddress" }))
+    mc.window.document.querySelector("#expandedfromBox mail-emailaddress")
   );
   // (for reasons unknown, the pop-up does not close itself)
-  close_popup(mc, mc.eid("emailAddressPopup"));
+  close_popup(mc, mc.e("emailAddressPopup"));
 
   addToAddressBookItem = mc.window.document.getElementById(
     "addToAddressBookItem"
@@ -850,7 +843,7 @@ add_task(function test_show_all_header_mode() {
 
 function change_to_header_normal_mode() {
   // XXX Clicking on check menu items doesn't work in 1.4.1b1 (bug 474486)...
-  //  mc.click(new elib.Elem(mc.menus.View.viewheadersmenu.viewnormalheaders));
+  //  mc.click(mc.menus.View.viewheadersmenu.viewnormalheaders);
   // ... so call the function instead.
   mc.window.MsgViewNormalHeaders();
   mc.sleep(0);
@@ -858,7 +851,7 @@ function change_to_header_normal_mode() {
 
 function change_to_all_header_mode() {
   // XXX Clicking on check menu items doesn't work in 1.4.1b1 (bug 474486)...
-  //  mc.click(new elib.Elem(mc.menus.View.viewheadersmenu.viewallheaders));
+  //  mc.click(mc.menus.View.viewheadersmenu.viewallheaders);
   // ... so call the function instead.
   mc.window.MsgViewAllHeaders();
   mc.sleep(0);
@@ -911,7 +904,7 @@ function subtest_more_widget_click(toDescription) {
 
   // activate (n more)
   let moreNode = mc.window.document.getElementById("expandedtoBox").more;
-  mc.click(new elib.Elem(moreNode));
+  mc.click(moreNode);
 
   // test that (n more) is gone
   moreNode = mc.window.document.getElementById("expandedtoBox").more;
@@ -971,7 +964,7 @@ function subtest_more_widget_star_click(toDescription) {
   let view = mc.e("expandedHeaderView");
   view.scrollTop = view.scrollHeight - view.clientHeight;
 
-  mc.click(getElement(lastAddr, ".emailStar"));
+  mc.click(lastAddr.querySelector(".emailStar"));
   if (lastAddr.getAttribute("hascard") == "false") {
     throw new Error("address not updated after clicking star");
   }

@@ -18,9 +18,6 @@ const EXPORTED_SYMBOLS = [
   "type_in_search_name",
 ];
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
@@ -62,9 +59,7 @@ function wait_for_search_ready(aController) {
 /* Opens the account provisioner by selecting it from the File/Edit menu.
  */
 function open_provisioner_window() {
-  mc.click(
-    new elib.Elem(mc.menus.menu_File.menu_New.newCreateEmailAccountMenuItem)
-  );
+  mc.click(mc.menus.menu_File.menu_New.newCreateEmailAccountMenuItem);
 }
 
 /* Used by wait_for_the_wizard_to_be_closed to check if the wizard is still

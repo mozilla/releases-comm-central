@@ -10,12 +10,9 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  helpersForController,
   invokeNewEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-
-var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
@@ -64,7 +61,7 @@ add_task(async function testAnnualRecurrence() {
   // Delete event.
   goToDate(controller, checkYears[0], 1, 1);
   switchToView(controller, "day");
-  const box = new elib.Elem(await dayView.waitForAllDayItemAt(controller.window, 1));
+  const box = await dayView.waitForAllDayItemAt(controller.window, 1);
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);
   await TestUtils.waitForCondition(

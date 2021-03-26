@@ -9,10 +9,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   async_wait_for_compose_window,
   close_compose_window,
@@ -112,7 +108,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   assert_selected_and_displayed(mc, msg);
 
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
-  mc.click(mc.eid("attachmentName"));
+  mc.click(mc.e("attachmentName"));
   let msgWin = await newWindowPromise;
   wait_for_message_display_completion(msgWin, false);
 

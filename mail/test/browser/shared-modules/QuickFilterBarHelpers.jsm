@@ -65,7 +65,7 @@ function assert_quick_filter_bar_visible(aVisible) {
  * Toggle the state of the message filter bar as if by a mouse click.
  */
 function toggle_quick_filter_bar() {
-  mc.click(mc.eid("qfb-show-filter-bar"));
+  mc.click(mc.e("qfb-show-filter-bar"));
   fdh.wait_for_all_messages_to_load();
 }
 
@@ -90,7 +90,7 @@ function assert_constraints_expressed(aConstraints) {
  * argument magic enabled.
  */
 function toggle_boolean_constraints(...aArgs) {
-  aArgs.forEach(arg => mc.click(mc.eid(nameToBarDomId[arg])));
+  aArgs.forEach(arg => mc.click(mc.e(nameToBarDomId[arg])));
   fdh.wait_for_all_messages_to_load(mc);
 }
 
@@ -102,7 +102,7 @@ function toggle_tag_constraints(...aArgs) {
   aArgs.forEach(function(arg) {
     let tagId = "qfb-tag-" + arg;
     qfbButtons.ensureElementIsVisible(mc.e(tagId));
-    mc.click(mc.eid(tagId));
+    mc.click(mc.e(tagId));
   });
   fdh.wait_for_all_messages_to_load(mc);
 }
@@ -195,7 +195,7 @@ var nameToTextDomId = {
 };
 
 function toggle_text_constraints(...aArgs) {
-  aArgs.forEach(arg => mc.click(mc.eid(nameToTextDomId[arg])));
+  aArgs.forEach(arg => mc.click(mc.e(nameToTextDomId[arg])));
   fdh.wait_for_all_messages_to_load(mc);
 }
 

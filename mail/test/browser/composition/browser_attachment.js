@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   add_attachments,
   close_compose_window,
@@ -273,7 +269,7 @@ add_task(function test_rename_attachment() {
   // Now, rename the attachment.
   let bucket = cwc.e("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
-  cwc.click(new elib.Elem(node));
+  cwc.click(node);
   plan_for_modal_dialog("commonDialogWindow", subtest_rename_attachment);
   cwc.window.RenameSelectedAttachment();
   wait_for_modal_dialog("commonDialogWindow");
@@ -310,7 +306,7 @@ add_task(function test_open_attachment() {
   let bucket = cwc.e("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
   plan_for_modal_dialog("unknownContentTypeWindow", subtest_open_attachment);
-  cwc.doubleClick(new elib.Elem(node));
+  cwc.doubleClick(node);
   wait_for_modal_dialog("unknownContentTypeWindow");
 
   close_compose_window(cwc);
@@ -425,7 +421,7 @@ function subtest_reordering(
     }
     // Take action.
     if ("button" in action) {
-      aCwc.click(aCwc.eid(action.button));
+      aCwc.click(aCwc.e(action.button));
     } else if ("key" in action) {
       EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc.window);
     }
@@ -475,14 +471,14 @@ add_task(function test_attachment_reordering() {
   check_attachment_names(cwc, initialAttachmentNames_0);
 
   // Show 'Reorder Attachments' panel via mouse clicks.
-  cwc.rightClick(new elib.Elem(bucket.getItemAtIndex(1)));
+  cwc.rightClick(bucket.getItemAtIndex(1));
   cwc.click_menus_in_sequence(cwc.e("msgComposeAttachmentItemContext"), [
     { id: "composeAttachmentContext_reorderItem" },
   ]);
   wait_for_popup_to_open(panel);
 
   // Click on the editor which should close the panel.
-  cwc.click(new elib.Elem(editorEl));
+  cwc.click(editorEl);
   cwc.waitFor(
     () => panel.state == "closed",
     "Reordering panel didn't close when editor was clicked."

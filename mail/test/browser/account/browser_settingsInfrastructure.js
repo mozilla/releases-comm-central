@@ -12,10 +12,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   click_account_tree_row,
   get_account_tree_row,
@@ -114,7 +110,7 @@ function subtest_check_account_dot_IDs(tab) {
   // value properly.
   let loginCheck = iframe.getElementById("server.loginAtStartUp");
   Assert.ok(!loginCheck.checked);
-  mc.check(new elib.Elem(loginCheck), true);
+  mc.check(loginCheck, true);
 
   accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
   click_account_tree_row(tab, accountRow);
@@ -224,7 +220,7 @@ function subtest_check_locked_prefs_addressing(tab) {
 
   // Now toggle the 'different LDAP server' on. The server selector
   // and edit button should enable.
-  mc.radio(new elib.Elem(useLDAPdirectory));
+  mc.radio(useLDAPdirectory);
   Assert.ok(!LDAPdirectory.disabled);
   Assert.ok(!LDAPeditButton.disabled);
 
@@ -304,13 +300,13 @@ function subtest_check_locked_prefs_server(tab) {
   Assert.ok(daysToLeave.disabled);
 
   // When leaveOnServer is checked, only deleteByAge will get enabled.
-  mc.check(new elib.Elem(leaveOnServer), true);
+  mc.check(leaveOnServer, true);
   Assert.ok(leaveOnServer.checked);
   Assert.ok(!deleteByAge.disabled);
   Assert.ok(daysToLeave.disabled);
 
   // When deleteByAge is checked, daysToLeave will get enabled.
-  mc.check(new elib.Elem(deleteByAge), true);
+  mc.check(deleteByAge, true);
   Assert.ok(deleteByAge.checked);
   Assert.ok(!daysToLeave.disabled);
 
@@ -351,7 +347,7 @@ function subtest_check_locked_prefs_server(tab) {
 
   // When leaveOnserver is unchecked, both of deleteByAge and daysToLeave
   // should get disabled.
-  mc.check(new elib.Elem(leaveOnServer), false);
+  mc.check(leaveOnServer, false);
   Assert.ok(!leaveOnServer.disabled);
   Assert.ok(!leaveOnServer.checked);
 
@@ -445,9 +441,9 @@ function subtest_check_onchange_handler(tab) {
   Assert.equal(autoSyncInterval.value, 1);
 
   // Now type in 35 (days).
-  mc.radio(new elib.ID(iframe, "useAutosync.ByAge"));
+  mc.radio(iframe.getElementById("useAutosync.ByAge"));
   autoSync.select();
-  mc.type(new elib.Elem(autoSync), "35");
+  mc.type(autoSync, "35");
 
   // Immediately switch to another pane and back.
   accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xhtml", tab);

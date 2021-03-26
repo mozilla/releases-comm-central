@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { gMockExtProtSvcReg } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
@@ -131,7 +127,7 @@ function assert_ignore_works(aController) {
     kNotificationValue,
     { popup: "phishingOptions" }
   );
-  aController.click(new elib.Elem(prefButton));
+  aController.click(prefButton);
   aController.click_menus_in_sequence(aController.e("phishingOptions"), [
     { id: "phishingOptionIgnore" },
   ]);

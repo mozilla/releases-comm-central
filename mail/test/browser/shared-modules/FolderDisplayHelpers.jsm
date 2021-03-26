@@ -1615,9 +1615,9 @@ function delete_via_popup() {
     "selected messages:",
     mc.folderDisplay.selectedMessages,
   ]);
-  mc.click(mc.eid("mailContext-delete"));
+  mc.click(mc.e("mailContext-delete"));
   // for reasons unknown, the pop-up does not close itself?
-  close_popup(mc, mc.eid("mailContext"));
+  close_popup(mc, mc.e("mailContext"));
   wait_for_folder_events();
 }
 
@@ -1634,11 +1634,10 @@ function wait_for_popup_to_open(popupElem) {
 /**
  * Close the open pop-up.
  */
-function close_popup(aController, eid) {
+function close_popup(aController, elem) {
   if (aController == null) {
     aController = mc;
   }
-  let elem = eid.getNode();
   // if it was already closing, just leave
   if (elem.state == "closed") {
     mark_action("fdh", "close_popup", [

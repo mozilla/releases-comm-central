@@ -11,7 +11,6 @@ const EXPORTED_SYMBOLS = [
   "wait_for_content_tab_load",
   "assert_content_tab_has_favicon",
   "content_tab_e",
-  "content_tab_eid",
   "get_content_tab_element_display",
   "assert_content_tab_element_hidden",
   "assert_content_tab_element_visible",
@@ -29,9 +28,6 @@ const EXPORTED_SYMBOLS = [
   "gMockExtProtSvc",
 ];
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var folderDisplayHelper = ChromeUtils.import(
@@ -210,7 +206,7 @@ function open_content_tab_with_click(
 
   let preCount = aController.tabmail.tabContainer.allTabs.length;
   if (typeof aElem != "function") {
-    aController.click(new elib.Elem(aElem));
+    aController.click(aElem);
   } else {
     aElem();
   }
@@ -295,14 +291,6 @@ function content_tab_e(aTab, aId) {
  */
 function assert_content_tab_has_favicon(aTab, aURL) {
   Assert.equal(aTab.browser.mIconURL, aURL, "Checking tab favicon");
-}
-
-/**
- * Gets the element with the given ID from the content tab's displayed page,
- * wrapped in an elib.Elem.
- */
-function content_tab_eid(aTab, aId) {
-  return new elib.Elem(content_tab_e(aTab, aId));
 }
 
 /**

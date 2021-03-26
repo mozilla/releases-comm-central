@@ -9,7 +9,6 @@ var {
   createCalendar,
   deleteCalendars,
   goToDate,
-  helpersForController,
   invokeNewEventDialog,
   invokeEditingEventDialog,
   switchToView,
@@ -17,8 +16,6 @@ var {
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
-
-var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
@@ -89,7 +86,7 @@ add_task(async function testWeekView() {
   Assert.equal(eventName.textContent, TITLE2);
 
   // Delete event.
-  controller.click(new elib.Elem(eventBox));
+  controller.click(eventBox);
   eventBox.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
   await weekView.waitForNoEventBoxAt(controller.window, 5, 1);

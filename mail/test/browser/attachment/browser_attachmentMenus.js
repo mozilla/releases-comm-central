@@ -8,9 +8,6 @@ var folder;
 var messenger;
 var epsilon;
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
@@ -385,10 +382,8 @@ function check_toolbar_menu_states_single(expected) {
   } else {
     assert_enabled("attachmentSaveAllSingle", true);
     mc.click(
-      new elib.Elem(
-        mc
-          .e("attachmentSaveAllSingle")
-          .querySelector(".toolbarbutton-menubutton-dropmarker")
+      mc.window.document.querySelector(
+        "#attachmentSaveAllSingle .toolbarbutton-menubutton-dropmarker"
       )
     );
     wait_for_popup_to_open(mc.e("attachmentSaveAllSingleMenu"));
@@ -399,7 +394,7 @@ function check_toolbar_menu_states_single(expected) {
       assert_enabled("button-detachAttachment", expected.detach);
       assert_enabled("button-deleteAttachment", expected.delete_);
     } finally {
-      close_popup(mc, mc.eid("attachmentSaveAllSingleMenu"));
+      close_popup(mc, mc.e("attachmentSaveAllSingleMenu"));
     }
   }
 }
@@ -418,10 +413,8 @@ function check_toolbar_menu_states_multiple(expected) {
   } else {
     assert_enabled("attachmentSaveAllMultiple", true);
     mc.click(
-      new elib.Elem(
-        mc
-          .e("attachmentSaveAllMultiple")
-          .querySelector(".toolbarbutton-menubutton-dropmarker")
+      mc.window.document.querySelector(
+        "#attachmentSaveAllMultiple .toolbarbutton-menubutton-dropmarker"
       )
     );
     wait_for_popup_to_open(mc.e("attachmentSaveAllMultipleMenu"));
@@ -432,7 +425,7 @@ function check_toolbar_menu_states_multiple(expected) {
       assert_enabled("button-detachAllAttachments", expected.detach);
       assert_enabled("button-deleteAllAttachments", expected.delete_);
     } finally {
-      close_popup(mc, mc.eid("attachmentSaveAllMultipleMenu"));
+      close_popup(mc, mc.e("attachmentSaveAllMultipleMenu"));
     }
   }
 }
@@ -448,7 +441,7 @@ function check_menu_states_single(index, expected) {
 
   attachmentList.selectItem(node);
   let menu = mc.getMenu("#attachmentItemContext");
-  menu.open(new elib.Elem(node));
+  menu.open(node);
   wait_for_popup_to_open(mc.e("attachmentItemContext"));
 
   try {
@@ -491,7 +484,7 @@ function check_menu_states_all(expected) {
     assert_enabled("context-detachAllAttachments", expected.detach);
     assert_enabled("context-deleteAllAttachments", expected.delete_);
   } finally {
-    close_popup(mc, mc.eid("attachmentListContext"));
+    close_popup(mc, mc.e("attachmentListContext"));
   }
 }
 

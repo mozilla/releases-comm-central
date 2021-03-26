@@ -7,9 +7,6 @@
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var {
@@ -192,7 +189,7 @@ function subtest_disable_archive(tab) {
 
   Assert.ok(checkbox.checked);
   Assert.ok(!checkbox.disabled);
-  mc.click(new elib.Elem(checkbox));
+  mc.click(checkbox);
   utils.waitFor(
     () => !checkbox.checked,
     "Archive checkbox didn't toggle to unchecked"

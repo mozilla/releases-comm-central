@@ -4,10 +4,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { open_mail_account_setup_wizard } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );

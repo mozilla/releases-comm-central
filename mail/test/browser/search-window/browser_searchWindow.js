@@ -9,10 +9,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   assert_messages_in_view,
   assert_number_of_tabs_open,
@@ -113,7 +109,9 @@ add_task(function test_enter_some_stuff() {
   searchVal0.value = "foo";
 
   // - add another subject box
-  let plusButton = swc.eid("searchRow0", { tagName: "button", label: "+" });
+  let plusButton = swc.window.document.querySelector(
+    "#searchRow0 button[label='+']"
+  );
   swc.click(plusButton);
 
   // - put "bar" in it
@@ -134,7 +132,7 @@ add_task(function test_enter_some_stuff() {
 add_task(function test_go_search() {
   // - Trigger the search
   // The "Search" button has id "search-button"
-  swc.click(swc.eid("search-button"));
+  swc.click(swc.e("search-button"));
   wait_for_all_messages_to_load(swc);
 
   // - Verify we got the right messages
@@ -148,7 +146,7 @@ add_task(function test_go_search() {
     "mailnews:virtualFolderProperties",
     subtest_save_search
   );
-  swc.click(swc.eid("saveAsVFButton"));
+  swc.click(swc.e("saveAsVFButton"));
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 });
 
@@ -288,10 +286,10 @@ function subtest_save_search(savc) {
     index = parseInt(searchVal0.getAttribute("selectedIndex"));
   }
 
-  searchVal0 = new elib.Elem(searchVal0.children[index]);
+  searchVal0 = searchVal0.children[index];
 
-  Assert.ok(searchVal0.exists());
-  Assert.equal(searchVal0.getNode().value, "foo");
+  Assert.ok(searchVal0);
+  Assert.equal(searchVal0.value, "foo");
 
   let searchVal1 = swc.window.document.getElementById("searchVal1");
   index = 0;
@@ -300,13 +298,13 @@ function subtest_save_search(savc) {
     index = parseInt(searchVal1.getAttribute("selectedIndex"));
   }
 
-  searchVal1 = new elib.Elem(searchVal1.children[index]);
+  searchVal1 = searchVal1.children[index];
 
-  Assert.ok(searchVal1.exists());
-  Assert.equal(searchVal1.getNode().value, "bar");
+  Assert.ok(searchVal1);
+  Assert.equal(searchVal1.value, "bar");
 
   // - name the search
-  savc.type(savc.eid("name"), "SearchSaved");
+  savc.type(savc.e("name"), "SearchSaved");
 
   // - save it!
   // this will close the dialog, which wait_for_modal_dialog is making sure

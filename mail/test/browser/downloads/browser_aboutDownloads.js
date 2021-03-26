@@ -8,14 +8,10 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
-var { content_tab_e, content_tab_eid } = ChromeUtils.import(
+var { content_tab_e } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var {
@@ -173,11 +169,7 @@ function save_attachment_files() {
     file.append(attachmentFileNames[i]);
     select_click_row(i);
     gMockFilePicker.returnFiles = [file];
-    mc.click(
-      mc.eid("attachmentSaveAllSingle", {
-        class: "toolbarbutton-menubutton-button",
-      })
-    );
+    mc.click(mc.e("attachmentSaveAllSingle"));
   }
 }
 
@@ -236,8 +228,8 @@ add_task(function test_remove_file() {
     .getAttribute("value");
 
   // select first element
-  mc.click(new elib.Elem(firstElement));
-  mc.rightClick(new elib.Elem(firstElement));
+  mc.click(firstElement);
+  mc.rightClick(firstElement);
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);
@@ -280,9 +272,9 @@ add_task(function test_remove_multiple_files() {
   );
 
   // select two elements
-  mc.click(new elib.Elem(firstElement));
+  mc.click(firstElement);
   list.selectItemRange(firstElement, secondElement);
-  mc.rightClick(new elib.Elem(firstElement));
+  mc.rightClick(firstElement);
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);
@@ -315,8 +307,8 @@ add_task(function test_clear_all_files() {
   subtest_save_attachment_files_in_list();
   downloadsView.waitForFinish();
 
-  mc.click(content_tab_eid(downloadsTab, "msgDownloadsRichListBox"));
-  mc.rightClick(content_tab_eid(downloadsTab, "msgDownloadsRichListBox"));
+  mc.click(content_tab_e(downloadsTab, "msgDownloadsRichListBox"));
+  mc.rightClick(content_tab_e(downloadsTab, "msgDownloadsRichListBox"));
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   wait_for_popup_to_open(contextMenu);

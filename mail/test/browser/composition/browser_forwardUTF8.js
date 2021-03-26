@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   close_compose_window,
   get_compose_body,
@@ -89,7 +85,7 @@ async function forwardViaFolder(aFilePath) {
 
   // Copy the message to a folder.
   let documentChild = msgc.e("messagepane").contentDocument.firstChild;
-  msgc.rightClick(new elib.Elem(documentChild));
+  msgc.rightClick(documentChild);
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },
     { label: "Local Folders" },

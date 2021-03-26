@@ -10,11 +10,8 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  helpersForController,
   invokeNewEventDialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-
-var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 
 var { menulistSelect } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
@@ -85,7 +82,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
   // Delete event.
   goToDate(controller, checkingData[0][0], checkingData[0][1], checkingData[0][2]);
   await setCalendarView(controller.window, "day");
-  let box = new elib.Elem(await dayView.waitForEventBoxAt(controller.window, 1));
+  let box = await dayView.waitForEventBoxAt(controller.window, 1);
   controller.click(box);
   handleOccurrencePrompt(controller, box, "delete", true);
   await dayView.waitForNoEventBoxAt(controller.window, 1);

@@ -9,9 +9,6 @@ const EXPORTED_SYMBOLS = [
   "delete_mail_marked_as_junk",
 ];
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var EventUtils = ChromeUtils.import(
@@ -75,7 +72,7 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
       );
     }
 
-    aController.click(new elib.Elem(aController.menus.tasksMenu.deleteJunk));
+    aController.click(aController.menus.tasksMenu.deleteJunk);
 
     if (aNumDeletesExpected != 0) {
       folderDisplayHelper.wait_for_folder_events();

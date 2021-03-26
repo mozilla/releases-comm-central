@@ -4,10 +4,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var { content_tab_e, wait_for_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
@@ -62,7 +58,7 @@ add_task(function test_addon_prefs() {
       item.label == "MozMill"
     ) {
       foundAddon = true;
-      mc.click(new elib.Elem(item));
+      mc.click(item);
       break;
     }
   }

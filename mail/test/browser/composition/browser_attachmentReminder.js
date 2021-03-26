@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   add_attachments,
   close_compose_window,
@@ -135,8 +131,9 @@ function assert_manual_reminder_state(aCwc, aChecked) {
  */
 function get_reminder_keywords(aCwc) {
   assert_automatic_reminder_state(aCwc, true);
-  let nBox = aCwc.e(kBoxId).querySelector(".notificationbox-stack")
-    ._notificationBox;
+  let nBox = aCwc.window.document.querySelector(
+    `#${kBoxId} .notificationbox-stack`
+  )._notificationBox;
   let notification = nBox.getNotificationWithValue(kNotificationId);
   return notification
     .querySelector("#attachmentKeywords")
@@ -162,7 +159,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
 
-  cwc.type(cwc.eid("content-frame"), "Seen this cool attachment?");
+  cwc.type(cwc.e("content-frame"), "Seen this cool attachment?");
 
   // Give the notification time to appear. It should now.
   wait_for_reminder_state(cwc, true);
@@ -172,8 +169,8 @@ add_task(async function test_attachment_reminder_appears_properly() {
 
   // Click ok to be notified on send if no attachments are attached.
   cwc.click(
-    new elib.Elem(
-      cwc.e(kBoxId).querySelector('button[label="Remind Me Later"]')
+    cwc.window.document.querySelector(
+      `#${kBoxId} button[label="Remind Me Later"]`
     )
   );
   wait_for_reminder_state(cwc, false);
@@ -184,7 +181,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  cwc.click(cwc.eid("button-send"));
+  cwc.click(cwc.e("button-send"));
   await dialogPromise;
 
   // After confirming the reminder the menuitem should get disabled.
@@ -221,7 +218,7 @@ add_task(async function test_attachment_reminder_dismissal() {
   // on send anyway.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  cwc.click(cwc.eid("button-send"));
+  cwc.click(cwc.e("button-send"));
   await dialogPromise;
 
   let notification = assert_automatic_reminder_state(cwc, true);
@@ -331,7 +328,7 @@ add_task(async function test_no_send_now_sends() {
 
   // Click the send button again, this time choose "No, Send Now".
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  cwc.click(cwc.eid("button-send"));
+  cwc.click(cwc.e("button-send"));
   await dialogPromise;
 
   // After clicking "Send Now" sending is proceeding, just handle the error.
@@ -352,9 +349,7 @@ function click_manual_reminder(aCwc, aExpectedState) {
   wait_for_window_focused(aCwc.window);
   let button = aCwc.window.document.getElementById("button-attach");
 
-  aCwc.click(
-    new elib.Elem(button.querySelector(".toolbarbutton-menubutton-dropmarker"))
-  );
+  aCwc.click(button.querySelector(".toolbarbutton-menubutton-dropmarker"));
   aCwc.click_menus_in_sequence(aCwc.e("button-attachPopup"), [
     { id: "button-attachPopup_remindLaterItem" },
   ]);
@@ -405,7 +400,9 @@ add_task(async function test_manual_attachment_reminder() {
   plan_for_new_window("msgcompose");
   // ... by clicking Edit in the draft message notification bar.
   mc.click(
-    mc.eid("mail-notification-top", { tagName: "button", label: "Edit" })
+    mc.window.document.querySelector(
+      "#mail-notification-top button[label='Edit']"
+    )
   );
   cwc = wait_for_compose_window();
 
@@ -417,7 +414,7 @@ add_task(async function test_manual_attachment_reminder() {
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  cwc.click(cwc.eid("button-send"));
+  cwc.click(cwc.e("button-send"));
   await dialogPromise;
 
   // We were alerted once and the manual reminder is automatically turned off.
@@ -562,7 +559,7 @@ add_task(function test_attachment_reminder_in_subject() {
   Assert.equal(get_reminder_keywords(cwc), "attachment");
 
   // Now clear the subject
-  delete_all_existing(cwc, cwc.eid("msgSubject"));
+  delete_all_existing(cwc, cwc.e("msgSubject"));
 
   // Give the notification time to disappear.
   wait_for_reminder_state(cwc, false);
@@ -596,7 +593,7 @@ add_task(function test_attachment_reminder_in_subject_and_body() {
   Assert.equal(get_reminder_keywords(cwc), "attachment, attached");
 
   // Now clear only the subject
-  delete_all_existing(cwc, cwc.eid("msgSubject"));
+  delete_all_existing(cwc, cwc.e("msgSubject"));
 
   // Give the notification some time. It should not disappear,
   // just reduce the keywords list.
@@ -693,7 +690,9 @@ add_task(function test_reminder_in_draft() {
   plan_for_new_window("msgcompose");
   // ... by clicking Edit in the draft message notification bar.
   mc.click(
-    mc.eid("mail-notification-top", { tagName: "button", label: "Edit" })
+    mc.window.document.querySelector(
+      "#mail-notification-top button[label='Edit']"
+    )
   );
   cwc = wait_for_compose_window();
 
@@ -730,7 +729,7 @@ add_task(function test_disabling_attachment_reminder() {
   let disableButton = get_notification_button(cwc, kBoxId, kNotificationId, {
     popup: "reminderBarPopup",
   });
-  cwc.click(new elib.Elem(disableButton.querySelector("dropmarker")));
+  cwc.click(disableButton.querySelector("dropmarker"));
   cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"), [
     { id: "disableReminder" },
   ]);
@@ -761,7 +760,7 @@ add_task(function test_disabling_attachment_reminder() {
   disableButton = get_notification_button(cwc, kBoxId, kNotificationId, {
     popup: "reminderBarPopup",
   });
-  cwc.click(new elib.Elem(disableButton.querySelector("dropmarker")));
+  cwc.click(disableButton.querySelector("dropmarker"));
   cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"), [
     { id: "disableReminder" },
   ]);
@@ -795,7 +794,7 @@ add_task(function test_disabling_attachment_reminder() {
 function click_send_and_handle_send_error(aController, aAlreadySending) {
   plan_for_modal_dialog("commonDialogWindow", click_ok_on_send_error);
   if (!aAlreadySending) {
-    aController.click(aController.eid("button-send"));
+    aController.click(aController.e("button-send"));
   }
   wait_for_modal_dialog("commonDialogWindow");
 }

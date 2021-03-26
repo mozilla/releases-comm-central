@@ -4,12 +4,9 @@
 
 /* globals createCalendarUsingDialog */
 
-var {
-  controller,
-  deleteCalendars,
-  helpersForController,
-  invokeNewEventDialog,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+var { controller, deleteCalendars, invokeNewEventDialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarUtils.jsm"
+);
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );

@@ -8,9 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
@@ -313,7 +310,7 @@ add_task(function test_attachment_name_click() {
   // Ensure the open dialog appears when clicking on the attachment name and
   // that the attachment list doesn't expand.
   plan_for_modal_dialog("unknownContentTypeWindow", function() {});
-  mc.click(mc.eid("attachmentName"));
+  mc.click(mc.e("attachmentName"));
   wait_for_modal_dialog("unknownContentTypeWindow");
   Assert.ok(
     attachmentList.collapsed,
@@ -329,9 +326,9 @@ add_task(function test_attachment_name_click() {
  * @param contextMenuId the id of the context menu that should appear
  */
 function subtest_attachment_right_click(elementId, contextMenuId) {
-  mc.rightClick(mc.eid(elementId));
+  mc.rightClick(mc.e(elementId));
   wait_for_popup_to_open(mc.e(contextMenuId));
-  close_popup(mc, mc.eid(contextMenuId));
+  close_popup(mc, mc.e(contextMenuId));
 }
 
 add_task(function test_attachment_right_click_single() {
@@ -391,7 +388,7 @@ add_task(function test_attachment_right_click_multiple() {
  */
 function subtest_attachment_list_toggle(elementId) {
   let attachmentList = mc.e("attachmentList");
-  let element = mc.eid(elementId);
+  let element = mc.e(elementId);
 
   mc.click(element);
   Assert.ok(
@@ -428,10 +425,8 @@ add_task(function test_attachment_list_expansion() {
   // Ensure that clicking the "Save All" button doesn't expand the attachment
   // list.
   mc.click(
-    new elib.Elem(
-      mc
-        .e("attachmentSaveAllSingle")
-        .querySelector(".toolbarbutton-menubutton-dropmarker")
+    mc.window.document.querySelector(
+      "#attachmentSaveAllSingle .toolbarbutton-menubutton-dropmarker"
     )
   );
   Assert.ok(
@@ -460,7 +455,7 @@ add_task(function test_selected_attachments_are_cleared() {
   select_click_row(3);
 
   // Expand the attachment list.
-  mc.click(mc.eid("attachmentToggle"));
+  mc.click(mc.e("attachmentToggle"));
 
   // Select both the attachments.
   let attachmentList = mc.e("attachmentList");
@@ -472,7 +467,7 @@ add_task(function test_selected_attachments_are_cleared() {
 
   // We can just click on the first element, but the second one needs a
   // ctrl-click (or cmd-click for those Mac-heads among us).
-  mc.click(new elib.Elem(attachmentList.children[0]), 5, 5);
+  mc.click(attachmentList.children[0], 5, 5);
   EventUtils.synthesizeMouse(
     attachmentList.children[1],
     5,
@@ -492,7 +487,7 @@ add_task(function test_selected_attachments_are_cleared() {
   select_click_row(2);
 
   // Expand the attachment list again.
-  mc.click(mc.eid("attachmentToggle"));
+  mc.click(mc.e("attachmentToggle"));
 
   Assert.equal(
     attachmentList.selectedItems.length,
@@ -509,9 +504,9 @@ add_task(function test_select_all_attachments_key() {
   select_click_row(3);
 
   // Expand the attachment list.
-  mc.click(mc.eid("attachmentToggle"));
+  mc.click(mc.e("attachmentToggle"));
 
-  let attachmentList = mc.window.document.getElementById("attachmentList");
+  let attachmentList = mc.e("attachmentList");
   attachmentList.focus();
   EventUtils.synthesizeKey("a", { accelKey: true }, mc.window);
   Assert.equal(
@@ -531,20 +526,20 @@ add_task(async function test_delete_attachment_key() {
   // Expand the attachment list.
   assert_selected_and_displayed(3);
   if (mc.e("attachmentList").collapsed) {
-    mc.click(mc.eid("attachmentToggle"));
+    mc.click(mc.e("attachmentToggle"));
   }
-  let firstAttachment = new elib.Elem(mc.e("attachmentList").firstElementChild);
+  let firstAttachment = mc.e("attachmentList").firstElementChild;
   mc.click(firstAttachment, 5, 5);
 
   // Try deleting with the delete key
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
-  firstAttachment.getNode().focus();
+  firstAttachment.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, mc.window);
   await dialogPromise;
 
   // Try deleting with the shift-delete key combo.
   dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
-  firstAttachment.getNode().focus();
+  firstAttachment.focus();
   EventUtils.synthesizeKey("VK_DELETE", { shiftKey: true }, mc.window);
   await dialogPromise;
 });
@@ -648,15 +643,15 @@ add_task(function test_delete_from_toolbar() {
   // Expand the attachment list.
   assert_selected_and_displayed(3);
   if (mc.e("attachmentList").collapsed) {
-    mc.click(mc.eid("attachmentToggle"));
+    mc.click(mc.e("attachmentToggle"));
   }
 
-  let firstAttachment = new elib.Elem(mc.e("attachmentList").firstElementChild);
+  let firstAttachment = mc.e("attachmentList").firstElementChild;
   mc.click(firstAttachment, 5, 5);
 
   // Make sure clicking the "Delete" toolbar button with an attachment focused
   // deletes the *message*.
   plan_to_wait_for_folder_events("DeleteOrMoveMsgCompleted");
-  mc.click(mc.eid("hdrTrashButton"));
+  mc.click(mc.e("hdrTrashButton"));
   wait_for_folder_events();
 });

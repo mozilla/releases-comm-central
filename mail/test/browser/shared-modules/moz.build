@@ -13,7 +13,6 @@ TESTING_JS_MODULES.mozmill += [
     "controller.jsm",
     "CustomizationHelpers.jsm",
     "DOMHelpers.jsm",
-    "elementslib.jsm",
     "events.jsm",
     "EventUtils.jsm",
     "FolderDisplayHelpers.jsm",

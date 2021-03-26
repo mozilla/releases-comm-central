@@ -8,10 +8,6 @@
 
 "use strict";
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
-
 var {
   close_compose_window,
   open_compose_with_forward,
@@ -100,7 +96,7 @@ add_task(async function test_cid_image_load() {
 
   // Copy the message to a folder.
   let documentChild = messageDoc.firstElementChild;
-  msgc.rightClick(new elib.Elem(documentChild));
+  msgc.rightClick(documentChild);
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },
     { label: "Local Folders" },

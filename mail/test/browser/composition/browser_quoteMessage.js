@@ -23,9 +23,6 @@ var {
 var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 
 var folderToStoreMessages;
 
@@ -40,7 +37,7 @@ add_task(async function test_quoteMessage() {
   let msgc = await open_message_from_file(file);
   // Copy the message to a folder, so that Quote Message menu item is enabled.
   let documentChild = msgc.e("messagepane").contentDocument.firstChild;
-  msgc.rightClick(new elib.Elem(documentChild));
+  msgc.rightClick(documentChild);
   msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },
     { label: "Local Folders" },
@@ -60,7 +57,7 @@ add_task(async function test_quoteMessage() {
 
   if (["linux", "win"].includes(AppConstants.platform)) {
     // Click Options > Quote Message.
-    cwc.click(cwc.eid("optionsMenu"));
+    cwc.click(cwc.e("optionsMenu"));
     cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
       { id: "menu_quoteMessage" },
     ]);

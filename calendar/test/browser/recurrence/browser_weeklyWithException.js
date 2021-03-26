@@ -10,14 +10,11 @@ var {
   deleteCalendars,
   goToDate,
   handleOccurrencePrompt,
-  helpersForController,
   invokeNewEventDialog,
   invokeEditingRepeatEventDialog,
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-
-var elib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 
 var { menulistSelect, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
@@ -182,7 +179,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   // Delete event.
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 12);
-  eventBox = new elib.Elem(await dayView.waitForEventBoxAt(controller.window, 1));
+  eventBox = await dayView.waitForEventBoxAt(controller.window, 1);
   controller.click(eventBox);
   handleOccurrencePrompt(controller, eventBox, "delete", true);
   await dayView.waitForNoEventBoxAt(controller.window, 1);

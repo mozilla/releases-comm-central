@@ -293,7 +293,7 @@ add_task(async function testUpdateMessageSignature() {
     mc.e("messageSecurityPanel"),
     "popupshown"
   );
-  mc.click(mc.eid("encryptionTechBtn"));
+  mc.click(mc.e("encryptionTechBtn"));
   // Wait for the popup panel and signature button to become visible otherwise
   // we can't click on it.
   await popupshown;
@@ -337,7 +337,7 @@ add_task(async function testUpdateMessageSignature() {
 
   // This will open the key details, the domWindowOpened handler
   // will catch it and execute the changes.
-  mc.click(mc.eid("viewSignatureKey"));
+  mc.click(mc.e("viewSignatureKey"));
 
   // Wait until we are done with keyDetailsDlg.
   await dialogPromise;

@@ -29,9 +29,6 @@ const EXPORTED_SYMBOLS = [
   "wait_for_compose_window",
 ];
 
-var elib = ChromeUtils.import(
-  "resource://testing-common/mozmill/elementslib.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var folderDisplayHelper = ChromeUtils.import(
@@ -158,7 +155,7 @@ function open_compose_with_forward_as_attachments(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.click(aController.eid("menu_forwardAsAttachment"));
+  aController.click(aController.e("menu_forwardAsAttachment"));
 
   return wait_for_compose_window();
 }
@@ -176,7 +173,7 @@ function open_compose_with_edit_as_new(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.click(aController.eid("menu_editMsgAsNew"));
+  aController.click(aController.e("menu_editMsgAsNew"));
 
   return wait_for_compose_window();
 }
@@ -217,10 +214,9 @@ function open_compose_from_draft(aController) {
 
   windowHelper.plan_for_new_window("msgcompose");
   aController.click(
-    aController.eid("mail-notification-top", {
-      tagName: "button",
-      label: "Edit",
-    })
+    aController.window.document.querySelector(
+      "#mail-notification-top button[label='Edit']"
+    )
   );
   return wait_for_compose_window();
 }
@@ -342,11 +338,12 @@ function setup_msg_contents(
   aBody,
   inputID = "toAddrInput"
 ) {
-  aCwc.type(aCwc.eid(inputID), aAddr);
-  aCwc.window.document.getElementById(inputID).focus();
+  let input = aCwc.e(inputID);
+  aCwc.type(input, aAddr);
+  input.focus();
   EventUtils.synthesizeKey("VK_RETURN", {}, aCwc.window);
-  aCwc.type(aCwc.eid("msgSubject"), aSubj);
-  aCwc.type(aCwc.eid("content-frame"), aBody);
+  aCwc.type(aCwc.e("msgSubject"), aSubj);
+  aCwc.type(aCwc.e("content-frame"), aBody);
 
   // Wait 1 second for the pill to be created.
   aCwc.sleep(1000);
@@ -372,9 +369,7 @@ function clear_recipients(aController) {
  * @param aController - Compose window controller.
  */
 function get_first_pill(aController) {
-  return new elib.Elem(
-    aController.window.document.querySelector("mail-address-pill")
-  );
+  return aController.window.document.querySelector("mail-address-pill");
 }
 
 /**
@@ -499,7 +494,7 @@ function delete_attachment(aComposeWindow, aIndex) {
   let bucket = aComposeWindow.e("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
 
-  aComposeWindow.click(new elib.Elem(node));
+  aComposeWindow.click(node);
   aComposeWindow.window.RemoveSelectedAttachment();
 }
 
@@ -527,11 +522,11 @@ function get_compose_body(aController) {
  */
 function type_in_composer(aController, aText) {
   // If we have any typing to do, let's do it.
-  let frame = aController.eid("content-frame");
+  let frame = aController.e("content-frame");
   for (let [i, aLine] of aText.entries()) {
     aController.type(frame, aLine);
     if (i < aText.length - 1) {
-      frame.getNode().focus();
+      frame.focus();
       EventUtils.synthesizeKey("VK_RETURN", {}, aController.window);
     }
   }
