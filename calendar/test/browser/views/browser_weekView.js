@@ -77,10 +77,16 @@ add_task(async function testWeekView() {
   });
 
   // Check if name was saved.
-  eventBox = await weekView.waitForEventBoxAt(controller.window, 5, 1);
+  eventBox = await TestUtils.waitForCondition(() => {
+    let newEventBox = weekView.getEventBoxAt(controller.window, 5, 1);
+    if (newEventBox && newEventBox != eventBox) {
+      return newEventBox;
+    }
+    return false;
+  });
   let eventName = eventBox.querySelector(".calendar-event-details-core");
   Assert.ok(eventName);
-  Assert.ok(eventName.textContent == TITLE2);
+  Assert.equal(eventName.textContent, TITLE2);
 
   // Delete event.
   controller.click(new elib.Elem(eventBox));

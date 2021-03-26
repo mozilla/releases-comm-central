@@ -80,10 +80,16 @@ add_task(async function testMonthView() {
   });
 
   // Check if name was saved.
-  eventBox = await monthView.waitForItemAt(controller.window, 1, 5, 1);
+  eventBox = await TestUtils.waitForCondition(() => {
+    let newEventBox = monthView.getItemAt(controller.window, 1, 5, 1);
+    if (newEventBox && newEventBox != eventBox) {
+      return newEventBox;
+    }
+    return false;
+  });
   let eventName = eventBox.querySelector(".event-name-label");
   Assert.ok(eventName);
-  Assert.ok(eventName.value == TITLE2);
+  Assert.equal(eventName.value, TITLE2);
 
   // Delete event.
   controller.click(new elib.Elem(eventBox));
