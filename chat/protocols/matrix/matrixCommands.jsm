@@ -126,10 +126,10 @@ function publishRoomDetails(account, conv) {
 
   let powerLevel = powerLevelEvent.getContent();
   for (let [key, value] of Object.entries(powerLevel.users)) {
-    if (value >= MatrixPowerLevels.op && value < MatrixPowerLevels.founder) {
-      moderators.push(key);
-    } else if (value == MatrixPowerLevels.founder) {
+    if (value >= MatrixPowerLevels.admin) {
       admins.push(key);
+    } else if (value >= MatrixPowerLevels.moderator) {
+      moderators.push(key);
     }
   }
 

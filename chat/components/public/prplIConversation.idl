@@ -130,12 +130,18 @@ interface prplIConvChatBuddy: nsISupports {
   /* URI of the user icon for the buddy */
   readonly attribute AUTF8String buddyIconFilename;
 
-  /* PurpleConvChatBuddyFlags flags; (ops, voice etc.) */
-  readonly attribute boolean noFlags;
+  /* The role of the participant in the room. */
+
+  /* Voiced users can send messages to the room. */
   readonly attribute boolean voiced;
-  readonly attribute boolean halfOp;
-  readonly attribute boolean op;
+  /* Moderators can manage other participants. */
+  readonly attribute boolean moderator;
+  /* Admins have additional powers. */
+  readonly attribute boolean admin;
+  /* Founders have complete control of a room. */
   readonly attribute boolean founder;
+
+  /* Whether the participant is currently typing. */
   readonly attribute boolean typing;
 };
 

@@ -16,9 +16,8 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 var MatrixPowerLevels = {
   user: 0,
   voice: 10,
-  halfOp: 25,
-  op: 50,
-  founder: 100,
+  moderator: 50,
+  admin: 100,
   /**
    * Turns a power level into a human readable string.
    * Only exactly matching level names are returned, except for restricted
@@ -30,9 +29,9 @@ var MatrixPowerLevels = {
    */
   toText(powerLevel, defaultLevel = MatrixPowerLevels.user) {
     let levelName = _("powerLevel.custom");
-    if (powerLevel == MatrixPowerLevels.founder) {
+    if (powerLevel == MatrixPowerLevels.admin) {
       levelName = _("powerLevel.admin");
-    } else if (powerLevel == MatrixPowerLevels.op) {
+    } else if (powerLevel == MatrixPowerLevels.moderator) {
       levelName = _("powerLevel.moderator");
     } else if (powerLevel < defaultLevel) {
       levelName = _("powerLevel.restricted");

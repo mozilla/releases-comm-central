@@ -682,7 +682,7 @@ ircChannel.prototype = {
 
     // If the channel mode is +t, hops and ops can set the topic; otherwise
     // everyone can.
-    return !this._modes.has("t") || participant.op || participant.halfOp;
+    return !this._modes.has("t") || participant.admin || participant.moderator;
   },
   writeMessage(aWho, aMsg, aObject) {
     const messageProps = this.handleTags(aWho, aMsg, aObject);
@@ -731,10 +731,10 @@ ircParticipant.prototype = {
   get voiced() {
     return this._modes.has("v");
   },
-  get halfOp() {
+  get moderator() {
     return this._modes.has("h");
   },
-  get op() {
+  get admin() {
     return this._modes.has("o");
   },
   get founder() {

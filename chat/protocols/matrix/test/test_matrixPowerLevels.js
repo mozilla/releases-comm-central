@@ -40,33 +40,29 @@ const TO_TEXT_FIXTURES = [
     name: "Default power level for default 10",
   },
   {
-    level: MatrixPowerLevels.founder,
-    defaultLevel: MatrixPowerLevels.user,
-    result: _(
-      "powerLevel.detailed",
-      _("powerLevel.admin"),
-      MatrixPowerLevels.founder
-    ),
-    name: "Admin",
-  },
-  {
-    level: MatrixPowerLevels.op,
+    level: MatrixPowerLevels.moderator,
     defaultLevel: MatrixPowerLevels.user,
     result: _(
       "powerLevel.detailed",
       _("powerLevel.moderator"),
-      MatrixPowerLevels.op
+      MatrixPowerLevels.moderator
     ),
     name: "Moderator",
   },
   {
-    level: MatrixPowerLevels.halfOp,
+    level: MatrixPowerLevels.admin,
     defaultLevel: MatrixPowerLevels.user,
     result: _(
       "powerLevel.detailed",
-      _("powerLevel.custom"),
-      MatrixPowerLevels.halfOp
+      _("powerLevel.admin"),
+      MatrixPowerLevels.admin
     ),
+    name: "Admin",
+  },
+  {
+    level: 25,
+    defaultLevel: MatrixPowerLevels.user,
+    result: _("powerLevel.detailed", _("powerLevel.custom"), 25),
     name: "Custom power level 25",
   },
 ];

@@ -85,14 +85,11 @@ MatrixParticipant.prototype = {
     //TODO this should require the power level specified in m.room.power_levels for m.room.message.
     return this._roomMember.powerLevelNorm >= MatrixPowerLevels.voice;
   },
-  get halfOp() {
-    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.halfOp;
+  get moderator() {
+    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.moderator;
   },
-  get op() {
-    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.op;
-  },
-  get founder() {
-    return this._roomMember.powerLevelNorm == MatrixPowerLevels.founder;
+  get admin() {
+    return this._roomMember.powerLevelNorm >= MatrixPowerLevels.admin;
   },
 };
 

@@ -166,10 +166,9 @@ function _displaySentMsg(aConv, aMsg, aDate) {
 var kListRefreshInterval = 12 * 60 * 60 * 1000; // 12 hours.
 
 /* This is an ordered list, used to determine chat buddy flags:
- *  index < member    -> noFlags
  *  index = member    -> voiced
- *          moderator -> halfOp
- *          admin     -> op
+ *          moderator -> moderator
+ *          admin     -> admin
  *          owner     -> founder
  */
 var kRoles = [
@@ -239,16 +238,13 @@ MUCParticipant.prototype = {
     }
   },
 
-  get noFlags() {
-    return this.role < kRoles.indexOf("member");
-  },
   get voiced() {
     return this.role == kRoles.indexOf("member");
   },
-  get halfOp() {
+  get moderator() {
     return this.role == kRoles.indexOf("moderator");
   },
-  get op() {
+  get admin() {
     return this.role == kRoles.indexOf("admin");
   },
   get founder() {

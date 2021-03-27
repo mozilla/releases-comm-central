@@ -1265,16 +1265,14 @@
     setBuddyAttributes(aItem) {
       let buddy = aItem.chatBuddy;
       let image;
-      if (!buddy.noFlags) {
-        if (buddy.founder) {
-          image = "founder";
-        } else if (buddy.op) {
-          image = "operator";
-        } else if (buddy.halfOp) {
-          image = "half-operator";
-        } else if (buddy.voiced) {
-          image = "voice";
-        }
+      if (buddy.founder) {
+        image = "founder";
+      } else if (buddy.admin) {
+        image = "operator";
+      } else if (buddy.moderator) {
+        image = "half-operator";
+      } else if (buddy.voiced) {
+        image = "voice";
       }
       if (image) {
         aItem.firstElementChild.setAttribute(

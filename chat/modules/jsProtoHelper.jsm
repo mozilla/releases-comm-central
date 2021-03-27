@@ -947,18 +947,9 @@ var GenericConvChatBuddyPrototype = {
   buddy: false,
   buddyIconFilename: "",
 
-  get noFlags() {
-    return !(
-      this.voiced ||
-      this.halfOp ||
-      this.op ||
-      this.founder ||
-      this.typing
-    );
-  },
   voiced: false,
-  halfOp: false,
-  op: false,
+  moderator: false,
+  admin: false,
   founder: false,
   typing: false,
 };
