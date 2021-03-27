@@ -326,7 +326,6 @@
   locale/@AB_CD@/messenger/newFolderDialog.dtd                              (%chrome/mailnews/newFolderDialog.dtd)
   locale/@AB_CD@/messenger/news.properties                                  (%chrome/mailnews/news.properties)
   locale/@AB_CD@/messenger/newsError.dtd                                    (%chrome/mailnews/newsError.dtd)
-  locale/@AB_CD@/messenger/oeImportMsgs.properties                          (%chrome/mailnews/oeImportMsgs.properties)
   locale/@AB_CD@/messenger/offline.properties                               (%chrome/mailnews/offline.properties)
   locale/@AB_CD@/messenger/offlineStartup.properties                        (%chrome/mailnews/offlineStartup.properties)
   locale/@AB_CD@/messenger/outlookImportMsgs.properties                     (%chrome/mailnews/outlookImportMsgs.properties)

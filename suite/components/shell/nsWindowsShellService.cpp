@@ -207,7 +207,7 @@ OpenKeyForReading(HKEY aKeyRoot, const wchar_t* aKeyName, HKEY* aKey)
 //    shell\properties\command       (default)           REG_SZ     <apppath> -preferences
 //
 //   Also set SeaMonkey as News reader (Usenet), though Windows does currently
-//   not expose a default news reader to UI. Applications like Outlook Express
+//   not expose a default news reader to UI. Applications like Outlook
 //   also add themselves to this registry key
 //
 //   HKCU\SOFTWARE\Clients\News\SeaMonkey
