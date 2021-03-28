@@ -58,6 +58,7 @@ Preferences.addAll([
   { id: "mail.biff.play_sound", type: "bool" },
   { id: "mail.biff.play_sound.type", type: "int" },
   { id: "mail.biff.play_sound.url", type: "string" },
+  { id: "mail.biff.use_system_alert", type: "bool" },
   { id: "general.autoScroll", type: "bool" },
   { id: "general.smoothScroll", type: "bool" },
   { id: "mail.fixed_width_messages", type: "bool" },
@@ -184,7 +185,7 @@ var gGeneralPane = {
       Preferences.get("mail.biff.play_sound.type").value
     );
     if (AppConstants.platform != "macosx") {
-      this.updateCustomizeAlert();
+      this.updateShowAlert();
     }
     this.updateWebSearch();
 
@@ -621,11 +622,19 @@ var gGeneralPane = {
     ).disabled = !Preferences.get("mailnews.start_page.enabled").value;
   },
 
-  updateCustomizeAlert() {
+  updateShowAlert() {
     // The button does not exist on all platforms.
     let customizeAlertButton = document.getElementById("customizeMailAlert");
     if (customizeAlertButton) {
       customizeAlertButton.disabled = !Preferences.get("mail.biff.show_alert")
+        .value;
+    }
+    // The checkmark does not exist on all platforms.
+    let systemNotification = document.getElementById(
+      "useSystemNotificationAlert"
+    );
+    if (systemNotification) {
+      systemNotification.disabled = !Preferences.get("mail.biff.show_alert")
         .value;
     }
   },
@@ -2855,6 +2864,6 @@ Preferences.get("layers.acceleration.disabled").on(
 if (AppConstants.platform != "macosx") {
   Preferences.get("mail.biff.show_alert").on(
     "change",
-    gGeneralPane.updateCustomizeAlert
+    gGeneralPane.updateShowAlert
   );
 }

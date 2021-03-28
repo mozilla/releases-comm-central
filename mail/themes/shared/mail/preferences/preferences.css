@@ -159,6 +159,11 @@ label {
   text-overflow: ellipsis;
 }
 
+.tip-caption {
+  font-size: .9em;
+  color: var(--in-content-deemphasized-text);
+}
+
 .visually-hidden {
   visibility: collapse;
 }

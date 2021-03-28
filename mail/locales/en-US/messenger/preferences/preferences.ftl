@@ -205,9 +205,14 @@ customize-alert-label =
     .label = Customize…
     .accesskey = C
 
-tray-icon-label =
-    .label = Show a tray icon
+biff-use-system-alert =
+    .label = Use the system notification
+
+tray-icon-unread-label =
+    .label = Show a tray icon for unread messages
     .accesskey = t
+
+tray-icon-unread-description = Recommended when using small taskbar buttons
 
 mail-system-sound-label =
     .label = Default system sound for new mail

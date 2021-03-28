@@ -430,14 +430,21 @@
                     open-time-label-after.value"/>
         </hbox>
       </hbox>
-      <hbox>
-        <checkbox id="newMailNotificationTrayIcon"
-#ifndef XP_WIN
-                  hidden="true"
-#endif
-                  preference="mail.biff.show_tray_icon"
-                  data-l10n-id="tray-icon-label"/>
+      <hbox align="center" class="indent">
+        <checkbox id="useSystemNotificationAlert"
+                  data-l10n-id="biff-use-system-alert"
+                  preference="mail.biff.use_system_alert"/>
       </hbox>
+#ifdef XP_WIN
+      <vbox>
+        <checkbox id="newMailNotificationTrayIcon"
+                  preference="mail.biff.show_tray_icon"
+                  data-l10n-id="tray-icon-unread-label"/>
+        <description class="indent tip-caption"
+                     flex="1"
+                     data-l10n-id="tray-icon-unread-description"/>
+      </vbox>
+#endif
 #endif
 
       <hbox align="center">
