@@ -16,7 +16,10 @@
 #include "nsIUUIDGenerator.h"
 #include "mozilla/Services.h"
 #include "nsIObserverService.h"
+#include "mozilla/dom/Promise.h"
 
+using mozilla::ErrorResult;
+using mozilla::dom::Promise;
 using namespace mozilla;
 
 // From nsDirPrefs
@@ -233,6 +236,22 @@ nsAbDirProperty::Init(const char* aURI) {
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsAbDirProperty::CleanUp(JSContext* cx, Promise** retval) {
+  nsIGlobalObject* globalObject =
+      xpc::NativeGlobal(JS::CurrentGlobalOrNull(cx));
+  if (NS_WARN_IF(!globalObject)) {
+    return NS_ERROR_FAILURE;
+  }
+
+  ErrorResult result;
+  RefPtr<Promise> promise = Promise::Create(globalObject, result);
+  promise->MaybeResolveWithUndefined();
+  promise.forget(retval);
+
+  return NS_OK;
+}
+
 // nsIAbDirectory NOT IMPLEMENTED methods
 NS_IMETHODIMP
 nsAbDirProperty::GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& childList) {
@@ -395,16 +414,6 @@ NS_IMETHODIMP nsAbDirProperty::UseForAutocomplete(
 
 NS_IMETHODIMP nsAbDirProperty::GetDirPrefId(nsACString& aDirPrefId) {
   aDirPrefId = m_DirPrefId;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAbDirProperty::SetDirPrefId(const nsACString& aDirPrefId) {
-  if (!m_DirPrefId.Equals(aDirPrefId)) {
-    m_DirPrefId.Assign(aDirPrefId);
-    // Clear the directory pref branch so that it is re-initialized next
-    // time its required.
-    m_DirectoryPrefs = nullptr;
-  }
   return NS_OK;
 }
 

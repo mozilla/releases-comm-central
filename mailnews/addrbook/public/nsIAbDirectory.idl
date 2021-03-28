@@ -186,10 +186,16 @@ interface nsIAbDirectory : nsISupports {
   void search(in AString query, in nsIAbDirSearchListener listener);
 
   /**
-   * Initializes a directory, pointing to a particular
-   * URI
+   * Initializes a directory, pointing to a particular URI.
    */
   void init(in string aURI);
+
+  /**
+   * Clean up any database connections or open file handles.
+   * Called at shutdown or if the directory is about to be deleted.
+   */
+  [implicit_jscontext]
+  Promise cleanUp();
 
   // Deletes either a mailing list or a top
   // level directory, which also updates the
@@ -295,9 +301,8 @@ interface nsIAbDirectory : nsISupports {
 
   /**
    * The id of the directory used in prefs e.g. "ldap_2.servers.pab"
-   * Setting this will cause directoryPrefs to be updated.
    */
-  attribute ACString dirPrefId;
+  readonly attribute ACString dirPrefId;
 
   /**
    * @name  getXXXValue

@@ -69,7 +69,7 @@ AddrBookMailingList.prototype = {
         selectStatement.params.list = self._uid;
         let results = [];
         while (selectStatement.executeStep()) {
-          results.push(self._parent._getCard(selectStatement.row.card));
+          results.push(self._parent.getCard(selectStatement.row.card));
         }
         selectStatement.finalize();
         return results;
@@ -267,7 +267,7 @@ AddrBookMailingList.prototype = {
           }
         }
 
-        self._parent._saveList(self);
+        self._parent.saveList(self);
         Services.obs.notifyObservers(
           this,
           "addrbook-list-updated",

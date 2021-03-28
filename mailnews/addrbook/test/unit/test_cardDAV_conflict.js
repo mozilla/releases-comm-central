@@ -90,4 +90,6 @@ add_task(async () => {
         "BEGIN:VCARD\r\nUID:conflict\r\nFN:Changes A Lot\r\nN:Lot;Changes;A;;\r\nNOTE:This change should be rejected by the server.\r\nEND:VCARD\r\n",
     },
   });
+
+  await clearDirectory(directory);
 });

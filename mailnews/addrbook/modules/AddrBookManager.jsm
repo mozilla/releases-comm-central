@@ -11,7 +11,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   clearTimeout: "resource://gre/modules/Timer.jsm",
-  closeConnectionTo: "resource:///modules/AddrBookDirectory.jsm",
   compareAddressBooks: "resource:///modules/AddrBookUtils.jsm",
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
@@ -167,7 +166,12 @@ function ensureInitialized() {
   updateSortedDirectoryList();
 }
 
-Services.obs.addObserver(() => {
+// Force the manager to shut down. For tests only.
+Services.obs.addObserver(async () => {
+  // Allow directories to tidy up.
+  for (let directory of store.values()) {
+    await directory.cleanUp();
+  }
   // Clear the store. The next call to ensureInitialized will recreate it.
   store = null;
   Services.obs.notifyObservers(null, "addrbook-reloaded");
@@ -450,18 +454,17 @@ AddrBookManager.prototype = {
       Services.prefs.clearUserPref("mail.collect_addressbook");
     }
 
-    if (fileName) {
-      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
-      file.append(fileName);
-      closeConnectionTo(file).then(() => {
+    dir.cleanUp().then(() => {
+      if (fileName) {
+        let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+        file.append(fileName);
         if (file.exists()) {
           file.remove(false);
         }
-        Services.obs.notifyObservers(dir, "addrbook-directory-deleted");
-      });
-    } else {
+      }
+
       Services.obs.notifyObservers(dir, "addrbook-directory-deleted");
-    }
+    });
   },
   mailListNameExists(name) {
     ensureInitialized();

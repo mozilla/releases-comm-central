@@ -9,7 +9,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AddrBookDirectory: "resource:///modules/AddrBookDirectory.jsm",
+  SQLiteDirectory: "resource:///modules/SQLiteDirectory.jsm",
   clearInterval: "resource://gre/modules/Timer.jsm",
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.jsm",
@@ -37,10 +37,9 @@ const NAMESPACE_STRING = Object.entries(PREFIX_BINDINGS)
   .join(" ");
 
 /**
- * @extends AddrBookDirectory
- * @implements nsIAbDirectory
+ * Adds CardDAV sync to SQLiteDirectory.
  */
-class CardDAVDirectory extends AddrBookDirectory {
+class CardDAVDirectory extends SQLiteDirectory {
   /** nsIAbDirectory */
 
   init(uri) {
@@ -53,7 +52,9 @@ class CardDAVDirectory extends AddrBookDirectory {
       this._syncTimer = setTimeout(() => this.updateAllFromServer(), 30000);
     }
   }
-  destroy() {
+  async cleanUp() {
+    await super.cleanUp();
+
     if (this._syncTimer) {
       clearInterval(this._syncTimer);
       this._syncTimer = null;
@@ -86,7 +87,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     this._modifyCard(card);
   }
   async _modifyCard(card) {
-    let oldProperties = this._loadCardProperties(card.UID);
+    let oldProperties = this.loadCardProperties(card.UID);
 
     let newProperties = new Map();
     for (let { name, value } of card.properties) {
@@ -132,18 +133,6 @@ class CardDAVDirectory extends AddrBookDirectory {
   addMailList() {
     throw Components.Exception(
       "CardDAVDirectory does not implement addMailList",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
-  }
-  editMailListToDatabase() {
-    throw Components.Exception(
-      "CardDAVDirectory does not implement editMailListToDatabase",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
-  }
-  copyMailList() {
-    throw Components.Exception(
-      "CardDAVDirectory does not implement copyMailList",
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   }
@@ -293,9 +282,9 @@ class CardDAVDirectory extends AddrBookDirectory {
         abCard.setProperty("_href", href);
         abCard.setProperty("_vCard", vCard);
 
-        if (!this._cards.has(abCard.UID)) {
+        if (!this.cards.has(abCard.UID)) {
           super.dropCard(abCard, false);
-        } else if (this._loadCardProperties(abCard.UID).get("_etag") != etag) {
+        } else if (this.loadCardProperties(abCard.UID).get("_etag") != etag) {
           super.modifyCard(abCard);
         }
       }

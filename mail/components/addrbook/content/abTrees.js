@@ -294,6 +294,7 @@ directoryTreeView.prototype = {
   },
 
   observe(subject, topic, data) {
+    // Test-only reload of the address book manager.
     if (topic == "addrbook-reloaded") {
       this._rebuild();
       selectStartupViewDirectory();

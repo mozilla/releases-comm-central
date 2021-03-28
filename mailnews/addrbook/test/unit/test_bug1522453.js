@@ -54,13 +54,13 @@ add_task(async function() {
   equal(contact3.UID, listCards[1].UID);
 
   // Reload the address book manager.
+  let reloadPromise = TestUtils.topicObserved("addrbook-reloaded");
   Services.obs.notifyObservers(null, "addrbook-reload");
-  // Wait for files to close.
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  await reloadPromise;
 
-  MailServices.ab.directories;
+  // Renew our references.
   book = MailServices.ab.getDirectory(kPABData.URI);
+  list = book.childNodes[0];
 
   // list.childCards should contain contacts 1 and 3.
   listCards = list.childCards;

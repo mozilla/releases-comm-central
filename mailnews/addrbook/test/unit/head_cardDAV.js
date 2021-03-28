@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { closeConnectionTo } = ChromeUtils.import(
-  "resource:///modules/AddrBookDirectory.jsm"
-);
 const { CardDAVDirectory } = ChromeUtils.import(
   "resource:///modules/CardDAVDirectory.jsm"
 );
@@ -61,13 +58,12 @@ function initDirectory() {
   return directory;
 }
 
-async function clearDirectory() {
+async function clearDirectory(directory) {
+  await directory.cleanUp();
+
   let database = do_get_profile();
   database.append("carddav.sqlite");
-  await closeConnectionTo(database);
   database.remove(false);
-
-  CardDAVServer.reset();
 }
 
 async function checkCardsOnServer(expectedCards) {

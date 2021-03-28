@@ -259,7 +259,8 @@ async function subtest() {
     "addrbook-contact-deleted": [],
   });
 
-  await clearDirectory();
+  await clearDirectory(directory);
+  CardDAVServer.reset();
 }
 
 add_task(async function testNormal() {

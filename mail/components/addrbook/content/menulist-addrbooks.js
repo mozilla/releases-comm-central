@@ -44,6 +44,7 @@ if (!customElements.get("menulist")) {
         ]),
 
         observe: (subject, topic, data) => {
+          // Test-only reload of the address book manager.
           if (topic == "addrbook-reloaded") {
             this._rebuild();
             return;
