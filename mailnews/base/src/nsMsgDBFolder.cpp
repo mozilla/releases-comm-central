@@ -1849,6 +1849,7 @@ nsMsgDBFolder::MatchOrChangeFilterDestination(nsIMsgFolder* newFolder,
                                               bool caseInsensitive,
                                               bool* found) {
   NS_ENSURE_ARG_POINTER(found);
+  *found = false;
   nsCString oldUri;
   nsresult rv = GetURI(oldUri);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1877,18 +1878,26 @@ nsMsgDBFolder::MatchOrChangeFilterDestination(nsIMsgFolder* newFolder,
         // update the filterlist to match the new folder name
         rv = server->GetFilterList(nullptr, getter_AddRefs(filterList));
         if (NS_SUCCEEDED(rv) && filterList) {
+          bool match;
           rv = filterList->MatchOrChangeFilterTarget(oldUri, newUri,
-                                                     caseInsensitive, found);
-          if (NS_SUCCEEDED(rv) && *found && newFolder && !newUri.IsEmpty())
-            rv = filterList->SaveToDefaultFile();
+                                                     caseInsensitive, &match);
+          if (NS_SUCCEEDED(rv) && match) {
+            *found = true;
+            if (newFolder && !newUri.IsEmpty())
+              rv = filterList->SaveToDefaultFile();
+          }
         }
         // update the editable filterlist to match the new folder name
         rv = server->GetEditableFilterList(nullptr, getter_AddRefs(filterList));
         if (NS_SUCCEEDED(rv) && filterList) {
+          bool match;
           rv = filterList->MatchOrChangeFilterTarget(oldUri, newUri,
-                                                     caseInsensitive, found);
-          if (NS_SUCCEEDED(rv) && *found && newFolder && !newUri.IsEmpty())
-            rv = filterList->SaveToDefaultFile();
+                                                     caseInsensitive, &match);
+          if (NS_SUCCEEDED(rv) && match) {
+            *found = true;
+            if (newFolder && !newUri.IsEmpty())
+              rv = filterList->SaveToDefaultFile();
+          }
         }
       }
     }
