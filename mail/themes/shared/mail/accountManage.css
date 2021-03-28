@@ -267,6 +267,10 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   margin-inline-end: 12px;
 }
 
+#whiteListAbURI richlistitem {
+  padding-inline-start: 10px;
+}
+
 #whiteListAbURI checkbox {
   -moz-user-focus: none;
 }
@@ -274,7 +278,9 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 /* ::::: SMTP Server Panel :::::: */
 
 .smtpServerListItem {
-  padding-inline-start: 3px;
+  -moz-box-align: center;
+  padding-inline-start: 10px;
+  height: 34px;
 }
 
 #smtpServerInfoBox {

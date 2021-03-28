@@ -430,15 +430,18 @@ html|input.indent {
   background-image: none;
 }
 
+#containerBox richlistbox richlistitem:hover,
 #preferencesContainer richlistbox richlistitem:hover {
   background-color: var(--in-content-item-hover);
 }
 
+#containerBox richlistitem[selected="true"],
 #preferencesContainer richlistitem[selected="true"] {
   background-color: var(--in-content-item-selected-unfocused);
   color: inherit;
 }
 
+#containerBox richlistbox:focus > richlistitem[selected="true"],
 #preferencesContainer richlistbox:focus > richlistitem[selected="true"] {
   background-color: var(--in-content-item-selected);
   color: var(--in-content-selected-text) !important;
