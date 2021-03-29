@@ -309,3 +309,136 @@ add_task(async function test_address_suppress_leading_comma_space() {
 
   close_compose_window(controller);
 });
+
+add_task(async function test_pill_creation_in_all_fields() {
+  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  let cwc = open_compose_new_mail();
+
+  let addresses = ["person@org", "foo@address.valid", "invalid", "foo@address"];
+  let subjectField = cwc.window.document.getElementById("msgSubject");
+
+  // Helper method to create multiple pills in a field.
+  async function assertPillsCreationInField(input) {
+    Assert.ok(input);
+    Assert.equal(input.value, "");
+
+    // Write an address in the field.
+    input.value = addresses[0];
+    // Enter triggers the pill creation.
+    EventUtils.synthesizeKey("VK_RETURN", {}, cwc.window);
+    // Assert the pill was created.
+    await TestUtils.waitForCondition(
+      () =>
+        input
+          .closest(".address-container")
+          .querySelectorAll("mail-address-pill").length == 1,
+      "Pills created"
+    );
+    // Assert the pill has the correct address.
+    Assert.equal(
+      input
+        .closest(".address-container")
+        .querySelectorAll("mail-address-pill")[0].emailAddress,
+      addresses[0]
+    );
+
+    // Write another address in the field.
+    input.value = addresses[1];
+    // Tab triggers the pill creation.
+    EventUtils.synthesizeKey("VK_TAB", {}, cwc.window);
+    // Assert the pill was created.
+    await TestUtils.waitForCondition(
+      () =>
+        input
+          .closest(".address-container")
+          .querySelectorAll("mail-address-pill").length == 2,
+      "Pills created"
+    );
+    // Assert the pill has the correct address.
+    Assert.equal(
+      input
+        .closest(".address-container")
+        .querySelectorAll("mail-address-pill")[1].emailAddress,
+      addresses[1]
+    );
+
+    // Write an invalid email address in the To field.
+    input.value = addresses[2];
+    // Enter triggers the pill creation.
+    EventUtils.synthesizeKey("VK_RETURN", {}, cwc.window);
+    // Assert that an invalid address pill was created.
+    await TestUtils.waitForCondition(
+      () =>
+        input
+          .closest(".address-container")
+          .querySelectorAll("mail-address-pill.invalid-address").length == 1,
+      "Invalid pill created"
+    );
+    // Assert the pill has the correct address.
+    Assert.equal(
+      input
+        .closest(".address-container")
+        .querySelector("mail-address-pill.invalid-address").emailAddress,
+      addresses[2]
+    );
+
+    // Write another address in the field.
+    input.value = addresses[3];
+    // Focusing on another element triggers the pill creation.
+    subjectField.focus();
+    // Assert the pill was created.
+    await TestUtils.waitForCondition(
+      () =>
+        input
+          .closest(".address-container")
+          .querySelectorAll("mail-address-pill").length == 4,
+      "Pills created"
+    );
+    // Assert the pill has the correct address.
+    Assert.equal(
+      input
+        .closest(".address-container")
+        .querySelectorAll("mail-address-pill")[3].emailAddress,
+      addresses[3]
+    );
+  }
+
+  // The To field is visible and focused by default when the compose window is
+  // first opened.
+  // Test pill creation for the To input field.
+  await assertPillsCreationInField(
+    cwc.window.document.getElementById("toAddrInput")
+  );
+
+  // Click on the Cc recipient label.
+  let ccInput = cwc.window.document.getElementById("ccAddrInput");
+  EventUtils.synthesizeMouseAtCenter(
+    cwc.window.document.getElementById("addr_cc"),
+    {},
+    cwc.window
+  );
+  // The Cc field should now be visible.
+  Assert.ok(
+    !ccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    "The Cc field is visible"
+  );
+  // Test pill creation for the Cc input field.
+  await assertPillsCreationInField(ccInput);
+
+  // Click on the Bcc recipient label.
+  let bccInput = cwc.window.document.getElementById("bccAddrInput");
+  EventUtils.synthesizeMouseAtCenter(
+    cwc.window.document.getElementById("addr_bcc"),
+    {},
+    cwc.window
+  );
+  // The Bcc field should now be visible.
+  Assert.ok(
+    !bccInput.closest(".addressingWidgetItem").classList.contains("hidden"),
+    "The Bcc field is visible"
+  );
+  // Test pill creation for the Bcc input field.
+  await assertPillsCreationInField(bccInput);
+
+  close_compose_window(cwc);
+});
