@@ -781,7 +781,19 @@ function addressInputOnBeforeHandleKeyDown(event) {
       if (input.value.trim()) {
         // Prevent Tab from firing again on address input after pill creation.
         event.preventDefault();
-        input.handleEnter(event);
+
+        // Use the setTimeout only if the input field implements a forced
+        // autocomplete and we don't have any match as we might need to wait for
+        // the autocomplete suggestions to show up.
+        if (input.forceComplete && input.mController.matchCount == 0) {
+          // Prevent fast user input to become an error pill before
+          // autocompletion kicks in with its default timeout.
+          setTimeout(() => {
+            input.handleEnter(event);
+          }, input.timeout);
+        } else {
+          input.handleEnter(event);
+        }
       }
 
       // Handle Shift+Tab, but not Ctrl+Shift+Tab for fast focus ring backwards.

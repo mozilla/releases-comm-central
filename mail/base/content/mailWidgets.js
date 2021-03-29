@@ -1924,7 +1924,7 @@
                       disableonsend="true"
                       autocompletesearch="mydomain addrbook ldap news"
                       autocompletesearchparam="{}"
-                      timeout="300"
+                      timeout="200"
                       maxrows="6"
                       completedefaultindex="true"
                       forcecomplete="true"
@@ -2570,7 +2570,7 @@
         // Set various attributes for autocomplete.
         input.setAttribute("autocompletesearch", "mydomain addrbook ldap news");
         input.setAttribute("autocompletesearchparam", "{}");
-        input.setAttribute("timeout", 300);
+        input.setAttribute("timeout", 200);
         input.setAttribute("maxrows", 6);
         input.setAttribute("completedefaultindex", true);
         input.setAttribute("forcecomplete", true);
