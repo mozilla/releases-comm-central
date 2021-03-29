@@ -242,11 +242,14 @@ class MimePart {
       2
     );
     // File name can contain non-ASCII chars, encode according to RFC 2231.
-    let encodedName = MsgUtils.rfc2047EncodeParam(this._bodyAttachment.name);
-    let encodedFileName = MsgUtils.rfc2231ParamFolding(
-      "filename",
-      this._bodyAttachment.name
-    );
+    let encodedName, encodedFileName;
+    if (this._bodyAttachment.name) {
+      encodedName = MsgUtils.rfc2047EncodeParam(this._bodyAttachment.name);
+      encodedFileName = MsgUtils.rfc2231ParamFolding(
+        "filename",
+        this._bodyAttachment.name
+      );
+    }
 
     let buf = await res.arrayBuffer();
     let content = jsmime.mimeutils.typedArrayToString(new Uint8Array(buf));
@@ -256,14 +259,16 @@ class MimePart {
     if (this._charset) {
       contentTypeParams += `; charset=${this._charset}`;
     }
-    if (parmFolding != 2) {
+    if (encodedName && parmFolding != 2) {
       contentTypeParams += `; name="${encodedName}"`;
     }
     this.setHeader("content-type", `${this._contentType}${contentTypeParams}`);
-    this.setHeader(
-      "content-disposition",
-      `${this._contentDisposition}; ${encodedFileName}`
-    );
+    if (encodedFileName) {
+      this.setHeader(
+        "content-disposition",
+        `${this._contentDisposition}; ${encodedFileName}`
+      );
+    }
     if (this._contentId) {
       this.setHeader("content-id", `<${this._contentId}>`);
     }

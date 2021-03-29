@@ -120,7 +120,14 @@ MessageSend.prototype = {
       messageFile = await this._message.createMessageFile();
     } catch (e) {
       MsgUtils.sendLogger.error(e);
-      this.fail(e.result || Cr.NS_ERROR_FAILURE);
+      let errorMsg = "";
+      if (e.result == MsgUtils.NS_MSG_ERROR_ATTACHING_FILE) {
+        errorMsg = this._composeBundle.formatStringFromName(
+          "errorAttachingFile",
+          [e.data.name || e.data.url]
+        );
+      }
+      this.fail(e.result || Cr.NS_ERROR_FAILURE, errorMsg);
       this.notifyListenerOnStopSending(null, e.result, null, null);
       return null;
     }
@@ -287,7 +294,9 @@ MessageSend.prototype = {
       let prompter = Cc["@mozilla.org/prompter;1"].getService(
         Ci.nsIPromptFactory
       );
-      return prompter.getPrompt(this._parentWindow, Ci.nsIPrompt);
+      try {
+        return prompter.getPrompt(this._parentWindow, Ci.nsIPrompt);
+      } catch (e) {}
     }
     // If we cannot find a prompter, try the mail3Pane window.
     let prompt;
@@ -378,7 +387,7 @@ MessageSend.prototype = {
       let folder = MailUtils.getOrCreateFolder(this._folderUri);
       let accountName = folder?.server.prettyName;
       if (!this._fcc || !localFoldersAccountName || !accountName) {
-        this.fail(Cr.NS_OK, null, status);
+        this.fail(Cr.NS_OK, null);
         return;
       }
 

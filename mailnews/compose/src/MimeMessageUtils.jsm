@@ -24,9 +24,10 @@ const NS_ERROR_MODULE_MAILNEWS = 16;
  */
 function generateNSError(code) {
   return (
-    (1 << 31) |
-    ((NS_ERROR_MODULE_MAILNEWS + NS_ERROR_MODULE_BASE_OFFSET) << 16) |
-    code
+    ((1 << 31) |
+      ((NS_ERROR_MODULE_MAILNEWS + NS_ERROR_MODULE_BASE_OFFSET) << 16) |
+      code) >>>
+    0
   );
 }
 
