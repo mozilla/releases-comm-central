@@ -11,7 +11,13 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-  let { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
+  const LazyModules = {};
+
+  ChromeUtils.defineModuleGetter(
+    LazyModules,
+    "Status",
+    "resource:///modules/imStatusUtils.jsm"
+  );
 
   /**
    * The MozChatTooltip widget implements a custom tooltip for chat. This tooltip
@@ -327,8 +333,10 @@
       }
 
       let statusType = aBuddy.statusType;
-      this.setAttribute("status", Status.toAttribute(statusType));
-      this.setMessage(Status.toLabel(statusType, aBuddy.statusText));
+      this.setAttribute("status", LazyModules.Status.toAttribute(statusType));
+      this.setMessage(
+        LazyModules.Status.toLabel(statusType, aBuddy.statusText)
+      );
 
       if (displayName != name) {
         this.addRow(this.bundle.GetStringFromName("buddy.username"), name);
@@ -365,8 +373,11 @@
             break;
           case Ci.prplITooltipInfo.status:
             let statusType = parseInt(elt.label);
-            this.setAttribute("status", Status.toAttribute(statusType));
-            this.setMessage(Status.toLabel(statusType, elt.value));
+            this.setAttribute(
+              "status",
+              LazyModules.Status.toAttribute(statusType)
+            );
+            this.setMessage(LazyModules.Status.toLabel(statusType, elt.value));
             break;
           case Ci.prplITooltipInfo.icon:
             this.setAttribute("userIcon", elt.value);
@@ -398,7 +409,7 @@
         this.setMessage(topic);
       } else {
         this.setAttribute("status", "unknown");
-        this.setMessage(Status.toLabel("unknown"));
+        this.setMessage(LazyModules.Status.toLabel("unknown"));
         // Last ditch attempt to get some tooltip info. This call relies on
         // the account's requestBuddyInfo implementation working correctly
         // with aConv.normalizedName.
@@ -435,7 +446,7 @@
       this.setAttribute("displayname", aNick);
       this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
       this.setAttribute("status", "unknown");
-      this.setMessage(Status.toLabel("unknown"));
+      this.setMessage(LazyModules.Status.toLabel("unknown"));
       if (
         aParticipant.buddyIconFilename ||
         aParticipant.buddyIconFilename == ""

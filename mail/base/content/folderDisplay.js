@@ -6,14 +6,10 @@
 /* import-globals-from mailWindow.js */
 /* import-globals-from ../../extensions/mailviews/content/msgViewPickerOverlay.js */
 
-var { DBViewWrapper } = ChromeUtils.import(
-  "resource:///modules/DBViewWrapper.jsm"
-);
-var { JSTreeSelection } = ChromeUtils.import(
-  "resource:///modules/JsTreeSelection.jsm"
-);
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+XPCOMUtils.defineLazyModuleGetters(this, {
+  DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
+  JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
+});
 
 var gFolderDisplay = null;
 var gMessageDisplay = null;

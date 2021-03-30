@@ -16,16 +16,16 @@ var nsActEvent = Components.Constructor(
   "init"
 );
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { PluralForm } = ChromeUtils.import(
-  "resource://gre/modules/PluralForm.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { Gloda } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaPublic.jsm"
-);
-const { GlodaIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaIndexer.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  Gloda: "resource:///modules/gloda/GlodaPublic.jsm",
+  GlodaIndexer: "resource:///modules/gloda/GlodaIndexer.jsm",
+  PluralForm: "resource://gre/modules/PluralForm.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 /**
  * Gloda message indexer feedback.

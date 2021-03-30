@@ -25,9 +25,6 @@
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
-var { JSTreeSelection } = ChromeUtils.import(
-  "resource:///modules/JsTreeSelection.jsm"
-);
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailInstrumentation } = ChromeUtils.import(
   "resource:///modules/MailInstrumentation.jsm"
@@ -53,6 +50,7 @@ var { Color } = ChromeUtils.import("resource://gre/modules/Color.jsm");
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  JSTreeSelection: "resource:///modules/JsTreeSelection.jsm",
   msgDBCacheManager: "resource:///modules/MsgDBCacheManager.jsm",
   PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",
 });

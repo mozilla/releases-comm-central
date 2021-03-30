@@ -22,11 +22,18 @@ customElements.whenDefined("autocomplete-input").then(() => {
   const { AppConstants } = ChromeUtils.import(
     "resource://gre/modules/AppConstants.jsm"
   );
-  const { GlodaMsgSearcher } = ChromeUtils.import(
-    "resource:///modules/gloda/GlodaMsgSearcher.jsm"
+
+  const LazyModules = {};
+
+  ChromeUtils.defineModuleGetter(
+    LazyModules,
+    "GlodaIMSearcher",
+    "resource:///modules/gloda/GlodaIMSearcher.jsm"
   );
-  const { GlodaIMSearcher } = ChromeUtils.import(
-    "resource:///modules/search_im.jsm"
+  ChromeUtils.defineModuleGetter(
+    LazyModules,
+    "GlodaMsgSearcher",
+    "resource:///modules/gloda/GlodaMsgSearcher.jsm"
   );
 
   /**
@@ -193,10 +200,10 @@ customElements.whenDefined("autocomplete-input").then(() => {
         }
         this.value = ""; // clear our value, to avoid persistence
         let args = {
-          searcher: new GlodaMsgSearcher(null, searchString),
+          searcher: new LazyModules.GlodaMsgSearcher(null, searchString),
         };
         if (Services.prefs.getBoolPref("mail.chat.enabled")) {
-          args.IMSearcher = new GlodaIMSearcher(null, searchString);
+          args.IMSearcher = new LazyModules.GlodaIMSearcher(null, searchString);
         }
         tabmail.openTab("glodaFacet", args);
       }

@@ -11,21 +11,22 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
-  const {
-    initHTMLDocument,
-    serializeSelection,
-    getCurrentTheme,
-    isNextMessage,
-    getHTMLForMessage,
-    insertHTMLForMessage,
-    getDocumentFragmentFromHTML,
-  } = ChromeUtils.import("resource:///modules/imThemes.jsm");
-  const { smileTextNode } = ChromeUtils.import(
-    "resource:///modules/imSmileys.jsm"
+  const { XPCOMUtils } = ChromeUtils.import(
+    "resource://gre/modules/XPCOMUtils.jsm"
   );
-  const { cleanupImMarkup } = ChromeUtils.import(
-    "resource:///modules/imContentSink.jsm"
-  );
+
+  const LazyModules = {};
+  XPCOMUtils.defineLazyModuleGetters(LazyModules, {
+    cleanupImMarkup: "resource:///modules/imContentSink.jsm",
+    getCurrentTheme: "resource:///modules/imThemes.jsm",
+    getDocumentFragmentFromHTML: "resource:///modules/imThemes.jsm",
+    getHTMLForMessage: "resource:///modules/imThemes.jsm",
+    initHTMLDocument: "resource:///modules/imThemes.jsm",
+    insertHTMLForMessage: "resource:///modules/imThemes.jsm",
+    isNextMessage: "resource:///modules/imThemes.jsm",
+    serializeSelection: "resource:///modules/imThemes.jsm",
+    smileTextNode: "resource:///modules/imSmileys.jsm",
+  });
 
   (function() {
     // <browser> is lazily set up through setElementCreationCallback,
@@ -72,7 +73,11 @@
           // This will fire onStateChange multiple times so we add a flag to
           // avoid breaking the call stack.
           this._initializingHTMLDocument = true;
-          initHTMLDocument(this._conv, this.theme, this.contentDocument);
+          LazyModules.initHTMLDocument(
+            this._conv,
+            this.theme,
+            this.contentDocument
+          );
           this._initializingHTMLDocument = false;
 
           this._exposeMethodsToContent();
@@ -223,7 +228,7 @@
       // (within 10px) of the bottom.
       this._convScrollEnabled = true;
 
-      this._textModifiers = [smileTextNode];
+      this._textModifiers = [LazyModules.smileTextNode];
 
       // These variables are reset in onStateChange:
       this._lastMessage = null;
@@ -269,7 +274,7 @@
 
           Cc["@mozilla.org/widget/clipboardhelper;1"]
             .getService(Ci.nsIClipboardHelper)
-            .copyString(serializeSelection(selection));
+            .copyString(LazyModules.serializeSelection(selection));
         },
         onEvent(command) {},
         QueryInterface: ChromeUtils.generateQI(["nsIController"]),
@@ -292,7 +297,7 @@
           Cc["@mozilla.org/widget/clipboardhelper;1"]
             .getService(Ci.nsIClipboardHelper)
             .copyStringToClipboard(
-              serializeSelection(selection),
+              LazyModules.serializeSelection(selection),
               Ci.nsIClipboard.kSelectionClipboard
             );
         },
@@ -328,7 +333,7 @@
     }
 
     get theme() {
-      return this._theme || (this._theme = getCurrentTheme());
+      return this._theme || (this._theme = LazyModules.getCurrentTheme());
     }
 
     get contentDocument() {
@@ -611,7 +616,7 @@
         msg = msg.replace(/^((<[^>]+>)*)/, "$1/me ");
       }
 
-      aMsg.message = cleanupImMarkup(
+      aMsg.message = LazyModules.cleanupImMarkup(
         msg.replace(/\r?\n/g, "<br/>"),
         null,
         this._textModifiers
@@ -619,12 +624,17 @@
 
       let next =
         (aContext == this._lastMessageIsContext || aMsg.system) &&
-        isNextMessage(this.theme, aMsg, this._lastMessage);
+        LazyModules.isNextMessage(this.theme, aMsg, this._lastMessage);
       let newElt;
       if (next && aFirstUnread) {
         // If there wasn't an unread ruler, this would be a Next message.
         // Therefore, save that version for later.
-        let html = getHTMLForMessage(aMsg, this.theme, next, aContext);
+        let html = LazyModules.getHTMLForMessage(
+          aMsg,
+          this.theme,
+          next,
+          aContext
+        );
         let ruler = doc.getElementById("unread-ruler");
         ruler.nextMsgHtml = html;
         ruler._originalMsg = aMsg;
@@ -638,8 +648,8 @@
         insert.id = "insert-before";
 
         next = false;
-        html = getHTMLForMessage(aMsg, this.theme, next, aContext);
-        newElt = insertHTMLForMessage(aMsg, html, doc, next);
+        html = LazyModules.getHTMLForMessage(aMsg, this.theme, next, aContext);
+        newElt = LazyModules.insertHTMLForMessage(aMsg, html, doc, next);
         let marker = doc.createElement("div");
         marker.id = "end-of-split-block";
         newElt.parentNode.appendChild(marker);
@@ -656,8 +666,13 @@
           insert.parentNode.insertBefore(marker, insert.nextElementSibling);
         }
       } else {
-        let html = getHTMLForMessage(aMsg, this.theme, next, aContext);
-        newElt = insertHTMLForMessage(aMsg, html, doc, next);
+        let html = LazyModules.getHTMLForMessage(
+          aMsg,
+          this.theme,
+          next,
+          aContext
+        );
+        newElt = LazyModules.insertHTMLForMessage(aMsg, html, doc, next);
       }
 
       if (!aNoAutoScroll) {
@@ -705,7 +720,7 @@
         let moveToParent = moveTo.parentNode;
         range.selectNode(moveToParent);
         // eslint-disable-next-line no-unsanitized/method
-        let documentFragment = getDocumentFragmentFromHTML(
+        let documentFragment = LazyModules.getDocumentFragmentFromHTML(
           doc,
           ruler.nextMsgHtml
         );

@@ -22,17 +22,35 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
-  const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
-  const { DBViewWrapper } = ChromeUtils.import(
+  const LazyModules = {};
+
+  ChromeUtils.defineModuleGetter(
+    LazyModules,
+    "DBViewWrapper",
     "resource:///modules/DBViewWrapper.jsm"
   );
-  const { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
-  var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-  var { DisplayNameUtils } = ChromeUtils.import(
+  ChromeUtils.defineModuleGetter(
+    LazyModules,
+    "DisplayNameUtils",
     "resource:///modules/DisplayNameUtils.jsm"
+  );
+  ChromeUtils.defineModuleGetter(
+    LazyModules,
+    "MailUtils",
+    "resource:///modules/MailUtils.jsm"
+  );
+  ChromeUtils.defineModuleGetter(
+    LazyModules,
+    "MimeParser",
+    "resource:///modules/mimeParser.jsm"
+  );
+  ChromeUtils.defineModuleGetter(
+    LazyModules,
+    "TagUtils",
+    "resource:///modules/TagUtils.jsm"
   );
 
   class MozMailHeaderfield extends MozXULElement {
@@ -119,7 +137,7 @@
 
         let color = MailServices.tags.getColorForKey(tagsArray[i]);
         let textColor = "black";
-        if (!TagUtils.isColorContrastEnough(color)) {
+        if (!LazyModules.TagUtils.isColorContrastEnough(color)) {
           textColor = "white";
         }
 
@@ -665,7 +683,7 @@
 
       let isOutgoing = function(folder) {
         return folder.isSpecialFolder(
-          DBViewWrapper.prototype.OUTGOING_FOLDER_FLAGS,
+          LazyModules.DBViewWrapper.prototype.OUTGOING_FOLDER_FLAGS,
           true
         );
       };
@@ -690,7 +708,7 @@
             "msg-folder-columns-propagated"
           );
         };
-        MailUtils.setStringPropertyOnFolderAndDescendents(
+        LazyModules.MailUtils.setStringPropertyOnFolderAndDescendents(
           propName,
           colStateString,
           destFolder,
@@ -2094,9 +2112,9 @@
      */
     async updatePillStatus() {
       let isValid = this.isValidAddress(this.emailAddress);
-      let listNames = MimeParser.parseHeaderField(
+      let listNames = LazyModules.MimeParser.parseHeaderField(
         this.fullAddress,
-        MimeParser.HEADER_ADDRESS
+        LazyModules.MimeParser.HEADER_ADDRESS
       );
       let isMailingList =
         listNames.length > 0 &&
@@ -2126,7 +2144,7 @@
       // mailing list.
       if (
         !isMailingList &&
-        !DisplayNameUtils.getCardForEmail(this.emailAddress)?.card
+        !LazyModules.DisplayNameUtils.getCardForEmail(this.emailAddress)?.card
       ) {
         this.setAttribute(
           "tooltiptext",
