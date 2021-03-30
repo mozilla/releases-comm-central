@@ -101,8 +101,10 @@ NOTIFYICONDATAW sMailIconData = {
 static nsCOMArray<nsIBaseWindow> sHiddenWindows;
 static HWND sIconWindow;
 static uint32_t sUnreadCount;
-static LRESULT CALLBACK IconWindowProc(HWND msgWindow, UINT msg, WPARAM wp,
-                                       LPARAM lp) {
+/* static */
+LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
+                                                           UINT msg, WPARAM wp,
+                                                           LPARAM lp) {
   nsresult rv;
   if (msg == WM_USER && lp == WM_LBUTTONDOWN) {
     nsCOMPtr<nsIPrefBranch> prefBranch =
@@ -113,6 +115,10 @@ static LRESULT CALLBACK IconWindowProc(HWND msgWindow, UINT msg, WPARAM wp,
     NS_ENSURE_SUCCESS(rv, FALSE);
     if (!showTrayIcon || !sUnreadCount) {
       ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
+      if (auto instance = reinterpret_cast<nsMessengerWinIntegration*>(
+              ::GetWindowLongPtrW(msgWindow, GWLP_USERDATA))) {
+        instance->mTrayIconShown = false;
+      }
     }
 
     // No minimzed window, bring the topMostMsgWindow to the front.
@@ -158,18 +164,6 @@ static LRESULT CALLBACK IconWindowProc(HWND msgWindow, UINT msg, WPARAM wp,
   return TRUE;
 }
 
-WNDCLASS sClassStruct = {
-    /* style */ 0,
-    /* lpfnWndProc */ &IconWindowProc,
-    /* cbClsExtra */ 0,
-    /* cbWndExtra */ 0,
-    /* hInstance */ 0,
-    /* hIcon */ 0,
-    /* hCursor */ 0,
-    /* hbrBackground */ 0,
-    /* lpszMenuName */ 0,
-    /* lpszClassName */ L"IconWindowClass"};
-
 nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
   NS_ENSURE_ARG(aWindow);
   aWindow->SetVisibility(false);
@@ -204,6 +198,7 @@ NS_IMETHODIMP
 nsMessengerWinIntegration::OnExit() {
   if (mTrayIconShown) {
     ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
+    mTrayIconShown = false;
   }
   return NS_OK;
 }
@@ -238,27 +233,55 @@ nsresult nsMessengerWinIntegration::SetTooltip() {
 }
 
 /**
+ * Create a custom window for the taskbar icon if it's not created yet.
+ */
+nsresult nsMessengerWinIntegration::CreateIconWindow() {
+  if (sMailIconData.hWnd) {
+    return NS_OK;
+  }
+
+  const wchar_t kClassName[] = L"IconWindowClass";
+  WNDCLASS classStruct = {/* style */ 0,
+                          /* lpfnWndProc */ &IconWindowProc,
+                          /* cbClsExtra */ 0,
+                          /* cbWndExtra */ 0,
+                          /* hInstance */ 0,
+                          /* hIcon */ 0,
+                          /* hCursor */ 0,
+                          /* hbrBackground */ 0,
+                          /* lpszMenuName */ 0,
+                          /* lpszClassName */ kClassName};
+
+  // Register the window class.
+  NS_ENSURE_TRUE(::RegisterClass(&classStruct), NS_ERROR_FAILURE);
+  // Create the window.
+  NS_ENSURE_TRUE(sIconWindow = ::CreateWindow(
+                     /* className */ kClassName,
+                     /* title */ 0,
+                     /* style */ WS_CAPTION,
+                     /* x, y, cx, cy */ 0, 0, 0, 0,
+                     /* parent */ 0,
+                     /* menu */ 0,
+                     /* instance */ 0,
+                     /* create struct */ 0),
+                 NS_ERROR_FAILURE);
+  NS_ENSURE_TRUE(::SetWindowLongPtrW(sIconWindow, GWLP_USERDATA,
+                                     reinterpret_cast<LONG_PTR>(this)) == 0,
+                 NS_ERROR_FAILURE);
+
+  sMailIconData.hWnd = sIconWindow;
+  return NS_OK;
+}
+
+/**
  * Update the tray icon according to the current unread count and pref value.
  */
 nsresult nsMessengerWinIntegration::UpdateTrayIcon() {
-  if (sMailIconData.hWnd == 0) {
-    // Register the window class.
-    NS_ENSURE_TRUE(::RegisterClass(&sClassStruct), NS_ERROR_FAILURE);
-    // Create the window.
-    NS_ENSURE_TRUE(sIconWindow = ::CreateWindow(
-                       /* className */ L"IconWindowClass",
-                       /* title */ 0,
-                       /* style */ WS_CAPTION,
-                       /* x, y, cx, cy */ 0, 0, 0, 0,
-                       /* parent */ 0,
-                       /* menu */ 0,
-                       /* instance */ 0,
-                       /* create struct */ 0),
-                   NS_ERROR_FAILURE);
-    sMailIconData.hWnd = sIconWindow;
-  }
-
   nsresult rv;
+
+  rv = CreateIconWindow();
+  NS_ENSURE_SUCCESS(rv, rv);
+
   if (!mPrefBranch) {
     mPrefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);

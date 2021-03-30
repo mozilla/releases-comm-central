@@ -24,8 +24,12 @@ class nsMessengerWinIntegration : public nsIMessengerWindowsIntegration {
   NS_IMETHOD OnExit();
 
  private:
+  static LRESULT CALLBACK IconWindowProc(HWND msgWindow, UINT msg, WPARAM wp,
+                                         LPARAM lp);
+
   virtual ~nsMessengerWinIntegration();
 
+  nsresult CreateIconWindow();
   nsresult SetTooltip();
   nsresult UpdateTrayIcon();
 
