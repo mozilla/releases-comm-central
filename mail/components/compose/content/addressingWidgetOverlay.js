@@ -972,7 +972,6 @@ function editAddressPill(element, event) {
  */
 function emailAddressPillOnPopupShown() {
   let menu = document.getElementById("emailAddressPillPopup");
-
   // Reset previously disabled menuitems.
   for (let menuitem of menu.querySelectorAll(
     ".pill-action-move, .pill-action-edit"
@@ -980,22 +979,20 @@ function emailAddressPillOnPopupShown() {
     menuitem.disabled = false;
   }
 
+  let recipientsContainer = document.getElementById("recipientsContainer");
   // If more than one pill is selected, disable the editing item.
-  if (
-    document.getElementById("recipientsContainer").getAllSelectedPills()
-      .length > 1
-  ) {
+  if (recipientsContainer.getAllSelectedPills().length > 1) {
     menu.querySelector("#editAddressPill").disabled = true;
   }
 
-  // If Newsgroups or Followups are part of the selection, disable everything.
+  // If any Newsgroup or Followup pill is selected, disable all move actions.
   if (
-    document.querySelectorAll(
+    recipientsContainer.querySelector(
       `mail-address-pill[recipienttype="addr_newsgroups"][selected]`
-    ).length ||
-    document.querySelectorAll(
+    ) ||
+    recipientsContainer.querySelector(
       `mail-address-pill[recipienttype="addr_followup"][selected]`
-    ).length
+    )
   ) {
     for (let menuitem of menu.querySelectorAll(".pill-action-move")) {
       menuitem.disabled = true;
@@ -1003,24 +1000,25 @@ function emailAddressPillOnPopupShown() {
     return;
   }
 
-  let selectedTypes = [];
-  // Add all the recipient types of the selected pills.
-  for (let row of document.querySelectorAll(".address-row:not(.hidden)")) {
-    if (row.querySelectorAll("mail-address-pill[selected]").length) {
-      selectedTypes.push(
-        row
-          .querySelector(`input[is="autocomplete-input"][recipienttype]`)
-          .getAttribute("recipienttype")
-      );
+  let selectedType = "";
+  // Check if all selected pills are in the same address row.
+  for (let row of recipientsContainer.querySelectorAll(
+    ".address-row:not(.hidden)"
+  )) {
+    // Check if there's at least one selected pill in the address row.
+    let selectedPill = row.querySelector("mail-address-pill[selected]");
+    if (!selectedPill) {
+      continue;
     }
+    // Return if we already have a selectedType: More than one type selected.
+    if (selectedType) {
+      return;
+    }
+    selectedType = selectedPill.rowInput.getAttribute("recipienttype");
   }
 
-  // Interrupt if more than one type is selected.
-  if (selectedTypes.length > 1) {
-    return;
-  }
-
-  switch (selectedTypes[0]) {
+  // All selected pills are of the same type, disable the type's move action.
+  switch (selectedType) {
     case "addr_to":
       menu.querySelector("#moveAddressPillTo").disabled = true;
       break;
