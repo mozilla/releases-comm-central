@@ -19,7 +19,7 @@ function getLibraryFilename(baseName, suffix) {
   return ctypes.libraryName(baseName) + suffix;
 }
 
-function getDistributionFilename() {
+function getSystemVersionedFilename() {
   let baseName;
   let suffix;
 
@@ -36,6 +36,21 @@ function getDistributionFilename() {
       baseName = "otr";
       suffix = ".5";
       break;
+  }
+
+  return getLibraryFilename(baseName, suffix);
+}
+
+function getDistributionFilename() {
+  let baseName;
+  let suffix;
+
+  if (systemOS === "winnt") {
+    baseName = "libotr";
+    suffix = "";
+  } else {
+    baseName = "otr";
+    suffix = "";
   }
 
   return getLibraryFilename(baseName, suffix);
@@ -71,6 +86,11 @@ function loadExternalOTRLib() {
   // Try to load using our expected filename from system directories
   if (!libotr) {
     tryLoadOTR(getDistributionFilename(), systemInfo);
+  }
+
+  // Try to load using a versioned library name
+  if (!libotr) {
+    tryLoadOTR(getSystemVersionedFilename(), systemInfo);
   }
 
   // Try other filenames
