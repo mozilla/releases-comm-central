@@ -12,22 +12,15 @@ origin-%: ; @echo $* origin $(origin $*)
 ifdef TB_LIBOTR_PREBUILT
 
 ifeq (WINNT,$(OS_ARCH))
-ifdef HAVE_64BIT_BUILD
-OTR_LIBS := libgpg-error6-0.dll
-else
-OTR_LIBS := libgpg-error-0.dll
-endif
-OTR_LIBS += libgcrypt-20.dll \
-	libotr-5.dll \
-	libssp-0.dll
+OTR_LIBS := libotr.dll libssp-0.dll
 endif
 
 ifeq (Darwin,$(OS_ARCH))
-OTR_LIBS := libotr.5.dylib
+OTR_LIBS := libotr.dylib
 endif
 
 ifeq (Linux,$(OS_ARCH))
-OTR_LIBS := libotr.so.5
+OTR_LIBS := libotr.so
 endif
 
 OTR_LIB_PATHS := $(foreach otrlib,$(OTR_LIBS),$(TB_LIBOTR_PREBUILT)/$(otrlib))
