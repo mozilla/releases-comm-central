@@ -4861,12 +4861,21 @@ async function CompleteGenericSendMessage(msgType) {
 }
 
 /**
- * Check if the given address is valid (contains a @).
+ * Check if the given email address is valid (contains an @).
  *
- * @param aAddress  The address string to check.
+ * @param {string} address - The email address string to check.
  */
-function isValidAddress(aAddress) {
-  return aAddress.includes("@", 1) && !aAddress.endsWith("@");
+function isValidAddress(address) {
+  return address.includes("@", 1) && !address.endsWith("@");
+}
+
+/**
+ * Check if the given news address is valid (contains a dot).
+ *
+ * @param {string} address - The news address string to check.
+ */
+function isValidNewsAddress(address) {
+  return address.includes(".", 1) && !address.endsWith(".");
 }
 
 /**
@@ -4930,18 +4939,32 @@ function updateSendLock() {
     }
   }
 
-  // If the send button is still disabled, check the non pillified written
-  // values inside the input fields.
-  if (gSendLocked) {
-    for (let row of document.querySelectorAll(".address-row:not(.hidden)")) {
-      let input = row.querySelector(
-        `input[is="autocomplete-input"][recipienttype]`
-      );
+  // Check the non pillified input text inside the autocomplete input fields.
+  for (let input of document.querySelectorAll(
+    `.address-row:not(.hidden) input[is="autocomplete-input"][recipienttype]`
+  )) {
+    let inputValueTrim = input.value.trim();
+    // If there's no text in the input, proceed with next input.
+    if (!inputValueTrim) {
+      continue;
+    }
+    // If text contains " >> " (typically from an unfinished autocompletion),
+    // lock Send and return.
+    if (inputValueTrim.includes(" >> ")) {
+      gSendLocked = true;
+      return;
+    }
 
-      if (input?.value.trim() && isValidAddress(input.value.trim())) {
-        gSendLocked = false;
-        break;
-      }
+    // If we find at least one valid pill, and in spite of potential other
+    // invalid pills or invalid addresses in the input, enable the Send button.
+    // It might be disabled again if the above autocomplete artifact is present
+    // in a subsequent row, to prevent sending the artifact as a valid address.
+    if (
+      input.classList.contains("news-input")
+        ? isValidNewsAddress(inputValueTrim)
+        : isValidAddress(inputValueTrim)
+    ) {
+      gSendLocked = false;
     }
   }
 }
