@@ -43,6 +43,7 @@ linux64-libotr:
 linux-aarch64-libotr:
     treeherder:
         symbol: TL(libotr-aarch64)
+        tier: 2
     run:
         arguments: ['linux-aarch64']
     fetches:
@@ -51,7 +52,7 @@ linux-aarch64-libotr:
             - linux64-clang-aarch64-cross
             - linux64-binutils
 
-macosx64-libotr:
+macosx64-x64-libotr:
     treeherder:
         symbol: TM(libotr)
     run:
