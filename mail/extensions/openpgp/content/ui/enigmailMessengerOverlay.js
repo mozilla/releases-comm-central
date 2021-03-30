@@ -1228,8 +1228,8 @@ Enigmail.msg = {
           {
             label: buttonLabel,
             popup: null,
-            async callback(aNotification, aButton) {
-              await Enigmail.msg.processOpenPGPSubset();
+            callback(aNotification, aButton) {
+              Enigmail.msg.processOpenPGPSubset();
               return false; // Close notification.
             },
           },
