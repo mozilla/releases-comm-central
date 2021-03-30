@@ -28,7 +28,7 @@ customElements.whenDefined("autocomplete-input").then(() => {
   ChromeUtils.defineModuleGetter(
     LazyModules,
     "GlodaIMSearcher",
-    "resource:///modules/gloda/GlodaIMSearcher.jsm"
+    "resource:///modules/GlodaIMSearcher.jsm"
   );
   ChromeUtils.defineModuleGetter(
     LazyModules,
