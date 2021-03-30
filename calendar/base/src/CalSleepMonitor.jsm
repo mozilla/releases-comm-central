@@ -7,6 +7,12 @@ var EXPORTED_SYMBOLS = ["CalSleepMonitor"];
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+/**
+ * This services watches for sleep/hibernate/standby and notifies observers.
+ * This service is only loaded on Linux (see components.conf), as Windows
+ * and Mac have gecko provided `wake_notification`s.
+ */
+
 function CalSleepMonitor() {
   this.wrappedJSObject = this;
 }
@@ -47,11 +53,6 @@ CalSleepMonitor.prototype = {
 
   // nsIObserver:
   observe(aSubject, aTopic, aData) {
-    // CalSleepMonitor is not used on Windows or OSX.
-    if (Services.appinfo.OS == "WINNT" || Services.appinfo.OS == "Darwin") {
-      return;
-    }
-
     if (aTopic == "profile-after-change") {
       cal.LOG("[CalSleepMonitor] Starting sleep monitor.");
       this.start();
