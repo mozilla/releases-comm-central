@@ -19,6 +19,8 @@ function peekAlarmWindow() {
 function CalAlarmMonitor() {
   this.wrappedJSObject = this;
   this.mAlarms = [];
+  // A map from itemId to item.
+  this._notifyingItems = new Map();
 
   this.mSound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
 
@@ -60,6 +62,19 @@ CalAlarmMonitor.prototype = {
         break;
       case "alarm-service-shutdown":
         alarmService.removeObserver(this);
+        break;
+      case "alertclickcallback": {
+        let item = this._notifyingItems.get(aData);
+        if (item) {
+          let calWindow = cal.window.getCalendarWindow();
+          if (calWindow) {
+            calWindow.openEventDialogForViewing(item, true);
+          }
+        }
+        break;
+      }
+      case "alertfinished":
+        this._notifyingItems.delete(aData);
         break;
     }
   },
@@ -132,6 +147,24 @@ CalAlarmMonitor.prototype = {
     if (!this.mWindowOpening) {
       calAlarmWindow.addWidgetFor(aItem, aAlarm);
     }
+  },
+
+  /**
+   * calIAlarmServiceObserver
+   */
+  onNotification(item) {
+    let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(Ci.nsIAlertNotification);
+    let alertsService = Cc["@mozilla.org/alerts-service;1"].getService(Ci.nsIAlertsService);
+    alert.init(
+      item.id, // name
+      "chrome://messenger/skin/icons/new-mail-alert.png",
+      item.title,
+      item.getProperty("description"),
+      true, // clickable
+      item.id // cookie
+    );
+    this._notifyingItems.set(item.id, item);
+    alertsService.showAlert(alert, this);
   },
 
   window_onLoad() {

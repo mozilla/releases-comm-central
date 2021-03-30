@@ -7,6 +7,14 @@ var EXPORTED_SYMBOLS = ["CalAlarmService"];
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "gNotificationsTimes",
+  "calendar.notifications.times",
+  ""
+);
 
 var kHoursBetweenUpdates = 6;
 
@@ -30,6 +38,7 @@ function CalAlarmService() {
 
   this.mLoadedCalendars = {};
   this.mTimerMap = {};
+  this.mNotificationTimerMap = {};
   this.mObservers = new cal.data.ListenerSet(Ci.calIAlarmServiceObserver);
 
   this.calendarObserver = {
@@ -118,6 +127,12 @@ CalAlarmService.prototype = {
     classDescription: "Calendar Alarm Service",
     interfaces: calAlarmServiceInterfaces,
     flags: Ci.nsIClassInfo.SINGLETON,
+  }),
+
+  _logger: console.createInstance({
+    prefix: "calendar.alarms",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "calendar.alarms.loglevel",
   }),
 
   /**
@@ -397,6 +412,8 @@ CalAlarmService.prototype = {
         }
       }
     }
+
+    this.addNotificationForItem(aItem);
   },
 
   removeAlarmsForItem(aItem) {
@@ -405,6 +422,132 @@ CalAlarmService.prototype = {
     // Purge alarms specifically for this item (i.e exception)
     for (let alarm of aItem.getAlarms()) {
       this.removeTimer(aItem, alarm);
+    }
+
+    this.removeNotificationForItem(aItem);
+  },
+
+  /**
+   * Parse a .notifications.times pref value to an array of seconds. The pref
+   * value is expected to be in the form of "PT1D PT2H PT3M".
+   * @param {string} prefValue - The pref value to the parsed.
+   * @returns {number[]} An array of seconds.
+   */
+  parseNotificationTimeToSeconds(prefValue) {
+    return prefValue
+      .split(" ")
+      .map(entry => {
+        if (!entry.trim()) {
+          return null;
+        }
+        try {
+          return cal.createDuration(entry).inSeconds;
+        } catch (e) {
+          this._logger.error(`Failed to parse ${prefValue}`, e);
+          return null;
+        }
+      })
+      .filter(x => x != null);
+  },
+
+  /**
+   * Get the timeouts before notifications are fired for an item.
+   * @param {calIItemBase} item - A calendar item instance.
+   * @returns {number[]} Timeouts of notifications in milliseconds in ascending order.
+   */
+  calculateNotificationTimeouts(item) {
+    let now = nowUTC();
+    let until = now.clone();
+    until.month += 1;
+    // We only care about items no more than a month ahead.
+    if (!cal.item.checkIfInRange(item, now, until)) {
+      return [];
+    }
+    let startDate;
+    if (item.isEvent) {
+      startDate = item.startDate;
+    } else {
+      startDate = item.entryDate || item.dueDate;
+    }
+    return this.parseNotificationTimeToSeconds(
+      // TODO: this is the global notification time, a calendar level pref will
+      // override it.
+      gNotificationsTimes
+    )
+      .map(seconds => {
+        let fireDate = startDate.clone();
+        fireDate.second -= seconds;
+        let timeout = fireDate.subtractDate(now).inSeconds * 1000;
+        return timeout > 0 ? timeout : null;
+      })
+      .filter(x => x != null)
+      .sort((x, y) => x - y);
+  },
+
+  /**
+   * Set up notification timers for an item.
+   * @param {calIItemBase} item - A calendar item instance.
+   */
+  addNotificationForItem(item) {
+    let alarmTimerCallback = {
+      notify: () => {
+        this.mObservers.notify("onNotification", [item]);
+        this.removeFiredNotificationTimer(item);
+      },
+    };
+    let timeouts = this.calculateNotificationTimeouts(item);
+    let timers = timeouts.map(timeout => newTimerWithCallback(alarmTimerCallback, timeout, false));
+
+    if (timers.length > 0) {
+      this._logger.debug(
+        `addNotificationForItem hashId=${item.hashId}: adding ${timers.length} timers, timeouts=${timeouts}`
+      );
+      this.mNotificationTimerMap[item.calendar.id] =
+        this.mNotificationTimerMap[item.calendar.id] || {};
+      this.mNotificationTimerMap[item.calendar.id][item.hashId] = timers;
+    }
+  },
+
+  /**
+   * Remove notification timers for an item.
+   * @param {calIItemBase} item - A calendar item instance.
+   */
+  removeNotificationForItem(item) {
+    if (!this.mNotificationTimerMap[item.calendar.id]) {
+      return;
+    }
+
+    for (let timer of this.mNotificationTimerMap[item.calendar.id][item.hashId]) {
+      timer.cancel();
+    }
+
+    delete this.mNotificationTimerMap[item.calendar.id][item.hashId];
+
+    // If the calendar map is empty, remove it from the timer map
+    if (Object.keys(this.mNotificationTimerMap[item.calendar.id]).length == 0) {
+      delete this.mNotificationTimerMap[item.calendar.id];
+    }
+  },
+
+  /**
+   * Remove the first notification timers for an item to release some memory.
+   * @param {calIItemBase} item - A calendar item instance.
+   */
+  removeFiredNotificationTimer(item) {
+    // The first timer is fired first.
+    let removed = this.mNotificationTimerMap[item.calendar.id][item.hashId].shift();
+
+    let remainingTimersCount = this.mNotificationTimerMap[item.calendar.id][item.hashId].length;
+    this._logger.debug(
+      `removeFiredNotificationTimer hashId=${item.hashId}: removed=${removed.delay}, remaining ${remainingTimersCount} timers`
+    );
+    if (remainingTimersCount == 0) {
+      delete this.mNotificationTimerMap[item.calendar.id][item.hashId];
+    }
+
+    // If the calendar map is empty, remove it from the timer map
+    if (Object.keys(this.mNotificationTimerMap[item.calendar.id]).length == 0) {
+      delete this.mNotificationTimerMap[item.calendar.id];
     }
   },
 

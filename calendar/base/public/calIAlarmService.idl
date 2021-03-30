@@ -21,6 +21,12 @@ interface calIAlarmServiceObserver : nsISupports
   void onAlarm(in calIItemBase item, in calIAlarm alarm);
 
   /**
+   * Gets called when an notification has fired. The notification is only
+   * controlled by prefs, and is independant from the alarm/reminder.
+   */
+  void onNotification(in calIItemBase item);
+
+  /**
    * Called if alarm(s) of a specific item are to be removed from
    * the alarm window.
    *

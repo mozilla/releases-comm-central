@@ -158,6 +158,8 @@
       this.calView.flashAlarm(alarmItem, false);
     }
 
+    onNotification(item) {}
+
     onRemoveAlarmsByItem(item) {
       // Stop the flashing for the item.
       this.calView.flashAlarm(item, true);

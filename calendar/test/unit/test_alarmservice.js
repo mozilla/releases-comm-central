@@ -32,6 +32,8 @@ var alarmObserver = {
     this.firedMap[aItem.hashId][aAlarm.icalString] = true;
   },
 
+  onNotification(item) {},
+
   onRemoveAlarmsByItem(aItem) {
     if (aItem.hashId in this.firedMap) {
       delete this.firedMap[aItem.hashId];
@@ -149,6 +151,7 @@ function run_test() {
   add_test(test_addItems);
   add_test(test_loadCalendar);
   add_test(test_modifyItems);
+  add_test(test_notificationTimers);
 
   run_next_test();
 }
@@ -492,3 +495,82 @@ function test_modifyItems() {
     doAcknowledgeTest(memory);
   });
 }
+
+/**
+ * Test an array of timers has expected delay values.
+ * @param {nsITimer[]} timers - An array of nsITimer.
+ * @param {number[]} expected - Expected delays in seconds.
+ */
+function matchTimers(timers, expected) {
+  let delays = timers.map(timer => timer.delay);
+  let matched = true;
+  for (let i = 0; i < delays.length; i++) {
+    if (Math.abs(delays[i] - expected[i] * 1000) > 1000) {
+      matched = false;
+      break;
+    }
+  }
+  ok(matched, `Delays=${delays} should match Expected=${expected}`);
+}
+
+/**
+ * Test notification timers are set up correctly when add/modify/remove a
+ * calendar item.
+ */
+function test_notificationTimers() {
+  doRunTest(null, memory => {
+    // Add an item.
+    let date = cal.dtz.now();
+    date.hour += 1;
+    let item, oldItem;
+    [item] = createEventWithAlarm(memory, date, date, null);
+    memory.addItem(item, null);
+    equal(
+      alarmObserver.service.mNotificationTimerMap[item.calendar.id],
+      undefined,
+      "should have no notification timer"
+    );
+
+    // Set the pref to have one notifiaction.
+    Services.prefs.setCharPref("calendar.notifications.times", "PT1H");
+    oldItem = item.clone();
+    date.hour += 1;
+    item.startDate = date.clone();
+    item.generation++;
+    memory.modifyItem(item, oldItem, null);
+    // Should have one notification timer
+    matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [3600]);
+
+    // Set the pref to have three notifiactions.
+    Services.prefs.setCharPref("calendar.notifications.times", "PT5M PT0M PT30M");
+    oldItem = item.clone();
+    date.hour -= 1;
+    item.startDate = date.clone();
+    item.generation++;
+    memory.modifyItem(item, oldItem, null);
+    // Should have three notification timers.
+    matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
+      1800, // 30 minutes
+      3300, // 55 minutes
+      3600, // 60 minutes
+    ]);
+
+    alarmObserver.service.removeFiredNotificationTimer(item);
+    // Should have two notification timers.
+    matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
+      3300,
+      3600,
+    ]);
+
+    memory.deleteItem(item, null);
+    equal(
+      alarmObserver.service.mNotificationTimerMap[item.calendar.id],
+      undefined,
+      "notification timers should be removed"
+    );
+  });
+}
+
+registerCleanupFunction(() => {
+  Services.prefs.clearUserPref("calendar.notifications.times");
+});

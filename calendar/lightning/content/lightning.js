@@ -48,6 +48,14 @@ pref("calendar.alarms.onfortodos", 0);
 pref("calendar.alarms.todoalarmlen", 15);
 pref("calendar.alarms.todoalarmunit", "minutes");
 
+pref("calendar.alarms.loglevel", "Warn");
+
+// The default timeouts to show notifications for calendar items. The value
+// should be in the form of "PT1D PT1H PT0M", which means to show three
+// notifications: one at 1 day before, one at 1 hour before, one at 0 minute
+// before the event/task starts.
+pref("calendar.notifications.times", "");
+
 // open invitations autorefresh settings
 pref("calendar.invitations.autorefresh.enabled", true);
 pref("calendar.invitations.autorefresh.timeout", 3);
