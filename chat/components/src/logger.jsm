@@ -29,7 +29,7 @@ const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
  * This is so that a file can be read after a pending write operation completes
  * and vice versa (opening a file multiple times concurrently may fail on Windows).
  */
-const gFilePromises = new Map();
+var gFilePromises = new Map();
 
 // Uses above map to queue operations on a file.
 function queueFileOperation(aPath, aOperation) {
