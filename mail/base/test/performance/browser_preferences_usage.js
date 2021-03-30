@@ -156,7 +156,6 @@ add_task(async function startup() {
     "layout.scrollbar.side",
     "layout.throttled_frame_rate",
     "layout.visibility.min-recompute-interval-ms",
-    "nglayout.initialpaint.delay",
   ];
 
   for (let pref of prefsUsedInLayout) {
