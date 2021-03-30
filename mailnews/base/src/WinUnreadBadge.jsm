@@ -185,6 +185,12 @@ function downsampleBy4X(window, canvas) {
  */
 var WinUnreadBadge = {
   /**
+   * Keeping an instance of nsITaskbarOverlayIconController alive
+   * to show a taskbar icon after the updateUnreadCount method exits.
+   */
+  _controller: null,
+
+  /**
    * Update the unread badge.
    * @param {number} unreadCount - Unread message count.
    * @param {number} unreadTooltip - Unread message count tooltip.
@@ -194,10 +200,12 @@ var WinUnreadBadge = {
     if (!window) {
       return;
     }
-    let controller = taskbar.getOverlayIconController(window.docShell);
+    if (!this._controller) {
+      this._controller = taskbar.getOverlayIconController(window.docShell);
+    }
     if (unreadCount == 0) {
       // Remove the badge if no unread.
-      controller.setOverlayIcon(null, "");
+      this._controller.setOverlayIcon(null, "");
       return;
     }
 
@@ -228,6 +236,6 @@ var WinUnreadBadge = {
     // setOverlayIcon.
     await new Promise(resolve => window.setTimeout(resolve));
 
-    controller.setOverlayIcon(icon, unreadTooltip);
+    this._controller.setOverlayIcon(icon, unreadTooltip);
   },
 };
