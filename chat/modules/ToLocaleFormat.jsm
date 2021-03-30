@@ -2,7 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "Services",
+  "resource://gre/modules/Services.jsm"
+);
 
 const EXPORTED_SYMBOLS = ["ToLocaleFormat"];
 
@@ -89,16 +97,31 @@ function timeZone(aDate) {
   return timeZoneNamePart ? timeZoneNamePart.value : "";
 }
 
-const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
-  dateStyle: "full",
-  timeStyle: "long",
-});
-const dateFormatter = new Services.intl.DateTimeFormat(undefined, {
-  dateStyle: "full",
-});
-const timeFormatter = new Services.intl.DateTimeFormat(undefined, {
-  timeStyle: "long",
-});
+XPCOMUtils.defineLazyGetter(
+  this,
+  "dateTimeFormatter",
+  () =>
+    new Services.intl.DateTimeFormat(undefined, {
+      dateStyle: "full",
+      timeStyle: "long",
+    })
+);
+XPCOMUtils.defineLazyGetter(
+  this,
+  "dateFormatter",
+  () =>
+    new Services.intl.DateTimeFormat(undefined, {
+      dateStyle: "full",
+    })
+);
+XPCOMUtils.defineLazyGetter(
+  this,
+  "timeFormatter",
+  () =>
+    new Services.intl.DateTimeFormat(undefined, {
+      timeStyle: "long",
+    })
+);
 
 const formatFunctions = {
   a: aDate => weekday(aDate, "short"),

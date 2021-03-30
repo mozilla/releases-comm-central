@@ -4,34 +4,32 @@
 
 var EXPORTED_SYMBOLS = ["Logger"];
 
-var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var { l10nHelper, XPCOMUtils } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
+const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { GenericMessagePrototype } = ChromeUtils.import(
-  "resource:///modules/jsProtoHelper.jsm"
-);
-var { ClassInfo } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
-var { ToLocaleFormat } = ChromeUtils.import(
-  "resource:///modules/ToLocaleFormat.jsm"
-);
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-var { getHiddenHTMLWindow } = ChromeUtils.import(
-  "resource:///modules/hiddenWindow.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  ClassInfo: "resource:///modules/imXPCOMUtils.jsm",
+  GenericMessagePrototype: "resource:///modules/jsProtoHelper.jsm",
+  getHiddenHTMLWindow: "resource:///modules/hiddenWindow.jsm",
+  l10nHelper: "resource:///modules/imXPCOMUtils.jsm",
+  OS: "resource://gre/modules/osfile.jsm",
+  ToLocaleFormat: "resource:///modules/ToLocaleFormat.jsm",
+});
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/logger.properties")
 );
 
-var kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
+const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
 /*
  * Maps file paths to promises returned by ongoing OS.File operations on them.
  * This is so that a file can be read after a pending write operation completes
  * and vice versa (opening a file multiple times concurrently may fail on Windows).
  */
-var gFilePromises = new Map();
+const gFilePromises = new Map();
 
 // Uses above map to queue operations on a file.
 function queueFileOperation(aPath, aOperation) {
@@ -86,19 +84,6 @@ function appendToFile(aPath, aEncodedString, aCreate) {
     }
   });
 }
-
-OS.File.profileBeforeChange.addBlocker(
-  "Chat logger: writing all pending messages",
-  async function() {
-    for (let promise of gFilePromises.values()) {
-      try {
-        await promise;
-      } catch (aError) {
-        // Ignore the error, whatever queued the operation will take care of it.
-      }
-    }
-  }
-);
 
 // This function checks names against OS naming conventions and alters them
 // accordingly so that they can be used as file/folder names.
@@ -995,6 +980,19 @@ Logger.prototype = {
         Services.obs.addObserver(this, "final-ui-startup");
         break;
       case "final-ui-startup":
+        OS.File.profileBeforeChange.addBlocker(
+          "Chat logger: writing all pending messages",
+          async function() {
+            for (let promise of gFilePromises.values()) {
+              try {
+                await promise;
+              } catch (aError) {
+                // Ignore the error, whatever queued the operation will take care of it.
+              }
+            }
+          }
+        );
+
         Services.obs.removeObserver(this, "final-ui-startup");
         [
           "new-text",
