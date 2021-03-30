@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-set -x -e -v
+set -x -eE -v
 
 _TARGET_OS="$1"
 
@@ -61,7 +61,7 @@ function clang_cfg() {
     _clang_dir="${MOZ_FETCHES_DIR}/clang/bin"
 
     cp -a ${_clang_cfg_dir}/*.cfg "${_clang_dir}"
-    for _i in x86_64-apple-darwin aarch64-apple-darwin aarch64-linux-gnu; do
+    for _i in x86_64-apple-darwin aarch64-apple-darwin aarch64-linux-gnu i686-linux-gnu; do
       ln -s clang "${_clang_dir}/${_i}-clang"
     done
     return 0
@@ -127,8 +127,8 @@ function build_libotr() {
     autoconf
     automake
 
-    CFLAGS="${CFLAGS_otr} ${CFLAGS}"
-    LDFLAGS="${LDFLAGS_otr} ${LDFLAGS}"
+    # CFLAGS="${CFLAGS_otr} ${CFLAGS}"
+    # LDFLAGS="${LDFLAGS_otr} ${LDFLAGS}"
 
     ./configure ${_CONFIGURE_FLAGS} --enable-shared --with-pic \
         --with-libgcrypt-prefix="${_PREFIX}"
@@ -143,13 +143,30 @@ function build_libotr() {
     case "${_TARGET_OS}" in
         win*)
             cd src
-            "${CC}" -shared ${LDFLAGS} -o libotr-5.dll \
-                *.o -lws2_32 -lssp -lgcrypt -lgpg-error
-            cp libotr-5.dll "${_PREFIX}/bin"
+            "${CC}" -shared -Wl,-no-undefined ${LDFLAGS} -o libotr.dll \
+                *.o \
+                -L"${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
+                -L"${_LIBDIR}" -lws2_32 -lssp
+            cp libotr.dll "${_PREFIX}/bin"
             ;;
-        *)
-            make ${_MAKE_FLAGS} -C src install-libLTLIBRARIES
+        linux*)
+            cd src
+            "${CC}" -shared ${LDFLAGS} -Wl,-soname -Wl,libotr.so \
+              .libs/*.o \
+              -L"${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
+              --sysroot="${MOZ_FETCHES_DIR}/sysroot" \
+              -Wl,-soname -Wl,libotr.so -o libotr.so
+            cp libotr.so "${_PREFIX}/lib"
             ;;
+        macos*)
+            cd src
+            "${CC}" -dynamiclib -Wl,-flat_namespace -Wl,-undefined -Wl,suppress -o libotr.dylib \
+              .libs/*.o \
+              "-L${_PREFIX}/lib" "${_PREFIX}/lib/libgcrypt.a" "${_PREFIX}/lib/libgpg-error.a" \
+              -isysroot "${MACOS_SDK_DIR}" \
+              -install_name "@executable_path/libotr.dylib" \
+              -compatibility_version 7 -current_version 7.1 -Wl,-single_module
+            cp libotr.dylib "${_PREFIX}/lib"
     esac
 
     return $?
@@ -188,10 +205,9 @@ case "${_TARGET_OS}" in
         _LIBDIR="/usr/lib/gcc/${_TARGET_TRIPLE}/8.3-win32"
         export LDFLAGS="-L${_LIBDIR}"
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _CONF_STATIC=""
+        _CONF_STATIC="--enable-static --enable-shared"
 
-        LDFLAGS_otr="-Wl,-no-undefined,-L${_PREFIX}/lib,-lgcrypt,-lgpg-error,-lssp"
-        _TARGET_LIBS="bin/libotr-5.dll bin/libgcrypt-20.dll bin/libgpg-error-0.dll"
+        _TARGET_LIBS="bin/libotr.dll"
         ;;
     win64)
         export PATH="${MOZ_FETCHES_DIR}/mingw32/bin:$PATH"
@@ -200,10 +216,9 @@ case "${_TARGET_OS}" in
         _LIBDIR="/usr/lib/gcc/${_TARGET_TRIPLE}/8.3-win32"
         export LDFLAGS="-L${_LIBDIR}"
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
-        _CONF_STATIC=""
+        _CONF_STATIC="--enable-static --enable-shared"
 
-        LDFLAGS_otr="-Wl,-no-undefined,-L${_PREFIX}/lib,-lgcrypt,-lgpg-error,-lssp"
-        _TARGET_LIBS="bin/libotr-5.dll bin/libgcrypt-20.dll bin/libgpg-error6-0.dll"
+        _TARGET_LIBS="bin/libotr.dll"
         ;;
     macosx64)
         for _t in cctools/bin clang/bin binutils/bin; do
@@ -226,9 +241,7 @@ case "${_TARGET_OS}" in
         _GCRYPT_CONF_FLAGS="--disable-asm"
         _CONF_STATIC="--enable-static --disable-shared"
 
-        LDFLAGS_otr="-shared"
-
-        _TARGET_LIBS="lib/libotr.5.dylib"
+        _TARGET_LIBS="lib/libotr.dylib"
         ;;
     macosx64-aarch64)
         for _t in cctools/bin clang/bin binutils/bin; do
@@ -251,9 +264,7 @@ case "${_TARGET_OS}" in
         _GCRYPT_CONF_FLAGS="--disable-asm"
         _CONF_STATIC="--enable-static --disable-shared"
 
-        LDFLAGS_otr="-shared"
-
-        _TARGET_LIBS="lib/libotr.5.dylib"
+        _TARGET_LIBS="lib/libotr.dylib"
         ;;
     linux32)
         for _t in clang/bin binutils/bin; do
@@ -262,11 +273,9 @@ case "${_TARGET_OS}" in
         export PATH
 
         export _TARGET_TRIPLE="i686-pc-linux"
-        export CC="clang"
-        export CFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
-        export CFLAGS+=" --sysroot=${MOZ_FETCHES_DIR}/sysroot"
-        export CCASFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
-        export CCASFLAGS+=" --sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        export CC="i686-linux-gnu-clang"
+        export CFLAGS=" --sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        export CCASFLAGS=" --sysroot=${MOZ_FETCHES_DIR}/sysroot"
         export LDFLAGS="--target=${_TARGET_TRIPLE} -m32 -march=pentium-m -msse -msse2 -mfpmath=sse"
 
         export AR=llvm-ar
@@ -275,12 +284,10 @@ case "${_TARGET_OS}" in
         export LD=ld.lld
         export STRIP=llvm-strip
 
-        CFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
-        LDFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
-
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
+        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/sysroot"
         _CONF_STATIC="--enable-static --disable-shared"
-        _TARGET_LIBS='lib/libotr.so.5'
+        _TARGET_LIBS="lib/libotr.so"
         ;;
     linux64)
         for _t in clang/bin binutils/bin; do
@@ -291,18 +298,17 @@ case "${_TARGET_OS}" in
         export _TARGET_TRIPLE="x86_64-pc-linux"
         export CC="clang"
         export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        export CASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
         export AR=llvm-ar
         export RANLIB=llvm-ranlib
         export NM=llvm-nm
         export LD=ld.lld
         export STRIP=llvm-strip
 
-        CFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
-        LDFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
-
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
+        _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/sysroot"
         _CONF_STATIC="--enable-static --disable-shared"
-        _TARGET_LIBS='lib/libotr.so.5'
+        _TARGET_LIBS="lib/libotr.so"
         ;;
     linux-aarch64)
         for _t in clang/bin binutils/bin; do
@@ -313,6 +319,8 @@ case "${_TARGET_OS}" in
         export _TARGET_TRIPLE="aarch64-pc-linux"
         export CC="aarch64-linux-gnu-clang"
         export CFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        export CCASFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
+        export LDFLAGS="--sysroot=${MOZ_FETCHES_DIR}/sysroot"
         export AR=llvm-ar
         export RANLIB=llvm-ranlib
         export NM=llvm-nm
@@ -320,13 +328,10 @@ case "${_TARGET_OS}" in
         export LD=ld.lld
         export STRIP=llvm-strip
 
-        CFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
-        LDFLAGS_otr="-Wl,-Bstatic,-L${_PREFIX}/lib,-lgcrypt,-L${_PREFIX}/lib,-lgpg-error,-Bdynamic"
-
         _OS_CONFIGURE_FLAGS="--host=${_TARGET_TRIPLE} --target=${_TARGET_TRIPLE}"
         _OS_CONFIGURE_FLAGS+=" --with-sysroot=${MOZ_FETCHES_DIR}/sysroot"
         _CONF_STATIC="--enable-static --disable-shared"
-        _TARGET_LIBS='lib/libotr.so.5'
+        _TARGET_LIBS="lib/libotr.so"
         ;;
     *)
         echo "Invalid target platform: ${_TARGET_OS}"
