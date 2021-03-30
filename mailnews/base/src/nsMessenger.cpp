@@ -276,7 +276,7 @@ NS_IMETHODIMP nsMessenger::SetDisplayCharset(const nsACString& aCharset) {
     mDocShell->GetContentViewer(getter_AddRefs(cv));
     if (cv) {
       cv->SetHintCharacterSet(aCharset);
-      cv->SetHintCharacterSetSource(kCharsetFromChannel);
+      cv->SetHintCharacterSetSource(kCharsetFromBuiltIn);
 
       mCurrentDisplayCharset = aCharset;
     }
