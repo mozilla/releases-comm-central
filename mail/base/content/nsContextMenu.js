@@ -816,7 +816,7 @@ class nsContextMenu {
   saveLink() {
     saveURL(
       this.linkURL,
-      this.linkText(),
+      this.linkTextStr,
       null,
       true,
       null,
@@ -1003,32 +1003,11 @@ class nsContextMenu {
   }
 
   /**
-   * Get some text, any text, for the clicked-on link.
-   * @return the link text, title, alt, href, or "" if everything fails
+   * Get the text of the clicked-on link.
+   * @returns {string}
    */
   linkText() {
-    var text = gatherTextUnder(this.link);
-    if (!text || text.trim() == "") {
-      text = this.link.getAttribute("title");
-      if (!text || text.trim() == "") {
-        text = this.link.getAttribute("alt");
-        if (!text || text.trim() == "") {
-          if (this.link.href) {
-            text = this.link.href;
-          } else {
-            text = this.link.getAttributeNS(
-              "http://www.w3.org/1999/xlink",
-              "href"
-            );
-            if (text && !(text.trim() == "")) {
-              text = this.makeURLAbsolute(this.link.baseURI, text);
-            }
-          }
-        }
-      }
-    }
-
-    return text;
+    return this.linkTextStr;
   }
 
   /**
