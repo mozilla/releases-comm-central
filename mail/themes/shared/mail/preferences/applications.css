@@ -45,6 +45,10 @@ menuitem[appHandlerIcon="save"] {
   min-height: 36px;
 }
 
+.actionsMenu:focus-visible {
+  outline-offset: -2px;
+}
+
 .actionsMenu::part(icon) {
   margin-inline: 5px !important;
   height: 16px;
