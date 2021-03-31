@@ -15,6 +15,11 @@ BROWSER_CHROME_MANIFESTS += [
     "browser/views/browser.ini",
 ]
 
+TESTING_JS_MODULES += [
+    "CalDAVServer.jsm",
+    "ICSServer.jsm",
+]
+
 TESTING_JS_MODULES.mozmill += [
     "modules/CalendarTestUtils.jsm",
     "modules/CalendarUtils.jsm",
@@ -22,6 +27,7 @@ TESTING_JS_MODULES.mozmill += [
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [
+    "unit/providers/xpcshell.ini",
     "unit/xpcshell-icaljs.ini",
     "unit/xpcshell-libical.ini",
 ]
