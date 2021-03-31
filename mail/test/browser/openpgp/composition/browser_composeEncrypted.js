@@ -333,15 +333,14 @@ add_task(
       let keyStatusDialog = handleKeyStatusDialog(async win => {
         let infoList = win.document.documentElement.querySelector("#infolist");
 
-        Assert.equal(
-          infoList.itemChildren.length,
-          1,
-          "1 recipient key status should be displayed"
+        await TestUtils.waitForCondition(
+          () => infoList.itemChildren.length == 1,
+          "1 recipient key status was not displayed"
         );
 
         // Wait for the l10n update to finish.
         let richItem = infoList.getItemAtIndex(0);
-        await BrowserTestUtils.waitForCondition(
+        await TestUtils.waitForCondition(
           () => richItem.textContent != "",
           "richlistitem was not translated in time"
         );
@@ -436,17 +435,16 @@ add_task(
     let keyStatusDialog = handleKeyStatusDialog(async win => {
       let infoList = win.document.documentElement.querySelector("#infolist");
 
-      Assert.equal(
-        infoList.itemChildren.length,
-        2,
-        "2 recipient key statuses should be displayed"
+      await TestUtils.waitForCondition(
+        () => infoList.itemChildren.length == 2,
+        "2 recipient key statuses was not be displayed"
       );
 
       let richItem0 = infoList.getItemAtIndex(0);
       let richItem1 = infoList.getItemAtIndex(1);
 
       // Wait for the l10n updates to finish.
-      await BrowserTestUtils.waitForCondition(
+      await TestUtils.waitForCondition(
         () => richItem0.textContent != "" && richItem1.textContent != "",
         "richlistitem(s) were not translated in time"
       );
@@ -520,17 +518,16 @@ add_task(
       let keyStatusDialog = handleKeyStatusDialog(async win => {
         let infoList = win.document.documentElement.querySelector("#infolist");
 
-        Assert.equal(
-          infoList.itemChildren.length,
-          2,
-          "2 recipient key statuses should be displayed"
+        await TestUtils.waitForCondition(
+          () => infoList.itemChildren.length == 2,
+          "2 recipient key statuses were not displayed"
         );
 
         let richItem0 = infoList.getItemAtIndex(0);
         let richItem1 = infoList.getItemAtIndex(1);
 
         // Wait for the l10n updates to finish.
-        await BrowserTestUtils.waitForCondition(
+        await TestUtils.waitForCondition(
           () => richItem0.textContent != "" && richItem1.textContent != "",
           "richlistitem(s) were not translated in time"
         );
