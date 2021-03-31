@@ -242,14 +242,6 @@ treechildren::-moz-tree-row(multicol, odd) {
   background-color: transparent;
 }
 
-treechildren::-moz-tree-row(selected) {
-  background-color: -moz-cellhighlight;
-}
-
-treechildren::-moz-tree-row(selected, focus) {
-  background-color: Highlight;
-}
-
 treechildren::-moz-tree-cell-text {
   padding-inline-start: 2px;
   padding-bottom: 2px;
@@ -259,10 +251,10 @@ treechildren::-moz-tree-cell-text {
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(hover) {
     border-color: HighlightText !important;
     border-style: solid;
-    background-color: transparent !important;
+    background-color: transparent;
   }
 
-  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(modeHeader, hover) {
+  :root:not(:-moz-lwtheme) #folderTree > treechildren::-moz-tree-row(modeHeader, hover) {
     border-color: ThreeDShadow !important;
     border-inline-style: none;
   }
@@ -270,10 +262,16 @@ treechildren::-moz-tree-cell-text {
     border-top-style: none;
   }
 
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(tagged, selected) {
+    background-color: transparent;
+    border-color: Highlight;
+  }
+
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(dropOn),
-  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(selected) {
-    border-color: HighlightText !important;
-    background-color: Highlight !important;
+  :root:not(:-moz-lwtheme) #threadTree > treechildren::-moz-tree-row(untagged, selected),
+  :root:not(:-moz-lwtheme) tree:not(#threadTree) > treechildren::-moz-tree-row(selected) {
+    border-color: HighlightText;
+    background-color: Highlight;
   }
 
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-twisty {
@@ -282,7 +280,8 @@ treechildren::-moz-tree-cell-text {
 
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-twisty(selected),
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-cell-text(dropOn),
-  :root:not(:-moz-lwtheme) treechildren::-moz-tree-cell-text(selected) {
+  :root:not(:-moz-lwtheme) #threadTree > treechildren::-moz-tree-cell-text(untagged, selected),
+  :root:not(:-moz-lwtheme) tree:not(#threadTree) > treechildren::-moz-tree-cell-text(selected) {
     color: HighlightText !important;
   }
 
