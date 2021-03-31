@@ -21,6 +21,14 @@ COMM_SCRIPTS = os.path.join(COMM, "taskcluster", "scripts")
 BALROG_PRODUCT = "Thunderbird"
 
 
+PER_PROJECT_PARAMETERS = {
+    "jamun": {
+        "target_tasks_method": "nightly_desktop",
+        "release_type": "nightly",
+    },
+}
+
+
 def register(graph_config):
     """
     Import all modules that are siblings of this one, triggering decorators in
@@ -50,6 +58,9 @@ def get_decision_parameters(graph_config, parameters):
     # knowing what has been released previously.
     # An empty release_history is fine, it just means no partials will be built
     project = parameters["project"]
+
+    if project in PER_PROJECT_PARAMETERS:
+        parameters.update(PER_PROJECT_PARAMETERS[project])
 
     parameters.setdefault("release_history", dict())
     if "nightly" in parameters.get("target_tasks_method", ""):
