@@ -1831,7 +1831,7 @@
 
       // Tasks without Entry or Due date have a string as first label
       // instead of the time.
-      if (this.mDragState.dragOccurrence.isTodo()) {
+      if (this.mDragState.dragOccurrence && this.mDragState.dragOccurrence.isTodo()) {
         if (!this.mDragState.dragOccurrence.dueDate) {
           startstr = cal.l10n.getCalString("dragLabelTasksWithOnlyEntryDate");
         } else if (!this.mDragState.dragOccurrence.entryDate) {
