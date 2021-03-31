@@ -1,0 +1,6 @@
+# Start with the comm_taskgraph sparse profile
+%include comm/build/sparse-profiles/comm_taskgraph
+
+# Add in third_party code since libotr is still built as a toolchain
+[include]
+path:comm/third_party/

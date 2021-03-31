@@ -1,0 +1,14 @@
+# Start with the gecko sparse-profile
+%include build/sparse-profiles/taskgraph
+
+[include]
+path:comm/build/
+path:comm/mail/config/
+path:comm/mail/locales/l10n-changesets.json
+path:comm/mail/locales/l10n-onchange-changesets.json
+path:comm/mail/locales/onchange-locales
+path:comm/mail/locales/shipped-locales
+path:comm/taskcluster
+path:comm/testing/
+path:comm/tools/lint/
+
