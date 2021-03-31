@@ -957,7 +957,9 @@
         let oldPanel = [...this.panelContainer.children].find(p =>
           p.hasAttribute("selected")
         );
-        if (oldPanel) {
+        // Blur the currently focused element only if we're actually switching
+        // to the newly opened tab.
+        if (oldPanel && !background) {
           // Remember what has focus for when we return to this tab.
           if (
             oldPanel.compareDocumentPosition(document.activeElement) &
@@ -1029,19 +1031,17 @@
         //  openTab.
         this._mostRecentTabInfo = null;
         t.setAttribute("label", tab.title);
+        // For styling purposes, apply the type to the tab.
+        t.setAttribute("type", tab.mode.type);
+
         if (!background) {
           this.setDocumentTitle(tab);
-        }
-
-        // for styling purposes, apply the type to the tab...
-        t.setAttribute("type", tab.mode.type);
-        if (!background) {
           // Update the toolbar status - we don't need to do menus as they
           // do themselves when we open them.
           UpdateMailToolbar("tabmail");
+          // Move the focus on the newly selected tab.
+          this.panelContainer.selectedPanel.focus();
         }
-
-        this.panelContainer.selectedPanel.focus();
 
         let moving = restoreState ? restoreState.moving : null;
         // Dispatch tab opening event
