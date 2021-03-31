@@ -12,15 +12,15 @@
 ]>
 
 
-<window title="&calendar.error.title;"
+<window id="calendar-error-prompt"
+        title="&calendar.error.title;"
         windowtype="Calendar:ErrorPrompt"
         onload="loadErrorPrompt()"
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         width="500"
         xmlns:html="http://www.w3.org/1999/xhtml">
-<dialog id="calendar-error-prompt"
-        buttons="accept">
+<dialog buttons="accept">
     <script src="chrome://global/content/globalOverlay.js"/>
     <script src="chrome://global/content/editMenuOverlay.js"/>
     <script src="chrome://calendar/content/calendar-error-prompt.js"/>

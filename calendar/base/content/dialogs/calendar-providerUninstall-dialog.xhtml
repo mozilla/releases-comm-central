@@ -9,15 +9,16 @@
 
 <!DOCTYPE window SYSTEM "chrome://calendar/locale/provider-uninstall.dtd" >
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window id="calendar-provider-uninstall-dialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         title="&providerUninstall.title;"
         windowtype="Calendar:ProviderUninstall"
         height="320"
         width="480"
         onload="onLoad()">
 
-<dialog id="calendar-provider-uninstall-dialog"
-        buttonlabelaccept="&providerUninstall.accept.label;"
+<dialog buttonlabelaccept="&providerUninstall.accept.label;"
         buttonaccesskeyaccept="&providerUninstall.accept.accesskey;">
 
   <script src="chrome://calendar/content/calendar-providerUninstall-dialog.js"/>

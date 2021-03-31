@@ -18,7 +18,8 @@
   <!ENTITY % dtd4 SYSTEM "chrome://calendar/locale/preferences/timezones.dtd" > %dtd4;
 ]>
 
-<window title="&timezone.title.label;"
+<window id="calendar-event-dialog-timezone"
+        title="&timezone.title.label;"
         windowtype="Calendar:EventDialog:Timezone"
         onload="onLoad()"
         persist="screenX screenY width height"
@@ -26,7 +27,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
-<dialog id="calendar-event-dialog-timezone">
+<dialog>
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>

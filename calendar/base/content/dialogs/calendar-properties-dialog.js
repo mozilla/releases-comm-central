@@ -86,7 +86,7 @@ function onLoad() {
     calendarDisabled = gCalendar.getProperty("disabled");
     document.getElementById("calendar-enabled-checkbox").checked = !calendarDisabled;
     document
-      .getElementById("calendar-properties-dialog-2")
+      .querySelector("dialog")
       .getButton("extra1")
       .setAttribute("hidden", "true");
   }

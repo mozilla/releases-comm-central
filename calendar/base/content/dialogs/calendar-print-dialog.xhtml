@@ -17,14 +17,15 @@
 ]>
 
 
-<window title="&calendar.print.window.title;"
+<window id="calendar-new-printwindow"
+        title="&calendar.print.window.title;"
         windowtype="Calendar:PrintDialog"
         onload="loadCalendarPrintDialog();"
         persist="screenX screenY width height"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
-<dialog id="calendar-new-printwindow"
-        buttons="accept,cancel"
+<dialog buttons="accept,cancel"
         buttonlabelaccept="&calendar.print.button.label;"
         buttonaccesskeyaccept="&calendar.print.button.accesskey;"
         defaultButton="accept">

@@ -51,7 +51,7 @@ function loadCalendars() {
   }
 
   // this button is the default action
-  let dialog = document.getElementById("chooseCalendar");
+  let dialog = document.querySelector("dialog");
   let accept = dialog.getButton("accept");
   if (window.arguments[0].labelOk) {
     accept.setAttribute("label", window.arguments[0].labelOk);

@@ -18,7 +18,8 @@
   %dialogDTD;
 ]>
 
-<window title="&recurrence.title.label;"
+<window id="calendar-event-dialog-recurrence"
+        title="&recurrence.title.label;"
         windowtype="Calendar:EventDialog:Recurrence"
         onload="onLoad()"
         persist="screenX screenY width height"
@@ -26,7 +27,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
-<dialog id="calendar-event-dialog-recurrence">
+<dialog>
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-event-dialog-recurrence.js"/>

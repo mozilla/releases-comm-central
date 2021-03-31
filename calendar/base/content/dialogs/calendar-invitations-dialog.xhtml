@@ -11,15 +11,16 @@
     <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar-invitations-dialog.dtd" >  %dtd1;
 ]>
 
-<window title="&calendar.invitations.dialog.invitations.text;"
+<window
+  id="calendar-invitations-dialog"
+  title="&calendar.invitations.dialog.invitations.text;"
   windowtype="Calendar:InvitationsDialog"
   onload="return onLoad();"
   onunload="return onUnload();"
   persist="screenX screenY width height"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
 
-<dialog id="calendar-invitations-dialog"
-        buttons="accept,cancel">
+<dialog buttons="accept,cancel">
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-invitations-dialog.js"/>

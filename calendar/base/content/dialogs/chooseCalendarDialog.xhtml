@@ -9,13 +9,13 @@
 <!-- DTD File with all strings specific to the file -->
 <!DOCTYPE window SYSTEM "chrome://calendar/locale/calendar.dtd">
 
-<window title="&calendar.select.dialog.title;"
+<window id="chooseCalendar"
+        title="&calendar.select.dialog.title;"
         windowtype="Calendar:CalendarPicker"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         onload="setTimeout(loadCalendars, 0);"
         persist="screenX screenY height width">
-<dialog id="chooseCalendar"
-        buttons="accept,cancel">
+<dialog buttons="accept,cancel">
     <script src="chrome://calendar/content/calendar-ui-utils.js"/>
     <script src="chrome://calendar/content/chooseCalendarDialog.js"/>
 

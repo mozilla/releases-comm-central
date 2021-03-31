@@ -29,7 +29,8 @@
 
 <!-- Dialog id is changed during execution to allow different Window-icons
      on this dialog. document.loadOverlay() will not work on this one. -->
-<window windowtype="Calendar:EventSummaryDialog"
+<window id="calendar-summary-dialog"
+        windowtype="Calendar:EventSummaryDialog"
         onload="onLoad()"
         onunload="onUnload()"
         persist="screenX screenY width height"
@@ -38,7 +39,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
-<dialog id="calendar-summary-dialog" buttons=",">
+<dialog buttons=",">
 
   <html:link rel="localization" href="calendar/calendar-summary-dialog.ftl"/>
 

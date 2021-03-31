@@ -15,7 +15,8 @@
 
 <!DOCTYPE window SYSTEM "chrome://calendar/locale/dialogs/calendar-event-dialog-reminder.dtd" >
 
-<window title="&reminderdialog.title;"
+<window id="calendar-event-dialog-reminder"
+        title="&reminderdialog.title;"
         windowtype="Calendar:EventDialog:Reminder"
         onload="onLoad()"
         persist="screenX screenY width height"
@@ -23,7 +24,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
-<dialog id="calendar-event-dialog-reminder">
+<dialog>
 
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-event-dialog-reminder.js"/>

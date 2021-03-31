@@ -17,16 +17,17 @@
     <!ENTITY % dtd4 SYSTEM "chrome://lightning/locale/lightning.dtd" > %dtd4;
 ]>
 
-<window windowtype="Calendar:PropertiesDialog"
+<window id="calendar-properties-dialog-2"
+        windowtype="Calendar:PropertiesDialog"
         title="&calendar.server.dialog.title.edit;"
         onload="onLoad()"
+        persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         lightweightthemes="true"
         width="500">
 
-<dialog id="calendar-properties-dialog-2"
-        buttons="accept,cancel,extra1"
+<dialog buttons="accept,cancel,extra1"
         buttonlabelextra1="&calendarproperties.unsubscribe.label;"
         buttonaccesskeyextra1="&calendarproperties.unsubscribe.accesskey;">
 

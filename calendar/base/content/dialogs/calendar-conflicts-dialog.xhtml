@@ -6,16 +6,17 @@
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-views.css"?>
 
-<window windowtype="Calendar:Conflicts"
+<window id="calendar-conflicts-dialog"
+        windowtype="Calendar:Conflicts"
         onload="onLoad()"
         persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
-<dialog id="calendar-conflicts-dialog">
+<dialog>
   <script src="chrome://calendar/content/mouseoverPreviews.js"/>
   <script><![CDATA[
     var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
     function onLoad() {
-      let dialog = document.getElementById("calendar-conflicts-dialog");
+      let dialog = document.querySelector("dialog");
       let item = window.arguments[0].item;
       let vbox = getPreviewForItem(item, false);
       if (vbox) {
