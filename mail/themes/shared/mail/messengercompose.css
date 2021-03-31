@@ -1036,8 +1036,19 @@ label.extra-recipients-label {
 
 #extraRecipientsPanel {
   min-width: 160px;
+}
+
+@media (-moz-proton-doorhangers) {
+#extraRecipientsPanel {
+  --arrowpanel-padding: 5px;
+}
+} /** END Proton **/
+
+@media not (-moz-proton-doorhangers) {
+#extraRecipientsPanel {
   --arrowpanel-padding: 0;
 }
+} /** END not Proton **/
 
 #extraRecipientsPanel label {
   padding: 4px 8px;
@@ -1047,9 +1058,19 @@ label.extra-recipients-label {
   transition: background 0.2s;
 }
 
+@media (-moz-proton-doorhangers) {
+#extraRecipientsPanel label {
+  border-radius: var(--toolbarbutton-border-radius);
+}
+} /** END Proton **/
+
 #extraRecipientsPanel label:hover,
 #extraRecipientsPanel label:focus {
   background-color: var(--arrowpanel-dimmed);
+}
+
+#extraRecipientsPanel label:hover:active {
+  background-color: var(--arrowpanel-dimmed-further);
 }
 
 .aw-firstColBox label {

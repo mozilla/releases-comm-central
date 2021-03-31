@@ -101,9 +101,11 @@ html|input.editContactTextbox[readonly] {
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, .05) inset;
 }
 
+@media not (-moz-proton-doorhangers) {
 #editContactPanelDeleteContactButton {
   border-inline-start: 1px solid var(--panel-separator-color);
 }
+} /** END not Proton **/
 
 /* Make all buttons the same width. */
 #editContactPanelDoneButton {
