@@ -46,31 +46,31 @@ class ListenerSet extends Set {
 class ObserverSet extends ListenerSet {
   constructor(iid, iterable) {
     super(iid, iterable);
-    this.mBatchCount = 0;
+    this.mCalendarsInBatch = new Set();
   }
 
   get batchCount() {
-    return this.mBatchCount;
+    return this.mCalendarsInBatch.size;
   }
 
   notify(func, args = []) {
     switch (func) {
       case "onStartBatch":
-        ++this.mBatchCount;
+        this.mCalendarsInBatch.add(args[0]);
         break;
       case "onEndBatch":
-        --this.mBatchCount;
+        this.mCalendarsInBatch.delete(args[0]);
         break;
     }
     return super.notify(func, args);
   }
 
   add(item) {
-    if (!this.has(item) && this.mBatchCount > 0) {
+    if (!this.has(item)) {
       // Replay batch notifications, because the onEndBatch notifications are yet to come.
       // We may think about doing the reverse on remove, though I currently see no need:
-      for (let i = this.mBatchCount; i; i--) {
-        item.onStartBatch();
+      for (let calendar of this.mCalendarsInBatch) {
+        item.onStartBatch(calendar);
       }
     }
     super.add(item);

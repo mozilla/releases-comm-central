@@ -553,8 +553,8 @@ interface calICompositeCalendar : calICalendar
 [scriptable, uuid(2953c9b2-2c73-11d9-80b6-00045ace3b8d)]
 interface calIObserver : nsISupports
 {
-  void onStartBatch();
-  void onEndBatch();
+  void onStartBatch(in calICalendar aCalendar);
+  void onEndBatch(in calICalendar aCalendar);
   void onLoad( in calICalendar aCalendar );
   void onAddItem( in calIItemBase aItem );
   void onModifyItem( in calIItemBase aNewItem, in calIItemBase aOldItem );

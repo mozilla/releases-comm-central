@@ -29,17 +29,20 @@ let calendarObserver = {
 
   _batchCount: 0,
   _batchRequired: true,
-  onStartBatch() {
-    info(`onStartBatch ${++this._batchCount}`);
+  onStartBatch(calendar) {
+    info(`onStartBatch ${calendar?.id} ${++this._batchCount}`);
+    Assert.equal(calendar, this._expectedCalendar);
     Assert.equal(this._batchCount, 1, "onStartBatch must not occur in a batch");
   },
-  onEndBatch() {
-    info(`onEndBatch ${this._batchCount--}`);
+  onEndBatch(calendar) {
+    info(`onEndBatch ${calendar?.id} ${this._batchCount--}`);
+    Assert.equal(calendar, this._expectedCalendar);
     Assert.equal(this._batchCount, 0, "onEndBatch must occur in a batch");
   },
   onLoad(calendar) {
     info(`onLoad ${calendar.id}`);
     Assert.equal(this._batchCount, 0, "onLoad must not occur in a batch");
+    Assert.equal(calendar, this._expectedCalendar);
     if (this._onLoadPromise) {
       this._onLoadPromise.resolve();
     }
@@ -89,6 +92,9 @@ function createCalendar(type, url, useCache) {
 
   manager.registerCalendar(calendar);
   calendar = manager.getCalendarById(calendar.id);
+  calendarObserver._expectedCalendar = calendar;
+
+  info(`Created calendar ${calendar.id}`);
   return calendar;
 }
 

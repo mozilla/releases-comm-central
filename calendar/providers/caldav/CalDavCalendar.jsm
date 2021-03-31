@@ -2418,12 +2418,12 @@ calDavObserver.prototype = {
   mInBatch: false,
 
   // calIObserver:
-  onStartBatch() {
-    this.mCalendar.observers.notify("onStartBatch");
+  onStartBatch(calendar) {
+    this.mCalendar.observers.notify("onStartBatch", [calendar]);
     this.mInBatch = true;
   },
-  onEndBatch() {
-    this.mCalendar.observers.notify("onEndBatch");
+  onEndBatch(calendar) {
+    this.mCalendar.observers.notify("onEndBatch", [calendar]);
     this.mInBatch = false;
   },
   onLoad(calendar) {

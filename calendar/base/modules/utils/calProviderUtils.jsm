@@ -517,7 +517,7 @@ var calprovider = {
     // void startBatch();
     startBatch() {
       if (this.mBatchCount++ == 0) {
-        this.mObservers.notify("onStartBatch");
+        this.mObservers.notify("onStartBatch", [this]);
       }
     }
 
@@ -525,7 +525,7 @@ var calprovider = {
     endBatch() {
       if (this.mBatchCount > 0) {
         if (--this.mBatchCount == 0) {
-          this.mObservers.notify("onEndBatch");
+          this.mObservers.notify("onEndBatch", [this]);
         }
       } else {
         cal.ASSERT(this.mBatchCount > 0, "unexpected endBatch!");

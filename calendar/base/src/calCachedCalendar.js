@@ -57,11 +57,11 @@ calCachedCalendarObserverHelper.prototype = {
   isCachedObserver: false,
 
   onStartBatch() {
-    this.home.mObservers.notify("onStartBatch");
+    this.home.mObservers.notify("onStartBatch", [this.home]);
   },
 
   onEndBatch() {
-    this.home.mObservers.notify("onEndBatch");
+    this.home.mObservers.notify("onEndBatch", [this.home]);
   },
 
   onLoad(calendar) {

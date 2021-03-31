@@ -21,12 +21,12 @@ calCompositeCalendarObserverHelper.prototype = {
 
   QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
 
-  onStartBatch() {
-    this.compCalendar.mObservers.notify("onStartBatch");
+  onStartBatch(calendar) {
+    this.compCalendar.mObservers.notify("onStartBatch", [calendar]);
   },
 
-  onEndBatch() {
-    this.compCalendar.mObservers.notify("onEndBatch");
+  onEndBatch(calendar) {
+    this.compCalendar.mObservers.notify("onEndBatch", [calendar]);
   },
 
   onLoad(calendar) {
@@ -400,10 +400,10 @@ CalCompositeCalendar.prototype = {
   },
 
   startBatch() {
-    this.mCompositeObservers.notify("onStartBatch");
+    this.mCompositeObservers.notify("onStartBatch", [this]);
   },
   endBatch() {
-    this.mCompositeObservers.notify("onEndBatch");
+    this.mCompositeObservers.notify("onEndBatch", [this]);
   },
 
   get statusDisplayed() {

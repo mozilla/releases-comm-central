@@ -260,7 +260,7 @@ CalICSCalendar.prototype = {
 
     this.createMemoryCalendar();
 
-    this.mObserver.onStartBatch();
+    this.mObserver.onStartBatch(this);
     this.mMemoryCalendar.addObserver(this.mObserver);
 
     // Wrap parsing in a try block. Will ignore errors. That's a good thing
@@ -283,7 +283,7 @@ CalICSCalendar.prototype = {
           self.mObserver.onError(self.superCalendar, exc.result, exc.toString());
           self.mObserver.onError(self.superCalendar, calIErrors.READ_FAILED, "");
         }
-        self.mObserver.onEndBatch();
+        self.mObserver.onEndBatch(self);
         self.mObserver.onLoad(self);
 
         // Now that all items have been stuffed into the memory calendar
@@ -635,10 +635,10 @@ CalICSCalendar.prototype = {
   },
 
   startBatch() {
-    this.mObserver.onStartBatch();
+    this.mObserver.onStartBatch(this);
   },
   endBatch() {
-    this.mObserver.onEndBatch();
+    this.mObserver.onEndBatch(this);
   },
 
   /**
@@ -854,12 +854,12 @@ calICSObserver.prototype = {
   mInBatch: false,
 
   // calIObserver:
-  onStartBatch() {
-    this.mCalendar.observers.notify("onStartBatch");
+  onStartBatch(calendar) {
+    this.mCalendar.observers.notify("onStartBatch", [calendar]);
     this.mInBatch = true;
   },
-  onEndBatch() {
-    this.mCalendar.observers.notify("onEndBatch");
+  onEndBatch(calendar) {
+    this.mCalendar.observers.notify("onEndBatch", [calendar]);
     this.mInBatch = false;
   },
   onLoad(calendar) {
