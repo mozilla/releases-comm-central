@@ -6,51 +6,6 @@ var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
-var observer = {
-  topics: [
-    "addrbook-directory-created",
-    "addrbook-directory-updated",
-    "addrbook-directory-deleted",
-    "addrbook-contact-created",
-    "addrbook-contact-updated",
-    "addrbook-contact-deleted",
-    "addrbook-list-created",
-    "addrbook-list-updated",
-    "addrbook-list-deleted",
-    "addrbook-list-member-added",
-    "addrbook-list-member-removed",
-  ],
-  setUp() {
-    for (let topic of this.topics) {
-      Services.obs.addObserver(observer, topic);
-    }
-  },
-  cleanUp() {
-    for (let topic of this.topics) {
-      Services.obs.removeObserver(observer, topic);
-    }
-  },
-  promiseNotification() {
-    return new Promise(resolve => {
-      this.notificationPromise = resolve;
-    });
-  },
-  resolveNotificationPromise() {
-    if (this.notificationPromise) {
-      let resolve = this.notificationPromise;
-      delete this.notificationPromise;
-      resolve();
-    }
-  },
-
-  notifications: [],
-  observe(subject, topic, data) {
-    info([topic, subject, data]);
-    this.notifications.push([topic, subject, data]);
-    this.resolveNotificationPromise();
-  },
-};
-
 /**
  * Tests that additions and removals are accurately displayed, or not
  * displayed if they happen outside the current address book.
@@ -70,8 +25,6 @@ add_task(async function test_additions_and_removals() {
 
   let abWindow = await openAddressBookWindow();
   let abContactTree = abWindow.document.getElementById("abResultsTree");
-
-  observer.setUp();
 
   await openRootDirectory();
   info("Performing check #1");
@@ -168,16 +121,18 @@ add_task(async function test_additions_and_removals() {
   bookA.deleteCards([contactA2]);
   checkCardsListed();
 
+  // While in "All Address Books", delete a directory that has contacts and
+  // mailing lists. They should disappear.
+  let contactA3 = bookA.addCard(createContact("contact", "A3")); // Add A3.
+  checkCardsListed(contactA3);
+  let listF = bookA.addMailList(createMailingList("list F")); // Add F.
+  checkCardsListed(contactA3, listF);
+  await promiseDirectoryRemoved(bookA.URI);
+  checkCardsListed();
+
   abWindow.close();
 
-  let deletePromise = observer.promiseNotification();
-  MailServices.ab.deleteAddressBook(bookA.URI);
-  await deletePromise;
-  deletePromise = observer.promiseNotification();
-  MailServices.ab.deleteAddressBook(bookB.URI);
-  await deletePromise;
-
-  observer.cleanUp();
+  await promiseDirectoryRemoved(bookB.URI);
 });
 
 /**

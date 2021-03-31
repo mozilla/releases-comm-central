@@ -42,6 +42,7 @@ ABView.prototype = {
   directory: null,
   listener: null,
   _notifications: [
+    "addrbook-directory-deleted",
     "addrbook-directory-invalidated",
     "addrbook-contact-created",
     "addrbook-contact-updated",
@@ -162,8 +163,11 @@ ABView.prototype = {
       if (tree) {
         Services.obs.addObserver(this, topic, true);
       } else {
-        // XXX: seems |this| is not usually a valid observer here
-        Services.obs.removeObserver(this, topic);
+        try {
+          Services.obs.removeObserver(this, topic);
+        } catch (ex) {
+          // `this` might not be a valid observer.
+        }
       }
     }
     Services.prefs.addObserver("mail.addr_book.lastnamefirst", this, true);
@@ -235,6 +239,29 @@ ABView.prototype = {
     // If we make it here, we're in the root directory, or the right directory.
 
     switch (topic) {
+      case "addrbook-directory-deleted": {
+        if (this.directory) {
+          break;
+        }
+
+        subject.QueryInterface(Ci.nsIAbDirectory);
+        let scrollPosition = this.tree?.getFirstVisibleRow();
+        for (let i = this._rowMap.length - 1; i >= 0; i--) {
+          if (this._rowMap[i].directory.UID == subject.UID) {
+            this._rowMap.splice(i, 1);
+            if (this.tree) {
+              this.tree.rowCountChanged(i, -1);
+            }
+          }
+        }
+        if (this.listener) {
+          this.listener.onCountChanged(this.rowCount);
+        }
+        if (this.tree && scrollPosition !== null) {
+          this.tree.scrollToRow(scrollPosition);
+        }
+        break;
+      }
       case "addrbook-directory-invalidated":
         subject.QueryInterface(Ci.nsIAbDirectory);
         if (subject == this.directory) {
