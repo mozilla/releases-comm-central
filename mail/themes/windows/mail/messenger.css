@@ -129,11 +129,30 @@
   }
 }
 
+@media not (-moz-proton-contextmenus) {
 .menu-iconic > .menu-iconic-left,
 .menuitem-iconic > .menu-iconic-left {
   display: -moz-box;
   padding-top: 0;
 }
+} /** END not Proton **/
+
+@media (-moz-proton-contextmenus) {
+menulist > menupopup > menu,
+menulist > menupopup > menuitem {
+  padding-inline-end: 0;
+}
+
+.menu-iconic > .menu-iconic-left,
+.menuitem-iconic > .menu-iconic-left {
+  display: none;
+}
+
+.folderMenuItem > .menu-iconic-left,
+#imStatusMenupopup > .menuitem-iconic > .menu-iconic-left {
+  display: -moz-box;
+}
+} /** END Proton **/
 
 #tabbar-toolbar[customizing="true"] {
   min-width: 24px;
