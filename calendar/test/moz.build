@@ -9,6 +9,7 @@ BROWSER_CHROME_MANIFESTS += [
     "browser/eventDialog/browser.ini",
     "browser/invitations/browser.ini",
     "browser/preferences/browser.ini",
+    "browser/providers/browser.ini",
     "browser/recurrence/browser.ini",
     "browser/recurrence/browser_rotated.ini",
     "browser/timezones/browser.ini",

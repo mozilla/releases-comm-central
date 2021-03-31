@@ -45,9 +45,15 @@ function CalAlarmService() {
     QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
     alarmService: this,
 
+    calendarsInBatch: new Set(),
+
     // calIObserver:
-    onStartBatch() {},
-    onEndBatch() {},
+    onStartBatch(calendar) {
+      this.calendarsInBatch.add(calendar);
+    },
+    onEndBatch(calendar) {
+      this.calendarsInBatch.delete(calendar);
+    },
     onLoad(calendar) {
       // ignore any onLoad events until initial getItems() call of startup has finished:
       if (calendar && this.alarmService.mLoadedCalendars[calendar.id]) {
@@ -58,9 +64,17 @@ function CalAlarmService() {
     },
 
     onAddItem(aItem) {
-      this.alarmService.addAlarmsForOccurrences(aItem);
+      // If we're in a batch, ignore this notification. We're going to reload anyway.
+      if (!this.calendarsInBatch.has(aItem.calendar)) {
+        this.alarmService.addAlarmsForOccurrences(aItem);
+      }
     },
     onModifyItem(aNewItem, aOldItem) {
+      // If we're in a batch, ignore this notification. We're going to reload anyway.
+      if (this.calendarsInBatch.has(aNewItem.calendar)) {
+        return;
+      }
+
       if (!aNewItem.recurrenceId) {
         // deleting an occurrence currently calls modifyItem(newParent, *oldOccurrence*)
         aOldItem = aOldItem.parentItem;
