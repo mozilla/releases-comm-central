@@ -207,6 +207,7 @@ class MimePart {
   async _fetchFile() {
     let url = this._bodyAttachment.url;
     let headers = {};
+    let isMessage = true;
 
     if (/^[^:]+-message:/i.test(url)) {
       let outUri = Cc["@mozilla.org/messenger;1"]
@@ -226,6 +227,7 @@ class MimePart {
         url = slugs[0].slice(0, slugs[0].length - matches[1].length) + slugs[1];
         headers.Authorization = "Basic " + btoa(matches[1]);
       }
+      isMessage = true;
     }
 
     let res = await fetch(url, {
@@ -253,6 +255,10 @@ class MimePart {
 
     let buf = await res.arrayBuffer();
     let content = jsmime.mimeutils.typedArrayToString(new Uint8Array(buf));
+    if (isMessage && !content) {
+      // Message content is empty usually means it's (re)moved.
+      throw new Error("Message is gone");
+    }
     this._charset = MsgUtils.pickCharset(this._contentType, content);
 
     let contentTypeParams = "";
