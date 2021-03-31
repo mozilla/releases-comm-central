@@ -1126,11 +1126,6 @@ var GenericProtocolPrototype = {
   get id() {
     return "prpl-" + this.normalizedName;
   },
-  // This is more aggressive than the account normalization of just
-  // toLowerCase() since prpl names must be only letters/numbers.
-  get normalizedName() {
-    return this.name.replace(/[^a-z0-9]/gi, "").toLowerCase();
-  },
   get iconBaseURI() {
     return "chrome://chat/skin/prpl-generic/";
   },

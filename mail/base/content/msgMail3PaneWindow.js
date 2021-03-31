@@ -1017,17 +1017,20 @@ function reportAccountTypes() {
     none: 0,
     im_gtalk: 0,
     im_irc: 0,
+    im_jabber: 0,
     im_matrix: 0,
     im_odnoklassniki: 0,
-    im_xmpp: 0,
   };
   for (let account of MailServices.accounts.accounts) {
     let type = account.incomingServer.type;
     if (type === "im") {
-      let protocol = account.incomingServer.wrappedJSObject.imAccount.protocol.name.toLowerCase();
+      let protocol =
+        account.incomingServer.wrappedJSObject.imAccount.protocol
+          .normalizedName;
       type = `im_${protocol}`;
     }
-    // It's still possible to report other types not explicitly specified.
+    // It's still possible to report other types not explicitly specified due to
+    // account types that used to exist, but no longer -- e.g. im_yahoo.
     if (!report[type]) {
       report[type] = 0;
     }

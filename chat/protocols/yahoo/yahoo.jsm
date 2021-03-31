@@ -44,6 +44,9 @@ YahooProtocol.prototype = {
   get id() {
     return "prpl-yahoo";
   },
+  get normalizedName() {
+    return "yahoo";
+  },
   get name() {
     return "Yahoo";
   },

@@ -18,10 +18,21 @@ interface prplIProtocol: nsISupports {
    */
   void init(in AUTF8String aId);
 
+  /**
+   * A human readable (potentially localized) name for the protocol.
+   */
   readonly attribute AUTF8String name;
+  /**
+   * A unique ID for the protocol, should start with the prefix 'prpl-'.
+   */
   readonly attribute AUTF8String id;
-  // A name that can be used to check for duplicates and is the basis
-  // for the directory name for log storage.
+  /**
+   * A unique name for this protocol, it must consist of only lowercase letters
+   * & numbers.
+   *
+   * It can be used to check for duplicates and is the basis for the directory
+   * name for log storage.
+   */
   readonly attribute AUTF8String normalizedName;
 
   // returns a chrome URI pointing to a folder that contains the files:

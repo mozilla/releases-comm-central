@@ -101,7 +101,8 @@ UnknownProtocol.prototype = {
     return "";
   },
   get normalizedName() {
-    return this.name;
+    // Use the ID, but remove the 'prpl-' prefix.
+    return this.id.replace(/^prpl-/, "");
   },
   get iconBaseURI() {
     return "chrome://chat/skin/prpl-unknown/";
