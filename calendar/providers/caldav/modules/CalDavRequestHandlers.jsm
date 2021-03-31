@@ -4,7 +4,6 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 var { CalDavLegacySAXRequest } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
 
@@ -46,7 +45,7 @@ class XMLResponseHandler {
    * Parse this._xmlString with DOMParser, then create a TreeWalker and start
    * walking the node tree.
    */
-  handleResponse() {
+  async handleResponse() {
     let parser = new DOMParser();
     let doc;
     try {
@@ -58,8 +57,8 @@ class XMLResponseHandler {
 
     let treeWalker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_ELEMENT);
     this.startDocument();
-    this._walk(treeWalker);
-    this.endDocument();
+    await this._walk(treeWalker);
+    await this.endDocument();
   }
 
   /**
@@ -85,7 +84,7 @@ class XMLResponseHandler {
   /**
    * Walk the tree node by node, call startElement and endElement when appropriate.
    */
-  _walk(treeWalker) {
+  async _walk(treeWalker) {
     let currentNode = treeWalker.currentNode;
     if (currentNode) {
       this.startElement("", currentNode.localName, currentNode.nodeName, "");
@@ -93,25 +92,25 @@ class XMLResponseHandler {
       // Traverse children first.
       let firstChild = treeWalker.firstChild();
       if (firstChild) {
-        this._walk(treeWalker);
+        await this._walk(treeWalker);
         // TreeWalker has reached a leaf node, reset the cursor to continue the traversal.
         treeWalker.currentNode = firstChild;
       } else {
         this.characters(currentNode.textContent);
-        this.endElement("", currentNode.localName, currentNode.nodeName);
+        await this.endElement("", currentNode.localName, currentNode.nodeName);
         return;
       }
 
       // Traverse siblings next.
       let nextSibling = treeWalker.nextSibling();
       while (nextSibling) {
-        this._walk(treeWalker);
+        await this._walk(treeWalker);
         // TreeWalker has reached a leaf node, reset the cursor to continue the traversal.
         treeWalker.currentNode = nextSibling;
         nextSibling = treeWalker.nextSibling();
       }
 
-      this.endElement("", currentNode.localName, currentNode.nodeName);
+      await this.endElement("", currentNode.localName, currentNode.nodeName);
     }
   }
 }
@@ -180,7 +179,7 @@ class CalDavEtagsHandler extends XMLResponseHandler {
     if (this.calendar.verboseLogging()) {
       cal.LOG("CalDAV: recv: " + this.logXML);
     }
-    this.handleResponse();
+    await this.handleResponse();
 
     // Now that we are done, check which items need fetching.
     this.calendar.superCalendar.startBatch();
@@ -484,12 +483,12 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
     }
   }
 
-  onStopRequest(request, statusCode) {
+  async onStopRequest(request, statusCode) {
     if (this.calendar.verboseLogging()) {
       cal.LOG("CalDAV: recv: " + this.logXML);
     }
 
-    this.handleResponse();
+    await this.handleResponse();
   }
 
   /**
@@ -516,7 +515,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
     this.calendar.superCalendar.startBatch();
   }
 
-  endDocument() {
+  async endDocument() {
     if (this.unhandledErrors) {
       this.calendar.superCalendar.endBatch();
       this.calendar.reportDavError(Ci.calIErrors.DAV_REPORT_ERROR);
@@ -532,7 +531,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
       // sync
       for (let path in this.calendar.mHrefIndex) {
         if (!this.itemsReported[path]) {
-          this.calendar.deleteTargetCalendarItem(path);
+          await this.calendar.deleteTargetCalendarItem(path);
         }
       }
     }
@@ -590,7 +589,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
     }
   }
 
-  endElement(aUri, aLocalName, aQName) {
+  async endElement(aUri, aLocalName, aQName) {
     switch (aLocalName) {
       case "response": // WebDAV Sync draft 3
       case "sync-response": {
@@ -622,7 +621,7 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
         ) {
           if (this.calendar.mHrefIndex[resp.href]) {
             this.changeCount++;
-            this.calendar.deleteTargetCalendarItem(resp.href);
+            await this.calendar.deleteTargetCalendarItem(resp.href);
           } else {
             cal.LOG("CalDAV: skipping unfound deleted item : " + resp.href);
           }
@@ -849,7 +848,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
     }
   }
 
-  onStopRequest(request, statusCode) {
+  async onStopRequest(request, statusCode) {
     if (this.calendar.verboseLogging()) {
       cal.LOG("CalDAV: recv: " + this.logXML);
     }
@@ -864,21 +863,8 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
         this.calendar.saveCalendarProperties();
         cal.LOG("CalDAV: New webdav-sync Token: " + this.calendar.mWebdavSyncToken);
       }
-
-      if (this.additionalSyncNeeded) {
-        setTimeout(() => {
-          let wds = new CalDavWebDavSyncHandler(
-            this.calendar,
-            this.baseUri,
-            this.changeLogListener
-          );
-          wds.doWebDAVSync();
-        }, 0);
-      } else {
-        this.calendar.finalizeUpdatedItems(this.changeLogListener, this.baseUri);
-      }
     }
-    this.handleResponse();
+    await this.handleResponse();
     if (this.itemsNeedFetching.length > 0) {
       cal.LOG("CalDAV: Still need to fetch " + this.itemsNeedFetching.length + " elements.");
       this.resetXMLResponseHandler();
@@ -891,6 +877,11 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
       };
       this.timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
       this.timer.initWithCallback(timerCallback, 0, Ci.nsITimer.TYPE_ONE_SHOT);
+    } else if (this.additionalSyncNeeded) {
+      let wds = new CalDavWebDavSyncHandler(this.calendar, this.baseUri, this.changeLogListener);
+      wds.doWebDAVSync();
+    } else {
+      this.calendar.finalizeUpdatedItems(this.changeLogListener, this.baseUri);
     }
   }
 
@@ -955,7 +946,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
     }
   }
 
-  endElement(aUri, aLocalName, aQName) {
+  async endElement(aUri, aLocalName, aQName) {
     switch (aLocalName) {
       case "response": {
         let resp = this.currentResponse;
@@ -970,7 +961,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
           resp.status.indexOf(" 404") > 0
         ) {
           if (this.calendar.mHrefIndex[resp.href]) {
-            this.calendar.deleteTargetCalendarItem(resp.href);
+            await this.calendar.deleteTargetCalendarItem(resp.href);
           } else {
             cal.LOG("CalDAV: skipping unfound deleted item : " + resp.href);
           }
@@ -991,7 +982,7 @@ class CalDavMultigetSyncHandler extends XMLResponseHandler {
             oldEtag = null;
           }
           if (!oldEtag || oldEtag != resp.getetag) {
-            this.calendar.addTargetCalendarItem(
+            await this.calendar.addTargetCalendarItem(
               resp.href,
               resp.calendardata,
               this.baseUri,

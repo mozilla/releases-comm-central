@@ -744,6 +744,7 @@ calCachedCalendar.prototype = {
       onGetResult(calendar, status, itemType, detail, items) {
         cal.ASSERT(false, "unexpected!");
       },
+      // Returned Promise only available through wrappedJSObject.
       onOperationComplete(calendar, status, opType, id, detail) {
         if (isUnavailableCode(status)) {
           // The item couldn't be added to the (remote) location,
@@ -755,12 +756,24 @@ calCachedCalendar.prototype = {
           self.adoptOfflineItem(item, listener);
         } else if (Components.isSuccessCode(status)) {
           // On success, add the item to the cache.
-          self.mCachedCalendar.addItem(detail, listener);
+          return new Promise(resolve => {
+            self.mCachedCalendar.addItem(detail, {
+              onGetResult(...args) {
+                cal.ASSERT(false, "unexpected!");
+              },
+              onOperationComplete(...args) {
+                listener?.onOperationComplete(...args);
+                resolve();
+              },
+            });
+          });
         } else if (listener) {
           // Either an error occurred or this is a successful add
           // to a cached calendar. Forward the call to the listener
           listener.onOperationComplete(self, status, opType, id, detail);
         }
+
+        return Promise.resolve();
       },
     };
 
@@ -823,6 +836,7 @@ calCachedCalendar.prototype = {
      * has performed the modification, see below: */
     let cacheListener = {
       onGetResult(calendar, status, itemType, detail, items) {},
+      // Returned Promise only available through wrappedJSObject.
       onOperationComplete(calendar, status, opType, id, detail) {
         if (isUnavailableCode(status)) {
           // The item couldn't be modified at the (remote) location,
@@ -836,11 +850,21 @@ calCachedCalendar.prototype = {
           self.modifyOfflineItem(newItem, oldItem, listener);
         } else if (Components.isSuccessCode(status)) {
           // On success, modify the item in the cache
-          self.mCachedCalendar.modifyItem(detail, oldItem, listener);
+          return new Promise(resolve => {
+            self.mCachedCalendar.modifyItem(detail, oldItem, {
+              onGetResult(...args) {},
+              onOperationComplete(...args) {
+                listener?.onOperationComplete(...args);
+                resolve();
+              },
+            });
+          });
         } else if (listener) {
           // This happens on error, forward the error through the listener
           listener.onOperationComplete(self, status, opType, id, detail);
         }
+
+        return Promise.resolve();
       },
     };
 

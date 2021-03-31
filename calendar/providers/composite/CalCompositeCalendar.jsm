@@ -38,7 +38,7 @@ calCompositeCalendarObserverHelper.prototype = {
       // any refreshed dependent calendar logically refreshes
       // this composite calendar, thus we send out an onLoad
       // for this composite calendar:
-      this.compCalendar.mObservers.notify("onLoad", [this.compCalendar]);
+      this.compCalendar.mObservers.notify("onLoad", [calendar]);
     }
   },
 

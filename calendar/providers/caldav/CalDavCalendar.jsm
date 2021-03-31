@@ -895,7 +895,7 @@ CalDavCalendar.prototype = {
    * @param aUri      Base URI of the request
    * @param aListener Listener
    */
-  addTargetCalendarItem(path, calData, aUri, etag, aListener) {
+  async addTargetCalendarItem(path, calData, aUri, etag, aListener) {
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     // aUri.pathQueryRef may contain double slashes whereas path does not
     // this confuses our counting, so remove multiple successive slashes
@@ -965,7 +965,6 @@ CalDavCalendar.prototype = {
     this.mHrefIndex[path] = item.id;
     this.mItemInfoCache[item.id].etag = etag;
 
-    let needsAddModify = false;
     if (this.isCached) {
       this.setMetaData(item.id, path, etag, isInboxItem);
 
@@ -974,29 +973,56 @@ CalDavCalendar.prototype = {
       // XXX This is quite fragile, but saves us a double modify/add
 
       if (aListener) {
-        // In the cached case, notifying operation complete will add the item to the cache
-        if (this.mItemInfoCache[item.id].isNew) {
-          this.notifyOperationComplete(aListener, Cr.NS_OK, cIOL.ADD, item.id, item);
-        } else {
-          this.notifyOperationComplete(aListener, Cr.NS_OK, cIOL.MODIFY, item.id, item);
-        }
-      } else {
-        // No listener, we'll have to add it ourselves
-        needsAddModify = true;
+        await new Promise(resolve => {
+          let wrappedListener = {
+            onGetResult(...args) {
+              aListener.onGetResult(...args);
+            },
+            onOperationComplete(...args) {
+              // We must use wrappedJSObject to receive a returned Promise.
+              let promise = aListener.wrappedJSObject.onOperationComplete(...args);
+              if (promise) {
+                promise.then(resolve);
+              } else {
+                resolve();
+              }
+            },
+          };
+
+          // In the cached case, notifying operation complete will add the item to the cache
+          if (this.mItemInfoCache[item.id].isNew) {
+            this.notifyOperationComplete(wrappedListener, Cr.NS_OK, cIOL.ADD, item.id, item);
+          } else {
+            this.notifyOperationComplete(wrappedListener, Cr.NS_OK, cIOL.MODIFY, item.id, item);
+          }
+        });
+        return;
       }
-    } else {
-      // In the uncached case, we need to do so ourselves
-      needsAddModify = true;
     }
 
-    // Now take care of the add/modify if needed.
-    if (needsAddModify) {
+    // Either there's no listener, or we're uncached.
+
+    await new Promise(resolve => {
+      let listener = {
+        onGetResult(...args) {
+          if (aListener) {
+            aListener.onGetResult(...args);
+          }
+        },
+        onOperationComplete(...args) {
+          if (aListener) {
+            aListener.onOperationComplete(...args);
+          }
+          resolve();
+        },
+      };
+
       if (this.mItemInfoCache[item.id].isNew) {
-        this.mOfflineStorage.adoptItem(item, aListener);
+        this.mOfflineStorage.adoptItem(item, listener);
       } else {
-        this.mOfflineStorage.modifyItem(item, null, aListener);
+        this.mOfflineStorage.modifyItem(item, null, listener);
       }
-    }
+    });
   },
 
   /**
@@ -1045,6 +1071,8 @@ CalDavCalendar.prototype = {
     if (this.isCached) {
       if (aChangeLogListener) {
         aChangeLogListener.onResult({ status: Cr.NS_OK }, Cr.NS_OK);
+      } else {
+        this.mObservers.notify("onLoad", [this]);
       }
     } else {
       this.mObservers.notify("onLoad", [this]);

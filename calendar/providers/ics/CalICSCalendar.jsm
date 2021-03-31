@@ -261,6 +261,7 @@ CalICSCalendar.prototype = {
     this.createMemoryCalendar();
 
     this.mObserver.onStartBatch();
+    this.mMemoryCalendar.addObserver(this.mObserver);
 
     // Wrap parsing in a try block. Will ignore errors. That's a good thing
     // for non-existing or empty files, but not good for invalid files.
@@ -289,7 +290,6 @@ CalICSCalendar.prototype = {
         // we should add ourselves as observer. It is important that this
         // happens *after* the calls to adoptItem in the above loop to prevent
         // the views from being notified.
-        self.mMemoryCalendar.addObserver(self.mObserver);
         self.unlock();
       },
     };
@@ -462,6 +462,7 @@ CalICSCalendar.prototype = {
 
     this.mHooks.onAfterPut(request, () => {
       this.unlock();
+      this.mObserver.onLoad(this);
       Services.startup.exitLastWindowClosingSurvivalArea();
     });
   },
@@ -476,14 +477,17 @@ CalICSCalendar.prototype = {
     if (this.readOnly) {
       throw calIErrors.CAL_IS_READONLY;
     }
+    this.startBatch();
     this.queue.push({ action: "add", item: aItem, listener: aListener });
     this.processQueue();
+    this.endBatch();
   },
 
   modifyItem(aNewItem, aOldItem, aListener) {
     if (this.readOnly) {
       throw calIErrors.CAL_IS_READONLY;
     }
+    this.startBatch();
     this.queue.push({
       action: "modify",
       oldItem: aOldItem,
@@ -491,6 +495,7 @@ CalICSCalendar.prototype = {
       listener: aListener,
     });
     this.processQueue();
+    this.endBatch();
   },
 
   deleteItem(aItem, aListener) {
