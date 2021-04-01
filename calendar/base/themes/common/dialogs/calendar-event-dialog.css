@@ -362,7 +362,6 @@ label.label {
 }
 
 #link-image-top {
-  list-style-image: url(chrome://calendar/skin/shared/link-image-top.svg);
   margin-top: 0.6em;
   margin-bottom: -0.6em;
 }
@@ -372,7 +371,6 @@ label.label {
 }
 
 #link-image-bottom {
-  list-style-image: url(chrome://calendar/skin/shared/link-image-bottom.svg);
   margin-top: -0.6em;
   margin-bottom: 0.6em;
 }
