@@ -550,7 +550,7 @@ Enigmail.hdrView = {
     }
     if (signedUINode.getAttribute("signed")) {
       window.dispatchEvent(
-        new CustomEvent("display-secure-msg", {
+        new CustomEvent("secureMsgLoaded", {
           detail: {
             key: "signed-openpgp",
             data: signedUINode.getAttribute("signed"),
