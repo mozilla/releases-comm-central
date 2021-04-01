@@ -63,64 +63,64 @@
                         collapsedinmodes=""
                         persist="collapsedinmodes"
                         onDOMMouseScroll="TodayPane.advance(event.detail > 0 ? 1 : -1);">
-        <stack flex="1">
-          <image id="mini-day-image" flex="1"/>
-          <hbox flex="1">
-            <stack id="dateContainer">
-              <hbox pack="center"
-                    align="center">
-                <label id="datevalue-label" class="dateValue"
-                       ondblclick="TodayPane.onDoubleClick(event);"
-                       onmousedown="TodayPane.onMousedown(event);"/>
+        <hbox id="mini-day-image" flex="1">
+          <stack id="dateContainer">
+            <hbox pack="center"
+                  align="center">
+              <label id="datevalue-label" class="dateValue"
+                     ondblclick="TodayPane.onDoubleClick(event);"
+                     onmousedown="TodayPane.onMousedown(event);"/>
+            </hbox>
+            <hbox id="dragCenter-image-container" flex="1" pack="center" align="center">
+              <html:img id="dragCenter-image"
+                        src="chrome://calendar/skin/shared/widgets/drag-center.svg"
+                        alt=""
+                        hidden="true" />
+            </hbox>
+          </stack>
+          <vbox flex="1">
+            <hbox pack="center">
+              <label id="weekdayNameLabel"
+                     ondblclick="TodayPane.onDoubleClick(event);"
+                     flex="1"/>
+              <hbox pack="end">
+                <toolbarbutton id="previous-day-button"
+                               class="miniday-nav-buttons"
+                               tooltiptext="&onedaybackward.tooltip;"
+                               onmousedown="TodayPane.onMousedown(event, -1);"
+                               dir="-1"/>
+                <toolbarbutton id="today-button"
+                               class="miniday-nav-buttons"
+                               tooltiptext="&showToday.tooltip;"
+                               oncommand="TodayPane.setDay(cal.dtz.now());"/>
+                <toolbarbutton id="next-day-button"
+                               class="miniday-nav-buttons"
+                               tooltiptext="&onedayforward.tooltip;"
+                               onmousedown="TodayPane.onMousedown(event, 1);"
+                               dir="1"/>
               </hbox>
-              <hbox id="dragCenter-image-container" flex="1" pack="center" align="center">
-                <image id="dragCenter-image" hidden="true"/>
-              </hbox>
-            </stack>
-            <vbox flex="1">
-              <hbox pack="center">
-                <label id="weekdayNameLabel"
-                       ondblclick="TodayPane.onDoubleClick(event);"
-                       flex="1"/>
-                <hbox pack="end">
-                  <toolbarbutton id="previous-day-button"
-                                 class="miniday-nav-buttons"
-                                 tooltiptext="&onedaybackward.tooltip;"
-                                 onmousedown="TodayPane.onMousedown(event, -1);"
-                                 dir="-1"/>
-                  <toolbarbutton id="today-button"
-                                 class="miniday-nav-buttons"
-                                 tooltiptext="&showToday.tooltip;"
-                                 oncommand="TodayPane.setDay(cal.dtz.now());"/>
-                  <toolbarbutton id="next-day-button"
-                                 class="miniday-nav-buttons"
-                                 tooltiptext="&onedayforward.tooltip;"
-                                 onmousedown="TodayPane.onMousedown(event, 1);"
-                                 dir="1"/>
-                </hbox>
-              </hbox>
-              <hbox pack="start">
-                <label id="monthNameContainer" class="monthlabel"
-                       ondblclick="TodayPane.onDoubleClick(event);"/>
-                <label id="currentWeek-label" class="monthlabel"
-                       ondblclick="TodayPane.onDoubleClick(event);"/>
-                <spacer flex="1"/>
-              </hbox>
-            </vbox>
-            <toolbarbutton id="miniday-dropdown-button"
-                           tooltiptext="&showselectedday.tooltip;"
-                           type="menu"
-                           wantdropmarker="true">
-              <panel id="miniday-month-panel" position="after_end"
-                     onpopupshown="this.firstElementChild.focusCalendar();">
-                <calendar-minimonth id="miniday-dropdown-minimonth"
-                                    flex="1"
-                                    onchange="TodayPane.setDaywithjsDate(this.value);
-                                              document.getElementById('miniday-month-panel').hidePopup();"/>
-              </panel>
-            </toolbarbutton>
-          </hbox>
-        </stack>
+            </hbox>
+            <hbox pack="start">
+              <label id="monthNameContainer" class="monthlabel"
+                     ondblclick="TodayPane.onDoubleClick(event);"/>
+              <label id="currentWeek-label" class="monthlabel"
+                     ondblclick="TodayPane.onDoubleClick(event);"/>
+              <spacer flex="1"/>
+            </hbox>
+          </vbox>
+          <toolbarbutton id="miniday-dropdown-button"
+                         tooltiptext="&showselectedday.tooltip;"
+                         type="menu"
+                         wantdropmarker="true">
+            <panel id="miniday-month-panel" position="after_end"
+                   onpopupshown="this.firstElementChild.focusCalendar();">
+              <calendar-minimonth id="miniday-dropdown-minimonth"
+                                  flex="1"
+                                  onchange="TodayPane.setDaywithjsDate(this.value);
+                                            document.getElementById('miniday-month-panel').hidePopup();"/>
+            </panel>
+          </toolbarbutton>
+        </hbox>
       </calendar-modebox>
       <vbox flex="1">
         <hbox id="agenda-toolbar" iconsize="small">

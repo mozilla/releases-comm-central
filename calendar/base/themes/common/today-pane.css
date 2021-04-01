@@ -158,10 +158,6 @@
   pointer-events: none;
 }
 
-#dragCenter-image {
-  list-style-image: url("chrome://calendar/skin/shared/widgets/drag-center.svg");
-}
-
 .miniday-nav-buttons {
   margin-top: 2px;
   min-width: 19px;
