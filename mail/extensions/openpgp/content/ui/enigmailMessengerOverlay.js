@@ -604,14 +604,6 @@ Enigmail.msg = {
       cryptoBox.setAttribute("decryptDone", "true");
     }
 
-    // Interrupt if the message wasn't properly decrypted.
-    if (
-      !Enigmail.msg.decryptedMessage ||
-      typeof Enigmail.msg.decryptedMessage == "undefined"
-    ) {
-      return;
-    }
-
     // Show the partial inline encryption reminder only if the decryption action
     // came from a partially inline encrypted message.
     if (Enigmail.msg.showPartialDecryptionReminder) {
