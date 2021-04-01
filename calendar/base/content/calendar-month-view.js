@@ -317,19 +317,14 @@
                         <spacer flex="1"></spacer>
                       </vbox>
                       <hbox class="category-container-box">
-                        <hbox align="center">
+                        <html:div class="calendar-event-item-icons">
                           <hbox class="alarm-icons-box"
                                 pack="end"
                                 align="start">
                           </hbox>
-                          <image class="item-classification-box"
-                                 pack="end">
-                          </image>
-                        </hbox>
-                        <hbox class="calendar-category-box category-color-box calendar-event-selection"
-                              flex="1"
-                              pack="end">
-                          <image class="calendar-category-box-gradient"></image>
+                          <html:img class="item-classification-box" />
+                        </html:div>
+                        <hbox class="calendar-category-box category-color-box calendar-event-selection">
                         </hbox>
                       </hbox>
                     </hbox>

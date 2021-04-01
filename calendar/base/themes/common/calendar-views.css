@@ -146,6 +146,11 @@
     display: none;
 }
 
+.calendar-category-box {
+    width: 7px;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.38), transparent) !important;
+}
+
 .calendar-category-box-stack {
     pointer-events: none;
     display: flex;
@@ -160,11 +165,6 @@
 
 .multiday-view-day-box .calendar-event-box-container > .calendar-event-details > .alarm-icons-box {
   padding-top: 3px;
-}
-
-.calendar-category-box-gradient {
-    width: 7px;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.38), transparent) !important;
 }
 
 .calendar-item-image {
@@ -1157,26 +1157,24 @@ radio.calview:not([selected=true]):hover {
     display: none;
 }
 
+.calendar-event-item-icons {
+  display: flex;
+  align-items: center;
+}
+
+#week-view .calendar-event-item-icons, #day-view .calendar-event-item-icons {
+  padding-top: 3px;
+}
+
 .item-classification-box {
     width: 11px;
     height: 11px;
-    display: none;
     -moz-context-properties: fill;
     fill: currentColor;
 }
 
-.item-classification-box[classification="PUBLIC"] {
+.item-classification-box:not([src]) {
     display: none;
-}
-
-.item-classification-box[classification="PRIVATE"] {
-    list-style-image: url(chrome://calendar/skin/shared/icons/private.svg);
-    display: -moz-box;
-}
-
-.item-classification-box[classification="CONFIDENTIAL"] {
-    list-style-image: url(chrome://calendar/skin/shared/icons/confidential.svg);
-    display: -moz-box;
 }
 
 .fgdragspacer {

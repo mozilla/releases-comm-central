@@ -156,18 +156,13 @@
                         </spacer>
                       </vbox>
                       <hbox>
-                        <hbox align="center">
+                        <html:div class="calendar-event-item-icons">
                           <hbox class="alarm-icons-box"
                                 align="center">
                           </hbox>
-                          <image class="item-classification-box"
-                                 pack="end">
-                          </image>
-                        </hbox>
-                        <hbox class="calendar-category-box category-color-box calendar-event-selection"
-                              flex="1" pack="end">
-                          <image class="calendar-category-box-gradient">
-                          </image>
+                          <html:img class="item-classification-box" />
+                        </html:div>
+                        <hbox class="calendar-category-box category-color-box calendar-event-selection">
                         </hbox>
                       </hbox>
                     </hbox>
@@ -318,7 +313,34 @@
       // Item classification / privacy.
       let classificationBox = this.querySelector(".item-classification-box");
       if (classificationBox) {
-        classificationBox.setAttribute("classification", item.privacy || "PUBLIC");
+        switch (item.privacy) {
+          case "PRIVATE":
+            classificationBox.setAttribute(
+              "src",
+              "chrome://calendar/skin/shared/icons/private.svg"
+            );
+            // Set the alt attribute.
+            document.l10n.setAttributes(
+              classificationBox,
+              "calendar-editable-item-privacy-icon-private"
+            );
+            break;
+          case "CONFIDENTIAL":
+            classificationBox.setAttribute(
+              "src",
+              "chrome://calendar/skin/shared/icons/confidential.svg"
+            );
+            // Set the alt attribute.
+            document.l10n.setAttributes(
+              classificationBox,
+              "calendar-editable-item-privacy-icon-confidential"
+            );
+            break;
+          default:
+            classificationBox.removeAttribute("src");
+            classificationBox.setAttribute("alt", "");
+            break;
+        }
       }
 
       // Set up event box attributes for use in css selectors. Note if

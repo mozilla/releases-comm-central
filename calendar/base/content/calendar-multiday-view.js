@@ -295,18 +295,15 @@
                              crop="end">
                       </label>
                     </vbox>
-                    <hbox class="alarm-icons-box"
-                          align="start">
-                    </hbox>
-                    <image class="item-classification-box">
-                    </image>
+                    <html:div class="calendar-event-item-icons">
+                      <hbox class="alarm-icons-box"
+                            align="start">
+                      </hbox>
+                      <html:img class="item-classification-box" />
+                    </html:div>
                   </hbox>
                   <stack class="calendar-category-box-stack">
-                    <hbox class="calendar-category-box category-color-box calendar-event-selection"
-                          flex="1"
-                          pack="end">
-                      <image class="calendar-category-box-gradient">
-                      </image>
+                    <hbox class="calendar-category-box category-color-box calendar-event-selection">
                     </hbox>
                   </stack>
                   <box class="calendar-event-gripbar-container">
