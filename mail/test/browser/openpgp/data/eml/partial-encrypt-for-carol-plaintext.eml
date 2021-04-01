@@ -1,0 +1,29 @@
+From: "Bob" <bob@openpgp.example>
+To: "Carol" <carol@openpgp.example>
+Subject: Inline Encrypted for Carol, with extra plaintext
+Date: Wed, 14 Apr 2021 01:01:04 +0000
+MIME-Version: 1.0
+Content-Type: text/plain
+
+prefix
+
+-----BEGIN PGP MESSAGE-----
+
+hQIMA7L9So5P9bk9ARAA01Dr6NF4RrED8YADJx3WOOhIgUd55axpniQBPr66Xp6l
+mOCmPJnpSTA6DJzu28AyilrOedVx4rBfY9Bs4WS6d9joFo+zj+aoo9p8nBt2tu/8
+Ox8DbwWgVoQ4Po72LfZdH9FsPzfi4I2ytp/tjfHqjgl9Aakkm3vj09OM15aEfYxd
+oOO0DFk4vyuWojE6u1Y1bdg20hqPvmciyRFfgZC/51swcwFIDm34R20ASRzrwu1h
+kRUHEiGuz3JXPQnzADmK9OcLso9OxGX80WDe136BJG/wgFKqxCwmv0ykplOTJcm3
+VFWAJzguT27JGvJ+2/93IA2uyz1b7Rr4Ly6s6k9zhAPsDudyI2pOiIVpWWSGwiPW
+kX78JB5jvgjNs3Wh1dHp/TyKqivQz1qbgH2M78sKUdmbCHiD3Ak5b3F8h3JhrU7X
+3zwamZMmove1bkScL4TGXBMMZhwUe6BPg3fq42UHLtXccHlfm+XRWgHbT0su4ezZ
+2n3+5YDYozyfmytxZ7jeL9OSbQTNbNZmA+GTf10RX8ww9wwiffLNe8LGdwNaL96i
+F2lsC1Hfczw16fThBIEx7UF9LmJzzPNN7aOf+fbOLvkQFSPiGZg9tmXGzzRjDboT
+VKhpbV3GNFsCoOcry3Q7xzDgKiWXkdqCTqP9AGJfksQ0mdLQB94tfBYouX+g7PLS
+bQEyf6is0CReegpCSbSUZXURLPo381LrYdpV/PA0L+MDZse3xEKpc69zmE+H4oAT
+t/zF/Bh0ezxbN0AAHyldj82I7CP+Vtat0qSnUGsbd7G5nswwswxHXTA+FfDo+qBl
+U70ypxk/ZqPWcAAEkBo=
+=zsMo
+-----END PGP MESSAGE-----
+
+suffix

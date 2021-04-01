@@ -269,6 +269,153 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
   close_window(mc);
 });
 
+let partialInlineTests = [
+  {
+    filename: "partial-encrypt-for-carol-plaintext.eml",
+    expectDecryption: true,
+    expectVerification: false,
+    expectSuccess: false,
+  },
+  {
+    filename: "partial-encrypt-for-carol-html.eml",
+    expectDecryption: true,
+    expectVerification: false,
+    expectSuccess: false,
+  },
+  {
+    filename: "partial-encrypt-for-alice-plaintext.eml",
+    expectDecryption: true,
+    expectVerification: false,
+    expectSuccess: true,
+  },
+  {
+    filename: "partial-encrypt-for-alice-html.eml",
+    expectDecryption: true,
+    expectVerification: false,
+    expectSuccess: true,
+  },
+  {
+    filename: "partial-signed-from-carol-plaintext.eml",
+    expectDecryption: false,
+    expectVerification: true,
+    expectSuccess: false,
+  },
+  {
+    filename: "partial-signed-from-carol-html.eml",
+    expectDecryption: false,
+    expectVerification: true,
+    expectSuccess: false,
+  },
+  {
+    filename: "partial-signed-from-bob-plaintext.eml",
+    expectDecryption: false,
+    expectVerification: true,
+    expectSuccess: true,
+  },
+  {
+    filename: "partial-signed-from-bob-html.eml",
+    expectDecryption: false,
+    expectVerification: true,
+    expectSuccess: true,
+  },
+];
+
+/**
+ * Test the notification/decryption/verification behavior for partially
+ * encrypted/signed inline PGP messages.
+ */
+add_task(async function testPartialInlinePGPDecrypt() {
+  for (let test of partialInlineTests) {
+    if (!test.filename) {
+      continue;
+    }
+
+    info(`Testing partial inline; filename=${test.filename}`);
+
+    // Setup the message.
+    let mc = await open_message_from_file(
+      new FileUtils.File(getTestFilePath("data/eml/" + test.filename))
+    );
+
+    let notificationBox = "mail-notification-top";
+    let notificationValue = "decryptInlinePG";
+
+    // Ensure the "partially encrypted notification" is visible.
+    wait_for_notification_to_show(mc, notificationBox, notificationValue);
+
+    let body = getMsgBodyTxt(mc);
+
+    Assert.ok(
+      body.includes("BEGIN PGP"),
+      "unprocessed PGP message should still be shown"
+    );
+
+    Assert.ok(body.includes("prefix"), "prefix should still be shown");
+    Assert.ok(body.includes("suffix"), "suffix should still be shown");
+
+    // Click on the button to process the message subset.
+    let processButton = get_notification_button(
+      mc,
+      notificationBox,
+      notificationValue,
+      {
+        popup: null,
+      }
+    );
+    EventUtils.synthesizeMouseAtCenter(processButton, {}, mc.window);
+
+    // Assert that the message was processed and the partial content reminder
+    // notification is visible.
+    wait_for_notification_to_show(
+      mc,
+      notificationBox,
+      "decryptInlinePGReminder"
+    );
+
+    // Get updated body text after processing the PGP subset.
+    body = getMsgBodyTxt(mc);
+
+    Assert.ok(!body.includes("prefix"), "prefix should not be shown");
+    Assert.ok(!body.includes("suffix"), "suffix should not be shown");
+
+    if (test.expectDecryption) {
+      let containsSecret = body.includes(
+        "Insert a coin to play your personal lucky melody."
+      );
+      if (test.expectSuccess) {
+        Assert.ok(containsSecret, "secret decrypted content should be shown");
+        Assert.ok(
+          OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
+          "decryption success icon is shown"
+        );
+      } else {
+        Assert.ok(
+          !containsSecret,
+          "secret decrypted content should not be shown"
+        );
+        Assert.ok(
+          OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "notok"),
+          "decryption failure icon is shown"
+        );
+      }
+    } else if (test.expectVerification) {
+      if (test.expectSuccess) {
+        Assert.ok(
+          OpenPGPTestUtils.hasSignedIconState(mc.window.document, "verified"),
+          "ok verification icon is shown"
+        );
+      } else {
+        Assert.ok(
+          OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unknown"),
+          "unknown verification icon is shown"
+        );
+      }
+    }
+
+    close_window(mc);
+  }
+});
+
 /**
  * Test that the message is properly reloaded and the message security icon is
  * updated if the user changes the signature acceptance level.
@@ -353,46 +500,8 @@ add_task(async function testUpdateMessageSignature() {
   close_window(mc);
 });
 
-/**
- * Test the notification and decryption behavior for partially encrypted inline
- * PGP messages.
- */
-add_task(async function testPartialInlinePGPDecrypt() {
-  // Setup the message.
-  let mc = await open_message_from_file(
-    new FileUtils.File(
-      getTestFilePath("data/eml/alice-partially-encrypted.eml")
-    )
-  );
-
-  let notificationBox = "mail-notification-top";
-  let notificationValue = "decryptInlinePG";
-
-  // Ensure the "partially encrypted notification" is visible.
-  wait_for_notification_to_show(mc, notificationBox, notificationValue);
-
-  // Click on the "decrypt" button.
-  let decryptButton = get_notification_button(
-    mc,
-    notificationBox,
-    notificationValue,
-    {
-      popup: null,
-    }
-  );
-  EventUtils.synthesizeMouseAtCenter(decryptButton, {}, mc.window);
-
-  // Assert that the message was decrypted and the partial decryption reminder
-  // notification is visible.
-  wait_for_notification_to_show(mc, notificationBox, "decryptInlinePGReminder");
-
-  Assert.ok(
-    OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
-    "encrypted icon is displayed"
-  );
-
-  close_window(mc);
-});
+// After test testUpdateMessageSignature acceptance of Bob's key
+// has changed from verified to unverified.
 
 /**
  * Test that a signed (only) inline PGP message with UTF-8 characters

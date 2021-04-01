@@ -1,0 +1,29 @@
+From: "Bob" <bob@openpgp.example>
+To: "Alice Lovelace" <alice@openpgp.example>
+Subject: Inline Signed by Bob, with extra plaintext
+Date: Wed, 14 Apr 2021 01:01:06 +0000
+MIME-Version: 1.0
+Content-Type: text/plain
+
+prefix
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Insert a coin to play your personal lucky melody.
+-----BEGIN PGP SIGNATURE-----
+
+iQHIBAEBCgAyFiEE0aZuGiOxgsmYD3iM+/zIKgFeczAFAmB4Yg8UHGJvYkBvcGVu
+cGdwLmV4YW1wbGUACgkQ+/zIKgFeczC6twv/fYtlE8oNqhP5OzR48/rCEmJQ/U8Z
+NIp2Mvg3fpIMY1m2z4nwufCj4xNHM4okyqXnVouWBSLkRL3oPlkXj+syY1lV3Bv2
+Gbl5JMmpMbdSjKAEg7VaYg9C6ELbb25EhBLok1JYMXn5o+wfmm+UN+EU8IbXck5Q
+roFNueM6wFv6nvM64jQIkqoyJ2OvNYg1lTJXp7EXEnwRRIW9IDd1XInVrx4jou3Q
+Ax4/VbyJQiE37JC6NAJ9hBh/noO36IGAXvBeyN/TVOBySBFC1XoZdhjVoA7eWbZY
+m1Pxtar5P1Pb6Nac2c4b8Z1FHZFd81zYbJZkJYG6oApbOBFsn+Lf1+LkVKAiewos
+A91QVSP9pqiJmWFZ17tCxRM5YPIPRT35nV3TN3snHGsNvvAJ9mc3YOO7aM0aitx7
+1p3IqdFUz3G8qUlMDthV4WDBj7N1LnRyKCRU6W58hoDXLEjYXMBYSP8+UHqS953M
+ILOfsOglDqxjdwrNf2TK9y+zpyXX16yI1eHB
+=1Be6
+-----END PGP SIGNATURE-----
+
+suffix

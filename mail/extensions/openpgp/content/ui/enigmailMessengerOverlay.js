@@ -1008,12 +1008,7 @@ Enigmail.msg = {
     );
   },
 
-  trimIfEncrypted(msgText) {
-    // If it's an encrypted message, we want to trim (at least) the
-    // separator line between the header and the content.
-    // However, trimming all lines should be safe.
-    let trimEncrypted = false;
-
+  getFirstPGPMessageType(msgText) {
     let indexEncrypted = msgText.indexOf("-----BEGIN PGP MESSAGE-----");
     let indexSigned = msgText.indexOf("-----BEGIN PGP SIGNED MESSAGE-----");
     if (indexEncrypted >= 0) {
@@ -1021,11 +1016,23 @@ Enigmail.msg = {
         indexSigned == -1 ||
         (indexSigned >= 0 && indexEncrypted < indexSigned)
       ) {
-        trimEncrypted = true;
+        return "encrypted";
       }
     }
 
-    if (trimEncrypted) {
+    if (indexSigned >= 0) {
+      return "signed";
+    }
+
+    return "";
+  },
+
+  trimIfEncrypted(msgText) {
+    // If it's an encrypted message, we want to trim (at least) the
+    // separator line between the header and the content.
+    // However, trimming all lines should be safe.
+
+    if (Enigmail.msg.getFirstPGPMessageType(msgText) == "encrypted") {
       // \xA0 is non-breaking-space
       msgText = msgText.replace(/^[ \t\xA0]+/gm, "");
     }
@@ -1058,18 +1065,12 @@ Enigmail.msg = {
     var msgText = null;
     var foundIndex = -1;
 
+    let bodyElementFound = false;
+    let hasHeadOrTailNode = false;
+
     if (bodyElement.firstChild) {
       let node = bodyElement.firstChild;
       while (node) {
-        if (
-          node.firstChild &&
-          node.firstChild.nodeName == "LEGEND" &&
-          node.firstChild.className == "mimeAttachmentHeaderName"
-        ) {
-          // we reached the area where inline attachments are displayed
-          // --> don't try to decrypt displayed inline attachments
-          break;
-        }
         if (
           node.firstChild &&
           node.firstChild.nodeName.toUpperCase() == "LEGEND" &&
@@ -1080,7 +1081,18 @@ Enigmail.msg = {
           break;
         }
         if (node.nodeName === "DIV") {
+          if (bodyElementFound) {
+            hasHeadOrTailNode = true;
+            break;
+          }
+
           foundIndex = node.textContent.indexOf(findStr);
+
+          if (foundIndex < 0) {
+            hasHeadOrTailNode = true;
+            node = node.nextSibling;
+            continue;
+          }
 
           if (foundIndex >= 0) {
             if (
@@ -1088,19 +1100,20 @@ Enigmail.msg = {
               foundIndex
             ) {
               foundIndex = -1;
+              node = node.nextSibling;
+              continue;
             }
           }
 
           if (foundIndex === 0) {
             bodyElement = node;
-            break;
-          }
-          if (
+            bodyElementFound = true;
+          } else if (
             foundIndex > 0 &&
             node.textContent.substr(foundIndex - 1, 1).search(/[\r\n]/) === 0
           ) {
             bodyElement = node;
-            break;
+            bodyElementFound = true;
           }
         }
         node = node.nextSibling;
@@ -1108,6 +1121,10 @@ Enigmail.msg = {
     }
 
     if (foundIndex >= 0 && !this.hasInlineQuote(topElement)) {
+      let beginIndex = {};
+      let endIndex = {};
+      let indentStr = {};
+
       if (
         Enigmail.msg.savedHeaders["content-type"].search(/^text\/html/i) === 0
       ) {
@@ -1123,6 +1140,16 @@ Enigmail.msg = {
       } else {
         msgText = bodyElement.textContent;
       }
+
+      if (!isAuto) {
+        let blockType = EnigmailArmor.locateArmoredBlock(msgText, 0, "", beginIndex, endIndex, indentStr);
+        if (!blockType) {
+          msgText = "";
+        } else {
+          msgText = msgText.substring(beginIndex.value, endIndex.value+1);
+        }
+      }
+
       msgText = this.trimIfEncrypted(msgText);
     }
 
@@ -1199,7 +1226,7 @@ Enigmail.msg = {
     }
 
     if (isAuto) {
-      let ht = this.hasHeadOrTailBesidesInlinePGP(msgText);
+      let ht = hasHeadOrTailNode || this.hasHeadOrTailBesidesInlinePGP(msgText);
       if (ht) {
         let infoId;
         let buttonId;
@@ -1463,6 +1490,19 @@ Enigmail.msg = {
 
     var displayedUriSpec = Enigmail.msg.getCurrentMsgUriSpec();
     if (!msgUriSpec || displayedUriSpec == msgUriSpec) {
+      if (exitCode && !statusFlags) {
+        // Failure, but we don't know why it failed.
+        // Peek inside msgText, and check what kind of content it is,
+        // so we can show a minimal error.
+
+        let msgType = Enigmail.msg.getFirstPGPMessageType(msgText);
+        if (msgType == "encrypted") {
+          statusFlags = EnigmailConstants.DECRYPTION_FAILED;
+        } else if (msgType == "signed") {
+          statusFlags = EnigmailConstants.BAD_SIGNATURE;
+        }
+      }
+
       Enigmail.hdrView.updateHdrIcons(
         exitCode,
         statusFlags,
@@ -1552,14 +1592,8 @@ Enigmail.msg = {
     }
 
     if (!plainText) {
-      if (
-        interactive &&
-        Enigmail.msg.securityInfo &&
-        Enigmail.msg.securityInfo.statusInfo
-      ) {
-        EnigmailDialog.info(window, Enigmail.msg.securityInfo.statusInfo);
-      }
-      return;
+      // Show the subset that we cannot process, together with status.
+      plainText = msgText;
     }
 
     if (retry >= 2) {
@@ -1667,30 +1701,50 @@ Enigmail.msg = {
     if (bodyElement.firstChild) {
       node = bodyElement.firstChild;
 
+      let divFound = false;
+
       while (node) {
         if (node.nodeName == "DIV") {
-          // for safety reasons, we replace the complete visible message with
-          // the decrypted or signed part (bug 983)
-          node.innerHTML = EnigmailFuncs.formatPlaintextMsg(
-            EnigmailData.convertToUnicode(messageContent, charset)
-          );
-          Enigmail.msg.movePEPsubject();
-          return;
+          if (divFound) {
+            node.innerHTML = "";
+          } else {
+            // for safety reasons, we replace the complete visible message with
+            // the decrypted or signed part (bug 983)
+            divFound = true;
+            node.innerHTML = EnigmailFuncs.formatPlaintextMsg(
+              EnigmailData.convertToUnicode(messageContent, charset)
+            );
+            Enigmail.msg.movePEPsubject();
+          }
         }
         node = node.nextSibling;
       }
+
+      if (divFound) {
+        return;
+      }
+
+      let preFound = false;
 
       // if no <DIV> node is found, try with <PRE> (bug 24762)
       node = bodyElement.firstChild;
       while (node) {
         if (node.nodeName == "PRE") {
-          node.innerHTML = EnigmailFuncs.formatPlaintextMsg(
-            EnigmailData.convertToUnicode(messageContent, charset)
-          );
-          Enigmail.msg.movePEPsubject();
-          return;
+          if (preFound) {
+            node.innerHTML = "";
+          } else {
+            preFound = true;
+            node.innerHTML = EnigmailFuncs.formatPlaintextMsg(
+              EnigmailData.convertToUnicode(messageContent, charset)
+            );
+            Enigmail.msg.movePEPsubject();
+          }
         }
         node = node.nextSibling;
+      }
+
+      if (preFound) {
+        return;
       }
 
       // HACK for MS-EXCHANGE-Server Problem:

@@ -1,0 +1,31 @@
+From: "Bob" <bob@openpgp.example>
+To: "Alice Lovelace" <alice@openpgp.example>
+Subject: Inline Encrypted for Alice, with extra text in multipart HTML
+Date: Wed, 14 Apr 2021 01:01:01 +0000
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="32989E6E4C7AEB7775BAD49432989E6E4C7AEB7775BAD494"
+
+--32989E6E4C7AEB7775BAD49432989E6E4C7AEB7775BAD494
+Content-Type: text/html; charset=utf-8
+
+prefix
+
+--32989E6E4C7AEB7775BAD49432989E6E4C7AEB7775BAD494
+Content-Type: text/html; charset=utf-8
+
+-----BEGIN PGP MESSAGE-----
+
+hE4DR2b2udXyHrYSAQdAq+9AhQzI4XpD9WtuB7f3OZHNFvdHza5WND3yLgxX8kwg
+eXs+jZGr3TNUpR+XRxCf9+7Er2JyJk7fvL4suUHpHEzSbQG57r4TxneCcV9pukK3
+wzSqNt2o/q/eVO6WwOs3Lo5+31gs9+z6lrVhVjO2cynPdjlNLCQlwRudsQfpNgrF
+4pO7n0tCrX0qWaKYgdQuJwIt1HS2nLYd+ryb9eLWO/Xhy3quo8YpD0yueSHjexI=
+=rSoz
+-----END PGP MESSAGE-----
+
+--32989E6E4C7AEB7775BAD49432989E6E4C7AEB7775BAD494
+Content-Type: text/html; charset=utf-8
+
+suffix
+
+--32989E6E4C7AEB7775BAD49432989E6E4C7AEB7775BAD494--
