@@ -718,22 +718,19 @@ function updatePriority(aArg) {
 
     // Status bar panel
     let priorityPanel = document.getElementById("status-priority");
-    if (priorityLevel == "none") {
+    let image = priorityPanel.querySelector("img");
+    if (priorityLevel === "none") {
       // If the priority is none, don't show the status bar panel
       priorityPanel.setAttribute("collapsed", "true");
+      image.setAttribute("alt", "");
+      image.removeAttribute("src");
     } else {
       priorityPanel.removeAttribute("collapsed");
-      let foundPriority = false;
-      for (let node of priorityPanel.children) {
-        if (foundPriority) {
-          node.setAttribute("collapsed", "true");
-        } else {
-          node.removeAttribute("collapsed");
-        }
-        if (node.getAttribute("value") == priorityLevel) {
-          foundPriority = true;
-        }
-      }
+      image.setAttribute("alt", cal.l10n.getString("calendar", `${priorityLevel}Priority`));
+      image.setAttribute(
+        "src",
+        `chrome://calendar/skin/shared/statusbar-priority-${priorityLevel}.svg`
+      );
     }
   }
 }

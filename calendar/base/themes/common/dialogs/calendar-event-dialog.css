@@ -381,8 +381,6 @@ label.label {
 
 .cal-statusbar-1 {
   -moz-box-orient: vertical;
-  min-width: 0;
-  list-style-image: url("chrome://calendar/skin/shared/statusbar-priority.svg");
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -396,30 +394,6 @@ label.label {
 #status-status,
 #status-freebusy {
   overflow: hidden;
-}
-
-/*--------------------------------------------------------------------
- *   priority "low" image
- *-------------------------------------------------------------------*/
-
-#image-priority-low {
-  -moz-image-region: rect(0 16px 16px 0);
-}
-
-/*--------------------------------------------------------------------
- *   priority "normal" image
- *-------------------------------------------------------------------*/
-
-#image-priority-normal {
-  -moz-image-region: rect(0 32px 16px 16px);
-}
-
-/*--------------------------------------------------------------------
- *   priority "high" image
- *-------------------------------------------------------------------*/
-
-#image-priority-high {
-  -moz-image-region: rect(0 48px 16px 32px);
 }
 
 /*--------------------------------------------------------------------
