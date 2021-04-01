@@ -114,10 +114,9 @@
 }
 
 /* iMIP notification bar */
-#imip-bar > image {
+#imip-bar > img {
   -moz-context-properties: fill;
   fill: currentColor;
-  list-style-image: url(chrome://calendar/skin/shared/icons/imip-bar.svg);
   width: 20px;
 }
 
