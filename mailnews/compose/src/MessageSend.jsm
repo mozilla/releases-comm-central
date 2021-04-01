@@ -114,6 +114,7 @@ MessageSend.prototype = {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("creatingMailMessage")
     );
+    MsgUtils.sendLogger.debug("Creating message file");
     let messageFile;
     try {
       // Create a local file from MimeMessage, then pass it to _deliverMessage.
@@ -134,6 +135,7 @@ MessageSend.prototype = {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMessageDone")
     );
+    MsgUtils.sendLogger.debug("Message file created");
     return this._deliverMessage(messageFile);
   },
 
@@ -317,7 +319,7 @@ MessageSend.prototype = {
     let prompt = this.getDefaultPrompt();
     if (!Components.isSuccessCode(exitCode) && prompt) {
       MsgUtils.sendLogger.error(
-        `Sending failed: ${errorMsg}, exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
+        `Sending failed; ${errorMsg}, exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
       );
       this._sendReport.setError(
         Ci.nsIMsgSendReport.process_Current,
@@ -349,13 +351,19 @@ MessageSend.prototype = {
     return this._sendProgress;
   },
 
+  /**
+   * NOTE: This is a copy of the C++ code, msgId and msgSize are only
+   * placeholders. Maybe refactor this after nsMsgSend is gone.
+   */
   notifyListenerOnStartSending(msgId, msgSize) {
+    MsgUtils.sendLogger.debug("notifyListenerOnStartSending");
     if (this._sendListener) {
       this._sendListener.onStartSending(msgId, msgSize);
     }
   },
 
   notifyListenerOnStartCopy() {
+    MsgUtils.sendLogger.debug("notifyListenerOnStartCopy");
     if (this._sendListener) {
       this._sendListener
         .QueryInterface(Ci.nsIMsgCopyServiceListener)
@@ -364,6 +372,7 @@ MessageSend.prototype = {
   },
 
   notifyListenerOnProgressCopy(progress, progressMax) {
+    MsgUtils.sendLogger.debug("notifyListenerOnProgressCopy");
     if (this._sendListener) {
       this._sendListener
         .QueryInterface(Ci.nsIMsgCopyServiceListener)
@@ -372,6 +381,7 @@ MessageSend.prototype = {
   },
 
   notifyListenerOnStopCopy(status) {
+    MsgUtils.sendLogger.debug(`notifyListenerOnStopCopy; status=${status}`);
     this._msgCopy = null;
 
     let statusMsgEntry = Components.isSuccessCode(status)
@@ -477,17 +487,16 @@ MessageSend.prototype = {
   },
 
   notifyListenerOnStopSending(msgId, status, msg, returnFile) {
+    MsgUtils.sendLogger.debug(`notifyListenerOnStopSending; status=${status}`);
     try {
       this._sendListener?.onStopSending(msgId, status, msg, returnFile);
-    } catch (e) {
-      // Ignore the return value of OnStopSending.
-      console.warn(
-        `OnStopSending failed with 0x${e.result.toString(16)}\n${e.stack}`
-      );
-    }
+    } catch (e) {}
   },
 
   notifyListenerOnTransportSecurityError(msgId, status, secInfo, location) {
+    MsgUtils.sendLogger.debug(
+      `notifyListenerOnTransportSecurityError; status=${status}, location=${location}`
+    );
     if (!this._sendListener) {
       return;
     }
@@ -498,20 +507,14 @@ MessageSend.prototype = {
         secInfo,
         location
       );
-    } catch (e) {
-      // Ignore the return value of OnTransportSecurityError.
-      console.warn(
-        `OnTransportSecurityError failed with 0x${e.result.toString(16)}\n${
-          e.stack
-        }`
-      );
-    }
+    } catch (e) {}
   },
 
   /**
    * Called by nsIMsgFilterService.
    */
   onStopOperation(status) {
+    MsgUtils.sendLogger.debug(`onStopOperation; status=${status}`);
     if (Components.isSuccessCode(status)) {
       this._setStatusMessage(
         this._composeBundle.GetStringFromName("filterMessageComplete")
@@ -536,6 +539,7 @@ MessageSend.prototype = {
    * @param {nsreault} exitCode - The exit code of message delivery.
    */
   _deliveryExitProcessing(url, isNewsDelivery, exitCode) {
+    MsgUtils.sendLogger.debug(`Delivery exit processing; exitCode=${exitCode}`);
     if (!Components.isSuccessCode(exitCode)) {
       let isNSSError = false;
       let errorName = MsgUtils.getErrorStringName(exitCode);
@@ -857,6 +861,7 @@ MessageSend.prototype = {
         this._deliverMode
       );
     }
+    MsgUtils.sendLogger.debug(`Processing fcc; folderUri=${this._folderUri}`);
 
     this._msgCopy = Cc[
       "@mozilla.org/messengercompose/msgcopy;1"
@@ -888,6 +893,7 @@ MessageSend.prototype = {
       await fileWriter.write(await OS.File.read(this._messageFile.path));
       await fileWriter.close();
     }
+    MsgUtils.sendLogger.debug("fcc file created");
 
     // Notify nsMsgCompose about the saved folder.
     if (this._sendListener) {
@@ -899,6 +905,7 @@ MessageSend.prototype = {
       [folder?.name || "?"]
     );
     this._setStatusMessage(statusMsg);
+    MsgUtils.sendLogger.debug("startCopyOperation");
     try {
       this._msgCopy.startCopyOperation(
         this._userIdentity,
@@ -909,13 +916,11 @@ MessageSend.prototype = {
         this._msgToReplace
       );
     } catch (e) {
+      MsgUtils.sendLogger.warn(`startCopyOperation failed with ${e.result}`);
       if (throwOnError) {
         throw Components.Exception("startCopyOperation failed", e.result);
       }
       this.notifyListenerOnStopCopy(e.result);
-      console.warn(
-        `startCopyOperation failed with 0x${e.result.toString(16)}\n${e.stack}`
-      );
     }
   },
 
@@ -925,6 +930,7 @@ MessageSend.prototype = {
   _doFcc2() {
     // Handle fcc2 only once.
     if (!this._fcc2Handled && this._compFields.fcc2) {
+      MsgUtils.sendLogger.debug("Processing fcc2");
       this._fcc2Handled = true;
       this._mimeDoFcc(
         this._compFields.fcc2,
@@ -971,6 +977,7 @@ MessageSend.prototype = {
   },
 
   _cleanup() {
+    MsgUtils.sendLogger.debug("Clean up temporary files");
     if (this._copyFile && this._copyFile != this._messageFile) {
       OS.File.remove(this._copyFile.path);
       this._copyFile = null;
@@ -1011,6 +1018,7 @@ MessageSend.prototype = {
         Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
       )
     );
+    MsgUtils.sendLogger.debug("Delivering mail message");
     let deliveryListener = new MsgDeliveryListener(this, false);
     let msgStatus =
       this._sendProgress?.QueryInterface(Ci.nsIMsgStatusFeedback) ||
@@ -1038,6 +1046,7 @@ MessageSend.prototype = {
    */
   _deliverFileAsNews(file) {
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_NNTP;
+    MsgUtils.sendLogger.debug("Delivering news message");
     let deliveryListener = new MsgDeliveryListener(this, true);
     let msgWindow =
       this._sendProgress?.msgWindow ||
@@ -1239,6 +1248,7 @@ MsgDeliveryListener.prototype = {
   },
 
   OnStopRunningUrl(url, exitCode) {
+    MsgUtils.sendLogger.debug(`OnStopRunningUrl; exitCode=${exitCode}`);
     let mailUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
     mailUrl.UnRegisterListener(this);
 
