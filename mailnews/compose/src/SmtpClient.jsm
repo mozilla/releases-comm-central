@@ -734,17 +734,26 @@ class SmtpClient {
 
   _getHelloArgument() {
     let helloArgument = this._server.helloArgument;
-
     if (helloArgument) {
       return helloArgument;
     }
-    let hostname = "localhost";
+
     try {
-      hostname = Cc["@mozilla.org/network/dns-service"].getService(
-        Ci.nsIDNSService
-      ).myHostName;
+      return Cc["@mozilla.org/network/dns-service"].getService(Ci.nsIDNSService)
+        .myHostName;
     } catch (e) {}
-    return hostname;
+
+    try {
+      // The address format follows rfc5321#section-4.1.3.
+      let netAddr = this.socket?.transport.getScriptableSelfAddr();
+      let address = netAddr.address;
+      if (netAddr.family == Ci.nsINetAddr) {
+        return `[IPV6:${address}]`;
+      }
+      return `[${address}]`;
+    } catch (e) {}
+
+    return "[127.0.0.1]";
   }
 
   // ACTIONS FOR RESPONSES FROM THE SMTP SERVER
