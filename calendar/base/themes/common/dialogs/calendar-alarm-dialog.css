@@ -57,11 +57,14 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-b
     text-decoration: underline;
 }
 
-richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-calendar-image {
+.alarm-calendar-image {
     -moz-context-properties: fill;
     fill: currentColor;
-    list-style-image: url(chrome://calendar/skin/shared/icons/icon32.svg);
     margin-top: 2px;
+}
+
+richlistitem[is="calendar-alarm-widget-richlistitem"]:not([selected="true"]) .alarm-calendar-image {
+    display: none;
 }
 
 .snooze-popup-button {

@@ -24,7 +24,9 @@
         MozXULElement.parseXULToFragment(
           `
           <vbox pack="start">
-            <image class="alarm-calendar-image"/>
+            <html:img class="alarm-calendar-image"
+                      src="chrome://calendar/skin/shared/icons/icon32.svg"
+                      alt="" />
           </vbox>
           <vbox flex="1">
             <label class="alarm-title-label" crop="end"/>
