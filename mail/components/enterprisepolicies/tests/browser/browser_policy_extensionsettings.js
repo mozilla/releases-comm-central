@@ -2,34 +2,240 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 "use strict";
 
-add_task(async function test_extensionsettings() {
+const BASE_URL =
+  "http://mochi.test:8888/browser/comm/mail/components/enterprisepolicies/tests/browser/";
+
+async function openTab(url) {
+  let tab = window.openContentTab(url, null, null);
+  if (
+    tab.browser.webProgress?.isLoadingDocument ||
+    tab.browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(tab.browser);
+  }
+  return tab;
+}
+
+/**
+ * Wait for the given PopupNotification to display
+ *
+ * @param {string} name
+ *        The name of the notification to wait for.
+ *
+ * @returns {Promise}
+ *          Resolves with the notification window.
+ */
+function promisePopupNotificationShown(name) {
+  return new Promise(resolve => {
+    function popupshown() {
+      let notification = PopupNotifications.getNotification(name);
+      if (!notification) {
+        return;
+      }
+
+      ok(notification, `${name} notification shown`);
+      ok(PopupNotifications.isPanelOpen, "notification panel open");
+
+      PopupNotifications.panel.removeEventListener("popupshown", popupshown);
+      resolve(PopupNotifications.panel.firstElementChild);
+    }
+
+    PopupNotifications.panel.addEventListener("popupshown", popupshown);
+  });
+}
+
+function dismissNotification(popup, win = window) {
+  executeSoon(function() {
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, win);
+  });
+}
+
+add_task(async function test_install_source_blocked_link() {
   await setupPolicyEngineWithJson({
     policies: {
       ExtensionSettings: {
-        "extension1@mozilla.com": {
-          blocked_install_message: "Extension1 error message.",
-        },
         "*": {
-          blocked_install_message: "Generic error message.",
+          install_sources: ["http://blocks.other.install.sources/*"],
         },
       },
     },
   });
+  let popupPromise = promisePopupNotificationShown(
+    "addon-install-origin-blocked"
+  );
+  let tab = await openTab(`${BASE_URL}extensionsettings.html`);
 
-  let extensionSettings = Services.policies.getExtensionSettings(
-    "extension1@mozilla.com"
+  await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
+    content.document.getElementById("policytest").click();
+  });
+  let popup = await popupPromise;
+  dismissNotification(popup);
+  document.getElementById("tabmail").closeTab(tab);
+});
+
+add_task(async function test_install_source_blocked_installtrigger() {
+  await setupPolicyEngineWithJson({
+    policies: {
+      ExtensionSettings: {
+        "*": {
+          install_sources: ["http://blocks.other.install.sources/*"],
+          blocked_install_message: "blocked_install_message",
+        },
+      },
+    },
+  });
+  let popupPromise = promisePopupNotificationShown(
+    "addon-install-origin-blocked"
   );
-  is(
-    extensionSettings.blocked_install_message,
-    "Extension1 error message.",
-    "Should have extension specific message."
+  let tab = await openTab(`${BASE_URL}extensionsettings.html`);
+
+  await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
+    content.document.getElementById("policytest_installtrigger").click();
+  });
+  let popup = await popupPromise;
+  let description = popup.querySelector(".popup-notification-description");
+  ok(
+    description.textContent.endsWith("blocked_install_message"),
+    "Custom install message present"
   );
-  extensionSettings = Services.policies.getExtensionSettings(
-    "extension2@mozilla.com"
+  dismissNotification(popup);
+  document.getElementById("tabmail").closeTab(tab);
+});
+
+add_task(async function test_install_source_blocked_otherdomain() {
+  await setupPolicyEngineWithJson({
+    policies: {
+      ExtensionSettings: {
+        "*": {
+          install_sources: ["http://mochi.test/*"],
+        },
+      },
+    },
+  });
+  let popupPromise = promisePopupNotificationShown(
+    "addon-install-origin-blocked"
   );
-  is(
-    extensionSettings.blocked_install_message,
-    "Generic error message.",
-    "Should have generic message."
+  let tab = await openTab(`${BASE_URL}extensionsettings.html`);
+
+  await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
+    content.document.getElementById("policytest_otherdomain").click();
+  });
+  let popup = await popupPromise;
+  dismissNotification(popup);
+  document.getElementById("tabmail").closeTab(tab);
+});
+
+add_task(async function test_install_source_blocked_direct() {
+  await setupPolicyEngineWithJson({
+    policies: {
+      ExtensionSettings: {
+        "*": {
+          install_sources: ["http://blocks.other.install.sources/*"],
+        },
+      },
+    },
+  });
+  let popupPromise = promisePopupNotificationShown(
+    "addon-install-origin-blocked"
   );
+  let tab = await openTab(`${BASE_URL}extensionsettings.html`);
+
+  await SpecialPowers.spawn(
+    tab.linkedBrowser,
+    [{ baseUrl: BASE_URL }],
+    async function({ baseUrl }) {
+      content.document.location.href = baseUrl + "policytest_v0.1.xpi";
+    }
+  );
+  let popup = await popupPromise;
+  dismissNotification(popup);
+  document.getElementById("tabmail").closeTab(tab);
+});
+
+add_task(async function test_install_source_allowed_link() {
+  await setupPolicyEngineWithJson({
+    policies: {
+      ExtensionSettings: {
+        "*": {
+          install_sources: ["http://mochi.test/*"],
+        },
+      },
+    },
+  });
+  let popupPromise = promisePopupNotificationShown("addon-webext-permissions");
+  let tab = await openTab(`${BASE_URL}extensionsettings.html`);
+
+  await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
+    content.document.getElementById("policytest").click();
+  });
+  let popup = await popupPromise;
+  dismissNotification(popup);
+  document.getElementById("tabmail").closeTab(tab);
+});
+
+add_task(async function test_install_source_allowed_installtrigger() {
+  await setupPolicyEngineWithJson({
+    policies: {
+      ExtensionSettings: {
+        "*": {
+          install_sources: ["http://mochi.test/*"],
+        },
+      },
+    },
+  });
+  let popupPromise = promisePopupNotificationShown("addon-webext-permissions");
+  let tab = await openTab(`${BASE_URL}extensionsettings.html`);
+
+  await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
+    content.document.getElementById("policytest_installtrigger").click();
+  });
+  let popup = await popupPromise;
+  dismissNotification(popup);
+  document.getElementById("tabmail").closeTab(tab);
+});
+
+add_task(async function test_install_source_allowed_otherdomain() {
+  await setupPolicyEngineWithJson({
+    policies: {
+      ExtensionSettings: {
+        "*": {
+          install_sources: ["http://mochi.test/*", "http://example.org/*"],
+        },
+      },
+    },
+  });
+  let popupPromise = promisePopupNotificationShown("addon-webext-permissions");
+  let tab = await openTab(`${BASE_URL}extensionsettings.html`);
+
+  await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
+    content.document.getElementById("policytest_otherdomain").click();
+  });
+  let popup = await popupPromise;
+  dismissNotification(popup);
+  document.getElementById("tabmail").closeTab(tab);
+});
+
+add_task(async function test_install_source_allowed_direct() {
+  await setupPolicyEngineWithJson({
+    policies: {
+      ExtensionSettings: {
+        "*": {
+          install_sources: ["http://mochi.test/*"],
+        },
+      },
+    },
+  });
+  let popupPromise = promisePopupNotificationShown("addon-webext-permissions");
+  let tab = await openTab(`${BASE_URL}extensionsettings.html`);
+
+  await SpecialPowers.spawn(
+    tab.linkedBrowser,
+    [{ baseUrl: BASE_URL }],
+    async function({ baseUrl }) {
+      content.document.location.href = baseUrl + "policytest_v0.1.xpi";
+    }
+  );
+  let popup = await popupPromise;
+  dismissNotification(popup);
+  document.getElementById("tabmail").closeTab(tab);
 });

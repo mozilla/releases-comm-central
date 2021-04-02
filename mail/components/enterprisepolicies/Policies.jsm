@@ -595,7 +595,114 @@ var Policies = {
 
   ExtensionSettings: {
     onBeforeAddons(manager, param) {
-      manager.setExtensionSettings(param);
+      try {
+        manager.setExtensionSettings(param);
+      } catch (e) {
+        log.error("Invalid ExtensionSettings");
+      }
+    },
+    async onBeforeUIStartup(manager, param) {
+      let extensionSettings = param;
+      let blockAllExtensions = false;
+      if ("*" in extensionSettings) {
+        if (
+          "installation_mode" in extensionSettings["*"] &&
+          extensionSettings["*"].installation_mode == "blocked"
+        ) {
+          blockAllExtensions = true;
+          // Turn off discovery pane in about:addons
+          setAndLockPref("extensions.getAddons.showPane", false);
+          // Turn off recommendations
+          setAndLockPref(
+            "extensions.htmlaboutaddons.recommendations.enable",
+            false
+          );
+          // Block about:debugging
+          blockAboutPage(manager, "about:debugging");
+        }
+        if ("restricted_domains" in extensionSettings["*"]) {
+          let restrictedDomains = Services.prefs
+            .getCharPref("extensions.webextensions.restrictedDomains")
+            .split(",");
+          setAndLockPref(
+            "extensions.webextensions.restrictedDomains",
+            restrictedDomains
+              .concat(extensionSettings["*"].restricted_domains)
+              .join(",")
+          );
+        }
+      }
+      let addons = await AddonManager.getAllAddons();
+      let allowedExtensions = [];
+      for (let extensionID in extensionSettings) {
+        if (extensionID == "*") {
+          // Ignore global settings
+          continue;
+        }
+        if ("installation_mode" in extensionSettings[extensionID]) {
+          if (
+            extensionSettings[extensionID].installation_mode ==
+              "force_installed" ||
+            extensionSettings[extensionID].installation_mode ==
+              "normal_installed"
+          ) {
+            if (!extensionSettings[extensionID].install_url) {
+              throw new Error(`Missing install_url for ${extensionID}`);
+            }
+            installAddonFromURL(
+              extensionSettings[extensionID].install_url,
+              extensionID,
+              addons.find(addon => addon.id == extensionID)
+            );
+            manager.disallowFeature(`uninstall-extension:${extensionID}`);
+            if (
+              extensionSettings[extensionID].installation_mode ==
+              "force_installed"
+            ) {
+              manager.disallowFeature(`disable-extension:${extensionID}`);
+            }
+            allowedExtensions.push(extensionID);
+          } else if (
+            extensionSettings[extensionID].installation_mode == "allowed"
+          ) {
+            allowedExtensions.push(extensionID);
+          } else if (
+            extensionSettings[extensionID].installation_mode == "blocked"
+          ) {
+            if (addons.find(addon => addon.id == extensionID)) {
+              // Can't use the addon from getActiveAddons since it doesn't have uninstall.
+              let addon = await AddonManager.getAddonByID(extensionID);
+              try {
+                await addon.uninstall();
+              } catch (e) {
+                // This can fail for add-ons that can't be uninstalled.
+                log.debug(`Add-on ID (${addon.id}) couldn't be uninstalled.`);
+              }
+            }
+          }
+        }
+      }
+      if (blockAllExtensions) {
+        for (let addon of addons) {
+          if (
+            addon.isSystem ||
+            addon.isBuiltin ||
+            !(addon.scope & AddonManager.SCOPE_PROFILE)
+          ) {
+            continue;
+          }
+          if (!allowedExtensions.includes(addon.id)) {
+            try {
+              // Can't use the addon from getActiveAddons since it doesn't have uninstall.
+              let addonToUninstall = await AddonManager.getAddonByID(addon.id);
+              await addonToUninstall.uninstall();
+            } catch (e) {
+              // This can fail for add-ons that can't be uninstalled.
+              log.debug(`Add-on ID (${addon.id}) couldn't be uninstalled.`);
+            }
+          }
+        }
+      }
     },
   },
 

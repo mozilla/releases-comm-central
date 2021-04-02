@@ -68,3 +68,38 @@ registerCleanupFunction(async function policies_headjs_finishWithCleanSlate() {
   EnterprisePolicyTesting.resetRunOnceState();
   PoliciesPrefTracker.stop();
 });
+
+function waitForAddonInstall(addon_id) {
+  return new Promise(resolve => {
+    let listener = {
+      onInstallEnded(install, addon) {
+        if (addon.id == addon_id) {
+          AddonManager.removeInstallListener(listener);
+          resolve();
+        }
+      },
+      onDownloadFailed() {
+        AddonManager.removeInstallListener(listener);
+        resolve();
+      },
+      onInstallFailed() {
+        AddonManager.removeInstallListener(listener);
+        resolve();
+      },
+    };
+    AddonManager.addInstallListener(listener);
+  });
+}
+
+function waitForAddonUninstall(addon_id) {
+  return new Promise(resolve => {
+    let listener = {};
+    listener.onUninstalled = addon => {
+      if (addon.id == addon_id) {
+        AddonManager.removeAddonListener(listener);
+        resolve();
+      }
+    };
+    AddonManager.addAddonListener(listener);
+  });
+}
