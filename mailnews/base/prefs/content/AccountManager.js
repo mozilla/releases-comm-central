@@ -1836,7 +1836,7 @@ var gAccountTree = {
       }
     });
 
-    accountTree.addEventListener("dragstart", event => {
+    mainTree.addEventListener("dragstart", event => {
       if (getCurrentAccount()) {
         event.dataTransfer.effectAllowed = "move";
         event.dataTransfer.dropEffect = "move";
