@@ -589,10 +589,11 @@ MessageSend.prototype = {
             // string.
             errorMsg = this._composeBundle.GetStringFromName(errorName);
           } else {
-            errorMsg = this._composeBundle.formatStringFromName(
-              "sendFailedUnexpected",
-              [exitCode.toString(16)]
+            errorMsg = this._composeBundle.GetStringFromName(
+              "sendFailedUnexpected"
             );
+            // nsIStringBundle.formatStringFromName doesn't work with %X.
+            errorMsg.replace("%X", `0x${exitCode.toString(16)}`);
             errorMsg =
               "\n" +
               MsgUtils.formatStringWithSMTPHostName(
