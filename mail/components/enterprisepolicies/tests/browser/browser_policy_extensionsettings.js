@@ -44,9 +44,16 @@ function promisePopupNotificationShown(name) {
   });
 }
 
-function dismissNotification(popup, win = window) {
-  executeSoon(function() {
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, win);
+function dismissNotification(win = window) {
+  return new Promise(resolve => {
+    function popuphidden() {
+      PopupNotifications.panel.removeEventListener("popuphidden", popuphidden);
+      resolve();
+    }
+    PopupNotifications.panel.addEventListener("popuphidden", popuphidden);
+    executeSoon(function() {
+      EventUtils.synthesizeKey("VK_ESCAPE", {}, win);
+    });
   });
 }
 
@@ -68,8 +75,8 @@ add_task(async function test_install_source_blocked_link() {
   await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
     content.document.getElementById("policytest").click();
   });
-  let popup = await popupPromise;
-  dismissNotification(popup);
+  await popupPromise;
+  await dismissNotification();
   document.getElementById("tabmail").closeTab(tab);
 });
 
@@ -98,7 +105,7 @@ add_task(async function test_install_source_blocked_installtrigger() {
     description.textContent.endsWith("blocked_install_message"),
     "Custom install message present"
   );
-  dismissNotification(popup);
+  await dismissNotification();
   document.getElementById("tabmail").closeTab(tab);
 });
 
@@ -120,8 +127,8 @@ add_task(async function test_install_source_blocked_otherdomain() {
   await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
     content.document.getElementById("policytest_otherdomain").click();
   });
-  let popup = await popupPromise;
-  dismissNotification(popup);
+  await popupPromise;
+  await dismissNotification();
   document.getElementById("tabmail").closeTab(tab);
 });
 
@@ -147,8 +154,8 @@ add_task(async function test_install_source_blocked_direct() {
       content.document.location.href = baseUrl + "policytest_v0.1.xpi";
     }
   );
-  let popup = await popupPromise;
-  dismissNotification(popup);
+  await popupPromise;
+  await dismissNotification();
   document.getElementById("tabmail").closeTab(tab);
 });
 
@@ -168,8 +175,8 @@ add_task(async function test_install_source_allowed_link() {
   await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
     content.document.getElementById("policytest").click();
   });
-  let popup = await popupPromise;
-  dismissNotification(popup);
+  await popupPromise;
+  await dismissNotification();
   document.getElementById("tabmail").closeTab(tab);
 });
 
@@ -189,8 +196,8 @@ add_task(async function test_install_source_allowed_installtrigger() {
   await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
     content.document.getElementById("policytest_installtrigger").click();
   });
-  let popup = await popupPromise;
-  dismissNotification(popup);
+  await popupPromise;
+  await dismissNotification();
   document.getElementById("tabmail").closeTab(tab);
 });
 
@@ -210,8 +217,8 @@ add_task(async function test_install_source_allowed_otherdomain() {
   await SpecialPowers.spawn(tab.linkedBrowser, [], () => {
     content.document.getElementById("policytest_otherdomain").click();
   });
-  let popup = await popupPromise;
-  dismissNotification(popup);
+  await popupPromise;
+  await dismissNotification();
   document.getElementById("tabmail").closeTab(tab);
 });
 
@@ -235,7 +242,7 @@ add_task(async function test_install_source_allowed_direct() {
       content.document.location.href = baseUrl + "policytest_v0.1.xpi";
     }
   );
-  let popup = await popupPromise;
-  dismissNotification(popup);
+  await popupPromise;
+  await dismissNotification();
   document.getElementById("tabmail").closeTab(tab);
 });
