@@ -11,10 +11,6 @@
   font-size: 1.25em;
 }
 
-html|fieldset {
-  border-style: none;
-}
-
 html|legend {
   padding-inline: 0;
   background-color: transparent;

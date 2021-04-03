@@ -56,9 +56,16 @@
   border-top: 1px solid var(--in-content-border-color);
 }
 
-fieldset[data-category] {
+fieldset {
   margin: 0 0 32px;
   padding: 0;
+  border-style: none;
+}
+
+fieldset > hbox,
+fieldset > vbox,
+fieldset > radiogroup {
+  width: -moz-available;
 }
 
 html|h1 {
@@ -436,17 +443,20 @@ html|input.indent {
 }
 
 #containerBox richlistbox richlistitem:hover,
+#identitiesList richlistbox richlistitem:hover,
 #preferencesContainer richlistbox richlistitem:hover {
   background-color: var(--in-content-item-hover);
 }
 
 #containerBox richlistitem[selected="true"],
+#identitiesList richlistitem[selected="true"],
 #preferencesContainer richlistitem[selected="true"] {
   background-color: var(--in-content-item-selected-unfocused);
   color: inherit;
 }
 
 #containerBox richlistbox:focus > richlistitem[selected="true"],
+#identitiesList:focus > richlistitem[selected="true"],
 #preferencesContainer richlistbox:focus > richlistitem[selected="true"] {
   background-color: var(--in-content-item-selected);
   color: var(--in-content-selected-text) !important;

@@ -6,7 +6,7 @@
   == Styles for the Mail Account Manager.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/messenger.css");
+@import url("chrome://global/skin/global.css");
 @import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/preferences/preferences.css");
 
@@ -22,6 +22,7 @@ window > vbox {
 fieldset {
   margin: 0 0 32px;
   padding: initial;
+  border-style: none;
 }
 
 fieldset:last-of-type {
@@ -273,6 +274,12 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 
 #whiteListAbURI checkbox {
   -moz-user-focus: none;
+}
+
+#identitiesList richlistitem {
+  -moz-box-align: center;
+  padding-inline-start: 10px;
+  height: 34px;
 }
 
 /* ::::: SMTP Server Panel :::::: */
