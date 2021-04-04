@@ -13,25 +13,24 @@
 #include "nsIMsgDatabase.h"
 #include "nsMsgHdr.h"
 #include "nsString.h"
-#include "nsIDBChangeListener.h"
 #include "nsIDBChangeAnnouncer.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgFolder.h"
 #include "nsIMutableArray.h"
 #include "nsDBFolderInfo.h"
 #include "nsICollation.h"
-#include "nsIMsgSearchSession.h"
 #include "nsIMimeConverter.h"
 #include "nsCOMPtr.h"
 #include "nsCOMArray.h"
 #include "PLDHashTable.h"
 #include "nsTArray.h"
 #include "nsTObserverArray.h"
-#include "nsMsgEnumerator.h"
 
 class nsMsgThread;
 class nsMsgDatabase;
 class nsIMsgThread;
+class nsMsgDBEnumerator;
+class nsMsgDBThreadEnumerator;
 
 const int32_t kMsgDBVersion = 1;
 
@@ -65,56 +64,6 @@ class nsMsgDBService final : public nsIMsgDBService {
   nsCOMArray<nsIMsgFolder> m_foldersPendingListeners;
   nsCOMArray<nsIDBChangeListener> m_pendingListeners;
   AutoTArray<nsMsgDatabase*, kInitialMsgDBCacheSize> m_dbCache;
-};
-
-class nsMsgDBEnumerator : public nsBaseMsgEnumerator {
- public:
-  // nsIMsgEnumerator support.
-  NS_IMETHOD GetNext(nsIMsgDBHdr** aItem) override;
-  NS_IMETHOD HasMoreElements(bool* aResult) override;
-
-  // nsMsgDBEnumerator methods:
-  typedef nsresult (*nsMsgDBEnumeratorFilter)(nsIMsgDBHdr* hdr, void* closure);
-
-  nsMsgDBEnumerator(nsMsgDatabase* db, nsIMdbTable* table,
-                    nsMsgDBEnumeratorFilter filter, void* closure,
-                    bool iterateForwards = true);
-  void Clear();
-
- protected:
-  // internals
-  nsresult GetRowCursor();
-  virtual nsresult PrefetchNext();
-  RefPtr<nsMsgDatabase> mDB;
-  nsCOMPtr<nsIMdbTableRowCursor> mRowCursor;
-  mdb_pos mRowPos;
-  nsCOMPtr<nsIMsgDBHdr> mResultHdr;
-  bool mDone;
-  bool mNextPrefetched;
-  bool mIterateForwards;
-  nsMsgDBEnumeratorFilter mFilter;
-  nsCOMPtr<nsIMdbTable> mTable;
-  void* mClosure;
-  // This is used when the caller wants to limit how many headers the
-  // enumerator looks at in any given time slice.
-  mdb_pos mStopPos;
-
-  virtual ~nsMsgDBEnumerator() override;
-};
-
-class nsMsgFilteredDBEnumerator : public nsMsgDBEnumerator {
- public:
-  nsMsgFilteredDBEnumerator(nsMsgDatabase* db, nsIMdbTable* table,
-                            bool reverse);
-  virtual ~nsMsgFilteredDBEnumerator();
-  nsresult InitSearchSession(
-      const nsTArray<RefPtr<nsIMsgSearchTerm>>& searchTerms,
-      nsIMsgFolder* folder);
-
- protected:
-  virtual nsresult PrefetchNext() override;
-
-  nsCOMPtr<nsIMsgSearchSession> m_searchSession;
 };
 
 namespace mozilla {

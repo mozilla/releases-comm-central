@@ -8,7 +8,7 @@
 #include "nsCOMPtr.h"
 #include "nsMsgThread.h"
 #include "nsMsgMessageFlags.h"
-#include "nsSimpleEnumerator.h"
+#include "nsMsgEnumerator.h"
 #include "MailNewsTypes2.h"
 #include "mozilla/DebugOnly.h"
 
@@ -548,6 +548,9 @@ NS_IMETHODIMP nsMsgThread::MarkChildRead(bool bRead) {
   return NS_OK;
 }
 
+/**
+ * Helper class for enumerating through the messages in a thread.
+ */
 class nsMsgThreadEnumerator : public nsBaseMsgEnumerator {
  public:
   // nsIMsgEnumerator support.

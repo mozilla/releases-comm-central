@@ -8,6 +8,7 @@ SOURCES += [
     "nsImapMailDatabase.cpp",
     "nsMailDatabase.cpp",
     "nsMsgDatabase.cpp",
+    "nsMsgDatabaseEnumerators.cpp",
     "nsMsgHdr.cpp",
     "nsMsgOfflineImapOperation.cpp",
     "nsMsgThread.cpp",
