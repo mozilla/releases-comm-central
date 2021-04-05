@@ -3,6 +3,72 @@
     "namespace": "mailTabs",
     "types": [
       {
+        "id": "MailTab",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "windowId": {
+            "type": "integer"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "sortType": {
+            "type": "string",
+            "enum": [
+              "none",
+              "date",
+              "subject",
+              "author",
+              "id",
+              "thread",
+              "priority",
+              "status",
+              "size",
+              "flagged",
+              "unread",
+              "recipient",
+              "location",
+              "tags",
+              "junkStatus",
+              "attachments",
+              "account",
+              "custom",
+              "received",
+              "correspondent"
+            ]
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "none",
+              "ascending",
+              "descending"
+            ]
+          },
+          "layout": {
+            "type": "string",
+            "enum": [
+              "standard",
+              "wide",
+              "vertical"
+            ]
+          },
+          "folderPaneVisible": {
+            "type": "boolean"
+          },
+          "messagePaneVisible": {
+            "type": "boolean"
+          },
+          "displayedFolder": {
+            "$ref": "folders.MailFolder",
+            "description": "The <permission>accountsRead</permission> permission is required for this property to be included."
+          }
+        }
+      },
+      {
         "id": "QuickFilterTextDetail",
         "type": "object",
         "properties": {
@@ -38,7 +104,7 @@
         "name": "query",
         "type": "function",
         "description": "Gets all mail tabs that have the specified properties, or all mail tabs if no properties are specified.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "type": "object",
@@ -66,6 +132,60 @@
                 "description": "The ID of the parent window, or :ref:`windows.WINDOW_ID_CURRENT` for the current window."
               }
             }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "MailTab"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get",
+        "type": "function",
+        "description": "Get the properties of a mail tab.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "ID of the requested mail tab. Throws if the requested tab is not a mail tab."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MailTab"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getCurrent",
+        "type": "function",
+        "description": "Get the properties of the active mail tab, if the active tab is a mail tab. Returns undefined otherwise",
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MailTab"
+              }
+            ]
           }
         ]
       },
@@ -157,7 +277,7 @@
         "type": "function",
         "description": "Lists the selected messages in the current folder.",
         "permissions": ["messagesRead"],
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "tabId",
@@ -165,6 +285,16 @@
             "description": "Defaults to the active tab of the current window.",
             "optional": true,
             "minimum": 1
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "messages.MessageList"
+              }
+            ]
           }
         ]
       },

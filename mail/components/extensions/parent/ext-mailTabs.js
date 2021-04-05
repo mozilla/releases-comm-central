@@ -176,6 +176,19 @@ this.mailTabs = class extends ExtensionAPI {
           );
         },
 
+        async get(tabId) {
+          let tab = getTabOrActive(tabId);
+          return convertMailTab(tab, context);
+        },
+        async getCurrent() {
+          try {
+            let tab = getTabOrActive();
+            return convertMailTab(tab, context);
+          } catch (e) {
+            // Do not throw, if the active tab is not a mail tab, but return undefined.
+            return undefined;
+          }
+        },
         async update(tabId, args) {
           let tab = getTabOrActive(tabId);
           let { nativeTab } = tab;
