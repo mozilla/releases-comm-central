@@ -1,5 +1,7 @@
 "use strict";
 
+const path = require("path");
+
 const xpcshellTestConfig = require("eslint-plugin-mozilla/lib/configs/xpcshell-test.js");
 const browserTestConfig = require("eslint-plugin-mozilla/lib/configs/browser-test.js");
 
@@ -25,14 +27,11 @@ const browserTestPaths = [
 ];
 
 module.exports = {
-  parser: "babel-eslint",
+  parser: "@babel/eslint-parser",
   parserOptions: {
     sourceType: "script",
     babelOptions: {
-      plugins: [
-        "@babel/plugin-syntax-optional-chaining",
-        "@babel/plugin-syntax-nullish-coalescing-operator",
-      ],
+      configFile: path.join(__dirname, "..", ".babel-eslint.rc.js"),
     },
   },
 
