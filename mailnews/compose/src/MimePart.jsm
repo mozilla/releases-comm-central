@@ -207,7 +207,7 @@ class MimePart {
   async _fetchFile() {
     let url = this._bodyAttachment.url;
     let headers = {};
-    let isMessage = true;
+    let isMessage = false;
 
     if (/^[^:]+-message:/i.test(url)) {
       let outUri = Cc["@mozilla.org/messenger;1"]
