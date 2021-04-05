@@ -2867,8 +2867,9 @@ nsresult nsMsgComposeAndSend::DeliverFileAsMail() {
         ""_ns, getter_AddRefs(runningUrl), getter_AddRefs(mRunningRequest));
     // set envid on the returned URL
     if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsISmtpUrl> smtpUrl(do_QueryInterface(runningUrl, &rv));
-      if (NS_SUCCEEDED(rv))
+      nsresult rv2;
+      nsCOMPtr<nsISmtpUrl> smtpUrl(do_QueryInterface(runningUrl, &rv2));
+      if (NS_SUCCEEDED(rv2))
         smtpUrl->SetDsnEnvid(nsDependentCString(mCompFields->GetMessageId()));
     }
   }
