@@ -739,11 +739,6 @@ class SmtpClient {
     }
 
     try {
-      return Cc["@mozilla.org/network/dns-service"].getService(Ci.nsIDNSService)
-        .myHostName;
-    } catch (e) {}
-
-    try {
       // The address format follows rfc5321#section-4.1.3.
       let netAddr = this.socket?.transport.getScriptableSelfAddr();
       let address = netAddr.address;
