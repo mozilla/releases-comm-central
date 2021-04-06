@@ -199,7 +199,6 @@ async function reloadData(firstLoad) {
   if (gModePersonal) {
     gPersonalRadio.removeAttribute("hidden");
     gAcceptanceRadio.setAttribute("hidden", "true");
-    document.getElementById("ownKeyCommands").removeAttribute("hidden");
     acceptanceIntro1Text = "key-accept-personal";
     acceptanceIntro2Text = "key-personal-warning";
     let value = l10n.formatValueSync("key-type-pair");
@@ -218,7 +217,6 @@ async function reloadData(firstLoad) {
     }
   } else {
     gPersonalRadio.setAttribute("hidden", "true");
-    document.getElementById("ownKeyCommands").setAttribute("hidden", "true");
     let value = l10n.formatValueSync("key-type-public");
     setLabel("keyType", value);
 
