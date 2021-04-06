@@ -541,6 +541,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (-moz-windows-default-theme) {
+@supports not -moz-bool-pref("browser.proton.enabled") {
   menulist,
   menulist[disabled="true"] {
     appearance: none;
@@ -590,6 +591,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     width: 9px;
     height: 7px;
   }
+} /** END not Proton **/
 
   #viewPickerPopup > menu,
   #viewPickerPopup > menuitem {
@@ -641,6 +643,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
   }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
   menulist {
     border-radius: 2px;
   }
@@ -649,6 +652,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     text-shadow: none;
     transition: none;
   }
+} /** END not Proton **/
 
   #viewPickerPopup menu,
   #viewPickerPopup menuitem {

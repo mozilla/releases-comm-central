@@ -4,10 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/searchBox.css");
 
-:root {
-  --toolbar-field-focus-border-color: -moz-accent-color;
-}
-
 .search-icon {
   margin-inline-start: 7px;
 }
@@ -20,17 +16,9 @@
 .themeableSearchBox {
   background-color: Field;
   border: 1px solid ThreeDShadow;
-  border-radius: 2px;
   padding-block: 3px;
   padding-inline: 4px 2px;
   margin: 0 3px;
-}
-
-.gloda-search:focus,
-.searchBox[focused="true"],
-.themeableSearchBox:not([disabled="true"]):focus,
-.themeableSearchBox:not([disabled="true"])[focused="true"] {
-  border-color: Highlight;
 }
 
 .autocomplete-richlistitem[type^="gloda-"] {

@@ -10,6 +10,7 @@
   margin-inline-start: 4px;
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 #CustomizeToolbarWindow menulist {
   background-image: none;
 }
@@ -17,3 +18,4 @@
 #CustomizeToolbarWindow menulist::part(label-box) {
   background: none;
 }
+} /** END not Proton **/

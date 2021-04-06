@@ -6,6 +6,7 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 :root {
   --button-border-radius: 0;
 }
@@ -15,6 +16,7 @@
     --button-border-radius: 2px;
   }
 }
+} /** END not Proton **/
 
 html|input {
   padding: 2px 4px;
@@ -34,6 +36,7 @@ menu > menupopup > menu {
   padding-inline: 5px;
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 .menu-right {
   transform: scale(0.7);
 }
@@ -41,6 +44,19 @@ menu > menupopup > menu {
 .menu-right:-moz-locale-dir(ltr) {
   transform: scaleX(-1) scale(0.7);
 }
+} /** END not Proton **/
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-os-version: windows-win10: 0) and (-moz-windows-default-theme) {
+  .menu-right {
+    transform: scale(0.5);
+  }
+
+  .menu-right:-moz-locale-dir(rtl) {
+    transform: scaleX(-1) scale(0.5);
+  }
+}
+} /** END Proton **/
 
 .radio-label-box {
   margin-inline-start: 0;

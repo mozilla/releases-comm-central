@@ -16,6 +16,19 @@
   }
 }
 
+@supports -moz-bool-pref("browser.proton.enabled") {
+@media (prefers-color-scheme: dark) {
+  :root {
+    --in-content-primary-button-background: #45a1ff;
+    --in-content-primary-button-background-hover: #65c1ff;
+    --in-content-primary-button-background-active: #85e1ff;
+    --checkbox-checked-bgcolor: #45a1ff;
+    --checkbox-checked-hover-bgcolor: #65c1ff;
+    --checkbox-checked-active-bgcolor: #85e1ff;
+  }
+}
+} /** END Proton **/
+
 #MailPreferences {
   appearance: none;
   font: message-box;
@@ -92,6 +105,18 @@ label {
   line-height: 1.8em;
   margin: 0;
 }
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+button {
+  height: unset;
+}
+
+menulist::part(label),
+menuitem > label,
+button > hbox > label {
+  line-height: unset;
+}
+} /** END Proton **/
 
 #preferencesContainer {
   padding: 0 28px 40px;
@@ -322,7 +347,11 @@ description > html|a {
 
 .indent,
 html|input.indent {
-  margin-inline-start: 33px;
+  margin-inline-start: 28px;
+}
+
+checkbox {
+  margin-inline: 0;
 }
 
 .align-no-label {

@@ -18,19 +18,21 @@
   --toolbar-non-lwt-bgimage: none;
   --chrome-content-separator-color: hsl(0, 0%, 60%);
 
-  --toolbarbutton-border-radius: 3px;
-
   --row-grouped-header-bg-color: #d5d5d5;
   --row-grouped-header-bg-color-selected: #3874d1;
   --panel-separator-color: hsla(210, 4%, 10%, .14);
-  --arrowpanel-dimmed: hsla(0, 0%, 80%, .3);
-  --arrowpanel-dimmed-further: hsla(0, 0%, 80%, .45);
   --splitter-color: #bdbdbd;
   --urlbar-popup-url-color: hsl(210, 77%, 47%);
   --urlbar-popup-action-color: hsl(178, 100%, 28%);
 
   --select-focus-text-color: HighlightText;
 }
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
+:root {
+  --toolbarbutton-border-radius: 3px;
+}
+} /** END not Proton **/
 
 :root:not(:-moz-lwtheme) {
   --tabs-border-color: rgba(0, 0, 0, .2);
@@ -45,8 +47,6 @@
 
 :root[lwt-popup-brighttext] {
   --panel-separator-color: rgba(249, 249, 250, .1);
-  --arrowpanel-dimmed: rgba(249, 249, 250, .1);
-  --arrowpanel-dimmed-further: rgba(249, 249, 250, .15);
 }
 
 :root[lwt-tree] {
@@ -169,6 +169,16 @@ toolbarbutton[type="menu-button"] {
 toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   margin-top: 1px;
 }
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+menulist {
+  padding: 1px 6px;
+}
+
+menulist > menupopup:not([position]) {
+  margin-inline-start: 0;
+}
+} /** END Proton **/
 
 /* :::::: throbber :::::::::: */
 

@@ -54,8 +54,13 @@ fieldset:last-of-type {
 
 #accountActionsButton {
   margin-inline: 0;
+  background-color: var(--in-content-button-background-hover);
   border-end-end-radius: 0;
   border-start-end-radius: 0;
+}
+
+#accountActionsButton:hover {
+  background-color: var(--in-content-button-background-active);
 }
 
 #accountActionsDropdown {
@@ -168,12 +173,25 @@ menulist > menupopup menuitem {
 }
 
 /* Needed for additional menupopup levels */
+@supports not -moz-bool-pref("browser.proton.enabled") {
 menulist > menupopup menupopup {
   appearance: none;
   border: 1px solid var(--in-content-box-border-color);
   border-radius: 2px;
   background-color: var(--in-content-box-background);
 }
+} /** END not Proton **/
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+menulist > menupopup menupopup {
+  font: inherit;
+}
+
+menulist > menupopup menupopup > menu,
+menulist > menupopup menupopup > menuitem {
+  border: 1px solid transparent;
+}
+} /** END Proton **/
 
 menulist > menupopup menupopup > menu:not([disabled="true"])[_moz-menuactive="true"],
 menulist > menupopup menupopup > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
@@ -181,11 +199,13 @@ menulist > menupopup menupopup > menuitem:not([disabled="true"])[_moz-menuactive
   background-color: var(--in-content-item-hover);
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 menulist > menupopup menupopup > menu:not([disabled="true"])[selected="true"],
 menulist > menupopup menupopup > menuitem:not([disabled="true"])[selected="true"] {
   color: var(--in-content-selected-text);
   background-color: var(--in-content-item-selected);
 }
+} /** END not Proton **/
 
 menulist > menupopup menupopup > menu[disabled="true"],
 menulist > menupopup menupopup > menuitem[disabled="true"] {
@@ -231,6 +251,25 @@ richlistitem[default="true"],
 #identitiesList > richlistitem:first-child {
   font-weight: bold;
 }
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+#accounttree > treechildren::-moz-tree-twisty {
+  color: var(--in-content-page-color);
+}
+
+#accounttree > treechildren::-moz-tree-row(selected) {
+  background-color: var(--in-content-accent-color);
+}
+
+#accounttree > treechildren::-moz-tree-image(selected),
+#accounttree > treechildren::-moz-tree-twisty(selected) {
+  fill: var(--in-content-primary-button-text-color) !important;
+}
+
+#accounttree > treechildren::-moz-tree-cell-text(selected) {
+  color: var(--in-content-primary-button-text-color);
+}
+} /** END Proton **/
 
 treechildren::-moz-tree-cell-text(isDefaultServer-true) {
   text-decoration: underline;

@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-:root {
-  --toolbar-field-focus-border-color: Highlight;
-}
-
 .gloda-search {
   padding-inline-start: 21px !important;
   -moz-box-flex: 1;
@@ -23,6 +19,7 @@
 .searchBox,
 .themeableSearchBox {
   appearance: none;
+  border-radius: var(--toolbarbutton-border-radius);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   outline: none;
   height: 24px;
@@ -37,18 +34,25 @@
 }
 
 .themeableSearchBox[disabled] {
-  border-color: hsla(240,5%,5%,.1) !important;
+  border-color: hsla(240, 5%, 5%, .1) !important;
 }
 
 .searchBox:hover,
 .themeableSearchBox:not([disabled]):hover {
-  border-color: hsla(240,5%,5%,.35);
-  box-shadow: 0 1px 6px rgba(0,0,0,.1);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, .1);
+}
+
+.gloda-search:focus,
+.searchBox[focused="true"],
+.themeableSearchBox:not([disabled="true"]):focus,
+.themeableSearchBox:not([disabled="true"])[focused="true"] {
+  border-color: var(--toolbar-field-focus-border-color);
+  outline: 1px solid var(--toolbar-field-focus-border-color);
 }
 
 .searchBox:-moz-lwtheme-brighttext:hover,
 .themeableSearchBox:-moz-lwtheme-brighttext:not([disabled]):hover {
-  box-shadow: 0 1px 3px rgba(255,255,255,.1);
+  box-shadow: 0 1px 3px rgba(255, 255, 255, .25);
 }
 
 /* special treatment because these boxes are on themable toolbars */
@@ -59,25 +63,11 @@
 .remote-gloda-search:-moz-lwtheme {
   background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
   color: var(--lwt-toolbar-field-color, black);
-}
-
-.gloda-search:not(:focus):-moz-lwtheme,
-#searchBox:not([focused="true"]):-moz-lwtheme,
-#peopleSearchInput:not([focused="true"]):-moz-lwtheme,
-.themeableSearchBox:not([focused="true"]):-moz-lwtheme,
-.remote-gloda-search:not([focused="true"]):-moz-lwtheme {
   border-color: var(--lwt-toolbar-field-border-color, hsla(240,5%,5%,.25));
 }
 
-.gloda-search:-moz-lwtheme:hover,
-#searchBox:-moz-lwtheme:hover,
-#peopleSearchInput:-moz-lwtheme:hover,
-.themeableSearchBox:-moz-lwtheme:not([disabled]):hover,
-.remote-gloda-search:-moz-lwtheme:hover {
-  background-color: var(--lwt-toolbar-field-background-color, white);
-}
-
 .gloda-search:-moz-lwtheme:focus,
+.themeableSearchBox:-moz-lwtheme:focus,
 #searchBox:-moz-lwtheme[focused="true"],
 #peopleSearchInput:-moz-lwtheme[focused="true"],
 .themeableSearchBox:-moz-lwtheme[focused="true"],

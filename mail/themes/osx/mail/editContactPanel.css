@@ -33,12 +33,7 @@
 }
 
 html|input.editContactTextbox {
-  appearance: none;
-  cursor: text;
-  margin: 2px 6px;
   background-color: #fff;
-  border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.3);
   padding: 3px 8px;
-  width: 20em;
 }

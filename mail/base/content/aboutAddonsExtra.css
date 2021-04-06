@@ -12,6 +12,16 @@
   }
 }
 
+@supports -moz-bool-pref("browser.proton.enabled") {
+@media (prefers-color-scheme: dark) {
+  :root {
+    --in-content-primary-button-background: #45a1ff !important;
+    --in-content-primary-button-background-hover: #65c1ff !important;
+    --in-content-primary-button-background-active: #85e1ff !important;
+  }
+}
+} /** END Proton **/
+
 #sidebar {
   background-color: var(--in-content-categories-background);
 }

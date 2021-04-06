@@ -6,9 +6,11 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 :root {
   --button-border-radius: 2px;
 }
+} /** END not Proton **/
 
 button > .button-box {
   appearance: none;
@@ -70,10 +72,11 @@ button menupopup menuitem {
 .menu-right {
   height: 1em;
   margin-inline-end: 3px;
+  transform: scale(0.7);
 }
 
-.menu-right:-moz-locale-dir(ltr) {
-  transform: scaleX(-1);
+.menu-right:-moz-locale-dir(rtl) {
+  transform: scaleX(-1) scale(0.7);
 }
 
 tab + tab {

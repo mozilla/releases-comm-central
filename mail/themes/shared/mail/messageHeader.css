@@ -561,14 +561,6 @@ mail-headerfield:focus {
   color: inherit;
 }
 
-:root[lwt-tree] html|input.editContactTextbox {
-  background-color: var(--lwt-toolbar-field-background-color);
-  color: var(--lwt-toolbar-field-color);
-}
-:root[lwt-tree] html|input.editContactTextbox:not([readonly],:focus) {
-  border-color: var(--panel-separator-color);
-}
-
 /* OpenPGP and S/MIME encryption and signature status icons */
 
 .crypto-container {

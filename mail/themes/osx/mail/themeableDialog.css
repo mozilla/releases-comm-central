@@ -8,9 +8,15 @@
 
 :host,
 :root {
-  --button-border-radius: 3px;
   appearance: none;
 }
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
+:host,
+:root {
+  --button-border-radius: 3px;
+}
+} /** END not Proton **/
 
 button > .button-box {
   padding-block: 3px;
@@ -66,10 +72,11 @@ menulist > menupopup:not([position]) {
 .menu-right {
   -moz-image-region: auto;
   margin-top: 3px;
+  transform: scale(0.7);
 }
 
-.menu-right:-moz-locale-dir(ltr) {
-  transform: scaleX(-1);
+.menu-right:-moz-locale-dir(rtl) {
+  transform: scaleX(-1) scale(0.7);
 }
 
 tabbox {

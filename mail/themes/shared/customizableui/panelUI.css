@@ -6,6 +6,7 @@
   --menu-panel-width: 22.35em;
   --wide-menu-panel-width: 29em;
   --panel-palette-icon-size: 16px;
+  --panel-separator-margin: 6px 0;
 
   /* XXXgijs This is the ugliest bit of code I think I've ever written for Mozilla.
   Basically, the [extra 0.1px in the 1.1px] is there to avoid CSS rounding errors
@@ -19,6 +20,16 @@
   --appmenu-warning-color: black;
   --appmenu-warning-border-color: hsl(45, 100%, 77%);
 }
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+:root {
+  --panel-separator-margin: 4px 8px;
+  --arrowpanel-menuitem-border-radius: 3px;
+
+  --panelview-toolbarbutton-hover-bgcolor: var(--arrowpanel-dimmed);
+  --panelview-toolbarbutton-active-bgcolor: var(--arrowpanel-dimmed-further);
+}
+} /** END Proton **/
 
 :root[lwt-popup-brighttext] {
   --appmenu-warning-background-color: hsla(55, 100%, 50%, .1);
@@ -63,8 +74,14 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   overflow-y: auto;
   overflow-x: hidden;
   -moz-box-flex: 1;
+  padding: 8px 0;
+}
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
+.panel-subview-body {
   padding: 6px 0;
 }
+} /** END not Proton **/
 
 .panel-view-body-unscrollable {
   overflow: hidden;
@@ -89,9 +106,15 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
 }
 
 #appmenu-edit-button {
-  margin-inline-start: 0;
+  margin-inline: 0 3px;
   padding-inline: 7px;
 }
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
+#appmenu-edit-button {
+  margin-inline-start: 0;
+}
+} /** END not Proton **/
 
 #appmenu-edit-button::after {
   margin-inline-start: 0;
@@ -199,6 +222,7 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
   display: none;
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 .subview-subheader,
 panelview .toolbarbutton-1,
 .subviewbutton,
@@ -209,6 +233,21 @@ panelview .toolbarbutton-1,
   padding: 4px 12px;
   background-color: transparent;
 }
+} /** END not Proton **/
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+.subview-subheader,
+panelview .toolbarbutton-1,
+.subviewbutton,
+.widget-overflow-list .toolbarbutton-1 {
+  appearance: none;
+  margin: 0 8px;
+  min-height: 24px;
+  padding: 8px;
+  border-radius: var(--arrowpanel-menuitem-border-radius);
+  background-color: transparent;
+}
+} /** END Proton **/
 
 .subviewbutton:focus {
   outline: 0;
@@ -265,7 +304,7 @@ panelview .toolbarbutton-1,
 
 .PanelUI-subView .subviewbutton-nav::after {
   -moz-context-properties: fill, fill-opacity;
-  content: url("chrome://messenger/skin/customizableui/menu-arrow.svg");
+  content: url("chrome://global/skin/icons/menu-arrow.svg");
   fill: currentColor;
   fill-opacity: 0.6;
   float: inline-end;
@@ -389,21 +428,8 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
   min-height: 0;
   border-top: 1px solid var(--panel-separator-color);
   border-bottom: none;
-  margin: 6px 0;
+  margin: var(--panel-separator-margin);
   padding: 0;
-}
-
-.PanelUI-subView menuseparator {
-  margin-inline: -5px -4px;
-}
-
-.PanelUI-subView menuseparator.small-separator,
-.PanelUI-subView toolbarseparator.small-separator {
-  margin-inline: 5px;
-}
-
-.cui-widget-panelview menuseparator.small-separator {
-  margin-inline: 10px;
 }
 
 .PanelUI-subView toolbarseparator[orient="vertical"] {
@@ -497,7 +523,7 @@ toolbaritem[overflowedItem=true],
 .widget-overflow-list .subviewbutton-nav::after {
   margin-inline-start: 10px;
   -moz-context-properties: fill, fill-opacity;
-  content: url(chrome://messenger/skin/customizableui/menu-arrow.svg);
+  content: url("chrome://global/skin/icons/menu-arrow.svg");
   fill: currentColor;
   fill-opacity: 0.6;
   float: inline-end;
@@ -581,7 +607,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 .panel-header > .subviewbutton-back {
   -moz-context-properties: fill;
   fill: var(--arrowpanel-color);
-  list-style-image: url("chrome://global/skin/icons/arrow-left.svg");
+  list-style-image: url("chrome://global/skin/icons/menu-arrow-left.svg");
   padding: 8px;
 }
 

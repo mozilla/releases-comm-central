@@ -21,7 +21,6 @@
   skin/classic/messenger/subscribe.css                        (../shared/mail/subscribe.css)
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
   skin/classic/messenger/addressbook/abResultsPane.css        (../shared/mail/abResultsPane.css)
-  skin/classic/messenger/customizableui/menu-arrow.svg        (../shared/customizableui/menu-arrow.svg)
   skin/classic/messenger/addressbook/icons/contact-generic.svg      (../shared/mail/icons/contact-generic.svg)
   skin/classic/messenger/addressbook/icons/menu.svg           (../shared/mail/icons/menu.svg)
   skin/classic/messenger/downloads/download.svg               (../shared/mail/icons/download.svg)

@@ -30,31 +30,9 @@ menu.subviewbutton > .menu-right {
   appearance: none;
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 .PanelUI-subView menuseparator,
 .cui-widget-panelview menuseparator {
   padding: 0 !important;
 }
-
-.panel-button {
-  appearance: none;
-  border-radius: 2px;
-  background-color: var(--arrowpanel-dimmed);
-  color: inherit;
-  padding: 2px 6px;
-}
-
-/* With original pre-processor step:
-   .panel-button@buttonStateHover@ */
-.panel-button:not([disabled],[open],:active):is(:hover,:focus) {
-  background-color: var(--arrowpanel-dimmed-further);
-}
-
-/* With original pre-processor step:
-   .panel-button@buttonStateActive@ */
-.panel-button:not([disabled]):is([open],:hover:active) {
-   background-color: var(--arrowpanel-dimmed-even-further);
-}
-
-.panel-button:-moz-focusring {
-  box-shadow: var(--focus-ring-box-shadow);
-}
+} /** END not Proton **/

@@ -15,7 +15,6 @@
 .themeableSearchBox {
   margin-block: 3px 2px;
   border: 1px solid hsla(240, 5%, 5%, 0.25);
-  border-radius: 3px;
   font: icon;
   padding: 1px 4px;
 }
@@ -29,15 +28,6 @@
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 0.8;
-}
-
-/* special treatment because these boxes are on themable toolbars */
-.gloda-search:focus,
-.searchBox[focused="true"],
-.themeableSearchBox:not([disabled="true"]):focus,
-.themeableSearchBox:not([disabled="true"])[focused="true"] {
-  border-color: -moz-mac-focusring;
-  box-shadow: var(--focus-ring-box-shadow);
 }
 
 .gloda-search,

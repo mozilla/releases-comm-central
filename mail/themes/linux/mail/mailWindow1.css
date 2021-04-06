@@ -149,6 +149,7 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 
 /* ..... menulists on main toolbar ..... */
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 menulist {
   appearance: none;
   min-height: 24px;
@@ -191,3 +192,4 @@ menulist::part(label-box) {
 menulist:-moz-locale-dir(rtl)::part(label-box) {
   background-position: left;
 }
+} /** END not Proton **/

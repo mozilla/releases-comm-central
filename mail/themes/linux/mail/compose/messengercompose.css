@@ -17,6 +17,7 @@
 
 /* ::::: menulists on toolbar ::::: */
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 menulist {
   appearance: none;
   min-height: 24px;
@@ -32,10 +33,6 @@ menulist {
 
 #composeToolbar2 menulist {
   background: var(--toolbarbutton-hover-background);
-}
-
-#FormatToolbar menulist {
-  background: transparent;
 }
 
 #composeToolbar2 menulist:not([disabled="true"],[open="true"]):hover {
@@ -74,6 +71,7 @@ menulist::part(label-box) {
 menulist:-moz-locale-dir(rtl)::part(label-box) {
   background-position: left;
 }
+} /** END not Proton **/
 
 /* ::::: special toolbar colors ::::: */
 

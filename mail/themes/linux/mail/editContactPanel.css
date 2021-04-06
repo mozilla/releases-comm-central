@@ -11,16 +11,7 @@
 }
 
 html|input.editContactTextbox {
-  appearance: none;
-  cursor: text;
-  margin: 1px 4px;
   background-color: Field;
-  border-radius: 3px;
   border: 1px solid ThreeDShadow;
   padding: 3px 6px;
-  width: 20em;
-}
-
-html|input.editContactTextbox:focus {
-  border-color: Highlight;
 }

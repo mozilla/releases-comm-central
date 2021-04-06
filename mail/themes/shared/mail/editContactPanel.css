@@ -44,11 +44,35 @@
   min-width: 20em;
 }
 
+html|input.editContactTextbox {
+  appearance: none;
+  cursor: text;
+  border-radius: var(--toolbarbutton-border-radius);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  padding: 3px 8px;
+  width: 20em;
+}
+
+html|input.editContactTextbox:focus {
+  border-color: var(--focus-outline-color, -moz-accent-color);
+  outline: 1px solid var(--focus-outline-color, -moz-accent-color);
+}
+
 html|input.editContactTextbox[readonly] {
-  border-color: transparent;
-  background-color: inherit;
+  border-color: transparent !important;
+  background-color: inherit !important;
   box-shadow: none;
   color: inherit;
+  outline: none !important;
+}
+
+:root[lwt-tree] html|input.editContactTextbox {
+  background-color: var(--lwt-toolbar-field-background-color);
+  color: var(--lwt-toolbar-field-color);
+}
+
+:root[lwt-tree] html|input.editContactTextbox:not([readonly],:focus) {
+  border-color: var(--panel-separator-color);
 }
 
 #contactMoveDisabledText {

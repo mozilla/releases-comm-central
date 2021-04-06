@@ -205,6 +205,7 @@ toolbar[nowindowdrag="true"] {
   background-image: none;
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 #FormatToolbar menulist {
   appearance: none;
   min-height: 24px;
@@ -251,6 +252,7 @@ toolbar[nowindowdrag="true"] {
 #FormatToolbar menulist > menupopup {
   margin-inline-start: 0;
 }
+} /** END not Proton **/
 
 toolbarbutton.formatting-button {
   margin-inline: 1px;

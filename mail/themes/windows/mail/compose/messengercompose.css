@@ -130,9 +130,11 @@
   outline: none;
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 #msgIdentity::part(dropmarker) {
   display: none;
 }
+} /** END not Proton **/
 
 @media (-moz-windows-default-theme: 0) {
   #msgIdentity::part(label-box) {
@@ -140,10 +142,12 @@
     color: inherit !important;
   }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
   menulist::part(dropmarker-icon) {
     width: 9px;
     height: 7px;
   }
+} /** END not Proton **/
 }
 
 #msgIdentity::part(text-input) {
@@ -239,6 +243,7 @@ toolbar:not(:-moz-lwtheme) {
 
 /* ::::: primary toolbar buttons ::::: */
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 @media (-moz-windows-default-theme) {
   menulist {
     appearance: none;
@@ -246,6 +251,7 @@ toolbar:not(:-moz-lwtheme) {
     padding: 1px 2px;
   }
 }
+} /** END not Proton **/
 
 #compose-toolbar-sizer {
   position: relative;
@@ -265,6 +271,7 @@ toolbar:not(:-moz-lwtheme) {
   margin: 1px 5px;
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 menulist,
 menulist[disabled="true"] {
   color: inherit;
@@ -277,11 +284,6 @@ menulist[disabled="true"] {
 
 #composeToolbar2 menulist {
   background: var(--toolbarbutton-hover-background);
-}
-
-#FormatToolbar menulist {
-  appearance: none;
-  background: transparent
 }
 
 menulist[disabled="true"] {
@@ -316,6 +318,7 @@ menulist::part(dropmarker-icon) {
   width: 9px;
   height: 7px;
 }
+} /** END not Proton **/
 
 #languageStatusButton {
   height: 22px;
@@ -343,6 +346,7 @@ menulist::part(dropmarker-icon) {
     background-color: #eef3fa;
   }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
   menulist {
     border-radius: 2px;
   }
@@ -351,6 +355,7 @@ menulist::part(dropmarker-icon) {
     text-shadow: none;
     transition: none;
   }
+} /** END not Proton **/
 }
 
 @media (-moz-windows-glass) {

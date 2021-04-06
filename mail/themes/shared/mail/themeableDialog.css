@@ -5,13 +5,17 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
-  --button-background: rgba(128, 128, 128, .15);
-  --button-background-hover: rgba(128, 128, 128, .25);
-  --button-background-active: rgba(128, 128, 128, .35);
-  --button-border-color: rgba(128, 128, 128, .4);
+  --button-bgcolor: color-mix(in srgb, currentColor 13%, transparent);
+  --button-hover-bgcolor: color-mix(in srgb, currentColor 17%, transparent);
+  --button-active-bgcolor: color-mix(in srgb, currentColor 30%, transparent);
+  --button-border-color: color-mix(in srgb, currentColor 17%, transparent);
+  --button-border-radius: 3px;
   --box-text-color: MenuText;
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
+  --checkbox-border-color: var(--field-border-color);
+  --checkbox-unchecked-bgcolor: var(--field-background-color);
+  --checkbox-unchecked-hover-bgcolor: var(--field-background-color);
   --field-text-color: FieldText;
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, .6);
@@ -25,9 +29,6 @@
 }
 
 :root:-moz-lwtheme {
-  --button-background: #d2d2d3;
-  --button-background-hover: #c2c2c3;
-  --button-background-active: #b2b2b3;
   --box-text-color: #0c0c0d;
   --box-background-color: #fff;
   --box-border-color: #adadae;
@@ -41,10 +42,6 @@
 }
 
 :root:-moz-lwtheme-brighttext {
-  --button-background: #4c4c4e;
-  --button-background-hover: #575758;
-  --button-background-active: #626263;
-  --button-border-color: #626263;
   --box-text-color: rgb(249, 249, 250);
   --box-background-color: #202023;
   --box-border-color: rgba(249, 249, 250, 0.2);
@@ -79,13 +76,12 @@
   color: -moz-DialogText;
   text-shadow: none !important;
 
-  --button-background: rgba(128, 128, 128, .15);
-  --button-background-hover: rgba(128, 128, 128, .25);
-  --button-background-active: rgba(128, 128, 128, .35);
-  --button-border-color: rgba(128, 128, 128, .4);
   --box-text-color: MenuText;
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
+  --checkbox-border-color: rgba(128, 128, 128, .6);
+  --checkbox-unchecked-bgcolor: Field;
+  --checkbox-unchecked-hover-bgcolor: Field;
   --field-text-color: FieldText;
   --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, .6);
@@ -104,10 +100,17 @@ html|textarea {
   appearance: none;
   background-color: var(--field-background-color);
   border: 1px solid var(--field-border-color);
-  border-radius: 2px;
+  border-radius: 4px;
   color: var(--field-text-color);
   margin: 2px 4px;
 }
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
+html|input,
+html|textarea {
+  border-radius: 2px;
+}
+} /** END not Proton **/
 
 html|input:not(:focus):hover,
 html|textarea:not(:focus):hover {
@@ -141,7 +144,7 @@ html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
   appearance: none;
   background-position: center;
-  background-color: var(--button-background);
+  background-color: var(--button-bgcolor);
   border: 1px solid var(--field-border-color);
   border-radius: 2px;
   -moz-context-properties: fill;
@@ -164,7 +167,7 @@ html|input[type="color"] {
   color: inherit !important;
   border: 1px solid var(--button-border-color); /* needed for high-contrast mode, where it'll show up */
   border-radius: var(--button-border-radius);
-  background-color: var(--button-background);
+  background-color: var(--button-bgcolor);
   padding: 0 8px;
   text-decoration: none;
   margin: 4px;
@@ -188,9 +191,9 @@ html|input[type="color"] {
   min-height: 16px;
   padding: 2px !important;
   margin-inline-end: 4px;
-  --toolbarbutton-hover-background: var(--button-background-hover);
+  --toolbarbutton-hover-background: var(--button-hover-bgcolor);
   --toolbarbutton-hover-bordercolor: var(--button-border-color);
-  --toolbarbutton-active-background: var(--button-background-active);
+  --toolbarbutton-active-background: var(--button-active-bgcolor);
   --toolbarbutton-active-bordercolor: var(--button-border-color);
 }
 
@@ -214,14 +217,14 @@ button:not([disabled="true"]):hover,
 menulist:not([disabled="true"],[open="true"]):hover,
 menulist[open="true"]:not([disabled="true"]),
 html|input[type="color"]:not([disabled="true"]):hover {
-  background-color: var(--button-background-hover);
+  background-color: var(--button-hover-bgcolor);
 }
 
 button[open],
 button[open]:hover,
 button:not([disabled="true"]):hover:active,
 html|input[type="color"]:not([disabled="true"]):hover:active {
-  background-color: var(--button-background-active);
+  background-color: var(--button-active-bgcolor);
 }
 
 button[default="true"] {
@@ -245,6 +248,13 @@ menulist::part(label-box) {
   padding-block: 3px;
 }
 
+@supports -moz-bool-pref("browser.proton.enabled") {
+menulist::part(label-box) {
+  font-weight: inherit;
+  text-shadow: none;
+}
+} /** END Proton **/
+
 menulist:-moz-focusring::part(label-box),
 menulist:-moz-focusring:not([open="true"])::part(label-box) {
   outline: none;
@@ -252,6 +262,7 @@ menulist:-moz-focusring:not([open="true"])::part(label-box) {
 
 menulist::part(dropmarker) {
   appearance: none;
+  width: 16px;
   padding: 0;
   border: none;
   background-color: transparent;
@@ -259,6 +270,12 @@ menulist::part(dropmarker) {
   -moz-context-properties: fill;
   fill: currentColor;
 }
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+menulist::part(dropmarker) {
+  width: 16px;
+}
+} /** END Proton **/
 
 menulist::part(dropmarker-icon) {
   width: 12px;
@@ -326,9 +343,15 @@ menulist menupopup > menuitem[disabled="true"] {
 .menu-right {
   appearance: none;
   -moz-context-properties: fill;
-  list-style-image: url("chrome://messenger/skin/icons/back-12.svg");
+  list-style-image: url("chrome://global/skin/icons/menu-arrow.svg");
   fill: currentColor;
 }
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
+.menu-right {
+  list-style-image: url("chrome://messenger/skin/icons/back-12.svg");
+}
+} /** END not Proton **/
 
 button menupopup menuseparator,
 menulist menupopup menuseparator {
@@ -348,11 +371,19 @@ checkbox {
   appearance: none;
 }
 
+@supports -moz-bool-pref("browser.proton.enabled") {
+checkbox {
+  margin: 2px 4px;
+  padding-inline: 4px 2px;
+}
+} /** END Proton **/
+
 radio[disabled="true"],
 checkbox[disabled="true"] {
   color: #999;
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 .radio-check,
 .checkbox-check {
   appearance: none;
@@ -367,6 +398,19 @@ checkbox[disabled="true"] {
   background-position: center;
   background-repeat: no-repeat;
 }
+} /** END not Proton **/
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+.radio-check {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--field-border-color);
+  margin: 0;
+  margin-inline-end: 6px;
+  background-color: var(--field-background-color);
+}
+} /** END Proton **/
 
 .radio-check {
   border-radius: 50%;
@@ -383,11 +427,13 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
   fill: var(--highlight-color);
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 checkbox[checked="true"] > .checkbox-check {
   list-style-image: url("chrome://global/skin/icons/check.svg");
   -moz-context-properties: fill;
   fill: var(--highlight-color);
 }
+} /** END not Proton **/
 
 :root[lwt-tree] richlistbox {
   appearance: none;
@@ -428,8 +474,8 @@ richlistbox > richlistitem menulist {
 richlistitem button,
 richlistitem menulist {
   background-color: var(--richlist-button-background);
-  background-image: linear-gradient(var(--button-background),
-                                    var(--button-background));
+  background-image: linear-gradient(var(--button-bgcolor),
+                                    var(--button-bgcolor));
   color: var(--field-text-color) !important;
 }
 
@@ -437,16 +483,16 @@ richlistitem button:not([disabled="true"]):hover,
 richlistitem menulist:not([disabled="true"]):hover,
 richlistitem menulist[open="true"]:not([disabled="true"]) {
   background-color: var(--richlist-button-background);
-  background-image: linear-gradient(var(--button-background-hover),
-                                    var(--button-background-hover));
+  background-image: linear-gradient(var(--button-hover-bgcolor),
+                                    var(--button-hover-bgcolor));
 }
 
 richlistitem button[open],
 richlistitem button[open]:hover,
 richlistitem button:not([disabled="true"]):hover:active {
   background-color: var(--richlist-button-background);
-  background-image: linear-gradient(var(--button-background-active),
-                                    var(--button-background-active));
+  background-image: linear-gradient(var(--button-active-bgcolor),
+                                    var(--button-active-bgcolor));
 }
 
 :root[lwt-tree] tree {

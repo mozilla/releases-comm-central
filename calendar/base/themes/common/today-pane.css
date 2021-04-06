@@ -66,7 +66,7 @@
 
 .today-pane-cycler {
   appearance: none;
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   padding-left: 5px;
   padding-right: 5px;
   -moz-context-properties: fill;
@@ -281,8 +281,10 @@
 
 #show-completed-checkbox-box {
   padding-top: 3px;
+  padding-inline-start: 5px;
 }
 
+@supports not -moz-bool-pref("browser.proton.enabled") {
 #show-completed-checkbox > .checkbox-check {
   appearance: none;
   width: 14px;
@@ -303,6 +305,7 @@
   fill: Highlight;
   stroke: Highlight;
 }
+} /** END not Proton **/
 
 #agenda-listbox {
   appearance: none;

@@ -579,6 +579,25 @@ menulist::part(description) {
   margin-block: 1px;
 }
 
+#FormatToolbar > toolbaritem > menulist:not(:hover) {
+  background: transparent;
+}
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+#FormatToolbar > toolbaritem > menulist::part(label-box) {
+ text-shadow: none;
+}
+
+#FormatToolbar menulist:not([disabled="true"],[open="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+}
+
+#FormatToolbar menulist[open="true"] {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+}
+} /** END Proton **/
+
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {
   display: none;
 }
@@ -781,6 +800,12 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   border-style: none;
   margin-inline-start: 1px;
 }
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+#msgIdentity::part(dropmarker) {
+  display: none;
+}
+} /** END Proton **/
 
 #msgSubject {
   appearance: none;

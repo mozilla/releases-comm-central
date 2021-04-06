@@ -26,10 +26,12 @@ body {
   --autocomplete-popup-border-color: ThreeDShadow;
   --autocomplete-popup-highlight-background: Highlight;
   --autocomplete-popup-highlight-color: HighlightText;
-  --button-background: rgba(128, 128, 128, .15);
-  --button-background-hover: rgba(128, 128, 128, .25);
-  --button-background-active: rgba(128, 128, 128, .35);
-  --button-border-color: rgba(128, 128, 128, .4);
+
+  --button-bgcolor: color-mix(in srgb, currentColor 13%, transparent);
+  --button-hover-bgcolor: color-mix(in srgb, currentColor 17%, transparent);
+  --button-active-bgcolor: color-mix(in srgb, currentColor 30%, transparent);
+  --button-border-color: color-mix(in srgb, currentColor 17%, transparent);
+  --button-color: currentColor;
 
   --lwt-header-image: none;
 
@@ -55,8 +57,73 @@ body {
 
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
 
+  --toolbar-field-focus-border-color: -moz-accent-color;
+
   --item-focus-selected-border-color: #0060df;
 }
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
+  :root {
+    --arrowpanel-dimmed: hsla(0, 0%, 80%, .3);
+    --arrowpanel-dimmed-further: hsla(0, 0%, 80%, .45);
+  }
+} /** END not Proton **/
+
+@supports -moz-bool-pref("browser.proton.enabled") {
+:root {
+  --checkbox-unchecked-bgcolor: var(--lwt-toolbar-field-background-color, Field);
+  --checkbox-border-color: var(--lwt-toolbar-field-border-color, ThreeDDarkShadow);
+  --checkbox-unchecked-hover-bgcolor: color-mix(in srgb, -moz-accent-color 4%, var(--checkbox-unchecked-bgcolor));
+
+  --toolbarbutton-border-radius: 3px;
+}
+
+@media not (prefers-contrast) {
+  :root:not(:-moz-lwtheme) {
+    --buttons-primary-button-bgcolor: rgb(0, 97, 224);
+    --buttons-primary-button-hover-bgcolor: rgb(2, 80, 187);
+    --buttons-primary-button-active-bgcolor: rgb(5, 62, 148);
+    --buttons-primary-button-color: rgb(251, 251, 254);
+    --buttons-secondary-bgcolor: rgb(240, 240, 244);
+    --buttons-secondary-hover-bgcolor: rgb(224, 224, 230);
+    --buttons-secondary-active-bgcolor: rgb(207, 207, 216);
+    --buttons-secondary-color: rgb(21, 20, 26);
+    --buttons-box-shadow: transparent;
+
+    --focus-outline-color: var(--buttons-primary-button-bgcolor);
+    --focus-outline-offset: 2px;
+
+    --checkbox-border-color: rgb(143, 143, 157);
+    --checkbox-unchecked-bgcolor: rgb(240, 240, 244);
+    --checkbox-unchecked-hover-bgcolor: rgb(224, 224, 230);
+    --checkbox-unchecked-active-bgcolor: rgb(207, 207, 216);
+    --checkbox-checked-border-color: rgb(0, 97, 224);
+    --checkbox-checked-bgcolor: rgb(0, 97, 224);
+    --checkbox-checked-color: rgb(251, 251, 254);
+    --checkbox-checked-hover-bgcolor: rgb(2, 80, 187);
+    --checkbox-checked-active-bgcolor: rgb(5, 62, 148);
+
+    --default-arrowpanel-background: #fff;
+    --default-arrowpanel-color: rgb(21, 20, 26);
+
+    --arrowpanel-dimmed: color-mix(in srgb, currentColor 12%, transparent);
+    --arrowpanel-dimmed-further: color-mix(in srgb, currentColor 20%, transparent);
+    --arrowpanel-dimmed-even-further: color-mix(in srgb, currentColor 27%, transparent);
+
+    --error-text-color: #c50042;
+
+    --input-error-border-color: #e22850;
+  }
+
+  :root {
+    --focus-outline-color: #0061e0;
+  }
+
+  :root:-moz-lwtheme-brighttext {
+    --focus-outline-color: #45a1ff;
+  }
+}
+} /** END Proton **/
 
 :root:-moz-locale-dir(rtl) {
   direction: rtl;
@@ -95,13 +162,15 @@ body {
 }
 
 :root[lwt-tree-brighttext] {
-  --button-background: #4c4c4e;
-  --button-background-hover: #575758;
-  --button-background-active: #626263;
-  --button-border-color: #626263;
-
   --item-focus-selected-border-color: #bebebf;
 }
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
+:root[lwt-popup-brighttext] {
+  --arrowpanel-dimmed: rgba(249, 249, 250, .1);
+  --arrowpanel-dimmed-further: rgba(249, 249, 250, .15);
+}
+} /** END not Proton **/
 
 :root[lwt-popup-brighttext] {
   --urlbar-popup-url-color: #0a84ff;
@@ -116,6 +185,7 @@ body {
 :root[lwt-default-theme-in-dark-mode] {
   --lwt-accent-color: rgb(24, 24, 26) !important; /* override the default variable */
   --sidebar-border-color: #606064 !important;
+
   /* Toolbar buttons */
   --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
   --lwt-toolbarbutton-active-background: rgba(179, 179, 179, 0.6);
@@ -127,6 +197,10 @@ body {
 
   /* composer header fields bottom border */
   --composer-header-border-color: rgb(127, 127, 128);
+
+  --lwt-toolbar-field-border-color: #5f5f6d !important;
+
+  --unread-folder-color: var(--sidebar-text-color);
 }
 
 body {
@@ -447,6 +521,44 @@ description.error {
   padding-inline-start: 4px;
 }
 
+@supports -moz-bool-pref("browser.proton.enabled") {
+menulist {
+  min-height: 24px;
+  margin-block: 4px;
+  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+  border-radius: var(--toolbarbutton-border-radius);
+  background: var(--toolbarbutton-hover-background);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+}
+
+/* Override the not existing rule in menu.css */
+menulist[disabled="true"]:hover,
+menulist[open="true"]:hover {
+  background: var(--toolbarbutton-hover-background);
+}
+
+menulist:not([disabled="true"],[open="true"]):hover {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+}
+
+menulist[open="true"] {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+menulist[disabled="true"] {
+  opacity: 0.6;
+}
+
+menulist::part(label-box) {
+ font-weight: inherit;
+}
+}  /** END Proton **/
+
 /* Buttons */
 
 button {
@@ -456,7 +568,7 @@ button {
   color: inherit !important;
   border: 1px solid var(--button-border-color);
   border-radius: var(--toolbarbutton-border-radius);
-  background: var(--button-background);
+  background: var(--button-bgcolor);
   margin: 1px 5px;
   padding: 0 4px;
   box-shadow: none;
@@ -464,13 +576,13 @@ button {
 
 button:not([disabled="true"]):hover {
   border-color: var(--button-border-color);
-  background-color: var(--button-background-hover);
+  background-color: var(--button-hover-bgcolor);
 }
 
 button:not([disabled="true"])[open="true"],
 button:not([disabled="true"]):hover:active {
   border-color: var(--button-border-color);
-  background-color: var(--button-background-active);
+  background-color: var(--button-active-bgcolor);
 }
 
 button > .button-box {
@@ -958,6 +1070,12 @@ label.statusbarpanel {
 .abMenuItem[AddrBook="true"][IsRemote="true"][IsSecure="true"] {
   list-style-image: url("chrome://messenger/skin/icons/globe-secure.svg");
 }
+
+@supports -moz-bool-pref("browser.proton.doorhangers.enabled") {
+:is(panel, menupopup)::part(arrow) {
+  display: none;
+}
+} /** END Proton **/
 
 /* Panel toolbarbuttons */
 

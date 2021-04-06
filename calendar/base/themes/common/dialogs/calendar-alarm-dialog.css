@@ -75,7 +75,7 @@ richlistitem[is="calendar-alarm-widget-richlistitem"]:not([selected="true"]) .al
 }
 
 .snooze-popup-button:hover {
-    background-color: var(--button-background-hover);
+    background-color: var(--button-hover-bgcolor);
 }
 
 .snooze-popup-ok-button {

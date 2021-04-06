@@ -388,12 +388,12 @@ MailGlue.prototype = {
 
     AddonManager.maybeInstallBuiltinAddon(
       "thunderbird-compact-light@mozilla.org",
-      "1.1",
+      "1.2",
       "resource://builtin-themes/light/"
     );
     AddonManager.maybeInstallBuiltinAddon(
       "thunderbird-compact-dark@mozilla.org",
-      "1.1",
+      "1.2",
       "resource://builtin-themes/dark/"
     );
 

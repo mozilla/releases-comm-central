@@ -20,14 +20,15 @@
                                              rgba(255, 255, 255, .15));
   --chrome-content-separator-color: ThreeDShadow;
 
-  --toolbarbutton-border-radius: 0;
-
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: Highlight;
   --panel-separator-color: ThreeDLightShadow;
-  --arrowpanel-dimmed: hsla(0, 0%, 80%, .3);
-  --arrowpanel-dimmed-further: hsla(0, 0%, 80%, .45);
   --splitter-color: ThreeDShadow;
+}
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
+:root {
+  --toolbarbutton-border-radius: 0;
 }
 
 @media (-moz-os-version: windows-win7) {
@@ -35,6 +36,7 @@
   --toolbarbutton-border-radius: 2px;
   }
 }
+} /** END not Proton **/
 
 @media (-moz-windows-default-theme) {
   :root {
@@ -72,8 +74,6 @@
 
 :root[lwt-popup-brighttext] {
   --panel-separator-color: rgba(249, 249, 250, .1);
-  --arrowpanel-dimmed: rgba(249, 249, 250, .1);
-  --arrowpanel-dimmed-further: rgba(249, 249, 250, .15);
 }
 
 :root[lwt-tree] {
@@ -457,6 +457,13 @@ treechildren::-moz-tree-indentation {
   background-image: none;
 }
 
+@supports -moz-bool-pref("browser.proton.enabled") {
+menulist {
+  padding: 0 5px 1px !important;
+}
+} /** END Proton **/
+
+@supports not -moz-bool-pref("browser.proton.enabled") {
 /* Give menupopup[is="folder-menupopup"] a menu look */
 menupopup[is="folder-menupopup"] {
   appearance: auto;
@@ -474,6 +481,7 @@ menupopup[is="folder-menupopup"] > menuitem {
   appearance: auto;
   -moz-default-appearance: menuitem !important;
 }
+} /** END not Proton **/
 
 menulist.folderMenuItem::part(label) {
   margin-inline-start: 2px !important;

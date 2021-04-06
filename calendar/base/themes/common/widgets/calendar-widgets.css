@@ -36,18 +36,33 @@ checkbox.treenode-checkbox > .checkbox-check {
   border: none;
   width: 10px;
   height: 10px;
-  background: url(chrome://global/skin/icons/twisty-collapsed.svg) center no-repeat;
+  color: inherit;
+  background-image: url(chrome://global/skin/icons/twisty-expanded.svg);
   background-size: contain;
+  background-color: transparent !important;
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
-checkbox.treenode-checkbox[checked="true"] > .checkbox-check {
-  background-image: url("chrome://global/skin/icons/twisty-expanded.svg");
+@supports not -moz-bool-pref("browser.proton.enabled") {
+checkbox.treenode-checkbox > .checkbox-check {
+  min-width: 10px;
+  min-height: 10px;
+}
+} /** END not Proton **/
+
+checkbox.treenode-checkbox:not([checked="true"]) > .checkbox-check {
+  transform: rotate(-90deg);
 }
 
-checkbox.treenode-checkbox:-moz-locale-dir(rtl) > .checkbox-check {
-  background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+checkbox.treenode-checkbox:not([checked="true"]):-moz-locale-dir(rtl) > .checkbox-check {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  checkbox.treenode-checkbox > .checkbox-check {
+    transition: transform 200ms ease;
+  }
 }
 
 .checkbox-label-box {

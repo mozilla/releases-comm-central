@@ -28,7 +28,6 @@
 .searchBox,
 .themeableSearchBox {
   border: 1px solid hsla(240, 5%, 5%, 0.25);
-  border-radius: 2px;
   padding-block: 0;
   padding-inline: 4px 2px;
   margin-block: 2px;
@@ -41,13 +40,6 @@
   .themeableSearchBox:not(:-moz-lwtheme) {
     border-color: ThreeDShadow;
   }
-}
-
-.gloda-search:focus,
-.searchBox[focused="true"],
-.themeableSearchBox:not([disabled="true"]):focus,
-.themeableSearchBox:not([disabled="true"])[focused="true"] {
-  border-color: Highlight;
 }
 
 .autocomplete-richlistitem[type^="gloda-"] {
