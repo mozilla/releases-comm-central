@@ -583,7 +583,7 @@ menulist::part(description) {
   background: transparent;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 #FormatToolbar > toolbaritem > menulist::part(label-box) {
  text-shadow: none;
 }
@@ -801,7 +801,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   margin-inline-start: 1px;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 #msgIdentity::part(dropmarker) {
   display: none;
 }

@@ -62,14 +62,14 @@ body {
   --item-focus-selected-border-color: #0060df;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
   :root {
     --arrowpanel-dimmed: hsla(0, 0%, 80%, .3);
     --arrowpanel-dimmed-further: hsla(0, 0%, 80%, .45);
   }
 } /** END not Proton **/
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 :root {
   --checkbox-unchecked-bgcolor: var(--lwt-toolbar-field-background-color, Field);
   --checkbox-border-color: var(--lwt-toolbar-field-border-color, ThreeDDarkShadow);
@@ -165,7 +165,7 @@ body {
   --item-focus-selected-border-color: #bebebf;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 :root[lwt-popup-brighttext] {
   --arrowpanel-dimmed: rgba(249, 249, 250, .1);
   --arrowpanel-dimmed-further: rgba(249, 249, 250, .15);
@@ -521,7 +521,7 @@ description.error {
   padding-inline-start: 4px;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 menulist {
   min-height: 24px;
   margin-block: 4px;
@@ -1071,7 +1071,7 @@ label.statusbarpanel {
   list-style-image: url("chrome://messenger/skin/icons/globe-secure.svg");
 }
 
-@supports -moz-bool-pref("browser.proton.doorhangers.enabled") {
+@media (-moz-proton-doorhangers) {
 :is(panel, menupopup)::part(arrow) {
   display: none;
 }

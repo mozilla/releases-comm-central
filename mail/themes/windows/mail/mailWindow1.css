@@ -541,7 +541,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (-moz-windows-default-theme) {
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
   menulist,
   menulist[disabled="true"] {
     appearance: none;
@@ -643,7 +643,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     }
   }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
   menulist {
     border-radius: 2px;
   }

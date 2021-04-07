@@ -11,7 +11,7 @@
   appearance: none;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 :host,
 :root {
   --button-border-radius: 3px;

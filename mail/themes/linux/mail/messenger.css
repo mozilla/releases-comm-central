@@ -33,7 +33,7 @@
   --default-arrowpanel-color: FieldText;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 :root {
   --toolbarbutton-border-radius: 2px;
 }
@@ -231,7 +231,7 @@ toolbar:not(.inline-toolbar,.contentTabToolbar,:-moz-lwtheme) {
   height: 23px;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 menulist {
   padding: 1px 6px !important;
 }

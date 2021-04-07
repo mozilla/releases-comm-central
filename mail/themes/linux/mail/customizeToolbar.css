@@ -10,7 +10,7 @@
   margin-inline-start: 4px;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 #CustomizeToolbarWindow menulist {
   background-image: none;
 }

@@ -130,7 +130,7 @@
   outline: none;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 #msgIdentity::part(dropmarker) {
   display: none;
 }
@@ -142,7 +142,7 @@
     color: inherit !important;
   }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
   menulist::part(dropmarker-icon) {
     width: 9px;
     height: 7px;
@@ -243,7 +243,7 @@ toolbar:not(:-moz-lwtheme) {
 
 /* ::::: primary toolbar buttons ::::: */
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 @media (-moz-windows-default-theme) {
   menulist {
     appearance: none;
@@ -271,7 +271,7 @@ toolbar:not(:-moz-lwtheme) {
   margin: 1px 5px;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 menulist,
 menulist[disabled="true"] {
   color: inherit;
@@ -346,7 +346,7 @@ menulist::part(dropmarker-icon) {
     background-color: #eef3fa;
   }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
   menulist {
     border-radius: 2px;
   }

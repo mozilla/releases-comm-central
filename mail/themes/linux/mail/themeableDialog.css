@@ -6,7 +6,7 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 :root {
   --button-border-radius: 2px;
 }

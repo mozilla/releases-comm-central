@@ -21,7 +21,7 @@
   --appmenu-warning-border-color: hsl(45, 100%, 77%);
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 :root {
   --panel-separator-margin: 4px 8px;
   --arrowpanel-menuitem-border-radius: 3px;
@@ -77,7 +77,7 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   padding: 8px 0;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 .panel-subview-body {
   padding: 6px 0;
 }
@@ -110,7 +110,7 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
   padding-inline: 7px;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 #appmenu-edit-button {
   margin-inline-start: 0;
 }
@@ -222,7 +222,7 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
   display: none;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 .subview-subheader,
 panelview .toolbarbutton-1,
 .subviewbutton,
@@ -235,7 +235,7 @@ panelview .toolbarbutton-1,
 }
 } /** END not Proton **/
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 .subview-subheader,
 panelview .toolbarbutton-1,
 .subviewbutton,

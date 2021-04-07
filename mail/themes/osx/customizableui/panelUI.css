@@ -30,7 +30,7 @@ menu.subviewbutton > .menu-right {
   appearance: none;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 .PanelUI-subView menuseparator,
 .cui-widget-panelview menuseparator {
   padding: 0 !important;

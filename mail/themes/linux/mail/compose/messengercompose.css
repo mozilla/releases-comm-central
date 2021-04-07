@@ -17,7 +17,7 @@
 
 /* ::::: menulists on toolbar ::::: */
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 menulist {
   appearance: none;
   min-height: 24px;

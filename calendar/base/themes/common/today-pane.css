@@ -284,7 +284,7 @@
   padding-inline-start: 5px;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 #show-completed-checkbox > .checkbox-check {
   appearance: none;
   width: 14px;

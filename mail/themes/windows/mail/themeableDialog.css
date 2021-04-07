@@ -6,7 +6,7 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 :root {
   --button-border-radius: 0;
 }
@@ -36,7 +36,7 @@ menu > menupopup > menu {
   padding-inline: 5px;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 .menu-right {
   transform: scale(0.7);
 }
@@ -46,15 +46,13 @@ menu > menupopup > menu {
 }
 } /** END not Proton **/
 
-@supports -moz-bool-pref("browser.proton.enabled") {
-@media (-moz-os-version: windows-win10: 0) and (-moz-windows-default-theme) {
-  .menu-right {
-    transform: scale(0.5);
-  }
+@media (-moz-proton) {
+.menu-right {
+  transform: scale(0.5);
+}
 
-  .menu-right:-moz-locale-dir(rtl) {
-    transform: scaleX(-1) scale(0.5);
-  }
+.menu-right:-moz-locale-dir(rtl) {
+  transform: scaleX(-1) scale(0.5);
 }
 } /** END Proton **/
 

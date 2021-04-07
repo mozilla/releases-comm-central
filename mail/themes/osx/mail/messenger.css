@@ -28,7 +28,7 @@
   --select-focus-text-color: HighlightText;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 :root {
   --toolbarbutton-border-radius: 3px;
 }
@@ -170,7 +170,7 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
   margin-top: 1px;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 menulist {
   padding: 1px 6px;
 }

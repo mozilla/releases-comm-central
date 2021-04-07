@@ -16,7 +16,7 @@
   }
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 @media (prefers-color-scheme: dark) {
   :root {
     --in-content-primary-button-background: #45a1ff;
@@ -106,7 +106,7 @@ label {
   margin: 0;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 button {
   height: unset;
 }

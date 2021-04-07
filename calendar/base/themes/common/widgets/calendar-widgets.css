@@ -44,7 +44,7 @@ checkbox.treenode-checkbox > .checkbox-check {
   fill: currentColor;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 checkbox.treenode-checkbox > .checkbox-check {
   min-width: 10px;
   min-height: 10px;

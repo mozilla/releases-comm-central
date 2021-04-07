@@ -173,7 +173,7 @@ menulist > menupopup menuitem {
 }
 
 /* Needed for additional menupopup levels */
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 menulist > menupopup menupopup {
   appearance: none;
   border: 1px solid var(--in-content-box-border-color);
@@ -182,7 +182,7 @@ menulist > menupopup menupopup {
 }
 } /** END not Proton **/
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 menulist > menupopup menupopup {
   font: inherit;
 }
@@ -199,7 +199,7 @@ menulist > menupopup menupopup > menuitem:not([disabled="true"])[_moz-menuactive
   background-color: var(--in-content-item-hover);
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 menulist > menupopup menupopup > menu:not([disabled="true"])[selected="true"],
 menulist > menupopup menupopup > menuitem:not([disabled="true"])[selected="true"] {
   color: var(--in-content-selected-text);
@@ -252,7 +252,7 @@ richlistitem[default="true"],
   font-weight: bold;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 #accounttree > treechildren::-moz-tree-twisty {
   color: var(--in-content-page-color);
 }

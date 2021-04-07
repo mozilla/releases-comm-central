@@ -105,7 +105,7 @@ html|textarea {
   margin: 2px 4px;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 html|input,
 html|textarea {
   border-radius: 2px;
@@ -248,7 +248,7 @@ menulist::part(label-box) {
   padding-block: 3px;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 menulist::part(label-box) {
   font-weight: inherit;
   text-shadow: none;
@@ -271,7 +271,7 @@ menulist::part(dropmarker) {
   fill: currentColor;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 menulist::part(dropmarker) {
   width: 16px;
 }
@@ -347,7 +347,7 @@ menulist menupopup > menuitem[disabled="true"] {
   fill: currentColor;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 .menu-right {
   list-style-image: url("chrome://messenger/skin/icons/back-12.svg");
 }
@@ -371,7 +371,7 @@ checkbox {
   appearance: none;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 checkbox {
   margin: 2px 4px;
   padding-inline: 4px 2px;
@@ -383,7 +383,7 @@ checkbox[disabled="true"] {
   color: #999;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 .radio-check,
 .checkbox-check {
   appearance: none;
@@ -400,7 +400,7 @@ checkbox[disabled="true"] {
 }
 } /** END not Proton **/
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 .radio-check {
   appearance: none;
   width: 16px;
@@ -427,7 +427,7 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
   fill: var(--highlight-color);
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 checkbox[checked="true"] > .checkbox-check {
   list-style-image: url("chrome://global/skin/icons/check.svg");
   -moz-context-properties: fill;

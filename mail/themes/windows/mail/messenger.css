@@ -26,7 +26,7 @@
   --splitter-color: ThreeDShadow;
 }
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 :root {
   --toolbarbutton-border-radius: 0;
 }
@@ -457,13 +457,13 @@ treechildren::-moz-tree-indentation {
   background-image: none;
 }
 
-@supports -moz-bool-pref("browser.proton.enabled") {
+@media (-moz-proton) {
 menulist {
   padding: 0 5px 1px !important;
 }
 } /** END Proton **/
 
-@supports not -moz-bool-pref("browser.proton.enabled") {
+@media not (-moz-proton) {
 /* Give menupopup[is="folder-menupopup"] a menu look */
 menupopup[is="folder-menupopup"] {
   appearance: auto;
