@@ -252,38 +252,17 @@ function enigmailKeyMenu() {
     );
   }
 
-  if (haveSecretForAll) {
-    document.getElementById("bcBackupSecret").removeAttribute("disabled");
-  } else {
-    document.getElementById("bcBackupSecret").setAttribute("disabled", "true");
-  }
+  document.getElementById("backupSecretKey").disabled = !haveSecretForAll;
 
-  if (keyList.length == 1 && gKeyList[keyList[0]].secretAvailable) {
-    document.getElementById("bcRevoke").removeAttribute("disabled");
-    document.getElementById("bcEditKey").removeAttribute("disabled");
-  } else {
-    document.getElementById("bcRevoke").setAttribute("disabled", "true");
-    document.getElementById("bcEditKey").setAttribute("disabled", "true");
-  }
+  document.getElementById("revokeKey").disabled =
+    keyList.length != 1 || !gKeyList[keyList[0]].secretAvailable;
+  document.getElementById("ctxRevokeKey").hidden =
+    keyList.length != 1 || !gKeyList[keyList[0]].secretAvailable;
 
-  if (enigGetClipboard().length > 0) {
-    document.getElementById("bcClipbrd").removeAttribute("disabled");
-  } else {
-    document.getElementById("bcClipbrd").setAttribute("disabled", "true");
-  }
+  document.getElementById("importFromClipbrd").disabled = !enigGetClipboard();
 
-  if (keyList.length == 1) {
-    document.getElementById("bcOneKey").removeAttribute("disabled");
-    document.getElementById("bcDeleteKey").removeAttribute("disabled");
-    document.getElementById("bcNoKey").removeAttribute("disabled");
-  } else {
-    if (keyList.length === 0) {
-      document.getElementById("bcNoKey").setAttribute("disabled", "true");
-    } else {
-      document.getElementById("bcNoKey").removeAttribute("disabled");
-    }
-    document.getElementById("bcOneKey").setAttribute("disabled", "true");
-    document.getElementById("bcDeleteKey").setAttribute("disabled", "true");
+  for (let item of document.querySelectorAll(".requires-key-selection")) {
+    item.disabled = keyList.length != 1;
   }
 
   // Disable the "Generate key" menu item if no mail account is available.
@@ -331,8 +310,8 @@ function enigmailSelectAllKeys() {
 function enigmailKeyDetails(keyId = null) {
   if (!keyId) {
     let keyList = getSelectedKeys();
-    // Interrupt if we don't have a selected key nor a key was passed.
-    if (!keyList.length) {
+    // Interrupt if we don't have a single selected key nor a key was passed.
+    if (keyList.length != 1) {
       return;
     }
     keyId = gKeyList[keyList[0]].keyId;

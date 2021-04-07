@@ -781,49 +781,6 @@ Enigmail.msg = {
     }
   },
 
-  /*
-  toggleAttachOwnKey: function() {
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.toggleAttachOwnKey\n");
-    EnigmailCore.getService(window); // make sure Enigmail is loaded and working
-
-    gAttachMyPublicPGPKey = !gAttachMyPublicPGPKey;
-
-    //this.setOwnKeyStatus();
-  },
-  */
-
-  /***
-   * set broadcaster to display whether the own key is attached or not
-   */
-
-  /*
-  setOwnKeyStatus: function() {
-    return;
-    let bc = document.getElementById("enigmail-bc-attach");
-    let attachIcon = document.getElementById("button-enigmail-attach");
-
-    if (this.allowAttachOwnKey() === 0) {
-      this.statusAttachOwnKey = EnigmailLocale.getString("attachOwnKeyDisabled");
-    }
-    else {
-      if (gAttachMyPublicPGPKey) {
-        bc.setAttribute("addPubkey", "true");
-        bc.setAttribute("checked", "true");
-        this.statusAttachOwnKey = EnigmailLocale.getString("attachOwnKeyYes");
-      }
-      else {
-        bc.setAttribute("addPubkey", "false");
-        bc.removeAttribute("checked");
-        this.statusAttachOwnKey = EnigmailLocale.getString("attachOwnKeyNo");
-      }
-    }
-
-    if (attachIcon)
-      attachIcon.setAttribute("tooltiptext", this.statusAttachOwnKey);
-
-  },
-  */
-
   attachOwnKey(id) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.attachOwnKey: " + id + "\n"
