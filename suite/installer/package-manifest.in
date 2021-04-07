@@ -88,7 +88,6 @@
 #endif
 #ifdef XP_MACOSX
 @BINPATH@/@MOZ_CHILD_PROCESS_NAME@.app/
-@BINPATH@/@DLL_PREFIX@plugin_child_interpose@DLL_SUFFIX@
 #else
 @BINPATH@/@MOZ_CHILD_PROCESS_NAME@
 #endif
@@ -106,7 +105,6 @@
 #endif
 
 #ifdef XP_WIN
-@BINPATH@/plugin-hang-ui@BIN_SUFFIX@
 #if MOZ_PACKAGE_MSVC_DLLS
 @BINPATH@/@MSVC_C_RUNTIME_DLL@
 @BINPATH@/@MSVC_CXX_RUNTIME_DLL@
