@@ -9,7 +9,8 @@
 @import url("chrome://messenger/skin/shared/messageHeader.css");
 
 /* ::::: for the entire area ::::: */
-.main-header-area {
+#singleMessage,
+#calendar-task-details-container {
   color: WindowText;
   background-color: ButtonFace;
 }
@@ -37,14 +38,14 @@
 }
 
 @media (-moz-windows-compositor) and (-moz-windows-default-theme) {
-  #msgHeaderView {
-    background: #f8f8f8;
+  #singleMessage {
+    background-color: #f8f8f8;
   }
 }
 
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
   #displayBox[collapsed="true"] + splitter + #messagepaneboxwrapper
-  .main-header-area {
+  #singleMessage {
     background-image: none;
     background-color: rgb(233, 239, 245);
   }

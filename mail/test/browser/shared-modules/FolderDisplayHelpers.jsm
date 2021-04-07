@@ -2367,7 +2367,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
       throw new Error("Message display is not in single message display mode.");
     }
     // now make sure that we actually are in single message display mode
-    let singleMessagePane = troller.e("singlemessage");
+    let singleMessagePane = troller.e("singleMessage");
     let multiMessagePane = troller.e("multimessage");
     if (singleMessagePane && singleMessagePane.hidden) {
       throw new Error("Single message pane is hidden but it should not be.");
@@ -2439,7 +2439,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     }
 
     // now make sure that we actually are in nultiple message display mode
-    let singleMessagePane = troller.e("singlemessage");
+    let singleMessagePane = troller.e("singleMessage");
     let multiMessagePane = troller.e("multimessage");
     if (singleMessagePane && !singleMessagePane.hidden) {
       throw new Error("Single message pane is visible but it should not be.");

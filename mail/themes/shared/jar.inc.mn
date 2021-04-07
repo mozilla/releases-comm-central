@@ -8,6 +8,7 @@
 # to the location of the actual manifest.
 
 % override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css
+% override chrome://global/content/elements/message-bar.css chrome://messenger/skin/message-bar.css
 % override chrome://browser/skin/developer.svg chrome://messenger/skin/icons/developer.svg
 
   skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
@@ -231,6 +232,7 @@
   skin/classic/messenger/shared/preferences/general.svg       (../shared/mail/preferences/general.svg)
   skin/classic/messenger/shared/preferences/privacy-security.svg  (../shared/mail/preferences/privacy-security.svg)
   skin/classic/messenger/shared/mailWindow1.css               (../shared/mail/mailWindow1.css)
+  skin/classic/messenger/shared/message-bar.css               (../shared/mail/message-bar.css)
   skin/classic/messenger/shared/messageHeader.css             (../shared/mail/messageHeader.css)
   skin/classic/messenger/shared/messageIcons.css              (../shared/mail/messageIcons.css)
   skin/classic/messenger/shared/messenger.css                 (../shared/mail/messenger.css)

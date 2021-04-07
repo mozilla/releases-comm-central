@@ -4,25 +4,19 @@
 
 @import url(chrome://calendar/skin/shared/lightning.css);
 
-.lightning-notification-bar {
-    background-color: #baeeff;
-    padding: 6px 8px;
-    color: #000;
-}
-
 #calendarContent:-moz-lwtheme {
-    color: -moz-dialogText;
-    text-shadow: none;
+  color: -moz-dialogText;
+  text-shadow: none;
 }
 
 /* Calendar list rules */
 #calendar-panel {
-    padding-bottom: 5px;
+  padding-bottom: 5px;
 }
 
 /* iMIP notification bar */
 #imip-bar > image {
-    margin-inline-end: 8px;
+  margin-inline-end: 8px;
 }
 
 #calsidebar_splitter {
@@ -55,7 +49,7 @@
 }
 
 #calMinimonthBox {
-    margin-top: 3px;
+  margin-top: 3px;
 }
 
 .calendar-splitter[orient="vertical"] {

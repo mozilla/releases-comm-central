@@ -8,6 +8,16 @@
   border-bottom: 1px solid var(--splitter-color);
 }
 
+@media (-moz-proton-infobars) {
+.main-header-area {
+  border-bottom-style: none;
+}
+
+#mail-notification-top {
+  border-bottom: 1px solid var(--splitter-color);
+}
+}
+
 /* ::::: msg header toolbars ::::: */
 
 #expandedHeaderView[show_header_mode="all"] {
@@ -544,7 +554,7 @@ mail-headerfield:focus {
   border-top: 1px solid var(--splitter-color); /* The same color as the splitters */
 }
 
-:root[lwt-tree] #msgHeaderView,
+:root[lwt-tree] #singleMessage,
 :root[lwt-tree] #attachmentView,
 :root[lwt-tree] #attachmentList {
   background-color: var(--toolbar-bgcolor) !important;

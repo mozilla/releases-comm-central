@@ -1,0 +1,294 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:host {
+  --info-icon-url: url("chrome://global/skin/icons/info.svg");
+  --warn-icon-url: url("chrome://global/skin/icons/warning.svg");
+  --success-icon-url: url("chrome://global/skin/icons/success.svg");
+  --error-icon-url: url("chrome://global/skin/icons/error.svg");
+  --close-icon-url: url("chrome://global/skin/icons/close.svg");
+  --draft-icon-url: url("chrome://messenger/skin/icons/newmsg.svg");
+  --junk-icon-url: url("chrome://messenger/skin/icons/junk.svg");
+  --attachment-icon-url: url("chrome://messenger/skin/icons/attach.svg");
+  --remotecontent-icon-url: url("chrome://messenger/skin/icons/remote-blocked.svg");
+  --icon-size: 16px;
+  --close-icon-size: 32px;
+
+  --in-content-button-border-radius: 3px;
+  --in-content-button-color: #0c0c0d;
+  --in-content-button-border: #c2c2c3;
+  --in-content-button-background: #e2e2e3;
+  --in-content-button-background-hover: #d2d2d3;
+  --in-content-button-border-active: #a2a2a3;
+  --in-content-button-background-active: #c2c2c3;
+}
+
+:host([message-bar-type=infobar]) {
+  --close-icon-size: 24px;
+}
+
+/* MessageBar colors by message type */
+/* Colors from: https://design.firefox.com/photon/components/message-bars.html#type-specific-style */
+
+:host {
+  --message-bar-background-color: var(--in-content-page-background);
+  --message-bar-text-color: var(--in-content-text-color);
+  --message-bar-icon-url: var(--info-icon-url);
+  /* The default values of --in-content-button* are sufficient, even for dark themes */
+}
+
+:host([type=warning]) {
+  --message-bar-background-color: #fff160;
+  --message-bar-text-color: #000;
+  --message-bar-icon-url: var(--warn-icon-url);
+}
+
+:host([type=success]) {
+  --message-bar-background-color: var(--green-50);
+  --message-bar-text-color: var(--green-90);
+  --message-bar-icon-url: var(--success-icon-url);
+}
+
+:host([type=error]),
+:host([type=critical]) {
+  --message-bar-background-color: var(--red-60);
+  --message-bar-text-color: #fff;
+}
+:host([type=error]),
+:host([type=critical]) {
+  --message-bar-icon-url: var(--error-icon-url);
+}
+
+:host([value=attachmentReminder]) {
+  --message-bar-icon-url: var(--attachment-icon-url);
+}
+
+:host([value=draftMsgContent]) {
+  --message-bar-icon-url: var(--draft-icon-url);
+}
+
+:host([value=junkContent]) {
+  --message-bar-icon-url: var(--junk-icon-url);
+}
+
+:host([value=remoteContent]) {
+  --message-bar-icon-url: var(--remotecontent-icon-url);
+}
+
+:host {
+  border-radius: 4px;
+}
+
+/* Make the host to behave as a block by default, but allow hidden to hide it. */
+:host(:not([hidden])) {
+  display: block;
+}
+
+::slotted(button) {
+  /* Enforce micro-button width. */
+  min-width: -moz-fit-content !important;
+}
+
+/* MessageBar Grid Layout */
+
+.container {
+  background: var(--message-bar-background-color);
+  color: var(--message-bar-text-color);
+  padding: 4px 8px;
+  position: relative;
+  border-radius: 4px;
+  display: flex;
+  /* Ensure that the message bar shadow dom elements are vertically aligned. */
+  align-items: center;
+}
+
+:host([align="center"]) .container {
+  justify-content: center;
+}
+
+.content {
+  margin: 0 4px;
+  display: inline-block;
+  /* Ensure that the message bar content is vertically aligned. */
+  align-items: center;
+  /* Ensure that the message bar content is wrapped. */
+  word-break: break-word;
+}
+
+/* MessageBar icon style */
+
+.icon {
+  padding: 4px;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  flex-shrink: 0;
+}
+
+.icon::after {
+  appearance: none;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  content: var(--message-bar-icon-url);
+}
+
+/* Close icon styles */
+
+:host(:not([dismissable])) .close {
+  display: none;
+}
+
+.close {
+  background-image: var(--close-icon-url);
+  background-repeat: no-repeat;
+  background-position: center center;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  min-width: auto;
+  min-height: auto;
+  width: var(--close-icon-size);
+  height: var(--close-icon-size);
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.close.ghost-button:enabled:hover {
+  background-color: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.close.ghost-button:enabled:hover:active {
+  background-color: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+@media (-moz-proton-infobars) {
+@media not (prefers-contrast) {
+  .container.infobar {
+    box-shadow: 0 1px 2px rgba(58, 57, 68, 0.3);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :host([type="info"]) .container.infobar {
+    --message-bar-background-color: var(--in-content-box-info-background);
+  }
+}
+
+:host([message-bar-type=infobar]:first-of-type) {
+  margin-top: 4px;
+}
+
+:host([message-bar-type=infobar]) {
+  margin: 0 4px 4px;
+}
+
+.container.infobar {
+  /* Don't let lwthemes set a text-shadow. */
+  text-shadow: none;
+  padding: 0;
+}
+
+.container.infobar {
+  align-items: center;
+}
+
+/* Infobars styling. */
+.notification-content {
+  flex-grow: 1;
+  display: flex;
+  margin: 0;
+  margin-inline-start: 8px;
+}
+
+.notification-message {
+  flex-grow: 1;
+  min-height: 16px;
+  margin-inline-end: 20px;
+}
+
+.notification-button-container,
+.notification-message {
+  display: inline-block;
+}
+
+.notification-button {
+  border: 1px solid var(--in-content-button-border);
+  color: var(--in-content-button-color) !important;
+}
+
+.notification-button:hover:active {
+  border-color: var(--in-content-button-border-active);
+}
+
+.close {
+  margin: 4px 8px;
+  background-size: 16px;
+}
+
+.notification-button.small {
+  font-size: inherit;
+  font-weight: 400;
+}
+
+.notification-button:first-of-type {
+  /* When the buttons wrap to their own line we want to match the 8px on the message. */
+  margin-inline-start: 0;
+}
+
+strong {
+  font-weight: 600;
+}
+
+.text-link:hover {
+  cursor: pointer;
+}
+
+.infobar > .icon {
+  padding: 0;
+  margin: 8px 0;
+}
+
+.infobar > .icon,
+:host([type=system]) .notification-content {
+  margin-inline-start: 12px;
+}
+
+:host([type=system]) .icon {
+  display: none;
+}
+
+:host([type=info]) .icon {
+  color: #45a1ff;
+}
+
+:host([value=draftMsgContent]) .icon {
+  color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --in-content-button-color: #f9f9fa;
+    --in-content-button-border: #828283;
+    --in-content-button-background: #636364;
+    --in-content-button-background-hover: #777778;
+    --in-content-button-border-active: #878788;
+    --in-content-button-background-active: #878788;
+  }
+}
+}
+
+@media not (-moz-proton-infobars) {
+:host {
+  /* Colors used by default, and for [type=generic] message bars.*/
+  background-color: var(--in-content-box-info-background);
+  color: var(--in-content-text-color);
+}
+.container {
+  padding: 8px;
+  min-height: 32px;
+}
+
+.close {
+  margin-inline-end: 4px;
+}
+}

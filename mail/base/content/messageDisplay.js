@@ -61,7 +61,7 @@ MessageDisplayWidget.prototype = {
     }
 
     // _singleMessageDisplay can be null, so use the property (getter)
-    document.getElementById("singlemessage").hidden = !this
+    document.getElementById("singleMessage").hidden = !this
       .singleMessageDisplay;
     document.getElementById("multimessage").hidden = this.singleMessageDisplay;
 

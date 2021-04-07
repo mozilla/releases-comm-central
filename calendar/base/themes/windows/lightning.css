@@ -4,18 +4,9 @@
 
 @import url(chrome://calendar/skin/shared/lightning.css);
 
-.lightning-notification-bar {
-    background-color: #baeeff;
-    color: #000;
-    /* border color matches the border color of `notification[type="warning"]` in
-       mozilla-central/toolkit/themes/shared/notification.inc.css */
-    border-bottom: 1px solid ThreeDShadow;
-    padding: 3px;
-}
-
 #calendarContent {
-    color: -moz-DialogText;
-    background-color: -moz-Dialog;
+  color: -moz-DialogText;
+  background-color: -moz-Dialog;
 }
 
 #calsidebar_splitter {
@@ -26,7 +17,7 @@
 
 /* Calendar list rules */
 #calendar-panel {
-    padding-bottom: 5px;
+  padding-bottom: 5px;
 }
 
 /* Lightning sidebar background in calendar and task mode */
