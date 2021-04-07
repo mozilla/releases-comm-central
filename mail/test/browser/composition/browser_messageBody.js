@@ -57,3 +57,42 @@ add_task(async function test_invalid_data_uri() {
 
   press_delete(); // Delete the msg from Outbox.
 });
+
+/**
+ * Tests that when converting <a href="$1">$2</a> to text/plain, if $1 matches
+ * with $2, $1 should be discarded to prevent duplicated links.
+ */
+add_task(async function test_freeTextLink() {
+  if (!Services.prefs.getBoolPref("mailnews.send.jsmodule")) {
+    // This doesn't work for nsMsgSend.cpp.
+    return;
+  }
+  let cwc = open_compose_new_mail();
+  setup_msg_contents(cwc, "someone@example.com", "Test free text link", "");
+
+  cwc.window.OutputFormatMenuSelect(cwc.e("format_plain"));
+
+  let link1 = "https://example.com";
+  let link2 = "name@example.com";
+  let link3 = "https://example.net";
+  cwc.window
+    .GetCurrentEditor()
+    .insertHTML(
+      `<a href="${link1}/">${link1}</a> <a href="mailto:${link2}">${link2}</a> <a href="${link3}">link3</a>`
+    );
+  plan_for_window_close(cwc);
+  cwc.window.goDoCommand("cmd_sendLater");
+  wait_for_window_close();
+
+  be_in_folder(gOutboxFolder);
+  let outMsg = select_click_row(0);
+  let outMsgContent = get_msg_source(outMsg);
+
+  Assert.equal(
+    getMessageBody(outMsgContent),
+    `${link1} ${link2} link3 <${link3}>\r\n`,
+    "Links should be correctly converted to plain text"
+  );
+
+  press_delete(); // Delete the msg from Outbox.
+});

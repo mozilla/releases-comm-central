@@ -1082,6 +1082,25 @@ MessageSend.prototype = {
   },
 
   /**
+   * Check if link text is equivalent to the href.
+   * @param {string} text - The innerHTML of a <a> element.
+   * @param {string} href - The href of a <a> element.
+   * @returns {boolean} true if text is equivalent to href.
+   */
+  _isLinkFreeText(text, href) {
+    href = href.trim();
+    if (href.startsWith("mailto:")) {
+      return this._isLinkFreeText(text, href.slice("mailto:".length));
+    }
+    text = text.trim();
+    return (
+      text == href ||
+      (text.endsWith("/") && text.slice(0, -1) == href) ||
+      (href.endsWith("/") && href.slice(0, -1) == text)
+    );
+  },
+
+  /**
    * Collect embedded objects as attachments.
    * @returns {{embeddedAttachments: nsIMsgAttachment[], embeddedObjects: []}}
    */
@@ -1102,6 +1121,13 @@ MessageSend.prototype = {
 
     let urlCidCache = {};
     for (let element of nodes) {
+      if (element.tagName == "A" && element.href) {
+        if (this._isLinkFreeText(element.innerHTML, element.href)) {
+          // Set this special classname, which is recognized by nsIParserUtils,
+          // so that links are not duplicated in text/plain.
+          element.classList.add("moz-txt-link-freetext");
+        }
+      }
       let isImage = false;
       let url;
       let name;

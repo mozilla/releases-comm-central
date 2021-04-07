@@ -40,3 +40,14 @@ function waitForSaveOperation(cwc) {
     "Saving of draft did not finish"
   );
 }
+
+/**
+ * Get the body part of an MIME message.
+ * @param {string} content - The message content.
+ * @returns {string}
+ */
+function getMessageBody(content) {
+  let separatorIndex = content.indexOf("\r\n\r\n");
+  Assert.equal(content.slice(-2), "\r\n", "Should end with a line break.");
+  return content.slice(separatorIndex + 4, -2);
+}
