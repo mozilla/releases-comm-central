@@ -38,7 +38,7 @@ menulist[disabled="true"]::part(dropmarker) {
 
 /* Fix to show the menulist-dropmarker under newer GTK3 versions */
 menulist[editable="true"]::part(dropmarker) {
-  min-width: 2em;
+  min-width: 1em;
 }
 
 textbox.port[disabled="true"] {

@@ -330,11 +330,7 @@ var EmailAccountProvisioner = {
       .querySelector("button.existing")
       .addEventListener("click", function() {
         EmailAccountProvisioner.saveName();
-        EmailAccountProvisioner.NewMailAccount(
-          EmailAccountProvisioner.msgWindow,
-          null,
-          window.arguments[0]
-        );
+        EmailAccountProvisioner.NewMailAccount(null, window.arguments[0]);
         window.close();
       });
 

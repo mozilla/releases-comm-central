@@ -55,6 +55,9 @@ var {
   wait_for_new_window,
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { openAccountHub } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -348,11 +351,12 @@ add_task(function test_can_switch_to_existing_email_account_wizard() {
   );
   open_provisioner_window();
   wait_for_modal_dialog("AccountCreation");
-  // Ensure that the existing email account wizard opened.
-  let wizard = wait_for_new_window("mail:autoconfig");
-
-  // Then close the wizard
-  close_window(wizard);
+  // Ensure that the Account Hub is opened.
+  wait_for_content_tab_load(
+    mc.tabmail.currentTabInfo,
+    "about:accounthub",
+    10000
+  );
 });
 
 /**
@@ -362,7 +366,6 @@ add_task(function test_can_switch_to_existing_email_account_wizard() {
  */
 function subtest_can_switch_to_existing_email_account_wizard(w) {
   plan_for_window_close(w);
-  plan_for_new_window("mail:autoconfig");
 
   // Click on the "Skip this and use my existing email" button
   mc.click(w.window.document.querySelector(".existing"));
@@ -409,62 +412,98 @@ function subtest_can_display_providers_in_other_languages(w) {
  * then flip back and forth between that and the existing email
  * wizard, and then test to see if we can dismiss the provisioner.
  */
-add_task(function test_flip_flop_from_provisioner_menuitem() {
-  plan_for_modal_dialog(
-    "AccountCreation",
-    subtest_flip_flop_from_provisioner_menuitem
+add_task(async function test_flip_flop_from_provisioner_menuitem() {
+  // Close all existing tabs except the first mail tab to avoid errors.
+  mc.tabmail.closeOtherTabs(mc.tabmail.tabInfo[0]);
+
+  // Prepare the callback to handle the opening of the account provisioner.
+  let dialogWindowPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    kProvisionerUrl,
+    { callback: subtest_flip_flop_from_provisioner_menuitem }
   );
-  plan_for_new_window("mail:autoconfig");
+  // Open the account provisioner from a menu item.
   open_provisioner_window();
-  plan_for_new_window("mail:autoconfig");
-  wait_for_modal_dialog("AccountCreation");
+  await dialogWindowPromise;
 
-  const NUM_OF_FLIP_FLOPS = 3;
-  let wizard;
+  // Ensure that the Account Hub was opened when the click on using an existing
+  // email account was triggered.
+  wait_for_content_tab_load(
+    mc.tabmail.currentTabInfo,
+    "about:accounthub",
+    10000
+  );
 
-  for (let i = 0; i < NUM_OF_FLIP_FLOPS; ++i) {
-    wizard = wait_for_new_window("mail:autoconfig");
-    plan_for_modal_dialog(
-      "AccountCreation",
-      subtest_flip_flop_from_provisioner_menuitem
-    );
-    plan_for_new_window("mail:autoconfig");
-    plan_for_window_close(wizard);
-    wizard.click(wizard.e("provisioner_button"));
-    wait_for_modal_dialog("AccountCreation");
-  }
+  let tabWindow = mc.tabmail.currentTabInfo.browser.contentWindow;
 
-  wizard = wait_for_new_window("mail:autoconfig");
-  plan_for_modal_dialog("AccountCreation", subtest_close_provisioner);
-  wizard.click(wizard.e("provisioner_button"));
-  wait_for_modal_dialog("AccountCreation");
+  // Let's do it a second time.
+  let dialogWindowPromise2 = BrowserTestUtils.promiseAlertDialog(
+    null,
+    kProvisionerUrl,
+    { callback: subtest_flip_flop_from_provisioner_menuitem }
+  );
+  // Open the account provisioner from the Account hub.
+  EventUtils.synthesizeMouseAtCenter(
+    tabWindow.document.getElementById("provisioner_button"),
+    {},
+    tabWindow
+  );
+  await dialogWindowPromise2;
+
+  // Let's do it a third time.
+  let dialogWindowPromise3 = BrowserTestUtils.promiseAlertDialog(
+    null,
+    kProvisionerUrl,
+    { callback: subtest_flip_flop_from_provisioner_menuitem }
+  );
+  // Open the account provisioner from the Account hub.
+  EventUtils.synthesizeMouseAtCenter(
+    tabWindow.document.activeElement,
+    {},
+    tabWindow
+  );
+  await dialogWindowPromise3;
+
+  await TestUtils.waitForCondition(
+    () => tabWindow.document.activeElement != null,
+    "The focus is back on the tab"
+  );
+
+  // Let's do it one last time but this time we will close the dialog.
+  let dialogWindowPromise4 = BrowserTestUtils.promiseAlertDialog(
+    null,
+    kProvisionerUrl,
+    { callback: subtest_close_provisioner }
+  );
+  // Open the account provisioner from the Account hub.
+  EventUtils.synthesizeMouseAtCenter(
+    tabWindow.document.getElementById("provisioner_button"),
+    {},
+    tabWindow
+  );
+  await dialogWindowPromise4;
 });
 
 /**
  * This function is used by test_flip_flop_from_provisioner_menuitem to switch
  * back from the account provisioner to the wizard.
  */
-function subtest_flip_flop_from_provisioner_menuitem(w) {
-  // We need to wait for the wizard to be closed, or else
-  // it'll try to refocus when we click on the button to
-  // open it.
-  wait_for_the_wizard_to_be_closed(w);
-  plan_for_window_close(w);
-  mc.click(w.window.document.querySelector(".existing"));
-  wait_for_window_close();
+async function subtest_flip_flop_from_provisioner_menuitem(dialogWindow) {
+  let existingButton = dialogWindow.document.querySelector(".existing");
+  // Be sure the button is visible in the viewport.
+  existingButton.scrollIntoView(false);
+  EventUtils.synthesizeMouseAtCenter(existingButton, {}, dialogWindow);
 }
 
 /**
  * This function is used by test_flip_flop_from_provisioner_menuitem to close
  * the provisioner.
  */
-function subtest_close_provisioner(w) {
-  // Now make sure we can dismiss the provisioner.
-  plan_for_window_close(w);
-  // Click on the "I think I'll configure my account later" button.
-  mc.click(w.window.document.querySelector(".close"));
-  // Ensure that the window has closed.
-  wait_for_window_close();
+async function subtest_close_provisioner(dialogWindow) {
+  let closeButton = dialogWindow.document.querySelector(".close");
+  // Be sure the button is visible in the viewport.
+  closeButton.scrollIntoView(false);
+  EventUtils.synthesizeMouseAtCenter(closeButton, {}, dialogWindow);
 }
 
 /**
@@ -932,14 +971,13 @@ function subtest_search_button_disabled_cases(w) {
  * with no accounts, and when preffed off, if the Account Provisioner does
  * spawn (which it shouldn't), the instrumentation Mozmill test should fail.
  */
-add_task(function test_can_pref_off_account_provisioner() {
+add_task(async function test_can_pref_off_account_provisioner() {
   // First, we'll disable the account provisioner.
   Services.prefs.setBoolPref("mail.provider.enabled", false);
 
   // We'll use the Mozmill Menu API to grab the main menu...
   let mailMenuBar = mc.getMenu("#mail-menubar");
   let newMenuPopup = mc.e("menu_NewPopup");
-  let newMailAccountMenuitem = mc.e("newMailAccountMenuItem");
 
   // First, we do some hackery to allow the "New" menupopup to respond to
   // events...
@@ -953,25 +991,24 @@ add_task(function test_can_pref_off_account_provisioner() {
   mailMenuBar.open();
 
   // Next, we'll ensure that the "Get a new mail account"
-  // menuitem is no longer available
-  mc.waitFor(function() {
-    return mc.e("newCreateEmailAccountMenuItem").hidden;
-  }, "Timed out waiting for the Account Provisioner menuitem to be hidden");
+  // menuitem is no longer available.
+  await BrowserTestUtils.waitForCondition(
+    () => mc.e("newCreateEmailAccountMenuItem").hidden,
+    "Timed out waiting for the Account Provisioner menuitem to be hidden"
+  );
 
-  // Open up the Existing Account wizard
-  plan_for_new_window("mail:autoconfig");
-  mc.click(newMailAccountMenuitem);
+  // Close all existing tabs except the first mail tab to avoid errors.
+  mc.tabmail.closeOtherTabs(mc.tabmail.tabInfo[0]);
 
-  // Ensure that the existing email account wizard opened.
-  let wizard = wait_for_new_window("mail:autoconfig");
-
+  // Open up the Account Hub.
+  let tab = await openAccountHub();
   // And make sure the Get a New Account button is hidden.
-  Assert.ok(wizard.e("provisioner_button").hidden);
-
-  // Alright, close the Wizard.
-  plan_for_window_close(wizard);
-  close_window(wizard);
-  wait_for_window_close();
+  Assert.ok(
+    tab.browser.contentWindow.document.getElementById("provisioner_button")
+      .hidden
+  );
+  // Close the Account Hub tab.
+  mc.tabmail.closeTab(tab);
 
   // Ok, now pref the Account Provisioner back on
   Services.prefs.setBoolPref("mail.provider.enabled", true);
@@ -980,23 +1017,20 @@ add_task(function test_can_pref_off_account_provisioner() {
   mailMenuBar.open();
 
   // Make sure that the "Get a new mail account" menuitem is NOT hidden.
-  mc.waitFor(function() {
-    return !mc.e("newCreateEmailAccountMenuItem").hidden;
-  }, "Timed out waiting for the Account Provisioner menuitem to appear");
+  await BrowserTestUtils.waitForCondition(
+    () => !mc.e("newCreateEmailAccountMenuItem").hidden,
+    "Timed out waiting for the Account Provisioner menuitem to appear"
+  );
 
-  // Open up the Existing Account wizard
-  plan_for_new_window("mail:autoconfig");
-  mc.click(newMailAccountMenuitem);
-
-  // Ensure that the existing email account wizard opened.
-  wizard = wait_for_new_window("mail:autoconfig");
-
-  // Make sure that the button to open the Account Provisioner dialog is
-  // NOT hidden.
-  Assert.ok(!wizard.e("provisioner_button").hidden);
-
-  // Alright, close up.
-  close_window(wizard);
+  // Open up the Account Hub.
+  tab = await openAccountHub();
+  // And make sure the Get a New Account button is hidden.
+  Assert.ok(
+    !tab.browser.contentWindow.document.getElementById("provisioner_button")
+      .hidden
+  );
+  // Close the Account Hub tab.
+  mc.tabmail.closeTab(tab);
 
   // And finally restore the menu to the way it was.
   if (oldAllowEvents) {
@@ -1470,7 +1504,14 @@ add_task(function test_search_button_disabled_if_no_query_on_init() {
  * Account Provisioner tab is opened, that we focus the tab instead of opening
  * the dialog.
  */
-add_task(function test_get_new_account_focuses_existing_ap_tab() {
+add_task(async function test_get_new_account_focuses_existing_ap_tab() {
+  // If we're running this test on macOS we need to first close all the tabs
+  // since we skipped `test_can_pref_off_account_provisioner`.
+  if (AppConstants.platform == "macosx") {
+    // Close all existing tabs except the first mail tab to avoid errors.
+    mc.tabmail.closeOtherTabs(mc.tabmail.tabInfo[0]);
+  }
+
   get_to_order_form("green@example.com");
   let apTab = mc.tabmail.getTabInfoForCurrentOrFirstModeInstance(
     mc.tabmail.tabModes.accountProvisionerTab
@@ -1486,19 +1527,18 @@ add_task(function test_get_new_account_focuses_existing_ap_tab() {
   // being opened, which is good.
   assert_selected_tab(apTab);
 
-  // Now open up the wizard, and try opening the Account Provisioner from
+  // Now open up the Account Hub, and try opening the Account Provisioner from
   // there.
-  plan_for_new_window("mail:autoconfig");
-
-  // Open the wizard...
-  mc.click(mc.menus.menu_File.menu_New.newMailAccountMenuItem);
-  let wizard = wait_for_new_window("mail:autoconfig");
-
+  let tab = await openAccountHub();
   // Click on the "Get a new Account" button in the wizard.
-  wizard.click(wizard.e("provisioner_button"));
+  EventUtils.synthesizeMouseAtCenter(
+    tab.browser.contentWindow.document.getElementById("provisioner_button"),
+    {},
+    tab.browser.contentWindow
+  );
 
   // If we got here, that means that we weren't blocked by a dialog
-  // being opened, which is what we wanted..
+  // being opened, which is what we wanted.
   assert_selected_tab(apTab);
   mc.tabmail.closeTab(apTab);
 });

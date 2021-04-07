@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from AccountManager.js */
+/* globals openTab */ // From utilityOverlay.js
 /* globals SelectFolder, LoadPostAccountWizard */ // From messageWindow.js or msgMail3PaneWindow.js.
 /* globals MsgGetMessage */ // From mailWindowOverlay.js.
 
@@ -232,7 +233,7 @@ function initAccountWizardTB(args) {
 }
 
 function AddMailAccount() {
-  NewMailAccount(MailServices.mailSession.topmostMsgWindow, updateMailPaneUI);
+  NewMailAccount(updateMailPaneUI);
 }
 
 function AddIMAccount() {
@@ -372,16 +373,11 @@ function migrateGlobalQuotingPrefs(allIdentities) {
 // we do this from a timer because if this is called from the onload=
 // handler, then the parent window doesn't appear until after the wizard
 // has closed, and this is confusing to the user
-function NewMailAccount(msgWindow, okCallback, extraData) {
-  if (!msgWindow) {
-    throw new Error("NewMailAccount must be given a msgWindow.");
-  }
-
+function NewMailAccount(okCallback, extraData) {
   // Populate the extra data.
   if (!extraData) {
     extraData = {};
   }
-  extraData.msgWindow = msgWindow;
 
   let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
 
@@ -409,7 +405,7 @@ function NewMailAccount(msgWindow, okCallback, extraData) {
     extraData.success = false;
   }
 
-  setTimeout(extraData.msgNewMailAccount, 0, msgWindow, okCallback, extraData);
+  msgNewMailAccount(mail3Pane.msgWindow, okCallback, extraData);
 }
 
 function NewMailAccountProvisioner(aMsgWindow, args) {
@@ -513,17 +509,38 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
     throw new Error("msgNewMailAccount must be given a msgWindow.");
   }
 
-  let existingWindow = Services.wm.getMostRecentWindow("mail:autoconfig");
-  if (existingWindow) {
-    existingWindow.focus();
-  } else {
-    window.browsingContext.topChromeWindow.openDialog(
-      "chrome://messenger/content/accountcreation/emailWizard.xhtml",
-      "AccountSetup",
-      "chrome,titlebar,resizable,centerscreen",
-      { msgWindow, okCallback, extraData }
-    );
-  }
+  let onLoad = function(event, browser) {
+    browser.contentDocument.documentElement.msgWindow = msgWindow;
+    browser.contentDocument.documentElement.okCallback = okCallback;
+    browser.contentDocument.documentElement.extraData = extraData;
+  };
+
+  // We need to get the tabmail since this method might be called as a callback
+  // from the account provisioner.
+  let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  let tabmail = mailWindow.document.getElementById("tabmail");
+
+  tabmail.openTab("contentTab", {
+    url: "about:accounthub",
+    onLoad,
+  });
+}
+
+/**
+ * Open the Account Hub Tab or focus it if it's already open.
+ */
+function openAccountHubTab() {
+  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+
+  let onLoad = function(event, browser) {
+    browser.contentDocument.documentElement.okCallback = LoadPostAccountWizard;
+    browser.contentDocument.documentElement.msgWindow = mail3Pane.msgWindow;
+  };
+
+  openTab("contentTab", {
+    url: "about:accounthub",
+    onLoad,
+  });
 }
 
 /**

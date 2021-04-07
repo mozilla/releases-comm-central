@@ -93,6 +93,17 @@ Things to test (works for me):
 // To debug, set mail.setup.loglevel="All" and kDebug = true.
 const kDebug = false;
 
+// Define window event listeners.
+window.addEventListener("load", () => {
+  gEmailConfigWizard.onLoad();
+});
+window.addEventListener("unload", () => {
+  gEmailConfigWizard.onWizardShutdown();
+});
+window.addEventListener("keypress", event => {
+  gEmailConfigWizard.onKeyDown(event);
+});
+
 function e(elementID) {
   return document.getElementById(elementID);
 }
@@ -136,30 +147,6 @@ function setLabelFromStringBundle(elementID, stringName) {
 function removeChildNodes(el) {
   while (el.hasChildNodes()) {
     el.lastChild.remove();
-  }
-}
-
-/**
- * Resize the window based on the content height and width.
- * Since the sizeToContent() method doesn't account for the height of
- * wrapped text, we're checking if the width and height of the "mastervbox"
- * or "warningbox" is taller than the window width and height. This is necessary
- * to account for l10n strings or the user manually resizing the window.
- */
-function resizeDialog() {
-  // We have two main elements here: mastervbox and warningbox. Resize the
-  // window according to which one is visible.
-  let mastervbox = document.getElementById("mastervbox");
-  let box = mastervbox.hidden
-    ? document.getElementById("warningbox")
-    : mastervbox;
-
-  if (box.clientHeight > window.innerHeight) {
-    window.innerHeight = box.clientHeight;
-  }
-
-  if (box.clientWidth > window.innerWidth) {
-    window.innerWidth = box.clientWidth;
   }
 }
 
@@ -208,7 +195,6 @@ function confirmDialog(
   _disable("next_button");
 
   _show("confirmationDialog");
-  resizeDialog();
 
   function close() {
     _hide("confirmationDialog");
@@ -218,7 +204,6 @@ function confirmDialog(
     e("stop_button").disabled = stopWasDisabled;
     e("manual-edit_button").disabled = manualConfigWasDisabled;
     e("next_button").disabled = nextWasDisabled;
-    resizeDialog();
   }
   okButton.addEventListener(
     "command",
@@ -283,16 +268,9 @@ EmailConfigWizard.prototype = {
     this._password = "";
     this._showPassword = false;
     this._exchangeUsername = ""; // only for Exchange AutoDiscover and only if needed
-    this._okCallback = null;
-
-    if (window.arguments && window.arguments[0]) {
-      if (window.arguments[0].msgWindow) {
-        this._parentMsgWindow = window.arguments[0].msgWindow;
-      }
-      if (window.arguments[0].okCallback) {
-        this._okCallback = window.arguments[0].okCallback;
-      }
-    }
+    this._okCallback = document.documentElement.okCallback;
+    this._msgWindow = document.documentElement.msgWindow;
+    this._extraData = document.documentElement.extraData || null;
 
     gEmailWizardLogger.info("Email account setup dialog loaded.");
 
@@ -371,7 +349,6 @@ EmailConfigWizard.prototype = {
 
     this.switchToMode("start");
     e("realname").select();
-    window.sizeToContent();
 
     // In a new profile, the first request to live.thunderbird.net
     // is much slower because of one-time overheads like DNS and OCSP.
@@ -511,7 +488,6 @@ EmailConfigWizard.prototype = {
         _hide("manual-edit_button");
       }
     }
-    resizeDialog();
   },
 
   /**
@@ -830,7 +806,6 @@ EmailConfigWizard.prototype = {
             ? "guessed_settings_offline"
             : "found_settings_guess"
         );
-        resizeDialog();
       },
       function(e, config) {
         // guessconfig failed
@@ -927,7 +902,6 @@ EmailConfigWizard.prototype = {
       this._showStatusTitle("");
       _hide("stop_button");
       gEmailWizardLogger.warn("all spinner stop");
-      resizeDialog();
       return;
     }
 
@@ -936,7 +910,6 @@ EmailConfigWizard.prototype = {
     this._showStatusTitle(actionStrName);
     _hide("stop_button");
     gEmailWizardLogger.warn("all spinner stop " + actionStrName);
-    resizeDialog();
   },
 
   showErrorStatus(actionStrName) {
@@ -1131,8 +1104,6 @@ EmailConfigWizard.prototype = {
           _show("result_addon_install");
           _disable("create_button");
         }
-
-        resizeDialog();
       })();
       return;
     }
@@ -1140,7 +1111,6 @@ EmailConfigWizard.prototype = {
     _show("result_hostnames");
     _hide("result_exchange");
     _enable("create_button");
-    resizeDialog();
 
     var unknownString = gStringsBundle.getString("resultUnknown");
 
@@ -1806,24 +1776,10 @@ EmailConfigWizard.prototype = {
   },
 
   /**
-   * [Switch to provisioner] button click handler. Always active, allows
-   * one to switch to the account provisioner screen.
+   * Open the new email account provisioner dialog.
    */
   onSwitchToProvisioner() {
-    // We have to close this window first, otherwise msgNewMailAccount
-    // in accountUtils.js will think that this window still
-    // exists when it's called from the account provisioner window.
-    // This is because the account provisioner window is modal,
-    // and therefore blocks.  Therefore, we override the _okCallback
-    // with a function that spawns the account provisioner, and then
-    // close the window.
-    this._okCallback = function() {
-      NewMailAccountProvisioner(
-        window.arguments[0].msgWindow,
-        window.arguments[0].extraData
-      );
-    };
-    window.close();
+    NewMailAccountProvisioner(this._msgWindow, this._extraData);
   },
 
   /**
@@ -1945,11 +1901,6 @@ EmailConfigWizard.prototype = {
 
   onKeyDown(event) {
     let key = event.keyCode;
-    if (key == 27) {
-      // Escape key
-      this.onCancel();
-      return true;
-    }
     if (key == 13) {
       // OK key
       let buttons = [
@@ -1985,6 +1936,7 @@ EmailConfigWizard.prototype = {
     if (this._okCallback) {
       this._okCallback();
     }
+
     gEmailWizardLogger.info("Shutting down email config dialog");
   },
 
@@ -2057,7 +2009,7 @@ EmailConfigWizard.prototype = {
       // because some other code doesn't adhere to the expectations/specs.
       // Find out what it was and fix it.
       // concreteConfig.source == AccountConfig.kSourceGuess,
-      this._parentMsgWindow,
+      this._msgWindow,
       function(successfulConfig) {
         // success
         self.stopSpinner(
@@ -2114,7 +2066,6 @@ EmailConfigWizard.prototype = {
         _enable("create_button");
         // hidden in non-manual mode, so it's fine to enable
         _enable("half-manual-test_button");
-        resizeDialog();
 
         Services.telemetry.keyedScalarAdd(
           "tb.account.failed_email_account_setup",
@@ -2132,7 +2083,7 @@ EmailConfigWizard.prototype = {
     // Trigger the first login to download the folder structure and messages.
     newAccount.incomingServer.getNewMessages(
       newAccount.incomingServer.rootFolder,
-      this._parentMsgWindow,
+      this._msgWindow,
       null
     );
 
@@ -2358,8 +2309,6 @@ SecurityWarningDialog.prototype = {
       !e("incoming_box").hidden || !e("outgoing_box").hidden,
       "warning dialog shown for unknown reason"
     );
-
-    resizeDialog();
   },
 
   toggleDetails(id) {
@@ -2372,8 +2321,6 @@ SecurityWarningDialog.prototype = {
       details.setAttribute("collapsed", true);
       tech.removeAttribute("expanded");
     }
-
-    resizeDialog();
   },
 
   /**
@@ -2394,7 +2341,6 @@ SecurityWarningDialog.prototype = {
   onCancel() {
     _hide("warningbox");
     _show("mastervbox");
-    resizeDialog();
 
     this._cancelCallback();
   },
@@ -2421,7 +2367,6 @@ SecurityWarningDialog.prototype = {
 
     _show("mastervbox");
     _hide("warningbox");
-    resizeDialog();
 
     this._okCallback();
   },

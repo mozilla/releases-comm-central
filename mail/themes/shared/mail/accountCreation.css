@@ -2,10 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@namespace html url("http://www.w3.org/1999/xhtml");
+/* @namespace html url("http://www.w3.org/1999/xhtml"); */
 
-.important-button {
-  font-weight: bold;
+@import url("chrome://messenger/skin/messenger.css");
+@import url("chrome://global/skin/in-content/common.css");
+@import url("chrome://messenger/skin/preferences/preferences.css");
+
+#mastervbox {
+  max-width: 660px;
+  min-width: 660px;
+}
+
+#form {
+  display: flex;
+  flex-direction: column;
 }
 
 .warningicon {
@@ -32,16 +42,19 @@
   background-size: 48px;
 }
 
-#warningbox {
+#warningbox:not([hidden="true"]) {
   background: #333 none repeat scroll 0% 0%;
   padding: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .warning {
   padding: 1em;
   border-radius: 8px;
   background-color: #722;
-  overflow: auto;
+  max-width: 50rem;
 }
 
 .warning_text {
@@ -68,7 +81,11 @@
   color: yellow;
   font-weight: bold;
   margin: 0;
-  margin-right: 2px;
+  margin-inline-end: 3px;
+}
+
+description {
+  margin-block-end: 6px;
 }
 
 #confirmationDialog {
@@ -154,8 +171,9 @@ checkbox.acknowledge_checkbox {
 
 #status_msg {
   min-height: 1.5em;
-  max-width: 30em;
   margin-bottom: 0;
+  line-height: 1.4rem;
+  margin-inline: 3px;
 }
 
 #status-lines {
@@ -252,7 +270,6 @@ checkbox.acknowledge_checkbox {
   margin-inline-end: 5px;
   font-weight: bold;
   border-radius: 2px;
-  line-height: 1rem;
   background-color: var(--result-bg-color);
   color: var(--bg-color);
 }

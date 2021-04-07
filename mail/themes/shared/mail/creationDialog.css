@@ -37,9 +37,7 @@
 .hub-container {
   background-color: var(--bg-color);
   color: var(--text-color);
-  width: 44em;
-  min-height: 45em;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .hub-wrapper {
@@ -141,7 +139,7 @@
   background-color: var(--config-bg);
   border-style: none;
   padding: 10px 20px;
-  margin: 10px 0 5px;
+  margin: 10px 20px;
 }
 
 .manual-config-table {
@@ -164,9 +162,46 @@
   flex: 1;
 }
 
+.manual-config-table td > label {
+  margin-block: 1px 2px;
+  margin-inline: 6px 5px;
+}
+
 .manual-config-table td > menulist,
 .manual-config-table td .input-field {
   margin-inline-end: 2px;
+}
+
+.manual-config-table td > menulist {
+  margin-inline: 4px;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"] {
+  padding-inline: 0;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"][editable="true"] {
+  margin-inline-end: 4px;
+  -moz-default-appearance: auto;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"][editable="true"]::part(text-input) {
+  padding-block: 5px;
+  padding-inline: 12px 14px;
+  border-radius: 2px;
+  background-color: var(--in-content-box-background);
+  border: 1px solid var(--in-content-box-border-color);
+  margin: -1px;
+  margin-inline-end: 9px;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"]:not([editable="true"])::part(text-input) {
+  display: none;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
+  width: 1.5em;
+  margin-inline-end: 0;
 }
 
 .config-label {

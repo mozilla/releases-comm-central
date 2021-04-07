@@ -4,7 +4,7 @@
 
 "use strict";
 
-var { open_mail_account_setup_wizard } = ChromeUtils.import(
+var { openAccountHub, wait_for_account_tree_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
 var { mc } = ChromeUtils.import(
@@ -24,6 +24,18 @@ var { MailServices } = ChromeUtils.import(
 let { TelemetryTestUtils } = ChromeUtils.import(
   "resource://testing-common/TelemetryTestUtils.jsm"
 );
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
+);
+
+var originalAlertsServiceCID;
+// We need a mock alerts service to capture notification events when loading the
+// UI after a successful account configuration in order to catch the alert
+// triggered when trying to connect to the fake IMAP server.
+class MockAlertsService {
+  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
+  showAlertNotification() {}
+}
 
 var user = {
   name: "Yamato Nadeshiko",
@@ -56,62 +68,92 @@ function remove_account_internal(tab, account, outgoing) {
   win.replaceWithDefaultSmtpServer(smtpKey);
 }
 
-add_task(function test_mail_account_setup() {
+add_task(async function test_mail_account_setup() {
+  originalAlertsServiceCID = MockRegistrar.register(
+    "@mozilla.org/alerts-service;1",
+    MockAlertsService
+  );
+
   // Set the pref to load a local autoconfig file.
   let url =
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
 
-  open_mail_account_setup_wizard(function(awc) {
-    // Input user's account information
-    awc.click(awc.e("realname"));
-    if (awc.e("realname").value) {
-      // If any realname is already filled, clear it out, we have our own.
-      delete_all_existing(awc, awc.e("realname"));
-    }
-    input_value(awc, user.name);
-    EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
-    input_value(awc, user.email);
-    EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
-    input_value(awc, user.password);
+  let tab = await openAccountHub();
+  let tabDocument = tab.browser.contentWindow.document;
 
-    // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
-    awc.click(awc.e("next_button"));
+  // Input user's account information
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("realname"),
+    {},
+    tab.browser.contentWindow
+  );
 
-    // XXX: This should probably use a notification, once we fix bug 561143.
-    awc.waitFor(
-      () => awc.window.gEmailConfigWizard._currentConfig != null,
-      "Timeout waiting for current config to become non-null",
-      8000,
-      600
-    );
+  if (tabDocument.getElementById("realname").value) {
+    // If any realname is already filled, clear it out, we have our own.
+    delete_all_existing(mc, tabDocument.getElementById("realname"));
+  }
+  input_value(mc, user.name);
+  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  input_value(mc, user.email);
+  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  input_value(mc, user.password);
 
-    // Register the prompt service to handle the confirm() dialog
-    gMockPromptService.register();
-    gMockPromptService.returnValue = true;
+  // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("next_button"),
+    {},
+    tab.browser.contentWindow
+  );
 
-    // Open the advanced settings (Account Manager) to create the account
-    // immediately.  We use an invalid email/password so the setup will fail
-    // anyway.
-    awc.e("manual-edit_button").click();
-    awc.e("advanced-setup_button").click();
-    subtest_verify_account(mc.tabmail.selectedTab);
-    mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+  // XXX: This should probably use a notification, once we fix bug 561143.
+  await BrowserTestUtils.waitForCondition(
+    () => tab.browser.contentWindow.gEmailConfigWizard._currentConfig != null,
+    "Timeout waiting for current config to become non-null"
+  );
 
-    let promptState = gMockPromptService.promptState;
-    Assert.equal("confirm", promptState.method);
+  // Register the prompt service to handle the confirm() dialog
+  gMockPromptService.register();
+  gMockPromptService.returnValue = true;
 
-    // Clean up
-    gMockPromptService.unregister();
-    Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
-  });
+  // Open the advanced settings (Account Manager) to create the account
+  // immediately. We use an invalid email/password so the setup will fail
+  // anyway.
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("manual-edit_button"),
+    {},
+    tab.browser.contentWindow
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => !tabDocument.getElementById("manual-edit_area").hidden,
+    "Timeout waiting for the manual edit area to become visible"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("advanced-setup_button"),
+    {},
+    tab.browser.contentWindow
+  );
+
+  await subtest_verify_account(mc.tabmail.selectedTab);
+
+  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+
+  let promptState = gMockPromptService.promptState;
+  Assert.equal("confirm", promptState.method);
+
+  // Clean up
+  gMockPromptService.unregister();
+  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 });
 
-function subtest_verify_account(tab) {
-  mc.waitFor(
+async function subtest_verify_account(tab) {
+  await BrowserTestUtils.waitForCondition(
     () => tab.browser.contentWindow.currentAccount != null,
-    "Timeout waiting for currentAccount to become non-null"
+    "Timeout waiting for current config to become non-null"
   );
+
   let account = tab.browser.contentWindow.currentAccount;
   let identity = account.defaultIdentity;
   let incoming = account.incomingServer;
@@ -169,7 +211,7 @@ function subtest_verify_account(tab) {
  * Make sure that we don't re-set the information we get from the config
  * file if the password is incorrect.
  */
-add_task(function test_bad_password_uses_old_settings() {
+add_task(async function test_bad_password_uses_old_settings() {
   // Set the pref to load a local autoconfig file, that will fetch the
   // ../account/xml/example.com which contains the settings for the
   // @example.com email account (see the 'user' object).
@@ -177,87 +219,106 @@ add_task(function test_bad_password_uses_old_settings() {
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
 
-  mc.sleep(0);
   Services.telemetry.clearScalars();
-  open_mail_account_setup_wizard(function(awc) {
-    try {
-      // Input user's account information
-      awc.click(awc.e("realname"));
-      if (awc.e("realname").value) {
-        // If any realname is already filled, clear it out, we have our own.
-        delete_all_existing(awc, awc.e("realname"));
-      }
-      input_value(awc, user.name);
-      EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
-      input_value(awc, user.email);
-      EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
-      input_value(awc, user.password);
 
-      // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
-      awc.e("next_button").click();
+  let tab = await openAccountHub();
+  let tabDocument = tab.browser.contentWindow.document;
 
-      awc.waitFor(
-        function() {
-          return !this.disabled && !this.hidden;
-        },
-        "Timeout waiting for create button to be visible and active",
-        8000,
-        600,
-        awc.e("create_button")
-      );
-      awc.e("create_button").click();
+  // Input user's account information
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("realname"),
+    {},
+    tab.browser.contentWindow
+  );
 
-      // The waitFor here is to allow onClick handler of create_button to
-      // finish. Otherwise, clicking manual-edit_button will enable
-      // create_button, and clicking create_button again immediately will mess
-      // up internal state.
-      awc.waitFor(
-        function() {
-          return !this.disabled;
-        },
-        "Timeout waiting for create button to be visible and active",
-        8000,
-        600,
-        awc.e("create_button")
-      );
-      awc.e("manual-edit_button").click();
-      awc.e("create_button").click();
+  if (tabDocument.getElementById("realname").value) {
+    // If any realname is already filled, clear it out, we have our own.
+    delete_all_existing(mc, tabDocument.getElementById("realname"));
+  }
+  input_value(mc, user.name);
+  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  input_value(mc, user.email);
+  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  input_value(mc, user.password);
 
-      // Make sure all the values are the same as in the user object.
-      awc.sleep(1000);
-      Assert.equal(
-        awc.e("outgoing_hostname").value,
-        user.outgoingHost,
-        "Outgoing server changed!"
-      );
-      Assert.equal(
-        awc.e("incoming_hostname").value,
-        user.incomingHost,
-        "incoming server changed!"
-      );
+  // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("next_button"),
+    {},
+    tab.browser.contentWindow
+  );
 
-      let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-      Assert.equal(
-        scalars["tb.account.failed_email_account_setup"]["xml-from-db"],
-        1,
-        "Count of failed email account setup with xml config must be correct"
-      );
-      Assert.equal(
-        scalars["tb.account.failed_email_account_setup"].user,
-        1,
-        "Count of failed email account setup with manual config must be correct"
-      );
-    } finally {
-      // Clean up
-      Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
-      awc.e("cancel_button").click();
-    }
-  });
+  let createButton = tabDocument.getElementById("create_button");
+  await BrowserTestUtils.waitForCondition(
+    () => !createButton.hidden && !createButton.disabled,
+    "Timeout waiting for create button to become visible and active"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    createButton,
+    {},
+    tab.browser.contentWindow
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => !createButton.disabled,
+    "Timeout waiting for create button to become active"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("manual-edit_button"),
+    {},
+    tab.browser.contentWindow
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => !tabDocument.getElementById("manual-edit_area").hidden,
+    "Timeout waiting for the manual edit area to become visible"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(
+    createButton,
+    {},
+    tab.browser.contentWindow
+  );
+
+  // Make sure all the values are the same as in the user object.
+  Assert.equal(
+    tabDocument.getElementById("outgoing_hostname").value,
+    user.outgoingHost,
+    "Outgoing server changed!"
+  );
+  Assert.equal(
+    tabDocument.getElementById("incoming_hostname").value,
+    user.incomingHost,
+    "incoming server changed!"
+  );
+
+  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  Assert.equal(
+    scalars["tb.account.failed_email_account_setup"]["xml-from-db"],
+    1,
+    "Count of failed email account setup with xml config must be correct"
+  );
+  Assert.equal(
+    scalars["tb.account.failed_email_account_setup"].user,
+    1,
+    "Count of failed email account setup with manual config must be correct"
+  );
+
+  // Clean up
+  Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
+
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("cancel_button"),
+    {},
+    tab.browser.contentWindow
+  );
 });
 
-add_task(function test_remember_password() {
-  remember_password_test(true);
-  remember_password_test(false);
+add_task(async function test_remember_password() {
+  await remember_password_test(true);
+  await remember_password_test(false);
 });
 
 /**
@@ -266,8 +327,8 @@ add_task(function test_remember_password() {
  *
  * @param {boolean} aPrefValue - The preference value for signon.rememberSignons.
  */
-function remember_password_test(aPrefValue) {
-  // save the pref for backup purpose
+async function remember_password_test(aPrefValue) {
+  // Save the pref for backup purpose.
   let rememberSignons_pref_save = Services.prefs.getBoolPref(
     "signon.rememberSignons",
     true
@@ -275,33 +336,35 @@ function remember_password_test(aPrefValue) {
 
   Services.prefs.setBoolPref("signon.rememberSignons", aPrefValue);
 
-  // without this, it breaks the test, don't know why
-  mc.sleep(0);
-  open_mail_account_setup_wizard(function(awc) {
-    try {
-      let password = awc.window.document.getElementById("password");
+  let tab = await openAccountHub();
+  let tabDocument = tab.browser.contentWindow.document;
+  let password = tabDocument.getElementById("password");
 
-      // type something in the password field
-      password.focus();
-      input_value(awc, "testing");
+  // Type something in the password field.
+  password.focus();
+  input_value(mc, "testing");
 
-      let rememberPassword = awc.window.document.getElementById(
-        "remember_password"
-      );
-      Assert.ok(rememberPassword.disabled != aPrefValue);
-      Assert.equal(rememberPassword.checked, aPrefValue);
+  let rememberPassword = tabDocument.getElementById("remember_password");
+  Assert.ok(rememberPassword.disabled != aPrefValue);
+  Assert.equal(rememberPassword.checked, aPrefValue);
 
-      // empty the password field
-      delete_all_existing(awc, password);
+  // Empty the password field.
+  delete_all_existing(mc, password);
 
-      // restore the saved signon.rememberSignons value
-      Services.prefs.setBoolPref(
-        "signon.rememberSignons",
-        rememberSignons_pref_save
-      );
-    } finally {
-      // close the wizard
-      awc.e("cancel_button").click();
-    }
-  });
+  // Restore the saved signon.rememberSignons value.
+  Services.prefs.setBoolPref(
+    "signon.rememberSignons",
+    rememberSignons_pref_save
+  );
+
+  // Close the wizard.
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("cancel_button"),
+    {},
+    tab.browser.contentWindow
+  );
 }
+
+registerCleanupFunction(function teardownModule(module) {
+  MockRegistrar.unregister(originalAlertsServiceCID);
+});

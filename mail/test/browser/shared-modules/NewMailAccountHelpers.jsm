@@ -66,7 +66,7 @@ function open_provisioner_window() {
  * open.
  */
 function poll_for_wizard_window(aController) {
-  return Services.wm.getMostRecentWindow("mail:autoconfig");
+  return Services.wm.getMostRecentWindow("mail:accounthub");
 }
 
 /* Waits until the existing email account setup wizard is closed.

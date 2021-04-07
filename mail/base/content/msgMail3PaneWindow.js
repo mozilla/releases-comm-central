@@ -513,7 +513,7 @@ var ThemePrefObserver = {
 /**
  * Called on startup if there are no accounts.
  */
-function AutoConfigWizard(okCallback) {
+function verifyOpenAccountHubTab() {
   let suppressDialogs = Services.prefs.getBoolPref(
     "mail.provider.suppress_dialog_on_startup",
     false
@@ -523,7 +523,7 @@ function AutoConfigWizard(okCallback) {
     // Looks like we were in the middle of filling out an account form. We
     // won't display the dialogs in that case.
     Services.prefs.clearUserPref("mail.provider.suppress_dialog_on_startup");
-    okCallback();
+    LoadPostAccountWizard();
     return;
   }
 
@@ -531,7 +531,7 @@ function AutoConfigWizard(okCallback) {
   document.getElementById("folderPaneBox").collapsed = true;
   document.getElementById("folderpane_splitter").collapsed = true;
 
-  NewMailAccount(msgWindow, okCallback);
+  openAccountHubTab();
 }
 
 function initOpenPGPIfEnabled() {
@@ -742,9 +742,12 @@ var gMailInit = {
       // Show on a timeout so the main window has time to open. Otherwise
       // the dialog would be confusingly showing out of context.
       _showNewInstallModal();
-    } else if (verifyAccounts(LoadPostAccountWizard, false, AutoConfigWizard)) {
-      // verifyAccounts returns true if the callback won't be called
-      // We also don't want the account wizard to open if any sort of account exists
+      return;
+    }
+
+    // Load the entire UI only if we already have at least one account available
+    // otherwise the verifyExistingAccounts will trigger the account wizard.
+    if (verifyExistingAccounts()) {
       LoadPostAccountWizard();
     }
   },
@@ -802,6 +805,71 @@ var gMailInit = {
   },
 };
 
+/**
+ * Called at startup to verify if we have ny existing account, even if invalid,
+ * and if not, it will trigger the Account Hub in a tab.
+ *
+ * @returns {boolean} - True if we have at least one existing account.
+ */
+function verifyExistingAccounts() {
+  try {
+    // Migrate quoting preferences from global to per account. This function
+    // returns true if it had to migrate, which we will use to mean this is a
+    // just migrated or new profile.
+    let newProfile = migrateGlobalQuotingPrefs(
+      MailServices.accounts.allIdentities
+    );
+
+    // If there are no accounts, or all accounts are "invalid" then kick off the
+    // account migration. Or if this is a new (to Mozilla) profile. MCD can set
+    // up accounts without the profile being used yet.
+    if (newProfile) {
+      // Check if MCD is configured. If not, say this is not a new profile so
+      // that we don't accidentally remigrate non MCD profiles.
+      var adminUrl = Services.prefs.getCharPref(
+        "autoadmin.global_config_url",
+        ""
+      );
+      if (!adminUrl) {
+        newProfile = false;
+      }
+    }
+
+    let accounts = MailServices.accounts.accounts;
+    let invalidAccounts = getInvalidAccounts(accounts);
+    // Trigger the new account configuration wizard only if we don't have any
+    // existing account, not even if we have at least one invalid account.
+    if (
+      (newProfile && !accounts.length) ||
+      accounts.length == invalidAccounts.length ||
+      (invalidAccounts.length > 0 &&
+        invalidAccounts.length == accounts.length &&
+        invalidAccounts[0])
+    ) {
+      verifyOpenAccountHubTab();
+      return false;
+    }
+
+    let localFoldersExists;
+    try {
+      localFoldersExists = MailServices.accounts.localFoldersServer;
+    } catch (ex) {
+      localFoldersExists = false;
+    }
+
+    // We didn't trigger the account configuration wizard, so we need to verify
+    // that local folders exists.
+    if (!localFoldersExists) {
+      MailServices.accounts.createLocalMailAccount();
+    }
+
+    return true;
+  } catch (ex) {
+    dump(`Error verifying accounts: ${ex}`);
+    return false;
+  }
+}
+
 function _showNewInstallModal() {
   Services.ww.openWindow(
     null,
@@ -818,12 +886,23 @@ function _showNewInstallModal() {
       onTabTitleChanged() {},
       onTabSwitched() {},
       onTabClosing() {
-        AutoConfigWizard();
+        verifyOpenAccountHubTab();
         tabmail.unregisterTabMonitor(monitor);
       },
     };
     tabmail.registerTabMonitor(monitor);
     tabmail.openTab("contentTab", { url: "about:newinstall" });
+  }
+}
+
+/**
+ * Switch the view to the first Mail tab if the currently selected tab is not
+ * the first Mail tab.
+ */
+function switchToMailTab() {
+  let tabmail = document.getElementById("tabmail");
+  if (tabmail?.selectedTab.mode.name != "folder") {
+    tabmail.switchToTab(0);
   }
 }
 
@@ -838,6 +917,7 @@ function _showNewInstallModal() {
  *   success dialog after a new account has been created.
  */
 async function LoadPostAccountWizard(isFromProvisioner) {
+  switchToMailTab();
   InitMsgWindow();
   messenger.setWindow(window, msgWindow);
 

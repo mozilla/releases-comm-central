@@ -4,7 +4,7 @@
 
 "use strict";
 
-var { open_mail_account_setup_wizard } = ChromeUtils.import(
+var { openAccountHub } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
 var { mc } = ChromeUtils.import(
@@ -57,43 +57,42 @@ add_task(function setupModule(module) {
 });
 
 add_task(async function test_mail_account_setup() {
-  open_mail_account_setup_wizard(async function(awc) {
-    // Input user's account information
-    awc.e("realname").focus();
-    input_value(awc, user.name);
-    EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
-    input_value(awc, user.email);
+  let tab = await openAccountHub();
+  let tabDocument = tab.browser.contentWindow.document;
 
-    // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
-    awc.e("next_button").click();
+  // Input user's account information
+  tabDocument.getElementById("realname").focus();
+  input_value(mc, user.name);
+  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  input_value(mc, user.email);
 
-    // XXX: This should probably use a notification, once we fix bug 561143.
-    awc.waitFor(
-      () => awc.window.gEmailConfigWizard._currentConfig != null,
-      "Timeout waiting for current config to become non-null",
-      8000,
-      600
-    );
-    plan_for_window_close(awc);
+  // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("next_button"),
+    {},
+    tab.browser.contentWindow
+  );
 
-    // Since we mocked the OS notification, we will get an alert due to the fake
-    // imap server we're using for the tests. Handle the accept of the alert.
-    let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
+  // XXX: This should probably use a notification, once we fix bug 561143.
+  await BrowserTestUtils.waitForCondition(
+    () => tab.browser.contentWindow.gEmailConfigWizard._currentConfig != null,
+    "Timeout waiting for current config to become non-null"
+  );
 
-    awc.e("create_button").click();
+  EventUtils.synthesizeMouseAtCenter(
+    tabDocument.getElementById("create_button"),
+    {},
+    tab.browser.contentWindow
+  );
 
-    let events = mc.window.MailInstrumentation._currentState.events;
-    wait_for_window_close();
+  let events = mc.window.MailInstrumentation._currentState.events;
 
-    await dialogPromise;
-
-    // we expect to have accountAdded and smtpServerAdded events.
-    if (!events.accountAdded.data) {
-      throw new Error("failed to add an account");
-    } else if (!events.smtpServerAdded.data) {
-      throw new Error("failed to add an smtp server");
-    }
-  });
+  // we expect to have accountAdded and smtpServerAdded events.
+  if (!events.accountAdded.data) {
+    throw new Error("failed to add an account");
+  } else if (!events.smtpServerAdded.data) {
+    throw new Error("failed to add an smtp server");
+  }
 });
 
 // Remove the accounts we added.

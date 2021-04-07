@@ -5,9 +5,9 @@
 "use strict";
 
 const EXPORTED_SYMBOLS = [
+  "openAccountHub",
   "openAccountSettings",
   "open_advanced_settings",
-  "open_mail_account_setup_wizard",
   "click_account_tree_row",
   "get_account_tree_row",
   "remove_account",
@@ -23,7 +23,11 @@ var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { content_tab_e, open_content_tab_with_url } = ChromeUtils.import(
+var {
+  content_tab_e,
+  open_content_tab_with_url,
+  wait_for_content_tab_load,
+} = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 
@@ -60,17 +64,12 @@ function open_advanced_settings(callback) {
   mc.tabmail.closeTab(tab);
 }
 
-/**
- * Use File > New > Mail Account to open the Mail Account Setup Wizard.
- * @callback tabCallback
- *
- * @param {tabCallback} callback - Function to run once the dialog is open. The function
- *                                 gets the new window controller passed as first argument.
- */
-function open_mail_account_setup_wizard(callback) {
-  wh.plan_for_modal_dialog("mail:autoconfig", callback);
-  mc.click(mc.menus.menu_File.menu_New.newMailAccountMenuItem);
-  return wh.wait_for_modal_dialog("mail:autoconfig", 30000);
+async function openAccountHub() {
+  return new Promise(resolve => {
+    let tab = open_content_tab_with_url("about:accounthub");
+    wait_for_content_tab_load(tab, "about:accounthub", 10000);
+    resolve(tab);
+  });
 }
 
 /**

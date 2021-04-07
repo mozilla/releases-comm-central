@@ -3,53 +3,48 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountCreation.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/creationDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
   %brandDTD;
   <!ENTITY % acDTD SYSTEM "chrome://messenger/locale/accountCreation.dtd">
   %acDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        id="autoconfigWizard"
-        windowtype="mail:autoconfig"
-        title="&emailWizard.title;"
-        onload="gEmailConfigWizard.onLoad();"
-        onkeypress="gEmailConfigWizard.onKeyDown(event);"
-        onunload="gEmailConfigWizard.onWizardShutdown();"
-        lightweightthemes="true">
+<html id="accountHub" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      windowtype="mail:accounthub"
+      scrolling="false">
+<head>
+  <title data-l10n-id="account-hub-tab-title"></title>
 
+  <link rel="localization" href="messenger/accountcreation/accountHub.ftl" />
+
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/util.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/accountConfig.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/emailWizard.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/sanitizeDatatypes.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/fetchhttp.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/readFromXML.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/guessConfig.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/verifyConfig.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/fetchConfig.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/exchangeAutoDiscover.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountcreation/createInBackend.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
+</head>
+
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="strings" src="chrome://messenger/locale/accountCreation.properties"/>
   <stringbundle id="utilstrings" src="chrome://messenger/locale/accountCreationUtil.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/accountcreation/util.js"/>
-  <script src="chrome://messenger/content/accountcreation/accountConfig.js"/>
-  <script src="chrome://messenger/content/accountcreation/emailWizard.js"/>
-  <script src="chrome://messenger/content/accountcreation/sanitizeDatatypes.js"/>
-  <script src="chrome://messenger/content/accountcreation/fetchhttp.js"/>
-  <script src="chrome://messenger/content/accountcreation/readFromXML.js"/>
-  <script src="chrome://messenger/content/accountcreation/guessConfig.js"/>
-  <script src="chrome://messenger/content/accountcreation/verifyConfig.js"/>
-  <script src="chrome://messenger/content/accountcreation/fetchConfig.js"/>
-  <script src="chrome://messenger/content/accountcreation/exchangeAutoDiscover.js"/>
-  <script src="chrome://messenger/content/accountcreation/createInBackend.js"/>
-  <script src="chrome://messenger/content/accountUtils.js"/>
-
-  <keyset id="mailKeys">
-    <key keycode="VK_ESCAPE" oncommand="window.close();"/>
-  </keyset>
 
   <vbox id="mainContainer" class="hub-container" flex="1">
 
@@ -117,14 +112,14 @@
       <description>&password.text;</description>
     </tooltip>
 
-    <vbox id="mastervbox" flex="1">
+    <vbox id="mastervbox">
       <vbox align="center" class="hub-header">
         <description class="hub-subtitle">&emailWizard.title;</description>
         <description>&emailWizard.caption;</description>
       </vbox>
 
-      <vbox class="hub-wrapper" flex="1">
-        <form id="form" orient="vertical">
+      <vbox class="hub-wrapper">
+        <html:form id="form" autocomplete="off">
           <hbox class="form-control" align="center">
             <label accesskey="&name.accesskey;"
                   class="autoconfigLabel label-box"
@@ -247,7 +242,7 @@
             </hbox>
           </vbox>
 
-        </form>
+        </html:form>
       </vbox><!-- .hub-wrapper -->
 
       <html:fieldset id="result_area" class="hub-wrapper config-area"
@@ -554,12 +549,13 @@
           <button id="next_button"
                   label="&continue.label;"
                   accesskey="&continue.accesskey;"
+                  class="primary"
                   hidden="false"
                   oncommand="gEmailConfigWizard.onNext();"/>
           <button id="create_button"
                   label="&doneAccount.label;"
                   accesskey="&doneAccount.accesskey;"
-                  class="important-button"
+                  class="primary"
                   hidden="true"
                   oncommand="gEmailConfigWizard.onCreate();"/>
         </hbox>
@@ -586,7 +582,7 @@
             <description id="incoming_details" collapsed="true"/>
           </vbox>
           <vbox id="outgoing_box">
-            <hbox>
+            <hbox align="center">
               <label class="warning_settings" value="&outgoingSettings.label;"/>
               <description id="warning_outgoing"/>
             </hbox>
@@ -622,4 +618,5 @@
     </vbox>
 
   </vbox>
-</window>
+</html:body>
+</html>
