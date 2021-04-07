@@ -55,7 +55,7 @@
   },
   {
     "namespace": "messageDisplayAction",
-    "description": "Use toolbar actions to put icons in the message display toolbar. In addition to its icon, a toolbar action can also have a tooltip, a badge, and a popup.",
+    "description": "Use a messageDisplayAction to put an icon in the message display toolbar. In addition to its icon, a messageDisplayAction can also have a tooltip, a badge, and a popup.",
     "permissions": ["manifest:message_display_action"],
     "types": [
       {
@@ -122,7 +122,7 @@
       {
         "name": "setTitle",
         "type": "function",
-        "description": "Sets the title of the toolbar action. This shows up in the tooltip and the label. Defaults to the add-on name.",
+        "description": "Sets the title of the messageDisplayAction. This shows up in the tooltip and the label. Defaults to the add-on name.",
         "async": "callback",
         "parameters": [
           {
@@ -135,7 +135,7 @@
                   {"type": "string"},
                   {"type": "null"}
                 ],
-                "description": "The string the toolbar action should display as its label and when moused over."
+                "description": "The string the messageDisplayAction should display as its label and when moused over."
               }
             }
           },
@@ -150,7 +150,7 @@
       {
         "name": "getTitle",
         "type": "function",
-        "description": "Gets the title of the toolbar action.",
+        "description": "Gets the title of the messageDisplayAction.",
         "async": "callback",
         "parameters": [
           {
@@ -172,7 +172,7 @@
       {
         "name": "setLabel",
         "type": "function",
-        "description": "Sets the label of the toolbar action, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
+        "description": "Sets the label of the messageDisplayAction, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
         "async": "callback",
         "parameters": [
           {
@@ -185,7 +185,7 @@
                   {"type": "string"},
                   {"type": "null"}
                 ],
-                "description": "The string the toolbar action should use as label. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback."
+                "description": "The string the messageDisplayAction should use as label. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback."
               }
             }
           },
@@ -199,7 +199,7 @@
       {
         "name": "getLabel",
         "type": "function",
-        "description": "Gets the label of the toolbar action.",
+        "description": "Gets the label of the messageDisplayAction.",
         "async": "callback",
         "parameters": [
           {
@@ -221,7 +221,7 @@
       {
         "name": "setIcon",
         "type": "function",
-        "description": "Sets the icon for the toolbar action. The icon can be specified either as the path to an image file or as the pixel data from a canvas element, or as dictionary of either one of those. Either the <b>path</b> or the <b>imageData</b> property must be specified.",
+        "description": "Sets the icon for the messageDisplayAction. The icon can be specified either as the path to an image file or as the pixel data from a canvas element, or as dictionary of either one of those. Either the <b>path</b> or the <b>imageData</b> property must be specified.",
         "async": "callback",
         "parameters": [
           {
@@ -268,7 +268,7 @@
       {
         "name": "setPopup",
         "type": "function",
-        "description": "Sets the html document to be opened as a popup when the user clicks on the toolbar action's icon.",
+        "description": "Sets the html document to be opened as a popup when the user clicks on the messageDisplayAction's icon.",
         "async": "callback",
         "parameters": [
           {
@@ -296,7 +296,7 @@
       {
         "name": "getPopup",
         "type": "function",
-        "description": "Gets the html document set as the popup for this toolbar action.",
+        "description": "Gets the html document set as the popup for this messageDisplayAction.",
         "async": "callback",
         "parameters": [
           {
@@ -318,7 +318,7 @@
       {
         "name": "setBadgeText",
         "type": "function",
-        "description": "Sets the badge text for the toolbar action. The badge is displayed on top of the icon.",
+        "description": "Sets the badge text for the messageDisplayAction. The badge is displayed on top of the icon.",
         "async": "callback",
         "parameters": [
           {
@@ -346,7 +346,7 @@
       {
         "name": "getBadgeText",
         "type": "function",
-        "description": "Gets the badge text of the toolbar action. If no tab nor window is specified, the global badge text is returned.",
+        "description": "Gets the badge text of the messageDisplayAction. If no tab nor window is specified, the global badge text is returned.",
         "async": "callback",
         "parameters": [
           {
@@ -397,7 +397,7 @@
       {
         "name": "getBadgeBackgroundColor",
         "type": "function",
-        "description": "Gets the background color of the toolbar action.",
+        "description": "Gets the background color of the messageDisplayAction.",
         "async": "callback",
         "parameters": [
           {
@@ -419,7 +419,7 @@
       {
         "name": "enable",
         "type": "function",
-        "description": "Enables the toolbar action for a tab. By default, toolbar actions are enabled.",
+        "description": "Enables the messageDisplayAction for a tab. By default, a messageDisplayAction is enabled.",
         "async": "callback",
         "parameters": [
           {
@@ -427,7 +427,7 @@
             "optional": true,
             "name": "tabId",
             "minimum": 0,
-            "description": "The id of the tab for which you want to modify the toolbar action."
+            "description": "The id of the tab for which you want to modify the messageDisplayAction."
           },
           {
             "type": "function",
@@ -440,7 +440,7 @@
       {
         "name": "disable",
         "type": "function",
-        "description": "Disables the toolbar action for a tab.",
+        "description": "Disables the messageDisplayAction for a tab.",
         "async": "callback",
         "parameters": [
           {
@@ -448,7 +448,7 @@
             "optional": true,
             "name": "tabId",
             "minimum": 0,
-            "description": "The id of the tab for which you want to modify the toolbar action."
+            "description": "The id of the tab for which you want to modify the messageDisplayAction."
           },
           {
             "type": "function",
@@ -461,7 +461,7 @@
       {
         "name": "isEnabled",
         "type": "function",
-        "description": "Checks whether the toolbar action is enabled.",
+        "description": "Checks whether the messageDisplayAction is enabled.",
         "async": true,
         "parameters": [
           {
@@ -483,7 +483,7 @@
       {
         "name": "onClicked",
         "type": "function",
-        "description": "Fired when a toolbar action icon is clicked.  This event will not fire if the toolbar action has a popup. This is a user input event handler. For asynchronous listeners some `restrictions <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/User_actions>`__ apply.",
+        "description": "Fired when a messageDisplayAction icon is clicked.  This event will not fire if the messageDisplayAction has a popup. This is a user input event handler. For asynchronous listeners some `restrictions <https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/User_actions>`__ apply.",
         "parameters": [
           {
             "name": "tab",

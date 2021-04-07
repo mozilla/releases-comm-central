@@ -276,7 +276,7 @@
         "name": "beginNew",
         "type": "function",
         "description": "Open a new message compose window. If the provided ComposeDetails object does not provide ``body``, ``plainTextBody`` or ``isPlainText``, the default compose format of the used/default identity is used. The :ref:`accounts_api` API can be used to get the used/default identity and its default compose format.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "messageId",
@@ -289,6 +289,17 @@
             "name": "details",
             "$ref": "ComposeDetails",
             "optional": true
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "return",
+                "$ref": "tabs.Tab"
+              }
+            ]
           }
         ]
       },
@@ -296,7 +307,7 @@
         "name": "beginReply",
         "type": "function",
         "description": "Open a new message compose window replying to a given message. If the provided ComposeDetails object does not provide ``body``, ``plainTextBody`` or ``isPlainText``, the default compose format of the used/default identity is used. The :ref:`accounts_api` API can be used to get the used/default identity and its default compose format.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "messageId",
@@ -318,6 +329,17 @@
             "name": "details",
             "$ref": "ComposeDetails",
             "optional": true
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "return",
+                "$ref": "tabs.Tab"
+              }
+            ]
           }
         ]
       },
@@ -325,7 +347,7 @@
         "name": "beginForward",
         "type": "function",
         "description": "Open a new message compose window forwarding a given message. If the provided ComposeDetails object does not provide ``body``, ``plainTextBody`` or ``isPlainText``, the default compose format of the used/default identity is used. The :ref:`accounts_api` API can be used to get the used/default identity and its default compose format.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "messageId",
@@ -346,13 +368,24 @@
             "name": "details",
             "$ref": "ComposeDetails",
             "optional": true
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "return",
+                "$ref": "tabs.Tab"
+              }
+            ]
           }
         ]
       },
       {
         "name": "getComposeDetails",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "description": "Fetches the current state of a compose window. Currently only a limited amount of information is available, more will be added in later versions.",
         "permissions": [
           "compose"
@@ -362,6 +395,16 @@
             "type": "integer",
             "name": "tabId",
             "minimum": 0
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "ComposeDetails"
+              }
+            ]
           }
         ]
       },

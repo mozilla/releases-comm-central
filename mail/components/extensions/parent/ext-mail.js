@@ -1484,11 +1484,11 @@ function convertMailIdentity(account, identity) {
   return {
     accountId: account.key,
     id: identity.key,
-    label: identity.label,
-    name: identity.fullName,
-    email: identity.email,
-    replyTo: identity.replyTo,
-    organization: identity.organization,
+    label: identity.label || "",
+    name: identity.fullName || "",
+    email: identity.email || "",
+    replyTo: identity.replyTo || "",
+    organization: identity.organization || "",
     composeHtml: identity.composeHtml,
   };
 }

@@ -97,18 +97,43 @@
         "name": "list",
         "type": "function",
         "description": "Returns all mail accounts.",
-        "async": true,
-        "parameters": []
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "accounts.MailAccount"
+                }
+              }
+            ]
+          }
+        ]
       },
       {
         "name": "get",
         "type": "function",
         "description": "Returns details of the requested account, or null if it doesn't exist.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "accountId",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "accounts.MailAccount",
+                "optional": true
+              }
+            ]
           }
         ]
       },
@@ -116,8 +141,20 @@
         "name": "getDefault",
         "type": "function",
         "description": "Returns the default account, or null if it is not defined.",
-        "async": true,
-        "parameters": []
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "accounts.MailAccount",
+                "optional": true
+              }
+            ]
+          }
+        ]
       },
       {
         "name": "setDefaultIdentity",
@@ -139,11 +176,21 @@
         "name": "getDefaultIdentity",
         "type": "function",
         "description": "Returns the default identity for an account, or null if it is not defined.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "accountId",
             "type": "string"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "accounts.MailIdentity"
+              }
+            ]
           }
         ]
       }

@@ -23,6 +23,157 @@
     ],
     "types": [
       {
+        "id": "MessageHeader",
+        "type": "object",
+        "description": "Basic information about a message.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "date": {
+            "$ref": "extensionTypes.Date"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "flagged": {
+            "type": "boolean"
+          },
+          "ccList": {
+            "description": "The Cc recipients. Not populated for news/nntp messages.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bccList": {
+            "description": "The Bcc recipients. Not populated for news/nntp messages.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "author": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "recipients": {
+            "description": "The To recipients. Not populated for news/nntp messages.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "folder": {
+            "$ref": "folders.MailFolder",
+            "description": "The <permission>accountsRead</permission> permission is required for this property to be included."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "junk": {
+            "description": "Not populated for news/nntp messages.",
+            "type": "boolean"
+          },
+          "junkScore": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "headerMessageId": {
+            "type": "string",
+            "description": "The message-id header of the message."
+          }
+        }
+      },
+      {
+        "id": "MessageList",
+        "type": "object",
+        "description": "See :doc:`how-to/messageLists` for more information.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "optional" : true
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "MessageHeader"
+            }
+          }
+        }
+      },
+      {
+        "id": "MessagePart",
+        "type": "object",
+        "description": "Represents an email message \"part\", which could be the whole message",
+        "properties": {
+          "body": {
+            "type": "string",
+            "description": "The content of the part",
+            "optional": true
+          },
+          "contentType": {
+            "type": "string",
+            "optional": true
+          },
+          "headers": {
+            "type": "object",
+            "description": "An object of part headers, with the header name as key, and an array of header values as value",
+            "optional": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the part, if it is a file",
+            "optional": true
+          },
+          "partName": {
+            "type": "string",
+            "optional": true
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "MessagePart"
+            },
+            "description": "Any sub-parts of this part",
+            "optional": true
+          },
+          "size": {
+            "type": "integer",
+            "optional": true
+          }
+        }
+      },
+      {
+        "id": "MessageTag",
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Distinct tag identifier – use this string when referring to a tag"
+          },
+          "tag": {
+            "type": "string",
+            "description": "Human-readable tag name"
+          },
+          "color": {
+            "type": "string",
+            "description": "Tag color"
+          },
+          "ordinal": {
+            "type": "string",
+            "description": "Custom sort string (usually empty)"
+          }
+        }
+      },
+      {
         "id": "TagsDetail",
         "type": "object",
         "description": "Used for filtering messages by tag in various methods. Note that functions using this type may have a partial implementation.",

@@ -226,12 +226,22 @@
         "type": "function",
         "description": "Retrieve information about a single cloud file account",
         "allowedContexts": ["content"],
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "accountId",
             "type": "string",
             "description": "Unique identifier of the account"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "CloudFileAccount"
+              }
+            ]
           }
         ]
       },
@@ -240,15 +250,29 @@
         "type": "function",
         "description": "Retrieve all cloud file accounts for the current add-on",
         "allowedContexts": ["content"],
-        "async": true,
-        "parameters": []
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "CloudFileAccount"
+                }
+              }
+            ]
+          }
+        ]
       },
       {
         "name": "updateAccount",
         "type": "function",
         "description": "Update a cloud file account",
         "allowedContexts": ["content"],
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "accountId",
@@ -289,6 +313,16 @@
                 "description": "A page for configuring accounts, to be displayed in the preferences UI."
               }
             }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "CloudFileAccount"
+              }
+            ]
           }
         ]
       }
