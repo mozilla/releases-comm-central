@@ -7,3 +7,5 @@ add-on-options-button =
 
 atn-addons-heading-search-input =
     .placeholder = Search addons.thunderbird.net
+
+sidebar-preferences-button-title = { -brand-short-name } Preferences

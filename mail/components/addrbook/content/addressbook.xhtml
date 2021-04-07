@@ -471,8 +471,7 @@
 #ifndef XP_MACOSX
         <menuseparator id="prefSep"/>
         <menuitem id="menu_preferences"
-                  label="&preferencesCmdUnix.label;"
-                  accesskey="&preferencesCmdUnix.accesskey;"
+                  data-l10n-id="menu-tools-preferences"
                   command="cmd_preferences"
                   class="menuitem-iconic"/>
 #endif
@@ -630,15 +629,13 @@
 #ifndef XP_UNIX
             <menuseparator id="prefSep"/>
             <menuitem id="menu_preferences"
-                      label="&preferencesCmd2.label;"
-                      accesskey="&preferencesCmd2.accesskey;"
+                      data-l10n-id="menu-tools-preferences"
                       command="cmd_preferences"
                       class="menuitem-iconic"/>
 #else
 #ifdef XP_MACOSX
             <menuitem id="menu_preferences"
-                      label="&preferencesCmd2.label;"
-                      accesskey="&preferencesCmd2.accesskey;"
+                      data-l10n-id="menu-tools-preferences"
                       command="cmd_preferences"/>
 #endif
 #endif

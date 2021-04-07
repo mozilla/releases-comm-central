@@ -8,6 +8,18 @@ menu-view-charset =
     .label = Text Encoding
     .accesskey = c
 
+## Tools Menu
+
+# Since v89 we dropped the platforms distinction between Options or Preferences
+# and consolidated everything with Preferences.
+menu-tools-preferences =
+    .label = Preferences
+    .accesskey = P
+
+menu-addons-and-themes =
+    .label = Add-ons and Themes
+    .accesskey = A
+
 ## Help Menu
 
 menu-help-enter-troubleshoot-mode =

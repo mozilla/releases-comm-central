@@ -5,11 +5,8 @@
 close-button =
     .aria-label = Close
 
-preferences-title =
-    .title = { PLATFORM() ->
-        [windows] Options
-        *[other] Preferences
-    }
+preferences-tab-title =
+    .title = Preferences
 
 category-list =
     .aria-label = Categories
@@ -132,7 +129,7 @@ update-in-progress-ok-button = &Discard
 update-in-progress-cancel-button = &Continue
 
 account-button = Account Settings
-addons-button = Extensions & Themes
+open-addons-sidebar-button = Add-ons and Themes
 
 ## OS Authentication dialog
 
@@ -872,12 +869,9 @@ chat-variant-label =
 # Notice: The value of the `.style` attribute is a CSS string, and the `width`
 # is the name of the CSS property. It is intended only to adjust the element's width.
 # Do not translate.
-search-input-box =
+search-preferences-input =
     .style = width: 15.4em
-    .placeholder = { PLATFORM() ->
-        [windows] Find in Options
-        *[other] Find in Preferences
-    }
+    .placeholder = Find in Preferences
 
 ## Preferences UI Search Results
 

@@ -880,7 +880,7 @@ async function LoadPostAccountWizard(isFromProvisioner) {
     let appSafeMode = document.getElementById("appmenu_troubleshootMode");
     document.l10n.setAttributes(
       appSafeMode,
-      "menu-help-exit-troubleshoot-mode"
+      "appmenu-help-exit-troubleshoot-mode"
     );
   }
 

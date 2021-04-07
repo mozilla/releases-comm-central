@@ -90,7 +90,7 @@
         <toolbarseparator/>
         <toolbarbutton id="appmenu_addons"
                        class="subviewbutton subviewbutton-iconic"
-                       label="&addons.label;"
+                       data-l10n-id="appmenu-addons-and-themes"
                        closemenu="none"
                        oncommand="openAddonsMgr();"/>
         <toolbarbutton id="appmenu_accountmgr"
@@ -99,11 +99,7 @@
                        oncommand="MsgAccountManager(null);"/>
         <toolbarbutton id="appmenu_preferences"
                        class="subviewbutton subviewbutton-iconic"
-#ifdef XP_WIN
-                       label="&preferencesCmd2.label;"
-#else
-                       label="&preferencesCmdUnix.label;"
-#endif
+                       data-l10n-id="appmenu-preferences"
                        closemenu="none"
                        oncommand="openOptionsDialog();"/>
         <toolbarseparator/>
@@ -1778,11 +1774,11 @@
         <toolbarseparator/>
         <toolbarbutton id="appmenu_troubleshootMode"
                        class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="menu-help-enter-troubleshoot-mode"
+                       data-l10n-id="appmenu-help-enter-troubleshoot-mode"
                        oncommand="safeModeRestart();"/>
         <toolbarbutton id="appmenu_troubleshootingInfo"
                        class="subviewbutton subviewbutton-iconic"
-                       data-l10n-id="menu-help-more-troubleshooting-info"
+                       data-l10n-id="appmenu-help-more-troubleshooting-info"
                        oncommand="openAboutSupport();"/>
         <toolbarseparator/>
         <toolbarbutton id="appmenu_about"

@@ -35,7 +35,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         csp="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: https: data:; style-src chrome: data: 'unsafe-inline'; object-src 'none'"
-        data-l10n-id="preferences-title">
+        data-l10n-id="preferences-tab-title">
 
   <script src="chrome://global/content/preferencesBindings.js"/>
 #ifdef MOZ_UPDATER
@@ -138,7 +138,9 @@
           <label is="text-link" id="addonsButton" class="sidebar-footer-link"
                  onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
             <image class="sidebar-footer-icon addons-icon"/>
-            <label data-l10n-id="addons-button" class="sidebar-footer-label" flex="1"/>
+            <label class="sidebar-footer-label"
+                   data-l10n-id="open-addons-sidebar-button"
+                   flex="1"/>
           </label>
         </vbox>
 
@@ -148,7 +150,7 @@
         <vbox class="paneDeckContainer">
           <hbox class="sticky-container" pack="end" align="top" flex="1">
             <search-textbox id="searchInput"
-                            data-l10n-id="search-input-box"
+                            data-l10n-id="search-preferences-input"
                             data-l10n-attrs="placeholder, style"
                             hidden="true"/>
           </hbox>

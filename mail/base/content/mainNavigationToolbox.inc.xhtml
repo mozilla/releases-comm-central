@@ -381,8 +381,7 @@
                   oncommand="MsgAccountManager(null);"/>
         <menuitem id="menu_preferences"
                   oncommand="openOptionsDialog()"
-                  label="&preferencesCmdUnix.label;"
-                  accesskey="&preferencesCmdUnix.accesskey;"
+                  data-l10n-id="menu-tools-preferences"
                   class="menuitem-iconic"/>
 #endif
 #endif
@@ -1058,7 +1057,8 @@
                   accesskey="&savedFiles.accesskey;"
                   key="key_savedFiles"
                   oncommand="openSavedFilesWnd();"/>
-        <menuitem id="addonsManager" label="&addons.label;" accesskey="&addons.accesskey;"
+        <menuitem id="addonsManager"
+                  data-l10n-id="menu-addons-and-themes"
                   oncommand="openAddonsMgr();"/>
         <menuitem id="activityManager" label="&activitymanager.label;"
                   accesskey="&activitymanager.accesskey;"
@@ -1142,8 +1142,7 @@
                   oncommand="MsgAccountManager(null);"/>
         <menuitem id="menu_preferences"
                   oncommand="openOptionsDialog()"
-                  label="&preferencesCmd2.label;"
-                  accesskey="&preferencesCmd2.accesskey;"
+                  data-l10n-id="menu-tools-preferences"
                   class="menuitem-iconic"/>
 #else
 #ifdef XP_MACOSX
@@ -1153,7 +1152,7 @@
                   accesskey="&accountManagerCmd2.accesskey;"
                   oncommand="MsgAccountManager(null);"/>
         <menuitem id="menu_preferences"
-                  label="&preferencesCmdMac2.label;"
+                  data-l10n-id="menu-tools-preferences"
                   key="key_preferencesCmdMac"
                   oncommand="openOptionsDialog()"
                   class="menuitem-iconic"/>
