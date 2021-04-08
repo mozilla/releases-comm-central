@@ -291,12 +291,6 @@ class nsMsgDBView : public nsIMsgDBView,
                                         uint32_t* pNumListed);
   uint32_t GetSize(void) { return (m_keys.Length()); }
 
-  // Notification APIs.
-  void NoteStartChange(nsMsgViewIndex firstlineChanged, int32_t numChanged,
-                       nsMsgViewNotificationCodeValue changeType);
-  void NoteEndChange(nsMsgViewIndex firstlineChanged, int32_t numChanged,
-                     nsMsgViewNotificationCodeValue changeType);
-
   // For commands.
   virtual nsresult ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
                                          nsMsgViewIndex* indices,

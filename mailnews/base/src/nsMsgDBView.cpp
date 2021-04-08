@@ -2418,10 +2418,9 @@ nsMsgDBView::DoCommandWithFolder(nsMsgViewCommandTypeValue command,
   switch (command) {
     case nsMsgViewCommandType::copyMessages:
     case nsMsgViewCommandType::moveMessages:
-      NoteStartChange(nsMsgViewNotificationCode::none, 0, 0);
       rv = ApplyCommandToIndicesWithFolder(command, indices, numIndices,
                                            destFolder);
-      NoteEndChange(nsMsgViewNotificationCode::none, 0, 0);
+      NoteChange(0, 0, nsMsgViewNotificationCode::none);
       break;
     default:
       NS_ASSERTION(false, "invalid command type");
@@ -2459,9 +2458,8 @@ nsMsgDBView::DoCommand(nsMsgViewCommandTypeValue command) {
     case nsMsgViewCommandType::markThreadRead:
     case nsMsgViewCommandType::junk:
     case nsMsgViewCommandType::unjunk:
-      NoteStartChange(nsMsgViewNotificationCode::none, 0, 0);
       rv = ApplyCommandToIndices(command, indices, numIndices);
-      NoteEndChange(nsMsgViewNotificationCode::none, 0, 0);
+      NoteChange(0, 0, nsMsgViewNotificationCode::none);
       break;
     case nsMsgViewCommandType::selectAll:
       if (mTreeSelection) {
@@ -3356,9 +3354,8 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
     // 2. Even though move/delete on manual mark may be
     //    turned off, we might still need to mark as read.
 
-    NoteStartChange(nsMsgViewNotificationCode::none, 0, 0);
     rv = srcFolder->MarkMessagesRead(mJunkHdrs, msgsAreJunk);
-    NoteEndChange(nsMsgViewNotificationCode::none, 0, 0);
+    NoteChange(0, 0, nsMsgViewNotificationCode::none);
     NS_ASSERTION(NS_SUCCEEDED(rv),
                  "marking marked-as-junk messages as read failed");
   }
@@ -3383,7 +3380,6 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
     }
 
     nsCOMPtr<nsIMsgWindow> msgWindow(do_QueryReferent(mMsgWindowWeak));
-    NoteStartChange(nsMsgViewNotificationCode::none, 0, 0);
     if (targetFolder) {
       nsCOMPtr<nsIMsgCopyService> copyService =
           do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv);
@@ -3425,7 +3421,7 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
       imapFolder->StoreImapFlags(kImapMsgDeletedFlag, false, imapUids, nullptr);
     }
 
-    NoteEndChange(nsMsgViewNotificationCode::none, 0, 0);
+    NoteChange(0, 0, nsMsgViewNotificationCode::none);
 
     NS_ASSERTION(NS_SUCCEEDED(rv),
                  "move or deletion of message marked-as-junk/non junk failed");
@@ -4829,10 +4825,8 @@ nsresult nsMsgDBView::ExpandByIndex(nsMsgViewIndex index,
     NoteChange(index, 1, nsMsgViewNotificationCode::changed);
   }
 
-  NoteStartChange(index + 1, numExpanded,
-                  nsMsgViewNotificationCode::insertOrDelete);
-  NoteEndChange(index + 1, numExpanded,
-                nsMsgViewNotificationCode::insertOrDelete);
+  NoteChange(index + 1, numExpanded,
+             nsMsgViewNotificationCode::insertOrDelete);
 
   if (pNumExpanded != nullptr) *pNumExpanded = numExpanded;
 
@@ -4882,13 +4876,11 @@ nsresult nsMsgDBView::CollapseByIndex(nsMsgViewIndex index,
     if (numRemoved <= 0) return NS_MSG_MESSAGE_NOT_FOUND;
   }
 
-  NoteStartChange(index + 1, rowDelta,
-                  nsMsgViewNotificationCode::insertOrDelete);
   // Start at first id after thread.
   RemoveRows(index + 1, numRemoved);
   if (pNumCollapsed != nullptr) *pNumCollapsed = numRemoved;
 
-  NoteEndChange(index + 1, rowDelta, nsMsgViewNotificationCode::insertOrDelete);
+  NoteChange(index + 1, rowDelta, nsMsgViewNotificationCode::insertOrDelete);
 
   return rv;
 }
@@ -5921,17 +5913,6 @@ nsMsgDBView::NoteChange(nsMsgViewIndex firstLineChanged, int32_t numChanged,
   }
 
   return NS_OK;
-}
-
-void nsMsgDBView::NoteStartChange(nsMsgViewIndex firstlineChanged,
-                                  int32_t numChanged,
-                                  nsMsgViewNotificationCodeValue changeType) {}
-
-void nsMsgDBView::NoteEndChange(nsMsgViewIndex firstlineChanged,
-                                int32_t numChanged,
-                                nsMsgViewNotificationCodeValue changeType) {
-  // Send the notification now.
-  NoteChange(firstlineChanged, numChanged, changeType);
 }
 
 NS_IMETHODIMP

@@ -97,29 +97,12 @@ interface nsMsgViewNotificationCode : nsISupports
     or something.)  "where" indicates the first line with a change; "num" indicates
     how many changed.
    */
- const nsMsgViewNotificationCodeValue  scramble = 3;
- /* Everything changed.  Probably means we resorted the folder.  We are still working
-    with the same set of items, or at least have some overlap, but all the indices are
-    invalid.  The "where" and "num" parameters are unused.
-  */
   const nsMsgViewNotificationCodeValue all = 4;
   /* Everything changed.  We're now not displaying anything like what we were; we
      probably opened a new folder or something. The FE needs to forget anything it ever knew
      about what was being displayed, and start over.  The "where" and "num" parameters are
      unused.
    */
-  const nsMsgViewNotificationCodeValue totalContentChanged = 5;
-  /* Introduced for the address book to support virtual list views.  The total number of
-      entries on the LDAP directory has changed and the FE must update its scrollbar.  The
-      "num" parameter contains the total number of entries on the LDAP server.
-   */
-  const nsMsgViewNotificationCodeValue newTopIndex = 6;
-  /* Introduced for the address book to support virtual list views.  The virtual list view
-     cache data has changed and the FE view may be out of date.  The view should be updated
-     so that the first/top index in the view is the index in the "where" parameter.  The
-     scrollbar should be updated to match the new position.
-   */
-
 };
 
 [scriptable, uuid(4ec9248e-0108-11d5-a5be-0060b0fc04b7)]
