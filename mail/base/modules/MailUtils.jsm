@@ -320,6 +320,10 @@ var MailUtils = {
     let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
     if (mail3PaneWindow) {
       mail3PaneWindow.MsgDisplayMessageInFolderTab(aMsgHdr);
+      Cc["@mozilla.org/messenger/osintegration;1"]
+        ?.getService(Ci.nsIMessengerWindowsIntegration)
+        ?.showWindow(mail3PaneWindow);
+      mail3PaneWindow.focus();
     } else {
       let args = { msgHdr: aMsgHdr };
       args.wrappedJSObject = args;
