@@ -95,7 +95,7 @@ windows10-64/debug:
 
 # MacOS X platforms (matching /macosx.*/)
 
-macosx1014-64/opt:
+macosx1015-64/opt:
     build-platform: macosx64/opt
     test-sets:
         - gtest-tests
@@ -103,7 +103,7 @@ macosx1014-64/opt:
         - mochitest-tests
         - xpcshell-tests
 
-macosx1014-64/debug:
+macosx1015-64/debug:
     build-platform: macosx64/debug
     test-sets:
         - gtest-tests
@@ -111,7 +111,7 @@ macosx1014-64/debug:
         - mochitest-tests
         - xpcshell-tests
 
-macosx1014-64-shippable/opt:
+macosx1015-64-shippable/opt:
     build-platform: macosx64-shippable/opt
     test-sets:
         - gtest-tests
