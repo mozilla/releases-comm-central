@@ -33,6 +33,10 @@ add_task(async function test_update() {
         currentWindow: true,
       });
       window.assertDeepEqual(expected, current);
+
+      // Check if getCurrent() returns the same.
+      let current2 = await browser.mailTabs.getCurrent();
+      window.assertDeepEqual(expected, current2);
     }
 
     let [accountId] = await window.waitForMessage();
@@ -475,5 +479,166 @@ add_task(async function test_glodaList_tab() {
   await extension.awaitFinish("mailTabs");
   await extension.unload();
 
+  tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
+});
+
+add_task(async function test_get_and_query() {
+  async function background() {
+    async function checkTab(expected) {
+      // Check mailTabs.get().
+      let mailTab = await browser.mailTabs.get(expected.tab.id);
+      browser.test.assertEq(expected.tab.id, mailTab.id);
+
+      // Check if a query for all tabs in the same window included the expected tab.
+      let mailTabs = await browser.mailTabs.query({
+        windowId: expected.tab.windowId,
+      });
+      let filteredMailTabs = mailTabs.filter(e => e.id == expected.tab.id);
+      browser.test.assertEq(1, filteredMailTabs.length);
+
+      // Check if a query for the current tab in the given window returns the current tab.
+      if (expected.isCurrentTab) {
+        let currentTabs = await browser.mailTabs.query({
+          active: true,
+          windowId: expected.tab.windowId,
+        });
+        browser.test.assertEq(1, currentTabs.length);
+        browser.test.assertEq(expected.tab.id, currentTabs[0].id);
+      }
+
+      // Check if a query for all tabs in the currentWindow includes the expected tab.
+      if (expected.isCurrentWindow) {
+        let mailTabsCurrentWindow = await browser.mailTabs.query({
+          currentWindow: true,
+        });
+        let filteredMailTabsCurrentWindow = mailTabsCurrentWindow.filter(
+          e => e.id == expected.tab.id
+        );
+        browser.test.assertEq(1, filteredMailTabsCurrentWindow.length);
+      }
+
+      // Check mailTabs.getCurrent() and mailTabs.query({ active: true, currentWindow: true })
+      if (expected.isCurrentTab && expected.isCurrentWindow) {
+        let currentTab = await browser.mailTabs.getCurrent();
+        browser.test.assertEq(expected.tab.id, currentTab.id);
+
+        let currentTabs = await browser.mailTabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        browser.test.assertEq(1, currentTabs.length);
+        browser.test.assertEq(expected.tab.id, currentTabs[0].id);
+      }
+    }
+
+    let [accountId] = await window.waitForMessage();
+    let allTabs = await browser.tabs.query({});
+    let queryMailTabs = await browser.tabs.query({ mailTab: true });
+    let allMailTabs = await browser.mailTabs.query({});
+
+    browser.test.assertEq(8, allTabs.length);
+    browser.test.assertEq(6, queryMailTabs.length);
+    browser.test.assertEq(6, allMailTabs.length);
+
+    // Each window has an active tab.
+    browser.test.assertTrue(allMailTabs[2].active);
+    browser.test.assertTrue(allMailTabs[5].active);
+
+    // Check tabs of window #1.
+    browser.test.assertEq(accountId, allMailTabs[0].displayedFolder.accountId);
+    browser.test.assertEq("/", allMailTabs[0].displayedFolder.path);
+    browser.test.assertEq(accountId, allMailTabs[1].displayedFolder.accountId);
+    browser.test.assertEq("/test1", allMailTabs[1].displayedFolder.path);
+    browser.test.assertEq(accountId, allMailTabs[2].displayedFolder.accountId);
+    browser.test.assertEq("/test2", allMailTabs[2].displayedFolder.path);
+    // Check tabs of window #2 (active).
+    browser.test.assertEq(accountId, allMailTabs[3].displayedFolder.accountId);
+    browser.test.assertEq("/", allMailTabs[3].displayedFolder.path);
+    browser.test.assertEq(accountId, allMailTabs[4].displayedFolder.accountId);
+    browser.test.assertEq("/test1", allMailTabs[4].displayedFolder.path);
+    browser.test.assertEq(accountId, allMailTabs[5].displayedFolder.accountId);
+    browser.test.assertEq("/test2", allMailTabs[5].displayedFolder.path);
+
+    for (let mailTab of allMailTabs) {
+      await checkTab({
+        tab: mailTab,
+        isCurrentTab: [allMailTabs[2].id, allMailTabs[5].id].includes(
+          mailTab.id
+        ),
+        isCurrentWindow: mailTab.windowId == allMailTabs[5].windowId,
+      });
+    }
+
+    // get(id) should throw if id does not belong to a mail tab.
+    for (let tab of [allTabs[1], allTabs[5]]) {
+      await browser.test.assertRejects(
+        browser.mailTabs.get(tab.id),
+        `Invalid mail tab ID: ${tab.id}`,
+        "It rejects for invalid mail tab ID."
+      );
+    }
+
+    // Switch to the second mail tab in both windows.
+    for (let tab of [allMailTabs[1], allMailTabs[4]]) {
+      await browser.tabs.update(tab.id, { active: true });
+      // Check if the new active tab is returned.
+      await checkTab({
+        tab,
+        isCurrentTab: true,
+        isCurrentWindow: tab.id == allMailTabs[5].id,
+      });
+    }
+
+    // Switch active window to a non-mailtab, getCurrent() and a query for active tab should not return anything.
+    await browser.tabs.update(allTabs[5].id, { active: true });
+    let activeMailTab = await browser.mailTabs.getCurrent();
+    browser.test.assertEq(undefined, activeMailTab);
+    let activeMailTabs = await browser.mailTabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    browser.test.assertEq(0, activeMailTabs.length);
+
+    // A query over all windows should still return the active tab from the inactive window.
+    activeMailTabs = await browser.mailTabs.query({
+      active: true,
+    });
+    browser.test.assertEq(1, activeMailTabs.length);
+    browser.test.assertEq(allMailTabs[1].id, activeMailTabs[0].id);
+
+    browser.test.notifyPass("mailTabs");
+  }
+
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead"],
+    },
+  });
+
+  let window2 = await openNewMailWindow();
+  for (let win of [window, window2]) {
+    // The folder selection sometimes throws errors, a setTimeout seems to fix this.
+    await new Promise(setTimeout);
+    win.gFolderTreeView.selectFolder(rootFolder);
+    let tabmail = win.document.getElementById("tabmail");
+    win.openContentTab("about:mozilla");
+    tabmail.openTab("folder", { folder: subFolders.test1 });
+    tabmail.openTab("folder", { folder: subFolders.test2 });
+  }
+
+  await extension.startup();
+  extension.sendMessage(account.key);
+  await extension.awaitFinish("mailTabs");
+  await extension.unload();
+
+  await BrowserTestUtils.closeWindow(window2);
+
+  window.gFolderTreeView.selectFolder(rootFolder);
+  let tabmail = window.document.getElementById("tabmail");
   tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
 });

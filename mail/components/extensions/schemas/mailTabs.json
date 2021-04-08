@@ -154,6 +154,48 @@
         ]
       },
       {
+        "name": "get",
+        "type": "function",
+        "description": "Get the properties of a mail tab.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "ID of the requested mail tab. Throws if the requested tab is not a mail tab."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MailTab"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "getCurrent",
+        "type": "function",
+        "description": "Get the properties of the active mail tab, if the active tab is a mail tab. Returns undefined otherwise.",
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "$ref": "MailTab",
+                "optional": true
+              }
+            ]
+           }
+         ]
+       },
+       {
         "name": "update",
         "type": "function",
         "description": "Modifies the properties of a mail tab. Properties that are not specified in <var>updateProperties</var> are not modified.",
