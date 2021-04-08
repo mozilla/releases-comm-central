@@ -488,7 +488,7 @@ checkbox {
 #identitiesList:focus > richlistitem[selected="true"],
 #preferencesContainer richlistbox:focus > richlistitem[selected="true"] {
   background-color: var(--in-content-item-selected);
-  color: var(--in-content-selected-text) !important;
+  color: var(--in-content-item-selected-text) !important;
 }
 
 #defaultWebSearch {
@@ -570,7 +570,7 @@ checkbox {
   /* `transparent` will use the dialogText color in high-contrast themes and
      when page colors are disabled */
   border: 1px solid transparent;
-  border-radius: 2.5px;
+  border-radius: 5px;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
   display: -moz-box;
   margin: 0;

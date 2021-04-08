@@ -92,7 +92,7 @@ fieldset:last-of-type {
 
 #accountActionsDropdown > menuitem:not([disabled="true"])[selected="true"],
 .openpgp-more-btn > menupopup > menuitem[selected="true"] {
-  color: var(--in-content-selected-text);
+  color: var(--in-content-item-selected-text);
   background-color: var(--in-content-item-selected);
 }
 
@@ -202,7 +202,7 @@ menulist > menupopup menupopup > menuitem:not([disabled="true"])[_moz-menuactive
 @media not (-moz-proton) {
 menulist > menupopup menupopup > menu:not([disabled="true"])[selected="true"],
 menulist > menupopup menupopup > menuitem:not([disabled="true"])[selected="true"] {
-  color: var(--in-content-selected-text);
+  color: var(--in-content-item-selected-text);
   background-color: var(--in-content-item-selected);
 }
 } /** END not Proton **/
