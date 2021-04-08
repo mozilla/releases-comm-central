@@ -310,12 +310,13 @@ async function subtest_tools_menu(testwindow, expectedInfo, expectedTab) {
   );
 
   let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  let clickedPromise = checkClickedEvent(extension, expectedInfo, expectedTab);
   EventUtils.synthesizeMouseAtCenter(
     menu.querySelector("#menus_mochi_test-menuitem-_tools_menu"),
     {},
     testwindow
   );
-  await checkClickedEvent(extension, expectedInfo, expectedTab);
+  await clickedPromise;
   await hiddenPromise;
   await extension.unload();
 }
@@ -647,12 +648,7 @@ async function subtest_content(
   );
 
   hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#menus_mochi_test-menuitem-_selection"),
-    {},
-    ownerGlobal
-  );
-  await checkClickedEvent(
+  let clickedPromise = checkClickedEvent(
     extension,
     {
       pageUrl,
@@ -660,7 +656,14 @@ async function subtest_content(
     },
     tab
   );
+  EventUtils.synthesizeMouseAtCenter(
+    menu.querySelector("#menus_mochi_test-menuitem-_selection"),
+    {},
+    ownerGlobal
+  );
+  await clickedPromise;
   await hiddenPromise;
+
   // Sometimes, the popup will open then instantly disappear. It seems to
   // still be hiding after the previous appearance. If we wait a little bit,
   // this doesn't happen.
@@ -684,12 +687,7 @@ async function subtest_content(
   );
 
   hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#menus_mochi_test-menuitem-_link"),
-    {},
-    ownerGlobal
-  );
-  await checkClickedEvent(
+  clickedPromise = checkClickedEvent(
     extension,
     {
       pageUrl,
@@ -698,6 +696,12 @@ async function subtest_content(
     },
     tab
   );
+  EventUtils.synthesizeMouseAtCenter(
+    menu.querySelector("#menus_mochi_test-menuitem-_link"),
+    {},
+    ownerGlobal
+  );
+  await clickedPromise;
   await hiddenPromise;
   // Sometimes, the popup will open then instantly disappear. It seems to
   // still be hiding after the previous appearance. If we wait a little bit,
@@ -720,12 +724,7 @@ async function subtest_content(
   );
 
   hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#menus_mochi_test-menuitem-_image"),
-    {},
-    ownerGlobal
-  );
-  await checkClickedEvent(
+  clickedPromise = checkClickedEvent(
     extension,
     {
       pageUrl,
@@ -733,6 +732,12 @@ async function subtest_content(
     },
     tab
   );
+  EventUtils.synthesizeMouseAtCenter(
+    menu.querySelector("#menus_mochi_test-menuitem-_image"),
+    {},
+    ownerGlobal
+  );
+  await clickedPromise;
   await hiddenPromise;
   // Sometimes, the popup will open then instantly disappear. It seems to
   // still be hiding after the previous appearance. If we wait a little bit,

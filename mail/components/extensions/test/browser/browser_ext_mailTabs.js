@@ -191,7 +191,7 @@ add_task(async function test_displayedFolderChanged() {
     await selectFolderByUpdate("/");
     await selectFolderByUpdate("/test1");
 
-    await new Promise(setTimeout);
+    await new Promise(resolve => setTimeout(resolve));
     browser.test.notifyPass("mailTabs");
   }
 
@@ -282,7 +282,7 @@ add_task(async function test_selectedMessagesChanged() {
     messageList = await browser.messages.continueList(messageList.id);
     checkMessageList(false, 2, messageList);
 
-    await new Promise(setTimeout);
+    await new Promise(resolve => setTimeout(resolve));
     browser.test.notifyPass("mailTabs");
   }
 
@@ -623,7 +623,7 @@ add_task(async function test_get_and_query() {
   let window2 = await openNewMailWindow();
   for (let win of [window, window2]) {
     // The folder selection sometimes throws errors, a setTimeout seems to fix this.
-    await new Promise(setTimeout);
+    await new Promise(resolve => setTimeout(resolve));
     win.gFolderTreeView.selectFolder(rootFolder);
     let tabmail = win.document.getElementById("tabmail");
     win.openContentTab("about:mozilla");

@@ -186,7 +186,7 @@ add_task(async () => {
       });
 
       await removeCloudfileAccount(createdAccount.id);
-      await new Promise(setTimeout);
+      await new Promise(resolve => setTimeout(resolve));
     }
 
     // Tests to run

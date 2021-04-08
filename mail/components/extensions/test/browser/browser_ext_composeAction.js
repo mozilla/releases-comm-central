@@ -50,12 +50,13 @@ async function test_it(account, extensionDetails, toolbarId) {
     let label = button.querySelector(".toolbarbutton-text");
     is(label.value, "This is a test", "Correct label");
 
+    let clickedPromise = extension.awaitMessage("composeAction");
     EventUtils.synthesizeMouseAtCenter(
       button,
       { clickCount: 1 },
       composeWindow
     );
-    await extension.awaitMessage("composeAction");
+    await clickedPromise;
     await promiseAnimationFrame(composeWindow);
     await new Promise(resolve => composeWindow.setTimeout(resolve));
 
@@ -96,7 +97,7 @@ add_task(async function setup() {
       browser.test.assertEq(0, info.modifiers.length);
       browser.test.log(`Tab ID is ${tab.id}`);
       await browser.composeAction.setTitle({ title: "New title" });
-      await new Promise(setTimeout);
+      await new Promise(resolve => setTimeout(resolve));
       browser.test.sendMessage("composeAction");
     });
 
@@ -108,7 +109,7 @@ add_task(async function setup() {
     browser.runtime.onMessage.addListener(async msg => {
       browser.test.assertEq("popup.html", msg);
       await browser.composeAction.setTitle({ title: "New title" });
-      await new Promise(setTimeout);
+      await new Promise(resolve => setTimeout(resolve));
       browser.test.sendMessage("composeAction");
     });
 

@@ -52,8 +52,9 @@ add_task(async () => {
     let label = button.querySelector(".toolbarbutton-text");
     is(label.value, "This is a test", "Correct label");
 
+    let clickedPromise = extension.awaitMessage("messageDisplayAction");
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, win);
-    await extension.awaitMessage("messageDisplayAction");
+    await clickedPromise;
     await promiseAnimationFrame(win);
     await new Promise(resolve => win.setTimeout(resolve));
 
