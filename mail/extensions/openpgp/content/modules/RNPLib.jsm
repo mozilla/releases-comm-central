@@ -23,6 +23,9 @@ var abi = ctypes.default_abi;
 // there first. If not, fallback to searching the standard locations.
 var librnp, librnpPath;
 
+var librnpLoadedFile;
+var librnpLoadedFrom;
+
 function tryLoadRNP(name, suffix) {
   let filename = ctypes.libraryName(name) + suffix;
   let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
@@ -46,12 +49,8 @@ function tryLoadRNP(name, suffix) {
   }
 
   if (librnp) {
-    console.debug(
-      "Successfully loaded OpenPGP library " +
-        filename +
-        " from " +
-        loadFromInfo
-    );
+    librnpLoadedFile = filename;
+    librnpLoadedFrom = loadFromInfo;
   }
 }
 
@@ -90,6 +89,14 @@ var RNPLibLoader = {
     loadExternalRNPLib();
     if (librnp) {
       enableRNPLibJS();
+      console.debug(
+        "Successfully loaded OpenPGP library " +
+          librnpLoadedFile +
+          " version " +
+          RNPLib.rnp_version_string_full().readStringReplaceMalformed() +
+          " from " +
+          librnpLoadedFrom
+      );
     }
     return RNPLib;
   },
@@ -369,6 +376,13 @@ function enableRNPLibJS() {
       char_array[passLen] = 0;
       return true;
     },
+
+    // Get the library version.
+    rnp_version_string_full: librnp.declare(
+      "rnp_version_string_full",
+      abi,
+      ctypes.char.ptr
+    ),
 
     // Get a RNP library handle.
     rnp_ffi_create: librnp.declare(
