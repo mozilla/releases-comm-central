@@ -186,11 +186,9 @@ class CalDavDetector {
     let calendars;
     if (path) {
       // If the server has SRV and TXT entries, we already have a full context path to test.
-      cal.LOG(`[CalDavProvider] Trying ${baseloc.spec} from SRV and TXT response`);
-      let baseloc = Services.io.newURI(
-        `http${secure}://${dnsres[0].host}:${dnsres[0].port}${path}`
-      );
-      calendars = await this.detectCollection(baseloc);
+      let uri = `http${secure}://${dnsres[0].host}:${dnsres[0].port}${path}`;
+      cal.LOG(`[CalDavProvider] Trying ${uri} from SRV and TXT response`);
+      calendars = await this.detectCollection(Services.io.newURI(uri));
     }
 
     if (!calendars) {
