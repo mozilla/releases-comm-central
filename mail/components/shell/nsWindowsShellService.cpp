@@ -72,6 +72,7 @@ typedef enum {
 #define CLS_MIDURL "Thunderbird.Url.mid"
 #define CLS_NEWSURL "Thunderbird.Url.news"
 #define CLS_FEEDURL "Thunderbird.Url.feed"
+#define CLS_WEBCALURL "Thunderbird.Url.webcal"
 #define CLS_ICS "ThunderbirdICS"
 #define SOP "\\shell\\open\\command"
 #define VAL_OPEN "\"%APPPATH%\" \"%1\""
@@ -116,6 +117,7 @@ static SETTING gCalendarSettings[] = {
     {MAKE_KEY_NAME1(CLS_ICS, SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
 
     // Protocol Handlers
+    {MAKE_KEY_NAME1(CLS_WEBCALURL, SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
     {MAKE_KEY_NAME1("webcal", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
     {MAKE_KEY_NAME1("webcals", SOP), "", VAL_OPEN, APP_PATH_SUBSTITUTION},
 };

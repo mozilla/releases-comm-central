@@ -429,7 +429,8 @@ Section "-Application" APP_IDX
   ${SetUninstallKeys}
 
   ; On install always add the ThunderbirdEML, Thunderbird.Url.mailto,
-  ; Thunderbird.Url.mid, Thunderbird.Url.news, and ThunderbirdICS keys.
+  ; Thunderbird.Url.mid, Thunderbird.Url.news, Thunderbird.webcal and
+  ; ThunderbirdICS keys.
   ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
   StrCpy $0 "SOFTWARE\Classes"
   StrCpy $1 "$\"$8$\" $\"%1$\""
@@ -446,6 +447,8 @@ Section "-Application" APP_IDX
                       "${AppRegNameNews} URL" "delete" ""
   ${AddHandlerValues} "$0\Thunderbird.Url.mid"  "$1" "$8,0" \
                       "${AppRegNameMail} URL" "delete" ""
+  ${AddHandlerValues} "$0\Thunderbird.Url.webcal"  "$1" "$8,0" \
+                      "${AppRegNameCalendar} URL" "delete" ""
   ; An empty string is used for the 5th param because ThunderbirdICS is not a
   ; protocol handler
   ${AddHandlerValues} "$0\ThunderbirdICS" "$1" "$8,0" \
@@ -457,10 +460,12 @@ Section "-Application" APP_IDX
     ; Set the Start Menu Mail/News and Registered App HKLM registry keys.
     ${SetClientsMail} "HKLM"
     ${SetClientsNews} "HKLM"
+    ${SetClientsCalendar} "HKLM"
   ${ElseIf} ${AtLeastWin8}
     ; Set the Start Menu Mail/News and Registered App HKCU registry keys.
     ${SetClientsMail} "HKCU"
     ${SetClientsNews} "HKCU"
+    ${SetClientsCalendar} "HKCU"
   ${EndIf}
 
 !ifdef MOZ_MAINTENANCE_SERVICE

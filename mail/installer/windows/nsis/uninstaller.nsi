@@ -301,6 +301,7 @@ Section "Uninstall"
   ${un.RegCleanAppHandler} "Thunderbird.Url.mailto"
   ${un.RegCleanAppHandler} "Thunderbird.Url.mid"
   ${un.RegCleanAppHandler} "Thunderbird.Url.news"
+  ${un.RegCleanAppHandler} "Thunderbird.Url.webcal"
   ${un.RegCleanAppHandler} "ThunderbirdEML"
   ${un.RegCleanAppHandler} "ThunderbirdICS"
   ${un.RegCleanProtocolHandler} "mailto"
@@ -308,6 +309,8 @@ Section "Uninstall"
   ${un.RegCleanProtocolHandler} "news"
   ${un.RegCleanProtocolHandler} "nntp"
   ${un.RegCleanProtocolHandler} "snews"
+  ${un.RegCleanProtocolHandler} "webcal"
+  ${un.RegCleanProtocolHandler} "webcals"
 
   ClearErrors
   ReadRegStr $R9 HKCR "ThunderbirdEML" ""
@@ -345,8 +348,8 @@ Section "Uninstall"
   ${un.RemoveQuotesFromPath} "$R1" $R1
   ${un.GetParent} "$R1" $R1
 
-  ; Only remove the Clients\Mail and Clients\News key if it refers to this
-  ; install location. The Clients\Mail & Clients\News keys are independent
+  ; Only remove the Clients\Mail & Clients\News & Clients\Calendar key if it
+  ; refers to this install location. The Clients\* keys are independent
   ; of the default app for the OS settings. The XPInstall base un-installer
   ; always removes these keys if it is uninstalling the default app and it
   ; will always replace the keys when installing even if there is another
@@ -356,8 +359,10 @@ Section "Uninstall"
   ${If} "$INSTDIR" == "$R1"
     DeleteRegKey HKLM "Software\Clients\Mail\${ClientsRegName}"
     DeleteRegKey HKLM "Software\Clients\News\${ClientsRegName}"
+    DeleteRegKey HKLM "Software\Clients\Calendar\${ClientsRegName}"
     DeleteRegValue HKLM "Software\RegisteredApplications" "${AppRegNameMail}"
     DeleteRegValue HKLM "Software\RegisteredApplications" "${AppRegNameNews}"
+    DeleteRegValue HKLM "Software\RegisteredApplications" "${AppRegNameCalendar}"
   ${EndIf}
 
   StrCpy $0 "Software\Microsoft\Windows\CurrentVersion\App Paths\${FileMainEXE}"

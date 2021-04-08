@@ -60,6 +60,18 @@
     ${If} "$0" == "$INSTDIR"
       ${SetClientsNews} "HKLM"
     ${EndIf}
+
+    ; Only update the Clients\Calendar registry key values if they don't exist or
+    ; this installation is the same as the one set in those keys.
+    ReadRegStr $0 HKLM "Software\Clients\Calendar\${ClientsRegName}\DefaultIcon" ""
+    ${GetPathFromString} "$0" $0
+    ${GetParent} "$0" $0
+    ${If} ${FileExists} "$0"
+      ${GetLongPath} "$0" $0
+    ${EndIf}
+    ${If} "$0" == "$INSTDIR"
+      ${SetClientsCalendar} "HKLM"
+    ${EndIf}
   ${EndIf}
 
   ; Migrate the application's Start Menu directory to a single shortcut in the
@@ -171,6 +183,7 @@
   ${SetHandlersNews} ; Uses SHCTX
   ${SetClientsMail} "HKLM"
   ${SetClientsNews} "HKLM"
+  ${SetClientsCalendar} "HKLM"
   ${SetMailClientForMapi} "HKLM"
   ${ShowShortcuts}
 !macroend
@@ -329,20 +342,11 @@
   ${AddHandlerValues} "$0\mailto" "$2" "$8,0" "${AppRegNameMail} URL" "true" ""
   ${AddHandlerValues} "$0\Thunderbird.Url.mid"  "$1" "$8,0" "${AppRegNameMail} URL" "delete" ""
   ${AddHandlerValues} "$0\mid" "$1" "$8,0" "${AppRegNameMail} URL" "true" ""
-  ; An empty string is used for the 5th param because ThunderbirdICS is not a
-  ; protocol handler
-  ${AddHandlerValues} "$0\ThunderbirdICS" "$1" "$8,0" \
-                      "${AppRegNameCalendar} Document" "" ""
 
   ; Associate the file handlers with ThunderbirdEML
   ReadRegStr $6 SHCTX ".eml" ""
   ${If} "$6" != "ThunderbirdEML"
     WriteRegStr SHCTX "$0\.eml"   "" "ThunderbirdEML"
-  ${EndIf}
-  ;; Associate the file handlers with ThunderbirdICS
-  ReadRegStr $6 SHCTX ".ics" ""
-  ${If} "$6" != "ThunderbirdICS"
-    WriteRegStr SHCTX "$0\.ics"   "" "ThunderbirdICS"
   ${EndIf}
 !macroend
 !define SetHandlersMail "!insertmacro SetHandlersMail"
@@ -359,6 +363,28 @@
   ${AddHandlerValues} "$0\snews"  "$1" "$8,0" "${AppRegNameNews} URL" "true" ""
 !macroend
 !define SetHandlersNews "!insertmacro SetHandlersNews"
+
+!macro SetHandlersCalendar
+  ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
+
+  StrCpy $0 "SOFTWARE\Classes"
+  StrCpy $1 "$\"$8$\" $\"%1$\""
+
+  ${AddHandlerValues} "$0\Thunderbird.Url.webcal"  "$1" "$8,0" "${AppRegNameCalendar} URL" "delete" ""
+  ${AddHandlerValues} "$0\webcal" "$1" "$8,0" "${AppRegNameCalendar} URL" "true" ""
+  ${AddHandlerValues} "$0\webcals" "$1" "$8,0" "${AppRegNameCalendar} URL" "true" ""
+  ; An empty string is used for the 5th param because ThunderbirdICS is not a
+  ; protocol handler
+  ${AddHandlerValues} "$0\ThunderbirdICS" "$1" "$8,0" \
+                      "${AppRegNameCalendar} Document" "" ""
+
+  ;; Associate the file handlers with ThunderbirdICS
+  ReadRegStr $6 SHCTX ".ics" ""
+  ${If} "$6" != "ThunderbirdICS"
+    WriteRegStr SHCTX "$0\.ics"   "" "ThunderbirdICS"
+  ${EndIf}
+!macroend
+!define SetHandlersCalendar "!insertmacro SetHandlersCalendar"
 
 ; XXXrstrong - there are several values that will be overwritten by and
 ; overwrite other installs of the same application.
@@ -443,7 +469,6 @@
   WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationName" "${AppRegNameMail}"
   WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".eml"   "ThunderbirdEML"
   WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".wdseml" "ThunderbirdEML"
-  WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".ics"    "ThunderbirdICS"
   WriteRegStr ${RegKey} "$0\Capabilities\StartMenu" "Mail" "${ClientsRegName}"
   WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "mailto" "Thunderbird.Url.mailto"
   WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "mid" "Thunderbird.Url.mid"
@@ -587,6 +612,43 @@
   WriteRegStr ${RegKey} "Software\RegisteredApplications" "${AppRegNameNews}" "$0\Capabilities"
 !macroend
 !define SetClientsNews "!insertmacro SetClientsNews"
+
+!macro SetClientsCalendar RegKey
+  ${GetLongPath} "$INSTDIR\${FileMainEXE}" $8
+  ${GetLongPath} "$INSTDIR\uninstall\helper.exe" $7
+  ${GetLongPath} "$INSTDIR\mozMapi32_InUse.dll" $6
+
+  StrCpy $0 "Software\Clients\Calendar\${ClientsRegName}"
+
+  WriteRegStr ${RegKey} "$0" "" "${ClientsRegName}"
+  WriteRegStr ${RegKey} "$0\DefaultIcon" "" "$8,0"
+  WriteRegStr ${RegKey} "$0" "DLLPath" "$6"
+
+  WriteRegStr ${RegKey} "$0\shell\open\command" "" "$\"$8$\""
+
+  WriteRegStr ${RegKey} "$0\shell\properties" "" "$(CONTEXT_OPTIONS)"
+  WriteRegStr ${RegKey} "$0\shell\properties\command" "" "$\"$8$\" -options"
+
+  WriteRegStr ${RegKey} "$0\shell\safemode" "" "$(CONTEXT_SAFE_MODE)"
+  WriteRegStr ${RegKey} "$0\shell\safemode\command" "" "$\"$8$\" -safe-mode"
+
+  ; Protocols
+  StrCpy $1 "$\"$8$\" $\"%1$\""
+  ${AddHandlerValues} "$0\Protocols\webcal" "$1" "$8,0" "${AppRegNameCalendar} URL" "true" ""
+  ${AddHandlerValues} "$0\Protocols\webcals" "$1" "$8,0" "${AppRegNameCalendar} URL" "true" ""
+
+  ; Capabilities registry keys
+  WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationDescription" "$(REG_APP_DESC)"
+  WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationIcon" "$8,0"
+  WriteRegStr ${RegKey} "$0\Capabilities" "ApplicationName" "${AppRegNameCalendar}"
+  WriteRegStr ${RegKey} "$0\Capabilities\FileAssociations" ".ics"    "ThunderbirdICS"
+  WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "webcal" "Thunderbird.Url.webcal"
+  WriteRegStr ${RegKey} "$0\Capabilities\URLAssociations" "webcals" "Thunderbird.Url.webcal"
+
+  ; Registered Application
+  WriteRegStr ${RegKey} "Software\RegisteredApplications" "${AppRegNameCalendar}" "$0\Capabilities"
+!macroend
+!define SetClientsCalendar "!insertmacro SetClientsCalendar"
 
 ; Add Software\Mozilla\ registry entries (uses SHCTX).
 !macro SetAppKeys
@@ -732,6 +794,22 @@
   ${IsHandlerForInstallDir} "nntp" $R9
   ${If} "$R9" == "true"
     ${AddHandlerValues} "SOFTWARE\Classes\nntp" "$2" "$8,0" "" "" ""
+  ${EndIf}
+
+  ${IsHandlerForInstallDir} "Thunderbird.Url.webcal" $R9
+  ${If} "$R9" == "true"
+    ${AddHandlerValues} "SOFTWARE\Classes\Thunderbird.Url.webcal" "$3" "$8,0" \
+                        "${AppRegNameCalendar} URL" "delete" ""
+  ${EndIf}
+
+  ${IsHandlerForInstallDir} "webcal" $R9
+  ${If} "$R9" == "true"
+    ${AddHandlerValues} "SOFTWARE\Classes\webcal" "$3" "$8,0" "" "" ""
+  ${EndIf}
+
+  ${IsHandlerForInstallDir} "webcals" $R9
+  ${If} "$R9" == "true"
+    ${AddHandlerValues} "SOFTWARE\Classes\webcals" "$3" "$8,0" "" "" ""
   ${EndIf}
 
   ${IsHandlerForInstallDir} "ThunderbirdICS" $R9
@@ -1244,6 +1322,32 @@ Function SetAsDefaultAppUser
     ${EndIf}
   ${EndUnless}
 
+  ClearErrors
+  ${GetOptions} "$R0" "Calendar" $R1
+  ${Unless} ${Errors}
+    ; Check if this install location registered as the Calendar client
+    ClearErrors
+    ReadRegStr $0 HKLM "Software\Clients\Calendar\${ClientsRegName}\DefaultIcon" ""
+    ${GetPathFromString} "$0" $0
+    ${GetParent} "$0" $0
+    ${If} ${FileExists} "$0"
+      ${GetLongPath} "$0" $0
+      ${If} "$0" == "$INSTDIR"
+        ; Check if this is running in an elevated process
+        ClearErrors
+        ${GetParameters} $0
+        ${GetOptions} "$0" "/UAC:" $0
+        ${If} ${Errors} ; Not elevated
+          Call SetAsDefaultCalendarAppUserHKCU
+        ${Else} ; Elevated - execute the function in the unelevated process
+          GetFunctionAddress $0 SetAsDefaultCalendarAppUserHKCU
+          UAC::ExecCodeSegment $0
+        ${EndIf}
+        Return ; Nothing more needs to be done
+      ${EndIf}
+    ${EndIf}
+  ${EndUnless}
+
   ; The code after ElevateUAC won't be executed when the user:
   ; a) is a member of the administrators group (e.g. elevation is required)
   ; b) is not a member of the administrators group and chooses to elevate
@@ -1252,6 +1356,7 @@ Function SetAsDefaultAppUser
   SetShellVarContext all  ; Set SHCTX to all users (e.g. HKLM)
   ${SetClientsMail} "HKLM"
   ${SetClientsNews} "HKLM"
+  ${SetClientsCalendar} "HKLM"
 
   ${RemoveDeprecatedKeys}
   ${MigrateTaskBarShortcut}
@@ -1361,6 +1466,42 @@ Function SetAsDefaultNewsAppUserHKCU
   ; under the RegisteredApplications registry key.
   ${Unless} ${Errors}
     AppAssocReg::SetAppAsDefaultAll "${AppRegNameNews}"
+  ${EndUnless}
+FunctionEnd
+
+; Sets this installation as the default calendar client by setting the registry keys
+; under HKEY_CURRENT_USER via registry calls and using the AppAssocReg NSIS
+; plugin. This is a function instead of a macro so it is
+; easily called from an elevated instance of the binary. Since this can be
+; called by an elevated instance logging is not performed in this function.
+Function SetAsDefaultCalendarAppUserHKCU
+  ; Only set as the user's Calendar client if the StartMenuInternet
+  ; registry keys are for this install.
+  ClearErrors
+  ReadRegStr $0 HKLM "Software\Clients\Calendar\${ClientsRegName}\DefaultIcon" ""
+  ${Unless} ${Errors}
+    ${GetPathFromString} "$0" $0
+    ${GetParent} "$0" $0
+    ${If} ${FileExists} "$0"
+      ${GetLongPath} "$0" $0
+      ${If} "$0" == "$INSTDIR"
+        WriteRegStr HKCU "Software\Clients\Calendar" "" "${ClientsRegName}"
+      ${EndIf}
+    ${EndIf}
+  ${EndUnless}
+
+  SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
+
+  ${If} ${AtLeastWin8}
+    ${SetHandlersCalendar}
+  ${EndIf}
+
+  ClearErrors
+  ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameCalendar}"
+  ; Only register as the handler if the app registry name exists
+  ; under the RegisteredApplications registry key.
+  ${Unless} ${Errors}
+    AppAssocReg::SetAppAsDefaultAll "${AppRegNameCalendar}"
   ${EndUnless}
 FunctionEnd
 
