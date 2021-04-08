@@ -2,11 +2,210 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* @namespace html url("http://www.w3.org/1999/xhtml"); */
-
 @import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/preferences/preferences.css");
+
+:root {
+  --config-bg: rgba(180, 180, 180, 0.1);
+  --primary-color: #0a84ff;
+  --primary-color-hover: #0060df;
+  --result-bg-color: -moz-DialogText;
+  --warning-color: #ff9400;
+  --warning-bg: #ac0808;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --config-bg: rgba(105, 105, 105, 0.05);
+    --result-bg-color: #5e5f7a;
+  }
+}
+
+.hub-container {
+  overflow: auto;
+}
+
+.hub-wrapper {
+  padding: 0 20px;
+}
+
+.hub-header {
+  padding: 30px 20px;
+}
+
+.hub-subtitle {
+  font-size: large;
+  margin: 0 0 5px;
+  text-align: center;
+}
+
+/* Footer style */
+.hub-footer {
+  padding: 20px;
+}
+
+.btn-link {
+  appearance: none;
+  background-color: transparent !important;
+  color: var(--primary-color) !important;
+  border-style: none;
+  outline-width: 1px !important;
+  padding: 0;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.btn-link:hover {
+  color: var(--primary-color-hover) !important;
+  text-decoration: underline;
+}
+
+/* Form Fields style */
+.form-control {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.form-control.no-margin {
+  margin-bottom: 0;
+}
+
+.input-control {
+  display: flex;
+  align-items: stretch;
+}
+
+.hub-field,
+.input-field {
+  width: 4rem;
+  flex-grow: 1;
+}
+
+.hub-field {
+  padding-block: 5px;
+  padding-inline: 6px 30px;
+}
+
+.hub-field[error="true"] {
+  box-shadow: 0 0 2px 1px var(--warning-color);
+}
+
+.form-icon {
+  cursor: pointer;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.7;
+  margin-inline: -26px 10px;
+  scale: 0.9;
+}
+
+.icon-info {
+  list-style-image: url("chrome://messenger/skin/icons/information.svg");
+}
+
+.icon-hidden {
+  list-style-image: url("chrome://messenger/skin/icons/hidden.svg");
+}
+
+.icon-visible {
+  list-style-image: url("chrome://messenger/skin/icons/visible.svg");
+}
+
+.icon-warning {
+  list-style-image: url("chrome://global/skin/icons/warning.svg");
+  color: var(--warning-color);
+  fill-opacity: 1;
+}
+/* END Form Fields style */
+
+.config-area {
+  background-color: var(--config-bg);
+  border-style: none;
+  padding: 10px 20px;
+  margin: 10px 20px;
+  border-radius: 6px;
+}
+
+.manual-config-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.manual-config-table tr,
+.manual-config-table th,
+.manual-config-table td {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.manual-config-table th > label,
+.manual-config-table td > label,
+.manual-config-table td > menulist,
+.manual-config-table td > .input-control {
+  flex: 1;
+}
+
+.manual-config-table td > label {
+  margin-block: 1px 2px;
+  margin-inline: 6px 5px;
+}
+
+.manual-config-table td > menulist,
+.manual-config-table td .input-field {
+  margin-inline-end: 2px;
+}
+
+.manual-config-table td > menulist {
+  margin-inline: 4px;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"] {
+  padding-inline: 0 !important;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"][editable="true"] {
+  margin-inline-end: 4px;
+  -moz-default-appearance: auto;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"][editable="true"]::part(text-input) {
+  padding: 5px 8px;
+  border-start-start-radius: 4px;
+  border-end-start-radius: 4px;
+  background-color: var(--in-content-box-background);
+  border: 1px solid var(--in-content-box-border-color);
+  margin: -1px;
+  margin-inline-end: 9px;
+  color: inherit;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"]:not([editable="true"])::part(text-input) {
+  display: none;
+}
+
+.manual-config-table td > menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
+  width: 1.5em;
+  margin-inline-end: 0;
+}
+
+.config-label {
+  max-width: 9em;
+  font-weight: normal;
+}
+
+.column-title {
+  justify-content: center;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.link-row {
+  justify-content: end;
+}
 
 #mastervbox {
   max-width: 660px;
@@ -148,7 +347,6 @@ checkbox.acknowledge_checkbox {
 
 .label-box {
   min-width: 10em;
-  font-size: 1.1em;
 }
 
 .label-result {
@@ -160,7 +358,6 @@ checkbox.acknowledge_checkbox {
   padding-bottom: 0;
   background-color: transparent !important;
   appearance: none;
-  color: var(--text-color) !important;
 }
 
 #initialSettings {
@@ -172,7 +369,6 @@ checkbox.acknowledge_checkbox {
 #status_msg {
   min-height: 1.5em;
   margin-bottom: 0;
-  line-height: 1.4rem;
   margin-inline: 3px;
 }
 
@@ -213,7 +409,6 @@ checkbox.acknowledge_checkbox {
   border: 1px solid transparent;
   border-radius: 2px;
   padding: 3px 4px;
-  color: var(--text-color);
 }
 
 #status-area[status=error] {
@@ -265,22 +460,21 @@ checkbox.acknowledge_checkbox {
 
 .result-host-info > label.protocolType {
   display: inline-block;
-  padding: 2px 4px;
+  padding: 1px 4px;
   font-size: 0.8rem;
   margin-inline-end: 5px;
   font-weight: bold;
   border-radius: 2px;
-  background-color: var(--result-bg-color);
-  color: var(--bg-color);
+  background-color: var(--primary-color-hover);
+  color: #fff;
 }
 
 .result-host-info > label {
-  margin-left: 0;
-  margin-right: 0;
+  margin-inline: 0;
 }
 
 .result-host-info > label.ssl {
-  margin-left: 0.4em;
+  margin-inline-start: 0.4em;
 }
 
 .result-host-info > label.domain {

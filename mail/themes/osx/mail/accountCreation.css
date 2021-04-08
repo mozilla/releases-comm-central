@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/accountCreation.css");
-@namespace html url("http://www.w3.org/1999/xhtml");
 
 .errordescription {
   padding-inline-start: 3px;

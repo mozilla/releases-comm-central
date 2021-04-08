@@ -10,7 +10,6 @@ classic.jar:
   skin/classic/messenger/accountCreation.css                  (mail/accountCreation.css)
   skin/classic/messenger/accountManage.css                    (mail/accountManage.css)
   skin/classic/messenger/accountWizard.css                    (mail/accountWizard.css)
-  skin/classic/messenger/creationDialog.css                   (mail/creationDialog.css)
   skin/classic/messenger/chat.css                             (mail/chat.css)
   skin/classic/messenger/imAccounts.css                       (mail/imAccounts.css)
   skin/classic/messenger/imAccountWizard.css                  (../../components/im/themes/imAccountWizard.css)
