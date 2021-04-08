@@ -3,14 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-interface mozIDOMWindowProxy;
-
 #include "nsIBaseWindow.idl"
 #include "nsIMessengerOSIntegration.idl"
 
 [scriptable, uuid(e14eb9fe-e05e-4b78-bd31-5b7e1497f91b)]
 interface nsIMessengerWindowsIntegration : nsIMessengerOSIntegration {
-  void hideWindow(in nsIBaseWindow aWindow);
-
-  void showWindow(in mozIDOMWindowProxy aWindow);
+  void HideWindow(in nsIBaseWindow aWindow);
 };
