@@ -13,7 +13,7 @@ addEventListener("sizemodechange", () => {
       var bw = docShell.treeOwner.QueryInterface(Ci.nsIBaseWindow);
       Cc["@mozilla.org/messenger/osintegration;1"]
         .getService(Ci.nsIMessengerWindowsIntegration)
-        .HideWindow(bw);
+        .hideWindow(bw);
     });
   }
 });

@@ -186,6 +186,12 @@ nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
 }
 
 NS_IMETHODIMP
+nsMessengerWinIntegration::ShowWindow(mozIDOMWindowProxy* aWindow) {
+  activateWindow(aWindow);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsMessengerWinIntegration::UpdateUnreadCount(uint32_t unreadCount,
                                              const nsAString& unreadTooltip) {
   sUnreadCount = unreadCount;
