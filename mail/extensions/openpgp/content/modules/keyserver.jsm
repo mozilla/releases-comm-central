@@ -21,7 +21,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailLocale: "chrome://openpgp/content/modules/locale.jsm",
-  EnigmailXhrUtils: "chrome://openpgp/content/modules/xhrUtils.jsm",
+  FeedUtils: "resource:///modules/FeedUtils.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -331,7 +331,7 @@ const accessHkpInternal = {
             e +
             "\n"
         );
-        let err = EnigmailXhrUtils.createTCPErrorFromFailedXHR(e.target);
+        let err = FeedUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
           case "SecurityCertificate":
             reject(
@@ -686,7 +686,7 @@ const accessKeyBase = {
 
       xmlReq.onerror = function(e) {
         EnigmailLog.DEBUG("keyserver.jsm: accessKeyBase: onerror: " + e + "\n");
-        let err = EnigmailXhrUtils.createTCPErrorFromFailedXHR(e.target);
+        let err = FeedUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
           case "SecurityCertificate":
             reject(
@@ -1087,7 +1087,7 @@ const accessVksServer = {
         EnigmailLog.DEBUG(
           "keyserver.jsm: accessVksServer.accessKeyServer: onerror: " + e + "\n"
         );
-        let err = EnigmailXhrUtils.createTCPErrorFromFailedXHR(e.target);
+        let err = FeedUtils.createTCPErrorFromFailedXHR(e.target);
         switch (err.type) {
           case "SecurityCertificate":
             reject(
