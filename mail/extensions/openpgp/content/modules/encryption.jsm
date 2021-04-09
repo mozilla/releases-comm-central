@@ -18,7 +18,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
-  EnigmailErrorHandling: "chrome://openpgp/content/modules/errorHandling.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
@@ -194,6 +193,60 @@ var EnigmailEncryption = {
   },
 
   /**
+   * Determine why a given key cannot be used for signing.
+   *
+   * @param {string} keyId - key ID
+   *
+   * @return {string} The reason(s) as message to display to the user, or
+   *   an empty string in case the key is valid.
+   */
+  determineInvSignReason(keyId) {
+    EnigmailLog.DEBUG(
+      "errorHandling.jsm: determineInvSignReason: keyId: " + keyId + "\n"
+    );
+
+    let key = EnigmailKeyRing.getKeyById(keyId);
+    if (!key) {
+      return l10n.formatValueSync("key-error-key-id-not-found", {
+        keySpec: keyId,
+      });
+    }
+    let r = key.getSigningValidity();
+    if (!r.keyValid) {
+      return r.reason;
+    }
+
+    return "";
+  },
+
+  /**
+   * Determine why a given key cannot be used for encryption.
+   *
+   * @param {string} keyId - key ID
+   *
+   * @return {string} The reason(s) as message to display to the user, or
+   *   an empty string in case the key is valid.
+   */
+  determineInvRcptReason(keyId) {
+    EnigmailLog.DEBUG(
+      "errorHandling.jsm: determineInvRcptReason: keyId: " + keyId + "\n"
+    );
+
+    let key = EnigmailKeyRing.getKeyById(keyId);
+    if (!key) {
+      return l10n.formatValueSync("key-error-key-id-not-found", {
+        keySpec: keyId,
+      });
+    }
+    let r = key.getEncryptionValidity();
+    if (!r.keyValid) {
+      return r.reason;
+    }
+
+    return "";
+  },
+
+  /**
    * Determine if the sender key ID or user ID can be used for signing and/or encryption
    *
    * @param sendFlags:    Number  - the send Flags; need to contain SEND_SIGNED and/or SEND_ENCRYPTED
@@ -231,7 +284,7 @@ var EnigmailEncryption = {
 
     // even for isExternalGnuPG we require that the public key is available
     if (!foundKey) {
-      ret.errorMsg = EnigmailErrorHandling.determineInvSignReason(fromKeyId);
+      ret.errorMsg = this.determineInvSignReason(fromKeyId);
       return ret;
     }
 
@@ -266,9 +319,9 @@ var EnigmailEncryption = {
     }
 
     if (sign && !canSign) {
-      ret.errorMsg = EnigmailErrorHandling.determineInvSignReason(fromKeyId);
+      ret.errorMsg = this.determineInvSignReason(fromKeyId);
     } else if (encrypt && !canEncrypt) {
-      ret.errorMsg = EnigmailErrorHandling.determineInvRcptReason(fromKeyId);
+      ret.errorMsg = this.determineInvRcptReason(fromKeyId);
     }
 
     return ret;
@@ -368,7 +421,6 @@ var EnigmailEncryption = {
       listener.addCryptoOutput(encrypted);
     }
 
-    EnigmailErrorHandling.appendLogFileToDebug(logFileObj.value);
     console.debug(
       "sendFlags=" + EnigmailData.bytesToHex(EnigmailData.pack(sendFlags, 4))
     );

@@ -65,9 +65,6 @@ var EnigmailTrust = ChromeUtils.import(
 var EnigmailConstants = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 ).EnigmailConstants;
-var EnigmailErrorHandling = ChromeUtils.import(
-  "chrome://openpgp/content/modules/errorHandling.jsm"
-).EnigmailErrorHandling;
 var EnigmailKeyServer = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyserver.jsm"
 ).EnigmailKeyServer;
