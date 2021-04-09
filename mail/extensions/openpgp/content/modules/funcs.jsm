@@ -504,4 +504,34 @@ var EnigmailFuncs = {
 
     return recipients.length;
   },
+
+  /**
+   * Get a mail URL from a uriSpec.
+   *
+   * @param {string} uriSpec - URL spec of the desired message.
+   *
+   * @return {nsIURL|nsIMsgMailNewsUrl|null} The necko url.
+   */
+  getUrlFromUriSpec(uriSpec) {
+    try {
+      if (!uriSpec) {
+        return null;
+      }
+
+      let messenger = Cc["@mozilla.org/messenger;1"].getService(
+        Ci.nsIMessenger
+      );
+      let msgService = messenger.messageServiceFromURI(uriSpec);
+
+      let url = msgService.getUrlForUri(uriSpec);
+
+      if (url.scheme == "file") {
+        return url;
+      }
+
+      return url.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    } catch (ex) {
+      return null;
+    }
+  },
 };

@@ -17,7 +17,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
@@ -62,7 +61,7 @@ var EnigmailMsgRead = {
    * @return Object: nsIURL or nsIMsgMailNewsUrl object
    */
   getUrlFromUriSpec(uriSpec) {
-    return EnigmailCompat.getUrlFromUriSpec(uriSpec);
+    return EnigmailFuncs.getUrlFromUriSpec(uriSpec);
   },
 
   /**

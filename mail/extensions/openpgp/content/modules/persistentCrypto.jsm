@@ -16,10 +16,10 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
-  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailEncryption: "chrome://openpgp/content/modules/encryption.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
@@ -30,6 +30,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
@@ -131,7 +133,7 @@ var EnigmailPersistentCrypto = {
   cryptMessage(hdr, destFolder, move, targetKey) {
     return new Promise(function(resolve, reject) {
       let msgUriSpec = hdr.folder.getUriForMsg(hdr);
-      let msgUrl = EnigmailCompat.getUrlFromUriSpec(msgUriSpec);
+      let msgUrl = EnigmailFuncs.getUrlFromUriSpec(msgUriSpec);
 
       const crypt = new CryptMessageIntoFolder(
         destFolder,
@@ -919,9 +921,11 @@ CryptMessageIntoFolder.prototype = {
         }
       } catch (ex) {}
 
-      EnigmailCompat.copyFileToMailFolder(
+      MailServices.copy.CopyFileMessage(
         fileSpec,
-        EnigmailCompat.getExistingFolder(self.destFolder),
+        MailUtils.getExistingFolder(self.destFolder),
+        null,
+        false,
         0,
         "",
         copyListener,

@@ -9,10 +9,6 @@
 var EXPORTED_SYMBOLS = ["EnigmailCommandLine"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
-
 const NS_ENIGCLINE_SERVICE_CID = Components.ID(
   "{847b3ab1-7ab1-11d4-8f02-006008948af5}"
 );
@@ -24,7 +20,7 @@ Handler.prototype = {
   classDescription: "OpenPGP Key Manager CommandLine Service",
   classID: NS_ENIGCLINE_SERVICE_CID,
   contractID: NS_CLINE_SERVICE_CONTRACTID,
-  QueryInterface: EnigmailCompat.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     "nsICommandLineHandler",
     "nsIFactory",
   ]),

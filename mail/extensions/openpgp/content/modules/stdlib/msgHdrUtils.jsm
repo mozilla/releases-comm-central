@@ -53,10 +53,6 @@ const { MsgHdrToMimeMessage, MimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -472,9 +468,11 @@ function msgHdrsModifyRaw(aMsgHdrs, aTransformer) {
 
     let { msgHdr, tempFile } = obj;
 
-    EnigmailCompat.copyFileToMailFolder(
+    MailServices.copy.CopyFileMessage(
       tempFile,
       msgHdr.folder,
+      null,
+      false,
       msgHdr.flags,
       msgHdr.getStringProperty("keywords"),
       {

@@ -29,7 +29,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailAttachment: "chrome://openpgp/content/modules/attachment.jsm",
   EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
   EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
-  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailConfigure: "chrome://openpgp/content/modules/configure.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
@@ -2325,7 +2324,7 @@ Enigmail.msg = {
     var msgSvc = messenger.messageServiceFromURI(msgUriSpec);
 
     var listener = {
-      QueryInterface: EnigmailCompat.generateQI(["nsIStreamListener"]),
+      QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
       onStartRequest() {
         this.data = "";
         this.inStream = Cc[

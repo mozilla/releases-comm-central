@@ -52,9 +52,6 @@ var { EnigmailWks } = ChromeUtils.import(
 var { EnigmailSearchCallback } = ChromeUtils.import(
   "chrome://openpgp/content/modules/searchCallback.jsm"
 );
-var { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
 var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
@@ -79,7 +76,6 @@ var gTreeChildren = null;
 var gShowInvalidKeys = null;
 var gShowOthersKeys = null;
 var gTimeoutId = {};
-var gTreeFuncs = null;
 
 function enigmailKeyManagerLoad() {
   EnigmailLog.DEBUG("enigmailKeyManager.js: enigmailKeyManagerLoad\n");
@@ -94,7 +90,6 @@ function enigmailKeyManagerLoad() {
   gSearchInput = document.getElementById("filterKey");
   gShowInvalidKeys = document.getElementById("showInvalidKeys");
   gShowOthersKeys = document.getElementById("showOthersKeys");
-  gTreeFuncs = EnigmailCompat.getTreeCompatibleFuncs(gUserList, gKeyListView);
 
   window.addEventListener("reload-keycache", reloadKeys);
   EnigmailSearchCallback.setup(gSearchInput, gTimeoutId, applyFilter, 200);
@@ -281,7 +276,7 @@ function onListClick(event) {
 
   if (event.type === "click") {
     // Mouse event
-    let { col } = gTreeFuncs.getCellAt(event.clientX, event.clientY);
+    let { col } = gUserList.getCellAt(event.clientX, event.clientY);
 
     if (!col) {
       // not clicked on a valid column (e.g. scrollbar)
@@ -1610,7 +1605,7 @@ var gKeyListView = {
     this.applyFilter(0);
     let oldRowCount = this.rowCount;
     this.rowCount = this.keyViewList.length;
-    gTreeFuncs.rowCountChanged(0, this.rowCount - oldRowCount);
+    gUserList.rowCountChanged(0, this.rowCount - oldRowCount);
   },
 
   /**
@@ -1771,13 +1766,13 @@ var gKeyListView = {
 
   adjustRowCount(newRowCount, selectedRow) {
     if (this.rowCount === newRowCount) {
-      gTreeFuncs.invalidate();
+      gUserList.invalidate();
       return;
     }
 
     let delta = newRowCount - this.rowCount;
     this.rowCount = newRowCount;
-    gTreeFuncs.rowCountChanged(selectedRow, delta);
+    gUserList.rowCountChanged(selectedRow, delta);
   },
 
   /**

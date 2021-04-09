@@ -21,7 +21,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   // EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
   EnigmailClipboard: "chrome://openpgp/content/modules/clipboard.jsm",
-  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
@@ -930,7 +929,7 @@ Enigmail.hdrView = {
 
       let msgUriSpec = Enigmail.msg.getCurrentMsgUriSpec();
 
-      let currUrl = EnigmailCompat.getUrlFromUriSpec(msgUriSpec);
+      let currUrl = EnigmailFuncs.getUrlFromUriSpec(msgUriSpec);
       if (!currUrl) {
         EnigmailLog.DEBUG(
           "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.isCurrentMessage: could not determine URL\n"

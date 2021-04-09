@@ -13,12 +13,13 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   Services: "resource://gre/modules/Services.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
 });
 
 /*
@@ -49,7 +50,7 @@ var EnigmailFixExchangeMsg = {
       self.brokenByApp = brokenByApp;
 
       if (destFolderUri) {
-        self.destFolder = EnigmailCompat.getExistingFolder(destFolderUri);
+        self.destFolder = MailUtils.getExistingFolder(destFolderUri);
       }
 
       let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
@@ -85,7 +86,7 @@ var EnigmailFixExchangeMsg = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      let url = EnigmailCompat.getUrlFromUriSpec(
+      let url = EnigmailFuncs.getUrlFromUriSpec(
         self.hdr.folder.getUriForMsg(self.hdr)
       );
 
@@ -517,9 +518,11 @@ var EnigmailFixExchangeMsg = {
       },
     };
 
-    EnigmailCompat.copyFileToMailFolder(
+    MailServices.copy.CopyFileMessage(
       fileSpec,
       this.destFolder,
+      null,
+      false,
       0,
       this.hdr.flags,
       copyListener,

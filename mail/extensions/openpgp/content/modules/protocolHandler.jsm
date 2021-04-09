@@ -13,7 +13,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
@@ -51,7 +50,7 @@ EnigmailProtocolHandler.prototype = {
     nsIProtocolHandler.URI_NOAUTH |
     nsIProtocolHandler.URI_OPENING_EXECUTES_SCRIPT,
 
-  QueryInterface: EnigmailCompat.generateQI(["nsIProtocolHandler"]),
+  QueryInterface: ChromeUtils.generateQI(["nsIProtocolHandler"]),
 
   newURI(aSpec, originCharset, aBaseURI) {
     EnigmailLog.DEBUG(

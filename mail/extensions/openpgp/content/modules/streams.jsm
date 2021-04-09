@@ -13,7 +13,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
@@ -59,7 +58,7 @@ var EnigmailStreams = {
         Ci.nsIBinaryInputStream
       ),
       _onStopCallback: onStopCallback,
-      QueryInterface: EnigmailCompat.generateQI([
+      QueryInterface: ChromeUtils.generateQI([
         "nsIStreamListener",
         "nsIRequestObserver",
       ]),

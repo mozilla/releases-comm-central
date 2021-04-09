@@ -17,7 +17,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
@@ -150,7 +149,7 @@ PgpMimeHandler.prototype = {
   classDescription: "Enigmail JS Decryption Handler",
   classID: PGPMIME_JS_DECRYPTOR_CID,
   contractID: PGPMIME_JS_DECRYPTOR_CONTRACTID,
-  QueryInterface: EnigmailCompat.generateQI(["nsIStreamListener"]),
+  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
   inStream: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
     Ci.nsIScriptableInputStream
   ),

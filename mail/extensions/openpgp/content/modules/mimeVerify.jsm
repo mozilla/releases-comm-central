@@ -16,7 +16,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
@@ -149,7 +148,7 @@ MimeVerify.prototype = {
   sigData: "",
   mimePartNumber: "",
 
-  QueryInterface: EnigmailCompat.generateQI(["nsIStreamListener"]),
+  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
   startStreaming(window, msgWindow, msgUriSpec) {
     LOCAL_DEBUG("mimeVerify.jsm: startStreaming\n");
@@ -472,7 +471,7 @@ MimeVerify.prototype = {
           let manUrl = {};
 
           if (EnigmailVerify.getManualUri()) {
-            manUrl = EnigmailCompat.getUrlFromUriSpec(
+            manUrl = EnigmailFuncs.getUrlFromUriSpec(
               EnigmailVerify.getManualUri()
             );
           } else {
@@ -506,7 +505,7 @@ MimeVerify.prototype = {
           }
 
           let url = this.msgUriSpec
-            ? EnigmailCompat.getUrlFromUriSpec(this.msgUriSpec)
+            ? EnigmailFuncs.getUrlFromUriSpec(this.msgUriSpec)
             : null;
 
           if (url) {

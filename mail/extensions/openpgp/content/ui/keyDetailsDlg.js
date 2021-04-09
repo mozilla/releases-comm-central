@@ -14,7 +14,6 @@
 /* global PgpSqliteDb2: false, l10n: false, EnigmailDialog: false */
 
 // from enigmailKeyManager.js:
-/* global keyMgrAddPhoto: false, EnigmailCompat: false */
 
 "use strict";
 
@@ -29,7 +28,7 @@ var gModePersonal = false;
 var gKeyId = null;
 var gUserId = null;
 var gKeyList = null;
-var gTreeFuncs = null;
+var gSigTree = null;
 
 var gAllEmails = [];
 var gFingerprint = "";
@@ -152,9 +151,8 @@ async function reloadData(firstLoad) {
 
   if (keyObj.signatures) {
     let sigListViewObj = new SigListView(keyObj);
-    let tree = document.getElementById("signatures_tree");
-    tree.view = sigListViewObj;
-    gTreeFuncs = EnigmailCompat.getTreeCompatibleFuncs(tree, sigListViewObj);
+    gSigTree = document.getElementById("signatures_tree");
+    gSigTree.view = sigListViewObj;
   }
 
   let subkeyListViewObj = new SubkeyListView(keyObj);
@@ -528,7 +526,7 @@ SigListView.prototype = {
     s.expanded = !s.expanded;
     let r = this.rowCount;
     this.updateRowCount();
-    gTreeFuncs.rowCountChanged(row, this.rowCount - r);
+    gSigTree.rowCountChanged(row, this.rowCount - r);
   },
 };
 
