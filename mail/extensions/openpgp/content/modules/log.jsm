@@ -20,11 +20,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
 });
 
-const MAX_LOG_LEN = 2500;
-
 var EnigmailLog = {
   level: 3,
-  data: null,
   directory: null,
   fileStream: null,
 
@@ -61,51 +58,6 @@ var EnigmailLog = {
     EnigmailLog.fileStream = null;
   },
 
-  getLogData(version, prefs) {
-    let ioServ = Services.io;
-
-    let oscpu = "";
-    let platform = "";
-
-    try {
-      let httpHandler = ioServ.getProtocolHandler("http");
-      httpHandler = httpHandler.QueryInterface(Ci.nsIHttpProtocolHandler);
-      oscpu = httpHandler.oscpu;
-      platform = httpHandler.platform;
-    } catch (ex) {}
-
-    let data =
-      "Enigmail version " +
-      version +
-      "\n" +
-      "OS/CPU=" +
-      oscpu +
-      "\n" +
-      "Platform=" +
-      platform +
-      "\n" +
-      "Non-default preference values:\n";
-
-    let p = prefs.getPrefBranch().getChildList("");
-
-    for (let i in p) {
-      if (prefs.getPrefBranch().prefHasUserValue(p[i])) {
-        data += p[i] + ": " + prefs.getPref(p[i]) + "\n";
-      }
-    }
-
-    let otherPref = ["dom.workers.maxPerDomain"];
-    let root = prefs.getPrefRoot();
-    for (let op of otherPref) {
-      try {
-        data += op + ": " + root.getIntPref(op) + "\n";
-      } catch (ex) {
-        data += ex.toString() + "\n";
-      }
-    }
-    return data + "\n" + EnigmailLog.data.join("");
-  },
-
   WRITE(str) {
     function withZeroes(val, digits) {
       return ("0000" + val.toString()).substr(-digits);
@@ -130,20 +82,6 @@ var EnigmailLog = {
     if (EnigmailLog.level >= 4) {
       dump(datStr + str);
     }
-
-    if (EnigmailLog.data === null) {
-      EnigmailLog.data = [];
-      let appInfo = Services.appinfo;
-      EnigmailLog.WRITE(
-        "Mozilla Platform: " + appInfo.name + " " + appInfo.version + "\n"
-      );
-    }
-    // truncate first part of log data if it grow too much
-    if (EnigmailLog.data.length > MAX_LOG_LEN) {
-      EnigmailLog.data.splice(0, 200);
-    }
-
-    EnigmailLog.data.push(datStr + str);
 
     if (EnigmailLog.fileStream) {
       EnigmailLog.fileStream.write(datStr, datStr.length);
