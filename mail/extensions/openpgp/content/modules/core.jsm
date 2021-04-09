@@ -15,7 +15,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailConsole: "chrome://openpgp/content/modules/pipeConsole.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailLocale: "chrome://openpgp/content/modules/locale.jsm",
   EnigmailCommandLine: "chrome://openpgp/content/modules/commandLine.jsm",
@@ -333,12 +332,6 @@ Enigmail.prototype = {
 
     initializeEnvironment(this.environment);
 
-    try {
-      EnigmailConsole.write("Initializing Enigmail service ...\n");
-    } catch (ex) {
-      failureOn(ex, this);
-    }
-
     //getEnigmailKeyRefreshService().start(getEnigmailKeyServer());
 
     this.initialized = true;
@@ -351,7 +344,6 @@ Enigmail.prototype = {
     this.initialized = false;
     this.initializationAttempted = true;
 
-    EnigmailConsole.write("Reinitializing Enigmail service ...\n");
     initializeEnvironment(this.environment);
     this.initialized = true;
   },

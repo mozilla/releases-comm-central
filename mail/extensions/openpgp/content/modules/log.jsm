@@ -15,7 +15,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailConsole: "chrome://openpgp/content/modules/pipeConsole.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   EnigmailOS: "chrome://openpgp/content/modules/os.jsm",
   Services: "resource://gre/modules/Services.jsm",
@@ -160,7 +159,6 @@ var EnigmailLog = {
 
   WARNING(str) {
     EnigmailLog.WRITE("[WARN] " + str);
-    EnigmailConsole.write(str);
   },
 
   ERROR(str) {
@@ -188,8 +186,6 @@ var EnigmailLog = {
     if (EnigmailLog.level >= 3) {
       EnigmailLog.WRITE("[CONSOLE] " + str);
     }
-
-    EnigmailConsole.write(str);
   },
 
   /**
