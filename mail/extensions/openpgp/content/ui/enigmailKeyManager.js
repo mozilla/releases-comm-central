@@ -49,9 +49,6 @@ var { EnigmailKeyServer } = ChromeUtils.import(
 var { EnigmailWks } = ChromeUtils.import(
   "chrome://openpgp/content/modules/webKey.jsm"
 );
-var { EnigmailSearchCallback } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/searchCallback.jsm"
-);
 var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
@@ -75,7 +72,7 @@ var gSearchInput = null;
 var gTreeChildren = null;
 var gShowInvalidKeys = null;
 var gShowOthersKeys = null;
-var gTimeoutId = {};
+var gTimeoutId = null;
 
 function enigmailKeyManagerLoad() {
   EnigmailLog.DEBUG("enigmailKeyManager.js: enigmailKeyManagerLoad\n");
@@ -92,7 +89,26 @@ function enigmailKeyManagerLoad() {
   gShowOthersKeys = document.getElementById("showOthersKeys");
 
   window.addEventListener("reload-keycache", reloadKeys);
-  EnigmailSearchCallback.setup(gSearchInput, gTimeoutId, applyFilter, 200);
+  gSearchInput.addEventListener("keydown", event => {
+    switch (event.key) {
+      case "Escape":
+        event.target.value = "";
+      // fall through
+      case "Enter":
+        if (gTimeoutId) {
+          clearTimeout(gTimeoutId);
+          gTimeoutId = null;
+        }
+        gKeyListView.applyFilter(0);
+        event.preventDefault();
+        break;
+      default:
+        gTimeoutId = setTimeout(() => {
+          gKeyListView.applyFilter(0);
+        }, 200);
+        break;
+    }
+  });
 
   gUserList.addEventListener("click", onListClick, true);
   document.l10n.setAttributes(
@@ -1081,10 +1097,6 @@ function initiateAcKeyTransfer() {
 //
 // ----- key filtering functionality  -----
 //
-
-function applyFilter() {
-  gKeyListView.applyFilter(0);
-}
 
 function determineHiddenKeys(keyObj, showInvalidKeys, showOthersKeys) {
   var show = true;
