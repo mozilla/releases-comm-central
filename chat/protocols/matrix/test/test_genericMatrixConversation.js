@@ -20,11 +20,13 @@ add_task(function test_replaceRoom() {
     _setInitialized() {
       this.initialized = true;
     },
+    _mostRecentEventId: "foo",
   };
-  const newRoom = "foo";
+  const newRoom = {};
   matrix.GenericMatrixConversation.replaceRoom.call(roomStub, newRoom);
-  equal(roomStub._replacedBy, newRoom);
+  strictEqual(roomStub._replacedBy, newRoom);
   ok(roomStub.initialized);
+  equal(newRoom._mostRecentEventId, roomStub._mostRecentEventId);
 });
 
 add_task(async function test_waitForRoom() {
@@ -62,4 +64,178 @@ function testInheritance(targetConstructor) {
     ok(targetConstructor.prototype.hasOwnProperty(key));
     strictEqual(targetConstructor.prototype[key], value);
   }
+}
+
+add_task(function test_addEventRedacted() {
+  const event = makeEvent("@user:example.com", {}, true);
+  const roomStub = {};
+  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  equal(roomStub._mostRecentEventId, 0);
+});
+
+add_task(function test_addEventMessageIncoming() {
+  const event = makeEvent("@user:example.com", {
+    body: "foo",
+    msgtype: "m.text",
+  });
+  const roomStub = {
+    _account: {
+      userId: "@test:example.com",
+    },
+    writeMessage(who, message, options) {
+      this.who = who;
+      this.message = message;
+      this.options = options;
+    },
+  };
+  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  equal(roomStub.who, "@user:example.com");
+  equal(roomStub.message, "foo");
+  ok(roomStub.options.incoming);
+  ok(!roomStub.options.outgoing);
+  ok(!roomStub.options.system);
+  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
+  equal(roomStub.options._alias, "foo bar");
+  ok(!roomStub.options.delayed);
+  equal(roomStub._mostRecentEventId, 0);
+});
+
+add_task(function test_addEventMessageOutgoing() {
+  const event = makeEvent("@test:example.com", {
+    body: "foo",
+    msgtype: "m.text",
+  });
+  const roomStub = {
+    _account: {
+      userId: "@test:example.com",
+    },
+    writeMessage(who, message, options) {
+      this.who = who;
+      this.message = message;
+      this.options = options;
+    },
+  };
+  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  equal(roomStub.who, "@test:example.com");
+  equal(roomStub.message, "foo");
+  ok(!roomStub.options.incoming);
+  ok(roomStub.options.outgoing);
+  ok(!roomStub.options.system);
+  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
+  equal(roomStub.options._alias, "foo bar");
+  ok(!roomStub.options.delayed);
+  equal(roomStub._mostRecentEventId, 0);
+});
+
+add_task(function test_addEventMessageEmote() {
+  const event = makeEvent("@user:example.com", {
+    body: "foo",
+    msgtype: "m.emote",
+  });
+  const roomStub = {
+    _account: {
+      userId: "@test:example.com",
+    },
+    writeMessage(who, message, options) {
+      this.who = who;
+      this.message = message;
+      this.options = options;
+    },
+  };
+  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  equal(roomStub.who, "@user:example.com");
+  equal(roomStub.message, "/me foo");
+  ok(roomStub.options.incoming);
+  ok(!roomStub.options.outgoing);
+  ok(!roomStub.options.system);
+  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
+  equal(roomStub.options._alias, "foo bar");
+  ok(!roomStub.options.delayed);
+  equal(roomStub._mostRecentEventId, 0);
+});
+
+add_task(function test_addEventMessageDelayed() {
+  const event = makeEvent("@user:example.com", {
+    body: "foo",
+    msgtype: "m.text",
+  });
+  const roomStub = {
+    _account: {
+      userId: "@test:example.com",
+    },
+    writeMessage(who, message, options) {
+      this.who = who;
+      this.message = message;
+      this.options = options;
+    },
+  };
+  matrix.GenericMatrixConversation.addEvent.call(roomStub, event, true);
+  equal(roomStub.who, "@user:example.com");
+  equal(roomStub.message, "foo");
+  ok(roomStub.options.incoming);
+  ok(!roomStub.options.outgoing);
+  ok(!roomStub.options.system);
+  equal(roomStub.options.time, Math.floor(event.getDate().getTime() / 1000));
+  equal(roomStub.options._alias, "foo bar");
+  ok(roomStub.options.delayed);
+  equal(roomStub._mostRecentEventId, 0);
+});
+
+add_task(function test_addEventTopic() {
+  const event = {
+    isRedacted() {
+      return false;
+    },
+    getType() {
+      return "m.room.topic";
+    },
+    getId() {
+      return 1;
+    },
+    getContent() {
+      return {
+        topic: "foo bar",
+      };
+    },
+    getSender() {
+      return "@user:example.com";
+    },
+  };
+  const roomStub = {
+    setTopic(topic, who) {
+      this.who = who;
+      this.topic = topic;
+    },
+  };
+  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  equal(roomStub.who, "@user:example.com");
+  equal(roomStub.topic, "foo bar");
+  equal(roomStub._mostRecentEventId, 1);
+});
+
+function makeEvent(sender, content = {}, redacted = false) {
+  const time = new Date();
+  return {
+    isRedacted() {
+      return redacted;
+    },
+    getType() {
+      return "m.room.message";
+    },
+    getSender() {
+      return sender;
+    },
+    getContent() {
+      return content;
+    },
+    getDate() {
+      return time;
+    },
+    sender: {
+      name: "foo bar",
+    },
+    getId() {
+      return 0;
+    },
+  };
 }

@@ -187,9 +187,17 @@ MatrixBuddy.prototype = {
   },
 };
 
-// var so it can be tested using script loader.
+/**
+ * var so it can be tested using script loader.
+ * @interface
+ */
 var GenericMatrixConversation = {
-  /*
+  /**
+   * ID of the most recent event written to the conversation.
+   */
+  _mostRecentEventId: null,
+
+  /**
    * Leave the room if we close the conversation.
    */
   close() {
@@ -254,6 +262,7 @@ var GenericMatrixConversation = {
    */
   replaceRoom(newRoom) {
     this._replacedBy = newRoom;
+    newRoom._mostRecentEventId = this._mostRecentEventId;
     this._setInitialized();
   },
 
@@ -271,13 +280,138 @@ var GenericMatrixConversation = {
     }
     return this;
   },
+
+  /**
+   * Write all missing events to the conversation. Should be called once the
+   * client is in a stable sync state again.
+   *
+   * @returns {Promise}
+   */
+  async catchup() {
+    await this.waitForRoom();
+    if (this.isChat) {
+      const members = this.room.getJoinedMembers();
+      const memberUserIds = members.map(member => member.userId);
+      for (const userId of this._participants.keys()) {
+        if (!memberUserIds.includes(userId)) {
+          this.removeParticipant(userId);
+        }
+      }
+      for (const member of members) {
+        this.addParticipant(member);
+      }
+
+      this._name = this.room.summary.info.title;
+      this.notifyObservers(null, "update-conv-title");
+    }
+
+    // Find the newest event id the user has already seen
+    let latestOldEvent;
+    if (this._mostRecentEventId) {
+      latestOldEvent = this._mostRecentEventId;
+    } else {
+      // Last message the user has read with high certainty.
+      const fullyRead = this.room.getAccountData("m.fully_read");
+      if (fullyRead) {
+        latestOldEvent = fullyRead.getContent().event_id;
+      }
+    }
+    // Get the timeline for the event, or just the current live timeline of the room
+    let timeline;
+    if (latestOldEvent) {
+      timeline = this.room.getTimelineForEvent(latestOldEvent);
+      // The event wasn't in our local cache yet, let's start a timeline containing the event
+      if (!timeline) {
+        await this._account._client.getEventTimeline(
+          this.room.getUnfilteredTimelineSet(),
+          latestOldEvent
+        );
+        timeline = this.room.getTimelineForEvent(latestOldEvent);
+      }
+    } else {
+      timeline = this.room.getLiveTimeline();
+    }
+    if (timeline) {
+      // Make sure the timeline cotains all events up to the present
+      let timelineCatchingUp = true;
+      while (timelineCatchingUp) {
+        timelineCatchingUp = await this._account._client.paginateEventTimeline(
+          timeline
+        );
+      }
+      // Write all new events to the conversation
+      const events = timeline.getEvents();
+      let pastLatestOldEvent = !latestOldEvent;
+      for (const event of events) {
+        if (pastLatestOldEvent) {
+          this.addEvent(event, true);
+        }
+        if (!pastLatestOldEvent && event.getId() === latestOldEvent) {
+          pastLatestOldEvent = true;
+        }
+      }
+    }
+  },
+
+  /**
+   * Add a matrix event to the conversation's logs.
+   *
+   * @param {MatrixEvent} event
+   * @param {boolean} [delayed=false] - Event is added while catching up to a live state.
+   */
+  addEvent(event, delayed = false) {
+    // Redacted events have no content, nothing for us to display.
+    // TODO full redaction support is Bug 1701218
+    if (event.isRedacted()) {
+      this._mostRecentEventId = event.getId();
+      return;
+    }
+    if (event.getType() === "m.room.message") {
+      const isOutgoing = event.getSender() == this._account.userId;
+      const eventContent = event.getContent();
+      //TODO We should prefer the formatted body (when it's html)
+      let message = eventContent.body;
+      if (eventContent.msgtype === "m.emote") {
+        message = "/me " + message;
+      }
+      //TODO handle media messages better (currently just show file name)
+      this.writeMessage(event.getSender(), message, {
+        outgoing: isOutgoing,
+        incoming: !isOutgoing,
+        system: eventContent.msgtype === "m.notice",
+        time: Math.floor(event.getDate() / 1000),
+        _alias: event.sender.name,
+        delayed,
+      });
+    } else if (event.getType() == "m.room.topic") {
+      this.setTopic(event.getContent().topic, event.getSender());
+    } else {
+      let message = getMatrixTextForEvent(event);
+      // We don't think we should show a notice for this event.
+      if (!message) {
+        this.LOG("Unhandled event: " + JSON.stringify(event.toJSON()));
+        this._mostRecentEventId = event.getId();
+        return;
+      }
+      this.writeMessage(event.getSender(), message, {
+        system: true,
+        time: Math.floor(event.getDate() / 1000),
+        _alias: event.sender.name,
+        delayed,
+      });
+    }
+    this._mostRecentEventId = event.getId();
+  },
 };
 
-/*
+/**
  * TODO Other functionality from MatrixClient to implement:
  *  sendNotice
  *  sendReadReceipt
  *  sendTyping
+ *
+ * @class
+ * @implements {GenericMatrixConversation}
  */
 function MatrixConversation(account, name, nick) {
   this._init(account, name, nick);
@@ -308,12 +442,12 @@ MatrixConversation.prototype = {
     );
   },
 
-  removeParticipant(roomMember) {
-    if (!this._participants.has(roomMember.userId)) {
+  removeParticipant(userId) {
+    if (!this._participants.has(userId)) {
       return;
     }
-    let participant = this._participants.get(roomMember.userId);
-    this._participants.delete(roomMember.userId);
+    let participant = this._participants.get(userId);
+    this._participants.delete(userId);
     this.notifyObservers(
       new nsSimpleEnumerator([participant]),
       "chat-buddy-remove"
@@ -360,7 +494,6 @@ MatrixConversation.prototype = {
     // Check if our user has the permissions to set the topic.
     if (this.topicSettable && aTopic !== this.topic) {
       this._account._client.setRoomTopic(this._roomId, aTopic);
-      //TODO write system notice about topic change?
     }
   },
 
@@ -373,6 +506,10 @@ MatrixConversation.prototype = {
 };
 Object.assign(MatrixConversation.prototype, GenericMatrixConversation);
 
+/**
+ * @class
+ * @implements {GenericMatrixConversation}
+ */
 function MatrixDirectConversation(account, name) {
   this._init(account, name);
   this.sharedInit();
@@ -380,7 +517,7 @@ function MatrixDirectConversation(account, name) {
 MatrixDirectConversation.prototype = {
   __proto__: GenericConvIMPrototype,
 
-  /*
+  /**
    * Initialize the room after the response from the Matrix client.
    *
    * @param {Room} room - associated room with the conversation.
@@ -556,6 +693,7 @@ MatrixAccount.prototype = {
       deviceId: this.prefs.getStringPref("deviceId", "") || undefined,
       accessToken: this.prefs.getStringPref("accessToken", "") || undefined,
       userId: this.prefs.getStringPref("userId", "") || undefined,
+      timelineSupport: true,
     };
 
     opts.store.startup().then(() => {
@@ -769,6 +907,10 @@ MatrixAccount.prototype = {
     this.prefs.setStringPref("userId", data.user_id);
   },
 
+  get _catchingUp() {
+    return this._client?.getSyncState() !== "SYNCING";
+  },
+
   /*
    * Hook up the Matrix Client to callbacks to handle various events.
    *
@@ -779,16 +921,39 @@ MatrixAccount.prototype = {
     this._client.on("sync", (state, prevState, data) => {
       switch (state) {
         case "PREPARED":
-          this.setPresence(this.imAccount.statusInfo);
+          if (prevState !== state) {
+            this.setPresence(this.imAccount.statusInfo);
+          }
           this.reportConnected();
           break;
         case "STOPPED":
           this.reportDisconnected();
           break;
-        // TODO: Handle other states (RECONNECTING, ERROR, SYNCING).
+        case "SYNCING":
+          if (prevState !== state) {
+            this.reportConnected();
+            this.handleCaughtUp();
+          }
+          break;
+        case "RECONNECTING":
+          this.reportConnecting();
+          break;
+        case "ERRROR":
+          this.reportDisconnecting(
+            Ci.prplIAccount.ERROR_OTHER_ERROR,
+            data.error.message
+          );
+          this.reportDisconnected();
+          break;
+        case "CATCHUP":
+          this.reportConnecting();
+          break;
       }
     });
     this._client.on("RoomMember.membership", (event, member, oldMembership) => {
+      if (this._catchingUp) {
+        return;
+      }
       if (this.roomList.has(member.roomId)) {
         let conv = this.roomList.get(member.roomId);
         if (conv.isChat) {
@@ -830,44 +995,14 @@ MatrixAccount.prototype = {
     this._client.on(
       "Room.timeline",
       (event, room, toStartOfTimeline, removed, data) => {
-        if (toStartOfTimeline) {
+        if (toStartOfTimeline || this._catchingUp) {
           return;
         }
         let conv = this.roomList.get(room.roomId);
         if (!conv) {
           return;
         }
-        if (event.getType() === "m.room.message") {
-          const isOutgoing = event.getSender() == conv._account.userId;
-          const eventContent = event.getContent();
-          //TODO We should prefer the formatted body (when it's html)
-          let message = eventContent.body;
-          if (eventContent.msgtype === "m.emote") {
-            message = "/me " + message;
-          }
-          //TODO handle media messages better (currently just show file name)
-          conv.writeMessage(event.getSender(), message, {
-            outgoing: isOutgoing,
-            incoming: !isOutgoing,
-            system: eventContent.msgtype === "m.notice",
-            time: Math.floor(event.getDate() / 1000),
-            _alias: event.sender.name,
-          });
-        } else if (event.getType() == "m.room.topic") {
-          conv.setTopic(event.getContent().topic, event.sender.name);
-        } else {
-          let message = getMatrixTextForEvent(event);
-          // We don't think we should show a notice for this event.
-          if (!message) {
-            this.LOG("Unhandled event: " + JSON.stringify(event.toJSON()));
-            return;
-          }
-          conv.writeMessage(event.getSender(), message, {
-            system: true,
-            time: Math.floor(event.getDate() / 1000),
-            _alias: event.sender.name,
-          });
-        }
+        conv.addEvent(event);
       }
     );
     // Update the chat participant information.
@@ -878,10 +1013,8 @@ MatrixAccount.prototype = {
       // Update the title to the human readable version.
       let conv = this.roomList.get(room.roomId);
       if (
-        conv &&
-        room.summary &&
-        room.summary.info &&
-        room.summary.info.title &&
+        !this._catchingUp &&
+        room?.summary?.info?.title &&
         conv._name != room.summary.info.title
       ) {
         conv._name = room.summary.info.title;
@@ -895,6 +1028,9 @@ MatrixAccount.prototype = {
      * We will use that part to to make conversations, direct or group.
      */
     this._client.on("Room", room => {
+      if (this._catchingUp) {
+        return;
+      }
       let me = room.getMember(this.userId);
       // For now just auto accept the invites by joining the room.
       if (me && me.membership == "invite") {
@@ -981,6 +1117,57 @@ MatrixAccount.prototype = {
     this._client.startClient();
   },
 
+  /**
+   * Update UI state to reflect the current state of the SDK after a full sync.
+   * This includes adding and removing rooms and catching up their contents.
+   */
+  handleCaughtUp() {
+    const joinedRooms = this._client
+      .getRooms()
+      .filter(room => room.getMyMembership() === "join")
+      .map(room => room.roomId);
+    // Ensure existing conversations are up to date
+    for (const [roomId, conv] of this.roomList.entries()) {
+      if (!joinedRooms.includes(roomId)) {
+        this.roomList.delete(roomId);
+        conv._close?.();
+        GenericConversationPrototype.close.call(conv);
+      } else {
+        const updatedConv = this.checkRoomForUpdate(conv);
+        updatedConv.catchup().catch(error => updatedConv.ERROR(error));
+      }
+    }
+    // Create new conversations
+    for (const roomId of joinedRooms) {
+      if (!this.roomList.has(roomId)) {
+        let conv;
+        if (this.isDirectRoom(roomId)) {
+          const room = this._client.getRoom(roomId);
+          const interlocutorId = room
+            .getJoinedMembers()
+            .find(member => member.userId != this.userId)?.userId;
+          if (!interlocutorId) {
+            this.ERROR(
+              "Could not find opposing party for " +
+                roomId +
+                ". No conversation was created."
+            );
+            continue;
+          }
+          conv = this.getDirectConversation(interlocutorId);
+        } else {
+          conv = this.getGroupConversation(roomId);
+        }
+        conv.catchup().catch(error => conv.ERROR(error));
+      }
+    }
+  },
+
+  /**
+   * Set the matrix user presence based on the given status info.
+   *
+   * @param {imIStatus} statusInfo
+   */
   setPresence(statusInfo) {
     const presenceDetails = {
       presence: "offline",
@@ -997,6 +1184,13 @@ MatrixAccount.prototype = {
     this._client.setPresence(presenceDetails);
   },
 
+  /**
+   * Update the local buddy with the latest information given the changes from
+   * the event.
+   *
+   * @param {MatrixEvent} event
+   * @param {User} user
+   */
   updateBuddy(event, user) {
     const buddy = this.buddies.get(user.userId);
     if (!buddy) {
@@ -1019,13 +1213,13 @@ MatrixAccount.prototype = {
     }
   },
 
-  /*
+  /**
    * Checks if the room is the direct messaging room or not. We also check
    * if number of joined users are two including us.
    *
-   * @param {String} checkRoomId - ID of the room to check if it is direct
+   * @param {string} checkRoomId - ID of the room to check if it is direct
    *                               messaging room or not.
-   * @return {Boolean} - If room is direct direct messaging room or not.
+   * @return {boolean} - If room is direct direct messaging room or not.
    */
   isDirectRoom(checkRoomId) {
     for (let user of Object.keys(this._userToRoom)) {
@@ -1041,11 +1235,12 @@ MatrixAccount.prototype = {
     return false;
   },
 
-  /*
+  /**
    * Converts the group conversation into the direct conversation.
    *
-   * @param {Object} groupConv - the group conversation which needs to be
+   * @param {MatrixConversation} groupConv - the group conversation which needs to be
    *                             converted.
+   * @returns {MatrixDirectConversation}
    */
   convertToDM(groupConv) {
     GenericConversationPrototype.close.call(groupConv);
@@ -1055,13 +1250,15 @@ MatrixAccount.prototype = {
     let directRoom = this._client.getRoom(groupConv._roomId);
     conv.initRoom(directRoom);
     //TODO re-select conv if it was already selected
+    return conv;
   },
 
-  /*
+  /**
    * Converts the direct conversation into the group conversation.
    *
-   * @param {Object} directConv - the direct conversation which needs to be
+   * @param {MatrixDirectConversation} directConv - the direct conversation which needs to be
    *                              converted.
+   * @return {MatrixConversation}
    */
   convertToGroup(directConv) {
     directConv._close();
@@ -1072,23 +1269,26 @@ MatrixAccount.prototype = {
     let groupRoom = this._client.getRoom(directConv._roomId);
     conv.initRoom(groupRoom);
     //TODO re-select conv if it was already selected
+    return conv;
   },
 
-  /*
+  /**
    * Checks if the conversation needs to be changed from the group conversation
    * to the direct conversation or vice versa.
    *
-   * @param {Object} conv - the conversation which needs to be checked.
+   * @param {GenericMatrixConversation} conv - the conversation which needs to be checked.
+   * @returns {GenericMatrixConversation} potentially new conversation
    */
   checkRoomForUpdate(conv) {
     if (conv.room && conv.isChat && this.isDirectRoom(conv._roomId)) {
-      this.convertToDM(conv);
+      return this.convertToDM(conv);
     } else if (conv.room && !conv.isChat && !this.isDirectRoom(conv._roomId)) {
-      this.convertToGroup(conv);
+      return this.convertToGroup(conv);
     }
+    return conv;
   },
 
-  /*
+  /**
    * Returns the group conversation according to the room-id.
    * 1) If we have a group conversation already, we will return that.
    * 2) If the room exists on the server, we will join it. It will not do
@@ -1096,10 +1296,10 @@ MatrixAccount.prototype = {
    *    conversation. This is used mainly when a new room gets added.
    * 3) Create a new room if the conversation does not exist.
    *
-   * @param {String} roomId - ID of the room.
-   * @param {String} roomName (optional) - Name of the room.
+   * @param {string} roomId - ID of the room.
+   * @param {string} roomName (optional) - Name of the room.
    *
-   * @return {Object} - The resulted conversation.
+   * @return {MatrixConversation} - The resulted conversation.
    */
   getGroupConversation(roomId, roomName) {
     // If there is a conversation return it.
@@ -1173,12 +1373,12 @@ MatrixAccount.prototype = {
    */
   createRoomReturned: true,
 
-  /*
+  /**
    * Returns the room ID for user ID if exists for direct messaging.
    *
-   * @param {String} roomId - ID of the user.
+   * @param {string} roomId - ID of the user.
    *
-   * @return {String} - ID of the room.
+   * @return {string} - ID of the room.
    */
   getDMRoomIdForUserId(userId) {
     // Select the mostRecentRoom base on the timestamp of the
