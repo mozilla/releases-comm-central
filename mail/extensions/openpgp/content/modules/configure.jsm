@@ -14,7 +14,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   // EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
-  // EnigmailAutoSetup: "chrome://openpgp/content/modules/autoSetup.jsm",
   // EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   // EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   // EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
