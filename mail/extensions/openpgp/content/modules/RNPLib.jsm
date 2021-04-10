@@ -9,7 +9,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   ctypes: "resource://gre/modules/ctypes.jsm",
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
@@ -157,9 +156,9 @@ function enableRNPLibJS() {
     getFilenames() {
       let names = {};
 
-      let secFile = EnigmailApp.getProfileDirectory();
+      let secFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
       secFile.append("secring.gpg");
-      let pubFile = EnigmailApp.getProfileDirectory();
+      let pubFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
       pubFile.append("pubring.gpg");
 
       names.secring = secFile.clone();

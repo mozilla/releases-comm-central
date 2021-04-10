@@ -44,9 +44,6 @@ var EnigmailData = ChromeUtils.import(
 var EnigmailFiles = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 ).EnigmailFiles;
-var { EnigmailApp } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/app.jsm"
-);
 var EnigmailDialog = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 ).EnigmailDialog;
@@ -488,10 +485,6 @@ function EnigGetTempDir() {
 // get the OS platform
 function EnigGetOS() {
   return EnigmailOS.getOS();
-}
-
-function EnigGetVersion() {
-  return EnigmailApp.getVersion();
 }
 
 function EnigFilePicker(

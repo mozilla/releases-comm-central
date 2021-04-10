@@ -2,13 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Uses: chrome://openpgp/content/ui/enigmailCommon.js
-
 "use strict";
 
-// Modules
-/* global EnigmailApp: false, EnigmailKeyRing: false, GetEnigmailSvc: false,
-   EnigSavePrefs: false, EnigmailWindows: false, PgpSqliteDb2: false */
+// Uses: chrome://openpgp/content/ui/enigmailCommon.js
+/* global GetEnigmailSvc, EnigSavePrefs */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -17,20 +14,29 @@ var { MailServices } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var EnigmailCryptoAPI = ChromeUtils.import(
+var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
+);
 var { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 );
-var OpenPGPMasterpass = ChromeUtils.import(
+var { OpenPGPMasterpass } = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
-).OpenPGPMasterpass;
-var EnigmailDialog = ChromeUtils.import(
+);
+var { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
-).EnigmailDialog;
+);
 var { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
+);
+var { EnigmailKeyRing } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyRing.jsm"
+);
+var { EnigmailWindows } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/windows.jsm"
+);
+var { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
 var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 
@@ -680,7 +686,7 @@ async function openPgpKeygenConfirm() {
     revocationFilePrefix2 +
     rev;
 
-  let revFile = EnigmailApp.getProfileDirectory();
+  let revFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   revFile.append(`0x${gGeneratedKey}_rev.asc`);
 
   // Create a revokation cert in the Thunderbird profile directoy.

@@ -51,9 +51,6 @@ var EnigmailFiles = ChromeUtils.import(
 var EnigmailData = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 ).EnigmailData;
-var { EnigmailApp } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/app.jsm"
-);
 var EnigmailDialog = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 ).EnigmailDialog;

@@ -10,7 +10,7 @@
 
 // modules
 /* global EnigmailData: false, EnigmailLog: false, EnigmailLocale: false, EnigmailGpg: false, EnigmailKeyEditor: false */
-/* global EnigmailOS: false, EnigmailPrefs: false, EnigmailApp: false, EnigmailKeyRing: false */
+/* global EnigmailOS: false, EnigmailPrefs: false, EnigmailKeyRing: false */
 /* global EnigmailDialog: false, EnigmailFuncs: false */
 
 // from enigmailCommon.js:
@@ -19,19 +19,21 @@
 /* global EnigGetPref: false, EnigSetPref: false, EnigSavePrefs: false, EnigFilePicker: false, EnigGetFilePath: false */
 /* global EnigmailWindows: false, EnigCreateRevokeCert: false */
 
-var EnigmailCryptoAPI = ChromeUtils.import(
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
+var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
-).EnigmailCryptoAPI;
+);
 var { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 );
-var OpenPGPMasterpass = ChromeUtils.import(
+var { OpenPGPMasterpass } = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
-).OpenPGPMasterpass;
-var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
 );
+var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 
 var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
@@ -279,7 +281,7 @@ async function enigmailKeygenStart() {
     revocationFilePrefix2 +
     rev;
 
-  let revFile = EnigmailApp.getProfileDirectory();
+  let revFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   revFile.append("0x" + gGeneratedKey + "_rev.asc");
 
   // create a revokation cert in the TB profile directoy

@@ -16,7 +16,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
@@ -41,13 +40,13 @@ var OpenPGPMasterpass = {
   },
 
   getPassPath() {
-    let path = EnigmailApp.getProfileDirectory();
+    let path = Services.dirsvc.get("ProfD", Ci.nsIFile);
     path.append("encrypted-openpgp-passphrase.txt");
     return path;
   },
 
   getSecretKeyRingFile() {
-    let path = EnigmailApp.getProfileDirectory();
+    let path = Services.dirsvc.get("ProfD", Ci.nsIFile);
     path.append("secring.gpg");
     return path;
   },

@@ -27,7 +27,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
   EnigmailAttachment: "chrome://openpgp/content/modules/attachment.jsm",
-  EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
   EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
