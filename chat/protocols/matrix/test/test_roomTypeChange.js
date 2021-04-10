@@ -65,7 +65,7 @@ add_task(async function test_toDMConversation() {
     const roomListInstance = acc.roomList.get(roomId);
     strictEqual(roomListInstance, newRoom);
   } finally {
-    newRoom.close();
+    newRoom.forget();
   }
 });
 
@@ -84,6 +84,6 @@ add_task(async function test_toGroupConversation() {
     const roomListInstance = acc.roomList.get(roomId);
     strictEqual(roomListInstance, newRoom);
   } finally {
-    newRoom.close();
+    newRoom.forget();
   }
 });

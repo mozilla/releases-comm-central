@@ -239,3 +239,63 @@ function makeEvent(sender, content = {}, redacted = false) {
     },
   };
 }
+
+add_task(function test_forgetWith_close() {
+  const roomList = new Map();
+  const roomStub = {
+    _close() {
+      this.closeCalled = true;
+    },
+    _roomId: "foo",
+    _account: {
+      roomList,
+    },
+    // stubs for jsProtoHelper implementations
+    addObserver() {},
+    unInit() {},
+  };
+  roomList.set(roomStub._roomId, roomStub);
+  Services.conversations.addConversation(roomStub);
+
+  matrix.GenericMatrixConversation.forget.call(roomStub);
+  ok(!roomList.has(roomStub._roomId));
+  ok(roomStub.closeCalled);
+});
+
+add_task(function test_forgetWithout_close() {
+  const roomList = new Map();
+  const roomStub = {
+    _roomId: "foo",
+    _account: {
+      roomList,
+    },
+    // stubs for jsProtoHelper implementations
+    addObserver() {},
+    unInit() {},
+  };
+  roomList.set(roomStub._roomId, roomStub);
+  Services.conversations.addConversation(roomStub);
+
+  matrix.GenericMatrixConversation.forget.call(roomStub);
+  ok(!roomList.has(roomStub._roomId));
+});
+
+add_task(function test_close() {
+  const roomStub = {
+    forget() {
+      this.forgetCalled = true;
+    },
+    _roomId: "foo",
+    _account: {
+      _client: {
+        leave(roomId) {
+          roomStub.leftRoom = roomId;
+        },
+      },
+    },
+  };
+
+  matrix.GenericMatrixConversation.close.call(roomStub);
+  equal(roomStub.leftRoom, roomStub._roomId);
+  ok(roomStub.forgetCalled);
+});

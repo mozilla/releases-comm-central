@@ -201,8 +201,16 @@ var GenericMatrixConversation = {
    * Leave the room if we close the conversation.
    */
   close() {
-    this._close?.();
     this._account._client.leave(this._roomId);
+    this.forget();
+  },
+
+  /**
+   * Forget about this conversation instance. This closes the conversation in
+   * the UI, but doesn't update the user's membership in the room.
+   */
+  forget() {
+    this._close?.();
     this._account.roomList.delete(this._roomId);
     GenericConversationPrototype.close.call(this);
   },
@@ -654,11 +662,8 @@ MatrixAccount.prototype = {
       // We want to remove all the conversations. We are not using conv.close
       // function call because we don't want user to leave all the matrix rooms.
       // User just want to remove the account so we need to remove the listed
-      // conversations. GenericConversationPrototype.close is used at various
-      // places in the file. It's because of the same reason, we want to remove
-      // the conversation only, don't want user to leave the room. conv.close
-      // function call will make user leave the room and close the conversation.
-      GenericConversationPrototype.close.call(conv);
+      // conversations.
+      conv.forget();
     }
     delete this.roomList;
     // We want to clear data stored for syncing in indexedDB so when
@@ -971,9 +976,7 @@ MatrixAccount.prototype = {
         // a DM room by SDK a direct conversation and all other rooms as a group
         // conversations.
         if (member.membership === "leave" && member.userId == this.userId) {
-          this.roomList.delete(member.roomId);
-          conv._close?.();
-          GenericConversationPrototype.close.call(conv);
+          conv.forget();
         } else if (
           member.membership === "join" ||
           member.membership === "leave"
@@ -1129,9 +1132,7 @@ MatrixAccount.prototype = {
     // Ensure existing conversations are up to date
     for (const [roomId, conv] of this.roomList.entries()) {
       if (!joinedRooms.includes(roomId)) {
-        this.roomList.delete(roomId);
-        conv._close?.();
-        GenericConversationPrototype.close.call(conv);
+        conv.forget();
       } else {
         const updatedConv = this.checkRoomForUpdate(conv);
         updatedConv.catchup().catch(error => updatedConv.ERROR(error));
@@ -1243,7 +1244,7 @@ MatrixAccount.prototype = {
    * @returns {MatrixDirectConversation}
    */
   convertToDM(groupConv) {
-    GenericConversationPrototype.close.call(groupConv);
+    groupConv.forget();
     let conv = new MatrixDirectConversation(this, groupConv._roomId);
     groupConv.replaceRoom(conv);
     this.roomList.set(groupConv._roomId, conv);
@@ -1261,8 +1262,7 @@ MatrixAccount.prototype = {
    * @return {MatrixConversation}
    */
   convertToGroup(directConv) {
-    directConv._close();
-    GenericConversationPrototype.close.call(directConv);
+    directConv.forget();
     let conv = new MatrixConversation(this, directConv._roomId, this.userId);
     directConv.replaceRoom(conv);
     this.roomList.set(directConv._roomId, conv);
@@ -1313,17 +1313,21 @@ MatrixAccount.prototype = {
       conv.joining = true;
       this._client
         .joinRoom(roomId)
+        .catch(error => {
+          conv.joining = false;
+          conv.close();
+          throw error;
+        })
         .then(room => {
           conv.initRoom(room);
           conv.joining = false;
         })
         .catch(error => {
           this.ERROR(error);
-          conv.joining = false;
-          // TODO we should probably only close (send a leave) when the actual
-          // join failed, not when initRoom errors, at least for rooms we get
-          // during initial sync.
-          conv.close();
+          if (conv.joining) {
+            conv.joining = false;
+            conv.forget();
+          }
         });
 
       return conv;
@@ -1555,6 +1559,11 @@ MatrixAccount.prototype = {
       conv.joining = true;
       this._client
         .joinRoom(DMRoomId || roomID)
+        .catch(error => {
+          conv.joining = false;
+          conv.close();
+          throw error;
+        })
         .then(room => {
           conv.initRoom(room);
           conv.joining = false;
@@ -1563,8 +1572,10 @@ MatrixAccount.prototype = {
           this.ERROR(
             "Error creating conversation " + (DMRoomId || roomID) + ": " + error
           );
-          conv.joining = false;
-          conv.close();
+          if (conv.joining) {
+            conv.joining = false;
+            conv.forget();
+          }
         });
 
       return conv;
