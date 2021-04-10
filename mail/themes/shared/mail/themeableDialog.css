@@ -315,7 +315,7 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 @media not (-moz-proton) {
 menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   margin-block: -1px;
-  margin-inline: -px 4px;
+  margin-inline: -1px 4px;
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
