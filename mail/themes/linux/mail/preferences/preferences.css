@@ -36,6 +36,10 @@ html|input[type="number"]::-moz-number-spin-down {
   font-size: 1em;
 }
 
+tab + tab {
+  margin-inline-start: 0;
+}
+
 /**
  * Dialog
  */

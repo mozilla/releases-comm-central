@@ -51,9 +51,19 @@ menulist[is="menulist-editable"][editable="true"] {
   padding: 0;
 }
 
+@media not (-moz-proton) {
 menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   padding: 4px;
 }
+} /** END not Proton **/
+
+@media (-moz-proton) {
+menulist[is="menulist-editable"][editable="true"]::part(text-input) {
+  padding: 5px 4px;
+  margin-block: -2px;
+  margin-inline: -7px 7px;
+}
+} /** END Proton **/
 
 menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
   width: initial;

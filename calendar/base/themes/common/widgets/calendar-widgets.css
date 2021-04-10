@@ -235,10 +235,13 @@ checkbox.calendar-displayed {
 
 checkbox.calendar-displayed > .checkbox-check {
   appearance: none;
-  list-style-image: url("chrome://messenger/skin/icons/hidden.svg");
+  background-image: url("chrome://messenger/skin/icons/hidden.svg");
+  color: inherit;
+  background-color: transparent !important;
+  border-style: none;
+  opacity: 0.7;
   -moz-context-properties: fill;
   fill: currentColor;
-  opacity: 0.7;
   transition: opacity .2s ease;
 }
 
@@ -248,7 +251,7 @@ checkbox.calendar-displayed:focus > .checkbox-check {
 }
 
 #calendar-list > richlistitem > checkbox[checked="true"] > .checkbox-check {
-  list-style-image: url("chrome://messenger/skin/icons/visible.svg");
+  background-image: url("chrome://messenger/skin/icons/visible.svg");
   opacity: 0;
 }
 
@@ -275,6 +278,8 @@ checkbox.calendar-displayed:focus > .checkbox-check {
 }
 
 #calendar-list > richlistitem > .calendar-readstatus {
+  width: 16px;
+  height: 16px;
   margin: 0 2px;
   -moz-context-properties: fill;
   fill: currentColor;
@@ -282,9 +287,9 @@ checkbox.calendar-displayed:focus > .checkbox-check {
 }
 
 #calendar-list > richlistitem[calendar-readonly] > .calendar-readstatus {
-  list-style-image: url(chrome://calendar/skin/shared/icons/locked.svg);
+  background-image: url(chrome://calendar/skin/shared/icons/locked.svg);
 }
 
 #calendar-list > richlistitem[calendar-readfailed] > .calendar-readstatus {
-  list-style-image: url(chrome://calendar/skin/shared/icons/warn.svg);
+  background-image: url(chrome://calendar/skin/shared/icons/warn.svg);
 }

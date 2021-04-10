@@ -123,6 +123,13 @@ html|textarea:focus {
   outline: none;
 }
 
+@media (-moz-proton) {
+html|input:focus,
+html|textarea:focus {
+  outline: 1px solid var(--highlight-color);
+}
+} /** END Proton **/
+
 :root[lwt-tree-brighttext] html|input::selection,
 :root[lwt-tree-brighttext] html|textarea::selection,
 :root[lwt-default-theme-in-dark-mode] html|input::selection,
@@ -205,6 +212,7 @@ html|input[type="color"] {
   margin-inline-end: 0;
 }
 
+@media not (-moz-proton) {
 button:-moz-focusring,
 menulist:-moz-focusring,
 #resetColor:-moz-focusring,
@@ -212,6 +220,14 @@ html|input[type="color"]:focus {
   border-color: var(--highlight-color);
   outline: none;
 }
+} /** END not Proton **/
+
+@media (-moz-proton) {
+button:-moz-focusring {
+  outline: 2px solid var(--focus-outline-color, -moz-accent-color);
+  outline-offset: var(--focus-outline-offset, -1px);
+}
+} /** END Proton **/
 
 button:not([disabled="true"]):hover,
 menulist:not([disabled="true"],[open="true"]):hover,
@@ -290,15 +306,29 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   background-color: var(--field-background-color);
   color: var(--field-text-color);
   border: 1px solid var(--field-border-color);
+  border-start-start-radius: 3px;
+  border-end-start-radius: 3px;
   border-start-end-radius: 0;
   border-end-end-radius: 0;
+}
+
+@media not (-moz-proton) {
+menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   margin-block: -1px;
-  margin-inline: -1px 4px;
+  margin-inline: -px 4px;
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
   border-color: var(--highlight-color);
 }
+} /** END not Proton **/
+
+@media (-moz-proton) {
+menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
+  border-color: var(--focus-outline-color, -moz-accent-color);
+  outline: 1px solid var(--focus-outline-color, -moz-accent-color);
+}
+} /** END Proton **/
 
 menulist menupopup,
 button[type="menu-button"] menupopup,

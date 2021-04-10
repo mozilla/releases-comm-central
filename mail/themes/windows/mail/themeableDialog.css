@@ -31,6 +31,13 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
   padding: 2px 4px;
 }
 
+@media (-moz-proton) {
+menulist[is="menulist-editable"][editable="true"]::part(text-input) {
+  margin-block: -1px -2px;
+  margin-inline: -6px 4px;
+}
+} /** END Proton **/
+
 @media not (-moz-proton-contextmenus) {
 menulist menupopup menu,
 menulist menupopup menuitem,

@@ -318,11 +318,25 @@ separator.groove:not([orient="vertical"]) {
   border-bottom-width: 0;
 }
 
+tab:not([selected="true"]):hover {
+  border-bottom-color: transparent;
+}
+
+@media not (-moz-proton) {
 tab:-moz-focusring {
   outline: var(--in-content-category-outline-focus);
 }
+} /** END not Proton **/
 
 tab:-moz-focusring > .tab-middle {
+  outline: none;
+}
+
+tab:focus-visible {
+  background-color: var(--in-content-button-background);
+}
+
+tab:focus-visible > .tab-middle > .tab-text {
   outline: none;
 }
 

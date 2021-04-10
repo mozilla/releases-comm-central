@@ -766,7 +766,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   appearance: none;
   -moz-box-align: center;
   font: inherit;
-  margin-inline-end: 10px;
+  margin-inline: 4px 10px;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
   background-color: transparent;
@@ -791,7 +791,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 #msgIdentity.addressingWidget-separator::after {
   display: block;
   content: '';
-  width: 32px;
+  width: 1px;
   border-inline-end: 1px solid var(--toolbarbutton-hover-bordercolor);
   height: 14px;
 }

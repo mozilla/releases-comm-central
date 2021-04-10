@@ -172,7 +172,7 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
 }
 
 #msgIdentity.addressingWidget-separator::after {
-  margin-inline-end: -32px;
+  margin-inline-end: -18px;
 }
 
 #msgIdentity[open="true"] {
