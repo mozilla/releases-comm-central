@@ -5,7 +5,12 @@
 
 XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.ini"]
 
+DIRS += [
+    "lib",
+]
+
 EXTRA_JS_MODULES += [
+    "sax.jsm",
     "xmpp-authmechs.jsm",
     "xmpp-base.jsm",
     "xmpp-commands.jsm",

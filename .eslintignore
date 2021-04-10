@@ -36,6 +36,7 @@ calendar/base/modules/Ical.jsm
 chat/chat-prefs.js
 # third-party code
 chat/protocols/matrix/lib/**
+chat/protocols/xmpp/lib/**
 # preprocessed files
 chat/content/imtooltip.xml
 

@@ -4,6 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["Stanza", "XMPPParser", "SupportedFeatures"];
 
+var { SAX } = ChromeUtils.import("resource:///modules/sax.jsm");
+
 var NS = {
   xml: "http://www.w3.org/XML/1998/namespace",
   xhtml: "http://www.w3.org/1999/xhtml",
@@ -195,7 +197,7 @@ TextNode.prototype = {
 /* https://www.w3.org/TR/2008/REC-xml-20081126 */
 /* aUri is the namespace. */
 /* aLocalName must have value, otherwise throws. */
-/* aAttr can be instance of nsISAXAttributes or object */
+/* aAttr is an object */
 /* Example: <f:a xmlns:f='g' d='1'> is parsed to
    uri/namespace='g', localName='a', qName='f:a', attributes={d='1'} */
 function XMLNode(
@@ -216,16 +218,10 @@ function XMLNode(
   this.attributes = {};
   this.children = [];
 
-  if (aAttr instanceof Ci.nsISAXAttributes) {
-    for (let i = 0; i < aAttr.length; ++i) {
-      this.attributes[aAttr.getQName(i)] = aAttr.getValue(i);
-    }
-  } else {
-    for (let attributeName in aAttr) {
-      // Each attribute specification has a name and a value.
-      if (aAttr[attributeName]) {
-        this.attributes[attributeName] = aAttr[attributeName];
-      }
+  for (let attributeName in aAttr) {
+    // Each attribute specification has a name and a value.
+    if (aAttr[attributeName]) {
+      this.attributes[attributeName] = aAttr[attributeName];
     }
   }
 }
@@ -351,62 +347,63 @@ XMLNode.prototype = {
 };
 
 function XMPPParser(aListener) {
-  this._parser = Cc["@mozilla.org/saxparser/xmlreader;1"].createInstance(
-    Ci.nsISAXXMLReader
-  );
-  this._parser.contentHandler = this;
-  this._parser.errorHandler = this;
-  this._parser.parseAsync(null);
   this._listener = aListener;
-  this._parser.onStartRequest(this._dummyRequest);
+
+  // We only get tagName from onclosetag callback, but we need more, so save the
+  // opening tags.
+  let tagStack = [];
+  this._parser = SAX.parser(true, { xmlns: true, lowercase: true });
+  this._parser.onopentag = node => {
+    if (this._parser.error) {
+      // sax-js doesn't stop on error, but we want to.
+      return;
+    }
+    let attrs = {};
+    for (let [name, attr] of Object.entries(node.attributes)) {
+      if (name == "xmlns") {
+        continue;
+      }
+      attrs[name] = attr.value;
+    }
+    this.startElement(node.uri, node.local, node.name, attrs);
+    tagStack.push(node);
+  };
+  this._parser.onclosetag = tagName => {
+    if (this._parser.error) {
+      return;
+    }
+    let node = tagStack.pop();
+    if (tagName == node.name) {
+      this.endElement(node.uri, node.local, node.name);
+    } else {
+      this.error(`Unexpected </${tagName}>, expecting </${node.name}>`);
+    }
+  };
+  this._parser.ontext = t => {
+    if (this._parser.error) {
+      return;
+    }
+    this.characters(t);
+  };
+  this._parser.onerror = this.error;
 }
 XMPPParser.prototype = {
   _destroyPending: false,
   destroy() {
-    // Avoid reference cycles
-    this._parser.contentHandler = null;
     delete this._listener;
-    // Calling onStopRequest while we are in an onDataAvailable
-    // callback crashes, don't do it.
-    if (this._inOnDataAvailable) {
-      this._destroyPending = true;
-      return;
-    }
-    this._parser.onStopRequest(this._dummyRequest, Cr.NS_OK);
-    // Stopping the request causes parse errors (because we parsed
-    // only partial XML documents?), so the error handler is still
-    // needed to avoid the errors being reported to the error console.
-    this._parser.errorHandler = null;
+
+    try {
+      this._parser.close();
+    } catch (e) {}
     delete this._parser;
-  },
-  _dummyRequest: {
-    cancel() {},
-    isPending() {},
-    resume() {},
-    suspend() {},
   },
 
   _logReceivedData(aData) {
     this._listener.LOG("received:\n" + aData);
   },
-  _inOnDataAvailable: false,
-  onDataAvailable(aInputStream, aOffset, aCount) {
-    this._inOnDataAvailable = true;
-    this._parser.onDataAvailable(
-      this._dummyRequest,
-      aInputStream,
-      aOffset,
-      aCount
-    );
-    delete this._inOnDataAvailable;
-    if (this._destroyPending) {
-      this.destroy();
-    }
+  onDataAvailable(data) {
+    this._parser.write(data);
   },
-
-  /* nsISAXContentHandler implementation */
-  startDocument() {},
-  endDocument() {},
 
   startElement(aUri, aLocalName, aQName, aAttributes) {
     if (aQName == "stream:stream") {
@@ -492,27 +489,9 @@ XMPPParser.prototype = {
     this._node = this._node._parentNode;
   },
 
-  processingInstruction(aTarget, aData) {},
-
-  /* nsISAXErrorHandler implementation */
   error(aError) {
     if (this._listener) {
       this._listener.onXMLError("parse-error", aError);
     }
   },
-  fatalError(aError) {
-    if (this._listener) {
-      this._listener.onXMLError("parse-fatal-error", aError);
-    }
-  },
-  ignorableWarning(aError) {
-    if (this._listener) {
-      this._listener.onXMLError("parse-warning", aError);
-    }
-  },
-
-  QueryInterface: ChromeUtils.generateQI([
-    "nsISAXContentHandler",
-    "nsISAXErrorHandler",
-  ]),
 };

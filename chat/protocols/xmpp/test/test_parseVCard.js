@@ -24,11 +24,7 @@ function _test_vcard(aInput, aExpectedResult) {
     },
   };
   let parser = new XMPPParser(listener);
-  let istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
-    Ci.nsIStringInputStream
-  );
-  istream.setData(aInput, aInput.length);
-  parser.onDataAvailable(istream, 0, aInput.length);
+  parser.onDataAvailable(aInput);
   parser.destroy();
 }
 

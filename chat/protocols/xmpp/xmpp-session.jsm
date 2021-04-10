@@ -351,13 +351,9 @@ XMPPSession.prototype = {
   /* When incoming data is available to be parsed */
   onDataReceived(aData) {
     this.checkPingTimer();
-    let istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
-      Ci.nsIStringInputStream
-    );
-    istream.setData(aData, aData.length);
     this._lastReceivedData = aData;
     try {
-      this._parser.onDataAvailable(istream, 0, aData.length);
+      this._parser.onDataAvailable(aData);
     } catch (e) {
       Cu.reportError(e);
       this.onXMLError("parser-exception", e);

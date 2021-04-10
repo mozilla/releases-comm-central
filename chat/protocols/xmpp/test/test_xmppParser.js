@@ -99,11 +99,7 @@ function testXMPPParser() {
       },
     };
     let parser = new XMPPParser(listener);
-    let istream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
-      Ci.nsIStringInputStream
-    );
-    istream.setData(current.input, current.input.length);
-    parser.onDataAvailable(istream, 0, current.input.length);
+    parser.onDataAvailable(current.input);
     parser.destroy();
   }
 
