@@ -1,3 +1,4 @@
+/* This program is made available under an ISC-style license. */
 (function(sax) {
   // wrapper for non-node envs
   sax.parser = function(strict, opt) {
