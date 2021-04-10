@@ -29,7 +29,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailAttachment: "chrome://openpgp/content/modules/attachment.jsm",
   EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
   EnigmailAutocrypt: "chrome://openpgp/content/modules/autocrypt.jsm",
-  EnigmailConfigure: "chrome://openpgp/content/modules/configure.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
@@ -234,10 +233,6 @@ Enigmail.msg = {
     };
 
     top.controllers.appendController(this.treeController);
-
-    if (EnigmailPrefs.getPref("configuredVersion") === "") {
-      EnigmailConfigure.configureEnigmail(window, false);
-    }
 
     EnigmailMsgRead.ensureExtraAddonHeaders();
     gMessageListeners.push(Enigmail.msg.messageListener);

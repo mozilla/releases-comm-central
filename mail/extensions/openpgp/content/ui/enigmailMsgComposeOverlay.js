@@ -175,40 +175,6 @@ Enigmail.msg = {
       true
     );
 
-    // Relabel SMIME button and menu item
-    //var smimeButton = document.getElementById("button-security");
-    //let toolbar = document.getElementById("composeToolbar2");
-
-    /*
-    if (smimeButton) {
-      smimeButton.setAttribute("label", "S/MIME");
-      if (toolbar && toolbar.getAttribute("currentset").length === 0) {
-        // remove S/MIME button if the toolbar is displaying the default set
-        toolbar.removeChild(smimeButton);
-      }
-    }
-    */
-
-    /*
-    let numCerts = EnigmailFuncs.getNumOfX509Certs();
-    this.addrOnChangeTimeout = Math.max((numCerts - 250) * 2, 250);
-    EnigmailLog.DEBUG(`enigmailMsgComposeOverlay.js: composeStartup: numCerts=${numCerts}; setting timeout to ${this.addrOnChangeTimeout}\n`);
-    */
-
-    // TODO implement migration code for old prefs, possibly in configure.jsm
-    // Use a new pref identityEnigmailPrefsMigrated, default false.
-    // Only if we're doing this for the first time for an identity,
-    // try to read old prefs and if found, store as new prefs,
-    // then set identityEnigmailPrefsMigrated=true
-    // Enigmail account prefs that need to be handled:
-    // - defaultEncryptionPolicy
-    // - autoSendEncrypted
-    // - defaultSigningPolicy
-    // possible values to check:
-    // - Enigmail.msg.wasEnigmailAddOnInstalled()
-    // - Enigmail.msg.wasEnigmailEnabledForIdentity
-    // - this.identity.getIntAttribute("mimePreferOpenPGP") > 0
-
     Enigmail.msg.composeOpen();
     //Enigmail.msg.processFinalState();
   },

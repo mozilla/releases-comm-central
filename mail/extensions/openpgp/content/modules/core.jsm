@@ -22,7 +22,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailMimeEncrypt: "chrome://openpgp/content/modules/mimeEncrypt.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
-  EnigmailConfigure: "chrome://openpgp/content/modules/configure.jsm",
   EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
   EnigmailPgpmimeHander: "chrome://openpgp/content/modules/pgpmimeHandler.jsm",
   EnigmailProtocolHandler:
@@ -372,12 +371,6 @@ Enigmail.prototype = {
       EnigmailApp.initAddon();
       EnigmailCore.init(EnigmailApp.getVersion());
       this.initialize(win, EnigmailApp.getVersion());
-
-      const configuredVersion = EnigmailPrefs.getPref("configuredVersion");
-
-      if (this.initialized && configuredVersion !== "") {
-        EnigmailConfigure.configureEnigmail(win, startingPreferences);
-      }
     }
     await EnigmailCore.startup(0);
     EnigmailPgpmimeHander.startup(0);
