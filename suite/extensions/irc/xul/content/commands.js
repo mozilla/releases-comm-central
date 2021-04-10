@@ -1391,7 +1391,7 @@ function cmdSSLServer(e)
         e.hostname = ary[1];
     }
 
-    gotoIRCURL({scheme: "ircs", host: e.hostname, port: e.port || 9999,
+    gotoIRCURL({scheme: "ircs", host: e.hostname, port: e.port || 6697,
                 pass: e.password, isserver: true});
 }
 

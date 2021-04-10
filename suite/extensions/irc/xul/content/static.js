@@ -1823,7 +1823,7 @@ var testIRCURLObjects = [
     [{host: "irc.undernet.org", port: 1},         "irc://irc.undernet.org:1/"],
     [{host: "irc.undernet.org", port: 1, scheme: "ircs"},
                                                  "ircs://irc.undernet.org:1/"],
-    [{host: "irc.undernet.org", port: 9999, scheme: "ircs"},
+    [{host: "irc.undernet.org", port: 6697, scheme: "ircs"},
                                                    "ircs://irc.undernet.org/"],
     [{host: "undernet", needpass: true},           "irc://undernet/,needpass"],
     [{host: "undernet", pass: "cz"},                "irc://undernet/?pass=cz"],

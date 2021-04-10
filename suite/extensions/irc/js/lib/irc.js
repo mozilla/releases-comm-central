@@ -3595,7 +3595,7 @@ function parseIRCURL(url)
     rv.scheme = url.split(":")[0];
     rv.host = null;
     rv.target = "";
-    rv.port = (rv.scheme == "ircs" ? 9999 : 6667);
+    rv.port = (rv.scheme == "ircs" ? 6697 : 6667);
     rv.msg = "";
     rv.pass = null;
     rv.key = null;
@@ -3772,7 +3772,7 @@ function constructIRCURL(obj)
     var url = scheme + "://" + obj.host;
 
     // Add port if non-standard:
-    if (("port" in obj) && (((scheme == "ircs") && (obj.port != 9999)) ||
+    if (("port" in obj) && (((scheme == "ircs") && (obj.port != 6697)) ||
                             ((scheme == "irc")  && (obj.port != 6667))))
     {
         url += ":" + obj.port;

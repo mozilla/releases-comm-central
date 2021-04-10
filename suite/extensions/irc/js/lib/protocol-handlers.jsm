@@ -79,7 +79,7 @@ IRCProtocolHandler.prototype =
 
     newURI(spec, charset, baseURI)
     {
-        const port = this.isSecure ? 9999 : 6667;
+        const port = this.isSecure ? 6697 : 6667;
 
         if (!Cc.hasOwnProperty("@mozilla.org/network/standard-url-mutator;1")) {
             const cls = Cc[STANDARDURL_CONTRACTID];
@@ -136,7 +136,7 @@ this.IRCSProtocolHandlerFactory =
 
         const protHandler = new IRCProtocolHandler(true);
         protHandler.scheme = "ircs";
-        protHandler.defaultPort = 9999;
+        protHandler.defaultPort = 6697;
         return protHandler;
     },
 };
