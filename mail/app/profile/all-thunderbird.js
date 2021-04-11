@@ -254,6 +254,9 @@ pref("browser.preferences.search", true);
 // for everyone.
 pref("browser.urlbar.keepPanelOpenDuringImeComposition", false);
 
+// Disable proton theming for now.
+pref("browser.proton.enabled", false);
+
 pref("accessibility.typeaheadfind", false);
 pref("accessibility.typeaheadfind.timeout", 5000);
 pref("accessibility.typeaheadfind.linksonly", false);
