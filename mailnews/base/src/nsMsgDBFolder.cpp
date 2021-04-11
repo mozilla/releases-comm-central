@@ -1697,7 +1697,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow* aWindow) {
       int32_t purgeThreshold;
       rv = GetPurgeThreshold(&purgeThreshold);
       NS_ENSURE_SUCCESS(rv, rv);
-      if (totalExpungedBytes > (purgeThreshold * 1024)) {
+      if (totalExpungedBytes > ((int64_t)purgeThreshold * 1024)) {
         bool okToCompact = false;
         nsCOMPtr<nsIPrefService> pref =
             do_GetService(NS_PREFSERVICE_CONTRACTID);
