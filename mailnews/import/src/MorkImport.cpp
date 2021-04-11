@@ -310,9 +310,7 @@ nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
     }
   }
 
-  database.CloseMDB(false);
   database.ForceClosed();
-
   return NS_OK;
 }
 
