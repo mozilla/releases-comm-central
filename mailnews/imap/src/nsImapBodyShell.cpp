@@ -566,8 +566,7 @@ bool nsIMAPBodypartLeaf::ShouldFetchInline(nsImapBodyShell* aShell) {
 
       // This is a child of a multipart/appledouble attachment,
       // and that multipart/appledouble attachment is being generated
-      if (m_parentPart &&
-          !PL_strcasecmp(m_parentPart->GetBodySubType(), "appledouble") &&
+      if (!PL_strcasecmp(m_parentPart->GetBodySubType(), "appledouble") &&
           !PL_strcmp(m_parentPart->GetPartNumberString(), generatingPart))
         return true;  // we're downloading it inline
     }
