@@ -11,10 +11,12 @@ function initNetworks()
         displayName:  "freenode",
         isupportsKey: "",
         servers: [{hostname: "chat.freenode.net", port:6667},
+                  {hostname: "chat.freenode.net", port:6697, isSecure: true},
                   {hostname: "chat.freenode.net", port:7000, isSecure: true},
                   // XXX irc.freenode.net is only here until we can link servers
                   // to networks without them being in the network's server list
                   {hostname: "irc.freenode.net", port:6667},
+                  {hostname: "irc.freenode.net", port:6697, isSecure: true},
                   {hostname: "irc.freenode.net", port:7000, isSecure: true}]};
    networks["slashnet"] = {
         displayName:  "slashnet",
@@ -23,11 +25,17 @@ function initNetworks()
     networks["dalnet"] = {
         displayName:  "dalnet",
         isupportsKey: "",
-        servers: [{hostname: "irc.dal.net", port:6667}]};
+        servers: [{hostname: "irc.dal.net", port:6667},
+                  {hostname: "irc.dal.net", port:6697, isSecure: true},
+                  {hostname: "irc.au.dal.net", port:6667},
+                  {hostname: "irc.eu.dal.net", port:6667},
+                  {hostname: "irc.us.dal.net", port:6667}]};
     networks["undernet"] = {
         displayName:  "undernet",
         isupportsKey: "",
-        servers: [{hostname: "irc.undernet.org", port:6667}]};
+        servers: [{hostname: "irc.undernet.org", port:6667},
+                  {hostname: "eu.undernet.org", port:6667},
+                  {hostname: "us.undernet.org", port:6667}]};
     networks["webbnet"] = {
         displayName:  "webbnet",
         isupportsKey: "",
@@ -35,28 +43,25 @@ function initNetworks()
     networks["quakenet"] = {
         displayName:  "quakenet",
         isupportsKey: "",
-        servers: [{hostname: "irc.quakenet.org", port:6667}]};
+        servers: [{hostname: "irc.quakenet.org", port:6667},
+                  {hostname: "se.quakenet.org", port:6667},
+                  {hostname: "uk.quakenet.org", port:6667},
+                  {hostname: "us.quakenet.org", port:6667}]};
     networks["ircnet"] = {
         displayName:  "ircnet",
         isupportsKey: "",
-        servers: [{hostname: "ircnet.eversible.com", port:6667}]};
-    networks["serenia"] = {
-        displayName:  "serenia",
-        isupportsKey: "",
-        servers: [{hostname: "chat.serenia.net", port:9999, isSecure: true}]};
+        servers: [{hostname: "open.ircnet.net", port:6667},
+                  {hostname: "au.ircnet.org", port:6667},
+                  {hostname: "eu.ircnet.org", port:6667},
+                  {hostname: "us.ircnet.org", port:6667}]};
     networks["efnet"] = {
         displayName:  "efnet",
         isupportsKey: "",
-        servers: [{hostname: "irc.prison.net", port: 6667},
-                  {hostname: "irc.magic.ca", port: 6667}]};
+        servers: [{hostname: "irc.efnet.org", port: 6667}]};
     networks["hispano"] = {
         displayName:  "hispano",
         isupportsKey: "",
         servers: [{hostname: "irc.irc-hispano.org", port: 6667}]};
-    networks["solidirc"] = {
-        displayName:  "solidirc",
-        isupportsKey: "",
-        servers: [{hostname: "irc.solidirc.com", port: 6667}]};
 
     for (var name in networks)
         networks[name].name = name;
