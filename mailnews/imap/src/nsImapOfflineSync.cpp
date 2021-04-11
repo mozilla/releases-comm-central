@@ -204,7 +204,6 @@ void nsImapOfflineSync::ProcessFlagOperation(nsIMsgOfflineImapOperation* op) {
 
   imapMessageFlagsType matchingFlags;
   currentOp->GetNewFlags(&matchingFlags);
-  imapMessageFlagsType flagOperation;
   bool flagsMatch = true;
   do {  // loop for all messages with the same flags
     if (flagsMatch) {
@@ -216,6 +215,7 @@ void nsImapOfflineSync::ProcessFlagOperation(nsIMsgOfflineImapOperation* op) {
     }
     currentOp = nullptr;
     imapMessageFlagsType newFlags = kNoImapMsgFlag;
+    imapMessageFlagsType flagOperation = kNoImapMsgFlag;
     if (++currentKeyIndex < m_CurrentKeys.Length())
       m_currentDB->GetOfflineOpForKey(m_CurrentKeys[currentKeyIndex], false,
                                       getter_AddRefs(currentOp));
