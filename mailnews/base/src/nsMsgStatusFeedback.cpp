@@ -27,7 +27,7 @@
 #define MSGFEEDBACK_TIMER_INTERVAL 500
 
 nsMsgStatusFeedback::nsMsgStatusFeedback()
-    : m_lastPercent(0), m_lastProgressTime(0) {
+    : m_meteorsSpinning(false), m_lastPercent(0), m_lastProgressTime(0) {
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
 
