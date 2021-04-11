@@ -26,7 +26,8 @@
 
 NS_IMPL_ISUPPORTS(nsMsgAccount, nsIMsgAccount)
 
-nsMsgAccount::nsMsgAccount() : mTriedToGetServer(false) {}
+nsMsgAccount::nsMsgAccount()
+    : m_identitiesValid(false), mTriedToGetServer(false) {}
 
 nsMsgAccount::~nsMsgAccount() {}
 
