@@ -8,8 +8,6 @@
  * Tests against cards in different ABs are done in test_collection_2.js.
  */
 
-// make xpcshell-tests TEST_PATH=mailnews/addrbook/test/unit/test_collection.js
-
 var nsIAbPMF = Ci.nsIAbPreferMailFormat;
 
 // Source fields (emailHeader/mailFormat) and expected results for use for

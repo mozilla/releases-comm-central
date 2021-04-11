@@ -10,8 +10,6 @@
  * - getAttachmentKeywords function.
  */
 
-// make xpcshell-tests TEST_PATH=mail/base/test/unit/test_attachmentChecker.js
-
 // Globals
 
 var { AttachmentChecker } = ChromeUtils.import(
