@@ -743,13 +743,10 @@ NS_IMETHODIMP nsMsgFilterList::ParseCondition(nsIMsgFilter* aFilter,
   nsresult err = NS_OK;
   const char* curPtr = aCondition;
   if (!strcmp(aCondition, "ALL")) {
-    nsMsgSearchTerm* newTerm = new nsMsgSearchTerm;
-
-    if (newTerm) {
-      newTerm->m_matchAll = true;
-      aFilter->AppendTerm(newTerm);
-    }
-    return (newTerm) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+    RefPtr<nsMsgSearchTerm> newTerm = new nsMsgSearchTerm;
+    newTerm->m_matchAll = true;
+    aFilter->AppendTerm(newTerm);
+    return NS_OK;
   }
 
   while (!done) {
@@ -790,21 +787,18 @@ NS_IMETHODIMP nsMsgFilterList::ParseCondition(nsIMsgFilter* aFilter,
     } else
       break;
     if (termDup) {
-      nsMsgSearchTerm* newTerm = new nsMsgSearchTerm;
-
-      if (newTerm) {
-        /* Invert nsMsgSearchTerm::EscapeQuotesInStr() */
-        for (char *to = termDup, *from = termDup;;) {
-          if (*from == '\\' && from[1] == '"') from++;
-          if (!(*to++ = *from++)) break;
-        }
-        newTerm->m_booleanOp = (ANDTerm) ? nsMsgSearchBooleanOp::BooleanAND
-                                         : nsMsgSearchBooleanOp::BooleanOR;
-
-        err = newTerm->DeStreamNew(termDup, PL_strlen(termDup));
-        NS_ENSURE_SUCCESS(err, err);
-        aFilter->AppendTerm(newTerm);
+      RefPtr<nsMsgSearchTerm> newTerm = new nsMsgSearchTerm;
+      // Invert nsMsgSearchTerm::EscapeQuotesInStr()
+      for (char *to = termDup, *from = termDup;;) {
+        if (*from == '\\' && from[1] == '"') from++;
+        if (!(*to++ = *from++)) break;
       }
+      newTerm->m_booleanOp = (ANDTerm) ? nsMsgSearchBooleanOp::BooleanAND
+                                       : nsMsgSearchBooleanOp::BooleanOR;
+
+      err = newTerm->DeStreamNew(termDup, PL_strlen(termDup));
+      NS_ENSURE_SUCCESS(err, err);
+      aFilter->AppendTerm(newTerm);
       PR_FREEIF(termDup);
     } else
       break;
