@@ -288,6 +288,7 @@ NS_IMETHODIMP nsMessenger::SetDisplayCharset(const nsACString& aCharset) {
 NS_IMPL_ISUPPORTS(nsMessenger::nsFilePickerShownCallback,
                   nsIFilePickerShownCallback)
 nsMessenger::nsFilePickerShownCallback::nsFilePickerShownCallback() {
+  mResult = nsIFilePicker::returnOK;
   mPickerDone = false;
 }
 
