@@ -245,7 +245,10 @@ nsMsgMailboxParser::nsMsgMailboxParser() : nsMsgLineBuffer(nullptr, false) {
 }
 
 nsMsgMailboxParser::nsMsgMailboxParser(nsIMsgFolder* aFolder)
-    : nsMsgLineBuffer(nullptr, false) {
+    : nsMsgLineBuffer(nullptr, false),
+      m_parsingDone(false),
+      m_startTime(0),
+      m_urlInProgress(false) {
   m_folder = do_GetWeakReference(aFolder);
 }
 
