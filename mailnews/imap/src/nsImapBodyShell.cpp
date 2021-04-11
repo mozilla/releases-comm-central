@@ -49,7 +49,7 @@ nsImapBodyShell::nsImapBodyShell(nsImapProtocol* protocolConnection,
   m_cached = false;
   m_gotAttachmentPref = false;
   m_generatingWholeMessage = false;
-  m_generatingPart = NULL;
+  m_generatingPart = nullptr;
   m_protocolConnection = protocolConnection;
   m_message = message;
   NS_ASSERTION(m_protocolConnection, "non null connection");
@@ -58,12 +58,9 @@ nsImapBodyShell::nsImapBodyShell(nsImapProtocol* protocolConnection,
   m_UID.AppendInt(UID);
   m_UID_validity = m_UID;
   m_UID_validity.AppendInt(UIDValidity);
-#ifdef DEBUG_chrisf
-  NS_ASSERTION(folderName);
-#endif
-  if (!folderName) return;
-  m_folderName = NS_xstrdup(folderName);
-  if (!m_folderName) return;
+  m_folderName = folderName ? NS_xstrdup(folderName) : nullptr;
+  m_showAttachmentsInline = false;
+  m_contentModified = IMAP_ContentModifiedType::IMAP_CONTENT_NOT_MODIFIED;
 
   SetContentModified(GetShowAttachmentsInline()
                          ? IMAP_CONTENT_MODIFIED_VIEW_INLINE
