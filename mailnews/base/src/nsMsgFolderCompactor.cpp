@@ -901,7 +901,7 @@ nsFolderCompactState::OnDataAvailable(nsIRequest* request,
   return rv;
 }
 
-nsOfflineStoreCompactState::nsOfflineStoreCompactState() {}
+nsOfflineStoreCompactState::nsOfflineStoreCompactState() : m_offlineMsgSize(0) {}
 
 nsOfflineStoreCompactState::~nsOfflineStoreCompactState() {}
 
