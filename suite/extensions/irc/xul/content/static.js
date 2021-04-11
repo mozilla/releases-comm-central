@@ -1889,18 +1889,26 @@ function gotoIRCURL(url, e)
         return;
     }
 
+    let isSecure = url.scheme == "ircs";
+    let network;
+
     // Convert a request for a server to a network if we know it.
     if (url.isserver)
     {
         for (var n in client.networks)
         {
-            for (var s in client.networks[n].servers)
+            network = client.networks[n];
+            for (var s in network.servers)
             {
-                if ((client.networks[n].servers[s].hostname == url.host) &&
-                    (client.networks[n].servers[s].port == url.port))
+                let server = network.servers[s];
+                if ((server.hostname == url.host) &&
+                    (server.isSecure == isSecure) &&
+                    (!url.port || (server.port == url.port)))
                 {
                     url.isserver = false;
                     url.host = n;
+                    if (!url.port)
+                      url.port = server.port;
                     break;
                 }
             }
@@ -1909,21 +1917,38 @@ function gotoIRCURL(url, e)
         }
     }
 
-    var network;
-
     if (url.isserver)
     {
         var name = url.host.toLowerCase();
-        if (url.port != 6667)
-            name += ":" + url.port;
-        // There is no temporary network for this server:port, make one up.
-        if (!(name in client.networks))
-        {
-            var server = {name: url.host, port: url.port,
-                          isSecure: url.scheme == "ircs"};
-            client.addNetwork(name, [server], true);
+        let found = false;
+        if (name in client.networks) {
+          network = client.networks[name];
+          for (let s in network.servers) {
+            let server = network.servers[s];
+            if ((server.isSecure == isSecure) &&
+                (!url.port || (server.port == url.port))) {
+              found = true;
+              if (!url.port)
+                url.port = server.port;
+              break;
+            }
+          }
         }
-        network = client.networks[name];
+
+        // If still no port set, use the default.
+        if (!url.port)
+          url.port = isSecure ? 6697 : 6667;
+
+        if (!found) {
+          name += ":" + url.port;
+
+          // If there is no temporary network for this server:port, create one.
+          if (!(name in client.networks)) {
+            let server = {name: url.host, port: url.port, isSecure: isSecure};
+            client.addNetwork(name, [server], true);
+          }
+          network = client.networks[name];
+        }
     }
     else
     {

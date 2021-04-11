@@ -147,7 +147,7 @@ function initCommands()
          ["set-current-view",  cmdSetCurrentView,                            0],
          ["stats",             cmdSimpleCommand,    CMD_NEED_SRV | CMD_CONSOLE],
          ["squery",            cmdSquery,           CMD_NEED_SRV | CMD_CONSOLE],
-         ["sslserver",         cmdSSLServer,                       CMD_CONSOLE],
+         ["sslserver",         cmdServer,                          CMD_CONSOLE],
          ["ssl-exception",     cmdSSLException,                              0],
          ["stalk",             cmdStalk,                           CMD_CONSOLE],
          ["supports",          cmdSupports,         CMD_NEED_SRV | CMD_CONSOLE],
@@ -1367,6 +1367,8 @@ function cmdNetworks(e)
 
 function cmdServer(e)
 {
+    let scheme = (e.command.name == "sslserver") ? "ircs" : "irc";
+
     var ary = e.hostname.match(/^(.*):(\d+)$/);
     if (ary)
     {
@@ -1376,22 +1378,7 @@ function cmdServer(e)
         e.hostname = ary[1];
     }
 
-    gotoIRCURL({scheme: "irc", host: e.hostname, port: e.port || 6667,
-                pass: e.password, isserver: true});
-}
-
-function cmdSSLServer(e)
-{
-    var ary = e.hostname.match(/^(.*):(\d+)$/);
-    if (ary)
-    {
-        // Foolish user obviously hasn't read the instructions, but we're nice.
-        e.password = e.port;
-        e.port = ary[2];
-        e.hostname = ary[1];
-    }
-
-    gotoIRCURL({scheme: "ircs", host: e.hostname, port: e.port || 6697,
+    gotoIRCURL({scheme: scheme, host: e.hostname, port: e.port,
                 pass: e.password, isserver: true});
 }
 
