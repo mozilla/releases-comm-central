@@ -286,6 +286,7 @@ SignedStatusRunnable::SignedStatusRunnable(
     int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert* aSignerCert,
     const nsCString& aMsgNeckoURL)
     : mozilla::Runnable("SignedStatusRunnable"),
+      mResult(NS_ERROR_UNEXPECTED),
       m_sink(aSink),
       m_nestingLevel(aNestingLevel),
       m_signatureStatus(aSignatureStatus),
