@@ -1558,219 +1558,219 @@ function DoSpellCheckBeforeSend()
   return Services.prefs.getBoolPref("mail.SpellCheckBeforeSend");
 }
 
-function GenericSendMessage( msgType )
-{
-  if (gMsgCompose != null)
-  {
-    var msgCompFields = gMsgCompose.compFields;
-    if (msgCompFields)
-    {
-      Recipients2CompFields(msgCompFields);
-      var address = GetMsgIdentityElement().value;
-      address = MailServices.headerParser.makeFromDisplayAddress(address);
-      msgCompFields.from = MailServices.headerParser.makeMimeHeader([address[0]]);
-      var subject = GetMsgSubjectElement().value;
-      msgCompFields.subject = subject;
-      Attachments2CompFields(msgCompFields);
+/**
+ * Handles message sending operations.
+ * @param msgType nsIMsgCompDeliverMode of the operation.
+ */
+function GenericSendMessage(msgType) {
+  var msgCompFields = gMsgCompose.compFields;
 
-      if (msgType == nsIMsgCompDeliverMode.Now ||
-          msgType == nsIMsgCompDeliverMode.Later ||
-          msgType == nsIMsgCompDeliverMode.Background)
-      {
-        //Do we need to check the spelling?
-        if (DoSpellCheckBeforeSend())
-        {
-          // We disable spellcheck for the following -subject line, attachment pane, identity and addressing widget
-          // therefore we need to explicitly focus on the mail body when we have to do a spellcheck.
-          SetMsgBodyFrameFocus();
-          window.cancelSendMessage = false;
-          try {
-            window.openDialog("chrome://editor/content/EdSpellCheck.xul", "_blank",
-                    "dialog,close,titlebar,modal,resizable", true, true, false);
-          }
-          catch(ex){}
-          if(window.cancelSendMessage)
-            return;
-        }
+  Recipients2CompFields(msgCompFields);
+  var address = GetMsgIdentityElement().value;
+  address = MailServices.headerParser.makeFromDisplayAddress(address);
+  msgCompFields.from = MailServices.headerParser.makeMimeHeader([address[0]]);
+  var subject = GetMsgSubjectElement().value;
+  msgCompFields.subject = subject;
+  Attachments2CompFields(msgCompFields);
 
-        // Check if we have a subject, else ask user for confirmation
-        if (subject == "")
-        {
-          var result = {value:sComposeMsgsBundle.getString("defaultSubject")};
-          if (Services.prompt.prompt(window,
-                  sComposeMsgsBundle.getString("sendMsgTitle"),
-                  sComposeMsgsBundle.getString("subjectDlogMessage"),
-                  result, null, {value:0}))
-          {
-            msgCompFields.subject = result.value;
-            var subjectInputElem = GetMsgSubjectElement();
-            subjectInputElem.value = result.value;
-          }
-          else
-            return;
-        }
+  if (msgType == Ci.nsIMsgCompDeliverMode.Now ||
+      msgType == Ci.nsIMsgCompDeliverMode.Later ||
+      msgType == Ci.nsIMsgCompDeliverMode.Background) {
+    //Do we need to check the spelling?
+    if (DoSpellCheckBeforeSend()) {
+      // We disable spellcheck for the following -subject line, attachment
+      // pane, identity and addressing widget therefore we need to explicitly
+      // focus on the mail body when we have to do a spellcheck.
+      SetMsgBodyFrameFocus();
+      window.cancelSendMessage = false;
+      window.openDialog("chrome://editor/content/EdSpellCheck.xul", "_blank",
+                        "dialog,close,titlebar,modal,resizable",
+                        true, true, false);
+      if (window.cancelSendMessage)
+        return;
+    }
 
-        // check if the user tries to send a message to a newsgroup through a mail account
-        var currentAccountKey = getCurrentAccountKey();
-        var account = gAccountManager.getAccount(currentAccountKey);
-        if (!account)
-        {
-          throw "UNEXPECTED: currentAccountKey '" + currentAccountKey +
-              "' has no matching account!";
-        }
-        var servertype = account.incomingServer.type;
+    // Strip trailing spaces and long consecutive WSP sequences from the
+    // subject line to prevent getting only WSP chars on a folded line.
+    var fixedSubject = subject.replace(/\s{74,}/g, "    ")
+                              .replace(/\s*$/, "");
+    if (fixedSubject != subject) {
+      subject = fixedSubject;
+      msgCompFields.subject = fixedSubject;
+      GetMsgSubjectElement().value = fixedSubject;
+    }
 
-        if (servertype != "nntp" && msgCompFields.newsgroups != "")
-        {
-          const kDontAskAgainPref = "mail.compose.dontWarnMail2Newsgroup";
-          // default to ask user if the pref is not set
-          var dontAskAgain = Services.prefs.getBoolPref(kDontAskAgainPref);
-          if (!dontAskAgain)
-          {
-            var checkbox = {value:false};
-            var okToProceed = Services.prompt.confirmCheck(
-                                  window,
-                                  sComposeMsgsBundle.getString("sendMsgTitle"),
-                                  sComposeMsgsBundle.getString("recipientDlogMessage"),
-                                  sComposeMsgsBundle.getString("CheckMsg"),
-                                  checkbox);
+    // Remind the person if there isn't a subject.
+    if (subject == "") {
+      if (Services.prompt.confirmEx(
+            window,
+            sComposeMsgsBundle.getString("subjectEmptyTitle"),
+            sComposeMsgsBundle.getString("subjectEmptyMessage"),
+            (Services.prompt.BUTTON_TITLE_IS_STRING *
+               Services.prompt.BUTTON_POS_0) +
+            (Services.prompt.BUTTON_TITLE_IS_STRING *
+               Services.prompt.BUTTON_POS_1),
+            sComposeMsgsBundle.getString("sendWithEmptySubjectButton"),
+            sComposeMsgsBundle.getString("cancelSendingButton"),
+            null, null, {value:0}) == 1) {
+        GetMsgSubjectElement().focus();
+        return;
+      }
+    }
 
-            if (!okToProceed)
-              return;
-          }
-          if (checkbox.value)
-            Services.prefs.setBoolPref(kDontAskAgainPref, true);
+    // Check if the user tries to send a message to a newsgroup through a mail
+    // account.
+    var currentAccountKey = getCurrentAccountKey();
+    var account = gAccountManager.getAccount(currentAccountKey);
+    if (!account) {
+      throw "UNEXPECTED: currentAccountKey '" + currentAccountKey +
+          "' has no matching account!";
+    }
 
-          // remove newsgroups to prevent news_p to be set
-          // in nsMsgComposeAndSend::DeliverMessage()
-          msgCompFields.newsgroups = "";
-        }
+    if (account.incomingServer.type != "nntp" &&
+        msgCompFields.newsgroups != "") {
+      const kDontAskAgainPref = "mail.compose.dontWarnMail2Newsgroup";
+      // Default to ask user if the pref is not set.
+      var dontAskAgain = Services.prefs.getBoolPref(kDontAskAgainPref);
+      if (!dontAskAgain) {
+        var checkbox = {value:false};
+        var okToProceed = Services.prompt.confirmCheck(
+                              window,
+                              sComposeMsgsBundle.getString("sendMsgTitle"),
+                              sComposeMsgsBundle.getString("recipientDlogMessage"),
+                              sComposeMsgsBundle.getString("CheckMsg"),
+                              checkbox);
 
-        // Before sending the message, check what to do with HTML message, eventually abort.
-        var convert = DetermineConvertibility();
-        var action = DetermineHTMLAction(convert);
-        // check if e-mail addresses are complete, in case user
-        // has turned off autocomplete to local domain.
-        if (!CheckValidEmailAddress(msgCompFields.to, msgCompFields.cc, msgCompFields.bcc))
+        if (!okToProceed)
           return;
-
-        if (action == nsIMsgCompSendFormat.AskUser)
-        {
-          var recommAction = (convert == nsIMsgCompConvertible.No)
-                             ? nsIMsgCompSendFormat.AskUser
-                             : nsIMsgCompSendFormat.PlainText;
-          var result2 = {action:recommAction,
-                         convertible:convert,
-                         abort:false};
-          window.openDialog("chrome://messenger/content/messengercompose/askSendFormat.xul",
-                            "askSendFormatDialog", "chrome,modal,titlebar,centerscreen",
-                            result2);
-          if (result2.abort)
-            return;
-          action = result2.action;
-        }
-
-        // we will remember the users "send format" decision
-        // in the address collector code (see nsAbAddressCollector::CollectAddress())
-        // by using msgCompFields.forcePlainText and msgCompFields.useMultipartAlternative
-        // to determine the nsIAbPreferMailFormat (unknown, plaintext, or html)
-        // if the user sends both, we remember html.
-        switch (action)
-        {
-          case nsIMsgCompSendFormat.PlainText:
-            msgCompFields.forcePlainText = true;
-            msgCompFields.useMultipartAlternative = false;
-            break;
-          case nsIMsgCompSendFormat.HTML:
-            msgCompFields.forcePlainText = false;
-            msgCompFields.useMultipartAlternative = false;
-            break;
-          case nsIMsgCompSendFormat.Both:
-            msgCompFields.forcePlainText = false;
-            msgCompFields.useMultipartAlternative = true;
-            break;
-           default: dump("\###SendMessage Error: invalid action value\n"); return;
-        }
       }
+      if (checkbox.value)
+        Services.prefs.setBoolPref(kDontAskAgainPref, true);
 
-      // hook for extra compose pre-processing
-      Services.obs.notifyObservers(window, "mail:composeOnSend");
+      // Remove newsgroups to prevent news_p to be set
+      // in nsMsgComposeAndSend::DeliverMessage()
+      msgCompFields.newsgroups = "";
+    }
 
-      var originalCharset = gMsgCompose.compFields.characterSet;
-      // Check if the headers of composing mail can be converted to a mail charset.
-      if (msgType == nsIMsgCompDeliverMode.Now ||
-        msgType == nsIMsgCompDeliverMode.Later ||
-        msgType == nsIMsgCompDeliverMode.Background ||
-        msgType == nsIMsgCompDeliverMode.Save ||
-        msgType == nsIMsgCompDeliverMode.SaveAsDraft ||
-        msgType == nsIMsgCompDeliverMode.AutoSaveAsDraft ||
-        msgType == nsIMsgCompDeliverMode.SaveAsTemplate)
-      {
-        var fallbackCharset = new Object;
-        // Check encoding, switch to UTF-8 if the default encoding doesn't fit
-        // and disable_fallback_to_utf8 isn't set for this encoding.
-        if (!gMsgCompose.checkCharsetConversion(getCurrentIdentity(), fallbackCharset))
-        {
-          let disableFallback = Services.prefs
-            .getBoolPref("mailnews.disable_fallback_to_utf8." + originalCharset, false);
-          if (disableFallback)
-            msgCompFields.needToCheckCharset = false;
-          else
-            fallbackCharset.value = "UTF-8";
-        }
+    // Before sending the message, check what to do with HTML message,
+    // eventually abort.
+    var convert = DetermineConvertibility();
+    var action = DetermineHTMLAction(convert);
+    // Check if e-mail addresses are complete, in case user has turned off
+    // autocomplete to local domain.
+    if (!CheckValidEmailAddress(msgCompFields.to, msgCompFields.cc, msgCompFields.bcc))
+      return;
 
-        if (fallbackCharset &&
-            fallbackCharset.value && fallbackCharset.value != "")
-          gMsgCompose.SetDocumentCharset(fallbackCharset.value);
-      }
-      try {
-        // just before we try to send the message, fire off the compose-send-message event for listeners
-        // such as smime so they can do any pre-security work such as fetching certificates before sending
-        var event = document.createEvent('UIEvents');
-        event.initEvent('compose-send-message', false, true);
-        var msgcomposeWindow = document.getElementById("msgcomposeWindow");
-        msgcomposeWindow.setAttribute("msgtype", msgType);
-        msgcomposeWindow.dispatchEvent(event);
-        if (event.defaultPrevented)
-          throw Cr.NS_ERROR_ABORT;
+    if (action == Ci.nsIMsgCompSendFormat.AskUser) {
+      var recommAction = (convert == Ci.nsIMsgCompConvertible.No)
+                         ? Ci.nsIMsgCompSendFormat.AskUser
+                         : Ci.nsIMsgCompSendFormat.PlainText;
+      var result2 = {action:recommAction, convertible:convert, abort:false};
+      window.openDialog("chrome://messenger/content/messengercompose/askSendFormat.xul",
+                        "askSendFormatDialog", "chrome,modal,titlebar,centerscreen",
+                        result2);
+      if (result2.abort)
+        return;
+      action = result2.action;
+    }
 
-        gAutoSaving = msgType == nsIMsgCompDeliverMode.AutoSaveAsDraft;
-        // if we're auto saving, mark the body as not changed here, and not
-        // when the save is done, because the user might change it between now
-        // and when the save is done.
-        if (gAutoSaving)
-        {
-          SetContentAndBodyAsUnmodified();
-        }
-        else
-        {
-          // disable the ui if we're not auto-saving
-          gWindowLocked = true;
-          disableEditableFields();
-          updateComposeItems();
-        }
-        var progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(Ci.nsIMsgProgress);
-        if (progress)
-        {
-          progress.registerListener(progressListener);
-          gSendOrSaveOperationInProgress = true;
-        }
-        msgWindow.domWindow = window;
-        msgWindow.rootDocShell.allowAuth = true;
-        gMsgCompose.SendMsg(msgType, getCurrentIdentity(), currentAccountKey, msgWindow, progress);
-      }
-      catch (ex) {
-        dump("failed to SendMsg: " + ex + "\n");
-        gWindowLocked = false;
-        enableEditableFields();
-        updateComposeItems();
-      }
-      if (gMsgCompose && originalCharset != gMsgCompose.compFields.characterSet)
-        SetDocumentCharacterSet(gMsgCompose.compFields.characterSet);
+    // We will remember the users "send format" decision in the address
+    // collector code (see nsAbAddressCollector::CollectAddress())
+    // by using msgCompFields.forcePlainText and
+    // msgCompFields.useMultipartAlternative to determine the
+    // nsIAbPreferMailFormat (unknown, plaintext, or html).
+    // If the user sends both, we remember html.
+    switch (action) {
+      case Ci.nsIMsgCompSendFormat.PlainText:
+        msgCompFields.forcePlainText = true;
+        msgCompFields.useMultipartAlternative = false;
+        break;
+      case Ci.nsIMsgCompSendFormat.HTML:
+        msgCompFields.forcePlainText = false;
+        msgCompFields.useMultipartAlternative = false;
+        break;
+      case Ci.nsIMsgCompSendFormat.Both:
+        msgCompFields.forcePlainText = false;
+        msgCompFields.useMultipartAlternative = true;
+        break;
+       default:
+        throw new Error("Invalid nsIMsgCompSendFormat action; action=" + action);
     }
   }
-  else
-    dump("###SendMessage Error: composeAppCore is null!\n");
+
+  // Hook for extra compose pre-processing.
+  Services.obs.notifyObservers(window, "mail:composeOnSend");
+
+  var originalCharset = gMsgCompose.compFields.characterSet;
+  // Check if the headers of composing mail can be converted to a mail charset.
+  if (msgType == Ci.nsIMsgCompDeliverMode.Now ||
+      msgType == Ci.nsIMsgCompDeliverMode.Later ||
+      msgType == Ci.nsIMsgCompDeliverMode.Background ||
+      msgType == Ci.nsIMsgCompDeliverMode.Save ||
+      msgType == Ci.nsIMsgCompDeliverMode.SaveAsDraft ||
+      msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft ||
+      msgType == Ci.nsIMsgCompDeliverMode.SaveAsTemplate) {
+    var fallbackCharset = new Object;
+    // Check encoding, switch to UTF-8 if the default encoding doesn't fit
+    // and disable_fallback_to_utf8 isn't set for this encoding.
+    if (!gMsgCompose.checkCharsetConversion(getCurrentIdentity(),
+                                            fallbackCharset)) {
+      let disableFallback = Services.prefs
+        .getBoolPref("mailnews.disable_fallback_to_utf8." + originalCharset, false);
+      if (disableFallback)
+        msgCompFields.needToCheckCharset = false;
+      else
+        fallbackCharset.value = "UTF-8";
+    }
+
+    if (fallbackCharset &&
+        fallbackCharset.value && fallbackCharset.value != "")
+      gMsgCompose.SetDocumentCharset(fallbackCharset.value);
+  }
+  try {
+    // Just before we try to send the message, fire off the
+    // compose-send-message event for listeners such as smime so they can do
+    // any pre-security work such as fetching certificates before sending.
+    var event = document.createEvent('UIEvents');
+    event.initEvent('compose-send-message', false, true);
+    var msgcomposeWindow = document.getElementById("msgcomposeWindow");
+    msgcomposeWindow.setAttribute("msgtype", msgType);
+    msgcomposeWindow.dispatchEvent(event);
+    if (event.defaultPrevented)
+      throw Cr.NS_ERROR_ABORT;
+
+    gAutoSaving = (msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft);
+    if (!gAutoSaving) {
+      // Disable the ui if we're not auto-saving.
+      gWindowLocked = true;
+      disableEditableFields();
+      updateComposeItems();
+    } else {
+      // If we're auto saving, mark the body as not changed here, and not
+      // when the save is done, because the user might change it between now
+      // and when the save is done.
+      SetContentAndBodyAsUnmodified();
+    }
+
+    var progress = Cc["@mozilla.org/messenger/progress;1"]
+                     .createInstance(Ci.nsIMsgProgress);
+    if (progress) {
+      progress.registerListener(progressListener);
+      gSendOrSaveOperationInProgress = true;
+    }
+    msgWindow.domWindow = window;
+    msgWindow.rootDocShell.allowAuth = true;
+    gMsgCompose.SendMsg(msgType, getCurrentIdentity(), getCurrentAccountKey(),
+                        msgWindow, progress);
+  }
+  catch (ex) {
+    Cu.reportError("GenericSendMessage FAILED: " + ex);
+    gWindowLocked = false;
+    enableEditableFields();
+    updateComposeItems();
+  }
+  if (gMsgCompose && originalCharset != gMsgCompose.compFields.characterSet)
+    SetDocumentCharacterSet(gMsgCompose.compFields.characterSet);
 }
 
 function CheckValidEmailAddress(aTo, aCC, aBCC)
