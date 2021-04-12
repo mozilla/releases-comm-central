@@ -8,7 +8,6 @@
 
 "use strict";
 
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
@@ -192,11 +191,10 @@ add_task(async function testEncryptAndOrSignResults() {
 
     info(`Running test with input from: ${filename}`);
 
-    let buffer = await OS.File.read(do_get_file(test.filename).path, {
-      encoding: test.encoding || "utf-8",
-    });
+    let buffer = await IOUtils.read(do_get_file(test.filename).path);
+    const textDecoder = new TextDecoder(test.encoding || "utf-8");
 
-    let sourceText = buffer.toString();
+    let sourceText = textDecoder.decode(buffer);
     let encryptResult = {};
 
     let encryptArgs = {

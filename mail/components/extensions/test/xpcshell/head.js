@@ -17,7 +17,6 @@ var { MessageGenerator } = ChromeUtils.import(
 var { nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
@@ -104,8 +103,7 @@ function createMessages(folder, makeMessagesArg) {
 }
 
 async function createMessageFromFile(folder, path) {
-  let contents = await OS.File.read(path);
-  let message = new TextDecoder().decode(contents);
+  let message = await IOUtils.readUTF8(path);
 
   if (folder.server.type == "imap") {
     return IMAPServer.addMessages(folder, [message]);
@@ -124,8 +122,7 @@ async function createMessageFromFile(folder, path) {
 }
 
 async function getUtilsJS() {
-  let contents = await OS.File.read(do_get_file("data/utils.js").path);
-  return new TextDecoder().decode(contents);
+  return IOUtils.readUTF8(do_get_file("data/utils.js").path);
 }
 
 var IMAPServer = {

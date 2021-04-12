@@ -5,7 +5,6 @@
 const { MailMigrator } = ChromeUtils.import(
   "resource:///modules/MailMigrator.jsm"
 );
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 /**
  * Tests migration of old .rdf feed config files to the new .json files.
@@ -29,20 +28,19 @@ async function migrationTest(testDataDir) {
 
   // Install legacy feeds.rdf/feeditems.rdf
   for (let f of ["feeds.rdf", "feeditems.rdf"]) {
-    await OS.File.copy(OS.Path.join(testDataDir, f), OS.Path.join(rootDir, f));
+    await IOUtils.copy(
+      PathUtils.join(testDataDir, f),
+      PathUtils.join(rootDir, f)
+    );
   }
 
   // Perform the migration
   await MailMigrator._migrateRSSServer(account.incomingServer);
 
   // Check actual results against expectations.
-  let loadJSON = async function(filename) {
-    let raw = await OS.File.read(filename, { encoding: "UTF-8" });
-    return JSON.parse(raw);
-  };
   for (let f of ["feeds.json", "feeditems.json"]) {
-    let got = await loadJSON(OS.Path.join(rootDir, f));
-    let expected = await loadJSON(OS.Path.join(testDataDir, f));
+    let got = await IOUtils.readJSON(PathUtils.join(rootDir, f));
+    let expected = await IOUtils.readJSON(PathUtils.join(testDataDir, f));
     Assert.deepEqual(got, expected, `match ${testDataDir}/${f}`);
   }
 

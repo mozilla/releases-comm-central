@@ -47,7 +47,7 @@ importScripts("resource://gre/modules/osfile.jsm");
  *                                        progress updates. Param is number of
  *                                        "units" processed since last update.
  */
-function maildirToMBox(maildir, mboxFilename, progressFn) {
+async function maildirToMBox(maildir, mboxFilename, progressFn) {
   // Helper to format dates
   // eg "Thu Jan 18 12:34:56 2018"
   let fmtUTC = function(d) {
@@ -99,25 +99,18 @@ function maildirToMBox(maildir, mboxFilename, progressFn) {
   let mboxFile = OS.File.open(mboxFilename, { write: true, create: true }, {});
 
   // Iterate over all the message files in "cur".
-  let curPath = OS.Path.join(maildir, "cur");
-  let it = new OS.File.DirectoryIterator(curPath);
+  let curPath = PathUtils.join(maildir, "cur");
   try {
-    let files = [];
-    if ("winCreationDate" in OS.File.DirectoryIterator.Entry.prototype) {
-      // Under Windows, additional information allow us to sort files immediately
-      // without having to perform additional I/O.
-      it.forEach(function(ent) {
-        files.push({ path: ent.path, creationDate: ent.winCreationDate });
-      });
-    } else {
-      // Under other OSes, we need to call OS.File.stat
-      it.forEach(function(ent) {
-        files.push({
-          path: ent.path,
-          creationDate: OS.File.stat(ent.path).creationDate,
-        });
-      });
-    }
+    let paths = await IOUtils.getChildren(curPath);
+    let files = await Promise.all(
+      paths.map(async path => {
+        let stat = await IOUtils.stat(path);
+        return {
+          path,
+          creationDate: stat.creationTime,
+        };
+      })
+    );
     // We write out the mbox messages ordered by creation time.
     // Not ideal, but best we can do without parsing message.
     files.sort(function(a, b) {
@@ -125,30 +118,24 @@ function maildirToMBox(maildir, mboxFilename, progressFn) {
     });
 
     for (let ent of files) {
-      let inFile = OS.File.open(ent.path);
-      try {
-        let raw = inFile.read();
-        // Old converter had a bug where maildir messages included the
-        // leading "From " marker, so we need to cope with any
-        // cases of this left in the wild.
-        if (String.fromCharCode.apply(null, raw.slice(0, 5)) != "From ") {
-          // Write the separator line.
-          // Technically, timestamp should be the reception time of the
-          // message, but we don't really want to have to parse the
-          // message here and nothing is likely to rely on it.
-          let sepLine = "From - " + fmtUTC(new Date()) + "\n";
-          mboxFile.write(encoder.encode(sepLine));
-        }
-
-        mboxFile.write(raw);
-      } finally {
-        inFile.close();
+      let raw = await IOUtils.read(ent.path);
+      // Old converter had a bug where maildir messages included the
+      // leading "From " marker, so we need to cope with any
+      // cases of this left in the wild.
+      if (String.fromCharCode.apply(null, raw.slice(0, 5)) != "From ") {
+        // Write the separator line.
+        // Technically, timestamp should be the reception time of the
+        // message, but we don't really want to have to parse the
+        // message here and nothing is likely to rely on it.
+        let sepLine = "From - " + fmtUTC(new Date()) + "\n";
+        mboxFile.write(encoder.encode(sepLine));
       }
+
+      mboxFile.write(raw);
       // Maildir progress is one per message.
       progressFn(1);
     }
   } finally {
-    it.close();
     mboxFile.close();
   }
 }
@@ -163,13 +150,13 @@ function maildirToMBox(maildir, mboxFilename, progressFn) {
  *                                        passed - the number of "cost units"
  *                                        since the previous update.
  */
-function mboxToMaildir(mboxPath, maildirPath, progressFn) {
+async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
   // Create the maildir structure.
-  OS.File.makeDir(maildirPath);
-  let curDirPath = OS.Path.join(maildirPath, "cur");
-  let tmpDirPath = OS.Path.join(maildirPath, "tmp");
-  OS.File.makeDir(curDirPath);
-  OS.File.makeDir(tmpDirPath);
+  await IOUtils.makeDirectory(maildirPath);
+  let curDirPath = PathUtils.join(maildirPath, "cur");
+  let tmpDirPath = PathUtils.join(maildirPath, "tmp");
+  await IOUtils.makeDirectory(curDirPath);
+  await IOUtils.makeDirectory(tmpDirPath);
 
   const CHUNK_SIZE = 1000000;
   // SAFE_MARGIN is how much to keep back between chunks in order to
@@ -234,7 +221,7 @@ function mboxToMaildir(mboxPath, maildirPath, progressFn) {
    */
   let writeToMsg = function(str) {
     if (!outFile) {
-      let outPath = OS.Path.join(curDirPath, ident.toString() + ".eml");
+      let outPath = PathUtils.join(curDirPath, ident.toString() + ".eml");
       ident += 1;
       outFile = OS.File.open(outPath, { write: true, create: true }, {});
     }
@@ -358,16 +345,16 @@ function isMBoxName(name) {
 /**
  * Check if directory is a maildir (by looking for a "cur" subdir).
  *
- * @param {String} dir    - Path of directory to check.
- * @returns {Boolean}     - true if directory is a maildir.
+ * @param {string} dir         - Path of directory to check.
+ * @returns {Promise<boolean>} - true if directory is a maildir.
  */
-function isMaildir(dir) {
+async function isMaildir(dir) {
   try {
-    let cur = OS.Path.join(dir, "cur");
-    let fi = OS.File.stat(cur);
-    return fi.isDir;
+    let cur = PathUtils.join(dir, "cur");
+    let fi = await IOUtils.stat(cur);
+    return fi.type === "directory";
   } catch (ex) {
-    if (ex instanceof OS.File.Error && ex.becauseNoSuchFile) {
+    if (ex instanceof DOMException && ex.name === "NotFoundError") {
       // "cur" does not exist - not a maildir.
       return false;
     }
@@ -378,21 +365,13 @@ function isMaildir(dir) {
 /**
  * Count the number of messages in the "cur" dir of maildir.
  *
- * @param {String} maildir  - Path of maildir.
- * @returns {Number}        - number of messages found.
+ * @param {string} maildir    - Path of maildir.
+ * @returns {Promise<number>} - number of messages found.
  */
-function countMaildirMsgs(maildir) {
-  let cur = OS.Path.join(maildir, "cur");
-  let it = new OS.File.DirectoryIterator(cur);
-  let count = 0;
-  try {
-    it.forEach(function(ent) {
-      count++;
-    });
-  } finally {
-    it.close();
-  }
-  return count;
+async function countMaildirMsgs(maildir) {
+  let cur = PathUtils.join(maildir, "cur");
+  let paths = await IOUtils.getChildren(cur);
+  return paths.length;
 }
 
 /**
@@ -400,26 +379,23 @@ function countMaildirMsgs(maildir) {
  * This is the figure used for progress updates.
  * For maildir, cost is 1 per message.
  *
- * @param {String} srcPath  - Path of root dir containing maildirs.
- * @returns {Number}        - calculated conversion cost.
+ * @param {string} srcPath    - Path of root dir containing maildirs.
+ * @returns {Promise<number>} - calculated conversion cost.
  */
-function calcMaildirCost(srcPath) {
+async function calcMaildirCost(srcPath) {
   let cost = 0;
-  let it = new OS.File.DirectoryIterator(srcPath);
-  try {
-    it.forEach(function(ent) {
-      if (ent.isDir) {
-        if (isSBD(ent.name)) {
-          // Recurse into subfolder.
-          cost += calcMaildirCost(ent.path);
-        } else if (isMaildir(ent.path)) {
-          // Looks like a maildir. Cost is number of messages.
-          cost += countMaildirMsgs(ent.path);
-        }
+  for (let path of await IOUtils.getChildren(srcPath)) {
+    let stat = await IOUtils.stat(path);
+    if (stat.type === "directory") {
+      let name = PathUtils.filename(path);
+      if (isSBD(name)) {
+        // Recurse into subfolder.
+        cost += await calcMaildirCost(path);
+      } else if (await isMaildir(path)) {
+        // Looks like a maildir. Cost is number of messages.
+        cost += await countMaildirMsgs(path);
       }
-    });
-  } finally {
-    it.close();
+    }
   }
   return cost;
 }
@@ -433,26 +409,22 @@ function calcMaildirCost(srcPath) {
  * the "From " lines which are not written into the maildir files. But it's
  * definitely close enough to give good user feedback.
  *
- * @param {String} srcPath  - Path of root dir containing maildirs.
- * @returns {Number}        - calculated conversion cost.
+ * @param {string} srcPath    - Path of root dir containing maildirs.
+ * @returns {Promise<number>} - calculated conversion cost.
  */
-function calcMBoxCost(srcPath) {
+async function calcMBoxCost(srcPath) {
   let cost = 0;
-  let it = new OS.File.DirectoryIterator(srcPath);
-  try {
-    it.forEach(function(ent) {
-      if (ent.isDir) {
-        if (isSBD(ent.name)) {
-          // Recurse into .sbd subfolder.
-          cost += calcMBoxCost(ent.path);
-        }
-      } else if (isMBoxName(ent.name)) {
-        let fi = OS.File.stat(ent.path);
-        cost += fi.size;
+  for (const path of await IOUtils.getChildren(srcPath)) {
+    let stat = await IOUtils.stat(path);
+    let name = PathUtils.filename(path);
+    if (stat.type === "directory") {
+      if (isSBD(name)) {
+        // Recurse into .sbd subfolder.
+        cost += await calcMBoxCost(path);
       }
-    });
-  } finally {
-    it.close();
+    } else if (isMBoxName(name)) {
+      cost += stat.size;
+    }
   }
   return cost;
 }
@@ -466,27 +438,24 @@ function calcMBoxCost(srcPath) {
  *                                        progress updates (called with number of
  *                                        cost "units" since last update)
  */
-function convertTreeMBoxToMaildir(srcPath, destPath, progressFn) {
-  OS.File.makeDir(destPath);
+async function convertTreeMBoxToMaildir(srcPath, destPath, progressFn) {
+  await IOUtils.makeDirectory(destPath);
 
-  let it = new OS.File.DirectoryIterator(srcPath);
-  try {
-    it.forEach(function(ent) {
-      let dest = OS.Path.join(destPath, ent.name);
-      if (ent.isDir) {
-        if (isSBD(ent.name)) {
-          // Recurse into .sbd subfolder.
-          convertTreeMBoxToMaildir(ent.path, dest, progressFn);
-        }
-      } else if (isFileToCopy(ent.name)) {
-        OS.File.copy(ent.path, dest);
-      } else if (isMBoxName(ent.name)) {
-        // It's an mbox. Convert it.
-        mboxToMaildir(ent.path, dest, progressFn);
+  for (const path of await IOUtils.getChildren(srcPath)) {
+    let name = PathUtils.filename(path);
+    let dest = PathUtils.join(destPath, name);
+    let stat = await IOUtils.stat(path);
+    if (stat.type === "directory") {
+      if (isSBD(name)) {
+        // Recurse into .sbd subfolder.
+        await convertTreeMBoxToMaildir(path, dest, progressFn);
       }
-    });
-  } finally {
-    it.close();
+    } else if (isFileToCopy(name)) {
+      await IOUtils.copy(path, dest);
+    } else if (isMBoxName(name)) {
+      // It's an mbox. Convert it.
+      await mboxToMaildir(path, dest, progressFn);
+    }
   }
 }
 
@@ -499,29 +468,31 @@ function convertTreeMBoxToMaildir(srcPath, destPath, progressFn) {
  *                                        progress updates (called with number of
  *                                        cost "units" since last update)
  */
-function convertTreeMaildirToMBox(srcPath, destPath, progressFn) {
-  OS.File.makeDir(destPath);
+async function convertTreeMaildirToMBox(srcPath, destPath, progressFn) {
+  await IOUtils.makeDirectory(destPath);
 
-  let it = new OS.File.DirectoryIterator(srcPath);
-  try {
-    it.forEach(function(ent) {
-      let dest = OS.Path.join(destPath, ent.name);
-      if (ent.isDir) {
-        if (isSBD(ent.name)) {
-          // Recurse into .sbd subfolder.
-          convertTreeMaildirToMBox(ent.path, dest, progressFn);
-        } else if (isMaildir(ent.path)) {
-          // It's a maildir - convert it.
-          maildirToMBox(ent.path, dest, progressFn);
-        }
-      } else if (isFileToCopy(ent.name)) {
-        OS.File.copy(ent.path, dest);
+  for (let path of await IOUtils.getChildren(srcPath)) {
+    let name = PathUtils.filename(path);
+    let dest = PathUtils.join(destPath, name);
+    let stat = await IOUtils.stat(path);
+    if (stat.type === "directory") {
+      if (isSBD(name)) {
+        // Recurse into .sbd subfolder.
+        await convertTreeMaildirToMBox(path, dest, progressFn);
+      } else if (await isMaildir(path)) {
+        // It's a maildir - convert it.
+        await maildirToMBox(path, dest, progressFn);
       }
-    });
-  } finally {
-    it.close();
+    } else if (isFileToCopy(name)) {
+      await IOUtils.copy(path, dest);
+    }
   }
 }
+
+// propagate unhandled rejections to the error handler on the main thread
+self.addEventListener("unhandledrejection", function(error) {
+  throw error.reason;
+});
 
 self.addEventListener("message", function(e) {
   // Unpack the request params from the main thread.
@@ -546,24 +517,25 @@ self.addEventListener("message", function(e) {
   }
 
   // Go!
-  let totalCost = costFn(srcRoot);
-  let v = 0;
-  let progressFn = function(n) {
-    v += n;
-    self.postMessage({ msg: "progress", val: v, total: totalCost });
-  };
-  convertFn(srcRoot, destRoot, progressFn);
+  costFn(srcRoot).then(totalCost => {
+    let v = 0;
+    let progressFn = function(n) {
+      v += n;
+      self.postMessage({ msg: "progress", val: v, total: totalCost });
+    };
+    convertFn(srcRoot, destRoot, progressFn).then(() => {
+      // We fake a final progress update, with exactly 100% completed.
+      // Our byte-counting on mbox->maildir conversion will fall slightly short:
+      // The total is estimated from the mbox filesize, but progress is tracked
+      // by counting bytes as they are written out - and the mbox "From " lines
+      // are _not_ written out to the maildir files.
+      // This is still accurate enough to provide progress to the user, but we
+      // don't want the GUI left showing "progress 97% - conversion complete!"
+      // or anything silly like that.
+      self.postMessage({ msg: "progress", val: totalCost, total: totalCost });
 
-  // We fake a final progress update, with exactly 100% completed.
-  // Our byte-counting on mbox->maildir conversion will fall slightly short:
-  // The total is estimated from the mbox filesize, but progress is tracked
-  // by counting bytes as they are written out - and the mbox "From " lines
-  // are _not_ written out to the maildir files.
-  // This is still accurate enough to provide progress to the user, but we
-  // don't want the GUI left showing "progress 97% - conversion complete!"
-  // or anything silly like that.
-  self.postMessage({ msg: "progress", val: totalCost, total: totalCost });
-
-  // Let the main thread know we succeeded.
-  self.postMessage({ msg: "success" });
+      // Let the main thread know we succeeded.
+      self.postMessage({ msg: "success" });
+    });
+  });
 });

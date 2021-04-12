@@ -8,7 +8,6 @@
 
 "use strict";
 
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 const { OpenPGPMasterpass } = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"

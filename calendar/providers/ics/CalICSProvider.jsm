@@ -4,7 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["CalICSProvider"];
 
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
@@ -341,9 +340,9 @@ class ICSDetector {
    */
   async attemptLocalFile(location) {
     if (location.schemeIs("file")) {
-      let fullPath = OS.Path.fromFileURI(location.spec);
-      let pathToDir = OS.Path.dirname(fullPath);
-      let dirExists = await OS.File.exists(pathToDir);
+      let fullPath = location.QueryInterface(Ci.nsIFileURL).file.path;
+      let pathToDir = PathUtils.parent(fullPath);
+      let dirExists = await IOUtils.exists(pathToDir);
 
       if (dirExists || pathToDir == "") {
         let calendar = this.handleCalendar(location);

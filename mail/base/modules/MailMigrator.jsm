@@ -215,21 +215,22 @@ var MailMigrator = {
       if (currentUIVersion < 10 || newProfile) {
         // If the file exists, read its contents, prepend the "All ABs" URI
         // and save it, else, just write the "All ABs" URI to the file.
-        PathUtils.getProfileDir().then(dir => {
-          let spec = PathUtils.join(dir, "directoryTree.json");
-          IOUtils.readJSON(spec)
-            .then(data => {
-              data.unshift("moz-abdirectory://?");
-              IOUtils.writeJSON(spec, data);
-            })
-            .catch(ex => {
-              if (["NotFoundError"].includes(ex.name)) {
-                IOUtils.writeJSON(spec, ["moz-abdirectory://?"]);
-              } else {
-                Cu.reportError(ex);
-              }
-            });
-        });
+        let spec = PathUtils.join(
+          Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+          "directoryTree.json"
+        );
+        IOUtils.readJSON(spec)
+          .then(data => {
+            data.unshift("moz-abdirectory://?");
+            IOUtils.writeJSON(spec, data);
+          })
+          .catch(ex => {
+            if (["NotFoundError"].includes(ex.name)) {
+              IOUtils.writeJSON(spec, ["moz-abdirectory://?"]);
+            } else {
+              Cu.reportError(ex);
+            }
+          });
       }
 
       // Several Latin language groups were consolidated into x-western.

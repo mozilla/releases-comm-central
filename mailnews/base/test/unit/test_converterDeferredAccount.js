@@ -5,7 +5,6 @@
 const { FileUtils } = ChromeUtils.import(
   "resource://gre/modules/FileUtils.jsm"
 );
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
@@ -84,7 +83,7 @@ function checkConversion(source, target) {
     let sourceContentName = sourceContent.leafName;
     let ext = sourceContentName.substr(-4);
     let targetFile = FileUtils.File(
-      OS.Path.join(target.path, sourceContentName)
+      PathUtils.join(target.path, sourceContentName)
     );
     log.debug("Checking path: " + targetFile.path);
     if (ext == ".dat") {
@@ -94,9 +93,9 @@ function checkConversion(source, target) {
       checkConversion(sourceContent, targetFile);
     } else if (ext != ".msf") {
       Assert.ok(targetFile.exists());
-      let cur = FileUtils.File(OS.Path.join(targetFile.path, "cur"));
+      let cur = FileUtils.File(PathUtils.join(targetFile.path, "cur"));
       Assert.ok(cur.exists());
-      let tmp = FileUtils.File(OS.Path.join(targetFile.path, "tmp"));
+      let tmp = FileUtils.File(PathUtils.join(targetFile.path, "tmp"));
       Assert.ok(tmp.exists());
       if (targetFile.leafName == "Inbox") {
         let curContents = cur.directoryEntries;

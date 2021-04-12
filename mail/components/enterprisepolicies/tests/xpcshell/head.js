@@ -5,7 +5,6 @@
 "use strict";
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const { Preferences } = ChromeUtils.import(
   "resource://gre/modules/Preferences.jsm"
 );
@@ -41,9 +40,7 @@ async function setupPolicyEngineWithJson(json, customSchema) {
 
     // This file gets automatically deleted by FileTestUtils
     // at the end of the test run.
-    await OS.File.writeAtomic(filePath, JSON.stringify(json), {
-      encoding: "utf-8",
-    });
+    await IOUtils.writeJSON(filePath, json);
   } else {
     filePath = do_get_file(json ? json : "non-existing-file.json").path;
   }

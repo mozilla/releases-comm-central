@@ -168,7 +168,10 @@ var gFolderTreeView = {
 
     if (aJSONFile) {
       // Parse our persistent-state json file
-      let spec = OS.Path.join(OS.Constants.Path.profileDir, aJSONFile);
+      let spec = PathUtils.join(
+        Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+        aJSONFile
+      );
       try {
         let data = await IOUtils.readJSON(spec);
         // Migrate all the data from the old stored object if the "open"
@@ -214,7 +217,10 @@ var gFolderTreeView = {
         open: this._persistOpenMap,
         colors: this._persistColorMap,
       };
-      let spec = OS.Path.join(OS.Constants.Path.profileDir, filename);
+      let spec = PathUtils.join(
+        Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+        filename
+      );
       await IOUtils.writeJSON(spec, data);
     }
   },

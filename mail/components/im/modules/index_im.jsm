@@ -29,7 +29,6 @@ const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
 
-ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(
   this,
   "AsyncShutdown",
@@ -410,13 +409,12 @@ var GlodaIMIndexer = {
     };
 
     // Asynchronously copy the data to the file.
-    let path = OS.Path.join(
-      OS.Constants.Path.profileDir,
+    let path = PathUtils.join(
+      Services.dirsvc.get("ProfD", Ci.nsIFile).path,
       "logs",
       kCacheFileName
     );
-    return OS.File.writeAtomic(path, JSON.stringify(data), {
-      encoding: "utf-8",
+    return IOUtils.writeJSON(path, data, {
       tmpPath: path + ".tmp",
     }).catch(aError => Cu.reportError("Failed to write cache file: " + aError));
   },
@@ -484,12 +482,12 @@ var GlodaIMIndexer = {
       if (conv.logFileCount == undefined) {
         // We initialize the _knownFiles tree path for the current files below in
         // case it doesn't already exist.
-        let folder = OS.Path.dirname(logFiles[0]);
-        let convName = OS.Path.basename(folder);
-        folder = OS.Path.dirname(folder);
-        let accountName = OS.Path.basename(folder);
-        folder = OS.Path.dirname(folder);
-        let protoName = OS.Path.basename(folder);
+        let folder = PathUtils.parent(logFiles[0]);
+        let convName = PathUtils.filename(folder);
+        folder = PathUtils.parent(folder);
+        let accountName = PathUtils.filename(folder);
+        folder = PathUtils.parent(folder);
+        let protoName = PathUtils.filename(folder);
         if (
           !Object.prototype.hasOwnProperty.call(this._knownFiles, protoName)
         ) {
@@ -520,10 +518,8 @@ var GlodaIMIndexer = {
           ? logFiles.slice(conv.logFileCount - 1)
           : logFiles;
       for (let logFile of currentLogFiles) {
-        let fileName = OS.Path.basename(logFile);
-        let lastModifiedTime = (
-          await OS.File.stat(logFile)
-        ).lastModificationDate.valueOf();
+        let fileName = PathUtils.filename(logFile);
+        let lastModifiedTime = (await IOUtils.stat(logFile)).lastModified;
         if (
           Object.prototype.hasOwnProperty.call(conv.convObj, fileName) &&
           conv.convObj[fileName] == lastModifiedTime
@@ -648,8 +644,8 @@ var GlodaIMIndexer = {
   // Get the path of a log file relative to the logs directory - the last 4
   // components of the path.
   _getRelativePath(aLogPath) {
-    return OS.Path.split(aLogPath)
-      .components.slice(-4)
+    return PathUtils.split(aLogPath)
+      .slice(-4)
       .join("/");
   },
 
@@ -682,7 +678,7 @@ var GlodaIMIndexer = {
       return Gloda.kWorkDone;
     }
 
-    let fileName = OS.Path.basename(aLogPath);
+    let fileName = PathUtils.filename(aLogPath);
     let messages = logConv
       .getMessages()
       // Some messages returned, e.g. sessionstart messages,
@@ -890,10 +886,10 @@ var GlodaIMIndexer = {
           // If the path has more than 4 components, it is not relative to
           // the logs folder. Update it to use only the last 4 components.
           // The absolute paths were stored as OS-specific paths, so we split
-          // them with OS.Path.split(). It's a safe assumption that nobody
+          // them with PathUtils.split(). It's a safe assumption that nobody
           // ported their profile folder to a different OS since the regression,
           // so this should work.
-          let pathComponents = OS.Path.split(row.getString(1)).components;
+          let pathComponents = PathUtils.split(row.getString(1));
           if (pathComponents.length > 4) {
             updateStatement.bindByIndex(1, row.getInt64(0)); // id
             updateStatement.bindByIndex(0, pathComponents.slice(-4).join("/")); // Last 4 path components

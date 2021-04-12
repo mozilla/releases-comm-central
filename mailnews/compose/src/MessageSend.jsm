@@ -9,7 +9,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  OS: "resource://gre/modules/osfile.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
@@ -764,26 +763,22 @@ MessageSend.prototype = {
     let deliveryFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     deliveryFile.append("nsemail.tmp");
     deliveryFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-    let fileWriter = await OS.File.open(deliveryFile.path, { write: true });
-    let content = await OS.File.read(this._messageFile.path, {
-      encoding: "utf-8",
-    });
+    let content = await IOUtils.readUTF8(this._messageFile.path);
     let bodyIndex = content.indexOf("\r\n\r\n");
     let header = content.slice(0, bodyIndex);
     let lastLinePruned = false;
+    let contentToWrite = "";
     for (let line of header.split("\r\n")) {
       if (line.startsWith("Bcc") || (line.startsWith(" ") && lastLinePruned)) {
         lastLinePruned = true;
         continue;
       }
       lastLinePruned = false;
-      await fileWriter.write(new TextEncoder().encode(`${line}\r\n`));
+      contentToWrite += `${line}\r\n`;
     }
-    await fileWriter.write(
-      // Prevent extra \r\n, which was already added to the last head line.
-      new TextEncoder().encode(content.slice(bodyIndex + 2))
-    );
-    await fileWriter.close();
+    // Prevent extra \r\n, which was already added to the last head line.
+    contentToWrite += content.slice(bodyIndex + 2);
+    await IOUtils.writeUTF8(deliveryFile.path, contentToWrite);
     return deliveryFile;
   },
 
@@ -872,27 +867,27 @@ MessageSend.prototype = {
       this._copyFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
       this._copyFile.append("nscopy.tmp");
       this._copyFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-      let fileWriter = await OS.File.open(this._copyFile.path, { write: true });
+      let contentToWrite = "";
       // Add a `From - Date` line, so that nsLocalMailFolder.cpp won't add a
       // dummy envelope. The date string will be parsed by PR_ParseTimeString.
       // TODO: this should not be added to Maildir, see bug 1686852.
-      await fileWriter.write(
-        new TextEncoder().encode(`From - ${new Date().toUTCString()}\r\n`)
-      );
+      contentToWrite += `From - ${new Date().toUTCString()}\r\n`;
       let xMozillaStatus = MsgUtils.getXMozillaStatus(this._deliverMode);
       let xMozillaStatus2 = MsgUtils.getXMozillaStatus2(this._deliverMode);
       if (xMozillaStatus) {
-        await fileWriter.write(
-          new TextEncoder().encode(`X-Mozilla-Status: ${xMozillaStatus}\r\n`)
-        );
+        contentToWrite += `X-Mozilla-Status: ${xMozillaStatus}\r\n`;
       }
       if (xMozillaStatus2) {
-        await fileWriter.write(
-          new TextEncoder().encode(`X-Mozilla-Status2: ${xMozillaStatus2}\r\n`)
-        );
+        contentToWrite += `X-Mozilla-Status2: ${xMozillaStatus2}\r\n`;
       }
-      await fileWriter.write(await OS.File.read(this._messageFile.path));
-      await fileWriter.close();
+      const encodedContent = new TextEncoder().encode(contentToWrite);
+      const messageFileContent = await IOUtils.read(this._messageFile.path);
+      const combinedContent = new Uint8Array(
+        encodedContent.length + messageFileContent.length
+      );
+      combinedContent.set(encodedContent);
+      combinedContent.set(messageFileContent, encodedContent.length);
+      await IOUtils.write(this._copyFile.path, combinedContent);
     }
     MsgUtils.sendLogger.debug("fcc file created");
 
@@ -980,15 +975,15 @@ MessageSend.prototype = {
   _cleanup() {
     MsgUtils.sendLogger.debug("Clean up temporary files");
     if (this._copyFile && this._copyFile != this._messageFile) {
-      OS.File.remove(this._copyFile.path);
+      IOUtils.remove(this._copyFile.path).catch(Cu.reportError);
       this._copyFile = null;
     }
     if (this._deliveryFile && this._deliveryFile != this._messageFile) {
-      OS.File.remove(this._deliveryFile.path);
+      IOUtils.remove(this._deliveryFile.path).catch(Cu.reportError);
       this._deliveryFile = null;
     }
     if (this._messageFile && this._shouldRemoveMessageFile) {
-      OS.File.remove(this._messageFile.path);
+      IOUtils.remove(this._messageFile.path).catch(Cu.reportError);
       this._messageFile = null;
     }
   },

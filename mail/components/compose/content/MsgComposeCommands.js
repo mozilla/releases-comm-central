@@ -63,7 +63,6 @@ XPCOMUtils.defineLazyGetter(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  OS: "resource://gre/modules/osfile.jsm",
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
   SelectionUtils: "resource://gre/modules/SelectionUtils.jsm",
 });
@@ -3481,11 +3480,11 @@ function ComposeStartup(aParams) {
         let msgFile = Cc["@mozilla.org/file/local;1"].createInstance(
           Ci.nsIFile
         );
-        if (OS.Path.dirname(args.message) == ".") {
+        if (PathUtils.parent(args.message) == ".") {
           let workingDir = Services.dirsvc.get("CurWorkD", Ci.nsIFile);
-          args.message = OS.Path.join(
+          args.message = PathUtils.join(
             workingDir.path,
-            OS.Path.basename(args.message)
+            PathUtils.filename(args.message)
           );
         }
         msgFile.initWithPath(args.message);

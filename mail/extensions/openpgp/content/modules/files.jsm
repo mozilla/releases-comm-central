@@ -18,7 +18,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailOS: "chrome://openpgp/content/modules/os.jsm",
   EnigmailStreams: "enigmail/streams.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  OS: "resource://gre/modules/osfile.jsm",
 });
 
 const NS_FILE_CONTRACTID = "@mozilla.org/file/local;1";
@@ -196,7 +195,7 @@ var EnigmailFiles = {
         Ci.nsIJSInspector
       );
 
-      OS.File.read(fileObj.path)
+      IOUtils.read(fileObj.path)
         .then(arr => {
           fileContents = EnigmailData.arrayBufferToString(arr); // Convert the array to a text
           inspector.exitNestedEventLoop();
@@ -224,7 +223,7 @@ var EnigmailFiles = {
         Ci.nsIJSInspector
       );
 
-      OS.File.read(fileObj.path)
+      IOUtils.read(fileObj.path)
         .then(arr => {
           for (let i = 0; i < arr.length; i++) {
             fileContents += String.fromCharCode(arr[i]);

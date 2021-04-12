@@ -129,7 +129,10 @@ directoryTreeView.prototype = {
   async init(aTree, aJSONFile = null) {
     if (aJSONFile) {
       // Parse our persistent-open-state json file
-      let spec = PathUtils.join(await PathUtils.getProfileDir(), aJSONFile);
+      let spec = PathUtils.join(
+        Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+        aJSONFile
+      );
       try {
         this._persistOpenMap = await IOUtils.readJSON(spec);
       } catch (ex) {
@@ -151,10 +154,10 @@ directoryTreeView.prototype = {
     // Write out the persistOpenMap to our JSON file
     if (aJSONFile) {
       // Write out our json file...
-      var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-      let spec = PathUtils.join(OS.Constants.Path.profileDir, aJSONFile);
-      // XXX: using PathUtils.getProfileDir() to get the profile doesn't work
-      // here for some reason (window going away?). See bug 1701654.
+      let spec = PathUtils.join(
+        Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+        aJSONFile
+      );
       await IOUtils.writeJSON(spec, this._persistOpenMap);
     }
   },

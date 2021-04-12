@@ -10,7 +10,6 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // There are shutdown issues for which multiple rejections are left uncaught.
@@ -153,8 +152,7 @@ function createMessages(folder, makeMessagesArg) {
 }
 
 async function createMessageFromFile(folder, path) {
-  let contents = await OS.File.read(path);
-  let message = new TextDecoder().decode(contents);
+  let message = await IOUtils.readUTF8(path);
 
   // A cheap hack to make this acceptable to addMessageBatch. It works for
   // existing uses but may not work for future uses.

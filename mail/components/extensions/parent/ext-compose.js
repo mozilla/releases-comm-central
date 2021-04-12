@@ -435,6 +435,8 @@ async function fileURLForFile(file) {
     return Services.io.newFileURI(realFile).spec;
   }
 
+  // TODO PathUtils and IOUtils aren't exposed on the extension global at
+  // https://searchfox.org/mozilla-central/rev/6309f663e7396e957138704f7ae7254c92f52f43/toolkit/components/extensions/ExtensionCommon.jsm#1749
   let tempDir = OS.Constants.Path.tmpDir;
   let destFile = OS.Path.join(tempDir, file.name);
 

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { convertMailStoreTo } = ChromeUtils.import(
   "resource:///modules/mailstoreConverter.jsm"
 );
@@ -44,7 +43,7 @@ function checkConversion(aSource, aTarget) {
     let sourceContentName = sourceContent.leafName;
     let ext = sourceContentName.slice(-4);
     let targetFile = FileUtils.File(
-      OS.Path.join(aTarget.path, sourceContentName)
+      PathUtils.join(aTarget.path, sourceContentName)
     );
     log.debug("Checking path: " + targetFile.path);
 
@@ -55,9 +54,9 @@ function checkConversion(aSource, aTarget) {
       checkConversion(sourceContent, targetFile);
     } else {
       Assert.ok(targetFile.exists());
-      let cur = FileUtils.File(OS.Path.join(targetFile.path, "cur"));
+      let cur = FileUtils.File(PathUtils.join(targetFile.path, "cur"));
       Assert.ok(cur.exists());
-      let tmp = FileUtils.File(OS.Path.join(targetFile.path, "tmp"));
+      let tmp = FileUtils.File(PathUtils.join(targetFile.path, "tmp"));
       Assert.ok(tmp.exists());
       if (targetFile.leafName == "INBOX") {
         let curContentsCount = [...cur.directoryEntries].length;

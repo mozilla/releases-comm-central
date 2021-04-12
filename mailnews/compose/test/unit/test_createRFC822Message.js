@@ -7,7 +7,6 @@
  */
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 let customSendListener = {
   ...copyListener,
@@ -18,8 +17,7 @@ let customSendListener = {
    */
   async onStopSending(msgId, status, msg, returnFile) {
     ok(returnFile.exists(), "createRFC822Message should create a mail file");
-    let contentBuf = await OS.File.read(returnFile.path);
-    let content = new TextDecoder("UTF-8").decode(contentBuf);
+    let content = await IOUtils.readUTF8(returnFile.path);
     ok(
       content.includes("Subject: Test createRFC822Message\r\n"),
       "Mail file should contain correct subject line"

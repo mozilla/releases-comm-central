@@ -30,7 +30,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gOutboxFolder = get_special_folder(Ci.nsMsgFolderFlags.Queue);
 
@@ -76,7 +75,7 @@ add_task(async function test_send_inline_image() {
     "The image doesn't display because we changed the data URI\n"
   );
 
-  let fileBuf = await OS.File.read(getTestFilePath("data/nest.png"));
+  let fileBuf = await IOUtils.read(getTestFilePath("data/nest.png"));
   let fileContent = btoa(typedArrayToString(fileBuf));
   let dataURI = `data:image/png;base64,${fileContent}`;
 

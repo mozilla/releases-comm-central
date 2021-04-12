@@ -9,8 +9,6 @@ const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var systemOS = Services.appinfo.OS.toLowerCase();
 
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-
 var abi = ctypes.default_abi;
 
 var libotr, libotrPath;
@@ -58,8 +56,8 @@ function getDistributionFilename() {
 
 function getDistributionFullPath() {
   let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
-  let binDir = OS.Path.dirname(binPath);
-  return OS.Path.join(binDir, getDistributionFilename());
+  let binDir = PathUtils.parent(binPath);
+  return PathUtils.join(binDir, getDistributionFilename());
 }
 
 function tryLoadOTR(filename, info) {

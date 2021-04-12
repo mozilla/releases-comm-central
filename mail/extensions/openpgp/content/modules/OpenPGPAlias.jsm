@@ -5,7 +5,6 @@
 const EXPORTED_SYMBOLS = ["OpenPGPAlias"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 Cu.importGlobalProperties(["fetch"]);
 
@@ -61,8 +60,11 @@ var OpenPGPAlias = {
     } else if (src.includes("/") || src.includes("\\")) {
       throw new Error(`Invalid alias rules src: ${src}`);
     } else {
-      let spec = OS.Path.join(OS.Constants.Path.profileDir, src);
-      let response = await fetch(OS.Path.toFileURI(spec));
+      let spec = PathUtils.join(
+        Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+        src
+      );
+      let response = await fetch(PathUtils.toFileURI(spec));
       jsonData = await response.json();
     }
     if (!("rules" in jsonData)) {

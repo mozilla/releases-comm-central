@@ -32,7 +32,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 var gOutboxFolder;
 
@@ -65,7 +64,7 @@ function putHTMLOnClipboard(html) {
  * Test that accessing file: URLs will block when appropriate, and load
  * the content when appropriate.
  */
-add_task(function test_paste_file_urls() {
+add_task(async function test_paste_file_urls() {
   let cwc = open_compose_new_mail();
   setup_msg_contents(
     cwc,
@@ -80,15 +79,18 @@ add_task(function test_paste_file_urls() {
     .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
 
-  let dest = OS.Path.join(OS.Constants.Path.tmpDir, file.leafName);
+  let dest = PathUtils.join(
+    Services.dirsvc.get("TmpD", Ci.nsIFile).path,
+    file.leafName
+  );
   let tmpFile;
   let tmpFileURL;
-  OS.File.remove(dest, { ignoreAbsent: true })
+  IOUtils.remove(dest, { ignoreAbsent: true })
     .then(function() {
-      return OS.File.copy(file.path, dest);
+      return IOUtils.copy(file.path, dest);
     })
     .then(function() {
-      return OS.File.setDates(dest, null, null);
+      return IOUtils.touch(dest);
     })
     .then(function() {
       tmpFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);

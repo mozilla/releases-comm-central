@@ -6,7 +6,6 @@
  * Test that temporary files for draft are surely removed.
  */
 
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gMsgCompose;
@@ -39,32 +38,31 @@ var progressListener = {
 };
 
 /**
- * Get the count of temporary files. Because OS.File.openUnique creates random
+ * Get the count of temporary files. Because nsIFile.createUnique creates a random
  * file name, we iterate the tmp dir and count the files that match filename
  * patterns.
  */
 async function getTemporaryFilesCount() {
   let tmpDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
-  let iterator = new OS.File.DirectoryIterator(tmpDir);
+  let entries = await IOUtils.getChildren(tmpDir);
   let tempFiles = {
     "nsemail.html": 0, // not actually used by MessageSend.jsm
     "nsemail.eml": 0,
     "nscopy.tmp": 0,
   };
-  // DirectoryIterator is not actually iterable, so no for..of.
-  await iterator.forEach(entry => {
+  for (const path of entries) {
+    const stat = await IOUtils.stat(path);
     for (let pattern of Object.keys(tempFiles)) {
       let [name, extName] = pattern.split(".");
       if (
-        !entry.isDir &&
-        entry.name.startsWith(name) &&
-        entry.name.endsWith(extName)
+        stat.type !== "directory" &&
+        PathUtils.filename(path).startsWith(name) &&
+        path.endsWith(extName)
       ) {
         tempFiles[pattern]++;
       }
     }
-  });
-  iterator.close();
+  }
   return tempFiles;
 }
 

@@ -10,7 +10,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   ctypes: "resource://gre/modules/ctypes.jsm",
-  OS: "resource://gre/modules/osfile.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
 
@@ -27,8 +26,8 @@ var libgpgme, libgpgmePath;
 function tryLoadGPGME(name, suffix) {
   let filename = ctypes.libraryName(name) + suffix;
   let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
-  let binDir = OS.Path.dirname(binPath);
-  libgpgmePath = OS.Path.join(binDir, filename);
+  let binDir = PathUtils.parent(binPath);
+  libgpgmePath = PathUtils.join(binDir, filename);
 
   let loadFromInfo;
 

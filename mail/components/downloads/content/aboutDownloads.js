@@ -18,7 +18,6 @@ ChromeUtils.defineModuleGetter(
   "DownloadUtils",
   "resource://gre/modules/DownloadUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
 var DownloadsView = {
   init() {
@@ -188,7 +187,7 @@ function DownloadItem(aDownload) {
   } else {
     this._sender = "";
   }
-  this._fileName = this._htmlEscape(OS.Path.basename(aDownload.target.path));
+  this._fileName = this._htmlEscape(PathUtils.filename(aDownload.target.path));
   this._iconUrl = "moz-icon://" + this._fileName + "?size=32";
   this._startDate = this._htmlEscape(
     DownloadUtils.getReadableDates(aDownload.startTime)[0]

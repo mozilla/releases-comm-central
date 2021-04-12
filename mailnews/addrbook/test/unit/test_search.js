@@ -4,7 +4,6 @@
 
 "use strict";
 
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const { getModelQuery, generateQueryURI } = ChromeUtils.import(
   "resource:///modules/ABQueryUtils.jsm"
 );
@@ -12,8 +11,7 @@ const { getModelQuery, generateQueryURI } = ChromeUtils.import(
 const jsonFile = do_get_file("data/ldap_contacts.json");
 
 add_task(async () => {
-  let contents = await OS.File.read(jsonFile.path);
-  let contacts = await JSON.parse(new TextDecoder().decode(contents));
+  let contacts = await IOUtils.readJSON(jsonFile.path);
 
   let dirPrefId = MailServices.ab.newAddressBook(
     "new book",

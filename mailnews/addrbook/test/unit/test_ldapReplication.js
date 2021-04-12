@@ -5,7 +5,6 @@
 const { LDAPServer } = ChromeUtils.import(
   "resource://testing-common/LDAPServer.jsm"
 );
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 const autocompleteService = Cc[
   "@mozilla.org/autocomplete/search;1?name=addrbook"
@@ -17,8 +16,7 @@ const replicationService = Cc[
 
 add_task(async () => {
   LDAPServer.open();
-  let contents = await OS.File.read(jsonFile.path);
-  let ldapContacts = await JSON.parse(new TextDecoder().decode(contents));
+  let ldapContacts = await IOUtils.readJSON(jsonFile.path);
 
   let bookPref = MailServices.ab.newAddressBook(
     "XPCShell",

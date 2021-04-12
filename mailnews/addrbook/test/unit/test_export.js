@@ -15,7 +15,6 @@ var { AppConstants } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 add_task(async () => {
@@ -87,8 +86,7 @@ async function compareAgainstFile(fileName, actual) {
   // which always uses Windows line endings.
 
   let file = do_get_file(`data/${fileName}`);
-  let contentBytes = await OS.File.read(file.path);
-  let expected = new TextDecoder("utf-8").decode(contentBytes);
+  let expected = await IOUtils.readUTF8(file.path);
 
   if (AppConstants.platform != "win" && fileName != "export.vcf") {
     expected = expected.replace(/\r\n/g, "\n");

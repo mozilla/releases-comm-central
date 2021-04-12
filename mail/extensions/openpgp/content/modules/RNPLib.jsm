@@ -12,7 +12,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   ctypes: "resource://gre/modules/ctypes.jsm",
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
-  OS: "resource://gre/modules/osfile.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
 
@@ -29,8 +28,8 @@ var librnpLoadedFrom;
 function tryLoadRNP(name, suffix) {
   let filename = ctypes.libraryName(name) + suffix;
   let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
-  let binDir = OS.Path.dirname(binPath);
-  librnpPath = OS.Path.join(binDir, filename);
+  let binDir = PathUtils.parent(binPath);
+  librnpPath = PathUtils.join(binDir, filename);
 
   let loadFromInfo;
 
@@ -140,8 +139,8 @@ function enableRNPLibJS() {
 
     // returns rnp_input_t, destroy using rnp_input_destroy
     async createInputFromPath(path) {
-      // OS.File.read always returns an array.
-      let u8 = await OS.File.read(path);
+      // IOUtils.read always returns an array.
+      let u8 = await IOUtils.read(path);
       if (!u8.length) {
         return null;
       }
@@ -203,7 +202,7 @@ function enableRNPLibJS() {
       try {
         await this.loadFile(filename, keyringFlag);
       } catch (ex) {
-        if (ex instanceof OS.File.Error) {
+        if (ex instanceof DOMException) {
           loadBackup = true;
         }
       }
@@ -269,7 +268,7 @@ function enableRNPLibJS() {
       oldFile.leafName += oldSuffix;
 
       // Ignore failure, fileObj.path might not exist yet.
-      await OS.File.copy(fileObj.path, oldFile.path).catch(() => {});
+      await IOUtils.copy(fileObj.path, oldFile.path).catch(() => {});
 
       let u8 = null;
       let keyCount = new ctypes.size_t();
@@ -324,7 +323,7 @@ function enableRNPLibJS() {
         if (!u8) {
           u8 = new Uint8Array();
         }
-        await OS.File.writeAtomic(outPathString, u8, {
+        await IOUtils.write(outPathString, u8, {
           tmpPath: outPathString + ".tmp-new",
         });
         status = true;

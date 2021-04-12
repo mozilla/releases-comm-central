@@ -16,7 +16,6 @@ const ZipReader = new Components.Constructor(
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { OS, require } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 /**
  * Returns a promise that is resolved with a list of files that have one of the
@@ -44,7 +43,7 @@ function generateURIsFromDirTree(dir, extensions) {
 }
 
 /**
- * Uses OS.File.DirectoryIterator to asynchronously iterate over a directory.
+ * Iterates over all entries of a directory.
  * It returns a promise that is resolved with an object with two properties:
  *  - files: an array of nsIURIs corresponding to files that match the extensions passed
  *  - subdirs: an array of paths for subdirectories we need to recurse into
@@ -53,18 +52,19 @@ function generateURIsFromDirTree(dir, extensions) {
  * @param path the path to check (string)
  * @param extensions the file extensions we're interested in.
  */
-function iterateOverPath(path, extensions) {
-  let iterator = new OS.File.DirectoryIterator(path);
+async function iterateOverPath(path, extensions) {
   let parentDir = new LocalFile(path);
   let subdirs = [];
   let files = [];
 
-  let pathEntryIterator = entry => {
-    if (entry.isDir) {
-      subdirs.push(entry.path);
-    } else if (extensions.some(extension => entry.name.endsWith(extension))) {
+  // Iterate through the directory
+  for (let path of await IOUtils.getChildren(path)) {
+    let stat = await IOUtils.stat(path);
+    if (stat.type === "directory") {
+      subdirs.push(path);
+    } else if (extensions.some(extension => path.endsWith(extension))) {
       let file = parentDir.clone();
-      file.append(entry.name);
+      file.append(PathUtils.filename(path));
       // the build system might leave dead symlinks hanging around, which are
       // returned as part of the directory iterator, but don't actually exist:
       if (file.exists()) {
@@ -72,33 +72,20 @@ function iterateOverPath(path, extensions) {
         files.push(Services.io.newURI(uriSpec));
       }
     } else if (
-      entry.name.endsWith(".ja") ||
-      entry.name.endsWith(".jar") ||
-      entry.name.endsWith(".zip") ||
-      entry.name.endsWith(".xpi")
+      path.endsWith(".ja") ||
+      path.endsWith(".jar") ||
+      path.endsWith(".zip") ||
+      path.endsWith(".xpi")
     ) {
       let file = parentDir.clone();
-      file.append(entry.name);
+      file.append(PathUtils.filename(path));
       for (let extension of extensions) {
         let jarEntryIterator = generateEntriesFromJarFile(file, extension);
         files.push(...jarEntryIterator);
       }
     }
-  };
-
-  return new Promise((resolve, reject) => {
-    (async function() {
-      try {
-        // Iterate through the directory
-        await iterator.forEach(pathEntryIterator);
-        resolve({ files, subdirs });
-      } catch (ex) {
-        reject(ex);
-      } finally {
-        iterator.close();
-      }
-    })();
-  });
+  }
+  return { files, subdirs };
 }
 
 /* Helper function to generate a URI spec (NB: not an nsIURI yet!)

@@ -5,7 +5,6 @@
 const { BasePromiseWorker } = ChromeUtils.import(
   "resource://gre/modules/PromiseWorker.jsm"
 );
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { CLib } = ChromeUtils.import("resource:///modules/CLib.jsm");
@@ -176,7 +175,7 @@ var OTR = {
   // load stored files from my profile
   loadFiles() {
     return Promise.all([
-      OS.File.exists(this.privateKeyPath).then(exists => {
+      IOUtils.exists(this.privateKeyPath).then(exists => {
         if (
           exists &&
           OTRLib.otrl_privkey_read(this.userstate, this.privateKeyPath)
@@ -184,7 +183,7 @@ var OTR = {
           throw new Error("Failed to read private keys.");
         }
       }),
-      OS.File.exists(this.fingerprintsPath).then(exists => {
+      IOUtils.exists(this.fingerprintsPath).then(exists => {
         if (
           exists &&
           OTRLib.otrl_privkey_read_fingerprints(
@@ -197,7 +196,7 @@ var OTR = {
           throw new Error("Failed to read fingerprints.");
         }
       }),
-      OS.File.exists(this.instanceTagsPath).then(exists => {
+      IOUtils.exists(this.instanceTagsPath).then(exists => {
         if (
           exists &&
           OTRLib.otrl_instag_read(this.userstate, this.instanceTagsPath)

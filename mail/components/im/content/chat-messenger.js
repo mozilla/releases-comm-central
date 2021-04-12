@@ -23,7 +23,6 @@ var { InlineSpellChecker } = ChromeUtils.import(
   "resource://gre/modules/InlineSpellChecker.jsm"
 );
 
-ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
 
 var gChatSpellChecker;
@@ -890,7 +889,10 @@ var chatHandler = {
       }
 
       let path = "logs/" + item.log.path;
-      path = OS.Path.join(OS.Constants.Path.profileDir, ...path.split("/"));
+      path = PathUtils.join(
+        Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+        ...path.split("/")
+      );
       imServices.logs.getLogFromFile(path, true).then(aLog => {
         imServices.logs.getSimilarLogs(aLog, true).then(aSimilarLogs => {
           if (contactlistbox.selectedItem != item) {

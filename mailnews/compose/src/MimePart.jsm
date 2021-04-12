@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["MimePart", "MimeMultiPart"];
 
-let { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 let { MimeEncoder } = ChromeUtils.import("resource:///modules/MimeEncoder.jsm");
@@ -293,7 +292,7 @@ class MimePart {
         .QueryInterface(Ci.nsIFileProtocolHandler);
       // Get an nsIFile from file:///tmp/key.asc.
       let file = handler.getFileFromURLSpec(this._bodyAttachment.url);
-      OS.File.remove(file.path);
+      IOUtils.remove(file.path);
     }
     return content;
   }

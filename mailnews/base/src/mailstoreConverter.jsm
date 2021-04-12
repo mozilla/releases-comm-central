@@ -8,7 +8,6 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { FileUtils } = ChromeUtils.import(
   "resource://gre/modules/FileUtils.jsm"
 );
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 
 let log = console.createInstance({
   prefix: "mail.mailstoreconverter",
@@ -139,14 +138,14 @@ function createTmpConverterFolder(aFolder, aMailstoreContractId) {
     case "@mozilla.org/msgstore/maildirstore;1": {
       if (aFolder.leafName.substr(-8) == "-maildir") {
         tmpFolder = new FileUtils.File(
-          OS.Path.join(
+          PathUtils.join(
             tmpDir.path,
             aFolder.leafName.substr(0, aFolder.leafName.length - 8) + "-mbox"
           )
         );
       } else {
         tmpFolder = new FileUtils.File(
-          OS.Path.join(tmpDir.path, aFolder.leafName + "-mbox")
+          PathUtils.join(tmpDir.path, aFolder.leafName + "-mbox")
         );
       }
 
@@ -164,14 +163,14 @@ function createTmpConverterFolder(aFolder, aMailstoreContractId) {
     case "@mozilla.org/msgstore/berkeleystore;1": {
       if (aFolder.leafName.substr(-5) == "-mbox") {
         tmpFolder = new FileUtils.File(
-          OS.Path.join(
+          PathUtils.join(
             tmpDir.path,
             aFolder.leafName.substr(0, aFolder.leafName.length - 5) + "-maildir"
           )
         );
       } else {
         tmpFolder = new FileUtils.File(
-          OS.Path.join(tmpDir.path, aFolder.leafName + "-maildir")
+          PathUtils.join(tmpDir.path, aFolder.leafName + "-maildir")
         );
       }
 
@@ -218,7 +217,7 @@ function installNewRoot(server, dir, newStoreTypeID) {
   log.info("Path to parent folder of account root folder: " + parent.path);
 
   let converterFolder = new FileUtils.File(
-    OS.Path.join(parent.path, dir.leafName)
+    PathUtils.join(parent.path, dir.leafName)
   );
   if (converterFolder.exists()) {
     log.info(
@@ -247,14 +246,14 @@ function installNewRoot(server, dir, newStoreTypeID) {
   // folder.
   if (server.type != "pop3" && server.type != "none") {
     let converterFolderMsf = new FileUtils.File(
-      OS.Path.join(parent.path, dir.leafName + ".msf")
+      PathUtils.join(parent.path, dir.leafName + ".msf")
     );
     if (converterFolderMsf.exists()) {
       converterFolderMsf.remove(true);
     }
 
     let oldRootFolderMsf = new FileUtils.File(
-      OS.Path.join(parent.path, accountRootFolder.leafName + ".msf")
+      PathUtils.join(parent.path, accountRootFolder.leafName + ".msf")
     );
     if (oldRootFolderMsf.exists()) {
       oldRootFolderMsf.copyTo(parent, converterFolderMsf.leafName);
@@ -263,13 +262,13 @@ function installNewRoot(server, dir, newStoreTypeID) {
 
   if (server.type == "nntp") {
     let converterFolderNewsrc = new FileUtils.File(
-      OS.Path.join(parent.path, "newsrc-" + dir.leafName)
+      PathUtils.join(parent.path, "newsrc-" + dir.leafName)
     );
     if (converterFolderNewsrc.exists()) {
       converterFolderNewsrc.remove(true);
     }
     let oldNewsrc = new FileUtils.File(
-      OS.Path.join(parent.path, "newsrc-" + accountRootFolder.leafName)
+      PathUtils.join(parent.path, "newsrc-" + accountRootFolder.leafName)
     );
     if (oldNewsrc.exists()) {
       oldNewsrc.copyTo(parent, converterFolderNewsrc.leafName);
@@ -305,7 +304,7 @@ function installNewRoot(server, dir, newStoreTypeID) {
 
   if (server.type == "nntp") {
     let newNewsrc = FileUtils.File(
-      OS.Path.join(parent.path, "newsrc-" + converterFolder.leafName)
+      PathUtils.join(parent.path, "newsrc-" + converterFolder.leafName)
     );
     Services.prefs.setCharPref(p3, newNewsrc.path);
 

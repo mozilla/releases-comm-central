@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { convertMailStoreTo } = ChromeUtils.import(
   "resource:///modules/mailstoreConverter.jsm"
 );
@@ -158,16 +157,18 @@ async function tempDir(prefix) {
   if (!prefix) {
     prefix = "";
   }
-  let tmpDir = OS.Constants.Path.tmpDir;
+  let tmpDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
   while (true) {
     let name = prefix + Math.floor(Math.random() * 0xffffffff).toString(16);
-    let fullPath = OS.Path.join(tmpDir, name);
+    let fullPath = PathUtils.join(tmpDir, name);
     try {
-      await OS.File.makeDir(fullPath, { ignoreExisting: false });
+      await IOUtils.makeDirectory(fullPath, { ignoreExisting: false });
       return fullPath;
     } catch (e) {
       // If directory already exists, try another name. Else bail out.
-      if (!(e instanceof OS.File.Error && e.becauseExists)) {
+      if (
+        !(e instanceof DOMException && e.name === "NoModificationAllowedError")
+      ) {
         throw e;
       }
     }
@@ -189,20 +190,21 @@ async function roundTripTest() {
   // Set up initial maildir structure
   let initialRoot = await tempDir("initial");
 
-  let inbox = OS.Path.join(initialRoot, "INBOX");
-  await OS.File.makeDir(inbox);
+  let inbox = PathUtils.join(initialRoot, "INBOX");
+  await IOUtils.makeDirectory(inbox);
   // Create a couple of subdirs under INBOX
-  let subdir = OS.Path.join(initialRoot, "INBOX.sbd");
-  await OS.File.makeDir(subdir);
-  let foodir = OS.Path.join(subdir, "foo");
-  await OS.File.makeDir(foodir);
-  let bardir = OS.Path.join(subdir, "bar");
-  await OS.File.makeDir(bardir);
+  let subdir = PathUtils.join(initialRoot, "INBOX.sbd");
+  await IOUtils.makeDirectory(subdir);
+  let foodir = PathUtils.join(subdir, "foo");
+  await IOUtils.makeDirectory(foodir);
+  let bardir = PathUtils.join(subdir, "bar");
+  await IOUtils.makeDirectory(bardir);
 
   // Populate all the folders with some test emails.
-  await populateMaildir(inbox, testEmails);
-  await populateMaildir(foodir, testEmails);
-  await populateMaildir(bardir, testEmails);
+  const absolutePaths = testEmails.map(path => do_get_file(path).path);
+  await populateMaildir(inbox, absolutePaths);
+  await populateMaildir(foodir, absolutePaths);
+  await populateMaildir(bardir, absolutePaths);
 
   // Add a pick of "special" files, which should survive the trip verbatim.
   for (let special of ["filterlog.html", "feeds.json", "rules.dat"]) {
@@ -260,17 +262,17 @@ function doConvert(srcType, srcRoot, destType, destRoot) {
  * @param {Array<String>} emailFiles - paths of source .eml files to copy.
  */
 async function populateMaildir(maildir, emailFiles) {
-  let cur = OS.Path.join(maildir, "cur");
-  await OS.File.makeDir(cur);
-  await OS.File.makeDir(OS.Path.join(maildir, "tmp"));
+  let cur = PathUtils.join(maildir, "cur");
+  await IOUtils.makeDirectory(cur);
+  await IOUtils.makeDirectory(PathUtils.join(maildir, "tmp"));
 
   // Normally maildir files would have a name derived from their msg-id field,
   // but here we'll just use a timestamp-based one to save parsing them.
   let ident = Date.now();
   for (let src of emailFiles) {
-    let dest = OS.Path.join(cur, ident.toString() + ".eml");
+    let dest = PathUtils.join(cur, ident.toString() + ".eml");
     ident += 1;
-    await OS.File.copy(src, dest);
+    await IOUtils.copy(src, dest);
   }
 }
 
@@ -285,7 +287,7 @@ async function listFiles(dirPath) {
   // Note: IOUtils has no dir iterator at time of writing.
   for (const path of await IOUtils.getChildren(dirPath)) {
     let fileInfo = await IOUtils.stat(path);
-    if (!fileInfo.isDir) {
+    if (fileInfo.type !== "directory") {
       files.push(path);
     }
   }
@@ -315,22 +317,23 @@ async function md5Sum(fileName) {
  * @param {String} rootB - path to root of maildir store B.
  */
 async function recursiveMaildirCompare(rootA, rootB) {
-  let it = new OS.File.DirectoryIterator(rootA);
   let subdirs = [];
   let maildirs = [];
   let otherFiles = [];
-  await it.forEach(function(ent) {
-    if (ent.isDir) {
-      if (ent.name.endsWith(".sbd")) {
-        subdirs.push(ent.name);
+  for (let path of await IOUtils.getChildren(rootA)) {
+    let stat = await IOUtils.stat(path);
+    let name = PathUtils.filename(path);
+    if (stat.type === "directory") {
+      if (name.endsWith(".sbd")) {
+        subdirs.push(name);
       } else {
         // Assume all other dirs are maildirs.
-        maildirs.push(ent.name);
+        maildirs.push(name);
       }
     } else {
-      otherFiles.push(ent.name);
+      otherFiles.push(name);
     }
-  });
+  }
 
   // Compare the maildirs we found here.
   let md5DirContents = async function(dirPath) {

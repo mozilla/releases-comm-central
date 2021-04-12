@@ -13,7 +13,7 @@ var { OpenPGPTestUtils } = ChromeUtils.import(
 );
 
 const OPENPGP_TEST_DIR = do_get_file("../../../../test/browser/openpgp");
-const OPENPGP_KEY_PATH = OS.Path.join(
+const OPENPGP_KEY_PATH = PathUtils.join(
   OPENPGP_TEST_DIR.path,
   "data",
   "keys",
@@ -165,7 +165,7 @@ add_task(async function test_openpgp() {
 
   // Load an encrypted message.
 
-  let messagePath = OS.Path.join(
+  let messagePath = PathUtils.join(
     OPENPGP_TEST_DIR.path,
     "data",
     "eml",
