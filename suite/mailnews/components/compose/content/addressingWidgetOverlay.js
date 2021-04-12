@@ -15,8 +15,6 @@ var gNumberOfCols = 0;
 var gDragService = Cc["@mozilla.org/widget/dragservice;1"]
                      .getService(Ci.nsIDragService);
 
-var gMimeHeaderParser = null;
-
 /**
  * global variable inherited from MsgComposeCommands.js
  *
@@ -91,8 +89,6 @@ function Recipients2CompFields(msgCompFields)
     var ng_Sep = "";
     var follow_Sep = "";
 
-    gMimeHeaderParser = Cc["@mozilla.org/messenger/headerparser;1"].getService(Ci.nsIMsgHeaderParser);
-
     var recipientType;
     var inputField;
     var fieldValue;
@@ -149,8 +145,6 @@ function Recipients2CompFields(msgCompFields)
     msgCompFields.replyTo = addrReply;
     msgCompFields.newsgroups = addrNg;
     msgCompFields.followupTo = addrFollow;
-
-    gMimeHeaderParser = null;
   }
   else
     dump("Message Compose Error: msgCompFields is null (ExtractRecipients)");
