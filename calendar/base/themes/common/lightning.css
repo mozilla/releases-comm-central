@@ -120,13 +120,13 @@
   padding: 3px;
 }
 
-@media not (-moz-proton-infobars) {
+@media not (-moz-proton) {
 .lightning-notification-bar {
   border-bottom: 1px solid ThreeDShadow;
 }
 } /** END not Proton **/
 
-@media (-moz-proton-infobars) {
+@media (-moz-proton) {
 .lightning-notification-bar {
   margin: 0 4px 4px;
   border-radius: 4px;

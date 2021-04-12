@@ -161,7 +161,7 @@
   background-color: color-mix(in srgb, currentColor 20%, transparent);
 }
 
-@media (-moz-proton-infobars) {
+@media (-moz-proton) {
 @media not (prefers-contrast) {
   .container.infobar {
     box-shadow: 0 1px 2px rgba(58, 57, 68, 0.3);
@@ -275,9 +275,9 @@ strong {
     --in-content-button-background-active: #878788;
   }
 }
-}
+} /** END Proton **/
 
-@media not (-moz-proton-infobars) {
+@media not (-moz-proton) {
 :host {
   /* Colors used by default, and for [type=generic] message bars.*/
   background-color: var(--in-content-box-info-background);
@@ -291,4 +291,4 @@ strong {
 .close {
   margin-inline-end: 4px;
 }
-}
+} /** END not Proton **/

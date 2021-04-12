@@ -8,7 +8,7 @@
   border-bottom: 1px solid var(--splitter-color);
 }
 
-@media (-moz-proton-infobars) {
+@media (-moz-proton) {
 .main-header-area {
   border-bottom-style: none;
 }
@@ -16,7 +16,7 @@
 #mail-notification-top {
   border-bottom: 1px solid var(--splitter-color);
 }
-}
+} /** END Proton **/
 
 /* ::::: msg header toolbars ::::: */
 
