@@ -15,7 +15,7 @@
  * but not for bigger file downloads.
  */
 
-/* import-globals-from emailWizard.js */
+/* import-globals-from accountSetup.js */
 
 var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");

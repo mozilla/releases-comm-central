@@ -85,10 +85,8 @@ var EmailAccountProvisioner = {
   providers: {},
   _someProvidersChecked: false,
   // These get passed in when creating the Account Provisioner window.
-  NewMailAccount: window.arguments[0].NewMailAccount,
-  NewComposeMessage: window.arguments[0].NewComposeMessage,
+  openAccountSetupTab: window.arguments[0].openAccountSetupTab,
   openAddonsMgr: window.arguments[0].openAddonsMgr,
-  msgWindow: window.arguments[0].msgWindow,
 
   get someProvidersChecked() {
     return this._someProvidersChecked;
@@ -330,7 +328,7 @@ var EmailAccountProvisioner = {
       .querySelector("button.existing")
       .addEventListener("click", function() {
         EmailAccountProvisioner.saveName();
-        EmailAccountProvisioner.NewMailAccount(null, window.arguments[0]);
+        EmailAccountProvisioner.openAccountSetupTab();
         window.close();
       });
 

@@ -48,8 +48,8 @@ AboutRedirector.prototype = {
       url: "chrome://messenger/content/AccountManager.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
-    accounthub: {
-      url: "chrome://messenger/content/accountcreation/emailWizard.xhtml",
+    accountsetup: {
+      url: "chrome://messenger/content/accountcreation/accountSetup.xhtml",
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
   },

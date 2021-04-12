@@ -6,7 +6,7 @@
  * Some common, generic functions
  */
 
-/* import-globals-from emailWizard.js */
+/* import-globals-from accountSetup.js */
 
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

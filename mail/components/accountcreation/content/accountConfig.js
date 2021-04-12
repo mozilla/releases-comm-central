@@ -20,7 +20,7 @@
  * for values stored.
  */
 
-/* import-globals-from emailWizard.js */
+/* import-globals-from accountSetup.js */
 
 function AccountConfig() {
   this.incoming = this.createNewIncoming();

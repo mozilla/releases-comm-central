@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals NewMailAccountProvisioner */
+/* globals openAccountProvisioner */
 
 /**
  * This object takes care of intercepting page loads and creating the
@@ -165,7 +165,7 @@ TracingListener.prototype = {
       accountCreationFuncs
     );
     Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/accountcreation/emailWizard.js",
+      "chrome://messenger/content/accountcreation/accountSetup.js",
       accountCreationFuncs
     );
     Services.scriptloader.loadSubScript(
@@ -235,8 +235,8 @@ TracingListener.prototype = {
     )[0];
     tabmail.closeTab(myTabInfo);
 
-    // Respawn the account provisioner to announce our success
-    NewMailAccountProvisioner(null, {
+    // Respawn the account provisioner to announce our success.
+    openAccountProvisioner({
       success,
       search_engine: this.params.searchEngine,
       account,

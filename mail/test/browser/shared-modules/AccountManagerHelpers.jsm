@@ -66,8 +66,8 @@ function open_advanced_settings(callback) {
 
 async function openAccountHub() {
   return new Promise(resolve => {
-    let tab = open_content_tab_with_url("about:accounthub");
-    wait_for_content_tab_load(tab, "about:accounthub", 10000);
+    let tab = open_content_tab_with_url("about:accountsetup");
+    wait_for_content_tab_load(tab, "about:accountsetup", 10000);
     resolve(tab);
   });
 }

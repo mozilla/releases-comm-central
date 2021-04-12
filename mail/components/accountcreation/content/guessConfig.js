@@ -3,12 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from emailWizard.js */
+/* import-globals-from accountSetup.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // This is a bit ugly - we set outgoingDone to false
-// when emailWizard.js cancels the outgoing probe because the user picked
+// when accountSetup.js cancels the outgoing probe because the user picked
 // an outoing server. It does this by poking the probeAbortable object,
 // so we need outgoingDone to have global scope.
 var outgoingDone = false;
@@ -177,7 +177,7 @@ function guessConfig(
     server.authAlternatives = thisTry.authMethods;
     // TODO
     // cert is also bad when targetSite is set. (Same below for incoming.)
-    // Fix SSLErrorHandler and security warning dialog in emailWizard.js.
+    // Fix SSLErrorHandler and security warning dialog in accountSetup.js.
     server.badCert = thisTry.selfSignedCert;
     server.targetSite = thisTry.targetSite;
     logger.info(

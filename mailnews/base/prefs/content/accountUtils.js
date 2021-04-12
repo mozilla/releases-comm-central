@@ -232,10 +232,6 @@ function initAccountWizardTB(args) {
   }
 }
 
-function AddMailAccount() {
-  NewMailAccount(updateMailPaneUI);
-}
-
 function AddIMAccount() {
   window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/chat/imAccountWizard.xhtml",
@@ -370,61 +366,25 @@ function migrateGlobalQuotingPrefs(allIdentities) {
   return migrated;
 }
 
-// we do this from a timer because if this is called from the onload=
-// handler, then the parent window doesn't appear until after the wizard
-// has closed, and this is confusing to the user
-function NewMailAccount(okCallback, extraData) {
-  // Populate the extra data.
-  if (!extraData) {
-    extraData = {};
-  }
-
-  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-
-  if (!extraData.NewMailAccount) {
-    extraData.NewMailAccount = NewMailAccount;
-  }
-
-  if (!extraData.msgNewMailAccount) {
-    extraData.msgNewMailAccount = msgNewMailAccount;
-  }
-
-  if (!extraData.NewComposeMessage) {
-    extraData.NewComposeMessage = mail3Pane.ComposeMessage;
-  }
-
-  if (!extraData.openAddonsMgr) {
-    extraData.openAddonsMgr = mail3Pane.openAddonsMgr;
-  }
-
-  if (!extraData.okCallback) {
-    extraData.okCallback = null;
-  }
-
-  if (!extraData.success) {
-    extraData.success = false;
-  }
-
-  msgNewMailAccount(mail3Pane.msgWindow, okCallback, extraData);
-}
-
-function NewMailAccountProvisioner(aMsgWindow, args) {
+/**
+ * Open the account provisioner dialog.
+ *
+ * @param {?Object} args - List of arguments after a successful account creation.
+ */
+function openAccountProvisioner(args) {
   if (!args) {
     args = {};
   }
 
-  args.msgWindow = aMsgWindow;
-
   let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-
-  // If we couldn't find a 3pane, bail out.
+  // Interrupt if we can't find the mail:3pane.
   if (!mail3Pane) {
     Cu.reportError("Could not find a 3pane to connect to.");
     return;
   }
 
   let tabmail = mail3Pane.document.getElementById("tabmail");
-
+  // Interrupt if we can't find the tabmail.
   if (!tabmail) {
     Cu.reportError("Could not find a tabmail in the 3pane!");
     return;
@@ -435,33 +395,15 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
   let apTab = tabmail.getTabInfoForCurrentOrFirstModeInstance(
     tabmail.tabModes.accountProvisionerTab
   );
-
   if (apTab) {
     tabmail.switchToTab(apTab);
     return;
   }
 
-  // XXX make sure these are all defined in all contexts... to be on the safe
-  // side, just get a mail:3pane and borrow the functions from it?
-  if (!args.NewMailAccount) {
-    args.NewMailAccount = NewMailAccount;
-  }
-
-  if (!args.msgNewMailAccount) {
-    args.msgNewMailAccount = msgNewMailAccount;
-  }
-
-  if (!args.NewComposeMessage) {
-    args.NewComposeMessage = mail3Pane.ComposeMessage;
-  }
-
-  if (!args.openAddonsMgr) {
-    args.openAddonsMgr = mail3Pane.openAddonsMgr;
-  }
-
-  if (!args.okCallback) {
-    args.okCallback = null;
-  }
+  // Pass the methods that might be used from the provisioner after a successful
+  // account creation.
+  args.openAccountSetupTab = openAccountSetupTab;
+  args.openAddonsMgr = mail3Pane.openAddonsMgr;
 
   let windowParams = "chrome,titlebar,centerscreen,width=640,height=480";
 
@@ -479,13 +421,9 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
     args.success = false;
     // If we're not opening up the success dialog, then our window should be
     // modal.
-    windowParams = "modal," + windowParams;
+    windowParams = `modal,${windowParams}`;
   }
 
-  // NOTE: If you're a developer, and you notice that the jQuery code in
-  // accountProvisioner.xhtml isn't throwing errors or warnings, that's due
-  // to bug 688273. Just make the window non-modal to get those errors and
-  // warnings back, and then clear this comment when bug 688273 is closed.
   window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml",
     "AccountCreation",
@@ -495,50 +433,28 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
 }
 
 /**
- * Open the New Mail Account Wizard, or focus it if it's already open.
- *
- * @param msgWindow a msgWindow for us to use to verify the accounts.
- * @param okCallback an optional callback for us to call back to if
- *                   everything's okay.
- * @param extraData an optional param that allows us to pass data in and
- *                  out.  Used in the upcoming AccountProvisioner add-on.
- * @see msgOpenAccountWizard above for the previous implementation.
+ * Open the Account Setup Tab or focus it if it's already open.
  */
-function msgNewMailAccount(msgWindow, okCallback, extraData) {
-  if (!msgWindow) {
-    throw new Error("msgNewMailAccount must be given a msgWindow.");
-  }
-
-  let onLoad = function(event, browser) {
-    browser.contentDocument.documentElement.msgWindow = msgWindow;
-    browser.contentDocument.documentElement.okCallback = okCallback;
-    browser.contentDocument.documentElement.extraData = extraData;
-  };
-
-  // We need to get the tabmail since this method might be called as a callback
-  // from the account provisioner.
-  let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
-  let tabmail = mailWindow.document.getElementById("tabmail");
-
-  tabmail.openTab("contentTab", {
-    url: "about:accounthub",
-    onLoad,
-  });
-}
-
-/**
- * Open the Account Hub Tab or focus it if it's already open.
- */
-function openAccountHubTab() {
+function openAccountSetupTab() {
   let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  let tabmail = mail3Pane.document.getElementById("tabmail");
+
+  // Switch to the account setup tab if it's already open.
+  for (let tabInfo of tabmail.tabInfo) {
+    let tab = tabmail.getTabForBrowser(tabInfo.browser);
+    if (tab && tab.urlbar && tab.urlbar.value == "about:accountsetup") {
+      tabmail.switchToTab(tabInfo);
+      return;
+    }
+  }
 
   let onLoad = function(event, browser) {
     browser.contentDocument.documentElement.okCallback = LoadPostAccountWizard;
     browser.contentDocument.documentElement.msgWindow = mail3Pane.msgWindow;
   };
 
-  openTab("contentTab", {
-    url: "about:accounthub",
+  tabmail.openTab("contentTab", {
+    url: "about:accountsetup",
     onLoad,
   });
 }

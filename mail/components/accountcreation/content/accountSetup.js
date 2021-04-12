@@ -97,9 +97,6 @@ const kDebug = false;
 window.addEventListener("load", () => {
   gEmailConfigWizard.onLoad();
 });
-window.addEventListener("unload", () => {
-  gEmailConfigWizard.onWizardShutdown();
-});
 window.addEventListener("keypress", event => {
   gEmailConfigWizard.onKeyDown(event);
 });
@@ -1779,7 +1776,7 @@ EmailConfigWizard.prototype = {
    * Open the new email account provisioner dialog.
    */
   onSwitchToProvisioner() {
-    NewMailAccountProvisioner(this._msgWindow, this._extraData);
+    openAccountProvisioner();
   },
 
   /**
@@ -1933,10 +1930,6 @@ EmailConfigWizard.prototype = {
       this._abortable.cancel(new UserCancelledException());
     }
 
-    if (this._okCallback) {
-      this._okCallback();
-    }
-
     gEmailWizardLogger.info("Shutting down email config dialog");
   },
 
@@ -2086,6 +2079,10 @@ EmailConfigWizard.prototype = {
       this._msgWindow,
       null
     );
+
+    if (this._okCallback) {
+      this._okCallback();
+    }
 
     window.close();
   },

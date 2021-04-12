@@ -354,7 +354,7 @@ add_task(function test_can_switch_to_existing_email_account_wizard() {
   // Ensure that the Account Hub is opened.
   wait_for_content_tab_load(
     mc.tabmail.currentTabInfo,
-    "about:accounthub",
+    "about:accountsetup",
     10000
   );
 });
@@ -430,7 +430,7 @@ add_task(async function test_flip_flop_from_provisioner_menuitem() {
   // email account was triggered.
   wait_for_content_tab_load(
     mc.tabmail.currentTabInfo,
-    "about:accounthub",
+    "about:accountsetup",
     10000
   );
 

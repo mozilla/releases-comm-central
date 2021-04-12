@@ -531,7 +531,7 @@ function verifyOpenAccountHubTab() {
   document.getElementById("folderPaneBox").collapsed = true;
   document.getElementById("folderpane_splitter").collapsed = true;
 
-  openAccountHubTab();
+  openAccountSetupTab();
 }
 
 function initOpenPGPIfEnabled() {
