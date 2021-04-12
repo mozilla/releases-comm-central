@@ -1273,8 +1273,7 @@ nsresult MsgCleanupTempFiles(const char* fileName, const char* extension) {
 }
 
 nsresult MsgGetFileStream(nsIFile* file, nsIOutputStream** fileStream) {
-  nsMsgFileStream* newFileStream = new nsMsgFileStream;
-  NS_ENSURE_TRUE(newFileStream, NS_ERROR_OUT_OF_MEMORY);
+  RefPtr<nsMsgFileStream> newFileStream = new nsMsgFileStream;
   nsresult rv = newFileStream->InitWithFile(file);
   if (NS_SUCCEEDED(rv))
     rv = newFileStream->QueryInterface(NS_GET_IID(nsIOutputStream),
@@ -1284,10 +1283,10 @@ nsresult MsgGetFileStream(nsIFile* file, nsIOutputStream** fileStream) {
 
 nsresult MsgReopenFileStream(nsIFile* file, nsIInputStream* fileStream) {
   nsMsgFileStream* msgFileStream = static_cast<nsMsgFileStream*>(fileStream);
-  if (msgFileStream)
+  if (msgFileStream) {
     return msgFileStream->InitWithFile(file);
-  else
-    return NS_ERROR_FAILURE;
+  }
+  return NS_ERROR_FAILURE;
 }
 
 nsresult MsgNewBufferedFileOutputStream(nsIOutputStream** aResult,
