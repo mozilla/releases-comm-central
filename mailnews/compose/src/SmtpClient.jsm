@@ -40,6 +40,9 @@ var { MailCryptoUtils } = ChromeUtils.import(
 var { SmtpAuthenticator } = ChromeUtils.import(
   "resource:///modules/MailAuthenticator.jsm"
 );
+var { MsgUtils } = ChromeUtils.import(
+  "resource:///modules/MimeMessageUtils.jsm"
+);
 
 const NS_ERROR_BUT_DONT_SHOW_ALERT = 0x805530ef;
 
@@ -76,20 +79,7 @@ class SmtpClient {
     this.timeoutSocketLowerBound = TIMEOUT_SOCKET_LOWER_BOUND;
     this.timeoutSocketMultiplier = TIMEOUT_SOCKET_MULTIPLIER;
 
-    this.port = server.port || (this.options.useSecureTransport ? 465 : 25);
-    this.host = server.hostname;
-
-    /**
-     * If set to true, start an encrypted connection instead of the plaintext one
-     * (recommended if applicable). If useSecureTransport is not set but the port used is 465,
-     * then ecryption is used by default.
-     */
-    this.options.useSecureTransport =
-      "useSecureTransport" in this.options
-        ? !!this.options.useSecureTransport
-        : this.port === 465;
-
-    this.socket = false; // Downstream TCP socket to the SMTP server, created with mozTCPSocket
+    this.socket = false; // Downstream TCP socket to the SMTP server, created with TCPSocket
     this.waitDrain = false; // Keeps track if the downstream socket is currently full and a drain event should be waited for or not
 
     // Private properties
@@ -124,7 +114,7 @@ class SmtpClient {
     this._lastDataBytes = ""; // Keep track of the last bytes to see how the terminating dot should be placed
     this._envelope = null; // Envelope object for tracking who is sending mail to whom
     this._currentAction = null; // Stores the function that should be run after a response has been received from the server
-    this._secureMode = !!this.options.useSecureTransport; // Indicates if the connection is secured or plaintext
+    this._secureMode = this.options.requireTLS; // Indicates if the connection is secured or plaintext
     this._socketTimeoutTimer = false; // Timer waiting to declare the socket dead starting from the last write
     this._socketTimeoutStart = false; // Start time of sending the first packet in data mode
     this._socketTimeoutPeriod = false; // Timeout for sending in data mode, gets extended with every send()
@@ -150,8 +140,9 @@ class SmtpClient {
   /**
    * Initiate a connection to the server
    */
-  connect(SocketContructor = TCPSocket) {
-    this.socket = new SocketContructor(this.host, this.port, {
+  connect() {
+    let port = this._server.port || (this.options.requireTLS ? 465 : 587);
+    this.socket = new TCPSocket(this._server.hostname, port, {
       binaryType: "arraybuffer",
       useSecureTransport: this._secureMode,
     });
@@ -373,7 +364,7 @@ class SmtpClient {
           const response = {
             statusCode,
             data: this._parseBlock.data.join("\n"),
-            success: statusCode >= 200 && statusCode < 300,
+            success: statusCode >= 200 && statusCode < 400,
           };
 
           this._onCommand(response);
@@ -458,6 +449,16 @@ class SmtpClient {
   }
 
   /**
+   * Error handler. Emits an nsresult value.
+   *
+   * @param {nsresult} nsError - A nsresult.
+   */
+  _onNsError(nsError) {
+    this.onerror(nsError);
+    this.close();
+  }
+
+  /**
    * Indicates that the socket has been closed
    *
    * @event
@@ -480,6 +481,11 @@ class SmtpClient {
    * @param {Object} command Parsed data
    */
   _onCommand(command) {
+    if (!command.success) {
+      this.logger.error(
+        `Command failed: ${command.statusCode} ${command.data}; currentAction=${this._currentAction?.name}`
+      );
+    }
     if (typeof this._currentAction === "function") {
       this._currentAction(command);
     }
@@ -710,7 +716,8 @@ class SmtpClient {
     let action = this._authenticator.promptAuthFailed();
     if (action == 1) {
       // Cancel button pressed.
-      this._onError(new Error(`Authentication failed: ${command.data}`));
+      this.logger.error(`Authentication failed: ${command.data}`);
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE);
       return;
     } else if (action == 2) {
       // 'New password' button pressed. Forget cached password, new password
@@ -797,9 +804,8 @@ class SmtpClient {
     var match;
 
     if (!command.success) {
-      if (!this._secureMode && this.options.requireTLS) {
-        var errMsg = "STARTTLS not supported without EHLO";
-        this._onError(new Error(errMsg));
+      if (this._server.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS) {
+        this._onNsError(MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS);
         return;
       }
 
@@ -809,6 +815,18 @@ class SmtpClient {
       );
       this._currentAction = this._actionHELO;
       this._sendCommand("HELO " + this._getHelloArgument());
+      return;
+    }
+
+    // Detect if the server supports STARTTLS
+    if (
+      command.data.match(/STARTTLS\s?$/im) &&
+      !this._secureMode &&
+      !this.options.ignoreTLS &&
+      !this.options.requireTLS
+    ) {
+      this._currentAction = this._actionSTARTTLS;
+      this._sendCommand("STARTTLS");
       return;
     }
 
@@ -857,18 +875,6 @@ class SmtpClient {
       this.logger.debug("Maximum allowd message size: " + maxAllowedSize);
     }
 
-    // Detect if the server supports STARTTLS
-    if (!this._secureMode) {
-      if (
-        (command.data.match(/STARTTLS\s?$/im) && !this.options.ignoreTLS) ||
-        !!this.options.requireTLS
-      ) {
-        this._currentAction = this._actionSTARTTLS;
-        this._sendCommand("STARTTLS");
-        return;
-      }
-    }
-
     for (let cap of ["8BITMIME", "SIZE", "SMTPUTF8", "DSN"]) {
       if (new RegExp(cap, "i").test(command.data)) {
         this._capabilities.push(cap);
@@ -906,7 +912,7 @@ class SmtpClient {
    */
   _actionHELO(command) {
     if (!command.success) {
-      this._onError(new Error(`HELO not successful: ${command.data}`));
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR);
       return;
     }
     this._authenticateUser();
@@ -1084,7 +1090,15 @@ class SmtpClient {
    */
   _actionMAIL(command) {
     if (!command.success) {
-      this._onError(new Error(`MAIL FROM unsuccessful: ${command.data}`));
+      let errorCode = MsgUtils.NS_ERROR_SENDING_FROM_COMMAND;
+      if (this._capabilities.includes("SIZE")) {
+        if (command.statusCode == 452) {
+          errorCode = MsgUtils.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED;
+        } else if (command.statusCode == 552) {
+          errorCode = MsgUtils.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2;
+        }
+      }
+      this._onNsError(errorCode);
       return;
     }
 
@@ -1145,9 +1159,8 @@ class SmtpClient {
         this.logger.debug("RCPT TO done, proceeding with payload");
         this._sendCommand("DATA");
       } else {
-        this._onError(
-          new Error("Can't send mail - all recipients were rejected")
-        );
+        this.logger.error("Can't send mail - all recipients were rejected");
+        this._onNsError(MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND);
         this._currentAction = this._actionIdle;
       }
     } else {
@@ -1167,7 +1180,7 @@ class SmtpClient {
     // response should be 354 but according to this issue https://github.com/eleith/emailjs/issues/24
     // some servers might use 250 instead
     if (![250, 354].includes(command.statusCode)) {
-      this._onError(new Error(`DATA unsuccessful: ${command.data}`));
+      this._onNsError(MsgUtils.NS_ERROR_SENDING_DATA_COMMAND);
       return;
     }
 
@@ -1203,7 +1216,7 @@ class SmtpClient {
       }
 
       this._currentAction = this._actionIdle;
-      this.ondone(true);
+      this.ondone(0);
     } else {
       // For SMTP the message either fails or succeeds, there is no information
       // about individual recipients
@@ -1215,7 +1228,7 @@ class SmtpClient {
       }
 
       this._currentAction = this._actionIdle;
-      this.ondone(!!command.success);
+      this.ondone(command.success ? 0 : MsgUtils.NS_ERROR_SENDING_MESSAGE);
     }
 
     // If the client wanted to do something else (eg. to quit), do not force idle

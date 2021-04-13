@@ -79,7 +79,9 @@ SmtpService.prototype = {
     if (password) {
       server.password = password;
     }
+    let runningUrl = this._getRunningUri(server);
     let client = new SmtpClient(server);
+    deliveryListener?.OnStartRunningUrl(runningUrl, 0);
     client.connect();
     let fresh = true;
     client.onidle = () => {
@@ -128,12 +130,11 @@ SmtpService.prototype = {
       fstream.close();
       client.end();
     };
-    let runningUrl = this._getRunningUri(server);
-    client.ondone = () => {
+    client.ondone = exitCode => {
       if (!AppConstants.MOZ_SUITE) {
         Services.telemetry.scalarAdd("tb.mails.sent", 1);
       }
-      deliveryListener?.OnStopRunningUrl(runningUrl, 0);
+      deliveryListener?.OnStopRunningUrl(runningUrl, exitCode);
       client.close();
     };
     client.onerror = (nsError, secInfo) => {

@@ -19,6 +19,7 @@ const NUM_MAILS = 3;
 
 let deliveryListener = {
   count: 0,
+  OnStartRunningUrl() {},
   OnStopRunningUrl() {
     if (++this.count == NUM_MAILS) {
       let scalars = TelemetryTestUtils.getProcessScalars("parent");
