@@ -105,6 +105,8 @@ var gManualAttachmentReminder;
 var gDisableAttachmentReminder;
 var gComposeType;
 var gLanguageObserver;
+var gRecipientObserver;
+var gCheckPublicRecipientsTimer;
 var gBodyFromArgs;
 
 var gSelectedTechnologyIsPGP = false;
@@ -225,6 +227,7 @@ function InitializeGlobalVariables() {
   gManualAttachmentReminder = false;
   gDisableAttachmentReminder = false;
   gLanguageObserver = null;
+  gRecipientObserver = null;
 
   gLastWindowToHaveFocus = null;
   gReceiptOptionChanged = false;
@@ -248,6 +251,7 @@ function ReleaseGlobalVariables() {
   gMsgCompose = null;
   gOriginalMsgURI = null;
   gMessenger = null;
+  gRecipientObserver = null;
   gDisableAttachmentReminder = false;
   _gComposeBundle = null;
   MailServices.mailSession.RemoveMsgWindow(msgWindow);
@@ -3819,6 +3823,16 @@ function ComposeStartup(aParams) {
   }
 
   gAutoSaveKickedIn = false;
+
+  // Observe the changes of message recipient rows.
+  gRecipientObserver = new MutationObserver(function(mutations) {
+    if (mutations.some(m => m.type == "childList")) {
+      checkPublicRecipientsLimit();
+    }
+  });
+  gRecipientObserver.observe(document.getElementById("toAddrContainer"), {
+    childList: true,
+  });
 }
 /* eslint-enable complexity */
 
@@ -4238,6 +4252,7 @@ function ComposeUnload() {
 
   // Stop observing dictionary removals.
   dictionaryRemovalObserver.removeObserver();
+  gLanguageObserver.disconnect();
 
   if (gMsgCompose) {
     gMsgCompose.UnregisterStateListener(stateListener);
@@ -5079,6 +5094,89 @@ function moveSelectedPillsOnCommand(targetRecipientType) {
     .moveSelectedPills(targetRecipientType);
 }
 
+/**
+ * Check if there are too many public recipients and offer to send them as BCC.
+ */
+function checkPublicRecipientsLimit() {
+  let notification = gComposeNotification.getNotificationWithValue(
+    "warnPublicRecipientsNotification"
+  );
+
+  let recipLimit = Services.prefs.getIntPref(
+    "mail.compose.warn_public_recipients.threshold"
+  );
+
+  let publicAddressPills = [
+    ...document.querySelectorAll("#toAddrContainer > mail-address-pill"),
+    ...document.querySelectorAll("#ccAddrContainer > mail-address-pill"),
+  ];
+
+  if (publicAddressPills.length < recipLimit) {
+    if (notification) {
+      gComposeNotification.removeNotification(notification);
+    }
+    return;
+  }
+
+  // Reuse the existing notification since one is shown already.
+  if (notification) {
+    let msgText = notification.querySelector("#consider-bcc-notification-text");
+    let pillCountArgs = JSON.stringify({ count: publicAddressPills.length });
+    msgText.setAttribute("data-l10n-args", pillCountArgs);
+    return;
+  }
+
+  // Construct the notification as we don't have one.
+  let msg = document.createXULElement("hbox");
+  msg.setAttribute("flex", "100");
+
+  let msgText = document.createElement("div");
+  msg.appendChild(msgText);
+  msgText.id = "consider-bcc-notification-text";
+  msgText.setAttribute("data-l10n-id", "consider-bcc-notification");
+
+  let pillCountArgs = JSON.stringify({ count: publicAddressPills.length });
+  msgText.setAttribute("data-l10n-args", pillCountArgs);
+  msgText.setAttribute("crop", "end");
+  msgText.setAttribute("flex", "1");
+
+  let bccButton = {
+    "l10n-id": "many-public-recipients-bcc",
+    callback() {
+      recipientClearPills(document.querySelector("#toAddrInput"));
+      recipientClearPills(document.querySelector("#ccAddrInput"));
+
+      let publicAddresses = publicAddressPills.map(pill => pill.fullAddress);
+      awAddRecipientsArray("addr_bcc", publicAddresses, true);
+      return false;
+    },
+  };
+
+  let ignoreButton = {
+    "l10n-id": "many-public-recipients-ignore",
+    callback() {
+      gRecipientObserver.disconnect();
+      gRecipientObserver = null;
+      return false;
+    },
+  };
+
+  notification = gComposeNotification.appendNotification(
+    "",
+    "warnPublicRecipientsNotification",
+    null,
+    gComposeNotification.PRIORITY_WARNING_MEDIUM,
+    [bccButton, ignoreButton],
+    state => {
+      if (state == "dismissed") {
+        ignoreButton.callback();
+      }
+    }
+  );
+  notification.setAttribute("id", "warnPublicRecipientsNotification");
+  notification.messageDetails.querySelector("button").before(msg);
+}
+
 function SendMessage() {
   pillifyRecipients();
   let sendInBackground = Services.prefs.getBoolPref(
@@ -5461,6 +5559,9 @@ var spellCheckReadyObserver = {
 function onRecipientsChanged(automatic) {
   if (!automatic) {
     gContentChanged = true;
+  }
+  if (gRecipientObserver) {
+    checkPublicRecipientsLimit();
   }
   updateSendCommands(true);
 }

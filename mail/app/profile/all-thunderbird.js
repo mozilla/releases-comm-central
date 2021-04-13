@@ -1302,3 +1302,6 @@ pref("pdfjs.previousHandler.preferredAction", 0);
 pref("pdfjs.previousHandler.alwaysAskBeforeHandling", false);
 
 pref("mail.activity.loglevel", "Warn");
+
+// The number of public recipients before we offer BCC addressing.
+pref("mail.compose.warn_public_recipients.threshold", 15);

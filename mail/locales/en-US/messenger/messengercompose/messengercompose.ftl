@@ -115,3 +115,14 @@ move-attachment-last-panel-button =
 button-return-receipt =
     .label = Receipt
     .tooltiptext = Request a return receipt for this message
+
+#   $count (Number) - the count of addresses in the "To" and "Cc" fields.
+consider-bcc-notification = The {$count} recipients in To and Cc can see the address of each other. You can avoid disclosing recipients by using Bcc instead.
+
+many-public-recipients-bcc = 
+  .label = Use Bcc Instead
+  .accesskey = U
+
+many-public-recipients-ignore =
+  .label = Keep Recipients Public
+  .accesskey  = K
