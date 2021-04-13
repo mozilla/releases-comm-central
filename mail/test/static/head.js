@@ -58,13 +58,13 @@ async function iterateOverPath(path, extensions) {
   let files = [];
 
   // Iterate through the directory
-  for (let path of await IOUtils.getChildren(path)) {
-    let stat = await IOUtils.stat(path);
+  for (let childPath of await IOUtils.getChildren(path)) {
+    let stat = await IOUtils.stat(childPath);
     if (stat.type === "directory") {
-      subdirs.push(path);
-    } else if (extensions.some(extension => path.endsWith(extension))) {
+      subdirs.push(childPath);
+    } else if (extensions.some(extension => childPath.endsWith(extension))) {
       let file = parentDir.clone();
-      file.append(PathUtils.filename(path));
+      file.append(PathUtils.filename(childPath));
       // the build system might leave dead symlinks hanging around, which are
       // returned as part of the directory iterator, but don't actually exist:
       if (file.exists()) {
@@ -72,13 +72,13 @@ async function iterateOverPath(path, extensions) {
         files.push(Services.io.newURI(uriSpec));
       }
     } else if (
-      path.endsWith(".ja") ||
-      path.endsWith(".jar") ||
-      path.endsWith(".zip") ||
-      path.endsWith(".xpi")
+      childPath.endsWith(".ja") ||
+      childPath.endsWith(".jar") ||
+      childPath.endsWith(".zip") ||
+      childPath.endsWith(".xpi")
     ) {
       let file = parentDir.clone();
-      file.append(PathUtils.filename(path));
+      file.append(PathUtils.filename(childPath));
       for (let extension of extensions) {
         let jarEntryIterator = generateEntriesFromJarFile(file, extension);
         files.push(...jarEntryIterator);
