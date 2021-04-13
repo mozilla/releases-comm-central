@@ -11,6 +11,7 @@ const EXPORTED_SYMBOLS = [
   "wait_for_notification_to_stop",
   "wait_for_notification_to_show",
   "get_notification_button",
+  "get_notification",
 ];
 
 /**
@@ -158,6 +159,29 @@ function wait_for_notification_to_show(aController, aBoxId, aValue) {
 }
 
 /**
+ * Return the notification element based on the container ID and the Value type.
+ *
+ * @param {MozMillController} controller - The controller for the window that we
+ *   want the notification to appear in.
+ * @param {string} id - The id of the notification box.
+ * @param {string} val - The value of the notification to fetch.
+ * @returns {?Element} - The notification element if found.
+ */
+function get_notification(controller, id, val) {
+  let nb = controller.window.document.getElementById(id);
+  if (!nb) {
+    throw new Error("Couldn't find a notification box for id=" + id);
+  }
+
+  if (nb.querySelector(".notificationbox-stack")) {
+    let box = nb.querySelector(".notificationbox-stack")._notificationBox;
+    return box.getNotificationWithValue(val);
+  }
+
+  return null;
+}
+
+/**
  * Gets a button in a notification, as those do not have IDs.
  *
  * @param aController The controller for the window
@@ -169,14 +193,8 @@ function wait_for_notification_to_show(aController, aBoxId, aValue) {
  *                    similar to click_menus_in_sequence().
  */
 function get_notification_button(aController, aBoxId, aValue, aMatch) {
-  let nb = aController.window.document.getElementById(aBoxId);
-  if (!nb) {
-    throw new Error("Couldn't find a notification box for id=" + aBoxId);
-  }
-
-  let box = nb.querySelector(".notificationbox-stack")._notificationBox;
-  let notification = box.getNotificationWithValue(aValue);
-  let buttons = notification.querySelectorAll("button");
+  let notification = get_notification(aController, aBoxId, aValue);
+  let buttons = notification.buttonContainer.querySelectorAll("button");
   for (let button of buttons) {
     let matchedAll = true;
     for (let name in aMatch) {

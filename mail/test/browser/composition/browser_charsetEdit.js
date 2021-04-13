@@ -31,7 +31,7 @@ var {
 var { SyntheticPartLeaf } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { wait_for_notification_to_show } = ChromeUtils.import(
+var { wait_for_notification_to_show, get_notification } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 var { plan_for_new_window } = ChromeUtils.import(
@@ -127,11 +127,10 @@ add_task(function test_wrong_reply_charset() {
   wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(
-    mc.window.document.querySelector(
-      "#mail-notification-top button[label='Edit']"
-    )
-  );
+
+  let box = get_notification(mc, "mail-notification-top", "draftMsgContent");
+  // Click on the "Edit" button in the draft notification.
+  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
   rwc = wait_for_compose_window();
   EventUtils.synthesizeKey(
     "s",
@@ -198,11 +197,9 @@ add_task(function test_no_mojibake() {
   wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(
-    mc.window.document.querySelector(
-      "#mail-notification-top button[label='Edit']"
-    )
-  );
+  let box = get_notification(mc, "mail-notification-top", "draftMsgContent");
+  // Click on the "Edit" button in the draft notification.
+  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
   rwc = wait_for_compose_window();
   EventUtils.synthesizeKey(
     "s",

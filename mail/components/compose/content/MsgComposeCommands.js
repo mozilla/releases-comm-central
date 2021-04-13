@@ -2848,11 +2848,6 @@ function handleEsc() {
   }
 }
 
-function disableAttachmentReminder() {
-  gDisableAttachmentReminder = true;
-  toggleAttachmentReminder(false);
-}
-
 /**
  * This state machine manages all showing and hiding of the attachment
  * notification bar. It is only called if any change happened so that
@@ -2927,10 +2922,14 @@ function manageAttachmentNotification(aForce = false) {
   // specific keywords to the existing notification instead of creating it
   // from scratch.
   if (notification) {
-    let description = notification.querySelector("#attachmentReminderText");
-    description.setAttribute("value", textValue);
-    description = notification.querySelector("#attachmentKeywords");
-    description.setAttribute("value", keywords);
+    let selector = this.gComposeNotification.gProton
+      ? notification.messageText
+      : notification;
+
+    let msgContainer = selector.querySelector("#attachmentReminderText");
+    msgContainer.setAttribute("value", textValue);
+    let keywordsContainer = selector.querySelector("#attachmentKeywords");
+    keywordsContainer.setAttribute("value", keywords);
     return;
   }
 
@@ -2971,10 +2970,14 @@ function manageAttachmentNotification(aForce = false) {
     "label",
     getComposeBundle().getString("disableAttachmentReminderButton")
   );
-  disableAttachmentReminder.setAttribute(
-    "command",
-    "cmd_doNotRemindForAttachments"
-  );
+  disableAttachmentReminder.addEventListener("click", () => {
+    gDisableAttachmentReminder = true;
+    toggleAttachmentReminder(false);
+  });
+  disableAttachmentReminder.addEventListener("keypress", () => {
+    gDisableAttachmentReminder = true;
+    toggleAttachmentReminder(false);
+  });
   remindLaterMenuPopup.appendChild(disableAttachmentReminder);
 
   let remindButton = {
@@ -2994,6 +2997,15 @@ function manageAttachmentNotification(aForce = false) {
     [addButton, remindButton]
   );
   notification.setAttribute("id", "attachmentNotificationBox");
+
+  // Variation for Proton UI.
+  if (this.gComposeNotification.gProton) {
+    notification.messageText.appendChild(msg);
+    notification.buttonContainer.lastElementChild.appendChild(
+      remindLaterMenuPopup
+    );
+    return;
+  }
 
   notification.messageDetails.querySelector("button").before(msg);
   notification.messageDetails

@@ -593,6 +593,7 @@ button[type="menu-button"] {
   appearance: none;
 }
 
+@media not (-moz-proton) {
 .button-menu-list > .button-box {
   appearance: none;
   padding-inline-end: 14px;
@@ -607,6 +608,7 @@ button[type="menu-button"] {
 button.button-menu-list:-moz-locale-dir(rtl) > .button-box {
   background-position: left;
 }
+} /** END not Proton **/
 
 button[type="menu-button"] > .button-box > button {
   appearance: none;

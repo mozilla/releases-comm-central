@@ -7,3 +7,26 @@
 .notification-button.small {
   padding-block: 3px;
 }
+
+@media (-moz-proton-contextmenus) {
+@media (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
+  #reminderBarPopup {
+    appearance: none;
+    -moz-window-shadow: cliprounded;
+    background-color: transparent;
+    border-color: transparent;
+    border-radius: 3px;
+    color: var(--menu-color);
+  }
+
+  #reminderBarPopup > menuitem {
+    appearance: none;
+    padding: 0.5em 1em;
+  }
+
+  #reminderBarPopup > menuitem[_moz-menuactive="true"] {
+    background-color: var(--menuitem-hover-background-color);
+    color: var(--menu-color);
+  }
+}
+} /** END not Proton **/

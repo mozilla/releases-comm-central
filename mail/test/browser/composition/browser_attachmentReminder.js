@@ -31,6 +31,7 @@ var {
   assert_notification_displayed,
   check_notification_displayed,
   get_notification_button,
+  get_notification,
   wait_for_notification_to_show,
   wait_for_notification_to_stop,
 } = ChromeUtils.import(
@@ -127,15 +128,12 @@ function assert_manual_reminder_state(aCwc, aChecked) {
 /**
  * Returns the keywords string currently shown in the notification message.
  *
- * @param aCwc A compose window controller.
+ * @param {MozMillController} cwc - The compose window controller.
  */
-function get_reminder_keywords(aCwc) {
-  assert_automatic_reminder_state(aCwc, true);
-  let nBox = aCwc.window.document.querySelector(
-    `#${kBoxId} .notificationbox-stack`
-  )._notificationBox;
-  let notification = nBox.getNotificationWithValue(kNotificationId);
-  return notification
+function get_reminder_keywords(cwc) {
+  assert_automatic_reminder_state(cwc, true);
+  let box = get_notification(cwc, kBoxId, kNotificationId);
+  return box.messageText
     .querySelector("#attachmentKeywords")
     .getAttribute("value");
 }
@@ -167,11 +165,12 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // The manual reminder should be disabled yet.
   assert_manual_reminder_state(cwc, false);
 
+  let box = get_notification(cwc, kBoxId, kNotificationId);
   // Click ok to be notified on send if no attachments are attached.
-  cwc.click(
-    cwc.window.document.querySelector(
-      `#${kBoxId} button[label="Remind Me Later"]`
-    )
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.lastElementChild,
+    {},
+    cwc.window
   );
   wait_for_reminder_state(cwc, false);
 
@@ -398,12 +397,9 @@ add_task(async function test_manual_attachment_reminder() {
   wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
   // Edit the draft again...
   plan_for_new_window("msgcompose");
+  let box = get_notification(mc, "mail-notification-top", "draftMsgContent");
   // ... by clicking Edit in the draft message notification bar.
-  mc.click(
-    mc.window.document.querySelector(
-      "#mail-notification-top button[label='Edit']"
-    )
-  );
+  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
   cwc = wait_for_compose_window();
 
   // Check the reminder enablement was preserved in the message.
@@ -688,12 +684,9 @@ add_task(function test_reminder_in_draft() {
   wait_for_notification_to_show(mc, "mail-notification-top", "draftMsgContent");
   // Edit the draft again...
   plan_for_new_window("msgcompose");
+  let box = get_notification(mc, "mail-notification-top", "draftMsgContent");
   // ... by clicking Edit in the draft message notification bar.
-  mc.click(
-    mc.window.document.querySelector(
-      "#mail-notification-top button[label='Edit']"
-    )
-  );
+  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
   cwc = wait_for_compose_window();
 
   // Give the notification time to appear.
@@ -730,9 +723,10 @@ add_task(function test_disabling_attachment_reminder() {
     popup: "reminderBarPopup",
   });
   cwc.click(disableButton.querySelector("dropmarker"));
-  cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"), [
-    { id: "disableReminder" },
-  ]);
+  cwc.click_menus_in_sequence(
+    disableButton.closest("button").querySelector("menupopup"),
+    [{ id: "disableReminder" }]
+  );
 
   wait_for_reminder_state(cwc, false);
 
@@ -761,9 +755,10 @@ add_task(function test_disabling_attachment_reminder() {
     popup: "reminderBarPopup",
   });
   cwc.click(disableButton.querySelector("dropmarker"));
-  cwc.click_menus_in_sequence(cwc.e("reminderBarPopup"), [
-    { id: "disableReminder" },
-  ]);
+  cwc.click_menus_in_sequence(
+    disableButton.closest("button").querySelector("menupopup"),
+    [{ id: "disableReminder" }]
+  );
   wait_for_reminder_state(cwc, false);
 
   // Now send the message.

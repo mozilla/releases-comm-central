@@ -7,3 +7,13 @@
 .notification-button.small {
   padding-block: 4px;
 }
+
+#reminderBarPopup {
+  padding: 2px 5px;
+}
+
+#reminderBarPopup > menuitem[_moz-menuactive="true"] {
+  -moz-font-smoothing-background-color: -moz-mac-active-menuitem;
+  color: -moz-mac-menutextselect;
+  background-color: Highlight;
+}

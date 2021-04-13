@@ -40,7 +40,9 @@ var { gMockCloudfileManager } = ChromeUtils.import(
 var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-
+var { get_notification } = ChromeUtils.import(
+  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+);
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
@@ -213,10 +215,15 @@ function open_compose_from_draft(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.click(
-    aController.window.document.querySelector(
-      "#mail-notification-top button[label='Edit']"
-    )
+  let box = get_notification(
+    aController,
+    "mail-notification-top",
+    "draftMsgContent"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    box.buttonContainer.firstElementChild,
+    {},
+    aController.window
   );
   return wait_for_compose_window();
 }

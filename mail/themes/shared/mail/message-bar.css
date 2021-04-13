@@ -208,7 +208,7 @@
 
 .notification-button-container,
 .notification-message {
-  display: inline-block;
+  display: flex;
 }
 
 .notification-button {
@@ -218,6 +218,54 @@
 
 .notification-button:hover:active {
   border-color: var(--in-content-button-border-active);
+}
+
+/* Button variations */
+
+button.button-menu-list {
+  appearance: none;
+  padding-inline-end: 18px;
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  background-size: 12px;
+  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+button:-moz-locale-dir(rtl).button-menu-list {
+  background-position-x: left 4px;
+}
+
+button.notification-button[type="menu-button"] {
+  margin-inline: 6px;
+}
+
+button[type="menu-button"] > .button-box > button {
+  margin-block: -5px;
+  margin-inline: -11px 2px;
+  min-height: auto;
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+  padding-block: 2px;
+  font-weight: inherit;
+  border-inline-end: 1px solid var(--in-content-button-border);
+}
+
+.button-menubutton-dropmarker {
+  appearance: none;
+}
+
+button dropmarker::part(icon) {
+  margin-inline-start: 3px;
+}
+
+button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
+  appearance: none;
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+  margin-inline-end: -5px;
 }
 
 .close {
@@ -292,3 +340,33 @@ strong {
   margin-inline-end: 4px;
 }
 } /** END not Proton **/
+
+/* Attachment reminder variations */
+
+#attachmentKeywords {
+  font-weight: bold;
+  margin-inline-start: 3px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#reminderBarPopup {
+  appearance: auto;
+  -moz-default-appearance: menupopup;
+  min-width: 1px;
+  color: MenuText;
+}
+
+#reminderBarPopup menuitem {
+  appearance: auto;
+  -moz-default-appearance: menuitem;
+  -moz-box-align: center;
+  max-width: 42em;
+  padding: 5px;
+}
+
+#reminderBarPopup menu[_moz-menuactive="true"],
+#reminderBarPopup menuitem[_moz-menuactive="true"] {
+  color: -moz-MenuHoverText;
+  background-color: -moz-MenuHover;
+}

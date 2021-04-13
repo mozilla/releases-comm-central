@@ -27,7 +27,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { wait_for_notification_to_show } = ChromeUtils.import(
+var { wait_for_notification_to_show, get_notification } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 var { plan_for_new_window, wait_for_window_focused } = ChromeUtils.import(
@@ -58,15 +58,17 @@ add_task(function test_open_draft_again() {
 
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
+  let box = get_notification(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.window.document.querySelector(`#${kBoxId} button[label='Edit']`));
+  // Click on the "Edit" button in the draft notification.
+  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
   let cwc = wait_for_compose_window();
 
   let cwins = [...Services.wm.getEnumerator("msgcompose")].length;
 
   // click edit in main win again
-  mc.click(mc.window.document.querySelector(`#${kBoxId} button[label='Edit']`));
+  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
 
   mc.sleep(1000); // wait a sec to see if it caused a new window
 
@@ -169,12 +171,14 @@ function internal_check_delivery_format(editDraft) {
 
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
+  let box = get_notification(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
   if (editDraft) {
     // Trigger "edit draft".
-    mc.click(
-      mc.window.document.querySelector(`#${kBoxId} button[label='Edit']`)
+    EventUtils.synthesizeMouseAtCenter(
+      box.buttonContainer.firstElementChild,
+      {}
     );
   } else {
     // Trigger "edit as new" resulting in template processing.
@@ -340,9 +344,11 @@ add_task(function test_remove_space_stuffing_format_flowed() {
 
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
+  let box = get_notification(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.click(mc.window.document.querySelector(`#${kBoxId} button[label='Edit']`));
+  // Click on the "Edit" button in the draft notification.
+  EventUtils.synthesizeMouseAtCenter(box.buttonContainer.firstElementChild, {});
   cwc = wait_for_compose_window();
 
   let bodyText = get_compose_body(cwc).innerHTML;

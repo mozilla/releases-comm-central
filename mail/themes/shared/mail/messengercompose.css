@@ -734,6 +734,10 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 /* :::: attachment notification :::: */
 
+#compose-notification-bottom > .notificationbox-stack {
+  background-color: var(--lwt-toolbar-field-focus);
+}
+
 #attachmentReminderText {
   margin-inline-start: 0;
   cursor: pointer;

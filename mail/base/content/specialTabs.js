@@ -1152,7 +1152,8 @@ var specialTabs = {
       this.msgNotificationBar.PRIORITY_INFO_LOW,
       buttons
     );
-    notification.persistence = 3; // arbitrary number, just so bar sticks around for a bit
+    // Arbitrary number, just so bar sticks around for a bit.
+    notification.persistence = 3;
   },
 
   /**
@@ -1205,15 +1206,15 @@ var specialTabs = {
     let notifyRightsText = await document.l10n.formatValue(
       "about-rights-notification-text"
     );
-    var box = this.msgNotificationBar.appendNotification(
+    let notification = this.msgNotificationBar.appendNotification(
       notifyRightsText,
       "about-rights",
       null,
       this.msgNotificationBar.PRIORITY_INFO_LOW,
       buttons
     );
-    // arbitrary number, just so bar sticks around for a bit
-    box.persistence = 3;
+    // Arbitrary number, just so bar sticks around for a bit.
+    notification.persistence = 3;
 
     // Set the pref to say we've displayed the notification.
     Services.prefs.setIntPref("mail.rights.version", this._kAboutRightsVersion);
