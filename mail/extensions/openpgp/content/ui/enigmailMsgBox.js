@@ -12,9 +12,6 @@ var EnigmailClipboard = ChromeUtils.import(
 var { EnigmailOS } = ChromeUtils.import(
   "chrome://openpgp/content/modules/os.jsm"
 );
-var EnigmailLocale = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
 
 function onLoad() {
   var dlg = document.getElementById("enigmailMsgBox");

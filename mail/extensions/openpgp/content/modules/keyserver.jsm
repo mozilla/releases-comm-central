@@ -20,8 +20,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailGpg: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailLocale: "chrome://openpgp/content/modules/locale.jsm",
   FeedUtils: "resource:///modules/FeedUtils.jsm",
+  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -1000,7 +1000,7 @@ const accessVksServer = {
         actionFlag = EnigmailConstants.DOWNLOAD_KEY;
       }
 
-      let uiLocale = EnigmailLocale.getUILocale();
+      let uiLocale = Services.locale.appLocalesAsBCP47[0];
       let payLoad = this.buildJsonPayload(actionFlag, keyId, uiLocale);
       if (payLoad === null) {
         reject(createError(EnigmailConstants.KEYSERVER_ERR_UNKNOWN));

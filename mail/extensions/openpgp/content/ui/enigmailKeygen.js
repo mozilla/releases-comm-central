@@ -9,12 +9,12 @@
 "use strict";
 
 // modules
-/* global EnigmailData: false, EnigmailLog: false, EnigmailLocale: false, EnigmailGpg: false, EnigmailKeyEditor: false */
+/* global EnigmailData: false, EnigmailLog: false, EnigmailGpg: false, EnigmailKeyEditor: false */
 /* global EnigmailOS: false, EnigmailPrefs: false, EnigmailKeyRing: false */
 /* global EnigmailDialog: false, EnigmailFuncs: false */
 
 // from enigmailCommon.js:
-/* global EnigGetWindowOptions: false, EnigConfirm: false, EnigGetString: false, GetEnigmailSvc: false */
+/* global EnigGetWindowOptions: false, EnigConfirm: false, GetEnigmailSvc: false */
 /* global EnigLongAlert: false, EnigAlert: false */
 /* global EnigGetPref: false, EnigSetPref: false, EnigSavePrefs: false, EnigFilePicker: false, EnigGetFilePath: false */
 /* global EnigmailWindows: false, EnigCreateRevokeCert: false */

@@ -261,7 +261,7 @@ function performWkdUpload(keyList, win, observer) {
 
   return Promise.all(uploads)
     .catch(function(reason) {
-      //let errorMsg = EnigmailLocale.getString("keyserverProgress.wksUploadFailed");
+      //let errorMsg = "Could not upload your key to the Web Key Service";
       return [];
     })
     .then(function(senders) {

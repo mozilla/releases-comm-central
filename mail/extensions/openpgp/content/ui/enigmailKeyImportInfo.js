@@ -4,9 +4,6 @@
 
 "use strict";
 
-var EnigmailLocale = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
 var EnigmailWindows = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
 ).EnigmailWindows;

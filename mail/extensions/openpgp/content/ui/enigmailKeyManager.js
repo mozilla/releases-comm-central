@@ -8,7 +8,7 @@
 "use strict";
 
 // Uses: chrome://openpgp/content/ui/enigmailCommon.js:
-/* global EnigGetPref: false, EnigGetString: false, EnigFormatFpr: false, EnigGetTrustLabel: false */
+/* global EnigGetPref: false, EnigFormatFpr: false, EnigGetTrustLabel: false */
 /* global GetEnigmailSvc: false, EnigConfirm: false, EnigAlert: false, EnigShowPhoto: false */
 /* global enigGetService: false, EnigGetTempDir: false, EnigReadFileContents: false, EnigGetLocalFileApi: false, EnigAlertPref: false */
 /* global EnigEditKeyTrust: false, EnigEditKeyExpiry: false, EnigSignKey: false, EnigRevokeKey: false, EnigCreateRevokeCert: false */
@@ -18,7 +18,7 @@
 
 // imported packages
 /* global EnigmailLog: false, EnigmailKeyRing: false, EnigmailKeyEditor: false */
-/* global EnigmailKey: false, EnigmailLocale: false, EnigmailPrefs: false, EnigmailConstants: false */
+/* global EnigmailKey: false, EnigmailPrefs: false, EnigmailConstants: false */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -474,61 +474,6 @@ function enigCreateKeyMsg() {
   msgCompSvc.OpenComposeWindowWithParams("", msgCompParam);
 }
 
-/*
-function enigEditKeyTrust() {
-  var keyList = getSelectedKeys();
-  if (keyList.length === 0) {
-    EnigmailDialog.info(window, EnigGetString("noKeySelected"));
-    return;
-  }
-  var userIdList = [];
-  var keyIds = [];
-  for (var i = 0; i < keyList.length; i++) {
-    userIdList.push(gKeyList[keyList[i]].userId);
-    keyIds.push(gKeyList[keyList[i]].keyId);
-  }
-
-  if (EnigEditKeyTrust(userIdList, keyIds)) {
-    refreshKeys();
-  }
-}
-*/
-
-/*
-function enigEditKeyExpiry() {
-  var keyList = getSelectedKeys();
-  if (keyList.length === 0) {
-    EnigmailDialog.info(window, EnigGetString("noKeySelected"));
-    return;
-  }
-  var userIdList = [];
-  var keyIds = [];
-  for (var i = 0; i < keyList.length; i++) {
-    userIdList.push(gKeyList[keyList[i]].userId);
-    keyIds.push(gKeyList[keyList[i]].keyId);
-  }
-
-  if (EnigEditKeyExpiry(userIdList, keyIds)) {
-    refreshKeys();
-  }
-}
-*/
-
-/*
-function enigSignKey() {
-  var keyList = getSelectedKeys();
-  if (keyList.length === 0) {
-    EnigmailDialog.info(window, EnigGetString("noKeySelected"));
-    return;
-  }
-  if (
-    EnigSignKey(gKeyList[keyList[0]].userId, gKeyList[keyList[0]].keyId, null)
-  ) {
-    refreshKeys();
-  }
-}
-*/
-
 async function enigmailRevokeKey() {
   var keyList = getSelectedKeys();
   let keyInfo = gKeyList[keyList[0]];
@@ -795,10 +740,10 @@ function enigmailUploadKeys() {
 function enigmailUploadKeysCb(exitCode, errorMsg, msgBox) {
   if (msgBox) {
     if (exitCode !== 0) {
-      EnigAlert(EnigGetString("sendKeysFailed") + "\n" + errorMsg);
+      EnigAlert("Sending of keys failed" + "\n" + errorMsg);
     }
   } else {
-    return EnigGetString(exitCode === 0 ? "sendKeysOk" : "sendKeysFailed");
+    return exitCode === 0 ? "Key(s) sent successfully" : "Sending of keys failed";
   }
   return "";
 }
@@ -813,24 +758,24 @@ function enigmailUploadToWkd() {
   EnigmailWks.wksUpload(keyList, window)
     .then(result => {
       if (result.length > 0) {
-        EnigmailDialog.info(window, EnigmailLocale.getString("sendKeysOk"));
+        EnigmailDialog.info(window, "Key(s) sent successfully");
       } else if (keyList.length === 1) {
         EnigmailDialog.alert(
           window,
-          EnigmailLocale.getString("sendKeysFailed") +
+          "Sending of keys failed" +
             "\n\n" +
-            EnigmailLocale.getString("noWksIdentity", keyList[0].userId)
+            "The key %S does not have a WKS identity.".replace("%S", keyList[0].userId)
         );
       } else {
         EnigmailDialog.alert(
           window,
-          EnigmailLocale.getString("wksUpload.noKeySupported")
+          "The upload was not successful - your provider does not seem to support WKS."
         );
       }
     })
     .catch(error => {
       EnigmailDialog.alert(
-        window.EnigmailLocale.getString("sendKeysFailed") + "\n" + error
+        "Sending of keys failed" + "\n" + error
       );
     });
 }
@@ -872,9 +817,9 @@ function userAcceptsWarning(warningMessage) {
 /*
 function userAcceptsRefreshWarning() {
   if (EnigmailPrefs.getPref("keyRefreshOn") === true) {
-    return userAcceptsWarning(EnigGetString("refreshKeyServiceOn.warn"));
+    return userAcceptsWarning("Warning: Your keys are currently being refreshed in the background as safely as possible.\nRefreshing all your keys at once will unnecessarily reveal information about you.\nDo you really want to do this?");
   }
-  return userAcceptsWarning(EnigGetString("refreshKey.warn"));
+  return userAcceptsWarning("XXXrefreshKey.warn");
 }
 
 function enigmailRefreshAllKeys() {
@@ -896,9 +841,9 @@ function enigmailDowloadContactKeysEngine() {
       // ask for confirmation for each address book:
       var doIt = EnigmailDialog.confirmDlg(
         window,
-        EnigGetString("downloadContactsKeys.importFrom", addressBook.dirName),
-        EnigGetString("dlgYes"),
-        EnigGetString("dlg.button.skip")
+        "Import contacts from address book '%S'?".replace("%S, addressBook.dirName),
+        "&Yes",
+        "XXXdlg.button.skip"
       );
       if (!doIt) {
         continue; // SKIP this address book
@@ -958,10 +903,10 @@ function enigmailDowloadContactKeysEngine() {
 function enigmailDownloadContactKeys() {
   var doIt = EnigmailDialog.confirmPref(
     window,
-    EnigGetString("downloadContactsKeys.warn"),
-    "warnDownloadContactKeys",
-    EnigGetString("dlg.button.continue"),
-    EnigGetString("dlg.button.cancel")
+    "XXXdownloadContactsKeys.warn",
+    "XXXwarnDownloadContactKeys",
+    "XXXdlg.button.continue",
+    "XXXdlg.button.cancel"
   );
 
   if (doIt) {
@@ -981,19 +926,17 @@ function enigmailReceiveKeyCb(exitCode, errorMsg, msgBox) {
     if (exitCode === 0) {
       refreshKeys();
       EnigmailEvents.dispatchEvent(displayResult, 100, [
-        EnigGetString("receiveKeysOk"),
+        "Key(s) updated successfully",
         errorMsg,
       ]);
     } else {
       EnigmailEvents.dispatchEvent(displayResult, 100, [
-        EnigGetString("receiveKeysFailed"),
+        "Downloading of keys failed",
         errorMsg,
       ]);
     }
   } else {
-    return EnigGetString(
-      exitCode === 0 ? "receiveKeysOk" : "receiveKeysFailed"
-    );
+    return exitCode === 0 ? "Key(s) updated successfully" : "Downloading of keys failed";
   }
   return "";
 }

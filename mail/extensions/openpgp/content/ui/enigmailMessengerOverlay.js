@@ -40,7 +40,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.jsm",
   EnigmailKeyserverURIs: "chrome://openpgp/content/modules/keyserverUris.jsm",
-  EnigmailLocale: "chrome://openpgp/content/modules/locale.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
@@ -1585,13 +1584,13 @@ Enigmail.msg = {
       var blockInfo = blocks[0].split(/:/);
       plainText =
         EnigmailData.convertFromUnicode(
-          EnigmailLocale.getString("notePartEncrypted2"),
+          "*Parts of the message have NOT been signed nor encrypted*",
           charset
         ) +
         "\n\n" +
         plainText.substr(0, blockInfo[1]) +
         "\n\n" +
-        EnigmailLocale.getString("noteCutMessage2");
+        "*Multiple message blocks found -- decryption/verification aborted*";
     }
     */
 
@@ -3122,12 +3121,12 @@ Enigmail.msg = {
               if (ret) {
                 EnigmailDialog.info(
                   window,
-                  EnigmailLocale.getString("wksConfirmSuccess")
+                  "Confirmation email sent."
                 );
               } else {
                 EnigmailDialog.alert(
                   window,
-                  EnigmailLocale.getString("wksConfirmFailure")
+                  "Sending the confirmation email failed."
                 );
               }
             });
@@ -3136,7 +3135,7 @@ Enigmail.msg = {
         } else {
           EnigmailDialog.alert(
             window,
-            EnigmailLocale.getString("wksNoIdentity", [email])
+            "This key is not linked to any of your email accounts. Please add an account for at least one of the following email addresse(s):\n\n%S".replace("%S", email)
           );
         }
       }

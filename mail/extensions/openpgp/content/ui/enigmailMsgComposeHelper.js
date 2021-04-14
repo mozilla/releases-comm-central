@@ -22,9 +22,6 @@ var { EnigmailLog } = ChromeUtils.import(
 var EnigmailPrefs = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
 ).EnigmailPrefs;
-var EnigmailLocale = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
 var EnigmailDialog = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 ).EnigmailDialog;

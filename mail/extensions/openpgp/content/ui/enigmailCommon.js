@@ -35,9 +35,6 @@ var EnigmailPrefs = ChromeUtils.import(
 var { EnigmailOS } = ChromeUtils.import(
   "chrome://openpgp/content/modules/os.jsm"
 );
-var EnigmailLocale = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
 var EnigmailData = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 ).EnigmailData;
@@ -464,19 +461,6 @@ function EngmailCardDetails() {
   EnigmailWindows.openCardDetails();
 }
 
-// retrieves a localized string from the enigmail.properties stringbundle
-function EnigGetString(aStr) {
-  var argList = [];
-  // unfortunately arguments.shift() doesn't work, so we use a workaround
-
-  if (arguments.length > 1) {
-    for (var i = 1; i < arguments.length; i++) {
-      argList.push(arguments[i]);
-    }
-  }
-  return EnigmailLocale.getString(aStr, arguments.length > 1 ? argList : null);
-}
-
 //get path for temporary directory (e.g. /tmp, C:\TEMP)
 function EnigGetTempDir() {
   return EnigmailFiles.getTempDir();
@@ -601,9 +585,9 @@ function EnigCreateRevokeCert(keyId, userId, callbackFunc) {
   /*
   var defaultFileName = userId.replace(/[<>]/g, "");
   defaultFileName += " (0x" + keyId + ") rev.asc";
-  var outFile = EnigFilePicker(EnigGetString("saveRevokeCertAs"),
+  var outFile = EnigFilePicker("XXXsaveRevokeCertAs",
     "", true, "*.asc",
-    defaultFileName, [EnigGetString("asciiArmorFile"), "*.asc"]);
+    defaultFileName, ["XXXasciiArmorFile", "*.asc"];
   if (!outFile) return -1;
 
   var enigmailSvc = GetEnigmailSvc();

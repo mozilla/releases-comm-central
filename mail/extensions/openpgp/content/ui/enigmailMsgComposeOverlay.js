@@ -42,9 +42,6 @@ var { EnigmailOS } = ChromeUtils.import(
 var EnigmailArmor = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 ).EnigmailArmor;
-var EnigmailLocale = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
 var EnigmailFiles = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 ).EnigmailFiles;
@@ -2302,14 +2299,6 @@ Enigmail.msg = {
 
         if (sendInfo.sendFlags & SIGN) {
           // Encryption/signing failed
-
-          /*if (statusFlagsObj.statusMsg) {
-            // check if own key is invalid
-            let s = new RegExp("^(\\[GNUPG:\\] )?INV_(RECP|SGNR) [0-9]+ \\<?" + sendInfo.fromAddr + "\\>?", "m");
-            if (statusFlagsObj.statusMsg.search(s) >= 0) {
-              errorMsgObj.value += "\n\n" + EnigmailLocale.getString("keyError.resolutionAction");
-            }
-          }*/
 
           this.sendAborted(window, errorMsgObj);
           return false;

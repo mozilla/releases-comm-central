@@ -292,7 +292,7 @@ var EnigmailDecryption = {
 
     /*
     if (EnigmailKeyRing.isGeneratingKey()) {
-      errorMsgObj.value = EnigmailLocale.getString("notComplete");
+      errorMsgObj.value = "Error - key generation not yet completed";
       statusFlagsObj.value |= EnigmailConstants.DISPLAY_MESSAGE;
       return "";
     }

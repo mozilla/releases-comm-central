@@ -16,7 +16,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailLocale: "chrome://openpgp/content/modules/locale.jsm",
   EnigmailCommandLine: "chrome://openpgp/content/modules/commandLine.jsm",
   EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
@@ -99,7 +98,6 @@ var EnigmailCore = {
     //EnigmailFiltersWrapper.onShutdown();
     EnigmailVerify.unregisterContentTypeHandler();
 
-    EnigmailLocale.shutdown();
     EnigmailLog.onShutdown();
 
     EnigmailLog.setLogLevel(3);

@@ -29,7 +29,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailGpg: "chrome://openpgp/content/modules/gpg.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  EnigmailLocale: "chrome://openpgp/content/modules/locale.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
@@ -338,8 +337,8 @@ Enigmail.hdrView = {
         }
 
         Enigmail.hdrView.displayFlexAction(
-          EnigmailLocale.getString("wksConfirmationReq"),
-          EnigmailLocale.getString("wksConfirmationReq.button.label"),
+          "Web Key Directory Confirmation Request",
+          "Confirm Request",
           "wks-request"
         );
         Enigmail.hdrView.displayWksMessage();
@@ -364,8 +363,7 @@ Enigmail.hdrView = {
       let bodyElement = document.getElementById("messagepane");
       bodyElement.setAttribute("collapsed", true);
       enigMsgPane.removeAttribute("collapsed");
-      enigMsgPane.textContent = EnigmailLocale.getString(
-        "wksConfirmationReq.message"
+      enigMsgPane.textContent = "This message has been sent by your email provider to confirm deployment of your OpenPGP public key\nin their Web Key Directory.\nProviding your public key helps others to discover your key and thus being able to encrypt messages to you.\n\nIf you want to deploy your key in the Web Key Directory now, please click on the button "Confirm Request" in the status bar.\nOtherwise, simply ignore this message."
       );
     }
   },

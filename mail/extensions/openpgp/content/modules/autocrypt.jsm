@@ -1138,7 +1138,7 @@ function createBackupOuterMsg(toEmail, encryptedMsg) {
     "\r\n" +
     "Autocrypt-Setup-Message: v1\r\n" +
     "Subject: " +
-    EnigmailLocale.getString("autocrypt.setupMsg.subject") +
+    "Autocrypt Setup Message" +
     "\r\n" +
     'Content-type: multipart/mixed; boundary="' +
     boundary +
@@ -1147,11 +1147,11 @@ function createBackupOuterMsg(toEmail, encryptedMsg) {
     boundary +
     "\r\n" +
     "Content-Type: text/plain\r\n\r\n" +
-    EnigmailLocale.getString("autocryptSetupReq.setupMsg.desc") +
+    "This message contains all information to transfer your Autocrypt settings along with your secret key securely from your original device." +
     "\r\n\r\n" +
-    EnigmailLocale.getString("autocrypt.setupMsg.msgBody") +
+    "To set up your new device for Autocrypt, please follow the instuctions that should be presented by your new device." +
     "\r\n\r\n" +
-    EnigmailLocale.getString("autocryptSetupReq.setupMsg.backup") +
+    "You can keep this message and use it as a backup for your secret key. If you want to do this, you should write down the password and store it securely." +
     "\r\n" +
     "--" +
     boundary +
@@ -1160,7 +1160,7 @@ function createBackupOuterMsg(toEmail, encryptedMsg) {
     'Content-Disposition: attachment; filename="autocrypt-setup-message.html"\r\n\r\n' +
     "<html><body>\r\n" +
     "<p>" +
-    EnigmailLocale.getString("autocrypt.setupMsg.fileTxt") +
+    "This is the Autocrypt setup file used to transfer settings and keys between clients. You can decrypt it using the setup code displayed on your old device, then import the key to your keyring." +
     "</p>\r\n" +
     "<pre>\r\n" +
     encryptedMsg +
