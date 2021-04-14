@@ -137,11 +137,15 @@
         folder.msgDatabase = null;
         let msgKeys = msgDatabase.getNewList();
 
+        let numNewMessages = folder.getNumNewMessages(false);
+        if (!numNewMessages) {
+          continue;
+        }
         // NOTE: getNewlist returns all nsMsgMessageFlagType::New messages,
         // while getNumNewMessages returns count of new messages since the last
         // biff. Only show newly received messages since last biff in
         // notification.
-        msgKeys = msgKeys.slice(-folder.getNumNewMessages(false));
+        msgKeys = msgKeys.slice(-numNewMessages);
         if (!msgKeys.length) {
           continue;
         }

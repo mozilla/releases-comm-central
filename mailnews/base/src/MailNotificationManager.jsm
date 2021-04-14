@@ -125,9 +125,15 @@ class MailNotificationManager {
       property == "BiffState" &&
       newValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail
     ) {
+      this._logger.debug(
+        `OnItemIntPropertyChanged; property=${property} folder.URI=${folder.URI}`
+      );
       // The folder argument is a root folder.
       this._fillAlertInfo(folder);
     } else if (property == "NewMailReceived") {
+      this._logger.debug(
+        `OnItemIntPropertyChanged; property=${property} folder.URI=${folder.URI}`
+      );
       // The folder argument is a real folder.
       this._fillAlertInfo(folder);
     }
@@ -159,6 +165,9 @@ class MailNotificationManager {
     if (newMsgKeys.length == 0) {
       return;
     }
+    this._logger.debug(
+      `Filling alert info; folder.URI=${folder.URI}, numNewMessages=${numNewMessages}`
+    );
     let firstNewMsgHdr = msgDb.GetMsgHdrForKey(newMsgKeys[0]);
 
     let title = this._getAlertTitle(folder, numNewMessages);
@@ -178,7 +187,7 @@ class MailNotificationManager {
   /**
    * Iterate the subfolders of changedFolder, return the first real folder with
    * new mail.
-   * @param {nsIMsgFolder} changedFolder - The folder that emiited the change event.
+   * @param {nsIMsgFolder} changedFolder - The folder that emitted the change event.
    * @returns {nsIMsgFolder} The first real folder.
    */
   _getFirstRealFolderWithNewMail(changedFolder) {
