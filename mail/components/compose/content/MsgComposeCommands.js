@@ -5120,9 +5120,11 @@ function checkPublicRecipientsLimit() {
 
   // Reuse the existing notification since one is shown already.
   if (notification) {
-    let msgText = notification.querySelector("#consider-bcc-notification-text");
-    let pillCountArgs = JSON.stringify({ count: publicAddressPills.length });
-    msgText.setAttribute("data-l10n-args", pillCountArgs);
+    let msgText = notification.querySelector(".consider-bcc-notification-text");
+    msgText.setAttribute(
+      "data-l10n-args",
+      JSON.stringify({ count: publicAddressPills.length })
+    );
     return;
   }
 
@@ -5132,13 +5134,12 @@ function checkPublicRecipientsLimit() {
 
   let msgText = document.createElement("div");
   msg.appendChild(msgText);
-  msgText.id = "consider-bcc-notification-text";
+  msgText.classList.add("consider-bcc-notification-text");
   msgText.setAttribute("data-l10n-id", "consider-bcc-notification");
-
-  let pillCountArgs = JSON.stringify({ count: publicAddressPills.length });
-  msgText.setAttribute("data-l10n-args", pillCountArgs);
-  msgText.setAttribute("crop", "end");
-  msgText.setAttribute("flex", "1");
+  msgText.setAttribute(
+    "data-l10n-args",
+    JSON.stringify({ count: publicAddressPills.length })
+  );
 
   let bccButton = {
     "l10n-id": "many-public-recipients-bcc",
@@ -5174,6 +5175,11 @@ function checkPublicRecipientsLimit() {
     }
   );
   notification.setAttribute("id", "warnPublicRecipientsNotification");
+  // Variation for Proton UI.
+  if (this.gComposeNotification.gProton) {
+    notification.messageText.appendChild(msg);
+    return;
+  }
   notification.messageDetails.querySelector("button").before(msg);
 }
 

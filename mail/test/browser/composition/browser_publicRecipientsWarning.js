@@ -29,9 +29,12 @@ requestLongerTimeout(5);
  */
 add_task(async function testWarningShowsWhenToFieldHitsLimit() {
   let cwc = open_compose_new_mail();
+  let i = 1;
   setup_msg_contents(
     cwc,
-    "test@example.org,".repeat(publicRecipientLimit),
+    "test@example.org,"
+      .repeat(publicRecipientLimit)
+      .replace(/test@/g, () => `test${i++}@`),
     "Testing To Field",
     ""
   );
@@ -53,9 +56,12 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
   let cwc = open_compose_new_mail();
   let label = cwc.window.document.getElementById("addr_cc");
   cwc.window.showAddressRow(label, "addressRowCc");
+  let i = 1;
   setup_msg_contents(
     cwc,
-    "test@example.org,".repeat(publicRecipientLimit),
+    "test@example.org,"
+      .repeat(publicRecipientLimit)
+      .replace(/test@/g, () => `test${i++}@`),
     "Testing Cc Field",
     "",
     "ccAddrInput"
@@ -77,9 +83,12 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
  */
 add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
   let cwc = open_compose_new_mail();
+  let i = 1;
   setup_msg_contents(
     cwc,
-    "test@example.org,".repeat(publicRecipientLimit - 1),
+    "test@example.org,"
+      .repeat(publicRecipientLimit - 1)
+      .replace(/test@/g, () => `test${i++}@`),
     "Testing To and Cc Fields",
     ""
   );
@@ -104,9 +113,12 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
  */
 add_task(async function testToRecipientsMovedToBcc() {
   let cwc = open_compose_new_mail();
+  let i = 1;
   setup_msg_contents(
     cwc,
-    "test@example.org,".repeat(publicRecipientLimit),
+    "test@example.org,"
+      .repeat(publicRecipientLimit)
+      .replace(/test@/g, () => `test${i++}@`),
     "Testing move to Bcc",
     ""
   );
@@ -118,7 +130,7 @@ add_task(async function testToRecipientsMovedToBcc() {
   Assert.ok(notification, "public recipients warning appeared");
 
   EventUtils.synthesizeMouseAtCenter(
-    notification.querySelectorAll(".notification-button")[0],
+    notification.buttonContainer.firstElementChild,
     {},
     cwc.window
   );
@@ -154,9 +166,12 @@ add_task(async function testCcRecipientsMovedToBcc() {
   let cwc = open_compose_new_mail();
   let label = cwc.window.document.getElementById("addr_cc");
   cwc.window.showAddressRow(label, "addressRowCc");
+  let i = 1;
   setup_msg_contents(
     cwc,
-    "test@example.org,".repeat(publicRecipientLimit),
+    "test@example.org,"
+      .repeat(publicRecipientLimit)
+      .replace(/test@/g, () => `test${i++}@`),
     "Testing move to Bcc",
     ""
   );
@@ -168,7 +183,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
   Assert.ok(notification, "public recipients warning appeared");
 
   EventUtils.synthesizeMouseAtCenter(
-    notification.querySelectorAll(".notification-button")[0],
+    notification.buttonContainer.firstElementChild,
     {},
     cwc.window
   );
@@ -202,9 +217,12 @@ add_task(async function testCcRecipientsMovedToBcc() {
  */
 add_task(async function testToAndCcRecipientsMovedToBcc() {
   let cwc = open_compose_new_mail();
+  let i = 1;
   setup_msg_contents(
     cwc,
-    "test@example.org,".repeat(publicRecipientLimit - 1),
+    "test@example.org,"
+      .repeat(publicRecipientLimit - 1)
+      .replace(/test@/g, () => `test${i++}@`),
     "Testing move to Bcc",
     ""
   );
@@ -220,7 +238,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
   Assert.ok(notification, "public recipients warning appeared");
 
   EventUtils.synthesizeMouseAtCenter(
-    notification.querySelectorAll(".notification-button")[0],
+    notification.buttonContainer.firstElementChild,
     {},
     cwc.window
   );
@@ -260,9 +278,12 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
  */
 add_task(async function testWarningRemovedWhenKeepPublic() {
   let cwc = open_compose_new_mail();
+  let i = 1;
   setup_msg_contents(
     cwc,
-    "test@example.org,".repeat(publicRecipientLimit),
+    "test@example.org,"
+      .repeat(publicRecipientLimit)
+      .replace(/test@/g, () => `test${i++}@`),
     "Testing dismissal",
     ""
   );
@@ -274,7 +295,7 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
   Assert.ok(notification, "public recipients warning appeared");
 
   EventUtils.synthesizeMouseAtCenter(
-    notification.querySelectorAll(".notification-button")[1],
+    notification.buttonContainer.lastElementChild,
     {},
     cwc.window
   );
@@ -311,9 +332,12 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
  */
 add_task(async function testWarningNotShownAfterDismissal() {
   let cwc = open_compose_new_mail();
+  let i = 1;
   setup_msg_contents(
     cwc,
-    "test@example.org,".repeat(publicRecipientLimit),
+    "test@example.org,"
+      .repeat(publicRecipientLimit)
+      .replace(/test@/g, () => `test${i++}@`),
     "Testing dismissal",
     ""
   );
@@ -324,11 +348,7 @@ add_task(async function testWarningNotShownAfterDismissal() {
 
   Assert.ok(notification, "public recipients warning appeared");
 
-  EventUtils.synthesizeMouseAtCenter(
-    notification.querySelector(".messageCloseButton"),
-    {},
-    cwc.window
-  );
+  EventUtils.synthesizeMouseAtCenter(notification.closeButton, {}, cwc.window);
 
   await TestUtils.waitForCondition(
     () =>
@@ -338,7 +358,12 @@ add_task(async function testWarningNotShownAfterDismissal() {
 
   let input = cwc.window.document.getElementById("toAddrInput");
   input.focus();
-  cwc.type(input, "test@example.org,".repeat(publicRecipientLimit));
+  cwc.type(
+    input,
+    "test@example.org,"
+      .repeat(publicRecipientLimit)
+      .replace(/test@/g, () => `test${i++}@`)
+  );
 
   // Wait a little in case the notification bar mistakenly appears.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
