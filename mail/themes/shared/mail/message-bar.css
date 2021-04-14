@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :host {
-  --info-icon-url: url("chrome://global/skin/icons/info.svg");
+  --info-icon-url: url("chrome://global/skin/icons/info-filled.svg");
   --warn-icon-url: url("chrome://global/skin/icons/warning.svg");
   --success-icon-url: url("chrome://global/skin/icons/success.svg");
   --error-icon-url: url("chrome://global/skin/icons/error.svg");
@@ -306,7 +306,7 @@ strong {
 }
 
 :host([type=info]) .icon {
-  color: #45a1ff;
+  color: #0090ed;
 }
 
 :host([value=draftMsgContent]) .icon {
@@ -321,6 +321,12 @@ strong {
     --in-content-button-background-hover: #777778;
     --in-content-button-border-active: #878788;
     --in-content-button-background-active: #878788;
+    --in-content-focus-outline-color: #45a1ff;
+  }
+
+ @media (prefers-color-scheme: dark) {
+  :host([type=info]) .icon {
+    color: #45a1ff;
   }
 }
 } /** END Proton **/
