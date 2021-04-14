@@ -210,6 +210,7 @@ class nsMsgDatabase : public nsIMsgDatabase {
                              // fields
   friend class nsMsgThread;  // use this to get access to cached tokens for hdr
                              // fields
+
   friend class nsMsgDBEnumerator;
   friend class nsMsgDBThreadEnumerator;
 
@@ -354,7 +355,7 @@ class nsMsgDatabase : public nsIMsgDatabase {
   mdb_pos FindInsertIndexInSortedTable(nsIMdbTable* table, mdb_id idToInsert);
 
   void ClearCachedObjects(bool dbGoingAway);
-  void ClearEnumerators();
+  void InvalidateEnumerators();
   // all instantiated headers, but doesn't hold refs.
   PLDHashTable* m_headersInUse;
   static PLDHashNumber HashKey(const void* aKey);
@@ -388,9 +389,11 @@ class nsMsgDatabase : public nsIMsgDatabase {
   nsresult RemoveMsgRefsFromHash(nsIMsgDBHdr* msgHdr);
   nsresult InitRefHash();
 
-  // not-reference holding array of enumerators we've handed out.
-  // If a db goes away, it will clean up the outstanding enumerators.
-  nsTArray<nsMsgDBEnumerator*> m_enumerators;
+  // The enumerators add themselves to these lists.
+  // If a db goes away - via destruction or ForceClosed() - it needs to
+  // invalidate any outstanding enumerators.
+  nsTArray<nsMsgDBEnumerator*> m_msgEnumerators;
+  nsTArray<nsMsgDBThreadEnumerator*> m_threadEnumerators;
 
   // Memory reporter details
  public:

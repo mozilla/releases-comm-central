@@ -25,17 +25,23 @@ nsMsgDBEnumerator::nsMsgDBEnumerator(nsMsgDatabase* db, nsIMdbTable* table,
   mNextPrefetched = false;
   mTable = table;
   mRowPos = 0;
-  mDB->m_enumerators.AppendElement(this);
+  mDB->m_msgEnumerators.AppendElement(this);
 }
 
-nsMsgDBEnumerator::~nsMsgDBEnumerator() { Clear(); }
+nsMsgDBEnumerator::~nsMsgDBEnumerator() { Invalidate(); }
 
-void nsMsgDBEnumerator::Clear() {
+void nsMsgDBEnumerator::Invalidate() {
+  // Order is important here. If the database is destroyed first, releasing
+  // the cursor will crash (due, I think, to a disconnect between XPCOM and
+  // Mork internal memory management).
   mRowCursor = nullptr;
   mTable = nullptr;
   mResultHdr = nullptr;
-  if (mDB) mDB->m_enumerators.RemoveElement(this);
-  mDB = nullptr;
+  mDone = true;
+  if (mDB) {
+    mDB->m_msgEnumerators.RemoveElement(this);
+    mDB = nullptr;
+  }
 }
 
 nsresult nsMsgDBEnumerator::GetRowCursor() {
@@ -188,86 +194,23 @@ nsMsgDBThreadEnumerator::nsMsgDBThreadEnumerator(
       mResultThread(nullptr),
       mDone(false),
       mFilter(filter) {
-  mDB->AddListener(this);
+  mDB->m_threadEnumerators.AppendElement(this);
   mNextPrefetched = false;
 }
 
-nsMsgDBThreadEnumerator::~nsMsgDBThreadEnumerator() {
-  if (mDB) mDB->RemoveListener(this);
-}
+nsMsgDBThreadEnumerator::~nsMsgDBThreadEnumerator() { Invalidate(); }
 
-NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBThreadEnumerator, nsBaseMsgThreadEnumerator,
-                            nsIDBChangeListener)
-
-/* void OnHdrFlagsChanged (in nsIMsgDBHdr aHdrChanged, in unsigned long
- * aOldFlags, in unsigned long aNewFlags, in nsIDBChangeListener aInstigator);
- */
-NS_IMETHODIMP nsMsgDBThreadEnumerator::OnHdrFlagsChanged(
-    nsIMsgDBHdr* aHdrChanged, uint32_t aOldFlags, uint32_t aNewFlags,
-    nsIDBChangeListener* aInstigator) {
-  return NS_OK;
-}
-
-// void OnHdrPropertyChanged(in nsIMsgDBHdr aHdrToChange, in bool aPreChange,
-// inout uint32_t aStatus, in nsIDBChangeListener aInstigator);
-NS_IMETHODIMP
-nsMsgDBThreadEnumerator::OnHdrPropertyChanged(
-    nsIMsgDBHdr* aHdrToChange, bool aPreChange, uint32_t* aStatus,
-    nsIDBChangeListener* aInstigator) {
-  return NS_OK;
-}
-
-/* void onHdrDeleted (in nsIMsgDBHdr aHdrChanged, in nsMsgKey aParentKey, in
- * long aFlags, in nsIDBChangeListener aInstigator); */
-NS_IMETHODIMP nsMsgDBThreadEnumerator::OnHdrDeleted(
-    nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey, int32_t aFlags,
-    nsIDBChangeListener* aInstigator) {
-  return NS_OK;
-}
-
-/* void onHdrAdded (in nsIMsgDBHdr aHdrChanged, in nsMsgKey aParentKey, in long
- * aFlags, in nsIDBChangeListener aInstigator); */
-NS_IMETHODIMP nsMsgDBThreadEnumerator::OnHdrAdded(
-    nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey, int32_t aFlags,
-    nsIDBChangeListener* aInstigator) {
-  return NS_OK;
-}
-
-/* void onParentChanged (in nsMsgKey aKeyChanged, in nsMsgKey oldParent, in
- * nsMsgKey newParent, in nsIDBChangeListener aInstigator); */
-NS_IMETHODIMP nsMsgDBThreadEnumerator::OnParentChanged(
-    nsMsgKey aKeyChanged, nsMsgKey oldParent, nsMsgKey newParent,
-    nsIDBChangeListener* aInstigator) {
-  return NS_OK;
-}
-
-/* void onAnnouncerGoingAway (in nsIDBChangeAnnouncer instigator); */
-NS_IMETHODIMP nsMsgDBThreadEnumerator::OnAnnouncerGoingAway(
-    nsIDBChangeAnnouncer* instigator) {
-  // Somebody has called ForceClosed() on the database, so we need to stop
-  // using it, right now (ugh).
+void nsMsgDBThreadEnumerator::Invalidate() {
+  // Order is important here. If the database is destroyed first, releasing
+  // the cursor will crash (due, I think, to a disconnect between XPCOM and
+  // Mork internal memory management).
   mTableCursor = nullptr;
   mResultThread = nullptr;
-  mDB->RemoveListener(this);
-  mDB = nullptr;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDBThreadEnumerator::OnEvent(nsIMsgDatabase* aDB,
-                                               const char* aEvent) {
-  return NS_OK;
-}
-
-/* void onReadChanged (in nsIDBChangeListener aInstigator); */
-NS_IMETHODIMP nsMsgDBThreadEnumerator::OnReadChanged(
-    nsIDBChangeListener* aInstigator) {
-  return NS_OK;
-}
-
-/* void onJunkScoreChanged (in nsIDBChangeListener aInstigator); */
-NS_IMETHODIMP nsMsgDBThreadEnumerator::OnJunkScoreChanged(
-    nsIDBChangeListener* aInstigator) {
-  return NS_OK;
+  mDone = true;
+  if (mDB) {
+    mDB->m_threadEnumerators.RemoveElement(this);
+    mDB = nullptr;
+  }
 }
 
 nsresult nsMsgDBThreadEnumerator::GetTableCursor(void) {
@@ -275,12 +218,17 @@ nsresult nsMsgDBThreadEnumerator::GetTableCursor(void) {
 
   // DB might have disappeared.
   if (!mDB || !mDB->m_mdbStore) return NS_ERROR_NULL_POINTER;
-
-  mDB->m_mdbStore->GetPortTableCursor(mDB->GetEnv(), mDB->m_hdrRowScopeToken,
-                                      mDB->m_threadTableKindToken,
-                                      getter_AddRefs(mTableCursor));
-
   if (NS_FAILED(rv)) return rv;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgDBThreadEnumerator::HasMoreElements(bool* aResult) {
+  NS_ENSURE_ARG_POINTER(aResult);
+
+  if (!mNextPrefetched) {
+    PrefetchNext();
+  }
+  *aResult = !mDone;
   return NS_OK;
 }
 
@@ -301,15 +249,20 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::GetNext(nsIMsgThread** aItem) {
 
 nsresult nsMsgDBThreadEnumerator::PrefetchNext() {
   nsresult rv;
-  nsCOMPtr<nsIMdbTable> table;
 
   // DB might have disappeared.
-  if (!mDB) return NS_ERROR_NULL_POINTER;
+  if (!mDB || !mDB->m_mdbStore) {
+    return NS_ERROR_NULL_POINTER;
+  }
 
   if (!mTableCursor) {
-    rv = GetTableCursor();
-    if (NS_FAILED(rv)) return rv;
+    rv = mDB->m_mdbStore->GetPortTableCursor(
+        mDB->GetEnv(), mDB->m_hdrRowScopeToken, mDB->m_threadTableKindToken,
+        getter_AddRefs(mTableCursor));
+    NS_ENSURE_SUCCESS(rv, rv);
   }
+
+  nsCOMPtr<nsIMdbTable> table;
   while (true) {
     mResultThread = nullptr;
     rv = mTableCursor->NextTable(mDB->GetEnv(), getter_AddRefs(table));
@@ -344,12 +297,4 @@ nsresult nsMsgDBThreadEnumerator::PrefetchNext() {
     return NS_OK;
   }
   return NS_ERROR_FAILURE;
-}
-
-NS_IMETHODIMP nsMsgDBThreadEnumerator::HasMoreElements(bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-
-  if (!mNextPrefetched) PrefetchNext();
-  *aResult = !mDone;
-  return NS_OK;
 }

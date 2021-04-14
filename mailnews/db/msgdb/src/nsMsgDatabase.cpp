@@ -528,13 +528,23 @@ NS_IMETHODIMP nsMsgDatabase::ClearCachedHdrs() {
   return NS_OK;
 }
 
-void nsMsgDatabase::ClearEnumerators() {
-  // clear out existing enumerators
-  nsTArray<nsMsgDBEnumerator*> copyEnumerators;
-  copyEnumerators.SwapElements(m_enumerators);
-
-  uint32_t numEnums = copyEnumerators.Length();
-  for (uint32_t i = 0; i < numEnums; i++) copyEnumerators[i]->Clear();
+// Invalidate any outstanding message enumerators using this db.
+void nsMsgDatabase::InvalidateEnumerators() {
+  RefPtr<nsMsgDatabase> kungFuDeathGrip(this);
+  // Work in reverse, as the enumerators remove themselves from the list.
+  {
+    auto n = m_msgEnumerators.Length();
+    for (auto i = n; i > 0; --i) {
+      m_msgEnumerators[i - 1]->Invalidate();
+    }
+  }
+  // And again for thread enumerators.
+  {
+    auto n = m_threadEnumerators.Length();
+    for (auto i = n; i > 0; --i) {
+      m_threadEnumerators[i - 1]->Invalidate();
+    }
+  }
 }
 
 nsMsgThread* nsMsgDatabase::FindExistingThread(nsMsgKey threadId) {
@@ -1010,7 +1020,7 @@ nsMsgDatabase::~nsMsgDatabase() {
   mMemReporter = nullptr;
   //  Close(FALSE);  // better have already been closed.
   ClearCachedObjects(true);
-  ClearEnumerators();
+  InvalidateEnumerators();
   delete m_cachedHeaders;
   delete m_headersInUse;
 
@@ -1296,7 +1306,7 @@ NS_IMETHODIMP nsMsgDatabase::ForceClosed() {
 
   err = CloseMDB(true);  // Backup DB will try to recover info, so commit
   ClearCachedObjects(true);
-  ClearEnumerators();
+  InvalidateEnumerators();
   if (m_mdbAllMsgHeadersTable) {
     m_mdbAllMsgHeadersTable->Release();
     m_mdbAllMsgHeadersTable = nullptr;
