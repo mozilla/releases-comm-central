@@ -290,8 +290,9 @@ label.label {
   padding-inline-end: 10px;
 }
 
-.above-separator {
+.separator td {
   border-bottom: 1px solid var(--field-border-color);
+  padding: 0 !important;
 }
 
 #completed-date-picker {

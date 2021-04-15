@@ -966,11 +966,7 @@ function updateCategoryMenulist() {
 
   // Hide the categories listbox and label in case categories are not
   // supported
-  document
-    .getElementById("event-grid-category-color-row")
-    .toggleAttribute("hidden", maxCount === 0);
-  document.getElementById("item-calendar-label").hidden = maxCount === 0;
-  document.getElementById("item-calendar-aux-label").hidden = maxCount !== 0;
+  document.getElementById("event-grid-category-row").toggleAttribute("hidden", maxCount === 0);
 
   let label;
   let categoryList = categoryPopup.querySelectorAll("menuitem.calendar-category[checked]");
@@ -3837,6 +3833,7 @@ function showOrHideItemURL(aShow, aUrl) {
  */
 function updateItemURL(aShow, aUrl) {
   // Hide or show the link
+  document.getElementById("event-grid-link-separator").toggleAttribute("hidden", !aShow);
   document.getElementById("event-grid-link-row").toggleAttribute("hidden", !aShow);
 
   // Set the url for the link

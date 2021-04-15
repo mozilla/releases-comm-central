@@ -140,11 +140,6 @@
                accesskey="&event.calendar.accesskey;"
                control="item-calendar"
                disable-on-readonly="true"/>
-        <label id="item-calendar-aux-label"
-               value="&event.calendar.label;"
-               accesskey="&event.calendar.accesskey;"
-               control="item-calendar"
-               disable-on-readonly="true"/>
       </html:th>
       <html:td id="event-grid-item-calendar-td">
         <menulist id="item-calendar"
@@ -152,6 +147,7 @@
                   oncommand="updateCalendar();"/>
       </html:td>
     </html:tr>
+
     <!-- Title -->
     <html:tr id="event-grid-title-row">
       <html:th>
@@ -186,8 +182,8 @@
     </html:tr>
 
     <!-- Category -->
-    <html:tr id="event-grid-category-color-row">
-      <html:th class="above-separator">
+    <html:tr id="event-grid-category-row">
+      <html:th>
         <hbox id="event-grid-category-labels-box">
           <label id="item-categories-label"
                  value="&event.categories.label;"
@@ -196,7 +192,7 @@
                  disable-on-readonly="true"/>
         </hbox>
       </html:th>
-      <html:td id="event-grid-category-color-td" class="above-separator">
+      <html:td id="event-grid-category-td">
         <menulist id="item-categories"
                   type="panel-menulist"
                   disable-on-readonly="true">
@@ -213,17 +209,20 @@
       </html:td>
     </html:tr>
 
+    <html:tr class="separator">
+      <html:td colspan="2"></html:td>
+    </html:tr>
+
     <!-- All-Day -->
-    <html:tr id="event-grid-allday-row">
+    <html:tr id="event-grid-allday-row" class="event-only">
       <html:th>
       </html:th>
       <html:td>
         <checkbox id="event-all-day"
-                   class="event-only"
-                   disable-on-readonly="true"
-                   label="&event.alldayevent.label;"
-                   accesskey="&event.alldayevent.accesskey;"
-                   oncommand="onUpdateAllDay();"/>
+                  disable-on-readonly="true"
+                  label="&event.alldayevent.label;"
+                  accesskey="&event.alldayevent.accesskey;"
+                  oncommand="onUpdateAllDay();"/>
       </html:td>
     </html:tr>
 
@@ -395,13 +394,13 @@
 
     <!-- Recurrence -->
     <html:tr id="event-grid-recurrence-row">
-      <html:th class="above-separator">
+      <html:th>
         <label value="&event.repeat.label;"
                accesskey="&event.repeat.accesskey;"
                control="item-repeat"
                disable-on-readonly="true"/>
       </html:th>
-      <html:td id="event-grid-recurrence-td" class="above-separator">
+      <html:td id="event-grid-recurrence-td">
         <hbox id="event-grid-recurrence-picker-box"
               align="center"
               flex="1">
@@ -466,15 +465,19 @@
       </html:td>
     </html:tr>
 
+    <html:tr class="separator">
+      <html:td colspan="2"></html:td>
+    </html:tr>
+
     <!-- Reminder (Alarm) -->
     <html:tr id="event-grid-alarm-row">
-      <html:th class="above-separator">
+      <html:th>
         <label value="&event.reminder.label;"
                accesskey="&event.reminder.accesskey;"
                control="item-alarm"
                disable-on-readonly="true"/>
       </html:th>
-      <html:td class="above-separator">
+      <html:td>
         <hbox id="event-grid-alarm-picker-box"
               align="center">
           <menulist id="item-alarm"
@@ -577,18 +580,26 @@
       </html:td>
     </html:tr>
 
+    <html:tr id="event-grid-link-separator" class="separator" hidden="hidden">
+      <html:td colspan="2"></html:td>
+    </html:tr>
+
     <html:tr id="event-grid-link-row" hidden="hidden">
-      <html:th class="above-separator">
+      <html:th>
         <label value="&event.url.label;"
                control="url-link"/>
       </html:th>
-      <html:td class="above-separator">
+      <html:td>
         <label id="url-link"
                class="text-link"
                onclick="launchBrowser(this.getAttribute('href'), event)"
                oncommand="launchBrowser(this.getAttribute('href'), event)"
                crop="end"/>
       </html:td>
+    </html:tr>
+
+    <html:tr class="separator">
+      <html:td colspan="2"></html:td>
     </html:tr>
   </html:table>
 
