@@ -51,14 +51,8 @@ td {
   display: -moz-box;
 }
 
-.network-status-row[status="loading"] .network-status-image {
-  list-style-image: url(chrome://global/skin/icons/loading.png);
-}
-
-@media (min-resolution: 1.1dppx) {
-  .network-status-row[status="loading"] .network-status-image {
-    list-style-image: url(chrome://global/skin/icons/loading@2x.png);
-  }
+.network-status-row:not([status="loading"]) .network-status-image {
+  display: none;
 }
 
 /* Network Calendar List */
