@@ -26,8 +26,6 @@
 
 <dialog>
 
-  <html:link rel="localization" href="calendar/calendar-event-dialog-reminder.ftl"/>
-
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-event-dialog-reminder.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
@@ -116,16 +114,16 @@
   </hbox>
   <menulist id="reminder-actions-menulist"
             oncommand="updateReminder(event)"
-            class="reminder-list-icon">
+            class="reminder-icon">
     <!-- Make sure the id is formatted "reminder-action-<VALUE>", for accessibility -->
     <!-- TODO provider specific -->
     <menupopup id="reminder-actions-menupopup">
       <menuitem id="reminder-action-DISPLAY"
-                class="reminder-list-icon menuitem-iconic"
+                class="reminder-icon menuitem-iconic"
                 value="DISPLAY"
                 label="&reminder.action.alert.label;"/>
       <menuitem id="reminder-action-EMAIL"
-                class="reminder-list-icon menuitem-iconic"
+                class="reminder-icon menuitem-iconic"
                 value="EMAIL"
                 label="&reminder.action.email.label;"/>
     </menupopup>

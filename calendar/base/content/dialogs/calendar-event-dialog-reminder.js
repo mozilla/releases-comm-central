@@ -226,27 +226,11 @@ function setupListItem(aListItem, aReminder, aItem) {
   listitem.setAttribute("aria-labelledby", ariaLabel);
   listitem.setAttribute("value", aReminder.action);
 
-  let image = listitem.querySelector("img");
+  let image = listitem.querySelector("image");
   if (!image) {
-    image = document.createElement("img");
+    image = document.createXULElement("image");
     image.setAttribute("class", "reminder-icon");
     listitem.appendChild(image);
-  }
-  switch (aReminder.action) {
-    case "DISPLAY":
-      image.setAttribute("src", "chrome://calendar/skin/shared/icons/alarm.svg");
-      // Sets alt.
-      document.l10n.setAttributes(image, "calendar-event-reminder-icon-display");
-      break;
-    case "EMAIL":
-      image.setAttribute("src", "chrome://calendar/skin/shared/icons/email.svg");
-      // Sets alt.
-      document.l10n.setAttributes(image, "calendar-event-reminder-icon-email");
-      break;
-    default:
-      image.removeAttribute("src");
-      image.setAttribute("alt", "");
-      break;
   }
   image.setAttribute("value", aReminder.action);
 

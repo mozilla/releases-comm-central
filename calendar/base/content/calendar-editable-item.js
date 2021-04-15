@@ -304,10 +304,10 @@
       let alarms = item.getAlarms();
       if (alarms.length && Services.prefs.getBoolPref("calendar.alarms.indicator.show", true)) {
         let iconsBox = this.querySelector(".alarm-icons-box");
+        cal.alarms.addReminderImages(iconsBox, alarms);
+
         // Set suppressed status on the icons box.
         iconsBox.toggleAttribute("suppressed", item.calendar.getProperty("suppressAlarms"));
-
-        cal.alarms.addReminderImages(iconsBox, alarms);
       }
 
       // Item classification / privacy.

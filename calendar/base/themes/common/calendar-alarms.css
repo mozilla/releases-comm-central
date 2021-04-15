@@ -10,11 +10,15 @@
     fill: currentColor;
 }
 
-.reminder-list-icon[value="DISPLAY"] {
+.reminder-icon[value="DISPLAY"] {
     list-style-image: url(chrome://calendar/skin/shared/icons/alarm.svg);
 }
 
-.reminder-list-icon[value="EMAIL"] {
+.alarm-icons-box[suppressed] > .reminder-icon[value="DISPLAY"] {
+    list-style-image: url(chrome://calendar/skin/shared/icons/alarm-no.svg);
+}
+
+.reminder-icon[value="EMAIL"] {
     list-style-image: url(chrome://calendar/skin/shared/icons/email.svg);
 }
 
