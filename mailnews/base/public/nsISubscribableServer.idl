@@ -63,7 +63,7 @@ interface nsISubscribableServer : nsISupports {
    * @param  aPath  The server's uri; If this is null or empty, then the
    *                root server uri will be used.
    */
-  nsIUTF8StringEnumerator getChildURIs(in AUTF8String aPath);
+  Array<AUTF8String> getChildURIs(in AUTF8String aPath);
   // if path is null, use the root
   AUTF8String getFirstChildURI(in AUTF8String path);
 

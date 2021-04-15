@@ -5,17 +5,12 @@
 
 #include "nsSubscribableServer.h"
 #include "nsIMsgIncomingServer.h"
-#include "prmem.h"
 #include "nsIServiceManager.h"
 #include "nsMsgI18N.h"
 #include "nsMsgUtils.h"
-#include "nsCOMArray.h"
-#include "nsArrayEnumerator.h"
-#include "nsStringEnumerator.h"
 #include "nsServiceManagerUtils.h"
 #include "nsTreeColumns.h"
 #include "mozilla/dom/DataTransfer.h"
-#include "mozilla/Utf8.h"
 
 /**
  * The basic structure for the tree of the implementation.
@@ -556,7 +551,8 @@ nsSubscribableServer::GetFirstChildURI(const nsACString& aPath,
 
 NS_IMETHODIMP
 nsSubscribableServer::GetChildURIs(const nsACString& aPath,
-                                   nsIUTF8StringEnumerator** aResult) {
+                                   nsTArray<nsCString>& aResult) {
+  aResult.Clear();
   SubscribeTreeNode* node = nullptr;
   nsresult rv = FindAndCreateNode(aPath, &node);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -574,21 +570,16 @@ nsSubscribableServer::GetChildURIs(const nsACString& aPath,
   // return failure if there are no children.
   if (!current) return NS_ERROR_FAILURE;
 
-  nsTArray<nsCString>* result = new nsTArray<nsCString>;
-
   while (current) {
     NS_ASSERTION(!current->name.IsEmpty(), "no name");
     if (current->name.IsEmpty()) {
       return NS_ERROR_FAILURE;
     }
-    result->AppendElement(current->path);
+    aResult.AppendElement(current->path);
     current = current->prevSibling;
   }
 
-  rv = NS_NewAdoptingUTF8StringEnumerator(aResult, result);
-  if (NS_FAILED(rv)) delete result;
-
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP

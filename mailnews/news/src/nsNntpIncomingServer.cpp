@@ -1226,7 +1226,7 @@ nsNntpIncomingServer::GetFirstChildURI(const nsACString& path,
 
 NS_IMETHODIMP
 nsNntpIncomingServer::GetChildURIs(const nsACString& aPath,
-                                   nsIUTF8StringEnumerator** aResult) {
+                                   nsTArray<nsCString>& aResult) {
   nsresult rv = EnsureInner();
   NS_ENSURE_SUCCESS(rv, rv);
   return mInner->GetChildURIs(aPath, aResult);
