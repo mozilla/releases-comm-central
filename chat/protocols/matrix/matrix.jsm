@@ -304,38 +304,30 @@ var GenericMatrixConversation = {
       }
     }
     // Get the timeline for the event, or just the current live timeline of the room
-    let timeline;
-    if (latestOldEvent) {
-      timeline = this.room.getTimelineForEvent(latestOldEvent);
-      // The event wasn't in our local cache yet, let's start a timeline containing the event
-      if (!timeline) {
-        await this._account._client.getEventTimeline(
-          this.room.getUnfilteredTimelineSet(),
-          latestOldEvent
-        );
-        timeline = this.room.getTimelineForEvent(latestOldEvent);
-      }
-    } else {
-      timeline = this.room.getLiveTimeline();
+    let timelineWindow = new MatrixSDK.TimelineWindow(
+      this._account._client,
+      this.room.getUnfilteredTimelineSet()
+    );
+    const windowChunkSize = 100;
+    await timelineWindow.load(latestOldEvent, windowChunkSize);
+    // Remove the old event from the window.
+    timelineWindow.unpaginate(1, true);
+    let newEvents = timelineWindow.getEvents();
+    for (const event of newEvents) {
+      this.addEvent(event, true);
     }
-    if (timeline) {
-      // Make sure the timeline cotains all events up to the present
-      let timelineCatchingUp = true;
-      while (timelineCatchingUp) {
-        timelineCatchingUp = await this._account._client.paginateEventTimeline(
-          timeline
-        );
-      }
-      // Write all new events to the conversation
-      const events = timeline.getEvents();
-      let pastLatestOldEvent = !latestOldEvent;
-      for (const event of events) {
-        if (pastLatestOldEvent) {
+    while (timelineWindow.canPaginate(EventTimeline.FORWARDS)) {
+      if (
+        await timelineWindow.paginate(EventTimeline.FORWARDS, windowChunkSize)
+      ) {
+        timelineWindow.unpaginate(newEvents.length, true);
+        newEvents = timelineWindow.getEvents();
+        for (const event of newEvents) {
           this.addEvent(event, true);
         }
-        if (!pastLatestOldEvent && event.getId() === latestOldEvent) {
-          pastLatestOldEvent = true;
-        }
+      } else {
+        // Pagination was unable to add any more events
+        break;
       }
     }
   },
