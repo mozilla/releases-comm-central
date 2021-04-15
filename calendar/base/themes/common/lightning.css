@@ -79,7 +79,6 @@
 }
 
 #calendar-status-todaypane-button > stack > .toolbarbutton-icon-begin {
-    list-style-image: url(chrome://calendar/skin/shared/icons/pane.svg);
     width: 16px;
     height: 16px;
     -moz-context-properties: fill, fill-opacity;
@@ -106,7 +105,6 @@
 #calendar-status-todaypane-button > .toolbarbutton-icon-end {
   -moz-context-properties: fill;
   fill: currentColor;
-  list-style-image: url(chrome://calendar/skin/shared/todayButton-arrow.svg);
 }
 
 #calendar-status-todaypane-button[checked="true"] > .toolbarbutton-icon-end {

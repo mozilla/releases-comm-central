@@ -439,7 +439,9 @@ function updateTodayPaneButton() {
   iconStack.setAttribute("pack", "center");
   iconStack.setAttribute("align", "end");
 
-  let iconBegin = document.createXULElement("image");
+  let iconBegin = document.createElement("img");
+  iconBegin.setAttribute("alt", "");
+  iconBegin.setAttribute("src", "chrome://calendar/skin/shared/icons/pane.svg");
   iconBegin.classList.add("toolbarbutton-icon-begin");
 
   let iconLabel = document.createXULElement("label");
@@ -451,7 +453,9 @@ function updateTodayPaneButton() {
   iconStack.appendChild(iconBegin);
   iconStack.appendChild(iconLabel);
 
-  let iconEnd = document.createXULElement("image");
+  let iconEnd = document.createElement("img");
+  iconEnd.setAttribute("alt", "");
+  iconEnd.setAttribute("src", "chrome://calendar/skin/shared/todayButton-arrow.svg");
   iconEnd.classList.add("toolbarbutton-icon-end");
 
   let oldImage = todaypane.querySelector(".toolbarbutton-icon");
