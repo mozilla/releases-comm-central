@@ -2265,21 +2265,21 @@
         });
 
       this.addEventListener("dragstart", event => {
-        let targetPill = event.originalTarget.closest("mail-address-pill");
+        // Check if we're dragging a pill, as the drag target might be another
+        // element like row or pill <input> when dragging selected plain text.
+        let targetPill = event.target.closest(
+          "mail-address-pill:not(.editing)"
+        );
         if (!targetPill) {
           return;
         }
         if (!targetPill.hasAttribute("selected")) {
+          // If the drag action starts from a non-selected pill,
+          // deselect all selected pills and select only the target pill.
           for (let pill of this.getAllSelectedPills()) {
-            // Deselect all previously selected pills if the drag action starts
-            // from a non selected pill.
             pill.removeAttribute("selected");
           }
           targetPill.toggleAttribute("selected");
-        }
-        let selectedPills = this.getAllSelectedPills();
-        if (!selectedPills.length) {
-          return;
         }
         event.dataTransfer.effectAllowed = "move";
         event.dataTransfer.dropEffect = "move";
