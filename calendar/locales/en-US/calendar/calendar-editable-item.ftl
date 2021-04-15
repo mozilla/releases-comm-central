@@ -22,3 +22,12 @@ calendar-editable-item-multiday-event-icon-continue =
 
 calendar-editable-item-multiday-event-icon-end =
   .alt = Multiple-day event ends
+
+calendar-editable-item-reminder-icon-alarm =
+  .alt = A reminder alert is scheduled
+
+calendar-editable-item-reminder-icon-suppressed-alarm =
+  .alt = A reminder alert is scheduled but currently suppressed
+
+calendar-editable-item-reminder-icon-email =
+  .alt = A reminder e-mail is scheduled

@@ -212,7 +212,7 @@ add_task(async function test_addReminderImages() {
     equal(box.children.length, actions.length);
     for (let i = 0, len = box.children.length; i < len; i++) {
       let actionvalue = box.children[i].getAttribute("value");
-      equal(box.children[i].localName, "image", msg + " (is image)");
+      equal(box.children[i].localName, "img", msg + " (is image)");
       ok(actionset.has(actionvalue), msg + " (has action)");
       equal(box.children[i].getAttribute("class"), "reminder-icon", msg + " (has class)");
       actionset.delete(actionvalue);
