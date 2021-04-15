@@ -47,8 +47,13 @@
   </menulist>
 
   <stack id="timezone-stack">
-    <image src="chrome://calendar/skin/shared/timezone_map.png"/>
-    <image class="timezone-highlight" tzid="+0000" id="highlighter"/>
+    <html:img src="chrome://calendar/skin/shared/timezone_map.png"
+              alt="" />
+    <html:img id="highlighter"
+              src="chrome://calendar/skin/shared/timezones.png"
+              alt=""
+              class="timezone-highlight"
+              tzid="+0000" />
   </stack>
 </dialog>
 </window>

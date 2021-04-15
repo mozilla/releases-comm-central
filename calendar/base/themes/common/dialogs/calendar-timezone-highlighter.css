@@ -7,134 +7,136 @@
 }
 
 .timezone-highlight {
-   list-style-image: url(chrome://calendar/skin/shared/timezones.png);
+  object-fit: none;
+  width: 460px;
+  height: 287px;
 }
 .timezone-highlight[tzid="none"] {
   display: none;
 }
 .timezone-highlight[tzid="+0000"] {
-  -moz-image-region: rect(0 7360px 287px 6900px);
+  object-position: top 0 left -6900px;
 }
 .timezone-highlight[tzid="+0100"] {
-  -moz-image-region: rect(0 7820px 287px 7360px);
+  object-position: top 0 left -7360px;
 }
 .timezone-highlight[tzid="+0200"] {
-  -moz-image-region: rect(0 8280px 287px 7820px);
+  object-position: top 0 left -7820px;
 }
 .timezone-highlight[tzid="+0300"] {
-  -moz-image-region: rect(0 8740px 287px 8280px);
+  object-position: top 0 left -8280px;
 }
 .timezone-highlight[tzid="+0330"] {
-  -moz-image-region: rect(0 9200px 287px 8740px);
+  object-position: top 0 left -8740px;
 }
 .timezone-highlight[tzid="+0400"] {
-  -moz-image-region: rect(0 9660px 287px 9200px);
+  object-position: top 0 left -9200px;
 }
 .timezone-highlight[tzid="+0430"] {
-  -moz-image-region: rect(0 10120px 287px 9660px);
+  object-position: top 0 left -9660px;
 }
 .timezone-highlight[tzid="+0500"] {
-  -moz-image-region: rect(0 10580px 287px 10120px);
+  object-position: top 0 left -10120px;
 }
 .timezone-highlight[tzid="+0530"] {
-  -moz-image-region: rect(0 11040px 287px 10580px);
+  object-position: top 0 left -10580px;
 }
 .timezone-highlight[tzid="+0545"] {
-  -moz-image-region: rect(0 11500px 287px 11040px);
+  object-position: top 0 left -11040px;
 }
 .timezone-highlight[tzid="+0600"] {
-  -moz-image-region: rect(0 11960px 287px 11500px);
+  object-position: top 0 left -11500px;
 }
 .timezone-highlight[tzid="+0630"] {
-  -moz-image-region: rect(0 12420px 287px 11960px);
+  object-position: top 0 left -11960px;
 }
 .timezone-highlight[tzid="+0700"] {
-  -moz-image-region: rect(0 12880px 287px 12420px);
+  object-position: top 0 left -12420px;
 }
 .timezone-highlight[tzid="+0800"] {
-  -moz-image-region: rect(0 13340px 287px 12880px);
+  object-position: top 0 left -12880px;
 }
 .timezone-highlight[tzid="+0845"] {
   display: none;
 }
 .timezone-highlight[tzid="+0900"] {
-  -moz-image-region: rect(0 13800px 287px 13340px);
+  object-position: top 0 left -13340px;
 }
 .timezone-highlight[tzid="+0930"] {
-  -moz-image-region: rect(0 14260px 287px 13800px);
+  object-position: top 0 left -13800px;
 }
 .timezone-highlight[tzid="+1000"] {
-  -moz-image-region: rect(0 14720px 287px 14260px);
+  object-position: top 0 left -14260px;
 }
 .timezone-highlight[tzid="+1030"] {
-  -moz-image-region: rect(0 15180px 287px 14720px);
+  object-position: top 0 left -14720px;
 }
 .timezone-highlight[tzid="+1100"] {
-  -moz-image-region: rect(0 15640px 287px 15180px);
+  object-position: top 0 left -15180px;
 }
 .timezone-highlight[tzid="+1130"] {
-  -moz-image-region: rect(0 15640px 287px 15180px);
+  object-position: top 0 left -15180px;
 }
 .timezone-highlight[tzid="+1200"] {
-  -moz-image-region: rect(0 16560px 287px 16100px);
+  object-position: top 0 left -16100px;
 }
 .timezone-highlight[tzid="+1245"] {
-  -moz-image-region: rect(0 17020px 287px 16560px);
+  object-position: top 0 left -16560px;
 }
 .timezone-highlight[tzid="+1300"] {
-  -moz-image-region: rect(0 17480px 287px 17020px);
+  object-position: top 0 left -17020px;
 }
 .timezone-highlight[tzid="+1400"] {
-  -moz-image-region: rect(0 17940px 287px 17480px);
+  object-position: top 0 left -17480px;
 }
 .timezone-highlight[tzid="-0100"] {
-  -moz-image-region: rect(0 6900px 287px 6440px);
+  object-position: top 0 left -6440px;
 }
 .timezone-highlight[tzid="-0200"] {
-  -moz-image-region: rect(0 6440px 287px 5980px);
+  object-position: top 0 left -5980px;
 }
 .timezone-highlight[tzid="-0300"] {
-  -moz-image-region: rect(0 5980px 287px 5520px);
+  object-position: top 0 left -5520px;
 }
 .timezone-highlight[tzid="-0330"] {
-  -moz-image-region: rect(0 5520px 287px 5060px);
+  object-position: top 0 left -5060px;
 }
 .timezone-highlight[tzid="-0400"] {
-  -moz-image-region: rect(0 5060px 287px 4600px);
+  object-position: top 0 left -4600px;
 }
 .timezone-highlight[tzid="-0430"] {
   display: none;
 }
 .timezone-highlight[tzid="-0500"] {
-  -moz-image-region: rect(0 4600px 287px 4140px);
+  object-position: top 0 left -4140px;
 }
 .timezone-highlight[tzid="-0600"] {
-  -moz-image-region: rect(0 4140px 287px 3680px);
+  object-position: top 0 left -3680px;
 }
 .timezone-highlight[tzid="-0700"] {
-  -moz-image-region: rect(0 3680px 287px 3220px);
+  object-position: top 0 left -3220px;
 }
 .timezone-highlight[tzid="-0800"] {
-  -moz-image-region: rect(0 18400px 287px 17940px);
+  object-position: top 0 left -17940px;
 }
 .timezone-highlight[tzid="-0830"] {
-  -moz-image-region: rect(0 3220px 287px 2760px);
+  object-position: top 0 left -2760px;
 }
 .timezone-highlight[tzid="-0900"] {
-  -moz-image-region: rect(0 2760px 287px 2300px);
+  object-position: top 0 left -2300px;
 }
 .timezone-highlight[tzid="-0930"] {
-  -moz-image-region: rect(0 2300px 287px 1840px);
+  object-position: top 0 left -1840px;
 }
 .timezone-highlight[tzid="-1000"] {
-  -moz-image-region: rect(0 1840px 287px 1380px);
+  object-position: top 0 left -1380px;
 }
 .timezone-highlight[tzid="-1100"] {
-  -moz-image-region: rect(0 1380px 287px 920px);
+  object-position: top 0 left -920px;
 }
 .timezone-highlight[tzid="-1245"] {
-  -moz-image-region: rect(0 920px 287px 460px);
+  object-position: top 0 left -460px;
 }
 .timezone-highlight[tzid="-1200"] {
-  -moz-image-region: rect(0 460px 287px 0px);
+  object-position: top 0 left 0;
 }
