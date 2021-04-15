@@ -92,6 +92,10 @@ class BasePopup {
     return BasePopup.instances.get(window).get(extension);
   }
 
+  close() {
+    this.closePopup();
+  }
+
   destroy() {
     this.extension.forgetOnClose(this);
 
