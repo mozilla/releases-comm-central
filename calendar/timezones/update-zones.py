@@ -17,7 +17,17 @@ Otherwise manual corrections will get dropped when pushing the update.
 
 from __future__ import absolute_import
 
-import argparse, ftplib, json, os, os.path, re, shutil, subprocess, sys, tarfile, tempfile
+import argparse
+import ftplib
+import json
+import os
+import os.path
+import re
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
 from collections import OrderedDict
 from datetime import date, timedelta
 
@@ -161,27 +171,28 @@ class TimezoneUpdater(object):
             if key > FUTURE_CUTOFF:
                 continue
             component = components_by_start_date[key]
+
             if finished and "RRULE" not in component:
                 continue
-            if "used" in component:
-                continue
-            component["used"] = True
+
             kept_components.append(component)
-            if key <= HISTORY_CUTOFF:
+
+            if key < HISTORY_CUTOFF:
                 finished = True
+
+        # The last kept component is the active component at HISTORY_CUTOFF.
+        # If it is a list of recurrence dates, prepend the epoch.
+        earliest = kept_components[-1]
+        if "valid_rdates" in earliest and len(earliest["valid_rdates"]) > 0:
+            earliest["valid_rdates"] = ["19700101T000000"] + earliest["valid_rdates"]
 
         for i in range(len(kept_components)):
             component = kept_components[i]
-            last = i == len(kept_components) - 1
             # In this block of code, we attempt to match what vzic does when
             # creating "Outlook-compatible" timezone files. This is to minimize
             # changes in our zones.json file. And to be more Outlook-compatible.
             if int(component["DTSTART"][0:8]) < HISTORY_CUTOFF:
-                if (
-                    not last
-                    and "valid_rdates" in component
-                    and len(component["valid_rdates"]) > 0
-                ):
+                if "valid_rdates" in component and len(component["valid_rdates"]) > 0:
                     component["DTSTART"] = component["valid_rdates"][0]
                     continue
 
@@ -229,6 +240,10 @@ class TimezoneUpdater(object):
         zone_name = filename[:-4]
         ics = []
         for component in kept_components:
+            if "done" in component:
+                continue
+            component["done"] = True
+
             ics_lines = []
             ics_lines.append("BEGIN:%s" % component["type"])
             if len(kept_components) == 1 or len(component["TZOFFSETFROM"]) != 5:
