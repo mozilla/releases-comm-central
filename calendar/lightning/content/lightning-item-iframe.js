@@ -2361,7 +2361,7 @@ function makePrettyName(aUri) {
  */
 function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
   let file = attachment.uri.QueryInterface(Ci.nsIFileURL).file;
-  let image = listItem.querySelector("image");
+  let image = listItem.querySelector("img");
   listItem.attachCloudFileAccount = cloudFileAccount;
   image.setAttribute("src", "chrome://global/skin/icons/loading.png");
   cloudFileAccount.uploadFile(file).then(
@@ -2413,7 +2413,8 @@ function addAttachment(attachment, cloudFileAccount) {
   if (attachment.uri) {
     let documentLink = document.getElementById("attachment-link");
     let listItem = document.createXULElement("richlistitem");
-    let image = document.createXULElement("image");
+    let image = document.createElement("img");
+    image.setAttribute("alt", "");
     listItem.appendChild(image);
     let label = document.createXULElement("label");
     label.setAttribute("value", makePrettyName(attachment.uri));
