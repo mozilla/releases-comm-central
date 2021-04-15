@@ -165,11 +165,10 @@
     static get inheritedAttributes() {
       return {
         ".calendar-color-box":
-          "orient,readonly,flashing,alarm,allday,priority,progress,status,calendar,categories,todoType",
+          "orient,readonly,flashing,alarm,allday,priority,status,calendar,categories,todoType",
         ".calendar-event-box": "orient,width,height",
         ".calendar-event-box-container":
-          "context,parentorient=orient,readonly,flashing,alarm,allday,priority,progress,status,calendar,categories",
-        ".calendar-item-image": "progress,allday,itemType,todoType",
+          "context,parentorient=orient,readonly,flashing,alarm,allday,priority,status,calendar,categories",
         ".alarm-icons-box": "flashing",
         ".category-color-box": "categories",
         ".calendar-event-box-grippy-top": "parentorient=orient",
@@ -282,8 +281,8 @@
                        flex="1">
                   <hbox class="calendar-event-details"
                         align="start">
-                    <image class="calendar-item-image">
-                    </image>
+                    <html:img class="calendar-item-image"
+                              alt="" />
                     <vbox flex="1">
                       <label class="calendar-event-details-core event-name-label"
                              crop="end">

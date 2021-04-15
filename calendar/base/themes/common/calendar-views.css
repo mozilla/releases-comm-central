@@ -171,42 +171,17 @@
     margin-inline-end: 4px;
     -moz-context-properties: fill;
     fill: currentColor;
-    display: none;
 }
 
-.multiday-view-main-box .calendar-item-image {
-  margin-top: 4px;
+.calendar-item-image:not([src]) {
+  display: none;
 }
 
-.calendar-item-image[itemType="todo"] {
-    list-style-image: url("chrome://calendar/skin/shared/todo.svg");
-    display: -moz-box;
-}
-
-.calendar-item-image[itemType="todo"][progress="completed"] {
-    list-style-image: url("chrome://calendar/skin/shared/todo-complete.svg");
-}
-
-.calendar-item-image[type="start"] {
-    list-style-image: url("chrome://calendar/skin/shared/event-start.svg");
-    display: -moz-box;
-}
-
-.calendar-item-image[type="continue"] {
-    list-style-image: url("chrome://calendar/skin/shared/event-continue.svg");
-    display: -moz-box;
-}
-
-.calendar-item-image[type="end"] {
-    list-style-image: url("chrome://calendar/skin/shared/event-end.svg");
-    display: -moz-box;
-}
-
-.calendar-item-image[type]:-moz-locale-dir(ltr) {
+.calendar-item-image[rotated-to-read-direction]:-moz-locale-dir(ltr) {
   transform: rotate(-90deg);
 }
 
-.calendar-item-image[type]:-moz-locale-dir(rtl) {
+.calendar-item-image[rotated-to-read-direction]:-moz-locale-dir(rtl) {
   transform: rotate(90deg);
 }
 

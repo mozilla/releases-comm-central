@@ -22,7 +22,7 @@
     static get inheritedAttributes() {
       return {
         ".calendar-event-box-container":
-          "readonly,flashing,alarm,allday,priority,progress,status,calendar,categories",
+          "readonly,flashing,alarm,allday,priority,status,calendar,categories",
         ".calendar-category-box": "categories",
         ".alarm-icons-box": "flashing",
         ".calendar-event-details > vbox": "context",
@@ -343,25 +343,18 @@
         }
       }
 
-      // Set up event box attributes for use in css selectors. Note if
-      // something is added here, it should also be inherited correctly
-      // in the <content> section of this custom element, and all that inherit it.
-
       // Event type specific properties.
-      if (item.isEvent()) {
-        if (item.startDate.isDate) {
-          this.setAttribute("allday", "true");
-        }
-        this.setAttribute("itemType", "event");
-      } else if (item.isTodo()) {
-        // Progress attribute.
-        this.setAttribute("progress", cal.item.getProgressAtom(item));
-        // Attribute for tasks and tasks image.
-        this.setAttribute("itemType", "todo");
-        if (item.entryDate && !item.dueDate) {
-          this.setAttribute("todoType", "start");
-        } else if (!item.entryDate && item.dueDate) {
-          this.setAttribute("todoType", "end");
+      if (item.isEvent() && item.startDate.isDate) {
+        this.setAttribute("allday", "true");
+      }
+      if (item.isTodo()) {
+        let icon = this.querySelector(".calendar-item-image");
+        if (cal.item.getProgressAtom(item) === "completed") {
+          icon.setAttribute("src", "chrome://calendar/skin/shared/todo-complete.svg");
+          document.l10n.setAttributes(icon, "calendar-editable-item-todo-icon-completed-task");
+        } else {
+          icon.setAttribute("src", "chrome://calendar/skin/shared/todo.svg");
+          document.l10n.setAttributes(icon, "calendar-editable-item-todo-icon-task");
         }
       }
 

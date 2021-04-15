@@ -7,3 +7,18 @@ calendar-editable-item-privacy-icon-private =
 
 calendar-editable-item-privacy-icon-confidential =
   .alt = Privacy: Show Time and Date Only
+
+calendar-editable-item-todo-icon-task =
+  .alt = Task
+
+calendar-editable-item-todo-icon-completed-task =
+  .alt = Completed task
+
+calendar-editable-item-multiday-event-icon-start =
+  .alt = Multiple-day event begins
+
+calendar-editable-item-multiday-event-icon-continue =
+  .alt = Multiple-day event continues
+
+calendar-editable-item-multiday-event-icon-end =
+  .alt = Multiple-day event ends

@@ -276,8 +276,7 @@
     static get inheritedAttributes() {
       return {
         ".calendar-event-box-container":
-          "readonly,flashing,alarm,allday,priority,progress,status,calendar,categories",
-        ".calendar-item-image": "progress,allday,itemType,todoType",
+          "readonly,flashing,alarm,allday,priority,status,calendar,categories",
         ".calendar-month-day-box-item-label": "context",
         ".event-name-label-container": "context",
         ".alarm-icons-box": "flashing",
@@ -301,7 +300,8 @@
                          flex="1">
                     <hbox class="calendar-event-details">
                       <vbox pack="center">
-                          <image class="calendar-item-image"></image>
+                          <html:img class="calendar-item-image"
+                                    alt="" />
                       </vbox>
                       <label class="calendar-month-day-box-item-label"></label>
                       <vbox class="event-name-label-container"
@@ -356,35 +356,52 @@
     set occurrence(val) {
       cal.ASSERT(!this.mOccurrence, "Code changes needed to set the occurrence twice", true);
       this.mOccurrence = val;
-      if (val.isEvent() && !val.startDate.isDate) {
-        let icon = this.querySelector(".calendar-item-image");
-        let label = this.querySelector(".calendar-month-day-box-item-label");
-        let formatter = cal.dtz.formatter;
-        let timezone = this.calendarView ? this.calendarView.mTimezone : cal.dtz.defaultTimezone;
-        let parentDate = this.parentBox.date;
-        let parentTime = cal.createDateTime();
-        parentTime.resetTo(parentDate.year, parentDate.month, parentDate.day, 0, 0, 0, timezone);
-        let startTime = val.startDate.getInTimezone(timezone);
-        let endTime = val.endDate.getInTimezone(timezone);
-        let nextDay = parentTime.clone();
-        nextDay.day++;
-        let comp = endTime.compare(nextDay);
-        if (startTime.compare(parentTime) == -1) {
-          if (comp == 1) {
-            icon.setAttribute("type", "continue");
-          } else if (comp == 0) {
-            icon.setAttribute("type", "start");
+      if (val.isEvent()) {
+        let type;
+        if (!val.startDate.isDate) {
+          let label = this.querySelector(".calendar-month-day-box-item-label");
+          let formatter = cal.dtz.formatter;
+          let timezone = this.calendarView ? this.calendarView.mTimezone : cal.dtz.defaultTimezone;
+          let parentDate = this.parentBox.date;
+          let parentTime = cal.createDateTime();
+          parentTime.resetTo(parentDate.year, parentDate.month, parentDate.day, 0, 0, 0, timezone);
+          let startTime = val.startDate.getInTimezone(timezone);
+          let endTime = val.endDate.getInTimezone(timezone);
+          let nextDay = parentTime.clone();
+          nextDay.day++;
+          let comp = endTime.compare(nextDay);
+          if (startTime.compare(parentTime) == -1) {
+            if (comp == 1) {
+              type = "continue";
+            } else if (comp == 0) {
+              type = "start";
+            } else {
+              type = "end";
+              label.value = formatter.formatTime(endTime);
+            }
+          } else if (comp == 1) {
+            type = "start";
+            label.value = formatter.formatTime(startTime);
           } else {
-            icon.setAttribute("type", "end");
-            label.value = formatter.formatTime(endTime);
+            label.value = formatter.formatTime(startTime);
           }
-        } else if (comp == 1) {
-          icon.setAttribute("type", "start");
-          label.value = formatter.formatTime(startTime);
-        } else {
-          label.value = formatter.formatTime(startTime);
+          label.setAttribute("time", "true");
         }
-        label.setAttribute("time", "true");
+        let icon = this.querySelector(".calendar-item-image");
+        if (type) {
+          // NOTE: "type" attribute only seems to be used in the mochitest
+          // browser_eventDisplay.js.
+          icon.setAttribute("type", type);
+          icon.setAttribute("src", `chrome://calendar/skin/shared/event-${type}.svg`);
+          icon.setAttribute("rotated-to-read-direction", true);
+          // Sets alt.
+          document.l10n.setAttributes(icon, `calendar-editable-item-multiday-event-icon-${type}`);
+        } else {
+          icon.removeAttribute("type");
+          icon.removeAttribute("src");
+          icon.removeAttribute("rotated-to-read-direction");
+          icon.setAttribute("alt", "");
+        }
       }
 
       this.setEditableLabel();
