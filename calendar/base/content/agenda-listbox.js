@@ -124,7 +124,8 @@
             <vbox pack="center" flex="1">
               <label class="agenda-event-start" crop="end" hidden="true"></label>
               <hbox flex="1" align="start">
-                <image class="agenda-multiDayEvent-image"></image>
+                <html:img class="agenda-multiDayEvent-image"
+                          alt="" />
                 <calendar-month-day-box-item flex="1" flat="true"></calendar-month-day-box-item>
               </hbox>
             </vbox>
@@ -174,7 +175,17 @@
         allDayDateLabel.setAttribute("hidden", "true");
       }
       let multiDayImage = this.querySelector(".agenda-multiDayEvent-image");
-      multiDayImage.setAttribute("type", iconType);
+      if (iconType) {
+        multiDayImage.setAttribute("src", `chrome://calendar/skin/shared/event-${iconType}.svg`);
+        // Sets alt.
+        document.l10n.setAttributes(
+          multiDayImage,
+          `calendar-editable-item-multiday-event-icon-${iconType}`
+        );
+      } else {
+        multiDayImage.removeAttribute("src");
+        multiDayImage.setAttribute("alt", "");
+      }
       // class wrap causes allday items to wrap its text in today-pane
       let eventBoxContainer = this.mAllDayItem.querySelector(".calendar-event-box-container");
       eventBoxContainer.classList.add("wrap");
@@ -251,13 +262,14 @@
           <hbox class="agenda-container-box" flex="1">
             <hbox>
               <vbox>
-                <image class="agenda-calendar-image"></image>
+                <html:div class="agenda-calendar-image"></html:div>
                 <spacer flex="1"></spacer>
               </vbox>
             </hbox>
             <vbox flex="1" class="agenda-description">
               <hbox align="start">
-                <image class="agenda-multiDayEvent-image"></image>
+                <html:img class="agenda-multiDayEvent-image"
+                          alt="" />
                 <label class="agenda-event-start" crop="end" flex="1"></label>
               </hbox>
               <label class="agenda-event-title" crop="end"></label>
@@ -321,7 +333,17 @@
         iconType = "continue";
       }
       let multiDayImage = this.querySelector(".agenda-multiDayEvent-image");
-      multiDayImage.setAttribute("type", iconType);
+      if (iconType) {
+        multiDayImage.setAttribute("src", `chrome://calendar/skin/shared/event-${iconType}.svg`);
+        // Sets alt.
+        document.l10n.setAttributes(
+          multiDayImage,
+          `calendar-editable-item-multiday-event-icon-${iconType}`
+        );
+      } else {
+        multiDayImage.removeAttribute("src");
+        multiDayImage.setAttribute("alt", "");
+      }
       let durationbox = this.querySelector(".agenda-event-start");
       durationbox.textContent = duration;
 

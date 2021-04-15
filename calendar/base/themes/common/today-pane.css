@@ -440,14 +440,6 @@ richlistitem[is="agenda-allday-richlistitem"] {
   margin-top: 0.6em;
 }
 
-.agenda-multiDayEvent-image[type="start"] {
-  list-style-image: url("chrome://calendar/skin/shared/event-start.svg");
-}
-
-.agenda-multiDayEvent-image[type="continue"] {
-  list-style-image: url("chrome://calendar/skin/shared/event-continue.svg");
-}
-
-.agenda-multiDayEvent-image[type="end"] {
-  list-style-image: url("chrome://calendar/skin/shared/event-end.svg");
+.agenda-multiDayEvent-image:not([src]) {
+  display: none;
 }
