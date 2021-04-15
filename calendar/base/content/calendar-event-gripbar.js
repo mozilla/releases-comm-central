@@ -40,31 +40,49 @@
         // stopPropagation() is called.
         event.stopPropagation();
       });
-    }
 
-    connectedCallback() {
-      this._image = document.createXULElement("image");
-      this._image.setAttribute("pack", "center");
-
+      this._image = document.createElement("img");
+      /* Make sure the img doesn't interfere with dragging the gripbar to
+       * resize. */
+      this._image.setAttribute("draggable", "false");
+      this._image.setAttribute("alt", "");
       this.appendChild(this._image);
-
-      this.parentorient = this.getAttribute("parentorient");
     }
 
-    /**
-     * Sets the orientation for image of the gripbar which
-     * is inherited from the parent box.
-     *
-     * @param {String} orientation value.
-     */
-    set parentorient(val) {
-      this.setAttribute("parentorient", val);
-      let otherOrient = val == "horizontal" ? "vertical" : "horizontal";
-      this._image.setAttribute("orient", otherOrient);
+    static get observedAttributes() {
+      return ["parentorient", "whichside"];
     }
 
-    get parentorient() {
-      return this.getAttribute("parentorient");
+    attributeChangedCallback(name, oldVal, newVal) {
+      let side;
+      let orient;
+      switch (name) {
+        case "parentorient":
+          orient = newVal;
+          side = this.getAttribute("whichside");
+          break;
+        case "whichside":
+          orient = this.getAttribute("parentorient");
+          side = newVal;
+          break;
+        default:
+          return;
+      }
+      let src;
+      if (side === "start" && orient === "vertical") {
+        src = "chrome://calendar/skin/shared/event-grippy-top.png";
+      } else if (side === "start" && orient === "horizontal") {
+        src = "chrome://calendar/skin/shared/event-grippy-left.png";
+      } else if (side === "end" && orient === "vertical") {
+        src = "chrome://calendar/skin/shared/event-grippy-bottom.png";
+      } else if (side === "end" && orient === "horizontal") {
+        src = "chrome://calendar/skin/shared/event-grippy-right.png";
+      }
+      if (src) {
+        this._image.setAttribute("src", src);
+      } else {
+        this._image.removeAttribute("src");
+      }
     }
   }
 

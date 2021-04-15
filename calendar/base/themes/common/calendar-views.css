@@ -843,30 +843,13 @@ calendar-event-gripbar[parentorient="horizontal"][whichside="end"] {
     cursor: e-resize;
 }
 
-calendar-event-box[orient="vertical"] .calendar-event-box-grippy-top image {
-    list-style-image: url("chrome://calendar/skin/shared/event-grippy-top.png");
+calendar-event-box calendar-event-gripbar img {
     visibility: hidden;
 }
 
-calendar-event-box[orient="vertical"] .calendar-event-box-grippy-bottom image {
-    list-style-image: url("chrome://calendar/skin/shared/event-grippy-bottom.png");
-    visibility: hidden;
-}
-
-calendar-event-box[orient="horizontal"] .calendar-event-box-grippy-top image {
-    list-style-image: url("chrome://calendar/skin/shared/event-grippy-left.png");
-    visibility: hidden;
-}
-
-calendar-event-box[orient="horizontal"] .calendar-event-box-grippy-bottom image {
-    list-style-image: url("chrome://calendar/skin/shared/event-grippy-right.png");
-    visibility: hidden;
-}
-
-calendar-event-box[gripBars="start"]:not([readonly="true"]):hover .calendar-event-box-grippy-top image,
-calendar-event-box[gripBars="end"]:not([readonly="true"]):hover .calendar-event-box-grippy-bottom image,
-calendar-event-box[gripBars="both"]:not([readonly="true"]):hover .calendar-event-box-grippy-top image,
-calendar-event-box[gripBars="both"]:not([readonly="true"]):hover .calendar-event-box-grippy-bottom image {
+calendar-event-box[gripBars="start"]:not([readonly="true"]):hover calendar-event-gripbar[whichside="start"] img,
+calendar-event-box[gripBars="end"]:not([readonly="true"]):hover calendar-event-gripbar[whichside="end"] img,
+calendar-event-box[gripBars="both"]:not([readonly="true"]):hover calendar-event-gripbar img {
     visibility: visible;
 }
 
