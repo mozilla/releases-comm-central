@@ -10,8 +10,7 @@ let { MimeEncoder } = ChromeUtils.import("resource:///modules/MimeEncoder.jsm");
 let { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
-
-Cu.importGlobalProperties(["fetch"]);
+var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 /**
  * A class to represent a RFC2045 message. MimePart can be nested, each MimePart
@@ -155,10 +154,10 @@ class MimePart {
     // If this is an attachment part, use the attachment content as bodyString.
     if (this._bodyAttachment) {
       try {
-        bodyString = await this._fetchFile();
+        bodyString = await this._fetchAttachment();
       } catch (e) {
         MsgUtils.sendLogger.error(
-          `Failed to fetch attachment: name=${this._bodyAttachment.name}, url=${this._bodyAttachment.url}`
+          `Failed to fetch attachment; name=${this._bodyAttachment.name}, url=${this._bodyAttachment.url}, error=${e}`
         );
         throw Components.Exception(
           "Failed to fetch attachment",
@@ -200,43 +199,96 @@ class MimePart {
   }
 
   /**
-   * Fetch the attachment file to get its content type and content.
+   * Fetch the attached message file to get its content.
    * @returns {string}
    */
-  async _fetchFile() {
-    let url = this._bodyAttachment.url;
-    let headers = {};
-    let isMessage = false;
+  async _fetchMsgAttachment() {
+    let msgService = Cc["@mozilla.org/messenger;1"]
+      .createInstance(Ci.nsIMessenger)
+      .messageServiceFromURI(this._bodyAttachment.url);
+    return new Promise((resolve, reject) => {
+      let streamListener = {
+        _data: "",
+        _stream: null,
+        onDataAvailable(request, inputStream, offset, count) {
+          if (!this._stream) {
+            this._stream = Cc[
+              "@mozilla.org/scriptableinputstream;1"
+            ].createInstance(Ci.nsIScriptableInputStream);
+            this._stream.init(inputStream);
+          }
+          this._data += this._stream.read(count);
+        },
+        onStartRequest() {},
+        onStopRequest(request, status) {
+          if (Components.isSuccessCode(status)) {
+            resolve(this._data);
+          } else {
+            reject(`Fetch message attachment failed with status=${status}`);
+          }
+        },
+        QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+      };
 
-    if (/^[^:]+-message:/i.test(url)) {
-      let outUri = Cc["@mozilla.org/messenger;1"]
-        .createInstance(Ci.nsIMessenger)
-        .messageServiceFromURI(this._bodyAttachment.url)
-        .getUrlForUri(this._bodyAttachment.url);
-      url = outUri.spec;
-    }
-
-    // Fetch doesn't support url with embedded credentials. Turn
-    // imap://user:pass@domain into imap://domain, and send user:pass as
-    // Authorization header.
-    if (!url.startsWith("file:")) {
-      let matches = /^\w+:\/\/([^/.]+)@/.exec(url);
-      if (matches && matches[1]) {
-        let slugs = url.split("@");
-        url = slugs[0].slice(0, slugs[0].length - matches[1].length) + slugs[1];
-        headers.Authorization = "Basic " + btoa(matches[1]);
-      }
-      isMessage = true;
-    }
-
-    let res = await fetch(url, {
-      headers,
+      msgService.streamMessage(
+        this._bodyAttachment.url,
+        streamListener,
+        null, // msgWindow
+        null, // urlListener
+        false, // convertData
+        "" // additionalHeader
+      );
     });
-    // Content-Type is sometimes text/plain;charset=US-ASCII, discard the
-    // charset.
-    this._contentType =
-      this._bodyAttachment.contentType ||
-      res.headers.get("content-type").split(";")[0];
+  }
+
+  /**
+   * Fetch the attachment file to get its content type and content.
+   *
+   * Previously, we used the Fetch API to download all attachments, but Fetch
+   * doesn't support url with embedded credentials (imap://name@server). As a
+   * result, it's unreliable when having two mail accounts on the same IMAP
+   * server.
+   * @returns {string}
+   */
+  async _fetchAttachment() {
+    let url = this._bodyAttachment.url;
+    MsgUtils.sendLogger.debug(`Fetching ${url}`);
+
+    let content = "";
+    if (/^[^:]+-message:/i.test(url)) {
+      content = await this._fetchMsgAttachment();
+      if (!content) {
+        // Message content is empty usually means it's (re)moved.
+        throw new Error("Message is gone");
+      }
+      this._contentType = "message/rfc822";
+    } else {
+      let channel = Services.io.newChannelFromURI(
+        Services.io.newURI(url),
+        null,
+        Services.scriptSecurityManager.getSystemPrincipal(),
+        null,
+        Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+        Ci.nsIContentPolicy.TYPE_OTHER
+      );
+      content = await new Promise((resolve, reject) =>
+        NetUtil.asyncFetch(channel, (stream, status, request) => {
+          if (!Components.isSuccessCode(status)) {
+            reject(`asyncFetch failed with status=${status}`);
+            return;
+          }
+          let data = "";
+          try {
+            data = NetUtil.readInputStreamToString(stream, stream.available());
+          } catch (e) {
+            // stream.available() throws if the file is empty.
+          }
+          resolve(data);
+        })
+      );
+      this._contentType =
+        this._bodyAttachment.contentType || channel.contentType;
+    }
 
     let parmFolding = Services.prefs.getIntPref(
       "mail.strictly_mime.parm_folding",
@@ -250,13 +302,6 @@ class MimePart {
         "filename",
         this._bodyAttachment.name
       );
-    }
-
-    let buf = await res.arrayBuffer();
-    let content = jsmime.mimeutils.typedArrayToString(new Uint8Array(buf));
-    if (isMessage && !content) {
-      // Message content is empty usually means it's (re)moved.
-      throw new Error("Message is gone");
     }
     this._charset = MsgUtils.pickCharset(this._contentType, content);
 
