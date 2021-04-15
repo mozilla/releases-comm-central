@@ -24,10 +24,10 @@ function onLoad() {
     checkbox.classList.add("calendar-selected");
     item.appendChild(checkbox);
 
-    let image = document.createXULElement("image");
-    image.classList.add("calendar-color");
-    item.appendChild(image);
-    image.style.backgroundColor = calendar.getProperty("color");
+    let colorMarker = document.createElement("div");
+    colorMarker.classList.add("calendar-color");
+    item.appendChild(colorMarker);
+    colorMarker.style.backgroundColor = calendar.getProperty("color");
 
     let label = document.createXULElement("label");
     label.classList.add("calendar-name");

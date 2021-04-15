@@ -96,6 +96,32 @@ function promptDeleteCalendar(aCalendar) {
 }
 
 /**
+ * Call to refresh the status image of a calendar item when the
+ * calendar-readfailed or calendar-readonly attributes are added or removed.
+ *
+ * @param {MozRichlistitem} item - The calendar item to update.
+ */
+function updatedCalendarReadStatus(item) {
+  let calendarName = item.querySelector(".calendar-name").value;
+  let image = item.querySelector("img.calendar-readstatus");
+  if (item.hasAttribute("calendar-readfailed")) {
+    image.setAttribute("src", "chrome://calendar/skin/shared/icons/warn.svg");
+    let tooltip = cal.l10n.getCalString("tooltipCalendarDisabled", [calendarName]);
+    image.setAttribute("alt", tooltip);
+    image.setAttribute("title", tooltip);
+  } else if (item.hasAttribute("calendar-readonly")) {
+    image.setAttribute("src", "chrome://calendar/skin/shared/icons/locked.svg");
+    let tooltip = cal.l10n.getCalString("tooltipCalendarReadOnly", [calendarName]);
+    image.setAttribute("alt", tooltip);
+    image.setAttribute("title", tooltip);
+  } else {
+    image.removeAttribute("src");
+    image.setAttribute("alt", "");
+    image.removeAttribute("title");
+  }
+}
+
+/**
  * Called to initialize the calendar manager for a window.
  */
 function loadCalendarManager() {
@@ -144,14 +170,14 @@ function loadCalendarManager() {
     item.toggleAttribute("calendar-readonly", calendar.readOnly);
 
     let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
-    let image = document.createXULElement("image");
-    image.classList.add("calendar-color");
-    item.appendChild(image);
+    let colorMarker = document.createElement("div");
+    colorMarker.classList.add("calendar-color");
+    item.appendChild(colorMarker);
     if (calendar.getProperty("disabled")) {
-      image.style.backgroundColor = "transparent";
-      image.style.border = `2px solid var(--calendar-${cssSafeId}-backcolor)`;
+      colorMarker.style.backgroundColor = "transparent";
+      colorMarker.style.border = `2px solid var(--calendar-${cssSafeId}-backcolor)`;
     } else {
-      image.style.backgroundColor = `var(--calendar-${cssSafeId}-backcolor)`;
+      colorMarker.style.backgroundColor = `var(--calendar-${cssSafeId}-backcolor)`;
     }
 
     let label = document.createXULElement("label");
@@ -160,10 +186,10 @@ function loadCalendarManager() {
     label.value = calendar.name;
     item.appendChild(label);
 
-    image = document.createXULElement("image");
+    let image = document.createElement("img");
     image.classList.add("calendar-readstatus");
-    image.setAttribute("tooltip", "calendar-list-tooltip");
     item.appendChild(image);
+    updatedCalendarReadStatus(item);
 
     let enable = document.createXULElement("button");
     if (calendar.getProperty("disabled")) {
@@ -403,11 +429,13 @@ function loadCalendarManager() {
           }
           // Update the color preview.
           let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
-          let image = item.querySelector(".calendar-color");
-          image.style.backgroundColor = value
+          let colorMarker = item.querySelector(".calendar-color");
+          colorMarker.style.backgroundColor = value
             ? "transparent"
             : `var(--calendar-${cssSafeId}-backcolor)`;
-          image.style.border = value ? `2px solid var(--calendar-${cssSafeId}-backcolor)` : "none";
+          colorMarker.style.border = value
+            ? `2px solid var(--calendar-${cssSafeId}-backcolor)`
+            : "none";
           break;
         case "calendar-main-default":
           if (value) {
@@ -423,9 +451,11 @@ function loadCalendarManager() {
           break;
         case "currentStatus":
           item.toggleAttribute("calendar-readfailed", !Components.isSuccessCode(value));
+          updatedCalendarReadStatus(item);
           break;
         case "readOnly":
           item.toggleAttribute("calendar-readonly", value);
+          updatedCalendarReadStatus(item);
           break;
       }
     },
@@ -521,30 +551,6 @@ function unloadCalendarManager() {
   let calendarManager = cal.getCalendarManager();
   calendarManager.removeCalendarObserver(calendarList._calendarObserver);
   calendarManager.removeObserver(calendarList._calendarManagerObserver);
-}
-
-/**
- * Handler function to call when the tooltip is showing on the calendar list.
- *
- * @param event     The DOM event provoked by the tooltip showing.
- */
-function calendarListTooltipShowing(event) {
-  let realTarget = document.elementFromPoint(event.clientX, event.clientY);
-  let item = realTarget.closest("richlistitem");
-  if (!item) {
-    return false;
-  }
-
-  let calendarName = item.querySelector(".calendar-name").value;
-  let tooltipText;
-  if (item.hasAttribute("calendar-readfailed")) {
-    tooltipText = cal.l10n.getCalString("tooltipCalendarDisabled", [calendarName]);
-  } else if (item.hasAttribute("calendar-readonly")) {
-    tooltipText = cal.l10n.getCalString("tooltipCalendarReadOnly", [calendarName]);
-  }
-
-  document.getElementById("calendar-list-tooltip").label = tooltipText;
-  return !!tooltipText;
 }
 
 /**

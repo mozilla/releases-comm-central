@@ -285,11 +285,3 @@ checkbox.calendar-displayed:focus > .checkbox-check {
   fill: currentColor;
   opacity: 0.7;
 }
-
-#calendar-list > richlistitem[calendar-readonly] > .calendar-readstatus {
-  background-image: url(chrome://calendar/skin/shared/icons/locked.svg);
-}
-
-#calendar-list > richlistitem[calendar-readfailed] > .calendar-readstatus {
-  background-image: url(chrome://calendar/skin/shared/icons/warn.svg);
-}

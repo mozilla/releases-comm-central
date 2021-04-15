@@ -512,10 +512,10 @@ function renderCalendarList(calendarList, calendars) {
     checkbox.classList.add("calendar-selected");
     item.appendChild(checkbox);
 
-    let colorImage = document.createXULElement("image");
-    colorImage.classList.add("calendar-color");
-    colorImage.style.backgroundColor = calendar.getProperty("color");
-    item.appendChild(colorImage);
+    let colorMarker = document.createElement("div");
+    colorMarker.classList.add("calendar-color");
+    colorMarker.style.backgroundColor = calendar.getProperty("color");
+    item.appendChild(colorMarker);
 
     let label = document.createXULElement("label");
     label.classList.add("calendar-name");
