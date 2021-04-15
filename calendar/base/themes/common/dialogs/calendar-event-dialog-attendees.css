@@ -19,7 +19,8 @@
 event-attendee {
   height: 21px;
   padding: 0 4px 1px;
-  -moz-box-align: center;
+  display: flex;
+  align-items: center;
 }
 
 event-attendee > .role-icon {
@@ -27,8 +28,7 @@ event-attendee > .role-icon {
 }
 
 event-attendee > input {
-  -moz-box-flex: 1;
-  background-color: transparent;
+  flex: 1 1 auto;
   outline: none;
 }
 

@@ -129,118 +129,86 @@ html|span.ac-emphasize-text {
 
 /* the following will get obsolete once porting to new itip icons is complete */
 
-.status-icon > .menu-iconic-left,
 .role-icon > .menu-iconic-left,
 .usertype-icon > .menu-iconic-left {
     visibility: inherit;
 }
 
-.status-icon {
-    margin: 0 3px;
-    list-style-image: url(chrome://calendar/skin/shared/calendar-event-dialog-attendees.png);
-    -moz-image-region: rect(0px 48px 14px 36px);
-}
-
-.status-icon[disabled="true"] {
-    -moz-image-region: rect(14px 48px 28px 36px);
-}
-
-.status-icon[status="ACCEPTED"] {
-    -moz-image-region: rect(0px 12px 14px 0px);
-}
-.status-icon[status="ACCEPTED"][disabled="true"] {
-    -moz-image-region: rect(14px 12px 28px 0px);
-}
-
-.status-icon[status="DECLINED"] {
-    -moz-image-region: rect(0px 24px 14px 12px);
-}
-.status-icon[status="DECLINED"][disabled="true"] {
-    -moz-image-region: rect(14px 24px 28px 12px);
-}
-
-.status-icon[status="NEEDS-ACTION"] {
-    -moz-image-region: rect(0px 36px 14px 24px);
-}
-.status-icon[status="NEEDS-ACTION"][disabled="true"] {
-    -moz-image-region: rect(14px 36px 28px 24px);
-}
-
-.status-icon[status="TENTATIVE"] {
-    -moz-image-region: rect(0px 48px 14px 36px);
-}
-.status-icon[status="TENTATIVE"][disabled="true"] {
-    -moz-image-region: rect(14px 48px 28px 36px);
-}
-
 .role-icon {
     margin: 0 3px;
-    list-style-image: url(chrome://calendar/skin/shared/calendar-event-dialog-attendees.png);
-    -moz-image-region: rect(0px 159px 16px 138px);
+    width: 21px;
+    height: 16px;
+    object-fit: none;
+    object-position: top 0 left -138px;
 }
 
 .role-icon[disabled="true"] {
-    -moz-image-region: rect(0px 159px 16px 138px);
+    object-position: top 0 left -138px;
 }
 
 .role-icon[role="REQ-PARTICIPANT"] {
-    -moz-image-region: rect(0px 159px 16px 138px);
+    object-position: top 0 left -138px;
 }
 .role-icon[role="REQ-PARTICIPANT"][disabled="true"] {
-    -moz-image-region: rect(0px 159px 16px 138px);
+    object-position: top 0 left -138px;
 }
 
 .role-icon[role="OPT-PARTICIPANT"] {
-    -moz-image-region: rect(0px 180px 16px 159px);
+    object-position: top 0 left -159px;
 }
 .role-icon[role="OPT-PARTICIPANT"][disabled="true"] {
-    -moz-image-region: rect(0px 180px 16px 159px);
+    object-position: top 0 left -159px;
 }
 
 .role-icon[role="CHAIR"] {
-    -moz-image-region: rect(0px 201px 16px 180px);
+    object-position: top 0 left -180px;
 }
 .role-icon[role="CHAIR"][disabled="true"] {
-    -moz-image-region: rect(0px 201px 16px 180px);
+    object-position: top 0 left -180px;
 }
 
 .role-icon[role="NON-PARTICIPANT"] {
-    -moz-image-region: rect(0px 222px 16px 201px);
+    object-position: top 0 left -201px;
 }
 .role-icon[role="NON-PARTICIPANT"][disabled="true"] {
-    -moz-image-region: rect(0px 222px 16px 201px);
+    object-position: top 0 left -201px;
 }
 
-.usertype-icon,
-.usertype-icon[usertype="INDIVIDUAL"] {
+.usertype-icon {
     margin: 0 3px;
-    list-style-image: url(chrome://calendar/skin/shared/attendee-icons.png);
-    -moz-image-region: rect(0px 16px 16px 0px);
+    width: 16px;
+    height: 16px;
+    object-fit: none;
+    object-position: top 0 left 0;
+}
+
+.usertype-icon[usertype="INDIVIDUAL"] {
+    object-position: top 0 left 0;
 }
 .usertype-icon[disabled="true"],
 .usertype-icon[usertype="INDIVIDUAL"][disabled="true"] {
-    -moz-image-region: rect(16px 16px 32px 0px);
+    object-position: top -16px left 0;
 }
 
 .usertype-icon[usertype="GROUP"] {
-    -moz-image-region: rect(0px 32px 16px 16px);
+    object-position: top 0 left -16px;
 }
 .usertype-icon[usertype="GROUP"][disabled="true"] {
-    -moz-image-region: rect(16px 32px 32px 16px);
+    object-position: top -16px left -16px;
 }
 
 .usertype-icon[usertype="RESOURCE"] {
-    -moz-image-region: rect(0px 48px 16px 32px);
+    object-position: top 0 left -32px;
 }
 .usertype-icon[usertype="RESOURCE"][disabled="true"] {
-    -moz-image-region: rect(16px 48px 32px 32px);
+    object-position: top -16px left -32px;
 }
 
 .usertype-icon[usertype="ROOM"] {
-    -moz-image-region: rect(0px 64px 16px 48px);
+    object-position: top 0 left -48px;
 }
 .usertype-icon[usertype="ROOM"][disabled="true"] {
-    -moz-image-region: rect(16px 64px 32px 48px);
+    object-position: top -16px left -48px;
 }
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win7),

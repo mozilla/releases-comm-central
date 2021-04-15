@@ -538,24 +538,22 @@ function setLeftAndWidth(element, startTime, endTime) {
    */
   class EventAttendee extends MozXULElement {
     connectedCallback() {
-      this.roleIcon = this.appendChild(document.createXULElement("image"));
+      this.roleIcon = this.appendChild(document.createElement("img"));
       this.roleIcon.classList.add("role-icon");
+      this.roleIcon.setAttribute(
+        "src",
+        "chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
+      );
       this.roleIcon.setAttribute("role", "REQ-PARTICIPANT");
       this._updateTooltip(this.roleIcon);
       this.roleIcon.addEventListener("click", this);
 
-      this.userTypeIcon = this.appendChild(document.createXULElement("image"));
+      this.userTypeIcon = this.appendChild(document.createElement("img"));
       this.userTypeIcon.classList.add("usertype-icon");
+      this.userTypeIcon.setAttribute("src", "chrome://calendar/skin/shared/attendee-icons.png");
       this.userTypeIcon.setAttribute("usertype", "INDIVIDUAL");
       this._updateTooltip(this.userTypeIcon);
       this.userTypeIcon.addEventListener("click", this);
-
-      // Don't display the status icon for now.
-      // this.statusIcon = this.appendChild(document.createXULElement("image"));
-      // this.statusIcon.classList.add("status-icon");
-      // this.statusIcon.setAttribute("status", "ACCEPTED");
-      // this._updateTooltip(this.statusIcon);
-      // this.statusIcon.addEventListener("click", this);
 
       this.input = this.appendChild(document.createElement("input", { is: "autocomplete-input" }));
       this.input.classList.add("plain");
@@ -608,8 +606,6 @@ function setLeftAndWidth(element, startTime, endTime) {
       this._updateTooltip(this.roleIcon);
       this.userTypeIcon.setAttribute("usertype", value.userType || "INDIVIDUAL");
       this._updateTooltip(this.userTypeIcon);
-      // this.statusIcon.setAttribute("status", value.participationStatus);
-      // this._updateTooltip(this.statusIcon);
     }
 
     /** @return {String} - The user-visible string representing this row's attendee. */
@@ -751,10 +747,6 @@ function setLeftAndWidth(element, startTime, endTime) {
           let nextValue = cycle(EventAttendee.roleCycle, target.getAttribute("role"));
           target.setAttribute("role", nextValue);
           this._updateTooltip(target);
-          // } else if (target == this.statusIcon) {
-          //   let nextValue = cycle(EventAttendee.statusCycle, target.getAttribute("status"));
-          //   target.setAttribute("status", nextValue);
-          //   this._updateTooltip(target);
         } else if (target == this.userTypeIcon) {
           if (!this.isOrganizer) {
             let nextValue = cycle(EventAttendee.userTypeCycle, target.getAttribute("usertype"));
@@ -765,6 +757,7 @@ function setLeftAndWidth(element, startTime, endTime) {
       }
     }
     _updateTooltip(targetIcon) {
+      let tooltip;
       if (targetIcon == this.roleIcon) {
         let role = targetIcon.getAttribute("role");
         const roleMap = {
@@ -775,12 +768,11 @@ function setLeftAndWidth(element, startTime, endTime) {
         };
 
         let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
-        let tooltip = cal.l10n.getString(
+        tooltip = cal.l10n.getString(
           "calendar-event-dialog-attendees",
           roleNameString,
           role in roleMap ? [] : [role]
         );
-        targetIcon.setAttribute("tooltiptext", tooltip);
       } else if (targetIcon == this.userTypeIcon) {
         let userType = targetIcon.getAttribute("usertype");
         const userTypeMap = {
@@ -794,17 +786,19 @@ function setLeftAndWidth(element, startTime, endTime) {
         let userTypeString =
           "event.attendee.usertype." +
           (userType in userTypeMap ? userTypeMap[userType] : "unknown");
-        let tooltip = cal.l10n.getString(
+        tooltip = cal.l10n.getString(
           "calendar-event-dialog-attendees",
           userTypeString,
           userType in userTypeMap ? [] : [userType]
         );
-        targetIcon.setAttribute("tooltiptext", tooltip);
+      } else {
+        return;
       }
+      targetIcon.setAttribute("alt", tooltip);
+      targetIcon.setAttribute("title", tooltip);
     }
   }
   EventAttendee.roleCycle = ["REQ-PARTICIPANT", "OPT-PARTICIPANT", "NON-PARTICIPANT", "CHAIR"];
-  EventAttendee.statusCycle = ["ACCEPTED", "DECLINED", "TENTATIVE"];
   EventAttendee.userTypeCycle = ["INDIVIDUAL", "GROUP", "RESOURCE", "ROOM"];
   customElements.define("event-attendee", EventAttendee);
 
