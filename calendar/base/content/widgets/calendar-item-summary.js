@@ -128,7 +128,8 @@
                       hidden="true"
                       align="center"
                       disable-on-readonly="true">
-                  <image class="attachment-icon"/>
+                  <html:img class="attachment-icon"
+                            alt="" />
                   <label class="text-link item-attachment-cell-label"
                          crop="end"
                          flex="1" />
@@ -740,7 +741,7 @@
             openAttachmentFromItemSummary(aAttachment.hashId, this.mItem);
           });
 
-          let icon = attachment.querySelector("image");
+          let icon = attachment.querySelector("img");
           let iconSrc = aAttachment.uri.spec.length ? aAttachment.uri.spec : "dummy.html";
           if (aAttachment.uri && !aAttachment.uri.schemeIs("file")) {
             // Using an uri directly, with e.g. a http scheme, wouldn't render any icon.
