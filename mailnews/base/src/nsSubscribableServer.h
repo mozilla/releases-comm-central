@@ -15,30 +15,7 @@
 #include "nsISubscribableServer.h"
 #include "nsTArray.h"
 
-/**
- * The basic structure for the tree of the implementation.
- *
- * These elements are stored in reverse alphabetical order.
- */
-typedef struct _subscribeTreeNode {
-  char* name;
-  nsCString path;
-  bool isSubscribed;
-  struct _subscribeTreeNode* prevSibling;
-  struct _subscribeTreeNode* nextSibling;
-  struct _subscribeTreeNode* firstChild;
-  struct _subscribeTreeNode* lastChild;
-  struct _subscribeTreeNode* parent;
-  struct _subscribeTreeNode* cachedChild;
-#ifdef HAVE_SUBSCRIBE_DESCRIPTION
-  char16_t* description;
-#endif
-#ifdef HAVE_SUBSCRIBE_MESSAGES
-  uint32_t messages;
-#endif
-  bool isSubscribable;
-  bool isOpen;
-} SubscribeTreeNode;
+struct SubscribeTreeNode;
 
 class nsSubscribableServer : public nsISubscribableServer, public nsITreeView {
  public:
@@ -67,11 +44,11 @@ class nsSubscribableServer : public nsISubscribableServer, public nsITreeView {
   nsTArray<SubscribeTreeNode*> mRowMap;
   nsCOMPtr<nsITreeSelection> mSelection;
   RefPtr<mozilla::dom::XULTreeElement> mTree;
-  nsresult FreeSubtree(SubscribeTreeNode* node);
-  nsresult FreeRows();
-  nsresult CreateNode(SubscribeTreeNode* parent, const char* name,
-                      const nsACString& aPath, SubscribeTreeNode** result);
-  nsresult AddChildNode(SubscribeTreeNode* parent, const char* name,
+  void FreeSubtree(SubscribeTreeNode* node);
+  void FreeRows();
+  SubscribeTreeNode* CreateNode(SubscribeTreeNode* parent,
+                                nsACString const& name, nsACString const& path);
+  nsresult AddChildNode(SubscribeTreeNode* parent, nsACString const& name,
                         const nsACString& aPath, SubscribeTreeNode** child);
   nsresult FindAndCreateNode(const nsACString& aPath,
                              SubscribeTreeNode** aResult);

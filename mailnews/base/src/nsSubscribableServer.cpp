@@ -17,6 +17,32 @@
 #include "mozilla/dom/DataTransfer.h"
 #include "mozilla/Utf8.h"
 
+/**
+ * The basic structure for the tree of the implementation.
+ *
+ * These elements are stored in reverse alphabetical order.
+ * Each node owns its children and subsequent siblings.
+ */
+struct SubscribeTreeNode {
+  nsCString name;
+  nsCString path;
+  bool isSubscribed;
+  SubscribeTreeNode* prevSibling;
+  SubscribeTreeNode* nextSibling;
+  SubscribeTreeNode* firstChild;
+  SubscribeTreeNode* lastChild;
+  SubscribeTreeNode* parent;
+  SubscribeTreeNode* cachedChild;
+#ifdef HAVE_SUBSCRIBE_DESCRIPTION
+  char16_t* description;
+#endif
+#ifdef HAVE_SUBSCRIBE_MESSAGES
+  uint32_t messages;
+#endif
+  bool isSubscribable;
+  bool isOpen;
+};
+
 nsSubscribableServer::nsSubscribableServer(void) {
   mDelimiter = '.';
   mShowFullName = true;
@@ -27,10 +53,10 @@ nsSubscribableServer::nsSubscribableServer(void) {
 nsresult nsSubscribableServer::Init() { return NS_OK; }
 
 nsSubscribableServer::~nsSubscribableServer(void) {
-  mozilla::DebugOnly<nsresult> rv = FreeRows();
-  NS_ASSERTION(NS_SUCCEEDED(rv), "failed to free tree rows");
-  rv = FreeSubtree(mTreeRoot);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "failed to free tree");
+  FreeRows();
+  if (mTreeRoot) {
+    FreeSubtree(mTreeRoot);
+  }
 }
 
 NS_IMPL_ISUPPORTS(nsSubscribableServer, nsISubscribableServer, nsITreeView)
@@ -180,12 +206,11 @@ nsSubscribableServer::StartPopulating(nsIMsgWindow* aMsgWindow,
                                       bool aGetOnlyNew /*ignored*/) {
   mStopped = false;
 
-  nsresult rv = FreeRows();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = FreeSubtree(mTreeRoot);
-  mTreeRoot = nullptr;
-  NS_ENSURE_SUCCESS(rv, rv);
+  FreeRows();
+  if (mTreeRoot) {
+    FreeSubtree(mTreeRoot);
+    mTreeRoot = nullptr;
+  }
   return NS_OK;
 }
 
@@ -193,8 +218,7 @@ NS_IMETHODIMP
 nsSubscribableServer::StopPopulating(nsIMsgWindow* aMsgWindow) {
   mStopped = true;
 
-  nsresult rv = FreeRows();
-  NS_ENSURE_SUCCESS(rv, rv);
+  FreeRows();
 
   if (mTreeRoot) {
     SubscribeTreeNode* node = mTreeRoot->lastChild;
@@ -246,69 +270,43 @@ nsSubscribableServer::SetShowFullName(bool showFullName) {
   return NS_OK;
 }
 
-nsresult nsSubscribableServer::FreeSubtree(SubscribeTreeNode* node) {
-  nsresult rv = NS_OK;
+void nsSubscribableServer::FreeSubtree(SubscribeTreeNode* node) {
+  // NOTE: this doesn't cleanly detach each node, but that's not an issue
+  // here. This is a nuking, not a surgical removal.
 
-  if (node) {
-    // recursively free the children
-    if (node->firstChild) {
-      // will free node->firstChild
-      rv = FreeSubtree(node->firstChild);
-      NS_ENSURE_SUCCESS(rv, rv);
-      node->firstChild = nullptr;
-    }
-
-    // recursively free the siblings
-    if (node->nextSibling) {
-      // will free node->nextSibling
-      rv = FreeSubtree(node->nextSibling);
-      NS_ENSURE_SUCCESS(rv, rv);
-      node->nextSibling = nullptr;
-    }
-
-#ifdef HAVE_SUBSCRIBE_DESCRIPTION
-    NS_ASSERTION(node->description == nullptr,
-                 "you need to free the description");
-#endif
-    free(node->name);
-#if 0
-    node->name = nullptr;
-    node->parent = nullptr;
-    node->lastChild = nullptr;
-    node->cachedChild = nullptr;
-#endif
-
-    delete node;
+  // recursively free the children
+  if (node->firstChild) {
+    // will free node->firstChild
+    FreeSubtree(node->firstChild);
+    node->firstChild = nullptr;
   }
 
-  return NS_OK;
+  // recursively free the siblings
+  if (node->nextSibling) {
+    FreeSubtree(node->nextSibling);
+    node->nextSibling = nullptr;
+  }
+
+#ifdef HAVE_SUBSCRIBE_DESCRIPTION
+  NS_ASSERTION(node->description == nullptr,
+               "you need to free the description");
+#endif
+  delete node;
 }
 
-nsresult nsSubscribableServer::FreeRows() {
+void nsSubscribableServer::FreeRows() {
   int32_t rowCount = mRowMap.Length();
   mRowMap.Clear();
   if (mTree) mTree->RowCountChanged(0, -rowCount);
-
-  return NS_OK;
 }
 
-nsresult nsSubscribableServer::CreateNode(SubscribeTreeNode* parent,
-                                          const char* name,
-                                          const nsACString& aPath,
-                                          SubscribeTreeNode** result) {
-  NS_ASSERTION(result && name, "result or name is null");
-  NS_ENSURE_ARG_POINTER(result);
-  NS_ENSURE_ARG_POINTER(name);
-  *result = nullptr;
-
+SubscribeTreeNode* nsSubscribableServer::CreateNode(SubscribeTreeNode* parent,
+                                                    nsACString const& name,
+                                                    nsACString const& path) {
   SubscribeTreeNode* node = new SubscribeTreeNode();
 
-  node->name = strdup(name);
-  if (!(node->name)) {
-    delete node;
-    return NS_ERROR_OUT_OF_MEMORY;
-  }
-  node->path.Assign(aPath);
+  node->name.Assign(name);
+  node->path.Assign(path);
   node->parent = parent;
   node->prevSibling = nullptr;
   node->nextSibling = nullptr;
@@ -327,34 +325,31 @@ nsresult nsSubscribableServer::CreateNode(SubscribeTreeNode* parent,
   if (parent) {
     parent->cachedChild = node;
   }
-
-  *result = node;
-  return NS_OK;
+  return node;
 }
 
 nsresult nsSubscribableServer::AddChildNode(SubscribeTreeNode* parent,
-                                            const char* name,
-                                            const nsACString& aPath,
+                                            nsACString const& name,
+                                            const nsACString& path,
                                             SubscribeTreeNode** child) {
   nsresult rv = NS_OK;
-  NS_ASSERTION(parent && child && name && !aPath.IsEmpty(),
+  NS_ASSERTION(parent && child && !name.IsEmpty() && !path.IsEmpty(),
                "parent, child or name is null");
-  if (!parent || !child || !name || aPath.IsEmpty())
+  if (!parent || !child || name.IsEmpty() || path.IsEmpty())
     return NS_ERROR_NULL_POINTER;
 
+  // Adding to a node with no children?
   if (!parent->firstChild) {
     // CreateNode will set the parent->cachedChild
-    rv = CreateNode(parent, name, aPath, child);
-    NS_ENSURE_SUCCESS(rv, rv);
-
+    *child = CreateNode(parent, name, path);
     parent->firstChild = *child;
     parent->lastChild = *child;
-
     return NS_OK;
   }
 
+  // Did we just add a child of this name?
   if (parent->cachedChild) {
-    if (strcmp(parent->cachedChild->name, name) == 0) {
+    if (parent->cachedChild->name.Equals(name)) {
       *child = parent->cachedChild;
       return NS_OK;
     }
@@ -374,12 +369,12 @@ nsresult nsSubscribableServer::AddChildNode(SubscribeTreeNode* parent,
    * we can efficiently reverse the order when dumping to hostinfo.dat
    * or to GetTargets().
    */
-  int32_t compare = strcmp(current->name, name);
+  int32_t compare = Compare(current->name, name);
 
   while (current && (compare != 0)) {
     if (compare < 0) {
       // CreateNode will set the parent->cachedChild
-      rv = CreateNode(parent, name, aPath, child);
+      *child = CreateNode(parent, name, path);
       NS_ENSURE_SUCCESS(rv, rv);
 
       (*child)->nextSibling = current;
@@ -395,8 +390,8 @@ nsresult nsSubscribableServer::AddChildNode(SubscribeTreeNode* parent,
     }
     current = current->nextSibling;
     if (current) {
-      NS_ASSERTION(current->name, "no name!");
-      compare = strcmp(current->name, name);
+      NS_ASSERTION(!current->name.IsEmpty(), "no name!");
+      compare = Compare(current->name, name);
     } else {
       compare = -1;  // anything but 0, since that would be a match
     }
@@ -405,15 +400,12 @@ nsresult nsSubscribableServer::AddChildNode(SubscribeTreeNode* parent,
   if (compare == 0) {
     // already exists;
     *child = current;
-
-    // set the cachedChild
     parent->cachedChild = *child;
     return NS_OK;
   }
 
   // CreateNode will set the parent->cachedChild
-  rv = CreateNode(parent, name, aPath, child);
-  NS_ENSURE_SUCCESS(rv, rv);
+  *child = CreateNode(parent, name, path);
 
   (*child)->prevSibling = parent->lastChild;
   (*child)->nextSibling = nullptr;
@@ -431,9 +423,7 @@ nsresult nsSubscribableServer::FindAndCreateNode(const nsACString& aPath,
 
   if (!mTreeRoot) {
     // the root has no parent, and its name is server uri
-    rv = CreateNode(nullptr, mIncomingServerUri.get(), EmptyCString(),
-                    &mTreeRoot);
-    NS_ENSURE_SUCCESS(rv, rv);
+    mTreeRoot = CreateNode(nullptr, mIncomingServerUri, EmptyCString());
   }
 
   if (aPath.IsEmpty()) {
@@ -457,8 +447,7 @@ nsresult nsSubscribableServer::FindAndCreateNode(const nsACString& aPath,
       tokenEnd = aPath.Length();
     }
     nsCString token(Substring(aPath, tokenStart, tokenEnd - tokenStart));
-    rv = AddChildNode(parent, token.BeginReading(),
-                      Substring(aPath, 0, tokenEnd), &child);
+    rv = AddChildNode(parent, token, Substring(aPath, 0, tokenEnd), &child);
     if (NS_FAILED(rv)) return rv;
     tokenStart = tokenEnd + 1;
     tokenEnd = aPath.FindChar(mDelimiter, tokenStart);
@@ -542,7 +531,7 @@ nsSubscribableServer::GetLeafName(const nsACString& aPath,
     return NS_MsgDecodeUnescapeURLPath(aPath, aLeafName);
   }
 
-  return CopyFolderNameToUTF16(nsDependentCString(node->name), aLeafName);
+  return CopyFolderNameToUTF16(node->name, aLeafName);
 }
 
 NS_IMETHODIMP
@@ -588,11 +577,11 @@ nsSubscribableServer::GetChildURIs(const nsACString& aPath,
   nsTArray<nsCString>* result = new nsTArray<nsCString>;
 
   while (current) {
-    NS_ASSERTION(current->name, "no name");
-    if (!current->name) return NS_ERROR_FAILURE;
-
+    NS_ASSERTION(!current->name.IsEmpty(), "no name");
+    if (current->name.IsEmpty()) {
+      return NS_ERROR_FAILURE;
+    }
     result->AppendElement(current->path);
-
     current = current->prevSibling;
   }
 
