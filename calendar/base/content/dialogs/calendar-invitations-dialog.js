@@ -40,7 +40,14 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
         MozXULElement.parseXULToFragment(
           `
           <hbox align="start" flex="1">
-            <image class="calendar-invitations-richlistitem-icon"/>
+            <!-- Note: The wrapper div is only here because the XUL box does not
+               - properly crop img elements with CSS object-fit and
+               - object-position. Should be removed when converting the parent
+               - element to HTML. -->
+            <html:div>
+              <html:img class="calendar-invitations-richlistitem-icon"
+                        src="chrome://calendar/skin/shared/calendar-invitations-dialog-list-images.png" />
+            </html:div>
             <vbox flex="1">
               <label class="calendar-invitations-richlistitem-title" crop="end"/>
               <label class="calendar-invitations-richlistitem-date" crop="end"/>
@@ -90,7 +97,12 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
     set participationStatus(val) {
       this.mParticipationStatus = val;
       let icon = this.querySelector(".calendar-invitations-richlistitem-icon");
+      // Status attribute changes the image region in CSS.
       icon.setAttribute("status", val);
+      document.l10n.setAttributes(
+        icon,
+        `calendar-invitation-current-participation-status-icon-${val.toLowerCase()}`
+      );
     }
 
     get participationStatus() {

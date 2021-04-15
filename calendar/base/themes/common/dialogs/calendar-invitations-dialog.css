@@ -8,7 +8,6 @@
 }
 
 .calendar-invitations-updating-icon {
-  list-style-image: url("chrome://global/skin/icons/loading.png");
   opacity: 0.5;
 }
 
@@ -39,19 +38,23 @@ richlistitem[is="calendar-invitations-richlistitem"][selected="true"] {
   font-weight: bold;
 }
 
+.calendar-invitations-richlistitem-icon {
+  /* Crops the src of the image. */
+  object-fit: none;
+  width: 32px;
+  height: 32px;
+}
+
 .calendar-invitations-richlistitem-icon[status="NEEDS-ACTION"] {
-  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-list-images.png");
-  -moz-image-region: rect(0px 32px 32px 0px);
+  object-position: top 0 left 0;
 }
 
 .calendar-invitations-richlistitem-icon[status="ACCEPTED"] {
-  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-list-images.png");
-  -moz-image-region: rect(0px 64px 32px 32px);
+  object-position: top 0 left -32px;
 }
 
 .calendar-invitations-richlistitem-icon[status="DECLINED"] {
-  list-style-image: url("chrome://calendar/skin/shared/calendar-invitations-dialog-list-images.png");
-  -moz-image-region: rect(0px 96px 32px 64px);
+  object-position: top 0 left -64px;
 }
 
 .calendar-invitations-richlistitem-button {

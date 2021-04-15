@@ -22,6 +22,8 @@
 
 <dialog buttons="accept,cancel">
 
+  <html:link rel="localization" href="calendar/calendar-invitations-dialog.ftl"/>
+
   <!-- Javascript includes -->
   <script src="chrome://calendar/content/calendar-invitations-dialog.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
@@ -36,7 +38,8 @@
       <hbox id="updating-box" align="center" pack="center" hidden="true">
         <label value="&calendar.invitations.dialog.statusmessage.updating.text;"
                crop="end"/>
-        <image class="calendar-invitations-updating-icon"/>
+        <html:img class="calendar-invitations-updating-icon"
+                  src="chrome://global/skin/icons/loading.png" />
       </hbox>
       <hbox id="noinvitations-box" align="center" pack="center" hidden="true">
         <label value="&calendar.invitations.dialog.statusmessage.noinvitations.text;"
