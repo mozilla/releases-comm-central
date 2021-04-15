@@ -165,6 +165,7 @@ interface nsIImapService : nsISupports
 
   void discoverAllAndSubscribedFolders(in nsIMsgFolder aImapMailFolder,
                                        in nsIUrlListener aUrlListener,
+                                       in nsIMsgWindow aMsgWindow,
                                        out nsIURI aURL);
 
   void discoverChildren(in nsIMsgFolder aImapMailFolder,
@@ -231,6 +232,7 @@ interface nsIImapService : nsISupports
   // with one url.
   nsIURI ensureFolderExists(in nsIMsgFolder aParentFolder,
                             in AString aLeafName,
+                            in nsIMsgWindow aMsgWindow,
                             in nsIUrlListener aUrlListener);
 
 

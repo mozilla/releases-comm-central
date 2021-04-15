@@ -1011,7 +1011,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateStorageIfMissing(
         do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIURI> uri;
-    imapService->EnsureFolderExists(msgParent, folderName, urlListener,
+    imapService->EnsureFolderExists(msgParent, folderName, nullptr, urlListener,
                                     getter_AddRefs(uri));
   }
   return rv;
@@ -7052,8 +7052,8 @@ nsresult nsImapFolderCopyState::StartNextCopy() {
   nsString folderName;
   m_curSrcFolder->GetName(folderName);
 
-  return imapService->EnsureFolderExists(m_curDestParent, folderName, this,
-                                         nullptr);
+  return imapService->EnsureFolderExists(m_curDestParent, folderName,
+                                         m_msgWindow, this, nullptr);
 }
 
 nsresult nsImapFolderCopyState::AdvanceToNextFolder(nsresult aStatus) {

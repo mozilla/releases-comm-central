@@ -1732,7 +1732,7 @@ NS_IMETHODIMP nsImapService::DiscoverAllFolders(nsIMsgFolder* aImapMailFolder,
 
 NS_IMETHODIMP nsImapService::DiscoverAllAndSubscribedFolders(
     nsIMsgFolder* aImapMailFolder, nsIUrlListener* aUrlListener,
-    nsIURI** aURL) {
+    nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aImapMailFolder);
 
   nsCOMPtr<nsIImapUrl> aImapUrl;
@@ -1748,6 +1748,9 @@ NS_IMETHODIMP nsImapService::DiscoverAllAndSubscribedFolders(
       nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(aImapUrl);
       urlSpec.AppendLiteral("/discoverallandsubscribedboxes");
       rv = mailnewsurl->SetSpecInternal(urlSpec);
+
+      if (aMsgWindow) mailnewsurl->SetMsgWindow(aMsgWindow);
+
       if (NS_SUCCEEDED(rv))
         rv = GetImapConnectionAndLoadUrl(aImapUrl, nullptr, aURL);
     }
@@ -2243,6 +2246,7 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
 
 NS_IMETHODIMP nsImapService::EnsureFolderExists(nsIMsgFolder* parent,
                                                 const nsAString& newFolderName,
+                                                nsIMsgWindow* msgWindow,
                                                 nsIUrlListener* urlListener,
                                                 nsIURI** url) {
   NS_ENSURE_ARG_POINTER(parent);
@@ -2283,6 +2287,9 @@ NS_IMETHODIMP nsImapService::EnsureFolderExists(nsIMsgFolder* parent,
       urlSpec.Append(escapedFolderName);
 
       rv = mailnewsurl->SetSpecInternal(urlSpec);
+
+      if (msgWindow) mailnewsurl->SetMsgWindow(msgWindow);
+
       if (NS_SUCCEEDED(rv))
         rv = GetImapConnectionAndLoadUrl(imapUrl, nullptr, url);
     }
@@ -2876,7 +2883,8 @@ NS_IMETHODIMP nsImapService::GetListOfFoldersOnServer(
   nsCOMPtr<nsIUrlListener> listener = do_QueryInterface(aServer, &rv);
   NS_ENSURE_TRUE(NS_SUCCEEDED(rv) && listener, NS_ERROR_FAILURE);
 
-  return DiscoverAllAndSubscribedFolders(rootMsgFolder, listener, nullptr);
+  return DiscoverAllAndSubscribedFolders(rootMsgFolder, listener, aMsgWindow,
+                                         nullptr);
 }
 
 NS_IMETHODIMP nsImapService::SubscribeFolder(nsIMsgFolder* aFolder,
