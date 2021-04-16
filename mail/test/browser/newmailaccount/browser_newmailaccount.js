@@ -55,7 +55,7 @@ var {
   wait_for_new_window,
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
-var { openAccountHub } = ChromeUtils.import(
+var { openAccountSetup } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
 
@@ -216,26 +216,7 @@ async function test_get_an_account(aCloseAndRestore) {
     tab.browser
   );
 
-  // Since we mocked the OS notification, we will get an alert due to the fake
-  // imap server we're using for the tests. Handle the accept of the alert.
-  let dialogPromise;
-  if (!aCloseAndRestore) {
-    dialogPromise = BrowserTestUtils.promiseAlertDialog(null, undefined, {
-      callback(prompt) {
-        prompt.document
-          .querySelector("dialog")
-          .getButton("accept")
-          .click();
-      },
-    });
-  }
   let ac = wait_for_new_window("AccountCreation");
-
-  // Wait for the alert dialog only if this is a first run and we're trying to
-  // load the newly created account for the first time.
-  if (dialogPromise) {
-    await dialogPromise;
-  }
 
   plan_for_window_close(ac);
   subtest_get_an_account_part_2(ac);
@@ -423,7 +404,11 @@ add_task(async function test_flip_flop_from_provisioner_menuitem() {
   let dialogWindowPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     kProvisionerUrl,
-    { callback: subtest_flip_flop_from_provisioner_menuitem }
+    {
+      async callback(win) {
+        await subtest_flip_flop_from_provisioner_menuitem(win);
+      },
+    }
   );
   // Open the account provisioner from a menu item.
   open_provisioner_window();
@@ -443,7 +428,11 @@ add_task(async function test_flip_flop_from_provisioner_menuitem() {
   let dialogWindowPromise2 = BrowserTestUtils.promiseAlertDialog(
     null,
     kProvisionerUrl,
-    { callback: subtest_flip_flop_from_provisioner_menuitem }
+    {
+      async callback(win) {
+        await subtest_flip_flop_from_provisioner_menuitem(win);
+      },
+    }
   );
   // Open the account provisioner from the Account hub.
   EventUtils.synthesizeMouseAtCenter(
@@ -457,7 +446,11 @@ add_task(async function test_flip_flop_from_provisioner_menuitem() {
   let dialogWindowPromise3 = BrowserTestUtils.promiseAlertDialog(
     null,
     kProvisionerUrl,
-    { callback: subtest_flip_flop_from_provisioner_menuitem }
+    {
+      async callback(win) {
+        await subtest_flip_flop_from_provisioner_menuitem(win);
+      },
+    }
   );
   // Open the account provisioner from the Account hub.
   EventUtils.synthesizeMouseAtCenter(
@@ -476,7 +469,11 @@ add_task(async function test_flip_flop_from_provisioner_menuitem() {
   let dialogWindowPromise4 = BrowserTestUtils.promiseAlertDialog(
     null,
     kProvisionerUrl,
-    { callback: subtest_close_provisioner }
+    {
+      async callback(win) {
+        await subtest_close_provisioner(win);
+      },
+    }
   );
   // Open the account provisioner from the Account hub.
   EventUtils.synthesizeMouseAtCenter(
@@ -1004,7 +1001,7 @@ add_task(async function test_can_pref_off_account_provisioner() {
   mc.tabmail.closeOtherTabs(mc.tabmail.tabInfo[0]);
 
   // Open up the Account Hub.
-  let tab = await openAccountHub();
+  let tab = await openAccountSetup();
   // And make sure the Get a New Account button is hidden.
   Assert.ok(
     tab.browser.contentWindow.document.getElementById("provisioner_button")
@@ -1026,7 +1023,7 @@ add_task(async function test_can_pref_off_account_provisioner() {
   );
 
   // Open up the Account Hub.
-  tab = await openAccountHub();
+  tab = await openAccountSetup();
   // And make sure the Get a New Account button is hidden.
   Assert.ok(
     !tab.browser.contentWindow.document.getElementById("provisioner_button")
@@ -1197,7 +1194,7 @@ add_task(function test_window_open_link_opening_behaviour() {
  * Test that if the final provider sends ok account settings back in config.xml
  * then the account is created and we're done.
  */
-add_task(function test_provisioner_ok_account_setup() {
+add_task(async function test_provisioner_ok_account_setup() {
   get_to_order_form("green@example.com");
 
   let accounts0 = MailServices.accounts.accounts;
@@ -1262,8 +1259,11 @@ add_task(function test_provisioner_ok_account_setup() {
 
   Services.logins.removeAllLogins();
 
-  // Check that the folder pane is now visible.
-  Assert.ok(!mc.e("folderPaneBox").collapsed);
+  // Wait for the folder pane to be visible.
+  await TestUtils.waitForCondition(
+    () => !mc.e("folderPaneBox").collapsed,
+    "The folder pane is not visible"
+  );
 });
 
 /**
@@ -1532,7 +1532,7 @@ add_task(async function test_get_new_account_focuses_existing_ap_tab() {
 
   // Now open up the Account Hub, and try opening the Account Provisioner from
   // there.
-  let tab = await openAccountHub();
+  let tab = await openAccountSetup();
   // Click on the "Get a new Account" button in the wizard.
   EventUtils.synthesizeMouseAtCenter(
     tab.browser.contentWindow.document.getElementById("provisioner_button"),

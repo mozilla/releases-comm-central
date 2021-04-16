@@ -93,6 +93,10 @@ Things to test (works for me):
 // To debug, set mail.setup.loglevel="All" and kDebug = true.
 const kDebug = false;
 
+// The main 3 Pane Window that we need to define on load in order to properly
+// update the UI when a new account is created.
+var gMainWindow;
+
 // Define window event listeners.
 window.addEventListener("load", () => {
   gEmailConfigWizard.onLoad();
@@ -145,6 +149,11 @@ function removeChildNodes(el) {
   while (el.hasChildNodes()) {
     el.lastChild.remove();
   }
+}
+
+function onSetupComplete() {
+  // Post a message to the main window at the end of a successful account setup.
+  gMainWindow.postMessage("account-created", "*");
 }
 
 /**
@@ -237,6 +246,8 @@ EmailConfigWizard.prototype = {
   },
 
   onLoad() {
+    // Store the main window.
+    gMainWindow = Services.wm.getMostRecentWindow("mail:3pane");
     /**
      * this._currentConfig is the config we got either from the XML file or
      * from guessing or from the user. Unless it's from the user, it contains
@@ -265,9 +276,8 @@ EmailConfigWizard.prototype = {
     this._password = "";
     this._showPassword = false;
     this._exchangeUsername = ""; // only for Exchange AutoDiscover and only if needed
-    this._okCallback = document.documentElement.okCallback;
-    this._msgWindow = document.documentElement.msgWindow;
-    this._extraData = document.documentElement.extraData || null;
+    this._okCallback = onSetupComplete;
+    this._msgWindow = gMainWindow.msgWindow;
 
     gEmailWizardLogger.info("Email account setup dialog loaded.");
 
@@ -1811,7 +1821,7 @@ EmailConfigWizard.prototype = {
     let newAccount = createAccountInBackend(configFilledIn);
 
     window.close();
-    updateMailPaneUI();
+    gMainWindow.postMessage("account-created-in-backend", "*");
     MsgAccountManager("am-server.xhtml", newAccount.incomingServer);
   },
 

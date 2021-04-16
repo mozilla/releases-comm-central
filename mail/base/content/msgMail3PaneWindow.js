@@ -523,7 +523,7 @@ function verifyOpenAccountHubTab() {
     // Looks like we were in the middle of filling out an account form. We
     // won't display the dialogs in that case.
     Services.prefs.clearUserPref("mail.provider.suppress_dialog_on_startup");
-    LoadPostAccountWizard();
+    loadPostAccountWizard();
     return;
   }
 
@@ -653,7 +653,7 @@ var gMailInit = {
     }
 
     // - initialize tabmail system
-    // Do this before LoadPostAccountWizard since that code selects the first
+    // Do this before loadPostAccountWizard since that code selects the first
     //  folder for display, and we want gFolderDisplay setup and ready to handle
     //  that event chain.
     // Also, we definitely need to register the tab type prior to the call to
@@ -702,11 +702,53 @@ var gMailInit = {
 
     this._boundDelayedStartup = this._delayedStartup.bind(this);
     window.addEventListener("MozAfterPaint", this._boundDelayedStartup);
+
+    // Listen for the messages sent to the main 3 pane window.
+    window.addEventListener("message", this._onMessageReceived);
   },
 
   _cancelDelayedStartup() {
     window.removeEventListener("MozAfterPaint", this._boundDelayedStartup);
     this._boundDelayedStartup = null;
+  },
+
+  /**
+   * Handle the messages sent via postMessage() method to the main 3 pane
+   * window.
+   *
+   * @param {Event} event - The message event.
+   */
+  _onMessageReceived(event) {
+    switch (event.data) {
+      case "account-created":
+      case "account-created-from-provisioner":
+        // Successful account creation callback.
+        // If the gFolderTreeView was never initialized it means we're in a
+        // first run scenario and we need to load the full UI.
+        if (!gFolderTreeView.isInited) {
+          loadPostAccountWizard(
+            event.data == "account-created-from-provisioner"
+          );
+          return;
+        }
+
+        // Otherwise we can simply switch to the main tab and be sure the folder
+        // pane is visible.
+        switchToMailTab();
+        updateMailPaneUI();
+        break;
+
+      case "account-created-in-backend":
+        // The user entered the account settings to complete the setup without
+        // completing a successful login process. Therfore let's simply check if
+        // we need to reveal the folder pane without forcing a tab switch or
+        // start loading messages.
+        updateMailPaneUI();
+        break;
+
+      default:
+        break;
+    }
   },
 
   /**
@@ -749,7 +791,7 @@ var gMailInit = {
     // Load the entire UI only if we already have at least one account available
     // otherwise the verifyExistingAccounts will trigger the account wizard.
     if (verifyExistingAccounts()) {
-      LoadPostAccountWizard();
+      loadPostAccountWizard();
     }
   },
 
@@ -913,12 +955,12 @@ function switchToMailTab() {
  *   integration dialog since the New Account Provinsioner uses a secondary
  *   success dialog after a new account has been created.
  */
-async function LoadPostAccountWizard(isFromProvisioner) {
+async function loadPostAccountWizard(isFromProvisioner) {
   switchToMailTab();
   InitMsgWindow();
   messenger.setWindow(window, msgWindow);
 
-  await InitPanes();
+  await initPanes();
   MigrateJunkMailSettings();
   MigrateFolderViews();
   MigrateOpenMessageBehavior();
@@ -1437,7 +1479,11 @@ function AddToSession() {
   MailServices.mailSession.AddFolderListener(folderListener, notifyFlags);
 }
 
-async function InitPanes() {
+/**
+ * Initialize all the panes composing the main UI. Folder pane, Message thread
+ * pane, and Message view pane.
+ */
+async function initPanes() {
   await gFolderTreeView.load(
     document.getElementById("folderTree"),
     "folderTree.json"

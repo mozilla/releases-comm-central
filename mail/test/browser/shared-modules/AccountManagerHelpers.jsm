@@ -5,7 +5,7 @@
 "use strict";
 
 const EXPORTED_SYMBOLS = [
-  "openAccountHub",
+  "openAccountSetup",
   "openAccountSettings",
   "open_advanced_settings",
   "click_account_tree_row",
@@ -64,7 +64,7 @@ function open_advanced_settings(callback) {
   mc.tabmail.closeTab(tab);
 }
 
-async function openAccountHub() {
+async function openAccountSetup() {
   return new Promise(resolve => {
     let tab = open_content_tab_with_url("about:accountsetup");
     wait_for_content_tab_load(tab, "about:accountsetup", 10000);

@@ -4,7 +4,7 @@
 
 "use strict";
 
-var { openAccountHub } = ChromeUtils.import(
+var { openAccountSetup } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
 var { mc } = ChromeUtils.import(
@@ -57,7 +57,7 @@ add_task(function setupModule(module) {
 });
 
 add_task(async function test_mail_account_setup() {
-  let tab = await openAccountHub();
+  let tab = await openAccountSetup();
   let tabDocument = tab.browser.contentWindow.document;
 
   // Input user's account information

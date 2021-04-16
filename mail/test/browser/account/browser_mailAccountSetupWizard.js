@@ -4,7 +4,7 @@
 
 "use strict";
 
-var { openAccountHub, wait_for_account_tree_load } = ChromeUtils.import(
+var { openAccountSetup, wait_for_account_tree_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
 var { mc } = ChromeUtils.import(
@@ -79,7 +79,7 @@ add_task(async function test_mail_account_setup() {
     "http://mochi.test:8888/browser/comm/mail/test/browser/account/xml/";
   Services.prefs.setCharPref(PREF_NAME, url);
 
-  let tab = await openAccountHub();
+  let tab = await openAccountSetup();
   let tabDocument = tab.browser.contentWindow.document;
 
   // Input user's account information
@@ -221,7 +221,7 @@ add_task(async function test_bad_password_uses_old_settings() {
 
   Services.telemetry.clearScalars();
 
-  let tab = await openAccountHub();
+  let tab = await openAccountSetup();
   let tabDocument = tab.browser.contentWindow.document;
 
   // Input user's account information
@@ -294,6 +294,17 @@ add_task(async function test_bad_password_uses_old_settings() {
     "incoming server changed!"
   );
 
+  let statusArea = tabDocument.getElementById("status-area");
+  await BrowserTestUtils.waitForCondition(
+    () => !statusArea.hidden,
+    "Timeout waiting for the warning message to be visible"
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => statusArea.getAttribute("status") == "error",
+    "Timeout waiting for warning message to return an error state"
+  );
+
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
     scalars["tb.account.failed_email_account_setup"]["xml-from-db"],
@@ -336,7 +347,7 @@ async function remember_password_test(aPrefValue) {
 
   Services.prefs.setBoolPref("signon.rememberSignons", aPrefValue);
 
-  let tab = await openAccountHub();
+  let tab = await openAccountSetup();
   let tabDocument = tab.browser.contentWindow.document;
   let password = tabDocument.getElementById("password");
 

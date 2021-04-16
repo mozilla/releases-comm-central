@@ -137,6 +137,8 @@ var IFolderTreeMode = {
  * implementation, as well as other control functions.
  */
 var gFolderTreeView = {
+  // Keep track of the initialization status of the folder tree.
+  isInited: false,
   messengerBundle: null,
 
   /**
@@ -200,6 +202,9 @@ var gFolderTreeView = {
 
     // Add this listener so that we can update the tree when things change
     MailServices.mailSession.AddFolderListener(this, Ci.nsIFolderListener.all);
+
+    // We did everything, now we can update the variable.
+    this.isInited = true;
   },
 
   /**

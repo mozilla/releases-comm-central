@@ -5,7 +5,7 @@
 
 /* import-globals-from AccountManager.js */
 /* globals openTab */ // From utilityOverlay.js
-/* globals SelectFolder, LoadPostAccountWizard */ // From messageWindow.js or msgMail3PaneWindow.js.
+/* globals SelectFolder */ // From messageWindow.js or msgMail3PaneWindow.js.
 /* globals MsgGetMessage */ // From mailWindowOverlay.js.
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -410,12 +410,10 @@ function openAccountProvisioner(args) {
   // A new email address was successfully created and we need to load the UI
   // in case the account was created but the UI wasn't properly loaded. This
   // might happen if the user switches to the account provisioner dialog from
-  // the emailWizard dialog on first launch. The okCallback of the emailWizard
-  // is overwritten and it doesn't properly go through the verifyAccount().
-  // FIXME: This can be removed after the account creation is moved to a tab.
+  // the emailWizard dialog on first launch.
   if (args.success) {
     if (document.getElementById("folderPaneBox").collapsed) {
-      LoadPostAccountWizard(true);
+      mail3Pane.postMessage("account-created-from-provisioner", "*");
     }
   } else {
     args.success = false;
@@ -448,14 +446,8 @@ function openAccountSetupTab() {
     }
   }
 
-  let onLoad = function(event, browser) {
-    browser.contentDocument.documentElement.okCallback = LoadPostAccountWizard;
-    browser.contentDocument.documentElement.msgWindow = mail3Pane.msgWindow;
-  };
-
   tabmail.openTab("contentTab", {
     url: "about:accountsetup",
-    onLoad,
   });
 }
 

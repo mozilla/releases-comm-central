@@ -4,7 +4,7 @@
 
 "use strict";
 
-var { openAccountHub } = ChromeUtils.import(
+var { openAccountSetup } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
 var { mc } = ChromeUtils.import(
@@ -44,7 +44,7 @@ registerCleanupFunction(function teardownModule(module) {
 add_task(async function test_re_test_config() {
   // Opening multiple windows in the same run seems to require letting the stack
   // unwind before opening the next one, so do that here.
-  let tab = await openAccountHub();
+  let tab = await openAccountSetup();
   let tabDocument = tab.browser.contentWindow.document;
   // Input user's account information
   EventUtils.synthesizeMouseAtCenter(
