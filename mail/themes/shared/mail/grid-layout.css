@@ -14,6 +14,13 @@
 
 .grid-two-column-fr {
   display: inline-grid;
+}
+
+.grid-block-two-column-fr {
+  display: block grid;
+}
+
+.grid-two-column-fr, .grid-block-two-column-fr {
   grid-template-columns: auto 1fr;
 }
 
@@ -39,6 +46,14 @@
 .grid-three-column menulist,
 .grid-three-column textarea {
   width: 100%;
+}
+
+.grid-items-baseline {
+  align-items: baseline;
+}
+
+.grid-items-center {
+  align-items: center;
 }
 
 .flex-items-center {

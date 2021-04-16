@@ -3,17 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var accountOptionsHelper = {
-  createTextbox(aType, aValue, aLabel, aName) {
-    let container = document.createXULElement("hbox");
-    container.setAttribute("align", "baseline");
-    container.setAttribute("equalsize", "always");
-    container.classList.add("input-container");
-
+  /**
+   * Create a new label and a corresponding input.
+   *
+   * @param {string} aType - The input type ("number" or "text").
+   * @param {string} aValue - The initial value for the input.
+   * @param {string} aLabel - The text for the label.
+   * @param {string} aName - The id for the input.
+   * @param {Element} grid - A container with a two column grid display to
+   *   append the new elements to.
+   */
+  createTextbox(aType, aValue, aLabel, aName, grid) {
     let label = document.createXULElement("label");
     label.textContent = aLabel;
     label.setAttribute("control", aName);
     label.classList.add("label-inline");
-    container.appendChild(label);
+    grid.appendChild(label);
 
     let input = document.createElementNS(
       "http://www.w3.org/1999/xhtml",
@@ -30,21 +35,26 @@ var accountOptionsHelper = {
     input.setAttribute("value", aValue);
     input.setAttribute("id", aName);
 
-    container.appendChild(input);
-    return container;
+    grid.appendChild(input);
   },
 
-  createMenulist(aList, aLabel, aName) {
-    let hbox = document.createXULElement("hbox");
-    hbox.setAttribute("align", "baseline");
-    hbox.setAttribute("equalsize", "always");
-    hbox.classList.add("input-container");
-
+  /**
+   * Create a new label and a corresponding menulist.
+   *
+   * @param {Object[]} aList - The list of items to fill the menulist with.
+   * @param {string} aList[].label - The label for the menuitem.
+   * @param {string} aList[].value - The value for the menuitem.
+   * @param {string} aLabel - The text for the label.
+   * @param {string} aName - The id for the menulist.
+   * @param {Element} grid - A container with a two column grid display to
+   *   append the new elements to.
+   */
+  createMenulist(aList, aLabel, aName, grid) {
     let label = document.createXULElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
     label.classList.add("label-inline");
-    hbox.appendChild(label);
+    grid.appendChild(label);
 
     let menulist = document.createXULElement("menulist");
     menulist.setAttribute("id", aName);
@@ -57,17 +67,16 @@ var accountOptionsHelper = {
       item.setAttribute("value", elt.value);
       popup.appendChild(item);
     }
-    hbox.appendChild(menulist);
-    return hbox;
+    grid.appendChild(menulist);
   },
 
   // Adds options with specific prefix for ids to UI according to their types
   // with optional attributes for each type and returns true if at least one
   // option has been added to UI, otherwise returns false.
   addOptions(aIdPrefix, aOptions, aAttributes) {
-    let vbox = document.getElementById("protoSpecific");
-    while (vbox.hasChildNodes()) {
-      vbox.lastChild.remove();
+    let grid = document.getElementById("protoSpecific");
+    while (grid.hasChildNodes()) {
+      grid.lastChild.remove();
     }
 
     let haveOptions = false;
@@ -77,28 +86,23 @@ var accountOptionsHelper = {
       switch (opt.type) {
         case Ci.prplIPref.typeBool:
           let chk = document.createXULElement("checkbox");
-          let hbox = document.createXULElement("hbox");
-          hbox.setAttribute("flex", "1");
           chk.setAttribute("label", text);
           chk.setAttribute("id", name);
           if (opt.getBool()) {
             chk.setAttribute("checked", "true");
           }
-          hbox.appendChild(chk);
-          vbox.appendChild(hbox);
+          // Span two columns.
+          chk.classList.add("grid-item-span-row");
+          grid.appendChild(chk);
           break;
         case Ci.prplIPref.typeInt:
-          vbox.appendChild(
-            this.createTextbox("number", opt.getInt(), text, name)
-          );
+          this.createTextbox("number", opt.getInt(), text, name, grid);
           break;
         case Ci.prplIPref.typeString:
-          vbox.appendChild(
-            this.createTextbox("text", opt.getString(), text, name)
-          );
+          this.createTextbox("text", opt.getString(), text, name, grid);
           break;
         case Ci.prplIPref.typeList:
-          vbox.appendChild(this.createMenulist(opt.getList(), text, name));
+          this.createMenulist(opt.getList(), text, name, grid);
           document.getElementById(name).value = opt.getListDefault();
           break;
         default:

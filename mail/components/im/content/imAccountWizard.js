@@ -119,19 +119,24 @@ var accountWizard = {
     this.proto = Services.core.getProtocolById(id);
   },
 
-  insertUsernameField(aName, aLabel, aParent, aDefaultValue) {
-    var hbox = document.createXULElement("hbox");
-    hbox.setAttribute("id", aName + "-hbox");
-    hbox.setAttribute("align", "baseline");
-    hbox.setAttribute("equalsize", "always");
-    hbox.classList.add("input-container");
-
+  /**
+   * Create a new input field for receiving a username.
+   *
+   * @param {string} aName - The id for the input.
+   * @param {string} aLabel - The text for the username label.
+   * @param {Element} grid - A container with a two column grid display to
+   *   append the new elements to.
+   * @param {string} [aDefaultValue] - The initial value for the username.
+   *
+   * @return {HTMLInputElement} - The newly created username input.
+   */
+  insertUsernameField(aName, aLabel, grid, aDefaultValue) {
     var label = document.createXULElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
     label.setAttribute("id", aName + "-label");
     label.classList.add("label-inline");
-    hbox.appendChild(label);
+    grid.appendChild(label);
 
     var input = document.createElementNS(
       "http://www.w3.org/1999/xhtml",
@@ -145,9 +150,8 @@ var accountWizard = {
     input.addEventListener("input", event => {
       this.checkUsername();
     });
-    hbox.appendChild(input);
+    grid.appendChild(input);
 
-    aParent.appendChild(hbox);
     return input;
   },
 
@@ -173,16 +177,16 @@ var accountWizard = {
     }
     document.getElementById("usernameInfo").textContent = usernameInfo;
 
-    var vbox = document.getElementById("userNameBox");
+    var grid = document.getElementById("userNameBox");
     // remove anything that may be there for another protocol
-    while (vbox.hasChildNodes()) {
-      vbox.lastChild.remove();
+    while (grid.hasChildNodes()) {
+      grid.lastChild.remove();
     }
 
     var splits = this.proto.getUsernameSplit();
 
     var label = bundle.getString("accountUsername");
-    this.userNameBoxes = [this.insertUsernameField("name", label, vbox)];
+    this.userNameBoxes = [this.insertUsernameField("name", label, grid)];
     this.userNameBoxes[0].emptyText = emptyText;
 
     for (let i = 0; i < splits.length; ++i) {
@@ -190,7 +194,7 @@ var accountWizard = {
       label = bundle.getFormattedString("accountColon", [splits[i].label]);
       let defaultVal = splits[i].defaultValue;
       this.userNameBoxes.push(
-        this.insertUsernameField("username-split-" + i, label, vbox, defaultVal)
+        this.insertUsernameField("username-split-" + i, label, grid, defaultVal)
       );
     }
     this.userNameBoxes[0].focus();
@@ -234,11 +238,15 @@ var accountWizard = {
     }
   },
 
-  createSummaryRow(aLabel, aValue) {
-    var hbox = document.createXULElement("hbox");
-    hbox.setAttribute("align", "baseline");
-    hbox.setAttribute("equalsize", "always");
-
+  /**
+   * Create new summary field and value elements.
+   *
+   * @param {string} aLabel - The name of the field being summarised.
+   * @param {string} aValue - The value of the field being summarised.
+   * @param {Element} grid - A container with a two column grid display to
+   *   append the new elements to.
+   */
+  createSummaryRow(aLabel, aValue, grid) {
     var label = document.createXULElement("label");
     label.classList.add("header", "label-inline");
     if (aLabel.length > 20) {
@@ -247,7 +255,7 @@ var accountWizard = {
     }
 
     label.setAttribute("value", aLabel);
-    hbox.appendChild(label);
+    grid.appendChild(label);
 
     var input = document.createElementNS(
       "http://www.w3.org/1999/xhtml",
@@ -256,9 +264,7 @@ var accountWizard = {
     input.setAttribute("value", aValue);
     input.classList.add("plain", "input-inline");
     input.setAttribute("readonly", true);
-    hbox.appendChild(input);
-
-    return hbox;
+    grid.appendChild(input);
   },
 
   showSummary() {
@@ -269,10 +275,10 @@ var accountWizard = {
     }
 
     var label = document.getElementById("protoLabel").value;
-    rows.appendChild(this.createSummaryRow(label, this.proto.name));
+    this.createSummaryRow(label, this.proto.name, rows);
     this.username = this.getUsername();
     label = bundle.getString("accountUsername");
-    rows.appendChild(this.createSummaryRow(label, this.username));
+    this.createSummaryRow(label, this.username, rows);
     if (!this.proto.noPassword) {
       this.password = this.getValue("password");
       if (this.password) {
@@ -281,20 +287,14 @@ var accountWizard = {
         for (let i = 0; i < this.password.length; ++i) {
           pass += "*";
         }
-        rows.appendChild(this.createSummaryRow(label, pass));
+        this.createSummaryRow(label, pass, rows);
       }
     }
     this.alias = this.getValue("alias");
     if (this.alias) {
       label = document.getElementById("aliasLabel").value;
-      rows.appendChild(this.createSummaryRow(label, this.alias));
+      this.createSummaryRow(label, this.alias, rows);
     }
-
-    /* FIXME
-    if (this.proto.newMailNotification)
-      rows.appendChild(this.createSummaryRow("Notify of new mails:",
-                                             this.getValue("newMailNotification")));
-    */
 
     var id = this.proto.id;
     this.prefs = [];
@@ -335,7 +335,7 @@ var accountWizard = {
     for (let i = 0; i < this.prefs.length; ++i) {
       let opt = this.prefs[i];
       let label = bundle.getFormattedString("accountColon", [opt.opt.label]);
-      rows.appendChild(this.createSummaryRow(label, opt.value));
+      this.createSummaryRow(label, opt.value, rows);
     }
   },
 

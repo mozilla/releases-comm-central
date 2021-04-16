@@ -8,6 +8,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/imAccountWizard.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % accountWizardDTD SYSTEM "chrome://messenger/locale/imAccountWizard.dtd">
@@ -51,7 +52,9 @@
                 label="&accountUsernameTitle.label;">
       <description id="usernameInfo"/>
       <separator/>
-      <vbox id="userNameBox"/>
+      <html:div id="userNameBox"
+                class="grid-block-two-column-fr grid-items-center">
+      </html:div>
       <separator/>
       <description id="duplicateAccount" hidden="true">&accountUsernameDuplicate.label;</description>
     </wizardpage>
@@ -92,7 +95,9 @@
 
       <html:fieldset id="protoSpecificGroupbox">
         <html:legend id="protoSpecificCaption"></html:legend>
-        <vbox id="protoSpecific" flex="1"/>
+        <html:div id="protoSpecific"
+                  class="grid-block-two-column-fr grid-items-baseline">
+        </html:div>
       </html:fieldset>
     </wizardpage>
 
@@ -100,7 +105,9 @@
                 label="&accountSummaryTitle.label;">
       <description>&accountSummaryInfo.label;</description>
       <separator/>
-      <vbox id="summaryRows"/>
+      <html:div id="summaryRows"
+                class="grid-block-two-column-fr grid-items-baseline">
+      </html:div>
       <separator/>
       <checkbox id="connectNow" label= "&accountSummary.connectNow.label;" checked="true"/>
     </wizardpage>

@@ -4,6 +4,7 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % imDTD SYSTEM "chrome://messenger/locale/am-im.dtd">
@@ -53,7 +54,6 @@
           <tabpanel orient="vertical">
             <label class="header" data-l10n-id="account-settingsTitle" />
             <hbox id="passwordBox"
-                  equalsize="always"
                   align="baseline"
                   class="input-container">
               <label value="&account.password;"
@@ -67,7 +67,6 @@
                           class="input-inline"/>
             </hbox>
             <hbox id="aliasBox"
-                  equalsize="always"
                   align="baseline"
                   class="input-container">
               <label value="&account.alias;"
@@ -100,7 +99,9 @@
             </vbox>
             <vbox id="advanced">
               <label class="header">&account.advanced;</label>
-              <vbox id="protoSpecific" flex="1"/>
+              <html:div id="protoSpecific"
+                        class="grid-block-two-column-fr grid-items-baseline">
+              </html:div>
             </vbox>
           </tabpanel>
 
