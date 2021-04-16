@@ -11,6 +11,26 @@
 % override chrome://global/content/elements/message-bar.css chrome://messenger/skin/message-bar.css
 % override chrome://browser/skin/developer.svg chrome://messenger/skin/icons/developer.svg
 
+# Proton icon overrides
+% override chrome://global/skin/icons/add.svg chrome://messenger/skin/overrides/add.svg
+% override chrome://global/skin/icons/arrow-dropdown-12.svg chrome://messenger/skin/overrides/arrow-dropdown-12.svg
+% override chrome://global/skin/icons/arrow-dropdown-16.svg chrome://messenger/skin/overrides/arrow-dropdown-16.svg
+% override chrome://global/skin/icons/arrow-left.svg chrome://messenger/skin/overrides/arrow-left.svg
+% override chrome://global/skin/icons/arrow-up-12.svg chrome://messenger/skin/overrides/arrow-up-12.svg
+% override chrome://global/skin/icons/close.svg chrome://messenger/skin/overrides/close.svg
+% override chrome://global/skin/icons/settings.svg chrome://messenger/skin/overrides/settings.svg
+% override chrome://mozapps/skin/extensions/extension.svg chrome://messenger/skin/overrides/extension.svg
+
+  skin/classic/messenger/overrides/add.svg                    (../shared/mail/overrides/add.svg)
+  skin/classic/messenger/overrides/arrow-dropdown-12.svg      (../shared/mail/overrides/arrow-dropdown-12.svg)
+  skin/classic/messenger/overrides/arrow-dropdown-16.svg      (../shared/mail/overrides/arrow-dropdown-16.svg)
+  skin/classic/messenger/overrides/arrow-left.svg             (../shared/mail/overrides/arrow-left.svg)
+  skin/classic/messenger/overrides/arrow-up-12.svg            (../shared/mail/overrides/arrow-up-12.svg)
+  skin/classic/messenger/overrides/close.svg                  (../shared/mail/overrides/close.svg)
+  skin/classic/messenger/overrides/extension.svg              (../shared/mail/overrides/extension.svg)
+  skin/classic/messenger/overrides/settings.svg               (../shared/mail/overrides/settings.svg)
+# End Proton icon overrides
+
   skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
