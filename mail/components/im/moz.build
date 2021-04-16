@@ -21,3 +21,7 @@ JS_PREFERENCE_FILES += [
 XPCOM_MANIFESTS += [
     "components.conf",
 ]
+
+BROWSER_CHROME_MANIFESTS += [
+    'test/browser/browser.ini',
+]

@@ -14,7 +14,6 @@ interface nsIWebProgress;
 [scriptable, uuid(b89dbb38-0de4-11e0-b3d0-0002e304243c)]
 interface prplIRequestBrowser: nsISupports {
   readonly attribute AUTF8String promptText;
-  readonly attribute imIAccount account;
   readonly attribute AUTF8String url;
   void cancelled();
   void loaded(in nsIDOMWindow aWindow,

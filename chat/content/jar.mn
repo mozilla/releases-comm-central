@@ -5,8 +5,6 @@
 chat.jar:
 % content chat %content/chat/
 	content/chat/accounts.css
-	content/chat/browserRequest.js
-	content/chat/browserRequest.xhtml
 	content/chat/imAccountOptionsHelper.js
 	content/chat/chat-account-richlistitem.js
 	content/chat/chat-tooltip.js

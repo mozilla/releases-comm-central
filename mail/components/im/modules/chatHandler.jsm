@@ -96,9 +96,9 @@ var ChatCore = {
     if (aTopic == "browser-request") {
       Services.ww.openWindow(
         null,
-        "chrome://chat/content/browserRequest.xhtml",
+        "chrome://messenger/content/browserRequest.xhtml",
         null,
-        "chrome",
+        "chrome,private,centerscreen,width=980,height=750",
         aSubject
       );
       return;

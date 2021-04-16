@@ -33,35 +33,14 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
 );
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "MatrixSDK",
-  "resource:///modules/matrix-sdk.jsm"
-);
-
-ChromeUtils.defineModuleGetter(
-  this,
-  "getHttpUriForMxc",
-  "resource:///modules/matrix-sdk.jsm"
-);
-
-ChromeUtils.defineModuleGetter(
-  this,
-  "EventTimeline",
-  "resource:///modules/matrix-sdk.jsm"
-);
-
-ChromeUtils.defineModuleGetter(
-  this,
-  "DownloadUtils",
-  "resource://gre/modules/DownloadUtils.jsm"
-);
-
-ChromeUtils.defineModuleGetter(
-  this,
-  "MatrixPowerLevels",
-  "resource:///modules/matrixPowerLevels.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  MatrixSDK: "resource:///modules/matrix-sdk.jsm",
+  getHttpUriForMxc: "resource:///modules/matrix-sdk.jsm",
+  EventTimeline: "resource:///modules/matrix-sdk.jsm",
+  MatrixPowerLevels: "resource:///modules/matrixPowerLevels.jsm",
+  DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
+  InteractiveBrowser: "resource:///modules/InteractiveBrowser.jsm",
+});
 
 function MatrixParticipant(roomMember, account) {
   this._id = roomMember.userId;
@@ -795,107 +774,32 @@ MatrixAccount.prototype = {
    */
   requestAuthorization() {
     this.reportConnecting(_("connection.requestAuth"));
-    let completionURL = "http://localhost";
-    let url = this._client.getSsoLoginUrl(completionURL, "sso");
-    let cookies = new Set();
-    this._browserRequest = {
-      get promptText() {
-        return _("authPrompt");
-      },
-      account: this,
+    let url = this._client.getSsoLoginUrl(
+      InteractiveBrowser.COMPLETION_URL,
+      "sso"
+    );
+    InteractiveBrowser.waitForRedirect(
       url,
-      _active: true,
-      cancelled() {
-        if (!this._active) {
-          return;
+      `${this.name} - ${this.getString("server")}`
+    )
+      .then(resultUrl => {
+        let parsedUrl = new URL(resultUrl);
+        let rawUrlData = parsedUrl.searchParams;
+        let urlData = new URLSearchParams(rawUrlData);
+        if (!urlData.has("loginToken")) {
+          throw new Error("No token in redirect");
         }
 
-        this.account.reportDisconnecting(
+        this.reportConnecting(_("connection.requestAccess"));
+        this.loginWithToken(urlData.get("loginToken"));
+      })
+      .catch(() => {
+        this.reportDisconnecting(
           Ci.prplIAccount.ERROR_AUTHENTICATION_FAILED,
           _("connection.error.authCancelled")
         );
-        this.account.reportDisconnected();
-      },
-      loaded(window, webProgress) {
-        if (!this._active) {
-          return;
-        }
-
-        this._listener = {
-          QueryInterface: ChromeUtils.generateQI([
-            Ci.nsIWebProgressListener,
-            Ci.nsISupportsWeakReference,
-          ]),
-          _cleanUp() {
-            this.webProgress.removeProgressListener(this);
-            this.window.close();
-            delete this.window;
-          },
-          _checkForRedirect(currentUrl) {
-            if (!currentUrl.startsWith(completionURL)) {
-              return;
-            }
-
-            let parsedUrl = new URL(currentUrl);
-            let rawUrlData = parsedUrl.searchParams;
-            let urlData = new URLSearchParams(rawUrlData);
-            if (!urlData.has("loginToken")) {
-              return;
-            }
-
-            this._parent.finishAuthorizationRequest(cookies);
-            this._parent.reportConnecting(_("connection.requestAccess"));
-            this._parent.loginWithToken(urlData.get("loginToken"));
-          },
-          onStateChange(aWebProgress, request, stateFlags, aStatus) {
-            const wpl = Ci.nsIWebProgressListener;
-            if (stateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK)) {
-              this._checkForRedirect(request.name);
-            }
-          },
-          onLocationChange(webProgress, request, location) {
-            if (!cookies.has(location.displayHost)) {
-              cookies.add(location.displayHost);
-            }
-            this._checkForRedirect(location.spec);
-          },
-          onProgressChange() {},
-          onStatusChange() {},
-          onSecurityChange() {},
-
-          window,
-          webProgress,
-          _parent: this.account,
-        };
-
-        webProgress.addProgressListener(
-          this._listener,
-          Ci.nsIWebProgress.NOTIFY_ALL
-        );
-      },
-      QueryInterface: ChromeUtils.generateQI([Ci.prplIRequestBrowser]),
-    };
-    Services.obs.notifyObservers(this._browserRequest, "browser-request");
-  },
-
-  /**
-   * Removes any cookies created during the SSO flow and cleans up the SSO window.
-   *
-   * @param {Set<string>} cookies - List of origins that potentially created cookies during the auth flow.
-   */
-  finishAuthorizationRequest(cookies) {
-    //TODO instead of deleting all the cookies, use a per-account cookie jar?
-    for (let url of cookies) {
-      Services.cookies.removeCookiesWithOriginAttributes("{}", url);
-    }
-    if (!("_browserRequest" in this)) {
-      return;
-    }
-    this._browserRequest._active = false;
-    if ("_listener" in this._browserRequest) {
-      this._browserRequest._listener._cleanUp();
-    }
-    delete this._browserRequest;
+        this.reportDisconnected();
+      });
   },
 
   /**

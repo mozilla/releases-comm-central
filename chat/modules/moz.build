@@ -15,6 +15,7 @@ EXTRA_JS_MODULES += [
     "imTextboxUtils.jsm",
     "imThemes.jsm",
     "imXPCOMUtils.jsm",
+    "InteractiveBrowser.jsm",
     "jsProtoHelper.jsm",
     "NormalizedMap.jsm",
     "OTR.jsm",
