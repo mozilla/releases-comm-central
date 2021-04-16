@@ -29,7 +29,7 @@ event-attendee > .role-icon {
 
 event-attendee > input {
   flex: 1 1 auto;
-  outline: none;
+  outline: none !important;
 }
 
 /* Autocomplete labels
