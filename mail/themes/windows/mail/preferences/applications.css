@@ -5,29 +5,6 @@
 @import url("chrome://messenger/skin/shared/preferences/applications.css");
 
 /**
- * Line up the actions menu with action labels above and below it.
- * Equalize the distance from the left side of the action box to the left side
- * of the icon for both the menu and the non-menu versions of the action box.
- * Also make sure the labels are the same distance away from the icons.
- */
-.actionsMenu {
-  margin-block: 0;
-  margin-inline: -2px 0;
-}
-
-.actionsMenu > menupopup > menuitem > .menu-iconic-left {
-  padding-inline-start: 0;
-}
-
-.actionsMenu > menupopup > menuitem > .menu-iconic-text {
-  padding-top: 0;
-}
-
-.actionsMenu > menupopup > menuitem {
-  padding-inline-start: 4px;
-}
-
-/**
  * Used by the cloudFile manager
  */
 

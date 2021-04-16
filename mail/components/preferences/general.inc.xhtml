@@ -502,32 +502,43 @@
 
     <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
-      <hbox>
-        <search-textbox id="filter"
-                        flex="1"
-                        data-l10n-id="search-input"
-                        data-l10n-attrs="placeholder"
-                        aria-controls="handlersView"
-                        oncommand="gGeneralPane._rebuildView();"/>
-      </hbox>
-
+      <search-textbox id="filter"
+                      data-l10n-id="search-handler-table"
+                      data-l10n-attrs="placeholder"
+                      aria-controls="handlersTable"
+                      oncommand="gGeneralPane._rebuildView();"/>
       <separator class="thin"/>
-
-      <vbox>
-        <listheader equalsize="always">
-          <treecol id="typeColumn" value="type"
-                   persist="sortDirection"
-                   data-l10n-id="type-column-label"
-                   flex="1" onclick="gGeneralPane.sort(event);"
-                   sortDirection="ascending" sort="typeDescription"/>
-          <treecol id="actionColumn" value="action"
-                   persist="sortDirection"
-                   data-l10n-id="action-column-label"
-                   flex="1" onclick="gGeneralPane.sort(event);"/>
-        </listheader>
-        <richlistbox id="handlersView" height="180px"
-                     preference="pref.downloads.disable_button.edit_actions"/>
-      </vbox>
+      <html:div id="handlersView"
+                preference="pref.downloads.disable_button.edit_actions">
+        <html:table id="handlersTable">
+          <html:thead>
+            <html:tr>
+              <html:th scope="col"
+                       sort-type="type">
+                <html:button class="handlerHeaderButton">
+                  <html:div class="handlerHeader"
+                            data-l10n-id="type-column-label">
+                  </html:div>
+                  <html:img class="handlerSortHeaderIcon"
+                            alt=""/>
+                </html:button>
+              </html:th>
+              <html:th scope="col"
+                       sort-type="action">
+                <html:button class="handlerHeaderButton">
+                  <html:div class="handlerHeader"
+                            data-l10n-id="action-column-label">
+                  </html:div>
+                  <html:img class="handlerSortHeaderIcon"
+                            alt=""/>
+                </html:button>
+              </html:th>
+            </html:tr>
+          </html:thead>
+          <html:tbody>
+          </html:tbody>
+        </html:table>
+      </html:div>
 
       <separator class="thin"/>
 

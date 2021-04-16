@@ -398,16 +398,12 @@ quoted-text-color =
     .label = Color:
     .accesskey = o
 
-search-input =
-    .placeholder = Search
+search-handler-table =
+    .placeholder = Filter content types and actions
 
-type-column-label =
-    .label = Content Type
-    .accesskey = T
+type-column-label = Content Type
 
-action-column-label =
-    .label = Action
-    .accesskey = A
+action-column-label = Action
 
 save-to-label =
     .label = Save files to

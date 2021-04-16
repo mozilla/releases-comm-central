@@ -34,10 +34,6 @@ menulist:not([popuponly="true"]) {
   min-height: 30px;
 }
 
-.actionsMenu::part(icon) {
-  margin-top: 2px;
-}
-
 #pref-category-box .sidebar-footer-label {
   font-size: 1.224em;
 }

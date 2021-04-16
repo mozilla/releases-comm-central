@@ -16,10 +16,6 @@
   appearance: none;
 }
 
-menulist.actionsMenu::part(dropmarker) {
-  margin-block: 11px;
-}
-
 html|input[type="number"] {
   min-height: 28px;
 }

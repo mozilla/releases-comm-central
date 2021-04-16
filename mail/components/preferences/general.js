@@ -12,11 +12,6 @@
 // ------------------------------
 // Constants & Enumeration Values
 
-// For CSS. Can be one of "ask", "save", or "feed". If absent, the icon URL
-// was set by us to a custom handler icon and CSS should not try to override it.
-var APP_ICON_ATTR_NAME = "appHandlerIcon";
-var gNodeToObjectMap = new WeakMap();
-
 var { DownloadUtils } = ChromeUtils.import(
   "resource://gre/modules/DownloadUtils.jsm"
 );
@@ -125,9 +120,12 @@ if (AppConstants.MOZ_UPDATER) {
 }
 
 var gGeneralPane = {
-  // The set of types the app knows how to handle.  A hash of HandlerInfoWrapper
+  // The set of types the app knows how to handle. A map of HandlerInfoWrapper
   // objects, indexed by type.
-  _handledTypes: {},
+  _handledTypes: new Map(),
+  // Map from a handlerInfoWrapper to the corresponding table HandlerRow.
+  _handlerRows: new Map(),
+  _handlerMenuId: 0,
 
   // The list of types we can show, sorted by the sort column/direction.
   // An array of HandlerInfoWrapper objects.  We build this list when we first
@@ -149,7 +147,7 @@ var gGeneralPane = {
 
   // These get defined by init().
   _brandShortName: null,
-  _list: null,
+  _handlerTbody: null,
   _filter: null,
   _prefsBundle: null,
   mPane: null,
@@ -175,8 +173,20 @@ var gGeneralPane = {
     this._brandShortName = document
       .getElementById("bundleBrand")
       .getString("brandShortName");
-    this._list = document.getElementById("handlersView");
+    this._handlerTbody = document.querySelector("#handlersTable > tbody");
     this._filter = document.getElementById("filter");
+
+    this._handlerSort = { type: "type", descending: false };
+    this._handlerSortHeaders = document.querySelectorAll(
+      "#handlersTable > thead th[sort-type]"
+    );
+    for (let header of this._handlerSortHeaders) {
+      let button = header.querySelector("button");
+      button.addEventListener(
+        "click",
+        this.sort.bind(this, header.getAttribute("sort-type"))
+      );
+    }
 
     this.updateStartPage();
     this.updatePlaySound(
@@ -258,19 +268,6 @@ var gGeneralPane = {
       "mail.citation_color"
     ).value;
 
-    // Figure out how we should be sorting the list.  We persist sort settings
-    // across sessions, so we can't assume the default sort column/direction.
-    // XXX should we be using the XUL sort service instead?
-    this._sortColumn = document.getElementById("typeColumn");
-    if (document.getElementById("actionColumn").hasAttribute("sortDirection")) {
-      this._sortColumn = document.getElementById("actionColumn");
-      // The typeColumn element always has a sortDirection attribute,
-      // either because it was persisted or because the default value
-      // from the xul file was used.  If we are sorting on the other
-      // column, we should remove it.
-      document.getElementById("typeColumn").removeAttribute("sortDirection");
-    }
-
     // By doing this in a timeout, we let the preferences dialog resize itself
     // to an appropriate size before we add a bunch of items to the list.
     // Otherwise, if there are many items, and the Applications prefpane
@@ -278,7 +275,6 @@ var gGeneralPane = {
     // the dialog might stretch too much in an attempt to fit them all in.
     // XXX Shouldn't we perhaps just set a max-height on the richlistbox?
     var _delayedPaneLoad = function(self) {
-      self._initListEventHandlers();
       self._loadAppHandlerData();
       self._rebuildVisibleTypes();
       self._sortVisibleTypes();
@@ -1579,7 +1575,7 @@ var gGeneralPane = {
     const internalHandlers = [new PDFHandlerInfoWrapper()];
     for (const internalHandler of internalHandlers) {
       if (internalHandler.enabled) {
-        this._handledTypes[internalHandler.type] = internalHandler;
+        this._handledTypes.set(internalHandler.type, internalHandler);
       }
     }
   },
@@ -1592,11 +1588,11 @@ var gGeneralPane = {
       let type = wrappedHandlerInfo.type;
 
       let handlerInfoWrapper;
-      if (type in this._handledTypes) {
-        handlerInfoWrapper = this._handledTypes[type];
+      if (this._handledTypes.has(type)) {
+        handlerInfoWrapper = this._handledTypes.get(type);
       } else {
         handlerInfoWrapper = new HandlerInfoWrapper(type, wrappedHandlerInfo);
-        this._handledTypes[type] = handlerInfoWrapper;
+        this._handledTypes.set(type, handlerInfoWrapper);
       }
     }
   },
@@ -1604,40 +1600,12 @@ var gGeneralPane = {
   // -----------------
   // View Construction
 
-  selectedHandlerListItem: null,
-
-  _initListEventHandlers() {
-    this._list.addEventListener("select", event => {
-      if (event.target != this._list) {
-        return;
-      }
-
-      let handlerListItem =
-        this._list.selectedItem &&
-        HandlerListItem.forNode(this._list.selectedItem);
-      if (this.selectedHandlerListItem == handlerListItem) {
-        return;
-      }
-
-      if (this.selectedHandlerListItem) {
-        this.selectedHandlerListItem.showActionsMenu = false;
-      }
-      this.selectedHandlerListItem = handlerListItem;
-      if (handlerListItem) {
-        this.rebuildActionsMenu();
-        handlerListItem.showActionsMenu = true;
-      }
-    });
-  },
-
   _rebuildVisibleTypes() {
     // Reset the list of visible types and the visible type description.
     this._visibleTypes.length = 0;
     this._visibleDescriptions.clear();
 
-    for (let type in this._handledTypes) {
-      let handlerInfo = this._handledTypes[type];
-
+    for (let handlerInfo of this._handledTypes.values()) {
       // We couldn't find any reason to exclude the type, so include it.
       this._visibleTypes.push(handlerInfo);
 
@@ -1660,27 +1628,48 @@ var gGeneralPane = {
   },
 
   _rebuildView() {
-    let lastSelectedType =
-      this.selectedHandlerListItem &&
-      this.selectedHandlerListItem.handlerInfoWrapper.type;
-    this.selectedHandlerListItem = null;
-
     // Clear the list of entries.
-    this._list.textContent = "";
+    let tbody = this._handlerTbody;
+    while (tbody.hasChildNodes()) {
+      // Rows kept alive by the _handlerRows map.
+      tbody.removeChild(tbody.lastChild);
+    }
 
-    var visibleTypes = this._visibleTypes;
+    let sort = this._handlerSort;
+    for (let header of this._handlerSortHeaders) {
+      let icon = header.querySelector("img");
+      if (sort.type === header.getAttribute("sort-type")) {
+        icon.setAttribute("src", "chrome://global/skin/icons/sort-arrow.svg");
+        if (sort.descending) {
+          /* Rotates the src image to point up. */
+          icon.setAttribute("descending", "");
+          header.setAttribute("aria-sort", "descending");
+        } else {
+          icon.removeAttribute("descending");
+          header.setAttribute("aria-sort", "ascending");
+        }
+      } else {
+        icon.removeAttribute("src");
+        header.setAttribute("aria-sort", "none");
+      }
+    }
+
+    let visibleTypes = this._visibleTypes;
 
     // If the user is filtering the list, then only show matching types.
     if (this._filter.value) {
       visibleTypes = visibleTypes.filter(this._matchesFilter, this);
     }
 
-    for (let visibleType of visibleTypes) {
-      let item = new HandlerListItem(visibleType);
-      item.connectAndAppendToList(this._list);
-
-      if (visibleType.type === lastSelectedType) {
-        this._list.selectedItem = item.node;
+    for (let handlerInfo of visibleTypes) {
+      let row = this._handlerRows.get(handlerInfo);
+      if (row) {
+        tbody.appendChild(row.node);
+      } else {
+        row = new HandlerRow(handlerInfo, this.onDelete.bind(this));
+        row.constructNodeAndAppend(tbody, this._handlerMenuId);
+        this._handlerMenuId++;
+        this._handlerRows.set(handlerInfo, row);
       }
     }
   },
@@ -1780,227 +1769,24 @@ var gGeneralPane = {
     );
   },
 
-  /**
-   * Rebuild the actions menu for the selected entry.  Gets called by
-   * the richlistitem constructor when an entry in the list gets selected.
-   */
-  rebuildActionsMenu() {
-    var typeItem = this._list.selectedItem;
-
-    if (!typeItem) {
-      return;
-    }
-
-    var handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
-    var menu = typeItem.querySelector(".actionsMenu");
-    var menuPopup = menu.menupopup;
-
-    // Clear out existing items.
-    while (menuPopup.hasChildNodes()) {
-      menuPopup.lastChild.remove();
-    }
-
-    let internalMenuItem;
-    // Add the "Preview in Thunderbird" option for optional internal handlers.
-    if (handlerInfo instanceof InternalHandlerInfoWrapper) {
-      internalMenuItem = document.createXULElement("menuitem");
-      internalMenuItem.setAttribute(
-        "action",
-        Ci.nsIHandlerInfo.handleInternally
-      );
-      let label = this._prefsBundle.getFormattedString("previewInApp", [
-        this._brandShortName,
-      ]);
-      internalMenuItem.setAttribute("label", label);
-      internalMenuItem.setAttribute("tooltiptext", label);
-      internalMenuItem.setAttribute(APP_ICON_ATTR_NAME, "ask");
-      menuPopup.appendChild(internalMenuItem);
-    }
-
-    var askMenuItem = document.createXULElement("menuitem");
-    askMenuItem.setAttribute("alwaysAsk", "true");
-    {
-      let label = this._prefsBundle.getString("alwaysAsk");
-      askMenuItem.setAttribute("label", label);
-      askMenuItem.setAttribute("tooltiptext", label);
-      askMenuItem.setAttribute(APP_ICON_ATTR_NAME, "ask");
-      menuPopup.appendChild(askMenuItem);
-    }
-
-    // Create a menu item for saving to disk.
-    // Note: this option isn't available to protocol types, since we don't know
-    // what it means to save a URL having a certain scheme to disk.
-    if (handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) {
-      var saveMenuItem = document.createXULElement("menuitem");
-      saveMenuItem.setAttribute("action", Ci.nsIHandlerInfo.saveToDisk);
-      let label = this._prefsBundle.getString("saveFile");
-      saveMenuItem.setAttribute("label", label);
-      saveMenuItem.setAttribute("tooltiptext", label);
-      saveMenuItem.setAttribute(APP_ICON_ATTR_NAME, "save");
-      menuPopup.appendChild(saveMenuItem);
-    }
-
-    // Add a separator to distinguish these items from the helper app items
-    // that follow them.
-    let menuItem = document.createXULElement("menuseparator");
-    menuPopup.appendChild(menuItem);
-
-    // Create a menu item for the OS default application, if any.
-    if (handlerInfo.hasDefaultHandler) {
-      var defaultMenuItem = document.createXULElement("menuitem");
-      defaultMenuItem.setAttribute(
-        "action",
-        Ci.nsIHandlerInfo.useSystemDefault
-      );
-      let label = this._prefsBundle.getFormattedString("useDefault", [
-        handlerInfo.defaultDescription,
-      ]);
-      defaultMenuItem.setAttribute("label", label);
-      defaultMenuItem.setAttribute(
-        "tooltiptext",
-        handlerInfo.defaultDescription
-      );
-      defaultMenuItem.setAttribute(
-        "image",
-        handlerInfo.iconURLForSystemDefault
-      );
-
-      menuPopup.appendChild(defaultMenuItem);
-    }
-
-    // Create menu items for possible handlers.
-    let preferredApp = handlerInfo.preferredApplicationHandler;
-    var possibleAppMenuItems = [];
-    for (let possibleApp of handlerInfo.possibleApplicationHandlers.enumerate()) {
-      if (!gGeneralPane.isValidHandlerApp(possibleApp)) {
-        continue;
-      }
-
-      let menuItem = document.createXULElement("menuitem");
-      menuItem.setAttribute("action", Ci.nsIHandlerInfo.useHelperApp);
-      let label;
-      if (possibleApp instanceof Ci.nsILocalHandlerApp) {
-        label = getDisplayNameForFile(possibleApp.executable);
-      } else {
-        label = possibleApp.name;
-      }
-      label = this._prefsBundle.getFormattedString("useApp", [label]);
-      menuItem.setAttribute("label", label);
-      menuItem.setAttribute("tooltiptext", label);
-      menuItem.setAttribute(
-        "image",
-        gGeneralPane._getIconURLForHandlerApp(possibleApp)
-      );
-
-      // Attach the handler app object to the menu item so we can use it
-      // to make changes to the datastore when the user selects the item.
-      menuItem.handlerApp = possibleApp;
-
-      menuPopup.appendChild(menuItem);
-      possibleAppMenuItems.push(menuItem);
-    }
-
-    // Create a menu item for selecting a local application.
-    let createItem = true;
-    if (AppConstants.platform == "win") {
-      // On Windows, selecting an application to open another application
-      // would be meaningless so we special case executables.
-      var executableType = Cc["@mozilla.org/mime;1"]
-        .getService(Ci.nsIMIMEService)
-        .getTypeFromExtension("exe");
-      if (handlerInfo.type == executableType) {
-        createItem = false;
-      }
-    }
-
-    if (createItem) {
-      let menuItem = document.createXULElement("menuitem");
-      menuItem.setAttribute("oncommand", "gGeneralPane.chooseApp(event)");
-      let label = this._prefsBundle.getString("useOtherApp");
-      menuItem.setAttribute("label", label);
-      menuItem.setAttribute("tooltiptext", label);
-      menuPopup.appendChild(menuItem);
-    }
-
-    // Create a menu item for managing applications.
-    if (possibleAppMenuItems.length) {
-      let menuItem = document.createXULElement("menuseparator");
-      menuPopup.appendChild(menuItem);
-      menuItem = document.createXULElement("menuitem");
-      menuItem.setAttribute("oncommand", "gGeneralPane.manageApp(event)");
-      menuItem.setAttribute("label", this._prefsBundle.getString("manageApp"));
-      menuPopup.appendChild(menuItem);
-    }
-
-    menuItem = document.createXULElement("menuseparator");
-    menuPopup.appendChild(menuItem);
-    menuItem = document.createXULElement("menuitem");
-    menuItem.setAttribute("oncommand", "gGeneralPane.confirmDelete(event)");
-    menuItem.setAttribute("label", this._prefsBundle.getString("delete"));
-    menuPopup.appendChild(menuItem);
-
-    // Select the item corresponding to the preferred action.  If the always
-    // ask flag is set, it overrides the preferred action.  Otherwise we pick
-    // the item identified by the preferred action (when the preferred action
-    // is to use a helper app, we have to pick the specific helper app item).
-    if (handlerInfo.alwaysAskBeforeHandling) {
-      menu.selectedItem = askMenuItem;
-    } else {
-      switch (handlerInfo.preferredAction) {
-        case Ci.nsIHandlerInfo.handleInternally:
-          if (internalMenuItem) {
-            menu.selectedItem = internalMenuItem;
-          } else {
-            Cu.reportError("No menu item defined to set!");
-          }
-          break;
-        case Ci.nsIHandlerInfo.useSystemDefault:
-          menu.selectedItem = defaultMenuItem;
-          break;
-        case Ci.nsIHandlerInfo.useHelperApp:
-          if (preferredApp) {
-            menu.selectedItem = possibleAppMenuItems.filter(v =>
-              v.handlerApp.equals(preferredApp)
-            )[0];
-          }
-          break;
-        case Ci.nsIHandlerInfo.saveToDisk:
-          menu.selectedItem = saveMenuItem;
-          break;
-      }
-    }
-    // menu.selectedItem may be null if the preferredAction is
-    // useSystemDefault, but handlerInfo.hasDefaultHandler returns false.
-    // For now, we'll just use the askMenuItem to avoid ugly exceptions.
-    menu.previousSelectedItem = menu.selectedItem || askMenuItem;
-  },
-
   // -------------------
   // Sorting & Filtering
 
-  _sortColumn: null,
-
   /**
-   * Sort the list when the user clicks on a column header.
+   * Sort the list when the user clicks on a column header. If sortType is
+   * different than the last sort, the sort direction is toggled. Otherwise, the
+   * sort is changed to the new sortType with ascending direction.
+   *
+   * @param {string} sortType - The sort type associated with the column header.
    */
-  sort(event) {
-    var column = event.target;
-
-    // If the user clicked on a new sort column, remove the direction indicator
-    // from the old column.
-    if (this._sortColumn && this._sortColumn != column) {
-      this._sortColumn.removeAttribute("sortDirection");
-    }
-
-    this._sortColumn = column;
-
-    // Set (or switch) the sort direction indicator.
-    if (column.getAttribute("sortDirection") == "ascending") {
-      column.setAttribute("sortDirection", "descending");
+  sort(sortType) {
+    let sort = this._handlerSort;
+    if (sort.type === sortType) {
+      sort.descending = !sort.descending;
     } else {
-      column.setAttribute("sortDirection", "ascending");
+      sort.type = sortType;
+      sort.descending = false;
     }
-
     this._sortVisibleTypes();
     this._rebuildView();
   },
@@ -2009,10 +1795,6 @@ var gGeneralPane = {
    * Sort the list of visible types by the current sort column/direction.
    */
   _sortVisibleTypes() {
-    if (!this._sortColumn) {
-      return;
-    }
-
     function sortByType(a, b) {
       return a.typeDescription
         .toLowerCase()
@@ -2025,16 +1807,13 @@ var gGeneralPane = {
         .localeCompare(b.actionDescription.toLowerCase());
     }
 
-    switch (this._sortColumn.getAttribute("value")) {
-      case "type":
-        this._visibleTypes.sort(sortByType);
-        break;
-      case "action":
-        this._visibleTypes.sort(sortByAction);
-        break;
+    let sort = this._handlerSort;
+    if (sort.type === "action") {
+      this._visibleTypes.sort(sortByAction);
+    } else {
+      this._visibleTypes.sort(sortByType);
     }
-
-    if (this._sortColumn.getAttribute("sortDirection") == "descending") {
+    if (sort.descending) {
       this._visibleTypes.reverse();
     }
   },
@@ -2044,206 +1823,22 @@ var gGeneralPane = {
     this._filter.select();
   },
 
-  // -------
-  // Changes
-
-  // Whether or not we are currently storing the action selected by the user.
-  // We use this to suppress notification-triggered updates to the list when
-  // we make changes that may spawn such updates, specifically when we change
-  // the action for the feed type, which results in feed preference updates,
-  // which spawn "pref changed" notifications that would otherwise cause us
-  // to rebuild the view unnecessarily.
-  _storingAction: false,
-
-  onSelectAction(aActionItem) {
-    this._storingAction = true;
-
-    let typeItem = this._list.selectedItem;
-    let menu = typeItem.querySelector(".actionsMenu");
-    menu.previousSelectedItem = aActionItem;
-    try {
-      this._storeAction(aActionItem);
-    } finally {
-      this._storingAction = false;
-    }
-  },
-
-  _storeAction(aActionItem) {
-    var handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
-
-    if (aActionItem.hasAttribute("alwaysAsk")) {
-      handlerInfo.alwaysAskBeforeHandling = true;
-    } else if (aActionItem.hasAttribute("action")) {
-      let action = parseInt(aActionItem.getAttribute("action"));
-
-      // Set the preferred application handler.
-      // We leave the existing preferred app in the list when we set
-      // the preferred action to something other than useHelperApp so that
-      // legacy datastores that don't have the preferred app in the list
-      // of possible apps still include the preferred app in the list of apps
-      // the user can choose to handle the type.
-      if (action == Ci.nsIHandlerInfo.useHelperApp) {
-        handlerInfo.preferredApplicationHandler = aActionItem.handlerApp;
-      }
-
-      // Set the "always ask" flag.
-      handlerInfo.alwaysAskBeforeHandling = false;
-
-      // Set the preferred action.
-      handlerInfo.preferredAction = action;
+  onDelete(handlerRow) {
+    let handlerInfo = handlerRow.handlerInfoWrapper;
+    let index = this._visibleTypes.indexOf(handlerInfo);
+    if (index != -1) {
+      this._visibleTypes.splice(index, 1);
     }
 
-    handlerInfo.store();
-
-    // Update the action label and image to reflect the new preferred action.
-    this.selectedHandlerListItem.refreshAction();
-  },
-
-  manageApp(aEvent) {
-    // Don't let the normal "on select action" handler get this event,
-    // as we handle it specially ourselves.
-    aEvent.stopPropagation();
-
-    var handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
-
-    let onComplete = () => {
-      // Rebuild the actions menu so that we revert to the previous selection,
-      // or "Always ask" if the previous default application has been removed.
-      this.rebuildActionsMenu();
-
-      // Update the richlistitem too. Will be visible when selecting another row.
-      this.selectedHandlerListItem.refreshAction();
-    };
-
-    gSubDialog.open(
-      "chrome://messenger/content/preferences/applicationManager.xhtml",
-      { features: "resizable=no", closingCallback: onComplete },
-      handlerInfo
-    );
-  },
-
-  chooseApp(aEvent) {
-    // Don't let the normal "on select action" handler get this event,
-    // as we handle it specially ourselves.
-    aEvent.stopPropagation();
-
-    var handlerApp;
-    let onSelectionDone = function() {
-      // Rebuild the actions menu whether the user picked an app or canceled.
-      // If they picked an app, we want to add the app to the menu and select it.
-      // If they canceled, we want to go back to their previous selection.
-      this.rebuildActionsMenu();
-
-      // If the user picked a new app from the menu, select it.
-      if (handlerApp) {
-        let typeItem = this._list.selectedItem;
-        let actionsMenu = typeItem.querySelector(".actionsMenu");
-        let menuItems = actionsMenu.menupopup.children;
-        for (let i = 0; i < menuItems.length; i++) {
-          let menuItem = menuItems[i];
-          if (menuItem.handlerApp && menuItem.handlerApp.equals(handlerApp)) {
-            actionsMenu.selectedIndex = i;
-            this.onSelectAction(menuItem);
-            break;
-          }
-        }
-      }
-    }.bind(this);
-
-    if (AppConstants.platform == "win") {
-      let params = {};
-      let handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
-
-      params.mimeInfo = handlerInfo.wrappedHandlerInfo;
-
-      params.title = this._prefsBundle.getString("fpTitleChooseApp");
-      params.description = handlerInfo.description;
-      params.filename = null;
-      params.handlerApp = null;
-
-      let onAppSelected = () => {
-        if (this.isValidHandlerApp(params.handlerApp)) {
-          handlerApp = params.handlerApp;
-
-          // Add the app to the type's list of possible handlers.
-          handlerInfo.addPossibleApplicationHandler(handlerApp);
-        }
-        onSelectionDone();
-      };
-
-      gSubDialog.open(
-        "chrome://global/content/appPicker.xhtml",
-        { features: "resizable=no", closingCallback: onAppSelected },
-        params
-      );
-    } else {
-      const nsIFilePicker = Ci.nsIFilePicker;
-      let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-      let winTitle = this._prefsBundle.getString("fpTitleChooseApp");
-      fp.init(window, winTitle, nsIFilePicker.modeOpen);
-      fp.appendFilters(nsIFilePicker.filterApps);
-
-      // Prompt the user to pick an app.  If they pick one, and it's a valid
-      // selection, then add it to the list of possible handlers.
-
-      fp.open(rv => {
-        if (
-          rv == nsIFilePicker.returnOK &&
-          fp.file &&
-          this._isValidHandlerExecutable(fp.file)
-        ) {
-          handlerApp = Cc[
-            "@mozilla.org/uriloader/local-handler-app;1"
-          ].createInstance(Ci.nsILocalHandlerApp);
-          handlerApp.name = getDisplayNameForFile(fp.file);
-          handlerApp.executable = fp.file;
-
-          // Add the app to the type's list of possible handlers.
-          let handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
-          handlerInfo.addPossibleApplicationHandler(handlerApp);
-        }
-        onSelectionDone();
-      });
+    let tbody = this._handlerTbody;
+    if (handlerRow.node.parentNode === tbody) {
+      tbody.removeChild(handlerRow.node);
     }
-  },
 
-  confirmDelete(aEvent) {
-    aEvent.stopPropagation();
-    if (
-      Services.prompt.confirm(
-        null,
-        this._prefsBundle.getString("confirmDeleteTitle"),
-        this._prefsBundle.getString("confirmDeleteText")
-      )
-    ) {
-      this.onDelete(aEvent);
-    } else {
-      // They hit cancel, so return them to the previously selected item.
-      let typeItem = this._list.selectedItem;
-      let menu = typeItem.querySelector(".actionsMenu");
-      menu.selectedItem = menu.previousSelectedItem;
-    }
-  },
+    this._handledTypes.delete(handlerInfo.type);
+    this._handlerRows.delete(handlerInfo);
 
-  onDelete(aEvent) {
-    // We want to delete if either the request came from the confirmDelete
-    // method (which is the only thing that populates the aEvent parameter),
-    // or we've hit the delete/backspace key while the list has focus.
-    if (
-      (aEvent || document.commandDispatcher.focusedElement == this._list) &&
-      this._list.selectedIndex != -1
-    ) {
-      let typeItem = this._list.getItemAtIndex(this._list.selectedIndex);
-      let type = typeItem.getAttribute("type");
-      let handlerInfo = this._handledTypes[type];
-      let index = this._visibleTypes.indexOf(handlerInfo);
-      if (index != -1) {
-        this._visibleTypes.splice(index, 1);
-      }
-      handlerInfo.remove();
-      delete this._handledTypes[type];
-      typeItem.remove();
-    }
+    handlerInfo.remove();
   },
 
   _getIconURLForHandlerApp(aHandlerApp) {
@@ -2355,91 +1950,423 @@ function getLocalHandlerApp(aFile) {
 }
 
 // eslint-disable-next-line no-undef
-let gHandlerListItemFragment = MozXULElement.parseXULToFragment(`
-  <richlistitem>
-    <hbox flex="1" equalsize="always">
-      <hbox class="typeContainer" flex="1" align="center">
+let gHandlerRowFragment = MozXULElement.parseXULToFragment(`
+  <html:tr>
+    <html:td class="typeCell">
+      <html:div class="typeLabel">
         <image class="typeIcon" width="16" height="16"
                src="moz-icon://goat?size=16"/>
-        <label class="typeDescription" flex="1" crop="end"/>
-      </hbox>
-      <hbox class="actionContainer" flex="1" align="center">
-        <image class="actionIcon" width="16" height="16"/>
-        <label class="actionDescription" flex="1" crop="end"/>
-      </hbox>
-      <hbox class="actionsMenuContainer" flex="1">
-        <menulist class="actionsMenu" flex="1" crop="end" selectedIndex="1">
-          <menupopup/>
-        </menulist>
-      </hbox>
-    </hbox>
-  </richlistitem>
+        <label class="typeDescription"
+               crop="end"/>
+      </html:div>
+    </html:td>
+    <html:td class="actionCell">
+      <menulist class="actionsMenu"
+                crop="end"
+                selectedIndex="1">
+        <menupopup/>
+      </menulist>
+    </html:td>
+  </html:tr>
 `);
 
 /**
- * This is associated to <richlistitem> elements in the handlers view.
+ * This is associated to rows in the handlers table.
  */
-class HandlerListItem {
-  static forNode(node) {
-    return gNodeToObjectMap.get(node);
-  }
-
-  constructor(handlerInfoWrapper) {
+class HandlerRow {
+  constructor(handlerInfoWrapper, onDeleteCallback) {
     this.handlerInfoWrapper = handlerInfoWrapper;
+    this.previousSelectedItem = null;
+    this.deleteCallback = onDeleteCallback;
   }
 
-  setOrRemoveAttributes(iterable) {
-    for (let [selector, name, value] of iterable) {
-      let node = selector ? this.node.querySelector(selector) : this.node;
-      if (value) {
-        node.setAttribute(name, value);
-      } else {
-        node.removeAttribute(name);
+  constructNodeAndAppend(tbody, id) {
+    tbody.appendChild(document.importNode(gHandlerRowFragment, true));
+    this.node = tbody.lastChild;
+
+    this.menu = this.node.querySelector(".actionsMenu");
+    id = `action-menu-${id}`;
+    this.menu.setAttribute("id", id);
+    this.menu.addEventListener("command", event =>
+      this.onSelectAction(event.originalTarget)
+    );
+
+    let typeDescription = this.node.querySelector(".typeDescription");
+    typeDescription.setAttribute(
+      "value",
+      this.handlerInfoWrapper.typeDescription
+    );
+    // FIXME: Control only works when clicking the XUL label. Would be improved
+    // if the icon was part of the label and it could expand to the full width
+    // and height of the cell. This is possible with an HTML label, but the XUL
+    // menulist is not a labelable element, so the "for" attribute would not
+    // work until the menulist is also converted to a labelable HTML.
+    typeDescription.setAttribute("control", id);
+    // Spoof the HTML label "for" attribute focus behaviour on the whole cell.
+    this.node
+      .querySelector(".typeCell")
+      .addEventListener("click", () => this.menu.focus());
+
+    this.node
+      .querySelector(".typeIcon")
+      .setAttribute("src", this.handlerInfoWrapper.smallIcon);
+
+    this.rebuildActionsMenu();
+  }
+
+  rebuildActionsMenu() {
+    let menu = this.menu;
+    let menuPopup = menu.menupopup;
+    let handlerInfo = this.handlerInfoWrapper;
+
+    // Clear out existing items.
+    while (menuPopup.hasChildNodes()) {
+      menuPopup.removeChild(menuPopup.lastChild);
+    }
+
+    let internalMenuItem;
+    // Add the "Preview in Thunderbird" option for optional internal handlers.
+    if (handlerInfo instanceof InternalHandlerInfoWrapper) {
+      internalMenuItem = document.createXULElement("menuitem");
+      internalMenuItem.setAttribute(
+        "action",
+        Ci.nsIHandlerInfo.handleInternally
+      );
+      let label = gGeneralPane._prefsBundle.getFormattedString("previewInApp", [
+        gGeneralPane._brandShortName,
+      ]);
+      internalMenuItem.setAttribute("label", label);
+      internalMenuItem.setAttribute("tooltiptext", label);
+      internalMenuItem.setAttribute(
+        "image",
+        "chrome://messenger/skin/preferences/alwaysAsk.png"
+      );
+      menuPopup.appendChild(internalMenuItem);
+    }
+
+    let askMenuItem = document.createXULElement("menuitem");
+    askMenuItem.setAttribute("alwaysAsk", "true");
+    {
+      let label = gGeneralPane._prefsBundle.getString("alwaysAsk");
+      askMenuItem.setAttribute("label", label);
+      askMenuItem.setAttribute("tooltiptext", label);
+      askMenuItem.setAttribute(
+        "image",
+        "chrome://messenger/skin/preferences/alwaysAsk.png"
+      );
+      menuPopup.appendChild(askMenuItem);
+    }
+
+    // Create a menu item for saving to disk.
+    // Note: this option isn't available to protocol types, since we don't know
+    // what it means to save a URL having a certain scheme to disk.
+    let saveMenuItem;
+    if (handlerInfo.wrappedHandlerInfo instanceof Ci.nsIMIMEInfo) {
+      saveMenuItem = document.createXULElement("menuitem");
+      saveMenuItem.setAttribute("action", Ci.nsIHandlerInfo.saveToDisk);
+      let label = gGeneralPane._prefsBundle.getString("saveFile");
+      saveMenuItem.setAttribute("label", label);
+      saveMenuItem.setAttribute("tooltiptext", label);
+      saveMenuItem.setAttribute(
+        "image",
+        "chrome://messenger/skin/preferences/saveFile.png"
+      );
+      menuPopup.appendChild(saveMenuItem);
+    }
+
+    // Add a separator to distinguish these items from the helper app items
+    // that follow them.
+    let menuItem = document.createXULElement("menuseparator");
+    menuPopup.appendChild(menuItem);
+
+    // Create a menu item for the OS default application, if any.
+    let defaultMenuItem;
+    if (handlerInfo.hasDefaultHandler) {
+      defaultMenuItem = document.createXULElement("menuitem");
+      defaultMenuItem.setAttribute(
+        "action",
+        Ci.nsIHandlerInfo.useSystemDefault
+      );
+      let label = gGeneralPane._prefsBundle.getFormattedString("useDefault", [
+        handlerInfo.defaultDescription,
+      ]);
+      defaultMenuItem.setAttribute("label", label);
+      defaultMenuItem.setAttribute(
+        "tooltiptext",
+        handlerInfo.defaultDescription
+      );
+      defaultMenuItem.setAttribute(
+        "image",
+        handlerInfo.iconURLForSystemDefault
+      );
+
+      menuPopup.appendChild(defaultMenuItem);
+    }
+
+    // Create menu items for possible handlers.
+    let preferredApp = handlerInfo.preferredApplicationHandler;
+    let possibleAppMenuItems = [];
+    for (let possibleApp of handlerInfo.possibleApplicationHandlers.enumerate()) {
+      if (!gGeneralPane.isValidHandlerApp(possibleApp)) {
+        continue;
       }
+
+      let menuItem = document.createXULElement("menuitem");
+      menuItem.setAttribute("action", Ci.nsIHandlerInfo.useHelperApp);
+      let label;
+      if (possibleApp instanceof Ci.nsILocalHandlerApp) {
+        label = getDisplayNameForFile(possibleApp.executable);
+      } else {
+        label = possibleApp.name;
+      }
+      label = gGeneralPane._prefsBundle.getFormattedString("useApp", [label]);
+      menuItem.setAttribute("label", label);
+      menuItem.setAttribute("tooltiptext", label);
+      menuItem.setAttribute(
+        "image",
+        gGeneralPane._getIconURLForHandlerApp(possibleApp)
+      );
+
+      // Attach the handler app object to the menu item so we can use it
+      // to make changes to the datastore when the user selects the item.
+      menuItem.handlerApp = possibleApp;
+
+      menuPopup.appendChild(menuItem);
+      possibleAppMenuItems.push(menuItem);
+    }
+
+    // Create a menu item for selecting a local application.
+    let createItem = true;
+    if (AppConstants.platform == "win") {
+      // On Windows, selecting an application to open another application
+      // would be meaningless so we special case executables.
+      let executableType = Cc["@mozilla.org/mime;1"]
+        .getService(Ci.nsIMIMEService)
+        .getTypeFromExtension("exe");
+      if (handlerInfo.type == executableType) {
+        createItem = false;
+      }
+    }
+
+    if (createItem) {
+      let menuItem = document.createXULElement("menuitem");
+      menuItem.addEventListener("command", this.chooseApp.bind(this));
+      let label = gGeneralPane._prefsBundle.getString("useOtherApp");
+      menuItem.setAttribute("label", label);
+      menuItem.setAttribute("tooltiptext", label);
+      menuPopup.appendChild(menuItem);
+    }
+
+    // Create a menu item for managing applications.
+    if (possibleAppMenuItems.length) {
+      let menuItem = document.createXULElement("menuseparator");
+      menuPopup.appendChild(menuItem);
+      menuItem = document.createXULElement("menuitem");
+      menuItem.addEventListener("command", this.manageApp.bind(this));
+      menuItem.setAttribute(
+        "label",
+        gGeneralPane._prefsBundle.getString("manageApp")
+      );
+      menuPopup.appendChild(menuItem);
+    }
+
+    menuItem = document.createXULElement("menuseparator");
+    menuPopup.appendChild(menuItem);
+    menuItem = document.createXULElement("menuitem");
+    menuItem.addEventListener("command", this.confirmDelete.bind(this));
+    menuItem.setAttribute(
+      "label",
+      gGeneralPane._prefsBundle.getString("delete")
+    );
+    menuPopup.appendChild(menuItem);
+
+    // Select the item corresponding to the preferred action.  If the always
+    // ask flag is set, it overrides the preferred action.  Otherwise we pick
+    // the item identified by the preferred action (when the preferred action
+    // is to use a helper app, we have to pick the specific helper app item).
+    if (handlerInfo.alwaysAskBeforeHandling) {
+      menu.selectedItem = askMenuItem;
+    } else {
+      switch (handlerInfo.preferredAction) {
+        case Ci.nsIHandlerInfo.handleInternally:
+          if (internalMenuItem) {
+            menu.selectedItem = internalMenuItem;
+          } else {
+            Cu.reportError("No menu item defined to set!");
+          }
+          break;
+        case Ci.nsIHandlerInfo.useSystemDefault:
+          menu.selectedItem = defaultMenuItem;
+          break;
+        case Ci.nsIHandlerInfo.useHelperApp:
+          if (preferredApp) {
+            menu.selectedItem = possibleAppMenuItems.filter(v =>
+              v.handlerApp.equals(preferredApp)
+            )[0];
+          }
+          break;
+        case Ci.nsIHandlerInfo.saveToDisk:
+          menu.selectedItem = saveMenuItem;
+          break;
+      }
+    }
+    // menu.selectedItem may be null if the preferredAction is
+    // useSystemDefault, but handlerInfo.hasDefaultHandler returns false.
+    // For now, we'll just use the askMenuItem to avoid ugly exceptions.
+    this.previousSelectedItem = this.menu.selectedItem || askMenuItem;
+  }
+
+  manageApp(aEvent) {
+    // Don't let the normal "on select action" handler get this event,
+    // as we handle it specially ourselves.
+    aEvent.stopPropagation();
+
+    var handlerInfo = this.handlerInfoWrapper;
+
+    let onComplete = () => {
+      // Rebuild the actions menu so that we revert to the previous selection,
+      // or "Always ask" if the previous default application has been removed.
+      this.rebuildActionsMenu();
+    };
+
+    gSubDialog.open(
+      "chrome://messenger/content/preferences/applicationManager.xhtml",
+      { features: "resizable=no", closingCallback: onComplete },
+      handlerInfo
+    );
+  }
+
+  chooseApp(aEvent) {
+    // Don't let the normal "on select action" handler get this event,
+    // as we handle it specially ourselves.
+    aEvent.stopPropagation();
+
+    var handlerApp;
+    let onSelectionDone = function() {
+      // Rebuild the actions menu whether the user picked an app or canceled.
+      // If they picked an app, we want to add the app to the menu and select it.
+      // If they canceled, we want to go back to their previous selection.
+      this.rebuildActionsMenu();
+
+      // If the user picked a new app from the menu, select it.
+      if (handlerApp) {
+        let menuItems = this.menu.menupopup.children;
+        for (let i = 0; i < menuItems.length; i++) {
+          let menuItem = menuItems[i];
+          if (menuItem.handlerApp && menuItem.handlerApp.equals(handlerApp)) {
+            this.menu.selectedIndex = i;
+            this.onSelectAction(menuItem);
+            break;
+          }
+        }
+      }
+    }.bind(this);
+
+    if (AppConstants.platform == "win") {
+      let params = {};
+      let handlerInfo = this.handlerInfoWrapper;
+
+      params.mimeInfo = handlerInfo.wrappedHandlerInfo;
+
+      params.title = gGeneralPane._prefsBundle.getString("fpTitleChooseApp");
+      params.description = handlerInfo.description;
+      params.filename = null;
+      params.handlerApp = null;
+
+      let onAppSelected = () => {
+        if (gGeneralPane.isValidHandlerApp(params.handlerApp)) {
+          handlerApp = params.handlerApp;
+
+          // Add the app to the type's list of possible handlers.
+          handlerInfo.addPossibleApplicationHandler(handlerApp);
+        }
+        onSelectionDone();
+      };
+
+      gSubDialog.open(
+        "chrome://global/content/appPicker.xhtml",
+        { features: "resizable=no", closingCallback: onAppSelected },
+        params
+      );
+    } else {
+      const nsIFilePicker = Ci.nsIFilePicker;
+      let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+      let winTitle = gGeneralPane._prefsBundle.getString("fpTitleChooseApp");
+      fp.init(window, winTitle, nsIFilePicker.modeOpen);
+      fp.appendFilters(nsIFilePicker.filterApps);
+
+      // Prompt the user to pick an app.  If they pick one, and it's a valid
+      // selection, then add it to the list of possible handlers.
+
+      fp.open(rv => {
+        if (
+          rv == nsIFilePicker.returnOK &&
+          fp.file &&
+          gGeneralPane._isValidHandlerExecutable(fp.file)
+        ) {
+          handlerApp = Cc[
+            "@mozilla.org/uriloader/local-handler-app;1"
+          ].createInstance(Ci.nsILocalHandlerApp);
+          handlerApp.name = getDisplayNameForFile(fp.file);
+          handlerApp.executable = fp.file;
+
+          // Add the app to the type's list of possible handlers.
+          let handlerInfo = this.handlerInfoWrapper;
+          handlerInfo.addPossibleApplicationHandler(handlerApp);
+        }
+        onSelectionDone();
+      });
     }
   }
 
-  connectAndAppendToList(list) {
-    list.appendChild(document.importNode(gHandlerListItemFragment, true));
-    this.node = list.lastElementChild;
-    gNodeToObjectMap.set(this.node, this);
-
-    this.node
-      .querySelector(".actionsMenu")
-      .addEventListener("command", event =>
-        gGeneralPane.onSelectAction(event.originalTarget)
-      );
-
-    let typeDescription = this.handlerInfoWrapper.typeDescription;
-    this.setOrRemoveAttributes([
-      [null, "type", this.handlerInfoWrapper.type],
-      [".typeContainer", "tooltiptext", typeDescription],
-      [".typeDescription", "value", typeDescription],
-      [".typeIcon", "src", this.handlerInfoWrapper.smallIcon],
-    ]);
-    this.refreshAction();
-    this.showActionsMenu = false;
+  confirmDelete(aEvent) {
+    aEvent.stopPropagation();
+    if (
+      Services.prompt.confirm(
+        null,
+        gGeneralPane._prefsBundle.getString("confirmDeleteTitle"),
+        gGeneralPane._prefsBundle.getString("confirmDeleteText")
+      )
+    ) {
+      // Deletes self.
+      this.deleteCallback(this);
+    } else {
+      // They hit cancel, so return them to the previously selected item.
+      this.menu.selectedItem = this.previousSelectedItem;
+    }
   }
 
-  refreshAction() {
-    let { actionIconClass, actionDescription } = this.handlerInfoWrapper;
-    this.setOrRemoveAttributes([
-      [null, APP_ICON_ATTR_NAME, actionIconClass],
-      [".actionContainer", "tooltiptext", actionDescription],
-      [".actionDescription", "value", actionDescription],
-      [
-        ".actionIcon",
-        "src",
-        actionIconClass ? null : this.handlerInfoWrapper.actionIcon,
-      ],
-    ]);
+  onSelectAction(aActionItem) {
+    this.previousSelectedItem = aActionItem;
+    this._storeAction(aActionItem);
   }
 
-  set showActionsMenu(value) {
-    this.setOrRemoveAttributes([
-      [".actionContainer", "hidden", value],
-      [".actionsMenuContainer", "hidden", !value],
-    ]);
+  _storeAction(aActionItem) {
+    var handlerInfo = this.handlerInfoWrapper;
+
+    if (aActionItem.hasAttribute("alwaysAsk")) {
+      handlerInfo.alwaysAskBeforeHandling = true;
+    } else if (aActionItem.hasAttribute("action")) {
+      let action = parseInt(aActionItem.getAttribute("action"));
+
+      // Set the preferred application handler.
+      // We leave the existing preferred app in the list when we set
+      // the preferred action to something other than useHelperApp so that
+      // legacy datastores that don't have the preferred app in the list
+      // of possible apps still include the preferred app in the list of apps
+      // the user can choose to handle the type.
+      if (action == Ci.nsIHandlerInfo.useHelperApp) {
+        handlerInfo.preferredApplicationHandler = aActionItem.handlerApp;
+      }
+
+      // Set the "always ask" flag.
+      handlerInfo.alwaysAskBeforeHandling = false;
+
+      // Set the preferred action.
+      handlerInfo.preferredAction = action;
+    }
+
+    handlerInfo.store();
   }
 }
 

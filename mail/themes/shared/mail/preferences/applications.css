@@ -9,40 +9,116 @@
  * Also make sure the labels are the same distance away from the icons.
  */
 
-#preferencesContainer #handlersView > richlistitem {
-  min-height: 36px;
-  padding: 0;
-}
-
-richlistitem[appHandlerIcon="ask"],
-menuitem[appHandlerIcon="ask"] {
-  list-style-image: url("chrome://messenger/skin/preferences/alwaysAsk.png");
-}
-
-richlistitem[appHandlerIcon="save"],
-menuitem[appHandlerIcon="save"] {
-  list-style-image: url("chrome://messenger/skin/preferences/saveFile.png");
-}
-
 .shortDetails {
   text-align: end;
   opacity: 0.5;
 }
 
-#handlersView richlistitem[selected="true"] .shortDetails {
-  color: inherit;
+#filter {
+  width: 100%;
+}
+
+#handlersSortSelect {
+  padding-block: 0;
+}
+
+#handlersView {
+  height: 210px;
+  overflow-y: auto;
+  border: 1px solid var(--in-content-box-border-color);
+  border-radius: 4px;
+}
+
+#handlersTable {
+  width: 100%;
+  border-spacing: 0;
+}
+
+#handlersTable thead > tr {
+  position: sticky;
+  top: 0;
+  /* Background color is needed for sticky headers. */
+  background-color: var(--in-content-page-background);
+}
+
+#handlersTable thead > tr > th:not(:first-child) {
+  border-inline-start: 1px solid var(--in-content-box-border-color);
+}
+
+#handlersTable thead > tr > th {
+  border-block-end: 1px solid var(--in-content-box-border-color);
+}
+
+#handlersTable tbody > tr:hover .typeCell {
+  background-color: var(--in-content-item-hover);
+}
+
+#handlersTable tbody > tr:hover .actionCell menulist {
+  /* Get hover effect if anywhere in the row is hovered. */
+  background-color: var(--in-content-button-background-hover);
+}
+
+#handlersTable tbody > tr:focus-within .typeCell {
+  background-color: var(--in-content-item-selected);
+  color: var(--in-content-item-selected-text);
+}
+
+#handlersTable :is(th, td) {
+  padding: 0;
+  width: 50%;
+}
+
+.handlerHeaderButton {
+  /* Align with .typeIcon. */
+  padding-inline: 10px;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.handlerHeaderButton:focus-visible {
+  /* The focus outline is drawn on the inside of the element (it has width 2px),
+   * rather than on the outside as usual. This is needed because otherwise the
+   * outline is not visible on the sides that are cut off by the scroll
+   * container #handlersView's edges. */
+  outline-offset: -2px;
+}
+
+.handlerSortHeaderIcon {
+  display: inline-block;
+  width: 16px;
+}
+
+.handlerSortHeaderIcon[descending] {
+  transform: scaleY(-1);
+}
+
+.handlerSortHeaderIcon:not([src]) {
+  /* Still want to take up space. */
+  visibility: hidden;
+}
+
+.typeLabel {
+  display: flex;
+  align-items: center;
 }
 
 .typeIcon {
   margin-inline: 10px 9px;
-}
-
-.actionIcon {
-  margin-inline: 12px 8px;
+  flex: 0 0 auto;
 }
 
 .actionsMenu {
   min-height: 36px;
+  display: block;
+  width: 100%;
+  border-radius: 0;
+  margin: 0;
+  padding-block: 0;
 }
 
 .actionsMenu:focus-visible {
