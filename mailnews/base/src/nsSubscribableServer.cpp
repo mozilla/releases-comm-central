@@ -27,13 +27,9 @@ struct SubscribeTreeNode {
   SubscribeTreeNode* firstChild;
   SubscribeTreeNode* lastChild;
   SubscribeTreeNode* parent;
+  // Stores the child considered most likely to be next searched for - usually
+  // the most recently-added child. If names match the search can early-out.
   SubscribeTreeNode* cachedChild;
-#ifdef HAVE_SUBSCRIBE_DESCRIPTION
-  char16_t* description;
-#endif
-#ifdef HAVE_SUBSCRIBE_MESSAGES
-  uint32_t messages;
-#endif
   bool isSubscribable;
   bool isOpen;
 };
@@ -282,10 +278,6 @@ void nsSubscribableServer::FreeSubtree(SubscribeTreeNode* node) {
     node->nextSibling = nullptr;
   }
 
-#ifdef HAVE_SUBSCRIBE_DESCRIPTION
-  NS_ASSERTION(node->description == nullptr,
-               "you need to free the description");
-#endif
   delete node;
 }
 
@@ -309,12 +301,6 @@ SubscribeTreeNode* nsSubscribableServer::CreateNode(SubscribeTreeNode* parent,
   node->lastChild = nullptr;
   node->isSubscribed = false;
   node->isSubscribable = false;
-#ifdef HAVE_SUBSCRIBE_DESCRIPTION
-  node->description = nullptr;
-#endif
-#ifdef HAVE_SUBSCRIBE_MESSAGES
-  node->messages = 0;
-#endif
   node->isOpen = true;
   node->cachedChild = nullptr;
   if (parent) {
