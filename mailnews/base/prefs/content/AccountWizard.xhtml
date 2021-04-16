@@ -5,6 +5,8 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountWizard.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/
+css"?>
 
 <!DOCTYPE window [
 <!ENTITY % AccountWizardDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
@@ -304,44 +306,26 @@
       <vbox flex="1">
         <description>&completionText.label;</description>
         <separator class="thin"/>
-        <vbox>
-          <hbox id="account.name" equalsize="always" align="start">
-            <label id="account.name.label" flex="1" class="label" value="&accnameLabel.label;"/>
-            <label id="account.name.text" flex="1" class="label"/>
-          </hbox>
-          <hbox id="identity.email" equalsize="always" align="start">
-            <label id="identity.email.label" flex="1" class="label" value="&emailLabel.label;"/>
-            <label id="identity.email.text" flex="1" class="label"/>
-          </hbox>
-          <hbox id="server.username" equalsize="always" align="start">
-            <label id="server.username.label" flex="1" class="label" value="&incomingUsername.label;"/>
-            <label id="server.username.text" flex="1" class="label"/>
-          </hbox>
-          <hbox id="server.name" equalsize="always" align="start">
-            <label id="server.name.label" flex="1" class="label" value="&serverNamePrefix.label;"/>
-            <label id="server.name.text" flex="1" class="label"/>
-          </hbox>
-          <hbox id="server.type" equalsize="always" align="start">
-            <label id="server.type.label" flex="1" class="label" value="&serverTypePrefix.label;"/>
-            <label id="server.type.text" flex="1" class="label"/>
-          </hbox>
-          <hbox id="server.port" equalsize="always" align="start">
-            <label id="server.port.label" flex="1" class="label" value="&portNum.label;"/>
-            <label id="server.port.text" flex="1" class="label" />
-          </hbox>
-          <hbox id="newsServer.name" equalsize="always" align="start">
-            <label id="newsServer.name.label" flex="1" class="label" value="&newsServerNamePrefix.label;"/>
-            <label id="newsServer.name.text" flex="1" class="label"/>
-          </hbox>
-          <hbox id="smtpServer.username" equalsize="always" align="start">
-            <label id="smtpServer.username.label" flex="1" class="label" value="&outgoingUsername.label;"/>
-            <label id="smtpServer.username.text" flex="1" class="label"/>
-          </hbox>
-          <hbox id="smtpServer.name" equalsize="always" align="start">
-            <label id="smtpServer.name.label" flex="1" class="label" value="&smtpServerNamePrefix.label;"/>
-            <label id="smtpServer.name.text" flex="1" class="label"/>
-          </hbox>
-        </vbox>
+        <html:div class="grid-two-column-fr grid-items-baseline">
+          <label id="account.name.label" flex="1" class="label" value="&accnameLabel.label;"/>
+          <label id="account.name.text" flex="1" class="label"/>
+          <label id="identity.email.label" flex="1" class="label" value="&emailLabel.label;"/>
+          <label id="identity.email.text" flex="1" class="label"/>
+          <label id="server.username.label" flex="1" class="label" value="&incomingUsername.label;"/>
+          <label id="server.username.text" flex="1" class="label"/>
+          <label id="server.name.label" flex="1" class="label" value="&serverNamePrefix.label;"/>
+          <label id="server.name.text" flex="1" class="label"/>
+          <label id="server.type.label" flex="1" class="label" value="&serverTypePrefix.label;"/>
+          <label id="server.type.text" flex="1" class="label"/>
+          <label id="server.port.label" flex="1" class="label" value="&portNum.label;"/>
+          <label id="server.port.text" flex="1" class="label" />
+          <label id="newsServer.name.label" flex="1" class="label" value="&newsServerNamePrefix.label;"/>
+          <label id="newsServer.name.text" flex="1" class="label"/>
+          <label id="smtpServer.username.label" flex="1" class="label" value="&outgoingUsername.label;"/>
+          <label id="smtpServer.username.text" flex="1" class="label"/>
+          <label id="smtpServer.name.label" flex="1" class="label" value="&smtpServerNamePrefix.label;"/>
+          <label id="smtpServer.name.text" flex="1" class="label"/>
+        </html:div>
         <separator/>
         <hbox id="downloadMsgsBox">
           <checkbox id="downloadMsgs"

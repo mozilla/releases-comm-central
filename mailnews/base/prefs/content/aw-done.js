@@ -129,20 +129,19 @@ function hideShowDownloadMsgsUI(isPop) {
 
 function setDivTextFromForm(divid, value) {
   // collapse the row if the div has no value
-  var div = document.getElementById(divid);
+  let label = document.getElementById(`${divid}.label`);
+  let text = document.getElementById(`${divid}.text`);
+
   if (!value) {
-    div.setAttribute("collapsed", "true");
+    text.style.display = "none";
+    label.style.display = "none";
     return;
   }
-
-  div.removeAttribute("collapsed");
 
   // otherwise fill in the .text element
-  div = document.getElementById(divid + ".text");
-  if (!div) {
-    return;
-  }
+  text.style.display = null;
+  label.style.display = null;
 
   // set the value
-  div.setAttribute("value", value);
+  text.setAttribute("value", value);
 }
