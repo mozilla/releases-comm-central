@@ -167,13 +167,18 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
   color: inherit;
 }
 
+@media (-moz-proton) {
+#msgIdentity[editable="true"]::part(dropmarker) {
+  margin-inline-end: 0;
+  width: 16px;
+}
+} /** END Proton **/
+
+@media not (-moz-proton) {
 #msgIdentity[editable="true"]::part(dropmarker) {
   display: none;
 }
-
-#msgIdentity.addressingWidget-separator::after {
-  margin-inline-end: -18px;
-}
+} /** END not Proton **/
 
 #msgIdentity[open="true"] {
   color: FieldText;

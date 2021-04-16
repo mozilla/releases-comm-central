@@ -81,12 +81,7 @@ toolbar[nowindowdrag="true"] {
 #msgIdentity {
   margin-block: 2px 0;
   padding-block: 3px;
-  padding-inline-end: 10px;
   color: inherit;
-}
-
-#msgIdentity.addressingWidget-separator::after {
-  margin-inline-end: -22px;
 }
 
 #msgIdentity::part(text-input) {
@@ -133,6 +128,7 @@ toolbar[nowindowdrag="true"] {
   margin-inline-end: 6px;
 }
 
+@media not (-moz-proton) {
 #msgIdentity:focus,
 #msgIdentity:focus-within,
 #msgSubject:focus,
@@ -140,6 +136,7 @@ toolbar[nowindowdrag="true"] {
   border-color: -moz-mac-focusring;
   box-shadow: var(--focus-ring-box-shadow);
 }
+} /** END not Proton **/
 
 .address-label-container {
   padding-top: 7px;

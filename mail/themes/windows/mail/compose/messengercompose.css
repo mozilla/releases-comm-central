@@ -119,11 +119,6 @@
 #msgIdentity {
   line-height: 1;
   box-shadow: none;
-  padding-inline-end: 20px !important;
-}
-
-#msgIdentity.addressingWidget-separator::after {
-  margin-inline-end: -32px;
 }
 
 #msgIdentity:-moz-focusring:not([open="true"])::part(label-box) {

@@ -1397,7 +1397,7 @@ function updateRecipientsPanelVisibility() {
   // Toggle the class to show/hide the pseudo element separator
   // of the msgIdentity field.
   document
-    .getElementById("msgIdentity")
+    .getElementById("addressingWidgetLabelBox")
     .classList.toggle(
       "addressingWidget-separator",
       document

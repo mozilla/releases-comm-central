@@ -62,22 +62,6 @@
   color: inherit;
 }
 
-:root[lwt-tree] #msgSubject,
-:root[lwt-tree] .address-container {
-  background-color: var(--lwt-toolbar-field-background-color);
-  color: var(--lwt-text-color);
-}
-
-:root[lwt-tree] #msgIdentity:hover,
-:root[lwt-tree] #msgIdentity:focus,
-:root[lwt-tree] #msgIdentity:focus-within,
-:root[lwt-tree] #msgSubject:hover,
-:root[lwt-tree] #msgSubject:focus {
-  color: var(--lwt-toolbar-field-color);
-  border-color: var(--lwt-toolbar-field-border-color);
-  background-color: var(--lwt-toolbar-field-background-color);
-}
-
 :root[lwt-tree] panel[type="autocomplete-richlistbox"] {
   margin-top: -1px;
   padding: 2px 0;
@@ -774,14 +758,19 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
   background-color: transparent;
+  transition: border .2s, box-shadow .2s, background-color .2s;
+}
+
+@media not (-moz-proton) {
+#msgIdentity {
   background-repeat: no-repeat;
   background-position: calc(100% - 5px);
   background-size: 9px 7px;
   background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
   -moz-context-properties: fill;
   fill: currentColor;
-  transition: border .2s, box-shadow .2s, background-color .2s;
 }
+} /** END not Proton **/
 
 /* XUL element needs the full [disabled="true"] attribute. */
 #msgIdentity[disabled="true"] {
@@ -792,24 +781,19 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   background-position: 5px;
 }
 
-#msgIdentity.addressingWidget-separator::after {
+#addressingWidgetLabelBox.addressingWidget-separator::before {
   display: block;
   content: '';
   width: 1px;
-  border-inline-end: 1px solid var(--toolbarbutton-hover-bordercolor);
+  border-inline-start: 1px solid var(--toolbarbutton-hover-bordercolor);
   height: 14px;
 }
 
 #msgIdentity::part(text-input) {
   border-style: none;
-  margin-inline-start: 1px;
+  outline-style: none;
+  margin-inline: 1px 20px;
 }
-
-@media (-moz-proton) {
-#msgIdentity::part(dropmarker) {
-  display: none;
-}
-} /** END Proton **/
 
 #msgSubject {
   appearance: none;
@@ -831,6 +815,12 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 .recipients-container.overflow {
   overflow-y: auto;
+}
+
+:root[lwt-tree] #msgSubject,
+:root[lwt-tree] .address-container {
+  background-color: var(--lwt-toolbar-field-background-color);
+  color: var(--lwt-text-color);
 }
 
 .address-row {
@@ -1086,17 +1076,13 @@ label.extra-recipients-label {
   outline: 2px dashed Highlight;
 }
 
-#msgIdentity:hover,
-#msgSubject:hover,
-.address-container:hover  {
-  border-color: rgba(0,0,0,0.5);
+#msgIdentity:hover {
+  border-color: var(--toolbarbutton-hover-bordercolor);
   background-color: Field;
 }
 
-#MsgHeadersToolbar[brighttext] #msgIdentity:hover,
-#MsgHeadersToolbar[brighttext] #msgSubject:hover,
-#MsgHeadersToolbar[brighttext] .address-container:hover  {
-  border-color: rgba(255, 255, 255, 0.3);
+:root[lwt-tree] #msgIdentity:hover,
+#MsgHeadersToolbar[brighttext] #msgIdentity:hover {
   background-color: var(--lwt-toolbar-field-background-color);
 }
 
@@ -1106,9 +1092,28 @@ label.extra-recipients-label {
 #msgSubject:focus,
 .drag-address-container,
 .address-container[focused="true"] {
-  border-color: Highlight !important;
+  border-color: var(--toolbar-field-focus-border-color);
   background-color: Field;
   outline: none;
+}
+
+@media (-moz-proton) {
+#msgIdentity:focus,
+#msgIdentity:focus-within,
+#msgIdentity[focused="true"],
+#msgSubject:focus,
+.drag-address-container,
+.address-container[focused="true"] {
+  outline: 1px solid var(--toolbar-field-focus-border-color);
+}
+} /** END Proton **/
+
+:root[lwt-tree] #msgIdentity:focus-within,
+:root[lwt-tree] #msgIdentity[focused="true"],
+:root[lwt-tree] #msgSubject:focus,
+:root[lwt-tree] .address-container[focused="true"] {
+  color: var(--lwt-toolbar-field-focus-color, black);
+  background-color: var(--lwt-toolbar-field-focus, white);
 }
 
 #MsgHeadersToolbar[brighttext] #msgIdentity:focus,
