@@ -19,7 +19,6 @@ EXTRA_JS_MODULES += [
     "jsProtoHelper.jsm",
     "NormalizedMap.jsm",
     "OTR.jsm",
-    "OTRHelpers.jsm",
     "OTRLib.jsm",
     "OTRUI.jsm",
     "socket.jsm",

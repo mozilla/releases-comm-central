@@ -9,7 +9,6 @@ const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { CLib } = ChromeUtils.import("resource:///modules/CLib.jsm");
 const { OTRLibLoader } = ChromeUtils.import("resource:///modules/OTRLib.jsm");
-const { OTRHelpers } = ChromeUtils.import("resource:///modules/OTRHelpers.jsm");
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -65,6 +64,18 @@ function isOnline(conv) {
   return ret;
 }
 
+/**
+ *
+ * @param {string} filename - File in the profile.
+ * @returns {string} Full path to given file in the profile directory.
+ */
+function profilePath(filename) {
+  return PathUtils.join(
+    Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+    filename
+  );
+}
+
 // OTRLib context wrapper
 
 function Context(context) {
@@ -116,9 +127,9 @@ var OTR = {
     }
   },
 
-  privateKeyPath: OTRHelpers.profilePath("otr.private_key"),
-  fingerprintsPath: OTRHelpers.profilePath("otr.fingerprints"),
-  instanceTagsPath: OTRHelpers.profilePath("otr.instance_tags"),
+  privateKeyPath: profilePath("otr.private_key"),
+  fingerprintsPath: profilePath("otr.fingerprints"),
+  instanceTagsPath: profilePath("otr.instance_tags"),
 
   init(opts) {
     opts = opts || {};
