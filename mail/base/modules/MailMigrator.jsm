@@ -127,7 +127,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 27;
+    const UI_VERSION = 28;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -562,6 +562,36 @@ var MailMigrator = {
               " -- Will not reattempt migration."
           );
         }
+      }
+
+      // Migrating the preference of the font size in the message compose window
+      // to use in document.execCommand.
+      if (currentUIVersion < 28) {
+        let fontSize = Services.prefs.getCharPref("msgcompose.font_size");
+        let newFontSize;
+        switch (fontSize) {
+          case "x-small":
+            newFontSize = "1";
+            break;
+          case "small":
+            newFontSize = "2";
+            break;
+          case "medium":
+            newFontSize = "3";
+            break;
+          case "large":
+            newFontSize = "4";
+            break;
+          case "x-large":
+            newFontSize = "5";
+            break;
+          case "xx-large":
+            newFontSize = "6";
+            break;
+          default:
+            newFontSize = "3";
+        }
+        Services.prefs.setCharPref("msgcompose.font_size", newFontSize);
       }
 
       // Update the migration version.

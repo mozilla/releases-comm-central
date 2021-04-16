@@ -1735,23 +1735,16 @@ var nsIncreaseFontCommand = {
     if (!(IsDocumentEditable() && IsEditingRenderedHTML())) {
       return false;
     }
-    var setIndex = getFontSizeIndex();
-    return setIndex >= 0 && setIndex < 5;
+    let setIndex = parseInt(getLegacyFontSize());
+    return setIndex < 6;
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    var setIndex = getFontSizeIndex();
-    if (setIndex < 0 || setIndex >= 5) {
-      return;
-    }
-    var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large"];
-    EditorSetFontSize(sizes[setIndex + 1]);
-    // Enable or Disable the toolbar buttons according to the font size.
-    goUpdateCommand("cmd_decreaseFontStep");
-    goUpdateCommand("cmd_increaseFontStep");
+    let setIndex = parseInt(getLegacyFontSize());
+    EditorSetFontSize((setIndex + 1).toString());
   },
 };
 
@@ -1760,23 +1753,16 @@ var nsDecreaseFontCommand = {
     if (!(IsDocumentEditable() && IsEditingRenderedHTML())) {
       return false;
     }
-    var setIndex = getFontSizeIndex();
-    return setIndex > 0;
+    let setIndex = parseInt(getLegacyFontSize());
+    return setIndex > 1;
   },
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    var setIndex = getFontSizeIndex();
-    if (setIndex <= 0) {
-      return;
-    }
-    var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large"];
-    EditorSetFontSize(sizes[setIndex - 1]);
-    // Enable or Disable the toolbar buttons according to the font size.
-    goUpdateCommand("cmd_decreaseFontStep");
-    goUpdateCommand("cmd_increaseFontStep");
+    let setIndex = parseInt(getLegacyFontSize());
+    EditorSetFontSize((setIndex - 1).toString());
   },
 };
 

@@ -1203,58 +1203,58 @@
           <menu id="fontSizeMenu" label="&fontSizeMenu.label;"
                 accesskey="&fontSizeMenu.accesskey;"
                 position="2">
-            <menupopup id="fontSizeMenuPopup" onpopupshowing="initFontSizeMenu(this, true)">
+            <menupopup id="fontSizeMenuPopup"
+                       onpopupshowing="initFontSizeMenu(this)"
+                       oncommand="setFontSize(event)">
               <menuitem id="menu_decreaseFontSize"
                         label="&decreaseFontSize.label;"
                         accesskey="&decreaseFontSize.accesskey;"
                         key="decreasefontsizekb"
                         observes="cmd_decreaseFontStep"
-                        type="radio" name="1" autocheck="false"/>
+                        type="radio" name="decreaseFontSize" autocheck="false"/>
               <menuitem id="menu_increaseFontSize"
                         label="&increaseFontSize.label;"
                         accesskey="&increaseFontSize.accesskey;"
                         key="increasefontsizekb"
                         observes="cmd_increaseFontStep"
-                        type="radio" name="1" autocheck="false"/>
+                        type="radio" name="increaseFontSize" autocheck="false"/>
               <menuseparator id="fontSizeMenuAfterIncreaseFontSizeSeparator"/>
               <menuitem id="menu_size-x-small"
                         label="&size-tinyCmd.label;"
                         accesskey="&size-tinyCmd.accesskey;"
-                        oncommand="EditorSetFontSize('x-small')"
-                        type="radio" name="1"
+                        value="1"
+                        type="radio" name="fontSize"
                         observes="cmd_renderedHTMLEnabler"/>
               <menuitem id="menu_size-small"
                         label="&size-smallCmd.label;"
                         accesskey="&size-smallCmd.accesskey;"
-                        oncommand="EditorSetFontSize('small')"
-                        type="radio" name="1"
+                        value="2"
+                        type="radio" name="fontSize"
                         observes="cmd_renderedHTMLEnabler"/>
               <menuitem id="menu_size-medium"
                         label="&size-mediumCmd.label;"
                         accesskey="&size-mediumCmd.accesskey;"
-                        oncommand="EditorSetFontSize('medium')"
-                        type="radio" name="1"
+                        value="3"
+                        type="radio" name="fontSize"
                         observes="cmd_renderedHTMLEnabler"/>
               <menuitem id="menu_size-large"
                         label="&size-largeCmd.label;"
                         accesskey="&size-largeCmd.accesskey;"
-                        oncommand="EditorSetFontSize('large')"
-                        type="radio" name="1"
+                        value="4"
+                        type="radio" name="fontSize"
                         observes="cmd_renderedHTMLEnabler"/>
               <menuitem id="menu_size-x-large"
                         label="&size-extraLargeCmd.label;"
                         accesskey="&size-extraLargeCmd.accesskey;"
-                        oncommand="EditorSetFontSize('x-large')"
-                        type="radio" name="1"
+                        value="5"
+                        type="radio" name="fontSize"
                         observes="cmd_renderedHTMLEnabler"/>
               <menuitem id="menu_size-xx-large"
                         label="&size-hugeCmd.label;"
                         accesskey="&size-hugeCmd.accesskey;"
-                        oncommand="EditorSetFontSize('xx-large')"
-                        type="radio" name="1"
+                        value="6"
+                        type="radio" name="fontSize"
                         observes="cmd_renderedHTMLEnabler"/>
-              <menuitem id="fontSizeMenu_smallBigInfo"
-                        type="checkbox" name="2" disabled="true" hidden="true"/>
             </menupopup>
           </menu>
 

@@ -83,33 +83,32 @@
                        type="menu"
                        observes="cmd_renderedHTMLEnabler">
           <menupopup id="AbsoluteFontSizeButtonPopup"
-                     onpopupshowing="initFontSizeMenu(this, false);">
+                     onpopupshowing="initFontSizeMenu(this);"
+                     oncommand="setFontSize(event)">
             <menuitem id="toobarmenu_fontSize_x-small"
                       label="&size-tinyCmd.label;"
-                      type="radio" name="1"
-                      oncommand="EditorSetFontSize('x-small')"/>
+                      type="radio" name="fontSize"
+                      value="1"/>
             <menuitem id="toobarmenu_fontSize_small"
                       label="&size-smallCmd.label;"
-                      type="radio" name="1"
-                      oncommand="EditorSetFontSize('small')"/>
+                      type="radio" name="fontSize"
+                      value="2"/>
             <menuitem id="toobarmenu_fontSize_medium"
                       label="&size-mediumCmd.label;"
-                      type="radio" name="1"
-                      oncommand="EditorSetFontSize('medium')"/>
+                      type="radio" name="fontSize"
+                      value="3"/>
             <menuitem id="toobarmenu_fontSize_large"
                       label="&size-largeCmd.label;"
-                      type="radio" name="1"
-                      oncommand="EditorSetFontSize('large')"/>
+                      type="radio" name="fontSize"
+                      value="4"/>
             <menuitem id="toobarmenu_fontSize_x-large"
                       label="&size-extraLargeCmd.label;"
-                      type="radio" name="1"
-                      oncommand="EditorSetFontSize('x-large')"/>
+                      type="radio" name="fontSize"
+                      value="5"/>
             <menuitem id="toobarmenu_fontSize_xx-large"
                       label="&size-hugeCmd.label;"
-                      type="radio" name="1"
-                      oncommand="EditorSetFontSize('xx-large')"/>
-            <menuitem id="toobarmenu_fontSize_smallBigInfo"
-                      type="checkbox" name="2" disabled="true" hidden="true"/>
+                      type="radio" name="fontSize"
+                      value="6"/>
           </menupopup>
         </toolbarbutton>
 

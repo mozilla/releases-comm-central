@@ -662,34 +662,10 @@ function onFontFaceChange() {
 }
 
 function EditorSetFontSize(size) {
-  if (size == "0" || size == "normal" || size == "medium") {
-    EditorRemoveTextProperty("font", "size");
-    // Also remove big and small,
-    //  else it will seem like size isn't changing correctly
-    EditorRemoveTextProperty("small", "");
-    EditorRemoveTextProperty("big", "");
-  } else {
-    // Temp: convert from new CSS size strings to old HTML size strings
-    switch (size) {
-      case "xx-small":
-      case "x-small":
-        size = "-2";
-        break;
-      case "small":
-        size = "-1";
-        break;
-      case "large":
-        size = "+1";
-        break;
-      case "x-large":
-        size = "+2";
-        break;
-      case "xx-large":
-        size = "+3";
-        break;
-    }
-    EditorSetTextProperty("font", "size", size);
-  }
+  GetCurrentEditor().document.execCommand("fontSize", false, size);
+  // Enable or Disable the toolbar buttons according to the font size.
+  goUpdateCommand("cmd_decreaseFontStep");
+  goUpdateCommand("cmd_increaseFontStep");
   gContentWindow.focus();
 }
 
@@ -849,120 +825,26 @@ function createFontFaceMenuitem(aFontLabel, aFontName, aMenuPopup) {
 
 /**
  * Helper function
+ *
+ * @see https://dvcs.w3.org/hg/editing/raw-file/tip/editing.html#legacy-font-size-for
  */
-function getFontSizeIndex() {
-  var firstHas = { value: false };
-  var anyHas = { value: false };
-  var allHas = { value: false };
-
-  var fontSize = EditorGetTextProperty(
-    "font",
-    "size",
-    null,
-    firstHas,
-    anyHas,
-    allHas
-  );
-
-  // If the element has no size attribute and no size was found at all,
-  // we assume "medium" size. This is highly problematic since
-  // CSS sizes are not recognised and will show as "medium" as well.
-  // Currently we can't distinguish between "no attribute" which
-  // can imply "medium" and "CSS attribute present" which should not
-  // imply "medium".
-  if (!anyHas.value) {
-    return 2;
+function getLegacyFontSize() {
+  let fontSize = GetCurrentEditor().document.queryCommandValue("fontSize");
+  // If one selects all the texts in the editor and deletes it, the editor
+  // will return null fontSize. We will set it to default value then.
+  if (!fontSize) {
+    fontSize = Services.prefs.getCharPref("msgcompose.font_size", "3");
   }
-
-  // Mixed selection.
-  if (!allHas.value) {
-    return -1;
-  }
-
-  switch (fontSize) {
-    case "-3":
-    case "-2":
-    case "0":
-    case "1":
-      // x-small.
-      return 0;
-    case "-1":
-    case "2":
-      // small.
-      return 1;
-    case "3":
-      // medium.
-      return 2;
-    case "+1":
-    case "4":
-      // large.
-      return 3;
-    case "+2":
-    case "5":
-      // x-large.
-      return 4;
-    case "+3":
-    case "+4":
-    case "6":
-    case "7":
-      // xx-large.
-      return 5;
-  }
-
-  // We shouldn't get here. All the selection has a value we don't understand.
-  return -1;
+  return fontSize;
 }
 
-function initFontSizeMenu(menuPopup, fullMenu) {
+function initFontSizeMenu(menuPopup) {
   if (menuPopup) {
-    var children = menuPopup.children;
-    if (!children) {
-      return;
-    }
-
-    // Fixed size items start after menu separator depending on whether it is
-    // a full menu.
-    var menuIndex = fullMenu ? 3 : 0;
-
-    var setIndex = getFontSizeIndex();
-    if (setIndex >= 0) {
-      children[menuIndex + setIndex].setAttribute("checked", true);
-    } else {
-      // In case of mixed, clear all items.
-      for (var i = menuIndex; i < children.length; i++) {
-        children[i].setAttribute("checked", false);
+    let fontSize = getLegacyFontSize();
+    for (let menuitem of menuPopup.children) {
+      if (menuitem.getAttribute("value") == fontSize) {
+        menuitem.setAttribute("checked", true);
       }
-    }
-
-    // Some configurations might not have the "small/big" indicator as
-    // last item. If there is no indicator, we are done.
-    if (!menuPopup.lastElementChild.id.includes("smallBigInfo")) {
-      return;
-    }
-
-    // While it would be better to show the number of levels,
-    // at least this tells user if either of them are set.
-    var firstHas = { value: false };
-    var anyHas = { value: false };
-    var allHas = { value: false };
-
-    // Show "small"/"big" indicator.
-    var htmlInfo = "";
-    EditorGetTextProperty("small", "", "", firstHas, anyHas, allHas);
-    if (anyHas.value) {
-      htmlInfo = "<small>";
-    }
-    EditorGetTextProperty("big", "", "", firstHas, anyHas, allHas);
-    if (anyHas.value) {
-      htmlInfo += "<big>";
-    }
-
-    if (htmlInfo) {
-      menuPopup.lastElementChild.hidden = false;
-      menuPopup.lastElementChild.setAttribute("label", "HTML: " + htmlInfo);
-      menuPopup.lastElementChild.setAttribute("checked", true);
-    } else {
-      menuPopup.lastElementChild.hidden = true;
     }
   }
 }

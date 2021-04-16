@@ -8754,9 +8754,7 @@ function loadHTMLMsgPrefs() {
   }
 
   let fontSize = Services.prefs.getCharPref("msgcompose.font_size", "");
-  if (fontSize) {
-    EditorSetFontSize(fontSize);
-  }
+  EditorSetFontSize(fontSize);
 
   let bodyElement = GetBodyElement();
 
@@ -9252,6 +9250,16 @@ function InitEditor() {
 
   window.composeEditorReady = true;
   window.dispatchEvent(new CustomEvent("compose-editor-ready"));
+}
+
+function setFontSize(event) {
+  // Increase Font Menuitem and Decrease Font Menuitem from the main menu
+  // will call this function because of oncommand attribute on the menupopup
+  // and fontSize will be null for such function calls.
+  let fontSize = event.target.value;
+  if (fontSize) {
+    EditorSetFontSize(fontSize);
+  }
 }
 
 // This is used as event listener to spellcheck-changed event to update
