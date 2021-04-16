@@ -1,0 +1,27 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+/* Keep the reading order in the document for accessibility, but re-order for
+ * visual display. */
+#LatinL_Label {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+#LatinM_Label {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+#LatinL {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+#LatinM {
+  grid-row: 2;
+  grid-column: 2;
+}

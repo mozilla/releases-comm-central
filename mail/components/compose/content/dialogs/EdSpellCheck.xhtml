@@ -76,25 +76,21 @@
     </html:div>
     <html:div>
       <vbox>
-        <vbox>
-          <hbox equalsize="always">
-            <button id="Replace" class="spell-check"
-                    label="&replaceButton.label;"
-                    oncommand="Replace(gDialog.ReplaceWordInput.value);"
-                    accesskey="&replaceButton.accessKey;"/>
-            <button id="Ignore" class="spell-check"
-                    oncommand="Ignore();" label="&ignoreButton.label;"
-                    accesskey="&ignoreButton.accessKey;"/>
-          </hbox>
-          <hbox equalsize="always">
-            <button id="ReplaceAll" class="spell-check"
-                    oncommand="ReplaceAll();" label="&replaceAllButton.label;"
-                    accesskey="&replaceAllButton.accessKey;"/>
-            <button id="IgnoreAll" class="spell-check"
-                    oncommand="IgnoreAll();" label="&ignoreAllButton.label;"
-                    accesskey="&ignoreAllButton.accessKey;"/>
-          </hbox>
-        </vbox>
+        <html:div class="grid-two-column-equalsize">
+          <button id="Replace" class="spell-check"
+                  label="&replaceButton.label;"
+                  oncommand="Replace(gDialog.ReplaceWordInput.value);"
+                  accesskey="&replaceButton.accessKey;"/>
+          <button id="Ignore" class="spell-check"
+                  oncommand="Ignore();" label="&ignoreButton.label;"
+                  accesskey="&ignoreButton.accessKey;"/>
+          <button id="ReplaceAll" class="spell-check"
+                  oncommand="ReplaceAll();" label="&replaceAllButton.label;"
+                  accesskey="&replaceAllButton.accessKey;"/>
+          <button id="IgnoreAll" class="spell-check"
+                  oncommand="IgnoreAll();" label="&ignoreAllButton.label;"
+                  accesskey="&ignoreAllButton.accessKey;"/>
+        </html:div>
         <separator/>
         <label value="&userDictionary.label;"/>
         <hbox align="start">

@@ -17,6 +17,12 @@
   grid-template-columns: auto 1fr;
 }
 
+.grid-two-column-equalsize {
+  display: inline-grid;
+  min-width: max-content;
+  grid-template-columns: 1fr 1fr;
+}
+
 .grid-three-column-auto-x-auto {
   display: inline-grid;
   grid-template-columns: auto 1fr auto;

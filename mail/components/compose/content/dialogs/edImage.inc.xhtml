@@ -237,14 +237,13 @@
 
           <html:fieldset>
             <html:legend id="imagemapLabel">&imagemapBox.label;</html:legend>
-            <hbox equalsize="always">
-            <button id="removeImageMap"
-                    oncommand="removeImageMap()"
-                    accesskey="&removeImageMapButton.accessKey;"
-                    label="&removeImageMapButton.label;"
-                    flex="1"/>
-            <spacer flex="1"/><!-- remove when we restore Image Map Editor -->
-            </hbox>
+            <html:div class="grid-two-column-equalsize">
+              <button id="removeImageMap"
+                      oncommand="removeImageMap()"
+                      accesskey="&removeImageMapButton.accessKey;"
+                      label="&removeImageMapButton.label;"/>
+              <spacer/><!-- remove when we restore Image Map Editor -->
+            </html:div>
           </html:fieldset>
         </vbox>
       </hbox>
