@@ -18,3 +18,6 @@ messenger.jar:
     content/messenger/addressbook/abSearchDialog.js             (content/abSearchDialog.js)
     content/messenger/addressbook/abTrees.js                    (content/abTrees.js)
     content/messenger/addressbook/menulist-addrbooks.js         (content/menulist-addrbooks.js)
+
+    content/messenger/addressbook/aboutAddressBook.js           (content/aboutAddressBook.js)
+    content/messenger/addressbook/aboutAddressBook.xhtml        (content/aboutAddressBook.xhtml)

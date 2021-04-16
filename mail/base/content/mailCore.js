@@ -483,17 +483,17 @@ function toOpenWindowByType(inType, uri) {
   var topWindow = Services.wm.getMostRecentWindow(inType);
   if (topWindow) {
     topWindow.focus();
-  } else {
-    window.open(
-      uri,
-      "_blank",
-      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"
-    );
+    return topWindow;
   }
+  return window.open(
+    uri,
+    "_blank",
+    "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"
+  );
 }
 
 function toMessengerWindow() {
-  toOpenWindowByType(
+  return toOpenWindowByType(
     "mail:3pane",
     "chrome://messenger/content/messenger.xhtml"
   );
@@ -518,8 +518,29 @@ function focusOnMail(tabNo, event) {
   }
 }
 
-function toAddressBook() {
-  toOpenWindowByType(
+async function toAddressBook() {
+  if (Services.prefs.getBoolPref("mail.addr_book.useNewAddressBook")) {
+    let messengerWindow = toMessengerWindow();
+    if (messengerWindow.document.readyState != "complete") {
+      await new Promise(resolve =>
+        messengerWindow.addEventListener("load", resolve, { once: true })
+      );
+    }
+
+    let tab = messengerWindow.openContentTab("about:addressbook");
+    if (!tab.browser.docShell.hasLoadedNonBlankURI) {
+      await new Promise(resolve =>
+        tab.browser.addEventListener("load", resolve, {
+          capture: true,
+          once: true,
+        })
+      );
+    }
+
+    return tab.browser.contentWindow;
+  }
+
+  return toOpenWindowByType(
     "mail:addressbook",
     "chrome://messenger/content/addressbook/addressbook.xhtml"
   );

@@ -342,6 +342,7 @@ var contentTabBaseType = {
   // Note that about:preferences is loaded via a different mechanism.
   inContentWhitelist: [
     "about:addons",
+    "about:addressbook",
     "about:blank",
     "about:profiles",
     "about:*",
@@ -357,6 +358,11 @@ var contentTabBaseType = {
         "chrome://messenger/content/aboutAddonsExtra.js",
         aDocument.defaultView
       );
+    },
+
+    // about:addressbook provides its own context menu.
+    function(aDocument, aTab) {
+      aTab.browser.removeAttribute("context");
     },
 
     // Let's not mess with about:blank.

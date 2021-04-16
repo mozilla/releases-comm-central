@@ -29,6 +29,10 @@ var gSpellChecker = new InlineSpellChecker();
 
 /** Called by ContextMenuParent.jsm */
 function openContextMenu({ data }, browser, actor) {
+  if (!browser.hasAttribute("context")) {
+    return;
+  }
+
   let spellInfo = data.spellInfo;
   let frameReferrerInfo = data.frameReferrerInfo;
   let linkReferrerInfo = data.linkReferrerInfo;

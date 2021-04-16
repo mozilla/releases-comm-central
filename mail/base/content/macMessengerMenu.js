@@ -96,16 +96,5 @@ function writeNewMessageDock() {
  * Open the address book window
  */
 function openAddressBookDock() {
-  let win = Services.wm.getMostRecentWindow("mail:addressbook");
-  if (win) {
-    win.focus();
-  } else {
-    Services.ww.openWindow(
-      null,
-      "chrome://messenger/content/addressbook/addressbook.xhtml",
-      null,
-      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
-      null
-    );
-  }
+  toAddressBook();
 }

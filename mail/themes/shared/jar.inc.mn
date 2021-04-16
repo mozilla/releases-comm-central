@@ -90,6 +90,7 @@
 # End Proton icon overrides
 
   skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
+  skin/classic/messenger/aboutAddressBook.css                 (../shared/mail/aboutAddressBook.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)
   skin/classic/messenger/messageQuotes.css                    (../shared/mail/messageQuotes.css)

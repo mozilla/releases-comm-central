@@ -445,24 +445,26 @@ this.addressBook = class extends ExtensionAPI {
     return {
       addressBooks: {
         async openUI() {
-          let topWindow = Services.wm.getMostRecentWindow(AB_WINDOW_TYPE);
-          if (!topWindow) {
-            topWindow = Services.ww.openWindow(
-              null,
-              AB_WINDOW_URI,
-              "_blank",
-              "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
-              null
+          let messengerWindow = windowTracker.topNormalWindow;
+          let abWindow = await messengerWindow.toAddressBook();
+
+          if (abWindow.document.readyState != "complete") {
+            await new Promise(resolve =>
+              abWindow.addEventListener("load", resolve, { once: true })
             );
           }
-          if (topWindow.document.readyState != "complete") {
-            await new Promise(resolve => {
-              topWindow.addEventListener("load", resolve, { once: true });
-            });
-          }
-          topWindow.focus();
+
+          return new Promise(resolve => abWindow.setTimeout(resolve));
         },
         async closeUI() {
+          for (let win of Services.wm.getEnumerator("mail:3pane")) {
+            let tabmail = win.document.getElementById("tabmail");
+            for (let tab of tabmail.tabInfo.slice()) {
+              if (tab.browser?.currentURI.spec == "about:addressbook") {
+                tabmail.closeTab(tab);
+              }
+            }
+          }
           for (let win of Services.wm.getEnumerator(AB_WINDOW_TYPE)) {
             win.close();
           }
