@@ -17,8 +17,30 @@
 % override chrome://global/skin/icons/arrow-dropdown-16.svg chrome://messenger/skin/overrides/arrow-dropdown-16.svg
 % override chrome://global/skin/icons/arrow-left.svg chrome://messenger/skin/overrides/arrow-left.svg
 % override chrome://global/skin/icons/arrow-up-12.svg chrome://messenger/skin/overrides/arrow-up-12.svg
+% override chrome://global/skin/icons/arrow-up-16.svg chrome://messenger/skin/overrides/arrow-up-16.svg
+% override chrome://global/skin/icons/blocked.svg chrome://messenger/skin/overrides/blocked.svg
+% override chrome://global/skin/icons/check.svg chrome://messenger/skin/overrides/check.svg
 % override chrome://global/skin/icons/close.svg chrome://messenger/skin/overrides/close.svg
+% override chrome://global/skin/icons/delete.svg chrome://messenger/skin/overrides/delete.svg
+% override chrome://global/skin/icons/error.svg chrome://messenger/skin/overrides/error.svg
+% override chrome://global/skin/icons/find-next-arrow.svg chrome://messenger/skin/overrides/find-next-arrow.svg
+% override chrome://global/skin/icons/find-previous-arrow.svg chrome://messenger/skin/overrides/find-previous-arrow.svg
+% override chrome://global/skin/icons/folder.svg chrome://messenger/skin/overrides/folder.svg
+% override chrome://global/skin/icons/help.svg chrome://messenger/skin/overrides/help.svg
+% override chrome://global/skin/icons/info.svg chrome://messenger/skin/overrides/info.svg
+% override chrome://global/skin/icons/info-filled.svg chrome://messenger/skin/overrides/info-filled.svg
+% override chrome://global/skin/icons/menu-arrow.svg chrome://messenger/skin/overrides/menu-arrow.svg
+% override chrome://global/skin/icons/menu-arrow-left.svg chrome://messenger/skin/overrides/menu-arrow-left.svg
+% override chrome://global/skin/icons/more.svg chrome://messenger/skin/overrides/more.svg
+% override chrome://global/skin/icons/open-in-new.svg chrome://messenger/skin/overrides/open-in-new.svg
+% override chrome://global/skin/icons/print.svg chrome://messenger/skin/overrides/print.svg
 % override chrome://global/skin/icons/settings.svg chrome://messenger/skin/overrides/settings.svg
+% override chrome://global/skin/icons/success.svg chrome://messenger/skin/overrides/success.svg
+% override chrome://global/skin/icons/twisty-collapsed.svg chrome://messenger/skin/overrides/twisty-collapsed.svg
+% override chrome://global/skin/icons/twisty-collapsed-rtl.svg chrome://messenger/skin/overrides/twisty-collapsed-rtl.svg
+% override chrome://global/skin/icons/twisty-expanded.svg chrome://messenger/skin/overrides/twisty-expanded.svg
+% override chrome://global/skin/icons/update-icon.svg chrome://messenger/skin/overrides/update-icon.svg
+% override chrome://global/skin/icons/warning.svg chrome://messenger/skin/overrides/warning.svg
 % override chrome://mozapps/skin/extensions/extension.svg chrome://messenger/skin/overrides/extension.svg
 
   skin/classic/messenger/overrides/add.svg                    (../shared/mail/overrides/add.svg)
@@ -26,9 +48,31 @@
   skin/classic/messenger/overrides/arrow-dropdown-16.svg      (../shared/mail/overrides/arrow-dropdown-16.svg)
   skin/classic/messenger/overrides/arrow-left.svg             (../shared/mail/overrides/arrow-left.svg)
   skin/classic/messenger/overrides/arrow-up-12.svg            (../shared/mail/overrides/arrow-up-12.svg)
+  skin/classic/messenger/overrides/arrow-up-16.svg            (../shared/mail/overrides/arrow-up-16.svg)
+  skin/classic/messenger/overrides/blocked.svg                (../shared/mail/overrides/blocked.svg)
+  skin/classic/messenger/overrides/check.svg                  (../shared/mail/overrides/check.svg)
   skin/classic/messenger/overrides/close.svg                  (../shared/mail/overrides/close.svg)
+  skin/classic/messenger/overrides/delete.svg                 (../shared/mail/overrides/delete.svg)
+  skin/classic/messenger/overrides/error.svg                  (../shared/mail/overrides/error.svg)
   skin/classic/messenger/overrides/extension.svg              (../shared/mail/overrides/extension.svg)
+  skin/classic/messenger/overrides/find-next-arrow.svg        (../shared/mail/overrides/find-next-arrow.svg)
+  skin/classic/messenger/overrides/find-previous-arrow.svg    (../shared/mail/overrides/find-previous-arrow.svg)
+  skin/classic/messenger/overrides/folder.svg                 (../shared/mail/overrides/folder.svg)
+  skin/classic/messenger/overrides/help.svg                   (../shared/mail/overrides/help.svg)
+  skin/classic/messenger/overrides/info.svg                   (../shared/mail/overrides/info.svg)
+  skin/classic/messenger/overrides/info-filled.svg            (../shared/mail/overrides/info-filled.svg)
+  skin/classic/messenger/overrides/menu-arrow.svg             (../shared/mail/overrides/menu-arrow.svg)
+  skin/classic/messenger/overrides/menu-arrow-left.svg        (../shared/mail/overrides/menu-arrow-left.svg)
+  skin/classic/messenger/overrides/more.svg                   (../shared/mail/overrides/more.svg)
+  skin/classic/messenger/overrides/open-in-new.svg            (../shared/mail/overrides/open-in-new.svg)
+  skin/classic/messenger/overrides/print.svg                  (../shared/mail/overrides/print.svg)
   skin/classic/messenger/overrides/settings.svg               (../shared/mail/overrides/settings.svg)
+  skin/classic/messenger/overrides/success.svg                (../shared/mail/overrides/success.svg)
+  skin/classic/messenger/overrides/twisty-collapsed.svg       (../shared/mail/overrides/twisty-collapsed.svg)
+  skin/classic/messenger/overrides/twisty-collapsed-rtl.svg   (../shared/mail/overrides/twisty-collapsed-rtl.svg)
+  skin/classic/messenger/overrides/twisty-expanded.svg        (../shared/mail/overrides/twisty-expanded.svg)
+  skin/classic/messenger/overrides/update-icon.svg            (../shared/mail/overrides/update-icon.svg)
+  skin/classic/messenger/overrides/warning.svg                (../shared/mail/overrides/warning.svg)
 # End Proton icon overrides
 
   skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
