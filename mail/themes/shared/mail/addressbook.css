@@ -201,3 +201,33 @@ html|a {
 html|p {
   border: none !important;
 }
+
+#dirTree > treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true) {
+  margin-inline-start: -26px;
+  padding-inline-start: 29px;
+}
+
+/* UI Density customization */
+
+#dirTree > treechildren::-moz-tree-row {
+  min-height: 1.8rem;
+}
+
+:root[uidensity="compact"] #dirTree > treechildren::-moz-tree-row {
+  min-height: 1.6rem;
+}
+
+:root[uidensity="compact"] #dirTree
+  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true) {
+  margin-inline-start: -20px;
+  padding-inline-start: 23px;
+}
+
+:root[uidensity="touch"] #dirTree > treechildren::-moz-tree-row {
+  min-height: 2.4rem;
+}
+
+:root[uidensity="touch"] #dirTree > treechildren::-moz-tree-image {
+  width: 22px;
+  height: 22px;
+}

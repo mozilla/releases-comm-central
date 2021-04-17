@@ -38,7 +38,7 @@ body {
   /* Note: Setting this to 0 (without px) breaks CSS calculations for OSX. */
   --space-above-tabbar: 0px;
 
-  --tab-min-height: 30px;
+  --tab-min-height: 33px;
   --tabs-border-color: rgba(0, 0, 0, .3);
   --tabs-tabbar-border-size: 1px;
 
@@ -138,6 +138,16 @@ body {
   :root {
     --tabs-tabbar-border-size: 0.33px;
   }
+}
+
+/* UI Density customization */
+
+:root[uidensity="compact"] {
+  --tab-min-height: 30px;
+}
+
+:root[uidensity="touch"] {
+  --tab-min-height: 39px;
 }
 
 :root:-moz-lwtheme {
@@ -361,6 +371,12 @@ treechildren::-moz-tree-twisty(selected, focus) {
   padding: 1px 5px !important;
 }
 
+:root[uidensity="touch"] .toolbarbutton-1:not([type="menu-button"]),
+:root[uidensity="touch"] .toolbarbutton-1 > .toolbarbutton-menubutton-button,
+:root[uidensity="touch"] .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+  padding: 5px !important;
+}
+
 .toolbarbutton-menubutton-button {
   -moz-box-align: center;
   -moz-box-pack: center;
@@ -463,6 +479,11 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 
 toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton-text {
   padding-inline-start: 2px;
+}
+
+:root[uidensity="touch"] #tabbar-toolbar .toolbarbutton-1,
+:root[uidensity="touch"] #tabbar-toolbar .toolbarbutton-menubutton-button {
+  min-width: 25px;
 }
 
 .toolbarbutton-1 .toolbarbutton-icon {

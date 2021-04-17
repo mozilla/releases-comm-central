@@ -275,3 +275,18 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
   treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true) {
   background-position: right;
 }
+
+/* UI Density customization */
+
+:root[uidensity="touch"] #folderTree
+  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true) {
+  margin-inline-start: -26px;
+  padding-inline-start: 29px;
+  margin-block-start: -6px;
+  padding-block-start: 6px;
+}
+
+:root[uidensity="touch"] #folderTree > treechildren::-moz-tree-image {
+  width: 22px;
+  height: 22px;
+}

@@ -350,10 +350,6 @@ treecol.treecol-image:hover:active {
   background-color: hsla(0, 0%, 50%, 0.15);
 }
 
-treechildren::-moz-tree-row {
-  min-height: 18px;
-}
-
 treechildren::-moz-tree-cell-text {
   padding-inline-start: 5px;
 }
@@ -444,4 +440,18 @@ fieldset > hbox,
 fieldset > vbox,
 fieldset > radiogroup {
   width: -moz-available;
+}
+
+/* UI Density customization */
+
+treechildren::-moz-tree-row {
+  min-height: 1.6rem;
+}
+
+:root[uidensity="compact"] treechildren::-moz-tree-row {
+  min-height: 1.3rem;
+}
+
+:root[uidensity="touch"] treechildren::-moz-tree-row {
+  min-height: 2.4rem;
 }

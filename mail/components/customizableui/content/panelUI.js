@@ -13,7 +13,7 @@
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
   RefreshViewPopup SanitizeAttachmentDisplayName
   UpdateCharsetMenu updateEditUIVisibility UpdateFullZoomMenu
-  gFolderTreeView
+  gFolderTreeView initUiDensityAppMenu gDensityPreviewer
    */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -400,6 +400,9 @@ const PanelUI = {
           "subviewbutton subviewbutton-iconic",
           true
         );
+        break;
+      case "appMenu_uiDensityView":
+        initUiDensityAppMenu(event);
         break;
       case "appMenu-preferencesLayoutView":
         PanelUI._onPreferencesLayoutViewShow(event);
@@ -1134,6 +1137,23 @@ const PanelUI = {
 
   folderCompactMenuOnCommand(event) {
     gFolderTreeView.toggleCompactMode(event.target.checked);
+  },
+
+  setUIDensity(event) {
+    // Loops through all available options and uncheck them. This is necessary
+    // since the toolbarbuttons don't uncheck themselves even if they're radio.
+    for (let item of event.originalTarget
+      .closest(".panel-subview-body")
+      .querySelectorAll("toolbarbutton")) {
+      // Skip this item if it's the one clicked.
+      if (item == event.originalTarget) {
+        continue;
+      }
+
+      item.removeAttribute("checked");
+    }
+    // Update the UI density.
+    gDensityPreviewer.setUIDensity(event.originalTarget.mode);
   },
 };
 

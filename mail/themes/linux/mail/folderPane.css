@@ -4,10 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/folderPane.css");
 
-#folderTree > treechildren::-moz-tree-row {
-  min-height: 1.6rem;
-}
-
 /* ::::: All Servers ::::: */
 
 treechildren::-moz-tree-image(folderNameCol, newMessages-true),
@@ -34,4 +30,18 @@ treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
 treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
   opacity: 1 !important;
   fill: HighlightText !important;
+}
+
+/* UI Density customization */
+
+#folderTree > treechildren::-moz-tree-row {
+  min-height: 1.8rem;
+}
+
+:root[uidensity="compact"] #folderTree > treechildren::-moz-tree-row {
+  min-height: 1.6rem;
+}
+
+:root[uidensity="touch"] #folderTree > treechildren::-moz-tree-row {
+  min-height: 2.4rem;
 }

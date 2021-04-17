@@ -469,6 +469,38 @@
                       oncommand="gFolderTreeView.toggleCompactMode(this.getAttribute('checked'));"/>
           </menupopup>
         </menu>
+        <menu id="menu_uiDensity"
+              data-l10n-id="mail-uidensity-label">
+          <menupopup id="view_density_popup" onpopupshowing="initUiDensityMenu(event);">
+            <menuitem id="uiDensityCompact"
+                      data-l10n-id="mail-uidensity-compact"
+                      type="radio"
+                      name="uidensity"
+                      onfocus="gDensityPreviewer.updateUIDensity(this.mode);"
+                      onmouseover="gDensityPreviewer.updateUIDensity(this.mode);"
+                      onblur="gDensityPreviewer.resetUIDensity();"
+                      onmouseout="gDensityPreviewer.resetUIDensity();"
+                      oncommand="gDensityPreviewer.setUIDensity(this.mode);"/>
+            <menuitem id="uiDensityNormal"
+                      data-l10n-id="mail-uidensity-normal"
+                      type="radio"
+                      name="uidensity"
+                      onfocus="gDensityPreviewer.updateUIDensity(this.mode);"
+                      onmouseover="gDensityPreviewer.updateUIDensity(this.mode);"
+                      onblur="gDensityPreviewer.resetUIDensity();"
+                      onmouseout="gDensityPreviewer.resetUIDensity();"
+                      oncommand="gDensityPreviewer.setUIDensity(this.mode);"/>
+            <menuitem id="uiDensityTouch"
+                      data-l10n-id="mail-uidensity-touch"
+                      type="radio"
+                      name="uidensity"
+                      onfocus="gDensityPreviewer.updateUIDensity(this.mode);"
+                      onmouseover="gDensityPreviewer.updateUIDensity(this.mode);"
+                      onblur="gDensityPreviewer.resetUIDensity();"
+                      onmouseout="gDensityPreviewer.resetUIDensity();"
+                      oncommand="gDensityPreviewer.setUIDensity(this.mode);"/>
+          </menupopup>
+        </menu>
 
 #ifdef MAIN_WINDOW
 #include ../../../calendar/lightning/content/calendar-view-menu.inc.xhtml

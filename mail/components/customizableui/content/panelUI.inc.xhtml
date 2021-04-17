@@ -417,6 +417,31 @@
       </vbox>
     </panelview>
 
+    <!-- View / UI Density -->
+    <panelview id="appMenu_uiDensityView"
+               class="PanelUI-subView">
+      <vbox class="panel-subview-body">
+        <toolbarbutton id="appmenu_uiDensityCompact"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="mail-uidensity-compact"
+                       type="radio"
+                       closemenu="none"
+                       oncommand="PanelUI.setUIDensity(event);"/>
+        <toolbarbutton id="appmenu_uiDensityNormal"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="mail-uidensity-normal"
+                       type="radio"
+                       closemenu="none"
+                       oncommand="PanelUI.setUIDensity(event);"/>
+        <toolbarbutton id="appmenu_uiDensityTouch"
+                       class="subviewbutton subviewbutton-iconic"
+                       data-l10n-id="mail-uidensity-touch"
+                       type="radio"
+                       closemenu="none"
+                       oncommand="PanelUI.setUIDensity(event);"/>
+      </vbox>
+    </panelview>
+
     <!-- View / Layout -->
     <panelview id="appMenu-preferencesLayoutView"
                title="&messagePaneLayoutStyle.label;"
@@ -605,18 +630,22 @@
                        accesskey="&viewToolbarsMenu.accesskey;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-toolbarsView', this)"/>
-        <toolbarseparator/>
         <toolbarbutton id="appmenu_MessagePaneLayout"
                        class="subviewbutton subviewbutton-nav"
                        label="&messagePaneLayoutStyle.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-preferencesLayoutView', this)"/>
-        <toolbarseparator/>
         <toolbarbutton id="appmenu_FolderViews"
                        class="subviewbutton subviewbutton-nav"
                        label="&folderView.label;"
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-foldersView', this)"/>
+        <toolbarseparator/>
+        <toolbarbutton id="appmenu_uiDensity"
+                       class="subviewbutton subviewbutton-nav"
+                       data-l10n-id="mail-uidensity-label"
+                       closemenu="none"
+                       oncommand="PanelUI.showSubView('appMenu_uiDensityView', this)"/>
 #ifdef MAIN_WINDOW
         <toolbarseparator id="appmenu_calendar-view-menu-separator"
                           class="hide-when-calendar-deactivated"/>

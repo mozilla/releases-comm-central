@@ -239,10 +239,6 @@ tabmail > tabbox {
 
 /* ::::: Trees ::::: */
 
-treechildren::-moz-tree-row {
-  min-height: 19px;
-}
-
 treechildren::-moz-tree-cell-text {
   padding-inline-start: 2px;
 }
@@ -461,3 +457,16 @@ fieldset > radiogroup {
   width: -moz-available;
 }
 
+/* UI Density customization */
+
+treechildren::-moz-tree-row {
+  min-height: 1.8rem;
+}
+
+:root[uidensity="compact"] treechildren::-moz-tree-row {
+  min-height: 1.6rem;
+}
+
+:root[uidensity="touch"] treechildren::-moz-tree-row {
+  min-height: 2.4rem;
+}

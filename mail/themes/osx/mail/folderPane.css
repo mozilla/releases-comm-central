@@ -2,11 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- @import url("chrome://messenger/skin/shared/folderPane.css");
-
-#folderTree > treechildren::-moz-tree-row {
-  min-height: 1.7rem;
-}
+@import url("chrome://messenger/skin/shared/folderPane.css");
 
 /* ::::: All Servers ::::: */
 
@@ -32,4 +28,18 @@ treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus),
 treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail, selected, focus) {
   opacity: 1 !important;
   fill: currentColor !important;
+}
+
+/* UI Density customization */
+
+#folderTree > treechildren::-moz-tree-row {
+  min-height: 2rem;
+}
+
+:root[uidensity="compact"] #folderTree > treechildren::-moz-tree-row {
+  min-height: 1.7rem;
+}
+
+:root[uidensity="touch"] #folderTree > treechildren::-moz-tree-row {
+  min-height: 2.4rem;
 }

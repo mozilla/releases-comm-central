@@ -724,6 +724,7 @@ var gMailInit = {
     initOpenPGPIfEnabled();
 
     PanelUI.init();
+    gUIDensity.init();
     gExtensionsNotifications.init();
 
     Services.search.init();
@@ -778,25 +779,21 @@ var gMailInit = {
       gRightMouseButtonSavedSelection = null;
     }
 
+    gUIDensity.uninit();
     SessionStoreManager.unloadingWindow(window);
-
     TabsInTitlebar.uninit();
-
     ToolbarIconColor.uninit();
 
-    let tabmail = document.getElementById("tabmail");
-    tabmail._teardown();
-
+    document.getElementById("tabmail")._teardown();
     MailServices.mailSession.RemoveFolderListener(folderListener);
-
     gPhishingDetector.shutdown();
 
     // FIX ME - later we will be able to use onload from the overlay
     OnUnloadMsgHeaderPane();
 
     UnloadPanes();
-
     OnMailWindowUnload();
+
     try {
       MailInstrumentation.uninit.bind(MailInstrumentation);
     } catch (ex) {

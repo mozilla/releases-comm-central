@@ -8,10 +8,6 @@ treechildren::-moz-tree-image(folderNameCol) {
   margin-top: 2px;
 }
 
-#folderTree > treechildren::-moz-tree-row {
-  min-height: 1.6rem;
-}
-
 /* ::::: All Servers ::::: */
 
 treechildren::-moz-tree-image(folderNameCol, newMessages-true),
@@ -93,3 +89,18 @@ treechildren::-moz-tree-row(modeHeader) {
   margin-inline: 0;
   border-inline-style: none;
 }
+
+/* UI Density customization */
+
+#folderTree > treechildren::-moz-tree-row {
+  min-height: 1.8rem;
+}
+
+:root[uidensity="compact"] #folderTree > treechildren::-moz-tree-row {
+  min-height: 1.6rem;
+}
+
+:root[uidensity="touch"] #folderTree > treechildren::-moz-tree-row {
+  min-height: 2.4rem;
+}
+

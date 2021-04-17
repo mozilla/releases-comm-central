@@ -75,3 +75,9 @@
 #cvWorkMapIt {
   margin-bottom: 0;
 }
+
+/* UI Density customization */
+
+:root[uidensity="compact"] #dirTree > treechildren::-moz-tree-row {
+  min-height: 1.3rem;
+}

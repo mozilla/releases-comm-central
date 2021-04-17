@@ -253,10 +253,6 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
   fill: currentColor;
 }
 
-treechildren::-moz-tree-row {
-  height: 1.8em;
-}
-
 treechildren::-moz-tree-row(multicol, odd) {
   background-color: transparent;
 }
@@ -712,4 +708,18 @@ fieldset > hbox,
 fieldset > vbox,
 fieldset > radiogroup {
   width: -moz-available;
+}
+
+/* UI Density customization */
+
+treechildren::-moz-tree-row {
+  height: 1.8rem;
+}
+
+:root[uidensity="compact"] treechildren::-moz-tree-row {
+  height: 1.6rem;
+}
+
+:root[uidensity="touch"] treechildren::-moz-tree-row {
+  height: 2.4rem;
 }

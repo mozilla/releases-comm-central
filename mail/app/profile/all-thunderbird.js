@@ -757,6 +757,10 @@ pref("mail.cloud_files.learn_more_url", "https://support.thunderbird.net/kb/file
 // Ignore threads
 pref("mail.ignore_thread.learn_more_url", "https://support.thunderbird.net/kb/ignore-threads");
 
+// Density control for the entire Thunderbird UI.
+// The possible values are 0=compact, 1=normal, 2=touch.
+pref("mail.uidensity", 0);
+
 // Sanitize dialog window
 pref("privacy.cpd.history", true);
 pref("privacy.cpd.cookies", true);
