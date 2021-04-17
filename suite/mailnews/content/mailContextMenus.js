@@ -255,7 +255,8 @@ function FolderPaneOnPopupHiding()
 
 function FillFolderPaneContextMenu()
 {
-  let folders = GetSelectedMsgFolders();
+  // Do not show menu if rows are selected.
+  let folders = gFolderTreeView.getSelectedFolders();
   let numSelected = folders.length;
   if (!numSelected)
     return false;
@@ -687,7 +688,7 @@ function OpenMessageByHeader(messageHeader, openInNewWindow)
   else
   {
     if (msgWindow.openFolder != folderURI)
-      SelectMsgFolder(folder);
+      gFolderTreeView.selectFolder(folder)
 
     var tree = null;
     var wintype = document.documentElement.getAttribute('windowtype');

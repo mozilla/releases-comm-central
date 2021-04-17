@@ -18,9 +18,6 @@ var msgComposeFormat;
 var gMessengerBundle;
 var gBrandBundle;
 
-var accountManagerDataSource;
-var folderDataSource;
-
 var accountCentralBox = null;
 var gDisableViewsSearch = null;
 var gAccountCentralLoaded = true;
@@ -196,15 +193,6 @@ function CreateMailWindowGlobals()
 
   gMessengerBundle = document.getElementById("bundle_messenger");
   gBrandBundle = document.getElementById("bundle_brand");
-
-  //Create datasources
-  var prefix = "@mozilla.org/rdf/datasource;1?name=";
-  var accountManagerDSCID = prefix + "msgaccountmanager";
-  var folderDSCID         = prefix + "mailnewsfolders";
-  var nsIRDFDataSource = Ci.nsIRDFDataSource;
-
-  accountManagerDataSource = Cc[accountManagerDSCID].getService(nsIRDFDataSource);
-  folderDataSource         = Cc[folderDSCID].getService(nsIRDFDataSource);
 
   msgWindow.notificationCallbacks = new nsMsgBadCertHandler();
 }
@@ -522,7 +510,7 @@ nsMsgWindowCommands.prototype =
 
   selectFolder: function(folderUri)
   {
-    SelectMsgFolder(MailUtils.getFolderForURI(folderUri));
+    gFolderTreeView.selectFolder(MailUtils.getFolderForURI(folderUri));
   },
 
   selectMessage: function(messageUri)
@@ -575,22 +563,16 @@ function loadStartPage()
 // prompt if offline.
 function OpenInboxForServer(server)
 {
-    try {
-        ShowThreadPane();
-        SelectMsgFolder(GetInboxFolder(server));
+  ShowThreadPane();
+  gFolderTreeView.selectFolder(GetInboxFolder(server));
 
-        if (!Services.io.offline) {
-            if (server.type != "imap")
-                GetMessagesForInboxOnServer(server);
-        }
-        else if (DoGetNewMailWhenOffline()) {
-                GetMessagesForInboxOnServer(server);
-        }
-    }
-    catch (ex) {
-        dump("Error opening inbox for server -> " + ex + "\n");
-        return;
-    }
+  if (!Services.io.offline) {
+    if (server.type != "imap")
+      GetMessagesForInboxOnServer(server);
+  }
+  else if (DoGetNewMailWhenOffline()) {
+    GetMessagesForInboxOnServer(server);
+  }
 }
 
 function GetSearchSession()

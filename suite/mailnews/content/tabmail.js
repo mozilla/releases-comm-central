@@ -190,13 +190,14 @@ var gMailNewsTabsType =
 
     if (aTabInfo.uriToOpen)
     {
+      // HACK: Since we've switched away from the tab, we need to bring
+      // back the real selection before selecting the folder, so do that
+      RestoreSelectionWithoutContentLoad(document.getElementById("folderTree"));
+
       // Clear selection, because context clicking on a folder and opening in a
-      // new tab needs to have SelectFolder think the selection has changed.
-      // We also need to clear these globals to subvert the code that prevents
-      // folder loads when things haven't changed.
-      let folderTree = document.getElementById("folderTree");
-      folderTree.view.selection.clearSelection();
-      folderTree.view.selection.currentIndex = -1;
+      // new tab needs to have selectFolder think the selection has changed.
+      gFolderTreeView.selection.clearSelection();
+      gFolderTreeView.selection.currentIndex = -1;
       gMsgFolderSelected = null;
       msgWindow.openFolder = null;
 
@@ -211,10 +212,8 @@ var gMailNewsTabsType =
       // the current selection on the new view.
       let msgHdr = aTabInfo.hdr;
       let msgId  = aTabInfo.selectedMsgId;
-      SelectMsgFolder(MailUtils.getFolderForURI(aTabInfo.uriToOpen));
-      let folderResource = RDF.GetResource(aTabInfo.uriToOpen);
-      if (folderResource instanceof Ci.nsIMsgFolder)
-        aTabInfo.msgSelectedFolder = folderResource;
+      let folder = MailUtils.getFolderForURI(aTabInfo.uriToOpen);
+      gFolderTreeView.selectFolder(folder);
       gCurrentFolderToReroot = null;
       delete aTabInfo.uriToOpen; // destroy after use!
       // restore our message data
@@ -251,10 +250,9 @@ var gMailNewsTabsType =
     let folderToSelect = aTabInfo.msgSelectedFolder || gDBView && gDBView.msgFolder;
 
     // restore view state if we had one
-    let folderTree = document.getElementById("folderTree");
-    let row = EnsureFolderIndex(folderTree.builderView, folderToSelect);
-    let treeBoxObj = folderTree.treeBoxObject;
-    let folderTreeSelection = folderTree.view.selection;
+    let row = gFolderTreeView.getIndexOfFolder(folderToSelect);
+    let treeBoxObj = document.getElementById("folderTree").treeBoxObject;
+    let folderTreeSelection = gFolderTreeView.selection;
 
     // make sure that row.value is valid so that it doesn't mess up
     // the call to ensureRowIsVisible()
@@ -321,7 +319,6 @@ var gMailNewsTabsType =
       // Load AccountCentral page here.
       ShowAccountCentral(gMsgFolderSelected);
     }
-    UpdateLocationBar(gMsgFolderSelected);
     UpdateMailToolbar("tab changed");
     delete aTabInfo.lock;
   },

@@ -129,8 +129,6 @@ var folderListener =
       if (property == "TotalMessages" || property == "TotalUnreadMessages")
       {
         UpdateStatusMessageCounts(gMsgFolderSelected);
-        item = item.QueryInterface(Ci.nsIRDFResource);
-        UpdateLocationBar(item);
       }
     }
 
@@ -209,7 +207,7 @@ var folderListener =
             gCurrentLoadingFolderURI = "";
             // Scroll to message for virtual folders is done in
             // gSearchNotificationListener.OnSearchDone (see searchBar.js).
-            if (!scrolled &&
+            if (!scrolled && gMsgFolderSelected &&
                 !(gMsgFolderSelected.flags & Ci.nsMsgFolderFlags.Virtual))
               ScrollToMessageAfterFolderLoad(msgFolder);
             SetBusyCursor(window, false);
@@ -304,72 +302,11 @@ var folderListener =
       else if (event == "RenameCompleted") {
         // Clear this so we don't try to clear its new messages.
         gMsgFolderSelected = null;
-        SelectMsgFolder(folder);
+        gFolderTreeView.selectFolder(folder);
       }
       else if (event == "JunkStatusChanged") {
         HandleJunkStatusChanged(folder);
       }
-    }
-}
-
-var folderObserver = {
-    canDrop: function(index, orientation)
-    {
-        return CanDropOnFolderTree(index, orientation);
-    },
-
-    onDrop: function(row, orientation)
-    {
-        DropOnFolderTree(row, orientation);
-    },
-
-    onToggleOpenState: function(index)
-    {
-      var folderTree = document.getElementById("folderTree");
-
-      // Nothing to do when collapsing an item.
-      if (folderTree.view.isContainerOpen(index))
-        return;
-
-      var folderResource = GetFolderResource(folderTree, index);
-
-      if (folderTree.view.getLevel(index) == 0)
-      {
-        // (Imap/Nntp/Pop) Account item.
-
-        folderResource.QueryInterface(Ci.nsIMsgFolder)
-                      .server.performExpand(msgWindow);
-      }
-      else if (folderResource instanceof Ci.nsIMsgImapMailFolder)
-      {
-        // Imap message folder item.
-
-        folderResource.performExpand(msgWindow);
-      }
-    },
-
-    onCycleHeader: function(colID, elt)
-    {
-    },
-
-    onCycleCell: function(row, colID)
-    {
-    },
-
-    onSelectionChanged: function()
-    {
-    },
-
-    onPerformAction: function(action)
-    {
-    },
-
-    onPerformActionOnRow: function(action, row)
-    {
-    },
-
-    onPerformActionOnCell: function(action, row, colID)
-    {
     }
 }
 
@@ -579,7 +516,7 @@ function ServerContainsFolder(server, folder)
 
 function SelectServer(server)
 {
-  SelectMsgFolder(server.rootFolder);
+  gFolderTreeView.selectFolder(server.rootFolder);
 }
 
 // we have this incoming server listener in case we need to
@@ -898,7 +835,14 @@ function loadStartFolder(initialUri)
    }
 
    if (startFolder) {
-        SelectMsgFolder(startFolder);
+        try {
+          gFolderTreeView.selectFolder(startFolder);
+        } catch(ex) {
+          // This means we tried to select a folder that isn't in the current
+          // view. Just select the first one in the view then.
+          if (gFolderTreeView._rowMap.length)
+            gFolderTreeView.selectFolder(gFolderTreeView._rowMap[0]._folder);
+        }
 
         // Perform biff on the server to check for new mail, if:
         // the login at startup is enabled, and
@@ -947,56 +891,28 @@ function AddToSession()
 
 function InitPanes()
 {
-  OnLoadFolderPane();
+  gFolderTreeView.load(document.getElementById("folderTree"),
+                       "folderTree.json");
+  var folderTree = document.getElementById("folderTree");
+  folderTree.addEventListener("click", FolderPaneOnClick, true);
+  folderTree.addEventListener("mousedown", TreeOnMouseDown, true);
+
   OnLoadThreadPane();
   SetupCommandUpdateHandlers();
 }
 
 function UnloadPanes()
 {
-  // Call to <mail3PaneWindowCommands.js>.
+  var folderTree = document.getElementById("folderTree");
+  folderTree.removeEventListener("click", FolderPaneOnClick, true);
+  folderTree.removeEventListener("mousedown", TreeOnMouseDown, true);
+  gFolderTreeView.unload("folderTree.json");
   UnloadCommandUpdateHandlers();
 }
 
 function AddMutationObserver(callback)
 {
   new MutationObserver(callback).observe(callback(), {attributes: true, attributeFilter: ["hidden"]});
-}
-
-function UpdateFolderUnreadCol()
-{
-  var folderUnreadCol = document.getElementById("folderUnreadCol");
-  var folderNameCell = document.getElementById("folderNameCell");
-  var label = {true: "?folderTreeName", false: "?folderTreeSimpleName"};
-  folderNameCell.setAttribute("label", label[folderUnreadCol.hidden]);
-  return folderUnreadCol;
-}
-
-function UpgradeFolderPaneUI()
-{
-  // placeholder in case any new columns get added to the folder pane
-  // note that this function fails to notice a pane layout switch
-  // var folderPaneUIVersion = Services.prefs.getIntPref("mail.ui.folderpane.version");
-}
-
-function OnLoadFolderPane()
-{
-    UpgradeFolderPaneUI();
-    AddMutationObserver(UpdateFolderUnreadCol);
-
-    var folderTree = document.getElementById("folderTree");
-
-    //Add folderDataSource and accountManagerDataSource to folderPane
-    var database = folderTree.database;
-    database.AddDataSource(accountManagerDataSource);
-    database.AddDataSource(folderDataSource);
-
-    folderTree.setAttribute("ref", "msgaccounts:/");
-
-    var folderTreeBuilder = folderTree.builder.QueryInterface(Ci.nsIXULTreeBuilder);
-    folderTreeBuilder.addObserver(folderObserver);
-    folderTree.addEventListener("click",FolderPaneOnClick,true);
-    folderTree.addEventListener("mousedown",TreeOnMouseDown,true);
 }
 
 function OnLoadThreadPane()
@@ -1011,34 +927,6 @@ function UpdateAttachmentCol()
   threadTree.setAttribute("noattachcol", attachmentCol.getAttribute("hidden"));
   threadTree.treeBoxObject.clearStyleAndImageCaches();
   return attachmentCol;
-}
-
-function UpdateLocationBar(resource)
-{
-    var tree = document.getElementById("folderTree");
-    var folders = document.getElementById('locationFolders');
-    var icon = document.getElementById('locationIcon');
-    var names = ['BiffState', 'NewMessages', 'HasUnreadMessages',
-        'SpecialFolder', 'IsServer', 'IsSecure', 'ServerType', 'NoSelect'];
-    let folder = resource.QueryInterface(Ci.nsIMsgFolder);
-    folders.setAttribute("label", folder.prettyName);
-
-    const rdfService = Cc["@mozilla.org/rdf/rdf-service;1"]
-                         .getService(Ci.nsIRDFService);
-    function GetFolderAttribute(tree, source, attribute) {
-      let property = rdfService.GetResource("http://home.netscape.com/NC-rdf#" + attribute);
-      let target = tree.database.GetTarget(source, property, true);
-      if (target)
-        target = target.QueryInterface(Ci.nsIRDFLiteral).Value;
-      return target;
-    }
-    for (var i in names) {
-        var name = names[i];
-        var value = GetFolderAttribute(tree, resource, name);
-        folders.setAttribute(name, value);
-        icon.setAttribute(name, value);
-    }
-    folders.setAttribute('uri', resource.Value);
 }
 
 function GetSearchInput()
@@ -1198,34 +1086,6 @@ function FolderPaneOnClick(event)
       event.stopPropagation();
     }
   }
-  else if ((event.detail == 2) &&
-           (cell.childElt != "twisty") &&
-           (folderTree.view.getLevel(cell.row) != 0))
-  {
-    FolderPaneDoubleClick(folderTree, cell.row, event);
-  }
-}
-
-function FolderPaneDoubleClick(folderTree, folderIndex, event)
-{
-  // In tabmail land, lazyness is dead!
-  // We either open the folder in a tab or a new window...
-  if (AllowOpenTabOnDoubleClick())
-  {
-    FolderPaneContextMenuNewTab(event);
-  }
-  else
-  {
-    let folderResource = GetFolderResource(folderTree, folderIndex);
-    // Open a new msg window only if we are double clicking on
-    // folders or newsgroups.
-    MsgOpenNewWindowForFolder(folderResource.Value, nsMsgKey_None);
-  }
-
-  // Double-clicking should not toggle the open/close state of the folder.
-  // This will happen if we don't prevent the event from bubbling to the
-  // default handler in tree.xml.
-  event.stopPropagation();
 }
 
 function OpenMessageInNewTab(event) {
@@ -1236,35 +1096,9 @@ function OpenMessageInNewTab(event) {
   MsgOpenNewTabForMessage(bgLoad);
 }
 
-function ChangeSelection(tree, newIndex)
-{
-    if(newIndex >= 0)
-    {
-        tree.view.selection.select(newIndex);
-        tree.treeBoxObject.ensureRowIsVisible(newIndex);
-    }
-}
-
 function GetSelectedMsgFolders()
 {
-    var folderArray = [];
-    var folderTree = document.getElementById("folderTree");
-    var rangeCount = folderTree.view.selection.getRangeCount();
-
-    for (let i = 0; i < rangeCount; i++)
-    {
-        var startIndex = {};
-        var endIndex = {};
-        folderTree.view.selection.getRangeAt(i, startIndex, endIndex);
-        for (var j = startIndex.value; j <= endIndex.value; j++)
-        {
-          var folderResource = GetFolderResource(folderTree, j);
-          let msgFolder = folderResource.QueryInterface(Ci.nsIMsgFolder);
-          folderArray.push(msgFolder);
-        }
-    }
-
-    return folderArray;
+  return gFolderTreeView.getSelectedFolders();
 }
 
 function GetSelectedIndices(dbView)
@@ -1342,26 +1176,8 @@ function SetNextMessageAfterDelete()
     gNextMessageViewIndexAfterDelete = treeSelection.currentIndex;
 }
 
-function EnsureFolderIndex(builder, msgFolder)
-{
-  // try to get the index of the folder in the tree
-  var index = builder.getIndexOfResource(msgFolder);
-  if (index == -1) {
-    // if we couldn't find the folder, open the parent
-    builder.toggleOpenState(EnsureFolderIndex(builder, msgFolder.parent));
-    index = builder.getIndexOfResource(msgFolder);
-  }
-  return index;
-}
-
 function SelectMsgFolder(msgFolder) {
-  var folderTree = document.getElementById("folderTree");
-
-  // Before we can select a folder, we need to make sure it is "visible"
-  // in the tree. To do that, we need to ensure that all its
-  // ancestors are expanded.
-  var folderIndex = EnsureFolderIndex(folderTree.builderView, msgFolder);
-  ChangeSelection(folderTree, folderIndex);
+  gFolderTreeView.selectFolder(msgFolder);
 }
 
 function SelectMessage(messageUri)
@@ -1397,11 +1213,6 @@ function SetBusyCursor(window, enable)
 function GetDBView()
 {
   return gDBView;
-}
-
-function GetFolderResource(tree, index)
-{
-  return tree.builderView.getResourceAtIndex(index);
 }
 
 // Some of the per account junk mail settings have been

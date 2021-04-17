@@ -1606,39 +1606,34 @@
     <handlers>
       <handler event="popupshowing">
         <![CDATA[
-          var folderTree = document.getElementById("folderTree");
-          var { row, col } = folderTree.treeBoxObject.getCellAt(event.clientX, event.clientY);
-          if (row == -1)
+          let msgFolder = gFolderTreeView.getFolderAtCoords(event.clientX,
+                                                            event.clientY);
+          if (!msgFolder)
             return false;
 
-          var msgFolder = GetFolderResource(folderTree, row).QueryInterface(Ci.nsIMsgFolder);
-          var server = msgFolder.server;
-          var popupValue = null;
-          // Use the full newsgroup name as tooltip for abbreviated newsgroups.
-          // Else show full cell content as tooltip for cropped cells.
-          if (col.id == "folderNameCol" && !msgFolder.isServer &&
-              !(msgFolder.flags & Ci.nsMsgFolderFlags.Virtual) &&
-              (server instanceof Ci.nsINntpIncomingServer) &&
-              server.abbreviate)
-          {
-            popupValue = msgFolder.name;
-          }
-          else if (folderTree.treeBoxObject.isCellCropped(row, col))
-          {
-            popupValue = folderTree.view.getCellText(row, col);
+          let tooltipnode = document.getAnonymousNodes(this)[0];
+          let asyncResults = {};
+          if (tooltipnode.parseFolder(msgFolder, null, asyncResults))
+            return true;
+
+          let row = {}, col = {};
+          gFolderTreeView._tree.getCellAt(event.clientX, event.clientY, row,
+                                          col, {});
+          if (col.value.id == "folderNameCol") {
+            let cropped = gFolderTreeView._tree.isCellCropped(row.value,
+                                                              col.value);
+            if (tooltipnode.addLocationInfo(msgFolder, cropped))
+              return true;
           }
 
-          if (popupValue)
-          {
-            let tooltip = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "label");
-            tooltip.setAttribute("value", popupValue);
-            let folderSummary = document.getAnonymousNodes(this)[0];
-            document.getAnonymousNodes(folderSummary)[0].appendChild(tooltip);
+          let counts = gFolderTreeView.getSummarizedCounts(row.value,
+                                                           col.value.id);
+          if (counts) {
+            if (tooltipnode.addSummarizeExplain(counts))
+              return true;
           }
 
-          var newMessages = document.getAnonymousNodes(this)[0]
-                                    .parseFolder(msgFolder, null, {});
-          return popupValue || newMessages;
+          return false;
         ]]>
       </handler>
 
@@ -1662,16 +1657,26 @@
         <parameter name="aOutAsync"/>
         <body>
           <![CDATA[
-            // skip servers, Trash and Junk folders
-            if (!aFolder || aFolder.isServer ||
+            // Skip servers, Trash and Junk folders, and newgroups.
+            if (!aFolder || aFolder.isServer || !aFolder.hasNewMessages ||
                 aFolder.getFlag(Ci.nsMsgFolderFlags.Junk) ||
-                aFolder.getFlag(Ci.nsMsgFolderFlags.Trash))
+                aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
+                (aFolder.server instanceof Ci.nsINntpIncomingServer))
               return false;
             let showPreviewText = this.Services.prefs.getBoolPref("mail.biff.alert.show_preview");
-            var folderArray = new Array;
+            let folderArray = [];
+            let msgDatabase;
+            try {
+              msgDatabase = aFolder.msgDatabase;
+            } catch(e) {
+              // The database for this folder may be missing
+              // (e.g. outdated/missing .msf), so just skip this folder.
+              return false;
+            }
+
             if (aFolder.flags & Ci.nsMsgFolderFlags.Virtual)
             {
-              var dbFolderInfo = aFolder.msgDatabase.dBFolderInfo;
+              let dbFolderInfo = msgDatabase.dBFolderInfo;
               var srchFolderUri = dbFolderInfo.getCharProperty("searchFolderUri");
               var srchFolderUriArray = srchFolderUri.split('|');
               var foldersAdded = 0;
@@ -1685,14 +1690,23 @@
                   folderArray[foldersAdded++] = realFolder;
               }
             }
-            else
+            else {
               folderArray[0] = aFolder;
+            }
+
             var foundNewMsg = false;
             for (var folderIndex = 0; folderIndex < folderArray.length; folderIndex++)
             {
               aFolder = folderArray[folderIndex];
               // now get the database
-              var msgDatabase = aFolder.msgDatabase;
+              try {
+                msgDatabase = aFolder.msgDatabase;
+              } catch(e) {
+                // The database for this folder may be missing
+                // (e.g. outdated/missing .msf), then just skip this folder.
+                continue;
+              }
+
               aFolder.msgDatabase = null;
               let msgKeys = msgDatabase.getNewList();
 
@@ -1769,6 +1783,65 @@
         </body>
       </method>
 
+      <method name="addLocationInfo">
+        <parameter name="aFolder"/>
+        <parameter name="aCropped"/>
+        <body>
+          <![CDATA[
+            let popupValue = null;
+            // Display also server name for items that are on level 0 and are
+            // not server names by themselves and do not have server name
+            // already appended in their label.
+            let folderIndex = gFolderTreeView.getIndexOfFolder(aFolder);
+            if (!aFolder.isServer &&
+                gFolderTreeView.getLevel(folderIndex) == 0 &&
+                !gFolderTreeView.getServerNameAdded(folderIndex)) {
+              let midPath = "";
+              let midFolder = aFolder.parent;
+              while (aFolder.server.rootFolder != midFolder) {
+                midPath = midFolder.name + " - " + midPath;
+                midFolder = midFolder.parent;
+              }
+              popupValue = aFolder.server.prettyName + " - " + midPath +
+                           aFolder.name;
+            }
+            // If folder name is cropped or is a newsgroup and abbreviated per
+            // pref, use the full name as a tooltip.
+            else if (aCropped ||
+                     ((aFolder.server instanceof Ci.nsINntpIncomingServer) &&
+                      !(aFolder.flags & Ci.nsMsgFolderFlags.Virtual) &&
+                      aFolder.server.abbreviate) && !aFolder.isServer) {
+              popupValue = aFolder.name;
+            }
+
+            if (popupValue) {
+              let loc = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummaryLocation");
+              loc.setAttribute("location", popupValue);
+              document.getAnonymousNodes(this)[0].appendChild(loc);
+              return true;
+            }
+
+            return false;
+          ]]>
+        </body>
+      </method>
+
+      <method name="addSummarizeExplain">
+        <parameter name="aCounts"/>
+        <body>
+          <![CDATA[
+            if (!aCounts || !aCounts[1])
+              return false;
+            let expl = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "folderSummarySubfoldersSummary");
+            let sumString = document.getElementById("bundle_messenger")
+                                    .getFormattedString("subfoldersExplanation", [aCounts[0], aCounts[1]], 2);
+            expl.setAttribute("subfolders", sumString);
+            document.getAnonymousNodes(this)[0].appendChild(expl);
+            return true;
+          ]]>
+        </body>
+      </method>
+
       <method name="clear">
         <body>
           <![CDATA[
@@ -1787,6 +1860,22 @@
       ]]>
       </constructor>
     </implementation>
+  </binding>
+
+  <binding id="folderSummary-location">
+    <content>
+      <xul:hbox>
+        <xul:label anonid="location" xbl:inherits="value=location"/>
+      </xul:hbox>
+    </content>
+  </binding>
+
+  <binding id="folderSummary-subfoldersSummary">
+    <content>
+      <xul:hbox>
+        <xul:label anonid="subfolders" xbl:inherits="value=subfolders"/>
+      </xul:hbox>
+    </content>
   </binding>
 
   <binding id="folderSummary-message">

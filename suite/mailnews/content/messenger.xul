@@ -180,13 +180,7 @@
                   minwidth="100"
                   width="200"
                   persist="collapsed width hidden">
-              <tree id="folderTree"
-                    treelines="true"
-                    keepcurrentinview="true"
-                    flex="1"
-                    context="folderPaneContext"
-                    class="window-focusborder"
-                    focusring="false">
+              <tree id="folderTree">
                 <treechildren tooltip="folderpopup"/>
               </tree>
             </vbox>

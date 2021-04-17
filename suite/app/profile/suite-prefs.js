@@ -352,6 +352,16 @@ pref("mail.biff.show_new_alert",     true);
 // should we open them in the foreground or in the background?
 pref("mail.tabs.loadInBackground", true);
 
+// Force the unit shown for the size of all folders.
+// If empty, the unit is determined automatically for each folder.
+// Allowed values: KB/MB/<empty string>
+pref("mail.folderpane.sizeUnits", "");
+// Summarize messages count and size of subfolders into a collapsed parent?
+// Allowed values: true/false
+pref("mail.folderpane.sumSubfolders", true);
+
+pref("mailnews.reuse_thread_window2", true);
+
 pref("mailnews.ui.deleteMarksRead", true);
 pref("mailnews.ui.deleteAlwaysSelectedMessages", false);
 
