@@ -847,11 +847,11 @@ html|ul.addon-installed-list {
   color: var(--sidebar-text-color);
 }
 
-:root[lwt-tree] tree {
+:root[lwt-tree]:-moz-lwtheme tree {
   scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
 }
 
-:root[lwt-tree-brighttext] tree {
+:root[lwt-tree-brighttext]:-moz-lwtheme tree {
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
