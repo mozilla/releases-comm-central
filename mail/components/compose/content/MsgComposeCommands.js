@@ -8753,7 +8753,7 @@ function loadHTMLMsgPrefs() {
     doStatefulCommand("cmd_fontFace", fontFace, true);
   }
 
-  let fontSize = Services.prefs.getCharPref("msgcompose.font_size", "");
+  let fontSize = Services.prefs.getCharPref("msgcompose.font_size", "3");
   EditorSetFontSize(fontSize);
 
   let bodyElement = GetBodyElement();

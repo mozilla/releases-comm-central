@@ -934,7 +934,7 @@ pref("mailnews.customHeaders", "");
 
 // default msg compose font prefs
 pref("msgcompose.font_face", "");
-pref("msgcompose.font_size", "");
+pref("msgcompose.font_size", "3");
 // If true, let the user agent use default colors (don't set text_color and
 // background_color on the message body).
 pref("msgcompose.default_colors", true);

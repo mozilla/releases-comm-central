@@ -661,8 +661,23 @@ function onFontFaceChange() {
   fontFaceMenuList.selectedItem = foundFont;
 }
 
+/**
+ * Changes the font size for the selection or at the insertion point. This
+ * requires an integer from 1-7 as a value argument (x-small - xxx-large)
+ *
+ * @param {"1"|"2"|"3"|"4"|"5"|"6"|"7"} size - The font size.
+ */
 function EditorSetFontSize(size) {
-  GetCurrentEditor().document.execCommand("fontSize", false, size);
+  // For normal/medium size (that is 3), we clear size.
+  if (size == "3") {
+    EditorRemoveTextProperty("font", "size");
+    // Also remove big and small,
+    //  else it will seem like size isn't changing correctly
+    EditorRemoveTextProperty("small", "");
+    EditorRemoveTextProperty("big", "");
+  } else {
+    GetCurrentEditor().document.execCommand("fontSize", false, size);
+  }
   // Enable or Disable the toolbar buttons according to the font size.
   goUpdateCommand("cmd_decreaseFontStep");
   goUpdateCommand("cmd_increaseFontStep");
