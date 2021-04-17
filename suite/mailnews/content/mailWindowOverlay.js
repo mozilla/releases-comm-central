@@ -386,31 +386,18 @@ function InitMessageMenu()
 
 function InitViewHeadersMenu()
 {
-  var id = null;
-  var headerchoice = 1;
-  try
-  {
-    headerchoice = Services.prefs.getIntPref("mail.show_headers");
-  }
-  catch (ex)
-  {
-    dump("failed to get the header pref\n");
-  }
-
-  switch (headerchoice)
-  {
-    case 2:
-      id = "viewallheaders";
-      break;
-    case 1:
-    default:
-      id = "viewnormalheaders";
-      break;
-  }
-
-  var menuitem = document.getElementById(id);
-  if (menuitem)
-    menuitem.setAttribute("checked", "true");
+  var headerchoice =
+    Services.prefs.getIntPref("mail.show_headers",
+                              Ci.nsMimeHeaderDisplayTypes.NormalHeaders);
+  document
+    .getElementById("cmd_viewAllHeader")
+    .setAttribute("checked",
+                  headerchoice == Ci.nsMimeHeaderDisplayTypes.AllHeaders);
+  document
+    .getElementById("cmd_viewNormalHeader")
+    .setAttribute("checked",
+                  headerchoice == Ci.nsMimeHeaderDisplayTypes.NormalHeaders);
+  document.commandDispatcher.updateCommands("create-menu-mark");
 }
 
 function InitViewBodyMenu()
@@ -1860,84 +1847,58 @@ function ChangeMailLayout(newLayout)
 
 function MsgViewAllHeaders()
 {
-    Services.prefs.setIntPref("mail.show_headers",2);
-    ReloadMessage();
-    return true;
+  Services.prefs.setIntPref("mail.show_headers",
+                            Ci.nsMimeHeaderDisplayTypes.AllHeaders);
 }
 
 function MsgViewNormalHeaders()
 {
-    Services.prefs.setIntPref("mail.show_headers",1);
-    ReloadMessage();
-    return true;
-}
-
-function MsgViewBriefHeaders()
-{
-    Services.prefs.setIntPref("mail.show_headers",0);
-    ReloadMessage();
-    return true;
+  Services.prefs.setIntPref("mail.show_headers",
+                            Ci.nsMimeHeaderDisplayTypes.NormalHeaders);
 }
 
 function MsgBodyAllowHTML()
 {
-    Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
-    Services.prefs.setIntPref("mailnews.display.html_as", 0);
-    Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 0);
-    ReloadMessage();
-    return true;
+  ChangeMsgBodyDisplay(false, 0, 0);
 }
 
 function MsgBodySanitized()
 {
-    Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
-    Services.prefs.setIntPref("mailnews.display.html_as", 3);
-    Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers",
-                              gDisallow_classes_no_html);
-    ReloadMessage();
-    return true;
+  ChangeMsgBodyDisplay(false, 3, gDisallow_classes_no_html);
 }
 
 function MsgBodyAsPlaintext()
 {
-    Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
-    Services.prefs.setIntPref("mailnews.display.html_as", 1);
-    Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers",
-                              gDisallow_classes_no_html);
-    ReloadMessage();
-    return true;
+  ChangeMsgBodyDisplay(true, 1, gDisallow_classes_no_html);
 }
 
 function MsgBodyAllParts()
 {
-  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
-  Services.prefs.setIntPref("mailnews.display.html_as", 4);
-  Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 0);
-  ReloadMessage();
-  return true;
+  ChangeMsgBodyDisplay(false, 4, 0);
+}
+
+function ChangeMsgBodyDisplay(plaintext, html, mime) {
+  Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", plaintext);
+  Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", mime);
+  Services.prefs.setIntPref("mailnews.display.html_as", html);
 }
 
 function MsgFeedBodyRenderPrefs(plaintext, html, mime)
 {
   // Separate render prefs not implemented for feeds, bug 458606.
   //  Services.prefs.setBoolPref("rss.display.prefer_plaintext", plaintext);
-  //  Services.prefs.setIntPref("rss.display.html_as", html);
   //  Services.prefs.setIntPref("rss.display.disallow_mime_handlers", mime);
+  //  Services.prefs.setIntPref("rss.display.html_as", html)
 
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", plaintext);
-  Services.prefs.setIntPref("mailnews.display.html_as", html);
   Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", mime);
-  // Reload only if showing rss summary; menuitem hidden if web page..
-  ReloadMessage();
+  Services.prefs.setIntPref("mailnews.display.html_as", html);
 }
 
-function ToggleInlineAttachment(target)
-{
-    var viewAttachmentInline = !Services.prefs.getBoolPref("mail.inline_attachments");
-    Services.prefs.setBoolPref("mail.inline_attachments", viewAttachmentInline)
-    target.setAttribute("checked", viewAttachmentInline ? "true" : "false");
-
-    ReloadMessage();
+function ToggleInlineAttachment(target) {
+  var viewInline = !Services.prefs.getBoolPref("mail.inline_attachments");
+  Services.prefs.setBoolPref("mail.inline_attachments", viewInline);
+  target.setAttribute("checked", viewInline ? "true" : "false");
 }
 
 function MsgStop()
