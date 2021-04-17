@@ -305,7 +305,7 @@ var folderListener =
       else if (event == "RenameCompleted") {
         // Clear this so we don't try to clear its new messages.
         gMsgFolderSelected = null;
-        SelectFolder(folder.URI);
+        SelectMsgFolder(folder);
       }
       else if (event == "JunkStatusChanged") {
         HandleJunkStatusChanged(folder);
@@ -580,7 +580,7 @@ function ServerContainsFolder(server, folder)
 
 function SelectServer(server)
 {
-  SelectFolder(server.rootFolder.URI);
+  SelectMsgFolder(server.rootFolder);
 }
 
 // we have this incoming server listener in case we need to
@@ -857,20 +857,19 @@ function Create3PaneGlobals()
 function loadStartFolder(initialUri)
 {
     var defaultServer = null;
+    var startFolder;
     var isLoginAtStartUpEnabled = false;
 
     //First get default account
-    if (!initialUri)
-    {
-        // Startup time.
-        defaultAccount = accountManager.defaultAccount;
+    if (initialUri) {
+        startFolder = MailUtils.getFolderForURI(initialUri);
+    } else {
+        var defaultAccount = accountManager.defaultAccount;
         if (defaultAccount) {
             defaultServer = defaultAccount.incomingServer;
+            var rootMsgFolder = defaultServer.rootMsgFolder;
 
-            // set the initialUri to the server, so we select it
-            // so we'll get account central
-            initialUri = defaultServer.serverURI;
-
+            startFolder = rootMsgFolder;
             // Enable check new mail once by turning checkmail pref 'on' to bring
             // all users to one plane. This allows all users to go to Inbox. User can
             // always go to server settings panel and turn off "Check for new mail at startup"
@@ -887,11 +886,10 @@ function loadStartFolder(initialUri)
             if (isLoginAtStartUpEnabled)
             {
                 //now find Inbox
-                var rootMsgFolder = defaultServer.rootMsgFolder;
                 const kInboxFlag = Ci.nsMsgFolderFlags.Inbox;
                 var inboxFolder = rootMsgFolder.getFolderWithFlags(kInboxFlag);
                 if (inboxFolder)
-                  initialUri = inboxFolder.URI;
+                  startFolder = inboxFolder;
             }
         } else {
             // If no default account then show account central page.
@@ -900,8 +898,8 @@ function loadStartFolder(initialUri)
 
    }
 
-   if (initialUri) {
-        SelectFolder(initialUri);
+   if (startFolder) {
+        SelectMsgFolder(startFolder);
 
         // Perform biff on the server to check for new mail, if:
         // the login at startup is enabled, and
@@ -1366,12 +1364,6 @@ function EnsureFolderIndex(builder, msgFolder)
     index = builder.getIndexOfResource(msgFolder);
   }
   return index;
-}
-
-function SelectFolder(folderUri)
-{
-  let msgFolder = MailUtils.getFolderForURI(folderUri);
-  SelectMsgFolder(msgFolder);
 }
 
 function SelectMsgFolder(msgFolder) {

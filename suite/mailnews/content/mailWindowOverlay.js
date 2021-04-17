@@ -747,18 +747,17 @@ function PopulateHistoryMenu(menuPopup, navOffset)
 function NavigateToUri(target)
 {
   var historyIndex = target.getAttribute('value');
-  let folderUri = target.folder.URI;
   var msgUri = messenger.getMsgUriAtNavigatePos(historyIndex);
   let msgHdrKey = messenger.msgHdrFromURI(msgUri).messageKey;
   messenger.navigatePos += Number(historyIndex);
-  if (folderUri == GetThreadPaneFolder().URI)
+  if (target.folder.URI == GetThreadPaneFolder().URI)
   {
     gDBView.selectMsgByKey(msgHdrKey);
   }
   else
   {
     gStartMsgKey = msgHdrKey;
-    SelectFolder(folderUri);
+    SelectMsgFolder(target.folder);
   }
 }
 
@@ -1990,6 +1989,11 @@ function PrintEnginePrint()
 function PrintEnginePrintPreview()
 {
   return PrintEnginePrintInternal(true, Ci.nsIMsgPrintEngine.MNAB_PRINTPREVIEW_MSG);
+}
+
+// Kept for add-on compatibility.
+function SelectFolder(folderUri) {
+  SelectMsgFolder(MailUtils.getFolderForURI(folderUri));
 }
 
 function IsMailFolderSelected()

@@ -458,13 +458,12 @@ function SetNextMessageAfterDelete()
   gNextMessageViewIndexAfterDelete = gDBView.msgToSelectAfterDelete;
 }
 
-function SelectFolder(folderUri)
-{
-  if (folderUri == gCurrentFolderUri)
+function SelectMsgFolder(msgfolder) {
+  if (!msgfolder || msgfolder.isServer)
     return;
 
-  let msgfolder = MailUtils.getFolderForURI(folderUri);
-  if (!msgfolder || msgfolder.isServer)
+  let folderUri = msgfolder.URI;
+  if (folderUri == gCurrentFolderUri)
     return;
 
   // close old folder view

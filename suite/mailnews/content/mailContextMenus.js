@@ -687,7 +687,7 @@ function OpenMessageByHeader(messageHeader, openInNewWindow)
   else
   {
     if (msgWindow.openFolder != folderURI)
-      SelectFolder(folderURI);
+      SelectMsgFolder(folder);
 
     var tree = null;
     var wintype = document.documentElement.getAttribute('windowtype');

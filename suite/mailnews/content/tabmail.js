@@ -211,7 +211,7 @@ var gMailNewsTabsType =
       // the current selection on the new view.
       let msgHdr = aTabInfo.hdr;
       let msgId  = aTabInfo.selectedMsgId;
-      SelectFolder(aTabInfo.uriToOpen);
+      SelectMsgFolder(MailUtils.getFolderForURI(aTabInfo.uriToOpen));
       let folderResource = RDF.GetResource(aTabInfo.uriToOpen);
       if (folderResource instanceof Ci.nsIMsgFolder)
         aTabInfo.msgSelectedFolder = folderResource;

@@ -151,7 +151,7 @@ function CrossFolderNavigation(type)
         case 0:
           // do this unconditionally
           gNextMessageAfterLoad = type;
-          SelectFolder(folder.URI);
+          SelectMsgFolder(folder);
           break;
         case 1:
         default:
@@ -161,7 +161,7 @@ function CrossFolderNavigation(type)
                                         null, null, null, null, {}) == 0)
           {
             gNextMessageAfterLoad = type;
-            SelectFolder(folder.URI);
+            SelectMsgFolder(folder);
           }
           break;
       }
@@ -179,7 +179,7 @@ function CrossFolderNavigation(type)
     var curPos = messenger.navigatePos;
     curPos += relPos;
     messenger.navigatePos = curPos;
-    SelectFolder(folderUri);
+    SelectMsgFolder(MailUtils.getFolderForURI(folderUri));
   }
 }
 

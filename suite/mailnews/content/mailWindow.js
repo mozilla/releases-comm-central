@@ -522,7 +522,7 @@ nsMsgWindowCommands.prototype =
 
   selectFolder: function(folderUri)
   {
-    SelectFolder(folderUri);
+    SelectMsgFolder(MailUtils.getFolderForURI(folderUri));
   },
 
   selectMessage: function(messageUri)
@@ -577,8 +577,7 @@ function OpenInboxForServer(server)
 {
     try {
         ShowThreadPane();
-        var inboxFolder = GetInboxFolder(server);
-        SelectFolder(inboxFolder.URI);
+        SelectMsgFolder(GetInboxFolder(server));
 
         if (!Services.io.offline) {
             if (server.type != "imap")
