@@ -12,10 +12,13 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailServices.jsm"
 );
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { SelectionUtils } = ChromeUtils.import(
+  "resource://gre/modules/SelectionUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { DefaultMap, ExtensionError } = ExtensionUtils;
 
@@ -601,6 +604,16 @@ const contextsMap = {
   attachments: "compose_attachments",
 };
 
+const chromeElementsMap = {
+  msgSubject: "composeSubject",
+  toAddrInput: "composeTo",
+  ccAddrInput: "composeCc",
+  bccAddrInput: "composeBcc",
+  replyAddrInput: "composeReplyTo",
+  newsgroupsAddrInput: "composeNewsgroupTo",
+  followupAddrInput: "composeFollowupTo",
+};
+
 const getMenuContexts = contextData => {
   let contexts = new Set();
 
@@ -676,6 +689,10 @@ function addMenuEventInfo(info, contextData, extension, includeSensitiveData) {
   // document is not in a frame).
   if (contextData.originalViewUrl) {
     info.frameUrl = contextData.originalViewUrl;
+  }
+
+  if (contextData.fieldId) {
+    info.fieldId = contextData.fieldId;
   }
 
   if (contextData.selectedMessages && extension.hasPermission("messagesRead")) {
@@ -1006,28 +1023,22 @@ const menuTracker = {
   },
 
   onWindowOpen(window) {
-    for (const id of menuTracker.menuIds) {
-      const menu = window.document.getElementById(id);
-      if (menu) {
-        menu.addEventListener("popupshowing", menuTracker);
-      }
-    }
+    // Register the event listener on the window, as some menus we are
+    // interested in are dynamically created:
+    // https://hg.mozilla.org/mozilla-central/file/83a21ab93aff939d348468e69249a3a33ccfca88/toolkit/content/editMenuOverlay.js#l96
+    window.addEventListener("popupshowing", menuTracker);
   },
 
   cleanupWindow(window) {
-    for (const id of this.menuIds) {
-      const menu = window.document.getElementById(id);
-      if (menu) {
-        menu.removeEventListener("popupshowing", this);
-      }
-    }
+    window.removeEventListener("popupshowing", this);
   },
 
   handleEvent(event) {
     const menu = event.target;
+    const trigger = menu.triggerNode;
+    const win = menu.ownerGlobal;
     switch (menu.id) {
       case "taskPopup": {
-        let win = menu.ownerGlobal;
         let info = { menu, inToolsMenu: true };
         if (
           win.document.location.href ==
@@ -1043,14 +1054,13 @@ const menuTracker = {
         break;
       }
       case "tabContextMenu": {
-        let trigger = menu.triggerNode.closest("tab");
-        const tab = trigger || tabTracker.activeTab;
+        let triggerTab = trigger.closest("tab");
+        const tab = triggerTab || tabTracker.activeTab;
         const pageUrl = tab.linkedBrowser.currentURI.spec;
         gMenuBuilder.build({ menu, tab, pageUrl, onTab: true });
         break;
       }
       case "folderPaneContext": {
-        const trigger = menu.triggerNode;
         const tab =
           trigger.localName === "tab" ? trigger : tabTracker.activeTab;
         const pageUrl = tab.linkedBrowser.currentURI.spec;
@@ -1073,6 +1083,31 @@ const menuTracker = {
         gMenuBuilder.build({ menu, tab: menu.ownerGlobal, attachments });
         break;
       }
+      default:
+        // Fall back to the triggerNode. Make sure we are not re-triggered by a
+        // sub-menu.
+        if (menu.isAnchored) {
+          return;
+        }
+        if (Object.keys(chromeElementsMap).includes(trigger?.id)) {
+          let selectionInfo = SelectionUtils.getSelectionDetails(win);
+          let isContentSelected = !selectionInfo.docSelectionIsCollapsed;
+          let textSelected = selectionInfo.text;
+          let isTextSelected = !!textSelected.length;
+          gMenuBuilder.build({
+            menu,
+            tab: win,
+            pageUrl: win.browser.currentURI.spec,
+            onEditable: true,
+            isContentSelected,
+            isTextSelected,
+            onTextInput: true,
+            originalViewType: "tab",
+            fieldId: chromeElementsMap[trigger.id],
+            selectionText: isTextSelected ? selectionInfo.fullText : undefined,
+          });
+        }
+        break;
     }
   },
 };
@@ -1129,6 +1164,9 @@ this.menus = class extends ExtensionAPI {
                 ? contextData.frameUrl
                 : contextData.pageUrl;
 
+              let ownerDocumentUrl =
+                contextData.menu.ownerDocument.location.href;
+
               let contextScheme;
               if (contextUrl) {
                 contextScheme = Services.io.newURI(contextUrl).scheme;
@@ -1140,7 +1178,8 @@ this.menus = class extends ExtensionAPI {
                 (contextUrl && extension.allowedOrigins.matches(contextUrl)) ||
                 (MESSAGE_PROTOCOLS.includes(contextScheme) &&
                   extension.hasPermission("messagesRead")) ||
-                (contextUrl == "about:blank?compose" &&
+                (ownerDocumentUrl ==
+                  "chrome://messenger/content/messengercompose/messengercompose.xhtml" &&
                   extension.hasPermission("compose"));
 
               addMenuEventInfo(

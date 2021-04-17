@@ -746,6 +746,100 @@ async function subtest_content(
   await new Promise(r => setTimeout(r, 250));
 }
 
+// Test UI elements which have been made accessible for the menus API.
+// Assumed to be run after subtest_content, so we know everything has finished
+// loading.
+async function subtest_element(
+  extension,
+  extensionHasPermission,
+  element,
+  pageUrl,
+  tab
+) {
+  for (let selectedTest of [false, true]) {
+    element.focus();
+    if (selectedTest) {
+      element.value = "This is selected text.";
+      element.select();
+    } else {
+      element.value = "";
+    }
+
+    let event = await rightClick(element.ownerGlobal, element);
+    let menu = event.target;
+    let trigger = menu.triggerNode;
+    let menuitem = menu.querySelector("#menus_mochi_test-menuitem-_editable");
+    Assert.equal(
+      element.id,
+      trigger.id,
+      "Contextmenu of correct element has been triggered."
+    );
+    Assert.equal(
+      menuitem.id,
+      "menus_mochi_test-menuitem-_editable",
+      "Contextmenu includes menu."
+    );
+
+    await checkShownEvent(
+      extension,
+      {
+        menuIds: selectedTest ? ["editable", "selection"] : ["editable"],
+        contexts: selectedTest
+          ? ["editable", "selection", "all"]
+          : ["editable", "all"],
+        pageUrl: extensionHasPermission ? pageUrl : undefined,
+        selectionText:
+          extensionHasPermission && selectedTest
+            ? "This is selected text."
+            : undefined,
+      },
+      tab
+    );
+
+    // With text being selected, there will be two "context" entries in an
+    // extension submenu. Open the submenu.
+    if (selectedTest) {
+      let submenu = null;
+      for (let foundMenu of menu.querySelectorAll(
+        "[id^='menus_mochi_test-menuitem-']"
+      )) {
+        if (!foundMenu.id.startsWith("menus_mochi_test-menuitem-_")) {
+          submenu = foundMenu;
+        }
+      }
+      Assert.ok(submenu, "Submenu found.");
+      let submenuPromise = BrowserTestUtils.waitForEvent(
+        element.ownerGlobal,
+        "popupshown"
+      );
+      EventUtils.synthesizeMouseAtCenter(submenu, {}, element.ownerGlobal);
+      await submenuPromise;
+    }
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(
+      element.ownerGlobal,
+      "popuphidden"
+    );
+    let clickedPromise = checkClickedEvent(
+      extension,
+      {
+        pageUrl,
+        selectionText: selectedTest ? "This is selected text." : undefined,
+      },
+      tab
+    );
+    EventUtils.synthesizeMouseAtCenter(menuitem, {}, element.ownerGlobal);
+    await clickedPromise;
+    await hiddenPromise;
+
+    // Sometimes, the popup will open then instantly disappear. It seems to
+    // still be hiding after the previous appearance. If we wait a little bit,
+    // this doesn't happen.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(r => setTimeout(r, 250));
+  }
+}
+
 add_task(async function test_content() {
   window.gFolderTreeView.selectFolder(gFolders[0]);
   if (window.IsMessagePaneCollapsed()) {
@@ -886,6 +980,26 @@ async function subtest_compose(...permissions) {
     "about:blank?compose",
     { active: true, index: 0, mailTab: false }
   );
+
+  const chromeElementsMap = {
+    msgSubject: "composeSubject",
+    toAddrInput: "composeTo",
+  };
+  for (let elementId of Object.keys(chromeElementsMap)) {
+    info(`Test element ${elementId}.`);
+    await subtest_element(
+      extension,
+      permissions.includes("compose"),
+      composeWindow.document.getElementById(elementId),
+      "about:blank?compose",
+      {
+        active: true,
+        index: 0,
+        mailTab: false,
+        fieldId: chromeElementsMap[elementId],
+      }
+    );
+  }
 
   info("Test the attachments context menu.");
 
