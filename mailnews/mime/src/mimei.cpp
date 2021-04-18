@@ -657,7 +657,8 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
      */
     else if (!PL_strncasecmp(content_type, "image/", 6)) {
       if (imgLoader::SupportImageWithMimeType(
-              content_type, AcceptedMimeTypes::IMAGES_AND_DOCUMENTS))
+              nsDependentCString(content_type),
+              AcceptedMimeTypes::IMAGES_AND_DOCUMENTS))
         clazz = (MimeObjectClass*)&mimeInlineImageClass;
       else
         clazz = (MimeObjectClass*)&mimeExternalObjectClass;
