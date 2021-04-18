@@ -96,14 +96,7 @@ function dcc_addhost(host, auth)
     };
 
     try {
-        var th;
-        if (jsenv.HAS_THREAD_MANAGER) {
-          th = getService("@mozilla.org/thread-manager;1").currentThread;
-        } else {
-          const EQS = getService("@mozilla.org/event-queue-service;1",
-                                 "nsIEventQueueService");
-          th = EQS.getSpecialEventQueue(EQS.CURRENT_THREAD_EVENT_QUEUE);
-        }
+        var th = getService("@mozilla.org/thread-manager;1").currentThread;
         var dnsRecord = this._dnsSvc.asyncResolve(host, false, listener, th);
     } catch (ex) {
         dd("Error resolving host to IP: " + ex);
@@ -616,11 +609,7 @@ function dchat_onsocketconnection(host, port, config, exception)
     {
         this.state.socketConnected();
 
-        if (jsenv.HAS_NSPR_EVENTQ)
-            this.connection.startAsyncRead(this);
-        else
-            this.eventPump.addEvent(new CEvent("dcc-chat", "poll",
-                                               this, "onPoll"));
+        this.connection.startAsyncRead(this);
     }
     else
     {
@@ -690,49 +679,7 @@ function dchat_onSocketAccepted(socket, transport)
     this.remoteIP = transport.host;
 
     // Start the reading!
-    if (jsenv.HAS_NSPR_EVENTQ)
-        this.connection.startAsyncRead(this);
-    else
-        this.eventPump.addEvent(new CEvent("dcc-chat", "poll",
-                                           this, "onPoll"));
-}
-
-CIRCDCCChat.prototype.onPoll =
-function dchat_poll (e)
-{
-    var line = "";
-    var ev;
-
-    try
-    {
-        line = this.connection.readData(this.READ_TIMEOUT);
-    }
-    catch (ex)
-    {
-        if (typeof (ex) != "undefined")
-        {
-            this.connection.disconnect();
-            ev = new CEvent("dcc-chat", "close", this, "onClose");
-            ev.reason = "read-error";
-            ev.exception = ex;
-            this.eventPump.addEvent(ev);
-            return false;
-        }
-        else
-            line = "";
-    }
-
-    this.eventPump.addEvent(new CEvent("dcc-chat", "poll",
-                                       this, "onPoll"));
-
-    if (line == "")
-        return false;
-
-    ev = new CEvent("dcc-chat", "data-available", this, "onDataAvailable");
-    ev.line = line;
-    this.eventPump.routeEvent(ev);
-
-    return true;
+    this.connection.startAsyncRead(this);
 }
 
 CIRCDCCChat.prototype.onStreamDataAvailable =
@@ -1053,11 +1000,7 @@ function dfile_onsocketconnection(host, port, config, exception)
     {
         this.state.socketConnected();
 
-        if (jsenv.HAS_NSPR_EVENTQ)
-            this.connection.startAsyncRead(this);
-        else
-            this.eventPump.addEvent(new CEvent("dcc-file", "poll",
-                                               this, "onPoll"));
+        this.connection.startAsyncRead(this);
     }
     else
     {
@@ -1150,47 +1093,7 @@ function dfile_onSocketAccepted(socket, transport)
     }
 
     // Start the reading!
-    if (jsenv.HAS_NSPR_EVENTQ)
-        this.connection.startAsyncRead(this);
-    else
-        this.eventPump.addEvent(new CEvent("dcc-file", "poll", this, "onPoll"));
-}
-
-CIRCDCCFileTransfer.prototype.onPoll =
-function dfile_poll (e)
-{
-    var data = "";
-    var ev;
-
-    try
-    {
-        data = this.connection.readData (this.READ_TIMEOUT);
-    }
-    catch (ex)
-    {
-        if (typeof (ex) != "undefined")
-        {
-            this.connection.disconnect();
-            ev = new CEvent("dcc-file", "close", this, "onClose");
-            ev.reason = "read-error";
-            ev.exception = ex;
-            this.eventPump.addEvent(ev);
-            return false;
-        }
-        else
-            data = "";
-    }
-
-    this.eventPump.addEvent(new CEvent("dcc-file", "poll", this, "onPoll"));
-
-    if (data == "")
-        return false;
-
-    ev = new CEvent("dcc-file", "data-available", this, "onDataAvailable");
-    ev.data = data;
-    this.eventPump.routeEvent(ev);
-
-    return true;
+    this.connection.startAsyncRead(this);
 }
 
 CIRCDCCFileTransfer.prototype.onStreamDataAvailable =

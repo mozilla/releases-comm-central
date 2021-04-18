@@ -92,10 +92,7 @@ function ident_gotconn(serv, transport)
     var connection = new CBSConnection();
     connection.accept(transport);
 
-    if (jsenv.HAS_NSPR_EVENTQ)
-        connection.startAsyncRead(new IdentListener(this, connection));
-    else
-        throw "IdentServer requires HAS_NSPR_EVENTQ."; // FIXME
+    connection.startAsyncRead(new IdentListener(this, connection));
 }
 
 function IdentListener(server, connection)

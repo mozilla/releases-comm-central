@@ -25,8 +25,7 @@ function loadDeps()
 
     bot.messageManager = new MessageManager();
 
-    if (!connection_init(LIB_PATH))
-        return false;
+    load(LIB_PATH + "connection-xpcom.js");
 
     return true;
 }
@@ -64,9 +63,6 @@ function fromUnicode(msg, charsetOrView)
 
 function initStatic()
 {
-    if (jsenv.HAS_RHINO)
-        gc = java.lang.System.gc;
-
     CIRCNetwork.prototype.INITIAL_NICK = "jsbot";
     CIRCNetwork.prototype.INITIAL_NAME = "XPJSBot";
     CIRCNetwork.prototype.INITIAL_DESC = "XPCOM Javascript bot";

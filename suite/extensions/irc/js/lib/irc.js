@@ -703,11 +703,7 @@ function serv_onsocketconnection(host, port, config, exception)
         this.parent.eventPump.addEvent(ev);
         this.isConnected = true;
 
-        if (jsenv.HAS_NSPR_EVENTQ)
-            this.connection.startAsyncRead(this);
-        else
-            this.parent.eventPump.addEvent(new CEvent("server", "poll", this,
-                                                      "onPoll"));
+        this.connection.startAsyncRead(this);
     }
     else
     {
@@ -1174,21 +1170,13 @@ function serv_poll(e)
     {
         dd ("*** Caught exception " + ex + " reading from server " +
             this.hostname);
-        if (jsenv.HAS_RHINO && (ex instanceof java.lang.ThreadDeath))
-        {
-            dd("### catching a ThreadDeath");
-            throw(ex);
-        }
-        else
-        {
-            ev = new CEvent ("server", "disconnect", this, "onDisconnect");
-            ev.server = this;
-            ev.reason = "error";
-            ev.exception = ex;
-            ev.disconnectStatus = NS_ERROR_ABORT;
-            this.parent.eventPump.addEvent (ev);
-            return false;
-        }
+        ev = new CEvent ("server", "disconnect", this, "onDisconnect");
+        ev.server = this;
+        ev.reason = "error";
+        ev.exception = ex;
+        ev.disconnectStatus = NS_ERROR_ABORT;
+        this.parent.eventPump.addEvent (ev);
+        return false;
     }
 
     this.parent.eventPump.addEvent (new CEvent ("server", "poll", this,

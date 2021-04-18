@@ -1229,8 +1229,7 @@ function my_showtonet (e)
 
             // Do this after the JOINs, so they are quicker.
             // This is not time-critical code.
-            if (jsenv.HAS_SERVER_SOCKETS && client.prefs["dcc.enabled"] &&
-                this.prefs["dcc.useServerIP"])
+            if (client.prefs["dcc.enabled"] && this.prefs["dcc.useServerIP"])
             {
                 var delayFn = function(t) {
                     // This is the quickest way to get out host/IP.
@@ -1311,8 +1310,8 @@ function my_privmsg(e)
 CIRCNetwork.prototype.on302 =
 function my_302(e)
 {
-    if (jsenv.HAS_SERVER_SOCKETS && client.prefs["dcc.enabled"] &&
-        this.prefs["dcc.useServerIP"] && ("pendingUserhostReply" in this))
+    if (client.prefs["dcc.enabled"] && this.prefs["dcc.useServerIP"] &&
+        ("pendingUserhostReply" in this))
     {
         var me = new RegExp("^" + this.primServ.me.encodedName + "\\*?=", "i");
         if (e.params[2].match(me))
@@ -1985,20 +1984,13 @@ function my_sconnect (e)
 
     if (this.prefs["identd.enabled"])
     {
-        if (jsenv.HAS_SERVER_SOCKETS)
+        try
         {
-            try
-            {
-                client.ident.addNetwork(this, e.server);
-            }
-            catch (ex)
-            {
-                display(getMsg(MSG_IDENT_ERROR, formatException(ex)), MT_ERROR);
-            }
+            client.ident.addNetwork(this, e.server);
         }
-        else
+        catch (ex)
         {
-            display(MSG_IDENT_SERVER_NOT_POSSIBLE, MT_WARN);
+            display(getMsg(MSG_IDENT_ERROR, formatException(ex)), MT_ERROR);
         }
     }
 
@@ -3089,7 +3081,7 @@ function onDCCAutoAcceptTimeout(o, folder)
 CIRCUser.prototype.onDCCChat =
 function my_dccchat(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS || !client.prefs["dcc.enabled"])
+    if (!client.prefs["dcc.enabled"])
         return;
 
     var u = client.dcc.addUser(e.user, e.host);
@@ -3133,7 +3125,7 @@ function my_dccchat(e)
 CIRCUser.prototype.onDCCSend =
 function my_dccsend(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS || !client.prefs["dcc.enabled"])
+    if (!client.prefs["dcc.enabled"])
         return;
 
     var u = client.dcc.addUser(e.user, e.host);

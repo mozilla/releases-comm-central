@@ -4016,8 +4016,6 @@ function cmdFont(e)
 
 function cmdDCCChat(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS)
-        return display(MSG_DCC_NOT_POSSIBLE);
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
@@ -4045,8 +4043,6 @@ function cmdDCCChat(e)
 
 function cmdDCCClose(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS)
-        return display(MSG_DCC_NOT_POSSIBLE);
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
@@ -4091,8 +4087,6 @@ function cmdDCCClose(e)
 
 function cmdDCCSend(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS)
-        return display(MSG_DCC_NOT_POSSIBLE);
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
@@ -4170,8 +4164,6 @@ function cmdDCCSend(e)
 }
 
 function cmdDCCList(e) {
-    if (!jsenv.HAS_SERVER_SOCKETS)
-        return display(MSG_DCC_NOT_POSSIBLE);
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
@@ -4259,8 +4251,6 @@ function cmdDCCList(e) {
 
 function cmdDCCAutoAcceptList(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS)
-        return display(MSG_DCC_NOT_POSSIBLE);
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
@@ -4276,8 +4266,6 @@ function cmdDCCAutoAcceptList(e)
 
 function cmdDCCAutoAcceptAdd(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS)
-        return display(MSG_DCC_NOT_POSSIBLE);
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
@@ -4304,8 +4292,6 @@ function cmdDCCAutoAcceptAdd(e)
 
 function cmdDCCAutoAcceptDel(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS)
-        return display(MSG_DCC_NOT_POSSIBLE);
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
@@ -4340,8 +4326,6 @@ function cmdDCCAutoAcceptDel(e)
 
 function cmdDCCAccept(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS)
-        return display(MSG_DCC_NOT_POSSIBLE);
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
@@ -4409,8 +4393,6 @@ function cmdDCCAccept(e)
 
 function cmdDCCDecline(e)
 {
-    if (!jsenv.HAS_SERVER_SOCKETS)
-        return display(MSG_DCC_NOT_POSSIBLE);
     if (!client.prefs["dcc.enabled"])
         return display(MSG_DCC_NOT_ENABLED);
 
