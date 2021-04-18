@@ -229,7 +229,8 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
 treechildren::-moz-tree-image(folderNameCol, hasUnreadMessages-true),
 treechildren::-moz-tree-image(folderNameCol, closed, subfoldersHaveUnreadMessages-true) {
   opacity: 1 !important;
-  fill: var(--unread-folder-color);
+  color: var(--unread-folder-color);
+  fill: currentColor;
 }
 
 treechildren::-moz-tree-image(folderNameCol, newMessages-true),
