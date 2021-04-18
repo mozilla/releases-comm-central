@@ -1479,7 +1479,7 @@ function my_list(word, file)
         if (!lfile.localFile.exists())
         {
             // futils.umask may be 0022. Result is 0644.
-            lfile.localFile.create(NORMAL_FILE_TYPE, 0666 & ~futils.umask);
+            lfile.localFile.create(NORMAL_FILE_TYPE, 0o666 & ~futils.umask);
         }
         this._list.file = new LocalFile(lfile.localFile, ">");
     }

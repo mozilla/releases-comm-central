@@ -178,7 +178,7 @@ function ceip_logevent(data)
 
     var logFile = this.getLogFile();
     if (!logFile.exists()) {
-        logFile.create(NORMAL_FILE_TYPE, 0600);
+        logFile.create(NORMAL_FILE_TYPE, 0o600);
         this.writeLogLine("<events>");
     }
 
@@ -212,7 +212,7 @@ function ceip_logevent(data)
         var oldFile = this.getLogFile();
         var newFile = this.getLogFile();
         newFile.leafName = Number(new Date()) + ".xml";
-        newFile.createUnique(NORMAL_FILE_TYPE, 0600);
+        newFile.createUnique(NORMAL_FILE_TYPE, 0o600);
         oldFile.moveTo(null, newFile.leafName);
 
         /* startLog() will reset the nest, but we might be in the middle of a

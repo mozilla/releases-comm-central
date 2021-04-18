@@ -386,7 +386,7 @@ function initStatic()
             {
                 var invalidFile = new nsLocalFile(client.prefs["profilePath"]);
                 invalidFile.append("awayMsgs.invalid");
-                invalidFile.createUnique(FTYPE_FILE, 0600);
+                invalidFile.createUnique(FTYPE_FILE, 0o600);
                 var msg = getMsg(MSG_ERR_INVALID_FILE,
                                  [awayFile.leafName, invalidFile.leafName]);
                 setTimeout(function() {
@@ -3407,7 +3407,7 @@ function cli_installPlugin(name, source)
             dest.append(name);
             checkPluginInstalled(name, dest);
 
-            dest.create(DIRECTORY_TYPE, 0700);
+            dest.create(DIRECTORY_TYPE, 0o700);
 
             // Actually extract files...
             var destInit;
@@ -3429,7 +3429,7 @@ function cli_installPlugin(name, source)
                     {
                         zipFile.append(dirs[i]);
                         if (!zipFile.exists())
-                            zipFile.create(DIRECTORY_TYPE, 0700);
+                            zipFile.create(DIRECTORY_TYPE, 0o700);
                     }
                     zipFile.append(dirs[dirs.length - 1]);
 
@@ -3488,7 +3488,7 @@ function cli_installPlugin(name, source)
             dest.append(name);
             checkPluginInstalled(name, dest);
 
-            dest.create(DIRECTORY_TYPE, 0700);
+            dest.create(DIRECTORY_TYPE, 0o700);
 
             dest.append("init.js");
 
@@ -5475,7 +5475,7 @@ function cli_startlog(view, showMessage)
         if (!file.localFile.exists())
         {
             // futils.umask may be 0022. Result is 0644.
-            file.localFile.create(NORMAL_FILE_TYPE, 0666 & ~futils.umask);
+            file.localFile.create(NORMAL_FILE_TYPE, 0o666 & ~futils.umask);
         }
         view.logFile = fopen(file.localFile, ">>");
         // If we're here, it's safe to say when we should re-open:
