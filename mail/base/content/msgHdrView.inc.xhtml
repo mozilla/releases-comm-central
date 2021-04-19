@@ -23,6 +23,16 @@
                                     <!-- XXXdmose need to audit our shortcut/a11y setup and make sure
                                          these buttons are doing the right thing -->
 
+                                    <menupopup id="header-toolbar-context-menu"
+                                                   onpopupshowing="ToolbarContextMenu.updateExtension(this);">
+                                      <menuitem oncommand="ToolbarContextMenu.openAboutAddonsForContextAction(this.parentElement)"
+                                                     data-l10n-id="toolbar-context-menu-manage-extension"
+                                                     class="customize-context-manageExtension"/>
+                                      <menuitem oncommand="ToolbarContextMenu.removeExtensionForContextAction(this.parentElement)"
+                                                     data-l10n-id="toolbar-context-menu-remove-extension"
+                                                     class="customize-context-removeExtension"/>
+                                    </menupopup>
+
                                     <toolbarbutton id="hdrReplyToSenderButton" label="&hdrReplyButton1.label;"
                                                    tooltiptext="&hdrReplyButton2.tooltip;"
                                                    oncommand="MsgReplySender(event); RestoreFocusAfterHdrButton();"

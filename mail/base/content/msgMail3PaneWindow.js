@@ -68,6 +68,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });
 
+XPCOMUtils.defineLazyGetter(this, "brandShortName", function() {
+  return Services.strings
+    .createBundle("chrome://branding/locale/brand.properties")
+    .GetStringFromName("brandShortName");
+});
+
 XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
   let { PopupNotifications } = ChromeUtils.import(
     "resource:///modules/GlobalPopupNotifications.jsm"
@@ -2400,7 +2406,63 @@ var gDragSpaceObserver = {
 };
 
 var BrowserAddonUI = {
-  promptRemoveExtension(addon) {
-    return { remove: true, report: false };
+  async promptRemoveExtension(addon) {
+    let { name } = addon;
+    let [title, btnTitle] = await document.l10n.formatValues([
+      {
+        id: "addon-removal-title",
+        args: { name },
+      },
+      {
+        id: "addon-removal-confirmation-button",
+      },
+    ]);
+    let {
+      BUTTON_TITLE_IS_STRING: titleString,
+      BUTTON_TITLE_CANCEL: titleCancel,
+      BUTTON_POS_0,
+      BUTTON_POS_1,
+      confirmEx,
+    } = Services.prompt;
+    let btnFlags = BUTTON_POS_0 * titleString + BUTTON_POS_1 * titleCancel;
+    let message = null;
+
+    if (!Services.prefs.getBoolPref("prompts.windowPromptSubDialog", false)) {
+      message = await document.l10n.formatValue(
+        "addon-removal-confirmation-message",
+        {
+          name,
+          brandShortName,
+        }
+      );
+    }
+
+    let checkboxState = { value: false };
+    let result = confirmEx(
+      window,
+      title,
+      message,
+      btnFlags,
+      btnTitle,
+      /* button1 */ null,
+      /* button2 */ null,
+      /* checkboxMessage */ null,
+      checkboxState
+    );
+
+    return { remove: result === 0, report: false };
+  },
+
+  async removeAddon(addonId) {
+    let addon = addonId && (await AddonManager.getAddonByID(addonId));
+    if (!addon || !(addon.permissions & AddonManager.PERM_CAN_UNINSTALL)) {
+      return;
+    }
+
+    let { remove, report } = await this.promptRemoveExtension(addon);
+
+    if (remove) {
+      await addon.uninstall(report);
+    }
   },
 };

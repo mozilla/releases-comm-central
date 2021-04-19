@@ -42,10 +42,42 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
     windowTracker.addListener("TabSelect", this);
   }
 
+  handleEvent(event) {
+    super.handleEvent(event);
+    let { windowManager } = this.extension;
+    let window = event.target.ownerGlobal;
+
+    switch (event.type) {
+      case "popupshowing":
+        const menu = event.target;
+        const trigger = menu.triggerNode;
+        const node = window.document.getElementById(this.id);
+        const contexts = ["header-toolbar-context-menu"];
+
+        if (contexts.includes(menu.id) && node && node.contains(trigger)) {
+          // This needs to work in message tab and message window.
+          let tab = windowManager.wrapWindow(window).activeTab.nativeTab;
+          let browser = tab.linkedBrowser || tab.getBrowser();
+
+          global.actionContextMenu({
+            tab,
+            pageUrl: browser.currentURI.spec,
+            extension: this.extension,
+            onMessageDisplayAction: true,
+            menu,
+          });
+        }
+        break;
+    }
+  }
+
   makeButton(window) {
     let button = super.makeButton(window);
     button.classList.add("msgHeaderView-button");
     button.style.listStyleImage = "var(--webextension-menupanel-image)";
+    // The header toolbar has no associated context menu. Add one directly to
+    // this button.
+    button.setAttribute("context", "header-toolbar-context-menu");
     return button;
   }
 };

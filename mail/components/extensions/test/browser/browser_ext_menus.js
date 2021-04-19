@@ -210,6 +210,8 @@ function createExtension(...permissions) {
       for (let context of [
         "audio",
         "browser_action",
+        "compose_action",
+        "message_display_action",
         "editable",
         "frame",
         "image",
@@ -266,8 +268,19 @@ function createExtension(...permissions) {
           id: "menus@mochi.test",
         },
       },
+      browser_action: {
+        default_title: "This is a test",
+      },
+      compose_action: {
+        default_title: "This is a test",
+      },
+      message_display_action: {
+        default_title: "This is a test",
+      },
+
       permissions: [...permissions, "menus"],
     },
+    useAddonManager: "temporary",
   });
 }
 
@@ -295,13 +308,13 @@ add_task(async function set_up() {
   }
 });
 
-async function subtest_tools_menu(testwindow, expectedInfo, expectedTab) {
+async function subtest_tools_menu(testWindow, expectedInfo, expectedTab) {
   let extension = createExtension();
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
-  let element = testwindow.document.getElementById("tasksMenu");
-  let menu = testwindow.document.getElementById("taskPopup");
+  let element = testWindow.document.getElementById("tasksMenu");
+  let menu = testWindow.document.getElementById("taskPopup");
   await leftClick(menu, element);
   await checkShownEvent(
     extension,
@@ -314,7 +327,7 @@ async function subtest_tools_menu(testwindow, expectedInfo, expectedTab) {
   EventUtils.synthesizeMouseAtCenter(
     menu.querySelector("#menus_mochi_test-menuitem-_tools_menu"),
     {},
-    testwindow
+    testWindow
   );
   await clickedPromise;
   await hiddenPromise;
@@ -339,42 +352,42 @@ add_task(async function test_tools_menu() {
 }).__skipMe = AppConstants.platform == "macosx";
 
 add_task(async function test_compose_tools_menu() {
-  let testwindow = await openComposeWindow(gAccount);
-  await focusWindow(testwindow);
+  let testWindow = await openComposeWindow(gAccount);
+  await focusWindow(testWindow);
   await subtest_tools_menu(
-    testwindow,
+    testWindow,
     {
       menuItemId: "tools_menu",
     },
     { active: true, index: 0, mailTab: false }
   );
-  testwindow.close();
+  await BrowserTestUtils.closeWindow(testWindow);
 }).__skipMe = AppConstants.platform == "macosx";
 
 add_task(async function test_messagewindow_tools_menu() {
-  let testwindow = await openMessageInWindow(gMessage);
-  await focusWindow(testwindow);
+  let testWindow = await openMessageInWindow(gMessage);
+  await focusWindow(testWindow);
   await subtest_tools_menu(
-    testwindow,
+    testWindow,
     {
       menuItemId: "tools_menu",
     },
     { active: true, index: 0, mailTab: false }
   );
-  testwindow.close();
+  await BrowserTestUtils.closeWindow(testWindow);
 }).__skipMe = AppConstants.platform == "macosx";
 
 add_task(async function test_addressbook_tools_menu() {
-  let testwindow = await openAddressbookWindow();
-  await focusWindow(testwindow);
+  let testWindow = await openAddressbookWindow();
+  await focusWindow(testWindow);
   await subtest_tools_menu(
-    testwindow,
+    testWindow,
     {
       menuItemId: "tools_menu",
     },
     { active: true, index: 0, mailTab: false }
   );
-  testwindow.close();
+  await BrowserTestUtils.closeWindow(testWindow);
 }).__skipMe = AppConstants.platform == "macosx";
 
 async function subtest_folder_pane(...permissions) {
@@ -488,11 +501,7 @@ async function subtest_message_panes(...permissions) {
 
   info("Test the message pane in a tab.");
 
-  window.MailUtils.displayMessages(
-    [gMessage],
-    window.gFolderDisplay.view,
-    document.getElementById("tabmail")
-  );
+  await openMessageInTab(gMessage);
 
   await subtest_content(
     extension,
@@ -1061,4 +1070,223 @@ add_task(async function test_compose() {
 });
 add_task(async function test_compose_no_permissions() {
   return subtest_compose();
+});
+
+async function subtest_action_menu(
+  testWindow,
+  target,
+  expectedInfo,
+  expectedTab
+) {
+  function checkVisibility(menu, visible) {
+    let removeExtension = menu.querySelector(
+      ".customize-context-removeExtension"
+    );
+    let manageExtension = menu.querySelector(
+      ".customize-context-manageExtension"
+    );
+
+    info(`Check visibility: ${visible}`);
+    is(!removeExtension.hidden, visible, "Remove Extension should be visible");
+    is(!manageExtension.hidden, visible, "Manage Extension should be visible");
+  }
+
+  async function testContextMenuRemoveExtension(extension, menu, element) {
+    let name = "Generated extension";
+    let brand = Services.strings
+      .createBundle("chrome://branding/locale/brand.properties")
+      .GetStringFromName("brandShorterName");
+
+    let { prompt } = Services;
+    let promptService = {
+      _response: 1,
+      QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
+      confirmEx(...args) {
+        promptService._confirmExArgs = args;
+        return promptService._response;
+      },
+    };
+    Services.prompt = promptService;
+
+    info(
+      `Choosing 'Remove Extension' in ${menu.id} should show confirm dialog.`
+    );
+    await rightClick(menu, element);
+    await extension.awaitMessage("onShown");
+    let removeExtension = menu.querySelector(
+      ".customize-context-removeExtension"
+    );
+    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    EventUtils.synthesizeMouseAtCenter(
+      removeExtension,
+      {},
+      removeExtension.ownerGlobal
+    );
+    await hiddenPromise;
+
+    // Check if the correct add-on is being removed.
+    is(promptService._confirmExArgs[1], `Remove ${name}?`);
+    if (!Services.prefs.getBoolPref("prompts.windowPromptSubDialog", false)) {
+      is(promptService._confirmExArgs[2], `Remove ${name} from ${brand}?`);
+    }
+    is(promptService._confirmExArgs[4], "Remove");
+
+    Services.prompt = prompt;
+  }
+
+  async function testContextMenuManageExtension(extension, menu, element) {
+    let id = "menus@mochi.test";
+    let tabmail = window.document.getElementById("tabmail");
+
+    info(
+      `Choosing 'Manage Extension' in ${menu.id} should load the management page.`
+    );
+    await rightClick(menu, element);
+    await extension.awaitMessage("onShown");
+    let manageExtension = menu.querySelector(
+      ".customize-context-manageExtension"
+    );
+    let addonManagerPromise = contentTabOpenPromise(tabmail, "about:addons");
+    EventUtils.synthesizeMouseAtCenter(
+      manageExtension,
+      {},
+      manageExtension.ownerGlobal
+    );
+    let managerTab = await addonManagerPromise;
+
+    // Check the UI to make sure that the correct view is loaded.
+    let managerWindow = managerTab.linkedBrowser.contentWindow;
+    is(
+      managerWindow.gViewController.currentViewId,
+      `addons://detail/${encodeURIComponent(id)}`,
+      "Expected extension details view in about:addons"
+    );
+    // In HTML about:addons, the default view does not show the inline
+    // options browser, so we should not receive an "options-loaded" event.
+    // (if we do, the test will fail due to the unexpected message).
+
+    is(managerTab.linkedBrowser.currentURI.spec, "about:addons");
+    tabmail.closeTab(managerTab);
+  }
+
+  let extension = createExtension();
+  await extension.startup();
+  await extension.awaitMessage("menus-created");
+
+  let element = testWindow.document.getElementById(target.elementId);
+  let menu = testWindow.document.getElementById(target.menuId);
+
+  await rightClick(menu, element);
+  await checkVisibility(menu, true);
+  await checkShownEvent(
+    extension,
+    { menuIds: [target.context], contexts: [target.context, "all"] },
+    expectedTab
+  );
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  let clickedPromise = checkClickedEvent(extension, expectedInfo, expectedTab);
+  EventUtils.synthesizeMouseAtCenter(
+    testWindow.document.getElementById(
+      `menus_mochi_test-menuitem-_${target.context}`
+    ),
+    {},
+    testWindow
+  );
+  await clickedPromise;
+  await hiddenPromise;
+
+  // Test the non actionButton element for visibility of the management menu entries.
+  if (target.nonActionButtonElementId) {
+    let nonActionButtonElement = testWindow.document.getElementById(
+      target.nonActionButtonElementId
+    );
+    await rightClick(menu, nonActionButtonElement);
+    await checkVisibility(menu, false);
+    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    menu.hidePopup();
+    await hiddenPromise;
+  }
+
+  await testContextMenuManageExtension(extension, menu, element);
+  await testContextMenuRemoveExtension(extension, menu, element);
+  await extension.unload();
+}
+
+add_task(async function test_browser_action_menu() {
+  await subtest_action_menu(
+    window,
+    {
+      menuId: "toolbar-context-menu",
+      elementId: "menus_mochi_test-browserAction-toolbarbutton",
+      context: "browser_action",
+      nonActionButtonElementId: "button-chat",
+    },
+    {
+      pageUrl: "about:blank",
+      menuItemId: "browser_action",
+    },
+    { active: true, index: 0, mailTab: true }
+  );
+});
+
+add_task(async function test_message_display_action_menu_pane() {
+  let tab = await openMessageInTab(gMessage);
+  // No check for menu entries in nonActionButtonElements as the header-toolbar
+  // does not have a context menu associated.
+  await subtest_action_menu(
+    window,
+    {
+      menuId: "header-toolbar-context-menu",
+      elementId: "menus_mochi_test-messageDisplayAction-toolbarbutton",
+      context: "message_display_action",
+    },
+    {
+      pageUrl: /^mailbox\:/,
+      menuItemId: "message_display_action",
+    },
+    { active: true, index: 1, mailTab: false }
+  );
+  window.document.getElementById("tabmail").closeTab(tab);
+});
+
+add_task(async function test_message_display_action_menu_window() {
+  let testWindow = await openMessageInWindow(gMessage);
+  await focusWindow(testWindow);
+  // No check for menu entries in nonActionButtonElements as the header-toolbar
+  // does not have a context menu associated.
+  await subtest_action_menu(
+    testWindow,
+    {
+      menuId: "header-toolbar-context-menu",
+      elementId: "menus_mochi_test-messageDisplayAction-toolbarbutton",
+      context: "message_display_action",
+    },
+    {
+      pageUrl: /^mailbox\:/,
+      menuItemId: "message_display_action",
+    },
+    { active: true, index: 0, mailTab: false }
+  );
+  await BrowserTestUtils.closeWindow(testWindow);
+});
+
+add_task(async function test_compose_action_menu() {
+  let testWindow = await openComposeWindow(gAccount);
+  await focusWindow(testWindow);
+  await subtest_action_menu(
+    testWindow,
+    {
+      menuId: "toolbar-context-menu",
+      elementId: "menus_mochi_test-composeAction-toolbarbutton",
+      context: "compose_action",
+      nonActionButtonElementId: "button-attach",
+    },
+    {
+      pageUrl: "about:blank?compose",
+      menuItemId: "compose_action",
+    },
+    { active: true, index: 0, mailTab: false }
+  );
+  await BrowserTestUtils.closeWindow(testWindow);
 });

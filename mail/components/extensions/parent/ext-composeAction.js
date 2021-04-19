@@ -47,6 +47,33 @@ this.composeAction = class extends ToolbarButtonAPI {
     }
   }
 
+  handleEvent(event) {
+    super.handleEvent(event);
+    let window = event.target.ownerGlobal;
+
+    switch (event.type) {
+      case "popupshowing":
+        const menu = event.target;
+        const trigger = menu.triggerNode;
+        const node = window.document.getElementById(this.id);
+        const contexts = [
+          "toolbar-context-menu",
+          "customizationPanelItemContextMenu",
+        ];
+
+        if (contexts.includes(menu.id) && node && node.contains(trigger)) {
+          global.actionContextMenu({
+            tab: window,
+            pageUrl: window.browser.currentURI.spec,
+            extension: this.extension,
+            onComposeAction: true,
+            menu,
+          });
+        }
+        break;
+    }
+  }
+
   paintFormatToolbar(window) {
     let { document } = window;
     if (document.getElementById(this.id)) {

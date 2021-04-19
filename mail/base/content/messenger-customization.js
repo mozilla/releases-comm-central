@@ -3,6 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AddonManager } = ChromeUtils.import(
+  "resource://gre/modules/AddonManager.jsm"
+);
+
 var AutoHideMenubar = {
   get _node() {
     delete this._node;
@@ -120,5 +125,55 @@ var AutoHideMenubar = {
       this._inactiveTimeout = null;
     }
     this._node.removeAttribute("inactive");
+  },
+};
+
+var ToolbarContextMenu = {
+  _getExtensionId(popup) {
+    let node = popup.triggerNode;
+    return node && node.getAttribute("data-extensionid");
+  },
+
+  async updateExtension(popup) {
+    let removeExtension = popup.querySelector(
+      ".customize-context-removeExtension"
+    );
+    let manageExtension = popup.querySelector(
+      ".customize-context-manageExtension"
+    );
+    let separator = popup.querySelector("#extensionsMailToolbarMenuSeparator");
+    let id = this._getExtensionId(popup);
+    let addon = id && (await AddonManager.getAddonByID(id));
+
+    for (let element of [removeExtension, manageExtension, separator]) {
+      if (!element) {
+        continue;
+      }
+
+      element.hidden = !addon;
+    }
+
+    if (addon) {
+      removeExtension.disabled = !(
+        addon.permissions & AddonManager.PERM_CAN_UNINSTALL
+      );
+    }
+  },
+
+  async removeExtensionForContextAction(popup) {
+    let id = this._getExtensionId(popup);
+
+    // This can be called from a composeAction button, where
+    // popup.ownerGlobal.BrowserAddonUI is undefined.
+    let win = Services.wm.getMostRecentWindow("mail:3pane");
+    await win.BrowserAddonUI.removeAddon(id);
+  },
+
+  openAboutAddonsForContextAction(popup) {
+    let id = this._getExtensionId(popup);
+    if (id) {
+      let viewID = "addons://detail/" + encodeURIComponent(id);
+      popup.ownerGlobal.openAddonsMgr(viewID);
+    }
   },
 };

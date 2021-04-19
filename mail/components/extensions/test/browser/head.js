@@ -518,3 +518,50 @@ async function checkContent(browser, expected) {
     }
   });
 }
+
+function contentTabOpenPromise(tabmail, url) {
+  return new Promise(resolve => {
+    let tabMonitor = {
+      onTabTitleChanged(aTab) {},
+      onTabClosing(aTab) {},
+      onTabPersist(aTab) {},
+      onTabRestored(aTab) {},
+      onTabSwitched(aNewTab, aOldTab) {},
+      async onTabOpened(aTab) {
+        let newBrowser = aTab.linkedBrowser;
+        let urlMatches = urlToMatch => urlToMatch == url;
+
+        let result = BrowserTestUtils.browserLoaded(
+          newBrowser,
+          false,
+          urlMatches
+        ).then(() => aTab);
+
+        let reporterListener = {
+          QueryInterface: ChromeUtils.generateQI([
+            "nsIWebProgressListener",
+            "nsISupportsWeakReference",
+          ]),
+          onStateChange() {},
+          onProgressChange() {},
+          onLocationChange(
+            /* in nsIWebProgress*/ aWebProgress,
+            /* in nsIRequest*/ aRequest,
+            /* in nsIURI*/ aLocation
+          ) {
+            if (aLocation.spec == url) {
+              aTab.browser.removeProgressListener(reporterListener);
+              tabmail.unregisterTabMonitor(tabMonitor);
+              TestUtils.executeSoon(() => resolve(result));
+            }
+          },
+          onStatusChange() {},
+          onSecurityChange() {},
+          onContentBlockingEvent() {},
+        };
+        aTab.browser.addProgressListener(reporterListener);
+      },
+    };
+    tabmail.registerTabMonitor(tabMonitor);
+  });
+}

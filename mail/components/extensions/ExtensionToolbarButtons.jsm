@@ -237,6 +237,10 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
         Services.xulStore.persist(toolbar, "currentset");
       }
     }
+
+    if (this.extension.hasPermission("menus")) {
+      document.addEventListener("popupshowing", this);
+    }
   }
 
   /**
@@ -246,6 +250,11 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    */
   unpaint(window) {
     let { document } = window;
+
+    if (this.extension.hasPermission("menus")) {
+      document.removeEventListener("popupshowing", this);
+    }
+
     let button = document.getElementById(this.id);
     if (button) {
       button.remove();

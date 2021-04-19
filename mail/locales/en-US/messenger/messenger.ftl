@@ -77,3 +77,21 @@ appmenu-help-exit-troubleshoot-mode =
 
 appmenu-help-more-troubleshooting-info =
     .label = More Troubleshooting Information
+
+## Action Button Context Menu
+
+toolbar-context-menu-manage-extension =
+    .label = Manage Extension
+    .accesskey = E
+toolbar-context-menu-remove-extension =
+    .label = Remove Extension
+    .accesskey = v
+
+## Add-on removal warning
+
+# Variables:
+#  $name (String): The name of the addon that will be removed.
+#  $brandShortName (String): The name of the Application.
+addon-removal-title = Remove { $name }?
+addon-removal-confirmation-button = Remove
+addon-removal-confirmation-message = Remove { $name } from { $brandShortName }?

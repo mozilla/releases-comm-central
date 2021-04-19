@@ -112,7 +112,11 @@ var gMenuBuilder = {
 
   createAndInsertTopLevelElements(root, contextData, nextSibling) {
     let rootElements;
-    if (contextData.onBrowserAction || contextData.onPageAction) {
+    if (
+      contextData.onBrowserAction ||
+      contextData.onComposeAction ||
+      contextData.onMessageDisplayAction
+    ) {
       if (contextData.extension.id !== root.extension.id) {
         return;
       }
@@ -537,7 +541,11 @@ var gMenuBuilder = {
       extension.emit("webext-menu-shown", menuIds, contextData);
     }
 
-    if (contextData.onBrowserAction || contextData.onPageAction) {
+    if (
+      contextData.onBrowserAction ||
+      contextData.onComposeAction ||
+      contextData.onMessageDisplayAction
+    ) {
       dispatchOnShownEvent(contextData.extension);
     } else {
       for (const extension of gOnShownSubscribers.keys()) {
@@ -581,8 +589,7 @@ var gMenuBuilder = {
 
 // Called from pageAction or browserAction popup.
 global.actionContextMenu = function(contextData) {
-  contextData.tab = tabTracker.activeTab;
-  contextData.pageUrl = contextData.tab.linkedBrowser.currentURI.spec;
+  contextData.originalViewType = "tab";
   gMenuBuilder.build(contextData);
 };
 
@@ -597,6 +604,8 @@ const contextsMap = {
   onVideo: "video",
 
   onBrowserAction: "browser_action",
+  onComposeAction: "compose_action",
+  onMessageDisplayAction: "message_display_action",
   onTab: "tab",
   inToolsMenu: "tools_menu",
   selectedMessages: "message_list",

@@ -65,6 +65,33 @@ this.browserAction = class extends ToolbarButtonAPI {
 
     windowTracker.addListener("TabSelect", this);
   }
+
+  handleEvent(event) {
+    super.handleEvent(event);
+    let window = event.target.ownerGlobal;
+
+    switch (event.type) {
+      case "popupshowing":
+        const menu = event.target;
+        const trigger = menu.triggerNode;
+        const node = window.document.getElementById(this.id);
+        const contexts = [
+          "toolbar-context-menu",
+          "customizationPanelItemContextMenu",
+        ];
+
+        if (contexts.includes(menu.id) && node && node.contains(trigger)) {
+          global.actionContextMenu({
+            tab: tabTracker.activeTab,
+            pageUrl: tabTracker.activeTab.linkedBrowser.currentURI.spec,
+            extension: this.extension,
+            onBrowserAction: true,
+            menu,
+          });
+        }
+        break;
+    }
+  }
 };
 
 global.browserActionFor = this.browserAction.for;
