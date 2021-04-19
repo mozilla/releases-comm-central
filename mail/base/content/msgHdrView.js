@@ -1283,10 +1283,12 @@ function ClearCurrentHeaders() {
 
 function ShowMessageHeaderPane() {
   document.getElementById("msgHeaderView").collapsed = false;
+  document.getElementById("mail-notification-top").collapsed = false;
 }
 
 function HideMessageHeaderPane() {
   document.getElementById("msgHeaderView").collapsed = true;
+  document.getElementById("mail-notification-top").collapsed = true;
 
   // Disable the Message/Attachments menuitem.
   document.getElementById("msgAttachmentMenu").setAttribute("disabled", "true");
