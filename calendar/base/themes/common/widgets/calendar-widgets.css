@@ -285,3 +285,7 @@ checkbox.calendar-displayed:focus > .checkbox-check {
   fill: currentColor;
   opacity: 0.7;
 }
+
+.calendar-readstatus:not([src]) {
+  visibility: hidden;
+}
