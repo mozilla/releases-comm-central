@@ -79,6 +79,7 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
       badgeText: "",
       badgeBackgroundColor: null,
       popup: options.default_popup || "",
+      type: options.type || "button",
     };
     this.globals = Object.create(this.defaults);
 
@@ -166,7 +167,33 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
    */
   makeButton(window) {
     let { document } = window;
-    let button = document.createXULElement("toolbarbutton");
+    let button;
+    switch (this.globals.type) {
+      case "menu":
+        {
+          button = document.createXULElement("toolbarbutton");
+          button.setAttribute("type", "menu");
+          button.setAttribute("wantdropmarker", "true");
+          let menupopup = document.createXULElement("menupopup");
+          menupopup.setAttribute("data-action-menu", this.manifestName);
+          button.appendChild(menupopup);
+        }
+        break;
+      case "menu-button":
+        {
+          button = document.createXULElement("toolbarbutton", {
+            is: "toolbarbutton-menu-button",
+          });
+          button.setAttribute("type", "menu-button");
+          let menupopup = document.createXULElement("menupopup");
+          menupopup.setAttribute("data-action-menu", this.manifestName);
+          button.appendChild(menupopup);
+        }
+        break;
+      default:
+        button = document.createXULElement("toolbarbutton");
+        break;
+    }
     button.id = this.id;
     button.classList.add("toolbarbutton-1");
     button.classList.add("webextension-action");
@@ -301,6 +328,16 @@ var ToolbarButtonAPI = class extends ExtensionAPI {
 
     switch (event.type) {
       case "mousedown":
+        // A click on the drop-down marker, on a menu-typed button or on a menu
+        // entry in the action menu should not trigger an action.
+        if (
+          event.target.getAttribute("type") == "menu-button" ||
+          event.target.getAttribute("type") == "menu" ||
+          event.target.parentNode.hasAttribute("data-action-menu")
+        ) {
+          return;
+        }
+
         if (event.button == 0) {
           this.lastClickInfo = {
             button: 0,

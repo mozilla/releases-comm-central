@@ -57,6 +57,7 @@ this.composeAction = class extends ToolbarButtonAPI {
         const trigger = menu.triggerNode;
         const node = window.document.getElementById(this.id);
         const contexts = [
+          "format-toolbar-context-menu",
           "toolbar-context-menu",
           "customizationPanelItemContextMenu",
         ];
@@ -70,8 +71,29 @@ this.composeAction = class extends ToolbarButtonAPI {
             menu,
           });
         }
+
+        if (menu.getAttribute("data-action-menu") == "composeAction") {
+          global.actionContextMenu({
+            tab: window,
+            pageUrl: window.browser.currentURI.spec,
+            extension: this.extension,
+            inComposeActionMenu: true,
+            menu,
+          });
+        }
         break;
     }
+  }
+
+  makeButton(window) {
+    let button = super.makeButton(window);
+    if (this.toolbarId == "FormatToolbar") {
+      button.classList.add("formatting-button");
+      // The format toolbar has no associated context menu. Add one directly to
+      // this button.
+      button.setAttribute("context", "format-toolbar-context-menu");
+    }
+    return button;
   }
 
   paintFormatToolbar(window) {
@@ -87,6 +109,10 @@ this.composeAction = class extends ToolbarButtonAPI {
       before = before.previousElementSibling;
     }
     toolbar.insertBefore(button, before.nextElementSibling);
+
+    if (this.extension.hasPermission("menus")) {
+      document.addEventListener("popupshowing", this);
+    }
   }
 
   static onUninstall(extensionId) {

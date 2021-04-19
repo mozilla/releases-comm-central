@@ -9,7 +9,7 @@ add_task(async () => {
   account = createAccount();
   let rootFolder = account.incomingServer.rootFolder;
   let subFolders = rootFolder.subFolders;
-  createMessages(subFolders[0], 10);
+  createMessages(subFolders[0], 30);
   messages = subFolders[0].messages;
 
   window.gFolderTreeView.selectFolder(subFolders[0]);
@@ -18,7 +18,8 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  async function test_it(extension, win) {
+  async function test_it(extensionDetails, win) {
+    let extension = ExtensionTestUtils.loadExtension(extensionDetails);
     let doc = win.document;
 
     await extension.startup();
@@ -58,6 +59,12 @@ add_task(async () => {
     await promiseAnimationFrame(win);
     await new Promise(resolve => win.setTimeout(resolve));
 
+    // Close the menupopup caused by a click on a menu typed button.
+    let menupopup = button.querySelector("menupopup");
+    if (menupopup) {
+      menupopup.hidePopup();
+    }
+
     is(doc.getElementById(buttonId), button);
     label = button.querySelector(".toolbarbutton-text");
     is(label.value, "New title", "Correct label");
@@ -85,6 +92,24 @@ add_task(async () => {
   async function background_popup() {
     browser.runtime.onMessage.addListener(async msg => {
       browser.test.assertEq("popup.html", msg);
+      await browser.messageDisplayAction.setTitle({ title: "New title" });
+      browser.test.sendMessage("messageDisplayAction");
+    });
+  }
+
+  async function background_menu() {
+    browser.runtime.onMessage.addListener(async msg => {
+      throw new Error("Popup should not open for menu typed buttons.");
+    });
+
+    browser.messageDisplayAction.onClicked.addListener(async (tab, info) => {
+      throw new Error("onClicked should not fire for menu typed buttons.");
+    });
+
+    browser.menus.onShown.addListener(async (tab, info) => {
+      browser.test.assertEq("object", typeof tab);
+      browser.test.assertEq("object", typeof info);
+      browser.test.log(`Tab ID is ${tab.id}`);
       await browser.messageDisplayAction.setTitle({ title: "New title" });
       browser.test.sendMessage("messageDisplayAction");
     });
@@ -118,47 +143,49 @@ add_task(async () => {
       message_display_action: {
         default_title: "This is a test",
       },
+      permissions: ["menus"],
     },
     useAddonManager: "temporary",
   };
 
-  info("3-pane tab, no pop-up");
+  for (let buttonType of [null, "button", "menu", "menu-button"]) {
+    for (let popup of [null, "popup.html"]) {
+      delete extensionDetails.manifest.message_display_action.type;
+      delete extensionDetails.manifest.message_display_action.default_popup;
 
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  await test_it(extension, window);
+      if (buttonType) {
+        extensionDetails.manifest.message_display_action.type = buttonType;
+      }
+      if (popup) {
+        extensionDetails.manifest.message_display_action.default_popup = popup;
+        extensionDetails.background =
+          buttonType == "menu" ? background_menu : background_popup;
+      } else {
+        extensionDetails.background =
+          buttonType == "menu" ? background_menu : background_nopopup;
+      }
 
-  info("Message tab, no pop-up");
+      info(
+        `3-pane tab, ${popup ? "with" : "no"} pop-up, ${buttonType ||
+          "default"} button type`
+      );
+      await test_it(extensionDetails, window);
 
-  extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  await openMessageInTab(messages.getNext());
-  await test_it(extension, window);
-  document.getElementById("tabmail").closeTab();
+      info(
+        `Message tab, ${popup ? "with" : "no"} pop-up, ${buttonType ||
+          "default"} button type`
+      );
+      await openMessageInTab(messages.getNext());
+      await test_it(extensionDetails, window);
+      document.getElementById("tabmail").closeTab();
 
-  info("Message window, no pop-up");
-
-  extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  let messageWindow = await openMessageInWindow(messages.getNext());
-  await test_it(extension, messageWindow);
-  messageWindow.close();
-
-  info("3-pane tab, with pop-up");
-
-  extensionDetails.background = background_popup;
-  extensionDetails.manifest.message_display_action.default_popup = "popup.html";
-  extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  await test_it(extension, window);
-
-  info("Message tab, with pop-up");
-
-  extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  await openMessageInTab(messages.getNext());
-  await test_it(extension, window);
-  document.getElementById("tabmail").closeTab();
-
-  info("Message window, with pop-up");
-
-  extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  messageWindow = await openMessageInWindow(messages.getNext());
-  await test_it(extension, messageWindow);
-  messageWindow.close();
+      info(
+        `Message window, ${popup ? "with" : "no"} pop-up, ${buttonType ||
+          "default"} button type`
+      );
+      let messageWindow = await openMessageInWindow(messages.getNext());
+      await test_it(extensionDetails, messageWindow);
+      messageWindow.close();
+    }
+  }
 });

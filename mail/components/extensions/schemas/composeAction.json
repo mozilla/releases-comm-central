@@ -42,9 +42,15 @@
                 "default": false
               },
               "default_area": {
-                "description": "Defines the location the composeAction will appear by default. The default location is maintoolbar.",
+                "description": "Defines the location the composeAction will appear by default. The default location is <code>maintoolbar</code>.",
                 "type": "string",
                 "enum": ["maintoolbar", "formattoolbar"],
+                "optional": true
+              },
+              "type": {
+                "description": "Specifies the type of the button. Default type is <code>button</code>.",
+                "type": "string",
+                "enum": ["button", "menu", "menu-button"],
                 "optional": true
               }
             },

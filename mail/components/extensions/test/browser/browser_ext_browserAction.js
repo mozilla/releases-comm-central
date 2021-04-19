@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  async function test_it(extension) {
+  async function test_it(extensionDetails) {
+    let extension = ExtensionTestUtils.loadExtension(extensionDetails);
     await extension.startup();
     await promiseAnimationFrame();
     await new Promise(resolve => setTimeout(resolve));
@@ -48,6 +49,12 @@ add_task(async () => {
     await promiseAnimationFrame();
     await new Promise(resolve => setTimeout(resolve));
 
+    // Close the menupopup caused by a click on a menu typed button.
+    let menupopup = button.querySelector("menupopup");
+    if (menupopup) {
+      menupopup.hidePopup();
+    }
+
     is(document.getElementById(buttonId), button);
     label = button.querySelector(".toolbarbutton-text");
     is(label.value, "New title", "Correct label");
@@ -87,6 +94,24 @@ add_task(async () => {
     });
   }
 
+  async function background_menu() {
+    browser.runtime.onMessage.addListener(async msg => {
+      throw new Error("Popup should not open for menu typed buttons.");
+    });
+
+    browser.browserAction.onClicked.addListener(async (tab, info) => {
+      throw new Error("onClicked should not fire for menu typed buttons.");
+    });
+
+    browser.menus.onShown.addListener(async (tab, info) => {
+      browser.test.assertEq("object", typeof tab);
+      browser.test.assertEq("object", typeof info);
+      browser.test.log(`Tab ID is ${tab.id}`);
+      await browser.browserAction.setTitle({ title: "New title" });
+      browser.test.sendMessage("browserAction");
+    });
+  }
+
   let extensionDetails = {
     background: background_nopopup,
     files: {
@@ -115,16 +140,34 @@ add_task(async () => {
       browser_action: {
         default_title: "This is a test",
       },
+      permissions: ["menus"],
     },
     useAddonManager: "temporary",
   };
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  await test_it(extension);
 
-  extensionDetails.background = background_popup;
-  extensionDetails.manifest.browser_action.default_popup = "popup.html";
-  extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  await test_it(extension);
+  for (let buttonType of [null, "button", "menu", "menu-button"]) {
+    for (let popup of [null, "popup.html"]) {
+      delete extensionDetails.manifest.browser_action.type;
+      delete extensionDetails.manifest.browser_action.default_popup;
+
+      if (buttonType) {
+        extensionDetails.manifest.browser_action.type = buttonType;
+      }
+      if (popup) {
+        extensionDetails.manifest.browser_action.default_popup = popup;
+        extensionDetails.background =
+          buttonType == "menu" ? background_menu : background_popup;
+      } else {
+        extensionDetails.background =
+          buttonType == "menu" ? background_menu : background_nopopup;
+      }
+      info(
+        `${popup ? "with" : "no"} pop-up, ${buttonType ||
+          "default"} button type`
+      );
+      await test_it(extensionDetails);
+    }
+  }
 
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messenger.xhtml"
