@@ -122,11 +122,7 @@ class SmtpClient {
     this._parseBlock = { data: [], statusCode: null };
     this._parseRemainder = ""; // If the complete line is not received yet, contains the beginning of it
 
-    this.logger = console.createInstance({
-      prefix: "mailnews.smtp",
-      maxLogLevel: "Warn",
-      maxLogLevelPref: "mailnews.smtp.loglevel",
-    });
+    this.logger = MsgUtils.smtpLogger;
 
     // Event placeholders
     this.onerror = (e, failedSecInfo) => {}; // Will be run when an error occurs. The `onclose` event will fire subsequently.

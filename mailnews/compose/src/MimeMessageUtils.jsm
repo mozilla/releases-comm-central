@@ -101,6 +101,12 @@ var MsgUtils = {
     maxLogLevelPref: "mailnews.send.loglevel",
   }),
 
+  smtpLogger: console.createInstance({
+    prefix: "mailnews.smtp",
+    maxLogLevel: "Warn",
+    maxLogLevelPref: "mailnews.smtp.loglevel",
+  }),
+
   /**
    * NS_IS_MSG_ERROR in msgCore.h.
    * @param {nsresult} err - The nsresult value.

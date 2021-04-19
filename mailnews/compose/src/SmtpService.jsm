@@ -13,6 +13,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   Services: "resource://gre/modules/Services.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   SmtpClient: "resource:///modules/SmtpClient.jsm",
+  MsgUtils: "resource:///modules/MimeMessageUtils.jsm",
 });
 
 /**
@@ -22,6 +23,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  */
 function SmtpService() {
   this._servers = [];
+  this._logger = MsgUtils.smtpLogger;
 }
 
 SmtpService.prototype = {
@@ -75,6 +77,7 @@ SmtpService.prototype = {
     outURI,
     outRequest
   ) {
+    this._logger.debug(`Sending message ${messageId}`);
     let server = this.getServerByIdentity(userIdentity);
     if (password) {
       server.password = password;
@@ -100,6 +103,11 @@ SmtpService.prototype = {
         !Services.prefs.getBoolPref("mail.smtp.useSenderForSmtpMailFrom", false)
       ) {
         from = userIdentity.email;
+      }
+      if (!messageId) {
+        messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+          .createInstance(Ci.nsIMsgCompUtils)
+          .msgGenerateMessageId(userIdentity);
       }
       client.useEnvelope({
         from: MailServices.headerParser.makeFromDisplayAddress(
