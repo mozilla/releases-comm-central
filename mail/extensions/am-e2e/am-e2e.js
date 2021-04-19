@@ -780,7 +780,8 @@ async function reloadOpenPgpUI() {
 
     let dateButton = document.createXULElement("button");
     document.l10n.setAttributes(dateButton, "openpgp-key-man-change-expiry");
-    dateButton.addEventListener("command", () => {
+    dateButton.addEventListener("command", event => {
+      event.stopPropagation();
       enigmailEditKeyDate(key);
     });
     dateButton.setAttribute("hidden", "true");
@@ -899,7 +900,8 @@ async function reloadOpenPgpUI() {
     let info = document.createXULElement("button");
     info.classList.add("openpgp-image-btn", "openpgp-props-btn");
     document.l10n.setAttributes(info, "openpgp-key-man-key-props");
-    info.addEventListener("command", () => {
+    info.addEventListener("command", event => {
+      event.stopPropagation();
       enigmailKeyDetails(key.keyId);
     });
 
@@ -912,37 +914,43 @@ async function reloadOpenPgpUI() {
 
     let copyItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(copyItem, "openpgp-key-copy-key");
-    copyItem.addEventListener("command", () => {
+    copyItem.addEventListener("command", event => {
+      event.stopPropagation();
       openPgpCopyToClipboard(`0x${key.keyId}`);
     });
 
     let sendItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(sendItem, "openpgp-key-send-key");
-    sendItem.addEventListener("command", () => {
+    sendItem.addEventListener("command", event => {
+      event.stopPropagation();
       openPgpSendKeyEmail(`0x${key.keyId}`);
     });
 
     let exportItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(exportItem, "openpgp-key-export-key");
-    exportItem.addEventListener("command", () => {
+    exportItem.addEventListener("command", event => {
+      event.stopPropagation();
       openPgpExportPublicKey(`0x${key.keyId}`);
     });
 
     let backupItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(backupItem, "openpgp-key-backup-key");
-    backupItem.addEventListener("command", () => {
+    backupItem.addEventListener("command", event => {
+      event.stopPropagation();
       openPgpExportSecretKey(`0x${key.keyId}`, `0x${key.fpr}`);
     });
 
     let revokeItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(revokeItem, "openpgp-key-man-revoke-key");
-    revokeItem.addEventListener("command", () => {
+    revokeItem.addEventListener("command", event => {
+      event.stopPropagation();
       openPgpRevokeKey(key);
     });
 
     let deleteItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(deleteItem, "openpgp-delete-key");
-    deleteItem.addEventListener("command", () => {
+    deleteItem.addEventListener("command", event => {
+      event.stopPropagation();
       enigmailDeleteKey(key);
     });
 
