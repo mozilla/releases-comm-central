@@ -736,15 +736,15 @@
                              src="chrome://messenger/content/multimessageview.xhtml"
                              autofind="false"/>
                     <vbox id="singleMessage" flex="1">
-                      <vbox id="msgHeaderView" collapsed="true" class="main-header-area">
+                      <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
 #include msgHdrView.inc.xhtml
+                      </hbox>
 #include ../../../calendar/lightning/content/imip-bar-overlay.inc.xhtml
-                        <!-- The msgNotificationBar appears on top of the message
-                             and displays information like: junk, contains remote
-                             images, or is a suspected phishing URL. -->
-                        <vbox id="mail-notification-top">
-                          <!-- notificationbox will be added here lazily. -->
-                      </vbox>
+                      <!-- The msgNotificationBar appears on top of the message
+                           and displays information like: junk, contains remote
+                           images, or is a suspected phishing URL. -->
+                      <vbox id="mail-notification-top">
+                        <!-- notificationbox will be added here lazily. -->
                       </vbox>
                       <vbox flex="1">
                         <!-- The messagepanewrapper hbox exists to allow

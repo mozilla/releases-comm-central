@@ -234,16 +234,16 @@
           ondragover="messagepaneObserver.onDragOver(event);"
           ondrop="messagepaneObserver.onDrop(event);"
           ondragexit="messagepaneObserver.onDragExit(event);">
-      <vbox id="msgHeaderView" collapsed="true" class="main-header-area">
+      <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
 #include msgHdrView.inc.xhtml
-        <vbox id="singleMessage">
+      </hbox>
+      <vbox id="singleMessage">
 #include ../../../calendar/lightning/content/imip-bar-overlay.inc.xhtml
-        </vbox>
-        <!-- The msgNotificationBar appears on top of the message and displays
-             information like: junk, mdn, remote content and phishing warnings -->
-        <vbox id="mail-notification-top">
-          <!-- notificationbox will be added here lazily. -->
       </vbox>
+      <!-- The msgNotificationBar appears on top of the message and displays
+           information like: junk, mdn, remote content and phishing warnings -->
+      <vbox id="mail-notification-top">
+        <!-- notificationbox will be added here lazily. -->
       </vbox>
 
       <!-- message view -->
