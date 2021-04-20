@@ -225,7 +225,7 @@ Enigmail.hdrView = {
     }
 
     if (userId && replaceUid) {
-      // no EnigConvertGpgToUnicode() here; strings are already UTF-8
+      // no EnigmailData.convertGpgToUnicode here; strings are already UTF-8
       replaceUid = replaceUid.replace(/\\[xe]3a/gi, ":");
       errorMsg = errorMsg.replace(userId, replaceUid);
     }
@@ -235,7 +235,7 @@ Enigmail.hdrView = {
     if (exitCode == EnigmailConstants.POSSIBLE_PGPMIME) {
       exitCode = 0;
     } else if (errorMsg) {
-      // no EnigConvertGpgToUnicode() here; strings are already UTF-8
+      // no EnigmailData.convertGpgToUnicode here; strings are already UTF-8
       errorLines = errorMsg.split(/\r?\n/);
     }
 

@@ -13,7 +13,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
@@ -50,8 +49,6 @@ var EnigmailStreams = {
    * @return: the nsIStreamListener to pass to the stream
    */
   newStringStreamListener(onStopCallback) {
-    EnigmailLog.DEBUG("enigmailCommon.jsm: newStreamListener\n");
-
     let listener = {
       data: "",
       inStream: Cc["@mozilla.org/binaryinputstream;1"].createInstance(
@@ -63,12 +60,9 @@ var EnigmailStreams = {
         "nsIRequestObserver",
       ]),
 
-      onStartRequest(channel) {
-        // EnigmailLog.DEBUG("enigmailCommon.jsm: stringListener.onStartRequest\n");
-      },
+      onStartRequest(channel) {},
 
       onStopRequest(channel, status) {
-        // EnigmailLog.DEBUG("enigmailCommon.jsm: stringListener.onStopRequest: "+ctxt+"\n");
         this.inStream = null;
         var cbFunc = this._onStopCallback;
         var cbData = this.data;
@@ -80,7 +74,6 @@ var EnigmailStreams = {
     };
 
     listener.onDataAvailable = function(req, stream, offset, count) {
-      // EnigmailLog.DEBUG("enigmailCommon.jsm: stringListener.onDataAvailable: "+count+"\n");
       this.inStream.setInputStream(stream);
       this.data += this.inStream.readBytes(count);
     };
@@ -100,8 +93,6 @@ var EnigmailStreams = {
    * @return nsIChannel object
    */
   newStringChannel(uri, contentType, contentCharset, data, loadInfo) {
-    EnigmailLog.DEBUG("enigmailCommon.jsm: newStringChannel\n");
-
     if (!loadInfo) {
       loadInfo = createLoadInfo();
     }
@@ -135,16 +126,10 @@ var EnigmailStreams = {
       isc.contentCharset = contentCharset;
     }
 
-    EnigmailLog.DEBUG("enigmailCommon.jsm: newStringChannel - done\n");
-
     return isc;
   },
 
   newFileChannel(uri, file, contentType, deleteOnClose) {
-    EnigmailLog.DEBUG(
-      "enigmailCommon.jsm: newFileChannel for '" + file.path + "'\n"
-    );
-
     let inputStream = Cc[
       "@mozilla.org/network/file-input-stream;1"
     ].createInstance(Ci.nsIFileInputStream);
@@ -168,9 +153,6 @@ var EnigmailStreams = {
     if (contentType && contentType.length) {
       isc.contentType = contentType;
     }
-
-    EnigmailLog.DEBUG("enigmailCommon.jsm: newStringChannel - done\n");
-
     return isc;
   },
 };

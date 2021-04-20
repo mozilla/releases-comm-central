@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Uses: chrome://openpgp/content/ui/enigmailCommon.js
-
 "use strict";
-
-var { PgpSqliteDb2 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
-);
 
 // Dialog event listeners.
 window.addEventListener("dialogaccept", onAccept);

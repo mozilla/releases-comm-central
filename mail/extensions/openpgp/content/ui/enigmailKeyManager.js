@@ -1,4 +1,3 @@
-/*global EnigmailDialog: false */
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,18 +6,7 @@
 
 "use strict";
 
-// Uses: chrome://openpgp/content/ui/enigmailCommon.js:
-/* global EnigGetPref: false, EnigFormatFpr: false, EnigGetTrustLabel: false */
-/* global GetEnigmailSvc: false, EnigConfirm: false, EnigAlert: false, EnigShowPhoto: false */
-/* global enigGetService: false, EnigGetTempDir: false, EnigReadFileContents: false, EnigGetLocalFileApi: false, EnigAlertPref: false */
-/* global EnigEditKeyTrust: false, EnigEditKeyExpiry: false, EnigSignKey: false, EnigRevokeKey: false, EnigCreateRevokeCert: false */
-/* global EnigLongAlert: false, EnigChangeKeyPwd: false, EnigDownloadKeys: false, EnigSetPref: false, EnigGetTrustCode: false */
-/* global ENIG_KEY_DISABLED: false, ENIG_KEY_NOT_VALID: false, ENIG_LOCAL_FILE_CONTRACTID: false */
-/* global PgpSqliteDb2: false */
-
-// imported packages
-/* global EnigmailLog: false, EnigmailKeyRing: false, EnigmailKeyEditor: false */
-/* global EnigmailKey: false, EnigmailPrefs: false, EnigmailConstants: false */
+/* global GetEnigmailSvc, EnigRevokeKey */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -55,6 +43,40 @@ var { EnigmailCryptoAPI } = ChromeUtils.import(
 var { KeyLookupHelper } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyLookupHelper.jsm"
 );
+var { EnigmailTrust } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/trust.jsm"
+);
+var { EnigmailFiles } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+);
+var { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
+var { EnigmailLog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+);
+var { EnigmailKeyRing } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyRing.jsm"
+);
+var { EnigmailKey } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/key.jsm"
+);
+var { EnigmailPrefs } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
+);
+var { EnigmailConstants } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+);
+var { EnigmailDialog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/dialog.jsm"
+);
+
+const ENIG_KEY_EXPIRED = "e";
+const ENIG_KEY_REVOKED = "r";
+const ENIG_KEY_INVALID = "i";
+const ENIG_KEY_DISABLED = "d";
+const ENIG_KEY_NOT_VALID =
+  ENIG_KEY_EXPIRED + ENIG_KEY_REVOKED + ENIG_KEY_INVALID + ENIG_KEY_DISABLED;
 
 var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
@@ -339,7 +361,8 @@ function enigmailDeleteKey() {
     var userId = gKeyList[keyList[0]].userId;
     if (gKeyList[keyList[0]].secretAvailable) {
       if (
-        !EnigConfirm(
+        !EnigmailDialog.confirmDlg(
+          window,
           l10n.formatValueSync("delete-secret-key", {
             userId,
           }),
@@ -350,7 +373,8 @@ function enigmailDeleteKey() {
       }
       deleteSecret = true;
     } else if (
-      !EnigConfirm(
+      !EnigmailDialog.confirmDlg(
+        window,
         l10n.formatValueSync("delete-pub-key", {
           userId,
         }),
@@ -369,7 +393,8 @@ function enigmailDeleteKey() {
 
     if (deleteSecret) {
       if (
-        !EnigConfirm(
+        !EnigmailDialog.confirmDlg(
+          window,
           l10n.formatValueSync("delete-mix"),
           l10n.formatValueSync("dlg-button-delete")
         )
@@ -377,7 +402,8 @@ function enigmailDeleteKey() {
         return;
       }
     } else if (
-      !EnigConfirm(
+      !EnigmailDialog.confirmDlg(
+        window,
         l10n.formatValueSync("delete-selected-pub-key"),
         l10n.formatValueSync("dlg-button-delete")
       )
@@ -397,16 +423,14 @@ function enigmailDeleteKey() {
 
 function enigCreateKeyMsg() {
   var keyList = getSelectedKeyIds();
-  var tmpDir = EnigGetTempDir();
+  var tmpDir = EnigmailFiles.getTempDir();
   var tmpFile;
   try {
-    tmpFile = Cc[ENIG_LOCAL_FILE_CONTRACTID].createInstance(
-      EnigGetLocalFileApi()
-    );
+    tmpFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     tmpFile.initWithPath(tmpDir);
     if (!(tmpFile.isDirectory() && tmpFile.isWritable())) {
       document.l10n.formatValue("no-temp-dir").then(value => {
-        EnigAlert(value);
+        EnigmailDialog.alert(window, value);
       });
       return;
     }
@@ -431,7 +455,7 @@ function enigCreateKeyMsg() {
     errorMsgObj
   );
   if (exitCodeObj.value !== 0) {
-    EnigAlert(errorMsgObj.value);
+    EnigmailDialog.alert(window, errorMsgObj.value);
     return;
   }
 
@@ -480,14 +504,6 @@ async function enigmailRevokeKey() {
     }
   });
 }
-
-/*
-function enigCreateRevokeCert() {
-  var keyList = getSelectedKeys();
-
-  EnigCreateRevokeCert(gKeyList[keyList[0]].keyId, gKeyList[keyList[0]].userId);
-}
-*/
 
 function enigmailExportKeys(which) {
   let exportSecretKey = which == "secret";
@@ -557,13 +573,6 @@ function enigmailManageUids() {
 }
 */
 
-/*
-function enigmailChangePwd() {
-  var keyList = getSelectedKeys();
-  EnigChangeKeyPwd(gKeyList[keyList[0]].keyId, gKeyList[keyList[0]].userId);
-}
-*/
-
 function enigGetClipboard() {
   return EnigmailClipboard.getClipboardContent(
     window,
@@ -573,7 +582,8 @@ function enigGetClipboard() {
 
 function enigmailImportFromClipbrd() {
   if (
-    !EnigConfirm(
+    !EnigmailDialog.confirmDlg(
+      window,
       l10n.formatValueSync("import-from-clip"),
       l10n.formatValueSync("key-man-button-import")
     )
@@ -672,7 +682,7 @@ function enigmailCopyToClipbrd() {
   );
   if (exitCodeObj.value !== 0) {
     l10n.formatValue("copy-to-clipbrd-failed").then(value => {
-      EnigAlert(value);
+      EnigmailDialog.alert(window, value);
     });
     return;
   }
@@ -685,7 +695,7 @@ function enigmailCopyToClipbrd() {
     });
   } else {
     l10n.formatValue("copy-to-clipbrd-failed").then(value => {
-      EnigAlert(value);
+      EnigmailDialog.alert(window, value);
     });
   }
 }
@@ -736,7 +746,7 @@ function enigmailUploadKeys() {
 function enigmailUploadKeysCb(exitCode, errorMsg, msgBox) {
   if (msgBox) {
     if (exitCode !== 0) {
-      EnigAlert("Sending of keys failed" + "\n" + errorMsg);
+      EnigmailDialog.alert(window, "Sending of keys failed" + "\n" + errorMsg);
     }
   } else {
     return exitCode === 0 ? "Key(s) sent successfully" : "Sending of keys failed";
@@ -784,7 +794,7 @@ function enigmailReceiveKey() {
 */
 
 function userAcceptsWarning(warningMessage) {
-  if (!EnigGetPref("warnRefreshAll")) {
+  if (!EnigmailPrefs.getPref("warnRefreshAll")) {
     return true;
   }
 
@@ -805,7 +815,7 @@ function userAcceptsWarning(warningMessage) {
     ) === 0;
 
   if (checkedObj.value) {
-    EnigSetPref("warnRefreshAll", false);
+    EnigmailPrefs.setPref("warnRefreshAll", false);
   }
   return confirm;
 }
@@ -1042,7 +1052,10 @@ function determineHiddenKeys(keyObj, showInvalidKeys, showOthersKeys) {
 
   const INVALID_KEYS = "ierdD";
 
-  if (!showInvalidKeys && INVALID_KEYS.includes(EnigGetTrustCode(keyObj))) {
+  if (
+    !showInvalidKeys &&
+    INVALID_KEYS.includes(EnigmailTrust.getTrustCode(keyObj))
+  ) {
     show = false;
   }
 

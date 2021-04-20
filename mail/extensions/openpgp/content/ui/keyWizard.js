@@ -4,8 +4,7 @@
 
 "use strict";
 
-// Uses: chrome://openpgp/content/ui/enigmailCommon.js
-/* global GetEnigmailSvc, EnigSavePrefs */
+/* global GetEnigmailSvc */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -34,6 +33,9 @@ var { EnigmailKeyRing } = ChromeUtils.import(
 );
 var { EnigmailWindows } = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
+);
+var { EnigmailPrefs } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/prefs.jsm"
 );
 var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
@@ -657,7 +659,7 @@ async function openPgpKeygenConfirm() {
   }
 
   console.debug("saving new key id " + gGeneratedKey);
-  EnigSavePrefs();
+  EnigmailPrefs.savePrefs();
 
   // Hide wizard overlay at the end of the generation process.
   closeOverlay();

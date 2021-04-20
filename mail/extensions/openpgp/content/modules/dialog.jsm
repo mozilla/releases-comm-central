@@ -14,7 +14,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
-  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   Services: "resource://gre/modules/Services.jsm",
@@ -421,8 +420,6 @@ var EnigmailDialog = {
     defaultName,
     filterPairs
   ) {
-    EnigmailLog.DEBUG("enigmailCommon.jsm: filePicker: " + save + "\n");
-
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance();
     filePicker = filePicker.QueryInterface(Ci.nsIFilePicker);
 

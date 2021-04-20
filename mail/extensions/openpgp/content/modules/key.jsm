@@ -51,9 +51,7 @@ var EnigmailKey = {
     const matchb = statusMsg.match(/(^|\n)NO_PUBKEY (\w{8})(\w{8})/);
     if (matchb && matchb.length > 3) {
       EnigmailLog.DEBUG(
-        "enigmailCommon.jsm:: Enigmail.extractPubkey: NO_PUBKEY 0x" +
-          matchb[3] +
-          "\n"
+        "Enigmail.extractPubkey: NO_PUBKEY 0x" + matchb[3] + "\n"
       );
       return matchb[2] + matchb[3];
     }

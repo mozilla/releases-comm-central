@@ -5,9 +5,7 @@
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 
-/* global GetEnigmailSvc: false, PgpSqliteDb2: false, EnigGetTempDir: false,
-          EnigGetLocalFileApi: false, ENIG_LOCAL_FILE_CONTRACTID: false,
-          EnigFilePicker: false, EnigRevokeKey: false*/
+/* global GetEnigmailSvc, EnigRevokeKey */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailConstants } = ChromeUtils.import(
@@ -31,11 +29,14 @@ if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
   var { EnigmailKeyRing } = ChromeUtils.import(
     "chrome://openpgp/content/modules/keyRing.jsm"
   );
-  var EnigmailCryptoAPI = ChromeUtils.import(
+  var { EnigmailCryptoAPI } = ChromeUtils.import(
     "chrome://openpgp/content/modules/cryptoAPI.jsm"
-  ).EnigmailCryptoAPI;
+  );
   var { EnigmailClipboard } = ChromeUtils.import(
     "chrome://openpgp/content/modules/clipboard.jsm"
+  );
+  var { PgpSqliteDb2 } = ChromeUtils.import(
+    "chrome://openpgp/content/modules/sqliteDb.jsm"
   );
 }
 
@@ -1231,13 +1232,11 @@ function openPgpCopyToClipboard(val) {
  * @param {string} keyId - The formatted OpenPgp Key ID.
  */
 function openPgpSendKeyEmail(keyId) {
-  let tmpDir = EnigGetTempDir();
+  let tmpDir = EnigmailFiles.getTempDir();
   let tmpFile;
 
   try {
-    tmpFile = Cc[ENIG_LOCAL_FILE_CONTRACTID].createInstance(
-      EnigGetLocalFileApi()
-    );
+    tmpFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     tmpFile.initWithPath(tmpDir);
   } catch (ex) {
     Cu.reportError(ex);

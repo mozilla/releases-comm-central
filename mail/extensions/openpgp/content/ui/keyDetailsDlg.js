@@ -4,20 +4,33 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-/* global EnigmailLog: false, EnigmailKey: false, EnigmailKeyRing: false */
-
 // from enigmailCommon.js:
-/* global GetEnigmailSvc: false, EnigAlert: false, EnigConvertGpgToUnicode: false */
-/* global EnigCleanGuiList: false, EnigGetTrustLabel: false, EnigShowPhoto: false, EnigSignKey: false */
-/* global EnigEditKeyExpiry: false, EnigEditKeyTrust: false, EnigChangeKeyPwd: false */
-/* global EnigCreateRevokeCert: false, EnigmailCryptoAPI: false */
-/* global PgpSqliteDb2: false, l10n: false, EnigmailDialog: false, EnigmailFuncs: false */
+/* global GetEnigmailSvc */
 
 // from enigmailKeyManager.js:
+/* global l10n */
 
 "use strict";
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { EnigmailFuncs } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/funcs.jsm"
+);
+var { EnigmailLog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/log.jsm"
+);
+var { EnigmailKey } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/key.jsm"
+);
+var { EnigmailKeyRing } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyRing.jsm"
+);
+var { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
+var { EnigmailDialog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/dialog.jsm"
+);
 
 var gModePersonal = false;
 
@@ -122,8 +135,12 @@ async function reloadData(firstLoad) {
   var uidList = document.getElementById("additionalUid");
 
   // clean lists
-  EnigCleanGuiList(treeChildren);
-  EnigCleanGuiList(uidList);
+  while (treeChildren.firstChild) {
+    treeChildren.firstChild.remove();
+  }
+  while (uidList.firstChild) {
+    uidList.firstChild.remove();
+  }
 
   let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
   if (!keyObj) {
@@ -289,16 +306,6 @@ function createUidData(listNode, keyDetails) {
   }
 }
 
-/*
-function getTrustLabel(trustCode) {
-  var trustTxt = EnigGetTrustLabel(trustCode);
-  if (trustTxt == "-" || trustTxt.length === 0) {
-    return l10n.formatValueSync("key-valid-unknown");
-  }
-  return trustTxt;
-}
-*/
-
 function setAttr(attribute, value) {
   var elem = document.getElementById(attribute);
   if (elem) {
@@ -318,7 +325,7 @@ function enableRefresh() {
 
 /*
 function signKey() {
-  if (EnigSignKey(gUserId, gKeyId, null)) {
+  if (EnigmailWindows.signKey(window, gUserId, gKeyId)) {
     enableRefresh();
     reloadData(false);
   }
@@ -351,14 +358,23 @@ function manageUids() {
 }
 */
 
-/*
-function changePassword() {
-  EnigChangeKeyPwd(gKeyId, gUserId);
-}
-*/
-
 function genRevocationCert() {
-  EnigCreateRevokeCert(gKeyId, gUserId);
+  throw new Error("Not implemented");
+
+  /*
+  var defaultFileName = userId.replace(/[<>]/g, "");
+  defaultFileName += " (0x" + keyId + ") rev.asc";
+  var outFile = EnigFilePicker("XXXsaveRevokeCertAs",
+    "", true, "*.asc",
+    defaultFileName, ["XXXasciiArmorFile", "*.asc"];
+  if (!outFile) return -1;
+
+  var enigmailSvc = GetEnigmailSvc();
+  if (!enigmailSvc)
+    return -1;
+
+  return 0;
+  */
 }
 
 function SigListView(keyObj) {
