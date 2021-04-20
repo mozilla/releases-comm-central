@@ -91,7 +91,6 @@ toolbar-context-menu-remove-extension =
 
 # Variables:
 #  $name (String): The name of the addon that will be removed.
-#  $brandShortName (String): The name of the Application.
 addon-removal-title = Remove { $name }?
 addon-removal-confirmation-button = Remove
-addon-removal-confirmation-message = Remove { $name } from { $brandShortName }?
+addon-removal-confirmation-message = Remove { $name } as well as its configuration and data from { -brand-short-name }?

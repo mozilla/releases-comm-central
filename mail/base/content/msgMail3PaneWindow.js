@@ -68,12 +68,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "brandShortName", function() {
-  return Services.strings
-    .createBundle("chrome://branding/locale/brand.properties")
-    .GetStringFromName("brandShortName");
-});
-
 XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
   let { PopupNotifications } = ChromeUtils.import(
     "resource:///modules/GlobalPopupNotifications.jsm"
@@ -2432,7 +2426,6 @@ var BrowserAddonUI = {
         "addon-removal-confirmation-message",
         {
           name,
-          brandShortName,
         }
       );
     }
