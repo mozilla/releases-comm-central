@@ -3162,7 +3162,11 @@ Enigmail.composeStateListener = {
     }
 
     // ensure that securityInfo is set back to S/MIME flags (especially required if draft was saved)
-    if (gMsgCompose && gMsgCompose.compFields && gMsgCompose.compFields.composeSecure) {
+    if (
+      gMsgCompose &&
+      gMsgCompose.compFields &&
+      gMsgCompose.compFields.composeSecure
+    ) {
       Enigmail.msg.setSecurityParams(gMsgCompose.compFields.composeSecure);
     }
   },
