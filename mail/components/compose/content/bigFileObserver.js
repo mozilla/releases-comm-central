@@ -10,9 +10,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 var kUploadNotificationValue = "bigAttachmentUploading";
 var kPrivacyWarningNotificationValue = "bigAttachmentPrivacyWarning";
@@ -103,7 +100,7 @@ var gBigFileObserver = {
       Services.prefs.getIntPref("mail.compose.big_attachments.threshold_kb") *
       1024;
 
-    for (let attachment of fixIterator(aAttachments, Ci.nsIMsgAttachment)) {
+    for (let attachment of aAttachments) {
       if (attachment.size >= threshold && !attachment.sendViaCloud) {
         this.bigFiles.push(attachment);
       }
@@ -111,7 +108,7 @@ var gBigFileObserver = {
   },
 
   attachmentsRemoved(aAttachments) {
-    for (let attachment of fixIterator(aAttachments, Ci.nsIMsgAttachment)) {
+    for (let attachment of aAttachments) {
       let index = this.bigFiles.indexOf(attachment);
       if (index != -1) {
         this.bigFiles.splice(index, 1);
@@ -122,7 +119,7 @@ var gBigFileObserver = {
   attachmentsConverted(aAttachments) {
     let uploaded = [];
 
-    for (let attachment of fixIterator(aAttachments, Ci.nsIMsgAttachment)) {
+    for (let attachment of aAttachments) {
       if (attachment.sendViaCloud) {
         this.attachmentsRemoved([attachment]);
         uploaded.push(attachment);

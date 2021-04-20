@@ -53,7 +53,7 @@ var gCloudAttachmentLinkManager = {
         items = list.getElementsByClassName("cloudAttachmentItem");
       }
 
-      for (let attachment of fixIterator(event.detail, Ci.nsIMsgAttachment)) {
+      for (let attachment of event.detail) {
         // Remove the attachment from the message body.
         if (list) {
           for (let i = 0; i < items.length; i++) {

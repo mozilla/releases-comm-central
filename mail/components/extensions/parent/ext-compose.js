@@ -624,9 +624,7 @@ this.compose = class extends ExtensionAPI {
           name: "compose.onAttachmentAdded",
           register(fire) {
             async function callback(event) {
-              for (let attachment of event.detail.enumerate(
-                Ci.nsIMsgAttachment
-              )) {
+              for (let attachment of event.detail) {
                 attachment = composeAttachmentTracker.convert(
                   attachment,
                   event.target.ownerGlobal
@@ -649,9 +647,7 @@ this.compose = class extends ExtensionAPI {
           name: "compose.onAttachmentRemoved",
           register(fire) {
             function callback(event) {
-              for (let attachment of event.detail.enumerate(
-                Ci.nsIMsgAttachment
-              )) {
+              for (let attachment of event.detail) {
                 let attachmentId = composeAttachmentTracker.getId(
                   attachment,
                   event.target.ownerGlobal

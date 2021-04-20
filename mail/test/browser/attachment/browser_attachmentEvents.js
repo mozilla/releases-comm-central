@@ -26,9 +26,6 @@ var { gMockPromptService } = ChromeUtils.import(
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 var kAttachmentsAdded = "attachments-added";
 var kAttachmentsRemoved = "attachments-removed";
@@ -61,22 +58,15 @@ add_task(function test_attachments_added_on_single() {
 
   // Make sure that we were passed the right subject
   let subjects = lastEvent.detail;
-  Assert.ok(subjects instanceof Ci.nsIMutableArray);
-  Assert.equal(
-    "http://www.example.com/1",
-    subjects.queryElementAt(0, Ci.nsIMsgAttachment).url
-  );
+  Assert.equal(1, subjects.length);
+  Assert.equal("http://www.example.com/1", subjects[0].url);
 
   // Make sure that we can get that event again if we
   // attach more files.
   add_attachments(cw, "http://www.example.com/2", 0, false);
   Assert.equal(2, eventCount);
   subjects = lastEvent.detail;
-  Assert.ok(subjects instanceof Ci.nsIMutableArray);
-  Assert.equal(
-    "http://www.example.com/2",
-    subjects.queryElementAt(0, Ci.nsIMsgAttachment).url
-  );
+  Assert.equal("http://www.example.com/2", subjects[0].url);
 
   // And check that we don't receive the event if we try to attach a file
   // that's already attached.
@@ -116,10 +106,9 @@ add_task(function test_attachments_added_on_multiple() {
 
   // Now make sure we got passed the right subjects for the event
   let subjects = lastEvent.detail;
-  Assert.ok(subjects instanceof Ci.nsIMutableArray);
   Assert.equal(2, subjects.length);
 
-  for (let attachment of fixIterator(subjects, Ci.nsIMsgAttachment)) {
+  for (let attachment of subjects) {
     Assert.ok(attachmentUrls.includes(attachment.url));
   }
 
@@ -143,10 +132,9 @@ add_task(function test_attachments_added_on_multiple() {
 
   // Make sure that we got the right subjects back
   subjects = lastEvent.detail;
-  Assert.ok(subjects instanceof Ci.nsIMutableArray);
   Assert.equal(3, subjects.length);
 
-  for (let attachment of fixIterator(subjects, Ci.nsIMsgAttachment)) {
+  for (let attachment of subjects) {
     Assert.ok(attachmentUrls.includes(attachment.url));
   }
 
@@ -188,12 +176,8 @@ add_task(function test_attachments_removed_on_single() {
   // And make sure we were passed the right attachment item as the
   // subject.
   let subjects = lastEvent.detail;
-  Assert.ok(subjects instanceof Ci.nsIMutableArray);
   Assert.equal(1, subjects.length);
-  Assert.equal(
-    subjects.queryElementAt(0, Ci.nsIMsgAttachment).url,
-    "http://www.example.com/1"
-  );
+  Assert.equal(subjects[0].url, "http://www.example.com/1");
 
   // Ok, let's attach it again, and remove it again to ensure that
   // we still see the event.
@@ -203,12 +187,8 @@ add_task(function test_attachments_removed_on_single() {
 
   Assert.equal(2, eventCount);
   subjects = lastEvent.detail;
-  Assert.ok(subjects instanceof Ci.nsIMutableArray);
   Assert.equal(1, subjects.length);
-  Assert.equal(
-    subjects.queryElementAt(0, Ci.nsIMsgAttachment).url,
-    "http://www.example.com/2"
-  );
+  Assert.equal(subjects[0].url, "http://www.example.com/2");
 
   cw.e("attachmentBucket").removeEventListener(kAttachmentsRemoved, listener);
   close_compose_window(cw);
@@ -252,10 +232,9 @@ add_task(function test_attachments_removed_on_multiple() {
   // Now let's make sure we got passed back the right attachment items
   // as the event subject
   let subjects = lastEvent.detail;
-  Assert.ok(subjects instanceof Ci.nsIMutableArray);
   Assert.equal(3, subjects.length);
 
-  for (let attachment of fixIterator(subjects, Ci.nsIMsgAttachment)) {
+  for (let attachment of subjects) {
     Assert.ok(removedAttachmentUrls.includes(attachment.url));
   }
 

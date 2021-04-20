@@ -2539,9 +2539,7 @@ function convertToCloudAttachment(aAttachments, aAccount) {
  *        question
  */
 function convertListItemsToRegularAttachment(aItems) {
-  let convertedAttachments = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
+  let convertedAttachments = [];
 
   for (let item of aItems) {
     if (!item.attachment.sendViaCloud || !item.cloudFileAccount) {
@@ -2567,7 +2565,7 @@ function convertListItemsToRegularAttachment(aItems) {
     delete item.cloudFileAccount;
     delete item.originalUrl;
 
-    convertedAttachments.appendElement(item.attachment);
+    convertedAttachments.push(item.attachment);
   }
 
   dispatchAttachmentBucketEvent("attachments-converted", convertedAttachments);
@@ -6205,9 +6203,7 @@ function FileToAttachment(file) {
  *   after adding attachments.
  */
 function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
-  let addedAttachments = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
+  let addedAttachments = [];
   let items = [];
 
   for (let attachment of aAttachments) {
@@ -6237,7 +6233,7 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
     }
 
     let item = gAttachmentBucket.appendItem(attachment);
-    addedAttachments.appendElement(attachment);
+    addedAttachments.push(attachment);
 
     if (attachment.size != -1) {
       gAttachmentsSize += attachment.size;
@@ -6546,9 +6542,7 @@ function RemoveAttachments(items) {
   let fileHandler = Services.io
     .getProtocolHandler("file")
     .QueryInterface(Ci.nsIFileProtocolHandler);
-  let removedAttachments = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
+  let removedAttachments = [];
 
   for (let i = items.length - 1; i >= 0; i--) {
     let item = items[i];
@@ -6577,7 +6571,7 @@ function RemoveAttachments(items) {
       }
     }
 
-    removedAttachments.appendElement(item.attachment);
+    removedAttachments.push(item.attachment);
     // Let's release the attachment object held by the node else it won't go
     // away until the window is destroyed
     item.attachment = null;
