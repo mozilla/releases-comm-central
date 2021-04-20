@@ -142,6 +142,10 @@ p *:any-link img {
   opacity: 1;
 }
 
-.hide-children > :is(p.event.row,hr):not(:first-of-type,:last-of-type,.no-collapse) {
+.hide-children > :is(.event-row,hr):not(:first-of-type,:last-of-type,.no-collapse) {
   display: none;
+}
+
+.hide-children .eventToggle {
+  background: url("chrome://global/skin/icons/twisty-collapsed.svg") no-repeat left center;
 }
