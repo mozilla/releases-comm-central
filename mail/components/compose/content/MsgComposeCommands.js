@@ -34,9 +34,6 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var { allAccountsSorted } = ChromeUtils.import(
   "resource:///modules/folderUtils.jsm"
 );
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -6213,7 +6210,7 @@ function AddAttachments(aAttachments, aCallback, aContentChanged = true) {
   );
   let items = [];
 
-  for (let attachment of fixIterator(aAttachments, Ci.nsIMsgAttachment)) {
+  for (let attachment of aAttachments) {
     if (
       !(attachment && attachment.url) ||
       DuplicateFileAlreadyAttached(attachment.url)
