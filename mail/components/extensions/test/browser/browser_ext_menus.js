@@ -1127,7 +1127,10 @@ async function subtest_action_menu(
     // Check if the correct add-on is being removed.
     is(promptService._confirmExArgs[1], `Remove ${name}?`);
     if (!Services.prefs.getBoolPref("prompts.windowPromptSubDialog", false)) {
-      is(promptService._confirmExArgs[2], `Remove ${name} from ${brand}?`);
+      is(
+        promptService._confirmExArgs[2],
+        `Remove ${name} as well as its configuration and data from ${brand}?`
+      );
     }
     is(promptService._confirmExArgs[4], "Remove");
 
