@@ -18,6 +18,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
@@ -25,7 +26,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   newEnigmailKeyObj: "chrome://openpgp/content/modules/keyObj.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
-  uidHelper: "chrome://openpgp/content/modules/uidHelper.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -174,13 +174,12 @@ var EnigmailKeyRing = {
           continue;
         }
 
-        let split = {};
-        if (uidHelper.getPartsFromUidStr(userId.userId, split)) {
-          let uidEmail = split.email.toLowerCase();
-          if (uidEmail === email) {
-            res.push(key);
-            break;
-          }
+        if (
+          EnigmailFuncs.getEmailFromUserID(userId.userId).toLowerCase() ===
+          email
+        ) {
+          res.push(key);
+          break;
         }
       }
     }
@@ -1022,13 +1021,13 @@ var EnigmailKeyRing = {
         if (uid.type !== "uid") {
           continue;
         }
-        let split = {};
-        if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
-          let uidEmail = split.email.toLowerCase();
-          if (uidEmail === emailAddr) {
-            uidMatch = true;
-            break;
-          }
+
+        if (
+          EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() ===
+          emailAddr
+        ) {
+          uidMatch = true;
+          break;
         }
       }
       if (!uidMatch) {
@@ -1534,12 +1533,11 @@ var EnigmailKeyRing = {
       case "r":
         return null;
     }
-    let split = {};
-    if (uidHelper.getPartsFromUidStr(keyObj.userId, split)) {
-      let uidEmail = split.email.toLowerCase();
-      if (uidEmail !== email) {
-        return null;
-      }
+
+    if (
+      EnigmailFuncs.getEmailFromUserID(keyObj.userId).toLowerCase() !== email
+    ) {
+      return null;
     }
     return RNP.getAutocryptKeyB64(keyId, "0x" + subKey.keyId, keyObj.userId);
   },

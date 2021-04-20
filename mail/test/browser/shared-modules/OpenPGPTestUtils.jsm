@@ -21,11 +21,11 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   OpenPGPAlias: "chrome://openpgp/content/modules/OpenPGPAlias.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
-  uidHelper: "chrome://openpgp/content/modules/uidHelper.jsm",
 });
 
 const OpenPGPTestUtils = {
@@ -207,9 +207,8 @@ const OpenPGPTestUtils = {
     let ids = Array.isArray(id) ? id : [id];
     for (let id of ids) {
       let key = EnigmailKeyRing.getKeyById(id);
-      let parts = {};
-      uidHelper.getPartsFromUidStr(key.userId, parts);
-      await PgpSqliteDb2.updateAcceptance(key.fpr, [parts.email], acceptance);
+      let email = EnigmailFuncs.getEmailFromUserID(key.userId);
+      await PgpSqliteDb2.updateAcceptance(key.fpr, [email], acceptance);
     }
     EnigmailKeyRing.clearCache();
     return ids.slice();

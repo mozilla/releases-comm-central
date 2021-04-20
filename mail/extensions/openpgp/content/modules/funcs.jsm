@@ -534,4 +534,36 @@ var EnigmailFuncs = {
       return null;
     }
   },
+
+  /**
+   * Test if the given string looks roughly like an email address,
+   * returns true or false.
+   */
+  stringLooksLikeEmailAddress(str) {
+    return /^[^ @]+@[^ @]+$/.test(str);
+  },
+
+  /**
+   * Extract an email address from the given string, using MailServices.
+   * However, be more strict, and avoid strings that appear to be
+   * invalid addresses.
+   *
+   * If more than one email address is found, only return the first.
+   *
+   * If we fail to extract an email address from the given string,
+   * because the given string doesn't conform to expectations,
+   * an empty string is returned.
+   */
+  getEmailFromUserID(uid) {
+    let addresses = MailServices.headerParser.makeFromDisplayAddress(uid);
+    if (
+      !addresses[0] ||
+      !EnigmailFuncs.stringLooksLikeEmailAddress(addresses[0].email)
+    ) {
+      console.debug("failed to extract email address from: " + uid);
+      return "";
+    }
+
+    return addresses[0].email.trim();
+  },
 };

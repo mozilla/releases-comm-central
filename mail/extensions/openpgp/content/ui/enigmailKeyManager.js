@@ -55,9 +55,6 @@ var { EnigmailCryptoAPI } = ChromeUtils.import(
 var { KeyLookupHelper } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyLookupHelper.jsm"
 );
-var { uidHelper } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/uidHelper.jsm"
-);
 
 var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
@@ -708,10 +705,9 @@ function enigmailSearchKey() {
   }
 
   result.value = result.value.trim();
-  let isEmail = uidHelper.looksLikeEmail(result.value);
 
   let imported = false;
-  if (isEmail) {
+  if (EnigmailFuncs.stringLooksLikeEmailAddress(result.value)) {
     imported = KeyLookupHelper.lookupAndImportByEmail(
       window,
       result.value,

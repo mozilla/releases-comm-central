@@ -60,7 +60,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   // EnigmailWks: "chrome://openpgp/content/modules/webKey.jsm",
   KeyLookupHelper: "chrome://openpgp/content/modules/keyLookupHelper.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
-  uidHelper: "chrome://openpgp/content/modules/uidHelper.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -3408,11 +3407,9 @@ Enigmail.msg = {
         continue;
       }
 
-      let splitUid = {};
-      uidHelper.getPartsFromUidStr(id.userId, splitUid);
-      splitUid.email = splitUid.email.toLowerCase();
-
-      if (splitUid.email == authorEmail) {
+      if (
+        EnigmailFuncs.getEmailFromUserID(id.userId).toLowerCase() == authorEmail
+      ) {
         return true;
       }
     }

@@ -12,13 +12,13 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AppConstants: "resource://gre/modules/AppConstants.jsm",
   ctypes: "resource://gre/modules/ctypes.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailTime: "chrome://openpgp/content/modules/time.jsm",
   GPGME: "chrome://openpgp/content/modules/GPGME.jsm",
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
   RNPLibLoader: "chrome://openpgp/content/modules/RNPLib.jsm",
   Services: "resource://gre/modules/Services.jsm",
-  uidHelper: "chrome://openpgp/content/modules/uidHelper.jsm",
 });
 
 const str_encrypt = "encrypt";
@@ -1341,13 +1341,13 @@ var RNP = {
         if (uid.type !== "uid") {
           continue;
         }
-        let split = {};
-        if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
-          let uidEmail = split.email.toLowerCase();
-          if (uidEmail === fromLower) {
-            fromMatchesAnyUid = true;
-            break;
-          }
+
+        if (
+          EnigmailFuncs.getEmailFromUserID(uid.userId).toLowerCase() ===
+          fromLower
+        ) {
+          fromMatchesAnyUid = true;
+          break;
         }
       }
 
@@ -2105,10 +2105,10 @@ var RNP = {
               if (uid.type != "uid") {
                 continue;
               }
-              let splitUid = {};
-              uidHelper.getPartsFromUidStr(uid.userId, splitUid);
-              if (splitUid.email) {
-                allEmails.push(splitUid.email);
+
+              let uidEmail = EnigmailFuncs.getEmailFromUserID(uid.userId);
+              if (uidEmail) {
+                allEmails.push(uidEmail);
               }
             }
             await PgpSqliteDb2.updateAcceptance(k.fpr, allEmails, acceptance);
@@ -2717,10 +2717,9 @@ var RNP = {
             let userId = uid_str.readStringReplaceMalformed();
             RNPLib.rnp_buffer_destroy(uid_str);
 
-            let split = {};
             if (
-              uidHelper.getPartsFromUidStr(userId, split) &&
-              split.email.toLowerCase() == emailWithoutBrackets
+              EnigmailFuncs.getEmailFromUserID(userId).toLowerCase() ==
+              emailWithoutBrackets
             ) {
               foundUid = true;
 
