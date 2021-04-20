@@ -1142,11 +1142,18 @@ Enigmail.msg = {
       }
 
       if (!isAuto) {
-        let blockType = EnigmailArmor.locateArmoredBlock(msgText, 0, "", beginIndex, endIndex, indentStr);
+        let blockType = EnigmailArmor.locateArmoredBlock(
+          msgText,
+          0,
+          "",
+          beginIndex,
+          endIndex,
+          indentStr
+        );
         if (!blockType) {
           msgText = "";
         } else {
-          msgText = msgText.substring(beginIndex.value, endIndex.value+1);
+          msgText = msgText.substring(beginIndex.value, endIndex.value + 1);
         }
       }
 
