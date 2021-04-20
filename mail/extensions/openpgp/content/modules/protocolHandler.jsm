@@ -72,149 +72,29 @@ EnigmailProtocolHandler.prototype = {
       uri = NetUtil.newURI("data:text/plain,enigmail");
     }
 
-    try {
-      // TB <= 58
-      uri.spec = aSpec;
-    } catch (x) {
-      aSpec = aSpec.substr(9);
-      let i = aSpec.indexOf("?");
-      try {
-        // TB < 60
-        uri.scheme = "enigmail";
-        if (i >= 0) {
-          uri.query = aSpec.substr(i + 1);
-          uri.pathQueryRef = aSpec.substr(0, i);
-        } else {
-          uri.pathQueryRef = aSpec;
-        }
-      } catch (ex) {
-        uri = uri
-          .mutate()
-          .setScheme("enigmail")
-          .finalize();
-        if (i >= 0) {
-          uri = uri
-            .mutate()
-            .setQuery(aSpec.substr(i + 1))
-            .finalize();
-          uri = uri
-            .mutate()
-            .setPathQueryRef(aSpec.substr(0, i))
-            .finalize();
-        } else {
-          uri = uri
-            .mutate()
-            .setPathQueryRef(aSpec)
-            .finalize();
-        }
-      }
+    aSpec = aSpec.substr(9);
+    let i = aSpec.indexOf("?");
+    uri = uri
+      .mutate()
+      .setScheme("enigmail")
+      .finalize();
+    if (i >= 0) {
+      uri = uri
+        .mutate()
+        .setQuery(aSpec.substr(i + 1))
+        .finalize();
+      uri = uri
+        .mutate()
+        .setPathQueryRef(aSpec.substr(0, i))
+        .finalize();
+    } else {
+      uri = uri
+        .mutate()
+        .setPathQueryRef(aSpec)
+        .finalize();
     }
 
     return uri;
-  },
-
-  newChannel(aURI, loadInfo) {
-    EnigmailLog.DEBUG(
-      "protocolHandler.jsm: EnigmailProtocolHandler.newChannel: URI='" +
-        aURI.spec +
-        "'\n"
-    );
-
-    var messageId = EnigmailData.extractMessageId(aURI.spec);
-    var mimeMessageId = EnigmailData.extractMimeMessageId(aURI.spec);
-    var contentType, contentCharset, contentData;
-
-    if (messageId) {
-      // Handle enigmail:message/...
-
-      if (!EC.getEnigmailService()) {
-        throw Components.Exception("", Cr.NS_ERROR_FAILURE);
-      }
-
-      if (EnigmailURIs.getMessageURI(messageId)) {
-        var messageUriObj = EnigmailURIs.getMessageURI(messageId);
-
-        contentType = messageUriObj.contentType;
-        contentCharset = messageUriObj.contentCharset;
-        contentData = messageUriObj.contentData;
-
-        EnigmailLog.DEBUG(
-          "protocolHandler.jsm: EnigmailProtocolHandler.newChannel: messageURL=" +
-            messageUriObj.originalUrl +
-            ", content length=" +
-            contentData.length +
-            ", " +
-            contentType +
-            ", " +
-            contentCharset +
-            "\n"
-        );
-
-        // do NOT delete the messageUriObj now from the list, this will be done once the message is unloaded (fix for bug 9730).
-      } else if (mimeMessageId) {
-        this.handleMimeMessage(mimeMessageId);
-      } else {
-        contentType = "text/plain";
-        contentCharset = "";
-        contentData = "Enigmail error: invalid URI " + aURI.spec;
-      }
-
-      let channel = EnigmailStreams.newStringChannel(
-        aURI,
-        contentType,
-        "UTF-8",
-        contentData,
-        loadInfo
-      );
-
-      return channel;
-    }
-
-    if (aURI.spec == aURI.scheme + ":dummy") {
-      // Dummy PKCS7 content (to access mimeEncryptedClass)
-      return EnigmailStreams.newStringChannel(
-        aURI,
-        "message/rfc822",
-        "",
-        gDummyPKCS7,
-        loadInfo
-      );
-    }
-
-    var spec;
-    if (aURI.spec == "about:" + aURI.scheme) {
-      // About Enigmail
-      spec = "chrome://openpgp/content/ui/enigmailAbout.xhtml";
-    } else if (aURI.spec == aURI.scheme + ":console") {
-      // Display enigmail console messages
-      spec = "chrome://openpgp/content/ui/enigmailConsole.xhtml";
-    } else if (aURI.spec == aURI.scheme + ":keygen") {
-      // Display enigmail key generation console
-      spec = "chrome://openpgp/content/ui/enigmailKeygen.xhtml";
-    } else {
-      // Display Enigmail about page
-      spec = "chrome://openpgp/content/ui/enigmailAbout.xhtml";
-    }
-
-    var windowManager = Services.wm;
-
-    var recentWin = null;
-    for (let win of windowManager.getEnumerator(null)) {
-      if (win.location.href == spec) {
-        recentWin = win;
-      }
-    }
-
-    if (recentWin) {
-      recentWin.focus();
-    } else {
-      var appShellSvc = Services.appShell;
-      var domWin = appShellSvc.hiddenDOMWindow;
-
-      domWin.open(spec, "_blank", "chrome,menubar,toolbar,resizable");
-    }
-
-    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   },
 
   handleMimeMessage(messageId) {
