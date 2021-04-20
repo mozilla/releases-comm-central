@@ -13,13 +13,8 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
-  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 const NS_ENIGMAILPROTOCOLHANDLER_CONTRACTID =
@@ -29,11 +24,6 @@ const NS_ENIGMAILPROTOCOLHANDLER_CID = Components.ID(
 );
 
 const nsIProtocolHandler = Ci.nsIProtocolHandler;
-
-var EC = EnigmailCore;
-
-const gDummyPKCS7 =
-  'Content-Type: multipart/mixed;\r\n boundary="------------060503030402050102040303\r\n\r\nThis is a multi-part message in MIME format.\r\n--------------060503030402050102040303\r\nContent-Type: application/x-pkcs7-mime\r\nContent-Transfer-Encoding: 8bit\r\n\r\n\r\n--------------060503030402050102040303\r\nContent-Type: application/x-enigmail-dummy\r\nContent-Transfer-Encoding: 8bit\r\n\r\n\r\n--------------060503030402050102040303--\r\n';
 
 function EnigmailProtocolHandler() {}
 
