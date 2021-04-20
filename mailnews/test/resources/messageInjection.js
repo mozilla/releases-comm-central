@@ -19,6 +19,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 var imapMessage;
 try {
@@ -1022,6 +1025,61 @@ function async_move_messages(aSynMessageSet, aDestFolder, aAllowUndo) {
       }
     },
   });
+}
+
+/**
+ * Move the messages to the trash; do not use this on messages that are already
+ *  in the trash, we are not clever enough for that.
+ *
+ * @param {SyntheticMessageSet} synMessageSet The set of messages to trash.
+ *   The messages do not allhave to be in the same folder, but we have to trash
+ *   them folder by folder if they are not.
+ */
+async function real_async_trash_messages(synMessageSet) {
+  for (let [folder, msgs] of synMessageSet.foldersWithMsgHdrs) {
+    // In the IMAP case tell listeners we are moving messages without
+    // destination headers, since that's what trashing amounts to.
+    if (!message_injection_is_local()) {
+      _messageInjectionSetup.notifyListeners(
+        "onMovingMessagesWithoutDestHeaders",
+        []
+      );
+    }
+    let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+    folder.deleteMessages(
+      msgs,
+      null,
+      false,
+      true,
+      promiseCopyListener,
+      /* do not allow undo, currently leaks */ false
+    );
+    await promiseCopyListener.promise;
+
+    // Just like the move case we need to force updateFolder calls for IMAP.
+    if (!message_injection_is_local()) {
+      // Update the source folder to force it to issue the move.
+      await new Promise(resolve =>
+        mailTestUtils.updateFolderAndNotify(folder, resolve)
+      );
+
+      // Trash folder may not have existed at startup but the deletion
+      // will have created it.
+      let trashFolder = get_real_injection_folder(get_trash_folder());
+
+      // Update the dest folder to see the new header.
+      await new Promise(resolve =>
+        mailTestUtils.updateFolderAndNotify(trashFolder, resolve)
+      );
+
+      // Compel download of messages in dest folder if appropriate.
+      if (trashFolder.flags & Ci.nsMsgFolderFlags.Offline) {
+        let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+        trashFolder.downloadAllForOffline(promiseUrlListener, null);
+        await promiseUrlListener.promise;
+      }
+    }
+  }
 }
 
 /**

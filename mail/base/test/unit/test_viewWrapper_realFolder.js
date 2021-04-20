@@ -15,23 +15,24 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 /**
  * Open a pre-populated real folder, make sure all the messages show up.
  */
-function* test_real_folder_load() {
+add_task(async function test_real_folder_load() {
   let viewWrapper = make_view_wrapper();
   let [msgFolder, msgSet] = make_folder_with_sets(1);
-  yield async_view_open(viewWrapper, msgFolder);
+  viewWrapper.open(msgFolder);
   verify_messages_in_view(msgSet, viewWrapper);
-}
+  Assert.ok("test ran to completion");
+});
 
 /**
  * Open a real folder, add some messages, make sure they show up, remove some
  *  messages, make sure they go away.
  */
-function* test_real_folder_update() {
+add_task(async function test_real_folder_update() {
   let viewWrapper = make_view_wrapper();
 
   // start with an empty folder
   let msgFolder = make_empty_folder();
-  yield async_view_open(viewWrapper, msgFolder);
+  viewWrapper.open(msgFolder);
   verify_empty_view(viewWrapper);
 
   // add messages (none -> some)
@@ -43,29 +44,29 @@ function* test_real_folder_update() {
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
   // remove the first set of messages (more -> some)
-  yield async_trash_messages(setOne);
+  await real_async_trash_messages(setOne);
   verify_messages_in_view(setTwo, viewWrapper);
 
   // remove the second set of messages (some -> none)
-  yield async_trash_messages(setTwo);
+  await real_async_trash_messages(setTwo);
   verify_empty_view(viewWrapper);
-}
+});
 
 /**
  * Open a real folder, verify, open another folder, verify.  We are testing
  *  ability to change folders without exploding.
  */
-function* test_real_folder_load_after_real_folder_load() {
+add_task(async function test_real_folder_load_after_real_folder_load() {
   let viewWrapper = make_view_wrapper();
 
   let [folderOne, setOne] = make_folder_with_sets(1);
-  yield async_view_open(viewWrapper, folderOne);
+  viewWrapper.open(folderOne);
   verify_messages_in_view(setOne, viewWrapper);
 
   let [folderTwo, setTwo] = make_folder_with_sets(1);
-  yield async_view_open(viewWrapper, folderTwo);
+  viewWrapper.open(folderTwo);
   verify_messages_in_view(setTwo, viewWrapper);
-}
+});
 
 /* ===== Real Folder, Threading Modes ==== */
 /*
@@ -78,7 +79,7 @@ function* test_real_folder_load_after_real_folder_load() {
  *  thing.
  */
 
-function* test_real_folder_threading_unthreaded() {
+add_task(async function test_real_folder_threading_unthreaded() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -90,7 +91,7 @@ function* test_real_folder_threading_unthreaded() {
   add_sets_to_folder(folder, [messageSet]);
 
   // verify that we are not threaded (or grouped)
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   viewWrapper.beginViewUpdate();
   viewWrapper.showUnthreaded = true;
   // whitebox test view flags (we've gotten them wrong before...)
@@ -104,11 +105,11 @@ function* test_real_folder_threading_unthreaded() {
     Ci.nsMsgViewFlagsType.kGroupBySort,
     "View group-by-sort bit should not be set."
   );
-  yield async_view_end_update(viewWrapper);
+  viewWrapper.endViewUpdate();
   verify_view_level_histogram({ 0: count }, viewWrapper);
-}
+});
 
-function* test_real_folder_threading_threaded() {
+add_task(async function test_real_folder_threading_threaded() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -120,7 +121,7 @@ function* test_real_folder_threading_threaded() {
   add_sets_to_folder(folder, [messageSet]);
 
   // verify that we are threaded (in such a way that we can't be grouped)
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   viewWrapper.beginViewUpdate();
   viewWrapper.showThreaded = true;
   // whitebox test view flags (we've gotten them wrong before...)
@@ -136,7 +137,7 @@ function* test_real_folder_threading_threaded() {
   );
   // expand everything so our logic below works.
   view_expand_all(viewWrapper);
-  yield async_view_end_update(viewWrapper);
+  viewWrapper.endViewUpdate();
   // blackbox test view flags: make sure IsContainer is true for the root
   verify_view_row_at_index_is_container(viewWrapper, 0);
   // do the histogram test to verify threading...
@@ -145,9 +146,9 @@ function* test_real_folder_threading_threaded() {
     expectedHisto[i] = 1;
   }
   verify_view_level_histogram(expectedHisto, viewWrapper);
-}
+});
 
-function* test_real_folder_threading_grouped_by_sort() {
+add_task(async function test_real_folder_threading_grouped_by_sort() {
   let viewWrapper = make_view_wrapper();
 
   // create some messages that belong to the 'in this week' bucket when sorting
@@ -158,7 +159,7 @@ function* test_real_folder_threading_grouped_by_sort() {
   ]);
 
   // group-by-sort sorted by date
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   viewWrapper.beginViewUpdate();
   viewWrapper.showGroupedBySort = true;
   // whitebox test view flags (we've gotten them wrong before...)
@@ -178,19 +179,19 @@ function* test_real_folder_threading_grouped_by_sort() {
   );
   // expand everyone
   view_expand_all(viewWrapper);
-  yield async_view_end_update(viewWrapper);
+  viewWrapper.endViewUpdate();
 
   // make sure the level depths are correct
   verify_view_level_histogram({ 0: 1, 1: count }, viewWrapper);
   // and make sure the first dude is a dummy
   verify_view_row_at_index_is_dummy(viewWrapper, 0);
-}
+});
 
 /**
  * Verify that we the threading modes are persisted.  We are only checking
  *  flags here; we trust the previous tests to have done their job.
  */
-function* test_real_folder_threading_persistence() {
+add_task(async function test_real_folder_threading_persistence() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -202,7 +203,7 @@ function* test_real_folder_threading_persistence() {
   add_sets_to_folder(folder, [messageSet]);
 
   // open the folder, set threaded mode, close it
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   viewWrapper.showThreaded = true; // should be instantaneous
   verify_view_row_at_index_is_container(viewWrapper, 0);
   assert_bit_set(
@@ -218,7 +219,7 @@ function* test_real_folder_threading_persistence() {
   viewWrapper.close();
 
   // open it again, make sure we're threaded, go unthreaded, close
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   assert_true(viewWrapper.showThreaded, "view should be threaded");
   assert_false(viewWrapper.showUnthreaded, "view is lying about threading");
   assert_false(viewWrapper.showGroupedBySort, "view is lying about threading");
@@ -248,7 +249,7 @@ function* test_real_folder_threading_persistence() {
   viewWrapper.close();
 
   // open it again, make sure we're unthreaded, go grouped, close
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   assert_true(viewWrapper.showUnthreaded, "view should be unthreaded");
   assert_false(viewWrapper.showThreaded, "view is lying about threading");
   assert_false(viewWrapper.showGroupedBySort, "view is lying about threading");
@@ -277,7 +278,7 @@ function* test_real_folder_threading_persistence() {
   viewWrapper.close();
 
   // open it again, make sure we're grouped.
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   assert_true(viewWrapper.showGroupedBySort, "view should be grouped");
   assert_false(viewWrapper.showThreaded, "view is lying about threading");
   assert_false(viewWrapper.showUnthreaded, "view is lying about threading");
@@ -291,7 +292,7 @@ function* test_real_folder_threading_persistence() {
     Ci.nsMsgViewFlagsType.kGroupBySort,
     "View group-by-sort bit should be set."
   );
-}
+});
 
 /* ===== Real Folder, View Flags ===== */
 
@@ -299,6 +300,7 @@ function* test_real_folder_threading_persistence() {
  * We cannot test the ignored flag for a local folder because we cannot ignore
  *  threads in a local folder.  Only newsgroups can do that and that's not
  *  easily testable at this time.
+ *  XXX ^^^ ignoring now works on mail as well.
  */
 
 /**
@@ -306,16 +308,16 @@ function* test_real_folder_threading_persistence() {
  *  mailview kViewItemUnread case, so it uses roughly the same test as
  *  test_real_folder_mail_views_unread.
  */
-function* test_real_folder_flags_show_unread() {
+add_task(async function test_real_folder_flags_show_unread() {
   let viewWrapper = make_view_wrapper();
 
   let [folder, setOne, setTwo] = make_folder_with_sets(2);
 
   // everything is unread to start with! #1
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   viewWrapper.beginViewUpdate();
   viewWrapper.showUnreadOnly = true;
-  yield async_view_end_update(viewWrapper);
+  viewWrapper.endViewUpdate();
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
   // add some more things (unread!), make sure they appear. #2
@@ -324,14 +326,15 @@ function* test_real_folder_flags_show_unread() {
 
   // make some things read, make sure they disappear. #3 (after refresh)
   setTwo.setRead(true);
-  yield async_view_refresh(viewWrapper); // refresh to get the messages to disappear
+  viewWrapper.refresh(); // refresh to get the messages to disappear
+
   verify_messages_in_view([setOne, setThree], viewWrapper);
 
   // make those things un-read again. #2
   setTwo.setRead(false);
-  yield async_view_refresh(viewWrapper); // QUICKSEARCH-VIEW-LIMITATION-REMOVE or not?
+  viewWrapper.refresh(); // QUICKSEARCH-VIEW-LIMITATION-REMOVE or not?
   verify_messages_in_view([setOne, setTwo, setThree], viewWrapper);
-}
+});
 
 /* ===== Real Folder, Mail Views ===== */
 
@@ -351,17 +354,14 @@ function* test_real_folder_flags_show_unread() {
  *  to the kUnreadOnly view flag case, so it uses roughly the same test as
  *  test_real_folder_flags_show_unread.
  */
-function* test_real_folder_mail_views_unread() {
+add_task(async function test_real_folder_mail_views_unread() {
   let viewWrapper = make_view_wrapper();
 
   let [folder, setOne, setTwo] = make_folder_with_sets(2);
 
   // everything is unread to start with! #1
-  yield async_view_open(viewWrapper, folder);
-  yield async_view_set_mail_view(
-    viewWrapper,
-    MailViewConstants.kViewItemUnread
-  );
+  viewWrapper.open(folder);
+  viewWrapper.setMailView(MailViewConstants.kViewItemUnread, null);
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
   // add some more things (unread!), make sure they appear. #2
@@ -370,16 +370,16 @@ function* test_real_folder_mail_views_unread() {
 
   // make some things read, make sure they disappear. #3 (after refresh)
   setTwo.setRead(true);
-  yield async_view_refresh(viewWrapper); // refresh to get the messages to disappear
+  viewWrapper.refresh(); // refresh to get the messages to disappear
   verify_messages_in_view([setOne, setThree], viewWrapper);
 
   // make those things un-read again. #2
   setTwo.setRead(false);
-  yield async_view_refresh(viewWrapper); // QUICKSEARCH-VIEW-LIMITATION-REMOVE
+  viewWrapper.refresh(); // QUICKSEARCH-VIEW-LIMITATION-REMOVE
   verify_messages_in_view([setOne, setTwo, setThree], viewWrapper);
-}
+});
 
-function* test_real_folder_mail_views_tags() {
+add_task(async function test_real_folder_mail_views_tags() {
   let viewWrapper = make_view_wrapper();
 
   // setup the initial set with the tag
@@ -387,19 +387,15 @@ function* test_real_folder_mail_views_tags() {
   setOne.addTag("$label1");
 
   // open, apply mail view constraint, see those messages
-  yield async_view_open(viewWrapper, folder);
-  yield async_view_set_mail_view(
-    viewWrapper,
-    MailViewConstants.kViewItemTags,
-    "$label1"
-  );
+  viewWrapper.open(folder);
+  viewWrapper.setMailView(MailViewConstants.kViewItemTags, "$label1");
   verify_messages_in_view(setOne, viewWrapper);
 
   // add some more with the tag
   setTwo.addTag("$label1");
 
   // make sure they showed up
-  yield async_view_refresh(viewWrapper); // QUICKSEARCH-VIEW-LIMITATION-REMOVE
+  viewWrapper.refresh(); // QUICKSEARCH-VIEW-LIMITATION-REMOVE
   verify_messages_in_view([setOne, setTwo], viewWrapper);
 
   // remove them all
@@ -407,23 +403,23 @@ function* test_real_folder_mail_views_tags() {
   setTwo.removeTag("$label1");
 
   // make sure they all disappeared. #3
-  yield async_view_refresh(viewWrapper);
+  viewWrapper.refresh();
   verify_empty_view(viewWrapper);
-}
+});
 
-function test_real_folder_mail_views_not_deleted() {
+add_task(async function test_real_folder_mail_views_not_deleted() {
   // not sure how to test this in the absence of an IMAP account with the IMAP
   //  deletion model...
   punt();
-}
+});
 
-function test_real_folder_mail_views_custom_people_i_know() {
+add_task(async function test_real_folder_mail_views_custom_people_i_know() {
   // blurg. address book.
   punt();
-}
+});
 
 // recent mail = less than 1 day
-function* test_real_folder_mail_views_custom_recent_mail() {
+add_task(async function test_real_folder_mail_views_custom_recent_mail() {
   let viewWrapper = make_view_wrapper();
 
   // create a set that meets the threshold and a set that does not
@@ -433,8 +429,8 @@ function* test_real_folder_mail_views_custom_recent_mail() {
   ]);
 
   // open the folder, ensure only the recent guys show. #1
-  yield async_view_open(viewWrapper, folder);
-  yield async_view_set_mail_view(viewWrapper, "Recent Mail");
+  viewWrapper.open(folder);
+  viewWrapper.setMailView("Recent Mail", null);
   verify_messages_in_view(setRecent, viewWrapper);
 
   // add two more sets, one that meets, and one that doesn't. #2
@@ -448,9 +444,9 @@ function* test_real_folder_mail_views_custom_recent_mail() {
   // we aren't going to mess with the system clock, so no #3.
   // (we are assuming that the underlying code handles message deletion.  also,
   //  we are taking the position that message timestamps should not change.)
-}
+});
 
-function* test_real_folder_mail_views_custom_last_5_days() {
+add_task(async function test_real_folder_mail_views_custom_last_5_days() {
   let viewWrapper = make_view_wrapper();
 
   // create a set that meets the threshold and a set that does not
@@ -460,8 +456,8 @@ function* test_real_folder_mail_views_custom_last_5_days() {
   ]);
 
   // open the folder, ensure only the recent guys show. #1
-  yield async_view_open(viewWrapper, folder);
-  yield async_view_set_mail_view(viewWrapper, "Last 5 Days");
+  viewWrapper.open(folder);
+  viewWrapper.setMailView("Last 5 Days", null);
   verify_messages_in_view(setRecent, viewWrapper);
 
   // add two more sets, one that meets, and one that doesn't. #2
@@ -475,9 +471,9 @@ function* test_real_folder_mail_views_custom_last_5_days() {
   // we aren't going to mess with the system clock, so no #3.
   // (we are assuming that the underlying code handles message deletion.  also,
   //  we are taking the position that message timestamps should not change.)
-}
+});
 
-function* test_real_folder_mail_views_custom_not_junk() {
+add_task(async function test_real_folder_mail_views_custom_not_junk() {
   let viewWrapper = make_view_wrapper();
 
   let [folder, setJunk, setNotJunk] = make_folder_with_sets(2);
@@ -485,23 +481,23 @@ function* test_real_folder_mail_views_custom_not_junk() {
   setNotJunk.setJunk(false);
 
   // open, see non-junk messages. #1
-  yield async_view_open(viewWrapper, folder);
-  yield async_view_set_mail_view(viewWrapper, "Not Junk");
+  viewWrapper.open(folder);
+  viewWrapper.setMailView("Not Junk", null);
   verify_messages_in_view(setNotJunk, viewWrapper);
 
   // add some more messages, have them be non-junk for now. #2
   let [setFlippy] = make_new_sets_in_folder(folder, 1);
   setFlippy.setJunk(false);
-  yield async_view_refresh(viewWrapper); // QUICKSEARCH-VIEW-LIMITATION-REMOVE
+  viewWrapper.refresh(); // QUICKSEARCH-VIEW-LIMITATION-REMOVE
   verify_messages_in_view([setNotJunk, setFlippy], viewWrapper);
 
   // oops! they should be junk! #3
   setFlippy.setJunk(true);
-  yield async_view_refresh(viewWrapper);
+  viewWrapper.refresh();
   verify_messages_in_view(setNotJunk, viewWrapper);
-}
+});
 
-function* test_real_folder_mail_views_custom_has_attachments() {
+add_task(async function test_real_folder_mail_views_custom_has_attachments() {
   let viewWrapper = make_view_wrapper();
 
   let attachSetDef = {
@@ -522,8 +518,8 @@ function* test_real_folder_mail_views_custom_has_attachments() {
     noAttachSetDef,
     attachSetDef,
   ]);
-  yield async_view_open(viewWrapper, folder);
-  yield async_view_set_mail_view(viewWrapper, "Has Attachments");
+  viewWrapper.open(folder);
+  viewWrapper.setMailView("Has Attachments", null);
   verify_messages_in_view(setAttach, viewWrapper);
 
   let [setMoreAttach] = make_new_sets_in_folder(folder, [
@@ -531,11 +527,11 @@ function* test_real_folder_mail_views_custom_has_attachments() {
     noAttachSetDef,
   ]);
   verify_messages_in_view([setAttach, setMoreAttach], viewWrapper);
-}
+});
 
 /* ===== Real Folder, Special Views ===== */
 
-function* test_real_folder_special_views_threads_with_unread() {
+add_task(async function test_real_folder_special_views_threads_with_unread() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
@@ -550,11 +546,11 @@ function* test_real_folder_special_views_threads_with_unread() {
   add_sets_to_folder(folder, [setThreadOne, setThreadTwo]);
 
   // open the view, set it to this special view
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   viewWrapper.beginViewUpdate();
   viewWrapper.specialViewThreadsWithUnread = true;
   view_expand_all(viewWrapper);
-  yield async_view_end_update(viewWrapper);
+  viewWrapper.endViewUpdate();
 
   // no one is read at this point, make sure both threads show up.
   verify_messages_in_view([setThreadOne, setThreadTwo], viewWrapper);
@@ -562,52 +558,52 @@ function* test_real_folder_special_views_threads_with_unread() {
   // mark both threads read, make sure they disappear (after a refresh)
   setThreadOne.setRead(true);
   setThreadTwo.setRead(true);
-  yield async_view_refresh(viewWrapper);
+  viewWrapper.refresh();
   verify_empty_view(viewWrapper);
 
   // make the first thread visible by marking his last message unread
   setThreadOne.slice(-1).setRead(false);
 
   view_expand_all(viewWrapper);
-  yield async_view_refresh(viewWrapper);
+  viewWrapper.refresh();
   verify_messages_in_view(setThreadOne, viewWrapper);
 
   // make the second thread visible by marking some message in the middle
   setThreadTwo.slice(5, 6).setRead(false);
   view_expand_all(viewWrapper);
-  yield async_view_refresh(viewWrapper);
+  viewWrapper.refresh();
   verify_messages_in_view([setThreadOne, setThreadTwo], viewWrapper);
-}
+});
 
 /**
  * Make sure that we restore special views from their persisted state when
  *  opening the view.
  */
-function* test_real_folder_special_views_persist() {
+add_task(async function test_real_folder_special_views_persist() {
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
 
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   viewWrapper.beginViewUpdate();
   viewWrapper.specialViewThreadsWithUnread = true;
-  yield async_view_end_update(viewWrapper);
+  viewWrapper.endViewUpdate();
   viewWrapper.close();
 
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
   assert_true(
     viewWrapper.specialViewThreadsWithUnread,
     "We should be in threads-with-unread special view mode."
   );
-}
+});
 
-function* test_real_folder_mark_read_on_exit() {
+add_task(async function test_real_folder_mark_read_on_exit() {
   // set a pref so that the local folders account will think we should
   // mark messages read when leaving the folder.
   Services.prefs.setBoolPref("mailnews.mark_message_read.none", true);
 
   let viewWrapper = make_view_wrapper();
   let folder = make_empty_folder();
-  yield async_view_open(viewWrapper, folder);
+  viewWrapper.open(folder);
 
   // add some unread messages.
   let [setOne] = make_new_sets_in_folder(folder, 1);
@@ -627,37 +623,4 @@ function* test_real_folder_mark_read_on_exit() {
     "messages should have been marked read on view close"
   );
   Services.prefs.clearUserPref("mailnews.mark_message_read.none");
-}
-
-var tests = [
-  test_real_folder_load,
-  test_real_folder_update,
-  test_real_folder_load_after_real_folder_load,
-  // - threading modes
-  test_real_folder_threading_unthreaded,
-  test_real_folder_threading_threaded,
-  test_real_folder_threading_grouped_by_sort,
-  test_real_folder_threading_persistence,
-  // - view flags
-  // (we cannot test ignored flags in local folders)
-  test_real_folder_flags_show_unread,
-  // - mail views: test the actual views
-  test_real_folder_mail_views_unread,
-  test_real_folder_mail_views_tags,
-  test_real_folder_mail_views_not_deleted,
-  // - mail views: test the custom views
-  test_real_folder_mail_views_custom_people_i_know,
-  test_real_folder_mail_views_custom_recent_mail,
-  test_real_folder_mail_views_custom_last_5_days,
-  test_real_folder_mail_views_custom_not_junk,
-  test_real_folder_mail_views_custom_has_attachments,
-  // - special views
-  test_real_folder_special_views_threads_with_unread,
-  test_real_folder_special_views_persist,
-  // (we cannot test the watched threads with unread case in local folders)
-  test_real_folder_mark_read_on_exit,
-];
-
-function run_test() {
-  async_run_tests(tests);
-}
+});
