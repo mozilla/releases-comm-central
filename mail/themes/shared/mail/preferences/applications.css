@@ -90,7 +90,9 @@
 
 .handlerSortHeaderIcon {
   display: inline-block;
-  width: 16px;
+  width: 12px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .handlerSortHeaderIcon[descending] {

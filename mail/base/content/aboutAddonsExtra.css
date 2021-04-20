@@ -26,6 +26,10 @@
   background-color: var(--in-content-categories-background);
 }
 
+#sidebar > #categories {
+  padding-inline-end: 0;
+}
+
 /* Hide Plugins category */
 button[name="plugin"] {
   display: none;
@@ -33,6 +37,12 @@ button[name="plugin"] {
 
 .sidebar-footer-list {
   margin-bottom: 36px;
+}
+
+.sidebar-footer-link:hover,
+#categories > .category:hover {
+  border-end-end-radius: 0;
+  border-start-end-radius: 0;
 }
 
 /* Hide in extension details the private browsing section */

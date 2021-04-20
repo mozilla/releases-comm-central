@@ -1639,7 +1639,10 @@ var gGeneralPane = {
     for (let header of this._handlerSortHeaders) {
       let icon = header.querySelector("img");
       if (sort.type === header.getAttribute("sort-type")) {
-        icon.setAttribute("src", "chrome://global/skin/icons/sort-arrow.svg");
+        icon.setAttribute(
+          "src",
+          "chrome://global/skin/icons/arrow-dropdown-12.svg"
+        );
         if (sort.descending) {
           /* Rotates the src image to point up. */
           icon.setAttribute("descending", "");
