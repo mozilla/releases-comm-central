@@ -508,6 +508,15 @@ MailGlue.prototype = {
    */
   _scheduleStartupIdleTasks() {
     const idleTasks = [
+      // Request startup of Chromium remote debugging protocol (observer will
+      // only be notified when --remote-debugging-port is passed).
+      {
+        condition: AppConstants.ENABLE_REMOTE_AGENT,
+        task: () => {
+          Services.obs.notifyObservers(null, "remote-startup-requested");
+        },
+      },
+
       // Marionette needs to be initialized as very last step.
       {
         task: () => {
