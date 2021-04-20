@@ -26,5 +26,7 @@
 	<integer>4</integer>
 	<key>ShowsUserIcons</key>
 	<true/>
+	<key>NoScript</key>
+	<true/>
 </dict>
 </plist>

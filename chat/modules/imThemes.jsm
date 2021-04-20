@@ -739,6 +739,11 @@ function initHTMLDocument(aConv, aTheme, aDoc) {
 
   let frag = getDocumentFragmentFromHTML(aDoc, html);
   aDoc.body.appendChild(frag);
+  if (!aTheme.metadata.NoScript) {
+    const scriptTag = aDoc.createElement("script");
+    scriptTag.src = "inline.js";
+    aDoc.body.appendChild(scriptTag);
+  }
   aDoc.defaultView.convertTimeUnits = DownloadUtils.convertTimeUnits;
 }
 
