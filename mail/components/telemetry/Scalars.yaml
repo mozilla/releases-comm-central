@@ -198,7 +198,7 @@ tb.mails:
     keyed: true
     keys:
       - 'signed-smime'
-      - 'signed-opengpg'
+      - 'signed-openpgp'
       - 'encrypted-smime'
       - 'encrypted-openpgp'
     kind: uint
