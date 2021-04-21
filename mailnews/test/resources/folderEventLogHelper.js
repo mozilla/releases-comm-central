@@ -31,6 +31,7 @@ function registerFolderEventLogHelper() {
     _folderEventLogHelper_msgFolderListener,
     Ci.nsIMsgFolderNotificationService.msgAdded |
       Ci.nsIMsgFolderNotificationService.msgsClassified |
+      Ci.nsIMsgFolderNotificationService.msgsJunkStatusChanged |
       Ci.nsIMsgFolderNotificationService.msgsDeleted |
       Ci.nsIMsgFolderNotificationService.msgsMoveCopyCompleted |
       Ci.nsIMsgFolderNotificationService.msgKeyChanged |
@@ -62,6 +63,10 @@ var _folderEventLogHelper_msgFolderListener = {
     ];
     args.push(...aMsgs);
     mark_action("msgEvent", "msgsClassified", args);
+  },
+
+  msgsJunkStatusChanged(messages) {
+    mark_action("msgEvent", "msgsJunkStatusChanged", messages);
   },
 
   /**

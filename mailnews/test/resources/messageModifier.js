@@ -200,7 +200,7 @@ SyntheticMessageSet.prototype = {
    * @param aIsJunk  true/false to set messages to junk/non-junk
    * @param aMsgHdr  A message header to work on. If not specified,
    *                 mark all messages in the current set.
-   * Generates a JunkStatusChanged nsIMsgFolderListener itemEvent notification.
+   * Generates a msgsJunkStatusChanged nsIMsgFolderListener notification.
    */
   setJunk(aIsJunk, aMsgHdr) {
     let junkscore = aIsJunk ? "100" : "0";
@@ -208,15 +208,7 @@ SyntheticMessageSet.prototype = {
     for (let msgHdr of msgHdrs) {
       msgHdr.setStringProperty("junkscore", junkscore);
     }
-
-    let str = aIsJunk ? "junk" : "notjunk";
-    let msgHdrsMA = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    for (let hdr of msgHdrs) {
-      msgHdrsMA.appendElement(hdr);
-    }
-    MailServices.mfn.notifyItemEvent(msgHdrsMA, "JunkStatusChanged", null, str);
+    MailServices.mfn.notifyMsgsJunkStatusChanged(msgHdrs);
   },
 
   /**

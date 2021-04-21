@@ -30,6 +30,9 @@ interface nsIMsgFolderNotificationService : nsISupports {
   /// nsIMsgFolderListener::msgsClassified notification
   const msgFolderListenerFlag msgsClassified = 0x8;
 
+  /// nsIMsgFolderListener::msgsJunkStatusChanged notification
+  const msgFolderListenerFlag msgsJunkStatusChanged = 0x10;
+
   /// nsIMsgFolderListener::folderAdded notification
   const msgFolderListenerFlag folderAdded = 0x8000;
 
@@ -61,6 +64,7 @@ interface nsIMsgFolderNotificationService : nsISupports {
   void notifyMsgsClassified(in Array<nsIMsgDBHdr> aMsgs,
                             in boolean aJunkProcessed,
                             in boolean aTraitProcessed);
+  void notifyMsgsJunkStatusChanged(in Array<nsIMsgDBHdr> messages);
   void notifyMsgsDeleted(in Array<nsIMsgDBHdr> aMsgs);
   void notifyMsgsMoveCopyCompleted(in boolean aMove,
                                    in Array<nsIMsgDBHdr> aSrcMsgs,

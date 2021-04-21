@@ -2914,11 +2914,9 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
         command == nsMsgViewCommandType::unjunk) {
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
           do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-
-      if (notifier)
-        notifier->NotifyItemEvent(
-            messageArray, "JunkStatusChanged"_ns, nullptr,
-            (command == nsMsgViewCommandType::junk) ? "junk"_ns : "notjunk"_ns);
+      if (notifier) {
+        notifier->NotifyMsgsJunkStatusChanged(messages);
+      }
     }
   }
 
@@ -4825,8 +4823,7 @@ nsresult nsMsgDBView::ExpandByIndex(nsMsgViewIndex index,
     NoteChange(index, 1, nsMsgViewNotificationCode::changed);
   }
 
-  NoteChange(index + 1, numExpanded,
-             nsMsgViewNotificationCode::insertOrDelete);
+  NoteChange(index + 1, numExpanded, nsMsgViewNotificationCode::insertOrDelete);
 
   if (pNumExpanded != nullptr) *pNumExpanded = numExpanded;
 

@@ -35,9 +35,6 @@ const { GlodaIndexer, IndexingJob } = ChromeUtils.import(
 const { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
-const { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 // Cr does not have mailnews error codes!
 var NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE = 0x80550005;
@@ -481,6 +478,7 @@ var GlodaMsgIndexer = {
       this._msgFolderListener,
       // note: intentionally no msgAdded notification is requested.
       Ci.nsIMsgFolderNotificationService.msgsClassified |
+        Ci.nsIMsgFolderNotificationService.msgsJunkStatusChanged |
         Ci.nsIMsgFolderNotificationService.msgsDeleted |
         Ci.nsIMsgFolderNotificationService.msgsMoveCopyCompleted |
         Ci.nsIMsgFolderNotificationService.msgKeyChanged |
@@ -2327,6 +2325,15 @@ var GlodaMsgIndexer = {
     },
 
     /**
+     * Any messages which have had their junk state changed are marked for
+     * reindexing.
+     */
+    msgsJunkStatusChanged(messages) {
+      this.indexer._log.debug("JunkStatusChanged notification");
+      GlodaMsgIndexer._reindexChangedMessages(messages, true);
+    },
+
+    /**
      * Handle real, actual deletion (move to trash and IMAP deletion model
      *  don't count); we only see the deletion here when it becomes forever,
      *  or rather _just before_ it becomes forever.  Because the header is
@@ -2822,8 +2829,6 @@ var GlodaMsgIndexer = {
      * - FolderReindexTriggered: We do the same thing as FolderCompactStart
      *    but don't mark the folder as compacting.
      *
-     * - JunkStatusChanged: We mark the messages that have had their junk
-     *    state change to be reindexed.
      */
     itemEvent(aItem, aEvent, aData, aString) {
       // Compact and Reindex are close enough that we can reuse the same code
@@ -2890,13 +2895,6 @@ var GlodaMsgIndexer = {
         if (glodaFolder.dirtyStatus == glodaFolder.kFolderDirty) {
           GlodaIndexer.indexJob(new IndexingJob("folder", glodaFolder.id));
         }
-      } else if (aEvent == "JunkStatusChanged") {
-        this.indexer._log.debug("JunkStatusChanged notification");
-        aItem.QueryInterface(Ci.nsIArray);
-        GlodaMsgIndexer._reindexChangedMessages(
-          fixIterator(aItem, Ci.nsIMsgDBHdr),
-          true
-        );
       }
     },
   },

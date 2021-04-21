@@ -164,6 +164,11 @@ NS_IMETHODIMP nsRssIncomingServer::MsgsClassified(
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
+NS_IMETHODIMP nsRssIncomingServer::MsgsJunkStatusChanged(
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& messages) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
 NS_IMETHODIMP nsRssIncomingServer::MsgsDeleted(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgs) {
   return NS_ERROR_NOT_IMPLEMENTED;

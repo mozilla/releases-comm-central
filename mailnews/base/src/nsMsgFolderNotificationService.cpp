@@ -71,6 +71,13 @@ NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsClassified(
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsJunkStatusChanged(
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& messages) {
+  NOTIFY_MSGFOLDER_LISTENERS(msgsJunkStatusChanged, MsgsJunkStatusChanged,
+                             (messages));
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsDeleted(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgs) {
   NOTIFY_MSGFOLDER_LISTENERS(msgsDeleted, MsgsDeleted, (aMsgs));

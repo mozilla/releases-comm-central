@@ -204,7 +204,7 @@ var SearchSupport = {
           MailServices.mfn.folderMoveCopyCompleted |
           MailServices.mfn.folderRenamed
       );
-      // itemEvent intentionally omitted
+      // itemEvent, msgsJunkStatusChanged intentionally omitted
       Services.obs.addObserver(this, "MsgMsgDisplayed");
       let idleService = Cc["@mozilla.org/widget/useridleservice;1"].getService(
         Ci.nsIUserIdleService

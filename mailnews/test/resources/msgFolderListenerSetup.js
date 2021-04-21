@@ -13,6 +13,7 @@ var { MailServices } = ChromeUtils.import(
 var allTestedEvents =
   MailServices.mfn.msgAdded |
   MailServices.mfn.msgsClassified |
+  MailServices.mfn.msgsJunkStatusChanged |
   MailServices.mfn.msgsDeleted |
   MailServices.mfn.msgsMoveCopyCompleted |
   MailServices.mfn.msgKeyChanged |
@@ -74,6 +75,16 @@ var gMFListener = {
       aJunkProcessed,
       aTraitProcessed,
     ]);
+    if (gExpectedEvents.length == 0) {
+      gCurrStatus |= kStatus.notificationsDone;
+      if (gCurrStatus == kStatus.everythingDone) {
+        resetStatusAndProceed();
+      }
+    }
+  },
+
+  msgsJunkStatusChanged(messages) {
+    verify([MailServices.mfn.msgsJunkStatusChanged, messages]);
     if (gExpectedEvents.length == 0) {
       gCurrStatus |= kStatus.notificationsDone;
       if (gCurrStatus == kStatus.everythingDone) {

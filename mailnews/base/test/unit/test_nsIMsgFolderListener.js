@@ -19,6 +19,7 @@ var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 var gIndividualFlags = [
   nsIMFNService.msgAdded,
   nsIMFNService.msgsClassified,
+  nsIMFNService.msgsJunkStatusChanged,
   nsIMFNService.msgsDeleted,
   nsIMFNService.msgsMoveCopyCompleted,
   nsIMFNService.msgKeyChanged,
@@ -45,6 +46,14 @@ gMFListener.prototype = {
   msgsClassified(aMsgs, aJunkProcessed, aTraitProcessed) {
     Assert.equal(this.mReceived & nsIMFNService.msgsClassified, 0);
     this.mReceived |= nsIMFNService.msgsClassified;
+    if (this.mRemoveSelf) {
+      MailServices.mfn.removeListener(this);
+    }
+  },
+
+  msgsJunkStatusChanged(messages) {
+    Assert.equal(this.mReceived & nsIMFNService.msgsJunkStatusChanged, 0);
+    this.mReceived |= nsIMFNService.msgsJunkStatusChanged;
     if (this.mRemoveSelf) {
       MailServices.mfn.removeListener(this);
     }
@@ -118,6 +127,7 @@ gMFListener.prototype = {
 function NotifyMsgFolderListeners() {
   MailServices.mfn.notifyMsgAdded(null);
   MailServices.mfn.notifyMsgsClassified([], null, null);
+  MailServices.mfn.notifyMsgsJunkStatusChanged([]);
   MailServices.mfn.notifyMsgsDeleted([]);
   MailServices.mfn.notifyMsgsMoveCopyCompleted(null, [], null, []);
   MailServices.mfn.notifyMsgKeyChanged(null, null);

@@ -63,6 +63,20 @@ interface nsIMsgFolderListener : nsISupports {
                       in boolean aTraitProcessed);
 
   /**
+   * msgsJunkStatusChanged indicates that some messages that had already been
+   * reported by msgsClassified have had their junk status changed.  This
+   * event will not fire for the initial automatic classification of
+   * messages; msgsClassified will tell you about those messages.
+   * This is not guaranteed to be a comprehensive source of junk
+   * notification events; right now any time an nsMsgDBView marks things as
+   * junk/non-junk a notification is produced.
+   *
+   * @param {nsIMsgDBHdr[]} messages - The affected messages.
+   *
+   */
+  void msgsJunkStatusChanged(in Array<nsIMsgDBHdr> messages);
+
+  /**
    * Notified after a command to delete a group of messages has been given, but before the
    * messages have actually been deleted.
    *
@@ -188,17 +202,6 @@ interface nsIMsgFolderListener : nsISupports {
    *    when this is all completed.  Note: this event is only generated for
    *    Thunderbird because the event currently comes from Thunderbird-specific
    *    code.
-   *
-   * - JunkStatusChanged: Indicates that some messages that had already been
-   *    reported by msgsClassified have had their junk status changed.  This
-   *    event will not fire for the initial automatic classification of
-   *    messages; msgsClassified will tell you about those messages.  This
-   *    notification may be promoted to an explicit callback function at some
-   *    point.  This is not guaranteed to be a comprehensive source of junk
-   *    notification events; right now any time an nsMsgDBView marks things as
-   *    junk/non-junk a notification is produced.  aItem is an nsIArray of
-   *    messages, aString is either a "junk" or "notjunk" string if all of the
-   *    messages have the same state.
    *
    * - UnincorporatedMessageMoved: A messages received via POP was moved
    *    by a "before junk" rule.
