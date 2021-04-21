@@ -5,6 +5,9 @@
 const EXPORTED_SYMBOLS = ["SmtpAuthenticator"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 /**
  * A base class for interfaces when authenticating a mail connection.
@@ -230,10 +233,18 @@ class SmtpAuthenticator extends MailAuthenticator {
       "smtpEnterPasswordPromptTitleWithHostname",
       [this._server.hostname]
     );
+    let authPrompt;
+    try {
+      // This prompt has a checkbox for saving password.
+      authPrompt = MailServices.mailSession.topmostMsgWindow.authPrompt;
+    } catch (e) {
+      // Often happens in tests. This prompt has no checkbox for saving password.
+      authPrompt = Services.ww.getNewAuthPrompter(null);
+    }
     return this._server.getPasswordWithUI(
       promptString,
       promptTitle,
-      Services.ww.getNewAuthPrompter(null)
+      authPrompt
     );
   }
 
