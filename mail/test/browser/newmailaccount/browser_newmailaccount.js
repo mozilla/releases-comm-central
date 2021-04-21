@@ -218,19 +218,22 @@ async function test_get_an_account(aCloseAndRestore) {
 
   // Since we mocked the OS notification, we will get an alert due to the fake
   // imap server we're using for the tests. Handle the accept of the alert.
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog(null, undefined, {
-    callback(prompt) {
-      prompt.document
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
-    },
-  });
+  let dialogPromise;
+  if (!aCloseAndRestore) {
+    dialogPromise = BrowserTestUtils.promiseAlertDialog(null, undefined, {
+      callback(prompt) {
+        prompt.document
+          .querySelector("dialog")
+          .getButton("accept")
+          .click();
+      },
+    });
+  }
   let ac = wait_for_new_window("AccountCreation");
 
   // Wait for the alert dialog only if this is a first run and we're trying to
   // load the newly created account for the first time.
-  if (!aCloseAndRestore) {
+  if (dialogPromise) {
     await dialogPromise;
   }
 
