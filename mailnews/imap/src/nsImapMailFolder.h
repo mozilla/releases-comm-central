@@ -379,11 +379,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   static nsresult AllocateUidStringFromKeys(const nsTArray<nsMsgKey>& keys,
                                             nsCString& msgIds);
-  static nsresult BuildIdsAndKeyArray(nsIArray* messages, nsCString& msgIds,
-                                      nsTArray<nsMsgKey>& keyArray);
-  // Stopgap during nsIArray removal. To be renamed to BuildIdsAndKeyArray().
-  // (see Bug 1612239)
-  static nsresult BuildIdsAndKeyArray2(
+  static nsresult BuildIdsAndKeyArray(
       const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, nsCString& msgIds,
       nsTArray<nsMsgKey>& keyArray);
 

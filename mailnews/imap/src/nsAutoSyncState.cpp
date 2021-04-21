@@ -581,7 +581,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
   nsAutoCString messageIds;
   nsTArray<nsMsgKey> msgKeys;
 
-  rv = nsImapMailFolder::BuildIdsAndKeyArray2(messages, messageIds, msgKeys);
+  rv = nsImapMailFolder::BuildIdsAndKeyArray(messages, messageIds, msgKeys);
   if (NS_FAILED(rv) || messageIds.IsEmpty()) return rv;
 
   // acquire semaphore for offline store. If it fails, we won't download
