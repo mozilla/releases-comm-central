@@ -15,6 +15,9 @@ let _calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-
 _calendar.name = "Attachments";
 manager.registerCalendar(_calendar);
 
+// Remove the save prompt observer that head.js added. It's causing trouble here.
+Services.ww.unregisterNotification(savePromptObserver);
+
 registerCleanupFunction(() => {
   manager.unregisterCalendar(_calendar);
 });
