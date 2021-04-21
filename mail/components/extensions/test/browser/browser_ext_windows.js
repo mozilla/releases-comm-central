@@ -273,14 +273,8 @@ add_task(async function checkTitlePreface() {
     },
   });
 
-  let popupWindow = BrowserTestUtils.domWindowOpenedAndLoaded();
-
   extension.onMessage("checkTitle", async titlePreface => {
-    let win = await popupWindow;
-    let titleChange = BrowserTestUtils.waitForEvent(
-      win.document,
-      "extension-window-title-changed"
-    );
+    let win = Services.wm.getMostRecentWindow("mail:extensionPopup");
 
     let expectedTitle = titlePreface + "A test document";
     // If we're on Mac, don't display the separator and the modifier.
@@ -291,7 +285,10 @@ add_task(async function checkTitlePreface() {
     }
 
     if (win.document.title != expectedTitle) {
-      await titleChange;
+      await BrowserTestUtils.waitForEvent(
+        win.document,
+        "extension-window-title-changed"
+      );
     }
 
     Assert.equal(
