@@ -17,6 +17,10 @@ xpcshell:
     suite: xpcshell
     treeherder-symbol: X(X)
     run-on-projects: built-projects
+    tier:
+        by-test-platform:
+            macosx1100.*: 2
+            default: default
     chunks: 4
     instance-size: default
     max-run-time: 5400
@@ -72,6 +76,10 @@ mochitest-thunderbird:
     test-manifest-loader: null  # don't load tests in the taskgraph
     loopback-video: true
     max-run-time: 3600
+    tier:
+        by-test-platform:
+            macosx1100.*: 2
+            default: default
     chunks: 5
     e10s: true
     mozharness:
