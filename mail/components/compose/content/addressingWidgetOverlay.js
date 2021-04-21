@@ -633,7 +633,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
       let mailRecipientsArea = input.closest("mail-recipients-area");
       if (lastPill) {
         // Select all pills of current address row.
-        mailRecipientsArea.selectPills(lastPill);
+        mailRecipientsArea.selectSiblingPills(lastPill);
         lastPill.focus();
         break;
       }

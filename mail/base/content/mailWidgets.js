@@ -2859,7 +2859,7 @@
           ) {
             // For non-repeated Ctrl+A, if there's at least one unselected pill,
             // first select all pills of the same .address-container.
-            this.selectPills(pill);
+            this.selectSiblingPills(pill);
             break;
           }
           // For non-repeated Ctrl+A, if pills in same container are already
@@ -2936,7 +2936,7 @@
         }
         if (event.key == "Home" && !sourcePill) {
           // Shift+Home from address input.
-          this.selectPills(targetPill);
+          this.selectSiblingPills(targetPill);
         }
         if (targetPill) {
           targetPill.setAttribute("selected", "selected");
@@ -3109,7 +3109,19 @@
     }
 
     /**
-     * Select all the pills of the <mail-recipients-area> element.
+     * Select all pills of the same address row (.address-container).
+     *
+     * @param {Element} pill - A <mail-address-pill> element. All pills in the
+     *   same .address-container will be selected.
+     */
+    selectSiblingPills(pill) {
+      for (let sPill of this.getSiblingPills(pill)) {
+        sPill.setAttribute("selected", "selected");
+      }
+    }
+
+    /**
+     * Select all pills of the <mail-recipients-area> element.
      */
     selectAllPills() {
       for (let pill of this.getAllPills()) {
@@ -3118,20 +3130,10 @@
     }
 
     /**
-     * Select all the pills from the same .address-container.
+     * Return all pills of the same address row (.address-container).
      *
-     * @param {Element} pill - The focused <mail-address-pill> element.
-     */
-    selectPills(pill) {
-      for (let sPill of this.getSiblingPills(pill)) {
-        sPill.setAttribute("selected", "selected");
-      }
-    }
-
-    /**
-     * Return all the pills from the same .address-container.
-     *
-     * @param {Element} pill - The focused <mail-address-pill> element.
+     * @param {Element} pill - A <mail-address-pill> element. All pills in the
+     *   same .address-container will be returned.
      * @return {NodeList} NodeList of <mail-address-pill> elements in same field.
      */
     getSiblingPills(pill) {
@@ -3141,7 +3143,7 @@
     }
 
     /**
-     * Return all the pills currently available in the <mail-recipients-area>.
+     * Return all pills of the <mail-recipients-area> element.
      *
      * @return {NodeList} NodeList of all <mail-address-pill> elements.
      */
