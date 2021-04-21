@@ -566,8 +566,8 @@ function updateLink(itemUrlString, linkRow, urlLink) {
 
     setTimeout(() => {
       // HACK the url link doesn't crop when setting the value in onLoad
-      urlLink.value = itemUrlString;
-      urlLink.href = itemUrlString;
+      urlLink.setAttribute("value", itemUrlString);
+      urlLink.setAttribute("href", itemUrlString);
     }, 0);
   }
 }

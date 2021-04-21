@@ -3840,8 +3840,9 @@ function updateItemURL(aShow, aUrl) {
   if (aShow && aUrl.length) {
     setTimeout(() => {
       // HACK the url-link doesn't crop when setting the value in onLoad
-      document.getElementById("url-link").value = aUrl;
-      document.getElementById("url-link").href = aUrl;
+      let label = document.getElementById("url-link");
+      label.setAttribute("value", aUrl);
+      label.setAttribute("href", aUrl);
     }, 0);
   }
 }
