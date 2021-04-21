@@ -139,9 +139,35 @@ var calalarms = {
    */
   addReminderImages(aElement, aReminders) {
     function setupActionImage(node, reminder) {
-      let image = node || aElement.ownerDocument.createXULElement("image");
+      let document = aElement.ownerDocument;
+      let image = node || document.createElement("img");
       image.setAttribute("class", "reminder-icon");
       image.setAttribute("value", reminder.action);
+      switch (reminder.action) {
+        case "DISPLAY":
+          if (aElement.hasAttribute("suppressed")) {
+            image.setAttribute("src", "chrome://calendar/skin/shared/icons/alarm-no.svg");
+            // Sets alt.
+            document.l10n.setAttributes(
+              image,
+              "calendar-editable-item-reminder-icon-suppressed-alarm"
+            );
+            break;
+          }
+          image.setAttribute("src", "chrome://calendar/skin/shared/icons/alarm.svg");
+          // Sets alt.
+          document.l10n.setAttributes(image, "calendar-editable-item-reminder-icon-alarm");
+          break;
+        case "EMAIL":
+          image.setAttribute("src", "chrome://calendar/skin/shared/icons/email.svg");
+          // Sets alt.
+          document.l10n.setAttributes(image, "calendar-editable-item-reminder-icon-email");
+          break;
+        default:
+          image.removeAttribute("src");
+          image.setAttribute("alt", "");
+          break;
+      }
       return image;
     }
 
