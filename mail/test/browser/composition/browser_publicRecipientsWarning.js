@@ -159,6 +159,56 @@ add_task(async function testToRecipientsMovedToBcc() {
 });
 
 /**
+ * Test that all the "To" recipients are moved to the "Bcc" field when the
+ * address count is over the limit.
+ */
+add_task(async function testAllToRecipientsMovedToBccWhenOverLimit() {
+  let cwc = open_compose_new_mail();
+  let limit = publicRecipientLimit + 1;
+  let i = 1;
+  setup_msg_contents(
+    cwc,
+    "test@example.org,".repeat(limit).replace(/test@/g, () => `test${i++}@`),
+    "Testing move to Bcc",
+    ""
+  );
+
+  let notification = cwc.window.document.getElementById(
+    "warnPublicRecipientsNotification"
+  );
+
+  Assert.ok(notification, "public recipients warning appeared");
+
+  EventUtils.synthesizeMouseAtCenter(
+    notification.buttonContainer.firstElementChild,
+    {},
+    cwc.window
+  );
+
+  Assert.equal(
+    cwc.window.document.querySelectorAll(
+      "#bccAddrContainer > mail-address-pill"
+    ).length,
+    limit,
+    "Bcc field populated with addresses"
+  );
+
+  Assert.equal(
+    cwc.window.document.querySelectorAll("#toAddrContainer > mail-address-pill")
+      .length,
+    0,
+    "addresses removed from the To field"
+  );
+
+  await TestUtils.waitForCondition(
+    () =>
+      !cwc.window.document.getElementById("warnPublicRecipientsNotification"),
+    "public recipients warning was not removed in time"
+  );
+  close_compose_window(cwc);
+});
+
+/**
  * Test the "Cc" recipients are moved to the "Bcc" field when the user selects
  * that option.
  */
@@ -193,6 +243,58 @@ add_task(async function testCcRecipientsMovedToBcc() {
       "#bccAddrContainer > mail-address-pill"
     ).length,
     publicRecipientLimit,
+    "Bcc field populated with addresses"
+  );
+
+  Assert.equal(
+    cwc.window.document.querySelectorAll("#ccAddrContainer > mail-address-pill")
+      .length,
+    0,
+    "addresses removed from the Cc field"
+  );
+
+  await TestUtils.waitForCondition(
+    () =>
+      !cwc.window.document.getElementById("warnPublicRecipientsNotification"),
+    "public recipients warning was not removed in time"
+  );
+  close_compose_window(cwc);
+});
+
+/**
+ * Test that all the "Cc" recipients are moved to the "Bcc" field when the
+ * address count is over the limit.
+ */
+add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
+  let cwc = open_compose_new_mail();
+  let limit = publicRecipientLimit + 1;
+  let label = cwc.window.document.getElementById("addr_cc");
+  cwc.window.showAddressRow(label, "addressRowCc");
+  let i = 1;
+  setup_msg_contents(
+    cwc,
+    "test@example.org,".repeat(limit).replace(/test@/g, () => `test${i++}@`),
+    "Testing move to Bcc",
+    ""
+  );
+
+  let notification = cwc.window.document.getElementById(
+    "warnPublicRecipientsNotification"
+  );
+
+  Assert.ok(notification, "public recipients warning appeared");
+
+  EventUtils.synthesizeMouseAtCenter(
+    notification.buttonContainer.firstElementChild,
+    {},
+    cwc.window
+  );
+
+  Assert.equal(
+    cwc.window.document.querySelectorAll(
+      "#bccAddrContainer > mail-address-pill"
+    ).length,
+    limit,
     "Bcc field populated with addresses"
   );
 

@@ -5101,10 +5101,7 @@ function checkPublicRecipientsLimit() {
     "mail.compose.warn_public_recipients.threshold"
   );
 
-  let publicAddressPills = [
-    ...document.querySelectorAll("#toAddrContainer > mail-address-pill"),
-    ...document.querySelectorAll("#ccAddrContainer > mail-address-pill"),
-  ];
+  let publicAddressPills = getPublicAddressPills();
 
   if (publicAddressPills.length < recipLimit) {
     if (notification) {
@@ -5115,7 +5112,10 @@ function checkPublicRecipientsLimit() {
 
   // Reuse the existing notification since one is shown already.
   if (notification) {
-    let msgText = notification.querySelector(".consider-bcc-notification-text");
+    let root = this.gComposeNotification.gProton
+      ? notification.messageText
+      : notification;
+    let msgText = root.querySelector(".consider-bcc-notification-text");
     msgText.setAttribute(
       "data-l10n-args",
       JSON.stringify({ count: publicAddressPills.length })
@@ -5139,10 +5139,11 @@ function checkPublicRecipientsLimit() {
   let bccButton = {
     "l10n-id": "many-public-recipients-bcc",
     callback() {
+      let publicAddressPills = getPublicAddressPills();
+      let publicAddresses = publicAddressPills.map(pill => pill.fullAddress);
+
       recipientClearPills(document.querySelector("#toAddrInput"));
       recipientClearPills(document.querySelector("#ccAddrInput"));
-
-      let publicAddresses = publicAddressPills.map(pill => pill.fullAddress);
       awAddRecipientsArray("addr_bcc", publicAddresses, true);
       return false;
     },
@@ -5176,6 +5177,18 @@ function checkPublicRecipientsLimit() {
     return;
   }
   notification.messageDetails.querySelector("button").before(msg);
+}
+
+/**
+ * Provides all the address pills in the "To" and "Cc" fields.
+ *
+ * @returns {MailAddressPill[]}
+ */
+function getPublicAddressPills() {
+  return [
+    ...document.querySelectorAll("#toAddrContainer > mail-address-pill"),
+    ...document.querySelectorAll("#ccAddrContainer > mail-address-pill"),
+  ];
 }
 
 function SendMessage() {
