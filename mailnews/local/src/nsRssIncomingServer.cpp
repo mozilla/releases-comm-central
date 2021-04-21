@@ -208,13 +208,6 @@ NS_IMETHODIMP nsRssIncomingServer::FolderRenamed(nsIMsgFolder* aOrigFolder,
   return FolderChanged(aNewFolder, aOrigFolder, "rename");
 }
 
-NS_IMETHODIMP nsRssIncomingServer::ItemEvent(nsISupports* aItem,
-                                             const nsACString& aEvent,
-                                             nsISupports* aData,
-                                             const nsACString& aString) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
 nsresult nsRssIncomingServer::FolderChanged(nsIMsgFolder* aFolder,
                                             nsIMsgFolder* aOrigFolder,
                                             const char* aAction) {
@@ -226,6 +219,24 @@ nsresult nsRssIncomingServer::FolderChanged(nsIMsgFolder* aFolder,
   NS_ENSURE_SUCCESS(rv, rv);
   rssDownloader->UpdateSubscriptionsDS(aFolder, aOrigFolder, aAction);
   return rv;
+}
+
+NS_IMETHODIMP nsRssIncomingServer::MsgUnincorporatedMoved(
+    nsIMsgFolder* srcFolder, nsIMsgDBHdr* msg) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsRssIncomingServer::FolderCompactStart(nsIMsgFolder* folder) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsRssIncomingServer::FolderCompactFinish(nsIMsgFolder* folder) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP nsRssIncomingServer::FolderReindexTriggered(
+    nsIMsgFolder* folder) {
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP

@@ -866,8 +866,7 @@ nsMsgMaildirStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aHdr,
 
     // Notify the message was moved.
     if (notifier) {
-      notifier->NotifyItemEvent(folder, "UnincorporatedMessageMoved"_ns, newHdr,
-                                EmptyCString());
+      notifier->NotifyMsgUnincorporatedMoved(folder, newHdr);
     }
   }
 

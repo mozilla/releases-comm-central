@@ -2453,8 +2453,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
     nsCOMPtr<nsIMsgFolder> folder;
     nsresult rv = mailHdr->GetFolder(getter_AddRefs(folder));
     if (NS_SUCCEEDED(rv)) {
-      notifier->NotifyItemEvent(folder, "UnincorporatedMessageMoved"_ns, newHdr,
-                                EmptyCString());
+      notifier->NotifyMsgUnincorporatedMoved(folder, newHdr);
     } else {
       NS_WARNING("Can't get folder for message that was moved.");
     }

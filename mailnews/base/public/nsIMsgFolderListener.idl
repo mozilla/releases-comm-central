@@ -140,6 +140,15 @@ interface nsIMsgFolderListener : nsISupports {
   void msgKeyChanged(in nsMsgKey aOldKey, in nsIMsgDBHdr aNewHdr);
 
   /**
+   * msgUnincorporatedMoved: A message received via POP was moved by a
+   * "before junk" rule.
+   *
+   * @param {nsIMsgFolder} srcFolder - Folder the message was moved from.
+   * @param {nsIMsgDBHdr} msg - The message.
+   */
+  void msgUnincorporatedMoved(in nsIMsgFolder srcFolder, in nsIMsgDBHdr msg);
+
+  /**
    * Notified after a folder has been added.
    *
    * @param aFolder The folder that has just been added
@@ -176,41 +185,42 @@ interface nsIMsgFolderListener : nsISupports {
    */
   void folderRenamed(in nsIMsgFolder aOrigFolder, in nsIMsgFolder aNewFolder);
 
+
   /**
-   * Notified when a particular event takes place for an item.
+   * Called to indicate nsIMsgFolderCompactor is beginning compaction of the
+   * folder.  If the summary file was missing or out-of-date and a parse
+   * is required, this notification will come after the completion of the
+   * parse.  The compactor will be holding the folder's semaphore when
+   * this notification is generated.  This only happens for local folders
+   * currently.
    *
-   * Current uses by event string:
-   *
-   * - FolderCompactStart: nsIMsgFolderCompactor is beginning compaction of the
-   *    folder.  If the summary file was missing or out-of-date and a parse
-   *    is required, this notification will come after the completion of the
-   *    parse.  The compactor will be holding the folder's semaphore when
-   *    this notification is generated.  This only happens for local folders
-   *    currently.  aItem is the folder.
-   * - FolderCompactFinish: nsIMsgFolderCompactor has completed compaction of
-   *    the folder.  This notification will be generated immediately prior to
-   *    the nsIFolderListener::itemEvent() notification with a
-   *    "CompactCompleted" atom.  At this point, the folder semaphore has been
-   *    released and the database has been committed.  aItem is the folder.
-   *
-   * - FolderReindexTriggered: The user has opted to rebuild the mork msf index
-   *    for a folder.  Following this notification, the database will be
-   *    closed, backed up (so that header properties can be propagated), and
-   *    then rebuilt from the source.  The rebuild is triggered by a call to
-   *    updateFolder, so an nsIFolderListener OnItemEvent(folder,
-   *    FolderLoaded atom) notification will be received if you want to know
-   *    when this is all completed.  Note: this event is only generated for
-   *    Thunderbird because the event currently comes from Thunderbird-specific
-   *    code.
-   *
-   * - UnincorporatedMessageMoved: A messages received via POP was moved
-   *    by a "before junk" rule.
-   *
-   * @param aItem The item the event takes place on
-   * @param aEvent String describing the event
-   * @param aData Data relevant to the event
-   * @param aData String relevant to the event
+   * @param {nsIMsgFolder} folder - Target folder of the compaction.
    */
-  void itemEvent(in nsISupports aItem, in ACString aEvent,
-                 in nsISupports aData, in AUTF8String aString);
+  void folderCompactStart(in nsIMsgFolder folder);
+
+
+  /**
+   * Called when nsIMsgFolderCompactor has completed compaction of
+   * the folder. This notification will be generated immediately prior to
+   * the nsIFolderListener::itemEvent() notification with a
+   * "CompactCompleted" atom.  At this point, the folder semaphore has been
+   * released and the database has been committed.
+   *
+   * @param {nsIMsgFolder} folder - Target folder of the compaction.
+   */
+  void folderCompactFinish(in nsIMsgFolder folder);
+
+  /**
+   * The user has opted to rebuild the mork msf index for a folder.
+   * Following this notification, the database will be closed, backed up
+   * (so that header properties can be propagated), and then rebuilt from the
+   * source. The rebuild is triggered by a call to updateFolder, so an
+   * nsIFolderListener OnItemEvent(folder, FolderLoaded atom) notification
+   * will be received if you want to know when this is all completed.
+   * Note: this event is only generated for Thunderbird because the event
+   * currently comes from Thunderbird-specific code.
+   *
+   * @param {nsIMsgFolder} folder - The folder being reindexed.
+   */
+  void folderReindexTriggered(in nsIMsgFolder folder);
 };

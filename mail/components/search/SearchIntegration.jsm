@@ -192,19 +192,18 @@ var SearchSupport = {
     this._removeObservers();
 
     if (aEnable) {
-      // This stuff we always need to do
+      // This stuff we always need to do.
+      // This code pre-dates msgsClassified.
+      // Some events intentionally omitted.
       MailServices.mfn.addListener(
         this._msgFolderListener,
         MailServices.mfn.msgAdded |
           MailServices.mfn.msgsDeleted |
           MailServices.mfn.msgsMoveCopyCompleted |
-          // this code pre-dates msgsClassified
-          // folderAdded intentionally omitted
           MailServices.mfn.folderDeleted |
           MailServices.mfn.folderMoveCopyCompleted |
           MailServices.mfn.folderRenamed
       );
-      // itemEvent, msgsJunkStatusChanged intentionally omitted
       Services.obs.addObserver(this, "MsgMsgDisplayed");
       let idleService = Cc["@mozilla.org/widget/useridleservice;1"].getService(
         Ci.nsIUserIdleService
@@ -695,19 +694,6 @@ var SearchSupport = {
       if (srcFile.exists()) {
         srcFile.moveTo(null, destName);
       }
-    },
-
-    itemEvent(aItem, aEvent, aData, aString) {
-      SearchIntegration._log.info(
-        "in itemEvent, aItem = " +
-          aItem +
-          ", aEvent = " +
-          aEvent +
-          ", aData = " +
-          aData +
-          ", aString = " +
-          aString
-      );
     },
   },
 

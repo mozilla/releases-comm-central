@@ -35,11 +35,14 @@ function registerFolderEventLogHelper() {
       Ci.nsIMsgFolderNotificationService.msgsDeleted |
       Ci.nsIMsgFolderNotificationService.msgsMoveCopyCompleted |
       Ci.nsIMsgFolderNotificationService.msgKeyChanged |
+      Ci.nsIMsgFolderNotificationService.msgUnincorporatedMoved |
       Ci.nsIMsgFolderNotificationService.folderAdded |
       Ci.nsIMsgFolderNotificationService.folderDeleted |
       Ci.nsIMsgFolderNotificationService.folderMoveCopyCompleted |
       Ci.nsIMsgFolderNotificationService.folderRenamed |
-      Ci.nsIMsgFolderNotificationService.itemEvent
+      Ci.nsIMsgFolderNotificationService.folderCompactStart |
+      Ci.nsIMsgFolderNotificationService.folderCompactFinish |
+      Ci.nsIMsgFolderNotificationService.folderReindexTriggered
   );
 }
 
@@ -99,6 +102,10 @@ var _folderEventLogHelper_msgFolderListener = {
     mark_action("msgEvent", "msgKeyChanged", args);
   },
 
+  msgUnincorporatedMoved(srcFolder, msg) {
+    mark_action("msgEvent", "msgUnincorporatedMoved", [srcFolder, msg]);
+  },
+
   folderAdded(aFolder) {
     mark_action("msgEvent", "folderAdded", [aFolder]);
   },
@@ -120,8 +127,16 @@ var _folderEventLogHelper_msgFolderListener = {
     mark_action("msgEvent", "folderRenamed", [aOrigFolder, "to", aNewFolder]);
   },
 
-  itemEvent(aItem, aEvent, aData, aString) {
-    mark_action("msgEvent", "itemEvent", [aItem, aEvent, aData, aString]);
+  folderCompactStart(folder) {
+    mark_action("msgEvent", "folderCompactStart", [folder]);
+  },
+
+  folderCompactFinish(folder) {
+    mark_action("msgEvent", "folderCompactFinish", [folder]);
+  },
+
+  folderReindexTriggered(folder) {
+    mark_action("msgEvent", "folderReindexTriggered", [folder]);
   },
 };
 

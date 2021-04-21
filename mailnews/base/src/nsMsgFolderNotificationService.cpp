@@ -122,6 +122,14 @@ nsMsgFolderNotificationService::NotifyMsgKeyChanged(nsMsgKey aOldKey,
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMsgFolderNotificationService::NotifyMsgUnincorporatedMoved(
+    nsIMsgFolder* srcFolder, nsIMsgDBHdr* msg) {
+  NOTIFY_MSGFOLDER_LISTENERS(msgUnincorporatedMoved, MsgUnincorporatedMoved,
+                             (srcFolder, msg));
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderAdded(
     nsIMsgFolder* aFolder) {
   NOTIFY_MSGFOLDER_LISTENERS(folderAdded, FolderAdded, (aFolder));
@@ -148,10 +156,21 @@ NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderRenamed(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFolderNotificationService::NotifyItemEvent(
-    nsISupports* aItem, const nsACString& aEvent, nsISupports* aData,
-    const nsACString& aString) {
-  NOTIFY_MSGFOLDER_LISTENERS(itemEvent, ItemEvent,
-                             (aItem, aEvent, aData, aString));
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderCompactStart(
+    nsIMsgFolder* folder) {
+  NOTIFY_MSGFOLDER_LISTENERS(folderCompactStart, FolderCompactStart, (folder));
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderCompactFinish(
+    nsIMsgFolder* folder) {
+  NOTIFY_MSGFOLDER_LISTENERS(folderCompactFinish, FolderCompactFinish,
+                             (folder));
+  return NS_OK;
+}
+NS_IMETHODIMP nsMsgFolderNotificationService::NotifyFolderReindexTriggered(
+    nsIMsgFolder* folder) {
+  NOTIFY_MSGFOLDER_LISTENERS(folderReindexTriggered, FolderReindexTriggered,
+                             (folder));
   return NS_OK;
 }

@@ -476,7 +476,7 @@ var GlodaMsgIndexer = {
 
     MailServices.mfn.addListener(
       this._msgFolderListener,
-      // note: intentionally no msgAdded notification is requested.
+      // note: intentionally no msgAdded or msgUnincorporatedMoved.
       Ci.nsIMsgFolderNotificationService.msgsClassified |
         Ci.nsIMsgFolderNotificationService.msgsJunkStatusChanged |
         Ci.nsIMsgFolderNotificationService.msgsDeleted |
@@ -486,7 +486,9 @@ var GlodaMsgIndexer = {
         Ci.nsIMsgFolderNotificationService.folderDeleted |
         Ci.nsIMsgFolderNotificationService.folderMoveCopyCompleted |
         Ci.nsIMsgFolderNotificationService.folderRenamed |
-        Ci.nsIMsgFolderNotificationService.itemEvent
+        Ci.nsIMsgFolderNotificationService.folderCompactStart |
+        Ci.nsIMsgFolderNotificationService.folderCompactFinish |
+        Ci.nsIMsgFolderNotificationService.folderReindexTriggered
     );
 
     this._enabled = true;
@@ -2816,85 +2818,87 @@ var GlodaMsgIndexer = {
     },
 
     /**
-     * This tells us about many exciting things.  What they are and what we do:
-     *
-     * - FolderCompactStart: Mark the folder as compacting in our in-memory
-     *    representation.  This should keep any new indexing out of the folder
-     *    until it is done compacting.  Also, kill any active or existing jobs
-     *    to index the folder.
-     * - FolderCompactFinish: Mark the folder as done compacting in our
-     *    in-memory representation.  Assuming the folder was known to us and
-     *    not marked filthy, queue a compaction job.
-     *
-     * - FolderReindexTriggered: We do the same thing as FolderCompactStart
-     *    but don't mark the folder as compacting.
-     *
+     * Helper used by folderCompactStart/folderReindexTriggered.
      */
-    itemEvent(aItem, aEvent, aData, aString) {
-      // Compact and Reindex are close enough that we can reuse the same code
-      //  with one minor difference.
-      if (
-        aEvent == "FolderCompactStart" ||
-        aEvent == "FolderReindexTriggered"
-      ) {
-        let aMsgFolder = aItem.QueryInterface(Ci.nsIMsgFolder);
-        // ignore folders we ignore...
-        if (!GlodaMsgIndexer.shouldIndexFolder(aMsgFolder)) {
-          return;
-        }
+    _reindexFolderHelper(folder, isCompacting) {
+      // ignore folders we ignore...
+      if (!GlodaMsgIndexer.shouldIndexFolder(folder)) {
+        return;
+      }
 
-        let glodaFolder = GlodaDatastore._mapFolder(aMsgFolder);
-        if (aEvent == "FolderCompactStart") {
-          glodaFolder.compacting = true;
-        }
+      let glodaFolder = GlodaDatastore._mapFolder(folder);
+      if (isCompacting) {
+        glodaFolder.compacting = true;
+      }
 
-        // Purge any explicit indexing of said folder.
-        GlodaIndexer.purgeJobsUsingFilter(function(aJob) {
-          return aJob.jobType == "folder" && aJob.id == aMsgFolder.id;
-        });
+      // Purge any explicit indexing of said folder.
+      GlodaIndexer.purgeJobsUsingFilter(function(aJob) {
+        return aJob.jobType == "folder" && aJob.id == folder.id;
+      });
 
-        // Abort the active job if it's in the folder (this covers both
-        //  event-driven indexing that happens to be in the folder as well
-        //  explicit folder indexing of the folder).
-        if (GlodaMsgIndexer._indexingFolder == aMsgFolder) {
-          GlodaIndexer.killActiveJob();
-        }
+      // Abort the active job if it's in the folder (this covers both
+      //  event-driven indexing that happens to be in the folder as well
+      //  explicit folder indexing of the folder).
+      if (GlodaMsgIndexer._indexingFolder == folder) {
+        GlodaIndexer.killActiveJob();
+      }
 
-        // Tell the PendingCommitTracker to throw away anything it is tracking
-        //  about the folder.  We will pick up the pieces in the compaction
-        //  pass.
-        PendingCommitTracker.noteFolderDatabaseGettingBlownAway(aMsgFolder);
+      // Tell the PendingCommitTracker to throw away anything it is tracking
+      //  about the folder.  We will pick up the pieces in the compaction
+      //  pass.
+      PendingCommitTracker.noteFolderDatabaseGettingBlownAway(folder);
 
-        // (We do not need to mark the folder dirty because if we were indexing
-        //  it, it already must have been marked dirty.)
-      } else if (aEvent == "FolderCompactFinish") {
-        let aMsgFolder = aItem.QueryInterface(Ci.nsIMsgFolder);
-        // ignore folders we ignore...
-        if (!GlodaMsgIndexer.shouldIndexFolder(aMsgFolder)) {
-          return;
-        }
+      // (We do not need to mark the folder dirty because if we were indexing
+      //  it, it already must have been marked dirty.)
+    },
 
-        let glodaFolder = GlodaDatastore._mapFolder(aMsgFolder);
-        glodaFolder.compacting = false;
-        glodaFolder._setCompactedState(true);
+    /**
+     * folderCompactStart: Mark the folder as compacting in our in-memory
+     * representation.  This should keep any new indexing out of the folder
+     * until it is done compacting.  Also, kill any active or existing jobs
+     * to index the folder.
+     */
+    folderCompactStart(folder) {
+      this._reindexFolderHelper(folder, true);
+    },
 
-        // Queue compaction unless the folder was filthy (in which case there
-        //  are no valid gloda-id's to update.)
-        if (glodaFolder.dirtyStatus != glodaFolder.kFolderFilthy) {
-          GlodaIndexer.indexJob(
-            new IndexingJob("folderCompact", glodaFolder.id)
-          );
-        }
+    /**
+     * folderReindexTriggered: We do the same thing as folderCompactStart
+     * but don't mark the folder as compacting.
+     */
+    folderReindexTriggered(folder) {
+      this._reindexFolderHelper(folder, false);
+    },
 
-        // Queue indexing of the folder if it is dirty.  We are doing this
-        //  mainly in case we were indexing it before the compaction started.
-        //  It should be reasonably harmless if we weren't.
-        // (It would probably be better to just make sure that there is an
-        //  indexing sweep queued or active, and if it's already active that
-        //  this folder is in the queue to be processed.)
-        if (glodaFolder.dirtyStatus == glodaFolder.kFolderDirty) {
-          GlodaIndexer.indexJob(new IndexingJob("folder", glodaFolder.id));
-        }
+    /**
+     * folderCompactFinish: Mark the folder as done compacting in our
+     * in-memory representation.  Assuming the folder was known to us and
+     * not marked filthy, queue a compaction job.
+     */
+    folderCompactFinish(folder) {
+      // ignore folders we ignore...
+      if (!GlodaMsgIndexer.shouldIndexFolder(folder)) {
+        return;
+      }
+
+      let glodaFolder = GlodaDatastore._mapFolder(folder);
+      glodaFolder.compacting = false;
+      glodaFolder._setCompactedState(true);
+
+      // Queue compaction unless the folder was filthy (in which case there
+      //  are no valid gloda-id's to update.)
+      if (glodaFolder.dirtyStatus != glodaFolder.kFolderFilthy) {
+        GlodaIndexer.indexJob(new IndexingJob("folderCompact", glodaFolder.id));
+      }
+
+      // Queue indexing of the folder if it is dirty.  We are doing this
+      //  mainly in case we were indexing it before the compaction started.
+      //  It should be reasonably harmless if we weren't.
+      // (It would probably be better to just make sure that there is an
+      //  indexing sweep queued or active, and if it's already active that
+      //  this folder is in the queue to be processed.)
+      if (glodaFolder.dirtyStatus == glodaFolder.kFolderDirty) {
+        GlodaIndexer.indexJob(new IndexingJob("folder", glodaFolder.id));
       }
     },
   },

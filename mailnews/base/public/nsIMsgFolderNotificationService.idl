@@ -33,6 +33,9 @@ interface nsIMsgFolderNotificationService : nsISupports {
   /// nsIMsgFolderListener::msgsJunkStatusChanged notification
   const msgFolderListenerFlag msgsJunkStatusChanged = 0x10;
 
+  /// nsIMsgFolderListener::msgUnincorporatedMoved notification
+  const msgFolderListenerFlag msgUnincorporatedMoved = 0x20;
+
   /// nsIMsgFolderListener::folderAdded notification
   const msgFolderListenerFlag folderAdded = 0x8000;
 
@@ -45,8 +48,14 @@ interface nsIMsgFolderNotificationService : nsISupports {
   /// nsIMsgFolderListener::folderRenamed notification
   const msgFolderListenerFlag folderRenamed = 0x4000;
 
-  /// nsIMsgFolderListener::itemEvent notification
-  const msgFolderListenerFlag itemEvent = 0x1000000;
+  /// nsIMsgFolderListener::folderCompactStart notification
+  const msgFolderListenerFlag folderCompactStart = 0x10000;
+
+  /// nsIMsgFolderListener::folderCompactFinish notification
+  const msgFolderListenerFlag folderCompactFinish = 0x20000;
+
+  /// nsIMsgFolderListener::folderReindexTriggered notification
+  const msgFolderListenerFlag folderReindexTriggered = 0x40000;
 
   /// nsIMsgFolderListener::msgKeyChanged notification
   const msgFolderListenerFlag msgKeyChanged = 0x2000000;
@@ -84,6 +93,9 @@ interface nsIMsgFolderNotificationService : nsISupports {
    * @param aNewHdr The header that replaces the header with aOldKey.
    */
   void notifyMsgKeyChanged(in nsMsgKey aOldKey, in nsIMsgDBHdr aNewHdr);
+
+  void notifyMsgUnincorporatedMoved(in nsIMsgFolder srcFolder, in nsIMsgDBHdr msg);
+
   // folder specific functions
   // single folders, all the time
   void notifyFolderAdded(in nsIMsgFolder aFolder);
@@ -94,9 +106,7 @@ interface nsIMsgFolderNotificationService : nsISupports {
   void notifyFolderRenamed(in nsIMsgFolder aOrigFolder,
                            in nsIMsgFolder aNewFolder);
 
-  // extensibility hook
-  void notifyItemEvent(in nsISupports aItem,
-                       in ACString aEvent,
-                       in nsISupports aData,
-                       in AUTF8String aString);
+  void notifyFolderCompactStart(in nsIMsgFolder folder);
+  void notifyFolderCompactFinish(in nsIMsgFolder folder);
+  void notifyFolderReindexTriggered(in nsIMsgFolder folder);
 };

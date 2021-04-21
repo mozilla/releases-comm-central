@@ -17,11 +17,14 @@ var allTestedEvents =
   MailServices.mfn.msgsDeleted |
   MailServices.mfn.msgsMoveCopyCompleted |
   MailServices.mfn.msgKeyChanged |
+  MailServices.mfn.msgUnincorporatedMoved |
   MailServices.mfn.folderAdded |
   MailServices.mfn.folderDeleted |
   MailServices.mfn.folderMoveCopyCompleted |
   MailServices.mfn.folderRenamed |
-  MailServices.mfn.itemEvent;
+  MailServices.mfn.folderCompactStart |
+  MailServices.mfn.folderCompactFinish |
+  MailServices.mfn.folderReindexTriggered;
 
 // Current test being executed
 var gTest = 1;
@@ -129,6 +132,16 @@ var gMFListener = {
     }
   },
 
+  msgUnincorporatedMoved(srcFolder, msg) {
+    verify([MailServices.mfn.msgUnincorporatedMoved, srcFolder, msg]);
+    if (gExpectedEvents.length == 0) {
+      gCurrStatus |= kStatus.notificationsDone;
+      if (gCurrStatus == kStatus.everythingDone) {
+        resetStatusAndProceed();
+      }
+    }
+  },
+
   folderAdded(aFolder) {
     verify([MailServices.mfn.folderAdded, aFolder]);
     if (gExpectedEvents.length == 0) {
@@ -174,12 +187,28 @@ var gMFListener = {
     }
   },
 
-  itemEvent(aFolder, aEvent, aBetterBeNull, aBetterBeEmpty) {
-    // we currently require the third argument to be null, and the fourth to be
-    // empty...
-    Assert.equal(aBetterBeNull, null);
-    Assert.equal(aBetterBeEmpty, "");
-    verify([MailServices.mfn.itemEvent, aFolder, aEvent]);
+  folderCompactStart(folder) {
+    verify([MailServices.mfn.folderCompactStart, folder]);
+    if (gExpectedEvents.length == 0) {
+      gCurrStatus |= kStatus.notificationsDone;
+      if (gCurrStatus == kStatus.everythingDone) {
+        resetStatusAndProceed();
+      }
+    }
+  },
+
+  folderCompactFinish(folder) {
+    verify([MailServices.mfn.folderCompactFinish, folder]);
+    if (gExpectedEvents.length == 0) {
+      gCurrStatus |= kStatus.notificationsDone;
+      if (gCurrStatus == kStatus.everythingDone) {
+        resetStatusAndProceed();
+      }
+    }
+  },
+
+  folderReindexTriggered(folder) {
+    verify([MailServices.mfn.folderReindexTriggered, folder]);
     if (gExpectedEvents.length == 0) {
       gCurrStatus |= kStatus.notificationsDone;
       if (gCurrStatus == kStatus.everythingDone) {
@@ -331,8 +360,18 @@ function verify(event) {
       // aTraitProcessed: was the message processed for traits?
       Assert.equal(expected[3], event[3]);
       break;
+    case MailServices.mfn.msgsJunkStatusChanged:
+      // Check: same messages?
+      hasExactlyElements(expected[1], event[1]);
+      break;
     case MailServices.mfn.msgKeyChanged:
       Assert.equal(expected[1].expectedMessageId, event[2].messageId);
+      break;
+    case MailServices.mfn.msgUnincorporatedMoved:
+      // Check: Same folder?
+      Assert.equal(expected[1].URI, event[1].URI);
+      // Check: message matches?
+      hasExactlyElements(expected[2], event[2]);
       break;
     case MailServices.mfn.msgsMoveCopyCompleted:
     case MailServices.mfn.folderMoveCopyCompleted:
@@ -380,10 +419,10 @@ function verify(event) {
       // Check: destination folder name matches
       Assert.equal(expected[2], event[2].prettyName);
       break;
-    case MailServices.mfn.itemEvent:
-      // the event string should match
-      Assert.equal(expected[2], event[2]);
-      // and so should the folder we are talking about
+    case MailServices.mfn.folderCompactStart:
+    case MailServices.mfn.folderCompactFinish:
+    case MailServices.mfn.folderReindexTriggered:
+      // Check: same folder?
       Assert.equal(expected[1].URI, event[1].URI);
       break;
   }

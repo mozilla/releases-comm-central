@@ -23,11 +23,14 @@ var gIndividualFlags = [
   nsIMFNService.msgsDeleted,
   nsIMFNService.msgsMoveCopyCompleted,
   nsIMFNService.msgKeyChanged,
+  nsIMFNService.msgUnincorporatedMoved,
   nsIMFNService.folderAdded,
   nsIMFNService.folderDeleted,
   nsIMFNService.folderMoveCopyCompleted,
   nsIMFNService.folderRenamed,
-  nsIMFNService.itemEvent,
+  nsIMFNService.folderCompactStart,
+  nsIMFNService.folderCompactFinish,
+  nsIMFNService.folderReindexTriggered,
 ];
 
 // Our listener, which captures events.
@@ -83,6 +86,14 @@ gMFListener.prototype = {
     }
   },
 
+  msgUnincorporatedMoved(srcFolder, msg) {
+    Assert.equal(this.mReceived & nsIMFNService.msgUnincorporatedMoved, 0);
+    this.mReceived |= nsIMFNService.msgUnincorporatedMoved;
+    if (this.mRemoveSelf) {
+      MailServices.mfn.removeListener(this);
+    }
+  },
+
   folderAdded(aFolder) {
     Assert.equal(this.mReceived & nsIMFNService.folderAdded, 0);
     this.mReceived |= nsIMFNService.folderAdded;
@@ -115,9 +126,25 @@ gMFListener.prototype = {
     }
   },
 
-  itemEvent(aItem, aEvent, aData, aString) {
-    Assert.equal(this.mReceived & nsIMFNService.itemEvent, 0);
-    this.mReceived |= nsIMFNService.itemEvent;
+  folderCompactStart(folder) {
+    Assert.equal(this.mReceived & nsIMFNService.folderCompactStart, 0);
+    this.mReceived |= nsIMFNService.folderCompactStart;
+    if (this.mRemoveSelf) {
+      MailServices.mfn.removeListener(this);
+    }
+  },
+
+  folderCompactFinish(folder) {
+    Assert.equal(this.mReceived & nsIMFNService.folderCompactFinish, 0);
+    this.mReceived |= nsIMFNService.folderCompactFinish;
+    if (this.mRemoveSelf) {
+      MailServices.mfn.removeListener(this);
+    }
+  },
+
+  folderReindexTriggered(folder) {
+    Assert.equal(this.mReceived & nsIMFNService.folderReindexTriggered, 0);
+    this.mReceived |= nsIMFNService.folderReindexTriggered;
     if (this.mRemoveSelf) {
       MailServices.mfn.removeListener(this);
     }
@@ -131,11 +158,14 @@ function NotifyMsgFolderListeners() {
   MailServices.mfn.notifyMsgsDeleted([]);
   MailServices.mfn.notifyMsgsMoveCopyCompleted(null, [], null, []);
   MailServices.mfn.notifyMsgKeyChanged(null, null);
+  MailServices.mfn.notifyMsgUnincorporatedMoved(null, null);
   MailServices.mfn.notifyFolderAdded(null);
   MailServices.mfn.notifyFolderDeleted(null);
   MailServices.mfn.notifyFolderMoveCopyCompleted(null, null, null);
   MailServices.mfn.notifyFolderRenamed(null, null);
-  MailServices.mfn.notifyItemEvent(null, null, null, null);
+  MailServices.mfn.notifyFolderCompactStart(null);
+  MailServices.mfn.notifyFolderCompactFinish(null);
+  MailServices.mfn.notifyFolderReindexTriggered(null);
 }
 
 function run_test() {

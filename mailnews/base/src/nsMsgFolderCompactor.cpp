@@ -400,9 +400,9 @@ nsresult nsFolderCompactState::StartCompacting() {
   // which is still pretty interesting.  (And we like consistency.)
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
       do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-  if (notifier)
-    notifier->NotifyItemEvent(m_folder, "FolderCompactStart"_ns, nullptr,
-                              EmptyCString());
+  if (notifier) {
+    notifier->NotifyFolderCompactStart(m_folder);
+  }
 
   // TODO: test whether sorting the messages (m_keys) by messageOffset
   // would improve performance on large files (less seeks).
@@ -574,9 +574,9 @@ nsresult nsFolderCompactState::FinishCompact() {
   // Notify that compaction of the folder is completed.
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
       do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-  if (notifier)
-    notifier->NotifyItemEvent(m_folder, "FolderCompactFinish"_ns, nullptr,
-                              EmptyCString());
+  if (notifier) {
+    notifier->NotifyFolderCompactFinish(m_folder);
+  }
   m_folder->NotifyCompactCompleted();
 
   if (m_compactAll)
@@ -901,7 +901,8 @@ nsFolderCompactState::OnDataAvailable(nsIRequest* request,
   return rv;
 }
 
-nsOfflineStoreCompactState::nsOfflineStoreCompactState() : m_offlineMsgSize(0) {}
+nsOfflineStoreCompactState::nsOfflineStoreCompactState()
+    : m_offlineMsgSize(0) {}
 
 nsOfflineStoreCompactState::~nsOfflineStoreCompactState() {}
 

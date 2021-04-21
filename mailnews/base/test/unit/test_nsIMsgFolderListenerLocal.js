@@ -182,8 +182,8 @@ function deleteFolder(folder, child) {
 
 function compactFolder(folder) {
   gExpectedEvents = [
-    [MailServices.mfn.itemEvent, folder, "FolderCompactStart"],
-    [MailServices.mfn.itemEvent, folder, "FolderCompactFinish"],
+    [MailServices.mfn.folderCompactStart, folder],
+    [MailServices.mfn.folderCompactFinish, folder],
   ];
   // We won't receive a copy listener notification for this
   gCurrStatus |= kStatus.onStopCopyDone;
