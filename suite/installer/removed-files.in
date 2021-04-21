@@ -929,7 +929,6 @@ Throbber-small.gif
 @DIR_MACOS@modules/InlineSpellChecker.jsm
 @DIR_MACOS@modules/IOUtils.js
 @DIR_MACOS@modules/ISO8601DateUtils.jsm
-@DIR_MACOS@modules/iteratorUtils.jsm
 @DIR_MACOS@modules/jsTreeSelection.js
 @DIR_MACOS@modules/LightweightThemeConsumer.jsm
 @DIR_MACOS@modules/LightweightThemeManager.jsm
