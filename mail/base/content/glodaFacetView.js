@@ -20,10 +20,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
-var { logObject, logException } = ChromeUtils.import(
-  "resource:///modules/ErrUtils.jsm"
-);
-
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { FacetDriver, FacetUtils } = ChromeUtils.import(
   "resource:///modules/gloda/Facet.jsm"
@@ -127,7 +123,7 @@ const QueryExplanation = {
       }
       label = label + constraintStrings.join(", "); // XXX l10n?
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
     }
   },
 };
@@ -486,7 +482,7 @@ var FacetContext = {
       this._sortBy = val;
       this.build(this._sieveAll());
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
     }
   },
   /**
@@ -650,8 +646,7 @@ var FacetContext = {
             try {
               explicitBinding.build(true);
             } catch (e) {
-              logObject(explicitBinding);
-              logException(e);
+              Cu.reportError(e);
             }
             explicitBinding.removeAttribute("uninitialized");
           }
@@ -766,7 +761,7 @@ var FacetContext = {
         this._hideTimeline(false);
       }
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
     }
   },
 

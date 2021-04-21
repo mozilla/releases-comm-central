@@ -283,8 +283,8 @@ function verify_nonMatches(aQueries, aCollections) {
 
     for (let item of nonmatches) {
       if (testQuery.test(item)) {
-        logObject(item, "item");
-        logObject(testQuery._constraints, "constraints");
+        dump("item: " + JSON.stringify(item) + "\n");
+        dump("constraints: " + JSON.stringify(testQuery._constraints) + "\n");
         do_throw(
           "Something should not match query.test(), but it does: " + item
         );

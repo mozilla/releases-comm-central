@@ -20,9 +20,6 @@
     "resource://gre/modules/PluralForm.jsm"
   );
   const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
-  const { logException } = ChromeUtils.import(
-    "resource:///modules/ErrUtils.jsm"
-  );
 
   var glodaFacetStrings = Services.strings.createBundle(
     "chrome://messenger/locale/glodaFacetView.properties"
@@ -218,7 +215,7 @@
           this.messagesNode.appendChild(msgNode);
         }
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
     }
   }
@@ -1149,7 +1146,7 @@
 
         return false;
       } catch (e) {
-        return logException(e);
+        return Cu.reportError(e);
       }
     }
 
@@ -1171,7 +1168,7 @@
 
         return false;
       } catch (e) {
-        return logException(e);
+        return Cu.reportError(e);
       }
     }
   }
@@ -1327,7 +1324,7 @@
           );
         }
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
     }
 
@@ -1344,7 +1341,7 @@
         event.preventDefault();
         event.stopPropagation();
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
     }
 
@@ -1359,7 +1356,7 @@
           this.doUndo();
         }
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
     }
 
@@ -1411,7 +1408,7 @@
           this.undoNode.focus();
         }
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
     }
 
@@ -1423,7 +1420,7 @@
           this.node.focus();
         }
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
     }
 
@@ -1432,7 +1429,7 @@
         this.facetNode.includeFacet(this.node);
         this.hide();
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
     }
 
@@ -1629,7 +1626,7 @@
           }
         }
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
 
       // - Starred

@@ -1048,7 +1048,7 @@ FolderDisplayWidget.prototype = {
           this._clearSavedSelection();
         }
       } catch (ex) {
-        logException(ex);
+        Cu.reportError(ex);
       }
       gDBView = null; // eslint-disable-line no-global-assign
     }

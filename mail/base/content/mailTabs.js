@@ -13,7 +13,6 @@
 var { MsgHdrSyntheticView } = ChromeUtils.import(
   "resource:///modules/MsgHdrSyntheticView.jsm"
 );
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { getSpecialFolderString } = ChromeUtils.import(
@@ -200,7 +199,7 @@ var mailTabType = {
           };
           return retval;
         } catch (e) {
-          logException(e);
+          Cu.reportError(e);
           return null;
         }
       },
@@ -282,7 +281,7 @@ var mailTabType = {
             }
           }
         } catch (e) {
-          logException(e);
+          Cu.reportError(e);
         }
       },
       onTitleChanged(aTab, aTabNode) {

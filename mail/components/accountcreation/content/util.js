@@ -8,7 +8,6 @@
 
 /* import-globals-from accountSetup.js */
 
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
 
@@ -153,7 +152,7 @@ Exception.prototype = {
 
 function NotReached(msg) {
   Exception.call(this, msg); // call super constructor
-  logException(this);
+  Cu.reportError(this);
 }
 // Make NotReached extend Exception.
 NotReached.prototype = Object.create(Exception.prototype);

@@ -53,8 +53,6 @@ var msgGen = (gMessageGenerator = new MessageGenerator());
 // Create a message scenario generator using that message generator
 var scenarios = new MessageScenarioFactory(msgGen);
 
-var { logObject } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
-
 /**
  * Create a 'me' identity of "me@localhost" for the benefit of Gloda.  At the
  *  time of this writing, Gloda only initializes Gloda.myIdentities and
@@ -541,8 +539,6 @@ var _indexMessageState = {
             previousValue = verifier(synMsg, glodaMsg, previousValue);
           } catch (ex) {
             // ugh, too verbose
-            // logObject(synMsg, "synMsg");
-            // logObject(glodaMsg, "glodaMsg");
             dump("synMsg: " + synMsg + "\n");
             dump("glodaMsg: " + glodaMsg + "\n");
             mark_failure([
@@ -562,7 +558,6 @@ var _indexMessageState = {
     for (let messageId in this._glodaMessagesByMessageId) {
       let glodaMsg = this._glodaMessagesByMessageId[messageId];
       if (glodaMsg != null) {
-        // logObject is too verbose right now
         dump("gloda message: " + glodaMsg + "\n");
         mark_failure([
           "Gloda message",
@@ -590,7 +585,7 @@ var _indexMessageState = {
     for (let messageId in this._glodaDeletionsByMessageId) {
       let glodaMsg = this._glodaDeletionsByMessageId[messageId];
       if (glodaMsg != null) {
-        logObject(glodaMsg, "glodaMsg");
+        dump("glodaMsg: " + glodaMsg + "\n");
         do_throw(
           "Gloda message with message id " +
             messageId +
@@ -1024,7 +1019,6 @@ QueryExpectationListener.prototype = {
 
       // make sure the query's test method agrees with the database about this
       if (!aCollection.query.test(item)) {
-        logObject(item);
         do_throw(
           "Query test returned false when it should have been true on " +
             "extracted: " +

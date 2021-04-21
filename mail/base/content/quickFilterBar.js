@@ -5,9 +5,6 @@
 /* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
 
-var { logException, errorWithDebug } = ChromeUtils.import(
-  "resource:///modules/ErrUtils.jsm"
-);
 var {
   MessageTextFilter,
   QuickFilterManager,
@@ -231,7 +228,7 @@ var QuickFilterBarMuxer = {
             );
             QuickFilterBarMuxer.deferredUpdateSearch();
           } catch (ex) {
-            logException(ex);
+            Cu.reportError(ex);
           }
         };
       } else {
@@ -598,7 +595,7 @@ var QuickFilterBarMuxer = {
     ) {
       return this.tabmail.currentTabInfo._ext.quickFilter;
     }
-    throw errorWithDebug("There is no active filterer but we want one.");
+    throw new Error("There is no active filterer but we want one.");
   },
 
   // ----------------------

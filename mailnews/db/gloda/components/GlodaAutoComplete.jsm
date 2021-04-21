@@ -12,8 +12,6 @@
 
 var EXPORTED_SYMBOLS = ["GlodaAutoComplete"];
 
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
-
 var Gloda = null;
 var MultiSuffixTree = null;
 var TagNoun = null;
@@ -532,7 +530,7 @@ function GlodaAutoComplete() {
     this.completers.push(new ContactTagCompleter()); // not async.
     this.completers.push(new MessageTagCompleter()); // not async.
   } catch (e) {
-    logException(e);
+    Cu.reportError(e);
   }
 }
 
@@ -565,7 +563,7 @@ GlodaAutoComplete.prototype = {
 
       result.announceYourself();
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
     }
   },
 

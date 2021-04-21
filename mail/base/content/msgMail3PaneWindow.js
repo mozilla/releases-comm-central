@@ -24,7 +24,6 @@
 /* globals loadCalendarComponent */
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailInstrumentation } = ChromeUtils.import(
   "resource:///modules/MailInstrumentation.jsm"
@@ -636,7 +635,7 @@ var gMailInit = {
     try {
       MailInstrumentation.init();
     } catch (ex) {
-      logException(ex);
+      Cu.reportError(ex);
     }
 
     if (!Services.policies.isAllowed("devtools")) {
@@ -839,7 +838,7 @@ var gMailInit = {
     try {
       MailInstrumentation.uninit.bind(MailInstrumentation);
     } catch (ex) {
-      logException(ex);
+      Cu.reportError(ex);
     }
   },
 };
@@ -1614,7 +1613,7 @@ function ClearMessagePane() {
       });
     }
   } catch (ex) {
-    logException(ex, false, "error clearing message pane");
+    Cu.reportError(ex); // error clearing message pane
   }
 }
 

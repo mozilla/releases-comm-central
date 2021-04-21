@@ -25,8 +25,6 @@
  * }
  */
 
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
-
 /**
  * Url listener that can wrap another listener and trigger a callback, but
  *  definitely calls async_driver to resume asynchronous processing.  Use
@@ -198,7 +196,7 @@ function _async_driver() {
           asyncStack.push(asyncGeneratorStack[i][1]);
         }
         dump("*********\n");
-        logException(ex);
+        Cu.reportError(ex);
         mark_failure([
           "Generator explosion. ex:",
           ex,

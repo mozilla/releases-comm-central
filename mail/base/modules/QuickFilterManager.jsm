@@ -16,10 +16,6 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-
-const { logException, logObject } = ChromeUtils.import(
-  "resource:///modules/ErrUtils.jsm"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -268,8 +264,7 @@ QuickFilterSearchListener.prototype = {
     try {
       this.listener.onSearchMessage(this.scratch, aMsgHdr, aFolder);
     } catch (ex) {
-      logException(ex);
-      logObject(this.scratch, "scratch object");
+      Cu.reportError(ex);
     }
   },
 
@@ -553,7 +548,7 @@ var QuickFilterManager = {
           listeners.push([listener, filterDef]);
         }
       } catch (ex) {
-        logException(ex);
+        Cu.reportError(ex);
       }
     }
     return searchTerms.length ? [searchTerms, listeners] : [null, listeners];

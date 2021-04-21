@@ -5,7 +5,6 @@
 
 /* import-globals-from accountSetup.js */
 
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var {
   cleanUpHostName,
   isLegalHostNameOrIP,
@@ -58,13 +57,13 @@ function readFromXML(clientConfigXML, subSource) {
   try {
     d.displayName = sanitize.label(xml.displayName);
   } catch (e) {
-    logException(e);
+    Cu.reportError(e);
   }
   for (var domain of xml.$domain) {
     try {
       d.domains.push(sanitize.hostname(domain));
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
       exception = e;
     }
   }
@@ -141,21 +140,21 @@ function readFromXML(clientConfigXML, subSource) {
             iO.owaURL = sanitize.url(iX.owaURL);
           }
         } catch (e) {
-          logException(e);
+          Cu.reportError(e);
         }
         try {
           if ("ewsURL" in iX) {
             iO.ewsURL = sanitize.url(iX.ewsURL);
           }
         } catch (e) {
-          logException(e);
+          Cu.reportError(e);
         }
         try {
           if ("easURL" in iX) {
             iO.easURL = sanitize.url(iX.easURL);
           }
         } catch (e) {
-          logException(e);
+          Cu.reportError(e);
         }
         iO.oauthSettings = {
           issuer: iO.hostname,
@@ -176,14 +175,14 @@ function readFromXML(clientConfigXML, subSource) {
             );
           }
         } catch (e) {
-          logException(e);
+          Cu.reportError(e);
         }
         try {
           if ("downloadOnBiff" in iX.pop3) {
             iO.downloadOnBiff = sanitize.boolean(iX.pop3.downloadOnBiff);
           }
         } catch (e) {
-          logException(e);
+          Cu.reportError(e);
         }
       }
 
@@ -194,7 +193,7 @@ function readFromXML(clientConfigXML, subSource) {
           );
         }
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
 
       // processed successfully, now add to result object
@@ -301,7 +300,7 @@ function readFromXML(clientConfigXML, subSource) {
           );
         }
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
       }
 
       // processed successfully, now add to result object
@@ -312,7 +311,7 @@ function readFromXML(clientConfigXML, subSource) {
         d.outgoingAlternatives.push(oO);
       }
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
       exception = e;
     }
   }
@@ -332,7 +331,7 @@ function readFromXML(clientConfigXML, subSource) {
       };
       d.inputFields.push(fieldset);
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
       // For now, don't throw,
       // because we don't support custom fields yet anyways.
     }

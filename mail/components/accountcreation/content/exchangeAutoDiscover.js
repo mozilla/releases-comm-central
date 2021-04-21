@@ -12,7 +12,6 @@ ChromeUtils.defineModuleGetter(
   "AddonManager",
   "resource://gre/modules/AddonManager.jsm"
 );
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
 /**
  * Tries to get a configuration from an MS Exchange server
@@ -429,7 +428,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 
       // else unknown or unsupported protocol
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
     }
   }
 

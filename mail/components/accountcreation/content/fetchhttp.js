@@ -18,7 +18,6 @@
 /* import-globals-from accountSetup.js */
 
 var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
 /**
  * Set up a fetch.
@@ -311,7 +310,7 @@ FetchHTTP.prototype = {
         try {
           this._successCallback(this.result);
         } catch (e) {
-          logException(e);
+          Cu.reportError(e);
           e.stack = this._callStack;
           this._error(e);
         }
@@ -328,12 +327,12 @@ FetchHTTP.prototype = {
         try {
           this._finishedCallback(this);
         } catch (e) {
-          logException(e);
+          Cu.reportError(e);
         }
       }
     } catch (e) {
       // error in our fetchhttp._response() code
-      logException(e);
+      Cu.reportError(e);
       this._error(e);
     }
   },
@@ -342,7 +341,7 @@ FetchHTTP.prototype = {
       this._errorCallback(e);
     } catch (e) {
       // error in errorCallback, too!
-      logException(e);
+      Cu.reportError(e);
       alertPrompt("Error in errorCallback for fetchhttp", e);
     }
   },

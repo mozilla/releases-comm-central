@@ -1071,7 +1071,7 @@ function updateExpandedView() {
   try {
     AdjustHeaderView(Services.prefs.getIntPref("mail.show_headers"));
   } catch (e) {
-    logException(e);
+    Cu.reportError(e);
   }
 }
 
@@ -3580,7 +3580,7 @@ ConversationOpener.prototype = {
       this._msgHdr = messages[0];
       this._queries = [Gloda.getMessageCollectionForHeaders(messages, this)];
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
     }
   },
   isSelectedMessageIndexed() {
@@ -3614,7 +3614,7 @@ ConversationOpener.prototype = {
         });
       }
     } catch (e) {
-      logException(e);
+      Cu.reportError(e);
     }
   },
 };

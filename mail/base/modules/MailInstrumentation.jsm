@@ -12,7 +12,6 @@ const EXPORTED_SYMBOLS = ["MailInstrumentation"];
 
 var nsIMFNService = Ci.nsIMsgFolderNotificationService;
 
-const { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -76,7 +75,7 @@ var MailInstrumentation = {
         MailInstrumentation._postStateObject();
       }
     } catch (ex) {
-      logException(ex);
+      Cu.reportError(ex);
     }
   },
 
@@ -185,7 +184,7 @@ var MailInstrumentation = {
     req.send(dataToPost);
   },
   _onError(e) {
-    logException(e);
+    Cu.reportError(e);
   },
   _onLoad() {
     Services.prefs.setCharPref(
@@ -262,7 +261,7 @@ var MailInstrumentation = {
         this._postStateObject();
       }
     } catch (ex) {
-      logException(ex);
+      Cu.reportError(ex);
     }
   },
 };

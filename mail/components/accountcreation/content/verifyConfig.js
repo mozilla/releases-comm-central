@@ -11,7 +11,6 @@ var { MailServices } = ChromeUtils.import(
 var { OAuth2Providers } = ChromeUtils.import(
   "resource:///modules/OAuth2Providers.jsm"
 );
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
 /**
  * This checks a given config, by trying a real connection and login,

@@ -99,7 +99,6 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
 EXTRA_JS_MODULES += [
     "ABQueryUtils.jsm",
     "converterWorker.js",
-    "ErrUtils.jsm",
     "FolderLookupService.jsm",
     "folderUtils.jsm",
     "hostnameUtils.jsm",

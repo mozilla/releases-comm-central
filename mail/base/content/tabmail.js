@@ -1066,7 +1066,7 @@
 
         return tab;
       } catch (e) {
-        logException(e);
+        Cu.reportError(e);
         return null;
       }
     }
