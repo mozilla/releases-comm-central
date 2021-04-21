@@ -224,6 +224,7 @@
   skin/classic/messenger/icons/overflow.svg                   (../shared/mail/icons/overflow.svg)
   skin/classic/messenger/icons/phishing.svg                   (../shared/mail/icons/phishing.svg)
   skin/classic/messenger/icons/paste.svg                      (../shared/mail/icons/paste.svg)
+  skin/classic/messenger/icons/pill-indicator.svg             (../shared/mail/icons/pill-indicator.svg)
   skin/classic/messenger/icons/pluginBlocked.svg              (../shared/mail/icons/pluginBlocked.svg)
   skin/classic/messenger/icons/previousmsg.svg                (../shared/mail/icons/previousmsg.svg)
   skin/classic/messenger/icons/previousunread.svg             (../shared/mail/icons/previousunread.svg)
