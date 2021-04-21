@@ -4258,11 +4258,7 @@ NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(
   // Never apply retention settings to Drafts/Templates/Outbox.
   if (isDraftsTemplatesOutbox) return NS_OK;
 
-  nsCOMPtr<nsIMutableArray> msgHdrsToDelete;
-  if (aDeleteViaFolder) {
-    msgHdrsToDelete = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrsToDelete;
   nsMsgRetainByPreference retainByPreference;
   aMsgRetentionSettings->GetRetainByPreference(&retainByPreference);
 
@@ -4276,13 +4272,13 @@ NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(
       break;
     case nsIMsgRetentionSettings::nsMsgRetainByAge:
       aMsgRetentionSettings->GetDaysToKeepHdrs(&daysToKeepHdrs);
-      rv = PurgeMessagesOlderThan(daysToKeepHdrs, applyToFlaggedMessages,
-                                  msgHdrsToDelete);
+      rv = FindMessagesOlderThan(daysToKeepHdrs, applyToFlaggedMessages,
+                                 msgHdrsToDelete);
       break;
     case nsIMsgRetentionSettings::nsMsgRetainByNumHeaders:
       aMsgRetentionSettings->GetNumHeadersToKeep(&numHeadersToKeep);
-      rv = PurgeExcessMessages(numHeadersToKeep, applyToFlaggedMessages,
-                               msgHdrsToDelete);
+      rv = FindExcessMessages(numHeadersToKeep, applyToFlaggedMessages,
+                              msgHdrsToDelete);
       break;
   }
   if (m_folder) {
@@ -4295,82 +4291,84 @@ NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(
                            &exploded);
     m_folder->SetStringProperty("LastPurgeTime", nsDependentCString(dateBuf));
   }
-  if (msgHdrsToDelete) {
-    uint32_t count;
-    msgHdrsToDelete->GetLength(&count);
-    if (count > 0) {
-      nsTArray<RefPtr<nsIMsgDBHdr>> doomed;
-      MsgHdrsToTArray(msgHdrsToDelete, doomed);
-      rv = m_folder->DeleteMessages(doomed, nullptr, true, false, nullptr,
-                                    false);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  if (msgHdrsToDelete.IsEmpty()) {
+    return NS_OK;  // No action required.
+  }
+
+  if (aDeleteViaFolder) {
+    // The folder delete will also delete headers from the DB.
+    rv = m_folder->DeleteMessages(msgHdrsToDelete, nullptr, true, false,
+                                  nullptr, false);
+  } else {
+    // We're just deleting headers in the DB.
+    uint32_t kindex = 0;
+    for (nsIMsgDBHdr* hdr : msgHdrsToDelete) {
+      // Commit after every 300.
+      rv = DeleteHeader(hdr, nullptr, kindex % 300, true);
+      if (NS_FAILED(rv)) {
+        break;
+      }
+    }
+    // compress commit if we deleted more than 10
+    if (msgHdrsToDelete.Length() > 10) {
+      Commit(nsMsgDBCommitType::kCompressCommit);
+    } else {
+      Commit(nsMsgDBCommitType::kLargeCommit);
     }
   }
   return rv;
 }
 
-nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
-                                               bool applyToFlaggedMessages,
-                                               nsIMutableArray* hdrsToDelete) {
+nsresult nsMsgDatabase::FindMessagesOlderThan(
+    uint32_t daysToKeepHdrs, bool applyToFlaggedMessages,
+    nsTArray<RefPtr<nsIMsgDBHdr>>& hdrsToDelete) {
   nsresult rv = NS_OK;
+  hdrsToDelete.Clear();
+
   nsCOMPtr<nsIMsgEnumerator> hdrs;
   rv = EnumerateMessages(getter_AddRefs(hdrs));
-  nsTArray<nsMsgKey> keysToDelete;
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (NS_FAILED(rv)) return rv;
-  bool hasMore = false;
-
+  // cutOffDay is the PRTime cut-off point. Any msg with a date less than
+  // that will get purged.
   PRTime cutOffDay = PR_Now() - daysToKeepHdrs * PR_USEC_PER_DAY;
 
-  // so now cutOffDay is the PRTime cut-off point. Any msg with a date less than
-  // that will get purged.
+  bool hasMore = false;
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
-    bool purgeHdr = false;
-
     nsCOMPtr<nsIMsgDBHdr> msg;
     rv = hdrs->GetNext(getter_AddRefs(msg));
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
-    if (NS_FAILED(rv)) break;
+    NS_ENSURE_SUCCESS(rv, rv);
 
     if (!applyToFlaggedMessages) {
       uint32_t flags;
       (void)msg->GetFlags(&flags);
-      if (flags & nsMsgMessageFlags::Marked) continue;
+      if (flags & nsMsgMessageFlags::Marked) {
+        continue;
+      }
     }
 
-    if (!purgeHdr) {
-      PRTime date;
-      msg->GetDate(&date);
-      if (date < cutOffDay) purgeHdr = true;
-    }
-    if (purgeHdr) {
-      nsMsgKey msgKey;
-      msg->GetMessageKey(&msgKey);
-      keysToDelete.AppendElement(msgKey);
-      if (hdrsToDelete) hdrsToDelete->AppendElement(msg);
+    PRTime date;
+    msg->GetDate(&date);
+    if (date < cutOffDay) {
+      hdrsToDelete.AppendElement(msg);
     }
   }
 
-  if (!hdrsToDelete) {
-    DeleteMessages(keysToDelete, nullptr);
-
-    if (keysToDelete.Length() >
-        10)  // compress commit if we deleted more than 10
-      Commit(nsMsgDBCommitType::kCompressCommit);
-    else if (!keysToDelete.IsEmpty())
-      Commit(nsMsgDBCommitType::kLargeCommit);
-  }
-  return rv;
+  return NS_OK;
 }
 
-nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
-                                            bool applyToFlaggedMessages,
-                                            nsIMutableArray* hdrsToDelete) {
+nsresult nsMsgDatabase::FindExcessMessages(
+    uint32_t numHeadersToKeep, bool applyToFlaggedMessages,
+    nsTArray<RefPtr<nsIMsgDBHdr>>& hdrsToDelete) {
   nsresult rv = NS_OK;
+  hdrsToDelete.Clear();
+
   nsCOMPtr<nsIMsgEnumerator> hdrs;
   rv = EnumerateMessages(getter_AddRefs(hdrs));
-  if (NS_FAILED(rv)) return rv;
-  bool hasMore = false;
-  nsTArray<nsMsgKey> keysToDelete;
+  NS_ENSURE_SUCCESS(rv, rv);
 
   mdb_count numHdrs = 0;
   if (m_mdbAllMsgHeadersTable)
@@ -4378,43 +4376,30 @@ nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
   else
     return NS_ERROR_NULL_POINTER;
 
+  bool hasMore = false;
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
     nsCOMPtr<nsIMsgDBHdr> msg;
-    bool purgeHdr = false;
     rv = hdrs->GetNext(getter_AddRefs(msg));
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
-    if (NS_FAILED(rv)) break;
+    NS_ENSURE_SUCCESS(rv, rv);
 
     if (!applyToFlaggedMessages) {
       uint32_t flags;
       (void)msg->GetFlags(&flags);
-      if (flags & nsMsgMessageFlags::Marked) continue;
+      if (flags & nsMsgMessageFlags::Marked) {
+        continue;
+      }
     }
 
     // this isn't quite right - we want to prefer unread messages (keep all of
     // those we can)
-    if (numHdrs > numHeadersToKeep) purgeHdr = true;
-
-    if (purgeHdr) {
-      nsMsgKey msgKey;
-      msg->GetMessageKey(&msgKey);
-      keysToDelete.AppendElement(msgKey);
+    if (numHdrs > numHeadersToKeep) {
       numHdrs--;
-      if (hdrsToDelete) hdrsToDelete->AppendElement(msg);
+      hdrsToDelete.AppendElement(msg);
     }
   }
 
-  if (!hdrsToDelete) {
-    int32_t numKeysToDelete = keysToDelete.Length();
-    if (numKeysToDelete > 0) {
-      DeleteMessages(keysToDelete, nullptr);
-      if (numKeysToDelete > 10)  // compress commit if we deleted more than 10
-        Commit(nsMsgDBCommitType::kCompressCommit);
-      else
-        Commit(nsMsgDBCommitType::kLargeCommit);
-    }
-  }
-  return rv;
+  return NS_OK;
 }
 
 NS_IMPL_ISUPPORTS(nsMsgRetentionSettings, nsIMsgRetentionSettings)
