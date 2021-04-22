@@ -208,7 +208,7 @@ AbAutoCompleteSearch.prototype = {
       searchQuery = searchQuery.substring(1);
     }
     return new Promise(resolve => {
-      this._abManager.getDirectory(directory.URI).search(searchQuery, {
+      directory.search(searchQuery, {
         onSearchFoundCard: card => {
           if (card.isMailList) {
             this._addToResult(commentColumn, directory, card, "", true, result);
@@ -464,8 +464,18 @@ AbAutoCompleteSearch.prototype = {
       // well, therefore by searching sub-directories (aka mailing lists) we're
       // just going to find duplicates.
       for (let dir of this._abManager.directories) {
-        if (dir.useForAutocomplete("idKey" in params ? params.idKey : null)) {
-          await this._searchCards(searchQuery, dir, result);
+        // A failure in one address book should no break the whole search.
+        try {
+          if (dir.useForAutocomplete("idKey" in params ? params.idKey : null)) {
+            await this._searchCards(searchQuery, dir, result);
+          }
+        } catch (ex) {
+          Cu.reportError(
+            new Components.Exception(
+              `Exception thrown by ${dir.URI}: ${ex.message}`,
+              ex
+            )
+          );
         }
       }
 
