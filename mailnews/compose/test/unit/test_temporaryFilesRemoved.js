@@ -51,14 +51,9 @@ async function getTemporaryFilesCount() {
     "nscopy.tmp": 0,
   };
   for (const path of entries) {
-    const stat = await IOUtils.stat(path);
     for (let pattern of Object.keys(tempFiles)) {
       let [name, extName] = pattern.split(".");
-      if (
-        stat.type !== "directory" &&
-        PathUtils.filename(path).startsWith(name) &&
-        path.endsWith(extName)
-      ) {
+      if (PathUtils.filename(path).startsWith(name) && path.endsWith(extName)) {
         tempFiles[pattern]++;
       }
     }
