@@ -195,7 +195,8 @@
               "toolbar_field_separator": {
                 "$ref": "ThemeColor",
                 "optional": true,
-                "description": "Not used in Thunderbird."
+                "description": "Not used in Thunderbird.",
+                "deprecated": "This color property is ignored in >= 89."
               },
               "toolbar_top_separator": {
                 "$ref": "ThemeColor",
