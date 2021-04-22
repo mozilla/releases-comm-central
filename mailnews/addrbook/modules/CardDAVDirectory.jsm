@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["CardDAVDirectory"];
+const EXPORTED_SYMBOLS = ["CardDAVDirectory", "NotificationCallbacks"];
 
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -183,10 +183,12 @@ class CardDAVDirectory extends SQLiteDirectory {
     }
     details.oAuth = this._oAuth;
 
-    details.username = this.getStringValue("carddav.username", "");
+    let username = this.getStringValue("carddav.username", "");
+    let callbacks = new NotificationCallbacks(username);
+    details.callbacks = callbacks;
+
     details.userContextId =
-      this._userContextId ??
-      CardDAVDirectory._contextForUsername(details.username);
+      this._userContextId ?? CardDAVDirectory._contextForUsername(username);
 
     let response = await CardDAVDirectory.makeRequest(uri, details);
     if (
@@ -199,10 +201,10 @@ class CardDAVDirectory extends SQLiteDirectory {
       );
     }
 
-    if (response.authInfo.shouldSave) {
+    if (callbacks.shouldSaveAuth) {
       // The user was prompted for a username and password. Save the response.
-      this.setStringValue("carddav.username", response.authInfo.username);
-      response.authInfo.save();
+      this.setStringValue("carddav.username", callbacks.authInfo?.username);
+      callbacks.saveAuth();
     }
     return response;
   }
@@ -788,8 +790,8 @@ class CardDAVDirectory extends SQLiteDirectory {
    * @param {String}  [details.contentType]
    * @param {msgIOAuth2Module}  [details.oAuth] - If this is present the
    *     request will use OAuth2 authorization.
-   * @param {String}  [details.username] - Used to pre-fill any auth dialogs.
-   * @param {String}  [details.password] - Used to pre-fill any auth dialogs.
+   * @param {NotificationCallbacks} [details.callbacks] - Handles usernames
+   *     and passwords for this request.
    * @param {integer} [details.userContextId] - See _contextForUsername.
    *
    * @return {Promise<Object>} - Resolves to an object with getters for:
@@ -808,8 +810,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       body = null,
       contentType = "text/xml",
       oAuth = null,
-      username = null,
-      password = null,
+      callbacks = new NotificationCallbacks(),
       userContextId = Ci.nsIScriptSecurityManager.DEFAULT_USER_CONTEXT_ID,
     } = details;
     headers["Content-Type"] = contentType;
@@ -860,8 +861,6 @@ class CardDAVDirectory extends SQLiteDirectory {
         channel.setUploadStream(stream, contentType, -1);
       }
       channel.requestMethod = method; // Must go after setUploadStream.
-
-      let callbacks = new NotificationCallbacks(username, password);
       channel.notificationCallbacks = callbacks;
 
       let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
@@ -947,15 +946,6 @@ class CardDAVDirectory extends SQLiteDirectory {
               }
               return this._dom;
             },
-            get authInfo() {
-              return {
-                shouldSave: callbacks.shouldSaveAuth,
-                username: callbacks.authInfo?.username,
-                save() {
-                  callbacks.saveAuth();
-                },
-              };
-            },
           });
         },
       });
@@ -990,10 +980,27 @@ function xmlEncode(string) {
     .replace(/>/g, "&gt;");
 }
 
+/**
+ * Passed to nsIChannel.notificationCallbacks in CardDAVDirectory.makeRequest.
+ * This handles HTTP authentication, prompting the user if necessary. It also
+ * ensures important headers are copied from one channel to another if a
+ * redirection occurs.
+ *
+ * @implements {nsIInterfaceRequestor}
+ * @implements {nsIAuthPrompt2}
+ * @implements {nsIChannelEventSink}
+ */
 class NotificationCallbacks {
-  constructor(username, password) {
+  /**
+   * @param {String}  [username] - Used to pre-fill any auth dialogs.
+   * @param {String}  [password] - Used to pre-fill any auth dialogs.
+   * @param {boolean} [forcePrompt] - Skips checking the password manager for
+   *     a password, even if username is given. The user will be prompted.
+   */
+  constructor(username, password, forcePrompt) {
     this.username = username;
     this.password = password;
+    this.forcePrompt = forcePrompt;
   }
   QueryInterface = ChromeUtils.generateQI([
     "nsIInterfaceRequestor",
@@ -1008,12 +1015,15 @@ class NotificationCallbacks {
     if (authInfo.flags & Ci.nsIAuthInformation.PREVIOUS_FAILED) {
       return false;
     }
-    let logins = Services.logins.findLogins(channel.URI.prePath, null, "");
-    for (let l of logins) {
-      if (l.username == this.username) {
-        authInfo.username = l.username;
-        authInfo.password = l.password;
-        return true;
+
+    if (!this.forcePrompt) {
+      let logins = Services.logins.findLogins(channel.URI.prePath, null, "");
+      for (let l of logins) {
+        if (l.username == this.username) {
+          authInfo.username = l.username;
+          authInfo.password = l.password;
+          return true;
+        }
       }
     }
 

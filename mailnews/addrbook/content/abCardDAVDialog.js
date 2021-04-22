@@ -16,6 +16,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.jsm",
+  NotificationCallbacks: "resource:///modules/CardDAVDirectory.jsm",
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
 });
@@ -24,7 +25,7 @@ var console = new ConsoleAPI();
 console.prefix = "CardDAV setup";
 
 var oAuth = null;
-var authInfo = null;
+var callbacks = null;
 var uiElements = {};
 var userContextId;
 
@@ -159,11 +160,11 @@ async function check() {
     }
 
     oAuth = null;
-    authInfo = null;
+    callbacks = new NotificationCallbacks(username, null, true);
 
     let requestParams = {
       method: "PROPFIND",
-      username,
+      callbacks,
       userContextId,
       headers: {
         Depth: 0,
@@ -229,9 +230,6 @@ async function check() {
       response = await CardDAVDirectory.makeRequest(url, requestParams);
       if (response.status == 207 && response.dom) {
         console.log(`${url} ... success`);
-        // The first successful response should have the username and password
-        // that the user entered. Save these for later.
-        authInfo = authInfo || response.authInfo;
       } else {
         console.log(
           `${url} ... response was "${response.status} ${response.statusText}"`
@@ -398,9 +396,9 @@ window.addEventListener("dialogaccept", event => {
           ""
         );
         Services.logins.addLogin(newLoginInfo);
-      } else if (authInfo?.username) {
-        book.setStringValue("carddav.username", authInfo.username);
-        authInfo.save();
+      } else if (callbacks.authInfo?.username) {
+        book.setStringValue("carddav.username", callbacks.authInfo.username);
+        callbacks.saveAuth();
       }
 
       let dir = CardDAVDirectory.forFile(book.fileName);
