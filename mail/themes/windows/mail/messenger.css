@@ -91,6 +91,7 @@
     --tabs-border-color: ThreeDShadow;
     --tabline-color: Highlight;
     --item-focus-selected-border-color: HighlightText;
+    --menuitem-vertical-padding: 3px;
   }
 
   :root:not(:-moz-lwtheme) .themeable-full,
@@ -138,19 +139,38 @@
 } /** END not Proton **/
 
 @media (-moz-proton-contextmenus) {
-menulist > menupopup > menu,
-menulist > menupopup > menuitem {
-  padding-inline-end: 0;
-}
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+  /* UI Density customization */
+  :root {
+    --menuitem-vertical-padding: 3px;
+  }
+  :root[uidensity="compact"] {
+    --menuitem-vertical-padding: 1px;
+  }
 
-.menu-iconic > .menu-iconic-left,
-.menuitem-iconic > .menu-iconic-left {
-  display: none;
-}
+  :root[uidensity="touch"] {
+    --menuitem-vertical-padding: 8px;
+  }
 
-.folderMenuItem > .menu-iconic-left,
-#imStatusMenupopup > .menuitem-iconic > .menu-iconic-left {
-  display: -moz-box;
+  menupopup > menu,
+  menupopup > menuitem {
+    padding-block: var(--menuitem-vertical-padding);
+  }
+
+  menulist > menupopup > menu,
+  menulist > menupopup > menuitem {
+    padding-inline-end: 0;
+  }
+
+  .menu-iconic > .menu-iconic-left,
+  .menuitem-iconic > .menu-iconic-left {
+    display: none;
+  }
+
+  .folderMenuItem > .menu-iconic-left,
+  #imStatusMenupopup > .menuitem-iconic > .menu-iconic-left {
+    display: -moz-box;
+  }
 }
 } /** END Proton **/
 
@@ -478,24 +498,26 @@ menulist {
 }
 } /** END Proton **/
 
-@media not (-moz-proton) {
-/* Give menupopup[is="folder-menupopup"] a menu look */
-menupopup[is="folder-menupopup"] {
-  appearance: auto;
-  -moz-default-appearance: menupopup;
-}
+@media not (-moz-proton),
+       (-moz-os-version: windows-win7),
+       (-moz-os-version: windows-win8) {
+  /* Give menupopup[is="folder-menupopup"] a menu look */
+  menupopup[is="folder-menupopup"] {
+    appearance: auto;
+    -moz-default-appearance: menupopup;
+  }
 
-menupopup[is="folder-menupopup"] menu[_moz-menuactive="true"],
-menupopup[is="folder-menupopup"] menuitem[_moz-menuactive="true"] {
-  color: -moz-MenuHoverText;
-  background-color: -moz-MenuHover;
-}
+  menupopup[is="folder-menupopup"] menu[_moz-menuactive="true"],
+  menupopup[is="folder-menupopup"] menuitem[_moz-menuactive="true"] {
+    color: -moz-MenuHoverText;
+    background-color: -moz-MenuHover;
+  }
 
-menupopup[is="folder-menupopup"] > menu,
-menupopup[is="folder-menupopup"] > menuitem {
-  appearance: auto;
-  -moz-default-appearance: menuitem !important;
-}
+  menupopup[is="folder-menupopup"] > menu,
+  menupopup[is="folder-menupopup"] > menuitem {
+    appearance: auto !important;
+    -moz-default-appearance: menuitem !important;
+  }
 } /** END not Proton **/
 
 menulist.folderMenuItem::part(label) {

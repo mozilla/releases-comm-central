@@ -25,9 +25,19 @@
 :root {
   --panel-separator-margin: 4px 8px;
   --arrowpanel-menuitem-border-radius: 3px;
-
+  --appmenu-button-padding: 6px;
   --panelview-toolbarbutton-hover-bgcolor: var(--arrowpanel-dimmed);
   --panelview-toolbarbutton-active-bgcolor: var(--arrowpanel-dimmed-further);
+}
+
+/* UI Density customization */
+
+:root[uidensity="compact"] {
+  --appmenu-button-padding: 3px;
+}
+
+:root[uidensity="touch"] {
+  --appmenu-button-padding: 9px;
 }
 } /** END Proton **/
 
@@ -64,11 +74,19 @@ panelmultiview[transitioning] > .panel-viewcontainer > .panel-viewstack > panelv
 
 /* This section is to anchor all the drop down panels at the same height, shift the
   panel`s top margin according to its positioning and the uidensity of the window. */
+@media not (-moz-proton) {
 #widget-overflow,
-#appMenu-popup,
-#customizationui-widget-panel {
+#appMenu-popup {
   margin-top: -6px;
 }
+} /** END not Proton **/
+
+@media (-moz-proton) {
+#widget-overflow,
+#appMenu-popup {
+  margin-top: -4px;
+}
+} /** END Proton **/
 
 .panel-subview-body {
   overflow-y: auto;
@@ -243,7 +261,8 @@ panelview .toolbarbutton-1,
   appearance: none;
   margin: 0 8px;
   min-height: 24px;
-  padding: 8px;
+  padding-inline: 8px;
+  padding-block: var(--appmenu-button-padding);
   border-radius: var(--arrowpanel-menuitem-border-radius);
   background-color: transparent;
 }
@@ -339,8 +358,13 @@ panelview .toolbarbutton-1,
 panelmultiview .toolbaritem-combined-buttons > label {
   -moz-box-flex: 1;
   margin: 0;
-  padding: 4px 0px;
 }
+
+@media (-moz-proton) {
+panelmultiview .toolbaritem-combined-buttons > label {
+  padding-inline-start: 4px;
+}
+} /** END Proton **/
 
 panelmultiview .toolbaritem-combined-buttons > spacer.before-label {
   width: 36px; /* 12px toolbarbutton padding + 16px icon + 8px label padding start */
@@ -358,6 +382,16 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
   min-width: auto;
   padding: 4px 5px;
 }
+
+@media (-moz-proton) {
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton {
+  padding-block: var(--appmenu-button-padding);
+}
+
+.PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton-iconic {
+  padding-inline: var(--appmenu-button-padding);
+}
+} /** END Proton **/
 
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton-iconic > .toolbarbutton-text,
 .PanelUI-subView .toolbaritem-combined-buttons > .subviewbutton:not(.subviewbutton-iconic) > .toolbarbutton-icon {
