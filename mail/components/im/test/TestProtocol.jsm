@@ -2,14 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["JSTestProtocol"];
+var EXPORTED_SYMBOLS = ["registerTestProtocol", "unregisterTestProtocol"];
 
-var { setTimeout } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var {
   GenericAccountPrototype,
   GenericConvIMPrototype,
   GenericProtocolPrototype,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
+var { ComponentUtils } = ChromeUtils.import(
+  "resource://gre/modules/ComponentUtils.jsm"
+);
+var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "UUIDGen",
+  "@mozilla.org/uuid-generator;1",
+  "nsIUUIDGenerator"
+);
 
 function Conversation(aAccount) {
   this._init(aAccount);
@@ -21,26 +31,18 @@ Conversation.prototype = {
     this._disconnected = true;
   },
   close() {
-    if (!this._disconnected) {
-      this.account.disconnect(true);
-    }
+    this._disconnected = true;
+    GenericConvIMPrototype.close.call(this);
   },
   sendMsg(aMsg) {
     if (this._disconnected) {
-      this.writeMessage(
-        "jstest",
-        "This message could not be sent because the conversation is no longer active: " +
-          aMsg,
-        { system: true, error: true }
-      );
       return;
     }
-
     this.writeMessage("You", aMsg, { outgoing: true });
-    this.writeMessage("/dev/null", "Thanks! I appreciate your attention.", {
-      incoming: true,
-      autoResponse: true,
-    });
+  },
+
+  addNotice() {
+    this.writeMessage("system", "test notice", { system: true });
   },
 
   get name() {
@@ -57,24 +59,11 @@ Account.prototype = {
     this.reportConnecting();
     // do something here
     this.reportConnected();
-    setTimeout(
-      function() {
-        this._conv = new Conversation(this);
-        this._conv.writeMessage("jstest", "You are now talking to /dev/null", {
-          system: true,
-        });
-      }.bind(this),
-      0
-    );
+    this._conv = new Conversation(this);
   },
   _conv: null,
-  disconnect(aSilent) {
+  disconnect() {
     this.reportDisconnecting(Ci.prplIAccount.NO_ERROR, "");
-    if (!aSilent) {
-      this._conv.writeMessage("jstest", "You have disconnected.", {
-        system: true,
-      });
-    }
     if (this._conv) {
       this._conv._setDisconnected();
       delete this._conv;
@@ -104,20 +93,31 @@ Account.prototype = {
   },
 
   // Nothing to do.
-  unInit() {},
+  unInit() {
+    if (this._conv) {
+      this._conv.close();
+      delete this._conv;
+    }
+  },
+  remove() {
+    if (this._conv) {
+      this._conv.close();
+      delete this._conv;
+    }
+  },
 };
 
-function JSTestProtocol() {}
-JSTestProtocol.prototype = {
+function TestProtocol() {}
+TestProtocol.prototype = {
   __proto__: GenericProtocolPrototype,
   get id() {
-    return "prpl-jstest";
+    return "prpl-mochitest";
   },
   get normalizedName() {
-    return "jstest";
+    return "mochitest";
   },
   get name() {
-    return "JS Test";
+    return "Mochitest";
   },
   options: {
     text: { label: "Text option", default: "foo" },
@@ -144,4 +144,43 @@ JSTestProtocol.prototype = {
   getAccount(aImAccount) {
     return new Account(this, aImAccount);
   },
+  classID: UUIDGen.generateUUID(),
+  classDescription: "",
+  contractID: "@mozilla.org/chat/mochitest;1",
 };
+
+const NSGetFactory = ComponentUtils.generateNSGetFactory([TestProtocol]);
+const factory = {
+  createInstance(outer, iid) {
+    return NSGetFactory(TestProtocol.prototype.classID).createInstance(
+      outer,
+      iid
+    );
+  },
+};
+const registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+
+function registerTestProtocol() {
+  registrar.registerFactory(
+    TestProtocol.prototype.classID,
+    "",
+    TestProtocol.prototype.contractID,
+    factory
+  );
+  Services.catMan.addCategoryEntry(
+    "im-protocol-plugin",
+    TestProtocol.prototype.id,
+    TestProtocol.prototype.contractID,
+    false,
+    true
+  );
+}
+
+function unregisterTestProtocol() {
+  Services.catMan.deleteCategoryEntry(
+    "im-protocol-plugin",
+    TestProtocol.prototype.id,
+    true
+  );
+  registrar.unregisterFactory(TestProtocol.prototype.classID, factory);
+}

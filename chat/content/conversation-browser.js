@@ -443,6 +443,9 @@
     }
 
     set isActive(value) {
+      if (!value && !this.browsingContext) {
+        return;
+      }
       this.browsingContext.isActive = value;
       if (value && this._pendingMessages.length) {
         this.startDisplayingPendingMessages(false);

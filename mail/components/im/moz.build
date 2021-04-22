@@ -12,6 +12,10 @@ EXTRA_JS_MODULES += [
     "modules/index_im.jsm",
 ]
 
+TESTING_JS_MODULES += [
+    "test/TestProtocol.jsm",
+]
+
 JAR_MANIFESTS += ["jar.mn"]
 
 JS_PREFERENCE_FILES += [
