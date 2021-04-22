@@ -44,6 +44,12 @@
   --message-bar-icon-url: var(--warn-icon-url);
 }
 
+@media (prefers-color-scheme: dark) {
+  :host([type=warning]) {
+    --message-bar-background-color: #ffe900;
+  }
+}
+
 :host([type=success]) {
   --message-bar-background-color: var(--green-50);
   --message-bar-text-color: var(--green-90);
@@ -309,10 +315,6 @@ strong {
   color: #0090ed;
 }
 
-:host([value=draftMsgContent]) .icon {
-  color: inherit;
-}
-
 @media (prefers-color-scheme: dark) {
   :host {
     --in-content-button-color: #f9f9fa;
@@ -324,10 +326,13 @@ strong {
     --in-content-focus-outline-color: #45a1ff;
   }
 
- @media (prefers-color-scheme: dark) {
   :host([type=info]) .icon {
     color: #45a1ff;
   }
+}
+
+:host([value=draftMsgContent]) .icon {
+  color: inherit;
 }
 } /** END Proton **/
 
