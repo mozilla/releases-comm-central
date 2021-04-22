@@ -185,10 +185,6 @@ function init()
     dispatch("help", { hello: true });
     dispatch("networks");
 
-    // Do this after the standard commands are run or we'll log them too!
-    initInstrumentation();
-    client.ceip.logEvent({type: "client", event: "start"});
-
     setTimeout(function() {
         dispatch("focus-input");
     }, 0);
@@ -544,44 +540,6 @@ function initApplicationCompatibility()
         client.lineEnd = "\r\n";
     else
         client.lineEnd = "\n";
-}
-
-function initInstrumentation()
-{
-    /* Make sure we assign the user a random key - this is not used for
-     * anything except percentage chance of participation. The value is
-     * 1 through 10000, inclusive. 0 indicates unset.
-     */
-    if (client.prefs["instrumentation.key"] == 0)
-    {
-        var rand = 1 + Math.floor(Math.random() * 10000);
-        client.prefs["instrumentation.key"] = rand;
-    }
-
-    client.ceip = new CEIP();
-
-    if (!client.prefs["instrumentation.ceip"])
-    {
-        /* We only want 1% of people to be asked here. Note: we select the 2nd
-         * percentile so we don't ask the same people we used for the pings.
-         */
-        var key = client.prefs["instrumentation.key"];
-        if ((key <= 100) || (key > 200))
-            return;
-
-        // User has not seen the info about this system. Show them the info.
-        var cmdYes = "allow-ceip";
-        var cmdNo = "deny-ceip";
-        var btnYes = getMsg(MSG_CEIP_COMMAND_YES, cmdYes);
-        var btnNo  = getMsg(MSG_CEIP_COMMAND_NO,  cmdNo);
-        client.munger.getRule(".inline-buttons").enabled = true;
-        client.display(getMsg(MSG_CEIP_MSG1, [btnYes, btnNo]));
-        client.display(getMsg(MSG_CEIP_MSG2, [cmdYes, cmdNo]));
-        client.munger.getRule(".inline-buttons").enabled = false;
-
-        // Don't hide *client* if we're asking the user about the startup ping.
-        client.lockView = true;
-    }
 }
 
 function getFindData(e)

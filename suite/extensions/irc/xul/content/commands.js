@@ -60,7 +60,6 @@ function initCommands()
          ["dehop",             cmdChanUserMode,    CMD_NEED_CHAN | CMD_CONSOLE],
          ["voice",             cmdChanUserMode,    CMD_NEED_CHAN | CMD_CONSOLE],
          ["devoice",           cmdChanUserMode,    CMD_NEED_CHAN | CMD_CONSOLE],
-         ["ceip",              cmdCEIP,                            CMD_CONSOLE],
          ["clear-view",        cmdClearView,                       CMD_CONSOLE],
          ["client",            cmdClient,                          CMD_CONSOLE],
          ["commands",          cmdCommands,                        CMD_CONSOLE],
@@ -233,9 +232,6 @@ function initCommands()
          ["toggle-text-dir",  "text-direction toggle",                       0],
          ["irtl",             "input-text-direction rtl",          CMD_CONSOLE],
          ["iltr",             "input-text-direction ltr",          CMD_CONSOLE],
-         // Instrumentation aliases
-         ["allow-ceip",       "ceip on; ceip",                               0],
-         ["deny-ceip",        "ceip off",                                    0],
          // Services aliases
          ["cs",               "quote cs",                                    0],
          ["ms",               "quote ms",                                    0],
@@ -2917,39 +2913,6 @@ function cmdAway(e)
             else if (!client.getConnectedNetworks())
                 display(MSG_AWAY_OFF);
         }
-    }
-}
-
-function cmdCEIP(e)
-{
-    const INST_URL = "chrome://chatzilla/content/ceip/config.xul";
-    const INST_OPT = "chrome,resizable=no,dialog=no";
-
-    if (e.state != null)
-    {
-        // Stop us from ever asking the user about this now.
-        client.prefs["instrumentation.ceip"] = true;
-        // We have a state, so set all options accordingly.
-        var prefs = client.prefManager.listPrefs("ceip.");
-        for (var i = 0; i < prefs.length; i++)
-        {
-            if (typeof client.prefs[prefs[i]] == "boolean")
-                client.prefs[prefs[i]] = e.state;
-        }
-        if (e.state)
-            feedback(e, MSG_CEIP_ENABLED);
-        else
-            feedback(e, MSG_CEIP_DISABLED);
-    }
-    else if (client.ceip.dialog)
-    {
-        // No state, so show the existing dialog.
-        client.ceip.dialog.focus();
-    }
-    else
-    {
-        // No existing dialog either, create the dialog.
-        window.openDialog(INST_URL, "", INST_OPT, window);
     }
 }
 

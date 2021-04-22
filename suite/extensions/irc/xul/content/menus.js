@@ -255,7 +255,6 @@ function initMenus()
          ["homepage"],
          ["faq"],
          ["-"],
-         ["ceip"],
          ["about", {id: "aboutName"}]
         ]
     };

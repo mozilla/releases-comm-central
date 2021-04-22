@@ -118,14 +118,6 @@ function initPrefs()
          ["bugURL",           "https://bugzilla.mozilla.org/show_bug.cgi?id=%s",
                                           "appearance.misc"],
          ["bugURL.comment",     "#c%s",   "appearance.misc"],
-         ["ceip.log.client",    false,    "hidden"],
-         ["ceip.log.command",   false,    "hidden"],
-         ["ceip.log.dialog",    false,    "hidden"],
-         ["ceip.log.menu",      false,    "hidden"],
-         ["ceip.uploadSize",    32 * 1024, "hidden"],
-         ["ceip.uploadUrl",     "http://silver.warwickcompsoc.co.uk/mozilla/chatzilla/ceip/1/upload",
-                                          "hidden"],
-         ["ceip.userid",        "",       "hidden"],
          ["channelHeader",      true,     "global.header"],
          ["channelLog",         false,    "global.log"],
          ["channelMaxLines",    500,      "global.maxLines"],
@@ -158,8 +150,6 @@ function initPrefs()
          ["initialScripts",     ["scripts/"], "startup.initialScripts"],
          ["initialURLs",        [],       "startup.initialURLs"],
          ["inputSpellcheck",     true,    "global"],
-         ["instrumentation.ceip", false,  "hidden"],
-         ["instrumentation.key", 0,       "hidden"],
          ["link.focus",         true,     "global.links"],
          ["log",                false,
                                           ".log"],
@@ -728,13 +718,6 @@ function onPrefChanged(prefName, newValue, oldValue)
             client.dispatch("sync-font");
             break;
 
-        case "instrumentation.inst1":
-            if ((oldValue == 0) && (newValue == 1))
-                runInstrumentation("inst1", true);
-            else
-                runInstrumentation("inst1", false);
-            break;
-
         case "proxy.typeOverride":
             CIRCNetwork.prototype.PROXY_TYPE_OVERRIDE = newValue;
             break;
@@ -865,8 +848,6 @@ function onPrefChanged(prefName, newValue, oldValue)
             {
                 rule.enabled = newValue;
             }
-            if (prefName.substr(0, 9) == "ceip.log.")
-                client.ceip.notifyUpdate();
     }
 }
 

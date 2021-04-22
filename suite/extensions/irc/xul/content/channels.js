@@ -75,8 +75,6 @@ function onLoad()
     client = window.arguments[0].client;
     client.joinDialog = window;
 
-    client.ceip.logEvent({type: "dialog", dialog: "channels", event: "open"});
-
     window.dd = client.mainWindow.dd;
     window.ASSERT = client.mainWindow.ASSERT;
     window.toUnicode = client.mainWindow.toUnicode;
@@ -156,7 +154,6 @@ function onLoad()
 
 function onUnload()
 {
-    client.ceip.logEvent({type: "dialog", dialog: "channels", event: "close"});
     delete client.joinDialog;
 }
 
@@ -286,8 +283,6 @@ function joinChannel()
     var index = tree.view.selectedIndex;
     var row = tree.view.childData.locateChildByVisualRow(index);
     var realIndex = index + (tree.newItem.isHidden ? 1 : 0);
-    client.ceip.logEvent({type: "dialog", dialog: "channels", event: "join",
-                          index: realIndex});
 
     client.dispatch("attach", { ircUrl: xul.network.value + "/" + row.name });
 
@@ -696,9 +691,6 @@ function processOpFilterStart(opData)
         // Log that user has specified an explicit prefix.
         filters.push("prefix");
     }
-
-    client.ceip.logEvent({type: "dialog", dialog: "channels", event: "filter",
-                          filters: filters.join(",")});
 
     // Update special "create channel" row, and select it.
     tree.newItem.name = opData.channelText;
