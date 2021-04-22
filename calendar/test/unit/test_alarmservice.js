@@ -4,6 +4,7 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { TestUtils } = ChromeUtils.import("resource://testing-common/TestUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
@@ -152,6 +153,7 @@ function run_test() {
   add_test(test_loadCalendar);
   add_test(test_modifyItems);
   add_test(test_notificationTimers);
+  add_test(test_calendarLevelNotificationTimers);
 
   run_next_test();
 }
@@ -465,9 +467,9 @@ function doRunTest(aOnCalendarCreated, aOnAlarmsLoaded) {
 
   calmgr.registerCalendar(memory);
 
-  alarmObserver.doOnAlarmsLoaded(memory, () => {
+  alarmObserver.doOnAlarmsLoaded(memory, async () => {
     if (aOnAlarmsLoaded) {
-      aOnAlarmsLoaded.call(aOnAlarmsLoaded, memory);
+      await aOnAlarmsLoaded(memory);
     }
 
     run_next_test();
@@ -568,6 +570,48 @@ function test_notificationTimers() {
       undefined,
       "notification timers should be removed"
     );
+
+    Services.prefs.clearUserPref("calendar.notifications.times");
+  });
+}
+
+/**
+ * Test notification timers are set up correctly according to the calendar level
+ * notifications.times config.
+ */
+function test_calendarLevelNotificationTimers() {
+  let loaded = false;
+  let item;
+  doRunTest(null, async memory => {
+    if (!loaded) {
+      loaded = true;
+      // Set the global pref to have one notifiaction.
+      Services.prefs.setCharPref("calendar.notifications.times", "PT1H");
+
+      // Add an item.
+      let date = cal.dtz.now();
+      date.hour += 2;
+      [item] = createEventWithAlarm(memory, date, date, null);
+      memory.addItem(item, null);
+
+      // Should have one notification timer.
+      matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
+        3600,
+      ]);
+      // Set the calendar level pref to have two notification timers.
+      memory.setProperty("notifications.times", "PT5M PT0M");
+    }
+
+    await TestUtils.waitForCondition(
+      () => alarmObserver.service.mNotificationTimerMap[item.calendar.id]?.[item.hashId].length == 2
+    );
+    // Should have two notification timers
+    matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
+      6900, // 105 minutes
+      7200, // 120 minutes
+    ]);
+
+    Services.prefs.clearUserPref("calendar.notifications.times");
   });
 }
 

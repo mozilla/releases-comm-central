@@ -91,6 +91,7 @@ function CalAlarmService() {
       switch (aName) {
         case "suppressAlarms":
         case "disabled":
+        case "notifications.times":
           this.alarmService.initAlarms([aCalendar]);
           break;
       }
@@ -484,9 +485,8 @@ CalAlarmService.prototype = {
       startDate = item.entryDate || item.dueDate;
     }
     return this.parseNotificationTimeToSeconds(
-      // TODO: this is the global notification time, a calendar level pref will
-      // override it.
-      gNotificationsTimes
+      // The calendar level notifications setting overrides the global setting.
+      item.calendar.getProperty("notifications.times") || gNotificationsTimes
     )
       .map(seconds => {
         let fireDate = startDate.clone();
@@ -646,6 +646,14 @@ CalAlarmService.prototype = {
           }
         }
         delete this.mTimerMap[calendar.id];
+      }
+      if (calendar.id in this.mNotificationTimerMap) {
+        for (let timers of Object.values(this.mNotificationTimerMap[calendar.id])) {
+          for (let timer of timers) {
+            timer.cancel();
+          }
+        }
+        delete this.mNotificationTimerMap[calendar.id];
       }
     }
   },
