@@ -644,7 +644,7 @@ var EmailAccountProvisioner = {
     request.timeout = CONNECTION_TIMEOUT;
     request.ontimeout = () => {
       gLog.info("Timeout of XMLHttpRequest fetching provider list.");
-      request.onError();
+      request.onerror();
     };
     request.send(null);
 
