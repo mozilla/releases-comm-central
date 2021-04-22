@@ -6,68 +6,70 @@
 #include "nsIRunnable.idl"
 #include "prplIConversation.idl"
 
-/*
+/**
  * An action that the user may perform in relation to a particular message.
  */
 [scriptable, uuid(7e470f0e-d948-4d9a-b8dc-4beecf6554b9)]
 interface prplIMessageAction: nsIRunnable
 {
-  /* The protocol plugins need to provide a localized label suitable
-     for being shown in the user interface (for example as a context
-     menu item). */
+  /**
+   * The protocol plugins need to provide a localized label suitable
+   * for being shown in the user interface (for example as a context
+   * menu item).
+   */
   readonly attribute AUTF8String label;
 };
 
 [scriptable, uuid(d6accb66-cdd2-4a91-8854-1156e65d5a43)]
 interface prplIMessage: nsISupports {
-  /* The uniqueness of the message id is only guaranteed across
-     messages of a conversation, not across all messages created
-     during the execution of the application. */
+  /**
+   * The uniqueness of the message id is only guaranteed across
+   * messages of a conversation, not across all messages created
+   * during the execution of the application.
+   */
   readonly attribute unsigned long id;
+  /** The name of the message sender. */
   readonly attribute AUTF8String who;
+  /** The alias of the message sender (frequently the same as who). */
   readonly attribute AUTF8String alias;
+  /** The original message, if it was modified, e.g. via OTR. */
   readonly attribute AUTF8String originalMessage;
+  /** The message that will be sent over the wire. */
            attribute AUTF8String message;
+  /** An icon to associate with the message sender. */
   readonly attribute AUTF8String iconURL;
-  // Value in seconds.
+  /** The time the message was sent, in seconds. */
   readonly attribute PRTime time;
+  /** The conversation the message was sent to. */
   readonly attribute prplIConversation conversation;
 
-  /*  PURPLE_MESSAGE_SEND        = 0x0001, /**< Outgoing message. */
+  /** Outgoing message. */
   readonly attribute boolean outgoing;
-  /*  PURPLE_MESSAGE_RECV        = 0x0002, /**< Incoming message. */
+  /** Incoming message. */
   readonly attribute boolean incoming;
-  /*  PURPLE_MESSAGE_SYSTEM      = 0x0004, /**< System message.   */
+  /** System message, i.e. a message from the server or client (not from another user). */
   readonly attribute boolean system;
-  /*  PURPLE_MESSAGE_AUTO_RESP   = 0x0008, /**< Auto response.    */
+  /** Auto response. */
   readonly attribute boolean autoResponse;
-  /*  PURPLE_MESSAGE_ACTIVE_ONLY = 0x0010, /**< Hint to the UI that this
-                                                message should not be
-                                                shown in conversations
-                                                which are only open for
-                                                internal UI purposes
-                                                (e.g. for contact-aware
-                                                 conversions).           */
-  /*  PURPLE_MESSAGE_NICK        = 0x0020, /**< Contains your nick.      */
+  /** Contains your nick, e.g. if you were pinged. */
   readonly attribute boolean containsNick;
-  /*  PURPLE_MESSAGE_NO_LOG      = 0x0040, /**< Do not log.              */
+  /** This message should not be logged. */
   readonly attribute boolean noLog;
-  /*  PURPLE_MESSAGE_ERROR       = 0x0200, /**< Error message.           */
+  /** Error message. */
   readonly attribute boolean error;
-  /*  PURPLE_MESSAGE_DELAYED     = 0x0400, /**< Delayed message.         */
+  /** Delayed message, e.g. it was received from a queue of historical messages on the server. */
   readonly attribute boolean delayed;
-  /*  PURPLE_MESSAGE_RAW         = 0x0800, /**< "Raw" message - don't
-                                                apply formatting         */
+  /** "Raw" message - don't apply formatting. */
   readonly attribute boolean noFormat;
-  /*  PURPLE_MESSAGE_IMAGES      = 0x1000, /**< Message contains images  */
+  /** Message contains images. */
   readonly attribute boolean containsImages;
-  /*  PURPLE_MESSAGE_NOTIFY      = 0x2000, /**< Message is a notification */
+  /** Message is a notification. */
   readonly attribute boolean notification;
-  /*  PURPLE_MESSAGE_NO_LINKIFY  = 0x4000  /**< Message should not be auto-linkified */
+  /** Message should not be auto-linkified. */
   readonly attribute boolean noLinkification;
-  /* Do not collapse the message. */
+  /** Do not collapse the message. */
   readonly attribute boolean noCollapse;
-  /* Message is encrypted */
+  /** Message is encrypted. */
   readonly attribute boolean isEncrypted;
 
   /**
