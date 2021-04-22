@@ -701,7 +701,7 @@ pref("mail.display_glyph", true);
 pref("mail.display_struct", true);
 // HTML->HTML *bold* etc. during Send; ditto
 pref("mail.send_struct", false);
-// display time and date in message pane using senders timezone
+// display time and date using senders timezone in message pane and when printing
 pref("mailnews.display.date_senders_timezone", false);
 // For the next 4 prefs, see <http://www.bucksch.org/1/projects/mozilla/108153>
 // Ignore HTML parts in multipart/alternative

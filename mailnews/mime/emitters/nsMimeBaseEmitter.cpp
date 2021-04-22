@@ -587,11 +587,8 @@ nsresult nsMimeBaseEmitter::GenerateDateString(const char* dateString,
   /**
    * See if the user wants to have the date displayed in the senders
    * timezone (including the timezone offset).
-   * We also evaluate the pref original_date which was introduced
-   * as makeshift in bug 118899.
    */
   bool displaySenderTimezone = false;
-  bool displayOriginalDate = false;
 
   nsCOMPtr<nsIPrefService> prefs =
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
@@ -602,10 +599,6 @@ nsresult nsMimeBaseEmitter::GenerateDateString(const char* dateString,
   NS_ENSURE_SUCCESS(rv, rv);
 
   dateFormatPrefs->GetBoolPref("date_senders_timezone", &displaySenderTimezone);
-  dateFormatPrefs->GetBoolPref("original_date", &displayOriginalDate);
-  // migrate old pref to date_senders_timezone
-  if (displayOriginalDate && !displaySenderTimezone)
-    dateFormatPrefs->SetBoolPref("date_senders_timezone", true);
 
   PRExplodedTime explodedMsgTime;
 
@@ -678,7 +671,7 @@ char* nsMimeBaseEmitter::GetLocalizedDateString(const char* dateString) {
   nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
 
   if (prefBranch)
-    prefBranch->GetBoolPref("mailnews.display.original_date",
+    prefBranch->GetBoolPref("mailnews.display.date_senders_timezone",
                             &displayOriginalDate);
 
   if (!displayOriginalDate) {
