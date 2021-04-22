@@ -51,7 +51,6 @@ XMPPProtocol.prototype = {
       },
       separator: "@",
       defaultValue: "jabber.org",
-      reverse: true,
     },
   ],
 

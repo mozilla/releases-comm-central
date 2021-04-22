@@ -126,34 +126,16 @@ UnknownProtocol.prototype = {
 
   // false seems an acceptable default for all options
   // (they should never be called anyway).
-  get uniqueChatName() {
-    return false;
-  },
   get chatHasTopic() {
     return false;
   },
   get noPassword() {
     return false;
   },
-  get newMailNotification() {
-    return false;
-  },
-  get imagesInIM() {
-    return false;
-  },
   get passwordOptional() {
     return true;
   },
-  get usePointSize() {
-    return true;
-  },
-  get registerNoScreenName() {
-    return false;
-  },
   get slashCommandsNative() {
-    return false;
-  },
-  get usePurpleProxy() {
     return false;
   },
 };

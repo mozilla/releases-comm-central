@@ -1067,9 +1067,6 @@ UsernameSplit.prototype = {
   get defaultValue() {
     return this._values.defaultValue;
   },
-  get reverse() {
-    return !!this._values.reverse;
-  }, // Ensure boolean
 };
 
 function ChatRoomField(aIdentifier, aField) {
@@ -1186,34 +1183,16 @@ var GenericProtocolPrototype = {
   },
   accountExists: () => false, // FIXME
 
-  get uniqueChatName() {
-    return false;
-  },
   get chatHasTopic() {
     return false;
   },
   get noPassword() {
     return false;
   },
-  get newMailNotification() {
-    return false;
-  },
-  get imagesInIM() {
-    return false;
-  },
   get passwordOptional() {
     return false;
   },
-  get usePointSize() {
-    return true;
-  },
-  get registerNoScreenName() {
-    return false;
-  },
   get slashCommandsNative() {
-    return false;
-  },
-  get usePurpleProxy() {
     return false;
   },
 

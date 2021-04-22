@@ -2358,7 +2358,6 @@ ircProtocol.prototype = {
       },
       separator: "@",
       defaultValue: "chat.freenode.net",
-      reverse: true,
     },
   ],
 

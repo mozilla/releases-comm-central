@@ -138,7 +138,6 @@ JSTestProtocol.prototype = {
       label: "Server",
       separator: "@",
       defaultValue: "default.server",
-      reverse: true,
     },
   ],
   getAccount(aImAccount) {
