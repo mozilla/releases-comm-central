@@ -90,11 +90,13 @@
                control="calendar-username"/>
       </html:th>
       <html:td>
-        <html:input id="calendar-username"
-                    type="text"
-                    class="input-inline"
-                    disable-with-calendar="true"
-                    aria-labelledby="calendar-username-label"/>
+        <hbox flex="1" class="input-container">
+          <html:input id="calendar-username"
+                      type="text"
+                      class="input-inline"
+                      disable-with-calendar="true"
+                      aria-labelledby="calendar-username-label"/>
+        </hbox>
       </html:td>
     </html:tr>
     <html:tr id="calendar-uri-row">

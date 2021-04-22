@@ -43,7 +43,11 @@ function onLoad() {
 
   document.getElementById("calendar-name").value = gCalendar.name;
   document.getElementById("calendar-color").value = calColor || "#A8C2E1";
-  document.getElementById("calendar-uri").value = gCalendar.uri.spec;
+  if (["memory", "storage"].includes(gCalendar.type)) {
+    document.getElementById("calendar-uri-row").hidden = true;
+  } else {
+    document.getElementById("calendar-uri").value = gCalendar.uri.spec;
+  }
   document.getElementById("read-only").checked = gCalendar.readOnly;
 
   if (gCalendar.getProperty("capabilities.username.supported") === true) {
