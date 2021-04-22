@@ -222,10 +222,6 @@ function initCommands()
          ["statusbar",        "toggle-ui status",                  CMD_CONSOLE],
          ["header",           "toggle-ui header",                  CMD_CONSOLE],
 
-         ["add-ons",           cmdAddons,                                    0],
-         ["jsconsole",         cmdJSConsole,                                 0],
-         ["about-config",      cmdAboutConfig,                               0],
-
          // text-direction aliases
          ["rtl",              "text-direction rtl",                CMD_CONSOLE],
          ["ltr",              "text-direction ltr",                CMD_CONSOLE],
@@ -2201,7 +2197,7 @@ function cmdGotoURL(e)
         return;
     }
 
-    if ((e.command.name == "goto-url-external") || (client.host == "XULRunner"))
+    if ((e.command.name == "goto-url-external"))
     {
         const extProtoSvc = getService(EXT_PROTO_SVC,
                                        "nsIExternalProtocolService");
@@ -2252,12 +2248,7 @@ function cmdGotoURL(e)
     {
         try
         {
-            if (typeof browserWin.openUILinkIn == "function")
-                browserWin.openUILinkIn(e.url, "tab");
-            else if (client.host == "Mozilla")
-                browserWin.openNewTabWith(e.url, false, false);
-            else
-                browserWin.openNewTabWith(e.url, null, null, null, null);
+            browserWin.openUILinkIn(e.url, "tab");
         }
         catch (ex)
         {
@@ -4642,21 +4633,4 @@ function cmdWebSearch(e)
         searchURL = "https://www.google.com/search?q=" + searchText;
     }
     dispatch(client.prefs["messages.click"], {url: searchURL});
-}
-
-function cmdAddons(e)
-{
-    toOpenWindowByType("Addons:Manager",
-                       "chrome://mozapps/content/extensions/extensions.xul");
-}
-
-function cmdJSConsole(e)
-{
-    toOpenWindowByType("global:console", "chrome://global/content/console.xul");
-}
-
-function cmdAboutConfig(e)
-{
-    toOpenWindowByType("Preferences:ConfigManager",
-                       "chrome://global/content/config.xul");
 }

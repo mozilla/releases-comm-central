@@ -76,18 +76,6 @@ function initMenus()
     var Mac      = "(client.platform == 'Mac')";
     var NotMac   = "(client.platform != 'Mac')";
 
-    // Platform values
-    var Mozilla    = "(client.host == 'Mozilla')";
-    var NotMozilla = "(client.host != 'Mozilla')";
-    var Toolkit    = NotMozilla;
-    var XULRunner  = "(client.host == 'XULRunner')";
-
-    // Useful combinations
-    var ToolkitOnLinux    = "(" + Toolkit + " and " + Linux + ")";
-    var ToolkitNotOnLinux = "(" + Toolkit + " and " + NotLinux + ")";
-    var ToolkitOnMac      = "(" + Toolkit + " and " + Mac + ")";
-    var ToolkitNotOnMac   = "(" + Toolkit + " and " + NotMac + ")";
-
     // IRC specific values
     var ViewClient  = "(cx.TYPE == 'IRCClient')";
     var ViewNetwork = "(cx.TYPE == 'IRCNetwork')";
@@ -114,10 +102,6 @@ function initMenus()
          ["-"],
          ["print"],
          ["save"],
-         ["-",                 {visibleif: XULRunner}],
-         ["add-ons",           {visibleif: XULRunner}],
-         ["jsconsole",         {visibleif: XULRunner}],
-         ["about-config",      {visibleif: XULRunner}],
          ["-",           {visibleif: NotMac}],
          ["exit",        {visibleif: Win}],
          ["quit",        {visibleif: NotMac + " and " + NotWin}]
@@ -187,11 +171,8 @@ function initMenus()
          ["-"],
          ["find"],
          ["find-again", {enabledif: "canFindAgainInPage()"}],
-         // Mozilla (suite) gets  : separator, Mozilla Prefs, ChatZilla prefs.
-         // Toolkit Linux apps get: separator, ChatZilla prefs.
-         // Toolkit Mac apps get  : ChatZilla prefs (special Mac ID).
-         ["-",                   {visibleif: Mozilla}],
-         ["cmd-mozilla-prefs",   {visibleif: Mozilla}]
+         ["-"],
+         ["cmd-mozilla-prefs"]
         ]
     };
 
@@ -251,7 +232,7 @@ function initMenus()
         domID: "menu_Help",
         items:
         [
-         ["-", {visibleif: Mozilla}],
+         ["-"],
          ["homepage"],
          ["faq"],
          ["-"],
@@ -368,8 +349,8 @@ function initMenus()
         items:
         [
          ["goto-url", {visibleif: urlenabled}],
-         ["goto-url-newwin", {visibleif: urlexternal + " && !" + XULRunner}],
-         ["goto-url-newtab", {visibleif: urlexternal + " && !" + XULRunner}],
+         ["goto-url-newwin", {visibleif: urlexternal}],
+         ["goto-url-newtab", {visibleif: urlexternal}],
          ["cmd-copy-link-url", {visibleif: urlenabled}],
          ["cmd-copy", {visibleif: "!" + urlenabled, enabledif: textselected }],
          ["cmd-selectall", {visibleif: "!" + urlenabled }],
@@ -476,26 +457,7 @@ function createMenus()
     client.menuManager.createMenus(document, "mainmenu");
     client.menuManager.createContextMenus(document);
 
-    // The menus and the component bar need to be hidden on some hosts.
-    var winMenu   = document.getElementById("windowMenu");
-    var tasksMenu = document.getElementById("tasksMenu");
-    var comBar    = document.getElementById("component-bar");
-
-    if (client.host != "Mozilla") {
-        tasksMenu.parentNode.removeChild(tasksMenu);
-        winMenu.parentNode.removeChild(winMenu);
-    } else {
-        comBar.collapsed = false;
-    }
-
-    if (client.host == "XULRunner")
-    {
-        // This is a hack to work around Gecko bug 98997, which means that
-        // :empty causes menus to be hidden until we force a reflow.
-        var menuBar = document.getElementById("mainmenu");
-        menuBar.hidden = true;
-        menuBar.hidden = false;
-    }
+    document.getElementById("component-bar").collapsed = false;
 }
 
 function getCommandContext (id, event)

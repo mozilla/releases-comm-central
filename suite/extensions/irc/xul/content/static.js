@@ -8,7 +8,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const __cz_version   = "0.9.96";
 const __cz_condition = "green";
-const __cz_suffix    = "";
 const __cz_guid      = "59c81df5-4b7a-477b-912d-4e0fdf64e5f2";
 const __cz_locale    = "0.9.92";
 
@@ -121,8 +120,6 @@ function init()
 
     initApplicationCompatibility();
     initMessages();
-    if (client.host == "")
-        showErrorDlg(getMsg(MSG_ERR_UNKNOWN_HOST, client.unknownUID));
 
     initCommands();
     initPrefs();
@@ -415,109 +412,24 @@ function initStatic()
 function getVersionInfo()
 {
     var version = new Object();
-    version.cz = __cz_version + (__cz_suffix ? "-" + __cz_suffix : "");
-    version.ua = navigator.userAgent;
+    version.cz = __cz_version;
 
-    var app = getService("@mozilla.org/xre/app-info;1", "nsIXULAppInfo");
-    if (app)
-    {
-        // Use the XUL host app info, and Gecko build ID.
-        if (app.ID == "{" + __cz_guid + "}")
-        {
-            /* We ARE the app, in other words, we're running in XULrunner.
-             * Because of this, we must disregard app.(name|vendor|version).
-             */
-
-            // "XULRunner 1.7+"
-            version.hostName = "XULRunner";
-            version.hostVersion = app.platformVersion;
-            version.host = version.hostName + " " + version.hostVersion;
-
-            // "XULRunner 1.7+/2005071506"
-            version.ua = version.host + "/" + app.platformBuildID;
-            version.hostBuildID = app.platformBuildID;
-        }
-        else
-        {
-            // "Mozilla Firefox 1.0+"
-            version.hostName = app.vendor + " " + app.name;
-            version.hostVersion = app.version;
-            version.host = version.hostName + " " + version.hostVersion;
-
-            // "Firefox 1.0+/2005071506"
-            if ("platformBuildID" in app) // 1.1 and up
-                version.hostBuildID = app.platformBuildID;
-            else if ("geckoBuildID" in app) // 1.0 - 1.1 trunk only
-                version.hostBuildID = app.geckoBuildID;
-            else // Uh oh!
-                version.hostBuildID = "??????????";
-            version.ua = app.name + " " + app.version + "/" +
-                         version.hostBuildID;
-        }
-    }
-    else
-    {
-        // Extract the revision number, and Gecko build ID.
-        var ary = navigator.userAgent.match(/(rv:[^;)\s]+).*?Gecko\/(\d+)/);
-        if (ary)
-        {
-            if (navigator.vendor)
-                version.ua = navigator.vendor + " " + navigator.vendorSub; // FF 1.0
-            else
-                version.ua = client.entities.brandShortName + " " + ary[1]; // Suite
-            version.ua += "/" + ary[2];
-            version.hostBuildID = ary[2];
-        }
-        version.hostName = client.entities.brandShortName;
-        version.hostVersion = "";
-        version.host = version.hostName;
-    }
-
-    version.host += ", " + client.platform;
+    var app = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
+    version.hostName = app.vendor + " " + app.name;
+    version.hostVersion = app.version;
+    version.host = version.hostName + " " + version.hostVersion + ", " +
+                   client.platform;
+    version.hostBuildID = app.platformBuildID;
+    version.ua = app.name + " " + app.version + "/" + version.hostBuildID;
 
     return version;
 }
 
 function initApplicationCompatibility()
 {
-    // This function does nothing more than tweak the UI based on the host
-    // application.
+    // This function does nothing more than tweak the UI based on the platform.
 
-    // Set up simple host and platform information.
-    client.host = "Unknown";
-
-    var app = getService("@mozilla.org/xre/app-info;1", "nsIXULAppInfo");
-    // nsIXULAppInfo wasn't implemented before 1.8...
-    if (app)
-    {
-        // Use the XULAppInfo.ID to find out what host we run on.
-        switch (app.ID)
-        {
-            case "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}":
-                client.host = "Firefox";
-                break;
-            case "{" + __cz_guid + "}":
-                // We ARE the app, in other words, we're running in XULRunner.
-                client.host = "XULRunner";
-                break;
-            case "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}": // SeaMonkey
-                client.host = "Mozilla";
-                break;
-            case "{a463f10c-3994-11da-9945-000d60ca027b}": // Flock
-                client.host = "Flock";
-                break;
-            case "{3db10fab-e461-4c80-8b97-957ad5f8ea47}": // Netscape
-                client.host = "Netscape";
-                break;
-            default:
-                client.unknownUID = app.ID;
-                client.host = ""; // Unknown host, show an error later.
-        }
-    }
-    else
-    {
-        client.host = ""; // We don't know this host. Show an error later.
-    }
+    // Set up simple platform information.
 
     client.platform = "Unknown";
     if (navigator.platform.search(/mac/i) > -1)
@@ -526,10 +438,8 @@ function initApplicationCompatibility()
         client.platform = "Windows";
     if (navigator.platform.search(/linux/i) > -1)
         client.platform = "Linux";
-    if (navigator.platform.search(/os\/2/i) > -1)
-        client.platform = "OS/2";
 
-    client.hostPlatform = client.host + client.platform;
+    client.hostPlatform = "Mozilla" + client.platform;
 
     CIRCServer.prototype.OS_RPLY = navigator.oscpu + " (" +
                                    navigator.platform + ")";
@@ -2158,8 +2068,6 @@ function initOfflineIcon()
 
             // Actually change the offline state.
             client.iosvc.offline = !client.iosvc.offline;
-            // Update the pref:
-            this.updatePrefFromOffline();
         },
         canGoOffline: function offline_check()
         {
@@ -2177,54 +2085,6 @@ function initOfflineIcon()
                 dd("Exception when trying to ask if we could go offline:" + ex);
             }
             return true;
-        },
-        updateOfflineFromPref: function offline_syncFromPref()
-        {
-            // On toolkit, we might have smart management of offline mode.
-            // Don't interfere.
-            var ioSvc2 = this._getNewIOSvc();
-            if (ioSvc2 && ioSvc2.manageOfflineStatus)
-                return;
-
-            // This is app-managed, or should be, on startup:
-            if (client.host == "Mozilla")
-                return;
-
-            var isOffline = false;
-            var prefSvc = getService("@mozilla.org/preferences-service;1",
-                                     "nsIPrefBranch");
-            // Let the app-specific hacks begin:
-            try {
-                if (client.host == "XULRunner")
-                    isOffline = !prefSvc.getBoolPref("network.online");
-                else // Toolkit based, but not standalone
-                    isOffline = prefSvc.getBoolPref("browser.offline");
-            }
-            catch (ex) { /* Whatever. */ }
-
-            // Actually do it:
-            client.iosvc.offline = isOffline;
-        },
-        updatePrefFromOffline: function offline_syncToPref()
-        {
-            // This is app-managed, or should be.
-            if (client.host == "Mozilla")
-                return;
-
-            var isOffline = client.iosvc.offline;
-            var prefSvc = getService("@mozilla.org/preferences-service;1",
-                                     "nsIPrefBranch");
-            // Let the app-specific hacks begin:
-            try {
-                if (client.host == "XULRunner")
-                    prefSvc.setBoolPref("network.online", !isOffline);
-                else // Toolkit based, but not standalone
-                    prefSvc.setBoolPref("browser.offline", isOffline);
-            }
-            catch (ex)
-            {
-                dd("Couldn't set offline pref! Error:" + ex);
-            }
         }
     };
 
@@ -2242,7 +2102,6 @@ function initOfflineIcon()
 
     var elem = client.offlineObserver._element;
     elem.setAttribute("onclick", "client.offlineObserver.toggleOffline()");
-    client.offlineObserver.updateOfflineFromPref();
     client.offlineObserver.updateOfflineUI();
 
     // Don't leak:

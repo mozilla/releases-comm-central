@@ -53,11 +53,6 @@ function initPrefs()
 
     var gotos = ["goto-url-newtab", "goto-url-newwin",
                  "goto-url-newtab", "goto-url-newtab"];
-    if (client.host == "XULRunner")
-    {
-        gotos = ["goto-url-external", "goto-url-external",
-                 "goto-url-external", "goto-url-external"];
-    }
 
     // Set up default nickname, if possible.
     var defaultNick = DEFAULT_NICK;
