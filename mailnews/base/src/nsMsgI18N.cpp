@@ -141,11 +141,20 @@ nsresult CopyUTF16toMUTF7(const nsAString& aSrc, nsACString& aDest) {
 // MUTF-7 or UTF-8.
 nsresult CopyFolderNameToUTF16(const nsACString& aSrc, nsAString& aDest) {
   if (NS_IsAscii(aSrc.BeginReading(), aSrc.Length())) {
-    return CopyMUTF7toUTF16(aSrc, aDest);
-  } else {
-    CopyUTF8toUTF16(aSrc, aDest);
-    return NS_OK;
+    // An ASCII string may not be valid MUTF-7. For example, it may contain an
+    // ampersand not immediately followed by a dash which is invalid MUTF-7.
+    // Check for validity by converting to UTF-16 and then back to MUTF-7 and
+    // the result should be unchanged. If the MUTF-7 is invalid, treat it as
+    // UTF-8.
+    if (NS_SUCCEEDED(CopyMUTF7toUTF16(aSrc, aDest))) {
+      nsAutoCString tmp;
+      CopyUTF16toMUTF7(aDest, tmp);
+      if (aSrc.Equals(tmp)) return NS_OK;
+    }
   }
+  // Do if aSrc non-ASCII or if ASCII but invalid MUTF-7.
+  CopyUTF8toUTF16(aSrc, aDest);
+  return NS_OK;
 }
 
 nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest) {
