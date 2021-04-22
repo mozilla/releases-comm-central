@@ -44,6 +44,7 @@ var calendarTaskButtonDNDObserver;
 
       aItem.calendar = getSelectedCalendar();
       aItem.title = aMsgHdr.mime2DecodedSubject;
+      aItem.setProperty("URL", `mid:${aMsgHdr.messageId}`);
 
       cal.dtz.setDefaultStartEndHour(aItem);
       cal.alarms.setDefaultValues(aItem);

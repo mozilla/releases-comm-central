@@ -115,6 +115,7 @@ var calendarExtract = {
     item.title = message.mime2DecodedSubject;
     item.calendar = getSelectedCalendar();
     item.setProperty("DESCRIPTION", content);
+    item.setProperty("URL", `mid:${message.messageId}`);
     cal.dtz.setDefaultStartEndHour(item);
     cal.alarms.setDefaultValues(item);
     let sel = getMessagePaneBrowser().contentWindow.getSelection();
