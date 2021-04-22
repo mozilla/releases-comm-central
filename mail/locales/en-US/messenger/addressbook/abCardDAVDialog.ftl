@@ -9,33 +9,17 @@ carddav-dialog =
     .buttonlabelaccept = Continue
     .buttonaccesskeyaccept = C
 
-carddav-provider-label =
-    .value = CardDAV Provider:
-    .accesskey = P
-
-carddav-provider-option-other = Other provider…
-
-carddav-url-label =
-    .value = CardDAV URL:
-    .accesskey = V
-
 carddav-username-label =
     .value = Username:
     .accesskey = U
-carddav-username-input =
-    .placeholder = you@example.com
-
-carddav-password-label =
-    .value = Password:
-    .accesskey = w
-carddav-password-input =
-    .placeholder = Password
-
-carddav-remember-password =
-    .label = Remember password
-    .accesskey = m
+carddav-location-label =
+    .value = Location:
+    .accesskey = L
+carddav-location =
+    .default-placeholder = URL or host name of the address book server
 
 carddav-loading = Looking up configuration…
+carddav-known-incompatible = { $url } is known to be incompatible with { -brand-short-name }.
 carddav-connection-error = Failed to connect.
 carddav-none-found = Found no address books to add for the specified account.
 carddav-already-added = All address books for the specified account have already been added.

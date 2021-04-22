@@ -8,7 +8,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<window data-l10n-id="carddav-window"
+<window minwidth="500"
+        data-l10n-id="carddav-window"
         data-l10n-attrs="title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
@@ -18,6 +19,7 @@
         data-l10n-attrs="buttonlabelaccept,buttonaccesskeyaccept">
 
   <linkset>
+    <html:link rel="localization" href="branding/brand.ftl"/>
     <html:link rel="localization" href="messenger/addressbook/abCardDAVDialog.ftl"/>
   </linkset>
 
@@ -27,23 +29,24 @@
   <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <html:div id="carddav-properties-table">
-    <!-- <html:div>
-      <label control="carddav-provider"
-             data-l10n-id="carddav-provider-label"
-             data-l10n-attrs="value,accesskey"/>
-    </html:div>
-    <html:div class="input-container">
-      <html:select id="carddav-provider" onchange="handleChangeProvider(event);">
-      </html:select>
-    </html:div> -->
     <html:div>
-      <label control="carddav-url"
-             data-l10n-id="carddav-url-label"
+      <label control="carddav-username"
+             data-l10n-id="carddav-username-label"
              data-l10n-attrs="value,accesskey"/>
     </html:div>
     <html:div class="input-container">
-      <html:input id="carddav-url" type="url"
-                  placeholder="https://carddav.example.com/"
+      <html:input id="carddav-username"
+                  oninput="fillLocationPlaceholder();"/>
+    </html:div>
+    <html:div>
+      <label control="carddav-location"
+             data-l10n-id="carddav-location-label"
+             data-l10n-attrs="value,accesskey"/>
+    </html:div>
+    <html:div class="input-container">
+      <html:input id="carddav-location" type="location"
+                  data-l10n-id="carddav-location"
+                  data-l10n-attrs="default-placeholder"
                   required="required"
                   onblur="handleCardDAVURLBlur(event);"
                   oninput="handleCardDAVURLInput(event);"/>

@@ -26,7 +26,7 @@ async function wrappedTest(testInitCallback, ...attemptArgs) {
 
   CardDAVServer.open("alice", "alice");
   if (testInitCallback) {
-    testInitCallback();
+    await testInitCallback();
   }
 
   let abWindow = await openAddressBookWindow();
@@ -63,7 +63,8 @@ async function wrappedTest(testInitCallback, ...attemptArgs) {
 async function attemptInit(
   dialogWindow,
   {
-    url = CardDAVServer.origin,
+    username,
+    url,
     certError,
     password,
     savePassword,
@@ -74,19 +75,26 @@ async function attemptInit(
   let dialogDocument = dialogWindow.document;
   let acceptButton = dialogDocument.querySelector("dialog").getButton("accept");
 
-  let urlInput = dialogDocument.getElementById("carddav-url");
+  let usernameInput = dialogDocument.getElementById("carddav-username");
+  let urlInput = dialogDocument.getElementById("carddav-location");
   let statusMessage = dialogDocument.getElementById("carddav-statusMessage");
   let availableBooks = dialogDocument.getElementById("carddav-availableBooks");
 
-  urlInput.select();
-  EventUtils.sendString(url, dialogWindow);
+  if (username) {
+    usernameInput.select();
+    EventUtils.sendString(username, dialogWindow);
+  }
+  if (url) {
+    urlInput.select();
+    EventUtils.sendString(url, dialogWindow);
+  }
 
   let certPromise =
     certError === undefined ? Promise.resolve() : handleCertError();
   let promptPromise =
     password === undefined
       ? Promise.resolve()
-      : handlePasswordPrompt(password, savePassword);
+      : handlePasswordPrompt(username, password, savePassword);
 
   acceptButton.click();
 
@@ -128,7 +136,7 @@ function handleCertError() {
   );
 }
 
-function handlePasswordPrompt(password, savePassword = true) {
+function handlePasswordPrompt(expectedUsername, password, savePassword = true) {
   return BrowserTestUtils.promiseAlertDialog(null, undefined, {
     async callback(prompt) {
       await new Promise(resolve => prompt.setTimeout(resolve));
@@ -141,7 +149,14 @@ function handlePasswordPrompt(password, savePassword = true) {
         return;
       }
 
-      prompt.document.getElementById("loginTextbox").value = "alice";
+      if (expectedUsername) {
+        Assert.equal(
+          prompt.document.getElementById("loginTextbox").value,
+          expectedUsername
+        );
+      } else {
+        prompt.document.getElementById("loginTextbox").value = "alice";
+      }
       prompt.document.getElementById("password1Textbox").value = password;
 
       let checkbox = prompt.document.getElementById("checkbox");
@@ -181,10 +196,15 @@ add_task(function testBadSSL() {
 
 /** Test an ordinary HTTP server that doesn't support CardDAV. */
 add_task(function testNotACardDAVServer() {
-  return wrappedTest(() => {
-    CardDAVServer.server.registerPathHandler("/", null);
-    CardDAVServer.server.registerPathHandler("/.well-known/carddav", null);
-  }, {});
+  return wrappedTest(
+    () => {
+      CardDAVServer.server.registerPathHandler("/", null);
+      CardDAVServer.server.registerPathHandler("/.well-known/carddav", null);
+    },
+    {
+      url: "/",
+    }
+  );
 });
 
 /** Test a CardDAV server without the /.well-known/carddav response. */
@@ -193,6 +213,7 @@ add_task(function testNoWellKnown() {
     () =>
       CardDAVServer.server.registerPathHandler("/.well-known/carddav", null),
     {
+      url: "/",
       password: "alice",
       expectedStatus: "",
       expectedBooks: DEFAULT_BOOKS,
@@ -202,15 +223,22 @@ add_task(function testNoWellKnown() {
 
 /** Test cancelling the password prompt when it appears. */
 add_task(function testPasswordCancelled() {
-  return wrappedTest(null, { password: null });
+  return wrappedTest(null, {
+    url: "/",
+    password: null,
+  });
 });
 
 /** Test entering the wrong password, then retrying with the right one. */
 add_task(function testBadPassword() {
   return wrappedTest(
     null,
-    { password: "bob" },
     {
+      url: "/",
+      password: "bob",
+    },
+    {
+      url: "/",
       password: "alice",
       expectedStatus: "",
       expectedBooks: DEFAULT_BOOKS,
@@ -225,6 +253,31 @@ add_task(function testDirectLink() {
     password: "alice",
     expectedStatus: "",
     expectedBooks: [DEFAULT_BOOKS[1]],
+  });
+});
+
+/** Test that entering only a username finds the right URL. */
+add_task(function testEmailGoodPreset() {
+  return wrappedTest(
+    async () => {
+      // The server is open but we need it on a specific port.
+      await CardDAVServer.close();
+      CardDAVServer.open("alice@test.invalid", "alice", 9999);
+    },
+    {
+      username: "alice@test.invalid",
+      password: "alice",
+      expectedStatus: "",
+      expectedBooks: DEFAULT_BOOKS,
+    }
+  );
+});
+
+/** Test that entering only a bad username fails appropriately. */
+add_task(function testEmailBadPreset() {
+  return wrappedTest(null, {
+    username: "alice@bad.invalid",
+    expectedStatus: "carddav-known-incompatible",
   });
 });
 
@@ -247,6 +300,7 @@ add_task(async function testEveryThingOK() {
     {
       async callback(dialogWindow) {
         await attemptInit(dialogWindow, {
+          url: CardDAVServer.origin,
           password: "alice",
           expectedStatus: "",
           expectedBooks: DEFAULT_BOOKS,
@@ -329,6 +383,7 @@ add_task(async function testEveryThingOKAgain() {
     {
       async callback(dialogWindow) {
         await attemptInit(dialogWindow, {
+          url: CardDAVServer.origin,
           password: "alice",
           expectedStatus: "",
           expectedBooks: [DEFAULT_BOOKS[0]],
@@ -405,6 +460,7 @@ add_task(async function testNoSavePassword() {
     {
       async callback(dialogWindow) {
         await attemptInit(dialogWindow, {
+          url: CardDAVServer.origin,
           password: "alice",
           savePassword: false,
           expectedStatus: "",
@@ -473,7 +529,7 @@ add_task(async function testSavePasswordLater() {
   );
   let davDirectory = CardDAVDirectory.forFile(directory.fileName);
 
-  let promptPromise = handlePasswordPrompt("alice");
+  let promptPromise = handlePasswordPrompt("alice", "alice");
   let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
   davDirectory.fetchAllFromServer();
   await promptPromise;

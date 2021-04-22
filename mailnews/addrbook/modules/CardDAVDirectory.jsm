@@ -789,6 +789,7 @@ class CardDAVDirectory extends SQLiteDirectory {
    * @param {msgIOAuth2Module}  [details.oAuth] - If this is present the
    *     request will use OAuth2 authorization.
    * @param {String}  [details.username] - Used to pre-fill any auth dialogs.
+   * @param {String}  [details.password] - Used to pre-fill any auth dialogs.
    * @param {integer} [details.userContextId] - See _contextForUsername.
    *
    * @return {Promise<Object>} - Resolves to an object with getters for:
@@ -808,6 +809,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       contentType = "text/xml",
       oAuth = null,
       username = null,
+      password = null,
       userContextId = Ci.nsIScriptSecurityManager.DEFAULT_USER_CONTEXT_ID,
     } = details;
     headers["Content-Type"] = contentType;
@@ -859,7 +861,7 @@ class CardDAVDirectory extends SQLiteDirectory {
       }
       channel.requestMethod = method; // Must go after setUploadStream.
 
-      let callbacks = new NotificationCallbacks(username);
+      let callbacks = new NotificationCallbacks(username, password);
       channel.notificationCallbacks = callbacks;
 
       let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
@@ -989,8 +991,9 @@ function xmlEncode(string) {
 }
 
 class NotificationCallbacks {
-  constructor(username) {
+  constructor(username, password) {
     this.username = username;
+    this.password = password;
   }
   QueryInterface = ChromeUtils.generateQI([
     "nsIInterfaceRequestor",
@@ -1015,6 +1018,7 @@ class NotificationCallbacks {
     }
 
     authInfo.username = this.username;
+    authInfo.password = this.password;
 
     let savePasswordLabel = null;
     let savePassword = {};

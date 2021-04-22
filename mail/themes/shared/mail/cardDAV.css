@@ -2,14 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#carddav-provider {
-  height: 1.8em;
-}
-
-#carddav-provider {
-  margin: 2px 4px;
-}
-
 #carddav-statusArea {
   background: transparent;
   border: 1px solid transparent;

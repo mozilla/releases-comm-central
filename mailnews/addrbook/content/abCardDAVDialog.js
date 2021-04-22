@@ -2,19 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
+var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
-  ConsoleAPI: "resource://gre/modules/Console.jsm",
   ContextualIdentityService:
     "resource://gre/modules/ContextualIdentityService.jsm",
-  MailServices: "resource:///modules/MailServices.jsm",
   OAuth2: "resource:///modules/OAuth2.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  Services: "resource://gre/modules/Services.jsm",
 });
 
 var console = new ConsoleAPI();
@@ -25,50 +28,57 @@ var authInfo = null;
 var uiElements = {};
 var userContextId;
 
-window.addEventListener("DOMContentLoaded", async () => {
-  for (let id of [
-    "dialog",
-    "url",
-    "statusArea",
-    "statusMessage",
-    "resultsArea",
-    "availableBooks",
-  ]) {
-    uiElements[id] = document.getElementById("carddav-" + id);
-  }
+// Use presets only where DNS discovery fails. Set to null to prevent
+// auto-fill completely for a domain.
+const PRESETS = {
+  // For testing purposes.
+  "bad.invalid": null,
+  // Google responds correctly but the provided address returns 404.
+  "gmail.com": "https://www.googleapis.com",
+  "googlemail.com": "https://www.googleapis.com",
+  // For testing purposes.
+  "test.invalid": "http://localhost:9999",
+  // Yahoo! OAuth is not working yet.
+  "yahoo.com": null,
+};
 
-  await document.l10n.ready;
-  /*
-  let presets = {
-    Fastmail: "https://carddav.fastmail.com",
-    Google: "https://www.googleapis.com",
-  };
-  // TODO: Only load presets of accounts we have.
-  let provider = document.getElementById("carddav-provider");
-  for (let [label, hostname] of Object.entries(presets)) {
-    let option = document.createElementNS(
-      "http://www.w3.org/1999/xhtml",
-      "option"
+window.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+    for (let id of [
+      "username",
+      "location",
+      "statusArea",
+      "statusMessage",
+      "resultsArea",
+      "availableBooks",
+    ]) {
+      uiElements[id] = document.getElementById("carddav-" + id);
+    }
+
+    await document.l10n.ready;
+    fillLocationPlaceholder();
+  },
+  { once: true }
+);
+
+/**
+ * Update the placeholder text for the network location field. If the username
+ * is a valid email address use the domain part of the username, otherwise use
+ * the default placeholder.
+ */
+function fillLocationPlaceholder() {
+  let parts = uiElements.username.value.split("@");
+  let domain = parts.length == 2 && parts[1] ? parts[1] : null;
+
+  if (domain) {
+    uiElements.location.setAttribute("placeholder", domain);
+  } else {
+    uiElements.location.setAttribute(
+      "placeholder",
+      uiElements.location.getAttribute("default-placeholder")
     );
-    option.label = label;
-    option.value = hostname;
-    provider.appendChild(option);
   }
-  let other = document.createElementNS(
-    "http://www.w3.org/1999/xhtml",
-    "option"
-  );
-  other.value = "";
-  document.l10n.setAttributes(other, "carddav-provider-option-other");
-  provider.appendChild(other);
-
-  uiElements.url.value = provider.value;
-  */
-});
-
-function handleChangeProvider(event) {
-  uiElements.url.value = event.target.value;
-  changeCardDAVURL();
 }
 
 function handleCardDAVURLInput(event) {
@@ -82,10 +92,10 @@ function changeCardDAVURL() {
 
 function handleCardDAVURLBlur(event) {
   if (
-    uiElements.url.validity.typeMismatch &&
-    !uiElements.url.value.match(/^https?:\/\//)
+    uiElements.location.validity.typeMismatch &&
+    !uiElements.location.value.match(/^https?:\/\//)
   ) {
-    uiElements.url.value = `https://${uiElements.url.value}`;
+    uiElements.location.value = `https://${uiElements.location.value}`;
   }
 }
 
@@ -93,8 +103,10 @@ async function check() {
   // We might be accepting the dialog by pressing Enter in the URL input.
   handleCardDAVURLBlur();
 
-  if (!uiElements.url.validity.valid) {
-    console.error(`Invalid URL: "${uiElements.url.value}"`);
+  let username = uiElements.username.value;
+
+  if (!uiElements.location.validity.valid && !username.split("@")[1]) {
+    console.error(`Invalid URL: "${uiElements.location.value}"`);
     return;
   }
 
@@ -107,16 +119,51 @@ async function check() {
   userContextId = Math.floor(Date.now() / 1000);
 
   try {
-    let url = uiElements.url.value;
-    if (!url.match(/^https?:\/\//)) {
+    let url = uiElements.location.value || username.split("@")[1];
+    if (url in PRESETS) {
+      if (PRESETS[url] === null) {
+        // Let the code handle the first status-changed event before firing
+        // another. This isn't necessary for the front-end but saves a lot of
+        // messing around to make the tests work.
+        await new Promise(r => setTimeout(r));
+
+        console.error(`${url} is known to be incompatible`);
+        setStatus("error", "carddav-known-incompatible", { url });
+        return;
+      }
+      console.log(`Using preset URL for ${url}`);
+      url = PRESETS[url];
+    } else if (!url.match(/^https?:\/\//)) {
       url = "https://" + url;
     }
+
     url = new URL(url);
+    if (url.pathname == "/" && !(url.hostname in PRESETS)) {
+      console.log(`Looking up DNS record for ${url.hostname}`);
+      let srvRecords = await DNS.srv(`_carddavs._tcp.${url.hostname}`);
+      srvRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
+
+      if (srvRecords[0]) {
+        url = new URL(`https://${srvRecords[0].host}`);
+
+        let txtRecords = await DNS.txt(`_carddavs._tcp.${srvRecords[0].host}`);
+        txtRecords.sort((a, b) => a.prio - b.prio || b.weight - a.weight);
+        txtRecords = txtRecords.filter(result =>
+          result.data.startsWith("path=")
+        );
+
+        if (txtRecords[0]) {
+          url.pathname = txtRecords[0].data.substr(5);
+        }
+      }
+    }
+
     oAuth = null;
     authInfo = null;
 
     let requestParams = {
       method: "PROPFIND",
+      username,
       userContextId,
       headers: {
         Depth: 0,
@@ -148,6 +195,9 @@ async function check() {
       );
       oAuth._loginOrigin = `oauth://${issuer}`;
       oAuth._scope = scope;
+      if (username) {
+        oAuth.extraAuthParams = [["login_hint", username]];
+      }
 
       // Implement msgIOAuth2Module.connect, which CardDAV.makeRequest expects.
       requestParams.oAuth = {
@@ -287,15 +337,20 @@ async function check() {
       setStatus();
     }
   } catch (ex) {
-    Cu.reportError(ex);
+    console.error(ex);
     setStatus("error", "carddav-connection-error");
   }
 }
 
-function setStatus(status, message) {
+function setStatus(status, message, args) {
+  for (let b of document.querySelectorAll("#carddav-provider-list button")) {
+    b.disabled = status == "loading";
+  }
+  uiElements.location.disabled = status == "loading";
+
   if (status) {
     uiElements.statusArea.setAttribute("status", status);
-    document.l10n.setAttributes(uiElements.statusMessage, message);
+    document.l10n.setAttributes(uiElements.statusMessage, message, args);
     window.sizeToContent();
   } else {
     uiElements.statusArea.removeAttribute("status");

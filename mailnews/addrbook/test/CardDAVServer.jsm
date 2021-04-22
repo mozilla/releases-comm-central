@@ -26,9 +26,9 @@ var CardDAVServer = {
   server: null,
   isOpen: false,
 
-  open(username, password) {
+  open(username, password, port = -1) {
     this.server = new HttpServer();
-    this.server.start(-1);
+    this.server.start(port);
     this.isOpen = true;
 
     this.username = username;
