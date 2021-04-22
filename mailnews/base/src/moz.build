@@ -118,7 +118,6 @@ EXTRA_JS_MODULES += [
     "OAuth2Module.jsm",
     "OAuth2Providers.jsm",
     "TemplateUtils.jsm",
-    "TraceHelper.jsm",
     "VirtualFolderWrapper.jsm",
     "WinUnreadBadge.jsm",
 ]
