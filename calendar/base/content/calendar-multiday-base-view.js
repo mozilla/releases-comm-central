@@ -669,29 +669,29 @@
      */
     onResize() {
       const scrollboxRect = this.scrollbox.getBoundingClientRect();
-      if (scrollboxRect.width == this.mWidth && scrollboxRect.height == this.mHeight) {
-        // Return early if we're still the previous size.
-        return;
+      let ppmHasChanged = false;
+
+      if (scrollboxRect.width != this.mWidth && scrollboxRect.height != this.mHeight) {
+        this.mWidth = scrollboxRect.width;
+        this.mHeight = scrollboxRect.height;
+
+        const isOrientHorizontal = this.getAttribute("orient") == "horizontal";
+
+        const size = isOrientHorizontal ? scrollboxRect.width : scrollboxRect.height;
+
+        const ppmRaw = size / this.mVisibleMinutes;
+        const ppmRounded = Math.floor(ppmRaw * 1000) / 1000;
+
+        const ppm = ppmRounded < this.mMinPixelsPerMinute ? this.mMinPixelsPerMinute : ppmRounded;
+
+        ppmHasChanged = this.pixelsPerMinute != ppm;
+        this.pixelsPerMinute = ppm;
+
+        setTimeout(() => this.scrollToMinute(this.mFirstVisibleMinute), 0);
+
+        // Fit the weekday labels while scrolling.
+        this.adjustWeekdayLength(isOrientHorizontal);
       }
-      this.mWidth = scrollboxRect.width;
-      this.mHeight = scrollboxRect.height;
-
-      const isOrientHorizontal = this.getAttribute("orient") == "horizontal";
-
-      const size = isOrientHorizontal ? scrollboxRect.width : scrollboxRect.height;
-
-      const ppmRaw = size / this.mVisibleMinutes;
-      const ppmRounded = Math.floor(ppmRaw * 1000) / 1000;
-
-      const ppm = ppmRounded < this.mMinPixelsPerMinute ? this.mMinPixelsPerMinute : ppmRounded;
-
-      const ppmHasChanged = this.pixelsPerMinute != ppm;
-      this.pixelsPerMinute = ppm;
-
-      setTimeout(() => this.scrollToMinute(this.mFirstVisibleMinute), 0);
-
-      // Fit the weekday labels while scrolling.
-      this.adjustWeekdayLength(isOrientHorizontal);
 
       // Adjust the time indicator position and the related timer.
       if (this.mTimeIndicatorInterval != 0) {
