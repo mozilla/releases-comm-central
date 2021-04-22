@@ -148,15 +148,6 @@ static int MimeMessage_parse_line(const char* aLine, int32_t aLength,
      */
     nl = (length > 0 && (line[length - 1] == '\r' || line[length - 1] == '\n'));
 
-    if (!mime_typep(kid, (MimeObjectClass*)&mimeMessageClass) && obj->options &&
-        !obj->options->is_multipart_msg && !obj->options->decrypt_p &&
-        mime_typep(kid, (MimeObjectClass*)&mimeInlineTextPlainFlowedClass)) {
-      // Remove any stuffed space.
-      if (length > 0 && ' ' == *line) {
-        line++;
-        length--;
-      }
-    }
 #ifdef MIME_DRAFTS
     if (!mime_typep(kid, (MimeObjectClass*)&mimeMessageClass) && obj->options &&
         obj->options->decompose_file_p && !obj->options->is_multipart_msg &&

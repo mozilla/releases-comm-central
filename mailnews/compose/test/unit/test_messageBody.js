@@ -62,13 +62,12 @@ add_task(async function testQP() {
     "QP for non-ascii should work"
   );
 
-  // Bug 1689804 - Avoid a QP soft line break before a space.
+  // Test leading space is preserved.
 
   fields = new CompFields();
   fields.forceMsgEncoding = true;
   fields.to = "Nobody <nobody@tinderbox.invalid>";
-  fields.subject =
-    "Bug 1689804 - Save a space to the previous line on a quoted printable soft line break.";
+  fields.subject = "Leading space is valid in a quoted printable message";
   fields.body = "123456789" + " 123456789".repeat(6) + "1234 56789";
   await richCreateMessage(fields, [], identity);
 
@@ -81,7 +80,49 @@ add_task(async function testQP() {
 
   Assert.equal(
     body.trimRight("\r\n"),
-    "123456789 123456789 123456789 123456789 123456789 123456789 1234567891234=20\r\n56789"
+    "123456789 123456789 123456789 123456789 123456789 123456789 1234567891234=\r\n 56789"
+  );
+
+  Services.prefs.clearUserPref("mail.strictly_mime");
+});
+
+/**
+ * Test QP is not used together with format=flowed.
+ */
+add_task(async function testNoQPWithFormatFlowed() {
+  if (!Services.prefs.getBoolPref("mailnews.send.jsmodule")) {
+    return;
+  }
+  // Together with fields.forceMsgEncoding, force quote-printable encoding.
+  Services.prefs.setBoolPref("mail.strictly_mime", true);
+
+  let identity = getSmtpIdentity(
+    "from@tinderbox.invalid",
+    getBasicSmtpServer()
+  );
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  fields.forceMsgEncoding = true;
+  fields.forcePlainText = true;
+  fields.to = "Nobody <nobody@tinderbox.invalid>";
+  fields.subject = "Test QP encoding for trailing whitespace";
+  fields.body = "A line with trailing whitespace\t ";
+  await richCreateMessage(fields, [], identity);
+
+  let msgData = mailTestUtils.loadMessageToString(
+    gDraftFolder,
+    mailTestUtils.firstMsgHdr(gDraftFolder)
+  );
+  Assert.ok(
+    msgData.includes(
+      "Content-Type: text/plain; charset=UTF-8; format=flowed\r\nContent-Transfer-Encoding: base64"
+    ),
+    "format=flowed should be used"
+  );
+  Assert.ok(
+    !msgData.includes("quoted-printable"),
+    "quoted-printable should not be used"
   );
 
   Services.prefs.clearUserPref("mail.strictly_mime");

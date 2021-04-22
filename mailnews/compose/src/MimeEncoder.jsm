@@ -94,7 +94,17 @@ class MimeEncoder {
         (strictlyMime && this._unPrintableCount) ||
         this._nullCount
       ) {
-        encodeP = true;
+        if (
+          this._isMainBody &&
+          this._contentType == "text/plain" &&
+          // From rfc3676#section-4.2, Quoted-Printable encoding SHOULD NOT be
+          // used with Format=Flowed unless absolutely necessary.
+          Services.prefs.getBoolPref("mailnews.send_plaintext_flowed")
+        ) {
+          needsB64 = true;
+        } else {
+          encodeP = true;
+        }
       }
 
       // MIME requires a special case that these types never be encoded.
@@ -408,12 +418,7 @@ class MimeEncoder {
 
       if (currentColumn >= 73) {
         // Soft line break for readability
-        if (i + 1 < this._bodySize && this._body[i + 1] == " ") {
-          out += "=20\r\n";
-          i++;
-        } else {
-          out += "=\r\n";
-        }
+        out += "=\r\n";
         white = false;
         currentColumn = 0;
       }

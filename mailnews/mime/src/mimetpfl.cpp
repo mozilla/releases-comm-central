@@ -277,7 +277,9 @@ static int MimeInlineTextPlainFlowed_parse_line(const char* aLine,
   const char* linep = real_line.BeginReading();
   // Space stuffed?
   if (' ' == *linep) {
+    line++;
     linep++;
+    length--;
   } else {
     // count '>':s before the first non-'>'
     while ('>' == *linep) {
