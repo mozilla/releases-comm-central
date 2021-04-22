@@ -220,9 +220,12 @@ var VCardUtils = {
       vProps.splice(indicesToRemove[i], 1);
     }
 
-    // Always add a UID if there isn't one.
-    if (vProps.findIndex(prop => prop[0] == "uid") == -1) {
+    // Always set the UID.
+    let uidIndex = vProps.findIndex(prop => prop[0] == "uid");
+    if (uidIndex == -1) {
       vProps.push(["uid", {}, "text", abCard.UID]);
+    } else {
+      vProps[uidIndex] = ["uid", {}, "text", abCard.UID];
     }
 
     return ICAL.stringify(card);

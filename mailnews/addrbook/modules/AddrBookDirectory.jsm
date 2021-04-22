@@ -522,6 +522,10 @@ class AddrBookDirectory {
         // longer needed. Don't store them.
         continue;
       }
+      if (card.directoryUID && ["_etag", "_href"].includes(name)) {
+        // These properties belong to a different directory. Don't keep them.
+        continue;
+      }
       newCard.setProperty(name, value);
     }
     this.saveCardProperties(newCard);
