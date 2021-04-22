@@ -1003,33 +1003,32 @@ function saveAccount(accountValues, account) {
   }
 
   for (var type in accountValues) {
+    var dest;
+    try {
+      if (type == "identity") {
+        dest = identity;
+      } else if (type == "server") {
+        dest = server;
+      } else if (type == "pop3") {
+        dest = server.QueryInterface(Ci.nsIPop3IncomingServer);
+      } else if (type == "imap") {
+        dest = server.QueryInterface(Ci.nsIImapIncomingServer);
+      } else if (type == "none") {
+        dest = server.QueryInterface(Ci.nsINoIncomingServer);
+      } else if (type == "nntp") {
+        dest = server.QueryInterface(Ci.nsINntpIncomingServer);
+      } else if (type == "smtp") {
+        dest = MailServices.smtp.defaultServer;
+      }
+    } catch (ex) {
+      // don't do anything, just means we don't support that
+    }
+    if (dest == undefined) {
+      continue;
+    }
     var typeArray = accountValues[type];
 
     for (var slot in typeArray) {
-      var dest;
-      try {
-        if (type == "identity") {
-          dest = identity;
-        } else if (type == "server") {
-          dest = server;
-        } else if (type == "pop3") {
-          dest = server.QueryInterface(Ci.nsIPop3IncomingServer);
-        } else if (type == "imap") {
-          dest = server.QueryInterface(Ci.nsIImapIncomingServer);
-        } else if (type == "none") {
-          dest = server.QueryInterface(Ci.nsINoIncomingServer);
-        } else if (type == "nntp") {
-          dest = server.QueryInterface(Ci.nsINntpIncomingServer);
-        } else if (type == "smtp") {
-          dest = MailServices.smtp.defaultServer;
-        }
-      } catch (ex) {
-        // don't do anything, just means we don't support that
-      }
-      if (dest == undefined) {
-        continue;
-      }
-
       if (
         type in gGenericAttributeTypes &&
         slot in gGenericAttributeTypes[type]

@@ -130,6 +130,22 @@ var account = {
     } else if (!haveOptions) {
       advanced.hidden = true;
     }
+    let inputElements = document.querySelectorAll(
+      "#protoSpecific :is(checkbox, input, menulist)"
+    );
+    // Because the elements are added after the document loaded we have to
+    // notify the parent document that there are prefs to save.
+    for (let input of inputElements) {
+      if (input.localName == "input" || input.localName == "textarea") {
+        input.addEventListener("change", event => {
+          document.dispatchEvent(new CustomEvent("prefchange"));
+        });
+      } else {
+        input.addEventListener("command", event => {
+          document.dispatchEvent(new CustomEvent("prefchange"));
+        });
+      }
+    }
   },
 
   viewFingerprintKeys() {
