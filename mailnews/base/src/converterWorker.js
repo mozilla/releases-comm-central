@@ -319,7 +319,13 @@ function isFileToCopy(name) {
     "filterlog.html",
     "junklog.html",
     "feeds.json",
+    "feeds.json.tmp",
+    "feeds.json.backup",
+    "feeds.json.corrupt",
     "feeditems.json",
+    "feeditems.json.tmp",
+    "feeditems.json.backup",
+    "feeditems.json.corrupt",
     "mailfilt.log",
     "filters.js",
   ];

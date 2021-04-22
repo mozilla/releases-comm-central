@@ -48,7 +48,13 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name, nsIFile* path) {
 
   // ignore RSS data source files (see FeedUtils.jsm)
   if (name.LowerCaseEqualsLiteral("feeds.json") ||
+      name.LowerCaseEqualsLiteral("feeds.json.tmp") ||
+      name.LowerCaseEqualsLiteral("feeds.json.backup") ||
+      name.LowerCaseEqualsLiteral("feeds.json.corrupt") ||
       name.LowerCaseEqualsLiteral("feeditems.json") ||
+      name.LowerCaseEqualsLiteral("feeditems.json.tmp") ||
+      name.LowerCaseEqualsLiteral("feeditems.json.backup") ||
+      name.LowerCaseEqualsLiteral("feeditems.json.corrupt") ||
       name.LowerCaseEqualsLiteral("feeds.rdf") ||
       name.LowerCaseEqualsLiteral("feeditems.rdf") ||
       StringBeginsWith(name, u"feeditems_error"_ns))
