@@ -877,16 +877,6 @@ function recipientClearPills(input) {
  */
 function addressInputOnFocus(input) {
   input.closest(".address-container").setAttribute("focused", "true");
-  deselectAllPills();
-}
-
-/**
- * Deselect any previously selected pills.
- */
-function deselectAllPills() {
-  for (let pill of document.querySelectorAll(`mail-address-pill[selected]`)) {
-    pill.removeAttribute("selected");
-  }
 }
 
 /**

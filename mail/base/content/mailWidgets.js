@@ -2372,6 +2372,26 @@
         );
         addressContainer.classList.remove("drag-address-container");
       });
+
+      // We want to deselect pills when focus moves away from them. To simplify
+      // things, we listen to focusout event which bubbles from any element of
+      // the entire mail-recipients-area, including all pills.
+      this.addEventListener("focusout", event => {
+        // Return if focusout did not occur on a pill (nothing to deselect),
+        // if the element receiving focus is a pill (allow preserving selection),
+        // or if event.target remains the active element, i.e. focus was
+        // moved to another window (do nothing, preserve selection if any).
+        if (
+          event.target.tagName != "mail-address-pill" ||
+          event?.relatedTarget?.tagName == "mail-address-pill" ||
+          event.target == document.activeElement
+        ) {
+          return;
+        }
+        // If focus moves out from pills, deselect all of them. Luckily,
+        // pill context menu does not trigger focusout on addressing area.
+        this.deselectAllPills();
+      });
     }
 
     /**
@@ -3116,6 +3136,15 @@
     selectAllPills() {
       for (let pill of this.getAllPills()) {
         pill.setAttribute("selected", "selected");
+      }
+    }
+
+    /**
+     * Deselect all the pills of the <mail-recipients-area> element.
+     */
+    deselectAllPills() {
+      for (let pill of this.querySelectorAll(`mail-address-pill[selected]`)) {
+        pill.removeAttribute("selected");
       }
     }
 

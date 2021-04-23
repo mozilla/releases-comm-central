@@ -2434,7 +2434,6 @@
                                 oninput="gContentChanged = true; SetComposeWindowTitle();"
                                 onkeypress="subjectKeyPress(event);"
                                 aria-labelledby="subjectLabel"
-                                onfocus="deselectAllPills();"
                                 style="-moz-box-flex: 1;"/>
                   </moz-input-box>
                 </hbox>
@@ -2492,8 +2491,7 @@
                 flex="1"
                 messagemanagergroup="browsers"
                 ondblclick="EditorDblClick(event);"
-                context="msgComposeContext"
-                onclick="deselectAllPills();"/>
+                context="msgComposeContext"/>
         <findbar id="FindToolbar" browserid="content-frame"/>
       </vbox>
 
