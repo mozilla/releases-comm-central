@@ -162,12 +162,17 @@
     padding-inline-end: 0;
   }
 
-  .menu-iconic > .menu-iconic-left,
-  .menuitem-iconic > .menu-iconic-left {
+  menupopup:not([needsgutter]) .menu-iconic > .menu-iconic-left,
+  menupopup:not([needsgutter]) .menuitem-iconic > .menu-iconic-left {
     display: none;
   }
 
-  .folderMenuItem > .menu-iconic-left,
+  menupopup[needsgutter] .menu-iconic > .menu-iconic-left,
+  menupopup[needsgutter] .menuitem-iconic > .menu-iconic-left {
+    margin-inline-start: -2px;
+  }
+
+  menupopup:not([needsgutter]) .folderMenuItem > .menu-iconic-left,
   #imStatusMenupopup > .menuitem-iconic > .menu-iconic-left {
     display: -moz-box;
   }
