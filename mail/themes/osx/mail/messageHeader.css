@@ -8,11 +8,6 @@
 
 @import url("chrome://messenger/skin/shared/messageHeader.css");
 
-/* ::::: for the entire area ::::: */
-.main-header-area {
-  color: #2E3436; /* Aluminium 6 */
-}
-
 /* ::::: msg header toolbars ::::: */
 
 .inline-toolbox {
