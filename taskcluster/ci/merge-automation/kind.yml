@@ -28,4 +28,30 @@ jobs:
             dontbuild: false
             ignore-closed-tree: true
             push: false
+            l10n-bump-info:
+                by-behavior:
+                    comm-central-to-beta:
+                        name: Thunderbird l10n changesets
+                        path: mail/locales/l10n-changesets.json
+                        version-path: mail/config/version.txt
+                        l10n-repo-url: "https://hg.mozilla.org/l10n-central/%(locale)s/json-pushes?version=2&tipsonly=1"
+                        ignore-config:
+                            ja:
+                                - macosx64
+                            ja-JP-mac:
+                                - linux
+                                - linux64
+                                - win32
+                                - win64
+                        platform-configs: [{
+                            "platforms": [
+                                "linux",
+                                "linux64",
+                                "macosx64",
+                                "win32",
+                                "win64",
+                            ],
+                            "path": "mail/locales/shipped-locales",
+                        }]
+                    default: null
         run-on-projects: []
