@@ -54,7 +54,7 @@ add_task(function setupModule(module) {
  *  not cause us to display something, as well as correctly causing a transient
  *  selection to occur.
  */
-add_task(function test_right_click_folder_with_nothing_selected() {
+add_task(async function test_right_click_folder_with_nothing_selected() {
   // This should cause folderA to be displayed
   be_in_folder(folderA);
 
@@ -66,14 +66,14 @@ add_task(function test_right_click_folder_with_nothing_selected() {
   // The displayed folder shouldn't change
   assert_folder_displayed(folderA);
 
-  close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, mc.e("folderPaneContext"));
   assert_no_folders_selected();
 });
 
 /**
  * One-thing selected, right-click on something else.
  */
-add_task(function test_right_click_folder_with_one_thing_selected() {
+add_task(async function test_right_click_folder_with_one_thing_selected() {
   select_click_folder(folderB);
   assert_folder_selected_and_displayed(folderB);
 
@@ -81,14 +81,14 @@ add_task(function test_right_click_folder_with_one_thing_selected() {
   assert_folder_selected(folderA);
   assert_folder_displayed(folderB);
 
-  close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, mc.e("folderPaneContext"));
   assert_folder_selected_and_displayed(folderB);
 });
 
 /**
  * Many things selected, right-click on something that is not in that selection.
  */
-add_task(function test_right_click_folder_with_many_things_selected() {
+add_task(async function test_right_click_folder_with_many_things_selected() {
   select_click_folder(folderA);
   select_shift_click_folder(folderB);
   assert_folders_selected_and_displayed(folderA, folderB);
@@ -97,28 +97,28 @@ add_task(function test_right_click_folder_with_many_things_selected() {
   assert_folder_selected(folderC);
   assert_folder_displayed(folderA);
 
-  close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, mc.e("folderPaneContext"));
   assert_folders_selected_and_displayed(folderA, folderB);
 });
 
 /**
  * One thing selected, right-click on that.
  */
-add_task(function test_right_click_folder_on_existing_single_selection() {
+add_task(async function test_right_click_folder_on_existing_single_selection() {
   select_click_folder(folderA);
   assert_folders_selected_and_displayed(folderA);
 
   right_click_on_folder(folderA);
   assert_folders_selected_and_displayed(folderA);
 
-  close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, mc.e("folderPaneContext"));
   assert_folders_selected_and_displayed(folderA);
 });
 
 /**
  * Many things selected, right-click somewhere in the selection.
  */
-add_task(function test_right_click_folder_on_existing_multi_selection() {
+add_task(async function test_right_click_folder_on_existing_multi_selection() {
   select_click_folder(folderB);
   select_shift_click_folder(folderC);
   assert_folders_selected_and_displayed(folderB, folderC);
@@ -126,7 +126,7 @@ add_task(function test_right_click_folder_on_existing_multi_selection() {
   right_click_on_folder(folderC);
   assert_folders_selected_and_displayed(folderB, folderC);
 
-  close_popup(mc, mc.e("folderPaneContext"));
+  await close_popup(mc, mc.e("folderPaneContext"));
   assert_folders_selected_and_displayed(folderB, folderC);
 });
 

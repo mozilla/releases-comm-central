@@ -46,13 +46,13 @@ add_task(function setupModule(module) {
   make_new_sets_in_folder(folder1, [{ count: 3 }]);
 });
 
-add_task(function test_move_message() {
+add_task(async function test_move_message() {
   be_in_folder(folder1);
   let msgHdr = select_click_row(0);
   // This will cause the initial build of the move recent context menu,
   // which should be empty and disabled.
-  right_click_on_row(0);
-  let popups = mc.click_menus_in_sequence(
+  await right_click_on_row(0);
+  let popups = await mc.click_menus_in_sequence(
     mc.e("mailContext"),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
@@ -90,8 +90,8 @@ add_task(function test_move_message() {
   // We've moved a message to aaafolder2 - it should appear in recent list now.
   // Clicking the menuitem by label is not localizable, but Recent doesn't have an
   // id we can use.
-  right_click_on_row(0);
-  popups = mc.click_menus_in_sequence(
+  await right_click_on_row(0);
+  popups = await mc.click_menus_in_sequence(
     mc.e("mailContext"),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
@@ -110,11 +110,11 @@ add_task(function test_move_message() {
   mc.close_popup_sequence(popups);
 });
 
-add_task(function test_delete_message() {
+add_task(async function test_delete_message() {
   press_delete(mc);
   // We've deleted a message - we should still just have folder2 in the menu.
-  right_click_on_row(0);
-  let popups = mc.click_menus_in_sequence(
+  await right_click_on_row(0);
+  let popups = await mc.click_menus_in_sequence(
     mc.e("mailContext"),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
@@ -133,13 +133,13 @@ add_task(function test_delete_message() {
   mc.close_popup_sequence(popups);
 });
 
-add_task(function test_archive_message() {
+add_task(async function test_archive_message() {
   archive_selected_messages();
   // We've archived a message - we should still just have folder2 in the menu.
   let archive = get_special_folder(Ci.nsMsgFolderFlags.Archive, false, false);
   be_in_folder(archive.descendants[0]);
-  right_click_on_row(0);
-  let popups = mc.click_menus_in_sequence(
+  await right_click_on_row(0);
+  let popups = await mc.click_menus_in_sequence(
     mc.e("mailContext"),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true

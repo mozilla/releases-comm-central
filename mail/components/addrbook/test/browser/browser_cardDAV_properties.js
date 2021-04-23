@@ -154,7 +154,7 @@ add_task(async () => {
         },
       }
     );
-    EventUtils.synthesizeMouseAtCenter(menuItem, {}, abWindow);
+    menu.activateItem(menuItem);
     await dialogPromise;
 
     await new Promise(resolve => abWindow.setTimeout(resolve));

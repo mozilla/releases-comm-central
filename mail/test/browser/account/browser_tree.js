@@ -64,11 +64,11 @@ registerCleanupFunction(function teardownModule(module) {
  * Test for bug 536248.
  * Check if the account manager dialog remembers the open state of accounts.
  */
-add_task(function test_account_open_state() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_account_open_state() {
+  await open_advanced_settings(function(tab) {
     subtest_check_account_open_state(tab, true);
   });
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_account_open_state(tab, false);
   });
   // After this test all the accounts must be "open".
@@ -111,8 +111,8 @@ function subtest_check_account_open_state(tab, wishedState) {
  * Bug 740617.
  * Check if the default account is styled in bold.
  */
-add_task(function test_default_account_highlight() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_default_account_highlight() {
+  await open_advanced_settings(function(tab) {
     subtest_check_default_account_highlight(tab);
   });
 });
@@ -162,8 +162,8 @@ function subtest_check_default_account_highlight(tab) {
  * This test should always be the last one as it removes our specially
  * created gPopAccount.
  */
-add_task(function test_selection_after_account_deletion() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_selection_after_account_deletion() {
+  await open_advanced_settings(function(tab) {
     subtest_check_selection_after_account_deletion(tab);
   });
 });

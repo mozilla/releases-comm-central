@@ -349,7 +349,7 @@ function saveAsEMLFile(msgNo) {
   return file;
 }
 
-function allowRemoteContentAndCheck(test) {
+async function allowRemoteContentAndCheck(test) {
   addMsgToFolderAndCheckContent(folder, test);
 
   plan_for_message_display(mc);
@@ -362,7 +362,7 @@ function allowRemoteContentAndCheck(test) {
     popup: "remoteContentOptions",
   });
   mc.click(prefButton);
-  mc.click_menus_in_sequence(mc.e("remoteContentOptions"), [
+  await mc.click_menus_in_sequence(mc.e("remoteContentOptions"), [
     { id: "remoteContentOptionAllowForMsg" },
   ]);
   wait_for_notification_to_stop(mc, kBoxId, kNotificationValue);
@@ -571,7 +571,7 @@ add_task(async function test_generalContentPolicy() {
       await checkStandaloneMessageWindow(TESTS[i], false);
 
       // Now allow the remote content and check result
-      allowRemoteContentAndCheck(TESTS[i]);
+      await allowRemoteContentAndCheck(TESTS[i]);
     }
 
     // Check allowed in reply window

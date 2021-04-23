@@ -34,13 +34,13 @@ add_task(function setupModule(module) {
 /**
  * Test opening a search window while nothing is selected.
  */
-add_task(function test_open_search_window_with_nothing_selected() {
+add_task(async function test_open_search_window_with_nothing_selected() {
   // Make sure the folders we need are visible
   enter_folder(folderB);
   select_no_folders();
   assert_no_folders_selected();
 
-  let swc = open_search_window_from_context_menu(folderA);
+  let swc = await open_search_window_from_context_menu(folderA);
   assert_search_window_folder_displayed(swc, folderA);
 
   close_search_window(swc);
@@ -49,24 +49,26 @@ add_task(function test_open_search_window_with_nothing_selected() {
 /**
  * Test opening a search window while the same folder is selected.
  */
-add_task(function test_open_search_window_with_existing_single_selection() {
-  select_click_folder(folderA);
-  assert_folders_selected_and_displayed(folderA);
+add_task(
+  async function test_open_search_window_with_existing_single_selection() {
+    select_click_folder(folderA);
+    assert_folders_selected_and_displayed(folderA);
 
-  let swc = open_search_window_from_context_menu(folderA);
-  assert_search_window_folder_displayed(swc, folderA);
+    let swc = await open_search_window_from_context_menu(folderA);
+    assert_search_window_folder_displayed(swc, folderA);
 
-  close_search_window(swc);
-});
+    close_search_window(swc);
+  }
+);
 
 /**
  * Test opening a search window while a different folder is selected.
  */
-add_task(function test_open_search_window_with_one_thing_selected() {
+add_task(async function test_open_search_window_with_one_thing_selected() {
   select_click_folder(folderA);
   assert_folders_selected_and_displayed(folderA);
 
-  let swc = open_search_window_from_context_menu(folderB);
+  let swc = await open_search_window_from_context_menu(folderB);
   assert_search_window_folder_displayed(swc, folderB);
 
   close_search_window(swc);

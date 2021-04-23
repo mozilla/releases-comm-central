@@ -57,7 +57,7 @@ add_task(async function testEditEditableItem() {
 
   let menu = document.querySelector("#calendar-item-context-menu");
   let editMenu = document.querySelector("#calendar-item-context-menu-modify-menuitem");
-  let popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
+  let popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
 
   EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="1"'), { type: "contextmenu" });
   await popupPromise;
@@ -84,7 +84,7 @@ add_task(async function testEditEditableItem() {
     return true;
   });
 
-  EventUtils.synthesizeMouseAtCenter(editMenu, {});
+  menu.activateItem(editMenu);
   await editDialogPromise;
 });
 
@@ -128,7 +128,7 @@ add_task(async function testEditNonEditableItem() {
   EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="2"'), { type: "contextmenu" });
   await popupPromise;
   Assert.ok(editMenu.disabled, 'context menu "Edit" item is disabled for non-editable event');
-  EventUtils.synthesizeKey("VK_ESCAPE");
+  menu.hidePopup();
 });
 
 /**
@@ -173,7 +173,7 @@ add_task(async function testInvitation() {
   EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="3"'), { type: "contextmenu" });
   await popupPromise;
   Assert.ok(editMenu.disabled, 'context menu "Edit" item is disabled for invitations');
-  EventUtils.synthesizeKey("VK_ESCAPE");
+  menu.hidePopup();
 });
 
 /**
@@ -204,7 +204,7 @@ add_task(async function testCalendarReadOnly() {
   EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="4"'), { type: "contextmenu" });
   await popupPromise;
   Assert.ok(editMenu.disabled, 'context menu "Edit" item is disabled when calendar is read-only');
-  EventUtils.synthesizeKey("VK_ESCAPE");
+  menu.hidePopup();
 });
 
 registerCleanupFunction(() => {

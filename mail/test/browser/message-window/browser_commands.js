@@ -56,7 +56,7 @@ add_task(async function test_copy_eml_message() {
 
   let documentChild = msgc.e("messagepane").contentDocument.firstElementChild;
   msgc.rightClick(documentChild);
-  msgc.click_menus_in_sequence(msgc.e("mailContext"), [
+  await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },
     { label: "Recent" },
     { label: "CopyToFolder" },

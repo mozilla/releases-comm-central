@@ -125,7 +125,7 @@ add_task(async function test_view_source_reload() {
   );
   vsc.click(vsc.e("menu_view"));
   await popupshown;
-  vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"), [
+  await vsc.click_menus_in_sequence(vsc.e("viewmenu-popup"), [
     { id: "charsetMenu" },
     { label: "Unicode" },
   ]);

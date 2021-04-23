@@ -217,7 +217,7 @@ add_task(function test_save_attachment_files_in_list() {
  * Test that 'remove' in context menu removes surely the target file from
  * the list.
  */
-add_task(function test_remove_file() {
+add_task(async function test_remove_file() {
   setupTest();
   subtest_save_attachment_files_in_list();
 
@@ -229,11 +229,15 @@ add_task(function test_remove_file() {
 
   // select first element
   mc.click(firstElement);
-  mc.rightClick(firstElement);
+  EventUtils.synthesizeMouseAtCenter(
+    firstElement,
+    { type: "contextmenu" },
+    firstElement.ownerGlobal
+  );
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
-  wait_for_popup_to_open(contextMenu);
-  mc.click_menus_in_sequence(contextMenu, [
+  await wait_for_popup_to_open(contextMenu);
+  await mc.click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_remove" },
   ]);
   mc.waitFor(
@@ -255,7 +259,7 @@ add_task(function test_remove_file() {
 /**
  * Test that removing multiple files surely removes the files.
  */
-add_task(function test_remove_multiple_files() {
+add_task(async function test_remove_multiple_files() {
   setupTest();
   subtest_save_attachment_files_in_list();
 
@@ -274,11 +278,15 @@ add_task(function test_remove_multiple_files() {
   // select two elements
   mc.click(firstElement);
   list.selectItemRange(firstElement, secondElement);
-  mc.rightClick(firstElement);
+  EventUtils.synthesizeMouseAtCenter(
+    firstElement,
+    { type: "contextmenu" },
+    firstElement.ownerGlobal
+  );
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
-  wait_for_popup_to_open(contextMenu);
-  mc.click_menus_in_sequence(contextMenu, [
+  await wait_for_popup_to_open(contextMenu);
+  await mc.click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_remove" },
   ]);
   mc.waitFor(
@@ -302,17 +310,22 @@ add_task(function test_remove_multiple_files() {
 /**
  * Test that 'clearDownloads" in context menu purges all files in the list.
  */
-add_task(function test_clear_all_files() {
+add_task(async function test_clear_all_files() {
   setupTest();
   subtest_save_attachment_files_in_list();
   downloadsView.waitForFinish();
 
-  mc.click(content_tab_e(downloadsTab, "msgDownloadsRichListBox"));
-  mc.rightClick(content_tab_e(downloadsTab, "msgDownloadsRichListBox"));
+  let listbox = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
+  mc.click(listbox);
+  EventUtils.synthesizeMouseAtCenter(
+    listbox,
+    { type: "contextmenu" },
+    listbox.ownerGlobal
+  );
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
-  wait_for_popup_to_open(contextMenu);
-  mc.click_menus_in_sequence(contextMenu, [
+  await wait_for_popup_to_open(contextMenu);
+  await mc.click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_clearDownloads" },
   ]);
   mc.waitFor(

@@ -29,7 +29,7 @@ var mc = folderDisplayHelper.mc;
  * @param aFunction Callback that will be invoked with a controller
  *        for the subscribe dialogue as parameter
  */
-function open_subscribe_window_from_context_menu(aFolder, aFunction) {
+async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   // Make the folder pane visible as it starts collapsed when no accounts are
   // available on startup.
   mc.e("folderPaneBox").collapsed = false;
@@ -43,7 +43,7 @@ function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   windowHelper.plan_for_modal_dialog("mailnews:subscribe", callback);
   mc.click(mc.e("folderPaneContext-subscribe"));
   windowHelper.wait_for_modal_dialog("mailnews:subscribe");
-  folderDisplayHelper.close_popup(mc, mc.e("folderPaneContext"));
+  await folderDisplayHelper.close_popup(mc, mc.e("folderPaneContext"));
 }
 
 /**

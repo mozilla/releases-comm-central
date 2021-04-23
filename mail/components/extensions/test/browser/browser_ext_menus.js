@@ -324,10 +324,8 @@ async function subtest_tools_menu(testWindow, expectedInfo, expectedTab) {
 
   let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   let clickedPromise = checkClickedEvent(extension, expectedInfo, expectedTab);
-  EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#menus_mochi_test-menuitem-_tools_menu"),
-    {},
-    testWindow
+  menu.activateItem(
+    menu.querySelector("#menus_mochi_test-menuitem-_tools_menu")
   );
   await clickedPromise;
   await hiddenPromise;
@@ -609,7 +607,7 @@ async function subtest_content(
     );
   }
 
-  let { ownerDocument, ownerGlobal } = browser;
+  let ownerDocument = browser.ownerDocument;
   let menu = ownerDocument.getElementById(browser.getAttribute("context"));
 
   await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser);
@@ -665,10 +663,8 @@ async function subtest_content(
     },
     tab
   );
-  EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#menus_mochi_test-menuitem-_selection"),
-    {},
-    ownerGlobal
+  menu.activateItem(
+    menu.querySelector("#menus_mochi_test-menuitem-_selection")
   );
   await clickedPromise;
   await hiddenPromise;
@@ -705,11 +701,7 @@ async function subtest_content(
     },
     tab
   );
-  EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#menus_mochi_test-menuitem-_link"),
-    {},
-    ownerGlobal
-  );
+  menu.activateItem(menu.querySelector("#menus_mochi_test-menuitem-_link"));
   await clickedPromise;
   await hiddenPromise;
   // Sometimes, the popup will open then instantly disappear. It seems to
@@ -741,11 +733,7 @@ async function subtest_content(
     },
     tab
   );
-  EventUtils.synthesizeMouseAtCenter(
-    menu.querySelector("#menus_mochi_test-menuitem-_image"),
-    {},
-    ownerGlobal
-  );
+  menu.activateItem(menu.querySelector("#menus_mochi_test-menuitem-_image"));
   await clickedPromise;
   await hiddenPromise;
   // Sometimes, the popup will open then instantly disappear. It seems to
@@ -807,8 +795,8 @@ async function subtest_element(
 
     // With text being selected, there will be two "context" entries in an
     // extension submenu. Open the submenu.
+    let submenu = null;
     if (selectedTest) {
-      let submenu = null;
       for (let foundMenu of menu.querySelectorAll(
         "[id^='menus_mochi_test-menuitem-']"
       )) {
@@ -821,7 +809,7 @@ async function subtest_element(
         element.ownerGlobal,
         "popupshown"
       );
-      EventUtils.synthesizeMouseAtCenter(submenu, {}, element.ownerGlobal);
+      submenu.openMenu(true);
       await submenuPromise;
     }
 
@@ -837,7 +825,11 @@ async function subtest_element(
       },
       tab
     );
-    EventUtils.synthesizeMouseAtCenter(menuitem, {}, element.ownerGlobal);
+    if (submenu) {
+      submenu.menupopup.activateItem(menuitem);
+    } else {
+      menu.activateItem(menuitem);
+    }
     await clickedPromise;
     await hiddenPromise;
 
@@ -1117,11 +1109,7 @@ async function subtest_action_menu(
       ".customize-context-removeExtension"
     );
     let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-    EventUtils.synthesizeMouseAtCenter(
-      removeExtension,
-      {},
-      removeExtension.ownerGlobal
-    );
+    menu.activateItem(removeExtension);
     await hiddenPromise;
 
     // Check if the correct add-on is being removed.
@@ -1150,11 +1138,7 @@ async function subtest_action_menu(
       ".customize-context-manageExtension"
     );
     let addonManagerPromise = contentTabOpenPromise(tabmail, "about:addons");
-    EventUtils.synthesizeMouseAtCenter(
-      manageExtension,
-      {},
-      manageExtension.ownerGlobal
-    );
+    menu.activateItem(manageExtension);
     let managerTab = await addonManagerPromise;
 
     // Check the UI to make sure that the correct view is loaded.
@@ -1189,12 +1173,8 @@ async function subtest_action_menu(
 
   let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   let clickedPromise = checkClickedEvent(extension, expectedInfo, expectedTab);
-  EventUtils.synthesizeMouseAtCenter(
-    testWindow.document.getElementById(
-      `menus_mochi_test-menuitem-_${target.context}`
-    ),
-    {},
-    testWindow
+  menu.activateItem(
+    menu.querySelector(`#menus_mochi_test-menuitem-_${target.context}`)
   );
   await clickedPromise;
   await hiddenPromise;

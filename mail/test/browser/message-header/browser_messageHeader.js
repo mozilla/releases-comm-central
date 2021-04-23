@@ -515,7 +515,7 @@ function assert_shown(id, visible) {
 /**
  * Test that clicking references context menu works properly.
  */
-add_task(function test_msg_id_context_menu() {
+add_task(async function test_msg_id_context_menu() {
   Services.prefs.setBoolPref("mailnews.headers.showReferences", true);
 
   // Add a new message
@@ -532,17 +532,19 @@ add_task(function test_msg_id_context_menu() {
   select_click_row(-1);
 
   // Right click to show the context menu.
-  mc.rightClick(
-    mc.window.document.querySelector("#expandedreferencesBox mail-messageid")
+  EventUtils.synthesizeMouseAtCenter(
+    mc.window.document.querySelector("#expandedreferencesBox mail-messageid"),
+    { type: "contextmenu" },
+    window
   );
-  wait_for_popup_to_open(mc.e("messageIdContext"));
+  await wait_for_popup_to_open(mc.e("messageIdContext"));
 
   // Ensure Open Message For ID is shown... and that Open Browser With Message-ID
   // isn't shown.
   assert_shown("messageIdContext-openMessageForMsgId", true);
   assert_shown("messageIdContext-openBrowserWithMsgId", false);
 
-  close_popup(mc, mc.e("messageIdContext"));
+  await close_popup(mc, mc.e("messageIdContext"));
 
   Services.prefs.setBoolPref("mailnews.headers.showReferences", false);
 });
@@ -676,7 +678,7 @@ add_task(
 /**
  * Test that clicking the adding an address node adds it to the address book.
  */
-add_task(function test_add_contact_from_context_menu() {
+add_task(async function test_add_contact_from_context_menu() {
   // Click the contact to show the emailAddressPopup popup menu.
   mc.click(
     mc.window.document.querySelector("#expandedfromBox mail-emailaddress")
@@ -696,7 +698,7 @@ add_task(function test_add_contact_from_context_menu() {
   // Click the Add to Address Book context menu entry.
   mc.click(mc.e("addToAddressBookItem"));
   // (for reasons unknown, the pop-up does not close itself)
-  close_popup(mc, mc.e("emailAddressPopup"));
+  await close_popup(mc, mc.e("emailAddressPopup"));
 
   // Now click the contact again, the context menu should now show the
   // Edit Contact menu instead.
@@ -704,7 +706,7 @@ add_task(function test_add_contact_from_context_menu() {
     mc.window.document.querySelector("#expandedfromBox mail-emailaddress")
   );
   // (for reasons unknown, the pop-up does not close itself)
-  close_popup(mc, mc.e("emailAddressPopup"));
+  await close_popup(mc, mc.e("emailAddressPopup"));
 
   addToAddressBookItem = mc.window.document.getElementById(
     "addToAddressBookItem"

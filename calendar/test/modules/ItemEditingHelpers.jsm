@@ -498,10 +498,8 @@ async function deleteAttendees(iframeWindow, attendeesString) {
       attendeeToDelete.focus();
       synthesizeMouseAtCenter(attendeeToDelete, { type: "contextmenu" }, iframeWindow);
       await BrowserTestUtils.waitForEvent(menupopup, "popupshown");
-      synthesizeMouseAtCenter(
-        iframeDocument.getElementById("attendee-popup-removeattendee-menuitem"),
-        {},
-        iframeWindow
+      menupopup.activateItem(
+        iframeDocument.getElementById("attendee-popup-removeattendee-menuitem")
       );
       await BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
     }

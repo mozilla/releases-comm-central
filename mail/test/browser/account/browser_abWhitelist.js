@@ -149,8 +149,8 @@ function subtest_check_whitelist_load_cleared(tab) {
   }
 }
 
-add_task(function test_address_book_whitelist() {
-  open_advanced_settings(subtest_check_whitelist_init_and_save);
-  open_advanced_settings(subtest_check_whitelist_load_and_clear);
-  open_advanced_settings(subtest_check_whitelist_load_cleared);
+add_task(async function test_address_book_whitelist() {
+  await open_advanced_settings(subtest_check_whitelist_init_and_save);
+  await open_advanced_settings(subtest_check_whitelist_load_and_clear);
+  await open_advanced_settings(subtest_check_whitelist_load_cleared);
 });

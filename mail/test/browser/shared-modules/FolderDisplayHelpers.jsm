@@ -164,6 +164,9 @@ var windowHelper = ChromeUtils.import(
 );
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { BrowserTestUtils } = ChromeUtils.import(
+  "resource://testing-common/BrowserTestUtils.jsm"
+);
 
 var nsMsgViewIndex_None = 0xffffffff;
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
@@ -1306,7 +1309,7 @@ function _row_click_helper(
  *
  * @return The message header that you clicked on.
  */
-function right_click_on_row(aViewIndex) {
+async function right_click_on_row(aViewIndex) {
   let msgHdr = mc.dbView.getMsgHdrAt(aViewIndex);
   mark_action("fdh", "right_click_on_row", [
     "index",
@@ -1314,7 +1317,12 @@ function right_click_on_row(aViewIndex) {
     "message header",
     msgHdr,
   ]);
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popupshown"
+  );
   _row_click_helper(mc, mc.threadTree, aViewIndex, 2);
+  await shownPromise;
   mark_action("fdh", "/right_click_on_row", []);
   return msgHdr;
 }
@@ -1606,7 +1614,7 @@ function get_smart_folder_named(aFolderName) {
  * Assuming the context popup is popped-up (via right_click_on_row), select
  *  the deletion option.  If the popup is not popped up, you are out of luck.
  */
-function delete_via_popup() {
+async function delete_via_popup() {
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
@@ -1617,27 +1625,20 @@ function delete_via_popup() {
   ]);
   mc.click(mc.e("mailContext-delete"));
   // for reasons unknown, the pop-up does not close itself?
-  close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, mc.e("mailContext"));
   wait_for_folder_events();
 }
 
-function wait_for_popup_to_open(popupElem) {
-  mark_action("fdh", "wait_for_popup_to_open", [popupElem]);
-  utils.waitFor(
-    () => popupElem.state == "open",
-    () => "Timeout waiting for popup to open, state=" + popupElem.state,
-    1000,
-    50
-  );
+async function wait_for_popup_to_open(popupElem) {
+  if (popupElem.state != "open") {
+    await BrowserTestUtils.waitForEvent(popupElem, "popupshown");
+  }
 }
 
 /**
  * Close the open pop-up.
  */
-function close_popup(aController, elem) {
-  if (aController == null) {
-    aController = mc;
-  }
+async function close_popup(aController, elem) {
   // if it was already closing, just leave
   if (elem.state == "closed") {
     mark_action("fdh", "close_popup", [
@@ -1646,18 +1647,17 @@ function close_popup(aController, elem) {
     ]);
     return;
   }
-  mark_action("fdh", "close_popup", [elem]);
-  // if it's in the process of closing, don't push escape
+
   if (elem.state == "hiding") {
     mark_action("fdh", "close_popup", [
       "popup suspiciously already closing...",
     ]);
   } else {
-    // Actually push escape because it's not closing/closed.
-    elem.focus();
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, aController.window);
+    // Actually close the popup because it's not closing/closed.
+    let hiddenPromise = BrowserTestUtils.waitForEvent(elem, "popuphidden");
+    elem.hidePopup();
+    await hiddenPromise;
   }
-  utils.waitFor(() => elem.state == "closed", "Popup did not close!", 1000, 50);
 }
 
 /**

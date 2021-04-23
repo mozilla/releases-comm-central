@@ -115,7 +115,7 @@ add_task(async () => {
 
   let syncedPromise = promiseSynced();
   await openContext(2, false);
-  EventUtils.synthesizeMouseAtCenter(menuItem, {}, abWindow);
+  menu.activateItem(menuItem);
   await syncedPromise;
 
   await new Promise(resolve => setTimeout(resolve));
@@ -131,7 +131,7 @@ add_task(async () => {
 
   syncedPromise = promiseSynced();
   await openContext(2, false);
-  EventUtils.synthesizeMouseAtCenter(menuItem, {}, abWindow);
+  menu.activateItem(menuItem);
   await syncedPromise;
 
   await new Promise(resolve => setTimeout(resolve));
@@ -152,7 +152,7 @@ add_task(async () => {
 
   syncedPromise = promiseSynced();
   await openContext(2, false);
-  EventUtils.synthesizeMouseAtCenter(menuItem, {}, abWindow);
+  menu.activateItem(menuItem);
   await syncedPromise;
 
   await new Promise(resolve => setTimeout(resolve));

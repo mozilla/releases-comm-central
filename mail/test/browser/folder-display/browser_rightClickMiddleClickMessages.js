@@ -72,27 +72,27 @@ add_task(function setupModule(module) {
  *  not cause us to display something, as well as correctly causing a transient
  *  selection to occur.
  */
-add_task(function test_right_click_with_nothing_selected() {
+add_task(async function test_right_click_with_nothing_selected() {
   be_in_folder(folder);
 
   select_none();
   assert_nothing_selected();
 
-  right_click_on_row(1);
+  await right_click_on_row(1);
   // Check that the popup opens.
-  wait_for_popup_to_open(mc.e("mailContext"));
+  await wait_for_popup_to_open(mc.e("mailContext"));
 
   assert_selected(1);
   assert_displayed();
 
-  close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, mc.e("mailContext"));
   assert_nothing_selected();
 });
 
 /**
  * Test that clicking on the column header shows the column picker.
  */
-add_task(function test_right_click_column_header_shows_col_picker() {
+add_task(async function test_right_click_column_header_shows_col_picker() {
   be_in_folder(folder);
 
   // The treecolpicker element itself doesn't have an id, so we have to walk
@@ -109,76 +109,76 @@ add_task(function test_right_click_column_header_shows_col_picker() {
   mc.rightClick(mc.e("subjectCol"));
 
   // Check that the popup opens.
-  wait_for_popup_to_open(popup);
+  await wait_for_popup_to_open(popup);
   // Hide it again, we just wanted to know it was going to be shown.
-  close_popup(mc, popup);
+  await close_popup(mc, popup);
 });
 
 /**
  * One-thing selected, right-click on something else.
  */
-add_task(function test_right_click_with_one_thing_selected() {
+add_task(async function test_right_click_with_one_thing_selected() {
   be_in_folder(folder);
 
   select_click_row(0);
   assert_selected_and_displayed(0);
 
-  right_click_on_row(1);
+  await right_click_on_row(1);
   assert_selected(1);
   assert_displayed(0);
 
-  close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, mc.e("mailContext"));
   assert_selected_and_displayed(0);
 });
 
 /**
  * Many things selected, right-click on something that is not in that selection.
  */
-add_task(function test_right_click_with_many_things_selected() {
+add_task(async function test_right_click_with_many_things_selected() {
   be_in_folder(folder);
 
   select_click_row(0);
   select_shift_click_row(5);
   assert_selected_and_displayed([0, 5]);
 
-  right_click_on_row(6);
+  await right_click_on_row(6);
   assert_selected(6);
   assert_displayed([0, 5]);
 
-  close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, mc.e("mailContext"));
   assert_selected_and_displayed([0, 5]);
 });
 
 /**
  * One thing selected, right-click on that.
  */
-add_task(function test_right_click_on_existing_single_selection() {
+add_task(async function test_right_click_on_existing_single_selection() {
   be_in_folder(folder);
 
   select_click_row(3);
   assert_selected_and_displayed(3);
 
-  right_click_on_row(3);
+  await right_click_on_row(3);
   assert_selected_and_displayed(3);
 
-  close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, mc.e("mailContext"));
   assert_selected_and_displayed(3);
 });
 
 /**
  * Many things selected, right-click somewhere in the selection.
  */
-add_task(function test_right_click_on_existing_multi_selection() {
+add_task(async function test_right_click_on_existing_multi_selection() {
   be_in_folder(folder);
 
   select_click_row(3);
   select_shift_click_row(6);
   assert_selected_and_displayed([3, 6]);
 
-  right_click_on_row(5);
+  await right_click_on_row(5);
   assert_selected_and_displayed([3, 6]);
 
-  close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, mc.e("mailContext"));
   assert_selected_and_displayed([3, 6]);
 });
 
@@ -464,14 +464,14 @@ _generate_background_foreground_tests([
 /**
  * Right-click on something and delete it, having no selection previously.
  */
-add_task(function test_right_click_deletion_nothing_selected() {
+add_task(async function test_right_click_deletion_nothing_selected() {
   be_in_folder(folder);
 
   select_none();
   assert_selected_and_displayed();
 
-  let delMessage = right_click_on_row(3);
-  delete_via_popup();
+  let delMessage = await right_click_on_row(3);
+  await delete_via_popup();
   // eh, might as well make sure the deletion worked while we are here
   assert_message_not_in_view(delMessage);
 
@@ -484,38 +484,38 @@ add_task(function test_right_click_deletion_nothing_selected() {
  *  we want to make sure that we right-click delete a message above the selected
  *  message so there is a shift in row numbering.
  */
-add_task(function test_right_click_deletion_one_other_thing_selected() {
+add_task(async function test_right_click_deletion_one_other_thing_selected() {
   be_in_folder(folder);
 
   let curMessage = select_click_row(5);
 
-  let delMessage = right_click_on_row(3);
-  delete_via_popup();
+  let delMessage = await right_click_on_row(3);
+  await delete_via_popup();
   assert_message_not_in_view(delMessage);
 
   assert_selected_and_displayed(curMessage);
 });
 
-add_task(function test_right_click_deletion_many_other_things_selected() {
+add_task(async function test_right_click_deletion_many_other_things_selected() {
   be_in_folder(folder);
 
   select_click_row(4);
   let messages = select_shift_click_row(6);
 
-  let delMessage = right_click_on_row(2);
-  delete_via_popup();
+  let delMessage = await right_click_on_row(2);
+  await delete_via_popup();
   assert_message_not_in_view(delMessage);
 
   assert_selected_and_displayed(messages);
 });
 
-add_task(function test_right_click_deletion_of_one_selected_thing() {
+add_task(async function test_right_click_deletion_of_one_selected_thing() {
   be_in_folder(folder);
 
   let curMessage = select_click_row(2);
 
-  right_click_on_row(2);
-  delete_via_popup();
+  await right_click_on_row(2);
+  await delete_via_popup();
   assert_message_not_in_view(curMessage);
 
   if (!mc.folderDisplay.selectedCount) {
@@ -523,14 +523,14 @@ add_task(function test_right_click_deletion_of_one_selected_thing() {
   }
 });
 
-add_task(function test_right_click_deletion_of_many_selected_things() {
+add_task(async function test_right_click_deletion_of_many_selected_things() {
   be_in_folder(folder);
 
   select_click_row(2);
   let messages = select_shift_click_row(4);
 
-  right_click_on_row(3);
-  delete_via_popup();
+  await right_click_on_row(3);
+  await delete_via_popup();
   assert_messages_not_in_view(messages);
 
   if (!mc.folderDisplay.selectedCount) {

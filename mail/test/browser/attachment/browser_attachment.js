@@ -8,10 +8,6 @@
 
 "use strict";
 
-var EventUtils = ChromeUtils.import(
-  "resource://testing-common/mozmill/EventUtils.jsm"
-);
-
 var { close_compose_window, open_compose_with_forward } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
@@ -325,56 +321,83 @@ add_task(function test_attachment_name_click() {
  * @param elementId the id of the element to right click on
  * @param contextMenuId the id of the context menu that should appear
  */
-function subtest_attachment_right_click(elementId, contextMenuId) {
-  mc.rightClick(mc.e(elementId));
-  wait_for_popup_to_open(mc.e(contextMenuId));
-  close_popup(mc, mc.e(contextMenuId));
+async function subtest_attachment_right_click(elementId, contextMenuId) {
+  let element = document.getElementById(elementId);
+  let contextMenu = document.getElementById(contextMenuId);
+
+  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(element, { type: "contextmenu" }, window);
+  await shownPromise;
+  let hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
+  contextMenu.hidePopup();
+  await hiddenPromise;
 }
 
-add_task(function test_attachment_right_click_single() {
+add_task(async function test_attachment_right_click_single() {
   be_in_folder(folder);
 
   select_click_row(1);
   assert_selected_and_displayed(1);
 
-  subtest_attachment_right_click("attachmentIcon", "attachmentItemContext");
-  subtest_attachment_right_click("attachmentCount", "attachmentItemContext");
-  subtest_attachment_right_click("attachmentName", "attachmentItemContext");
-  subtest_attachment_right_click("attachmentSize", "attachmentItemContext");
+  await subtest_attachment_right_click(
+    "attachmentIcon",
+    "attachmentItemContext"
+  );
+  await subtest_attachment_right_click(
+    "attachmentCount",
+    "attachmentItemContext"
+  );
+  await subtest_attachment_right_click(
+    "attachmentName",
+    "attachmentItemContext"
+  );
+  await subtest_attachment_right_click(
+    "attachmentSize",
+    "attachmentItemContext"
+  );
 
-  subtest_attachment_right_click(
+  await subtest_attachment_right_click(
     "attachmentToggle",
     "attachment-toolbar-context-menu"
   );
-  subtest_attachment_right_click(
+  await subtest_attachment_right_click(
     "attachmentSaveAllSingle",
     "attachment-toolbar-context-menu"
   );
-  subtest_attachment_right_click(
+  await subtest_attachment_right_click(
     "attachmentBar",
     "attachment-toolbar-context-menu"
   );
 });
 
-add_task(function test_attachment_right_click_multiple() {
+add_task(async function test_attachment_right_click_multiple() {
   be_in_folder(folder);
 
   select_click_row(3);
   assert_selected_and_displayed(3);
 
-  subtest_attachment_right_click("attachmentIcon", "attachmentListContext");
-  subtest_attachment_right_click("attachmentCount", "attachmentListContext");
-  subtest_attachment_right_click("attachmentSize", "attachmentListContext");
+  await subtest_attachment_right_click(
+    "attachmentIcon",
+    "attachmentListContext"
+  );
+  await subtest_attachment_right_click(
+    "attachmentCount",
+    "attachmentListContext"
+  );
+  await subtest_attachment_right_click(
+    "attachmentSize",
+    "attachmentListContext"
+  );
 
-  subtest_attachment_right_click(
+  await subtest_attachment_right_click(
     "attachmentToggle",
     "attachment-toolbar-context-menu"
   );
-  subtest_attachment_right_click(
+  await subtest_attachment_right_click(
     "attachmentSaveAllMultiple",
     "attachment-toolbar-context-menu"
   );
-  subtest_attachment_right_click(
+  await subtest_attachment_right_click(
     "attachmentBar",
     "attachment-toolbar-context-menu"
   );

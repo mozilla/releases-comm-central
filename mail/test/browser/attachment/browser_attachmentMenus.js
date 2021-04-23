@@ -373,7 +373,7 @@ function assert_enabled(id, enabled) {
  *
  * @param expected a dictionary containing the expected states
  */
-function check_toolbar_menu_states_single(expected) {
+async function check_toolbar_menu_states_single(expected) {
   assert_shown("attachmentSaveAllSingle", true);
   assert_shown("attachmentSaveAllMultiple", false);
 
@@ -386,7 +386,7 @@ function check_toolbar_menu_states_single(expected) {
         "#attachmentSaveAllSingle .toolbarbutton-menubutton-dropmarker"
       )
     );
-    wait_for_popup_to_open(mc.e("attachmentSaveAllSingleMenu"));
+    await wait_for_popup_to_open(mc.e("attachmentSaveAllSingleMenu"));
 
     try {
       assert_enabled("button-openAttachment", expected.open);
@@ -394,7 +394,7 @@ function check_toolbar_menu_states_single(expected) {
       assert_enabled("button-detachAttachment", expected.detach);
       assert_enabled("button-deleteAttachment", expected.delete_);
     } finally {
-      close_popup(mc, mc.e("attachmentSaveAllSingleMenu"));
+      await close_popup(mc, mc.e("attachmentSaveAllSingleMenu"));
     }
   }
 }
@@ -404,7 +404,7 @@ function check_toolbar_menu_states_single(expected) {
  *
  * @param expected a dictionary containing the expected states
  */
-function check_toolbar_menu_states_multiple(expected) {
+async function check_toolbar_menu_states_multiple(expected) {
   assert_shown("attachmentSaveAllSingle", false);
   assert_shown("attachmentSaveAllMultiple", true);
 
@@ -417,7 +417,7 @@ function check_toolbar_menu_states_multiple(expected) {
         "#attachmentSaveAllMultiple .toolbarbutton-menubutton-dropmarker"
       )
     );
-    wait_for_popup_to_open(mc.e("attachmentSaveAllMultipleMenu"));
+    await wait_for_popup_to_open(mc.e("attachmentSaveAllMultipleMenu"));
 
     try {
       assert_enabled("button-openAllAttachments", expected.open);
@@ -425,7 +425,7 @@ function check_toolbar_menu_states_multiple(expected) {
       assert_enabled("button-detachAllAttachments", expected.detach);
       assert_enabled("button-deleteAllAttachments", expected.delete_);
     } finally {
-      close_popup(mc, mc.e("attachmentSaveAllMultipleMenu"));
+      await close_popup(mc, mc.e("attachmentSaveAllMultipleMenu"));
     }
   }
 }
@@ -435,14 +435,15 @@ function check_toolbar_menu_states_multiple(expected) {
  *
  * @param expected a dictionary containing the expected states
  */
-function check_menu_states_single(index, expected) {
+async function check_menu_states_single(index, expected) {
   let attachmentList = mc.e("attachmentList");
   let node = attachmentList.getItemAtIndex(index);
 
+  let contextMenu = document.getElementById("attachmentItemContext");
+  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   attachmentList.selectItem(node);
-  let menu = mc.getMenu("#attachmentItemContext");
-  menu.open(node);
-  wait_for_popup_to_open(mc.e("attachmentItemContext"));
+  EventUtils.synthesizeMouseAtCenter(node, { type: "contextmenu" });
+  await shownPromise;
 
   try {
     assert_shown("context-openAttachment", true);
@@ -456,7 +457,12 @@ function check_menu_states_single(index, expected) {
     assert_enabled("context-detachAttachment", expected.detach);
     assert_enabled("context-deleteAttachment", expected.delete_);
   } finally {
-    menu.close();
+    let hiddenPromise = BrowserTestUtils.waitForEvent(
+      contextMenu,
+      "popuphidden"
+    );
+    contextMenu.hidePopup();
+    await hiddenPromise;
   }
 }
 
@@ -465,12 +471,14 @@ function check_menu_states_single(index, expected) {
  *
  * @param expected a dictionary containing the expected states
  */
-function check_menu_states_all(expected) {
+async function check_menu_states_all(expected) {
   // Using a rightClick here is unsafe, because we need to hit the empty area
   // beside the attachment items and that seems to be different per platform.
   // Using DOM methods to open the popup works fine.
+  let contextMenu = document.getElementById("attachmentListContext");
+  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   mc.e("attachmentListContext").openPopup(mc.e("attachmentList"));
-  wait_for_popup_to_open(mc.e("attachmentListContext"));
+  await shownPromise;
 
   try {
     assert_shown("context-openAllAttachments", true);
@@ -484,11 +492,11 @@ function check_menu_states_all(expected) {
     assert_enabled("context-detachAllAttachments", expected.detach);
     assert_enabled("context-deleteAllAttachments", expected.delete_);
   } finally {
-    close_popup(mc, mc.e("attachmentListContext"));
+    await close_popup(mc, mc.e("attachmentListContext"));
   }
 }
 
-function help_test_attachment_menus(index) {
+async function help_test_attachment_menus(index) {
   be_in_folder(folder);
   select_click_row(index);
   let expectedStates = messages[index].menuStates;
@@ -507,21 +515,21 @@ function help_test_attachment_menus(index) {
   controller.sleep(1000);
 
   if (expectedStates.length == 1) {
-    check_toolbar_menu_states_single(messages[index].allMenuStates);
+    await check_toolbar_menu_states_single(messages[index].allMenuStates);
   } else {
-    check_toolbar_menu_states_multiple(messages[index].allMenuStates);
+    await check_toolbar_menu_states_multiple(messages[index].allMenuStates);
   }
 
-  check_menu_states_all(messages[index].allMenuStates);
+  await check_menu_states_all(messages[index].allMenuStates);
   for (let i = 0; i < expectedStates.length; i++) {
-    check_menu_states_single(i, expectedStates[i]);
+    await check_menu_states_single(i, expectedStates[i]);
   }
 }
 
 // Generate a test for each message in |messages|.
 for (let i = 0; i < messages.length; i++) {
   add_task(function() {
-    help_test_attachment_menus(i);
+    return help_test_attachment_menus(i);
   });
 }
 

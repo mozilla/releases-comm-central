@@ -98,7 +98,7 @@ add_task(function test_message_filter_shows_newsgroup_server() {
  * Test that customizing the toolbar doesn't lead to doubled accounts in
  * the Get Mail menu.  (bug 520457)
  */
-add_task(function test_customize_toolbar_doesnt_double_get_mail_menu() {
+add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
   be_in_folder(folderA);
 
   /**
@@ -128,7 +128,7 @@ add_task(function test_customize_toolbar_doesnt_double_get_mail_menu() {
   // Open the customization dialog.
   mc.rightClick(mc.e("mail-bar3"));
   mc.click(mc.e("CustomizeMailToolbar"));
-  close_popup(mc, mc.e("toolbar-context-menu"));
+  await close_popup(mc, mc.e("toolbar-context-menu"));
 
   let customc = wait_for_new_window("mailnews:customizeToolbar");
   wait_for_window_focused(customc.window);

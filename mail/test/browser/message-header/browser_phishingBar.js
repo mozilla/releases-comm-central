@@ -119,7 +119,7 @@ function teardownModule() {
  * Make sure the notification shows, and goes away once the Ignore menuitem
  * is clicked.
  */
-function assert_ignore_works(aController) {
+async function assert_ignore_works(aController) {
   wait_for_notification_to_show(aController, kBoxId, kNotificationValue);
   let prefButton = get_notification_button(
     aController,
@@ -128,7 +128,7 @@ function assert_ignore_works(aController) {
     { popup: "phishingOptions" }
   );
   aController.click(prefButton);
-  aController.click_menus_in_sequence(aController.e("phishingOptions"), [
+  await aController.click_menus_in_sequence(aController.e("phishingOptions"), [
     { id: "phishingOptionIgnore" },
   ]);
   wait_for_notification_to_stop(aController, kBoxId, kNotificationValue);
@@ -148,10 +148,10 @@ function click_link_if_available() {
  * Test that when viewing a message, choosing ignore hides the the phishing
  * notification.
  */
-add_task(function test_ignore_phishing_warning_from_message() {
+add_task(async function test_ignore_phishing_warning_from_message() {
   be_in_folder(folder);
   select_click_row(0);
-  assert_ignore_works(mc);
+  await assert_ignore_works(mc);
 
   select_click_row(1);
   // msg 1 is normal -> no phishing warning
@@ -170,7 +170,7 @@ add_task(async function test_ignore_phishing_warning_from_eml() {
   let file = new FileUtils.File(getTestFilePath("data/evil.eml"));
 
   let msgc = await open_message_from_file(file);
-  assert_ignore_works(msgc);
+  await assert_ignore_works(msgc);
   close_window(msgc);
 });
 

@@ -148,8 +148,8 @@ add_task(async function test_mark_messages_read() {
   await check_status(curMessage, null, null, 0); // status = unread
 
   // Make sure we can mark all read with >0 messages unread.
-  right_click_on_row(0);
-  mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await right_click_on_row(0);
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
   ]);
@@ -168,8 +168,8 @@ add_task(async function test_mark_messages_read() {
   await check_status(curMessage, null, null, Ci.nsMsgMessageFlags.Read);
 
   // Let's have the last message unread.
-  right_click_on_row(3);
-  mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await right_click_on_row(3);
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
     { id: "mailContext-markUnread" },
   ]);
@@ -180,8 +180,8 @@ add_task(async function test_mark_messages_read() {
 add_task(async function test_mark_messages_flagged() {
   // Mark a message with the star.
   let curMessage = select_click_row(1);
-  right_click_on_row(1);
-  mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await right_click_on_row(1);
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
     { id: "mailContext-markFlagged" },
   ]);

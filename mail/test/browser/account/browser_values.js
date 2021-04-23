@@ -72,8 +72,8 @@ registerCleanupFunction(function teardownModule(module) {
  * Check that if the CC field is empty, enabling CC will automatically
  * prefill the currently default email address.
  */
-add_task(function test_default_CC_address() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_default_CC_address() {
+  await open_advanced_settings(function(tab) {
     subtest_check_default_CC_address(tab);
   });
 });
@@ -124,7 +124,7 @@ function subtest_check_default_CC_address(tab) {
  * Check if the account name automatically changes when the user changes
  * the username or hostname.
  */
-add_task(function test_account_name() {
+add_task(async function test_account_name() {
   // We already have a POP account ready.
   // Create also a NNTP server.
   let nntpServer = MailServices.accounts
@@ -152,7 +152,7 @@ add_task(function test_account_name() {
   let newUser = "somebody";
 
   // On NNTP there is no user name so just set new hostname.
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_account_name(nntpAccount, newHost, null, tab);
   });
 
@@ -161,7 +161,7 @@ add_task(function test_account_name() {
 
   // On POP3 there is both user name and host name.
   // Set new host name first.
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_account_name(gPopAccount, newHost, null, tab);
   });
 
@@ -169,7 +169,7 @@ add_task(function test_account_name() {
   Assert.equal(gPopAccount.incomingServer.prettyName, "nobody@" + newHost);
 
   // Set new host name first.
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_account_name(gPopAccount, null, newUser, tab);
   });
 
@@ -180,7 +180,7 @@ add_task(function test_account_name() {
   newUser = "anotherbody";
 
   // Set user name and host name at once.
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_account_name(gPopAccount, newHost, newUser, tab);
   });
 
@@ -192,7 +192,7 @@ add_task(function test_account_name() {
 
   newHost = "third.host.invalid";
   // Set the host name again.
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_account_name(gPopAccount, newHost, null, tab);
   });
 
@@ -252,7 +252,7 @@ function subtest_check_account_name(account, newHostname, newUsername, tab) {
  * Bug 536768.
  * Check if invalid junk target settings (folders) are fixed to sane values.
  */
-add_task(function test_invalid_junk_target() {
+add_task(async function test_invalid_junk_target() {
   // Set the junk target prefs to invalid values.
   let branch = Services.prefs.getBranch(
     "mail.server." + gPopAccount.incomingServer.key + "."
@@ -261,7 +261,7 @@ add_task(function test_invalid_junk_target() {
   branch.setCharPref("spamActionTargetFolder", "some random non-existent URI");
   let moveOnSpam = true;
   branch.setBoolPref("moveOnSpam", moveOnSpam);
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_invalid_junk_target(tab);
   });
 
@@ -290,16 +290,16 @@ function subtest_check_invalid_junk_target(tab) {
  * Bug 327812.
  * Checks if invalid server hostnames are not accepted.
  */
-add_task(function test_invalid_hostname() {
+add_task(async function test_invalid_hostname() {
   let branch = Services.prefs.getBranch(
     "mail.server." + gPopAccount.incomingServer.key + "."
   );
   let origHostname = branch.getCharPref("realhostname");
 
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_invalid_hostname(tab, false, origHostname);
   });
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_invalid_hostname(tab, true, origHostname);
   });
 
@@ -363,8 +363,8 @@ function subtest_check_invalid_hostname(tab, exitSettings, originalHostname) {
 const badName = "trailing  space ";
 const badEmail = " leading_space@example.com";
 
-add_task(function test_trailing_spaces() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_trailing_spaces() {
+  await open_advanced_settings(function(tab) {
     subtest_check_trailing_spaces(tab);
   });
   Assert.equal(gPopAccount.incomingServer.prettyName, badName.trim());

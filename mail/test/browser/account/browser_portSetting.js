@@ -71,16 +71,16 @@ function subtest_check_port_number(tab) {
   subtest_check_set_port_number(tab, true);
 }
 
-add_task(function test_account_port_setting() {
+add_task(async function test_account_port_setting() {
   for (
     gTestNumber = 1;
     gTestNumber < PORT_NUMBERS_TO_TEST.length;
     ++gTestNumber
   ) {
-    open_advanced_settings(subtest_check_set_port_number);
+    await open_advanced_settings(subtest_check_set_port_number);
   }
 
-  open_advanced_settings(subtest_check_port_number);
+  await open_advanced_settings(subtest_check_port_number);
 
   Assert.report(
     false,

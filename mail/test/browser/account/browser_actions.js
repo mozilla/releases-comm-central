@@ -85,7 +85,7 @@ registerCleanupFunction(function teardownModule(module) {
  * @param {boolean} isAddAccountEnabled  - True if the menuitems (Add Mail Account+Add Other Account)
  *                                         should be enabled, false otherwise.
  */
-function subtest_check_account_actions(
+async function subtest_check_account_actions(
   tab,
   accountKey,
   isSetAsDefaultEnabled,
@@ -97,7 +97,7 @@ function subtest_check_account_actions(
 
   // click the Actions Button to bring up the popup with menuitems to test
   mc.click(content_tab_e(tab, "accountActionsButton"), 5, 5);
-  wait_for_popup_to_open(content_tab_e(tab, "accountActionsDropdown"));
+  await wait_for_popup_to_open(content_tab_e(tab, "accountActionsDropdown"));
 
   let actionAddMailAccount = content_tab_e(tab, "accountActionsAddMailAccount");
   Assert.notEqual(actionAddMailAccount, undefined);
@@ -127,26 +127,32 @@ function subtest_check_account_actions(
   Assert.notEqual(actionRemove, undefined);
   Assert.equal(!actionRemove.getAttribute("disabled"), isRemoveEnabled);
 
-  close_popup(mc, content_tab_e(tab, "accountActionsDropdown"));
+  await close_popup(mc, content_tab_e(tab, "accountActionsDropdown"));
 }
 
-add_task(function test_account_actions() {
+add_task(async function test_account_actions() {
   // IMAP account: can be default, can be removed.
-  open_advanced_settings(function(tab) {
-    subtest_check_account_actions(tab, imapAccount.key, true, true, true);
+  await open_advanced_settings(async function(tab) {
+    await subtest_check_account_actions(tab, imapAccount.key, true, true, true);
   });
 
   // NNTP (News) account: can't be default, can be removed.
-  open_advanced_settings(function(tab) {
-    subtest_check_account_actions(tab, nntpAccount.key, false, true, true);
+  await open_advanced_settings(async function(tab) {
+    await subtest_check_account_actions(
+      tab,
+      nntpAccount.key,
+      false,
+      true,
+      true
+    );
   });
 
   // Local Folders account: can't be removed, can't be default.
   var localFoldersAccount = MailServices.accounts.FindAccountForServer(
     MailServices.accounts.localFoldersServer
   );
-  open_advanced_settings(function(tab) {
-    subtest_check_account_actions(
+  await open_advanced_settings(async function(tab) {
+    await subtest_check_account_actions(
       tab,
       localFoldersAccount.key,
       false,
@@ -155,8 +161,8 @@ add_task(function test_account_actions() {
     );
   });
   // SMTP server row: can't be removed, can't be default.
-  open_advanced_settings(function(tab) {
-    subtest_check_account_actions(tab, null, false, false, true);
+  await open_advanced_settings(async function(tab) {
+    await subtest_check_account_actions(tab, null, false, false, true);
   });
 
   // on the IMAP account, disable Delete Account menu item
@@ -166,8 +172,14 @@ add_task(function test_account_actions() {
   Services.prefs.getDefaultBranch("").setBoolPref(disableItemPref, true);
   Services.prefs.lockPref(disableItemPref);
 
-  open_advanced_settings(function(tab) {
-    subtest_check_account_actions(tab, imapAccount.key, true, false, true);
+  await open_advanced_settings(async function(tab) {
+    await subtest_check_account_actions(
+      tab,
+      imapAccount.key,
+      true,
+      false,
+      true
+    );
   });
 
   Services.prefs.unlockPref(disableItemPref);
@@ -179,8 +191,14 @@ add_task(function test_account_actions() {
   Services.prefs.getDefaultBranch("").setBoolPref(disableItemPref, true);
   Services.prefs.lockPref(disableItemPref);
 
-  open_advanced_settings(function(tab) {
-    subtest_check_account_actions(tab, imapAccount.key, false, true, true);
+  await open_advanced_settings(async function(tab) {
+    await subtest_check_account_actions(
+      tab,
+      imapAccount.key,
+      false,
+      true,
+      true
+    );
   });
 
   Services.prefs.unlockPref(disableItemPref);
@@ -192,8 +210,14 @@ add_task(function test_account_actions() {
   Services.prefs.getDefaultBranch("").setBoolPref(disableItemPref, true);
   Services.prefs.lockPref(disableItemPref);
 
-  open_advanced_settings(function(tab) {
-    subtest_check_account_actions(tab, imapAccount.key, true, true, false);
+  await open_advanced_settings(async function(tab) {
+    await subtest_check_account_actions(
+      tab,
+      imapAccount.key,
+      true,
+      true,
+      false
+    );
   });
 
   Services.prefs.unlockPref(disableItemPref);

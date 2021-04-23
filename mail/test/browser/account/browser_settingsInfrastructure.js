@@ -83,8 +83,8 @@ registerCleanupFunction(function teardownModule(module) {
  * Check that the options in the server pane are properly preserved across
  * pane switches.
  */
-add_task(function test_account_dot_IDs() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_account_dot_IDs() {
+  await open_advanced_settings(function(tab) {
     subtest_check_account_dot_IDs(tab);
   });
 });
@@ -178,12 +178,12 @@ function subtest_check_account_dot_IDs(tab) {
  * Test for bug 807101.
  * Check if form controls are properly disabled when their attached prefs are locked.
  */
-add_task(function test_account_locked_prefs() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_account_locked_prefs() {
+  await open_advanced_settings(function(tab) {
     subtest_check_locked_prefs_addressing(tab);
   });
 
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_locked_prefs_server(tab);
   });
 });
@@ -366,8 +366,8 @@ function subtest_check_locked_prefs_server(tab) {
  * account pane showing the same field really loads the value from the new account,
  * even when empty. This is tested on the Reply-To field.
  */
-add_task(function test_replyTo_leak() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_replyTo_leak() {
+  await open_advanced_settings(function(tab) {
     subtest_check_replyTo_leak(tab);
   });
 });
@@ -410,8 +410,8 @@ function subtest_check_replyTo_leak(tab) {
  * Test for bug 804091.
  * Check if onchange handlers are properly executed when panes are switched.
  */
-add_task(function test_account_onchange_handler() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_account_onchange_handler() {
+  await open_advanced_settings(function(tab) {
     subtest_check_onchange_handler(tab);
   });
 });

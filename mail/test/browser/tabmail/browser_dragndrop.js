@@ -358,31 +358,31 @@ add_task(function test_tab_undo() {
   teardownTest();
 });
 
-function _synthesizeRecentlyClosedMenu() {
+async function _synthesizeRecentlyClosedMenu() {
   mc.rightClick(mc.tabmail.tabContainer.allTabs[1]);
 
   let tabContextMenu = mc.window.document.getElementById("tabContextMenu");
-  wait_for_popup_to_open(tabContextMenu);
+  await wait_for_popup_to_open(tabContextMenu);
 
   let recentlyClosedTabs = tabContextMenu.querySelector(
     '[anonid="recentlyClosedTabs"]'
   );
 
   EventUtils.synthesizeMouse(recentlyClosedTabs, 5, 5, {}, mc.window);
-  wait_for_popup_to_open(recentlyClosedTabs.menupopup);
+  await wait_for_popup_to_open(recentlyClosedTabs.menupopup);
 
   return recentlyClosedTabs;
 }
 
-function _teardownRecentlyClosedMenu() {
+async function _teardownRecentlyClosedMenu() {
   let menu = mc.window.document.getElementById("tabContextMenu");
-  close_popup(mc, menu);
+  await close_popup(mc, menu);
 }
 
 /**
  * Tests the recently closed tabs menu.
  */
-add_task(function test_tab_recentlyClosed() {
+add_task(async function test_tab_recentlyClosed() {
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0, true);
   assert_number_of_tabs_open(1);
@@ -418,7 +418,7 @@ add_task(function test_tab_recentlyClosed() {
   assert_number_of_tabs_open(2);
 
   // ...then open the context menu.
-  let menu = _synthesizeRecentlyClosedMenu();
+  let menu = await _synthesizeRecentlyClosedMenu();
 
   // Check if the context menu was populated correctly...
   Assert.ok(menu.itemCount == 12, "Failed to populate context menu");
@@ -431,14 +431,14 @@ add_task(function test_tab_recentlyClosed() {
 
   // Restore the most recently closed tab
   EventUtils.synthesizeMouse(menu.getItemAtIndex(0), 5, 5, {}, mc.window);
-  _teardownRecentlyClosedMenu();
+  await _teardownRecentlyClosedMenu();
 
   wait_for_message_display_completion(mc);
   assert_number_of_tabs_open(3);
   assert_selected_and_displayed(msgHdrsInFolder[14]);
 
   // The context menu should now contain one item less.
-  _synthesizeRecentlyClosedMenu();
+  await _synthesizeRecentlyClosedMenu();
 
   Assert.ok(menu.itemCount == 11, "Failed to populate context menu");
   for (let idx = 0; idx < 9; idx++) {
@@ -450,14 +450,14 @@ add_task(function test_tab_recentlyClosed() {
 
   // Now we restore an "random" tab.
   EventUtils.synthesizeMouse(menu.getItemAtIndex(5), 5, 5, {}, mc.window);
-  _teardownRecentlyClosedMenu();
+  await _teardownRecentlyClosedMenu();
 
   wait_for_message_display_completion(mc);
   assert_number_of_tabs_open(4);
   assert_selected_and_displayed(msgHdrsInFolder[8]);
 
   // finally restore all tabs
-  _synthesizeRecentlyClosedMenu();
+  await _synthesizeRecentlyClosedMenu();
 
   Assert.ok(menu.itemCount == 10, "Failed to populate context menu");
   Assert.ok(
@@ -476,7 +476,7 @@ add_task(function test_tab_recentlyClosed() {
     {},
     mc.window
   );
-  _teardownRecentlyClosedMenu();
+  await _teardownRecentlyClosedMenu();
 
   wait_for_message_display_completion(mc);
 

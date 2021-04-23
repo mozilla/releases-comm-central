@@ -73,7 +73,7 @@ registerCleanupFunction(function teardownModule(module) {
  * Test that the plaintext compose window has a signature initially,
  * and has the correct signature after switching to another identity.
  */
-function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
+async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", false);
   Services.prefs.setBoolPref(
     "mail.identity.id1.suppress_signature_separator",
@@ -122,10 +122,7 @@ function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   Assert.equal(sigNode.textContent, expectedText);
 
   // Now switch identities!
-  cwc.click(cwc.e("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: "id2" },
-  ]);
+  await chooseIdentity(cwc.window, "id2");
 
   node = contentFrame.contentDocument.body.lastChild;
 
@@ -167,20 +164,23 @@ function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   close_compose_window(cwc);
 }
 
-add_task(function testPlaintextComposeWindowSwitchSignatures() {
-  plaintextComposeWindowSwitchSignatures(false);
+add_task(async function testPlaintextComposeWindowSwitchSignatures() {
+  await plaintextComposeWindowSwitchSignatures(false);
 });
 
 add_task(
-  function testPlaintextComposeWindowSwitchSignaturesWithSuppressedSeparator() {
-    plaintextComposeWindowSwitchSignatures(true);
+  async function testPlaintextComposeWindowSwitchSignaturesWithSuppressedSeparator() {
+    await plaintextComposeWindowSwitchSignatures(true);
   }
 );
 
 /**
  * Same test, but with an HTML compose window
  */
-function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
+async function HTMLComposeWindowSwitchSignatures(
+  suppressSigSep,
+  paragraphFormat
+) {
   Services.prefs.setBoolPref(
     "mail.compose.default_to_paragraph",
     paragraphFormat
@@ -213,10 +213,7 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
   }
 
   // Now switch identities!
-  cwc.click(cwc.e("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: "id2" },
-  ]);
+  await chooseIdentity(cwc.window, "id2");
 
   node = contentFrame.contentDocument.body.lastChild;
 
@@ -259,22 +256,22 @@ function HTMLComposeWindowSwitchSignatures(suppressSigSep, paragraphFormat) {
   close_compose_window(cwc);
 }
 
-add_task(function testHTMLComposeWindowSwitchSignatures() {
-  HTMLComposeWindowSwitchSignatures(false, false);
+add_task(async function testHTMLComposeWindowSwitchSignatures() {
+  await HTMLComposeWindowSwitchSignatures(false, false);
 });
 
 add_task(
-  function testHTMLComposeWindowSwitchSignaturesWithSuppressedSeparator() {
-    HTMLComposeWindowSwitchSignatures(true, false);
+  async function testHTMLComposeWindowSwitchSignaturesWithSuppressedSeparator() {
+    await HTMLComposeWindowSwitchSignatures(true, false);
   }
 );
 
-add_task(function testHTMLComposeWindowSwitchSignaturesParagraphFormat() {
-  HTMLComposeWindowSwitchSignatures(false, true);
+add_task(async function testHTMLComposeWindowSwitchSignaturesParagraphFormat() {
+  await HTMLComposeWindowSwitchSignatures(false, true);
 });
 
 add_task(
-  function testHTMLComposeWindowSwitchSignaturesWithSuppressedSeparatorParagraphFormat() {
-    HTMLComposeWindowSwitchSignatures(true, true);
+  async function testHTMLComposeWindowSwitchSignaturesWithSuppressedSeparatorParagraphFormat() {
+    await HTMLComposeWindowSwitchSignatures(true, true);
   }
 );

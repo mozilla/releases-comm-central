@@ -38,7 +38,7 @@ add_task(async function test_quoteMessage() {
   // Copy the message to a folder, so that Quote Message menu item is enabled.
   let documentChild = msgc.e("messagepane").contentDocument.firstChild;
   msgc.rightClick(documentChild);
-  msgc.click_menus_in_sequence(msgc.e("mailContext"), [
+  await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },
     { label: "Local Folders" },
     { label: "QuoteTestFolder" },
@@ -58,7 +58,7 @@ add_task(async function test_quoteMessage() {
   if (["linux", "win"].includes(AppConstants.platform)) {
     // Click Options > Quote Message.
     cwc.click(cwc.e("optionsMenu"));
-    cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
+    await cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
       { id: "menu_quoteMessage" },
     ]);
     cwc.sleep(50);

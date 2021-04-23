@@ -55,7 +55,7 @@ function subtest_check_archive_options_enabled(tab, accountKey, isEnabled) {
   Assert.equal(button.disabled, !isEnabled);
 }
 
-add_task(function test_archive_options_enabled() {
+add_task(async function test_archive_options_enabled() {
   let defaultAccount = MailServices.accounts.defaultAccount;
   // First, create an IMAP server
   let imapServer = MailServices.accounts
@@ -78,18 +78,18 @@ add_task(function test_archive_options_enabled() {
   defaultIdentity.archiveFolder = imapServer.rootFolder.URI;
 
   imapServer.isGMailServer = false;
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_archive_options_enabled(tab, account.key, true);
   });
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_archive_options_enabled(tab, defaultAccount.key, true);
   });
 
   imapServer.isGMailServer = true;
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_archive_options_enabled(tab, account.key, false);
   });
-  open_advanced_settings(function(tab) {
+  await open_advanced_settings(function(tab) {
     subtest_check_archive_options_enabled(tab, defaultAccount.key, false);
   });
 
@@ -166,12 +166,12 @@ function subtest_check_archive_enabled(tab, archiveEnabled) {
   Assert.equal(checkbox.checked, archiveEnabled);
 }
 
-add_task(function test_archive_enabled() {
-  open_advanced_settings(function(amc) {
+add_task(async function test_archive_enabled() {
+  await open_advanced_settings(function(amc) {
     subtest_check_archive_enabled(amc, true);
   });
 
-  open_advanced_settings(function(amc) {
+  await open_advanced_settings(function(amc) {
     subtest_check_archive_enabled(amc, false);
   });
 });
@@ -198,6 +198,6 @@ function subtest_disable_archive(tab) {
   Assert.ok(!defaultIdentity.archiveEnabled);
 }
 
-add_task(function test_disable_archive() {
-  open_advanced_settings(subtest_disable_archive);
+add_task(async function test_disable_archive() {
+  await open_advanced_settings(subtest_disable_archive);
 });

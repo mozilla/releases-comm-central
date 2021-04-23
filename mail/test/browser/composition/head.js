@@ -51,3 +51,21 @@ function getMessageBody(content) {
   Assert.equal(content.slice(-2), "\r\n", "Should end with a line break.");
   return content.slice(separatorIndex + 4, -2);
 }
+
+async function chooseIdentity(win, identityKey) {
+  let popup = win.document.getElementById("msgIdentityPopup");
+  let shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    win.document.getElementById("msgIdentity"),
+    {},
+    win
+  );
+  await shownPromise;
+  let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
+  EventUtils.synthesizeMouseAtCenter(
+    popup.querySelector(`[identitykey="${identityKey}"]`),
+    {},
+    win
+  );
+  await hiddenPromise;
+}

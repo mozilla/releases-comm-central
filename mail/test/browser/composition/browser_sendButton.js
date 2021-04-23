@@ -86,7 +86,7 @@ function check_send_commands_state(aCwc, aEnabled) {
  * Test that the Send buttons are properly enabled if an addressee is input
  * by the user.
  */
-add_task(function test_send_enabled_manual_address() {
+add_task(async function test_send_enabled_manual_address() {
   let cwc = open_compose_new_mail(); // compose controller
   let panel = cwc.e("extraRecipientsPanel"); // extra recipients panel
 
@@ -100,7 +100,7 @@ add_task(function test_send_enabled_manual_address() {
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
   clear_recipients(cwc);
   cwc.click(cwc.e("extraRecipientsLabel"));
-  wait_for_popup_to_open(panel);
+  await wait_for_popup_to_open(panel);
   cwc.click(cwc.e("addr_reply"));
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
   check_send_commands_state(cwc, false);
@@ -159,7 +159,7 @@ add_task(function test_send_enabled_manual_address() {
   // extraRecipientsPanel.
   cwc.e("extraRecipientsLabel").removeAttribute("collapsed");
   cwc.click(cwc.e("extraRecipientsLabel"));
-  wait_for_popup_to_open(panel);
+  await wait_for_popup_to_open(panel);
 
   // - some string as a newsgroup
   cwc.e("addr_newsgroups").removeAttribute("collapsed");
@@ -200,7 +200,7 @@ add_task(function test_send_enabled_prefilled_address() {
  * Similar to test_send_enabled_prefilled_address but switched between an identity
  * that has a CC list and one that doesn't directly in the compose window.
  */
-add_task(function test_send_enabled_prefilled_address_from_identity() {
+add_task(async function test_send_enabled_prefilled_address_from_identity() {
   // The first identity will have an automatic CC enabled.
   let identityWithCC = account.defaultIdentity;
   identityWithCC.doCc = true;
@@ -217,17 +217,11 @@ add_task(function test_send_enabled_prefilled_address_from_identity() {
   Assert.ok(account.identities.length >= 2);
   let identityWithoutCC = account.identities[1];
   Assert.ok(!identityWithoutCC.doCc);
-  cwc.click(cwc.e("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: identityWithoutCC.key },
-  ]);
+  await chooseIdentity(cwc.window, identityWithoutCC.key);
   check_send_commands_state(cwc, false);
 
   // Check the first identity again.
-  cwc.click(cwc.e("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: identityWithCC.key },
-  ]);
+  await chooseIdentity(cwc.window, identityWithCC.key);
   check_send_commands_state(cwc, true);
 
   close_compose_window(cwc);

@@ -11,7 +11,7 @@
 var { CustomizeDialogHelper } = ChromeUtils.import(
   "resource://testing-common/mozmill/CustomizationHelpers.jsm"
 );
-var { mc, wait_for_popup_to_open } = ChromeUtils.import(
+var { close_popup, mc, wait_for_popup_to_open } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { drag_n_drop_element } = ChromeUtils.import(
@@ -39,16 +39,22 @@ registerCleanupFunction(function teardownModule(module) {
  * Test that we can access the customize context menu by right
  * clicking on the tabs toolbar.
  */
-add_task(function test_open_context_menu() {
+add_task(async function test_open_context_menu() {
   // First, ensure that the context menu is closed.
   let contextPopup = mc.e("toolbar-context-menu");
   Assert.notEqual(contextPopup.state, "open");
 
   // Right click on the tab bar
-  mc.rightClick(mc.e("tabmail-tabs"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("tabmail-tabs"),
+    { type: "contextmenu" },
+    window
+  );
 
   // Ensure that the popup opened
-  wait_for_popup_to_open(contextPopup);
+  await wait_for_popup_to_open(contextPopup);
+
+  await close_popup(mc, contextPopup);
 });
 
 /**

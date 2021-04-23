@@ -100,10 +100,12 @@ function check_read_status(messages, read) {
  * @param canMarkRead true if the mark read item should be enabled
  * @param canMarkUnread true if the mark unread item should be enabled
  */
-function check_read_menuitems(index, canMarkRead, canMarkUnread) {
-  right_click_on_row(index);
-  wait_for_popup_to_open(mc.e("mailContext"));
-  mc.click_menus_in_sequence(mc.e("mailContext"), [{ id: "mailContext-mark" }]);
+async function check_read_menuitems(index, canMarkRead, canMarkUnread) {
+  await right_click_on_row(index);
+  await wait_for_popup_to_open(mc.e("mailContext"));
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+    { id: "mailContext-mark" },
+  ]);
 
   let readEnabled = !mc.e("mailContext-markRead").disabled;
   let unreadEnabled = !mc.e("mailContext-markUnread").disabled;
@@ -132,36 +134,36 @@ function enable_archiving(enabled) {
  * @param index the row in the thread pane of the message to mark read/unread
  * @param read true the message should be marked read, false otherwise
  */
-function mark_read_via_menu(index, read) {
+async function mark_read_via_menu(index, read) {
   let menuItem = read ? "mailContext-markRead" : "mailContext-markUnread";
-  right_click_on_row(index);
-  wait_for_popup_to_open(mc.e("mailContext"));
-  mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await right_click_on_row(index);
+  await wait_for_popup_to_open(mc.e("mailContext"));
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
     { id: menuItem },
   ]);
-  close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, mc.e("mailContext"));
 }
 
-add_task(function test_mark_one_read() {
+add_task(async function test_mark_one_read() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(false);
-  mark_read_via_menu(0, true);
+  await mark_read_via_menu(0, true);
   check_read_status([curMessage], true);
 });
 
-add_task(function test_mark_one_unread() {
+add_task(async function test_mark_one_unread() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(true);
-  mark_read_via_menu(0, false);
+  await mark_read_via_menu(0, false);
   check_read_status([curMessage], false);
 });
 
-add_task(function test_mark_n_read() {
+add_task(async function test_mark_n_read() {
   be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
@@ -169,11 +171,11 @@ add_task(function test_mark_n_read() {
   for (let i = 0; i < curMessages.length; i++) {
     curMessages[i].markRead(false);
   }
-  mark_read_via_menu(0, true);
+  await mark_read_via_menu(0, true);
   check_read_status(curMessages, true);
 });
 
-add_task(function test_mark_n_unread() {
+add_task(async function test_mark_n_unread() {
   be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
@@ -181,39 +183,39 @@ add_task(function test_mark_n_unread() {
   for (let i = 0; i < curMessages.length; i++) {
     curMessages[i].markRead(true);
   }
-  mark_read_via_menu(0, false);
+  await mark_read_via_menu(0, false);
   check_read_status(curMessages, false);
 });
 
-add_task(function test_mark_n_read_mixed() {
+add_task(async function test_mark_n_read_mixed() {
   be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
 
   curMessages[0].markRead(true);
   curMessages[1].markRead(false);
-  mark_read_via_menu(0, true);
+  await mark_read_via_menu(0, true);
   check_read_status(curMessages, true);
 
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
-  mark_read_via_menu(0, true);
+  await mark_read_via_menu(0, true);
   check_read_status(curMessages, true);
 });
 
-add_task(function test_mark_n_unread_mixed() {
+add_task(async function test_mark_n_unread_mixed() {
   be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
 
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
-  mark_read_via_menu(0, false);
+  await mark_read_via_menu(0, false);
   check_read_status(curMessages, false);
 
   curMessages[0].markRead(true);
   curMessages[1].markRead(false);
-  mark_read_via_menu(0, false);
+  await mark_read_via_menu(0, false);
   check_read_status(curMessages, false);
 });
 
@@ -251,23 +253,23 @@ add_task(function test_toggle_mixed() {
   check_read_status(curMessages, false);
 });
 
-add_task(function test_mark_menu_read() {
+add_task(async function test_mark_menu_read() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(false);
-  check_read_menuitems(0, true, false);
+  await check_read_menuitems(0, true, false);
 });
 
-add_task(function test_mark_menu_unread() {
+add_task(async function test_mark_menu_unread() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
   curMessage.markRead(true);
-  check_read_menuitems(0, false, true);
+  await check_read_menuitems(0, false, true);
 });
 
-add_task(function test_mark_menu_mixed() {
+add_task(async function test_mark_menu_mixed() {
   be_in_folder(unreadFolder);
   select_click_row(0);
   let curMessages = select_shift_click_row(1);
@@ -275,35 +277,37 @@ add_task(function test_mark_menu_mixed() {
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
 
-  check_read_menuitems(0, true, true);
+  await check_read_menuitems(0, true, true);
 });
 
-add_task(function test_mark_all_read() {
+add_task(async function test_mark_all_read() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
   curMessage.markRead(false);
 
   // Make sure we can mark all read with >0 messages unread.
-  right_click_on_row(0);
-  wait_for_popup_to_open(mc.e("mailContext"));
-  mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await right_click_on_row(0);
+  await wait_for_popup_to_open(mc.e("mailContext"));
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
   ]);
-  close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, mc.e("mailContext"));
 
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
 
   // Make sure we can't mark all read, now that all messages are already read.
-  right_click_on_row(0);
-  wait_for_popup_to_open(mc.e("mailContext"));
-  mc.click_menus_in_sequence(mc.e("mailContext"), [{ id: "mailContext-mark" }]);
+  await right_click_on_row(0);
+  await wait_for_popup_to_open(mc.e("mailContext"));
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+    { id: "mailContext-mark" },
+  ]);
 
   let allReadDisabled = mc.e("mailContext-markAllRead").disabled;
   Assert.ok(allReadDisabled, "Mark All Read menu item should be disabled!");
 });
 
-add_task(function test_mark_thread_as_read() {
+add_task(async function test_mark_thread_as_read() {
   let unreadThreadFolder = create_folder("UnreadThreadFolder");
   add_sets_to_folders([unreadThreadFolder], [create_thread(3)]);
   be_in_folder(unreadThreadFolder);
@@ -318,9 +322,11 @@ add_task(function test_mark_thread_as_read() {
   }
 
   // Make sure Mark Thread as Read is enabled with >0 messages in thread unread.
-  right_click_on_row(0);
-  wait_for_popup_to_open(mc.e("mailContext"));
-  mc.click_menus_in_sequence(mc.e("mailContext"), [{ id: "mailContext-mark" }]);
+  await right_click_on_row(0);
+  await wait_for_popup_to_open(mc.e("mailContext"));
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+    { id: "mailContext-mark" },
+  ]);
 
   let markThreadAsReadDisabled = mc.e("mailContext-markThreadAsRead").disabled;
   Assert.ok(
@@ -329,21 +335,23 @@ add_task(function test_mark_thread_as_read() {
   );
 
   // Make sure messages are read when Mark Thread as Read is clicked.
-  right_click_on_row(0);
-  wait_for_popup_to_open(mc.e("mailContext"));
-  mc.click_menus_in_sequence(mc.e("mailContext"), [
+  await right_click_on_row(0);
+  await wait_for_popup_to_open(mc.e("mailContext"));
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
     { id: "mailContext-markThreadAsRead" },
   ]);
-  close_popup(mc, mc.e("mailContext"));
+  await close_popup(mc, mc.e("mailContext"));
 
   let curMessage = select_click_row(0);
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
 
   // Make sure Mark Thread as Read is now disabled with all messages read.
-  right_click_on_row(0);
-  wait_for_popup_to_open(mc.e("mailContext"));
-  mc.click_menus_in_sequence(mc.e("mailContext"), [{ id: "mailContext-mark" }]);
+  await right_click_on_row(0);
+  await wait_for_popup_to_open(mc.e("mailContext"));
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+    { id: "mailContext-mark" },
+  ]);
 
   markThreadAsReadDisabled = mc.e("mailContext-markThreadAsRead").disabled;
   Assert.ok(
@@ -353,9 +361,11 @@ add_task(function test_mark_thread_as_read() {
 
   // Make sure that adding an unread message enables Mark Thread as Read once more.
   curMessage.markRead(false);
-  right_click_on_row(0);
-  wait_for_popup_to_open(mc.e("mailContext"));
-  mc.click_menus_in_sequence(mc.e("mailContext"), [{ id: "mailContext-mark" }]);
+  await right_click_on_row(0);
+  await wait_for_popup_to_open(mc.e("mailContext"));
+  await mc.click_menus_in_sequence(mc.e("mailContext"), [
+    { id: "mailContext-mark" },
+  ]);
 
   markThreadAsReadDisabled = mc.e("mailContext-markThreadAsRead").disabled;
   Assert.ok(

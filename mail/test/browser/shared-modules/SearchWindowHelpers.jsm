@@ -41,14 +41,14 @@ function open_search_window() {
  * @param aFolder the folder to open the search window for
  * @returns the controller for the search window
  */
-function open_search_window_from_context_menu(aFolder) {
+async function open_search_window_from_context_menu(aFolder) {
   folderDisplayHelper.right_click_on_folder(aFolder);
 
   windowHelper.plan_for_new_window("mailnews:search");
   mc.folderTreeController.searchMessages();
   let swc = windowHelper.wait_for_new_window("mailnews:search");
 
-  folderDisplayHelper.close_popup(mc, mc.e("folderPaneContext"));
+  await folderDisplayHelper.close_popup(mc, mc.e("folderPaneContext"));
 
   return swc;
 }

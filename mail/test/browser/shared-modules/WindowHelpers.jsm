@@ -33,11 +33,11 @@ var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var EventUtils = ChromeUtils.import(
-  "resource://testing-common/mozmill/EventUtils.jsm"
-);
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
+var { BrowserTestUtils } = ChromeUtils.import(
+  "resource://testing-common/BrowserTestUtils.jsm"
+);
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -643,10 +643,6 @@ function wait_for_new_window(aWindowType) {
 }
 
 async function async_plan_for_new_window(aWindowType) {
-  let { BrowserTestUtils } = ChromeUtils.import(
-    "resource://testing-common/BrowserTestUtils.jsm"
-  );
-
   let domWindow = await BrowserTestUtils.domWindowOpened(null, async win => {
     await BrowserTestUtils.waitForEvent(win, "load");
     return (
@@ -1044,21 +1040,9 @@ var AugmentEverybodyWith = {
      * @return  An array of popup elements that were left open. It will be
      *          an empty array if aKeepOpen was set to false.
      */
-    click_menus_in_sequence: function _click_menus(
-      aRootPopup,
-      aActions,
-      aKeepOpen
-    ) {
+    async click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
       if (aRootPopup.state != "open") {
-        // handle "showing"
-        utils.waitFor(
-          () => aRootPopup.state == "open",
-          () =>
-            "Popup never opened! id=" +
-            aRootPopup.id +
-            ", state=" +
-            aRootPopup.state
-        );
+        await BrowserTestUtils.waitForEvent(aRootPopup, "popupshown");
       }
       // These popups sadly do not close themselves, so we need to keep track
       // of them so we can make sure they end up closed.
@@ -1085,7 +1069,13 @@ var AugmentEverybodyWith = {
           );
         }
 
-        this.click(matchingNode);
+        if (matchingNode.localName == "menu") {
+          matchingNode.openMenu(true);
+        } else {
+          curPopup.activateItem(matchingNode);
+        }
+
+        await new Promise(r => matchingNode.ownerGlobal.setTimeout(r));
 
         let newPopup = null;
         if ("menupopup" in matchingNode) {
@@ -1094,18 +1084,9 @@ var AugmentEverybodyWith = {
         if (newPopup) {
           curPopup = newPopup;
           closeStack.push(curPopup);
-          utils.waitFor(
-            () => curPopup.state == "open",
-            () =>
-              "Popup never opened at action depth " +
-              iAction +
-              "; id=" +
-              curPopup.id +
-              ", state=" +
-              curPopup.state,
-            5000,
-            50
-          );
+          if (curPopup.state != "open") {
+            await BrowserTestUtils.waitForEvent(curPopup, "popupshown");
+          }
         }
       }
 
@@ -1128,18 +1109,8 @@ var AugmentEverybodyWith = {
         let curPopup = aCloseStack.pop();
         if (curPopup.state == "open") {
           curPopup.focus();
-          EventUtils.synthesizeKey("VK_ESCAPE", {}, this.window);
+          curPopup.hidePopup();
         }
-        utils.waitFor(
-          () => curPopup.state == "closed",
-          () =>
-            "Popup did not close! id=" +
-            curPopup.id +
-            ", state=" +
-            curPopup.state,
-          5000,
-          50
-        );
       }
     },
 

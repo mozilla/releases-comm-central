@@ -89,14 +89,14 @@ add_task(function test_selection_select_column() {
   assert_nothing_selected();
 });
 
-add_task(function test_selection_select_column_deselection() {
+add_task(async function test_selection_select_column_deselection() {
   be_in_folder(folder);
   select_none();
   select_column_click_row(3);
   select_column_click_row(3);
   assert_nothing_selected();
-  right_click_on_row(7);
-  delete_via_popup();
+  await right_click_on_row(7);
+  await delete_via_popup();
   assert_nothing_selected();
   mc.e("selectCol").setAttribute("hidden", true);
 });

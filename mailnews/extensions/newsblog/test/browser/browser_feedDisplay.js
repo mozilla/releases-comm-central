@@ -114,7 +114,7 @@ add_task(async () => {
       },
     }
   );
-  EventUtils.synthesizeMouseAtCenter(menuItem, {});
+  menu.activateItem(menuItem);
   await Promise.all([hiddenPromise, dialogPromise]);
 
   let folder = rootFolder.subFolders.find(f => f.name == "Test Feed");
@@ -188,7 +188,7 @@ add_task(async () => {
   hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
   let promptPromise = BrowserTestUtils.promiseAlertDialog("accept");
   menuItem = document.getElementById("folderPaneContext-remove");
-  EventUtils.synthesizeMouseAtCenter(menuItem, {});
+  menu.activateItem(menuItem);
   await Promise.all([hiddenPromise, promptPromise]);
 
   window.FeedMessageHandler.onSelectPref = 1;

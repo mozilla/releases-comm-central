@@ -79,7 +79,7 @@ add_task(async function() {
       "options menu item is checked"
     );
     hiddenPromise = BrowserTestUtils.waitForEvent(optionsMenu, "popuphidden");
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, composeWindow);
+    optionsMenu.hidePopup();
     await hiddenPromise;
   }
 
@@ -99,7 +99,7 @@ add_task(async function() {
   // Disable the spell checker.
 
   hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(contextMenuEnabled, {}, composeWindow);
+  contextMenu.activateItem(contextMenuEnabled);
   await hiddenPromise;
 
   await checkMisspelledWords(subjectEditor);
@@ -116,7 +116,7 @@ add_task(async function() {
       "options menu item is not checked"
     );
     hiddenPromise = BrowserTestUtils.waitForEvent(optionsMenu, "popuphidden");
-    EventUtils.synthesizeKey("VK_ESCAPE", {}, composeWindow);
+    optionsMenu.hidePopup();
     await hiddenPromise;
   }
 
@@ -136,7 +136,7 @@ add_task(async function() {
   // Enable the spell checker.
 
   hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(contextMenuEnabled, {}, composeWindow);
+  contextMenu.activateItem(contextMenuEnabled);
   await hiddenPromise;
 
   await checkMisspelledWords(subjectEditor, "aluminium");
@@ -156,11 +156,7 @@ add_task(async function() {
   Assert.equal(languageList.children[1].value, "en-US");
 
   hiddenPromise = BrowserTestUtils.waitForEvent(languageList, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(
-    languageList.children[0],
-    {},
-    composeWindow
-  );
+  languageList.activateItem(languageList.children[0]);
   await hiddenPromise;
 
   await checkMisspelledWords(subjectEditor, "harbor");
@@ -201,7 +197,7 @@ add_task(async function() {
   }
 
   hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(suggestions[0], {}, composeWindow);
+  contextMenu.activateItem(suggestions[0]);
   await hiddenPromise;
 
   await checkMisspelledWords(bodyEditor, "maneuvered", "jewelry");

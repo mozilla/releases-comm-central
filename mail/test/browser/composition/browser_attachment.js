@@ -387,7 +387,7 @@ function check_attachment_names(aController, aNames) {
  *                          }
  * @param openPanel {boolean}   Whether to open reorderAttachmentsPanel for the test
  */
-function subtest_reordering(
+async function subtest_reordering(
   aCwc,
   aInitialAttachmentNames,
   aReorder_actions,
@@ -410,7 +410,7 @@ function subtest_reordering(
     aCwc.window.showReorderAttachmentsPanel();
     aCwc.sleep(0);
     panel = aCwc.e("reorderAttachmentsPanel");
-    wait_for_popup_to_open(panel);
+    await wait_for_popup_to_open(panel);
   }
 
   for (let action of aReorder_actions) {
@@ -448,7 +448,7 @@ function subtest_reordering(
  * Check basic and advanced attachment reordering operations.
  * This is the main function of this test.
  */
-add_task(function test_attachment_reordering() {
+add_task(async function test_attachment_reordering() {
   let cwc = open_compose_new_mail();
   let editorEl = cwc.window.GetCurrentEditorElement();
   let bucket = cwc.e("attachmentBucket");
@@ -471,11 +471,16 @@ add_task(function test_attachment_reordering() {
   check_attachment_names(cwc, initialAttachmentNames_0);
 
   // Show 'Reorder Attachments' panel via mouse clicks.
-  cwc.rightClick(bucket.getItemAtIndex(1));
-  cwc.click_menus_in_sequence(cwc.e("msgComposeAttachmentItemContext"), [
-    { id: "composeAttachmentContext_reorderItem" },
-  ]);
-  wait_for_popup_to_open(panel);
+  let contextMenu = cwc.e("msgComposeAttachmentItemContext");
+  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    bucket.getItemAtIndex(1),
+    { type: "contextmenu" },
+    cwc.window
+  );
+  await shownPromise;
+  contextMenu.activateItem(cwc.e("composeAttachmentContext_reorderItem"));
+  await wait_for_popup_to_open(panel);
 
   // Click on the editor which should close the panel.
   cwc.click(editorEl);
@@ -902,16 +907,26 @@ add_task(function test_attachment_reordering() {
   ];
 
   // Execute the tests of reordering actions as defined above.
-  subtest_reordering(cwc, initialAttachmentNames_1, reorderActions_1);
-  subtest_reordering(cwc, initialAttachmentNames_2, reorderActions_2);
+  await subtest_reordering(cwc, initialAttachmentNames_1, reorderActions_1);
+  await subtest_reordering(cwc, initialAttachmentNames_2, reorderActions_2);
   // Check 3 (keyboard-only) with panel open.
-  subtest_reordering(cwc, initialAttachmentNames_3, reorderActions_3);
+  await subtest_reordering(cwc, initialAttachmentNames_3, reorderActions_3);
   // Check 3 (keyboard-only) without panel.
-  subtest_reordering(cwc, initialAttachmentNames_3, reorderActions_3, false);
+  await subtest_reordering(
+    cwc,
+    initialAttachmentNames_3,
+    reorderActions_3,
+    false
+  );
   // Check 4 (Alt+Y keyboard shortcut for sorting) without panel.
-  subtest_reordering(cwc, initialAttachmentNames_4, reorderActions_4, false);
+  await subtest_reordering(
+    cwc,
+    initialAttachmentNames_4,
+    reorderActions_4,
+    false
+  );
   // Check 4 (Alt+Y keyboard shortcut for sorting) with panel open.
-  subtest_reordering(cwc, initialAttachmentNames_4, reorderActions_4);
+  await subtest_reordering(cwc, initialAttachmentNames_4, reorderActions_4);
   // XXX When the root problem of bug 1425891 has been found and fixed, we should
   // test here if the panel stays open as it should, esp. on Windows.
 

@@ -52,7 +52,7 @@ registerCleanupFunction(function teardownModule(module) {
  * the upload, and then cancel again.  For this test, we repeat this
  * 3 times.
  */
-add_task(function test_upload_cancel_repeat() {
+add_task(async function test_upload_cancel_repeat() {
   const kFile = "./data/testFile1";
 
   // Prepare the mock file picker to return our test file.
@@ -88,7 +88,7 @@ add_task(function test_upload_cancel_repeat() {
     cw.window.convertSelectedToCloudAttachment(provider);
     cw.waitFor(() => started);
 
-    assert_can_cancel_upload(cw, provider, promise, file);
+    await assert_can_cancel_upload(cw, provider, promise, file);
     cw.sleep();
   }
 
@@ -98,7 +98,7 @@ add_task(function test_upload_cancel_repeat() {
 /**
  * Test that we can cancel a whole series of files being uploaded at once.
  */
-add_task(function test_upload_multiple_and_cancel() {
+add_task(async function test_upload_multiple_and_cancel() {
   const kFiles = ["./data/testFile1", "./data/testFile2", "./data/testFile3"];
 
   // Prepare the mock file picker to return our test file.
@@ -119,7 +119,7 @@ add_task(function test_upload_multiple_and_cancel() {
   add_cloud_attachments(cw, provider, false);
 
   for (let i = files.length - 1; i >= 0; --i) {
-    assert_can_cancel_upload(cw, provider, promise, files[i]);
+    await assert_can_cancel_upload(cw, provider, promise, files[i]);
   }
 
   close_compose_window(cw);
@@ -137,7 +137,7 @@ add_task(function test_upload_multiple_and_cancel() {
  *                  function.
  * @param aTargetFile the nsIFile to cancel the upload for.
  */
-function assert_can_cancel_upload(
+async function assert_can_cancel_upload(
   aController,
   aProvider,
   aPromise,
@@ -170,7 +170,7 @@ function assert_can_cancel_upload(
   aController.click(cancelItem);
 
   // Close the popup, and wait for the cancellation to be complete.
-  close_popup(aController, aController.e(kAttachmentItemContextID));
+  await close_popup(aController, aController.e(kAttachmentItemContextID));
   aController.waitFor(() => cancelled);
 }
 

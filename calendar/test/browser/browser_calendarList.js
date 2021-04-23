@@ -14,7 +14,7 @@ async function calendarListContextMenu(target, menuItem) {
 
   if (menuItem) {
     let hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
-    EventUtils.synthesizeMouseAtCenter(document.getElementById(menuItem), {});
+    contextMenu.activateItem(document.getElementById(menuItem));
     await hiddenPromise;
   }
 }
@@ -108,7 +108,7 @@ add_task(async () => {
     "cancel",
     "chrome://calendar/content/calendar-creation.xhtml"
   );
-  calendarListContextMenu(calendarList, "list-calendars-context-menu");
+  calendarListContextMenu(calendarList, "list-calendars-context-new");
   await dialogPromise;
 
   // Add some new calendars, check their properties.

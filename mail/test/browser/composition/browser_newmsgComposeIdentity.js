@@ -127,7 +127,7 @@ function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
  * Test that starting a new message from an open compose window gets the
  * expected initial identity.
  */
-add_task(function test_compose_from_composer() {
+add_task(async function test_compose_from_composer() {
   be_in_folder(gInbox);
 
   let cwc = open_compose_new_mail();
@@ -146,10 +146,7 @@ add_task(function test_compose_from_composer() {
 
   // Switch to identity2 in the main compose window, new compose windows
   // starting from here should use the same identity as its "parent".
-  cwc.click(cwc.e("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: identityKey2 },
-  ]);
+  await chooseIdentity(cwc.window, identityKey2);
   checkCompIdentity(cwc, identityKey2);
 
   // Compose a second new message from the compose window.
@@ -171,7 +168,7 @@ add_task(function test_compose_from_composer() {
  * Bug 87987
  * Test editing the identity email/name for the current composition.
  */
-add_task(function test_editing_identity() {
+add_task(async function test_editing_identity() {
   Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", true);
   be_in_folder(gInbox);
 
@@ -184,7 +181,7 @@ add_task(function test_editing_identity() {
   let identityCustom = customName + " <" + customEmail + ">";
 
   compWin.click(compWin.e("msgIdentity"));
-  compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"), [
+  await compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"), [
     { command: "cmd_customizeFromAddress" },
   ]);
   compWin.waitFor(() => compWin.e("msgIdentity").editable);
@@ -205,7 +202,7 @@ add_task(function test_editing_identity() {
 
   // Switch to another identity to see if editable field still obeys predefined
   // identity values.
-  compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"),
+  await compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"),
                                   [ { identitykey: identityKey2 } ]);
   checkCompIdentity(compWin, identityKey2, identity2From, identity2From);
 
@@ -225,32 +222,23 @@ add_task(function test_editing_identity() {
  * Bug 318495
  * Test how an identity displays and behaves in the compose window.
  */
-add_task(function test_display_of_identities() {
+add_task(async function test_display_of_identities() {
   be_in_folder(gInbox);
 
   let cwc = open_compose_new_mail();
   checkCompIdentity(cwc, account.defaultIdentity.key, identity1Email);
 
-  cwc.click(cwc.e("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: identityKey2 },
-  ]);
+  await chooseIdentity(cwc.window, identityKey2);
   checkCompIdentity(cwc, identityKey2, identity2From, identity2From);
 
-  cwc.click(cwc.e("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: identityKey4 },
-  ]);
+  await chooseIdentity(cwc.window, identityKey4);
   checkCompIdentity(
     cwc,
     identityKey4,
     "[nsIMsgIdentity: " + identityKey4 + "]"
   );
 
-  cwc.click(cwc.e("msgIdentity"));
-  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: identityKey3 },
-  ]);
+  await chooseIdentity(cwc.window, identityKey3);
   let identity3From = identity3Name + " <" + identity3Email + ">";
   checkCompIdentity(
     cwc,

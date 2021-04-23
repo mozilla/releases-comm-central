@@ -385,7 +385,7 @@ add_task(function test_column_reordering_persists() {
   close_tab(tabB);
 });
 
-function invoke_column_picker_option(aActions) {
+async function invoke_column_picker_option(aActions) {
   // The treecolpicker element itself doesn't have an id, so we have to walk
   // down from the parent to find it.
   //  treadCols
@@ -396,15 +396,25 @@ function invoke_column_picker_option(aActions) {
   let colPickerPopup = colPicker.querySelector("[anonid=popup]");
 
   mc.sleep(500);
-  mc.click(colPicker);
-  mc.click_menus_in_sequence(colPickerPopup, aActions);
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    colPickerPopup,
+    "popupshown"
+  );
+  EventUtils.synthesizeMouseAtCenter(colPicker, {}, window);
+  await shownPromise;
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    colPickerPopup,
+    "popuphidden"
+  );
+  await mc.click_menus_in_sequence(colPickerPopup, aActions);
+  await hiddenPromise;
 }
 
 /**
  * The column picker's "reset columns to default" option should set our state
  *  back to the natural state.
  */
-add_task(function test_reset_to_inbox() {
+add_task(async function test_reset_to_inbox() {
   // it better have INBOX defaults
   assert_visible_columns(INBOX_DEFAULTS);
 
@@ -414,7 +424,7 @@ add_task(function test_reset_to_inbox() {
   assert_visible_columns(conExtra);
 
   // reset!
-  invoke_column_picker_option([{ anonid: "menuitem" }]);
+  await invoke_column_picker_option([{ anonid: "menuitem" }]);
 });
 
 async function _apply_to_folder_common(aChildrenToo, folder) {
@@ -423,7 +433,7 @@ async function _apply_to_folder_common(aChildrenToo, folder) {
   }
 
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  invoke_column_picker_option([
+  await invoke_column_picker_option([
     { class: "applyTo-menu" },
     {
       class: aChildrenToo
@@ -455,7 +465,7 @@ add_task(async function test_apply_to_folder_no_children() {
   be_in_folder(folderSource);
 
   // reset!
-  invoke_column_picker_option([{ anonid: "menuitem" }]);
+  await invoke_column_picker_option([{ anonid: "menuitem" }]);
 
   // permute!
   let conExtra = INBOX_DEFAULTS.concat(["sizeCol"]);
@@ -486,7 +496,7 @@ add_task(async function test_apply_to_folder_and_children() {
 
   be_in_folder(folderSource);
 
-  invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
+  await invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
   let cols = get_visible_threadtree_columns();
 
   // permute!
@@ -520,7 +530,7 @@ add_task(async function test_apply_to_folder_no_children_swapped() {
 
   be_in_folder(folderSource);
 
-  invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
+  await invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
   // Hide the columns that were added in other tests, since reset now
   // only resets the order.
   hide_column("tagsCol");
@@ -565,7 +575,7 @@ add_task(async function test_apply_to_folder_and_children_swapped() {
 
   be_in_folder(folderSource);
 
-  invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
+  await invoke_column_picker_option([{ anonid: "menuitem" }]); // reset order!
 
   // permute!
   let conExtra = [...INBOX_DEFAULTS];
@@ -650,13 +660,13 @@ add_task(function test_persist_columns_gloda_collection() {
   close_tab(tab1);
 });
 
-add_task(function test_reset_columns_gloda_collection() {
+add_task(async function test_reset_columns_gloda_collection() {
   let fakeCollection = new FakeCollection();
   let tab1 = mc.tabmail.openTab("glodaList", { collection: fakeCollection });
   wait_for_all_messages_to_load();
   assert_visible_columns(glodaColumns);
 
-  invoke_column_picker_option([{ anonid: "menuitem" }]); // reset!
+  await invoke_column_picker_option([{ anonid: "menuitem" }]); // reset!
   assert_visible_columns(glodaColumns); // same, only order (would be) reset
 
   let tab2 = mc.tabmail.openTab("glodaList", { collection: fakeCollection });

@@ -100,7 +100,7 @@ add_task(function test_open_draft_again() {
  * Bug 1202165
  * Test that the user set delivery format is preserved in a draft message.
  */
-function internal_check_delivery_format(editDraft) {
+async function internal_check_delivery_format(editDraft) {
   let cwc = open_compose_new_mail();
 
   setup_msg_contents(
@@ -113,7 +113,7 @@ function internal_check_delivery_format(editDraft) {
   // Select our wanted format.
   if (["linux", "win"].includes(AppConstants.platform)) {
     cwc.click(cwc.e("optionsMenu"));
-    cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
+    await cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
       { id: "outputFormatMenu" },
       { id: "format_both" },
     ]);
@@ -134,10 +134,10 @@ function internal_check_delivery_format(editDraft) {
    * @param aMenuItemId  The id of the menuitem expected to be selected.
    * @param aValue       A value of nsIMsgCompSendFormat constants of the expected selected format.
    */
-  function assert_format_value(aMenuItemId, aValue) {
+  async function assert_format_value(aMenuItemId, aValue) {
     if (["linux", "win"].includes(AppConstants.platform)) {
       cwc.click(cwc.e("optionsMenu"));
-      let formatMenu = cwc.click_menus_in_sequence(
+      let formatMenu = await cwc.click_menus_in_sequence(
         cwc.e("optionsMenuPopup"),
         [{ id: "outputFormatMenu" }],
         true
@@ -162,7 +162,7 @@ function internal_check_delivery_format(editDraft) {
   // chosen above.
   cwc = open_compose_new_mail();
 
-  assert_format_value("format_auto", Ci.nsIMsgCompSendFormat.AskUser);
+  await assert_format_value("format_auto", Ci.nsIMsgCompSendFormat.AskUser);
 
   close_compose_window(cwc);
 
@@ -191,19 +191,19 @@ function internal_check_delivery_format(editDraft) {
   cwc = wait_for_compose_window();
 
   // Check if format value was restored.
-  assert_format_value("format_both", Ci.nsIMsgCompSendFormat.Both);
+  await assert_format_value("format_both", Ci.nsIMsgCompSendFormat.Both);
 
   close_compose_window(cwc);
 
   press_delete(mc); // clean up the created draft
 }
 
-add_task(function test_save_delivery_format_with_edit_draft() {
-  internal_check_delivery_format(true);
+add_task(async function test_save_delivery_format_with_edit_draft() {
+  await internal_check_delivery_format(true);
 });
 
-add_task(function test_save_delivery_format_with_edit_template() {
-  internal_check_delivery_format(false);
+add_task(async function test_save_delivery_format_with_edit_template() {
+  await internal_check_delivery_format(false);
 });
 
 /**

@@ -57,10 +57,10 @@ async function openAccountSettings() {
  *
  * @param {tabCallback} callback - The callback for the account manager tab that is opened.
  */
-function open_advanced_settings(callback) {
+async function open_advanced_settings(callback) {
   let tab = open_content_tab_with_url("about:accountsettings");
   wait_for_account_tree_load(tab);
-  callback(tab);
+  await callback(tab);
   mc.tabmail.closeTab(tab);
 }
 

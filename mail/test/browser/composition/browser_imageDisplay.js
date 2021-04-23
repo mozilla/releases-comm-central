@@ -97,7 +97,7 @@ add_task(async function test_cid_image_load() {
   // Copy the message to a folder.
   let documentChild = messageDoc.firstElementChild;
   msgc.rightClick(documentChild);
-  msgc.click_menus_in_sequence(msgc.e("mailContext"), [
+  await msgc.click_menus_in_sequence(msgc.e("mailContext"), [
     { id: "mailContext-copyMenu" },
     { label: "Local Folders" },
     { label: gImageFolder.prettyName },

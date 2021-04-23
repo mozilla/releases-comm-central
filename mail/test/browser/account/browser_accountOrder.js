@@ -59,8 +59,8 @@ registerCleanupFunction(function teardownModule(module) {
   Assert.equal(MailServices.accounts.allServers.length, gOriginalAccountCount);
 });
 
-add_task(function test_account_open_state() {
-  open_advanced_settings(function(tab) {
+add_task(async function test_account_open_state() {
+  await open_advanced_settings(function(tab) {
     subtest_check_account_order(tab);
   });
 });

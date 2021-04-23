@@ -70,14 +70,14 @@ add_task(function setupModule(module) {
  *
  * @param {string} aMode - The name of the expected mode.
  */
-function assert_mode_selected(aMode) {
+async function assert_mode_selected(aMode) {
   Assert.ok(tree.activeModes.includes(aMode));
 
   // We need to open the menu because only then the right mode is set in them.
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
     mc.click(view_menu);
-    let popuplist = mc.click_menus_in_sequence(
+    let popuplist = await mc.click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
       true
@@ -119,14 +119,14 @@ function assert_mode_selected(aMode) {
  *
  * @param {string} mode - The name of the missing mode.
  */
-function assert_mode_not_selected(mode) {
+async function assert_mode_not_selected(mode) {
   Assert.ok(!tree.activeModes.includes(mode));
 
   // We need to open the menu because only then the right mode is set in them.
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
     mc.click(view_menu);
-    let popuplist = mc.click_menus_in_sequence(
+    let popuplist = await mc.click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
       true
@@ -173,102 +173,102 @@ function select_mode_in_menu(mode) {
 /**
  * Check the all folders mode.
  */
-function subtest_toggle_all_folders(show) {
+async function subtest_toggle_all_folders(show) {
   let mode = "all";
   select_mode_in_menu(mode);
 
   if (show) {
-    assert_mode_selected(mode);
+    await assert_mode_selected(mode);
   } else {
-    assert_mode_not_selected(mode);
+    await assert_mode_not_selected(mode);
   }
 }
 
 /**
  * Check the unread folders mode.
  */
-function subtest_toggle_unread_folders(show) {
+async function subtest_toggle_unread_folders(show) {
   let mode = "unread";
   select_mode_in_menu(mode);
 
   if (show) {
-    assert_mode_selected(mode);
+    await assert_mode_selected(mode);
 
     // Mode is hierarchical, parent folders are shown.
     assert_folder_visible(inboxFolder.server.rootFolder);
     assert_folder_visible(inboxFolder);
     assert_folder_visible(unreadFolder);
   } else {
-    assert_mode_not_selected(mode);
+    await assert_mode_not_selected(mode);
   }
 }
 
 /**
  * Check the favorite folders mode.
  */
-function subtest_toggle_favorite_folders(show) {
+async function subtest_toggle_favorite_folders(show) {
   let mode = "favorite";
   select_mode_in_menu(mode);
 
   if (show) {
-    assert_mode_selected(mode);
+    await assert_mode_selected(mode);
 
     // Mode is hierarchical, parent folders are shown.
     assert_folder_visible(inboxFolder.server.rootFolder);
     assert_folder_visible(inboxFolder);
     assert_folder_visible(favoriteFolder);
   } else {
-    assert_mode_not_selected(mode);
+    await assert_mode_not_selected(mode);
   }
 }
 
 /**
  * Check the recent folders mode.
  */
-function subtest_toggle_recent_folders(show) {
+async function subtest_toggle_recent_folders(show) {
   let mode = "recent";
   select_mode_in_menu(mode);
 
   if (show) {
-    assert_mode_selected(mode);
+    await assert_mode_selected(mode);
   } else {
-    assert_mode_not_selected(mode);
+    await assert_mode_not_selected(mode);
   }
 }
 
 /**
  * Check the smart folders mode.
  */
-function subtest_toggle_smart_folders(show) {
+async function subtest_toggle_smart_folders(show) {
   let mode = "smart";
   select_mode_in_menu(mode);
 
   if (show) {
-    assert_mode_selected(mode);
+    await assert_mode_selected(mode);
   } else {
-    assert_mode_not_selected(mode);
+    await assert_mode_not_selected(mode);
   }
 }
 
 /**
  * Toggle folder modes through different means and sequences.
  */
-add_task(function test_toggling_modes() {
-  subtest_toggle_all_folders(true);
-  subtest_toggle_smart_folders(true);
-  subtest_toggle_unread_folders(true);
-  subtest_toggle_favorite_folders(true);
-  subtest_toggle_recent_folders(true);
+add_task(async function test_toggling_modes() {
+  await subtest_toggle_all_folders(true);
+  await subtest_toggle_smart_folders(true);
+  await subtest_toggle_unread_folders(true);
+  await subtest_toggle_favorite_folders(true);
+  await subtest_toggle_recent_folders(true);
 
-  subtest_toggle_unread_folders(false);
-  subtest_toggle_favorite_folders(false);
-  subtest_toggle_all_folders(false);
-  subtest_toggle_recent_folders(false);
-  subtest_toggle_smart_folders(false);
+  await subtest_toggle_unread_folders(false);
+  await subtest_toggle_favorite_folders(false);
+  await subtest_toggle_all_folders(false);
+  await subtest_toggle_recent_folders(false);
+  await subtest_toggle_smart_folders(false);
 
   // Confirm that the all folders mode is visible even after all the modes have
   // been deselected in order to ensure that the Folder Pane is never empty.
-  assert_mode_selected("all");
+  await assert_mode_selected("all");
 });
 
 registerCleanupFunction(function teardownModule() {
