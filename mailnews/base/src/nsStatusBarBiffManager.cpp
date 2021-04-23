@@ -189,6 +189,8 @@ nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder* item,
       observerService->NotifyObservers(
           static_cast<nsIStatusBarBiffManager*>(this),
           "mail:biff-state-changed", nullptr);
+  } else if (property.Equals(kNewMailReceived)) {
+    (void)PlayBiffSound(NEW_MAIL_PREF_BRANCH);
   }
   return NS_OK;
 }

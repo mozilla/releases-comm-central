@@ -121,19 +121,17 @@ class MailNotificationManager {
       return;
     }
 
+    this._logger.debug(
+      `OnItemIntPropertyChanged; property=${property}: ${oldValue} => ${newValue}, folder.URI=${folder.URI}`
+    );
+
     if (
       property == "BiffState" &&
       newValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail
     ) {
-      this._logger.debug(
-        `OnItemIntPropertyChanged; property=${property} folder.URI=${folder.URI}`
-      );
       // The folder argument is a root folder.
       this._fillAlertInfo(folder);
     } else if (property == "NewMailReceived") {
-      this._logger.debug(
-        `OnItemIntPropertyChanged; property=${property} folder.URI=${folder.URI}`
-      );
       // The folder argument is a real folder.
       this._fillAlertInfo(folder);
     }
@@ -143,7 +141,7 @@ class MailNotificationManager {
    * @see mozINewMailNotificationService
    */
   onCountChanged(count) {
-    this._logger.log(`Unread mail count changed to ${this._unreadMailCount}`);
+    this._logger.log(`Unread mail count changed to ${count}`);
     this._unreadMailCount = count;
     this._updateUnreadCount();
   }
