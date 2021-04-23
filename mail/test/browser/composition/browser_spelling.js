@@ -79,7 +79,7 @@ add_task(async function() {
       "options menu item is checked"
     );
     hiddenPromise = BrowserTestUtils.waitForEvent(optionsMenu, "popuphidden");
-    optionsMenu.hidePopup();
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, composeWindow);
     await hiddenPromise;
   }
 
@@ -116,7 +116,7 @@ add_task(async function() {
       "options menu item is not checked"
     );
     hiddenPromise = BrowserTestUtils.waitForEvent(optionsMenu, "popuphidden");
-    optionsMenu.hidePopup();
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, composeWindow);
     await hiddenPromise;
   }
 
