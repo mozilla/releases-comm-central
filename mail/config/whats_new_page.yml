@@ -7,7 +7,7 @@
   url: https://live.thunderbird.net/thunderbird/releasenotes?locale=%LOCALE%&version={version}&channel={release-type}
 - type: show-url
   # yamllint disable-line rule:line-length
-  url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel={release-type}&os=%OS%&buildid=%APPBUILDID%&oldversion=%OLD_VERSION%
+  url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel={release-type}&oldversion=%OLD_VERSION%
   conditions:
       blob-types: [wnp]
       release-types: [release]
@@ -19,7 +19,7 @@
       versions: ["<{version.major_number}.0"]
 - type: show-url
   # yamllint disable-line rule:line-length
-  url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel={release-type}&os=%OS%&buildid=%APPBUILDID%&oldversion=%OLD_VERSION%
+  url: https://live.thunderbird.net/thunderbird/whatsnew?locale=%LOCALE%&version={version}&channel={release-type}&oldversion=%OLD_VERSION%
   conditions:
       blob-types: [wnp]
       release-types: [beta]
