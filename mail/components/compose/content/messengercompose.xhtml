@@ -2151,8 +2151,8 @@
                              disableonsend="true"
                              class="mail-primary-label mail-label recipient-label"
                              onclick="showAddressRow(this, 'addressRowTo')"
-                             ondrop="dropAddressPills(this)"
-                             ondragover="event.preventDefault();"
+                             ondrop="recipientLabelOnDrop(event);"
+                             ondragover="recipientLabelOnDragover(event);"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowTo')"
                              control="toAddrInput"
                              collapsed="true"/>
@@ -2160,16 +2160,16 @@
                              disableonsend="true"
                              class="mail-label recipient-label"
                              onclick="showAddressRow(this, 'addressRowCc')"
-                             ondrop="dropAddressPills(this)"
-                             ondragover="event.preventDefault();"
+                             ondrop="recipientLabelOnDrop(event);"
+                             ondragover="recipientLabelOnDragover(event);"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowCc')"
                              control="ccAddrInput"/>
                       <label id="addr_bcc" value="&bccAddr2.label;" role="button"
                              disableonsend="true"
                              class="mail-label recipient-label"
                              onclick="showAddressRow(this, 'addressRowBcc')"
-                             ondrop="dropAddressPills(this)"
-                             ondragover="event.preventDefault();"
+                             ondrop="recipientLabelOnDrop(event);"
+                             ondragover="recipientLabelOnDragover(event);"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowBcc')"
                              control="bccAddrInput"/>
                     </hbox>

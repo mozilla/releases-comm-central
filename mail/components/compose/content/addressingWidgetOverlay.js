@@ -1025,7 +1025,7 @@ function emailAddressPillOnPopupShown() {
 
 /**
  * Handle the keypress event on the recipient labels for keyboard navigation and
- * to show the container row of a hidden recipient (Cc, Bcc, etc.).
+ * to show the container row of a hidden recipient field (Cc, Bcc, etc.).
  *
  * @param {Event} event - The DOM keypress event.
  * @param {string} rowID - The ID of the container to reveal on Enter.
@@ -1084,16 +1084,6 @@ function showAddressRow(label, rowID) {
   container.querySelector(".address-input[recipienttype]").focus();
 
   updateRecipientsPanelVisibility();
-}
-
-/**
- * Move the selected pills to the address row of the recipient label they were
- * dropped on (Cc, Bcc, etc.), which will also show the row if needed.
- *
- * @param {XULElement} label - The label element on which the drop event occured.
- */
-function dropAddressPills(label) {
-  document.getElementById("recipientsContainer").moveSelectedPills(label.id);
 }
 
 /**

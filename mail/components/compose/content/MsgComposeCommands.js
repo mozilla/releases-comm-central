@@ -5057,6 +5057,36 @@ function pillifyRecipients() {
 }
 
 /**
+ *  Handle the dragover event on a recipient disclosure label.
+ *
+ *  @param {Event} - The DOM dragover event on a recipient disclosure label.
+ */
+function recipientLabelOnDragover(event) {
+  // Prevent dragover event's default action (which resets the current drag
+  // operation to "none").
+  event.preventDefault();
+}
+
+/**
+ *  Handle the drop event on a recipient disclosure label.
+ *
+ *  @param {Event} - The DOM drop event on a recipient disclosure label.
+ */
+function recipientLabelOnDrop(event) {
+  if (event.dataTransfer.types.includes("text/pills")) {
+    // If the dragged data includes the type "text/pills", we believe that
+    // the user is dragging our own pills, so we try to move the selected pills
+    // to the address row of the recipient label they were dropped on (Cc, Bcc,
+    // etc.), which will also show the row if needed. If there are no selected
+    // pills (so "text/pills" was generated elsewhere), moveSelectedPills() will
+    // bail out and we'll do nothing.
+    document
+      .getElementById("recipientsContainer")
+      .moveSelectedPills(event.target.id);
+  }
+}
+
+/**
  * Command handler: Cut the selected pills.
  */
 function cutSelectedPillsOnCommand() {

@@ -3024,6 +3024,11 @@
         pill => pill.fullAddress
       );
 
+      // Return if no pills selected.
+      if (!selectedAddresses.length) {
+        return;
+      }
+
       // Remove the selected pills.
       this.removeSelectedPills("next", false, true);
 
