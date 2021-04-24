@@ -359,7 +359,7 @@ treechildren::-moz-tree-twisty(selected, focus) {
   margin: 4px 1px;
   padding: 1px 5px !important;
   -moz-context-properties: fill, fill-opacity;
-  fill: var(--lwt-toolbarbutton-icon-fill, currentColor);
+  fill: var(--toolbarbutton-icon-fill, currentColor);
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
@@ -657,7 +657,7 @@ button > .button-box > dropmarker {
   width: 16px;
   height: 16px;
   -moz-context-properties: fill, fill-opacity;
-  fill: var(--lwt-toolbarbutton-icon-fill, currentColor);
+  fill: var(--toolbarbutton-icon-fill, currentColor);
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 

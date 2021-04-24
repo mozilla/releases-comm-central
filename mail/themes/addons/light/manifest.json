@@ -17,7 +17,7 @@
   "theme": {
     "colors": {
       "tab_background_text": "#15141a",
-      "icons": "rgb(24, 25, 26, 0.7)",
+      "icons": "#5b5b66",
       "frame": "#e3e4e6",
       "popup": "#fff",
       "popup_text": "rgb(21, 20, 26)",

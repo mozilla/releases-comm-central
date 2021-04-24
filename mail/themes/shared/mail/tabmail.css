@@ -289,7 +289,7 @@
 
 #tabmail-arrowscrollbox::part(scrollbutton-up),
 #tabmail-arrowscrollbox::part(scrollbutton-down) {
-  fill: var(--lwt-toolbarbutton-icon-fill, currentColor);
+  fill: var(--toolbarbutton-icon-fill, currentColor);
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 

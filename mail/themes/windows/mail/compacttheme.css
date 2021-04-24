@@ -76,7 +76,7 @@
 @media (-moz-windows-glass) {
   /* Use opaque white icons on Aero Glass. */
   #tabs-toolbar {
-    --lwt-toolbarbutton-icon-fill: white;
+    --toolbarbutton-icon-fill: white;
   }
 
   #navigation-toolbox {
