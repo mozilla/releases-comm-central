@@ -1202,7 +1202,7 @@ function getMessagesForRange(aRange) {
  */
 function getDocumentFragmentFromHTML(doc, html) {
   let uri = Services.io.newURI(doc.baseURI);
-  let flags = 0;
+  let flags = Ci.nsIParserUtils.SanitizerAllowStyle;
   let context = doc.createElement("div");
   return ParserUtils.parseFragment(html, flags, false, uri, context);
 }

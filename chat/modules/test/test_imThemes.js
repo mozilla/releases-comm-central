@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { initHTMLDocument } = ChromeUtils.import(
+const { initHTMLDocument, insertHTMLForMessage } = ChromeUtils.import(
   "resource:///modules/imThemes.jsm"
 );
 const { MockDocument } = ChromeUtils.import(
@@ -43,4 +43,18 @@ add_task(function test_initHTMLDocument() {
   equal(document.body.id, "ibcontent");
   ok(document.getElementById("Chat"));
   equal(document.querySelector("script").src, theme.baseURI + "inline.js");
+});
+
+add_task(function test_insertHTMLForMessage() {
+  const document = MockDocument.createTestDocument(
+    "chrome://chat/content/conv.html",
+    '<body><div id="Chat"></div></body>'
+  );
+  const html = '<div style="background: blue;">foo bar</div>';
+  const message = {};
+  insertHTMLForMessage(message, html, document, false);
+  const messageElement = document.querySelector("#Chat > div");
+  strictEqual(messageElement._originalMsg, message);
+  equal(messageElement.style.backgroundColor, "blue");
+  equal(messageElement.textContent, "foo bar");
 });
