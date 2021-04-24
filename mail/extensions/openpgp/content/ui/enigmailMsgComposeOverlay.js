@@ -33,9 +33,6 @@ var EnigmailFuncs = ChromeUtils.import(
 var { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
-var EnigmailPrefs = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-).EnigmailPrefs;
 var { EnigmailOS } = ChromeUtils.import(
   "chrome://openpgp/content/modules/os.jsm"
 );
@@ -511,7 +508,8 @@ Enigmail.msg = {
     switch (gMsgCompose.type) {
       case CT.ForwardInline:
       case CT.ForwardAsAttachment:
-        prefix = this.getMailPref("mail.forward_subject_prefix") + ": ";
+        prefix =
+          Services.prefs.getCharPref("mail.forward_subject_prefix") + ": ";
         break;
       case CT.Draft:
         isReply = Boolean(flags & Ci.nsMsgMessageFlags.HasRe);
@@ -720,25 +718,6 @@ Enigmail.msg = {
       relatedNode = relatedNode.nextSibling;
     }
     return baseAttachment;
-  },
-
-  initRadioMenu(prefName, optionIds) {
-    EnigmailLog.DEBUG(
-      "enigmailMessengerOverlay.js: Enigmail.msg.initRadioMenu: " +
-        prefName +
-        "\n"
-    );
-
-    var prefValue = EnigmailPrefs.getPref(prefName);
-
-    if (prefValue >= optionIds.length) {
-      return;
-    }
-
-    var menuItem = document.getElementById("enigmail_" + optionIds[prefValue]);
-    if (menuItem) {
-      menuItem.setAttribute("checked", "true");
-    }
   },
 
   attachOwnKey(id) {
@@ -1366,7 +1345,7 @@ Enigmail.msg = {
       var editor = gMsgCompose.editor.QueryInterface(Ci.nsIEditorMailSupport);
       var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
 
-      var wrapWidth = this.getMailPref("mailnews.wraplength");
+      var wrapWidth = Services.prefs.getIntPref("mailnews.wraplength");
       if (wrapWidth > 0 && wrapWidth < 68 && editor.wrapWidth > 0) {
         if (
           EnigmailDialog.confirmDlg(
@@ -1377,10 +1356,7 @@ Enigmail.msg = {
           )
         ) {
           wrapWidth = 68;
-          EnigmailPrefs.getPrefRoot().setIntPref(
-            "mailnews.wraplength",
-            wrapWidth
-          );
+          Services.prefs.setIntPref("mailnews.wraplength", wrapWidth);
         }
       }
 
@@ -1722,7 +1698,7 @@ Enigmail.msg = {
     let msgCompFields = gMsgCompose.compFields;
     let newsgroups = msgCompFields.newsgroups;
 
-    if (EnigmailPrefs.getPref("encryptToSelf")) {
+    if (Services.prefs.getBoolPref("temp.openpgp.encryptToSelf")) {
       optSendFlags |= EnigmailConstants.SEND_ENCRYPT_TO_SELF;
     }
 
@@ -1789,16 +1765,16 @@ Enigmail.msg = {
       toAddrList.push(newsgroups);
 
       if (sendFlags & EnigmailConstants.SEND_ENCRYPTED) {
-        if (!EnigmailPrefs.getPref("encryptToNews")) {
+        if (!Services.prefs.getBoolPref("temp.openpgp.encryptToNews")) {
           document.l10n.formatValue("sending-news").then(value => {
             EnigmailDialog.alert(window, value);
           });
           return false;
         } else if (
-          !EnigmailDialog.confirmPref(
+          !EnigmailDialog.confirmBoolPref(
             window,
             await l10nOpenPGP.formatValue("send-to-news-warning"),
-            "warnOnSendingNewsgroups",
+            "temp.openpgp.warnOnSendingNewsgroups",
             await l10nOpenPGP.formatValue("msg-compose-button-send")
           )
         ) {
@@ -1861,7 +1837,7 @@ Enigmail.msg = {
         gMsgCompose.compFields.subject = "";
       }
 
-      if (EnigmailPrefs.getPref("protectReferencesHdr")) {
+      if (Services.prefs.getBoolPref("temp.openpgp.protectReferencesHdr")) {
         gMsgCompose.compFields.references = "";
       }
     }
@@ -2186,26 +2162,21 @@ Enigmail.msg = {
       return false;
     }
 
-    try {
-      if (this.getMailPref("mail.strictly_mime")) {
-        if (
-          EnigmailDialog.confirmPref(
-            window,
-            await l10nOpenPGP.formatValue("quoted-printable-warn"),
-            "quotedPrintableWarn"
-          )
-        ) {
-          EnigmailPrefs.getPrefRoot().setBoolPref("mail.strictly_mime", false);
-        }
+    if (Services.prefs.getBoolPref("mail.strictly_mime")) {
+      if (
+        EnigmailDialog.confirmIntPref(
+          window,
+          await l10nOpenPGP.formatValue("quoted-printable-warn"),
+          "temp.openpgp.quotedPrintableWarn"
+        )
+      ) {
+        Services.prefs.setBoolPref("mail.strictly_mime", false);
       }
-    } catch (ex) {}
-
-    var sendFlowed;
-    try {
-      sendFlowed = this.getMailPref("mailnews.send_plaintext_flowed");
-    } catch (ex) {
-      sendFlowed = true;
     }
+
+    var sendFlowed = Services.prefs.getBoolPref(
+      "mailnews.send_plaintext_flowed"
+    );
     var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
 
     // plaintext: Wrapping code has been moved to superordinate function prepareSendMsg to enable interactive format switch
@@ -2357,49 +2328,13 @@ Enigmail.msg = {
     }
   },
 
-  getMailPref(prefName) {
-    let prefRoot = EnigmailPrefs.getPrefRoot();
-
-    var prefValue = null;
-    try {
-      var prefType = prefRoot.getPrefType(prefName);
-      // Get pref value
-      switch (prefType) {
-        case prefRoot.PREF_BOOL:
-          prefValue = prefRoot.getBoolPref(prefName);
-          break;
-
-        case prefRoot.PREF_INT:
-          prefValue = prefRoot.getIntPref(prefName);
-          break;
-
-        case prefRoot.PREF_STRING:
-          prefValue = prefRoot.getCharPref(prefName);
-          break;
-
-        default:
-          prefValue = undefined;
-          break;
-      }
-    } catch (ex) {
-      // Failed to get pref value
-      EnigmailLog.ERROR(
-        "enigmailMsgComposeOverlay.js: Enigmail.msg.getMailPref: unknown prefName:" +
-          prefName +
-          " \n"
-      );
-    }
-
-    return prefValue;
-  },
-
   messageSendCheck() {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.messageSendCheck\n"
     );
 
     try {
-      var warn = this.getMailPref("mail.warn_on_send_accel_key");
+      var warn = Services.prefs.getBoolPref("mail.warn_on_send_accel_key");
 
       if (warn) {
         var checkValue = {
@@ -2424,10 +2359,7 @@ Enigmail.msg = {
           return false;
         }
         if (checkValue.value) {
-          EnigmailPrefs.getPrefRoot().setBoolPref(
-            "mail.warn_on_send_accel_key",
-            false
-          );
+          Services.prefs.setBoolPref("mail.warn_on_send_accel_key", false);
         }
       }
     } catch (ex) {}
@@ -2551,28 +2483,6 @@ Enigmail.msg = {
       event.stopPropagation();
     }
     this.sendProcess = false;
-  },
-
-  toggleAttribute(attrName) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.toggleAttribute('" +
-        attrName +
-        "')\n"
-    );
-
-    var oldValue = EnigmailPrefs.getPref(attrName);
-    EnigmailPrefs.setPref(attrName, !oldValue);
-  },
-
-  toggleAccountAttr(attrName) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.toggleAccountAttr('" +
-        attrName +
-        "')\n"
-    );
-
-    var oldValue = gCurrentIdentity.getBoolAttribute(attrName);
-    gCurrentIdentity.setBoolAttribute(attrName, !oldValue);
   },
 
   decryptQuote(interactive) {
@@ -2720,7 +2630,7 @@ Enigmail.msg = {
       "\n"
     );
 
-    //if (EnigmailPrefs.getPref("keepSettingsForReply")) {
+    //if (Services.prefs.getBoolPref("temp.openpgp.keepSettingsForReply")) {
     if (statusFlagsObj.value & EnigmailConstants.DECRYPTION_OKAY) {
       //this.setSendMode('encrypt');
 
@@ -2774,7 +2684,9 @@ Enigmail.msg = {
     }
 
     const nsIMsgCompType = Ci.nsIMsgCompType;
-    var doubleDashSeparator = EnigmailPrefs.getPref("doubleDashSeparator");
+    var doubleDashSeparator = Services.prefs.getBoolPref(
+      "temp.openpgp.doubleDashSeparator"
+    );
     if (
       gMsgCompose.type != nsIMsgCompType.Template &&
       gMsgCompose.type != nsIMsgCompType.Draft &&

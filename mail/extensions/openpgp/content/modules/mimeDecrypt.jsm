@@ -24,7 +24,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
@@ -170,7 +169,7 @@ MimeDecryptHandler.prototype = {
     EnigmailLog.DEBUG("mimeDecrypt.jsm: onStartRequest\n"); // always log this one
 
     ++gNumProc;
-    if (gNumProc > EnigmailPrefs.getPref("maxNumProcesses")) {
+    if (gNumProc > Services.prefs.getIntPref("temp.openpgp.maxNumProcesses")) {
       EnigmailLog.DEBUG(
         "mimeDecrypt.jsm: number of parallel requests above threshold - ignoring requst\n"
       );
@@ -419,7 +418,7 @@ MimeDecryptHandler.prototype = {
         0;
 
       try {
-        if (!EnigmailPrefs.getPref("autoDecrypt")) {
+        if (!Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
           // "decrypt manually" mode
           let manUrl = {};
 

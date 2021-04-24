@@ -21,8 +21,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
+  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -360,7 +360,9 @@ var EnigmailEncryption = {
     // Instead we perform this check in Enigmail.msg.prepareSendMsg.
 
     var hashAlgo =
-      gMimeHashAlgorithms[EnigmailPrefs.getPref("mimeHashAlgorithm")];
+      gMimeHashAlgorithms[
+        Services.prefs.getIntPref("temp.openpgp.mimeHashAlgorithm")
+      ];
 
     if (hashAlgorithm) {
       hashAlgo = hashAlgorithm;

@@ -34,9 +34,6 @@ var { EnigmailKeyRing } = ChromeUtils.import(
 var { EnigmailWindows } = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
 );
-var { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
 var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
@@ -659,7 +656,7 @@ async function openPgpKeygenConfirm() {
   }
 
   console.debug("saving new key id " + gGeneratedKey);
-  EnigmailPrefs.savePrefs();
+  Services.prefs.savePrefFile(null);
 
   // Hide wizard overlay at the end of the generation process.
   closeOverlay();

@@ -14,7 +14,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
@@ -230,11 +229,8 @@ var EnigmailDialog = {
    *                        the future display status
    */
   alertPref(win, mesg, prefText) {
-    const display = true;
-    const dontDisplay = false;
-
-    let prefValue = EnigmailPrefs.getPref(prefText);
-    if (prefValue === display) {
+    let prefValue = Services.prefs.getBoolPref("temp.openpgp." + prefText);
+    if (prefValue) {
       let checkBoxObj = {
         value: false,
       };
@@ -251,7 +247,7 @@ var EnigmailDialog = {
       );
 
       if (checkBoxObj.value && buttonPressed === 0) {
-        EnigmailPrefs.setPref(prefText, dontDisplay);
+        Services.prefs.setBoolPref(prefText, false);
       }
     }
   },
@@ -268,14 +264,13 @@ var EnigmailDialog = {
    *
    */
   alertCount(win, countPrefName, mesg) {
-    let alertCount = EnigmailPrefs.getPref(countPrefName);
-
+    let alertCount = Services.prefs.getIntPref("temp.openpgp." + countPrefName);
     if (alertCount <= 0) {
       return;
     }
 
     alertCount--;
-    EnigmailPrefs.setPref(countPrefName, alertCount);
+    Services.prefs.setIntPref(countPrefName, alertCount);
 
     if (alertCount > 0) {
       mesg +=
@@ -298,100 +293,90 @@ var EnigmailDialog = {
    * a checkbox to remember the selected choice.
    *
    *
-   * @win:         nsIWindow - parent window to display modal dialog; can be null
-   * @mesg:        String    - message text
-   * @prefText     String    - the name of the Enigmail preference to read/store the
-   *                           the future display status.
-   *                           the default action is chosen
-   * @okLabel:     String    - OPTIONAL label for OK button
-   * @cancelLabel: String    - OPTIONAL label for cancel button
+   * @param {nsIWindow} win - Parent window to display modal dialog; can be null
+   * @param {mesg} - Mssage text
+   * @param {pref} - Full name of preference to read/store the future display status.
    *
-   * @return:      Boolean   - true: 1 pressed / 0: Cancel pressed / -1: ESC pressed
+   * @param {String} [okLabel] - Label for Ok button.
+   * @param {String} [cancelLabel] - Label for Cancel button.
+   *
+   * @return {integer} 1: Ok pressed / 0: Cancel pressed / -1: ESC pressed
    *
    * If the dialog is not displayed:
    *  - if @prefText is type Boolean: return 1
    *  - if @prefText is type Number:  return the last choice of the user
    */
-  confirmPref(win, mesg, prefText, okLabel, cancelLabel) {
-    const notSet = 0;
-    const yes = 1;
-    const no = 2;
-    const display = true;
-    const dontDisplay = false;
+  confirmBoolPref(win, mesg, pref, okLabel, cancelLabel) {
+    var prefValue = Services.prefs.getBoolPref(pref);
+    // boolean: "do not show this dialog anymore" (and return default)
+    switch (prefValue) {
+      case true: {
+        // display
+        let checkBoxObj = {
+          value: false,
+        };
+        let buttonPressed = EnigmailDialog.msgBox(
+          win,
+          {
+            msgtext: mesg,
+            button1: okLabel ? okLabel : l10n.formatValueSync("dlg-button-ok"),
+            cancelButton: cancelLabel
+              ? cancelLabel
+              : l10n.formatValueSync("dlg-button-cancel"),
+            checkboxLabel: l10n.formatValueSync("dlg-no-prompt"),
+            iconType: EnigmailConstants.ICONTYPE_QUESTION,
+            dialogTitle: l10n.formatValueSync("enig-confirm"),
+          },
+          checkBoxObj
+        );
 
-    var prefValue = EnigmailPrefs.getPref(prefText);
-
-    if (typeof prefValue != "boolean") {
-      // number: remember user's choice
-      switch (prefValue) {
-        case notSet: {
-          let checkBoxObj = {
-            value: false,
-          };
-          let buttonPressed = EnigmailDialog.msgBox(
-            win,
-            {
-              msgtext: mesg,
-              button1: okLabel
-                ? okLabel
-                : l10n.formatValueSync("dlg-button-ok"),
-              cancelButton: cancelLabel
-                ? cancelLabel
-                : l10n.formatValueSync("dlg-button-cancel"),
-              checkboxLabel: l10n.formatValueSync("dlg-keep-setting"),
-              iconType: EnigmailConstants.ICONTYPE_QUESTION,
-              dialogTitle: l10n.formatValueSync("enig-confirm"),
-            },
-            checkBoxObj
-          );
-
-          if (checkBoxObj.value) {
-            EnigmailPrefs.setPref(prefText, buttonPressed === 0 ? yes : no);
-          }
-          return buttonPressed === 0 ? 1 : 0;
+        if (checkBoxObj.value) {
+          Services.prefs.setBoolPref(pref, false);
         }
-        case yes:
-          return 1;
-        case no:
-          return 0;
-        default:
-          return -1;
+        return buttonPressed === 0 ? 1 : 0;
       }
-    } else {
-      // boolean: "do not show this dialog anymore" (and return default)
-      switch (prefValue) {
-        case display: {
-          let checkBoxObj = {
-            value: false,
-          };
-          let buttonPressed = EnigmailDialog.msgBox(
-            win,
-            {
-              msgtext: mesg,
-              button1: okLabel
-                ? okLabel
-                : l10n.formatValueSync("dlg-button-ok"),
-              cancelButton: cancelLabel
-                ? cancelLabel
-                : l10n.formatValueSync("dlg-button-cancel"),
-              checkboxLabel: l10n.formatValueSync("dlg-no-prompt"),
-              iconType: EnigmailConstants.ICONTYPE_QUESTION,
-              dialogTitle: l10n.formatValueSync("enig-confirm"),
-            },
-            checkBoxObj
-          );
-
-          if (checkBoxObj.value) {
-            EnigmailPrefs.setPref(prefText, false);
-          }
-          return buttonPressed === 0 ? 1 : 0;
-        }
-        case dontDisplay:
-          return 1;
-        default:
-          return -1;
-      }
+      case false: // don't display
+        return 1;
+      default:
+        return -1;
     }
+  },
+
+  confirmIntPref(win, mesg, pref, okLabel, cancelLabel) {
+    let prefValue = Services.prefs.getIntPref(pref);
+    // number: remember user's choice
+    switch (prefValue) {
+      case 0: {
+        // not set
+        let checkBoxObj = {
+          value: false,
+        };
+        let buttonPressed = EnigmailDialog.msgBox(
+          win,
+          {
+            msgtext: mesg,
+            button1: okLabel ? okLabel : l10n.formatValueSync("dlg-button-ok"),
+            cancelButton: cancelLabel
+              ? cancelLabel
+              : l10n.formatValueSync("dlg-button-cancel"),
+            checkboxLabel: l10n.formatValueSync("dlg-keep-setting"),
+            iconType: EnigmailConstants.ICONTYPE_QUESTION,
+            dialogTitle: l10n.formatValueSync("enig-confirm"),
+          },
+          checkBoxObj
+        );
+
+        if (checkBoxObj.value) {
+          Services.prefs.setIntPref(pref, buttonPressed === 0 ? 1 : 0);
+        }
+        return buttonPressed === 0 ? 1 : 0;
+      }
+      case 1: // yes
+        return 1;
+      case 2: // no
+        return 0;
+    }
+    return -1;
   },
 
   /**

@@ -46,7 +46,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailOS: "chrome://openpgp/content/modules/os.jsm",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   EnigmailProtocolHandler:
     "chrome://openpgp/content/modules/protocolHandler.jsm",
   EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
@@ -406,14 +405,18 @@ Enigmail.msg = {
       let menuElement = document.getElementById("enigmail_" + optList[j]);
       menuElement.setAttribute(
         "checked",
-        EnigmailPrefs.getPref(optList[j]) ? "true" : "false"
+        Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")
+          ? "true"
+          : "false"
       );
 
       menuElement = document.getElementById("enigmail_" + optList[j] + "2");
       if (menuElement) {
         menuElement.setAttribute(
           "checked",
-          EnigmailPrefs.getPref(optList[j]) ? "true" : "false"
+          Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")
+            ? "true"
+            : "false"
         );
       }
     }
@@ -509,21 +512,6 @@ Enigmail.msg = {
       "hidden",
       Enigmail.msg.updateOptionsDisplay()
     );
-  },
-
-  toggleAttribute(attrName) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgessengerOverlay.js: toggleAttribute('" + attrName + "')\n"
-    );
-
-    var oldValue = EnigmailPrefs.getPref(attrName);
-    EnigmailPrefs.setPref(attrName, !oldValue);
-
-    this.updateOptionsDisplay();
-
-    if (attrName == "autoDecrypt") {
-      this.messageReload(false);
-    }
   },
 
   /**
@@ -940,7 +928,7 @@ Enigmail.msg = {
           return;
         }
 
-        if (isAuto && !EnigmailPrefs.getPref("autoDecrypt")) {
+        if (isAuto && !Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
           if (EnigmailVerify.getManualUri() != this.getCurrentMsgUriSpec()) {
             // decryption set to manual
             Enigmail.hdrView.updateHdrIcons(
@@ -963,7 +951,7 @@ Enigmail.msg = {
       }
 
       // inline-PGP messages
-      if (!isAuto || EnigmailPrefs.getPref("autoDecrypt")) {
+      if (!isAuto || Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
         await this.messageParse(
           event,
           false,
@@ -3057,8 +3045,12 @@ Enigmail.msg = {
     var pubKeyId = "0x" + Enigmail.msg.securityInfo.keyId;
     var inputObj = {
       searchList: [pubKeyId],
-      autoKeyServer: EnigmailPrefs.getPref("autoKeyServerSelection")
-        ? EnigmailPrefs.getPref("keyserver").split(/[ ,;]/g)[0]
+      autoKeyServer: Services.prefs.getBoolPref(
+        "temp.openpgp.autoKeyServerSelection"
+      )
+        ? Services.prefs
+            .getCharPref("temp.openpgp.keyserver")
+            .split(/[ ,;]/g)[0]
         : null,
     };
     var resultObj = {};

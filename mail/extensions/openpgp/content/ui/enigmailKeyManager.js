@@ -61,9 +61,6 @@ var { EnigmailKeyRing } = ChromeUtils.import(
 var { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
 );
-var { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
 var { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
@@ -794,7 +791,7 @@ function enigmailReceiveKey() {
 */
 
 function userAcceptsWarning(warningMessage) {
-  if (!EnigmailPrefs.getPref("warnRefreshAll")) {
+  if (!Services.prefs.getBoolPref("temp.openpgp.warnRefreshAll")) {
     return true;
   }
 
@@ -815,14 +812,14 @@ function userAcceptsWarning(warningMessage) {
     ) === 0;
 
   if (checkedObj.value) {
-    EnigmailPrefs.setPref("warnRefreshAll", false);
+    Services.prefs.setBoolCharPref("temp.openpgp.warnRefreshAll", false);
   }
   return confirm;
 }
 
 /*
 function userAcceptsRefreshWarning() {
-  if (EnigmailPrefs.getPref("keyRefreshOn") === true) {
+  if (Services.prefs.getBoolPref("temp.openpgp.keyRefreshOn") === true) {
     return userAcceptsWarning("Warning: Your keys are currently being refreshed in the background as safely as possible.\nRefreshing all your keys at once will unnecessarily reveal information about you.\nDo you really want to do this?");
   }
   return userAcceptsWarning("XXXrefreshKey.warn");
@@ -893,8 +890,8 @@ function enigmailDowloadContactKeysEngine() {
 
   var inputObj = {
     searchList: emails,
-    autoKeyServer: EnigmailPrefs.getPref("autoKeyServerSelection")
-      ? EnigmailPrefs.getPref("keyserver").split(/[ ,;]/g)[0]
+    autoKeyServer: Services.prefs.getBoolPref("temp.openpgp.autoKeyServerSelection")
+      ? Services.prefs.getCharPref("temp.openpgp.keyserver").split(/[ ,;]/g)[0]
       : null,
   };
   var resultObj = {};
@@ -907,10 +904,10 @@ function enigmailDowloadContactKeysEngine() {
 }
 
 function enigmailDownloadContactKeys() {
-  var doIt = EnigmailDialog.confirmPref(
+  var doIt = EnigmailDialog.confirmBoolPref(
     window,
     "XXXdownloadContactsKeys.warn",
-    "XXXwarnDownloadContactKeys",
+    "temp.openpgp.warnDownloadContactKeys",
     "XXXdlg.button.continue",
     "XXXdlg.button.cancel"
   );
@@ -1105,8 +1102,10 @@ function accessKeyServer(accessType, callbackFunc) {
     }
   }
 
-  let keyServer = EnigmailPrefs.getPref("autoKeyServerSelection")
-    ? EnigmailPrefs.getPref("keyserver").split(/[ ,;]/g)[0]
+  let keyServer = Services.prefs.getBoolPref(
+    "temp.openpgp.autoKeyServerSelection"
+  )
+    ? Services.prefs.getCharPref("temp.openpgp.keyserver").split(/[ ,;]/g)[0]
     : null;
   if (!keyServer) {
     switch (accessType) {

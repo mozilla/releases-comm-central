@@ -17,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.jsm",
   EnigmailKeyserverURIs: "chrome://openpgp/content/modules/keyserverUris.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   EnigmailRNG: "chrome://openpgp/content/modules/rng.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
@@ -33,12 +32,9 @@ function getTimer() {
   return gTimer;
 }
 
-const HOURS_PER_WEEK_ENIGMAIL_IS_ON_PREF = "hoursPerWeekEnigmailIsOn";
-const SECONDS_MIN_DELAY = "refreshMinDelaySeconds";
-
 function calculateMaxTimeForRefreshInMilliseconds(totalPublicKeys) {
   const millisecondsAvailableForRefresh =
-    EnigmailPrefs.getPref(HOURS_PER_WEEK_ENIGMAIL_IS_ON_PREF) *
+    Services.prefs.getIntPref("temp.openpgp.hoursPerWeekEnigmailIsOn") *
     ONE_HOUR_IN_MILLISEC;
   return Math.floor(millisecondsAvailableForRefresh / totalPublicKeys);
 }
@@ -48,7 +44,8 @@ function calculateWaitTimeInMilliseconds(totalPublicKeys) {
   const maxTimeForRefresh = calculateMaxTimeForRefreshInMilliseconds(
     totalPublicKeys
   );
-  const minDelay = EnigmailPrefs.getPref(SECONDS_MIN_DELAY) * 1000;
+  const minDelay =
+    Services.prefs.getIntPref("temp.openpgp.refreshMinDelaySeconds") * 1000;
 
   EnigmailLog.DEBUG(
     "keyRefreshService.jsm: Wait time = random number: " +
@@ -163,7 +160,7 @@ async function refreshWith(keyserver, timer, readyToRefresh) {
  * @param keyserver   | dependency injected for testability
  */
 function start(keyserver) {
-  if (EnigmailPrefs.getPref("keyRefreshOn")) {
+  if (Services.prefs.getBoolPref("temp.openpgp.keyRefreshOn")) {
     EnigmailLog.DEBUG("keyRefreshService.jsm: Started\n");
     const timer = getTimer();
     refreshWith(keyserver, timer, false);

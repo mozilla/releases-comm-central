@@ -17,7 +17,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailCommandLine: "chrome://openpgp/content/modules/commandLine.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailMimeEncrypt: "chrome://openpgp/content/modules/mimeEncrypt.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
@@ -65,7 +64,6 @@ var EnigmailCore = {
 
     await EnigmailSqliteDb.checkDatabaseStructure();
     await PgpSqliteDb2.checkDatabaseStructure();
-    EnigmailPrefs.startup(reason);
 
     this.factories = [];
 
@@ -171,11 +169,7 @@ var EnigmailCore = {
 ///////////////////////////////////////////////////////////////////////////////
 
 function getLogDirectoryPrefix() {
-  try {
-    return EnigmailPrefs.getPrefBranch().getCharPref("logDirectory") || "";
-  } catch (ex) {
-    return "";
-  }
+  return Services.prefs.getCharPref("temp.openpgp.logDirectory");
 }
 
 function initializeLogDirectory() {
@@ -265,7 +259,7 @@ function initializeEnvironment(env) {
 
   gEnvList = [];
 
-  // if (!EnigmailPrefs.getPref("gpgLocaleEn")) {
+  // if (!Services.prefs.getBoolPref("temp.openpgp.gpgLocaleEn")) {
   //   passEnv = passEnv.concat([
   //     "LANG", "LANGUAGE", "LC_ALL", "LC_COLLATE", "LC_CTYPE",
   //     "LC_MESSAGES", "LC_MONETARY", "LC_NUMERIC", "LC_TIME"

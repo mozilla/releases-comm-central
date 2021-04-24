@@ -23,7 +23,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   Services: "resource://gre/modules/Services.jsm",
@@ -466,7 +465,7 @@ MimeVerify.prototype = {
         0;
 
       try {
-        if (!EnigmailPrefs.getPref("autoDecrypt")) {
+        if (!Services.prefs.getBoolPref("temp.openpgp.autoDecrypt")) {
           // "decrypt manually" mode
           let manUrl = {};
 

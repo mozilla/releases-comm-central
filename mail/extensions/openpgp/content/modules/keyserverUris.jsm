@@ -6,16 +6,9 @@
 
 "use strict";
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 const EXPORTED_SYMBOLS = ["EnigmailKeyserverURIs"];
-
-ChromeUtils.defineModuleGetter(
-  this,
-  "EnigmailPrefs",
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
-
-const KEYSERVER_PREF = "keyserver";
-const AUTO_KEYSERVER_SELECTION_PREF = "autoKeyServerSelection";
 
 const supportedProtocols = {
   hkps: "443",
@@ -68,7 +61,9 @@ function buildUriOptionsFor(keyserver) {
 }
 
 function getDefaultKeyServer() {
-  let keyservers = EnigmailPrefs.getPref(KEYSERVER_PREF).split(/\s*[,;]\s*/g);
+  let keyservers = Services.prefs
+    .getCharPref("temp.openpgp.keyserver")
+    .split(/\s*[,;]\s*/g);
   let defKs = keyservers[0];
   // We don't have great code yet to handle multiple results,
   // or poisoned results. So avoid SKS.
@@ -82,8 +77,10 @@ function getDefaultKeyServer() {
 }
 
 function getUserDefinedKeyserverURIs() {
-  const keyservers = EnigmailPrefs.getPref(KEYSERVER_PREF).split(/\s*[,;]\s*/g);
-  return EnigmailPrefs.getPref(AUTO_KEYSERVER_SELECTION_PREF)
+  const keyservers = Services.prefs
+    .getCharPref("temp.openpgp.keyserver")
+    .split(/\s*[,;]\s*/g);
+  return Services.prefs.getCharPref("temp.openpgp.autoKeyServerSelection")
     ? [keyservers[0]]
     : keyservers;
 }
@@ -137,7 +134,8 @@ function buildKeyserverUris() {
  */
 function validKeyserversExist() {
   return (
-    EnigmailPrefs.getPref(KEYSERVER_PREF).trim() !== "" && validProtocolsExist()
+    Services.prefs.getCharPref("temp.openpgp.keyserver").trim() !== "" &&
+    validProtocolsExist()
   );
 }
 

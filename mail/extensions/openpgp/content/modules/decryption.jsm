@@ -26,7 +26,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -335,7 +335,7 @@ var EnigmailDecryption = {
     if (exitCodeObj.value === 0) {
       // Normal return
 
-      let doubleDashSeparator = EnigmailPrefs.getPrefBranch().getBoolPref(
+      let doubleDashSeparator = Services.prefs.getBoolPref(
         "doubleDashSeparator",
         false
       );

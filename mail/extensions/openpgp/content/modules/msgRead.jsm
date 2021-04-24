@@ -19,38 +19,28 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+  Services: "resource://gre/modules/Services.jsm",
 });
-
-const ExtraHeaders = ["autocrypt", "openpgp"];
 
 var EnigmailMsgRead = {
   /**
    * Ensure that Thunderbird prepares certain headers during message reading
    */
   ensureExtraAddonHeaders() {
-    let r = EnigmailPrefs.getPrefRoot();
+    let hdr = Services.prefs.getCharPref("mailnews.headers.extraAddonHeaders");
 
-    // is the Mozilla Platform number >= 59?
-    const PREF_NAME = "mailnews.headers.extraAddonHeaders";
-
-    try {
-      let hdr = r.getCharPref(PREF_NAME);
-
-      if (hdr !== "*") {
-        // do nothing if extraAddonHeaders is "*" (all headers)
-        for (let h of ExtraHeaders) {
-          if (hdr.search(h) < 0) {
-            if (hdr.length > 0) {
-              hdr += " ";
-            }
-            hdr += h;
+    if (hdr !== "*") {
+      // do nothing if extraAddonHeaders is "*" (all headers)
+      for (let h of ["autocrypt", "openpgp"]) {
+        if (hdr.search(h) < 0) {
+          if (hdr.length > 0) {
+            hdr += " ";
           }
+          hdr += h;
         }
-
-        r.setCharPref(PREF_NAME, hdr);
       }
-    } catch (x) {}
+      Services.prefs.setCharPref("mailnews.headers.extraAddonHeaders", hdr);
+    }
   },
 
   /**

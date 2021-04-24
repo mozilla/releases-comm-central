@@ -19,8 +19,8 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
+  Services: "resource://gre/modules/Services.jsm",
 });
 
 var gTxtConverter = null;
@@ -136,7 +136,7 @@ var EnigmailFuncs = {
   collapseAdvanced(obj, attribute, dummy) {
     EnigmailLog.DEBUG("funcs.jsm: collapseAdvanced:\n");
 
-    var advancedUser = EnigmailPrefs.getPref("advancedUser");
+    var advancedUser = Services.prefs.getBoolPref("temp.openpgp.advancedUser");
 
     obj = obj.firstChild;
     while (obj) {
@@ -175,12 +175,11 @@ var EnigmailFuncs = {
       );
     }
 
-    var prefRoot = EnigmailPrefs.getPrefRoot();
     var fontStyle = "";
 
     // set the style stuff according to perferences
 
-    switch (prefRoot.getIntPref("mail.quoted_style")) {
+    switch (Services.prefs.getIntPref("mail.quoted_style")) {
       case 1:
         fontStyle = "font-weight: bold; ";
         break;
@@ -192,7 +191,7 @@ var EnigmailFuncs = {
         break;
     }
 
-    switch (prefRoot.getIntPref("mail.quoted_size")) {
+    switch (Services.prefs.getIntPref("mail.quoted_size")) {
       case 1:
         fontStyle += "font-size: large; ";
         break;
@@ -201,13 +200,14 @@ var EnigmailFuncs = {
         break;
     }
 
-    fontStyle += "color: " + prefRoot.getCharPref("mail.citation_color") + ";";
+    fontStyle +=
+      "color: " + Services.prefs.getCharPref("mail.citation_color") + ";";
 
     var convFlags = Ci.mozITXTToHTMLConv.kURLs;
-    if (prefRoot.getBoolPref("mail.display_glyph")) {
+    if (Services.prefs.getBoolPref("mail.display_glyph")) {
       convFlags |= Ci.mozITXTToHTMLConv.kGlyphSubstitution;
     }
-    if (prefRoot.getBoolPref("mail.display_struct")) {
+    if (Services.prefs.getBoolPref("mail.display_struct")) {
       convFlags |= Ci.mozITXTToHTMLConv.kStructPhrase;
     }
 

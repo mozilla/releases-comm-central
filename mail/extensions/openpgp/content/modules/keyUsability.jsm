@@ -8,9 +8,6 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailKeyUsability"];
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -19,10 +16,11 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -117,7 +115,9 @@ var EnigmailKeyUsability = {
   getNewlyExpiredKeys() {
     EnigmailLog.DEBUG("keyUsability.jsm: getNewlyExpiredKeys()\n");
 
-    let numDays = EnigmailPrefs.getPref("warnKeyExpiryNumDays");
+    let numDays = Services.prefs.getIntPref(
+      "temp.openpgp.warnKeyExpiryNumDays"
+    );
     if (numDays < 1) {
       return null;
     }
@@ -129,7 +129,7 @@ var EnigmailKeyUsability = {
       lastCheck: 0,
     };
 
-    let lastRes = EnigmailPrefs.getPref("keyCheckResult");
+    let lastRes = Services.prefs.getCharPref("temp.openpgp.keyCheckResult");
     if (lastRes.length > 0) {
       lastResult = JSON.parse(lastRes);
     }
@@ -142,7 +142,10 @@ var EnigmailKeyUsability = {
 
     if (keys.length === 0) {
       lastResult.lastCheck = now;
-      EnigmailPrefs.setPref("keyCheckResult", JSON.stringify(lastResult));
+      Services.prefs.setCharPref(
+        "temp.openpgp.keyCheckResult",
+        JSON.stringify(lastResult)
+      );
       return [];
     }
 
@@ -158,7 +161,10 @@ var EnigmailKeyUsability = {
       lastCheck: now,
     };
 
-    EnigmailPrefs.setPref("keyCheckResult", JSON.stringify(newResult));
+    Services.prefs.setCharPref(
+      "temp.openpgp.keyCheckResult",
+      JSON.stringify(newResult)
+    );
 
     let warnList = expired.reduce(function(p, key) {
       if (!lastResult.expiredList.includes(key.keyId)) {
@@ -178,7 +184,9 @@ var EnigmailKeyUsability = {
       return "";
     }
 
-    let numDays = EnigmailPrefs.getPref("warnKeyExpiryNumDays");
+    let numDays = Services.prefs.getIntPref(
+      "temp.openpgp.warnKeyExpiryNumDays"
+    );
 
     if (expiredKeys.length === 1) {
       return l10n.formatValueSync("expiry-key-expires-soon", {
@@ -296,7 +304,7 @@ var EnigmailKeyUsability = {
     if (
       msg &&
       msg.length > 0 &&
-      EnigmailPrefs.getPref("warnOnMissingOwnerTrust")
+      Services.prefs.getBoolPref("temp.openpgp.warnOnMissingOwnerTrust")
     ) {
       let actionButtonText = "";
 
@@ -323,7 +331,10 @@ var EnigmailKeyUsability = {
       );
       if (r >= 0 && checkedObj.value) {
         // Do not show me this dialog again
-        EnigmailPrefs.setPref("warnOnMissingOwnerTrust", false);
+        Services.prefs.setBoolCharPref(
+          "temp.openpgp.warnOnMissingOwnerTrust",
+          false
+        );
       }
       if (r == 1) {
         if (resultObj && resultObj.Count === 1) {
