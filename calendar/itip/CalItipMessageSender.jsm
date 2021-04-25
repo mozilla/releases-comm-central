@@ -31,22 +31,22 @@ class CalItipMessageSender {
   /**
    * Detects whether the passed invitation item has been modified from the
    * original (attendees added/removed, item deleted etc.) thus requiring iTIP
-   * messages to be sent. 
+   * messages to be sent.
    *
    * This method should be called before send().
    *
-   * @param {Number} opType                    Type of operation - (e.g. ADD, MODIFY or DELETE)
-   * @param {calIItemBase} item                The updated item
-   * @param {?object} extResponse              An object to provide additional
-   *                                           parameters for sending itip messages as response
-   *                                           mode, comments or a subset of recipients. Currently
-   *                                           implemented attributes are:
-   *                             * responseMode Response mode (long) as defined for autoResponse
-   *                                           of calIItipItem. The default mode is USER (which
-   *                                           will trigger displaying the previously known popup
-   *                                           to ask the user whether to send)
+   * @param {Number} opType - Type of operation - (e.g. ADD, MODIFY or DELETE)
+   * @param {calIItemBase} item - The updated item.
+   * @param {?object} extResponse An object to provide additional
+   *  parameters for sending itip messages as response mode, comments or a
+   *  subset of recipients. Currently implemented attributes are:
+   *    * responseMode Response mode (long) as defined for autoResponse of
+   *      calIItipItem.
    *
-   * @returns {number}                         The number of messages to be sent.
+   *  The default mode is USER (which will trigger displaying the previously
+   *  known popup to ask the user whether to send)
+   *
+   * @returns {number} - The number of messages to be sent.
    */
   detectChanges(opType, item, extResponse = null) {
     let { originalItem } = this;
@@ -337,22 +337,24 @@ class CalItipMessageSender {
   }
 
   /**
-   * Sends the iTIP message using the item's calendar transport.
+   * Sends the iTIP message using the item's calendar transport. This method
+   * should be called after detectChanges().
    *
-   * This method should be called after detectChanges().
+   * @param {calIItipTransport} [transport] - An optional transport to use
+   *  instead of the one provided by the item's calendar.
    *
    * @return {boolean} - True, if the message could be sent.
    */
-  send() {
-    return this.pendingMessages.every(msg => msg.send());
+  send(transport) {
+    return this.pendingMessages.every(msg => msg.send(transport));
   }
 }
 
 /**
  * Strips user specific data, e.g. categories and alarm settings and returns the stripped item.
  *
- * @param {calIItemBase} item_      The item to strip data from
- * @return {calIItemBase}           The stripped item
+ * @param {calIItemBase} item_ - The item to strip data from
+ * @return {calIItemBase} - The stripped item
  */
 function stripUserData(item_) {
   let item = item_.clone();

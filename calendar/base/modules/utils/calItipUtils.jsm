@@ -767,12 +767,14 @@ var calitip = {
    *                                            of calIItipItem. The default mode is USER (which
    *                                            will trigger displaying the previously known popup
    *                                            to ask the user whether to send)
+   * @param {calIItipTransport} [aTransport=null] - An optional transport to use instead of the one
+   *  provided by the item's calendar.
    */
-  checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null) {
+  checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null, aTransport = null) {
     let sender = new CalItipMessageSender(aOriginalItem);
 
     if (sender.detectChanges(aOpType, aItem, aExtResponse)) {
-      sender.send();
+      sender.send(aTransport);
     }
   },
 
@@ -1212,11 +1214,14 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
  * @param {?Object} aExtResponse        An object to provide additional parameters for sending itip
  *                                        messages as response mode, comments or a subset of
  *                                        recipients.
+ * @param {calIItipTransport} [aTransport=null] - An optional transport to use instead of the one
+ *   provided by the item's calendar.
  */
-function ItipOpListener(aOpListener, aOldItem, aExtResponse = null) {
+function ItipOpListener(aOpListener, aOldItem, aExtResponse = null, aTransport = null) {
   this.mOpListener = aOpListener;
   this.mOldItem = aOldItem;
   this.mExtResponse = aExtResponse;
+  this.mTransport = aTransport;
 }
 ItipOpListener.prototype = {
   QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
@@ -1228,7 +1233,13 @@ ItipOpListener.prototype = {
   onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
     cal.ASSERT(Components.isSuccessCode(aStatus), "error on iTIP processing");
     if (Components.isSuccessCode(aStatus)) {
-      calitip.checkAndSend(aOperationType, aDetail, this.mOldItem, this.mExtResponse);
+      calitip.checkAndSend(
+        aOperationType,
+        aDetail,
+        this.mOldItem,
+        this.mExtResponse,
+        this.mTransport
+      );
     }
     if (this.mOpListener) {
       this.mOpListener.onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail);

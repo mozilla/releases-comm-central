@@ -24,11 +24,15 @@ class CalItipOutgoingMessage {
     this.autoResponse = autoResponse;
   }
 
-  /** Sends the iTIP message using the item's calendar transport.
+  /**
+   * Sends the iTIP message using the item's calendar transport.
+   *
+   * @param {calIItipTransport} [transport] - An optional transport to use
+   *  instead of the one provided by the item's calendar.
    *
    * @return {boolean} - True, if the message could be sent
    */
-  send() {
+  send(transport) {
     let calendar = cal.wrapInstance(this.item.calendar, Ci.calISchedulingSupport);
     if (calendar) {
       if (calendar.QueryInterface(Ci.calISchedulingSupport).canNotify(this.method, this.item)) {
@@ -43,12 +47,13 @@ class CalItipOutgoingMessage {
       return false;
     }
 
-    let transport = this.item.calendar.getProperty("itip.transport");
+    transport = transport ? transport : this.item.calendar.getProperty("itip.transport");
+
     if (!transport) {
-      // can only send if there's a transport for the calendar
+      // can only send if there's a transport for the calendar or an alternative
+      // one was provided.
       return false;
     }
-    transport = transport.QueryInterface(Ci.calIItipTransport);
 
     let { method, autoResponse } = this;
     let _sendItem = function(aSendToList, aSendItem) {
