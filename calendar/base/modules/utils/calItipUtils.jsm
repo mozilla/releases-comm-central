@@ -7,6 +7,9 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
+var { CalItipMessageSender } = ChromeUtils.import(
+  "resource:///modules/CalItipMessageSender.jsm"
+);
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -149,6 +152,26 @@ var calitip = {
       return 1;
     }
     return 0;
+  },
+
+  /**
+   * Creates an organizer calIAttendee object based on the calendar's configured organizer id.
+   *
+   * @param {calICalendar} aCalendar      The calendar to get the organizer id from
+   * @return {calIAttendee}               The organizer attendee
+   */
+  createOrganizer(aCalendar) {
+    let orgId = aCalendar.getProperty("organizerId");
+    if (!orgId) {
+      return null;
+    }
+    let organizer = new CalAttendee();
+    organizer.id = orgId;
+    organizer.commonName = aCalendar.getProperty("organizerCN");
+    organizer.role = "REQ-PARTICIPANT";
+    organizer.participationStatus = "ACCEPTED";
+    organizer.isOrganizer = true;
+    return organizer;
   },
 
   /**
@@ -746,285 +769,11 @@ var calitip = {
    *                                            to ask the user whether to send)
    */
   checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null) {
-    // balance out parts of the modification vs delete confusion, deletion of occurrences
-    // are notified as parent modifications and modifications of occurrences are notified
-    // as mixed new-occurrence, old-parent (IIRC).
-    if (aOriginalItem && aItem.recurrenceInfo) {
-      if (aOriginalItem.recurrenceId && !aItem.recurrenceId) {
-        // sanity check: assure aItem doesn't refer to the master
-        aItem = aItem.recurrenceInfo.getOccurrenceFor(aOriginalItem.recurrenceId);
-        cal.ASSERT(aItem, "unexpected!");
-        if (!aItem) {
-          return;
-        }
-      }
-
-      if (aOriginalItem.recurrenceInfo && aItem.recurrenceInfo) {
-        // check whether the two differ only in EXDATEs
-        let clonedItem = aItem.clone();
-        let exdates = [];
-        for (let ritem of clonedItem.recurrenceInfo.getRecurrenceItems()) {
-          let wrappedRItem = cal.wrapInstance(ritem, Ci.calIRecurrenceDate);
-          if (
-            ritem.isNegative &&
-            wrappedRItem &&
-            !aOriginalItem.recurrenceInfo.getRecurrenceItems().some(recitem => {
-              let wrappedR = cal.wrapInstance(recitem, Ci.calIRecurrenceDate);
-              return (
-                recitem.isNegative && wrappedR && wrappedR.date.compare(wrappedRItem.date) == 0
-              );
-            })
-          ) {
-            exdates.push(wrappedRItem);
-          }
-        }
-        if (exdates.length > 0) {
-          // check whether really only EXDATEs have been added:
-          let recInfo = clonedItem.recurrenceInfo;
-          exdates.forEach(recInfo.deleteRecurrenceItem, recInfo);
-          if (cal.item.compareContent(clonedItem, aOriginalItem)) {
-            // transition into "delete occurrence(s)"
-            // xxx todo: support multiple
-            aItem = aOriginalItem.recurrenceInfo.getOccurrenceFor(exdates[0].date);
-            aOriginalItem = null;
-            aOpType = Ci.calIOperationListener.DELETE;
-          }
-        }
-      }
-    }
-    // for backward compatibility, we assume USER mode if not set otherwise
-    let autoResponse = { mode: Ci.calIItipItem.USER };
-    if (aExtResponse && aExtResponse.hasOwnProperty("responseMode")) {
-      switch (aExtResponse.responseMode) {
-        case Ci.calIItipItem.AUTO:
-        case Ci.calIItipItem.NONE:
-        case Ci.calIItipItem.USER:
-          autoResponse.mode = aExtResponse.responseMode;
-          break;
-        default:
-          cal.ERROR(
-            "cal.itip.checkAndSend(): Invalid value " +
-              aExtResponse.responseMode +
-              " provided for responseMode attribute in argument aExtResponse." +
-              " Falling back to USER mode.\r\n" +
-              cal.STACK(20)
-          );
-      }
-    } else if (
-      (aOriginalItem && aOriginalItem.getAttendees().length) ||
-      aItem.getAttendees().length
-    ) {
-      // let's log something useful to notify addon developers or find any
-      // missing pieces in the conversions if the current or original item
-      // has attendees - the latter is to prevent logging if creating events
-      // by click and slide in day or week views
-      cal.LOG(
-        "cal.itip.checkAndSend: no response mode provided, " +
-          "falling back to USER mode.\r\n" +
-          cal.STACK(20)
-      );
-    }
-    if (autoResponse.mode == Ci.calIItipItem.NONE) {
-      // we stop here and don't send anything if the user opted out before
-      return;
-    }
-
-    let invitedAttendee = calitip.isInvitation(aItem) && calitip.getInvitedAttendee(aItem);
-    if (invitedAttendee) {
-      // actually is an invitation copy, fix attendee list to send REPLY
-      /* We check if the attendee id matches one of of the
-       * userAddresses. If they aren't equal, it means that
-       * someone is accepting invitations on behalf of an other user. */
-      if (aItem.calendar.aclEntry) {
-        let userAddresses = aItem.calendar.aclEntry.getUserAddresses();
-        if (
-          userAddresses.length > 0 &&
-          !cal.email.attendeeMatchesAddresses(invitedAttendee, userAddresses)
-        ) {
-          invitedAttendee = invitedAttendee.clone();
-          invitedAttendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
-        }
-      }
-
-      if (aItem.organizer) {
-        let origInvitedAttendee =
-          aOriginalItem && aOriginalItem.getAttendeeById(invitedAttendee.id);
-
-        if (aOpType == Ci.calIOperationListener.DELETE) {
-          // in case the attendee has just deleted the item, we want to send out a DECLINED REPLY:
-          origInvitedAttendee = invitedAttendee;
-          invitedAttendee = invitedAttendee.clone();
-          invitedAttendee.participationStatus = "DECLINED";
-        }
-
-        // We want to send a REPLY send if:
-        // - there has been a PARTSTAT change
-        // - in case of an organizer SEQUENCE bump we'd go and reconfirm our PARTSTAT
-        if (
-          !origInvitedAttendee ||
-          origInvitedAttendee.participationStatus != invitedAttendee.participationStatus ||
-          (aOriginalItem && calitip.getSequence(aItem) != calitip.getSequence(aOriginalItem))
-        ) {
-          aItem = aItem.clone();
-          aItem.removeAllAttendees();
-          aItem.addAttendee(invitedAttendee);
-          // we remove X-MS-OLK-SENDER to avoid confusing Outlook 2007+ (w/o Exchange)
-          // about the notification sender (see bug 603933)
-          if (aItem.hasProperty("X-MS-OLK-SENDER")) {
-            aItem.deleteProperty("X-MS-OLK-SENDER");
-          }
-          // if the event was delegated to the replying attendee, we may also notify also
-          // the delegator due to chapter 3.2.2.3. of RfC 5546
-          let replyTo = [];
-          let delegatorIds = invitedAttendee.getProperty("DELEGATED-FROM");
-          if (
-            delegatorIds &&
-            Services.prefs.getBoolPref("calendar.itip.notifyDelegatorOnReply", false)
-          ) {
-            let getDelegator = function(aDelegatorId) {
-              let delegator = aOriginalItem.getAttendeeById(aDelegatorId);
-              if (delegator) {
-                replyTo.push(delegator);
-              }
-            };
-            // Our backends currently do not support multi-value params. libical just
-            // swallows any value but the first, while ical.js fails to parse the item
-            // at all. Single values are handled properly by both backends though.
-            // Once bug 1206502 lands, ical.js will handle multi-value params, but
-            // we end up in different return types of getProperty. A native exposure of
-            // DELEGATED-FROM and DELEGATED-TO in calIAttendee may change this.
-            if (Array.isArray(delegatorIds)) {
-              for (let delegatorId of delegatorIds) {
-                getDelegator(delegatorId);
-              }
-            } else if (typeof delegatorIds == "string") {
-              getDelegator(delegatorIds);
-            }
-          }
-          replyTo.push(aItem.organizer);
-          sendMessage(aItem, "REPLY", replyTo, autoResponse);
-        }
-      }
-      return;
-    }
-
-    if (aItem.getProperty("X-MOZ-SEND-INVITATIONS") != "TRUE") {
-      // Only send invitations/cancellations
-      // if the user checked the checkbox
-      return;
-    }
-
-    // special handling for invitation with event status cancelled
-    if (aItem.getAttendees().length > 0 && aItem.getProperty("STATUS") == "CANCELLED") {
-      if (calitip.getSequence(aItem) > 0) {
-        // make sure we send a cancellation and not an request
-        aOpType = Ci.calIOperationListener.DELETE;
-      } else {
-        // don't send an invitation, if the event was newly created and has status cancelled
-        return;
-      }
-    }
-
-    if (aOpType == Ci.calIOperationListener.DELETE) {
-      sendMessage(aItem, "CANCEL", aItem.getAttendees(), autoResponse);
-      return;
-    } // else ADD, MODIFY:
-
-    let originalAtt = aOriginalItem ? aOriginalItem.getAttendees() : [];
-    let itemAtt = aItem.getAttendees();
-    let canceledAttendees = [];
-    let addedAttendees = [];
-
-    if (itemAtt.length > 0 || originalAtt.length > 0) {
-      let attMap = {};
-      for (let att of originalAtt) {
-        attMap[att.id.toLowerCase()] = att;
-      }
-
-      for (let att of itemAtt) {
-        if (att.id.toLowerCase() in attMap) {
-          // Attendee was in original item.
-          delete attMap[att.id.toLowerCase()];
-        } else {
-          // Attendee only in new item
-          addedAttendees.push(att);
-        }
-      }
-
-      for (let id in attMap) {
-        let cancAtt = attMap[id];
-        canceledAttendees.push(cancAtt);
-      }
-    }
-
-    // setting default value to control for sending (cancellation) messages
-    // this will be set to false, once the user cancels sending manually
-    let sendOut = true;
-    // Check to see if some part of the item was updated, if so, re-send REQUEST
-    if (!aOriginalItem || calitip.compare(aItem, aOriginalItem) > 0) {
-      // REQUEST
-      // check whether it's a simple UPDATE (no SEQUENCE change) or real (RE)REQUEST,
-      // in case of time or location/description change.
-      let isMinorUpdate =
-        aOriginalItem && calitip.getSequence(aItem) == calitip.getSequence(aOriginalItem);
-
-      if (
-        !isMinorUpdate ||
-        !cal.item.compareContent(stripUserData(aItem), stripUserData(aOriginalItem))
-      ) {
-        let requestItem = aItem.clone();
-        if (!requestItem.organizer) {
-          requestItem.organizer = createOrganizer(requestItem.calendar);
-        }
-
-        // Fix up our attendees for invitations using some good defaults
-        let recipients = [];
-        let reqItemAtt = requestItem.getAttendees();
-        if (!isMinorUpdate) {
-          requestItem.removeAllAttendees();
-        }
-        for (let attendee of reqItemAtt) {
-          if (!isMinorUpdate) {
-            attendee = attendee.clone();
-            if (!attendee.role) {
-              attendee.role = "REQ-PARTICIPANT";
-            }
-            attendee.participationStatus = "NEEDS-ACTION";
-            attendee.rsvp = "TRUE";
-            requestItem.addAttendee(attendee);
-          }
-          recipients.push(attendee);
-        }
-
-        // if send out should be limited to newly added attendees and no major
-        // props (attendee is not such) have changed, only the respective attendee
-        // is added to the recipient list while the attendee information in the
-        // ical is left to enable the new attendee to see who else is attending
-        // the event (if not prevented otherwise)
-        if (
-          isMinorUpdate &&
-          addedAttendees.length > 0 &&
-          Services.prefs.getBoolPref("calendar.itip.updateInvitationForNewAttendeesOnly", false)
-        ) {
-          recipients = addedAttendees;
-        }
-
-        if (recipients.length > 0) {
-          sendOut = sendMessage(requestItem, "REQUEST", recipients, autoResponse);
-        }
-      }
-    }
-
-    // Cancel the event for all canceled attendees
-    if (canceledAttendees.length > 0) {
-      let cancelItem = aOriginalItem.clone();
-      cancelItem.removeAllAttendees();
-      for (let att of canceledAttendees) {
-        cancelItem.addAttendee(att);
-      }
-      if (sendOut) {
-        sendMessage(cancelItem, "CANCEL", canceledAttendees, autoResponse);
-      }
+    let sender = new CalItipMessageSender(aOpType, aItem, aOriginalItem, aExtResponse);
+    if (sender.detectChanges()) {
+      sender.send() && sender.sendCancellations();
+    } else {
+      sender.sendCancellations();
     }
   },
 
@@ -1312,49 +1061,6 @@ function setReceivedInfo(item, itipItemItem) {
   }
 }
 
-/**
- * Strips user specific data, e.g. categories and alarm settings and returns the stripped item.
- *
- * @param {calIItemBase} item_      The item to strip data from
- * @return {calIItemBase}           The stripped item
- */
-function stripUserData(item_) {
-  let item = item_.clone();
-  let stamp = item.stampTime;
-  let lastModified = item.lastModifiedTime;
-  item.clearAlarms();
-  item.alarmLastAck = null;
-  item.setCategories([]);
-  item.deleteProperty("RECEIVED-SEQUENCE");
-  item.deleteProperty("RECEIVED-DTSTAMP");
-  for (let [name] of item.properties) {
-    let pname = name;
-    if (pname.substr(0, "X-MOZ-".length) == "X-MOZ-") {
-      item.deleteProperty(name);
-    }
-  }
-  item.getAttendees().forEach(att => {
-    att.deleteProperty("RECEIVED-SEQUENCE");
-    att.deleteProperty("RECEIVED-DTSTAMP");
-  });
-
-  // according to RfC 6638, the following items must not be exposed in client side
-  // scheduling messages, so let's remove it if present
-  let removeSchedulingParams = aCalUser => {
-    aCalUser.deleteProperty("SCHEDULE-AGENT");
-    aCalUser.deleteProperty("SCHEDULE-FORCE-SEND");
-    aCalUser.deleteProperty("SCHEDULE-STATUS");
-  };
-  item.getAttendees().forEach(removeSchedulingParams);
-  if (item.organizer) {
-    removeSchedulingParams(item.organizer);
-  }
-
-  item.setProperty("DTSTAMP", stamp);
-  item.setProperty("LAST-MODIFIED", lastModified); // need to be last to undirty the item
-  return item;
-}
-
 /** local to this module file
  * Takes over relevant item information from iTIP item and sets received info.
  *
@@ -1426,26 +1132,6 @@ function copyProviderProperties(itipItem, itipItemItem, item) {
       item.setProperty(prop, itipItemItem.getProperty(prop));
     }
   }
-}
-
-/** local to this module file
- * Creates an organizer calIAttendee object based on the calendar's configured organizer id.
- *
- * @param {calICalendar} aCalendar      The calendar to get the organizer id from
- * @return {calIAttendee}               The organizer attendee
- */
-function createOrganizer(aCalendar) {
-  let orgId = aCalendar.getProperty("organizerId");
-  if (!orgId) {
-    return null;
-  }
-  let organizer = new CalAttendee();
-  organizer.id = orgId;
-  organizer.commonName = aCalendar.getProperty("organizerCN");
-  organizer.role = "REQ-PARTICIPANT";
-  organizer.participationStatus = "ACCEPTED";
-  organizer.isOrganizer = true;
-  return organizer;
 }
 
 /** local to this module file
@@ -1748,7 +1434,7 @@ ItipItemFinder.prototype = {
                   if (attendees.length > 0) {
                     let action = function(opListener, partStat, extResponse) {
                       if (!item.organizer) {
-                        let org = createOrganizer(item.calendar);
+                        let org = calitip.createOrganizer(item.calendar);
                         if (org) {
                           item = item.clone();
                           item.organizer = org;
@@ -1787,7 +1473,7 @@ ItipItemFinder.prototype = {
                   let att = calitip.getInvitedAttendee(newItem);
                   if (!att) {
                     // fall back to using configured organizer
-                    att = createOrganizer(newItem.calendar);
+                    att = calitip.createOrganizer(newItem.calendar);
                     if (att) {
                       att.isOrganizer = false;
                     }
@@ -1984,7 +1670,7 @@ ItipItemFinder.prototype = {
                 let att = calitip.getInvitedAttendee(newItem);
                 if (!att) {
                   // fall back to using configured organizer
-                  att = createOrganizer(newItem.calendar);
+                  att = calitip.createOrganizer(newItem.calendar);
                   if (att) {
                     att.isOrganizer = false;
                     newItem.addAttendee(att);
