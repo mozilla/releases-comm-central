@@ -769,11 +769,10 @@ var calitip = {
    *                                            to ask the user whether to send)
    */
   checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null) {
-    let sender = new CalItipMessageSender(aOpType, aItem, aOriginalItem, aExtResponse);
-    if (sender.detectChanges()) {
-      sender.send() && sender.sendCancellations();
-    } else {
-      sender.sendCancellations();
+    let sender = new CalItipMessageSender(aOriginalItem);
+
+    if (sender.detectChanges(aOpType, aItem, aExtResponse)) {
+      sender.send();
     }
   },
 

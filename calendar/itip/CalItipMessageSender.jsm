@@ -6,6 +6,9 @@ const EXPORTED_SYMBOLS = ["CalItipMessageSender"];
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { CalItipOutgoingMessage } = ChromeUtils.import(
+  "resource:///modules/CalItipOutgoingMessage.jsm"
+);
 
 /**
  * CalItipMessageSender is responsible for sending out the appropriate iTIP
@@ -13,35 +16,28 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  */
 class CalItipMessageSender {
   /**
-   * A CalItipMessageSender instance used to send cancellation messages when
-   * attendees have been removed.
-   * @type {CalItipMessageSender}
+   * A list of CalItipOutgoingMessages to send out.
    */
-  cancellationMessageSender;
+  pendingMessages = [];
 
   /**
-   * The iTIP method for the sent message.
-   * @type {string}
+   * @param {calIItemBase} originalItem - The original invitation  item before
+   *  it is modified.
    */
-  method;
+  constructor(originalItem) {
+    this.originalItem = originalItem;
+  }
 
   /**
-   * A list of recipients to send the message to.
-   * @type {string[]}
-   */
-  recipientsList = [];
-
-  /**
-   * For backward compatibility, we assume USER mode if not set otherwise
-   * @type {object}
-   */
-  autoResponse = { mode: Ci.calIItipItem.USER };
-
-  /**
+   * Detects whether the passed invitation item has been modified from the
+   * original (attendees added/removed, item deleted etc.) thus requiring iTIP
+   * messages to be sent. 
+   *
+   * This method should be called before send().
+   *
    * @param {Number} opType                    Type of operation - (e.g. ADD, MODIFY or DELETE)
    * @param {calIItemBase} item                The updated item
-   * @param {calIItemBase} originalItem        The original item
-   * @param {?Object} extResponse              An object to provide additional
+   * @param {?object} extResponse              An object to provide additional
    *                                           parameters for sending itip messages as response
    *                                           mode, comments or a subset of recipients. Currently
    *                                           implemented attributes are:
@@ -49,46 +45,35 @@ class CalItipMessageSender {
    *                                           of calIItipItem. The default mode is USER (which
    *                                           will trigger displaying the previously known popup
    *                                           to ask the user whether to send)
-   */
-  constructor(opType, item, originalItem, extResponse = null) {
-    this.opType = opType;
-    this.item = item;
-    this.originalItem = originalItem;
-    this.extResponse = extResponse;
-  }
-
-  /**
-   * This method checks whether the invitation item has been modified and
-   * returns true if messages should be sent out. Note: This method should be
-   * called before send() and may modify the internal properties of this
-   * instance.
    *
-   * @return {boolean}
+   * @returns {number}                         The number of messages to be sent.
    */
-  detectChanges() {
+  detectChanges(opType, item, extResponse = null) {
+    let { originalItem } = this;
+
     // balance out parts of the modification vs delete confusion, deletion of occurrences
     // are notified as parent modifications and modifications of occurrences are notified
     // as mixed new-occurrence, old-parent (IIRC).
-    if (this.originalItem && this.item.recurrenceInfo) {
-      if (this.originalItem.recurrenceId && !this.item.recurrenceId) {
+    if (originalItem && item.recurrenceInfo) {
+      if (originalItem.recurrenceId && !item.recurrenceId) {
         // sanity check: assure item doesn't refer to the master
-        this.item = this.item.recurrenceInfo.getOccurrenceFor(this.originalItem.recurrenceId);
-        cal.ASSERT(this.item, "unexpected!");
-        if (!this.item) {
-          return false;
+        item = item.recurrenceInfo.getOccurrenceFor(originalItem.recurrenceId);
+        cal.ASSERT(item, "unexpected!");
+        if (!item) {
+          return this.pendingMessages.length;
         }
       }
 
-      if (this.originalItem.recurrenceInfo && this.item.recurrenceInfo) {
+      if (originalItem.recurrenceInfo && item.recurrenceInfo) {
         // check whether the two differ only in EXDATEs
-        let clonedItem = this.item.clone();
+        let clonedItem = item.clone();
         let exdates = [];
         for (let ritem of clonedItem.recurrenceInfo.getRecurrenceItems()) {
           let wrappedRItem = cal.wrapInstance(ritem, Ci.calIRecurrenceDate);
           if (
             ritem.isNegative &&
             wrappedRItem &&
-            !this.originalItem.recurrenceInfo.getRecurrenceItems().some(recitem => {
+            !originalItem.recurrenceInfo.getRecurrenceItems().some(recitem => {
               let wrappedR = cal.wrapInstance(recitem, Ci.calIRecurrenceDate);
               return (
                 recitem.isNegative && wrappedR && wrappedR.date.compare(wrappedRItem.date) == 0
@@ -102,37 +87,36 @@ class CalItipMessageSender {
           // check whether really only EXDATEs have been added:
           let recInfo = clonedItem.recurrenceInfo;
           exdates.forEach(recInfo.deleteRecurrenceItem, recInfo);
-          if (cal.item.compareContent(clonedItem, this.originalItem)) {
+          if (cal.item.compareContent(clonedItem, originalItem)) {
             // transition into "delete occurrence(s)"
             // xxx todo: support multiple
-            this.item = this.originalItem.recurrenceInfo.getOccurrenceFor(exdates[0].date);
-            this.originalItem = null;
-            this.opType = Ci.calIOperationListener.DELETE;
+            item = originalItem.recurrenceInfo.getOccurrenceFor(exdates[0].date);
+            originalItem = null;
+            opType = Ci.calIOperationListener.DELETE;
           }
         }
       }
     }
 
-    if (this.extResponse && this.extResponse.hasOwnProperty("responseMode")) {
-      switch (this.extResponse.responseMode) {
+    // for backward compatibility, we assume USER mode if not set otherwise
+    let autoResponse = { mode: Ci.calIItipItem.USER };
+    if (extResponse && extResponse.hasOwnProperty("responseMode")) {
+      switch (extResponse.responseMode) {
         case Ci.calIItipItem.AUTO:
         case Ci.calIItipItem.NONE:
         case Ci.calIItipItem.USER:
-          this.autoResponse.mode = this.extResponse.responseMode;
+          autoResponse.mode = extResponse.responseMode;
           break;
         default:
           cal.ERROR(
             "cal.itip.checkAndSend(): Invalid value " +
-              this.extResponse.responseMode +
+              extResponse.responseMode +
               " provided for responseMode attribute in argument extResponse." +
               " Falling back to USER mode.\r\n" +
               cal.STACK(20)
           );
       }
-    } else if (
-      (this.originalItem && this.originalItem.getAttendees().length) ||
-      this.item.getAttendees().length
-    ) {
+    } else if ((originalItem && originalItem.getAttendees().length) || item.getAttendees().length) {
       // let's log something useful to notify addon developers or find any
       // missing pieces in the conversions if the current or original item
       // has attendees - the latter is to prevent logging if creating events
@@ -143,20 +127,19 @@ class CalItipMessageSender {
           cal.STACK(20)
       );
     }
-    if (this.autoResponse.mode == Ci.calIItipItem.NONE) {
+    if (autoResponse.mode == Ci.calIItipItem.NONE) {
       // we stop here and don't send anything if the user opted out before
-      return false;
+      return this.pendingMessages.length;
     }
 
-    let invitedAttendee =
-      cal.itip.isInvitation(this.item) && cal.itip.getInvitedAttendee(this.item);
+    let invitedAttendee = cal.itip.isInvitation(item) && cal.itip.getInvitedAttendee(item);
     if (invitedAttendee) {
       // actually is an invitation copy, fix attendee list to send REPLY
       /* We check if the attendee id matches one of of the
        * userAddresses. If they aren't equal, it means that
        * someone is accepting invitations on behalf of an other user. */
-      if (this.item.calendar.aclEntry) {
-        let userAddresses = this.item.calendar.aclEntry.getUserAddresses();
+      if (item.calendar.aclEntry) {
+        let userAddresses = item.calendar.aclEntry.getUserAddresses();
         if (
           userAddresses.length > 0 &&
           !cal.email.attendeeMatchesAddresses(invitedAttendee, userAddresses)
@@ -166,11 +149,10 @@ class CalItipMessageSender {
         }
       }
 
-      if (this.item.organizer) {
-        let origInvitedAttendee =
-          this.originalItem && this.originalItem.getAttendeeById(invitedAttendee.id);
+      if (item.organizer) {
+        let origInvitedAttendee = originalItem && originalItem.getAttendeeById(invitedAttendee.id);
 
-        if (this.opType == Ci.calIOperationListener.DELETE) {
+        if (opType == Ci.calIOperationListener.DELETE) {
           // in case the attendee has just deleted the item, we want to send out a DECLINED REPLY:
           origInvitedAttendee = invitedAttendee;
           invitedAttendee = invitedAttendee.clone();
@@ -183,16 +165,15 @@ class CalItipMessageSender {
         if (
           !origInvitedAttendee ||
           origInvitedAttendee.participationStatus != invitedAttendee.participationStatus ||
-          (this.originalItem &&
-            cal.itip.getSequence(this.item) != cal.itip.getSequence(this.originalItem))
+          (originalItem && cal.itip.getSequence(item) != cal.itip.getSequence(originalItem))
         ) {
-          this.item = this.item.clone();
-          this.item.removeAllAttendees();
-          this.item.addAttendee(invitedAttendee);
+          item = item.clone();
+          item.removeAllAttendees();
+          item.addAttendee(invitedAttendee);
           // we remove X-MS-OLK-SENDER to avoid confusing Outlook 2007+ (w/o Exchange)
           // about the notification sender (see bug 603933)
-          if (this.item.hasProperty("X-MS-OLK-SENDER")) {
-            this.item.deleteProperty("X-MS-OLK-SENDER");
+          if (item.hasProperty("X-MS-OLK-SENDER")) {
+            item.deleteProperty("X-MS-OLK-SENDER");
           }
           // if the event was delegated to the replying attendee, we may also notify also
           // the delegator due to chapter 3.2.2.3. of RfC 5546
@@ -203,7 +184,7 @@ class CalItipMessageSender {
             Services.prefs.getBoolPref("calendar.itip.notifyDelegatorOnReply", false)
           ) {
             let getDelegator = function(aDelegatorId) {
-              let delegator = this.originalItem.getAttendeeById(aDelegatorId);
+              let delegator = originalItem.getAttendeeById(aDelegatorId);
               if (delegator) {
                 replyTo.push(delegator);
               }
@@ -222,40 +203,43 @@ class CalItipMessageSender {
               getDelegator(delegatorIds);
             }
           }
-          replyTo.push(this.item.organizer);
-          this.recipientsList = replyTo;
-          this.method = "REPLY";
-          return true;
+          replyTo.push(item.organizer);
+          this.pendingMessages.push(
+            new CalItipOutgoingMessage("REPLY", replyTo, item, autoResponse)
+          );
         }
       }
-      return false;
+      return this.pendingMessages.length;
     }
 
-    if (this.item.getProperty("X-MOZ-SEND-INVITATIONS") != "TRUE") {
+    if (item.getProperty("X-MOZ-SEND-INVITATIONS") != "TRUE") {
       // Only send invitations/cancellations
       // if the user checked the checkbox
-      return false;
+      this.pendingMessages = [];
+      return this.pendingMessages.length;
     }
 
     // special handling for invitation with event status cancelled
-    if (this.item.getAttendees().length > 0 && this.item.getProperty("STATUS") == "CANCELLED") {
-      if (cal.itip.getSequence(this.item) > 0) {
+    if (item.getAttendees().length > 0 && item.getProperty("STATUS") == "CANCELLED") {
+      if (cal.itip.getSequence(item) > 0) {
         // make sure we send a cancellation and not an request
-        this.opType = Ci.calIOperationListener.DELETE;
+        opType = Ci.calIOperationListener.DELETE;
       } else {
         // don't send an invitation, if the event was newly created and has status cancelled
-        return false;
+        this.pendingMessages = [];
+        return this.pendingMessages.length;
       }
     }
 
-    if (this.opType == Ci.calIOperationListener.DELETE) {
-      this.recipientsList = this.item.getAttendees();
-      this.method = "CANCEL";
-      return true;
+    if (opType == Ci.calIOperationListener.DELETE) {
+      this.pendingMessages.push(
+        new CalItipOutgoingMessage("CANCEL", item.getAttendees(), item, autoResponse)
+      );
+      return this.pendingMessages.length;
     } // else ADD, MODIFY:
 
-    let originalAtt = this.originalItem ? this.originalItem.getAttendees() : [];
-    let itemAtt = this.item.getAttendees();
+    let originalAtt = originalItem ? originalItem.getAttendees() : [];
+    let itemAtt = item.getAttendees();
     let canceledAttendees = [];
     let addedAttendees = [];
 
@@ -282,19 +266,18 @@ class CalItipMessageSender {
     }
 
     // Check to see if some part of the item was updated, if so, re-send REQUEST
-    if (!this.originalItem || cal.itip.compare(this.item, this.originalItem) > 0) {
+    if (!originalItem || cal.itip.compare(item, originalItem) > 0) {
       // REQUEST
       // check whether it's a simple UPDATE (no SEQUENCE change) or real (RE)REQUEST,
       // in case of time or location/description change.
       let isMinorUpdate =
-        this.originalItem &&
-        cal.itip.getSequence(this.item) == cal.itip.getSequence(this.originalItem);
+        originalItem && cal.itip.getSequence(item) == cal.itip.getSequence(originalItem);
 
       if (
         !isMinorUpdate ||
-        !cal.item.compareContent(stripUserData(this.item), stripUserData(this.originalItem))
+        !cal.item.compareContent(stripUserData(item), stripUserData(originalItem))
       ) {
-        let requestItem = this.item.clone();
+        let requestItem = item.clone();
         if (!requestItem.organizer) {
           requestItem.organizer = cal.itip.createOrganizer(requestItem.calendar);
         }
@@ -332,106 +315,36 @@ class CalItipMessageSender {
         }
 
         if (recipients.length > 0) {
-          this.item = requestItem;
-          this.recipientsList = recipients;
-          this.method = "REQUEST";
-          return true;
+          this.pendingMessages.push(
+            new CalItipOutgoingMessage("REQUEST", recipients, requestItem, autoResponse)
+          );
         }
       }
     }
 
     // Cancel the event for all canceled attendees
     if (canceledAttendees.length > 0) {
-      let cancelItem = this.originalItem.clone();
+      let cancelItem = originalItem.clone();
       cancelItem.removeAllAttendees();
       for (let att of canceledAttendees) {
         cancelItem.addAttendee(att);
       }
-      this.cancellationMessageSender = new CalItipMessageSender(
-        this.opType,
-        cancelItem,
-        this.originalItem,
-        this.autoResponse
+      this.pendingMessages.push(
+        new CalItipOutgoingMessage("CANCEL", canceledAttendees, cancelItem, autoResponse)
       );
-      this.cancellationMessageSender.method = "CANCEL";
     }
-    return false;
+    return this.pendingMessages.length;
   }
 
   /**
    * Sends the iTIP message using the item's calendar transport.
    *
-   * @return {boolean}                        True, if the message could be sent
+   * This method should be called after detectChanges().
+   *
+   * @return {boolean} - True, if the message could be sent.
    */
   send() {
-    let calendar = cal.wrapInstance(this.item.calendar, Ci.calISchedulingSupport);
-    if (calendar) {
-      if (calendar.QueryInterface(Ci.calISchedulingSupport).canNotify(this.method, this.item)) {
-        // provider will handle that, so we return - we leave it also to the provider to
-        // deal with user canceled notifications (if possible), so set the return value
-        // to true as false would prevent any further notification within this cycle
-        return true;
-      }
-    }
-
-    if (this.recipientsList.length == 0) {
-      return false;
-    }
-
-    let transport = this.item.calendar.getProperty("itip.transport");
-    if (!transport) {
-      // can only send if there's a transport for the calendar
-      return false;
-    }
-    transport = transport.QueryInterface(Ci.calIItipTransport);
-
-    let { method, autoResponse } = this;
-    let _sendItem = function(aSendToList, aSendItem) {
-      let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
-      itipItem.init(cal.item.serialize(aSendItem));
-      itipItem.responseMethod = method;
-      itipItem.targetCalendar = aSendItem.calendar;
-      itipItem.autoResponse = autoResponse.mode;
-      // we switch to AUTO for each subsequent call of _sendItem()
-      autoResponse.mode = Ci.calIItipItem.AUTO;
-      // XXX I don't know whether the below is used at all, since we don't use the itip processor
-      itipItem.isSend = true;
-
-      return transport.sendItems(aSendToList, itipItem);
-    };
-
-    // split up transport, if attendee undisclosure is requested
-    // and this is a message send by the organizer
-    if (
-      this.item.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED") == "TRUE" &&
-      this.method != "REPLY" &&
-      this.method != "REFRESH" &&
-      this.method != "COUNTER"
-    ) {
-      for (let recipient of this.recipientsList) {
-        // create a list with a single recipient
-        let sendToList = [recipient];
-        // remove other recipients from vevent attendee list
-        let sendItem = this.item.clone();
-        sendItem.removeAllAttendees();
-        sendItem.addAttendee(recipient);
-        // send message
-        if (!_sendItem(sendToList, sendItem)) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return _sendItem(this.recipientsList, this.item);
-  }
-
-  /**
-   * Sends any pending cancellation messages.
-   *
-   * @returns {boolean}
-   */
-  sendCancellations() {
-    return this.cancellationMessageSender?.send();
+    return this.pendingMessages.every(msg => msg.send());
   }
 }
 
