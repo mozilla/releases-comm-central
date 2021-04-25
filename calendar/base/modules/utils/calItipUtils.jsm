@@ -7,9 +7,7 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
-var { CalItipMessageSender } = ChromeUtils.import(
-  "resource:///modules/CalItipMessageSender.jsm"
-);
+var { CalItipMessageSender } = ChromeUtils.import("resource:///modules/CalItipMessageSender.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
