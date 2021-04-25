@@ -273,9 +273,7 @@ var calprovider = {
   getImipTransport(aCalendar) {
     // assure an identity is configured for the calendar
     if (aCalendar && aCalendar.getProperty("imip.identity")) {
-      return Cc["@mozilla.org/calendar/itip-transport;1?type=email"].getService(
-        Ci.calIItipTransport
-      );
+      return this.defaultImipTransport;
     }
     return null;
   },
@@ -846,6 +844,14 @@ XPCOMUtils.defineLazyGetter(calprovider, "providers", () => {
     ["ics", CalICSProvider],
     ["caldav", CalDavProvider],
   ]);
+});
+
+// This is the transport returned by getImipTransport().
+XPCOMUtils.defineLazyGetter(calprovider, "defaultImipTransport", () => {
+  const { CalItipEmailTransport } = ChromeUtils.import(
+    "resource:///modules/CalItipEmailTransport.jsm"
+  );
+  return new CalItipEmailTransport();
 });
 
 // Set up the `cal.provider.detection` module.
