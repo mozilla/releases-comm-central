@@ -851,7 +851,7 @@ XPCOMUtils.defineLazyGetter(calprovider, "defaultImipTransport", () => {
   const { CalItipEmailTransport } = ChromeUtils.import(
     "resource:///modules/CalItipEmailTransport.jsm"
   );
-  return new CalItipEmailTransport();
+  return CalItipEmailTransport.createInstance();
 });
 
 // Set up the `cal.provider.detection` module.

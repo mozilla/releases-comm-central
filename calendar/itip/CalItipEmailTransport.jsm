@@ -9,47 +9,69 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
 
-function CalItipEmailTransport() {
-  this.wrappedJSObject = this;
-  this._initEmailTransport();
-}
-CalItipEmailTransport.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["calIItipTransport"]),
-  classID: Components.ID("{d4d7b59e-c9e0-4a7a-b5e8-5958f85515f0}"),
+/**
+ * CalItipEmailTransport is used to send iTIP messages via email. Outside
+ * callers should use the static `createInstance()` method instead of this
+ * constructor directly.
+ */
+class CalItipEmailTransport {
+  wrappedJSObject = this;
+  QueryInterface = ChromeUtils.generateQI(["calIItipTransport"]);
+  classID = Components.ID("{d4d7b59e-c9e0-4a7a-b5e8-5958f85515f0}");
 
-  mHasXpcomMail: false,
-  mDefaultAccount: null,
-  mDefaultIdentity: null,
-  mDefaultSmtpServer: null,
+  mSenderAddress = null;
+
+  constructor(defaultAccount, defaultIdentity) {
+    this.mDefaultAccount = defaultAccount;
+    this.mDefaultIdentity = defaultIdentity;
+  }
 
   get scheme() {
     return "mailto";
-  },
+  }
+
   get type() {
     return "email";
-  },
+  }
 
-  mSenderAddress: null,
   get senderAddress() {
     return this.mSenderAddress;
-  },
+  }
+
   set senderAddress(aValue) {
     this.mSenderAddress = aValue;
-  },
+  }
 
-  sendItems(aRecipients, aItipItem) {
-    if (this.mHasXpcomMail) {
-      cal.LOG("sendItems: Preparing to send an invitation email...");
-      let items = this._prepareItems(aItipItem);
-      if (items === false) {
-        return false;
+  /**
+   * Creates a new calIItipTransport instance configured with the default
+   * account and identity if available. If not available or an error occurs, an
+   * instance that cannot send any items out is returned.
+   */
+  static createInstance() {
+    try {
+      let defaultAccount = MailServices.accounts.defaultAccount;
+      let defaultIdentity = defaultAccount ? defaultAccount.defaultIdentity : null;
+
+      if (!defaultIdentity) {
+        // If there isn't a default identity (i.e Local Folders is your
+        // default identity, then go ahead and use the first available
+        // identity.
+        let allIdentities = MailServices.accounts.allIdentities;
+        if (allIdentities.length > 0) {
+          defaultIdentity = allIdentities[0];
+        }
       }
 
-      return this._sendXpcomMail(aRecipients, items.subject, items.body, aItipItem);
+      if (defaultAccount && defaultIdentity) {
+        return new CalItipEmailTransport(defaultAccount, defaultIdentity);
+      }
+    } catch (ex) {
+      // Fall through to below.
     }
-    // sending xpcom mail is not available if no identity has been set
-    throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
-  },
+
+    cal.LOG("CalITipEmailTransport.createInstance: No XPCOM Mail available.");
+    return new CalItipNoEmailTransport();
+  }
 
   _prepareItems(aItipItem) {
     let item = aItipItem.getItemList()[0];
@@ -142,58 +164,10 @@ CalItipEmailTransport.prototype = {
       subject,
       body,
     };
-  },
-
-  _initEmailTransport() {
-    this.mHasXpcomMail = true;
-
-    try {
-      this.mDefaultSmtpServer = MailServices.smtp.defaultServer;
-      this.mDefaultAccount = MailServices.accounts.defaultAccount;
-      this.mDefaultIdentity = this.mDefaultAccount ? this.mDefaultAccount.defaultIdentity : null;
-
-      if (!this.mDefaultIdentity) {
-        // If there isn't a default identity (i.e Local Folders is your
-        // default identity, then go ahead and use the first available
-        // identity.
-        let allIdentities = MailServices.accounts.allIdentities;
-        if (allIdentities.length > 0) {
-          this.mDefaultIdentity = allIdentities[0];
-        } else {
-          // If there are no identities, then we are in the same
-          // situation as if we didn't have Xpcom Mail.
-          this.mHasXpcomMail = false;
-          cal.LOG("initEmailService: No XPCOM Mail available");
-        }
-      }
-    } catch (ex) {
-      // Then we must resort to operating system specific means
-      this.mHasXpcomMail = false;
-    }
-  },
+  }
 
   _sendXpcomMail(aToList, aSubject, aBody, aItipItem) {
-    let identity = null;
-    let account;
-    if (aItipItem.targetCalendar) {
-      identity = aItipItem.targetCalendar.getProperty("imip.identity");
-      if (identity) {
-        identity = identity.QueryInterface(Ci.nsIMsgIdentity);
-        account = aItipItem.targetCalendar
-          .getProperty("imip.account")
-          .QueryInterface(Ci.nsIMsgAccount);
-      } else {
-        cal.WARN("No email identity configured for calendar " + aItipItem.targetCalendar.name);
-      }
-    }
-    if (!identity) {
-      // use some default identity/account:
-      identity = this.mDefaultIdentity;
-      account = this.mDefaultAccount;
-      if (!account || !identity) {
-        throw new Error("sendXpcomMail: No usable account and identity found");
-      }
-    }
+    let { identity, account } = this.getIdentityAndAccount(aItipItem);
 
     switch (aItipItem.autoResponse) {
       case Ci.calIItipItem.USER: {
@@ -314,7 +288,7 @@ CalItipEmailTransport.prototype = {
       }
     }
     return false;
-  },
+  }
 
   _createTempImipFile(aToList, aSubject, aBody, aItipItem, aIdentity, aMessageId) {
     try {
@@ -392,5 +366,60 @@ CalItipEmailTransport.prototype = {
       cal.ASSERT(false, exc);
       return null;
     }
-  },
-};
+  }
+
+  /**
+   * Provides the identity and account to use when sending iTIP emails. By
+   * default prefers whatever the item's calendar is configured to use or the
+   * default configuration when not set. This method can be overriden to change
+   * that behaviour.
+   *
+   * @param {calIItipItem} aItipItem
+   * @returns {object} - An object containing a property for the identity and
+   *  one for the account.
+   */
+  getIdentityAndAccount(aItipItem) {
+    let identity;
+    let account;
+    if (aItipItem.targetCalendar) {
+      identity = aItipItem.targetCalendar.getProperty("imip.identity");
+      if (identity) {
+        identity = identity.QueryInterface(Ci.nsIMsgIdentity);
+        account = aItipItem.targetCalendar
+          .getProperty("imip.account")
+          .QueryInterface(Ci.nsIMsgAccount);
+      } else {
+        cal.WARN("No email identity configured for calendar " + aItipItem.targetCalendar.name);
+      }
+    }
+    if (!identity) {
+      // use some default identity/account:
+      identity = this.mDefaultIdentity;
+      account = this.mDefaultAccount;
+    }
+    return { identity, account };
+  }
+
+  sendItems(aRecipients, aItipItem) {
+    cal.LOG("sendItems: Preparing to send an invitation email...");
+    let items = this._prepareItems(aItipItem);
+    if (items === false) {
+      return false;
+    }
+
+    return this._sendXpcomMail(aRecipients, items.subject, items.body, aItipItem);
+  }
+}
+
+/**
+ * CalItipNoEmailTransport is a transport used in place of CalItipEmaiTransport
+ * when we are unable to send messages due to missing configuration.
+ */
+class CalItipNoEmailTransport extends CalItipEmailTransport {
+  wrappedJSObject = this;
+  QueryInterface = ChromeUtils.generateQI(["calIItipTransport"]);
+
+  sendItems(aRecipients, aItipItem) {
+    return false;
+  }
+}
