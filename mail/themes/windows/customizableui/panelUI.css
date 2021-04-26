@@ -10,3 +10,25 @@ menuitem.subviewbutton[disabled]:not(.menuitem-iconic) {
    * 2px for its border, see above */
   min-height: 22px;
 }
+
+@media (prefers-contrast) {
+  panelview .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus),
+  toolbarbutton.subviewbutton:not([disabled],[open],:active):is(:hover,:focus),
+  .navigable.subviewbutton:not([disabled],[open],:active):is(:hover,:focus),
+  menu.subviewbutton:not([disabled],:active)[_moz-menuactive],
+  menuitem.subviewbutton:not([disabled],:active)[_moz-menuactive],
+  .widget-overflow-list .toolbarbutton-1:not([disabled],[open],:active):is(:hover,:focus),
+  .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton:not([disabled],[open],:active):is(:hover,:focus) {
+    color: HighlightText;
+  }
+
+  panelview .toolbarbutton-1:not([disabled]):is([open],:hover:active),
+  toolbarbutton.subviewbutton:not([disabled]):is([open],:hover:active),
+  .navigable.subviewbutton:not([disabled]):is([open],:hover:active),
+  menu.subviewbutton:not([disabled])[_moz-menuactive]:active,
+  menuitem.subviewbutton:not([disabled])[_moz-menuactive]:active,
+  .widget-overflow-list .toolbarbutton-1:not([disabled]):is([open],:hover:active),
+  .toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton:not([disabled]):is([open],:hover:active) {
+    color: HighlightText;
+  }
+}

@@ -68,7 +68,7 @@
   margin-bottom: 0;
 }
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   #msgSubject:not(:-moz-lwtheme),
   #msgIdentity:not(:-moz-lwtheme),
   .address-container:not(:-moz-lwtheme) {
@@ -110,6 +110,11 @@
     .address-pill:not([selected],.editing):hover .pill-indicator {
     fill: Highlight;
   }
+
+  #extraRecipientsPanel label:hover,
+  #extraRecipientsPanel label:focus {
+    color: HighlightText;
+  }
 }
 
 #identityLabel-box {
@@ -131,7 +136,7 @@
 }
 } /** END not Proton **/
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   #msgIdentity::part(label-box) {
     background-color: transparent !important;
     color: inherit !important;

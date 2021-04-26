@@ -57,7 +57,7 @@
   }
 }
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   :root {
     --urlbar-popup-url-color: -moz-nativehyperlinktext;
     --urlbar-popup-action-color: -moz-nativehyperlinktext;
@@ -86,12 +86,14 @@
   --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color, rgba(249,249,250,.3));
 }
 
-@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   :root {
     --tabs-border-color: ThreeDShadow;
     --tabline-color: Highlight;
     --item-focus-selected-border-color: HighlightText;
     --menuitem-vertical-padding: 3px;
+    --arrowpanel-dimmed: Highlight;
+    --arrowpanel-dimmed-further: Highlight;
   }
 
   :root:not(:-moz-lwtheme) .themeable-full,
@@ -116,6 +118,7 @@
   :root:not(:-moz-lwtheme) .toolbarbutton-1[checked="true"],
   :root:not(:-moz-lwtheme) .toolbarbutton-menubutton-button:hover {
     color: HighlightText !important;
+    fill: currentColor;
   }
 
   :root:not(:-moz-lwtheme)
@@ -127,6 +130,10 @@
   :root:not(:-moz-lwtheme)
   treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
     color: Highlight !important;
+  }
+
+  menulist {
+    --toolbarbutton-hover-background: ButtonFace;
   }
 }
 
@@ -287,7 +294,7 @@ treechildren::-moz-tree-cell-text {
   padding-bottom: 2px;
 }
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(hover) {
     border-color: HighlightText !important;
     border-style: solid;
@@ -327,6 +334,10 @@ treechildren::-moz-tree-cell-text {
 
   treechildren::-moz-tree-cell-text {
     padding-inline-start: 4px !important;
+  }
+
+  .autocomplete-richlistitem:hover {
+    color: HighlightText;
   }
 }
 
@@ -478,7 +489,19 @@ treechildren::-moz-tree-indentation {
   }
 
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(hover) {
-    border-color: transparent !important;
+    border-color: transparent;
+    background-color: transparent;
+  }
+
+  :root:not(:-moz-lwtheme) tree:not(#threadTree) > treechildren::-moz-tree-row(selected),
+  :root:not(:-moz-lwtheme) #threadTree > treechildren::-moz-tree-row(untagged, selected) {
+    background-color: -moz-cellhighlight;
+  }
+
+  :root:not(:-moz-lwtheme) tree:not(#threadTree) > treechildren::-moz-tree-row(selected, focus),
+  :root:not(:-moz-lwtheme) #threadTree > treechildren::-moz-tree-row(untagged, selected, focus) {
+    border-color: HighlightText;
+    background-color: Highlight;
   }
 }
 

@@ -34,7 +34,7 @@
   width: 25em;
 }
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   .gloda-search:not(:-moz-lwtheme),
   .searchBox:not(:-moz-lwtheme),
   .themeableSearchBox:not(:-moz-lwtheme) {

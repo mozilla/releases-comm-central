@@ -69,31 +69,29 @@
   color: -moz-dialogText;
 }
 
-@media (-moz-windows-default-theme) {
-  #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button,
-  #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-  #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-    border-color: var(--toolbarbutton-active-bordercolor);
-    background-image: linear-gradient(-moz-dialog, -moz-dialog);
-  }
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
+  border-color: var(--toolbarbutton-active-bordercolor);
+  background-image: linear-gradient(-moz-dialog, -moz-dialog);
+}
 
-  #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not(:active):hover,
-  #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:is(:hover,[open="true"]) >
-    .toolbarbutton-menubutton-button,
-  #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:hover >
-    .toolbarbutton-menubutton-dropmarker {
-    background-image: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)),
-                      linear-gradient(-moz-dialog, -moz-dialog);
-  }
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not(:active):hover,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:is(:hover,[open="true"]) >
+  .toolbarbutton-menubutton-button,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:hover >
+  .toolbarbutton-menubutton-dropmarker {
+  background-image: linear-gradient(rgba(0, 0, 0, .1), rgba(0, 0, 0, .1)),
+                    linear-gradient(-moz-dialog, -moz-dialog);
+}
 
-  #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):hover:active,
-  #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[type="menu-button"] >
-    .toolbarbutton-menubutton-button:hover:active,
-  #imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[open="true"] >
-    .toolbarbutton-menubutton-dropmarker {
-    background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)),
-                      linear-gradient(-moz-dialog, -moz-dialog);
-  }
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):hover:active,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[type="menu-button"] >
+  .toolbarbutton-menubutton-button:hover:active,
+#imip-view-toolbar > .toolbarbutton-1.msgHeaderView-button[open="true"] >
+  .toolbarbutton-menubutton-dropmarker {
+  background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .15)),
+                    linear-gradient(-moz-dialog, -moz-dialog);
 }
 
 menupopup[anonid="years-popup"] .scrollbutton-up,

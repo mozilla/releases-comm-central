@@ -17,7 +17,7 @@ treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessage
   color: -moz-hyperlinktext !important;
 }
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   :root {
     --unread-folder-color: FieldText;
   }

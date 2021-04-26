@@ -269,7 +269,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
       }
     }
 
-    @media (-moz-windows-default-theme: 0) {
+    @media (prefers-contrast) {
       :root {
         appearance: auto;
         -moz-default-appearance: -moz-win-glass;
@@ -420,7 +420,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
         background-color: hsla(0, 0%, 100%, .22);
       }
     }
-    @media (-moz-windows-default-theme: 0) {
+    @media (prefers-contrast) {
       .titlebar-button {
         stroke: ButtonText;
         background-color: Field;
@@ -536,7 +536,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 } /** END Proton **/
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   :root:not(:-moz-lwtheme)
     treechildren::-moz-tree-cell-text(untagged, unread) {
     color: -moz-cellhighlighttext !important;
