@@ -262,7 +262,8 @@
           "fieldId": {
             "type": "string",
             "optional": true,
-            "description": "An identifier of the clicked Thunderbird UI element, if any."
+            "description": "An identifier of the clicked Thunderbird UI element, if any.",
+            "enum": ["composeSubject", "composeTo", "composeCc", "composeBcc", "composeReplyTo", "composeNewsgroupTo"]
           },
           "selectedMessages": {
             "$ref": "messages.MessageList",
