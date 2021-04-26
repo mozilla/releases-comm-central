@@ -912,7 +912,7 @@ var chatHandler = {
         convBox.appendChild(conv);
         conv.conv = item.conv;
         conv.tab = item;
-        conv.setAttribute("contextmenu", "chatConversationContextMenu");
+        conv.convBrowser.setAttribute("context", "chatConversationContextMenu");
         conv.setAttribute("tooltip", "imTooltip");
         item.convView = conv;
         document.getElementById("contextSplitter").hidden = false;
