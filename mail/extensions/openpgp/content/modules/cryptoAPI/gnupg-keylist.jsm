@@ -24,8 +24,8 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailTime: "chrome://openpgp/content/modules/time.jsm",
   EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
+  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -145,15 +145,18 @@ async function appendKeyItems(keyListString, keyList) {
 
         break;
       case "sub":
+        let formatter = new Services.intl.DateTimeFormat();
         keyObj.subKeys.push({
           keyId: listRow[KEY_ID],
-          expiry: EnigmailTime.getDateTime(listRow[EXPIRY_ID], true, false),
+          expiry: listRow[EXPIRY_ID]
+            ? formatter.format(new Date(listRow[EXPIRY_ID] * 1000))
+            : "",
           expiryTime: Number(listRow[EXPIRY_ID]),
           keyTrust: listRow[KEY_TRUST_ID],
           keyUseFor: listRow[KEY_USE_FOR_ID],
           keySize: listRow[KEY_SIZE_ID],
           algoSym: ALGO_SYMBOL[listRow[KEY_ALGO_ID]],
-          created: EnigmailTime.getDateTime(listRow[CREATED_ID], true, false),
+          created: formatter.format(new Date(listRow[CREATED_ID] * 1000)),
           keyCreated: Number(listRow[CREATED_ID]),
           type: "sub",
         });
@@ -181,7 +184,9 @@ function createKeyObj(lineArr) {
   if (lineArr[ENTRY_ID] === "pub" || lineArr[ENTRY_ID] === "sec") {
     keyObj.keyId = lineArr[KEY_ID];
     keyObj.expiryTime = Number(lineArr[EXPIRY_ID]);
-    keyObj.created = EnigmailTime.getDateTime(lineArr[CREATED_ID], true, false);
+    keyObj.created = new Services.intl.DateTimeFormat().format(
+      new Date(lineArr[CREATED_ID] * 1000)
+    );
     keyObj.keyCreated = Number(lineArr[CREATED_ID]);
     keyObj.keyTrust = lineArr[KEY_TRUST_ID];
     keyObj.keyUseFor = lineArr[KEY_USE_FOR_ID];
@@ -302,10 +307,8 @@ function extractSignatures(gpgKeyList, ignoreUnknownUid) {
           rawUserId: lineTokens[USERID_ID],
           keyId,
           fpr,
-          created: EnigmailTime.getDateTime(
-            lineTokens[CREATED_ID],
-            true,
-            false
+          created: new Services.intl.DateTimeFormat().format(
+            new Date(lineTokens[CREATED_ID] * 1000)
           ),
           sigList: [],
         };
@@ -316,10 +319,8 @@ function extractSignatures(gpgKeyList, ignoreUnknownUid) {
 
           let sig = {
             userId: EnigmailData.convertGpgToUnicode(lineTokens[USERID_ID]),
-            created: EnigmailTime.getDateTime(
-              lineTokens[CREATED_ID],
-              true,
-              false
+            created: new Services.intl.DateTimeFormat().format(
+              new Date(lineTokens[CREATED_ID] * 1000)
             ),
             signerKeyId: lineTokens[KEY_ID],
             sigType: lineTokens[SIG_TYPE_ID],

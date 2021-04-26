@@ -13,7 +13,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ctypes: "resource://gre/modules/ctypes.jsm",
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
-  EnigmailTime: "chrome://openpgp/content/modules/time.jsm",
   GPGME: "chrome://openpgp/content/modules/GPGME.jsm",
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
@@ -106,7 +105,9 @@ var RNP = {
       throw new Error("rnp_key_get_creation failed");
     }
     keyObj.keyCreated = key_creation.value;
-    keyObj.created = EnigmailTime.getDateTime(keyObj.keyCreated, true, false);
+    keyObj.created = new Services.intl.DateTimeFormat().format(
+      new Date(keyObj.keyCreated * 1000)
+    );
 
     if (RNPLib.rnp_key_get_expiration(handle, key_expiration.address())) {
       throw new Error("rnp_key_get_expiration failed");
@@ -116,7 +117,11 @@ var RNP = {
     } else {
       keyObj.expiryTime = 0;
     }
-    keyObj.expiry = EnigmailTime.getDateTime(keyObj.expiryTime, true, false);
+    keyObj.expiry = keyObj.expiryTime
+      ? new Services.intl.DateTimeFormat().format(
+          new Date(keyObj.expiryTime * 1000)
+        )
+      : "";
     keyObj.keyUseFor = "";
 
     if (!this.isAllowedPublicKeyAlgo(keyObj.algoSym)) {
@@ -870,10 +875,8 @@ var RNP = {
               ) {
                 throw new Error("rnp_signature_get_creation failed");
               }
-              sigObj.created = EnigmailTime.getDateTime(
-                creation.value,
-                true,
-                false
+              sigObj.created = new Services.intl.DateTimeFormat().format(
+                new Date(creation.value * 1000)
               );
               sigObj.sigType = "?";
 

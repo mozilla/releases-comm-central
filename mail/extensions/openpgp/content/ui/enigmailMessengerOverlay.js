@@ -50,7 +50,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
     "chrome://openpgp/content/modules/protocolHandler.jsm",
   EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
-  EnigmailTime: "chrome://openpgp/content/modules/time.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
 
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
@@ -2134,7 +2133,10 @@ Enigmail.msg = {
               Subject: msg.subject,
               To: msg.recipients,
               Cc: msg.ccList,
-              Date: EnigmailTime.getDateTime(msg.dateInSeconds, true, true),
+              Date: new Services.intl.DateTimeFormat(undefined, {
+                dateStyle: "short",
+                timeStyle: "short",
+              }).format(new Date(msg.dateInSeconds * 1000)),
             };
 
             if (gFolderDisplay.selectedMessageIsNews) {

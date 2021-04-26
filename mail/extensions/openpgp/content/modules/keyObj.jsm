@@ -71,7 +71,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailTime: "chrome://openpgp/content/modules/time.jsm",
+  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -108,15 +108,19 @@ class EnigmailKeyObj {
     }
     if ("expiryTime" in keyData) {
       this.expiryTime = keyData.expiryTime;
-      this.expiry = EnigmailTime.getDateTime(keyData.expiryTime, true, false);
+      this.expiry = keyData.expiryTime
+        ? new Services.intl.DateTimeFormat().format(
+            new Date(keyData.expiryTime * 1000)
+          )
+        : "";
     }
     if ("effectiveExpiryTime" in keyData) {
       this.effectiveExpiryTime = keyData.effectiveExpiryTime;
-      this.effectiveExpiry = EnigmailTime.getDateTime(
-        keyData.effectiveExpiryTime,
-        true,
-        false
-      );
+      this.effectiveExpiry = keyData.effectiveExpiryTime
+        ? new Services.intl.DateTimeFormat().format(
+            new Date(keyData.effectiveExpiryTime * 1000)
+          )
+        : "";
     }
 
     const ATTRS = [
