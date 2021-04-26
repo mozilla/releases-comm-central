@@ -234,10 +234,10 @@
           ondragover="messagepaneObserver.onDragOver(event);"
           ondrop="messagepaneObserver.onDrop(event);"
           ondragexit="messagepaneObserver.onDragExit(event);">
-      <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
-#include msgHdrView.inc.xhtml
-      </hbox>
       <vbox id="singleMessage">
+        <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
+#include msgHdrView.inc.xhtml
+        </hbox>
 #include ../../../calendar/lightning/content/imip-bar-overlay.inc.xhtml
       </vbox>
       <!-- The msgNotificationBar appears on top of the message and displays
