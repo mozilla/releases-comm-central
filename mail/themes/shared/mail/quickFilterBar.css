@@ -64,6 +64,10 @@
   overflow: hidden;
 }
 
+#quick-filter-bar-expando {
+  border-bottom: 1px solid var(--chrome-content-separator-color);
+}
+
 #quick-filter-bar-collapsible-buttons[shrink="true"] toolbarbutton label.toolbarbutton-text {
   display: none;
 }

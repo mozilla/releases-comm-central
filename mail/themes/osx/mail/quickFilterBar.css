@@ -15,7 +15,6 @@
 }
 
 #quick-filter-bar-expando {
-  border-bottom: 1px solid #bebebe;
   background: #eaeaea;
 }
 
@@ -23,14 +22,6 @@
 #quick-filter-bar-expando:-moz-window-inactive {
   background-color: -moz-mac-chrome-inactive;
   background-image: none;
-}
-
-#quick-filter-bar-expando {
-  border-bottom-color: hsl(0, 0%, 68%);
-}
-
-#quick-filter-bar-expando:-moz-window-inactive {
-  border-bottom-color: hsl(0, 0%, 85%);
 }
 
 #qfb-filter-label {
@@ -45,7 +36,6 @@
 }
 
 :root[lwt-tree] #quick-filter-bar-expando:-moz-lwtheme {
-  border-bottom-color: var(--chrome-content-separator-color);
   background: transparent;
 }
 

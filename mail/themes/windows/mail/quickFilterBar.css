@@ -4,10 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/quickFilterBar.css");
 
-#quick-filter-bar-expando {
-  border-bottom: 1px solid ThreeDShadow;
-}
-
 @media (-moz-windows-default-theme) {
   #qfb-filter-label {
     color: GrayText;
@@ -47,12 +43,6 @@
   #quick-filter-bar-filter-text-bar {
     padding-block: 3px;
   }
-}
-
-/* Style for the default system dark theme */
-
-:root[lwt-tree] #quick-filter-bar-expando {
-  border-bottom-color: var(--chrome-content-separator-color);
 }
 
 /* :::: Filter Buttons :::: */

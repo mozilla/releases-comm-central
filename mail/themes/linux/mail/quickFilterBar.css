@@ -8,7 +8,6 @@
 
 #quick-filter-bar {
   background-color: -moz-dialog;
-  border-bottom: 1px solid ThreeDShadow;
 }
 
 #quick-filter-bar-main-bar {
@@ -26,12 +25,6 @@
 
 #quick-filter-bar-filter-text-bar {
   padding-inline-end: 4px;
-}
-
-/* Style for the default system dark theme */
-
-:root[lwt-tree] #quick-filter-bar-expando {
-  border-bottom-color: var(--chrome-content-separator-color);
 }
 
 /* :::: Filter Buttons :::: */
