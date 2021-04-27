@@ -33,9 +33,6 @@ var EnigmailFuncs = ChromeUtils.import(
 var { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
-var { EnigmailOS } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/os.jsm"
-);
 var EnigmailArmor = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 ).EnigmailArmor;

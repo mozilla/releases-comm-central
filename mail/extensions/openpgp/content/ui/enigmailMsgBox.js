@@ -6,11 +6,11 @@
 
 "use strict";
 
-var EnigmailClipboard = ChromeUtils.import(
+var { EnigmailClipboard } = ChromeUtils.import(
   "chrome://openpgp/content/modules/clipboard.jsm"
-).EnigmailClipboard;
-var { EnigmailOS } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/os.jsm"
+);
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
 );
 
 function onLoad() {
@@ -53,7 +53,7 @@ function onLoad() {
   }
 
   if (args.dialogTitle) {
-    if (EnigmailOS.isMac) {
+    if (AppConstants.platform == "macosx") {
       let t = document.getElementById("macosDialogTitle");
       t.setAttribute("value", args.dialogTitle);
       t.removeAttribute("collapsed");
@@ -106,12 +106,6 @@ function resizeDlg() {
       boxHeight - btnHeight - (dlgHeight - availHeight)
     );
     window.outerHeight = availHeight;
-  }
-}
-
-function centerDialog() {
-  if (!EnigmailOS.isMac) {
-    document.getElementById("enigmailMsgBox").centerWindowOnScreen();
   }
 }
 

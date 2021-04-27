@@ -14,8 +14,12 @@
 /* global gFolderDisplay: false, messenger: false, currentAttachments: false, msgWindow: false, PanelUI: false */
 /* global currentHeaderData: false, gViewAllHeaders: false, gExpandedHeaderList: false, goDoCommand: false, HandleSelectedAttachments: false */
 /* global statusFeedback: false, displayAttachmentsForExpandedView: false, gMessageListeners: false, gExpandedHeaderView */
-/* globals gMessageNotificationBar, gMessageDisplay, Services */
+/* globals gMessageNotificationBar, gMessageDisplay */
 
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -43,7 +47,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailMsgRead: "chrome://openpgp/content/modules/msgRead.jsm",
-  EnigmailOS: "chrome://openpgp/content/modules/os.jsm",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
   EnigmailProtocolHandler:
@@ -51,7 +54,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
-
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailVerifyAttachment: "chrome://openpgp/content/modules/verify.jsm",
   EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
@@ -2236,7 +2238,7 @@ Enigmail.msg = {
         contentData += "\r\n" + Enigmail.msg.decryptedMessage.plainText;
       }
 
-      if (!EnigmailOS.isDosLike) {
+      if (AppConstants.platform != "win") {
         contentData = contentData.replace(/\r\n/g, "\n");
       }
     }

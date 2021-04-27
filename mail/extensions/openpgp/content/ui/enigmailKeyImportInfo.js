@@ -16,9 +16,6 @@ var EnigmailDialog = ChromeUtils.import(
 var EnigmailData = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 ).EnigmailData;
-var { EnigmailOS } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/os.jsm"
-);
 
 async function onLoad() {
   let dlg = document.getElementById("enigmailKeyImportInfo");
@@ -162,12 +159,6 @@ function resizeDlg() {
   }
 
   window.outerHeight = newHeight;
-}
-
-function centerDialog() {
-  if (EnigmailOS.getOS() != "Darwin") {
-    document.getElementById("enigmailKeyImportInfo").centerWindowOnScreen();
-  }
 }
 
 function dlgClose(buttonNumber) {

@@ -14,16 +14,11 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
   EnigmailData: "chrome://openpgp/content/modules/data.jsm",
-  EnigmailOS: "chrome://openpgp/content/modules/os.jsm",
   EnigmailStreams: "enigmail/streams.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
 });
-
-const NS_FILE_CONTRACTID = "@mozilla.org/file/local;1";
-const NS_LOCALFILEOUTPUTSTREAM_CONTRACTID =
-  "@mozilla.org/network/file-output-stream;1";
-const DIRSERVICE_CONTRACTID = "@mozilla.org/file/directory_service;1";
 
 const NS_RDONLY = 0x01;
 const NS_WRONLY = 0x02;
@@ -31,23 +26,7 @@ const NS_CREATE_FILE = 0x08;
 const NS_TRUNCATE = 0x20;
 const DEFAULT_FILE_PERMS = 0o600;
 
-function potentialWindowsExecutable(file) {
-  if (EnigmailOS.isDosLike) {
-    return file + ".exe";
-  }
-  return file;
-}
-
 var EnigmailFiles = {
-  /**
-   * potentialWindowsExecutable appends .exe to a file
-   *
-   * @param     String  file    - file path or executable name to append .exe to
-   *
-   * @return    String  file    - modified file path or executable name
-   */
-  potentialWindowsExecutable,
-
   isAbsolutePath(filePath, isDosLike) {
     // Check if absolute path
     if (isDosLike) {
@@ -59,28 +38,6 @@ var EnigmailFiles = {
     }
 
     return filePath.search(/^\//) === 0;
-  },
-
-  /**
-   * resolvePathWithEnv tries to resolve an file's path with the environment PATH variable.
-   *
-   * @param     String  file        - file to be resolved
-   *
-   * @return    String  foundPath   - Returns found path. If no path is found, returns null.
-   */
-  resolvePathWithEnv(executable) {
-    let envSvc = Cc["@mozilla.org/process/environment;1"].getService(
-      Ci.nsIEnvironment
-    );
-    const foundPath = EnigmailFiles.resolvePath(
-      potentialWindowsExecutable(executable),
-      envSvc.get("PATH"),
-      EnigmailOS.isDosLike
-    );
-    if (foundPath !== null) {
-      foundPath.normalize();
-    }
-    return foundPath;
   },
 
   resolvePath(filePath, envPath, isDosLike) {
@@ -101,7 +58,9 @@ var EnigmailFiles = {
     for (let i = 0; i < fileNames.length; i++) {
       for (let j = 0; j < pathDirs.length; j++) {
         try {
-          const pathDir = Cc[NS_FILE_CONTRACTID].createInstance(Ci.nsIFile);
+          const pathDir = Cc["@mozilla.org/file/local;1"].createInstance(
+            Ci.nsIFile
+          );
 
           EnigmailLog.DEBUG(
             "files.jsm: resolvePath: checking for " +
@@ -132,7 +91,7 @@ var EnigmailFiles = {
     try {
       let localFile;
       if (typeof filePath == "string") {
-        localFile = Cc[NS_FILE_CONTRACTID].createInstance(Ci.nsIFile);
+        localFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
         EnigmailFiles.initPath(localFile, filePath);
       } else {
         localFile = filePath.QueryInterface(Ci.nsIFile);
@@ -154,9 +113,9 @@ var EnigmailFiles = {
 
       const flags = NS_WRONLY | NS_CREATE_FILE | NS_TRUNCATE;
 
-      const fileStream = Cc[NS_LOCALFILEOUTPUTSTREAM_CONTRACTID].createInstance(
-        Ci.nsIFileOutputStream
-      );
+      const fileStream = Cc[
+        "@mozilla.org/network/file-output-stream;1"
+      ].createInstance(Ci.nsIFileOutputStream);
 
       fileStream.init(localFile, flags, permissions, 0);
 
@@ -266,7 +225,7 @@ var EnigmailFiles = {
   },
 
   getFilePathDesc(nsFileObj) {
-    if (EnigmailOS.getOS() == "WINNT") {
+    if (AppConstants.platform == "win") {
       return nsFileObj.persistentDescriptor;
     }
 
@@ -281,12 +240,10 @@ var EnigmailFiles = {
   },
 
   getEscapedFilename(fileNameStr) {
-    if (EnigmailOS.isDosLike) {
-      // escape the backslashes and the " character (for Windows and OS/2)
+    if (AppConstants.platform == "win") {
+      // escape the backslashes and the " character (for Windows)
       fileNameStr = fileNameStr.replace(/([\\"])/g, "\\$1");
-    }
 
-    if (EnigmailOS.getOS() == "WINNT") {
       // replace leading "\\" with "//"
       fileNameStr = fileNameStr.replace(/^\\\\*/, "//");
     }
@@ -302,14 +259,16 @@ var EnigmailFiles = {
     const TEMPDIR_PROP = "TmpD";
 
     try {
-      const dsprops = Cc[DIRSERVICE_CONTRACTID].getService().QueryInterface(
-        Ci.nsIProperties
-      );
+      const dsprops = Cc["@mozilla.org/file/directory_service;1"]
+        .getService()
+        .QueryInterface(Ci.nsIProperties);
       return dsprops.get(TEMPDIR_PROP, Ci.nsIFile);
     } catch (ex) {
       // let's guess ...
-      const tmpDirObj = Cc[NS_FILE_CONTRACTID].createInstance(Ci.nsIFile);
-      if (EnigmailOS.getOS() == "WINNT") {
+      const tmpDirObj = Cc["@mozilla.org/file/local;1"].createInstance(
+        Ci.nsIFile
+      );
+      if (AppConstants.platform == "win") {
         tmpDirObj.initWithPath("C:/TEMP");
       } else {
         tmpDirObj.initWithPath("/tmp");
@@ -530,7 +489,7 @@ var EnigmailFiles = {
         let t = targetDir.clone();
         let entry = zipReader.getEntry(i);
 
-        if (!EnigmailOS.isDosLike) {
+        if (AppConstants.platform != "win") {
           t.initWithPath(t.path + "/" + i);
         } else {
           i = i.replace(/\//g, "\\");

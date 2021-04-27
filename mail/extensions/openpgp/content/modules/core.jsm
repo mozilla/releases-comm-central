@@ -265,11 +265,6 @@ function initializeEnvironment(env) {
   //     "LC_MESSAGES", "LC_MONETARY", "LC_NUMERIC", "LC_TIME"
   //   ]);
   // }
-  // else if (getEnigmailOS().getOS() === "WINNT") {
-  //   // force output on Windows to EN-US
-  //   EnigmailCore.addToEnvList("LC_ALL=en_US");
-  //   EnigmailCore.addToEnvList("LANG=en_US");
-  // }
 
   EnigmailCore.addToEnvList("LC_ALL=C");
   EnigmailCore.addToEnvList("LANG=C");

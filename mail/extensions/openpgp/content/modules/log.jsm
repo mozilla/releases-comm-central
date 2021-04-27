@@ -15,8 +15,8 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
   EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
-  EnigmailOS: "chrome://openpgp/content/modules/os.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
 
@@ -35,7 +35,7 @@ var EnigmailLog = {
 
   setLogDirectory(newLogDirectory) {
     EnigmailLog.directory =
-      newLogDirectory + (EnigmailOS.isDosLike ? "\\" : "/");
+      newLogDirectory + (AppConstants.platform == "win" ? "\\" : "/");
     EnigmailLog.createLogFiles();
   },
 
