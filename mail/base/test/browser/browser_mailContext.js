@@ -143,10 +143,8 @@ async function checkABrowser(browser) {
       return Ci.nsIFilePicker.returnCancel;
     };
   });
-  EventUtils.synthesizeMouseAtCenter(
-    browser.ownerDocument.getElementById("mailContext-saveimage"),
-    {},
-    browser.ownerGlobal
+  mailContext.activateItem(
+    browser.ownerDocument.getElementById("mailContext-saveimage")
   );
   Assert.equal(await pickerPromise, "tb-logo.png");
   SpecialPowers.MockFilePicker.cleanup();

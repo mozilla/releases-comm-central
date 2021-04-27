@@ -77,12 +77,12 @@ async function clickShowResultsAsList(tab) {
 }
 
 async function clickMarkRead(row, col) {
-  openContextMenu(row, col);
+  await openContextMenu(row, col);
   await clickSubMenuItem("#mailContext-mark", "#mailContext-markRead");
 }
 
 async function clickMarkThreadAsRead(row, col) {
-  openContextMenu(row, col);
+  await openContextMenu(row, col);
   await clickSubMenuItem("#mailContext-mark", "#mailContext-markThreadAsRead");
 }
 
@@ -90,10 +90,13 @@ async function clickSubMenuItem(menuId, itemId) {
   let menu = window.document.querySelector(menuId);
   let item = menu.querySelector(itemId);
 
-  EventUtils.synthesizeMouseAtCenter(menu, {});
-  await BrowserTestUtils.waitForEvent(menu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(item, {});
-  await BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  menu.openMenu(true);
+  await shownPromise;
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  menu.menupopup.activateItem(item);
+  await hiddenPromise;
 }
 
 async function openConversationView(row, col) {
@@ -101,21 +104,27 @@ async function openConversationView(row, col) {
   let item = window.document.querySelector("#mailContext-openConversation");
   let prevTab = window.tabmail.selectedTab;
 
-  openContextMenu(row, col);
-  EventUtils.synthesizeMouseAtCenter(item, {});
-  await BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  await openContextMenu(row, col);
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  menu.activateItem(item);
+  await hiddenPromise;
+
   await TestUtils.waitForCondition(
     () => window.tabmail.selectedTab != prevTab,
     "Conversation View tab did not open in time"
   );
 }
 
-function openContextMenu(row, column) {
+async function openContextMenu(row, column) {
+  let menu = window.document.getElementById("mailContext");
   let tree = window.document.getElementById("threadTree");
+
+  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   mailTestUtils.treeClick(EventUtils, window, tree, row, column, {});
   mailTestUtils.treeClick(EventUtils, window, tree, row, column, {
     type: "contextmenu",
   });
+  await shownPromise;
 }
 
 function closeTabs() {

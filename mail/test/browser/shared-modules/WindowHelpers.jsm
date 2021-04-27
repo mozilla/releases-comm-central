@@ -1074,8 +1074,7 @@ var AugmentEverybodyWith = {
         } else {
           curPopup.activateItem(matchingNode);
         }
-
-        await new Promise(r => matchingNode.ownerGlobal.setTimeout(r));
+        await new Promise(r => matchingNode.ownerGlobal.setTimeout(r, 500));
 
         let newPopup = null;
         if ("menupopup" in matchingNode) {

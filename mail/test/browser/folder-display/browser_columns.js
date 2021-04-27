@@ -404,7 +404,9 @@ async function invoke_column_picker_option(aActions) {
   await shownPromise;
   let hiddenPromise = BrowserTestUtils.waitForEvent(
     colPickerPopup,
-    "popuphidden"
+    "popuphidden",
+    undefined,
+    event => event.originalTarget == colPickerPopup
   );
   await mc.click_menus_in_sequence(colPickerPopup, aActions);
   await hiddenPromise;
