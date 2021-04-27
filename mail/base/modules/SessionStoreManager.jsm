@@ -50,7 +50,10 @@ var SessionStoreManager = {
       return this._store;
     }
 
-    return (this._store = new JSONFile({ path: this.sessionFile.path }));
+    return (this._store = new JSONFile({
+      path: this.sessionFile.path,
+      backupTo: this.sessionFile.path + ".backup",
+    }));
   },
 
   /**
