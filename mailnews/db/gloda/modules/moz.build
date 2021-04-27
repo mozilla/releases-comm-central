@@ -23,7 +23,6 @@ EXTRA_JS_MODULES.gloda += [
     "GlodaUtils.jsm",
     "IndexMsg.jsm",
     "MimeMessage.jsm",
-    "MimeTypeCategories.jsm",
     "NounFreetag.jsm",
     "NounMimetype.jsm",
     "NounTag.jsm",
