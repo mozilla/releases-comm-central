@@ -11,20 +11,24 @@ kind-dependencies:
 reference-jobs:
     - linux32-sysroot
     - linux64-aarch64-compiler-rt-11
+    - linux64-aarch64-compiler-rt-12
     - linux64-aarch64-sysroot
     - linux64-binutils
     - linux64-cbindgen
     - linux64-cctools-port-clang-9
     - linux64-cctools-port-clang-11
+    - linux64-cctools-port-clang-12
     - linux64-cctools-port
     - linux64-clang
     - linux64-clang-7
     - linux64-clang-9
     - linux64-clang-11
+    - linux64-clang-12
     - linux64-clang-aarch64-cross
     - linux64-clang-macosx-aarch64-cross
     - linux64-clang-macosx-cross
     - linux64-clang-11-macosx-cross
+    - linux64-clang-12-macosx-cross
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
     - linux64-clang-win-cross
@@ -57,9 +61,12 @@ reference-jobs:
     - linux64-winchecksec
     - linux64-wine
     - macosx64-aarch64-compiler-rt-11
+    - macosx64-aarch64-compiler-rt-12
     - macosx64-x64-compiler-rt-11
+    - macosx64-x64-compiler-rt-12
     - macosx64-clang-9
     - macosx64-clang-11
+    - macosx64-clang-12
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
     - macosx64-node
@@ -67,12 +74,14 @@ reference-jobs:
     - wasi-sysroot
     - wasi-sysroot-9
     - wasi-sysroot-11
+    - wasi-sysroot-12
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
     - win64-cbindgen
     - win64-clang
     - win64-clang-11-2stage
+    - win64-clang-12-2stage
     - win64-dump-syms
     - win64-llvm-symbolizer
     - win64-nasm

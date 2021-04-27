@@ -23,9 +23,9 @@ linux64-clang-lib32cxx:
         toolchain-artifact: public/build/lib32cxx.tar.xz
     fetches:
         fetch:
-            - clang-11  # Need to keep current with linux64-clang
+            - clang-12  # Need to keep current with linux64-clang
         toolchain:
             - linux64-binutils
-            - linux64-clang-11
+            - linux64-clang-12
             - linux64-gcc-7  # Use what linux64-clang uses
             - linux32-sysroot
