@@ -55,7 +55,7 @@ function queueFileOperation(aPath, aOperation) {
   return promise;
 }
 
-/*
+/**
  * Convenience method to append to a file using the above queue system. If any of
  * the I/O operations reject, the returned promise will reject with the same reason.
  * We open the file, append, and close it immediately. The alternative is to keep
@@ -70,7 +70,14 @@ function appendToFile(aPath, aEncodedString, aCreate) {
       ignoreExisting: true,
       from: OS.Constants.Path.profileDir,
     });
-    let file = await OS.File.open(aPath, { write: true, create: aCreate });
+    let file;
+    try {
+      file = await OS.File.open(aPath, { write: true, create: aCreate });
+    } catch (error) {
+      if (error.becauseExists && aCreate) {
+        file = await OS.File.open(aPath, { write: true });
+      }
+    }
     try {
       await file.write(aEncodedString);
     } finally {
@@ -488,8 +495,10 @@ function LogMessage(aData, aConversation) {
   if ("alias" in aData) {
     this._alias = aData.alias;
   }
-  for (let flag of aData.flags) {
-    this[flag] = true;
+  if (aData.flags) {
+    for (let flag of aData.flags) {
+      this[flag] = true;
+    }
   }
 }
 

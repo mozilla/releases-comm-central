@@ -46,7 +46,7 @@ Conversation.prototype = {
   },
 
   get name() {
-    return "/dev/null";
+    return "/dev/null/" + this._account.name;
   },
 };
 
