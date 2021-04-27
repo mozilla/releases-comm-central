@@ -381,13 +381,53 @@ var GenericMatrixConversation = {
     }
     this._mostRecentEventId = event.getId();
   },
+
+  _typingTimer: null,
+  _typingState: false,
+
+  sendTyping(string) {
+    if (!this.shouldSendTypingNotifications) {
+      return Ci.prplIConversation.NO_TYPING_LIMIT;
+    }
+
+    this._cancelTypingTimer();
+    if (string.length) {
+      this._typingTimer = setTimeout(this.finishedComposing.bind(this), 10000);
+    }
+
+    this._setTypingState(!!string.length);
+
+    return Ci.prplIConversation.NO_TYPING_LIMIT;
+  },
+
+  finishedComposing() {
+    if (!this.shouldSendTypingNotifications) {
+      return;
+    }
+
+    this._setTypingState(false);
+  },
+
+  _setTypingState(isTyping) {
+    if (this._typingState == isTyping) {
+      return;
+    }
+
+    this._account._client.sendTyping(this._roomId, isTyping);
+    this._typingState = isTyping;
+  },
+  _cancelTypingTimer() {
+    if (this._typingTimer) {
+      clearTimeout(this._typingTimer);
+      delete this._typingTimer;
+    }
+  },
 };
 
 /**
  * TODO Other functionality from MatrixClient to implement:
  *  sendNotice
  *  sendReadReceipt
- *  sendTyping
  *
  * @class
  * @implements {GenericMatrixConversation}
@@ -404,6 +444,9 @@ MatrixConversation.prototype = {
   },
   get roomState() {
     return this.room.getLiveTimeline().getState(EventTimeline.FORWARDS);
+  },
+  get shouldSendTypingNotifications() {
+    return Services.prefs.getBoolPref("purple.conversations.im.send_typing");
   },
   get normalizedName() {
     return this._roomId;
@@ -542,33 +585,8 @@ MatrixDirectConversation.prototype = {
     return this._roomId;
   },
 
-  _typingTimer: null,
-  _typingState: false,
   get shouldSendTypingNotifications() {
     return Services.prefs.getBoolPref("purple.conversations.im.send_typing");
-  },
-
-  sendTyping(string) {
-    if (!this.shouldSendTypingNotifications) {
-      return Ci.prplIConversation.NO_TYPING_LIMIT;
-    }
-
-    this._cancelTypingTimer();
-    if (string.length) {
-      this._typingTimer = setTimeout(this.finishedComposing.bind(this), 10000);
-    }
-
-    this._setTypingState(!!string.length);
-
-    return Ci.prplIConversation.NO_TYPING_LIMIT;
-  },
-
-  finishedComposing() {
-    if (!this.shouldSendTypingNotifications) {
-      return;
-    }
-
-    this._setTypingState(false);
   },
 
   _close() {
@@ -582,21 +600,6 @@ MatrixDirectConversation.prototype = {
         this._account.buddies.delete(dmUserId);
         delete this.buddy;
       }
-    }
-  },
-
-  _setTypingState(isTyping) {
-    if (this._typingState == isTyping) {
-      return;
-    }
-
-    this._account._client.sendTyping(this._roomId, isTyping);
-    this._typingState = isTyping;
-  },
-  _cancelTypingTimer() {
-    if (this._typingTimer) {
-      clearTimeout(this._typingTimer);
-      delete this._typingTimer;
     }
   },
 };

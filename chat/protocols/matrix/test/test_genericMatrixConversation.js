@@ -2,6 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { setTimeout } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var matrix = {};
 Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
 Services.conversations.initConversations();
@@ -298,4 +299,99 @@ add_task(function test_close() {
   matrix.GenericMatrixConversation.close.call(roomStub);
   equal(roomStub.leftRoom, roomStub._roomId);
   ok(roomStub.forgetCalled);
+});
+
+add_task(function test_setTypingState() {
+  const roomStub = {
+    _typingState: true,
+    _roomId: "foo",
+    _account: {
+      _client: {
+        sendTyping(roomId, isTyping) {
+          roomStub.typingRoomId = roomId;
+          roomStub.typing = isTyping;
+        },
+      },
+    },
+  };
+
+  matrix.GenericMatrixConversation._setTypingState.call(roomStub, true);
+  ok(!roomStub.typingRoomId);
+  ok(!roomStub.typing);
+  ok(roomStub._typingState);
+
+  matrix.GenericMatrixConversation._setTypingState.call(roomStub, false);
+  equal(roomStub.typingRoomId, roomStub._roomId);
+  ok(!roomStub.typing);
+  ok(!roomStub._typingState);
+
+  matrix.GenericMatrixConversation._setTypingState.call(roomStub, true);
+  equal(roomStub.typingRoomId, roomStub._roomId);
+  ok(roomStub.typing);
+  ok(roomStub._typingState);
+});
+
+add_task(function test_cancelTypingTimer() {
+  const roomStub = {
+    _typingTimer: setTimeout(() => {}, 10000), // eslint-disable-line mozilla/no-arbitrary-setTimeout
+  };
+  matrix.GenericMatrixConversation._cancelTypingTimer.call(roomStub);
+  ok(!roomStub._typingTimer);
+});
+
+add_task(function test_finishedComposing() {
+  const roomStub = {
+    __proto__: matrix.GenericMatrixConversation,
+    _typingState: true,
+    shouldSendTypingNotifications: false,
+    _roomId: "foo",
+    _account: {
+      _client: {
+        sendTyping() {},
+      },
+    },
+  };
+
+  matrix.GenericMatrixConversation.finishedComposing.call(roomStub);
+  ok(roomStub._typingState);
+
+  roomStub.shouldSendTypingNotifications = true;
+  matrix.GenericMatrixConversation.finishedComposing.call(roomStub);
+  ok(!roomStub._typingState);
+});
+
+add_task(function test_sendTyping() {
+  const roomStub = {
+    __proto__: matrix.GenericMatrixConversation,
+    _typingState: false,
+    shouldSendTypingNotifications: false,
+    _roomId: "foo",
+    _account: {
+      _client: {
+        sendTyping() {},
+      },
+    },
+  };
+
+  let result = matrix.GenericMatrixConversation.sendTyping.call(
+    roomStub,
+    "lorem ipsum"
+  );
+  ok(!roomStub._typingState);
+  ok(!roomStub._typingTimer);
+  equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
+
+  roomStub.shouldSendTypingNotifications = true;
+  result = matrix.GenericMatrixConversation.sendTyping.call(
+    roomStub,
+    "lorem ipsum"
+  );
+  ok(roomStub._typingState);
+  ok(roomStub._typingTimer);
+  equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
+
+  result = matrix.GenericMatrixConversation.sendTyping.call(roomStub, "");
+  ok(!roomStub._typingState);
+  ok(!roomStub._typingTimer);
+  equal(result, Ci.prplIConversation.NO_TYPING_LIMIT);
 });
