@@ -13,15 +13,13 @@
     <em:version>@CHATZILLA_VERSION@</em:version>
     <em:type>2</em:type>
 
-    <!-- BEGIN COPY BETWEEN /xpi/resources/install.rdf AND /locales/generic/install.rdf -->
     <em:targetApplication>
       <Description>
         <em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id>
-        <em:minVersion>2.0</em:minVersion>
-        <em:maxVersion>@SEAMONKEY_MAXVERSION@</em:maxVersion>
+        <em:minVersion>@MOZ_APP_VERSION@</em:minVersion>
+        <em:maxVersion>@MOZ_APP_VERSION@</em:maxVersion>
       </Description>
     </em:targetApplication>
-    <!-- END COPY BETWEEN /xpi/resources/install.rdf AND /locales/generic/install.rdf -->
 
     <!-- front-end metadata -->
     <em:name>ChatZilla</em:name>
@@ -37,9 +35,5 @@
     <em:aboutURL>chrome://chatzilla/content/about/about.xul</em:aboutURL>
     <em:optionsURL>chrome://chatzilla/content/config.xul</em:optionsURL>
     <em:multiprocessCompatible>true</em:multiprocessCompatible>
-
-    <!-- Force unpack the xpi, otherwise window icons do not work
-         on Gecko 2.0 and higher. -->
-    <em:unpack>true</em:unpack>
   </Description>
 </RDF>

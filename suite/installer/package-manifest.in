@@ -503,9 +503,6 @@ man/*
 [chatzilla]
 #ifdef MOZ_IRC
 @RESPATH@/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi
-#ifdef LOCALE_BUILD
-@RESPATH@/extensions/langpack-@AB_CD@@chatzilla.mozilla.org.xpi
-#endif
 #endif
 
 [debugqa]

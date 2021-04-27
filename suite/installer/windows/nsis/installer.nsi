@@ -211,12 +211,6 @@ Section "-InstallStartCleanup"
         RmDir /r "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}"
       ${EndIf}
     ${EndIf}
-    ${If} ${FileExists} "$EXEDIR\optional\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
-      ${DeleteFile} "$INSTDIR\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
-      ${If} ${FileExists} "$INSTDIR\extensions\langpack-${AB_CD}@chatzilla.mozilla.org"
-        RmDir /r "$INSTDIR\extensions\langpack-${AB_CD}@chatzilla.mozilla.org"
-      ${EndIf}
-    ${EndIf}
 
     ; If DebugQA is installed and this install includes DebugQA remove it
     ; from the installation directory. This will remove it if the user
@@ -487,19 +481,12 @@ Section /o "IRC Client" CZ_IDX
     SetDetailsPrint none
 
     ${RemoveDir} "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}"
-    ${RemoveDir} "$INSTDIR\extensions\langpack-${AB_CD}@chatzilla.mozilla.org"
     ${DeleteFile} "$INSTDIR\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-    ${DeleteFile} "$INSTDIR\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
     ${DeleteFile} "$INSTDIR\distribution\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi"
-    ${DeleteFile} "$INSTDIR\distribution\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
     ClearErrors
     ${LogHeader} "Installing IRC Client"
     CopyFiles /SILENT "$EXEDIR\optional\extensions\{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi" \
                       "$INSTDIR\extensions\"
-    ${If} ${FileExists} "$EXEDIR\optional\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi"
-      CopyFiles /SILENT "$EXEDIR\optional\extensions\langpack-${AB_CD}@chatzilla.mozilla.org.xpi" \
-                        "$INSTDIR\extensions\"
-    ${EndIf}
   ${EndIf}
 SectionEnd
 

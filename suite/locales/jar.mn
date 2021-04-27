@@ -394,3 +394,7 @@
   locale/@AB_CD@/pippki/pref-certs.dtd                                      (%chrome/common/pref/pref-certs.dtd)
   locale/@AB_CD@/pippki/pref-masterpass.dtd                                 (%chrome/common/pref/pref-masterpass.dtd)
   locale/@AB_CD@/pippki/pref-ssl.dtd                                        (%chrome/common/pref/pref-ssl.dtd)
+
+# This is hacky, but ensures the chrome.manifest chain is complete.
+[.] chrome.jar:
+% manifest extensions/chrome.manifest

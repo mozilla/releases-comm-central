@@ -1,0 +1,39 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+basepath = "../../../.."
+
+locales = [
+    "ca",
+    "cs",
+    "de",
+    "en-GB",
+    "es-ES",
+    "fi",
+    "fr",
+    "it",
+    "ja",
+    "ja-JP-mac",
+    "nb-NO",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "ru",
+    "si",
+    "sk",
+    "sv-SE",
+]
+
+[env]
+    l = "{l10n_base}/{locale}/"
+
+[[paths]]
+    reference = "suite/extensions/irc/locales/en-US/**"
+    l10n = "{l}suite/extensions/irc/**"
+
+# ignore MOZ_LANGPACK_CONTRIBUTORS
+[[filters]]
+    path = "{l}suite/extensions/irc/defines.inc"
+    key = "MOZ_LANGPACK_CONTRIBUTORS"
+    action = "ignore"

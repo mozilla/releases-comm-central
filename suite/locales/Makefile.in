@@ -48,8 +48,7 @@ NON_OMNIJAR_FILES = \
 
 # Required for l10n.mk - defines a list of app sub dirs that should
 # be included in langpack xpis.
-# Currently not set in SeaMonkey.
-DIST_SUBDIRS = $(DIST_SUBDIR)
+DIST_SUBDIRS = extensions
 
 include $(topsrcdir)/config/rules.mk
 
@@ -93,12 +92,6 @@ misc:: $(FINAL_TARGET)/defaults/profile/panels.rdf ;
 misc:: $(call MERGE_FILES,$(addprefix profile/chrome/,$(PROFILE_CHROME)))
 	$(SYSINSTALL) $(IFLAGS1) $^ $(FINAL_TARGET)/defaults/profile/chrome
 
-# Extend l10n.mk clobber-% target for our localised extensions
-ifdef MOZ_IRC
-clobber-extensions-%:
-	$(RM) -rf $(DIST)/xpi-stage/chatzilla-$* $(DIST)/xpi-stage/chatzilla-*.$*.xpi
-endif
-
 l10n-%: AB_CD=$*
 l10n-%:
 # merge if we're not en-US. Conditional function because
@@ -109,7 +102,7 @@ l10n-%:
 #	@$(MAKE) -C $(DEPTH)/services/sync/locales AB_CD=$* XPI_NAME=locale-$*
 	@$(MAKE) -C ../../calendar/locales AB_CD=$* XPI_NAME=locale-$*
 ifdef MOZ_IRC
-	@$(MAKE) -C ../extensions/irc/locales l10n-$*
+	@$(MAKE) -C ../extensions/irc/locales AB_CD=$* XPI_NAME=locale-$*
 endif
 ifdef MOZ_DEBUGQA
 	@$(MAKE) -C ../extensions/debugQA/locales AB_CD=$* XPI_NAME=locale-$*
@@ -125,9 +118,6 @@ package-win32-installer: $(SUBMAKEFILES)
 	$(MAKE) -C ../installer/windows CONFIG_DIR=l10ngen ZIP_IN='$(ZIP_OUT)' installer
 
 repackage-extensions: $(STAGEDIST)
-ifdef MOZ_IRC
-	$(MAKE) -C ../extensions/irc/locales repackage-zip-$(AB_CD) STAGEDIST=$(STAGEDIST)
-endif
 	$(MAKE) -C ../app pack-ext AB_CD=$(AB_CD) STAGEDIST=$(STAGEDIST)/extensions;
 
 langpack: langpack-$(AB_CD)
@@ -138,9 +128,6 @@ langpack: langpack-$(AB_CD)
 installers-%: IS_LANGUAGE_REPACK=1
 installers-%:
 	@$(MAKE) clobber-$*
-ifdef MOZ_IRC
-	@$(MAKE) clobber-extensions-%*
-endif
 	@$(MAKE) l10n-$*
 	@$(MAKE) package-langpack-$*
 	@$(MAKE) repackage-zip-$*
@@ -175,7 +162,3 @@ ident:
 	@printf 'buildid '
 	@$(PYTHON3) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/application.ini' App BuildID
-
-ifdef MOZ_IRC
-MOZ_PKG_EXTRAL10N += extensions/langpack-$(AB_CD)@chatzilla.mozilla.org=$(DIST)/xpi-stage/chatzilla-$(AB_CD)
-endif
