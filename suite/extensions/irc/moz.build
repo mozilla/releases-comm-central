@@ -17,5 +17,5 @@ EXTRA_COMPONENTS += [
 ]
 
 FINAL_TARGET_PP_FILES += [
-    "xpi/resources/install.rdf",
+    'install.rdf.in',
 ]

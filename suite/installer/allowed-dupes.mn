@@ -275,8 +275,6 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/bran
 chrome/classic/skin/classic/communicator/brand/throbber16-anim.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/global/media/throbber.png
 chrome/toolkit/skin/classic/global/media/throbber.png
-chrome/icons/default/chatzilla-window.ico
-extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}/chrome/icons/default/chatzilla-window.ico
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/brand/throbber-anim.png
 chrome/classic/skin/classic/communicator/brand/throbber-anim.png
 

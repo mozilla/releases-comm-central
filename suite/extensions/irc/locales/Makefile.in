@@ -17,7 +17,6 @@ STANDALONE_MAKEFILE := 1
 JAR_MANIFEST := $(srcdir)/jar.mn
 
 CHATZILLA_VERSION=$(shell grep "const __cz_version" "$(srcdir)/../xul/content/static.js" | sed "s|.*\"\([^\"]\{1,\}\)\".*|\1|")
-CHATZILLA_BASE_VERSION=$(shell echo "$(CHATZILLA_VERSION)" | sed "s|\([0-9]\{1,\}\.[0-9]\{1,\}\.[0-9]\{1,\}\).*|\1|")
 
 XPI_NAME               = chatzilla
 INSTALL_EXTENSION_ID   = {59c81df5-4b7a-477b-912d-4e0fdf64e5f2}
@@ -42,7 +41,6 @@ DEFINES += -DAB_CD=$(AB_CD) \
            -DSEAMONKEY_MAXVERSION=$(SEAMONKEY_MAXVERSION) \
            -DINSTALL_EXTENSION_ID='$(INSTALL_EXTENSION_ID)' \
            -DCHATZILLA_VERSION=$(CHATZILLA_VERSION) \
-           -DCHATZILLA_BASE_VERSION=$(CHATZILLA_BASE_VERSION) \
            $(NULL)
 
 APP_DEFINES = $(firstword $(wildcard $(LOCALE_SRCDIR)/defines.inc) \

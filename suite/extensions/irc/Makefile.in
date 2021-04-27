@@ -43,7 +43,3 @@ misc realchrome:: locales/Makefile
 	for locale in $(BUILD_LOCALES); do   \
 	  $(MAKE) -C locales AB_CD=$$locale; \
 	done
-
-export::
-	$(NSINSTALL) -D $(FINAL_TARGET)/chrome/icons/default
-	$(INSTALL) $(srcdir)/xpi/resources/chatzilla-window* $(FINAL_TARGET)/chrome/icons/default
