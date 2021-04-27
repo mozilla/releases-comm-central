@@ -100,6 +100,7 @@ add_task(async function testDefaultAlarms() {
 async function handlePrefTab(prefsWindow, prefsDocument) {
   function menuList(id, value) {
     let list = prefsDocument.getElementById(id);
+    list.scrollIntoView();
     list.click();
     list.querySelector(`menuitem[value="${value}"]`).click();
   }
@@ -113,7 +114,9 @@ async function handlePrefTab(prefsWindow, prefsDocument) {
 
   function text(id, value) {
     let input = prefsDocument.getElementById(id);
-    EventUtils.synthesizeMouseAtCenter(input, {}, prefsWindow);
+    input.scrollIntoView();
+    EventUtils.synthesizeMouse(input, 5, 5, {}, prefsWindow);
+    Assert.equal(prefsDocument.activeElement, input);
     EventUtils.synthesizeKey("a", { accelKey: true }, prefsWindow);
     EventUtils.sendString(value, prefsWindow);
   }
@@ -148,7 +151,8 @@ async function handleReminderDialog(remindersWindow) {
 
   function text(id, value) {
     let input = remindersDocument.getElementById(id);
-    EventUtils.synthesizeMouseAtCenter(input, {}, remindersWindow);
+    EventUtils.synthesizeMouse(input, 5, 5, {}, remindersWindow);
+    Assert.equal(remindersDocument.activeElement, input);
     EventUtils.synthesizeKey("a", { accelKey: true }, remindersWindow);
     EventUtils.sendString(value, remindersWindow);
   }
