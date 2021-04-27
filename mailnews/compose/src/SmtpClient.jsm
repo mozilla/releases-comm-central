@@ -745,7 +745,7 @@ class SmtpClient {
       // The address format follows rfc5321#section-4.1.3.
       let netAddr = this.socket?.transport.getScriptableSelfAddr();
       let address = netAddr.address;
-      if (netAddr.family == Ci.nsINetAddr) {
+      if (netAddr.family === Ci.nsINetAddr.FAMILY_INET6) {
         return `[IPV6:${address}]`;
       }
       return `[${address}]`;
