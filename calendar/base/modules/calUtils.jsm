@@ -43,10 +43,6 @@ var cal = {
   getCalendarManager: _service("@mozilla.org/calendar/manager;1", "calICalendarManager"),
   getIcsService: _service("@mozilla.org/calendar/ics-service;1", "calIICSService"),
   getTimezoneService: _service("@mozilla.org/calendar/timezone-service;1", "calITimezoneService"),
-  getCalendarSearchService: _service(
-    "@mozilla.org/calendar/calendarsearch-service;1",
-    "calICalendarSearchProvider"
-  ),
   getFreeBusyService: _service("@mozilla.org/calendar/freebusy-service;1", "calIFreeBusyService"),
   getWeekInfoService: _service("@mozilla.org/calendar/weekinfo-service;1", "calIWeekInfoService"),
   getDragService: _service("@mozilla.org/widget/dragservice;1", "nsIDragService"),

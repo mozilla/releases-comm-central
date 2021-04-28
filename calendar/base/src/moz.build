@@ -16,7 +16,6 @@ EXTRA_JS_MODULES += [
     "CalAttachment.jsm",
     "CalAttendee.jsm",
     "CalCalendarManager.jsm",
-    "CalCalendarSearchService.jsm",
     "CalDefaultACLManager.jsm",
     "CalDeletedItems.jsm",
     "CalEvent.jsm",

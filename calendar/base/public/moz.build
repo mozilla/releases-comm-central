@@ -12,7 +12,6 @@ XPIDL_SOURCES += [
     "calICalendarACLManager.idl",
     "calICalendarManager.idl",
     "calICalendarProvider.idl",
-    "calICalendarSearchProvider.idl",
     "calICalendarView.idl",
     "calICalendarViewController.idl",
     "calIChangeLog.idl",
