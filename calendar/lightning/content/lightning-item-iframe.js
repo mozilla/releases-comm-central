@@ -22,6 +22,7 @@
 /* globals gTimezonesEnabled, gShowLink */ // Set by lightning-item-panel.js.
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var {
   recurrenceRule2String,
@@ -386,18 +387,6 @@ function onLoad() {
       window.organizer = organizer;
     }
   }
-
-  window.addEventListener("resize", () => {
-    let { attendeesInRow, maxLabelWidth } = rearrangeAttendees(
-      window.attendees,
-      document,
-      window.attendeesInRow,
-      window.maxLabelWidth
-    );
-
-    window.attendeesInRow = attendeesInRow;
-    window.maxLabelWidth = maxLabelWidth;
-  });
 
   // we store the recurrence info in the window so it
   // can be accessed from any location. since the recurrence
@@ -3860,53 +3849,29 @@ function updateAttendees() {
     attendeePanel.removeAttribute("collapsed");
     notifyOptions.removeAttribute("collapsed");
 
+    let organizerRow = document.getElementById("item-organizer-row");
     if (window.organizer && window.organizer.id) {
-      let organizer = window.organizer;
-      document.getElementById("item-organizer-row").removeAttribute("collapsed");
-      let cell = document.querySelector(".item-organizer-cell");
-      let icon = cell.querySelector("img:nth-of-type(1)");
-      let text = cell.querySelector("label:nth-of-type(1)");
-
-      let role = organizer.role || "REQ-PARTICIPANT";
-      let userType = organizer.userType || "INDIVIDUAL";
-      let partStat = organizer.participationStatus || "NEEDS-ACTION";
-
-      let orgName =
-        organizer.commonName && organizer.commonName.length
-          ? organizer.commonName
-          : organizer.toString();
-      let userTypeString = cal.l10n.getCalString("dialog.tooltip.attendeeUserType2." + userType, [
-        organizer.toString(),
-      ]);
-      let roleString = cal.l10n.getCalString("dialog.tooltip.attendeeRole2." + role, [
-        userTypeString,
-      ]);
-      let partStatString = cal.l10n.getCalString("dialog.tooltip.attendeePartStat2." + partStat, [
-        orgName,
-      ]);
-      let tooltip = cal.l10n.getCalString("dialog.tooltip.attendee.combined", [
-        roleString,
-        partStatString,
-      ]);
-
-      text.setAttribute("value", orgName);
-      cell.setAttribute("tooltiptext", tooltip);
-      icon.setAttribute("partstat", partStat);
-      icon.setAttribute("usertype", userType);
-      icon.setAttribute("role", role);
+      let existingLabel = organizerRow.querySelector(":scope > .attendee-label");
+      if (existingLabel) {
+        organizerRow.removeChild(existingLabel);
+      }
+      organizerRow.appendChild(
+        ltn.invitation.createAttendeeLabel(document, window.organizer, window.attendees)
+      );
+      organizerRow.hidden = false;
     } else {
-      document.getElementById("item-organizer-row").collapsed = true;
+      organizerRow.hidden = true;
     }
 
-    let { attendeesInRow, maxLabelWidth } = setupAttendees(
-      window.attendees,
-      document,
-      window.attendeesInRow,
-      window.maxLabelWidth
-    );
-
-    window.attendeesInRow = attendeesInRow;
-    window.maxLabelWidth = maxLabelWidth;
+    let attendeeContainer = document.querySelector(".item-attendees-list-container");
+    if (attendeeContainer.firstChild) {
+      attendeeContainer.firstChild.remove();
+    }
+    attendeeContainer.appendChild(ltn.invitation.createAttendeesList(document, window.attendees));
+    for (let label of attendeeContainer.querySelectorAll(".attendee-label")) {
+      label.addEventListener("dblclick", attendeeDblClick);
+      label.setAttribute("tabindex", "0");
+    }
 
     // update the attendee tab label to make the number of attendees
     // visible even if another tab is displayed

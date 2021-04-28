@@ -68,10 +68,6 @@ function onLoad() {
   // Finish setting up the item summary custom element.
   itemSummary.updateItemDetails();
 
-  window.addEventListener("resize", () => {
-    itemSummary.onWindowResize();
-  });
-
   updateToolbar();
   updateDialogButtons(item);
 

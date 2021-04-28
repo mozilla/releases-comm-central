@@ -81,12 +81,6 @@ async function onWindowLoad() {
     loadingMessage.remove();
 
     document.addEventListener("dialogaccept", importRemainingItems);
-
-    window.addEventListener("resize", () => {
-      for (let summary of gModel.itemSummaries.values()) {
-        summary.onWindowResize();
-      }
-    });
   });
 }
 window.addEventListener("load", onWindowLoad);

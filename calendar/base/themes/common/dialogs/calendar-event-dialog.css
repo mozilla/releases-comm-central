@@ -322,8 +322,9 @@ label.label {
   margin: 2px 4px;
 }
 
-#event-grid-tabpanel-attendees > vbox > hbox > .item-attendees-box {
-  margin: 2px 4px;
+#calendar-event-dialog-inner .attendee-label:focus {
+  background-color: Highlight;
+  color: Highlighttext;
 }
 
 /*--------------------------------------------------------------------

@@ -304,22 +304,13 @@ var ltnImipBar = {
         ltnImipBar.itipItem
       );
       let serializedOverlay = cal.xml.serializeDOM(foundOverlay);
-      let organizerId = ltnImipBar.itipItem.targetCalendar.getProperty("organizerId");
       if (diff == 1) {
         // this is an update to previously accepted invitation
-        msgOverlay = ltn.invitation.compareInvitationOverlay(
-          serializedOverlay,
-          msgOverlay,
-          organizerId
-        );
+        msgOverlay = ltn.invitation.compareInvitationOverlay(serializedOverlay, msgOverlay);
       } else {
         // this is a copy of a previously sent out invitation or a previous revision of a
         // meanwhile accepted invitation, so we flip comparison order
-        msgOverlay = ltn.invitation.compareInvitationOverlay(
-          msgOverlay,
-          serializedOverlay,
-          organizerId
-        );
+        msgOverlay = ltn.invitation.compareInvitationOverlay(msgOverlay, serializedOverlay);
       }
     }
     msgWindow.displayHTMLInMessagePane("", msgOverlay, false);

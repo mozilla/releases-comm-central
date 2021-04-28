@@ -5,6 +5,7 @@
 
 lightning.jar:
 % override chrome://messagebody/skin/imip.css chrome://calendar/skin/imip.css
+% override chrome://messagebody/skin/calendar-attendees.css chrome://calendar/skin/shared/calendar-attendees.css
 % override chrome://messagebody/skin/calendar-event-dialog-attendees.png chrome://calendar/skin/shared/calendar-event-dialog-attendees.png
 % content lightning %content/
     content/html-item-editing/lightning-item-iframe.html   (content/html-item-editing/lightning-item-iframe.html)

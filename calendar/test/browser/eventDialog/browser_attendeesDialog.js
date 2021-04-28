@@ -189,12 +189,12 @@ add_task(async () => {
   Assert.equal(eventEndTime.value.toISOString(), times.FOUR.toISOString());
 
   function checkAttendeeCells(organizer, ...expected) {
-    Assert.equal(iframeDocument.getElementById("item-organizer").getAttribute("value"), organizer);
+    Assert.equal(iframeDocument.getElementById("item-organizer-row").textContent, organizer);
 
-    let cells = iframeDocument.querySelectorAll(".item-attendees-box .item-attendees-cell");
-    Assert.equal(cells.length, expected.length);
+    let attendeeItems = iframeDocument.querySelectorAll(".attendee-list .attendee-label");
+    Assert.equal(attendeeItems.length, expected.length);
     for (let i = 0; i < expected.length; i++) {
-      Assert.equal(cells[i].getAttribute("attendeeid"), expected[i]);
+      Assert.equal(attendeeItems[i].getAttribute("attendeeid"), expected[i]);
     }
   }
 

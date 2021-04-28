@@ -120,10 +120,10 @@ add_task(async function testEventDialog() {
     );
 
     let attendeesTab = iframeDocument.getElementById("event-grid-tabpanel-attendees");
-    let attendee = attendeesTab.querySelector(".item-attendees-cell");
+    let attendeeName = attendeesTab.querySelector(".attendee-list .attendee-name");
 
-    Assert.ok(attendee);
-    Assert.equal(attendee.querySelector(".item-attendees-cell-label").value, EVENTATTENDEE);
+    Assert.ok(attendeeName);
+    Assert.equal(attendeeName.textContent, EVENTATTENDEE);
     Assert.ok(!iframeDocument.getElementById("notify-attendees-checkbox").checked);
 
     // Verify private label visible.

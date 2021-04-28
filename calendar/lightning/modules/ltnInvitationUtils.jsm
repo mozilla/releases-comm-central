@@ -68,6 +68,100 @@ ltn.invitation = {
   },
 
   /**
+   * Creates new icon and text label for the given event attendee.
+   *
+   * @param {Document} doc - The document the new label will belong to.
+   * @param {calIAttendee} attendee - The attendee to create the label for.
+   * @param {calIAttendee[]} attendees - The full list of attendees for the
+   *   event.
+   *
+   * @return {HTMLDivElement} - The new attendee label.
+   */
+  createAttendeeLabel(doc, attendee, attendees) {
+    let userType = attendee.userType || "INDIVIDUAL";
+    let role = attendee.role || "REQ-PARTICIPANT";
+    let partstat = attendee.participationStatus || "NEEDS-ACTION";
+    // resolve delegatees/delegators to display also the CN
+    let del = cal.itip.resolveDelegation(attendee, attendees);
+
+    let userTypeString = cal.l10n.getLtnString("imipHtml.attendeeUserType2." + userType, [
+      attendee.toString(),
+    ]);
+    let roleString = cal.l10n.getLtnString("imipHtml.attendeeRole2." + role, [userTypeString]);
+    let partstatString = cal.l10n.getLtnString("imipHtml.attendeePartStat2." + partstat, [
+      attendee.commonName || attendee.toString(),
+      del.delegatees,
+    ]);
+    let tooltip = cal.l10n.getLtnString("imipHtml.attendee.combined", [roleString, partstatString]);
+
+    let name = attendee.toString();
+    if (del.delegators) {
+      name += " " + cal.l10n.getLtnString("imipHtml.attendeeDelegatedFrom", [del.delegators]);
+    }
+
+    let attendeeLabel = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
+    attendeeLabel.classList.add("attendee-label");
+    // NOTE: tooltip will not appear when the top level is XUL.
+    attendeeLabel.setAttribute("title", tooltip);
+    attendeeLabel.setAttribute("attendeeid", attendee.id);
+
+    // FIXME: Replace icon with an img element with src and alt. The current
+    // problem is that the icon image is set in CSS on the itip-icon class
+    // with a background image that changes with the role attribute. This is
+    // generally inaccessible (see Bug 1702560).
+    let icon = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
+    icon.classList.add("itip-icon");
+    icon.setAttribute("partstat", partstat);
+    icon.setAttribute("usertype", userType);
+    icon.setAttribute("role", role);
+    attendeeLabel.appendChild(icon);
+
+    let text = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
+    text.classList.add("attendee-name");
+    text.appendChild(doc.createTextNode(name));
+    attendeeLabel.appendChild(text);
+
+    return attendeeLabel;
+  },
+
+  /**
+   * Create an new list item element for an attendee, to be used as a child of
+   * an "attendee-list" element.
+   * @param {Document} doc - The document the new list item will belong to.
+   * @param {Element} attendeeLabel - The attendee label to place within the
+   *   list item.
+   *
+   * return {HTMLLIElement} - The attendee list item.
+   */
+  createAttendeeListItem(doc, attendeeLabel) {
+    let listItem = doc.createElementNS("http://www.w3.org/1999/xhtml", "li");
+    listItem.classList.add("attendee-list-item");
+    listItem.appendChild(attendeeLabel);
+    return listItem;
+  },
+
+  /**
+   * Creates a new element that lists the given attendees.
+   *
+   * @param {Document} doc - The document the new list will belong to.
+   * @param {calIAttendee[]} attendees - The attendees to create the list for.
+   *
+   * @return {HTMLUListElement} - The list of attendees.
+   */
+  createAttendeesList(doc, attendees) {
+    let list = doc.createElementNS("http://www.w3.org/1999/xhtml", "ul");
+    list.classList.add("attendee-list");
+
+    for (let attendee of attendees) {
+      list.appendChild(
+        this.createAttendeeListItem(doc, this.createAttendeeLabel(doc, attendee, attendees))
+      );
+    }
+
+    return list;
+  },
+
+  /**
    * Returns the html representation of the event as a DOM document.
    *
    * @param  {calIItemBase} aEvent     The event to parse into html.
@@ -98,7 +192,7 @@ ltn.invitation = {
     };
 
     // Simple fields
-    let headerDescr = doc.getElementById("imipHtml-header-descr");
+    let headerDescr = doc.getElementById("imipHtml-header");
     if (headerDescr) {
       headerDescr.textContent = ltn.invitation.getItipHeader(aItipItem);
     }
@@ -204,66 +298,20 @@ ltn.invitation = {
     field("attachments", links.join("<br>"), true);
 
     // ATTENDEE and ORGANIZER fields
+    let organizerCell = doc.getElementById("imipHtml-organizer-cell");
+    let attendeeCell = doc.getElementById("imipHtml-attendees-cell");
     let attendees = aEvent.getAttendees();
-    let attendeeTemplate = doc.getElementById("attendee-template");
-    let attendeeTable = doc.getElementById("attendee-table");
-    let organizerTable = doc.getElementById("organizer-table");
     doc.getElementById("imipHtml-attendees-row").hidden = attendees.length < 1;
     doc.getElementById("imipHtml-organizer-row").hidden = !aEvent.organizer;
 
-    let setupAttendee = function(aAttendee) {
-      let row = attendeeTemplate.cloneNode(true);
-      row.removeAttribute("id");
-      row.removeAttribute("hidden");
-
-      // resolve delegatees/delegators to display also the CN
-      let del = cal.itip.resolveDelegation(aAttendee, attendees);
-      if (del.delegators != "") {
-        del.delegators =
-          " " + cal.l10n.getLtnString("imipHtml.attendeeDelegatedFrom", [del.delegators]);
-      }
-
-      // display itip icon
-      let role = aAttendee.role || "REQ-PARTICIPANT";
-      let partstat = aAttendee.participationStatus || "NEEDS-ACTION";
-      let userType = aAttendee.userType || "INDIVIDUAL";
-      let itipIcon = row.getElementsByClassName("itip-icon")[0];
-      itipIcon.setAttribute("role", role);
-      itipIcon.setAttribute("usertype", userType);
-      itipIcon.setAttribute("partstat", partstat);
-      let attName =
-        aAttendee.commonName && aAttendee.commonName.length
-          ? aAttendee.commonName
-          : aAttendee.toString();
-      let userTypeString = cal.l10n.getLtnString("imipHtml.attendeeUserType2." + userType, [
-        aAttendee.toString(),
-      ]);
-      let roleString = cal.l10n.getLtnString("imipHtml.attendeeRole2." + role, [userTypeString]);
-      let partstatString = cal.l10n.getLtnString("imipHtml.attendeePartStat2." + partstat, [
-        attName,
-        del.delegatees,
-      ]);
-      let itipTooltip = cal.l10n.getLtnString("imipHtml.attendee.combined", [
-        roleString,
-        partstatString,
-      ]);
-      row.setAttribute("title", itipTooltip);
-      // display attendee
-      row.getElementsByClassName("attendee-name")[0].textContent =
-        aAttendee.toString() + del.delegators;
-      return row;
-    };
+    field("organizer");
+    if (aEvent.organizer) {
+      organizerCell.appendChild(this.createAttendeeLabel(doc, aEvent.organizer, attendees));
+    }
 
     // Fill rows for attendees and organizer
     field("attendees");
-    for (let attendee of attendees) {
-      attendeeTable.appendChild(setupAttendee(attendee));
-    }
-
-    field("organizer");
-    if (aEvent.organizer) {
-      organizerTable.appendChild(setupAttendee(aEvent.organizer));
-    }
+    attendeeCell.appendChild(this.createAttendeesList(doc, attendees));
 
     return doc;
   },
@@ -272,143 +320,268 @@ ltn.invitation = {
    * Expects and return a serialized DOM - use cal.xml.serializeDOM(aDOM)
    * @param  {String} aOldDoc    serialized DOM of the the old document
    * @param  {String} aNewDoc    serialized DOM of the the new document
-   * @param  {String} aIgnoreId  attendee id to ignore, usually the organizer
    * @return {String}            updated serialized DOM of the new document
    */
-  compareInvitationOverlay(aOldDoc, aNewDoc, aIgnoreId) {
+  compareInvitationOverlay(aOldDoc, aNewDoc) {
+    let systemColors = Services.prefs.getBoolPref("calendar.view.useSystemColors", false);
     /**
-     * Transforms text node content to formatted child nodes. Decorations are defined in imip.css
-     * @param {Node}    aToNode text node to change
-     * @param {String}  aType   use 'newline' for the same, 'added' or 'removed' for decoration
-     * @param {String}  aText   [optional]
-     * @param {Boolean} aClear  [optional] for consecutive changes on the same node, set to false
+     * Add a styling class to the given element.
+     *
+     * @param {Element} el - The element to add the class to.
+     * @param {string} className - The name of the styling class to add.
      */
-    function _content2Child(aToNode, aType, aText = "", aClear = true) {
-      let nodeDoc = aToNode.ownerDocument;
-      if (aClear) {
-        while (aToNode.lastChild) {
-          aToNode.lastChild.remove();
+    function _addStyleClass(el, className) {
+      el.classList.add(className);
+      el.toggleAttribute("systemcolors", systemColors);
+    }
+
+    /**
+     * Extract the elements from an element and place them within a new element
+     * that represents a change in content.
+     *
+     * @param {Element} el - The element to extract content from. This will be
+     *   empty after the method returns.
+     * @param {string} change - The change that the returned element should
+     *   represent.
+     *
+     * @return {HTMLModElement} - A new container for the previous content of
+     *   the element. It will be styled and semantically tagged according to the
+     *   given change.
+     */
+    function _extractChangedContent(el, change) {
+      // Static list of children, including text nodes.
+      let nodeDoc = el.ownerDocument;
+      let children = Array.from(el.childNodes);
+      let wrapper;
+      if (change === "removed") {
+        wrapper = nodeDoc.createElementNS("http://www.w3.org/1999/xhtml", "del");
+      } else {
+        wrapper = nodeDoc.createElementNS("http://www.w3.org/1999/xhtml", "ins");
+      }
+      _addStyleClass(wrapper, change);
+      for (let child of children) {
+        el.removeChild(child);
+        wrapper.appendChild(child);
+      }
+      return wrapper;
+    }
+
+    /**
+     * Compares a row across the two documents. The row in the new document will
+     * be shown if the row was shown in either document. Otherwise, it will
+     * remain hidden.
+     *
+     * @param {Document} doc - The current document.
+     * @param {Document} oldDoc - The old document to compare against.
+     * @param {String} rowId - The id for the row to compare.
+     * @param {Function} removedCallback - Method to call if the row is hidden
+     *  in the current document, but shown in the old document.
+     * @param {Function} addedCallback - Method to call if the row is shown
+     *  in the current document, but hidden in the old document.
+     * @param {Function} modifiedCallback - Method to call if the row is shown
+     *  in both documents.
+     */
+    function _compareRows(doc, oldDoc, rowId, removedCallback, addedCallback, modifiedCallback) {
+      let oldRow = oldDoc.getElementById(rowId);
+      let row = doc.getElementById(rowId);
+      if (row.hidden && !oldRow.hidden) {
+        removedCallback();
+        row.hidden = false;
+      } else if (!row.hidden && oldRow.hidden) {
+        addedCallback();
+      } else if (!row.hidden && !oldRow.hidden) {
+        modifiedCallback();
+      }
+    }
+
+    /**
+     * Compares content across the two documents. The content of the new
+     * document will be modified to reflect the changes.
+     *
+     * @param {Document} doc - The current document (which will be modified).
+     * @param {Document} oldDoc - The old document to compare against.
+     * @param {String} rowId - The id for the row that contains the content.
+     * @param {String} contentId - The id for the content element.
+     */
+    function _compareContent(doc, oldDoc, rowId, contentId) {
+      let content = doc.getElementById(contentId);
+      let oldContent = oldDoc.getElementById(contentId);
+      _compareRows(
+        doc,
+        oldDoc,
+        rowId,
+        // Removed row.
+        () => {
+          let removed = _extractChangedContent(oldContent, "removed");
+          while (content.lastChild) {
+            content.lastChild.remove();
+          }
+          content.appendChild(removed);
+        },
+        // Added row.
+        () => {
+          let added = _extractChangedContent(content, "added");
+          content.appendChild(added);
+        },
+        // Modified row.
+        () => {
+          if (content.textContent !== oldContent.textContent) {
+            let added = _extractChangedContent(content, "added");
+            let removed = _extractChangedContent(oldContent, "removed");
+            content.appendChild(added);
+            content.appendChild(doc.createElementNS("http://www.w3.org/1999/xhtml", "br"));
+            content.appendChild(removed);
+          }
+        }
+      );
+    }
+
+    let oldDoc = cal.xml.parseString(aOldDoc);
+    let doc = cal.xml.parseString(aNewDoc);
+    // elements to consider for comparison
+    [
+      ["imipHtml-summary-row", "imipHtml-summary-content"],
+      ["imipHtml-location-row", "imipHtml-location-content"],
+      ["imipHtml-when-row", "imipHtml-when-content"],
+      ["imipHtml-canceledOccurrences-row", "imipHtml-canceledOccurrences-content"],
+      ["imipHtml-modifiedOccurrences-row", "imipHtml-modifiedOccurrences-content"],
+    ].forEach(ids => _compareContent(doc, oldDoc, ids[0], ids[1]));
+
+    /**
+     * Relate two attendee labels.
+     *
+     * @param {Element} attendeeLabel - An attendee label.
+     * @param {Element} otherAttendeeLabel - Another attendee label to compare
+     *   against.
+     *
+     * @return {string} - The relation between the two labels:
+     *   "different" if the attendee names differ,
+     *   "modified" if the attendance details differ,
+     *   "same" otherwise.
+     */
+    function _attendeeDiff(attendeeLabel, otherAttendeeLabel) {
+      if (attendeeLabel.textContent !== otherAttendeeLabel.textContent) {
+        return "different";
+      }
+      let otherIcon = otherAttendeeLabel.querySelector(".itip-icon");
+      let icon = attendeeLabel.querySelector(".itip-icon");
+      for (let attr of ["role", "partstat", "usertype"]) {
+        if (icon.getAttribute(attr) !== otherIcon.getAttribute(attr)) {
+          return "modified";
         }
       }
+      return "same";
+    }
 
-      let n = nodeDoc.createElement(aType.toLowerCase() == "newline" ? "br" : "span");
-      switch (aType) {
-        case "added":
-        case "modified":
+    /**
+     * Wrap the given element in-place to describe the given change.
+     * The wrapper will semantically and/or stylistically describe the change.
+     *
+     * @param {Element} - The element to wrap. The new wrapper will take its
+     *   place in the parent container.
+     * @param {string} - The change that the wrapper should represent.
+     */
+    function _wrapChanged(el, change) {
+      let nodeDoc = el.ownerDocument;
+      let wrapper;
+      switch (change) {
         case "removed":
-          n.className = aType;
-          if (Services.prefs.getBoolPref("calendar.view.useSystemColors", false)) {
-            n.setAttribute("systemcolors", true);
-          }
+          wrapper = nodeDoc.createElementNS("http://www.w3.org/1999/xhtml", "del");
+          break;
+        case "added":
+          wrapper = nodeDoc.createElementNS("http://www.w3.org/1999/xhtml", "ins");
           break;
       }
-      n.textContent = aText;
-      aToNode.appendChild(n);
-    }
-    /**
-     * Extracts attendees from the given document
-     * @param   {Node}   aDoc      document to search in
-     * @param   {String} aElement  element name as used in _compareElement()
-     * @returns {Array}            attendee nodes
-     */
-    function _getAttendees(aDoc, aElement) {
-      let attendees = [];
-      for (let att of aDoc.getElementsByClassName("attendee-name")) {
-        if (!att.parentNode.hidden && att.parentNode.parentNode.id == aElement + "-table") {
-          attendees[att.textContent] = att;
-        }
+      if (wrapper) {
+        el.replaceWith(wrapper);
+        wrapper.appendChild(el);
+        el = wrapper;
       }
-      return attendees;
+      _addStyleClass(el, change);
     }
-    /**
-     * Compares both documents for elements related to the given name
-     * @param {String} aElement  part of the element id within the html template
-     */
-    function _compareElement(aElement) {
-      let element = aElement == "attendee" ? aElement + "s" : aElement;
-      let oldRow = aOldDoc.getElementById("imipHtml-" + element + "-row");
-      let newRow = aNewDoc.getElementById("imipHtml-" + element + "-row");
-      let row = doc.getElementById("imipHtml-" + element + "-row");
-      let oldContent = aOldDoc.getElementById("imipHtml-" + aElement + "-content");
-      let content = doc.getElementById("imipHtml-" + aElement + "-content");
 
-      if (newRow.hidden && !oldRow.hidden) {
-        // element was removed
-        // we only need to check for simple elements here: attendee or organizer row
-        // cannot be removed
-        if (oldContent) {
-          _content2Child(content, "removed", oldContent.textContent);
-          row.hidden = false;
+    let organizerCell = doc.querySelector("#imipHtml-organizer-cell");
+    let organizerLabel = organizerCell.querySelector(".attendee-label");
+    let oldOrganizerLabel = oldDoc.querySelector("#imipHtml-organizer-cell .attendee-label");
+    _compareRows(
+      doc,
+      oldDoc,
+      "imipHtml-organizer-row",
+      // Removed row.
+      () => {
+        oldOrganizerLabel.remove();
+        if (organizerLabel) {
+          organizerLabel.remove();
         }
-      } else if (!newRow.hidden && oldRow.hidden) {
-        // the element was added
-        // we only need to check for simple elements here: attendee or organizer row
-        // must have been there before
-        if (content) {
-          _content2Child(content, "added", content.textContent);
-        }
-      } else if (!newRow.hidden && !oldRow.hidden) {
-        // the element may have been modified
-        if (content) {
-          if (content.textContent != oldContent.textContent) {
-            _content2Child(content, "added", content.textContent);
-            _content2Child(content, "newline", null, false);
-            _content2Child(content, "removed", oldContent.textContent, false);
-          }
-        } else {
-          content = doc.getElementById(aElement + "-table");
-          oldContent = aOldDoc.getElementById(aElement + "-table");
-          let excludeAddress = cal.email.removeMailTo(aIgnoreId);
-          if (content && oldContent && !content.isEqualNode(oldContent)) {
-            // extract attendees
-            let attendees = _getAttendees(doc, aElement);
-            let oldAttendees = _getAttendees(aOldDoc, aElement);
-            // decorate newly added attendees
-            for (let att of Object.keys(attendees)) {
-              if (!(att in oldAttendees)) {
-                _content2Child(attendees[att], "added", att);
-              }
-            }
-            for (let att of Object.keys(oldAttendees)) {
-              // if att is the user his/herself, who accepted an invitation he/she was
-              // not invited to, we exclude him/her from decoration
-              let notExcluded = excludeAddress == "" || !att.includes(excludeAddress);
-              // decorate removed attendees
-              if (!(att in attendees) && notExcluded) {
-                _content2Child(oldAttendees[att], "removed", att);
-                content.appendChild(oldAttendees[att].parentNode.cloneNode(true));
-              } else if (att in attendees && notExcluded) {
-                // highlight partstat, role or usertype changes
-                let oldAtts = oldAttendees[att].parentNode.getElementsByClassName("itip-icon")[0]
-                  .attributes;
-                let newAtts = attendees[att].parentNode.getElementsByClassName("itip-icon")[0]
-                  .attributes;
-                let hasChanged = function(name) {
-                  return oldAtts.getNamedItem(name).value != newAtts.getNamedItem(name).value;
-                };
-                if (["role", "partstat", "usertype"].some(hasChanged)) {
-                  _content2Child(attendees[att], "modified", att);
-                }
-              }
-            }
-          }
+        organizerCell.appendChild(oldOrganizerLabel);
+        _wrapChanged(oldOrganizerLabel, "removed");
+      },
+      // Added row.
+      () => _wrapChanged(organizerLabel, "added"),
+      // Modified row.
+      () => {
+        switch (_attendeeDiff(organizerLabel, oldOrganizerLabel)) {
+          case "different":
+            _wrapChanged(organizerLabel, "added");
+            oldOrganizerLabel.remove();
+            organizerCell.appendChild(oldOrganizerLabel);
+            _wrapChanged(oldOrganizerLabel, "removed");
+            break;
+          case "modified":
+            _wrapChanged(organizerLabel, "modified");
+            break;
         }
       }
-    }
-    aOldDoc = cal.xml.parseString(aOldDoc);
-    aNewDoc = cal.xml.parseString(aNewDoc);
-    let doc = aNewDoc.cloneNode(true);
-    // elements to consider for comparison
-    let elements = [
-      "summary",
-      "location",
-      "when",
-      "canceledOccurrences",
-      "modifiedOccurrences",
-      "organizer",
-      "attendee",
-    ];
-    elements.forEach(_compareElement);
+    );
+
+    let attendeeCell = doc.querySelector("#imipHtml-attendees-cell");
+    let attendeeList = attendeeCell.querySelector(".attendee-list");
+    let oldAttendeeList = oldDoc.querySelector("#imipHtml-attendees-cell .attendee-list");
+    _compareRows(
+      doc,
+      oldDoc,
+      "imipHtml-attendees-row",
+      // Removed row.
+      () => {
+        oldAttendeeList.remove();
+        if (attendeeList) {
+          attendeeList.remove();
+        }
+        attendeeCell.appendChild(oldAttendeeList);
+        _wrapChanged(oldAttendeeList, "removed");
+      },
+      // Added row.
+      () => _wrapChanged(attendeeList, "added"),
+      // Modified row.
+      () => {
+        let oldAttendees = Array.from(oldAttendeeList.querySelectorAll(".attendee-label"));
+        for (let attendeeLabel of attendeeList.querySelectorAll(".attendee-label")) {
+          let added = true;
+          for (let i = 0; added && i < oldAttendees.length; i++) {
+            switch (_attendeeDiff(attendeeLabel, oldAttendees[i])) {
+              case "different":
+                break;
+              case "modified":
+                _wrapChanged(attendeeLabel, "modified");
+              // Fallthrough.
+              case "same":
+                oldAttendees.splice(i, 1);
+                added = false;
+                break;
+            }
+          }
+          if (added) {
+            _wrapChanged(attendeeLabel, "added");
+          }
+        }
+        for (let oldAttendeeLabel of oldAttendees) {
+          oldAttendeeLabel.remove();
+          attendeeList.appendChild(this.createAttendeeListItem(doc, oldAttendeeLabel));
+          _wrapChanged(oldAttendeeLabel, "removed");
+        }
+      }
+    );
+
     return cal.xml.serializeDOM(doc);
   },
 

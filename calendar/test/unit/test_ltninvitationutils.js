@@ -339,46 +339,88 @@ add_task(async function createInvitationOverlay_test() {
           "ATTENDEE:mailto:attendee7@example.net\r\n",
       },
       expected: {
-        node: "attendee-table",
-        value:
-          '<tr xmlns="http://www.w3.org/1999/xhtml" id="attendee-template" hidden="' +
-          'true"><td><p class="itip-icon"></p></td><td class="attendee-name"></td><' +
-          "/tr>" +
-          '<tr xmlns="http://www.w3.org/1999/xhtml" title="Attendee 1 &lt;attendee1@e' +
-          'xample.net&gt; is an optional participant. Attendee 1 still needs to reply."' +
-          '><td><p class="itip-icon" role="OPT-PARTICIPANT" usertype="INDIVIDUAL" ' +
-          'partstat="NEEDS-ACTION"></p></td><td class="attendee-name">Attendee 1 &lt' +
-          ";attendee1@example.net&gt;</td></tr>" +
-          '<tr xmlns="http://www.w3.org/1999/xhtml" title="attendee2@example.net (gro' +
-          'up) is a non-participant. attendee2@example.net has confirmed attendance."><' +
-          'td><p class="itip-icon" role="NON-PARTICIPANT" usertype="GROUP" partsta' +
-          't="ACCEPTED"></p></td><td class="attendee-name">attendee2@example.net</td' +
-          "></tr>" +
-          '<tr xmlns="http://www.w3.org/1999/xhtml" title="attendee3@example.net (res' +
-          "ource) is a required participant. attendee3@example.net has confirmed attenda" +
-          'nce tentatively."><td><p class="itip-icon" role="REQ-PARTICIPANT" userty' +
-          'pe="RESOURCE" partstat="TENTATIVE"></p></td><td class="attendee-name">a' +
-          "ttendee3@example.net</td></tr>" +
-          '<tr xmlns="http://www.w3.org/1999/xhtml" title="attendee4@example.net (roo' +
-          "m) is an optional participant. attendee4@example.net has declined attendance." +
-          '"><td><p class="itip-icon" role="OPT-PARTICIPANT" usertype="ROOM" part' +
-          'stat="DECLINED"></p></td><td class="attendee-name">attendee4@example.net ' +
-          "(delegated from attendee5@example.net)</td></tr>" +
-          '<tr xmlns="http://www.w3.org/1999/xhtml" title="attendee5@example.net is a' +
-          "n optional participant. attendee5@example.net has delegated attendance to att" +
-          'endee4@example.net."><td><p class="itip-icon" role="OPT-PARTICIPANT" use' +
-          'rtype="UNKNOWN" partstat="DELEGATED"></p></td><td class="attendee-name"' +
-          ">attendee5@example.net</td></tr>" +
-          '<tr xmlns="http://www.w3.org/1999/xhtml" title="attendee6@example.net is a' +
-          ' required participant. attendee6@example.net still needs to reply."><td><p c' +
-          'lass="itip-icon" role="REQ-PARTICIPANT" usertype="INDIVIDUAL" partstat=' +
-          '"NEEDS-ACTION"></p></td><td class="attendee-name">attendee6@example.net</' +
-          "td></tr>" +
-          '<tr xmlns="http://www.w3.org/1999/xhtml" title="attendee7@example.net is a' +
-          ' required participant. attendee7@example.net still needs to reply."><td><p c' +
-          'lass="itip-icon" role="REQ-PARTICIPANT" usertype="INDIVIDUAL" partstat=' +
-          '"NEEDS-ACTION"></p></td><td class="attendee-name">attendee7@example.net</' +
-          "td></tr>",
+        node: "imipHtml-attendees-cell",
+        values: [
+          {
+            name: "Attendee 1 <attendee1@example.net>",
+            title:
+              "Attendee 1 <attendee1@example.net> is an optional " +
+              "participant. Attendee 1 still needs to reply.",
+            icon: {
+              role: "OPT-PARTICIPANT",
+              usertype: "INDIVIDUAL",
+              partstat: "NEEDS-ACTION",
+            },
+          },
+          {
+            name: "attendee2@example.net",
+            title:
+              "attendee2@example.net (group) is a non-participant. " +
+              "attendee2@example.net has confirmed attendance.",
+            icon: {
+              role: "NON-PARTICIPANT",
+              usertype: "GROUP",
+              partstat: "ACCEPTED",
+            },
+          },
+          {
+            name: "attendee3@example.net",
+            title:
+              "attendee3@example.net (resource) is a required " +
+              "participant. attendee3@example.net has confirmed attendance " +
+              "tentatively.",
+            icon: {
+              role: "REQ-PARTICIPANT",
+              usertype: "RESOURCE",
+              partstat: "TENTATIVE",
+            },
+          },
+          {
+            name: "attendee4@example.net (delegated from attendee5@example.net)",
+            title:
+              "attendee4@example.net (room) is an optional participant. " +
+              "attendee4@example.net has declined attendance.",
+            icon: {
+              role: "OPT-PARTICIPANT",
+              usertype: "ROOM",
+              partstat: "DECLINED",
+            },
+          },
+          {
+            name: "attendee5@example.net",
+            title:
+              "attendee5@example.net is an optional participant. " +
+              "attendee5@example.net has delegated attendance to " +
+              "attendee4@example.net.",
+            icon: {
+              role: "OPT-PARTICIPANT",
+              usertype: "UNKNOWN",
+              partstat: "DELEGATED",
+            },
+          },
+          {
+            name: "attendee6@example.net",
+            title:
+              "attendee6@example.net is a required participant. " +
+              "attendee6@example.net still needs to reply.",
+            icon: {
+              role: "REQ-PARTICIPANT",
+              usertype: "INDIVIDUAL",
+              partstat: "NEEDS-ACTION",
+            },
+          },
+          {
+            name: "attendee7@example.net",
+            title:
+              "attendee7@example.net is a required participant. " +
+              "attendee7@example.net still needs to reply.",
+            icon: {
+              role: "REQ-PARTICIPANT",
+              usertype: "INDIVIDUAL",
+              partstat: "NEEDS-ACTION",
+            },
+          },
+        ],
       },
     },
     {
@@ -388,13 +430,20 @@ add_task(async function createInvitationOverlay_test() {
           'anizer":mailto:organizer@example.net\r\n',
       },
       expected: {
-        node: "organizer-table",
-        value:
-          '<tr xmlns="http://www.w3.org/1999/xhtml" title="The Organizer &lt;organize' +
-          'r@example.net&gt; chairs the event. The Organizer has confirmed attendance."' +
-          '><td><p class="itip-icon" role="CHAIR" usertype="INDIVIDUAL" partstat="' +
-          'ACCEPTED"></p></td><td class="attendee-name">The Organizer &lt;organizer@e' +
-          "xample.net&gt;</td></tr>",
+        node: "imipHtml-organizer-cell",
+        values: [
+          {
+            name: "The Organizer <organizer@example.net>",
+            title:
+              "The Organizer <organizer@example.net> chairs the event. " +
+              "The Organizer has confirmed attendance.",
+            icon: {
+              role: "CHAIR",
+              usertype: "INDIVIDUAL",
+              partstat: "ACCEPTED",
+            },
+          },
+        ],
       },
     },
   ];
@@ -426,13 +475,32 @@ add_task(async function createInvitationOverlay_test() {
     let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(item);
     let dom = ltn.invitation.createInvitationOverlay(parser.getItems()[0], itipItem);
-    let observed = dom.getElementById(test.expected.node).innerHTML;
     // we remove line-breaks and leading white spaces here so we can keep expected test results
     // above more comprehensive
-    if (test.expected.node.endsWith("-table")) {
-      observed = observed.replace(/(?:\n|\r\n|\r)[ ]{2,}/g, "");
+    switch (test.expected.node) {
+      case "imipHtml-organizer-cell":
+      case "imipHtml-attendees-cell":
+        let attendeeNodes = Array.from(
+          dom.querySelectorAll(`#${test.expected.node} .attendee-label`)
+        );
+        equal(attendeeNodes.length, test.expected.values.length);
+        for (let { name, title, icon } of test.expected.values) {
+          let index = attendeeNodes.findIndex(el => el.textContent === name);
+          ok(index !== -1, `Attendee with name ${name}`);
+          let node = attendeeNodes.splice(index, 1)[0];
+          equal(node.getAttribute("title"), title, `Title for ${name}`);
+          let nodeIcon = node.querySelector(".itip-icon");
+          ok(nodeIcon, `icon for ${name}`);
+          for (let attr in icon) {
+            equal(nodeIcon.getAttribute(attr), icon[attr], `${attr} for icon for ${name}`);
+          }
+        }
+        break;
+      default:
+        let observed = dom.getElementById(test.expected.node).innerHTML;
+        equal(observed, test.expected.value, "(test #" + i + ")");
+        break;
     }
-    equal(observed, test.expected.value, "(test #" + i + ")");
   }
 });
 
@@ -461,26 +529,24 @@ add_task(async function compareInvitationOverlay_test() {
       input: {
         previous: { location: "LOCATION:This place\r\n" },
         current: { location: "LOCATION:Another location\r\n" },
-        ignore: "",
       },
       expected: {
         node: "imipHtml-location-content",
-        value:
-          '<span xmlns="" class="added">Another location</span><br xmlns=""/>' +
-          '<span xmlns="" class="removed">This place</span>',
+        ins: ["Another location"],
+        del: ["This place"],
+        mod: [],
       },
     },
     {
       input: {
         previous: { summary: "SUMMARY:My invitation\r\n" },
         current: { summary: "SUMMARY:My new invitation\r\n" },
-        ignore: "",
       },
       expected: {
         node: "imipHtml-summary-content",
-        value:
-          '<span xmlns="" class="added">My new invitation</span><br xmlns=""/>' +
-          '<span xmlns="" class="removed">My invitation</span>',
+        ins: ["My new invitation"],
+        del: ["My invitation"],
+        mod: [],
       },
     },
     {
@@ -493,46 +559,28 @@ add_task(async function compareInvitationOverlay_test() {
           dtstart: "DTSTART;TZID=Europe/Berlin:20150909T140000\r\n",
           dtend: "DTEND;TZID=Europe/Berlin:20150909T150000\r\n",
         },
-        ignore: "",
       },
       expected: {
         // Time format is platform dependent, so we use alternative result sets here.
         // The first two are configurations running for automated tests.
         // If you get a failure for this test, add your pattern here.
         node: "imipHtml-when-content",
-        some: [
-          // For Windows.
-          '<span xmlns="" class="added">Wednesday, September 09, 2015 2:00 PM – 3:00 PM</span>' +
-            '<br xmlns=""/>' +
-            '<span xmlns="" class="removed">Wednesday, September 09, 2015 1:00 PM – 2:00 PM</span>',
-
-          '<span xmlns="" class="added">Wednesday, September 09, 2015 14:00 – 15:00</span>' +
-            '<br xmlns=""/>' +
-            '<span xmlns="" class="removed">Wednesday, September 09, 2015 13:00 – 14:00</span>',
-
-          // For Linux and Mac: The same but without 2-digit day.
-          '<span xmlns="" class="added">Wednesday, September 9, 2015 2:00 PM – 3:00 PM</span>' +
-            '<br xmlns=""/>' +
-            '<span xmlns="" class="removed">Wednesday, September 9, 2015 1:00 PM – 2:00 PM</span>',
-
-          '<span xmlns="" class="added">Wednesday, September 9, 2015 14:00 – 15:00</span>' +
-            '<br xmlns=""/>' +
-            '<span xmlns="" class="removed">Wednesday, September 9, 2015 13:00 – 14:00</span>',
-        ],
+        // For Windows.
+        ins: [/^Wednesday, (September 0?9,|0?9 September) 2015 (2:00 PM – 3:00 PM|14:00 – 15:00)$/],
+        del: [/^Wednesday, (September 0?9,|0?9 September) 2015 (1:00 PM – 2:00 PM|13:00 – 14:00)$/],
+        mod: [],
       },
     },
     {
       input: {
         previous: { organizer: "ORGANIZER:mailto:organizer1@example.net\r\n" },
         current: { organizer: "ORGANIZER:mailto:organizer2@example.net\r\n" },
-        ignore: "",
       },
       expected: {
-        node: "organizer-table",
-        each: [
-          '<span xmlns="" class="added">organizer2@example.net</span>',
-          '<span xmlns="" class="removed">organizer1@example.net</span>',
-        ],
+        node: "imipHtml-organizer-cell",
+        ins: ["organizer2@example.net"],
+        del: ["organizer1@example.net"],
+        mod: [],
       },
     },
     {
@@ -555,16 +603,12 @@ add_task(async function compareInvitationOverlay_test() {
             "ATTENDEE;RSVP=TRUE;CUTYPE=INDIVIDUAL;PARTSTAT=NEEDS-ACTION:" +
             "mailto:attendee4@example.net\r\n",
         },
-        ignore: "",
       },
       expected: {
-        node: "attendee-table",
-        each: [
-          '<span xmlns="" class="modified">attendee2@example.net</span>',
-          "attendee3@example.net",
-          '<span xmlns="" class="added">attendee4@example.net</span>',
-          '<span xmlns="" class="removed">attendee1@example.net</span>',
-        ],
+        node: "imipHtml-attendees-cell",
+        ins: ["attendee4@example.net"],
+        del: ["attendee1@example.net"],
+        mod: ["attendee2@example.net"],
       },
     },
   ];
@@ -579,46 +623,31 @@ add_task(async function compareInvitationOverlay_test() {
   Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", false);
   Services.prefs.setIntPref("calendar.date.format", 0);
   Services.prefs.setStringPref("calendar.timezone.local", "Europe/Berlin");
-  let i = 0;
   for (let test of data) {
-    i++;
     let dom1 = getDom(test.input.previous);
     let dom2 = getDom(test.input.current);
-    let result = ltn.invitation.compareInvitationOverlay(dom1, dom2, test.input.ignore);
+    let result = ltn.invitation.compareInvitationOverlay(dom1, dom2);
     let dom = cal.xml.parseString(result);
-    if (test.expected.node.startsWith("imipHtml")) {
-      if ("value" in test.expected && test.expected.value) {
-        equal(
-          dom.getElementById(test.expected.node).innerHTML,
-          test.expected.value,
-          "(test #" + i + "): " + test.expected.node
-        );
-      } else if ("some" in test.expected && test.expected.some) {
-        ok(
-          test.expected.some.includes(dom.getElementById(test.expected.node).innerHTML),
-          "(test #" + i + "): " + test.expected.node
-        );
-      }
-    } else {
-      // this is for testing of an attendee or organizer
-      let nodes = dom.getElementById(test.expected.node).getElementsByClassName("attendee-name");
-      let j = 0;
-      for (let node of nodes) {
-        if (node.parentNode.id != "attendee-template") {
-          j++;
-          equal(
-            node.innerHTML,
-            test.expected.each[j - 1],
-            "(test #" + i + "): " + test.expected.node + "(entry #" + j + ")"
-          );
+    let id = test.expected.node;
+
+    function assertChanges(name, nodes, expectedText) {
+      equal(nodes.length, expectedText.length, `Equal number of ${name} for ${id}`);
+      for (let text of expectedText) {
+        let index;
+        if (text instanceof RegExp) {
+          index = nodes.findIndex(el => text.test(el.textContent));
+        } else {
+          index = nodes.findIndex(el => el.textContent === text);
         }
+        ok(index !== -1, `${name} node with text ${text} for ${id}`);
+        nodes.splice(index, 1);
       }
-      equal(
-        test.expected.each.length,
-        j,
-        "(test #" + i + "): completeness check " + test.expected.node
-      );
     }
+    let node = dom.getElementById(id);
+    ok(node, `Element with id ${id}`);
+    assertChanges("<ins>", Array.from(node.querySelectorAll("ins.added")), test.expected.ins);
+    assertChanges("<del>", Array.from(node.querySelectorAll("del.removed")), test.expected.del);
+    assertChanges("modified", Array.from(node.querySelectorAll(".modified")), test.expected.mod);
   }
   // let's reset setting
   Services.prefs.setIntPref("calendar.date.format", dateformat);

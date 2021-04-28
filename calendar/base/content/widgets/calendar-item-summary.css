@@ -30,7 +30,10 @@
   margin-inline: 0px;
 }
 
-.calendar-summary-table .organizer-label,
 .calendar-summary-table .attachments-label {
   vertical-align: top;
+}
+
+.item-attendees .item-attendees-list-container {
+  min-height: 48px;
 }

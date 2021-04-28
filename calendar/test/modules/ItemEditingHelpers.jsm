@@ -492,7 +492,7 @@ async function deleteAttendees(iframeWindow, attendeesString) {
   let attendees = attendeesString.split(",");
   for (let attendee of attendees) {
     let attendeeToDelete = iframeDocument.querySelector(
-      `.item-attendees-row [attendeeid="mailto:${attendee}"]`
+      `.attendee-list [attendeeid="mailto:${attendee}"]`
     );
     if (attendeeToDelete) {
       attendeeToDelete.focus();

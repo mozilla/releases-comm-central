@@ -2,115 +2,67 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-.invitation-table .itip-icon {
-    --itip-icon-partstat: -16px -16px; /* default: NEEDS-ACTION */
-    --itip-icon-role: 0px; /* default: REQ-PARTICIPANT */
-    --itip-icon-usertype: -32px; /* default: INDIVIDUAL */
-    width: 16px;
-    height: 16px;
-    background-image: url(chrome://calendar/skin/shared/calendar-itip-icons.svg),
-                      url(chrome://calendar/skin/shared/calendar-itip-icons.svg);
-    background-position: var(--itip-icon-partstat), var(--itip-icon-usertype) var(--itip-icon-role);
-}
-.invitation-table .itip-icon[partstat="ACCEPTED"] {
-    --itip-icon-partstat: 0px 0px;
-}
-.invitation-table .itip-icon[partstat="DECLINED"] {
-    --itip-icon-partstat: 0px -16px;
-}
-.invitation-table .itip-icon[partstat="DELEGATED"] {
-    --itip-icon-partstat: 0px -32px;
-}
-.invitation-table .itip-icon[partstat="TENTATIVE"] {
-    --itip-icon-partstat: -16px 0px;
-}
-.invitation-table .itip-icon[usertype="INDIVIDUAL"] {
-    --itip-icon-usertype: -32px;
-}
-.invitation-table .itip-icon[usertype="GROUP"] {
-    --itip-icon-usertype: -48px;
-}
-.invitation-table .itip-icon[usertype="RESOURCE"] {
-    --itip-icon-usertype: -64px;
-}
-.invitation-table .itip-icon[usertype="ROOM"] {
-    --itip-icon-usertype: -80px;
-}
-.invitation-table .itip-icon[usertype="UNKNOWN"] {
-    --itip-icon-usertype: -96px;
-}
-.invitation-table .itip-icon[role="REQ-PARTICIPANT"] {
-    --itip-icon-role: 0px;
-}
-.invitation-table .itip-icon[role="OPT-PARTICIPANT"] {
-    --itip-icon-role: -16px;
-}
-.invitation-table .itip-icon[role="NON-PARTICIPANT"] {
-    --itip-icon-role: -32px;
-}
-.invitation-table .itip-icon[role="CHAIR"] {
-    --itip-icon-role: -32px;
-    --itip-icon-usertype: -16px;
-}
-
-#imipHtml-attendees-row > .content,
-#imipHtml-organizer-row > .content,
-#attendee-table > tbody > tr > td,
-#organizer-table > tbody > tr > td {
-    padding: 0
+.invitation-border {
+       border: 3px solid -moz-default-color;
+       margin-inline-start: auto;
+       margin-inline-end: auto;
+       width: -moz-fit-content;
+       height: -moz-fit-content;
 }
 
 .invitation-table {
-       border: 3px solid -moz-default-color;
        border-collapse: collapse;
        width: 40em;
-       margin-inline-start: auto;
-       margin-inline-end: auto;
-}
-.invitation-table > tbody > tr > td {
-       padding: 3px;
-       vertical-align: top;
-       width: 2em;
-       text-align: left;
 }
 
 .invitation-table .header {
+       padding: 3px;
        color: HighlightText;
        font-size: 1em;
        font-weight: bold;
        background-color: Highlight;
 }
+
+.invitation-table :is(td, th) {
+       padding: 3px;
+       vertical-align: baseline;
+}
+
 .invitation-table .description {
        width: 9em;
-       text-align: right;
+       text-align: end;
+       font-weight: normal;
        border-inline-end: 1px solid hsla(0, 0%, 50%, .2);
        background-color: hsla(0, 0%, 50%, .2);
-       vertical-align: top;
 }
+
 .invitation-table .content {
        width: 29em;
 }
-.invitation-table .content p {
-       white-space: pre-wrap;
-}
+
 .invitation-table .added {
        color: rgb(255, 0, 0);
+       text-decoration-line: none;
 }
+
 .invitation-table .added[systemcolors] {
        color: currentColor;
        font-weight: bold;
 }
+
 .invitation-table .modified {
        color: rgb(255, 0, 0);
        font-style: italic;
 }
+
 .invitation-table .modified[systemcolors] {
        color: currentColor;
 }
+
 .invitation-table .removed {
        color: rgb(125, 125, 125);
-       text-decoration: line-through;
 }
+
 .invitation-table .removed[systemcolors] {
        color: currentColor;
 }

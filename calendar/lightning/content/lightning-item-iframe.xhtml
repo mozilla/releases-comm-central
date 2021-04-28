@@ -642,26 +642,15 @@
           <tabpanel id="event-grid-tabpanel-attendees"
                     collapsed="true">
             <vbox flex="1">
-              <hbox id="item-organizer-row"
-                    collapsed="true"
-                    align="start"
-                    class="item-attendees-row">
+              <hbox id="item-organizer-row" hidden="true" align="start">
                 <label value="&read.only.organizer.label;"/>
-                <hbox class="item-organizer-cell">
-                  <img class="itip-icon"/>
-                  <label id="item-organizer"
-                         class="item-attendees-cell-label"
-                         crop="right"/>
-                </hbox>
               </hbox>
-              <hbox flex="1">
-                <vbox class="item-attendees-box"
-                      dialog-type="event"
-                      flex="1"
-                      context="attendee-popup"
-                      oncontextmenu="setAttendeeContext(event)"
-                      disable-on-readonly="true"/>
-              </hbox>
+              <vbox class="item-attendees-list-container"
+                    dialog-type="event"
+                    flex="1"
+                    context="attendee-popup"
+                    oncontextmenu="setAttendeeContext(event)"
+                    disable-on-readonly="true"/>
             </vbox>
           </tabpanel>
         </tabpanels>
@@ -756,23 +745,4 @@
                 oncommand="this.parentNode.editTimezone()"/>
     </menupopup>
   </popupset>
-
-  <!-- attendee box template -->
-  <vbox class="item-attendees-box-template"
-        hidden="true">
-    <hbox flex="1" class="item-attendees-row" equalsize="always" hidden="true">
-      <box class="item-attendees-cell"
-           hidden="true"
-           flex="1"
-           context="attendee-popup"
-           ondblclick="attendeeDblClick(event)"
-           oncontextmenu="setAttendeeContext(event)">
-        <img class="itip-icon"/>
-        <label class="item-attendees-cell-label"
-               crop="end"
-               flex="1"/>
-      </box>
-      <box hidden="true" flex="1"/>
-    </hbox>
-  </vbox>
 </window>

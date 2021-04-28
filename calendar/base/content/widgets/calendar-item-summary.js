@@ -12,6 +12,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
   var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   var { recurrenceStringFromItem } = ChromeUtils.import(
     "resource:///modules/calendar/calRecurrenceUtils.jsm"
@@ -82,17 +83,11 @@
             <html:td class="item-category">
             </html:td>
           </html:tr>
-          <html:tr class="organizer-row item-attendees-row" hidden="hidden">
-            <html:th class="organizer-label">
+          <html:tr class="item-organizer-row" hidden="hidden">
+            <html:th>
               &read.only.organizer.label;
             </html:th>
-            <html:td>
-              <hbox class="item-organizer-cell">
-                <img class="itip-icon"/>
-                <label class="item-organizer-label text-link item-attendees-cell-label"
-                       crop="end"/>
-                <spacer flex="1"/>
-              </hbox>
+            <html:td class="item-organizer-cell">
             </html:td>
           </html:tr>
           <html:tr class="status-row" hidden="hidden">
@@ -138,18 +133,6 @@
             </html:td>
           </html:tr>
         </html:table>
-
-        <!-- attendee box template -->
-        <vbox class="item-attendees-box-template">
-          <hbox flex="1" class="item-attendees-row" equalsize="always" hidden="true">
-            <box class="item-attendees-cell" hidden="true" flex="1">
-              <img class="itip-icon"/>
-              <label class="item-attendees-cell-label" crop="end" flex="1"/>
-            </box>
-            <box hidden="true" flex="1"/>
-          </hbox>
-        </vbox>
-
         <!-- Attendees -->
         <box class="item-attendees" orient="vertical" hidden="true" flex="1">
           <spacer class="default-spacer"/>
@@ -158,7 +141,8 @@
                    class="header"/>
             <separator class="groove" flex="1"/>
           </hbox>
-          <vbox class="item-attendees-box" flex="1" />
+          <vbox class="item-attendees-list-container" flex="1">
+          </vbox>
         </box>
 
         <!-- Description -->
@@ -303,14 +287,7 @@
       this.mReadOnly = true;
       this.mIsInvitation = false;
 
-      this.mAttendeesInRow = null;
-      this.mMaxLabelWidth = null;
-
       this.mIsToDoItem = null;
-
-      this.querySelector(".item-organizer-label").addEventListener("click", () => {
-        sendMailToOrganizer(this.mItem);
-      });
 
       let urlLink = this.querySelector(".url-link");
       urlLink.addEventListener("click", event => {
@@ -491,7 +468,7 @@
       }
 
       if (item.organizer && item.organizer.id) {
-        this.updateOrganizer(item.organizer);
+        this.updateOrganizer(item);
       }
 
       let status = item.getProperty("STATUS");
@@ -577,16 +554,9 @@
       let attendees = item.getAttendees();
       if (attendees && attendees.length) {
         this.querySelector(".item-attendees").removeAttribute("hidden");
-
-        let { attendeesInRow, maxLabelWidth } = setupAttendees(
-          attendees,
-          this.querySelector(".item-summary-box"),
-          this.mAttendeesInRow,
-          this.mMaxLabelWidth
+        this.querySelector(".item-attendees-list-container").appendChild(
+          ltn.invitation.createAttendeesList(document, attendees)
         );
-
-        this.mAttendeesInRow = attendeesInRow;
-        this.mMaxLabelWidth = maxLabelWidth;
       }
     }
 
@@ -619,59 +589,21 @@
     }
 
     /**
-     * Handle window resize event. Rearrange attendees.
-     */
-    onWindowResize() {
-      let attendees = this.mItem.getAttendees();
-      if (attendees.length) {
-        let { attendeesInRow, maxLabelWidth } = rearrangeAttendees(
-          attendees,
-          this.querySelector(".item-summary-box"),
-          this.mAttendeesInRow,
-          this.mMaxLabelWidth
-        );
-        this.mAttendeesInRow = attendeesInRow;
-        this.mMaxLabelWidth = maxLabelWidth;
-      }
-    }
-
-    /**
      * Update the organizer part of the UI.
      *
-     * @param {calIAttendee} organizer - The organizer of the calendar item.
+     * @param {calIItemBase} item - The calendar item.
      */
-    updateOrganizer(organizer) {
-      this.querySelector(".organizer-row").removeAttribute("hidden");
-      let cell = this.querySelector(".item-organizer-cell");
-      let text = cell.querySelector("label");
-      let icon = cell.querySelector("img");
-
-      let role = organizer.role || "REQ-PARTICIPANT";
-      let userType = organizer.userType || "INDIVIDUAL";
-      let partstat = organizer.participationStatus || "NEEDS-ACTION";
-      let orgName =
-        organizer.commonName && organizer.commonName.length
-          ? organizer.commonName
-          : organizer.toString();
-      let userTypeString = cal.l10n.getCalString("dialog.tooltip.attendeeUserType2." + userType, [
-        organizer.toString(),
-      ]);
-      let roleString = cal.l10n.getCalString("dialog.tooltip.attendeeRole2." + role, [
-        userTypeString,
-      ]);
-      let partstatString = cal.l10n.getCalString("dialog.tooltip.attendeePartStat2." + partstat, [
-        orgName,
-      ]);
-      let tooltip = cal.l10n.getCalString("dialog.tooltip.attendee.combined", [
-        roleString,
-        partstatString,
-      ]);
-
-      text.setAttribute("value", orgName);
-      cell.setAttribute("tooltiptext", tooltip);
-      icon.setAttribute("partstat", partstat);
-      icon.setAttribute("usertype", userType);
-      icon.setAttribute("role", role);
+    updateOrganizer(item) {
+      this.querySelector(".item-organizer-row").removeAttribute("hidden");
+      let organizerLabel = ltn.invitation.createAttendeeLabel(
+        document,
+        item.organizer,
+        item.getAttendees()
+      );
+      let organizerName = organizerLabel.querySelector(".attendee-name");
+      organizerName.classList.add("text-link");
+      organizerName.addEventListener("click", () => sendMailToOrganizer(this.mItem));
+      this.querySelector(".item-organizer-cell").appendChild(organizerLabel);
     }
 
     /**

@@ -15,15 +15,14 @@ html|input.textbox-addressingWidget:disabled {
     opacity: 0.5;
 }
 
-.item-attendees-box {
+.item-attendees-list-container {
     appearance: auto;
     -moz-default-appearance: listbox;
     margin: 2px 4px 0;
     overflow-y: auto;
-    min-height: 54px; /*at least two rows - otherwise a scrollbar (if required) wouldn't appear*/
 }
 
-:root[lwt-tree] .item-attendees-box {
+:root[lwt-tree] .item-attendees-list-container {
     appearance: none;
     background-color: var(--field-background-color);
     color: var(--field-text-color);
@@ -31,40 +30,36 @@ html|input.textbox-addressingWidget:disabled {
     scrollbar-color: rgba(204, 204, 204, 0.5) rgba(230, 230, 235, 0.5);
 }
 
-:root[lwt-tree-brighttext] .item-attendees-box {
+:root[lwt-tree-brighttext] .item-attendees-list-container {
     scrollbar-color: rgba(249, 249, 250, 0.4) rgba(20, 20, 25, 0.3);
 }
 
-#calendar-summary-dialog .item-attendees,
-#calendar-event-summary-dialog .item-attendees,
-#calendar-task-summary-dialog .item-attendees {
-    max-height: 135px; /* displays up to four rows of attendees*/
+.attendee-list {
+  display: block;
+  padding: 0;
+  margin: 0;
 }
 
-.item-attendees-cell {
-    padding: 2px;
+.attendee-list-item {
+  display: contents;
 }
 
-#calendar-event-dialog-inner .item-attendees-cell {
-    -moz-user-focus: normal;
-    margin-bottom: 1px;
-    margin-inline-end: 1px;
+.attendee-label {
+  padding: 2px;
+  display: flex;
+  align-items: baseline;
 }
 
-#calendar-event-dialog-inner .item-attendees-cell:focus {
-    background-color: Highlight;
-    color: Highlighttext;
+.itip-icon {
+  flex: 0 0 auto;
 }
 
-.item-attendees-cell-label {
-    border: 0;
-    margin: 0 3px;
-    padding: 0;
-}
-
-.item-organizer-cell {
-    padding: 0;
-    margin-left: 6px;
+.attendee-name {
+  margin: 0 3px;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* this is for the itip icon setup in calendar */
@@ -75,7 +70,6 @@ html|input.textbox-addressingWidget:disabled {
     --itip-icon-usertype: -32px; /* default: INDIVIDUAL */
     width: 16px;
     height: 16px;
-    max-height: 16px;
     background-image: url(chrome://calendar/skin/shared/calendar-itip-icons.svg),
                       url(chrome://calendar/skin/shared/calendar-itip-icons.svg);
     background-position: var(--itip-icon-partstat), var(--itip-icon-usertype) var(--itip-icon-role);
