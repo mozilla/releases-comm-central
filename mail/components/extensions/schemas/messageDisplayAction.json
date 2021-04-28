@@ -45,12 +45,6 @@
                 "description": "Currently unused.",
                 "type": "string",
                 "optional": true
-              },
-              "type": {
-                "description": "Specifies the type of the button. Default type is <code>button</code>.",
-                "type": "string",
-                "enum": ["button", "menu", "menu-button"],
-                "optional": true
               }
             },
             "optional": true

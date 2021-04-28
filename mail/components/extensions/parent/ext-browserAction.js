@@ -89,16 +89,6 @@ this.browserAction = class extends ToolbarButtonAPI {
             menu,
           });
         }
-
-        if (menu.getAttribute("data-action-menu") == "browserAction") {
-          global.actionContextMenu({
-            tab: tabTracker.activeTab,
-            pageUrl: tabTracker.activeTab.linkedBrowser.currentURI.spec,
-            extension: this.extension,
-            inBrowserActionMenu: true,
-            menu,
-          });
-        }
         break;
     }
   }

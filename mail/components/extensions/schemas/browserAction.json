@@ -28,7 +28,7 @@
                 "optional": true,
                 "minItems": 1,
                 "items": { "$ref": "ThemeIcons" },
-                "description": "Specifies icons to use for dark and light themes."
+                "description": "Specifies icons to use for dark and light themes"
               },
               "default_popup": {
                 "type": "string",
@@ -44,12 +44,6 @@
               "default_area": {
                 "description": "Currently unused.",
                 "type": "string",
-                "optional": true
-              },
-              "type": {
-                "description": "Specifies the type of the button. Default type is <code>button</code>.",
-                "type": "string",
-                "enum": ["button", "menu", "menu-button"],
                 "optional": true
               }
             },

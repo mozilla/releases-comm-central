@@ -58,24 +58,12 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
           // This needs to work in message tab and message window.
           let tab = windowManager.wrapWindow(window).activeTab.nativeTab;
           let browser = tab.linkedBrowser || tab.getBrowser();
+
           global.actionContextMenu({
             tab,
             pageUrl: browser.currentURI.spec,
             extension: this.extension,
             onMessageDisplayAction: true,
-            menu,
-          });
-        }
-
-        if (menu.getAttribute("data-action-menu") == "messageDisplayAction") {
-          // This needs to work in message tab and message window.
-          let tab = windowManager.wrapWindow(window).activeTab.nativeTab;
-          let browser = tab.linkedBrowser || tab.getBrowser();
-          global.actionContextMenu({
-            tab,
-            pageUrl: browser.currentURI.spec,
-            extension: this.extension,
-            inMessageDisplayActionMenu: true,
             menu,
           });
         }

@@ -582,7 +582,6 @@ menulist::part(description) {
 }
 } /** END Proton **/
 
-#FormatToolbar > toolbarbutton[type="menu-button"] > toolbarbutton > .toolbarbutton-text,
 #FormatToolbar > toolbarbutton > .toolbarbutton-text {
   display: none;
 }

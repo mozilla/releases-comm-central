@@ -204,17 +204,14 @@ async function checkClickedEvent(extension, expectedInfo, expectedTab) {
   Assert.equal(tab.mailTab, expectedTab.mailTab, "tab is mailTab");
 }
 
-function getExtensionDetails(...permissions) {
-  return {
+function createExtension(...permissions) {
+  return ExtensionTestUtils.loadExtension({
     async background() {
       for (let context of [
         "audio",
         "browser_action",
         "compose_action",
         "message_display_action",
-        "browser_action_menu",
-        "compose_action_menu",
-        "message_display_action_menu",
         "editable",
         "frame",
         "image",
@@ -284,7 +281,7 @@ function getExtensionDetails(...permissions) {
       permissions: [...permissions, "menus"],
     },
     useAddonManager: "temporary",
-  };
+  });
 }
 
 add_task(async function set_up() {
@@ -312,8 +309,7 @@ add_task(async function set_up() {
 });
 
 async function subtest_tools_menu(testWindow, expectedInfo, expectedTab) {
-  let extensionDetails = getExtensionDetails();
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
+  let extension = createExtension();
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -393,8 +389,7 @@ add_task(async function test_addressbook_tools_menu() {
 }).__skipMe = AppConstants.platform == "macosx";
 
 async function subtest_folder_pane(...permissions) {
-  let extensionDetails = getExtensionDetails(...permissions);
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
+  let extension = createExtension(...permissions);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -456,8 +451,7 @@ async function subtest_message_panes(...permissions) {
     window.MsgToggleMessagePane();
   }
 
-  let extensionDetails = getExtensionDetails(...permissions);
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
+  let extension = createExtension(...permissions);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -572,8 +566,7 @@ add_task(async function test_tab() {
     );
   }
 
-  let extensionDetails = getExtensionDetails();
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
+  let extension = createExtension();
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -866,8 +859,7 @@ add_task(async function test_content() {
   window.loadStartPage();
   await loadPromise;
 
-  let extensionDetails = getExtensionDetails("<all_urls>");
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
+  let extension = createExtension("<all_urls>");
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -888,8 +880,7 @@ add_task(async function test_content_tab() {
   let tab = window.openContentTab(`${URL_BASE}/content.html`);
   await BrowserTestUtils.browserLoaded(tab.browser);
 
-  let extensionDetails = getExtensionDetails("<all_urls>");
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
+  let extension = createExtension("<all_urls>");
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -929,8 +920,7 @@ add_task(async function test_content_window() {
     );
   }
 
-  let extensionDetails = getExtensionDetails("<all_urls>");
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
+  let extension = createExtension("<all_urls>");
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -948,8 +938,7 @@ add_task(async function test_content_window() {
 });
 
 async function subtest_compose(...permissions) {
-  let extensionDetails = getExtensionDetails(...permissions);
-  let extension = ExtensionTestUtils.loadExtension(extensionDetails);
+  let extension = createExtension(...permissions);
   await extension.startup();
   await extension.awaitMessage("menus-created");
 
@@ -1078,39 +1067,10 @@ add_task(async function test_compose_no_permissions() {
 async function subtest_action_menu(
   testWindow,
   target,
-  expectedClickInfo,
+  expectedInfo,
   expectedTab
 ) {
-  async function checkMenu(
-    extension,
-    element,
-    clickType,
-    menu,
-    menuEntryId,
-    expectedShowInfo
-  ) {
-    if (clickType == "right") {
-      await rightClick(menu, element);
-    } else {
-      await leftClick(menu, element);
-    }
-    await checkShownEvent(extension, expectedShowInfo, expectedTab);
-
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-    let clickedPromise = checkClickedEvent(
-      extension,
-      expectedClickInfo,
-      expectedTab
-    );
-    EventUtils.synthesizeMouseAtCenter(
-      testWindow.document.getElementById(menuEntryId),
-      {},
-      testWindow
-    );
-    await clickedPromise;
-    await hiddenPromise;
-  }
-  function checkVisibility(menu) {
+  function checkVisibility(menu, visible) {
     let removeExtension = menu.querySelector(
       ".customize-context-removeExtension"
     );
@@ -1118,8 +1078,9 @@ async function subtest_action_menu(
       ".customize-context-manageExtension"
     );
 
-    ok(removeExtension.hidden, "Remove Extension should not be visible");
-    ok(manageExtension.hidden, "Manage Extension should not be visible");
+    info(`Check visibility: ${visible}`);
+    is(!removeExtension.hidden, visible, "Remove Extension should be visible");
+    is(!manageExtension.hidden, visible, "Manage Extension should be visible");
   }
 
   async function testContextMenuRemoveExtension(extension, menu, element) {
@@ -1147,8 +1108,6 @@ async function subtest_action_menu(
     let removeExtension = menu.querySelector(
       ".customize-context-removeExtension"
     );
-    ok(!removeExtension.hidden, "Remove Extension should be visible");
-
     let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.activateItem(removeExtension);
     await hiddenPromise;
@@ -1178,8 +1137,6 @@ async function subtest_action_menu(
     let manageExtension = menu.querySelector(
       ".customize-context-manageExtension"
     );
-    ok(!manageExtension.hidden, "Manage Extension should be visible");
-
     let addonManagerPromise = contentTabOpenPromise(tabmail, "about:addons");
     menu.activateItem(manageExtension);
     let managerTab = await addonManagerPromise;
@@ -1199,72 +1156,44 @@ async function subtest_action_menu(
     tabmail.closeTab(managerTab);
   }
 
-  for (let buttonType of [null, "button", "menu-button", "menu"]) {
-    let extensionDetails = getExtensionDetails();
-    if (target.area) {
-      extensionDetails.manifest[target.context].default_area = target.area;
-    }
-    if (buttonType) {
-      extensionDetails.manifest[target.context].type = buttonType;
-    }
+  let extension = createExtension();
+  await extension.startup();
+  await extension.awaitMessage("menus-created");
 
-    let extension = ExtensionTestUtils.loadExtension(extensionDetails);
-    await extension.startup();
-    await extension.awaitMessage("menus-created");
+  let element = testWindow.document.getElementById(target.elementId);
+  let menu = testWindow.document.getElementById(target.menuId);
 
-    let element = testWindow.document.getElementById(target.elementId);
-    let menu = testWindow.document.getElementById(target.menuId);
+  await rightClick(menu, element);
+  await checkVisibility(menu, true);
+  await checkShownEvent(
+    extension,
+    { menuIds: [target.context], contexts: [target.context, "all"] },
+    expectedTab
+  );
 
-    info("Test context menu of the action button.");
-    await checkMenu(
-      extension,
-      element,
-      "right",
-      menu,
-      `menus_mochi_test-menuitem-_${target.context}`,
-      { menuIds: [target.context], contexts: [target.context, "all"] }
+  let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+  let clickedPromise = checkClickedEvent(extension, expectedInfo, expectedTab);
+  menu.activateItem(
+    menu.querySelector(`#menus_mochi_test-menuitem-_${target.context}`)
+  );
+  await clickedPromise;
+  await hiddenPromise;
+
+  // Test the non actionButton element for visibility of the management menu entries.
+  if (target.nonActionButtonElementId) {
+    let nonActionButtonElement = testWindow.document.getElementById(
+      target.nonActionButtonElementId
     );
-
-    if (!buttonType || buttonType == "button") {
-      info(
-        "Test a non-actionButton element for visibility of the management menu entries."
-      );
-      if (target.nonActionButtonElementId) {
-        let nonActionButtonElement = testWindow.document.getElementById(
-          target.nonActionButtonElementId
-        );
-        await rightClick(menu, nonActionButtonElement);
-        await checkVisibility(menu);
-        let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-        menu.hidePopup();
-        await hiddenPromise;
-      }
-    } else {
-      info(
-        "Test the additional menu of 'menu' and `menu-button` typed action buttons."
-      );
-      let dropmarker = element.querySelector("dropmarker");
-      let actionMenu = element.querySelector("menupopup");
-      let expectedInfo = Object.assign({}, expectedClickInfo);
-      expectedInfo.menuItemId = `${expectedClickInfo.menuItemId}_menu`;
-
-      await checkMenu(
-        extension,
-        dropmarker,
-        "left",
-        actionMenu,
-        `menus_mochi_test-menuitem-_${target.context}_menu`,
-        {
-          menuIds: [`${target.context}_menu`],
-          contexts: [`${target.context}_menu`, "all"],
-        }
-      );
-    }
-
-    await testContextMenuManageExtension(extension, menu, element);
-    await testContextMenuRemoveExtension(extension, menu, element);
-    await extension.unload();
+    await rightClick(menu, nonActionButtonElement);
+    await checkVisibility(menu, false);
+    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    menu.hidePopup();
+    await hiddenPromise;
   }
+
+  await testContextMenuManageExtension(extension, menu, element);
+  await testContextMenuRemoveExtension(extension, menu, element);
+  await extension.unload();
 }
 
 add_task(async function test_browser_action_menu() {
@@ -1335,26 +1264,6 @@ add_task(async function test_compose_action_menu() {
       elementId: "menus_mochi_test-composeAction-toolbarbutton",
       context: "compose_action",
       nonActionButtonElementId: "button-attach",
-    },
-    {
-      pageUrl: "about:blank?compose",
-      menuItemId: "compose_action",
-    },
-    { active: true, index: 0, mailTab: false }
-  );
-  await BrowserTestUtils.closeWindow(testWindow);
-});
-
-add_task(async function test_compose_action_menu_formattoolbar() {
-  let testWindow = await openComposeWindow(gAccount);
-  await focusWindow(testWindow);
-  await subtest_action_menu(
-    testWindow,
-    {
-      menuId: "format-toolbar-context-menu",
-      elementId: "menus_mochi_test-composeAction-toolbarbutton",
-      context: "compose_action",
-      area: "formattoolbar",
     },
     {
       pageUrl: "about:blank?compose",

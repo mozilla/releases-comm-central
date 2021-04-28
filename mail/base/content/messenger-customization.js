@@ -131,18 +131,7 @@ var AutoHideMenubar = {
 var ToolbarContextMenu = {
   _getExtensionId(popup) {
     let node = popup.triggerNode;
-    let nodeId =
-      node &&
-      node.classList.contains("webextension-action") &&
-      node.getAttribute("data-extensionid");
-    // For toolbarbutton-menu-buttons the trigger node is the nested button and
-    // thus the extensionId is in the parent node.
-    let parentId =
-      node &&
-      node.parentNode &&
-      node.parentNode.classList.contains("webextension-action") &&
-      node.parentNode.getAttribute("data-extensionid");
-    return nodeId || parentId;
+    return node && node.getAttribute("data-extensionid");
   },
 
   async updateExtension(popup) {

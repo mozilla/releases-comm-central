@@ -748,16 +748,6 @@
             oncommand="toggleInitiallyShowAttachmentPane(this);"/>
 </menupopup>
 
-<menupopup id="format-toolbar-context-menu"
-           onpopupshowing="ToolbarContextMenu.updateExtension(this);">
-  <menuitem oncommand="ToolbarContextMenu.openAboutAddonsForContextAction(this.parentElement)"
-            data-l10n-id="toolbar-context-menu-manage-extension"
-            class="customize-context-manageExtension"/>
-  <menuitem oncommand="ToolbarContextMenu.removeExtensionForContextAction(this.parentElement)"
-            data-l10n-id="toolbar-context-menu-remove-extension"
-            class="customize-context-removeExtension"/>
-</menupopup>
-
 <menupopup id="toolbar-context-menu"
            onpopupshowing="onViewToolbarsPopupShowing(event, 'compose-toolbox'); ToolbarContextMenu.updateExtension(this);">
   <menuseparator/>

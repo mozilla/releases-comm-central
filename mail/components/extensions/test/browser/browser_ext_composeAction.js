@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-async function test_it(account, extensionDetails) {
+async function test_it(account, extensionDetails, toolbarId) {
   let extension = ExtensionTestUtils.loadExtension(extensionDetails);
   let buttonId = "compose_action_mochi_test-composeAction-toolbarbutton";
-  let toolbarId =
-    extensionDetails.manifest.compose_action.default_area == "formattoolbar"
-      ? "FormatToolbar"
-      : "composeToolbar2";
 
   await extension.startup();
   await extension.awaitMessage();
@@ -63,12 +59,6 @@ async function test_it(account, extensionDetails) {
     await clickedPromise;
     await promiseAnimationFrame(composeWindow);
     await new Promise(resolve => composeWindow.setTimeout(resolve));
-
-    // Close the menupopup caused by a click on a menu typed button.
-    let menupopup = button.querySelector("menupopup");
-    if (menupopup) {
-      menupopup.hidePopup();
-    }
 
     is(composeDocument.getElementById(buttonId), button);
 
@@ -126,28 +116,6 @@ add_task(async function setup() {
     browser.test.sendMessage();
   }
 
-  async function background_menu() {
-    browser.test.log("menu background script ran");
-    browser.runtime.onMessage.addListener(async msg => {
-      throw new Error("Popup should not open for menu typed buttons.");
-    });
-
-    browser.composeAction.onClicked.addListener(async (tab, info) => {
-      throw new Error("onClicked should not fire for menu typed buttons.");
-    });
-
-    browser.menus.onShown.addListener(async (tab, info) => {
-      browser.test.assertEq("object", typeof tab);
-      browser.test.assertEq("object", typeof info);
-      browser.test.log(`Tab ID is ${tab.id}`);
-      await browser.composeAction.setTitle({ title: "New title" });
-      await new Promise(resolve => setTimeout(resolve));
-      browser.test.sendMessage("composeAction");
-    });
-
-    browser.test.sendMessage();
-  }
-
   let extensionDetails = {
     background: background_nopopup,
     files: {
@@ -176,41 +144,24 @@ add_task(async function setup() {
       compose_action: {
         default_title: "This is a test",
       },
-      permissions: ["menus"],
     },
     useAddonManager: "temporary",
   };
 
-  for (let area of [null, "maintoolbar", "formattoolbar"]) {
-    for (let buttonType of [null, "button", "menu", "menu-button"]) {
-      for (let popup of [null, "popup.html"]) {
-        delete extensionDetails.manifest.compose_action.type;
-        delete extensionDetails.manifest.compose_action.default_area;
-        delete extensionDetails.manifest.compose_action.default_popup;
+  await test_it(account, extensionDetails, "composeToolbar2");
 
-        if (buttonType) {
-          extensionDetails.manifest.compose_action.type = buttonType;
-        }
-        if (area) {
-          extensionDetails.manifest.compose_action.default_area = area;
-        }
-        if (popup) {
-          extensionDetails.manifest.compose_action.default_popup = popup;
-          extensionDetails.background =
-            buttonType == "menu" ? background_menu : background_popup;
-        } else {
-          extensionDetails.background =
-            buttonType == "menu" ? background_menu : background_nopopup;
-        }
-        info(
-          `${area || "default"} area, ${
-            popup ? "with" : "no"
-          } pop-up, ${buttonType || "default"} button type`
-        );
-        await test_it(account, extensionDetails);
-      }
-    }
-  }
+  extensionDetails.background = background_popup;
+  extensionDetails.manifest.compose_action.default_popup = "popup.html";
+  await test_it(account, extensionDetails, "composeToolbar2");
+
+  extensionDetails.background = background_nopopup;
+  extensionDetails.manifest.compose_action.default_area = "formattoolbar";
+  delete extensionDetails.manifest.compose_action.default_popup;
+  await test_it(account, extensionDetails, "FormatToolbar");
+
+  extensionDetails.background = background_popup;
+  extensionDetails.manifest.compose_action.default_popup = "popup.html";
+  await test_it(account, extensionDetails, "FormatToolbar");
 
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messengercompose/messengercompose.xhtml"
