@@ -33,13 +33,6 @@ add_task(async function testContextMenu() {
   await BrowserTestUtils.browserLoaded(chatConv.convBrowser);
   const convDocument = chatConv.convBrowser.contentWindow.document;
 
-  // wait for libOTR messages to avoid a potential race with libOTR key generation.
-  if (!chatConv.loaded || chatConv.convBrowser._messageDisplayPending) {
-    await BrowserTestUtils.waitForEvent(
-      chatConv.convBrowser,
-      "MessagesDisplayed"
-    );
-  }
   await conversationLoaded;
 
   const contextMenu = document.getElementById("chatConversationContextMenu");

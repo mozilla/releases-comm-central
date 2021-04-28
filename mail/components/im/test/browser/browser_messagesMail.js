@@ -30,23 +30,10 @@ add_task(async function testCollapse() {
   const convDocument = chatConv.convBrowser.contentWindow.document;
   const messageParent = convDocument.getElementById("Chat");
 
-  // libOTR will show 0-1 notices at the start of the conversation.
-  if (!chatConv.loaded || chatConv.convBrowser._messageDisplayPending) {
-    await BrowserTestUtils.waitForEvent(
-      chatConv.convBrowser,
-      "MessagesDisplayed"
-    );
-  }
-  const libOtrNotices = messageParent.querySelectorAll(".event-row .body")
-    .length;
-  const expectedNoticeIndex = 1 + libOtrNotices;
-
   await addNotice(conversation, chatConv);
 
   is(
-    messageParent.querySelector(
-      `.event-row:nth-child(${expectedNoticeIndex}) .body`
-    ).textContent,
+    messageParent.querySelector(".event-row:nth-child(1) .body").textContent,
     "test notice",
     "notice added to conv"
   );
@@ -71,7 +58,7 @@ add_task(async function testCollapse() {
   const hiddenGroup = messageParent.querySelector(".hide-children");
   const toggle = hiddenGroup.querySelector(".eventToggle");
   ok(toggle);
-  ok(hiddenGroup.querySelectorAll(".event-row").length >= 5 + libOtrNotices);
+  ok(hiddenGroup.querySelectorAll(".event-row").length >= 5);
 
   toggle.click();
   await BrowserTestUtils.waitForMutationCondition(
