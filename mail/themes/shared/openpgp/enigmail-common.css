@@ -320,8 +320,6 @@ treechildren::-moz-tree-image(enigEncrypted) {
    the following styles are available for the key trust
    columnm in the key manager:
     enigmail_keyValid_unknown
-    enigmail_keyValid_invalid
-    enigmail_keyValid_disabled
     enigmail_keyValid_revoked
     enigmail_keyValid_expired
     enigmail_keyTrust_untrusted

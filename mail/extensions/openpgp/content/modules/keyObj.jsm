@@ -100,6 +100,7 @@ class EnigmailKeyObj {
     this.minimalKeyBlock = [];
     this.photoAvailable = false;
     this.secretAvailable = false;
+    this.secretMaterial = false;
     this._sigList = null;
 
     this.type = keyData.type;
@@ -135,6 +136,7 @@ class EnigmailKeyObj {
       "subKeys",
       "fpr",
       "secretAvailable",
+      "secretMaterial",
       "photoAvailable",
       "userId",
     ];
@@ -242,21 +244,6 @@ class EnigmailKeyObj {
         userId: this.userId,
         keyId: "0x" + this.keyId,
       });
-    } else if (
-      this.keyTrust.search(/d/i) >= 0 ||
-      this.keyUseFor.search(/D/i) >= 0
-    ) {
-      // public key disabled
-      retVal.reason = l10n.formatValueSync("key-ring-key-disabled", {
-        userId: this.userId,
-        keyId: "0x" + this.keyId,
-      });
-    } else if (this.keyTrust.search(/i/i) >= 0) {
-      // public key invalid
-      retVal.reason = l10n.formatValueSync("key-ring-key-invalid", {
-        userId: this.userId,
-        keyId: "0x" + this.keyId,
-      });
     } else {
       retVal.keyValid = true;
     }
@@ -284,170 +271,142 @@ class EnigmailKeyObj {
         userId: this.userId,
         keyId: "0x" + this.keyId,
       });
-    } else if (this.keyUseFor.search(/S/) < 0) {
-      retVal.keyValid = false;
-      if (this.keyTrust.search(/u/i) < 0) {
-        // public key invalid
-        retVal.reason = l10n.formatValueSync("key-ring-key-not-trusted", {
-          userId: this.userId,
-          keyId: "0x" + this.keyId,
-        });
-      } else {
-        let expired = 0,
-          revoked = 0,
-          unusable = 0,
-          found = 0;
-        // public key is valid; check for signing subkeys
-        for (let sk in this.subKeys) {
-          if (this.subKeys[sk].keyUseFor.search(/S/) >= 0) {
-            if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) {
-              ++expired;
-            } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
-              ++revoked;
-            } else if (
-              this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 ||
-              this.subKeys[sk].keyUseFor.search(/D/) >= 0
-            ) {
-              ++unusable;
-            } else {
-              // found subkey usable
-              ++found;
-            }
-          }
-        }
+      return retVal;
+    }
 
-        if (!found) {
-          if (exceptionReason != "ignoreExpired" && expired) {
-            retVal.reason = l10n.formatValueSync(
-              "key-ring-sign-sub-keys-expired",
-              {
-                userId: this.userId,
-                keyId: "0x" + this.keyId,
-              }
-            );
-          } else if (revoked) {
-            retVal.reason = l10n.formatValueSync(
-              "key-ring-sign-sub-keys-revoked",
-              {
-                userId: this.userId,
-                keyId: "0x" + this.keyId,
-              }
-            );
-          } else if (unusable) {
-            retVal.reason = l10n.formatValueSync(
-              "key-ring-sign-sub-keys-unusable",
-              {
-                userId: this.userId,
-                keyId: "0x" + this.keyId,
-              }
-            );
-          } else {
-            retVal.reason = l10n.formatValueSync(
-              "key-ring-pub-key-not-for-signing",
-              {
-                userId: this.userId,
-                keyId: "0x" + this.keyId,
-              }
-            );
-          }
+    if (/s/.test(this.keyUseFor) && this.secretMaterial) {
+      return retVal;
+    }
+
+    retVal.keyValid = false;
+    let expired = 0;
+    let revoked = 0;
+    let found = 0;
+    let noSecret = 0;
+
+    for (let sk in this.subKeys) {
+      if (this.subKeys[sk].keyUseFor.search(/s/) >= 0) {
+        if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) {
+          ++expired;
+        } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
+          ++revoked;
+        } else if (!this.subKeys[sk].secretMaterial) {
+          ++noSecret;
         } else {
-          retVal.keyValid = true;
+          // found subkey usable
+          ++found;
         }
       }
     }
 
-    //console.debug("getSigningValidity retVal: %o", retVal);
+    if (!found) {
+      if (exceptionReason != "ignoreExpired" && expired) {
+        retVal.reason = l10n.formatValueSync("key-ring-sign-sub-keys-expired", {
+          userId: this.userId,
+          keyId: "0x" + this.keyId,
+        });
+      } else if (revoked) {
+        retVal.reason = l10n.formatValueSync("key-ring-sign-sub-keys-revoked", {
+          userId: this.userId,
+          keyId: "0x" + this.keyId,
+        });
+      } else if (noSecret) {
+        retVal.reason = l10n.formatValueSync("key-ring-no-secret-key", {
+          userId: this.userId,
+          keyId: "0x" + this.keyId,
+        });
+      } else {
+        retVal.reason = l10n.formatValueSync(
+          "key-ring-pub-key-not-for-signing",
+          {
+            userId: this.userId,
+            keyId: "0x" + this.keyId,
+          }
+        );
+      }
+    } else {
+      retVal.keyValid = true;
+    }
+
     return retVal;
   }
 
   /**
    * Check whether a key can be used for encryption and return a description of why not
    *
+   * @param {boolean} requireDecryptionKey:
+   *                  If true, require secret key material to be available
+   *                  for at least one encryption key.
+   *
    * @return Object:
    *   - keyValid: Boolean (true if key is valid)
    *   - reason: String (explanation of invalidity)
    */
-  getEncryptionValidity(exceptionReason = null) {
+  getEncryptionValidity(requireDecryptionKey, exceptionReason = null) {
     let retVal = this.getPubKeyValidity(exceptionReason);
     if (!retVal.keyValid) {
       return retVal;
     }
 
-    if (this.keyUseFor.search(/E/) < 0) {
-      retVal.keyValid = false;
+    if (
+      requireDecryptionKey &&
+      this.keyUseFor.search(/e/) >= 0 &&
+      this.secretMaterial
+    ) {
+      return retVal;
+    }
 
-      if (this.keyTrust.search(/u/i) < 0) {
-        // public key invalid
-        retVal.reason = l10n.formatValueSync("key-ring-key-invalid", {
-          userId: this.userId,
-          keyId: "0x" + this.keyId,
-        });
-      } else {
-        let expired = 0,
-          revoked = 0,
-          unusable = 0,
-          found = 0;
-        // public key is valid; check for encryption subkeys
+    retVal.keyValid = false;
 
-        for (let sk in this.subKeys) {
-          if (this.subKeys[sk].keyUseFor.search(/E/) >= 0) {
-            if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) {
-              ++expired;
-            } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
-              ++revoked;
-            } else if (
-              this.subKeys[sk].keyTrust.search(/[di-]/i) >= 0 ||
-              this.subKeys[sk].keyUseFor.search(/D/) >= 0
-            ) {
-              ++unusable;
-            } else {
-              // found subkey usable
-              ++found;
-            }
-          }
-        }
+    let expired = 0;
+    let revoked = 0;
+    let found = 0;
+    let noSecret = 0;
 
-        if (!found) {
-          if (exceptionReason != "ignoreExpired" && expired) {
-            retVal.reason = l10n.formatValueSync(
-              "key-ring-enc-sub-keys-expired",
-              {
-                userId: this.userId,
-                keyId: "0x" + this.keyId,
-              }
-            );
-          } else if (revoked) {
-            retVal.reason = l10n.formatValueSync(
-              "key-ring-enc-sub-keys-revoked",
-              {
-                userId: this.userId,
-                keyId: "0x" + this.keyId,
-              }
-            );
-          } else if (unusable) {
-            retVal.reason = l10n.formatValueSync(
-              "key-ring-enc-sub-keys-unusable",
-              {
-                userId: this.userId,
-                keyId: "0x" + this.keyId,
-              }
-            );
-          } else {
-            retVal.reason = l10n.formatValueSync(
-              "key-ring-pub-key-not-for-encryption",
-              {
-                userId: this.userId,
-                keyId: "0x" + this.keyId,
-              }
-            );
-          }
+    for (let sk in this.subKeys) {
+      if (this.subKeys[sk].keyUseFor.search(/e/) >= 0) {
+        if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) {
+          ++expired;
+        } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
+          ++revoked;
+        } else if (requireDecryptionKey && !this.subKeys[sk].secretMaterial) {
+          ++noSecret;
         } else {
-          retVal.keyValid = true;
+          // found subkey usable
+          ++found;
         }
       }
     }
 
-    //console.debug("getEncryptionValidity retVal: %o", retVal);
+    if (!found) {
+      if (exceptionReason != "ignoreExpired" && expired) {
+        retVal.reason = l10n.formatValueSync("key-ring-enc-sub-keys-expired", {
+          userId: this.userId,
+          keyId: "0x" + this.keyId,
+        });
+      } else if (revoked) {
+        retVal.reason = l10n.formatValueSync("key-ring-enc-sub-keys-revoked", {
+          userId: this.userId,
+          keyId: "0x" + this.keyId,
+        });
+      } else if (noSecret) {
+        retVal.reason = l10n.formatValueSync("key-ring-no-secret-key", {
+          userId: this.userId,
+          keyId: "0x" + this.keyId,
+        });
+      } else {
+        retVal.reason = l10n.formatValueSync(
+          "key-ring-pub-key-not-for-encryption",
+          {
+            userId: this.userId,
+            keyId: "0x" + this.keyId,
+          }
+        );
+      }
+    } else {
+      retVal.keyValid = true;
+    }
+
     return retVal;
   }
 

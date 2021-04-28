@@ -223,7 +223,7 @@ var EnigmailKeyRing = {
         continue;
       }
       if (
-        key.getEncryptionValidity("ignoreExpired").keyValid &&
+        key.getEncryptionValidity(true, "ignoreExpired").keyValid &&
         key.getSigningValidity("ignoreExpired").keyValid
       ) {
         let thisIsExpired =

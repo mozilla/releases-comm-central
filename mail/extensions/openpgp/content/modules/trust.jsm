@@ -53,18 +53,7 @@ var EnigmailTrust = {
     return TRUSTLEVELS_SORTED.indexOf(flag) < TRUSTLEVELS_SORTED_IDX_UNKNOWN;
   },
 
-  /**
-   * return a merged value of trust level "key disabled"
-   *
-   * @keyObj - |object| containing the key data
-   *
-   * @return - |string| containing the trust value or "D" for disabled keys
-   */
   getTrustCode(keyObj) {
-    if (keyObj.keyUseFor.includes("D")) {
-      return "D";
-    }
-
     return keyObj.keyTrust;
   },
 

@@ -496,18 +496,13 @@ openpgp-export-secret-fail = <b>Unable to export the selected secret key!</b>
 # Strings in keyObj.jsm
 key-ring-pub-key-revoked = The key { $userId } (key ID { $keyId }) is revoked.
 key-ring-pub-key-expired = The key { $userId } (key ID { $keyId }) has expired.
-key-ring-key-disabled = The key { $userId } (key ID { $keyId }) is disabled; it cannot be used.
-key-ring-key-invalid = The key { $userId } (key ID { $keyId }) is not valid. Please consider verifying it correctly.
-key-ring-key-not-trusted=The key { $userId } (key ID { $keyId }) is not trusted enough. Please set the trust level of your key to "ultimate" to use it for signing.
 key-ring-no-secret-key = You do not seem to have the secret key for { $userId } (key ID { $keyId }) on your keyring; you cannot use the key for signing.
 key-ring-pub-key-not-for-signing = The key { $userId } (key ID { $keyId }) cannot be used for signing.
 key-ring-pub-key-not-for-encryption = The key { $userId } (key ID { $keyId }) cannot be used for encryption.
 key-ring-sign-sub-keys-revoked = All signing-subkeys of key { $userId } (key ID { $keyId }) are revoked.
 key-ring-sign-sub-keys-expired = All signing-subkeys of key { $userId } (key ID { $keyId }) have expired.
-key-ring-sign-sub-keys-unusable = All signing-subkeys of key { $userId } (key ID { $keyId }) are revoked, expired or otherwise unusable.
 key-ring-enc-sub-keys-revoked = All encryption subkeys of key { $userId } (key ID { $keyId }) are revoked.
 key-ring-enc-sub-keys-expired = All encryption subkeys of key { $userId } (key ID { $keyId }) have expired.
-key-ring-enc-sub-keys-unusable = All encryption subkeys of key { $userId } (key ID { $keyId }) are revoked, expired or otherwise unusable.
 
 # Strings in gnupg-keylist.jsm
 keyring-photo = Photo

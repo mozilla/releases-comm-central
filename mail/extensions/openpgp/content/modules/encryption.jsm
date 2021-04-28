@@ -238,7 +238,7 @@ var EnigmailEncryption = {
         keySpec: keyId,
       });
     }
-    let r = key.getEncryptionValidity();
+    let r = key.getEncryptionValidity(false);
     if (!r.keyValid) {
       return r.reason;
     }
@@ -313,7 +313,7 @@ var EnigmailEncryption = {
     }
 
     if (encrypt) {
-      if (foundKey && foundKey.getEncryptionValidity().keyValid) {
+      if (foundKey && foundKey.getEncryptionValidity(true).keyValid) {
         canEncrypt = true;
       }
     }

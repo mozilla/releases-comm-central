@@ -553,10 +553,15 @@ function createSubkeyItem(subkey) {
     expire = subkey.expiry;
   }
 
-  let subkeyType =
-    subkey.type === "pub"
-      ? l10n.formatValueSync("key-type-primary")
-      : l10n.formatValueSync("key-type-subkey");
+  let subkeyType = "";
+  if (subkey.secretAvailable && !subkey.secretMaterial) {
+    subkeyType = "(!) ";
+  }
+  if (subkey.type === "pub") {
+    subkeyType += l10n.formatValueSync("key-type-primary");
+  } else {
+    subkeyType += l10n.formatValueSync("key-type-subkey");
+  }
 
   let usagetext = "";
   let i;

@@ -77,6 +77,12 @@ var RNP = {
 
     keyObj.secretAvailable = this.getSecretAvailableFromHandle(handle);
 
+    if (keyObj.secretAvailable) {
+      keyObj.secretMaterial = this.isSecretKeyMaterialAvailable(handle);
+    } else {
+      keyObj.secretMaterial = false;
+    }
+
     if (is_subkey) {
       keyObj.type = "sub";
     } else {
@@ -1803,6 +1809,38 @@ var RNP = {
     }
   },
 
+  /**
+   * If the given secret key is a pseudo secret key, which doesn't
+   * contain the underlying key material, then return false.
+   *
+   * Only call this function if getSecretAvailableFromHandle returns
+   * true for the given handle (which means it claims to contain a
+   * secret key).
+   *
+   * @param {rnp_key_handle_t} handle - handle of the key to query
+   * @return {boolean} - true if secret key material is available
+   *
+   */
+  isSecretKeyMaterialAvailable(handle) {
+    let protection_type = new ctypes.char.ptr();
+    if (RNPLib.rnp_key_get_protection_type(handle, protection_type.address())) {
+      throw new Error("rnp_key_get_protection_type failed");
+    }
+    let result;
+    switch (protection_type.readString()) {
+      case "GPG-None":
+      case "GPG-Smartcard":
+      case "Unknown":
+        result = false;
+        break;
+      default:
+        result = true;
+        break;
+    }
+    RNPLib.rnp_buffer_destroy(protection_type);
+    return result;
+  },
+
   async importKeyBlockImpl(
     win,
     passCB,
@@ -1916,33 +1954,66 @@ var RNP = {
           // the new passphrase. If a failure occurrs at some point,
           // all keys remain protected in memory.
 
-          let rv = RNPLib.rnp_key_unprotect(impKey, recentPass);
-          if (rv == 0) {
-            if (RNPLib.rnp_key_protect(impKey, newPass, null, null, null, 0)) {
-              throw new Error("rnp_key_protect failed");
-            }
+          let rv = 0;
 
+          // Don't attempt to unprotect secret keys that are unavailable.
+          if (this.isSecretKeyMaterialAvailable(impKey)) {
+            rv = RNPLib.rnp_key_unprotect(impKey, recentPass);
+            if (rv == 0) {
+              if (
+                RNPLib.rnp_key_protect(impKey, newPass, null, null, null, 0)
+              ) {
+                throw new Error("rnp_key_protect failed");
+              }
+            }
+          }
+
+          if (rv == 0) {
             let sub_count = new ctypes.size_t();
             if (RNPLib.rnp_key_get_subkey_count(impKey, sub_count.address())) {
               throw new Error("rnp_key_get_subkey_count failed");
             }
-            for (let i = 0; i < sub_count.value && !unableToUnprotectId; i++) {
+            for (
+              let i = 0;
+              i < sub_count.value && !unableToUnprotectId && !rv;
+              i++
+            ) {
               let sub_handle = new RNPLib.rnp_key_handle_t();
               if (
                 RNPLib.rnp_key_get_subkey_at(impKey, i, sub_handle.address())
               ) {
                 throw new Error("rnp_key_get_subkey_at failed");
               }
-              if (RNPLib.rnp_key_unprotect(sub_handle, recentPass)) {
-                unableToUnprotectId = RNP.getKeyIDFromHandle(sub_handle);
-              } else if (
-                RNPLib.rnp_key_protect(sub_handle, newPass, null, null, null, 0)
-              ) {
-                throw new Error("rnp_key_protect failed");
+
+              if (this.isSecretKeyMaterialAvailable(sub_handle)) {
+                rv = RNPLib.rnp_key_unprotect(sub_handle, recentPass);
+                if (rv) {
+                  // if (!recentPass), we haven't yet asked the user
+                  // for a password, or the user hasn't yet entered the
+                  // password. That's not yet a failure.
+                  if (recentPass) {
+                    unableToUnprotectId = RNP.getKeyIDFromHandle(sub_handle);
+                  }
+                } else if (
+                  RNPLib.rnp_key_protect(
+                    sub_handle,
+                    newPass,
+                    null,
+                    null,
+                    null,
+                    0
+                  )
+                ) {
+                  throw new Error("rnp_key_protect failed");
+                }
               }
+
               RNPLib.rnp_key_handle_destroy(sub_handle);
             }
-            break;
+
+            if (rv == 0) {
+              break;
+            }
           }
 
           if (unableToUnprotectId) {
