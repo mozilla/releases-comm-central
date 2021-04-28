@@ -32,6 +32,7 @@
 % override chrome://global/skin/icons/info.svg chrome://messenger/skin/overrides/info.svg
 % override chrome://global/skin/icons/info-filled.svg chrome://messenger/skin/overrides/info-filled.svg
 % override chrome://global/skin/icons/menu-arrow.svg chrome://messenger/skin/overrides/menu-arrow.svg
+% override chrome://global/skin/icons/menu-check.svg chrome://messenger/skin/overrides/check.svg
 % override chrome://global/skin/icons/more.svg chrome://messenger/skin/overrides/more.svg
 % override chrome://global/skin/icons/open-in-new.svg chrome://messenger/skin/overrides/open-in-new.svg
 % override chrome://global/skin/icons/plugin.svg chrome://messenger/skin/overrides/plugin.svg
@@ -48,6 +49,9 @@
 % override chrome://global/skin/icons/twisty-expanded.svg chrome://messenger/skin/overrides/twisty-expanded.svg
 % override chrome://global/skin/icons/update-icon.svg chrome://messenger/skin/overrides/update-icon.svg
 % override chrome://global/skin/icons/warning.svg chrome://messenger/skin/overrides/warning.svg
+% override chrome://mozapps/skin/extensions/category-discover.svg chrome://messenger/skin/overrides/category-discover.svg
+% override chrome://mozapps/skin/extensions/category-extensions.svg chrome://messenger/skin/overrides/category-extensions.svg
+% override chrome://mozapps/skin/extensions/category-themes.svg chrome://messenger/skin/overrides/category-themes.svg
 % override chrome://mozapps/skin/extensions/extension.svg chrome://messenger/skin/overrides/extension.svg
 
   skin/classic/messenger/overrides/add.svg                    (../shared/mail/overrides/add.svg)
@@ -57,6 +61,9 @@
   skin/classic/messenger/overrides/arrow-up-12.svg            (../shared/mail/overrides/arrow-up-12.svg)
   skin/classic/messenger/overrides/arrow-up-16.svg            (../shared/mail/overrides/arrow-up-16.svg)
   skin/classic/messenger/overrides/blocked.svg                (../shared/mail/overrides/blocked.svg)
+  skin/classic/messenger/overrides/category-discover.svg      (../shared/mail/overrides/category-discover.svg)
+  skin/classic/messenger/overrides/category-extensions.svg    (../shared/mail/overrides/category-extensions.svg)
+  skin/classic/messenger/overrides/category-themes.svg        (../shared/mail/overrides/category-themes.svg)
   skin/classic/messenger/overrides/check.svg                  (../shared/mail/overrides/check.svg)
   skin/classic/messenger/overrides/chevron.svg                (../shared/mail/overrides/chevron.svg)
   skin/classic/messenger/overrides/close.svg                  (../shared/mail/overrides/close.svg)
