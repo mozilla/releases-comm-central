@@ -87,8 +87,8 @@ add_task(async function test_accounts() {
             subFolders: [
               {
                 accountId: account1Id,
-                name: "foo 'bar'(!)",
-                path: "/Trash/foo 'bar'(!)",
+                name: "%foo %test% 'bar'(!)+",
+                path: "/Trash/%foo %test% 'bar'(!)+",
               },
               {
                 accountId: account1Id,
@@ -125,8 +125,8 @@ add_task(async function test_accounts() {
             subFolders: [
               {
                 accountId: account2Id,
-                name: "foo 'bar'(!)",
-                path: "/INBOX/foo 'bar'(!)",
+                name: "%foo %test% 'bar'(!)+",
+                path: "/INBOX/%foo %test% 'bar'(!)+",
               },
               {
                 accountId: account2Id,
@@ -184,14 +184,14 @@ add_task(async function test_accounts() {
   await extension.awaitMessage("create folders");
   let inbox1 = account1.incomingServer.rootFolder.subFolders[0];
   // Test our code can handle characters that might be escaped.
-  inbox1.createSubfolder("foo 'bar'(!)", null);
+  inbox1.createSubfolder("%foo %test% 'bar'(!)+", null);
   inbox1.createSubfolder("Ϟ", null); // Test our code can handle unicode.
 
   let inbox2 = account2.incomingServer.rootFolder.subFolders[0];
   inbox2.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter = "/";
   // Test our code can handle characters that might be escaped.
-  inbox2.createSubfolder("foo 'bar'(!)", null);
-  await PromiseTestUtils.promiseFolderAdded("foo 'bar'(!)");
+  inbox2.createSubfolder("%foo %test% 'bar'(!)+", null);
+  await PromiseTestUtils.promiseFolderAdded("%foo %test% 'bar'(!)+");
   inbox2.createSubfolder("Ϟ", null); // Test our code can handle unicode.
   await PromiseTestUtils.promiseFolderAdded("Ϟ");
 
