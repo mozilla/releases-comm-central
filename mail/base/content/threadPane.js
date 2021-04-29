@@ -22,7 +22,7 @@ function ThreadPaneOnClick(event) {
   // get here for clicks on the "treecol" (headers) and the "scrollbarbutton"
   // (scrollbar buttons) and don't want those events to cause a doubleclick.
 
-  let t = event.originalTarget;
+  let t = event.target;
   if (t.localName == "treecol") {
     HandleColumnClick(t.id);
     return;

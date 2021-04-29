@@ -375,7 +375,7 @@ this.tabs = class extends ExtensionAPI {
           name: "tabs.onMoved",
           register: fire => {
             let moveListener = event => {
-              let nativeTab = event.originalTarget;
+              let nativeTab = event.target;
               let nativeTabInfo = event.detail.tabInfo;
               let tabmail = nativeTab.ownerDocument.getElementById("tabmail");
 

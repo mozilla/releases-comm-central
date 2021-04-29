@@ -1596,8 +1596,6 @@ function __peek_click_handler(event) {
     normalize_for_json(event.target),
     "in",
     getWindowDescribeyFromEvent(event),
-    "original target:",
-    normalize_for_json(event.originalTarget),
   ]);
   return true;
 }
@@ -1610,8 +1608,6 @@ function __bubbled_click_handler(event) {
     normalize_for_json(event.target),
     "in",
     getWindowDescribeyFromEvent(event),
-    "original target:",
-    normalize_for_json(event.originalTarget),
   ]);
   return true;
 }

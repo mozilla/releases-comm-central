@@ -191,7 +191,7 @@
         // Let's scroll
         let pixelsToScroll = 0;
         if (arrowScrollbox.getAttribute("overflow") == "true") {
-          switch (event.originalTarget) {
+          switch (event.target) {
             case arrowScrollbox._scrollButtonDown:
               pixelsToScroll = arrowScrollbox.scrollIncrement * -1;
               break;

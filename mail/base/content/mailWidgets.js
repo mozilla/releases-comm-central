@@ -2388,6 +2388,7 @@
         ) {
           return;
         }
+
         // If focus moves out from pills, deselect all of them. Luckily,
         // pill context menu does not trigger focusout on addressing area.
         this.deselectAllPills();

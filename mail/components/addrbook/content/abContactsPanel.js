@@ -36,7 +36,7 @@ function abContextMenuButtonOnCommand(event) {
  * @param aEvent  a context menu event (right-click, context menu key press, etc.)
  */
 function contactsListOnContextMenu(aEvent) {
-  let target = aEvent.originalTarget;
+  let target = aEvent.target;
   let contextMenuID;
   let positionArray;
 
@@ -69,7 +69,7 @@ function contactsListOnContextMenu(aEvent) {
 function contactsListOnClick(aEvent) {
   CommandUpdate_AddressBook();
 
-  let target = aEvent.originalTarget;
+  let target = aEvent.target;
 
   // Left click on column header: Change sort direction.
   if (target.localName == "treecol" && aEvent.button == 0) {

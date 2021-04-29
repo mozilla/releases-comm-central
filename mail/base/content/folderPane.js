@@ -278,9 +278,9 @@ var gFolderTreeView = {
   onDoubleClick(aEvent) {
     if (
       aEvent.button != 0 ||
-      aEvent.originalTarget.localName == "twisty" ||
-      aEvent.originalTarget.localName == "slider" ||
-      aEvent.originalTarget.localName == "scrollbarbutton"
+      aEvent.target.localName == "twisty" ||
+      aEvent.target.localName == "slider" ||
+      aEvent.target.localName == "scrollbarbutton"
     ) {
       return;
     }
@@ -490,7 +490,7 @@ var gFolderTreeView = {
   _showFolderListPopup(event) {
     document
       .getElementById("folderListPopup")
-      .openPopup(event.originalTarget, "bottomcenter topright", 0, 0, false);
+      .openPopup(event.target, "bottomcenter topright", 0, 0, false);
   },
 
   _initFolderListPopup() {
@@ -1088,7 +1088,7 @@ var gFolderTreeView = {
     // Ugh, this is ugly but necessary
     let view = gFolderTreeView;
 
-    if (aEvent.originalTarget.localName != "treechildren") {
+    if (aEvent.target.localName != "treechildren") {
       return;
     }
 
@@ -1102,7 +1102,7 @@ var gFolderTreeView = {
       aEvent.dataTransfer.mozSetDataAt(flavor, folders[i], i);
     }
     aEvent.dataTransfer.effectAllowed = "copyMove";
-    aEvent.dataTransfer.addElement(aEvent.originalTarget);
+    aEvent.dataTransfer.addElement(aEvent.target);
   },
 
   _onDragOver(event) {

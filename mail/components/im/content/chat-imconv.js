@@ -47,9 +47,7 @@
       this.addEventListener(
         "mousedown",
         event => {
-          if (
-            event.originalTarget.classList.contains("closeConversationButton")
-          ) {
+          if (event.target.classList.contains("closeConversationButton")) {
             this.closeConversation();
             event.stopPropagation();
             event.preventDefault();

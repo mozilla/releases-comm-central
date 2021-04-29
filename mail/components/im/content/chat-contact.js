@@ -51,7 +51,7 @@
         if (
           !this.hasAttribute("aliasing") &&
           this.canOpenConversation() &&
-          event.originalTarget.classList.contains("startChatBubble")
+          event.target.classList.contains("startChatBubble")
         ) {
           this.openConversation();
           event.preventDefault();

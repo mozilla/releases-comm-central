@@ -66,7 +66,7 @@ var statusSelector = {
   },
 
   editStatus(aEvent) {
-    let status = aEvent.originalTarget.getAttribute("status");
+    let status = aEvent.target.getAttribute("status");
     if (status == "offline") {
       Services.core.globalUserStatus.setStatus(
         Ci.imIStatusInfo.STATUS_OFFLINE,

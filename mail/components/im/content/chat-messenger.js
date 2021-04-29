@@ -577,7 +577,7 @@ var chatHandler = {
   },
 
   setStatusMenupopupCommand(aEvent) {
-    let target = aEvent.originalTarget;
+    let target = aEvent.target;
     if (
       target.getAttribute("id") == "imStatusShowAccounts" ||
       target.getAttribute("id") == "appmenu_imStatusShowAccounts"
@@ -1026,7 +1026,7 @@ var chatHandler = {
     }
 
     let conv = document.getElementById("contactlistbox").selectedItem.conv;
-    let nick = aEvent.originalTarget.chatBuddy.name;
+    let nick = aEvent.target.chatBuddy.name;
     let name = conv.target.getNormalizedChatBuddyName(nick);
     try {
       let newconv = conv.account.createConversation(name);
@@ -1039,7 +1039,7 @@ var chatHandler = {
       return;
     }
 
-    let listbox = aEvent.originalTarget;
+    let listbox = aEvent.target;
     if (listbox.selectedCount == 0) {
       return;
     }

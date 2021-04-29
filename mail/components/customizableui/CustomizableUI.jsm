@@ -1981,7 +1981,7 @@ var CustomizableUIInternal = {
       return lastPopup;
     }
 
-    let target = aEvent.originalTarget;
+    let target = aEvent.target;
     let panel = this._getPanelForNode(aEvent.currentTarget);
     // This can happen in e.g. customize mode. If there's no panel,
     // there's clearly nothing for us to close; pretend we're interactive.
@@ -2105,7 +2105,7 @@ var CustomizableUIInternal = {
     // that case. Unfortunately, this means we get anonymous child nodes instead
     // of the real ones, so looking for the 'stoooop, don't close me' attributes
     // is more involved.
-    let target = aEvent.originalTarget;
+    let target = aEvent.target;
     while (target.parentNode && target.localName != "panel") {
       if (
         target.getAttribute("closemenu") == "none" ||

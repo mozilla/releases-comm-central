@@ -56,7 +56,7 @@ function hRefForClickEvent(aEvent, aDontCheckInputElement) {
     }
   } else {
     // We may be nested inside of a link node.
-    let linkNode = aEvent.originalTarget;
+    let linkNode = aEvent.target;
     while (linkNode && !(linkNode instanceof HTMLAnchorElement)) {
       linkNode = linkNode.parentNode;
     }

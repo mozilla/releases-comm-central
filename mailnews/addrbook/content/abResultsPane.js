@@ -292,7 +292,7 @@ function AbResultsPaneOnClick(event) {
   // and the "scrollbarbutton" (scrollbar buttons)
   // we don't want those events to cause a "double click"
 
-  var t = event.originalTarget;
+  var t = event.target;
 
   if (t.localName == "treecol") {
     var sortDirection;

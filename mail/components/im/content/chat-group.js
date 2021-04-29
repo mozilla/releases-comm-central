@@ -48,11 +48,11 @@
       this.addEventListener("click", event => {
         // Check if there was 1 click on the image or 2 clicks on the label
         if (
-          (event.detail == 1 && event.originalTarget.localName == "image") ||
-          (event.detail == 2 && event.originalTarget.localName == "label")
+          (event.detail == 1 && event.target.localName == "image") ||
+          (event.detail == 2 && event.target.localName == "label")
         ) {
           this.toggleClosed();
-        } else if (event.originalTarget.localName == "button") {
+        } else if (event.target.localName == "button") {
           this.hide();
         }
       });

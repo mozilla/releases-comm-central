@@ -75,12 +75,12 @@ SummaryFrameManager.prototype = {
       // Make sure we're responding to the summary frame being loaded, and not
       // some subnode.
       if (
-        event.originalTarget != this.iframe.contentDocument ||
+        event.target != this.iframe.contentDocument ||
         this.pendingOrLoadedUrl == "about:blank"
       ) {
         return;
       }
-      if (event.originalTarget.ownerGlobal.location.href == "about:blank") {
+      if (event.target.ownerGlobal.location.href == "about:blank") {
         return;
       }
 

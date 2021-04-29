@@ -2581,7 +2581,7 @@ function attachmentLinkKeyPress(aEvent) {
  * @param aEvent     The DOM event caused by the clicking.
  */
 function attachmentDblClick(aEvent) {
-  let item = aEvent.originalTarget;
+  let item = aEvent.target;
   while (item && item.localName != "richlistbox" && item.localName != "richlistitem") {
     item = item.parentNode;
   }

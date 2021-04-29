@@ -1635,7 +1635,7 @@ CustomizeMode.prototype = {
     this._addDragHandlers(this.visiblePalette);
 
     this.paletteDragHandler = aEvent => {
-      let originalTarget = aEvent.originalTarget;
+      let originalTarget = aEvent.target;
       if (
         this._isUnwantedDragDrop(aEvent) ||
         this.visiblePalette.contains(originalTarget) ||

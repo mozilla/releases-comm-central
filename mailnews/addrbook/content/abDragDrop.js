@@ -97,7 +97,7 @@ let abResultsPaneObserver = {
     event.dataTransfer.effectAllowed = "copyMove";
     // a drag targeted at a tree should instead use the treechildren so that
     // the current selection is used as the drag feedback
-    event.dataTransfer.addElement(event.originalTarget);
+    event.dataTransfer.addElement(event.target);
     event.stopPropagation();
   },
 };

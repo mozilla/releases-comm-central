@@ -111,7 +111,7 @@
           this._tabOnTabClose(aEvent);
           break;
         case "TabOpen":
-          this._createTabMenuItem(aEvent.originalTarget);
+          this._createTabMenuItem(aEvent.target);
           break;
         case "scroll":
           this._updateTabsVisibilityStatus();

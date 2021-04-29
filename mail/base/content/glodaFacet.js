@@ -588,10 +588,10 @@
         // we dispatch based on the class of the thing we clicked on.
         // there are other ways we could accomplish this, but they all sorta suck.
         if (
-          event.originalTarget.hasAttribute("class") &&
-          event.originalTarget.classList.contains("bar-link")
+          event.target.hasAttribute("class") &&
+          event.target.classList.contains("bar-link")
         ) {
-          this.barHovered(event.originalTarget.parentNode, true);
+          this.barHovered(event.target.parentNode, true);
         }
       });
 
@@ -599,10 +599,10 @@
         // we dispatch based on the class of the thing we clicked on.
         // there are other ways we could accomplish this, but they all sorta suck.
         if (
-          event.originalTarget.hasAttribute("class") &&
-          event.originalTarget.classList.contains("bar-link")
+          event.target.hasAttribute("class") &&
+          event.target.classList.contains("bar-link")
         ) {
-          this.barHoverGone(event.originalTarget.parentNode, true);
+          this.barHoverGone(event.target.parentNode, true);
         }
       });
     }
@@ -1111,7 +1111,7 @@
 
     showPopup(event) {
       try {
-        // event.originalTarget could be the <li> node, or a span inside
+        // event.target could be the <li> node, or a span inside
         // of it, or perhaps the facet-more button, or maybe something
         // else that we'll handle in the next version.  We walk up its
         // parent chain until we get to the right level of the DOM
@@ -1120,7 +1120,7 @@
           this.currentNode.removeAttribute("selected");
         }
 
-        let node = event.originalTarget;
+        let node = event.target;
 
         while (
           !(node && node.hasAttribute && node.hasAttribute("class")) ||
@@ -1152,7 +1152,7 @@
 
     activateLink(event) {
       try {
-        let node = event.originalTarget;
+        let node = event.target;
 
         while (
           !node.hasAttribute("class") ||

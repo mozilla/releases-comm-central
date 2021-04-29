@@ -252,7 +252,7 @@ var DOMLinkHandler = {
     }
   },
   onLinkAdded(event) {
-    let link = event.originalTarget;
+    let link = event.target;
     let rel = link.rel && link.rel.toLowerCase();
     if (!link || !link.ownerDocument || !rel || !link.href) {
       return;
@@ -462,7 +462,7 @@ var contentTabBaseType = {
     let self = this;
 
     function onLoad(aEvent) {
-      let doc = aEvent.originalTarget;
+      let doc = aEvent.target;
       let url = doc.defaultView.location.href;
 
       // If this document has an overlay defined, run it now.

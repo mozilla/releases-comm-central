@@ -168,7 +168,7 @@
     }
 
     topicBlur(event) {
-      if (event.originalTarget == this.topicInput) {
+      if (event.target == this.topicInput) {
         this.finishEditTopic(true);
       }
     }

@@ -271,7 +271,7 @@ function InSearchMode() {
 
 function SearchOnClick(event) {
   // We only care about button 0 (left click) events.
-  if (event.button != 0 || event.originalTarget.localName != "treechildren") {
+  if (event.button != 0 || event.target.localName != "treechildren") {
     return;
   }
 
@@ -356,7 +356,7 @@ function ReverseStateFromNode(row) {
 
 function SubscribeOnClick(event) {
   // We only care about button 0 (left click) events.
-  if (event.button != 0 || event.originalTarget.localName != "treechildren") {
+  if (event.button != 0 || event.target.localName != "treechildren") {
     return;
   }
 

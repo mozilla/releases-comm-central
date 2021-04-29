@@ -1440,7 +1440,7 @@ PopupNotifications.prototype = {
   },
 
   _onCheckboxCommand(event) {
-    let notificationEl = getNotificationFromElement(event.originalTarget);
+    let notificationEl = getNotificationFromElement(event.target);
     let checked = notificationEl.checkbox.checked;
     let notification = notificationEl.notification;
 
@@ -1463,7 +1463,7 @@ PopupNotifications.prototype = {
 
   _onCommand(event) {
     // Ignore events from buttons as they are submitting and so don't need checks
-    if (event.originalTarget.localName == "button") {
+    if (event.target.localName == "button") {
       return;
     }
     let notificationEl = getNotificationFromElement(event.target);
@@ -1472,7 +1472,7 @@ PopupNotifications.prototype = {
 
   _onButtonEvent(event, type, source = "button", notificationEl = null) {
     if (!notificationEl) {
-      notificationEl = getNotificationFromElement(event.originalTarget);
+      notificationEl = getNotificationFromElement(event.target);
     }
 
     if (!notificationEl) {
@@ -1567,7 +1567,7 @@ PopupNotifications.prototype = {
   },
 
   _onMenuCommand(event) {
-    let target = event.originalTarget;
+    let target = event.target;
     if (!target.action || !target.notification) {
       throw new Error(
         "menucommand target has no associated action/notification"

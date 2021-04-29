@@ -254,9 +254,7 @@
     }
 
     onWheel(event) {
-      if (
-        cal.view.getParentNodeOrThisByAttribute(event.originalTarget, "data-label", "day") == null
-      ) {
+      if (cal.view.getParentNodeOrThisByAttribute(event.target, "data-label", "day") == null) {
         if (this.dayItems.scrollHeight > this.dayItems.clientHeight) {
           event.stopPropagation();
         }

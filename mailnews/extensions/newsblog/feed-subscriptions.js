@@ -1163,7 +1163,7 @@ var FeedSubscriptions = {
     if (
       ("button" in aEvent &&
         (aEvent.button != 0 ||
-          aEvent.originalTarget.localName != "div" ||
+          aEvent.target.localName != "div" ||
           target.selectionStart != target.selectionEnd)) ||
       (aEvent.keyCode && aEvent.keyCode != aEvent.DOM_VK_RETURN)
     ) {

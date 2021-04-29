@@ -230,7 +230,7 @@
       });
 
       this.addEventListener("dragstart", event => {
-        if (event.originalTarget.localName != "treechildren") {
+        if (event.target.localName != "treechildren") {
           // We should only drag treechildren, not for example the scrollbar.
           return;
         }

@@ -533,7 +533,7 @@ var gAccountManager = {
     }
 
     if (event.keyCode == event.DOM_VK_RETURN) {
-      let target = event.originalTarget;
+      let target = event.target;
       if (
         target.localName != "checkbox" &&
         (target.localName != "button" ||

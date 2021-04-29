@@ -61,7 +61,7 @@
 
       this.addEventListener("mouseover", event => {
         document.tab = this;
-        if (event.originalTarget.classList.contains("tab-close-button")) {
+        if (event.target.classList.contains("tab-close-button")) {
           this.mOverCloseButton = true;
         }
       });
@@ -84,7 +84,7 @@
 
       this.addEventListener("mouseout", event => {
         document.tab = null;
-        if (event.originalTarget.classList.contains("tab-close-button")) {
+        if (event.target.classList.contains("tab-close-button")) {
           this.mOverCloseButton = false;
         }
       });
@@ -107,7 +107,7 @@
         if (event.button != 0) {
           return;
         }
-        if (!event.originalTarget.classList.contains("tab-close-button")) {
+        if (!event.target.classList.contains("tab-close-button")) {
           return;
         }
 
@@ -140,7 +140,7 @@
           // (see onTabBarDblClick).
           let clickedOnce = false;
           let enableDblClick = function enableDblClick(event) {
-            let target = event.originalTarget;
+            let target = event.target;
             if (target.classList.contains("tab-close-button")) {
               target._ignoredClick = true;
             }

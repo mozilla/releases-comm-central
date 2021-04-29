@@ -1707,21 +1707,21 @@ function FolderPaneOnClick(event) {
   // Middle click on a folder opens the folder in a tab
   if (
     event.button == 1 &&
-    event.originalTarget.localName != "slider" &&
-    event.originalTarget.localName != "scrollbarbutton"
+    event.target.localName != "slider" &&
+    event.target.localName != "scrollbarbutton"
   ) {
     FolderPaneContextMenuNewTab(event);
     RestoreSelectionWithoutContentLoad(folderTree);
   } else if (event.button == 0) {
     var treeCellInfo = folderTree.getCellAt(event.clientX, event.clientY);
     if (treeCellInfo.row == -1) {
-      if (event.originalTarget.localName == "treecol") {
+      if (event.target.localName == "treecol") {
         // clicking on the name column in the folder pane should not sort
         event.stopPropagation();
       }
     } else if (
-      event.originalTarget.localName == "slider" ||
-      event.originalTarget.localName == "scrollbarbutton"
+      event.target.localName == "slider" ||
+      event.target.localName == "scrollbarbutton"
     ) {
       event.stopPropagation();
     }
@@ -1758,8 +1758,8 @@ function ThreadTreeOnClick(event) {
   // Middle click on a message opens the message in a tab
   if (
     event.button == 1 &&
-    event.originalTarget.localName != "slider" &&
-    event.originalTarget.localName != "scrollbarbutton"
+    event.target.localName != "slider" &&
+    event.target.localName != "scrollbarbutton"
   ) {
     OpenMessageInNewTab(event);
     RestoreSelectionWithoutContentLoad(threadTree);
@@ -1877,7 +1877,7 @@ function MigrateOpenMessageBehavior() {
 }
 
 function ThreadPaneOnDragStart(aEvent) {
-  if (aEvent.originalTarget.localName != "treechildren") {
+  if (aEvent.target.localName != "treechildren") {
     return;
   }
 
@@ -1955,7 +1955,7 @@ function ThreadPaneOnDragStart(aEvent) {
   }
 
   aEvent.dataTransfer.effectAllowed = "copyMove";
-  aEvent.dataTransfer.addElement(aEvent.originalTarget);
+  aEvent.dataTransfer.addElement(aEvent.target);
 }
 
 function messageFlavorDataProvider() {}

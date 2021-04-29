@@ -43,7 +43,7 @@
         if (event.button == 0) {
           // If we double clicked on a widget that has already done
           // something with the first click, we should ignore the event
-          let localName = event.originalTarget.localName;
+          let localName = event.target.localName;
           if (localName != "button" && localName != "checkbox") {
             this.proceedDefaultAction();
           }

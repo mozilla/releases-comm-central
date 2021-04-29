@@ -121,7 +121,7 @@ function resizeMonthsPopup(event) {
   if (parent.gSubDialog) {
     return;
   }
-  event.originalTarget.sizeTo(event.originalTarget.clientWidth - 16, 200);
+  event.target.sizeTo(event.target.clientWidth - 16, 200);
 }
 
 async function onAccept() {

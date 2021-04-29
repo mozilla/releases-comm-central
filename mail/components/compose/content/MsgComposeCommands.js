@@ -4902,7 +4902,7 @@ function isValidNewsAddress(address) {
  * @param {Event} event - the event triggered by the click.
  */
 function focusAddressInput(event) {
-  let container = event.originalTarget;
+  let container = event.target;
   if (container.classList.contains("address-container")) {
     // Focus the row input with recipienttype attribute, i.e. not a pill input.
     container.querySelector(".address-input[recipienttype]").focus();
@@ -7318,8 +7318,8 @@ function attachmentBucketOnClick(aEvent) {
   // If there are no attachments in the bucket, show 'Attach File(s)' dialog.
   if (
     aEvent.button == 0 &&
-    aEvent.originalTarget.getAttribute("is") == "attachment-list" &&
-    !aEvent.originalTarget.firstElementChild
+    aEvent.target.getAttribute("is") == "attachment-list" &&
+    !aEvent.target.firstElementChild
   ) {
     goDoCommand("cmd_attachFile");
   }
@@ -9620,7 +9620,7 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
 
 function mailContextOnContextMenu(event) {
   document.getElementById("mailContext").target =
-    event.composedTarget || event.originalTarget;
+    event.composedTarget || event.target;
 }
 function fillMailContextMenu(event) {
   gContextMenu = new nsContextMenu(event.target, event.shiftKey);

@@ -1333,7 +1333,7 @@ function showExtraRecipients(event) {
     },
     { once: true }
   );
-  panel.openPopup(event.originalTarget, "after_end", -8, 0, true);
+  panel.openPopup(event.target, "after_end", -8, 0, true);
 }
 
 /**

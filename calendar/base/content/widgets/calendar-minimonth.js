@@ -174,13 +174,13 @@
 
       // Add event listeners.
       this.addEventListener("click", event => {
-        if (event.button == 0 && event.originalTarget.classList.contains("minimonth-day")) {
+        if (event.button == 0 && event.target.classList.contains("minimonth-day")) {
           this.onDayActivate(event);
         }
       });
 
       this.addEventListener("keypress", event => {
-        if (event.originalTarget.classList.contains("minimonth-day")) {
+        if (event.target.classList.contains("minimonth-day")) {
           if (event.altKey || event.metaKey) {
             return;
           }
@@ -254,7 +254,7 @@
         }
 
         if (deltaView != 0) {
-          const classList = event.originalTarget.classList;
+          const classList = event.target.classList;
 
           if (
             classList.contains("years-forward-button") ||
@@ -942,7 +942,7 @@
 
     onDayActivate(aEvent) {
       // The associated date might change when setting this.value if month changes.
-      const date = aEvent.originalTarget.date;
+      const date = aEvent.target.date;
       if (this.getAttribute("readonly") != "true") {
         this.value = date;
         this.fireEvent("select");

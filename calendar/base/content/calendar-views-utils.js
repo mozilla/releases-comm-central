@@ -403,7 +403,7 @@ function observeViewDaySelect(event) {
   // which is the month with the most visible days in the view;
   // note, that the main date is the first day of the main month
   let jsMainDate;
-  if (!event.originalTarget.supportsDisjointDates) {
+  if (!event.target.supportsDisjointDates) {
     let mainDate = null;
     let maxVisibleDays = 0;
     let startDay = currentView().startDay;

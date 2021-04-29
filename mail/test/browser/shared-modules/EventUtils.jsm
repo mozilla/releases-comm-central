@@ -311,9 +311,7 @@ function _expectEvent(aExpectedTarget, aExpectedEvent, aTestName) {
       : aExpectedEvent;
   var eventHandler = function(event) {
     var epassed =
-      !_gSeenEvent &&
-      event.originalTarget == aExpectedTarget &&
-      event.type == type;
+      !_gSeenEvent && event.target == aExpectedTarget && event.type == type;
     if (!epassed) {
       throw new Error(
         aTestName + " " + type + " event target " + (_gSeenEvent ? "twice" : "")
