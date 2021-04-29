@@ -234,3 +234,92 @@ body {
   overflow: auto;
   background-color: var(--in-content-categories-background);
 }
+
+#detailsHeader {
+  min-width: 27.5em;
+  max-width: 54.5em;
+  display: flex;
+  align-items: center;
+}
+
+#detailsHeader h1 {
+  margin-block: 0 0.25em;
+  flex: 1;
+  font-size: 1.75em;
+  font-weight: 400;
+}
+
+#detailsPane.isEditing .view {
+  display: none;
+}
+
+#detailsPane:not(.isEditing) .edit,
+#detailsPane:not(.isEditing) .noValue {
+  display: none !important;
+}
+
+#photo {
+  width: 150px;
+  height: 150px;
+  margin-inline-start: 1em;
+  border-radius: 100%;
+  background-size: cover;
+  background-color: var(--in-content-button-background);
+  background-image: url("chrome://messenger/skin/icons/contact.svg");
+  box-shadow: 0 0 3px var(--in-content-button-background);
+  -moz-context-properties: fill;
+  fill: var(--in-content-box-background);
+}
+
+#detailsPane h2 {
+  margin-block: 0.75em 0.25em;
+  font-size: 1.25em;
+  font-weight: 400;
+}
+
+.view > ul:empty {
+  display: none;
+}
+
+.editGrid {
+  min-width: 27em;
+  max-width: 54em;
+  display: grid;
+  grid-template-columns: repeat(2, 50%);
+  grid-gap: 0.5em;
+}
+
+.editGrid > div.labelledField {
+  display: flex;
+  flex-direction: column;
+}
+
+.editGrid > div.labelledField > label:first-child {
+  margin-block-end: 0.25em;
+  font-size: 13.333px;
+}
+
+.editGrid > div.spans2columns {
+  grid-column: 1 / 3;
+}
+
+.editGrid > div.inlineField {
+  display: flex;
+  align-items: center;
+}
+
+.editGrid input:not([type="checkbox"]),
+.editGrid textarea {
+  flex: 1;
+  margin: 0;
+}
+
+/* Address fields have two neighbouring inputs. */
+.editGrid input + input {
+  border-top: none;
+}
+
+.editGrid select {
+  padding-block: 0;
+  padding-inline: 4px 19px;
+}

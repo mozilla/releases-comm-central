@@ -2,7 +2,7 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
-<!DOCTYPE html>
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/addressbook/abCard.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml">
@@ -77,6 +77,229 @@
     <tree-view-listbox id="cards" rows="ab-card-listrow"></tree-view-listbox>
   </div>
   <div id="detailsPane" hidden="hidden">
+    <div id="detailsHeader">
+      <h1></h1>
+      <button id="editButton"
+              class="view"
+              data-l10n-id="about-addressbook-begin-edit-contact-button"
+              onclick="detailsPane.editCurrentContact();"></button>
+      <button id="cancelEditButton"
+              class="edit"
+              data-l10n-id="about-addressbook-cancel-edit-contact-button"
+              onclick="detailsPane.displayContact(detailsPane.currentCard);"></button>
+      <button id="saveEditButton"
+              class="edit"
+              data-l10n-id="about-addressbook-save-edit-contact-button"
+              onclick="detailsPane.saveCurrentContact();"></button>
+      <div id="photo"></div>
+    </div>
+
+    <div class="edit editGrid">
+      <div class="labelledField">
+        <!--
+          LOCALIZATION NOTE: NameField1, NameField2, PhoneticField1, PhoneticField2
+          those fields are either LN or FN depends on the target country.
+          They are configurable in the .dtd file.
+        -->
+        <label id="nameFieldLabel" for="&NameField1.id;">&NameField1.label;</label>
+        <input id="&NameField1.id;" type="text" aria-labelledby="nameFieldLabel" />
+      </div>
+      <div class="labelledField">
+        <label id="nameField2Label" for="&NameField2.id;">&NameField2.label;</label>
+        <input id="&NameField2.id;" type="text" aria-labelledby="nameField2Label" />
+      </div>
+      <div class="labelledField phonetic">
+        <!--
+          LOCALIZATION NOTE: Fields for phonetic are disabled as default and can be enabled by
+          editing "mail.addr_book.show_phonetic_fields".
+        -->
+        <label id="PhoneticLabel1" for="&PhoneticField1.id;">&PhoneticField1.label;</label>
+        <input id="&PhoneticField1.id;" type="text" aria-labelledby="PhoneticLabel1" />
+      </div>
+      <div class="labelledField phonetic">
+        <!--
+          LOCALIZATION NOTE: Fields for phonetic are disabled as default and can be enabled by
+          editing "mail.addr_book.show_phonetic_fields".
+        -->
+        <label id="PhoneticLabel2" for="&PhoneticField2.id;">&PhoneticField2.label;</label>
+        <input id="&PhoneticField2.id;" type="text" aria-labelledby="PhoneticLabel2" />
+      </div>
+      <div class="labelledField">
+        <label id="DisplayNameLabel" for="DisplayName">&DisplayName.label;</label>
+        <input id="DisplayName" type="text" aria-labelledby="DisplayNameLabel" />
+      </div>
+      <div class="labelledField">
+        <label id="NickNameLabel" for="NickName">&NickName.label;</label>
+        <input id="NickName" type="text" aria-labelledby="NickNameLabel" />
+      </div>
+      <div class="spans2columns inlineField">
+        <input type="checkbox" id="preferDisplayName" />
+        <label for="preferDisplayName">&preferDisplayName.label;</label>
+      </div>
+    </div>
+
+    <h2 data-l10n-id="about-addressbook-details-email-addresses-header"></h2>
+    <div class="view">
+      <ul id="emailAddresses"></ul>
+    </div>
+
+    <div class="edit editGrid">
+      <div class="labelledField">
+        <label id="PrimaryEmailLabel" for="PrimaryEmail">&PrimaryEmail.label;</label>
+        <input id="PrimaryEmail" type="email" aria-labelledby="PrimaryEmailLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="SecondEmailLabel" for="SecondEmail">&SecondEmail.label;</label>
+        <input id="SecondEmail" type="email" aria-labelledby="SecondEmailLabel" />
+      </div>
+
+      <div class="spans2columns inlineField">
+        <label for="PreferMailFormat">&PreferMailFormat.label;</label>
+        <select id="PreferMailFormat">
+          <!-- 0,1,2 come from nsIAbPreferMailFormat in nsIAbCard.idl -->
+          <option value="0" label="&Unknown.label;" />
+          <option value="1" label="&PlainText.label;" />
+          <option value="2" label="&HTML.label;" />
+        </select>
+      </div>
+    </div>
+
+    <h2 data-l10n-id="about-addressbook-details-phone-numbers-header"></h2>
+    <div class="view">
+      <ul id="phoneNumbers"></ul>
+    </div>
+
+    <div class="edit editGrid">
+      <div class="labelledField">
+        <label id="WorkPhoneLabel" for="WorkPhone">&WorkPhone.label;</label>
+        <input id="WorkPhone" type="tel" aria-labelledby="WorkPhoneLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="HomePhoneLabel" for="HomePhone">&HomePhone.label;</label>
+        <input id="HomePhone" type="tel" aria-labelledby="HomePhoneLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="CellularNumberLabel" for="CellularNumber">&CellularNumber.label;</label>
+        <input id="CellularNumber" type="tel" aria-labelledby="CellularNumberLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="FaxNumberLabel" for="FaxNumber">&FaxNumber.label;</label>
+        <input id="FaxNumber" type="tel" aria-labelledby="FaxNumberLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="PagerNumberLabel" for="PagerNumber">&PagerNumber.label;</label>
+        <input id="PagerNumber" type="tel" aria-labelledby="PagerNumberLabel" />
+      </div>
+    </div>
+
+    <h2 data-l10n-id="about-addressbook-details-home-address-header"></h2>
+    <div class="view">
+      <ul id="homeAddresses"></ul>
+    </div>
+
+    <div class="edit editGrid">
+      <div class="labelledField spans2columns">
+        <label id="HomeAddressLabel" for="HomeAddress">&HomeAddress.label;</label>
+        <input id="HomeAddress" type="text" aria-labelledby="HomeAddressLabel" />
+        <input id="HomeAddress2" type="text" />
+      </div>
+
+      <div class="labelledField spans2columns">
+        <label id="HomeCityLabel" for="HomeCity">&HomeCity.label;</label>
+        <input id="HomeCity" type="text" aria-labelledby="HomeCityLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="HomeStateLabel" for="HomeState">&HomeState.label;</label>
+        <input id="HomeState" type="text" aria-labelledby="HomeStateLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="HomeZipCodeLabel" for="HomeZipCode">&HomeZipCode.label;</label>
+        <input id="HomeZipCode" type="text" aria-labelledby="HomeZipCodeLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="HomeCountryLabel" for="HomeCountry">&HomeCountry.label;</label>
+        <input id="HomeCountry" type="text" aria-labelledby="HomeCountryLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="WebPage2Label" for="WebPage2">&HomeWebPage.label;</label>
+        <input id="WebPage2" type="url" aria-labelledby="WebPage2Label" />
+      </div>
+    </div>
+
+    <h2 data-l10n-id="about-addressbook-details-work-address-header"></h2>
+    <div class="view">
+      <ul id="workAddresses"></ul>
+    </div>
+
+    <div class="edit editGrid">
+      <div class="labelledField spans2columns">
+        <label id="WorkAddressLabel" for="WorkAddress">&WorkAddress.label;</label>
+        <input id="WorkAddress" type="text" aria-labelledby="WorkAddressLabel" />
+        <input id="WorkAddress2" type="text" />
+      </div>
+
+      <div class="labelledField spans2columns">
+        <label id="WorkCityLabel" for="WorkCity">&WorkCity.label;</label>
+        <input id="WorkCity" type="text" aria-labelledby="WorkCityLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="WorkStateLabel" for="WorkState">&WorkState.label;</label>
+        <input id="WorkState" type="text" aria-labelledby="WorkStateLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="WorkZipCodeLabel" for="WorkZipCode">&WorkZipCode.label;</label>
+        <input id="WorkZipCode" type="text" aria-labelledby="WorkZipCodeLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="WorkCountryLabel" for="WorkCountry">&WorkCountry.label;</label>
+        <input id="WorkCountry" type="text" aria-labelledby="WorkCountryLabel" />
+      </div>
+
+      <div class="labelledField">
+        <label id="WebPage1Label" for="WebPage2">&WorkWebPage.label;</label>
+        <input id="WebPage1" type="url" aria-labelledby="WebPage2Label" />
+      </div>
+    </div>
+
+    <h2 class="noValue" data-l10n-id="about-addressbook-details-other-info-header"></h2>
+    <div class="edit editGrid">
+      <div class="labelledField">
+        <label id="Custom1Label" for="Custom1">&Custom1.label;</label>
+        <input id="Custom1" type="text" aria-labelledby="Custom1Label" />
+      </div>
+
+      <div class="labelledField">
+        <label id="Custom2Label" for="Custom2">&Custom2.label;</label>
+        <input id="Custom2" type="text" aria-labelledby="Custom2Label" />
+      </div>
+
+      <div class="labelledField">
+        <label id="Custom3Label" for="Custom3">&Custom3.label;</label>
+        <input id="Custom3" type="text" aria-labelledby="Custom3Label" />
+      </div>
+
+      <div class="labelledField">
+        <label id="Custom4Label" for="Custom4">&Custom4.label;</label>
+        <input id="Custom4" type="text" aria-labelledby="Custom4Label" />
+      </div>
+
+      <div class="labelledField spans2columns">
+        <label for="Notes">&Notes.label;</label>
+        <textarea id="Notes" wrap="virtual" rows="8" />
+      </div>
+    </div>
   </div>
 
   <!-- In-content dialogs. -->

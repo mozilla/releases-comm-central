@@ -40,6 +40,18 @@ var booksList;
 window.addEventListener("load", () => {
   booksList = document.getElementById("books");
   cardsPane.init();
+  detailsPane.init();
+
+  if (
+    Services.prefs.getComplexValue(
+      "mail.addr_book.show_phonetic_fields",
+      Ci.nsIPrefLocalizedString
+    ).data != "true"
+  ) {
+    for (let field of document.querySelectorAll(".phonetic")) {
+      field.hidden = true;
+    }
+  }
 
   if (booksList.selectedIndex == 0) {
     // Index 0 was selected before we started listening.
@@ -768,6 +780,8 @@ var cardsPane = {
       sortColumn,
       sortDirection
     );
+
+    detailsPane.displayContact(null);
   },
 
   /**
@@ -789,6 +803,8 @@ var cardsPane = {
       "GeneratedName",
       "ascending"
     );
+
+    detailsPane.displayContact(null);
   },
 
   /**
@@ -940,7 +956,9 @@ var cardsPane = {
   },
 
   _onSelect(event) {
-    // To be implemented.
+    detailsPane.displayContact(
+      this.cardsList.view.getCardFromRow(this.cardsList.selectedIndex)
+    );
   },
 
   _onKeyPress(event) {
@@ -1059,5 +1077,258 @@ var cardsPane = {
         aData.value = localFile;
       }
     },
+  },
+};
+
+// Details
+
+var detailsPane = {
+  /** These properties are displayed exactly as-is. */
+  PLAIN_CONTACT_FIELDS: [
+    "FirstName",
+    "LastName",
+    "DisplayName",
+    "NickName",
+    "PrimaryEmail",
+    "SecondEmail",
+    "PreferMailFormat",
+    "WorkPhone",
+    "HomePhone",
+    "FaxNumber",
+    "PagerNumber",
+    "CellularNumber",
+    "HomeAddress",
+    "HomeAddress2",
+    "HomeCity",
+    "HomeState",
+    "HomeZipCode",
+    "HomeCountry",
+    "WebPage2",
+    "WorkAddress",
+    "WorkAddress2",
+    "WorkCity",
+    "WorkState",
+    "WorkZipCode",
+    "WorkCountry",
+    "Custom1",
+    "Custom2",
+    "Custom3",
+    "Custom4",
+    "Notes",
+  ],
+
+  container: null,
+
+  editButton: null,
+
+  photo: null,
+
+  currentCard: null,
+
+  init() {
+    this.container = document.getElementById("detailsPane");
+    this.editButton = document.getElementById("editButton");
+    this.photo = document.getElementById("photo");
+
+    this.photo.addEventListener("dragover", this);
+    this.photo.addEventListener("drop", this);
+  },
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "dragover":
+        this._onDragOver(event);
+        break;
+      case "drop":
+        this._onDrop(event);
+        break;
+    }
+  },
+
+  /**
+   * Show a read-only representation of a card in the details pane.
+   *
+   * @param {nsIAbCard?} card - The card to display. This should not be a
+   *     mailing list card. Pass null to hide the details pane.
+   */
+  displayContact(card) {
+    this.currentCard = card;
+    if (!card || card.isMailList) {
+      this.container.hidden = true;
+      return;
+    }
+
+    document.querySelector("h1").textContent = card.generateName(
+      ABView.nameFormat
+    );
+
+    for (let [section, fields] of Object.entries({
+      emailAddresses: ["PrimaryEmail", "SecondEmail"],
+      phoneNumbers: [
+        "WorkPhone",
+        "HomePhone",
+        "FaxNumber",
+        "PagerNumber",
+        "CellularNumber",
+      ],
+    })) {
+      let list = document.getElementById(section);
+      while (list.lastChild) {
+        list.lastChild.remove();
+      }
+      for (let field of fields) {
+        let value = card.getProperty(field, "");
+        if (value) {
+          list.appendChild(document.createElement("li")).textContent = value;
+        }
+      }
+      list.parentNode.previousElementSibling.classList.toggle(
+        "noValue",
+        !list.childElementCount
+      );
+    }
+
+    for (let prefix of ["Home", "Work"]) {
+      let list = document.getElementById(`${prefix.toLowerCase()}Addresses`);
+      while (list.lastChild) {
+        list.lastChild.remove();
+      }
+
+      let address = "";
+      for (let field of [
+        "Address",
+        "Address2",
+        "City",
+        "State",
+        "ZipCode",
+        "Country",
+      ]) {
+        let value = card.getProperty(`${prefix}${field}`, "");
+        if (address) {
+          address += field == "ZipCode" ? " " : ", ";
+        }
+        address += value;
+      }
+      if (address) {
+        list.appendChild(document.createElement("li")).textContent = address;
+      }
+      list.parentNode.previousElementSibling.classList.toggle(
+        "noValue",
+        !address
+      );
+    }
+
+    let photoName = card.getProperty("PhotoName", "");
+    if (photoName) {
+      let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
+      file.append("Photos");
+      file.append(photoName);
+      document.querySelector("#photo").style.backgroundImage = `url("${
+        Services.io.newFileURI(file).spec
+      }")`;
+    } else {
+      document.querySelector("#photo").style.backgroundImage = null;
+    }
+
+    let book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
+    this.editButton.disabled = book.readOnly;
+
+    this.container.classList.remove("isEditing");
+    this.container.scrollTo(0, 0);
+    this.container.hidden = false;
+  },
+
+  /**
+   * Show controls for editing the currently displayed card.
+   */
+  editCurrentContact() {
+    let card = this.currentCard;
+
+    if (!card) {
+      document.querySelector("h1").textContent = "";
+    }
+
+    for (let field of this.PLAIN_CONTACT_FIELDS) {
+      document.getElementById(field).value = card
+        ? card.getProperty(field, "")
+        : "";
+    }
+
+    document.getElementById("preferDisplayName").checked =
+      // getProperty may return a "1" or "0" string, we want a boolean
+      // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
+      card ? card.getProperty("PreferDisplayName", true) == true : true;
+
+    this.container.classList.add("isEditing");
+    this.container.scrollTo(0, 0);
+  },
+
+  /**
+   * Save the currently displayed card.
+   */
+  saveCurrentContact() {
+    let card = this.currentCard;
+    let book;
+    if (card) {
+      book = MailServices.ab.getDirectoryFromUID(card.directoryUID);
+    } else {
+      card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+        Ci.nsIAbCard
+      );
+
+      let row = booksList.getRowAtIndex(booksList.selectedIndex);
+      let bookUID = row.dataset.book ?? row.dataset.uid;
+
+      if (bookUID) {
+        book = MailServices.ab.getDirectoryFromUID(bookUID);
+      }
+    }
+    if (!book || book.readOnly) {
+      throw new Components.Exception(
+        "Address book is read-only",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    for (let field of this.PLAIN_CONTACT_FIELDS) {
+      card.setProperty(field, document.getElementById(field).value ?? null);
+    }
+
+    card.setProperty(
+      "PreferDisplayName",
+      document.getElementById("preferDisplayName").checked
+    );
+
+    // TODO: Save photo.
+
+    if (!card.directoryUID) {
+      card = book.addCard(card);
+      cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
+        card.UID
+      );
+      cardsPane.cardsList.focus();
+    } else {
+      book.modifyCard(card);
+    }
+    this.displayContact(card);
+  },
+
+  _onDragOver(event) {
+    if (
+      event.dataTransfer.files.length > 0 &&
+      ["image/jpeg", "image/png"].includes(event.dataTransfer.files[0].type)
+    ) {
+      event.dataTransfer.dropEffect = "move";
+      this.photo._dragged = event.dataTransfer.files[0];
+      event.preventDefault();
+    }
+  },
+
+  _onDrop() {
+    if (this.photo._dragged) {
+      this.photo.style.backgroundImage = `url("${URL.createObjectURL(
+        this.photo._dragged
+      )}")`;
+    }
   },
 };

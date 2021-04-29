@@ -39,3 +39,15 @@ about-addressbook-sort-email-ascending =
   .label = Sort by e-mail address (A > Z)
 about-addressbook-sort-email-descending =
   .label = Sort by e-mail address (Z > A)
+
+## Details
+
+about-addressbook-begin-edit-contact-button = Edit
+about-addressbook-cancel-edit-contact-button = Cancel
+about-addressbook-save-edit-contact-button = Save
+
+about-addressbook-details-email-addresses-header = Email Addresses
+about-addressbook-details-phone-numbers-header = Phone Numbers
+about-addressbook-details-home-address-header = Home Address
+about-addressbook-details-work-address-header = Work Address
+about-addressbook-details-other-info-header = Other Information
