@@ -99,8 +99,8 @@ add_task(async function test_update() {
   let files = {
     "background.js": async () => {
       let tags = await browser.messages.listTags();
-      let [folder] = await window.waitForMessage();
-      let messageList = await browser.messages.list(folder);
+      let [data] = await window.waitForMessage();
+      let messageList = await browser.messages.list(data.folder);
       browser.test.assertEq(1, messageList.messages.length);
       let message = messageList.messages[0];
       browser.test.assertFalse(message.flagged);
@@ -108,6 +108,7 @@ add_task(async function test_update() {
       browser.test.assertFalse(message.junk);
       browser.test.assertEq(0, message.junkScore);
       browser.test.assertEq(0, message.tags.length);
+      browser.test.assertEq(data.size, message.size);
       browser.test.assertEq("99@made.up.invalid", message.headerMessageId);
 
       // Test that setting flagged works.
@@ -181,7 +182,7 @@ add_task(async function test_update() {
   equal(message.getProperty("keywords"), "testkeyword");
 
   await extension.startup();
-  extension.sendMessage({ accountId: account.key, path: "/test0" });
+  extension.sendMessage({folder:{ accountId: account.key, path: "/test0" }, size: message.messageSize});
 
   await extension.awaitMessage("flagged");
   await TestUtils.waitForCondition(() => message.isFlagged);

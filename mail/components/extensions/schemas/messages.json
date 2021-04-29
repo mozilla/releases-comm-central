@@ -27,25 +27,8 @@
         "type": "object",
         "description": "Basic information about a message.",
         "properties": {
-          "id": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "date": {
-            "$ref": "extensionTypes.Date"
-          },
-          "read": {
-            "type": "boolean"
-          },
-          "flagged": {
-            "type": "boolean"
-          },
-          "ccList": {
-            "description": "The Cc recipients. Not populated for news/nntp messages.",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "author": {
+            "type": "string"
           },
           "bccList": {
             "description": "The Bcc recipients. Not populated for news/nntp messages.",
@@ -54,28 +37,30 @@
               "type": "string"
             }
           },
-          "author": {
-            "type": "string"
-          },
-          "subject": {
-            "type": "string"
-          },
-          "recipients": {
-            "description": "The To recipients. Not populated for news/nntp messages.",
+          "ccList": {
+            "description": "The Cc recipients. Not populated for news/nntp messages.",
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "date": {
+            "$ref": "extensionTypes.Date"
+          },
+          "flagged": {
+            "type": "boolean"
           },
           "folder": {
             "$ref": "folders.MailFolder",
             "description": "The <permission>accountsRead</permission> permission is required for this property to be included."
           },
-          "tags": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "headerMessageId": {
+            "type": "string",
+            "description": "The message-id header of the message."
+          },
+          "id": {
+            "type": "integer",
+            "minimum": 1
           },
           "junk": {
             "description": "Not populated for news/nntp messages.",
@@ -86,9 +71,28 @@
             "minimum": 0,
             "maximum": 100
           },
-          "headerMessageId": {
-            "type": "string",
-            "description": "The message-id header of the message."
+          "read": {
+            "type": "boolean"
+          },
+          "recipients": {
+            "description": "The To recipients. Not populated for news/nntp messages.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "size": {
+            "description": "The total size of the message in bytes.",
+            "type": "integer"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

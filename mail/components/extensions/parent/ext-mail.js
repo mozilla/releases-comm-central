@@ -1661,6 +1661,7 @@ function convertMessage(msgHdr, extension) {
     junk: junkScore >= gJunkThreshold,
     junkScore,
     headerMessageId: msgHdr.messageId,
+    size: msgHdr.messageSize,
   };
   if (extension.hasPermission("accountsRead")) {
     messageObject.folder = convertFolder(msgHdr.folder);
