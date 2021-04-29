@@ -93,3 +93,64 @@ add_task(async function testBcc() {
   Assert.ok(msgData.includes(expectedBody));
   Assert.ok(!msgData.includes(notExpectedBody));
 });
+
+/**
+ * Test that non-utf8 eml attachment is intact after sent to a bcc recipient.
+ */
+add_task(async function testBccWithNonUtf8EmlAttachment() {
+  let identity = getSmtpIdentity(
+    "from@tinderbox.invalid",
+    getBasicSmtpServer(gServer.port)
+  );
+
+  // Prepare the comp fields, including the bcc field.
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  fields.to = "Nobody <to@tinderbox.invalid>";
+  fields.subject = "Test bcc with non-utf8 eml attachment";
+  fields.bcc = "bcc@tinderbox.invalid";
+
+  let testFile = do_get_file("data/shift-jis.eml");
+  let attachment = Cc[
+    "@mozilla.org/messengercompose/attachment;1"
+  ].createInstance(Ci.nsIMsgAttachment);
+  attachment.url = "file://" + testFile.path;
+  attachment.contentType = "message/rfc822";
+  attachment.name = testFile.leafName;
+  fields.addAttachment(attachment);
+
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = fields;
+
+  // Send the mail.
+  let msgCompose = MailServices.compose.initCompose(params);
+  msgCompose.type = Ci.nsIMsgCompType.New;
+  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+    Ci.nsIMsgProgress
+  );
+  let promise = new Promise((resolve, reject) => {
+    progressListener.resolve = resolve;
+    progressListener.reject = reject;
+  });
+  progress.registerListener(progressListener);
+  msgCompose.sendMsg(
+    Ci.nsIMsgSend.nsMsgDeliverNow,
+    identity,
+    "",
+    null,
+    progress
+  );
+  await promise;
+  gServer.performTest();
+
+  Assert.ok(
+    gServer._daemon.post.includes(
+      "Subject: Test bcc with non-utf8 eml attachment"
+    )
+  );
+  // \x8C\xBB\x8B\xB5 is 現況 in SHIFT-JIS.
+  Assert.ok(gServer._daemon.post.includes("\r\n\r\n\x8C\xBB\x8B\xB5\r\n"));
+});

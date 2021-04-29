@@ -183,7 +183,7 @@ class MimeEncoder {
     } else if (this.encoding == "quoted-printable") {
       return this._encodeQP();
     }
-    return this._body;
+    return this._body.replaceAll("\r\n", "\n").replaceAll("\n", "\r\n");
   }
 
   /**

@@ -763,22 +763,33 @@ MessageSend.prototype = {
     let deliveryFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     deliveryFile.append("nsemail.tmp");
     deliveryFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-    let content = await IOUtils.readUTF8(this._messageFile.path);
-    let bodyIndex = content.indexOf("\r\n\r\n");
-    let header = content.slice(0, bodyIndex);
+    let content = await IOUtils.read(this._messageFile.path);
+    let bodyIndex = content.findIndex(
+      (el, index) =>
+        // header and body are separated by \r\n\r\n
+        el == 13 &&
+        content[index + 1] == 10 &&
+        content[index + 2] == 13 &&
+        content[index + 3] == 10
+    );
+    let header = new TextDecoder("UTF-8").decode(content.slice(0, bodyIndex));
     let lastLinePruned = false;
-    let contentToWrite = "";
+    let headerToWrite = "";
     for (let line of header.split("\r\n")) {
       if (line.startsWith("Bcc") || (line.startsWith(" ") && lastLinePruned)) {
         lastLinePruned = true;
         continue;
       }
       lastLinePruned = false;
-      contentToWrite += `${line}\r\n`;
+      headerToWrite += `${line}\r\n`;
     }
+    let encodedHeader = new TextEncoder().encode(headerToWrite);
     // Prevent extra \r\n, which was already added to the last head line.
-    contentToWrite += content.slice(bodyIndex + 2);
-    await IOUtils.writeUTF8(deliveryFile.path, contentToWrite);
+    let body = content.slice(bodyIndex + 2);
+    let combinedContent = new Uint8Array(encodedHeader.length + body.length);
+    combinedContent.set(encodedHeader);
+    combinedContent.set(body, encodedHeader.length);
+    await IOUtils.write(deliveryFile.path, combinedContent);
     return deliveryFile;
   },
 
