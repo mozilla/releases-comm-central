@@ -272,13 +272,17 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
 NS_IMETHODIMP nsMessenger::SetDisplayCharset(const nsACString& aCharset) {
   // libmime always converts to UTF-8 (both HTML and XML)
   if (mDocShell) {
+    const Encoding* encoding = nullptr;
     nsCOMPtr<nsIContentViewer> cv;
     mDocShell->GetContentViewer(getter_AddRefs(cv));
     if (cv) {
-      cv->SetHintCharacterSet(aCharset);
-      cv->SetHintCharacterSetSource(kCharsetFromBuiltIn);
-
-      mCurrentDisplayCharset = aCharset;
+      if (!aCharset.IsEmpty()) {
+        if (!(encoding = Encoding::ForLabel(aCharset))) {
+          return NS_ERROR_INVALID_ARG;
+        }
+        cv->SetReloadEncodingAndSource(encoding, kCharsetFromBuiltIn);
+        mCurrentDisplayCharset = aCharset;
+      }
     }
   }
 
