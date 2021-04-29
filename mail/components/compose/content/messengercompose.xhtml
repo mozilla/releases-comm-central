@@ -852,15 +852,15 @@
       <menubar id="mail-menubar">
       <menu id="menu_File" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
         <menupopup id="menu_FilePopup">
-          <menu id="menu_New" class="menu-iconic"
+          <menu id="menu_New"
                 label="&newMenu.label;" accesskey="&newMenu.accesskey;">
             <menupopup id="menu_NewPopup">
-              <menuitem id="menu_NewMessage" class="menuitem-iconic"
+              <menuitem id="menu_NewMessage"
                         label="&newMessage.label;" accesskey="&newMenu.accesskey;"
                         key="key_newMessage" oncommand="goOpenNewMessage(event);"/>
               <menuseparator/>
               <menuitem id="menu_NewContact" label="&newContact.label;"
-                        accesskey="&newContact.accesskey;" class="menuitem-iconic"
+                        accesskey="&newContact.accesskey;"
                         oncommand="window.openDialog('chrome://messenger/content/addressbook/abNewCardDialog.xhtml', '', 'chrome,modal,resizable=no,centerscreen');"/>
             </menupopup>
           </menu>
@@ -886,8 +886,8 @@
           </menu>
           <menuseparator/>
           <menuitem id="menu_SaveCmd" label="&saveCmd.label;" accesskey="&saveCmd.accesskey;"
-                    key="key_save" command="cmd_saveDefault" class="menuitem-iconic"/>
-          <menu id="menu_SaveAsCmd" class="menu-iconic menuitem-iconic"
+                    key="key_save" command="cmd_saveDefault"/>
+          <menu id="menu_SaveAsCmd"
                 label="&saveAsCmd.label;" accesskey="&saveAsCmd.accesskey;">
             <menupopup id="menu_SaveAsCmdPopup" onpopupshowing="InitFileSaveAsMenu();">
               <menuitem id="menu_SaveAsFileCmd"
@@ -912,16 +912,15 @@
                     label="&printSetupCmd.label;" accesskey="&printSetupCmd.accesskey;"
                     command="cmd_printSetup"/>
 #ifndef XP_MACOSX
-          <menuitem id="printPreviewMenuItem" class="menuitem-iconic"
+          <menuitem id="printPreviewMenuItem"
                     label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;"
                     command="cmd_printPreview"/>
 #endif
-          <menuitem id="printMenuItem" class="menuitem-iconic"
+          <menuitem id="printMenuItem"
                     label="&printCmd.label;" accesskey="&printCmd.accesskey;"
                     key="key_print" command="cmd_print"/>
           <menuseparator id="menu_FileCloseSeparator"/>
           <menuitem id="menu_close"
-                    class="menuitem-iconic"
                     label="&closeCmd.label;"
                     key="key_close"
                     accesskey="&closeCmd.accesskey;"
@@ -932,20 +931,20 @@
       <!-- Edit Menu -->
       <menu id="menu_Edit" label="&editMenu.label;" accesskey="&editMenu.accesskey;">
         <menupopup id="menu_EditPopup" onpopupshowing="updateEditItems();">
-          <menuitem id="menu_undo" class="menuitem-iconic"
+          <menuitem id="menu_undo"
                     data-l10n-id="text-action-undo"
                     key="key_undo" command="cmd_undo"/>
-          <menuitem id="menu_redo" class="menuitem-iconic"
+          <menuitem id="menu_redo"
                     data-l10n-id="text-action-redo"
                     key="key_redo" command="cmd_redo"/>
           <menuseparator/>
-          <menuitem id="menu_cut" class="menuitem-iconic"
+          <menuitem id="menu_cut"
                     data-l10n-id="text-action-cut"
                     key="key_cut" command="cmd_cut"/>
-          <menuitem id="menu_copy" class="menuitem-iconic"
+          <menuitem id="menu_copy"
                     data-l10n-id="text-action-copy"
                     key="key_copy" command="cmd_copy"/>
-          <menuitem id="menu_paste" class="menuitem-iconic"
+          <menuitem id="menu_paste"
                     data-l10n-id="text-action-paste"
                     key="key_paste" command="cmd_paste"/>
           <menuitem id="menu_pasteNoFormatting"
@@ -954,7 +953,7 @@
                     accesskey="&pasteAsQuotationCmd.accesskey;"
                     command="cmd_pasteQuote"
                     key="pastequotationkb"/>
-          <menuitem id="menu_delete" class="menuitem-iconic"
+          <menuitem id="menu_delete"
                     data-l10n-id="text-action-delete"
                     key="key_delete"
                     command="cmd_delete"/>
@@ -1016,8 +1015,7 @@
                     command="cmd_account"/>
           <menuitem id="menu_preferences"
                     data-l10n-id="menu-tools-preferences"
-                    oncommand="openOptionsDialog('paneCompose');"
-                    class="menuitem-iconic"/>
+                    oncommand="openOptionsDialog('paneCompose');"/>
 #endif
 #endif
         </menupopup>
@@ -1056,19 +1054,16 @@
               <menuitem id="menu_fullZoomEnlarge" key="key_fullZoomEnlarge"
                         label="&fullZoomEnlargeCmd.label;"
                         accesskey="&fullZoomEnlargeCmd.accesskey;"
-                        command="cmd_fullZoomEnlarge"
-                        class="menuitem-iconic"/>
+                        command="cmd_fullZoomEnlarge"/>
               <menuitem id="menu_fullZoomReduce" key="key_fullZoomReduce"
                         label="&fullZoomReduceCmd.label;"
                         accesskey="&fullZoomReduceCmd.accesskey;"
-                        command="cmd_fullZoomReduce"
-                        class="menuitem-iconic"/>
+                        command="cmd_fullZoomReduce"/>
               <menuseparator id="fullZoomAfterReduceSeparator"/>
               <menuitem id="menu_fullZoomReset" key="key_fullZoomReset"
                         label="&fullZoomResetCmd.label;"
                         accesskey="&fullZoomResetCmd.accesskey;"
-                        command="cmd_fullZoomReset"
-                        class="menuitem-iconic"/>
+                        command="cmd_fullZoomReset"/>
               <menuseparator id="fullZoomAfterResetSeparator"/>
               <menuitem id="menu_fullZoomToggle" label="&fullZoomToggleCmd.label;"
                         accesskey="&fullZoomToggleCmd.accesskey;"
@@ -1089,8 +1084,7 @@
           <menuitem id="menu_viewSecurityStatus"
                     label="&menu_viewSecurityStatus.label;"
                     accesskey="&menu_viewSecurityStatus.accesskey;"
-                    command="cmd_viewSecurityStatus"
-                    class="menuitem-iconic"/>
+                    command="cmd_viewSecurityStatus"/>
         </menupopup>
       </menu>
 
@@ -1155,7 +1149,7 @@
       <menu id="formatMenu" label="&formatMenu.label;" accesskey="&formatMenu.accesskey;" command="cmd_renderedHTMLEnabler">
         <menupopup id="formatMenuPopup" onpopupshowing="EditorInitFormatMenu()">
           <!-- Font face submenu -->
-          <menu id="fontFaceMenu" class="menu-iconic"
+          <menu id="fontFaceMenu"
                 label="&fontfaceMenu.label;" accesskey="&fontfaceMenu.accesskey;"
                 position="1">
             <menupopup id="fontFaceMenuPopup"
@@ -1364,8 +1358,7 @@
                     accesskey="&formatFontColor.accesskey;"
                     observes="cmd_fontColor"
                     oncommand="EditorSelectColor('Text', null);"
-                    position="4"
-                    class="menuitem-iconic"/>
+                    position="4"/>
           <menuseparator id="removeSep" position="5"/>
 
           <!-- label and accesskey set at runtime from strings -->
@@ -1514,15 +1507,13 @@
                     accesskey="&increaseIndent.accesskey;"
                     key="increaseindentkb"
                     observes="cmd_indent"
-                    position="13"
-                    class="menuitem-iconic"/>
+                    position="13"/>
           <menuitem id="decreaseIndent"
                     label="&decreaseIndent.label;"
                     accesskey="&decreaseIndent.accesskey;"
                     key="decreaseindentkb"
                     observes="cmd_outdent"
-                    position="14"
-                    class="menuitem-iconic"/>
+                    position="14"/>
 
           <menu id="alignMenu" label="&alignMenu.label;" accesskey="&alignMenu.accesskey;"
               onpopupshowing="InitAlignMenu()"
@@ -1694,8 +1685,7 @@
                     label="&checkSpellingCmd2.label;"
                     accesskey="&checkSpellingCmd2.accesskey;"
                     key="key_checkspelling"
-                    command="cmd_spelling"
-                    class="menuitem-iconic"/>
+                    command="cmd_spelling"/>
           <menuitem id="menu_inlineSpellCheck"
                     label="&enableInlineSpellChecker.label;"
                     accesskey="&enableInlineSpellChecker.accesskey;"
@@ -1812,8 +1802,7 @@
                       label="&addressBookCmd.label;"
                       accesskey="&addressBookCmd.accesskey;"
                       key="key_addressbook"
-                      oncommand="toAddressBook();"
-                      class="menuitem-iconic"/>
+                      oncommand="toAddressBook();"/>
 #endif
 
 #ifndef XP_UNIX
@@ -1823,8 +1812,7 @@
                       command="cmd_account"/>
             <menuitem id="menu_preferences"
                       data-l10n-id="menu-tools-preferences"
-                      oncommand="openOptionsDialog('paneCompose');"
-                      class="menuitem-iconic"/>
+                      oncommand="openOptionsDialog('paneCompose');"/>
 #else
 #ifdef XP_MACOSX
             <menuitem label="&accountManagerCmd2.label;"
@@ -2020,13 +2008,11 @@
                   label="&printCmd.label;"
                   accesskey="&printCmd.accesskey;"
                   command="cmd_print"
-                  default="true"
-                  class="menuitem-iconic"/>
+                  default="true"/>
         <menuitem id="button-printPreviewMenu"
                   label="&printPreviewCmd.label;"
                   accesskey="&printPreviewCmd.accesskey;"
-                  command="cmd_printPreview"
-                  class="menuitem-iconic"/>
+                  command="cmd_printPreview"/>
       </menupopup>
     </toolbarbutton>
 #endif

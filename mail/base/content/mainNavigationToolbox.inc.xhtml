@@ -42,7 +42,7 @@
               label="&fileMenu.label;"
               accesskey="&fileMenu.accesskey;">
           <menupopup id="menu_FilePopup" onpopupshowing="file_init();">
-          <menu id="menu_New" class="menu-iconic"
+          <menu id="menu_New"
                 label="&newMenu.label;"
                 accesskey="&newMenu.accesskey;">
             <menupopup id="menu_NewPopup" onpopupshowing="menu_new_init();">
@@ -69,12 +69,10 @@
 #endif
               <menuitem id="menu_newFolder" label="&newFolderCmd.label;"
                         command="cmd_newFolder"
-                        accesskey="&newFolderCmd.accesskey;"
-                        class="menuitem-iconic"/>
+                        accesskey="&newFolderCmd.accesskey;"/>
               <menuitem id="menu_newVirtualFolder" label="&newVirtualFolderCmd.label;"
                         command="cmd_newVirtualFolder"
-                        accesskey="&newVirtualFolderCmd.accesskey;"
-                        class="menuitem-iconic"/>
+                        accesskey="&newVirtualFolderCmd.accesskey;"/>
               <menuseparator id="newAccountPopupMenuSeparator"/>
               <menuitem id="newCreateEmailAccountMenuItem"
                         label="&newCreateEmailAccountCmd.label;"
@@ -120,7 +118,6 @@
             <menupopup id="menu_OpenPopup">
               <menuitem id="openMessageFileMenuitem"
                         label="&openMessageFileCmd.label;"
-                        class="menuitem-iconic"
                         accesskey="&openMessageFileCmd.accesskey;"
                         oncommand="MsgOpenFromFile();"/>
 #ifdef MAIN_WINDOW
@@ -135,8 +132,7 @@
                     label="&closeCmd.label;"
                     key="key_close"
                     accesskey="&closeCmd.accesskey;"
-                    command="cmd_close"
-                    class="menuitem-iconic"/>
+                    command="cmd_close"/>
           <menuseparator id="fileMenuAfterCloseSeparator"/>
 #ifdef MAIN_WINDOW
           <menuitem id="calendar-save-menuitem"
@@ -151,7 +147,7 @@
                     accesskey="&event.menu.item.saveandclose.tab.accesskey;"
                     command="cmd_accept"/>
 #endif
-          <menu id="menu_saveAs" class="menu-iconic menuitem-iconic"
+          <menu id="menu_saveAs"
                 label="&saveAsMenu.label;" accesskey="&saveAsMenu.accesskey;">
             <menupopup id="menu_SavePopup">
               <menuitem id="menu_saveAsFile" label="&saveAsFileCmd.label;"
@@ -171,7 +167,6 @@
                        expandFolders="false"
                        oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();">
               <menuitem id="menu_getnewmsgs_all_accounts"
-                        class="menuitem-iconic"
                         label="&getAllNewMsgCmdPopupMenu.label;"
                         accesskey="&getAllNewMsgCmdPopupMenu.accesskey;"
                         key="key_getAllNewMessages"
@@ -242,15 +237,13 @@
           <menuitem id="printPreviewMenuItem"
                     label="&printPreviewCmd.label;"
                     accesskey="&printPreviewCmd.accesskey;"
-                    command="cmd_printpreview"
-                    class="menuitem-iconic"/>
+                    command="cmd_printpreview"/>
 #endif
           <menuitem id="printMenuItem"
                     key="key_print"
                     label="&printCmd.label;"
                     accesskey="&printCmd.accesskey;"
-                    command="cmd_print"
-                    class="menuitem-iconic"/>
+                    command="cmd_print"/>
           <menuseparator id="menu_FileQuitSeparator"/>
           <menuitem id="menu_FileQuitItem"
 #ifdef XP_UNIX
@@ -266,8 +259,7 @@
                     label="&quitApplicationCmd.label;"
                     accesskey="&quitApplicationCmd.accesskey;"
 #endif
-                    command="cmd_quit"
-                    class="menuitem-iconic"/>
+                    command="cmd_quit"/>
         </menupopup>
       </menu>
 
@@ -281,42 +273,35 @@
                   label="&undoDefaultCmd.label;"
                   accesskey="&undoDefaultCmd.accesskey;"
                   key="key_undo"
-                  command="cmd_undo"
-                  class="menuitem-iconic"/>
+                  command="cmd_undo"/>
         <menuitem id="menu_redo"
                   label="&redoDefaultCmd.label;"
                   accesskey="&redoDefaultCmd.accesskey;"
                   key="key_redo"
-                  command="cmd_redo"
-                  class="menuitem-iconic"/>
+                  command="cmd_redo"/>
         <menuseparator id="editMenuAfterRedoSeparator"/>
         <menuitem id="menu_cut"
                   data-l10n-id="text-action-cut"
                   key="key_cut"
-                  command="cmd_cut"
-                  class="menuitem-iconic"/>
+                  command="cmd_cut"/>
         <menuitem id="menu_copy"
                   data-l10n-id="text-action-copy"
                   key="key_copy"
-                  command="cmd_copy"
-                  class="menuitem-iconic"/>
+                  command="cmd_copy"/>
         <menuitem id="menu_paste"
                   data-l10n-id="text-action-paste"
                   key="key_paste"
-                  command="cmd_paste"
-                  class="menuitem-iconic"/>
+                  command="cmd_paste"/>
         <menuitem id="menu_delete"
                   data-l10n-id="text-action-delete"
                   key="key_delete"
-                  command="cmd_delete"
-                  class="menuitem-iconic"/>
+                  command="cmd_delete"/>
         <menuseparator id="editMenuAfterDeleteSeparator"/>
         <menu id="menu_select" label="&selectMenu.label;" accesskey="&selectMenu.accesskey;">
           <menupopup id="menu_SelectPopup">
             <menuitem id="menu_SelectAll" label="&all.label;"
                       accesskey="&all.accesskey;" key="key_selectAll"
-                      command="cmd_selectAll"
-                      class="menuitem-iconic"/>
+                      command="cmd_selectAll"/>
             <menuseparator id="selectMenuSeparator"/>
             <menuitem id="menu_selectThread" label="&selectThreadCmd.label;"
                       accesskey="&selectThreadCmd.accesskey;"
@@ -329,7 +314,7 @@
           </menupopup>
         </menu>
         <menuseparator id="editMenuAfterSelectSeparator"/>
-        <menu id="menu_find" class="menu-iconic"
+        <menu id="menu_find"
               label="&findMenu.label;" accesskey="&findMenu.accesskey;">
           <menupopup id="menu_FindPopup"
                      onpopupshowing="initSearchMessagesMenu()">
@@ -381,8 +366,7 @@
                   oncommand="MsgAccountManager(null);"/>
         <menuitem id="menu_preferences"
                   oncommand="openOptionsDialog()"
-                  data-l10n-id="menu-tools-preferences"
-                  class="menuitem-iconic"/>
+                  data-l10n-id="menu-tools-preferences"/>
 #endif
 #endif
       </menupopup>
@@ -639,19 +623,16 @@
               <menuitem id="menu_fullZoomEnlarge" key="key_fullZoomEnlarge"
                         label="&fullZoomEnlargeCmd.label;"
                         accesskey="&fullZoomEnlargeCmd.accesskey;"
-                        command="cmd_fullZoomEnlarge"
-                        class="menuitem-iconic"/>
+                        command="cmd_fullZoomEnlarge"/>
               <menuitem id="menu_fullZoomReduce" key="key_fullZoomReduce"
                         label="&fullZoomReduceCmd.label;"
                         accesskey="&fullZoomReduceCmd.accesskey;"
-                        command="cmd_fullZoomReduce"
-                        class="menuitem-iconic"/>
+                        command="cmd_fullZoomReduce"/>
               <menuseparator id="fullZoomAfterReduceSeparator"/>
               <menuitem id="menu_fullZoomReset" key="key_fullZoomReset"
                         label="&fullZoomResetCmd.label;"
                         accesskey="&fullZoomResetCmd.accesskey;"
-                        command="cmd_fullZoomReset"
-                        class="menuitem-iconic"/>
+                        command="cmd_fullZoomReset"/>
               <menuseparator id="fullZoomAfterResetSeparator"/>
               <menuitem id="menu_fullZoomToggle" label="&fullZoomToggleCmd.label;"
                         accesskey="&fullZoomToggleCmd.accesskey;"
@@ -759,12 +740,10 @@
           </menu>
           <menuitem id="menu_goForward" label="&goForwardCmd.label;"
                     accesskey="&goForwardCmd.accesskey;" command="cmd_goForward"
-                    key="key_goForward"
-                    class="menuitem-iconic"/>
+                    key="key_goForward"/>
           <menuitem id="menu_goBack" label="&goBackCmd.label;"
                     accesskey="&goBackCmd.accesskey;" command="cmd_goBack"
-                    key="key_goBack"
-                    class="menuitem-iconic"/>
+                    key="key_goBack"/>
           <menuseparator id="goNextSeparator"/>
 #ifdef MAIN_WINDOW
           <menuitem id="calendar-go-to-today-menuitem"
@@ -807,8 +786,7 @@
                     label="&startPageCmd.label;"
                     accesskey="&startPageCmd.accesskey;"
                     command="cmd_goStartPage"
-                    key="key_goStartPage"
-                    class="menuitem-iconic"/>
+                    key="key_goStartPage"/>
         </menupopup>
         </menu>
 
@@ -1067,13 +1045,12 @@
       <menupopup id="taskPopup" onpopupshowing="document.commandDispatcher.updateCommands('create-menu-tasks')">
 #ifndef XP_MACOSX
         <menuitem hidden="true" accesskey="&messengerCmd.accesskey;" label="&messengerCmd.label;"
-                  key="key_mail" oncommand="toMessengerWindow();" id="tasksMenuMail" class="menuitem-iconic menu-iconic"/>
+                  key="key_mail" oncommand="toMessengerWindow();" id="tasksMenuMail"/>
         <menuitem id="addressBook"
                   label="&addressBookCmd.label;"
                   accesskey="&addressBookCmd.accesskey;"
                   key="key_addressbook"
-                  oncommand="toAddressBook();"
-                  class="menuitem-iconic"/>
+                  oncommand="toAddressBook();"/>
         <menuseparator id="devToolsSeparator"/>
 #endif
         <menuitem id="menu_openSavedFilesWnd" label="&savedFiles.label;"
@@ -1165,8 +1142,7 @@
                   oncommand="MsgAccountManager(null);"/>
         <menuitem id="menu_preferences"
                   oncommand="openOptionsDialog()"
-                  data-l10n-id="menu-tools-preferences"
-                  class="menuitem-iconic"/>
+                  data-l10n-id="menu-tools-preferences"/>
 #else
 #ifdef XP_MACOSX
         <menuseparator id="prefSep"/>
@@ -1177,8 +1153,7 @@
         <menuitem id="menu_preferences"
                   data-l10n-id="menu-tools-preferences"
                   key="key_preferencesCmdMac"
-                  oncommand="openOptionsDialog()"
-                  class="menuitem-iconic"/>
+                  oncommand="openOptionsDialog()"/>
         <menuitem id="menu_mac_services"
                   label="&servicesMenuMac.label;"/>
         <menuitem id="menu_mac_hide_app"

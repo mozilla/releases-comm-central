@@ -52,6 +52,11 @@ menu > menupopup > menu {
   padding-inline: 5px;
 }
 
+menulist > menupopup > menuitem > .menu-iconic-left,
+menulist > menupopup > menu > .menu-iconic-left {
+  display: -moz-box;
+}
+
 @media not (-moz-proton) {
 .menu-right {
   transform: scale(0.7);

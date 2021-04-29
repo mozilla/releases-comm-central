@@ -169,9 +169,14 @@
     padding-inline-end: 0;
   }
 
-  menupopup:not([needsgutter]) .menu-iconic > .menu-iconic-left,
-  menupopup:not([needsgutter]) .menuitem-iconic > .menu-iconic-left {
-    display: none;
+  menulist > menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
+  menulist > menupopup:not([needsgutter]) > menuitem:not([icon], .menu-iconic) {
+    padding-inline-start: 0;
+  }
+
+  menupopup:not([needsgutter]) menu:not([icon], .menu-iconic),
+  menupopup:not([needsgutter]) menuitem:not([icon], .menuitem-iconic) {
+    padding-inline-start: 36px;
   }
 
   menupopup[needsgutter] .menu-iconic > .menu-iconic-left,
@@ -179,8 +184,8 @@
     margin-inline-start: -2px;
   }
 
-  menupopup:not([needsgutter]) .folderMenuItem > .menu-iconic-left,
-  #imStatusMenupopup > .menuitem-iconic > .menu-iconic-left {
+  .folderMenuItem > .menu-iconic-left,
+  .menuitem-iconic > .menu-iconic-left {
     display: -moz-box;
   }
 }

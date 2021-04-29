@@ -212,10 +212,8 @@ toolbarbutton.formatting-button {
 
 /* ..... smiley menu ..... */
 
-#smileButtonMenu .menu-iconic-left {
-  /* Ensure that the smileys are visible even if the Gnome theme says menus
-     shouldn't have icons. */
-  visibility: visible;
+#smilyPopup > menuitem > .menu-text {
+  margin-inline-start: 1px !important;
 }
 
 /* ..... fg/bg color picker ..... */

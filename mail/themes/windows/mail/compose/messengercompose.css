@@ -189,6 +189,21 @@ toolbarbutton.formatting-button {
   margin: 1px;
 }
 
+/* ..... smiley menu ..... */
+
+@media not (-moz-proton-contextmenus) {
+#smilyPopup > menuitem > .menu-text {
+  margin-inline-start: -1.45em !important;
+}
+} /** END not Proton **/
+
+@media (-moz-proton-contextmenus) {
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
+#smilyPopup > menuitem {
+  padding-inline-start: 14px;
+}
+} /** END Proton **/
+
 /* ..... fg/bg color picker ..... */
 
 .color-button {

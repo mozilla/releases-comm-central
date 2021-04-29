@@ -314,40 +314,34 @@
      <menubar id="mail-menubar">
         <menu id="menu_File" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
             <menupopup id="menu_FilePopup" onpopupshowing="onFileMenuInit();">
-                <menu id="menu_New" class="menu-iconic"
+                <menu id="menu_New"
                       label="&newMenu.label;" accesskey="&newMenu.accesskey;">
                     <menupopup id="menu_NewPopup">
                       <menuitem id="menu_newContact"
                                 label="&newContact.label;"
                                 accesskey="&newContact.accesskey;"
-                                key="key_newCard" command="cmd_newCard"
-                                class="menuitem-iconic"/>
+                                key="key_newCard" command="cmd_newCard"/>
                       <menuitem id="menu_newList"
                                 label="&newListCmd.label;"
                                 accesskey="&newListCmd.accesskey;"
-                                command="cmd_newlist"
-                                class="menuitem-iconic"/>
+                                command="cmd_newlist"/>
                       <menuitem id="menu_newAddrbook"
                                 label="&newAddressBookCmd.label;"
                                 accesskey="&newAddressBookCmd.accesskey;"
-                                oncommand="AbNewAddressBook()"
-                                class="menuitem-iconic"/>
+                                oncommand="AbNewAddressBook()"/>
                       <menuitem id="menu_newCardDAVBook"
                                 label="&newCardDAVBookCmd.label;"
                                 accesskey="&newCardDAVBookCmd.accesskey;"
-                                oncommand="AbNewCardDAVBook()"
-                                class="menuitem-iconic"/>
+                                oncommand="AbNewCardDAVBook()"/>
                       <menuitem id="addLDAP" label="&newLDAPDirectoryCmd.label;"
                                 accesskey="&newLDAPDirectoryCmd.accesskey;"
-                                oncommand="AbNewLDAPDirectory()"
-                                class="menuitem-iconic"/>
+                                oncommand="AbNewLDAPDirectory()"/>
                       <menuseparator/>
                       <menuitem id="menu_newMessage"
                                 label="&newMessageCmd.label;"
                                 key="key_newMessage"
                                 accesskey="&newMessageCmd.accesskey;"
-                                command="cmd_newMessage"
-                                class="menuitem-iconic"/>
+                                command="cmd_newMessage"/>
                       <menu id="menu_newMessageMultiple"
                             label="&newmsgButton.label;"
                             accesskey="&newmsgButton.accesskey;">
@@ -363,45 +357,38 @@
                           label="&osxAddressBook.label;"
                           accesskey="&osxAddressBook.accesskey;"
                           oncommand="AbShowHideOSXAddressBook();"
-                          checked="true" type="checkbox"
-                          class="menuitem-iconic"/>
+                          checked="true" type="checkbox"/>
                 <menuseparator/>
 #endif
 #ifndef XP_MACOSX
                 <menuitem id="printPreviewMenuItem"
                           label="&printPreviewContactCmd.label;"
                           accesskey="&printPreviewContactCmd.accesskey;"
-                          command="cmd_printcardpreview"
-                          class="menuitem-iconic"/>
+                          command="cmd_printcardpreview"/>
 #endif
                 <menuitem id="printMenuItem" label="&printContactCmd.label;"
                           accesskey="&printContactCmd.accesskey;"
-                          key="key_printCard" command="cmd_printcard"
-                          class="menuitem-iconic"/>
+                          key="key_printCard" command="cmd_printcard"/>
                 <menuseparator id="menu_PageSetupSeparator"/>
                 <menuitem id="printSetupMenuItem" label="&printSetupCmd.label;"
                           accesskey="&printSetupCmd.accesskey;"
-                          oncommand="PrintUtils.showPageSetup()"
-                          class="menuitem-iconic"/>
+                          oncommand="PrintUtils.showPageSetup()"/>
                 <menuseparator id="menu_PrintAddrbookSeparator"/>
 #ifndef XP_MACOSX
                 <menuitem id="printPreviewAddressBook"
                           label="&printPreviewAddressBook.label;"
                           accesskey="&printPreviewAddressBook.accesskey;"
-                          oncommand="AbPrintPreviewAddressBook()"
-                          class="menuitem-iconic"/>
+                          oncommand="AbPrintPreviewAddressBook()"/>
 #endif
                 <menuitem id="printAddressBook" label="&printAddressBook.label;"
                           accesskey="&printAddressBook.accesskey;"
-                          oncommand="AbPrintAddressBook()"
-                          class="menuitem-iconic"/>
+                          oncommand="AbPrintAddressBook()"/>
                 <menuseparator id="menu_FileCloseSeparator"/>
                 <menuitem id="menu_close"
                           label="&closeCmd.label;"
                           key="key_close"
                           accesskey="&closeCmd.accesskey;"
-                          oncommand="AbClose()"
-                          class="menuitem-iconic"/>
+                          oncommand="AbClose()"/>
             </menupopup>
         </menu>
 
@@ -411,48 +398,39 @@
             <menuitem id="menu_undo"
                       data-l10n-id="text-action-undo"
                       key="key_undo"
-                      command="cmd_undo"
-                      class="menuitem-iconic"/>
+                      command="cmd_undo"/>
             <menuitem id="menu_redo"
                       data-l10n-id="text-action-redo"
                       key="key_redo"
-                      command="cmd_redo"
-                      class="menuitem-iconic"/>
+                      command="cmd_redo"/>
             <menuseparator/>
             <menuitem id="menu_cut"
                       data-l10n-id="text-action-cut"
                       key="key_cut"
-                      command="cmd_cut"
-                      class="menuitem-iconic"/>
+                      command="cmd_cut"/>
             <menuitem id="menu_copy"
                       data-l10n-id="text-action-copy"
                       key="key_copy"
-                      command="cmd_copy"
-                      class="menuitem-iconic"/>
+                      command="cmd_copy"/>
             <menuitem id="menu_paste"
                       data-l10n-id="text-action-paste"
                       key="key_paste"
-                      command="cmd_paste"
-                      class="menuitem-iconic"/>
+                      command="cmd_paste"/>
             <menuitem id="menu_delete"
                       data-l10n-id="text-action-delete"
                       key="key_delete"
-                      command="cmd_delete"
-                      class="menuitem-iconic"/>
+                      command="cmd_delete"/>
             <menuseparator/>
             <menuitem id="menu_selectAll"
                       data-l10n-id="text-action-select-all"
                       key="key_selectAll"
                       command="cmd_selectAll"/>
-
             <menuseparator/>
             <menuitem id="menu_search_addresses"
                       label="&searchAddressesCmd.label;"
                       accesskey="&searchAddressesCmd.accesskey;"
                       key="key_searchAddresses"
-                      oncommand="onAdvancedAbSearch();"
-                      class="menuitem-iconic"/>
-
+                      oncommand="onAdvancedAbSearch();"/>
             <menuseparator/>
             <menuitem id="menu_properties"
                       key="key_properties"
@@ -473,8 +451,7 @@
         <menuseparator id="prefSep"/>
         <menuitem id="menu_preferences"
                   data-l10n-id="menu-tools-preferences"
-                  command="cmd_preferences"
-                  class="menuitem-iconic"/>
+                  command="cmd_preferences"/>
 #endif
 #endif
           </menupopup>
@@ -631,8 +608,7 @@
             <menuseparator id="prefSep"/>
             <menuitem id="menu_preferences"
                       data-l10n-id="menu-tools-preferences"
-                      command="cmd_preferences"
-                      class="menuitem-iconic"/>
+                      command="cmd_preferences"/>
 #else
 #ifdef XP_MACOSX
             <menuitem id="menu_preferences"

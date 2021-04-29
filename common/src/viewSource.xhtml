@@ -186,23 +186,19 @@
       <menu id="menu_file" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
         <menupopup id="menu_FilePopup">
           <menuitem key="key_savePage" command="cmd_savePage" id="menu_savePage"
-                    label="&savePageCmd.label;" accesskey="&savePageCmd.accesskey;"
-                    class="menuitem-iconic"/>
+                    label="&savePageCmd.label;" accesskey="&savePageCmd.accesskey;"/>
           <menuseparator/>
           <menuitem command="cmd_pagesetup" id="menu_pageSetup"
                     label="&pageSetupCmd.label;" accesskey="&pageSetupCmd.accesskey;"/>
 #ifndef XP_MACOSX
           <menuitem command="cmd_printpreview" id="menu_printPreview"
-                    label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;"
-                    class="menuitem-iconic"/>
+                    label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;"/>
 #endif
           <menuitem key="key_print" command="cmd_print" id="menu_print"
-                    label="&printCmd.label;" accesskey="&printCmd.accesskey;"
-                    class="menuitem-iconic"/>
+                    label="&printCmd.label;" accesskey="&printCmd.accesskey;"/>
           <menuseparator/>
           <menuitem key="key_close" command="cmd_close" id="menu_close"
-                    label="&closeCmd.label;" accesskey="&closeCmd.accesskey;"
-                    class="menuitem-iconic"/>
+                    label="&closeCmd.label;" accesskey="&closeCmd.accesskey;"/>
         </menupopup>
       </menu>
 
@@ -212,8 +208,7 @@
           <menuitem id="menu_copy"
                     data-l10n-id="text-action-copy"
                     key="key_copy"
-                    command="cmd_copy"
-                    class="menuitem-iconic"/>
+                    command="cmd_copy"/>
           <menuseparator/>
           <menuitem id="menu_selectAll"
                     data-l10n-id="text-action-select-all"
@@ -241,14 +236,14 @@
             <menupopup>
               <menuitem id="menu_textEnlarge" command="cmd_textZoomEnlarge"
                         label="&menu_textEnlarge.label;" accesskey="&menu_textEnlarge.accesskey;"
-                        key="key_textZoomEnlarge" class="menuitem-iconic"/>
+                        key="key_textZoomEnlarge"/>
               <menuitem id="menu_textReduce" command="cmd_textZoomReduce"
                         label="&menu_textReduce.label;" accesskey="&menu_textReduce.accesskey;"
-                        key="key_textZoomReduce" class="menuitem-iconic"/>
+                        key="key_textZoomReduce"/>
               <menuseparator/>
               <menuitem id="menu_textReset" command="cmd_textZoomReset"
                         label="&menu_textReset.label;" accesskey="&menu_textReset.accesskey;"
-                        key="key_textZoomReset" class="menuitem-iconic"/>
+                        key="key_textZoomReset"/>
             </menupopup>
           </menu>
 
@@ -283,8 +278,7 @@
                     accesskey="&productHelp.accesskey;"
 #endif
                     key="key_openHelp"
-                    oncommand="openSupportURL();"
-                    class="menuitem-iconic"/>
+                    oncommand="openSupportURL();"/>
         </menupopup>
       </menu>
 #endif
