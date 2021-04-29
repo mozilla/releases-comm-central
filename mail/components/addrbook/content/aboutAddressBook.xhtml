@@ -2,13 +2,59 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
-<html xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
 <head>
-  <meta charset="utf-8"/>
-  <title></title>
+  <meta charset="utf-8" />
+  <title data-l10n-id="about-addressbook-title"></title>
+
+  <link rel="stylesheet" href="chrome://global/skin/global.css" />
+  <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/primaryToolbar.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/aboutAddressBook.css" />
+
+  <link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
+  <link rel="localization" href="messenger/preferences/preferences.ftl" />
+
+  <script src="chrome://global/content/globalOverlay.js"></script>
+  <script src="chrome://global/content/editMenuOverlay.js"></script>
+  <script src="chrome://messenger/content/addressbook/aboutAddressBook.js"></script>
 </head>
 <body>
+  <xul:toolbox id="toolbox" class="contentTabToolbox" labelalign="end">
+    <xul:toolbar class="chromeclass-toolbar contentTabToolbar" mode="full">
+    </xul:toolbar>
+  </xul:toolbox>
+  <div id="booksPane">
+  </div>
+  <div id="cardsPane">
+  </div>
+  <div id="detailsPane" hidden="hidden">
+  </div>
+
+  <!-- In-content dialogs. -->
+  <xul:stack id="dialogStack" hidden="true"/>
+  <xul:vbox id="dialogTemplate"
+            class="dialogOverlay"
+            align="center"
+            pack="center"
+            topmost="true"
+            hidden="true">
+    <xul:vbox class="dialogBox"
+              pack="end"
+              role="dialog"
+              aria-labelledby="dialogTitle">
+      <xul:hbox class="dialogTitleBar" align="center">
+        <xul:label class="dialogTitle" flex="1"/>
+        <xul:button class="dialogClose close-icon" data-l10n-id="close-button"/>
+      </xul:hbox>
+      <xul:browser class="dialogFrame"
+                   autoscroll="false"
+                   disablehistory="true"/>
+    </xul:vbox>
+  </xul:vbox>
 </body>
 </html>

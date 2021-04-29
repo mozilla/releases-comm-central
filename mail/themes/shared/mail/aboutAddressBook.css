@@ -2,4 +2,98 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* This comment exists to avoid aboutAddressBook.css being a duplicate. */
+@import url("chrome://messenger/skin/shared/preferences/subdialog.css");
+
+:root {
+  --in-content-button-background: var(--grey-90-a10);
+  --in-content-button-background-hover: var(--grey-90-a20);
+  --in-content-button-background-active: var(--grey-90-a30);
+  --in-content-button-border-radius: 3px;
+  --in-content-button-vertical-padding: 0;
+  --in-content-categories-background: #ebebef;
+  --in-content-item-selected-unfocused: var(--grey-20);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --in-content-categories-background: rgba(249, 249, 250, 0.1);
+    --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
+  }
+}
+
+@media (-moz-proton) {
+@media (prefers-color-scheme: dark) {
+  :root {
+    --in-content-button-background: #3b3a43;
+    --in-content-button-background-hover: #52525e;
+    --in-content-button-background-active: #5b5b66;
+    --in-content-primary-button-background: #45a1ff;
+    --in-content-primary-button-background-hover: #65c1ff;
+    --in-content-primary-button-background-active: #85e1ff;
+    --in-content-focus-outline-color: #45a1ff;
+    --checkbox-checked-bgcolor: #45a1ff;
+    --checkbox-checked-hover-bgcolor: #65c1ff;
+    --checkbox-checked-active-bgcolor: #85e1ff;
+  }
+}
+} /** END Proton **/
+
+:root {
+  appearance: none;
+  font: message-box;
+  background-color: var(--in-content-page-background);
+  color: var(--in-content-page-color);
+}
+
+/* Page layout */
+
+body {
+  display: grid;
+  grid-template-rows: min-content auto;
+  grid-template-columns: max-content max-content auto;
+}
+
+#dialogStack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Toolbar */
+
+#toolbox {
+  grid-column: 1/4;
+  font: message-box;
+}
+
+/* Books pane */
+
+#booksPane {
+  width: 18em;
+  padding-block: 30px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--in-content-categories-background);
+}
+
+/* Cards pane */
+
+#cardsPane {
+  width: 27em;
+  padding-block-start: 30px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+  background-color: var(--in-content-box-background);
+}
+
+/* Details pane */
+
+#detailsPane {
+  padding: 30px 20px;
+  overflow: auto;
+  background-color: var(--in-content-categories-background);
+}
