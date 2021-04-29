@@ -1000,7 +1000,7 @@ function categoryPopupHiding(event) {
   let calendar = getCurrentCalendar();
   let maxCount = calendar.getProperty("capabilities.categories.maxCount");
   if (maxCount === null || maxCount > 1) {
-    return event.explicitOriginalTarget.localName != "menuitem";
+    return event.target.localName != "menuitem";
   }
   return true;
 }

@@ -1248,44 +1248,36 @@ function GetParentTableCell(element) {
 }
 
 function EditorDblClick(event) {
-  // We check event.explicitOriginalTarget here because .target will never
-  // be a textnode (bug 193689)
-  if (event.explicitOriginalTarget) {
-    // Only bring up properties if clicked on an element or selected link
-    var element;
+  // Only bring up properties if clicked on an element or selected link
+  let element = event.target;
+  //  We use "href" instead of "a" to not be fooled by named anchor
+  if (!element) {
     try {
-      element = event.explicitOriginalTarget;
+      element = GetCurrentEditor().getSelectedElement("href");
     } catch (e) {}
+  }
 
-    //  We use "href" instead of "a" to not be fooled by named anchor
-    if (!element) {
-      try {
-        element = GetCurrentEditor().getSelectedElement("href");
-      } catch (e) {}
-    }
-
-    // Don't fire for body/p and other block elements.
-    // It's common that people try to double-click
-    // to select a word, but the click hits an empty area.
-    if (
-      element &&
-      ![
-        "body",
-        "p",
-        "h1",
-        "h2",
-        "h3",
-        "h4",
-        "h5",
-        "h6",
-        "blockquote",
-        "div",
-        "pre",
-      ].includes(element.nodeName.toLowerCase())
-    ) {
-      goDoCommand("cmd_objectProperties");
-      event.preventDefault();
-    }
+  // Don't fire for body/p and other block elements.
+  // It's common that people try to double-click
+  // to select a word, but the click hits an empty area.
+  if (
+    element &&
+    ![
+      "body",
+      "p",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "blockquote",
+      "div",
+      "pre",
+    ].includes(element.nodeName.toLowerCase())
+  ) {
+    goDoCommand("cmd_objectProperties");
+    event.preventDefault();
   }
 }
 

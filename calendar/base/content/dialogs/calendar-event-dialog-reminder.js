@@ -338,9 +338,9 @@ function onReminderSelected() {
 function updateReminder(event) {
   if (
     suppressListUpdate ||
-    event.explicitOriginalTarget.localName == "richlistitem" ||
-    event.explicitOriginalTarget.parentNode.localName == "richlistitem" ||
-    event.explicitOriginalTarget.id == "reminder-remove-button" ||
+    event.target.localName == "richlistitem" ||
+    event.target.parentNode.localName == "richlistitem" ||
+    event.target.id == "reminder-remove-button" ||
     !document.commandDispatcher.focusedElement
   ) {
     // Do not set things if the select came from selecting or removing an
