@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals ABView */
+
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -10,11 +12,15 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 
+XPCOMUtils.defineLazyGetter(this, "ABQueryUtils", function() {
+  return ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+});
 XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
   return ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
 });
 XPCOMUtils.defineLazyModuleGetters(this, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
+  PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
 XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
   const { SubDialogManager } = ChromeUtils.import(
@@ -33,11 +39,14 @@ var booksList;
 
 window.addEventListener("load", () => {
   booksList = document.getElementById("books");
+  cardsPane.init();
 
   if (booksList.selectedIndex == 0) {
     // Index 0 was selected before we started listening.
     booksList.dispatchEvent(new CustomEvent("select"));
   }
+
+  cardsPane.cardsList.focus();
 });
 
 // Books
@@ -281,7 +290,12 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   }
 
   _onSelect() {
-    // To be implemented.
+    let row = this.rows[this.selectedIndex];
+    if (row.classList.contains("listRow")) {
+      cardsPane.displayList(row.dataset.book, row.dataset.uid);
+    } else {
+      cardsPane.displayBook(row.dataset.uid);
+    }
   }
 
   _onKeyPress(event) {
@@ -441,6 +455,13 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
           row.querySelector(".bookRow-name, .listRow-name").textContent =
             subject.dirName;
           row.setAttribute("aria-label", subject.dirName);
+          if (cardsPane.cardsList.view.directory?.UID == subject.UID) {
+            document.l10n.setAttributes(
+              cardsPane.searchInput,
+              "about-addressbook-search",
+              { name: subject.dirName }
+            );
+          }
           break;
         }
         case "addrbook-directory-deleted": {
@@ -495,3 +516,548 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
   };
 }
 customElements.define("ab-tree-listbox", AbTreeListbox, { extends: "ul" });
+
+// Cards
+
+/**
+ * Search field for card list. An HTML port of MozSearchTextbox.
+ */
+class AbCardSearchInput extends HTMLInputElement {
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+    this.hasConnected = true;
+
+    this._fireCommand = this._fireCommand.bind(this);
+
+    this.addEventListener("input", this);
+    this.addEventListener("keypress", this);
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "input":
+        this._onInput(event);
+        break;
+      case "keypress":
+        this._onKeyPress(event);
+        break;
+    }
+  }
+
+  _onInput() {
+    if (this._timer) {
+      clearTimeout(this._timer);
+    }
+    this._timer = setTimeout(this._fireCommand, 500, this);
+  }
+
+  _onKeyPress(event) {
+    switch (event.key) {
+      case "Escape":
+        if (this._clearSearch()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        break;
+      case "Return":
+        this._enterSearch();
+        event.preventDefault();
+        event.stopPropagation();
+        break;
+    }
+  }
+
+  _fireCommand() {
+    if (this._timer) {
+      clearTimeout(this._timer);
+    }
+    this._timer = null;
+    this.dispatchEvent(new CustomEvent("command"));
+  }
+
+  _enterSearch() {
+    this._fireCommand();
+  }
+
+  _clearSearch() {
+    if (this.value) {
+      this.value = "";
+      this._fireCommand();
+      return true;
+    }
+    return false;
+  }
+}
+customElements.define("ab-card-search-input", AbCardSearchInput, {
+  extends: "input",
+});
+
+/**
+ * A row in the list of cards.
+ *
+ * @extends {TreeViewListrow}
+ */
+class AbCardListrow extends customElements.get("tree-view-listrow") {
+  static ROW_HEIGHT = 46;
+
+  static styles = `
+    :host {
+      height: 36px;
+      padding-block: 5px;
+      padding-inline: 38px 8px;
+
+      background-image: url("chrome://messenger/skin/icons/contact.svg");
+      background-repeat: no-repeat;
+      background-position: 15px center;
+      -moz-context-properties: fill;
+      fill: currentColor;
+    }
+    :host(:dir(rtl)) {
+      background-position-x: right 15px;
+    }
+    :host(.MailList) {
+      background-image: url("chrome://messenger/skin/icons/ablist.svg");
+    }
+    div.name {
+      line-height: 18px;
+    }
+    div.address {
+      line-height: 18px;
+      font-size: 13.333px;
+      color: var(--in-content-deemphasized-text);
+    }
+    :host(.selected) div.address {
+      color: unset;
+    }
+  `;
+
+  static get fragment() {
+    if (!this.hasOwnProperty("_fragment")) {
+      this._fragment = document.createDocumentFragment();
+      this._fragment
+        .appendChild(document.createElement("div"))
+        .classList.add("name");
+      this._fragment
+        .appendChild(document.createElement("div"))
+        .classList.add("address");
+    }
+    return document.importNode(this._fragment, true);
+  }
+
+  constructor() {
+    super();
+    this.name = this.shadowRoot.querySelector(".name");
+    this.address = this.shadowRoot.querySelector(".address");
+  }
+
+  connectedCallback() {
+    if (this.hasConnected) {
+      return;
+    }
+
+    super.connectedCallback();
+    this.setAttribute("draggable", "true");
+  }
+
+  get index() {
+    return super.index;
+  }
+
+  set index(index) {
+    super.index = index;
+    let props = this.view.getRowProperties(index);
+    if (props) {
+      this.classList.add(props);
+    }
+    this.name.textContent = this.view.getCellText(index, {
+      id: "GeneratedName",
+    });
+    this.address.textContent = this.view.getCellText(index, {
+      id: "PrimaryEmail",
+    });
+    this.setAttribute("aria-label", this.name.textContent);
+  }
+}
+customElements.define("ab-card-listrow", AbCardListrow);
+
+var cardsPane = {
+  searchInput: null,
+
+  cardsList: null,
+
+  init() {
+    this.searchInput = document.getElementById("searchInput");
+    this.sortButton = document.getElementById("sortButton");
+    this.cardsList = document.getElementById("cards");
+
+    this.searchInput.addEventListener("command", this);
+    this.sortButton.addEventListener("click", this);
+    this.cardsList.addEventListener("select", this);
+    this.cardsList.addEventListener("keypress", this);
+    this.cardsList.addEventListener("dragstart", this);
+  },
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "command":
+        this._onCommand(event);
+        break;
+      case "click":
+        this._onClick(event);
+        break;
+      case "select":
+        this._onSelect(event);
+        break;
+      case "keypress":
+        this._onKeyPress(event);
+        break;
+      case "dragstart":
+        this._onDragStart(event);
+        break;
+    }
+  },
+
+  /**
+   * Gets an address book query string based on the value of the search input.
+   *
+   * @returns {string}
+   */
+  getQuery() {
+    if (!this.searchInput.value) {
+      return null;
+    }
+
+    let searchWords = ABQueryUtils.getSearchTokens(this.searchInput.value);
+    let queryURIFormat = ABQueryUtils.getModelQuery(
+      "mail.addr_book.quicksearchquery.format"
+    );
+    return ABQueryUtils.generateQueryURI(queryURIFormat, searchWords);
+  },
+
+  /**
+   * Display an address book, or all address books.
+   *
+   * @param {string|null} uid - The UID of the book or list to display, or null
+   *     for All Address Books.
+   */
+  displayBook(uid) {
+    let book = uid ? MailServices.ab.getDirectoryFromUID(uid) : null;
+    if (book) {
+      document.l10n.setAttributes(
+        this.searchInput,
+        "about-addressbook-search",
+        { name: book.dirName }
+      );
+    } else {
+      document.l10n.setAttributes(
+        this.searchInput,
+        "about-addressbook-search-all"
+      );
+    }
+    let sortColumn = "GeneratedName";
+    let sortDirection = "ascending";
+    if (this.cardsList.view) {
+      ({ sortColumn, sortDirection } = this.cardsList.view);
+    }
+    this.cardsList.view = new ABView(
+      book,
+      this.getQuery(),
+      null,
+      sortColumn,
+      sortDirection
+    );
+  },
+
+  /**
+   * Display a list.
+   *
+   * @param {bookUID} uid - The UID of the address book containing the list.
+   * @param {string} uid - The UID of the list to display.
+   */
+  displayList(bookUID, uid) {
+    let book = MailServices.ab.getDirectoryFromUID(bookUID);
+    let list = book.childNodes.find(l => l.UID == uid);
+    document.l10n.setAttributes(this.searchInput, "about-addressbook-search", {
+      name: list.dirName,
+    });
+    this.cardsList.view = this.cardsList.view = new ABView(
+      list,
+      this.getQuery(),
+      null,
+      "GeneratedName",
+      "ascending"
+    );
+  },
+
+  /**
+   * Set the name format to be displayed.
+   *
+   * @param {integer} format - One of the nsIAbCard.GENERATE_* constants.
+   */
+  setNameFormat(format) {
+    // ABView will detect this change and update automatically.
+    Services.prefs.setIntPref("mail.addr_book.lastnamefirst", format);
+  },
+
+  /**
+   * Change the sort order of the cards being displayed.
+   *
+   * @param {Event} event - The oncommand event that triggered this sort.
+   */
+  sortCards(event) {
+    let [column, direction] = event.target.value.split(" ");
+    this.cardsList.view.sortBy(column, direction);
+    // TODO: Persist sort column and direction.
+  },
+
+  /**
+   * Prompt the user and delete the selected card(s).
+   */
+  deleteSelected() {
+    // TODO: Upgrade this code which comes from the old address book.
+    let selectedLists = [];
+    let selectedContacts = [];
+
+    for (let index of this.cardsList.selectedIndicies) {
+      let card = this.cardsList.view.getCardFromRow(index);
+      if (card.isMailList) {
+        selectedLists.push(card);
+      } else {
+        selectedContacts.push(card);
+      }
+    }
+
+    if (selectedLists.length + selectedContacts.length == 0) {
+      return;
+    }
+
+    // Determine strings for smart and context-sensitive user prompts
+    // for confirming deletion.
+    let title;
+    let message;
+    let itemName;
+    let containingListName;
+    let selectedDir = this.cardsList.directory;
+
+    if (selectedLists.length && selectedContacts.length) {
+      title = "confirmDelete2orMoreContactsAndListsTitle";
+      message = "confirmDelete2orMoreContactsAndLists";
+    } else if (selectedLists.length == 1) {
+      title = "confirmDeleteThisMailingListTitle";
+      message = "confirmDeleteThisMailingList";
+      // Set item name for single mailing list.
+      itemName = selectedLists[0].displayName;
+    } else if (selectedLists.length) {
+      title = "confirmDelete2orMoreMailingListsTitle";
+      message = "confirmDelete2orMoreMailingLists";
+    } else {
+      if (selectedDir && selectedDir.isMailList) {
+        // Contact(s) in mailing lists will be removed from the list, not deleted.
+        if (selectedContacts.length == 1) {
+          title = "confirmRemoveThisContactTitle";
+          message = "confirmRemoveThisContact";
+        } else {
+          title = "confirmRemove2orMoreContactsTitle";
+          message = "confirmRemove2orMoreContacts";
+        }
+        // For removing contacts from mailing list, set placeholder value
+        containingListName = selectedDir.dirName;
+      } else if (selectedContacts.length == 1) {
+        // Contact(s) in address books will be deleted.
+        title = "confirmDeleteThisContactTitle";
+        message = "confirmDeleteThisContact";
+      } else {
+        title = "confirmDelete2orMoreContactsTitle";
+        message = "confirmDelete2orMoreContacts";
+      }
+      if (selectedContacts.length == 1) {
+        // Set item name for single contact.
+        let nameFormatFromPref = Services.prefs.getIntPref(
+          "mail.addr_book.lastnamefirst"
+        );
+        itemName = selectedContacts[0].generateName(nameFormatFromPref);
+      }
+    }
+
+    let abBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/addressbook/addressBook.properties"
+    );
+
+    // Get the raw model strings.
+    // For numSelectedItems == 1, it's simple strings.
+    // For messages with numSelectedItems > 1, it's multi-pluralform string sets.
+    // message has placeholders for some forms.
+    title = abBundle.GetStringFromName(title);
+    message = abBundle.GetStringFromName(message);
+
+    // Get plural form where applicable; substitute placeholders as required.
+    if (itemName) {
+      // If single selected item, substitute itemName.
+      message = message.replace("#1", itemName);
+    } else {
+      // If multiple selected items, get the right plural string from the
+      // localized set, then substitute numSelectedItems.
+      message = PluralForm.get(
+        selectedLists.length + selectedContacts.length,
+        message
+      );
+      message = message.replace(
+        "#1",
+        selectedLists.length + selectedContacts.length
+      );
+    }
+    // If contact(s) in a mailing list, substitute containingListName.
+    if (containingListName) {
+      message = message.replace("#2", containingListName);
+    }
+
+    // Finally, show our smart confirmation message, and act upon it!
+    if (!Services.prompt.confirm(window, title, message)) {
+      // Deletion cancelled by user.
+      return;
+    }
+
+    // Delete cards from address books or mailing lists.
+    this.cardsList.view.deleteSelectedCards();
+  },
+
+  _onCommand() {
+    this.cardsList.view = new ABView(
+      this.cardsList.view.directory,
+      this.getQuery(),
+      undefined,
+      this.cardsList.view.sortColumn,
+      this.cardsList.view.sortDirection
+    );
+  },
+
+  _onClick(event) {
+    let popup = document.getElementById("sortContext");
+    popup.openPopupAtScreen(event.screenX, event.screenY, true);
+    event.preventDefault();
+  },
+
+  _onSelect(event) {
+    // To be implemented.
+  },
+
+  _onKeyPress(event) {
+    if (event.altKey || event.metaKey || event.shiftKey) {
+      return;
+    }
+
+    switch (event.key) {
+      case "Delete":
+        this.deleteSelected();
+        break;
+    }
+  },
+
+  _onDragStart(event) {
+    function makeMimeAddressFromCard(card) {
+      if (!card) {
+        return "";
+      }
+
+      let email;
+      if (card.isMailList) {
+        let directory = MailServices.ab.getDirectory(card.mailListURI);
+        email = directory.description || card.displayName;
+      } else {
+        email = card.primaryEmail || card.getProperty("SecondEmail", "");
+      }
+      return MailServices.headerParser.makeMimeAddress(card.displayName, email);
+    }
+
+    let row = event.target.closest("ab-card-listrow");
+    if (!row) {
+      event.preventDefault();
+      return;
+    }
+
+    let indicies = this.cardsList.selectedIndicies;
+    if (indicies.length === 0) {
+      event.preventDefault();
+      return;
+    }
+    let cards = indicies.map(index =>
+      this.cardsList.view.getCardFromRow(index)
+    );
+
+    let addresses = cards.map(makeMimeAddressFromCard);
+    event.dataTransfer.mozSetDataAt("moz/abcard-array", cards, 0);
+    event.dataTransfer.setData("text/x-moz-address", addresses);
+    event.dataTransfer.setData("text/unicode", addresses);
+
+    let card = this.cardsList.view.getCardFromRow(row.index);
+    if (card && card.displayName && !card.isMailList) {
+      try {
+        // A card implementation may throw NS_ERROR_NOT_IMPLEMENTED.
+        // Don't break drag-and-drop if that happens.
+        let vCard = card.translateTo("vcard");
+        event.dataTransfer.setData("text/x-vcard", decodeURIComponent(vCard));
+        event.dataTransfer.setData(
+          "application/x-moz-file-promise-dest-filename",
+          card.displayName + ".vcf"
+        );
+        event.dataTransfer.setData(
+          "application/x-moz-file-promise-url",
+          "data:text/x-vcard," + vCard
+        );
+        event.dataTransfer.setData(
+          "application/x-moz-file-promise",
+          this._flavorDataProvider
+        );
+      } catch (ex) {
+        Cu.reportError(ex);
+      }
+    }
+
+    event.dataTransfer.effectAllowed = "all";
+    let bcr = row.getBoundingClientRect();
+    event.dataTransfer.setDragImage(
+      row,
+      event.clientX - bcr.x,
+      event.clientY - bcr.y
+    );
+  },
+
+  _flavorDataProvider: {
+    QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
+
+    getFlavorData(aTransferable, aFlavor, aData) {
+      if (aFlavor == "application/x-moz-file-promise") {
+        let primitive = {};
+        aTransferable.getTransferData("text/x-vcard", primitive);
+        let vCard = primitive.value.QueryInterface(Ci.nsISupportsString).data;
+        aTransferable.getTransferData(
+          "application/x-moz-file-promise-dest-filename",
+          primitive
+        );
+        let leafName = primitive.value.QueryInterface(Ci.nsISupportsString)
+          .data;
+        aTransferable.getTransferData(
+          "application/x-moz-file-promise-dir",
+          primitive
+        );
+        let localFile = primitive.value.QueryInterface(Ci.nsIFile).clone();
+        localFile.append(leafName);
+
+        let ofStream = Cc[
+          "@mozilla.org/network/file-output-stream;1"
+        ].createInstance(Ci.nsIFileOutputStream);
+        ofStream.init(localFile, -1, -1, 0);
+        let converter = Cc[
+          "@mozilla.org/intl/converter-output-stream;1"
+        ].createInstance(Ci.nsIConverterOutputStream);
+        converter.init(ofStream, null);
+        converter.writeString(vCard);
+        converter.close();
+
+        aData.value = localFile;
+      }
+    },
+  },
+};

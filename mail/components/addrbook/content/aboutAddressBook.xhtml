@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/primaryToolbar.css" />
+  <link rel="stylesheet" href="chrome://messenger/content/tree-listbox.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/aboutAddressBook.css" />
 
   <link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
@@ -22,6 +23,8 @@
   <script src="chrome://global/content/globalOverlay.js"></script>
   <script src="chrome://global/content/editMenuOverlay.js"></script>
   <script src="chrome://messenger/content/tree-listbox.js"></script>
+  <script src="chrome://messenger/content/jsTreeView.js"></script>
+  <script src="chrome://messenger/content/addressbook/abView-new.js"></script>
   <script src="chrome://messenger/content/addressbook/aboutAddressBook.js"></script>
 </head>
 <body>
@@ -63,6 +66,15 @@
     </template>
   </div>
   <div id="cardsPane">
+    <div id="cardsHeader">
+      <input is="ab-card-search-input" id="searchInput"
+             type="search"
+             data-l10n-attrs="placeholder" />
+      <button id="sortButton">
+        <img src="chrome://calendar/skin/shared/icons/sort.svg" alt="" />
+      </button>
+    </div>
+    <tree-view-listbox id="cards" rows="ab-card-listrow"></tree-view-listbox>
   </div>
   <div id="detailsPane" hidden="hidden">
   </div>
@@ -99,5 +111,45 @@
   <xul:menuitem id="bookContextDelete"
                 data-l10n-id="about-addressbook-books-context-delete"
                 oncommand="booksList.deleteSelected();"/>
+</xul:menupopup>
+<xul:menupopup id="sortContext">
+  <xul:menuitem type="radio"
+                name="format"
+                value="0"
+                checked="true"
+                data-l10n-id="about-addressbook-name-format-display"
+                oncommand="cardsPane.setNameFormat(this.value);"/>
+  <xul:menuitem type="radio"
+                name="format"
+                value="2"
+                data-l10n-id="about-addressbook-name-format-firstlast"
+                oncommand="cardsPane.setNameFormat(this.value);"/>
+  <xul:menuitem type="radio"
+                name="format"
+                value="1"
+                data-l10n-id="about-addressbook-name-format-lastfirst"
+                oncommand="cardsPane.setNameFormat(this.value);"/>
+  <xul:menuseparator/>
+  <xul:menuitem type="radio"
+                name="sort"
+                value="GeneratedName ascending"
+                checked="true"
+                data-l10n-id="about-addressbook-sort-name-ascending"
+                oncommand="cardsPane.sortCards(event);"/>
+  <xul:menuitem type="radio"
+                name="sort"
+                value="GeneratedName descending"
+                data-l10n-id="about-addressbook-sort-name-descending"
+                oncommand="cardsPane.sortCards(event);"/>
+  <xul:menuitem type="radio"
+                name="sort"
+                value="PrimaryEmail ascending"
+                data-l10n-id="about-addressbook-sort-email-ascending"
+                oncommand="cardsPane.sortCards(event);"/>
+  <xul:menuitem type="radio"
+                name="sort"
+                value="PrimaryEmail descending"
+                data-l10n-id="about-addressbook-sort-email-descending"
+                oncommand="cardsPane.sortCards(event);"/>
 </xul:menupopup>
 </html>

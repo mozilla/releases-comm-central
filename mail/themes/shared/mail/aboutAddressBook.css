@@ -194,6 +194,39 @@ body {
   background-color: var(--in-content-box-background);
 }
 
+#cardsHeader {
+  display: flex;
+  margin-block-end: 8px;
+  margin-inline: 8px;
+}
+
+#searchInput {
+  height: 30px;
+  flex: 1;
+  margin: 0;
+  margin-inline-end: 8px;
+  box-sizing: border-box;
+}
+
+#sortButton {
+  min-width: 0;
+  min-height: 0;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#sortButton dropmarker {
+  display: none;
+}
+
+#cards {
+  flex: 1;
+  font-size: 15px;
+}
+
 /* Details pane */
 
 #detailsPane {

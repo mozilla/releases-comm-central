@@ -21,3 +21,5 @@ messenger.jar:
 
     content/messenger/addressbook/aboutAddressBook.js           (content/aboutAddressBook.js)
     content/messenger/addressbook/aboutAddressBook.xhtml        (content/aboutAddressBook.xhtml)
+# TODO: Rename this after removal of mailnews/addrbook/content/abView.js.
+    content/messenger/addressbook/abView-new.js                 (content/abView-new.js)

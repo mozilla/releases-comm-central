@@ -551,6 +551,7 @@
       this._rowElementName = this.getAttribute("rows") || "tree-view-listrow";
       this._rowElementClass = customElements.get(this._rowElementName);
       this.invalidate();
+      this.selectedIndex = -1;
 
       this.dispatchEvent(new CustomEvent("viewchange"));
     }
@@ -934,6 +935,11 @@
     }
 
     connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+
       this.list = this.parentNode;
       this.view = this.list.view;
     }
