@@ -21,6 +21,7 @@
 
   <script src="chrome://global/content/globalOverlay.js"></script>
   <script src="chrome://global/content/editMenuOverlay.js"></script>
+  <script src="chrome://messenger/content/tree-listbox.js"></script>
   <script src="chrome://messenger/content/addressbook/aboutAddressBook.js"></script>
 </head>
 <body>
@@ -29,6 +30,37 @@
     </xul:toolbar>
   </xul:toolbox>
   <div id="booksPane">
+    <!--
+      TODO: Prevent tab focus on overflowing item names. Tried tabindex="-1" but it makes
+      clicking focus on the name.
+    -->
+    <ul is="ab-tree-listbox" id="books">
+      <li role="option" id="allAddressBooks" class="bookRow noDelete readOnly">
+        <div class="bookRow-container">
+          <div class="twisty"></div>
+          <div class="bookRow-icon"></div>
+          <span class="bookRow-name" data-l10n-id="all-address-books"></span>
+        </div>
+      </li>
+    </ul>
+    <template id="bookRow">
+      <li role="option" class="bookRow">
+        <div class="bookRow-container">
+          <div class="twisty"></div>
+          <div class="bookRow-icon"></div>
+          <span class="bookRow-name"></span>
+        </div>
+        <ul class="bookRow-children"></ul>
+      </li>
+    </template>
+    <template id="listRow">
+      <li class="listRow" role="option">
+        <div class="listRow-container">
+          <div class="listRow-icon"></div>
+          <span class="listRow-name"></span>
+        </div>
+      </li>
+    </template>
   </div>
   <div id="cardsPane">
   </div>
@@ -57,4 +89,15 @@
     </xul:vbox>
   </xul:vbox>
 </body>
+<xul:menupopup id="bookContext">
+  <xul:menuitem id="bookContextProperties"
+                data-l10n-id="about-addressbook-books-context-properties"
+                oncommand="booksList.showPropertiesOfSelected();"/>
+  <xul:menuitem id="bookContextSynchronize"
+                data-l10n-id="about-addressbook-books-context-synchronize"
+                oncommand="booksList.synchronizeSelected();"/>
+  <xul:menuitem id="bookContextDelete"
+                data-l10n-id="about-addressbook-books-context-delete"
+                oncommand="booksList.deleteSelected();"/>
+</xul:menupopup>
 </html>

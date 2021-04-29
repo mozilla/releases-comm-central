@@ -79,6 +79,110 @@ body {
   background-color: var(--in-content-categories-background);
 }
 
+#books {
+  flex: 1;
+  font-size: 15px;
+  line-height: 30px;
+  scroll-behavior: smooth;
+  -moz-user-select: none;
+}
+
+#books:focus-visible {
+  outline: none;
+}
+
+#books,
+#books ul {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#allAddressBooks {
+  margin-block-end: 10px;
+}
+
+.bookRow-container,
+.listRow-container {
+  display: flex;
+  align-items: center;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  cursor: default;
+}
+
+.bookRow.selected > .bookRow-container,
+.listRow.selected > .listRow-container {
+  background-color: var(--in-content-button-background);
+}
+
+#books:focus-visible .bookRow.selected > .bookRow-container,
+#books:focus-visible .listRow.selected > .listRow-container {
+  outline: 1px dotted currentcolor;
+  outline-offset: -1px;
+}
+
+#books:focus .bookRow.selected > .bookRow-container,
+#books:focus .listRow.selected > .listRow-container {
+  background-color: var(--in-content-item-selected);
+  color: var(--in-content-item-selected-text);
+}
+
+.bookRow .twisty {
+  width: 26px;
+  height: 26px;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.bookRow.children .twisty {
+  background-image: url("chrome://global/skin/icons/twisty-expanded.svg");
+}
+
+.bookRow.children.collapsed .twisty {
+  background-image: url("chrome://global/skin/icons/twisty-collapsed.svg");
+}
+
+.bookRow.children.collapsed:-moz-locale-dir(rtl) .twisty {
+  background-image: url("chrome://global/skin/icons/twisty-collapsed-rtl.svg");
+}
+
+.bookRow-icon,
+.listRow-icon {
+  width: 16px;
+  height: 16px;
+  background-image: url("chrome://messenger/skin/icons/address.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.bookRow.remote .bookRow-icon {
+  background-image: url("chrome://messenger/skin/icons/globe.svg");
+}
+
+.bookRow-name,
+.listRow-name {
+  flex: 1;
+  margin-inline: 7px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+}
+
+.bookRow-children:empty,
+.bookRow.collapsed > .bookRow-children {
+  display: none;
+}
+
+.listRow-container {
+  padding-inline-start: 51px;
+}
+
+.listRow-icon {
+  background-image: url("chrome://messenger/skin/icons/ablist.svg");
+}
+
 /* Cards pane */
 
 #cardsPane {
