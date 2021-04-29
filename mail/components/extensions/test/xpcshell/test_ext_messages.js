@@ -182,7 +182,10 @@ add_task(async function test_update() {
   equal(message.getProperty("keywords"), "testkeyword");
 
   await extension.startup();
-  extension.sendMessage({folder:{ accountId: account.key, path: "/test0" }, size: message.messageSize});
+  extension.sendMessage({
+    folder: { accountId: account.key, path: "/test0" },
+    size: message.messageSize,
+  });
 
   await extension.awaitMessage("flagged");
   await TestUtils.waitForCondition(() => message.isFlagged);
