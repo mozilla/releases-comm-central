@@ -364,7 +364,10 @@ description > html|a {
 
 .indent,
 html|input.indent {
-  margin-inline-start: 28px;
+  /* This should match the checkboxes/radiobuttons' width and inline margin,
+     such that when we have a toggle with a label followed by another element
+     with this class, the other element's text aligns with the toggle label. */
+  margin-inline-start: 22px;
 }
 
 checkbox {
