@@ -1894,32 +1894,43 @@ function BookmarkWebsite(aWebsiteAddressNode)
 }
 
 var attachmentAreaDNDObserver = {
-  onDragStart: function (aEvent, aAttachmentData, aDragAction)
-  {
+  onDragStart(aEvent) {
     var target = aEvent.target;
-    if (target.localName == "listitem")
-    {
-      var attachment = target.attachment;
-      if (attachment.contentType == "text/x-moz-deleted")
-        return;
+    if (target.localName == "listitem") {
+      let index = 0;
+      let selection = target.parentNode.selectedItems;
+      for (let item of selection) {
+        let attachment = item.attachment;
+        if (attachment.contentType == "text/x-moz-deleted") {
+          continue;
+        }
 
-      var data = new TransferData();
-      if (attachment.url && attachment.displayName)
-      {
-        var info = attachment.url + "&type=" + attachment.contentType +
-                   "&filename=" + encodeURIComponent(attachment.displayName);
-        data.addDataForFlavour("text/x-moz-url", info + "\n" +
-                               attachment.displayName + "\n" + attachment.size);
-        data.addDataForFlavour("text/x-moz-url-data", attachment.url);
-        data.addDataForFlavour("text/x-moz-url-desc", attachment.displayName);
-        data.addDataForFlavour("application/x-moz-file-promise-url",
-                               attachment.url);
-        data.addDataForFlavour("application/x-moz-file-promise",
-                               new nsFlavorDataProvider(), 0,
-                               Ci.nsISupports);
+        let name = attachment.name || attachment.displayName;
+        if (!attachment.url || !name) {
+          continue;
+        }
+
+        let info = attachment.url;
+        // Only add type/filename info for non-file URLs that don't already
+        // have it.
+        if (!/(^file:|&filename=)/.test(info)) {
+          info += "&type=" + attachment.contentType + "&filename=" +
+                  encodeURIComponent(name);
+        }
+        let dt = aEvent.dataTransfer;
+        dt.mozSetDataAt("text/x-moz-url",
+                        info + "\n" + name + "\n" + attachment.size,
+                        index);
+        dt.mozSetDataAt("text/x-moz-url-data", attachment.url, index);
+        dt.mozSetDataAt("text/x-moz-url-desc", name, index);
+        dt.mozSetDataAt("application/x-moz-file-promise-url", attachment.url,
+                        index);
+        dt.mozSetDataAt("application/x-moz-file-promise",
+                        new nsFlavorDataProvider(), index);
+        index++;
       }
-      aAttachmentData.data = data;
     }
+    aEvent.stopPropagation();
   }
 };
 
@@ -1929,13 +1940,7 @@ function nsFlavorDataProvider()
 
 nsFlavorDataProvider.prototype =
 {
-  QueryInterface : function(iid)
-  {
-      if (iid.equals(Ci.nsIFlavorDataProvider) ||
-          iid.equals(Ci.nsISupports))
-        return this;
-      throw Cr.NS_NOINTERFACE;
-  },
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIFlavorDataProvider]),
 
   getFlavorData : function(aTransferable, aFlavor, aData, aDataLen)
   {
