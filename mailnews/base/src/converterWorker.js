@@ -243,15 +243,19 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
     }
   };
 
-  let mboxFile = OS.File.open(mboxPath);
   let buf = "";
   let eof = false;
+  let offset = 0;
   while (!eof) {
-    let rawBytes = mboxFile.read(CHUNK_SIZE);
+    let rawBytes = await IOUtils.read(mboxPath, {
+      offset,
+      maxBytes: CHUNK_SIZE,
+    });
     // We're using JavaScript strings (which hold 16bit characters) to store
     // 8 bit data. This sucks, but is faster than trying to operate directly
     // upon Uint8Arrays. A lot of work goes into optimising JavaScript strings.
     buf += bytesToString(rawBytes);
+    offset += rawBytes.byteLength;
     eof = rawBytes.byteLength < CHUNK_SIZE;
 
     let pos = 0;
