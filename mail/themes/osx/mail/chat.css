@@ -159,24 +159,3 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
 #contextPane {
   background-color: #fff;
 }
-
-.statusMessageInput[editing] {
-  color: -moz-dialogtext;
-  margin-block: 29px -1px;
-  margin-inline: -4px 0;
-}
-
-#displayNameAndstatusMessageStack #statusMessageLabel, #statusMessageInput {
-  margin: 32px 0 0;
-  min-height: 16px;
-}
-
-#displayNameAndstatusMessageStack #statusMessageInput[editing] {
-  margin-block: 29px 0;
-  margin-inline: -4px 2px;
-}
-
-#displayNameAndstatusMessageStack #displayNameInput[editing] {
-  margin-inline: -4px -2px;
-  margin-bottom: 18px;
-}

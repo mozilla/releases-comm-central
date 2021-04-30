@@ -124,7 +124,7 @@ var gAccountManager = {
       if (oldItem.id != acc.id) {
         let accElt = document.getElementById(acc.id);
         accountList.insertBefore(accElt, oldItem);
-        accElt.restoreItems();
+        accElt.refreshState();
       }
       ++i;
     }
@@ -213,7 +213,7 @@ var gAccountManager = {
       document.getElementById(account.id).build(account);
       this.disableCommandItems();
     } else if (aTopic == "account-connect-progress") {
-      document.getElementById(account.id).updateConnectionState();
+      document.getElementById(account.id).updateConnectingProgress();
     } else if (aTopic == "account-connect-error") {
       document.getElementById(account.id).updateConnectionError();
       // See NSSErrorsService::ErrorIsOverridable.
@@ -252,15 +252,7 @@ var gAccountManager = {
           // Probably disconnecting a removed account.
           return;
         }
-
-        if (aTopic == "account-connecting") {
-          elt.removeAttribute("error");
-          elt.updateConnectionState();
-        } else if (aTopic == "account-connected") {
-          elt.refreshConnectedLabel();
-        }
-
-        elt.setAttribute("state", stateEvents[aTopic]);
+        elt.refreshState(stateEvents[aTopic]);
       }
     }
   },

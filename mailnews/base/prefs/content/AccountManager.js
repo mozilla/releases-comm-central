@@ -44,6 +44,7 @@ var { allAccountsSorted } = ChromeUtils.import(
 var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
 );
+var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
   const { SubDialogManager } = ChromeUtils.import(
@@ -1980,7 +1981,9 @@ var gAccountTree = {
         if (server.type == "im") {
           treecell.setAttribute(
             "src",
-            server.wrappedJSObject.imAccount.protocol.iconBaseURI + "icon.png"
+            ChatIcons.getProtocolIconURI(
+              server.wrappedJSObject.imAccount.protocol
+            )
           );
           treeitem.id = accountKey;
         }

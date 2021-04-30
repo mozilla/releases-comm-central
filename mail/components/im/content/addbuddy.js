@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
 var addBuddy = {
   onload() {
@@ -13,7 +14,7 @@ var addBuddy = {
       }
       let proto = acc.protocol;
       let item = accountList.appendItem(acc.name, acc.id, proto.name);
-      item.setAttribute("image", proto.iconBaseURI + "icon.png");
+      item.setAttribute("image", ChatIcons.getProtocolIconURI(proto));
       item.setAttribute("class", "menuitem-iconic");
     }
     if (!accountList.itemCount) {

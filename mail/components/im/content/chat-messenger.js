@@ -633,9 +633,8 @@ var chatHandler = {
       ) {
         if (aConversation.isChat) {
           // Display information for MUCs.
-          let proto = account.protocol;
-          cti.setAttribute("status", "chat");
-          cti.setAttribute("prplIcon", proto.iconBaseURI + "icon.png");
+          cti.setAsChat("", false, false);
+          cti.setProtocol(account.protocol);
           return;
         }
         // Display information for contacts.
@@ -804,24 +803,19 @@ var chatHandler = {
   },
   showContactInfo(aContact) {
     let cti = document.getElementById("conv-top-info");
-    cti.setAttribute("userIcon", aContact.buddyIconFilename);
+    cti.setUserIcon(aContact.buddyIconFilename);
     cti.setAttribute("displayName", aContact.displayName);
-    let proto = aContact.preferredBuddy.protocol;
-    cti.setAttribute("prplIcon", proto.iconBaseURI + "icon.png");
+    cti.setProtocol(aContact.preferredBuddy.protocol);
+
     let statusText = aContact.statusText;
     let statusType = aContact.statusType;
-    if (statusText) {
-      statusText = " - " + statusText;
-    }
-    cti.setAttribute("statusMessageWithDash", statusText);
-    let statusString = Status.toLabel(statusType);
-    cti.setAttribute("statusMessage", statusString + statusText);
-    cti.setAttribute("status", Status.toAttribute(statusType));
-    cti.setAttribute("statusTypeTooltiptext", statusString);
-    cti.setAttribute("statusTooltiptext", statusString + statusText);
-    cti.removeAttribute("typing");
-    cti.removeAttribute("topicEditable");
-    cti.removeAttribute("noTopic");
+    let statusDescription = Status.toLabel(statusType);
+    statusText = Status.toLabel(statusType, statusText);
+    cti.setStatus(
+      Status.toAttribute(statusType),
+      statusDescription,
+      statusText
+    );
 
     let bundle = document.getElementById("chatBundle");
     let button = document.getElementById("goToConversation");
@@ -874,15 +868,7 @@ var chatHandler = {
       document.getElementById("goToConversation").hidden = true;
       document.getElementById("contextPane").removeAttribute("chat");
       let cti = document.getElementById("conv-top-info");
-      cti.removeAttribute("userIcon");
-      cti.removeAttribute("prplIcon");
-      cti.removeAttribute("statusMessageWithDash");
-      cti.removeAttribute("statusMessage");
-      cti.removeAttribute("status");
-      cti.removeAttribute("statusTypeTooltiptext");
-      cti.removeAttribute("statusTooltiptext");
-      cti.removeAttribute("topicEditable");
-      cti.removeAttribute("noTopic");
+      cti.clear();
       this.observedContact = null;
       if (gOtrEnabled) {
         OTRUI.hideOTRButton();

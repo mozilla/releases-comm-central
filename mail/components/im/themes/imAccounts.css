@@ -67,6 +67,27 @@
 }
 
 /* List Items */
+richlistitem:not([selected="true"]) .account-buttons {
+  display: none;
+}
+
+richlistitem:not([state="connected"]) .connected,
+richlistitem:not([state="connecting"]) .connecting,
+richlistitem:not([state="disconnected"]) .disconnected,
+richlistitem:not([state="disconnecting"]) .disconnecting,
+richlistitem:not([error="true"]) .error,
+richlistitem:not([state="disconnected"]) .error,
+richlistitem[error="true"] .disconnected,
+richlistitem[selected="true"]:not([state="disconnected"]) .connectButton,
+richlistitem[selected="true"][state="disconnected"] .disconnectButton,
+richlistitem[selected="true"][state="disconnecting"] .disconnectButton,
+richlistitem:not([selected="true"]) .addException,
+richlistitem:not([selected="true"]) .autoSignOn,
+richlistitem:not([reconnectPending="true"]) description[anonid="reconnect"]
+{
+  display: none;
+}
+
 richlistitem[state="disconnected"] .accountIcon {
   opacity: 0.3;
 }
@@ -119,63 +140,46 @@ richlistitem[dragover="up"] {
   color: #c80000;
   margin-inline-start: 6px;
 }
+
 .accountName {
   font-weight: bold;
 }
 
 .accountIcon {
   width: 32px;
-  max-width: 32px;
   height: 32px;
-  max-height: 32px;
 }
 
-.accountStateIcon {
-  margin-inline-start: 16px;
-  margin-top: 16px;
-  width: 16px;
-  height: 16px;
+#displayNameAndstatusMessageGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  flex: 1 1 auto;
 }
 
-richlistitem[state="connecting"] .accountStateIcon {
-  list-style-image: url("chrome://global/skin/icons/loading.png");
-}
-richlistitem[error="true"] .accountStateIcon {
-  list-style-image: url("chrome://global/skin/icons/warning.svg");
-}
-
-#statusArea {
+#displayNameAndstatusMessageGrid > * {
   margin: 0;
-  padding: 0;
 }
 
-#displayName,
-#displayNameInput {
-  font-size: 16px;
-  border-bottom: 1px solid hsla(0, 0%, 50%, 0.5);
-  margin: 0 0 16px;
+#displayNameAndstatusMessageGrid > hr {
+  height: 0;
+  border-block-start: 1px solid hsla(0, 0%, 50%, 0.5);
+  border-block-end: none;
+  border-inline: none;
 }
 
 #displayName[usingDefault]:not([editing]) {
   color: #999;
 }
 
-#userIcon {
-  border: 2px solid hsla(0, 0%, 50%, 0.3);
-  border-radius: 5px;
-  max-width: 48px;
-  max-height: 48px;
-  width: 48px;
-  height: 48px;
+/* Add styling same as #statusMessageLabel in chat.css */
+#displayName,
+#statusMessageLabel:not([statusType="offline"]) {
+  cursor: text;
 }
 
-#userIcon[src=""] {
-  background-image: url("chrome://messenger/skin/icons/userIcon.svg");
-  background-size: contain;
-  background-repeat: no-repeat;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: 0.25;
+#userIcon {
+  border-color: hsla(0, 0%, 50%, 0.3);
 }
 
 #userIcon:hover {
@@ -185,13 +189,9 @@ richlistitem[error="true"] .accountStateIcon {
 }
 
 #statusImageStack > #statusTypeIcon {
-  margin-block: 32px 0;
-  margin-inline: 32px 0;
-  padding-inline: 0;
-  width: 16px;
-  height: 16px;
-  min-height: 16px;
+  /* Need min-width since #statusTypeIcon overlaps with rule in chat.css. */
   min-width: 16px;
+  padding-inline: 0;
   appearance: none;
   background: transparent;
   box-shadow: none;
@@ -200,11 +200,6 @@ richlistitem[error="true"] .accountStateIcon {
 
 #statusImageStack > #statusTypeIcon > .button-box {
   padding-block: 0;
-}
-
-#statusImageStack,
-#displayNameAndstatusMessageStack {
-  margin: 6px;
 }
 
 #statusTypeIcon dropmarker {

@@ -56,7 +56,7 @@
                          onclick="statusSelector.statusMessageClick();"/>
                   <html:input id="statusMessageInput"
                               value=""
-                              class="statusMessageToolbarItem status-message-input"
+                              class="statusMessageInput statusMessageToolbarItem status-message-input"
                               hidden="hidden"/>
                 </vbox>
               </toolbaritem>
@@ -102,8 +102,11 @@
                              tooltip="imTooltip" flex="1">
                   <richlistitem is="chat-group-richlistitem" id="conversationsGroup"
                                 name="&conversationsHeader.label;"/>
-                  <richlistitem is="chat-imconv-richlistitem" id="searchResultConv"
-                                displayname="&searchResultConversation.label;" hidden="true"/>
+                  <richlistitem is="chat-imconv-richlistitem"
+                                id="searchResultConv"
+                                displayname="&searchResultConversation.label;"
+                                is-search-result=""
+                                hidden="true"/>
                   <richlistitem is="chat-group-richlistitem" id="onlinecontactsGroup"
                                 name="&onlineContactsHeader.label;"/>
                   <richlistitem is="chat-group-richlistitem" id="offlinecontactsGroup"

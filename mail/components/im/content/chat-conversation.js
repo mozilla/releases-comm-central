@@ -1535,24 +1535,11 @@
 
     updateTopic() {
       let cti = document.getElementById("conv-top-info");
-      if (this._conv.topicSettable) {
-        cti.setAttribute("topicEditable", "true");
-      } else {
-        cti.removeAttribute("topicEditable");
-      }
+      let editable = !!this._conv.topicSettable;
 
-      let topic = this._conv.topic;
-      if (topic) {
-        cti.setAttribute("statusTooltiptext", topic);
-        cti.removeAttribute("noTopic");
-      } else {
-        topic = this._conv.noTopicString;
-        cti.setAttribute("noTopic", "true");
-        cti.setAttribute("statusTooltiptext", topic);
-      }
-      cti.setAttribute("statusMessage", topic);
-      cti.setAttribute("statusMessageWithDash", " - " + topic);
-      cti.removeAttribute("userIcon");
+      let topicText = this._conv.topic;
+      let noTopic = !topicText;
+      cti.setAsChat(topicText || this._conv.noTopicString, noTopic, editable);
     }
 
     focus() {
@@ -1567,44 +1554,6 @@
         this.tab.removeAttribute("attention");
       }
       this._conv.markAsRead();
-    }
-
-    updateTyping() {
-      let typingState = this._conv.typingState;
-      let cti = document.getElementById("conv-top-info");
-      cti.removeAttribute("typing");
-
-      let name = this._currentTypingName;
-      if (!this._currentTypingName) {
-        name = this._conv.title; // .replace(/^([a-zA-Z0-9.]+)[@\s].*/, "$1");
-      }
-      if (typingState == Ci.prplIConvIM.TYPING) {
-        cti.setAttribute("typing", "active");
-        let typingMsg = this.bundle.formatStringFromName(
-          "chat.contactIsTyping",
-          [name],
-          1
-        );
-        cti.setAttribute("statusTypeTooltiptext", typingMsg);
-        cti.setAttribute("statusTooltiptext", typingMsg);
-        cti.setAttribute(
-          "statusMessage",
-          this.bundle.GetStringFromName("chat.isTyping")
-        );
-      } else if (typingState == Ci.prplIConvIM.TYPED) {
-        cti.setAttribute("typing", "paused");
-        let typedMsg = this.bundle.formatStringFromName(
-          "chat.contactHasStoppedTyping",
-          [name],
-          1
-        );
-        cti.setAttribute("statusTypeTooltiptext", typedMsg);
-        cti.setAttribute("statusTooltiptext", typedMsg);
-        cti.setAttribute(
-          "statusMessage",
-          this.bundle.GetStringFromName("chat.hasStoppedTyping")
-        );
-      }
     }
 
     switchingToPanel() {
@@ -1645,14 +1594,10 @@
 
     updateConvStatus() {
       let cti = document.getElementById("conv-top-info");
-      cti.setAttribute(
-        "prplIcon",
-        this._conv.account.protocol.iconBaseURI + "icon.png"
-      );
+      cti.setProtocol(this._conv.account.protocol);
 
       if (this._conv.isChat) {
         this.updateTopic();
-        cti.setAttribute("status", "chat");
         cti.setAttribute("displayName", this._conv.title);
       } else {
         let displayName = this._conv.title;
@@ -1661,27 +1606,47 @@
 
         let buddy = this._conv.buddy;
         if (!buddy || !buddy.account.connected) {
-          cti.removeAttribute("userIcon");
+          cti.setUserIcon(null);
         } else {
           displayName = buddy.displayName;
           statusText = buddy.statusText;
           statusType = buddy.statusType;
-          cti.setAttribute("userIcon", buddy.buddyIconFilename);
+          cti.setUserIcon(buddy.buddyIconFilename);
         }
-
         cti.setAttribute("displayName", displayName);
-        if (statusText) {
-          statusText = " - " + statusText;
+
+        let statusName;
+        let statusDescription;
+
+        let typingState = this._conv.typingState;
+        let typingName = this._currentTypingName || this._conv.title;
+
+        switch (typingState) {
+          case Ci.prplIConvIM.TYPING:
+            statusName = "active-typing";
+            statusDescription = this.bundle.formatStringFromName(
+              "chat.contactIsTyping",
+              [typingName],
+              1
+            );
+            statusText = statusDescription;
+            break;
+          case Ci.prplIConvIM.TYPED:
+            statusName = "paused-typing";
+            statusDescription = this.bundle.formatStringFromName(
+              "chat.contactHasStoppedTyping",
+              [typingName],
+              1
+            );
+            statusText = statusDescription;
+            break;
+          default:
+            statusName = Status.toAttribute(statusType);
+            statusDescription = Status.toLabel(statusType);
+            statusText = Status.toLabel(statusType, statusText);
+            break;
         }
-        cti.setAttribute("statusMessageWithDash", statusText);
-        let statusString = Status.toLabel(statusType);
-        cti.setAttribute("statusMessage", statusString + statusText);
-        cti.setAttribute("status", Status.toAttribute(statusType));
-        cti.setAttribute("statusTypeTooltiptext", statusString);
-        cti.setAttribute("statusTooltiptext", statusString + statusText);
-        cti.removeAttribute("topicEditable");
-        cti.removeAttribute("noTopic");
-        this.updateTyping();
+        cti.setStatus(statusName, statusDescription, statusText);
       }
     }
 
@@ -1710,7 +1675,6 @@
         this.updateTopic();
         let cti = document.getElementById("conv-top-info");
         cti.setAttribute("displayName", this._conv.title);
-        cti.setAttribute("status", "chat");
 
         this._activeBuddies = {};
         this.showParticipants();

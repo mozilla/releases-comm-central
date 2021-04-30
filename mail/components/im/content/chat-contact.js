@@ -11,6 +11,7 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
+  const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
   /**
    * The MozChatContactRichlistitem widget displays contact information about user under
@@ -23,9 +24,7 @@
     static get inheritedAttributes() {
       return {
         ".box-line": "selected",
-        ".protoIcon": "src=iconPrpl,status",
-        ".statusIcon": "status",
-        ".contactDisplayName": "value=displayname,status",
+        ".contactDisplayName": "value=displayname",
         ".contactDisplayNameInput": "value=displayname",
         ".contactStatusText": "value=statusTextWithDash",
       };
@@ -97,8 +96,8 @@
           `
           <vbox class="box-line"></vbox>
           <stack class="prplBuddyIcon">
-            <image class="protoIcon"></image>
-            <image class="statusIcon"></image>
+            <html:img class="protoIcon" alt="" />
+            <html:img class="smallStatusIcon" />
           </stack>
           <hbox flex="1" class="contact-hbox">
             <stack>
@@ -139,8 +138,11 @@
       }
       this.setAttribute("statusTextWithDash", statusText);
       let statusType = this.contact.statusType;
-      this.setAttribute("statusText", Status.toLabel(statusType) + statusText);
-      this.setAttribute("status", Status.toAttribute(statusType));
+
+      let statusIcon = this.querySelector(".smallStatusIcon");
+      let statusName = Status.toAttribute(statusType);
+      statusIcon.setAttribute("src", ChatIcons.getStatusIconURI(statusName));
+      statusIcon.setAttribute("alt", Status.toLabel(statusType));
 
       if (this.contact.canSendMessage) {
         this.setAttribute("cansend", "true");
@@ -148,8 +150,12 @@
         this.removeAttribute("cansend");
       }
 
-      let proto = this.contact.preferredBuddy.protocol;
-      this.setAttribute("iconPrpl", proto.iconBaseURI + "icon.png");
+      let protoIcon = this.querySelector(".protoIcon");
+      protoIcon.setAttribute(
+        "src",
+        ChatIcons.getProtocolIconURI(this.contact.preferredBuddy.protocol)
+      );
+      ChatIcons.setProtocolIconOpacity(protoIcon, statusName);
     }
 
     build(contact) {

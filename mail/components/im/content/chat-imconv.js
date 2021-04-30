@@ -17,6 +17,7 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
+  const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
   /**
    * The MozChatConvRichlistitem widget displays opened conversation information from the
@@ -30,8 +31,6 @@
       return {
         ".box-line": "selected",
         ".convDisplayName": "value=displayname,status",
-        ".protoIcon": "src=iconPrpl,status",
-        ".statusIcon": "status",
         ".convUnreadTargetedCount": "value=unreadTargetedCount",
         ".convUnreadCount": "value=unreadCount",
         ".convUnreadTargetedCountLabel": "value=unreadTargetedCount",
@@ -63,8 +62,8 @@
           <button class="closeConversationButton close-icon"
                   tooltiptext="&closeConversationButton.tooltip;"></button>
           <stack class="prplBuddyIcon">
-            <image class="protoIcon"></image>
-            <image class="statusIcon"></image>
+            <html:img class="protoIcon" alt="" />
+            <html:img class="smallStatusIcon" />
           </stack>
           <hbox flex="1" class="conv-hbox">
             <label crop="end" flex="1" class="convDisplayName blistDisplayName">
@@ -119,6 +118,14 @@
           }
         }.bind(this),
       };
+
+      if (this.hasAttribute("is-search-result")) {
+        let icon = this.querySelector(".protoIcon");
+        icon.classList.add("searchProtoIcon");
+        icon.setAttribute("src", "chrome://global/skin/icons/search-glass.svg");
+        let statusIcon = this.querySelector(".smallStatusIcon");
+        statusIcon.hidden = true;
+      }
 
       this.initializeAttributeInheritance();
     }
@@ -203,13 +210,31 @@
         chatHandler.updateTitle();
       }
 
+      let statusIcon = this.querySelector(".smallStatusIcon");
+      let statusName;
+      statusIcon.hidden = false;
       if (this.conv.isChat) {
         if (this.conv.joining) {
-          this.setAttribute("status", "joining");
+          statusName = "joining";
         } else if (!this.conv.account.connected || this.conv.left) {
-          this.setAttribute("status", "left");
+          statusName = "left";
+        }
+        if (statusName) {
+          statusIcon.setAttribute(
+            "src",
+            ChatIcons.getStatusIconURI(statusName)
+          );
+          // Set alt using messenger/chat.ftl.
+          document.l10n.setAttributes(
+            statusIcon,
+            `chat-${statusName}-chat-icon`
+          );
         } else {
-          this.removeAttribute("status");
+          statusIcon.removeAttribute("src");
+          statusIcon.removeAttribute("alt");
+          statusIcon.hidden = true;
+          // Treat protoIcon as if connected.
+          statusName = "connected";
         }
       } else {
         let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
@@ -217,14 +242,19 @@
         if (buddy && buddy.account.connected) {
           statusType = buddy.statusType;
         }
-
-        this.setAttribute("status", Status.toAttribute(statusType));
+        statusName = Status.toAttribute(statusType);
+        statusIcon.setAttribute("src", ChatIcons.getStatusIconURI(statusName));
+        statusIcon.setAttribute("alt", Status.toLabel(statusType));
       }
 
-      this.setAttribute(
-        "iconPrpl",
-        this.conv.account.protocol.iconBaseURI + "icon.png"
-      );
+      if (!this.hasAttribute("is-search-result")) {
+        let protoIcon = this.querySelector(".protoIcon");
+        protoIcon.setAttribute(
+          "src",
+          ChatIcons.getProtocolIconURI(this.conv.account.protocol)
+        );
+        ChatIcons.setProtocolIconOpacity(protoIcon, statusName);
+      }
     }
 
     destroy() {

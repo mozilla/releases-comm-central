@@ -7,6 +7,7 @@ EXTRA_JS_MODULES += [
     "IMIncomingServer.jsm",
     "IMProtocolInfo.jsm",
     "modules/chatHandler.jsm",
+    "modules/chatIcons.jsm",
     "modules/chatNotifications.jsm",
     "modules/GlodaIMSearcher.jsm",
     "modules/index_im.jsm",

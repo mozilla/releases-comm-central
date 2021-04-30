@@ -12,6 +12,7 @@
   const { XPCOMUtils } = ChromeUtils.import(
     "resource://gre/modules/XPCOMUtils.jsm"
   );
+  const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
   ChromeUtils.defineModuleGetter(this, "OTR", "resource:///modules/OTR.jsm");
   ChromeUtils.defineModuleGetter(
@@ -36,17 +37,7 @@
    */
   class MozChatConversationInfo extends MozXULElement {
     static get inheritedAttributes() {
-      return {
-        ".userIconHolder": "userIcon",
-        ".userIcon": "src=userIcon",
-        ".statusTypeIcon": "status,typing,tooltiptext=statusTypeTooltiptext",
-        ".displayName": "value=displayName",
-        ".prplIcon": "src=prplIcon",
-        ".statusMessage":
-          "value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic",
-        ".statusMessageInput":
-          "value=statusMessage,tooltiptext=statusTooltiptext,editable=topicEditable,editing,noTopic",
-      };
+      return { ".displayName": "value=displayName" };
     }
 
     connectedCallback() {
@@ -61,25 +52,22 @@
             <html:link rel="localization" href="messenger/otr/chat.ftl"/>
           </linkset>
 
-          <hbox class="displayUserAccount" flex="1">
-            <stack class="statusImageStack">
-              <box class="userIconHolder">
-                <image class="userIcon"></image>
-              </box>
-              <image class="statusTypeIcon"></image>
+          <html:div class="displayUserAccount">
+            <stack>
+              <html:img class="userIcon" alt="" />
+              <html:img class="statusTypeIcon" alt="" />
             </stack>
-            <stack class="displayNameAndstatusMessageStack"
-                   flex="1">
-              <hbox align="center" flex="1">
-                <description class="displayName" flex="1" crop="end">
-                </description>
-                <image class="prplIcon"></image>
-              </hbox>
-              <description class="statusMessage" crop="end" flex="100000"/>
+            <html:div class="nameAndStatusGrid">
+              <description class="displayName" crop="end"></description>
+              <html:img class="protoIcon" alt="" />
+              <html:hr />
+              <description class="statusMessage" crop="end"></description>
+              <!-- FIXME: A keyboard user cannot focus the hidden input, nor
+                 - click the above description box in order to reveal it. -->
               <html:input class="statusMessageInput input-inline"
                           hidden="hidden"/>
-            </stack>
-          </hbox>
+            </html:div>
+          </html:div>
           <hbox class="otr-container themeable-brighttext"
                 align="middle"
                 hidden="true">
@@ -108,6 +96,10 @@
         `)
       );
 
+      this.topicEditable = false;
+      this.editingTopic = false;
+      this.noTopic = false;
+
       this.topic.addEventListener("click", this.startEditTopic.bind(this));
 
       if (Services.prefs.getBoolPref("chat.otr.enable")) {
@@ -127,7 +119,7 @@
     }
 
     finishEditTopic(save) {
-      if (!this.hasAttribute("editing")) {
+      if (!this.editingTopic) {
         return;
       }
 
@@ -135,21 +127,24 @@
       let topic = this.topic;
       let topicInput = this.topicInput;
       topic.removeAttribute("hidden");
-      topicInput.toggleAttribute("hidden", "true");
+      topicInput.hidden = true;
       if (save) {
         // apply the new topic only if it is different from the current one
         if (topicInput.value != topicInput.getAttribute("value")) {
           panel._conv.topic = topicInput.value;
         }
       }
-      this.removeAttribute("editing");
+      this.editingTopic = false;
+
       topicInput.removeEventListener("keypress", this._topicKeyPress, true);
       delete this._topicKeyPress;
       topicInput.removeEventListener("blur", this._topicBlur);
       delete this._topicBlur;
 
-      // After removing the "editing" attribute, the focus is on an element
-      // that can't receive keyboard events, so move it to somewhere else.
+      // After hiding the input, the focus is on an element that can't receive
+      // keyboard events, so move it to somewhere else.
+      // FIXME: jumping focus should be removed once editing the topic input
+      // becomes accessible to keyboard users.
       panel.editor.focus();
     }
 
@@ -176,19 +171,20 @@
     startEditTopic() {
       let topic = this.topic;
       let topicInput = this.topicInput;
-      if (!topic.hasAttribute("editable") || this.hasAttribute("editing")) {
+      if (!this.topicEditable || this.editingTopic) {
         return;
       }
 
-      this.setAttribute("editing", "true");
-      topicInput.removeAttribute("hidden");
+      this.editingTopic = true;
+
+      topicInput.hidden = false;
       topic.setAttribute("hidden", "true");
       this._topicKeyPress = this.topicKeyPress.bind(this);
       topicInput.addEventListener("keypress", this._topicKeyPress);
       this._topicBlur = this.topicBlur.bind(this);
       topicInput.addEventListener("blur", this._topicBlur);
       topicInput.getBoundingClientRect();
-      if (this.hasAttribute("noTopic")) {
+      if (this.noTopic) {
         topicInput.value = "";
       } else {
         topicInput.value = topic.value;
@@ -241,6 +237,109 @@
         }
       }
       return null;
+    }
+
+    /**
+     * Sets the shown protocol icon.
+     *
+     * @param {prplIProtocol} protocol - The protocol to show.
+     */
+    setProtocol(protocol) {
+      this.querySelector(".protoIcon").setAttribute(
+        "src",
+        ChatIcons.getProtocolIconURI(protocol)
+      );
+    }
+
+    /**
+     * Sets the shown user icon.
+     *
+     * @param {string|null} iconURI - The image uri to show, or "" to use the
+     *   fallback, or null to hide the icon.
+     */
+    setUserIcon(iconURI) {
+      ChatIcons.setUserIconSrc(this.querySelector(".userIcon"), iconURI);
+    }
+
+    /**
+     * Sets the shown status icon.
+     *
+     * @param {string} statusName - The name of the status.
+     * @param {string} title - The tooltip text to use for the icon.
+     */
+    setStatusIcon(statusName, title) {
+      let statusIcon = this.querySelector(".statusTypeIcon");
+      statusIcon.setAttribute("title", title);
+      if (statusName === null) {
+        statusIcon.hidden = true;
+        statusIcon.removeAttribute("src");
+      } else {
+        statusIcon.hidden = false;
+        let src = ChatIcons.getStatusIconURI(statusName);
+        if (src) {
+          statusIcon.setAttribute("src", src);
+        } else {
+          /* Unexpected missing icon. */
+          statusIcon.removeAttribute("src");
+        }
+      }
+    }
+
+    /**
+     * Sets the text for the status of a user, or the topic of a chat.
+     *
+     * @param {string} text - The text to display.
+     * @param {boolean} [noTopic=false] - Whether to stylize the status to
+     *   indicate the status is some fallback text.
+     */
+    setStatusText(text, noTopic = false) {
+      let statusEl = this.topic;
+
+      statusEl.setAttribute("value", text);
+      statusEl.setAttribute("tooltiptext", text);
+      statusEl.toggleAttribute("noTopic", noTopic);
+    }
+
+    /**
+     * Sets the element to display a user status. The user icon needs to be set
+     * separately with setUserIcon.
+     *
+     * @param {string} statusName - The internal name for the status.
+     * @param {string} statusDescription - Localized description of the status.
+     * @param {string} statusText - The text to display as the status.
+     */
+    setStatus(statusName, statusDescription, statusText) {
+      this.setStatusIcon(statusName, statusDescription);
+      this.setStatusText(statusText);
+      this.topicEditable = false;
+    }
+
+    /**
+     * Sets the element to display a chat status.
+     *
+     * @param {string} topicText - The topic text for the chat, or some fallback
+     *   text used if the chat has no topic.
+     * @param {boolean} noTopic - Whether the chat has no topic.
+     * @param {boolean} topicEditable - Whether the topic can be set by the
+     *   user.
+     */
+    setAsChat(topicText, noTopic, topicEditable) {
+      this.noTopic = noTopic;
+      this.topicEditable = topicEditable;
+      this.setStatusText(topicText, noTopic);
+      this.setStatusIcon("chat", "");
+      this.setUserIcon(null);
+    }
+
+    /**
+     * Empty the element's display.
+     */
+    clear() {
+      this.querySelector(".protoIcon").removeAttribute("src");
+      this.setStatusText("");
+      this.setStatusIcon(null, "");
+      this.setUserIcon(null);
+      this.topicEditable = false;
     }
   }
   customElements.define("chat-conversation-info", MozChatConversationInfo);

@@ -9,6 +9,7 @@ var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
 var PREF_EXTENSIONS_GETMOREPROTOCOLSURL = "extensions.getMoreProtocolsURL";
 
@@ -56,8 +57,10 @@ var accountWizard = {
       return a.name > b.name ? 1 : 0;
     });
     protos.forEach(function(proto) {
-      let image = document.createXULElement("image");
-      image.setAttribute("src", proto.iconBaseURI + "icon.png");
+      let image = document.createElement("img");
+      image.setAttribute("src", ChatIcons.getProtocolIconURI(proto));
+      image.setAttribute("alt", "");
+      image.classList.add("protoIcon");
 
       let label = document.createXULElement("label");
       label.setAttribute("value", proto.name);

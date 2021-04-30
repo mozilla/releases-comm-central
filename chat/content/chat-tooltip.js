@@ -11,6 +11,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+  let { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
   const LazyModules = {};
 
   ChromeUtils.defineModuleGetter(
@@ -27,14 +28,7 @@
    */
   class MozChatTooltip extends MozElements.MozElementMixin(XULPopupElement) {
     static get inheritedAttributes() {
-      return {
-        ".userIconHolder": "userIcon",
-        ".userIcon": "src=userIcon",
-        ".statusTypeIcon": "status,left",
-        ".tooltipDisplayName": "value=displayname",
-        ".tooltipProtoIcon": "src=iconPrpl,status",
-        ".tooltipMessage": "noTopic",
-      };
+      return { ".displayName": "value=displayname" };
     }
 
     constructor() {
@@ -75,8 +69,6 @@
 
       this.addEventListener("popuphiding", event => {
         this.buddy = null;
-        this.removeAttribute("noTopic");
-        this.removeAttribute("left");
         if ("observedUserInfo" in this && this.observedUserInfo) {
           Services.obs.removeObserver(this.observer, "user-info-received");
           delete this.observedUserInfo;
@@ -194,28 +186,18 @@
       this.appendChild(
         MozXULElement.parseXULToFragment(`
           <vbox class="largeTooltip">
-            <hbox align="start" crop="end" flex="1">
-              <vbox>
-                <stack>
-                  <!-- The box around the user icon is a workaround for bug 955673. -->
-                  <box class="userIconHolder">
-                    <image class="userIcon"></image>
-                  </box>
-                  <image class="statusTypeIcon status"></image>
-                </stack>
-                <spacer flex="1"></spacer>
-              </vbox>
-              <stack class="displayNameMessageBox" flex="1">
-                <vbox flex="1">
-                  <hbox align="start" flex="1">
-                    <description class="tooltipDisplayName" flex="1" crop="end"></description>
-                    <image class="tooltipProtoIcon status"></image>
-                  </hbox>
-                  <spacer flex="1"></spacer>
-                </vbox>
-                <description class="tooltipMessage" crop="end"></description>
+            <html:div class="displayUserAccount tooltipDisplayUserAccount">
+              <stack>
+                <html:img class="userIcon" alt=""/>
+                <html:img class="statusTypeIcon status" alt=""/>
               </stack>
-            </hbox>
+              <html:div class="nameAndStatusGrid">
+                <description class="displayName" crop="end"></description>
+                <html:img class="protoIcon status" alt=""/>
+                <html:hr />
+                <description class="statusMessage" crop="end"></description>
+              </html:div>
+            </html:div>
             <html:table class="tooltipTable">
             </html:table>
           </vbox>
@@ -258,9 +240,10 @@
       return this._table;
     }
 
-    setMessage(aMessage) {
-      let msg = this.querySelector(".tooltipMessage");
+    setMessage(aMessage, noTopic = false) {
+      let msg = this.querySelector(".statusMessage");
       msg.value = aMessage;
+      msg.toggleAttribute("noTopic", noTopic);
     }
 
     reset() {
@@ -317,6 +300,28 @@
       aAccount.requestBuddyInfo(aObservedName);
     }
 
+    setUserIcon(iconUri) {
+      ChatIcons.setUserIconSrc(this.querySelector(".userIcon"), iconUri);
+    }
+
+    setProtocolIcon(protocol) {
+      this.querySelector(".protoIcon").setAttribute(
+        "src",
+        ChatIcons.getProtocolIconURI(protocol)
+      );
+    }
+
+    setStatusIcon(statusName) {
+      this.querySelector(".statusTypeIcon").setAttribute(
+        "src",
+        ChatIcons.getStatusIconURI(statusName)
+      );
+      ChatIcons.setProtocolIconOpacity(
+        this.querySelector(".protoIcon"),
+        statusName
+      );
+    }
+
     updateTooltipFromBuddy(aBuddy) {
       this.buddy = aBuddy;
 
@@ -325,15 +330,11 @@
       let displayName = aBuddy.displayName;
       this.setAttribute("displayname", displayName);
       let account = aBuddy.account;
-      this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
-      if (aBuddy.buddyIconFilename || aBuddy.buddyIconFilename == "") {
-        this.setAttribute("userIcon", aBuddy.buddyIconFilename);
-      } else {
-        this.removeAttribute("userIcon");
-      }
+      this.setProtocolIcon(account.protocol);
+      this.setUserIcon(aBuddy.buddyIconFilename);
 
       let statusType = aBuddy.statusType;
-      this.setAttribute("status", LazyModules.Status.toAttribute(statusType));
+      this.setStatusIcon(LazyModules.Status.toAttribute(statusType));
       this.setMessage(
         LazyModules.Status.toLabel(statusType, aBuddy.statusText)
       );
@@ -373,14 +374,11 @@
             break;
           case Ci.prplITooltipInfo.status:
             let statusType = parseInt(elt.label);
-            this.setAttribute(
-              "status",
-              LazyModules.Status.toAttribute(statusType)
-            );
+            this.setStatusIcon(LazyModules.Status.toAttribute(statusType));
             this.setMessage(LazyModules.Status.toLabel(statusType, elt.value));
             break;
           case Ci.prplITooltipInfo.icon:
-            this.setAttribute("userIcon", elt.value);
+            this.setUserIcon(elt.value);
             break;
         }
       }
@@ -394,21 +392,19 @@
       this.reset();
       this.setAttribute("displayname", aConv.name);
       let account = aConv.account;
-      this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
-      this.removeAttribute("userIcon");
+      this.setProtocolIcon(account.protocol);
+      this.setUserIcon(null);
       if (aConv.isChat) {
-        this.setAttribute("status", "chat");
-        if (!aConv.account.connected || aConv.left) {
-          this.setAttribute("left", true);
+        if (!account.connected || aConv.left) {
+          this.setStatusIcon("chat-left");
+        } else {
+          this.setStatusIcon("chat");
         }
         let topic = aConv.topic;
-        if (!topic) {
-          this.setAttribute("noTopic", true);
-          topic = aConv.noTopicString;
-        }
-        this.setMessage(topic);
+        let noTopic = !topic;
+        this.setMessage(topic || aConv.noTopicString, noTopic);
       } else {
-        this.setAttribute("status", "unknown");
+        this.setStatusIcon("unknown");
         this.setMessage(LazyModules.Status.toLabel("unknown"));
         // Last ditch attempt to get some tooltip info. This call relies on
         // the account's requestBuddyInfo implementation working correctly
@@ -444,17 +440,10 @@
 
       this.reset();
       this.setAttribute("displayname", aNick);
-      this.setAttribute("iconPrpl", account.protocol.iconBaseURI + "icon.png");
-      this.setAttribute("status", "unknown");
+      this.setProtocolIcon(account.protocol);
+      this.setStatusIcon("unknown");
       this.setMessage(LazyModules.Status.toLabel("unknown"));
-      if (
-        aParticipant.buddyIconFilename ||
-        aParticipant.buddyIconFilename == ""
-      ) {
-        this.setAttribute("userIcon", aParticipant.buddyIconFilename);
-      } else {
-        this.removeAttribute("userIcon");
-      }
+      this.setUserIcon(aParticipant.buddyIconFilename);
 
       this.requestBuddyInfo(account, normalizedNick);
       return true;

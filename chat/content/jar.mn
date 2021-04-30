@@ -4,7 +4,6 @@
 
 chat.jar:
 % content chat %content/chat/
-	content/chat/accounts.css
 	content/chat/imAccountOptionsHelper.js
 	content/chat/chat-account-richlistitem.js
 	content/chat/chat-tooltip.js

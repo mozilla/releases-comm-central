@@ -4,6 +4,7 @@
 
 var { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
+var { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
 var statusSelector = {
   observe(aSubject, aTopic, aMsg) {
@@ -18,7 +19,10 @@ var statusSelector = {
 
   displayUserIcon() {
     let icon = Services.core.globalUserStatus.getUserIcon();
-    document.getElementById("userIcon").src = icon ? icon.spec : "";
+    ChatIcons.setUserIconSrc(
+      document.getElementById("userIcon"),
+      icon?.spec ?? ""
+    );
   },
 
   displayUserDisplayName() {

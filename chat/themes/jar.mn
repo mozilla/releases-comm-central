@@ -12,7 +12,6 @@ chat.jar:
   skin/classic/chat/mobile.svg
   skin/classic/chat/otr.css
   skin/classic/chat/otrFingerprintDialog.css
-  skin/classic/chat/status.css
   skin/classic/chat/typed.svg
   skin/classic/chat/typing.svg
   skin/classic/chat/unknown.svg

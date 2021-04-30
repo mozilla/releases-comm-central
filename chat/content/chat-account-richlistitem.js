@@ -14,6 +14,7 @@
   const { DownloadUtils } = ChromeUtils.import(
     "resource://gre/modules/DownloadUtils.jsm"
   );
+  const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
   /**
    * The MozChatAccountRichlistitem widget displays the information about the
@@ -26,7 +27,6 @@
     static get inheritedAttributes() {
       return {
         stack: "tooltiptext=protocol",
-        ".accountIcon": "src=prplicon",
         ".accountName": "value=name",
         ".autoSignOn": "checked=autologin",
         ".account-buttons": "autologin,name",
@@ -59,8 +59,8 @@
             <hbox flex="1" align="start">
               <vbox>
                 <stack>
-                  <image class="accountIcon"></image>
-                  <image class="accountStateIcon"></image>
+                  <html:img class="accountIcon" alt="" />
+                  <html:img class="statusTypeIcon" alt="" />
                 </stack>
                 <spacer flex="1"></spacer>
               </vbox>
@@ -90,6 +90,9 @@
           ["chrome://chat/locale/accounts.dtd"]
         )
       );
+      this._buttons = this.querySelector(".account-buttons");
+      this._connectedLabel = this.querySelector(".connected");
+      this._stateIcon = this.querySelector(".statusTypeIcon");
       this.initializeAttributeInheritance();
     }
 
@@ -119,17 +122,7 @@
       return this._account;
     }
 
-    get connectedLabel() {
-      if (!this._connectedLabel) {
-        this._connectedLabel = this.querySelector(".connected");
-      }
-      return this._connectedLabel;
-    }
-
     get buttons() {
-      if (!this._buttons) {
-        this._buttons = this.querySelector(".account-buttons");
-      }
       return this._buttons;
     }
 
@@ -139,30 +132,61 @@
       this.setAttribute("id", aAccount.id);
       let proto = aAccount.protocol;
       this.setAttribute("protocol", proto.name);
-      this.setAttribute("prplicon", proto.iconBaseURI + "icon32.png");
-      let state = "Unknown";
-      if (this._account.connected) {
-        state = "connected";
-        this.refreshConnectedLabel();
-      } else if (this._account.disconnected) {
-        state = "disconnected";
-        if (this._account.connectionErrorReason != Ci.prplIAccount.NO_ERROR) {
-          this.updateConnectionError();
-        } else {
-          this.removeAttribute("error");
-          this.removeAttribute("certError");
-        }
-      } else if (this._account.connecting) {
-        state = "connecting";
-        this.updateConnectionState();
-      } else if (this._account.disconnecting) {
-        state = "connected";
-      }
-      this.setAttribute("state", state);
+      this.querySelector(".accountIcon").setAttribute(
+        "src",
+        ChatIcons.getProtocolIconURI(proto, 32)
+      );
+      this.refreshState();
       this.autoLogin = aAccount.autoLogin;
     }
 
-    updateConnectionState() {
+    /**
+     * Refresh the shown connection state.
+     *
+     * @param {"connected"|"connecting"|"disconnected"|"disconnecting"}
+     *   [forceState] - The connection state to show. Otherwise, determined
+     *   through the account status.
+     */
+    refreshState(forceState) {
+      let account = this._account;
+      let state = "unknown";
+      if (forceState) {
+        state = forceState;
+      } else if (account.connected) {
+        state = "connected";
+      } else if (account.disconnected) {
+        state = "disconnected";
+      } else if (this._account.connecting) {
+        state = "connecting";
+      } else if (this._account.disconnecting) {
+        state = "disconnecting";
+      }
+
+      switch (state) {
+        case "connected":
+          this.refreshConnectedLabel();
+          break;
+        case "connecting":
+          this.updateConnectingProgress();
+          break;
+      }
+
+      /* "state" and "error" attributes are needed for CSS styling of the
+       * accountIcon and the connection buttons. */
+      this.setAttribute("state", state);
+
+      if (account.connectionErrorReason !== Ci.prplIAccount.NO_ERROR) {
+        /* Icon and error attribute set in other method. */
+        this.updateConnectionError();
+        return;
+      }
+
+      this.removeAttribute("error");
+
+      this._stateIcon.setAttribute("src", ChatIcons.getStatusIconURI(state));
+    }
+
+    updateConnectingProgress() {
       let bundle = Services.strings.createBundle(
         "chrome://messenger/locale/imAccounts.properties"
       );
@@ -177,8 +201,6 @@
       if (this.reconnectUpdateInterval) {
         this._cancelReconnectTimer();
       }
-
-      this.removeAttribute("certError");
     }
 
     updateConnectionError() {
@@ -205,14 +227,13 @@
         text = bundle.formatStringFromName(key, [text]);
       }
 
+      /* "error" attribute is needed for CSS styling of the accountIcon and the
+       * connection buttons. */
       this.setAttribute("error", "true");
-      if (
-        Ci.imIAccount.ERROR_CERT_NOT_PROVIDED <= errorReason &&
-        errorReason <= Ci.imIAccount.ERROR_CERT_OTHER_ERROR &&
-        account.prplAccount.connectionTarget
-      ) {
-        this.setAttribute("certError", "true");
-      }
+      this._stateIcon.setAttribute(
+        "src",
+        "chrome://global/skin/icons/warning.svg"
+      );
       let error = this.querySelector(".error-description");
       error.textContent = text;
 
@@ -270,7 +291,7 @@
       } else {
         value = bundle.GetStringFromName("account.connectedForSeconds");
       }
-      this.connectedLabel.value = value;
+      this._connectedLabel.value = value;
     }
 
     _cancelReconnectTimer() {
@@ -284,21 +305,6 @@
       if (this.reconnectUpdateInterval) {
         this._cancelReconnectTimer();
         this._account.cancelReconnection();
-      }
-    }
-
-    restoreItems() {
-      // Called after a removal and reinsertion of the binding
-      this._buttons = null;
-      this._connectedLabel = null;
-      if (this._account.connected) {
-        this.refreshConnectedLabel();
-      } else if (this._account.connecting) {
-        this.updateConnectionState();
-      } else if (
-        this._account.connectionErrorReason != Ci.prplIAccount.NO_ERROR
-      ) {
-        this.updateConnectionError();
       }
     }
 

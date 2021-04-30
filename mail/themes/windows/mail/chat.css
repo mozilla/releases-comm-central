@@ -88,26 +88,6 @@
   margin-inline: 0 2px !important;
 }
 
-.statusMessageInput[editing] {
-  color: -moz-dialogtext;
-  margin-block: 28px -1px;
-  margin-inline: -2px 0;
-}
-
-#displayNameAndstatusMessageStack #statusMessageLabel, #statusMessageInput {
-  margin: 32px 0 0;
-}
-
-#displayNameAndstatusMessageStack  #statusMessageInput[editing] {
-  margin-block: 30px 1px;
-  margin-inline: -2px 0;
-}
-
-#displayNameAndstatusMessageStack #displayNameInput[editing] {
-  margin-left: -2px;
-  margin-bottom: 18px;
-}
-
 .statusMessageToolbarItem {
   margin: 0 1px;
   margin-inline-start: -2px;

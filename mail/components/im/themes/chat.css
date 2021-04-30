@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://chat/skin/status.css");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 #chatTabPanel {
@@ -322,136 +321,155 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   border-bottom: 1px solid var(--splitter-color);
 }
 
-.userIconHolder {
+.userIcon {
   border: 2px solid rgba(0,0,0,0.15);
   border-radius: 5px;
-  overflow: hidden;
-}
-
-:root[lwt-tree-brighttext] .userIconHolder {
-  border-color: rgba(255,255,255,0.15);
-}
-
-.userIcon,
-.userIconHolder {
-  max-width: 48px;
-  max-height: 48px;
-  min-width: 48px;
-  min-height: 48px;
+  object-fit: contain;
   width: 48px;
   height: 48px;
 }
 
-.userIcon:not([src]),
-.userIconHolder:not([userIcon]) {
+:root[lwt-tree-brighttext] .userIcon {
+  border-color: rgba(255,255,255,0.15);
+}
+
+.userIcon:not([src]) {
   display: none;
 }
 
-.userIcon[src=""] {
-  background-image: url("chrome://messenger/skin/icons/userIcon.svg");
-  background-size: contain;
-  background-repeat: no-repeat;
+.fillUserIcon {
   -moz-context-properties: fill, fill-opacity;
   fill: #000;
   fill-opacity: 0.25;
 }
 
-:root[lwt-tree-brighttext] .userIcon[src=""] {
+:root[lwt-tree-brighttext] .fillUserIcon {
   fill: #fff;
 }
 
-.statusTypeIcon {
-  margin: 32px 0 0;
-  width: 16px;
-  height: 16px;
-  max-width: 16px;
-  max-height: 16px;
-  min-height: 16px;
-  min-width: 16px;
-  appearance: none;
-  background-color: transparent;
-  border: none;
+.statusTypeIcon, .smallStatusIcon {
+  /* Place in opposite corner. */
+  /* NOTE: unlike position: absolute, the image will still take up space if its
+   * sibling (such as .userIcon) is hidden. */
+  margin-block: auto 0;
+  margin-inline: auto 0;
 }
 
-.userIconHolder[userIcon] + .statusTypeIcon {
-  margin-inline-start: 32px;
+.statusTypeIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.userIcon:not([src]) + .statusTypeIcon {
+  /* If userIcon is invisible (for chat) we still keep the status icon in the
+   * same position. */
+  padding-block-start: 32px;
+}
+
+/* Used with protoIcon. */
+.smallStatusIcon {
+  width: 10px;
+  height: 10px;
+}
+
+.protoIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.protoIconDimmed {
+  opacity: 0.7;
+}
+
+richlistitem:not([selected]) .protoIconDimmed {
+  opacity: 0.3;
+}
+
+:root[lwt-tree-brighttext] .protoIconDimmed {
+  opacity: 0.8;
+}
+
+:root[lwt-tree-brighttext] richlistitem:not([selected]) .protoIconDimmed {
+  opacity: 0.5;
 }
 
 #statusTypeIcon[status="available"],
 #statusTypeAvailable,
-.statusTypeIcon[status="available"],
 #imStatusAvailable,
-#appmenu_imStatusAvailable,
-richlistitem[state="connected"] .accountStateIcon {
+#appmenu_imStatusAvailable {
   list-style-image: url("chrome://messenger/skin/icons/status-online.svg");
 }
 
-#statusTypeIcon[status="idle"],
-.statusTypeIcon[status="idle"] {
+#statusTypeIcon[status="idle"] {
   list-style-image: url("chrome://messenger/skin/icons/status-idle.svg");
 }
 
 #statusTypeIcon[status="offline"],
 #statusTypeIcon[status="invisible"],
 #statusTypeOffline,
-.statusTypeIcon[status="offline"],
-.statusTypeIcon[status="invisible"],
 #imStatusOffline,
-#appmenu_imStatusOffline,
-richlistitem[state="disconnected"] .accountStateIcon {
+#appmenu_imStatusOffline {
   list-style-image: url("chrome://messenger/skin/icons/status-offline.svg");
 }
 
 #statusTypeIcon[status="unavailable"],
 #statusTypeIcon[status="away"],
 #statusTypeUnavailable,
-.statusTypeIcon[status="unavailable"],
-.statusTypeIcon[status="away"],
 #imStatusUnavailable,
 #appmenu_imStatusUnavailable {
   list-style-image: url("chrome://messenger/skin/icons/status-away.svg");
 }
 
-.statusTypeIcon[typing="active"] {
-  list-style-image: url('chrome://chat/skin/typing.svg');
-}
-
-.statusTypeIcon[typing="paused"] {
-  list-style-image: url('chrome://chat/skin/typed.svg');
-}
-
-.statusMessage, .statusMessageInput {
-  margin: 32px 0 0;
-  min-height: 16px;
-}
-
-.statusMessageInput[noTopic]:not([editing]),
-.statusMessageWithDash[noTopic] {
-  font-style: italic;
-}
-
 /* corresponds to im/themes/conversation.css @media all and (min-height: 251px) */
 .displayUserAccount {
-  padding: 4px;
+  padding: 6px;
+  display: flex;
+  gap: 6px;
 }
 
-.statusImageStack,
-.displayNameAndstatusMessageStack {
-  margin: 2px 2px;
+/* User image and status stack. */
+.displayUserAccount > stack {
+  flex: 0 0 auto;
+  align-self: start;
+}
+
+.nameAndStatusGrid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 auto;
+}
+
+.nameAndStatusGrid > * {
+  margin: 0;
+}
+
+.nameAndStatusGrid > :is(hr, .statusMessage, .statusMessageInput) {
+  grid-column: 1 / 3;
+}
+
+.nameAndStatusGrid > hr {
+  height: 0;
+  border-block-start: 1px solid rgba(0, 0, 0, 0.25);
+  border-block-end: none;
+  border-inline: none;
 }
 
 .displayName {
-  font-size: 16px;
-  border-bottom: 1px solid var(--splitter-color);
-  margin: 0 0 16px;
-  padding-right: 20px;
+  font-size: larger;
 }
 
-.prplIcon {
-  margin-top: 0;
-  margin-inline-end: 1px;
-  margin-bottom: 16px ;
-  margin-inline-start: -16px;
+.nameAndStatusGrid > .displayName:empty + hr {
+  display: none;
+}
+
+.statusMessage[noTopic] {
+  font-style: italic;
+}
+
+.statusMessageInput[editing] {
+  color: -moz-dialogtext;
 }
 
 .conv-messages {
@@ -639,8 +657,7 @@ richlistitem[is="chat-group-richlistitem"].closed:-moz-locale-dir(rtl) .twisty {
   margin: 2px 0;
 }
 
-#searchResultConv > .prplBuddyIcon > .protoIcon {
-  list-style-image: url("chrome://global/skin/icons/search-glass.svg");
+.searchProtoIcon {
   -moz-context-properties: fill;
   fill: currentColor;
   opacity: 0.54;

@@ -14,6 +14,7 @@ const { PluralForm } = ChromeUtils.import(
 const { clearTimeout, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
+const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
 // Time in seconds: it is the minimum time of inactivity
 // needed to show the bundled notification.
@@ -122,7 +123,7 @@ var Notifications = {
       // Falls through
       case 2:
         if (!icon) {
-          icon = "chrome://messenger/skin/icons/userIcon.svg";
+          icon = ChatIcons.fallbackUserIconURI;
         }
 
         if (!messageText) {

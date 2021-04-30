@@ -7,44 +7,8 @@
   -moz-default-appearance: tooltip;
 }
 
-.displayNameMessageBox {
-  margin-left: 4px;
-  margin-top: 2px;
-}
-
-.statusTypeIcon[left][status="chat"] {
-  list-style-image: url('chrome://chat/skin/chat-left.svg') !important;
-}
-
 .tooltipBuddies {
   margin-left: -3px;
-}
-
-.tooltipDisplayName {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  font-size: 16px;
-  margin: 4px 4px 4px 0 !important;
-  padding-right: 20px;
-}
-
-.tooltipMessage {
-  margin: 30px 5px 4px 0 !important;
-}
-
-.tooltipMessage[noTopic] {
-  font-style: italic;
-}
-
-.tooltipProtoIcon {
-  margin: 4px 0 0 -20px;
-  max-width: 16px;
-  max-height: 16px;
-  width: 16px;
-  height: 16px;
-}
-
-.tooltipProtoIcon[status="unknown"] {
-  opacity: 0.7;
 }
 
 .tooltipTable {
@@ -65,6 +29,8 @@
   border-bottom: 1px solid #A3A3A3;
 }
 
-.statusTypeIcon:not([status]) {
-  display: none;
+.displayUserAccount.tooltipDisplayUserAccount {
+  /* Remove padding from top and sides. */
+  padding-inline: 0;
+  padding-block-start: 0;
 }

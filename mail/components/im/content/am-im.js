@@ -8,6 +8,7 @@
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "OTRUI", "resource:///modules/OTRUI.jsm");
 ChromeUtils.defineModuleGetter(this, "OTR", "resource:///modules/OTR.jsm");
+const { ChatIcons } = ChromeUtils.import("resource:///modules/chatIcons.jsm");
 
 var autoJoinPref = "autoJoin";
 
@@ -35,8 +36,10 @@ var account = {
     document.getElementById("accountName").value = this.account.name;
     document.getElementById("protocolName").value =
       this.proto.name || this.proto.id;
-    document.getElementById("protocolIcon").src =
-      this.proto.iconBaseURI + "icon48.png";
+    document.getElementById("protocolIcon").src = ChatIcons.getProtocolIconURI(
+      this.proto,
+      48
+    );
 
     let password = document.getElementById("server.password");
     let passwordBox = document.getElementById("passwordBox");

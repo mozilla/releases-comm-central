@@ -96,26 +96,6 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   -moz-box-align: center;
 }
 
-.statusMessageInput[editing] {
-  color: -moz-dialogtext;
-  margin-block: 29px -3px;
-  margin-inline: -4px 0;
-}
-
-#displayNameAndstatusMessageStack #statusMessageLabel, #statusMessageInput {
-  margin: 32px 0 0;
-}
-
-#displayNameAndstatusMessageStack #statusMessageInput[editing] {
-  margin-block: 30px -2px;
-  margin-inline: -4px -2px;
-}
-
-#displayNameAndstatusMessageStack #displayNameInput[editing] {
-  margin-inline: -4px -2px;
-  margin-bottom: 18px;
-}
-
 #setStatusTypeMenupopup .menu-iconic-icon,
 #imAccountsStatus .menu-iconic-icon,
 #appmenu_imAccountsStatus .menu-iconic-icon {
