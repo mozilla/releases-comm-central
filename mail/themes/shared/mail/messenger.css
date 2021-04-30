@@ -420,7 +420,7 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 .toolbarbutton-1:not([disabled="true"]):hover >
 .toolbarbutton-menubutton-dropmarker,
 .toolbarbutton-1:not([type="menu-button"],[disabled="true"],[checked="true"],[open="true"],:active):hover {
-  background: var(--toolbarbutton-hover-background);
+  background-color: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
 }
@@ -428,7 +428,7 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
 .toolbarbutton-1[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]),
 .toolbarbutton-1:not([type="menu-button"],[disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
-  background: var(--toolbarbutton-checked-background);
+  background-color: var(--toolbarbutton-checked-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
   transition-duration: 10ms;
@@ -438,7 +438,7 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
 .toolbarbutton-1:not([type="menu-button"],[disabled="true"])[open="true"],
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
 .toolbarbutton-1[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
-  background: var(--toolbarbutton-active-background) !important;
+  background-color: var(--toolbarbutton-active-background) !important;
 }
 
 .toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-button {
@@ -514,6 +514,32 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton
   background-repeat: no-repeat;
   background-size: 1px 18px;
   opacity: .2;
+}
+
+toolbox:not([labelalign="end"]) > toolbar[mode="full"]
+  .toolbarbutton-1:not(.button-appmenu)[type="menu"] {
+  padding-inline-end: 12px !important;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  background-size: 9px;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 4px) center;
+  -moz-context-properties: fill, fill-opacity, stroke-opacity;
+  stroke-opacity: 1;
+}
+
+toolbox:not([labelalign="end"]) > toolbar[mode="full"]
+  .toolbarbutton-1:not(.button-appmenu)[type="menu"]:-moz-locale-dir(rtl) {
+  background-position: 4px center;
+}
+
+toolbox:not([labelalign="end"]) > toolbar[mode="full"]
+  .toolbarbutton-1:not(.button-appmenu)[type="menu"][disabled="true"] {
+  stroke-opacity: 0.4;
+}
+
+toolbox:not([labelalign="end"]) > toolbar[mode="full"]
+  .toolbarbutton-1:not(.button-appmenu)[type="menu"] > .toolbarbutton-menu-dropmarker {
+  display: none;
 }
 
 toolbar[brighttext] .toolbarbutton-1:not(:hover,:active,[open]) >
