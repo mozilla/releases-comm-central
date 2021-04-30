@@ -627,7 +627,7 @@ checkbox {
 }
 
 .dialogFrame {
-  margin: 20px;
+  margin: 14px;
   -moz-box-flex: 1;
   /* Default dialog dimensions */
   height: 12em;

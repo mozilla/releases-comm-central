@@ -14,6 +14,10 @@ window,
   padding: 0;
 }
 
+:root {
+  padding: 6px;
+}
+
 .contentPane {
   margin: 0;
 }
