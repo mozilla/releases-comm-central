@@ -341,8 +341,10 @@ class CalDavDetector {
       for (let homeSet of homeSets) {
         cal.LOG(`[CalDavProvider] ${target.spec} has a home set at ${homeSet}, checking that`);
         let homeSetUrl = Services.io.newURI(homeSet, null, target);
-        calendars.push(...(await this.handleHomeSet(homeSetUrl)));
-        // If one homeSet fails, it's likely they all will, so don't handle failures here.
+        let discoveredCalendars = await this.handleHomeSet(homeSetUrl);
+        if (discoveredCalendars) {
+          calendars.push(...discoveredCalendars);
+        }
       }
       return calendars.length ? calendars : null;
     } else {
