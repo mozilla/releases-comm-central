@@ -5,8 +5,6 @@
 /* import-globals-from ../../../../../toolkit/components/prompts/content/selectDialog.js */
 
 function cloudfileDialogOnLoad() {
-  dialogOnLoad();
-
   let icons = propBag.getProperty("icons");
   let listItems = listBox.itemChildren;
   for (let i = 0; i < listItems.length; i++) {
