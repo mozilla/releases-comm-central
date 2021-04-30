@@ -8952,7 +8952,6 @@ NS_IMETHODIMP nsImapMockChannel::Open(nsIInputStream** _retval) {
 
 NS_IMETHODIMP
 nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry* entry, bool aNew,
-                                         nsIApplicationCache* aAppCache,
                                          nsresult status) {
   if (MOZ_LOG_TEST(IMAPCache, LogLevel::Debug)) {
     MOZ_LOG(IMAPCache, LogLevel::Debug,
@@ -9101,9 +9100,7 @@ nsImapMockChannel::OnCacheEntryAvailable(nsICacheEntry* entry, bool aNew,
 }
 
 NS_IMETHODIMP
-nsImapMockChannel::OnCacheEntryCheck(nsICacheEntry* entry,
-                                     nsIApplicationCache* appCache,
-                                     uint32_t* aResult) {
+nsImapMockChannel::OnCacheEntryCheck(nsICacheEntry* entry, uint32_t* aResult) {
   *aResult = nsICacheEntryOpenCallback::ENTRY_WANTED;
 
   // Check concurrent read: We can't read concurrently since we don't know
@@ -9134,7 +9131,7 @@ nsresult nsImapMockChannel::OpenCacheEntry() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   int32_t uidValidity = -1;
-  nsCacheAccessMode cacheAccess = nsICacheStorage::OPEN_NORMALLY;
+  uint32_t cacheAccess = nsICacheStorage::OPEN_NORMALLY;
 
   nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(m_url, &rv);
   NS_ENSURE_SUCCESS(rv, rv);

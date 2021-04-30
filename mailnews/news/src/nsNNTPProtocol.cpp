@@ -58,7 +58,6 @@
 // for the memory cache...
 #include "nsICacheEntry.h"
 #include "nsICacheStorage.h"
-#include "nsIApplicationCache.h"
 #include "nsIStreamListener.h"
 #include "nsNetCID.h"
 
@@ -709,7 +708,6 @@ bool nsNNTPProtocol::ReadFromLocalCache() {
 
 NS_IMETHODIMP
 nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntry* entry, bool aNew,
-                                      nsIApplicationCache* aAppCache,
                                       nsresult status) {
   nsresult rv = NS_OK;
 
@@ -749,9 +747,7 @@ nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntry* entry, bool aNew,
 }
 
 NS_IMETHODIMP
-nsNNTPProtocol::OnCacheEntryCheck(nsICacheEntry* entry,
-                                  nsIApplicationCache* appCache,
-                                  uint32_t* aResult) {
+nsNNTPProtocol::OnCacheEntryCheck(nsICacheEntry* entry, uint32_t* aResult) {
   *aResult = nsICacheEntryOpenCallback::ENTRY_WANTED;
   return NS_OK;
 }

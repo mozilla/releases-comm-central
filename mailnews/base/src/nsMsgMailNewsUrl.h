@@ -21,7 +21,6 @@
 #include "nsILoadGroup.h"
 #include "nsIMsgSearchSession.h"
 #include "nsICacheEntry.h"
-#include "nsICacheSession.h"
 #include "nsIMimeMiscStatus.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsString.h"
