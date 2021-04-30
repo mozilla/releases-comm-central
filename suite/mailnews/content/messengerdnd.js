@@ -3,6 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
 // cache these services
 var nsIDragService = Ci.nsIDragService;
 var dragService = Cc["@mozilla.org/widget/dragservice;1"]
@@ -268,41 +272,87 @@ function BeginDragFolderTree(aEvent)
   return false;  // don't propagate the event if a drag has begun
 }
 
-function BeginDragThreadPane(aEvent)
-{
-  var messages = gFolderDisplay.selectedMessageUris;
-  if (!messages)
-    return false;
+function ThreadPaneOnDragStart(aEvent) {
+  if (aEvent.originalTarget.localName != "treechildren")
+    return;
+
+  let messageUris = gFolderDisplay.selectedMessageUris;
+  if (!messageUris)
+     return;
 
   // A message can be dragged from one window and dropped on another window.
   // Therefore we setNextMessageAfterDelete() here since there is no major
   // disadvantage, even if it is a copy operation.
   SetNextMessageAfterDelete();
+  let messengerBundle = document.getElementById("bundle_messenger");
+  let noSubject = messengerBundle.getString("defaultSaveMessageAsFileName");
+  if (noSubject.endsWith(".eml")) {
+    noSubject = noSubject.slice(0, -4);
+  }
   var fileNames = [];
   var dataTransfer = aEvent.dataTransfer;
 
-  // Dragging multiple messages to desktop does not currently work, pending
-  // core fixes for multiple-drop-on-desktop support (bug 513464).
-  for (let i = 0; i < messages.length; i++)
-  {
-    let messageService = messenger.messageServiceFromURI(messages[i]);
-    let msgUrls = messageService.getUrlForUri(messages[i]);
-    let subject = messageService.messageURIToMsgHdr(messages[i])
-                                .mime2DecodedSubject;
+  for (let [index, msgUri] of messageUris.entries()) {
+    let msgService = messenger.messageServiceFromURI(msgUri);
+    let msgHdr = msgService.messageURIToMsgHdr(msgUri);
+    let subject = msgHdr.mime2DecodedSubject || noSubject;
+    if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
+      subject = "Re: " + subject;
+    }
     let uniqueFileName = suggestUniqueFileName(subject.substr(0, 120), ".eml",
                                                fileNames);
-    fileNames[i] = uniqueFileName;
-    dataTransfer.mozSetDataAt("text/x-moz-message", messages[i], i);
-    dataTransfer.mozSetDataAt("text/x-moz-url", msgUrls.spec, i);
+    fileNames[index] = uniqueFileName;
+    let msgUrl = messageService.getUrlForUri(messages[i]);
+    dataTransfer.mozSetDataAt("text/x-moz-message", msgUri, index);
+    dataTransfer.mozSetDataAt("text/x-moz-url", msgUrl.spec, index);
     dataTransfer.mozSetDataAt("application/x-moz-file-promise-url",
-                               msgUrls.spec + "?fileName=" + uniqueFileName, i);
-    dataTransfer.mozSetDataAt("application/x-moz-file-promise", null, i);
+                               msgUrl.spec + "?fileName=" +
+                               encodeURIComponent(uniqueFileName),
+                               index);
+    dataTransfer.mozSetDataAt("application/x-moz-file-promise",
+                              new messageFlavorDataProvider(), index);
   }
-  aEvent.dataTransfer.effectAllowed = "copyMove";
-  aEvent.dataTransfer.addElement(aEvent.originalTarget);
-
-  return false;  // don't propagate the event if a drag has begun
+  dataTransfer.effectAllowed = "copyMove";
+  dataTransfer.addElement(aEvent.originalTarget);
 }
+
+function messageFlavorDataProvider() {}
+
+messageFlavorDataProvider.prototype = {
+  QueryInterface: XPCOMUtils.generateQI(["nsIFlavorDataProvider"]),
+
+  getFlavorData(aTransferable, aFlavor, aData, aDataLen) {
+    if (aFlavor !== "application/x-moz-file-promise") {
+      return;
+    }
+    let fileUriPrimitive = {};
+    let dataSize = {};
+    aTransferable.getTransferData("application/x-moz-file-promise-url",
+                                  fileUriPrimitive, dataSize);
+
+    let fileUriStr = fileUriPrimitive.value
+                                     .QueryInterface(Ci.nsISupportsString);
+    let fileUri = Services.io.newURI(fileUriStr.data);
+    let fileUrl = fileUri.QueryInterface(Ci.nsIURL);
+    let fileName = fileUrl.fileName;
+
+    let destDirPrimitive = {};
+    aTransferable.getTransferData("application/x-moz-file-promise-dir",
+                                  destDirPrimitive, dataSize);
+    let destDirectory = destDirPrimitive.value.QueryInterface(Ci.nsIFile);
+    let file = destDirectory.clone();
+    file.append(fileName);
+
+    let messageUriPrimitive = {};
+    aTransferable.getTransferData("text/x-moz-message", messageUriPrimitive,
+                                  dataSize);
+    let messageUri = messageUriPrimitive.value
+                                        .QueryInterface(Ci.nsISupportsString);
+
+    messenger.saveAs(messageUri.data, true, null, decodeURIComponent(file.path),
+                     true);
+  },
+};
 
 function DragOverThreadPane(aEvent)
 {
