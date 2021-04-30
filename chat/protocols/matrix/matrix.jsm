@@ -24,9 +24,6 @@ var {
   GenericMessagePrototype,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
-var { getMatrixTextForEvent } = ChromeUtils.import(
-  "resource:///modules/matrixTextForEvent.jsm"
-);
 
 Cu.importGlobalProperties(["indexedDB"]);
 
@@ -38,9 +35,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MatrixSDK: "resource:///modules/matrix-sdk.jsm",
   getHttpUriForMxc: "resource:///modules/matrix-sdk.jsm",
   EventTimeline: "resource:///modules/matrix-sdk.jsm",
+  EventType: "resource:///modules/matrix-sdk.jsm",
+  MsgType: "resource:///modules/matrix-sdk.jsm",
   MatrixPowerLevels: "resource:///modules/matrixPowerLevels.jsm",
   DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.jsm",
+  getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
 });
 
 /**
@@ -267,10 +267,10 @@ var GenericMatrixConversation = {
   sendMsg(msg) {
     let content = {
       body: msg,
-      msgtype: "m.text",
+      msgtype: MsgType.Text,
     };
     this._account._client
-      .sendEvent(this._roomId, "m.room.message", content, "")
+      .sendEvent(this._roomId, EventType.RoomMessage, content, "")
       .catch(error => {
         this._account.ERROR("Failed to send message to: " + this._roomId);
       });
@@ -373,7 +373,7 @@ var GenericMatrixConversation = {
       latestOldEvent = this._mostRecentEventId;
     } else {
       // Last message the user has read with high certainty.
-      const fullyRead = this.room.getAccountData("m.fully_read");
+      const fullyRead = this.room.getAccountData(EventType.FullyRead);
       if (fullyRead) {
         latestOldEvent = fullyRead.getContent().event_id;
       }
@@ -432,27 +432,27 @@ var GenericMatrixConversation = {
       this._mostRecentEventId = event.getId();
       return;
     }
-    if (event.getType() === "m.room.message") {
+    if (event.getType() === EventType.RoomMessage) {
       const isOutgoing = event.getSender() == this._account.userId;
       const eventContent = event.getContent();
       //TODO We should prefer the formatted body (when it's html)
       let message = eventContent.body;
-      if (eventContent.msgtype === "m.emote") {
+      if (eventContent.msgtype === MsgType.Emote) {
         message = "/me " + message;
       }
       //TODO handle media messages better (currently just show file name)
       this.writeMessage(event.getSender(), message, {
         outgoing: isOutgoing,
         incoming: !isOutgoing,
-        system: eventContent.msgtype === "m.notice",
+        system: eventContent.msgtype === MsgType.Notice,
         time: Math.floor(event.getDate() / 1000),
         _alias: event.sender.name,
         delayed,
         event,
       });
-    } else if (event.getType() == "m.room.topic") {
+    } else if (event.getType() == EventType.RoomTopic) {
       this.setTopic(event.getContent().topic, event.getSender());
-    } else if (event.getType() == "m.room.tombstone") {
+    } else if (event.getType() == EventType.RoomTombstone) {
       // Room version update
       this.writeMessage(event.getSender(), event.getContent().body, {
         system: true,
@@ -618,8 +618,8 @@ MatrixConversation.prototype = {
     }
 
     let roomState = this.roomState;
-    if (roomState.getStateEvents("m.room.topic").length) {
-      let event = roomState.getStateEvents("m.room.topic")[0];
+    if (roomState.getStateEvents(EventType.RoomTopic).length) {
+      let event = roomState.getStateEvents(EventType.RoomTopic)[0];
       this.setTopic(event.getContent().topic, event.getSender().name, true);
     }
     this._setInitialized();
@@ -638,7 +638,10 @@ MatrixConversation.prototype = {
 
   get topicSettable() {
     if (this.room) {
-      return this.roomState.maySendEvent("m.room.topic", this._account.userId);
+      return this.roomState.maySendEvent(
+        EventType.RoomTopic,
+        this._account.userId
+      );
     }
     return false;
   },
@@ -1008,7 +1011,7 @@ MatrixAccount.prototype = {
      * Get the map of direct messaging rooms.
      */
     this._client.on("accountData", event => {
-      if (event.getType() == "m.direct") {
+      if (event.getType() == EventType.Direct) {
         this._userToRoom = event.getContent();
       }
     });
@@ -1393,7 +1396,7 @@ MatrixAccount.prototype = {
               content: {
                 guest_access: "can_join",
               },
-              type: "m.room.guest_access",
+              type: EventType.RoomGuestAccess,
               state_key: "",
             });
           }
@@ -1523,7 +1526,7 @@ MatrixAccount.prototype = {
     if (!roomList.includes(roomId)) {
       roomList.push(roomId);
       dmRoomMap[userId] = roomList;
-      this._client.setAccountData("m.direct", dmRoomMap);
+      this._client.setAccountData(EventType.Direct, dmRoomMap);
     }
   },
 
@@ -1694,7 +1697,7 @@ MatrixAccount.prototype = {
         content: {
           guest_access: "can_join",
         },
-        type: "m.room.guest_access",
+        type: EventType.RoomGuestAccess,
         state_key: "",
       },
       roomId => {

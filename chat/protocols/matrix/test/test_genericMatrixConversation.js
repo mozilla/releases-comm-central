@@ -3,6 +3,9 @@
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { setTimeout } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { EventType, MsgType } = ChromeUtils.import(
+  "resource:///modules/matrix-sdk.jsm"
+);
 var matrix = {};
 Services.scriptloader.loadSubScript("resource:///modules/matrix.jsm", matrix);
 Services.conversations.initConversations();
@@ -80,7 +83,7 @@ add_task(function test_addEventRedacted() {
 add_task(function test_addEventMessageIncoming() {
   const event = makeEvent("@user:example.com", {
     body: "foo",
-    msgtype: "m.text",
+    msgtype: MsgType.Text,
   });
   const roomStub = {
     _account: {
@@ -107,7 +110,7 @@ add_task(function test_addEventMessageIncoming() {
 add_task(function test_addEventMessageOutgoing() {
   const event = makeEvent("@test:example.com", {
     body: "foo",
-    msgtype: "m.text",
+    msgtype: MsgType.Text,
   });
   const roomStub = {
     _account: {
@@ -134,7 +137,7 @@ add_task(function test_addEventMessageOutgoing() {
 add_task(function test_addEventMessageEmote() {
   const event = makeEvent("@user:example.com", {
     body: "foo",
-    msgtype: "m.emote",
+    msgtype: MsgType.Emote,
   });
   const roomStub = {
     _account: {
@@ -161,7 +164,7 @@ add_task(function test_addEventMessageEmote() {
 add_task(function test_addEventMessageDelayed() {
   const event = makeEvent("@user:example.com", {
     body: "foo",
-    msgtype: "m.text",
+    msgtype: MsgType.Text,
   });
   const roomStub = {
     _account: {
@@ -191,7 +194,7 @@ add_task(function test_addEventTopic() {
       return false;
     },
     getType() {
-      return "m.room.topic";
+      return EventType.RoomTopic;
     },
     getId() {
       return 1;
@@ -223,7 +226,7 @@ add_task(async function test_addEventTombostone() {
       return false;
     },
     getType() {
-      return "m.room.tombstone";
+      return EventType.RoomTombstone;
     },
     getId() {
       return 1;
@@ -290,7 +293,7 @@ function makeEvent(sender, content = {}, redacted = false) {
       return redacted;
     },
     getType() {
-      return "m.room.message";
+      return EventType.RoomMessage;
     },
     getSender() {
       return sender;

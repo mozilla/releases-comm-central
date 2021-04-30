@@ -7,6 +7,7 @@ this.EXPORTED_SYMBOLS = ["getMatrixTextForEvent"];
 var { XPCOMUtils, l10nHelper } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
+var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 
 XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/matrix.properties")
@@ -39,7 +40,7 @@ ChromeUtils.defineModuleGetter(
  * optionally adds values to the context argument for the handler.
  */
 const MATRIX_EVENT_HANDLERS = {
-  "m.room.member": {
+  [EventType.RoomMember]: {
     pivot: "membership",
     formatContext(matrixEvent, { sender, content }) {
       return {
@@ -114,7 +115,7 @@ const MATRIX_EVENT_HANDLERS = {
       },
     },
   },
-  "m.room.power_levels": {
+  [EventType.RoomPowerLevels]: {
     handler(matrixEvent, { sender, content }) {
       const prevContent = matrixEvent.getPrevContent();
       if (!prevContent?.users) {
@@ -152,7 +153,7 @@ const MATRIX_EVENT_HANDLERS = {
       return _("message.powerLevel.changed", sender, changes.join(", "));
     },
   },
-  "m.room.name": {
+  [EventType.RoomName]: {
     handler(matrixEvent, { sender, content }) {
       let roomName = content.name;
       if (!roomName) {
@@ -161,7 +162,7 @@ const MATRIX_EVENT_HANDLERS = {
       return _("message.roomName.changed", sender, roomName);
     },
   },
-  "m.room.guest_access": {
+  [EventType.RoomGuestAccess]: {
     pivot: "guest_access",
     handlers: {
       forbidden(matrixEvent, { sender }) {
@@ -172,7 +173,7 @@ const MATRIX_EVENT_HANDLERS = {
       },
     },
   },
-  "m.room.history_visibility": {
+  [EventType.RoomHistoryVisibility]: {
     pivot: "history_visibility",
     handlers: {
       world_readable(matrixEvent, { sender }) {
@@ -189,7 +190,7 @@ const MATRIX_EVENT_HANDLERS = {
       },
     },
   },
-  "m.room.canonical_alias": {
+  [EventType.RoomCanonicalAlias]: {
     handler(matrixEvent, { sender, content }) {
       const prevContent = matrixEvent.getPrevContent();
       if (content.alias != prevContent.alias) {

@@ -17,7 +17,13 @@ const { Loader, Require, Module } = ChromeUtils.import(
   "resource://devtools/shared/base-loader.js"
 );
 
-const EXPORTED_SYMBOLS = ["MatrixSDK", "getHttpUriForMxc", "EventTimeline"];
+const EXPORTED_SYMBOLS = [
+  "MatrixSDK",
+  "getHttpUriForMxc",
+  "EventTimeline",
+  "EventType",
+  "MsgType",
+];
 
 // Set-up loading so require works properly in CommonJS modules.
 //
@@ -172,3 +178,5 @@ let MatrixSDK = require("browser-index.js");
 let getHttpUriForMxc = require("../content-repo").getHttpUriForMxc;
 
 let EventTimeline = require("./models/event-timeline.js").EventTimeline;
+
+let { EventType, MsgType } = require("@types/event");

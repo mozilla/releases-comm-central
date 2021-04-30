@@ -5,6 +5,7 @@ var { getMatrixTextForEvent } = ChromeUtils.import(
   "resource:///modules/matrixTextForEvent.jsm"
 );
 var { l10nHelper } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { EventType } = ChromeUtils.import("resource:///modules/matrix-sdk.jsm");
 var _ = l10nHelper("chrome://chat/locale/matrix.properties");
 
 function run_test() {
@@ -16,7 +17,7 @@ const SENDER = "@test:example.com";
 const FIXTURES = [
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "ban",
       },
@@ -29,7 +30,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "ban",
         reason: "test",
@@ -45,7 +46,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "invite",
         third_party_invite: {
@@ -61,7 +62,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "invite",
         third_party_invite: {},
@@ -75,7 +76,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "invite",
       },
@@ -88,7 +89,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "join",
         displayname: "ipsum",
@@ -103,7 +104,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "join",
         displayname: "ipsum",
@@ -117,7 +118,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "join",
       },
@@ -131,7 +132,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "join",
       },
@@ -144,7 +145,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "join",
       },
@@ -157,7 +158,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "leave",
       },
@@ -173,7 +174,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "leave",
       },
@@ -189,7 +190,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "leave",
       },
@@ -205,7 +206,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "leave",
       },
@@ -221,7 +222,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "leave",
         reason: "lorem ipsum",
@@ -240,7 +241,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "leave",
         reason: "lorem ipsum",
@@ -259,7 +260,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "leave",
       },
@@ -275,7 +276,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.member",
+      type: EventType.RoomMember,
       content: {
         membership: "leave",
       },
@@ -291,14 +292,14 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.power_levels",
+      type: EventType.RoomPowerLevels,
     }),
     result: null,
     name: "No previous power levels",
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.power_levels",
+      type: EventType.RoomPowerLevels,
       content: {
         users: {
           "@test:example.com": 100,
@@ -315,7 +316,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.power_levels",
+      type: EventType.RoomPowerLevels,
       content: {
         users: {
           "@test:example.com": 100,
@@ -342,7 +343,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.power_levels",
+      type: EventType.RoomPowerLevels,
       content: {
         users: {
           "@test:example.com": 100,
@@ -371,7 +372,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.power_levels",
+      type: EventType.RoomPowerLevels,
       content: {
         users: {
           "@test:example.com": 100,
@@ -401,7 +402,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.power_levels",
+      type: EventType.RoomPowerLevels,
       content: {
         users: {
           "@test:example.com": 100,
@@ -430,7 +431,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.power_levels",
+      type: EventType.RoomPowerLevels,
       content: {
         users: {
           "@test:example.com": 100,
@@ -459,7 +460,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.power_levels",
+      type: EventType.RoomPowerLevels,
       content: {
         users: {
           "@test:example.com": 100,
@@ -497,7 +498,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.name",
+      type: EventType.RoomName,
       content: {
         name: "test",
       },
@@ -507,14 +508,14 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.name",
+      type: EventType.RoomName,
     }),
     result: _("message.roomName.remove", SENDER),
     name: "Remove room name",
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.guest_access",
+      type: EventType.RoomGuestAccess,
       content: {
         guest_access: "forbidden",
       },
@@ -524,7 +525,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.guest_access",
+      type: EventType.RoomGuestAccess,
       content: {
         guest_access: "can_join",
       },
@@ -534,7 +535,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.history_visibility",
+      type: EventType.RoomHistoryVisibility,
       content: {
         history_visibility: "world_readable",
       },
@@ -544,7 +545,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.history_visibility",
+      type: EventType.RoomHistoryVisibility,
       content: {
         history_visibility: "shared",
       },
@@ -554,7 +555,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.history_visibility",
+      type: EventType.RoomHistoryVisibility,
       content: {
         history_visibility: "invited",
       },
@@ -564,7 +565,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.history_visibility",
+      type: EventType.RoomHistoryVisibility,
       content: {
         history_visibility: "joined",
       },
@@ -574,7 +575,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.canonical_alias",
+      type: EventType.RoomCanonicalAlias,
       content: {
         alias: "#test:example.com",
       },
@@ -584,7 +585,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.canonical_alias",
+      type: EventType.RoomCanonicalAlias,
       content: {
         alias: "#test:example.com",
       },
@@ -602,7 +603,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.canonical_alias",
+      type: EventType.RoomCanonicalAlias,
       content: {
         alias: "#test:example.com",
         alt_aliases: ["#foo:example.com"],
@@ -616,7 +617,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.canonical_alias",
+      type: EventType.RoomCanonicalAlias,
       content: {
         alias: "#test:example.com",
       },
@@ -630,7 +631,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.canonical_alias",
+      type: EventType.RoomCanonicalAlias,
       content: {
         alias: "#test:example.com",
         alt_aliases: ["#bar:example.com"],
@@ -645,7 +646,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.canonical_alias",
+      type: EventType.RoomCanonicalAlias,
       content: {
         alias: "#test:example.com",
         alt_aliases: ["#foo:example.com", "#bar:example.com"],
@@ -660,7 +661,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.canonical_alias",
+      type: EventType.RoomCanonicalAlias,
       content: {
         alias: "#test:example.com",
         alt_aliases: [
@@ -683,7 +684,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.canonical_alias",
+      type: EventType.RoomCanonicalAlias,
       content: {
         alias: "#test:example.com",
         alt_aliases: ["#foo:example.com", "#bar:example.com"],
@@ -703,7 +704,7 @@ const FIXTURES = [
   },
   {
     event: _makeMatrixEvent({
-      type: "m.room.canonical_alias",
+      type: EventType.RoomCanonicalAlias,
       content: {
         alias: "#test:example.com",
         alt_aliases: [],
