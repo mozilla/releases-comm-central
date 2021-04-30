@@ -315,8 +315,12 @@ function DragOverThreadPane(aEvent)
   {
     if (Array.from(dt.mozTypesAt(i)).includes("application/x-moz-file"))
     {
-      let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                      .QueryInterface(Ci.nsIFile);
+      let extFile = dt.mozGetDataAt("application/x-moz-file", i);
+      if (!extFile) {
+        return;
+      }
+
+      extFile = extFile.QueryInterface(Ci.nsIFile);
       if (extFile.isFile() && /\.eml$/i.test(extFile.leafName))
       {
         aEvent.preventDefault();
@@ -331,8 +335,12 @@ function DropOnThreadPane(aEvent)
   let dt = aEvent.dataTransfer;
   for (let i = 0; i < dt.mozItemCount; i++)
   {
-    let extFile = dt.mozGetDataAt("application/x-moz-file", i)
-                    .QueryInterface(Ci.nsIFile);
+    let extFile = dt.mozGetDataAt("application/x-moz-file", i);
+    if (!extFile) {
+      continue;
+    }
+
+    extFile = extFile.QueryInterface(Ci.nsIFile);
     if (extFile.isFile() && /\.eml$/i.test(extFile.leafName))
       MailServices.copy.CopyFileMessage(extFile, gMsgFolderSelected, null,
                                         false, 1, "", null, msgWindow);
