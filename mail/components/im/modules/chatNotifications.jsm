@@ -133,54 +133,57 @@ var Notifications = {
         }
     }
 
+    let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
+      Ci.nsIAlertNotification
+    );
+    alert.init(
+      "", // name
+      icon,
+      name, // title
+      messageText,
+      true // clickable
+    );
     // Show the notification!
     Cc["@mozilla.org/alerts-service;1"]
       .getService(Ci.nsIAlertsService)
-      .showAlertNotification(
-        icon,
-        name,
-        messageText,
-        true,
-        "",
-        (subject, topic, data) => {
-          if (topic != "alertclickcallback") {
-            return;
-          }
-
-          // If there is a timeout set, clear it.
-          clearTimeout(this._timeoutId);
-          this._heldMessage = null;
-          this._msgCounter = 0;
-          this._lastMessageTime = 0;
-          this._lastMessageSender = null;
-          // Focus the conversation if the notification is clicked.
-          let uiConv = Services.conversations.getUIConversation(
-            aMessage.conversation
-          );
-          let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
-          if (mainWindow) {
-            mainWindow.focus();
-            mainWindow.showChatTab();
-            mainWindow.chatHandler.focusConversation(uiConv);
-          } else {
-            Services.appShell.hiddenDOMWindow.openDialog(
-              "chrome://messenger/content/messenger.xhtml",
-              "_blank",
-              "chrome,dialog=no,all",
-              null,
-              {
-                tabType: "chat",
-                tabParams: { convType: "focus", conv: uiConv },
-              }
-            );
-          }
-          if (AppConstants.platform == "macosx") {
-            Cc["@mozilla.org/widget/macdocksupport;1"]
-              .getService(Ci.nsIMacDockSupport)
-              .activateApplication(true);
-          }
+      .showAlert(alert, (subject, topic, data) => {
+        if (topic != "alertclickcallback") {
+          return;
         }
-      );
+
+        // If there is a timeout set, clear it.
+        clearTimeout(this._timeoutId);
+        this._heldMessage = null;
+        this._msgCounter = 0;
+        this._lastMessageTime = 0;
+        this._lastMessageSender = null;
+        // Focus the conversation if the notification is clicked.
+        let uiConv = Services.conversations.getUIConversation(
+          aMessage.conversation
+        );
+        let mainWindow = Services.wm.getMostRecentWindow("mail:3pane");
+        if (mainWindow) {
+          mainWindow.focus();
+          mainWindow.showChatTab();
+          mainWindow.chatHandler.focusConversation(uiConv);
+        } else {
+          Services.appShell.hiddenDOMWindow.openDialog(
+            "chrome://messenger/content/messenger.xhtml",
+            "_blank",
+            "chrome,dialog=no,all",
+            null,
+            {
+              tabType: "chat",
+              tabParams: { convType: "focus", conv: uiConv },
+            }
+          );
+        }
+        if (AppConstants.platform == "macosx") {
+          Cc["@mozilla.org/widget/macdocksupport;1"]
+            .getService(Ci.nsIMacDockSupport)
+            .activateApplication(true);
+        }
+      });
 
     this._heldMessage = null;
     this._msgCounter = 0;

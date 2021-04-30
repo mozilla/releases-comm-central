@@ -34,7 +34,7 @@ var originalAlertsServiceCID;
 // triggered when trying to connect to the fake IMAP server.
 class MockAlertsService {
   QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
-  showAlertNotification() {}
+  showAlert() {}
 }
 
 var user = {

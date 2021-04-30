@@ -107,7 +107,11 @@ CalIcsParser.prototype = {
           let title = cal.l10n.getCalString("TimezoneErrorsAlertTitle");
           let text = cal.l10n.getCalString("TimezoneErrorsSeeConsole");
           try {
-            notifier.showAlertNotification("", title, text, false, null, null, title);
+            let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
+              Ci.nsIAlertNotification
+            );
+            alert.init(title, "", title, text);
+            notifier.showAlert(alert);
           } catch (e) {
             // The notifier may not be available, e.g. on xpcshell tests
           }

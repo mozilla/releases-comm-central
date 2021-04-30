@@ -44,15 +44,8 @@ var gMockAlertsService = {
 
   QueryInterface: ChromeUtils.generateQI(["nsIAlertsService"]),
 
-  showAlertNotification(
-    imageUrl,
-    title,
-    text,
-    textClickable,
-    cookie,
-    alertListener,
-    name
-  ) {
+  showAlert(alertInfo, alertListener) {
+    let { imageURL, title, text, textClickable, cookie, name } = alertInfo;
     // Setting the _doFail flag allows us to revert to the newmailalert.xhtml
     // notification
     if (this._doFail) {
@@ -60,7 +53,7 @@ var gMockAlertsService = {
       throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     this._didNotify = true;
-    this._imageUrl = imageUrl;
+    this._imageUrl = imageURL;
     this._title = title;
     this._text = text;
     this._textClickable = textClickable;

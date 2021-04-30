@@ -304,14 +304,18 @@ class MailNotificationManager {
       );
       let cookie = folder.generateMessageURI(msgHdr.messageKey);
       try {
-        alertsService.showAlertNotification(
+        let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
+          Ci.nsIAlertNotification
+        );
+        alert.init(
+          cookie, // name
           "chrome://messenger/skin/icons/new-mail-alert.png",
           title,
           body,
-          true,
-          cookie,
-          this
+          true, // clickable
+          cookie
         );
+        alertsService.showAlert(alert, this);
         return;
       } catch (e) {
         this._logger.error(e);
@@ -319,8 +323,8 @@ class MailNotificationManager {
       }
     }
 
-    // The use_system_alert pref is false or showAlertNotification somehow
-    // failed, use the customized alert window.
+    // The use_system_alert pref is false or showAlert somehow failed, use the
+    // customized alert window.
     Services.ww.openWindow(
       null,
       "chrome://messenger/content/newmailalert.xhtml",

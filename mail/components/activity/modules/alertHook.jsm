@@ -76,13 +76,18 @@ var alertHook = {
     }
 
     try {
-      this.alertService.showAlertNotification(
+      let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
+        Ci.nsIAlertNotification
+      );
+      alert.init(
+        "", // name
         "chrome://branding/content/icon48.png",
         this.brandShortName,
         aMessage
       );
+      this.alertService.showAlert(alert);
     } catch (ex) {
-      // XXX On Linux, if libnotify isn't supported, showAlertNotification
+      // XXX On Linux, if libnotify isn't supported, showAlert
       // can throw an error, so fall-back to the old method of modal dialogs.
       return false;
     }
