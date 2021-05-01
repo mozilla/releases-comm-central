@@ -1789,7 +1789,7 @@ function GenericSendMessage(msgType) {
         var checkbox = {value:false};
         var okToProceed = Services.prompt.confirmCheck(
                               window,
-                              sComposeMsgsBundle.getString("sendMsgTitle"),
+                              sComposeMsgsBundle.getString("noNewsgroupSupportTitle"),
                               sComposeMsgsBundle.getString("recipientDlogMessage"),
                               sComposeMsgsBundle.getString("CheckMsg"),
                               checkbox);
@@ -1939,7 +1939,7 @@ function CheckValidEmailAddress(aTo, aCC, aBCC)
     invalidStr = aBCC;
   if (invalidStr)
   {
-    var errorTitle = sComposeMsgsBundle.getString("sendMsgTitle");
+    var errorTitle = sComposeMsgsBundle.getString("addressInvalidTitle");
     var errorMsg = sComposeMsgsBundle.getFormattedString("addressInvalid", [invalidStr], 1);
     Services.prompt.alert(window, errorTitle, errorMsg);
     return false;
