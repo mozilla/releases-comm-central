@@ -70,7 +70,7 @@ function run_test() {
       "",
       Ci.nsICacheStorage.OPEN_NORMALLY,
       {
-        onCacheEntryAvailable(cacheEntry, isNew, appCache, status) {
+        onCacheEntryAvailable(cacheEntry, isNew, status) {
           Assert.equal(status, Cr.NS_OK);
 
           cacheEntry.markValid();

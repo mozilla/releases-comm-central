@@ -164,14 +164,14 @@ function hackMetadata() {
     extension,
     Ci.nsICacheStorage.OPEN_NORMALLY,
     {
-      onCacheEntryAvailable(cacheEntry, isNew, appCache, status) {
+      onCacheEntryAvailable(cacheEntry, isNew, status) {
         Assert.equal(status, Cr.NS_OK);
         cacheEntry.setMetaDataElement(
           "ContentModified",
           "Modified View As Link"
         );
       },
-      onCacheEntryCheck(cacheEntry, appCache) {
+      onCacheEntryCheck(cacheEntry) {
         return Ci.nsICacheEntryOpenCallback.ENTRY_WANTED;
       },
     }
