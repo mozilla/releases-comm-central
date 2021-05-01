@@ -7,3 +7,15 @@ chat-joining-chat-icon =
 
 chat-left-chat-icon =
   .alt = "Left chat"
+
+chat-participant-owner-role-icon =
+  .alt = "Owner"
+
+chat-participant-administrator-role-icon =
+  .alt = "Administrator"
+
+chat-participant-moderator-role-icon =
+  .alt = "Moderator"
+
+chat-participant-voiced-role-icon =
+  .alt = "Participant can post messages"

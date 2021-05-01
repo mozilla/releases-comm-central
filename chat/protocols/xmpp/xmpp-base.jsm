@@ -239,6 +239,9 @@ MUCParticipant.prototype = {
   },
 
   get voiced() {
+    /* FIXME: The "voiced" role corresponds to users that can send messages to
+     * the room. If the chat is unmoderated, this should include everyone, not
+     * just members. */
     return this.role == kRoles.indexOf("member");
   },
   get moderator() {

@@ -1265,22 +1265,30 @@
     setBuddyAttributes(aItem) {
       let buddy = aItem.chatBuddy;
       let image;
+      let role;
       if (buddy.founder) {
         image = "founder";
+        role = "owner";
       } else if (buddy.admin) {
         image = "operator";
+        role = "administrator";
       } else if (buddy.moderator) {
         image = "half-operator";
+        role = "moderator";
       } else if (buddy.voiced) {
         image = "voice";
+        role = "voiced";
       }
+      let imageEl = aItem.querySelector(".conv-nicklist-image");
       if (image) {
-        aItem.firstElementChild.setAttribute(
-          "src",
-          "chrome://messenger/skin/" + image + ".png"
+        imageEl.setAttribute("src", `chrome://messenger/skin/${image}.png`);
+        document.l10n.setAttributes(
+          imageEl,
+          `chat-participant-${role}-role-icon`
         );
       } else {
-        aItem.firstElementChild.removeAttribute("src");
+        imageEl.removeAttribute("src");
+        imageEl.removeAttribute("alt");
       }
     }
 
@@ -1337,8 +1345,10 @@
 
       this.trackNick(name);
 
-      let image = document.createXULElement("image");
+      let image = document.createElement("img");
+      image.classList.add("conv-nicklist-image");
       let label = document.createXULElement("label");
+      label.classList.add("conv-nicklist-label");
       label.setAttribute("value", name);
       label.setAttribute("flex", "1");
       label.setAttribute("crop", "end");

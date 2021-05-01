@@ -597,16 +597,20 @@ richlistitem:not([selected]) .protoIconDimmed {
   margin: 0 0;
 }
 
-.conv-nicklist > richlistitem > label {
+.conv-nicklist-label {
   pointer-events: none;
   font-weight: bold;
   padding-inline-start: 1px;
 }
 
-.conv-nicklist > richlistitem > image {
+.conv-nicklist-image {
   pointer-events: none;
-  min-width: 16px;
+  width: 16px;
   margin: 0 2px;
+}
+
+.conv-nicklist-image:not([src]) {
+  visibility: hidden;
 }
 
 .conv-logs-header-label {
@@ -616,11 +620,11 @@ richlistitem:not([selected]) .protoIconDimmed {
   padding-left: 3px;
 }
 
-#nicklist > richlistitem[inactive] > image {
+#nicklist > richlistitem[inactive] > .conv-nicklist-image {
   opacity: 0.45;
 }
 
-#nicklist > richlistitem[inactive][selected] > image {
+#nicklist > richlistitem[inactive][selected] > .conv-nicklist-image {
   opacity: 0.7;
 }
 
