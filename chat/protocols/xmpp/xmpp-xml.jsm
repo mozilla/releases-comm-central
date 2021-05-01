@@ -388,6 +388,7 @@ function XMPPParser(aListener) {
   this._parser.onerror = this.error;
 }
 XMPPParser.prototype = {
+  _decoder: new TextDecoder(),
   _destroyPending: false,
   destroy() {
     delete this._listener;
@@ -401,8 +402,19 @@ XMPPParser.prototype = {
   _logReceivedData(aData) {
     this._listener.LOG("received:\n" + aData);
   },
+  /**
+   * Decodes the byte string to UTF-8 (via byte array) before feeding it to the
+   * SAXML parser.
+   *
+   * @param {string} data - Raw XML byte string.
+   */
   onDataAvailable(data) {
-    this._parser.write(data);
+    let bytes = new Uint8Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+      bytes[i] = data.charCodeAt(i);
+    }
+    let utf8Data = this._decoder.decode(bytes);
+    this._parser.write(utf8Data);
   },
 
   startElement(aUri, aLocalName, aQName, aAttributes) {

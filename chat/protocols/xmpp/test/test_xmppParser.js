@@ -3,6 +3,20 @@
 
 var { XMPPParser } = ChromeUtils.import("resource:///modules/xmpp-xml.jsm");
 
+let expectedResult =
+  '<presence xmlns="jabber:client" from="chat@example.com/Étienne" to="user@example.com/Thunderbird" \
+xml:lang="en" id="5ed0ae8b7051fa6169037da4e2a1ded6"><c xmlns="http://jabber.org/protocol/caps" \
+ver="ZyB1liM9c9GvKOnvl61+5ScWcqw=" node="https://example.com" hash="sha-1"/><x \
+xmlns="vcard-temp:x:update"><photo xmlns="vcard-temp:x:update"/></x><idle xmlns="urn:xmpp:idle:1" \
+since="2021-04-13T11:52:16.538713+00:00"/><occupant-id xmlns="urn:xmpp:occupant-id:0" \
+id="wNZPCZIVQ51D/heZQpOHi0ZgHXAEQonNPaLdyzLxHWs="/><x xmlns="http://jabber.org/protocol/muc#user"><item \
+xmlns="http://jabber.org/protocol/muc#user" jid="example@example.com/client" affiliation="member" \
+role="participant"/></x></presence>';
+let byteVersion = new TextEncoder().encode(expectedResult);
+let utf8Input = Array.from(byteVersion, byte => String.fromCharCode(byte)).join(
+  ""
+);
+
 var TEST_DATA = [
   {
     input:
@@ -82,6 +96,12 @@ counsel?</value>\
     output: "",
     isError: true,
     description: "Invalid top-level element",
+  },
+  {
+    input: utf8Input,
+    output: expectedResult,
+    isError: false,
+    description: "UTF-8 encoded content from socket",
   },
 ];
 
