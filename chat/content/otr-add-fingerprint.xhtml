@@ -31,7 +31,9 @@
     <vbox class="dialog-container" flex="1">
       <hbox align="center" pack="center" class="header-container">
         <vbox>
-          <image class="header-icon icon-login"/>
+          <html:img class="header-icon"
+                    src="chrome://messenger/skin/icons/login.svg"
+                    alt="" />
         </vbox>
         <vbox flex="1">
           <description id="otrDescription"/>
@@ -51,7 +53,10 @@
                       minlength="44"
                       maxlength="44"/>
         </hbox>
-        <image id="fingerWarning" class="form-icon icon-warning" hidden="true"/>
+        <html:img id="fingerWarning"
+                   class="warning-icon"
+                   src="chrome://global/skin/icons/warning.svg"
+                   hidden="true" />
       </hbox>
       <vbox class="input-helper-container" flex="1" align="end">
         <label id="fingerError"

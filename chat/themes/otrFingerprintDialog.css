@@ -69,24 +69,11 @@
   margin: 10px;
 }
 
-.form-icon {
+.warning-icon {
   cursor: pointer;
   -moz-context-properties: fill, stroke-opacity;
   fill: currentColor;
   margin-left: -26px;
   margin-right: 10px;
-  color: var(--text-color);
-}
-
-.icon-info {
-  list-style-image: url("chrome://messenger/skin/icons/info.svg");
-}
-
-.icon-warning {
-  list-style-image: url("chrome://global/skin/icons/warning.svg");
   color: var(--warning-color);
-}
-
-.icon-login {
-  list-style-image: url("chrome://messenger/skin/icons/login.svg");
 }
