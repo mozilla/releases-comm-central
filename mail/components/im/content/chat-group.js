@@ -29,7 +29,15 @@
       this.setAttribute("is", "chat-group-richlistitem");
       this.setAttribute("collapsed", "true");
 
-      this._image = document.createXULElement("image");
+      /* Here we use a div, rather than the usual img because the icon image
+       * relies on CSS -moz-locale-dir(rtl). The corresponding icon
+       * twisty-collapsed-rtl icon is not a simple mirror transformation of
+       * twisty-collapsed.
+       * Currently, CSS sets the background-image based on the "closed" state.
+       * The element is a visual decoration and does not require any alt text
+       * since the aria-expanded attribute describes its state.
+       */
+      this._image = document.createElement("div");
       this._image.classList.add("twisty");
 
       this._label = document.createXULElement("label");
@@ -48,7 +56,7 @@
       this.addEventListener("click", event => {
         // Check if there was 1 click on the image or 2 clicks on the label
         if (
-          (event.detail == 1 && event.target.localName == "image") ||
+          (event.detail == 1 && event.target.classList.contains("twisty")) ||
           (event.detail == 2 && event.target.localName == "label")
         ) {
           this.toggleClosed();
