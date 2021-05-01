@@ -210,9 +210,9 @@ var previewObserver = {
   },
 
   reloadPreview() {
-    // this.browser.init(this.conv);
-    // this.browser._theme = this.theme;
-    // Services.obs.addObserver(this, "conversation-loaded");
+    this.browser.init(this.conv);
+    this.browser._theme = this.theme;
+    Services.obs.addObserver(this, "conversation-loaded");
   },
 
   observe(aSubject, aTopic, aData) {

@@ -47,88 +47,6 @@
       super();
 
       this._conv = null;
-      this._initializingHTMLDocument = false;
-
-      // @implements {nsIWebProgressListener}
-      this.progressListener = {
-        onStateChange: (progress, request, stateFlags, status) => {
-          if (
-            !(stateFlags & Ci.nsIWebProgressListener.STATE_STOP) ||
-            !(
-              stateFlags & Ci.nsIWebProgressListener.STATE_IS_DOCUMENT ||
-              stateFlags & Ci.nsIWebProgressListener.STATE_IS_WINDOW
-            )
-          ) {
-            return;
-          }
-
-          if (this.currentURI.spec != "chrome://chat/content/conv.html") {
-            return;
-          }
-
-          if (this._initializingHTMLDocument) {
-            return;
-          }
-
-          // This will fire onStateChange multiple times so we add a flag to
-          // avoid breaking the call stack.
-          this._initializingHTMLDocument = true;
-          LazyModules.initHTMLDocument(
-            this._conv,
-            this.theme,
-            this.contentDocument
-          );
-          this._initializingHTMLDocument = false;
-
-          this._exposeMethodsToContent();
-          this.removeProgressListener(this.progressListener);
-          this.initMagicCopy();
-
-          // We need to reset these variables here to avoid a race
-          // condition if we are starting to display a new conversation
-          // but the display of the previous conversation wasn't finished.
-          // This can happen if the user quickly changes the selected
-          // conversation in the log viewer.
-          this._lastMessage = null;
-          this._lastMessageIsContext = true;
-          this._firstNonContextElt = null;
-          this._messageDisplayPending = false;
-          this._pendingMessages = [];
-          this._nextPendingMessageIndex = 0;
-          this._pendingMessagesDisplayed = 0;
-          this._displayPendingMessagesCalls = 0;
-          this._sessions = [];
-          if (this.progressBar) {
-            this.progressBar.hidden = true;
-          }
-
-          this.onChatNodeContentLoad = this.onContentElementLoad.bind(this);
-          this.contentChatNode.addEventListener(
-            "load",
-            this.onChatNodeContentLoad,
-            true
-          );
-
-          // Notify observers to get the conversation shown.
-          Services.obs.notifyObservers(this, "conversation-loaded");
-        },
-        onProgressChange(
-          progress,
-          request,
-          curSelf,
-          maxSelf,
-          curTotal,
-          maxTotal
-        ) {},
-        onLocationChange(aprogress, request, location) {},
-        onStatusChange(progress, request, status, message) {},
-        onSecurityChange(progress, request, state) {},
-        onContentBlockingEvent(progress, request, event) {},
-        QueryInterface: ChromeUtils.generateQI([
-          "nsIWebProgressListener",
-          "nsISupportsWeakReference",
-        ]),
-      };
 
       // Make sure to load URLs externally.
       this.addEventListener("click", event => {
@@ -320,16 +238,54 @@
       this._messageDisplayPending = false;
 
       this.docShell.charset = "UTF-8";
-      const URI = "chrome://chat/content/conv.html";
-      const loadURIOptions = {
-        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-      };
-      this.webProgress.addProgressListener(
-        this.progressListener,
-        Ci.nsIWebProgress.NOTIFY_STATE_DOCUMENT |
-          Ci.nsIWebProgress.NOTIFY_STATE_WINDOW
+      this.addEventListener(
+        "load",
+        () => {
+          LazyModules.initHTMLDocument(
+            this._conv,
+            this.theme,
+            this.contentDocument
+          );
+
+          this._exposeMethodsToContent();
+          this.initMagicCopy();
+
+          // We need to reset these variables here to avoid a race
+          // condition if we are starting to display a new conversation
+          // but the display of the previous conversation wasn't finished.
+          // This can happen if the user quickly changes the selected
+          // conversation in the log viewer.
+          this._lastMessage = null;
+          this._lastMessageIsContext = true;
+          this._firstNonContextElt = null;
+          this._messageDisplayPending = false;
+          this._pendingMessages = [];
+          this._nextPendingMessageIndex = 0;
+          this._pendingMessagesDisplayed = 0;
+          this._displayPendingMessagesCalls = 0;
+          this._sessions = [];
+          if (this.progressBar) {
+            this.progressBar.hidden = true;
+          }
+
+          this.onChatNodeContentLoad = this.onContentElementLoad.bind(this);
+          this.contentChatNode.addEventListener(
+            "load",
+            this.onChatNodeContentLoad,
+            true
+          );
+
+          // Notify observers to get the conversation shown.
+          Services.obs.notifyObservers(this, "conversation-loaded");
+        },
+        {
+          once: true,
+          capture: true,
+        }
       );
-      this.webNavigation.loadURI(URI, loadURIOptions);
+      this.loadURI("chrome://chat/content/conv.html", {
+        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      });
     }
 
     get theme() {
