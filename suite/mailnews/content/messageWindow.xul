@@ -112,9 +112,9 @@
                    class="browser-notificationbox"
                    flex="3"
                    persist="collapsed"
-                   ondragover="nsDragAndDrop.dragOver(event, messagepaneObserver);"
-                   ondrop="nsDragAndDrop.drop(event, messagepaneObserver);"
-                   ondragexit="nsDragAndDrop.dragExit(event, messagepaneObserver);">
+                   ondragover="messagepaneObserver.onDragOver(event);"
+                   ondrop="messagepaneObserver.onDrop(event);"
+                   ondragexit="messagepaneObserver.onDragExit(event);">
 
     <hbox id="msgHeaderView"/>
 

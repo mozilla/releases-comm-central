@@ -72,12 +72,14 @@ var folderListener = {
 }
 
 var messagepaneObserver = {
-
-  canHandleMultipleItems: false,
-
-  onDrop: function (aEvent, aData, aDragSession)
-  {
-    var sourceUri = aData.data;
+  onDrop(aEvent) {
+    let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
+                        .getService(Ci.nsIDragService)
+                        .getCurrentSession();
+    if (!this.canDrop(aEvent, dragSession)) {
+      return;
+    }
+    let sourceUri = aEvent.dataTransfer.getData("text/x-moz-message");
     if (sourceUri != gCurrentMessageUri)
     {
       var msgHdr = GetMsgHdrFromUri(sourceUri);
@@ -93,36 +95,30 @@ var messagepaneObserver = {
       // (msgHdr.folder.URI == windowID.gCurrentFolderUri)
       // the reason is quick search and mail views.
       // see bug #187673
-      CreateView(aDragSession.sourceNode.ownerDocument.defaultView.gDBView);
+      CreateView(dragSession.sourceNode.ownerDocument.defaultView.gDBView);
       LoadMessageByMsgKey(msgHdr.messageKey);
     }
+    aEvent.stopPropagation();
   },
 
-  onDragOver: function (aEvent, aFlavour, aDragSession)
-  {
+  onDragOver(aEvent) {
     var messagepanebox = document.getElementById("messagepanebox");
     messagepanebox.setAttribute("dragover", "true");
+    aEvent.stopPropagation();
+    aEvent.preventDefault();
   },
 
-  onDragExit: function (aEvent, aDragSession)
-  {
+  onDragExit(aEvent) {
     var messagepanebox = document.getElementById("messagepanebox");
     messagepanebox.removeAttribute("dragover");
   },
 
-  canDrop: function(aEvent, aDragSession)  //allow drop from mail:3pane window only - 4xp
-  {
+  canDrop(aEvent, aDragSession) {
+    // Allow drop from mail:3pane window only - 4xp.
     var doc = aDragSession.sourceNode.ownerDocument;
     var elem = doc.getElementById("messengerWindow");
     return (elem && (elem.getAttribute("windowtype") == "mail:3pane"));
   },
-
-  getSupportedFlavours: function ()
-  {
-    var flavourSet = new FlavourSet();
-    flavourSet.appendFlavour("text/x-moz-message");
-    return flavourSet;
-  }
 };
 
 function nsMsgDBViewCommandUpdater()
