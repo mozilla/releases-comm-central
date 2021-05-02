@@ -3074,111 +3074,119 @@ function AttachmentBucketClicked(event)
     OpenSelectedAttachment();
 }
 
+// Content types supported in the attachmentBucketObserver.
+let flavours = [ "text/x-moz-message", "application/x-moz-file",
+                 "text/x-moz-url", ];
+
 var attachmentBucketObserver = {
-
-  canHandleMultipleItems: true,
-
-  onDrop: function (aEvent, aData, aDragSession)
-    {
-      var dataList = aData.dataList;
-      var dataListLength = dataList.length;
-      var errorTitle;
-      var attachment;
-      var errorMsg;
-
-      for (let i = 0; i < dataListLength; i++)
-      {
-        let item = dataList[i].first;
-        let prettyName;
-        let size = NaN;
-        let rawData = item.data;
-
-        if (item.flavour.contentType == "text/x-moz-url" ||
-            item.flavour.contentType == "text/x-moz-message" ||
-            item.flavour.contentType == "application/x-moz-file")
-        {
-          if (item.flavour.contentType == "application/x-moz-file")
-          {
-            let fileHandler = Services.io.getProtocolHandler("file")
-                              .QueryInterface(Ci.nsIFileProtocolHandler);
-            size = rawData.fileSize;
-            rawData = fileHandler.getURLSpecFromFile(rawData);
+  onDrop(aEvent) {
+    let dt = aEvent.dataTransfer;
+    let dataList = [];
+    for (let i = 0; i < dt.mozItemCount; i++) {
+      let types = Array.from(dt.mozTypesAt(i));
+      for (let flavour of flavours) {
+        if (types.includes(flavour)) {
+          let data = dt.mozGetDataAt(flavour, i);
+          if (data) {
+            dataList.push({ data, flavour });
           }
-          else if (item.flavour.contentType == "text/x-moz-message")
-          {
-            size = gMessenger.messageServiceFromURI(rawData)
-                             .messageURIToMsgHdr(rawData).messageSize;
-          }
-          else
-          {
-            let pieces = rawData.split("\n");
-            rawData = pieces[0];
-            if (pieces.length > 1)
-              prettyName = pieces[1];
-            if (pieces.length > 2)
-              size = Number(pieces[2]);
-          }
-
-          if (DuplicateFileCheck(rawData))
-          {
-            dump("Error, attaching the same item twice\n");
-          }
-          else
-          {
-            let isValid = true;
-            if (item.flavour.contentType == "text/x-moz-url") {
-              // if this is a url (or selected text)
-              // see if it's a valid url by checking
-              // if we can extract a scheme
-              // using the ioservice
-              //
-              // also skip mailto:, since it doesn't make sense
-              // to attach and send mailto urls
-              try {
-                let scheme = Services.io.extractScheme(rawData);
-                // don't attach mailto: urls
-                if (scheme == "mailto")
-                  isValid = false;
-              }
-              catch (ex) {
-                isValid = false;
-              }
-            }
-
-            if (isValid) {
-              attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
-                           .createInstance(Ci.nsIMsgAttachment);
-              attachment.url = rawData;
-              attachment.name = prettyName;
-              if (!isNaN(size))
-                attachment.size = size;
-              AddAttachment(attachment);
-            }
-          }
+          break;
         }
       }
-    },
-
-  onDragOver: function (aEvent, aFlavour, aDragSession)
-    {
-      var attachmentBucket = GetMsgAttachmentElement();
-      attachmentBucket.setAttribute("dragover", "true");
-    },
-
-  onDragExit: function (aEvent, aDragSession)
-    {
-      var attachmentBucket = GetMsgAttachmentElement();
-      attachmentBucket.removeAttribute("dragover");
-    },
-
-  getSupportedFlavours: function ()
-    {
-      var flavourSet = new FlavourSet();
-      flavourSet.appendFlavour("text/x-moz-message");
-      flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
-      flavourSet.appendFlavour("text/x-moz-url");
-      return flavourSet;
     }
+
+    for (let { data, flavour } of dataList) {
+      let isValidAttachment = false;
+      let prettyName;
+      let size;
+
+      // We could be dropping an attachment of various flavours;
+      // check and do the right thing.
+      switch (flavour) {
+        case "application/x-moz-file": {
+          if (data instanceof Ci.nsIFile) {
+            size = data.fileSize;
+          }
+
+          try {
+            data = Services.io.getProtocolHandler("file")
+                              .QueryInterface(Ci.nsIFileProtocolHandler)
+                              .getURLSpecFromFile(data);
+            isValidAttachment = true;
+          } catch (e) {
+            Cu.reportError("Couldn't process the dragged file " +
+                           data.leafName + ":" + e);
+          }
+          break;
+        }
+
+        case "text/x-moz-message": {
+          isValidAttachment = true;
+          let msgHdr = gMessenger.messageServiceFromURI(data)
+                                 .messageURIToMsgHdr(data);
+          prettyName = msgHdr.mime2DecodedSubject + ".eml";
+          size = msgHdr.messageSize;
+          break;
+        }
+
+        case "text/x-moz-url": {
+          let pieces = data.split("\n");
+          data = pieces[0];
+          if (pieces.length > 1) {
+            prettyName = pieces[1];
+          }
+          if (pieces.length > 2) {
+            size = parseInt(pieces[2]);
+          }
+
+          // If this is a URL (or selected text), check if it's a valid URL
+          // by checking if we can extract a scheme using Services.io.
+          // Don't attach invalid or mailto: URLs.
+          try {
+            let scheme = Services.io.extractScheme(data);
+            if (scheme != "mailto") {
+              isValidAttachment = true;
+            }
+          } catch (ex) {}
+          break;
+        }
+      }
+
+      if (isValidAttachment && !DuplicateFileCheck(data)) {
+        let attachment = Cc["@mozilla.org/messengercompose/attachment;1"]
+                           .createInstance(Ci.nsIMsgAttachment);
+        attachment.url = data;
+        attachment.name = prettyName;
+
+        if (size !== undefined) {
+          attachment.size = size;
+        }
+
+        AddAttachment(attachment);
+      }
+    }
+
+    aEvent.stopPropagation();
+  },
+
+  onDragOver(aEvent) {
+    let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
+                        .getService(Ci.nsIDragService).getCurrentSession();
+    for (let flavour of flavours) {
+      if (dragSession.isDataFlavorSupported(flavour)) {
+        let attachmentBucket = GetMsgAttachmentElement();
+        attachmentBucket.setAttribute("dragover", "true");
+        aEvent.stopPropagation();
+        aEvent.preventDefault();
+        break;
+      }
+    }
+  },
+
+  onDragExit(aEvent) {
+    let attachmentBucket = GetMsgAttachmentElement();
+    attachmentBucket.removeAttribute("dragover");
+  },
 };
 
 function DisplaySaveFolderDlg(folderURI)
