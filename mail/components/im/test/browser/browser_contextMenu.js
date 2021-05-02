@@ -14,7 +14,7 @@ add_task(async function testContextMenu() {
     "conversation-loaded",
     () => true
   );
-  const conversation = account.prplAccount.wrappedJSObject._conv;
+  const conversation = account.prplAccount.wrappedJSObject.makeDM("context");
   const convList = document.getElementById("contactlistbox");
   const convNode = Array.from(convList.children).find(
     element =>

@@ -36,6 +36,29 @@ async function closeChatTab() {
   await new Promise(resolve => setTimeout(resolve));
 }
 
+function getConversationItem(conversation) {
+  const convList = document.getElementById("contactlistbox");
+  const convNode = Array.from(convList.children).find(
+    element =>
+      element.getAttribute("is") === "chat-imconv-richlistitem" &&
+      element.getAttribute("displayname") === conversation.name
+  );
+  return convNode;
+}
+
+function getChatConversationElement(conversation) {
+  const chatConv = Array.from(
+    document.querySelectorAll("chat-conversation")
+  ).find(element => element._conv.target.wrappedJSObject === conversation);
+  return chatConv;
+}
+
+async function getChatMessageParent(chatConv) {
+  await BrowserTestUtils.browserLoaded(chatConv.convBrowser);
+  const messageParent = chatConv.convBrowser.contentChatNode;
+  return messageParent;
+}
+
 registerTestProtocol();
 
 registerCleanupFunction(async () => {

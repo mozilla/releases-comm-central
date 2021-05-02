@@ -132,10 +132,11 @@
         classList.contains("ib-person")
       ) {
         let conv = getBrowser()._conv;
-        if (conv.isChat) {
+        // ib-sender nicks are handled with _originalMsg
+        if (conv.isChat && !classList.contains("ib-sender")) {
           return this.updateTooltipFromParticipant(elt.textContent, conv);
         }
-        if (elt.textContent == conv.name) {
+        if (!conv.isChat && elt.textContent == conv.name) {
           return this.updateTooltipFromConversation(conv);
         }
       }
@@ -144,6 +145,16 @@
       for (let node = elt; node; node = node.parentNode) {
         if (!node._originalMsg) {
           continue;
+        }
+        // Nick, build tooltip with original who information from message
+        if (classList.contains("ib-sender")) {
+          let conv = getBrowser()._conv;
+          if (conv.isChat) {
+            return this.updateTooltipFromParticipant(
+              node._originalMsg.who,
+              conv
+            );
+          }
         }
         // It's a message, so add a date/time tooltip.
         let date = new Date(node._originalMsg.time * 1000);

@@ -6,14 +6,20 @@ var EXPORTED_SYMBOLS = ["registerTestProtocol", "unregisterTestProtocol"];
 
 var {
   GenericAccountPrototype,
+  GenericConvChatPrototype,
   GenericConvIMPrototype,
+  GenericConversationPrototype,
   GenericProtocolPrototype,
+  GenericConvChatBuddyPrototype,
+  TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 var { ComponentUtils } = ChromeUtils.import(
   "resource://gre/modules/ComponentUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+var { XPCOMUtils, nsSimpleEnumerator } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 XPCOMUtils.defineLazyServiceGetter(
   this,
   "UUIDGen",
@@ -21,19 +27,42 @@ XPCOMUtils.defineLazyServiceGetter(
   "nsIUUIDGenerator"
 );
 
-function Conversation(aAccount) {
-  this._init(aAccount);
+/**
+ *
+ * @param {string} who - Nick of the participant.
+ * @param {string} [alias] - Display name of the participant.
+ */
+function Participant(who, alias) {
+  this._name = who;
+  if (alias) {
+    this.alias = alias;
+  }
 }
-Conversation.prototype = {
-  __proto__: GenericConvIMPrototype,
+Participant.prototype = {
+  __proto__: GenericConvChatBuddyPrototype,
+};
+
+const SharedConversationPrototype = {
   _disconnected: false,
+  /**
+   * Disconnect the conversation.
+   */
   _setDisconnected() {
     this._disconnected = true;
   },
+  /**
+   * Close the conversation, including in the UI.
+   */
   close() {
     this._disconnected = true;
-    GenericConvIMPrototype.close.call(this);
+    this._account._conversations.delete(this);
+    GenericConversationPrototype.close.call(this);
   },
+  /**
+   * Send an outgoing message.
+   * @param {string} aMsg - Message to send.
+   * @returns
+   */
   sendMsg(aMsg) {
     if (this._disconnected) {
       return;
@@ -41,34 +70,126 @@ Conversation.prototype = {
     this.writeMessage("You", aMsg, { outgoing: true });
   },
 
+  /**
+   *
+   * @param {Array<Object>} messages - Array of messages to add to the
+   * conversation. Expects an object with a |who|, |content| and |options|
+   * properties, corresponding to the three params of |writeMessage|.
+   */
+  addMessages(messages) {
+    for (const message of messages) {
+      this.writeMessage(message.who, message.content, message.options);
+    }
+  },
+
+  /**
+   * Add a notice to the conversation.
+   */
   addNotice() {
     this.writeMessage("system", "test notice", { system: true });
   },
-
-  get name() {
-    return "/dev/null/" + this._account.name;
-  },
 };
+
+/**
+ *
+ * @param {prplIAccount} account
+ * @param {string} name - Name of the conversation.
+ */
+function MUC(account, name) {
+  this._init(account, name, "You");
+}
+MUC.prototype = Object.assign(
+  {
+    __proto__: GenericConvChatPrototype,
+
+    /**
+     *
+     * @param {string} who - Nick of the user to add.
+     * @param {string} alias - Display name of the participant.
+     * @returns
+     */
+    addParticipant(who, alias) {
+      if (this._participants.has(who)) {
+        return;
+      }
+      const participant = new Participant(who, alias);
+      this._participants.set(who, participant);
+    },
+  },
+  SharedConversationPrototype
+);
+
+/**
+ *
+ * @param {prplIAccount} account
+ * @param {string} name - Name of the conversation.
+ */
+function DM(account, name) {
+  this._init(account, name);
+}
+DM.prototype = Object.assign(
+  {
+    __proto__: GenericConvIMPrototype,
+  },
+  SharedConversationPrototype
+);
 
 function Account(aProtoInstance, aImAccount) {
   this._init(aProtoInstance, aImAccount);
+  this._conversations = new Set();
 }
 Account.prototype = {
   __proto__: GenericAccountPrototype,
+
+  /**
+   * @type {Set<GenericConversationPrototype>}
+   */
+  _conversations: null,
+
+  /**
+   *
+   * @param {string} name - Name of the converstion.
+   * @returns {MUC}
+   */
+  makeMUC(name) {
+    const conversation = new MUC(this, name);
+    this._conversations.add(conversation);
+    return conversation;
+  },
+
+  /**
+   *
+   * @param {string} name - Name of the conversation.
+   * @returns {DM}
+   */
+  makeDM(name) {
+    const conversation = new DM(this, name);
+    this._conversations.add(conversation);
+    return conversation;
+  },
+
   connect() {
     this.reportConnecting();
     // do something here
     this.reportConnected();
-    this._conv = new Conversation(this);
   },
-  _conv: null,
   disconnect() {
     this.reportDisconnecting(Ci.prplIAccount.NO_ERROR, "");
-    if (this._conv) {
-      this._conv._setDisconnected();
-      delete this._conv;
-    }
     this.reportDisconnected();
+  },
+
+  requestBuddyInfo(who) {
+    const participant = Array.from(this._conversations)
+      .find(conv => conv.isChat && conv._participants.has(who))
+      ?._participants.get(who);
+    if (participant) {
+      const tooltipInfo = [new TooltipInfo("Display Name", participant.alias)];
+      Services.obs.notifyObservers(
+        new nsSimpleEnumerator(tooltipInfo),
+        "user-info-received",
+        who
+      );
+    }
   },
 
   get canJoinChat() {
@@ -94,17 +215,11 @@ Account.prototype = {
 
   // Nothing to do.
   unInit() {
-    if (this._conv) {
-      this._conv.close();
-      delete this._conv;
+    for (const conversation of this._conversations) {
+      conversation.close();
     }
   },
-  remove() {
-    if (this._conv) {
-      this._conv.close();
-      delete this._conv;
-    }
-  },
+  remove() {},
 };
 
 function TestProtocol() {}

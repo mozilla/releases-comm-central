@@ -10,25 +10,16 @@ add_task(async function testCollapse() {
   await openChatTab();
   ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
 
-  const conversation = account.prplAccount.wrappedJSObject._conv;
-  const convList = document.getElementById("contactlistbox");
-  const convNode = Array.from(convList.children).find(
-    element =>
-      element.getAttribute("is") === "chat-imconv-richlistitem" &&
-      element.getAttribute("displayname") === conversation.name
-  );
+  const conversation = account.prplAccount.wrappedJSObject.makeDM("collapse");
+  const convNode = getConversationItem(conversation);
   ok(convNode);
 
   await EventUtils.synthesizeMouseAtCenter(convNode, {});
 
-  const chatConv = Array.from(
-    document.querySelectorAll("chat-conversation")
-  ).find(element => element._conv.target.wrappedJSObject === conversation);
+  const chatConv = getChatConversationElement(conversation);
   ok(chatConv, "found conversation");
   ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
-  await BrowserTestUtils.browserLoaded(chatConv.convBrowser);
-  const convDocument = chatConv.convBrowser.contentWindow.document;
-  const messageParent = convDocument.getElementById("Chat");
+  const messageParent = await getChatMessageParent(chatConv);
 
   await addNotice(conversation, chatConv);
 

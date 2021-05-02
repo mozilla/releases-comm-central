@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { initHTMLDocument, insertHTMLForMessage } = ChromeUtils.import(
-  "resource:///modules/imThemes.jsm"
-);
+const {
+  initHTMLDocument,
+  insertHTMLForMessage,
+  getHTMLForMessage,
+} = ChromeUtils.import("resource:///modules/imThemes.jsm");
 const { MockDocument } = ChromeUtils.import(
   "resource://testing-common/MockDocument.jsm"
 );
@@ -57,4 +59,26 @@ add_task(function test_insertHTMLForMessage() {
   strictEqual(messageElement._originalMsg, message);
   equal(messageElement.style.backgroundColor, "blue");
   equal(messageElement.textContent, "foo bar");
+});
+
+add_task(function test_getHTMLForMessage() {
+  const message = {
+    incoming: true,
+    system: false,
+    message: "foo bar",
+    who: "userId",
+    alias: "display name",
+    color: "#ffbbff",
+  };
+  const theme = {
+    html: {
+      incomingContent:
+        '<span style="color: %senderColor%;">%sender%</span>%message%',
+    },
+  };
+  const html = getHTMLForMessage(message, theme, false, false);
+  equal(
+    html,
+    '<span style="color: #ffbbff;"><span class="ib-sender">display name</span></span><span class="ib-msg-txt">foo bar</span>'
+  );
 });
