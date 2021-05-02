@@ -73,8 +73,11 @@ function awGetSelectItemIndex(itemData)
 
 function Recipients2CompFields(msgCompFields)
 {
-  if (msgCompFields)
-  {
+  if (!msgCompFields) {
+    throw new Error("Message Compose Error: msgCompFields is null (ExtractRecipients)");
+    return;
+  }
+
     var i = 1;
     var addrTo = "";
     var addrCc = "";
@@ -97,12 +100,9 @@ function Recipients2CompFields(msgCompFields)
     {
       fieldValue = inputField.value;
 
-      if (fieldValue == null)
-        fieldValue = inputField.getAttribute("value");
-
       if (fieldValue != "")
       {
-        recipientType = awGetPopupElement(i).selectedItem.getAttribute("value");
+        recipientType = awGetPopupElement(i).value;
         recipient = null;
 
         switch (recipientType)
@@ -114,10 +114,14 @@ function Recipients2CompFields(msgCompFields)
             try {
               let headerParser = MailServices.headerParser;
               recipient =
-                headerParser.makeFromDisplayAddress(fieldValue).map(fullValue =>
-                  headerParser.makeMimeAddress(fullValue.name, fullValue.email))
-              .join(", ");
-            } catch (ex) {recipient = fieldValue;}
+                headerParser.makeFromDisplayAddress(fieldValue)
+                            .map(fullValue => headerParser.makeMimeAddress(
+                                                             fullValue.name,
+                                                             fullValue.email))
+                            .join(", ");
+            } catch (ex) {
+              recipient = fieldValue;
+            }
             break;
         }
 
@@ -130,7 +134,7 @@ function Recipients2CompFields(msgCompFields)
           case "addr_newsgroups"  : addrNg += ng_Sep + fieldValue; ng_Sep = ",";              break;
           case "addr_followup"    : addrFollow += follow_Sep + fieldValue; follow_Sep = ",";  break;
           case "addr_other":
-            let headerName = awGetPopupElement(i).selectedItem.getAttribute("label");
+            let headerName = awGetPopupElement(i).label;
             headerName = headerName.substring(0, headerName.indexOf(':'));
             msgCompFields.setRawHeader(headerName, fieldValue, null);
             break;
@@ -145,9 +149,6 @@ function Recipients2CompFields(msgCompFields)
     msgCompFields.replyTo = addrReply;
     msgCompFields.newsgroups = addrNg;
     msgCompFields.followupTo = addrFollow;
-  }
-  else
-    dump("Message Compose Error: msgCompFields is null (ExtractRecipients)");
 }
 
 function CompFields2Recipients(msgCompFields)
@@ -157,7 +158,7 @@ function CompFields2Recipients(msgCompFields)
     var newListBoxNode = listbox.cloneNode(false);
     var listBoxColsClone = listbox.firstChild.cloneNode(true);
     newListBoxNode.appendChild(listBoxColsClone);
-    var templateNode = listbox.getElementsByTagName("listitem")[0];
+    let templateNode = listbox.querySelector("listitem");
     // dump("replacing child in comp fields 2 recips \n");
     listbox.parentNode.replaceChild(newListBoxNode, listbox);
 
@@ -169,11 +170,10 @@ function CompFields2Recipients(msgCompFields)
     var msgNewsgroups = msgCompFields.newsgroups;
     var msgFollowupTo = msgCompFields.followupTo;
     var havePrimaryRecipient = false;
-    if(msgReplyTo)
+    if (msgReplyTo)
       awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgReplyTo, false),
                                   "addr_reply", newListBoxNode, templateNode);
-    if(msgTo)
-    {
+    if (msgTo) {
       var rcp = msgCompFields.splitRecipients(msgTo, false);
       if (rcp.length)
       {
@@ -181,14 +181,13 @@ function CompFields2Recipients(msgCompFields)
         havePrimaryRecipient = true;
       }
     }
-    if(msgCC)
+    if (msgCC)
       awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgCC, false),
                                   "addr_cc", newListBoxNode, templateNode);
-    if(msgBCC)
+    if (msgBCC)
       awSetInputAndPopupFromArray(msgCompFields.splitRecipients(msgBCC, false),
                                   "addr_bcc", newListBoxNode, templateNode);
-    if(msgNewsgroups)
-    {
+    if (msgNewsgroups) {
       awSetInputAndPopup(msgNewsgroups, "addr_newsgroups", newListBoxNode, templateNode);
       havePrimaryRecipient = true;
     }
@@ -216,12 +215,7 @@ function awSetInputAndPopupId(inputElem, popupElem, rowNumber)
 
 function awSetInputAndPopupValue(inputElem, inputValue, popupElem, popupValue, rowNumber)
 {
-  // remove leading spaces
-  while (inputValue && inputValue[0] == " " )
-    inputValue = inputValue.substring(1, inputValue.length);
-
-  inputElem.setAttribute("value", inputValue);
-  inputElem.value = inputValue;
+  inputElem.value = inputValue.trimLeft();
 
   popupElem.selectedItem = popupElem.childNodes[0].childNodes[awGetSelectItemIndex(popupValue)];
 
@@ -276,8 +270,7 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList)
     for (var row = 1; row <= top.MAX_RECIPIENTS; row ++)
     {
       var popup = awGetPopupElement(row);
-      if (popup.selectedItem.getAttribute("value") == recipientType)
-      {
+      if (popup.value == recipientType) {
         var input = awGetInputElement(row);
         if (input.value == recipientArray[index])
         {
@@ -351,8 +344,8 @@ function awTestRowSequence()
     for (var i = 1; i <= listitems.length; i ++)
     {
       var item = listitems [i - 1];
-      var inputID = item.getElementsByTagName(awInputElementName())[0].getAttribute("id").split("#")[1];
-      var popupID = item.getElementsByTagName(awSelectElementName())[0].getAttribute("id").split("#")[1];
+      let inputID = item.querySelector(awInputElementName()).id.split("#")[1];
+      let popupID = item.querySelector(awSelectElementName()).id.split("#")[1];
       if (inputID != i || popupID != i)
       {
         dump("#ERROR: sequence broken at row " + i + ", inputID=" + inputID + ", popupID=" + popupID + "\n");
@@ -473,7 +466,7 @@ function awAppendNewRow(setFocus)
 
   if ( listbox && listitem1 )
   {
-    var lastRecipientType = awGetPopupElement(top.MAX_RECIPIENTS).selectedItem.getAttribute("value");
+    var lastRecipientType = awGetPopupElement(top.MAX_RECIPIENTS).value;
 
     var nextDummy = awGetNextDummyRow();
     var newNode = listitem1.cloneNode(true);
@@ -487,7 +480,7 @@ function awAppendNewRow(setFocus)
     var input = newNode.getElementsByTagName(awInputElementName());
     if ( input && input.length == 1 )
     {
-      input[0].setAttribute("value", "");
+      input[0].value = "";
 
       // We always clone the first row.  The problem is that the first row
       // could be focused.  When we clone that row, we end up with a cloned
@@ -538,11 +531,24 @@ function awAppendNewRow(setFocus)
 
 // functions for accessing the elements in the addressing widget
 
+/**
+ * Returns the recipient type popup for a row.
+ *
+ * @param row  Index of the recipient row to return. Starts at 1.
+ * @return     This returns the menulist (not its child menupopup), despite the
+ *             function name.
+ */
 function awGetPopupElement(row)
 {
     return document.getElementById("addressCol1#" + row);
 }
 
+/**
+ * Returns the recipient inputbox for a row.
+ *
+ * @param row  Index of the recipient row to return. Starts at 1.
+ * @return     This returns the textbox element.
+ */
 function awGetInputElement(row)
 {
     return document.getElementById("addressCol2#" + row);
@@ -661,7 +667,7 @@ function awGetNumberOfRecipients()
 function DropRecipient(recipient)
 {
   // break down and add each address
-  return parseAndAddAddresses(recipient, awGetPopupElement(top.MAX_RECIPIENTS).selectedItem.getAttribute("value"));
+  return parseAndAddAddresses(recipient, awGetPopupElement(top.MAX_RECIPIENTS).value);
 }
 
 function _awSetAutoComplete(selectElem, inputElem)
@@ -737,11 +743,10 @@ function awRecipientKeyPress(event, element)
   case "Enter":
   case "Tab":
     // if the user text contains a comma or a line return, ignore
-    if (element.value.search(',') != -1)
-    {
+    if (element.value.includes(',')) {
       var addresses = element.value;
       element.value = ""; // clear out the current line so we don't try to autocomplete it..
-      parseAndAddAddresses(addresses, awGetPopupElement(awGetRowByInputElement(element)).selectedItem.getAttribute("value"));
+      parseAndAddAddresses(addresses, awGetPopupElement(awGetRowByInputElement(element)).value);
     }
     else if (event.key == "Tab")
       awTabFromRecipient(element, event);
@@ -787,9 +792,9 @@ function awKeyDown(event, listboxElement)
   case "Delete":
   case "Backspace":
     /* Warning, the listboxElement.selectedItems will change everytime we delete a row */
-    var length = listboxElement.selectedItems.length;
+    var length = listboxElement.selectedCount;
     for (var i = 1; i <= length; i++) {
-      var inputs = listboxElement.selectedItems[0].getElementsByTagName(awInputElementName());
+      var inputs = listboxElement.selectedItem.getElementsByTagName(awInputElementName());
       if (inputs && inputs.length == 1)
         awDeleteHit(inputs[0]);
     }
@@ -823,17 +828,15 @@ function awCreateOrRemoveDummyRows()
   var listboxHeight = listbox.boxObject.height;
 
   // remove rows to remove scrollbar
-  var kids = listbox.childNodes;
-  for (var i = kids.length-1; gAWContentHeight > listboxHeight && i >= 0; --i) {
-    if (kids[i].hasAttribute("_isDummyRow")) {
-      gAWContentHeight -= gAWRowHeight;
-      kids[i].remove();
-    }
+  let kids = listbox.querySelectorAll('[_isDummyRow]');
+  for (let i = kids.length - 1; gAWContentHeight > listboxHeight && i >= 0; --i) {
+    gAWContentHeight -= gAWRowHeight;
+    kids[i].remove();
   }
 
   // add rows to fill space
   if (gAWRowHeight) {
-    while (gAWContentHeight+gAWRowHeight < listboxHeight) {
+    while (gAWContentHeight + gAWRowHeight < listboxHeight) {
       awCreateDummyItem(listbox);
       gAWContentHeight += gAWRowHeight;
     }
@@ -886,13 +889,7 @@ function awCreateDummyCell(aParent)
 function awGetNextDummyRow()
 {
   // gets the next row from the top down
-  var listbox = document.getElementById("addressingWidget");
-  var kids = listbox.childNodes;
-  for (var i = 0; i < kids.length; ++i) {
-    if (kids[i].hasAttribute("_isDummyRow"))
-      return kids[i];
-  }
-  return null;
+  return document.querySelector('#addressingWidget > [_isDummyRow]');
 }
 
 function awSizerListen()
@@ -928,7 +925,7 @@ function awDocumentKeyPress(event)
 {
   try {
     var id = event.target.id;
-    if (id.substr(0, 11) == 'addressCol1')
+    if (id.startsWith('addressCol1'))
       awRecipientKeyPress(event, event.target);
   } catch (e) { }
 }
@@ -1010,7 +1007,7 @@ AutomatedAutoCompleteHandler.prototype =
     {
       /* XXX This is used to work, until switching to the new toolkit broke it
          We should fix it see bug 456550.
-      if (this.namesToComplete[this.indexIntoNames].search('@') == -1) // don't autocomplete if address has an @ sign in it
+      if (!this.namesToComplete[this.indexIntoNames].includes('@')) // don't autocomplete if address has an @ sign in it
       {
         // make sure total session count is updated before we kick off ANY actual searches
         if (gAutocompleteSession)
