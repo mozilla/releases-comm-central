@@ -53,6 +53,7 @@
 % override chrome://mozapps/skin/extensions/category-extensions.svg chrome://messenger/skin/overrides/category-extensions.svg
 % override chrome://mozapps/skin/extensions/category-themes.svg chrome://messenger/skin/overrides/category-themes.svg
 % override chrome://mozapps/skin/extensions/extension.svg chrome://messenger/skin/overrides/extension.svg
+% override chrome://mozapps/skin/extensions/extensionGeneric.svg chrome://messenger/skin/overrides/category-extensions.svg
 
   skin/classic/messenger/overrides/add.svg                    (../shared/mail/overrides/add.svg)
   skin/classic/messenger/overrides/arrow-dropdown-12.svg      (../shared/mail/overrides/arrow-dropdown-12.svg)
