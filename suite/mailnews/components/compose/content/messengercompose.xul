@@ -517,7 +517,7 @@
                    onkeydown="awKeyDown(event, this);"
                    onclick="awClickEmptySpace(event.originalTarget, true);"
                    ondragover="DragAddressOverTargetControl(event);"
-                   ondrop="DropAddressOverTargetControl(event);">
+                   ondrop="DropOnAddressingTarget(event, true);">
 
             <listcols>
               <listcol id="typecol-addressingWidget"/>

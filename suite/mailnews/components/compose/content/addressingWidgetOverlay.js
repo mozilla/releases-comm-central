@@ -664,10 +664,48 @@ function awGetNumberOfRecipients()
     return top.MAX_RECIPIENTS;
 }
 
-function DropRecipient(recipient)
-{
-  // break down and add each address
-  return parseAndAddAddresses(recipient, awGetPopupElement(top.MAX_RECIPIENTS).value);
+function DropOnAddressingTarget(event, onWidget) {
+  let dragSession = gDragService.getCurrentSession();
+
+  let trans = Cc["@mozilla.org/widget/transferable;1"]
+                .createInstance(Ci.nsITransferable);
+  trans.init(getLoadContext());
+  trans.addDataFlavor("text/x-moz-address");
+
+  for (let i = 0; i < dragSession.numDropItems; ++i) {
+    dragSession.getData(trans, i);
+    let dataObj = {};
+    let bestFlavor = {};
+    let len = {};
+
+    // Ensure we catch any empty data that may have slipped through.
+    try {
+      trans.getAnyTransferData(bestFlavor, dataObj, len);
+    } catch(ex) {
+      continue;
+    }
+    if (dataObj) {
+      dataObj = dataObj.value.QueryInterface(Ci.nsISupportsString);
+    }
+    if (!dataObj) {
+      continue;
+    }
+
+    // Pull the address out of the data object.
+    let address = dataObj.data.substring(0, len.value);
+    if (!address) {
+      continue;
+    }
+
+    if (onWidget) {
+      // Break down and add each address.
+      parseAndAddAddresses(address,
+                           awGetPopupElement(top.MAX_RECIPIENTS).value);
+    } else {
+      // Add address into the bucket.
+      DropRecipient(address);
+    }
+  }
 }
 
 function _awSetAutoComplete(selectElem, inputElem)
