@@ -140,6 +140,7 @@ fluent-lint:
     description: Check for problems with Fluent files.
     treeherder:
         symbol: l10n(fluent)
+    always-target: false
     run-on-projects: []
     run:
         mach: >
