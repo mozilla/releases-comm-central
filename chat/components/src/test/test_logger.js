@@ -261,6 +261,22 @@ var test_appendToFile = async function() {
   await OS.File.remove(path);
 };
 
+add_task(async function test_appendToFileHeader() {
+  const kStringToWrite = "Lorem ipsum";
+  let path = OS.Path.join(OS.Constants.Path.profileDir, "headerTestFile.txt");
+  let encoder = new TextEncoder();
+  let encodedString = encoder.encode(kStringToWrite);
+  await gLogger.appendToFile(path, encodedString, true);
+  await gLogger.appendToFile(path, encodedString, true);
+  let text = new TextDecoder().decode(
+    await gLogger.queueFileOperation(path, () => OS.File.read(path))
+  );
+  // The read text should be equal to kStringToWrite once, since the second
+  // create should just noop.
+  equal(text, kStringToWrite);
+  await OS.File.remove(path);
+});
+
 // Tests the getLogPathsForConversation API defined in the imILogger interface.
 var test_getLogPathsForConversation = async function() {
   let logger = new gLogger.Logger();

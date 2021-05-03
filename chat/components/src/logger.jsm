@@ -75,7 +75,8 @@ function appendToFile(aPath, aEncodedString, aCreate) {
       file = await OS.File.open(aPath, { write: true, create: aCreate });
     } catch (error) {
       if (error.becauseExists && aCreate) {
-        file = await OS.File.open(aPath, { write: true });
+        // Ignore existing file when adding the header.
+        return;
       }
     }
     try {
