@@ -149,7 +149,6 @@ function()
 }
 
 var linkToolbarHandler = new LinkToolbarHandler();
-var gLanguageBundle;
 
 function LinkElementDecorator(element) {
   /*
@@ -221,7 +220,7 @@ function()
 LinkElementDecorator.prototype.makeLongTitle =
 function()
 {
-  var prefix = "";
+  let prefix = "";
 
   // XXX: lookup more meaningful and localized version of media,
   //   i.e. media="print" becomes "Printable" or some such
@@ -230,13 +229,21 @@ function()
     prefix += this.media + ": ";
   if (this.hreflang) {
     try {
-      if (!gLanguageBundle)
-        gLanguageBundle = document.getElementById("languageBundle");
-      prefix += gLanguageBundle.getString(this.hreflang);
+      let languageBundle = document.getElementById("languageBundle");
+      let regionBundle = document.getElementById("regionBundle");
+
+      // In case hreflang contains region code.
+      let ISOcode = this.hreflang.split("-");
+
+      prefix += languageBundle.getString(ISOcode[0].toLowerCase());
+
+      // Test if region code exists.
+      if (ISOcode[1])
+       prefix += " (" + regionBundle.getString(ISOcode[1].toLowerCase()) + ")";
     }
     catch (e) {
-      // XXX: handle non-standard language codes per
-      //      hixie's spec (see bug 2800)
+      // Return if language or region is not recognized.
+      prefix += "???";
     }
 
     prefix += ": ";

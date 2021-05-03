@@ -27,6 +27,8 @@
   <stringbundleset>
     <stringbundle id="languageBundle"
                   src="chrome://global/locale/languageNames.properties"/>
+    <stringbundle id="regionBundle"
+                  src="chrome://global/locale/regionNames.properties"/>
   </stringbundleset>
 
   <menupopup id="view_toolbars_popup">
