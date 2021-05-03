@@ -360,7 +360,9 @@ class SmtpClient {
           const response = {
             statusCode,
             data: this._parseBlock.data.join("\n"),
-            success: statusCode >= 200 && statusCode < 400,
+            // Success means can move to the next step. Though 3xx is not
+            // failure, we don't consider it success here.
+            success: statusCode >= 200 && statusCode < 300,
           };
 
           this._onCommand(response);
@@ -477,7 +479,7 @@ class SmtpClient {
    * @param {Object} command Parsed data
    */
   _onCommand(command) {
-    if (!command.success) {
+    if (command.statusCode < 200 || command.statusCode >= 400) {
       this.logger.error(
         `Command failed: ${command.statusCode} ${command.data}; currentAction=${this._currentAction?.name}`
       );
