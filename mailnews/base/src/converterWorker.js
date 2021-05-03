@@ -36,8 +36,6 @@
  *
  */
 
-importScripts("resource://gre/modules/osfile.jsm");
-
 /**
  * Merge all the messages in a maildir into a single mbox file.
  *
@@ -95,48 +93,50 @@ async function maildirToMBox(maildir, mboxFilename, progressFn) {
     );
   };
 
-  let encoder = new TextEncoder();
-  let mboxFile = OS.File.open(mboxFilename, { write: true, create: true }, {});
+  // Initialize mbox file
+  await IOUtils.write(mboxFilename, new Uint8Array(), {
+    mode: "create",
+  });
 
   // Iterate over all the message files in "cur".
   let curPath = PathUtils.join(maildir, "cur");
-  try {
-    let paths = await IOUtils.getChildren(curPath);
-    let files = await Promise.all(
-      paths.map(async path => {
-        let stat = await IOUtils.stat(path);
-        return {
-          path,
-          creationDate: stat.creationTime,
-        };
-      })
-    );
-    // We write out the mbox messages ordered by creation time.
-    // Not ideal, but best we can do without parsing message.
-    files.sort(function(a, b) {
-      return a.creationDate - b.creationDate;
-    });
+  let paths = await IOUtils.getChildren(curPath);
+  let files = await Promise.all(
+    paths.map(async path => {
+      let stat = await IOUtils.stat(path);
+      return {
+        path,
+        creationDate: stat.creationTime,
+      };
+    })
+  );
+  // We write out the mbox messages ordered by creation time.
+  // Not ideal, but best we can do without parsing message.
+  files.sort(function(a, b) {
+    return a.creationDate - b.creationDate;
+  });
 
-    for (let ent of files) {
-      let raw = await IOUtils.read(ent.path);
-      // Old converter had a bug where maildir messages included the
-      // leading "From " marker, so we need to cope with any
-      // cases of this left in the wild.
-      if (String.fromCharCode.apply(null, raw.slice(0, 5)) != "From ") {
-        // Write the separator line.
-        // Technically, timestamp should be the reception time of the
-        // message, but we don't really want to have to parse the
-        // message here and nothing is likely to rely on it.
-        let sepLine = "From - " + fmtUTC(new Date()) + "\n";
-        mboxFile.write(encoder.encode(sepLine));
-      }
-
-      mboxFile.write(raw);
-      // Maildir progress is one per message.
-      progressFn(1);
+  for (let ent of files) {
+    let raw = await IOUtils.read(ent.path);
+    // Old converter had a bug where maildir messages included the
+    // leading "From " marker, so we need to cope with any
+    // cases of this left in the wild.
+    if (String.fromCharCode.apply(null, raw.slice(0, 5)) != "From ") {
+      // Write the separator line.
+      // Technically, timestamp should be the reception time of the
+      // message, but we don't really want to have to parse the
+      // message here and nothing is likely to rely on it.
+      let sepLine = "From - " + fmtUTC(new Date()) + "\n";
+      await IOUtils.writeUTF8(mboxFilename, sepLine, {
+        mode: "append",
+      });
     }
-  } finally {
-    mboxFile.close();
+
+    await IOUtils.write(mboxFilename, raw, {
+      mode: "append",
+    });
+    // Maildir progress is one per message.
+    progressFn(1);
   }
 }
 
@@ -182,7 +182,6 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
   // Use timestamp as starting name for output messages, incrementing
   // by one for each.
   let ident = Date.now();
-  let outFile = null;
 
   /**
    * Helper. Convert a string into a Uint8Array, using no encoding. The low
@@ -213,34 +212,27 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
     }, "");
   };
 
+  let outPath;
+
   /**
    * Helper. Write out a block of bytes to the current message file, starting
    * a new file if required.
    *
    * @param {string} str - The bytes to append (as chars in range 0-255).
    */
-  let writeToMsg = function(str) {
-    if (!outFile) {
-      let outPath = PathUtils.join(curDirPath, ident.toString() + ".eml");
+  let writeToMsg = async function(str) {
+    let mode = "append";
+    if (!outPath) {
+      outPath = PathUtils.join(curDirPath, ident.toString() + ".eml");
       ident += 1;
-      outFile = OS.File.open(outPath, { write: true, create: true }, {});
+      mode = "create";
     }
     // We know that str is really raw 8-bit data, not UTF-16. So we can
     // discard the upper byte and just keep the low byte of each char.
     let raw = stringToBytes(str);
-    outFile.write(raw);
+    await IOUtils.write(outPath, raw, { mode });
     // For mbox->maildir conversion, progress is measured in bytes.
     progressFn(raw.byteLength);
-  };
-
-  /**
-   * Helper. Close the current message file, if any.
-   */
-  let closeExistingMsg = function() {
-    if (outFile) {
-      outFile.close();
-      outFile = null;
-    }
   };
 
   let buf = "";
@@ -264,11 +256,14 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
     while ((m = sepRE.exec(buf)) !== null) {
       // Output everything up to the line separator.
       if (m.index > pos) {
-        writeToMsg(buf.substring(pos, m.index));
+        await writeToMsg(buf.substring(pos, m.index));
       }
       pos = m.index;
       pos += m[1].length; // skip the "From " line
-      closeExistingMsg();
+      // Reset the current message file path if any.
+      if (outPath) {
+        outPath = null;
+      }
     }
 
     // Deal with whatever is left in the buffer.
@@ -283,11 +278,10 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
     }
 
     if (endPos > pos) {
-      writeToMsg(buf.substring(pos, endPos));
+      await writeToMsg(buf.substring(pos, endPos));
     }
     buf = buf.substring(endPos);
   }
-  closeExistingMsg();
 }
 
 /**
