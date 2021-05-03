@@ -12,41 +12,40 @@ function run_test() {
   run_next_test();
 }
 
-const SENDER = "test user";
+const SENDER = "@test:example.com";
 const FIXTURES = [
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "ban",
       },
       target: {
-        name: "foo",
+        userId: "@foo:example.com",
       },
     }),
-    result: _("message.banned", SENDER, "foo"),
+    result: _("message.banned", SENDER, "@foo:example.com"),
     name: "Banned without reason",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "ban",
         reason: "test",
       },
       target: {
-        name: "foo",
+        userId: "@foo:example.com",
       },
     }),
-    result: _("message.banned", SENDER, "foo") + _("message.reason", "test"),
+    result:
+      _("message.banned", SENDER, "@foo:example.com") +
+      _("message.reason", "test"),
     name: "Banned with reason",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "invite",
         third_party_invite: {
@@ -54,45 +53,42 @@ const FIXTURES = [
         },
       },
       target: {
-        name: "foo",
+        userId: "@foo:example.com",
       },
     }),
-    result: _("message.acceptedInviteFor", "foo", "bar"),
+    result: _("message.acceptedInviteFor", "@foo:example.com", "bar"),
     name: "Invite accepted by other user with display name",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "invite",
         third_party_invite: {},
       },
       target: {
-        name: "foo",
+        userId: "@foo:example.com",
       },
     }),
-    result: _("message.acceptedInvite", "foo"),
+    result: _("message.acceptedInvite", "@foo:example.com"),
     name: "Invite accepted by other user",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "invite",
       },
       target: {
-        name: "foo",
+        userId: "@foo:example.com",
       },
     }),
-    result: _("message.invited", SENDER, "foo"),
+    result: _("message.invited", SENDER, "@foo:example.com"),
     name: "User invited",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "join",
         displayname: "ipsum",
@@ -108,7 +104,6 @@ const FIXTURES = [
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "join",
         displayname: "ipsum",
@@ -123,7 +118,6 @@ const FIXTURES = [
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "join",
       },
@@ -138,7 +132,6 @@ const FIXTURES = [
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "join",
       },
@@ -152,22 +145,19 @@ const FIXTURES = [
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
       content: {
         membership: "join",
       },
       target: {
-        name: "foo",
+        userId: "@foo:example.com",
       },
     }),
-    result: _("message.joined", "foo"),
+    result: _("message.joined", "@foo:example.com"),
     name: "Users joined",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
-      senderId: "@test:example.com",
       content: {
         membership: "leave",
       },
@@ -175,18 +165,15 @@ const FIXTURES = [
         membership: "invite",
       },
       target: {
-        name: "foo",
         userId: "@test:example.com",
       },
     }),
-    result: _("message.rejectedInvite", "foo"),
+    result: _("message.rejectedInvite", "@test:example.com"),
     name: "Invite rejected",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
-      senderId: "@test:example.com",
       content: {
         membership: "leave",
       },
@@ -194,18 +181,15 @@ const FIXTURES = [
         membership: "join",
       },
       target: {
-        name: "foo",
         userId: "@test:example.com",
       },
     }),
-    result: _("message.left", "foo"),
+    result: _("message.left", "@test:example.com"),
     name: "Left room",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
-      senderId: "@test:example.com",
       content: {
         membership: "leave",
       },
@@ -213,18 +197,15 @@ const FIXTURES = [
         membership: "ban",
       },
       target: {
-        name: "foo",
         userId: "@target:example.com",
       },
     }),
-    result: _("message.unbanned", SENDER, "foo"),
+    result: _("message.unbanned", SENDER, "@target:example.com"),
     name: "Unbanned",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
-      senderId: "@test:example.com",
       content: {
         membership: "leave",
       },
@@ -232,18 +213,15 @@ const FIXTURES = [
         membership: "join",
       },
       target: {
-        name: "foo",
         userId: "@target:example.com",
       },
     }),
-    result: _("message.kicked", SENDER, "foo"),
+    result: _("message.kicked", SENDER, "@target:example.com"),
     name: "Kicked without reason",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
-      senderId: "@test:example.com",
       content: {
         membership: "leave",
         reason: "lorem ipsum",
@@ -252,19 +230,17 @@ const FIXTURES = [
         membership: "join",
       },
       target: {
-        name: "foo",
         userId: "@target:example.com",
       },
     }),
     result:
-      _("message.kicked", SENDER, "foo") + _("message.reason", "lorem ipsum"),
+      _("message.kicked", SENDER, "@target:example.com") +
+      _("message.reason", "lorem ipsum"),
     name: "Kicked with reason",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
-      senderId: "@test:example.com",
       content: {
         membership: "leave",
         reason: "lorem ipsum",
@@ -273,20 +249,17 @@ const FIXTURES = [
         membership: "invite",
       },
       target: {
-        name: "foo",
         userId: "@target:example.com",
       },
     }),
     result:
-      _("message.withdrewInvite", SENDER, "foo") +
+      _("message.withdrewInvite", SENDER, "@target:example.com") +
       _("message.reason", "lorem ipsum"),
     name: "Invite withdrawn with reason",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
-      senderId: "@test:example.com",
       content: {
         membership: "leave",
       },
@@ -294,18 +267,15 @@ const FIXTURES = [
         membership: "invite",
       },
       target: {
-        name: "foo",
         userId: "@target:example.com",
       },
     }),
-    result: _("message.withdrewInvite", SENDER, "foo"),
+    result: _("message.withdrewInvite", SENDER, "@target:example.com"),
     name: "Invite withdrawn without reason",
   },
   {
     event: _makeMatrixEvent({
       type: "m.room.member",
-      sender: SENDER,
-      senderId: "@test:example.com",
       content: {
         membership: "leave",
       },
@@ -313,7 +283,6 @@ const FIXTURES = [
         membership: "leave",
       },
       target: {
-        name: "foo",
         userId: "@target:example.com",
       },
     }),
@@ -323,7 +292,6 @@ const FIXTURES = [
   {
     event: _makeMatrixEvent({
       type: "m.room.power_levels",
-      sender: SENDER,
     }),
     result: null,
     name: "No previous power levels",
@@ -341,7 +309,6 @@ const FIXTURES = [
           "@test:example.com": 100,
         },
       },
-      sender: SENDER,
     }),
     result: null,
     name: "No user power level changes",
@@ -360,7 +327,6 @@ const FIXTURES = [
           "@test:example.com": 100,
         },
       },
-      sender: SENDER,
     }),
     result: _(
       "message.powerLevel.changed",
@@ -390,7 +356,6 @@ const FIXTURES = [
         },
         users_default: 10,
       },
-      sender: SENDER,
     }),
     result: _(
       "message.powerLevel.changed",
@@ -421,7 +386,6 @@ const FIXTURES = [
         },
         users_default: 10,
       },
-      sender: SENDER,
     }),
     result: _(
       "message.powerLevel.changed",
@@ -451,7 +415,6 @@ const FIXTURES = [
           "@foo:example.com": 50,
         },
       },
-      sender: SENDER,
     }),
     result: _(
       "message.powerLevel.changed",
@@ -481,7 +444,6 @@ const FIXTURES = [
           "@foo:example.com": 100,
         },
       },
-      sender: SENDER,
     }),
     result: _(
       "message.powerLevel.changed",
@@ -513,7 +475,6 @@ const FIXTURES = [
           "@bar:example.com": 50,
         },
       },
-      sender: SENDER,
     }),
     result: _(
       "message.powerLevel.changed",
@@ -540,7 +501,6 @@ const FIXTURES = [
       content: {
         name: "test",
       },
-      sender: SENDER,
     }),
     result: _("message.roomName.changed", SENDER, "test"),
     name: "Set room name",
@@ -548,7 +508,6 @@ const FIXTURES = [
   {
     event: _makeMatrixEvent({
       type: "m.room.name",
-      sender: SENDER,
     }),
     result: _("message.roomName.remove", SENDER),
     name: "Remove room name",
@@ -559,7 +518,6 @@ const FIXTURES = [
       content: {
         guest_access: "forbidden",
       },
-      sender: SENDER,
     }),
     result: _("message.guest.prevented", SENDER),
     name: "Guest access forbidden",
@@ -570,7 +528,6 @@ const FIXTURES = [
       content: {
         guest_access: "can_join",
       },
-      sender: SENDER,
     }),
     result: _("message.guest.allowed", SENDER),
     name: "Guest access allowed",
@@ -581,7 +538,6 @@ const FIXTURES = [
       content: {
         history_visibility: "world_readable",
       },
-      sender: SENDER,
     }),
     result: _("message.history.anyone", SENDER),
     name: "History access granted to anyone",
@@ -592,7 +548,6 @@ const FIXTURES = [
       content: {
         history_visibility: "shared",
       },
-      sender: SENDER,
     }),
     result: _("message.history.shared", SENDER),
     name: "History access granted to members, including before they joined",
@@ -603,7 +558,6 @@ const FIXTURES = [
       content: {
         history_visibility: "invited",
       },
-      sender: SENDER,
     }),
     result: _("message.history.invited", SENDER),
     name: "History access granted to members, including invited",
@@ -614,7 +568,6 @@ const FIXTURES = [
       content: {
         history_visibility: "joined",
       },
-      sender: SENDER,
     }),
     result: _("message.history.joined", SENDER),
     name: "History access granted to members from the point they join",
@@ -625,7 +578,6 @@ const FIXTURES = [
       content: {
         alias: "#test:example.com",
       },
-      sender: SENDER,
     }),
     result: _("message.alias.main", SENDER, undefined, "#test:example.com"),
     name: "Room alias added",
@@ -639,7 +591,6 @@ const FIXTURES = [
       prevContent: {
         alias: "#old:example.com",
       },
-      sender: SENDER,
     }),
     result: _(
       "message.alias.main",
@@ -659,7 +610,6 @@ const FIXTURES = [
       prevContent: {
         alias: "#test:example.com",
       },
-      sender: SENDER,
     }),
     result: _("message.alias.added", SENDER, "#foo:example.com"),
     name: "Room alt alias added",
@@ -674,7 +624,6 @@ const FIXTURES = [
         alias: "#test:example.com",
         alt_aliases: ["#foo:example.com"],
       },
-      sender: SENDER,
     }),
     result: _("message.alias.removed", SENDER, "#foo:example.com"),
     name: "Room alt alias removed",
@@ -690,7 +639,6 @@ const FIXTURES = [
         alias: "#test:example.com",
         alt_aliases: ["#foo:example.com", "#bar:example.com"],
       },
-      sender: SENDER,
     }),
     result: _("message.alias.removed", SENDER, "#foo:example.com"),
     name: "Room alt alias removed with multiple alts",
@@ -706,7 +654,6 @@ const FIXTURES = [
         alias: "#test:example.com",
         alt_aliases: ["#bar:example.com"],
       },
-      sender: SENDER,
     }),
     result: _("message.alias.added", SENDER, "#foo:example.com"),
     name: "Room alt alias added with multiple alts",
@@ -726,7 +673,6 @@ const FIXTURES = [
         alias: "#test:example.com",
         alt_aliases: ["#bar:example.com"],
       },
-      sender: SENDER,
     }),
     result: _(
       "message.alias.added",
@@ -746,7 +692,6 @@ const FIXTURES = [
         alias: "#test:example.com",
         alt_aliases: ["#bar:example.com", "#baz:example.com"],
       },
-      sender: SENDER,
     }),
     result: _(
       "message.alias.removedAndAdded",
@@ -766,7 +711,6 @@ const FIXTURES = [
       prevContent: {
         alias: "#test:example.com",
       },
-      sender: SENDER,
     }),
     result: null,
     name: "No discernible changes to the room aliases",
@@ -781,20 +725,10 @@ function testGetTextForMatrixEvent() {
   run_next_test();
 }
 
-function _makeMatrixEvent({
-  type,
-  sender,
-  target,
-  content = {},
-  prevContent = {},
-  senderId,
-}) {
+function _makeMatrixEvent({ type, target, content = {}, prevContent = {} }) {
   return {
     getType() {
       return type;
-    },
-    sender: {
-      name: sender,
     },
     target,
     getContent() {
@@ -804,7 +738,7 @@ function _makeMatrixEvent({
       return prevContent;
     },
     getSender() {
-      return senderId;
+      return SENDER;
     },
   };
 }

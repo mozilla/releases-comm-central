@@ -52,7 +52,7 @@ const MATRIX_EVENT_HANDLERS = {
     },
     handlers: {
       ban(matrixEvent, { sender, target, reason }) {
-        return _("message.banned", sender, target.name) + reason;
+        return _("message.banned", sender, target.userId) + reason;
       },
       invite(matrixEvent, { sender, content, target }) {
         const thirdPartyInvite = content.third_party_invite;
@@ -60,13 +60,13 @@ const MATRIX_EVENT_HANDLERS = {
           if (thirdPartyInvite.display_name) {
             return _(
               "message.acceptedInviteFor",
-              target.name,
+              target.userId,
               thirdPartyInvite.display_name
             );
           }
-          return _("message.acceptedInvite", target.name);
+          return _("message.acceptedInvite", target.userId);
         }
-        return _("message.invited", sender, target.name);
+        return _("message.invited", sender, target.userId);
       },
       join(matrixEvent, { sender, content, prevContent, target }) {
         if (prevContent && prevContent.membership == "join") {
@@ -92,22 +92,22 @@ const MATRIX_EVENT_HANDLERS = {
           }
           return null;
         }
-        return _("message.joined", target.name);
+        return _("message.joined", target.userId);
       },
       leave(matrixEvent, { sender, prevContent, target, reason }) {
         // kick and unban just change the membership to "leave".
         // So we need to look at each transition to what happened to the user.
         if (matrixEvent.getSender() === target.userId) {
           if (prevContent.membership === "invite") {
-            return _("message.rejectedInvite", target.name);
+            return _("message.rejectedInvite", target.userId);
           }
-          return _("message.left", target.name);
+          return _("message.left", target.userId);
         } else if (prevContent.membership === "ban") {
-          return _("message.unbanned", sender, target.name);
+          return _("message.unbanned", sender, target.userId);
         } else if (prevContent.membership === "join") {
-          return _("message.kicked", sender, target.name) + reason;
+          return _("message.kicked", sender, target.userId) + reason;
         } else if (prevContent.membership === "invite") {
-          return _("message.withdrewInvite", sender, target.name) + reason;
+          return _("message.withdrewInvite", sender, target.userId) + reason;
         }
         // ignore rest of the cases.
         return null;
@@ -245,7 +245,7 @@ const MATRIX_EVENT_HANDLERS = {
  */
 function getMatrixTextForEvent(matrixEvent) {
   const context = {
-    sender: matrixEvent.sender.name,
+    sender: matrixEvent.getSender(),
     content: matrixEvent.getContent(),
   };
   const eventHandlingInformation = MATRIX_EVENT_HANDLERS[matrixEvent.getType()];
