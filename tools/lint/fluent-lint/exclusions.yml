@@ -1,0 +1,45 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# Warning: Only exclusions for identifiers (ID01) are currently allowed.
+---
+# Only add exceptions to this file if the ID is generated programmatically and
+# can't easily be changed to follow the naming convention.
+# Only lowercase letters and hyphens should be used in Fluent IDs.
+ID01:
+    messages:
+        - accounts-ID
+    files:
+        # Files listed here must not have a comm/ prefix
+        # policies-descriptions.ftl: These IDs are generated programmatically
+        # from policy names.
+        - mail/locales/en-US/messenger/policies/policies-descriptions.ftl
+ID02:
+    messages:
+        # comm/mail/locales/en-US/messenger/accountCentral.ftl
+        - read
+        - compose
+        - search
+        - filter
+        - e2e
+        # comm/mail/locales/en-US/messenger/newInstallPage.ftl
+        - title
+        - heading
+        - lost
+        # comm/mail/locales/en-US/messenger/otr/am-im-otr.ftl
+        - otr-log
+        # comm/mail/locales/en-US/messenger/otr/auth.ftl
+        - otr-auth
+        - auth-yes
+        - auth-no
+        - auth-how
+        # comm/mail/locales/en-US/messenger/otr/otr.ftl
+        - resent
+        # comm/mail/locales/en-US/messenger/preferences/passwordManager.ftl
+        - remove
+        - import
+        # comm/mail/locales/en-US/messenger/preferences/preferences.ftl
+        - ab-label
+        - keep-ask
+    files: []

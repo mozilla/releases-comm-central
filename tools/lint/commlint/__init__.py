@@ -41,4 +41,8 @@ def lint_wrapper(paths, config, **lintargs):
     config["payload"] = config["wraps"]
     del config["wraps"]
 
+    if config.get("commroot", False):
+        lintargs["root"] = os.path.join(lintargs["root"], "comm")
+        del config["commroot"]
+
     return payload(paths, config, **lintargs)

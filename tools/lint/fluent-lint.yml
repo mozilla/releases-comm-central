@@ -1,0 +1,12 @@
+---
+fluent-lint:
+    description: Linter for Fluent files
+    exclude:
+        - dom/l10n/tests/mochitest/document_l10n/non-system-principal/localization/test.ftl
+    extensions: ['ftl']
+    support-files:
+        - 'tools/lint/fluent-lint**'
+    type: external
+    payload: commlint:lint_wrapper
+    wraps: fluent-lint:lint
+    commroot: true
