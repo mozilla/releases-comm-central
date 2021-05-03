@@ -149,10 +149,16 @@ add_task(async function test_mark_messages_read() {
 
   // Make sure we can mark all read with >0 messages unread.
   await right_click_on_row(0);
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popuphidden"
+  );
   await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
   ]);
+  await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
 
   // All the 4 messages should now be read.
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
@@ -169,10 +175,17 @@ add_task(async function test_mark_messages_read() {
 
   // Let's have the last message unread.
   await right_click_on_row(3);
+  hiddenPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popuphidden"
+  );
   await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
     { id: "mailContext-markUnread" },
   ]);
+  await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
+
   Assert.ok(!curMessage.isRead, "Message should have not been marked Read!");
   await check_status(curMessage, null, null, 0);
 });
@@ -181,10 +194,17 @@ add_task(async function test_mark_messages_flagged() {
   // Mark a message with the star.
   let curMessage = select_click_row(1);
   await right_click_on_row(1);
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popuphidden"
+  );
   await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
     { id: "mailContext-markFlagged" },
   ]);
+  await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
+
   Assert.ok(curMessage.isFlagged, "Message should have been marked Flagged!");
   await check_status(
     curMessage,

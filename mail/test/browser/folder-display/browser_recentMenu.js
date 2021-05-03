@@ -61,7 +61,13 @@ add_task(async function test_move_message() {
   Assert.equal(recentMenu.getAttribute("disabled"), "true");
   gInitRecentMenuCount = recentMenu.itemCount;
   Assert.equal(gInitRecentMenuCount, 0);
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popuphidden"
+  );
   mc.close_popup_sequence(popups);
+  await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
   let copyListener = {
     copyDone: false,
     OnStartCopy() {},
@@ -107,7 +113,13 @@ add_task(async function test_move_message() {
     "aaafolder2",
     "recent menu child should be aaafolder2 after move"
   );
+  hiddenPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popuphidden"
+  );
   mc.close_popup_sequence(popups);
+  await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
 });
 
 add_task(async function test_delete_message() {
@@ -130,7 +142,13 @@ add_task(async function test_delete_message() {
     "aaafolder2",
     "recent menu should still be aaafolder2 after delete"
   );
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popuphidden"
+  );
   mc.close_popup_sequence(popups);
+  await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
 });
 
 add_task(async function test_archive_message() {
@@ -155,5 +173,11 @@ add_task(async function test_archive_message() {
     "aaafolder2",
     "recent menu should still be aaafolder2 after archive"
   );
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popuphidden"
+  );
   mc.close_popup_sequence(popups);
+  await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
 });

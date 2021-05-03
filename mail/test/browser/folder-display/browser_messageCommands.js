@@ -102,10 +102,15 @@ function check_read_status(messages, read) {
  */
 async function check_read_menuitems(index, canMarkRead, canMarkUnread) {
   await right_click_on_row(index);
-  await wait_for_popup_to_open(mc.e("mailContext"));
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popuphidden"
+  );
   await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
   ]);
+  await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
 
   let readEnabled = !mc.e("mailContext-markRead").disabled;
   let unreadEnabled = !mc.e("mailContext-markUnread").disabled;
@@ -299,9 +304,15 @@ add_task(async function test_mark_all_read() {
   // Make sure we can't mark all read, now that all messages are already read.
   await right_click_on_row(0);
   await wait_for_popup_to_open(mc.e("mailContext"));
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    mc.e("mailContext"),
+    "popuphidden"
+  );
   await mc.click_menus_in_sequence(mc.e("mailContext"), [
     { id: "mailContext-mark" },
   ]);
+  await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
 
   let allReadDisabled = mc.e("mailContext-markAllRead").disabled;
   Assert.ok(allReadDisabled, "Mark All Read menu item should be disabled!");

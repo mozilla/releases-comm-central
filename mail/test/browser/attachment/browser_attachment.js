@@ -331,6 +331,7 @@ async function subtest_attachment_right_click(elementId, contextMenuId) {
   let hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
   contextMenu.hidePopup();
   await hiddenPromise;
+  await new Promise(resolve => requestAnimationFrame(resolve));
 }
 
 add_task(async function test_attachment_right_click_single() {

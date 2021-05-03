@@ -463,6 +463,7 @@ async function check_menu_states_single(index, expected) {
     );
     contextMenu.hidePopup();
     await hiddenPromise;
+    await new Promise(resolve => requestAnimationFrame(resolve));
   }
 }
 

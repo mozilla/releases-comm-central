@@ -1657,6 +1657,9 @@ async function close_popup(aController, elem) {
     let hiddenPromise = BrowserTestUtils.waitForEvent(elem, "popuphidden");
     elem.hidePopup();
     await hiddenPromise;
+    await new Promise(resolve =>
+      aController.window.requestAnimationFrame(resolve)
+    );
   }
 }
 
