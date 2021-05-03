@@ -42,6 +42,7 @@ treeherder:
 
         # mozlint
         'js': 'JavaScript checks'
+        'l10n': 'Localization checks'
         'misc': 'Misc checks'
         'pedantic': 'pedantic checks'
         'py': 'Python checks'

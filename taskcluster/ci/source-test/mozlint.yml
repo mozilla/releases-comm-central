@@ -136,6 +136,23 @@ file-whitespace:
             - 'comm/**/*.py'
             - 'comm/**/*.rs'
 
+fluent-lint:
+    description: Check for problems with Fluent files.
+    treeherder:
+        symbol: l10n(fluent)
+    run-on-projects: []
+    run:
+        mach: >
+            lint -l fluent-lint -f treeherder
+            --config-path=comm/tools/lint
+            comm/*
+    when:
+        files-changed:
+            - 'comm/**/*.ftl'
+            - 'tools/lint/fluent-lint.yml'
+            - 'tools/lint/fluent-lint/exclusions.yml'
+
+
 license:
     always-target: false
     description: Check for license blocks in source files.
@@ -171,10 +188,34 @@ license:
             - 'comm/**/*.xul'
             - 'comm/tools/lint/license.yml'
 
+l10n-conflicts:
+    description: l10n tests for strings with errors and conflicts with cross-channel
+    treeherder:
+        symbol: l10n(l1nt-conflicts)
+    always-target: false
+    run-on-projects: []
+    run:
+        mach: >
+            lint -W -l l10n -f treeherder
+            --config-path=comm/tools/lint
+            comm/*
+    when:
+        files-changed:
+            - 'comm/calendar/locales/l10n.toml'
+            - 'comm/calendar/locales/en-US/**'
+            - 'comm/chat/locales/en-US/**'
+            - 'comm/mail/extensions/openpgp/content/**/*.ftl'
+            - 'comm/mail/locales/l10n.toml'
+            - 'comm/mail/locales/en-US/**'
+            - 'comm/mail/branding/thunderbird/locales/en-US/**'
+            - 'comm/tools/lint/l10n.yml'
+            - 'third_party/python/compare-locales/**'
+            - 'third_party/python/fluent/**'
+
 localization:
     description: l10n tests for strings with errors
     treeherder:
-        symbol: text(l1nt)
+        symbol: l10n(l1nt)
     run:
         mach: >
             lint -v -l l10n -f treeherder
