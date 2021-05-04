@@ -58,8 +58,6 @@ interface nsIMsgFilterList : nsISupports {
 
     void insertFilterAt(in unsigned long filterIndex, in nsIMsgFilter filter);
 
-    attribute boolean loggingEnabled;
-
     nsIMsgFilter createFilter(in AString name);
 
     void saveToFile(in nsIOutputStream stream);
@@ -86,9 +84,15 @@ interface nsIMsgFilterList : nsISupports {
     void writeBoolAttr(in nsMsgFilterFileAttribValue attrib, in boolean value, in nsIOutputStream stream);
     boolean matchOrChangeFilterTarget(in ACString oldUri, in ACString newUri, in boolean caseInsensitive);
 
-    // for filter logging
-    // If both attributes are fetched successfully, they guarantee
-    // the log file exists and is set up with a header.
+    /**
+     * Turn filter logging on or off. Turning logging off will close any
+     * currently-open open logfile.
+     */
+    attribute boolean loggingEnabled;
+    /**
+     * The log will be written via logStream. This may be null if
+     * loggingEnabled is false or if there is some problem with the logging.
+     */
     attribute nsIOutputStream logStream;
     readonly attribute ACString logURL;
     void clearLog();

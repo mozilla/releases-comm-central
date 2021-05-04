@@ -713,8 +713,8 @@ function runSelectedFilters() {
   let filterList = MailServices.filters.getTempFilterList(folder);
 
   // make sure the tmp filter list uses the real filter list log stream
-  filterList.logStream = gCurrentFilterList.logStream;
   filterList.loggingEnabled = gCurrentFilterList.loggingEnabled;
+  filterList.logStream = gCurrentFilterList.logStream;
 
   let index = 0;
   for (let item of gFilterListbox.selectedItems) {

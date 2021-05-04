@@ -2681,8 +2681,8 @@ function MsgApplyFilters() {
   );
   let numFilters = curFilterList.filterCount;
   // make sure the temp filter list uses the same log stream
-  tempFilterList.logStream = curFilterList.logStream;
   tempFilterList.loggingEnabled = curFilterList.loggingEnabled;
+  tempFilterList.logStream = curFilterList.logStream;
   let newFilterIndex = 0;
   for (let i = 0; i < numFilters; i++) {
     let curFilter = curFilterList.getFilterAt(i);

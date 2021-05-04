@@ -410,8 +410,8 @@ function runSelectedFilters()
   var filterList = MailServices.filters.getTempFilterList(msgFolder);
 
   // make sure the tmp filter list uses the real filter list log stream
-  filterList.logStream = currentFilterList().logStream;
   filterList.loggingEnabled = currentFilterList().loggingEnabled;
+  filterList.logStream = currentFilterList().logStream;
   var index = 0, sel = gFilterTree.view.selection;
   for (var i = 0; i < sel.getRangeCount(); i++) {
     var start = {}, end = {};

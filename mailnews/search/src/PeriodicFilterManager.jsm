@@ -109,8 +109,8 @@ var PeriodicFilterManager = {
         server.rootFolder
       );
       let numFilters = curFilterList.filterCount;
-      tempFilterList.logStream = curFilterList.logStream;
       tempFilterList.loggingEnabled = curFilterList.loggingEnabled;
+      tempFilterList.logStream = curFilterList.logStream;
       let newFilterIndex = 0;
       for (let i = 0; i < numFilters; i++) {
         let curFilter = curFilterList.getFilterAt(i);

@@ -66,7 +66,6 @@ class nsMsgFilterList : public nsIMsgFilterList {
   nsCString m_unparsedFilterBuffer;  // holds one entire filter unparsed
 
  private:
-  nsresult TruncateLog();
   nsresult GetLogFile(nsIFile** aFile);
   nsresult EnsureLogFile(nsIFile* file);
   nsCOMPtr<nsIOutputStream> m_logStream;

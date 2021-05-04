@@ -1794,8 +1794,8 @@ function MsgApplyFilters()
     MailServices.filters.getTempFilterList(preselectedFolder);
   var numFilters = curFilterList.filterCount;
   // make sure the temp filter list uses the same log stream
-  tempFilterList.logStream = curFilterList.logStream;
   tempFilterList.loggingEnabled = curFilterList.loggingEnabled;
+  tempFilterList.logStream = curFilterList.logStream;
   var newFilterIndex = 0;
   for (var i = 0; i < numFilters; i++)
   {

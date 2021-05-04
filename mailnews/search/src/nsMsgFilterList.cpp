@@ -64,7 +64,19 @@ NS_IMETHODIMP nsMsgFilterList::CreateFilter(const nsAString& name,
   return NS_OK;
 }
 
-NS_IMPL_GETSET(nsMsgFilterList, LoggingEnabled, bool, m_loggingEnabled)
+NS_IMETHODIMP nsMsgFilterList::SetLoggingEnabled(bool enabled) {
+  if (!enabled) {
+    // Disabling logging has side effect of closing logfile (if open).
+    SetLogStream(nullptr);
+  }
+  m_loggingEnabled = enabled;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgFilterList::GetLoggingEnabled(bool* enabled) {
+  *enabled = m_loggingEnabled;
+  return NS_OK;
+}
 
 NS_IMETHODIMP nsMsgFilterList::GetListId(nsACString& aListId) {
   aListId.Assign(m_listId);
@@ -124,34 +136,20 @@ nsresult nsMsgFilterList::EnsureLogFile(nsIFile* file) {
   return NS_OK;
 }
 
-nsresult nsMsgFilterList::TruncateLog() {
-  // This will flush and close the stream.
-  nsresult rv = SetLogStream(nullptr);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCOMPtr<nsIFile> file;
-  rv = GetLogFile(getter_AddRefs(file));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  file->Remove(false);
-
-  return EnsureLogFile(file);
-}
-
 NS_IMETHODIMP nsMsgFilterList::ClearLog() {
   bool loggingEnabled = m_loggingEnabled;
 
-  // disable logging while clearing
-  m_loggingEnabled = false;
+  // disable logging while clearing (and close logStream if open).
+  SetLoggingEnabled(false);
 
-#ifdef DEBUG
-  nsresult rv =
-#endif
-      TruncateLog();
-  NS_ASSERTION(NS_SUCCEEDED(rv), "failed to truncate filter log");
+  nsCOMPtr<nsIFile> file;
+  if (NS_SUCCEEDED(GetLogFile(getter_AddRefs(file)))) {
+    file->Remove(false);
+    // Recreate the file, with just the html header.
+    EnsureLogFile(file);
+  }
 
-  m_loggingEnabled = loggingEnabled;
-
+  SetLoggingEnabled(loggingEnabled);
   return NS_OK;
 }
 
@@ -161,12 +159,8 @@ nsresult nsMsgFilterList::GetLogFile(nsIFile** aFile) {
   // XXX todo
   // the path to the log file won't change
   // should we cache it?
-  nsCOMPtr<nsIMsgFolder> folder;
-  nsresult rv = GetFolder(getter_AddRefs(folder));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIMsgIncomingServer> server;
-  rv = folder->GetServer(getter_AddRefs(server));
+  nsresult rv = m_folder->GetServer(getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString type;
@@ -174,7 +168,7 @@ nsresult nsMsgFilterList::GetLogFile(nsIFile** aFile) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool isServer = false;
-  rv = folder->GetIsServer(&isServer);
+  rv = m_folder->GetIsServer(&isServer);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // for news folders (not servers), the filter file is
@@ -214,7 +208,7 @@ nsresult nsMsgFilterList::GetLogFile(nsIFile** aFile) {
     rv = (*aFile)->AppendNative("filterlog.html"_ns);
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  return EnsureLogFile(*aFile);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -233,9 +227,7 @@ NS_IMETHODIMP
 nsMsgFilterList::SetLogStream(nsIOutputStream* aLogStream) {
   // if there is a log stream already, close it
   if (m_logStream) {
-    // will flush
-    nsresult rv = m_logStream->Close();
-    NS_ENSURE_SUCCESS(rv, rv);
+    m_logStream->Close();  // will flush
   }
 
   m_logStream = aLogStream;
@@ -246,23 +238,26 @@ NS_IMETHODIMP
 nsMsgFilterList::GetLogStream(nsIOutputStream** aLogStream) {
   NS_ENSURE_ARG_POINTER(aLogStream);
 
-  nsresult rv;
-
-  if (!m_logStream) {
+  if (!m_logStream && m_loggingEnabled) {
     nsCOMPtr<nsIFile> logFile;
-    rv = GetLogFile(getter_AddRefs(logFile));
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // append to the end of the log file
-    rv = MsgNewBufferedFileOutputStream(getter_AddRefs(m_logStream), logFile,
-                                        PR_CREATE_FILE | PR_WRONLY | PR_APPEND,
-                                        0666);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    if (!m_logStream) return NS_ERROR_FAILURE;
+    nsresult rv = GetLogFile(getter_AddRefs(logFile));
+    if (NS_SUCCEEDED(rv)) {
+      // Make sure it exists and has it's initial header.
+      rv = EnsureLogFile(logFile);
+      if (NS_SUCCEEDED(rv)) {
+        // append to the end of the log file
+        rv = MsgNewBufferedFileOutputStream(
+            getter_AddRefs(m_logStream), logFile,
+            PR_CREATE_FILE | PR_WRONLY | PR_APPEND, 0666);
+      }
+    }
+    if (NS_FAILED(rv)) {
+      m_logStream = nullptr;
+    }
   }
 
-  NS_ADDREF(*aLogStream = m_logStream);
+  // Always returns NS_OK. The stream can be null.
+  NS_IF_ADDREF(*aLogStream = m_logStream);
   return NS_OK;
 }
 
@@ -581,9 +576,9 @@ nsresult nsMsgFilterList::LoadTextFilters(
         break;
       case nsIMsgFilterList::attribLogging:
         m_loggingEnabled = StrToBool(value);
-        m_unparsedFilterBuffer
-            .Truncate();  // we are going to buffer each filter as we read them,
-                          // make sure no garbage is there
+        // We are going to buffer each filter as we read them.
+        // Make sure no garbage is there
+        m_unparsedFilterBuffer.Truncate();
         m_startWritingToBuffer = true;  // filters begin now
         break;
       case nsIMsgFilterList::attribName:  // every filter starts w/ a name
@@ -1126,19 +1121,11 @@ NS_IMETHODIMP nsMsgFilterList::GetArbitraryHeaders(nsACString& aResult) {
 
 NS_IMETHODIMP nsMsgFilterList::FlushLogIfNecessary() {
   // only flush the log if we are logging
-  bool loggingEnabled = false;
-  nsresult rv = GetLoggingEnabled(&loggingEnabled);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  if (loggingEnabled) {
-    nsCOMPtr<nsIOutputStream> logStream;
-    rv = GetLogStream(getter_AddRefs(logStream));
-    if (NS_SUCCEEDED(rv) && logStream) {
-      rv = logStream->Flush();
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
+  if (m_loggingEnabled && m_logStream) {
+    nsresult rv = m_logStream->Flush();
+    NS_ENSURE_SUCCESS(rv, rv);
   }
-  return rv;
+  return NS_OK;
 }
 
 #define LOG_ENTRY_START_TAG "<p>\n"
@@ -1148,16 +1135,24 @@ NS_IMETHODIMP nsMsgFilterList::FlushLogIfNecessary() {
 
 NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString& message,
                                                 nsIMsgFilter* filter) {
+  if (!m_loggingEnabled) {
+    return NS_OK;
+  }
   nsCOMPtr<nsIOutputStream> logStream;
-  nsresult rv = GetLogStream(getter_AddRefs(logStream));
-  NS_ENSURE_SUCCESS(rv, rv);
+  GetLogStream(getter_AddRefs(logStream));
+  if (!logStream) {
+    // Logging is on, but we failed to access the filter logfile.
+    // For completeness, we'll return an error, but we don't expect anyone
+    // to ever check it - logging failures shouldn't stop anything else.
+    return NS_ERROR_FAILURE;
+  }
 
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
 
   nsCOMPtr<nsIStringBundle> bundle;
-  rv = bundleService->CreateBundle(
+  nsresult rv = bundleService->CreateBundle(
       "chrome://messenger/locale/filter.properties", getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
