@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title>Test for the tree-view-listbox custom element</title>
+  <!-- This stylesheet is used for the automated test. -->
+  <link rel="stylesheet" href="chrome://messenger/content/tree-listbox.css" />
+  <!-- This stylesheet is used when this file is loaded in a browser. -->
+  <link rel="stylesheet" href="../../../content/widgets/tree-listbox.css" />
+  <style type="text/css">
+    #testList {
+      height: 630px;
+      scroll-behavior: unset;
+      --in-content-item-selected: #0a84ff;
+    }
+  </style>
+  <!-- This script is used for the automated test. -->
+  <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
+  <!-- This script is used when this file is loaded in a browser. -->
+  <script defer="defer" src="../../../content/widgets/tree-listbox.js"></script>
+  <script defer="defer" src="treeViewListbox.js"></script>
+</head>
+<body>
+  <input id="before" placeholder="something to focus on" />
+  <tree-view-listbox id="testList" tabindex="0" rows="test-listrow"></tree-view-listbox>
+  <input id="after" placeholder="something to focus on" />
+</body>
+</html>
