@@ -1550,12 +1550,12 @@ nsresult nsMsgAccountManager::createKeyedAccount(const nsCString& key,
   rv = GetLocalFoldersServer(getter_AddRefs(localFoldersServer));
   if (NS_SUCCEEDED(rv)) {
     for (auto account : m_accounts) {
-       nsCOMPtr<nsIMsgIncomingServer> server;
-       rv = account->GetIncomingServer(getter_AddRefs(server));
-       if (NS_SUCCEEDED(rv) && server == localFoldersServer) {
-         account->GetKey(localFoldersAccountKey);
-         break;
-       }
+      nsCOMPtr<nsIMsgIncomingServer> server;
+      rv = account->GetIncomingServer(getter_AddRefs(server));
+      if (NS_SUCCEEDED(rv) && server == localFoldersServer) {
+        account->GetKey(localFoldersAccountKey);
+        break;
+      }
     }
   }
 
@@ -1574,7 +1574,8 @@ nsresult nsMsgAccountManager::createKeyedAccount(const nsCString& key,
     }
   }
 
-  if (!localFoldersAccountKey.IsEmpty() && !lastFolderAccountKey.IsEmpty() && lastFolderAccountKey == localFoldersAccountKey) {
+  if (!localFoldersAccountKey.IsEmpty() && !lastFolderAccountKey.IsEmpty() &&
+      lastFolderAccountKey == localFoldersAccountKey) {
     m_accounts.InsertElementAt(m_accounts.Length() - 1, account);
   } else {
     m_accounts.AppendElement(account);
@@ -3316,7 +3317,7 @@ nsMsgAccountManager::GetSortOrder(nsIMsgIncomingServer* aServer,
 }
 
 NS_IMETHODIMP
-nsMsgAccountManager::ReorderAccounts(const nsTArray<nsCString> &newAccounts) {
+nsMsgAccountManager::ReorderAccounts(const nsTArray<nsCString>& newAccounts) {
   nsTArray<nsCString> allNewAccounts = newAccounts.Clone();
 
   // Add all hidden accounts to the list of new accounts.
@@ -3343,19 +3344,18 @@ nsMsgAccountManager::ReorderAccounts(const nsTArray<nsCString> &newAccounts) {
   for (uint32_t i = 0; i < m_accounts.Length(); i++) {
     nsCString accountKey;
     m_accounts[i]->GetKey(accountKey);
-    if (!allNewAccounts.Contains(accountKey))
-      return NS_ERROR_INVALID_ARG;
+    if (!allNewAccounts.Contains(accountKey)) return NS_ERROR_INVALID_ARG;
   }
 
-  // In-place swap the elements in m_accounts to the order defined in newAccounts.
+  // In-place swap the elements in m_accounts to the order defined in
+  // newAccounts.
   for (uint32_t i = 0; i < allNewAccounts.Length(); i++) {
     nsCString newKey = allNewAccounts[i];
     for (uint32_t j = i; j < m_accounts.Length(); j++) {
       nsCString oldKey;
       m_accounts[j]->GetKey(oldKey);
       if (newKey.Equals(oldKey)) {
-        if (i != j)
-          std::swap(m_accounts[i], m_accounts[j]);
+        if (i != j) std::swap(m_accounts[i], m_accounts[j]);
         break;
       }
     }

@@ -602,8 +602,7 @@ nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager* aManager, nsIAbDirect
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbOSXDirectory::GetChildNodes(
-    nsTArray<RefPtr<nsIAbDirectory>>& aNodes) {
+NS_IMETHODIMP nsAbOSXDirectory::GetChildNodes(nsTArray<RefPtr<nsIAbDirectory>>& aNodes) {
   aNodes.Clear();
   // Mailing lists don't have childnodes.
   if (m_IsMailList || !m_AddressList) {
@@ -641,7 +640,6 @@ nsAbOSXDirectory::GetChildCards(nsTArray<RefPtr<nsIAbCard>>& aCards) {
   return NS_OK;
   NS_OBJC_END_TRY_BLOCK_RETURN(NS_ERROR_FAILURE);
 }
-
 
 /* Recursive method that searches for a child card by URI.  If it cannot find
  * it within this directory, it checks all subfolders.

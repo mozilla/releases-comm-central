@@ -339,11 +339,11 @@ static int MimeMultipartSigned_parse_line(const char* line, int32_t length,
         else if (!PL_strcasecmp(encoding.get(), ENCODING_BASE64))
           fn = &MimeB64DecoderInit;
         else if (!PL_strcasecmp(encoding.get(), ENCODING_QUOTED_PRINTABLE)) {
-          sig->sig_decoder_data =
-              MimeQPDecoderInit(((MimeConverterOutputCallback)(
-                                    ((MimeMultipartSignedClass*)obj->clazz)
-                                        ->crypto_signature_hash)),
-                                sig->crypto_closure);
+          sig->sig_decoder_data = MimeQPDecoderInit(
+              ((MimeConverterOutputCallback)(((MimeMultipartSignedClass*)
+                                                  obj->clazz)
+                                                 ->crypto_signature_hash)),
+              sig->crypto_closure);
           if (!sig->sig_decoder_data) return MIME_OUT_OF_MEMORY;
         } else if (!PL_strcasecmp(encoding.get(), ENCODING_UUENCODE) ||
                    !PL_strcasecmp(encoding.get(), ENCODING_UUENCODE2) ||
@@ -353,10 +353,11 @@ static int MimeMultipartSigned_parse_line(const char* line, int32_t length,
         else if (!PL_strcasecmp(encoding.get(), ENCODING_YENCODE))
           fn = &MimeYDecoderInit;
         if (fn) {
-          sig->sig_decoder_data = fn(((MimeConverterOutputCallback)(
-                                         ((MimeMultipartSignedClass*)obj->clazz)
-                                             ->crypto_signature_hash)),
-                                     sig->crypto_closure);
+          sig->sig_decoder_data =
+              fn(((MimeConverterOutputCallback)(((MimeMultipartSignedClass*)
+                                                     obj->clazz)
+                                                    ->crypto_signature_hash)),
+                 sig->crypto_closure);
           if (!sig->sig_decoder_data) return MIME_OUT_OF_MEMORY;
         }
       }

@@ -87,8 +87,8 @@ static int MimeEncrypted_parse_begin(MimeObject* obj) {
     enc->decoder_data =
         MimeQPDecoderInit(/* The (MimeConverterOutputCallback) cast is to turn
                              the `void' argument into `MimeObject'. */
-                          ((MimeConverterOutputCallback)(
-                               (MimeEncryptedClass*)obj->clazz)
+                          ((MimeConverterOutputCallback)((MimeEncryptedClass*)
+                                                             obj->clazz)
                                ->parse_decoded_buffer),
                           obj);
 
