@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title>Test for the tree-listbox custom element</title>
+  <style>
+    :focus {
+      outline: 3px blue solid;
+    }
+    html {
+      height: 100%;
+    }
+    body {
+      height: 100%;
+      display: flex;
+      margin: 0;
+    }
+    ul[is="tree-listbox"] {
+      overflow-y: auto;
+      white-space: nowrap;
+    }
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    li > div {
+      display: flex;
+      align-items: center;
+    }
+    li.selected > div {
+      color: white;
+      background-color: blue;
+    }
+    li > ul {
+      padding-inline-start: 1em;
+    }
+    li.collapsed > ul {
+      display: none;
+    }
+    div.twisty {
+      width: 1em;
+      height: 1em;
+    }
+    li.children > div > div.twisty {
+      background-color: green;
+    }
+    li.children.collapsed > div > div.twisty {
+      background-color: red;
+    }
+  </style>
+  <!-- This script is used for the automated test. -->
+  <script defer="defer" src="chrome://messenger/content/tree-listbox.js"></script>
+  <!-- This script is used when this file is loaded in a browser. -->
+  <script defer="defer" src="../../../content/widgets/tree-listbox.js"></script>
+</head>
+<body>
+  <ul is="tree-listbox">
+    <li id="row-1">
+      <div>
+        <div class="twisty"></div>
+        Item with no children
+      </div>
+    </li>
+    <li id="row-2">
+      <div>
+        <div class="twisty"></div>
+        Item with children
+      </div>
+      <ul>
+        <li id="row-2-1">
+          <div>
+            <div class="twisty"></div>
+            First child
+          </div>
+        </li>
+        <li id="row-2-2">
+          <div>
+            <div class="twisty"></div>
+            Second child
+          </div>
+        </li>
+      </ul>
+    </li>
+    <li id="row-3">
+      <div>
+        <div class="twisty"></div>
+        Item with grandchildren
+      </div>
+      <ul>
+        <li id="row-3-1">
+          <div>
+            <div class="twisty"></div>
+            First child
+          </div>
+          <ul>
+            <li id="row-3-1-1">
+              <div>
+                <div class="twisty"></div>
+                First grandchild
+              </div>
+            </li>
+            <li id="row-3-1-2">
+              <div>
+                <div class="twisty"></div>
+                Second grandchild
+              </div>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <template id="rowToAdd">
+    <li id="new-row">
+      <div>
+        <div class="twisty"></div>
+        New row
+      </div>
+    </li>
+  </template>
+  <template id="rowsToAdd">
+    <li id="added-row">
+      <div>
+        <div class="twisty"></div>
+        Added row
+      </div>
+      <ul>
+        <li id="added-row-1">
+          <div>
+            <div class="twisty"></div>
+            Added child
+          </div>
+          <ul>
+            <li id="added-row-1-1">
+              <div>
+                <div class="twisty"></div>
+                Added grandchild
+              </div>
+            </li>
+          </ul>
+        </li>
+        <li id="added-row-2">
+          <div>
+            <div class="twisty"></div>
+            Added child
+          </div>
+        </li>
+      </ul>
+    </li>
+  </template>
+</body>
+</html>

@@ -107,6 +107,7 @@ messenger.jar:
     content/messenger/sanitizeDialog.js             (content/sanitizeDialog.js)
     content/messenger/toolbarIconColor.js           (content/toolbarIconColor.js)
     content/messenger/dialogShadowDom.js            (content/dialogShadowDom.js)
+    content/messenger/tree-listbox.js               (content/widgets/tree-listbox.js)
 
 # the following files are mail-specific overrides
 *   content/messenger/license.html                  (/@mozreltopsrcdir@/toolkit/content/license.html)
