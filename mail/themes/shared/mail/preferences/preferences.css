@@ -5,10 +5,13 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
+  --in-content-button-background: var(--grey-90-a10);
+  --in-content-button-background-hover: var(--grey-90-a20);
+  --in-content-button-background-active: var(--grey-90-a30);
+  --in-content-button-border-radius: 3px;
+  --in-content-button-vertical-padding: 0;
   --in-content-categories-background: #ebebef;
   --in-content-item-selected-unfocused: var(--grey-20);
-  --in-content-button-horizontal-padding: 8px;
-  --in-content-button-vertical-padding: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,15 +24,33 @@
 @media (-moz-proton) {
 @media (prefers-color-scheme: dark) {
   :root {
+    --in-content-button-background: #3b3a43;
+    --in-content-button-background-hover: #52525e;
+    --in-content-button-background-active: #5b5b66;
     --in-content-primary-button-background: #45a1ff;
     --in-content-primary-button-background-hover: #65c1ff;
     --in-content-primary-button-background-active: #85e1ff;
+    --in-content-focus-outline-color: #45a1ff;
     --checkbox-checked-bgcolor: #45a1ff;
     --checkbox-checked-hover-bgcolor: #65c1ff;
     --checkbox-checked-active-bgcolor: #85e1ff;
   }
 }
 } /** END Proton **/
+
+button {
+  --in-content-button-horizontal-padding: 12px;
+}
+
+menulist {
+  --in-content-button-horizontal-padding: 6px;
+}
+
+html|input:is([type="email"],[type="number"],[type="text"],[type="password"],[type="url"]),
+html|textarea,
+search-textbox {
+  border-radius: var(--in-content-button-border-radius);
+}
 
 #MailPreferences {
   appearance: none;
@@ -109,6 +130,11 @@ label {
 }
 
 @media (-moz-proton) {
+button,
+menulist::part(label-box) {
+  font-weight: 400;
+}
+
 menulist::part(label),
 menuitem > label,
 button > hbox > label {

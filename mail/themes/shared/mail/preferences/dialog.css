@@ -4,6 +4,36 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+:root > * {
+  --in-content-button-border-radius: 3px;
+  --in-content-button-vertical-padding: 0;
+}
+
+@media not (prefers-color-scheme: dark) {
+  :root > * {
+    --in-content-button-background: var(--grey-90-a10);
+    --in-content-button-background-hover: var(--grey-90-a20);
+    --in-content-button-background-active: var(--grey-90-a30);
+  }
+}
+
+@media (-moz-proton) {
+@media (prefers-color-scheme: dark) {
+  :root > * {
+    --in-content-button-background: #3b3a43;
+    --in-content-button-background-hover: #52525e;
+    --in-content-button-background-active: #5b5b66;
+    --in-content-primary-button-background: #45a1ff;
+    --in-content-primary-button-background-hover: #65c1ff;
+    --in-content-primary-button-background-active: #85e1ff;
+    --in-content-focus-outline-color: #45a1ff;
+    --checkbox-checked-bgcolor: #45a1ff;
+    --checkbox-checked-hover-bgcolor: #65c1ff;
+    --checkbox-checked-active-bgcolor: #85e1ff;
+  }
+}
+} /** END Proton **/
+
 dialog,
 window,
 .windowDialog {
