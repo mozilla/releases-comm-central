@@ -46,7 +46,7 @@ class LDAPDirectory extends AddrBookDirectory {
   }
 
   set replicationFileName(value) {
-    return this.setStringValue("filename", value);
+    this.setStringValue("filename", value);
   }
 
   get protocolVersion() {
@@ -56,7 +56,7 @@ class LDAPDirectory extends AddrBookDirectory {
   }
 
   set protocolVersion(value) {
-    return this.setStringValue(
+    this.setStringValue(
       "protocolVersion",
       value == Ci.nsILDAPConnection.VERSION3 ? "3" : "2"
     );
@@ -67,7 +67,7 @@ class LDAPDirectory extends AddrBookDirectory {
   }
 
   set saslMechanism(value) {
-    return this.setStringValue("auth.saslmech", value);
+    this.setStringValue("auth.saslmech", value);
   }
 
   get authDn() {
@@ -75,7 +75,7 @@ class LDAPDirectory extends AddrBookDirectory {
   }
 
   set authDn(value) {
-    return this.setStringValue("auth.dn", value);
+    this.setStringValue("auth.dn", value);
   }
 
   get attributeMap() {

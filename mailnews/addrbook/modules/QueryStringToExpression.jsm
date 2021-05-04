@@ -4,6 +4,8 @@
 
 const EXPORTED_SYMBOLS = ["QueryStringToExpression"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 /**
  * A module to parse a query string to a nsIAbBooleanExpression. A valid query
  * string is in this form:
@@ -165,11 +167,8 @@ var QueryStringToExpression = {
     cs.condition = cond;
 
     try {
-      let textToSubURI = Cc["@mozilla.org/intl/texttosuburi;1"].getService(
-        Ci.nsITextToSubURI
-      );
-      cs.name = textToSubURI.unEscapeAndConvert("UTF-8", name);
-      cs.value = textToSubURI.unEscapeAndConvert("UTF-8", value);
+      cs.name = Services.textToSubURI.unEscapeAndConvert("UTF-8", name);
+      cs.value = Services.textToSubURI.unEscapeAndConvert("UTF-8", value);
     } catch (e) {
       cs.name = name;
       cs.value = value;
