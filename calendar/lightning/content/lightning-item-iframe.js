@@ -2344,7 +2344,7 @@ function uploadCloudAttachment(attachment, cloudFileAccount, listItem) {
       // Uploading failed. First of all, show an error icon. Also,
       // delete it from the attach map now, this will make sure it is
       // not serialized if the user saves.
-      listItem.setAttribute("image", "chrome://messenger/skin/icons/error.png");
+      image.setAttribute("src", "chrome://messenger/skin/icons/error.png");
       delete gAttachMap[attachment.hashId];
 
       // Keep the item for a while so the user can see something failed.
