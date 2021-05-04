@@ -643,6 +643,12 @@ class SmtpClient {
         // C: AUTH PLAIN BASE64(\0 USER \0 PASS)
         this.logger.debug("Authentication via AUTH PLAIN");
         this._currentAction = this._actionAUTHComplete;
+        // According to rfc4616#section-2, password should be UTF-8 BinaryString
+        // before base64 encoded.
+        let password = String.fromCharCode(
+          ...new TextEncoder().encode(this._authenticator.getPassword())
+        );
+
         this._sendCommand(
           // convert to BASE64
           "AUTH PLAIN " +
@@ -650,7 +656,7 @@ class SmtpClient {
               "\u0000" + // skip authorization identity as it causes problems with some servers
                 this._authenticator.username +
                 "\u0000" +
-                this._authenticator.getPassword()
+                password
             ),
           true
         );
@@ -953,7 +959,20 @@ class SmtpClient {
     }
     this.logger.debug("AUTH LOGIN PASS successful");
     this._currentAction = this._actionAUTHComplete;
-    this._sendCommand(btoa(this._authenticator.getPassword()), true);
+    let password = this._authenticator.getPassword();
+    if (
+      !Services.prefs.getBoolPref(
+        "mail.smtp_login_pop3_user_pass_auth_is_latin1",
+        true
+      )
+    ) {
+      // Unlike PLAIN auth, the payload of LOGIN auth is not standardized. When
+      // `mail.smtp_login_pop3_user_pass_auth_is_latin1` is true, we apply
+      // base64 encoding directly. Otherwise, we convert it to UTF-8
+      // BinaryString first.
+      password = String.fromCharCode(...new TextEncoder().encode(password));
+    }
+    this._sendCommand(btoa(password), true);
   }
 
   /**
