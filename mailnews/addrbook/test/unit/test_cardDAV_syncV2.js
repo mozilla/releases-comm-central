@@ -184,6 +184,9 @@ async function subtest() {
       "change-me"
     );
 
+    changeMeCard = directory.childCards.find(c => c.UID == "change-me");
+    cardMap.set("change-me", changeMeCard);
+
     await checkCardsOnServer({
       "change-me": {
         etag: changeMeCard.getProperty("_etag", ""),
@@ -222,6 +225,8 @@ async function subtest() {
       await observer.waitFor("addrbook-contact-updated"),
       "another-new"
     );
+
+    newCard = directory.childCards.find(c => c.UID == "another-new");
 
     await checkCardsOnServer({
       "another-new": {

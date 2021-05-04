@@ -37,6 +37,9 @@ add_task(async () => {
   directory.modifyCard(conflictCard);
 
   await observer.waitFor("addrbook-contact-updated");
+  cards = directory.childCards;
+  Assert.equal(cards.length, 1);
+  [conflictCard] = cards;
 
   Assert.equal(conflictCard.getProperty("_etag", ""), "76");
   Assert.equal(
