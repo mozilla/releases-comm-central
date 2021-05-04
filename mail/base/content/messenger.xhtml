@@ -426,18 +426,18 @@
          noautofocus="true"
          role="alert"/>
 
-  <popupnotification id="addon-progress-notification" hidden="true">
+  <popupnotification id="addon-progress-notification" hasicon="true" hidden="true">
     <popupnotificationcontent orient="vertical">
       <html:progress id="addon-progress-notification-progressmeter" max="100"/>
       <label id="addon-progress-notification-progresstext" crop="end"/>
     </popupnotificationcontent>
   </popupnotification>
 
-  <popupnotification id="addon-install-confirmation-notification" hidden="true">
+  <popupnotification id="addon-install-confirmation-notification" hasicon="true" hidden="true">
     <popupnotificationcontent id="addon-install-confirmation-content" orient="vertical"/>
   </popupnotification>
 
-  <popupnotification id="addon-webext-permissions-notification" hidden="true">
+  <popupnotification id="addon-webext-permissions-notification" hasicon="true" hidden="true">
     <popupnotificationcontent class="addon-webext-perm-notification-content" orient="vertical">
       <description id="addon-webext-perm-text" class="addon-webext-perm-text"/>
       <label id="addon-webext-perm-intro" class="addon-webext-perm-text"/>
@@ -450,13 +450,13 @@
     </popupnotificationcontent>
   </popupnotification>
 
-  <popupnotification id="addon-installed-notification" hidden="true">
+  <popupnotification id="addon-installed-notification" hasicon="true" hidden="true">
     <popupnotificationcontent class="addon-installed-notification-content" orient="vertical">
       <html:ul id="addon-installed-list" class="addon-installed-list"/>
     </popupnotificationcontent>
   </popupnotification>
 
-  <popupnotification id="addon-install-blocked-notification" hidden="true">
+  <popupnotification id="addon-install-blocked-notification" hasicon="true" hidden="true">
     <popupnotificationcontent id="addon-install-blocked-content" orient="vertical">
       <description id="addon-install-blocked-message" class="popup-notification-description"></description>
       <hbox>
@@ -466,7 +466,7 @@
   </popupnotification>
 
 #ifdef MOZ_UPDATER
-  <popupnotification id="app-update-notification" hidden="true">
+  <popupnotification id="app-update-notification" hasicon="true" hidden="true">
     <popupnotificationcontent class="app-update-notification-content" orient="vertical">
       <description id="app-update-text" class="app-update-text"/>
     </popupnotificationcontent>

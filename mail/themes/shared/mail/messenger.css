@@ -585,7 +585,7 @@ button {
   appearance: none;
   height: 24px;
   min-width: 5.5em;
-  color: inherit !important;
+  color: inherit;
   border: 1px solid var(--button-border-color);
   border-radius: var(--toolbarbutton-border-radius);
   background: var(--button-bgcolor);
@@ -665,6 +665,7 @@ button > .button-box > dropmarker {
    notifications are */
 .notification-anchor-icon {
   -moz-user-focus: normal;
+  margin-inline-start: 9px;
 }
 
 .notification-anchor-icon:not([showing]) {
@@ -673,6 +674,12 @@ button > .button-box > dropmarker {
 
 .addons-icon {
   list-style-image: url("chrome://mozapps/skin/extensions/extension.svg");
+}
+
+.popup-notification-icon {
+  width: 32px;
+  height: 32px;
+  margin-inline-end: 12px;
 }
 
 .popup-notification-icon[popupid="xpinstall-disabled"],
