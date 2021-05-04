@@ -155,10 +155,12 @@ MatrixBuddy.prototype = {
     const otherDMRooms = this._account._userToRoom[this.userName];
     for (const roomId of otherDMRooms) {
       if (this._account.roomList.has(roomId)) {
-        const room = this._account.roomList.get(roomId);
-        // Prevent the room from doing buddy cleanup
-        delete room.buddy;
-        room.close();
+        const conversation = this._account.roomList.get(roomId);
+        if (!conversation.isChat) {
+          // Prevent the conversation from doing buddy cleanup
+          delete conversation.buddy;
+          conversation.close();
+        }
       }
     }
     this._account.buddies.delete(this.userName);
@@ -1071,6 +1073,15 @@ MatrixAccount.prototype = {
           conv = this.getGroupConversation(roomId);
         }
         conv.catchup().catch(error => conv.ERROR(error));
+      }
+    }
+    // Remove orphaned buddies.
+    for (const [userId, buddy] of this.buddies) {
+      // getDMRoomIdsForUserId uses the room list from the client, so we don't
+      // have to wait for the room mutations above to propagate to our internal
+      // state.
+      if (this.getDMRoomIdsForUserId(userId).length === 0) {
+        buddy.remove();
       }
     }
   },
