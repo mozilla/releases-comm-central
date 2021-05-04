@@ -243,7 +243,8 @@ function()
     }
     catch (e) {
       // Return if language or region is not recognized.
-      prefix += "???";
+      prefix += gNavigatorBundle.getFormattedString("unknownLanguage",
+                                                    [this.hreflang]);
     }
 
     prefix += ": ";
