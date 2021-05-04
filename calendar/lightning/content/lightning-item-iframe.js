@@ -19,7 +19,7 @@
 /* import-globals-from ../../base/content/calendar-ui-utils.js */
 /* import-globals-from ../../base/content/dialogs/calendar-dialog-utils.js */
 /* import-globals-from html-item-editing/react-code.js */
-/* globals gTimezonesEnabled, gShowLink */ // Set by lightning-item-panel.js.
+/* globals gTimezonesEnabled */ // Set by lightning-item-panel.js.
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
@@ -78,7 +78,6 @@ var gConfig = {
 // The following variables are set by the load handler function of the
 // parent context, so that they are already set before iframe content load:
 //   - gTimezoneEnabled
-//   - gShowLink
 
 XPCOMUtils.defineLazyGetter(this, "gEventNotification", () => {
   return new MozElements.NotificationBox(element => {
@@ -280,23 +279,6 @@ function receiveMessage(aEvent) {
             }
             */
       break;
-    case "toggleLink": {
-      let newUrl = window.calendarItem.getProperty("URL") || "";
-      let newShow = showOrHideItemURL(aEvent.data.checked, newUrl);
-      // Disable command if there is no url
-      if (!newUrl.length) {
-        sendMessage({ command: "disableLinkCommand" });
-      }
-      if (gNewItemUI) {
-        gTopComponent.importState({
-          url: newUrl,
-          showUrl: newShow,
-        });
-      } else {
-        updateItemURL(newShow, newUrl);
-      }
-      break;
-    }
     case "closingWindowWithTabs": {
       let response = onCancel(aEvent.data.id, true);
       sendMessage({
@@ -701,16 +683,9 @@ function loadDialog(aItem) {
   }
 
   // URL link
-  // Currently we always show the link for the tab case (if the link
-  // exists), since there is no menu item or toolbar item to show/hide it.
-  let showLink = gInTab ? true : gShowLink;
-  let itemUrl = window.calendarItem.getProperty("URL") || "";
-  showLink = showOrHideItemURL(showLink, itemUrl);
+  let itemUrl = window.calendarItem.getProperty("URL")?.trim() || "";
+  let showLink = showOrHideItemURL(itemUrl);
 
-  // Disable link command if there is no url
-  if (!itemUrl.length) {
-    sendMessage({ command: "disableLinkCommand" });
-  }
   if (gNewItemUI) {
     itemProps.initialUrl = itemUrl;
     itemProps.initialShowUrl = showLink;
@@ -3785,33 +3760,29 @@ function updateAttachment() {
 
 /**
  * Returns whether to show or hide the related link on the dialog
- * (rfc2445 URL property).  The aShow argument passed in may be overridden
- * for various reasons.
+ * (rfc2445 URL property).
  *
- * @param {boolean} aShow  Show the link (true) or not (false)
- * @param {string} aUrl    The url in question
- * @return {boolean}       Returns true for show and false for hide
+ * @param {string} aUrl - The url in question.
+ * @return {boolean} true for show and false for hide
  */
-function showOrHideItemURL(aShow, aUrl) {
-  if (aShow && aUrl.length) {
-    let handler;
-    let uri;
-    try {
-      uri = Services.io.newURI(aUrl);
-      handler = Services.io.getProtocolHandler(uri.scheme);
-    } catch (e) {
-      // No protocol handler for the given protocol, or invalid uri
-      // hideOrShow(false);
-      return false;
-    }
-    // Only show if its either an internal protocol handler, or its external
-    // and there is an external app for the scheme
-    handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
-    return !handler || handler.externalAppExistsForScheme(uri.scheme);
+function showOrHideItemURL(url) {
+  if (!url) {
+    return false;
   }
-  // Hide if there is no url, or the menuitem was chosen so that the url
-  // should be hidden.
-  return false;
+  let handler;
+  let uri;
+  try {
+    uri = Services.io.newURI(url);
+    handler = Services.io.getProtocolHandler(uri.scheme);
+  } catch (e) {
+    // No protocol handler for the given protocol, or invalid uri
+    // hideOrShow(false);
+    return false;
+  }
+  // Only show if its either an internal protocol handler, or its external
+  // and there is an external app for the scheme
+  handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
+  return !handler || handler.externalAppExistsForScheme(uri.scheme);
 }
 
 /**

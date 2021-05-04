@@ -5,7 +5,7 @@
 /* exported onLoadLightningItemPanel, onCancel, onCommandSave,
  *          onCommandDeleteItem, editAttendees, editPrivacy, editPriority,
  *          editStatus, editShowTimeAs, updateShowTimeAs, editToDoStatus,
- *          postponeTask, toggleTimezoneLinks, toggleLink, attachURL,
+ *          postponeTask, toggleTimezoneLinks, attachURL,
  *          onCommandViewToolbar, onCommandCustomize, attachFileByAccountKey,
  *          onUnloadLightningItemPanel, openNewEvent, openNewTask,
  *          openNewMessage, openNewCardDialog
@@ -84,9 +84,6 @@ var gConfig = {
   attendeesCommand: null, // cmd_attendees
   attachUrlCommand: null, // cmd_attach_url
   timezonesEnabled: false, // cmd_timezone
-  // XXX Currently there is no toolbar button or menu item for
-  // cmd_toggle_link for event/task tabs
-  toggleLinkCommand: null, // cmd_toggle_link
 };
 
 /**
@@ -102,13 +99,6 @@ function receiveMessage(aEvent) {
     case "initializeItemMenu":
       initializeItemMenu(aEvent.data.label, aEvent.data.accessKey);
       break;
-    case "disableLinkCommand": {
-      let linkCommand = document.getElementById("cmd_toggle_link");
-      if (linkCommand) {
-        linkCommand.setAttribute("disabled", true);
-      }
-      break;
-    }
     case "cancelDialog":
       document.querySelector("dialog").cancelDialog();
       break;
@@ -331,11 +321,6 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
   // timezones enabled
   gConfig.timezonesEnabled = getTimezoneCommandState();
   iframe.contentWindow.gTimezonesEnabled = gConfig.timezonesEnabled;
-
-  // toggle link
-  let cmdToggleLink = document.getElementById("cmd_toggle_link");
-  gConfig.toggleLinkCommand = cmdToggleLink.getAttribute("checked") == "true";
-  iframe.contentWindow.gShowLink = gConfig.toggleLinkCommand;
 
   // set the iframe src, which loads the iframe's contents
   iframe.setAttribute("src", iframeSrc);
@@ -884,17 +869,6 @@ function toggleTimezoneLinks() {
   cmdTimezone.setAttribute("checked", currentState ? "false" : "true");
   gConfig.timezonesEnabled = !currentState;
   sendMessage({ command: "toggleTimezoneLinks", checked: !currentState });
-}
-
-/**
- * Toggles the visibility of the related link (rfc2445 URL property).
- */
-function toggleLink() {
-  let linkCommand = document.getElementById("cmd_toggle_link");
-  let checked = linkCommand.getAttribute("checked") == "true";
-
-  linkCommand.setAttribute("checked", checked ? "false" : "true");
-  sendMessage({ command: "toggleLink", checked: !checked });
 }
 
 /**

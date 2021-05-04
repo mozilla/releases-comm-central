@@ -8,7 +8,6 @@
 
 /* import-globals-from ../../src/calApplicationUtils.js */
 /* import-globals-from ../dialogs/calendar-summary-dialog.js */
-/* import-globals-from ../dialogs/calendar-dialog-utils.js */
 
 // Wrap in a block to prevent leaking to window scope.
 {
@@ -449,11 +448,13 @@
       this.updateRecurrenceDetails(recurrenceDetails);
       this.updateAttendees(item);
 
-      updateLink(
-        item.getProperty("URL") || "",
-        this.querySelector(".event-grid-link-row"),
-        this.querySelector(".url-link")
-      );
+      let url = item.getProperty("URL")?.trim() || "";
+
+      let link = this.querySelector(".url-link");
+      link.setAttribute("href", url);
+      link.setAttribute("value", url);
+      // Hide the row if there is no url.
+      this.querySelector(".event-grid-link-row").hidden = !url;
 
       let location = item.getProperty("LOCATION");
       if (location) {

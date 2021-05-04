@@ -121,9 +121,6 @@
                                              'view-toolbars-event-menuitem')"/>
     <command id="cmd_customize"
              oncommand="onCommandCustomize()"/>
-    <command id="cmd_toggle_link"
-             persist="checked"
-             oncommand="toggleLink()"/>
 
     <!-- status -->
     <command id="cmd_status_none"
@@ -397,12 +394,6 @@
                         command="cmd_customize"/>
             </menupopup>
           </menu>
-          <menuseparator id="view-menu-toolbars-separator"/>
-          <menuitem id="view-show-link-menuitem"
-                    label="&event.menu.view.showlink.label;"
-                    accesskey="&event.menu.view.showlink.accesskey;"
-                    type="checkbox"
-                    command="cmd_toggle_link"/>
         </menupopup>
       </menu>
 
