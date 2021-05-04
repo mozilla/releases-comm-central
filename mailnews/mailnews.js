@@ -412,6 +412,9 @@ pref("ldap_2.user_id", 0);
 // Update kCurrentListVersion in include/dirprefs.h if you change this
 pref("ldap_2.version", 3);
 
+// If true, LDAPDirectory.jsm is used. Otherwise, nsAbLDAPDirectory.cpp is used.
+pref("mailnews.ldap.jsmodule", false);
+
 pref("mailnews.confirm.moveFoldersToTrash", true);
 
 // space-delimited list of extra headers to add to .msf file
