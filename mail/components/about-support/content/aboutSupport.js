@@ -253,13 +253,15 @@ var snapshotFormatters = {
     let fsType;
     try {
       fsType = AboutSupportPlatform.getFileSystemType(currProfD);
-      let bundle = Services.strings.createBundle(
-        "chrome://messenger/locale/aboutSupportMail.properties"
-      );
-      let fsText = bundle.GetStringFromName("fsType." + fsType);
-      let fsTextNode = document.createElement("span");
-      fsTextNode.textContent = fsText;
-      profElem.appendChild(fsTextNode);
+      if (fsType) {
+        let bundle = Services.strings.createBundle(
+          "chrome://messenger/locale/aboutSupportMail.properties"
+        );
+        let fsText = bundle.GetStringFromName("fsType." + fsType);
+        let fsTextNode = document.createElement("span");
+        fsTextNode.textContent = fsText;
+        profElem.appendChild(fsTextNode);
+      }
     } catch (x) {
       Cu.reportError(x);
     }
