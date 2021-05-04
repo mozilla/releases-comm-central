@@ -354,10 +354,7 @@
       } else {
         durationbox.textContent += " " + aItem.title;
       }
-      this.refreshColor();
-    }
 
-    refreshColor() {
       let imagebox = this.querySelector(".agenda-calendar-image");
       let cssSafeId = cal.view.formatStringForCSSRule(this.mOccurrence.calendar.id);
       imagebox.style.backgroundColor = `var(--calendar-${cssSafeId}-backcolor)`;

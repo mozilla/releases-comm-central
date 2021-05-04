@@ -486,7 +486,7 @@ agendaListbox.getListItems = function(aItem, aPeriod) {
  *                            sibling that is not an period item.
  * @return                  Returns true if the removed item was selected.
  */
-agendaListbox.deleteItem = function(aItem, aMoveSelection) {
+agendaListbox.removeItem = function(aItem, aMoveSelection) {
   let isSelected = false;
   let listItems = this.getListItems(aItem);
   if (listItems.length > 0) {
@@ -508,9 +508,9 @@ agendaListbox.deleteItem = function(aItem, aMoveSelection) {
 /**
  * Remove all items belonging to the specified calendar.
  *
- * @param aCalendar         The item to compare.
+ * @param aCalendar         The calendar to remove items from.
  */
-agendaListbox.deleteItemsFromCalendar = function(aCalendar) {
+agendaListbox.removeItemsFromCalendar = function(aCalendar) {
   let children = Array.from(this.agendaListboxControl.children);
   for (let childNode of children) {
     if (childNode && childNode.occurrence && childNode.occurrence.calendar.id == aCalendar.id) {
@@ -650,13 +650,9 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
       if (!aCalendar) {
         aCalendar = this.agendaListbox.calendar;
       }
-      if (!aStart) {
-        aStart = this.agendaListbox.getStart();
-      }
-      if (!aEnd) {
-        aEnd = this.agendaListbox.getEnd();
-      }
-      if (!(aStart || aEnd || aCalendar)) {
+      let start = aStart || this.agendaListbox.getStart();
+      let end = aEnd || this.agendaListbox.getEnd();
+      if (!(start || end || aCalendar)) {
         return;
       }
 
@@ -669,6 +665,8 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
         }
         this.agendaListbox.mPendingRefreshJobs.clear();
       } else {
+        cal.ASSERT(!aStart && !aEnd, "refreshCalendarQuery called with date(s) and a calendar set");
+        this.agendaListbox.removeItemsFromCalendar(aCalendar);
         this.calId = aCalendar.id;
         if (this.agendaListbox.mPendingRefreshJobs.has(this.calId)) {
           this.agendaListbox.mPendingRefreshJobs.get(this.calId).cancel();
@@ -679,7 +677,7 @@ agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
 
       let filter =
         this.calendar.ITEM_FILTER_CLASS_OCCURRENCES | this.calendar.ITEM_FILTER_TYPE_EVENT;
-      let operation = this.calendar.getItems(filter, 0, aStart, aEnd, this);
+      let operation = this.calendar.getItems(filter, 0, start, end, this);
       if (operation && operation.isPending) {
         this.operation = operation;
         this.agendaListbox.mPendingRefreshJobs.set(this.calId, this);
@@ -860,7 +858,10 @@ agendaListbox.calendarOpListener = { agendaListbox };
  * @see calIObserver
  * @see calICompositeObserver
  */
-agendaListbox.calendarObserver = { agendaListbox };
+agendaListbox.calendarObserver = {
+  agendaListbox,
+  calendarsInBatch: new Set(),
+};
 
 agendaListbox.calendarObserver.QueryInterface = ChromeUtils.generateQI([
   "calIObserver",
@@ -868,19 +869,20 @@ agendaListbox.calendarObserver.QueryInterface = ChromeUtils.generateQI([
 ]);
 
 // calIObserver:
-agendaListbox.calendarObserver.onStartBatch = function() {
-  this.needsRefresh = true;
+agendaListbox.calendarObserver.onStartBatch = function(calendar) {
+  this.calendarsInBatch.add(calendar);
 };
 
-agendaListbox.calendarObserver.onEndBatch = function() {
-  this.needsRefresh = false;
-  this.agendaListbox.refreshCalendarQuery();
+agendaListbox.calendarObserver.onEndBatch = function(calendar) {
+  this.calendarsInBatch.delete(calendar);
 };
 
-agendaListbox.calendarObserver.onLoad = function() {};
+agendaListbox.calendarObserver.onLoad = function(calendar) {
+  this.agendaListbox.refreshCalendarQuery(null, null, calendar);
+};
 
 agendaListbox.calendarObserver.onAddItem = function(item) {
-  if (this.needsRefresh || !item.isEvent()) {
+  if (this.calendarsInBatch.has(item.calendar) || !item.isEvent()) {
     return;
   }
   // get all sub items if it is a recurring item
@@ -911,7 +913,7 @@ agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection)
   // get all sub items if it is a recurring item
   let occs = this.getOccurrencesBetween(item);
   for (let i = 0; i < occs.length; i++) {
-    let isSelected = this.agendaListbox.deleteItem(occs[i], moveSelection);
+    let isSelected = this.agendaListbox.removeItem(occs[i], moveSelection);
     if (isSelected) {
       selectedItemHashId = occs[i].hashId;
     }
@@ -920,6 +922,10 @@ agendaListbox.calendarObserver.onLocalDeleteItem = function(item, moveSelection)
 };
 
 agendaListbox.calendarObserver.onModifyItem = function(newItem, oldItem) {
+  if (this.calendarsInBatch.has(newItem.calendar)) {
+    return;
+  }
+
   let selectedItemHashId = this.onLocalDeleteItem(oldItem, false);
   if (!newItem.isEvent()) {
     return;
@@ -941,20 +947,10 @@ agendaListbox.calendarObserver.onError = function(_cal, errno, msg) {};
 agendaListbox.calendarObserver.onPropertyChanged = function(aCalendar, aName, aValue, aOldValue) {
   switch (aName) {
     case "disabled":
-      this.agendaListbox.refreshCalendarQuery();
-      break;
-    case "color":
-      for (
-        let node = agendaListbox.agendaListboxControl.firstElementChild;
-        node;
-        node = node.nextElementSibling
-      ) {
-        // Change color on all nodes that don't do so themselves, which
-        // is currently only he agenda-richlistitem
-        if (node.localName != "agenda-richlistitem") {
-          continue;
-        }
-        node.refreshColor();
+      if (aValue) {
+        this.agendaListbox.removeItemsFromCalendar(aCalendar);
+      } else {
+        this.agendaListbox.refreshCalendarQuery(null, null, aCalendar);
       }
       break;
   }
@@ -966,7 +962,7 @@ agendaListbox.calendarObserver.onPropertyDeleting = function(aCalendar, aName) {
 
 agendaListbox.calendarObserver.onCalendarRemoved = function(aCalendar) {
   if (!aCalendar.getProperty("disabled")) {
-    this.agendaListbox.deleteItemsFromCalendar(aCalendar);
+    this.agendaListbox.removeItemsFromCalendar(aCalendar);
   }
 };
 
