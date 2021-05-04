@@ -20,7 +20,7 @@ job-defaults:
         extra-options:
             - --application=thunderbird
             - --test-manifest=../../../../../comm/testing/marionette/unit-tests.ini
-    run-on-projects: built-projects
+    run-on-projects: []
     test-manifest-loader: null  # don't load tests in the taskgraph
     python-3: true
 
