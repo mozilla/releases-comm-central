@@ -48,6 +48,8 @@ var promisifyProxyHandler = {
       case "getAllItems":
         return () =>
           this.promiseOperation(target, "getItems", [cIC.ITEM_FILTER_ALL_ITEMS, 0, null, null]);
+      case "proxyTarget":
+        return target;
       default:
         return target[name];
     }
