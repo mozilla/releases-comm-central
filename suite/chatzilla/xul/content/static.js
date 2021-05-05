@@ -6,6 +6,9 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+ChromeUtils.defineModuleGetter(this, "PlacesUtils",
+                               "resource://gre/modules/PlacesUtils.jsm");
+
 #expand const __cz_version   = "__CHATZILLA_VERSION__";
 const __cz_condition = "green";
 const __cz_guid      = "59c81df5-4b7a-477b-912d-4e0fdf64e5f2";
@@ -221,16 +224,6 @@ function initStatic()
     {
         dd("Alert service failed to initialize: " + ex);
         client.alert = null;
-    }
-
-    try
-    {
-        const GHIST_CONTRACTID = "@mozilla.org/browser/global-history;2";
-        client.globalHistory = getService(GHIST_CONTRACTID, "nsIGlobalHistory2");
-    }
-    catch (ex)
-    {
-        dd("Global History failed to initialize: " + ex);
     }
 
     try
@@ -720,15 +713,15 @@ function destroy()
     destroyPrefs();
 }
 
-
-function addURLToHistory(url, referer)
-{
-    if (client.globalHistory)
-    {
-        referer = referer ? Services.io.newURI(referer, "UTF-8") : null;
-        url = Services.io.newURI(url, "UTF-8");
-        client.globalHistory.addURI(url, false, true, referer);
-    }
+function addURLToHistory(url) {
+  url = Services.io.newURI(url, "UTF-8");
+  PlacesUtils.history.insert({
+    url,
+    visits: [{
+      date: new Date(),
+      transition: PlacesUtils.history.TRANSITIONS.TYPED,
+    }],
+  });
 }
 
 function addStatusMessage(message)
