@@ -894,7 +894,7 @@ function ChangeButtonColor(commandID, id, defaultColor) {
         color = defaultColor;
       }
 
-      button.setAttribute("style", "background-color:" + color + " !important");
+      button.style.backgroundColor = color;
     }
   }
 }
@@ -1125,7 +1125,11 @@ function EditorSelectColor(colorType, mouseEvent) {
   if (gColorObj.Type == "Text") {
     if (currentColor != gColorObj.TextColor) {
       if (gColorObj.TextColor) {
-        EditorSetTextProperty("font", "color", gColorObj.TextColor);
+        GetCurrentEditor().document.execCommand(
+          "foreColor",
+          false,
+          gColorObj.TextColor
+        );
       } else {
         EditorRemoveTextProperty("font", "color");
       }
@@ -1135,7 +1139,11 @@ function EditorSelectColor(colorType, mouseEvent) {
   } else if (gColorObj.Type == "Highlight") {
     if (currentColor != gColorObj.HighlightColor) {
       if (gColorObj.HighlightColor) {
-        EditorSetTextProperty("font", "bgcolor", gColorObj.HighlightColor);
+        GetCurrentEditor().document.execCommand(
+          "backColor",
+          false,
+          gColorObj.HighlightColor
+        );
       } else {
         EditorRemoveTextProperty("font", "bgcolor");
       }
