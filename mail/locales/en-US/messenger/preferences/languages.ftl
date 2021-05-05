@@ -42,4 +42,4 @@ messenger-languages-select-language =
 messenger-languages-installed-label = Installed languages
 messenger-languages-available-label = Available languages
 
-messenger-languages-error = { -brand-short-name } can't update your languages right now. Check that you are connected to the internet or try again.
+messenger-languages-error = { -brand-short-name } can’t update your languages right now. Check that you are connected to the internet or try again.

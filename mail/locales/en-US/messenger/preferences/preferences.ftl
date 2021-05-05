@@ -327,6 +327,7 @@ compact-folder-size =
 ## Note: The entities use-cache-before and use-cache-after appear on a single
 ## line in preferences as follows:
 ## use-cache-before [ textbox for cache size in MB ] use-cache-after
+
 use-cache-before =
     .value = Use up to
     .accesskey = U
@@ -448,6 +449,7 @@ mark-read-no-delay =
 
 ## Note: This will concatenate to "After displaying for [___] seconds",
 ## using (mark-read-delay) and a number (seconds-label).
+
 mark-read-delay =
     .label = After displaying for
     .accesskey = d
@@ -500,6 +502,7 @@ extension-label =
 
 ## Note: This will concatenate to "Auto Save every [___] minutes",
 ## using (auto-save-label) and a number (auto-save-end).
+
 auto-save-label =
     .label = Auto Save every
     .accesskey = A
@@ -535,7 +538,7 @@ font-size-label =
     .accesskey = z
 
 default-colors-label =
-    .label = Use reader's default colors
+    .label = Use reader’s default colors
     .accesskey = d
 
 font-color-label =
@@ -615,7 +618,6 @@ find-cloud-providers =
 
 cloud-account-description = Add a new Filelink storage service
 
-
 ## Privacy Tab
 
 mail-content = Mail Content
@@ -634,7 +636,7 @@ remote-content-info =
 web-content = Web Content
 
 history-label =
-    .label = Remember websites and links I've visited
+    .label = Remember websites and links I’ve visited
     .accesskey = R
 
 cookies-label =
@@ -701,7 +703,7 @@ junk-label =
     .accesskey = W
 
 junk-move-label =
-    .label = Move them to the account's "Junk" folder
+    .label = Move them to the account’s “Junk” folder
     .accesskey = o
 
 junk-delete-label =
@@ -727,7 +729,7 @@ reset-junk-button =
 phishing-description = { -brand-short-name } can analyze messages for suspected email scams by looking for common techniques used to deceive you.
 
 phishing-label =
-    .label = Tell me if the message I'm reading is a suspected email scam
+    .label = Tell me if the message I’m reading is a suspected email scam
     .accesskey = T
 
 antivirus-description = { -brand-short-name } can make it easy for antivirus software to analyze incoming mail messages for viruses before they are stored locally.
@@ -775,6 +777,7 @@ auto-connect-label =
 ## The translations of the idle-label and idle-time-label parts don't have
 ## to mean the exact same thing as in English; please try instead to
 ## translate the whole sentence.
+
 idle-label =
     .label = Let my contacts know that I am Idle after
     .accesskey = I
@@ -798,9 +801,9 @@ show-notification-label =
     .accesskey = c
 
 notification-all =
-    .label = with sender's name and message preview
+    .label = with sender’s name and message preview
 notification-name =
-    .label = with sender's name only
+    .label = with sender’s name only
 notification-empty =
     .label = without any info
 
