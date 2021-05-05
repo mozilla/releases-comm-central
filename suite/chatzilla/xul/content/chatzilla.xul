@@ -22,8 +22,7 @@
   onclose="return onClose();" onmouseover="onMouseOver(event);"
   persist="width height screenX screenY sizemode" windowtype="irc:chatzilla">
 
-  <script src="chrome://communicator/content/contentAreaUtils.js"/>
-  <script src="chrome://communicator/content/contentAreaDD.js"/>
+  <script src="chrome://global/content/contentAreaUtils.js"/>
   <script src="chrome://communicator/content/findUtils.js"/>
 
   <html:link rel="icon" href="chrome://chatzilla/skin/images/logo.png" style="display:none"/>
@@ -64,9 +63,9 @@
     
       <vbox id="tabstrip-box" flex="0" crop="right">
         <hbox id="view-tabs" persist="collapsed" flex="1"
-            ondragover="nsDragAndDrop.dragOver(event, tabsDropObserver)"
-            ondragexit="nsDragAndDrop.dragExit(event, tabsDropObserver)"
-            ondrop="nsDragAndDrop.drop(event, tabsDropObserver)">
+            ondragover="tabsDNDObserver.onDragOver(event);"
+            ondragexit="tabsDNDObserver.onDragExit(event);"
+            ondrop="tabsDNDObserver.onDrop(event);">
           <tabs id="views-tbar-inner" flex="1"
               onselect="onTabSelect(event)" setfocus="false">
             <tab hidden="true"/> <!-- dummy tab to keep the freaking xbl from

@@ -12,7 +12,6 @@
   <overlaytarget id="scripts-overlay-target">
 
     <script src="chrome://global/content/globalOverlay.js"/>
-    <script src="chrome://global/content/nsTransferable.js"/>
 
     <script><![CDATA[
         /* utils.js overloads the standard JS messages with prompt service 
@@ -40,9 +39,6 @@
     <script src="chrome://chatzilla/content/lib/xul/munger.js"/>
     <script src="chrome://chatzilla/content/lib/xul/tree-utils.js"/>
 
-    <script src="chrome://chatzilla/content/nsUserSettings.js"/>
-    <script src="chrome://chatzilla/content/nsClipboard.js"/>
-    <script src="chrome://chatzilla/content/nsDragAndDrop.js"/>
     <script src="chrome://chatzilla/content/static.js"/>
     <script src="chrome://chatzilla/content/commands.js"/>
     <script src="chrome://chatzilla/content/menus.js"/>

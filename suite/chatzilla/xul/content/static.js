@@ -255,8 +255,7 @@ function initStatic()
         setListMode("graphic");
 
     var tree = document.getElementById('user-list');
-    tree.setAttribute("ondragstart",
-                      "nsDragAndDrop.startDrag(event, userlistDNDObserver);");
+    tree.setAttribute("ondragstart", "userlistDNDObserver.onDragStart(event);");
 
     setDebugMode(client.prefs["debugMode"]);
 
@@ -3398,8 +3397,7 @@ function getTabForObject(source, create)
             createMessages(source);
 
         tb = document.createElement("tab");
-        tb.setAttribute("ondragstart",
-                        "nsDragAndDrop.startDrag(event, tabDNDObserver);");
+        tb.setAttribute("ondragstart", "tabsDNDObserver.onDragStart(event);");
         tb.setAttribute("href", source.getURL());
         tb.setAttribute("name", source.unicodeName);
         tb.setAttribute("onclick", "onTabClick(event, this.id);");
@@ -3426,13 +3424,8 @@ function getTabForObject(source, create)
         browser.setAttribute("oncontextmenu",
                              "return onMessageViewContextMenu(event)");
         browser.setAttribute("ondragover",
-                             "nsDragAndDrop.dragOver(event, " +
-                             "contentDropObserver);");
-        browser.setAttribute("ondrop",
-                             "nsDragAndDrop.drop(event, contentDropObserver);");
-        browser.setAttribute("ondragstart",
-                             "nsDragAndDrop.startDrag(event, " +
-                             "contentAreaDNDObserver);");
+                             "contentDNDObserver.onDragOver(event);");
+        browser.setAttribute("ondrop", "contentDNDObserver.onDrop(event);");
         browser.source = source;
         source.frame = browser;
         ASSERT(client.deck, "no deck?");
@@ -3582,26 +3575,19 @@ function ul_getcellprops(index, column)
     return resultProps.join(" ");
 }
 
-var contentDropObserver = new Object();
-
-contentDropObserver.onDragOver =
-function cdnd_dover(aEvent, aFlavour, aDragSession)
-{
-    if (isDefaultPrevented(aEvent))
+var contentDNDObserver = {
+  onDragOver(aEvent) {
+    if (aEvent.target == aEvent.dataTransfer.mozSourceNode)
         return;
 
-    if (aDragSession.sourceDocument == aEvent.view.document)
-    {
-        aDragSession.canDrop = false;
-        return;
-    }
-}
+    if (Services.droppedLinkHandler.canDropLink(aEvent, true))
+        aEvent.preventDefault();
+  },
 
-contentDropObserver.onDrop =
-function cdnd_drop(aEvent, aXferData, aDragSession)
-{
-    var url = transferUtils.retrieveURLFromData(aXferData.data,
-                                                aXferData.flavour.contentType);
+  onDrop(aEvent) {
+    aEvent.stopPropagation();
+
+    var url = Services.droppedLinkHandler.dropLink(aEvent, {});
     if (!url || url.search(client.linkRE) == -1)
         return;
 
@@ -3609,77 +3595,21 @@ function cdnd_drop(aEvent, aXferData, aDragSession)
         dispatch("motif", {"motif": url});
     else if (url.search(/^ircs?:\/\//i) != -1)
         dispatch("goto-url", {"url": url});
+  },
 }
 
-contentDropObserver.getSupportedFlavours =
-function cdnd_gsf()
-{
-    var flavourSet = new FlavourSet();
-    flavourSet.appendFlavour("text/x-moz-url");
-    flavourSet.appendFlavour("application/x-moz-file", "nsIFile");
-    flavourSet.appendFlavour("text/unicode");
-    return flavourSet;
-}
-
-/* Drag and Drop handler for the <tabs> element.
- *
- * XXX: Some of the code below has to work around specific limitations in how
- * the nsDragAndDrop.js wrapper works. The wrapper greatly simplifies the DnD
- * code, though, so it's still worth using.
- *
- * XXX: canDrop checks if there is a supported flavour of data because
- * nsDragAndDrop does not. This will prevent the drag service from thinking
- * we accept any old data when we don't.
- *
- * XXX: nsDragAndDrop.checkCanDrop does this:
- *     mDragSession.canDrop = mDragSession.sourceNode != aEvent.target;
- *     mDragSession.canDrop &= aDragDropObserver.canDrop(...);
- * As a result, canDrop cannot override the false canDrop value when the source
- * and target are the same (i.e. the same <tab>). Thus, we override this check
- * inside onDragOver instead, which is called after canDrop (even if that says
- * it can't be dropped, luckily). As a result, after nsDragAndDrop has called
- * canDrop and onDragOver, the drag service's canDrop value is true iff there
- * is a supported flavour.
- *
- * XXX: onDrop is the only place which checks we're getting an IRC URL, as
- * accessing the drag data at any other time is both tedious and could
- * significantly impact the performance of the drag (getting the data can be
- * very slow).
- */
-var tabsDropObserver = new Object();
-
-tabsDropObserver.canDrop =
-function tabdnd_candrop(aEvent, aDragSession)
-{
-    if (isDefaultPrevented(aEvent))
-        return false;
-
-    // See comment above |var tabsDropObserver|.
-    var flavourSet = this.getSupportedFlavours();
-    for (var flavour in flavourSet.flavourTable)
-    {
-        if (aDragSession.isDataFlavorSupported(flavour))
-            return true;
-    }
-    return false;
-}
-
-tabsDropObserver.onDragOver =
-function tabdnd_dover(aEvent, aFlavour, aDragSession)
-{
-    if (isDefaultPrevented(aEvent))
+var tabsDNDObserver = {
+  onDragOver(aEvent) {
+    if (aEvent.target == aEvent.dataTransfer.mozSourceNode)
         return;
 
-    // See comment above |var tabsDropObserver|.
-    if (aDragSession.sourceNode == aEvent.target)
-        aDragSession.canDrop = true;
-
     // If we're not accepting the drag, don't show the marker either.
-    if (!aDragSession.canDrop)
-    {
+    if (!Services.droppedLinkHandler.canDropLink(aEvent, true)) {
         client.tabDragBar.collapsed = true;
         return;
     }
+
+    aEvent.preventDefault();
 
     /* Locate the tab we're about to drop onto. We split tabs in half, dropping
      * on the side closest to the mouse, or after the last tab if the mouse is
@@ -3704,29 +3634,25 @@ function tabdnd_dover(aEvent, aFlavour, aDragSession)
     // Reposition the drop marker and show it. In that order.
     client.tabDragMarker.style.MozMarginStart = newPosition + "px";
     client.tabDragBar.collapsed = false;
-}
+ },
 
-tabsDropObserver.onDragExit =
-function tabdnd_dexit(aEvent, aDragSession)
-{
-    if (isDefaultPrevented(aEvent))
-        return;
+  onDragExit(aEvent) {
+    aEvent.stopPropagation();
 
     /* We've either stopped being part of a drag operation, or the dragging is
      * somewhere away from us.
      */
     client.tabDragBar.collapsed = true;
-}
+  },
 
-tabsDropObserver.onDrop =
-function tabdnd_drop(aEvent, aXferData, aDragSession)
-{
+  onDrop(aEvent) {
+    aEvent.stopPropagation();
+
     // Dragging has finished.
     client.tabDragBar.collapsed = true;
 
     // See comment above |var tabsDropObserver|.
-    var url = transferUtils.retrieveURLFromData(aXferData.data,
-                                                aXferData.flavour.contentType);
+    var url = Services.droppedLinkHandler.dropLink(aEvent, {});
     if (!url || !(url.match(/^ircs?:/) || url.match(/^x-irc-dcc-(chat|file):/)))
         return;
 
@@ -3761,49 +3687,38 @@ function tabdnd_drop(aEvent, aXferData, aDragSession)
     // URL not found in tabs, so force it into life - this may connect/rejoin.
     if (url.substring(0, 3) == "irc")
         gotoIRCURL(url, { tabInsertBefore: dropTab });
-}
+  },
 
-tabsDropObserver.getSupportedFlavours =
-function tabdnd_gsf()
-{
-    var flavourSet = new FlavourSet();
-    flavourSet.appendFlavour("text/x-moz-url");
-    flavourSet.appendFlavour("text/unicode");
-    return flavourSet;
-}
-
-var tabDNDObserver = new Object();
-
-tabDNDObserver.onDragStart =
-function tabdnd_dstart (aEvent, aXferData, aDragAction)
-{
+  onDragStart(aEvent) {
     var tb = aEvent.currentTarget;
     var href = tb.getAttribute("href");
     var name = tb.getAttribute("name");
 
-    aXferData.data = new TransferData();
     /* x-moz-url has the format "<url>\n<name>", goodie */
-    aXferData.data.addDataForFlavour("text/x-moz-url", href + "\n" + name);
-    aXferData.data.addDataForFlavour("text/unicode", href);
-    aXferData.data.addDataForFlavour("text/html", "<a href='" + href + "'>" +
-                                     name + "</a>");
+    aEvent.dataTransfer.setData("text/x-moz-url", href + "\n" + name);
+    aEvent.dataTransfer.setData("text/unicode", href);
+    aEvent.dataTransfer.setData("text/plain", href);
+    aEvent.dataTransfer.setData("text/html", "<a href='" + href + "'>" +
+                                name + "</a>");
+  },
 }
 
-var userlistDNDObserver = new Object();
-
-userlistDNDObserver.onDragStart =
-function userlistdnd_dstart(event, transferData, dragAction)
-{
-    var col = new Object(), row = new Object(), cell = new Object();
+var userlistDNDObserver = {
+  onDragStart(aEvent) {
+    var col = {};
+    var row = {};
+    var cell = {};
     var tree = document.getElementById('user-list');
-    tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, cell);
+    tree.treeBoxObject.getCellAt(aEvent.clientX, aEvent.clientY,
+                                 row, col, cell);
     // Check whether we're actually on a normal row and cell
     if (!cell.value || (row.value == -1))
         return;
 
     var nickname = getNicknameForUserlistRow(row.value);
-    transferData.data = new TransferData();
-    transferData.data.addDataForFlavour("text/unicode", nickname);
+    aEvent.dataTransfer.setData("text/unicode", nickname);
+    aEvent.dataTransfer.setData("text/plain", nickname);
+  },
 }
 
 function deleteTab(tb)
