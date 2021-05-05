@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-itip-identity-dialog.css"?>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<head>
+  <title data-l10n-id="calendar-itip-identity-dialog-title"></title>
+
+  <link rel="localization" href="calendar/calendar-itip-identity-dialog.ftl" />
+
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-itip-identity-dialog.js"></script>
+</head>
+
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <dialog buttons="accept,cancel">
+
+    <html:div id="calendar-itip-identity-warning"
+              data-l10n-id="calendar-itip-identity-warning"></html:div>
+
+    <label data-l10n-id="calendar-itip-identity-label" control="identity-menu"/>
+
+    <menulist id="identity-menu"/>
+  </dialog>
+</html:body>
+</html>

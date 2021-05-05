@@ -26,6 +26,7 @@
     skin/classic/calendar/shared/dialogs/calendar-event-dialog.css               (../common/dialogs/calendar-event-dialog.css)
     skin/classic/calendar/shared/dialogs/calendar-event-dialog-attendees.css     (../common/dialogs/calendar-event-dialog-attendees.css)
     skin/classic/calendar/shared/dialogs/calendar-invitations-dialog.css         (../common/dialogs/calendar-invitations-dialog.css)
+    skin/classic/calendar/shared/dialogs/calendar-itip-identity-dialog.css       (../common/dialogs/calendar-itip-identity-dialog.css)
     skin/classic/calendar/shared/dialogs/chooseCalendarDialog.css                (../common/dialogs/chooseCalendarDialog.css)
     skin/classic/calendar/shared/calendar-properties-dialog.css                  (../common/dialogs/calendar-properties-dialog.css)
     skin/classic/calendar/shared/calendar-timezone-highlighter.css               (../common/dialogs/calendar-timezone-highlighter.css)

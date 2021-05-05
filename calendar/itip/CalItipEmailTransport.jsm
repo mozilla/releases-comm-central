@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["CalItipEmailTransport"];
+var EXPORTED_SYMBOLS = ["CalItipEmailTransport", "CalItipDefaultEmailTransport"];
 
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -420,5 +420,15 @@ class CalItipNoEmailTransport extends CalItipEmailTransport {
 
   sendItems(aRecipients, aItipItem, aFromAttendee) {
     return false;
+  }
+}
+
+/**
+ * CalItipDefaultEmailTransport always uses the identity and account provided
+ * as default instead of the one configured for the calendar.
+ */
+class CalItipDefaultEmailTransport extends CalItipEmailTransport {
+  getIdentityAndAccount() {
+    return { identity: this.mDefaultIdentity, account: this.mDefaultAccount };
   }
 }

@@ -7,12 +7,13 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
-var { CalItipMessageSender } = ChromeUtils.import("resource:///modules/CalItipMessageSender.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalRelation: "resource:///modules/CalRelation.jsm",
+  CalItipDefaultEmailTransport: "resource:///modules/CalItipEmailTransport.jsm",
+  CalItipMessageSender: "resource:///modules/CalItipMessageSender.jsm",
 });
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
@@ -1685,27 +1686,49 @@ ItipItemFinder.prototype = {
           case "PUBLISH": {
             let action = (opListener, partStat, extResponse) => {
               let newItem = itipItemItem.clone();
-              let att = calitip.getInvitedAttendee(newItem);
               setReceivedInfo(newItem, itipItemItem);
               newItem.parentItem.calendar = this.mItipItem.targetCalendar;
               addScheduleAgentClient(newItem, this.mItipItem.targetCalendar);
+
+              let transport;
+              let sendCancelled = false;
+              let att = calitip.getInvitedAttendee(newItem);
               if (partStat) {
                 if (partStat != "DECLINED") {
                   cal.alarms.setDefaultValues(newItem);
                 }
+
                 if (!att) {
-                  // fall back to using configured organizer
-                  att = calitip.createOrganizer(newItem.calendar);
-                  if (att) {
-                    att.isOrganizer = false;
-                    newItem.addAttendee(att);
-                  }
+                  // Prompt the user for the identity to use for the response.
+                  // This has the side effect of the identity selected
+                  // becomming the one configured for the chosen calendar.
+                  let parent = cal.window.getCalendarWindow();
+                  parent.openDialog(
+                    "chrome://calendar/content/calendar-itip-identity-dialog.xhtml",
+                    "_blank",
+                    "chrome,modal,resizable=no,centerscreen",
+                    {
+                      onCancel() {
+                        sendCancelled = true;
+                      },
+                      onOk(identity) {
+                        let [server] = MailServices.accounts.getServersForIdentity(identity);
+                        if (server) {
+                          let account = MailServices.accounts.FindAccountForServer(server);
+                          transport = new CalItipDefaultEmailTransport(account, identity);
+
+                          att = new CalAttendee();
+                          att.id = `mailto:${identity.email}`;
+                          att.commonName = identity.fullName;
+                          att.isOrganizer = false;
+                          newItem.addAttendee(att);
+                        }
+                      },
+                    }
+                  );
                 }
                 if (att) {
                   att.participationStatus = partStat;
-                } else {
-                  cal.ASSERT(att, "no attendee to reply REQUEST!");
-                  return null;
                 }
               } else {
                 cal.ASSERT(
@@ -1714,11 +1737,14 @@ ItipItemFinder.prototype = {
                 );
                 cal.alarms.setDefaultValues(newItem);
               }
+
+              let requestListener = sendCancelled
+                ? null
+                : new ItipOpListener(opListener, null, extResponse, att, transport);
+
               return newItem.calendar.addItem(
                 newItem,
-                method == "REQUEST"
-                  ? new ItipOpListener(opListener, null, extResponse, att)
-                  : opListener
+                method == "REQUEST" ? requestListener : opListener
               );
             };
             operations.push(action);
