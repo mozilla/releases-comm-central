@@ -40,7 +40,9 @@ interface calIItipTransport : nsISupports
      * text/calendar mime part.
      * @param recipientArray    array of recipients
      * @param calIItipItem      set of calIItems encapsulated as calIItipItems
+     * @param sender            the attendee the calIItipItem is coming from.
      */
     boolean sendItems(in Array<calIAttendee> recipientArray,
-                      in calIItipItem item);
+                      in calIItipItem item,
+                      in calIAttendee sender);
 };

@@ -73,7 +73,7 @@ class CalItipEmailTransport {
     return new CalItipNoEmailTransport();
   }
 
-  _prepareItems(aItipItem) {
+  _prepareItems(aItipItem, aFromAttendee) {
     let item = aItipItem.getItemList()[0];
 
     // Get ourselves some default text - when we handle organizer properly
@@ -120,19 +120,18 @@ class CalItipEmailTransport {
       }
       case "REPLY": {
         // Get my participation status
-        let att = cal.itip.getInvitedAttendee(item, aItipItem.targetCalendar);
-        if (!att && aItipItem.identity) {
-          att = item.getAttendeeById(cal.email.prependMailTo(aItipItem.identity));
+        if (!aFromAttendee && aItipItem.identity) {
+          aFromAttendee = item.getAttendeeById(cal.email.prependMailTo(aItipItem.identity));
         }
-        if (!att) {
+        if (!aFromAttendee) {
           // should not happen anymore
           return false;
         }
 
         // work around BUG 351589, the below just removes RSVP:
-        aItipItem.setAttendeeStatus(att.id, att.participationStatus);
-        let myPartStat = att.participationStatus;
-        let name = att.toString();
+        aItipItem.setAttendeeStatus(aFromAttendee.id, aFromAttendee.participationStatus);
+        let myPartStat = aFromAttendee.participationStatus;
+        let name = aFromAttendee.toString();
 
         // Generate proper body from my participation status
         let subjectKey, bodyKey;
@@ -400,9 +399,9 @@ class CalItipEmailTransport {
     return { identity, account };
   }
 
-  sendItems(aRecipients, aItipItem) {
+  sendItems(aRecipients, aItipItem, aFromAttendee) {
     cal.LOG("sendItems: Preparing to send an invitation email...");
-    let items = this._prepareItems(aItipItem);
+    let items = this._prepareItems(aItipItem, aFromAttendee);
     if (items === false) {
       return false;
     }
@@ -419,7 +418,7 @@ class CalItipNoEmailTransport extends CalItipEmailTransport {
   wrappedJSObject = this;
   QueryInterface = ChromeUtils.generateQI(["calIItipTransport"]);
 
-  sendItems(aRecipients, aItipItem) {
+  sendItems(aRecipients, aItipItem, aFromAttendee) {
     return false;
   }
 }

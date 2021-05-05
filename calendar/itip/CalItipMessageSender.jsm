@@ -211,7 +211,7 @@ class CalItipMessageSender {
           }
           replyTo.push(item.organizer);
           this.pendingMessages.push(
-            new CalItipOutgoingMessage("REPLY", replyTo, item, autoResponse)
+            new CalItipOutgoingMessage("REPLY", replyTo, item, invitedAttendee, autoResponse)
           );
         }
       }
@@ -239,7 +239,7 @@ class CalItipMessageSender {
 
     if (opType == Ci.calIOperationListener.DELETE) {
       this.pendingMessages.push(
-        new CalItipOutgoingMessage("CANCEL", item.getAttendees(), item, autoResponse)
+        new CalItipOutgoingMessage("CANCEL", item.getAttendees(), item, null, autoResponse)
       );
       return this.pendingMessages.length;
     } // else ADD, MODIFY:
@@ -322,7 +322,7 @@ class CalItipMessageSender {
 
         if (recipients.length > 0) {
           this.pendingMessages.push(
-            new CalItipOutgoingMessage("REQUEST", recipients, requestItem, autoResponse)
+            new CalItipOutgoingMessage("REQUEST", recipients, requestItem, null, autoResponse)
           );
         }
       }
@@ -336,7 +336,7 @@ class CalItipMessageSender {
         cancelItem.addAttendee(att);
       }
       this.pendingMessages.push(
-        new CalItipOutgoingMessage("CANCEL", canceledAttendees, cancelItem, autoResponse)
+        new CalItipOutgoingMessage("CANCEL", canceledAttendees, cancelItem, null, autoResponse)
       );
     }
     return this.pendingMessages.length;

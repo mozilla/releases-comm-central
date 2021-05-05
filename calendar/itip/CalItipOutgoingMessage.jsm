@@ -13,14 +13,19 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 class CalItipOutgoingMessage {
   /**
    * @param {string} method - The iTIP request method.
-   * @param {calIAttendee[]} recipients - A list of attendees who will receive the message.
+   * @param {calIAttendee[]} recipients - A list of attendees who will receive
+   *                                      the message.
    * @param {calIEvent} item - The item the message relates to.
-   * @param {Object} autoResponse - The inout object whether the transport should ask before sending
+   * @param {?calIAttendee} sender - The attendee the message comes from for
+   *                                 replies.
+   * @param {?object} autoResponse - The inout object whether the transport
+   *                                 should ask before sending
    */
-  constructor(method, recipients, item, autoResponse) {
+  constructor(method, recipients, item, sender, autoResponse) {
     this.method = method;
     this.recipients = recipients;
     this.item = item;
+    this.sender = sender;
     this.autoResponse = autoResponse;
   }
 
@@ -55,7 +60,7 @@ class CalItipOutgoingMessage {
       return false;
     }
 
-    let { method, autoResponse } = this;
+    let { method, sender, autoResponse } = this;
     let _sendItem = function(aSendToList, aSendItem) {
       let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
       itipItem.init(cal.item.serialize(aSendItem));
@@ -67,7 +72,7 @@ class CalItipOutgoingMessage {
       // XXX I don't know whether the below is used at all, since we don't use the itip processor
       itipItem.isSend = true;
 
-      return transport.sendItems(aSendToList, itipItem);
+      return transport.sendItems(aSendToList, itipItem, sender);
     };
 
     // split up transport, if attendee undisclosure is requested
