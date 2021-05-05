@@ -219,7 +219,7 @@ function check_message_pane_in_tab_full_height() {
  */
 
 function check_message_pane_in_window_full_height(win) {
-  let messengerWindowHeight = win.screen.height;
+  let messengerWindowHeight = win.document.body.getBoundingClientRect().height;
   let messengerChildren = win.document.body.children;
   let childrenHeightsSum = 0;
   let childrenHeightsStr = "";
