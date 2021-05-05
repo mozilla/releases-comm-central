@@ -21,7 +21,7 @@ class CalItipMessageSender {
   pendingMessages = [];
 
   /**
-   * @param {calIItemBase} originalItem - The original invitation  item before
+   * @param {?calIItemBase} originalItem - The original invitation item before
    *  it is modified.
    */
   constructor(originalItem) {
@@ -37,18 +37,20 @@ class CalItipMessageSender {
    *
    * @param {Number} opType - Type of operation - (e.g. ADD, MODIFY or DELETE)
    * @param {calIItemBase} item - The updated item.
-   * @param {?object} extResponse An object to provide additional
+   * @param {?calIAttendee} targetAttendee - For the REQUEST/PUBLISH methods this
+   *  is the invited attendee. It is not currently used otherwise.
+   * @param {?object} extResponse - An object to provide additional
    *  parameters for sending itip messages as response mode, comments or a
-   *  subset of recipients. Currently implemented attributes are:
-   *    * responseMode Response mode (long) as defined for autoResponse of
-   *      calIItipItem.
+   *  subset of recipients.
+   * @param {number} extResponse.responseMode - Response mode as defined for
+   *  autoResponse of calIItipItem.
    *
    *  The default mode is USER (which will trigger displaying the previously
    *  known popup to ask the user whether to send)
    *
    * @returns {number} - The number of messages to be sent.
    */
-  detectChanges(opType, item, extResponse = null) {
+  detectChanges(opType, item, targetAttendee, extResponse = null) {
     let { originalItem } = this;
 
     // balance out parts of the modification vs delete confusion, deletion of occurrences
@@ -133,6 +135,10 @@ class CalItipMessageSender {
     }
 
     let invitedAttendee = cal.itip.isInvitation(item) && cal.itip.getInvitedAttendee(item);
+    if (!invitedAttendee && targetAttendee && item.getAttendeeById(targetAttendee.id)) {
+      invitedAttendee = targetAttendee;
+    }
+
     if (invitedAttendee) {
       // actually is an invitation copy, fix attendee list to send REPLY
       /* We check if the attendee id matches one of of the

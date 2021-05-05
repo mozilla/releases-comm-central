@@ -765,13 +765,21 @@ var calitip = {
    *                                            of calIItipItem. The default mode is USER (which
    *                                            will trigger displaying the previously known popup
    *                                            to ask the user whether to send)
-   * @param {calIItipTransport} [aTransport=null] - An optional transport to use instead of the one
-   *  provided by the item's calendar.
+   * @param {?calIAttendee} aTargetAttendee The target attendee of the action being carried out.
+   * @param {?calIItipTransport} aTransport An optional transport to use instead of the one
+   *                                        provided by the item's calendar.
    */
-  checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null, aTransport = null) {
-    let sender = new CalItipMessageSender(aOriginalItem);
+  checkAndSend(
+    aOpType,
+    aItem,
+    aOriginalItem,
+    aExtResponse = null,
+    aTargetAttendee = null,
+    aTransport = null
+  ) {
+    let sender = new CalItipMessageSender(aOriginalItem, aTargetAttendee);
 
-    if (sender.detectChanges(aOpType, aItem, aExtResponse)) {
+    if (sender.detectChanges(aOpType, aItem, aTargetAttendee, aExtResponse)) {
       sender.send(aTransport);
     }
   },
@@ -1210,15 +1218,23 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
  * @param {Object} aOpListener          operation listener to forward
  * @param {calIItemBase} aOldItem       The previous item before modification (if any)
  * @param {?Object} aExtResponse        An object to provide additional parameters for sending itip
- *                                        messages as response mode, comments or a subset of
- *                                        recipients.
- * @param {calIItipTransport} [aTransport=null] - An optional transport to use instead of the one
- *   provided by the item's calendar.
+ *                                      messages as response mode, comments or a subset of
+ *                                      recipients.
+ * @param {?calIAttendee} aTargetAttendee The target attendee of the action being carried out.
+ * @param {?calIItipTransport} aTransport An optional transport to use instead of the one
+ *                                        provided by the item's calendar.
  */
-function ItipOpListener(aOpListener, aOldItem, aExtResponse = null, aTransport = null) {
+function ItipOpListener(
+  aOpListener,
+  aOldItem,
+  aExtResponse = null,
+  aTargetAttendee = null,
+  aTransport = null
+) {
   this.mOpListener = aOpListener;
   this.mOldItem = aOldItem;
   this.mExtResponse = aExtResponse;
+  this.mTargetAttendee = aTargetAttendee;
   this.mTransport = aTransport;
 }
 ItipOpListener.prototype = {
@@ -1236,6 +1252,7 @@ ItipOpListener.prototype = {
         aDetail,
         this.mOldItem,
         this.mExtResponse,
+        this.mTargetAttendee,
         this.mTransport
       );
     }
@@ -1668,6 +1685,7 @@ ItipItemFinder.prototype = {
           case "PUBLISH": {
             let action = (opListener, partStat, extResponse) => {
               let newItem = itipItemItem.clone();
+              let att = calitip.getInvitedAttendee(newItem);
               setReceivedInfo(newItem, itipItemItem);
               newItem.parentItem.calendar = this.mItipItem.targetCalendar;
               addScheduleAgentClient(newItem, this.mItipItem.targetCalendar);
@@ -1675,7 +1693,6 @@ ItipItemFinder.prototype = {
                 if (partStat != "DECLINED") {
                   cal.alarms.setDefaultValues(newItem);
                 }
-                let att = calitip.getInvitedAttendee(newItem);
                 if (!att) {
                   // fall back to using configured organizer
                   att = calitip.createOrganizer(newItem.calendar);
@@ -1699,7 +1716,9 @@ ItipItemFinder.prototype = {
               }
               return newItem.calendar.addItem(
                 newItem,
-                method == "REQUEST" ? new ItipOpListener(opListener, null, extResponse) : opListener
+                method == "REQUEST"
+                  ? new ItipOpListener(opListener, null, extResponse, att)
+                  : opListener
               );
             };
             operations.push(action);
