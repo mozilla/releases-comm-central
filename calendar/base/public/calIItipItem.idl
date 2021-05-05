@@ -79,7 +79,7 @@ interface calIItipItem : nsISupports
 
     /**
      * Attribute: targetCalendar - the calendar that this thing should be
-     * stored in, if it should be stored onto a calendar. This is a calendar ID
+     * stored in, if it should be stored onto a calendar.
      */
     attribute calICalendar targetCalendar;
 
