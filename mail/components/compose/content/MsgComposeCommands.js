@@ -182,6 +182,21 @@ var gNumUploadingAttachments;
 
 var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
+window.addEventListener("unload", event => {
+  ComposeUnload();
+});
+window.addEventListener("load", event => {
+  ComposeLoad();
+});
+window.addEventListener("close", event => {
+  if (!DoCommandClose()) {
+    event.preventDefault();
+  }
+});
+window.addEventListener("focus", event => {
+  EditorOnFocus();
+});
+
 // For WebExtensions.
 this.__defineGetter__("browser", GetCurrentEditorElement);
 
@@ -5150,11 +5165,8 @@ function checkPublicRecipientsLimit() {
   }
 
   // Construct the notification as we don't have one.
-  let msg = document.createXULElement("hbox");
-  msg.setAttribute("flex", "100");
 
   let msgText = document.createElement("div");
-  msg.appendChild(msgText);
   msgText.classList.add("consider-bcc-notification-text");
   msgText.setAttribute("data-l10n-id", "consider-bcc-notification");
   msgText.setAttribute(
@@ -5199,9 +5211,14 @@ function checkPublicRecipientsLimit() {
   notification.setAttribute("id", "warnPublicRecipientsNotification");
   // Variation for Proton UI.
   if (this.gComposeNotification.gProton) {
-    notification.messageText.appendChild(msg);
+    notification.messageText.appendChild(msgText);
     return;
   }
+
+  // Ugh, the following isn't perfect... but !gProton may be dropped soon.
+  let msg = document.createElement("div");
+  msg.appendChild(msgText);
+  notification.messageDetails.style.display = "flex";
   notification.messageDetails.querySelector("button").before(msg);
 }
 

@@ -593,7 +593,9 @@ add_task(function test_attachments_compose_menu() {
       // Walk up the DOM tree and call isCommandEnabled on the first controller
       // that supports "cmd_delete".
       while (element != cwc.window.document) {
-        for (let i = 0; i < element.controllers.getControllerCount(); i++) {
+        // NOTE: html elements (like body) don't have controllers.
+        let numControllers = element.controllers?.getControllerCount() || 0;
+        for (let i = 0; numControllers; i++) {
           let currController = element.controllers.getControllerAt(i);
           if (currController.supportsCommand("cmd_delete")) {
             currController.isCommandEnabled("cmd_delete");

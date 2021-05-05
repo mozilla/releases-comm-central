@@ -9,7 +9,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
   <!ENTITY % messengercomposeDTD SYSTEM "chrome://messenger/locale/messengercompose/messengercompose.dtd" >
   %messengercomposeDTD;
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -33,70 +33,63 @@
   %messengerDTD;
 ]>
 
-<window id="msgcomposeWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        icon="msgcomposeWindow"
-        onunload="ComposeUnload()"
-        onload="ComposeLoad()"
-        onclose="return DoCommandClose()"
-        onfocus="EditorOnFocus()"
-        title="&msgComposeWindow.title;"
-        windowtype="msgcompose"
-        toggletoolbar="true"
-        persist="screenX screenY width height sizemode"
-        lightweightthemes="true"
+<html id="msgcomposeWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      icon="msgcomposeWindow"
+      scrolling="false"
+      windowtype="msgcompose"
+      toggletoolbar="true"
+      persist="screenX screenY width height sizemode"
+      lightweightthemes="true"
 #ifdef XP_MACOSX
-        macanimationtype="document"
-        chromemargin="0,-1,-1,-1"
+      macanimationtype="document"
+      chromemargin="0,-1,-1,-1"
 #endif
-        fullscreenbutton="true">
+      fullscreenbutton="true">
+<head>
+  <title>&msgComposeWindow.title;</title>
+  <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="messenger/messengercompose/messengercompose.ftl" />
+  <link rel="localization" href="toolkit/main-window/findbar.ftl" />
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="messenger/menubar.ftl" />
+  <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+  <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/editor.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/editorUtilities.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/ComposerCommands.js"></script>
+  <script defer="defer" src="chrome://messenger/content/button-menu-button.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/bigFileObserver.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/cloudAttachmentLinkManager.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
+  <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"></script>
+  <script defer="defer" src="chrome://messenger/content/nsContextMenu.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abDragDrop.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
+  <script defer="defer" src="chrome://global/content/printUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
+#ifdef XP_MACOSX
+  <script defer="defer" src="chrome://global/content/macWindowMenu.js"></script>
+#endif
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
+#ifdef MOZ_OPENPGP
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgComposeOverlay.js"></script>
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgComposeHelper.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <stringbundle id="bundle_composeMsgs" src="chrome://messenger/locale/messengercompose/composeMsgs.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="brandBundle" src="chrome://branding/locale/brand.properties"/>
 
-<linkset>
-  <html:link rel="localization" href="messenger/messenger.ftl"/>
-  <html:link rel="localization" href="messenger/messengercompose/messengercompose.ftl"/>
-  <html:link rel="localization" href="toolkit/main-window/findbar.ftl"/>
-  <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
-  <html:link rel="localization" href="messenger/menubar.ftl"/>
-  <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
-</linkset>
-
-<script src="chrome://global/content/globalOverlay.js"/>
-<script src="chrome://global/content/editMenuOverlay.js"/>
-<script src="chrome://messenger/content/accountUtils.js"/>
-<script src="chrome://messenger/content/mailCore.js"/>
-<script src="chrome://communicator/content/contentAreaClick.js"/>
-<script src="chrome://messenger/content/messengercompose/editor.js"/>
-<script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
-<script src="chrome://messenger/content/messengercompose/ComposerCommands.js"/>
-<script src="chrome://messenger/content/button-menu-button.js"/>
-<script src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
-<script src="chrome://messenger/content/messengercompose/bigFileObserver.js"/>
-<script src="chrome://messenger/content/messengercompose/cloudAttachmentLinkManager.js"/>
-<script src="chrome://messenger/content/messenger-customization.js"/>
-<script src="chrome://messenger/content/customizable-toolbar.js"/>
-<script src="chrome://messenger/content/nsContextMenu.js"/>
-
-<!-- drag and drop -->
-<script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
-
-<!-- move needed functions into a single js file -->
-<script src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
-<script src="chrome://global/content/contentAreaUtils.js"/>
-<script src="chrome://global/content/printUtils.js"/>
-<script src="chrome://messenger/content/viewZoomOverlay.js"/>
-#ifdef XP_MACOSX
-<script src="chrome://global/content/macWindowMenu.js"/>
-#endif
-<script src="chrome://communicator/content/utilityOverlay.js"/>
-<script src="chrome://messenger/content/toolbarIconColor.js"/>
-#ifdef MOZ_OPENPGP
-<script src="chrome://openpgp/content/ui/enigmailMsgComposeOverlay.js"/>
-<script src="chrome://openpgp/content/ui/enigmailMsgComposeHelper.js"/>
 #endif
 
 <commandset id="composeCommands">
@@ -772,7 +765,6 @@
            oncommand="ChangeLanguage(event);"
            onpopupshowing="OnShowDictionaryMenu(event.target);">
 </menupopup>
-
 
 <menupopup id="emailAddressPillPopup" class="emailAddressPopup">
   <menuitem id="editAddressPill"
@@ -2565,4 +2557,5 @@
       </toolbarbutton>
     </hbox>
   </hbox>
-</window>
+</html:body>
+</html>
