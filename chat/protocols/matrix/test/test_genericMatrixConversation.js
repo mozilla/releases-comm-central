@@ -217,6 +217,72 @@ add_task(function test_addEventTopic() {
   equal(roomStub._mostRecentEventId, 1);
 });
 
+add_task(async function test_addEventTombostone() {
+  const event = {
+    isRedacted() {
+      return false;
+    },
+    getType() {
+      return "m.room.tombstone";
+    },
+    getId() {
+      return 1;
+    },
+    getContent() {
+      return {
+        body: "updated room",
+        replacement_room: "!new_room:example.com",
+      };
+    },
+    getSender() {
+      return "@test:example.com";
+    },
+    getDate() {
+      return new Date();
+    },
+  };
+  const roomStub = {
+    replaceRoom(newConversation) {
+      this.newConversation = newConversation;
+    },
+    forget() {
+      this.forgot = true;
+    },
+    writeMessage(who, message, options) {
+      this.who = who;
+      this.message = message;
+      this.options = options;
+    },
+    isChat: true,
+    name: "test room",
+    _account: {
+      getGroupConversation(roomId, name) {
+        return {
+          roomId,
+          name,
+          waitForRoom() {
+            return Promise.resolve(roomStub);
+          },
+        };
+      },
+      checkRoomForUpdate(room) {
+        equal(room.id, roomStub.newConversation.id);
+        roomStub.checkedRoom = true;
+      },
+    },
+  };
+  matrix.GenericMatrixConversation.addEvent.call(roomStub, event);
+  equal(roomStub.newConversation.roomId, event.getContent().replacement_room);
+  equal(roomStub.newConversation.name, roomStub.name);
+  equal(roomStub.who, event.getSender());
+  equal(roomStub.message, event.getContent().body);
+  ok(roomStub.options.system);
+  ok(roomStub.options.incoming);
+  ok(roomStub.forgot);
+  await Promise.resolve();
+  ok(roomStub.checkedRoom);
+});
+
 function makeEvent(sender, content = {}, redacted = false) {
   const time = new Date();
   return {

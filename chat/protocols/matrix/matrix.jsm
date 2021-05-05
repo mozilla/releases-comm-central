@@ -371,6 +371,24 @@ var GenericMatrixConversation = {
       });
     } else if (event.getType() == "m.room.topic") {
       this.setTopic(event.getContent().topic, event.getSender());
+    } else if (event.getType() == "m.room.tombstone") {
+      // Room version update
+      this.writeMessage(event.getSender(), event.getContent().body, {
+        system: true,
+        incoming: true,
+        time: Math.floor(event.getDate() / 1000),
+      });
+      let newConversation = this._account.getGroupConversation(
+        event.getContent().replacement_room,
+        this.name
+      );
+      // Make sure the new room gets the correct conversation type.
+      newConversation
+        .waitForRoom()
+        .then(conv => this._account.checkRoomForUpdate(conv));
+      this.replaceRoom(newConversation);
+      this.forget();
+      //TODO link to the old logs based on the |predecessor| field of m.room.create
     } else {
       let message = getMatrixTextForEvent(event);
       // We don't think we should show a notice for this event.
