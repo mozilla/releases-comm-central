@@ -140,8 +140,6 @@ fluent-lint:
     description: Check for problems with Fluent files.
     treeherder:
         symbol: l10n(fluent)
-    always-target: false
-    run-on-projects: []
     run:
         mach: >
             lint -l fluent-lint -f treeherder
@@ -150,8 +148,8 @@ fluent-lint:
     when:
         files-changed:
             - 'comm/**/*.ftl'
-            - 'tools/lint/fluent-lint.yml'
-            - 'tools/lint/fluent-lint/exclusions.yml'
+            - 'comm/tools/lint/fluent-lint.yml'
+            - 'comm/tools/lint/fluent-lint/exclusions.yml'
 
 
 license:
