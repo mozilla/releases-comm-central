@@ -11,6 +11,12 @@
 % override chrome://global/content/elements/message-bar.css chrome://messenger/skin/message-bar.css
 % override chrome://browser/skin/developer.svg chrome://messenger/skin/icons/developer.svg
 
+# Devtools overrides
+% override chrome://devtools/skin/images/aboutdebugging-firefox-nightly.svg chrome://branding/content/about-logo.svg
+% override chrome://devtools/skin/images/aboutdebugging-firefox-release.svg chrome://branding/content/about-logo.svg
+% override chrome://devtools/skin/images/aboutdebugging-firefox-beta.svg chrome://branding/content/about-logo.svg
+% override chrome://devtools/skin/images/aboutdebugging-firefox-logo.svg chrome://messenger/skin/icons/aboutdebugging-logo.svg
+
 # Proton icon overrides
 % override chrome://global/skin/icons/add.svg chrome://messenger/skin/overrides/add.svg
 % override chrome://global/skin/icons/arrow-dropdown-12.svg chrome://messenger/skin/overrides/arrow-dropdown-12.svg
@@ -113,6 +119,7 @@
   skin/classic/messenger/addressbook/icons/menu.svg           (../shared/mail/icons/menu.svg)
   skin/classic/messenger/downloads/download.svg               (../shared/mail/icons/download.svg)
   skin/classic/messenger/icons/ablist.svg                     (../shared/mail/icons/ablist.svg)
+  skin/classic/messenger/icons/aboutdebugging-logo.svg        (../shared/mail/icons/aboutdebugging-logo.svg)
   skin/classic/messenger/icons/address.svg                    (../shared/mail/icons/address.svg)
   skin/classic/messenger/icons/addcontact.svg                 (../shared/mail/icons/addcontact.svg)
   skin/classic/messenger/icons/addlist.svg                    (../shared/mail/icons/addlist.svg)
