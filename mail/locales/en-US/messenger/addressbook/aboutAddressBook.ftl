@@ -4,6 +4,19 @@
 
 about-addressbook-title = Address Book
 
+## Toolbar
+
+about-addressbook-toolbar-new-address-book =
+  .label = New Address Book
+about-addressbook-toolbar-new-carddav-address-book =
+  .label = New CardDAV Address Book
+about-addressbook-toolbar-new-ldap-address-book =
+  .label = New LDAP Address Book
+about-addressbook-toolbar-new-contact =
+  .label = New Contact
+about-addressbook-toolbar-new-list =
+  .label = New List
+
 ## Books
 
 all-address-books = All Address Books

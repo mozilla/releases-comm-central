@@ -61,6 +61,124 @@ window.addEventListener("load", () => {
   cardsPane.cardsList.focus();
 });
 
+/**
+ * Show UI to create a new address book of the type specified.
+ *
+ * @param {integer} [type=Ci.nsIAbManager.JS_DIRECTORY_TYPE] - One of the
+ *     nsIAbManager directory type constants.
+ */
+function createBook(type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
+  const typeURLs = {
+    [Ci.nsIAbManager.LDAP_DIRECTORY_TYPE]:
+      "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
+    [Ci.nsIAbManager.JS_DIRECTORY_TYPE]:
+      "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml",
+    [Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE]:
+      "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
+  };
+
+  let url = typeURLs[type];
+  if (!url) {
+    throw new Components.Exception(
+      `Unexpected type: ${type}`,
+      Cr.NS_ERROR_UNEXPECTED
+    );
+  }
+
+  let params = {};
+  SubDialog.open(
+    url,
+    {
+      features: "resizable=no",
+      closedCallback: () => {
+        if (params.newDirectoryUID) {
+          booksList.selectedIndex = booksList.getIndexForUID(
+            params.newDirectoryUID
+          );
+          booksList.focus();
+        }
+      },
+    },
+    params
+  );
+}
+
+/**
+ * Show UI to create a new contact in the current address book.
+ */
+function createContact() {
+  if (booksList.selectedIndex === 0) {
+    throw new Components.Exception(
+      "Cannot modify the All Address Books item",
+      Cr.NS_ERROR_UNEXPECTED
+    );
+  }
+
+  let row = booksList.getRowAtIndex(booksList.selectedIndex);
+  let bookUID = row.dataset.book ?? row.dataset.uid;
+
+  if (bookUID) {
+    let book = MailServices.ab.getDirectoryFromUID(bookUID);
+    if (book.readOnly) {
+      throw new Components.Exception(
+        "Address book is read-only",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+  }
+
+  detailsPane.currentCard = null;
+  detailsPane.editCurrentContact();
+  detailsPane.container.hidden = false;
+}
+
+/**
+ * Show UI to create a new list in the current address book.
+ * For now this loads the old list UI, the intention is to replace it.
+ */
+function createList() {
+  if (booksList.selectedIndex === 0) {
+    throw new Components.Exception(
+      "Cannot modify the All Address Books item",
+      Cr.NS_ERROR_UNEXPECTED
+    );
+  }
+
+  let row = booksList.getRowAtIndex(booksList.selectedIndex);
+  let bookUID = row.dataset.book ?? row.dataset.uid;
+
+  let params = {};
+  if (bookUID) {
+    let book = MailServices.ab.getDirectoryFromUID(bookUID);
+    if (book.readOnly) {
+      throw new Components.Exception(
+        "Address book is read-only",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+    if (!book.supportsMailingLists) {
+      throw new Components.Exception(
+        "Address book does not support lists",
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+    params.selectedAB = book.URI;
+  }
+  SubDialog.open(
+    "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
+    {
+      features: "resizable=no",
+      closedCallback: () => {
+        if (params.newListUID) {
+          booksList.selectedIndex = booksList.getIndexForUID(params.newListUID);
+          booksList.focus();
+        }
+      },
+    },
+    params
+  );
+}
+
 // Books
 
 /**
@@ -307,6 +425,20 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
       cardsPane.displayList(row.dataset.book, row.dataset.uid);
     } else {
       cardsPane.displayBook(row.dataset.uid);
+    }
+
+    // Row 0 is the "All Address Books" item. Contacts and lists can't be
+    // added here.
+    if (this.selectedIndex === 0) {
+      document.getElementById("toolbarCreateContact").disabled = true;
+      document.getElementById("toolbarCreateList").disabled = true;
+    } else {
+      let bookUID = row.dataset.book ?? row.dataset.uid;
+      let book = MailServices.ab.getDirectoryFromUID(bookUID);
+
+      document.getElementById("toolbarCreateContact").disabled = book.readOnly;
+      document.getElementById("toolbarCreateList").disabled =
+        book.readOnly || !book.supportsMailingLists;
     }
   }
 

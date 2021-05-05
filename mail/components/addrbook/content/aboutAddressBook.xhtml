@@ -5,7 +5,8 @@
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/addressbook/abCard.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml">
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true">
 <head>
   <meta charset="utf-8" />
   <title data-l10n-id="about-addressbook-title"></title>
@@ -30,6 +31,27 @@
 <body>
   <xul:toolbox id="toolbox" class="contentTabToolbox" labelalign="end">
     <xul:toolbar class="chromeclass-toolbar contentTabToolbar" mode="full">
+      <xul:toolbarbutton id="toolbarCreateBook" is="toolbarbutton-menu-button" type="menu-button"
+                         class="toolbarbutton-1"
+                         data-l10n-id="about-addressbook-toolbar-new-address-book"
+                         oncommand="if (!event.target.closest('menuitem')) { createBook(); }">
+        <xul:menupopup>
+          <xul:menuitem data-l10n-id="about-addressbook-toolbar-new-address-book"
+                        oncommand="createBook();"/>
+          <xul:menuitem data-l10n-id="about-addressbook-toolbar-new-carddav-address-book"
+                        oncommand="createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);"/>
+          <xul:menuitem data-l10n-id="about-addressbook-toolbar-new-ldap-address-book"
+                        oncommand="createBook(Ci.nsIAbManager.LDAP_DIRECTORY_TYPE);"/>
+        </xul:menupopup>
+      </xul:toolbarbutton>
+      <xul:toolbarbutton id="toolbarCreateContact"
+                         class="toolbarbutton-1"
+                         data-l10n-id="about-addressbook-toolbar-new-contact"
+                         oncommand="createContact();"/>
+      <xul:toolbarbutton id="toolbarCreateList"
+                         class="toolbarbutton-1"
+                         data-l10n-id="about-addressbook-toolbar-new-list"
+                         oncommand="createList();"/>
     </xul:toolbar>
   </xul:toolbox>
   <div id="booksPane">

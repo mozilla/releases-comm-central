@@ -90,6 +90,7 @@ function abNameOKButton(event) {
       Ci.nsIAbManager.JS_DIRECTORY_TYPE
     );
     let directory = MailServices.ab.getDirectoryFromId(dirPrefId);
+    window.arguments[0].newDirectoryUID = directory.UID;
     window.arguments[0].newDirectoryURI = directory.URI;
   }
 }

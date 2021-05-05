@@ -68,6 +68,26 @@ body {
   font: message-box;
 }
 
+#toolbarCreateBook {
+  list-style-image: url("chrome://messenger/skin/icons/address.svg");
+}
+
+#toolbarCreateContact {
+  list-style-image: url("chrome://messenger/skin/icons/addcontact.svg");
+}
+
+#toolbarCreateList {
+  list-style-image: url("chrome://messenger/skin/icons/addlist.svg");
+}
+
+#toolbarImport {
+  list-style-image: url("chrome://messenger/skin/icons/import.svg");
+}
+
+#toolbarExport {
+  list-style-image: url("chrome://messenger/skin/icons/file.svg");
+}
+
 /* Books pane */
 
 #booksPane {

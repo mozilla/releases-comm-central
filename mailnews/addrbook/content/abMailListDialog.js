@@ -185,6 +185,7 @@ function MailListOKButton(event) {
       updateMailListMembers(mailList, parentDirectory);
       NotifySaveListeners(mailList);
 
+      window.arguments[0].newListUID = mailList.UID;
       window.arguments[0].newListURI = mailList.URI;
     } else {
       event.preventDefault();

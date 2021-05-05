@@ -380,6 +380,7 @@ window.addEventListener("dialogaccept", event => {
       );
       book = MailServices.ab.getDirectoryFromId(dirPrefId);
       book.setStringValue("carddav.url", checkbox.value);
+      window.arguments[0].newDirectoryUID = book.UID;
       window.arguments[0].newDirectoryURI = book.URI;
 
       if (oAuth) {

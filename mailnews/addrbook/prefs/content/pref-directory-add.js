@@ -421,6 +421,7 @@ function onAccept(event) {
       // set window.opener.gUpdate to true so that LDAP Directory Servers
       // dialog gets updated
       window.opener.gUpdate = true;
+      window.arguments[0].newDirectoryUID = theDirectory.UID;
       window.arguments[0].newDirectoryURI = theDirectory.URI;
     } else {
       let addressBookBundle = document.getElementById("bundle_addressBook");
