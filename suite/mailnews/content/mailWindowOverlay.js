@@ -750,15 +750,8 @@ function NavigateToUri(target)
 
 function InitMessageMark()
 {
-  var areMessagesRead = SelectedMessagesAreRead();
-  var readItem = document.getElementById("cmd_markAsRead");
-  if(readItem)
-     readItem.setAttribute("checked", areMessagesRead);
-
-  var areMessagesFlagged = SelectedMessagesAreFlagged();
-  var flaggedItem = document.getElementById("cmd_markAsFlagged");
-  if(flaggedItem)
-     flaggedItem.setAttribute("checked", areMessagesFlagged);
+  document.getElementById("cmd_markAsFlagged")
+          .setAttribute("checked", SelectedMessagesAreFlagged());
 
   document.commandDispatcher.updateCommands('create-menu-mark');
 }
@@ -817,12 +810,14 @@ function SelectedMessagesAreJunk()
 
 function SelectedMessagesAreRead()
 {
-  for (let i = 0; i < gFolderDisplay.selectedMessages.length; ++i)
-  {
-    if (!gFolderDisplay.selectedMessages[i].isRead)
-      return false;
-  }
-  return true;
+  let messages = gFolderDisplay.selectedMessages;
+  if (messages.length == 0)
+    return undefined;
+  if (messages.every(function(msg) { return msg.isRead; }))
+    return true;
+  if (messages.every(function(msg) { return !msg.isRead; }))
+    return false;
+  return undefined;
 }
 
 function SelectedMessagesAreFlagged()
@@ -1653,27 +1648,38 @@ function MsgJunk()
   JunkSelectedMessages(!SelectedMessagesAreJunk());
 }
 
-function MsgMarkMsgAsRead(markRead)
-{
-    if (!markRead) {
-        markRead = !SelectedMessagesAreRead();
-    }
-    MarkSelectedMessagesRead(markRead);
+/**
+ * Checks if the selected messages can be marked as read or unread
+ *
+ * @param read true if trying to mark messages as read, false otherwise
+ * @return true if the chosen operation can be performed
+ */
+function CanMarkMsgAsRead(read) {
+  return SelectedMessagesAreRead() != read;
 }
 
-function MsgMarkAsFlagged(markFlagged)
+/**
+ * Marks the selected messages as read or unread
+ *
+ * @param read true if trying to mark messages as read, false if marking unread,
+ *        undefined if toggling the read status
+ */
+function MsgMarkMsgAsRead(read) {
+  if (read == undefined)
+    read = !SelectedMessagesAreRead();
+  MarkSelectedMessagesRead(read);
+}
+
+function MsgMarkAsFlagged()
 {
-    if (!markFlagged) {
-        markFlagged = !SelectedMessagesAreFlagged();
-    }
-    MarkSelectedMessagesFlagged(markFlagged);
+  MarkSelectedMessagesFlagged(!SelectedMessagesAreFlagged());
 }
 
 function MsgMarkReadByDate()
 {
-    window.openDialog( "chrome://messenger/content/markByDate.xul","",
-                       "chrome,modal,titlebar,centerscreen",
-                       GetLoadedMsgFolder() );
+  window.openDialog("chrome://messenger/content/markByDate.xul","",
+                    "chrome,modal,titlebar,centerscreen",
+                    GetLoadedMsgFolder());
 }
 
 function MsgMarkAllRead()

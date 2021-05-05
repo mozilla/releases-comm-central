@@ -24,8 +24,13 @@
 #endif
     <key id="key_selectAll"/>
 
-    <key id="key_toggleRead" key="&markAsReadCmd.key;"
+    <key id="key_markAsRead"
+         key="&markAsReadCmd.key;"
          oncommand="goDoCommand('cmd_markAsRead');"/>
+    <key id="key_markAsUnread"
+         key="&markAsUnreadCmd.key;"
+         modifiers="shift"
+         oncommand="goDoCommand('cmd_markAsUnread');"/>
     <key id="key_toggleFlagged" key="&markFlaggedCmd.key;"
          oncommand="goDoCommand('cmd_markAsFlagged');"/>
     <key id="key_openMessage" key="&openMessageWindowCmd.key;"

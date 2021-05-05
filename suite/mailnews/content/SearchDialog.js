@@ -45,6 +45,7 @@ var nsSearchResultsController =
         case "saveas_vf_button":
         case "cmd_selectAll":
         case "cmd_markAsRead":
+        case "cmd_markAsUnread":
         case "cmd_markAsFlagged":
             return true;
         default:
@@ -115,11 +116,15 @@ var nsSearchResultsController =
             return true;
 
         case "cmd_markAsRead":
-            MsgMarkMsgAsRead(null);
+            MsgMarkMsgAsRead(true);
+            return true;
+
+        case "cmd_markAsUnread":
+            MsgMarkMsgAsRead(false);
             return true;
 
         case "cmd_markAsFlagged":
-            MsgMarkAsFlagged(null);
+            MsgMarkAsFlagged();
             return true;
 
         default:

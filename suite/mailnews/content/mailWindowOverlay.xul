@@ -283,6 +283,7 @@
               oncommandupdate="goUpdateMailMenuItems(this)">
 
     <command id="cmd_markAsRead" oncommand="goDoCommand('cmd_markAsRead'); event.stopPropagation()" disabled="true"/>
+    <command id="cmd_markAsUnread" oncommand="goDoCommand('cmd_markAsUnread'); event.stopPropagation();" disabled="true"/>
     <command id="cmd_markAllRead" oncommand="goDoCommand('cmd_markAllRead'); event.stopPropagation()" disabled="true"/>
     <command id="cmd_markThreadAsRead" oncommand="goDoCommand('cmd_markThreadAsRead'); event.stopPropagation()" disabled="true"/>
     <command id="cmd_markReadByDate" oncommand="goDoCommand('cmd_markReadByDate');" disabled="true"/>
@@ -594,10 +595,13 @@
       <menupopup id="mailContext-markPopup"
                  onpopupshowing="InitMessageMark()">
         <menuitem id="mailContext-markRead"
-                  type="checkbox"
                   label="&markAsReadCmd.label;"
                   accesskey="&markAsReadCmd.accesskey;"
                   command="cmd_markAsRead"/>
+        <menuitem id="mailContext-markUnread"
+                  label="&markAsUnreadCmd.label;"
+                  accesskey="&markAsUnreadCmd.accesskey;"
+                  command="cmd_markAsUnread"/>
         <menuitem id="mailContext-markThreadAsRead"
                   label="&markThreadAsReadCmd.label;"
                   accesskey="&markThreadAsReadCmd.accesskey;"
@@ -1438,11 +1442,15 @@
     <menu id="markMenu" label="&markMenu.label;" accesskey="&markMenu.accesskey;">
       <menupopup id="menu_MarkPopup" onpopupshowing="InitMessageMark()">
         <menuitem id="markReadMenuItem"
-                  type="checkbox"
                   label="&markAsReadCmd.label;"
                   accesskey="&markAsReadCmd.accesskey;"
-                  key="key_toggleRead"
+                  key="key_markAsRead"
                   command="cmd_markAsRead"/>
+        <menuitem id="markUnreadMenuItem"
+                  label="&markAsUnreadCmd.label;"
+                  accesskey="&markAsUnreadCmd.accesskey;"
+                  key="key_markAsUnread"
+                  command="cmd_markAsUnread"/>
         <menuitem id="markThreadReadMenuItem"
                   label="&markThreadAsReadCmd.label;"
                   accesskey="&markThreadAsReadCmd.accesskey;"
@@ -1792,11 +1800,13 @@
           <menupopup id="button-markPopup"
                      onpopupshowing="InitMessageMark()">
               <menuitem id="markReadToolbarItem"
-                        type="checkbox"
                         label="&markAsReadCmd.label;"
                         accesskey="&markAsReadCmd.accesskey;"
-                        command="cmd_markAsRead"
-                        default="true" />
+                        command="cmd_markAsRead"/>
+              <menuitem id="markUnreadToolbarItem"
+                        label="&markAsUnreadCmd.label;"
+                        accesskey="&markAsUnreadCmd.accesskey;"
+                        command="cmd_markAsUnread"/>
               <menuitem id="button-markThreadAsRead"
                         label="&markThreadAsReadCmd.label;"
                         accesskey="&markThreadAsReadCmd.accesskey;"
