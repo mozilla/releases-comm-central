@@ -15,7 +15,7 @@
 <?xml-stylesheet href="chrome://calendar/skin/lightning.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
 <!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd">
@@ -61,22 +61,85 @@
 <!--
   - This window displays a single message.
   -->
-<window id="messengerWindow"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        icon="messengerWindow"
-        title="&titledefault.label;@PRE_RELEASE_SUFFIX@"
-        titlemodifier="&titledefault.label;@PRE_RELEASE_SUFFIX@"
-        titlemenuseparator="&titleSeparator.label;"
-        onload="OnLoadMessageWindow()"
-        onunload="OnUnloadMessageWindow()"
-        onresize="OnResizeExpandedHeaderView()"
-        persist="width height screenX screenY sizemode"
-        toggletoolbar="true"
-        windowtype="mail:messageWindow"
-        macanimationtype="document"
-        lightweightthemes="true"
-        fullscreenbutton="true">
+<html id="messengerWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      icon="messengerWindow"
+      scrolling="false"
+      titlemodifier="&titledefault.label;@PRE_RELEASE_SUFFIX@"
+      titlemenuseparator="&titleSeparator.label;"
+      persist="width height screenX screenY sizemode"
+      toggletoolbar="true"
+      windowtype="mail:messageWindow"
+      macanimationtype="document"
+      lightweightthemes="true"
+      fullscreenbutton="true">
+<head>
+  <title>&titledefault.label;@PRE_RELEASE_SUFFIX@</title>
+  <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="toolkit/main-window/findbar.ftl" />
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="messenger/menubar.ftl" />
+  <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl" />
+  <link rel="localization" href="messenger/openpgp/msgReadStatus.ftl" />
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/commandglue.js"></script>
+  <script defer="defer" src="chrome://messenger/content/folderDisplay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messageDisplay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailWindow.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messageWindow.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
+  <script defer="defer" src="chrome://global/content/contentAreaUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/nsContextMenu.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailContextMenus.js"></script>
+  <script defer="defer" src="chrome://messenger/content/phishingDetector.js"></script>
+  <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgViewNavigation.js"></script>
+  <script defer="defer" src="chrome://messenger/content/editContactPanel.js"></script>
+  <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
+  <script defer="defer" src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"></script>
+#ifdef MOZ_OPENPGP
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"></script>
+  <script defer="defer" src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"></script>
+#endif
+  <script defer="defer" src="chrome://messenger/content/mailCommands.js"></script>
+  <script defer="defer" src="chrome://messenger/content/junkCommands.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailWindowOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailTabs.js"></script>
+  <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
+  <script defer="defer" src="chrome://global/content/printUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgViewPickerOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+  <script defer="defer" src="chrome://messenger/content/quickFilterBar.js"></script>
+  <script defer="defer" src="chrome://messenger/content/customizableui/panelUI.js"></script>
+  <script defer="defer" src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
+#ifdef XP_MACOSX
+  <script defer="defer" src="chrome://global/content/macWindowMenu.js"></script>
+#endif
+  <script defer="defer" src="chrome://messenger/content/newmailaccount/uriListener.js"></script>
+  <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-statusbar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-item-editing.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-modes.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-chrome-startup.js"></script>
+  <script defer="defer" src="chrome://lightning/content/lightning-utils.js"></script>
+  <script defer="defer" src="chrome://lightning/content/imip-bar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-management.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script>
+    // FIXME: move to script file.
+    window.addEventListener("load", event => { OnLoadMessageWindow() });
+    window.addEventListener("unload", event => { OnUnloadMessageWindow() });
+    window.addEventListener("resize", event => { OnResizeExpandedHeaderView() });
+  </script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
@@ -84,70 +147,6 @@
   <stringbundle id="bundle_editContact" src="chrome://messenger/locale/editContactOverlay.properties"/>
   <stringbundle id="bundle_read_smime" src="chrome://messenger-smime/locale/msgReadSMIMEOverlay.properties"/>
   <stringbundle id="bundle_smime_read_info" src="chrome://messenger-smime/locale/msgSecurityInfo.properties"/>
-
-  <linkset>
-    <html:link rel="localization" href="messenger/messenger.ftl"/>
-    <html:link rel="localization" href="toolkit/main-window/findbar.ftl"/>
-    <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
-    <html:link rel="localization" href="messenger/menubar.ftl"/>
-    <html:link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl"/>
-    <html:link rel="localization" href="messenger/openpgp/msgReadStatus.ftl"/>
-  </linkset>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://messenger/content/commandglue.js"/>
-  <script src="chrome://messenger/content/folderDisplay.js"/>
-  <script src="chrome://messenger/content/messageDisplay.js"/>
-  <script src="chrome://messenger/content/mailWindow.js"/>
-  <script src="chrome://messenger/content/messageWindow.js"/>
-  <script src="chrome://messenger/content/accountUtils.js"/>
-  <script src="chrome://global/content/contentAreaUtils.js"/>
-  <script src="chrome://messenger/content/nsContextMenu.js"/>
-  <script src="chrome://messenger/content/mailContextMenus.js"/>
-  <script src="chrome://messenger/content/phishingDetector.js"/>
-  <script src="chrome://communicator/content/contentAreaClick.js"/>
-  <script src="chrome://messenger/content/msgViewNavigation.js"/>
-  <script src="chrome://messenger/content/editContactPanel.js"/>
-  <script src="chrome://messenger/content/toolbarIconColor.js"/>
-  <script src="chrome://messenger/content/msgHdrView.js"/>
-  <script src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
-  <script src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
-#ifdef MOZ_OPENPGP
-  <script src="chrome://openpgp/content/ui/enigmailMessengerOverlay.js"/>
-  <script src="chrome://openpgp/content/ui/enigmailMsgHdrViewOverlay.js"/>
-#endif
-  <script src="chrome://messenger/content/mailCommands.js"/>
-  <script src="chrome://messenger/content/junkCommands.js"/>
-  <script src="chrome://messenger/content/mailWindowOverlay.js"/>
-  <script src="chrome://messenger/content/mailTabs.js"/>
-  <script src="chrome://messenger-newsblog/content/newsblogOverlay.js"/>
-  <script src="chrome://messenger/content/mail-offline.js"/>
-  <script src="chrome://global/content/printUtils.js"/>
-  <script src="chrome://messenger/content/msgViewPickerOverlay.js"/>
-  <script src="chrome://messenger/content/viewZoomOverlay.js"/>
-  <script src="chrome://communicator/content/utilityOverlay.js"/>
-  <script src="chrome://messenger/content/mailCore.js"/>
-  <script src="chrome://messenger/content/quickFilterBar.js"/>
-  <!-- panelUI.js is for the appmenus. -->
-  <script src="chrome://messenger/content/customizableui/panelUI.js"/>
-  <script src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"/>
-  <script src="chrome://messenger/content/messenger-customization.js"/>
-#ifdef XP_MACOSX
-  <script src="chrome://global/content/macWindowMenu.js"/>
-#endif
-  <script src="chrome://messenger/content/newmailaccount/uriListener.js"/>
-  <script src="chrome://messenger/content/customizable-toolbar.js"/>
-  <script src="chrome://calendar/content/calendar-statusbar.js"/>
-  <script src="chrome://calendar/content/calendar-item-editing.js"/>
-
-  <script src="chrome://calendar/content/calendar-modes.js"/>
-  <script src="chrome://calendar/content/calendar-chrome-startup.js"/>
-
-  <!-- calendar imip bar -->
-  <script src="chrome://lightning/content/lightning-utils.js"/>
-  <script src="chrome://lightning/content/imip-bar.js"/>
-  <script src="chrome://calendar/content/calendar-management.js"/>
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
 
   <commandset id="mailCommands">
 #include mainCommandSet.inc.xhtml
@@ -279,4 +278,5 @@
   <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
 #include mainStatusbar.inc.xhtml
   </hbox>
-</window>
+</html:body>
+</html>

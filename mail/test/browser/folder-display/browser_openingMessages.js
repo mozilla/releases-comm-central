@@ -149,7 +149,7 @@ add_task(async function test_open_message_in_new_window() {
   assert_selected_and_displayed(msgc, msgHdr);
 
   // Check that the message pane in a newly opened window has full height.
-  check_message_pane_in_window_full_height(msgc);
+  check_message_pane_in_window_full_height(msgc.window);
 
   // Clean up, close the window
   close_message_window(msgc);
@@ -218,18 +218,15 @@ function check_message_pane_in_tab_full_height() {
  * empty box is visible below it.
  */
 
-function check_message_pane_in_window_full_height(aWC) {
-  let messengerWindowHeight = aWC.e("messengerWindow").getBoundingClientRect()
-    .height;
-  let messengerChildren = aWC.e("messengerWindow").children;
+function check_message_pane_in_window_full_height(win) {
+  let messengerWindowHeight = win.screen.height;
+  let messengerChildren = win.document.body.children;
   let childrenHeightsSum = 0;
   let childrenHeightsStr = "";
   for (let child of messengerChildren) {
-    try {
-      let childRect = child.getBoundingClientRect();
-      childrenHeightsSum += childRect.height;
-      childrenHeightsStr += '"' + child.id + '": ' + childRect.height + ", ";
-    } catch (ex) {}
+    let childRect = child.getBoundingClientRect();
+    childrenHeightsSum += childRect.height;
+    childrenHeightsStr += '"' + child.id + '": ' + childRect.height + ", ";
   }
 
   Assert.equal(
