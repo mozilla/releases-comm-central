@@ -218,7 +218,7 @@
       let uiConv = convBinding._conv;
       let conv = uiConv.target;
       OTR.disconnect(conv, false);
-      let bundleId = "alert-gone_insecure";
+      let bundleId = "alert-gone-insecure";
       OTRUI.sendSystemAlert(uiConv, conv, bundleId);
     }
 

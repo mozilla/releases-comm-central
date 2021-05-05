@@ -842,7 +842,7 @@ var OTR = {
       this.notifyObservers(context, "otr:msg-state");
       this.sendAlert(
         context,
-        _strArgs("context-still_secure", { name: context.username })
+        _strArgs("context-still-secure", { name: context.username })
       );
     }
   },
@@ -900,7 +900,7 @@ var OTR = {
         msg = _str("error-enc");
         break;
       case OTRLib.errorCode.OTRL_ERRCODE_MSG_NOT_IN_PRIVATE:
-        msg = _strArgs("error-not_priv", context.username);
+        msg = _strArgs("error-not-priv", context.username);
         break;
       case OTRLib.errorCode.OTRL_ERRCODE_MSG_UNREADABLE:
         msg = _str("error-unreadable");
@@ -991,71 +991,71 @@ var OTR = {
       case OTRLib.messageEvent.OTRL_MSGEVENT_ENCRYPTION_REQUIRED:
         this.sendAlert(
           context,
-          _strArgs("msgevent-encryption_required_part1", {
+          _strArgs("msgevent-encryption-required-part1", {
             name: context.username,
           })
         );
-        this.sendAlert(context, _str("msgevent-encryption_required_part2"));
+        this.sendAlert(context, _str("msgevent-encryption-required-part2"));
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_ENCRYPTION_ERROR:
-        this.sendAlert(context, _str("msgevent-encryption_error"));
+        this.sendAlert(context, _str("msgevent-encryption-error"));
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_CONNECTION_ENDED:
         this.sendAlert(
           context,
-          _strArgs("msgevent-connection_ended", { name: context.username })
+          _strArgs("msgevent-connection-ended", { name: context.username })
         );
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_SETUP_ERROR:
         this.sendAlert(
           context,
-          _strArgs("msgevent-setup_error", { name: context.username })
+          _strArgs("msgevent-setup-error", { name: context.username })
         );
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_MSG_REFLECTED:
-        this.sendAlert(context, _str("msgevent-msg_reflected"));
+        this.sendAlert(context, _str("msgevent-msg-reflected"));
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_MSG_RESENT:
         this.sendAlert(
           context,
-          _strArgs("msgevent-msg_resent", { name: context.username })
+          _strArgs("msgevent-msg-resent", { name: context.username })
         );
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_NOT_IN_PRIVATE:
         this.sendAlert(
           context,
-          _strArgs("msgevent-rcvdmsg_not_private", { name: context.username })
+          _strArgs("msgevent-rcvdmsg-not-private", { name: context.username })
         );
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_UNREADABLE:
         this.sendAlert(
           context,
-          _strArgs("msgevent-rcvdmsg_unreadable", { name: context.username })
+          _strArgs("msgevent-rcvdmsg-unreadable", { name: context.username })
         );
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_MALFORMED:
         this.sendAlert(
           context,
-          _strArgs("msgevent-rcvdmsg_malformed", { name: context.username })
+          _strArgs("msgevent-rcvdmsg-malformed", { name: context.username })
         );
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_LOG_HEARTBEAT_RCVD:
         this.log(
-          _strArgs("msgevent-log_heartbeat_rcvd", { name: context.username })
+          _strArgs("msgevent-log-heartbeat-rcvd", { name: context.username })
         );
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_LOG_HEARTBEAT_SENT:
         this.log(
-          _strArgs("msgevent-log_heartbeat_sent", { name: context.username })
+          _strArgs("msgevent-log-heartbeat-sent", { name: context.username })
         );
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_GENERAL_ERR:
-        this.sendAlert(context, _str("msgevent-rcvdmsg_general_err"));
+        this.sendAlert(context, _str("msgevent-rcvdmsg-general-err"));
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_UNENCRYPTED:
         this.sendAlert(
           context,
-          _strArgs("msgevent-rcvdmsg_unencrypted", {
+          _strArgs("msgevent-rcvdmsg-unencrypted", {
             name: context.username,
             msg: message.isNull() ? "" : message.readString(),
           })
@@ -1064,12 +1064,12 @@ var OTR = {
       case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_UNRECOGNIZED:
         this.sendAlert(
           context,
-          _strArgs("msgevent-rcvdmsg_unrecognized", { name: context.username })
+          _strArgs("msgevent-rcvdmsg-unrecognized", { name: context.username })
         );
         break;
       case OTRLib.messageEvent.OTRL_MSGEVENT_RCVDMSG_FOR_OTHER_INSTANCE:
         this.log(
-          _strArgs("msgevent-rcvdmsg_for_other_instance", {
+          _strArgs("msgevent-rcvdmsg-for-other-instance", {
             name: context.username,
           })
         );

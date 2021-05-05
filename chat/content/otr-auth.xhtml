@@ -32,18 +32,18 @@
       <vbox>
       <menulist id="howOption" oncommand="otrAuth.how();">
         <menupopup>
-          <menuitem data-l10n-id="auth-questionAndAnswer-label" value="questionAndAnswer"/>
-          <menuitem data-l10n-id="auth-sharedSecret-label" value="sharedSecret"/>
-          <menuitem data-l10n-id="auth-manualVerification-label" value="manualVerification"/>
+          <menuitem data-l10n-id="auth-question-and-answer-label" value="questionAndAnswer"/>
+          <menuitem data-l10n-id="auth-shared-secret-label" value="sharedSecret"/>
+          <menuitem data-l10n-id="auth-manual-verification-label" value="manualVerification"/>
         </menupopup>
       </menulist>
       </vbox>
     </html:fieldset>
 
     <html:fieldset id="questionAndAnswer" hidden="hidden">
-      <html:legend data-l10n-id="auth-questionAndAnswer"></html:legend>
+      <html:legend data-l10n-id="auth-question-and-answer"></html:legend>
       <vbox>
-      <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-qaInstruction"></description>
+      <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-qa-instruction"></description>
       <label data-l10n-id="auth-question" control="question" flex="1"/>
       <html:input id="question" type="text" class="input-inline"
                   aria-labelledby="auth-question"/>
@@ -55,9 +55,9 @@
     </html:fieldset>
 
     <html:fieldset id="sharedSecret" hidden="hidden">
-      <html:legend data-l10n-id="auth-sharedSecret"></html:legend>
+      <html:legend data-l10n-id="auth-shared-secret"></html:legend>
       <vbox>
-      <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-secretInstruction"></description>
+      <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-secret-instruction"></description>
       <label data-l10n-id="auth-secret" control="secret" flex="1"/>
       <html:input id="secret" type="text" class="input-inline"
                   aria-labelledby="auth-secret"
@@ -66,9 +66,9 @@
     </html:fieldset>
 
     <html:fieldset id="manualVerification" hidden="hidden">
-      <html:legend data-l10n-id="auth-manualVerification"></html:legend>
+      <html:legend data-l10n-id="auth-manual-verification"></html:legend>
       <vbox>
-      <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-manualInstruction"></description>
+      <description style="width: 300px; white-space: pre-wrap;" data-l10n-id="auth-manual-instruction"></description>
 
       <label id="yourFPLabel"/>
       <html:input id="yourFPValue" type="text" class="input-inline"
@@ -92,7 +92,7 @@
     </html:fieldset>
 
     <html:fieldset id="ask" hidden="hidden">
-      <label id="receivedQuestionLabel" data-l10n-id="auth-questionReceived"/>
+      <label id="receivedQuestionLabel" data-l10n-id="auth-question-received"/>
       <vbox>
       <description id="receivedQuestion" style="width: 300px; white-space: pre-wrap;"/>
       <label id="responseLabel" control="response" flex="1"/>

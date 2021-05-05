@@ -77,7 +77,7 @@ var account = {
       let fpp = this.account.protocol.normalizedName;
       let fp = OTR.privateKeyFingerprint(fpa, fpp);
       if (!fp) {
-        fp = await document.l10n.formatValue("otr-notYetAvailable");
+        fp = await document.l10n.formatValue("otr-not-yet-available");
       }
       document.getElementById("otrFingerprint").value = fp;
     }

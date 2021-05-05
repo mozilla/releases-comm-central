@@ -199,7 +199,7 @@ var otrAuth = {
 
   async help() {
     let [helpTitle, helpText] = await document.l10n.formatValues([
-      { id: "auth-helpTitle" },
+      { id: "auth-help-title" },
       { id: "auth-help" },
     ]);
 

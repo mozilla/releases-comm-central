@@ -37,7 +37,7 @@ function initStrings() {
   authLabelMap = new Map([
     ["otr:auth-error", _str("auth-error")],
     ["otr:auth-success", _str("auth-success")],
-    ["otr:auth-successThem", _str("auth-successThem")],
+    ["otr:auth-success-them", _str("auth-success-them")],
     ["otr:auth-fail", _str("auth-fail")],
     ["otr:auth-waiting", _str("auth-waiting")],
   ]);
@@ -45,7 +45,7 @@ function initStrings() {
   authTitleMap = new Map([
     ["otr:auth-error", _str("error-title")],
     ["otr:auth-success", _str("success-title")],
-    ["otr:auth-successThem", _str("successThem-title")],
+    ["otr:auth-success-them", _str("success-them-title")],
     ["otr:auth-fail", _str("fail-title")],
     ["otr:auth-waiting", _str("waiting-title")],
   ]);
@@ -514,7 +514,7 @@ var OTRUI = {
     let buttons = [
       {
         label: _str("finger-verify"),
-        accessKey: _str("finger-verify-accessKey"),
+        accessKey: _str("finger-verify-access-key"),
         callback() {
           OTRUI.openAuth(window, name, "ask", uiConv, aObject);
           // prevent closing of notification bar when the button is hit
@@ -605,7 +605,7 @@ var OTRUI = {
     let buttons = [
       {
         label: _str("finger-verify"),
-        accessKey: _str("finger-verify-accessKey"),
+        accessKey: _str("finger-verify-access-key"),
         callback() {
           let name = uiConv.target.normalizedName;
           OTRUI.openAuth(window, name, "start", uiConv);
@@ -714,7 +714,7 @@ var OTRUI = {
       buttons = [
         {
           label: _str("auth-cancel"),
-          accessKey: _str("auth-cancelAccessKey"),
+          accessKey: _str("auth-cancel-access-key"),
           callback() {
             let context = OTR.getContext(uiConv.target);
             OTR.abortSMP(context);
@@ -729,7 +729,7 @@ var OTRUI = {
       buttons = [
         {
           label: _str("finger-verify"),
-          accessKey: _str("finger-verify-accessKey"),
+          accessKey: _str("finger-verify-access-key"),
           callback() {
             let name = uiConv.target.normalizedName;
             OTRUI.openAuth(window, name, "start", uiConv);
@@ -768,7 +768,7 @@ var OTRUI = {
           key = "otr:auth-success";
           OTR.notifyTrust(aObj.context);
         } else {
-          key = "otr:auth-successThem";
+          key = "otr:auth-success-them";
           verifiable = true;
         }
       } else {

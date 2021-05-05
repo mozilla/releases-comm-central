@@ -16,4 +16,4 @@ end-label =
     .label = End the encrypted conversation
 
 auth-label =
-    .label = Verify your contact's identity
+    .label = Verify your contact’s identity
