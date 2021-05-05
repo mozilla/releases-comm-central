@@ -10,6 +10,7 @@
 ID01:
     messages:
         - accounts-ID
+        - msg-compose-partially-encrypted-inlinePGP
     files:
         # Files listed here must not have a comm/ prefix
         # policies-descriptions.ftl: These IDs are generated programmatically

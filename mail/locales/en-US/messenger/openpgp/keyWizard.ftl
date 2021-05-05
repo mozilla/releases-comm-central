@@ -30,7 +30,7 @@ radio-gnupg-key =
 
 openpgp-generate-key-title = Generate OpenPGP Key
 
-openpgp-generate-key-info = <b>Key generation may take up to several minutes to complete.</b> Do not exit the application while key generation is in progress. Actively browsing or performing disk-intensive operations during key generation will replenish the 'randomness pool' and speed-up the process. You will be alerted when key generation is completed.
+openpgp-generate-key-info = <b>Key generation may take up to several minutes to complete.</b> Do not exit the application while key generation is in progress. Actively browsing or performing disk-intensive operations during key generation will replenish the ‘randomness pool’ and speed-up the process. You will be alerted when key generation is completed.
 
 openpgp-keygen-expiry-title = Key expiry
 
@@ -94,7 +94,7 @@ openpgp-keygen-import-complete =
     .label = Close
     .accesskey = C
 
-openpgp-keygen-missing-username = There is no name specified for the current account. Please enter a value in the field  "Your name" in the account settings.
+openpgp-keygen-missing-username = There is no name specified for the current account. Please enter a value in the field  “Your name” in the account settings.
 openpgp-keygen-long-expiry = You cannot create a key that expires in more than 100 years.
 openpgp-keygen-short-expiry = Your key must be valid for at least one day.
 

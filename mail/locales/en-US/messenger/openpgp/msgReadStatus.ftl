@@ -24,9 +24,9 @@ openpgp-uncertain-sig = Uncertain Digital Signature
 openpgp-invalid-sig = Invalid Digital Signature
 openpgp-good-sig = Good Digital Signature
 
-openpgp-sig-uncertain-no-key = This message contains a digital signature, but it is uncertain if it is correct. To verify the signature, you need to obtain a copy of the sender's public key.
-openpgp-sig-uncertain-uid-mismatch = This message contains a digital signature, but a mismatch was detected. The message was sent from an email address that doesn't match the signer's public key.
-openpgp-sig-uncertain-not-accepted = This message contains a digital signature, but you haven't yet decided if the signer's key is acceptable to you.
+openpgp-sig-uncertain-no-key = This message contains a digital signature, but it is uncertain if it is correct. To verify the signature, you need to obtain a copy of the sender’s public key.
+openpgp-sig-uncertain-uid-mismatch = This message contains a digital signature, but a mismatch was detected. The message was sent from an email address that doesn’t match the signer’s public key.
+openpgp-sig-uncertain-not-accepted = This message contains a digital signature, but you haven’t yet decided if the signer’s key is acceptable to you.
 openpgp-sig-invalid-rejected = This message contains a digital signature, but you have previously decided to reject the signer key.
 openpgp-sig-invalid-technical-problem = This message contains a digital signature, but a technical error was detected. Either the message has been corrupted, or the message has been modified by someone else.
 openpgp-sig-valid-unverified = This message includes a valid digital signature from a key that you have already accepted. However, you have not yet verified that the key is really owned by the sender.

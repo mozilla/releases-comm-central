@@ -35,7 +35,7 @@ openpgp-generate-key =
     .tooltiptext = Generates a new OpenPGP compliant key for encryption and/or signing
 openpgp-advanced-prefs-button-label =
     .label = Advanced…
-openpgp-keygen-desc = <a data-l10n-name="openpgp-keygen-desc-link">NOTE: Key generation may take up to several minutes to complete.</a> Do not exit the application while key generation is in progress. Actively browsing or performing disk-intensive operations during key generation will replenish the 'randomness pool' and speed-up the process. You will be alerted when key generation is completed.
+openpgp-keygen-desc = <a data-l10n-name="openpgp-keygen-desc-link">NOTE: Key generation may take up to several minutes to complete.</a> Do not exit the application while key generation is in progress. Actively browsing or performing disk-intensive operations during key generation will replenish the ‘randomness pool’ and speed-up the process. You will be alerted when key generation is completed.
 
 openpgp-key-expiry-label =
     .label = Expiry
@@ -43,7 +43,7 @@ openpgp-key-expiry-label =
 openpgp-key-id-label =
     .label = Key ID
 
-openpgp-cannot-change-expiry = This is a key with a complex structure, changing its expiry date isn't supported.
+openpgp-cannot-change-expiry = This is a key with a complex structure, changing its expiry date isn’t supported.
 
 openpgp-key-man-title =
     .title = OpenPGP Key Manager
@@ -264,13 +264,13 @@ openpgp-acceptance-undecided-label =
 openpgp-acceptance-unverified-label =
     .label = Yes, but I have not verified that it is the correct key.
 openpgp-acceptance-verified-label =
-    .label = Yes, I've verified in person this key has the correct fingerprint.
+    .label = Yes, I’ve verified in person this key has the correct fingerprint.
 key-accept-personal =
     For this key, you have both the public and the secret part. You may use it as a personal key.
-    If this key was given to you by someone else, then don't use it as a personal key.
+    If this key was given to you by someone else, then don’t use it as a personal key.
 key-personal-warning = Did you create this key yourself, and the displayed key ownership refers to yourself?
 openpgp-personal-no-label =
-    .label = No, don't use it as my personal key.
+    .label = No, don’t use it as my personal key.
 openpgp-personal-yes-label =
     .label = Yes, treat this key as a personal key.
 
@@ -282,7 +282,7 @@ openpgp-copy-cmd-label =
 #   $count (Number) - the number of configured keys associated with the current identity
 #   $identity (String) - the email address of the currently selected identity
 openpgp-description = { $count ->
-    [0]     Thunderbird doesn't have a personal OpenPGP key for <b>{ $identity }</b>
+    [0]     Thunderbird doesn’t have a personal OpenPGP key for <b>{ $identity }</b>
     [one]   Thunderbird found { $count } personal OpenPGP key associated with <b>{ $identity }</b>
    *[other] Thunderbird found { $count } personal OpenPGP keys associated with <b>{ $identity }</b>
 }
@@ -364,7 +364,7 @@ key-expired-date = The key expired on { $keyExpiry }
 key-expired-simple = The key has expired
 key-revoked-simple = The key was revoked
 key-do-you-accept = Do you accept this key for verifying digital signatures and for encrypting messages?
-key-accept-warning = Avoid accepting a rogue key. Use a communication channel other than email to verify the fingerprint of your correspondent's key.
+key-accept-warning = Avoid accepting a rogue key. Use a communication channel other than email to verify the fingerprint of your correspondent’s key.
 
 # Strings enigmailMsgComposeOverlay.js
 cannot-use-own-key-because = Unable to send the message, because there is a problem with your personal key. { $problem }
@@ -412,25 +412,25 @@ expiry-keys-expire-soon =
     We recommend that you create new keys and configure the corresponding accounts to use them.
 expiry-key-missing-owner-trust =
     Your secret key { $desc } has missing trust.
-    We recommend that you set "You rely on certifications" to "ultimate" in key properties.
+    We recommend that you set “You rely on certifications” to “ultimate” in key properties.
 expiry-keys-missing-owner-trust =
     The following of your secret keys have missing trust.
     { $desc }.
-    We recommend that you set "You rely on certifications" to "ultimate" in key properties.
+    We recommend that you set “You rely on certifications” to “ultimate” in key properties.
 expiry-open-key-manager = Open OpenPGP Key Manager
 expiry-open-key-properties = Open Key Properties
 
 # Strings filters.jsm
 filter-folder-required = You must select a target folder.
 filter-decrypt-move-warn-experimental =
-    Warning - the filter action "Decrypt permanently" may lead to destroyed messages.
-    We strongly recommend that you first try the "Create decrypted Copy" filter, test the result carefully, and only start using this filter once you are satisfied with the result.
+    Warning - the filter action “Decrypt permanently” may lead to destroyed messages.
+    We strongly recommend that you first try the “Create decrypted Copy” filter, test the result carefully, and only start using this filter once you are satisfied with the result.
 filter-term-pgpencrypted-label = OpenPGP Encrypted
 filter-key-required = You must select a recipient key.
-filter-key-not-found = Could not find an encryption key for '{ $desc }'.
+filter-key-not-found = Could not find an encryption key for ‘{ $desc }’.
 filter-warn-key-not-secret =
-    Warning - the filter action "Encrypt to key" replaces the recipients.
-    If you do not have the secret key for '{ $desc }' you will no longer be able to read the emails.
+    Warning - the filter action “Encrypt to key” replaces the recipients.
+    If you do not have the secret key for ‘{ $desc }’ you will no longer be able to read the emails.
 
 # Strings filtersWrapper.jsm
 filter-decrypt-move-label = Decrypt permanently (OpenPGP)
@@ -457,14 +457,14 @@ delete-secret-key =
     If you delete your secret key, you will no longer be able to decrypt any messages encrypted for that key, nor will you be able to revoke it.
 
     Do you really want to delete BOTH, the secret key and the public key
-    '{ $userId }'?
+    ‘{ $userId }’?
 delete-mix =
     WARNING: You are about to delete secret keys!
     If you delete your secret key, you will no longer be able to decrypt any messages encrypted for that key.
     Do you really want to delete BOTH, the selected secret and public keys?
 delete-pub-key =
     Do you want to delete the public key
-    '{ $userId }'?
+    ‘{ $userId }’?
 delete-selected-pub-key = Do you want to delete the public keys?
 refresh-all-question = You did not select any key. Would you like to refresh ALL keys?
 key-man-button-export-sec-key = Export &Secret Keys
@@ -481,7 +481,7 @@ save-keys-failed = Saving the keys failed
 default-pub-key-filename = Exported-public-keys
 default-pub-sec-key-filename = Backup-of-secret-keys
 refresh-key-warn = Warning: depending on the number of keys and the connection speed, refreshing all keys could be quite a lengthy process!
-preview-failed = Can't read public key file.
+preview-failed = Can’t read public key file.
 general-error = Error: { $reason }
 dlg-button-delete = &Delete
 
@@ -513,7 +513,7 @@ already-revoked = This key has already been revoked.
 
 #   $identity (String) - the id and associated user identity of the key being revoked
 revoke-key-question =
-    You are about to revoke the key '{ $identity }'.
+    You are about to revoke the key ‘{ $identity }’.
     You will no longer be able to sign with this key, and once distributed, others will no longer be able to encrypt with that key. You can still use the key to decrypt old messages.
     Do you want to proceed?
 
@@ -551,9 +551,9 @@ delete-key-in-use-description = Unable to proceed! The Key you selected for dele
 revoke-key-in-use-description = Unable to proceed! The Key you selected for revocation is currently being used by this identity. Select a different key, or select none, and try again.
 
 # Strings used in errorHandling.jsm
-key-error-key-spec-not-found = The email address '{ $keySpec }' cannot be matched to a key on your keyring.
-key-error-key-id-not-found = The configured key ID '{ $keySpec }' cannot be found on your keyring.
-key-error-not-accepted-as-personal = You have not confirmed that the key with ID '{ $keySpec }' is your personal key.
+key-error-key-spec-not-found = The email address ‘{ $keySpec }’ cannot be matched to a key on your keyring.
+key-error-key-id-not-found = The configured key ID ‘{ $keySpec }’ cannot be found on your keyring.
+key-error-not-accepted-as-personal = You have not confirmed that the key with ID ‘{ $keySpec }’ is your personal key.
 
 # Strings used in enigmailKeyManager.js & windows.jsm
 need-online = The function you have selected is not available in offline mode. Please go online and try again.
@@ -591,17 +591,17 @@ import-rev-file = Import OpenPGP Revocation File
 gnupg-file = GnuPG Files
 import-keys-failed=Importing the keys failed
 passphrase-prompt = Please enter the passphrase that unlocks the following key: { $key }
-file-to-big-to-import = This file is too big. Please don't import a large set of keys at once.
+file-to-big-to-import = This file is too big. Please don’t import a large set of keys at once.
 
 # Strings used in enigmailKeygen.js
 save-revoke-cert-as = Create & Save Revocation Certificate
 revoke-cert-ok = The revocation certificate has been successfully created. You can use it to invalidate your public key, e.g. in case you would lose your secret key.
 revoke-cert-failed = The revocation certificate could not be created.
 gen-going = Key generation already in progress!
-keygen-missing-user-name = There is no name specified for the selected account/identity. Please enter a value in the field  "Your name" in the account settings.
+keygen-missing-user-name = There is no name specified for the selected account/identity. Please enter a value in the field  “Your name” in the account settings.
 expiry-too-short = Your key must be valid for at least one day.
 expiry-too-long = You cannot create a key that expires in more than 100 years.
-key-confirm = Generate public and secret key for '{ $id }'?
+key-confirm = Generate public and secret key for ‘{ $id }’?
 key-man-button-generate-key = &Generate Key
 key-abort = Abort key generation?
 key-man-button-generate-key-abort = &Abort Key Generation
@@ -612,8 +612,8 @@ key-man-button-generate-key-continue = &Continue Key Generation
 failed-decrypt = Error - decryption failed
 fix-broken-exchange-msg-failed = Unable to repair this message.
 
-attachment-no-match-from-signature = Could not match signature file '{ $attachment }' to an attachment
-attachment-no-match-to-signature = Could not match attachment '{ $attachment }' to a signature file
+attachment-no-match-from-signature = Could not match signature file ‘{ $attachment }’ to an attachment
+attachment-no-match-to-signature = Could not match attachment ‘{ $attachment }’ to a signature file
 signature-verified-ok = The signature for attachment { $attachment } was successfully verified
 signature-verify-failed = The signature for attachment { $attachment } could not be verified
 decrypt-ok-no-sig =
@@ -627,10 +627,10 @@ msg-compose-button-send = &Send Message
 msg-compose-details-button-label = Details…
 msg-compose-details-button-access-key = D
 send-aborted = Send operation aborted.
-key-not-trusted = Not enough trust for key '{ $key }'
-key-not-found = Key '{ $key }' not found
-key-revoked = Key '{ $key }' revoked
-key-expired = Key '{ $key }' expired
+key-not-trusted = Not enough trust for key ‘{ $key }’
+key-not-found = Key ‘{ $key }’ not found
+key-revoked = Key ‘{ $key }’ revoked
+key-expired = Key ‘{ $key }’ expired
 msg-compose-internal-error = An internal error has occurred.
 keys-to-export = Select OpenPGP Keys to Insert
 msg-compose-partially-encrypted-inlinePGP =
@@ -639,8 +639,8 @@ msg-compose-partially-encrypted-inlinePGP =
 msg-compose-cannot-save-draft = Error while saving draft
 msg-compose-partially-encrypted-short = Beware of leaking sensitive information - partially encrypted email.
 quoted-printable-warn =
-    You have enabled 'quoted-printable' encoding for sending messages. This may result in incorrect decryption and/or verification of your message.
-    Do you wish to turn off sending 'quoted-printable' messages now?
+    You have enabled ‘quoted-printable’ encoding for sending messages. This may result in incorrect decryption and/or verification of your message.
+    Do you wish to turn off sending ‘quoted-printable’ messages now?
 minimal-line-wrapping =
     You have set line wrapping to { $width } characters. For correct encryption and/or signing, this value needs to be at least 68.
     Do you wish to change line wrapping to 68 characters now?
@@ -656,9 +656,9 @@ save-attachment-header = Save decrypted attachment
 no-temp-dir =
     Could not find a temporary directory to write to
     Please set the TEMP environment variable
-possibly-pgp-mime = Possibly PGP/MIME encrypted or signed message; use 'Decrypt/Verify' function to verify
-cannot-send-sig-because-no-own-key = Cannot digitally sign this message, because you haven't yet configured end-to-end encryption for <{ $key }>
-cannot-send-enc-because-no-own-key = Cannot send this message encrypted, because you haven't yet configured end-to-end encryption for <{ $key }>
+possibly-pgp-mime = Possibly PGP/MIME encrypted or signed message; use ‘Decrypt/Verify’ function to verify
+cannot-send-sig-because-no-own-key = Cannot digitally sign this message, because you haven’t yet configured end-to-end encryption for <{ $key }>
+cannot-send-enc-because-no-own-key = Cannot send this message encrypted, because you haven’t yet configured end-to-end encryption for <{ $key }>
 
 # Strings used in decryption.jsm
 do-import-multiple =
@@ -667,12 +667,12 @@ do-import-multiple =
 do-import-one = Import { $name } ({ $id })?
 cant-import = Error importing public key
 unverified-reply = Indented message part (reply) was probably modified
-key-in-message-body = A key was found in the message body. Click 'Import Key' to import the key
+key-in-message-body = A key was found in the message body. Click ‘Import Key’ to import the key
 sig-mismatch = Error - Signature mismatch
 invalid-email = Error - invalid email address(es)
 attachment-pgp-key =
-    The attachment '{ $name }' you are opening appears to be an OpenPGP key file.
-    Click 'Import' to import the keys contained or 'View' to view the file contents in a browser window
+    The attachment ‘{ $name }’ you are opening appears to be an OpenPGP key file.
+    Click ‘Import’ to import the keys contained or ‘View’ to view the file contents in a browser window
 dlg-button-view = &View
 
 # Strings used in enigmailMsgHdrViewOverlay.js
@@ -683,7 +683,7 @@ not-required = Error - no encryption required
 
 # Strings used in windows.jsm
 no-photo-available = No Photo available
-error-photo-path-not-readable = Photo path '{ $photo }' is not readable
+error-photo-path-not-readable = Photo path ‘{ $photo }’ is not readable
 debug-log-title = OpenPGP Debug Log
 
 # Strings used in dialog.jsm
