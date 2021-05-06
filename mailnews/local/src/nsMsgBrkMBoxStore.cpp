@@ -173,7 +173,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::HasSpaceAvailable(nsIMsgFolder* aFolder,
   }
 
   *aResult = DiskSpaceAvailableInStore(pathFile, aSpaceRequested);
-  if (!*aResult) return NS_ERROR_FILE_DISK_FULL;
+  if (!*aResult) return NS_ERROR_FILE_NO_DEVICE_SPACE;
 
   return NS_OK;
 }

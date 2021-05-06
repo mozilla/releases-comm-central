@@ -75,7 +75,7 @@ interface nsIMsgPluggableStore : nsISupports {
    * The function returns an exception if there is not enough space to
    * indicate the reason of the shortage:
    * NS_ERROR_FILE_TOO_BIG   = the store cannot grow further due to internal limits
-   * NS_ERROR_FILE_DISK_FULL = there is not enough space on the disk
+   * NS_ERROR_FILE_NO_DEVICE_SPACE = there is not enough space on the disk
    */
   boolean hasSpaceAvailable(in nsIMsgFolder aFolder,
                             in long long aSpaceRequested);
