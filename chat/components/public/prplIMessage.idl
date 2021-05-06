@@ -81,4 +81,17 @@ interface prplIMessage: nsISupports {
    * @returns prplIMessageAction[]
    */
   Array<prplIMessageAction> getActions();
+
+  /**
+   * Called when the message is first displayed to the user. Only invoked for
+   * the latest message in a conversation.
+   */
+  void whenDisplayed();
+
+  /**
+   * Called when the message has been read by the user, as defined by it being
+   * above the unread marker in the conversation. Only called for the message
+   * immediately above the marker.
+   */
+  void whenRead();
 };

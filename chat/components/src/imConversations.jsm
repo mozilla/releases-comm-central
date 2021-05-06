@@ -126,6 +126,12 @@ imMessage.prototype = {
   getActions() {
     return this.prplMessage.getActions();
   },
+  whenDisplayed() {
+    return this.prplMessage.whenDisplayed();
+  },
+  whenRead() {
+    return this.prplMessage.whenRead();
+  },
 };
 
 function UIConversation(aPrplConversation) {
@@ -264,6 +270,9 @@ UIConversation.prototype = {
     delete this._unreadTargetedMessageCount;
     delete this._unreadIncomingMessageCount;
     delete this._unreadOTRNotificationCount;
+    if (this._messages.length) {
+      this._messages[this._messages.length - 1].whenDisplayed();
+    }
     this._notifyUnreadCountChanged();
   },
   _lastNotifiedUnreadCount: 0,

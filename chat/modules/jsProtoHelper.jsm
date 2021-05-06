@@ -601,6 +601,9 @@ var GenericMessagePrototype = {
   getActions() {
     return [];
   },
+
+  whenDisplayed() {},
+  whenRead() {},
 };
 
 function Message(aWho, aMessage, aObject) {
@@ -690,7 +693,8 @@ var GenericConversationPrototype = {
   },
 
   writeMessage(aWho, aText, aProperties) {
-    new Message(aWho, aText, aProperties).conversation = this;
+    const message = new Message(aWho, aText, aProperties);
+    message.conversation = this;
   },
 
   get account() {

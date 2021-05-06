@@ -21,6 +21,7 @@ var {
   GenericConversationPrototype,
   GenericConvIMPrototype,
   GenericAccountBuddyPrototype,
+  GenericMessagePrototype,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 var { getMatrixTextForEvent } = ChromeUtils.import(
@@ -41,6 +42,73 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.jsm",
 });
+
+/**
+ * @param {string} who - Message sender ID.
+ * @param {string} text - Message text.
+ * @param {object} properties - Message properties, should also have an event
+ *   property containing the corresponding MatrixEvent instance.
+ */
+function MatrixMessage(who, text, properties) {
+  this._init(who, text, properties);
+}
+MatrixMessage.prototype = {
+  __proto__: GenericMessagePrototype,
+
+  /**
+   * @type {MatrixEvent}
+   */
+  event: null,
+
+  hideReadReceipts() {
+    // Cache pref value. If this pref gets exposed in UI we need cache busting.
+    if (this._hideReadReceipts === undefined) {
+      this._hideReadReceipts = !Services.prefs.getBoolPref(
+        "purple.conversations.im.send_read"
+      );
+    }
+    return this._hideReadReceipts;
+  },
+
+  _displayed: false,
+  _read: false,
+
+  whenDisplayed() {
+    if (this._displayed) {
+      return;
+    }
+    this._displayed = true;
+    this.conversation._account._client
+      .sendReadReceipt(this.event, {
+        hidden: this.hideReadReceipts,
+      })
+      .catch(error => this.conversation.ERROR(error));
+  },
+
+  whenRead() {
+    if (this._read || this.conversation._account.noFullyRead) {
+      return;
+    }
+    this._read = true;
+    this.conversation._account._client
+      .setRoomReadMarkers(
+        this.conversation._roomId,
+        this.event.getId(),
+        undefined,
+        {
+          hidden: this.hideReadReceipts,
+        }
+      )
+      .catch(error => {
+        if (error.errcode === "M_UNRECOGNIZED") {
+          // Server does not support setting the fully read marker.
+          this.conversation._account.noFullyRead = true;
+        } else {
+          this.conversation.ERROR(error);
+        }
+      });
+  },
+};
 
 function MatrixParticipant(roomMember, account) {
   this._id = roomMember.userId;
@@ -317,8 +385,20 @@ var GenericMatrixConversation = {
     );
     const windowChunkSize = 100;
     await timelineWindow.load(latestOldEvent, windowChunkSize);
+    // load() only makes sure the event is in the timeline window. The following
+    // ensures that the first event in the window is the event immediately after
+    // latestOldEvent.
+    let firstEventOffset = 0;
+    if (latestOldEvent) {
+      for (const event of timelineWindow.getEvents()) {
+        ++firstEventOffset;
+        if (event.getId() === latestOldEvent) {
+          break;
+        }
+      }
+    }
     // Remove the old event from the window.
-    timelineWindow.unpaginate(1, true);
+    timelineWindow.unpaginate(firstEventOffset, true);
     let newEvents = timelineWindow.getEvents();
     for (const event of newEvents) {
       this.addEvent(event, true);
@@ -368,6 +448,7 @@ var GenericMatrixConversation = {
         time: Math.floor(event.getDate() / 1000),
         _alias: event.sender.name,
         delayed,
+        event,
       });
     } else if (event.getType() == "m.room.topic") {
       this.setTopic(event.getContent().topic, event.getSender());
@@ -402,6 +483,7 @@ var GenericMatrixConversation = {
         time: Math.floor(event.getDate() / 1000),
         _alias: event.sender.name,
         delayed,
+        event,
       });
     }
     this._mostRecentEventId = event.getId();
@@ -446,6 +528,16 @@ var GenericMatrixConversation = {
       clearTimeout(this._typingTimer);
       delete this._typingTimer;
     }
+  },
+
+  writeMessage(aWho, aText, aProperties) {
+    if (this.isChat) {
+      //TODO respect room notification settings
+      aProperties.containsNick =
+        aProperties.incoming && this._pingRegexp.test(aText);
+    }
+    const message = new MatrixMessage(aWho, aText, aProperties);
+    message.conversation = this;
   },
 };
 

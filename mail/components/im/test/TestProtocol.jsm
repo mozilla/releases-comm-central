@@ -2,7 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["registerTestProtocol", "unregisterTestProtocol"];
+var EXPORTED_SYMBOLS = [
+  "registerTestProtocol",
+  "unregisterTestProtocol",
+  "Message",
+];
 
 var {
   GenericAccountPrototype,
@@ -11,6 +15,7 @@ var {
   GenericConversationPrototype,
   GenericProtocolPrototype,
   GenericConvChatBuddyPrototype,
+  GenericMessagePrototype,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 var { ComponentUtils } = ChromeUtils.import(
@@ -26,6 +31,28 @@ XPCOMUtils.defineLazyServiceGetter(
   "@mozilla.org/uuid-generator;1",
   "nsIUUIDGenerator"
 );
+
+function Message(who, text, properties) {
+  this._init(who, text, properties);
+  this.displayed = new Promise(resolve => {
+    this._onDisplayed = resolve;
+  });
+  this.read = new Promise(resolve => {
+    this._onRead = resolve;
+  });
+}
+
+Message.prototype = {
+  __proto__: GenericMessagePrototype,
+
+  whenDisplayed() {
+    this._onDisplayed();
+  },
+
+  whenRead() {
+    this._onRead();
+  },
+};
 
 /**
  *

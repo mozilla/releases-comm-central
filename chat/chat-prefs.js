@@ -125,3 +125,6 @@ pref("purple.logging.log_system", true);
 
 // Send typing notification in private conversations.
 pref("purple.conversations.im.send_typing", true);
+
+// Send read receipts in conversations.
+pref("purple.conversations.im.send_read", true);

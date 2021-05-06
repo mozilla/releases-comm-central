@@ -658,6 +658,10 @@
     }
 
     removeUnreadRuler() {
+      if (this._lastMessage) {
+        this._lastMessage.whenRead();
+      }
+
       let doc = this.contentDocument;
       let ruler = doc.getElementById("unread-ruler");
       if (!ruler) {
