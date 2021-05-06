@@ -1284,7 +1284,7 @@
         imageEl.setAttribute("src", `chrome://messenger/skin/${image}.png`);
         document.l10n.setAttributes(
           imageEl,
-          `chat-participant-${role}-role-icon`
+          `chat-participant-${role}-role-icon2`
         );
       } else {
         imageEl.removeAttribute("src");

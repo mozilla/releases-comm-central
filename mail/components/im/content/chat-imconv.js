@@ -227,7 +227,7 @@
           // Set alt using messenger/chat.ftl.
           document.l10n.setAttributes(
             statusIcon,
-            `chat-${statusName}-chat-icon`
+            `chat-${statusName}-chat-icon2`
           );
         } else {
           statusIcon.removeAttribute("src");
