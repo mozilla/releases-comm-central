@@ -8,12 +8,12 @@
 
 #attendee-list {
   margin: 0;
-  border: 1px solid threedshadow;
+  border: 1px solid var(--field-border-color);
   overflow-x: scroll;
   background-attachment: local;
-  background-color: field;
+  background-color: var(--field-background-color);
   background-image: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2250%22%20height%3D%2221%22%3E%3Cpath%20d%3D%22M49.5%2020.5H0%22%20fill%3D%22none%22%20stroke%3D%22threedshadow%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E%0A);
-  color: fieldtext;
+  color: var(--field-text-color);
 }
 
 event-attendee {
@@ -60,16 +60,17 @@ span.ac-emphasize-text {
   max-width: unset !important;
 }
 
-splitter {
+#outer > splitter {
+  background-color: transparent;
   border: none;
 }
 
 #day-header-outer {
-  border: 1px solid threedshadow;
+  border: 1px solid var(--field-border-color);
   border-bottom: none;
   overflow: hidden;
-  background-color: field;
-  color: fieldtext;
+  background-color: var(--field-background-color);
+  color: var(--field-text-color);
   text-align: center;
 }
 
@@ -88,7 +89,7 @@ splitter {
 }
 
 calendar-day {
-  border-inline-end: 1px solid threedshadow;
+  border-inline-end: 1px solid var(--field-border-color);
   -moz-box-orient: vertical;
   -moz-box-pack: end;
 }
@@ -105,10 +106,10 @@ calendar-day {
 
 #freebusy-grid {
   margin: 0;
-  border: 1px solid threedshadow;
+  border: 1px solid var(--field-border-color);
   overflow: scroll auto;
-  background-color: field;
-  color: fieldtext;
+  background-color: var(--field-background-color);
+  color: var(--field-text-color);
 }
 
 .day-column {

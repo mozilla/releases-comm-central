@@ -44,7 +44,7 @@
 :root:-moz-lwtheme-brighttext {
   --box-text-color: rgb(249, 249, 250);
   --box-background-color: #202023;
-  --box-border-color: rgba(249, 249, 250, 0.2);
+  --box-border-color: rgba(249, 249, 250, 0.3);
   --field-text-color: #f9f9fa;
   --field-background-color: #353537;
   --field-border-color: hsla(0, 0%, 70%, 0.4);
@@ -332,7 +332,8 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
 
 menulist menupopup,
 button[type="menu-button"] menupopup,
-menupopup[is="folder-menupopup"] {
+menupopup[is="folder-menupopup"],
+panel[type="autocomplete-richlistbox"] {
   appearance: none;
   border: 1px solid var(--box-border-color);
   border-radius: var(--button-border-radius);
@@ -390,6 +391,11 @@ menulist menupopup menuseparator {
   padding: 0;
   border-top: 1px solid var(--box-border-color);
   border-bottom: none;
+}
+
+:root[lwt-tree] .autocomplete-richlistbox {
+  border-style: none;
+  background-color: var(--box-background-color);
 }
 
 label {
