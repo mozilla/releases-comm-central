@@ -85,6 +85,15 @@ add_task(function test_getConversationByIdOrAlias() {
 });
 
 add_task(async function test_getGroupConversation() {
+  registerCleanupFunction(() => {
+    const conversations = Services.conversations.getConversations();
+    for (const conversation of conversations) {
+      try {
+        conversation.close();
+      } catch {}
+    }
+  });
+
   let allowedGetRoomIds = new Set(["baz"]);
   const mockAccount = {
     getConversationByIdOrAlias(idOrAlias) {
@@ -149,6 +158,7 @@ add_task(async function test_getGroupConversation() {
   );
   strictEqual(existingRoom, mockAccount.roomList.get("baz"));
   ok(!existingRoom.joining);
+  existingRoom.close();
 
   const joinedRoom = matrix.MatrixAccount.prototype.getGroupConversation.call(
     mockAccount,
@@ -160,6 +170,7 @@ add_task(async function test_getGroupConversation() {
   equal(mockAccount.lastError, undefined);
   strictEqual(joinedRoom, mockAccount.roomList.get("lorem"));
   ok(!joinedRoom.joining);
+  joinedRoom.close();
 
   const createdRoom = matrix.MatrixAccount.prototype.getGroupConversation.call(
     mockAccount,
@@ -170,6 +181,7 @@ add_task(async function test_getGroupConversation() {
   equal(mockAccount.lastError, undefined);
   strictEqual(createdRoom, mockAccount.createdConv);
   equal(mockAccount.createdId, "#ipsum:example.com");
+  createdRoom.close();
 
   const roomAlreadyBeingCreated = matrix.MatrixAccount.prototype.getGroupConversation.call(
     mockAccount,
