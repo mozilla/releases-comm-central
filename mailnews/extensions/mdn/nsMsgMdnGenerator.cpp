@@ -30,8 +30,6 @@
 #include "nsNetUtil.h"
 #include "nsIMsgDatabase.h"
 #include "mozilla/Services.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Unused.h"
 

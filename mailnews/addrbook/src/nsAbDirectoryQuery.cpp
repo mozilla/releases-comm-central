@@ -8,7 +8,6 @@
 #include "nsAbDirectoryQueryProxy.h"
 #include "nsAbUtils.h"
 #include "nsAbBooleanExpression.h"
-#include "nsArrayUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsString.h"
 #include "nsUnicharUtils.h"
@@ -47,7 +46,7 @@ NS_IMETHODIMP nsAbDirectoryQuerySimpleBooleanExpression::SetOperation(
   return NS_OK;
 }
 
-/* attribute nsIArray expressions; */
+/* attribute Array<nsISupports> expressions; */
 NS_IMETHODIMP nsAbDirectoryQuerySimpleBooleanExpression::GetExpressions(
     nsTArray<RefPtr<nsISupports>>& aExpressions) {
   aExpressions = mExpressions.Clone();

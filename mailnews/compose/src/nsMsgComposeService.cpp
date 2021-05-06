@@ -46,8 +46,6 @@
 #include "mozilla/intl/LineBreaker.h"
 #include "mozilla/Services.h"
 #include "mimemoz2.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "nsIURIMutator.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/XULFrameElement.h"

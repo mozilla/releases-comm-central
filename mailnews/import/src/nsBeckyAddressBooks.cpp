@@ -8,7 +8,6 @@
 #include "nsServiceManagerUtils.h"
 #include "nsIFile.h"
 #include "nsIDirectoryEnumerator.h"
-#include "nsIMutableArray.h"
 #include "nsString.h"
 #include "nsAbBaseCID.h"
 #include "nsIImportService.h"

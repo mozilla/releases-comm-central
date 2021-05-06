@@ -12,7 +12,6 @@
 #include "nsImapCore.h"
 #include "nsIMsgHdr.h"
 #include "nsIDBFolderInfo.h"
-#include "nsArrayEnumerator.h"
 #include "nsMsgMessageFlags.h"
 #include "nsIMutableArray.h"
 #include "nsMsgUtils.h"

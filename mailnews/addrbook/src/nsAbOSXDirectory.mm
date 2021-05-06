@@ -7,7 +7,6 @@
 #include "nsAbOSXCard.h"
 #include "nsAbOSXUtils.h"
 #include "nsAbQueryStringToExpression.h"
-#include "nsArrayEnumerator.h"
 #include "nsCOMArray.h"
 #include "nsEnumeratorUtils.h"
 #include "nsIAbDirectoryQueryProxy.h"

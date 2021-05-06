@@ -6,7 +6,6 @@
 // this file implements the nsMsgFilter interface
 
 #include "msgCore.h"
-#include "nsArrayUtils.h"
 #include "nsMsgBaseCID.h"
 #include "nsIMsgHdr.h"
 #include "nsMsgFilterList.h"  // for kFileVersion

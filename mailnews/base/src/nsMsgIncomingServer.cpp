@@ -26,7 +26,6 @@
 #include "nsIMsgWindow.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
-#include "nsIMutableArray.h"
 #include "nsIPrefService.h"
 #include "nsIRelativeFilePref.h"
 #include "mozilla/nsRelativeFilePref.h"
@@ -49,8 +48,6 @@
 #include "mozilla/Services.h"
 #include "Services.h"
 #include "nsIMsgFilter.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "nsIObserverService.h"
 #include "mozilla/Unused.h"
 

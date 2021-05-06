@@ -11,7 +11,6 @@
 #include "nsIPrefLocalizedString.h"
 #include "nsIPrefService.h"
 #include "nsIServiceManager.h"
-#include "nsIMutableArray.h"
 #include "nsIURL.h"
 #include "nsNetscapeProfileMigratorBase.h"
 #include "nsNetUtil.h"

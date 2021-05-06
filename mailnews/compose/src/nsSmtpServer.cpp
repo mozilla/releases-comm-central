@@ -15,8 +15,6 @@
 #include "nsMsgCompCID.h"
 #include "nsILoginInfo.h"
 #include "nsILoginManager.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "nsMemory.h"
 #include "nsIObserverService.h"
 

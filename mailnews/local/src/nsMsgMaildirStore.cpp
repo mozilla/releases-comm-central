@@ -23,8 +23,6 @@
 #include "nsMsgUtils.h"
 #include "nsMsgDBCID.h"
 #include "nsIDBFolderInfo.h"
-#include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 #include "nsMailHeaders.h"
 #include "nsParseMailbox.h"
 #include "nsMsgLocalCID.h"

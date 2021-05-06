@@ -15,7 +15,6 @@
 #include "nsIMsgFolder.h"
 #include "nsIMsgFolderCache.h"
 #include "nsIMsgFolderCacheElement.h"
-#include "nsIMutableArray.h"
 
 class nsMsgPurgeService : public nsIMsgPurgeService, public nsIMsgSearchNotify {
  public:

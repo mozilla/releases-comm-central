@@ -21,7 +21,6 @@
 #include "nsIOutputStream.h"
 
 #include "nsMsgCompCID.h"
-#include "nsIMutableArray.h"
 #include "MapiDbgLog.h"
 #include "MapiApi.h"
 

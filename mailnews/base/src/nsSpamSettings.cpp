@@ -20,8 +20,6 @@
 #include "nsIStringBundle.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "nsMailDirServiceDefs.h"
 #include "nsDirectoryServiceUtils.h"
 #include "nsDirectoryServiceDefs.h"

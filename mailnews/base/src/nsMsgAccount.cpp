@@ -22,7 +22,6 @@
 #include "nsMemory.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
-#include "nsArrayUtils.h"
 
 NS_IMPL_ISUPPORTS(nsMsgAccount, nsIMsgAccount)
 

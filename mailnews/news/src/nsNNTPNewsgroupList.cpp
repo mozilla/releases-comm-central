@@ -53,8 +53,6 @@
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsIMsgWindow.h"
 #include "nsIDocShell.h"
-#include "nsIMutableArray.h"
-#include "nsArrayUtils.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMsgFilterCustomAction.h"
 #include "nsComponentManagerUtils.h"

@@ -11,7 +11,6 @@
 #include "nsIAbDirectoryQuery.h"
 #include "nsIAbDirSearchListener.h"
 #include "nsIAbLDAPDirectory.h"
-#include "nsIMutableArray.h"
 #include "nsInterfaceHashtable.h"
 #include "mozilla/Mutex.h"
 

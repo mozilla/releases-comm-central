@@ -20,7 +20,6 @@
 #include "nsIPrefBranch.h"
 #include "nsCRTGlue.h"
 #include "nsArrayUtils.h"
-#include "nsArrayEnumerator.h"
 #include "nsMsgUtils.h"
 #include "nsQueryObject.h"
 #include "mozilla/Services.h"

@@ -35,7 +35,6 @@
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
-#include "nsArrayUtils.h"
 #include "nsIURIMutator.h"
 
 ////////////////////////////////////////////////////////////////////////////////////

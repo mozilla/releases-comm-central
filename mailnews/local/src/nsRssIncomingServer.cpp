@@ -12,7 +12,6 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsArrayUtils.h"
 #include "nsMsgUtils.h"
 
 nsrefcnt nsRssIncomingServer::gInstanceCount = 0;

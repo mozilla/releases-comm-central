@@ -72,8 +72,6 @@
 #include "nsIStreamConverterService.h"
 #include "nsIStreamListenerTee.h"
 #include "nsISocketTransport.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "nsICancelable.h"
 
 #include "nsIInputStreamPump.h"

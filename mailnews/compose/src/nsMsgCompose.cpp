@@ -55,7 +55,6 @@
 #include "nsMsgMessageFlags.h"
 #include "nsIMsgDatabase.h"
 #include "nsStringStream.h"
-#include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
 #include "nsIMsgWindow.h"
 #include "nsITextToSubURI.h"

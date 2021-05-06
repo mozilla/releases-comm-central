@@ -7,7 +7,6 @@
 #include "nsIMsgAccount.h"
 #include "nsIPrefBranch.h"
 #include "nsString.h"
-#include "nsIMutableArray.h"
 
 class nsMsgAccount : public nsIMsgAccount {
  public:

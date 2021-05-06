@@ -21,7 +21,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
-#include "nsArrayUtils.h"
 
 // This file contains the news article download state machine.
 

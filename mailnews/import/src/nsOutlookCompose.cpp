@@ -21,7 +21,6 @@
 #include "nsIMsgCompFields.h"
 #include "nsIMsgAccountManager.h"
 #include "nsIMsgSend.h"
-#include "nsIMutableArray.h"
 #include "nsImportEmbeddedImageData.h"
 #include "nsNetCID.h"
 #include "nsCRT.h"

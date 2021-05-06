@@ -15,7 +15,6 @@
 #include "nsIMsgMdnGenerator.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMsgMimeCID.h"
-#include "nsArrayEnumerator.h"
 #include "nsMemory.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"

@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "nsArrayUtils.h"
 
 static mozilla::LazyLogModule MsgPurgeLogModule("MsgPurge");
 

@@ -10,7 +10,6 @@
 #include "nsISmtpService.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIPrefService.h"
-#include "nsArrayUtils.h"
 #include "nsISupportsPrimitives.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgCompCID.h"

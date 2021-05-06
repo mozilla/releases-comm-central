@@ -38,7 +38,6 @@
 #include "nsIMsgMailNewsUrl.h"
 #include "nsIMsgMailSession.h"
 #include "nsISupportsPrimitives.h"
-#include "nsArrayUtils.h"
 #include "nsIStreamListener.h"
 #include "nsIInputStream.h"
 #include "nsIURIMutator.h"

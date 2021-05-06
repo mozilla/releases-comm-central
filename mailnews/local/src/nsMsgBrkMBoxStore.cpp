@@ -24,8 +24,6 @@
 #include "nsMsgUtils.h"
 #include "nsMsgDBCID.h"
 #include "nsIDBFolderInfo.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMailHeaders.h"
 #include "nsReadLine.h"

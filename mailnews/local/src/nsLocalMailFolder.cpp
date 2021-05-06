@@ -8,7 +8,6 @@
 #include "prlog.h"
 
 #include "msgCore.h"  // precompiled header...
-#include "nsArrayEnumerator.h"
 #include "nsLocalMailFolder.h"
 #include "nsMsgLocalFolderHdrs.h"
 #include "nsMsgFolderFlags.h"
@@ -52,7 +51,6 @@
 #include "nsNetUtil.h"
 #include "nsIMsgFolderNotificationService.h"
 #include "nsReadLine.h"
-#include "nsArrayUtils.h"
 #include "nsIStringEnumerator.h"
 #include "nsIURIMutator.h"
 #include "mozilla/Services.h"

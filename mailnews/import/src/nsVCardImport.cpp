@@ -11,7 +11,6 @@
 #include "nsIImportAddressBooks.h"
 #include "nsIImportFieldMap.h"
 #include "nsIImportGeneric.h"
-#include "nsIMutableArray.h"
 #include "nsCOMPtr.h"
 #include "nsIImportService.h"
 #include "nsIFile.h"

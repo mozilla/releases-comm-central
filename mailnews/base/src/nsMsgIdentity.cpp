@@ -19,7 +19,6 @@
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
-#include "nsArrayUtils.h"
 
 #define REL_FILE_PREF_SUFFIX "-rel"
 

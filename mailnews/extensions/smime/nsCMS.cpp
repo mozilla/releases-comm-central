@@ -11,7 +11,6 @@
 #include "cms.h"
 #include "mozilla/Logging.h"
 #include "mozilla/RefPtr.h"
-#include "nsArrayUtils.h"
 #include "nsDependentSubstring.h"
 #include "nsICryptoHash.h"
 #include "nsISupports.h"

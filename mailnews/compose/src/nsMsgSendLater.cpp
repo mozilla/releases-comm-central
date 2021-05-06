@@ -23,15 +23,12 @@
 #include "nsIMimeConverter.h"
 #include "nsMsgMimeCID.h"
 #include "nsComposeStrings.h"
-#include "nsIMutableArray.h"
-#include "nsArrayEnumerator.h"
 #include "nsIObserverService.h"
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgMessageFlags.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Services.h"
-#include "nsArrayUtils.h"
 
 // Consts for checking and sending mail in milliseconds
 

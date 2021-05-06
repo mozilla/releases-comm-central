@@ -16,7 +16,6 @@
 #include "nsILDAPErrors.h"
 #include "nsIClassInfoImpl.h"
 #include "nsIAuthModule.h"
-#include "nsArrayUtils.h"
 #include "nsMemory.h"
 #include "nsThreadUtils.h"
 

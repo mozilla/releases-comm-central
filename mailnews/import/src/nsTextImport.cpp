@@ -13,7 +13,6 @@
 #include "nsIImportService.h"
 #include "nsMsgI18N.h"
 #include "nsTextImport.h"
-#include "nsIMutableArray.h"
 #include "nsIImportGeneric.h"
 #include "nsIImportAddressBooks.h"
 #include "nsIImportABDescriptor.h"

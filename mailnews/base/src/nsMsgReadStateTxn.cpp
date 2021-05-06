@@ -5,7 +5,6 @@
 
 #include "nsMsgReadStateTxn.h"
 
-#include "nsIMutableArray.h"
 #include "nsIMsgHdr.h"
 #include "nsComponentManagerUtils.h"
 

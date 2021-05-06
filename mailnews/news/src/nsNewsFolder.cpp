@@ -16,7 +16,6 @@
 #include "prprf.h"
 #include "prsystem.h"
 #include "nsTArray.h"
-#include "nsArrayUtils.h"
 #include "nsINntpService.h"
 #include "nsIMsgFilterService.h"
 #include "nsCOMPtr.h"
@@ -41,14 +40,12 @@
 #include "nsNetCID.h"
 #include "nsINntpUrl.h"
 
-#include "nsArrayEnumerator.h"
 #include "nsNewsDownloader.h"
 #include "nsIStringBundle.h"
 #include "nsMsgI18N.h"
 #include "nsNativeCharsetUtils.h"
 
 #include "nsIMsgFolderNotificationService.h"
-#include "nsIMutableArray.h"
 #include "nsILoginInfo.h"
 #include "nsILoginManager.h"
 #include "nsEmbedCID.h"

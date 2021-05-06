@@ -18,7 +18,6 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgAccountManager.h"
 #include "nsServiceManagerUtils.h"
-#include "nsIMutableArray.h"
 #include "nsMsgUtils.h"
 #include "nsMsgDBFolder.h"
 #include "nsComponentManagerUtils.h"

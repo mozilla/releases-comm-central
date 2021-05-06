@@ -24,8 +24,6 @@
 #include "nsIMsgStatusFeedback.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 
 static NS_DEFINE_CID(kMsgSendLaterCID, NS_MSGSENDLATER_CID);
 

@@ -42,7 +42,6 @@
 #include "nsMsgI18N.h"
 #include "nsIMIMEHeaderParam.h"
 #include "plbase64.h"
-#include "nsArrayEnumerator.h"
 #include <time.h>
 #include "nsIMsgFolderNotificationService.h"
 #include "nsIMimeHeaders.h"

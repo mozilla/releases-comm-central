@@ -14,7 +14,6 @@
 #include "nsSmtpService.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgCompCID.h"
-#include "nsArrayEnumerator.h"
 #include "nsSmtpUrl.h"
 #include "nsSmtpProtocol.h"
 #include "nsCOMPtr.h"

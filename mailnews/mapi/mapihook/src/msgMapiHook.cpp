@@ -39,8 +39,6 @@
 #include "mozilla/dom/Promise.h"
 #include "mozilla/ReentrantMonitor.h"
 #include "mozilla/Services.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
 #include "nsEmbedCID.h"
 #include "mozilla/Logging.h"
 
