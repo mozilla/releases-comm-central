@@ -181,9 +181,8 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
     }
 
     setCalendarItemParticipationStatus(item, status) {
-      let calendar = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
-      if (calendar) {
-        let att = calendar.getInvitedAttendee(item);
+      if (item.calendar?.supportsScheduling) {
+        let att = item.calendar.getSchedulingSupport().getInvitedAttendee(item);
         if (att) {
           let att_ = att.clone();
           att_.participationStatus = status;

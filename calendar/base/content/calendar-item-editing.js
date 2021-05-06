@@ -499,11 +499,11 @@ function openEventDialog(
   // the dialog will reset this to auto when it is done loading.
   window.setCursor("wait");
 
-  // ask the provide if this item is an invitation. if this is the case
+  // Ask the provider if this item is an invitation. If this is the case,
   // we'll open the summary dialog since the user is not allowed to change
   // the details of the item.
-  let wrappedCalendar = cal.wrapInstance(calendar, Ci.calISchedulingSupport);
-  let isInvitation = wrappedCalendar && wrappedCalendar.isInvitation(calendarItem);
+  let isInvitation =
+    calendar.supportsScheduling && calendar.getSchedulingSupport().isInvitation(calendarItem);
 
   // open the dialog modeless
   let url;

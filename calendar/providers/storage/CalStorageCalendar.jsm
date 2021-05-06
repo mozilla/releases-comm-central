@@ -140,6 +140,14 @@ CalStorageCalendar.prototype = {
     return this.__proto__.__proto__.getProperty.apply(this, arguments);
   },
 
+  get supportsScheduling() {
+    return true;
+  },
+
+  getSchedulingSupport() {
+    return this;
+  },
+
   // readonly attribute AUTF8String type;
   get type() {
     return "storage";

@@ -142,6 +142,14 @@ CalICSCalendar.prototype = {
     return this.__proto__.__proto__.getProperty.apply(this, arguments);
   },
 
+  get supportsScheduling() {
+    return true;
+  },
+
+  getSchedulingSupport() {
+    return this;
+  },
+
   refresh() {
     this.queue.push({ action: "refresh", forceRefresh: false });
     this.processQueue();

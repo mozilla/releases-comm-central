@@ -46,8 +46,8 @@ function onLoad() {
   window.readOnly = itemSummary.readOnly;
   let calendar = itemSummary.calendar;
 
-  if (!window.readOnly && calendar) {
-    let attendee = calendar.getInvitedAttendee(item);
+  if (!window.readOnly && calendar?.supportsScheduling) {
+    let attendee = calendar.getSchedulingSupport().getInvitedAttendee(item);
     if (attendee) {
       // if this is an unresponded invitation, preset our default alarm values:
       if (!item.getAlarms().length && attendee.participationStatus == "NEEDS-ACTION") {

@@ -546,6 +546,14 @@ CalDavCalendar.prototype = {
 
   mHrefIndex: null,
 
+  get supportsScheduling() {
+    return true;
+  },
+
+  getSchedulingSupport() {
+    return this;
+  },
+
   /**
    * addItem()
    * we actually use doAdoptItem()

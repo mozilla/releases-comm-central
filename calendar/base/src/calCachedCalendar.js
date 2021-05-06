@@ -687,6 +687,14 @@ calCachedCalendar.prototype = {
     return true;
   },
 
+  get supportsScheduling() {
+    return this.mUncachedCalendar.supportsScheduling;
+  },
+
+  getSchedulingSupport() {
+    return this.mUncachedCalendar.getSchedulingSupport();
+  },
+
   getProperty(aName) {
     switch (aName) {
       case "cache.enabled":

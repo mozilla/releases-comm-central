@@ -16,6 +16,7 @@ interface calICalendarACLEntry;
 interface calIObserver;
 interface calIOperationListener;
 interface calIRange;
+interface calISchedulingSupport;
 interface calIDateTime;
 interface calIOperation;
 interface calIStatusObserver;
@@ -280,6 +281,18 @@ interface calICalendar : nsISupports
 
   void addObserver( in calIObserver observer );
   void removeObserver( in calIObserver observer );
+
+  /**
+   * supportsScheduling indicates whether the calendar implements the 
+   * calISchedulingSupport interface.
+   */
+  readonly attribute boolean supportsScheduling;
+
+  /**
+   * getSchedulingSupport provides a calISchedulingSupport implementation for
+   * calendars that support it.
+   */
+  calISchedulingSupport getSchedulingSupport();
 
   /**
    * The following five "Item" functions are all asynchronous, and return

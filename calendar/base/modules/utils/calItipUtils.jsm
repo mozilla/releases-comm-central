@@ -931,9 +931,9 @@ var calitip = {
    */
   isInvitation(aItem) {
     let isInvitation = false;
-    let calendar = cal.wrapInstance(aItem.calendar, Ci.calISchedulingSupport);
-    if (calendar) {
-      isInvitation = calendar.isInvitation(aItem);
+    let calendar = aItem.calendar;
+    if (calendar && calendar.supportsScheduling) {
+      isInvitation = calendar.getSchedulingSupport().isInvitation(aItem);
     }
     return isInvitation;
   },
@@ -1012,9 +1012,8 @@ var calitip = {
       aCalendar = aItem.calendar;
     }
     let invitedAttendee = null;
-    let calendar = cal.wrapInstance(aCalendar, Ci.calISchedulingSupport);
-    if (calendar) {
-      invitedAttendee = calendar.getInvitedAttendee(aItem);
+    if (aCalendar && aCalendar.supportsScheduling) {
+      invitedAttendee = aCalendar.getSchedulingSupport().getInvitedAttendee(aItem);
     }
     return invitedAttendee;
   },
@@ -1152,9 +1151,9 @@ function copyProviderProperties(itipItem, itipItemItem, item) {
  * @return {Boolean}                        True, if the message could be sent
  */
 function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
-  let calendar = cal.wrapInstance(aItem.calendar, Ci.calISchedulingSupport);
-  if (calendar) {
-    if (calendar.QueryInterface(Ci.calISchedulingSupport).canNotify(aMethod, aItem)) {
+  let calendar = aItem.calendar;
+  if (calendar && calendar.supportsScheduling) {
+    if (calendar.getSchedulingSupport().canNotify(aMethod, aItem)) {
       // provider will handle that, so we return - we leave it also to the provider to
       // deal with user canceled notifications (if possible), so set the return value
       // to true as false would prevent any further notification within this cycle

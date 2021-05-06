@@ -879,11 +879,12 @@ function setupContextItemType(aEvent, aItems) {
 function canEditSelectedItems() {
   let items = currentView().getSelectedItems();
   return items.every(item => {
-    let schedSupport = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
+    let calendar = item.calendar;
     return (
-      cal.acl.isCalendarWritable(item.calendar) &&
+      cal.acl.isCalendarWritable(calendar) &&
       cal.acl.userCanModifyItem(item) &&
-      !schedSupport.isInvitation(item)
+      calendar.supportsScheduling &&
+      !calendar.getSchedulingSupport().isInvitation(item)
     );
   });
 }

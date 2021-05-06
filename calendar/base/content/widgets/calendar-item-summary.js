@@ -303,8 +303,11 @@
 
       // When used in places like the import dialog, there is no calendar (yet).
       if (item.calendar) {
-        this.mCalendar = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
-        this.mIsInvitation = this.mCalendar?.isInvitation(item);
+        this.mCalendar = item.calendar;
+
+        this.mIsInvitation =
+          item.calendar.supportsScheduling &&
+          item.calendar.getSchedulingSupport()?.isInvitation(item);
 
         this.mReadOnly = !(
           cal.acl.isCalendarWritable(this.mCalendar) &&

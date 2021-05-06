@@ -282,6 +282,14 @@ CalCompositeCalendar.prototype = {
     return this.mDefaultCalendar.getProperty(aName);
   },
 
+  get supportsScheduling() {
+    return false;
+  },
+
+  getSchedulingSupport() {
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+  },
+
   setProperty(aName, aValue) {
     return this.mDefaultCalendar.setProperty(aName, aValue);
   },
