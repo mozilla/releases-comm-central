@@ -203,6 +203,37 @@ add_task(async function test_getGroupConversation() {
   ok(mockAccount.left);
 });
 
+add_task(function test_joinChat() {
+  const roomId = "!foo:example.com";
+  const conversation = {};
+  const mockAccount = {
+    getGroupConversation(id) {
+      this.groupConv = id;
+      return conversation;
+    },
+    checkRoomForUpdate(conv) {
+      strictEqual(conv, conversation);
+      return conv;
+    },
+  };
+  const components = {
+    getValue(key) {
+      if (key === "roomIdOrAlias") {
+        return roomId;
+      }
+      ok(false, "Unknown chat room field");
+      return null;
+    },
+  };
+
+  const conv = matrix.MatrixAccount.prototype.joinChat.call(
+    mockAccount,
+    components
+  );
+  equal(mockAccount.groupConv, roomId);
+  strictEqual(conv, conversation);
+});
+
 function mockMatrixRoom(roomId) {
   return {
     getMyMembership() {

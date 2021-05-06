@@ -1589,13 +1589,10 @@ MatrixAccount.prototype = {
     if (roomIdOrAlias.startsWith("!")) {
       // We create the group conversation initially. Then we check if the room
       // is the direct messaging room or not.
-      let room = this._client.getRoom(roomIdOrAlias);
-      if (!room) {
+      let conv = this.getGroupConversation(roomIdOrAlias);
+      if (!conv) {
         return null;
       }
-      let conv = new MatrixConversation(this, room.name, this.userId);
-      conv.initRoom(room);
-      this.roomList.set(roomIdOrAlias, conv);
       // It can be any type of room so update it according to direct conversation
       // or group conversation.
       return this.checkRoomForUpdate(conv);
