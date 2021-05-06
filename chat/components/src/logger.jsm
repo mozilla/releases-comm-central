@@ -14,7 +14,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   GenericMessagePrototype: "resource:///modules/jsProtoHelper.jsm",
   getHiddenHTMLWindow: "resource:///modules/hiddenWindow.jsm",
   l10nHelper: "resource:///modules/imXPCOMUtils.jsm",
-  OS: "resource://gre/modules/osfile.jsm",
   ToLocaleFormat: "resource:///modules/ToLocaleFormat.jsm",
 });
 
@@ -25,7 +24,7 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
 const kLineBreak = "@mozilla.org/windows-registry-key;1" in Cc ? "\r\n" : "\n";
 
 /*
- * Maps file paths to promises returned by ongoing OS.File operations on them.
+ * Maps file paths to promises returned by ongoing IOUtils operations on them.
  * This is so that a file can be read after a pending write operation completes
  * and vice versa (opening a file multiple times concurrently may fail on Windows).
  */
@@ -64,31 +63,24 @@ function queueFileOperation(aPath, aOperation) {
  * (opening a file multiple times concurrently may fail on Windows).
  * Note: This function creates parent directories if required.
  */
-function appendToFile(aPath, aEncodedString, aCreate) {
+function appendToFile(aPath, aString, aCreate) {
   return queueFileOperation(aPath, async function() {
-    await OS.File.makeDir(OS.Path.dirname(aPath), {
-      ignoreExisting: true,
-      from: OS.Constants.Path.profileDir,
-    });
-    let file;
+    await IOUtils.makeDirectory(PathUtils.parent(aPath));
+    const mode = aCreate ? "create" : "append";
     try {
-      file = await OS.File.open(aPath, { write: true, create: aCreate });
+      await IOUtils.writeUTF8(aPath, aString, {
+        mode,
+      });
     } catch (error) {
-      if (error.becauseExists && aCreate) {
-        // Ignore existing file when adding the header.
+      // Ignore existing file when adding the header.
+      if (
+        aCreate &&
+        error.name == "UnknownError" &&
+        error.message.startsWith("Refusing to overwrite the file")
+      ) {
         return;
       }
-    }
-    try {
-      await file.write(aEncodedString);
-    } finally {
-      /*
-       * If both the write() above and the close() below throw, and we don't
-       * handle the close error here, the promise will be rejected with the close
-       * error and the write error will be dropped. To avoid this, we log any
-       * close error here so that any write error will be propagated.
-       */
-      await file.close().catch(Cu.reportError);
+      throw error;
     }
   });
 }
@@ -116,8 +108,8 @@ function encodeName(aName) {
 }
 
 function getLogFolderPathForAccount(aAccount) {
-  return OS.Path.join(
-    OS.Constants.Path.profileDir,
+  return PathUtils.join(
+    Services.dirsvc.get("ProfD", Ci.nsIFile).path,
     "logs",
     aAccount.protocol.normalizedName,
     encodeName(aAccount.normalizedName)
@@ -133,7 +125,7 @@ function getLogFilePathForConversation(aConv, aFormat, aStartTime) {
   if (aConv.isChat) {
     name += ".chat";
   }
-  return OS.Path.join(
+  return PathUtils.join(
     path,
     encodeName(name),
     getNewLogFileName(aFormat, aStartTime)
@@ -188,7 +180,6 @@ LogWriter.prototype = {
   _lastMessageTime: null,
   _messageCount: 0,
   format: "txt",
-  encoder: new TextEncoder(),
   startNewFile(aStartTime, aContinuedSession) {
     // We start a new log file every 1000 messages. The start time of this new
     // log file is the time of the next message. Since message times are in seconds,
@@ -235,11 +226,7 @@ LogWriter.prototype = {
         ")" +
         kLineBreak;
     }
-    this._initialized = appendToFile(
-      this.currentPath,
-      this.encoder.encode(header),
-      true
-    );
+    this._initialized = appendToFile(this.currentPath, header, true);
     // Catch the error separately so that _initialized will stay rejected if
     // writing the header failed.
     this._initialized.catch(aError =>
@@ -350,7 +337,6 @@ LogWriter.prototype = {
       }
       lineToWrite = line + kLineBreak;
     }
-    lineToWrite = this.encoder.encode(lineToWrite);
     this._initialized.then(() => {
       appendToFile(this.currentPath, lineToWrite).catch(aError =>
         Cu.reportError("Failed to log message:\n" + aError)
@@ -387,7 +373,7 @@ function closeLogWriter(aConversation) {
 // LogWriter for system logs.
 function SystemLogWriter(aAccount) {
   this._account = aAccount;
-  this.path = OS.Path.join(
+  this.path = PathUtils.join(
     getLogFolderPathForAccount(aAccount),
     ".system",
     getNewLogFileName()
@@ -404,11 +390,7 @@ function SystemLogWriter(aAccount) {
     ") connected at " +
     dateTimeFormatter.format(new Date()) +
     kLineBreak;
-  this._initialized = appendToFile(
-    this.path,
-    this.encoder.encode(header),
-    true
-  );
+  this._initialized = appendToFile(this.path, header, true);
   // Catch the error separately so that _initialized will stay rejected if
   // writing the header failed.
   this._initialized.catch(aError =>
@@ -416,16 +398,13 @@ function SystemLogWriter(aAccount) {
   );
 }
 SystemLogWriter.prototype = {
-  encoder: new TextEncoder(),
   // Constructor sets this to a promise that will resolve when the log header
   // has been written.
   _initialized: null,
   path: null,
   logEvent(aString) {
     let date = ToLocaleFormat("%x %X", new Date());
-    let lineToWrite = this.encoder.encode(
-      "---- " + aString + " @ " + date + " ----" + kLineBreak
-    );
+    let lineToWrite = "---- " + aString + " @ " + date + " ----" + kLineBreak;
     this._initialized.then(() => {
       appendToFile(this.path, lineToWrite).catch(aError =>
         Cu.reportError("Failed to log event:\n" + aError)
@@ -555,7 +534,7 @@ function Log(aEntries) {
     // Assume that aEntries is a single path.
     let path = aEntries;
     this.path = path;
-    let [date, format] = getDateFromFilename(OS.Path.basename(path));
+    let [date, format] = getDateFromFilename(PathUtils.filename(path));
     if (!date || !format) {
       this.format = "invalid";
       this.time = 0;
@@ -613,14 +592,14 @@ Log.prototype = {
     for (let path of this._entryPaths) {
       let lines;
       try {
-        let contents = await queueFileOperation(path, () => OS.File.read(path));
+        let contents = await queueFileOperation(path, () => IOUtils.read(path));
         lines = decoder.decode(contents).split("\n");
       } catch (aError) {
         Cu.reportError('Error reading log file "' + path + '":\n' + aError);
         continue;
       }
       let nextLine = lines.shift();
-      let filename = OS.Path.basename(path);
+      let filename = PathUtils.filename(path);
 
       let data;
       try {
@@ -682,15 +661,13 @@ Log.prototype = {
 /**
  * logsGroupedByDay() organizes log entries by date.
  *
- * @param {OS.File.DirectoryIterator.Entry[]} aEntries - entries of log files to be parsed.
+ * @param {string[]} aEntries - paths of log files to be parsed.
  * @returns {imILog[]} Logs, ordered by day.
  */
 function logsGroupedByDay(aEntries) {
   let entries = {};
-  for (let entry of aEntries) {
-    let path = entry.path;
-
-    let [logDate, logFormat] = getDateFromFilename(OS.Path.basename(path));
+  for (let path of aEntries) {
+    let [logDate, logFormat] = getDateFromFilename(PathUtils.filename(path));
     if (!logDate) {
       // We'll skip this one, since it's got a busted filename.
       continue;
@@ -733,33 +710,28 @@ Logger.prototype = {
   // Returned Promise resolves to an array of entries for the
   // log folder if it exists, otherwise null.
   async _getLogEntries(aAccount, aNormalizedName) {
-    let iterator, path;
+    let path;
     try {
-      path = OS.Path.join(
+      path = PathUtils.join(
         getLogFolderPathForAccount(aAccount),
         encodeName(aNormalizedName)
       );
-      if (await queueFileOperation(path, () => OS.File.exists(path))) {
-        iterator = new OS.File.DirectoryIterator(path);
-        let entries = await iterator.nextBatch();
-        iterator.close();
+      if (await queueFileOperation(path, () => IOUtils.exists(path))) {
+        let entries = await IOUtils.getChildren(path);
         return entries;
       }
     } catch (aError) {
-      if (iterator) {
-        iterator.close();
-      }
       Cu.reportError(
         'Error getting directory entries for "' + path + '":\n' + aError
       );
     }
     return [];
   },
-  getLogFromFile(aFilePath, aGroupByDay) {
+  async getLogFromFile(aFilePath, aGroupByDay) {
     if (!aGroupByDay) {
-      return Promise.resolve(new Log(aFilePath));
+      return new Log(aFilePath);
     }
-    let [targetDate] = getDateFromFilename(OS.Path.basename(aFilePath));
+    let [targetDate] = getDateFromFilename(PathUtils.filename(aFilePath));
     if (!targetDate) {
       return null;
     }
@@ -768,51 +740,42 @@ Logger.prototype = {
 
     // We'll assume that the files relevant to our interests are
     // in the same folder as the one provided.
-    let iterator = new OS.File.DirectoryIterator(OS.Path.dirname(aFilePath));
     let relevantEntries = [];
-    return iterator
-      .forEach(function(aEntry) {
-        if (aEntry.isDir) {
-          return;
-        }
-        let path = aEntry.path;
-        let [logTime] = getDateFromFilename(OS.Path.basename(path));
-
-        // If someone placed a 'foreign' file into the logs directory,
-        // pattern matching fails and getDateFromFilename() returns [].
-        if (logTime && targetDate == logTime.toDateString()) {
-          relevantEntries.push({
-            path,
-            time: logTime,
-          });
-        }
-      })
-      .then(
-        () => {
-          iterator.close();
-          return new Log(relevantEntries);
-        },
-        aError => {
-          iterator.close();
-          throw aError;
-        }
-      );
+    for (const path of await IOUtils.getChildren(PathUtils.parent(aFilePath))) {
+      const stat = await IOUtils.stat(path);
+      if (stat.type === "directory") {
+        continue;
+      }
+      let [logTime] = getDateFromFilename(PathUtils.filename(path));
+      // If someone placed a 'foreign' file into the logs directory,
+      // pattern matching fails and getDateFromFilename() returns [].
+      if (logTime && targetDate == logTime.toDateString()) {
+        relevantEntries.push({
+          path,
+          time: logTime,
+        });
+      }
+    }
+    return new Log(relevantEntries);
   },
 
   /**
    * Helper to produce array of imILog objects from directory entries.
    *
-   * @param {OS.File.DirectoryIterator.Entry[]} entries - Directory entries of log files to be parsed.
+   * @param {string[]} entries - Array of paths of log files to be parsed.
    * @param {boolean} groupByDay - If true, order by day (rather than by filename).
    * @returns {imILog[]} Logs, ordered by day.
    */
   _toLogArray(entries, groupByDay) {
+    if (!Array.isArray(entries)) {
+      return [];
+    }
     if (groupByDay) {
       return logsGroupedByDay(entries);
     }
     // Default - sort by filename.
-    entries.sort((a, b) => a.name > b.name);
-    return entries.map(entry => new Log(entry.path));
+    entries.sort((a, b) => PathUtils.filename(a) > PathUtils.filename(b));
+    return entries.map(path => new Log(path));
   },
 
   async getLogPathsForConversation(aConversation) {
@@ -883,16 +846,15 @@ Logger.prototype = {
     return this.getLogsForAccountAndName(aAccount, ".system");
   },
   async getSimilarLogs(aLog, aGroupByDay) {
-    let iterator = new OS.File.DirectoryIterator(OS.Path.dirname(aLog.path));
     let entries;
     try {
-      entries = await iterator.nextBatch();
+      entries = await IOUtils.getChildren(PathUtils.parent(aLog.path));
     } catch (aError) {
       Cu.reportError(
         'Error getting similar logs for "' + aLog.path + '":\n' + aError
       );
     }
-    // If there was an error, this will return an EmptyEnumerator.
+    // If there was an error, this will return an empty array.
     return this._toLogArray(entries, aGroupByDay);
   },
 
@@ -925,7 +887,7 @@ Logger.prototype = {
     // After all operations finish, remove the whole log folder.
     return Promise.all(pendingPromises)
       .then(values => {
-        OS.File.removeDir(logPath, { ignoreAbsent: true });
+        IOUtils.remove(logPath, { recursive: true });
       })
       .catch(aError =>
         Cu.reportError("Failed to remove log folders:\n" + aError)
@@ -936,24 +898,28 @@ Logger.prototype = {
     let getAllSubdirs = async function(aPaths, aErrorMsg) {
       let entries = [];
       for (let path of aPaths) {
-        let iterator = new OS.File.DirectoryIterator(path);
         try {
-          entries = entries.concat(await iterator.nextBatch());
+          entries = entries.concat(await IOUtils.getChildren(path));
         } catch (aError) {
           if (aErrorMsg) {
             Cu.reportError(aErrorMsg + "\n" + aError);
           }
-        } finally {
-          iterator.close();
         }
       }
-      entries = entries
-        .filter(aEntry => aEntry.isDir)
-        .map(aEntry => aEntry.path);
-      return entries;
+      let filteredPaths = [];
+      for (let path of entries) {
+        const stat = await IOUtils.stat(path);
+        if (stat.type === "directory") {
+          filteredPaths.push(path);
+        }
+      }
+      return filteredPaths;
     };
 
-    let logsPath = OS.Path.join(OS.Constants.Path.profileDir, "logs");
+    let logsPath = PathUtils.join(
+      Services.dirsvc.get("ProfD", Ci.nsIFile).path,
+      "logs"
+    );
     let prpls = await getAllSubdirs([logsPath]);
     let accounts = await getAllSubdirs(
       prpls,
@@ -964,22 +930,20 @@ Logger.prototype = {
       "Error while sweeping account folder:"
     );
     for (let folder of logFolders) {
-      let iterator = new OS.File.DirectoryIterator(folder);
       try {
-        await iterator.forEach(aEntry => {
-          if (aEntry.isDir || !aEntry.name.endsWith(".json")) {
-            return null;
+        for (const path of await IOUtils.getChildren(folder)) {
+          const stat = await IOUtils.stat(path);
+          if (stat.type === "directory" || !path.endsWith(".json")) {
+            continue;
           }
-          return aCallback.processLog(aEntry.path);
-        });
+          await aCallback.processLog(path);
+        }
       } catch (aError) {
         // If the callback threw, reject the promise and let the caller handle it.
-        if (!(aError instanceof OS.File.Error)) {
+        if (!(aError instanceof DOMException)) {
           throw aError;
         }
         Cu.reportError("Error sweeping log folder:\n" + aError);
-      } finally {
-        iterator.close();
       }
     }
   },
@@ -990,7 +954,7 @@ Logger.prototype = {
         Services.obs.addObserver(this, "final-ui-startup");
         break;
       case "final-ui-startup":
-        OS.File.profileBeforeChange.addBlocker(
+        IOUtils.profileBeforeChange.addBlocker(
           "Chat logger: writing all pending messages",
           async function() {
             for (let promise of gFilePromises.values()) {
