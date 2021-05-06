@@ -69,7 +69,7 @@ OAuth2.prototype = {
     this.connectSuccessCallback = aSuccess;
     this.connectFailureCallback = aFailure;
 
-    if (!aRefresh && this.accessToken) {
+    if (this.accessToken && !this.tokenExpired && !aRefresh) {
       aSuccess();
     } else if (this.refreshToken) {
       this.requestAccessToken(this.refreshToken, true);
@@ -84,6 +84,15 @@ OAuth2.prototype = {
       }
       this.requestAuthorization();
     }
+  },
+
+  /**
+   * True if the token has expired, or will expire within the grace time.
+   */
+  get tokenExpired() {
+    // 30 seconds to allow for network inefficiency, clock drift, etc.
+    const OAUTH_GRACE_TIME_MS = 30 * 1000;
+    return this.tokenExpires - OAUTH_GRACE_TIME_MS < Date.now();
   },
 
   requestAuthorization() {
