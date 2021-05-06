@@ -80,7 +80,7 @@ success-them-title = Verify your contact’s identity
 fail-title = Unable to verify
 waiting-title = Verification request sent
 
-# Do not translate 'OTR’ (name of an encryption protocol)
+# Do not translate 'OTR' (name of an encryption protocol)
 # Variables:
 #   $error (String) - contains an error message that describes the cause of the failure
 otr-genkey-failed = Generating OTR private key failed: { $error }
