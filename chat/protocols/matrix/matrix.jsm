@@ -1329,10 +1329,10 @@ MatrixAccount.prototype = {
   /**
    * Returns the group conversation according to the room-id.
    * 1) If we have a group conversation already, we will return that.
-   * 2) If the room exists on the server, we will join it. It will not do
-   *    anything if we are already joined, it will just create the
-   *    conversation. This is used mainly when a new room gets added.
-   * 3) Create a new room if the conversation does not exist.
+   * 2) If the user is already in the room but we don't have a conversation for
+   *    it yet, create one.
+   * 3) Else we try to join the room and create a new conversation for it.
+   * 4) Create a new room if the room does not exist and is local to our server.
    *
    * @param {string} roomId - ID of the room.
    * @param {string} [roomName] - Name of the room.
@@ -1340,54 +1340,120 @@ MatrixAccount.prototype = {
    * @return {MatrixConversation?} - The resulted conversation.
    */
   getGroupConversation(roomId, roomName) {
+    if (!roomId) {
+      return null;
+    }
+
+    const existingConv = this.getConversationByIdOrAlias(roomId);
+    if (existingConv) {
+      return existingConv;
+    }
+
+    const conv = new MatrixConversation(this, roomName || roomId, this.userId);
+    conv.joining = true;
+
+    // If we are already in the room, just initialize the conversation with it.
+    const existingRoom = this._client.getRoom(roomId);
+    if (existingRoom?.getMyMembership() === "join") {
+      this.roomList.set(existingRoom.roomId, conv);
+      conv.initRoom(existingRoom);
+      return conv;
+    }
+
+    // Try to join the room
+    this._client
+      .joinRoom(roomId)
+      .then(
+        room => {
+          this.roomList.set(room.roomId, conv);
+          conv.initRoom(room);
+        },
+        error => {
+          // If room does not exist and it is local to our server, create it.
+          if (
+            error.errcode === "M_NOT_FOUND" &&
+            roomId.endsWith(":" + this._client.getDomain()) &&
+            roomId[0] !== "!"
+          ) {
+            this.LOG(
+              "Creating room " + roomId + ", since we could not join: " + error
+            );
+            if (this._pendingRoomAliases.has(roomId)) {
+              conv.forget();
+              conv.replaceRoom(this._pendingRoomAliases.get(roomId));
+              return null;
+            }
+            // extract alias from #<alias>:<domain>
+            const alias = roomId.split(":", 1)[0].slice(1);
+            return this.createRoom(this._pendingRoomAliases, roomId, conv, {
+              room_alias_name: alias,
+              name: roomName || alias,
+              visibility: "private",
+              preset: "private_chat",
+              content: {
+                guest_access: "can_join",
+              },
+              type: "m.room.guest_access",
+              state_key: "",
+            });
+          }
+          conv.joining = false;
+          conv.close();
+          throw error;
+        }
+      )
+      .catch(error => {
+        this.ERROR(error);
+        if (conv.joining) {
+          conv.joining = false;
+          conv.forget();
+        }
+      });
+
+    return conv;
+  },
+
+  /**
+   * Get an existing conversation for a room ID or alias.
+   *
+   * @param {string} roomIdOrAlias - Identifier for the conversation.
+   * @returns {GenericMatrixConversation?}
+   */
+  getConversationByIdOrAlias(roomIdOrAlias) {
+    if (!roomIdOrAlias) {
+      return null;
+    }
+
+    const conv = this.getConversationById(roomIdOrAlias);
+    if (conv) {
+      return conv;
+    }
+    const existingRoom = this._client.getRoom(roomIdOrAlias);
+    if (!existingRoom) {
+      return null;
+    }
+    return this.getConversationById(existingRoom.roomId);
+  },
+
+  /**
+   * Get an existing conversation for a room ID.
+   *
+   * @param {string} roomId - Room ID of the conversation.
+   * @returns {GenericMatrixConversation?}
+   */
+  getConversationById(roomId) {
+    if (!roomId) {
+      return null;
+    }
+
     // If there is a conversation return it.
     if (this.roomList.has(roomId)) {
       return this.roomList.get(roomId);
     }
 
-    if (roomId && this._client.getRoom(roomId)) {
-      let conv = new MatrixConversation(this, roomName || roomId, this.userId);
-      this.roomList.set(roomId, conv);
-      conv.joining = true;
-      this._client
-        .joinRoom(roomId)
-        .catch(error => {
-          conv.joining = false;
-          conv.close();
-          throw error;
-        })
-        .then(room => {
-          conv.initRoom(room);
-        })
-        .catch(error => {
-          this.ERROR(error);
-          if (conv.joining) {
-            conv.joining = false;
-            conv.forget();
-          }
-        });
-
-      return conv;
-    }
-
-    if (roomId.endsWith(":" + this._client.getDomain())) {
-      if (this._pendingRoomAliases.has(roomId)) {
-        return this._pendingRoomAliases.get(roomId);
-      }
-      let conv = new MatrixConversation(this, roomId, this.userId);
-      let name = roomId.split(":", 1)[0];
-      this.createRoom(this._pendingRoomAliases, roomId, conv, {
-        room_alias_name: name,
-        name,
-        visibility: "private",
-        preset: "private_chat",
-        content: {
-          guest_access: "can_join",
-        },
-        type: "m.room.guest_access",
-        state_key: "",
-      });
-      return conv;
+    // Are we already creating a room with the ID?
+    if (this._pendingRoomAliases.has(roomId)) {
+      return this._pendingRoomAliases.get(roomId);
     }
     return null;
   },
