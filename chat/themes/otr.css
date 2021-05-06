@@ -12,7 +12,7 @@
   font-weight: 600;
 }
 
-.otr-not_private > image {
+.otr-not-private > image {
   list-style-image: url("chrome://messenger/skin/icons/connection-insecure.svg");
 }
 

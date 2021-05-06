@@ -64,7 +64,7 @@ function initStrings() {
         disableStart: false,
         disableEnd: true,
         disableAuth: true,
-        class: "not_private",
+        class: "not-private",
       },
     ],
     [
