@@ -12,6 +12,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  OS: "resource://gre/modules/osfile.jsm",
   QueryStringToExpression: "resource:///modules/QueryStringToExpression.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
@@ -41,12 +42,28 @@ class LDAPDirectory extends AddrBookDirectory {
     super.init(uri);
   }
 
+  get isRemote() {
+    return true;
+  }
+
+  get propertiesChromeURI() {
+    return "chrome://messenger/content/addressbook/pref-directory-add.xhtml";
+  }
+
   get replicationFileName() {
     return this.getStringValue("filename");
   }
 
   set replicationFileName(value) {
     this.setStringValue("filename", value);
+  }
+
+  get replicationFile() {
+    let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    file.initWithPath(
+      OS.Path.join(OS.Constants.Path.profileDir, this.replicationFileName)
+    );
+    return file;
   }
 
   get protocolVersion() {

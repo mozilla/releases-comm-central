@@ -169,10 +169,9 @@ nsresult nsAbLDAPProcessReplicationData::DoTask() {
   mState = kReplicatingAll;
 
   if (mListener && NS_SUCCEEDED(rv))
-    // XXX Cast from bool to nsresult
     mListener->OnStateChange(nullptr, nullptr,
                              nsIWebProgressListener::STATE_START,
-                             static_cast<nsresult>(true));
+                             NS_OK);
 
   return mOperation->SearchExt(dn, scope, urlFilter, attributes, 0, 0);
 }
@@ -383,7 +382,7 @@ void nsAbLDAPProcessReplicationData::Done(bool aSuccess) {
     promise = this->PromiseDatabaseClosed(mReplicationFile);
   }
 
-  promise->Then(GetCurrentSerialEventTarget(), __func__, [&] {
+  promise->Then(GetCurrentSerialEventTarget(), __func__, [&, aSuccess] {
     nsCOMPtr<nsIObserverService> observerService =
         mozilla::services::GetObserverService();
     observerService->RemoveObserver(this, "addrbook-close-ab-complete");
@@ -396,7 +395,6 @@ void nsAbLDAPProcessReplicationData::Done(bool aSuccess) {
     if (mQuery) mQuery->Done(aSuccess);
 
     if (mListener)
-      // XXX Cast from bool to nsresult
       mListener->OnStateChange(nullptr, nullptr,
                                nsIWebProgressListener::STATE_STOP,
                                aSuccess ? NS_OK : NS_ERROR_FAILURE);

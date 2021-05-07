@@ -21,6 +21,20 @@ function LDAPModuleLoader() {
   }
 }
 
+var ldapJSModules = [
+  // moduleName, interfaceId, contractId
+  [
+    "LDAPDirectory",
+    "{8683e821-f1b0-476d-ac15-07771c79bb11}",
+    "@mozilla.org/addressbook/directory;1?type=moz-abldapdirectory",
+  ],
+  [
+    "LDAPReplicationService",
+    "{dbe204e8-ae09-11eb-b4c8-a7e4b3e6e82e}",
+    "@mozilla.org/addressbook/ldap-replication-service;1",
+  ],
+];
+
 LDAPModuleLoader.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
@@ -34,24 +48,22 @@ LDAPModuleLoader.prototype = {
         Ci.nsIComponentRegistrar
       );
 
-      // Load LDAPDirectory.jsm.
-      let directoryScope = ChromeUtils.import(
-        "resource:///modules/LDAPDirectory.jsm"
-      );
-      directoryScope.NSGetFactory = ComponentUtils.generateNSGetFactory([
-        directoryScope.LDAPDirectory,
-      ]);
+      for (let [moduleName, interfaceId, contractId] of ldapJSModules) {
+        // Load a module.
+        let scope = ChromeUtils.import(`resource:///modules/${moduleName}.jsm`);
+        scope.NSGetFactory = ComponentUtils.generateNSGetFactory([
+          scope[moduleName],
+        ]);
 
-      // Register LDAPDirectory.jsm.
-      let directoryClassId = Components.ID(
-        "{8683e821-f1b0-476d-ac15-07771c79bb11}"
-      );
-      registrar.registerFactory(
-        directoryClassId,
-        "",
-        "@mozilla.org/addressbook/directory;1?type=moz-abldapdirectory",
-        lazyFactoryFor(directoryScope, directoryClassId)
-      );
+        // Register a module.
+        let classId = Components.ID(interfaceId);
+        registrar.registerFactory(
+          classId,
+          "",
+          contractId,
+          lazyFactoryFor(scope, classId)
+        );
+      }
 
       dump("[LDAPModuleLoader] Using LDAPDirectory.jsm\n");
     } else {

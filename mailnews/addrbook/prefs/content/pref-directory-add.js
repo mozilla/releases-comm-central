@@ -1,4 +1,4 @@
-/* -*- Mode: Java; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* -*- Mode: JavaScript; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -171,10 +171,10 @@ function DownloadNow() {
           progressListener
         );
       } else {
-        EndDownload(false);
+        EndDownload(Cr.NS_ERROR_FAILURE);
       }
     } catch (ex) {
-      EndDownload(false);
+      EndDownload(Cr.NS_ERROR_FAILURE);
     }
   } else {
     gReplicationCancelled = true;
@@ -201,7 +201,7 @@ function EndDownload(aStatus) {
   gProgressMeter.hidden = true;
 
   gDownloadInProgress = false;
-  if (aStatus) {
+  if (Components.isSuccessCode(aStatus)) {
     gProgressText.value = gReplicationBundle.getString("replicationSucceeded");
   } else if (gReplicationCancelled) {
     gProgressText.value = gReplicationBundle.getString("replicationCancelled");
