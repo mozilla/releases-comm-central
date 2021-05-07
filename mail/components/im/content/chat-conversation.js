@@ -1543,6 +1543,10 @@
       }.bind(this);
     }
 
+    /**
+     * Display the topic and topic editable flag for the current MUC in the
+     * conversation header.
+     */
     updateTopic() {
       let cti = document.getElementById("conv-top-info");
       let editable = !!this._conv.topicSettable;
@@ -1680,9 +1684,13 @@
       }
     }
 
+    /**
+     * Set up the shared conversation specific components (conversation browser
+     * references, status header, participants list, text input) for this
+     * conversation.
+     */
     initConversationUI() {
       if (this._conv.isChat) {
-        this.updateTopic();
         let cti = document.getElementById("conv-top-info");
         cti.setAttribute("displayName", this._conv.title);
 

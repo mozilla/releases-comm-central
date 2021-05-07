@@ -771,6 +771,11 @@ var chatHandler = {
       aContact.addObserver(this._contactObserver);
     }
   },
+  /**
+   * Callback for the button that closes the log view. Resets the shared UI
+   * elements to match the state of the active conversation. Hides the log
+   * browser.
+   */
   showCurrentConversation() {
     let item = document.getElementById("contactlistbox").selectedItem;
     if (!item) {
@@ -784,6 +789,11 @@ var chatHandler = {
       item.convView.hidden = false;
       item.convView.querySelector(".conv-bottom").setAttribute("height", 90);
       document.getElementById("logTree").view.selection.clearSelection();
+      if (item.conv.isChat) {
+        item.convView.updateTopic();
+      } else if (gOtrEnabled) {
+        OTRUI.updateOTRButton(item.conv);
+      }
       item.convView.focus();
     } else if (
       item.localName == "richlistitem" &&

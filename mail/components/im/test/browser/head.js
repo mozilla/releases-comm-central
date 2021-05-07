@@ -59,6 +59,22 @@ async function getChatMessageParent(chatConv) {
   return messageParent;
 }
 
+function waitForNotification(target, expectedTopic) {
+  let observer;
+  let promise = new Promise(resolve => {
+    observer = {
+      observe(subject, topic, data) {
+        if (topic === expectedTopic) {
+          resolve({ subject, data });
+          target.removeObserver(observer);
+        }
+      },
+    };
+  });
+  target.addObserver(observer);
+  return promise;
+}
+
 registerTestProtocol();
 
 registerCleanupFunction(async () => {
