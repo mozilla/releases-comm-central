@@ -50,6 +50,7 @@ add_task(async function testTopicRestored() {
   convNode = getConversationItem(newConversation);
   ok(convNode);
 
+  let conversationLoaded = waitForConversationLoad();
   await EventUtils.synthesizeMouseAtCenter(convNode, {});
 
   chatConv = getChatConversationElement(newConversation);
@@ -70,16 +71,14 @@ add_task(async function testTopicRestored() {
   // Wait for log list to be populated, sadly there is no event and it is delayed by promises.
   await TestUtils.waitForCondition(() => logTree.view.rowCount > 0);
 
-  const conversationLoaded = TestUtils.topicObserved(
-    "conversation-loaded",
-    () => true
-  );
+  await conversationLoaded;
+  const logBrowser = document.getElementById("conv-log-browser");
+  conversationLoaded = waitForConversationLoad(logBrowser);
   mailTestUtils.treeClick(EventUtils, window, logTree, 0, 0, {
     clickCount: 1,
   });
   await conversationLoaded;
 
-  const logBrowser = document.getElementById("conv-log-browser");
   ok(BrowserTestUtils.is_visible(logBrowser));
   is(chatTopInfo.topic.value, "", "Topic is cleared when viewing logs");
 

@@ -10,24 +10,15 @@ add_task(async function testContextMenu() {
   await openChatTab();
   ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
 
-  const conversationLoaded = TestUtils.topicObserved(
-    "conversation-loaded",
-    () => true
-  );
   const conversation = account.prplAccount.wrappedJSObject.makeDM("context");
-  const convList = document.getElementById("contactlistbox");
-  const convNode = Array.from(convList.children).find(
-    element =>
-      element.getAttribute("is") === "chat-imconv-richlistitem" &&
-      element.getAttribute("displayname") === conversation.name
-  );
+  const convNode = getConversationItem(conversation);
   ok(convNode);
+
+  const conversationLoaded = waitForConversationLoad();
 
   await EventUtils.synthesizeMouseAtCenter(convNode, {});
 
-  const chatConv = Array.from(
-    document.querySelectorAll("chat-conversation")
-  ).find(element => element._conv.target.wrappedJSObject === conversation);
+  const chatConv = getChatConversationElement(conversation);
   ok(chatConv, "found conversation");
   ok(BrowserTestUtils.is_visible(chatConv), "conversation visible");
   await BrowserTestUtils.browserLoaded(chatConv.convBrowser);

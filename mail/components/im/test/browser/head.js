@@ -36,6 +36,10 @@ async function closeChatTab() {
   await new Promise(resolve => setTimeout(resolve));
 }
 
+/**
+ * @param {prplIConversation} conversation
+ * @returns {HTMLElement} The corresponding chat-imconv-richlistitem element.
+ */
 function getConversationItem(conversation) {
   const convList = document.getElementById("contactlistbox");
   const convNode = Array.from(convList.children).find(
@@ -46,6 +50,10 @@ function getConversationItem(conversation) {
   return convNode;
 }
 
+/**
+ * @param {prplIConversation} conversation
+ * @returns {HTMLElement} The corresponding chat-conversation element.
+ */
 function getChatConversationElement(conversation) {
   const chatConv = Array.from(
     document.querySelectorAll("chat-conversation")
@@ -53,10 +61,25 @@ function getChatConversationElement(conversation) {
   return chatConv;
 }
 
+/**
+ * @param {HTMLElement} chatConv - chat-conversation element.
+ * @returns {HTMLElement} The parent element to all chat messages.
+ */
 async function getChatMessageParent(chatConv) {
   await BrowserTestUtils.browserLoaded(chatConv.convBrowser);
   const messageParent = chatConv.convBrowser.contentChatNode;
   return messageParent;
+}
+
+/**
+ * @param {HTMLElement} [browser] - The conversation-browser element.
+ * @returns {Promise<void>}
+ */
+function waitForConversationLoad(browser) {
+  return TestUtils.topicObserved(
+    "conversation-loaded",
+    subject => !browser || subject === browser
+  );
 }
 
 function waitForNotification(target, expectedTopic) {
