@@ -53,7 +53,6 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
   bool IsEmbeddedObjectSafe(const char* originalScheme,
                             const char* originalHost, const char* originalPath,
                             mozilla::dom::Element* element);
-  nsresult ResetUrisForEmbeddedObjects();
   nsresult TagEmbeddedObjects(nsIEditor* aEditor);
 
   nsCString mQuoteCharset;
