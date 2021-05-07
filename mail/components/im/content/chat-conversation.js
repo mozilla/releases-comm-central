@@ -89,6 +89,7 @@
             // Update the status too.
             case "update-buddy-status":
             case "update-buddy-icon":
+            case "update-conv-icon":
             case "update-conv-chatleft":
               if (this.tab && this._isConversationSelected) {
                 this.updateConvStatus();
@@ -1610,6 +1611,9 @@
       let cti = document.getElementById("conv-top-info");
       cti.setProtocol(this._conv.account.protocol);
 
+      // Set the icon, potentially showing a fallback icon if this is an IM.
+      cti.setUserIcon(this._conv.convIconFilename, !this._conv.isChat);
+
       if (this._conv.isChat) {
         this.updateTopic();
         cti.setAttribute("displayName", this._conv.title);
@@ -1619,13 +1623,10 @@
         let statusType = Ci.imIStatusInfo.STATUS_UNKNOWN;
 
         let buddy = this._conv.buddy;
-        if (!buddy || !buddy.account.connected) {
-          cti.setUserIcon(null);
-        } else {
+        if (buddy?.account.connected) {
           displayName = buddy.displayName;
           statusText = buddy.statusText;
           statusType = buddy.statusType;
-          cti.setUserIcon(buddy.buddyIconFilename);
         }
         cti.setAttribute("displayName", displayName);
 

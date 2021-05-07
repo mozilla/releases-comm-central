@@ -45,16 +45,18 @@ var ChatIcons = {
    *   class.
    * @param {string|null} iconUri - The uri to set, or "" to use a fallback
    *   icon, or null to hide the icon.
+   * @param {boolean} useFallback - True if the "fallback" icon should be shown
+   *   if iconUri isn't provided.
    */
-  setUserIconSrc(userIconElement, iconUri) {
-    if (iconUri === null || iconUri === undefined) {
-      userIconElement.removeAttribute("src");
+  setUserIconSrc(userIconElement, iconUri, useFallback) {
+    if (iconUri) {
+      userIconElement.setAttribute("src", iconUri);
       userIconElement.classList.remove("fillUserIcon");
-    } else if (iconUri === "") {
+    } else if (useFallback) {
       userIconElement.setAttribute("src", this.fallbackUserIconURI);
       userIconElement.classList.add("fillUserIcon");
     } else {
-      userIconElement.setAttribute("src", iconUri);
+      userIconElement.removeAttribute("src");
       userIconElement.classList.remove("fillUserIcon");
     }
   },

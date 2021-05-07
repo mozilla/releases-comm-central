@@ -813,7 +813,7 @@ var chatHandler = {
   },
   showContactInfo(aContact) {
     let cti = document.getElementById("conv-top-info");
-    cti.setUserIcon(aContact.buddyIconFilename);
+    cti.setUserIcon(aContact.buddyIconFilename, true);
     cti.setAttribute("displayName", aContact.displayName);
     cti.setProtocol(aContact.preferredBuddy.protocol);
 

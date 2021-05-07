@@ -507,6 +507,9 @@ UIConversation.prototype = {
   get startDate() {
     return this.target.startDate;
   },
+  get convIconFilename() {
+    return this.target.convIconFilename;
+  },
   sendMsg(aMsg) {
     // Add-ons (eg. pastebin) have an opportunity to cancel the message at this
     // point, or change the text content of the message.

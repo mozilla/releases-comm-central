@@ -21,7 +21,8 @@ var statusSelector = {
     let icon = Services.core.globalUserStatus.getUserIcon();
     ChatIcons.setUserIconSrc(
       document.getElementById("userIcon"),
-      icon?.spec ?? ""
+      icon?.spec,
+      true
     );
   },
 

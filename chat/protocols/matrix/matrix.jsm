@@ -43,6 +43,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.jsm",
 });
 
+// This matches the configuration of the .userIcon class in chat.css, which
+// expects square icons.
+const USER_ICON_SIZE = 48;
+
 /**
  * @param {string} who - Message sender ID.
  * @param {string} text - Message text.
@@ -125,7 +129,15 @@ MatrixParticipant.prototype = {
   },
 
   get buddyIconFilename() {
-    return this._roomMember.getAvatarUrl(this._account._baseURL) || "";
+    return (
+      this._roomMember.getAvatarUrl(
+        this._account._client.getHomeserverUrl(),
+        USER_ICON_SIZE,
+        USER_ICON_SIZE,
+        "scale",
+        false
+      ) || ""
+    );
   },
 
   get voiced() {
@@ -298,6 +310,17 @@ var GenericMatrixConversation = {
       this._name = room.summary.info.title;
       this.notifyObservers(null, "update-conv-title");
     }
+
+    const avatarUrl = room.getAvatarUrl(
+      this._account._client.getHomeserverUrl(),
+      USER_ICON_SIZE,
+      USER_ICON_SIZE,
+      "scale",
+      false
+    );
+    if (avatarUrl) {
+      this.convIconFilename = avatarUrl;
+    }
   },
 
   /**
@@ -432,7 +455,8 @@ var GenericMatrixConversation = {
       this._mostRecentEventId = event.getId();
       return;
     }
-    if (event.getType() === EventType.RoomMessage) {
+    const eventType = event.getType();
+    if (eventType === EventType.RoomMessage) {
       const isOutgoing = event.getSender() == this._account.userId;
       const eventContent = event.getContent();
       //TODO We should prefer the formatted body (when it's html)
@@ -450,9 +474,9 @@ var GenericMatrixConversation = {
         delayed,
         event,
       });
-    } else if (event.getType() == EventType.RoomTopic) {
+    } else if (eventType == EventType.RoomTopic) {
       this.setTopic(event.getContent().topic, event.getSender());
-    } else if (event.getType() == EventType.RoomTombstone) {
+    } else if (eventType == EventType.RoomTombstone) {
       // Room version update
       this.writeMessage(event.getSender(), event.getContent().body, {
         system: true,
@@ -470,6 +494,15 @@ var GenericMatrixConversation = {
       this.replaceRoom(newConversation);
       this.forget();
       //TODO link to the old logs based on the |predecessor| field of m.room.create
+    } else if (eventType == EventType.RoomAvatar) {
+      // Update the icon of this room.
+      this.convIconFilename = this.room.getAvatarUrl(
+        this._account._client.getHomeserverUrl(),
+        USER_ICON_SIZE,
+        USER_ICON_SIZE,
+        "scale",
+        false
+      );
     } else {
       let message = getMatrixTextForEvent(event);
       // We don't think we should show a notice for this event.
@@ -1807,16 +1840,12 @@ MatrixAccount.prototype = {
     );
 
     if (user.avatarUrl) {
-      // This matches the configuration of the .userIcon class in chat.css.
-      const width = 48;
-      const height = 48;
-
       // Convert the MXC URL to an HTTP URL.
       let realUrl = getHttpUriForMxc(
         this._client.getHomeserverUrl(),
         user.avatarUrl,
-        width,
-        height,
+        USER_ICON_SIZE,
+        USER_ICON_SIZE,
         "scale",
         false
       );

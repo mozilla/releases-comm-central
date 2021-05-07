@@ -42,6 +42,9 @@ interface prplIConversation: nsISupports {
   /* Setable only once by purpleCoreService while calling addConversation. */
            attribute unsigned long id;
 
+  /** URI of the icon for the conversation */
+  readonly attribute AUTF8String convIconFilename;
+
   /**
    * Send a message in the conversation
    */
@@ -127,7 +130,7 @@ interface prplIConvChatBuddy: nsISupports {
   /* Indicates if this chat buddy corresponds to a buddy in our buddy list */
   readonly attribute boolean buddy;
 
-  /* URI of the user icon for the buddy */
+  /** URI of the user icon for the buddy */
   readonly attribute AUTF8String buddyIconFilename;
 
   /* The role of the participant in the room. */

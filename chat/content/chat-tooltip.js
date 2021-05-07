@@ -311,8 +311,20 @@
       aAccount.requestBuddyInfo(aObservedName);
     }
 
-    setUserIcon(iconUri) {
-      ChatIcons.setUserIconSrc(this.querySelector(".userIcon"), iconUri);
+    /**
+     * Sets the shown user icon.
+     *
+     * @param {string|null} iconURI - The image uri to show, or "" to use the
+     *   fallback, or null to hide the icon.
+     * @param {boolean} useFallback - True if the "fallback" icon should be shown
+     *   if iconUri isn't provided.
+     */
+    setUserIcon(iconUri, useFalback) {
+      ChatIcons.setUserIconSrc(
+        this.querySelector(".userIcon"),
+        iconUri,
+        useFalback
+      );
     }
 
     setProtocolIcon(protocol) {
@@ -333,7 +345,13 @@
       );
     }
 
-    updateTooltipFromBuddy(aBuddy) {
+    /**
+     * Regenerate the tooltip based on a buddy.
+     *
+     * @param {prplIAccountBuddy} aBuddy - The buddy to generate the conversation.
+     * @param {imIConversation} [aConv] - A conversation associated with this buddy.
+     */
+    updateTooltipFromBuddy(aBuddy, aConv) {
       this.buddy = aBuddy;
 
       this.reset();
@@ -342,7 +360,13 @@
       this.setAttribute("displayname", displayName);
       let account = aBuddy.account;
       this.setProtocolIcon(account.protocol);
-      this.setUserIcon(aBuddy.buddyIconFilename);
+      // If a conversation is provided, use the icon from it. Otherwise, use the
+      // buddy icon filename.
+      if (aConv) {
+        this.setUserIcon(aConv.convIconFilename, true);
+      } else {
+        this.setUserIcon(aBuddy.buddyIconFilename, true);
+      }
 
       let statusType = aBuddy.statusType;
       this.setStatusIcon(LazyModules.Status.toAttribute(statusType));
@@ -395,16 +419,22 @@
       }
     }
 
+    /**
+     * Regenerate the tooltip based on a conversation.
+     *
+     * @param {imIConversation} aConv - The conversation to generate the tooltip from.
+     */
     updateTooltipFromConversation(aConv) {
       if (!aConv.isChat && aConv.buddy) {
-        return this.updateTooltipFromBuddy(aConv.buddy);
+        return this.updateTooltipFromBuddy(aConv.buddy, aConv);
       }
 
       this.reset();
       this.setAttribute("displayname", aConv.name);
       let account = aConv.account;
       this.setProtocolIcon(account.protocol);
-      this.setUserIcon(null);
+      // Set the icon, potentially showing a fallback icon if this is an IM.
+      this.setUserIcon(aConv.convIconFilename, !aConv.isChat);
       if (aConv.isChat) {
         if (!account.connected || aConv.left) {
           this.setStatusIcon("chat-left");
@@ -454,7 +484,7 @@
       this.setProtocolIcon(account.protocol);
       this.setStatusIcon("unknown");
       this.setMessage(LazyModules.Status.toLabel("unknown"));
-      this.setUserIcon(aParticipant.buddyIconFilename);
+      this.setUserIcon(aParticipant?.buddyIconFilename, true);
 
       this.requestBuddyInfo(account, normalizedNick);
       return true;

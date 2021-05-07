@@ -440,12 +440,12 @@ var GenericAccountBuddyPrototype = {
   get displayName() {
     return this.serverAlias || this.userName;
   },
-  _buddyIconFileName: "",
+  _buddyIconFilename: "",
   get buddyIconFilename() {
-    return this._buddyIconFileName;
+    return this._buddyIconFilename;
   },
   set buddyIconFilename(aNewFileName) {
-    this._buddyIconFileName = aNewFileName;
+    this._buddyIconFilename = aNewFileName;
     this._notifyObservers("icon-changed");
   },
   _statusType: 0,
@@ -712,6 +712,14 @@ var GenericConversationPrototype = {
   get startDate() {
     return this._date;
   },
+  _convIconFilename: "",
+  get convIconFilename() {
+    return this._convIconFilename;
+  },
+  set convIconFilename(aNewFilename) {
+    this._convIconFilename = aNewFilename;
+    this.notifyObservers(this, "update-conv-icon");
+  },
 };
 
 var GenericConvIMPrototype = {
@@ -737,6 +745,15 @@ var GenericConvIMPrototype = {
   },
   buddy: null,
   typingState: Ci.prplIConvIM.NOT_TYPING,
+  get convIconFilename() {
+    // By default, pass through information from the buddy for IM conversations
+    // that don't have their own icon.
+    const convIconFilename = this._convIconFilename;
+    if (convIconFilename) {
+      return convIconFilename;
+    }
+    return this.buddy?.buddyIconFilename;
+  },
 };
 
 var GenericConvChatPrototype = {

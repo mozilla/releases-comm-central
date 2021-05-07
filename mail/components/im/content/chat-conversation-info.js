@@ -256,9 +256,15 @@
      *
      * @param {string|null} iconURI - The image uri to show, or "" to use the
      *   fallback, or null to hide the icon.
+     * @param {boolean} useFallback - True if the "fallback" icon should be shown
+     *   if iconUri isn't provided.
      */
-    setUserIcon(iconURI) {
-      ChatIcons.setUserIconSrc(this.querySelector(".userIcon"), iconURI);
+    setUserIcon(iconURI, useFallback) {
+      ChatIcons.setUserIconSrc(
+        this.querySelector(".userIcon"),
+        iconURI,
+        useFallback
+      );
     }
 
     /**
@@ -328,7 +334,6 @@
       this.topicEditable = topicEditable;
       this.setStatusText(topicText, noTopic);
       this.setStatusIcon("chat", "");
-      this.setUserIcon(null);
     }
 
     /**
@@ -338,7 +343,7 @@
       this.querySelector(".protoIcon").removeAttribute("src");
       this.setStatusText("");
       this.setStatusIcon(null, "");
-      this.setUserIcon(null);
+      this.setUserIcon("", false);
       this.topicEditable = false;
     }
   }
