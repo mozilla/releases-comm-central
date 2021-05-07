@@ -81,6 +81,7 @@
 
 .today-pane-cycler:hover:active {
   background-color: hsla(0, 0%, 0%, 0.2);
+  color: inherit;
 }
 
 .today-pane-cycler:-moz-lwtheme-brighttext:hover,
@@ -195,6 +196,12 @@
 #previous-day-button:-moz-locale-dir(ltr),
 #next-day-button:-moz-locale-dir(rtl) {
   transform: scaleX(-1);
+}
+
+.miniday-nav-buttons:focus-visible,
+#miniday-dropdown-button:focus-visible {
+  outline: 2px solid var(--focus-outline-color, -moz-accent-color);
+  outline-offset: -2px;
 }
 
 #today-button {

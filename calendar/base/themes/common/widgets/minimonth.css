@@ -125,16 +125,29 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 .minimonth-nav-btns {
   appearance: none;
   padding: 4px;
+  border-radius: 2px;
   list-style-image: url("chrome://calendar/skin/shared/widgets/nav-arrow.svg");
   -moz-user-focus: normal;
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
-.minimonth-nav-btns:active,
-.minimonth-nav-btns:focus,
 .minimonth-nav-btns:hover {
-  background-color: hsla(0,0%,0%,.1);
+  background-color: hsla(0, 0%, 0%, 0.1);
+  color: inherit;
+}
+
+.minimonth-nav-btns:hover:active {
+  background-color: hsla(0, 0%, 0%, 0.2);
+  color: inherit;
+}
+
+:root[lwt-tree-brighttext] .minimonth-nav-btns:hover {
+  background-color: hsla(0, 0%, 100%, 0.1);
+}
+
+:root[lwt-tree-brighttext] .minimonth-nav-btns:hover:active {
+  background-color: hsla(0, 0%, 100%, 0.2);
 }
 
 .minimonth-nav-btns > .toolbarbutton-text  {
@@ -251,4 +264,9 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   background-color: var(--mmHighlightBackground);
   color: var(--mmHighlightColor);
   cursor: pointer;
+}
+
+#calMinimonth :focus-visible {
+  outline: 2px solid var(--focus-outline-color, -moz-accent-color);
+  outline-offset: -2px;
 }

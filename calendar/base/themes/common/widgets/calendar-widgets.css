@@ -89,6 +89,12 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   -moz-user-focus: normal;
 }
 
+.today-navigation-button:focus-visible,
+.view-navigation-button:focus-visible {
+  outline: 2px solid var(--focus-outline-color, -moz-accent-color);
+  outline-offset: -2px;
+}
+
 :root[lwt-tree] .view-navigation-button,
 :root[lwt-tree-brighttext] .view-navigation-button {
   appearance: none;

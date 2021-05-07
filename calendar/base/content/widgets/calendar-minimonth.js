@@ -73,7 +73,7 @@
                          dir="-1"
                          oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
                          tooltiptext="&onemonthbackward.tooltip;"></toolbarbutton>
-          <label class="minimonth-month-name"/>
+          <label class="minimonth-month-name" tabindex="-1"/>
           <toolbarbutton class="months-forward-button minimonth-nav-btns"
                          dir="1"
                          oncommand="this.kMinimonth.advanceMonth(parseInt(this.getAttribute('dir'), 10))"
