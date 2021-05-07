@@ -26,6 +26,9 @@
 .invitation-table :is(td, th) {
        padding: 3px;
        vertical-align: baseline;
+}
+
+.invitation-table td {
        overflow-wrap: anywhere;
 }
 
