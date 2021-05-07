@@ -36,7 +36,8 @@ body {
   --button-primary-hover-bgcolor: color-mix(in srgb, black 10%, -moz-accent-color);
   --button-primary-active-bgcolor: color-mix(in srgb, black 20%, -moz-accent-color);
   --button-primary-color: -moz-accent-color-foreground;
-
+  --focus-outline-color: var(--toolbar-field-focus-border-color);
+  --focus-outline-offset: 1px;
   --lwt-header-image: none;
 
   /* Note: Setting this to 0 (without px) breaks CSS calculations for OSX. */
@@ -60,9 +61,7 @@ body {
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
 
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
-
   --toolbar-field-focus-border-color: -moz-accent-color;
-
   --item-focus-selected-border-color: #0060df;
 }
 
@@ -92,10 +91,6 @@ body {
     --buttons-secondary-hover-bgcolor: rgb(224, 224, 230);
     --buttons-secondary-active-bgcolor: rgb(207, 207, 216);
     --buttons-secondary-color: rgb(21, 20, 26);
-
-    --focus-outline-color: var(--button-primary-bgcolor);
-    --focus-outline-offset: 2px;
-
     --checkbox-border-color: rgb(143, 143, 157);
     --checkbox-unchecked-bgcolor: rgb(240, 240, 244);
     --checkbox-unchecked-hover-bgcolor: rgb(224, 224, 230);
@@ -116,14 +111,6 @@ body {
     --error-text-color: #c50042;
 
     --input-error-border-color: #e22850;
-  }
-
-  :root {
-    --focus-outline-color: #0061e0;
-  }
-
-  :root:-moz-lwtheme-brighttext {
-    --focus-outline-color: #45a1ff;
   }
 }
 } /** END Proton **/

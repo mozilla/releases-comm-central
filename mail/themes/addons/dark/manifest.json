@@ -28,6 +28,7 @@
       "toolbar_bottom_separator": "hsl(240, 5%, 5%)",
       "toolbar_field": "#42414d",
       "toolbar_field_border": "#8f8f9d",
+      "toolbar_field_border_focus": "#45a1ff",
       "toolbar_field_text": "rgb(251, 251, 254)",
       "toolbar_field_focus": "rgb(66, 65, 77)",
       "sidebar": "#38383D",

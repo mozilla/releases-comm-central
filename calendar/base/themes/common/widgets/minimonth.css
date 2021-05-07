@@ -135,6 +135,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 .minimonth-nav-btns:hover {
   background-color: hsla(0, 0%, 0%, 0.1);
   color: inherit;
+  outline: none;
 }
 
 .minimonth-nav-btns:hover:active {
@@ -244,6 +245,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 .minimonth-day:hover[interactive] {
   cursor: pointer;
   border: 1px solid var(--mmHighlightBorderColor);
+  outline: none;
 }
 
 .minimonth-day:active[interactive] {
@@ -266,7 +268,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   cursor: pointer;
 }
 
-#calMinimonth :focus-visible {
-  outline: 2px solid var(--focus-outline-color, -moz-accent-color);
+#calMinimonth :focus-visible:not(:hover) {
+  outline: 2px solid var(--focus-outline-color);
   outline-offset: -2px;
 }

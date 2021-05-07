@@ -185,8 +185,9 @@
   }
 }
 
-#attachmentToggle:focus {
-  outline: 1px dotted Highlight;
+#attachmentToggle:focus-visible {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: -2px;
 }
 
 #attachmentName:hover,
@@ -219,13 +220,13 @@
   -moz-user-focus: normal;
   margin: 0;
   margin-inline-end: -3px;
-  padding: 1px 2px;
+  padding: 2px 3px;
   border-radius: 2px;
-  border: 1px dotted transparent;
 }
 
-#attachmentName:focus {
-  border-color: Highlight;
+#attachmentName:focus-visible:not(:hover) {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: -1px;
 }
 
 #attachmentList {
@@ -262,8 +263,8 @@
   margin-inline-start: 0 !important;
 }
 
-mail-headerfield.headerValue:focus {
-  outline-color: Highlight;
+mail-headerfield.headerValue:focus-visible:not(:hover) {
+  outline: 1px solid var(--focus-outline-color);
 }
 
 .headerValueUrl {
@@ -386,7 +387,7 @@ mail-newsgroups-headerfield.headerValueBox {
 .emailDisplayButton {
   display: -moz-inline-box;
   padding-inline: 2px;
-  border: 1px dotted transparent;
+  border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
 }
 
@@ -396,8 +397,8 @@ mail-newsgroups-headerfield.headerValueBox {
   background-color: Highlight;
 }
 
-.emailDisplayButton:focus {
-  border-color: Highlight;
+.emailDisplayButton:focus-visible:not(:hover) {
+  border-color: var(--focus-outline-color);
 }
 
 mail-emailaddress[selected="true"] > .emailDisplayButton {
@@ -451,8 +452,8 @@ mail-emailaddress[selected="true"] > .emailDisplayButton > .emailStar {
   fill: HighlightText;
 }
 
-.emailStar:focus {
-  outline: 1px dotted;
+.emailStar:focus-visible:not(:hover) {
+  outline: 1px solid var(--focus-outline-color);
 }
 
 .emaillabel {
@@ -538,8 +539,8 @@ mail-headerfield {
   word-wrap: break-word;
 }
 
-mail-headerfield:focus {
-  outline: 1px dotted;
+mail-headerfield:focus-visible:not(:hover) {
+  outline: 1px solid var(--focus-outline-color);
   outline-offset: -1px;
 }
 
@@ -757,7 +758,8 @@ html|header.message-security-header html|h3 {
 }
 
 .button-focusable:focus-visible:not(:hover) {
-  outline: 1px dashed Highlight;
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: -1px;
 }
 
 .button-focusable:focus:not(:focus-visible) {

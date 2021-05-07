@@ -54,8 +54,8 @@ html|input.editContactTextbox {
 }
 
 html|input.editContactTextbox:focus {
-  border-color: var(--focus-outline-color, -moz-accent-color);
-  outline: 1px solid var(--focus-outline-color, -moz-accent-color);
+  border-color: var(--focus-outline-color);
+  outline: 1px solid var(--focus-outline-color);
 }
 
 html|input.editContactTextbox[readonly] {

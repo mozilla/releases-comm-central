@@ -184,6 +184,7 @@
     border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
     color: inherit;
+    outline: none;
 }
 
 #calendar-add-task-button:not([disabled="true"]):hover:active {
@@ -191,6 +192,11 @@
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);
     transition-duration: 10ms;
+}
+
+#calendar-add-task-button:focus-visible:not(:hover) {
+    outline: 2px solid var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
 }
 
 #calendar-add-task-button > .toolbarbutton-text {

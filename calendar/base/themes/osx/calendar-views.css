@@ -82,24 +82,12 @@ radio.calview[selected="true"] {
 }
 
 .view-navigation-button {
-    -moz-user-focus: normal;
-    appearance: auto;
-    -moz-default-appearance: toolbarbutton;
     margin-top: 2px;
-    margin-inline-start: 3px;
-    margin-inline-end: 3px;
-    margin-bottom: 0;
-    min-width: 22px;
 }
 
 .today-navigation-button {
     margin-top: 2px;
-    margin-bottom: 0;
     padding-top: 2px;
-}
-
-.view-navigation-button > .toolbarbutton-icon {
-    margin: 1px;
 }
 
 #calendar-nav-control:-moz-window-inactive {

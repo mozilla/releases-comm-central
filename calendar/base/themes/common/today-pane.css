@@ -183,6 +183,7 @@
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   color: inherit;
+  outline: none;
 }
 
 .miniday-nav-buttons:not([disabled="true"]):hover:active,
@@ -198,9 +199,9 @@
   transform: scaleX(-1);
 }
 
-.miniday-nav-buttons:focus-visible,
-#miniday-dropdown-button:focus-visible {
-  outline: 2px solid var(--focus-outline-color, -moz-accent-color);
+.miniday-nav-buttons:focus-visible:not(:hover),
+#miniday-dropdown-button:focus-visible:not(:hover) {
+  outline: 2px solid var(--focus-outline-color);
   outline-offset: -2px;
 }
 
@@ -262,6 +263,7 @@
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   color: inherit;
+  outline: none;
 }
 
 #todaypane-new-event-button:not([disabled="true"]):hover:active {
@@ -269,6 +271,11 @@
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
   transition-duration: 10ms;
+}
+
+#todaypane-new-event-button:focus-visible:not(:hover) {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: var(--focus-outline-offset);
 }
 
 #todaypane-new-event-button > .toolbarbutton-text {
@@ -342,6 +349,12 @@ richlistitem[is="agenda-richlistitem"],
 richlistitem[is="agenda-allday-richlistitem"] {
   -moz-user-focus: normal;
   border-bottom: 1px dotted var(--agenda-divider-border-color);
+  border-radius: 3px;
+}
+
+richlistitem[is="agenda-richlistitem"]:focus-visible > .agenda-container-box,
+richlistitem[is="agenda-allday-richlistitem"]:focus-visible > .agenda-allday-container-box {
+  outline: 2px solid var(--focus-outline-color);
 }
 
 #agenda-listbox > richlistitem[selected="true"] {
@@ -355,15 +368,13 @@ richlistitem[is="agenda-allday-richlistitem"] {
 
 .agenda-container-box {
   border-radius: 2px;
-  margin-right: 4px;
-  margin-left: 4px;
+  margin-inline: 4px;
   padding: 2px 4px;
 }
 
 .agenda-allday-container-box {
   border-radius: 2px;
-  margin-right: 4px;
-  margin-left: 4px;
+  margin: 1px 4px;
 }
 
 .agenda-container-box[selected="true"],

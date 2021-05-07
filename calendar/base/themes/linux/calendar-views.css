@@ -33,11 +33,6 @@ radio.calview[selected="true"] {
     background-color: Field;
 }
 
-.view-navigation-button {
-    margin-inline-start: 2px;
-    margin-inline-end: 2px;
-}
-
 .today-navigation-button {
-    padding-top: 0px !important; /* a workaround to center the label vertically on Windows */
+    padding-top: 0;
 }

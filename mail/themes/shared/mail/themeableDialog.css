@@ -224,7 +224,7 @@ html|input[type="color"]:focus {
 
 @media (-moz-proton) {
 button:-moz-focusring {
-  outline: 2px solid var(--focus-outline-color, -moz-accent-color);
+  outline: 2px solid var(--focus-outline-color);
   outline-offset: var(--focus-outline-offset, -1px);
 }
 } /** END Proton **/
@@ -325,8 +325,8 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
 
 @media (-moz-proton) {
 menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
-  border-color: var(--focus-outline-color, -moz-accent-color);
-  outline: 1px solid var(--focus-outline-color, -moz-accent-color);
+  border-color: var(--focus-outline-color);
+  outline: 1px solid var(--focus-outline-color);
 }
 } /** END Proton **/
 
