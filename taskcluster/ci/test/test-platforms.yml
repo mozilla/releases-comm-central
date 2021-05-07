@@ -98,7 +98,6 @@ windows10-64/debug:
 macosx1015-64/opt:
     build-platform: macosx64/opt
     test-sets:
-        - gtest-tests
         - marionette-tests
         - mochitest-tests
         - xpcshell-tests
@@ -106,7 +105,6 @@ macosx1015-64/opt:
 macosx1015-64/debug:
     build-platform: macosx64/debug
     test-sets:
-        - gtest-tests
         - marionette-tests
         - mochitest-tests
         - xpcshell-tests
@@ -114,7 +112,6 @@ macosx1015-64/debug:
 macosx1015-64-shippable/opt:
     build-platform: macosx64-shippable/opt
     test-sets:
-        - gtest-tests
         - marionette-tests
         - mochitest-tests
         - xpcshell-tests
