@@ -331,21 +331,16 @@ progressmeter[mode="undetermined"] {
     min-width: 20px;
 }
 
-#security-button:not([level="high"]):not([level="broken"]) {
+#security-button:not([level="none"]):not([level="high"]):not([level="broken"]) {
     display: none;
 }
 
-#security-button[level="high"] > image {
+#security-button[level="high"] {
     list-style-image: url("chrome://chatzilla/skin/images/secure.png");
 }
 
-#security-button[level="broken"] > image {
+#security-button[level="broken"] {
     list-style-image: url("chrome://chatzilla/skin/images/secure-broken.png");
-}
-
-/* prevent margins of a value-less label from shifting the image */
-#security-button > label:not([value]) {
-    display: none;
 }
 
 #alert-status[alertstate="off"] {

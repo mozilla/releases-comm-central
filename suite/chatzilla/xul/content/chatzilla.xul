@@ -111,6 +111,31 @@
       </hbox>
     </hbox>
 
-  <overlaytarget id="statusbar-overlay-target"/>
+  <statusbar id="status-bar"
+             class="chromeclass-status"
+             persist="collapsed">
+    <statusbarpanel id="component-bar"/>
+    <statusbarpanel id="status-text" label="" flex="1" crop="right"/>
+    <statusbarpanel id="status-progress-panel" class="statusbarpanel-progress">
+      <progressmeter id="status-progress-bar"
+                     class="progressmeter-statusbar"
+                     mode="undetermined"
+                     value="0"/>
+    </statusbarpanel>
+    <statusbarpanel id="security-button"
+                    class="statusbarpanel-iconic-text"
+                    dir="reverse"
+                    label=""
+                    oncommand="displayCertificateInfo();"/>
+    <statusbarpanel id="alert-status"
+                    class="statusbarpanel-iconic"
+                    oncommand="updateAlertIcon(true);"/>
+    <statusbarpanel id="logging-status"
+                    class="statusbarpanel-iconic"
+                    oncommand="onLoggingIcon();"/>
+    <statusbarpanel id="offline-status"
+                    class="statusbarpanel-iconic"
+                    oncommand="client.offlineObserver.toggleOffline();"/>
+  </statusbar>
 
 </window>

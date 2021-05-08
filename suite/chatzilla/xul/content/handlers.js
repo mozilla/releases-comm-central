@@ -74,12 +74,6 @@ function initHandlers()
     node = document.getElementById("multiline-input");
     node.addEventListener("keypress", onMultilineInputKeyPress, false);
     node.active = false;
-    node = document.getElementById("security-button");
-    node.addEventListener("dblclick", onSecurityIconDblClick, false);
-    node = document.getElementById("logging-status");
-    node.addEventListener("click", onLoggingIconClick, false);
-    node = document.getElementById("alert-status");
-    node.addEventListener("click", onAlertIconClick, false);
 
     window.onkeypress = onWindowKeyPress;
 
@@ -278,27 +272,6 @@ function onMouseOver (e)
 
     // Setting client.status to "" will revert it to the default automatically.
     client.status = status;
-}
-
-function onSecurityIconDblClick(e)
-{
-    if (e.button == 0)
-        displayCertificateInfo();
-}
-
-function onLoggingIconClick(e)
-{
-    if (e.button == 0)
-        client.currentObject.dispatch("log", { state: "toggle" });
-}
-
-function onAlertIconClick(e)
-{
-    if (e.button == 0)
-    {
-        client.prefs["alert.globalEnabled"] = !client.prefs["alert.globalEnabled"];
-        updateAlertIcon();
-    }
 }
 
 function onMultilineInputKeyPress (e)

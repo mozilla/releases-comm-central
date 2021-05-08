@@ -456,8 +456,6 @@ function createMenus()
 {
     client.menuManager.createMenus(document, "mainmenu");
     client.menuManager.createContextMenus(document);
-
-    document.getElementById("component-bar").collapsed = false;
 }
 
 function getCommandContext (id, event)

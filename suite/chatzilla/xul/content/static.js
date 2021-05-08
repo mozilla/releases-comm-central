@@ -176,7 +176,7 @@ function init()
     client.busy = false;
     updateProgress();
     initOfflineIcon();
-    updateAlertIcon();
+    updateAlertIcon(false);
     client.isIdleAway = false;
     initIdleAutoAway(client.prefs["awayIdleTime"]);
 
@@ -1930,7 +1930,7 @@ function updateSecurityIcon()
 {
     var o = getObjectDetails(client.currentObject);
     var securityButton = window.document.getElementById("security-button");
-    securityButton.firstChild.value = "";
+    securityButton.label = "";
     securityButton.removeAttribute("level");
     securityButton.removeAttribute("tooltiptext");
     if (!o.server || !o.server.isConnected) // No server or connection?
@@ -1939,25 +1939,24 @@ function updateSecurityIcon()
         return;
     }
 
+    let tooltiptext = MSG_SECURITY_INFO;
     switch (o.server.connection.getSecurityState()) {
         case STATE_IS_SECURE:
-            securityButton.firstChild.value = o.server.hostname;
             securityButton.setAttribute("level", "high");
 
-            // Add the tooltip:
+            // Update the tooltip.
             var issuer = o.server.connection.getCertificate().issuerOrganization;
-            var tooltiptext = getMsg(MSG_SECURE_CONNECTION, issuer);
-            securityButton.setAttribute("tooltiptext", tooltiptext);
-            securityButton.firstChild.setAttribute("tooltiptext", tooltiptext);
-            securityButton.lastChild.setAttribute("tooltiptext", tooltiptext);
+            tooltiptext = getMsg(MSG_SECURE_CONNECTION, issuer);
             break;
         case STATE_IS_BROKEN:
             securityButton.setAttribute("level", "broken");
-            // No break to make sure we get the correct tooltip
+            break;
         case STATE_IS_INSECURE:
         default:
-            securityButton.setAttribute("tooltiptext", MSG_SECURITY_INFO);
+            securityButton.setAttribute("level", "none");
     }
+    securityButton.label = o.server.hostname;
+    securityButton.setAttribute("tooltiptext", tooltiptext);
 }
 
 function updateLoggingIcon()
@@ -1968,12 +1967,16 @@ function updateLoggingIcon()
     icon.setAttribute("tooltiptext", getMsg("msg.logging.icon." + state));
 }
 
-function updateAlertIcon()
-{
-    var state = client.prefs["alert.globalEnabled"] ? "on" : "off";
-    var icon = window.document.getElementById("alert-status");
-    icon.setAttribute("alertstate", state);
-    icon.setAttribute("tooltiptext", getMsg("msg.alert.icon." + state));
+function updateAlertIcon(aToggle) {
+  let alertState = client.prefs["alert.globalEnabled"];
+  if (aToggle) {
+    alertState = !alertState;
+    client.prefs["alert.globalEnabled"] = alertState;
+  }
+  let state = alertState ? "on" : "off";
+  let icon = window.document.getElementById("alert-status");
+  icon.setAttribute("alertstate", state);
+  icon.setAttribute("tooltiptext", getMsg("msg.alert.icon." + state));
 }
 
 function initOfflineIcon()
@@ -2055,13 +2058,10 @@ function initOfflineIcon()
         dd("Exception when trying to register offline observers: " + ex);
     }
 
-    var elem = client.offlineObserver._element;
-    elem.setAttribute("onclick", "client.offlineObserver.toggleOffline()");
     client.offlineObserver.updateOfflineUI();
 
     // Don't leak:
     delete os;
-    delete elem;
 }
 
 function uninitOfflineIcon()
@@ -2415,6 +2415,10 @@ function displayCertificateInfo()
     }
 
     viewCert(o.server.connection.getCertificate());
+}
+
+function onLoggingIcon() {
+  client.currentObject.dispatch("log", { state: "toggle" });
 }
 
 function newInlineText (data, className, tagName)

@@ -806,7 +806,7 @@ function onPrefChanged(prefName, newValue, oldValue)
             break;
 
         case "alert.globalEnabled":
-            updateAlertIcon();
+            updateAlertIcon(false);
             break;
 
         case "alert.floodDensity":

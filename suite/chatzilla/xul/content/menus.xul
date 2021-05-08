@@ -93,25 +93,5 @@
 
   </overlaytarget>
 
-  <!-- Statusbar (hey, it's /almost/ a menu) -->
-  <overlaytarget id="statusbar-overlay-target">
-    <statusbar class="chromeclass-status" id="status-bar" 
-        persist="collapsed" flex="1">
-      <statusbarpanel id="component-bar" collapsed="true"/>
-      <statusbarpanel id="status-text" label="" flex="1" crop="right"/>
-      <statusbarpanel class="statusbarpanel-progress" id="status-progress-panel">
-        <progressmeter class="progressmeter-statusbar" id="status-progress-bar" 
-            mode="undetermined" value="0"/>
-      </statusbarpanel>
-      <statusbarpanel id="security-button">
-        <label id="security-button-label"/>
-        <image id="security-button-image"/>
-      </statusbarpanel>
-      <statusbarpanel class="statusbarpanel-iconic" id="alert-status"/>
-      <statusbarpanel class="statusbarpanel-iconic" id="logging-status"/>
-      <statusbarpanel class="statusbarpanel-iconic" id="offline-status"/>
-    </statusbar>
-  </overlaytarget>
-
 </overlay>
   
