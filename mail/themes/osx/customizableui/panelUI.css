@@ -4,6 +4,10 @@
 
 @import url("chrome://messenger/skin/shared/customizableui/panelUI.css");
 
+.panel-subview-body {
+  scrollbar-color: color-mix(in srgb, currentColor 26%, transparent) transparent;
+}
+
 .restoreallitem > .toolbarbutton-icon {
   display: none;
 }
