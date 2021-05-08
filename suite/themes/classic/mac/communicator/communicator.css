@@ -87,6 +87,20 @@ grippy {
   list-style-image: url("chrome://communicator/skin/icons/online.png");
 }
 
+/* ::::: security button icons ::::: */
+
+#security-button {
+  list-style-image: url("chrome://communicator/skin/icons/lock-insecure.png");
+}
+
+#security-button[level="high"] {
+  list-style-image: url("chrome://communicator/skin/icons/lock-secure.png");
+}
+
+#security-button[level="broken"] {
+  list-style-image: url("chrome://communicator/skin/icons/lock-broken.png");
+}
+
 /* ::::: spell checker ::::: */
 
 .spell-suggestion {

@@ -867,17 +867,11 @@ toolbar[mode="text"] toolbarbutton.chevron > .toolbarbutton-icon {
   min-width: 1px;
 }
 
-#security-button {
-  list-style-image: url("chrome://communicator/skin/icons/lock-insecure.png");
-}
-
 #security-button[level="high"] > .statusbarpanel-contentbox {
-  list-style-image: url("chrome://communicator/skin/icons/lock-secure.png");
   background-color: #B4CD32;
 }
 
 #security-button[level="broken"] > .statusbarpanel-contentbox {
-  list-style-image: url("chrome://communicator/skin/icons/lock-broken.png");
   background-color: #E83404;
 }
 
