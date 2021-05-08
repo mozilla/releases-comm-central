@@ -2031,9 +2031,8 @@ function initOfflineIcon()
         {
             try
             {
-                var os = getService(OS_CID, "nsIObserverService");
                 var canGoOffline = newObject(PRBool_CID, "nsISupportsPRBool");
-                os.notifyObservers(canGoOffline, "offline-requested", null);
+                Services.obs.notifyObservers(canGoOffline, "offline-requested");
                 // Someone called for a halt
                 if (canGoOffline.data)
                     return false;
@@ -2046,38 +2045,17 @@ function initOfflineIcon()
         }
     };
 
-    try
-    {
-        var os = getService(OS_CID, "nsIObserverService");
-        os.addObserver(client.offlineObserver, "offline-requested", false);
-        os.addObserver(client.offlineObserver,
-                       "network:offline-status-changed", false);
-    }
-    catch (ex)
-    {
-        dd("Exception when trying to register offline observers: " + ex);
-    }
-
+    Services.obs.addObserver(client.offlineObserver, "offline-requested");
+    Services.obs.addObserver(client.offlineObserver,
+                             "network:offline-status-changed");
     client.offlineObserver.updateOfflineUI();
-
-    // Don't leak:
-    delete os;
 }
 
 function uninitOfflineIcon()
 {
-    const OS_CID = "@mozilla.org/observer-service;1";
-    try
-    {
-        var os = getService(OS_CID, "nsIObserverService");
-        os.removeObserver(client.offlineObserver, "offline-requested", false);
-        os.removeObserver(client.offlineObserver,
-                          "network:offline-status-changed", false);
-    }
-    catch (ex)
-    {
-        dd("Exception when trying to unregister offline observers: " + ex);
-    }
+    Services.obs.removeObserver(client.offlineObserver, "offline-requested");
+    Services.obs.removeObserver(client.offlineObserver,
+                                "network:offline-status-changed");
 }
 
 client.idleObserver = {
