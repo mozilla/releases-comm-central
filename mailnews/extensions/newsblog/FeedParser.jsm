@@ -47,7 +47,7 @@ FeedParser.prototype = {
    *                    nothing to do condition.
    */
   parseFeed(aFeed, aDOM) {
-    if (ChromeUtils.getClassName(aDOM) !== "XMLDocument") {
+    if (!(aDOM instanceof XMLDocument)) {
       // No xml doc.
       aFeed.onParseError(aFeed);
       return [];

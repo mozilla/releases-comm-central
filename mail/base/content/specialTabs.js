@@ -711,10 +711,7 @@ var specialTabs = {
     let onDownload = aEvent => {
       let request = aEvent.target;
       let dom = request.response;
-      if (
-        request.status != 200 ||
-        ChromeUtils.getClassName(dom) !== "HTMLDocument"
-      ) {
+      if (request.status != 200 || !(dom instanceof HTMLDocument)) {
         onDownloadError(aEvent);
         return;
       }
