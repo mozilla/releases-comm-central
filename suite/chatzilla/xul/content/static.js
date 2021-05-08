@@ -2011,7 +2011,7 @@ function initOfflineIcon()
         },
         updateOfflineUI: function offline_uiUpdate()
         {
-            this._element.setAttribute("offlinestate", this.state());
+            this._element.setAttribute("offline", Services.io.offline);
             var tooltipMsgId = "MSG_OFFLINESTATE_" + this.state().toUpperCase();
             this._element.setAttribute("tooltiptext", window[tooltipMsgId]);
         },

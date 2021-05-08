@@ -359,14 +359,6 @@ progressmeter[mode="undetermined"] {
     list-style-image: url("chrome://chatzilla/skin/images/logging-on.png");
 }
 
-#offline-status[offlinestate="offline"] {
-    list-style-image: url("chrome://chatzilla/skin/images/offline.png");
-}
-
-#offline-status[offlinestate="online"] {
-    list-style-image: url("chrome://chatzilla/skin/images/online.png");
-}
-
 /* Focus styling for a11y reasons */
 #user-list-box[focusobvious="true"], #browser-box[focusobvious="true"],
 #multiline-hug-box[focusobvious="true"], #singleline-hug-box[focusobvious="true"] {
