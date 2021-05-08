@@ -1939,15 +1939,10 @@ function updateSecurityIcon()
         return;
     }
 
-    var securityState = o.server.connection.getSecurityState()
-    switch (securityState[0])
-    {
+    switch (o.server.connection.getSecurityState()) {
         case STATE_IS_SECURE:
             securityButton.firstChild.value = o.server.hostname;
-            if (securityState[1] == STATE_SECURE_HIGH)
-                securityButton.setAttribute("level", "high");
-            else // Because low security is the worst we have when being secure
-                securityButton.setAttribute("level", "low");
+            securityButton.setAttribute("level", "high");
 
             // Add the tooltip:
             var issuer = o.server.connection.getCertificate().issuerOrganization;

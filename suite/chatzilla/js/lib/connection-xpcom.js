@@ -47,9 +47,6 @@ const STATE_IS_BROKEN = 1;
 const STATE_IS_SECURE = 2;
 const STATE_IS_INSECURE = 3;
 
-const STATE_SECURE_LOW = 1;
-const STATE_SECURE_HIGH = 2;
-
 const nsIScriptableInputStream = Components.interfaces.nsIScriptableInputStream;
 
 const nsIBinaryInputStream = Components.interfaces.nsIBinaryInputStream;
@@ -538,43 +535,36 @@ function bc_senddatanow(str)
 }
 
 /**
- * Gets an array containing information about the security of the connection.
+ * Gets information about the security of the connection.
  *
  * |STATE_IS_BROKEN| is returned if any errors occur and |STATE_IS_INSECURE| is
  * returned for disconnected sockets.
  *
- * @returns An array with at least one item, containing a value from the
- *          |STATE_IS_*| enumeration at the top of this file. Iff this is
- *          |STATE_IS_SECURE|, the array has a second item indicating the level
- *          of security - a value from the |STATE_SECURE_*| enumeration.
+ * @returns A value from the |STATE_IS_*| enumeration at the top of this file.
  */
 CBSConnection.prototype.getSecurityState =
 function bc_getsecuritystate()
 {
     if (!this.isConnected || !this._transport.securityInfo)
-        return [STATE_IS_INSECURE];
+        return STATE_IS_INSECURE;
 
     try
     {
-        var sslSp = Components.interfaces.nsISSLStatusProvider;
-        var sslStatus = Components.interfaces.nsISSLStatus;
-
         // Get the actual SSL Status
-        sslSp = this._transport.securityInfo.QueryInterface(sslSp);
-        sslStatus = sslSp.SSLStatus.QueryInterface(sslStatus);
+        let sslSp = this._transport.securityInfo
+                                   .QueryInterface(Ci.nsISSLStatusProvider);
+        let sslStatus = sslSp.SSLStatus.QueryInterface(Ci.nsISSLStatus);
         // Store appropriate status
         if (!("keyLength" in sslStatus) || !sslStatus.keyLength)
-            return [STATE_IS_BROKEN];
-        else if (sslStatus.keyLength >= 90)
-            return [STATE_IS_SECURE, STATE_SECURE_HIGH];
-        else
-            return [STATE_IS_SECURE, STATE_SECURE_LOW];
+            return STATE_IS_BROKEN;
+
+        return STATE_IS_SECURE;
     }
     catch (ex)
     {
         // Something goes wrong -> broken security icon
         dd("Exception getting certificate for connection: " + ex.message);
-        return [STATE_IS_BROKEN];
+        return STATE_IS_BROKEN;
     }
 }
 
@@ -584,12 +574,10 @@ function bc_getcertificate()
     if (!this.isConnected || !this._transport.securityInfo)
         return null;
 
-    var sslSp = Components.interfaces.nsISSLStatusProvider;
-    var sslStatus = Components.interfaces.nsISSLStatus;
-
     // Get the actual SSL Status
-    sslSp = this._transport.securityInfo.QueryInterface(sslSp);
-    sslStatus = sslSp.SSLStatus.QueryInterface(sslStatus);
+    let sslSp = this._transport.securityInfo
+                               .QueryInterface(Ci.nsISSLStatusProvider);
+    let sslStatus = sslSp.SSLStatus.QueryInterface(Ci.nsISSLStatus);
 
     // return the certificate
     return sslStatus.serverCert;
