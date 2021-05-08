@@ -412,7 +412,6 @@ toolbar:not([mode="text"]) .toolbarbutton-1[hideWebExtensionLabel="true"] .toolb
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
   transition: background-color .15s, border-color .15s;
-  background-clip: padding-box;
 }
 
 .toolbarbutton-1:not([disabled="true"]):is(:hover,[open="true"]) >
@@ -577,7 +576,7 @@ menulist {
   margin-block: 4px;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
   border-radius: var(--toolbarbutton-border-radius);
-  background: var(--toolbarbutton-hover-background);
+  background-color: var(--toolbarbutton-hover-background);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;
@@ -586,16 +585,16 @@ menulist {
 /* Override the not existing rule in menu.css */
 menulist[disabled="true"]:hover,
 menulist[open="true"]:hover {
-  background: var(--toolbarbutton-hover-background);
+  background-color: var(--toolbarbutton-hover-background);
 }
 
 menulist:not([disabled="true"],[open="true"]):hover {
-  background: var(--toolbarbutton-active-background);
+  background-color: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
 }
 
 menulist[open="true"] {
-  background: var(--toolbarbutton-active-background);
+  background-color: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
 }
