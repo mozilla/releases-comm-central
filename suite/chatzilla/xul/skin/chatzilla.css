@@ -335,14 +335,6 @@ progressmeter[mode="undetermined"] {
     display: none;
 }
 
-#security-button[level="high"] {
-    list-style-image: url("chrome://chatzilla/skin/images/secure.png");
-}
-
-#security-button[level="broken"] {
-    list-style-image: url("chrome://chatzilla/skin/images/secure-broken.png");
-}
-
 #alert-status[alertstate="off"] {
     list-style-image: url("chrome://chatzilla/skin/images/spbubble-off.png");
 }
