@@ -38,7 +38,6 @@
   <script src="chrome://messenger/content/commandglue.js"/>
   <script src="chrome://messenger/content/SearchDialog.js"/>
   <script src="chrome://messenger/content/msgFolderPickerOverlay.js"/>
-  <script src="chrome://messenger/content/messengerdnd.js"/>
   <script src="chrome://messenger/content/tabmail.js"/>
   <script src="chrome://messenger/content/folderDisplay.js"/>
   <script src="chrome://global/content/contentAreaUtils.js"/>

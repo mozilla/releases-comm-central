@@ -464,4 +464,126 @@ function ThreadPaneSelectionChanged()
     GetThreadTree().view.selectionChanged();
 }
 
+var ThreadPaneDND = {
+  onDragStart(aEvent) {
+    if (aEvent.originalTarget.localName != "treechildren")
+      return;
+
+    let messageUris = gFolderDisplay.selectedMessageUris;
+    if (!messageUris)
+       return;
+
+    // A message can be dragged from one window and dropped on another window.
+    // Therefore we setNextMessageAfterDelete() here since there is no major
+    // disadvantage, even if it is a copy operation.
+    SetNextMessageAfterDelete();
+    let messengerBundle = document.getElementById("bundle_messenger");
+    let noSubject = messengerBundle.getString("defaultSaveMessageAsFileName");
+    if (noSubject.endsWith(".eml")) {
+      noSubject = noSubject.slice(0, -4);
+    }
+    let fileNames = [];
+    let dataTransfer = aEvent.dataTransfer;
+
+    for (let [index, msgUri] of messageUris.entries()) {
+      let msgService = messenger.messageServiceFromURI(msgUri);
+      let msgHdr = msgService.messageURIToMsgHdr(msgUri);
+      let subject = msgHdr.mime2DecodedSubject || noSubject;
+      if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
+        subject = "Re: " + subject;
+      }
+      let uniqueFileName = suggestUniqueFileName(subject.substr(0, 120), ".eml",
+                                                 fileNames);
+      fileNames[index] = uniqueFileName;
+      let msgUrl = {};
+      msgService.GetUrlForUri(msgUri, msgUrl, null);
+      dataTransfer.mozSetDataAt("text/x-moz-message", msgUri, index);
+      dataTransfer.mozSetDataAt("text/x-moz-url", msgUrl.value.spec, index);
+      dataTransfer.mozSetDataAt("application/x-moz-file-promise-url",
+                                 msgUrl.value.spec + "?fileName=" +
+                                 encodeURIComponent(uniqueFileName),
+                                 index);
+      dataTransfer.mozSetDataAt("application/x-moz-file-promise",
+                                new messageFlavorDataProvider(), index);
+    }
+    dataTransfer.effectAllowed = "copyMove";
+    dataTransfer.addElement(aEvent.originalTarget);
+  },
+
+  onDragOver(aEvent) {
+    if (!gMsgFolderSelected.canFileMessages ||
+        gMsgFolderSelected.server.type == "rss")
+      return;
+    let dt = aEvent.dataTransfer;
+    dt.effectAllowed = "copy";
+    for (let i = 0; i < dt.mozItemCount; i++) {
+      if (Array.from(dt.mozTypesAt(i)).includes("application/x-moz-file")) {
+        let extFile = dt.mozGetDataAt("application/x-moz-file", i);
+        if (!extFile) {
+          return;
+        }
+
+        extFile = extFile.QueryInterface(Ci.nsIFile);
+        if (extFile.isFile() && /\.eml$/i.test(extFile.leafName)) {
+          aEvent.preventDefault();
+          return;
+        }
+      }
+    }
+  },
+
+  onDrop(aEvent) {
+    let dt = aEvent.dataTransfer;
+    for (let i = 0; i < dt.mozItemCount; i++) {
+      let extFile = dt.mozGetDataAt("application/x-moz-file", i);
+      if (!extFile) {
+        continue;
+      }
+
+      extFile = extFile.QueryInterface(Ci.nsIFile);
+      if (extFile.isFile() && /\.eml$/i.test(extFile.leafName))
+        MailServices.copy.CopyFileMessage(extFile, gMsgFolderSelected, null,
+                                          false, 1, "", null, msgWindow);
+    }
+  },
+}
+
+function messageFlavorDataProvider() {}
+
+messageFlavorDataProvider.prototype = {
+  QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
+
+  getFlavorData(aTransferable, aFlavor, aData, aDataLen) {
+    if (aFlavor !== "application/x-moz-file-promise") {
+      return;
+    }
+    let fileUriPrimitive = {};
+    let dataSize = {};
+    aTransferable.getTransferData("application/x-moz-file-promise-url",
+                                  fileUriPrimitive, dataSize);
+
+    let fileUriStr = fileUriPrimitive.value
+                                     .QueryInterface(Ci.nsISupportsString);
+    let fileUri = Services.io.newURI(fileUriStr.data);
+    let fileUrl = fileUri.QueryInterface(Ci.nsIURL);
+    let fileName = fileUrl.fileName;
+
+    let destDirPrimitive = {};
+    aTransferable.getTransferData("application/x-moz-file-promise-dir",
+                                  destDirPrimitive, dataSize);
+    let destDirectory = destDirPrimitive.value.QueryInterface(Ci.nsIFile);
+    let file = destDirectory.clone();
+    file.append(fileName);
+
+    let messageUriPrimitive = {};
+    aTransferable.getTransferData("text/x-moz-message", messageUriPrimitive,
+                                  dataSize);
+    let messageUri = messageUriPrimitive.value
+                                        .QueryInterface(Ci.nsISupportsString);
+
+    messenger.saveAs(messageUri.data, true, null, decodeURIComponent(file.path),
+                     true);
+  },
+};
+
 addEventListener("load",ThreadPaneOnLoad,true);

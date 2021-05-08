@@ -45,7 +45,6 @@
 <script src="chrome://messenger/content/msgMail3PaneWindow.js"/>
 <script src="chrome://messenger/content/mail3PaneWindowCommands.js"/>
 <script src="chrome://messenger/content/mailContextMenus.js"/>
-<script src="chrome://messenger/content/messengerdnd.js"/>
 <script src="chrome://messenger/content/accountUtils.js"/>
 <script src="chrome://messenger/content/folderPane.js"/>
 <script src="chrome://messenger/content/phishingDetector.js"/>
