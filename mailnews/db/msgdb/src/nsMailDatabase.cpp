@@ -89,7 +89,6 @@ NS_IMETHODIMP nsMailDatabase::GetSummaryValid(bool* aResult) {
     *aResult = false;
     return NS_OK;
   }
-  nsCOMPtr<nsIMsgPluggableStore> msgStore;
   if (!m_folder) {
     // If the folder is not set, we just return without checking the validity
     // of the summary file. For now, this is an expected condition when the
@@ -101,6 +100,16 @@ NS_IMETHODIMP nsMailDatabase::GetSummaryValid(bool* aResult) {
     *aResult = true;
     return NS_OK;
   }
+
+  // If this is a virtual folder, there is no storage.
+  bool isVirtual = false;
+  m_folder->GetFlag(nsMsgFolderFlags::Virtual, &isVirtual);
+  if (isVirtual) {
+    *aResult = true;
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
   nsresult rv = m_folder->GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
   return msgStore->IsSummaryFileValid(m_folder, this, aResult);

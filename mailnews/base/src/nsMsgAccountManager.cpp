@@ -2670,6 +2670,8 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
           rv = GetOrCreateFolder(buffer, getter_AddRefs(virtualFolder));
           NS_ENSURE_SUCCESS(rv, rv);
 
+          virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
+
           nsCOMPtr<nsIMsgFolder> grandParent;
           nsCOMPtr<nsIMsgFolder> oldParent;
           nsCOMPtr<nsIMsgFolder> parentFolder;
@@ -2710,7 +2712,6 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
 
             parentFolder->AddSubfolder(currentFolderNameStr,
                                        getter_AddRefs(childFolder));
-            virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
             if (childFolder) parentFolder->NotifyItemAdded(childFolder);
             // here we make sure if our parent is rooted - if not, we're
             // going to loop and add our parent as a child of its grandparent
