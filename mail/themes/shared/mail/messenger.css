@@ -954,6 +954,19 @@ tree:-moz-lwtheme:not(:focus)
   border-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
+tree > treechildren::-moz-tree-row(dropOn) {
+  border-color: HighlightText;
+  background-color: Highlight;
+}
+
+tree > treechildren::-moz-tree-cell-text(primary, dropOn) {
+  color: HighlightText;
+}
+
+tree > treechildren::-moz-tree-image(primary, dropOn) {
+  fill: HighlightText !important;
+}
+
 :root[lwt-tree] treecol:not([hideheader="true"]),
 :root[lwt-tree] treecolpicker:not([hideheader="true"]) {
   appearance: none;

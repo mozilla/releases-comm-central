@@ -623,17 +623,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     background-color: #fafafa;
   }
 
-  #folderTree treechildren::-moz-tree-cell(dropOn) {
-    background-image: linear-gradient(rgba(255, 255, 255, .7),
-                                      rgba(255, 255, 255, .45));
-    background-color: Highlight;
-    border-radius: 3px;
-  }
-
-  #folderTree treechildren::-moz-tree-cell-text(dropOn) {
-    color: FieldText;
-  }
-
   treechildren::-moz-tree-line(selected, focus),
   tree[seltype="cell"] > treechildren::-moz-tree-line(active, selected, focus) {
     border-color: -moz-DialogText;

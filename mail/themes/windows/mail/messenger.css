@@ -319,7 +319,6 @@ treechildren::-moz-tree-cell-text {
     border-color: Highlight;
   }
 
-  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(dropOn),
   :root:not(:-moz-lwtheme) #threadTree > treechildren::-moz-tree-row(untagged, selected),
   :root:not(:-moz-lwtheme) tree:not(#threadTree) > treechildren::-moz-tree-row(selected) {
     border-color: HighlightText;
@@ -391,8 +390,7 @@ treechildren::-moz-tree-indentation {
     border-color: var(--treechildren-currentFocusBorder);
   }
 
-  treechildren::-moz-tree-row(selected, focus),
-  treechildren::-moz-tree-row(dropOn) {
+  treechildren::-moz-tree-row(selected, focus) {
     border-color: var(--treechildren-selectedFocusBorder);
     background-color: var(--treechildren-selectedFocusBackground);
   }
@@ -421,16 +419,6 @@ treechildren::-moz-tree-indentation {
   tree[disabled="true"] > treechildren::-moz-tree-row {
     background: none;
     border-color: transparent;
-  }
-
-  treechildren::-moz-tree-cell(dropOn) {
-    background-image: none;
-    background-color: transparent;
-    border-radius: 0;
-  }
-
-  treechildren::-moz-tree-cell-text(primary, dropOn) {
-    color: FieldText;
   }
 
   treechildren::-moz-tree-cell-text {
