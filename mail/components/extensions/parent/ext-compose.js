@@ -340,8 +340,11 @@ async function getComposeDetails(composeWindow, extension) {
       : [],
     subject: composeFields.subject,
     isPlainText: !composeWindow.IsHTMLEditor(),
-    body: editor.outputToString("text/html", 0),
-    plainTextBody: editor.outputToString("text/plain", 0),
+    body: editor.outputToString("text/html", Ci.nsIDocumentEncoder.OutputRaw),
+    plainTextBody: editor.outputToString(
+      "text/plain",
+      Ci.nsIDocumentEncoder.OutputRaw
+    ),
   };
   if (extension.hasPermission("accountsRead")) {
     details.identityId = composeWindow.getCurrentIdentityKey();

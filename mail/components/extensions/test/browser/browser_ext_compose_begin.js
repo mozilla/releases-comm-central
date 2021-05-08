@@ -276,7 +276,7 @@ add_task(async function testBody() {
       let message0 = await browser.messages.getFull(messages[0].id);
       let message0body = message0.parts[0].body;
 
-      let emptyHTML = "<body>\n<p><br>\n</p>\n";
+      let emptyHTML = "<body><p><br></p>";
       let plainTextBodyTag =
         '<body style="font-family: -moz-fixed; white-space: pre-wrap; width: 72ch;">';
       let tests = [
@@ -371,7 +371,7 @@ add_task(async function testBody() {
           arguments: [{ body: "<p>I'm an HTML message!</p>" }],
           expected: {
             isHTML: true,
-            htmlIncludes: "<body>\n<p>I'm an HTML message!</p>\n</body>",
+            htmlIncludes: "<body><p>I'm an HTML message!</p></body>",
             plainTextIs: "I'm an HTML message!",
           },
         },
@@ -565,15 +565,17 @@ add_task(async function testBody() {
 
     let editor = composeWindows[0].GetCurrentEditor();
     // Get the actual message body. Fold Windows line-endings \r\n to \n.
-    let actualHTML = editor.outputToString("text/html", 0).replace(/\r/g, "");
+    let actualHTML = editor
+      .outputToString("text/html", Ci.nsIDocumentEncoder.OutputRaw)
+      .replace(/\r/g, "");
     let actualPlainText = editor
-      .outputToString("text/plain", 0)
+      .outputToString("text/plain", Ci.nsIDocumentEncoder.OutputRaw)
       .replace(/\r/g, "");
     if ("htmlIncludes" in expected) {
       info(actualHTML);
       ok(
         actualHTML.includes(expected.htmlIncludes.replace(/\r/g, "")),
-        "HTML content is correct"
+        `HTML content is correct (${actualHTML} vs ${expected.htmlIncludes})`
       );
     }
     if ("plainTextIs" in expected) {

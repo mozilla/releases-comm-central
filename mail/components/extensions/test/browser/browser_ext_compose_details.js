@@ -838,3 +838,154 @@ add_task(async function testType() {
   await extension.awaitFinish("Finish");
   await extension.unload();
 });
+
+add_task(async function testCJK() {
+  let longCJKString = "안".repeat(400);
+
+  // Open an compose window with HTML body.
+
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  params.composeFields.body = longCJKString;
+
+  let htmlWindowPromise = BrowserTestUtils.domWindowOpened();
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  let htmlWindow = await htmlWindowPromise;
+  await BrowserTestUtils.waitForEvent(htmlWindow, "load");
+
+  // Open another compose window with plain text body.
+
+  params = Cc["@mozilla.org/messengercompose/composeparams;1"].createInstance(
+    Ci.nsIMsgComposeParams
+  );
+  params.composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  params.format = Ci.nsIMsgCompFormat.PlainText;
+  params.composeFields.body = longCJKString;
+
+  let plainTextComposeWindowPromise = BrowserTestUtils.domWindowOpened();
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  let plainTextWindow = await plainTextComposeWindowPromise;
+  await BrowserTestUtils.waitForEvent(plainTextWindow, "load");
+
+  // Run the extension.
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      let longCJKString = "안".repeat(400);
+      let windows = await browser.windows.getAll({
+        populate: true,
+        windowTypes: ["messageCompose"],
+      });
+      let [htmlTabId, plainTextTabId] = windows.map(w => w.tabs[0].id);
+
+      let plainTextBodyTag =
+        '<body style="font-family: -moz-fixed; white-space: pre-wrap; width: 72ch;">';
+
+      // Get details, HTML message.
+
+      let htmlDetails = await browser.compose.getComposeDetails(htmlTabId);
+      browser.test.log(JSON.stringify(htmlDetails));
+      browser.test.assertTrue(!htmlDetails.isPlainText);
+      browser.test.assertTrue(
+        htmlDetails.body.includes(longCJKString),
+        "getComposeDetails.body from html composer returned CJK correctly"
+      );
+      browser.test.assertEq(
+        longCJKString,
+        htmlDetails.plainTextBody,
+        "getComposeDetails.plainTextBody from html composer returned CJK correctly"
+      );
+
+      // Set details, HTML message.
+
+      await browser.compose.setComposeDetails(htmlTabId, {
+        body: longCJKString,
+      });
+      htmlDetails = await browser.compose.getComposeDetails(htmlTabId);
+      browser.test.log(JSON.stringify(htmlDetails));
+      browser.test.assertTrue(!htmlDetails.isPlainText);
+      browser.test.assertTrue(
+        htmlDetails.body.includes(longCJKString),
+        "getComposeDetails.body from html composer returned CJK correctly as set by setComposeDetails"
+      );
+      browser.test.assertTrue(
+        longCJKString,
+        htmlDetails.plainTextBody,
+        "getComposeDetails.plainTextBody from html composer returned CJK correctly as set by setComposeDetails"
+      );
+
+      // Get details, plain text message.
+
+      let plainTextDetails = await browser.compose.getComposeDetails(
+        plainTextTabId
+      );
+      browser.test.log(JSON.stringify(plainTextDetails));
+      browser.test.assertTrue(plainTextDetails.isPlainText);
+      browser.test.assertTrue(
+        plainTextDetails.body.includes(plainTextBodyTag + longCJKString),
+        "getComposeDetails.body from text composer returned CJK correctly"
+      );
+      browser.test.assertEq(
+        longCJKString,
+        plainTextDetails.plainTextBody,
+        "getComposeDetails.plainTextBody from text composer returned CJK correctly"
+      );
+
+      // Set details, plain text message.
+
+      await browser.compose.setComposeDetails(plainTextTabId, {
+        plainTextBody: longCJKString,
+      });
+      plainTextDetails = await browser.compose.getComposeDetails(
+        plainTextTabId
+      );
+      browser.test.log(JSON.stringify(plainTextDetails));
+      browser.test.assertTrue(plainTextDetails.isPlainText);
+      browser.test.assertTrue(
+        plainTextDetails.body.includes(plainTextBodyTag + longCJKString),
+        "getComposeDetails.body from text composer returned CJK correctly as set by setComposeDetails"
+      );
+      browser.test.assertEq(
+        longCJKString,
+        // Fold Windows line-endings \r\n to \n.
+        plainTextDetails.plainTextBody.replace(/\r/g, ""),
+        "getComposeDetails.plainTextBody from text composer returned CJK correctly as set by setComposeDetails"
+      );
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      permissions: ["compose"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  // Close the HTML message.
+
+  let closePromises = [
+    // If the window is not marked as dirty, this Promise will never resolve.
+    BrowserTestUtils.promiseAlertDialog("extra1"),
+    BrowserTestUtils.domWindowClosed(htmlWindow),
+  ];
+  htmlWindow.DoCommandClose();
+  await Promise.all(closePromises);
+
+  // Close the plain text message.
+
+  closePromises = [
+    // If the window is not marked as dirty, this Promise will never resolve.
+    BrowserTestUtils.promiseAlertDialog("extra1"),
+    BrowserTestUtils.domWindowClosed(plainTextWindow),
+  ];
+  plainTextWindow.DoCommandClose();
+  await Promise.all(closePromises);
+});

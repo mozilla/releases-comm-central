@@ -380,7 +380,9 @@ add_task(async function testChangeDetails() {
     await checkComposeHeaders(expected);
 
     let composeWindow = Services.wm.getMostRecentWindow("msgcompose");
-    let body = composeWindow.GetCurrentEditor().outputToString("text/plain", 0);
+    let body = composeWindow
+      .GetCurrentEditor()
+      .outputToString("text/plain", Ci.nsIDocumentEncoder.OutputRaw);
     is(body, expected.body);
 
     extension.sendMessage();
