@@ -1,0 +1,578 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import url("chrome://global/skin/in-content/common.css");
+@import url("chrome://messenger/skin/preferences/preferences.css");
+
+:root {
+  --config-bg: rgba(180, 180, 180, 0.1);
+  --primary-color: #0a84ff;
+  --primary-color-hover: #0060df;
+  --result-bg-color: -moz-DialogText;
+  --warning-color: #ff9400;
+  --warning-bg: #ac0808;
+  --addon-bg: #f8f8f8;
+  --addon-border: #ccc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --config-bg: rgba(105, 105, 105, 0.05);
+    --result-bg-color: #5e5f7a;
+    --toolbar-bgcolor: rgba(50, 50, 52, 1);
+    --primary-color-hover: #2a94ff;
+    --addon-bg: #333;
+    --addon-border: #111;
+  }
+}
+
+:root,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  display: -moz-box;
+  -moz-box-orient: vertical;
+  -moz-box-flex: 1;
+  overflow: auto;
+  background-color: var(--config-bg);
+}
+
+header {
+  margin: 3rem 4rem;
+}
+
+.title {
+  font-size: 2.2rem;
+}
+
+.description {
+  line-height: 1.45em;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: 0 4rem 3rem;
+  max-width: 80rem;
+}
+
+.column {
+  flex: 1;
+  min-width: 400px;
+}
+
+.first-column {
+  max-width: 425px;
+}
+
+.second-column {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 57rem) {
+  .second-column {
+    max-width: 425px;
+    margin-top: 2rem;
+  }
+
+  .second-column img {
+    display: none;
+  }
+}
+
+.second-column article p {
+  max-width: 40rem;
+  padding-inline: 4rem;
+}
+
+#form {
+  display: flex;
+  flex-direction: column;
+}
+
+#form label,
+#manualConfigArea label {
+  font-size: 0.9em;
+  line-height: 1em;
+  margin-block-end: 3px;
+}
+
+.input-control {
+  display: flex;
+  align-items: center;
+  margin-block-end: 21px;
+}
+
+#form .input-field {
+  flex: 1;
+  font-size: 0.9em;
+  margin-inline: 0;
+  padding-block: 0;
+  padding-inline-end: 33px;
+  min-height: 35px;
+  border-radius: 3px;
+}
+
+.form-icon {
+  cursor: pointer;
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.7;
+  margin-inline: -26px 10px;
+}
+
+.icon-warning {
+  color: var(--warning-color);
+  fill-opacity: 1;
+}
+
+.provisioner-button-container {
+  display: flex;
+  justify-content: end;
+}
+
+.btn-link {
+  appearance: none;
+  background-color: transparent !important;
+  color: var(--primary-color) !important;
+  border-style: none;
+  padding: 0 3px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: auto;
+  border-radius: 3px;
+}
+
+.btn-link-new-email {
+  margin: -18px 0 2px;
+}
+
+.btn-link:hover {
+  color: var(--primary-color-hover) !important;
+  text-decoration: underline;
+}
+
+.btn-link:focus-visible {
+  outline-offset: 1px;
+}
+
+.password-toggled {
+  color: var(--primary-color-hover);
+  fill: currentColor;
+}
+
+.remember-button-container {
+  display: flex;
+  justify-content: start;
+  margin-block: -15px 24px;
+}
+
+.action-buttons-container {
+  display: flex;
+  justify-content: space-between;
+  margin-inline: -6px;
+}
+
+.action-buttons-container aside {
+  display: flex;
+  align-items: center;
+}
+
+.action-buttons-container button {
+  border-radius: 3px;
+}
+
+#accountSetupNotifications {
+  display: flex;
+  flex-direction: column;
+  margin-inline: -4px;
+}
+
+#accountSetupNotifications .notificationbox-stack {
+  margin-block-end: 15px;
+}
+
+/* Results area */
+
+#resultsArea:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  margin-block-end: 15px;
+}
+
+.section-title {
+  margin-block: 0 6px;
+}
+
+.content-blocking-category {
+  border-radius: 4px;
+  margin: 3px 0;
+  padding: 9px;
+  border: 1px solid var(--in-content-border-color);
+  background-color: rgba(215, 215, 219, 0.2);
+}
+
+.content-blocking-category.selected {
+  border: 1px solid #45A1FF;
+  background-color: rgba(69, 161, 255, 0.2);
+}
+
+.content-blocking-category.selected .result-details {
+  display: flex;
+}
+
+.result-details {
+  display: none;
+  flex-direction: column;
+  font-size: 0.9em;
+}
+
+.result-details-grid {
+  display: grid;
+  grid-template-columns: auto max-content 1fr;
+  row-gap: 6px;
+  align-items: center;
+  margin-block: 9px;
+  margin-inline-start: 21px;
+}
+
+.result-details-grid img {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  color: inherit;
+  margin-inline-end: 6px;
+}
+
+.result-details-grid h4 {
+  margin-block: 0;
+  margin-inline-end: 12px;
+}
+
+.toggle-container-with-text {
+  flex-wrap: wrap;
+}
+
+.toggle-container-with-text span {
+  flex: 1;
+  line-height: 1.4em;
+}
+
+.strong {
+  font-weight: 600;
+}
+
+.result-indent {
+  margin-inline-start: 21px;
+  margin-block: 0;
+  width: 100%;
+}
+
+/* Confirmation dialog */
+
+#confirmationDialog {
+  max-width: 500px;
+  border-radius: 6px;
+  border: none;
+  box-shadow: 0 2px 6px -5px #000;
+}
+
+#confirmationDialog::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.dialog-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dialog-container img {
+  -moz-context-properties: fill;
+  fill: var(--primary-color);
+  margin-inline-end: 12px;
+  height: 32px;
+}
+
+#confirmationQuestion {
+  margin-block: 0.2em;
+  line-height: 1.4em;
+}
+
+.dialog-menu-container {
+  display: flex;
+  align-items: center;
+  margin-block-end: 0;
+  margin-inline: 0;
+  padding-inline: 0;
+  justify-content: end;
+}
+
+/* Manual config area */
+
+#manualConfigArea {
+  margin-block-end: 15px;
+}
+
+#manualConfigArea menulist,
+#manualConfigArea select,
+#manualConfigArea input {
+  margin-inline: 4px;
+  width: 4em;
+  flex: 1;
+  border-radius: 3px;
+}
+
+#manualConfigArea input {
+  min-height: 20px;
+  margin-block: 4px;
+}
+
+.config-area {
+  background-color: var(--config-bg);
+  border-style: none;
+  padding: 9px;
+  margin: 9px 0;
+  border-radius: 6px;
+}
+
+.manual-config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+  row-gap: 12px;
+}
+
+.manual-config-grid aside {
+  display: flex;
+  flex-direction: column;
+}
+
+.manual-config-grid .input-control {
+  margin-block-end: 0;
+}
+
+.link-row {
+  display: flex;
+  justify-content: end;
+}
+
+#outgoingProtocol {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  font-weight: 500;
+  margin-inline: 4px;
+}
+
+.foot-note {
+  line-height: 1.5em;
+  font-size: .85em;
+  margin-block-start: 21px;
+}
+
+/* ================= OLD STYLE ===================== */
+
+#manualConfigArea menulist[is="menulist-editable"] {
+  padding-inline: 0 !important;
+}
+
+#manualConfigArea menulist[is="menulist-editable"][editable="true"] {
+  margin-inline-end: 4px;
+  -moz-default-appearance: auto;
+}
+
+#manualConfigArea menulist[is="menulist-editable"][editable="true"]::part(text-input) {
+  padding: 5px 8px;
+  border-start-start-radius: 4px;
+  border-end-start-radius: 4px;
+  background-color: var(--in-content-box-background);
+  border: 1px solid var(--in-content-box-border-color);
+  margin: -1px;
+  margin-inline-end: 9px;
+  color: inherit;
+}
+
+#manualConfigArea menulist[is="menulist-editable"]:not([editable="true"])::part(text-input) {
+  display: none;
+}
+
+#manualConfigArea menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
+  width: 1.5em;
+  margin-inline-end: 0;
+}
+
+.insecureLarry {
+  height: 32px;
+  width: 32px;
+  padding: 0;
+  background: url("chrome://global/skin/icons/security-warning.svg") no-repeat;
+  background-size: 32px;
+  margin-right: 1em;
+}
+
+.secureLarry {
+  height: 48px;
+  width: 48px;
+  padding: 0;
+  background: url("chrome://messenger/skin/icons/identity.png") no-repeat;
+  background-size: 48px;
+}
+
+#warningbox:not([hidden="true"]) {
+  background: #333 none repeat scroll 0% 0%;
+  padding: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.warning {
+  padding: 1em;
+  border-radius: 8px;
+  background-color: #722;
+  max-width: 50rem;
+}
+
+.warning_text {
+  color: white;
+  font-size: 120%;
+}
+
+.warning_text > vbox {
+  padding-top: 5px;
+}
+
+.warning-header {
+  border-bottom: 1px solid ThreeDLightShadow;
+  padding-bottom: 0.5em;
+}
+
+.warning-heading {
+  font-size: 140%;
+  margin: 0;
+  color: white;
+}
+
+.warning_settings {
+  color: yellow;
+  font-weight: bold;
+  margin: 0;
+  margin-inline-end: 3px;
+}
+
+description {
+  margin-block-end: 6px;
+}
+
+.details {
+  font-style: italic;
+  padding: 3px;
+}
+
+.popup-panel {
+  padding: 2px 3px;
+  background-color: #ffffc7;
+  max-width: 320px;
+}
+
+.technical_details {
+  cursor: pointer;
+  margin: 0;
+  padding-left: 20px;
+  background: url("chrome://global/skin/icons/twisty-collapsed.svg") left center no-repeat;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.technical_details[expanded] {
+  background-image: url("chrome://global/skin/icons/twisty-expanded.svg");
+}
+
+/* result area */
+
+.result-host-info {
+  display: flex;
+  align-items: center;
+  padding-block: 0;
+  background-color: transparent !important;
+  appearance: none;
+}
+
+.result-host-info > label.protocolType {
+  display: inline-block;
+  padding: 1px 4px;
+  font-size: 0.8rem;
+  margin-inline-end: 5px;
+  font-weight: bold;
+  border-radius: 2px;
+  background-color: var(--primary-color-hover);
+  color: #fff;
+}
+
+.result-host-info > label {
+  margin-inline: 0;
+}
+
+.result-host-info > label.ssl {
+  margin-inline-start: 0.4em;
+}
+
+.result-host-info > label.domain {
+  font-weight: bold;
+}
+
+.result-host-info > label.insecure {
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 0.8rem;
+  margin-inline-end: 5px;
+  font-weight: bold;
+  border-radius: 2px;
+  line-height: 1rem;
+  background-color: var(--warning-bg);
+  color: var(--btn-bg-hover);
+}
+
+.certStatus.insecure {
+  margin: 0 0 5px 0;
+  color: var(--warning-bg);
+}
+
+#installAddonInfo {
+  background-color: var(--addon-bg);
+  padding: 3px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--addon-border);
+}
+
+#resultAddonIntro {
+  margin-block: 3px 12px;
+}
+
+#resultAddonInstallRows image.icon {
+  width: 32px;
+  height: 32px;
+  margin-inline-end: 6px;
+}
+
+.link {
+  line-height: 1.2em;
+}
+
+textbox[disabled="true"],
+input[disabled="true"],
+menulist[disabled="true"],
+select[disabled="true"],
+menulist[is="menulist-editable"][editable="true"][disabled="true"] {
+  opacity: 0.5;
+}

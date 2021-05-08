@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/shared/accountCreation.css");
+@import url("chrome://messenger/skin/shared/accountSetup.css");
 
 /* ::::: BUTTONS ::::: */
 
@@ -29,10 +29,6 @@ menulist[disabled="true"] {
 menulist[disabled="true"]::part(dropmarker) {
   appearance: none;
   color: -moz-DialogText;
-}
-
-.mastervbox {
-  padding: 8px;
 }
 
 /* Fix to show the menulist-dropmarker under newer GTK3 versions */

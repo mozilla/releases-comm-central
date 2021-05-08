@@ -68,7 +68,7 @@ add_task(async function test_mail_account_setup() {
 
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
   EventUtils.synthesizeMouseAtCenter(
-    tabDocument.getElementById("next_button"),
+    tabDocument.getElementById("continueButton"),
     {},
     tab.browser.contentWindow
   );
@@ -80,7 +80,7 @@ add_task(async function test_mail_account_setup() {
   );
 
   EventUtils.synthesizeMouseAtCenter(
-    tabDocument.getElementById("create_button"),
+    tabDocument.getElementById("createButton"),
     {},
     tab.browser.contentWindow
   );

@@ -11,7 +11,7 @@ classic.jar:
   skin/classic/messenger/messenger.css                           (mail/messenger.css)
   skin/classic/messenger/primaryToolbar.css                      (mail/primaryToolbar.css)
   skin/classic/messenger/accountCentral.css                      (mail/accountCentral.css)
-  skin/classic/messenger/accountCreation.css                     (mail/accountCreation.css)
+  skin/classic/messenger/accountSetup.css                        (mail/accountSetup.css)
   skin/classic/messenger/accountManage.css                       (mail/accountManage.css)
   skin/classic/messenger/accountWizard.css                       (mail/accountWizard.css)
   skin/classic/messenger/chat.css                                (mail/chat.css)

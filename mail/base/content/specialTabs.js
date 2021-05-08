@@ -985,13 +985,24 @@ var specialTabs = {
         linkHandler: aPersistedState.linkHandler,
         url: aPersistedState.tabURI,
       });
-      if (aPersistedState.tabURI == "about:addons") {
-        // Also in `openAddonsMgr` in mailCore.js.
-        tab.browser.droppedLinkHandler = event =>
-          tab.browser.contentWindow.gDragDrop.onDrop(event);
-      }
-      if (aPersistedState.tabURI == "about:accountsettings") {
-        tab.tabNode.setAttribute("type", "accountManager");
+
+      switch (aPersistedState.tabURI) {
+        case "about:addons":
+          // Also in `openAddonsMgr` in mailCore.js.
+          tab.browser.droppedLinkHandler = event =>
+            tab.browser.contentWindow.gDragDrop.onDrop(event);
+          break;
+
+        case "about:accountsettings":
+          tab.tabNode.setAttribute("type", "accountManager");
+          break;
+
+        case "about:accountsetup":
+          tab.tabNode.setAttribute("type", "accountSetup");
+          break;
+
+        default:
+          break;
       }
     },
   },

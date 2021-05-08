@@ -436,7 +436,7 @@ add_task(async function test_flip_flop_from_provisioner_menuitem() {
   );
   // Open the account provisioner from the Account hub.
   EventUtils.synthesizeMouseAtCenter(
-    tabWindow.document.getElementById("provisioner_button"),
+    tabWindow.document.getElementById("provisionerButton"),
     {},
     tabWindow
   );
@@ -460,11 +460,6 @@ add_task(async function test_flip_flop_from_provisioner_menuitem() {
   );
   await dialogWindowPromise3;
 
-  await TestUtils.waitForCondition(
-    () => tabWindow.document.activeElement != null,
-    "The focus is back on the tab"
-  );
-
   // Let's do it one last time but this time we will close the dialog.
   let dialogWindowPromise4 = BrowserTestUtils.promiseAlertDialog(
     null,
@@ -477,7 +472,7 @@ add_task(async function test_flip_flop_from_provisioner_menuitem() {
   );
   // Open the account provisioner from the Account hub.
   EventUtils.synthesizeMouseAtCenter(
-    tabWindow.document.getElementById("provisioner_button"),
+    tabWindow.document.getElementById("provisionerButton"),
     {},
     tabWindow
   );
@@ -1004,7 +999,7 @@ add_task(async function test_can_pref_off_account_provisioner() {
   let tab = await openAccountSetup();
   // And make sure the Get a New Account button is hidden.
   Assert.ok(
-    tab.browser.contentWindow.document.getElementById("provisioner_button")
+    tab.browser.contentWindow.document.getElementById("provisionerButton")
       .hidden
   );
   // Close the Account Hub tab.
@@ -1026,7 +1021,7 @@ add_task(async function test_can_pref_off_account_provisioner() {
   tab = await openAccountSetup();
   // And make sure the Get a New Account button is hidden.
   Assert.ok(
-    !tab.browser.contentWindow.document.getElementById("provisioner_button")
+    !tab.browser.contentWindow.document.getElementById("provisionerButton")
       .hidden
   );
   // Close the Account Hub tab.
@@ -1535,7 +1530,7 @@ add_task(async function test_get_new_account_focuses_existing_ap_tab() {
   let tab = await openAccountSetup();
   // Click on the "Get a new Account" button in the wizard.
   EventUtils.synthesizeMouseAtCenter(
-    tab.browser.contentWindow.document.getElementById("provisioner_button"),
+    tab.browser.contentWindow.document.getElementById("provisionerButton"),
     {},
     tab.browser.contentWindow
   );

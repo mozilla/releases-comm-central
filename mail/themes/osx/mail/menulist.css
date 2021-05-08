@@ -27,7 +27,3 @@ menulist[is="menulist-editable"][editable="true"] > menupopup > menuitem[selecte
   display: none;
   margin-inline-start: 0;
 }
-
-menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
-  display: none;
-}

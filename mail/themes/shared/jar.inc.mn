@@ -300,7 +300,7 @@
   skin/classic/messenger/shared/aboutDownloads.css            (../shared/mail/aboutDownloads.css)
   skin/classic/messenger/shared/abContactsPanel.css           (../shared/mail/abContactsPanel.css)
   skin/classic/messenger/shared/accountCentral.css            (../shared/mail/accountCentral.css)
-  skin/classic/messenger/shared/accountCreation.css           (../shared/mail/accountCreation.css)
+  skin/classic/messenger/shared/accountSetup.css           (../shared/mail/accountSetup.css)
   skin/classic/messenger/shared/newInstallPage.css            (../shared/mail/newInstallPage.css)
   skin/classic/messenger/shared/accountManage.css             (../shared/mail/accountManage.css)
   skin/classic/messenger/shared/accountProvisioner.css        (../shared/mail/accountProvisioner.css)
@@ -399,3 +399,10 @@
   skin/classic/messenger/openpgp/twisty-open.png              (../shared/openpgp/twisty-open.png)
   skin/classic/messenger/openpgp/warning-16.png               (../shared/openpgp/warning-16.png)
   skin/classic/messenger/openpgp/openPgpComposeStatus.css     (../shared/openpgp/openPgpComposeStatus.css)
+
+# Illustrations
+  skin/classic/messenger/illustrations/accounts.svg           (../shared/mail/illustrations/accounts.svg)
+  skin/classic/messenger/illustrations/connection-error.svg   (../shared/mail/illustrations/connection-error.svg)
+  skin/classic/messenger/illustrations/form.svg               (../shared/mail/illustrations/form.svg)
+  skin/classic/messenger/illustrations/octopus-setup.svg      (../shared/mail/illustrations/octopus-setup.svg)
+  skin/classic/messenger/illustrations/sloth.svg              (../shared/mail/illustrations/sloth.svg)

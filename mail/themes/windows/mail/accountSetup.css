@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/shared/accountCreation.css");
+@import url("chrome://messenger/skin/shared/accountSetup.css");
 
 /* ::::: BUTTONS ::::: */
 
@@ -45,10 +45,6 @@ menulist[disabled="true"]::part(dropmarker) {
 
 #config_status_title {
   font-weight: bold;
-}
-
-.mastervbox {
-  padding: 8px;
 }
 
 .outgoing_hostname {

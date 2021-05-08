@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-@import url("chrome://messenger/skin/shared/accountCreation.css");
+@import url("chrome://messenger/skin/shared/accountSetup.css");
 
 .errordescription {
   padding-inline-start: 3px;
@@ -18,10 +18,6 @@
   .secureLarry {
     background: url("chrome://messenger/skin/icons/identity@2x.png") no-repeat;
   }
-}
-
-.mastervbox {
-  padding: 10px 8px;
 }
 
 menulist {

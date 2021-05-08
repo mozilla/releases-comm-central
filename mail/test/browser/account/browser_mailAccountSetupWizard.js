@@ -101,7 +101,7 @@ add_task(async function test_mail_account_setup() {
 
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
   EventUtils.synthesizeMouseAtCenter(
-    tabDocument.getElementById("next_button"),
+    tabDocument.getElementById("continueButton"),
     {},
     tab.browser.contentWindow
   );
@@ -120,18 +120,21 @@ add_task(async function test_mail_account_setup() {
   // immediately. We use an invalid email/password so the setup will fail
   // anyway.
   EventUtils.synthesizeMouseAtCenter(
-    tabDocument.getElementById("manual-edit_button"),
+    tabDocument.getElementById("manualConfigButton"),
     {},
     tab.browser.contentWindow
   );
 
   await BrowserTestUtils.waitForCondition(
-    () => !tabDocument.getElementById("manual-edit_area").hidden,
+    () => !tabDocument.getElementById("manualConfigArea").hidden,
     "Timeout waiting for the manual edit area to become visible"
   );
 
+  let advancedSetupButton = tabDocument.getElementById("advancedSetupButton");
+  advancedSetupButton.scrollIntoView();
+
   EventUtils.synthesizeMouseAtCenter(
-    tabDocument.getElementById("advanced-setup_button"),
+    advancedSetupButton,
     {},
     tab.browser.contentWindow
   );
@@ -151,7 +154,7 @@ add_task(async function test_mail_account_setup() {
 async function subtest_verify_account(tab) {
   await BrowserTestUtils.waitForCondition(
     () => tab.browser.contentWindow.currentAccount != null,
-    "Timeout waiting for current config to become non-null"
+    "Timeout waiting for current account to become non-null"
   );
 
   let account = tab.browser.contentWindow.currentAccount;
@@ -243,66 +246,84 @@ add_task(async function test_bad_password_uses_old_settings() {
 
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
   EventUtils.synthesizeMouseAtCenter(
-    tabDocument.getElementById("next_button"),
+    tabDocument.getElementById("continueButton"),
     {},
     tab.browser.contentWindow
   );
 
-  let createButton = tabDocument.getElementById("create_button");
+  let createButton = tabDocument.getElementById("createButton");
   await BrowserTestUtils.waitForCondition(
     () => !createButton.hidden && !createButton.disabled,
     "Timeout waiting for create button to become visible and active"
   );
 
+  let notificationBox =
+    tab.browser.contentWindow.gEmailConfigWizard.notificationBox;
+
+  let notificationShowed = BrowserTestUtils.waitForCondition(
+    () => notificationBox.getNotificationWithValue("accountSetupError") != null,
+    "Timeout waiting for error notification to be showed"
+  );
+
+  createButton.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(
     createButton,
     {},
     tab.browser.contentWindow
   );
+
+  await notificationShowed;
 
   await BrowserTestUtils.waitForCondition(
     () => !createButton.disabled,
     "Timeout waiting for create button to become active"
   );
 
+  let manualConfigButton = tabDocument.getElementById("manualConfigButton");
+  manualConfigButton.scrollIntoView();
+
   EventUtils.synthesizeMouseAtCenter(
-    tabDocument.getElementById("manual-edit_button"),
+    manualConfigButton,
     {},
     tab.browser.contentWindow
   );
 
   await BrowserTestUtils.waitForCondition(
-    () => !tabDocument.getElementById("manual-edit_area").hidden,
+    () => !tabDocument.getElementById("manualConfigArea").hidden,
     "Timeout waiting for the manual edit area to become visible"
   );
 
+  let notificationRemoved = BrowserTestUtils.waitForCondition(
+    () => notificationBox.getNotificationWithValue("accountSetupError") == null,
+    "Timeout waiting for error notification to be removed"
+  );
+
+  createButton.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(
     createButton,
     {},
     tab.browser.contentWindow
   );
 
+  // Triggering again the "createButton" should clear previous notifications.
+  await notificationRemoved;
+
   // Make sure all the values are the same as in the user object.
   Assert.equal(
-    tabDocument.getElementById("outgoing_hostname").value,
+    tabDocument.getElementById("outgoingHostname").value,
     user.outgoingHost,
     "Outgoing server changed!"
   );
   Assert.equal(
-    tabDocument.getElementById("incoming_hostname").value,
+    tabDocument.getElementById("incomingHostname").value,
     user.incomingHost,
     "incoming server changed!"
   );
 
-  let statusArea = tabDocument.getElementById("status-area");
+  // A new error notification should appear.
   await BrowserTestUtils.waitForCondition(
-    () => !statusArea.hidden,
-    "Timeout waiting for the warning message to be visible"
-  );
-
-  await BrowserTestUtils.waitForCondition(
-    () => statusArea.getAttribute("status") == "error",
-    "Timeout waiting for warning message to return an error state"
+    () => notificationBox.getNotificationWithValue("accountSetupError") != null,
+    "Timeout waiting for error notification to be showed"
   );
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
@@ -320,8 +341,11 @@ add_task(async function test_bad_password_uses_old_settings() {
   // Clean up
   Services.prefs.setCharPref(PREF_NAME, PREF_VALUE);
 
+  let closeButton = tabDocument.getElementById("cancelButton");
+  closeButton.scrollIntoView();
+
   EventUtils.synthesizeMouseAtCenter(
-    tabDocument.getElementById("cancel_button"),
+    closeButton,
     {},
     tab.browser.contentWindow
   );
@@ -355,7 +379,7 @@ async function remember_password_test(aPrefValue) {
   password.focus();
   input_value(mc, "testing");
 
-  let rememberPassword = tabDocument.getElementById("remember_password");
+  let rememberPassword = tabDocument.getElementById("rememberPassword");
   Assert.ok(rememberPassword.disabled != aPrefValue);
   Assert.equal(rememberPassword.checked, aPrefValue);
 
@@ -368,9 +392,12 @@ async function remember_password_test(aPrefValue) {
     rememberSignons_pref_save
   );
 
+  let closeButton = tabDocument.getElementById("cancelButton");
+  closeButton.scrollIntoView();
+
   // Close the wizard.
   EventUtils.synthesizeMouseAtCenter(
-    tabDocument.getElementById("cancel_button"),
+    closeButton,
     {},
     tab.browser.contentWindow
   );

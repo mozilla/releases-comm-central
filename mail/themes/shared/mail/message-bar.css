@@ -51,8 +51,8 @@
 }
 
 :host([type=success]) {
-  --message-bar-background-color: var(--green-50);
-  --message-bar-text-color: var(--green-90);
+  --message-bar-background-color: var(--green-60);
+  --message-bar-text-color: #ffffff;
   --message-bar-icon-url: var(--success-icon-url);
 }
 
@@ -138,6 +138,39 @@
   content: var(--message-bar-icon-url);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  :host([value=accountSetupLoading]) .icon {
+    position: relative;
+    overflow: hidden;
+  }
+
+  :host([value=accountSetupLoading]) .icon::after {
+    position: absolute;
+    content: '';
+    background-image: url("chrome://messenger/skin/icons/loading.svg");
+    background-position: left center;
+    background-repeat: no-repeat;
+    width: 480px;
+    height: 100%;
+    animation: loading-animation 1.05s steps(30) infinite;
+  }
+
+  :host([value=accountSetupLoading]) .icon:-moz-locale-dir(rtl)::after {
+    background-position-x: right;
+    animation: loading-animation-rtl 1.05s steps(30) infinite;
+  }
+
+  @keyframes loading-animation {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes loading-animation-rtl {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+  }
+}
+
 /* Close icon styles */
 
 :host(:not([dismissable])) .close {
@@ -206,15 +239,28 @@
   margin-inline-start: 8px;
 }
 
+:host([value=accountSetupLoading]) .notification-content {
+  flex-grow: unset;
+}
+
 .notification-message {
   flex-grow: 1;
   min-height: 16px;
   margin-inline-end: 20px;
+  margin-block: 6px;
 }
 
 .notification-button-container,
 .notification-message {
   display: flex;
+}
+
+:host(:not([dismissable])) .notification-message {
+  margin-inline-end: 6px;
+}
+
+:host([type=success]) .notification-message {
+  font-weight: 500;
 }
 
 .notification-button {
@@ -342,6 +388,7 @@ strong {
   background-color: var(--in-content-box-info-background);
   color: var(--in-content-text-color);
 }
+
 .container {
   padding: 8px;
   min-height: 32px;

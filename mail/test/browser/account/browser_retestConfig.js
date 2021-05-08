@@ -62,11 +62,11 @@ add_task(async function test_re_test_config() {
   input_value(mc, user.email);
 
   // Click "continue" button.
-  let nextButton = tabDocument.getElementById("next_button");
+  let nextButton = tabDocument.getElementById("continueButton");
   EventUtils.synthesizeMouseAtCenter(nextButton, {}, tab.browser.contentWindow);
 
   // Wait for 'edit' button to be enabled.
-  let editButton = tabDocument.getElementById("manual-edit_button");
+  let editButton = tabDocument.getElementById("manualConfigButton");
   await BrowserTestUtils.waitForCondition(
     () => !editButton.hidden && !editButton.disabled,
     "Timeout waiting for edit button to become visible and active"
@@ -75,7 +75,7 @@ add_task(async function test_re_test_config() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, tab.browser.contentWindow);
 
   // Click "re-test" button.
-  let testButton = tabDocument.getElementById("half-manual-test_button");
+  let testButton = tabDocument.getElementById("reTestButton");
   EventUtils.synthesizeMouseAtCenter(testButton, {}, tab.browser.contentWindow);
 
   await BrowserTestUtils.waitForCondition(
@@ -104,7 +104,7 @@ add_task(async function test_re_test_config() {
   // over, we should make sure the information is presented back in its original
   // "automatic" mode.
   Assert.ok(
-    tabDocument.getElementById("manual-edit_area").hidden,
+    tabDocument.getElementById("manualConfigArea").hidden,
     "We're not back to the original state!"
   );
 
