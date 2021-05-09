@@ -495,36 +495,41 @@ function mircChangeColor (colorInfo, containerTag, data)
         return;
     }
 
-    var ary = colorInfo.match (/.(\d{1,2}|)(,(\d{1,2})|)/);
+    // Entry 0 will contain all colors specified,
+    // entry 1 will have any specified foreground color or be undefined,
+    // entry 2 will have any specified background color or be undefined.
+    // Valid color codes are 0-99 with 99 having special meaning.
+    let ary = colorInfo.match(/^\x03(?:(\d\d?)(?:,(\d\d?))?)?/);
 
-    // Do we have a BG color specified...?
-    if (!arrayHasElementAt(ary, 1) || !ary[1])
-    {
-        // Oops, no colors.
+    // If no foreground color specified or somehow the array does not have 3
+    // entries then it has invalid syntax.
+    if (ary.length != 3 || !ary[1]) {
         delete data.currFgColor;
         delete data.currBgColor;
         return;
     }
 
-    var fgColor = String(Number(ary[1]) % 16);
+    let fgColor = Number(ary[1]);
 
-    if (fgColor.length == 1)
-        data.currFgColor = "0" + fgColor;
-    else
-        data.currFgColor = fgColor;
-
-    // Do we have a BG color specified...?
-    if (arrayHasElementAt(ary, 3) && ary[3])
-    {
-        var bgColor = String(Number(ary[3]) % 16);
-
-        if (bgColor.length == 1)
-            data.currBgColor = "0" + bgColor;
-        else
-            data.currBgColor = bgColor;
+    if (fgColor != 99) {
+        data.currFgColor = (fgColor % 16).toString().padStart(2, "0");
+    } else {
+        delete data.currFgColor;
     }
 
-    data.hasColorInfo = true;
+    // If no background color then default to 99.
+    let bgColor = Number(ary[2] || "99");
+
+    if (bgColor != 99) {
+        data.currBgColor = (bgColor % 16).toString().padStart(2, "0");
+    } else {
+        delete data.currBgColor;
+    }
+
+    // Only set hasColorInfo if we have something set.
+    if (fgColor != 99 || bgColor != 99) {
+        data.hasColorInfo = true;
+    }
 }
 
 function mircToggleBold (colorInfo, containerTag, data)
