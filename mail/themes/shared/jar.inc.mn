@@ -322,6 +322,7 @@
   skin/classic/messenger/shared/preferences/dialog.css        (../shared/mail/preferences/dialog.css)
   skin/classic/messenger/shared/preferences/passwordmgr.css   (../shared/mail/preferences/passwordmgr.css)
   skin/classic/messenger/shared/preferences/preferences.css   (../shared/mail/preferences/preferences.css)
+  skin/classic/messenger/shared/preferences/subdialog.css     (../shared/mail/preferences/subdialog.css)
   skin/classic/messenger/shared/preferences/calendar.svg      (../shared/mail/preferences/calendar.svg)
   skin/classic/messenger/shared/preferences/chat.svg          (../shared/mail/preferences/chat.svg)
   skin/classic/messenger/shared/preferences/general.svg       (../shared/mail/preferences/general.svg)

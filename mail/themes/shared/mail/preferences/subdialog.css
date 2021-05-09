@@ -1,0 +1,67 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.dialogOverlay {
+  visibility: hidden;
+}
+
+.dialogOverlay[topmost="true"] {
+  background-color: rgba(0,0,0,0.5);
+}
+
+.dialogBox {
+  appearance: none;
+  background-color: var(--in-content-page-background);
+  color: var(--in-content-page-color);
+  /* `transparent` will use the dialogText color in high-contrast themes and
+     when page colors are disabled */
+  border: 1px solid transparent;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
+  display: -moz-box;
+  margin: 0;
+  padding: 0;
+}
+
+.dialogBox[resizable="true"] {
+  resize: both;
+  overflow: hidden;
+  min-height: 20em;
+  min-width: 66ch;
+}
+
+.dialogTitleBar {
+  margin-top: 0;
+  padding: 3.5px 0;
+  background-color: var(--in-content-dialog-header-background);
+  border-bottom: 1px solid var(--in-content-border-color);
+}
+
+.dialogTitle {
+  font-size: 1.026em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.close-icon {
+  border: none;
+  background-color: transparent; /* override common.css, but keep hover/active states */
+  min-width: 0;
+  min-height: auto;
+  padding-inline: 0;
+  margin-inline: 0 8px;
+}
+
+.dialogFrame {
+  margin: 14px;
+  -moz-box-flex: 1;
+  /* Default dialog dimensions */
+  height: 12em;
+  width: 40ch;
+}
+
+.largeDialogContainer.doScroll {
+  overflow-y: auto;
+  -moz-box-flex: 1;
+}
