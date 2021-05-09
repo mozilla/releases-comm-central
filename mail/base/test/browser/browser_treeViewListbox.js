@@ -12,12 +12,13 @@ add_task(async function() {
   await BrowserTestUtils.browserLoaded(tab.browser);
   tab.browser.focus();
 
-  await SpecialPowers.spawn(tab.browser, [], testInner);
+  await SpecialPowers.spawn(tab.browser, [], testKeyboardAndMouse);
+  await SpecialPowers.spawn(tab.browser, [], testRowCountChange);
 
   tabmail.closeTab(tab);
 });
 
-async function testInner() {
+async function testKeyboardAndMouse() {
   let doc = content.document;
 
   let list = doc.querySelector("tree-view-listbox");
@@ -26,7 +27,9 @@ async function testInner() {
   let listRect = list.getBoundingClientRect();
 
   let rows = list.querySelectorAll("test-listrow");
-  Assert.greater(rows.length, 0, "the list has rows");
+  // Count is calculated from the height of `list` divided by
+  // TestCardRow.ROW_HEIGHT, plus TreeViewListbox.OVERFLOW_BUFFER.
+  Assert.equal(rows.length, 23, "the list has the right number of rows");
 
   Assert.equal(doc.activeElement, doc.body);
 
@@ -387,4 +390,413 @@ async function testInner() {
   bcr = rows[0].getBoundingClientRect();
   Assert.equal(bcr.top, listRect.top, "top of row 0 is visible");
   Assert.greater(bcr.bottom, listRect.top, "bottom of row 0 is visible");
+}
+
+async function testRowCountChange() {
+  let doc = content.document;
+
+  let ROW_HEIGHT = 50;
+  let list = doc.querySelector("tree-view-listbox");
+  let view = list.view;
+  let rows;
+
+  // Check the initial state.
+
+  function checkRows(first, last) {
+    let expectedIndicies = [];
+    for (let i = first; i <= last; i++) {
+      expectedIndicies.push(i);
+    }
+    rows = list.querySelectorAll("test-listrow");
+    Assert.deepEqual(
+      Array.from(rows, r => r.index),
+      expectedIndicies,
+      "the list has the right rows"
+    );
+    Assert.deepEqual(
+      Array.from(rows, r => r.dataset.value),
+      view.values.slice(first, last + 1),
+      "the list has the right rows"
+    );
+  }
+
+  function checkSelected(indicies, existingIndicies) {
+    Assert.deepEqual(list.selectedIndicies, indicies);
+    let selectedRows = list.querySelectorAll("test-listrow.selected");
+    Assert.deepEqual(
+      Array.from(selectedRows, r => r.index),
+      existingIndicies
+    );
+  }
+
+  let expectedCount = 50;
+
+  // Select every tenth row. We'll check what is selected remains selected.
+
+  list.selectedIndicies = [4, 14, 24, 34, 44];
+
+  function addValues(index, values) {
+    view.values.splice(index, 0, ...values);
+    info(`Added ${values.join(", ")} at ${index}`);
+    info(view.values);
+
+    expectedCount += values.length;
+    Assert.equal(
+      view.rowCount,
+      expectedCount,
+      "the view has the right number of rows"
+    );
+
+    list.rowCountChanged(index, values.length);
+    Assert.equal(
+      list.scrollHeight,
+      expectedCount * ROW_HEIGHT,
+      "space for all rows is allocated"
+    );
+  }
+
+  function removeValues(index, count, expectedRemoved) {
+    let values = view.values.splice(index, count);
+    info(`Removed ${values.join(", ")} from ${index}`);
+    info(view.values);
+
+    Assert.deepEqual(values, expectedRemoved);
+
+    expectedCount -= values.length;
+    Assert.equal(
+      view.rowCount,
+      expectedCount,
+      "the view has the right number of rows"
+    );
+
+    list.rowCountChanged(index, -count);
+    Assert.equal(
+      list.scrollHeight,
+      expectedCount * ROW_HEIGHT,
+      "space for all rows is allocated"
+    );
+  }
+
+  Assert.equal(
+    view.rowCount,
+    expectedCount,
+    "the view has the right number of rows"
+  );
+  Assert.equal(list.scrollTop, 0, "the list is scrolled to the top");
+  Assert.equal(
+    list.scrollHeight,
+    expectedCount * ROW_HEIGHT,
+    "space for all rows is allocated"
+  );
+  checkRows(0, 22);
+  checkSelected([4, 14, 24, 34, 44], [4, 14]);
+
+  // Add a value at the end. Only the scroll height should change.
+
+  addValues(50, [50]);
+  checkRows(0, 22);
+  checkSelected([4, 14, 24, 34, 44], [4, 14]);
+
+  // Add more values at the end. Only the scroll height should change.
+
+  addValues(51, [51, 52, 53]);
+  checkRows(0, 22);
+  checkSelected([4, 14, 24, 34, 44], [4, 14]);
+
+  // Add values between the last row and the end.
+  // Only the scroll height should change.
+
+  addValues(40, ["39a", "39b"]);
+  checkRows(0, 22);
+  checkSelected([4, 14, 24, 34, 46], [4, 14]);
+
+  // Add values between the last visible row and the last row.
+  // The changed rows and those below them should be updated.
+
+  addValues(18, ["17a", "17b", "17c"]);
+  checkRows(0, 22);
+  // Hard-coded sanity checks to prove checkRows is working as intended.
+  Assert.equal(rows[17].dataset.value, "17");
+  Assert.equal(rows[18].dataset.value, "17a");
+  Assert.equal(rows[19].dataset.value, "17b");
+  Assert.equal(rows[20].dataset.value, "17c");
+  Assert.equal(rows[21].dataset.value, "18");
+  checkSelected([4, 14, 27, 37, 49], [4, 14]);
+
+  // Add values in the visible rows.
+  // The changed rows and those below them should be updated.
+
+  addValues(8, ["7a", "7b"]);
+  checkRows(0, 22);
+  Assert.equal(rows[7].dataset.value, "7");
+  Assert.equal(rows[8].dataset.value, "7a");
+  Assert.equal(rows[9].dataset.value, "7b");
+  Assert.equal(rows[10].dataset.value, "8");
+  Assert.equal(rows[22].dataset.value, "17c");
+  checkSelected([4, 16, 29, 39, 51], [4, 16]);
+
+  // Add a value at the start. All rows should be updated.
+
+  addValues(0, [-1]);
+  checkRows(0, 22);
+  Assert.equal(rows[0].dataset.value, "-1");
+  Assert.equal(rows[1].dataset.value, "0");
+  Assert.equal(rows[22].dataset.value, "17b");
+  checkSelected([5, 17, 30, 40, 52], [5, 17]);
+
+  // Add more values at the start. All rows should be updated.
+
+  addValues(0, [-3, -2]);
+  checkRows(0, 22);
+  Assert.equal(rows[0].dataset.value, "-3");
+  Assert.equal(rows[1].dataset.value, "-2");
+  Assert.equal(rows[2].dataset.value, "-1");
+  Assert.equal(rows[22].dataset.value, "17");
+  checkSelected([7, 19, 32, 42, 54], [7, 19]);
+
+  Assert.equal(list.scrollTop, 0, "the list is still scrolled to the top");
+
+  // Remove values in the order we added them.
+
+  removeValues(60, 1, [50]);
+  checkRows(0, 22);
+  Assert.equal(rows[0].dataset.value, "-3");
+  Assert.equal(rows[22].dataset.value, "17");
+  checkSelected([7, 19, 32, 42, 54], [7, 19]);
+
+  removeValues(60, 3, [51, 52, 53]);
+  checkRows(0, 22);
+  Assert.equal(rows[0].dataset.value, "-3");
+  Assert.equal(rows[22].dataset.value, "17");
+  checkSelected([7, 19, 32, 42, 54], [7, 19]);
+
+  removeValues(48, 2, ["39a", "39b"]);
+  checkRows(0, 22);
+  Assert.equal(rows[0].dataset.value, "-3");
+  Assert.equal(rows[22].dataset.value, "17");
+  checkSelected([7, 19, 32, 42, 52], [7, 19]);
+
+  removeValues(23, 3, ["17a", "17b", "17c"]);
+  checkRows(0, 22);
+  Assert.equal(rows[0].dataset.value, "-3");
+  Assert.equal(rows[22].dataset.value, "17");
+  checkSelected([7, 19, 29, 39, 49], [7, 19]);
+
+  removeValues(11, 2, ["7a", "7b"]);
+  checkRows(0, 22);
+  Assert.equal(rows[0].dataset.value, "-3");
+  Assert.equal(rows[10].dataset.value, "7");
+  Assert.equal(rows[11].dataset.value, "8");
+  Assert.equal(rows[22].dataset.value, "19");
+  checkSelected([7, 17, 27, 37, 47], [7, 17]);
+
+  removeValues(2, 1, [-1]);
+  checkRows(0, 22);
+  Assert.equal(rows[0].dataset.value, "-3");
+  Assert.equal(rows[1].dataset.value, "-2");
+  Assert.equal(rows[2].dataset.value, "0");
+  Assert.equal(rows[22].dataset.value, "20");
+  checkSelected([6, 16, 26, 36, 46], [6, 16]);
+
+  removeValues(0, 2, [-3, -2]);
+  checkRows(0, 22);
+  Assert.equal(rows[0].dataset.value, "0");
+  Assert.equal(rows[1].dataset.value, "1");
+  Assert.equal(rows[22].dataset.value, "22");
+  checkSelected([4, 14, 24, 34, 44], [4, 14]);
+
+  Assert.equal(list.scrollTop, 0, "the list is still scrolled to the top");
+
+  // Now scroll to the middle and repeat.
+
+  list.scrollTo(0, 935);
+  await new Promise(r => content.setTimeout(r, 100));
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "8");
+  Assert.equal(rows[33].dataset.value, "41");
+  checkSelected([4, 14, 24, 34, 44], [14, 24, 34]);
+
+  addValues(50, [50]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "8");
+  Assert.equal(rows[33].dataset.value, "41");
+  checkSelected([4, 14, 24, 34, 44], [14, 24, 34]);
+
+  addValues(38, ["37a"]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "8");
+  Assert.equal(rows[29].dataset.value, "37");
+  Assert.equal(rows[30].dataset.value, "37a");
+  Assert.equal(rows[31].dataset.value, "38");
+  Assert.equal(rows[33].dataset.value, "40");
+  checkSelected([4, 14, 24, 34, 45], [14, 24, 34]);
+
+  addValues(25, ["24a"]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "8");
+  Assert.equal(rows[16].dataset.value, "24");
+  Assert.equal(rows[17].dataset.value, "24a");
+  Assert.equal(rows[18].dataset.value, "25");
+  Assert.equal(rows[33].dataset.value, "39");
+  checkSelected([4, 14, 24, 35, 46], [14, 24, 35]);
+
+  addValues(11, ["10a"]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "8");
+  Assert.equal(rows[2].dataset.value, "10");
+  Assert.equal(rows[3].dataset.value, "10a");
+  Assert.equal(rows[4].dataset.value, "11");
+  Assert.equal(rows[33].dataset.value, "38");
+  checkSelected([4, 15, 25, 36, 47], [15, 25, 36]);
+
+  addValues(0, ["-1"]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "7");
+  Assert.equal(rows[33].dataset.value, "37a");
+  checkSelected([5, 16, 26, 37, 48], [16, 26, 37]);
+
+  Assert.equal(list.scrollTop, 935, "the list is still scrolled to the middle");
+
+  removeValues(54, 1, [50]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "7");
+  Assert.equal(rows[33].dataset.value, "37a");
+  checkSelected([5, 16, 26, 37, 48], [16, 26, 37]);
+
+  removeValues(41, 1, ["37a"]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "7");
+  Assert.equal(rows[33].dataset.value, "38");
+  checkSelected([5, 16, 26, 37, 47], [16, 26, 37]);
+
+  removeValues(27, 1, ["24a"]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "7");
+  Assert.equal(rows[33].dataset.value, "39");
+  checkSelected([5, 16, 26, 36, 46], [16, 26, 36]);
+
+  removeValues(12, 1, ["10a"]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "7");
+  Assert.equal(rows[33].dataset.value, "40");
+  checkSelected([5, 15, 25, 35, 45], [15, 25, 35]);
+
+  removeValues(0, 1, ["-1"]);
+  checkRows(8, 41);
+  Assert.equal(rows[0].dataset.value, "8");
+  Assert.equal(rows[33].dataset.value, "41");
+  checkSelected([4, 14, 24, 34, 44], [14, 24, 34]);
+
+  Assert.equal(list.scrollTop, 935, "the list is still scrolled to the middle");
+
+  // Now scroll to the bottom and repeat.
+
+  list.scrollTo(0, 1870);
+  await new Promise(r => content.setTimeout(r, 100));
+  checkRows(27, 49);
+  Assert.equal(rows[0].dataset.value, "27");
+  Assert.equal(rows[22].dataset.value, "49");
+  checkSelected([4, 14, 24, 34, 44], [34, 44]);
+
+  addValues(50, [50]);
+  checkRows(27, 50);
+  Assert.equal(rows[0].dataset.value, "27");
+  Assert.equal(rows[22].dataset.value, "49");
+  Assert.equal(rows[23].dataset.value, "50");
+  checkSelected([4, 14, 24, 34, 44], [34, 44]);
+
+  addValues(49, ["48a"]);
+  checkRows(27, 51);
+  Assert.equal(rows[0].dataset.value, "27");
+  Assert.equal(rows[21].dataset.value, "48");
+  Assert.equal(rows[22].dataset.value, "48a");
+  Assert.equal(rows[23].dataset.value, "49");
+  Assert.equal(rows[24].dataset.value, "50");
+  checkSelected([4, 14, 24, 34, 44], [34, 44]);
+
+  addValues(30, ["29a"]);
+  checkRows(27, 52);
+  Assert.equal(rows[0].dataset.value, "27");
+  Assert.equal(rows[2].dataset.value, "29");
+  Assert.equal(rows[3].dataset.value, "29a");
+  Assert.equal(rows[4].dataset.value, "30");
+  Assert.equal(rows[25].dataset.value, "50");
+  checkSelected([4, 14, 24, 35, 45], [35, 45]);
+
+  addValues(0, ["-1"]);
+  checkRows(27, 53);
+  Assert.equal(rows[0].dataset.value, "26");
+  Assert.equal(rows[26].dataset.value, "50");
+  checkSelected([5, 15, 25, 36, 46], [36, 46]);
+
+  Assert.equal(
+    list.scrollTop,
+    1870,
+    "the list is still scrolled to the bottom"
+  );
+
+  removeValues(53, 1, [50]);
+  checkRows(27, 52);
+  Assert.equal(rows[0].dataset.value, "26");
+  Assert.equal(rows[25].dataset.value, "49");
+  checkSelected([5, 15, 25, 36, 46], [36, 46]);
+
+  removeValues(51, 1, ["48a"]);
+  checkRows(27, 51);
+  Assert.equal(rows[0].dataset.value, "26");
+  Assert.equal(rows[23].dataset.value, "48");
+  Assert.equal(rows[24].dataset.value, "49");
+  checkSelected([5, 15, 25, 36, 46], [36, 46]);
+
+  removeValues(31, 1, ["29a"]);
+  checkRows(27, 50);
+  Assert.equal(rows[0].dataset.value, "26");
+  Assert.equal(rows[3].dataset.value, "29");
+  Assert.equal(rows[4].dataset.value, "30");
+  Assert.equal(rows[23].dataset.value, "49");
+  checkSelected([5, 15, 25, 35, 45], [35, 45]);
+
+  removeValues(0, 1, ["-1"]);
+  checkRows(27, 49);
+  Assert.equal(rows[0].dataset.value, "27");
+  Assert.equal(rows[22].dataset.value, "49");
+  checkSelected([4, 14, 24, 34, 44], [34, 44]);
+
+  Assert.equal(
+    list.scrollTop,
+    1870,
+    "the list is still scrolled to the bottom"
+  );
+
+  // Remove a selected row and check the selection changes.
+
+  list.scrollTo(0, 0);
+  await new Promise(r => content.setTimeout(r, 100));
+
+  checkSelected([4, 14, 24, 34, 44], [4, 14]);
+
+  removeValues(3, 3, [3, 4, 5]); // 4 is selected.
+  checkSelected([11, 21, 31, 41], [11, 21]);
+
+  addValues(3, [3, 4, 5]);
+  checkSelected([14, 24, 34, 44], [14]);
+
+  // Remove some consecutive selected rows.
+
+  list.selectedIndicies = [6, 7, 8, 9];
+  checkSelected([6, 7, 8, 9], [6, 7, 8, 9]);
+
+  removeValues(7, 1, [7]);
+  checkSelected([6, 7, 8], [6, 7, 8]);
+
+  removeValues(7, 1, [8]);
+  checkSelected([6, 7], [6, 7]);
+
+  removeValues(7, 1, [9]);
+  checkSelected([6], [6]);
+
+  // Reset the list.
+
+  addValues(7, [7, 8, 9]);
+  list.selectedIndex = -1;
 }

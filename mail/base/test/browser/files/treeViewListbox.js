@@ -63,6 +63,7 @@ class TestCardRow extends customElements.get("tree-view-listrow") {
     this.d3.textContent = this.view.getCellText(index, {
       id: "PrimaryEmail",
     });
+    this.dataset.value = this.view.values[index];
   }
 }
 customElements.define("test-listrow", TestCardRow);

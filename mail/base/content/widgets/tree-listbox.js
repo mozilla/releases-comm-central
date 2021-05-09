@@ -374,6 +374,8 @@
      */
     _currentIndex = 0;
 
+    _selectedIndicies = [];
+
     connectedCallback() {
       if (this.hasConnected) {
         return;
@@ -549,6 +551,8 @@
       this._rowElementName = this.getAttribute("rows") || "tree-view-listrow";
       this._rowElementClass = customElements.get(this._rowElementName);
       this.invalidate();
+
+      this.dispatchEvent(new CustomEvent("viewchange"));
     }
 
     /**
@@ -561,7 +565,6 @@
       this._rows.clear();
       this._firstRowIndex = 0;
       this._lastRowIndex = 0;
-      this.selectedIndicies = [];
 
       this.filler.style.minHeight =
         this._view.rowCount * this._rowElementClass.ROW_HEIGHT + "px";
@@ -665,11 +668,27 @@
      * @param {integer} index
      */
     rowCountChanged(index, delta) {
-      if (index > this._lastRowIndex) {
-        let rowCount = this._view.rowCount;
+      for (let i = 0; i < this._selectedIndicies.length; i++) {
+        if (index <= this._selectedIndicies[i]) {
+          if (delta < 0 && this._selectedIndicies[i] < index - delta) {
+            // A selected row was removed, take it out of _selectedIndicies.
+            this._selectedIndicies.splice(i--, 1);
+            continue;
+          }
+          this._selectedIndicies[i] += delta;
+        }
+      }
+
+      let rowCount = this._view.rowCount;
+      let oldRowCount = rowCount - delta;
+      if (
+        // Change happened beyond the rows that exist in the DOM and
+        index > this._lastRowIndex &&
+        // we weren't at the end of the list.
+        this._lastRowIndex + 1 < oldRowCount
+      ) {
         this.filler.style.minHeight =
           rowCount * this._rowElementClass.ROW_HEIGHT + "px";
-        // Outside the environment.
         return;
       }
 
@@ -707,7 +726,7 @@
       row.setAttribute("role", "option");
       row.setAttribute("aria-setsize", this._view.rowCount);
       row.style.top = `${this._rowElementClass.ROW_HEIGHT * index}px`;
-      if (this.selectedIndicies.includes(index)) {
+      if (this._selectedIndicies.includes(index)) {
         row.selected = true;
       }
       if (this.currentIndex === index) {
@@ -758,11 +777,11 @@
      * @type {integer}
      */
     get selectedIndex() {
-      return this.selectedIndicies.length ? this.selectedIndicies[0] : -1;
+      return this._selectedIndicies.length ? this._selectedIndicies[0] : -1;
     }
 
     set selectedIndex(index) {
-      if (this.selectedIndicies.length == 1 && this.selectedIndex == index) {
+      if (this._selectedIndicies.length == 1 && this.selectedIndex == index) {
         return;
       }
 
@@ -771,7 +790,7 @@
       )) {
         row.selected = false;
       }
-      this.selectedIndicies.length = 0;
+      this._selectedIndicies.length = 0;
 
       if (index < 0 || index > this._view.rowCount - 1) {
         this._anchorIndex = 0;
@@ -781,11 +800,28 @@
 
       this._anchorIndex = index;
       this.currentIndex = index;
-      this.selectedIndicies.push(index);
+      this._selectedIndicies.push(index);
       if (this.getRowAtIndex(index)) {
         this.getRowAtIndex(index).selected = true;
       }
 
+      this.dispatchEvent(new CustomEvent("select"));
+    }
+
+    /**
+     * An array of the indicies of all selected rows.
+     *
+     * @type {integer[]}
+     */
+    get selectedIndicies() {
+      return this._selectedIndicies.slice();
+    }
+
+    set selectedIndicies(indicies) {
+      this._selectedIndicies = indicies.slice();
+      for (let [index, row] of this._rows) {
+        row.selected = indicies.includes(index);
+      }
       this.dispatchEvent(new CustomEvent("select"));
     }
 
@@ -802,7 +838,7 @@
       topIndex = this._clampIndex(topIndex);
       bottomIndex = this._clampIndex(bottomIndex);
 
-      for (let i of this.selectedIndicies.slice()) {
+      for (let i of this._selectedIndicies.slice()) {
         this.toggleSelectionAtIndex(i, false, true);
       }
       for (let i = topIndex; i <= bottomIndex; i++) {
@@ -818,9 +854,10 @@
      * @param {boolean?} selected - if set, set the selection state to this
      *     value, otherwise toggle the current state
      * @param {boolean?} suppressEvent - prevent a "select" event firing
+     * @returns {boolean} - if the index is now selected
      */
     toggleSelectionAtIndex(index, selected, suppressEvent) {
-      let i = this.selectedIndicies.indexOf(index);
+      let i = this._selectedIndicies.indexOf(index);
       let wasSelected = i >= 0;
       if (selected === undefined) {
         selected = !wasSelected;
@@ -831,17 +868,19 @@
         row.selected = selected;
       }
 
-      if (wasSelected) {
-        this.selectedIndicies.splice(i, 1);
-      } else if (selected) {
-        this.selectedIndicies.push(index);
+      if (selected != wasSelected) {
+        if (wasSelected) {
+          this._selectedIndicies.splice(i, 1);
+        } else {
+          this._selectedIndicies.push(index);
+        }
+
+        if (!suppressEvent) {
+          this.dispatchEvent(new CustomEvent("select"));
+        }
       }
 
-      if (!suppressEvent) {
-        this.dispatchEvent(new CustomEvent("select"));
-      }
-
-      return !wasSelected;
+      return selected;
     }
   }
   customElements.define("tree-view-listbox", TreeViewListbox);
