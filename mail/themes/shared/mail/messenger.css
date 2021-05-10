@@ -36,30 +36,35 @@ body {
   --button-primary-hover-bgcolor: color-mix(in srgb, black 10%, -moz-accent-color);
   --button-primary-active-bgcolor: color-mix(in srgb, black 20%, -moz-accent-color);
   --button-primary-color: -moz-accent-color-foreground;
+  --checkbox-border-color: var(--input-border-color);
+  --checkbox-unchecked-bgcolor: var(--button-bgcolor);
+  --checkbox-unchecked-hover-bgcolor: var(--button-hover-bgcolor);
+  --checkbox-unchecked-active-bgcolor: var(--button-active-bgcolor);
+  --checkbox-checked-border-color: transparent;
+  --checkbox-checked-bgcolor: var(--button-primary-bgcolor);
+  --checkbox-checked-color: var(--button-primary-color);
+  --checkbox-checked-hover-bgcolor: var(--button-primary-hover-bgcolor);
+  --checkbox-checked-active-bgcolor: var(--button-primary-active-bgcolor);
   --focus-outline-color: var(--toolbar-field-focus-border-color);
   --focus-outline-offset: 1px;
+  --input-border-color: color-mix(in srgb, currentColor 41%, transparent);
   --lwt-header-image: none;
 
   /* Note: Setting this to 0 (without px) breaks CSS calculations for OSX. */
   --space-above-tabbar: 0px;
-
   --tab-min-height: 33px;
   --tabs-border-color: rgba(0, 0, 0, .3);
   --tabs-tabbar-border-size: 1px;
-
   --toolbarbutton-icon-fill-opacity: .85;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .05);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
   --toolbarbutton-header-bordercolor: rgba(0, 0, 0, .25);
   --toolbarbutton-hover-boxshadow: none;
-
   --toolbarbutton-active-background: rgba(0, 0, 0, .1);
   --toolbarbutton-active-bordercolor: rgba(0, 0, 0, .3);
   --toolbarbutton-active-boxshadow: 0 1px 1px rgba(0, 0, 0, .1) inset, 0 0 1px rgba(0, 0, 0, .3) inset;
-
   --toolbarbutton-checked-background: rgba(200, 200, 200, .5);
   --toolbarbutton-icon-fill-attention: var(--lwt-toolbarbutton-icon-fill-attention, #0a84ff);
-
   --toolbarseparator-color: color-mix(in srgb, currentColor 20%, transparent);
   --toolbar-field-focus-border-color: -moz-accent-color;
   --item-focus-selected-border-color: #0060df;
@@ -83,6 +88,10 @@ body {
 
 @media not (prefers-contrast) {
   :root:not(:-moz-lwtheme) {
+    --button-bgcolor: rgba(207, 207, 216, 0.33);
+    --button-hover-bgcolor: rgba(207, 207, 216, 0.66);
+    --button-active-bgcolor: rgb(207, 207, 216);
+    --button-color: rgb(21,20,26);
     --button-primary-bgcolor: rgb(0, 97, 224);
     --button-primary-hover-bgcolor: rgb(2, 80, 187);
     --button-primary-active-bgcolor: rgb(5, 62, 148);
@@ -91,26 +100,12 @@ body {
     --buttons-secondary-hover-bgcolor: rgb(224, 224, 230);
     --buttons-secondary-active-bgcolor: rgb(207, 207, 216);
     --buttons-secondary-color: rgb(21, 20, 26);
-    --checkbox-border-color: rgb(143, 143, 157);
-    --checkbox-unchecked-bgcolor: rgb(240, 240, 244);
-    --checkbox-unchecked-hover-bgcolor: rgb(224, 224, 230);
-    --checkbox-unchecked-active-bgcolor: rgb(207, 207, 216);
-    --checkbox-checked-border-color: rgb(0, 97, 224);
-    --checkbox-checked-bgcolor: rgb(0, 97, 224);
-    --checkbox-checked-color: rgb(251, 251, 254);
-    --checkbox-checked-hover-bgcolor: rgb(2, 80, 187);
-    --checkbox-checked-active-bgcolor: rgb(5, 62, 148);
-
     --default-arrowpanel-background: #fff;
     --default-arrowpanel-color: rgb(21, 20, 26);
-
     --arrowpanel-dimmed: color-mix(in srgb, currentColor 12%, transparent);
     --arrowpanel-dimmed-further: color-mix(in srgb, currentColor 20%, transparent);
     --arrowpanel-dimmed-even-further: color-mix(in srgb, currentColor 27%, transparent);
-
     --error-text-color: #c50042;
-
-    --input-error-border-color: #e22850;
   }
 }
 } /** END Proton **/
