@@ -331,14 +331,6 @@ class MimePart {
       this.setHeader("content-description", "OpenPGP public key");
     }
 
-    if (this._bodyAttachment.temporary) {
-      let handler = Services.io
-        .getProtocolHandler("file")
-        .QueryInterface(Ci.nsIFileProtocolHandler);
-      // Get an nsIFile from file:///tmp/key.asc.
-      let file = handler.getFileFromURLSpec(this._bodyAttachment.url);
-      IOUtils.remove(file.path);
-    }
     return content;
   }
 }
