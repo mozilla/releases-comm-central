@@ -9382,6 +9382,10 @@ function setFontSize(event) {
   }
 }
 
+function setParagraphState(event) {
+  editorSetParagraphState(event.target.value);
+}
+
 // This is used as event listener to spellcheck-changed event to update
 // document language.
 function updateDocumentLanguage(e) {

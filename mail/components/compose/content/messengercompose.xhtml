@@ -194,8 +194,7 @@
     <command id="cmd_indent" oncommand="goDoCommand('cmd_indent')"/>
     <command id="cmd_outdent" oncommand="goDoCommand('cmd_outdent')"/>
 
-    <!-- the state attribute gets filled with the paragraph format before the command is executed -->
-    <command id="cmd_paragraphState" state="" oncommand="goDoCommandParams('cmd_paragraphState', event.target.value)"/>
+    <command id="cmd_paragraphState" state=""/>
     <command id="cmd_fontFace" state="" oncommand="doStatefulCommand('cmd_fontFace', event.target.value)"/>
 
     <!-- No "oncommand", use EditorSelectColor() to bring up color dialog -->
@@ -1383,7 +1382,7 @@
                 accesskey="&paragraphMenu.accesskey;"
                 position="10" onpopupshowing="InitParagraphMenu()">
             <menupopup id="paragraphMenuPopup"
-                       oncommand="goDoCommandParams('cmd_paragraphState', event.target.getAttribute('value'))">
+                       oncommand="setParagraphState(event);">
               <menuitem id="menu_bodyText"
                         type="radio"
                         name="1"

@@ -439,6 +439,17 @@ async function CheckAndSaveDocument(command, allowDontSave) {
 
 // --------------------------- Text style ---------------------------
 
+function editorSetParagraphState(state) {
+  if (state === "") {
+    // Corresponds to body text. Has no corresponding formatBlock value.
+    goDoCommandParams("cmd_paragraphState", "");
+  } else {
+    GetCurrentEditor().document.execCommand("formatBlock", false, state);
+  }
+  document.getElementById("cmd_paragraphState").setAttribute("state", state);
+  onParagraphFormatChange();
+}
+
 function onParagraphFormatChange() {
   let paraMenuList = document.getElementById("ParagraphSelect");
   if (!paraMenuList) {
@@ -459,10 +470,8 @@ function onParagraphFormatChange() {
     paraMenuList.setAttribute("label", GetString("Mixed"));
   } else {
     var menuPopup = document.getElementById("ParagraphPopup");
-    var menuItems = menuPopup.children;
-    for (var i = 0; i < menuItems.length; i++) {
-      var menuItem = menuItems.item(i);
-      if ("value" in menuItem && menuItem.value == state) {
+    for (let menuItem of menuPopup.children) {
+      if (menuItem.value === state) {
         paraMenuList.selectedItem = menuItem;
         break;
       }
