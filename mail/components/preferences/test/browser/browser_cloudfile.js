@@ -14,11 +14,95 @@ let { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
 
+function ManagementScript() {
+  browser.test.onMessage.addListener((message, assertMessage, browserStyle) => {
+    if (message !== "check-style") {
+      return;
+    }
+    function verifyButton(buttonElement, expected) {
+      let buttonStyle = window.getComputedStyle(buttonElement);
+      let buttonBackgroundColor = buttonStyle.backgroundColor;
+      if (browserStyle && expected.hasBrowserStyleClass) {
+        browser.test.assertEq(
+          "rgb(9, 150, 248)",
+          buttonBackgroundColor,
+          assertMessage
+        );
+      } else {
+        browser.test.assertTrue(
+          buttonBackgroundColor !== "rgb(9, 150, 248)",
+          assertMessage
+        );
+      }
+    }
+
+    function verifyCheckboxOrRadio(element, expected) {
+      let style = window.getComputedStyle(element);
+      let styledBackground = element.checked
+        ? "rgb(9, 150, 248)"
+        : "rgb(255, 255, 255)";
+      if (browserStyle && expected.hasBrowserStyleClass) {
+        browser.test.assertEq(
+          styledBackground,
+          style.backgroundColor,
+          assertMessage
+        );
+      } else {
+        browser.test.assertTrue(
+          style.backgroundColor != styledBackground,
+          assertMessage
+        );
+      }
+    }
+
+    let normalButton = document.getElementById("normalButton");
+    let browserStyleButton = document.getElementById("browserStyleButton");
+    verifyButton(normalButton, { hasBrowserStyleClass: false });
+    verifyButton(browserStyleButton, { hasBrowserStyleClass: true });
+
+    let normalCheckbox1 = document.getElementById("normalCheckbox1");
+    let normalCheckbox2 = document.getElementById("normalCheckbox2");
+    let browserStyleCheckbox = document.getElementById("browserStyleCheckbox");
+    verifyCheckboxOrRadio(normalCheckbox1, { hasBrowserStyleClass: false });
+    verifyCheckboxOrRadio(normalCheckbox2, { hasBrowserStyleClass: false });
+    verifyCheckboxOrRadio(browserStyleCheckbox, {
+      hasBrowserStyleClass: true,
+    });
+
+    let normalRadio1 = document.getElementById("normalRadio1");
+    let normalRadio2 = document.getElementById("normalRadio2");
+    let browserStyleRadio = document.getElementById("browserStyleRadio");
+    verifyCheckboxOrRadio(normalRadio1, { hasBrowserStyleClass: false });
+    verifyCheckboxOrRadio(normalRadio2, { hasBrowserStyleClass: false });
+    verifyCheckboxOrRadio(browserStyleRadio, { hasBrowserStyleClass: true });
+
+    browser.test.notifyPass("management-ui-browser_style");
+  });
+  browser.test.sendMessage("management-ui-ready");
+}
+
 let extension;
-async function startExtension() {
+async function startExtension(browser_style) {
+  let cloud_file = {
+    name: "Mochitest",
+    management_url: "management.html",
+  };
+
+  switch (browser_style) {
+    case "true":
+      cloud_file.browser_style = true;
+      break;
+    case "false":
+      cloud_file.browser_style = false;
+      break;
+  }
+
   extension = ExtensionTestUtils.loadExtension({
     async background() {
       browser.test.onMessage.addListener(async message => {
+        if (message != "set-configured") {
+          return;
+        }
         let accounts = await browser.cloudFile.getAllAccounts();
         for (let account of accounts) {
           await browser.cloudFile.updateAccount(account.id, {
@@ -32,14 +116,27 @@ async function startExtension() {
       "management.html": `<html>
         <body>
           <a id="a" href="https://www.example.com/">Click me!</a>
+          <button id="normalButton" name="button" class="default">Default</button>
+          <button id="browserStyleButton" name="button" class="browser-style default">Default</button>
+
+          <input id="normalCheckbox1" type="checkbox"/>
+          <input id="normalCheckbox2" type="checkbox"/><label>Checkbox</label>
+          <div class="browser-style">
+            <input id="browserStyleCheckbox" type="checkbox"><label for="browserStyleCheckbox">Checkbox</label>
+          </div>
+
+          <input id="normalRadio1" type="radio"/>
+          <input id="normalRadio2" type="radio"/><label>Radio</label>
+          <div class="browser-style">
+            <input id="browserStyleRadio" checked="" type="radio"><label for="browserStyleRadio">Radio</label>
+          </div>
         </body>
+        <script src="management.js" type="text/javascript"></script>
       </html>`,
+      "management.js": ManagementScript,
     },
     manifest: {
-      cloud_file: {
-        name: "Mochitest",
-        management_url: "management.html",
-      },
+      cloud_file,
       applications: { gecko: { id: "cloudfile@mochitest" } },
     },
   });
@@ -48,7 +145,7 @@ async function startExtension() {
   await extension.startup();
 
   if (accountIsConfigured) {
-    extension.sendMessage("set configured");
+    extension.sendMessage("set-configured");
     await extension.awaitMessage("ready");
   }
 }
@@ -248,6 +345,7 @@ add_task(async function addRemoveAccounts() {
     browser.currentURI.pathQueryRef,
     `/management.html?accountId=${accountKey}`
   );
+  await extension.awaitMessage("management-ui-ready");
 
   let tabmail = document.getElementById("tabmail");
   let tabCount = tabmail.tabInfo.length;
@@ -366,6 +464,7 @@ add_task(async function addRemoveAccounts() {
   // Re-add the test provider.
 
   await startExtension();
+
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 1);
   is(cloudFileAccounts.configuredAccounts.length, 1);
@@ -438,6 +537,145 @@ add_task(async function addRemoveAccounts() {
   await closePrefsTab();
 });
 
+async function subtestBrowserStyle(assertMessage, expected) {
+  is(cloudFileAccounts.providers.length, 1);
+  is(cloudFileAccounts.accounts.length, 0);
+
+  // Load the preferences tab.
+
+  let { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "paneCompose",
+    "compositionAttachmentsCategory"
+  );
+
+  // Minimal check everything is as it should be.
+
+  let accountList = prefsDocument.getElementById("cloudFileView");
+  is(accountList.itemCount, 0);
+
+  let buttonList = prefsDocument.getElementById("addCloudFileAccountButtons");
+  ok(!buttonList.hidden);
+
+  let browserWrapper = prefsDocument.getElementById("cloudFileSettingsWrapper");
+  is(browserWrapper.childElementCount, 0);
+
+  // Register our test provider.
+
+  await startExtension(expected.browser_style);
+  is(cloudFileAccounts.providers.length, 2);
+  is(cloudFileAccounts.accounts.length, 0);
+
+  await new Promise(resolve => prefsWindow.requestAnimationFrame(resolve));
+
+  is(buttonList.childElementCount, 2);
+  is(buttonList.children[1].getAttribute("value"), "ext-cloudfile@mochitest");
+
+  // Create a new account.
+
+  EventUtils.synthesizeMouseAtCenter(
+    buttonList.children[1],
+    { clickCount: 1 },
+    prefsWindow
+  );
+  is(cloudFileAccounts.accounts.length, 1);
+  is(cloudFileAccounts.configuredAccounts.length, 0);
+
+  let account = cloudFileAccounts.accounts[0];
+  let accountKey = account.accountKey;
+  is(cloudFileAccounts.accounts[0].type, "ext-cloudfile@mochitest");
+
+  // Minimal check UI was updated.
+
+  is(accountList.itemCount, 1);
+  is(accountList.selectedIndex, 0);
+
+  let accountListItem = accountList.selectedItem;
+  is(accountListItem.getAttribute("value"), accountKey);
+
+  is(browserWrapper.childElementCount, 1);
+  let browser = browserWrapper.firstElementChild;
+  if (
+    browser.webProgress?.isLoadingDocument ||
+    browser.currentURI?.spec == "about:blank"
+  ) {
+    await BrowserTestUtils.browserLoaded(browser);
+  }
+  is(
+    browser.currentURI.pathQueryRef,
+    `/management.html?accountId=${accountKey}`
+  );
+  await extension.awaitMessage("management-ui-ready");
+
+  // Test browser_style
+
+  extension.sendMessage(
+    "check-style",
+    assertMessage,
+    expected.browser_style != "false"
+  );
+  await extension.awaitFinish("management-ui-browser_style");
+
+  // Remove the account
+
+  accountListItem = accountList.getItemAtIndex(0);
+  EventUtils.synthesizeMouseAtCenter(
+    accountList.getItemAtIndex(0),
+    { clickCount: 1 },
+    prefsWindow
+  );
+
+  let removeButton = prefsDocument.getElementById("removeCloudFileAccount");
+  ok(!removeButton.disabled);
+  EventUtils.synthesizeMouseAtCenter(
+    removeButton,
+    { clickCount: 1 },
+    prefsWindow
+  );
+  is(mockPromptService.confirmCount, expected.confirmCount);
+
+  is(cloudFileAccounts.providers.length, 2);
+  is(cloudFileAccounts.accounts.length, 0);
+
+  info("Stopping extension");
+  await extension.unload();
+  is(cloudFileAccounts.providers.length, 1);
+  is(cloudFileAccounts.accounts.length, 0);
+
+  // Close the preferences tab.
+
+  await closePrefsTab();
+}
+
+add_task(async function test_without_setting_browser_style() {
+  await subtestBrowserStyle(
+    "Expected correct style when browser_style is excluded",
+    {
+      confirmCount: 2,
+      browser_style: "default",
+    }
+  );
+});
+
+add_task(async function test_with_browser_style_set_to_true() {
+  await subtestBrowserStyle(
+    "Expected correct style when browser_style is set to `true`",
+    {
+      confirmCount: 3,
+      browser_style: "true",
+    }
+  );
+});
+
+add_task(async function test_with_browser_style_set_to_false() {
+  await subtestBrowserStyle(
+    "Expected no style when browser_style is set to `false`",
+    {
+      confirmCount: 4,
+      browser_style: "false",
+    }
+  );
+});
+
 add_task(async function accountListOverflow() {
   is(cloudFileAccounts.providers.length, 1);
   is(cloudFileAccounts.accounts.length, 0);
@@ -445,6 +683,7 @@ add_task(async function accountListOverflow() {
   // Register our test provider.
 
   await startExtension();
+
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 0);
 
@@ -477,6 +716,7 @@ add_task(async function accountListOverflow() {
       prefsWindow
     );
     await new Promise(resolve => setTimeout(resolve));
+    await extension.awaitMessage("management-ui-ready");
     if (buttonList.hidden) {
       break;
     }
@@ -537,6 +777,7 @@ add_task(async function accountListOrder() {
   // Register our test provider.
 
   await startExtension();
+
   is(cloudFileAccounts.providers.length, 2);
   is(cloudFileAccounts.accounts.length, 4);
 

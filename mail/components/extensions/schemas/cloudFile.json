@@ -11,27 +11,10 @@
               "$ref": "UnrecognizedProperty"
             },
             "properties": {
-              "name": {
-                "type": "string",
-                "preprocess": "localize",
-                "description": "Name of the cloud file service."
-              },
-              "service_url": {
-                "type": "string",
+              "browser_style": {
+                "type": "boolean",
                 "optional": true,
-                "description": "URL to the web page of the cloud file service."
-              },
-              "new_account_url": {
-                "type": "string",
-                "optional": true,
-                "deprecated": true,
-                "description": "This property was never used."
-              },
-              "management_url": {
-                "type": "string",
-                "format": "relativeUrl",
-                "preprocess": "localize",
-                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: cloudFile, extension, i18n, runtime, storage, test."
+                "default": true
               },
               "data_format": {
                 "type": "string",
@@ -39,6 +22,28 @@
                 "default": "ArrayBuffer",
                 "description": "Determines the format of the ``data`` argument in ``onFileUpload``.",
                 "enum": ["ArrayBuffer", "File"]
+              },
+              "management_url": {
+                "type": "string",
+                "format": "relativeUrl",
+                "preprocess": "localize",
+                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: cloudFile, extension, i18n, runtime, storage, test."
+              },
+              "name": {
+                "type": "string",
+                "preprocess": "localize",
+                "description": "Name of the cloud file service."
+              },
+              "new_account_url": {
+                "type": "string",
+                "optional": true,
+                "deprecated": true,
+                "description": "This property was never used."
+              },
+              "service_url": {
+                "type": "string",
+                "optional": true,
+                "description": "URL to the web page of the cloud file service."
               }
             },
             "optional": true

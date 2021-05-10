@@ -39,6 +39,7 @@ class CloudFileAccount {
     this.lastError = "";
     this.managementURL = this.extension.manifest.cloud_file.management_url;
     this.dataFormat = this.extension.manifest.cloud_file.data_format;
+    this.browserStyle = this.extension.manifest.cloud_file.browser_style;
     this.quota = {
       uploadSizeLimit: -1,
       spaceRemaining: -1,

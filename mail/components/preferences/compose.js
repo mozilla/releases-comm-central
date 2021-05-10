@@ -607,6 +607,17 @@ var gCloudFile = {
     this._settings = browser;
 
     ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
+    browser.messageManager.loadFrameScript(
+      "chrome://extensions/content/ext-browser-content.js",
+      false,
+      true
+    );
+
+    let options = account.browserStyle
+      ? { stylesheets: ExtensionParent.extensionStylesheets }
+      : {};
+    browser.messageManager.sendAsyncMessage("Extension:InitBrowser", options);
+
     browser.loadURI(url, {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
     });
