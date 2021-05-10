@@ -21,7 +21,9 @@ const { EnigmailFiles } = ChromeUtils.import(
 const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 );
-
+const { FileUtils } = ChromeUtils.import(
+  "resource://gre/modules/FileUtils.jsm"
+);
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
@@ -140,6 +142,56 @@ add_task(async function testSecretKeys() {
     keyObj && keyObj.secretAvailable,
     "after import, EnigmailKeyRing.getKeyById should return an object with a secret key"
   );
+});
+
+add_task(async function testImportSecretKeyIsProtected() {
+  let carolFile = do_get_file(
+    `${keyDir}/carol@example.com-0x3099ff1238852b9f-secret.asc`
+  );
+  let carolSec = EnigmailFiles.readFile(carolFile);
+
+  // Carol's secret key is protected with password "x".
+  let getCarolPassword = function(win, keyId, resultFlags) {
+    return "x";
+  };
+
+  let importResult = await RNP.importKeyBlockImpl(
+    null,
+    getCarolPassword,
+    carolSec,
+    false,
+    true
+  );
+
+  Assert.equal(
+    importResult.exitCode,
+    0,
+    "Should be able to import Carol's secret key"
+  );
+
+  let aliceFile = do_get_file(
+    `${keyDir}/alice@openpgp.example-0xf231550c4f47e38e-secret.asc`
+  );
+  let aliceSec = EnigmailFiles.readFile(aliceFile);
+
+  // Alice's secret key is unprotected.
+  importResult = await RNP.importKeyBlockImpl(
+    null,
+    null,
+    aliceSec,
+    false,
+    true
+  );
+
+  Assert.equal(
+    importResult.exitCode,
+    0,
+    "Should be able to import Alice's secret key"
+  );
+
+  let [prot, unprot] = OpenPGPTestUtils.getProtectedKeysCount();
+  Assert.notEqual(prot, 0, "Should have protected secret keys");
+  Assert.equal(unprot, 0, "Should not have any unprotected secret keys");
 });
 
 add_task(async function testImportOfflinePrimaryKey() {

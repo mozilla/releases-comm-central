@@ -214,6 +214,10 @@ const OpenPGPTestUtils = {
     return ids.slice();
   },
 
+  getProtectedKeysCount() {
+    return RNP.getProtectedKeysCount();
+  },
+
   /**
    * Removes a key by its id, clearing its acceptance and refreshing the
    * cache.

@@ -2010,6 +2010,15 @@ var RNP = {
           throw new Error("rnp_import_keys failed");
         }
 
+        let impKey2 = await this.getKeyHandleByIdentifier(
+          RNPLib.ffi,
+          "0x" + k.fpr
+        );
+        if (k.secretAvailable) {
+          RNPLib.protectKeyWithSubKeys(impKey2, newPass);
+        }
+        RNPLib.rnp_key_handle_destroy(impKey2);
+
         result.importedKeys.push("0x" + k.id);
 
         RNPLib.rnp_input_destroy(input_from_memory);
