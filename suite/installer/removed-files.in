@@ -226,6 +226,12 @@ extensions/p@m/mozABConduit.dll
 @DIR_RESOURCES@distribution/extensions/
 @DIR_RESOURCES@distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}/*
 
+# Remove old extensions in distribution.
+@DIR_RESOURCES@distribution/extensions/{59c81df5-4b7a-477b-912d-4e0fdf64e5f2}.xpi
+@DIR_RESOURCES@distribution/extensions/{e2fda1a4-762b-4020-b5ad-a41df1933103}.xpi
+@DIR_RESOURCES@distribution/extensions/debugQA@mozilla.org.xpi
+@DIR_RESOURCES@distribution/extensions/inspector@mozilla.org.xpi
+
 #ifdef UNIX_BUT_NOT_MAC
 gfxpsshar@DLL_SUFFIX@
 #endif
