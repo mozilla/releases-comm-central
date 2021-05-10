@@ -130,6 +130,9 @@ add_task(async function test_getGroupConversation() {
       getDomain() {
         return "example.com";
       },
+      getHomeserverUrl() {
+        return "https://example.com";
+      },
       leave() {
         mockAccount.left = true;
       },
@@ -264,6 +267,9 @@ function mockMatrixRoom(roomId) {
           };
         },
       };
+    },
+    getAvatarUrl() {
+      return "";
     },
     roomId,
   };

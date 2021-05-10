@@ -19,6 +19,9 @@ FakeAccount.prototype = {
         return this._room;
       },
       leave() {},
+      getHomeserverUrl() {
+        return "https://example.com";
+      },
     };
   },
 
@@ -45,6 +48,9 @@ FakeAccount.prototype = {
       },
       guessDMUserId() {
         return "@test:example.com";
+      },
+      getAvatarUrl() {
+        return "";
       },
     };
   },
