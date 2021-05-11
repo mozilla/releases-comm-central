@@ -9,7 +9,7 @@
  *          openAttachmentFromItemSummary,
  */
 
-/* import-globals-from ../../../lightning/content/lightning-item-iframe.js */
+/* import-globals-from ../lightning-item-iframe.js */
 /* import-globals-from ../calendar-ui-utils.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

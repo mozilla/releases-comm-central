@@ -12,8 +12,8 @@
  */
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from ../../base/content/dialogs/calendar-dialog-utils.js */
-/* import-globals-from ../../base/content/calendar-ui-utils.js */
+/* import-globals-from dialogs/calendar-dialog-utils.js */
+/* import-globals-from calendar-ui-utils.js */
 
 // XXX Need to determine which of these we really need here.
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -92,7 +92,7 @@ var gConfig = {
  * @param {MessageEvent} aEvent  Contains the message being received
  */
 function receiveMessage(aEvent) {
-  if (aEvent.origin !== "chrome://lightning") {
+  if (aEvent.origin !== "chrome://calendar") {
     return;
   }
   switch (aEvent.data.command) {
@@ -220,7 +220,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
   } else {
     // window dialog case
     iframe = document.createXULElement("iframe");
-    iframeSrc = "chrome://lightning/content/lightning-item-iframe.xhtml";
+    iframeSrc = "chrome://calendar/content/lightning-item-iframe.xhtml";
 
     iframe.setAttribute("id", "lightning-item-panel-iframe");
     iframe.setAttribute("flex", "1");

@@ -4,8 +4,8 @@
 
 /* exported onChangeIdentity */
 
-/* import-globals-from ../../base/content/dialogs/calendar-properties-dialog.js */
-/* import-globals-from lightning-utils.js */
+/* import-globals-from calendar-properties-dialog.js */
+/* import-globals-from ../lightning-utils.js */
 
 var common_onLoad = onLoad;
 var common_onAcceptDialog = onAcceptDialog;

@@ -170,7 +170,7 @@ ltn.invitation = {
    */
   createInvitationOverlay(aEvent, aItipItem) {
     // Creates HTML using the Node strings in the properties file
-    let doc = cal.xml.parseFile("chrome://lightning/content/lightning-invitation.xhtml");
+    let doc = cal.xml.parseFile("chrome://calendar/content/lightning-invitation.xhtml");
     let formatter = cal.dtz.formatter;
 
     let field = function(aField, aContentText, aConvert) {

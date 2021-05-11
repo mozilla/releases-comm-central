@@ -7,6 +7,7 @@ EXTRA_JS_MODULES += [
     "CalItipEmailTransport.jsm",
     "CalItipMessageSender.jsm",
     "CalItipOutgoingMessage.jsm",
+    "CalItipProtocolHandler.jsm",
 ]
 
 XPCOM_MANIFESTS += [

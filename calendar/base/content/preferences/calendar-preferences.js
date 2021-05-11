@@ -4,10 +4,10 @@
 
 /* exported gLightningPane */
 
-/* import-globals-from ../../base/content/preferences/alarms.js */
-/* import-globals-from ../../base/content/preferences/categories.js */
-/* import-globals-from ../../base/content/preferences/general.js */
-/* import-globals-from ../../base/content/preferences/views.js */
+/* import-globals-from alarms.js */
+/* import-globals-from categories.js */
+/* import-globals-from general.js */
+/* import-globals-from views.js */
 /* globals Preferences */
 
 Preferences.add({ id: "calendar.preferences.lightning.selectedTabIndex", type: "int" });

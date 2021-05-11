@@ -2,7 +2,7 @@
 lintpref:
     description: Linter for static prefs.
     include:
-        - 'comm/calendar/lightning/content/lightning.js'
+        - 'comm/calendar/base/calendar.js'
         - 'comm/chat/chat-prefs.js'
         - 'comm/mail/app/profile/'
         - 'comm/mail/branding/'

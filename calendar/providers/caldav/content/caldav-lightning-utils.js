@@ -6,7 +6,7 @@
  *          caldavUpdateForceEmailSchedulingControl
  */
 
-/* import-globals-from ../../../lightning/content/lightning-utils.js */
+/* import-globals-from ../../../base/content/lightning-utils.js */
 /* globals gCalendar */
 
 /**

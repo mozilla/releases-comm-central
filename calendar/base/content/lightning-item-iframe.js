@@ -16,8 +16,8 @@
 
 /* global MozElements */
 
-/* import-globals-from ../../base/content/calendar-ui-utils.js */
-/* import-globals-from ../../base/content/dialogs/calendar-dialog-utils.js */
+/* import-globals-from calendar-ui-utils.js */
+/* import-globals-from dialogs/calendar-dialog-utils.js */
 /* globals gTimezonesEnabled */ // Set by lightning-item-panel.js.
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");

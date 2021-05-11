@@ -29,7 +29,7 @@ build/**
 suite/**
 
 # calendar/ exclusions
-calendar/lightning/content/lightning.js
+calendar/base/calendar.js
 calendar/base/modules/Ical.jsm
 
 # chat exclusions

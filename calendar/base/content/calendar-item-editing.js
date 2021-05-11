@@ -510,7 +510,7 @@ function openEventDialog(
 
   if (cal.acl.isCalendarWritable(calendar) && (mode == "new" || isEditable)) {
     if (args.inTab) {
-      url = "chrome://lightning/content/lightning-item-iframe.xhtml";
+      url = "chrome://calendar/content/lightning-item-iframe.xhtml";
     } else {
       url = "chrome://calendar/content/calendar-event-dialog.xhtml";
     }

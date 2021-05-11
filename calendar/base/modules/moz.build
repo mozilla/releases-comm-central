@@ -33,4 +33,5 @@ EXTRA_JS_MODULES.calendar += [
     "calRecurrenceUtils.jsm",
     "calUtils.jsm",
     "Ical.jsm",
+    "ltnInvitationUtils.jsm",
 ]

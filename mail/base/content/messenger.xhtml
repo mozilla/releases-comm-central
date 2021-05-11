@@ -161,8 +161,8 @@
   <script defer="defer" src="chrome://messenger/content/threadPane.js"></script>
 
   <!-- calendar imip bar -->
-  <script defer="defer" src="chrome://lightning/content/lightning-utils.js"></script>
-  <script defer="defer" src="chrome://lightning/content/imip-bar.js"></script>
+  <script defer="defer" src="chrome://calendar/content/lightning-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/imip-bar.js"></script>
   <!-- calendar-management.js also needed for multiple calendar support and today pane -->
   <script defer="defer" src="chrome://calendar/content/calendar-management.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
@@ -206,7 +206,7 @@
   <script defer="defer" src="chrome://calendar/content/calendar-invitations-manager.js"></script>
 
   <!-- NEEDED FOR EVENT/TASK IN A TAB -->
-  <script defer="defer" src="chrome://lightning/content/lightning-item-panel.js"></script>
+  <script defer="defer" src="chrome://calendar/content/lightning-item-panel.js"></script>
 
   <script defer="defer" src="chrome://calendar/content/calendar-command-controller.js"></script>
 
@@ -308,7 +308,7 @@
            oncommand="customizeMailToolbarForTabType()"/>
 </commandset>
 
-#include ../../../calendar/lightning/content/calendar-commands.inc.xhtml
+#include ../../../calendar/base/content/calendar-commands.inc.xhtml
 
 <keyset id="mailKeys">
   <!-- Tab/F6 Keys -->
@@ -334,7 +334,7 @@
   </keyset>
 </keyset>
 
-#include ../../../calendar/lightning/content/calendar-keys.inc.xhtml
+#include ../../../calendar/base/content/calendar-keys.inc.xhtml
 
 <!-- Popup menus provided by mailWindowOverlay.xhtml -->
 <popupset id="mainPopupSet">
@@ -489,7 +489,7 @@
 </popupset>
 #endif
 
-#include ../../../calendar/lightning/content/calendar-context-menus-and-tooltips.inc.xhtml
+#include ../../../calendar/base/content/calendar-context-menus-and-tooltips.inc.xhtml
 
 <vbox id="titlebar">
   <hbox id="titlebar-content">
@@ -740,7 +740,7 @@
                       <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
 #include msgHdrView.inc.xhtml
                       </hbox>
-#include ../../../calendar/lightning/content/imip-bar-overlay.inc.xhtml
+#include ../../../calendar/base/content/imip-bar-overlay.inc.xhtml
                       <!-- The msgNotificationBar appears on top of the message
                            and displays information like: junk, contains remote
                            images, or is a suspected phishing URL. -->
@@ -792,8 +792,8 @@
           </box>
         </box> <!-- end of mailContent -->
 #include ../../components/im/content/chat-messenger.inc.xhtml
-#include ../../../calendar/lightning/content/calendar-tab-panels.inc.xhtml
-#include ../../../calendar/lightning/content/lightning-item-panel.inc.xhtml
+#include ../../../calendar/base/content/calendar-tab-panels.inc.xhtml
+#include ../../../calendar/base/content/lightning-item-panel.inc.xhtml
       </tabpanels>
      </tabbox>
     </tabmail>
@@ -861,7 +861,7 @@
         <findbar browserid="preferencesbrowser"/>
       </vbox>
     </vbox>
-#include ../../../calendar/lightning/content/calendar-today-pane.inc.xhtml
+#include ../../../calendar/base/content/calendar-today-pane.inc.xhtml
   </hbox>
   <panel id="customizeToolbarSheetPopup" noautohide="true">
     <iframe id="customizeToolbarSheetIFrame"
@@ -888,7 +888,7 @@
     </hbox>
     <label id="unreadMessageCount" class="statusbarpanel"/>
     <label id="totalMessageCount" class="statusbarpanel"/>
-#include ../../../calendar/lightning/content/calendar-status-bar.inc.xhtml
+#include ../../../calendar/base/content/calendar-status-bar.inc.xhtml
   </hbox>
 </html:body>
 </html>

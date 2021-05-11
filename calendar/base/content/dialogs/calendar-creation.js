@@ -9,7 +9,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /* exported checkRequired, fillLocationPlaceholder, selectProvider, updateNoCredentials, */
 
-/* import-globals-from ../../../lightning/content/lightning-utils.js */
+/* import-globals-from ../lightning-utils.js */
 
 /**
  * For managing dialog button handler state. Stores the current handlers so we
