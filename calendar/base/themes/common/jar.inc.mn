@@ -35,7 +35,6 @@
     skin/classic/calendar/shared/calendar-invitations-dialog-list-images.png     (../common/dialogs/images/calendar-invitations-dialog-list-images.png)
     skin/classic/calendar/shared/chain-lock.svg                                  (../common/dialogs/images/chain-lock.svg)
     skin/classic/calendar/shared/chain-unlock.svg                                (../common/dialogs/images/chain-unlock.svg)
-    skin/classic/calendar/shared/html-item-editing.css                           (../common/html-item-editing.css)
     skin/classic/calendar/shared/link-image-bottom.svg                           (../common/dialogs/images/link-image-bottom.svg)
     skin/classic/calendar/shared/link-image-top.svg                              (../common/dialogs/images/link-image-top.svg)
     skin/classic/calendar/shared/statusbar-priority-low.svg                      (../common/dialogs/images/statusbar-priority-low.svg)

@@ -155,9 +155,6 @@ pref("calendar.filter.maxiterations", 50);
 // Edit events and tasks in a tab rather than a window.
 pref("calendar.item.editInTab", false);
 
-// Edit events and tasks in the new (HTML-based) UI for tabs and windows
-pref("calendar.item.useNewItemUI", false);
-
 // Always use the currently selected calendar as target for paste operations
 pref("calendar.paste.intoSelectedCalendar", false);
 

@@ -220,9 +220,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
   } else {
     // window dialog case
     iframe = document.createXULElement("iframe");
-    iframeSrc = window.arguments[0].useNewItemUI
-      ? "chrome://lightning/content/html-item-editing/lightning-item-iframe.html"
-      : "chrome://lightning/content/lightning-item-iframe.xhtml";
+    iframeSrc = "chrome://lightning/content/lightning-item-iframe.xhtml";
 
     iframe.setAttribute("id", "lightning-item-panel-iframe");
     iframe.setAttribute("flex", "1");

@@ -487,7 +487,6 @@ function openEventDialog(
   args.initialStartDateValue = initialDate || cal.dtz.getDefaultStartDate();
   args.counterProposal = counterProposal;
   args.inTab = Services.prefs.getBoolPref("calendar.item.editInTab", false);
-  args.useNewItemUI = Services.prefs.getBoolPref("calendar.item.useNewItemUI", false);
   // this will be called if file->new has been selected from within the dialog
   args.onNewEvent = function(opcalendar) {
     createEventWithDialog(opcalendar, null, null);
@@ -511,9 +510,7 @@ function openEventDialog(
 
   if (cal.acl.isCalendarWritable(calendar) && (mode == "new" || isEditable)) {
     if (args.inTab) {
-      url = args.useNewItemUI
-        ? "chrome://lightning/content/html-item-editing/lightning-item-iframe.html"
-        : "chrome://lightning/content/lightning-item-iframe.xhtml";
+      url = "chrome://lightning/content/lightning-item-iframe.xhtml";
     } else {
       url = "chrome://calendar/content/calendar-event-dialog.xhtml";
     }

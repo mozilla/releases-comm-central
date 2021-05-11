@@ -8,8 +8,6 @@ lightning.jar:
 % override chrome://messagebody/skin/calendar-attendees.css chrome://calendar/skin/shared/calendar-attendees.css
 % override chrome://messagebody/skin/calendar-event-dialog-attendees.png chrome://calendar/skin/shared/calendar-event-dialog-attendees.png
 % content lightning %content/
-    content/html-item-editing/lightning-item-iframe.html   (content/html-item-editing/lightning-item-iframe.html)
-    content/html-item-editing/react-code.js                (content/html-item-editing/react-code.js)
     content/imip-bar.js                                    (content/imip-bar.js)
     content/lightning-calendar-properties.js               (content/lightning-calendar-properties.js)
     content/lightning-invitation.xhtml                     (content/lightning-invitation.xhtml)
