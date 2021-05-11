@@ -43,3 +43,8 @@ if CONFIG["MOZ_LIBSTDCXX_TARGET_VERSION"]:
     CXXFLAGS += ["-stdlib=libc++"]
     LDFLAGS += ["-nostdlib++"]
     OS_LIBS += [static_libdir, "-l:libc++.a", "-l:libc++abi.a"]
+
+
+if CONFIG["OS_ARCH"] == "Linux":
+    CFLAGS += ["-fPIC"]
+    CXXFLAGS += ["-fPIC"]
