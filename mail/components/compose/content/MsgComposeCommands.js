@@ -602,6 +602,8 @@ var stateListener = {
       loadHTMLMsgPrefs();
     }
     AdjustFocus();
+    window.composeEditorReady = true;
+    window.dispatchEvent(new CustomEvent("compose-editor-ready"));
   },
 
   NotifyComposeBodyReadyNew() {
@@ -9294,9 +9296,6 @@ function InitEditor() {
       }`
     );
   }
-
-  window.composeEditorReady = true;
-  window.dispatchEvent(new CustomEvent("compose-editor-ready"));
 }
 
 function setFontSize(event) {

@@ -251,9 +251,11 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       composeFields.subject = details.subject;
     }
     if (details.body !== null) {
-      composeFields.body = details.body;
+      // We replace line breaks because otherwise they'll be converted to
+      // <br> in nsMsgCompose::BuildBodyMessageAndSignature().
+      composeFields.body = details.body.replace(/\r?\n/g, " ");
     }
-    if (details.plainTextBody != null) {
+    if (details.plainTextBody !== null) {
       composeFields.body = details.plainTextBody;
     }
 
@@ -716,6 +718,25 @@ this.compose = class extends ExtensionAPI {
             details,
             extension
           );
+          // Opening a composer in reply mode will ignore details.body or
+          // details.plainTextBody. For API consistency enforce the requested
+          // content.
+          if (details) {
+            if (details.body !== null) {
+              await setComposeDetails(
+                composeWindow,
+                { body: details.body },
+                extension
+              );
+            }
+            if (details.plainTextBody !== null) {
+              await setComposeDetails(
+                composeWindow,
+                { plainTextBody: details.plainTextBody },
+                extension
+              );
+            }
+          }
           return tabManager.convert(composeWindow);
         },
         async beginForward(messageId, forwardType, details) {
