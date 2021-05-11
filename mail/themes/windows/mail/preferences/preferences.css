@@ -5,9 +5,7 @@
 @import url("chrome://messenger/skin/shared/preferences/preferences.css");
 @namespace html "http://www.w3.org/1999/xhtml";
 
-.dialogBox,
-#paneDeck,
-#categories {
+body {
   font-size: 1.25em;
 }
 
@@ -20,10 +18,6 @@ html|h2 {
   background-color: transparent;
 }
 
-#pref-category-box .sidebar-footer-label {
-  font-size: 1.125em;
-}
-
 html|input[type="number"] {
   min-height: 27px;
 }
@@ -31,12 +25,4 @@ html|input[type="number"] {
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
   min-height: 12px;
-}
-
-/**
- * Dialog
- */
-
-#dialogTitle {
-  font-size: 1.05em;
 }

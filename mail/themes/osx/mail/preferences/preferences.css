@@ -5,9 +5,7 @@
 @import url("chrome://messenger/skin/shared/preferences/preferences.css");
 @namespace html "http://www.w3.org/1999/xhtml";
 
-.dialogBox,
-#paneDeck,
-#categories {
+body {
   font-size: 1.36em;
 }
 
@@ -34,10 +32,6 @@ menulist:not([popuponly="true"]) {
   min-height: 30px;
 }
 
-#pref-category-box .sidebar-footer-label {
-  font-size: 1.224em;
-}
-
 tab:-moz-focusring > .tab-middle > .tab-text {
   outline: none;
 }
@@ -45,10 +39,6 @@ tab:-moz-focusring > .tab-middle > .tab-text {
 /**
  * Dialog
  */
-
-#dialogTitle {
-  font-size: 1.1em;
-}
 
 /* Add to Cookies dialog a bottom padding */
 #CookiesDialog > hbox > .actionButtons {
