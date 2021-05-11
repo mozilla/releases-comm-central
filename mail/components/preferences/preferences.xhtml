@@ -13,7 +13,7 @@
 <?xml-stylesheet href="chrome://calendar/skin/shared/calendar-preferences.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/lightning.css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % editorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/editorOverlay.dtd">
@@ -30,47 +30,58 @@
 %eventDTD;
 ]>
 
-<window id="MailPreferences"
-        role="document"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        csp="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: https: data:; style-src chrome: data: 'unsafe-inline'; object-src 'none'"
-        data-l10n-id="preferences-tab-title">
+<html id="MailPreferences" xmlns="http://www.w3.org/1999/xhtml"
+      role="document"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      scrolling="false">
+<head>
+  <title data-l10n-id="preferences-doc-title"></title>
+  <meta http-equiv="Content-Security-Policy" content="default-src chrome:; script-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: https: data:; style-src chrome: data: 'unsafe-inline'; object-src 'none'" />
+  <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/preferences/preferences.ftl" />
+  <link rel="localization" href="messenger/preferences/fonts.ftl" />
+  <link rel="localization" href="messenger/preferences/languages.ftl" />
 
-  <script src="chrome://global/content/preferencesBindings.js"/>
+  <!-- Links below are only used for search-l10n-ids into subdialogs -->
+  <link rel="localization" href="messenger/preferences/sendoptions.ftl" />
+  <link rel="localization" href="messenger/preferences/receipts.ftl" />
+  <link rel="localization" href="messenger/preferences/permissions.ftl" />
+  <link rel="localization" href="messenger/preferences/cookies.ftl" />
+  <link rel="localization" href="messenger/preferences/system-integration.ftl" />
+  <link rel="localization" href="messenger/preferences/colors.ftl" />
+  <link rel="localization" href="messenger/preferences/dock-options.ftl" />
+  <link rel="localization" href="messenger/preferences/notifications.ftl" />
+  <link rel="localization" href="messenger/preferences/new-tag.ftl" />
+  <link rel="localization" href="toolkit/updates/history.ftl" />
+  <link rel="localization" href="messenger/preferences/connection.ftl" />
+  <link rel="localization" href="messenger/preferences/offline.ftl" />
+  <link rel="localization" href="toolkit/about/config.ftl" />
+  <link rel="localization" href="messenger/preferences/attachment-reminder.ftl" />
+  <link rel="localization" href="messenger/preferences/passwordManager.ftl" />
+  <link rel="localization" href="security/certificates/certManager.ftl" />
+  <link rel="localization" href="security/certificates/deviceManager.ftl" />
+
+  <script defer="defer" src="chrome://global/content/preferencesBindings.js"></script>
 #ifdef MOZ_UPDATER
-  <script src="chrome://messenger/content/aboutDialog-appUpdater.js"/>
+  <script defer="defer" src="chrome://messenger/content/aboutDialog-appUpdater.js"></script>
 #endif
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <script src="chrome://messenger/content/accountUtils.js"/>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
 
-  <linkset>
-    <html:link rel="localization" href="branding/brand.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/preferences.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/fonts.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/languages.ftl"/>
-
-    <!-- Links below are only used for search-l10n-ids into subdialogs -->
-    <html:link rel="localization" href="messenger/preferences/sendoptions.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/receipts.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/permissions.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/cookies.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/system-integration.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/colors.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/dock-options.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/notifications.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/new-tag.ftl"/>
-    <html:link rel="localization" href="toolkit/updates/history.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/connection.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/offline.ftl"/>
-    <html:link rel="localization" href="toolkit/about/config.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/attachment-reminder.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/passwordManager.ftl"/>
-    <html:link rel="localization" href="security/certificates/certManager.ftl"/>
-    <html:link rel="localization" href="security/certificates/deviceManager.ftl"/>
-  </linkset>
-
+  <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
+  <script defer="defer" src="chrome://messenger/content/preferences/preferences.js"></script>
+  <script defer="defer" src="chrome://messenger/content/preferences/findInPage.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"></script>
+  <script defer="defer" src="chrome://calendar/content/preferences/general.js"></script>
+  <script defer="defer" src="chrome://calendar/content/preferences/alarms.js"></script>
+  <script defer="defer" src="chrome://calendar/content/preferences/categories.js"></script>
+  <script defer="defer" src="chrome://calendar/content/preferences/views.js"></script>
+  <script defer="defer" src="chrome://lightning/content/messenger-overlay-preferences.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <stack id="preferences-stack" flex="1">
     <hbox id="prefBox" class="main-content" flex="1">
 
@@ -186,17 +197,5 @@
       </vbox>
     </vbox>
   </stack>
-
-  <script src="chrome://global/content/globalOverlay.js"/>
-  <script src="chrome://communicator/content/contentAreaClick.js"/>
-  <script src="chrome://messenger/content/preferences/preferences.js"/>
-  <script src="chrome://messenger/content/preferences/findInPage.js"/>
-
-  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
-  <script src="chrome://calendar/content/preferences/general.js"/>
-  <script src="chrome://calendar/content/preferences/alarms.js"/>
-  <script src="chrome://calendar/content/preferences/categories.js"/>
-  <script src="chrome://calendar/content/preferences/views.js"/>
-  <script src="chrome://lightning/content/messenger-overlay-preferences.js"/>
-</window>
+</html:body>
+</html>

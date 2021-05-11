@@ -5,8 +5,7 @@
 close-button =
     .aria-label = Close
 
-preferences-tab-title =
-    .title = Preferences
+preferences-doc-title = Preferences
 
 category-list =
     .aria-label = Categories

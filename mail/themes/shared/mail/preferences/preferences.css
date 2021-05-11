@@ -82,6 +82,7 @@ search-textbox {
 
 .main-content {
   padding: 0;
+  height: 100vh;
 }
 
 /**
