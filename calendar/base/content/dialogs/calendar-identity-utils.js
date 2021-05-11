@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported ltnInitMailIdentitiesRow, ltnGetMailIdentitySelection,
- *          ltnSaveMailIdentitySelection, ltnNotifyOnIdentitySelection
- */
+/* exported initMailIdentitiesRow, saveMailIdentitySelection,
+            notifyOnIdentitySelection, initForceEmailScheduling,
+            saveForceEmailScheduling, updateForceEmailSchedulingControl */
 
-/* global MozElements, addMenuItem */
+/* global MozElements, addMenuItem, gCalendar */
 
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -24,7 +24,7 @@ XPCOMUtils.defineLazyGetter(this, "gIdentityNotification", () => {
  *
  * @param {calICalendar} aCalendar    The calendar being created or edited.
  */
-function ltnInitMailIdentitiesRow(aCalendar) {
+function initMailIdentitiesRow(aCalendar) {
   if (!aCalendar) {
     document.getElementById("calendar-email-identity-row").toggleAttribute("hidden", true);
   }
@@ -76,7 +76,7 @@ function ltnInitMailIdentitiesRow(aCalendar) {
  * @param {calICalendar} aCalendar    The calendar for the identity selection.
  * @returns {string}                  The key of the selected nsIMsgIdentity or 'none'.
  */
-function ltnGetMailIdentitySelection(aCalendar) {
+function getMailIdentitySelection(aCalendar) {
   let sel = "none";
   if (aCalendar) {
     let imipIdentityDisabled = aCalendar.getProperty("imip.identity.disabled");
@@ -94,9 +94,9 @@ function ltnGetMailIdentitySelection(aCalendar) {
  *
  * @param {calICalendar} aCalendar    The calendar for the identity selection.
  */
-function ltnSaveMailIdentitySelection(aCalendar) {
+function saveMailIdentitySelection(aCalendar) {
   if (aCalendar) {
-    let sel = ltnGetMailIdentitySelection(aCalendar);
+    let sel = getMailIdentitySelection(aCalendar);
     // no imip.identity.key will default to the default account/identity, whereas
     // an empty key indicates no imip; that identity will not be found
     aCalendar.setProperty("imip.identity.key", sel == "none" ? "" : sel);
@@ -110,11 +110,11 @@ function ltnSaveMailIdentitySelection(aCalendar) {
  *
  * @param {calICalendar} aCalendar    The calendar for the identity selection.
  */
-function ltnNotifyOnIdentitySelection(aCalendar) {
+function notifyOnIdentitySelection(aCalendar) {
   gIdentityNotification.removeAllNotifications();
 
   let msg = cal.l10n.getLtnString("noIdentitySelectedNotification");
-  let sel = ltnGetMailIdentitySelection(aCalendar);
+  let sel = getMailIdentitySelection(aCalendar);
 
   if (sel == "none") {
     gIdentityNotification.appendNotification(
@@ -125,5 +125,61 @@ function ltnNotifyOnIdentitySelection(aCalendar) {
     );
   } else {
     gIdentityNotification.removeAllNotifications();
+  }
+}
+
+/**
+ * Initializing calendar creation wizard and properties dialog to display the
+ * option to enforce email scheduling for outgoing scheduling operations.
+ * Used in the calendar properties dialog.
+ */
+function initForceEmailScheduling() {
+  if (gCalendar && gCalendar.type == "caldav") {
+    let checkbox = document.getElementById("force-email-scheduling");
+    let curStatus = checkbox.getAttribute("checked") == "true";
+    let newStatus = gCalendar.getProperty("forceEmailScheduling") || curStatus;
+    if (curStatus != newStatus) {
+      if (newStatus) {
+        checkbox.setAttribute("checked", "true");
+      } else {
+        checkbox.removeAttribute("checked");
+      }
+    }
+    updateForceEmailSchedulingControl();
+  } else {
+    document.getElementById("calendar-force-email-scheduling-row").toggleAttribute("hidden", true);
+  }
+}
+
+/**
+ * Persisting the calendar property to enforce email scheduling. Used in the
+ * calendar properties dialog.
+ */
+function saveForceEmailScheduling() {
+  if (gCalendar && gCalendar.type == "caldav") {
+    let checkbox = document.getElementById("force-email-scheduling");
+    if (checkbox && checkbox.getAttribute("disable-capability") != "true") {
+      let status = checkbox.getAttribute("checked") == "true";
+      gCalendar.setProperty("forceEmailScheduling", status);
+    }
+  }
+}
+
+/**
+ * Updates the forceEmailScheduling control based on the currently assigned
+ * email identity to this calendar. Used in the calendar properties dialog.
+ */
+function updateForceEmailSchedulingControl() {
+  let checkbox = document.getElementById("force-email-scheduling");
+  if (
+    gCalendar &&
+    gCalendar.getProperty("capabilities.autoschedule.supported") &&
+    getMailIdentitySelection(gCalendar) != "none"
+  ) {
+    checkbox.removeAttribute("disable-capability");
+    checkbox.removeAttribute("disabled");
+  } else {
+    checkbox.setAttribute("disable-capability", "true");
+    checkbox.setAttribute("disabled", "true");
   }
 }

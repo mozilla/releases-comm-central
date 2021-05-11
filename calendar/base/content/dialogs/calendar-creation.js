@@ -9,7 +9,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /* exported checkRequired, fillLocationPlaceholder, selectProvider, updateNoCredentials, */
 
-/* import-globals-from ../lightning-utils.js */
+/* import-globals-from calendar-identity-utils.js */
 
 /**
  * For managing dialog button handler state. Stores the current handlers so we
@@ -92,8 +92,8 @@ var gCalendarTypes = new Map([
             .getCalendarManager()
             .createCalendar("storage", Services.io.newURI("moz-storage-calendar://"));
 
-          ltnInitMailIdentitiesRow(gLocalCalendar);
-          ltnNotifyOnIdentitySelection(gLocalCalendar);
+          initMailIdentitiesRow(gLocalCalendar);
+          notifyOnIdentitySelection(gLocalCalendar);
         }
         selectPanel("panel-local-calendar-settings");
       },
@@ -611,7 +611,7 @@ function setUpAddonCalendarSettingsPanel(calendarType) {
  * @param {Event} event     The menu selection event.
  */
 function onChangeIdentity(event) {
-  ltnNotifyOnIdentitySelection(gLocalCalendar);
+  notifyOnIdentitySelection(gLocalCalendar);
 }
 
 /**
@@ -630,7 +630,7 @@ function prepareLocalCalendar(calendar) {
     calendar.setProperty("suppressAlarms", true);
   }
 
-  ltnSaveMailIdentitySelection(calendar);
+  saveMailIdentitySelection(calendar);
   return calendar;
 }
 

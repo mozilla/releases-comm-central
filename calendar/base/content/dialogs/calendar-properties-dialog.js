@@ -5,6 +5,7 @@
 /* exported onLoad */
 
 /* import-globals-from ../calendar-ui-utils.js */
+/* import-globals-from calendar-identity-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
@@ -24,7 +25,7 @@ function onLoad() {
   /** @type {{ calendar: calICalendar, canDisable: boolean}} */
   let args = window.arguments[0];
 
-  gCalendar = args.calendar;
+  gCalendar = args.calendar; // eslint-disable-line no-global-assign
 
   // Some servers provide colors as an 8-character hex string, which the color
   // picker can't handle. Strip the alpha component.
@@ -80,6 +81,11 @@ function onLoad() {
     "hidden",
     gCalendar.getProperty("capabilities.alarms.popup.supported") === false
   );
+
+  // Set up the identity and scheduling rows.
+  initMailIdentitiesRow(gCalendar);
+  notifyOnIdentitySelection(gCalendar);
+  initForceEmailScheduling();
 
   // Set up the disabled checkbox
   let calendarDisabled = false;
@@ -137,6 +143,10 @@ function onAcceptDialog() {
     gCalendar.setProperty("cache.enabled", document.getElementById("cache").checked);
   }
 
+  // Save identity and scheduling options.
+  saveMailIdentitySelection(gCalendar);
+  saveForceEmailScheduling();
+
   if (!gCalendar.getProperty("force-disabled")) {
     // Save disabled option (should do this last), remove auto-enabled
     gCalendar.setProperty(
@@ -149,6 +159,15 @@ function onAcceptDialog() {
 // When this event fires, onAcceptDialog might not be the function defined
 // above, so call it indirectly.
 document.addEventListener("dialogaccept", () => onAcceptDialog());
+
+/**
+ * Called when an identity is selected.
+ */
+function onChangeIdentity(aEvent) {
+  notifyOnIdentitySelection(gCalendar);
+  updateForceEmailSchedulingControl();
+  sizeToContent();
+}
 
 /**
  * When the calendar is disabled, we need to disable a number of other elements
