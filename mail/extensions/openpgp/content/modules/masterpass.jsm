@@ -59,9 +59,6 @@ var OpenPGPMasterpass = {
     let [prot, unprot] = RNP.getProtectedKeysCount();
     let haveAtLeastOneSecretKey = prot || unprot;
 
-    // For user support, troubleshooting bug 1656287
-    console.debug(prot + " protected and " + unprot + " unprotected keys");
-
     if (!this.getPassPath().exists() && haveAtLeastOneSecretKey) {
       // We couldn't read the OpenPGP password from file.
       // This could either mean the file doesn't exist, which indicates

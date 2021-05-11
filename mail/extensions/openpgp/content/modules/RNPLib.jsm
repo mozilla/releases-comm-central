@@ -250,16 +250,167 @@ function enableRNPLibJS() {
       let secnum = new ctypes.size_t();
       this.rnp_get_secret_key_count(this.ffi, secnum.address());
 
+      let [prot, unprot] = this.getProtectedKeysCount();
       console.debug(
-        "public keys: " + pubnum.value + ", secret keys: " + secnum.value
+        `Found ${pubnum.value} public keys and ${secnum.value} secret keys (${prot} protected, ${unprot} unprotected)`
       );
-
-      /*
-      if (this.rnp_ffi_destroy(this.ffi)) {
-        throw new Error("Couldn't destroy librnp.");
-      }
-      */
       return true;
+    },
+
+    /**
+     * Returns two numbers, the number of protected and unprotected keys.
+     * Because we use an automatic password for all secret keys
+     * (regardless of a primary password being used),
+     * the number of unprotected keys should be zero.
+     */
+    getProtectedKeysCount() {
+      let prot = 0;
+      let unprot = 0;
+
+      let iter = new RNPLib.rnp_identifier_iterator_t();
+      let grip = new ctypes.char.ptr();
+
+      if (
+        RNPLib.rnp_identifier_iterator_create(
+          RNPLib.ffi,
+          iter.address(),
+          "grip"
+        )
+      ) {
+        throw new Error("rnp_identifier_iterator_create failed");
+      }
+
+      while (
+        !RNPLib.rnp_identifier_iterator_next(iter, grip.address()) &&
+        !grip.isNull()
+      ) {
+        let handle = new RNPLib.rnp_key_handle_t();
+        if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
+          throw new Error("rnp_locate_key failed");
+        }
+
+        if (this.getSecretAvailableFromHandle(handle)) {
+          let is_protected = new ctypes.bool();
+          if (RNPLib.rnp_key_is_protected(handle, is_protected.address())) {
+            throw new Error("rnp_key_is_protected failed");
+          }
+          if (is_protected.value) {
+            prot++;
+          } else {
+            unprot++;
+          }
+        }
+
+        RNPLib.rnp_key_handle_destroy(handle);
+      }
+
+      RNPLib.rnp_identifier_iterator_destroy(iter);
+      return [prot, unprot];
+    },
+
+    getSecretAvailableFromHandle(handle) {
+      let have_secret = new ctypes.bool();
+      if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
+        throw new Error("rnp_key_have_secret failed");
+      }
+      return have_secret.value;
+    },
+
+    /**
+     * If the given secret key is a pseudo secret key, which doesn't
+     * contain the underlying key material, then return false.
+     *
+     * Only call this function if getSecretAvailableFromHandle returns
+     * true for the given handle (which means it claims to contain a
+     * secret key).
+     *
+     * @param {rnp_key_handle_t} handle - handle of the key to query
+     * @return {boolean} - true if secret key material is available
+     *
+     */
+    isSecretKeyMaterialAvailable(handle) {
+      let protection_type = new ctypes.char.ptr();
+      if (
+        RNPLib.rnp_key_get_protection_type(handle, protection_type.address())
+      ) {
+        throw new Error("rnp_key_get_protection_type failed");
+      }
+      let result;
+      switch (protection_type.readString()) {
+        case "GPG-None":
+        case "GPG-Smartcard":
+        case "Unknown":
+          result = false;
+          break;
+        default:
+          result = true;
+          break;
+      }
+      RNPLib.rnp_buffer_destroy(protection_type);
+      return result;
+    },
+
+    async protectUnprotectedKeys() {
+      let iter = new RNPLib.rnp_identifier_iterator_t();
+      let grip = new ctypes.char.ptr();
+
+      let newPass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+
+      if (
+        RNPLib.rnp_identifier_iterator_create(
+          RNPLib.ffi,
+          iter.address(),
+          "grip"
+        )
+      ) {
+        throw new Error("rnp_identifier_iterator_create failed");
+      }
+
+      while (
+        !RNPLib.rnp_identifier_iterator_next(iter, grip.address()) &&
+        !grip.isNull()
+      ) {
+        let handle = new RNPLib.rnp_key_handle_t();
+        if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
+          throw new Error("rnp_locate_key failed");
+        }
+
+        if (RNPLib.getSecretAvailableFromHandle(handle)) {
+          let is_protected = new ctypes.bool();
+          if (RNPLib.rnp_key_is_protected(handle, is_protected.address())) {
+            throw new Error("rnp_key_is_protected failed");
+          }
+          if (!is_protected.value) {
+            RNPLib.protectKeyWithSubKeys(handle, newPass);
+          }
+        }
+
+        RNPLib.rnp_key_handle_destroy(handle);
+      }
+
+      RNPLib.rnp_identifier_iterator_destroy(iter);
+    },
+
+    protectKeyWithSubKeys(handle, newPass) {
+      if (RNPLib.rnp_key_protect(handle, newPass, null, null, null, 0)) {
+        throw new Error("rnp_key_protect failed");
+      }
+
+      let sub_count = new ctypes.size_t();
+      if (RNPLib.rnp_key_get_subkey_count(handle, sub_count.address())) {
+        throw new Error("rnp_key_get_subkey_count failed");
+      }
+
+      for (let i = 0; i < sub_count.value; i++) {
+        let sub_handle = new RNPLib.rnp_key_handle_t();
+        if (RNPLib.rnp_key_get_subkey_at(handle, i, sub_handle.address())) {
+          throw new Error("rnp_key_get_subkey_at failed");
+        }
+        if (RNPLib.rnp_key_protect(sub_handle, newPass, null, null, null, 0)) {
+          throw new Error("rnp_key_protect failed");
+        }
+        RNPLib.rnp_key_handle_destroy(sub_handle);
+      }
     },
 
     async saveKeyRing(fileObj, keyRingFlag) {
