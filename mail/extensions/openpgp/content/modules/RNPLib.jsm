@@ -244,9 +244,7 @@ function enableRNPLibJS() {
       }
 
       if (!canRepair) {
-        console.log(
-          "Cannot protect the unprotected keys at this time."
-        );
+        console.log("Cannot protect the unprotected keys at this time.");
       }
     },
 
