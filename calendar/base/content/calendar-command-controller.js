@@ -4,7 +4,6 @@
 
 /* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from ../../resources/content/publish.js */
 /* import-globals-from agenda-listbox-utils.js */
 /* import-globals-from calendar-clipboard.js */
 /* import-globals-from calendar-management.js */
@@ -14,6 +13,7 @@
 /* import-globals-from calendar-unifinder.js */
 /* import-globals-from calendar-views-utils.js */
 /* import-globals-from import-export.js */
+/* import-globals-from publish.js */
 
 /* globals goSetMenuValue, switchCalendarView */
 

@@ -14,7 +14,7 @@
 /* exported onMouseOverItem, showToolTip, getPreviewForItem,
              getEventStatusString, getToDoStatusString */
 
-/* import-globals-from ../../base/content/calendar-ui-utils.js */
+/* import-globals-from ../calendar-ui-utils.js */
 
 /**
  * PUBLIC: This changes the mouseover preview based on the start and end dates
