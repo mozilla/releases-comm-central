@@ -61,6 +61,13 @@ var kFirstNameFirst = 2;
 // of IM contacts).
 var kChatProperties = ["_GoogleTalk", "_JabberId"];
 
+window.addEventListener("load", event => {
+  OnLoadAddressBook();
+});
+window.addEventListener("unload", event => {
+  OnUnloadAddressBook();
+});
+
 async function OnUnloadAddressBook() {
   // If there's no default startupURI, save the last used URI as new startupURI.
   let saveLastURIasStartupURI = !Services.prefs.getBoolPref(

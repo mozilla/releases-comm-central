@@ -10,7 +10,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/addressbook.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % abMainWindowDTD SYSTEM "chrome://messenger/locale/addressbook/abMainWindow.dtd" >
 %abMainWindowDTD;
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -21,59 +21,56 @@
 %baseMenuOverlayDTD;
 ]>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    xmlns:html="http://www.w3.org/1999/xhtml"
-    id="addressbookWindow"
-    icon="addressbookWindow"
-    title="&addressbookWindow.title;"
-    windowtype="mail:addressbook"
-    persist="width height screenX screenY sizemode"
-    toggletoolbar="true"
-    onload="OnLoadAddressBook()"
-    onunload="OnUnloadAddressBook()"
-    lightweightthemes="true"
+<html id="addressbookWindow" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      icon="addressbookWindow"
+      scrolling="false"
+      windowtype="mail:addressbook"
+      persist="width height screenX screenY sizemode"
+      toggletoolbar="true"
+      lightweightthemes="true"
 #ifdef XP_MACOSX
-    macanimationtype="document"
-    chromemargin="0,-1,-1,-1"
+      macanimationtype="document"
+      chromemargin="0,-1,-1,-1"
 #endif
-    fullscreenbutton="true">
+      fullscreenbutton="true">
+<head>
+  <title>&addressbookWindow.title;</title>
+  <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="messenger/menubar.ftl" />
+  <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <script defer="defer" src="chrome://messenger/content/button-menu-button.js"></script>
+  <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abTrees.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/addressbook.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/map-list.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abCommon.js"></script>
+  <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
+  <script defer="defer" src="chrome://global/content/printUtils.js"></script>
+  <script defer="defer" src="chrome://messenger/content/msgPrintEngine.js"></script>
+  <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abDragDrop.js"></script>
+  <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
+  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+  <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
+#ifdef XP_MACOSX
+  <script defer="defer" src="chrome://global/content/macWindowMenu.js"></script>
+#endif
+  <script defer="defer" src="chrome://messenger/content/addressbook/abResultsPane.js"></script>
+  <script defer="defer" src="chrome://messenger/content/addressbook/abCardView.js"></script>
+  <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
+  <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"></script>
+</head>
+<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
-  <linkset>
-    <html:link rel="localization" href="messenger/messenger.ftl"/>
-    <html:link rel="localization" href="messenger/menubar.ftl"/>
-    <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
-  </linkset>
-
-<script src="chrome://messenger/content/button-menu-button.js"/>
-<script src="chrome://messenger/content/jsTreeView.js"/>
-<script src="chrome://messenger/content/addressbook/abTrees.js"/>
-<script src="chrome://messenger/content/addressbook/abView.js"/>
-<script src="chrome://messenger/content/accountUtils.js"/>
-<script src="chrome://messenger/content/mailCore.js"/>
-<script src="chrome://messenger/content/addressbook/addressbook.js"/>
-<script src="chrome://messenger/content/addressbook/map-list.js"/>
-<script src="chrome://messenger/content/addressbook/abCommon.js"/>
-<script src="chrome://communicator/content/contentAreaClick.js"/>
-<script src="chrome://global/content/printUtils.js"/>
-<script src="chrome://messenger/content/msgPrintEngine.js"/>
-
-<!-- move needed functions into a single js file -->
-<script src="chrome://communicator/content/utilityOverlay.js"/>
-<script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
-<script src="chrome://global/content/globalOverlay.js"/>
-<script src="chrome://global/content/editMenuOverlay.js"/>
-<script src="chrome://messenger/content/messenger-customization.js"/>
-#ifdef XP_MACOSX
-<script src="chrome://global/content/macWindowMenu.js"/>
-#endif
-<script src="chrome://messenger/content/addressbook/abResultsPane.js"/>
-<script src="chrome://messenger/content/addressbook/abCardView.js"/>
-<script src="chrome://messenger/content/toolbarIconColor.js"/>
-<script src="chrome://messenger/content/customizable-toolbar.js"/>
 <commandset id="addressBook">
   <commandset id="CommandUpdate_AddressBook"
               commandupdater="true"
@@ -267,7 +264,6 @@
             label="&customizeToolbar.label;"
             accesskey="&customizeToolbar.accesskey;"/>
 </menupopup>
-
 
 <toolbox id="ab-toolbox"
          class="toolbox-top"
@@ -588,7 +584,6 @@
 
         <menu id="tasksMenu" label="&tasksMenu.label;" accesskey="&tasksMenu.accesskey;">
           <menupopup id="taskPopup">
-
 
         <!-- Moving the messengerCmd menu item item to the Window menu on the Mac -->
 #ifndef XP_MACOSX
@@ -949,4 +944,5 @@
   <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
     <label id="statusText" class="statusbarpanel" flex="1" value="&statusText.label;" crop="end"/>
   </hbox>
-</window>
+</html:body>
+</html>
