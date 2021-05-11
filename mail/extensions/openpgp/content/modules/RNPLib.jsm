@@ -10,6 +10,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
+  EnigmailTimer: "chrome://openpgp/content/modules/timer.jsm",
   ctypes: "resource://gre/modules/ctypes.jsm",
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
   Services: "resource://gre/modules/Services.jsm",
@@ -214,6 +215,41 @@ function enableRNPLibJS() {
       }
     },
 
+    async _fixUnprotectedKeys() {
+      // Bug 1710290, protect all unprotected keys.
+      // To do so, we require that the user has already unlocked
+      // by entering the global master password, if it is set.
+      // Ensure that other repairing is done first, if necessary,
+      // as handled by masterpass.jsm (OpenPGP automatic password).
+
+      // Note we have two failure scenarios, either a failure, or
+      // retrieveOpenPGPPassword() returning null (that function
+      // might fail because of inconsistencies or corruption).
+      let canRepair = false;
+      try {
+        console.log("Trying to automatically protect the unprotected keys.");
+        let mp = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+        if (mp) {
+          await RNPLib.protectUnprotectedKeys();
+          await RNPLib.saveKeys();
+          canRepair = true;
+          console.log("Successfully protected the unprotected keys.");
+          let [prot, unprot] = RNPLib.getProtectedKeysCount();
+          console.debug(
+            `Found (${prot} protected and ${unprot} unprotected secret keys.`
+          );
+        }
+      } catch (ex) {
+        console.log(ex);
+      }
+
+      if (!canRepair) {
+        console.log(
+          "Cannot protect the unprotected keys at this time."
+        );
+      }
+    },
+
     async init() {
       this.ffi = new rnp_ffi_t();
       if (this.rnp_ffi_create(this.ffi.address(), "GPG", "GPG")) {
@@ -254,6 +290,16 @@ function enableRNPLibJS() {
       console.debug(
         `Found ${pubnum.value} public keys and ${secnum.value} secret keys (${prot} protected, ${unprot} unprotected)`
       );
+
+      if (unprot) {
+        // We need automatic repair, which can involve a master password
+        // prompt. Let's use a short timer, so we keep it out of the
+        // early startup code.
+        console.log(
+          "Will attempt to automatically protect the unprotected keys in 30 seconds"
+        );
+        EnigmailTimer.setTimeout(RNPLib._fixUnprotectedKeys, 30000);
+      }
       return true;
     },
 
@@ -409,7 +455,9 @@ function enableRNPLibJS() {
           throw new Error("rnp_key_get_subkey_at failed");
         }
         if (RNPLib.isSecretKeyMaterialAvailable(sub_handle)) {
-          if (RNPLib.rnp_key_protect(sub_handle, newPass, null, null, null, 0)) {
+          if (
+            RNPLib.rnp_key_protect(sub_handle, newPass, null, null, null, 0)
+          ) {
             throw new Error("rnp_key_protect failed");
           }
         }
