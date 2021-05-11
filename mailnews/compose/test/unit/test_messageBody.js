@@ -180,3 +180,32 @@ add_task(async function testWrapLength() {
 
   Services.prefs.clearUserPref("mailnews.wraplength");
 });
+
+/**
+ * Test handling of trailing NBSP.
+ */
+add_task(async function testNBSP() {
+  let identity = getSmtpIdentity(
+    "from@tinderbox.invalid",
+    getBasicSmtpServer()
+  );
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  fields.to = "Nobody <nobody@tinderbox.invalid>";
+  fields.subject = "Test text wrapping";
+  // The character after `test` is NBSP.
+  fields.body = "<html><body>åäö test <br></body></html>";
+  fields.forcePlainText = true;
+  await richCreateMessage(fields, [], identity);
+
+  let msgData = mailTestUtils.loadMessageToUTF16String(
+    gDraftFolder,
+    mailTestUtils.firstMsgHdr(gDraftFolder)
+  );
+  Assert.equal(
+    getMessageBody(msgData),
+    "åäö test",
+    "Trailing NBSP should be removed"
+  );
+});

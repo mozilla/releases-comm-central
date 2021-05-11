@@ -118,6 +118,13 @@ var mailTestUtils = {
     return data;
   },
 
+  // Loads a message to a UTF-16 string.
+  loadMessageToUTF16String(folder, msgHdr, charset) {
+    let str = this.loadMessageToString(folder, msgHdr, charset);
+    let arr = new Uint8Array(Array.from(str, x => x.charCodeAt(0)));
+    return new TextDecoder().decode(arr);
+  },
+
   // Gets the first message header in a folder.
   firstMsgHdr(folder) {
     let enumerator = folder.msgDatabase.EnumerateMessages();

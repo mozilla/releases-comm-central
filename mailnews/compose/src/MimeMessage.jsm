@@ -340,9 +340,16 @@ class MimeMessage {
         "content-type",
         `text/plain; charset=UTF-8${formatParam}`
       );
-      plainPart.bodyText = MsgUtils.convertToPlainText(
-        this._bodyText,
+      // nsIParserUtils.convertToPlainText expects unicode string.
+      let plainUnicode = MsgUtils.convertToPlainText(
+        new TextDecoder().decode(
+          jsmime.mimeutils.stringToTypedArray(this._bodyText)
+        ),
         formatFlowed
+      );
+      // MimePart.bodyText should be binary string.
+      plainPart.bodyText = jsmime.mimeutils.typedArrayToString(
+        new TextEncoder().encode(plainUnicode)
       );
 
       parts.plainPart = plainPart;
