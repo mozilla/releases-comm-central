@@ -1307,6 +1307,23 @@ NS_IMETHODIMP nsMsgCompose::CloseWindow(void) {
   // temporary files.
   mMsgSend = nullptr;
 
+  // Remove temporary attachment files, e.g. key.asc when attaching public key.
+  nsTArray<RefPtr<nsIMsgAttachment>> attachments;
+  m_compFields->GetAttachments(attachments);
+  for (nsIMsgAttachment* attachment : attachments) {
+    bool isTemporary;
+    attachment->GetTemporary(&isTemporary);
+    if (isTemporary) {
+      nsCString url;
+      attachment->GetUrl(url);
+      nsCOMPtr<nsIFile> urlFile;
+      rv = NS_GetFileFromURLSpec(url, getter_AddRefs(urlFile));
+      if (NS_SUCCEEDED(rv)) {
+        urlFile->Remove(false);
+      }
+    }
+  }
+
   // We are going away for real, we need to do some clean up first
   if (m_baseWindow) {
     if (m_editor) {

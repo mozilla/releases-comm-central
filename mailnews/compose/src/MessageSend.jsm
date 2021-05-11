@@ -159,6 +159,7 @@ MessageSend.prototype = {
     this._smtpPassword = smtpPassword;
     this._sendListener = listener;
     this._statusFeedback = statusFeedback;
+    this._shouldRemoveMessageFile = deleteSendFileOnCompletion;
 
     this._sendReport = Cc[
       "@mozilla.org/messengercompose/sendreport;1"
