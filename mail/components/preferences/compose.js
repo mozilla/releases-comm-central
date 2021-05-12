@@ -592,7 +592,7 @@ var gCloudFile = {
       );
     }
     browser.setAttribute("disableglobalhistory", "true");
-    browser.setAttribute("messagemanagergroup", "single-site");
+    browser.setAttribute("messagemanagergroup", "webext-browsers");
 
     browser.setAttribute("flex", "1");
     // Allows keeping dialog background color without hoops.

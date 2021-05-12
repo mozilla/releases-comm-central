@@ -88,7 +88,7 @@ let JSWINDOWACTORS = {
         click: {},
       },
     },
-    messageManagerGroups: ["single-site"],
+    messageManagerGroups: ["single-site", "webext-browsers"],
     allFrames: true,
   },
 
