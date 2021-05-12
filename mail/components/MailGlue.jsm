@@ -101,6 +101,7 @@ let JSWINDOWACTORS = {
     child: {
       moduleURI: "resource://gre/modules/LoginManagerChild.jsm",
       events: {
+        DOMDocFetchSuccess: {},
         DOMFormBeforeSubmit: {},
         DOMFormHasPassword: {},
         DOMInputPasswordAdded: {},
@@ -108,7 +109,13 @@ let JSWINDOWACTORS = {
     },
 
     allFrames: true,
-    messageManagerGroups: ["browsers", "single-site", "single-page", ""],
+    messageManagerGroups: [
+      "browsers",
+      "single-site",
+      "single-page",
+      "webext-browsers",
+      "",
+    ],
   },
 
   Pdfjs: {
