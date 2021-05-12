@@ -16,15 +16,6 @@ const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
-// TEMPORARY HACK (Bug 1710535):
-// Call defineLazyScriptGetter and call the created getter before Mochitest
-// starts. It doesn't matter that the file in question doesn't exist.
-XPCOMUtils.defineLazyScriptGetter(this, "never", "resource://never/used.js");
-try {
-  never;
-} catch (ex) {}
-delete this.never;
-
 // lazy module getter
 
 XPCOMUtils.defineLazyGetter(this, "gMailBundle", function() {
