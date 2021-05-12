@@ -16,7 +16,9 @@ var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
 var { be_in_folder, FAKE_SERVER_HOSTNAME } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -439,6 +441,62 @@ add_task(async function test_pill_creation_in_all_fields() {
   );
   // Test pill creation for the Bcc input field.
   await assertPillsCreationInField(bccInput);
+
+  close_compose_window(cwc);
+});
+
+add_task(async function test_addressing_fields_shortcuts() {
+  be_in_folder(accountPOP3.incomingServer.rootFolder);
+  let cwc = open_compose_new_mail();
+
+  let addrToInput = cwc.window.document.getElementById("toAddrInput");
+  // The To input field should be empty.
+  Assert.equal(addrToInput.value, "");
+  // The To input field should be the currently focused element.
+  Assert.equal(addrToInput, cwc.window.document.activeElement);
+
+  const modifiers =
+    AppConstants.platform == "macosx"
+      ? { accelKey: true, shiftKey: true }
+      : { ctrlKey: true, shiftKey: true };
+
+  let addrCcInput = cwc.window.document.getElementById("ccAddrInput");
+  let ccRowShownPromise = BrowserTestUtils.waitForCondition(
+    () => !addrCcInput.closest(".address-row").classList.contains("hidden"),
+    "The Cc addressing row is not visible."
+  );
+  // Press the Ctrl/Cmd+Shift+C.
+  EventUtils.synthesizeKey("C", modifiers, cwc.window);
+  // The Cc addressing row should be visible.
+  await ccRowShownPromise;
+  // The Cc input field should be currently focused.
+  Assert.equal(addrCcInput, cwc.window.document.activeElement);
+
+  let addrBccInput = cwc.window.document.getElementById("bccAddrInput");
+  let bccRowShownPromise = BrowserTestUtils.waitForCondition(
+    () => !addrBccInput.closest(".address-row").classList.contains("hidden"),
+    "The Bcc addressing row is not visible."
+  );
+  // Press the Ctrl/Cmd+Shift+B.
+  EventUtils.synthesizeKey("B", modifiers, cwc.window);
+  await bccRowShownPromise;
+  // The Bcc input field should be currently focused.
+  Assert.equal(addrBccInput, cwc.window.document.activeElement);
+
+  // Press the Ctrl/Cmd+Shift+T.
+  EventUtils.synthesizeKey("T", modifiers, cwc.window);
+  // The To input field should be the currently focused element.
+  Assert.equal(addrToInput, cwc.window.document.activeElement);
+
+  // Press the Ctrl/Cmd+Shift+C.
+  EventUtils.synthesizeKey("C", modifiers, cwc.window);
+  // The Cc input field should be currently focused.
+  Assert.equal(addrCcInput, cwc.window.document.activeElement);
+
+  // Press the Ctrl/Cmd+Shift+B.
+  EventUtils.synthesizeKey("B", modifiers, cwc.window);
+  // The Bcc input field should be currently focused.
+  Assert.equal(addrBccInput, cwc.window.document.activeElement);
 
   close_compose_window(cwc);
 });

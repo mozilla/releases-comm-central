@@ -480,10 +480,6 @@
 
    <!-- Tools Menu -->
   <key id="key_mail"  key="&messengerCmd.commandkey;" oncommand="toMessengerWindow();" modifiers="accel"/>
-  <key id="key_addressbook"
-       key="&addressBookCmd.key;"
-       modifiers="accel, shift"
-       oncommand="toAddressBook();"/>
 
   <!-- Tab/F6 Keys -->
   <key keycode="VK_TAB" oncommand="SwitchElementFocus(event);" modifiers="control"/>
@@ -1062,6 +1058,17 @@
                         type="checkbox" command="cmd_fullZoomToggle" checked="false"/>
             </menupopup>
           </menu>
+          <menuseparator id="viewMenuBeforeShowToFieldSeparator"/>
+          <menuitem id="menu_showToField"
+                    data-l10n-attrs="acceltext"
+                    oncommand="menuShowAddressRowOnCommand('addr_to', 'addressRowTo')"/>
+          <menuitem id="menu_showCcField"
+                    data-l10n-attrs="acceltext"
+                    oncommand="menuShowAddressRowOnCommand('addr_cc', 'addressRowCc')"/>
+          <menuitem id="menu_showBccField"
+                    data-l10n-attrs="acceltext"
+                    oncommand="menuShowAddressRowOnCommand('addr_bcc', 'addressRowBcc')"/>
+          <menuseparator id="viewMenuBeforeAddressSidebarSeparator"/>
           <menuitem id="menu_AddressSidebar"
                     label="&addressSidebar.label;" accesskey="&addressSidebar.accesskey;"
                     type="checkbox"
@@ -2125,7 +2132,7 @@
                   <hbox id="addressingWidgetLabels" class="address-extra-recipients"
                         flex="1" align="center">
                     <hbox id="addressingWidgetSwappableLabels">
-                      <label id="addr_to" value="&toAddr2.label;" role="button"
+                      <label id="addr_to" role="button"
                              disableonsend="true"
                              class="mail-primary-label mail-label recipient-label"
                              onclick="showAddressRow(this, 'addressRowTo')"
@@ -2134,7 +2141,7 @@
                              onkeypress="showAddressRowKeyPress(event, 'addressRowTo')"
                              control="toAddrInput"
                              collapsed="true"/>
-                      <label id="addr_cc" value="&ccAddr2.label;" role="button"
+                      <label id="addr_cc" role="button"
                              disableonsend="true"
                              class="mail-label recipient-label"
                              onclick="showAddressRow(this, 'addressRowCc')"
@@ -2142,7 +2149,7 @@
                              ondragover="recipientLabelOnDragover(event);"
                              onkeypress="showAddressRowKeyPress(event, 'addressRowCc')"
                              control="ccAddrInput"/>
-                      <label id="addr_bcc" value="&bccAddr2.label;" role="button"
+                      <label id="addr_bcc" role="button"
                              disableonsend="true"
                              class="mail-label recipient-label"
                              onclick="showAddressRow(this, 'addressRowBcc')"
@@ -2217,7 +2224,8 @@
                   </hbox>
                   <hbox class="address-label-container" align="top" pack="end"
                         style="&headersSpace2.style;">
-                    <label id="toAddrLabel" value="&toAddr2.label;"
+                    <label id="toAddrLabel"
+                           data-l10n-id="to-compose-address-row-label"
                            control="toAddrInput"/>
                   </hbox>
                   <hbox id="toAddrContainer" flex="1" align="center"
@@ -2255,7 +2263,8 @@
                   </hbox>
                   <hbox class="address-label-container" align="top" pack="end"
                         style="&headersSpace2.style;">
-                    <label id="ccAddrLabel" value="&ccAddr2.label;"
+                    <label id="ccAddrLabel"
+                           data-l10n-id="cc-compose-address-row-label"
                            control="ccAddrInput"/>
                   </hbox>
                   <hbox id="ccAddrContainer" flex="1" align="center"
@@ -2293,7 +2302,8 @@
                   </hbox>
                   <hbox class="address-label-container" align="top" pack="end"
                         style="&headersSpace2.style;">
-                    <label id="bccAddrLabel" value="&bccAddr2.label;"
+                    <label id="bccAddrLabel"
+                           data-l10n-id="bcc-compose-address-row-label"
                            control="bccAddrInput"/>
                   </hbox>
                   <hbox id="bccAddrContainer" flex="1" align="center"

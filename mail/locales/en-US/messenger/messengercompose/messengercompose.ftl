@@ -116,10 +116,51 @@ button-return-receipt =
     .label = Receipt
     .tooltiptext = Request a return receipt for this message
 
+# Addressing Area
+
+to-compose-address-row-label =
+    .value = To
+
+#   $key (String) - the shortcut key for this field
+to-compose-show-address-row-menuitem =
+    .label = { to-compose-address-row-label.value } Field
+    .accesskey = T
+    .acceltext = { ctrl-cmd-shift-pretty-prefix }{ $key }
+
+to-compose-show-address-row-label =
+    .value = { to-compose-address-row-label.value }
+    .tooltiptext = Show { to-compose-address-row-label.value } Field ({ to-compose-show-address-row-menuitem.acceltext })
+
+cc-compose-address-row-label =
+    .value = Cc
+
+#   $key (String) - the shortcut key for this field
+cc-compose-show-address-row-menuitem =
+    .label = { cc-compose-address-row-label.value } Field
+    .accesskey = C
+    .acceltext = { ctrl-cmd-shift-pretty-prefix }{ $key }
+
+cc-compose-show-address-row-label =
+    .value = { cc-compose-address-row-label.value }
+    .tooltiptext = Show { cc-compose-address-row-label.value } Field ({ cc-compose-show-address-row-menuitem.acceltext })
+
+bcc-compose-address-row-label =
+    .value = Bcc
+
+#   $key (String) - the shortcut key for this field
+bcc-compose-show-address-row-menuitem =
+    .label = { bcc-compose-address-row-label.value } Field
+    .accesskey = B
+    .acceltext = { ctrl-cmd-shift-pretty-prefix }{ $key }
+
+bcc-compose-show-address-row-label =
+    .value = { bcc-compose-address-row-label.value }
+    .tooltiptext = Show { bcc-compose-address-row-label.value } Field ({ bcc-compose-show-address-row-menuitem.acceltext })
+
 #   $count (Number) - the count of addresses in the "To" and "Cc" fields.
 consider-bcc-notification = The {$count} recipients in To and Cc can see the address of each other. You can avoid disclosing recipients by using Bcc instead.
 
-many-public-recipients-bcc = 
+many-public-recipients-bcc =
   .label = Use Bcc Instead
   .accesskey = U
 

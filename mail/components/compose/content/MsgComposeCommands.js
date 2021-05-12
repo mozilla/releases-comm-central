@@ -220,6 +220,11 @@ const inputObserver = {
   },
 };
 
+// Non translatable international shortcuts.
+var SHOW_TO_KEY = "T";
+var SHOW_CC_KEY = "C";
+var SHOW_BCC_KEY = "B";
+
 function InitializeGlobalVariables() {
   gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
@@ -4170,47 +4175,102 @@ function ComposeLoad() {
   );
 
   setDefaultHeaderMinHeight();
+  setComposeLabelsAndMenuItems();
   setKeyboardShortcuts();
 }
 
 /**
- * Enable a keypress document listener for international keyboard shortcuts.
+ * Add fluent strings to labels and menu items requiring a shortcut key.
+ */
+function setComposeLabelsAndMenuItems() {
+  // To field.
+  document.l10n.setAttributes(
+    document.getElementById("menu_showToField"),
+    "to-compose-show-address-row-menuitem",
+    { key: SHOW_TO_KEY }
+  );
+  document.l10n.setAttributes(
+    document.getElementById("addr_to"),
+    "to-compose-show-address-row-label",
+    { key: SHOW_TO_KEY }
+  );
+
+  // Cc field.
+  document.l10n.setAttributes(
+    document.getElementById("menu_showCcField"),
+    "cc-compose-show-address-row-menuitem",
+    { key: SHOW_CC_KEY }
+  );
+  document.l10n.setAttributes(
+    document.getElementById("addr_cc"),
+    "cc-compose-show-address-row-label",
+    { key: SHOW_CC_KEY }
+  );
+
+  // Bcc field.
+  document.l10n.setAttributes(
+    document.getElementById("menu_showBccField"),
+    "bcc-compose-show-address-row-menuitem",
+    { key: SHOW_BCC_KEY }
+  );
+  document.l10n.setAttributes(
+    document.getElementById("addr_bcc"),
+    "bcc-compose-show-address-row-label",
+    { key: SHOW_BCC_KEY }
+  );
+}
+
+/**
+ * Add a keydown document event listener for international keyboard shortcuts.
  */
 async function setKeyboardShortcuts() {
-  let [filePickerKey, toggleBucket] = await l10nCompose.formatValues([
+  let [filePickerKey, toggleBucketKey] = await l10nCompose.formatValues([
     { id: "trigger-attachment-picker-key" },
     { id: "toggle-attachment-pane-key" },
   ]);
 
   document.addEventListener("keydown", event => {
-    // Don't do anything if we don't have the correct combination of
-    // CTRL/CMD + SHIFT, and if the pressed key is a modifier.
+    // Return if we don't have the right modifier combination, CTRL/CMD + SHIFT,
+    // or if the pressed key is a modifier (each modifier will keep firing
+    // keydown event until another key is pressed in addition).
     if (
-      (event.ctrlKey || event.metaKey) &&
-      event.shiftKey &&
-      !["Shift", "Control", "Meta"].includes(event.key)
+      !(AppConstants.platform == "macosx" ? event.metaKey : event.ctrlKey) ||
+      !event.shiftKey ||
+      ["Shift", "Control", "Meta"].includes(event.key)
     ) {
-      // Always alter the key to compare the lowercase and avoid inconsistencies
-      // betweent different OSs.
-      switch (event.key.toLowerCase()) {
-        case filePickerKey.toLowerCase():
-          // Prevent default behavior and stop propagation to avoid triggering
-          // OS specific shortcuts.
-          event.preventDefault();
-          event.stopPropagation();
+      return;
+    }
 
-          goDoCommand("cmd_attachFile");
-          break;
-
-        case toggleBucket.toLowerCase():
-          // Prevent default behavior and stop propagation to avoid triggering
-          // OS specific shortcuts.
-          event.preventDefault();
-          event.stopPropagation();
-
-          goDoCommand("cmd_toggleAttachmentPane");
-          break;
-      }
+    // Always use lowercase to compare the key and avoid OS inconsistencies:
+    // For Cmd/Ctrl+Shift+A, on Mac, key = "a" vs. on Windows/Linux, key = "A".
+    switch (event.key.toLowerCase()) {
+      // Always prevent the default behavior of the keydown if we intercepted
+      // the key in order to avoid triggering OS specific shortcuts.
+      case filePickerKey.toLowerCase():
+        // Ctrl/Cmd+Shift+A.
+        event.preventDefault();
+        goDoCommand("cmd_attachFile");
+        break;
+      case toggleBucketKey.toLowerCase():
+        // Ctrl/Cmd+Shift+M.
+        event.preventDefault();
+        goDoCommand("cmd_toggleAttachmentPane");
+        break;
+      case SHOW_TO_KEY.toLowerCase():
+        // Ctrl/Cmd+Shift+T.
+        event.preventDefault();
+        showAddressRow(document.getElementById("addr_to"), "addressRowTo");
+        break;
+      case SHOW_CC_KEY.toLowerCase():
+        // Ctrl/Cmd+Shift+C.
+        event.preventDefault();
+        showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
+        break;
+      case SHOW_BCC_KEY.toLowerCase():
+        // Ctrl/Cmd+Shift+B.
+        event.preventDefault();
+        showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
+        break;
     }
   });
 
@@ -4226,6 +4286,16 @@ async function setKeyboardShortcuts() {
       envelopeDragObserver.onDragLeave(event);
     }
   });
+}
+
+/**
+ * Helper function used by View menu items of the primary addressing fields.
+ *
+ * @param {string} labelID - The ID of the label to hide.
+ * @param {string} rowID - The ID of the address row to reveal.
+ */
+function menuShowAddressRowOnCommand(labelID, rowID) {
+  showAddressRow(document.getElementById(labelID), rowID);
 }
 
 function ComposeUnload() {

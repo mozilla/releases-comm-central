@@ -228,9 +228,6 @@
 <!ENTITY extraRecipients.tooltip "Other types of addressing fields">
 <!ENTITY fromAddr2.label "From">
 <!ENTITY fromAddr.accesskey "r">
-<!ENTITY toAddr2.label "To">
-<!ENTITY ccAddr2.label "Cc">
-<!ENTITY bccAddr2.label "Bcc">
 <!ENTITY replyAddr2.label "Reply-To">
 <!ENTITY newsgroupsAddr2.label "Newsgroup">
 <!ENTITY followupAddr2.label "Followup-To">
