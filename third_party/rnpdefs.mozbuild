@@ -27,8 +27,6 @@ if CONFIG["CC_TYPE"] == "clang-cl":
         "-Wno-macro-redefined",  # 'WIN32_LEAN_AND_MEAN' macro redefined
     ]
     USE_STATIC_LIBS = True
-CFLAGS += ["-fPIC"]
-CXXFLAGS += ["-fPIC"]
 
 # MOZ_LIBSTDCXX_TARGET_VERSION should only be set for Taskcluster builds
 # targeting Linux. The below changes those builds to statically link to
