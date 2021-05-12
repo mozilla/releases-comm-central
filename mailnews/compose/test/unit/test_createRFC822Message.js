@@ -24,7 +24,9 @@ let customSendListener = {
       "Mail file should contain correct subject line"
     );
     ok(
-      content.includes("createRFC822Message is used by nsImportService \xe4\xe9"),
+      content.includes(
+        "createRFC822Message is used by nsImportService \xe4\xe9"
+      ),
       "Mail file should contain correct body"
     );
     do_test_finished();
