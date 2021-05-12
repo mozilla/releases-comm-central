@@ -6,10 +6,9 @@
  *          changeMode
  */
 
+/* import-globals-from calendar-unifinder.js */
 /* import-globals-from calendar-views-utils.js */
 /* import-globals-from today-pane.js */
-
-/* globals ensureUnifinderLoaded gLastShownCalendarView */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 

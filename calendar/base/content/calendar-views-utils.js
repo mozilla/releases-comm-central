@@ -10,7 +10,7 @@
  */
 
 /* import-globals-from item-editing/calendar-item-editing.js */
-/* global gCurrentMode */
+/* import-globals-from calendar-modes.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { countOccurrences } = ChromeUtils.import(

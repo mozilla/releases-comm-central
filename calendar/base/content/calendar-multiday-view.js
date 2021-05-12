@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals MozElements, MozXULElement, onMouseOverItem */
-
+/* import-globals-from widgets/mouseoverPreviews.js */
 /* import-globals-from calendar-ui-utils.js */
+
+/* globals MozElements, MozXULElement */
 
 "use strict";
 

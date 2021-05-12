@@ -13,13 +13,14 @@
 /* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-invitations-manager.js */
 /* import-globals-from calendar-management.js */
+/* import-globals-from calendar-modes.js */
+/* import-globals-from calendar-task-tree-utils.js */
 /* import-globals-from calendar-ui-utils.js */
+/* import-globals-from calendar-unifinder.js */
 /* import-globals-from calendar-views-utils.js */
 /* import-globals-from today-pane.js */
 
-/* globals calSwitchToMode, changeMode, PanelUI, setUpInvitationsManager,
- *         tearDownInvitationsManager,
- */
+/* globals PanelUI */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");

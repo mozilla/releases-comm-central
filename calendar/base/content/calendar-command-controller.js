@@ -4,18 +4,19 @@
 
 /* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../mail/base/content/utilityOverlay.js */
+/* import-globals-from item-editing/calendar-item-editing.js */
 /* import-globals-from agenda-listbox-utils.js */
 /* import-globals-from calendar-clipboard.js */
 /* import-globals-from calendar-management.js */
 /* import-globals-from calendar-modes.js */
+/* import-globals-from calendar-tabs.js */
 /* import-globals-from calendar-task-tree-utils.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-unifinder.js */
 /* import-globals-from calendar-views-utils.js */
 /* import-globals-from import-export.js */
 /* import-globals-from publish.js */
-
-/* globals goSetMenuValue, switchCalendarView */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");

@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from item-editing/calendar-item-editing.js */
+/* import-globals-from calendar-management.js */
+/* import-globals-from calendar-ui-utils.js */
 
 /* globals getMessagePaneBrowser, gFolderDisplay */
 

@@ -2,12 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../src/calFilter.js */
+/* import-globals-from agenda-listbox.js */
 /* import-globals-from calendar-command-controller.js */
+/* import-globals-from calendar-dnd-listener.js */
+/* import-globals-from calendar-task-tree-view.js */
+/* import-globals-from calendar-views-utils.js */
 
-/* globals MozXULElement CalendarTaskTreeView */
+/* globals MozXULElement */
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  const { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
+
   /**
    * An observer for the calendar event data source. This keeps the unifinder
    * display up to date when the calendar event data is changed.

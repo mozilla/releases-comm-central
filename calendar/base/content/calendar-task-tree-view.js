@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from calendar-command-controller.js */
-
 /* exported CalendarTaskTreeView */
+
+/* import-globals-from item-editing/calendar-item-editing.js */
+/* import-globals-from widgets/mouseoverPreviews.js */
+
+/* globals cal */
 
 /**
  * The tree view for a CalendarTaskTree.

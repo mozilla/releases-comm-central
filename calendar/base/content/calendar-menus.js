@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals gConfig getSelectedTasks gTabmail MozElements MozXULElement
-   setAttributeOnChildrenOrTheirCommands */
+/* import-globals-from item-editing/calendar-item-panel.js */
+
+// Importing from calendar-task-tree-utils.js puts ESLint in a fatal loop.
+/* globals getSelectedTasks, MozElements, MozXULElement,
+           setAttributeOnChildrenOrTheirCommands */
 
 "use strict";
 

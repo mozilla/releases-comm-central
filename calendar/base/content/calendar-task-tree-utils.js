@@ -8,10 +8,13 @@
  *          tasksToMail, tasksToEvents, toggleCompleted,
  */
 
+/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from item-editing/calendar-item-editing.js */
+/* import-globals-from item-editing/calendar-item-panel.js */
 /* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-dnd-listener.js */
-
-/* globals gTabmail editToDoStatus editConfigState postponeTask */
+/* import-globals-from calendar-ui-utils.js */
+/* import-globals-from calendar-views-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
