@@ -478,7 +478,7 @@ function editVCard() {
 
   // read vCard hidden value from UI
   parent.gSubDialog.open(
-    "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
+    "chrome://messenger/content/am-card-dialog.xhtml",
     { features: "resizable=no" },
     args
   );
