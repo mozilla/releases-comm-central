@@ -17,13 +17,14 @@ let customSendListener = {
    */
   async onStopSending(msgId, status, msg, returnFile) {
     ok(returnFile.exists(), "createRFC822Message should create a mail file");
-    let content = await IOUtils.readUTF8(returnFile.path);
+    let content = await IOUtils.read(returnFile.path);
+    content = String.fromCharCode(...content);
     ok(
       content.includes("Subject: Test createRFC822Message\r\n"),
       "Mail file should contain correct subject line"
     );
     ok(
-      content.includes("createRFC822Message is used by nsImportService"),
+      content.includes("createRFC822Message is used by nsImportService \xe4\xe9"),
       "Mail file should contain correct body"
     );
     do_test_finished();
@@ -52,7 +53,9 @@ add_task(async function testCreateRFC822Message() {
     identity,
     fields,
     "text/plain",
-    "createRFC822Message is used by nsImportService",
+    // The following parameter is the message body that can contain arbitrary
+    // binary data, let's try some windows-1252 data (äé).
+    "createRFC822Message is used by nsImportService \xe4\xe9",
     true, // isDraft
     [],
     [],
