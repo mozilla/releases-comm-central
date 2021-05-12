@@ -24,6 +24,7 @@
 #include "nsIAsyncInputStream.h"
 #include "nsIPrincipal.h"
 #include "mozilla/Telemetry.h"
+#include "mozilla/LoadInfo.h"
 
 #define SERVER_DELIMITER ','
 #define APPEND_SERVERS_VERSION_PREF_NAME "append_preconfig_smtpservers.version"
@@ -203,7 +204,11 @@ nsresult NS_MsgLoadSmtpUrl(nsIURI* aUrl, nsISupports* aConsumer,
 
   // Create a smtp protocol instance to run the url in.
   RefPtr<nsSmtpProtocol> smtpProtocol = new nsSmtpProtocol(aUrl);
-  if (!smtpProtocol) return NS_ERROR_OUT_OF_MEMORY;
+  // It implements nsIChannel, and all channels require loadInfo.
+  smtpProtocol->SetLoadInfo(new mozilla::net::LoadInfo(
+      nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
+      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      nsIContentPolicy::TYPE_OTHER));
 
   // Protocol will get destroyed when url is completed.
   rv = smtpProtocol->LoadUrl(aUrl, aConsumer);
@@ -308,6 +313,7 @@ nsresult nsSmtpService::NewSmtpURI(const nsACString& aSpec,
 NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
                                         nsIChannel** _retval) {
   NS_ENSURE_ARG_POINTER(aURI);
+  MOZ_ASSERT(aLoadInfo);
   // create an empty pipe for use with the input stream channel.
   nsCOMPtr<nsIAsyncInputStream> pipeIn;
   nsCOMPtr<nsIAsyncOutputStream> pipeOut;

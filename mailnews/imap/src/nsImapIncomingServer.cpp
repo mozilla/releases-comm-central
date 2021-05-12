@@ -42,6 +42,7 @@
 #include "mozilla/Services.h"
 #include "nsNetUtil.h"
 #include "mozilla/Utf8.h"
+#include "mozilla/LoadInfo.h"
 
 using namespace mozilla;
 
@@ -49,7 +50,6 @@ using namespace mozilla;
 #define PREF_TRASH_FOLDER_PATH "trash_folder_name"
 #define DEFAULT_TRASH_FOLDER_PATH "Trash"  // XXX Is this a useful default?
 
-static NS_DEFINE_CID(kImapProtocolCID, NS_IMAPPROTOCOL_CID);
 static NS_DEFINE_CID(kSubscribableServerCID, NS_SUBSCRIBABLESERVER_CID);
 static NS_DEFINE_CID(kCImapHostSessionListCID, NS_IIMAPHOSTSESSIONLIST_CID);
 
@@ -747,12 +747,11 @@ nsresult nsImapIncomingServer::GetImapConnection(
   // check the actual required state here.
   else if (cnt < maxConnections &&
            (!freeConnection ||
-            requiredState == nsIImapUrl::nsImapSelectedState))
+            requiredState == nsIImapUrl::nsImapSelectedState)) {
     rv = CreateProtocolInstance(aImapConnection);
-  else if (freeConnection) {
+  } else if (freeConnection) {
     freeConnection.forget(aImapConnection);
-  } else  // cannot get anyone to handle the url queue it
-  {
+  } else {
     if (cnt >= maxConnections)
       nsImapProtocol::LogImapUrl("exceeded connection cache limit", aImapUrl);
     // caller will queue the url
@@ -783,17 +782,21 @@ nsresult nsImapIncomingServer::CreateProtocolInstance(
     default:
       break;
   }
-  nsIImapProtocol* protocolInstance;
-  rv = CallCreateInstance(kImapProtocolCID, &protocolInstance);
-  if (NS_SUCCEEDED(rv) && protocolInstance) {
-    nsCOMPtr<nsIImapHostSessionList> hostSession =
-        do_GetService(kCImapHostSessionListCID, &rv);
-    if (NS_SUCCEEDED(rv)) rv = protocolInstance->Initialize(hostSession, this);
-  }
+  nsCOMPtr<nsIImapHostSessionList> hostSession =
+      do_GetService(kCImapHostSessionListCID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  RefPtr<nsImapProtocol> protocolInstance(new nsImapProtocol());
+  rv = protocolInstance->Initialize(hostSession, this);
+  NS_ENSURE_SUCCESS(rv, rv);
+  // It implements nsIChannel, and all channels require loadInfo.
+  protocolInstance->SetLoadInfo(new mozilla::net::LoadInfo(
+      nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
+      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      nsIContentPolicy::TYPE_OTHER));
 
   // take the protocol instance and add it to the connectionCache
-  if (protocolInstance) m_connectionCache.AppendObject(protocolInstance);
-  *aImapConnection = protocolInstance;  // this is already ref counted.
+  m_connectionCache.AppendObject(protocolInstance);
+  protocolInstance.forget(aImapConnection);
   return rv;
 }
 

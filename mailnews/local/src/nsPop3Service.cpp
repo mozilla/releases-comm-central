@@ -30,6 +30,7 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "mozilla/Services.h"
+#include "mozilla/LoadInfo.h"
 
 #define PREF_MAIL_ROOT_POP3_REL "mail.root.pop3-rel"
 // old - for backward compatibility only
@@ -229,13 +230,16 @@ nsresult nsPop3Service::RunPopUrl(nsIMsgIncomingServer* aServer,
   NS_ENSURE_SUCCESS(rv, rv);
   if (!serverBusy) {
     RefPtr<nsPop3Protocol> protocol = new nsPop3Protocol(aUrlToRun);
-    if (protocol) {
-      // the protocol stores the unescaped username, so there is no need to
-      // escape it.
-      protocol->SetUsername(userName.get());
-      rv = protocol->LoadUrl(aUrlToRun);
-      if (NS_FAILED(rv)) aServer->SetServerBusy(false);
-    }
+    // It implements nsIChannel, and all channels require loadInfo.
+    protocol->SetLoadInfo(new mozilla::net::LoadInfo(
+        nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
+        nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+        nsIContentPolicy::TYPE_OTHER));
+    // the protocol stores the unescaped username, so there is no need to
+    // escape it.
+    protocol->SetUsername(userName.get());
+    rv = protocol->LoadUrl(aUrlToRun);
+    if (NS_FAILED(rv)) aServer->SetServerBusy(false);
   } else {
     nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(aUrlToRun);
     if (url) AlertServerBusy(url);
@@ -421,6 +425,7 @@ void nsPop3Service::AlertServerBusy(nsIMsgMailNewsUrl* url) {
 NS_IMETHODIMP nsPop3Service::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
                                         nsIChannel** _retval) {
   NS_ENSURE_ARG_POINTER(aURI);
+  MOZ_ASSERT(aLoadInfo);
   nsresult rv;
 
   nsCOMPtr<nsIMsgMailNewsUrl> url = do_QueryInterface(aURI, &rv);

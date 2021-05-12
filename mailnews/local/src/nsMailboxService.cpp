@@ -27,6 +27,7 @@
 #include "nsIMsgHdr.h"
 #include "nsIFileURL.h"
 #include "mozilla/RefPtr.h"
+#include "mozilla/LoadInfo.h"
 #include "nsDocShellLoadState.h"
 #include "nsContentUtils.h"
 
@@ -390,19 +391,15 @@ NS_IMETHODIMP nsMailboxService::GetUrlForUri(const nsACString& aMessageURI,
 nsresult nsMailboxService::RunMailboxUrl(nsIURI* aMailboxUrl,
                                          nsISupports* aDisplayConsumer) {
   // create a protocol instance to run the url..
-  nsresult rv = NS_OK;
   RefPtr<nsMailboxProtocol> protocol = new nsMailboxProtocol(aMailboxUrl);
-
-  if (protocol) {
-    rv = protocol->Initialize(aMailboxUrl);
-    if (NS_FAILED(rv)) {
-      protocol = nullptr;
-      return rv;
-    }
-    rv = protocol->LoadUrl(aMailboxUrl, aDisplayConsumer);
-  }
-
-  return rv;
+  // It implements nsIChannel, and all channels require loadInfo.
+  protocol->SetLoadInfo(new mozilla::net::LoadInfo(
+      nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
+      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      nsIContentPolicy::TYPE_OTHER));
+  nsresult rv = protocol->Initialize(aMailboxUrl);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return protocol->LoadUrl(aMailboxUrl, aDisplayConsumer);
 }
 
 // This function takes a message uri, converts it into a file path & msgKey
@@ -530,6 +527,7 @@ NS_IMETHODIMP nsMailboxService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
                                            nsIChannel** _retval) {
   NS_ENSURE_ARG_POINTER(aURI);
   NS_ENSURE_ARG_POINTER(_retval);
+  MOZ_ASSERT(aLoadInfo);
   nsresult rv = NS_OK;
   nsAutoCString spec;
   rv = aURI->GetSpec(spec);

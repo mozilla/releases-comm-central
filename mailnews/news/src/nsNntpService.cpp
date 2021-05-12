@@ -1171,6 +1171,7 @@ nsresult nsNntpService::NewURI(const nsACString& aSpec,
 NS_IMETHODIMP nsNntpService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
                                         nsIChannel** _retval) {
   NS_ENSURE_ARG_POINTER(aURI);
+  MOZ_ASSERT(aLoadInfo);
   nsresult rv = NS_OK;
   nsCOMPtr<nsINntpIncomingServer> server;
   rv = GetServerForUri(aURI, getter_AddRefs(server));

@@ -435,6 +435,11 @@ nsresult nsMsgProtocol::GetPromptDialogFromUrl(nsIMsgMailNewsUrl* aMsgUrl,
 }
 
 nsresult nsMsgProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
+  // nsMsgProtocol implements nsIChannel, and all channels are required to
+  // have non-null loadInfo. So if it's still unset, we've not been correctly
+  // initialised.
+  MOZ_ASSERT(m_loadInfo);
+
   // okay now kick us off to the next state...
   // our first state is a process state so drive the state machine...
   nsresult rv = NS_OK;
@@ -476,7 +481,9 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
 
         m_request = pump;  // keep a reference to the pump so we can cancel it
 
-        // put us in a state where we are always notified of incoming data
+        // Put us in a state where we are always notified of incoming data.
+        // OnDataAvailable() will be called when that happens, which will
+        // pass that data into ProcessProtocolState().
         rv = pump->AsyncRead(this);
         NS_ASSERTION(NS_SUCCEEDED(rv), "AsyncRead failed");
         m_socketIsOpen = true;  // mark the channel as open

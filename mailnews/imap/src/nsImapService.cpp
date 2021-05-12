@@ -2499,6 +2499,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
                                         nsIChannel** aRetVal) {
   NS_ENSURE_ARG_POINTER(aURI);
   NS_ENSURE_ARG_POINTER(aRetVal);
+  MOZ_ASSERT(aLoadInfo);
   *aRetVal = nullptr;
 
   nsresult rv;
