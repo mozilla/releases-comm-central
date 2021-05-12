@@ -9,7 +9,7 @@
  *          editSelectedEvents, selectAllEvents, calendarNavigationBar
  */
 
-/* import-globals-from calendar-item-editing.js */
+/* import-globals-from item-editing/calendar-item-editing.js */
 /* global gCurrentMode */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");

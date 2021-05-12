@@ -8,13 +8,13 @@
 
 /* import-globals-from ../../../mail/base/content/mailCore.js */
 /* import-globals-from ../../../mail/base/content/mailWindowOverlay.js */
+/* import-globals-from item-editing/calendar-item-panel.js */
+/* import-globals-from item-editing/calendar-task-editing.js */
 /* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-invitations-manager.js */
 /* import-globals-from calendar-management.js */
-/* import-globals-from calendar-task-editing.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-views-utils.js */
-/* import-globals-from lightning-item-panel.js */
 /* import-globals-from today-pane.js */
 
 /* globals calSwitchToMode, changeMode, PanelUI, setUpInvitationsManager,

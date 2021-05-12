@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from calendar-management.js */
-/* import-globals-from calendar-views-utils.js */
+/* import-globals-from ../calendar-management.js */
+/* import-globals-from ../calendar-views-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -510,7 +510,7 @@ function openEventDialog(
 
   if (cal.acl.isCalendarWritable(calendar) && (mode == "new" || isEditable)) {
     if (args.inTab) {
-      url = "chrome://calendar/content/lightning-item-iframe.xhtml";
+      url = "chrome://calendar/content/calendar-item-iframe.xhtml";
     } else {
       url = "chrome://calendar/content/calendar-event-dialog.xhtml";
     }

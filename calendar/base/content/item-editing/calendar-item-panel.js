@@ -11,9 +11,9 @@
  *          openNewMessage, openNewCardDialog
  */
 
-/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from dialogs/calendar-dialog-utils.js */
-/* import-globals-from calendar-ui-utils.js */
+/* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../dialogs/calendar-dialog-utils.js */
+/* import-globals-from ../calendar-ui-utils.js */
 
 // XXX Need to determine which of these we really need here.
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
@@ -220,7 +220,7 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
   } else {
     // window dialog case
     iframe = document.createXULElement("iframe");
-    iframeSrc = "chrome://calendar/content/lightning-item-iframe.xhtml";
+    iframeSrc = "chrome://calendar/content/calendar-item-iframe.xhtml";
 
     iframe.setAttribute("id", "lightning-item-panel-iframe");
     iframe.setAttribute("flex", "1");

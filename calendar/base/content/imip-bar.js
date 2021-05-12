@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../mail/base/content/msgHdrView.js */
-/* import-globals-from calendar-item-editing.js */
+/* import-globals-from item-editing/calendar-item-editing.js */
 
 /* globals gMessageDisplay, msgWindow */
 

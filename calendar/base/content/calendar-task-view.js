@@ -5,7 +5,7 @@
 /* exported taskDetailsView, sendMailToOrganizer, taskViewCopyLink */
 
 /* import-globals-from ../../../mail/base/content/mailCore.js */
-/* import-globals-from calendar-item-editing.js */
+/* import-globals-from item-editing/calendar-item-editing.js */
 /* import-globals-from calendar-ui-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");

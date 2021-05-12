@@ -8,7 +8,7 @@
 
 /* global MozElements */
 
-/* import-globals-from ../calendar-item-editing.js */
+/* import-globals-from ../item-editing/calendar-item-editing.js */
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
