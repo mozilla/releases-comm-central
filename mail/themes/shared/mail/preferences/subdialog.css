@@ -24,6 +24,13 @@
   padding: 0;
 }
 
+@media (-moz-toolbar-prefers-color-scheme: dark) {
+  :root[dialogroot],
+  .dialogBox {
+    --in-content-page-background: #2a2a2e;
+  }
+}
+
 .dialogBox[resizable="true"] {
   resize: both;
   overflow: hidden;
