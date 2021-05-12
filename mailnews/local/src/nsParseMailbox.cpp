@@ -863,18 +863,20 @@ nsresult nsParseMailMessageState::ParseHeaders() {
   }
   while (buf < buf_end) {
     char* colon = PL_strnchr(buf, ':', buf_end - buf);
-    char* end;
     char* value = 0;
     struct message_header* header = 0;
     struct message_header receivedBy;
 
     if (!colon) break;
 
-    end = colon;
-    nsDependentCSubstring headerStr(buf, end);
+    nsDependentCSubstring headerStr(buf, colon);
     ToLowerCase(headerStr);
 
-    switch (headerStr.First()) {
+    // Obtain firstChar in headerStr. But if headerStr is empty, just set it to
+    // the colon. This is needed because First() asserts on an empty string.
+    char firstChar = !headerStr.IsEmpty() ? headerStr.First() : *colon;
+
+    switch (firstChar) {
       case 'b':
         if (headerStr.EqualsLiteral("bcc")) header = &m_bccList;
         break;

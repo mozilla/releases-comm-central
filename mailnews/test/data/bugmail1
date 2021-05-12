@@ -39,6 +39,7 @@ X-Bugzilla-Product: Core
 X-Bugzilla-Component: MailNews: Filters
 X-Bugzilla-Keywords: 
 X-Bugzilla-Severity: enhancement
+: Leading colon caused a MOZ_RELEASE_ASSERT crash
 X-Bugzilla-Who: bugmail@example.org
 X-Bugzilla-Status: NEW
 X-Bugzilla-Priority: --
