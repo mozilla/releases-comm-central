@@ -804,6 +804,16 @@ add_task(async function testType() {
       }
 
       browser.tabs.onCreated.addListener(async tab => {
+        // Bug 1702957, if composeWindow.GetComposeDetails() is not delayed
+        // until the compose window is ready, it will overwrite the compose
+        // fields.
+        let details = await browser.compose.getComposeDetails(tab.id);
+        browser.test.assertEq(
+          "Johnny Jones <johnny@jones.invalid>",
+          details.to.pop(),
+          "Check Recipients in draft after calling getComposeDetails()"
+        );
+
         let window = await browser.windows.get(tab.windowId);
         if (window.type == "messageCompose") {
           await checkComposer(tab, { type: "draft" });

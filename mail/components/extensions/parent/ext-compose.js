@@ -90,19 +90,25 @@ async function parseComposeRecipientList(
   return recipients.join(",");
 }
 
+function composeWindowIsReady(composeWindow) {
+  return new Promise(resolve => {
+    if (composeWindow.composeEditorReady) {
+      resolve();
+      return;
+    }
+    composeWindow.addEventListener("compose-editor-ready", resolve, {
+      once: true,
+    });
+  });
+}
+
 async function openComposeWindow(relatedMessageId, type, details, extension) {
   function waitForWindow() {
     return new Promise(resolve => {
       function observer(subject, topic, data) {
         if (subject.location.href == COMPOSE_WINDOW_URI) {
           Services.obs.removeObserver(observer, "chrome-document-loaded");
-          subject.ownerGlobal.addEventListener(
-            "compose-editor-ready",
-            () => {
-              resolve(subject.ownerGlobal);
-            },
-            { once: true }
-          );
+          resolve(subject.ownerGlobal);
         }
       }
       Services.obs.addObserver(observer, "chrome-document-loaded");
@@ -165,7 +171,6 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       msgHdr = messageTracker.getMessage(relatedMessageId);
       msgURI = msgHdr.folder.getUriForMsg(msgHdr);
     }
-    let newWindowPromise = waitForWindow();
 
     // For the types in this code path, OpenComposeWindow only uses
     // nsIMsgCompFormat.Default or OppositeOfDefault. Check which is needed.
@@ -185,6 +190,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
           : Ci.nsIMsgCompFormat.OppositeOfDefault;
     }
 
+    let newWindowPromise = waitForWindow();
     MailServices.compose.OpenComposeWindow(
       null,
       msgHdr,
@@ -196,6 +202,8 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       null
     );
     let composeWindow = await newWindowPromise;
+    await composeWindowIsReady(composeWindow);
+
     if (details) {
       await setComposeDetails(composeWindow, details, extension);
 
@@ -277,6 +285,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   let newWindowPromise = waitForWindow();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
   let composeWindow = await newWindowPromise;
+  await composeWindowIsReady(composeWindow);
 
   await setFromField(composeWindow, details, extension);
   composeWindow.gContentChanged = false;
@@ -285,18 +294,9 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
 }
 
 async function getComposeDetails(composeWindow, extension) {
-  let composeFields = composeWindow.GetComposeDetails();
+  await composeWindowIsReady(composeWindow);
 
-  // register the event listener before checking composeEditorReady
-  // to a eliminate potential race condition
-  let composeEditorReady = new Promise(resolve =>
-    composeWindow.addEventListener("compose-editor-ready", resolve, {
-      once: true,
-    })
-  );
-  if (!composeWindow.composeEditorReady) {
-    await composeEditorReady;
-  }
+  let composeFields = composeWindow.GetComposeDetails();
   let editor = composeWindow.GetCurrentEditor();
 
   let type;
@@ -387,6 +387,8 @@ async function setFromField(composeWindow, details, extension) {
 }
 
 async function setComposeDetails(composeWindow, details, extension) {
+  await composeWindowIsReady(composeWindow);
+
   if (details.body && details.plainTextBody) {
     throw new ExtensionError(
       "Only one of body and plainTextBody can be specified."
