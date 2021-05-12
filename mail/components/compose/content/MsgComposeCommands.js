@@ -5144,9 +5144,8 @@ function checkPublicRecipientsLimit() {
     "mail.compose.warn_public_recipients.threshold"
   );
 
-  let publicAddressPills = getPublicAddressPills();
-
-  if (publicAddressPills.length < recipLimit) {
+  let publicAddressPillsCount = getPublicAddressPills().length;
+  if (publicAddressPillsCount < recipLimit) {
     if (notification) {
       gComposeNotification.removeNotification(notification);
     }
@@ -5161,7 +5160,7 @@ function checkPublicRecipientsLimit() {
     let msgText = root.querySelector(".consider-bcc-notification-text");
     msgText.setAttribute(
       "data-l10n-args",
-      JSON.stringify({ count: publicAddressPills.length })
+      JSON.stringify({ count: publicAddressPillsCount })
     );
     return;
   }
@@ -5173,18 +5172,25 @@ function checkPublicRecipientsLimit() {
   msgText.setAttribute("data-l10n-id", "consider-bcc-notification");
   msgText.setAttribute(
     "data-l10n-args",
-    JSON.stringify({ count: publicAddressPills.length })
+    JSON.stringify({ count: publicAddressPillsCount })
   );
 
   let bccButton = {
     "l10n-id": "many-public-recipients-bcc",
     callback() {
-      let publicAddressPills = getPublicAddressPills();
-      let publicAddresses = publicAddressPills.map(pill => pill.fullAddress);
+      // Get public addresses before we remove the pills.
+      let publicAddresses = getPublicAddressPills().map(
+        pill => pill.fullAddress
+      );
 
       recipientClearPills(document.querySelector("#toAddrInput"));
       recipientClearPills(document.querySelector("#ccAddrInput"));
+      // Add previously public address pills to Bcc address row and select them.
       awAddRecipientsArray("addr_bcc", publicAddresses, true);
+      // Focus last added pill to prevent sticky selection with focus elsewhere.
+      document
+        .querySelector("#bccAddrContainer mail-address-pill:last-of-type")
+        .focus();
       return false;
     },
   };
@@ -5225,9 +5231,9 @@ function checkPublicRecipientsLimit() {
 }
 
 /**
- * Provides all the address pills in the "To" and "Cc" fields.
+ * Get all the address pills in the "To" and "Cc" fields.
  *
- * @returns {MailAddressPill[]}
+ * @returns {Element[]} All <mail-address-pill> elements in "To" and "CC" fields.
  */
 function getPublicAddressPills() {
   return [
