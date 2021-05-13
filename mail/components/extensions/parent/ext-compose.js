@@ -206,7 +206,6 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
 
     if (details) {
       await setComposeDetails(composeWindow, details, extension);
-
       if (details.attachments != null) {
         let attachments = [];
         for (let data of details.attachments) {
@@ -220,9 +219,8 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
         }
         composeWindow.AddAttachments(attachments);
       }
-
-      composeWindow.gContentChanged = false;
     }
+    composeWindow.gContentChanged = false;
     return composeWindow;
   }
 
@@ -245,28 +243,6 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   }
 
   if (details) {
-    for (let field of ["to", "cc", "bcc", "replyTo", "followupTo"]) {
-      composeFields[field] = await parseComposeRecipientList(details[field]);
-    }
-    if (details.newsgroups) {
-      if (Array.isArray(details.newsgroups)) {
-        composeFields.newsgroups = details.newsgroups.join(",");
-      } else {
-        composeFields.newsgroups = details.newsgroups;
-      }
-    }
-    if (details.subject !== null) {
-      composeFields.subject = details.subject;
-    }
-    if (details.body !== null) {
-      // We replace line breaks because otherwise they'll be converted to
-      // <br> in nsMsgCompose::BuildBodyMessageAndSignature().
-      composeFields.body = details.body.replace(/\r?\n/g, " ");
-    }
-    if (details.plainTextBody !== null) {
-      composeFields.body = details.plainTextBody;
-    }
-
     if (details.attachments !== null) {
       for (let data of details.attachments) {
         let attachment = Cc[
@@ -280,16 +256,19 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       }
     }
   }
-
   params.composeFields = composeFields;
   let newWindowPromise = waitForWindow();
   MailServices.compose.OpenComposeWindowWithParams(null, params);
   let composeWindow = await newWindowPromise;
   await composeWindowIsReady(composeWindow);
 
-  await setFromField(composeWindow, details, extension);
+  // Not all details can be set with params for all types, so some need an extra
+  // call to setComposeDetails here. Since we have to use setComposeDetails for
+  // the EditAsNew code path, unify API behavior by always calling it here too.
+  if (details) {
+    await setComposeDetails(composeWindow, details, extension);
+  }
   composeWindow.gContentChanged = false;
-
   return composeWindow;
 }
 
@@ -720,25 +699,6 @@ this.compose = class extends ExtensionAPI {
             details,
             extension
           );
-          // Opening a composer in reply mode will ignore details.body or
-          // details.plainTextBody. For API consistency enforce the requested
-          // content.
-          if (details) {
-            if (details.body !== null) {
-              await setComposeDetails(
-                composeWindow,
-                { body: details.body },
-                extension
-              );
-            }
-            if (details.plainTextBody !== null) {
-              await setComposeDetails(
-                composeWindow,
-                { plainTextBody: details.plainTextBody },
-                extension
-              );
-            }
-          }
           return tabManager.convert(composeWindow);
         },
         async beginForward(messageId, forwardType, details) {

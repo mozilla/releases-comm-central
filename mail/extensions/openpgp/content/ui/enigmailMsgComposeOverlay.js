@@ -3110,21 +3110,26 @@ Enigmail.composeStateListener = {
     }
     */
 
-    if (!isEditable || isEmpty) {
-      return;
+    if (isEditable && !isEmpty) {
+      let msgHdr = Enigmail.msg.getMsgHdr();
+      if (msgHdr) {
+        Enigmail.msg.setOriginalSubject(msgHdr.subject, msgHdr.flags, true);
+      }
+      Enigmail.msg.fixMessageSubject();
+
+      if (!Enigmail.msg.timeoutId && !Enigmail.msg.dirty) {
+        Enigmail.msg.timeoutId = setTimeout(function() {
+          Enigmail.msg.decryptQuote(false);
+        }, 0);
+      }
     }
 
-    let msgHdr = Enigmail.msg.getMsgHdr();
-    if (msgHdr) {
-      Enigmail.msg.setOriginalSubject(msgHdr.subject, msgHdr.flags, true);
-    }
-    Enigmail.msg.fixMessageSubject();
-
-    if (!Enigmail.msg.timeoutId && !Enigmail.msg.dirty) {
-      Enigmail.msg.timeoutId = setTimeout(function() {
-        Enigmail.msg.decryptQuote(false);
-      }, 0);
-    }
+    // This must be called by the last registered NotifyComposeBodyReady()
+    // stateListener. We need this in order to know when the entire init
+    // sequence of the composeWindow has finished, so the WebExtension compose
+    // API can do its final modifications.
+    window.composeEditorReady = true;
+    window.dispatchEvent(new CustomEvent("compose-editor-ready"));
   },
 
   SaveInFolderDone(folderURI) {
