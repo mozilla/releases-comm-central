@@ -516,11 +516,9 @@ man/*
 [calendar]
 @RESPATH@/chrome/calendar@JAREXT@
 @RESPATH@/chrome/calendar.manifest
-@RESPATH@/chrome/lightning@JAREXT@
-@RESPATH@/chrome/lightning.manifest
 
 @RESPATH@/res/zones.json
-@RESPATH@/@PREF_DIR@/lightning.js
+@RESPATH@/@PREF_DIR@/calendar.js
 
 # Files added to components directory via `EXTRA_COMPONENTS`.
 @RESPATH@/components/calBackendLoader.js
