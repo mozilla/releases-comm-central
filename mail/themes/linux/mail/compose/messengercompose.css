@@ -144,6 +144,10 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
   margin-block: 0;
 }
 
+.pill-indicator {
+  margin-top: -2px;
+}
+
 #identityLabel-box {
   margin-top: 1px;
 }

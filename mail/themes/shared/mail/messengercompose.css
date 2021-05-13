@@ -921,8 +921,8 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   list-style-image: url("chrome://messenger/skin/icons/pill-indicator.svg");
   fill: currentColor;
   stroke: Field;
-  margin-inline-end: -10px;
-  margin-block: -4px 12px;
+  margin-inline-end: -8px;
+  margin-bottom: 1em;
   transition: fill .2s ease, stroke .2s ease;
 }
 
