@@ -38,9 +38,9 @@ class CalItipOutgoingMessage {
    * @return {boolean} - True, if the message could be sent
    */
   send(transport) {
-    let calendar = cal.wrapInstance(this.item.calendar, Ci.calISchedulingSupport);
-    if (calendar) {
-      if (calendar.QueryInterface(Ci.calISchedulingSupport).canNotify(this.method, this.item)) {
+    if (this.item.calendar && this.item.calendar.supportsScheduling) {
+      let calendar = this.item.calendar.getSchedulingSupport();
+      if (calendar.canNotify(this.method, this.item)) {
         // provider will handle that, so we return - we leave it also to the provider to
         // deal with user canceled notifications (if possible), so set the return value
         // to true as false would prevent any further notification within this cycle
@@ -48,15 +48,7 @@ class CalItipOutgoingMessage {
       }
     }
 
-    if (this.recipients.length == 0) {
-      return false;
-    }
-
-    transport = transport ? transport : this.item.calendar.getProperty("itip.transport");
-
-    if (!transport) {
-      // can only send if there's a transport for the calendar or an alternative
-      // one was provided.
+    if (this.recipients.length == 0 || !transport) {
       return false;
     }
 

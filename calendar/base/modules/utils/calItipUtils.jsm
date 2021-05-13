@@ -766,13 +766,11 @@ var calitip = {
    *                                            of calIItipItem. The default mode is USER (which
    *                                            will trigger displaying the previously known popup
    *                                            to ask the user whether to send)
-   * @param {?calIItipTransport} aTransport An optional transport to use instead of the one
-   *                                        provided by the item's calendar.
    */
-  checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null, aTransport = null) {
+  checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null) {
     let sender = new CalItipMessageSender(aOriginalItem, calitip.getInvitedAttendee(aItem));
     if (sender.detectChanges(aOpType, aItem, aExtResponse)) {
-      sender.send(aTransport);
+      sender.send(calitip.getImipTransport(aItem));
     }
   },
 
@@ -1040,6 +1038,35 @@ var calitip = {
     }
     return attendees;
   },
+
+  /**
+   * Provides the transport to be used for an item based on the invited attendee
+   * or calendar.
+   *
+   * @param {calIItemBase} item
+   */
+  getImipTransport(item) {
+    let id = item.getProperty("X-MOZ-INVITED-ATTENDEE");
+
+    if (id) {
+      let email = id.split("mailto:").join("");
+      let identity = MailServices.accounts.allIdentities.find(identity => identity.email == email);
+
+      if (identity) {
+        let [server] = MailServices.accounts.getServersForIdentity(identity);
+
+        if (server) {
+          let account = MailServices.accounts.FindAccountForServer(server);
+          return new CalItipDefaultEmailTransport(account, identity);
+        }
+      }
+
+      // We did not find the identity or associated account
+      return null;
+    }
+
+    return cal.provider.getImipTransport(item.calendar);
+  },
 };
 
 /** local to this module file
@@ -1215,14 +1242,11 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
  * @param {?Object} aExtResponse        An object to provide additional parameters for sending itip
  *                                      messages as response mode, comments or a subset of
  *                                      recipients.
- * @param {?calIItipTransport} aTransport An optional transport to use instead of the one
- *                                        provided by the item's calendar.
  */
-function ItipOpListener(aOpListener, aOldItem, aExtResponse = null, aTransport = null) {
+function ItipOpListener(aOpListener, aOldItem, aExtResponse = null) {
   this.mOpListener = aOpListener;
   this.mOldItem = aOldItem;
   this.mExtResponse = aExtResponse;
-  this.mTransport = aTransport;
 }
 ItipOpListener.prototype = {
   QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
@@ -1234,13 +1258,7 @@ ItipOpListener.prototype = {
   onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
     cal.ASSERT(Components.isSuccessCode(aStatus), "error on iTIP processing");
     if (Components.isSuccessCode(aStatus)) {
-      calitip.checkAndSend(
-        aOperationType,
-        aDetail,
-        this.mOldItem,
-        this.mExtResponse,
-        this.mTransport
-      );
+      calitip.checkAndSend(aOperationType, aDetail, this.mOldItem, this.mExtResponse);
     }
     if (this.mOpListener) {
       this.mOpListener.onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail);
@@ -1675,7 +1693,6 @@ ItipItemFinder.prototype = {
               newItem.parentItem.calendar = this.mItipItem.targetCalendar;
               addScheduleAgentClient(newItem, this.mItipItem.targetCalendar);
 
-              let transport;
               let sendCancelled = false;
               if (partStat) {
                 if (partStat != "DECLINED") {
@@ -1701,17 +1718,11 @@ ItipItemFinder.prototype = {
                         sendCancelled = true;
                       },
                       onOk(identity) {
-                        let [server] = MailServices.accounts.getServersForIdentity(identity);
-                        if (server) {
-                          let account = MailServices.accounts.FindAccountForServer(server);
-                          transport = new CalItipDefaultEmailTransport(account, identity);
-
-                          att = new CalAttendee();
-                          att.id = `mailto:${identity.email}`;
-                          att.commonName = identity.fullName;
-                          att.isOrganizer = false;
-                          newItem.addAttendee(att);
-                        }
+                        att = new CalAttendee();
+                        att.id = `mailto:${identity.email}`;
+                        att.commonName = identity.fullName;
+                        att.isOrganizer = false;
+                        newItem.addAttendee(att);
                       },
                     }
                   );
@@ -1731,7 +1742,7 @@ ItipItemFinder.prototype = {
 
               let requestListener = sendCancelled
                 ? null
-                : new ItipOpListener(opListener, null, extResponse, transport);
+                : new ItipOpListener(opListener, null, extResponse);
 
               return newItem.calendar.addItem(
                 newItem,
