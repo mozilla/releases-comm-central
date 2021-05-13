@@ -10,6 +10,12 @@
 @import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/preferences/preferences.css");
 
+@media (prefers-contrast) {
+  :root {
+    --in-content-accent-color: Highlight;
+  }
+}
+
 window > vbox {
   padding-block: 40px;
   padding-inline: 24px 28px;
