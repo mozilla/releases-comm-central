@@ -19,6 +19,11 @@ ChromeUtils.defineModuleGetter(
 );
 ChromeUtils.defineModuleGetter(
   this,
+  "MimeParser",
+  "resource:///modules/mimeParser.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
   "MsgHdrToMimeMessage",
   "resource:///modules/gloda/MimeMessage.jsm"
 );
@@ -34,8 +39,8 @@ Cu.importGlobalProperties(["fetch", "File"]);
 var { DefaultMap } = ExtensionUtils;
 
 /**
- * Takes a part of a MIME message (as retrieved with MsgHdrToMimeMessage) and filters
- * out the properties we don't want to send to extensions.
+ * Takes a part of a MIME message (as retrieved with MsgHdrToMimeMessage) and
+ * filters out the properties we don't want to send to extensions.
  */
 function convertMessagePart(part) {
   let partObject = {};
@@ -212,8 +217,24 @@ this.messages = class extends ExtensionAPI {
           );
         },
         async getFull(messageId) {
+          let msgHdr = messageTracker.getMessage(messageId);
+
+          // Use jsmime based MimeParser to read NNTP messages, which are not
+          // supported by MsgHdrToMimeMessage. No encryption support!
+          if (msgHdr.folder.server.type == "nntp") {
+            let mimeMsg = {};
+            try {
+              let raw = await MsgHdrToRawMessage(msgHdr);
+              mimeMsg = MimeParser.extractMimeMsg(raw, {
+                includeAttachments: false,
+              });
+            } catch (e) {
+              throw new ExtensionError(`Error reading message ${messageId}`);
+            }
+            return convertMessagePart(mimeMsg);
+          }
+
           let mimeMsg = await new Promise(resolve => {
-            let msgHdr = messageTracker.getMessage(messageId);
             MsgHdrToMimeMessage(
               msgHdr,
               null,
@@ -241,6 +262,16 @@ this.messages = class extends ExtensionAPI {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
 
+          // Use jsmime based MimeParser to read NNTP messages, which are not
+          // supported by MsgHdrToMimeMessage. No encryption support!
+          if (msgHdr.folder.server.type == "nntp") {
+            let raw = await MsgHdrToRawMessage(msgHdr);
+            let mimeMsg = MimeParser.extractMimeMsg(raw, {
+              includeAttachments: true,
+            });
+            return mimeMsg.allAttachments.map(convertAttachment);
+          }
+
           return new Promise(resolve => {
             MsgHdrToMimeMessage(
               msgHdr,
@@ -257,6 +288,24 @@ this.messages = class extends ExtensionAPI {
           let msgHdr = messageTracker.getMessage(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
+          }
+
+          // Use jsmime based MimeParser to read NNTP messages, which are not
+          // supported by MsgHdrToMimeMessage. No encryption support!
+          if (msgHdr.folder.server.type == "nntp") {
+            let raw = await MsgHdrToRawMessage(msgHdr);
+            let attachment = MimeParser.extractMimeMsg(raw, {
+              includeAttachments: true,
+              getMimePart: partName,
+            });
+            if (!attachment) {
+              throw new ExtensionError(
+                `Part ${partName} not found in message ${messageId}.`
+              );
+            }
+            return new File([attachment.bodyAsTypedArray], attachment.name, {
+              type: attachment.contentType,
+            });
           }
 
           // It's not ideal to have to call MsgHdrToMimeMessage here but we
