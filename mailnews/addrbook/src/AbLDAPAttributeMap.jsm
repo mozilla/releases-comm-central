@@ -35,7 +35,7 @@ AbLDAPAttributeMap.prototype = {
       return null;
     }
 
-    return this.mPropertyMap[aProperty][0]?.replace(/\[(\d+)\]$/, '');
+    return this.mPropertyMap[aProperty][0]?.replace(/\[(\d+)\]$/, "");
   },
 
   setAttributeList(aProperty, aAttributeList, aAllowInconsistencies) {
@@ -78,8 +78,8 @@ AbLDAPAttributeMap.prototype = {
   getAllCardAttributes() {
     var attrs = [];
     for (let attrArray of Object.entries(this.mPropertyMap)) {
-      for (let attrName of attrArray) { 
-        attrName = attrName.toString().replace(/\[(\d+)\]$/, '');
+      for (let attrName of attrArray) {
+        attrName = attrName.toString().replace(/\[(\d+)\]$/, "");
         if (attrs.includes(attrName)) {
           continue;
         }
@@ -136,7 +136,7 @@ AbLDAPAttributeMap.prototype = {
         attr = attr.toLowerCase();
         // allow an index in attr
         let valueIndex = 0;
-        const valueIndexMatch = (/^(.+)\[(\d+)\]$/).exec(attr);
+        const valueIndexMatch = /^(.+)\[(\d+)\]$/.exec(attr);
         if (valueIndexMatch !== null) {
           attr = valueIndexMatch[1];
           valueIndex = parseInt(valueIndexMatch[2]);
