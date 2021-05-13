@@ -14,6 +14,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRelation: "resource:///modules/CalRelation.jsm",
   CalItipDefaultEmailTransport: "resource:///modules/CalItipEmailTransport.jsm",
   CalItipMessageSender: "resource:///modules/CalItipMessageSender.jsm",
+  CalItipOutgoingMessage: "resource:///modules/CalItipOutgoingMessage.jsm",
 });
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
@@ -1173,64 +1174,13 @@ function copyProviderProperties(itipItem, itipItemItem, item) {
  * @return {Boolean}                        True, if the message could be sent
  */
 function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
-  let calendar = aItem.calendar;
-  if (calendar && calendar.supportsScheduling) {
-    if (calendar.getSchedulingSupport().canNotify(aMethod, aItem)) {
-      // provider will handle that, so we return - we leave it also to the provider to
-      // deal with user canceled notifications (if possible), so set the return value
-      // to true as false would prevent any further notification within this cycle
-      return true;
-    }
-  }
-
-  if (aRecipientsList.length == 0) {
-    return false;
-  }
-
-  let transport = aItem.calendar.getProperty("itip.transport");
-  if (!transport) {
-    // can only send if there's a transport for the calendar
-    return false;
-  }
-  transport = transport.QueryInterface(Ci.calIItipTransport);
-
-  let _sendItem = function(aSendToList, aSendItem) {
-    let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
-    itipItem.init(cal.item.serialize(aSendItem));
-    itipItem.responseMethod = aMethod;
-    itipItem.targetCalendar = aSendItem.calendar;
-    itipItem.autoResponse = autoResponse.mode;
-    // we switch to AUTO for each subsequent call of _sendItem()
-    autoResponse.mode = Ci.calIItipItem.AUTO;
-    // XXX I don't know whether the below is used at all, since we don't use the itip processor
-    itipItem.isSend = true;
-
-    return transport.sendItems(aSendToList, itipItem);
-  };
-
-  // split up transport, if attendee undisclosure is requested
-  // and this is a message send by the organizer
-  if (
-    aItem.getProperty("X-MOZ-SEND-INVITATIONS-UNDISCLOSED") == "TRUE" &&
-    aMethod != "REPLY" &&
-    aMethod != "REFRESH" &&
-    aMethod != "COUNTER"
-  ) {
-    for (let recipient of aRecipientsList) {
-      // create a list with a single recipient
-      let sendToList = [recipient];
-      // remove other recipients from vevent attendee list
-      let sendItem = aItem.clone();
-      sendItem.removeAllAttendees();
-      sendItem.addAttendee(recipient);
-      // send message
-      if (!_sendItem(sendToList, sendItem)) {
-        return false;
-      }
-    }
-    return true;
-  }
-  return _sendItem(aRecipientsList, aItem);
+  new CalItipOutgoingMessage(
+    aMethod,
+    aRecipientsList,
+    aItem,
+    calitip.getInvitedAttendee(aItem),
+    autoResponse
+  ).send(calitip.getImipTransport(aItem));
 }
 
 /** local to this module file
