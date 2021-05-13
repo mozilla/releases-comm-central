@@ -116,12 +116,12 @@ AbLDAPAutoCompleteSearch.prototype = {
     });
   },
 
-  _addToResult(card) {
+  _addToResult(card, emailProperty) {
     let mbox = this._parser.makeMailboxObject(
       card.displayName,
       card.isMailList
         ? card.getProperty("Notes", "") || card.displayName
-        : card.primaryEmail
+        : card.getProperty(emailProperty, "")
     );
     if (!mbox.email) {
       return;
@@ -249,6 +249,11 @@ AbLDAPAutoCompleteSearch.prototype = {
         this._book.attributeMap.getAttributeList("PrimaryEmail", {}),
         true
       );
+      this._attributes.setAttributeList(
+        "SecondEmail",
+        this._book.attributeMap.getAttributeList("SecondEmail", {}),
+        true
+      );
     }
 
     this._result._commentColumn = this._book.dirName;
@@ -336,7 +341,8 @@ AbLDAPAutoCompleteSearch.prototype = {
       return;
     }
 
-    this._addToResult(aCard);
+    this._addToResult(aCard, "PrimaryEmail");
+    this._addToResult(aCard, "SecondEmail");
 
     /* XXX autocomplete doesn't expect you to rearrange while searching
     if (this._result.matchCount) {

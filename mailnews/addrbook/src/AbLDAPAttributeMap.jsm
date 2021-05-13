@@ -35,7 +35,7 @@ AbLDAPAttributeMap.prototype = {
       return null;
     }
 
-    return this.mPropertyMap[aProperty][0];
+    return this.mPropertyMap[aProperty][0]?.replace(/\[(\d+)\]$/, '');
   },
 
   setAttributeList(aProperty, aAttributeList, aAllowInconsistencies) {
@@ -77,9 +77,14 @@ AbLDAPAttributeMap.prototype = {
 
   getAllCardAttributes() {
     var attrs = [];
-    for (var prop in this.mPropertyMap) {
-      let attrArray = this.mPropertyMap[prop];
-      attrs = attrs.concat(attrArray);
+    for (let attrArray of Object.entries(this.mPropertyMap)) {
+      for (let attrName of attrArray) { 
+        attrName = attrName.toString().replace(/\[(\d+)\]$/, '');
+        if (attrs.includes(attrName)) {
+          continue;
+        }
+        attrs.push(attrName);
+      }
     }
 
     if (!attrs.length) {
@@ -129,19 +134,26 @@ AbLDAPAttributeMap.prototype = {
       // go through the list of possible attrs in precedence order
       for (var attr of this.mPropertyMap[prop]) {
         attr = attr.toLowerCase();
+        // allow an index in attr
+        let valueIndex = 0;
+        const valueIndexMatch = (/^(.+)\[(\d+)\]$/).exec(attr);
+        if (valueIndexMatch !== null) {
+          attr = valueIndexMatch[1];
+          valueIndex = parseInt(valueIndexMatch[2]);
+        }
 
         // find the first attr that exists in this message
         if (msgAttrs.includes(attr)) {
           try {
             var values = aMessage.getValues(attr);
             // strip out the optional label from the labeledURI
-            if (attr == "labeleduri" && values[0]) {
-              var index = values[0].indexOf(" ");
+            if (attr == "labeleduri" && values[valueIndex]) {
+              var index = values[valueIndex].indexOf(" ");
               if (index != -1) {
-                values[0] = values[0].substring(0, index);
+                values[valueIndex] = values[valueIndex].substring(0, index);
               }
             }
-            aCard.setProperty(prop, values[0]);
+            aCard.setProperty(prop, values[valueIndex]);
 
             cardValueWasSet = true;
             break;
