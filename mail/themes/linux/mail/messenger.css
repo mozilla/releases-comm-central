@@ -107,6 +107,7 @@
   :root[tabsintitlebar] #titlebar:-moz-lwtheme {
     visibility: hidden;
   }
+
   :root[tabsintitlebar] #titlebar-content:-moz-lwtheme {
     visibility: visible;
   }
@@ -114,7 +115,23 @@
   :root[tabsintitlebar] #titlebar {
     appearance: auto;
     -moz-default-appearance: -moz-window-titlebar-maximized;
+    color: -moz-gtk-titlebar-text;
   }
+
+  :root[tabsintitlebar] #navigation-toolbox {
+    color: -moz-gtk-titlebar-text;
+  }
+
+  :root[tabsintitlebar] #titlebar:-moz-window-inactive,
+  :root[tabsintitlebar] #navigation-toolbox:-moz-window-inactive {
+    color: -moz-gtk-titlebar-inactive-text;
+  }
+
+  :root[tabsintitlebar] #titlebar:-moz-lwtheme,
+  :root[tabsintitlebar] #navigation-toolbox:-moz-lwtheme {
+    color: inherit;
+  }
+
   :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) #titlebar {
     appearance: auto;
     -moz-default-appearance: -moz-window-titlebar;
@@ -131,6 +148,11 @@
   :root[tabsintitlebar] #tabs-toolbar,
   :root[tabsintitlebar] #mail-toolbar-menubar2 {
     appearance: none;
+    color: inherit;
+  }
+
+  :root[tabsintitlebar] #mail-menubar {
+    color: inherit;
   }
 
   /* The button box must appear on top of the navigator-toolbox in order for
