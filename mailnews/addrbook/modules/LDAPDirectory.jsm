@@ -12,7 +12,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  OS: "resource://gre/modules/osfile.jsm",
+  FileUtils: "resource://gre/modules/FileUtils.jsm",
   QueryStringToExpression: "resource:///modules/QueryStringToExpression.jsm",
   Services: "resource://gre/modules/Services.jsm",
 });
@@ -59,11 +59,7 @@ class LDAPDirectory extends AddrBookDirectory {
   }
 
   get replicationFile() {
-    let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    file.initWithPath(
-      OS.Path.join(OS.Constants.Path.profileDir, this.replicationFileName)
-    );
-    return file;
+    return FileUtils.getFile("ProfD", [this.replicationFileName]);
   }
 
   get protocolVersion() {
@@ -107,6 +103,13 @@ class LDAPDirectory extends AddrBookDirectory {
     return Services.io.newURI(uri || `ldap://${this._uri.slice(22)}`);
   }
 
+  get childCards() {
+    if (Services.io.offline) {
+      return this.replicationDB.childCards;
+    }
+    return super.childCards;
+  }
+
   /**
    * @see {AddrBookDirectory}
    */
@@ -121,7 +124,20 @@ class LDAPDirectory extends AddrBookDirectory {
     return new Map();
   }
 
+  get replicationDB() {
+    this._replicationDB?.cleanUp();
+    this._replicationDB = Cc[
+      "@mozilla.org/addressbook/directory;1?type=jsaddrbook"
+    ].createInstance(Ci.nsIAbDirectory);
+    this._replicationDB.init(`jsaddrbook://${this.replicationFileName}`);
+    return this._replicationDB;
+  }
+
   search(queryString, listener) {
+    if (Services.io.offline) {
+      this.replicationDB.search(queryString, listener);
+      return;
+    }
     if (!this._query) {
       this._query = Cc[
         "@mozilla.org/addressbook/ldap-directory-query;1"
