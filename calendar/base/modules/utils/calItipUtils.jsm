@@ -766,21 +766,12 @@ var calitip = {
    *                                            of calIItipItem. The default mode is USER (which
    *                                            will trigger displaying the previously known popup
    *                                            to ask the user whether to send)
-   * @param {?calIAttendee} aTargetAttendee The target attendee of the action being carried out.
    * @param {?calIItipTransport} aTransport An optional transport to use instead of the one
    *                                        provided by the item's calendar.
    */
-  checkAndSend(
-    aOpType,
-    aItem,
-    aOriginalItem,
-    aExtResponse = null,
-    aTargetAttendee = null,
-    aTransport = null
-  ) {
-    let sender = new CalItipMessageSender(aOriginalItem, aTargetAttendee);
-
-    if (sender.detectChanges(aOpType, aItem, aTargetAttendee, aExtResponse)) {
+  checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null, aTransport = null) {
+    let sender = new CalItipMessageSender(aOriginalItem, calitip.getInvitedAttendee(aItem));
+    if (sender.detectChanges(aOpType, aItem, aExtResponse)) {
       sender.send(aTransport);
     }
   },
@@ -1008,6 +999,10 @@ var calitip = {
    * @return {?calIAttendee}              The attendee that was invited
    */
   getInvitedAttendee(aItem, aCalendar) {
+    let id = aItem.getProperty("X-MOZ-INVITED-ATTENDEE");
+    if (id) {
+      return aItem.getAttendeeById(id);
+    }
     if (!aCalendar) {
       aCalendar = aItem.calendar;
     }
@@ -1220,21 +1215,13 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
  * @param {?Object} aExtResponse        An object to provide additional parameters for sending itip
  *                                      messages as response mode, comments or a subset of
  *                                      recipients.
- * @param {?calIAttendee} aTargetAttendee The target attendee of the action being carried out.
  * @param {?calIItipTransport} aTransport An optional transport to use instead of the one
  *                                        provided by the item's calendar.
  */
-function ItipOpListener(
-  aOpListener,
-  aOldItem,
-  aExtResponse = null,
-  aTargetAttendee = null,
-  aTransport = null
-) {
+function ItipOpListener(aOpListener, aOldItem, aExtResponse = null, aTransport = null) {
   this.mOpListener = aOpListener;
   this.mOldItem = aOldItem;
   this.mExtResponse = aExtResponse;
-  this.mTargetAttendee = aTargetAttendee;
   this.mTransport = aTransport;
 }
 ItipOpListener.prototype = {
@@ -1252,7 +1239,6 @@ ItipOpListener.prototype = {
         aDetail,
         this.mOldItem,
         this.mExtResponse,
-        this.mTargetAttendee,
         this.mTransport
       );
     }
@@ -1691,12 +1677,16 @@ ItipItemFinder.prototype = {
 
               let transport;
               let sendCancelled = false;
-              let att = calitip.getInvitedAttendee(newItem);
               if (partStat) {
                 if (partStat != "DECLINED") {
                   cal.alarms.setDefaultValues(newItem);
                 }
 
+                // Remove this property if set so it won't affect the invited
+                // attendee selection.
+                newItem.deleteProperty("X-MOZ-INVITED-ATTENDEE");
+
+                let att = calitip.getInvitedAttendee(newItem);
                 if (!att) {
                   // Prompt the user for the identity to use for the response.
                   // This has the side effect of the identity selected
@@ -1728,6 +1718,8 @@ ItipItemFinder.prototype = {
                 }
                 if (att) {
                   att.participationStatus = partStat;
+                  // Set this so we know who accepted the event.
+                  newItem.setProperty("X-MOZ-INVITED-ATTENDEE", att.id);
                 }
               } else {
                 cal.ASSERT(
@@ -1739,7 +1731,7 @@ ItipItemFinder.prototype = {
 
               let requestListener = sendCancelled
                 ? null
-                : new ItipOpListener(opListener, null, extResponse, att, transport);
+                : new ItipOpListener(opListener, null, extResponse, transport);
 
               return newItem.calendar.addItem(
                 newItem,

@@ -715,7 +715,7 @@ var calprovider = {
     isInvitation(aItem) {
       if (!this.mACLEntry || !this.mACLEntry.hasAccessControl) {
         // No ACL support - fallback to the old method
-        let id = this.getProperty("organizerId");
+        let id = aItem.getProperty("X-MOZ-INVITED-ATTENDEE") || this.getProperty("organizerId");
         if (id) {
           let org = aItem.organizer;
           if (!org || !org.id || org.id.toLowerCase() == id.toLowerCase()) {

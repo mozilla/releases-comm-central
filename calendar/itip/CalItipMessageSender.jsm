@@ -23,9 +23,13 @@ class CalItipMessageSender {
   /**
    * @param {?calIItemBase} originalItem - The original invitation item before
    *  it is modified.
+   *
+   * @param {?calIAttendee} invitedAttendee - For incomming invitations, this is
+   *  the attendee that was invited (corresponding to an installed identity).
    */
-  constructor(originalItem) {
+  constructor(originalItem, invitedAttendee) {
     this.originalItem = originalItem;
+    this.invitedAttendee = invitedAttendee;
   }
 
   /**
@@ -37,8 +41,6 @@ class CalItipMessageSender {
    *
    * @param {Number} opType - Type of operation - (e.g. ADD, MODIFY or DELETE)
    * @param {calIItemBase} item - The updated item.
-   * @param {?calIAttendee} targetAttendee - For the REQUEST/PUBLISH methods this
-   *  is the invited attendee. It is not currently used otherwise.
    * @param {?object} extResponse - An object to provide additional
    *  parameters for sending itip messages as response mode, comments or a
    *  subset of recipients.
@@ -50,8 +52,8 @@ class CalItipMessageSender {
    *
    * @returns {number} - The number of messages to be sent.
    */
-  detectChanges(opType, item, targetAttendee, extResponse = null) {
-    let { originalItem } = this;
+  detectChanges(opType, item, extResponse = null) {
+    let { originalItem, invitedAttendee } = this;
 
     // balance out parts of the modification vs delete confusion, deletion of occurrences
     // are notified as parent modifications and modifications of occurrences are notified
@@ -134,11 +136,6 @@ class CalItipMessageSender {
       return this.pendingMessages.length;
     }
 
-    let invitedAttendee = cal.itip.isInvitation(item) && cal.itip.getInvitedAttendee(item);
-    if (!invitedAttendee && targetAttendee && item.getAttendeeById(targetAttendee.id)) {
-      invitedAttendee = targetAttendee;
-    }
-
     if (invitedAttendee) {
       // actually is an invitation copy, fix attendee list to send REPLY
       /* We check if the attendee id matches one of of the
@@ -178,9 +175,11 @@ class CalItipMessageSender {
           item.addAttendee(invitedAttendee);
           // we remove X-MS-OLK-SENDER to avoid confusing Outlook 2007+ (w/o Exchange)
           // about the notification sender (see bug 603933)
-          if (item.hasProperty("X-MS-OLK-SENDER")) {
-            item.deleteProperty("X-MS-OLK-SENDER");
-          }
+          item.deleteProperty("X-MS-OLK-SENDER");
+
+          // Do not send the X-MOZ-INVITED-ATTENDEE property.
+          item.deleteProperty("X-MOZ-INVITED-ATTENDEE");
+
           // if the event was delegated to the replying attendee, we may also notify also
           // the delegator due to chapter 3.2.2.3. of RfC 5546
           let replyTo = [];
