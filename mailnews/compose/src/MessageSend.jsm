@@ -588,6 +588,10 @@ MessageSend.prototype = {
             // require the server name to be encoded. Just print the descriptive
             // string.
             errorMsg = this._composeBundle.GetStringFromName(errorName);
+          } else if (url.errorMessage) {
+            // url.errorMessage is an already localized message, usually
+            // combined with the error message from SMTP server.
+            errorMsg = url.errorMessage;
           } else {
             errorMsg = this._composeBundle.GetStringFromName(
               "sendFailedUnexpected"

@@ -442,7 +442,7 @@ class SmtpClient {
     }
     // Use nsresult to integrate with other parts of sending process, e.g.
     // MessageSend.jsm will show an error message depending on the nsresult.
-    this.onerror(nsError, secInfo);
+    this.onerror(nsError, "", secInfo);
     this.close();
   }
 
@@ -450,9 +450,28 @@ class SmtpClient {
    * Error handler. Emits an nsresult value.
    *
    * @param {nsresult} nsError - A nsresult.
+   * @param {string} serverError - Error message returned from the SMTP server.
    */
-  _onNsError(nsError) {
-    this.onerror(nsError);
+  _onNsError(nsError, serverError) {
+    let errorName = MsgUtils.getErrorStringName(nsError);
+    let errorMessage = "";
+    if (
+      [
+        MsgUtils.NS_ERROR_SMTP_SERVER_ERROR,
+        MsgUtils.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED,
+        MsgUtils.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2,
+        MsgUtils.NS_ERROR_SENDING_FROM_COMMAND,
+        MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND,
+        MsgUtils.NS_ERROR_SENDING_DATA_COMMAND,
+        MsgUtils.NS_ERROR_SENDING_MESSAGE,
+      ].includes(nsError)
+    ) {
+      let bundle = Services.strings.createBundle(
+        "chrome://messenger/locale/messengercompose/composeMsgs.properties"
+      );
+      errorMessage = bundle.formatStringFromName(errorName, [serverError]);
+    }
+    this.onerror(nsError, errorMessage);
     this.close();
   }
 
@@ -807,8 +826,10 @@ class SmtpClient {
   _actionEHLO(command) {
     var match;
 
-    if (!command.success) {
+    if ([500, 502].includes(command.statusCode)) {
+      // EHLO is not implemented by the server.
       if (this._server.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS) {
+        // If alwaysSTARTTLS is set by the user, EHLO is required to advertise it.
         this._onNsError(MsgUtils.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS);
         return;
       }
@@ -819,6 +840,10 @@ class SmtpClient {
       );
       this._currentAction = this._actionHELO;
       this._sendCommand("HELO " + this._getHelloArgument());
+      return;
+    } else if (!command.success) {
+      // 501 Syntax error or some other error.
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
       return;
     }
 
@@ -916,7 +941,7 @@ class SmtpClient {
    */
   _actionHELO(command) {
     if (!command.success) {
-      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR);
+      this._onNsError(MsgUtils.NS_ERROR_SMTP_SERVER_ERROR, command.data);
       return;
     }
     this._authenticateUser();
@@ -1115,7 +1140,7 @@ class SmtpClient {
           errorCode = MsgUtils.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2;
         }
       }
-      this._onNsError(errorCode);
+      this._onNsError(errorCode, command.data);
       return;
     }
 
@@ -1177,7 +1202,7 @@ class SmtpClient {
         this._sendCommand("DATA");
       } else {
         this.logger.error("Can't send mail - all recipients were rejected");
-        this._onNsError(MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND);
+        this._onNsError(MsgUtils.NS_ERROR_SENDING_RCPT_COMMAND, command.data);
         this._currentAction = this._actionIdle;
       }
     } else {
@@ -1197,7 +1222,7 @@ class SmtpClient {
     // response should be 354 but according to this issue https://github.com/eleith/emailjs/issues/24
     // some servers might use 250 instead
     if (![250, 354].includes(command.statusCode)) {
-      this._onNsError(MsgUtils.NS_ERROR_SENDING_DATA_COMMAND);
+      this._onNsError(MsgUtils.NS_ERROR_SENDING_DATA_COMMAND, command.data);
       return;
     }
 

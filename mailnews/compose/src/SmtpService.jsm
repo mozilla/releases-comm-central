@@ -145,13 +145,14 @@ SmtpService.prototype = {
       deliveryListener?.OnStopRunningUrl(runningUrl, exitCode);
       client.close();
     };
-    client.onerror = (nsError, secInfo) => {
+    client.onerror = (nsError, errorMessage, secInfo) => {
+      runningUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
       if (secInfo) {
         // TODO(emilio): Passing the failed security info as part of the URI is
         // quite a smell, but monkey see monkey do...
-        runningUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
         runningUrl.failedSecInfo = secInfo;
       }
+      runningUrl.errorMessage = errorMessage;
       deliveryListener?.OnStopRunningUrl(runningUrl, nsError);
     };
   },
@@ -163,11 +164,12 @@ SmtpService.prototype = {
     let client = new SmtpClient(server);
     client.connect();
     let runningUrl = this._getRunningUri(server);
-    client.onerror = (nsError, secInfo) => {
+    client.onerror = (nsError, errorMessage, secInfo) => {
+      runningUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
       if (secInfo) {
-        runningUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
         runningUrl.failedSecInfo = secInfo;
       }
+      runningUrl.errorMessage = errorMessage;
       urlListener.OnStopRunningUrl(runningUrl, nsError);
     };
     client.onready = () => {
