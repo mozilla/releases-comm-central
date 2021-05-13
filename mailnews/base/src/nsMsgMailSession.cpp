@@ -31,6 +31,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/Components.h"
+#include "nsFocusManager.h"
 
 NS_IMPL_ISUPPORTS(nsMsgMailSession, nsIMsgMailSession, nsIFolderListener)
 
@@ -252,11 +253,12 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow** aMsgWindow) {
       NS_ENSURE_SUCCESS(rv, rv);
       NS_ENSURE_TRUE(windowSupports, NS_ERROR_FAILURE);
 
-      topMostWindow = do_QueryInterface(windowSupports, &rv);
+      nsCOMPtr<nsPIDOMWindowOuter> window =
+          do_QueryInterface(windowSupports, &rv);
       NS_ENSURE_SUCCESS(rv, rv);
-      NS_ENSURE_TRUE(topMostWindow, NS_ERROR_FAILURE);
+      NS_ENSURE_TRUE(window, NS_ERROR_FAILURE);
 
-      mozilla::dom::Document* domDocument = topMostWindow->GetDoc();
+      mozilla::dom::Document* domDocument = window->GetDoc();
       NS_ENSURE_TRUE(domDocument, NS_ERROR_FAILURE);
 
       mozilla::dom::Element* domElement = domDocument->GetDocumentElement();
@@ -264,14 +266,28 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow** aMsgWindow) {
 
       domElement->GetAttribute(u"windowtype"_ns, windowType);
       if (windowType.EqualsLiteral("mail:3pane") ||
-          windowType.EqualsLiteral("mail:messageWindow"))
-        break;
+          windowType.EqualsLiteral("mail:messageWindow")) {
+        // topMostWindow is the last 3pane/messageWindow found, not necessarily
+        // the top most.
+        topMostWindow = window;
+        RefPtr<nsFocusManager> fm = nsFocusManager::GetFocusManager();
+        nsCOMPtr<mozIDOMWindowProxy> currentWindow =
+            do_QueryInterface(windowSupports, &rv);
+        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<mozIDOMWindowProxy> activeWindow;
+        rv = fm->GetActiveWindow(getter_AddRefs(activeWindow));
+        NS_ENSURE_SUCCESS(rv, rv);
+        if (currentWindow == activeWindow) {
+          // We are sure topMostWindow is really the top most now.
+          break;
+        }
+      }
 
       windowEnum->HasMoreElements(&more);
     }
 
     // identified the top most window
-    if (more) {
+    if (topMostWindow) {
       // use this for the match
       nsIDocShell* topDocShell = topMostWindow->GetDocShell();
 
