@@ -687,11 +687,11 @@
         ppmHasChanged = this.pixelsPerMinute != ppm;
         this.pixelsPerMinute = ppm;
 
-        setTimeout(() => this.scrollToMinute(this.mFirstVisibleMinute), 0);
-
         // Fit the weekday labels while scrolling.
         this.adjustWeekdayLength(isOrientHorizontal);
       }
+
+      setTimeout(() => this.scrollToMinute(this.mFirstVisibleMinute), 0);
 
       // Adjust the time indicator position and the related timer.
       if (this.mTimeIndicatorInterval != 0) {
