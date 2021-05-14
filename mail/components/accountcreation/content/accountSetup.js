@@ -2279,7 +2279,6 @@ SecurityWarningDialog.prototype = {
    *
    * We (currently) warn if
    * - the mail travels unsecured (no SSL/STARTTLS)
-   * - the SSL certificate is not proper
    * - (We don't warn about unencrypted passwords specifically,
    *   because they'd be encrypted with SSL and without SSL, we'd
    *   warn anyways.)
@@ -2483,12 +2482,6 @@ SecurityWarningDialog.prototype = {
   onOK() {
     assert(e("acknowledge_warning").checked);
 
-    var overrideOK = this.showCertOverrideDialog(this._currentConfigFilledIn);
-    if (!overrideOK) {
-      this.onCancel();
-      return;
-    }
-
     // need filled in, in case hostname is placeholder
     var storeConfig = this._currentConfigFilledIn.copy();
     this._acknowledged.push(storeConfig.incoming);
@@ -2498,71 +2491,6 @@ SecurityWarningDialog.prototype = {
     _hide("warningbox");
 
     this._okCallback();
-  },
-
-  /**
-   * Shows a(nother) dialog which allows the user to see and override
-   * (manually accept) a bad certificate. It also optionally adds it
-   * permanently to the "good certs" store of NSS in the profile.
-   * Only shows the dialog, if there are bad certs. Otherwise, it's a no-op.
-   *
-   * The dialog is the standard PSM cert override dialog.
-   *
-   * @param config {AccountConfig} concrete
-   * @returns true, if all certs are fine or the user accepted them.
-   *     false, if the user cancelled.
-   *
-   * static function
-   * sync function: blocks until the dialog is closed.
-   */
-  showCertOverrideDialog(config) {
-    if (
-      config.incoming.socketType > 1 && // SSL or STARTTLS
-      config.incoming.badCert
-    ) {
-      let params = {
-        exceptionAdded: false,
-        prefetchCert: true,
-        location: config.incoming.targetSite,
-      };
-      window.openDialog(
-        "chrome://pippki/content/exceptionDialog.xhtml",
-        "",
-        "chrome,centerscreen,modal",
-        params
-      );
-      if (params.exceptionAdded) {
-        // set by dialog
-        config.incoming.badCert = false;
-      } else {
-        return false;
-      }
-    }
-    if (!config.outgoing.existingServerKey) {
-      if (
-        config.outgoing.socketType > 1 && // SSL or STARTTLS
-        config.outgoing.badCert
-      ) {
-        let params = {
-          exceptionAdded: false,
-          prefetchCert: true,
-          location: config.outgoing.targetSite,
-        };
-        window.openDialog(
-          "chrome://pippki/content/exceptionDialog.xhtml",
-          "",
-          "chrome,centerscreen,modal",
-          params
-        );
-        if (params.exceptionAdded) {
-          // set by dialog
-          config.outgoing.badCert = false;
-        } else {
-          return false;
-        }
-      }
-    }
-    return true;
   },
 };
 var gSecurityWarningDialog = new SecurityWarningDialog();

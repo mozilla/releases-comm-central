@@ -211,27 +211,22 @@ function urlListener(
 }
 urlListener.prototype = {
   OnStartRunningUrl(aUrl) {
-    this._log.info("Starting to test username");
-    this._log.info(
-      "  username=" +
-        (this.mConfig.incoming.username != this.mConfig.identity.emailAddress) +
-        ", have savedUsername=" +
-        (this.mConfig.usernameSaved ? "true" : "false")
-    );
-    this._log.info("  authMethod=" + this.mServer.authMethod);
+    this._log.debug(`Starting to verify configuration;
+      email as username=${this.mConfig.incoming.username !=
+        this.mConfig.identity.emailAddress}
+      savedUsername=${this.mConfig.usernameSaved ? "true" : "false"},
+      authMethod=${this.mServer.authMethod}`);
   },
 
   OnStopRunningUrl(aUrl, aExitCode) {
-    try {
-      this._log.info("Finished verifyConfig resulted in " + aExitCode);
-      if (Components.isSuccessCode(aExitCode)) {
-        this._cleanup();
-        this.mSuccessCallback(this.mConfig);
-        return;
-      }
-    } catch (e) {
-      this._log.error(e);
+    if (Components.isSuccessCode(aExitCode)) {
+      this._log.debug(`Configuration verified successfully!`);
+      this._cleanup();
+      this.mSuccessCallback(this.mConfig);
+      return;
     }
+
+    this._log.debug(`Verifying configuration failed; status=${aExitCode}`);
 
     try {
       let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
@@ -246,8 +241,6 @@ urlListener.prototype = {
     }
 
     if (this.mCertError) {
-      this._log.error("cert error");
-
       let mailNewsUrl = aUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
       let secInfo = mailNewsUrl.failedSecInfo;
       this.informUserOfCertError(secInfo, aUrl.asciiHostPort);
@@ -261,17 +254,10 @@ urlListener.prototype = {
   },
 
   tryNextLogon(aPreviousUrl) {
-    this._log.info("tryNextLogon()");
-    this._log.info(
-      "  username=" +
-        (this.mConfig.incoming.username != this.mConfig.identity.emailAddress) +
-        ", have savedUsername=" +
-        (this.mConfig.usernameSaved ? "true" : "false")
-    );
-    this._log.info("  authMethod=" + this.mServer.authMethod);
+    this._log.debug("Trying next logon variation");
     // check if we tried full email address as username
     if (this.mConfig.incoming.username != this.mConfig.identity.emailAddress) {
-      this._log.info("  Changing username to email address.");
+      this._log.debug("Changing username to email address.");
       this.mConfig.usernameSaved = this.mConfig.incoming.username;
       this.mConfig.incoming.username = this.mConfig.identity.emailAddress;
       this.mConfig.outgoing.username = this.mConfig.identity.emailAddress;
@@ -289,7 +275,7 @@ urlListener.prototype = {
     }
 
     if (this.mConfig.usernameSaved) {
-      this._log.info("  Re-setting username.");
+      this._log.debug("Re-setting username.");
       // If we tried the full email address as the username, then let's go
       // back to trying just the username before trying the other cases.
       this.mConfig.incoming.username = this.mConfig.usernameSaved;
@@ -304,11 +290,11 @@ urlListener.prototype = {
     // So fall back to non-secure auth, and
     // again try the user name and email address as username
     assert(this.mConfig.incoming.auth == this.mServer.authMethod);
-    this._log.info(
-      "  Using SSL: " +
-        (this.mServer.socketType == Ci.nsMsgSocketType.SSL ||
-          this.mServer.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS)
-    );
+    if (this.mServer.socketType == Ci.nsMsgSocketType.SSL) {
+      this._log.debug("Using SSL");
+    } else if (this.mServer.socketType == Ci.nsMsgSocketType.alwaysSTARTTLS) {
+      this._log.debug("Using STARTTLS");
+    }
     if (
       this.mConfig.incoming.authAlternatives &&
       this.mConfig.incoming.authAlternatives.length
@@ -316,14 +302,7 @@ urlListener.prototype = {
       // We may be dropping back to insecure auth methods here,
       // which is not good. But then again, we already warned the user,
       // if it is a config without SSL.
-      this._log.info(
-        "  auth alternatives = " +
-          this.mConfig.incoming.authAlternatives.join(",")
-      );
-      this._log.info("  Decreasing auth.");
-      this._log.info(
-        "  Have password: " + (this.mServer.password ? "true" : "false")
-      );
+
       let brokenAuth = this.mConfig.incoming.auth;
       // take the next best method (compare chooseBestAuthMethod() in guess)
       this.mConfig.incoming.auth = this.mConfig.incoming.authAlternatives.shift();
@@ -339,7 +318,7 @@ urlListener.prototype = {
       ) {
         this.mConfig.outgoing.auth = this.mConfig.incoming.auth;
       }
-      this._log.info("  outgoing auth: " + this.mConfig.outgoing.auth);
+      this._log.debug(`Trying next auth method: ${this.mServer.authMethod}`);
       verifyLogon(
         this.mConfig,
         this.mServer,
@@ -352,7 +331,7 @@ urlListener.prototype = {
     }
 
     // Tried all variations we can. Give up.
-    this._log.info("Giving up.");
+    this._log.debug("Have tried all variations. Giving up.");
     this._failed(aPreviousUrl);
   },
 
@@ -393,28 +372,36 @@ urlListener.prototype = {
     this.mErrorCallback(ex);
   },
 
+  /**
+   * Inform users that we got a certificate error for the specified location.
+   * Allow them to add an exception for it.
+   *
+   * @param {nsITransportSecurityInfo} secInfo
+   * @param {string} location - "host:port" that had the problem.
+   */
   informUserOfCertError(secInfo, location) {
-    var params = {
+    this._log.debug(`Informing user about cert error for ${location}`);
+    let params = {
       exceptionAdded: false,
       securityInfo: secInfo,
       prefetchCert: true,
       location,
     };
-    window.openDialog(
+    window.browsingContext.topChromeWindow.openDialog(
       "chrome://pippki/content/exceptionDialog.xhtml",
-      "",
+      "exceptionDialog",
       "chrome,centerscreen,modal",
       params
     );
-    this._log.info("cert exception dialog closed");
-    this._log.info("cert exceptionAdded = " + params.exceptionAdded);
     if (!params.exceptionAdded) {
+      this._log.debug(`Did not accept exception for ${location}`);
       this._cleanup();
       let errorMsg = getStringBundle(
         "chrome://messenger/locale/accountCreationModel.properties"
       ).GetStringFromName("cannot_login.error");
       this.mErrorCallback(new Exception(errorMsg));
     } else {
+      this._log.debug(`Accept exception for ${location} - will retry logon.`);
       // Retry the logon now that we've added the cert exception.
       verifyLogon(
         this.mConfig,
