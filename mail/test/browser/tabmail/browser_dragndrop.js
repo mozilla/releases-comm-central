@@ -368,7 +368,7 @@ async function _synthesizeRecentlyClosedMenu() {
     '[anonid="recentlyClosedTabs"]'
   );
 
-  EventUtils.synthesizeMouse(recentlyClosedTabs, 5, 5, {}, mc.window);
+  recentlyClosedTabs.openMenu(true);
   await wait_for_popup_to_open(recentlyClosedTabs.menupopup);
 
   return recentlyClosedTabs;
@@ -430,7 +430,7 @@ add_task(async function test_tab_recentlyClosed() {
   }
 
   // Restore the most recently closed tab
-  EventUtils.synthesizeMouse(menu.getItemAtIndex(0), 5, 5, {}, mc.window);
+  menu.menupopup.activateItem(menu.getItemAtIndex(0));
   await _teardownRecentlyClosedMenu();
 
   wait_for_message_display_completion(mc);
@@ -449,7 +449,7 @@ add_task(async function test_tab_recentlyClosed() {
   }
 
   // Now we restore an "random" tab.
-  EventUtils.synthesizeMouse(menu.getItemAtIndex(5), 5, 5, {}, mc.window);
+  menu.menupopup.activateItem(menu.getItemAtIndex(5));
   await _teardownRecentlyClosedMenu();
 
   wait_for_message_display_completion(mc);
@@ -469,13 +469,7 @@ add_task(async function test_tab_recentlyClosed() {
     "Tab Title does not match Menu item"
   );
 
-  EventUtils.synthesizeMouse(
-    menu.getItemAtIndex(menu.itemCount - 1),
-    5,
-    5,
-    {},
-    mc.window
-  );
+  menu.menupopup.activateItem(menu.getItemAtIndex(menu.itemCount - 1));
   await _teardownRecentlyClosedMenu();
 
   wait_for_message_display_completion(mc);
