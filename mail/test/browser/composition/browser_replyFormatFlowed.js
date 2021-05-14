@@ -60,7 +60,9 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   // Now check the message content in the drafts folder.
   be_in_folder(gDrafts);
+  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   let message = select_click_row(0);
+  await msgLoaded;
   let messageContent = get_msg_source(message);
 
   // Check for a single line that contains text and make sure there is a

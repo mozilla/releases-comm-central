@@ -11,11 +11,11 @@
 #include "mozIDOMWindow.h"
 #include "nsIBaseWindow.h"
 #include "nsIDocShell.h"
-#include "nsIMsgMailSession.h"
 #include "nsIMsgWindow.h"
 #include "nsIObserverService.h"
 #include "nsIPrefService.h"
 #include "nsIWidget.h"
+#include "nsIWindowMediator.h"
 #include "nsMessengerWinIntegration.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgDBFolder.h"
@@ -121,22 +121,19 @@ LRESULT CALLBACK nsMessengerWinIntegration::IconWindowProc(HWND msgWindow,
       }
     }
 
-    // No minimzed window, bring the topMostMsgWindow to the front.
+    // No minimzed window, bring the most recent 3pane window to the front.
     if (sHiddenWindows.Length() == 0) {
-      nsCOMPtr<nsIMsgMailSession> mailSession(
-          do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
-      if (NS_FAILED(rv)) return FALSE;
+      nsCOMPtr<nsIWindowMediator> windowMediator =
+          do_GetService(NS_WINDOWMEDIATOR_CONTRACTID, &rv);
+      NS_ENSURE_SUCCESS(rv, FALSE);
 
-      nsCOMPtr<nsIMsgWindow> topMostMsgWindow;
-      rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(topMostMsgWindow));
-      if (NS_FAILED(rv)) return FALSE;
-      if (topMostMsgWindow) {
-        nsCOMPtr<mozIDOMWindowProxy> domWindow;
-        topMostMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
-        if (domWindow) {
-          activateWindow(domWindow);
-          return TRUE;
-        }
+      nsCOMPtr<mozIDOMWindowProxy> domWindow;
+      rv =
+          windowMediator->GetMostRecentBrowserWindow(getter_AddRefs(domWindow));
+      NS_ENSURE_SUCCESS(rv, FALSE);
+      if (domWindow) {
+        activateWindow(domWindow);
+        return TRUE;
       }
     }
 
