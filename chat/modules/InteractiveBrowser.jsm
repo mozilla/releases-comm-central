@@ -108,7 +108,14 @@ var InteractiveBrowser = {
         onStateChange(aWebProgress, request, stateFlags, aStatus) {
           const wpl = Ci.nsIWebProgressListener;
           if (stateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK)) {
-            this._checkForRedirect(request.name);
+            try {
+              this._checkForRedirect(request.name);
+            } catch (error) {
+              // Ignore |name| not implemented exception
+              if (error.result !== Cr.NS_ERROR_NOT_IMPLEMENTED) {
+                throw error;
+              }
+            }
           }
         },
         onLocationChange(webProgress, request, location) {
@@ -125,6 +132,10 @@ var InteractiveBrowser = {
       }
       signal.addEventListener("abort", listener._abortListener);
       webProgress.addProgressListener(listener, Ci.nsIWebProgress.NOTIFY_ALL);
+      const browser = window.document.getElementById("requestFrame");
+      if (browser.currentURI.spec) {
+        listener._checkForRedirect(browser.currentURI.spec);
+      }
     });
   },
 };

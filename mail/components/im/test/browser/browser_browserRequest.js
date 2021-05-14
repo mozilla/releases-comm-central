@@ -34,14 +34,14 @@ add_task(async function testBrowserRequestObserverNotification() {
     );
   });
 
-  const window = await windowPromise;
+  const requestWindow = await windowPromise;
   const loadedWindow = await loadedPromise;
   ok(loadedWindow);
   is(loadedWindow.document.documentURI, kBaseWindowUri);
 
   const closeEvent = new Event("close");
-  window.dispatchEvent(closeEvent);
-  await BrowserTestUtils.closeWindow(window);
+  requestWindow.dispatchEvent(closeEvent);
+  await BrowserTestUtils.closeWindow(requestWindow);
 
   await cancelledPromise;
 });
@@ -55,14 +55,13 @@ add_task(async function testWaitForRedirect() {
     win => win.document.documentURI === kBaseWindowUri
   );
   const request = InteractiveBrowser.waitForRedirect(initialUrl, promptText);
-  const window = await windowPromise;
-  is(window.document.title, promptText, "set window title");
+  const requestWindow = await windowPromise;
+  is(requestWindow.document.title, promptText, "set window title");
 
-  const closedWindow = BrowserTestUtils.domWindowClosed(window);
-  await BrowserTestUtils.loadURI(
-    window.document.getElementById("requestFrame"),
-    completionUrl
-  );
+  const closedWindow = BrowserTestUtils.domWindowClosed(requestWindow);
+  const browser = requestWindow.document.getElementById("requestFrame");
+  await BrowserTestUtils.browserLoaded(browser);
+  BrowserTestUtils.loadURI(browser, completionUrl);
   const result = await request;
   is(result, completionUrl, "finished with correct URL");
 
@@ -77,12 +76,12 @@ add_task(async function testCancelWaitForRedirect() {
     win => win.document.documentURI === kBaseWindowUri
   );
   const request = InteractiveBrowser.waitForRedirect(initialUrl, promptText);
-  const window = await windowPromise;
-  is(window.document.title, promptText, "set window title");
+  const requestWindow = await windowPromise;
+  is(requestWindow.document.title, promptText, "set window title");
 
   const closeEvent = new Event("close");
-  window.dispatchEvent(closeEvent);
-  await BrowserTestUtils.closeWindow(window);
+  requestWindow.dispatchEvent(closeEvent);
+  await BrowserTestUtils.closeWindow(requestWindow);
 
   try {
     await request;
@@ -90,4 +89,22 @@ add_task(async function testCancelWaitForRedirect() {
   } catch (error) {
     ok(error instanceof CancelledError, "request was rejected");
   }
+});
+
+add_task(async function testAlreadyComplete() {
+  const completionUrl = InteractiveBrowser.COMPLETION_URL + "/done?info=foo";
+  const promptText = "just testing";
+  const windowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    win => win.document.documentURI === kBaseWindowUri
+  );
+  const request = InteractiveBrowser.waitForRedirect(completionUrl, promptText);
+  const requestWindow = await windowPromise;
+  is(requestWindow.document.title, promptText, "set window title");
+
+  const closedWindow = BrowserTestUtils.domWindowClosed(requestWindow);
+  const result = await request;
+  is(result, completionUrl, "finished with correct URL");
+
+  await closedWindow;
 });
