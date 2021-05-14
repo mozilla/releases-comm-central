@@ -86,8 +86,8 @@ function onInitCopiesAndFolders() {
     "msgStationeryFolderPicker"
   );
 
-  setupDoCcBccItems("identity.doCc", "identity.doCcList");
-  setupDoCcBccItems("identity.doBcc", "identity.doBccList");
+  setupCcTextbox(true);
+  setupBccTextbox(true);
   setupFccItems();
   setupArchiveItems();
 
@@ -372,62 +372,48 @@ function setupFccItems() {
   }
 }
 
-/**
- * Handle the initial status and value of the Auto-Cc/Bcc text input fields.
- *
- * @param {string} checkboxId - The ID of an Auto-Cc/Bcc checkbox.
- * @param {string} inputId - The ID of an Auto-Cc/Bcc text input element.
- */
-function setupDoCcBccItems(checkboxId, inputId) {
-  // Enable address input according to the status of the checkbox.
-  let input = document.getElementById(inputId);
-  input.disabled = !document.getElementById(checkboxId).checked;
-  // Safeguard against space-padded address list to ensure list visibility.
-  input.value = input.value.trim();
-}
+// Disable CC textbox if CC checkbox is not checked
+function setupCcTextbox(init) {
+  var ccChecked = document.getElementById("identity.doCc").checked;
+  var ccTextbox = document.getElementById("identity.doCcList");
 
-/**
- * Handle the command event of the Auto-Cc/Bcc checkboxes.
- * Disable the respective text input element if the checkbox is not checked, and
- * handle the default value of the input when the checkbox is toggled.
- *
- * @param {Event} event - The command event of the checkbox.
- */
-function identityDoCcBccOnCommand(event) {
-  let checkbox = event.target;
-  let checked = checkbox.checked;
-  // For checkboxes #identity.doCc and #identity.doBcc, get the corresponding
-  // inputs: #identity.doCcList and #identity.doBccList.
-  let input = document.getElementById(`${checkbox.id}List`);
-  input.disabled = !checked;
+  ccTextbox.disabled = !ccChecked;
 
-  // User toggled checkbox.
-  let identityEmailAddress = document.getElementById("identity.email").value;
-  if (checked) {
-    // If user checks the checkbox and there's no address, default to identity's
-    // email address.
-    if (!input.value) {
-      input.value = identityEmailAddress;
+  if (ccChecked) {
+    if (ccTextbox.value == "") {
+      ccTextbox.value = document.getElementById("identity.email").value;
+      if (!init) {
+        ccTextbox.select();
+      }
     }
-    input.select();
-    return;
-  }
-
-  if (input.value == identityEmailAddress) {
-    // If user unchecks checkbox and the input has default address, clear input.
-    input.value = "";
+  } else if (
+    ccTextbox.value == document.getElementById("identity.email").value ||
+    (init && ccTextbox.getAttribute("value") == "")
+  ) {
+    ccTextbox.value = "";
   }
 }
 
-/**
- * Handle the blur event of the Auto-Cc/Bcc checkboxes.
- *
- * @param {Event} event - The blur event of the checkbox.
- */
-function identityDoCcBccOnBlur(event) {
-  let input = event.target;
-  // Safeguard against space-padded address list to ensure list visibility.
-  input.value = input.value.trim();
+// Disable BCC textbox if BCC checkbox is not checked
+function setupBccTextbox(init) {
+  var bccChecked = document.getElementById("identity.doBcc").checked;
+  var bccTextbox = document.getElementById("identity.doBccList");
+
+  bccTextbox.disabled = !bccChecked;
+
+  if (bccChecked) {
+    if (bccTextbox.value == "") {
+      bccTextbox.value = document.getElementById("identity.email").value;
+      if (!init) {
+        bccTextbox.select();
+      }
+    }
+  } else if (
+    bccTextbox.value == document.getElementById("identity.email").value ||
+    (init && bccTextbox.getAttribute("value") == "")
+  ) {
+    bccTextbox.value = "";
+  }
 }
 
 // Enable and disable pickers based on the radio element clicked

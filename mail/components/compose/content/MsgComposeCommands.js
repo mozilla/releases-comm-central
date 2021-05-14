@@ -7753,38 +7753,6 @@ function LoadIdentity(startup) {
       changedRecipients = true;
     }
 
-    // Handle showing/hiding of empty CC/BCC row after changing identity.
-    // Whenever "Cc/Bcc these email addresses" aka mail.identity.id#.doCc/doBcc
-    // is checked in Account Settings, show the address row, even if empty.
-    // This is a feature especially for ux-efficiency of enterprise workflows.
-    let addressRowCc = document.getElementById("addressRowCc");
-    if (gCurrentIdentity.doCc) {
-      // Per identity's doCc pref, show CC row, even if empty.
-      showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
-    } else if (
-      prevIdentity.doCc &&
-      !addressRowCc.querySelector("mail-address-pill")
-    ) {
-      // Current identity doesn't need CC row shown, but previous identity did.
-      // Hide CC row if it's empty.
-      addressRowCc.classList.add("hidden");
-      document.getElementById("addr_cc").removeAttribute("collapsed");
-    }
-
-    let addressRowBcc = document.getElementById("addressRowBcc");
-    if (gCurrentIdentity.doBcc) {
-      // Per identity's doBcc pref, show BCC row, even if empty.
-      showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
-    } else if (
-      prevIdentity.doBcc &&
-      !addressRowBcc.querySelector("mail-address-pill")
-    ) {
-      // Current identity doesn't need BCC row shown, but previous identity did.
-      // Hide BCC row if it's empty.
-      addressRowBcc.classList.add("hidden");
-      document.getElementById("addr_bcc").removeAttribute("collapsed");
-    }
-
     adjustSignEncryptAfterIdentityChanged(prevIdentity);
 
     try {
