@@ -34,7 +34,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 XPCOMUtils.defineLazyScriptGetter(
   this,
   "PrintUtils",
-  "chrome://global/content/printUtils.js"
+  "chrome://messenger/content/printUtils.js"
 );
 
 // This file stores variables common to mail windows

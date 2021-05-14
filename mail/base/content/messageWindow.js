@@ -5,7 +5,6 @@
 
 /* This is where functions related to the standalone message window are kept */
 
-/* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from ../../../../toolkit/content/viewZoomOverlay.js */
 /* import-globals-from ../../../mailnews/base/content/junkCommands.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
@@ -1059,8 +1058,6 @@ var MessageWindowController = {
       case "button_getNewMessages":
       case "button_print":
       case "cmd_print":
-      case "cmd_printpreview":
-      case "cmd_printSetup":
       case "cmd_settingsOffline":
       case "cmd_createFilterFromPopup":
       case "cmd_createFilterFromMenu":
@@ -1142,7 +1139,6 @@ var MessageWindowController = {
       case "cmd_newMsgFromTemplate":
       case "cmd_editTemplateMsg":
       case "cmd_print":
-      case "cmd_printpreview":
       case "button_print":
       case "cmd_saveAsFile":
       case "cmd_saveAsTemplate":
@@ -1180,8 +1176,6 @@ var MessageWindowController = {
       case "cmd_markAsFlagged":
       case "button_file":
         return gFolderDisplay.selectedMessage != null;
-      case "cmd_printSetup":
-        return true;
       case "cmd_getNewMessages":
       case "button_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
@@ -1356,14 +1350,9 @@ var MessageWindowController = {
       case "button_junk":
         MsgJunk();
         break;
-      case "cmd_printSetup":
-        PrintUtils.showPageSetup();
-        break;
       case "cmd_print":
-        PrintEnginePrint();
-        break;
-      case "cmd_printpreview":
-        PrintEnginePrintPreview();
+        let messagePaneBrowser = document.getElementById("messagepane");
+        PrintUtils.startPrintWindow(messagePaneBrowser.browsingContext, {});
         break;
       case "cmd_saveAsFile":
         MsgSaveAsFile();

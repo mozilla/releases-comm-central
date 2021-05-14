@@ -74,10 +74,10 @@
                        closemenu="none"
                        oncommand="PanelUI.showSubView('appMenu-findView', this)"/>
         <toolbarbutton id="appmenu_print"
-                       class="subviewbutton subviewbutton-nav subviewbutton-iconic"
-                       label="&printButton.label;"
-                       closemenu="none"
-                       oncommand="PanelUI.showSubView('appMenu-printView', this)"/>
+                       class="subviewbutton subviewbutton-iconic"
+                       label="&printCmd.label;"
+                       key="key_print"
+                       command="cmd_print"/>
         <toolbarbutton id="appmenu_saveAs"
                        class="subviewbutton subviewbutton-nav subviewbutton-iconic"
                        label="&saveAsMenu.label;"
@@ -347,29 +347,6 @@
                        class="subviewbutton subviewbutton-iconic"
                        label="&searchAddressesCmd.label;"
                        oncommand="MsgSearchAddresses()"/>
-      </vbox>
-    </panelview>
-
-    <!-- Print -->
-    <panelview id="appMenu-printView"
-               title="&printButton.label;"
-               class="PanelUI-subView">
-      <vbox class="panel-subview-body">
-        <toolbarbutton id="appmenu_print_popup"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&printCmd.label;"
-                       key="key_print"
-                       command="cmd_print"/>
-#ifndef XP_MACOSX
-        <toolbarbutton id="appmenu_printPreview"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&printPreviewCmd.label;"
-                       command="cmd_printpreview"/>
-#endif
-        <toolbarbutton id="appmenu_printSetup"
-                       class="subviewbutton subviewbutton-iconic"
-                       label="&printSetupCmd.label;"
-                       command="cmd_printSetup"/>
       </vbox>
     </panelview>
 

@@ -205,8 +205,6 @@ var DefaultController = {
       case "cmd_openConversation":
       case "button_print":
       case "cmd_print":
-      case "cmd_printpreview":
-      case "cmd_printSetup":
       case "cmd_saveAsFile":
       case "cmd_saveAsTemplate":
       case "cmd_properties":
@@ -419,16 +417,8 @@ var DefaultController = {
           return true;
         }
         return false;
-      case "cmd_printpreview":
-        if (gFolderDisplay.selectedCount == 1) {
-          return gFolderDisplay.getCommandStatus(
-            Ci.nsMsgViewCommandType.cmdRequiringMsgBody
-          );
-        }
-        return false;
       case "cmd_newMessage":
         return CanComposeMessages();
-      case "cmd_printSetup":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
         return true;
@@ -915,14 +905,9 @@ var DefaultController = {
           gFolderDisplay.selectedMessages
         );
         return;
-      case "cmd_printSetup":
-        PrintUtils.showPageSetup();
-        return;
       case "cmd_print":
-        PrintEnginePrint();
-        return;
-      case "cmd_printpreview":
-        PrintEnginePrintPreview();
+        let messagePaneBrowser = document.getElementById("messagepane");
+        PrintUtils.startPrintWindow(messagePaneBrowser.browsingContext, {});
         return;
       case "cmd_saveAsFile":
         MsgSaveAsFile();

@@ -1,0 +1,23 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, you can obtain one at http://mozilla.org/MPL/2.0/.
+
+<html:template id="dialogStackTemplate">
+  <stack class="dialogStack tab-dialog-box" hidden="true">
+    <vbox class="dialogTemplate dialogOverlay" align="center" topmost="true" hidden="true">
+      <hbox class="dialogBox">
+        <browser class="dialogFrame"
+                 autoscroll="false"
+                 disablehistory="true"/>
+      </hbox>
+    </vbox>
+  </stack>
+</html:template>
+
+<html:template id="printPreviewStackTemplate">
+  <stack class="previewStack" rendering="true" flex="1" previewtype="primary">
+    <vbox class="previewRendering" flex="1">
+      <h1 class="print-pending-label" data-l10n-id="printui-loading"></h1>
+    </vbox>
+  </stack>
+</html:template>

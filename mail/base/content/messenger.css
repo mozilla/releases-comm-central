@@ -259,3 +259,186 @@ iframe.devtools-highlighter-renderer {
 toolbar[customizing="true"][collapsed="true"] {
   visibility: visible;
 }
+
+/* Print UI, mostly from browser.css */
+
+/* This class makes the element behave as a <stack> without being one. From xul.css. */
+.printPreviewStack {
+  display: grid;
+  position: relative;
+  /* Prevents calendar day and week views expanding to thousands of pixels high. */
+  min-height: 0;
+}
+
+.printPreviewStack > tabbox,
+.printPreviewStack > stack {
+  grid-area: 1 / 1;
+  z-index: 0;
+  /*
+    The default `min-height: auto` value makes grid items refuse to be smaller
+    than their content. This doesn't match the traditional behavior of XUL stack,
+    which often shoehorns tall content into a smaller stack and allows the content
+    to decide how to handle overflow (e.g. by scaling down if it's an image, or
+    by adding scrollbars if it's scrollable).
+  */
+  min-height: 0;
+}
+
+:is(browser, hbox, tabbox, vbox)[tabDialogShowing],
+:is(browser, hbox, tabbox, vbox)[tabDialogShowing] * {
+  -moz-user-focus: none !important;
+}
+
+.printSettingsBrowser {
+  width: 250px !important;
+}
+
+.previewStack {
+  background-color: #f9f9fa;
+  color: #0c0c0d;
+}
+
+.previewRendering {
+  background-image: url("chrome://browser/skin/tabbrowser/pendingpaint.png");
+  background-repeat: no-repeat;
+  background-size: 60px 60px;
+  background-position: center center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+}
+
+.previewStack[rendering=true] > .previewRendering {
+  visibility: visible;
+}
+
+.printPreviewBrowser {
+  display: none;
+  opacity: 1;
+  transition: opacity 60ms;
+}
+
+.previewStack[previewtype="primary"] > .printPreviewBrowser[previewtype="primary"],
+.previewStack[previewtype="selection"] > .printPreviewBrowser[previewtype="selection"] {
+  display: block;
+}
+
+.previewStack[rendering=true] > .printPreviewBrowser {
+  opacity: 0;
+  transition: opacity 1ms 250ms;
+}
+
+.print-pending-label {
+  margin-top: 110px;
+  font-size: large;
+}
+
+printpreview-pagination {
+  opacity: 0;
+  transition: opacity 100ms 500ms;
+}
+printpreview-pagination:focus-within,
+.previewStack:hover > printpreview-pagination {
+  opacity: 1;
+  transition: opacity 100ms;
+}
+.previewStack[rendering=true] > printpreview-pagination {
+  opacity: 0;
+}
+
+@media (-moz-toolbar-prefers-color-scheme: dark) {
+  .previewStack {
+    background-color: #2A2A2E;
+    color: rgb(249, 249, 250);
+  }
+}
+
+.dialogStack {
+  /* Should outrank the z-index values of other UI elements, particularly the devtools
+     splitter element. */
+  z-index: 2;
+}
+
+.dialogStack.temporarilyHidden {
+  /* For some printing use cases we need to visually hide the dialog before
+   * actually closing it / make it disappear from the frame tree. */
+  visibility: hidden;
+}
+
+.dialogOverlay {
+  visibility: hidden;
+}
+
+.dialogOverlay[topmost="true"] {
+  z-index: 1;
+}
+
+.dialogBox {
+  background-clip: content-box;
+  box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.2);
+  display: -moz-box;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+
+@media (-moz-proton) {
+.dialogBox {
+  border-radius: 8px;
+}
+}
+
+.dialogBox[resizable="true"] {
+  resize: both;
+  overflow: hidden;
+  min-height: 20em;
+}
+
+.dialogBox[sizeto="available"] {
+  --box-inline-margin: 4px;
+  --box-block-margin: 4px;
+  --box-ideal-width: 1000;
+  --box-ideal-height: 650;
+  --box-max-width-margin: calc(100vw - 2 * var(--box-inline-margin));
+  --box-max-height-margin: calc(100vh - var(--box-top-px) - var(--box-block-margin));
+  --box-max-width-ratio: 70vw;
+  --box-max-height-ratio: calc(var(--box-ideal-height) / var(--box-ideal-width) * var(--box-max-width-ratio));
+  max-width: min(max(var(--box-ideal-width) * 1px, var(--box-max-width-ratio)), var(--box-max-width-margin));
+  max-height: min(max(var(--box-ideal-height) * 1px, var(--box-max-height-ratio)), var(--box-max-height-margin));
+  width: 100vw;
+  height: 85vh; /* This is 100vh in Firefox but we have less space to work with. */
+}
+
+@media (min-width: 550px) {
+  .dialogBox[sizeto="available"] {
+    --box-inline-margin: min(calc(4px + (100vw - 550px) / 4), 16px);
+  }
+}
+
+@media (min-width: 800px) {
+  .dialogBox[sizeto="available"] {
+    --box-inline-margin: min(calc(16px + (100vw - 800px) / 4), 32px);
+  }
+}
+
+@media (min-height: 350px) {
+  .dialogBox[sizeto="available"] {
+    --box-block-margin: min(calc(4px + (100vh - 350px) / 4), 16px);
+  }
+}
+
+@media (min-height: 550px) {
+  .dialogBox[sizeto="available"] {
+    --box-block-margin: min(calc(16px + (100vh - 550px) / 4), 32px);
+  }
+}
+
+:not(.content-prompt-dialog) > .dialogOverlay > .dialogBox {
+  /* Make dialogs overlap with upper chrome UI. */
+  margin-top: 5px;
+}
+
+.dialogOverlay[topmost="true"] {
+  background-color: rgba(28, 27, 34, 0.45);
+}

@@ -2802,32 +2802,6 @@ function ToggleInlineAttachment(target) {
   ReloadMessage();
 }
 
-function PrintEnginePrintInternal(doPrintPreview) {
-  var messageList = gFolderDisplay.selectedMessageUris;
-  if (!messageList) {
-    dump("PrintEnginePrintInternal(): No messages selected.\n");
-    return;
-  }
-
-  window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xhtml",
-    "",
-    "chrome,dialog=no,all,centerscreen",
-    messageList.length,
-    messageList,
-    statusFeedback,
-    doPrintPreview
-  );
-}
-
-function PrintEnginePrint() {
-  return PrintEnginePrintInternal(false);
-}
-
-function PrintEnginePrintPreview() {
-  return PrintEnginePrintInternal(true);
-}
-
 function IsMailFolderSelected() {
   var selectedFolders = GetSelectedMsgFolders();
   var folder = selectedFolders.length ? selectedFolders[0] : null;

@@ -95,7 +95,6 @@ function fillMailContextMenu(event) {
   goUpdateCommand("cmd_killSubthread");
   goUpdateCommand("cmd_watchThread");
 
-  goUpdateCommand("cmd_printpreview");
   goUpdateCommand("cmd_print");
 
   updateCheckedStateForIgnoreAndWatchThreadCmds();

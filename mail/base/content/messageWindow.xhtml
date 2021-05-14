@@ -79,6 +79,7 @@
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="toolkit/main-window/findbar.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="toolkit/printing/printUI.ftl" />
   <link rel="localization" href="messenger/menubar.ftl" />
   <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl" />
   <link rel="localization" href="messenger/openpgp/msgReadStatus.ftl" />
@@ -110,7 +111,6 @@
   <script defer="defer" src="chrome://messenger/content/mailTabs.js"></script>
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
-  <script defer="defer" src="chrome://global/content/printUtils.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgViewPickerOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
@@ -221,54 +221,58 @@
 #include mainNavigationToolbox.inc.xhtml
   </toolbox>
 
-  <!-- mail-toolbox with the main toolbarbuttons -->
+  <stack class="printPreviewStack" flex="1">
+    <vbox flex="1">
+      <!-- mail-toolbox with the main toolbarbuttons -->
 #include mainMailToolbox.inc.xhtml
 
-  <tooltip id="aHTMLTooltip" page="true"/>
+      <tooltip id="aHTMLTooltip" page="true"/>
 
-  <!-- msg header view -->
-  <!-- a convenience box for ease of extension overlaying -->
-  <hbox id="messagepaneboxwrapper" flex="1">
-    <vbox id="messagepanebox" flex="3"
-          ondragover="messagepaneObserver.onDragOver(event);"
-          ondrop="messagepaneObserver.onDrop(event);"
-          ondragexit="messagepaneObserver.onDragExit(event);">
-      <vbox id="singleMessage">
-        <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
+      <!-- msg header view -->
+      <!-- a convenience box for ease of extension overlaying -->
+      <hbox id="messagepaneboxwrapper" flex="1">
+        <vbox id="messagepanebox" flex="3"
+              ondragover="messagepaneObserver.onDragOver(event);"
+              ondrop="messagepaneObserver.onDrop(event);"
+              ondragexit="messagepaneObserver.onDragExit(event);">
+          <vbox id="singleMessage">
+            <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
 #include msgHdrView.inc.xhtml
-        </hbox>
+            </hbox>
 #include ../../../calendar/base/content/imip-bar-overlay.inc.xhtml
-      </vbox>
-      <!-- The msgNotificationBar appears on top of the message and displays
-           information like: junk, mdn, remote content and phishing warnings -->
-      <vbox id="mail-notification-top">
-        <!-- notificationbox will be added here lazily. -->
-      </vbox>
+          </vbox>
+          <!-- The msgNotificationBar appears on top of the message and displays
+               information like: junk, mdn, remote content and phishing warnings -->
+          <vbox id="mail-notification-top">
+            <!-- notificationbox will be added here lazily. -->
+          </vbox>
 
-      <!-- message view -->
-      <browser id="messagepane"
-               context="mailContext"
-               tooltip="aHTMLTooltip"
-               style="height: 0px; min-height: 1px"
-               flex="1"
-               name="messagepane"
-               disablesecurity="true"
-               disablehistory="true"
-               type="content"
-               primary="true"
-               autofind="false"
-               src="about:blank"
-               messagemanagergroup="single-page"
-               onclick="return contentAreaClick(event);"
-               onresize="return messagePaneOnResize(event);"/>
-      <splitter id="attachment-splitter" collapse="after" resizebefore="closest" resizeafter="closest" collapsed="true"/>
-      <vbox id="attachmentView" collapsed="true">
+          <!-- message view -->
+          <browser id="messagepane"
+                   context="mailContext"
+                   tooltip="aHTMLTooltip"
+                   style="height: 0px; min-height: 1px"
+                   flex="1"
+                   name="messagepane"
+                   disablesecurity="true"
+                   disablehistory="true"
+                   type="content"
+                   primary="true"
+                   autofind="false"
+                   src="about:blank"
+                   messagemanagergroup="single-page"
+                   onclick="return contentAreaClick(event);"
+                   onresize="return messagePaneOnResize(event);"/>
+          <splitter id="attachment-splitter" collapse="after" resizebefore="closest" resizeafter="closest" collapsed="true"/>
+          <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml
-      </vbox>
-      <findbar id="FindToolbar" browserid="messagepane"/>
-    </vbox>
+          </vbox>
+          <findbar id="FindToolbar" browserid="messagepane"/>
+        </vbox>
 #include msgSecurityPane.inc.xhtml
-  </hbox>
+      </hbox>
+    </vbox>
+  </stack>
   <panel id="customizeToolbarSheetPopup" noautohide="true">
     <iframe id="customizeToolbarSheetIFrame"
             style="&dialog.dimensions;"
@@ -278,5 +282,7 @@
   <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
 #include mainStatusbar.inc.xhtml
   </hbox>
+
+#include tabDialogs.inc.xhtml
 </html:body>
 </html>

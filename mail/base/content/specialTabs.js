@@ -4,7 +4,6 @@
 
 /* global MozElements, openOptionsDialog */
 
-/* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
 
@@ -525,13 +524,10 @@ var contentTabBaseType = {
       case "cmd_find":
       case "cmd_findAgain":
       case "cmd_findPrevious":
-      case "cmd_printSetup":
       case "cmd_print":
       case "button_print":
       case "cmd_stop":
       case "cmd_reload":
-        // XXX print preview not currently supported - bug 497994 to implement.
-        // case "cmd_printpreview":
         return true;
       default:
         return false;
@@ -547,12 +543,23 @@ var contentTabBaseType = {
       case "cmd_find":
       case "cmd_findAgain":
       case "cmd_findPrevious":
-      case "cmd_printSetup":
-      case "cmd_print":
-      case "button_print":
-        // XXX print preview not currently supported - bug 497994 to implement.
-        // case "cmd_printpreview":
         return true;
+      case "cmd_print":
+      case "button_print": {
+        let uri = aTab.browser?.currentURI;
+        if (!uri || !uri.schemeIs("about")) {
+          return true;
+        }
+        return [
+          "certificate",
+          "crashes",
+          "credits",
+          "license",
+          "profiles",
+          "support",
+          "telemetry",
+        ].includes(uri.filePath);
+      }
       case "cmd_reload":
         return aTab.reloadEnabled;
       case "cmd_stop":
@@ -585,17 +592,9 @@ var contentTabBaseType = {
       case "cmd_findPrevious":
         aTab.findbar.onFindAgainCommand(true);
         break;
-      case "cmd_printSetup":
-        PrintUtils.showPageSetup();
-        break;
       case "cmd_print":
-        let browser = this.getBrowser(aTab);
-        PrintUtils.printWindow(browser.browsingContext);
+        PrintUtils.startPrintWindow(this.getBrowser(aTab).browsingContext, {});
         break;
-      // XXX print preview not currently supported - bug 497994 to implement.
-      // case "cmd_printpreview":
-      //  PrintUtils.printPreview();
-      //  break;
       case "cmd_stop":
         aTab.browser.stop();
         break;

@@ -75,6 +75,7 @@
   <link rel="localization" href="messenger/messenger.ftl"/>
   <link rel="localization" href="toolkit/main-window/findbar.ftl"/>
   <link rel="localization" href="toolkit/global/textActions.ftl"/>
+  <link rel="localization" href="toolkit/printing/printUI.ftl" />
   <link rel="localization" href="messenger/menubar.ftl"/>
   <link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl"/>
   <link rel="localization" href="calendar/calendar-widgets.ftl"/>
@@ -130,7 +131,6 @@
   <script defer="defer" src="chrome://messenger/content/folderDisplay.js"></script>
   <script defer="defer" src="chrome://messenger-newsblog/content/newsblogOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/mail-offline.js"></script>
-  <script defer="defer" src="chrome://global/content/printUtils.js"></script>
   <script defer="defer" src="chrome://messenger/content/msgViewPickerOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
@@ -591,7 +591,11 @@
          of tabmail is OK though). This will break Ctrl-tab switching because
          the Custom Element will choke when it finds a child of tabmail that is
          not a tabpanels node. -->
-    <tabmail id="tabmail" flex="1" panelcontainer="tabpanelcontainer" tabcontainer="tabmail-tabs">
+    <tabmail id="tabmail"
+             class="printPreviewStack"
+             flex="1"
+             panelcontainer="tabpanelcontainer"
+             tabcontainer="tabmail-tabs">
      <tabbox id="tabmail-tabbox" flex="1" eventnode="document" tabcontainer="tabmail-tabs">
       <tabpanels id="tabpanelcontainer" flex="1" class="plain" selectedIndex="0">
 
@@ -605,7 +609,7 @@
           <!-- mail-toolbox with the main toolbarbuttons -->
 #include mainMailToolbox.inc.xhtml
 
-          <box id="messengerBox" orient="horizontal" flex="1" style="min-height:100px;" height="100" persist="height">
+          <hbox id="messengerBox" flex="1" style="min-height:100px;" height="100" persist="height">
             <vbox id="folderPaneBox" style="min-width:125px;" width="200" persist="width">
               <hbox id="folderPaneHeader"
                     data-l10n-id="folder-pane-toolbar"
@@ -788,7 +792,7 @@
                 </vbox>
               </box>
             </vbox>
-          </box>
+          </hbox>
         </box> <!-- end of mailContent -->
 #include ../../components/im/content/chat-messenger.inc.xhtml
 #include ../../../calendar/base/content/calendar-tab-panels.inc.xhtml
@@ -889,5 +893,7 @@
     <label id="totalMessageCount" class="statusbarpanel"/>
 #include ../../../calendar/base/content/calendar-status-bar.inc.xhtml
   </hbox>
+
+#include tabDialogs.inc.xhtml
 </html:body>
 </html>

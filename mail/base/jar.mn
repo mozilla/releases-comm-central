@@ -107,6 +107,7 @@ messenger.jar:
     content/messenger/sanitizeDialog.js             (content/sanitizeDialog.js)
     content/messenger/toolbarIconColor.js           (content/toolbarIconColor.js)
     content/messenger/dialogShadowDom.js            (content/dialogShadowDom.js)
+    content/messenger/printUtils.js                 (content/printUtils.js)
     content/messenger/tree-listbox.css              (content/widgets/tree-listbox.css)
     content/messenger/tree-listbox.js               (content/widgets/tree-listbox.js)
 

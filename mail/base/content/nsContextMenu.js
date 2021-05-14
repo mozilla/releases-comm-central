@@ -550,7 +550,6 @@ class nsContextMenu {
         "mailContext-tags",
         "mailContext-mark",
         "mailContext-saveAs",
-        "mailContext-printpreview",
         "mailContext-print",
         "mailContext-delete",
         "downloadSelected",
@@ -684,12 +683,6 @@ class nsContextMenu {
         !gMessageDisplay.isDummy &&
         !this.onPlayableMedia
     );
-
-    if (AppConstants.platform == "macosx") {
-      this.showItem("mailContext-printpreview", false);
-    } else {
-      this.setSingleSelection("mailContext-printpreview");
-    }
 
     // XXX Not quite modifying the message, but the same rules apply at the
     // moment as we can't print non-message content from the message pane yet.

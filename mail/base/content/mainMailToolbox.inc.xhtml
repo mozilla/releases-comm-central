@@ -180,34 +180,12 @@
                      observes="button_delete"
                      oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' : 'button_delete')"/>
     </toolbaritem>
-#ifdef XP_MACOSX
     <toolbarbutton id="button-print"
                    class="toolbarbutton-1"
                    label="&printButton.label;"
                    observes="button_print"
                    oncommand="goDoCommand('cmd_print')"
                    tooltiptext="&printButton.tooltip;"/>
-#else
-    <toolbarbutton is="toolbarbutton-menu-button" id="button-print"
-                   type="menu-button"
-                   class="toolbarbutton-1"
-                   label="&printButton.label;"
-                   observes="button_print"
-                   oncommand="goDoCommand('cmd_print')"
-                   tooltiptext="&printButton.tooltip;">
-      <menupopup id="printMenu" onpopupshowing="goUpdateCommand('cmd_printpreview');">
-        <menuitem id="button-printMenu"
-                  label="&printCmd.label;"
-                  accesskey="&printCmd.accesskey;"
-                  default="true"/>
-        <menuitem id="button-printPreviewMenu"
-                  label="&printPreviewCmd.label;"
-                  accesskey="&printPreviewCmd.accesskey;"
-                  observes="cmd_printpreview"
-                  command="cmd_printpreview"/>
-      </menupopup>
-    </toolbarbutton>
-#endif
     <toolbarbutton is="toolbarbutton-menu-button" id="button-mark"
                    type="menu-button"
                    class="toolbarbutton-1"

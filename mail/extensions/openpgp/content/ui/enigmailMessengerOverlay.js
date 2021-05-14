@@ -116,66 +116,9 @@ Enigmail.msg = {
       return;
     }
 
-    let self = this;
-
-    // private function to overwrite attributes
-    function overrideAttribute(elementIdList, attrName, prefix, suffix) {
-      for (var index = 0; index < elementIdList.length; index++) {
-        var elementId = elementIdList[index];
-        var element = document.getElementById(elementId);
-        if (element) {
-          try {
-            var oldValue = element.getAttribute(attrName);
-            EnigmailLog.DEBUG(
-              "enigmailMessengerOverlay.js: overrideAttribute " +
-                attrName +
-                ": oldValue=" +
-                oldValue +
-                "\n"
-            );
-            var newValue = prefix + elementId + suffix;
-
-            element.setAttribute(attrName, newValue);
-            self.changedAttributes.push({
-              id: elementId,
-              attrib: attrName,
-              value: oldValue,
-            });
-          } catch (ex) {}
-        } else {
-          EnigmailLog.DEBUG(
-            "enigmailMessengerOverlay.js: *** UNABLE to override id=" +
-              elementId +
-              "\n"
-          );
-        }
-      }
-    }
-
     Enigmail.msg.messagePane = document.getElementById("messagepane");
 
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: Startup\n");
-
-    // Override print command
-    var printElementIds = [
-      "cmd_print",
-      "cmd_printpreview",
-      "key_print",
-      "button-print",
-      "mailContext-print",
-      "mailContext-printpreview",
-    ];
-
-    overrideAttribute(
-      printElementIds,
-      "oncommand",
-      "Enigmail.msg.msgPrint('",
-      "');"
-    );
-
-    //Enigmail.msg.overrideLayoutChange();
-    //Enigmail.msg.prepareAppMenu();
-    //Enigmail.msg.setMainMenuLabel();
 
     Enigmail.msg.savedHeaders = null;
 

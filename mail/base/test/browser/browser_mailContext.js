@@ -231,12 +231,8 @@ add_task(async function testMessagePane() {
     "mailContext-ignoreSubthread",
     "mailContext-watchThread",
     "mailContext-saveAs",
+    "mailContext-print",
   ];
-  if (AppConstants.platform == "macosx") {
-    messageItems.push("mailContext-print");
-  } else {
-    messageItems.push("mailContext-printpreview", "mailContext-print");
-  }
   checkMenuitems(mailContext, ...messageItems);
   mailContext.hidePopup();
 
@@ -271,12 +267,8 @@ add_task(async function testMessagePane() {
     "mailContext-ignoreSubthread",
     "mailContext-watchThread",
     "mailContext-saveAs",
+    "mailContext-print",
   ];
-  if (AppConstants.platform == "macosx") {
-    treeItems.push("mailContext-print");
-  } else {
-    treeItems.push("mailContext-printpreview", "mailContext-print");
-  }
   checkMenuitems(mailContext, ...treeItems);
   mailContext.hidePopup();
 
