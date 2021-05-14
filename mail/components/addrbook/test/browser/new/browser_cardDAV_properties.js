@@ -31,8 +31,6 @@ add_task(async () => {
   let directory = MailServices.ab.getDirectoryFromId(dirPrefId);
   let davDirectory = CardDAVDirectory.forFile(directory.fileName);
   registerCleanupFunction(async () => {
-    await promiseDirectoryRemoved(directory.URI);
-
     Assert.equal(davDirectory._syncTimer, null, "sync timer cleaned up");
   });
   Assert.equal(directory.dirType, Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
@@ -48,112 +46,94 @@ add_task(async () => {
   Assert.equal(davDirectory.readOnly, false);
 
   let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
   registerCleanupFunction(async () => {
-    await closeAddressBookWindow();
+    // TODO: convert this to UID.
     Services.prefs.clearUserPref("mail.addr_book.view.startupURI");
   });
 
-  // This test becomes unreliable if we don't pause for a moment.
-  await new Promise(resolve => abWindow.setTimeout(resolve, 500));
+  let abDocument = abWindow.document;
+  let booksList = abWindow.booksList;
 
   openDirectory(directory);
 
-  Assert.equal(abWindow.gDirectoryTreeView.rowCount, 4);
-  Assert.equal(abWindow.gDirectoryTreeView.getIndexForId(directory.URI), 2);
-  Assert.equal(abWindow.gDirTree.currentIndex, 2);
+  Assert.equal(booksList.rowCount, 4);
+  Assert.equal(booksList.getIndexForUID(directory.UID), 2);
+  Assert.equal(booksList.selectedIndex, 2);
 
-  let menu = abDocument.getElementById("dirTreeContext");
-  let menuItem = abDocument.getElementById("dirTreeContext-properties");
+  let menu = abDocument.getElementById("bookContext");
+  let menuItem = abDocument.getElementById("bookContextProperties");
 
   let subtest = async function(expectedValues, newValues, buttonAction) {
-    Assert.equal(abWindow.gDirTree.currentIndex, 2);
+    Assert.equal(booksList.selectedIndex, 2);
 
     let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-    mailTestUtils.treeClick(EventUtils, abWindow, abWindow.gDirTree, 2, 0, {
-      type: "mousedown",
-      button: 2,
-    });
-    mailTestUtils.treeClick(EventUtils, abWindow, abWindow.gDirTree, 2, 0, {
-      type: "contextmenu",
-    });
-    mailTestUtils.treeClick(EventUtils, abWindow, abWindow.gDirTree, 2, 0, {
-      type: "mouseup",
-      button: 2,
-    });
+    EventUtils.synthesizeMouseAtCenter(
+      booksList.getRowAtIndex(2),
+      { type: "contextmenu" },
+      abWindow
+    );
     await shownPromise;
 
-    let dialogPromise = BrowserTestUtils.promiseAlertDialog(
-      undefined,
-      "chrome://messenger/content/addressbook/abCardDAVProperties.xhtml",
-      {
-        async callback(dialogWindow) {
-          let dialogDocument = dialogWindow.document;
+    Assert.ok(BrowserTestUtils.is_visible(menuItem));
 
-          let nameInput = dialogDocument.getElementById("carddav-name");
-          Assert.equal(nameInput.value, expectedValues.name);
-          if ("name" in newValues) {
-            nameInput.value = newValues.name;
-          }
+    let dialogPromise = promiseLoadSubDialog(
+      "chrome://messenger/content/addressbook/abCardDAVProperties.xhtml"
+    ).then(async function(dialogWindow) {
+      let dialogDocument = dialogWindow.document;
 
-          let urlInput = dialogDocument.getElementById("carddav-url");
-          Assert.equal(urlInput.value, expectedValues.url);
-          if ("url" in newValues) {
-            urlInput.value = newValues.url;
-          }
-
-          let refreshActiveInput = dialogDocument.getElementById(
-            "carddav-refreshActive"
-          );
-          let refreshIntervalInput = dialogDocument.getElementById(
-            "carddav-refreshInterval"
-          );
-
-          Assert.equal(
-            refreshActiveInput.checked,
-            expectedValues.refreshActive
-          );
-          Assert.equal(
-            refreshIntervalInput.disabled,
-            !expectedValues.refreshActive
-          );
-          if (
-            "refreshActive" in newValues &&
-            newValues.refreshActive != expectedValues.refreshActive
-          ) {
-            EventUtils.synthesizeMouseAtCenter(
-              refreshActiveInput,
-              {},
-              dialogWindow
-            );
-            Assert.equal(
-              refreshIntervalInput.disabled,
-              !newValues.refreshActive
-            );
-          }
-
-          Assert.equal(
-            refreshIntervalInput.value,
-            expectedValues.refreshInterval
-          );
-          if ("refreshInterval" in newValues) {
-            refreshIntervalInput.value = newValues.refreshInterval;
-          }
-
-          let readOnlyInput = dialogDocument.getElementById("carddav-readOnly");
-
-          Assert.equal(readOnlyInput.checked, expectedValues.readOnly);
-          if ("readOnly" in newValues) {
-            readOnlyInput.checked = newValues.readOnly;
-          }
-
-          dialogDocument
-            .querySelector("dialog")
-            .getButton(buttonAction)
-            .click();
-        },
+      let nameInput = dialogDocument.getElementById("carddav-name");
+      Assert.equal(nameInput.value, expectedValues.name);
+      if ("name" in newValues) {
+        nameInput.value = newValues.name;
       }
-    );
+
+      let urlInput = dialogDocument.getElementById("carddav-url");
+      Assert.equal(urlInput.value, expectedValues.url);
+      if ("url" in newValues) {
+        urlInput.value = newValues.url;
+      }
+
+      let refreshActiveInput = dialogDocument.getElementById(
+        "carddav-refreshActive"
+      );
+      let refreshIntervalInput = dialogDocument.getElementById(
+        "carddav-refreshInterval"
+      );
+
+      Assert.equal(refreshActiveInput.checked, expectedValues.refreshActive);
+      Assert.equal(
+        refreshIntervalInput.disabled,
+        !expectedValues.refreshActive
+      );
+      if (
+        "refreshActive" in newValues &&
+        newValues.refreshActive != expectedValues.refreshActive
+      ) {
+        EventUtils.synthesizeMouseAtCenter(
+          refreshActiveInput,
+          {},
+          dialogWindow
+        );
+        Assert.equal(refreshIntervalInput.disabled, !newValues.refreshActive);
+      }
+
+      Assert.equal(refreshIntervalInput.value, expectedValues.refreshInterval);
+      if ("refreshInterval" in newValues) {
+        refreshIntervalInput.value = newValues.refreshInterval;
+      }
+
+      let readOnlyInput = dialogDocument.getElementById("carddav-readOnly");
+
+      Assert.equal(readOnlyInput.checked, expectedValues.readOnly);
+      if ("readOnly" in newValues) {
+        readOnlyInput.checked = newValues.readOnly;
+      }
+
+      dialogDocument
+        .querySelector("dialog")
+        .getButton(buttonAction)
+        .click();
+    });
     menu.activateItem(menuItem);
     await dialogPromise;
 
@@ -268,4 +248,6 @@ add_task(async () => {
     "new sync scheduled"
   );
   Assert.equal(davDirectory.readOnly, true);
+
+  await promiseDirectoryRemoved(directory.URI);
 });

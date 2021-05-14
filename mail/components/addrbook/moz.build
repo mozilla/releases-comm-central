@@ -5,4 +5,7 @@
 
 JAR_MANIFESTS += ["jar.mn"]
 
-TEST_DIRS += ["test"]
+BROWSER_CHROME_MANIFESTS += [
+    "test/browser/browser.ini",
+    "test/browser/new/browser.ini",
+]

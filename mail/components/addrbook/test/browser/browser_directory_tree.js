@@ -226,8 +226,10 @@ add_task(async () => {
     { level: 1, directory: historyBook }
   );
 
-  // Remove the first book.
+  // Select a list in the first book, then delete the book. Check that we
+  // return to "All Address Books".
 
+  openDirectory(list1);
   await promiseDirectoryRemoved(newBook1.URI);
   checkDirectoryDisplayed(null);
   checkBooksOrder(

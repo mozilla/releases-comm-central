@@ -168,9 +168,14 @@ async function createMailingListWithUI(mlParent, mlName) {
 function checkDirectoryDisplayed(directory) {
   let abWindow = getAddressBookWindow();
   if (directory) {
+    Assert.equal(
+      abWindow.gDirectoryTreeView.selection.currentIndex,
+      abWindow.gDirectoryTreeView.getIndexForId(directory.URI)
+    );
     Assert.equal(abWindow.gAbView.directory.URI, directory.URI);
     Assert.equal(abWindow.getSelectedDirectoryURI(), directory.URI);
   } else {
+    Assert.equal(abWindow.gDirectoryTreeView.selection.currentIndex, 0);
     Assert.ok(!abWindow.gAbView.directory);
     Assert.equal(abWindow.getSelectedDirectoryURI(), "moz-abdirectory://?");
   }

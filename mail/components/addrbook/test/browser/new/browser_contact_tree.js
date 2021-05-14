@@ -2,20 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
-);
-
 /**
  * Tests that additions and removals are accurately displayed, or not
  * displayed if they happen outside the current address book.
  */
 add_task(async function test_additions_and_removals() {
-  function deleteRowWithPrompt(row) {
+  async function deleteRowWithPrompt(index) {
     let promptPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
-    mailTestUtils.treeClick(EventUtils, abWindow, abContactTree, row, 0, {});
+    EventUtils.synthesizeMouseAtCenter(
+      cardsList.getRowAtIndex(index),
+      {},
+      abWindow
+    );
     EventUtils.synthesizeKey("VK_DELETE", {}, abWindow);
-    return promptPromise;
+    await promptPromise;
+    await new Promise(r => abWindow.setTimeout(r));
   }
 
   let bookA = createAddressBook("book A");
@@ -24,9 +25,9 @@ add_task(async function test_additions_and_removals() {
   let contactB1 = bookB.addCard(createContact("contact", "B1"));
 
   let abWindow = await openAddressBookWindow();
-  let abContactTree = abWindow.document.getElementById("abResultsTree");
+  let cardsList = abWindow.document.getElementById("cards");
 
-  await openRootDirectory();
+  await openAllAddressBooks();
   info("Performing check #1");
   checkCardsListed(contactA1, contactB1);
 
@@ -41,7 +42,7 @@ add_task(async function test_additions_and_removals() {
   listC.addCard(contactA1);
   checkCardsListed(contactA1, contactA2, listC);
 
-  await openRootDirectory();
+  await openAllAddressBooks();
   info("Performing check #2");
   checkCardsListed(contactA1, contactA2, contactB1, listC);
 
@@ -54,7 +55,7 @@ add_task(async function test_additions_and_removals() {
   await deleteRowWithPrompt(0);
   checkCardsListed(contactA2);
 
-  await openRootDirectory();
+  await openAllAddressBooks();
   info("Performing check #3");
   checkCardsListed(contactA1, contactA2, contactB1, listC);
 
@@ -72,7 +73,7 @@ add_task(async function test_additions_and_removals() {
   listD.addCard(contactB1);
   checkCardsListed(contactA2, listC);
 
-  await openRootDirectory();
+  await openAllAddressBooks();
   info("Performing check #4");
   checkCardsListed(contactA2, contactB1, contactB2, listC, listD);
 
@@ -87,7 +88,7 @@ add_task(async function test_additions_and_removals() {
   bookB.deleteCards([contactB1]);
   checkCardsListed(contactA2);
 
-  await openRootDirectory();
+  await openAllAddressBooks();
   info("Performing check #5");
   checkCardsListed(contactA2, contactB2, listC, listD);
 
@@ -103,7 +104,7 @@ add_task(async function test_additions_and_removals() {
 
   // While in "All Address Books", make some changes and check that things
   // appear or disappear as appropriate.
-  await openRootDirectory();
+  await openAllAddressBooks();
   info("Performing check #6");
   checkCardsListed(contactA2, contactB2);
   let listE = bookB.addMailList(createMailingList("list E")); // Add E.
@@ -139,20 +140,7 @@ add_task(async function test_additions_and_removals() {
  * Tests that added contacts are inserted in the right place in the list.
  */
 add_task(async function test_insertion_order() {
-  let abWindow = await openAddressBookWindow();
-  let abContactTree = abWindow.document.getElementById("abResultsTree");
-
-  Assert.equal(abContactTree.columns[0].element.id, "GeneratedName");
-  Assert.equal(
-    abContactTree.columns[0].element.getAttribute("sortDirection"),
-    "ascending"
-  );
-  for (let i = 1; i < abContactTree.columns.length; i++) {
-    Assert.equal(
-      abContactTree.columns[i].element.getAttribute("sortDirection"),
-      ""
-    );
-  }
+  await openAddressBookWindow();
 
   let bookA = createAddressBook("book A");
   openDirectory(bookA);
@@ -167,15 +155,8 @@ add_task(async function test_insertion_order() {
   checkCardsListed(contactA1, contactA2, contactA3, contactA5);
 
   // Flip sort direction.
-  EventUtils.synthesizeMouseAtCenter(
-    abContactTree.columns.GeneratedName.element,
-    {},
-    abWindow
-  );
-  Assert.equal(
-    abContactTree.columns[0].element.getAttribute("sortDirection"),
-    "descending"
-  );
+  await showSortMenu("sort", "GeneratedName descending");
+
   checkCardsListed(contactA5, contactA3, contactA2, contactA1);
   let contactA4 = bookA.addCard(createContact("contact", "A4")); // Add in the middle.
   checkCardsListed(contactA5, contactA4, contactA3, contactA2, contactA1);
@@ -214,11 +195,8 @@ add_task(async function test_insertion_order() {
   );
 
   // Restore original sort direction.
-  EventUtils.synthesizeMouseAtCenter(
-    abContactTree.columns.GeneratedName.element,
-    {},
-    abWindow
-  );
+  await showSortMenu("sort", "GeneratedName ascending");
+
   checkCardsListed(
     contactA0,
     contactA1,
@@ -228,16 +206,13 @@ add_task(async function test_insertion_order() {
     contactA3, // Actually A6.
     contactA7
   );
-
   await closeAddressBookWindow();
 
   await promiseDirectoryRemoved(bookA.URI);
 });
 
 /**
- * Tests the name column is updated when the format changes. Usually this
- * happens through the menus, but testing menus on Mac is hard, so instead
- * this test just sets the relevant pref.
+ * Tests the name column is updated when the format changes.
  */
 add_task(async function test_name_column() {
   const {
@@ -254,30 +229,22 @@ add_task(async function test_name_column() {
   book.addCard(createContact("echo", "november", "uniform"));
 
   let abWindow = await openAddressBookWindow();
-  let abContactTree = abWindow.document.getElementById("abResultsTree");
+  let cardsList = abWindow.document.getElementById("cards");
 
   // Check the format is display name, ascending.
   Assert.equal(
     Services.prefs.getIntPref("mail.addr_book.lastnamefirst"),
     GENERATE_DISPLAY_NAME
   );
-  Assert.equal(abContactTree.columns[0].element.id, "GeneratedName");
-  Assert.equal(
-    abContactTree.columns[0].element.getAttribute("sortDirection"),
-    "ascending"
-  );
 
   checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
 
   // Select the "delta foxtrot" contact. This should remain selected throughout.
-  mailTestUtils.treeClick(EventUtils, abWindow, abContactTree, 2, 0, {});
-  Assert.equal(abContactTree.view.selection.currentIndex, 2);
+  cardsList.selectedIndex = 2;
+  Assert.equal(cardsList.selectedIndex, 2);
 
   // Change the format to last, first.
-  Services.prefs.setIntPref(
-    "mail.addr_book.lastnamefirst",
-    GENERATE_LAST_FIRST_ORDER
-  );
+  await showSortMenu("format", GENERATE_LAST_FIRST_ORDER);
   checkNamesListed(
     "foxtrot, delta",
     "mike, charlie",
@@ -285,13 +252,11 @@ add_task(async function test_name_column() {
     "tango, alpha",
     "zulu, bravo"
   );
-  Assert.equal(abContactTree.view.selection.currentIndex, 0);
+  Assert.equal(cardsList.selectedIndex, 0);
+  Assert.deepEqual(cardsList.selectedIndicies, [0]);
 
   // Change the format to first last.
-  Services.prefs.setIntPref(
-    "mail.addr_book.lastnamefirst",
-    GENERATE_FIRST_LAST_ORDER
-  );
+  await showSortMenu("format", GENERATE_FIRST_LAST_ORDER);
   checkNamesListed(
     "alpha tango",
     "bravo zulu",
@@ -299,14 +264,11 @@ add_task(async function test_name_column() {
     "delta foxtrot",
     "echo november"
   );
-  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+  Assert.equal(cardsList.selectedIndex, 3);
 
   // Flip the order to descending.
-  EventUtils.synthesizeMouseAtCenter(
-    abContactTree.columns.GeneratedName.element,
-    {},
-    abWindow
-  );
+  await showSortMenu("sort", "GeneratedName descending");
+
   checkNamesListed(
     "echo november",
     "delta foxtrot",
@@ -314,13 +276,10 @@ add_task(async function test_name_column() {
     "bravo zulu",
     "alpha tango"
   );
-  Assert.equal(abContactTree.view.selection.currentIndex, 1);
+  Assert.equal(cardsList.selectedIndex, 1);
 
   // Change the format to last, first.
-  Services.prefs.setIntPref(
-    "mail.addr_book.lastnamefirst",
-    GENERATE_LAST_FIRST_ORDER
-  );
+  await showSortMenu("format", GENERATE_LAST_FIRST_ORDER);
   checkNamesListed(
     "zulu, bravo",
     "tango, alpha",
@@ -328,30 +287,21 @@ add_task(async function test_name_column() {
     "mike, charlie",
     "foxtrot, delta"
   );
-  Assert.equal(abContactTree.view.selection.currentIndex, 4);
+  Assert.equal(cardsList.selectedIndex, 4);
 
   // Change the format to display name.
-  Services.prefs.setIntPref(
-    "mail.addr_book.lastnamefirst",
-    GENERATE_DISPLAY_NAME
-  );
+  await showSortMenu("format", GENERATE_DISPLAY_NAME);
   checkNamesListed("whiskey", "uniform", "sierra", "quebec", "kilo");
-  Assert.equal(abContactTree.view.selection.currentIndex, 2);
+  Assert.equal(cardsList.selectedIndex, 2);
 
   // Sort by email address, ascending.
-  EventUtils.synthesizeMouseAtCenter(
-    abContactTree.columns.PrimaryEmail.element,
-    {},
-    abWindow
-  );
+  await showSortMenu("sort", "PrimaryEmail ascending");
+
   checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
-  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+  Assert.equal(cardsList.selectedIndex, 3);
 
   // Change the format to last, first.
-  Services.prefs.setIntPref(
-    "mail.addr_book.lastnamefirst",
-    GENERATE_LAST_FIRST_ORDER
-  );
+  await showSortMenu("format", GENERATE_LAST_FIRST_ORDER);
   checkNamesListed(
     "tango, alpha",
     "zulu, bravo",
@@ -359,13 +309,10 @@ add_task(async function test_name_column() {
     "foxtrot, delta",
     "november, echo"
   );
-  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+  Assert.equal(cardsList.selectedIndex, 3);
 
   // Change the format to first last.
-  Services.prefs.setIntPref(
-    "mail.addr_book.lastnamefirst",
-    GENERATE_FIRST_LAST_ORDER
-  );
+  await showSortMenu("format", GENERATE_FIRST_LAST_ORDER);
   checkNamesListed(
     "alpha tango",
     "bravo zulu",
@@ -373,24 +320,18 @@ add_task(async function test_name_column() {
     "delta foxtrot",
     "echo november"
   );
-  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+  Assert.equal(cardsList.selectedIndex, 3);
 
   // Change the format to display name.
-  Services.prefs.setIntPref(
-    "mail.addr_book.lastnamefirst",
-    GENERATE_DISPLAY_NAME
-  );
+  await showSortMenu("format", GENERATE_DISPLAY_NAME);
   checkNamesListed("kilo", "quebec", "whiskey", "sierra", "uniform");
-  Assert.equal(abContactTree.view.selection.currentIndex, 3);
+  Assert.equal(cardsList.selectedIndex, 3);
 
   // Restore original sort column and direction.
-  EventUtils.synthesizeMouseAtCenter(
-    abContactTree.columns.GeneratedName.element,
-    {},
-    abWindow
-  );
+  await showSortMenu("sort", "GeneratedName ascending");
+
   checkNamesListed("kilo", "quebec", "sierra", "uniform", "whiskey");
-  Assert.equal(abContactTree.view.selection.currentIndex, 2);
+  Assert.equal(cardsList.selectedIndex, 2);
 
   await closeAddressBookWindow();
 

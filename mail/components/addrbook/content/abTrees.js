@@ -383,7 +383,12 @@ directoryTreeView.prototype = {
           break;
         }
         let removedItem = this._rowMap[removedIndex];
-        if (this.selection && this.selection.isSelected(removedIndex)) {
+        if (
+          this.selection &&
+          this.selection.currentIndex >= removedIndex &&
+          this.selection.currentIndex <=
+            removedIndex + removedItem.children.length
+        ) {
           this.selection.select(parentIndex);
         }
         this._rowMap.splice(removedIndex, 1 + removedItem.children.length);
