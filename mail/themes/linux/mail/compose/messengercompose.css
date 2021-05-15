@@ -11,6 +11,10 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+#mail-menubar:-moz-lwtheme {
+  color: inherit;
+}
+
 #compose-toolbox {
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }

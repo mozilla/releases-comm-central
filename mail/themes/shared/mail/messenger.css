@@ -91,7 +91,6 @@ body {
     --button-bgcolor: rgba(207, 207, 216, 0.33);
     --button-hover-bgcolor: rgba(207, 207, 216, 0.66);
     --button-active-bgcolor: rgb(207, 207, 216);
-    --button-color: rgb(21,20,26);
     --button-primary-bgcolor: rgb(0, 97, 224);
     --button-primary-hover-bgcolor: rgb(2, 80, 187);
     --button-primary-active-bgcolor: rgb(5, 62, 148);

@@ -9,6 +9,10 @@
 @import url("chrome://messenger/skin/messenger.css");
 @import url("chrome://messenger/skin/shared/addressbook.css");
 
+#mail-menubar:-moz-lwtheme {
+  color: inherit;
+}
+
 #ab-toolbox {
   appearance: none;
   border-bottom: 1px solid var(--chrome-content-separator-color);

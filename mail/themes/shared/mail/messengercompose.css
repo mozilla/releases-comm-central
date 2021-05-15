@@ -1083,8 +1083,7 @@ label.extra-recipients-label {
   background-color: Field;
 }
 
-:root[lwt-tree] #msgIdentity:hover,
-#MsgHeadersToolbar[brighttext] #msgIdentity:hover {
+:root[lwt-tree] #msgIdentity:hover {
   background-color: var(--lwt-toolbar-field-background-color);
 }
 
@@ -1119,11 +1118,11 @@ label.extra-recipients-label {
   background-color: var(--lwt-toolbar-field-focus, white);
 }
 
-#MsgHeadersToolbar[brighttext] #msgIdentity:focus,
-#MsgHeadersToolbar[brighttext] #msgIdentity:focus-within,
-#MsgHeadersToolbar[brighttext] #msgIdentity[focused="true"],
-#MsgHeadersToolbar[brighttext] #msgSubject:focus,
-#MsgHeadersToolbar[brighttext] .address-container[focused="true"] {
+:root[lwt-tree-brighttext] #msgIdentity:focus,
+:root[lwt-tree-brighttext] #msgIdentity:focus-within,
+:root[lwt-tree-brighttext] #msgIdentity[focused="true"],
+:root[lwt-tree-brighttext] #msgSubject:focus,
+:root[lwt-tree-brighttext] .address-container[focused="true"] {
   background-color: var(--lwt-toolbar-field-background-color);
 }
 
