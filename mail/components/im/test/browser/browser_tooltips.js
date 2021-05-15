@@ -50,10 +50,13 @@ add_task(async function testMUCMessageSenderTooltip() {
       },
     },
   ]);
-  await BrowserTestUtils.waitForEvent(
-    chatConv.convBrowser,
-    "MessagesDisplayed"
-  );
+  // Wait for at least one event.
+  do {
+    await BrowserTestUtils.waitForEvent(
+      chatConv.convBrowser,
+      "MessagesDisplayed"
+    );
+  } while (chatConv.convBrowser.getPendingMessagesCount() > 0);
 
   const tooltip = document.getElementById("imTooltip");
   const tooltipTests = [
