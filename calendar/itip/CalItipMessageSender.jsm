@@ -33,6 +33,13 @@ class CalItipMessageSender {
   }
 
   /**
+   * Provides the count of CalItipOutgoingMessages ready to be sent.
+   */
+  get pendingMessageCount() {
+    return this.pendingMessages.length;
+  }
+
+  /**
    * Detects whether the passed invitation item has been modified from the
    * original (attendees added/removed, item deleted etc.) thus requiring iTIP
    * messages to be sent.
@@ -64,7 +71,7 @@ class CalItipMessageSender {
         item = item.recurrenceInfo.getOccurrenceFor(originalItem.recurrenceId);
         cal.ASSERT(item, "unexpected!");
         if (!item) {
-          return this.pendingMessages.length;
+          return this.pendingMessageCount;
         }
       }
 
@@ -133,7 +140,7 @@ class CalItipMessageSender {
     }
     if (autoResponse.mode == Ci.calIItipItem.NONE) {
       // we stop here and don't send anything if the user opted out before
-      return this.pendingMessages.length;
+      return this.pendingMessageCount;
     }
 
     if (invitedAttendee) {
@@ -151,7 +158,6 @@ class CalItipMessageSender {
           invitedAttendee.setProperty("SENT-BY", "mailto:" + userAddresses[0]);
         }
       }
-
       if (item.organizer) {
         let origInvitedAttendee = originalItem && originalItem.getAttendeeById(invitedAttendee.id);
 
@@ -214,14 +220,14 @@ class CalItipMessageSender {
           );
         }
       }
-      return this.pendingMessages.length;
+      return this.pendingMessageCount;
     }
 
     if (item.getProperty("X-MOZ-SEND-INVITATIONS") != "TRUE") {
       // Only send invitations/cancellations
       // if the user checked the checkbox
       this.pendingMessages = [];
-      return this.pendingMessages.length;
+      return this.pendingMessageCount;
     }
 
     // special handling for invitation with event status cancelled
@@ -232,7 +238,7 @@ class CalItipMessageSender {
       } else {
         // don't send an invitation, if the event was newly created and has status cancelled
         this.pendingMessages = [];
-        return this.pendingMessages.length;
+        return this.pendingMessageCount;
       }
     }
 
@@ -240,7 +246,7 @@ class CalItipMessageSender {
       this.pendingMessages.push(
         new CalItipOutgoingMessage("CANCEL", item.getAttendees(), item, null, autoResponse)
       );
-      return this.pendingMessages.length;
+      return this.pendingMessageCount;
     } // else ADD, MODIFY:
 
     let originalAtt = originalItem ? originalItem.getAttendees() : [];
@@ -338,7 +344,7 @@ class CalItipMessageSender {
         new CalItipOutgoingMessage("CANCEL", canceledAttendees, cancelItem, null, autoResponse)
       );
     }
-    return this.pendingMessages.length;
+    return this.pendingMessageCount;
   }
 
   /**
