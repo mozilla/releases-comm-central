@@ -52,10 +52,22 @@ menu > menupopup > menu {
   padding-inline: 5px;
 }
 
+@media not (-moz-proton-contextmenus) {
 menulist > menupopup > menuitem > .menu-iconic-left,
 menulist > menupopup > menu > .menu-iconic-left {
   display: -moz-box;
 }
+} /** END not Proton **/
+
+@media (-moz-proton-contextmenus) {
+@media not (-moz-os-version: windows-win10),
+       (-moz-os-version: windows-win10) and (-moz-windows-default-theme: 0) {
+  menulist > menupopup > menuitem > .menu-iconic-left,
+  menulist > menupopup > menu > .menu-iconic-left {
+    display: -moz-box;
+  }
+}
+} /** END Proton **/
 
 @media not (-moz-proton) {
 .menu-right {

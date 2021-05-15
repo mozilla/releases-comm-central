@@ -171,7 +171,7 @@
 
   menulist > menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
   menulist > menupopup:not([needsgutter]) > menuitem:not([icon], .menu-iconic) {
-    padding-inline-start: 0;
+    padding-inline-start: 1em;
   }
 
   menupopup:not([needsgutter]) menu:not([icon], .menu-iconic),
