@@ -95,6 +95,32 @@
   --tab-selected-background: hsla(0, 0%, 50%, 0.25);
 }
 
+@media (prefers-contrast) {
+  :root:not(:-moz-lwtheme) {
+    --button-bgcolor: ButtonFace;
+    --button-hover-bgcolor: Highlight;
+    --button-active-bgcolor: Highlight;
+    --button-text-active: HighlightText;
+    --button-border-color: ThreeDShadow;
+    --field-border-color: ThreeDShadow;
+    --field-border-hover-color: HighlightText;
+    --popup-item-hover: Highlight;
+    --popup-item-hover-text: HighlightText;
+    --tab-hover-background: Highlight;
+    --tab-selected-background: Highlight;
+  }
+
+  button[open],
+  button:not([disabled="true"]):hover,
+  button:not([disabled="true"]):hover:active,
+  menulist:not([disabled="true"],[open="true"]):hover,
+  menulist[open="true"]:not([disabled="true"]),
+  tab:hover,
+  tab[visuallyselected="true"] {
+    color: var(--button-text-active) !important;
+  }
+}
+
 html|input,
 html|textarea {
   appearance: none;
@@ -245,6 +271,7 @@ html|input[type="color"]:not([disabled="true"]):hover:active {
 
 button[default="true"] {
   border-color: var(--highlight-color);
+  outline: 1px solid var(--highlight-color);
 }
 
 button[type="menu-button"] > .button-box > button {
@@ -460,7 +487,9 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
 .radio-check[selected] {
   list-style-image: url("chrome://global/skin/icons/radio.svg");
   -moz-context-properties: fill;
-  fill: var(--highlight-color);
+  color: var(--checkbox-checked-border-color, currentColor);
+  fill: var(--checkbox-checked-color, -moz-accent-color-foreground);
+  background-color: var(--checkbox-checked-bgcolor, -moz-accent-color);
 }
 
 @media not (-moz-proton) {
