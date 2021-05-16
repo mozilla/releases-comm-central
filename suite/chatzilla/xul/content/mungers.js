@@ -81,7 +81,7 @@ function initMunger()
                    insertTalkbackLink, NORMAL_PRIORITY, NORMAL_PRIORITY);
 
     munger.addRule("face",
-         /((^|\s)(?:[>]?[B8=:;(xX][~']?[-^v"]?(?:[)|(PpSs0oO\?\[\]\/\\]|D+)|>[-^v]?\)|[oO9][._][oO9])(\s|$))/,
+         /((^|\s)(?:[>O]?[B8=:;(xX%][~']?[-^v"]?(?:[)|(PpSs0oO#\?\*\[\]\/\\]|D+)|>[-^v]?\)|[oO9][._][oO9])(\s|$))/,
          insertSmiley, NORMAL_PRIORITY, NORMAL_PRIORITY);
     munger.addRule("rheet", /(?:\W|^)(rhee+t\!*)(?:\s|$)/i, insertRheet, 10, 10);
     munger.addRule("word-hyphenator", client.whitespaceRE,
@@ -409,6 +409,8 @@ function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
         "face-alien": "\uD83D\uDC7D",
         "face-lol": "\uD83D\uDE02",
         "face-laugh": "\uD83D\uDE04",
+        "face-sweat_smile": "\uD83D\uDE05",
+        "face-innocent": "\uD83D\uDE07",
         "face-evil": "\uD83D\uDE08",
         "face-wink": "\uD83D\uDE09",
         "face-smile": "\uD83D\uDE0A",
@@ -416,7 +418,9 @@ function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
         "face-neutral": "\uD83D\uDE10",
         "face-thinking": "\uD83D\uDE14",
         "face-confused": "\uD83D\uDE15",
+        "face-kissing": "\uD83D\uDE17",
         "face-tongue": "\uD83D\uDE1B",
+        "face-worried": "\uD83D\uDE1F",
         "face-angry": "\uD83D\uDE20",
         "face-cry": "\uD83D\uDE22",
         "face-surprised": "\uD83D\uDE2D",
@@ -425,16 +429,18 @@ function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
         "face-dizzy": "\uD83D\uDE35",
         "face-sad": "\uD83D\uDE41",
         "face-rolleyes": "\uD83D\uDE44",
+        "face-zipped": "\uD83E\uDD10",
         "face-rofl": "\uD83E\uDD23",
+        "face-woozy": "\uD83E\uDD74",
     };
 
     let type;
 
     if (emoticon.search(/\>[-^v]?\)/) != -1)
         type = "face-alien";
-    else if (emoticon.search(/\>[=:;][-^v]?[(|]/) != -1)
+    else if (emoticon.search(/\>[=:;][-^v]?[(|]|[Xx][-^v]?[(\[]/) != -1)
         type = "face-angry";
-    else if (emoticon.search(/[=:;][-^v]?[Ss\\\/]/) != -1)
+    else if (emoticon.search(/[=:;][-^v]?[Ss]/) != -1)
         type = "face-confused";
     else if (emoticon.search(/[B8][-^v]?[)\]]/) != -1)
         type = "face-cool";
@@ -446,6 +452,10 @@ function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
         type = "face-eek";
     else if (emoticon.search(/\>[=:;][-^v]?D/) != -1)
         type = "face-evil";
+    else if (emoticon.search(/O[=:][-^v]?[)]/) != -1)
+        type = "face-innocent";
+    else if (emoticon.search(/[=:;][-^v]?[*]/) != -1)
+        type = "face-kissing";
     else if (emoticon.search(/[=:;][-^v]?DD/) != -1)
         type = "face-lol";
     else if (emoticon.search(/[=:;][-^v]?D/) != -1)
@@ -462,14 +472,22 @@ function insertSmiley(emoticon, containerTag, eventData, mungerEntry)
         type = "face-rolleyes";
     else if (emoticon.search(/[=:;][-^v]?[(\[]/) != -1)
         type = "face-sad";
-    else if (emoticon.search(/[=:][-^v]?[)\]]/) != -1)
+    else if (emoticon.search(/[=:][-^v]?[)]/) != -1)
         type = "face-smile";
     else if (emoticon.search(/[=:;][-^v]?[0oO]/) != -1)
         type = "face-surprised";
+    else if (emoticon.search(/[=:][-^v]?[\]]/) != -1)
+        type = "face-sweat_smile";
     else if (emoticon.search(/[=:;][-^v]?[pP]/) != -1)
         type = "face-tongue";
     else if (emoticon.search(/;[-^v]?[)\]]/) != -1)
         type = "face-wink";
+    else if (emoticon.search(/%[-^v][)\]]/) != -1)
+        type = "face-woozy";
+    else if (emoticon.search(/[=:;][-^v]?[\/\\]/) != -1)
+        type = "face-worried";
+    else if (emoticon.search(/[=:;][-^v]?[#]/) != -1)
+        type = "face-zipped";
 
     let glyph = smilies[type];
     if (!glyph) {
