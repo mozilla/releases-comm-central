@@ -6,12 +6,13 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+ChromeUtils.defineModuleGetter(this, "AppConstants",
+                               "resource://gre/modules/AppConstants.jsm");
 ChromeUtils.defineModuleGetter(this, "PlacesUtils",
                                "resource://gre/modules/PlacesUtils.jsm");
 
 #expand const __cz_version   = "__CHATZILLA_VERSION__";
 const __cz_condition = "green";
-const __cz_guid      = "59c81df5-4b7a-477b-912d-4e0fdf64e5f2";
 const __cz_locale    = "0.9.92";
 
 var warn;
@@ -411,27 +412,28 @@ function initApplicationCompatibility()
 {
     // This function does nothing more than tweak the UI based on the platform.
 
+    client.lineEnd = "\n";
+
     // Set up simple platform information.
-
-    client.platform = "Unknown";
-    if (navigator.platform.search(/mac/i) > -1)
-        client.platform = "Mac";
-    if (navigator.platform.search(/win/i) > -1)
-        client.platform = "Windows";
-    if (navigator.platform.search(/linux/i) > -1)
-        client.platform = "Linux";
-
-    client.hostPlatform = "Mozilla" + client.platform;
+    switch (AppConstants.platform) {
+        case "linux":
+            client.platform = "Linux";
+            break;
+        case "macosx":
+            client.platform = "Mac";
+            break;
+        case "win":
+            client.platform = "Windows";
+            // Windows likes \r\n line endings, as notepad can't cope with just
+            // \n logs.
+            client.lineEnd = "\r\n";
+            break;
+        default:
+            client.platform = "Unknown";
+    }
 
     CIRCServer.prototype.OS_RPLY = navigator.oscpu + " (" +
                                    navigator.platform + ")";
-
-    // Windows likes \r\n line endings, as wussy-notepad can't cope with just
-    // \n logs.
-    if (client.platform == "Windows")
-        client.lineEnd = "\r\n";
-    else
-        client.lineEnd = "\n";
 }
 
 function getFindData(e)
