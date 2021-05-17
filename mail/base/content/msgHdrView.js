@@ -30,9 +30,6 @@ var { MailServices } = ChromeUtils.import(
 var { GlodaUtils } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaUtils.jsm"
 );
-var { Status: statusUtils } = ChromeUtils.import(
-  "resource:///modules/imStatusUtils.jsm"
-);
 
 XPCOMUtils.defineLazyServiceGetter(
   this,
@@ -162,18 +159,11 @@ function createHeaderEntry(prefix, headerListInfo) {
   var partialIDName = prefix + headerListInfo.name;
   this.enclosingBox = document.getElementById(partialIDName + "Box");
   this.enclosingRow = document.getElementById(partialIDName + "Row");
-  this.textNode = document.getElementById(partialIDName + "Value");
   this.isNewHeader = false;
   this.valid = false;
 
   if ("useToggle" in headerListInfo) {
     this.useToggle = headerListInfo.useToggle;
-    if (this.useToggle) {
-      // find the toggle icon in the document
-      this.toggleIcon = this.enclosingBox.toggleIcon;
-      this.longTextNode = this.enclosingBox.longEmailAddresses;
-      this.textNode = this.enclosingBox.emailAddresses;
-    }
   } else {
     this.useToggle = false;
   }
@@ -1413,65 +1403,12 @@ function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
   // If we haven't been given specific details, search for a card.
   var cardDetails =
     aCardDetails || DisplayNameUtils.getCardForEmail(aEmailAddress);
+  // FIXME: It would be useful and cleaner to move the handling of the
+  // mail-emailaddress elements to the element's class itself. That way the
+  // logic wouldn't be spread between two separate scripts.
   aDocumentNode.cardDetails = cardDetails;
 
-  if (!cardDetails.card) {
-    aDocumentNode.setAttribute("hascard", "false");
-    aDocumentNode.setAttribute(
-      "tooltipstar",
-      document.getElementById("addToAddressBookItem").label
-    );
-  } else {
-    aDocumentNode.setAttribute("hascard", "true");
-    aDocumentNode.setAttribute(
-      "tooltipstar",
-      document.getElementById("editContactItem").label
-    );
-  }
-
-  let chatAddresses = [aEmailAddress];
-  let card = cardDetails.card;
-  if (card) {
-    let gTalk = card.getProperty("_GoogleTalk", null);
-    if (gTalk) {
-      chatAddresses.push(gTalk);
-    }
-    let jid = card.getProperty("_JabberId", null);
-    if (jid) {
-      chatAddresses.push(jid);
-    }
-  }
-  let { onlineContacts } = ChromeUtils.import(
-    "resource:///modules/chatHandler.jsm"
-  );
-  let chatContact;
-  for (let chatAddress of chatAddresses) {
-    if (Object.prototype.hasOwnProperty.call(onlineContacts, chatAddresses)) {
-      chatContact = onlineContacts[chatAddress];
-      break;
-    }
-  }
-  if (aDocumentNode.chatContact) {
-    aDocumentNode.chatContact.removeObserver(aDocumentNode.chatContactObserver);
-    delete aDocumentNode.chatContact;
-    delete aDocumentNode.chatContactObserver;
-  }
-  if (chatContact) {
-    aDocumentNode.chatContact = chatContact;
-    aDocumentNode.chatContactObserver = function(aSubject, aTopic, aData) {
-      if (aTopic == "contact-removed") {
-        this.chatContact.removeObserver(this.chatContactObserver);
-        delete this.chatContact;
-        delete this.chatContactObserver;
-        this.removeAttribute("chatStatus");
-        this.removeAttribute("presenceTooltip");
-      } else if (aTopic == "contact-status-changed") {
-        UpdateEmailPresenceDetails(this, this.chatContact);
-      }
-    }.bind(aDocumentNode);
-    chatContact.addObserver(aDocumentNode.chatContactObserver);
-  }
-  UpdateEmailPresenceDetails(aDocumentNode, chatContact);
+  aDocumentNode.setAddressBookState(!!cardDetails.card);
 
   // When we are adding cards, we don't want to move the display around if the
   // user has clicked on the star, therefore if it is locked, just exit and
@@ -1498,33 +1435,11 @@ function UpdateEmailNodeDetails(aEmailAddress, aDocumentNode, aCardDetails) {
   aDocumentNode.setAttribute("label", displayName);
 }
 
-function UpdateEmailPresenceDetails(aDocumentNode, aChatContact) {
-  if (!aChatContact) {
-    aDocumentNode.removeAttribute("chatStatus");
-    aDocumentNode.removeAttribute("presenceTooltip");
-    return;
-  }
-
-  let statusType = aChatContact.statusType;
-  if (statusType < Ci.imIStatusInfo.STATUS_IDLE) {
-    aDocumentNode.removeAttribute("chatStatus");
-  } else if (statusType == Ci.imIStatusInfo.STATUS_AVAILABLE) {
-    aDocumentNode.setAttribute("chatStatus", "available");
-  } else {
-    aDocumentNode.setAttribute("chatStatus", "away");
-  }
-
-  let tooltipText =
-    aChatContact.preferredBuddy.protocol.name +
-    "\n" +
-    statusUtils.toLabel(aChatContact.statusType);
-  let statusText = aChatContact.statusText;
-  if (statusText) {
-    tooltipText += " - " + statusText;
-  }
-  aDocumentNode.setAttribute("presenceTooltip", tooltipText);
-}
-
+// FIXME: This method is only called in another file by
+// MozMailMultiEmailheaderfield.updateExtraAddressProcessing, which in turn
+// is only invoked by OnAddressBookDataChanged in this file. We should avoid
+// moving between files when this could all be handled by the element's class
+// itself.
 function UpdateExtraAddressProcessing(
   aAddressData,
   aDocumentNode,
@@ -1660,53 +1575,6 @@ function setupEmailAddressPopup(emailAddressNode) {
     document.getElementById("editContactItem").setAttribute("hidden", true);
     document.getElementById("viewContactItem").setAttribute("hidden", true);
   }
-}
-
-function onClickEmailStar(event, emailAddressNode) {
-  // Only care about left-click events
-  if (event.button != 0) {
-    return;
-  }
-
-  if (
-    emailAddressNode &&
-    emailAddressNode.cardDetails &&
-    emailAddressNode.cardDetails.card
-  ) {
-    EditContact(emailAddressNode);
-  } else {
-    AddContact(emailAddressNode);
-  }
-}
-
-function onClickEmailPresence(event, emailAddressNode) {
-  // Only care about left-click events
-  if (event.button != 0) {
-    return;
-  }
-
-  let prplConv = emailAddressNode.chatContact.createConversation();
-  let uiConv = Services.conversations.getUIConversation(prplConv);
-
-  let win = window;
-  if (!("focusConversation" in chatHandler)) {
-    win = Services.wm.getMostRecentWindow("mail:3pane");
-    if (win) {
-      win.focus();
-    } else {
-      window.openDialog(
-        "chrome://messenger/content/messenger.xhtml",
-        "_blank",
-        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
-        null,
-        { tabType: "chat", tabParams: { convType: "focus", conv: uiConv } }
-      );
-      return;
-    }
-  }
-
-  win.showChatTab();
-  win.chatHandler.focusConversation(uiConv);
 }
 
 /**

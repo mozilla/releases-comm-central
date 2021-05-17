@@ -433,27 +433,51 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
   margin: 0;
 }
 
+.emailActionIconButton {
+  /* Only occupy the same space as its content. */
+  display: inline grid;
+  padding: 0;
+  margin: 0;
+  height: auto;
+  min-width: auto;
+  border: none;
+  border-radius: 0;
+  background: none;
+}
+
+.emailActionIconButton[hidden] {
+  display: none;
+}
+
+.emailActionIconButton:focus-visible:not(:hover) {
+  outline: 1px solid var(--focus-outline-color);
+}
+
+button.emailActionIconButton:hover {
+  background: none;
+}
+
+mail-emailaddress .emailActionIconButton {
+  margin-inline-start: 2px;
+}
+
 .emailStar {
   width: 1em;
   height: 1em;
-  margin-inline-start: 2px;
-  list-style-image: url("chrome://messenger/skin/icons/star.svg");
+}
+
+.emailStar {
   -moz-context-properties: fill;
   fill: currentColor;
 }
 
-.emailStar[hascard="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/starred.svg");
+.emailStar.starredFill {
   fill: var(--toolbarbutton-icon-fill-attention);
 }
 
-.emailDisplayButton:hover > .emailStar,
-mail-emailaddress[selected="true"] > .emailDisplayButton > .emailStar {
+.emailDisplayButton:hover .emailStar,
+mail-emailaddress[selected="true"] > .emailDisplayButton .emailStar {
   fill: HighlightText;
-}
-
-.emailStar:focus-visible:not(:hover) {
-  outline: 1px solid var(--focus-outline-color);
 }
 
 .emaillabel {
@@ -465,25 +489,6 @@ mail-emailaddress[selected="true"] > .emailDisplayButton > .emailStar {
   padding: 0;  /* override <label> defaults */
   margin: 0;  /* override <label> defaults */
   overflow: hidden;
-}
-
-.emailStar[chatStatus],
-.emailPresence:not([chatStatus]) {
-  display: none;
-}
-
-.emailPresence {
-  width: 1em;
-  height: 1em;
-  margin-inline-start: 2px;
-}
-
-.emailPresence[chatStatus="available"] {
-  list-style-image: url("chrome://messenger/skin/icons/status-online.svg");
-}
-
-.emailPresence[chatStatus="away"] {
-  list-style-image: url("chrome://messenger/skin/icons/status-away.svg");
 }
 
 /* ::::: email address twisty ::::: */
@@ -506,14 +511,18 @@ mail-emailaddress[selected="true"] > .emailDisplayButton > .emailStar {
   list-style-image:url("chrome://messenger/skin/icons/arrow/arrow-down.png");
 }
 
-.emailToggleHeaderfield {
-  padding-top: 1px;
-  width: 10px;
+mail-messageids-headerfield .emailActionIconButton {
+  padding-block-start: 1px;
   margin-inline: 4px 2px;
+}
+
+.emailToggleHeaderfield {
   background: url("chrome://global/skin/icons/twisty-collapsed.svg") no-repeat center;
   background-size: contain;
   -moz-context-properties: fill;
   fill: currentColor;
+  width: 10px;
+  height: 10px;
 }
 
 .emailToggleHeaderfield:-moz-locale-dir(rtl) {

@@ -9,8 +9,8 @@
 /* global MozXULElement */
 /* global openUILink */
 /* global MessageIdClick */
-/* global onClickEmailStar */
-/* global onClickEmailPresence */
+/* global EditContact */
+/* global AddContact */
 /* global gFolderDisplay */
 /* global UpdateEmailNodeDetails */
 /* global PluralForm */
@@ -282,12 +282,27 @@
       this.mMessageIds = [];
       this.showFullMessageIds = false;
 
-      this.toggleIcon = document.createXULElement("image");
+      this.toggleButton = document.createElement("button");
+      this.toggleButton.classList.add("emailActionIconButton");
+      // FIXME: Is the twisty icon the best representation since toggling the
+      // twisty icon does not expand hidden content vertically?
+      // A list of <details> elements may be more appropriate to capture this,
+      // and would be more accessible.
+      // NOTE: We currently style the toggle button as a twisty icon, which
+      // relies on the CSS -moz-locale-dir(rtl) selector to choose the image.
+      // Therefore, we use a <div> rather than an <img> for convenience.
+      // However, this means we cannot set alt text that describes the behaviour
+      // of the button to screen readers. We use aria-expanded to hint that the
+      // behaviour is _similar_ to tree expansion.
+      this.toggleButton.setAttribute("aria-expanded", this.showFullMessageIds);
+      this.toggleIcon = document.createElement("div");
       this.toggleIcon.classList.add("emailToggleHeaderfield");
-      this.toggleIcon.addEventListener("click", () => {
+      this.toggleButton.appendChild(this.toggleIcon);
+
+      this.toggleButton.addEventListener("click", () => {
         this._toggleWrap();
       });
-      this.appendChild(this.toggleIcon);
+      this.appendChild(this.toggleButton);
 
       this.headerValue = document.createXULElement("hbox");
       this.headerValue.classList.add("headerValue");
@@ -296,17 +311,17 @@
     }
 
     _toggleWrap() {
+      this.showFullMessageIds = !this.showFullMessageIds;
+      this.toggleButton.setAttribute("aria-expanded", this.showFullMessageIds);
+      this.toggleIcon.classList.toggle("open", this.showFullMessageIds);
       for (let i = 0; i < this.headerValue.children.length; i += 2) {
-        if (!this.showFullMessageIds) {
-          this.toggleIcon.classList.add("open");
+        if (this.showFullMessageIds) {
           this.headerValue.children[i].setAttribute(
             "label",
             this.mMessageIds[i / 2]
           );
           this.headerValue.children[i].removeAttribute("tooltiptext");
-          this.headerValue.removeAttribute("singleline");
         } else {
-          this.toggleIcon.classList.remove("open");
           this.headerValue.children[i].setAttribute("label", i / 2 + 1);
           this.headerValue.children[i].setAttribute(
             "tooltiptext",
@@ -314,8 +329,6 @@
           );
         }
       }
-
-      this.showFullMessageIds = !this.showFullMessageIds;
     }
 
     fillMessageIdNodes() {
@@ -326,7 +339,7 @@
         this.headerValue.lastElementChild.remove();
       }
 
-      this.toggleIcon.hidden = this.mMessageIds.length <= 1;
+      this.toggleButton.hidden = this.mMessageIds.length <= 1;
 
       for (let i = 0; i < this.mMessageIds.length; i++) {
         if (i * 2 <= this.headerValue.children.length - 1) {
@@ -388,14 +401,7 @@
 
   class MozMailEmailaddress extends MozXULElement {
     static get observedAttributes() {
-      return [
-        "hascard",
-        "label",
-        "crop",
-        "tooltipstar",
-        "chatStatus",
-        "presenceTooltip",
-      ];
+      return ["label", "crop"];
     }
 
     connectedCallback() {
@@ -404,25 +410,94 @@
       }
       this.classList.add("emailDisplayButton");
       this.setAttribute("context", "emailAddressPopup");
+      // FIXME: popup is not accessible to keyboard users.
       this.setAttribute("popup", "emailAddressPopup");
       this.setAttribute("align", "center");
 
       const label = document.createXULElement("label");
       label.classList.add("emaillabel");
 
-      const emailStarImage = document.createXULElement("image");
-      emailStarImage.classList.add("emailStar");
-      emailStarImage.setAttribute("context", "emailAddressPopup");
+      // FIXME: The star button uses "title" to describe its action, but the
+      // tooltip is not currently accessible to keyboard users and doesn't
+      // appear as a node in the accessibility tree.
+      this.starButton = document.createElement("button");
+      this.starButton.classList.add("emailActionIconButton");
+      this.starButton.setAttribute("contextmenu", "emailAddressPopup");
+      this.starIcon = document.createElement("img");
+      this.starIcon.classList.add("emailStar");
+      this.starButton.appendChild(this.starIcon);
 
-      const emailPresenceImage = document.createXULElement("image");
-      emailPresenceImage.classList.add("emailPresence");
+      this.starButton.addEventListener("mousedown", event => {
+        // Don't trigger popup.
+        event.preventDefault();
+      });
+      this.starButton.addEventListener("click", this.onClickStar.bind(this));
 
       this.appendChild(label);
-      this.appendChild(emailStarImage);
-      this.appendChild(emailPresenceImage);
+      this.appendChild(this.starButton);
 
+      this.createdStarButton = true;
+
+      this._updateStarButton();
       this._update();
-      this._setupEventListeners();
+    }
+
+    onClickStar(event) {
+      // Only care about left-click events
+      if (event.button != 0) {
+        return;
+      }
+
+      // FIXME: both methods use properties set outside of this class in
+      // msgHdrView.js. Would be cleaner if the logic could be brought within
+      // this class since they are currently quite interdependent.
+      if (this.hasCard) {
+        EditContact(this);
+      } else {
+        AddContact(this);
+      }
+    }
+
+    _updateStarButton() {
+      let src;
+      let title;
+      if (this.hasCard) {
+        src = "chrome://messenger/skin/icons/starred.svg";
+        // Set the alt text.
+        document.l10n.setAttributes(
+          this.starIcon,
+          "message-header-address-in-address-book-icon"
+        );
+        title = document.getElementById("editContactItem").label;
+      } else {
+        src = "chrome://messenger/skin/icons/star.svg";
+        // Set the alt text.
+        document.l10n.setAttributes(
+          this.starIcon,
+          "message-header-address-not-in-address-book-icon"
+        );
+        title = document.getElementById("addToAddressBookItem").label;
+      }
+      this.starIcon.setAttribute("src", src);
+      this.starIcon.classList.toggle("starredFill", this.hasCard);
+      this.starButton.setAttribute("title", title);
+    }
+
+    /**
+     * Set the address book action for the star button depending on whether the
+     * shown address exists in the address book.
+     *
+     * @param {boolean} hasCard - Whether the shown address is already in the
+     *   address book.
+     */
+    setAddressBookState(hasCard) {
+      if (hasCard === this.hasCard) {
+        return;
+      }
+      this.hasCard = hasCard;
+      if (this.createdStarButton) {
+        this._updateStarButton();
+      }
     }
 
     attributeChangedCallback() {
@@ -434,22 +509,9 @@
 
     _update() {
       const emailLabel = this.querySelector(".emaillabel");
-      const emailStarImage = this.querySelector(".emailStar");
-      const emailPresenceImage = this.querySelector(".emailPresence");
 
       this._updateNodeAttributes(emailLabel, "crop");
       this._updateNodeAttributes(emailLabel, "value", "label");
-
-      this._updateNodeAttributes(emailStarImage, "hascard");
-      this._updateNodeAttributes(emailStarImage, "chatStatus");
-      this._updateNodeAttributes(emailStarImage, "tooltiptext", "tooltipstar");
-
-      this._updateNodeAttributes(emailPresenceImage, "chatStatus");
-      this._updateNodeAttributes(
-        emailPresenceImage,
-        "tooltiptext",
-        "presenceTooltip"
-      );
     }
 
     _updateNodeAttributes(attrNode, attr, mappedAttr) {
@@ -463,27 +525,6 @@
       } else {
         attrNode.removeAttribute(attr);
       }
-    }
-
-    _setupEventListeners() {
-      const emailStarImage = this.querySelector(".emailStar");
-      const emailPresenceImage = this.querySelector(".emailPresence");
-
-      emailStarImage.addEventListener("mousedown", event => {
-        event.preventDefault();
-      });
-
-      emailStarImage.addEventListener("click", event => {
-        onClickEmailStar(event, this);
-      });
-
-      emailPresenceImage.addEventListener("mousedown", event => {
-        event.preventDefault();
-      });
-
-      emailPresenceImage.addEventListener("click", event => {
-        onClickEmailPresence(event, this);
-      });
     }
   }
   customElements.define("mail-emailaddress", MozMailEmailaddress);

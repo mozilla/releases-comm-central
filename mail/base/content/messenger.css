@@ -25,10 +25,6 @@
   -moz-user-focus: normal;
 }
 
-.emailStar {
-  -moz-user-focus: normal;
-}
-
 mail-tagfield[collapsed="true"] {
   display: none;
 }

@@ -965,9 +965,11 @@ function subtest_more_widget_star_click(toDescription) {
   // scroll to the bottom first so the address is in view
   let view = mc.e("expandedHeaderView");
   view.scrollTop = view.scrollHeight - view.clientHeight;
+  let star = lastAddr.querySelector(".emailStar");
+  let src = star.getAttribute("src");
 
-  mc.click(lastAddr.querySelector(".emailStar"));
-  if (lastAddr.getAttribute("hascard") == "false") {
+  mc.click(star);
+  if (star.getAttribute("src") === src) {
     throw new Error("address not updated after clicking star");
   }
 }

@@ -87,6 +87,14 @@ toolbar-context-menu-remove-extension =
     .label = Remove Extension
     .accesskey = v
 
+## Message headers
+
+message-header-address-in-address-book-icon =
+  .alt = Address is in the Address Book
+
+message-header-address-not-in-address-book-icon =
+  .alt = Address is not in the Address Book
+
 ## Add-on removal warning
 
 # Variables:
