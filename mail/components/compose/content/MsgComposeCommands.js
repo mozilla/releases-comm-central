@@ -5237,7 +5237,7 @@ function checkPublicRecipientsLimit() {
 
   let msgText = document.createElement("div");
   msgText.classList.add("consider-bcc-notification-text");
-  msgText.setAttribute("data-l10n-id", "consider-bcc-notification");
+  msgText.setAttribute("data-l10n-id", "many-public-recipients-info");
   msgText.setAttribute(
     "data-l10n-args",
     JSON.stringify({ count: publicAddressPillsCount })

@@ -158,7 +158,7 @@ bcc-compose-show-address-row-label =
     .tooltiptext = Show { bcc-compose-address-row-label.value } Field ({ bcc-compose-show-address-row-menuitem.acceltext })
 
 #   $count (Number) - the count of addresses in the "To" and "Cc" fields.
-consider-bcc-notification = The {$count} recipients in To and Cc can see the address of each other. You can avoid disclosing recipients by using Bcc instead.
+many-public-recipients-info = The {$count} recipients in To and Cc will see each other's address. You can avoid disclosing recipients by using Bcc instead.
 
 many-public-recipients-bcc =
   .label = Use Bcc Instead
