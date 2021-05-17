@@ -20,9 +20,7 @@ nsMsgDBEnumerator::nsMsgDBEnumerator(nsMsgDatabase* db, nsIMdbTable* table,
       mDone(false),
       mIterateForwards(iterateForwards),
       mFilter(filter),
-      mClosure(closure),
-      mStopPos(-1) {
-  mNextPrefetched = false;
+      mClosure(closure) {
   mTable = table;
   mRowPos = 0;
   mDB->m_msgEnumerators.AppendElement(this);
@@ -62,75 +60,83 @@ nsresult nsMsgDBEnumerator::GetRowCursor() {
 
 NS_IMETHODIMP nsMsgDBEnumerator::GetNext(nsIMsgDBHdr** aItem) {
   if (!aItem) return NS_ERROR_NULL_POINTER;
-  nsresult rv = NS_OK;
-  if (!mNextPrefetched) rv = PrefetchNext();
-  if (NS_SUCCEEDED(rv)) {
-    if (mResultHdr) {
-      NS_ADDREF(*aItem = mResultHdr);
-      mNextPrefetched = false;
-    }
+  *aItem = nullptr;
+
+  // If we've already got one ready, return it.
+  if (mResultHdr) {
+    mResultHdr.forget(aItem);
+    return NS_OK;
   }
-  return rv;
+
+  nsresult rv = InternalGetNext(aItem);
+  NS_ENSURE_SUCCESS(rv, rv);
+  return *aItem ? NS_OK : NS_ERROR_FAILURE;
 }
 
-nsresult nsMsgDBEnumerator::PrefetchNext() {
-  nsresult rv = NS_OK;
-  nsIMdbRow* hdrRow;
-  uint32_t flags;
+nsresult nsMsgDBEnumerator::InternalGetNext(nsIMsgDBHdr** nextHdr) {
+  nsresult rv;
+
+  *nextHdr = nullptr;
 
   if (!mRowCursor) {
     rv = GetRowCursor();
-    if (NS_FAILED(rv)) return rv;
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  do {
-    mResultHdr = nullptr;
-    if (mIterateForwards)
+  while (true) {
+    nsIMdbRow* hdrRow;
+    if (mIterateForwards) {
       rv = mRowCursor->NextRow(mDB->GetEnv(), &hdrRow, &mRowPos);
-    else
+    } else {
       rv = mRowCursor->PrevRow(mDB->GetEnv(), &hdrRow, &mRowPos);
+    }
+    NS_ENSURE_SUCCESS(rv, rv);
     if (!hdrRow) {
-      mDone = true;
-      return NS_ERROR_FAILURE;
+      // No more rows, so we're done.
+      *nextHdr = nullptr;
+      return NS_OK;
     }
-    if (NS_FAILED(rv)) {
-      mDone = true;
-      return rv;
-    }
+
     // Get key from row
     mdbOid outOid;
     nsMsgKey key = nsMsgKey_None;
     rv = hdrRow->GetOid(mDB->GetEnv(), &outOid);
-    if (NS_WARN_IF(NS_FAILED(rv))) return rv;
+    NS_ENSURE_SUCCESS(rv, rv);
     key = outOid.mOid_Id;
 
-    rv = mDB->GetHdrFromUseCache(key, getter_AddRefs(mResultHdr));
-    if (NS_SUCCEEDED(rv) && mResultHdr)
-      hdrRow->Release();
-    else {
-      rv = mDB->CreateMsgHdr(hdrRow, key, getter_AddRefs(mResultHdr));
-      if (NS_WARN_IF(NS_FAILED(rv))) return rv;
+    nsCOMPtr<nsIMsgDBHdr> hdr;
+    rv = mDB->CreateMsgHdr(hdrRow, key, getter_AddRefs(hdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+
+    // Ignore expunged messages.
+    uint32_t flags;
+    hdr->GetFlags(&flags);
+    if (flags & nsMsgMessageFlags::Expunged) {
+      continue;
     }
 
-    if (mResultHdr)
-      mResultHdr->GetFlags(&flags);
-    else
-      flags = 0;
-  } while (mFilter && NS_FAILED(mFilter(mResultHdr, mClosure)) &&
-           !(flags & nsMsgMessageFlags::Expunged));
+    // Ignore anything which doesn't pass the filter func (if there is one).
+    if (mFilter && NS_FAILED(mFilter(hdr, mClosure))) {
+      continue;
+    }
 
-  if (mResultHdr) {
-    mNextPrefetched = true;
+    // If we get this far, we've found it.
+    hdr.forget(nextHdr);
     return NS_OK;
-  } else
-    mNextPrefetched = false;
-  return NS_ERROR_FAILURE;
+  }
 }
 
 NS_IMETHODIMP nsMsgDBEnumerator::HasMoreElements(bool* aResult) {
   if (!aResult) return NS_ERROR_NULL_POINTER;
 
-  if (!mNextPrefetched && (NS_FAILED(PrefetchNext()))) mDone = true;
+  if (!mResultHdr) {
+    nsresult rv = InternalGetNext(getter_AddRefs(mResultHdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!mResultHdr) {
+      mDone = true;
+    }
+  }
+
   *aResult = !mDone;
   return NS_OK;
 }
@@ -165,22 +171,23 @@ nsresult nsMsgFilteredDBEnumerator::InitSearchSession(
   return NS_OK;
 }
 
-nsresult nsMsgFilteredDBEnumerator::PrefetchNext() {
-  nsresult rv;
-  do {
-    rv = nsMsgDBEnumerator::PrefetchNext();
-    if (NS_SUCCEEDED(rv) && mResultHdr) {
-      bool matches;
-      rv = m_searchSession->MatchHdr(mResultHdr, mDB, &matches);
-      if (NS_SUCCEEDED(rv) && matches) break;
-      mResultHdr = nullptr;
-    } else
-      break;
-  } while (mStopPos == -1 || mRowPos != mStopPos);
-
-  if (!mResultHdr) mNextPrefetched = false;
-
-  return rv;
+nsresult nsMsgFilteredDBEnumerator::InternalGetNext(nsIMsgDBHdr** nextHdr) {
+  nsCOMPtr<nsIMsgDBHdr> hdr;
+  while (true) {
+    nsresult rv = nsMsgDBEnumerator::InternalGetNext(getter_AddRefs(hdr));
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (!hdr) {
+      break;  // No more.
+    }
+    bool matches;
+    rv = m_searchSession->MatchHdr(hdr, mDB, &matches);
+    NS_ENSURE_SUCCESS(rv, rv);
+    if (matches) {
+      break;  // Found one!
+    }
+  }
+  hdr.forget(nextHdr);
+  return NS_OK;
 }
 
 /*

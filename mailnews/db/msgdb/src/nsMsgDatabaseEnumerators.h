@@ -55,7 +55,10 @@ class nsMsgDBEnumerator : public nsBaseMsgEnumerator {
  protected:
   // internals
   nsresult GetRowCursor();
-  virtual nsresult PrefetchNext();
+
+  // Returns next message or nullptr if none more.
+  virtual nsresult InternalGetNext(nsIMsgDBHdr** nextHdr);
+
   // Our source DB. Not refcounted, because we don't want to lock the DB
   // in existance. The enumerator is registered with the DB, and the DB will
   // call Invalidate() if it is destroyed or ForceClosed().
@@ -64,14 +67,10 @@ class nsMsgDBEnumerator : public nsBaseMsgEnumerator {
   mdb_pos mRowPos;
   nsCOMPtr<nsIMsgDBHdr> mResultHdr;
   bool mDone;
-  bool mNextPrefetched;
   bool mIterateForwards;
   nsMsgDBEnumeratorFilter mFilter;
   nsIMdbTable* mTable;
   void* mClosure;
-  // This is used when the caller wants to limit how many headers the
-  // enumerator looks at in any given time slice.
-  mdb_pos mStopPos;
 
   virtual ~nsMsgDBEnumerator() override;
 };
@@ -89,7 +88,7 @@ class nsMsgFilteredDBEnumerator : public nsMsgDBEnumerator {
       nsIMsgFolder* folder);
 
  protected:
-  virtual nsresult PrefetchNext() override;
+  virtual nsresult InternalGetNext(nsIMsgDBHdr** nextHdr) override;
 
   nsCOMPtr<nsIMsgSearchSession> m_searchSession;
 };
