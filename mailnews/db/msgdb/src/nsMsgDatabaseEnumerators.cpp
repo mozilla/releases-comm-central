@@ -68,6 +68,11 @@ NS_IMETHODIMP nsMsgDBEnumerator::GetNext(nsIMsgDBHdr** aItem) {
     return NS_OK;
   }
 
+  // Bail out if enumerator has been invalidated.
+  if (!mDB) {
+    return NS_ERROR_FAILURE;
+  }
+
   nsresult rv = InternalGetNext(aItem);
   NS_ENSURE_SUCCESS(rv, rv);
   return *aItem ? NS_OK : NS_ERROR_FAILURE;
@@ -130,6 +135,11 @@ NS_IMETHODIMP nsMsgDBEnumerator::HasMoreElements(bool* aResult) {
   if (!aResult) return NS_ERROR_NULL_POINTER;
 
   if (!mResultHdr) {
+    // Bail out if enumerator has been invalidated.
+    if (!mDB) {
+      return NS_ERROR_FAILURE;
+    }
+
     nsresult rv = InternalGetNext(getter_AddRefs(mResultHdr));
     NS_ENSURE_SUCCESS(rv, rv);
     if (!mResultHdr) {
