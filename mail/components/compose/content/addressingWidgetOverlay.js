@@ -378,7 +378,7 @@ function awRemoveRecipients(msgCompFields, recipientType, recipientsList) {
     document.getElementById(recipientType).removeAttribute("collapsed");
   }
 
-  udpateAriaLabelsOfAddressRow(addressRow);
+  updateAriaLabelsOfAddressRow(addressRow);
 }
 
 /**
@@ -435,7 +435,7 @@ function awAddRecipientsArray(aRecipientType, aAddressArray, select = false) {
   // Add the recipients to our spell check ignore list.
   addRecipientsToIgnoreList(aAddressArray.join(", "));
   calculateHeaderHeight();
-  udpateAriaLabelsOfAddressRow(element.closest(".address-row"));
+  updateAriaLabelsOfAddressRow(element.closest(".address-row"));
 
   if (element.id != "replyAddrInput") {
     onRecipientsChanged();
@@ -852,7 +852,7 @@ function recipientAddPills(input, automatic = false) {
   }
 
   calculateHeaderHeight();
-  udpateAriaLabelsOfAddressRow(input.closest(".address-row"));
+  updateAriaLabelsOfAddressRow(input.closest(".address-row"));
 }
 
 /**
@@ -866,7 +866,7 @@ function recipientClearPills(input) {
     .querySelectorAll("mail-address-pill")) {
     pill.remove();
   }
-  udpateAriaLabelsOfAddressRow(input.closest(".address-row"));
+  updateAriaLabelsOfAddressRow(input.closest(".address-row"));
 }
 
 /**
@@ -1166,7 +1166,7 @@ function hideAddressRow(element, focusType = "next") {
     onRecipientsChanged(true);
   }
   updateRecipientsPanelVisibility();
-  udpateAriaLabelsOfAddressRow(addressRow);
+  updateAriaLabelsOfAddressRow(addressRow);
 
   // Move focus to the next focusable address input field.
   let addressRowSibling =

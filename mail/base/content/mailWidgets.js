@@ -2105,7 +2105,7 @@
         this.rowInput.focus();
         this.remove();
         // Update aria labels of all pills in the row, as pill count changed.
-        udpateAriaLabelsOfAddressRow(row);
+        updateAriaLabelsOfAddressRow(row);
         onRecipientsChanged();
         return;
       }

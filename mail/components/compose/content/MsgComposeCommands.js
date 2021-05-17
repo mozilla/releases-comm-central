@@ -4434,7 +4434,7 @@ async function updateAriaLabelsAndTooltipsOfAllAddressRows() {
   for (let row of document
     .getElementById("recipientsContainer")
     .querySelectorAll(".address-row")) {
-    udpateAriaLabelsOfAddressRow(row);
+    updateAriaLabelsOfAddressRow(row);
     await updateTooltipsOfAddressRow(row);
   }
 }
@@ -4446,7 +4446,7 @@ async function updateAriaLabelsAndTooltipsOfAllAddressRows() {
  *
  * @param {Element} row - The address row.
  */
-async function udpateAriaLabelsOfAddressRow(row) {
+async function updateAriaLabelsOfAddressRow(row) {
   // Get the input of a normal address row with pills, or null if custom header.
   // Use [is="autocomplete-input"] to prevent selecting a custom header input.
   // Use [recipienttype] to prevent selecting an input for editing a pill.
