@@ -32,8 +32,7 @@ class CalItipOutgoingMessage {
   /**
    * Sends the iTIP message using the item's calendar transport.
    *
-   * @param {calIItipTransport} [transport] - An optional transport to use
-   *  instead of the one provided by the item's calendar.
+   * @param {calIItipTransport} transport - The transport to use when sending.
    *
    * @return {boolean} - True, if the message could be sent
    */
