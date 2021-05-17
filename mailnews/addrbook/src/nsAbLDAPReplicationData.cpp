@@ -170,8 +170,7 @@ nsresult nsAbLDAPProcessReplicationData::DoTask() {
 
   if (mListener && NS_SUCCEEDED(rv))
     mListener->OnStateChange(nullptr, nullptr,
-                             nsIWebProgressListener::STATE_START,
-                             NS_OK);
+                             nsIWebProgressListener::STATE_START, NS_OK);
 
   return mOperation->SearchExt(dn, scope, urlFilter, attributes, 0, 0);
 }
