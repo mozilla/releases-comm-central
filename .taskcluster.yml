@@ -220,7 +220,7 @@ tasks:
 
                   # Note: This task is built server side without the context or tooling that
                   # exist in tree so we must hard code the hash
-                  image: 'taskcluster/decision:2.2.0@sha256:cbeadf57300de60408bf1337e723f0cb1f0200f559799cb54deb9535d1e03b4a'
+                  image: 'mozillareleases/gecko_decision:3.0.1@sha256:9964730ed951584e65032bd1d6a2b7ede6d880a8b7aefb72d0d7f82346d834e3'
 
                   maxRunTime: 1800
 
