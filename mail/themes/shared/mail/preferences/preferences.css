@@ -289,9 +289,9 @@ tabpanel > hbox > description {
   margin-inline-start: 15px;
 }
 
-html|input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]),
-html|textarea {
-  padding-block: 5px;
+html|input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
+  padding-block: initial;
+  min-height: 30px; /* it should be 32px but input doesn't include the border */
 }
 
 html|input[type="number"] {

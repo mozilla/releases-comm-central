@@ -392,8 +392,8 @@ ab-card-listrow:hover {
   padding-block: 0;
 }
 
-.editGrid input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]),
-.editGrid textarea {
+.editGrid input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {
   border-radius: var(--in-content-button-border-radius);
-  padding-block: 5px;
+  padding-block: initial;
+  min-height: 30px; /* it should be 32px but input doesn't include the border */
 }

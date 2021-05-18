@@ -309,6 +309,10 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   margin-inline-start: 4px;
 }
 
+#identity\.signature {
+  margin-block: 4px;
+}
+
 #autosyncNotDownload {
   margin-inline-end: 12px;
 }
