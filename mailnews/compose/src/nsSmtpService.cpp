@@ -25,6 +25,7 @@
 #include "nsIPrincipal.h"
 #include "mozilla/Telemetry.h"
 #include "mozilla/LoadInfo.h"
+#include "mozilla/NullPrincipal.h"
 
 #define SERVER_DELIMITER ','
 #define APPEND_SERVERS_VERSION_PREF_NAME "append_preconfig_smtpservers.version"
@@ -334,10 +335,7 @@ NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   }
 
   nsCOMPtr<nsIPrincipal> nullPrincipal =
-      do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipal failed.");
-  if (NS_FAILED(rv)) return rv;
-
+      NullPrincipal::CreateWithoutOriginAttributes();
   return NS_NewInputStreamChannel(
       _retval, aURI, pipeIn.forget(), nullPrincipal,
       nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,

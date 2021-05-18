@@ -100,6 +100,8 @@
 
 #include "mozilla/dom/BrowserParent.h"
 #include "mozilla/dom/CanonicalBrowsingContext.h"
+
+#include "mozilla/NullPrincipal.h"
 #include "mozilla/dom/RemoteType.h"
 #include "nsQueryObject.h"
 
@@ -1105,9 +1107,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
       if (NS_FAILED(rv)) goto done;
 
       nsCOMPtr<nsIPrincipal> nullPrincipal =
-          do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
-      NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipal failed");
-      if (NS_FAILED(rv)) goto done;
+          NullPrincipal::CreateWithoutOriginAttributes();
 
       saveListener->m_channel = nullptr;
       rv = NS_NewInputStreamChannel(

@@ -34,9 +34,12 @@
 #include "nsIZipWriter.h"
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeEncoder.h"
+#include "mozilla/NullPrincipal.h"
 #include "mozilla/Preferences.h"
 #include "nsIPrincipal.h"
 #include "nsIURIMutator.h"
+
+using namespace mozilla;
 
 ///////////////////////////////////////////////////////////////////////////
 // Mac Specific Attachment Handling for AppleDouble Encoded Files
@@ -559,9 +562,7 @@ nsresult nsMsgAttachmentHandler::SnarfMsgAttachment(
       if (NS_FAILED(rv)) goto done;
 
       nsCOMPtr<nsIPrincipal> nullPrincipal =
-          do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
-      NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipal failed.");
-      if (NS_FAILED(rv)) goto done;
+          NullPrincipal::CreateWithoutOriginAttributes();
 
       rv = NS_NewInputStreamChannel(
           getter_AddRefs(m_converter_channel), aURL, nullptr, nullPrincipal,

@@ -82,6 +82,7 @@
 #include "nsIImapMessageSink.h"
 
 #include "mozilla/dom/InternalResponse.h"
+#include "mozilla/NullPrincipal.h"
 
 // TLS alerts
 #include "NSSErrorsService.h"
@@ -793,8 +794,7 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
     imapServer->GetIsGMailServer(&m_isGmailServer);
     if (!m_mockChannel) {
       nsCOMPtr<nsIPrincipal> nullPrincipal =
-          do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+          NullPrincipal::CreateWithoutOriginAttributes();
 
       // there are several imap operations that aren't initiated via a
       // nsIChannel::AsyncOpen call on the mock channel. such as selecting a

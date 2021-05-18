@@ -51,6 +51,7 @@
 #include "mozilla/dom/XULFrameElement.h"
 #include "nsFrameLoader.h"
 #include "nsSmtpService.h"
+#include "mozilla/NullPrincipal.h"
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
 #  include "mozilla/Logging.h"
@@ -63,6 +64,8 @@
 #include "nsIAppStartup.h"
 #include "nsMsgUtils.h"
 #include "nsIPrincipal.h"
+
+using namespace mozilla;
 
 #ifdef XP_WIN
 #  include <windows.h>
@@ -1307,9 +1310,7 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   }
 
   nsCOMPtr<nsIPrincipal> nullPrincipal =
-      do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
-  NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipal failed");
-  if (NS_FAILED(rv)) return rv;
+      NullPrincipal::CreateWithoutOriginAttributes();
 
   nsCOMPtr<nsIChannel> channel;
   rv = NS_NewInputStreamChannel(
