@@ -27,13 +27,14 @@ add_task(async function testIdentity() {
     "background.js": async () => {
       let accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
+      let popAccount = accounts.find(a => a.type == "pop3");
       browser.test.assertEq(
         2,
-        accounts[1].identities.length,
+        popAccount.identities.length,
         "number of identities"
       );
-      let [defaultIdentity, nonDefaultIdentity] = accounts[1].identities;
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      let [defaultIdentity, nonDefaultIdentity] = popAccount.identities;
+      let folder = popAccount.folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
@@ -117,7 +118,8 @@ add_task(async function testHeaders() {
 
       let accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      let popAccount = accounts.find(a => a.type == "pop3");
+      let folder = popAccount.folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
@@ -266,13 +268,14 @@ add_task(async function testBody() {
     "background.js": async () => {
       let accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
+      let popAccount = accounts.find(a => a.type == "pop3");
       browser.test.assertEq(
         2,
-        accounts[1].identities.length,
+        popAccount.identities.length,
         "number of identities"
       );
-      let [htmlIdentity, plainTextIdentity] = accounts[1].identities;
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      let [htmlIdentity, plainTextIdentity] = popAccount.identities;
+      let folder = popAccount.folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
@@ -607,7 +610,8 @@ add_task(async function testBR() {
     "background.js": async () => {
       let accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      let popAccount = accounts.find(a => a.type == "pop3");
+      let folder = popAccount.folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
@@ -725,7 +729,8 @@ add_task(async function testComposerIsReady() {
     "background.js": async () => {
       let accounts = await browser.accounts.list();
       browser.test.assertEq(2, accounts.length, "number of accounts");
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      let popAccount = accounts.find(a => a.type == "pop3");
+      let folder = popAccount.folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
       browser.test.assertEq(4, messages.length, "number of messages");
 
@@ -856,7 +861,9 @@ add_task(async function testAttachments() {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       let accounts = await browser.accounts.list();
-      let folder = accounts[1].folders.find(f => f.name == "test");
+      browser.test.assertEq(2, accounts.length, "number of accounts");
+      let popAccount = accounts.find(a => a.type == "pop3");
+      let folder = popAccount.folders.find(f => f.name == "test");
       let { messages } = await browser.messages.list(folder);
 
       let newTab = await browser.compose.beginNew({
