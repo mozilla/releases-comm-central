@@ -2,6 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+  <linkset>
+    <html:link rel="localization" href="messenger/preferences/am-copies.ftl"/>
+  </linkset>
+
   <vbox flex="1" id="copiesAndFolders">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
@@ -99,7 +103,7 @@
             <checkbox id="identity.doCc" wsm_persist="true" label="&ccAddress.label;"
                       accesskey="&ccAddress.accesskey;"
                       control="identity.doCcList"
-                      oncommand="setupCcTextbox();"
+                      oncommand="identityDoCcBccOnCommand(event);"
                       prefattribute="value"
                       prefstring="mail.identity.%identitykey%.doCc"/>
           </hbox>
@@ -107,26 +111,34 @@
             <checkbox id="identity.doBcc" wsm_persist="true" label="&bccAddress.label;"
                       accesskey="&bccAddress.accesskey;"
                       control="identity.doBccList"
-                      oncommand="setupBccTextbox();"
+                      oncommand="identityDoCcBccOnCommand(event);"
                       prefattribute="value"
                       prefstring="mail.identity.%identitykey%.doBcc"/>
           </hbox>
         </vbox>
         <vbox flex="1">
-          <html:input id="identity.doCcList" wsm_persist="true"
-                      type="text"
-                      aria-labelledby="identity.doCc"
-                      prefstring="mail.identity.%identitykey%.doCcList"
-                      class="uri-element input-inline"
-                      placeholder="&ccAddressList.placeholder;"/>
-          <html:input id="identity.doBccList" wsm_persist="true"
-                      type="text"
-                      aria-labelledby="identity.doBcc"
-                      prefstring="mail.identity.%identitykey%.doBccList"
-                      class="uri-element input-inline"
-                      placeholder="&bccAddressList.placeholder;"/>
+          <hbox flex="1" class="input-container" align="center">
+            <html:input id="identity.doCcList" wsm_persist="true"
+                        type="text"
+                        aria-labelledby="identity.doCc"
+                        prefstring="mail.identity.%identitykey%.doCcList"
+                        class="uri-element input-inline"
+                        placeholder="&ccAddressList.placeholder;"
+                        onblur="identityDoCcBccOnBlur(event);"/>
+          </hbox>
+          <hbox flex="1" class="input-container" align="center">
+            <html:input id="identity.doBccList" wsm_persist="true"
+                        type="text"
+                        aria-labelledby="identity.doBcc"
+                        prefstring="mail.identity.%identitykey%.doBccList"
+                        class="uri-element input-inline"
+                        placeholder="&bccAddressList.placeholder;"
+                        onblur="identityDoCcBccOnBlur(event);"/>
+          </hbox>
         </vbox>
       </hbox>
+      <description class="indent tip-caption"
+                   data-l10n-id="account-prefs-show-address-row-description"/>
     </html:fieldset>
     </html:div>
 

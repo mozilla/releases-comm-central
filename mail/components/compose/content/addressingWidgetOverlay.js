@@ -111,8 +111,6 @@ function Recipients2CompFields(msgCompFields) {
 function CompFields2Recipients(msgCompFields) {
   if (msgCompFields) {
     // Populate all the recipients with the proper values.
-    // We need to force the focus() on each input to trigger the attachment
-    // of the autocomplete mController.
     if (typeof msgCompFields.replyTo == "string") {
       let input = document.getElementById("replyAddrInput");
       recipientClearPills(input);
@@ -125,7 +123,6 @@ function CompFields2Recipients(msgCompFields) {
           document.getElementById("addr_reply"),
           "addressRowReply"
         );
-        input.focus();
         input.value = msgReplyTo.join(", ");
         recipientAddPills(input, true);
       }
@@ -142,7 +139,6 @@ function CompFields2Recipients(msgCompFields) {
         if (input.closest(".address-row").classList.contains("hidden")) {
           showAddressRow(document.getElementById("addr_to"), "addressRowTo");
         }
-        input.focus();
         input.value = msgTo.join(", ");
         recipientAddPills(input, true);
       }
@@ -155,9 +151,11 @@ function CompFields2Recipients(msgCompFields) {
       let msgCC = MailServices.headerParser.parseEncodedHeaderW(
         msgCompFields.cc
       );
-      if (msgCC.length) {
+      // Show Cc field if we have Cc recipients or if doCc pref is checked.
+      if (msgCC.length || gCurrentIdentity.doCc) {
         showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
-        input.focus();
+      }
+      if (msgCC.length) {
         input.value = msgCC.join(", ");
         recipientAddPills(input, true);
       }
@@ -170,9 +168,11 @@ function CompFields2Recipients(msgCompFields) {
       let msgBCC = MailServices.headerParser.parseEncodedHeaderW(
         msgCompFields.bcc
       );
-      if (msgBCC.length) {
+      // Show Bcc field if we have Bcc recipients or if doBcc pref is checked.
+      if (msgBCC.length || gCurrentIdentity.doBcc) {
         showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
-        input.focus();
+      }
+      if (msgBCC.length) {
         input.value = msgBCC.join(", ");
         recipientAddPills(input, true);
       }
@@ -187,7 +187,6 @@ function CompFields2Recipients(msgCompFields) {
           document.getElementById("addr_newsgroups"),
           "addressRowNewsgroups"
         );
-        input.focus();
         input.value = msgCompFields.newsgroups;
         recipientAddPills(input, true);
       }
@@ -205,7 +204,6 @@ function CompFields2Recipients(msgCompFields) {
           document.getElementById("addr_followup"),
           "addressRowFollowup"
         );
-        input.focus();
         input.value = msgFollowupTo.join(", ");
         recipientAddPills(input, true);
       }
