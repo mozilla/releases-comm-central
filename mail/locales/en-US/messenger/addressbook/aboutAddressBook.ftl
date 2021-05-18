@@ -37,6 +37,9 @@ about-addressbook-search =
 about-addressbook-search-all =
   .placeholder = Search all address books
 
+about-addressbook-sort-button =
+  .title = Change the list order
+
 about-addressbook-name-format-display =
   .label = Display Name
 about-addressbook-name-format-firstlast =

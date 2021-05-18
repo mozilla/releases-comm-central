@@ -21,9 +21,10 @@ tree-view-listbox > * {
 tree-view-listbox > .selected {
   background-color: var(--in-content-button-background);
 }
-tree-view-listbox:focus-visible > .current {
-  outline: 1px dotted currentcolor;
-  outline-offset: -1px;
+
+tree-view-listbox:focus-visible > .current:not(:hover) {
+  outline: 2px solid var(--in-content-focus-outline-color);
+  outline-offset: -2px;
   z-index: 1;
 }
 tree-view-listbox:focus-within > .selected {

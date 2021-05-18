@@ -5,38 +5,44 @@
 @import url("chrome://messenger/skin/shared/preferences/subdialog.css");
 
 :root {
-  --in-content-button-background: var(--grey-90-a10);
-  --in-content-button-background-hover: var(--grey-90-a20);
-  --in-content-button-background-active: var(--grey-90-a30);
   --in-content-button-border-radius: 3px;
   --in-content-button-vertical-padding: 0;
-  --in-content-categories-background: #ebebef;
-  --in-content-item-selected-unfocused: var(--grey-20);
 }
 
-@media (prefers-color-scheme: dark) {
+@media not (prefers-contrast) {
   :root {
-    --in-content-categories-background: rgba(249, 249, 250, 0.1);
-    --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
+    --in-content-button-background: var(--grey-90-a10);
+    --in-content-button-background-hover: var(--grey-90-a20);
+    --in-content-button-background-active: var(--grey-90-a30);
+    --in-content-categories-background: #ebebef;
+    --in-content-item-selected-unfocused: var(--grey-20);
   }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --in-content-categories-background: rgba(249, 249, 250, 0.1);
+      --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
+    }
+  }
+
+  @media (-moz-proton) {
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --in-content-button-background: rgba(249, 249, 250, 0.1);
+      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
+      --in-content-button-background-active: rgba(249, 249, 250, 0.2);
+      --in-content-primary-button-background: #45a1ff;
+      --in-content-primary-button-background-hover: #65c1ff;
+      --in-content-primary-button-background-active: #85e1ff;
+      --in-content-focus-outline-color: #45a1ff;
+    }
+  }
+  } /** END Proton **/
 }
 
-@media (-moz-proton) {
-@media (prefers-color-scheme: dark) {
-  :root {
-    --in-content-button-background: #3b3a43;
-    --in-content-button-background-hover: #52525e;
-    --in-content-button-background-active: #5b5b66;
-    --in-content-primary-button-background: #45a1ff;
-    --in-content-primary-button-background-hover: #65c1ff;
-    --in-content-primary-button-background-active: #85e1ff;
-    --in-content-focus-outline-color: #45a1ff;
-    --checkbox-checked-bgcolor: #45a1ff;
-    --checkbox-checked-hover-bgcolor: #65c1ff;
-    --checkbox-checked-active-bgcolor: #85e1ff;
-  }
+button {
+  --in-content-button-horizontal-padding: 12px;
 }
-} /** END Proton **/
 
 :root {
   appearance: none;
@@ -51,6 +57,7 @@ body {
   display: grid;
   grid-template-rows: min-content auto;
   grid-template-columns: max-content max-content auto;
+  text-shadow: none;
 }
 
 #dialogStack {
@@ -96,6 +103,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  color: var(--in-content-page-color);
   background-color: var(--in-content-categories-background);
 }
 
@@ -128,6 +136,8 @@ body {
   display: flex;
   align-items: center;
   -moz-context-properties: fill;
+  margin-inline: 6px;
+  border-radius: var(--in-content-button-border-radius);
   fill: currentColor;
   cursor: default;
 }
@@ -137,10 +147,9 @@ body {
   background-color: var(--in-content-button-background);
 }
 
-#books:focus-visible .bookRow.selected > .bookRow-container,
-#books:focus-visible .listRow.selected > .listRow-container {
-  outline: 1px dotted currentcolor;
-  outline-offset: -1px;
+.bookRow > .bookRow-container:hover,
+.listRow > .listRow-container:hover {
+  background-color: var(--in-content-item-hover);
 }
 
 #books:focus .bookRow.selected > .bookRow-container,
@@ -211,13 +220,14 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: hidden;
+  color: var(--in-content-page-color);
   background-color: var(--in-content-box-background);
 }
 
 #cardsHeader {
   display: flex;
   margin-block-end: 8px;
-  margin-inline: 8px;
+  margin-inline: 6px;
 }
 
 #searchInput {
@@ -225,7 +235,18 @@ body {
   flex: 1;
   margin: 0;
   margin-inline-end: 8px;
+  padding-inline: 8px;
   box-sizing: border-box;
+  border: 1px solid var(--in-content-box-border-color);
+  border-radius: var(--in-content-button-border-radius);
+  color: inherit;
+  background-color: var(--in-content-box-background);
+}
+
+#searchInput:focus {
+  border-color: transparent;
+  outline: 2px solid var(--in-content-focus-outline-color);
+  outline-offset: -1px;
 }
 
 #sortButton {
@@ -234,6 +255,7 @@ body {
   width: 30px;
   height: 30px;
   margin: 0;
+  padding: 6px;
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -245,6 +267,17 @@ body {
 #cards {
   flex: 1;
   font-size: 15px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+ab-card-listrow {
+  margin-inline: 6px;
+  border-radius: var(--in-content-button-border-radius);
+}
+
+ab-card-listrow:hover {
+  background-color: var(--in-content-item-hover);
 }
 
 /* Details pane */
@@ -252,6 +285,7 @@ body {
 #detailsPane {
   padding: 30px 20px;
   overflow: auto;
+  color: var(--in-content-page-color);
   background-color: var(--in-content-categories-background);
 }
 
@@ -284,6 +318,7 @@ body {
   margin-inline-start: 1em;
   border-radius: 100%;
   background-size: cover;
+  background-position: center;
   background-color: var(--in-content-button-background);
   background-image: url("chrome://messenger/skin/icons/contact.svg");
   box-shadow: 0 0 3px var(--in-content-button-background);
@@ -340,6 +375,25 @@ body {
 }
 
 .editGrid select {
+  line-height: 2;
   padding-block: 0;
-  padding-inline: 4px 19px;
+  padding-inline: 9px 24px;
+}
+
+.editGrid select:not([size], [multiple]) {
+  background-position-x: right 10px;
+}
+
+.editGrid select:not([size], [multiple]):dir(rtl) {
+  background-position-x: left 24px;
+}
+
+.editGrid select > button {
+  padding-block: 0;
+}
+
+.editGrid input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]),
+.editGrid textarea {
+  border-radius: var(--in-content-button-border-radius);
+  padding-block: 5px;
 }

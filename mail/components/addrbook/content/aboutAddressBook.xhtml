@@ -12,8 +12,8 @@
   <title data-l10n-id="about-addressbook-title"></title>
 
   <link rel="stylesheet" href="chrome://global/skin/global.css" />
-  <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/primaryToolbar.css" />
   <link rel="stylesheet" href="chrome://messenger/content/tree-listbox.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/aboutAddressBook.css" />
@@ -30,7 +30,7 @@
 </head>
 <body>
   <xul:toolbox id="toolbox" class="contentTabToolbox" labelalign="end">
-    <xul:toolbar class="chromeclass-toolbar contentTabToolbar" mode="full">
+    <xul:toolbar class="chromeclass-toolbar contentTabToolbar themeable-full" mode="full">
       <xul:toolbarbutton id="toolbarCreateBook" is="toolbarbutton-menu-button" type="menu-button"
                          class="toolbarbutton-1"
                          data-l10n-id="about-addressbook-toolbar-new-address-book"
@@ -92,7 +92,7 @@
       <input is="ab-card-search-input" id="searchInput"
              type="search"
              data-l10n-attrs="placeholder" />
-      <button id="sortButton">
+      <button id="sortButton" data-l10n-id="about-addressbook-sort-button">
         <img src="chrome://calendar/skin/shared/icons/sort.svg" alt="" />
       </button>
     </div>
@@ -357,7 +357,7 @@
                 data-l10n-id="about-addressbook-books-context-delete"
                 oncommand="booksList.deleteSelected();"/>
 </xul:menupopup>
-<xul:menupopup id="sortContext">
+<xul:menupopup id="sortContext" needsgutter="">
   <xul:menuitem type="radio"
                 name="format"
                 value="0"

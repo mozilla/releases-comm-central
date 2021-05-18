@@ -755,8 +755,6 @@ class AbCardListrow extends customElements.get("tree-view-listrow") {
       background-image: url("chrome://messenger/skin/icons/contact.svg");
       background-repeat: no-repeat;
       background-position: 15px center;
-      -moz-context-properties: fill;
-      fill: currentColor;
     }
     :host(:dir(rtl)) {
       background-position-x: right 15px;
