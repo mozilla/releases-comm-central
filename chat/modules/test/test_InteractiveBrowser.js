@@ -220,13 +220,50 @@ add_task(async function test_waitForRedirectAbortEvent() {
   ok(window.closed);
 });
 
+add_task(async function test_waitForRedirectAlreadyArrived() {
+  const url = "https://example.com";
+  const completionUrl = InteractiveBrowser.COMPLETION_URL + "/test?code=asdf";
+  const promptText = "lorem ipsum";
+  const { window, webProgress } = getRequestStubs();
+  window.initialURI = completionUrl;
+
+  const observeTopic = TestUtils.topicObserved("browser-request");
+  let resolved = false;
+  const request = InteractiveBrowser.waitForRedirect(url, promptText).then(
+    redirectUrl => {
+      resolved = true;
+      return redirectUrl;
+    }
+  );
+  const [subject] = await observeTopic;
+
+  subject.wrappedJSObject.loaded(window, webProgress);
+  const redirectedUrl = await request;
+
+  equal(window.document.title, promptText, "Window title set");
+  ok(resolved, "Redirect complete");
+  equal(redirectedUrl, completionUrl);
+
+  ok(!webProgress.listener);
+  ok(window.closed);
+});
+
 function getRequestStubs() {
-  return {
+  const mocks = {
     window: {
       close() {
         this.closed = true;
       },
-      document: {},
+      document: {
+        getElementById() {
+          return {
+            currentURI: {
+              spec: mocks.window.initialURI,
+            },
+          };
+        },
+      },
+      initialURI: "",
     },
     webProgress: {
       addProgressListener(listener) {
@@ -239,4 +276,5 @@ function getRequestStubs() {
       },
     },
   };
+  return mocks;
 }
