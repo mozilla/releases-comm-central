@@ -381,9 +381,7 @@ var ResultsPaneController = {
       case "cmd_selectAll":
       case "cmd_delete":
       case "button_delete":
-      case "cmd_printpreview":
       case "cmd_print":
-      case "cmd_printcardpreview":
       case "cmd_printcard":
       case "cmd_properties":
       case "cmd_newlist":
@@ -439,9 +437,8 @@ var ResultsPaneController = {
         });
         return enabled;
       }
-      case "cmd_printpreview":
       case "cmd_print":
-        // cmd_printpreview and cmd_print are currently only used in SeaMonkey.
+        // cmd_print is currently only used in SeaMonkey.
         // Prevent printing when we don't have an opener (browserDOMWindow is
         // null).
         let enabled = window.browserDOMWindow && GetNumSelectedCards() > 0;
@@ -449,7 +446,6 @@ var ResultsPaneController = {
           e.disabled = !enabled;
         });
         return enabled;
-      case "cmd_printcardpreview":
       case "cmd_printcard":
         // Prevent printing when we don't have an opener (browserDOMWindow is
         // null).

@@ -28,6 +28,20 @@ var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
+});
+
+// TODO: hide print ui on search
+XPCOMUtils.defineLazyScriptGetter(
+  this,
+  "PrintUtils",
+  "chrome://messenger/content/printUtils.js"
+);
 
 var kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
 var kPersistCollapseMapStorage = "directoryTree.json";
@@ -259,7 +273,6 @@ function onFileMenuInit() {
 function CommandUpdate_AddressBook() {
   goUpdateCommand("cmd_delete");
   goUpdateCommand("button_delete");
-  goUpdateCommand("cmd_printcardpreview");
   goUpdateCommand("cmd_printcard");
   goUpdateCommand("cmd_properties");
   goUpdateCommand("cmd_abToggleStartupDir");
@@ -373,7 +386,7 @@ function AbClose() {
   top.close();
 }
 
-function AbPrintCardInternal(doPrintPreview) {
+function AbPrintCard() {
   var selectedItems = GetSelectedAbCards();
   var numSelected = selectedItems.length;
 
@@ -381,54 +394,39 @@ function AbPrintCardInternal(doPrintPreview) {
     return;
   }
 
-  let statusFeedback;
-  statusFeedback = Cc[
-    "@mozilla.org/messenger/statusfeedback;1"
-  ].createInstance();
-  statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
+  let printXML = buildXML(
+    gAddressBookBundle.getString("addressBook"),
+    selectedItems
+  );
 
-  let selectionArray = [];
+  let browser = document.getElementById("printContent");
+  let listener = {
+    onStateChange(webProgress, request, stateFlags, status) {
+      if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+        PrintUtils.startPrintWindow(browser.browsingContext, {});
+        browser.webProgress.removeProgressListener(listener);
+      }
+    },
+    QueryInterface: ChromeUtils.generateQI([
+      "nsIWebProgressListener",
+      "nsISupportsWeakReference",
+    ]),
+  };
+  browser.webProgress.addProgressListener(
+    listener,
+    Ci.nsIWebProgress.NOTIFY_STATE_ALL
+  );
 
-  for (let i = 0; i < numSelected; i++) {
-    let card = selectedItems[i];
-    let printCardUrl = CreatePrintCardUrl(card);
-    if (printCardUrl) {
-      selectionArray.push(printCardUrl);
-    }
-  }
-
-  window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xhtml",
-    "",
-    "chrome,dialog=no,all",
-    selectionArray.length,
-    selectionArray,
-    statusFeedback,
-    doPrintPreview
+  MailE10SUtils.loadURI(
+    browser,
+    URL.createObjectURL(new File([printXML], "text/xml"))
   );
 }
 
-function AbPrintCard() {
-  AbPrintCardInternal(false);
-}
-
-function AbPrintPreviewCard() {
-  AbPrintCardInternal(true);
-}
-
-function CreatePrintCardUrl(card) {
-  return "data:application/xml;base64," + card.translateTo("base64xml");
-}
-
 function buildDirectoryXML(directory) {
-  let title = gAddressBookBundle.getString("addressBook");
-  let output = `<?xml version="1.0"?>
-<?xml-stylesheet type="text/css" href="chrome://messagebody/content/addressbook/print.css"?>
-<directory>
-  <title xmlns="http://www.w3.org/1999/xhtml">${title}</title>\n`;
-
-  let collator = new Intl.Collator(undefined, { numeric: true });
-  let nameFormat = Services.prefs.getIntPref("mail.addr_book.lastnamefirst", 0);
+  let title = directory
+    ? directory.dirName
+    : gAddressBookBundle.getString("addressBook");
 
   let cards;
   if (directory) {
@@ -439,6 +437,19 @@ function buildDirectoryXML(directory) {
       cards = cards.concat(directory.childCards);
     }
   }
+
+  return buildXML(title, cards);
+}
+
+function buildXML(title, cards) {
+  let output = `<?xml version="1.0"?>
+<?xml-stylesheet type="text/css" href="chrome://messagebody/content/addressbook/print.css"?>
+<directory>
+  <title xmlns="http://www.w3.org/1999/xhtml">${title}</title>\n`;
+
+  let collator = new Intl.Collator(undefined, { numeric: true });
+  let nameFormat = Services.prefs.getIntPref("mail.addr_book.lastnamefirst", 0);
+
   cards.sort((a, b) => {
     let aName = a.generateName(nameFormat);
     let bName = b.generateName(nameFormat);
@@ -458,7 +469,7 @@ function buildDirectoryXML(directory) {
   return output;
 }
 
-function AbPrintAddressBookInternal(doPrintPreview) {
+function AbPrintAddressBook() {
   // Silently fail when we don't have an opener (browserDOMWindow is null).
   if (!window.browserDOMWindow) {
     return;
@@ -472,31 +483,28 @@ function AbPrintAddressBookInternal(doPrintPreview) {
     printXML = buildDirectoryXML(getSelectedDirectory());
   }
 
-  let printURL = URL.createObjectURL(new File([printXML], "text/xml"));
-
-  let statusFeedback;
-  statusFeedback = Cc[
-    "@mozilla.org/messenger/statusfeedback;1"
-  ].createInstance();
-  statusFeedback = statusFeedback.QueryInterface(Ci.nsIMsgStatusFeedback);
-
-  window.openDialog(
-    "chrome://messenger/content/msgPrintEngine.xhtml",
-    "",
-    "chrome,dialog=no,all",
-    1,
-    [printURL],
-    statusFeedback,
-    doPrintPreview
+  let browser = document.getElementById("printContent");
+  let listener = {
+    onStateChange(webProgress, request, stateFlags, status) {
+      if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+        PrintUtils.startPrintWindow(browser.browsingContext, {});
+        browser.webProgress.removeProgressListener(listener);
+      }
+    },
+    QueryInterface: ChromeUtils.generateQI([
+      "nsIWebProgressListener",
+      "nsISupportsWeakReference",
+    ]),
+  };
+  browser.webProgress.addProgressListener(
+    listener,
+    Ci.nsIWebProgress.NOTIFY_STATE_ALL
   );
-}
 
-function AbPrintAddressBook() {
-  AbPrintAddressBookInternal(false);
-}
-
-function AbPrintPreviewAddressBook() {
-  AbPrintAddressBookInternal(true);
+  MailE10SUtils.loadURI(
+    browser,
+    URL.createObjectURL(new File([printXML], "text/xml"))
+  );
 }
 
 /**

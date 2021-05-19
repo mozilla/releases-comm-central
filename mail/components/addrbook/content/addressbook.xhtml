@@ -40,6 +40,7 @@
   <link rel="localization" href="messenger/messenger.ftl" />
   <link rel="localization" href="messenger/menubar.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
+  <link rel="localization" href="toolkit/printing/printUI.ftl" />
   <script defer="defer" src="chrome://messenger/content/button-menu-button.js"></script>
   <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
   <script defer="defer" src="chrome://messenger/content/addressbook/abTrees.js"></script>
@@ -50,8 +51,6 @@
   <script defer="defer" src="chrome://messenger/content/addressbook/map-list.js"></script>
   <script defer="defer" src="chrome://messenger/content/addressbook/abCommon.js"></script>
   <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
-  <script defer="defer" src="chrome://global/content/printUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgPrintEngine.js"></script>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/addressbook/abDragDrop.js"></script>
   <script defer="defer" src="chrome://global/content/globalOverlay.js"></script>
@@ -90,7 +89,6 @@
               oncommandupdate="goUpdateGlobalEditMenuItems()"/>
     <command id="cmd_newlist" oncommand="goDoCommand('cmd_newlist');"/>
     <command id="cmd_newCard" oncommand="goDoCommand('cmd_newCard');"/>
-    <command id="cmd_printcardpreview" oncommand="AbPrintPreviewCard();"/>
     <command id="cmd_printcard" oncommand="AbPrintCard();"/>
     <command id="cmd_newMessage" oncommand="AbNewMessage();" disabled="true"/>
     <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');" disabled="true"/>
@@ -356,26 +354,9 @@
                           checked="true" type="checkbox"/>
                 <menuseparator/>
 #endif
-#ifndef XP_MACOSX
-                <menuitem id="printPreviewMenuItem"
-                          label="&printPreviewContactCmd.label;"
-                          accesskey="&printPreviewContactCmd.accesskey;"
-                          command="cmd_printcardpreview"/>
-#endif
                 <menuitem id="printMenuItem" label="&printContactCmd.label;"
                           accesskey="&printContactCmd.accesskey;"
                           key="key_printCard" command="cmd_printcard"/>
-                <menuseparator id="menu_PageSetupSeparator"/>
-                <menuitem id="printSetupMenuItem" label="&printSetupCmd.label;"
-                          accesskey="&printSetupCmd.accesskey;"
-                          oncommand="PrintUtils.showPageSetup()"/>
-                <menuseparator id="menu_PrintAddrbookSeparator"/>
-#ifndef XP_MACOSX
-                <menuitem id="printPreviewAddressBook"
-                          label="&printPreviewAddressBook.label;"
-                          accesskey="&printPreviewAddressBook.accesskey;"
-                          oncommand="AbPrintPreviewAddressBook()"/>
-#endif
                 <menuitem id="printAddressBook" label="&printAddressBook.label;"
                           accesskey="&printAddressBook.accesskey;"
                           oncommand="AbPrintAddressBook()"/>
@@ -681,260 +662,263 @@
   </toolbox>
 
   <!-- The main address book three pane -->
-  <hbox id="abContent" flex="1">
-    <vbox id="dirTreeBox" persist="width collapsed">
-      <!-- FIX ME - remove document.commandDispatcher.updateCommands() when tree selection calls this automatically -->
-      <tree id="dirTree" class="abDirectory plain" seltype="single" style="min-width:150px;" flex="1" persist="width"
-            hidecolumnpicker="true"
-            context="dirTreeContext"
-            onselect="DirPaneSelectionChange(); document.commandDispatcher.updateCommands('addrbook-select');"
-            ondblclick="DirPaneDoubleClick(event);"
-            onclick="DirPaneClick(event);"
-            onblur="goOnEvent(this, 'blur')"
-            editable="true">
+  <stack flex="1">
+    <hbox id="abContent" flex="1">
+      <vbox id="dirTreeBox" persist="width collapsed">
+        <!-- FIX ME - remove document.commandDispatcher.updateCommands() when tree selection calls this automatically -->
+        <tree id="dirTree" class="abDirectory plain" seltype="single" style="min-width:150px;" flex="1" persist="width"
+              hidecolumnpicker="true"
+              context="dirTreeContext"
+              onselect="DirPaneSelectionChange(); document.commandDispatcher.updateCommands('addrbook-select');"
+              ondblclick="DirPaneDoubleClick(event);"
+              onclick="DirPaneClick(event);"
+              onblur="goOnEvent(this, 'blur')"
+              editable="true">
 
-        <treecols>
-          <treecol id="DirCol" flex="1" primary="true" hideheader="true" editable="true"
-                   crop="center" persist="width" ignoreincolumnpicker="true"/>
-        </treecols>
-        <treechildren/>
-      </tree>
-    </vbox>
-
-    <splitter id="dirTree-splitter" collapse="before" persist="state"/>
-
-    <vbox id="abResultsBox" flex="1" style="min-width:100px;">
-      <description id="localResultsOnlyMessage"
-                   value="&localResultsOnlyMessage.label;"/>
-      <vbox id="blankResultsPaneMessageBox"
-            flex="1" pack="center" align="center">
-        <description id="blankResultsPaneMessage"
-                     value="&blankResultsPaneMessage.label;"/>
+          <treecols>
+            <treecol id="DirCol" flex="1" primary="true" hideheader="true" editable="true"
+                     crop="center" persist="width" ignoreincolumnpicker="true"/>
+          </treecols>
+          <treechildren/>
+        </tree>
       </vbox>
-      <!-- results pane -->
-      <tree id="abResultsTree" flex="1" enableColumnDrag="true" class="plain"
-            context="abResultsTreeContext"
-            onclick="AbResultsPaneOnClick(event);"
-            onkeypress="AbResultsPaneKeyPress(event);"
-            onselect="this.view.selectionChanged(); document.commandDispatcher.updateCommands('addrbook-select');"
-            sortCol="GeneratedName"
-            style="min-height:100px;"
-            height="100"
-            persist="height sortCol">
 
-        <treecols id="abResultsTreeCols"
-                  pickertooltiptext="&columnChooser.tooltip;">
-          <!-- these column ids must match up to the mork column names, except for GeneratedName and ChatName, see nsIAddrDatabase.idl -->
-          <treecol id="GeneratedName"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&GeneratedName.label;" primary="true"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="PrimaryEmail"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&PrimaryEmail.label;"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="ChatName"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&ChatName.label;"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="Company"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&Company.label;"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="NickName"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&NickName.label;" hidden="true"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="SecondEmail"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&SecondEmail.label;" hidden="true"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="Department"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&Department.label;" hidden="true"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="JobTitle"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&JobTitle.label;" hidden="true"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="CellularNumber"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&CellularNumber.label;" hidden="true"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="PagerNumber"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&PagerNumber.label;" hidden="true"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="FaxNumber"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&FaxNumber.label;" hidden="true"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="HomePhone"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&HomePhone.label;" hidden="true"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="WorkPhone"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&WorkPhone.label;"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="addrbook"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   hidden="true"
-                   label="&Addrbook.label;"/>
-          <!-- LOCALIZATION NOTE: _PhoneticName may be enabled for Japanese builds. -->
-          <!--
-          <treecol id="_PhoneticName"
-                   closemenu="none"
-                   persist="hidden ordinal width sortDirection" flex="1"
-                   label="&_PhoneticName.label;" hiddenbydefault="true"/>
-          <splitter class="tree-splitter"/>
-          -->
-        </treecols>
+      <splitter id="dirTree-splitter" collapse="before" persist="state"/>
 
-        <treechildren ondragstart="abResultsPaneObserver.onDragStart(event);"/>
-      </tree>
-
-      <splitter id="results-splitter" collapse="after" persist="state" orient="vertical"/>
-
-      <!-- card view -->
-      <hbox id="CardViewOuterBox" flex="1" style="min-height:100px;" height="200" persist="height">
-        <vbox id="CardViewBox" flex="1">
-          <vbox id="CardViewInnerBox" collapsed="true" flex="1">
-            <description id="CardTitle"/>
-            <hbox flex="1">
-              <vbox id="cvbPhoto" class="cardViewGroup" align="center">
-                <image id="cvPhoto" style="max-width: 10ch; max-height: 10ch;"/>
-              </vbox>
-              <hbox flex="1">
-                <vbox flex="1" style="margin-inline-end: 10px;">
-                  <vbox id="cvbContact" class="cardViewGroup">
-                    <description class="CardViewHeading" id="cvhContact">&contact.heading;</description>
-                    <description class="CardViewLink" id="cvListNameBox">
-                      <html:p><html:a href="" id="cvListName"/></html:p>
-                    </description>
-                    <description class="CardViewText" id="cvDisplayName"/>
-                    <description class="CardViewText" id="cvNickname"/>
-                    <description class="CardViewLink" id="cvEmail1Box">
-                      <html:a href="" id="cvEmail1"/>
-                    </description>
-                    <description class="CardViewLink" id="cvEmail2Box">
-                      <html:a href="" id="cvEmail2"/>
-                    </description>
-                  </vbox>
-                  <vbox id="cvbHome" class="cardViewGroup">
-                    <description class="CardViewHeading" id="cvhHome">&home.heading;</description>
-                    <hbox>
-                      <vbox flex="1">
-                        <description class="CardViewText" id="cvHomeAddress"/>
-                        <description class="CardViewText" id="cvHomeAddress2"/>
-                        <description class="CardViewText" id="cvHomeCityStZip"/>
-                        <description class="CardViewText" id="cvHomeCountry"/>
-                      </vbox>
-                      <vbox id="cvbHomeMapItBox" pack="end">
-                        <button is="button-menu-button" id="cvHomeMapIt"
-                                label="&mapItButton.label;"
-                                type="menu-button"
-                                oncommand="openLinkWithUrl(this.firstElementChild.mapURL);"
-                                tooltiptext="&mapIt.tooltip;">
-                          <menupopup is="map-list"/>
-                        </button>
-                      </vbox>
-                    </hbox>
-                    <description class="CardViewLink" id="cvHomeWebPageBox">
-                      <html:a onclick="return openLink('cvHomeWebPage');" href="" id="cvHomeWebPage"/>
-                    </description>
-                  </vbox>
-                  <vbox id="cvbOther" class="cardViewGroup">
-                    <description class="CardViewHeading" id="cvhOther">&other.heading;</description>
-                    <description class="CardViewText" id="cvBirthday"/>
-                    <description class="CardViewText" id="cvCustom1"/>
-                    <description class="CardViewText" id="cvCustom2"/>
-                    <description class="CardViewText" id="cvCustom3"/>
-                    <description class="CardViewText" id="cvCustom4"/>
-                    <description class="CardViewText" id="cvNotes" style="white-space: pre-wrap;"/>
-                    <hbox>
-                      <image id="cvBuddyIcon"/>
-                    </hbox>
-                  </vbox>
-                  <vbox id="cvbChat" class="cardViewGroup">
-                    <description class="CardViewHeading" id="cvhChat">&chat.heading;</description>
-                    <description class="CardViewText" id="cvGtalk"/>
-                    <description class="CardViewText" id="cvAIM"/>
-                    <description class="CardViewText" id="cvYahoo"/>
-                    <description class="CardViewText" id="cvSkype"/>
-                    <description class="CardViewText" id="cvQQ"/>
-                    <description class="CardViewText" id="cvMSN"/>
-                    <description class="CardViewText" id="cvICQ"/>
-                    <description class="CardViewText" id="cvXMPP"/>
-                    <description class="CardViewText" id="cvIRC"/>
-                  </vbox>
-                  <!-- the description and addresses groups are only for mailing lists -->
-                  <vbox id="cvbDescription" class="cardViewGroup">
-                    <description class="CardViewHeading" id="cvhDescription">&description.heading;</description>
-                    <description class="CardViewText" id="cvDescription"/>
-                  </vbox>
-                  <vbox id="cvbAddresses" class="cardViewGroup">
-                    <description class="CardViewHeading" id="cvhAddresses">&addresses.heading;</description>
-                  </vbox>
-                </vbox>
-
-                <vbox flex="1" style="margin-inline-start: 10px;">
-                  <vbox id="cvbPhone" class="cardViewGroup">
-                    <description class="CardViewHeading" id="cvhPhone">&phone.heading;</description>
-                    <description class="CardViewText" id="cvPhWork"/>
-                    <description class="CardViewText" id="cvPhHome"/>
-                    <description class="CardViewText" id="cvPhFax"/>
-                    <description class="CardViewText" id="cvPhCellular"/>
-                    <description class="CardViewText" id="cvPhPager"/>
-                  </vbox>
-                  <vbox id="cvbWork" class="cardViewGroup">
-                    <description class="CardViewHeading" id="cvhWork">&work.heading;</description>
-                    <description class="CardViewText" id="cvJobTitle"/>
-                    <description class="CardViewText" id="cvDepartment"/>
-                    <description class="CardViewText" id="cvCompany"/>
-                    <hbox>
-                      <vbox flex="1">
-                        <description class="CardViewText" id="cvWorkAddress"/>
-                        <description class="CardViewText" id="cvWorkAddress2"/>
-                        <description class="CardViewText" id="cvWorkCityStZip"/>
-                        <description class="CardViewText" id="cvWorkCountry"/>
-                      </vbox>
-                      <vbox id="cvbWorkMapItBox" pack="end">
-                        <button is="button-menu-button" id="cvWorkMapIt"
-                                label="&mapItButton.label;"
-                                type="menu-button"
-                                oncommand="openLinkWithUrl(this.firstElementChild.mapURL);"
-                                tooltiptext="&mapIt.tooltip;">
-                          <menupopup is="map-list"/>
-                        </button>
-                      </vbox>
-                    </hbox>
-                    <description class="CardViewLink" id="cvWorkWebPageBox">
-                      <html:a onclick="return openLink('cvWorkWebPage');" href="" id="cvWorkWebPage"/>
-                    </description>
-                  </vbox>
-                </vbox>
-              </hbox>
-            </hbox>
-          </vbox>
+      <vbox id="abResultsBox" flex="1" style="min-width:100px;">
+        <description id="localResultsOnlyMessage"
+                     value="&localResultsOnlyMessage.label;"/>
+        <vbox id="blankResultsPaneMessageBox"
+              flex="1" pack="center" align="center">
+          <description id="blankResultsPaneMessage"
+                       value="&blankResultsPaneMessage.label;"/>
         </vbox>
-      </hbox>
-    </vbox>
-  </hbox>
+        <!-- results pane -->
+        <tree id="abResultsTree" flex="1" enableColumnDrag="true" class="plain"
+              context="abResultsTreeContext"
+              onclick="AbResultsPaneOnClick(event);"
+              onkeypress="AbResultsPaneKeyPress(event);"
+              onselect="this.view.selectionChanged(); document.commandDispatcher.updateCommands('addrbook-select');"
+              sortCol="GeneratedName"
+              style="min-height:100px;"
+              height="100"
+              persist="height sortCol">
+
+          <treecols id="abResultsTreeCols"
+                    pickertooltiptext="&columnChooser.tooltip;">
+            <!-- these column ids must match up to the mork column names, except for GeneratedName and ChatName, see nsIAddrDatabase.idl -->
+            <treecol id="GeneratedName"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&GeneratedName.label;" primary="true"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="PrimaryEmail"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&PrimaryEmail.label;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="ChatName"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&ChatName.label;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="Company"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&Company.label;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="NickName"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&NickName.label;" hidden="true"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="SecondEmail"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&SecondEmail.label;" hidden="true"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="Department"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&Department.label;" hidden="true"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="JobTitle"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&JobTitle.label;" hidden="true"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="CellularNumber"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&CellularNumber.label;" hidden="true"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="PagerNumber"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&PagerNumber.label;" hidden="true"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="FaxNumber"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&FaxNumber.label;" hidden="true"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="HomePhone"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&HomePhone.label;" hidden="true"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="WorkPhone"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&WorkPhone.label;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="addrbook"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     hidden="true"
+                     label="&Addrbook.label;"/>
+            <!-- LOCALIZATION NOTE: _PhoneticName may be enabled for Japanese builds. -->
+            <!--
+            <treecol id="_PhoneticName"
+                     closemenu="none"
+                     persist="hidden ordinal width sortDirection" flex="1"
+                     label="&_PhoneticName.label;" hiddenbydefault="true"/>
+            <splitter class="tree-splitter"/>
+            -->
+          </treecols>
+
+          <treechildren ondragstart="abResultsPaneObserver.onDragStart(event);"/>
+        </tree>
+
+        <splitter id="results-splitter" collapse="after" persist="state" orient="vertical"/>
+
+        <!-- card view -->
+        <hbox id="CardViewOuterBox" flex="1" style="min-height:100px;" height="200" persist="height">
+          <vbox id="CardViewBox" flex="1">
+            <vbox id="CardViewInnerBox" collapsed="true" flex="1">
+              <description id="CardTitle"/>
+              <hbox flex="1">
+                <vbox id="cvbPhoto" class="cardViewGroup" align="center">
+                  <image id="cvPhoto" style="max-width: 10ch; max-height: 10ch;"/>
+                </vbox>
+                <hbox flex="1">
+                  <vbox flex="1" style="margin-inline-end: 10px;">
+                    <vbox id="cvbContact" class="cardViewGroup">
+                      <description class="CardViewHeading" id="cvhContact">&contact.heading;</description>
+                      <description class="CardViewLink" id="cvListNameBox">
+                        <html:p><html:a href="" id="cvListName"/></html:p>
+                      </description>
+                      <description class="CardViewText" id="cvDisplayName"/>
+                      <description class="CardViewText" id="cvNickname"/>
+                      <description class="CardViewLink" id="cvEmail1Box">
+                        <html:a href="" id="cvEmail1"/>
+                      </description>
+                      <description class="CardViewLink" id="cvEmail2Box">
+                        <html:a href="" id="cvEmail2"/>
+                      </description>
+                    </vbox>
+                    <vbox id="cvbHome" class="cardViewGroup">
+                      <description class="CardViewHeading" id="cvhHome">&home.heading;</description>
+                      <hbox>
+                        <vbox flex="1">
+                          <description class="CardViewText" id="cvHomeAddress"/>
+                          <description class="CardViewText" id="cvHomeAddress2"/>
+                          <description class="CardViewText" id="cvHomeCityStZip"/>
+                          <description class="CardViewText" id="cvHomeCountry"/>
+                        </vbox>
+                        <vbox id="cvbHomeMapItBox" pack="end">
+                          <button is="button-menu-button" id="cvHomeMapIt"
+                                  label="&mapItButton.label;"
+                                  type="menu-button"
+                                  oncommand="openLinkWithUrl(this.firstElementChild.mapURL);"
+                                  tooltiptext="&mapIt.tooltip;">
+                            <menupopup is="map-list"/>
+                          </button>
+                        </vbox>
+                      </hbox>
+                      <description class="CardViewLink" id="cvHomeWebPageBox">
+                        <html:a onclick="return openLink('cvHomeWebPage');" href="" id="cvHomeWebPage"/>
+                      </description>
+                    </vbox>
+                    <vbox id="cvbOther" class="cardViewGroup">
+                      <description class="CardViewHeading" id="cvhOther">&other.heading;</description>
+                      <description class="CardViewText" id="cvBirthday"/>
+                      <description class="CardViewText" id="cvCustom1"/>
+                      <description class="CardViewText" id="cvCustom2"/>
+                      <description class="CardViewText" id="cvCustom3"/>
+                      <description class="CardViewText" id="cvCustom4"/>
+                      <description class="CardViewText" id="cvNotes" style="white-space: pre-wrap;"/>
+                      <hbox>
+                        <image id="cvBuddyIcon"/>
+                      </hbox>
+                    </vbox>
+                    <vbox id="cvbChat" class="cardViewGroup">
+                      <description class="CardViewHeading" id="cvhChat">&chat.heading;</description>
+                      <description class="CardViewText" id="cvGtalk"/>
+                      <description class="CardViewText" id="cvAIM"/>
+                      <description class="CardViewText" id="cvYahoo"/>
+                      <description class="CardViewText" id="cvSkype"/>
+                      <description class="CardViewText" id="cvQQ"/>
+                      <description class="CardViewText" id="cvMSN"/>
+                      <description class="CardViewText" id="cvICQ"/>
+                      <description class="CardViewText" id="cvXMPP"/>
+                      <description class="CardViewText" id="cvIRC"/>
+                    </vbox>
+                    <!-- the description and addresses groups are only for mailing lists -->
+                    <vbox id="cvbDescription" class="cardViewGroup">
+                      <description class="CardViewHeading" id="cvhDescription">&description.heading;</description>
+                      <description class="CardViewText" id="cvDescription"/>
+                    </vbox>
+                    <vbox id="cvbAddresses" class="cardViewGroup">
+                      <description class="CardViewHeading" id="cvhAddresses">&addresses.heading;</description>
+                    </vbox>
+                  </vbox>
+
+                  <vbox flex="1" style="margin-inline-start: 10px;">
+                    <vbox id="cvbPhone" class="cardViewGroup">
+                      <description class="CardViewHeading" id="cvhPhone">&phone.heading;</description>
+                      <description class="CardViewText" id="cvPhWork"/>
+                      <description class="CardViewText" id="cvPhHome"/>
+                      <description class="CardViewText" id="cvPhFax"/>
+                      <description class="CardViewText" id="cvPhCellular"/>
+                      <description class="CardViewText" id="cvPhPager"/>
+                    </vbox>
+                    <vbox id="cvbWork" class="cardViewGroup">
+                      <description class="CardViewHeading" id="cvhWork">&work.heading;</description>
+                      <description class="CardViewText" id="cvJobTitle"/>
+                      <description class="CardViewText" id="cvDepartment"/>
+                      <description class="CardViewText" id="cvCompany"/>
+                      <hbox>
+                        <vbox flex="1">
+                          <description class="CardViewText" id="cvWorkAddress"/>
+                          <description class="CardViewText" id="cvWorkAddress2"/>
+                          <description class="CardViewText" id="cvWorkCityStZip"/>
+                          <description class="CardViewText" id="cvWorkCountry"/>
+                        </vbox>
+                        <vbox id="cvbWorkMapItBox" pack="end">
+                          <button is="button-menu-button" id="cvWorkMapIt"
+                                  label="&mapItButton.label;"
+                                  type="menu-button"
+                                  oncommand="openLinkWithUrl(this.firstElementChild.mapURL);"
+                                  tooltiptext="&mapIt.tooltip;">
+                            <menupopup is="map-list"/>
+                          </button>
+                        </vbox>
+                      </hbox>
+                      <description class="CardViewLink" id="cvWorkWebPageBox">
+                        <html:a onclick="return openLink('cvWorkWebPage');" href="" id="cvWorkWebPage"/>
+                      </description>
+                    </vbox>
+                  </vbox>
+                </hbox>
+              </hbox>
+            </vbox>
+          </vbox>
+        </hbox>
+      </vbox>
+    </hbox>
+    <browser id="printContent" type="content" remote="true" hidden="true"/>
+  </stack>
   <panel id="customizeToolbarSheetPopup" noautohide="true">
     <iframe id="customizeToolbarSheetIFrame"
             style="&dialog.dimensions;"
@@ -944,5 +928,7 @@
   <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
     <label id="statusText" class="statusbarpanel" flex="1" value="&statusText.label;" crop="end"/>
   </hbox>
+
+#include ../../../base/content/tabDialogs.inc.xhtml
 </html:body>
 </html>

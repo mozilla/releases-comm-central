@@ -60,7 +60,6 @@ var DirPaneController = {
       case "cmd_syncDirectory":
       case "cmd_abToggleStartupDir":
       case "cmd_printcard":
-      case "cmd_printcardpreview":
       case "cmd_newlist":
       case "cmd_newCard":
       case "cmd_rename":
@@ -131,7 +130,6 @@ var DirPaneController = {
         return true;
       }
       case "cmd_printcard":
-      case "cmd_printcardpreview":
         // Prevent printing when we don't have an opener (browserDOMWindow is
         // null).
         return window.browserDOMWindow && GetSelectedCardIndex() != -1;
@@ -191,7 +189,6 @@ var DirPaneController = {
   doCommand(command) {
     switch (command) {
       case "cmd_printcard":
-      case "cmd_printcardpreview":
       case "cmd_selectAll":
         SendCommandToResultsPane(command);
         break;
