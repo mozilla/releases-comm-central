@@ -16,19 +16,31 @@ mailattachcount {
 
 /* :::: message header ::::: */
 
-.header-part1 {
-  background-color: #EFEFEF;
+@media screen {
+  .header-part1,
+  .header-part2,
+  .header-part3,
+  .headerdisplayname,
+  :is(.header-part1, .header-part2, .header-part3) + br {
+    display: none;
+  }
 }
 
-.header-part2,
-.header-part3 {
-  background-color: #DEDEDE;
-}
+@media print {
+  .header-part1 {
+    background-color: #EFEFEF;
+  }
 
-.headerdisplayname {
-  display: inline;
-  font-weight: bold;
-  white-space: pre;
+  .header-part2,
+  .header-part3 {
+    background-color: #DEDEDE;
+  }
+
+  .headerdisplayname {
+    display: inline;
+    font-weight: bold;
+    white-space: pre;
+  }
 }
 
 /* ::::: message text, incl. quotes ::::: */

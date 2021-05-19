@@ -514,6 +514,11 @@ async function checkContent(browser, expected) {
       Assert.equal(body.getAttribute("foo"), expected.foo, "foo");
     }
     if ("textContent" in expected) {
+      // In message display, we only really want the message body, but the
+      // document body also has headers. For the purposes of these tests,
+      // we can just select an descendant node, since what really matters is
+      // whether (or not) a script ran, not the exact result.
+      body = body.querySelector(".moz-text-flowed") ?? body;
       Assert.equal(body.textContent, expected.textContent, "textContent");
     }
   });

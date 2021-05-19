@@ -10,7 +10,7 @@ add_task(async () => {
   let rootFolder = account.incomingServer.rootFolder;
   rootFolder.createSubfolder("messageDisplayScripts", null);
   let folder = rootFolder.getChildNamed("messageDisplayScripts");
-  createMessages(folder, 10);
+  createMessages(folder, 11);
   messages = [...folder.messages];
 
   window.gFolderTreeView.selectFolder(folder);
@@ -25,7 +25,7 @@ async function checkMessageBody(expected, message, browser) {
     });
     // Ignore Windows line-endings, they're not important here.
     body = body.replace(/\r/g, "");
-    expected.textContent = `\n${body}\n\n` + expected.textContent;
+    expected.textContent = body + expected.textContent;
   }
   if (!browser) {
     browser = messagePane;
@@ -56,9 +56,7 @@ add_task(async function testInsertRemoveCSS() {
         await window.sendMessage();
 
         await browser.tabs.removeCSS(tab.id, { file: "test.css" });
-        await window.sendMessage();
 
-        await browser.tabs.remove(tab.id);
         browser.test.notifyPass("finished");
       },
       "test.css": "body { background-color: green; }",
@@ -91,11 +89,9 @@ add_task(async function testInsertRemoveCSS() {
   await checkMessageBody({ backgroundColor: "rgb(0, 128, 0)" }, messages[0]);
   extension.sendMessage();
 
-  await extension.awaitMessage();
-  await checkMessageBody({ backgroundColor: "rgba(0, 0, 0, 0)" }, messages[0]);
-  extension.sendMessage();
-
   await extension.awaitFinish("finished");
+  await checkMessageBody({ backgroundColor: "rgba(0, 0, 0, 0)" }, messages[0]);
+
   await extension.unload();
 });
 
@@ -129,9 +125,6 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
           "insertCSS without permission should throw"
         );
 
-        await window.sendMessage();
-
-        await browser.tabs.remove(tab.id);
         browser.test.notifyPass("finished");
       },
       "test.css": "body { background-color: red; }",
@@ -148,7 +141,7 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
 
   await extension.startup();
 
-  await extension.awaitMessage();
+  await extension.awaitFinish("finished");
   await checkMessageBody(
     {
       backgroundColor: "rgba(0, 0, 0, 0)",
@@ -156,9 +149,7 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
     },
     messages[1]
   );
-  extension.sendMessage();
 
-  await extension.awaitFinish("finished");
   await extension.unload();
 });
 
@@ -176,13 +167,12 @@ add_task(async function testExecuteScript() {
         await window.sendMessage();
 
         await browser.tabs.executeScript(tab.id, { file: "test.js" });
-        await window.sendMessage();
 
-        await browser.tabs.remove(tab.id);
         browser.test.notifyPass("finished");
       },
       "test.js": () => {
-        document.body.textContent += "Hey look, the script ran!";
+        document.body.querySelector(".moz-text-flowed").textContent +=
+          "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
     },
@@ -205,7 +195,7 @@ add_task(async function testExecuteScript() {
   await checkMessageBody({ foo: "bar" }, messages[2]);
   extension.sendMessage();
 
-  await extension.awaitMessage();
+  await extension.awaitFinish("finished");
   await checkMessageBody(
     {
       foo: "bar",
@@ -213,9 +203,7 @@ add_task(async function testExecuteScript() {
     },
     messages[2]
   );
-  extension.sendMessage();
 
-  await extension.awaitFinish("finished");
   await extension.unload();
 });
 
@@ -249,13 +237,11 @@ add_task(async function testExecuteScriptNoPermissions() {
           "executeScript without permission should throw"
         );
 
-        await window.sendMessage();
-
-        await browser.tabs.remove(tab.id);
         browser.test.notifyPass("finished");
       },
       "test.js": () => {
-        document.body.textContent += "Hey look, the script ran!";
+        document.body.querySelector(".moz-text-flowed").textContent +=
+          "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
     },
@@ -270,11 +256,9 @@ add_task(async function testExecuteScriptNoPermissions() {
 
   await extension.startup();
 
-  await extension.awaitMessage();
-  await checkMessageBody({ foo: null, textContent: "" }, messages[3]);
-  extension.sendMessage();
-
   await extension.awaitFinish("finished");
+  await checkMessageBody({ foo: null, textContent: "" }, messages[3]);
+
   await extension.unload();
 });
 
@@ -287,11 +271,10 @@ add_task(async function testExecuteScriptAlias() {
         await window.sendMessage();
 
         await browser.tabs.executeScript(tab.id, {
-          code: `document.body.textContent += messenger.runtime.getManifest().applications.gecko.id;`,
+          code: `document.body.querySelector(".moz-text-flowed").textContent +=
+                   messenger.runtime.getManifest().applications.gecko.id;`,
         });
-        await window.sendMessage();
 
-        await browser.tabs.remove(tab.id);
         browser.test.notifyPass("finished");
       },
       "utils.js": await getUtilsJS(),
@@ -312,14 +295,12 @@ add_task(async function testExecuteScriptAlias() {
   await checkMessageBody({ textContent: "" }, messages[4]);
   extension.sendMessage();
 
-  await extension.awaitMessage();
+  await extension.awaitFinish("finished");
   await checkMessageBody(
     { textContent: "message_display_scripts@mochitest" },
     messages[4]
   );
-  extension.sendMessage();
 
-  await extension.awaitFinish("finished");
   await extension.unload();
 });
 
@@ -348,7 +329,8 @@ add_task(async function testRegister() {
       },
       "test.css": "body { background-color: green; }",
       "test.js": () => {
-        document.body.textContent += "Hey look, the script ran!";
+        document.body.querySelector(".moz-text-flowed").textContent +=
+          "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
     },
@@ -524,22 +506,12 @@ add_task(async function testRegister() {
 async function subtestContentScriptManifest(message, ...permissions) {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
-      "background.js": async () => {
-        let [tab] = await browser.tabs.query({ mailTab: true });
-
-        await window.sendMessage();
-
-        await browser.tabs.remove(tab.id);
-        browser.test.notifyPass("finished");
-      },
       "test.css": "body { background-color: red; }",
       "test.js": () => {
         document.body.textContent += "Hey look, the script ran!";
       },
-      "utils.js": await getUtilsJS(),
     },
     manifest: {
-      background: { scripts: ["utils.js", "background.js"] },
       permissions,
       content_scripts: [
         {
@@ -558,7 +530,6 @@ async function subtestContentScriptManifest(message, ...permissions) {
   await extension.startup();
   ExtensionTestUtils.failOnSchemaWarnings(true);
 
-  await extension.awaitMessage();
   await checkMessageBody(
     {
       backgroundColor: "rgba(0, 0, 0, 0)",
@@ -566,21 +537,19 @@ async function subtestContentScriptManifest(message, ...permissions) {
     },
     message
   );
-  extension.sendMessage();
 
-  await extension.awaitFinish("finished");
   await extension.unload();
 }
 
 add_task(async function testContentScriptManifestNoPermission() {
-  window.gFolderDisplay.selectViewIndex(0);
+  window.gFolderDisplay.selectViewIndex(7);
   await BrowserTestUtils.browserLoaded(messagePane);
-  await subtestContentScriptManifest(messages[0]);
+  await subtestContentScriptManifest(messages[7]);
 });
 add_task(async function testContentScriptManifest() {
-  window.gFolderDisplay.selectViewIndex(1);
+  window.gFolderDisplay.selectViewIndex(8);
   await BrowserTestUtils.browserLoaded(messagePane);
-  await subtestContentScriptManifest(messages[1], "messagesModify");
+  await subtestContentScriptManifest(messages[8], "messagesModify");
 });
 
 /** Tests registered content scripts do not affect message display. */
@@ -595,16 +564,12 @@ async function subtestContentScriptRegister(message, ...permissions) {
           matchAboutBlank: true,
         });
 
-        let [tab] = await browser.tabs.query({ mailTab: true });
-
-        await window.sendMessage();
-
-        await browser.tabs.remove(tab.id);
         browser.test.notifyPass("finished");
       },
       "test.css": "body { background-color: red; }",
       "test.js": () => {
-        document.body.textContent += "Hey look, the script ran!";
+        document.body.querySelector(".moz-text-flowed").textContent +=
+          "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
     },
@@ -616,7 +581,7 @@ async function subtestContentScriptRegister(message, ...permissions) {
 
   await extension.startup();
 
-  await extension.awaitMessage();
+  await extension.awaitFinish("finished");
   await checkMessageBody(
     {
       backgroundColor: "rgba(0, 0, 0, 0)",
@@ -624,22 +589,20 @@ async function subtestContentScriptRegister(message, ...permissions) {
     },
     message
   );
-  extension.sendMessage();
 
-  await extension.awaitFinish("finished");
   await extension.unload();
 }
 
 add_task(async function testContentScriptRegisterNoPermission() {
-  window.gFolderDisplay.selectViewIndex(2);
+  window.gFolderDisplay.selectViewIndex(9);
   await BrowserTestUtils.browserLoaded(messagePane);
-  await subtestContentScriptRegister(messages[2], "<all_urls>");
+  await subtestContentScriptRegister(messages[9], "<all_urls>");
 });
 add_task(async function testContentScriptRegister() {
-  window.gFolderDisplay.selectViewIndex(3);
+  window.gFolderDisplay.selectViewIndex(10);
   await BrowserTestUtils.browserLoaded(messagePane);
   await subtestContentScriptRegister(
-    messages[3],
+    messages[10],
     "<all_urls>",
     "messagesModify"
   );

@@ -97,7 +97,8 @@ bool nsMimeHtmlDisplayEmitter::BroadCastHeadersAndAttachments() {
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPrefix(
     const nsACString& name) {
   if (!BroadCastHeadersAndAttachments() ||
-      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput))
+      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
+      (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay))
     return nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(name);
   else
     return NS_OK;
@@ -106,7 +107,8 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPrefix(
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTML(const char* field,
                                                         const char* value) {
   if (!BroadCastHeadersAndAttachments() ||
-      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput))
+      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
+      (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay))
     return nsMimeBaseEmitter::WriteHeaderFieldHTML(field, value);
   else
     return NS_OK;
@@ -114,7 +116,8 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTML(const char* field,
 
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPostfix() {
   if (!BroadCastHeadersAndAttachments() ||
-      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput))
+      (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) ||
+      (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay))
     return nsMimeBaseEmitter::WriteHeaderFieldHTMLPostfix();
   else
     return NS_OK;
@@ -266,19 +269,16 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
 
 NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
     const nsACString& name) {
-  // if we aren't broadcasting headers OR printing...just do whatever
-  // our base class does...
-  if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) {
-    return nsMimeBaseEmitter::WriteHTMLHeaders(name);
-  } else if (!BroadCastHeadersAndAttachments() || !mDocHeader) {
-    // This needs to be here to correct the output format if we are
-    // not going to broadcast headers to the XUL document.
-    if (mFormat == nsMimeOutput::nsMimeMessageBodyDisplay)
-      mFormat = nsMimeOutput::nsMimeMessagePrintOutput;
+  if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput ||
+      mFormat == nsMimeOutput::nsMimeMessageBodyDisplay) {
+    nsMimeBaseEmitter::WriteHTMLHeaders(name);
+  }
 
-    return nsMimeBaseEmitter::WriteHTMLHeaders(name);
-  } else
-    mFirstHeaders = false;
+  if (!BroadCastHeadersAndAttachments() || !mDocHeader) {
+    return NS_OK;
+  }
+
+  mFirstHeaders = false;
 
   bool bFromNewsgroups = false;
   for (size_t j = 0; j < mHeaderArray->Length(); j++) {
@@ -369,7 +369,8 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
         unicodeHeaderValue.get(), uriString, aIsExternalAttachment);
 
     mSkipAttachment = false;
-  } else if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) {
+  } else if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput ||
+             mFormat == nsMimeOutput::nsMimeMessageBodyDisplay) {
     // then we need to deal with the attachments in the body by inserting
     // them into a table..
     rv = StartAttachmentInBody(name, contentType, url);
@@ -479,9 +480,7 @@ nsresult nsMimeHtmlDisplayEmitter::EndAttachment() {
 
   mSkipAttachment = false;  // reset it for next attachment round
 
-  if (BroadCastHeadersAndAttachments()) return NS_OK;
-
-  if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) UtilityWrite("</tr>");
+  UtilityWrite("</tr>");
 
   return NS_OK;
 }
@@ -492,10 +491,8 @@ nsresult nsMimeHtmlDisplayEmitter::EndAllAttachments() {
   rv = GetHeaderSink(getter_AddRefs(headerSink));
   if (headerSink) headerSink->OnEndAllAttachments();
 
-  if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) {
-    UtilityWrite("</table>");
-    UtilityWrite("</div>");
-  }
+  UtilityWrite("</table>");
+  UtilityWrite("</div>");
 
   return rv;
 }

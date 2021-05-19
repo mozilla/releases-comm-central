@@ -770,7 +770,9 @@ nsresult nsMimeBaseEmitter::WriteHeaderFieldHTML(const char* field,
 
 nsresult nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(const nsACString& name) {
   if (((mFormat == nsMimeOutput::nsMimeMessageSaveAs) && (mFirstHeaders)) ||
-      ((mFormat == nsMimeOutput::nsMimeMessagePrintOutput) && (mFirstHeaders)))
+      ((mFormat == nsMimeOutput::nsMimeMessagePrintOutput) &&
+       (mFirstHeaders)) ||
+      ((mFormat == nsMimeOutput::nsMimeMessageBodyDisplay) && (mFirstHeaders)))
     /* DO NOTHING */;  // rhp: Do nothing...leaving the conditional like this so
                        // its easier to see the logic of what is going on.
   else {
