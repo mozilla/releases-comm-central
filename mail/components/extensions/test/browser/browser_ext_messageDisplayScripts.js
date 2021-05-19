@@ -340,10 +340,9 @@ add_task(async function testRegister() {
           ],
         });
 
-        await window.sendMessage();
+        await window.waitForMessage();
 
         await registeredScript.unregister();
-        await window.sendMessage();
 
         browser.test.notifyPass("finished");
       },
@@ -363,11 +362,14 @@ add_task(async function testRegister() {
   window.gFolderDisplay.selectViewIndex(5);
   await BrowserTestUtils.browserLoaded(messagePane);
 
-  await extension.startup();
+  let scriptsAddedPromise = BrowserTestUtils.waitForEvent(
+    window,
+    "extension-scripts-added"
+  );
+  extension.startup();
 
   // Check a message that was already loaded.
-  await extension.awaitMessage();
-  await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
+  await scriptsAddedPromise;
   await checkMessageBody(
     {
       backgroundColor: "rgb(0, 128, 0)",
@@ -379,9 +381,12 @@ add_task(async function testRegister() {
   );
 
   // Load a new message and check it is modified.
+  scriptsAddedPromise = BrowserTestUtils.waitForEvent(
+    window,
+    "extension-scripts-added"
+  );
   window.gFolderDisplay.selectViewIndex(6);
-  await BrowserTestUtils.browserLoaded(messagePane);
-  await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
+  await scriptsAddedPromise;
   await checkMessageBody(
     {
       backgroundColor: "rgb(0, 128, 0)",
@@ -397,9 +402,13 @@ add_task(async function testRegister() {
   messagePane.contentDocument.body.style.backgroundColor = "red";
   messagePane.contentDocument.body.textContent = "Nope.";
 
-  await openMessageInTab(messages[6]);
+  scriptsAddedPromise = BrowserTestUtils.waitForEvent(
+    window,
+    "extension-scripts-added"
+  );
+  openMessageInTab(messages[6]);
+  await scriptsAddedPromise;
   Assert.equal(tabmail.tabInfo.length, 2);
-  await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
   await checkMessageBody(
     {
       backgroundColor: "rgb(0, 128, 0)",
@@ -424,10 +433,14 @@ add_task(async function testRegister() {
     undefined,
     newTab.browser
   );
+  scriptsAddedPromise = BrowserTestUtils.waitForEvent(
+    window,
+    "extension-scripts-added"
+  );
   tabmail.closeTab(newTab);
 
   // We should be back at the message opened in a tab.
-  await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
+  await scriptsAddedPromise;
   await checkMessageBody(
     {
       backgroundColor: "rgb(0, 128, 0)",
@@ -453,11 +466,10 @@ add_task(async function testRegister() {
     messages[7],
     newWindowMessagePane
   );
-  extension.sendMessage();
 
   // Unregister.
   extension.sendMessage();
-  await extension.awaitMessage();
+  await extension.awaitFinish("finished");
 
   // Check the CSS is unloaded from the message in a tab.
   await checkMessageBody(
@@ -505,9 +517,6 @@ add_task(async function testRegister() {
 
   await BrowserTestUtils.closeWindow(newWindow);
 
-  extension.sendMessage();
-
-  await extension.awaitFinish("finished");
   await extension.unload();
 });
 
