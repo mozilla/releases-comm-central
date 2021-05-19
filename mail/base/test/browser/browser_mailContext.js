@@ -318,6 +318,30 @@ add_task(async function testContentTab() {
   tabmail.closeTab(tab);
 });
 
+add_task(async function testExtensionTab() {
+  let extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      await browser.tabs.create({ url: "sampleContent.html" });
+      browser.test.notifyPass("ready");
+    },
+    files: {
+      "sampleContent.html": await fetch(TEST_DOCUMENT_URL).then(response =>
+        response.text()
+      ),
+      "tb-logo.png": await getImageArrayBuffer(),
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("ready");
+
+  let tabmail = document.getElementById("tabmail");
+  await checkABrowser(tabmail.tabInfo[1].browser);
+  tabmail.closeOtherTabs(tabmail.tabInfo[0]);
+
+  await extension.unload();
+});
+
 add_task(async function testExtensionPopupWindow() {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {

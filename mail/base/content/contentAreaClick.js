@@ -125,8 +125,8 @@ function isLinkToAnchorOnPage(aTargetNode) {
 function contentAreaClick(aEvent) {
   let target = aEvent.target;
   if (target.localName == "browser") {
-    // This is a remote browser. Nothing useful can happen.
-    return false;
+    // This is a remote browser. Nothing useful can happen in this process.
+    return true;
   }
 
   // If we've loaded a web page url, and the element's or its ancestor's href
