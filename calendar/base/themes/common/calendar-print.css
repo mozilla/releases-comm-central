@@ -1,0 +1,19 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#calendar-print {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font: menu;
+}
+
+#calendar-print select {
+  width: 100%;
+}
+
+#calendar-print label.indent {
+  padding-inline-start: 1.5em;
+  box-sizing: border-box;
+}

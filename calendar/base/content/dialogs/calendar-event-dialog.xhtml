@@ -47,7 +47,6 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/toolbarIconColor.js"/>
   <script src="chrome://messenger/content/customizable-toolbar.js"/>
-  <script src="chrome://global/content/printUtils.js"/>
 
   <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties"/>
 
@@ -89,11 +88,6 @@
     <command id="cmd_item_delete"
              disable-on-readonly="true"
              oncommand="onCommandDeleteItem()"/>
-    <command id="cmd_printSetup"
-             oncommand="PrintUtils.showPageSetup()"/>
-    <command id="cmd_print"
-             disabled="true"
-             oncommand="cal.window.openPrintDialog(window)"/>
 
     <!-- Edit menu -->
     <command id="cmd_undo"
@@ -207,10 +201,6 @@
          modifiers="accel"
          key="&event.dialog.saveandclose.key;"
          command="cmd_accept"/>
-    <key id="print-key"
-         modifiers="accel"
-         key="&event.dialog.print.key;"
-         command="cmd_print"/>
     <key id="undo-key"
          modifiers="accel"
          key="&event.dialog.undo.key;"
@@ -308,17 +298,6 @@
                     label="&event.menu.item.delete.label;"
                     accesskey="&event.menu.item.delete.accesskey;"
                     command="cmd_item_delete"
-                    disable-on-readonly="true"/>
-          <menuitem id="item-pagesetup-menuitem"
-                    label="&event.menu.item.page.setup.label;"
-                    accesskey="&event.menu.item.page.setup.accesskey;"
-                    command="cmd_printSetup"
-                    disable-on-readonly="true"/>
-          <menuitem id="item-print-menuitem"
-                    label="&event.menu.item.print.label;"
-                    accesskey="&event.menu.item.print.accesskey;"
-                    key="print-key"
-                    command="cmd_print"
                     disable-on-readonly="true"/>
           <menuseparator id="item-menuseparator1"/>
           <menuitem id="item-close-menuitem"

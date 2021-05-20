@@ -14,6 +14,7 @@
     skin/classic/calendar/shared/calendar-itip-icons.svg                         (../common/calendar-itip-icons.svg)
     skin/classic/calendar/shared/calendar-occurrence-prompt.css                  (../common/calendar-occurrence-prompt.css)
     skin/classic/calendar/shared/calendar-occurrence.svg                         (../common/calendar-occurrence.svg)
+    skin/classic/calendar/shared/calendar-print.css                              (../common/calendar-print.css)
     skin/classic/calendar/shared/calendar-preferences.css                        (../common/calendar-preferences.css)
     skin/classic/calendar/shared/calendar-providerUninstall-dialog.css           (../common/calendar-providerUninstall-dialog.css)
     skin/classic/calendar/shared/calendar-task-tree.css                          (../common/calendar-task-tree.css)

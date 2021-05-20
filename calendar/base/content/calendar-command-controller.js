@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
 /* import-globals-from ../../../mail/base/content/utilityOverlay.js */
+/* import-globals-from ../../../mail/base/content/mailWindow.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
 /* import-globals-from agenda-listbox-utils.js */
 /* import-globals-from calendar-clipboard.js */
@@ -708,9 +708,6 @@ var calendarController2 = {
     "cmd_undo",
     "cmd_redo",
     "cmd_print",
-    "cmd_pageSetup",
-
-    "cmd_printpreview",
     "button_print",
     "button_delete",
     "cmd_delete",
@@ -751,7 +748,6 @@ var calendarController2 = {
       case "cmd_fullZoomReset":
         return calendarController.isInMode("calendar") && currentView().supportsZoom;
       case "cmd_properties":
-      case "cmd_printpreview":
         return false;
       case "cmd_showQuickFilterBar":
         return calendarController.isInMode("task");
@@ -782,14 +778,10 @@ var calendarController2 = {
       case "cmd_redo":
         redo();
         break;
-      case "cmd_pageSetup":
-        PrintUtils.showPageSetup();
-        break;
       case "button_print":
       case "cmd_print":
-        cal.window.openPrintDialog(window);
+        printCalendar();
         break;
-
       // Thunderbird commands
       case "cmd_goForward":
         currentView().moveView(1);
@@ -953,4 +945,47 @@ function calendarUpdateDeleteCommand(selectedItems) {
       "cmd_delete",
     ].forEach(goUpdateCommand);
   }
+}
+
+/**
+ * Loads the printing template into a hidden browser then starts the printing
+ * process for that browser.
+ */
+async function printCalendar() {
+  // Ensure the printing of this file will be detected by calPrintUtils.jsm.
+  cal.print.ensureInitialized();
+
+  let printBrowser = document.getElementById("calendarPrintContent");
+  if (printBrowser.currentURI.spec == "about:blank") {
+    // The template page hasn't been loaded yet. Do that now.
+    await new Promise(resolve => {
+      // Store a strong reference to this progress listener.
+      printBrowser.progressListener = {
+        QueryInterface: ChromeUtils.generateQI([
+          "nsIWebProgressListener",
+          "nsISupportsWeakReference",
+        ]),
+
+        /** nsIWebProgressListener */
+        onStateChange(webProgress, request, stateFlags, status) {
+          if (
+            stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+            printBrowser.currentURI.spec != "about:blank"
+          ) {
+            printBrowser.webProgress.removeProgressListener(this);
+            delete printBrowser.progressListener;
+            resolve();
+          }
+        },
+      };
+
+      printBrowser.webProgress.addProgressListener(
+        printBrowser.progressListener,
+        Ci.nsIWebProgress.NOTIFY_STATE_ALL
+      );
+      MailE10SUtils.loadURI(printBrowser, "chrome://calendar/content/printing-template.html");
+    });
+  }
+
+  PrintUtils.startPrintWindow(printBrowser.browsingContext, {});
 }

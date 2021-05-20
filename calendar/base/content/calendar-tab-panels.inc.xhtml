@@ -633,4 +633,80 @@
       </vbox>
     </hbox>
   </hbox>
+
+  <!-- Hidden browser so that we have something to print from. When printing,
+       printing-template.html is loaded here. -->
+  <browser id="calendarPrintContent" type="content" remote="true" hidden="true"/>
+
+  <!-- This form is injected into the printing options page (by calendar-print.js)
+       if we are printing the calendar. The script for the form is also in
+       calendar-print.js and CSS in calendar-print.css. -->
+  <template xmlns="http://www.w3.org/1999/xhtml" id="calendarPrintForm">
+    <form id="calendar-print">
+      <link rel="localization" href="calendar/calendar-print.ftl"/>
+      <link rel="stylesheet" href="chrome://calendar/skin/shared/calendar-print.css"/>
+
+      <section class="body-container">
+        <section class="section-block">
+          <label for="layout" class="block-label" data-l10n-id="calendar-print-layout-label"></label>
+          <div class="layout-wrapper">
+            <select id="layout" autocomplete="off">
+              <option value="list" data-l10n-id="calendar-print-layout-list"></option>
+              <option value="monthGrid" data-l10n-id="calendar-print-layout-month-grid"></option>
+              <option value="weekPlanner" data-l10n-id="calendar-print-layout-week-planner"></option>
+            </select>
+          </div>
+        </section>
+
+        <section class="section-block">
+          <label class="block-label" data-l10n-id="calendar-print-filter-label"></label>
+          <label class="row cols-2">
+            <input type="checkbox" id="events" checked="checked" autocomplete="off" />
+            <span data-l10n-id="calendar-print-filter-events"></span>
+          </label>
+          <label class="row cols-2">
+            <input type="checkbox" id="tasks" checked="checked" autocomplete="off" />
+            <span data-l10n-id="calendar-print-filter-tasks"></span>
+          </label>
+          <label class="row cols-2 indent">
+            <input type="checkbox" id="completed-tasks" checked="checked" autocomplete="off" />
+            <span data-l10n-id="calendar-print-filter-completedtasks"></span>
+          </label>
+          <label class="row cols-2 indent">
+            <input type="checkbox" id="tasks-with-no-due-date" checked="checked" autocomplete="off" />
+            <span data-l10n-id="calendar-print-filter-taskswithnoduedate"></span>
+          </label>
+        </section>
+
+        <!-- It would be nice to use HTML date inputs here but the browser this form is loaded
+             into won't allow it. Instead use lists of the most likely values, which actually fits
+             better for some print layouts. -->
+        <section class="section-block">
+          <label class="block-label" data-l10n-id="calendar-print-range-from"></label>
+          <select id="from-date"></select>
+        </section>
+        <section class="section-block">
+          <label class="block-label" data-l10n-id="calendar-print-range-to"></label>
+          <select id="to-date"></select>
+        </section>
+      </section>
+
+      <hr />
+
+      <footer class="footer-container" id="print-footer" role="none">
+        <section id="button-container" class="section-block">
+          <button is="cancel-button"
+                  type="button"
+                  data-l10n-id="printui-cancel-button"
+                  data-close-l10n-id="printui-close-button"
+                  data-cancel-l10n-id="printui-cancel-button"></button>
+          <button class="primary"
+                  type="submit"
+                  showfocus=""
+                  autocomplete="off"
+                  data-l10n-id="calendar-print-next-button"></button>
+        </section>
+      </footer>
+    </form>
+  </template>
 </vbox>
