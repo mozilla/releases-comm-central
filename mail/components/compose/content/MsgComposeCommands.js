@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from ../../../../../toolkit/content/contentAreaUtils.js */
 /* import-globals-from ../../../../common/src/viewZoomOverlay.js */
 /* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
@@ -60,9 +59,15 @@ XPCOMUtils.defineLazyGetter(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
-  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
   SelectionUtils: "resource://gre/modules/SelectionUtils.jsm",
+  ShortcutUtils: "resource://gre/modules/ShortcutUtils.jsm",
 });
+
+XPCOMUtils.defineLazyScriptGetter(
+  this,
+  "PrintUtils",
+  "chrome://messenger/content/printUtils.js"
+);
 
 /**
  * Global message window object. This is used by mail-offline.js and therefore
@@ -400,40 +405,6 @@ function updateEditableFields(aDisable) {
   }
 }
 
-var PrintPreviewListener = {
-  getPrintPreviewBrowser() {
-    let browser = document.getElementById("cppBrowser");
-    if (!gChromeState) {
-      gChromeState = {};
-    }
-    preparePrintPreviewTitleHeader();
-    if (!browser) {
-      browser = document.createXULElement("browser");
-      browser.setAttribute("id", "cppBrowser");
-      browser.setAttribute("flex", "1");
-      browser.setAttribute("disablehistory", "true");
-      browser.setAttribute("type", "content");
-      document
-        .getElementById("headers-parent")
-        .insertBefore(browser, document.getElementById("appcontent"));
-    }
-    return browser;
-  },
-  getSourceBrowser() {
-    return GetCurrentEditorElement();
-  },
-  getNavToolbox() {
-    return document.getElementById("compose-toolbox");
-  },
-  onEnter() {
-    toggleAffectedChrome(true);
-  },
-  onExit() {
-    document.getElementById("cppBrowser").collapsed = true;
-    toggleAffectedChrome(false);
-  },
-};
-
 function sidebar_is_hidden() {
   let sidebar_box = document.getElementById("sidebar-box");
   return sidebar_box.hidden;
@@ -459,76 +430,6 @@ function SidebarGetState() {
     return "collapsed";
   }
   return "visible";
-}
-
-/**
- * Prepare title header for the print (preview) document.
- */
-function preparePrintPreviewTitleHeader() {
-  // For title header of print (preview), use message content document title
-  // if existing, otherwise message subject. To apply the message subject,
-  // we temporarily change the title of message content document before going
-  // into print preview (workaround for bug 1396455).
-  let msgDocument = getBrowser().contentDocument;
-  let msgSubject =
-    document.getElementById("msgSubject").value.trim() ||
-    getComposeBundle().getString("defaultSubject");
-  gChromeState.msgDocumentHadTitle = !!msgDocument.querySelector("title");
-  gChromeState.msgDocumentTitle = msgDocument.title;
-  msgDocument.title = msgDocument.title || msgSubject;
-}
-
-/**
- * When going in and out of Print Preview, hide or show respective UI elements.
- *
- * @param aHide  true:  Hide UI elements to go into print preview mode.
- *               false: Restore UI elements to their previous state to exit
- *                      print preview mode.
- */
-function toggleAffectedChrome(aHide) {
-  // Chrome to toggle includes:
-  //   (*) menubar
-  //   (*) toolbox
-  //   (*) message headers box
-  //   (*) sidebar
-  //   (*) statusbar
-  let statusbar = document.getElementById("status-bar");
-
-  // Contacts Sidebar states map as follows:
-  //   hidden    => hide/show nothing
-  //   collapsed => hide/show only the splitter
-  //   shown     => hide/show the splitter and the box
-
-  if (aHide) {
-    // Going into print preview mode.
-    SetComposeWindowTitle(true);
-    // Hide headers box, Contacts Sidebar, and Status Bar
-    // after remembering their current state where applicable.
-    document.getElementById("headers-box").hidden = true;
-    gChromeState.sidebar = SidebarGetState();
-    SidebarSetState("hidden");
-    gChromeState.statusbarWasHidden = statusbar.hidden;
-    statusbar.hidden = true;
-  } else {
-    // Restoring normal mode (i.e. leaving print preview mode).
-    SetComposeWindowTitle();
-    // Restore original "empty" HTML document title of the message, or remove
-    // the temporary title tag altogether if there was none before.
-    let msgDocument = getBrowser().contentDocument;
-    if (!gChromeState.msgDocumentHadTitle) {
-      msgDocument.querySelector("title").remove();
-    } else {
-      msgDocument.title = gChromeState.msgDocumentTitle;
-    }
-
-    // Restore Contacts Sidebar, headers box, and Status Bar.
-    SidebarSetState(gChromeState.sidebar);
-    document.getElementById("headers-box").hidden = false;
-    statusbar.hidden = gChromeState.statusbarWasHidden;
-  }
-
-  document.getElementById("compose-toolbox").hidden = aHide;
-  document.getElementById("appcontent").collapsed = aHide;
 }
 
 /**
@@ -1058,30 +959,12 @@ var defaultController = {
       },
     },
 
-    cmd_printSetup: {
-      isEnabled() {
-        return !gWindowLocked;
-      },
-      doCommand() {
-        PrintUtils.showPageSetup();
-      },
-    },
-
     cmd_print: {
       isEnabled() {
         return !gWindowLocked;
       },
       doCommand() {
         DoCommandPrint();
-      },
-    },
-
-    cmd_printPreview: {
-      isEnabled() {
-        return !gWindowLocked;
-      },
-      doCommand() {
-        DoCommandPrintPreview();
       },
     },
 
@@ -2745,11 +2628,10 @@ function DoCommandClose() {
 
 function DoCommandPrint() {
   let browser = GetCurrentEditorElement();
-  PrintUtils.printWindow(browser.browsingContext);
-}
-
-function DoCommandPrintPreview() {
-  PrintUtils.printPreview(PrintPreviewListener);
+  browser.contentDocument.title =
+    document.getElementById("msgSubject").value.trim() ||
+    getComposeBundle().getString("defaultSubject");
+  PrintUtils.startPrintWindow(browser.browsingContext, {});
 }
 
 /**

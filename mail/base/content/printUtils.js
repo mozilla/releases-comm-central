@@ -233,7 +233,9 @@ class TabDialogBox {
 
     // Register listeners
     this._lastPrincipal = this.browser.contentPrincipal;
-    this.browser.addProgressListener(this, Ci.nsIWebProgress.NOTIFY_LOCATION);
+    if ("addProgressListener" in this.browser) {
+      this.browser.addProgressListener(this, Ci.nsIWebProgress.NOTIFY_LOCATION);
+    }
   }
 
   _onLastDialogClose() {
@@ -244,7 +246,9 @@ class TabDialogBox {
     }
 
     // Clean up listeners
-    this.browser.removeProgressListener(this);
+    if ("removeProgressListener" in this.browser) {
+      this.browser.removeProgressListener(this);
+    }
     this._lastPrincipal = null;
   }
 
