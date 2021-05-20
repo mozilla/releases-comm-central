@@ -184,6 +184,7 @@
         );
       } else {
         multiDayImage.removeAttribute("src");
+        multiDayImage.removeAttribute("data-l10n-id");
         multiDayImage.setAttribute("alt", "");
       }
       // class wrap causes allday items to wrap its text in today-pane
@@ -342,6 +343,7 @@
         );
       } else {
         multiDayImage.removeAttribute("src");
+        multiDayImage.removeAttribute("data-l10n-id");
         multiDayImage.setAttribute("alt", "");
       }
       let durationbox = this.querySelector(".agenda-event-start");

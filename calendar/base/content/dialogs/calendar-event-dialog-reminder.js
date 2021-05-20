@@ -245,6 +245,7 @@ function setupListItem(aListItem, aReminder, aItem) {
       break;
     default:
       image.removeAttribute("src");
+      image.removeAttribute("data-l10n-id");
       image.setAttribute("alt", "");
       break;
   }

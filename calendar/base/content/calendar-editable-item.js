@@ -338,6 +338,7 @@
             break;
           default:
             classificationBox.removeAttribute("src");
+            classificationBox.removeAttribute("data-l10n-id");
             classificationBox.setAttribute("alt", "");
             break;
         }

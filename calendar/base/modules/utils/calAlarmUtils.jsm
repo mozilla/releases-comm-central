@@ -165,6 +165,7 @@ var calalarms = {
           break;
         default:
           image.removeAttribute("src");
+          image.removeAttribute("data-l10n-id");
           image.setAttribute("alt", "");
           break;
       }

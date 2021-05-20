@@ -1289,6 +1289,7 @@
         );
       } else {
         imageEl.removeAttribute("src");
+        imageEl.removeAttribute("data-l10n-id");
         imageEl.removeAttribute("alt");
       }
     }

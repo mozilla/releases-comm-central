@@ -705,6 +705,7 @@ function updatePriority(aArg) {
     if (priorityLevel === "none") {
       // If the priority is none, don't show the status bar panel
       priorityPanel.setAttribute("collapsed", "true");
+      image.removeAttribute("data-l10n-id");
       image.setAttribute("alt", "");
       image.removeAttribute("src");
     } else {

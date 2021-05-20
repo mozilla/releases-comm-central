@@ -231,6 +231,7 @@
           );
         } else {
           statusIcon.removeAttribute("src");
+          statusIcon.removeAttribute("data-l10n-id");
           statusIcon.removeAttribute("alt");
           statusIcon.hidden = true;
           // Treat protoIcon as if connected.
@@ -244,6 +245,7 @@
         }
         statusName = Status.toAttribute(statusType);
         statusIcon.setAttribute("src", ChatIcons.getStatusIconURI(statusName));
+        statusIcon.removeAttribute("data-l10n-id");
         statusIcon.setAttribute("alt", Status.toLabel(statusType));
       }
 

@@ -398,6 +398,7 @@
           icon.removeAttribute("type");
           icon.removeAttribute("src");
           icon.removeAttribute("rotated-to-read-direction");
+          icon.removeAttribute("data-l10n-id");
           icon.setAttribute("alt", "");
         }
       }
