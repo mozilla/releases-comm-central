@@ -20,6 +20,7 @@ XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
 });
 XPCOMUtils.defineLazyModuleGetters(this, {
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",
+  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   PluralForm: "resource://gre/modules/PluralForm.jsm",
 });
 XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
@@ -366,6 +367,26 @@ class AbTreeListbox extends customElements.get("tree-listbox") {
     let directory = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
     directory = CardDAVDirectory.forFile(directory.fileName);
     directory.updateAllFromServer();
+  }
+
+  /**
+   * Print the selected address book.
+   */
+  printSelected() {
+    if (this.selectedIndex === 0) {
+      printHandler.printDirectory();
+      return;
+    }
+
+    let row = this.rows[this.selectedIndex];
+    if (row.classList.contains("listRow")) {
+      let book = MailServices.ab.getDirectoryFromUID(row.dataset.book);
+      let list = book.childNodes.find(l => l.UID == row.dataset.uid);
+      printHandler.printDirectory(list);
+    } else {
+      let book = MailServices.ab.getDirectoryFromUID(row.dataset.uid);
+      printHandler.printDirectory(book);
+    }
   }
 
   /**
@@ -959,6 +980,20 @@ var cardsPane = {
   },
 
   /**
+   * Print delete the selected card(s).
+   */
+  printSelected() {
+    let selectedCards = [];
+
+    for (let index of this.cardsList.selectedIndicies) {
+      let card = this.cardsList.view.getCardFromRow(index);
+      selectedCards.push(card);
+    }
+
+    printHandler.printCards(selectedCards);
+  },
+
+  /**
    * Prompt the user and delete the selected card(s).
    */
   deleteSelected() {
@@ -1459,6 +1494,108 @@ var detailsPane = {
       this.photo.style.backgroundImage = `url("${URL.createObjectURL(
         this.photo._dragged
       )}")`;
+    }
+  },
+};
+
+// Printing
+
+var printHandler = {
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsISupportsWeakReference",
+  ]),
+
+  printDirectory(directory) {
+    let title = directory ? directory.dirName : document.title;
+
+    let cards;
+    if (directory) {
+      cards = directory.childCards;
+    } else {
+      cards = [];
+      for (let directory of MailServices.ab.directories) {
+        cards = cards.concat(directory.childCards);
+      }
+    }
+
+    this._printCards(title, cards);
+  },
+
+  printCards(cards) {
+    this._printCards(document.title, cards);
+  },
+
+  _printCards(title, cards) {
+    let collator = new Intl.Collator(undefined, { numeric: true });
+    let nameFormat = Services.prefs.getIntPref(
+      "mail.addr_book.lastnamefirst",
+      0
+    );
+
+    cards.sort((a, b) => {
+      let aName = a.generateName(nameFormat);
+      let bName = b.generateName(nameFormat);
+      return collator.compare(aName, bName);
+    });
+
+    let xml = "";
+    for (let card of cards) {
+      if (card.isMailList) {
+        continue;
+      }
+
+      xml += `<separator/>\n${card.translateTo("xml")}\n<separator/>\n`;
+    }
+
+    this._printURL(
+      URL.createObjectURL(
+        new File(
+          [
+            `<?xml version="1.0"?>`,
+            `<?xml-stylesheet type="text/css" href="chrome://messagebody/content/addressbook/print.css"?>`,
+            `<directory>`,
+            `<title xmlns="http://www.w3.org/1999/xhtml">${title}</title>`,
+            xml,
+            `</directory>`,
+          ],
+          "text/xml"
+        )
+      )
+    );
+  },
+
+  _printURL(url) {
+    let stack = window.browsingContext.topFrameElement.parentNode;
+    this._browser = stack.querySelector("browser.aboutAddressBookPrint");
+
+    if (!this._browser) {
+      this._browser = stack.ownerDocument.createXULElement("browser");
+      this._browser.classList.add("aboutAddressBookPrint");
+      this._browser.setAttribute("type", "content");
+      this._browser.setAttribute("hidden", "true");
+      this._browser.setAttribute("remote", "true");
+
+      stack.appendChild(this._browser);
+    }
+
+    this._browser.webProgress.addProgressListener(
+      this,
+      Ci.nsIWebProgress.NOTIFY_STATE_ALL
+    );
+
+    MailE10SUtils.loadURI(this._browser, url);
+  },
+
+  /** nsIWebProgressListener */
+  onStateChange(webProgress, request, stateFlags, status) {
+    if (
+      stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+      this._browser.currentURI.spec != "about:blank"
+    ) {
+      let topWindow = window.browsingContext.topChromeWindow;
+      topWindow.PrintUtils.startPrintWindow(this._browser.browsingContext, {});
+      this._browser.webProgress.removeProgressListener(this);
     }
   },
 };
