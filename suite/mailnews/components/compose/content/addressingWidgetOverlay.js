@@ -672,6 +672,7 @@ function DropOnAddressingTarget(event, onWidget) {
   trans.init(getLoadContext());
   trans.addDataFlavor("text/x-moz-address");
 
+  let added = false;
   for (let i = 0; i < dragSession.numDropItems; ++i) {
     dragSession.getData(trans, i);
     let dataObj = {};
@@ -705,6 +706,15 @@ function DropOnAddressingTarget(event, onWidget) {
       // Add address into the bucket.
       DropRecipient(address);
     }
+    added = true;
+  }
+
+  // We added at least one address during the drop.
+  // Disable the default handler and stop propagating the event
+  // to avoid data being dropped twice.
+  if (added) {
+    event.preventDefault();
+    event.stopPropagation();
   }
 }
 
