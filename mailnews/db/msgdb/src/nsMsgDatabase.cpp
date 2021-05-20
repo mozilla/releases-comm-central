@@ -3746,13 +3746,8 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForMessageID(const char* aMsgID,
     if (NS_WARN_IF(NS_FAILED(rv))) return rv;
     key = outOid.mOid_Id;
 
-    rv = GetHdrFromUseCache(key, &msgHdr);
-    if (NS_SUCCEEDED(rv) && msgHdr)
-      hdrRow->Release();
-    else {
-      rv = CreateMsgHdr(hdrRow, key, &msgHdr);
-      if (NS_WARN_IF(NS_FAILED(rv))) return rv;
-    }
+    rv = CreateMsgHdr(hdrRow, key, &msgHdr);
+    if (NS_WARN_IF(NS_FAILED(rv))) return rv;
   }
   *aHdr = msgHdr;  // already addreffed above.
   return NS_OK;    // it's not an error not to find a msg hdr.
@@ -3785,13 +3780,8 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForGMMsgID(const char* aGMMsgId,
     rv = hdrRow->GetOid(GetEnv(), &outOid);
     NS_ENSURE_SUCCESS(rv, rv);
     nsMsgKey key = outOid.mOid_Id;
-    rv = GetHdrFromUseCache(key, &msgHdr);
-    if ((NS_SUCCEEDED(rv) && msgHdr))
-      hdrRow->Release();
-    else {
-      rv = CreateMsgHdr(hdrRow, key, &msgHdr);
-      if (NS_WARN_IF(NS_FAILED(rv))) return rv;
-    }
+    rv = CreateMsgHdr(hdrRow, key, &msgHdr);
+    if (NS_WARN_IF(NS_FAILED(rv))) return rv;
   }
   *aHdr = msgHdr;
   return NS_OK;  // it's not an error not to find a msg hdr.
@@ -3820,13 +3810,8 @@ nsIMsgDBHdr* nsMsgDatabase::GetMsgHdrForSubject(nsCString& subject) {
     if (NS_WARN_IF(NS_FAILED(rv))) return nullptr;
     key = outOid.mOid_Id;
 
-    rv = GetHdrFromUseCache(key, &msgHdr);
-    if (NS_SUCCEEDED(rv) && msgHdr)
-      hdrRow->Release();
-    else {
-      rv = CreateMsgHdr(hdrRow, key, &msgHdr);
-      if (NS_WARN_IF(NS_FAILED(rv))) return nullptr;
-    }
+    rv = CreateMsgHdr(hdrRow, key, &msgHdr);
+    if (NS_WARN_IF(NS_FAILED(rv))) return nullptr;
   }
   return msgHdr;
 }
