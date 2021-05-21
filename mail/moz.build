@@ -21,7 +21,10 @@ if CONFIG["MAKENSISU"]:
 if CONFIG["MOZ_BUNDLED_FONTS"]:
     DIRS += ["/%s/browser/fonts" % CONFIG["mozreltopsrcdir"]]
 
-DIRS += ["../third_party"]
+DIRS += [
+    "../taskcluster",
+    "../third_party",
+]
 
 TEST_DIRS += [
     "test/browser",

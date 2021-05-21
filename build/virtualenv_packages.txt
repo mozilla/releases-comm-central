@@ -1,3 +1,4 @@
 comm.pth:comm/testing/marionette
 comm.pth:comm/python/l10n
+comm.pth:comm/taskcluster
 comm.pth:comm/python/thirdroc
