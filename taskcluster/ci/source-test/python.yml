@@ -1,0 +1,33 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+job-defaults:
+    platform: linux1804-64/opt
+    always-target: true
+    worker-type: t-linux-xlarge-source
+    worker:
+        docker-image: {in-tree: "debian10-amd64-build"}
+        max-run-time: 3600
+        env:
+            MOZCONFIG: comm/mail/config/mozconfigs/linux64/source
+    treeherder:
+        kind: test
+        tier: 1
+    run:
+        comm-checkout: true
+
+comm_taskgraph-tests:
+    description: taskcluster/taskgraph unit tests
+    treeherder:
+        symbol: py(ctg)
+    run:
+        using: run-task
+        cwd: "{checkout}"
+        command: >
+            ./mach configure &&
+            ./mach python-test --subsuite comm_taskgraph
+    when:
+        files-changed:
+            - "taskcluster/**/*.py"
+            - "comm/taskcluster/**/*.py"
