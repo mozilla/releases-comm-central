@@ -577,7 +577,6 @@ async function keyWizardSuccess(keyId) {
     "openpgp-keygen-success"
   );
   document.getElementById("openPgpNotification").collapsed = false;
-  document.getElementById("openPgpKeyList").collapsed = false;
 
   useOpenPGPKey(keyId);
 }
@@ -594,7 +593,6 @@ async function keyExternalSuccess(keyId) {
     "openpgp-keygen-external-success"
   );
   document.getElementById("openPgpNotification").collapsed = false;
-  document.getElementById("openPgpKeyList").collapsed = false;
 
   gIdentity.setUnicharAttribute("last_entered_external_gnupg_key_id", keyId);
   useOpenPGPKey(keyId);
@@ -637,7 +635,6 @@ async function keyImportSuccess() {
     "openpgp-keygen-import-success"
   );
   document.getElementById("openPgpNotification").collapsed = false;
-  document.getElementById("openPgpKeyList").collapsed = false;
 
   reloadOpenPgpUI();
 }
@@ -655,44 +652,87 @@ function closeNotification() {
 async function reloadOpenPgpUI() {
   let result = {};
   await EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result, true);
+  let keyCount = result.all.length;
 
-  let externalKey = gIdentity.getUnicharAttribute(
-    "last_entered_external_gnupg_key_id"
-  );
-
-  let allKeys =
-    result.all.length +
-    (externalKey &&
-    Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")
-      ? 1
-      : 0);
+  let externalKey = null;
+  if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
+    externalKey = gIdentity.getUnicharAttribute(
+      "last_entered_external_gnupg_key_id"
+    );
+    if (externalKey) {
+      keyCount++;
+    }
+  }
 
   // Show the radiogroup container only if the current identity has keys.
-  document.getElementById("openPgpKeyList").collapsed = !allKeys;
+  // But still show it if a key (missing or unusable) is configured.
+  document.getElementById("openPgpKeyList").hidden = keyCount == 0 && !gKeyId;
 
   // Update the OpenPGP intro description with the current key count.
   document.l10n.setAttributes(
     document.getElementById("openPgpDescription"),
     "openpgp-description",
     {
-      count: allKeys,
+      count: keyCount,
       identity: gIdentity.email,
     }
   );
 
   let radiogroup = document.getElementById("openPgpKeyListRadio");
 
-  // Interrupt and update the UI accordingly if no key is associated with the
-  // current identity.
-  if (!allKeys) {
+  if (!gKeyId) {
     radiogroup.selectedIndex = 0; // None
-    updateUIForSelectedOpenPgpKey();
-    return;
   }
 
   // Remove all the previously generated radio options, except the first.
   while (radiogroup.lastChild.id != "openPgpOptionNone") {
     radiogroup.removeChild(radiogroup.lastChild);
+  }
+
+  // Currently configured key is not in available, maybe deleted by the user?
+  if (gKeyId && !externalKey && !result.all.find(key => key.keyId == gKeyId)) {
+    let container = document.createXULElement("vbox");
+    container.id = `openPgpOption${gKeyId}`;
+    container.classList.add("content-blocking-category");
+
+    let box = document.createXULElement("hbox");
+    let radio = document.createXULElement("radio");
+    radio.setAttribute("flex", "1");
+    radio.disabled = true;
+    radio.id = `openPgp${gKeyId}`;
+    radio.value = gKeyId;
+    radio.label = `0x${gKeyId}`;
+    box.appendChild(radio);
+
+    let box2 = document.createXULElement("vbox");
+    box2.classList.add("indent");
+    let desc = document.createXULElement("description");
+    box2.appendChild(desc);
+
+    let key = EnigmailKeyRing.getKeyById(gKeyId);
+    if (key && !key.secretAvailable) {
+      document.l10n.setAttributes(desc, "openpgp-radio-key-not-usable");
+    } else if (key && !(await PgpSqliteDb2.isAcceptedAsPersonalKey(key.fpr))) {
+      document.l10n.setAttributes(desc, "openpgp-radio-key-not-accepted");
+      let btnContainer = document.createXULElement("hbox");
+      btnContainer.setAttribute("pack", "end");
+      btnContainer.style.width = "100%";
+      let info = document.createXULElement("button");
+      info.classList.add("openpgp-image-btn", "openpgp-props-btn");
+      document.l10n.setAttributes(info, "openpgp-key-man-key-props");
+      info.addEventListener("command", event => {
+        event.stopPropagation();
+        enigmailKeyDetails(key.keyId);
+      });
+      btnContainer.appendChild(info);
+      box2.appendChild(btnContainer);
+    } else {
+      document.l10n.setAttributes(desc, "openpgp-radio-key-not-found");
+    }
+
+    container.appendChild(box);
+    container.appendChild(box2);
+    radiogroup.appendChild(container);
   }
 
   // Sort keys by create date from newest to oldest.
@@ -702,10 +742,7 @@ async function reloadOpenPgpUI() {
 
   // If the user has an external Key saved, and the pref is TRUE,
   // we show it on top of the list.
-  if (
-    externalKey &&
-    Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")
-  ) {
+  if (externalKey) {
     let container = document.createXULElement("vbox");
     container.id = `openPgpOption${externalKey}`;
     container.classList.add("content-blocking-category");
