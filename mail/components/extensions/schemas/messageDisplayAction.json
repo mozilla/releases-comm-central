@@ -11,16 +11,19 @@
             "properties": {
               "default_label": {
                 "type": "string",
+                "description": "The label of the messageDisplayAction, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
                 "optional": true,
                 "preprocess": "localize"
               },
               "default_title": {
                 "type": "string",
+                "description": "The title of the messageDisplayAction. This shows up in the tooltip and the label. Defaults to the add-on name.",
                 "optional": true,
                 "preprocess": "localize"
               },
               "default_icon": {
                 "$ref": "IconPath",
+                "description": "The icon for the messageDisplayAction.",
                 "optional": true
               },
               "theme_icons": {
@@ -34,11 +37,13 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "optional": true,
+                "description": "The html document to be opened as a popup when the user clicks on the messageDisplayAction's icon.",
                 "preprocess": "localize"
               },
               "browser_style": {
                 "type": "boolean",
                 "optional": true,
+                "description": "Enable browser styles. See the `MDN documentation on browser styles <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information.",
                 "default": false
               },
               "default_area": {
@@ -96,6 +101,14 @@
         "additionalProperties": { "type": "any" },
         "postprocess": "convertImageDataToURL",
         "description": "Pixel data for an image. Must be an ImageData object (for example, from a <code>canvas</code> element)."
+      },
+      {
+        "id": "ImageDataDictionary",
+        "type": "object",
+        "description" : "A ``{size: ImageDataType}`` dictionary representing the icon to be set. The actual :ref:`messageDisplayAction.ImageDataType` to be used is chosen depending on the screen's pixel density. See the `MDN documentation on browser styles <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information on this. At least one :ref:`messageDisplayAction.ImageDataType` must be specified.",
+        "patternProperties": {
+          "^[1-9]\\d*$": {"$ref": "ImageDataType"}
+        }
       },
       {
         "id": "OnClickData",
@@ -232,28 +245,18 @@
               "imageData": {
                 "choices": [
                   { "$ref": "ImageDataType" },
-                  {
-                    "type": "object",
-                    "patternProperties": {
-                      "^[1-9]\\d*$": {"$ref": "ImageDataType"}
-                    }
-                  }
+                  { "$ref": "ImageDataDictionary" }
                 ],
                 "optional": true,
-                "description": "Either an ImageData object or a dictionary ``{size -> ImageData}`` representing the icon to be set. If the icon is specified as a dictionary, the actual image to be used is chosen depending on screen's pixel density. If the number of image pixels that fit into one screen space unit equals <code>scale</code>, then image with size <code>scale</code> * 19 will be selected. Initially only scales 1 and 2 will be supported. At least one image must be specified. Note that ``details.imageData = foo`` is equivalent to ``details.imageData = {'19': foo}``"
+                "description": "Either an ImageDataType object defining a single icon used for all sizes or an ImageDataDictionary object defining dedicated icons for different sizes."
               },
               "path": {
                 "choices": [
                   { "type": "string" },
-                  {
-                    "type": "object",
-                    "patternProperties": {
-                      "^[1-9]\\d*$": { "type": "string" }
-                    }
-                  }
+                  {"$ref": "IconPath" }
                 ],
                 "optional": true,
-                "description": "Either a relative image path or a dictionary ``{size -> relative image path}`` pointing to icon to be set. If the icon is specified as a dictionary, the actual image to be used is chosen depending on screen's pixel density. If the number of image pixels that fit into one screen space unit equals <code>scale</code>, then image with size <code>scale</code> * 19 will be selected. Initially only scales 1 and 2 will be supported. At least one image must be specified. Note that ``details.path = foo`` is equivalent to ``details.path = {'19': foo}``"
+                "description": "Either a relative image path defining a single icon used for all sizes or an IconPathDictionary object defining dedicated icons for different sizes."
               }
             }
           },

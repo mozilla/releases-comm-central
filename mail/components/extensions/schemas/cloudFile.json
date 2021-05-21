@@ -13,8 +13,9 @@
             "properties": {
               "browser_style": {
                 "type": "boolean",
+                "description": "Enable browser styles. See the `MDN documentation <https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/user_interface/Browser_styles>`__ for more information.",
                 "optional": true,
-                "default": true
+                "default": false
               },
               "data_format": {
                 "type": "string",
@@ -27,7 +28,7 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "preprocess": "localize",
-                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: cloudFile, extension, i18n, runtime, storage, test."
+                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: ``cloudFile``, ``extension``, ``i18n``, ``runtime``, ``storage``, ``test``."
               },
               "name": {
                 "type": "string",

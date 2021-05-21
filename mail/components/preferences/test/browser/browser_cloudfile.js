@@ -611,7 +611,7 @@ async function subtestBrowserStyle(assertMessage, expected) {
   extension.sendMessage(
     "check-style",
     assertMessage,
-    expected.browser_style != "false"
+    expected.browser_style == "true"
   );
   await extension.awaitFinish("management-ui-browser_style");
 
