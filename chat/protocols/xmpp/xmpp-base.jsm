@@ -9,12 +9,13 @@ const EXPORTED_SYMBOLS = [
   "XMPPAccountPrototype",
 ];
 
+const { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { Status } = ChromeUtils.import("resource:///modules/imStatusUtils.jsm");
 const {
   XPCOMUtils,
-  setTimeout,
-  clearTimeout,
   executeSoon,
   nsSimpleEnumerator,
   EmptyEnumerator,

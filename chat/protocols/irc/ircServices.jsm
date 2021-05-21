@@ -18,8 +18,8 @@
 
 const EXPORTED_SYMBOLS = ["ircServices", "servicesBase"];
 
-var { setTimeout, clearTimeout } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
+const { setTimeout, clearTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
 );
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"

@@ -19,9 +19,7 @@ const EXPORTED_SYMBOLS = [
   "isupportMONITOR",
 ];
 
-var { clearTimeout } = ChromeUtils.import(
-  "resource:///modules/imXPCOMUtils.jsm"
-);
+const { clearTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"
 );

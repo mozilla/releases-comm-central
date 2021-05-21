@@ -4,8 +4,6 @@
 
 const EXPORTED_SYMBOLS = [
   "XPCOMUtils",
-  "setTimeout",
-  "clearTimeout",
   "executeSoon",
   "nsSimpleEnumerator",
   "EmptyEnumerator",
@@ -157,27 +155,6 @@ XPCOMUtils.defineLazyGetter(this, "gLogLevels", function() {
 
   return logLevels;
 });
-
-function setTimeout(aFunction, aDelay) {
-  let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-  let args = Array.prototype.slice.call(arguments, 2);
-  // A reference to the timer should be kept to ensure it won't be
-  // GC'ed before firing the callback.
-  let callback = {
-    _timer: timer,
-    notify(aTimer) {
-      aFunction.apply(null, args);
-      delete this._timer;
-    },
-  };
-  timer.initWithCallback(callback, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
-  return timer;
-}
-function clearTimeout(aTimer) {
-  if (aTimer) {
-    aTimer.cancel();
-  }
-}
 
 function executeSoon(aFunction) {
   Services.tm.mainThread.dispatch(aFunction, Ci.nsIEventTarget.DISPATCH_NORMAL);

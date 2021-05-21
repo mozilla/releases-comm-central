@@ -7,7 +7,6 @@ XPCSHELL_TESTS_MANIFESTS += ["test/xpcshell.ini"]
 
 EXTRA_JS_MODULES += [
     "CLib.jsm",
-    "hiddenWindow.jsm",
     "imContentSink.jsm",
     "imServices.jsm",
     "imSmileys.jsm",

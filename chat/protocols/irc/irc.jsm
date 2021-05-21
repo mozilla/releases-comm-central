@@ -4,10 +4,11 @@
 
 var EXPORTED_SYMBOLS = ["ircProtocol"];
 
+var { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
 var {
   ClassInfo,
-  clearTimeout,
-  setTimeout,
   executeSoon,
   l10nHelper,
   XPCOMUtils,

@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["JSTestProtocol"];
 
-var { setTimeout } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var {
   GenericAccountPrototype,
   GenericConvIMPrototype,

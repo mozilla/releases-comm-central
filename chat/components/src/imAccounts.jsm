@@ -4,14 +4,12 @@
 
 var EXPORTED_SYMBOLS = ["AccountsService"];
 
-var {
-  ClassInfo,
-  XPCOMUtils,
-  setTimeout,
-  clearTimeout,
-  executeSoon,
-  l10nHelper,
-} = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
+var { ClassInfo, XPCOMUtils, executeSoon, l10nHelper } = ChromeUtils.import(
+  "resource:///modules/imXPCOMUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   GenericAccountPrototype,

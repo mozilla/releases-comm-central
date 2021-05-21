@@ -19,7 +19,10 @@
  */
 const EXPORTED_SYMBOLS = ["ircBase"];
 
-var { setTimeout, clearTimeout, nsSimpleEnumerator } = ChromeUtils.import(
+const { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
+var { nsSimpleEnumerator } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");

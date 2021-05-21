@@ -72,11 +72,11 @@
 const EXPORTED_SYMBOLS = ["Socket"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { setTimeout, clearTimeout, executeSoon } = ChromeUtils.import(
+var { executeSoon } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
-var { getHiddenHTMLWindow } = ChromeUtils.import(
-  "resource:///modules/hiddenWindow.jsm"
+const { clearTimeout, requestIdleCallback, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
 );
 
 // Network errors see: xpcom/base/nsError.h
@@ -155,7 +155,6 @@ var Socket = {
     this.port = aPort;
     this.disconnected = false;
 
-    this.window = getHiddenHTMLWindow();
     this._pendingData = [];
     delete this._stopRequestStatus;
 
@@ -405,9 +404,7 @@ var Socket = {
     if (this._handlingQueue) {
       return;
     }
-    this._handlingQueue = this.window.requestIdleCallback(
-      this._handleQueue.bind(this)
-    );
+    this._handlingQueue = requestIdleCallback(this._handleQueue.bind(this));
   },
   // Asynchronously send each string to the handle data function.
   _handleQueue(timing) {
@@ -419,9 +416,7 @@ var Socket = {
       }
     }
     if (this._pendingData.length) {
-      this._handlingQueue = this.window.requestIdleCallback(
-        this._handleQueue.bind(this)
-      );
+      this._handlingQueue = requestIdleCallback(this._handleQueue.bind(this));
       return;
     }
     delete this._handlingQueue;

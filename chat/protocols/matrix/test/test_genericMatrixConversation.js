@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-var { setTimeout } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
+const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { EventType, MsgType } = ChromeUtils.import(
   "resource:///modules/matrix-sdk.jsm"
 );

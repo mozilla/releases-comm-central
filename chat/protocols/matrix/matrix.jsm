@@ -4,13 +4,14 @@
 
 var EXPORTED_SYMBOLS = ["MatrixProtocol"];
 
+const { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
 var {
   XPCOMUtils,
   EmptyEnumerator,
   nsSimpleEnumerator,
   l10nHelper,
-  setTimeout,
-  clearTimeout,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {

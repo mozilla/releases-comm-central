@@ -12,7 +12,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   ClassInfo: "resource:///modules/imXPCOMUtils.jsm",
   GenericMessagePrototype: "resource:///modules/jsProtoHelper.jsm",
-  getHiddenHTMLWindow: "resource:///modules/hiddenWindow.jsm",
   l10nHelper: "resource:///modules/imXPCOMUtils.jsm",
   ToLocaleFormat: "resource:///modules/ToLocaleFormat.jsm",
 });
@@ -164,6 +163,7 @@ function LogWriter(aConversation) {
     this.format = "json";
   }
   this.paths = [];
+  this._parser = new DOMParser();
   this.startNewFile(this._conv.startDate / 1000);
 }
 LogWriter.prototype = {
@@ -233,18 +233,25 @@ LogWriter.prototype = {
       Cu.reportError("Failed to initialize log file:\n" + aError)
     );
   },
+  /**
+   * This parses the message as HTML and converts it to plaintext (in a lossy
+   * fashion) with the following adjustments:
+   *
+   * * Encode newlines as <br/>.
+   * * Ensures that links appear in the plaintext output.
+   *
+   * @param {string} aString The HTML string to convert.
+   * @returns {string}
+   * @private
+   */
   _serialize(aString) {
-    // TODO cleanup once bug 102699 is fixed
-    let doc = getHiddenHTMLWindow().document;
-    let div = doc.createElementNS("http://www.w3.org/1999/xhtml", "div");
-    // eslint-disable-next-line no-unsanitized/property
-    div.innerHTML = aString
-      .replace(/\r?\n/g, "<br/>")
-      .replace(/<br>/gi, "<br/>");
+    let doc = this._parser.parseFromString(
+      aString.replace(/\r?\n/g, "<br>"),
+      "text/html"
+    );
     const type = "text/plain";
     let encoder = Cu.createDocumentEncoder(type);
     encoder.init(doc, type, 0);
-    encoder.setContainerNode(div);
     encoder.setNodeFixup({
       fixupNode(aNode, aSerializeKids) {
         if (aNode.localName == "a" && aNode.hasAttribute("href")) {
