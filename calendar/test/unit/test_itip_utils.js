@@ -3,25 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+var { CalendarTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalItipEmailTransport: "resource:///modules/CalItipEmailTransport.jsm",
 });
 
 // tests for calItipUtils.jsm
-
-function run_test() {
-  test_getMessageSender();
-  test_getSequence();
-  test_getStamp();
-  test_compareSequence();
-  test_compareStamp();
-  test_compare();
-  test_getAttendeesBySender();
-  test_resolveDelegation();
-}
 
 /*
  * Helper function to get an ics for testing sequence and stamp comparison
@@ -150,7 +145,7 @@ function getSeqStampTestItems(aTest) {
   return items;
 }
 
-function test_getMessageSender() {
+add_task(function test_getMessageSender() {
   let data = [
     {
       input: null,
@@ -169,9 +164,9 @@ function test_getMessageSender() {
     let test = data[i - 1];
     equal(cal.itip.getMessageSender(test.input), test.expected, "(test #" + i + ")");
   }
-}
+});
 
-function test_getSequence() {
+add_task(function test_getSequence() {
   // assigning an empty string results in not having the property in the ics here
   let data = [
     {
@@ -212,9 +207,9 @@ function test_getSequence() {
     let testItems = getSeqStampTestItems(test);
     equal(cal.itip.getSequence(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
-}
+});
 
-function test_getStamp() {
+add_task(function test_getStamp() {
   // assigning an empty string results in not having the property in the ics here. However, there
   // must be always an dtStamp for item - if it's missing it will be set by the test code to make
   // sure we get a valid ics
@@ -251,9 +246,9 @@ function test_getStamp() {
     }
     equal(result, test.expected, "(test #" + i + ")");
   }
-}
+});
 
-function test_compareSequence() {
+add_task(function test_compareSequence() {
   // it is sufficient to test here with sequence for items - full test coverage for
   // x-moz-received-sequence is already provided by test_compareSequence
   let data = [
@@ -308,9 +303,9 @@ function test_compareSequence() {
     let testItems = getSeqStampTestItems(test);
     equal(cal.itip.compareSequence(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
-}
+});
 
-function test_compareStamp() {
+add_task(function test_compareStamp() {
   // it is sufficient to test here with dtstamp for items - full test coverage for
   // x-moz-received-stamp is already provided by test_compareStamp
   let data = [
@@ -383,9 +378,9 @@ function test_compareStamp() {
     let testItems = getSeqStampTestItems(test);
     equal(cal.itip.compareStamp(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
-}
+});
 
-function test_compare() {
+add_task(function test_compare() {
   // it is sufficient to test here with items only - full test coverage for attendees or
   // item/attendee is already provided by test_compareSequence and test_compareStamp
   let data = [
@@ -467,9 +462,9 @@ function test_compare() {
     let testItems = getSeqStampTestItems(test);
     equal(cal.itip.compare(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
-}
+});
 
-function test_getAttendeesBySender() {
+add_task(function test_getAttendeesBySender() {
   let data = [
     {
       input: {
@@ -561,9 +556,9 @@ function test_getAttendeesBySender() {
       "(test #" + i + " ok2)"
     );
   }
-}
+});
 
-function test_resolveDelegation() {
+add_task(function test_resolveDelegation() {
   let data = [
     {
       input: {
@@ -673,4 +668,158 @@ function test_resolveDelegation() {
     equal(result.delegatees, test.expected.delegatees, "(test #" + i + " - delegatees)");
     equal(result.delegators, test.expected.delegators, "(test #" + i + " - delegators)");
   }
-}
+});
+
+/**
+ * Tests the various ways to use the getInvitedAttendee function.
+ */
+add_task(async function test_getInvitedAttendee() {
+  class MockCalendar {
+    supportsScheduling = true;
+
+    constructor(invitedAttendee) {
+      this.invitedAttendee = invitedAttendee;
+    }
+
+    getSchedulingSupport() {
+      return this;
+    }
+
+    getInvitedAttendee() {
+      return this.invitedAttendee;
+    }
+  }
+
+  let invitedAttendee = new CalAttendee();
+  invitedAttendee.id = "mailto:invited@example.com";
+
+  let calendar = new MockCalendar(invitedAttendee);
+  let event = new CalEvent(CalendarTestUtils.dedent`
+        BEGIN:VEVENT
+        CREATED:20210105T000000Z
+        DTSTAMP:20210501T000000Z
+        UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
+        SUMMARY:Test Invitation
+        DTSTART:20210105T000000Z
+        DTEND:20210105T100000Z
+        STATUS:CONFIRMED
+        SUMMARY:Test Event
+        ORGANIZER;CN=events@example.com:mailto:events@example.com
+        ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;
+          RSVP=TRUE;CN=invited@example.com;:mailto:invited@example.com
+        END:VEVENT
+      `);
+
+  // No calendar configured or provided.
+  Assert.ok(
+    !cal.itip.getInvitedAttendee(event),
+    "returns falsy when item has no calendar and none provided"
+  );
+
+  // No calendar configured but one provided.
+  Assert.ok(
+    cal.itip.getInvitedAttendee(event, calendar) == invitedAttendee,
+    "returns the result from the provided calendar when item has none configured"
+  );
+
+  // Calendar configured, none provided.
+  event.calendar = calendar;
+  Assert.ok(
+    cal.itip.getInvitedAttendee(event) == invitedAttendee,
+    "returns the result of the item's calendar when calendar not provided"
+  );
+
+  // Calendar configured, one provided.
+  Assert.ok(
+    !cal.itip.getInvitedAttendee(event, new MockCalendar()),
+    "returns the result of the provided calendar even if item's calendar is configured"
+  );
+
+  // Calendar does not implement nsISchedulingSupport.
+  calendar.supportsScheduling = false;
+  Assert.ok(
+    !cal.itip.getInvitedAttendee(event),
+    "returns falsy if the calendar does not indicate nsISchedulingSupport"
+  );
+
+  // X-MOZ-INVITED-ATTENDEE set on event.
+  event.setProperty("X-MOZ-INVITED-ATTENDEE", "mailto:invited@example.com");
+
+  let attendee = cal.itip.getInvitedAttendee(event);
+  Assert.ok(
+    attendee && attendee.id == "mailto:invited@example.com",
+    "returns the attendee matching X-MOZ-INVITED-ATTENDEE if set"
+  );
+
+  // X-MOZ-INVITED-ATTENDEE set to non-existent attendee
+  event.setProperty("X-MOZ-INVITED-ATTENDEE", "mailto:nobody@example.com");
+  Assert.ok(
+    !cal.itip.getInvitedAttendee(event),
+    "returns falsy for non-existent X-MOZ-INVITED-ATTENDEE"
+  );
+});
+
+/**
+ * Tests the getImipTransport function returns the correct calIItipTransport.
+ */
+add_task(function test_getImipTransport() {
+  let event = new CalEvent(CalendarTestUtils.dedent`
+        BEGIN:VEVENT
+        CREATED:20210105T000000Z
+        DTSTAMP:20210501T000000Z
+        UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
+        SUMMARY:Test Invitation
+        DTSTART:20210105T000000Z
+        DTEND:20210105T100000Z
+        STATUS:CONFIRMED
+        SUMMARY:Test Event
+        END:VEVENT
+      `);
+
+  // Without X-MOZ-INVITED-ATTENDEE property.
+  let account1 = MailServices.accounts.createAccount();
+  let identity1 = MailServices.accounts.createIdentity();
+  identity1.email = "id1@example.com";
+  account1.addIdentity(identity1);
+
+  let calendarTransport = new CalItipEmailTransport(account1, identity1);
+  event.calendar = {
+    getProperty(key) {
+      return key == "imip.identity" ? identity1 : null;
+    },
+    getImipTransport() {
+      return calendarTransport;
+    },
+  };
+
+  Assert.ok(
+    cal.itip.getImipTransport(event) == cal.provider.defaultImipTransport,
+    "returns the default transport when no X-MOZ-INVITED-ATTENDEE property"
+  );
+
+  // With X-MOZ-INVITED-ATTENDEE property.
+  let account2 = MailServices.accounts.createAccount();
+  let identity2 = MailServices.accounts.createIdentity();
+  identity2.email = "id2@example.com";
+  account2.addIdentity(identity2);
+  account2.incomingServer = MailServices.accounts.createIncomingServer(
+    "id2",
+    "example.com",
+    "imap"
+  );
+
+  event.setProperty("X-MOZ-INVITED-ATTENDEE", "mailto:id2@example.com");
+
+  let customTransport = cal.itip.getImipTransport(event);
+  Assert.ok(customTransport);
+
+  Assert.ok(
+    customTransport.mDefaultAccount == account2,
+    "returns a transport using an account for the X-MOZ-INVITED-ATTENDEE identity when set"
+  );
+
+  Assert.ok(
+    customTransport.mDefaultIdentity == identity2,
+    "returns a transport using the identity of the X-MOZ-INVITED-ATTENDEE property when set"
+  );
+});
