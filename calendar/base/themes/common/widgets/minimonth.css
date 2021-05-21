@@ -3,19 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 calendar-minimonth {
-  --mmMainColor: WindowText;
-  --mmMainBackground: #fff;
+  --mmMainColor: -moz-DialogText;
+  --mmMainBackground: Field;
   --mmHighlightColor: HighlightText;
   --mmHighlightBackground: Highlight;
   --mmHighlightBorderColor: Highlight;
-  --mmBoxBackground: #f5f5f6;
-  --mmBoxBorderColor: #c0c0c0;
-  --mmDayColor: #2e4e73;
-  --mmDayBorderColor: #fff;
-  --mmDayOtherColor: #b2b2b2;
-  --mmDayWeekColor: #b2b2b2;
-  --mmDayOtherBackground: #f0f0f0;
-  --mmDayOtherBorderColor: #f0f0f0;
+  --mmBoxBackground: hsla(0, 0%, 60%, 0.15);
+  --mmBoxBorderColor: ThreeDShadow;
+  --mmDayColor: inherit;
+  --mmDayBorderColor: Transparent;
+  --mmDayOtherColor: inherit;
+  --mmDayWeekColor: hsla(0, 0%, 60%, 0.8);
+  --mmDayOtherBackground: hsla(0, 0%, 60%, 0.25);
+  --mmDayOtherBorderColor: Transparent;
   --mmDayTodayColor: #2e4e73;
   --mmDayTodayBackground: #dfeaf4;
   --mmDayTodayBorderColor: #67acd8;
@@ -60,16 +60,10 @@ calendar-minimonth {
 }
 
 :root[systemcolors] calendar-minimonth {
-  --mmMainColor: -moz-DialogText;
-  --mmMainBackground: Field;
-  --mmBoxBackground: -moz-Dialog;
-  --mmBoxBorderColor: ThreeDShadow;
   --mmDayColor: WindowText;
-  --mmDayBorderColor: Window;
   --mmDayOtherColor: GrayText;
   --mmDayWeekColor: GrayText;
   --mmDayOtherBackground: ButtonFace;
-  --mmDayOtherBorderColor: Transparent;
   --mmDayTodayColor: -moz-DialogText;
   --mmDayTodayBackground: Field;
   --mmDayTodayBorderColor: Highlight;
@@ -268,7 +262,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
   cursor: pointer;
 }
 
-#calMinimonth :focus-visible:not(:hover) {
+calendar-minimonth :focus-visible:not(:hover) {
   outline: 2px solid var(--focus-outline-color);
   outline-offset: -2px;
 }
