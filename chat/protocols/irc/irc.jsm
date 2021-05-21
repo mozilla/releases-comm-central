@@ -2358,7 +2358,7 @@ ircProtocol.prototype = {
         return _("options.server");
       },
       separator: "@",
-      defaultValue: "chat.freenode.net",
+      defaultValue: "irc.libera.chat",
     },
   ],
 

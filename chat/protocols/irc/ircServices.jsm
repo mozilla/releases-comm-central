@@ -40,6 +40,7 @@ function ServiceMessage(aAccount, aMessage) {
     chanserv: "ChanServ",
     infoserv: "InfoServ",
     nickserv: "NickServ",
+    saslserv: "SaslServ",
     "freenode-connect": "freenode-connect",
   };
 
@@ -203,8 +204,6 @@ var servicesBase = {
     },
 
     NickServ(aMessage) {
-      let text = aMessage.params[1];
-
       // Since we feed the messages back through the system at the end of the
       // timeout when waiting for a log-in, we need to NOT try to handle them
       // here and let them fall through to the default handler.
@@ -212,11 +211,13 @@ var servicesBase = {
         return false;
       }
 
+      let text = aMessage.params[1];
+
       // If we have a queue of messages, we're waiting for authentication.
       if (this.nickservMessageQueue) {
         if (
           text == "Password accepted - you are now recognized." || // Anope.
-          text.slice(0, 28) == "You are now identified for \x02"
+          text.startsWith("You are now identified for \x02")
         ) {
           // Atheme.
           // Password successfully accepted by NickServ, don't display the
@@ -264,7 +265,7 @@ var servicesBase = {
       if (
         !this.isAuthenticated &&
         (text == "You are already identified." || // Anope.
-          text.slice(0, 30) == "You are already logged in as \x02")
+          text.startsWith("You are already logged in as \x02"))
       ) {
         // Atheme.
         // Do not show the message if caused by the automatic reauthentication.
@@ -273,6 +274,26 @@ var servicesBase = {
       }
 
       return false;
+    },
+
+    /**
+     * Ignore useless messages from SaslServ (unless showing of server messages
+     * is enabled).
+     *
+     * @param {object} aMessage The IRC message object.
+     * @returns {boolean} True if the message was handled, false if it should be
+     *    processed by another handler.
+     */
+    SaslServ(aMessage) {
+      // If the user would like to see server messages, fall through to the
+      // standard handler.
+      if (this._showServerTab) {
+        return false;
+      }
+
+      // Only ignore the message notifying of last login.
+      let text = aMessage.params[1];
+      return text.startsWith("Last login from: ");
     },
 
     /*
