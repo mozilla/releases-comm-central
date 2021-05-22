@@ -78,7 +78,7 @@ add_task(function setup() {
 add_task(async function check_clean_keylist() {
   // The OpenPGP Key List container should not be visible.
   Assert.equal(
-    tabDocument.getElementById("openPgpKeyList").getClientRects().length,
+    tabDocument.getElementById("openPgpKeyList").hidden,
     1,
     "The openPgpKeyList container shouldn't be visible"
   );
