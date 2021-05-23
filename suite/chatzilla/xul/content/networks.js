@@ -7,6 +7,11 @@ function initNetworks()
     var networks = new Object();
 
     // Set up default network list.
+    networks["libera.chat"] = {
+        displayName:  "libera.chat",
+        isupportsKey: "",
+        servers: [{hostname: "irc.libera.chat", port:6697, isSecure: true},
+                  {hostname: "irc.libera.chat", port:6667}]};
     networks["freenode"] = {
         displayName:  "freenode",
         isupportsKey: "",
