@@ -336,7 +336,7 @@ function UpdateCardView()
 
 function DropRecipient(address)
 {
-  AddAddressIntoBucket(prefixTo, address, address);
+  AddAddressFromComposeWindow(address, prefixTo);
 }
 
 function OnReturnHit(event)
