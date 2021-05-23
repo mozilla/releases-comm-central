@@ -15,6 +15,7 @@
 /* import-globals-from calendar-management.js */
 /* import-globals-from calendar-modes.js */
 /* import-globals-from calendar-task-tree-utils.js */
+/* import-globals-from calendar-task-view.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-unifinder.js */
 /* import-globals-from calendar-views-utils.js */
@@ -40,6 +41,14 @@ async function loadCalendarComponent() {
     return;
   }
   loadCalendarComponent.hasBeenCalled = true;
+
+  if (cal.getCalendarManager().wrappedJSObject.mCache) {
+    cal.ASSERT(
+      [...Services.wm.getEnumerator("mail:3pane")].length > 1,
+      "Calendar manager initialised calendars before loadCalendarComponent ran on the first " +
+        "3pane window. This should not happen."
+    );
+  }
 
   await uninstallLightningAddon();
 
@@ -136,6 +145,7 @@ async function loadCalendarComponent() {
 
   prepareCalendarUnifinder();
 
+  taskViewOnLoad();
   taskEdit.onLoad();
 
   Services.obs.notifyObservers(window, "lightning-startup-done");

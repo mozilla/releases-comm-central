@@ -454,5 +454,3 @@ function taskViewCopyLink(linkNode) {
     clipboard.copyString(linkAddress);
   }
 }
-
-window.addEventListener("load", taskViewOnLoad);
