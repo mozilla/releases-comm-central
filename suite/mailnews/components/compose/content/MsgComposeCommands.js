@@ -10,6 +10,7 @@ ChromeUtils.import("resource://gre/modules/InlineSpellChecker.jsm");
 const {allAccountsSorted} = ChromeUtils.import("resource:///modules/folderUtils.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
+const { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
 
@@ -57,6 +58,7 @@ var gHideMenus;
 var gMsgCompose;
 var gOriginalMsgURI;
 var gWindowLocked;
+var gSendLocked;
 var gContentChanged;
 var gAutoSaving;
 var gCurrentIdentity;
@@ -165,6 +167,7 @@ function isSignature(aNode) {
 var stateListener = {
   NotifyComposeFieldsReady: function() {
     ComposeFieldsReady();
+    updateSendCommands(true);
   },
 
   NotifyComposeBodyReady: function() {
@@ -500,15 +503,17 @@ var defaultController =
       case "cmd_saveAsFile":
       case "cmd_saveAsDraft":
       case "cmd_saveAsTemplate":
-      case "cmd_sendButton":
-      case "cmd_sendLater":
       case "cmd_printSetup":
       case "cmd_printpreview":
       case "cmd_print":
-      case "cmd_sendWithCheck":
         return !gWindowLocked;
+      case "cmd_sendButton":
+      case "cmd_sendLater":
+      case "cmd_sendWithCheck":
+      case "cmd_sendButton":
+        return !gWindowLocked && !gSendLocked;
       case "cmd_sendNow":
-        return !(gWindowLocked || Services.io.offline);
+        return !gWindowLocked && !Services.io.offline && !gSendLocked;
 
       //Edit Menu
       case "cmd_account":
@@ -763,6 +768,28 @@ function updateOptionItems()
   goUpdateCommand("cmd_quoteMessage");
 }
 
+/**
+ * Update all the commands for sending a message to reflect their current state.
+ */
+function updateSendCommands(aHaveController) {
+  updateSendLock();
+  if (aHaveController) {
+    goUpdateCommand("cmd_sendButton");
+    goUpdateCommand("cmd_sendNow");
+    goUpdateCommand("cmd_sendLater");
+    goUpdateCommand("cmd_sendWithCheck");
+  } else {
+    goSetCommandEnabled("cmd_sendButton",
+                        defaultController.isCommandEnabled("cmd_sendButton"));
+    goSetCommandEnabled("cmd_sendNow",
+                        defaultController.isCommandEnabled("cmd_sendNow"));
+    goSetCommandEnabled("cmd_sendLater",
+                        defaultController.isCommandEnabled("cmd_sendLater"));
+    goSetCommandEnabled("cmd_sendWithCheck",
+                        defaultController.isCommandEnabled("cmd_sendWithCheck"));
+  }
+}
+
 var messageComposeOfflineQuitObserver = {
   observe: function(aSubject, aTopic, aState) {
     // sanity checks
@@ -809,7 +836,7 @@ function MessageComposeOfflineStateChanged(goingOffline)
     }
 
     // don't use goUpdateCommand here ... the defaultController might not be installed yet
-    goSetCommandEnabled("cmd_sendNow", defaultController.isCommandEnabled("cmd_sendNow"));
+    updateSendCommands(false);
 
     if (goingOffline)
     {
@@ -1926,6 +1953,49 @@ function GenericSendMessage(msgType) {
     SetDocumentCharacterSet(gMsgCompose.compFields.characterSet);
 }
 
+/**
+ * Check if the given address is valid (contains a @).
+ *
+ * @param aAddress  The address string to check.
+ */
+function isValidAddress(aAddress) {
+  return (aAddress.includes("@", 1) && !aAddress.endsWith("@"));
+}
+
+/**
+ * Keep the Send buttons disabled until any recipient is entered.
+ */
+function updateSendLock() {
+  gSendLocked = true;
+  if (!gMsgCompose)
+    return;
+
+  // Helper function to check for a valid list name.
+  function isValidListName(aInput) {
+    let listNames = MimeParser.parseHeaderField(aInput,
+                                                MimeParser.HEADER_ADDRESS);
+    return listNames > 0 &&
+           MailServices.ab.mailListNameExists(listNames[0].name);
+  }
+
+  const mailTypes = [ "addr_to", "addr_cc", "addr_bcc" ];
+
+  // Enable the send buttons if anything usable was entered into at least one
+  // recipient field.
+  for (let row = 1; row <= top.MAX_RECIPIENTS; row ++) {
+    let popupValue = awGetPopupElement(row).value;
+    let inputValue = awGetInputElement(row).value.trim();
+    // Check for a valid looking email address or a valid mailing list name
+    // from one of our addressbooks.
+    if ((mailTypes.includes(popupValue) &&
+         (isValidAddress(inputValue) || isValidListName(inputValue))) ||
+        ((popupValue == "addr_newsgroups") && (inputValue != ""))) {
+      gSendLocked = false;
+      break;
+    }
+  }
+}
+
 function CheckValidEmailAddress(aTo, aCC, aBCC)
 {
   var invalidStr = null;
@@ -2180,6 +2250,27 @@ function addRecipientsToIgnoreList(aAddressesToAdd)
       InlineSpellCheckerUI.mInlineSpellChecker.ignoreWords(tokenizedNames);
     }
   }
+}
+
+function onAddressColCommand(aWidgetId) {
+  gContentChanged = true;
+  awSetAutoComplete(aWidgetId.slice(aWidgetId.lastIndexOf('#') + 1));
+  updateSendCommands(true);
+}
+
+/**
+ * Called if the list of recipients changed in any way.
+ *
+ * @param aAutomatic  Set to true if the change of recipients was invoked
+ *                    programatically and should not be considered a change
+ *                    of message content.
+ */
+function onRecipientsChanged(aAutomatic) {
+  if (!aAutomatic) {
+    gContentChanged = true;
+    setupAutocomplete();
+  }
+  updateSendCommands(true);
 }
 
 function InitLanguageMenu()
