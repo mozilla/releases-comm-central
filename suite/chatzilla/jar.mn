@@ -47,7 +47,7 @@ chatzilla.jar:
 	content/chatzilla/messages.js                (xul/content/messages.js) 
 	content/chatzilla/menus.js                   (xul/content/menus.js) 
 	content/chatzilla/mungers.js                 (xul/content/mungers.js) 
-	content/chatzilla/static.js                  (xul/content/static.js) 
+*	content/chatzilla/static.js                  (xul/content/static.js)
 	content/chatzilla/networks.js                (xul/content/networks.js) 
 	content/chatzilla/dynamic.css                (xul/content/dynamic.css)
 	content/chatzilla/output-base.css            (xul/content/output-base.css)
