@@ -282,12 +282,11 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
   list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
 }
 
-.treecol-image image {
+.thread-tree-col-picker image,
+.thread-tree-icon-header img {
   padding-inline-start: 1px;
   padding-inline-end: 2px;
   padding-bottom: 2px;
-  -moz-context-properties: fill;
-  fill: currentColor;
 }
 
 treechildren::-moz-tree-row(multicol, odd) {

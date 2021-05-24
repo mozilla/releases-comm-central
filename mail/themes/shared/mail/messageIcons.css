@@ -11,15 +11,8 @@
 /* ..... select column ..... */
 
 .selectColumnHeader {
-  min-width: 28px;
-}
-
-.selectColumnHeader,
-treechildren::-moz-tree-image(selectCol) {
   cursor: pointer;
-  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
-  width: 12px;
-  height: 12px;
+  min-width: 28px;
 }
 
 .selectColumnHeader > .treecol-icon,
@@ -31,6 +24,11 @@ treechildren::-moz-tree-image(selectCol) {
   stroke: currentColor;
   fill-opacity: 0;
   stroke-opacity: 0;
+}
+
+treechildren::-moz-tree-image(selectCol) {
+  cursor: pointer;
+  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
 }
 
 .selectColumnHeader.someselected > .treecol-icon {
@@ -48,10 +46,6 @@ treechildren::-moz-tree-image(selectCol, selected, focus) {
 }
 
 /* ..... delete column ..... */
-
-.deleteColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/delete-col.svg");
-}
 
 treechildren::-moz-tree-image(deleteCol) {
   list-style-image: url("chrome://messenger/skin/icons/delete.svg");
@@ -71,7 +65,6 @@ treechildren::-moz-tree-image(deleteCol, selected, focus) {
 /* ..... thread column ..... */
 
 .threadColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/thread-col.svg);
   padding-inline-end: 1px;
   width: 20px;
 }
@@ -100,10 +93,6 @@ treechildren::-moz-tree-image(threadCol, selected, focus) {
 
 /* ..... read column ..... */
 
-.readColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/readcol.svg);
-}
-
 treechildren::-moz-tree-image(unreadButtonColHeader) {
   list-style-image: url(chrome://messenger/skin/icons/read.svg);
   -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
@@ -125,10 +114,6 @@ treechildren::-moz-tree-image(unreadButtonColHeader, selected, focus) {
 
 /* ..... attachment column ..... */
 
-.attachmentColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
-}
-
 treechildren::-moz-tree-image(attachmentCol, attach) {
   list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
   -moz-context-properties: fill;
@@ -140,10 +125,6 @@ treechildren::-moz-tree-image(attachmentCol, attach, selected, focus) {
 }
 
 /* ..... flag column ..... */
-
-.flagColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/flag-col.svg);
-}
 
 treechildren::-moz-tree-image(flaggedCol) {
   margin-inline-start: -2px;
@@ -167,10 +148,6 @@ treechildren::-moz-tree-image(flaggedCol, selected, focus) {
 }
 
 /* ..... junkStatus column ..... */
-
-.junkStatusHeader {
-  list-style-image: url(chrome://messenger/skin/icons/junk-col.svg);
-}
 
 /* "unknown" now looks like "not junk".  see bug #182386 */
 treechildren::-moz-tree-image(junkStatusCol) {

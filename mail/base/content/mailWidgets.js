@@ -552,6 +552,12 @@
   }
   customElements.define("mail-emailheaderfield", MozMailEmailheaderfield);
 
+  // NOTE: Icon column headers should have their "label" attribute set to
+  // describe the icon for the accessibility tree.
+  //
+  // NOTE: Ideally we could listen for the "alt" attribute and pass it on to the
+  // contained <img>, but the accessibility tree only seems to read the "label"
+  // for a <treecol>, and ignores the alt text.
   class MozTreecolImage extends customElements.get("treecol") {
     static get observedAttributes() {
       return ["src"];
@@ -561,7 +567,7 @@
       if (this.hasChildNodes() || this.delayConnectedCallback()) {
         return;
       }
-      this.image = document.createXULElement("image");
+      this.image = document.createElement("img");
       this.image.classList.add("treecol-icon");
 
       this.appendChild(this.image);
@@ -569,13 +575,14 @@
     }
 
     attributeChangedCallback() {
-      if (!this.isConnectedAndReady) {
-        return;
-      }
       this._updateAttributes();
     }
 
     _updateAttributes() {
+      if (!this.image) {
+        return;
+      }
+
       const src = this.getAttribute("src");
 
       if (src != null) {
@@ -613,7 +620,7 @@
           MozXULElement.parseXULToFragment(
             `
             <treecolpicker is="thread-pane-treecolpicker"
-                           class="treecol-image"
+                           class="thread-tree-col-picker"
                            tooltiptext="&columnChooser2.tooltip;"
                            fixed="true">
             </treecolpicker>

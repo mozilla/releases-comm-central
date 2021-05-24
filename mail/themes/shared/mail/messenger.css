@@ -245,6 +245,12 @@ toolbar[brighttext] {
   --toolbarbutton-checked-background: rgba(0, 0, 0, .25);
 }
 
+.thread-tree-col-picker image,
+.thread-tree-icon-header img {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 treechildren::-moz-tree-row(hover) {
   background-color: hsla(0, 0%, 50%, 0.15);
 }

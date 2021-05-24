@@ -34,18 +34,19 @@
                            toolkit/content/widget/tree.js and is specific to tree elements.
                          -->
                         <treecol is="treecol-image" id="selectCol"
-                                 class="treecol-image selectColumnHeader"
+                                 class="thread-tree-icon-header selectColumnHeader"
                                  persist="hidden ordinal"
                                  fixed="true"
                                  cycler="true"
                                  currentView="unthreaded"
                                  hidden="true"
                                  closemenu="none"
+                                 src="chrome://messenger/skin/icons/checkbox.svg"
                                  label="&selectColumn.label;"
                                  tooltiptext="&selectColumn.tooltip;"/>
                         <splitter class="tree-splitter"/>
                         <treecol is="treecol-image" id="threadCol"
-                                 class="treecol-image threadColumnHeader"
+                                 class="thread-tree-icon-header threadColumnHeader"
                                  persist="hidden ordinal"
                                  fixed="true"
                                  cycler="true"
@@ -55,23 +56,26 @@
                                  hidden="true"
 #endif
                                  closemenu="none"
+                                 src="chrome://messenger/skin/icons/thread-col.svg"
                                  label="&threadColumn.label;"
                                  tooltiptext="&threadColumn2.tooltip;"/>
                         <splitter class="tree-splitter"/>
                         <treecol is="treecol-image" id="flaggedCol"
-                                 class="treecol-image flagColumnHeader"
+                                 class="thread-tree-icon-header flagColumnHeader"
                                  persist="hidden ordinal sortDirection"
                                  fixed="true"
                                  cycler="true"
                                  closemenu="none"
+                                 src="chrome://messenger/skin/icons/flag-col.svg"
                                  label="&starredColumn.label;"
                                  tooltiptext="&starredColumn2.tooltip;"/>
                         <splitter class="tree-splitter"/>
                         <treecol is="treecol-image" id="attachmentCol"
-                                 class="treecol-image attachmentColumnHeader"
+                                 class="thread-tree-icon-header attachmentColumnHeader"
                                  persist="hidden ordinal sortDirection"
                                  fixed="true"
                                  closemenu="none"
+                                 src="chrome://messenger/skin/icons/attachment-col.svg"
                                  label="&attachmentColumn.label;"
                                  tooltiptext="&attachmentColumn2.tooltip;"/>
                         <splitter class="tree-splitter"/>
@@ -84,11 +88,12 @@
                                  tooltiptext="&subjectColumn2.tooltip;"/>
                         <splitter class="tree-splitter"/>
                         <treecol is="treecol-image" id="unreadButtonColHeader"
-                                 class="treecol-image readColumnHeader"
+                                 class="thread-tree-icon-header readColumnHeader"
                                  persist="hidden ordinal sortDirection"
                                  fixed="true"
                                  cycler="true"
                                  closemenu="none"
+                                 src="chrome://messenger/skin/icons/readcol.svg"
                                  label="&readColumn.label;"
                                  tooltiptext="&readColumn2.tooltip;"/>
                         <splitter class="tree-splitter"/>
@@ -116,11 +121,12 @@
                                  tooltiptext="&correspondentColumn2.tooltip;"/>
                         <splitter class="tree-splitter"/>
                         <treecol is="treecol-image" id="junkStatusCol"
-                                 class="treecol-image junkStatusHeader"
+                                 class="thread-tree-icon-header junkStatusHeader"
                                  persist="hidden ordinal sortDirection"
                                  fixed="true"
                                  cycler="true"
                                  closemenu="none"
+                                 src="chrome://messenger/skin/icons/junk-col.svg"
                                  label="&junkStatusColumn.label;"
                                  tooltiptext="&junkStatusColumn2.tooltip;"/>
                         <splitter class="tree-splitter"/>
@@ -211,13 +217,14 @@
                                  tooltiptext="&idColumn2.tooltip;"/>
                         <splitter class="tree-splitter"/>
                         <treecol is="treecol-image" id="deleteCol"
-                                 class="treecol-image deleteColumnHeader"
+                                 class="thread-tree-icon-header deleteColumnHeader"
                                  persist="hidden ordinal"
                                  fixed="true"
                                  cycler="true"
                                  currentView="unthreaded"
                                  hidden="true"
                                  closemenu="none"
+                                 src="chrome://messenger/skin/icons/delete-col.svg"
                                  label="&deleteColumn.label;"
                                  tooltiptext="&deleteColumn.tooltip;"/>
                       </treecols>

@@ -127,6 +127,7 @@
                      cycler="true"
                      sortKey="completedDate"
                      itemproperty="completed"
+                     src="chrome://messenger/skin/icons/checkbox.svg"
                      label="&calendar.unifinder.tree.done.label;"
                      tooltiptext="&calendar.unifinder.tree.done.tooltip2;"/>
             <splitter class="tree-splitter" style="-moz-box-ordinal-group: 2;"/>
@@ -135,6 +136,7 @@
                      minwidth="17"
                      fixed="true"
                      itemproperty="priority"
+                     src="chrome://calendar/skin/shared/icons/priority.svg"
                      label="&calendar.unifinder.tree.priority.label;"
                      tooltiptext="&calendar.unifinder.tree.priority.tooltip2;"/>
             <splitter class="tree-splitter" style="-moz-box-ordinal-group: 4;"/>

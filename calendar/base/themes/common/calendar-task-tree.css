@@ -66,7 +66,6 @@
 }
 
 .calendar-task-tree-col-priority {
-    list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
     -moz-context-properties: fill;
     fill: currentColor;
 }
@@ -109,15 +108,21 @@ treecol.calendar-task-tree-col-percentcomplete {
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed) {
   width: 14px;
   height: 14px;
-  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
   -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
   fill: currentColor;
   stroke: currentColor;
-  fill-opacity: 0;
   stroke-opacity: 0;
 }
 
-.calendar-task-tree-col-completed >.treecol-icon,
+.calendar-task-tree-col-completed >.treecol-icon {
+  fill-opacity: 1;
+}
+
+.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed) {
+  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+  fill-opacity: 0;
+}
+
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, completed) {
   fill-opacity: 1;
 }

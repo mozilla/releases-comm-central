@@ -267,15 +267,6 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
   list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
 }
 
-.treecol-image image {
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-treecol.treecol-image:hover:active {
-  padding-inline-start: 1px;
-}
-
 :root[lwt-tree] treechildren::-moz-tree-row(odd) {
   background-color: transparent;
 }
