@@ -120,8 +120,7 @@ with only_when("--enable-compile-environment"):
             libs = bzip2_pkg.libs
             return namespace(
                 cflags=cflags,
-                libs=libs,
-                path=(value[0]),
+                ldflags=libs,
             )
         # Fallback
         return namespace(
