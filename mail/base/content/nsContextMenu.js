@@ -535,6 +535,7 @@ class nsContextMenu {
         "mailContext-forward",
         "mailContext-forwardAsMenu",
         "mailContext-multiForwardAsAttachment",
+        "mailContext-redirect",
         "mailContext-editAsNew",
         "mailContext-editDraftMsg",
         "mailContext-newMsgFromTemplate",
@@ -592,6 +593,7 @@ class nsContextMenu {
     this.setSingleSelection("mailContext-replyList");
     this.setSingleSelection("mailContext-forward");
     this.setSingleSelection("mailContext-forwardAsMenu");
+    this.setSingleSelection("mailContext-redirect");
     this.setSingleSelection("mailContext-editAsNew");
     this.setSingleSelection(
       "mailContext-editDraftMsg",

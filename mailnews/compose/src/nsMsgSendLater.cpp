@@ -773,9 +773,13 @@ nsresult nsMsgSendLater::SetOrigMsgDisposition() {
         msgHdr->GetFolder(getter_AddRefs(msgFolder));
         if (msgFolder) {
           nsMsgDispositionState dispositionSetting =
-              nsIMsgFolder::nsMsgDispositionState_Replied;
-          if (queuedDisposition.EqualsLiteral("forwarded"))
+              nsIMsgFolder::nsMsgDispositionState_None;
+          if (queuedDisposition.EqualsLiteral("replied"))
+            dispositionSetting = nsIMsgFolder::nsMsgDispositionState_Replied;
+          else if (queuedDisposition.EqualsLiteral("forwarded"))
             dispositionSetting = nsIMsgFolder::nsMsgDispositionState_Forwarded;
+          else if (queuedDisposition.EqualsLiteral("redirected"))
+            dispositionSetting = nsIMsgFolder::nsMsgDispositionState_Redirected;
 
           msgFolder->AddMessageDispositionState(msgHdr, dispositionSetting);
         }

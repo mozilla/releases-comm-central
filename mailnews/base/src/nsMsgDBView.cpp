@@ -61,6 +61,7 @@ char16_t* nsMsgDBView::kNormalPriorityString = nullptr;
 char16_t* nsMsgDBView::kReadString = nullptr;
 char16_t* nsMsgDBView::kRepliedString = nullptr;
 char16_t* nsMsgDBView::kForwardedString = nullptr;
+char16_t* nsMsgDBView::kRedirectedString = nullptr;
 char16_t* nsMsgDBView::kNewString = nullptr;
 
 mozilla::nsDateFormatSelector nsMsgDBView::m_dateFormatDefault =
@@ -163,6 +164,7 @@ void nsMsgDBView::InitializeLiterals() {
   kReadString = GetString(u"read");
   kRepliedString = GetString(u"replied");
   kForwardedString = GetString(u"forwarded");
+  kRedirectedString = GetString(u"redirected");
   kNewString = GetString(u"new");
 }
 
@@ -180,6 +182,7 @@ nsMsgDBView::~nsMsgDBView() {
     free(kReadString);
     free(kRepliedString);
     free(kForwardedString);
+    free(kRedirectedString);
     free(kNewString);
   }
 }
@@ -603,6 +606,8 @@ nsresult nsMsgDBView::FetchStatus(uint32_t aFlags, nsAString& aStatusString) {
     aStatusString = kRepliedString;
   else if (aFlags & nsMsgMessageFlags::Forwarded)
     aStatusString = kForwardedString;
+  else if (aFlags & nsMsgMessageFlags::Redirected)
+    aStatusString = kRedirectedString;
   else if (aFlags & nsMsgMessageFlags::New)
     aStatusString = kNewString;
   else if (aFlags & nsMsgMessageFlags::Read)
@@ -1284,6 +1289,9 @@ nsMsgDBView::GetCellProperties(int32_t aRow, nsTreeColumn* col,
 
   if (flags & nsMsgMessageFlags::Forwarded)
     properties.AppendLiteral(" forwarded");
+
+  if (flags & nsMsgMessageFlags::Redirected)
+    properties.AppendLiteral(" redirected");
 
   if (flags & nsMsgMessageFlags::New) properties.AppendLiteral(" new");
 

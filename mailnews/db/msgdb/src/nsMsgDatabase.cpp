@@ -2049,6 +2049,13 @@ NS_IMETHODIMP nsMsgDatabase::MarkForwarded(
   return SetKeyFlag(key, bForwarded, nsMsgMessageFlags::Forwarded, instigator);
 }
 
+NS_IMETHODIMP nsMsgDatabase::MarkRedirected(
+    nsMsgKey key, bool bRedirected,
+    nsIDBChangeListener* instigator /* = NULL */) {
+  return SetKeyFlag(key, bRedirected, nsMsgMessageFlags::Redirected,
+                    instigator);
+}
+
 NS_IMETHODIMP nsMsgDatabase::MarkHasAttachments(
     nsMsgKey key, bool bHasAttachments, nsIDBChangeListener* instigator) {
   return SetKeyFlag(key, bHasAttachments, nsMsgMessageFlags::Attachment,

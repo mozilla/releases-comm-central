@@ -71,6 +71,9 @@ interface nsMsgMessageFlags : nsISupports
   /// This message has been forwarded
   const nsMsgMessageFlagType Forwarded       = 0x00001000;
 
+  /// This message has been redirected
+  const nsMsgMessageFlagType Redirected      = 0x00002000;
+
   /**
    * These are used to remember the message priority in the mozilla status
    * flags, so we can regenerate a priority after a rule (or user) has changed

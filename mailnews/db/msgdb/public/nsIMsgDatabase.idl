@@ -366,6 +366,9 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   void MarkForwarded(in nsMsgKey key, in boolean bForwarded,
                            in nsIDBChangeListener instigator);
 
+  void MarkRedirected(in nsMsgKey key, in boolean bRedirected,
+                      in nsIDBChangeListener instigator);
+
   void MarkHasAttachments(in nsMsgKey key, in boolean bHasAttachments,
                                 in nsIDBChangeListener instigator);
 

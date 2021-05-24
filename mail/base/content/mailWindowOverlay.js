@@ -2219,6 +2219,10 @@ function MsgForwardAsInline(event) {
   composeMsgByType(Ci.nsIMsgCompType.ForwardInline, event);
 }
 
+function MsgRedirectMessage(event) {
+  composeMsgByType(Ci.nsIMsgCompType.Redirect, event);
+}
+
 function MsgEditMessageAsNew(aEvent) {
   composeMsgByType(Ci.nsIMsgCompType.EditAsNew, aEvent);
 }

@@ -558,6 +558,7 @@ var stateListener = {
         this.NotifyComposeBodyReadyReply();
         break;
 
+      case Ci.nsIMsgCompType.Redirect:
       case Ci.nsIMsgCompType.ForwardInline:
         this.NotifyComposeBodyReadyForwardInline();
         break;
@@ -567,7 +568,6 @@ var stateListener = {
         break;
       case Ci.nsIMsgCompType.Draft:
       case Ci.nsIMsgCompType.Template:
-      case Ci.nsIMsgCompType.Redirect:
       case Ci.nsIMsgCompType.EditAsNew:
         break;
 
@@ -3590,29 +3590,38 @@ function ComposeStartup(aParams) {
 
   gComposeType = params.type;
 
-  // Detect correct identity when missing or mismatched.
-  // An identity with no email is likely not valid.
+  // Detect correct identity when missing or mismatched. An identity with no
+  // email is likely not valid.
   // When editing a draft, 'params.identity' is pre-populated with the identity
-  // that created the draft or the identity owning the draft folder for a "foreign",
-  // draft, see ComposeMessage() in mailCommands.js. We don't want the latter,
-  // so use the creator identity which could be null.
-  if (gComposeType == Ci.nsIMsgCompType.Draft) {
+  // that created the draft or the identity owning the draft folder for a
+  // "foreign" draft, see ComposeMessage() in mailCommands.js. We don't want the
+  // latter so use the creator identity which could be null.
+  // Only do this detection for drafts and templates.
+  // Redirect will have from set as the original sender and we don't want to
+  // warn about that.
+  if (
+    gComposeType == Ci.nsIMsgCompType.Draft ||
+    gComposeType == Ci.nsIMsgCompType.Template
+  ) {
     let creatorKey = params.composeFields.creatorIdentityKey;
     params.identity = creatorKey
       ? MailServices.accounts.getIdentity(creatorKey)
       : null;
   }
-  let from = [];
-  if (params.composeFields.from) {
-    from = MailServices.headerParser.parseEncodedHeader(
+
+  let from = null;
+  // Get the from address from the headers. For Redirect, from is set to
+  // the original author, so don't look at it here.
+  if (params.composeFields.from && gComposeType != Ci.nsIMsgCompType.Redirect) {
+    let fromAddrs = MailServices.headerParser.parseEncodedHeader(
       params.composeFields.from,
       null
     );
+    if (fromAddrs.length) {
+      from = fromAddrs[0].email.toLowerCase();
+    }
   }
-  from =
-    from.length && from[0] && from[0].email
-      ? from[0].email.toLowerCase().trim()
-      : null;
+
   if (
     !params.identity ||
     !params.identity.email ||
@@ -3665,10 +3674,12 @@ function ComposeStartup(aParams) {
     }
   }
 
-  identityList.selectedItem = identityList.getElementsByAttribute(
-    "identitykey",
-    params.identity.key
-  )[0];
+  if (params.identity) {
+    identityList.selectedItem = identityList.getElementsByAttribute(
+      "identitykey",
+      params.identity.key
+    )[0];
+  }
 
   // Here we set the From from the original message, be it a draft or another
   // message, for example a template, we want to "edit as new".

@@ -161,6 +161,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   if (
     [
       Ci.nsIMsgCompType.ForwardInline,
+      Ci.nsIMsgCompType.Redirect,
       Ci.nsIMsgCompType.EditAsNew,
       Ci.nsIMsgCompType.Template,
     ].includes(type)
@@ -289,7 +290,6 @@ async function getComposeDetails(composeWindow, extension) {
     case Ci.nsIMsgCompType.MailToUrl:
     case Ci.nsIMsgCompType.EditAsNew:
     case Ci.nsIMsgCompType.EditTemplate:
-    case Ci.nsIMsgCompType.Redirect:
     case Ci.nsIMsgCompType.NewsPost:
       type = "new";
       break;
@@ -305,6 +305,9 @@ async function getComposeDetails(composeWindow, extension) {
     case Ci.nsIMsgCompType.ForwardAsAttachment:
     case Ci.nsIMsgCompType.ForwardInline:
       type = "forward";
+      break;
+    case Ci.nsIMsgCompType.Redirect:
+      type = "redirect";
       break;
   }
 

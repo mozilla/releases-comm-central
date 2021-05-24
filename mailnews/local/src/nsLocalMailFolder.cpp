@@ -1043,6 +1043,9 @@ nsMsgLocalMailFolder::AddMessageDispositionState(
     case nsIMsgFolder::nsMsgDispositionState_Forwarded:
       msgFlag = nsMsgMessageFlags::Forwarded;
       break;
+    case nsIMsgFolder::nsMsgDispositionState_Redirected:
+      msgFlag = nsMsgMessageFlags::Redirected;
+      break;
     default:
       return NS_ERROR_UNEXPECTED;
   }

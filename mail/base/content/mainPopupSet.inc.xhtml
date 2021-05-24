@@ -222,6 +222,9 @@
               label="&contextMultiForwardAsAttachment.label;"
               accesskey="&contextMultiForwardAsAttachment.accesskey;"
               oncommand="MsgForwardAsAttachment(event);"/>
+    <menuitem id="mailContext-redirect"
+              data-l10n-id="context-menu-redirect-msg"
+              oncommand="MsgRedirectMessage(event);"/>
     <!-- The following item (mailContext-editAsNew) is not hooked to its command
          because we need to enable it even in some cases there is no real
          selected message yet, only a rightclick on a message. -->

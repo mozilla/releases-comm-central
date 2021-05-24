@@ -49,6 +49,10 @@
   list-style-image: url("chrome://messenger/skin/icons/forward.svg");
 }
 
+#button-redirect {
+  list-style-image: url("chrome://messenger/skin/icons/redirect.svg");
+}
+
 .delete-button {
   list-style-image: url("chrome://messenger/skin/icons/delete.svg");
 }

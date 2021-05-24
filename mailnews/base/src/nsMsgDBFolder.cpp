@@ -1297,6 +1297,8 @@ nsMsgDBFolder::AddMessageDispositionState(
     mDatabase->MarkReplied(msgKey, true, nullptr);
   else if (aDispositionFlag == nsIMsgFolder::nsMsgDispositionState_Forwarded)
     mDatabase->MarkForwarded(msgKey, true, nullptr);
+  else if (aDispositionFlag == nsIMsgFolder::nsMsgDispositionState_Redirected)
+    mDatabase->MarkRedirected(msgKey, true, nullptr);
   return NS_OK;
 }
 

@@ -64,6 +64,10 @@ add_task(function setupModule(module) {
   identity2.email = myEmail2;
   account.addIdentity(identity2);
 
+  registerCleanupFunction(() => {
+    MailServices.accounts.removeAccount(account, true);
+  });
+
   // Let's add messages to the folder later as we go, it's hard to read
   // out of context what the expected results should be.
 });

@@ -1569,6 +1569,8 @@ nsresult nsMsgCompose::CreateMessage(const char* originalMsgURI,
             mDraftDisposition = nsIMsgFolder::nsMsgDispositionState_Replied;
           else if (queuedDisposition.EqualsLiteral("forward"))
             mDraftDisposition = nsIMsgFolder::nsMsgDispositionState_Forwarded;
+          else if (queuedDisposition.EqualsLiteral("redirected"))
+            mDraftDisposition = nsIMsgFolder::nsMsgDispositionState_Redirected;
         }
       }
     } else {
@@ -1851,6 +1853,26 @@ nsresult nsMsgCompose::CreateMessage(const char* originalMsgURI,
           m_compFields->SetBcc(empty);
           m_compFields->SetNewsgroups(empty);
           m_compFields->SetFollowupTo(empty);
+
+          // Add the redirected message in the references so that threading
+          // will work when the new recipient eventually replies to the
+          // original sender.
+          nsAutoCString messageId;
+          msgHdr->GetMessageId(getter_Copies(messageId));
+          if (isFirstPass) {
+            nsAutoCString reference;
+            reference.Append('<');
+            reference.Append(messageId);
+            reference.Append('>');
+            m_compFields->SetReferences(reference.get());
+          } else {
+            nsAutoCString references;
+            m_compFields->GetReferences(getter_Copies(references));
+            references.AppendLiteral(" <");
+            references.Append(messageId);
+            references.Append('>');
+            m_compFields->SetReferences(references.get());
+          }
           break;
         }
       }
@@ -2840,6 +2862,8 @@ NS_IMETHODIMP nsMsgCompose::RememberQueuedDisposition() {
   } else if (mType == nsIMsgCompType::ForwardAsAttachment ||
              mType == nsIMsgCompType::ForwardInline) {
     dispositionSetting.AssignLiteral("forwarded");
+  } else if (mType == nsIMsgCompType::Redirect) {
+    dispositionSetting.AssignLiteral("redirected");
   } else if (mType == nsIMsgCompType::Draft) {
     nsAutoCString curDraftIdURL;
     rv = m_compFields->GetDraftId(getter_Copies(curDraftIdURL));
@@ -2917,6 +2941,7 @@ nsresult nsMsgCompose::ProcessReplyFlags() {
       mType == nsIMsgCompType::ReplyToSenderAndGroup ||
       mType == nsIMsgCompType::ForwardAsAttachment ||
       mType == nsIMsgCompType::ForwardInline ||
+      mType == nsIMsgCompType::Redirect ||
       mDraftDisposition != nsIMsgFolder::nsMsgDispositionState_None) {
     if (!mOriginalMsgURI.IsEmpty()) {
       nsCString msgUri(mOriginalMsgURI);
@@ -2941,6 +2966,9 @@ nsresult nsMsgCompose::ProcessReplyFlags() {
                      mType == nsIMsgCompType::ForwardInline)
               dispositionSetting =
                   nsIMsgFolder::nsMsgDispositionState_Forwarded;
+            else if (mType == nsIMsgCompType::Redirect)
+              dispositionSetting =
+                  nsIMsgFolder::nsMsgDispositionState_Redirected;
 
             msgFolder->AddMessageDispositionState(msgHdr, dispositionSetting);
             if (mType != nsIMsgCompType::ForwardAsAttachment)

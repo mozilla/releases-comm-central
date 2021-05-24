@@ -122,6 +122,7 @@ class nsMsgDBView : public nsIMsgDBView,
   static char16_t* kReadString;
   static char16_t* kRepliedString;
   static char16_t* kForwardedString;
+  static char16_t* kRedirectedString;
   static char16_t* kNewString;
 
   RefPtr<mozilla::dom::XULTreeElement> mTree;

@@ -1044,6 +1044,7 @@ var MessageWindowController = {
       case "button_forward":
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
+      case "cmd_redirect":
       case "cmd_editAsNew":
       case "cmd_editDraftMsg":
       case "cmd_newMsgFromTemplate":
@@ -1135,6 +1136,7 @@ var MessageWindowController = {
       case "button_forward":
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
+      case "cmd_redirect":
       case "cmd_editAsNew":
       case "cmd_editDraftMsg":
       case "cmd_newMsgFromTemplate":
@@ -1310,6 +1312,9 @@ var MessageWindowController = {
         break;
       case "cmd_forwardAttachment":
         MsgForwardAsAttachment(null);
+        break;
+      case "cmd_redirect":
+        MsgRedirectMessage(null);
         break;
       case "cmd_editAsNew":
         MsgEditMessageAsNew(null);

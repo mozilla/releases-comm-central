@@ -159,6 +159,10 @@
                                                    class="toolbarbutton-1 msgHeaderView-button">
                                       <menupopup id="otherActionsPopup"
                                                  onpopupshowing="onShowOtherActionsPopup();">
+                                        <menuitem id="otherActionsRedirect"
+                                                  data-l10n-id="other-action-redirect-msg"
+                                                  oncommand="MsgRedirectMessage();"/>
+                                        <menuseparator id="otherActionsComposeSeparator"/>
 #ifdef MAIN_WINDOW
                                         <menuitem id="otherActionsOpenConversation"
                                                   label="&otherActionsOpenConversation1.label;"

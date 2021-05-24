@@ -119,6 +119,7 @@
             "enum": [
               "draft",
               "new",
+              "redirect",
               "reply",
               "forward"
             ],

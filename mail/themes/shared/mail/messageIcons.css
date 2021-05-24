@@ -237,18 +237,41 @@ treechildren::-moz-tree-image(subjectCol) {
   height: 16px;
 }
 
-treechildren::-moz-tree-image(subjectCol, forwarded) {
-  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
-  fill: #268be0;
-}
-
 treechildren::-moz-tree-image(subjectCol, replied) {
   list-style-image: url("chrome://messenger/skin/icons/reply.svg");
   fill: #9c5ccc;
 }
 
+treechildren::-moz-tree-image(subjectCol, forwarded) {
+  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
+  fill: #268be0;
+}
+
+treechildren::-moz-tree-image(subjectCol, redirected) {
+  list-style-image: url("chrome://messenger/skin/icons/redirect.svg");
+  fill: #268be0;
+}
+
 treechildren::-moz-tree-image(subjectCol, replied, forwarded) {
   list-style-image: url("chrome://messenger/skin/icons/reply-forward.svg");
+  fill: #268be0;
+  stroke: #9c5ccc;
+}
+
+treechildren::-moz-tree-image(subjectCol, replied, redirected) {
+  list-style-image: url("chrome://messenger/skin/icons/reply-redirect.svg");
+  fill: #f68a16;
+  stroke: #9c5ccc;
+}
+
+treechildren::-moz-tree-image(subjectCol, forwarded, redirected) {
+  list-style-image: url("chrome://messenger/skin/icons/forward-redirect.svg");
+  fill: #268be0;
+  stroke: #f68a16;
+}
+
+treechildren::-moz-tree-image(subjectCol, replied, forwarded, redirected) {
+  list-style-image: url("chrome://messenger/skin/icons/reply-forward-redirect.svg");
   fill: #268be0;
   stroke: #9c5ccc;
 }
