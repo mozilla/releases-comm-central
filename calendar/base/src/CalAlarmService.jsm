@@ -527,7 +527,10 @@ CalAlarmService.prototype = {
    * @param {calIItemBase} item - A calendar item instance.
    */
   removeNotificationForItem(item) {
-    if (!this.mNotificationTimerMap[item.calendar.id]) {
+    if (
+      !this.mNotificationTimerMap[item.calendar.id] ||
+      !this.mNotificationTimerMap[item.calendar.id][item.hashId]
+    ) {
       return;
     }
 
