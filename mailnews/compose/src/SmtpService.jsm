@@ -55,6 +55,10 @@ SmtpService.prototype = {
     return null;
   },
 
+  set defaultServer(server) {
+    Services.prefs.setCharPref("mail.smtp.defaultserver", server.key);
+  },
+
   get servers() {
     this._loadSmtpServers();
     return this._servers;

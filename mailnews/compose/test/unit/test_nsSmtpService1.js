@@ -104,6 +104,13 @@ function run_test() {
     );
   }
 
+  smtpService.defaultServer = smtpServerArray[2];
+  Assert.equal(
+    smtpService.defaultServer,
+    smtpServerArray[2],
+    "Default server should be correctly set"
+  );
+
   // Test - Delete the servers
 
   for (i = 0; i < 3; ++i) {
