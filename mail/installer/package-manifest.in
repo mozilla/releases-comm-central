@@ -371,18 +371,14 @@
 
 @RESPATH@/components/l10n-registry.manifest
 
-; CDP remote agent
+; WebDriver (Marionette, Remote Agent) remote protocols
 #ifdef ENABLE_WEBDRIVER
-@RESPATH@/chrome/remote@JAREXT@
-@RESPATH@/chrome/remote.manifest
-#endif
-
-; Remote control protocol
-#ifdef ENABLE_MARIONETTE
 @RESPATH@/chrome/marionette@JAREXT@
 @RESPATH@/chrome/marionette.manifest
 @RESPATH@/components/marionette.manifest
 @RESPATH@/components/marionette.js
+@RESPATH@/chrome/remote@JAREXT@
+@RESPATH@/chrome/remote.manifest
 #endif
 
 #if defined(MOZ_DEBUG) || defined(NIGHTLY_BUILD)

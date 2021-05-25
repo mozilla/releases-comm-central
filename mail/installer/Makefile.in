@@ -209,6 +209,6 @@ package-compare:: $(MOZ_PKG_MANIFEST)
 make-sourcestamp-file::
 	$(PYTHON3) $(commtopsrcdir)/build/source_repos.py gen_sourcestamp > $(MOZ_SOURCESTAMP_FILE)
 
-ifdef ENABLE_MARIONETTE
-DEFINES += -DENABLE_MARIONETTE=1
+ifdef ENABLE_WEBDRIVER
+DEFINES += -DENABLE_WEBDRIVER=1
 endif
