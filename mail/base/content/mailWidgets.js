@@ -798,7 +798,6 @@
         <html:link rel="stylesheet" href="chrome://global/skin/menulist.css"/>
         <html:input part="text-input" type="text" allowevents="true"/>
         <hbox id="label-box" part="label-box" flex="1" role="none">
-          <image part="icon" role="none"/>
           <label id="label" part="label" crop="right" flex="1" role="none"/>
           <label id="highlightable-label" part="label" crop="right" flex="1" role="none"/>
         </hbox>
