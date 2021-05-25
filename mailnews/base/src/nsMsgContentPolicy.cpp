@@ -845,8 +845,29 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     NS_ENSURE_SUCCESS(rv, rv);
     rv = browsingContext->SetAllowContentRetargetingOnChildren(false);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = browsingContext->SetSandboxFlags(browsingContext->GetSandboxFlags() |
-                                          SANDBOXED_FORMS);
+    // NOTE! Do not set single sandboxing flags only. Sandboxing -  when used -
+    // starts off with all things sandboxed, and individual sandbox keywords
+    // will *allow* the specific feature.
+    // Disabling by setting single flags without starting off with all things
+    // sandboxed would the normal assumptions about sandboxing.
+    // The flags - contrary to the keywords - *prevent* a given feature.
+    uint32_t sandboxFlags = SANDBOX_ALL_FLAGS;
+
+    // Do not block links with target attribute from opening (at all).
+    // xref bug 421310 - we would like to prevent using target, but *handle*
+    // links like the target wasn't there.
+    sandboxFlags &= ~SANDBOXED_AUXILIARY_NAVIGATION;
+
+    // For some unexplicable reason, when SANDBOXED_ORIGIN is in affect, then
+    // images will not work with test --verify. So unset it.
+    sandboxFlags &= ~SANDBOXED_ORIGIN;
+
+    // Having both SANDBOXED_TOPLEVEL_NAVIGATION and
+    // SANDBOXED_TOPLEVEL_NAVIGATION_USER_ACTIVATION will generate a warning,
+    // see BothAllowTopNavigationAndUserActivationPresent. So unset it.
+    sandboxFlags &= ~SANDBOXED_TOPLEVEL_NAVIGATION_USER_ACTIVATION;
+
+    rv = browsingContext->SetSandboxFlags(sandboxFlags);
     NS_ENSURE_SUCCESS(rv, rv);
   } else {
     // JavaScript is allowed on non-message URLs.

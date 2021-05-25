@@ -47,7 +47,9 @@ add_task(async function test_invalid_data_uri() {
   wait_for_window_close();
 
   be_in_folder(gOutboxFolder);
+  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   let outMsg = select_click_row(0);
+  await msgLoaded;
   let outMsgContent = get_msg_source(outMsg);
 
   ok(
@@ -85,7 +87,9 @@ add_task(async function test_freeTextLink() {
   wait_for_window_close();
 
   be_in_folder(gOutboxFolder);
+  let msgLoaded = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
   let outMsg = select_click_row(0);
+  await msgLoaded;
   let outMsgContent = get_msg_source(outMsg);
 
   Assert.equal(

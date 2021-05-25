@@ -29,16 +29,23 @@ var { close_window } = ChromeUtils.import(
 
 var gImageFolder;
 
-add_task(function setupModule(module) {
+add_task(async function setup() {
   gImageFolder = create_folder("ImageFolder");
+  registerCleanupFunction(() => {
+    gImageFolder.deleteSelf(null);
+  });
 });
 
 /**
  * Check dimensions of the embedded image and whether it could be loaded.
  */
-function check_image_size(aController, aImage, aSrcStart) {
-  Assert.notEqual(null, aImage);
-  aController.waitFor(() => aImage.complete);
+async function check_image_size(aController, aImage, aSrcStart) {
+  Assert.notEqual(null, aImage, "should have a image");
+  await TestUtils.waitForCondition(
+    () => aImage.complete,
+    "waiting for image.complete"
+  );
+  //aController.waitFor(() => aImage.complete);
   // There should not be a cid: URL now.
   Assert.ok(!aImage.src.startsWith("cid:"));
   if (aSrcStart) {
@@ -90,7 +97,7 @@ add_task(async function test_cid_image_load() {
   let msgc = await open_message_from_file(file);
   let messageDoc = msgc.e("messagepane").contentDocument;
   let image = messageDoc.getElementById("cidImage");
-  check_image_size(msgc, image, "mailbox://");
+  await check_image_size(msgc, image, "mailbox://");
   image = messageDoc.getElementById("cidImageOrigin");
   check_image_size(msgc, image, "mailbox://");
 
@@ -109,7 +116,7 @@ add_task(async function test_cid_image_load() {
  * Bug 1352701 and bug 1360443
  * Test that showing an image with cid: URL in a HTML message in a folder with work.
  */
-add_task(function test_cid_image_view() {
+add_task(async function test_cid_image_view() {
   // Preview the message in the folder.
   be_in_folder(gImageFolder);
   let msg = select_click_row(0);
@@ -118,9 +125,9 @@ add_task(function test_cid_image_view() {
   // Check image in the preview.
   let messageDoc = mc.e("messagepane").contentDocument;
   let image = messageDoc.getElementById("cidImage");
-  check_image_size(mc, image, gImageFolder.server.localStoreType + "://");
+  await check_image_size(mc, image, gImageFolder.server.localStoreType + "://");
   image = messageDoc.getElementById("cidImageOrigin");
-  check_image_size(mc, image, gImageFolder.server.localStoreType + "://");
+  await check_image_size(mc, image, gImageFolder.server.localStoreType + "://");
 });
 
 /**
@@ -128,21 +135,26 @@ add_task(function test_cid_image_view() {
  * Test that showing an image with cid: URL in a HTML message will work
  * in a composition.
  */
-add_task(function test_cid_image_compose() {
+async function check_cid_image_compose(cwc) {
   // Our image should also be in composition when the message is forwarded/replied.
-  for (let msgOperation of [
-    open_compose_with_forward,
-    open_compose_with_reply,
-  ]) {
-    let cwc = msgOperation();
-    let image = cwc
-      .e("content-frame")
-      .contentDocument.getElementById("cidImage");
-    check_image_size(cwc, image, "data:");
-    image = cwc
-      .e("content-frame")
-      .contentDocument.getElementById("cidImageOrigin");
-    check_image_size(cwc, image, "data:");
-    close_compose_window(cwc);
-  }
+  let image = cwc.e("content-frame").contentDocument.getElementById("cidImage");
+  await check_image_size(cwc, image, "data:");
+  image = cwc
+    .e("content-frame")
+    .contentDocument.getElementById("cidImageOrigin");
+  await check_image_size(cwc, image, "data:");
+}
+
+add_task(async function test_cid_image_compose_fwd() {
+  // Our image should also be in composition when the message is forwarded.
+  let cwc = open_compose_with_forward();
+  await check_cid_image_compose(cwc);
+  close_compose_window(cwc);
+});
+
+add_task(async function test_cid_image_compose_re() {
+  // Our image should also be in composition when the message is replied.
+  let cwc = open_compose_with_reply();
+  await check_cid_image_compose(cwc);
+  close_compose_window(cwc);
 });
