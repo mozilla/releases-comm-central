@@ -511,14 +511,6 @@ var ResultsPaneController = {
       case "button_delete":
         AbDelete();
         break;
-      case "cmd_printpreview":
-        // cmd_printpreview is currently only used in SeaMonkey.
-        AbPrintPreviewCard();
-        break;
-      case "cmd_print":
-        // cmd_print is currently only used in SeaMonkey.
-        AbPrintCard();
-        break;
       case "cmd_properties":
         AbEditSelectedCard();
         break;

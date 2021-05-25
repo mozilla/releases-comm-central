@@ -1,5 +1,3 @@
-/* -*- Mode: javascript; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 2 ; js-indent-level: 2 -*- */
-/* vim: set ts=8 sts=2 et sw=2 tw=80: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -7,7 +5,8 @@
 /* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from abTrees.js */
-/* import-globals-from addressbook.js */
+/* global ResultsPaneSelectionChanged */ // addressbook.js and abContactsPanel.js have their own implementations.
+/* global onEnterInSearchBar */ // addressbook.js and abContactsPanel.js have their own implementations.
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -668,19 +667,6 @@ function GetAddressesForCards(cards) {
     .join(",");
 }
 
-function SelectFirstAddressBook() {
-  if (gDirTree.view.selection.currentIndex != 0) {
-    gDirTree.view.selection.select(0);
-    // If gPreviousDirTreeIndex == 0 then DirPaneSelectionChange() and
-    // ChangeDirectoryByURI() have already been run
-    // (e.g. by the onselect event on the tree) so skip the call.
-    if (gPreviousDirTreeIndex != 0) {
-      ChangeDirectoryByURI(getSelectedDirectoryURI());
-    }
-  }
-  gAbResultsTree.focus();
-}
-
 /**
  * Get the startup view directory from pref and select it in the
  * directory tree so that it gets shown.
@@ -754,7 +740,6 @@ function DirPaneSelectionChange() {
     gDirTree.view.selection &&
     gDirTree.view.selection.count == 1
   ) {
-    gPreviousDirTreeIndex = gDirTree.currentIndex; // eslint-disable-line no-global-assign
     ChangeDirectoryByURI(uri);
     document
       .getElementById("localResultsOnlyMessage")

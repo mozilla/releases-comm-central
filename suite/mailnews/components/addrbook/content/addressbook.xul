@@ -74,8 +74,8 @@
     <command id="cmd_newMessage" oncommand="AbNewMessage();"/>
     <command id="cmd_newim" oncommand="AbIMSelected()"/>
     <command id="cmd_printSetup" oncommand="PrintUtils.showPageSetup()"/>
-    <command id="cmd_print" oncommand="goDoCommand('cmd_print');"/>
-    <command id="cmd_printpreview" oncommand="goDoCommand('cmd_printpreview');"/>
+    <command id="cmd_print" oncommand="AbPrintCard();"/>
+    <command id="cmd_printpreview" oncommand="AbPrintPreviewCard();"/>
     <command id="cmd_printcard" oncommand="AbPrintCard()"/>
     <command id="cmd_printcardpreview" oncommand="AbPrintPreviewCard()"/>
     <command id="cmd_printAddressBook" oncommand="AbPrintAddressBook()"/>
