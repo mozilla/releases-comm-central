@@ -511,13 +511,14 @@ MailGlue.prototype = {
       // Request startup of Chromium remote debugging protocol (observer will
       // only be notified when --remote-debugging-port is passed).
       {
-        condition: AppConstants.ENABLE_REMOTE_AGENT,
+        condition: AppConstants.ENABLE_WEBDRIVER,
         task: () => {
           Services.obs.notifyObservers(null, "remote-startup-requested");
         },
       },
 
-      // Marionette needs to be initialized as very last step.
+      // WebDriver components (Remote Agent and Marionette) need to be
+      // initialized as very last step.
       {
         task: () => {
           // Use idleDispatch a second time to run this after the per-window

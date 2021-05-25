@@ -1067,7 +1067,7 @@ var snapshotFormatters = {
   },
 
   remoteAgent(data) {
-    if (!AppConstants.ENABLE_REMOTE_AGENT) {
+    if (!AppConstants.ENABLE_WEBDRIVER) {
       return;
     }
     $("remote-debugging-accepting-connections").textContent = data.listening;

@@ -372,7 +372,7 @@
 @RESPATH@/components/l10n-registry.manifest
 
 ; CDP remote agent
-#ifdef ENABLE_REMOTE_AGENT
+#ifdef ENABLE_WEBDRIVER
 @RESPATH@/chrome/remote@JAREXT@
 @RESPATH@/chrome/remote.manifest
 #endif
