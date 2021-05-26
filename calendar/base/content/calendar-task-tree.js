@@ -130,7 +130,7 @@
                      src="chrome://messenger/skin/icons/checkbox.svg"
                      label="&calendar.unifinder.tree.done.label;"
                      tooltiptext="&calendar.unifinder.tree.done.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 2;"/>
+            <splitter class="tree-splitter"/>
             <treecol is="treecol-image" id="calendar-task-tree-col-priority"
                      class="calendar-task-tree-col-priority"
                      minwidth="17"
@@ -139,63 +139,63 @@
                      src="chrome://calendar/skin/shared/icons/priority.svg"
                      label="&calendar.unifinder.tree.priority.label;"
                      tooltiptext="&calendar.unifinder.tree.priority.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 4;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-title"
                      itemproperty="title"
                      flex="1"
                      label="&calendar.unifinder.tree.title.label;"
                      tooltiptext="&calendar.unifinder.tree.title.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 6;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-entrydate"
                      itemproperty="entryDate"
                      flex="1"
                      label="&calendar.unifinder.tree.startdate.label;"
                      tooltiptext="&calendar.unifinder.tree.startdate.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 8;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-duedate"
                      itemproperty="dueDate"
                      flex="1"
                      label="&calendar.unifinder.tree.duedate.label;"
                      tooltiptext="&calendar.unifinder.tree.duedate.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 10;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-duration"
                      itemproperty="duration"
                      sortKey="dueDate"
                      flex="1"
                      label="&calendar.unifinder.tree.duration.label;"
                      tooltiptext="&calendar.unifinder.tree.duration.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 12;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-completeddate"
                      itemproperty="completedDate"
                      flex="1"
                      label="&calendar.unifinder.tree.completeddate.label;"
                      tooltiptext="&calendar.unifinder.tree.completeddate.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 14;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-percentcomplete"
                      itemproperty="percentComplete"
                      flex="1"
                      minwidth="40"
                      label="&calendar.unifinder.tree.percentcomplete.label;"
                      tooltiptext="&calendar.unifinder.tree.percentcomplete.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 16;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-categories"
                      itemproperty="categories"
                      flex="1"
                      label="&calendar.unifinder.tree.categories.label;"
                      tooltiptext="&calendar.unifinder.tree.categories.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 18;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-location"
                      itemproperty="location"
                      flex="1"
                      label="&calendar.unifinder.tree.location.label;"
                      tooltiptext="&calendar.unifinder.tree.location.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 20;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-status"
                      itemproperty="status"
                      flex="1"
                      label="&calendar.unifinder.tree.status.label;"
                      tooltiptext="&calendar.unifinder.tree.status.tooltip2;"/>
-            <splitter class="tree-splitter" style="-moz-box-ordinal-group: 22;"/>
+            <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-calendar"
                      itemproperty="calendar"
                      flex="1"
