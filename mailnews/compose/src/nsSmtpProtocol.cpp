@@ -1389,7 +1389,7 @@ nsresult nsSmtpProtocol::AuthGSSAPIFirst() {
           ("SMTP: GSSAPI step 1 for user %s at server %s, service %s",
            userName.get(), hostName.get(), service.get()));
 
-  rv = DoGSSAPIStep1(service.get(), userName.get(), resp);
+  rv = DoGSSAPIStep1(service, userName.get(), resp);
   if (NS_FAILED(rv)) {
     MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Error,
             ("SMTP: GSSAPI step 1 failed early"));

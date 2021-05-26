@@ -18,9 +18,9 @@ nsMailAuthModule::~nsMailAuthModule() {}
  * A simple wrap of CreateInstance and Init of nsIAuthModule.
  */
 NS_IMETHODIMP
-nsMailAuthModule::Init(const char* type, const char* serviceName,
-                       uint32_t serviceFlags, const char16_t* domain,
-                       const char16_t* username, const char16_t* password) {
+nsMailAuthModule::Init(const char* type, const nsACString& serviceName,
+                       uint32_t serviceFlags, const nsAString& domain,
+                       const nsAString& username, const nsAString& password) {
   mAuthModule = nsIAuthModule::CreateInstance(type);
   return mAuthModule->Init(serviceName, serviceFlags, domain, username,
                            password);

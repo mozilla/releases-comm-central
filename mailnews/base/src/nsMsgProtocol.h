@@ -130,7 +130,7 @@ class nsMsgProtocol : public nsIStreamListener,
                        nsCString& response);
   nsresult DoNtlmStep2(nsCString& commandResponse, nsCString& response);
 
-  nsresult DoGSSAPIStep1(const char* service, const char* username,
+  nsresult DoGSSAPIStep1(const nsACString& service, const char* username,
                          nsCString& response);
   nsresult DoGSSAPIStep2(nsCString& commandResponse, nsCString& response);
   // Output stream for writing commands to the socket
