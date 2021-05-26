@@ -188,19 +188,24 @@ async function test_identity_idx(idx) {
 
   let identity = gPopAccount.identities[idx];
   Assert.ok(!!identity, "identity #1 should be set");
+  let keyId = identity.getCharAttribute("openpgp_key_id");
 
   // The e2e tab should now be shown.
-  Assert.ok(!identityWin.document.getElementById("identityE2ETab").hidden);
+  Assert.ok(
+    !identityWin.document.getElementById("identityE2ETab").hidden,
+    "e2e tab should show"
+  );
+  // Click the e2e tab to switch to it (for further clicks below).
   EventUtils.synthesizeMouseAtCenter(
     identityWin.document.getElementById("identityE2ETab"),
     {},
-    gIdentitiesWin
+    identityWin
   );
 
   Assert.equal(
     identityWin.document.getElementById("openPgpKeyListRadio").value,
-    identity.getCharAttribute("openpgp_key_id"),
-    "Key should be correct"
+    keyId,
+    "keyId should be correct"
   );
 
   Assert.equal(
@@ -210,6 +215,30 @@ async function test_identity_idx(idx) {
     1,
     "Should have exactly one key selected (can be None)"
   );
+
+  if (keyId) {
+    // Click "More information", then "Key Properties" to see that the key
+    // properties dialog opens.
+    let keyDetailsDialogLoaded = promiseLoadSubDialog(
+      "chrome://openpgp/content/ui/keyDetailsDlg.xhtml"
+    );
+    info(`Will open key details dialog for key 0x${keyId}`);
+    EventUtils.synthesizeMouseAtCenter(
+      identityWin.document.querySelector(
+        `#openPgpOption${keyId} button.arrowhead`
+      ),
+      {},
+      identityWin
+    );
+    let propsButton = identityWin.document.querySelector(
+      `#openPgpOption${keyId} button.openpgp-props-btn`
+    );
+    propsButton.scrollIntoView(); // Test window is small on CI...
+    EventUtils.synthesizeMouseAtCenter(propsButton, {}, identityWin);
+    let keyDetailsDialog = await keyDetailsDialogLoaded;
+    info(`Key details dialog for key 0x${keyId} loaded`);
+    keyDetailsDialog.close();
+  }
 
   Assert.equal(
     identityWin.document.getElementById("encryptionChoices").value,
