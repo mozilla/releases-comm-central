@@ -11,7 +11,7 @@
 /*global UpdateAttachmentBucket: false, gContentChanged: true */
 /*global AddAttachments: false, AddAttachment: false, ChangeAttachmentBucketVisibility: false, GetResourceFromUri: false */
 /*global Recipients2CompFields: false, Attachments2CompFields: false, DetermineConvertibility: false, gWindowLocked: false */
-/*global CommandUpdate_MsgCompose: false, setSecuritySettings: false, getCurrentAccountKey: false */
+/*global CommandUpdate_MsgCompose: false, gSMFields: false, setSecuritySettings: false, getCurrentAccountKey: false */
 /*global Sendlater3Composing: false, gCurrentIdentity: false, showMessageComposeSecurityStatus: false */
 /*global gSendEncrypted: true, gOptionalEncryption: true, gSendSigned: true, gSelectedTechnologyIsPGP: true */
 /*global gIsRelatedToEncryptedOriginal: true, gIsRelatedToSignedOriginal: true, gAttachMyPublicPGPKey: true */
@@ -1080,10 +1080,10 @@ Enigmail.msg = {
 
 
     // ------ 2. Process S/MIME status  ------
-    if (gMsgCompose.compFields.composeSecure) {
+    if (gSMFields) {
 
-        //gMsgCompose.compFields.composeSecure.requireEncryptMessage = false;
-        //gMsgCompose.compFields.composeSecure.signMessage = false;
+        //gSMFields.requireEncryptMessage = false;
+        //gSMFields.signMessage = false;
 
         if (!encryptSmime) {
           if (autoSendEncrypted === 1) {
@@ -1095,8 +1095,8 @@ Enigmail.msg = {
             }
           }
         }
-        //gMsgCompose.compFields.composeSecure.requireEncryptMessage = true;
-        //gMsgCompose.compFields.composeSecure.signMessage = true;
+        //gSMFields.requireEncryptMessage = true;
+        //gSMFields.signMessage = true;
 
       // smime policy
       //if (this.identity.getIntAttribute("encryptionpolicy") > 0)
@@ -1569,10 +1569,10 @@ Enigmail.msg = {
         }
     }
 
-    gMsgCompose.compFields.composeSecure.signMessage = (sendFlags & EnigmailConstants.SEND_SIGNED ? true : false);
-    gMsgCompose.compFields.composeSecure.requireEncryptMessage = (sendFlags & EnigmailConstants.SEND_ENCRYPTED ? true : false);
+    gSMFields.signMessage = (sendFlags & EnigmailConstants.SEND_SIGNED ? true : false);
+    gSMFields.requireEncryptMessage = (sendFlags & EnigmailConstants.SEND_ENCRYPTED ? true : false);
 
-    Enigmail.msg.setSecurityParams(gMsgCompose.compFields.composeSecure);
+    Enigmail.msg.setSecurityParams(gSMFields);
 
     let conf = this.isSendConfirmationRequired(sendFlags);
 
@@ -3071,12 +3071,8 @@ Enigmail.composeStateListener = {
     }
 
     // ensure that securityInfo is set back to S/MIME flags (especially required if draft was saved)
-    if (
-      gMsgCompose &&
-      gMsgCompose.compFields &&
-      gMsgCompose.compFields.composeSecure
-    ) {
-      Enigmail.msg.setSecurityParams(gMsgCompose.compFields.composeSecure);
+    if (gSMFields) {
+      Enigmail.msg.setSecurityParams(gSMFields);
     }
   },
 

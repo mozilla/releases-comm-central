@@ -106,6 +106,14 @@ var gRecipientObserver;
 var gCheckPublicRecipientsTimer;
 var gBodyFromArgs;
 
+// gSMFields is the nsIMsgComposeSecure instance for S/MIME.
+// gMsgCompose.compFields.composeSecure is set to this instance most of
+// the time. Because the S/MIME code has no knowledge of the OpenPGP
+// implementation, gMsgCompose.compFields.composeSecure is set to an
+// instance of PgpMimeEncrypt only temporarily. Keeping variable
+// gSMFields separate allows switching as needed.
+var gSMFields = null;
+
 var gSelectedTechnologyIsPGP = false;
 
 // The initial flags store the value we used at composer open time.
@@ -1873,9 +1881,7 @@ function showMessageComposeSecurityStatus() {
       }
     );
   } else {
-    // gSendEncrypted and gSendSigned keep track of the status before sending.
-    // CompleteGenericSendMessage will set them on composeSecure. Do that here
-    // as well so that the right security info is shown.
+    // Copy current flags to S/MIME composeSecure object.
     gMsgCompose.compFields.composeSecure.requireEncryptMessage = gSendEncrypted;
     gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
     window.openDialog(
@@ -4050,9 +4056,9 @@ function adjustSignEncryptAfterIdentityChanged(prevIdentity) {
     }
   }
 
-  if (gMsgCompose.compFields.composeSecure && !gSelectedTechnologyIsPGP) {
-    gMsgCompose.compFields.composeSecure.requireEncryptMessage = gSendEncrypted;
-    gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
+  if (gSMFields && !gSelectedTechnologyIsPGP) {
+    gSMFields.requireEncryptMessage = gSendEncrypted;
+    gSMFields.signMessage = gSendSigned;
   }
 
   setEncSigStatusUI();
@@ -4172,9 +4178,13 @@ function ComposeLoad() {
   }
 
   top.controllers.appendController(SecurityController);
-  gMsgCompose.compFields.composeSecure = Cc[
+  gMsgCompose.compFields.composeSecure = null;
+  gSMFields = Cc[
     "@mozilla.org/messengercompose/composesecure;1"
   ].createInstance(Ci.nsIMsgComposeSecure);
+  if (gSMFields) {
+    gMsgCompose.compFields.composeSecure = gSMFields;
+  }
 
   adjustSignEncryptAfterIdentityChanged(null);
 
