@@ -827,7 +827,8 @@ nsresult nsMsgProtocol::PostMessage(nsIURI* url, nsIFile* postFile) {
   return NS_OK;
 }
 
-nsresult nsMsgProtocol::DoGSSAPIStep1(const char* service, const char* username,
+nsresult nsMsgProtocol::DoGSSAPIStep1(const nsACString& service,
+                                      const char* username,
                                       nsCString& response) {
   nsresult rv;
 #ifdef DEBUG_BenB
@@ -837,8 +838,8 @@ nsresult nsMsgProtocol::DoGSSAPIStep1(const char* service, const char* username,
   // if this fails, then it means that we cannot do GSSAPI SASL.
   m_authModule = nsIAuthModule::CreateInstance("sasl-gssapi");
 
-  m_authModule->Init(service, nsIAuthModule::REQ_DEFAULT, nullptr,
-                     NS_ConvertUTF8toUTF16(username).get(), nullptr);
+  m_authModule->Init(service, nsIAuthModule::REQ_DEFAULT, u""_ns,
+                     NS_ConvertUTF8toUTF16(username), u""_ns);
 
   void* outBuf;
   uint32_t outBufLen;
@@ -924,8 +925,8 @@ nsresult nsMsgProtocol::DoNtlmStep1(const nsACString& username,
 
   m_authModule = nsIAuthModule::CreateInstance("ntlm");
 
-  m_authModule->Init(nullptr, 0, nullptr, NS_ConvertUTF8toUTF16(username).get(),
-                     PromiseFlatString(password).get());
+  m_authModule->Init(""_ns, 0, u""_ns, NS_ConvertUTF8toUTF16(username),
+                     PromiseFlatString(password));
 
   void* outBuf;
   uint32_t outBufLen;

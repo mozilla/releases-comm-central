@@ -2011,7 +2011,7 @@ int32_t nsPop3Protocol::AuthGSSAPI() {
     nsresult rv;
     server->GetRealHostName(hostName);
     service.Append(hostName);
-    rv = DoGSSAPIStep1(service.get(), m_username.get(), cmd);
+    rv = DoGSSAPIStep1(service, m_username.get(), cmd);
     if (NS_SUCCEEDED(rv)) {
       m_GSSAPICache.Assign(cmd);
       m_pop3ConData->next_state_after_response = POP3_AUTH_GSSAPI_FIRST;

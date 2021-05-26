@@ -23,11 +23,11 @@ interface nsIMailAuthModule : nsISupports {
      * is passed to CreateInstance, other arguments are passed to Init.
      */
     void init(in string        aType,
-              in string        aServiceName,
+              in ACString      aServiceName,
               in unsigned long aServiceFlags,
-              in wstring       aDomain,
-              in wstring       aUsername,
-              in wstring       aPassword);
+              in AString       aDomain,
+              in AString       aUsername,
+              in AString       aPassword);
 
     /**
      * Get the next token in a sequence of authentication steps.

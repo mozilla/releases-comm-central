@@ -241,9 +241,8 @@ nsLDAPOperation::SaslBind(const nsACString& service,
   rv = mConnection->GetBindName(bindName);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  mAuthModule->Init(PromiseFlatCString(service).get(),
-                    nsIAuthModule::REQ_DEFAULT, nullptr,
-                    NS_ConvertUTF8toUTF16(bindName).get(), nullptr);
+  mAuthModule->Init(service, nsIAuthModule::REQ_DEFAULT, u""_ns,
+                    NS_ConvertUTF8toUTF16(bindName), u""_ns);
 
   uint8_t* credData = nullptr;
   unsigned int credLen;
