@@ -49,10 +49,14 @@ add_task(async function test_plain() {
           '"Andy Anway" <andy@anway.invalid>',
           message.author
         );
-        browser.test.assertEq(
-          "Bob Bell <bob@bell.invalid>",
-          message.recipients[0]
-        );
+
+        // The msgHdr of NNTP messages have no recipients.
+        if (account.type != "nntp") {
+          browser.test.assertEq(
+            "Bob Bell <bob@bell.invalid>",
+            message.recipients[0]
+          );
+        }
 
         // From andy@anway.invalid
         // Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -66,18 +70,19 @@ add_task(async function test_plain() {
         //
 
         let rawMessage = await browser.messages.getRaw(message.id);
-        browser.test.log(rawMessage);
+        // Fold Windows line-endings \r\n to \n.
+        rawMessage = rawMessage.replace(/\r/g, "");
         browser.test.assertEq("string", typeof rawMessage);
         browser.test.assertTrue(
-          rawMessage.includes("Subject: Big Meeting Today\r\n")
+          rawMessage.includes("Subject: Big Meeting Today\n")
         );
         browser.test.assertTrue(
-          rawMessage.includes('From: "Andy Anway" <andy@anway.invalid>\r\n')
+          rawMessage.includes('From: "Andy Anway" <andy@anway.invalid>\n')
         );
         browser.test.assertTrue(
-          rawMessage.includes('To: "Bob Bell" <bob@bell.invalid>\r\n')
+          rawMessage.includes('To: "Bob Bell" <bob@bell.invalid>\n')
         );
-        browser.test.assertTrue(rawMessage.includes("Hello Bob Bell!\r\n"));
+        browser.test.assertTrue(rawMessage.includes("Hello Bob Bell!\n"));
 
         // {
         //   "contentType": "message/rfc822",
@@ -155,168 +160,173 @@ add_task(async function test_plain() {
   cleanUpAccount(_account);
 });
 
-add_task(async function test_openpgp() {
-  let _account = createAccount();
-  let _identity = addIdentity(_account);
-  let _folder = await createSubfolder(
-    _account.incomingServer.rootFolder,
-    "test1"
-  );
+add_task(
+  {
+    skip_if: () => IS_NNTP,
+  },
+  async function test_openpgp() {
+    let _account = createAccount();
+    let _identity = addIdentity(_account);
+    let _folder = await createSubfolder(
+      _account.incomingServer.rootFolder,
+      "test1"
+    );
 
-  // Load an encrypted message.
+    // Load an encrypted message.
 
-  let messagePath = PathUtils.join(
-    OPENPGP_TEST_DIR.path,
-    "data",
-    "eml",
-    "unsigned-encrypted-to-0xf231550c4f47e38e-from-0xfbfcc82a015e7330.eml"
-  );
-  await createMessageFromFile(_folder, messagePath);
+    let messagePath = PathUtils.join(
+      OPENPGP_TEST_DIR.path,
+      "data",
+      "eml",
+      "unsigned-encrypted-to-0xf231550c4f47e38e-from-0xfbfcc82a015e7330.eml"
+    );
+    await createMessageFromFile(_folder, messagePath);
 
-  let extension = ExtensionTestUtils.loadExtension({
-    files: {
-      "background.js": async () => {
-        let [account] = await browser.accounts.list();
-        let folder = account.folders.find(f => f.name == "test1");
+    let extension = ExtensionTestUtils.loadExtension({
+      files: {
+        "background.js": async () => {
+          let [account] = await browser.accounts.list();
+          let folder = account.folders.find(f => f.name == "test1");
 
-        // Read the message, without the key set up. The headers should be
-        // readable, but not the message itself.
+          // Read the message, without the key set up. The headers should be
+          // readable, but not the message itself.
 
-        let { messages } = await browser.messages.list(folder);
-        browser.test.assertEq(1, messages.length);
+          let { messages } = await browser.messages.list(folder);
+          browser.test.assertEq(1, messages.length);
 
-        let [message] = messages;
-        browser.test.assertEq("...", message.subject);
-        browser.test.assertEq(
-          "Bob Babbage <bob@openpgp.example>",
-          message.author
-        );
-        browser.test.assertEq("alice@openpgp.example", message.recipients[0]);
+          let [message] = messages;
+          browser.test.assertEq("...", message.subject);
+          browser.test.assertEq(
+            "Bob Babbage <bob@openpgp.example>",
+            message.author
+          );
+          browser.test.assertEq("alice@openpgp.example", message.recipients[0]);
 
-        let fullMessage = await browser.messages.getFull(message.id);
-        browser.test.log(JSON.stringify(fullMessage));
-        browser.test.assertEq("object", typeof fullMessage);
-        browser.test.assertEq("message/rfc822", fullMessage.contentType);
+          let fullMessage = await browser.messages.getFull(message.id);
+          browser.test.log(JSON.stringify(fullMessage));
+          browser.test.assertEq("object", typeof fullMessage);
+          browser.test.assertEq("message/rfc822", fullMessage.contentType);
 
-        browser.test.assertEq("object", typeof fullMessage.headers);
-        for (let header of [
-          "content-type",
-          "date",
-          "from",
-          "message-id",
-          "subject",
-          "to",
-        ]) {
-          browser.test.assertTrue(Array.isArray(fullMessage.headers[header]));
-          browser.test.assertEq(1, fullMessage.headers[header].length);
-        }
-        browser.test.assertEq("...", fullMessage.headers.subject[0]);
-        browser.test.assertEq(
-          "Bob Babbage <bob@openpgp.example>",
-          fullMessage.headers.from[0]
-        );
-        browser.test.assertEq(
-          "alice@openpgp.example",
-          fullMessage.headers.to[0]
-        );
+          browser.test.assertEq("object", typeof fullMessage.headers);
+          for (let header of [
+            "content-type",
+            "date",
+            "from",
+            "message-id",
+            "subject",
+            "to",
+          ]) {
+            browser.test.assertTrue(Array.isArray(fullMessage.headers[header]));
+            browser.test.assertEq(1, fullMessage.headers[header].length);
+          }
+          browser.test.assertEq("...", fullMessage.headers.subject[0]);
+          browser.test.assertEq(
+            "Bob Babbage <bob@openpgp.example>",
+            fullMessage.headers.from[0]
+          );
+          browser.test.assertEq(
+            "alice@openpgp.example",
+            fullMessage.headers.to[0]
+          );
 
-        browser.test.assertTrue(Array.isArray(fullMessage.parts));
-        browser.test.assertEq(1, fullMessage.parts.length);
+          browser.test.assertTrue(Array.isArray(fullMessage.parts));
+          browser.test.assertEq(1, fullMessage.parts.length);
 
-        let part = fullMessage.parts[0];
-        browser.test.assertEq("object", typeof part);
-        browser.test.assertEq("multipart/encrypted", part.contentType);
-        browser.test.assertEq(undefined, part.parts);
+          let part = fullMessage.parts[0];
+          browser.test.assertEq("object", typeof part);
+          browser.test.assertEq("multipart/encrypted", part.contentType);
+          browser.test.assertEq(undefined, part.parts);
 
-        // Now set up the key and read the message again. It should all be
-        // there this time.
+          // Now set up the key and read the message again. It should all be
+          // there this time.
 
-        await window.sendMessage("load key");
+          await window.sendMessage("load key");
 
-        ({ messages } = await browser.messages.list(folder));
-        browser.test.assertEq(1, messages.length);
-        [message] = messages;
-        browser.test.assertEq("...", message.subject);
-        browser.test.assertEq(
-          "Bob Babbage <bob@openpgp.example>",
-          message.author
-        );
-        browser.test.assertEq("alice@openpgp.example", message.recipients[0]);
+          ({ messages } = await browser.messages.list(folder));
+          browser.test.assertEq(1, messages.length);
+          [message] = messages;
+          browser.test.assertEq("...", message.subject);
+          browser.test.assertEq(
+            "Bob Babbage <bob@openpgp.example>",
+            message.author
+          );
+          browser.test.assertEq("alice@openpgp.example", message.recipients[0]);
 
-        fullMessage = await browser.messages.getFull(message.id);
-        browser.test.log(JSON.stringify(fullMessage));
-        browser.test.assertEq("object", typeof fullMessage);
-        browser.test.assertEq("message/rfc822", fullMessage.contentType);
+          fullMessage = await browser.messages.getFull(message.id);
+          browser.test.log(JSON.stringify(fullMessage));
+          browser.test.assertEq("object", typeof fullMessage);
+          browser.test.assertEq("message/rfc822", fullMessage.contentType);
 
-        browser.test.assertEq("object", typeof fullMessage.headers);
-        for (let header of [
-          "content-type",
-          "date",
-          "from",
-          "message-id",
-          "subject",
-          "to",
-        ]) {
-          browser.test.assertTrue(Array.isArray(fullMessage.headers[header]));
-          browser.test.assertEq(1, fullMessage.headers[header].length);
-        }
-        browser.test.assertEq("...", fullMessage.headers.subject[0]);
-        browser.test.assertEq(
-          "Bob Babbage <bob@openpgp.example>",
-          fullMessage.headers.from[0]
-        );
-        browser.test.assertEq(
-          "alice@openpgp.example",
-          fullMessage.headers.to[0]
-        );
+          browser.test.assertEq("object", typeof fullMessage.headers);
+          for (let header of [
+            "content-type",
+            "date",
+            "from",
+            "message-id",
+            "subject",
+            "to",
+          ]) {
+            browser.test.assertTrue(Array.isArray(fullMessage.headers[header]));
+            browser.test.assertEq(1, fullMessage.headers[header].length);
+          }
+          browser.test.assertEq("...", fullMessage.headers.subject[0]);
+          browser.test.assertEq(
+            "Bob Babbage <bob@openpgp.example>",
+            fullMessage.headers.from[0]
+          );
+          browser.test.assertEq(
+            "alice@openpgp.example",
+            fullMessage.headers.to[0]
+          );
 
-        browser.test.assertTrue(Array.isArray(fullMessage.parts));
-        browser.test.assertEq(1, fullMessage.parts.length);
+          browser.test.assertTrue(Array.isArray(fullMessage.parts));
+          browser.test.assertEq(1, fullMessage.parts.length);
 
-        part = fullMessage.parts[0];
-        browser.test.assertEq("object", typeof part);
-        browser.test.assertEq("multipart/encrypted", part.contentType);
-        browser.test.assertTrue(Array.isArray(part.parts));
-        browser.test.assertEq(1, part.parts.length);
+          part = fullMessage.parts[0];
+          browser.test.assertEq("object", typeof part);
+          browser.test.assertEq("multipart/encrypted", part.contentType);
+          browser.test.assertTrue(Array.isArray(part.parts));
+          browser.test.assertEq(1, part.parts.length);
 
-        part = part.parts[0];
-        browser.test.assertEq("object", typeof part);
-        browser.test.assertEq("multipart/fake-container", part.contentType);
-        browser.test.assertTrue(Array.isArray(part.parts));
-        browser.test.assertEq(1, part.parts.length);
+          part = part.parts[0];
+          browser.test.assertEq("object", typeof part);
+          browser.test.assertEq("multipart/fake-container", part.contentType);
+          browser.test.assertTrue(Array.isArray(part.parts));
+          browser.test.assertEq(1, part.parts.length);
 
-        part = part.parts[0];
-        browser.test.assertEq("object", typeof part);
-        browser.test.assertEq("text/plain", part.contentType);
-        browser.test.assertEq(
-          "Sundays are nothing without callaloo.",
-          part.body.trimRight()
-        );
+          part = part.parts[0];
+          browser.test.assertEq("object", typeof part);
+          browser.test.assertEq("text/plain", part.contentType);
+          browser.test.assertEq(
+            "Sundays are nothing without callaloo.",
+            part.body.trimRight()
+          );
 
-        browser.test.notifyPass("finished");
+          browser.test.notifyPass("finished");
+        },
+        "utils.js": await getUtilsJS(),
       },
-      "utils.js": await getUtilsJS(),
-    },
-    manifest: {
-      background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["accountsRead", "messagesRead"],
-    },
-  });
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+      },
+    });
 
-  await extension.startup();
+    await extension.startup();
 
-  await extension.awaitMessage("load key");
-  info(`Adding key from ${OPENPGP_KEY_PATH}`);
-  await OpenPGPTestUtils.initOpenPGP();
-  let [id] = await OpenPGPTestUtils.importPrivateKey(
-    null,
-    new FileUtils.File(OPENPGP_KEY_PATH)
-  );
-  _identity.setUnicharAttribute("openpgp_key_id", id);
-  extension.sendMessage();
+    await extension.awaitMessage("load key");
+    info(`Adding key from ${OPENPGP_KEY_PATH}`);
+    await OpenPGPTestUtils.initOpenPGP();
+    let [id] = await OpenPGPTestUtils.importPrivateKey(
+      null,
+      new FileUtils.File(OPENPGP_KEY_PATH)
+    );
+    _identity.setUnicharAttribute("openpgp_key_id", id);
+    extension.sendMessage();
 
-  await extension.awaitFinish("finished");
-  await extension.unload();
+    await extension.awaitFinish("finished");
+    await extension.unload();
 
-  cleanUpAccount(_account);
-});
+    cleanUpAccount(_account);
+  }
+);
