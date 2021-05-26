@@ -98,7 +98,7 @@ OlmEncryption.prototype.encryptMessage = async function (room, eventType, conten
   // TODO: there is a race condition here! What if a new user turns up
   // just as you are sending a secret message?
   const members = await room.getEncryptionTargetMembers();
-  const users = utils.map(members, function (u) {
+  const users = members.map(function (u) {
     return u.userId;
   });
   const self = this;

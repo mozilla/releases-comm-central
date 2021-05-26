@@ -147,14 +147,15 @@ RoomMember.prototype.setPowerLevelEvent = function (powerLevelEvent) {
 
   const evContent = powerLevelEvent.getDirectionalContent();
   let maxLevel = evContent.users_default || 0;
-  utils.forEach(utils.values(evContent.users), function (lvl) {
+  const users = evContent.users || {};
+  Object.values(users).forEach(function (lvl) {
     maxLevel = Math.max(maxLevel, lvl);
   });
   const oldPowerLevel = this.powerLevel;
   const oldPowerLevelNorm = this.powerLevelNorm;
 
-  if (evContent.users && evContent.users[this.userId] !== undefined) {
-    this.powerLevel = evContent.users[this.userId];
+  if (users[this.userId] !== undefined) {
+    this.powerLevel = users[this.userId];
   } else if (evContent.users_default !== undefined) {
     this.powerLevel = evContent.users_default;
   } else {
@@ -192,7 +193,7 @@ RoomMember.prototype.setTypingEvent = function (event) {
   this.typing = false;
   const typingList = event.getContent().user_ids;
 
-  if (!utils.isArray(typingList)) {
+  if (!Array.isArray(typingList)) {
     // malformed event :/ bail early. TODO: whine?
     return;
   }
@@ -315,6 +316,9 @@ RoomMember.prototype.getMxcAvatarUrl = function () {
   return null;
 };
 
+const MXID_PATTERN = /@.+:.+/;
+const LTR_RTL_PATTERN = /[\u200E\u200F\u202A-\u202F]/;
+
 function calculateDisplayName(selfUserId, displayName, roomState) {
   if (!displayName || displayName === selfUserId) {
     return selfUserId;
@@ -333,13 +337,13 @@ function calculateDisplayName(selfUserId, displayName, roomState) {
   // Show full mxid in this case
 
 
-  let disambiguate = /@.+:.+/.test(displayName);
+  let disambiguate = MXID_PATTERN.test(displayName);
 
   if (!disambiguate) {
     // Also show mxid if the display name contains any LTR/RTL characters as these
     // make it very difficult for us to find similar *looking* display names
     // E.g "Mark" could be cloned by writing "kraM" but in RTL.
-    disambiguate = /[\u200E\u200F\u202A-\u202F]/.test(displayName);
+    disambiguate = LTR_RTL_PATTERN.test(displayName);
   }
 
   if (!disambiguate) {

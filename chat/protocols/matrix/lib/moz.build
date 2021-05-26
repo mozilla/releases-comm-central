@@ -114,6 +114,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
     'matrix-sdk/webrtc/call.js',
     'matrix-sdk/webrtc/callEventHandler.js',
     'matrix-sdk/webrtc/callEventTypes.js',
+    'matrix-sdk/webrtc/callFeed.js',
 ]
 
 # Dependencies of the Matrix SDK.

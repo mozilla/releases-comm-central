@@ -204,7 +204,7 @@ function Crypto(baseApis, sessionStore, userId, deviceId, clientStore, cryptoSto
   this._roomEncryptors = {}; // map from algorithm to DecryptionAlgorithm instance, for each room
 
   this._roomDecryptors = {};
-  this._supportedAlgorithms = utils.keys(algorithms.DECRYPTION_CLASSES);
+  this._supportedAlgorithms = Object.keys(algorithms.DECRYPTION_CLASSES);
   this._deviceKeys = {};
   this._globalBlacklistUnverifiedDevices = false;
   this._globalErrorOnUnknownDevices = true;
@@ -539,7 +539,9 @@ Crypto.prototype.bootstrapCrossSigning = async function ({
   } else if (privateKeysInStorage) {
     _logger.logger.log("Cross-signing private keys not found locally, but they are available " + "in secret storage, reading storage and caching locally");
 
-    await this.checkOwnCrossSigningTrust();
+    await this.checkOwnCrossSigningTrust({
+      allowPrivateKeyRequests: true
+    });
   } // Assuming no app-supplied callback, default to storing new private keys in
   // secret storage if it exists. If it does not, it is assumed this will be
   // done as part of setting up secret storage later.
@@ -1246,11 +1248,15 @@ Crypto.prototype._onDeviceListUserCrossSigningUpdated = async function (userId) 
  */
 
 
-Crypto.prototype.checkOwnCrossSigningTrust = async function () {
+Crypto.prototype.checkOwnCrossSigningTrust = async function ({
+  allowPrivateKeyRequests = false
+} = {}) {
   const userId = this._userId; // Before proceeding, ensure our cross-signing public keys have been
   // downloaded via the device list.
 
-  await this.downloadKeys([this._userId]); // If we see an update to our own master key, check it against the master
+  await this.downloadKeys([this._userId]); // Also check which private keys are locally cached.
+
+  const crossSigningPrivateKeys = await this._crossSigningInfo.getCrossSigningKeysFromCache(); // If we see an update to our own master key, check it against the master
   // key we have and, if it matches, mark it as verified
   // First, get the new cross-signing info
 
@@ -1264,21 +1270,24 @@ Crypto.prototype.checkOwnCrossSigningTrust = async function () {
 
   const seenPubkey = newCrossSigning.getId();
   const masterChanged = this._crossSigningInfo.getId() !== seenPubkey;
+  const masterExistsNotLocallyCached = newCrossSigning.getId() && !crossSigningPrivateKeys.has("master");
 
   if (masterChanged) {
     _logger.logger.info("Got new master public key", seenPubkey);
+  }
 
+  if (allowPrivateKeyRequests && (masterChanged || masterExistsNotLocallyCached)) {
     _logger.logger.info("Attempting to retrieve cross-signing master private key");
 
-    let signing = null;
+    let signing = null; // It's important for control flow that we leave any errors alone for
+    // higher levels to handle so that e.g. cancelling access properly
+    // aborts any larger operation as well.
 
     try {
       const ret = await this._crossSigningInfo.getCrossSigningKey('master', seenPubkey);
       signing = ret[1];
 
       _logger.logger.info("Got cross-signing master private key");
-    } catch (e) {
-      _logger.logger.error("Cross-signing master private key not available", e);
     } finally {
       if (signing) signing.free();
     }
@@ -1293,11 +1302,15 @@ Crypto.prototype.checkOwnCrossSigningTrust = async function () {
 
   const selfSigningChanged = oldSelfSigningId !== newCrossSigning.getId("self_signing");
   const userSigningChanged = oldUserSigningId !== newCrossSigning.getId("user_signing");
+  const selfSigningExistsNotLocallyCached = newCrossSigning.getId("self_signing") && !crossSigningPrivateKeys.has("self_signing");
+  const userSigningExistsNotLocallyCached = newCrossSigning.getId("user_signing") && !crossSigningPrivateKeys.has("user_signing");
   const keySignatures = {};
 
   if (selfSigningChanged) {
     _logger.logger.info("Got new self-signing key", newCrossSigning.getId("self_signing"));
+  }
 
+  if (allowPrivateKeyRequests && (selfSigningChanged || selfSigningExistsNotLocallyCached)) {
     _logger.logger.info("Attempting to retrieve cross-signing self-signing private key");
 
     let signing = null;
@@ -1307,8 +1320,6 @@ Crypto.prototype.checkOwnCrossSigningTrust = async function () {
       signing = ret[1];
 
       _logger.logger.info("Got cross-signing self-signing private key");
-    } catch (e) {
-      _logger.logger.error("Cross-signing self-signing private key not available", e);
     } finally {
       if (signing) signing.free();
     }
@@ -1321,7 +1332,9 @@ Crypto.prototype.checkOwnCrossSigningTrust = async function () {
 
   if (userSigningChanged) {
     _logger.logger.info("Got new user-signing key", newCrossSigning.getId("user_signing"));
+  }
 
+  if (allowPrivateKeyRequests && (userSigningChanged || userSigningExistsNotLocallyCached)) {
     _logger.logger.info("Attempting to retrieve cross-signing user-signing private key");
 
     let signing = null;
@@ -1331,8 +1344,6 @@ Crypto.prototype.checkOwnCrossSigningTrust = async function () {
       signing = ret[1];
 
       _logger.logger.info("Got cross-signing user-signing private key");
-    } catch (e) {
-      _logger.logger.error("Cross-signing user-signing private key not available", e);
     } finally {
       if (signing) signing.free();
     }
@@ -3273,8 +3284,12 @@ Crypto.prototype._onToDeviceEvent = function (event) {
       this._onKeyVerificationMessage(event);
     } else if (event.getContent().msgtype === "m.bad.encrypted") {
       this._onToDeviceBadEncrypted(event);
-    } else if (event.isBeingDecrypted()) {
-      // once the event has been decrypted, try again
+    } else if (event.isBeingDecrypted() || event.shouldAttemptDecryption()) {
+      if (!event.isBeingDecrypted()) {
+        event.attemptDecryption(this);
+      } // once the event has been decrypted, try again
+
+
       event.once('Event.decrypted', ev => {
         this._onToDeviceEvent(ev);
       });

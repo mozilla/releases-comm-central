@@ -511,7 +511,7 @@ OlmDevice.prototype.createOutboundSession = async function (theirIdentityKey, th
         session.free();
       }
     });
-  });
+  }, _logger.logger.withPrefix("[createOutboundSession]"));
   return newSessionId;
 };
 /**
@@ -563,7 +563,7 @@ OlmDevice.prototype.createInboundSession = async function (theirDeviceIdentityKe
         session.free();
       }
     });
-  });
+  }, _logger.logger.withPrefix("[createInboundSession]"));
   return result;
 };
 /**
@@ -576,8 +576,10 @@ OlmDevice.prototype.createInboundSession = async function (theirDeviceIdentityKe
 
 
 OlmDevice.prototype.getSessionIdsForDevice = async function (theirDeviceIdentityKey) {
+  const log = _logger.logger.withPrefix("[getSessionIdsForDevice]");
+
   if (this._sessionsInProgress[theirDeviceIdentityKey]) {
-    _logger.logger.log("waiting for olm session to be created");
+    log.debug(`Waiting for Olm session for ${theirDeviceIdentityKey} to be created`);
 
     try {
       await this._sessionsInProgress[theirDeviceIdentityKey];
@@ -591,7 +593,7 @@ OlmDevice.prototype.getSessionIdsForDevice = async function (theirDeviceIdentity
     this._cryptoStore.getEndToEndSessions(theirDeviceIdentityKey, txn, sessions => {
       sessionIds = Object.keys(sessions);
     });
-  });
+  }, log);
   return sessionIds;
 };
 /**
@@ -602,12 +604,13 @@ OlmDevice.prototype.getSessionIdsForDevice = async function (theirDeviceIdentity
  * @param {boolean} nowait Don't wait for an in-progress session to complete.
  *     This should only be set to true of the calling function is the function
  *     that marked the session as being in-progress.
+ * @param {Logger} [log] A possibly customised log
  * @return {Promise<?string>}  session id, or null if no established session
  */
 
 
-OlmDevice.prototype.getSessionIdForDevice = async function (theirDeviceIdentityKey, nowait) {
-  const sessionInfos = await this.getSessionInfoForDevice(theirDeviceIdentityKey, nowait);
+OlmDevice.prototype.getSessionIdForDevice = async function (theirDeviceIdentityKey, nowait, log) {
+  const sessionInfos = await this.getSessionInfoForDevice(theirDeviceIdentityKey, nowait, log);
 
   if (sessionInfos.length === 0) {
     return null;
@@ -641,13 +644,16 @@ OlmDevice.prototype.getSessionIdForDevice = async function (theirDeviceIdentityK
  * @param {boolean} nowait Don't wait for an in-progress session to complete.
  *     This should only be set to true of the calling function is the function
  *     that marked the session as being in-progress.
+ * @param {Logger} [log] A possibly customised log
  * @return {Array.<{sessionId: string, hasReceivedMessage: Boolean}>}
  */
 
 
-OlmDevice.prototype.getSessionInfoForDevice = async function (deviceIdentityKey, nowait) {
+OlmDevice.prototype.getSessionInfoForDevice = async function (deviceIdentityKey, nowait, log = _logger.logger) {
+  log = log.withPrefix("[getSessionInfoForDevice]");
+
   if (this._sessionsInProgress[deviceIdentityKey] && !nowait) {
-    _logger.logger.log("waiting for olm session to be created");
+    log.debug(`Waiting for Olm session for ${deviceIdentityKey} to be created`);
 
     try {
       await this._sessionsInProgress[deviceIdentityKey];
@@ -671,7 +677,7 @@ OlmDevice.prototype.getSessionInfoForDevice = async function (deviceIdentityKey,
         });
       }
     });
-  });
+  }, log);
   return info;
 };
 /**
@@ -699,7 +705,7 @@ OlmDevice.prototype.encryptMessage = async function (theirDeviceIdentityKey, ses
 
       this._saveSession(theirDeviceIdentityKey, sessionInfo, txn);
     });
-  });
+  }, _logger.logger.withPrefix("[encryptMessage]"));
   return res;
 };
 /**
@@ -728,7 +734,7 @@ OlmDevice.prototype.decryptMessage = async function (theirDeviceIdentityKey, ses
 
       this._saveSession(theirDeviceIdentityKey, sessionInfo, txn);
     });
-  });
+  }, _logger.logger.withPrefix("[decryptMessage]"));
   return payloadString;
 };
 /**
@@ -755,7 +761,7 @@ OlmDevice.prototype.matchesSession = async function (theirDeviceIdentityKey, ses
     this._getSession(theirDeviceIdentityKey, sessionId, txn, sessionInfo => {
       matches = sessionInfo.session.matches_inbound(ciphertext);
     });
-  });
+  }, _logger.logger.withPrefix("[matchesSession]"));
   return matches;
 };
 
@@ -956,7 +962,7 @@ OlmDevice.prototype._getInboundGroupSession = function (roomId, senderKey, sessi
 
 
 OlmDevice.prototype.addInboundGroupSession = async function (roomId, senderKey, forwardingCurve25519KeyChain, sessionId, sessionKey, keysClaimed, exportFormat, extraSessionData = {}) {
-  await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD], txn => {
+  await this._cryptoStore.doTxn('readwrite', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_INBOUND_GROUP_SESSIONS_WITHHELD, _indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS], txn => {
     /* if we already have this session, consider updating it */
     this._getInboundGroupSession(roomId, senderKey, sessionId, txn, (existingSession, existingSessionData) => {
       // new session.
@@ -997,11 +1003,15 @@ OlmDevice.prototype.addInboundGroupSession = async function (roomId, senderKey, 
         });
 
         this._cryptoStore.storeEndToEndInboundGroupSession(senderKey, sessionId, sessionData, txn);
+
+        if (!existingSession && extraSessionData.sharedHistory) {
+          this._cryptoStore.addSharedHistoryInboundGroupSession(roomId, senderKey, sessionId, txn);
+        }
       } finally {
         session.free();
       }
     });
-  });
+  }, _logger.logger.withPrefix("[addInboundGroupSession]"));
 };
 /**
  * Record in the data store why an inbound group session was withheld.
@@ -1144,7 +1154,7 @@ OlmDevice.prototype.decryptGroupMessage = async function (roomId, senderKey, ses
         untrusted: sessionData.untrusted
       };
     });
-  });
+  }, _logger.logger.withPrefix("[decryptGroupMessage]"));
 
   if (error) {
     throw error;
@@ -1180,7 +1190,7 @@ OlmDevice.prototype.hasInboundSessionKeys = async function (roomId, senderKey, s
         result = true;
       }
     });
-  });
+  }, _logger.logger.withPrefix("[hasInboundSessionKeys]"));
   return result;
 };
 /**
@@ -1224,10 +1234,11 @@ OlmDevice.prototype.getInboundGroupSessionKey = async function (roomId, senderKe
         "chain_index": chainIndex,
         "key": exportedSession,
         "forwarding_curve25519_key_chain": sessionData.forwardingCurve25519KeyChain || [],
-        "sender_claimed_ed25519_key": senderEd25519Key
+        "sender_claimed_ed25519_key": senderEd25519Key,
+        "shared_history": sessionData.sharedHistory || false
       };
     });
-  });
+  }, _logger.logger.withPrefix("[getInboundGroupSessionKey]"));
   return result;
 };
 /**
@@ -1250,9 +1261,18 @@ OlmDevice.prototype.exportInboundGroupSession = function (senderKey, sessionId, 
       "session_id": sessionId,
       "session_key": session.export_session(messageIndex),
       "forwarding_curve25519_key_chain": session.forwardingCurve25519KeyChain || [],
-      "first_known_index": session.first_known_index()
+      "first_known_index": session.first_known_index(),
+      "org.matrix.msc3061.shared_history": sessionData.sharedHistory || false
     };
   });
+};
+
+OlmDevice.prototype.getSharedHistoryInboundGroupSessions = async function (roomId) {
+  let result;
+  await this._cryptoStore.doTxn('readonly', [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_SHARED_HISTORY_INBOUND_GROUP_SESSIONS], txn => {
+    result = this._cryptoStore.getSharedHistoryInboundGroupSessions(roomId, txn);
+  }, _logger.logger.withPrefix("[getSharedHistoryInboundGroupSessionsForRoom]"));
+  return result;
 }; // Utilities
 // =========
 

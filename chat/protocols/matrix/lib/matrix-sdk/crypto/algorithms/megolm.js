@@ -37,12 +37,24 @@ limitations under the License.
  *
  * @module crypto/algorithms/megolm
  */
+// determine whether the key can be shared with invitees
+function isRoomSharedHistory(room) {
+  const visibilityEvent = room.currentState && room.currentState.getStateEvents("m.room.history_visibility", ""); // NOTE: if the room visibility is unset, it would normally default to
+  // "world_readable".
+  // (https://spec.matrix.org/unstable/client-server-api/#server-behaviour-5)
+  // But we will be paranoid here, and treat it as a situation where the room
+  // is not shared-history
 
+  const visibility = visibilityEvent && visibilityEvent.getContent() && visibilityEvent.getContent().history_visibility;
+  return ["world_readable", "shared"].includes(visibility);
+}
 /**
  * @private
  * @constructor
  *
  * @param {string} sessionId
+ * @param {boolean} sharedHistory whether the session can be freely shared with
+ *    other group members, according to the room history visibility settings
  *
  * @property {string} sessionId
  * @property {Number} useCount     number of times this session has been used
@@ -52,12 +64,15 @@ limitations under the License.
  *    devices with which we have shared the session key
  *        userId -> {deviceId -> msgindex}
  */
-function OutboundSessionInfo(sessionId) {
+
+
+function OutboundSessionInfo(sessionId, sharedHistory = false) {
   this.sessionId = sessionId;
   this.useCount = 0;
   this.creationTime = new Date().getTime();
   this.sharedWithDevices = {};
   this.blockedDevicesNotified = {};
+  this.sharedHistory = sharedHistory;
 }
 /**
  * Check if it's time to rotate the session
@@ -172,6 +187,7 @@ utils.inherits(MegolmEncryption, _base.EncryptionAlgorithm);
 /**
  * @private
  *
+ * @param {module:models/room} room
  * @param {Object} devicesInRoom The devices in this room, indexed by user ID
  * @param {Object} blocked The devices that are blocked, indexed by user ID
  * @param {boolean} [singleOlmCreationPhase] Only perform one round of olm
@@ -181,7 +197,7 @@ utils.inherits(MegolmEncryption, _base.EncryptionAlgorithm);
  *    OutboundSessionInfo when setup is complete.
  */
 
-MegolmEncryption.prototype._ensureOutboundSession = async function (devicesInRoom, blocked, singleOlmCreationPhase) {
+MegolmEncryption.prototype._ensureOutboundSession = async function (room, devicesInRoom, blocked, singleOlmCreationPhase) {
   let session; // takes the previous OutboundSessionInfo, and considers whether to create
   // a new one. Also shares the key with any (new) devices in the room.
   // Updates `session` to hold the final OutboundSessionInfo.
@@ -189,7 +205,13 @@ MegolmEncryption.prototype._ensureOutboundSession = async function (devicesInRoo
   // returns a promise which resolves once the keyshare is successful.
 
   const prepareSession = async oldSession => {
-    session = oldSession; // need to make a brand new session?
+    session = oldSession;
+    const sharedHistory = isRoomSharedHistory(room); // history visibility changed
+
+    if (session && sharedHistory !== session.sharedHistory) {
+      session = null;
+    } // need to make a brand new session?
+
 
     if (session && session.needsRotation(this._sessionRotationPeriodMsgs, this._sessionRotationPeriodMs)) {
       _logger.logger.log("Starting new megolm session because we need to rotate.");
@@ -205,7 +227,7 @@ MegolmEncryption.prototype._ensureOutboundSession = async function (devicesInRoo
     if (!session) {
       _logger.logger.log(`Starting new megolm session for room ${this._roomId}`);
 
-      session = await this._prepareNewSession();
+      session = await this._prepareNewSession(sharedHistory);
 
       _logger.logger.log(`Started new megolm session ${session.sessionId} ` + `for room ${this._roomId}`);
 
@@ -236,11 +258,12 @@ MegolmEncryption.prototype._ensureOutboundSession = async function (devicesInRoo
     const payload = {
       type: "m.room_key",
       content: {
-        algorithm: olmlib.MEGOLM_ALGORITHM,
-        room_id: this._roomId,
-        session_id: session.sessionId,
-        session_key: key.key,
-        chain_index: key.chain_index
+        "algorithm": olmlib.MEGOLM_ALGORITHM,
+        "room_id": this._roomId,
+        "session_id": session.sessionId,
+        "session_key": key.key,
+        "chain_index": key.chain_index,
+        "org.matrix.msc3061.shared_history": sharedHistory
       }
     };
     const [devicesWithoutSession, olmSessions] = await olmlib.getExistingOlmSessions(this._olmDevice, this._baseApis, shareMap);
@@ -361,22 +384,26 @@ MegolmEncryption.prototype._ensureOutboundSession = async function (devicesInRoo
 /**
  * @private
  *
+ * @param {boolean} sharedHistory
+ *
  * @return {module:crypto/algorithms/megolm.OutboundSessionInfo} session
  */
 
 
-MegolmEncryption.prototype._prepareNewSession = async function () {
+MegolmEncryption.prototype._prepareNewSession = async function (sharedHistory) {
   const sessionId = this._olmDevice.createOutboundGroupSession();
 
   const key = this._olmDevice.getOutboundGroupSessionKey(sessionId);
 
   await this._olmDevice.addInboundGroupSession(this._roomId, this._olmDevice.deviceCurve25519Key, [], sessionId, key.key, {
     ed25519: this._olmDevice.deviceEd25519Key
+  }, false, {
+    sharedHistory: sharedHistory
   }); // don't wait for it to complete
 
   this._crypto.backupGroupSession(this._roomId, this._olmDevice.deviceCurve25519Key, [], sessionId, key.key);
 
-  return new OutboundSessionInfo(sessionId);
+  return new OutboundSessionInfo(sessionId, sharedHistory);
 };
 /**
  * Determines what devices in devicesByUser don't have an olm session as given
@@ -642,14 +669,15 @@ MegolmEncryption.prototype.reshareKeyWithDevice = async function (senderKey, ses
   const payload = {
     type: "m.forwarded_room_key",
     content: {
-      algorithm: olmlib.MEGOLM_ALGORITHM,
-      room_id: this._roomId,
-      session_id: sessionId,
-      session_key: key.key,
-      chain_index: key.chain_index,
-      sender_key: senderKey,
-      sender_claimed_ed25519_key: key.sender_claimed_ed25519_key,
-      forwarding_curve25519_key_chain: key.forwarding_curve25519_key_chain
+      "algorithm": olmlib.MEGOLM_ALGORITHM,
+      "room_id": this._roomId,
+      "session_id": sessionId,
+      "session_key": key.key,
+      "chain_index": key.chain_index,
+      "sender_key": senderKey,
+      "sender_claimed_ed25519_key": key.sender_claimed_ed25519_key,
+      "forwarding_curve25519_key_chain": key.forwarding_curve25519_key_chain,
+      "org.matrix.msc3061.shared_history": key.shared_history || false
     }
   };
   const encryptedContent = {
@@ -694,7 +722,7 @@ MegolmEncryption.prototype.reshareKeyWithDevice = async function (senderKey, ses
 MegolmEncryption.prototype._shareKeyWithDevices = async function (session, key, payload, devicesByUser, errorDevices, otkTimeout, failedServers) {
   _logger.logger.debug(`Ensuring Olm sessions for devices in ${this._roomId}`);
 
-  const devicemap = await olmlib.ensureOlmSessionsForDevices(this._olmDevice, this._baseApis, devicesByUser, otkTimeout, failedServers, (0, _logger.getPrefixedLogger)(`[${this._roomId}]`));
+  const devicemap = await olmlib.ensureOlmSessionsForDevices(this._olmDevice, this._baseApis, devicesByUser, otkTimeout, failedServers, _logger.logger.withPrefix(`[${this._roomId}]`));
 
   _logger.logger.debug(`Ensured Olm sessions for devices in ${this._roomId}`);
 
@@ -852,7 +880,7 @@ MegolmEncryption.prototype.prepareToEncrypt = function (room) {
 
       _logger.logger.debug(`Ensuring outbound session in ${this._roomId}`);
 
-      await this._ensureOutboundSession(devicesInRoom, blocked, true);
+      await this._ensureOutboundSession(room, devicesInRoom, blocked, true);
 
       _logger.logger.debug(`Ready to encrypt events for ${this._roomId}`);
     } catch (e) {
@@ -895,7 +923,7 @@ MegolmEncryption.prototype.encryptMessage = async function (room, eventType, con
     this._checkForUnknownDevices(devicesInRoom);
   }
 
-  const session = await this._ensureOutboundSession(devicesInRoom, blocked);
+  const session = await this._ensureOutboundSession(room, devicesInRoom, blocked);
   const payloadJson = {
     room_id: this._roomId,
     type: eventType,
@@ -997,7 +1025,7 @@ MegolmEncryption.prototype._removeUnknownDevices = function (devicesInRoom) {
 
 MegolmEncryption.prototype._getDevicesInRoom = async function (room) {
   const members = await room.getEncryptionTargetMembers();
-  const roomMembers = utils.map(members, function (u) {
+  const roomMembers = members.map(function (u) {
     return u.userId;
   }); // The global value is treated as a default for when rooms don't specify a value.
 
@@ -1274,7 +1302,7 @@ MegolmDecryption.prototype.onRoomKeyEvent = function (event) {
     exportFormat = true;
     forwardingKeyChain = content.forwarding_curve25519_key_chain;
 
-    if (!utils.isArray(forwardingKeyChain)) {
+    if (!Array.isArray(forwardingKeyChain)) {
       forwardingKeyChain = [];
     } // copy content before we modify it
 
@@ -1304,7 +1332,13 @@ MegolmDecryption.prototype.onRoomKeyEvent = function (event) {
     keysClaimed = event.getKeysClaimed();
   }
 
-  return this._olmDevice.addInboundGroupSession(content.room_id, senderKey, forwardingKeyChain, sessionId, content.session_key, keysClaimed, exportFormat).then(() => {
+  const extraSessionData = {};
+
+  if (content["org.matrix.msc3061.shared_history"]) {
+    extraSessionData.sharedHistory = true;
+  }
+
+  return this._olmDevice.addInboundGroupSession(content.room_id, senderKey, forwardingKeyChain, sessionId, content.session_key, keysClaimed, exportFormat, extraSessionData).then(() => {
     // have another go at decrypting events sent with this session.
     this._retryDecryption(senderKey, sessionId).then(success => {
       // cancel any outstanding room key requests for this session.
@@ -1461,14 +1495,15 @@ MegolmDecryption.prototype._buildKeyForwardingMessage = async function (roomId, 
   return {
     type: "m.forwarded_room_key",
     content: {
-      algorithm: olmlib.MEGOLM_ALGORITHM,
-      room_id: roomId,
-      sender_key: senderKey,
-      sender_claimed_ed25519_key: key.sender_claimed_ed25519_key,
-      session_id: sessionId,
-      session_key: key.key,
-      chain_index: key.chain_index,
-      forwarding_curve25519_key_chain: key.forwarding_curve25519_key_chain
+      "algorithm": olmlib.MEGOLM_ALGORITHM,
+      "room_id": roomId,
+      "sender_key": senderKey,
+      "sender_claimed_ed25519_key": key.sender_claimed_ed25519_key,
+      "session_id": sessionId,
+      "session_key": key.key,
+      "chain_index": key.chain_index,
+      "forwarding_curve25519_key_chain": key.forwarding_curve25519_key_chain,
+      "org.matrix.msc3061.shared_history": key.shared_history || false
     }
   };
 };
@@ -1483,9 +1518,17 @@ MegolmDecryption.prototype._buildKeyForwardingMessage = async function (roomId, 
 
 
 MegolmDecryption.prototype.importRoomKey = function (session, opts = {}) {
-  return this._olmDevice.addInboundGroupSession(session.room_id, session.sender_key, session.forwarding_curve25519_key_chain, session.session_id, session.session_key, session.sender_claimed_keys, true, opts.untrusted ? {
-    untrusted: opts.untrusted
-  } : {}).then(() => {
+  const extraSessionData = {};
+
+  if (opts.untrusted) {
+    extraSessionData.untrusted = true;
+  }
+
+  if (session["org.matrix.msc3061.shared_history"]) {
+    extraSessionData.sharedHistory = true;
+  }
+
+  return this._olmDevice.addInboundGroupSession(session.room_id, session.sender_key, session.forwarding_curve25519_key_chain, session.session_id, session.session_key, session.sender_claimed_keys, true, extraSessionData).then(() => {
     if (opts.source !== "backup") {
       // don't wait for it to complete
       this._crypto.backupGroupSession(session.room_id, session.sender_key, session.forwarding_curve25519_key_chain, session.session_id, session.session_key, session.sender_claimed_keys, true).catch(e => {
@@ -1528,7 +1571,9 @@ MegolmDecryption.prototype._retryDecryption = async function (senderKey, session
 
   await Promise.all([...pending].map(async ev => {
     try {
-      await ev.attemptDecryption(this._crypto, true);
+      await ev.attemptDecryption(this._crypto, {
+        isRetry: true
+      });
     } catch (e) {// don't die if something goes wrong
     }
   })); // If decrypted successfully, they'll have been removed from _pendingEvents
@@ -1553,6 +1598,67 @@ MegolmDecryption.prototype.retryDecryptionFromSender = async function (senderKey
     }));
   }));
   return !this._pendingEvents[senderKey];
+};
+
+MegolmDecryption.prototype.sendSharedHistoryInboundSessions = async function (devicesByUser) {
+  await olmlib.ensureOlmSessionsForDevices(this._olmDevice, this._baseApis, devicesByUser);
+
+  _logger.logger.log("sendSharedHistoryInboundSessions to users", Object.keys(devicesByUser));
+
+  const sharedHistorySessions = await this._olmDevice.getSharedHistoryInboundGroupSessions(this._roomId);
+
+  _logger.logger.log("shared-history sessions", sharedHistorySessions);
+
+  for (const [senderKey, sessionId] of sharedHistorySessions) {
+    const payload = await this._buildKeyForwardingMessage(this._roomId, senderKey, sessionId);
+    const promises = [];
+    const contentMap = {};
+
+    for (const [userId, devices] of Object.entries(devicesByUser)) {
+      contentMap[userId] = {};
+
+      for (const deviceInfo of devices) {
+        const encryptedContent = {
+          algorithm: olmlib.OLM_ALGORITHM,
+          sender_key: this._olmDevice.deviceCurve25519Key,
+          ciphertext: {}
+        };
+        contentMap[userId][deviceInfo.deviceId] = encryptedContent;
+        promises.push(olmlib.encryptMessageForDevice(encryptedContent.ciphertext, this._userId, this._deviceId, this._olmDevice, userId, deviceInfo, payload));
+      }
+    }
+
+    await Promise.all(promises); // prune out any devices that encryptMessageForDevice could not encrypt for,
+    // in which case it will have just not added anything to the ciphertext object.
+    // There's no point sending messages to devices if we couldn't encrypt to them,
+    // since that's effectively a blank message.
+
+    for (const userId of Object.keys(contentMap)) {
+      for (const deviceId of Object.keys(contentMap[userId])) {
+        if (Object.keys(contentMap[userId][deviceId].ciphertext).length === 0) {
+          _logger.logger.log("No ciphertext for device " + userId + ":" + deviceId + ": pruning");
+
+          delete contentMap[userId][deviceId];
+        }
+      } // No devices left for that user? Strip that too.
+
+
+      if (Object.keys(contentMap[userId]).length === 0) {
+        _logger.logger.log("Pruned all devices for user " + userId);
+
+        delete contentMap[userId];
+      }
+    } // Is there anything left?
+
+
+    if (Object.keys(contentMap).length === 0) {
+      _logger.logger.log("No users left to send to: aborting");
+
+      return;
+    }
+
+    await this._baseApis.sendToDevice("m.room.encrypted", contentMap);
+  }
 };
 
 (0, _base.registerAlgorithm)(olmlib.MEGOLM_ALGORITHM, MegolmEncryption, MegolmDecryption);

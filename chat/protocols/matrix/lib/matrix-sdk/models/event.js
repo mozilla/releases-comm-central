@@ -178,7 +178,7 @@ const MatrixEvent = function (event) {
      allows for a unique ID which does not change when the event comes back down sync.
    */
 
-  this._txnId = null;
+  this._txnId = event.txn_id || null;
   /* Set an approximate timestamp for the event relative the local clock.
    * This will inherently be approximate because it doesn't take into account
    * the time between the server putting the 'age' field on the event as it sent
@@ -406,6 +406,9 @@ utils.extend(MatrixEvent.prototype, {
   isDecryptionFailure: function () {
     return this._clearEvent && this._clearEvent.content && this._clearEvent.content.msgtype === "m.bad.encrypted";
   },
+  shouldAttemptDecryption: function () {
+    return this.isEncrypted() && !this.isBeingDecrypted() && this.getClearContent() === null;
+  },
 
   /**
    * Start the process of trying to decrypt this event.
@@ -415,13 +418,23 @@ utils.extend(MatrixEvent.prototype, {
    * @internal
    *
    * @param {module:crypto} crypto crypto module
-   * @param {bool} isRetry True if this is a retry (enables more logging)
+   * @param {object} options
+   * @param {bool} options.isRetry True if this is a retry (enables more logging)
+   * @param {bool} options.emit Emits "event.decrypted" if set to true
    *
    * @returns {Promise} promise which resolves (to undefined) when the decryption
    * attempt is completed.
    */
-  attemptDecryption: async function (crypto, isRetry) {
-    // start with a couple of sanity checks.
+  attemptDecryption: async function (crypto, options = {}) {
+    // For backwards compatibility purposes
+    // The function signature used to be attemptDecryption(crypto, isRetry)
+    if (typeof options === "boolean") {
+      options = {
+        isRetry: options
+      };
+    } // start with a couple of sanity checks.
+
+
     if (!this.isEncrypted()) {
       throw new Error("Attempt to decrypt event which isn't encrypted");
     }
@@ -444,7 +457,7 @@ utils.extend(MatrixEvent.prototype, {
       return this._decryptionPromise;
     }
 
-    this._decryptionPromise = this._decryptionLoop(crypto, isRetry);
+    this._decryptionPromise = this._decryptionLoop(crypto, options);
     return this._decryptionPromise;
   },
 
@@ -492,7 +505,7 @@ utils.extend(MatrixEvent.prototype, {
 
     return recipients;
   },
-  _decryptionLoop: async function (crypto, isRetry) {
+  _decryptionLoop: async function (crypto, options = {}) {
     // make sure that this method never runs completely synchronously.
     // (doing so would mean that we would clear _decryptionPromise *before*
     // it is set in attemptDecryption - and hence end up with a stuck
@@ -510,7 +523,7 @@ utils.extend(MatrixEvent.prototype, {
         } else {
           res = await crypto.decryptEvent(this);
 
-          if (isRetry) {
+          if (options.isRetry === true) {
             _logger.logger.info(`Decrypted event on retry (id=${this.getId()})`);
           }
         }
@@ -518,7 +531,7 @@ utils.extend(MatrixEvent.prototype, {
         if (e.name !== "DecryptionError") {
           // not a decryption error: log the whole exception as an error
           // (and don't bother with a retry)
-          const re = isRetry ? 're' : '';
+          const re = options.isRetry ? 're' : '';
 
           _logger.logger.error(`Error ${re}decrypting event ` + `(id=${this.getId()}): ${e.stack || e}`);
 
@@ -578,7 +591,11 @@ utils.extend(MatrixEvent.prototype, {
 
 
       this.setPushActions(null);
-      this.emit("Event.decrypted", this, err);
+
+      if (options.emit !== false) {
+        this.emit("Event.decrypted", this, err);
+      }
+
       return;
     }
   },

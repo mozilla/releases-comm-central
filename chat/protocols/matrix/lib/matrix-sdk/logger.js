@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getPrefixedLogger = getPrefixedLogger;
 exports.logger = void 0;
 
 var _loglevel = _interopRequireDefault(require("loglevel"));
@@ -44,11 +43,11 @@ const DEFAULT_NAMESPACE = "matrix"; // because rageshakes in react-sdk hijack th
 
 _loglevel.default.methodFactory = function (methodName, logLevel, loggerName) {
   return function (...args) {
-    /* eslint-disable babel/no-invalid-this */
+    /* eslint-disable @babel/no-invalid-this */
     if (this.prefix) {
       args.unshift(this.prefix);
     }
-    /* eslint-enable babel/no-invalid-this */
+    /* eslint-enable @babel/no-invalid-this */
 
 
     const supportedByConsole = methodName === "error" || methodName === "warn" || methodName === "trace" || methodName === "info";
@@ -74,11 +73,21 @@ const logger = _loglevel.default.getLogger(DEFAULT_NAMESPACE);
 exports.logger = logger;
 logger.setLevel(_loglevel.default.levels.DEBUG);
 
+function extendLogger(logger) {
+  logger.withPrefix = function (prefix) {
+    const existingPrefix = this.prefix || "";
+    return getPrefixedLogger(existingPrefix + prefix);
+  };
+}
+
+extendLogger(logger);
+
 function getPrefixedLogger(prefix) {
   const prefixLogger = _loglevel.default.getLogger(`${DEFAULT_NAMESPACE}-${prefix}`);
 
   if (prefixLogger.prefix !== prefix) {
     // Only do this setup work the first time through, as loggers are saved by name.
+    extendLogger(prefixLogger);
     prefixLogger.prefix = prefix;
     prefixLogger.setLevel(_loglevel.default.levels.DEBUG);
   }

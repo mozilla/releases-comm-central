@@ -76,7 +76,7 @@ function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirect
     params.method = resizeMethod;
   }
 
-  if (utils.keys(params).length > 0) {
+  if (Object.keys(params).length > 0) {
     // these are thumbnailing params so they probably want the
     // thumbnailing API...
     prefix = "/_matrix/media/r0/thumbnail/";
@@ -90,5 +90,5 @@ function getHttpUriForMxc(baseUrl, mxc, width, height, resizeMethod, allowDirect
     serverAndMediaId = serverAndMediaId.substr(0, fragmentOffset);
   }
 
-  return baseUrl + prefix + serverAndMediaId + (utils.keys(params).length === 0 ? "" : "?" + utils.encodeParams(params)) + fragment;
+  return baseUrl + prefix + serverAndMediaId + (Object.keys(params).length === 0 ? "" : "?" + utils.encodeParams(params)) + fragment;
 }

@@ -43,7 +43,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-/* eslint-disable babel/no-invalid-this */
+/* eslint-disable @babel/no-invalid-this */
 
 /**
  * This is an internal module. See {@link IndexedDBStore} for the public class.
@@ -67,8 +67,8 @@ const WRITE_DELAY_MS = 1000 * 60 * 5; // once every 5 minutes
  * sync from the server is not required. This does not reduce memory usage as all
  * the data is eagerly fetched when <code>startup()</code> is called.
  * <pre>
- * let opts = { localStorage: window.localStorage };
- * let store = new IndexedDBStore();
+ * let opts = { indexedDB: window.indexedDB, localStorage: window.localStorage };
+ * let store = new IndexedDBStore(opts);
  * await store.startup(); // load from indexed db
  * let client = sdk.createClient({
  *     store: store,

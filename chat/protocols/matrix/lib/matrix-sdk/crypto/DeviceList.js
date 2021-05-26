@@ -76,7 +76,7 @@ const TRACKING_STATUS_UP_TO_DATE = 3;
  */
 
 class DeviceList extends _events.EventEmitter {
-  constructor(baseApis, cryptoStore, olmDevice) {
+  constructor(baseApis, cryptoStore, olmDevice, keyDownloadChunkSize = 250) {
     super();
     this._cryptoStore = cryptoStore; // userId -> {
     //     deviceId -> {
@@ -101,7 +101,9 @@ class DeviceList extends _events.EventEmitter {
     this._syncToken = null;
     this._serialiser = new DeviceListUpdateSerialiser(baseApis, olmDevice, this); // userId -> promise
 
-    this._keyDownloadsInProgressByUser = {}; // Set whenever changes are made other than setting the sync token
+    this._keyDownloadsInProgressByUser = {}; // Maximum number of user IDs per request to prevent server overload (#1619)
+
+    this._keyDownloadChunkSize = keyDownloadChunkSize; // Set whenever changes are made other than setting the sync token
 
     this._dirty = false; // Promise resolved when device data is saved
 
@@ -810,11 +812,18 @@ class DeviceListUpdateSerialiser {
       opts.token = this._syncToken;
     }
 
-    this._baseApis.downloadKeysForUsers(downloadUsers, opts).then(async res => {
-      const dk = res.device_keys || {};
-      const masterKeys = res.master_keys || {};
-      const ssks = res.self_signing_keys || {};
-      const usks = res.user_signing_keys || {}; // yield to other things that want to execute in between users, to
+    const factories = [];
+
+    for (let i = 0; i < downloadUsers.length; i += this._deviceList._keyDownloadChunkSize) {
+      const userSlice = downloadUsers.slice(i, i + this._deviceList._keyDownloadChunkSize);
+      factories.push(() => this._baseApis.downloadKeysForUsers(userSlice, opts));
+    }
+
+    (0, _utils.chunkPromises)(factories, 3).then(async responses => {
+      const dk = Object.assign({}, ...responses.map(res => res.device_keys || {}));
+      const masterKeys = Object.assign({}, ...responses.map(res => res.master_keys || {}));
+      const ssks = Object.assign({}, ...responses.map(res => res.self_signing_keys || {}));
+      const usks = Object.assign({}, ...responses.map(res => res.user_signing_keys || {})); // yield to other things that want to execute in between users, to
       // avoid wedging the CPU
       // (https://github.com/vector-im/element-web/issues/3158)
       //
@@ -851,7 +860,6 @@ class DeviceListUpdateSerialiser {
       this._downloadInProgress = false;
       deferred.reject(e);
     });
-
     return deferred.promise;
   }
 

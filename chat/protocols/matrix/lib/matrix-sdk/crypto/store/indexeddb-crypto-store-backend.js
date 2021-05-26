@@ -31,7 +31,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const VERSION = 9;
+const VERSION = 10;
+exports.VERSION = VERSION;
+const PROFILE_TRANSACTIONS = false;
 /**
  * Implementation of a CryptoStore which is backed by an existing
  * IndexedDB connection. Generally you want IndexedDBCryptoStore
@@ -40,14 +42,13 @@ const VERSION = 9;
  * @implements {module:crypto/store/base~CryptoStore}
  */
 
-exports.VERSION = VERSION;
-
 class Backend {
   /**
    * @param {IDBDatabase} db
    */
   constructor(db) {
-    this._db = db; // make sure we close the db on `onversionchange` - otherwise
+    this._db = db;
+    this._nextTxnId = 0; // make sure we close the db on `onversionchange` - otherwise
     // attempts to delete the database will block (and subsequent
     // attempts to re-create it will also block).
 
@@ -828,11 +829,75 @@ class Backend {
     }));
   }
 
-  doTxn(mode, stores, func) {
+  addSharedHistoryInboundGroupSession(roomId, senderKey, sessionId, txn) {
+    if (!txn) {
+      txn = this._db.transaction("shared_history_inbound_group_sessions", "readwrite");
+    }
+
+    const objectStore = txn.objectStore("shared_history_inbound_group_sessions");
+    const req = objectStore.get([roomId]);
+
+    req.onsuccess = () => {
+      const {
+        sessions
+      } = req.result || {
+        sessions: []
+      };
+      sessions.push([senderKey, sessionId]);
+      objectStore.put({
+        roomId,
+        sessions
+      });
+    };
+  }
+
+  getSharedHistoryInboundGroupSessions(roomId, txn) {
+    if (!txn) {
+      txn = this._db.transaction("shared_history_inbound_group_sessions", "readonly");
+    }
+
+    const objectStore = txn.objectStore("shared_history_inbound_group_sessions");
+    const req = objectStore.get([roomId]);
+    return new Promise((resolve, reject) => {
+      req.onsuccess = () => {
+        const {
+          sessions
+        } = req.result || {
+          sessions: []
+        };
+        resolve(sessions);
+      };
+
+      req.onerror = reject;
+    });
+  }
+
+  doTxn(mode, stores, func, log = _logger.logger) {
+    let startTime;
+    let description;
+
+    if (PROFILE_TRANSACTIONS) {
+      const txnId = this._nextTxnId++;
+      startTime = Date.now();
+      description = `${mode} crypto store transaction ${txnId} in ${stores}`;
+      log.debug(`Starting ${description}`);
+    }
+
     const txn = this._db.transaction(stores, mode);
 
     const promise = promiseifyTxn(txn);
     const result = func(txn);
+
+    if (PROFILE_TRANSACTIONS) {
+      promise.then(() => {
+        const elapsedTime = Date.now() - startTime;
+        log.debug(`Finished ${description}, took ${elapsedTime} ms`);
+      }, () => {
+        const elapsedTime = Date.now() - startTime;
+        log.error(`Failed ${description}, took ${elapsedTime} ms`);
+      });
+    }
+
     return promise.then(() => {
       return result;
     });
@@ -894,6 +959,12 @@ function upgradeDatabase(db, oldVersion) {
     problemsStore.createIndex("deviceKey", "deviceKey");
     db.createObjectStore("notified_error_devices", {
       keyPath: ["userId", "deviceId"]
+    });
+  }
+
+  if (oldVersion < 10) {
+    db.createObjectStore("shared_history_inbound_group_sessions", {
+      keyPath: ["roomId"]
     });
   } // Expand as needed.
 

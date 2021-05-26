@@ -267,7 +267,7 @@ EventTimelineSet.prototype.findEventById = function (eventId) {
     return undefined;
   }
 
-  return utils.findElement(tl.getEvents(), function (ev) {
+  return tl.getEvents().find(function (ev) {
     return ev.getId() == eventId;
   });
 };
@@ -788,7 +788,7 @@ EventTimelineSet.prototype.aggregateRelations = function (event) {
   } // If the event is currently encrypted, wait until it has been decrypted.
 
 
-  if (event.isBeingDecrypted()) {
+  if (event.isBeingDecrypted() || event.shouldAttemptDecryption()) {
     event.once("Event.decrypted", () => {
       this.aggregateRelations(event);
     });

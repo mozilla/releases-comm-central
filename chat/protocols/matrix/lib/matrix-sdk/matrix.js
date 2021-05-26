@@ -4,14 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var _exportNames = {
-  ContentHelpers: true,
   request: true,
   getRequest: true,
   wrapRequest: true,
   setCryptoStoreFactory: true,
   createClient: true,
+  ContentHelpers: true,
   createNewMatrixCall: true,
-  setMatrixCallAudioOutput: true,
   setMatrixCallAudioInput: true,
   setMatrixCallVideoInput: true
 };
@@ -24,12 +23,6 @@ Object.defineProperty(exports, "createNewMatrixCall", {
   enumerable: true,
   get: function () {
     return _call.createNewMatrixCall;
-  }
-});
-Object.defineProperty(exports, "setMatrixCallAudioOutput", {
-  enumerable: true,
-  get: function () {
-    return _call.setAudioOutput;
   }
 });
 Object.defineProperty(exports, "setMatrixCallAudioInput", {
@@ -382,14 +375,33 @@ Object.keys(_contentRepo).forEach(function (key) {
   });
 });
 
+var _ContentHelpers = _interopRequireWildcard(require("./content-helpers"));
+
+exports.ContentHelpers = _ContentHelpers;
+
 var _call = require("./webrtc/call");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-const ContentHelpers = Promise.resolve().then(() => _interopRequireWildcard(require("./content-helpers")));
-exports.ContentHelpers = ContentHelpers;
+/*
+Copyright 2015, 2016 OpenMarket Ltd
+Copyright 2017 Vector Creations Ltd
+Copyright 2019, 2020 The Matrix.org Foundation C.I.C.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 // expose the underlying request object so different environments can use
 // different request libs (e.g. request or browser-request)
 let requestInstance;

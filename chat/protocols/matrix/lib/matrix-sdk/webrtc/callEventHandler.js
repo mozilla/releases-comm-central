@@ -27,10 +27,11 @@ class CallEventHandler {
 
     _defineProperty(this, "candidateEventsByCall", void 0);
 
-    _defineProperty(this, "evaluateEventBuffer", () => {
+    _defineProperty(this, "evaluateEventBuffer", async () => {
       if (this.client.getSyncState() === "SYNCING") {
-        // don't process any events until they are all decrypted
-        if (this.callEventBuffer.some(e => e.isBeingDecrypted())) return;
+        await Promise.all(this.callEventBuffer.map(event => {
+          this.client.decryptEventIfNeeded(event);
+        }));
         const ignoreCallIds = new Set(); // inspect the buffer and mark all calls which have been answered
         // or hung up before passing them to the call event handler.
 
@@ -59,8 +60,9 @@ class CallEventHandler {
     });
 
     _defineProperty(this, "onEvent", event => {
-      // any call events or ones that might be once they're decrypted
-      if (event.getType().indexOf("m.call.") === 0 || event.isBeingDecrypted()) {
+      this.client.decryptEventIfNeeded(event); // any call events or ones that might be once they're decrypted
+
+      if (event.getType().indexOf("m.call.") === 0 || event.getType().indexOf("org.matrix.call.") === 0 || event.isBeingDecrypted()) {
         // queue up for processing once all events from this sync have been
         // processed (see above).
         this.callEventBuffer.push(event);
@@ -99,6 +101,9 @@ class CallEventHandler {
 
     this.callEventBuffer = [];
     this.candidateEventsByCall = new Map();
+  }
+
+  start() {
     this.client.on("sync", this.evaluateEventBuffer);
     this.client.on("event", this.onEvent);
   }
@@ -128,6 +133,10 @@ class CallEventHandler {
       if (call) {
         _logger.logger.log(`WARN: Already have a MatrixCall with id ${content.call_id} but got an ` + `invite. Clobbering.`);
       }
+
+      const timeUntilTurnCresExpire = this.client.getTurnServersExpiry() - Date.now();
+
+      _logger.logger.info("Current turn creds expire in " + timeUntilTurnCresExpire + " ms");
 
       call = (0, _call.createNewMatrixCall)(this.client, event.getRoomId(), {
         forceTURN: this.client._forceTURN
@@ -252,6 +261,15 @@ class CallEventHandler {
       }
 
       call.onNegotiateReceived(event);
+    } else if (event.getType() === _event.EventType.CallAssertedIdentity || event.getType() === _event.EventType.CallAssertedIdentityPrefix) {
+      if (!call) return;
+
+      if (event.getContent().party_id === call.ourPartyId) {
+        // Ignore remote echo (not that we send asserted identity, but still...)
+        return;
+      }
+
+      call.onAssertedIdentityReceived(event);
     }
   }
 

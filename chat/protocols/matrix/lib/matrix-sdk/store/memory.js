@@ -7,12 +7,6 @@ exports.MemoryStore = MemoryStore;
 
 var _user = require("../models/user");
 
-var utils = _interopRequireWildcard(require("../utils"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 /*
 Copyright 2015, 2016 OpenMarket Ltd
 Copyright 2017 Vector Creations Ltd
@@ -115,7 +109,7 @@ MemoryStore.prototype = {
    * @return {Group[]} A list of groups, which may be empty.
    */
   getGroups: function () {
-    return utils.values(this.groups);
+    return Object.values(this.groups);
   },
 
   /**
@@ -179,7 +173,7 @@ MemoryStore.prototype = {
    * @return {Room[]} A list of rooms, which may be empty.
    */
   getRooms: function () {
-    return utils.values(this.rooms);
+    return Object.values(this.rooms);
   },
 
   /**
@@ -199,7 +193,7 @@ MemoryStore.prototype = {
    * @return {RoomSummary[]} A summary of each room.
    */
   getRoomSummaries: function () {
-    return utils.map(utils.values(this.rooms), function (room) {
+    return Object.values(this.rooms).map(function (room) {
       return room.summary;
     });
   },
@@ -226,7 +220,7 @@ MemoryStore.prototype = {
    * @return {User[]} A list of users, which may be empty.
    */
   getUsers: function () {
-    return utils.values(this.users);
+    return Object.values(this.users);
   },
 
   /**

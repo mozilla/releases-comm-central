@@ -46,7 +46,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 matrixcs.request(_request.default);
-utils.runPolyfills();
 
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

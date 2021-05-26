@@ -1,5 +1,5 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v9.8.0.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v11.1.0.
 
 The following npm dependencies are included:
 
@@ -8,7 +8,7 @@ The following npm dependencies are included:
 * bs58: https://www.npmjs.com/package/bs58 v4.0.1
 * browser-request: https://www.npmjs.com/package/browser-request v0.3.3
 * content-type: https://www.npmjs.com/package/content-type v1.0.4
-* events: https://www.npmjs.com/package/events v3.0.7
+* events: https://www.npmjs.com/package/events v3.2.0
 * qs: https://www.npmjs.com/package/qs v6.9.6
 * unhomoglyph: https://www.npmjs.com/package/unhomoglyph 1.0.6
 

@@ -94,6 +94,8 @@ const CRYPTO_ENABLED = (0, _crypto.isCryptoAvailable)();
 exports.CRYPTO_ENABLED = CRYPTO_ENABLED;
 const CAPABILITIES_CACHE_MS = 21600000; // 6 hours - an arbitrary value
 
+const TURN_CHECK_INTERVAL = 10 * 60 * 1000; // poll for turn credentials every 10 minutes
+
 function keysFromRecoverySession(sessions, decryptionKey, roomId) {
   const keys = [];
 
@@ -375,7 +377,11 @@ function MatrixClient(opts) {
 
   if (call) {
     this._callEventHandler = new _callEventHandler.CallEventHandler(this);
-    this._supportsVoip = true;
+    this._supportsVoip = true; // Start listening for calls after the initial sync is done
+    // We do not need to backfill the call event buffer
+    // with encrypted events that might never get decrypted
+
+    this.on("sync", this._startCallEventHandler);
   } else {
     this._callEventHandler = null;
   }
@@ -411,7 +417,10 @@ function MatrixClient(opts) {
   this._cachedCapabilities = null; // { capabilities: {}, lastUpdated: timestamp }
 
   this._clientWellKnown = undefined;
-  this._clientWellKnownPromise = undefined; // The SDK doesn't really provide a clean way for events to recalculate the push
+  this._clientWellKnownPromise = undefined;
+  this._turnServers = [];
+  this._turnServersExpiry = 0;
+  this._checkTurnServersIntervalID = null; // The SDK doesn't really provide a clean way for events to recalculate the push
   // actions for themselves, so we have to kinda help them out when they are encrypted.
   // We do this so that push rules are correctly executed on events in their decrypted
   // state, such as highlights when the user's name is mentioned.
@@ -509,15 +518,9 @@ MatrixClient.prototype.rehydrateDevice = async function () {
     return;
   }
 
-  let getDeviceResult;
+  const getDeviceResult = await this.getDehydratedDevice();
 
-  try {
-    getDeviceResult = await this._http.authedRequest(undefined, "GET", "/dehydrated_device", undefined, undefined, {
-      prefix: "/_matrix/client/unstable/org.matrix.msc2697.v2"
-    });
-  } catch (e) {
-    _logger.logger.info("could not get dehydrated device", e.toString());
-
+  if (!getDeviceResult) {
     return;
   }
 
@@ -578,6 +581,23 @@ MatrixClient.prototype.rehydrateDevice = async function () {
     account.free();
 
     _logger.logger.warn("could not unpickle", e);
+  }
+};
+/**
+ * Get the current dehydrated device, if any
+ * @return {Promise} A promise of an object containing the dehydrated device
+ */
+
+
+MatrixClient.prototype.getDehydratedDevice = async function () {
+  try {
+    return await this._http.authedRequest(undefined, "GET", "/dehydrated_device", undefined, undefined, {
+      prefix: "/_matrix/client/unstable/org.matrix.msc2697.v2"
+    });
+  } catch (e) {
+    _logger.logger.info("could not get dehydrated device", e.toString());
+
+    return;
   }
 };
 /**
@@ -735,6 +755,18 @@ MatrixClient.prototype.setForceTURN = function (forceTURN) {
 
 MatrixClient.prototype.setSupportsCallTransfer = function (supportsCallTransfer) {
   this._supportsCallTransfer = supportsCallTransfer;
+};
+/**
+ * Creates a new call.
+ * The place*Call methods on the returned call can be used to actually place a call
+ *
+ * @param {string} roomId The room the call is to be placed in.
+ * @return {MatrixCall} the call or null if the browser doesn't support calling.
+ */
+
+
+MatrixClient.prototype.createCall = function (roomId) {
+  return (0, _call.createNewMatrixCall)(this, roomId);
 };
 /**
  * Get the current sync state.
@@ -2313,6 +2345,44 @@ MatrixClient.prototype.deleteKeysFromBackup = function (roomId, sessionId, versi
   return this._http.authedRequest(undefined, "DELETE", path.path, path.queryData, undefined, {
     prefix: _httpApi.PREFIX_UNSTABLE
   });
+};
+/**
+ * Share shared-history decryption keys with the given users.
+ *
+ * @param {string} roomId the room for which keys should be shared.
+ * @param {array} userIds a list of users to share with.  The keys will be sent to
+ *     all of the user's current devices.
+ */
+
+
+MatrixClient.prototype.sendSharedHistoryKeys = async function (roomId, userIds) {
+  if (this._crypto === null) {
+    throw new Error("End-to-end encryption disabled");
+  }
+
+  const roomEncryption = this._roomList.getRoomEncryption(roomId);
+
+  if (!roomEncryption) {
+    // unknown room, or unencrypted room
+    _logger.logger.error("Unknown room.  Not sharing decryption keys");
+
+    return;
+  }
+
+  const deviceInfos = await this._crypto.downloadKeys(userIds);
+  const devicesByUser = {};
+
+  for (const [userId, devices] of Object.entries(deviceInfos)) {
+    devicesByUser[userId] = Object.values(devices);
+  }
+
+  const alg = this._crypto._getRoomDecryptor(roomId, roomEncryption.algorithm);
+
+  if (alg.sendSharedHistoryInboundSessions) {
+    await alg.sendSharedHistoryInboundSessions(devicesByUser);
+  } else {
+    _logger.logger.warning("Algorithm does not support sharing previous keys", roomEncryption.algorithm);
+  }
 }; // Group ops
 // =========
 // Operations on groups that come down the sync stream (ie. ones the
@@ -3536,13 +3606,14 @@ MatrixClient.prototype.getRoomUpgradeHistory = function (roomId, verifyLinks = f
  * @param {string} roomId
  * @param {string} userId
  * @param {module:client.callback} callback Optional.
+ * @param {string} reason Optional.
  * @return {Promise} Resolves: TODO
  * @return {module:http-api.MatrixError} Rejects: with an error response.
  */
 
 
-MatrixClient.prototype.invite = function (roomId, userId, callback) {
-  return _membershipChange(this, roomId, userId, "invite", undefined, callback);
+MatrixClient.prototype.invite = function (roomId, userId, callback, reason) {
+  return _membershipChange(this, roomId, userId, "invite", reason, callback);
 };
 /**
  * Invite a user to a room based on their email address.
@@ -4017,10 +4088,10 @@ MatrixClient.prototype.scrollback = function (room, limit, callback) {
     (0, utils.sleep)(timeToWaitMs).then(function () {
       return self._createMessagesRequest(room.roomId, room.oldState.paginationToken, limit, 'b');
     }).then(function (res) {
-      const matrixEvents = utils.map(res.chunk, _PojoToMatrixEventMapper(self));
+      const matrixEvents = res.chunk.map(_PojoToMatrixEventMapper(self));
 
       if (res.state) {
-        const stateEvents = utils.map(res.state, _PojoToMatrixEventMapper(self));
+        const stateEvents = res.state.map(_PojoToMatrixEventMapper(self));
         room.currentState.setUnknownStateEvents(stateEvents);
       }
 
@@ -4108,15 +4179,15 @@ MatrixClient.prototype.getEventTimeline = function (timelineSet, eventId) {
 
     res.events_after.reverse();
     const events = res.events_after.concat([res.event]).concat(res.events_before);
-    const matrixEvents = utils.map(events, self.getEventMapper());
+    const matrixEvents = events.map(self.getEventMapper());
     let timeline = timelineSet.getTimelineForEvent(matrixEvents[0].getId());
 
     if (!timeline) {
       timeline = timelineSet.addTimeline();
-      timeline.initialiseState(utils.map(res.state, self.getEventMapper()));
+      timeline.initialiseState(res.state.map(self.getEventMapper()));
       timeline.getState(_eventTimeline.EventTimeline.FORWARDS).paginationToken = res.end;
     } else {
-      const stateEvents = utils.map(res.state, self.getEventMapper());
+      const stateEvents = res.state.map(self.getEventMapper());
       timeline.getState(_eventTimeline.EventTimeline.BACKWARDS).setUnknownStateEvents(stateEvents);
     }
 
@@ -4278,12 +4349,12 @@ MatrixClient.prototype.paginateEventTimeline = function (eventTimeline, opts) {
     promise.then(function (res) {
       if (res.state) {
         const roomState = eventTimeline.getState(dir);
-        const stateEvents = utils.map(res.state, self.getEventMapper());
+        const stateEvents = res.state.map(self.getEventMapper());
         roomState.setUnknownStateEvents(stateEvents);
       }
 
       const token = res.end;
-      const matrixEvents = utils.map(res.chunk, self.getEventMapper());
+      const matrixEvents = res.chunk.map(self.getEventMapper());
       eventTimeline.getTimelineSet().addEventsToTimeline(matrixEvents, backwards, eventTimeline, token); // if we've hit the end of the timeline, we need to stop trying to
       // paginate. We need to keep the 'forwards' token though, to make sure
       // we can recover from gappy syncs.
@@ -4819,7 +4890,9 @@ MatrixClient.prototype._processRoomEventsSearch = function (searchResults, respo
 
   searchResults.highlights = Object.keys(highlights); // append the new results to our existing results
 
-  for (let i = 0; i < room_events.results.length; i++) {
+  const resultsLength = room_events.results ? room_events.results.length : 0;
+
+  for (let i = 0; i < resultsLength; i++) {
     const sr = _searchResult.SearchResult.fromJson(room_events.results[i], this.getEventMapper());
 
     searchResults.results.push(sr);
@@ -4988,6 +5061,14 @@ MatrixClient.prototype.getOpenIdToken = function () {
 }; // VoIP operations
 // ===============
 
+
+MatrixClient.prototype._startCallEventHandler = function () {
+  if (this.isInitialSyncComplete()) {
+    this._callEventHandler.start();
+
+    this.off("sync", this._startCallEventHandler);
+  }
+};
 /**
  * @param {module:client.callback} callback Optional.
  * @return {Promise} Resolves: TODO
@@ -5006,6 +5087,65 @@ MatrixClient.prototype.turnServer = function (callback) {
 
 MatrixClient.prototype.getTurnServers = function () {
   return this._turnServers || [];
+};
+/**
+ * Get the unix timestamp (in seconds) at which the current
+ * TURN credentials (from getTurnServers) expire
+ * @return {number} The expiry timestamp, in seconds, or null if no credentials
+ */
+
+
+MatrixClient.prototype.getTurnServersExpiry = function () {
+  return this._turnServersExpiry;
+};
+
+MatrixClient.prototype._checkTurnServers = async function () {
+  if (!this._supportsVoip) {
+    return;
+  }
+
+  let credentialsGood = false;
+  const remainingTime = this._turnServersExpiry - Date.now();
+
+  if (remainingTime > TURN_CHECK_INTERVAL) {
+    _logger.logger.debug("TURN creds are valid for another " + remainingTime + " ms: not fetching new ones.");
+
+    credentialsGood = true;
+  } else {
+    _logger.logger.debug("Fetching new TURN credentials");
+
+    try {
+      const res = await this.turnServer();
+
+      if (res.uris) {
+        _logger.logger.log("Got TURN URIs: " + res.uris + " refresh in " + res.ttl + " secs"); // map the response to a format that can be fed to RTCPeerConnection
+
+
+        const servers = {
+          urls: res.uris,
+          username: res.username,
+          credential: res.password
+        };
+        this._turnServers = [servers]; // The TTL is in seconds but we work in ms
+
+        this._turnServersExpiry = Date.now() + res.ttl * 1000;
+        credentialsGood = true;
+      }
+    } catch (err) {
+      _logger.logger.error("Failed to get TURN URIs", err); // If we get a 403, there's no point in looping forever.
+
+
+      if (err.httpStatus === 403) {
+        _logger.logger.info("TURN access unavailable for this account: stopping credentials checks");
+
+        if (this._checkTurnServersIntervalID !== null) global.clearInterval(this._checkTurnServersIntervalID);
+        this._checkTurnServersIntervalID = null;
+      }
+    } // otherwise, if we failed for whatever reason, try again the next time we're called.
+
+  }
+
+  return credentialsGood;
 };
 /**
  * Set whether to allow a fallback ICE server should be used for negotiating a
@@ -5162,7 +5302,13 @@ MatrixClient.prototype.startClient = async function (opts) {
   } // periodically poll for turn servers if we support voip
 
 
-  checkTurnServers(this);
+  if (this._supportsVoip) {
+    this._checkTurnServersIntervalID = setInterval(() => {
+      this._checkTurnServers();
+    }, TURN_CHECK_INTERVAL);
+
+    this._checkTurnServers();
+  }
 
   if (this._syncApi) {
     // This shouldn't happen since we thought the client was not running
@@ -5282,7 +5428,7 @@ MatrixClient.prototype.stopClient = function () {
     this._callEventHandler = null;
   }
 
-  global.clearTimeout(this._checkTurnServersTimeoutID);
+  global.clearInterval(this._checkTurnServersIntervalID);
 
   if (this._clientWellKnownIntervalID !== undefined) {
     global.clearInterval(this._clientWellKnownIntervalID);
@@ -5490,50 +5636,16 @@ MatrixClient.prototype.relations = async function (roomId, eventId, relationType
     events = events.filter(e => e.getType() === eventType);
   }
 
+  if (originalEvent && relationType === "m.replace") {
+    events = events.filter(e => e.getSender() === originalEvent.getSender());
+  }
+
   return {
     originalEvent,
     events,
     nextBatch: result.next_batch
   };
 };
-
-function checkTurnServers(client) {
-  if (!client._supportsVoip) {
-    return;
-  }
-
-  client.turnServer().then(function (res) {
-    if (res.uris) {
-      _logger.logger.log("Got TURN URIs: " + res.uris + " refresh in " + res.ttl + " secs"); // map the response to a format that can be fed to
-      // RTCPeerConnection
-
-
-      const servers = {
-        urls: res.uris,
-        username: res.username,
-        credential: res.password
-      };
-      client._turnServers = [servers]; // re-fetch when we're about to reach the TTL
-
-      client._checkTurnServersTimeoutID = setTimeout(() => {
-        checkTurnServers(client);
-      }, (res.ttl || 60 * 60) * 1000 * 0.9);
-    }
-  }, function (err) {
-    _logger.logger.error("Failed to get TURN URIs"); // If we get a 403, there's no point in looping forever.
-
-
-    if (err.httpStatus === 403) {
-      _logger.logger.info("TURN access unavailable for this account");
-
-      return;
-    }
-
-    client._checkTurnServersTimeoutID = setTimeout(function () {
-      checkTurnServers(client);
-    }, 60000);
-  });
-}
 
 function _reject(callback, reject, err) {
   if (callback) {
@@ -5551,8 +5663,9 @@ function _resolve(callback, resolve, res) {
   resolve(res);
 }
 
-function _PojoToMatrixEventMapper(client, options) {
-  const preventReEmit = Boolean(options && options.preventReEmit);
+function _PojoToMatrixEventMapper(client, options = {}) {
+  const preventReEmit = Boolean(options.preventReEmit);
+  const decrypt = options.decrypt !== false;
 
   function mapper(plainOldJsObject) {
     const event = new _event.MatrixEvent(plainOldJsObject);
@@ -5562,7 +5675,9 @@ function _PojoToMatrixEventMapper(client, options) {
         client.reEmitter.reEmit(event, ["Event.decrypted"]);
       }
 
-      event.attemptDecryption(client._crypto);
+      if (decrypt) {
+        client.decryptEventIfNeeded(event);
+      }
     }
 
     if (!preventReEmit) {
@@ -5577,6 +5692,7 @@ function _PojoToMatrixEventMapper(client, options) {
 /**
  * @param {object} [options]
  * @param {bool} options.preventReEmit don't reemit events emitted on an event mapped by this mapper on the client
+ * @param {bool} options.decrypt decrypt event proactively
  * @return {Function}
  */
 
@@ -5605,6 +5721,27 @@ MatrixClient.prototype.getCrossSigningCacheCallbacks = function () {
 
 MatrixClient.prototype.generateClientSecret = function () {
   return (0, _randomstring.randomString)(32);
+};
+/**
+ * Attempts to decrypt an event
+ * @param {MatrixEvent} event The event to decrypt
+ * @returns {Promise<void>} A decryption promise
+ * @param {object} options
+ * @param {bool} options.isRetry True if this is a retry (enables more logging)
+ * @param {bool} options.emit Emits "event.decrypted" if set to true
+ */
+
+
+MatrixClient.prototype.decryptEventIfNeeded = function (event, options) {
+  if (event.shouldAttemptDecryption()) {
+    event.attemptDecryption(this._crypto, options);
+  }
+
+  if (event.isBeingDecrypted()) {
+    return event._decryptionPromise;
+  } else {
+    return Promise.resolve();
+  }
 }; // MatrixClient Event JSDocs
 
 /**

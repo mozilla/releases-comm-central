@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.MsgType = exports.EventType = void 0;
+exports.RoomType = exports.RoomCreateTypeField = exports.MsgType = exports.EventType = void 0;
 
 /*
 Copyright 2020 The Matrix.org Foundation C.I.C.
@@ -40,6 +40,8 @@ exports.EventType = EventType;
   EventType["RoomServerAcl"] = "m.room.server_acl";
   EventType["RoomTombstone"] = "m.room.tombstone";
   EventType["RoomAliases"] = "m.room.aliases";
+  EventType["SpaceChild"] = "m.space.child";
+  EventType["SpaceParent"] = "m.space.parent";
   EventType["RoomRedaction"] = "m.room.redaction";
   EventType["RoomMessage"] = "m.room.message";
   EventType["RoomMessageEncrypted"] = "m.room.encrypted";
@@ -52,11 +54,15 @@ exports.EventType = EventType;
   EventType["CallSelectAnswer"] = "m.call.select_answer";
   EventType["CallNegotiate"] = "m.call.negotiate";
   EventType["CallReplaces"] = "m.call.replaces";
+  EventType["CallAssertedIdentity"] = "m.call.asserted_identity";
+  EventType["CallAssertedIdentityPrefix"] = "org.matrix.call.asserted_identity";
   EventType["KeyVerificationRequest"] = "m.key.verification.request";
   EventType["KeyVerificationStart"] = "m.key.verification.start";
   EventType["KeyVerificationCancel"] = "m.key.verification.cancel";
   EventType["KeyVerificationMac"] = "m.key.verification.mac";
+  EventType["KeyVerificationDone"] = "m.key.verification.done";
   EventType["RoomMessageFeedback"] = "m.room.message.feedback";
+  EventType["Reaction"] = "m.reaction";
   EventType["Typing"] = "m.typing";
   EventType["Receipt"] = "m.receipt";
   EventType["Presence"] = "m.presence";
@@ -84,3 +90,12 @@ exports.MsgType = MsgType;
   MsgType["Location"] = "m.location";
   MsgType["Video"] = "m.video";
 })(MsgType || (exports.MsgType = MsgType = {}));
+
+const RoomCreateTypeField = "type";
+exports.RoomCreateTypeField = RoomCreateTypeField;
+let RoomType;
+exports.RoomType = RoomType;
+
+(function (RoomType) {
+  RoomType["Space"] = "m.space";
+})(RoomType || (exports.RoomType = RoomType = {}));
