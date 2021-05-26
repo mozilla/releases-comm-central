@@ -14,7 +14,7 @@ var { mailTestUtils } = ChromeUtils.import(
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { fsDebugAll, gThreadManager, nsMailServer } = ChromeUtils.import(
+var { nsMailServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
 var { PromiseTestUtils } = ChromeUtils.import(
@@ -25,7 +25,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 ExtensionTestUtils.init(this);
 
 var IS_IMAP = false;
-var IS_NNTP = false;
 
 function createAccount(type = "none") {
   let account;
@@ -51,10 +50,6 @@ function createAccount(type = "none") {
     account.incomingServer.password = "password";
   }
 
-  if (type == "nntp") {
-    NNTPServer.open();
-    account.incomingServer.port = NNTPServer.port;
-  }
   info(`Created account ${account.toString()}`);
   return account;
 }
@@ -80,13 +75,6 @@ function addIdentity(account, email = "xpcshell@localhost") {
 }
 
 async function createSubfolder(parent, name) {
-  if (parent.server.type == "nntp") {
-    createNewsgroup(name);
-    let account = MailServices.accounts.FindAccountForServer(parent.server);
-    subscribeNewsgroup(account, name);
-    return parent.getChildNamed(name);
-  }
-
   let promiseAdded = PromiseTestUtils.promiseFolderAdded(name);
   parent.createSubfolder(name, null);
   await promiseAdded;
@@ -105,9 +93,6 @@ function createMessages(folder, makeMessagesArg) {
   if (folder.server.type == "imap") {
     return IMAPServer.addMessages(folder, messages);
   }
-  if (folder.server.type == "nntp") {
-    return NNTPServer.addMessages(folder, messages);
-  }
 
   let messageStrings = messages.map(message => message.toMboxString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
@@ -119,15 +104,9 @@ function createMessages(folder, makeMessagesArg) {
 
 async function createMessageFromFile(folder, path) {
   let message = await IOUtils.readUTF8(path);
-  return createMessageFromString(folder, message);
-}
 
-async function createMessageFromString(folder, message) {
   if (folder.server.type == "imap") {
     return IMAPServer.addMessages(folder, [message]);
-  }
-  if (folder.server.type == "nntp") {
-    return NNTPServer.addMessages(folder, [message]);
   }
 
   // A cheap hack to make this acceptable to addMessageBatch. It works for
@@ -189,70 +168,5 @@ var IMAPServer = {
     return new Promise(resolve =>
       mailTestUtils.updateFolderAndNotify(folder, resolve)
     );
-  },
-};
-
-function subscribeNewsgroup(account, group) {
-  account.incomingServer.QueryInterface(Ci.nsINntpIncomingServer);
-  account.incomingServer.subscribeToNewsgroup(group);
-  account.incomingServer.maximumConnectionsNumber = 1;
-}
-
-function createNewsgroup(group) {
-  if (!NNTPServer.hasGroup(group)) {
-    NNTPServer.addGroup(group);
-  }
-}
-
-var NNTPServer = {
-  open() {
-    let { NNTP_RFC977_handler, nntpDaemon } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Nntpd.jsm"
-    );
-
-    this.daemon = new nntpDaemon();
-    this.server = new nsMailServer(
-      daemon => new NNTP_RFC977_handler(daemon),
-      this.daemon
-    );
-    this.server.start();
-
-    registerCleanupFunction(() => this.close());
-  },
-
-  close() {
-    this.server.stop();
-  },
-  get port() {
-    return this.server.port;
-  },
-
-  addGroup(group) {
-    return this.daemon.addGroup(group);
-  },
-
-  hasGroup(group) {
-    return this.daemon.getGroup(group) != null;
-  },
-
-  addMessages(folder, messages) {
-    let { newsArticle } = ChromeUtils.import(
-      "resource://testing-common/mailnews/Nntpd.jsm"
-    );
-
-    let group = folder.name;
-    messages.forEach(message => {
-      if (typeof message != "string") {
-        message = message.toMessageString();
-      }
-      info(message);
-      let article = new newsArticle(message);
-      article.groups = [group];
-      this.daemon.addArticle(article);
-    });
-
-    return new Promise(resolve => {
-      mailTestUtils.updateFolderAndNotify(folder, resolve);
-    });
   },
 };
