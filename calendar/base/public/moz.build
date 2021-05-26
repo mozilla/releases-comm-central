@@ -30,7 +30,6 @@ XPIDL_SOURCES += [
     "calIItipTransport.idl",
     "calIOperation.idl",
     "calIPeriod.idl",
-    "calIPrintFormatter.idl",
     "calIRecurrenceDate.idl",
     "calIRecurrenceInfo.idl",
     "calIRecurrenceItem.idl",

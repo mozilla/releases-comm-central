@@ -88,8 +88,6 @@ messenger.jar:
     content/messenger/virtualFolderListEdit.js                                 (base/content/virtualFolderListEdit.js)
 *   content/messenger/virtualFolderProperties.xhtml                            (base/content/virtualFolderProperties.xhtml)
     content/messenger/virtualFolderProperties.js                               (base/content/virtualFolderProperties.js)
-    content/messenger/msgPrintEngine.js                                        (base/content/msgPrintEngine.js)
-    content/messenger/msgPrintEngine.xhtml                                     (base/content/msgPrintEngine.xhtml)
 *   content/messenger/junkMailInfo.xhtml                                       (base/content/junkMailInfo.xhtml)
     content/messenger/junkCommands.js                                          (base/content/junkCommands.js)
     content/messenger/junkLog.xhtml                                            (base/content/junkLog.xhtml)

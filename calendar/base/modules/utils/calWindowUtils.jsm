@@ -49,20 +49,6 @@ var calwindow = {
   },
 
   /**
-   * Opens the print dialog
-   *
-   * @param aWindow    the window to open the dialog on, or null for the main calendar window
-   */
-  openPrintDialog(aWindow = null) {
-    let window = aWindow || calwindow.getCalendarWindow();
-    window.openDialog(
-      "chrome://calendar/content/calendar-print-dialog.xhtml",
-      "Print",
-      "centerscreen,chrome,resizable"
-    );
-  },
-
-  /**
    * Returns the most recent calendar window in an application independent way
    */
   getCalendarWindow() {

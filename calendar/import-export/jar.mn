@@ -5,5 +5,3 @@
 
 calendar.jar:
   content/printing/calHtmlExport.html              (calHtmlExport.html)
-  content/printing/calMonthGridPrinter.html        (calMonthGridPrinter.html)
-  content/printing/calWeekPrinter.html             (calWeekPrinter.html)

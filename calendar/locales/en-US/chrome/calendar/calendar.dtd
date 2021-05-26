@@ -86,8 +86,6 @@
 
 <!ENTITY calendar.newevent.button.label         "New Event" >
 <!ENTITY calendar.newtask.button.label          "New Task" >
-<!ENTITY calendar.print.button.label            "Print" >
-<!ENTITY calendar.print.button.accesskey        "P">
 
 <!ENTITY calendar.day.button.label              "Day" >
 <!ENTITY calendar.week.button.label             "Week" >
@@ -376,23 +374,6 @@
 
 <!-- Select Calendar Dialog -->
 <!ENTITY calendar.select.dialog.title    "Select Calendar">
-
-<!-- Calendar Printing -->
-<!ENTITY calendar.print.window.title "Print A Calendar">
-<!ENTITY calendar.print.title.label "Title:">
-<!ENTITY calendar.print.layout.label "Layout:">
-<!ENTITY calendar.print.range.label "What to Print">
-<!ENTITY calendar.print.currentView2.label "Current view">
-<!ENTITY calendar.print.selectedEventsAndTasks.label "Selected events/tasks">
-<!ENTITY calendar.print.tasks.label "Tasks">
-<!ENTITY calendar.print.events.label "Events">
-<!ENTITY calendar.print.custom.label "Custom date range:">
-<!ENTITY calendar.print.from.label "From:">
-<!ENTITY calendar.print.to.label "To:">
-<!ENTITY calendar.print.settingsGroup.label "Print Settings">
-<!ENTITY calendar.print.optionsGroup.label "Options">
-<!ENTITY calendar.print.taskswithnoduedate.label "Tasks with no due date">
-<!ENTITY calendar.print.completedtasks.label "Completed tasks">
 
 <!-- Error reporting -->
 <!ENTITY calendar.error.detail "Details…">

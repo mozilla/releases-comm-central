@@ -8,10 +8,7 @@ JAR_MANIFESTS += ["jar.mn"]
 EXTRA_JS_MODULES += [
     "CalHtmlExport.jsm",
     "CalIcsImportExport.jsm",
-    "CalListFormatter.jsm",
-    "CalMonthGridPrinter.jsm",
     "CalOutlookCSVImportExport.jsm",
-    "CalWeekPrinter.jsm",
 ]
 
 XPCOM_MANIFESTS += [
@@ -20,6 +17,3 @@ XPCOM_MANIFESTS += [
 
 with Files("**"):
     BUG_COMPONENT = ("Calendar", "Import and Export")
-
-with Files("*Print*"):
-    BUG_COMPONENT = ("Calendar", "Printing")
