@@ -113,4 +113,12 @@ interface nsIAbManager : nsISupports
    * @return              An nsIAbCard if one was found, else returns NULL.
    */
   nsIAbCard cardForEmailAddress(in AUTF8String emailAddress);
+
+  /**
+   * Returns the mailing lists that has the supplied name.
+   *
+   * @param aName       The name of the list.
+   * @return            The found AB directory.
+   */
+  nsIAbDirectory getMailListFromName(in ACString aName);
 };

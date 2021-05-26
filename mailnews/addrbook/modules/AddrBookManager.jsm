@@ -273,6 +273,16 @@ AddrBookManager.prototype = {
     }
     return null;
   },
+  getMailListFromName(name) {
+    ensureInitialized();
+    for (let dir of store.values()) {
+      let hit = dir.getMailListFromName(name);
+      if (hit) {
+        return hit;
+      }
+    }
+    return null;
+  },
   newAddressBook(dirName, uri, type, prefName) {
     function ensureUniquePrefName() {
       let leafName = dirName.replace(/\W/g, "");

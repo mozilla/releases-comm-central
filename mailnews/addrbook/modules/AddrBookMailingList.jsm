@@ -274,6 +274,12 @@ AddrBookMailingList.prototype = {
           self._parent.UID
         );
       },
+      hasMailListWithName(name) {
+        return false;
+      },
+      getMailListFromName(name) {
+        return null;
+      },
     };
   },
   get asCard() {

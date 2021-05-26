@@ -120,6 +120,11 @@ interface nsIAbDirectory : nsISupports {
                                         in boolean aCaseSensitive);
 
   /**
+   * Returns the nsIAbDirectory for a mailing list with the specified name.
+   */
+  nsIAbDirectory getMailListFromName(in wstring aName);
+
+  /**
    * The chrome URI to use for bringing up a dialog to edit this directory.
    * When opening the dialog, use a JS argument of
    * {selectedDirectory: thisdir} where thisdir is this directory that you just

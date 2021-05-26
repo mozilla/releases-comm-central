@@ -371,6 +371,20 @@ class AddrBookDirectory {
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   }
+  getMailListFromName(name) {
+    for (let list of this.lists.values()) {
+      if (list.name.toLowerCase() == name.toLowerCase()) {
+        return new AddrBookMailingList(
+          list.uid,
+          this,
+          list.name,
+          list.nickName,
+          list.description
+        ).asDirectory;
+      }
+    }
+    return null;
+  }
   deleteDirectory(directory) {
     if (this._readOnly) {
       throw new Components.Exception(
@@ -403,12 +417,7 @@ class AddrBookDirectory {
     return this.lists.has(dir.UID);
   }
   hasMailListWithName(name) {
-    for (let list of this.lists.values()) {
-      if (list.name.toLowerCase() == name.toLowerCase()) {
-        return true;
-      }
-    }
-    return false;
+    return this.getMailListFromName(name) != null;
   }
   addCard(card) {
     return this.dropCard(card, false);

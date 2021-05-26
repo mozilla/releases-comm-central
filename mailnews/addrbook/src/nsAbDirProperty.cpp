@@ -284,33 +284,13 @@ nsAbDirProperty::HasMailListWithName(const char16_t* aName, bool* aHasList) {
   NS_ENSURE_ARG_POINTER(aHasList);
 
   *aHasList = false;
+  nsCOMPtr<nsIAbDirectory> aDir;
+  nsresult rv = GetMailListFromName(aName, getter_AddRefs(aDir));
 
-  bool supportsLists = false;
-  nsresult rv = GetSupportsMailingLists(&supportsLists);
-  if (NS_FAILED(rv) || !supportsLists) return NS_OK;
-
-  if (m_IsMailList) return NS_OK;
-
-  if (!m_AddressList) {
-    nsresult rv;
-    m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  uint32_t listCount = 0;
-  rv = m_AddressList->GetLength(&listCount);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  for (uint32_t i = 0; i < listCount; i++) {
-    nsCOMPtr<nsIAbDirectory> listDir(do_QueryElementAt(m_AddressList, i, &rv));
-    if (NS_SUCCEEDED(rv) && listDir) {
-      nsAutoString listName;
-      rv = listDir->GetDirName(listName);
-      if (NS_SUCCEEDED(rv) && listName.Equals(aName)) {
-        *aHasList = true;
-        return NS_OK;
-      }
-    }
+  if (aDir) {
+    *aHasList = true;
   }
   return NS_OK;
 }
@@ -359,6 +339,43 @@ NS_IMETHODIMP nsAbDirProperty::GetCardsFromProperty(
     const char* aProperty, const nsACString& aValue, bool caseSensitive,
     nsTArray<RefPtr<nsIAbCard>>& result) {
   return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP
+nsAbDirProperty::GetMailListFromName(const char16_t* aName,
+                                     nsIAbDirectory** aResult) {
+  NS_ENSURE_ARG_POINTER(aName);
+  NS_ENSURE_ARG_POINTER(aResult);
+
+  *aResult = nullptr;
+  bool supportsLists = false;
+  nsresult rv = GetSupportsMailingLists(&supportsLists);
+  if (NS_FAILED(rv) || !supportsLists) return NS_OK;
+
+  if (m_IsMailList) return NS_OK;
+
+  if (!m_AddressList) {
+    nsresult rv;
+    m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
+  uint32_t listCount = 0;
+  rv = m_AddressList->GetLength(&listCount);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  for (uint32_t i = 0; i < listCount; i++) {
+    nsCOMPtr<nsIAbDirectory> listDir(do_QueryElementAt(m_AddressList, i, &rv));
+    if (NS_SUCCEEDED(rv) && listDir) {
+      nsAutoString listName;
+      rv = listDir->GetDirName(listName);
+      if (NS_SUCCEEDED(rv) && listName.Equals(aName)) {
+        *aResult = listDir;
+        return NS_OK;
+      }
+    }
+  }
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetSupportsMailingLists(
