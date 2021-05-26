@@ -9580,28 +9580,28 @@ var gComposeNotificationBar = {
     gComposeNotification.removeAllNotifications(true);
   },
 
-  setIdentityWarning(aIdentityName) {
-    if (!gComposeNotification.getNotificationWithValue("identityWarning")) {
-      let text = getComposeBundle()
-        .getString("identityWarning")
-        .split("%S");
-      let label = new DocumentFragment();
-      label.appendChild(document.createTextNode(text[0]));
-      label.appendChild(
-        document.createElementNS("http://www.w3.org/1999/xhtml", "b")
-      );
-      label.lastElementChild.appendChild(
-        document.createTextNode(aIdentityName)
-      );
-      label.appendChild(document.createTextNode(text[1]));
-      gComposeNotification.appendNotification(
-        label,
-        "identityWarning",
-        null,
-        gComposeNotification.PRIORITY_WARNING_HIGH,
-        null
-      );
+  /**
+   * Show a warning notification when a newly typed identity in the Form field
+   * doesn't match any existing identity.
+   *
+   * @param {string} identity - The name of the identity to add to the
+   *   notification. Most likely an email address.
+   */
+  async setIdentityWarning(identity) {
+    // Bail out if we are already showing this type of notification.
+    if (gComposeNotification.getNotificationWithValue("identityWarning")) {
+      return;
     }
+
+    gComposeNotification.appendNotification(
+      await document.l10n.formatValue("compose-missing-identity-warning", {
+        identity,
+      }),
+      "identityWarning",
+      null,
+      gComposeNotification.PRIORITY_WARNING_HIGH,
+      null
+    );
   },
 
   clearIdentityWarning() {
